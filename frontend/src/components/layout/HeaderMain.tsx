@@ -9,6 +9,12 @@ import caret from "../../assets/images/main-header/caret.png";
 /**
  * 
  */
+interface HeaderMainProps {
+};
+
+/**
+ * 
+ */
 interface HeaderMainState {
   height: number,
   caretAnimationStyle: string,
@@ -41,9 +47,9 @@ export default class HeaderMain extends React.Component<{}, HeaderMainState> {
    *
    * @memberof HeaderMain
    */
-  constructor() {
+   constructor(props: HeaderMainProps) {
 
-    super({});
+    super(props);
 
     // Height is on state because of the toolbar issue with iOS Safari
     // We control when a change can affect our element, and use state

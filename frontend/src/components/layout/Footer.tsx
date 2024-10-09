@@ -49,9 +49,11 @@ class Footer extends React.Component {
       portfolioLinkActive: true,
       emailAddr: "@gmail.com", // firstly render a non-functional email avert readers.
     };
+  }
 
-    // A dumb trick so that crawlers don't scrape my email address (probably still can but only good ones).
-    const e1 = "bradley";
+  componentDidMount() {
+    // A dumb trick so that crawlers don't scrape my email address (probably still can, but only good ones.)
+    const e1 = "bh";
     const e2 = "baysinger";
     const e3 = "@gmail.com";
 

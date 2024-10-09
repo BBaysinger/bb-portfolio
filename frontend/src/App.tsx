@@ -2,7 +2,7 @@ import { Component } from 'react';
 import { createRouterMiddleware, createRouterReducer, ReduxRouter, ReduxRouterSelector } from '@lagunovsky/redux-react-router'
 import { createBrowserHistory } from 'history'
 import { Provider } from 'react-redux'
-import { Route } from 'react-router'
+import { Route, Routes } from 'react-router'
 import { applyMiddleware, combineReducers, compose, createStore } from 'redux'
 
 import ExecutionEnvironment from "exenv";
@@ -15,35 +15,59 @@ import Footer from "./components/layout/Footer";
 import PieceDetail from "./pages/PieceDetail";
 import SlideOutNav from "./components/layout/SlideoutNav";
 
-const history = createBrowserHistory()
-const routerMiddleware = createRouterMiddleware(history)
+/**
+ * 
+ */
+interface AppProps {}
 
-const rootReducer = combineReducers({ navigator: createRouterReducer(history) })
-
-const store = createStore(rootReducer, compose(applyMiddleware(routerMiddleware)))
-type State = ReturnType<typeof store.getState>
-
-const routerSelector: ReduxRouterSelector<State> = (state) => state.navigator
-
-// Define the interface for the component's props (if any)
-interface MyProps {}
-
-// Define the interface for the component's state
-interface MyState {
+/**
+ * 
+ */
+interface AppState {
   slideOut: boolean;
 }
 
-class App extends Component<MyProps, MyState> {
+/**
+ * 
+ */
+type State = ReturnType<typeof store.getState>
 
+/**
+ * 
+ */
+const history = createBrowserHistory()
+
+/**
+ * 
+ */
+const routerMiddleware = createRouterMiddleware(history)
+
+/**
+ * 
+ */
+const rootReducer = combineReducers({ navigator: createRouterReducer(history) })
+
+/**
+ * 
+ */
+const store = createStore(rootReducer, compose(applyMiddleware(routerMiddleware)))
+
+/**
+ * 
+ */
+const routerSelector: ReduxRouterSelector<State> = (state) => state.navigator
+
+/**
+ * 
+ */
+class App extends Component<AppProps, AppState> {
+
+  /**
+   *
+   *
+   * @memberof App
+   */
   ticking = false;
-
-  constructor() {
-
-    super({});
-
-    this.state = { slideOut: false };
-
-  }
 
   /**
    *
@@ -124,6 +148,22 @@ class App extends Component<MyProps, MyState> {
     return Math.floor(window.innerWidth / 2) + "px";
   }
 
+  /**
+   * 
+   * @param props 
+   */
+  constructor(props: AppProps) {
+
+    super(props);
+
+    this.state = { slideOut: false };
+
+  }
+
+  /**
+   * 
+   * @returns 
+   */
   render() {
     return (
       <Provider store={store}>
@@ -136,16 +176,18 @@ class App extends Component<MyProps, MyState> {
               toggleSlideOutHandler={this.toggleSlideOutHandler}
               collapseSlideOutHandler={this.handleResize}
             ></NavBar>
-            <Route path="/">
-              <Route path="/" element={<PortfolioList />}></Route>
-              <Route path="/portfolio" element={<PortfolioList />}></Route>
-              <Route path="/portfolio/:pieceId" element={<PieceDetail pieceId="someId" />}></Route>
-              {/* <Route path="/pieces/:pieceId" render={(props) => (
-                <PieceDetail {...props} currentPieceId="someId" />
-              )} /> */}
-              <Route path="/cv" element={<CurriculumVitae />}></Route>
-              <Route path="/whoami" element={<WhoAmI />}></Route>
-            </Route>
+            <Routes>
+              <Route path="/">
+                <Route path="/" element={<PortfolioList />}></Route>
+                <Route path="/portfolio" element={<PortfolioList />}></Route>
+                <Route path="/portfolio/:pieceId" element={<PieceDetail pieceId="someId" />}></Route>
+                {/* <Route path="/pieces/:pieceId" render={(props) => (
+                  <PieceDetail {...props} currentPieceId="someId" />
+                )} /> */}
+                <Route path="/cv" element={<CurriculumVitae />}></Route>
+                <Route path="/whoami" element={<WhoAmI />}></Route>
+              </Route>
+            </Routes>
             <Footer></Footer>
           </div>
         </ReduxRouter>

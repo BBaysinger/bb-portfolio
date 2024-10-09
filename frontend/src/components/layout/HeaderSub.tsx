@@ -19,6 +19,7 @@ interface HeaderSubProps {
  * @version N/A
  */
 export default class HeaderSub extends React.Component<HeaderSubProps> {
+
   /**
    *
    *
@@ -26,6 +27,7 @@ export default class HeaderSub extends React.Component<HeaderSubProps> {
    * @memberof HeaderSub
    */
   render() {
+    
     const { head, subhead } = this.props;
 
     const subheadElem = subhead ? <h5 className="subhead">{subhead}</h5> : null;
