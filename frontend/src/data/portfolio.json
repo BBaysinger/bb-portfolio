@@ -1,0 +1,507 @@
+{
+  "marioparty": {
+    "title": "Super Mario Party",
+    "active": "1",
+    "omitFromList": "0",
+    "clientId": "nintendo",
+    "mobileOrientation": "portrait",
+    "property": "",
+    "shortDesc": "",
+    "desc": [
+      "I'm forever a fan of Mario Bros games (though my favorite was for the Atari 7800). The mini-games in this one are addicting.",
+      "I built the activity, which involves finding all of the Toadettes hiding behind elements on each page. It was integrated with Nintendo's microsite API, and has overlapping flow/states (disabled for portfolio) depending on user region and status.",
+      "I integrated the 'event space' button and its effects. It's the big green button on each page that has a little random surprise for you.",
+      "I was also responsible for the video player, and various responsive elements around the site."
+    ],
+    "tags": "jQuery,HTML5,CSS3",
+    "role": "Contributing Developer",
+    "warnings": [],
+    "year": "",
+    "awards": "",
+    "type": "",
+    "mobileAvailability": "mobile_available",
+    "isGame": "0",
+    "urls": {
+      "walkthroughs": {
+        "default": ""
+      },
+      "site": "/_projects/marioparty/index.html",
+      "desktopSite": ""
+    }
+  },
+  "bowser": {
+    "title": "Bowser's Inside Story",
+    "active": "1",
+    "omitFromList": "0",
+    "clientId": "nintendo",
+    "mobileOrientation": "portrait",
+    "property": "",
+    "shortDesc": "",
+    "desc": [
+      "The latest Mario Bros DS game site involved some tedious CSS3 in the hero animation, where I built the responsive elements largely without breakpoints, so the entire sequence only needed to be scripted once.",
+      "The bounce effect seen in certain page elements, and the rubber buttons involved contriving a system for dynamically animating SVG paths.",
+      "I also helped out on animation, responsive layout, and localization throughout the site."
+    ],
+    "tags": "SVG,jQuery,HTML5,CSS3",
+    "role": "Contributing Developer",
+    "year": "",
+    "awards": "",
+    "warnings": [],
+    "type": "",
+    "mobileAvailability": "mobile_available",
+    "isGame": "0",
+    "urls": {
+      "walkthroughs": {
+        "default": ""
+      },
+      "site": "/_projects/marioandluigi/index.html",
+      "desktopSite": ""
+    }
+  },
+  "ua3": {
+    "title": "Ultimate Alliance 3",
+    "active": "1",
+    "omitFromList": "0",
+    "clientId": "nintendo",
+    "mobileOrientation": "portrait",
+    "property": "",
+    "shortDesc": "",
+    "desc": [
+      "In the latest from Marvel's Ultimate Alliance series, I built the central activity, a wallpaper creator where you can choose from the characters in the game for a personalized image for your phone, computer, or Facebook cover.",
+      "I also worked with canvas animations throughout, the main video player, and some responsive page layout.",
+      "Accessibility was a new requirement for Nintendo, and necessitated a 'reduce motion' feature that pauses animation everywhere, whether it be JavaScript, CSS3, canvas, or video."
+    ],
+    "tags": "Canvas,jQuery,HTML5,CSS3",
+    "role": "Contributing Developer",
+    "year": "",
+    "awards": "",
+    "type": "",
+    "warnings": [],
+    "mobileAvailability": "mobile_available",
+    "isGame": "0",
+    "urls": {
+      "walkthroughs": {
+        "default": ""
+      },
+      "site": "/_projects/ua3/index.html",
+      "desktopSite": ""
+    }
+  },
+  "cfc": {
+    "title": "What is Second Step Landing",
+    "active": "1",
+    "omitFromList": "0",
+    "clientId": "cfc",
+    "mobileOrientation": "portrait",
+    "property": "",
+    "shortDesc": "",
+    "desc": [
+      "Committee for Children is an educational charity reaching more than 16.5 million children worldwide each year in 70+ countries.",
+      "We developed an interactive component to provide information about their Second Step program, which consists of a multi-layered wheel navigation, dynamically rendered using SVG, React, and React Motion.",
+      "I took the lead on technical advising, development, and contributed to conceptualization.",
+      "Dynamic control of SVG in React proved powerful as it revealed to me new possibilities with vector rendering and interactivity."
+    ],
+    "tags": "React,SVG,HTML5,CSS3",
+    "role": "Lead Developer",
+    "year": "",
+    "awards": "",
+    "type": "",
+    "mobileAvailability": "mobile_available",
+    "isGame": "0",
+    "urls": {
+      "walkthroughs": {
+        "default": ""
+      },
+      "site": "https://www.secondstep.org/what-is-second-step",
+      "desktopSite": ""
+    }
+  },
+  "premera": {
+    "title": "Merit & Preferred Choice Landing",
+    "active": "1",
+    "omitFromList": "0",
+    "clientId": "premera",
+    "mobileOrientation": "portrait",
+    "property": "",
+    "shortDesc": "",
+    "desc": [
+      "An informational landing page to help Premera customers understand their benefits and where to get treated.",
+      "From email marketing, the page deep links into different states, via query string variables.",
+      "The original design called for a blur effect applied to the page underlying the modal carousel, which required some trickery in support for different browsers."
+    ],
+    "tags": "jQuery,HTML5,CSS3",
+    "role": "Lead Developer",
+    "year": "",
+    "awards": "",
+    "type": "",
+    "mobileAvailability": "mobile_available",
+    "isGame": "0",
+    "urls": {
+      "walkthroughs": {
+        "default": ""
+      },
+      "site": "/_projects/premera/wa/index.html?slide-story=one",
+      "desktopSite": ""
+    }
+  },
+  "s2es": {
+    "title": "Seven2 Experience Spokane",
+    "active": "1",
+    "omitFromList": "0",
+    "clientId": "seven2",
+    "mobileOrientation": "portrait",
+    "property": "",
+    "shortDesc": "",
+    "desc": [
+      "A promotional site for Seven2 where I had the liberty of developing in whichever way I felt comfortable. I chose Angular 2+ as it was most familiar to me. Not all of the features are complete, as the project was stopped before completion.",
+      "This is an extremely simple project in contrast to Angular work I did with ChalkLabs. I've included it here as it's one of the only Angular/TypeScript projects I can present source publicly."
+    ],
+    "tags": "Angular,TypeScript,Canvas",
+    "role": "Lead Developer",
+    "year": "",
+    "awards": "",
+    "type": "",
+    "mobileAvailability": "mobile_available",
+    "isGame": "0",
+    "urls": {
+      "walkthroughs": {
+        "default": ""
+      },
+      "site": "/_projects/s2es/index.html",
+      "repo": "https://github.com/BBaysinger/s2-experience-spokane-2018",
+      "desktopSite": ""
+    }
+  },
+  "pushgraph-nifa": {
+    "title": "ChalkLabs Pushgraph",
+    "active": "1",
+    "omitFromList": "0",
+    "clientId": "chalklabs",
+    "mobileOrientation": "",
+    "property": "",
+    "shortDesc": "",
+		"desc":
+		[
+      "The Pushgraph application is innovative software from ChalkLabs that uses semantics to analyze data and find similarities and redudancies. It is used by several government agencies for analyzing research nationwide, saving the federal government billions every year.",
+      "I designed the 2017 iteration UI of this software, which was a major rework over previous versions. The entirety of this version is delivered through an Angular drag/drop widget dashboard I designed and developed.",
+      "As a screenshot is no longer available, this is of a rough design, which was all that was required to start development. All instances of Pushgraph (and other software I developed at ChalkLabs) are highly secure, and there are no live demos. Please review the reel to get a feel for how the project turned out."
+    ],
+    "tags": "Angular,TypeScript,Bootstrap",
+    "role": "Developer/Designer",
+    "year": "",
+    "awards": "",
+    "type": "",
+    "mobileAvailability": "desktop_preferred",
+    "isGame": "0",
+    "urls": {
+      "walkthroughs": {
+      },
+      "reel": "https://www.youtube.com/watch?v=Fr5IigbR36A",
+      "desktopSite": "https://chalklabs.com/"
+    }
+  },
+  "calc":
+	{
+		"title":"Data Calculator",
+		"active":"1",
+		"omitFromList":"1",
+		"clientId":"att",
+		"property":"AT&T",
+		"shortDesc":"Some short description.",
+		"desc":[
+      "A JavaScript web app for AT&T Wireless customers to estimate data usage, and select an appropriate plan. This is one of a few data usage calculators we developed for AT&T.",
+      "This is a non-responsive page, as this iteration is from before AT&T delivered on responsive technology."
+		],
+		"tags":"jQuery,RequireJS",
+		"role":"Lead developer",
+		"year":"",
+		"awards":"",
+		"type":"Utility",
+		"mobileAvailability":"desktop_preferred",
+		"isGame":"0",
+		"urls":
+		{
+			"walkthroughs":{},
+			"site":"",
+			"desktopSite":"/_projects/data-calculator/"
+		}
+  },
+  "share":
+	{
+		"title":"Mobile Share Planner",
+		"active":"1",
+		"omitFromList":"0",
+		"clientId":"att",
+		"property":"AT&T",
+		"shortDesc":"Some short description.",
+		"desc":
+		[
+      "A JavaScript web app for AT&T Wireless customers to estimate data usage between multiple devices, and select appropriate plans. Click on the 'Estimate my monthly usage in detail' links to view a hidden layer of complexity. This is one of a few data usage calculators we developed for AT&T.",
+      "This is a non-responsive page, as this iteration is from before AT&T delivered on responsive technology."
+		],
+		"tags":"jQuery,RequireJS",
+		"role":"Lead developer",
+		"year":"",
+		"awards":"",
+		"type":"Utility",
+		"mobileAvailability":"desktop_preferred",
+		"isGame":"0",
+		"urls":
+		{
+			"walkthroughs":{},
+			"site":"",
+			"desktopSite":"/_projects/mobile-share/"
+		}
+	}
+  ,
+  "ball-construction": {
+    "title": "Ball Construction",
+    "active": "1",
+    "omitFromList": "0",
+    "clientId": "ball_construction",
+    "mobileOrientation": "portrait",
+    "property": "",
+    "shortDesc": "",
+    "desc": [
+      "A local client for a change. Any Spokane residents will be familiar with some of the work of Ball Construction.",
+      "I designed this site years ago, and later integrated CMS."
+    ],
+    "tags": "Craft CMS, HTML5, CSS3",
+    "warnings": [],
+    "role": "Designer, Contributing Developer",
+    "year": "2019",
+    "awards": "",
+    "type": "",
+    "mobileAvailability": "mobile_available",
+    "isGame": "0",
+    "urls": {
+      "walkthroughs": {
+        "default": ""
+      },
+      "site": "",
+      "desktopSite": "https://ballconstruction.net"
+    }
+  }
+	,
+  "bikini-bottom": {
+    "title": "Bikini Bottom Buddy Search",
+    "active": "1",
+    "omitFromList": "0",
+    "clientId": "nick",
+    "mobileOrientation": "landscape",
+    "property": "SpongeBob",
+    "shortDesc": "",
+    "desc": [
+      "A Where's-Waldo-type game with different clues and play style on each level. This would take some time to play through to the good stuff, so I activated a cheat so you can play any one of the five levels.",
+      "Though you might expect each level to progress in difficulty, instead these tend to progress in reward of each preceding play style, with the final level being the most fun. Drive the submarine around, and use radar to locate the characters."
+    ],
+    "tags": "Haxe,Game Engine",
+    "role": "Lead Developer",
+    "year": "",
+    "awards": "",
+    "type": "Search",
+    "mobileAvailability": "mobile_available",
+    "isGame": "1",
+    "urls": {
+      "site": "/_projects/poster/index.html?flambe=html&unlockall",
+      "desktopSite": "",
+      "walkthroughs": {
+        "1": "https://www.youtube.com/watch?v=UE8V27j5wVQ",
+        "2": "https://www.youtube.com/watch?v=xdmez-WZII4",
+        "3": "https://www.youtube.com/watch?v=5Q9kfw6_0ZQ",
+        "4": "https://www.youtube.com/watch?v=36yTjY9JX2k",
+        "5": "https://www.youtube.com/watch?v=1neEU2XANsc"
+      }
+    }
+  },
+  "champions": {
+    "title": "Champions of the Chill",
+    "active": "1",
+    "omitFromList": "0",
+    "clientId": "nick",
+    "mobileOrientation": "landscape",
+    "property": "Nickelodeon",
+    "shortDesc": "Four Nick properties, and four winter sports games.",
+    "desc": [
+      "A winter sports, 8-bit-themed game with a different Nickelodeon property in each of four different mini-games.",
+      "I produced the main site framework and navigation, and two of the mini-games, SpongeBob hockey and Turtles bobsled.",
+      "I activated a cheat here so all the levels are unlocked for you."
+    ],
+    "tags": "Haxe,Game Engine",
+    "role": "Lead Developer",
+    "year": "",
+    "awards": "",
+    "type": "Multiple",
+    "mobileAvailability": "mobile_available",
+    "isGame": "1",
+    "urls": {
+      "walkthroughs": {
+        "default": ""
+      },
+      "site": "/_projects/champions/index.html?flambe=html&unlockall",
+      "desktopSite": ""
+    }
+  },
+  "tomato": {
+    "title": "Expiration Date",
+    "active": "1",
+    "omitFromList": "0",
+    "clientId": "addicting",
+    "mobileOrientation": "landscape",
+    "property": "Addiction Games",
+    "shortDesc": "Spooky",
+    "desc": [
+      "A post-apocalyptic escape game. We've all been nuked, but you lived and your DNA has combined with that of a tomato. If you think that's freaky, just wait until you see the rest of the house! Watch out for Mom, she's quite upset with you.",
+      "I produced the framework for the game and a logic system for all of the interactive elements to work with each other. At a glance, I could see that implementing 'if' statements dispersed around the site could be messy and hard to debug, so I devised a system that employs a single XML document to contain game state, define interactive elements, and how they behave with respect to each other."
+    ],
+    "tags": "Haxe,Game Engine",
+    "role": "Lead Developer",
+    "year": "",
+    "awards": "",
+    "type": "Escape",
+    "warnings": [],
+    "mobileAvailability": "mobile_available",
+    "isGame": "1",
+    "urls": {
+      "walkthroughs": {
+        "default": "https://www.youtube.com/watch?v=n2R0WPWcdWM"
+      },
+      "site": "/_projects/tomato/index.html?flambe=html",
+      "desktopSite": ""
+    }
+  },
+  "butterslide": {
+    "title": "Butterslide",
+    "active": "1",
+    "omitFromList": "0",
+    "clientId": "nick",
+    "mobileOrientation": "landscape",
+    "property": "Sanjay and Craig",
+    "shortDesc": "Some short description.",
+    "desc": [
+      "Loosely based on an episode of Sanjay and Craig, launch Raska Boosh sky high from his underwear and a pipe lubricated with butter, then try to guide his landing in order to create some havoc in the trailer park.",
+      "With the exception of the crash scene and animations, I built the entire game. I should point out that aiming is a bit convoluted (not one-to-one) because of a client request that had us a bit crosseyed. I'll fix that as time allows."
+    ],
+    "tags": "Haxe,Game Engine",
+    "role": "Lead Developer",
+    "year": "",
+    "awards": "",
+    "type": "",
+    "mobileAvailability": "mobile_available",
+    "isGame": "1",
+    "urls": {
+      "walkthroughs": {
+        "default": "https://www.youtube.com/watch?v=Cd7cWw3sUrA"
+      },
+      "site": "/_projects/butterslide/index.html?flambe=html",
+      "desktopSite": ""
+    }
+  },
+  "trivia": {
+    "title": "Ultimate Trivia",
+    "active": "1",
+    "omitFromList": "0",
+    "clientId": "nick",
+    "mobileOrientation": "landscape",
+    "property": "Nickelodeon",
+    "shortDesc": "",
+    "desc": [
+      "A trivia game to test your Nickelodeon knowledge with over two thousand possible questions, some of them multimedia.",
+      "I built this game in its entirety, minus some animations."
+    ],
+    "tags": "Haxe,Game Engine",
+    "role": "Lead Developer",
+    "year": "2016",
+    "awards": "",
+    "type": "Trivia",
+    "mobileAvailability": "mobile_available",
+    "isGame": "1",
+    "urls": {
+      "walkthroughs": {
+        "default": "https://www.youtube.com/watch?v=YwXr7IdhQYU"
+      },
+      "site": "/_projects/trivia/index.html?flambe=html",
+      "desktopSite": ""
+    }
+  },
+  "powerhouse": {
+    "title": "Power House",
+    "active": "1",
+    "omitFromList": "0",
+    "clientId": "teennick",
+    "mobileOrientation": "",
+    "property": "Teen Nick",
+    "shortDesc": "",
+    "desc": [
+      "An escape game that involves finding all the ways you can optimize energy usage in a fictional, slightly wacky home.",
+      "Similar to the Expiration Date game, I developed a system where the entirety of the game state and logic are contained in a single XML document.",
+      "With the exception of level layout and some animation, I built the entire game."
+    ],
+    "tags": "Flash,ActionScript",
+    "role": "Lead Developer",
+    "year": "",
+    "awards": "",
+    "type": "Escape",
+    "mobileAvailability": "desktop_only",
+    "isGame": "1",
+    "urls": {
+      "walkthroughs": {
+        "default": "https://www.youtube.com/watch?v=amvK-cONMUE"
+      },
+      "site": "",
+      "desktopSite": "http://staging.seven2.net/the-n/powerhouse/"
+    }
+  },
+  "mix-match": {
+    "title": "Mix n' Match Dress-Up",
+    "active": "1",
+    "omitFromList": "0",
+    "clientId": "nickjr",
+    "mobileOrientation": "",
+    "property": "Nick Jr",
+    "shortDesc": "",
+    "desc": [
+      "Two dress-up games in one. This was Seven2's first game for the Nickelodeon Group. That match mode is a true test. You could say I've become a master over the years.",
+      "I programmed a drag-drop system that I eventually ported over into ActionScript 3.0, and then Haxe. I built most of the game, minus Blue and Magenta's animations, and the end screen. It's good to see that old alarm clock still keeps good time after all these years.",
+      "This project was the recipient of the Golden Pixel Addy Award in 2008."
+    ],
+    "tags": "Flash,ActionScript",
+    "role": "Lead Developer",
+    "year": "",
+    "awards": "",
+    "type": "",
+    "mobileAvailability": "desktop_only",
+    "isGame": "1",
+    "urls": {
+      "walkthroughs": {
+        "default": "https://www.youtube.com/watch?v=DhvAuTsJq5o"
+      },
+      "site": "/_projects/dressup/index.html",
+      "desktopSite": ""
+    }
+  },
+  "template": {
+    "title": "",
+    "active": "0",
+    "omitFromList": "0",
+    "clientId": "",
+    "mobileOrientation": "",
+    "property": "",
+    "shortDesc": "",
+    "desc": "",
+    "tags": "",
+    "role": "",
+    "year": "",
+    "awards": "",
+    "type": "",
+    "mobileAvailability": "mobile_available",
+    "isGame": "0",
+    "urls": {
+      "walkthroughs": {
+        "default": ""
+      },
+      "site": "",
+      "desktopSite": ""
+    }
+  }
+}

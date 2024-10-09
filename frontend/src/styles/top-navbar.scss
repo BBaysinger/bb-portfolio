@@ -1,0 +1,106 @@
+@import "_global-vars";
+
+#top-navbar {
+  div.the-navbar {
+    padding-left: 0;
+    padding-right: 0;
+    display: inline-block;
+    float: right;
+    margin-left: auto;
+    margin-right: 0px;
+
+    @media (max-width: $-smpx) {
+      display: none;
+    }
+
+    .navbar-nav > li > a {
+      padding-top: 17px;
+      padding-bottom: 17px;
+      font-size: 18px;
+    }
+
+    /* Boostrap (theme) override stuff. */
+
+    @media (max-width: $smpx) {
+      .navbar-nav {
+        width: 100%;
+      }
+      .navbar-nav li {
+        float: right;
+      }
+    }
+
+    .navbar-nav {
+      margin: 0;
+    }
+
+    .navbar-nav > li > a.active {
+      color: #ffffff !important;
+    }
+
+    .navbar-toggle {
+      position: absolute;
+      top: 50%;
+      right: 0;
+      margin-left: 0px;
+      margin-top: 0px;
+      margin-bottom: 0px;
+      transform: translateY(-50%);
+    }
+
+    // This is to deal with a 1px gap that occurs in iOS Safari above the nav,
+    // and below the navigation bar. It occurs occasionally during scroll.
+    // I believe it to be a Safari bug.
+    .navbar-fixed-top::before {
+      width: 100vw;
+      height: 1px;
+      background-color: black;
+      position: fixed;
+      top: -1px;
+      content: "";
+    }
+  }
+
+  /* MISC */
+
+  .nav-logo-text {
+    font-size: 18px;
+
+    p {
+      margin-bottom: 0px;
+      line-height: 20px;
+      padding-left: 48px;
+      font-size: 20px;
+
+      &:nth-child(2) {
+        position: absolute;
+        bottom: 2px;
+        font-size: 14px;
+
+        @media (max-width: $smpx) {
+          font-size: 13px;
+        }
+
+        @media (max-width: $xspx) {
+          font-size: 10.5px;
+          line-height: 10px;
+          bottom: 6px;
+        }
+
+        @media (max-width: $sspx) {
+          font-size: 9px;
+          line-height: 9px;
+          bottom: 6px;
+          min-width: 200px;
+        }
+      }
+    }
+  }
+
+  #navTitle {
+    margin-top: 4px;
+    min-height: $navbarSize;
+    color: #ffffff;
+    display: inline-block;
+  }
+}

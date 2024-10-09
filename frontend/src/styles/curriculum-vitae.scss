@@ -1,0 +1,72 @@
+@import "_global-vars";
+
+.cv-page {
+  h5 {
+    position: relative;
+    font-weight: bold;
+  }
+
+  .left-sub {
+    font-weight: bold;
+  }
+
+  @media (min-width: $-mdpx) {
+    .cv_right {
+      border-left: 1px dashed $heavierThemeColor;
+      padding-left: 30px;
+      p, ul {
+        margin-bottom: 10px;
+      }
+    }
+  }
+
+  h4:first-child {
+    padding-top: 0px;
+    margin-top: 0px;
+  }
+
+  .cv-listing {
+    margin-bottom: 40px;
+    &:last-of-type {
+      margin-bottom: 0;
+    }
+  }
+
+  .inline-list-item {
+    &:last-of-type {
+      .bullet {
+        display: none;
+      }
+    }
+
+    .phrase {
+      white-space: nowrap;
+    }
+  
+    .bullet {
+      color: $heavierThemeColor;
+      line-height: 18px;
+      font-size: 20px;
+      position: relative;
+      top: 1.75px;
+      left: 0.75px;
+    }
+  }
+
+  .scope {
+    font-size: 16px;
+    span:nth-child(1) {
+      color: $heavierThemeColor;
+    }
+  }
+
+  .desc {
+    font-weight: 600;
+    font-size: 16px;
+    margin-bottom: 17px;
+  }
+
+  p, ul {
+    max-width: 700px;
+  }
+}

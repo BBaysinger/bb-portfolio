@@ -1,0 +1,80 @@
+@import "_global-vars";
+
+/* Not styling for the nav, but facilitates it. */
+div#main {
+  background-color: #ffffff;
+  position: relative;
+  right: 0;
+  transition: right 0.5s;
+  box-shadow: 10px 5px 60px black;
+  min-width: 320px;
+}
+
+#slideout_nav {
+  position: fixed;
+  top: 0px;
+  width: 50%;
+  right: 0;
+  text-align: right;
+  padding-top: 125px;
+  list-style: none;
+  height: 100%;
+  background: linear-gradient(0deg, rgba(34, 34, 34, 1) 0%, rgba(34, 34, 34, 1) 78%, rgba(0, 0, 0, 1) 100%);
+
+  img#b_square_nav {
+    pointer-events: none;
+    width: 100%;
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    opacity: 0.04;
+  }
+
+  div#slideout_nav_buttons {
+    opacity: 0.9999;
+    z-index: 1000;
+  }
+
+  ul#slideout_nav_buttons {
+    width: 100%;
+    padding-left: 0px;
+  }
+
+  ul#slideout_nav_buttons li {
+    position: relative;
+    height: 6.5vh;
+    max-height: 46px;
+    background: linear-gradient(#353535, #2a2a2a);
+    padding-top: 0px;
+    display: block;
+  }
+
+  ul#slideout_nav_buttons li a {
+    display: inline-block;
+    position: relative;
+    color: #777777;
+    text-decoration: none;
+    width: 100%;
+    padding-right: 30px;
+    top: 50%;
+    font-size: 20px;
+    padding-top: 0;
+    display: table;
+    transform: translateY(-50%);
+
+    &.active,
+    &.active:visited {
+      color: #ffffff !important;
+    }
+
+    &:hover {
+      color: #ffffff;
+    }
+  }
+
+  li.band {
+    background-color: $lighterThemeColor;
+    height: 0;
+    opacity: 0.5;
+  }
+}

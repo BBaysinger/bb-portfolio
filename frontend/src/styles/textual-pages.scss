@@ -1,0 +1,40 @@
+@import "_global-vars";
+
+.textual_page {
+  margin-top: 90px;
+  margin-bottom: 90px;
+
+  .emphasis {
+    font-weight: bold;
+    color: $heavierThemeColor;
+  }
+
+  h4 {
+    position: relative;
+  }
+
+  h5 {
+    margin-bottom: -3px;
+  }
+
+  .right-sub {
+    &::before {
+      content: "[";
+      margin-right: 1px;
+    }
+
+    &::after {
+      content: "]";
+      margin-left: 1px;
+    }
+
+    @media (max-width: $-xspx) {
+      position: static;
+      margin-left: 20px;
+      top: auto;
+      right: auto;
+      margin-left: 0px;
+      display: block;
+    }
+  }
+}

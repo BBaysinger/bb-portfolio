@@ -1,0 +1,175 @@
+@import "_global-vars";
+
+.portfolio_list {
+
+  background-color: #1a1a1a;
+
+  .piece-thumbnail {
+    height: 290px;
+    background-color: #000000;
+    background-position: center center;
+    background-size: cover;
+    position: relative;
+    // overflow: hidden; // This caused gap on left side of vingette.
+  }
+
+  .vingette {
+    background-image: url("../assets/images/misc/vignette.png");
+    height: 100%;
+    width: 100%;
+
+    position: absolute;
+    background-position: center center;
+    background-size: cover;
+    left: 0px;
+    z-index: 0;
+    opacity: 0.8;
+    will-change: opacity;
+    transition: opacity 0.5s linear;
+  }
+
+  .thumb-content {
+    position: absolute;
+    left: 0px;
+    padding-left: 20px;
+    padding-top: 20px;
+    width: 100%;
+    height: 100px;
+    opacity: 0.01; // Too small a decimal causes a frame drop? Seems like it.
+    will-change: opacity, filter;
+    background-color: rgba(0, 0, 0, 0.5);
+    height: 100px;
+    transition: opacity 0.3s linear;
+    overflow: hidden;
+
+    > * {
+      will-change: transform, filter;
+      transform: translateX(-20%);
+      transition: transform 0.4s ease-out, filter 0.3s linear;
+      filter: blur(10px);
+
+      &:nth-child(2) {
+        transition-delay: 0.03s;
+        transform: translateX(20%);
+      }
+    }
+
+    &.hover-focus-thumb-content {
+      opacity: 1;
+
+      > * {
+        transform: translateX(0px);
+        filter: blur(0px);
+
+        &:nth-child(1) {
+          transition-delay: 0s;
+        }
+      }
+    }
+  }
+
+  .hover-focus-vinette {
+    opacity: 0.5;
+    transition: opacity 0.3s linear;
+  }
+
+  .hover_enabled.piece-thumbnail:hover .vingette {
+    @extend .hover-focus-vinette;
+  }
+
+  .hover_enabled.piece-thumbnail:hover .thumb-content {
+    @extend .hover-focus-thumb-content;
+  }
+
+  .piece-thumbnail-focus .vingette {
+    @extend .hover-focus-vinette;
+  }
+
+  .piece-thumbnail-focus .thumb-content {
+    @extend .hover-focus-thumb-content;
+  }
+
+  .client-logo {
+    max-width: 260px;
+    max-height: 32px;
+  }
+
+  h4.thumb-title {
+    color: #ffffff;
+    position: relative;
+  }
+
+  //Forces the parent to wrap all the way around.
+  //stackoverflow.com/questions/10969023/
+  &::after {
+    content: "";
+    display: table;
+    clear: both;
+  }
+}
+
+.list_note {
+  display: flex;
+  padding-bottom: 42px;
+  background: linear-gradient(#111, #444);
+  position: relative;
+  z-index: 1000;
+
+  &::before {    
+    content: "";
+    background-image: url('../assets/images/misc/checkers.png');
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    opacity: 0.2;
+    background-size: 200px 200px;
+  }
+
+  >.container {
+    padding-top: 60px;
+    padding-bottom: 40px;
+  }
+
+  h3 {
+    text-align: center;
+    font-size: 50px;
+    color: #444444;
+    font-weight: 400;
+    margin-bottom: 30px;
+  }
+
+  p {
+    font-size: 20px;
+    color: $heavierThemeColor;
+    line-height: 28px;
+    margin-bottom: 30px;
+  }
+
+  $noteLinkColor: #aaaaaa;
+
+  a:link {
+    color: $noteLinkColor;
+  }
+
+  a:focus {
+    color: $noteLinkColor;
+  }
+
+  a:visited {
+    color: $noteLinkColor;
+  }
+
+  .asterisk {
+    float: left;
+    font-size: 92px;
+    line-height: 85px;
+    margin-right: 16px;
+    margin-bottom: -20px;
+  }
+  
+  .asterisk-copy {
+    width: calc(100% - 60px);
+    float: right;
+  }
+}

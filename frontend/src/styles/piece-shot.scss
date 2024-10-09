@@ -1,0 +1,53 @@
+// TODO: This need split out for detail view and infos.
+
+@import "_global-vars";
+
+/**
+ * @fileOverview 
+ * @author Bradley Baysinger
+ */
+
+.piece_shot {
+  @extend .device-shot_extend;
+  left: -$device-halfWidthPx;
+
+  .full_piece_desktop_shot {
+    @extend .device-shot_extend;
+    transition: transform 0.3s ease-out, top 0.3s ease-out, opacity 0.3s;
+    background-image: url("../assets/images/piece-detail/desktop-device.png");
+    background-repeat: no-repeat;
+  }
+
+  .full_piece_mobile_shot {
+    @extend .device-shot_extend;
+    transition: transform 0.4s ease-out, top 0.4s ease-out, opacity 0.4s;
+
+    &.landscape {
+      background-image: url("../assets/images/piece-detail/mobile-device-landscape.png");
+
+      .full_piece_mobile_cap {
+        top: 227px;
+        left: 294px;
+      }
+    }
+
+    &.portrait {
+      background-image: url("../assets/images/piece-detail/mobile-device-portrait.png");
+
+      .full_piece_mobile_cap {
+        top: 68px;
+        left: 483px;
+      }
+    }
+  }
+
+  .full_piece_desktop_cap {
+    position: absolute;
+    top: 38px;
+    left: 95px;
+  }
+
+  .full_piece_mobile_cap {
+    position: absolute;
+  }
+}

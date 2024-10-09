@@ -1,0 +1,165 @@
+@import "_global-vars";
+
+footer {
+  padding-top: 0;
+  display: inline-block;
+  width: 100%;
+  background: linear-gradient(#000000, #242424);
+  color: #ccc;
+
+  a,
+  a:visited {
+    color: #888888;
+  }
+
+  a:hover,
+  a:active {
+    color: #ffffff;
+  }
+
+  .copyright {
+    text-align: center;
+    bottom: 50px;
+    width: 100%;
+    font-size: 13px;
+    margin-bottom: 20px;
+    margin-top: 50px;
+  }
+
+  footer:first-child {
+    padding-top: 20px;
+    margin-top: 0;
+    position: relative;
+  }
+
+  .react {
+    text-align: center;
+    width: 100%;
+    font-size: 18px;
+    margin-bottom: 20px;
+
+    img {
+      margin-right: 10px;
+      width: 30px;
+    }
+  }
+
+  ul {
+    padding-left: 0;
+    margin-left: 0;
+    list-style: none;
+    font-size: 15px;
+  }
+
+  li {
+    white-space: nowrap;
+  }
+
+  .footer-nav {
+    list-style: none;
+    font-size: 15px;
+
+    @media (max-width: $-mdpx) {
+      text-align: center;
+    }
+
+    ul {
+      display: inline-block;
+    }
+
+    li {
+      margin-bottom: 15px;
+      text-transform: uppercase;
+    }
+
+    a {
+      text-decoration: none;
+      color: #888888;
+    }
+
+    a.active, a:active {
+      color: #ffffff;
+    }
+
+    a:hover {
+      text-decoration: underline;
+      color: #ffffff;
+    }
+
+  }
+
+  @media (max-width: $-mdpx) {
+    li {
+      margin-right: 20px;
+      margin-left: 20px;
+      display: inline-block;
+    }
+  }
+
+  .footer_cell {
+    padding-right: 15px;
+    padding-right: 15px;
+    padding-top: 40px;
+
+    p {
+      line-height: 19px;
+    }
+  }
+
+  .footer_photo {
+    margin-right: 16px;
+    margin-bottom: 10px;
+    margin-top: 6px;
+    width: 90px;
+    border: 4px solid $lighterThemeColor;
+  }
+
+  /* Contact List */
+
+  .contact {
+    text-align: center;
+
+    > div {
+      display: inline-block;
+    }
+
+    ul {
+      display: flex;
+      flex-direction: column;
+      align-items: left;
+      text-align: left;
+    }
+
+    @media (max-width: $-smpx) {
+      margin-right: auto;
+      margin-left: auto;
+    }
+
+    li {
+      padding-bottom: 5px;
+    }
+
+    img {
+      margin-right: 5px;
+    }
+
+    li div {
+      background-repeat: no-repeat;
+      background-position: center center;
+      background-size: contain;
+      margin-right: 10px;
+      height: 27px;
+      width: 25px;
+      overflow: hidden;
+      margin-bottom: 5px;
+      padding-top: 3px;
+      display: inline-block;
+      vertical-align: middle;
+    }
+
+    .not_a_suburb {
+      // For recutiers who tend to think Spokane is a suburb of Seattle.
+      font-size: 11px;
+    }
+  }
+}

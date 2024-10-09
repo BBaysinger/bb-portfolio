@@ -1,0 +1,275 @@
+@import "_global-vars";
+//TODO: Bundle fonts with Webpack. Only those that show on first load.
+@font-face {
+  font-family: "Roboto";
+  src: url("./fonts/roboto.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+}
+
+body,
+html {
+  font-family: "Roboto";
+  height: 100%;
+  font-size: 15px;
+  -webkit-font-smoothing: antialiased; // From create-react-app's index.css.
+  -moz-osx-font-smoothing: grayscale; // From create-react-app's index.css.
+}
+
+body {
+  // Yo, this is the color of the nav, with the logo overlaid, so that
+  // it doesn't look like there's a cutoff when iOS Safari users scroll up.
+  // It would be #222222 without the logo.
+  background-color: #2a2a2a;
+  color: #444444;
+}
+
+.nobr {
+  white-space: nowrap;
+  display: inline-block;
+}
+
+.layout_content {
+  background-color: #ffffff;
+}
+
+/* Boostrap (theme) override stuff. */
+//Fixes an issue with nav height changing for unknown reason.
+//TODO: May want this to
+@media (min-width: $smpx) {
+  .navbar-nav > li > a {
+    padding-top: 15px !important;
+    padding-bottom: 15px !important;
+  }
+}
+
+h3 {
+  font-size: 18px;
+  margin-top: 15px;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.h1,
+.h2,
+.h3,
+.h4,
+.h5,
+.h6 {
+  // I don't know why this is screwy in Safari.
+  font-weight: 400;
+}
+
+.sub-container {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  margin-top: 0px;
+  align-items: baseline;
+  flex-wrap: wrap;
+}
+
+.right-sub,
+.left-sub {
+  font-size: 16px;
+  color: $heavierThemeColor;
+  margin-bottom: 6px;
+  margin-top: 0px;
+}
+
+.right-sub {
+  font-size: 15px;
+  @media (max-width: $xspx) {
+    margin-left: 0px;
+  }
+}
+
+.break {
+  // Forces the date to a new line.
+  display: none;
+  flex-basis: 100%;
+  height: 0;
+  @media (max-width: 500px) {
+    display: initial;
+  }
+}
+
+h5 .left-sub {
+  font-size: inherit;
+  color: inherit !important;
+}
+
+h5 .right-sub {
+  padding-bottom: 0px;
+  display: table-cell !important;
+  vertical-align: bottom;
+}
+
+.container {
+  max-width: 1024px;
+}
+
+.yellow-orange {
+  color: $yellowOrange !important;
+}
+
+#main_content {
+  margin-top: 50px;
+  margin-bottom: 50px;
+  @media (min-width: $smpx) {
+    margin-top: 90px;
+    margin-bottom: 90px;
+  }
+
+  h3 {
+    color: #444444;
+    font-size: 50px;
+    font-weight: 400 !important;
+    margin-bottom: 0;
+    padding-top: 0;
+  }
+
+  h4 {
+    color: #444444;
+    font-size: 34px;
+    font-weight: 400 !important;
+    margin-bottom: 6px;
+    &:not(:first-child) {
+      margin-top: 80px;
+    }
+  }
+
+  h5 {
+    color: #444444;
+    font-size: 22px;
+    font-weight: 400 !important;
+    margin-top: 0px;
+    margin-block-end: 6px;
+  }
+
+  div.section {
+    padding-top: 70px;
+    padding-bottom: 70px;
+    border-top: 2px solid $lighterThemeColor;
+    overflow: hidden;
+  }
+
+  div.section:first-child {
+    border-top: 0;
+    padding-top: 0;
+  }
+
+  div.section:last-child {
+    padding-bottom: 0;
+  }
+
+  //http://stackoverflow.com/questions/5306640/
+  ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  li {
+    padding-left: 1em;
+    text-indent: -0.7em;
+    &::before {
+      content: "• ";
+      font-size: 20px;
+      line-height: 0;
+      position: relative;
+      top: 2px;
+      color: $heavierThemeColor;
+    }
+
+    > * {
+      text-indent: 0.3em; // HACK / TODO: figure out how to set indent to default.
+    }
+
+  }
+
+  a.btn {
+    color: #ffffff;
+  }
+
+  a.btn:hover {
+    color: #dddddd;
+  }
+
+  a {
+    color: $heavierThemeColor;
+  }
+
+  a:hover {
+    color: $heavierThemeColor;
+  }
+
+  a:active {
+    color: #333333;
+  }
+
+  a:visited {
+    color: $heavierThemeColor;
+  }
+
+  a:focused {
+    color: #333333;
+  }
+
+  .btn:visited {
+    color: #ffffff;
+  }
+
+  ul,
+  p {
+    line-height: 22px;
+  }
+
+  .error {
+    margin-top: 100px;
+  }
+
+  div.image_cache_container {
+    position: absolute;
+    visibility: hidden;
+  }
+
+  img.image_cacher {
+    height: 100px;
+  }
+
+  :focus {
+    //http://stackoverflow.com/questions/71074/
+    outline: none !important;
+  }
+
+  button::-moz-focus-inner {
+    //http://stackoverflow.com/questions/71074/
+    border: 0;
+  }
+
+  .jumbotron {
+    background-color: #bbbbbb;
+    color: #234234;
+    margin-top: 50px;
+    margin-bottom: 50px;
+    padding: 15px 30px 20px !important;
+  }
+
+  .jumbotron p {
+    font-size: 14px !important;
+    margin-bottom: 6px;
+    color: #000000;
+  }
+
+  /////////////////////////////////////////////////////////////////
+
+  .highlight {
+    font-style: italic;
+  }
+
+  /////////////////////////////////////////////////////////////////
+}

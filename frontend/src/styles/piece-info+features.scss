@@ -1,0 +1,93 @@
+// TODO: This need split out for detail view and infos.
+
+@import "_global-vars";
+
+/**
+ * @fileOverview 
+ * @author Bradley Baysinger
+ */
+
+#piece-info-and-features {
+  position: absolute;
+  left: 0px;
+  text-align: left;
+  display: inline-block;
+  overflow: visible;
+  // will-change: opacity, transform; // Didn't help?
+
+  > * {
+    position: relative;
+  }
+
+  .btn-group-label {
+    background-color: #333333;
+    color: #ffffff;
+    cursor: default;
+  }
+
+  .warn_paragraph {
+    color: #fcaa00; // TODO: Used to be red. We probably need separate orange and red...
+  }
+
+  .game_desktop_preferred,
+  .game_mobile_unavailable,
+  .site_mobile_unavailable {
+    a:link {
+      color: black !important;
+    }
+    a:visited {
+      color: black !important;
+    }
+  }
+
+  .game_desktop_preferred,
+  .game_mobile_unavailable {
+    color: $orange;
+  }
+
+  .site_mobile_unavailable {
+    color: $orange;
+  }
+
+  .mobile_unavailable {
+    margin-top: 22px;
+    margin-bottom: 0;
+  }
+}
+
+////////////////////////////////
+// Transitions
+////////////////////////////////
+
+// TODO: Pass the transition states into PieceInfoAndFeatures so we aren't looking to the parent for transition state.
+
+.reset {
+  pointer-events: none;
+}
+
+.reset #piece-info-and-features > * {
+  // NOTE: iOS Chrome does not load images in elements where opacity is zero.
+  // Set it to minium allowed value instead of zero.
+  opacity: 0.001;
+  transform: translateY(20px);
+}
+
+.trans_in #piece-info-and-features > * {
+  opacity: 1;
+  left: 0;
+  transform: translateY(0);
+}
+
+.trans_out #piece-info-and-features > * {
+  opacity: 0.001;
+  transform: translateY(-5px);
+}
+
+.init #piece-info-and-features > * {
+  opacity: 0.001;
+  transition: top 0.3s ease-out, opacity 0.3s;
+}
+
+////////////////////////////////
+// End Transitions
+////////////////////////////////

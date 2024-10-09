@@ -1,0 +1,52 @@
+/* Test Border */
+$t: red solid 1px;
+.test {
+  border: $t;
+}
+
+$t: red solid 1px; /* test border */
+
+$ss: 360;
+$xs: 480;
+$sm: 768;
+$md: 992;
+$lg: 1200;
+
+$-ss: $ss - 1;
+$-xs: $xs - 1;
+$-sm: $sm - 1;
+$-md: $md - 1;
+$-lg: $lg - 1;
+
+$sspx: $ss + "px";
+$xspx: $xs + "px";
+$smpx: $sm + "px";
+$mdpx: $md + "px";
+$lgpx: $lg + "px";
+
+$-sspx: $-ss + "px";
+$-xspx: $-xs + "px";
+$-smpx: $-sm + "px";
+$-mdpx: $-md + "px";
+$-lgpx: $-lg + "px";
+
+// For thin stokes and normal weight text.
+$heavierThemeColor: #719614;
+// For heavy strokes and as a fill. (For contrast/readability)
+$lighterThemeColor: #8db528;
+$orange: #ff5e00;
+$yellowOrange: #ffb600;
+
+$navbarSize: 46px;
+
+
+/* Device Shots */
+$device-width: 693;
+$device-widthPx: $device-width + px;
+$device-halfWidthPx: $device-width/2 + px;
+
+.device-shot_extend {
+  position: absolute;
+  width: $device-widthPx;
+  height: 512px;
+}
