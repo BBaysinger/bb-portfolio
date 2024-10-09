@@ -7,18 +7,17 @@ import headerLogo from "../../assets/images/main-header/logo-header.png";
 import caret from "../../assets/images/main-header/caret.png";
 
 /**
- * 
+ *
  */
-interface HeaderMainProps {
-};
+interface HeaderMainProps {}
 
 /**
- * 
+ *
  */
 interface HeaderMainState {
-  height: number,
-  caretAnimationStyle: string,
-};
+  height: number;
+  caretAnimationStyle: string;
+}
 
 /**
  * This is the header on the home page only, which is distinct from the header on every other page.
@@ -47,8 +46,7 @@ export default class HeaderMain extends React.Component<{}, HeaderMainState> {
    *
    * @memberof HeaderMain
    */
-   constructor(props: HeaderMainProps) {
-
+  constructor(props: HeaderMainProps) {
     super(props);
 
     // Height is on state because of the toolbar issue with iOS Safari
@@ -95,7 +93,7 @@ export default class HeaderMain extends React.Component<{}, HeaderMainState> {
 
   /**
    *
-   * 
+   *
    * @memberof HeaderMain
    */
   handleResize = () => {
@@ -141,7 +139,10 @@ export default class HeaderMain extends React.Component<{}, HeaderMainState> {
    */
   render() {
     return (
-      <header className="header_main" style={{ minHeight: this.state.height + "px" }}>
+      <header
+        className="header_main"
+        style={{ minHeight: this.state.height + "px" }}
+      >
         <div className="overheadFill"></div>
 
         <img src={headerLogo} className="header-logo" alt="BB Logo" />

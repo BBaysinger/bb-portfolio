@@ -3,16 +3,16 @@ import { Link } from "react-router-dom";
 import Sniffer from "../utils/Sniffer";
 
 interface PieceThumbnailProps {
-  focused:boolean;
-  key:string; //facebook.github.io/react/docs/multiple-components.html#dynamic-children
-  index:number;
-  omitFromList:boolean;
-  pieceId:string;
-  title:string;
-  clientId:string;
-  property:string;
-  shortDesc:string;
-  desc:string;
+  focused: boolean;
+  key: string; //facebook.github.io/react/docs/multiple-components.html#dynamic-children
+  index: number;
+  omitFromList: boolean;
+  pieceId: string;
+  title: string;
+  clientId: string;
+  property: string;
+  shortDesc: string;
+  desc: string;
 }
 
 /**

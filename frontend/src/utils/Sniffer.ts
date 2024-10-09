@@ -1,12 +1,12 @@
-let _userAgent:string;
-let _uaLower:string;
-let _mobile:boolean;
+let _userAgent: string;
+let _uaLower: string;
+let _mobile: boolean;
 
 /**
  * 
  */
 interface Window {
-    opera: any; // You can use 'any' or a more specific type if needed
+	opera: any; // You can use 'any' or a more specific type if needed
 }
 
 /**
@@ -42,7 +42,7 @@ export default class Sniffer {
 	 * @returns
 	 * @memberof Sniffer
 	 */
-	static test(str:string, caseSensitive:boolean) {
+	static test(str: string, caseSensitive: boolean) {
 		_userAgent = window.navigator.userAgent;
 		_uaLower = _userAgent.toLowerCase();
 

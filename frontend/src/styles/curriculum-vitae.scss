@@ -14,7 +14,8 @@
     .cv_right {
       border-left: 1px dashed $heavierThemeColor;
       padding-left: 30px;
-      p, ul {
+      p,
+      ul {
         margin-bottom: 10px;
       }
     }
@@ -42,7 +43,7 @@
     .phrase {
       white-space: nowrap;
     }
-  
+
     .bullet {
       color: $heavierThemeColor;
       line-height: 18px;
@@ -66,7 +67,8 @@
     margin-bottom: 17px;
   }
 
-  p, ul {
+  p,
+  ul {
     max-width: 700px;
   }
 }

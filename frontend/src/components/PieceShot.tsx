@@ -1,16 +1,16 @@
 import React, { CSSProperties } from "react";
 
 interface PieceShotProps {
-  showMobile:boolean;
-  id:string;
-  mobileOrientation:string;
-  loadImages:boolean;
+  showMobile: boolean;
+  id: string;
+  mobileOrientation: string;
+  loadImages: boolean;
 }
 
 /**
  * "Shot" as in screenshots. This is a component to display screenshots
  * within device images in the device details pages.
- * 
+ *
  * TODO: Noticing on this iteration that the screen shots are not preloading on
  * iOS Safari. This may have started when I switched to using translateX over left property.
  *
@@ -19,7 +19,6 @@ interface PieceShotProps {
  * @version N/A
  */
 export default class PieceShot extends React.Component<PieceShotProps> {
-
   /**
    *
    *
@@ -68,7 +67,7 @@ export default class PieceShot extends React.Component<PieceShotProps> {
    * @returns
    * @memberof PieceShot
    */
-  shouldComponentUpdate(newProps:PieceShotProps) {
+  shouldComponentUpdate(newProps: PieceShotProps) {
     // HERE: https://medium.com/@User3141592/react-gotchas-and-best-practices-2d47fd67dd22
     this.timesUpdated++;
 
@@ -87,7 +86,7 @@ export default class PieceShot extends React.Component<PieceShotProps> {
    *
    * @memberof PieceShot
    */
-  getDesktopImage = (src:string) => {
+  getDesktopImage = (src: string) => {
     if (this.props.loadImages) {
       return <img className="full_piece_desktop_cap" src={src} alt="" />;
     } else {
@@ -100,7 +99,7 @@ export default class PieceShot extends React.Component<PieceShotProps> {
    *
    * @memberof PieceShot
    */
-  getMobileImage = (src:string) => {
+  getMobileImage = (src: string) => {
     if (this.props.loadImages) {
       return <img className="full_piece_mobile_cap" src={src} alt="" />;
     } else {
@@ -116,7 +115,7 @@ export default class PieceShot extends React.Component<PieceShotProps> {
    */
   render() {
     const imgDir = "/images/project_shots/";
-    const mobileDeviceStyle:CSSProperties = this.props.showMobile
+    const mobileDeviceStyle: CSSProperties = this.props.showMobile
       ? { visibility: "visible" }
       : { visibility: "hidden" };
 

@@ -180,8 +180,7 @@
     "mobileOrientation": "",
     "property": "",
     "shortDesc": "",
-		"desc":
-		[
+    "desc": [
       "The Pushgraph application is innovative software from ChalkLabs that uses semantics to analyze data and find similarities and redudancies. It is used by several government agencies for analyzing research nationwide, saving the federal government billions every year.",
       "I designed the 2017 iteration UI of this software, which was a major rework over previous versions. The entirety of this version is delivered through an Angular drag/drop widget dashboard I designed and developed.",
       "As a screenshot is no longer available, this is of a rough design, which was all that was required to start development. All instances of Pushgraph (and other software I developed at ChalkLabs) are highly secure, and there are no live demos. Please review the reel to get a feel for how the project turned out."
@@ -194,66 +193,59 @@
     "mobileAvailability": "desktop_preferred",
     "isGame": "0",
     "urls": {
-      "walkthroughs": {
-      },
+      "walkthroughs": {},
       "reel": "https://www.youtube.com/watch?v=Fr5IigbR36A",
       "desktopSite": "https://chalklabs.com/"
     }
   },
-  "calc":
-	{
-		"title":"Data Calculator",
-		"active":"1",
-		"omitFromList":"1",
-		"clientId":"att",
-		"property":"AT&T",
-		"shortDesc":"Some short description.",
-		"desc":[
+  "calc": {
+    "title": "Data Calculator",
+    "active": "1",
+    "omitFromList": "1",
+    "clientId": "att",
+    "property": "AT&T",
+    "shortDesc": "Some short description.",
+    "desc": [
       "A JavaScript web app for AT&T Wireless customers to estimate data usage, and select an appropriate plan. This is one of a few data usage calculators we developed for AT&T.",
       "This is a non-responsive page, as this iteration is from before AT&T delivered on responsive technology."
-		],
-		"tags":"jQuery,RequireJS",
-		"role":"Lead developer",
-		"year":"",
-		"awards":"",
-		"type":"Utility",
-		"mobileAvailability":"desktop_preferred",
-		"isGame":"0",
-		"urls":
-		{
-			"walkthroughs":{},
-			"site":"",
-			"desktopSite":"/_projects/data-calculator/"
-		}
+    ],
+    "tags": "jQuery,RequireJS",
+    "role": "Lead developer",
+    "year": "",
+    "awards": "",
+    "type": "Utility",
+    "mobileAvailability": "desktop_preferred",
+    "isGame": "0",
+    "urls": {
+      "walkthroughs": {},
+      "site": "",
+      "desktopSite": "/_projects/data-calculator/"
+    }
   },
-  "share":
-	{
-		"title":"Mobile Share Planner",
-		"active":"1",
-		"omitFromList":"0",
-		"clientId":"att",
-		"property":"AT&T",
-		"shortDesc":"Some short description.",
-		"desc":
-		[
+  "share": {
+    "title": "Mobile Share Planner",
+    "active": "1",
+    "omitFromList": "0",
+    "clientId": "att",
+    "property": "AT&T",
+    "shortDesc": "Some short description.",
+    "desc": [
       "A JavaScript web app for AT&T Wireless customers to estimate data usage between multiple devices, and select appropriate plans. Click on the 'Estimate my monthly usage in detail' links to view a hidden layer of complexity. This is one of a few data usage calculators we developed for AT&T.",
       "This is a non-responsive page, as this iteration is from before AT&T delivered on responsive technology."
-		],
-		"tags":"jQuery,RequireJS",
-		"role":"Lead developer",
-		"year":"",
-		"awards":"",
-		"type":"Utility",
-		"mobileAvailability":"desktop_preferred",
-		"isGame":"0",
-		"urls":
-		{
-			"walkthroughs":{},
-			"site":"",
-			"desktopSite":"/_projects/mobile-share/"
-		}
-	}
-  ,
+    ],
+    "tags": "jQuery,RequireJS",
+    "role": "Lead developer",
+    "year": "",
+    "awards": "",
+    "type": "Utility",
+    "mobileAvailability": "desktop_preferred",
+    "isGame": "0",
+    "urls": {
+      "walkthroughs": {},
+      "site": "",
+      "desktopSite": "/_projects/mobile-share/"
+    }
+  },
   "ball-construction": {
     "title": "Ball Construction",
     "active": "1",
@@ -281,8 +273,7 @@
       "site": "",
       "desktopSite": "https://ballconstruction.net"
     }
-  }
-	,
+  },
   "bikini-bottom": {
     "title": "Bikini Bottom Buddy Search",
     "active": "1",

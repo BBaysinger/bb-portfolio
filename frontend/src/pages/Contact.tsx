@@ -10,7 +10,6 @@ import HeaderSub from "../components/layout/HeaderSub";
  * @version N/A
  */
 export default class Contact extends React.Component {
-  
   /**
    *
    *

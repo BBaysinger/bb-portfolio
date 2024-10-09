@@ -5,7 +5,7 @@ import MiscUtils from "../../utils/MiscUtils";
 import navLogo from "../../assets/images/misc/logo-nav.png";
 
 /**
- * 
+ *
  */
 interface NavBarProps {
   toggleSlideOutHandler: () => void;
@@ -13,7 +13,7 @@ interface NavBarProps {
 }
 
 /**
- * 
+ *
  */
 interface NavBarState {
   collapsed: boolean;
@@ -27,7 +27,6 @@ interface NavBarState {
  * @version N/A
  */
 class NavBar extends React.Component<NavBarProps, NavBarState> {
-  
   /**
    *
    *
@@ -41,7 +40,6 @@ class NavBar extends React.Component<NavBarProps, NavBarState> {
    * @memberof NavBar
    */
   constructor(props: NavBarProps) {
-
     super(props);
 
     this.state = { collapsed: true };
@@ -57,7 +55,7 @@ class NavBar extends React.Component<NavBarProps, NavBarState> {
 
   /**
    * Not sure if this was working previously.
-   * 
+   *
    * @memberof NavBar
    */
   // handleClick = (e:MouseEvent) => {
@@ -142,18 +140,26 @@ class NavBar extends React.Component<NavBarProps, NavBarState> {
             <li>
               <NavLink
                 to="/portfolio"
-                className={({ isActive }) => MiscUtils.isActiveOrAlt(isActive, '/')}
+                className={({ isActive }) =>
+                  MiscUtils.isActiveOrAlt(isActive, "/")
+                }
               >
                 Portfolio
               </NavLink>
             </li>
             <li>
-              <NavLink to="/cv" className={({ isActive }) => (isActive ? 'active' : '')}>
+              <NavLink
+                to="/cv"
+                className={({ isActive }) => (isActive ? "active" : "")}
+              >
                 CV
               </NavLink>
             </li>
             <li>
-              <NavLink to="/whoami" className={({ isActive }) => (isActive ? 'active' : '')}>
+              <NavLink
+                to="/whoami"
+                className={({ isActive }) => (isActive ? "active" : "")}
+              >
                 Who Am I
               </NavLink>
             </li>

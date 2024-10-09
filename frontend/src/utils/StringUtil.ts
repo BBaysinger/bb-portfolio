@@ -12,28 +12,28 @@ export default class StringUtil {
 	 * Converts strings to Booleans based on their contents.
 	 *
 	 */
-	static stringToBool(str:string | null):boolean {
+	static stringToBool(str: string | null): boolean {
 
 		if (str === null) return false;
 
 		switch (str.toLowerCase()) {
 
-			case "false" :
+			case "false":
 				return false;
-			case "0" :
+			case "0":
 				return false;
-			case "n" :
+			case "n":
 				return false;
-			case "no" :
+			case "no":
 				return false;
 
-			case "true" :
+			case "true":
 				return true;
-			case "1" :
+			case "1":
 				return true;
-			case "y" :
+			case "y":
 				return true;
-			case "yes" :
+			case "yes":
 				return true;
 
 			default:

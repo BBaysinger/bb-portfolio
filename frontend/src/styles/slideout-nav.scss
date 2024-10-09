@@ -19,7 +19,12 @@ div#main {
   padding-top: 125px;
   list-style: none;
   height: 100%;
-  background: linear-gradient(0deg, rgba(34, 34, 34, 1) 0%, rgba(34, 34, 34, 1) 78%, rgba(0, 0, 0, 1) 100%);
+  background: linear-gradient(
+    0deg,
+    rgba(34, 34, 34, 1) 0%,
+    rgba(34, 34, 34, 1) 78%,
+    rgba(0, 0, 0, 1) 100%
+  );
 
   img#b_square_nav {
     pointer-events: none;

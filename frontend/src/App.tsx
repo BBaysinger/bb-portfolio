@@ -1,9 +1,14 @@
-import { Component } from 'react';
-import { createRouterMiddleware, createRouterReducer, ReduxRouter, ReduxRouterSelector } from '@lagunovsky/redux-react-router'
-import { createBrowserHistory } from 'history'
-import { Provider } from 'react-redux'
-import { Route, Routes } from 'react-router'
-import { applyMiddleware, combineReducers, compose, createStore } from 'redux'
+import { Component } from "react";
+import {
+  createRouterMiddleware,
+  createRouterReducer,
+  ReduxRouter,
+  ReduxRouterSelector,
+} from "@lagunovsky/redux-react-router";
+import { createBrowserHistory } from "history";
+import { Provider } from "react-redux";
+import { Route, Routes } from "react-router";
+import { applyMiddleware, combineReducers, compose, createStore } from "redux";
 
 import ExecutionEnvironment from "exenv";
 
@@ -16,52 +21,56 @@ import PieceDetail from "./pages/PieceDetail";
 import SlideOutNav from "./components/layout/SlideoutNav";
 
 /**
- * 
+ *
  */
 interface AppProps {}
 
 /**
- * 
+ *
  */
 interface AppState {
   slideOut: boolean;
 }
 
 /**
- * 
+ *
  */
-type State = ReturnType<typeof store.getState>
+type State = ReturnType<typeof store.getState>;
 
 /**
- * 
+ *
  */
-const history = createBrowserHistory()
+const history = createBrowserHistory();
 
 /**
- * 
+ *
  */
-const routerMiddleware = createRouterMiddleware(history)
+const routerMiddleware = createRouterMiddleware(history);
 
 /**
- * 
+ *
  */
-const rootReducer = combineReducers({ navigator: createRouterReducer(history) })
+const rootReducer = combineReducers({
+  navigator: createRouterReducer(history),
+});
 
 /**
- * 
+ *
  */
-const store = createStore(rootReducer, compose(applyMiddleware(routerMiddleware)))
+const store = createStore(
+  rootReducer,
+  compose(applyMiddleware(routerMiddleware))
+);
 
 /**
- * 
+ *
  */
-const routerSelector: ReduxRouterSelector<State> = (state) => state.navigator
+const routerSelector: ReduxRouterSelector<State> = (state) => state.navigator;
 
 /**
- * 
+ *
  */
 class App extends Component<AppProps, AppState> {
-
   /**
    *
    *
@@ -76,9 +85,9 @@ class App extends Component<AppProps, AppState> {
    */
   toggleSlideOutHandler = () => {
     this.setState({
-      slideOut: !this.state.slideOut
+      slideOut: !this.state.slideOut,
     });
-  }
+  };
 
   /**
    *
@@ -88,17 +97,17 @@ class App extends Component<AppProps, AppState> {
   collapseSlideOutHandler = () => {
     if (this.state.slideOut) {
       this.setState({
-        slideOut: false
+        slideOut: false,
       });
     }
-  }
+  };
 
   /*
-  *
-  */
+   *
+   */
   handleResize = () => {
     this.collapseSlideOutHandler();
-  }
+  };
 
   /**
    *
@@ -114,7 +123,7 @@ class App extends Component<AppProps, AppState> {
       });
       this.ticking = true;
     }
-  }
+  };
 
   /**
    *
@@ -123,8 +132,8 @@ class App extends Component<AppProps, AppState> {
    */
   componentDidMount() {
     if (ExecutionEnvironment.canUseDOM) {
-      window.addEventListener('scroll', this.handleScroll, false);
-      window.addEventListener('resize', this.handleResize, false);
+      window.addEventListener("scroll", this.handleScroll, false);
+      window.addEventListener("resize", this.handleResize, false);
     }
   }
 
@@ -134,8 +143,8 @@ class App extends Component<AppProps, AppState> {
    * @memberof App
    */
   componentWillUnmount() {
-    window.removeEventListener('scroll', this.handleScroll, false);
-    window.removeEventListener('resize', this.handleResize, false);
+    window.removeEventListener("scroll", this.handleScroll, false);
+    window.removeEventListener("resize", this.handleResize, false);
   }
 
   /**
@@ -149,20 +158,18 @@ class App extends Component<AppProps, AppState> {
   }
 
   /**
-   * 
-   * @param props 
+   *
+   * @param props
    */
   constructor(props: AppProps) {
-
     super(props);
 
     this.state = { slideOut: false };
-
   }
 
   /**
-   * 
-   * @returns 
+   *
+   * @returns
    */
   render() {
     return (
@@ -171,7 +178,12 @@ class App extends Component<AppProps, AppState> {
           <SlideOutNav
             collapseSlideOutHandler={this.handleResize}
           ></SlideOutNav>
-          <div id="main" style={this.state.slideOut ? { right: this.getRoundedHalfWidth() } : {}}>
+          <div
+            id="main"
+            style={
+              this.state.slideOut ? { right: this.getRoundedHalfWidth() } : {}
+            }
+          >
             <NavBar
               toggleSlideOutHandler={this.toggleSlideOutHandler}
               collapseSlideOutHandler={this.handleResize}
@@ -180,7 +192,10 @@ class App extends Component<AppProps, AppState> {
               <Route path="/">
                 <Route path="/" element={<PortfolioList />}></Route>
                 <Route path="/portfolio" element={<PortfolioList />}></Route>
-                <Route path="/portfolio/:pieceId" element={<PieceDetail pieceId="someId" />}></Route>
+                <Route
+                  path="/portfolio/:pieceId"
+                  element={<PieceDetail pieceId="someId" />}
+                ></Route>
                 {/* <Route path="/pieces/:pieceId" render={(props) => (
                   <PieceDetail {...props} currentPieceId="someId" />
                 )} /> */}
@@ -192,8 +207,8 @@ class App extends Component<AppProps, AppState> {
           </div>
         </ReduxRouter>
       </Provider>
-    )
+    );
   }
 }
 
-export default App
+export default App;

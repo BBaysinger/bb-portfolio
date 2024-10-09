@@ -77,7 +77,8 @@ footer {
       color: #888888;
     }
 
-    a.active, a:active {
+    a.active,
+    a:active {
       color: #ffffff;
     }
 
@@ -85,7 +86,6 @@ footer {
       text-decoration: underline;
       color: #ffffff;
     }
-
   }
 
   @media (max-width: $-mdpx) {

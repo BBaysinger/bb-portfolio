@@ -26,7 +26,7 @@ export default class PortfolioList extends React.Component {
    *
    * @memberof PortfolioList
    */
-  pieceThumbRefs:Array<PieceThumbnail> = [];
+  pieceThumbRefs: Array<PieceThumbnail> = [];
 
   /**
    *
@@ -66,16 +66,16 @@ export default class PortfolioList extends React.Component {
    *
    * @param {*} thumbComponent
    */
-  setThumbRef = (thumbComponent:PieceThumbnail) => {
+  setThumbRef = (thumbComponent: PieceThumbnail) => {
     this.pieceThumbRefs.push(thumbComponent);
   };
 
   /**
-   * 
+   *
    *
    * @param {*} e
    */
-  handleScrollOrResize = (e:Event) => {
+  handleScrollOrResize = (e: Event) => {
     // A best practice that can help performance for processes that
     // may cause dropped frames on scroll.
     if (!this.ticking) {
@@ -88,27 +88,27 @@ export default class PortfolioList extends React.Component {
   };
 
   /**
-   * 
-   * @param element 
-   * @returns 
+   *
+   * @param element
+   * @returns
    */
-  getIndexOfElement = (element:HTMLElement):number => {
+  getIndexOfElement = (element: HTMLElement): number => {
     // Get the parent node
     const parent = element.parentNode;
 
     // If the parent does not exist, return -1
     if (!parent) {
-        return -1;
+      return -1;
     }
 
     // Get all children of the parent that are of the same type (tag name)
     const siblings = Array.from(parent.children).filter(
-        sibling => sibling.tagName === element.tagName
+      (sibling) => sibling.tagName === element.tagName
     );
 
     // Find the index of the element in the siblings array
     return siblings.indexOf(element);
-  }
+  };
 
   /**
    *
@@ -116,23 +116,25 @@ export default class PortfolioList extends React.Component {
    * @param {*} e
    * @memberof PortfolioList
    */
-  update = (e:Event) => {
+  update = (e: Event) => {
     if (ExecutionEnvironment.canUseDOM) {
       if (Sniffer.mobile) {
         let offset;
         let absOffset;
         let bounding;
-        let thumbDOMNode:HTMLElement;
+        let thumbDOMNode: HTMLElement;
         let linkHeight;
         let targetMaxOffset;
         /* The row closest to vertical middle. */
-        let inRange:Array<PieceThumbnail> = [];
+        let inRange: Array<PieceThumbnail> = [];
 
         // Collect the 1, 2, or 3 (of a row) that are closest to the middle of the viewport.
         this.pieceThumbRefs.forEach((thumbRef, index) => {
           // TODO: Should be able to ref a member of this component rather
           // than reaching for the child's DOM node? 🤔
-          thumbDOMNode = ReactDOM.findDOMNode(this.pieceThumbRefs[index]) as HTMLElement;
+          thumbDOMNode = ReactDOM.findDOMNode(
+            this.pieceThumbRefs[index]
+          ) as HTMLElement;
           bounding = thumbDOMNode?.getBoundingClientRect();
           linkHeight = thumbDOMNode.offsetHeight;
           targetMaxOffset = linkHeight / 2;
@@ -155,7 +157,9 @@ export default class PortfolioList extends React.Component {
           absOffset = Math.abs(offset);
 
           if (absOffset < targetMaxOffset) {
-            this.setState({ focusedThumbIndex: this.getIndexOfElement(thumbDOMNode) });
+            this.setState({
+              focusedThumbIndex: this.getIndexOfElement(thumbDOMNode),
+            });
           }
         });
       } else {
@@ -180,14 +184,8 @@ export default class PortfolioList extends React.Component {
         <div className="portfolio_list">
           {portfolioData.listedPieces.map((pieceData, index) => {
             let id = portfolioData.listedKeys[index];
-            let {
-              title,
-              omitFromList,
-              clientId,
-              property,
-              shortDesc,
-              desc,
-            } = pieceData;
+            let { title, omitFromList, clientId, property, shortDesc, desc } =
+              pieceData;
 
             return (
               <PieceThumbnail
@@ -222,8 +220,8 @@ export default class PortfolioList extends React.Component {
             <p>
               Inventing and learning have been constant, and every deadline has
               been somewhere between unreasonable and insane. Through this path
-              I've gained a unique understanding of UX/UI, front-end, and working with
-              ever-changing teams and&nbsp;processes.
+              I've gained a unique understanding of UX/UI, front-end, and
+              working with ever-changing teams and&nbsp;processes.
             </p>
 
             <p>

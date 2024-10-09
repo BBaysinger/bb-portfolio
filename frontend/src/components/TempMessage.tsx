@@ -7,7 +7,6 @@
  * @version N/A
  */
 export default class TempMessage {
-
   /**
    *
    *

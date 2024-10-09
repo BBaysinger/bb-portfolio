@@ -1,5 +1,4 @@
 import React from "react";
-
 import { NavLink } from "react-router-dom";
 
 import MiscUtils from "../../utils/MiscUtils";
@@ -9,6 +8,8 @@ import github from "../../assets/images/footer/icons/github.png";
 import linkedIn from "../../assets/images/footer/icons/linked-in.png";
 import location from "../../assets/images/footer/icons/location.png";
 import stackoverflow from "../../assets/images/footer/icons/stackoverflow.png";
+
+import "@/styles/Footer.scss";
 
 type State = {
   emailAddr: string;
@@ -42,7 +43,6 @@ class Footer extends React.Component {
    * @memberof Footer
    */
   constructor(props: Props) {
-
     super(props);
 
     this.state = {
@@ -170,19 +170,27 @@ class Footer extends React.Component {
               <ul className="bottom_nav">
                 <li>
                   <NavLink
-                    className={({ isActive }) => MiscUtils.isActiveOrAlt(isActive, '/')}
+                    className={({ isActive }) =>
+                      MiscUtils.isActiveOrAlt(isActive, "/")
+                    }
                     to="/portfolio"
                   >
                     Portfolio
                   </NavLink>
                 </li>
                 <li>
-                  <NavLink className={({ isActive }) => (isActive ? 'active' : '')} to="/cv">
+                  <NavLink
+                    className={({ isActive }) => (isActive ? "active" : "")}
+                    to="/cv"
+                  >
                     CV
                   </NavLink>
                 </li>
                 <li>
-                  <NavLink className={({ isActive }) => (isActive ? 'active' : '')} to="/whoami">
+                  <NavLink
+                    className={({ isActive }) => (isActive ? "active" : "")}
+                    to="/whoami"
+                  >
                     Who Am I
                   </NavLink>
                 </li>

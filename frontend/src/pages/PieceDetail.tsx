@@ -3,7 +3,7 @@ import ExecutionEnvironment from "exenv";
 import React from "react";
 import { Link } from "react-router-dom";
 // import { useParams } from 'react-router-dom';
-import {useNavigate} from 'react-router-dom'
+import { useNavigate } from "react-router-dom";
 
 // import { RouteComponentProps } from "react-router-dom";
 
@@ -52,10 +52,9 @@ interface PieceDetailRouterProps {
  * @version N/A
  */
 export default class PieceDetail extends React.Component<PieceDetailRouterProps> {
-
   navigate = useNavigate();
 
-  static json:any = json;
+  static json: any = json;
 
   /**
    *
@@ -109,14 +108,14 @@ export default class PieceDetail extends React.Component<PieceDetailRouterProps>
    *
    * @memberof PieceDetail
    */
-  prevId:string|null = null;
+  prevId: string | null = null;
 
   /**
    *
    *
    * @memberof PieceDetail
    */
-  nextId:string|null = null;
+  nextId: string | null = null;
 
   /**
    *
@@ -152,8 +151,7 @@ export default class PieceDetail extends React.Component<PieceDetailRouterProps>
    */
   public readonly state: PieceDetailState;
 
-  constructor(props:any) {
-
+  constructor(props: any) {
     super(props);
 
     this.swipe.swiped.add(this.handleSwiped);
@@ -295,16 +293,19 @@ export default class PieceDetail extends React.Component<PieceDetailRouterProps>
    * @param {PieceDetailState} prevState
    * @memberof PieceDetail
    */
-  componentDidUpdate(prevProps: PieceDetailRouterProps, prevState: PieceDetailState) {
+  componentDidUpdate(
+    prevProps: PieceDetailRouterProps,
+    prevState: PieceDetailState
+  ) {
     if (prevState.currentPieceId !== this.state.currentPieceId) {
       this.handleResize();
     }
 
-    let newPieceId:string = this.props.pieceId;
-    let prevPieceId:string = prevProps.pieceId;
+    let newPieceId: string = this.props.pieceId;
+    let prevPieceId: string = prevProps.pieceId;
 
-    const prevId:string|null = portfolioData.prevKey(newPieceId);
-    const nextId:string|null = portfolioData.nextKey(newPieceId);
+    const prevId: string | null = portfolioData.prevKey(newPieceId);
+    const nextId: string | null = portfolioData.nextKey(newPieceId);
 
     let slideDirection = PieceDetail.SLIDE_NONE;
 

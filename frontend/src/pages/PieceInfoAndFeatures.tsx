@@ -3,17 +3,17 @@ import React from "react";
 import Sniffer from "../utils/Sniffer";
 
 interface PIANFProps {
-  transition:string
-  pieceData:any;
+  transition: string;
+  pieceData: any;
 }
 
 /**
  * The component that owns the buttons and paragraphs of the display of each portfolio item.
- * 
+ *
  * The paragraphs can be styled
  * differently depending on the type of information. And the buttons
  * link out to the features available for each portfolio peice.
- * 
+ *
  * TODO: This could be more pure if we separated these out to two components...
  *
  * @author Bradley Baysinger
@@ -50,7 +50,7 @@ export default class PieceInfoAndFeatures extends React.Component<PIANFProps> {
    *
    * @memberof PieceInfoAndFeatures
    */
-  public domElem:HTMLElement|null = null;
+  public domElem: HTMLElement | null = null;
 
   /**
    *
@@ -64,7 +64,7 @@ export default class PieceInfoAndFeatures extends React.Component<PIANFProps> {
    *
    * @memberof PieceInfoAndFeatures
    */
-  members:Array<HTMLElement | null> = [];
+  members: Array<HTMLElement | null> = [];
 
   /**
    *
@@ -97,9 +97,9 @@ export default class PieceInfoAndFeatures extends React.Component<PIANFProps> {
    * @returns
    * @memberof PieceInfoAndFeatures
    */
-  getWalkthroughButtons(walkthroughObj:any) {
-    let buttons:Array<JSX.Element> = [];
-    let urls:Array<any> = [];
+  getWalkthroughButtons(walkthroughObj: any) {
+    let buttons: Array<JSX.Element> = [];
+    let urls: Array<any> = [];
     let group = null;
 
     Object.keys(walkthroughObj).forEach((prop) => {
@@ -158,7 +158,7 @@ export default class PieceInfoAndFeatures extends React.Component<PIANFProps> {
    *
    * @memberof PieceInfoAndFeatures
    */
-  addMember = (member:HTMLElement | null) => {
+  addMember = (member: HTMLElement | null) => {
     if (member && this.members) {
       // TODO: Dunno why this is needed. Figure out later.
       this.members.push(member);

@@ -21,7 +21,6 @@ header {
   }
 
   &.header_main {
-
     // Not setting height here, as we're relying on ios-inner-height
     max-height: 812px;
 
@@ -41,7 +40,12 @@ header {
     }
   }
 
-  h4, .h4, h5, .h5, h6, .h6 {
+  h4,
+  .h4,
+  h5,
+  .h5,
+  h6,
+  .h6 {
     margin-bottom: 0px;
   }
 

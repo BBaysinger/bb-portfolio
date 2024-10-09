@@ -11,18 +11,18 @@ import json from "./data/portfolio.json";
 
 export default class PortfolioData {
 
-  static json:any = json;
-  static keys:Array<string> = Object.keys(json);
+  static json: any = json;
+  static keys: Array<string> = Object.keys(json);
 
-  static activeKeys:Array<string> = [];
-  static activePieces:Array<any> = [];
-  static listedPieces:Array<any> = [];
-  static listedKeys:Array<string> = [];
+  static activeKeys: Array<string> = [];
+  static activePieces: Array<any> = [];
+  static listedPieces: Array<any> = [];
+  static listedKeys: Array<string> = [];
   static activePiecesMap: { [key: string]: any } = {};
-  static activeIndex:number = 0;
+  static activeIndex: number = 0;
 
-  static initialize = ():any => {
-    PortfolioData.keys.forEach((key:string) => {
+  static initialize = (): any => {
+    PortfolioData.keys.forEach((key: string) => {
       if (PortfolioData.json[key].active === "1") {
         if (PortfolioData.json[key].omitFromList !== "1") {
           PortfolioData.listedPieces.push(PortfolioData.json[key]);
@@ -36,11 +36,11 @@ export default class PortfolioData {
     });
   }
 
-  static pieceIndex = (key:string) => {
+  static pieceIndex = (key: string) => {
     return PortfolioData.activeKeys.indexOf(key);
   };
 
-  static prevKey = (key:string):string => {
+  static prevKey = (key: string): string => {
     let retVal;
     const pI = PortfolioData.pieceIndex(key);
 
@@ -53,7 +53,7 @@ export default class PortfolioData {
     return retVal;
   };
 
-  static nextKey = (key:string):string => {
+  static nextKey = (key: string): string => {
     let retVal;
     const pI = PortfolioData.pieceIndex(key);
 

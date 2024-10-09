@@ -1,7 +1,6 @@
 @import "_global-vars";
 
 .portfolio_list {
-
   background-color: #1a1a1a;
 
   .piece-thumbnail {
@@ -115,9 +114,9 @@
   position: relative;
   z-index: 1000;
 
-  &::before {    
+  &::before {
     content: "";
-    background-image: url('../assets/images/misc/checkers.png');
+    background-image: url("../assets/images/misc/checkers.png");
     position: absolute;
     width: 100%;
     height: 100%;
@@ -126,7 +125,7 @@
     background-size: 200px 200px;
   }
 
-  >.container {
+  > .container {
     padding-top: 60px;
     padding-bottom: 40px;
   }
@@ -167,7 +166,7 @@
     margin-right: 16px;
     margin-bottom: -20px;
   }
-  
+
   .asterisk-copy {
     width: calc(100% - 60px);
     float: right;
