@@ -2,6 +2,8 @@ import React from "react";
 
 import HeaderSub from "../components/layout/HeaderSub";
 
+import "@/styles/whoami.scss";
+
 /**
  * My about page, titled as a question for some pseudo-mystery. Who's The Riddler now?
  *

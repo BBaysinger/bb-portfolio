@@ -5,6 +5,8 @@ interface HeaderSubProps {
   subhead: string;
 }
 
+import "@/styles/header.scss";
+
 /**
  * This is the header for every page other than the home page. It takes a parameter
  * for the page title it displays.

@@ -20,6 +20,8 @@ import Footer from "./components/layout/Footer";
 import PieceDetail from "./pages/PieceDetail";
 import SlideOutNav from "./components/layout/SlideoutNav";
 
+import "@/styles/app.scss";
+
 /**
  *
  */

@@ -2,13 +2,10 @@ import ExecutionEnvironment from "exenv";
 
 import React from "react";
 import { Link } from "react-router-dom";
-// import { useParams } from 'react-router-dom';
 import { useNavigate } from "react-router-dom";
 
-// import { RouteComponentProps } from "react-router-dom";
-
 import HeaderSub from "../components/layout/HeaderSub";
-import PieceShot from "../components/PieceShot";
+import ScreenShot from "../components/ScreenShot";
 import ClientNames from "../ClientNames";
 import Sniffer from "../utils/Sniffer";
 import Swipe from "../bb/ui/Swipe";
@@ -19,6 +16,8 @@ import PieceInfoAndFeatures from "./PieceInfoAndFeatures";
 import blankPNG from "../assets/images/misc/blank.png";
 
 import json from "../data/portfolio.json";
+
+import "@/styles/piece-detail.scss";
 
 type PieceDetailState = {
   scale: number;
@@ -159,7 +158,7 @@ export default class PieceDetail extends React.Component<PieceDetailRouterProps>
     this.state = {
       currentPieceId: "",
       scale: this.getScale(),
-      transition: PieceShot.INIT,
+      transition: ScreenShot.INIT,
       infoHeight: 0,
       initialShotImgsLoaded: false,
     };
@@ -169,7 +168,7 @@ export default class PieceDetail extends React.Component<PieceDetailRouterProps>
     setTimeout(() => {
       this.setState({
         currentPieceId: props.match.params.pieceId,
-        transition: PieceShot.TRANS_IN,
+        transition: ScreenShot.TRANS_IN,
       });
     }, 30); // Delay necessary to trigger React to reflow.
   }
@@ -318,18 +317,18 @@ export default class PieceDetail extends React.Component<PieceDetailRouterProps>
     if (newPieceId !== prevPieceId) {
       this.setState({
         slide: slideDirection,
-        transition: PieceShot.TRANS_OUT,
+        transition: ScreenShot.TRANS_OUT,
       });
 
       setTimeout(() => {
         this.setState({
-          transition: PieceShot.RESET,
+          transition: ScreenShot.RESET,
         });
 
         setTimeout(() => {
           this.setState({
             currentPieceId: newPieceId,
-            transition: PieceShot.TRANS_IN,
+            transition: ScreenShot.TRANS_IN,
           });
         }, 30); // Timing nessary to trigger React to reflow.
       }, 400);
@@ -380,7 +379,7 @@ export default class PieceDetail extends React.Component<PieceDetailRouterProps>
     const tagsSpaced = tags.split(",").join(", ");
     const subtitle = tagsSpaced;
     const scale = this.state.scale;
-    const pieceShots: Array<JSX.Element> = [];
+    const ScreenShots: Array<JSX.Element> = [];
 
     /* If phone is turned horizontally (landscape) the devices need scaled down further
     so as to avoid them bleeding off the edges of the viewport */
@@ -432,13 +431,13 @@ export default class PieceDetail extends React.Component<PieceDetailRouterProps>
       showMobile = piece.mobileAvailability === PieceDetail.MOBILE_AVAILABLE;
       id = activeKeys[i];
 
-      transition = PieceShot.RESET;
+      transition = ScreenShot.RESET;
 
       if (activeKeys[i] === pieceId) {
         transition = this.state.transition;
       }
 
-      pieceShots[i] = (
+      ScreenShots[i] = (
         <div
           className={transition}
           key={i}
@@ -446,7 +445,7 @@ export default class PieceDetail extends React.Component<PieceDetailRouterProps>
             this.handleShotImageLoaded();
           }}
         >
-          <PieceShot
+          <ScreenShot
             showMobile={showMobile}
             mobileOrientation={piece.mobileOrientation}
             loadImages={
@@ -488,7 +487,7 @@ export default class PieceDetail extends React.Component<PieceDetailRouterProps>
             <div id="swiper">
               <div id="full_piece_device_container" style={containerStyle}>
                 <div id="full_piece_scaler" style={scaleCSS}>
-                  {pieceShots}
+                  {ScreenShots}
                 </div>
               </div>
               <div

@@ -1,6 +1,8 @@
 import React, { CSSProperties } from "react";
 
-interface PieceShotProps {
+import "@/styles/screen-shot.scss";
+
+interface ScreenShotProps {
   showMobile: boolean;
   id: string;
   mobileOrientation: string;
@@ -18,12 +20,12 @@ interface PieceShotProps {
  * @since The beginning of time.
  * @version N/A
  */
-export default class PieceShot extends React.Component<PieceShotProps> {
+export default class ScreenShot extends React.Component<ScreenShotProps> {
   /**
    *
    *
    * @static
-   * @memberof PieceShot
+   * @memberof ScreenShot
    */
   static INIT = "init";
 
@@ -31,7 +33,7 @@ export default class PieceShot extends React.Component<PieceShotProps> {
    *
    *
    * @static
-   * @memberof PieceShot
+   * @memberof ScreenShot
    */
   static RESET = "reset";
 
@@ -39,7 +41,7 @@ export default class PieceShot extends React.Component<PieceShotProps> {
    *
    *
    * @static
-   * @memberof PieceShot
+   * @memberof ScreenShot
    */
   static TRANS_OUT = "trans_out";
 
@@ -47,14 +49,14 @@ export default class PieceShot extends React.Component<PieceShotProps> {
    *
    *
    * @static
-   * @memberof PieceShot
+   * @memberof ScreenShot
    */
   static TRANS_IN = "trans_in";
 
   /**
    *
    *
-   * @memberof PieceShot
+   * @memberof ScreenShot
    */
   timesUpdated = 0;
 
@@ -65,9 +67,9 @@ export default class PieceShot extends React.Component<PieceShotProps> {
    *
    * @param {*} newProps
    * @returns
-   * @memberof PieceShot
+   * @memberof ScreenShot
    */
-  shouldComponentUpdate(newProps: PieceShotProps) {
+  shouldComponentUpdate(newProps: ScreenShotProps) {
     // HERE: https://medium.com/@User3141592/react-gotchas-and-best-practices-2d47fd67dd22
     this.timesUpdated++;
 
@@ -84,7 +86,7 @@ export default class PieceShot extends React.Component<PieceShotProps> {
   /**
    *
    *
-   * @memberof PieceShot
+   * @memberof ScreenShot
    */
   getDesktopImage = (src: string) => {
     if (this.props.loadImages) {
@@ -97,7 +99,7 @@ export default class PieceShot extends React.Component<PieceShotProps> {
   /**
    *
    *
-   * @memberof PieceShot
+   * @memberof ScreenShot
    */
   getMobileImage = (src: string) => {
     if (this.props.loadImages) {
@@ -111,7 +113,7 @@ export default class PieceShot extends React.Component<PieceShotProps> {
    *
    *
    * @returns
-   * @memberof PieceShot
+   * @memberof ScreenShot
    */
   render() {
     const imgDir = "/images/project_shots/";

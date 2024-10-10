@@ -2,6 +2,8 @@ import React from "react";
 
 import HeaderSub from "../components/layout/HeaderSub";
 
+import "@/styles/curriculum-vitae.scss";
+
 /**
  * CV Page. Mostly static HTML, with some helper functions for formatting.
  *

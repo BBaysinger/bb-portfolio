@@ -2,6 +2,8 @@ import React from "react";
 
 import Sniffer from "../utils/Sniffer";
 
+import "@/styles/piece-info+features.scss";
+
 interface PIANFProps {
   transition: string;
   pieceData: any;

@@ -8,6 +8,8 @@ import portfolioData from "../PortfolioData";
 import ExecutionEnvironment from "exenv";
 import Sniffer from "../utils/Sniffer";
 
+import "@/styles/portfolio-list.scss";
+
 /**
  * The list of portfolio pieces, each represented by buttons/thumbnails on the home/portfolio page that are
  * focused when they are either rolled over or scrolled to the vertical middle of the viewport.

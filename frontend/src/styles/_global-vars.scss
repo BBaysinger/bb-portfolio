@@ -42,7 +42,7 @@ $navbarSize: 46px;
 /* Device Shots */
 $device-width: 693;
 $device-widthPx: $device-width + px;
-$device-halfWidthPx: $device-width/2 + px;
+$device-halfWidthPx: calc($device-width/2) + px;
 
 .device-shot_extend {
   position: absolute;

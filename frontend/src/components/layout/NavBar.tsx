@@ -4,6 +4,8 @@ import MiscUtils from "../../utils/MiscUtils";
 
 import navLogo from "../../assets/images/misc/logo-nav.png";
 
+import "@/styles/top-navbar.scss";
+
 /**
  *
  */

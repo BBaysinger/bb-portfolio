@@ -6,6 +6,8 @@ import Scroll from "react-scroll";
 import headerLogo from "../../assets/images/main-header/logo-header.png";
 import caret from "../../assets/images/main-header/caret.png";
 
+import "@/styles/header.scss";
+
 /**
  *
  */
