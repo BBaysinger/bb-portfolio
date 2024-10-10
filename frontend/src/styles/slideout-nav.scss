@@ -2,7 +2,7 @@
 
 /* Not styling for the nav, but facilitates it. */
 div#main {
-  background-color: #ffffff;
+  background-color: #000;
   position: relative;
   right: 0;
   transition: right 0.5s;
@@ -25,6 +25,10 @@ div#main {
     rgba(34, 34, 34, 1) 78%,
     rgba(0, 0, 0, 1) 100%
   );
+
+  @media screen and (min-width:$smpx) {
+    display: none;
+  }
 
   img#b_square_nav {
     pointer-events: none;
