@@ -1,6 +1,12 @@
 @import "_global-vars";
 
 #top-navbar {
+  position: fixed;
+  background-color: black;
+  z-index: 10;
+  width: 100vw;
+  display: flex;
+
   div.the-navbar {
     padding-left: 0;
     padding-right: 0;
@@ -12,10 +18,13 @@
       display: none;
     }
 
-    .navbar-nav > li > a {
-      padding-top: 17px;
-      padding-bottom: 17px;
-      font-size: 18px;
+    .navbar-nav {
+      display: flex;
+        & > li > a {
+        padding-top: 17px;
+        padding-bottom: 17px;
+        font-size: 18px;
+      }
     }
 
     /* Boostrap (theme) override stuff. */
@@ -25,7 +34,7 @@
         width: 100%;
       }
       .navbar-nav li {
-        float: right;
+        // float: right;
       }
     }
 

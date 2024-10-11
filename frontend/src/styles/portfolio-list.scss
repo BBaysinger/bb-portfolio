@@ -2,6 +2,8 @@
 
 .portfolio_list {
   background-color: #1a1a1a;
+  display: flex;
+  flex-wrap: wrap;
 
   .piece-thumbnail {
     height: 290px;
@@ -9,7 +11,17 @@
     background-position: center center;
     background-size: cover;
     position: relative;
-    // overflow: hidden; // This caused gap on left side of vingette.
+    overflow: hidden; // This caused gap on left side of vingette.
+    width: 100%;
+    
+    @media screen and (min-width: $smpx) {
+      width: 50%;
+    }
+
+    @media screen and (min-width: $lgpx) {
+      width: 33.33%;
+    }
+    
   }
 
   .vingette {

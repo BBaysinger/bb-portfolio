@@ -42,7 +42,7 @@ export default class PieceThumbnail extends React.Component<PieceThumbnailProps>
     return (
       <div
         className={
-          "col-lg-4 col-md-6 col-sm-6 piece-thumbnail " +
+          "piece-thumbnail " +
           focus +
           " " +
           hoverEnabled
