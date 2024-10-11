@@ -1,10 +1,10 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
-import MiscUtils from "../../utils/MiscUtils";
+import MiscUtils from "utils/MiscUtils";
 
-import navLogo from "../../assets/images/misc/logo-nav.png";
+import navLogo from "assets/images/misc/logo-nav.png";
 
-import "@/styles/top-navbar.scss";
+import "./TopNavbar.scss";
 
 /**
  *

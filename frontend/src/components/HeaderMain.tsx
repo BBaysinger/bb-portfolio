@@ -3,10 +3,10 @@ import React from "react";
 import NavBar from "./NavBar";
 import Scroll from "react-scroll";
 
-import headerLogo from "../../assets/images/main-header/logo-header.png";
-import caret from "../../assets/images/main-header/caret.png";
+import headerLogo from "assets/images/main-header/logo-header.png";
+import caret from "assets/images/main-header/caret.png";
 
-import "@/styles/header.scss";
+import "./Header.scss";
 
 /**
  *

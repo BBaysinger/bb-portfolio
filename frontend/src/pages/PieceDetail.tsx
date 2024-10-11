@@ -4,20 +4,20 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 
-import HeaderSub from "../components/layout/HeaderSub";
-import ScreenShot from "../components/ScreenShot";
+import HeaderSub from "components/HeaderSub";
+import ScreenShot from "components/ScreenShot";
 import ClientNames from "../ClientNames";
 import Sniffer from "../utils/Sniffer";
-import Swipe from "../bb/ui/Swipe";
+import Swipe from "bb/ui/Swipe";
 
 import portfolioData from "../PortfolioData";
-import PieceInfoAndFeatures from "./PieceInfoAndFeatures";
+import PieceInfoFeatures from "components/PieceInfoFeatures";
 
 import blankPNG from "../assets/images/misc/blank.png";
 
 import json from "../data/portfolio.json";
 
-import "@/styles/piece-detail.scss";
+import "./PieceDetail.scss";
 
 type PieceDetailState = {
   scale: number;
@@ -130,10 +130,10 @@ export default class PieceDetail extends React.Component<PieceDetailRouterProps>
    *
    * TODO: Determine if there is a better solution.
    *
-   * @type {Array<PieceInfoAndFeatures>}
+   * @type {Array<PieceInfoFeatures>}
    * @memberof PieceDetail
    */
-  infoRefElems: Array<PieceInfoAndFeatures> = [];
+  infoRefElems: Array<PieceInfoFeatures> = [];
 
   /**
    *
@@ -458,14 +458,14 @@ export default class PieceDetail extends React.Component<PieceDetailRouterProps>
 
       return (
         <div className={transition} key={i}>
-          <PieceInfoAndFeatures
+          <PieceInfoFeatures
             transition={transition}
             ref={(infoElem) => {
               // NOTE: `ref` functions have different scope in a loop vs in a map!
               if (infoElem) this.infoRefElems[i] = infoElem;
             }}
             pieceData={PieceDetail.json[activeKeys[i]]}
-          ></PieceInfoAndFeatures>
+          ></PieceInfoFeatures>
         </div>
       );
     });

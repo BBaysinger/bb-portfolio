@@ -2,7 +2,7 @@ import React from "react";
 
 import Sniffer from "../utils/Sniffer";
 
-import "@/styles/piece-info+features.scss";
+import "./PieceInfoFeatures.scss";
 
 interface PIANFProps {
   transition: string;
@@ -22,12 +22,12 @@ interface PIANFProps {
  * @since The beginning of time.
  * @version N/A
  */
-export default class PieceInfoAndFeatures extends React.Component<PIANFProps> {
+export default class PieceInfoFeatures extends React.Component<PIANFProps> {
   /**
    *
    *
    * @static
-   * @memberof PieceInfoAndFeatures
+   * @memberof PieceInfoFeatures
    */
   static DESKTOP_PREFERRED = "desktop_preferred";
 
@@ -35,14 +35,14 @@ export default class PieceInfoAndFeatures extends React.Component<PIANFProps> {
    *
    *
    * @static
-   * @memberof PieceInfoAndFeatures
+   * @memberof PieceInfoFeatures
    */
   static DESKTOP_ONLY = "desktop_only";
 
   /**
    *
    *
-   * @memberof PieceInfoAndFeatures
+   * @memberof PieceInfoFeatures
    */
   peiceData = null;
 
@@ -50,28 +50,28 @@ export default class PieceInfoAndFeatures extends React.Component<PIANFProps> {
    * Need a reference to allow parent component access to computed height of div.
    *
    *
-   * @memberof PieceInfoAndFeatures
+   * @memberof PieceInfoFeatures
    */
   public domElem: HTMLElement | null = null;
 
   /**
    *
    *
-   * @memberof PieceInfoAndFeatures
+   * @memberof PieceInfoFeatures
    */
   transition = null;
 
   /**
    *
    *
-   * @memberof PieceInfoAndFeatures
+   * @memberof PieceInfoFeatures
    */
   members: Array<HTMLElement | null> = [];
 
   /**
    *
    *
-   * @memberof PieceInfoAndFeatures
+   * @memberof PieceInfoFeatures
    */
   timesUpdated = 0;
 
@@ -79,7 +79,7 @@ export default class PieceInfoAndFeatures extends React.Component<PIANFProps> {
    *
    *
    * @returns
-   * @memberof PieceInfoAndFeatures
+   * @memberof PieceInfoFeatures
    */
   shouldComponentUpdate() {
     // HERE: https://medium.com/@User3141592/react-gotchas-and-best-practices-2d47fd67dd22
@@ -97,7 +97,7 @@ export default class PieceInfoAndFeatures extends React.Component<PIANFProps> {
    *
    * @param {*} walkthroughObj
    * @returns
-   * @memberof PieceInfoAndFeatures
+   * @memberof PieceInfoFeatures
    */
   getWalkthroughButtons(walkthroughObj: any) {
     let buttons: Array<JSX.Element> = [];
@@ -149,7 +149,7 @@ export default class PieceInfoAndFeatures extends React.Component<PIANFProps> {
    * TODO: Figure out why this member doesn't exist on refs at runtime.
    *
    * @readonly
-   * @memberof PieceInfoAndFeatures
+   * @memberof PieceInfoFeatures
    */
   get height() {
     return this.domElem?.offsetHeight;
@@ -158,7 +158,7 @@ export default class PieceInfoAndFeatures extends React.Component<PIANFProps> {
   /**
    *
    *
-   * @memberof PieceInfoAndFeatures
+   * @memberof PieceInfoFeatures
    */
   addMember = (member: HTMLElement | null) => {
     if (member && this.members) {
@@ -175,7 +175,7 @@ export default class PieceInfoAndFeatures extends React.Component<PIANFProps> {
   /**
    *
    *
-   * @memberof PieceInfoAndFeatures
+   * @memberof PieceInfoFeatures
    */
   componentWillUnmount() {
     setTimeout(() => {
@@ -187,7 +187,7 @@ export default class PieceInfoAndFeatures extends React.Component<PIANFProps> {
    *
    *
    * @returns
-   * @memberof PieceInfoAndFeatures
+   * @memberof PieceInfoFeatures
    */
   render() {
     const pieceData = this.props.pieceData;
@@ -196,9 +196,9 @@ export default class PieceInfoAndFeatures extends React.Component<PIANFProps> {
 
     const mobileAvailability = pieceData.mobileAvailability;
     const desktopPreferred =
-      mobileAvailability === PieceInfoAndFeatures.DESKTOP_PREFERRED;
+      mobileAvailability === PieceInfoFeatures.DESKTOP_PREFERRED;
     const desktopOnly =
-      mobileAvailability === PieceInfoAndFeatures.DESKTOP_ONLY;
+      mobileAvailability === PieceInfoFeatures.DESKTOP_ONLY;
     const isGame = pieceData.isGame === "1";
 
     const hasFlash = false;

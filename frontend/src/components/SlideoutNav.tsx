@@ -1,10 +1,10 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
-import MiscUtils from "../../utils/MiscUtils";
+import MiscUtils from "utils/MiscUtils";
 
-import "@/styles/slideout-nav.scss";
+import "./SlideOutNav.scss";
 
-interface SlideoutNavProps {
+interface SlideOutNavProps {
   collapseSlideOutHandler: Function;
 }
 
@@ -25,11 +25,11 @@ interface SlideoutNavProps {
  * @since The beginning of time.
  * @version N/A
  */
-class SlideoutNav extends React.Component<SlideoutNavProps> {
+class SlideOutNav extends React.Component<SlideOutNavProps> {
   /**
    *
    *
-   * @memberof SlideoutNav
+   * @memberof SlideOutNav
    */
   handleCollapseNav = () => {
     this.props.collapseSlideOutHandler();
@@ -39,7 +39,7 @@ class SlideoutNav extends React.Component<SlideoutNavProps> {
    *
    *
    * @returns
-   * @memberof SlideoutNav
+   * @memberof SlideOutNav
    */
   render() {
     return (
@@ -89,4 +89,4 @@ class SlideoutNav extends React.Component<SlideoutNavProps> {
   }
 }
 
-export default SlideoutNav;
+export default SlideOutNav;

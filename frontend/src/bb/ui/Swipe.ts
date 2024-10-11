@@ -1,7 +1,7 @@
 import Signal from "simplesignal";
 import Point from "@mapbox/point-geometry";
 import ExecutionEnvironment from "exenv";
-import Sniffer from "../../utils/Sniffer";
+import Sniffer from "utils/Sniffer";
 
 /**
  *

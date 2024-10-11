@@ -1,14 +1,14 @@
 import React from "react";
 import ReactDOM from "react-dom";
 
-import PieceThumbnail from "../components/PieceThumbnail";
-import HeaderMain from "../components/layout/HeaderMain";
+import PieceThumbnail from "components/PieceThumbnail";
+import HeaderMain from "components/HeaderMain";
 
 import portfolioData from "../PortfolioData";
 import ExecutionEnvironment from "exenv";
 import Sniffer from "../utils/Sniffer";
 
-import "@/styles/portfolio-list.scss";
+import "./PortfolioList.scss";
 
 /**
  * The list of portfolio pieces, each represented by buttons/thumbnails on the home/portfolio page that are

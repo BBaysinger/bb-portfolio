@@ -1,6 +1,6 @@
 import React, { CSSProperties } from "react";
 
-import "@/styles/screen-shot.scss";
+import "./ScreenShot.scss";
 
 interface ScreenShotProps {
   showMobile: boolean;

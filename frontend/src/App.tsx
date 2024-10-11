@@ -1,26 +1,26 @@
 import { Component } from "react";
+import { Provider } from "react-redux";
+import { Route, Routes } from "react-router";
+import { applyMiddleware, combineReducers, compose, createStore } from "redux";
+
 import {
   createRouterMiddleware,
   createRouterReducer,
   ReduxRouter,
   ReduxRouterSelector,
 } from "@lagunovsky/redux-react-router";
-import { createBrowserHistory } from "history";
-import { Provider } from "react-redux";
-import { Route, Routes } from "react-router";
-import { applyMiddleware, combineReducers, compose, createStore } from "redux";
-
 import ExecutionEnvironment from "exenv";
+import { createBrowserHistory } from "history";
 
-import NavBar from "./components/layout/NavBar";
+import NavBar from "components/NavBar";
 import CurriculumVitae from "./pages/CurriculumVitae";
 import WhoAmI from "./pages/WhoAmI";
-import PortfolioList from "./pages/PortfolioList";
-import Footer from "./components/layout/Footer";
+import PortfolioList from "./components/PortfolioList";
+import Footer from "./components/Footer";
 import PieceDetail from "./pages/PieceDetail";
-import SlideOutNav from "./components/layout/SlideoutNav";
+import SlideOutNav from "./components/SlideOutNav";
 
-import "@/styles/app.scss";
+import "./App.scss";
 
 /**
  *

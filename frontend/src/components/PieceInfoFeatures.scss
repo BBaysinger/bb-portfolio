@@ -1,6 +1,6 @@
 // TODO: This need split out for detail view and infos.
 
-@import "_global-vars";
+@import "@/styles/_global";
 
 /**
  * @fileOverview 
@@ -59,7 +59,7 @@
 // Transitions
 ////////////////////////////////
 
-// TODO: Pass the transition states into PieceInfoAndFeatures so we aren't looking to the parent for transition state.
+// TODO: Pass the transition states into PieceInfoFeatures so we aren't looking to the parent for transition state.
 
 .reset {
   pointer-events: none;

@@ -1,6 +1,6 @@
 import React from "react";
 
-import HeaderSub from "../components/layout/HeaderSub";
+import HeaderSub from "components/HeaderSub";
 
 /**
  * Contact page that I need to develop...

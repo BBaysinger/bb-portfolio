@@ -1,8 +1,8 @@
 import React from "react";
 
-import HeaderSub from "../components/layout/HeaderSub";
+import HeaderSub from "components/HeaderSub";
 
-import "@/styles/whoami.scss";
+import "./WhoAmI.scss";
 
 /**
  * My about page, titled as a question for some pseudo-mystery. Who's The Riddler now?
