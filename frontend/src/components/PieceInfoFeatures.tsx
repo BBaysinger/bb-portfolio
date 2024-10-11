@@ -197,8 +197,7 @@ export default class PieceInfoFeatures extends React.Component<PIANFProps> {
     const mobileAvailability = pieceData.mobileAvailability;
     const desktopPreferred =
       mobileAvailability === PieceInfoFeatures.DESKTOP_PREFERRED;
-    const desktopOnly =
-      mobileAvailability === PieceInfoFeatures.DESKTOP_ONLY;
+    const desktopOnly = mobileAvailability === PieceInfoFeatures.DESKTOP_ONLY;
     const isGame = pieceData.isGame === "1";
 
     const hasFlash = false;

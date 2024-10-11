@@ -110,7 +110,7 @@ export default class Swipe {
    *
    * @memberof Swipe
    */
-  _swipeDirection:string | null = null;
+  _swipeDirection: string | null = null;
 
   /**
    *
@@ -118,7 +118,7 @@ export default class Swipe {
    * @type {Point}
    * @memberof Swipe
    */
-  _startCoords:Point | null = null;
+  _startCoords: Point | null = null;
 
   /**
    * The direction of the swipe.
@@ -136,7 +136,7 @@ export default class Swipe {
    * @readonly
    * @memberof Swipe
    */
-  _swipeAngle:number | null = null;
+  _swipeAngle: number | null = null;
 
   /**
    * Debug mode enabled.
@@ -185,7 +185,7 @@ export default class Swipe {
    *
    * @memberof Swipe
    */
-  elements:Array<HTMLElement> = [];
+  elements: Array<HTMLElement> = [];
 
   /**
    *
@@ -210,7 +210,7 @@ export default class Swipe {
    * @param {*} elements
    * @memberof Swipe
    */
-  init = (elements:Array<HTMLElement>) => {
+  init = (elements: Array<HTMLElement>) => {
     this.update();
 
     this.elements = elements.concat();
@@ -278,7 +278,7 @@ export default class Swipe {
    * @returns
    * @memberof Swipe
    */
-  handlePointerDown = (evt:Event) => {
+  handlePointerDown = (evt: Event) => {
     let pageXY;
 
     if (evt instanceof MouseEvent) {
@@ -329,7 +329,7 @@ export default class Swipe {
    * @param {*} evt
    * @memberof Swipe
    */
-  cancelMouseMove(_:Event | null) {
+  cancelMouseMove(_: Event | null) {
     this.elements.forEach((element) => {
       element.removeEventListener("mousemove", this.handlePointerMove);
       element.removeEventListener("touchmove", this.handlePointerMove);
@@ -342,7 +342,7 @@ export default class Swipe {
    * @param {*} evt
    * @memberof Swipe
    */
-  handlePointerUp = (evt:Event) => {
+  handlePointerUp = (evt: Event) => {
     this.cancelMouseMove(evt);
   };
 
@@ -353,7 +353,7 @@ export default class Swipe {
    * @returns
    * @memberof Swipe
    */
-  handlePointerMove = (evt:Event) => {
+  handlePointerMove = (evt: Event) => {
     if (!this.started) return;
 
     if (this._startCoords === null) {

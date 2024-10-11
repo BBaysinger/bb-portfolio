@@ -26,7 +26,7 @@ div#main {
     rgba(0, 0, 0, 1) 100%
   );
 
-  @media screen and (min-width:$smpx) {
+  @media screen and (min-width: $smpx) {
     display: none;
   }
 
