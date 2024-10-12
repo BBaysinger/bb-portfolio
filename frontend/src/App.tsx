@@ -13,12 +13,12 @@ import ExecutionEnvironment from "exenv";
 import { createBrowserHistory } from "history";
 
 import NavBar from "components/NavBar";
-import CurriculumVitae from "./pages/CurriculumVitae";
-import WhoAmI from "./pages/WhoAmI";
-import PortfolioList from "./components/PortfolioList";
-import Footer from "./components/Footer";
-import PieceDetail from "./pages/PieceDetail";
-import SlideOutNav from "./components/SlideOutNav";
+import CurriculumVitae from "pages/CurriculumVitae";
+import WhoAmI from "pages/WhoAmI";
+import PortfolioList from "components/PortfolioList";
+import Footer from "components/Footer";
+import PieceDetail from "pages/PieceDetail";
+import SlideOutNav from "components/SlideOutNav";
 
 import "./App.scss";
 

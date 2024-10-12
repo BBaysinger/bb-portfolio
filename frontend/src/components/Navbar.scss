@@ -2,10 +2,11 @@
 
 #top-navbar {
   position: fixed;
-  background-color: black;
+  background: linear-gradient(to right, #111, #222);
   z-index: 10;
   width: 100vw;
   display: flex;
+  min-height: 46px;
 
   div.the-navbar {
     padding-left: 0;
@@ -27,33 +28,31 @@
       }
     }
 
-    /* Boostrap (theme) override stuff. */
-
-    @media (max-width: $smpx) {
-      .navbar-nav {
-        width: 100%;
-      }
-      .navbar-nav li {
-        // float: right;
-      }
-    }
-
     .navbar-nav {
       margin: 0;
     }
 
-    .navbar-nav > li > a.active {
-      color: #ffffff !important;
-    }
-
-    .navbar-toggle {
-      position: absolute;
+    ul.navbar-nav {
+      font-size: 12px;
+      position: relative;
       top: 50%;
-      right: 0;
-      margin-left: 0px;
-      margin-top: 0px;
-      margin-bottom: 0px;
       transform: translateY(-50%);
+      margin-right: 10px;
+      > li {
+        list-style-type: none;
+        padding: 0;
+        margin-right: 20px;
+        > a {
+          color: #999;
+        }
+        > a.active {
+          color: #fff !important;
+        }
+        > a:hover {
+          color: #fff;
+          text-decoration: underline;
+        }
+      }
     }
 
     // This is to deal with a 1px gap that occurs in iOS Safari above the nav,
@@ -69,20 +68,58 @@
     }
   }
 
+  .navbar-toggle {
+    position: absolute;
+    top: 50%;
+    right: 15px;
+    margin-left: 0px;
+    margin-top: 0px;
+    margin-bottom: 0px;
+    transform: translateY(-50%);
+    font-size: 0;
+    height: 34px;
+    width: 44px;
+    border-radius: 4px;
+    border: 1px solid #333;
+    background-color: transparent;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    outline: none; /* Prevents highlight on focus. */
+
+    .icon-bar {
+      display: block;
+      width: 22px;
+      height: 2px;
+      background-color: #fff;
+      margin: 2px 0;
+      transition: all 0.3s ease;
+    }
+
+    @media screen and (min-width:$smpx) {
+      display: none;
+    }
+  }
+
   /* MISC */
 
   .nav-logo-text {
     font-size: 18px;
+    display: flex;
+    flex-direction: column;
 
     p {
-      margin-bottom: 0px;
-      line-height: 20px;
+      margin-block-start: 0;
+      margin-bottom: -2px;
       padding-left: 48px;
       font-size: 20px;
 
+      &:last-of-type {
+        margin-bottom: 0px;
+      }
+
       &:nth-child(2) {
-        position: absolute;
-        bottom: 2px;
         font-size: 14px;
 
         @media (max-width: $smpx) {
@@ -92,13 +129,11 @@
         @media (max-width: $xspx) {
           font-size: 10.5px;
           line-height: 10px;
-          bottom: 6px;
         }
 
         @media (max-width: $sspx) {
           font-size: 9px;
           line-height: 9px;
-          bottom: 6px;
           min-width: 200px;
         }
       }
@@ -106,9 +141,6 @@
   }
 
   #navTitle {
-    margin-top: 4px;
-    min-height: $navbarSize;
     color: #ffffff;
-    display: inline-block;
   }
 }
