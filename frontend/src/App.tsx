@@ -17,7 +17,7 @@ import CurriculumVitae from "pages/CurriculumVitae";
 import WhoAmI from "pages/WhoAmI";
 import PortfolioList from "components/PortfolioList";
 import Footer from "components/Footer";
-import PieceDetail from "pages/PieceDetail";
+import PieceDetailWrapper from "pages/PieceDetailWrapper";
 import SlideOutNav from "components/SlideOutNav";
 
 import "./App.scss";
@@ -196,7 +196,7 @@ class App extends Component<AppProps, AppState> {
                 <Route path="/portfolio" element={<PortfolioList />}></Route>
                 <Route
                   path="/portfolio/:pieceId"
-                  element={<PieceDetail pieceId="someId" />}
+                  element={<PieceDetailWrapper pieceId="someId" />}
                 ></Route>
                 {/* <Route path="/pieces/:pieceId" render={(props) => (
                   <PieceDetail {...props} currentPieceId="someId" />

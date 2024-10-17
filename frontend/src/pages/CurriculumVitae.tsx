@@ -272,7 +272,7 @@ export default class CurriculumVitae extends React.Component {
         <HeaderSub head={"Curriculum Vitae"} subhead={""} />
 
         <div id="main_content" className="container cv-page">
-          <div className="section">
+          <div className="row section">
             <div className={divClassLt}>
               <h4>Experience</h4>
             </div>
@@ -679,7 +679,7 @@ export default class CurriculumVitae extends React.Component {
             </div>
           </div>
 
-          <div className="section">
+          <div className="row section">
             <div className={divClassLt}>
               <h4>Education</h4>
             </div>
@@ -697,7 +697,7 @@ export default class CurriculumVitae extends React.Component {
             </div>
           </div>
 
-          <div className="section">
+          <div className="row section">
             <div className={divClassLt}>
               <h4>Skills</h4>
             </div>
@@ -725,7 +725,7 @@ export default class CurriculumVitae extends React.Component {
             </div>
           </div>
 
-          <div className="section">
+          <div className="row section">
             <div className={divClassLt}>
               <h4>Awards</h4>
             </div>
@@ -766,7 +766,7 @@ export default class CurriculumVitae extends React.Component {
             </div>
           </div>
 
-          <div className="section">
+          <div className="row section">
             <div className={divClassLt}>
               <h4>Clients</h4>
             </div>

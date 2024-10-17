@@ -47,6 +47,7 @@ header {
   h6,
   .h6 {
     margin-bottom: 0px;
+    color: #fff;
   }
 
   > * {
@@ -54,6 +55,7 @@ header {
   }
 
   h1 {
+    color: #fff;
     font-weight: 400; // Only a factor before fonts load.
     margin-top: 0px;
     margin-bottom: 0px;

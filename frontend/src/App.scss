@@ -20,11 +20,12 @@ body {
   // it doesn't look like there's a cutoff when iOS Safari users scroll up.
   // It would be #222222 without the logo.
   background-color: #2a2a2a;
-  color: #fff;
+  color: #444444;
 }
 
 div#main {
   width: 100vw;
+  background-color: #fff;
 }
 
 .nobr {

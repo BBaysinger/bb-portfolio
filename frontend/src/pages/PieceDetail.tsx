@@ -2,7 +2,7 @@ import ExecutionEnvironment from "exenv";
 
 import React from "react";
 import { Link } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 
 import HeaderSub from "components/HeaderSub";
 import ScreenShot from "components/ScreenShot";
@@ -30,6 +30,7 @@ type PieceDetailState = {
 
 interface PieceDetailRouterProps {
   pieceId: string;
+  navigate: (to: string, options?: { replace?: boolean; state?: any }) => void;
 }
 
 // interface PieceDetailProps {
@@ -51,7 +52,7 @@ interface PieceDetailRouterProps {
  * @version N/A
  */
 export default class PieceDetail extends React.Component<PieceDetailRouterProps> {
-  navigate = useNavigate();
+  // navigate = useNavigate();
 
   static json: any = json;
 
@@ -163,11 +164,11 @@ export default class PieceDetail extends React.Component<PieceDetailRouterProps>
       initialShotImgsLoaded: false,
     };
 
-    this.state.currentPieceId = props.match.params.pieceId;
+    this.state.currentPieceId = props.pieceId;
 
     setTimeout(() => {
       this.setState({
-        currentPieceId: props.match.params.pieceId,
+        currentPieceId: props.pieceId,
         transition: ScreenShot.TRANS_IN,
       });
     }, 30); // Delay necessary to trigger React to reflow.
@@ -180,9 +181,9 @@ export default class PieceDetail extends React.Component<PieceDetailRouterProps>
    */
   handleSwiped = () => {
     if (this.swipe.swipeDirection === Swipe.SWIPE_LT) {
-      this.navigate("/portfolio/" + this.nextId);
+      this.props.navigate("/portfolio/" + this.nextId);
     } else if (this.swipe.swipeDirection === Swipe.SWIPE_RT) {
-      this.navigate("/portfolio/" + this.prevId);
+      this.props.navigate("/portfolio/" + this.prevId);
     }
   };
 
