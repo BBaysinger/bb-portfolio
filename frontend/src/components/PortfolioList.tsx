@@ -78,9 +78,9 @@ export default class PortfolioList extends React.Component {
    * @param {*} e
    */
   handleScrollOrResize = (e: Event) => {
-    // A best practice that can help performance for processes that
-    // may cause dropped frames on scroll.
     if (!this.ticking) {
+      // A best practice that can help performance for processes that
+      // may cause dropped frames on scroll.
       window.requestAnimationFrame(() => {
         this.update(e);
         this.ticking = false;
