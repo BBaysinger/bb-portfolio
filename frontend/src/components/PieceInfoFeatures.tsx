@@ -101,7 +101,7 @@ export default class PieceInfoFeatures extends React.Component<PIANFProps> {
    */
   getWalkthroughButtons(walkthroughObj: any) {
     let buttons: Array<JSX.Element> = [];
-    let urls: Array<any> = [];
+    let urls: Array<string> = [];
     let group = null;
 
     Object.keys(walkthroughObj).forEach((prop) => {
@@ -123,7 +123,7 @@ export default class PieceInfoFeatures extends React.Component<PIANFProps> {
 
     if (buttons.length > 1) {
       group = (
-        <div className="btn-group goto_example_group" ref={this.addMember}>
+        <div className="btn-group" ref={this.addMember}>
           <div className="btn btn-group-label">Walkthroughs:</div>
           {buttons}
         </div>
@@ -131,7 +131,7 @@ export default class PieceInfoFeatures extends React.Component<PIANFProps> {
     } else if (buttons.length > 0) {
       group = (
         <a
-          className="btn btn-default goto_example_btn"
+          className="btn btn-default"
           ref={this.addMember}
           target="_blank"
           rel="noopener noreferrer"
@@ -162,13 +162,13 @@ export default class PieceInfoFeatures extends React.Component<PIANFProps> {
    */
   addMember = (member: HTMLElement | null) => {
     if (member && this.members) {
-      // TODO: Dunno why this is needed. Figure out later.
       this.members.push(member);
-      member.style.transitionDelay = 0.1 + this.members.length * 0.01 + "s";
-      member.style.transitionDuration = this.members.length * 0.05 + "s";
+      member.style.transitionDelay = 0.1 + this.members.length * 0.02 + "s";
+      member.style.transitionDuration = this.members.length * 0.2 + "s";
+      // member.style.border = "1px solid red";
     } else {
       // TODO: Figure out how this happens.
-      // console.log('eh?');
+      console.log('eh?');
     }
   };
 
@@ -179,6 +179,7 @@ export default class PieceInfoFeatures extends React.Component<PIANFProps> {
    */
   componentWillUnmount() {
     setTimeout(() => {
+      // Garbage collect.
       this.members = [];
     }, 0);
   }
@@ -220,7 +221,7 @@ export default class PieceInfoFeatures extends React.Component<PIANFProps> {
     const gameButton = () => {
       const gameButton = (
         <button
-          className={"btn btn-default goto_example_btn " + gameButtonClass}
+          className={"btn btn-default " + gameButtonClass}
           onClick={gameButtonClick}
           ref={this.addMember}
           style={gameButtonStyle}
@@ -310,11 +311,11 @@ export default class PieceInfoFeatures extends React.Component<PIANFProps> {
 
         {warning}
 
-        <div className="features_links">
+        {/* <div className="features_links"> */}
           {gameButton()}
 
           <a
-            className="btn btn-default goto_example_btn"
+            className="btn btn-default"
             target="_blank"
             ref={this.addMember}
             rel="noopener noreferrer"
@@ -324,7 +325,7 @@ export default class PieceInfoFeatures extends React.Component<PIANFProps> {
             Visit Site
           </a>
           <a
-            className="btn btn-default goto_example_btn"
+            className="btn btn-default"
             target="_blank"
             ref={this.addMember}
             rel="noopener noreferrer"
@@ -334,7 +335,7 @@ export default class PieceInfoFeatures extends React.Component<PIANFProps> {
             Code Repository
           </a>
           <a
-            className="btn btn-default goto_example_btn"
+            className="btn btn-default"
             target="_blank"
             ref={this.addMember}
             rel="noopener noreferrer"
@@ -345,7 +346,7 @@ export default class PieceInfoFeatures extends React.Component<PIANFProps> {
           </a>
 
           {this.getWalkthroughButtons(walkthroughs)}
-        </div>
+        {/* </div> */}
       </div>
     );
   }

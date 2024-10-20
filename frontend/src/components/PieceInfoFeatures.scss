@@ -72,6 +72,10 @@
   pointer-events: none;
 }
 
+#piece-info-and-features > * {
+  transition: opacity 2s, transform 2s;
+}
+
 .reset #piece-info-and-features > * {
   // NOTE: iOS Chrome does not load images in elements where opacity is zero.
   // Set it to minium allowed value instead of zero.
