@@ -7,6 +7,15 @@ import {
 
 import { createBrowserHistory } from 'history';
 
+/**
+ * 
+ *
+ *
+ * @author Bradley Baysinger
+ * @since The beginning of time.
+ * @version N/A
+ */
+
 /*
 * Create a history object
 */

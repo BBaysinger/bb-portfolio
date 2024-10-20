@@ -1,3 +1,11 @@
+/**
+ * 
+ *
+ *
+ * @author Bradley Baysinger
+ * @since The beginning of time.
+ * @version N/A
+ */
 
 /*
 * Example reducer

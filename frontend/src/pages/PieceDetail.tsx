@@ -13,7 +13,6 @@ import portfolioData from "../PortfolioData";
 import PieceInfoFeatures from "components/PieceInfoFeatures";
 
 import blankPNG from "../assets/images/misc/blank.png";
-
 import json from "../data/portfolio.json";
 
 import "./PieceDetail.scss";
@@ -34,7 +33,7 @@ interface PieceDetailRouterProps {
 
 /**
  * The parent component that owns the different parts of the display of each portfolio item.
- * There are screenshots, paragraphs, and then buttons.
+ * There are screenshots, paragraphs, warnings and buttons in various configurations.
  *
  * Screenshots are displayed within depictions of devices. The paragraphs are sometimes styled
  * differently depending on the type of information. And the buttons
@@ -157,13 +156,6 @@ export default class PieceDetail extends React.Component<PieceDetailRouterProps>
     };
 
     this.state.currentPieceId = props.pieceId;
-
-    setTimeout(() => {
-      this.setState({
-        currentPieceId: props.pieceId,
-        transition: ScreenShot.TRANS_IN,
-      });
-    }, 30); // Delay necessary to trigger React to reflow.
   }
 
   /**
@@ -261,6 +253,11 @@ export default class PieceDetail extends React.Component<PieceDetailRouterProps>
     if (swiper) {
       this.swipe.init([swiper as HTMLElement]);
     }
+
+    this.setState({
+      currentPieceId: this.props.pieceId,
+      transition: ScreenShot.TRANS_IN,
+    });
   }
 
   /**
@@ -416,6 +413,7 @@ export default class PieceDetail extends React.Component<PieceDetailRouterProps>
       showMobile,
       id,
       transition = "";
+
     const activeKeys: Array<string> = portfolioData.activeKeys;
 
     this.infoReactElems = activeKeys.map((_, i) => {
@@ -470,12 +468,8 @@ export default class PieceDetail extends React.Component<PieceDetailRouterProps>
     return (
       <div className="portfolio_piece">
         <HeaderSub head={title} subhead={subtitle} />
-
         <div id="main_content" className="portfolio_piece_body">
-          {/*///////////////////////////////////////////////////////////////////////////////*/}
-
           <div className="container logo_container">{clientLogos}</div>
-
           <div id="portfolioSlideDirection" className={slideDirection}>
             <div id="swiper">
               <div id="full_piece_device_container" style={containerStyle}>
@@ -508,8 +502,6 @@ export default class PieceDetail extends React.Component<PieceDetailRouterProps>
           >
             {this.infoReactElems}
           </span>
-
-          {/*///////////////////////////////////////////////////////////////////////////////*/}
         </div>
       </div>
     );
