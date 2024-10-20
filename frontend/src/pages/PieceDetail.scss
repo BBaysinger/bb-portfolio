@@ -157,7 +157,7 @@
   }
 
   .warn_element {
-    color: $orange;
+    color: $red;
   }
 
   .warn_element {
@@ -233,10 +233,10 @@
     margin-right: 15px;
   }
 
-  .btn-default,
-  .btn-group-label {
-    margin-top: 30px;
-  }
+  // .btn-default,
+  // .btn-group-label {
+  //   margin-top: 30px;
+  // }
 
   .btn-group .btn-default {
     margin-right: 0;

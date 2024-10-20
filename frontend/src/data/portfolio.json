@@ -246,34 +246,6 @@
       "desktopSite": "/_projects/mobile-share/"
     }
   },
-  "ball-construction": {
-    "title": "Ball Construction",
-    "active": "1",
-    "omitFromList": "0",
-    "clientId": "ball_construction",
-    "mobileOrientation": "portrait",
-    "property": "",
-    "shortDesc": "",
-    "desc": [
-      "A local client for a change. Any Spokane residents will be familiar with some of the work of Ball Construction.",
-      "I designed this site years ago, and later integrated CMS."
-    ],
-    "tags": "Craft CMS, HTML5, CSS3",
-    "warnings": [],
-    "role": "Designer, Contributing Developer",
-    "year": "2019",
-    "awards": "",
-    "type": "",
-    "mobileAvailability": "mobile_available",
-    "isGame": "0",
-    "urls": {
-      "walkthroughs": {
-        "default": ""
-      },
-      "site": "",
-      "desktopSite": "https://ballconstruction.net"
-    }
-  },
   "bikini-bottom": {
     "title": "Bikini Bottom Buddy Search",
     "active": "1",

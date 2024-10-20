@@ -16,7 +16,7 @@ interface PIANFProps {
  * differently depending on the type of information. And the buttons
  * link out to the features available for each portfolio peice.
  *
- * TODO: This could be more pure if we separated these out to two components...
+ * TODO: Could this be more pure if we separated these out to two components?...
  *
  * @author Bradley Baysinger
  * @since The beginning of time.
@@ -310,40 +310,42 @@ export default class PieceInfoFeatures extends React.Component<PIANFProps> {
 
         {warning}
 
-        {gameButton()}
+        <div className="features_links">
+          {gameButton()}
 
-        <a
-          className="btn btn-default goto_example_btn"
-          target="_blank"
-          ref={this.addMember}
-          rel="noopener noreferrer"
-          href={desktopSite || site}
-          style={siteButtonStyle}
-        >
-          Visit Site
-        </a>
-        <a
-          className="btn btn-default goto_example_btn"
-          target="_blank"
-          ref={this.addMember}
-          rel="noopener noreferrer"
-          href={repoURL}
-          style={repoButtonStyle}
-        >
-          Code Repository
-        </a>
-        <a
-          className="btn btn-default goto_example_btn"
-          target="_blank"
-          ref={this.addMember}
-          rel="noopener noreferrer"
-          href={reelURL}
-          style={reelButtonStyle}
-        >
-          Watch Reel
-        </a>
+          <a
+            className="btn btn-default goto_example_btn"
+            target="_blank"
+            ref={this.addMember}
+            rel="noopener noreferrer"
+            href={desktopSite || site}
+            style={siteButtonStyle}
+          >
+            Visit Site
+          </a>
+          <a
+            className="btn btn-default goto_example_btn"
+            target="_blank"
+            ref={this.addMember}
+            rel="noopener noreferrer"
+            href={repoURL}
+            style={repoButtonStyle}
+          >
+            Code Repository
+          </a>
+          <a
+            className="btn btn-default goto_example_btn"
+            target="_blank"
+            ref={this.addMember}
+            rel="noopener noreferrer"
+            href={reelURL}
+            style={reelButtonStyle}
+          >
+            Watch Reel
+          </a>
 
-        {this.getWalkthroughButtons(walkthroughs)}
+          {this.getWalkthroughButtons(walkthroughs)}
+        </div>
       </div>
     );
   }

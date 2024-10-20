@@ -2,7 +2,6 @@ import ExecutionEnvironment from "exenv";
 
 import React from "react";
 import { Link } from "react-router-dom";
-// import { useNavigate } from "react-router-dom";
 
 import HeaderSub from "components/HeaderSub";
 import ScreenShot from "components/ScreenShot";
@@ -33,11 +32,6 @@ interface PieceDetailRouterProps {
   navigate: (to: string, options?: { replace?: boolean; state?: any }) => void;
 }
 
-// interface PieceDetailProps {
-//   // https://stackoverflow.com/a/46899010/1253298
-//   currentPieceId: string;
-// }
-
 /**
  * The parent component that owns the different parts of the display of each portfolio item.
  * There are screenshots, paragraphs, and then buttons.
@@ -52,8 +46,6 @@ interface PieceDetailRouterProps {
  * @version N/A
  */
 export default class PieceDetail extends React.Component<PieceDetailRouterProps> {
-  // navigate = useNavigate();
-
   static json: any = json;
 
   /**
@@ -383,7 +375,7 @@ export default class PieceDetail extends React.Component<PieceDetailRouterProps>
     const ScreenShots: Array<JSX.Element> = [];
 
     /* If phone is turned horizontally (landscape) the devices need scaled down further
-    so as to avoid them bleeding off the edges of the viewport */
+    so as to avoid them bleeding off the edges of the viewport. */
     const isScaledOnHeight = scale * 693 < window.innerWidth - 100;
 
     const containerStyle = {
