@@ -2,7 +2,7 @@
 //TODO: Bundle fonts with Webpack. Only those that show on first load.
 @font-face {
   font-family: "Roboto";
-  src: url("./fonts/roboto.woff2") format("woff2");
+  src: url("@/styles/fonts/roboto.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
 }
