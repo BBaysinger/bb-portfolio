@@ -1,16 +1,13 @@
 import { Component } from "react";
 import { Provider } from "react-redux";
 import { Route, Routes } from "react-router";
-import { configureStore } from "@reduxjs/toolkit";
-
-import {
-  createRouterMiddleware,
-  createRouterReducer,
-  ReduxRouter,
-  ReduxRouterSelector,
-} from "@lagunovsky/redux-react-router";
 import ExecutionEnvironment from "exenv";
-import { createBrowserHistory } from "history";
+
+import { ReduxRouter } from "@lagunovsky/redux-react-router";
+
+import store from "store/store";
+import { history } from "store/store";
+import { routerSelector } from "store/selectors";
 
 import NavBar from "components/NavBar";
 import CurriculumVitae from "pages/CurriculumVitae";
@@ -37,43 +34,14 @@ interface AppState {
 /**
  *
  */
-type State = ReturnType<typeof store.getState>;
-
-/**
- *
- */
-const history = createBrowserHistory();
-
-/**
- *
- */
-const store = configureStore({
-  reducer: {
-    navigator: createRouterReducer(history),
-  },
-  middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(createRouterMiddleware(history)),
-  devTools: process.env.NODE_ENV !== "production", // Enable DevTools in development
-});
-
-/**
- *
- */
-const routerSelector: ReduxRouterSelector<State> = (state) => state.navigator;
-
-/**
- *
- */
 class App extends Component<AppProps, AppState> {
   /**
-   *
    *
    * @memberof App
    */
   ticking = false;
 
   /**
-   *
    *
    * @memberof App
    */
@@ -106,7 +74,6 @@ class App extends Component<AppProps, AppState> {
   /**
    *
    *
-   * @param {*} e
    * @memberof App
    */
   handleScroll = () => {
@@ -190,9 +157,6 @@ class App extends Component<AppProps, AppState> {
                   path="/portfolio/:pieceId"
                   element={<PieceDetailWrapper pieceId="someId" />}
                 ></Route>
-                {/* <Route path="/pieces/:pieceId" render={(props) => (
-                  <PieceDetail {...props} currentPieceId="someId" />
-                )} /> */}
                 <Route path="/cv" element={<CurriculumVitae />}></Route>
                 <Route path="/whoami" element={<WhoAmI />}></Route>
               </Route>
