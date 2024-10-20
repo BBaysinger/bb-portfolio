@@ -1,7 +1,7 @@
 import { Component } from "react";
 import { Provider } from "react-redux";
 import { Route, Routes } from "react-router";
-import { applyMiddleware, combineReducers, compose, createStore } from "redux";
+import { configureStore } from "@reduxjs/toolkit";
 
 import {
   createRouterMiddleware,
@@ -47,22 +47,14 @@ const history = createBrowserHistory();
 /**
  *
  */
-const routerMiddleware = createRouterMiddleware(history);
-
-/**
- *
- */
-const rootReducer = combineReducers({
-  navigator: createRouterReducer(history),
+const store = configureStore({
+  reducer: {
+    navigator: createRouterReducer(history),
+  },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(createRouterMiddleware(history)),
+  devTools: process.env.NODE_ENV !== "production", // Enable DevTools in development
 });
-
-/**
- *
- */
-const store = createStore(
-  rootReducer,
-  compose(applyMiddleware(routerMiddleware))
-);
 
 /**
  *
