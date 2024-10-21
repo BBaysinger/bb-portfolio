@@ -1,20 +1,22 @@
-import React from "react";
+import React, { ReactNode } from "react";
 
-import Sniffer from "../utils/Sniffer";
+// import Sniffer from "../utils/Sniffer";
 
 import "./PieceInfoFeatures.scss";
 
-interface PIANFProps {
+interface PortfolioPieceData {
+  desc: string[];
+  urls: Map<string, string[] | string>;
+  role: string;
+}
+
+interface PieceInfoFeaturesProps {
   transition: string;
-  pieceData: any;
+  pieceData: PortfolioPieceData;
 }
 
 /**
- * The component that owns the buttons and paragraphs of the display of each portfolio item.
- *
- * The paragraphs can be styled
- * differently depending on the type of information. And the buttons
- * link out to the features available for each portfolio peice.
+ * Display and animate the descriptions, features, and urls/buttons of each portfolio item.
  *
  * TODO: Could this be more pure if we separated these out to two components?...
  *
@@ -22,23 +24,7 @@ interface PIANFProps {
  * @since The beginning of time.
  * @version N/A
  */
-export default class PieceInfoFeatures extends React.Component<PIANFProps> {
-  /**
-   *
-   *
-   * @static
-   * @memberof PieceInfoFeatures
-   */
-  static DESKTOP_PREFERRED = "desktop_preferred";
-
-  /**
-   *
-   *
-   * @static
-   * @memberof PieceInfoFeatures
-   */
-  static DESKTOP_ONLY = "desktop_only";
-
+export default class PieceInfoFeatures extends React.Component<PieceInfoFeaturesProps> {
   /**
    *
    *
@@ -93,59 +79,6 @@ export default class PieceInfoFeatures extends React.Component<PIANFProps> {
   }
 
   /**
-   *
-   *
-   * @param {*} walkthroughObj
-   * @returns
-   * @memberof PieceInfoFeatures
-   */
-  getWalkthroughButtons(walkthroughObj: any) {
-    let buttons: Array<JSX.Element> = [];
-    let urls: Array<string> = [];
-    let group = null;
-
-    Object.keys(walkthroughObj).forEach((prop) => {
-      if (walkthroughObj[prop] !== "") {
-        urls.push(walkthroughObj[prop]);
-        buttons.push(
-          <a
-            className="btn btn-default"
-            target="_blank"
-            rel="noopener noreferrer"
-            key={prop}
-            href={urls[urls.length - 1]}
-          >
-            {prop}
-          </a>
-        );
-      }
-    });
-
-    if (buttons.length > 1) {
-      group = (
-        <div className="btn-group" ref={this.addMember}>
-          <div className="btn btn-group-label">Walkthroughs:</div>
-          {buttons}
-        </div>
-      );
-    } else if (buttons.length > 0) {
-      group = (
-        <a
-          className="btn btn-default"
-          ref={this.addMember}
-          target="_blank"
-          rel="noopener noreferrer"
-          href={urls[0]}
-        >
-          Walkthrough
-        </a>
-      );
-    }
-
-    return group;
-  }
-
-  /**
    * TODO: Figure out why this member doesn't exist on refs at runtime.
    *
    * @readonly
@@ -163,12 +96,13 @@ export default class PieceInfoFeatures extends React.Component<PIANFProps> {
   addMember = (member: HTMLElement | null) => {
     if (member && this.members) {
       this.members.push(member);
-      member.style.transitionDelay = 0.1 + this.members.length * 0.02 + "s";
-      member.style.transitionDuration = this.members.length * 0.2 + "s";
-      // member.style.border = "1px solid red";
+      member.style.transitionDelay =
+        this.members.length * 0.0 + "s, " + this.members.length * 0.01 + "s";
+      member.style.transitionDuration =
+        this.members.length * 0.2 + "s, " + this.members.length * 0.2 + "s";
     } else {
-      // TODO: Figure out how this happens.
-      console.log('eh?');
+      // TODO: Is this a problem?
+      console.log("eh?");
     }
   };
 
@@ -191,107 +125,39 @@ export default class PieceInfoFeatures extends React.Component<PIANFProps> {
    * @memberof PieceInfoFeatures
    */
   render() {
-    const pieceData = this.props.pieceData;
-    const { desc, warnings } = pieceData;
-    const { site, desktopSite, walkthroughs, repo, reel } = pieceData.urls;
+    const pieceData: PortfolioPieceData = this.props.pieceData;
+    const { desc, urls, role } = pieceData;
 
-    const mobileAvailability = pieceData.mobileAvailability;
-    const desktopPreferred =
-      mobileAvailability === PieceInfoFeatures.DESKTOP_PREFERRED;
-    const desktopOnly = mobileAvailability === PieceInfoFeatures.DESKTOP_ONLY;
-    const isGame = pieceData.isGame === "1";
+    const descs = desc.map((htmlContent, index) => (
+      <div
+        key={index}
+        ref={this.addMember}
+        dangerouslySetInnerHTML={{ __html: htmlContent }}
+      />
+    ));
 
-    const hasFlash = false;
-
-    const gameButtonStyle = { display: isGame ? "" : "none" };
-    const siteButtonStyle = {
-      display: !isGame && !(Sniffer.mobile && desktopOnly) ? "" : "none",
-    };
-    const repoButtonStyle = { display: repo ? "" : "none" };
-    const reelButtonStyle = { display: reel ? "" : "none" };
-
-    const gameButtonClass = !hasFlash && desktopOnly ? "disabled" : "";
-    const gameButtonClick = void 0;
-    const reelURL = reel;
-    const repoURL = repo;
-    const gameURL = Sniffer.mobile ? site || null : desktopSite || site;
-
-    let warning = null;
-
-    const gameButton = () => {
-      const gameButton = (
-        <button
-          className={"btn btn-default " + gameButtonClass}
-          onClick={gameButtonClick}
-          ref={this.addMember}
-          style={gameButtonStyle}
-        >
-          Play Game
-        </button>
-      );
-
-      return !hasFlash && desktopOnly ? (
-        gameButton
-      ) : (
-        <a
-          target="_blank"
-          rel="noopener noreferrer"
-          ref={this.addMember}
-          href={gameURL}
-        >
-          {gameButton}
-        </a>
-      );
-    };
-
-    const descsDivs = React.Children.map(desc, (paragraph) => {
-      return (
-        <p className="desc_paragraph" ref={this.addMember}>
-          {paragraph}
-        </p>
-      );
+    const urlBtns: ReactNode = Object.entries(urls).map(([label, urls]) => {
+      if (Array.isArray(urls)) {
+        return (
+          <span className="btn-group" ref={this.addMember} key={label}>
+            <span className="btn btn-group-label">{label}</span>
+            {urls.map((item, index) => (
+              <a key={item} href={item} className="btn">
+                {index + 1}
+              </a>
+            ))}
+          </span>
+        );
+      } else if (typeof urls === "string") {
+        return (
+          <a className="btn" href={urls} ref={this.addMember} key={urls}>
+            {label}
+          </a>
+        );
+      } else {
+        throw new Error("Type must be string[] or string.");
+      }
     });
-
-    const warnsDivs = React.Children.map(warnings, (paragraph) => {
-      return (
-        <p className="desc_paragraph warn_paragraph" ref={this.addMember}>
-          {paragraph}
-        </p>
-      );
-    });
-
-    if (desktopPreferred && Sniffer.mobile) {
-      warning = (
-        <p
-          className="mobile_unavailable game_desktop_preferred desc_element"
-          ref={this.addMember}
-        >
-          Best viewed on desktop/laptop browsers.
-        </p>
-      );
-    } else if (!hasFlash && desktopOnly) {
-      let link = (
-        <a
-          href="https://get.adobe.com/flashplayer/"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Flash Player
-        </a>
-      );
-
-      if (Sniffer.mobile) link = <div>Flash Player</div>;
-
-      warning = (
-        <p
-          ref={this.addMember}
-          className="mobile_unavailable game_mobile_unavailable desc_element warn_element"
-        >
-          Viewable on desktop/laptop browsers (Firefox recommended) with {link}{" "}
-          installed.
-        </p>
-      );
-    }
 
     return (
       <div
@@ -302,51 +168,17 @@ export default class PieceInfoFeatures extends React.Component<PIANFProps> {
           this.domElem = domElem;
         }}
       >
-        {descsDivs}
-        {warnsDivs}
-
-        <div className="my_contribution desc_element" ref={this.addMember}>
-          Role:<span className="role"> {pieceData.role}</span>
+        <div className="desc-paragraphs">
+          {descs}
+          {role && (
+            <div ref={this.addMember}>
+              <p>
+                <span>Role:</span> {role}
+              </p>
+            </div>
+          )}
         </div>
-
-        {warning}
-
-        {/* <div className="features_links"> */}
-          {gameButton()}
-
-          <a
-            className="btn btn-default"
-            target="_blank"
-            ref={this.addMember}
-            rel="noopener noreferrer"
-            href={desktopSite || site}
-            style={siteButtonStyle}
-          >
-            Visit Site
-          </a>
-          <a
-            className="btn btn-default"
-            target="_blank"
-            ref={this.addMember}
-            rel="noopener noreferrer"
-            href={repoURL}
-            style={repoButtonStyle}
-          >
-            Code Repository
-          </a>
-          <a
-            className="btn btn-default"
-            target="_blank"
-            ref={this.addMember}
-            rel="noopener noreferrer"
-            href={reelURL}
-            style={reelButtonStyle}
-          >
-            Watch Reel
-          </a>
-
-          {this.getWalkthroughButtons(walkthroughs)}
-        {/* </div> */}
+        <div className="url-btns">{urlBtns}</div>
       </div>
     );
   }

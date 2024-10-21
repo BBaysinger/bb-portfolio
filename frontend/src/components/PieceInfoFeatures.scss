@@ -17,49 +17,66 @@
     position: relative;
   }
 
-  .btn-group-label, .btn {
-    background-color: #333333;
-    color: #ffffff;
-    cursor: pointer;
+  .btn {
+    margin-right: 20px;
+  }
+
+  .btn-group {
+    flex-direction: row;
+    .btn {
+      margin-right: 0;
+    }
   }
 
   .btn-group-label {
     cursor: default;
   }
 
-  .warn_paragraph {
-    color: #fcaa00; // TODO: Used to be red. We probably need separate orange and red...
+  .btn-group-label,
+  .btn {
+    background-color: #333333;
+    color: #ffffff;
   }
 
-  .game_desktop_preferred,
-  .game_mobile_unavailable,
-  .site_mobile_unavailable {
-    a:link {
-      color: black !important;
-    }
-    a:visited {
-      color: black !important;
+  .desc-paragraphs {
+    p {
+      margin-bottom: 10px;
     }
   }
 
-  .game_desktop_preferred,
-  .game_mobile_unavailable {
-    color: $red;
-  }
+  // .warn_paragraph {
+  //   color: #fcaa00; // TODO: Used to be red. We probably need separate orange and red...
+  // }
 
-  .site_mobile_unavailable {
-    color: $red;
-  }
+  // .game_desktop_preferred,
+  // .game_mobile_unavailable,
+  // .site_mobile_unavailable {
+  //   a:link {
+  //     color: black !important;
+  //   }
+  //   a:visited {
+  //     color: black !important;
+  //   }
+  // }
 
-  .mobile_unavailable {
-    margin-top: 22px;
-    margin-bottom: 0;
-  }
+  // .game_desktop_preferred,
+  // .game_mobile_unavailable {
+  //   color: $red;
+  // }
 
-  .features_links {
-    display: flex;
-    margin-top: 30px;
-  }
+  // .site_mobile_unavailable {
+  //   color: $red;
+  // }
+
+  // .mobile_unavailable {
+  //   margin-top: 22px;
+  //   margin-bottom: 0;
+  // }
+
+  // .features_links {
+  //   display: flex;
+  //   margin-top: 30px;
+  // }
 }
 
 ////////////////////////////////
@@ -72,31 +89,53 @@
   pointer-events: none;
 }
 
-#piece-info-and-features > * {
-  transition: opacity 2s, transform 2s;
+// #piece-info-and-features > div.desc-paragraphs > div {
+//   // This is required for the paragraphs to animate their transform (in Chrome).
+//   display: block;
+// }
+
+#piece-info-and-features {
+  > div.desc-paragraphs > div,
+  > .url-btns > * {
+    transition-property: opacity, transform;
+    transition-duration: 0.5s, 0.5s;
+    transition-delay: 0.1s, 0.1s;
+    position: relative;
+  }
 }
 
-.reset #piece-info-and-features > * {
+.reset #piece-info-and-features {
   // NOTE: iOS Chrome does not load images in elements where opacity is zero.
   // Set it to minium allowed value instead of zero.
-  opacity: 0.001;
-  transform: translateY(20px);
+  > .desc-paragraphs > *,
+  > .url-btns > * {
+    opacity: 0.001;
+    transform: translateY(20px);
+  }
 }
 
-.trans_in #piece-info-and-features > * {
-  opacity: 1;
-  left: 0;
-  transform: translateY(0);
+.trans_in #piece-info-and-features {
+  > .desc-paragraphs > *,
+  > .url-btns > * {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.trans_out #piece-info-and-features > * {
-  opacity: 0.001;
-  transform: translateY(-5px);
+.trans_out #piece-info-and-features {
+  > .desc-paragraphs > *,
+  > .url-btns > * {
+    opacity: 0.001;
+    transform: translateY(-5px);
+  }
 }
 
-.init #piece-info-and-features > * {
-  opacity: 0.001;
-  transition: top 0.3s ease-out, opacity 0.3s;
+.init #piece-info-and-features {
+  > .desc-paragraphs > *,
+  > .url-btns > * {
+    opacity: 0.001;
+    transition: top 0.3s ease-out, opacity 0.3s;
+  }
 }
 
 ////////////////////////////////
