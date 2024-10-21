@@ -98,6 +98,7 @@
   > div.desc-paragraphs > div,
   > .url-btns > * {
     transition-property: opacity, transform;
+    transition-timing-function: ease, ease;
     transition-duration: 0.5s, 0.5s;
     transition-delay: 0.1s, 0.1s;
     position: relative;
