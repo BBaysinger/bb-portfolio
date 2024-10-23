@@ -1,7 +1,5 @@
 import React, { ReactNode } from "react";
 
-// import Sniffer from "../utils/Sniffer";
-
 import "./PieceInfoFeatures.scss";
 
 interface PortfolioPieceData {
