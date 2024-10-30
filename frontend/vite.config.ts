@@ -10,4 +10,11 @@ export default defineConfig({
       '@': '/src', // Set up an alias
     }
   },
+  css: {
+    preprocessorOptions: {
+      scss: {
+        api: 'modern-compiler' // or "modern"
+      },
+    },
+  },
 })
