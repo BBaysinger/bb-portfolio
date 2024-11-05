@@ -12,7 +12,7 @@ import { routerSelector } from "store/selectors";
 import NavBar from "components/NavBar";
 import CurriculumVitae from "pages/CurriculumVitae";
 import WhoAmI from "pages/WhoAmI";
-//import SlideOutNav from "components/SlideOutNav";
+import SlideOutNav from "components/SlideOutNav2";
 import PortfolioList from "components/PortfolioList";
 import Footer from "components/Footer";
 import PieceDetailWrapper from "pages/PieceDetailWrapper";
@@ -136,9 +136,9 @@ class App extends Component<AppProps, AppState> {
     return (
       <Provider store={store}>
         <ReduxRouter history={history} routerSelector={routerSelector}>
-          {/* <SlideOutNav
+          <SlideOutNav
             collapseSlideOutHandler={this.handleResize}
-          ></SlideOutNav> */}
+          ></SlideOutNav>
           <div
             id="main"
             style={
