@@ -210,7 +210,7 @@ class Footer extends React.Component {
               Built with React
             </a>
           </div>
-          &copy; <span style={{ color: "#ffffff" }}>BBInteractive</span>.co
+          &copy; <span style={{ color: "#ffffff" }}>BBInteractive</span>.io
         </div>
       </footer>
     );
