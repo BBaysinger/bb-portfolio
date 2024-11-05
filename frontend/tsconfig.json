@@ -22,9 +22,9 @@
 
     /* Custom */
     "composite": true,
-    "baseUrl": "src"
+    "baseUrl": "./src"
   },
-  "files": [],
-  "references": [],
-  "include": ["src"]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules"],
+  "references": []
 }
