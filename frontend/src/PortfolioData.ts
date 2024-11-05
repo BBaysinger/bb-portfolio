@@ -10,7 +10,6 @@ import json from "./data/portfolio.json";
  */
 
 export default class PortfolioData {
-
   static json: any = json;
   static keys: Array<string> = Object.keys(json);
 
@@ -29,12 +28,13 @@ export default class PortfolioData {
           PortfolioData.listedKeys.push(key);
         }
         PortfolioData.activeKeys[PortfolioData.activeIndex] = key;
-        PortfolioData.activePieces[PortfolioData.activeIndex] = PortfolioData.json[key];
+        PortfolioData.activePieces[PortfolioData.activeIndex] =
+          PortfolioData.json[key];
         PortfolioData.activePiecesMap[key] = PortfolioData.json[key];
         PortfolioData.activeIndex++;
       }
     });
-  }
+  };
 
   static pieceIndex = (key: string) => {
     return PortfolioData.activeKeys.indexOf(key);

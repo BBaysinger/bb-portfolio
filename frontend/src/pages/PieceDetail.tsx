@@ -219,7 +219,7 @@ export default class PieceDetail extends React.Component<PieceDetailRouterProps>
    */
   get currentPieceIndex(): number {
     return Object.keys(portfolioData.activePiecesMap).indexOf(
-      this.state.currentPieceId
+      this.state.currentPieceId,
     );
   }
 
@@ -242,7 +242,7 @@ export default class PieceDetail extends React.Component<PieceDetailRouterProps>
       window.addEventListener("resize", this.handleResize);
       window.addEventListener(
         "orientationchange",
-        this.handleOrientationChange
+        this.handleOrientationChange,
       );
     }
 
@@ -269,7 +269,7 @@ export default class PieceDetail extends React.Component<PieceDetailRouterProps>
     window.removeEventListener("resize", this.handleResize);
     window.removeEventListener(
       "orientationchange",
-      this.handleOrientationChange
+      this.handleOrientationChange,
     );
 
     this.swipe.kill();
@@ -284,7 +284,7 @@ export default class PieceDetail extends React.Component<PieceDetailRouterProps>
    */
   componentDidUpdate(
     prevProps: PieceDetailRouterProps,
-    prevState: PieceDetailState
+    prevState: PieceDetailState,
   ) {
     if (prevState.currentPieceId !== this.state.currentPieceId) {
       this.handleResize();
@@ -405,7 +405,7 @@ export default class PieceDetail extends React.Component<PieceDetailRouterProps>
           key={key}
           className={"client-logo " + logoClass}
           style={logoStyle}
-        ></div>
+        ></div>,
       );
     });
 

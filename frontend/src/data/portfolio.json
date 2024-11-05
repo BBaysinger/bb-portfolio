@@ -355,14 +355,9 @@
     "awards": "",
     "type": "",
     "isGame": "0",
-    "desc": [
-      "<p>Some HTML.</p>"
-    ],
+    "desc": ["<p>Some HTML.</p>"],
     "urls": {
-      "Walkthroughs:": [
-        "some/url.html",
-        "some/url.html"
-      ],
+      "Walkthroughs:": ["some/url.html", "some/url.html"],
       "View Site": "some/url.html",
       "Play Game": "some/url.html"
     }
