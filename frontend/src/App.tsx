@@ -12,10 +12,10 @@ import { routerSelector } from "store/selectors";
 import NavBar from "components/NavBar";
 import CurriculumVitae from "pages/CurriculumVitae";
 import WhoAmI from "pages/WhoAmI";
+import SlideOutNav from "components/SlideOutNav";
 import PortfolioList from "components/PortfolioList";
 import Footer from "components/Footer";
 import PieceDetailWrapper from "pages/PieceDetailWrapper";
-import SlideOutNav from "components/SlideOutNav";
 
 import "./App.scss";
 
