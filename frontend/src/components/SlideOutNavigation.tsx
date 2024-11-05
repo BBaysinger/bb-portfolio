@@ -2,7 +2,7 @@ import React from "react";
 import { NavLink } from "react-router-dom";
 import MiscUtils from "utils/MiscUtils";
 
-import "./SlideOutNav2.scss";
+import "./SlideOutNavigation.scss";
 
 interface SlideOutNavProps {
   collapseSlideOutHandler: Function;
