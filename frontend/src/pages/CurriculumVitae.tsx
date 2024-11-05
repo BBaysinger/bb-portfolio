@@ -89,7 +89,7 @@ export default class CurriculumVitae extends React.Component {
    * @memberof CurriculumVitae
    */
   tech = [
-    "Angular 2/4/6/8/10",
+    "Angular",
     "React",
     "jQuery",
     "RxJS",
@@ -115,6 +115,9 @@ export default class CurriculumVitae extends React.Component {
     "GreenSock / GSAP",
     "Flambé / 2DKit",
     "Create / EaselJS",
+    "Salesforce",
+    "Sitecore",
+    "OneTrust",
   ];
 
   /**
@@ -133,7 +136,6 @@ export default class CurriculumVitae extends React.Component {
     "SPAs",
     "OOP",
     "MVC",
-    "MVVM",
     "DHTML",
     "accessibility",
     "SEO",
@@ -277,13 +279,15 @@ export default class CurriculumVitae extends React.Component {
               <h4>Experience</h4>
             </div>
             <div className={divClassRt}>
+              {/*-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --*/}
+
               <div className="cv-listing">
-                <h5>Independent Contractor</h5>
+                <h5>Epsilon</h5>
 
                 <div className="sub-container">
-                  <div className="left-sub">Interactive Web Developer</div>
+                  <div className="left-sub">Senior Front-end Developer</div>
                   <div className="break"></div>
-                  <div className="right-sub">[ 2019 - Present ]</div>
+                  <div className="right-sub">[ 2021 - 2024 ]</div>
                 </div>
 
                 <p className="desc">
@@ -329,7 +333,61 @@ export default class CurriculumVitae extends React.Component {
                 </ul>
               </div>
 
-              {/*-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- ----*/}
+              {/*-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --*/}
+
+              <div className="cv-listing">
+                <h5>Independent Contractor</h5>
+
+                <div className="sub-container">
+                  <div className="left-sub">Interactive Web Developer</div>
+                  <div className="break"></div>
+                  <div className="right-sub">[ 2019 - 2021 ]</div>
+                </div>
+
+                <p className="desc">
+                  Provided technical leadership in consulting and website
+                  production of specialized and focused projects for diverse
+                  clients, including local businesses, nationally-targeted
+                  startups, an international charity, and a pharmaceutical
+                  marketing&nbsp;agency
+                </p>
+
+                <p className="scope">
+                  <span>Technical Scope:</span> Angular 2+, TypeScript, React,
+                  SVG, SCSS, Elasticsearch, Craft&nbsp;CMS
+                </p>
+
+                <ul>
+                  <li>
+                    Consulting, scoping, wire-framing, time-lining, and
+                    development of interactive, responsive&nbsp;websites
+                  </li>
+                  <li>
+                    Working closely with clients, stakeholders, and freelance
+                    partners to conceptualize custom UI/UX&nbsp;presentations
+                  </li>
+                  <li>
+                    Analyzed business requirements, participated in technical
+                    design, development and testing
+                    cross-platform&nbsp;strategies
+                  </li>
+                  <li>
+                    Built and integrated an Angular employment application
+                    tracking system with Elasticsearch
+                    (consumed&nbsp;via&nbsp;REST)
+                  </li>
+                  <li>
+                    Collaborated and organized with different teams remotely via
+                    Jira, Smartsheet, Google Docs, and video&nbsp;conferencing
+                  </li>
+                  <li>
+                    Designed and coded application components in Agile
+                    environments and development&nbsp;approaches
+                  </li>
+                </ul>
+              </div>
+
+              {/*-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --*/}
 
               <div className="cv-listing">
                 <h5>Seven2 Interactive</h5>
@@ -388,7 +446,7 @@ export default class CurriculumVitae extends React.Component {
                 </ul>
               </div>
 
-              {/*-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- ----*/}
+              {/*-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --*/}
 
               <div className="cv-listing">
                 <h5>ChalkLabs</h5>
@@ -461,13 +519,15 @@ export default class CurriculumVitae extends React.Component {
                 </ul>
               </div>
 
-              {/*-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- ----*/}
+              {/*-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --*/}
 
               <div className="cv-listing">
                 <h5>Seven2 Interactive</h5>
 
                 <div className="sub-container">
-                  <div className="left-sub">Interactive Web Developer</div>
+                  <div className="left-sub">
+                    Flash/Interactive Web Developer
+                  </div>
                   <div className="break"></div>
                   <div className="right-sub">[ 2005 - 2016 ]</div>
                 </div>
@@ -533,13 +593,15 @@ export default class CurriculumVitae extends React.Component {
                 </ul>
               </div>
 
-              {/*-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- ----*/}
+              {/*-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --*/}
 
               <div className="cv-listing">
                 <h5>SCW Consulting</h5>
 
                 <div className="sub-container">
-                  <div className="left-sub">Designer / UI Developer</div>
+                  <div className="left-sub">
+                    Designer / Front-end Web Developer
+                  </div>
                   <div className="break"></div>
                   <div className="right-sub">[ 2005 ]</div>
                 </div>
@@ -580,20 +642,22 @@ export default class CurriculumVitae extends React.Component {
                 </ul>
               </div>
 
-              {/*-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- ----*/}
+              {/*-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --*/}
 
               <div className="cv-listing">
                 <h5>Freelance</h5>
 
                 <div className="sub-container">
-                  <div className="left-sub">Designer / UI Developer</div>
+                  <div className="left-sub">
+                    Designer / Front-end Web Developer
+                  </div>
                   <div className="break"></div>
                   <div className="right-sub">[ 2003 - 2005 ]</div>
                 </div>
 
                 <p className="desc">
                   Design and development of interactive websites for businesses
-                  in the Spokane&nbsp;area
+                  in the Spokane area concurrently while in design&nbsp;school
                 </p>
 
                 <p className="scope">
@@ -616,12 +680,13 @@ export default class CurriculumVitae extends React.Component {
                   </li>
                   <li>
                     Produced websites and other projects that met criteria and
-                    received credit for school&nbsp;curriculum
+                    received credit for school curriculum in the SFCC Web
+                    Design&nbsp;program
                   </li>
                 </ul>
               </div>
 
-              {/*-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- ----*/}
+              {/*-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --*/}
 
               <div className="cv-listing">
                 <h5>Hobbyist</h5>
