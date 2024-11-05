@@ -267,7 +267,7 @@ export default class Swipe {
   update() {
     this._nMinSwipeDistance = Math.min(
       window.innerWidth / 4,
-      Swipe.MIN_PIXEL_SWIPE_DIST
+      Swipe.MIN_PIXEL_SWIPE_DIST,
     );
   }
 
@@ -287,7 +287,7 @@ export default class Swipe {
       pageXY = new Point(evt.touches[0].clientX, evt.touches[0].clientY);
     } else {
       throw new Error(
-        "Event.page X/Y or Event.touches[0].client X/Y required."
+        "Event.page X/Y or Event.touches[0].client X/Y required.",
       );
     }
 
@@ -369,7 +369,7 @@ export default class Swipe {
       pageXY = new Point(evt.touches[0].clientX, evt.touches[0].clientY);
     } else {
       throw new Error(
-        "Event.page X/Y or Event.touches[0].client X/Y required."
+        "Event.page X/Y or Event.touches[0].client X/Y required.",
       );
     }
 
@@ -381,7 +381,7 @@ export default class Swipe {
         let angle = (this._swipeAngle =
           Math.atan2(
             pageXY.y - this._startCoords.y,
-            pageXY.x - this._startCoords.x
+            pageXY.x - this._startCoords.x,
           ) *
           (180 / Math.PI));
         if (isNaN(angle)) {

@@ -1,14 +1,14 @@
-import { configureStore } from '@reduxjs/toolkit';
+import { configureStore } from "@reduxjs/toolkit";
 
 import {
   createRouterMiddleware,
   createRouterReducer,
 } from "@lagunovsky/redux-react-router";
 
-import { createBrowserHistory } from 'history';
+import { createBrowserHistory } from "history";
 
 /**
- * 
+ *
  *
  *
  * @author Bradley Baysinger
@@ -17,8 +17,8 @@ import { createBrowserHistory } from 'history';
  */
 
 /*
-* Create a history object
-*/
+ * Create a history object
+ */
 export const history = createBrowserHistory();
 
 /**

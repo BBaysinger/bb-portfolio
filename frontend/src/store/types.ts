@@ -1,7 +1,7 @@
 import store from "./store";
 
 /**
- * 
+ *
  *
  *
  * @author Bradley Baysinger

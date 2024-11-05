@@ -204,7 +204,9 @@
     background-repeat: no-repeat;
     position: absolute;
     visibility: hidden;
-    transition: filter 0.5s linear, transform 0.5s linear;
+    transition:
+      filter 0.5s linear,
+      transform 0.5s linear;
 
     filter: blur(20px);
     transform: scaleY($scaleY);

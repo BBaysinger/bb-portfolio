@@ -41,12 +41,7 @@ export default class PieceThumbnail extends React.Component<PieceThumbnailProps>
 
     return (
       <div
-        className={
-          "piece-thumbnail " +
-          focus +
-          " " +
-          hoverEnabled
-        }
+        className={"piece-thumbnail " + focus + " " + hoverEnabled}
         style={style}
       >
         <Link to={"/portfolio/" + pieceId}>

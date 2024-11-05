@@ -1,24 +1,24 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react-swc'
-import tsconfigPaths from 'vite-tsconfig-paths'
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react-swc";
+import tsconfigPaths from "vite-tsconfig-paths";
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react(), tsconfigPaths()],
   resolve: {
     alias: {
-      '@': '/src', // Set up an alias
-    }
+      "@": "/src", // Set up an alias
+    },
   },
   css: {
     preprocessorOptions: {
       scss: {
-        api: 'modern-compiler' // or "modern"
+        api: "modern-compiler", // or "modern"
       },
     },
   },
   build: {
-    outDir: 'dist', // The output directory
+    outDir: "dist", // The output directory
     emptyOutDir: true, // Clears the output directory before each build
   },
-})
+});

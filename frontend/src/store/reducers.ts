@@ -1,5 +1,5 @@
 /**
- * 
+ *
  *
  *
  * @author Bradley Baysinger
@@ -8,8 +8,8 @@
  */
 
 /*
-* Example reducer
-*/
+ * Example reducer
+ */
 // const exampleReducer = (state = {}, action: any) => {
 //     switch (action.type) {
 //         // Define your cases here

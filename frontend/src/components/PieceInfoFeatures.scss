@@ -135,7 +135,9 @@
   > .desc-paragraphs > *,
   > .url-btns > * {
     opacity: 0.001;
-    transition: top 0.3s ease-out, opacity 0.3s;
+    transition:
+      top 0.3s ease-out,
+      opacity 0.3s;
   }
 }
 
