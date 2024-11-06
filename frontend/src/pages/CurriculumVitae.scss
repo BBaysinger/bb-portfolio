@@ -4,6 +4,7 @@
   h5 {
     position: relative;
     font-weight: 500;
+    margin-bottom: 3px;
 
     .location {
       font-weight: 500;
@@ -14,12 +15,12 @@
   .left-sub {
     font-weight: bold;
     img.cv-logo {
-      width: 46px;
-      height: auto;
+      width: auto;
+      height: 46px;
       float: left;
       position: relative;
       top: 5px;
-      margin-right: 10px;
+      margin-right: 14px;
     }
   }
 
