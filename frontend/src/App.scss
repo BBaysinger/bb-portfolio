@@ -79,10 +79,11 @@ h6,
 
 .right-sub,
 .left-sub {
-  font-size: 16px;
+  font-size: 18px;
   color: $heavierThemeColor;
   margin-bottom: 6px;
   margin-top: 0px;
+  white-space: nowrap;
 }
 
 .right-sub {

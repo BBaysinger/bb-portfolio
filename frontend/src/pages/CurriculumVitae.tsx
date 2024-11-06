@@ -332,12 +332,11 @@ export default class CurriculumVitae extends React.Component {
 
                 <ul>
                   <li>
-                    UI Component Development for Golden1 Credit Union: Developed
-                    dynamic and reusable UI components, including forms with
-                    robust validation and data-driven informational grids, for
-                    the Golden1 Credit Union website. Leveraged Preact and
-                    jQuery to create a seamless user experience with a SiteCore
-                    CMS&nbsp;backend.
+                    Developed dynamic and reusable UI components, including
+                    forms with robust validation and data-driven informational
+                    grids, for the Golden 1 Credit Union website. Leveraged
+                    Preact and jQuery to create a seamless user experience with
+                    a SiteCore CMS&nbsp;backend.
                   </li>
                   <li>
                     Utilized Angular's template-driven and reactive forms, along
@@ -373,10 +372,21 @@ export default class CurriculumVitae extends React.Component {
               {/*-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --*/}
 
               <div className="cv-listing">
-                <h5>Independent Contractor</h5>
-
                 <div className="sub-container">
-                  <div className="left-sub">Interactive Web Developer</div>
+                  <div className="left-sub">
+                    <h5>
+                      <img
+                        src="/images/cv-logos/bb.png"
+                        className="cv-logo"
+                        alt="BBInteractive Logo"
+                      />
+                      BB Interactive
+                      <span className="location">
+                        &nbsp;&nbsp;-&nbsp;&nbsp;Remote Independent Contractor
+                      </span>
+                    </h5>
+                    Front-end Developer
+                  </div>
                   <div className="break"></div>
                   <div className="right-sub">[ 2019 - 2021 ]</div>
                 </div>
@@ -433,10 +443,21 @@ export default class CurriculumVitae extends React.Component {
               {/*-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --*/}
 
               <div className="cv-listing">
-                <h5>Seven2 Interactive</h5>
-
                 <div className="sub-container">
-                  <div className="left-sub">Interactive Web Developer</div>
+                  <div className="left-sub">
+                    <h5>
+                      <img
+                        src="/images/cv-logos/s2.png"
+                        className="cv-logo"
+                        alt="Seven2"
+                      />
+                      Seven2 Interactive
+                      <span className="location">
+                        &nbsp;&nbsp;-&nbsp;&nbsp;Spokane, WA
+                      </span>
+                    </h5>
+                    Interactive / Front-end Web Developer
+                  </div>
                   <div className="break"></div>
                   <div className="right-sub">[ 2018 - 2019 ]</div>
                 </div>
@@ -492,10 +513,21 @@ export default class CurriculumVitae extends React.Component {
               {/*-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --*/}
 
               <div className="cv-listing">
-                <h5>ChalkLabs</h5>
-
                 <div className="sub-container">
-                  <div className="left-sub">UI Developer</div>
+                  <div className="left-sub">
+                    <h5>
+                      <img
+                        src="/images/cv-logos/chalklabs.png"
+                        className="cv-logo"
+                        alt="Seven2"
+                      />
+                      ChalkLabs
+                      <span className="location">
+                        &nbsp;&nbsp;-&nbsp;&nbsp;Spokane, WA
+                      </span>
+                    </h5>
+                    UI Developer
+                  </div>
                   <div className="break"></div>
                   <div className="right-sub">[ 2017 - 2018 ]</div>
                 </div>
@@ -565,11 +597,20 @@ export default class CurriculumVitae extends React.Component {
               {/*-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --*/}
 
               <div className="cv-listing">
-                <h5>Seven2 Interactive</h5>
-
                 <div className="sub-container">
                   <div className="left-sub">
-                    Flash/Interactive Web Developer
+                    <h5>
+                      <img
+                        src="/images/cv-logos/s2.png"
+                        className="cv-logo"
+                        alt="Seven2"
+                      />
+                      Seven2 Interactive
+                      <span className="location">
+                        &nbsp;&nbsp;-&nbsp;&nbsp;Spokane, WA
+                      </span>
+                    </h5>
+                    Flash / Interactive Web Developer
                   </div>
                   <div className="break"></div>
                   <div className="right-sub">[ 2005 - 2016 ]</div>
@@ -639,10 +680,19 @@ export default class CurriculumVitae extends React.Component {
               {/*-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --*/}
 
               <div className="cv-listing">
-                <h5>SCW Consulting</h5>
-
                 <div className="sub-container">
                   <div className="left-sub">
+                    <h5>
+                      <img
+                        src="/images/cv-logos/scw.png"
+                        className="cv-logo"
+                        alt="Seven2"
+                      />
+                      SCW Consulting
+                      <span className="location">
+                        &nbsp;&nbsp;-&nbsp;&nbsp;Spokane, WA
+                      </span>
+                    </h5>
                     Designer / Front-end Web Developer
                   </div>
                   <div className="break"></div>
