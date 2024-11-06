@@ -539,9 +539,8 @@ export default class CurriculumVitae extends React.Component {
                 </p>
 
                 <p className="scope">
-                  <span>Technical Scope:</span> (Heavy) Angular, TypeScript,
-                  Bootstrap, Mapbox, Elasticsearch, HTML5, REST
-                  APIs,&nbsp;Canvas
+                  <span>Technical Scope:</span> Angular, TypeScript, Bootstrap,
+                  Mapbox, Elasticsearch, HTML5, REST APIs,&nbsp;Canvas
                 </p>
 
                 <ul>
@@ -623,8 +622,8 @@ export default class CurriculumVitae extends React.Component {
                 </p>
 
                 <p className="scope">
-                  <span>Technical Scope:</span> (Heavy) ActionScript 3,
-                  JavaScript, jQuery, Require,&nbsp;Haxe
+                  <span>Technical Scope:</span> ActionScript 3, JavaScript,
+                  jQuery, Require,&nbsp;Haxe
                 </p>
 
                 <ul>
@@ -738,10 +737,19 @@ export default class CurriculumVitae extends React.Component {
               {/*-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --*/}
 
               <div className="cv-listing">
-                <h5>Freelance</h5>
-
                 <div className="sub-container">
                   <div className="left-sub">
+                    <h5>
+                      <img
+                        src="/images/cv-logos/bb.png"
+                        className="cv-logo"
+                        alt="BV Logo"
+                      />
+                      Freelance
+                      <span className="location">
+                        &nbsp;&nbsp;-&nbsp;&nbsp;Spokane, WA
+                      </span>
+                    </h5>
                     Designer / Front-end Web Developer
                   </div>
                   <div className="break"></div>
@@ -783,10 +791,21 @@ export default class CurriculumVitae extends React.Component {
               {/*-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --*/}
 
               <div className="cv-listing">
-                <h5>Hobbyist</h5>
-
                 <div className="sub-container">
-                  <div className="left-sub">Interactive Web Tinkerer</div>
+                  <div className="left-sub">
+                    <h5>
+                      <img
+                        src="/images/cv-logos/bv.png"
+                        className="cv-logo"
+                        alt="BV Logo"
+                      />
+                      Hobbyist
+                      <span className="location">
+                        &nbsp;&nbsp;-&nbsp;&nbsp;Spokane, WA
+                      </span>
+                    </h5>
+                    Interactive Web Tinkerer
+                  </div>
                   <div className="break"></div>
                   <div className="right-sub">[ 2001 - 2003 ]</div>
                 </div>
