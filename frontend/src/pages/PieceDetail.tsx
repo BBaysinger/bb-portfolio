@@ -321,7 +321,7 @@ export default class PieceDetail extends React.Component<PieceDetailRouterProps>
             transition: ScreenShot.TRANS_IN,
           });
         }, 30); // Timing nessary to trigger React to reflow.
-      }, 400);
+      }, 500);
     }
   }
 

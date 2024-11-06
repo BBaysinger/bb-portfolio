@@ -252,8 +252,8 @@
       "<p>I produced the framework for the game and a logic system for all of the interactive elements to work with each other. At a glance, I could see that implementing 'if' statements dispersed around the site could be messy and hard to debug, so I devised a system that employs a single XML document to contain game state, define interactive elements, and how they behave with respect to each other.</p>"
     ],
     "urls": {
-      "Walkthroughs:": "https://www.youtube.com/watch?v=n2R0WPWcdWM",
-      "site": "/_projects/tomato/index.html?flambe=html"
+      "Walkthrough": "https://www.youtube.com/watch?v=n2R0WPWcdWM",
+      "Site": "/_projects/tomato/index.html?flambe=html"
     }
   },
   "butterslide": {
@@ -273,8 +273,8 @@
       "<p>With the exception of the crash scene and animations, I built the entire game. I should point out that aiming is a bit convoluted (not one-to-one) because of a client request that had us a bit crosseyed. I'll fix that as time allows.</p>"
     ],
     "urls": {
-      "Walkthrough:": "https://www.youtube.com/watch?v=Cd7cWw3sUrA",
-      "site": "/_projects/butterslide/index.html?flambe=html"
+      "Walkthrough": "https://www.youtube.com/watch?v=Cd7cWw3sUrA",
+      "Play": "/_projects/butterslide/index.html?flambe=html"
     }
   },
   "trivia": {
