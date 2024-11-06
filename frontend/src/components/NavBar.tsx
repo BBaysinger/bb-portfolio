@@ -120,8 +120,7 @@ class NavBar extends React.Component<NavBarProps, NavBarState> {
           <div className="nav-logo-text">
             <p>BRADLEY BAYSINGER</p>
             <p>
-              <span className="nobr">Interactive Web</span> &bull;{" "}
-              <span className="nobr">UI Developer</span>
+              <span className="nobr">Front-end Developer</span>
             </p>
           </div>
         </div>

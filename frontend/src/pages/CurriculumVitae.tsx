@@ -61,10 +61,10 @@ export default class CurriculumVitae extends React.Component {
     "TypeScript",
     "ES6",
     "ES5",
-    "vanilla JavaScript",
+    "Vanilla JavaScript",
     "JSX",
-    "HTML / HTML5",
-    "CSS / CSS3",
+    "HTML5",
+    "CSS3",
     "SASS / SCSS",
     "JSON",
     "XML",
@@ -90,9 +90,13 @@ export default class CurriculumVitae extends React.Component {
    */
   tech = [
     "Angular",
+    "Angular CLI",
     "React",
     "jQuery",
     "RxJS",
+    "Redux",
+    "Express",
+    "Node",
     "Babel",
     "Craft CMS",
     "NPM",
@@ -114,10 +118,14 @@ export default class CurriculumVitae extends React.Component {
     "Mapbox",
     "GreenSock / GSAP",
     "Flambé / 2DKit",
-    "Create / EaselJS",
     "Salesforce",
     "Sitecore",
     "OneTrust",
+    "Litmus",
+    "Vite",
+    "ChatGPT",
+    "Copilot AI",
+    "Perplexity AI",
   ];
 
   /**
@@ -137,7 +145,7 @@ export default class CurriculumVitae extends React.Component {
     "OOP",
     "MVC",
     "DHTML",
-    "accessibility",
+    "Accessibility",
     "SEO",
     "REST APIs",
     "Design Patterns",
@@ -249,6 +257,12 @@ export default class CurriculumVitae extends React.Component {
     "WildBrain",
     "Yesmail",
     "Novo Nordisk",
+    "Takeda Pharmaceuticals",
+    "Citibank",
+    "Golden 1 Credit Union",
+    "Avista Utilities",
+    "Committee for Children",
+    "The Heart Institute of Spokane",
     "and many more...",
   ];
 
@@ -282,10 +296,22 @@ export default class CurriculumVitae extends React.Component {
               {/*-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --*/}
 
               <div className="cv-listing">
-                <h5>Epsilon</h5>
-
                 <div className="sub-container">
-                  <div className="left-sub">Senior Front-end Developer</div>
+                  <div className="left-sub">
+                    <h5>
+                      <img
+                        src="/images/cv-logos/epsilon.png"
+                        className="cv-logo"
+                        alt="Epsilon Logo"
+                      />
+                      Epsilon
+                      <span className="location">
+                        &nbsp;&nbsp;-&nbsp;&nbsp;Irving, TX | Remote | W2
+                        Employee
+                      </span>
+                    </h5>
+                    Senior Front-end Developer
+                  </div>
                   <div className="break"></div>
                   <div className="right-sub">[ 2021 - 2024 ]</div>
                 </div>
@@ -299,36 +325,47 @@ export default class CurriculumVitae extends React.Component {
                 </p>
 
                 <p className="scope">
-                  <span>Technical Scope:</span> Angular 2+, TypeScript, React,
-                  SVG, SCSS, Elasticsearch, Craft&nbsp;CMS
+                  <span>Technical Scope:</span> Angular 17, TypeScript, RxJS,
+                  React 18, Redux, SiteCore, Modular HTML Email, Salesforce,
+                  OneTrust,&nbsp;FreeMarker
                 </p>
 
                 <ul>
                   <li>
-                    Consulting, scoping, wire-framing, time-lining, and
-                    development of interactive, responsive&nbsp;websites
+                    UI Component Development for Golden1 Credit Union: Developed
+                    dynamic and reusable UI components, including forms with
+                    robust validation and data-driven informational grids, for
+                    the Golden1 Credit Union website. Leveraged Preact and
+                    jQuery to create a seamless user experience with a SiteCore
+                    CMS&nbsp;backend.
                   </li>
                   <li>
-                    Working closely with clients, stakeholders, and freelance
-                    partners to conceptualize custom UI/UX&nbsp;presentations
+                    Utilized Angular's template-driven and reactive forms, along
+                    with SASS, to create responsive forms, data grids, and
+                    interactive elements, enhancing user experience and visual
+                    consistency on the Citibank&nbsp;website.
                   </li>
                   <li>
-                    Analyzed business requirements, participated in technical
-                    design, development and testing
-                    cross-platform&nbsp;strategies
+                    Built and managed reusable email components in Salesforce
+                    Marketing Cloud's Content Builder, streamlining email
+                    production and ensuring brand consistency across campaigns.
+                    Utilized Litmus to test, troubleshoot, and optimize email
+                    campaigns across multiple devices and clients, ensuring
+                    consistent rendering and high&nbsp;deliverability.
                   </li>
                   <li>
-                    Built and integrated an Angular employment application
-                    tracking system with Elasticsearch
-                    (consumed&nbsp;via&nbsp;REST)
+                    Created interactive tools using jQuery for the Exact
+                    Sciences website, including a detailed explorer for the
+                    Oncotype DX Breast Recurrence Score Report, enhancing user
+                    engagement and data&nbsp;accessibility.
                   </li>
                   <li>
-                    Collaborated and organized with different teams remotely via
-                    Jira, Smartsheet, Google Docs, and video&nbsp;conferencing
-                  </li>
-                  <li>
-                    Designed and coded application components in Agile
-                    environments and development&nbsp;approaches
+                    Developed and optimized consent management workflows using
+                    FreeMarker for OneTrust integration, facilitating seamless
+                    data exchange between platforms including Mulesoft and
+                    Veeva. Specialized in building event-driven and scheduled
+                    processes to direct user consent across systems, enhancing
+                    data compliance and user&nbsp;experience.
                   </li>
                 </ul>
               </div>
@@ -353,11 +390,17 @@ export default class CurriculumVitae extends React.Component {
                 </p>
 
                 <p className="scope">
-                  <span>Technical Scope:</span> Angular 2+, TypeScript, React,
-                  SVG, SCSS, Elasticsearch, Craft&nbsp;CMS
+                  <span>Technical Scope:</span> Angular, TypeScript, React, SVG,
+                  SCSS, Elasticsearch, Craft&nbsp;CMS
                 </p>
 
                 <ul>
+                  <li>
+                    Used the React Move library to animate SVG for an
+                    informational user interface for Comittee for Children, a
+                    non-profit for that helps millions of children from 70
+                    countries each&nbsp;year.
+                  </li>
                   <li>
                     Consulting, scoping, wire-framing, time-lining, and
                     development of interactive, responsive&nbsp;websites
@@ -374,7 +417,7 @@ export default class CurriculumVitae extends React.Component {
                   <li>
                     Built and integrated an Angular employment application
                     tracking system with Elasticsearch
-                    (consumed&nbsp;via&nbsp;REST)
+                    (consumed&nbsp;via&nbsp;GraphQL)
                   </li>
                   <li>
                     Collaborated and organized with different teams remotely via
@@ -404,7 +447,7 @@ export default class CurriculumVitae extends React.Component {
                 </p>
 
                 <p className="scope">
-                  <span>Technical Scope:</span> Angular 2+, React, Vue, jQuery,
+                  <span>Technical Scope:</span> Angular, React, Vue, jQuery,
                   Craft CMS, Grunt, Handlebars,&nbsp;CreateJS
                 </p>
 
@@ -464,7 +507,7 @@ export default class CurriculumVitae extends React.Component {
                 </p>
 
                 <p className="scope">
-                  <span>Technical Scope:</span> (Heavy) Angular 2+, TypeScript,
+                  <span>Technical Scope:</span> (Heavy) Angular, TypeScript,
                   Bootstrap, Mapbox, Elasticsearch, HTML5, REST
                   APIs,&nbsp;Canvas
                 </p>
@@ -613,7 +656,7 @@ export default class CurriculumVitae extends React.Component {
                 </p>
 
                 <p className="scope">
-                  <span>Technical Scope:</span> HTML, CSS, vanilla JavaScript,
+                  <span>Technical Scope:</span> HTML, CSS, Vanilla JavaScript,
                   Visual Studio, AJAX,&nbsp;DHTML
                 </p>
 
@@ -661,14 +704,15 @@ export default class CurriculumVitae extends React.Component {
                 </p>
 
                 <p className="scope">
-                  <span>Technical Scope:</span> XML, XSL, vanilla JavaScript,
+                  <span>Technical Scope:</span> XML, XSL, Vanilla JavaScript,
                   Dynamic HTML,&nbsp;PHP
                 </p>
 
                 <ul>
                   <li>
                     Conceptualizing creative UI and navigation concepts in
-                    websites for a variety of business in the Spokane&nbsp;area
+                    websites for a variety of businesses in the
+                    Spokane&nbsp;area
                   </li>
                   <li>
                     Dynamic, multi-level navigation redesign and development for
@@ -692,18 +736,20 @@ export default class CurriculumVitae extends React.Component {
                 <h5>Hobbyist</h5>
 
                 <div className="sub-container">
-                  <div className="left-sub">Interactive Tinkerer</div>
+                  <div className="left-sub">Interactive Web Tinkerer</div>
                   <div className="break"></div>
                   <div className="right-sub">[ 2001 - 2003 ]</div>
                 </div>
 
                 <p className="desc">
-                  Self-directed learning of graphics software and cross platform
-                  dynamic and interactive UI coding&nbsp;practices
+                  Self-directed learning of graphics software and
+                  cross-platform, dynamic, and interactive JavaScript while
+                  working full time as... a metal fabricator and
+                  welder.&nbsp;Yep.
                 </p>
 
                 <p className="scope">
-                  <span>Technical Scope:</span> vanilla JavaScript, HTML, CSS,
+                  <span>Technical Scope:</span> Vanilla JavaScript, HTML, CSS,
                   Dynamic HTML,&nbsp;PHP
                 </p>
 
