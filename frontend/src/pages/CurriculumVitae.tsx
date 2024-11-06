@@ -317,11 +317,8 @@ export default class CurriculumVitae extends React.Component {
                 </div>
 
                 <p className="desc">
-                  Provided technical leadership in consulting and website
-                  production of specialized and focused projects for diverse
-                  clients, including local businesses, nationally-targeted
-                  startups, an international charity, and a pharmaceutical
-                  marketing&nbsp;agency
+                  Developerd interactive and responsive websites for Fortune 500
+                  companies in banking, pharmaceuticals, and entertainment
                 </p>
 
                 <p className="scope">
