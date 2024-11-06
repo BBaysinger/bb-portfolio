@@ -1,13 +1,26 @@
 @import "@/styles/_global";
 
-.cv-page {
+#main_content.cv-page {
   h5 {
     position: relative;
-    font-weight: bold;
+    font-weight: 500;
+
+    .location {
+      font-weight: 500;
+      font-size: 16px;
+    }
   }
 
   .left-sub {
     font-weight: bold;
+    img.cv-logo {
+      width: 46px;
+      height: auto;
+      float: left;
+      position: relative;
+      top: 5px;
+      margin-right: 10px;
+    }
   }
 
   @media (min-width: $-mdpx) {
@@ -62,7 +75,7 @@
   }
 
   .desc {
-    font-weight: 600;
+    font-weight: 500;
     font-size: 16px;
     margin-bottom: 17px;
   }
@@ -70,5 +83,9 @@
   p,
   ul {
     max-width: 700px;
+
+    li {
+      margin-bottom: 6px;
+    }
   }
 }

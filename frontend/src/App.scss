@@ -1,11 +1,11 @@
 @import "@/styles/_global";
 //TODO: Bundle fonts with Webpack. Only those that show on first load.
-@font-face {
-  font-family: "Roboto";
-  src: url("@/styles/fonts/roboto.woff2") format("woff2");
-  font-weight: 400;
-  font-style: normal;
-}
+// @font-face {
+//   font-family: "Roboto";
+//   src: url("@/styles/fonts/roboto.woff2") format("woff2");
+//   font-weight: 400;
+//   font-style: normal;
+// }
 
 body,
 html {
@@ -132,7 +132,7 @@ h5 .right-sub {
   h3 {
     color: #444444;
     font-size: 50px;
-    font-weight: 400 !important;
+    font-weight: 400;
     margin-bottom: 0;
     padding-top: 0;
   }
@@ -140,7 +140,7 @@ h5 .right-sub {
   h4 {
     color: #444444;
     font-size: 34px;
-    font-weight: 400 !important;
+    font-weight: 400;
     margin-bottom: 6px;
     &:not(:first-child) {
       margin-top: 80px;
@@ -149,8 +149,8 @@ h5 .right-sub {
 
   h5 {
     color: #444444;
-    font-size: 22px;
-    font-weight: 400 !important;
+    font-size: 24px;
+    font-weight: 400;
     margin-top: 0px;
     margin-block-end: 6px;
   }

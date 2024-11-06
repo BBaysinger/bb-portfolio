@@ -119,7 +119,7 @@
     "type": "",
     "isGame": "0",
     "desc": [
-      "<p>A promotional site for Seven2 where I had the liberty of developing in whichever way I felt comfortable. I chose Angular 2+ as it was most familiar to me. Not all of the features are complete, as the project was stopped before completion.</p>",
+      "<p>A promotional site for Seven2 where I had the liberty of developing in whichever way I felt comfortable. I chose Angular as it was most familiar to me. Not all of the features are complete, as the project was stopped before completion.</p>",
       "<p>This is an extremely simple project in contrast to Angular work I did with ChalkLabs. I've included it here as it's one of the only Angular/TypeScript projects I can present source publicly.</p>"
     ],
     "urls": {

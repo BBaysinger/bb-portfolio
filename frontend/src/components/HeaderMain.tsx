@@ -151,8 +151,7 @@ export default class HeaderMain extends React.Component<{}, HeaderMainState> {
         <h1>Bradley Baysinger</h1>
 
         <h5 className="subhead">
-          <span className="nobr">Interactive Web</span> &bull;{" "}
-          <span className="nobr">UI Developer</span>
+          <span className="nobr">Front-end Developer</span>
         </h5>
 
         <div
