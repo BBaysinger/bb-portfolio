@@ -404,9 +404,9 @@ export default class CurriculumVitae extends React.Component {
                 <ul>
                   <li>
                     Used the React Move library to animate SVG for an
-                    informational user interface for Comittee for Children, a
+                    informational user interface for Committee for Children, a
                     non-profit for that helps millions of children from 70
-                    countries each&nbsp;year.
+                    countries each&nbsp;year
                   </li>
                   <li>
                     Consulting, scoping, wire-framing, time-lining, and
