@@ -715,7 +715,7 @@ export default class CurriculumVitae extends React.Component {
                   <li>
                     Design and UI development of SCW's reusable e-commerce /
                     shopping cart platform that was ahead of its time in an era
-                    preceeding solutions like&nbsp;Shopify
+                    preceding solutions like&nbsp;Shopify
                   </li>
                   <li>
                     On one particular project, shocked the agency owner by
@@ -906,7 +906,7 @@ export default class CurriculumVitae extends React.Component {
 
           <div className="row section">
             <div className={divClassLt}>
-              <h4>Awards</h4>
+              <h4>Awards / Achievements</h4>
             </div>
 
             <div className={divClassRt}>
