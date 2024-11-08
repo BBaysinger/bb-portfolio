@@ -60,7 +60,6 @@ export default class CurriculumVitae extends React.Component {
   lang = [
     "TypeScript",
     "ES6",
-    "ES5",
     "Vanilla JavaScript",
     "JSX",
     "HTML5",
@@ -72,8 +71,9 @@ export default class CurriculumVitae extends React.Component {
     "PHP",
     "Twig",
     "Haxe",
-    "AS3",
-    "AS2",
+    "ActionScript 3",
+    "ActionScript 2",
+    "FreeMarker",
   ];
 
   /**
@@ -715,7 +715,7 @@ export default class CurriculumVitae extends React.Component {
                   <li>
                     Design and UI development of SCW's reusable e-commerce /
                     shopping cart platform that was ahead of its time in an era
-                    preceeding solutions like&nbsp;shopify
+                    preceeding solutions like&nbsp;Shopify
                   </li>
                   <li>
                     On one particular project, shocked the agency owner by
@@ -774,8 +774,9 @@ export default class CurriculumVitae extends React.Component {
                     The Heart Institute&nbsp;of&nbsp;Spokane
                   </li>
                   <li>
-                    Utilized XML and XSL in a simple CMS-like approach for
-                    refurbished fitness&nbsp;equipment
+                    Utilized XML and XSL in an astonishingly simple and
+                    effective CMS-like approach for retailing refurbished
+                    fitness&nbsp;equipment
                   </li>
                   <li>
                     Produced websites and other projects that met criteria and
@@ -821,9 +822,10 @@ export default class CurriculumVitae extends React.Component {
 
                 <ul>
                   <li>
-                    Operating solely on inspiration to experiment, delved deeply
-                    into creative UI concepts beyond my skill and nurtured
-                    technical understanding to accomplish&nbsp;them
+                    Operating solely on inspiration to experiment, delved into
+                    creative UI concepts initially beyond my skill and nurtured
+                    technical understanding to accomplish building them with
+                    extensive use of vanilla JavaScript and Dynamic&nbsp;HTML
                   </li>
                   <li>
                     Took an immediate fascination with the possibilities of
@@ -832,13 +834,13 @@ export default class CurriculumVitae extends React.Component {
                   <li>
                     In a notoriously fragmented era for browsers, took on
                     cross-platform and backward-compatible challenges, partly to
-                    stand out from other developers, but mostly as an
-                    interesting and rewarding&nbsp;challenge
+                    stand out from other developers, but mostly as a
+                    rewarding&nbsp;challenge
                   </li>
                   <li>
                     This lead to creating effects that looked like Flash with
-                    only early DOM elements, which was extremely unusual due to
-                    notorious incompatibility issues of the&nbsp;era
+                    only early DOM elements, which was unusual due to notorious
+                    incompatibility issues of the&nbsp;era
                   </li>
                   <li>
                     As an experiment, into a blank browser window, populated a
@@ -909,6 +911,8 @@ export default class CurriculumVitae extends React.Component {
 
             <div className={divClassRt}>
               <div className="cv-listing">
+                <h5>14 gold badges on Stack Overflow</h5>
+
                 <h5>The Webby Awards</h5>
                 <div className="sub-container">
                   <div className="left-sub">International</div>
