@@ -317,7 +317,7 @@ export default class CurriculumVitae extends React.Component {
                 </div>
 
                 <p className="desc">
-                  Developerd interactive and responsive websites for Fortune 500
+                  Developed interactive and responsive websites for Fortune 500
                   companies in banking, pharmaceuticals, and entertainment
                 </p>
 
@@ -606,7 +606,7 @@ export default class CurriculumVitae extends React.Component {
                         &nbsp;&nbsp;-&nbsp;&nbsp;Spokane, WA
                       </span>
                     </h5>
-                    Flash / Interactive Web Developer
+                    Lead Flash / Interactive Web Developer
                   </div>
                   <div className="break"></div>
                   <div className="right-sub">[ 2005 - 2016 ]</div>
@@ -619,16 +619,16 @@ export default class CurriculumVitae extends React.Component {
                 </p>
 
                 <p className="scope">
-                  <span>Technical Scope:</span> ActionScript 3, JavaScript,
-                  jQuery, Require,&nbsp;Haxe
+                  <span>Technical Scope:</span> ActionScript 3, ActionScript 2,
+                  JavaScript, jQuery, Require,&nbsp;Haxe
                 </p>
 
                 <ul>
                   <li>
                     Continuously relied upon as a key / lead architect of
                     solutions where many developers and animators populated
-                    content / games into to flexible templates and frameworks
-                    I&nbsp;engineered
+                    content / games into to flexible templates and frameworks I
+                    engineered for everyone's&nbsp;collaboration
                   </li>
                   <li>
                     Utilized various existing game mechanics and ones authored
@@ -906,12 +906,13 @@ export default class CurriculumVitae extends React.Component {
 
           <div className="row section">
             <div className={divClassLt}>
-              <h4>Awards / Achievements</h4>
+              <h4>Achievements</h4>
             </div>
 
             <div className={divClassRt}>
               <div className="cv-listing">
                 <h5>14 gold badges on Stack Overflow</h5>
+                <div className="sub-container"></div>
 
                 <h5>The Webby Awards</h5>
                 <div className="sub-container">
@@ -922,8 +923,7 @@ export default class CurriculumVitae extends React.Component {
 
                 <div className="row">
                   <div className="col-xs-12">
-                    People's Choice — Art Website of the&nbsp;Year&nbsp; —
-                    Artocracy.org
+                    People's Choice — Art Website of the Year — Artocracy.org
                   </div>
                 </div>
               </div>
