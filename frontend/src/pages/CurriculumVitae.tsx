@@ -333,13 +333,13 @@ export default class CurriculumVitae extends React.Component {
                     forms with robust validation and data-driven informational
                     grids, for the Golden 1 Credit Union website. Leveraged
                     Preact and jQuery to create a seamless user experience with
-                    a SiteCore CMS&nbsp;backend.
+                    a SiteCore CMS&nbsp;backend
                   </li>
                   <li>
                     Utilized Angular's template-driven and reactive forms, along
                     with SASS, to create responsive forms, data grids, and
                     interactive elements, enhancing user experience and visual
-                    consistency on the Citibank&nbsp;website.
+                    consistency on the Citibank&nbsp;website
                   </li>
                   <li>
                     Built and managed reusable email components in Salesforce
@@ -347,13 +347,13 @@ export default class CurriculumVitae extends React.Component {
                     production and ensuring brand consistency across campaigns.
                     Utilized Litmus to test, troubleshoot, and optimize email
                     campaigns across multiple devices and clients, ensuring
-                    consistent rendering and high&nbsp;deliverability.
+                    consistent rendering and high&nbsp;deliverability
                   </li>
                   <li>
                     Created interactive tools using jQuery for the Exact
                     Sciences website, including a detailed explorer for the
                     Oncotype DX Breast Recurrence Score Report, enhancing user
-                    engagement and data&nbsp;accessibility.
+                    engagement and data&nbsp;accessibility
                   </li>
                   <li>
                     Developed and optimized consent management workflows using
@@ -361,7 +361,7 @@ export default class CurriculumVitae extends React.Component {
                     data exchange between platforms including Mulesoft and
                     Veeva. Specialized in building event-driven and scheduled
                     processes to direct user consent across systems, enhancing
-                    data compliance and user&nbsp;experience.
+                    data compliance and user&nbsp;experience
                   </li>
                 </ul>
               </div>
@@ -423,8 +423,8 @@ export default class CurriculumVitae extends React.Component {
                   </li>
                   <li>
                     Built and integrated an Angular employment application
-                    tracking system with Elasticsearch
-                    (consumed&nbsp;via&nbsp;GraphQL)
+                    tracking system with Elasticsearch (consumed
+                    via&nbsp;GraphQL)
                   </li>
                   <li>
                     Collaborated and organized with different teams remotely via
@@ -636,8 +636,7 @@ export default class CurriculumVitae extends React.Component {
                   </li>
                   <li>
                     Lead developer of Seven2's first game / project for
-                    Nickelodeon Group, Blue's Clues —
-                    Mix&nbsp;'N&nbsp;Match&nbsp;Dressup
+                    Nickelodeon Group, Blue's Clues — Mix 'N Match&nbsp;Dressup
                   </li>
                   <li>
                     Lead developer of every one of several first iterations of
@@ -771,7 +770,7 @@ export default class CurriculumVitae extends React.Component {
                   </li>
                   <li>
                     Dynamic, multi-level navigation redesign and development for
-                    The Heart Institute&nbsp;of&nbsp;Spokane
+                    The Heart Institute of&nbsp;Spokane
                   </li>
                   <li>
                     Utilized XML and XSL in an astonishingly simple and
