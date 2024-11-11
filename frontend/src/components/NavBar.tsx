@@ -156,14 +156,14 @@ class NavBar extends React.Component<NavBarProps, NavBarState> {
                 CV
               </NavLink>
             </li>
-            <li>
+            {/* <li>
               <NavLink
                 to="/whoami"
                 className={({ isActive }) => (isActive ? "active" : "")}
               >
                 Who Am I
               </NavLink>
-            </li>
+            </li> */}
           </ul>
         </div>
       </nav>
