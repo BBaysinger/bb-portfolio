@@ -71,7 +71,7 @@ class SlideOutNav extends React.Component<SlideOutNavProps> {
               CV
             </NavLink>
           </li>
-          <li>
+          {/* <li>
             <NavLink
               onClick={this.handleCollapseNav}
               to="/whoami"
@@ -79,7 +79,7 @@ class SlideOutNav extends React.Component<SlideOutNavProps> {
             >
               Who Am I?
             </NavLink>
-          </li>
+          </li> */}
           {/* <li>
             <NavLink onClick={this.handleCollapseNav} to="/whoami" activeClassName="active">Who Am I</NavLink>
           </li> */}

@@ -186,14 +186,14 @@ class Footer extends React.Component {
                     CV
                   </NavLink>
                 </li>
-                <li>
+                {/* <li>
                   <NavLink
                     className={({ isActive }) => (isActive ? "active" : "")}
                     to="/whoami"
                   >
                     Who Am I
                   </NavLink>
-                </li>
+                </li> */}
               </ul>
             </div>
           </div>

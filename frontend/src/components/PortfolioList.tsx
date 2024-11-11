@@ -213,10 +213,10 @@ export default class PortfolioList extends React.Component {
             <p>
               I am a developer with three years in UI and front-end frameworks
               and eleven years in related interactive programming. Since landing
-              a spot in a top-tier digital advertising agency straight out of
-              design school in 2005, I have passionatly pursued client-side
-              programming, and the quality results have been as unending as the
-              prolific projects slung in my&nbsp;direction.
+              a spot in a top-tier digital advertising agency nearly straight
+              out of design school in 2005, I have passionatly pursued
+              client-side programming, and the quality results have been as
+              unending as the prolific projects slung in my&nbsp;direction.
             </p>
 
             <p>
