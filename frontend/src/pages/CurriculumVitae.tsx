@@ -317,8 +317,8 @@ export default class CurriculumVitae extends React.Component {
                 </div>
 
                 <p className="desc">
-                  Developed interactive and responsive websites for Fortune 500
-                  companies in banking, pharmaceuticals, and entertainment
+                  Interactive and responsive websites for Fortune 500 companies
+                  in banking, pharmaceuticals, and entertainment
                 </p>
 
                 <p className="scope">
@@ -339,15 +339,19 @@ export default class CurriculumVitae extends React.Component {
                     Utilized Angular's template-driven and reactive forms, along
                     with SASS, to create responsive forms, data grids, and
                     interactive elements, enhancing user experience and visual
-                    consistency on the Citibank&nbsp;website
+                    consistency on the Citibank website admin&nbsp;area
                   </li>
                   <li>
                     Built and managed reusable email components in Salesforce
-                    Marketing Cloud's Content Builder, streamlining email
-                    production and ensuring brand consistency across campaigns.
+                    Marketing Cloud's Content Builder, streamlined email
+                    production and ensured brand consistency
+                    across&nbsp;campaigns
+                  </li>
+                  <li>
                     Utilized Litmus to test, troubleshoot, and optimize email
                     campaigns across multiple devices and clients, ensuring
-                    consistent rendering and high&nbsp;deliverability
+                    consistent rendering, dark mode compatibility, and
+                    high&nbsp;deliverability
                   </li>
                   <li>
                     Created interactive tools using jQuery for the Exact
@@ -358,7 +362,7 @@ export default class CurriculumVitae extends React.Component {
                   <li>
                     Developed and optimized consent management workflows using
                     FreeMarker for OneTrust integration, facilitating seamless
-                    data exchange between platforms including Mulesoft and
+                    data exchange between platforms including MuleSoft and
                     Veeva. Specialized in building event-driven and scheduled
                     processes to direct user consent across systems, enhancing
                     data compliance and user&nbsp;experience
