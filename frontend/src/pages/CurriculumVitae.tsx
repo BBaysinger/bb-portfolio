@@ -381,62 +381,65 @@ export default class CurriculumVitae extends React.Component {
                         className="cv-logo"
                         alt="BBInteractive Logo"
                       />
-                      BB Interactive
+                      BB Interactive [Independent Contractor]
                       <span className="location">
-                        &nbsp;&nbsp;-&nbsp;&nbsp;Remote Independent Contractor
+                        &nbsp;&nbsp;-&nbsp;&nbsp;Front-end / Interactive Web
+                        Developer
                       </span>
                     </h5>
                     Front-end Developer
                   </div>
                   <div className="break"></div>
-                  <div className="right-sub">[ 2019 - 2021 ]</div>
+                  <div className="right-sub">[ 2020 - 2021 ]</div>
                 </div>
 
                 <p className="desc">
-                  Provided technical leadership in consulting and website
-                  production of specialized and focused projects for diverse
-                  clients, including local businesses, nationally-targeted
-                  startups, an international charity, and a pharmaceutical
+                  Consulting and site production of specialized projects for
+                  diverse clients, including local businesses, a national
+                  startup, an international charity, and a major pharmaceutical
                   marketing&nbsp;agency
                 </p>
 
                 <p className="scope">
-                  <span>Technical Scope:</span> Angular, TypeScript, React, SVG,
-                  SCSS, Elasticsearch, Craft&nbsp;CMS
+                  <span>Technical Scope:</span> Angular 8-11, TypeScript, RxJS,
+                  React, SVG, SCSS, Elasticsearch, Craft&nbsp;CMS
                 </p>
 
                 <ul>
                   <li>
-                    Used the React Move library to animate SVG for an
-                    informational user interface for Committee for Children, a
-                    non-profit for that helps millions of children from 70
-                    countries each&nbsp;year
+                    Implemented React Move to animate SVG for an informational
+                    UI for Committee for Children, a non-profit that helps
+                    millions of children in 70 countries every&nbsp;year
                   </li>
                   <li>
-                    Consulting, scoping, wire-framing, time-lining, and
-                    development of interactive, responsive&nbsp;websites
-                  </li>
-                  <li>
-                    Working closely with clients, stakeholders, and freelance
-                    partners to conceptualize custom UI/UX&nbsp;presentations
-                  </li>
-                  <li>
-                    Analyzed business requirements, participated in technical
-                    design, development and testing
-                    cross-platform&nbsp;strategies
-                  </li>
-                  <li>
-                    Built and integrated an Angular employment application
-                    tracking system with Elasticsearch (consumed
+                    Built an employment application tracking system with Angular
+                    and Elasticsearch as the back end (consumed
                     via&nbsp;GraphQL)
                   </li>
                   <li>
-                    Collaborated and organized with different teams remotely via
-                    Jira, Smartsheet, Google Docs, and video&nbsp;conferencing
+                    Used Craft CMS to build and deploy an admin interface for a
+                    Spokane construction company&nbsp;website
                   </li>
                   <li>
-                    Designed and coded application components in Agile
-                    environments and development&nbsp;approaches
+                    Animations in JavaScript and CSS3 for the website and banner
+                    ads for Novo Nordisk, a multinational
+                    pharmaceutical&nbsp;company
+                  </li>
+                  <li>
+                    Prototyping in Angular for a legal investigation application
+                    designed to comb through masses of company&nbsp;documents
+                  </li>
+                  <li>
+                    Worked closely with clients, stakeholders, and freelance
+                    partners to conceptualize custom UI/UX&nbsp;presentations
+                  </li>
+                  <li>
+                    Lead authoring of site launch plans in collaboration with
+                    developers, business analysts, and account&nbsp;managers
+                  </li>
+                  <li>
+                    Consulting, scoping, wire-framing, time-lining, testing, and
+                    defect remediation of interactive, responsive&nbsp;websites
                   </li>
                 </ul>
               </div>
