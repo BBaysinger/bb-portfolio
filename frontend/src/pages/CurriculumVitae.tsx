@@ -263,6 +263,9 @@ export default class CurriculumVitae extends React.Component {
     "Avista Utilities",
     "Committee for Children",
     "The Heart Institute of Spokane",
+    "AbbVie Pharmaceuticals",
+    "Exact Sciences",
+    "Comics Kingdom",
     "and many more...",
   ];
 
@@ -300,7 +303,7 @@ export default class CurriculumVitae extends React.Component {
                   <div className="left-sub">
                     <h5>
                       <img
-                        src="/images/cv-logos/epsilon.png"
+                        src="/images/cv/epsilon.png"
                         className="cv-logo"
                         alt="Epsilon Logo"
                       />
@@ -377,7 +380,7 @@ export default class CurriculumVitae extends React.Component {
                   <div className="left-sub">
                     <h5>
                       <img
-                        src="/images/cv-logos/bb.png"
+                        src="/images/cv/bb.png"
                         className="cv-logo"
                         alt="BBInteractive Logo"
                       />
@@ -451,7 +454,7 @@ export default class CurriculumVitae extends React.Component {
                   <div className="left-sub">
                     <h5>
                       <img
-                        src="/images/cv-logos/s2.png"
+                        src="/images/cv/s2.png"
                         className="cv-logo"
                         alt="Seven2"
                       />
@@ -531,7 +534,7 @@ export default class CurriculumVitae extends React.Component {
                   <div className="left-sub">
                     <h5>
                       <img
-                        src="/images/cv-logos/chalklabs.png"
+                        src="/images/cv/chalklabs.png"
                         className="cv-logo"
                         alt="Seven2"
                       />
@@ -611,7 +614,7 @@ export default class CurriculumVitae extends React.Component {
                   <div className="left-sub">
                     <h5>
                       <img
-                        src="/images/cv-logos/s2.png"
+                        src="/images/cv/s2.png"
                         className="cv-logo"
                         alt="Seven2"
                       />
@@ -704,7 +707,7 @@ export default class CurriculumVitae extends React.Component {
                   <div className="left-sub">
                     <h5>
                       <img
-                        src="/images/cv-logos/scw.png"
+                        src="/images/cv/scw.png"
                         className="cv-logo"
                         alt="Seven2"
                       />
@@ -766,7 +769,7 @@ export default class CurriculumVitae extends React.Component {
                   <div className="left-sub">
                     <h5>
                       <img
-                        src="/images/cv-logos/bb.png"
+                        src="/images/cv/bb.png"
                         className="cv-logo"
                         alt="BV Logo"
                       />
@@ -821,7 +824,7 @@ export default class CurriculumVitae extends React.Component {
                   <div className="left-sub">
                     <h5>
                       <img
-                        src="/images/cv-logos/bv.png"
+                        src="/images/cv/bv.png"
                         className="cv-logo"
                         alt="BV Logo"
                       />
@@ -940,8 +943,23 @@ export default class CurriculumVitae extends React.Component {
             <div className={divClassRt}>
               <div className="cv-listing">
                 <h5>14 gold badges on Stack Overflow</h5>
-                <div className="sub-container"></div>
-
+                <div className="badges">
+                  <img src="/images/cv/gold-badge.svg" className="gold-badge" alt="Gold Badge" />
+                  <img src="/images/cv/gold-badge.svg" className="gold-badge" alt="Gold Badge" />
+                  <img src="/images/cv/gold-badge.svg" className="gold-badge" alt="Gold Badge" />
+                  <img src="/images/cv/gold-badge.svg" className="gold-badge" alt="Gold Badge" />
+                  <img src="/images/cv/gold-badge.svg" className="gold-badge" alt="Gold Badge" />
+                  <img src="/images/cv/gold-badge.svg" className="gold-badge" alt="Gold Badge" />
+                  <img src="/images/cv/gold-badge.svg" className="gold-badge" alt="Gold Badge" />
+                  <img src="/images/cv/gold-badge.svg" className="gold-badge" alt="Gold Badge" />
+                  <img src="/images/cv/gold-badge.svg" className="gold-badge" alt="Gold Badge" />
+                  <img src="/images/cv/gold-badge.svg" className="gold-badge" alt="Gold Badge" />
+                  <img src="/images/cv/gold-badge.svg" className="gold-badge" alt="Gold Badge" />
+                  <img src="/images/cv/gold-badge.svg" className="gold-badge" alt="Gold Badge" />
+                  <img src="/images/cv/gold-badge.svg" className="gold-badge" alt="Gold Badge" />
+                  <img src="/images/cv/gold-badge.svg" className="gold-badge" alt="Gold Badge" />
+                </div>
+                <br /><br />{/* Important br. */}
                 <h5>The Webby Awards</h5>
                 <div className="sub-container">
                   <div className="left-sub">International</div>
