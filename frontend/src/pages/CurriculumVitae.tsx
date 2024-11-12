@@ -721,8 +721,8 @@ export default class CurriculumVitae extends React.Component {
 
                 <p className="desc">
                   Design and development of websites and apps for local
-                  businesses at the front of C#/.NET{" "}
-                  <span className="nobr">back-ends</span>
+                  businesses at the front of C#/
+                  <span className="nobr">.NET back-ends</span>
                 </p>
 
                 <p className="scope">
@@ -742,15 +742,19 @@ export default class CurriculumVitae extends React.Component {
                     preceding solutions like&nbsp;Shopify
                   </li>
                   <li>
-                    On one particular project, shocked the agency owner by
-                    implementing broad site revisions for under 25% of the
-                    budget. We had to lie to the client about how much budget
-                    we&nbsp;used
+                    On one project, impressed the agency owner by implementing
+                    broad site revisions for under 50% of the budget. I think we
+                    then lied to the client about how much budget we&nbsp;used
                   </li>
                   <li>
-                    Produced a number of shortcuts and tricks that were new to
+                    Produced several shortcuts and tricks that were new to
                     others in development, due to the extensive time I had
                     previously spent with&nbsp;DHTML
+                  </li>
+                  <li>
+                    Continually made a lot out of nothing due to unavailability
+                    (refusal) of budget for design basics like fonts and
+                    stock&nbsp;photography
                   </li>
                 </ul>
               </div>
