@@ -70,8 +70,9 @@
 
   .scope {
     font-size: 16px;
+    color: $heavierThemeColor;
     span:nth-child(1) {
-      color: $heavierThemeColor;
+      color: #666666;
     }
   }
 
@@ -88,5 +89,17 @@
     li {
       margin-bottom: 6px;
     }
+  }
+
+  .badges {
+    width: 100%;
+    margin-bottom: 30px;
+  }
+
+  .gold-badge {
+    width: 25px;
+    height: auto;
+    float: left;
+    margin-right: 6px;
   }
 }
