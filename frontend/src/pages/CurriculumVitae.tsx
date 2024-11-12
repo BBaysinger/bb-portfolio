@@ -560,20 +560,19 @@ export default class CurriculumVitae extends React.Component {
                 <ul>
                   <li>
                     As a first project, solely developed the dashboard for an
-                    iteration of ChalkLabs’ flagship SaaS software, Pushgraph.
+                    iteration of ChalkLabs' flagship SaaS software, Pushgraph.
                     This was the first version as a user-customizable,
-                    responsive drag/drop widget framework (largely developed
-                    before&nbsp;designed)
+                    responsive drag/drop widget&nbsp;framework
                   </li>
                   <li>
-                    With sparse instruction and negligible time for ramp-up,
-                    designed the entire UI for the new iteration of Pushgraph in
-                    under three&nbsp;days
+                    With sparse instruction and minimal ramp-up, designed the
+                    entire UI for the new iteration of Pushgraph in under
+                    three&nbsp;days
                   </li>
                   <li>
                     Interfacing with ChalkLabs' backend API using search syntax
                     to query results from databases to populate into custom
-                    infinite-scrolling data grid widgets that I&nbsp;developed
+                    infinite-scrolling data grid&nbsp;widgets
                   </li>
                   <li>
                     Data visualizations and custom interactions in D3, Mapbox,
@@ -581,9 +580,9 @@ export default class CurriculumVitae extends React.Component {
                   </li>
                   <li>
                     Learned Angular and TypeScript on the clock, and thrown into
-                    the fire of heavy development from the start after my
-                    initial 'training' in Angular, a video series tutorial and a
-                    two-week code test to demonstrate quick&nbsp;learning
+                    the fire of heavy development from the start after initial
+                    training in Angular, a video series tutorial and a two-week
+                    code test to demonstrate quick&nbsp;learning
                   </li>
                   <li>
                     Scoping, timelining, estimating tasks to be tracked and
@@ -592,17 +591,15 @@ export default class CurriculumVitae extends React.Component {
                   </li>
                   <li>
                     Consuming REST APIs to manage users, configuration, and data
-                    processed by the Pushgraph&nbsp;application
+                    processed by the Pushgraph application and
+                    other&nbsp;projects
                   </li>
                   <li>
                     In June of 2017, worked 350+ hours along with my supervisor
                     to meet an all-or-nothing deadline/contract with EPA worth
                     five million USD, which was existentially everything for the
-                    company at the&nbsp;time
-                  </li>
-                  <li>
-                    Otherwise dominated on a regular stream of
-                    blistering&nbsp;deadlines
+                    company at the time. One other month there
+                    was&nbsp;comparable
                   </li>
                 </ul>
               </div>
@@ -637,31 +634,35 @@ export default class CurriculumVitae extends React.Component {
 
                 <p className="scope">
                   <span>Technical Scope:</span> ActionScript 3, ActionScript 2,
-                  JavaScript, jQuery, Require,&nbsp;Haxe
+                  JavaScript, jQuery, Require/AMD,&nbsp;Haxe
                 </p>
 
                 <ul>
                   <li>
-                    Continuously relied upon as a key / lead architect of
-                    solutions where many developers and animators populated
-                    content / games into to flexible templates and frameworks I
-                    engineered for everyone's&nbsp;collaboration
+                    Lead developer of Seven2's first project for the Nickelodeon
+                    Group, a game called Blue's Clues — Mix 'N
+                    Match&nbsp;Dressup
                   </li>
                   <li>
-                    Utilized various existing game mechanics and ones authored
-                    by me, per&nbsp;project
+                    Saved one project for an AT&T site release that was scoped
+                    with an incorrect assumption that JavaScript can screenshot
+                    the rendered page for an overlay effect. We faked the effect
+                    with video. It got 90 million interactions in one&nbsp;week
                   </li>
                   <li>
-                    Lead developer of Seven2's first game / project for
-                    Nickelodeon Group, Blue's Clues — Mix 'N Match&nbsp;Dressup
+                    Key / lead architect of solutions where many developers and
+                    animators populated content / games into to flexible
+                    templates and frameworks engineered by me for the
+                    collaboration of the other&nbsp;developers
                   </li>
                   <li>
                     Lead developer of every one of several first iterations of
-                    data usage calculators for AT&amp;T
+                    AT&T's data usage calculators authored
+                    in&nbsp;JavaScript/Require
                   </li>
                   <li>
-                    Developed custom audio and video players for several
-                    MTV&nbsp;websites
+                    Developed custom music and video players for several MTV
+                    websites in&nbsp;ActionScript
                   </li>
                   <li>
                     Created a performant physics-based tween engine before the
@@ -670,21 +671,28 @@ export default class CurriculumVitae extends React.Component {
                   <li>
                     Contributed a robust cross-platform mobile accelerometer
                     solution to a popular (then) open-source HTML5 game
-                    framework now known as&nbsp;2Dkit
+                    framework, Flambé, now known as&nbsp;2Dkit
                   </li>
                   <li>
                     Interfacing with backend APIs exchanging JSON, XML, CSV,
                     plain text, and image data for many types of user-initiated
-                    server / database&nbsp;interactions
+                    server / database transactions, some in zero-dependency
+                    JavaScript, and some in&nbsp;ActionScript
                   </li>
                   <li>
                     Contribution on entire process of project conceptualization
                     for projects that consistently won annual&nbsp;awards
                   </li>
                   <li>
-                    In addition to hundreds of insane deadlines, in June 2014,
+                    In addition to innumerable insane deadlines, in June 2014,
                     worked 350+ hours to meet a critical deadline
                     for&nbsp;WildBrain
+                  </li>
+                  <li>
+                    Contributed Flash/ActionScript and JavaScript animation and
+                    UI for a project that ended up winning an
+                    international/global Webby Award — People's Choice, 2008 Art
+                    Website of the Year,&nbsp;Artocracy.org.
                   </li>
                 </ul>
               </div>
