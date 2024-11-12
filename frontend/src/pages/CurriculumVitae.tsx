@@ -479,27 +479,31 @@ export default class CurriculumVitae extends React.Component {
                 <ul>
                   <li>
                     Logic for central 'activities' (site-wide scavenger hunts,
-                    wallpaper creators, etc), interactivity, and media in
-                    responsive websites for&nbsp;Nintendo
+                    wallpaper creators, etc.), interactivity, and media
+                    integration in re-sponsive websites for several game launch
+                    sites for&nbsp;Nintendo
+                  </li>
+                  <li>
+                    Contributed to development of single-page apps using
+                    Typescript and&nbsp;Angular&nbsp;8+
+                  </li>
+                  <li>
+                    Developed a JavaScript timeline animation framework with
+                    compact syntax and potential to eliminate the need for CSS3
+                    key frame animations that we found riddled with
+                    inconsistencies (still supporting&nbsp;IE)
                   </li>
                   <li>
                     Developed APIs to simplify, stabilize, and streamline
                     integration of DOM and canvas&nbsp;animation
                   </li>
                   <li>
-                    Developed a JavaScript timeline animation framework with
-                    compact syntax and potential to eliminate the need for CSS3
-                    key frame animations that we found riddled with
-                    inconsistencies. (This will likely become an open source
-                    library at some&nbsp;point)
-                  </li>
-                  <li>
                     Contribution and technical oversight of concepts with teams
                     of designers, developers, and animators, synchronizing on
-                    development and QA via Trello (similar to&nbsp;Jira)
+                    development and QA via&nbsp;Trello
                   </li>
                   <li>
-                    Language localization strategies for deployment in various
+                    Localization strategies for deployment in various
                     international regions (which necessitates special
                     design&nbsp;considerations)
                   </li>
@@ -508,8 +512,14 @@ export default class CurriculumVitae extends React.Component {
                     managing Nintendo user status and rewards&nbsp;system
                   </li>
                   <li>
+                    Built a zero-dependency carousel in vanilla JavaScript for
+                    Comics Kingdom, a platform that local newspapers can
+                    embed&nbsp;from
+                  </li>
+                  <li>
                     Strategic considerations for deadlines so tight that
-                    development had to start <i>before</i> client&nbsp;approvals
+                    development regularly had to start before
+                    client&nbsp;approvals
                   </li>
                 </ul>
               </div>
