@@ -786,7 +786,8 @@ export default class CurriculumVitae extends React.Component {
 
                 <p className="desc">
                   Design and development of interactive websites for businesses
-                  in the Spokane area concurrently while in design&nbsp;school
+                  in the Spokane area concurrently while in web design school at
+                  SFCC
                 </p>
 
                 <p className="scope">
@@ -811,14 +812,13 @@ export default class CurriculumVitae extends React.Component {
                   </li>
                   <li>
                     Produced websites and other paying freelance projects that
-                    met criteria and so received credit for school curriculum in
-                    the SFCC Web Design&nbsp;program
+                    met criteria and so received credit for school curriculum
                   </li>
                   <li>
-                    In the the program I was way ahead all the other students,
-                    having experience in Photoshop, HTML, JavaScript and art, I
-                    unofficially tutored other students any time I was in the
-                    lab, and was widely regarded as a{" "}
+                    In the program I was considerably ahead all the other
+                    students, having history in Photoshop, HTML, JavaScript and
+                    art, I unofficially tutored other students any time I was in
+                    the lab, and was widely regarded as a{" "}
                     <span
                       style={{
                         textWrap: "nowrap",
