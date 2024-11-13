@@ -79,7 +79,8 @@
       "<p>Committee for Children is an educational charity reaching more than 16.5 million children worldwide each year in 70+ countries.</p>",
       "<p>We developed an interactive component to provide information about their Second Step program, which consists of a multi-layered wheel navigation, dynamically rendered using SVG, React, and React Motion.</p>",
       "<p>I took the lead on technical advising, development, and contributed to conceptualization.</p>",
-      "<p>Dynamic control of SVG in React proved powerful as it revealed to me new possibilities with vector rendering and interactivity.</p>"
+      "<p>Dynamic control of SVG in React proved powerful as it revealed to me new possibilities with vector rendering and interactivity.</p>",
+      "<p style='color:#ee0000'>The interactive piece is no longer on their site. I'm working on repurposing a working version.</p>"
     ],
     "urls": {
       "View Site": "https://www.secondstep.org/what-is-second-step"
@@ -204,7 +205,7 @@
       "<p>Though you might expect each level to progress in difficulty, instead these tend to progress in reward of each preceding play style, with the final level being the most fun. Drive the submarine around, and use radar to locate the characters.</p>"
     ],
     "urls": {
-      "View Site": "http://www.bbaysinger.com/_projects/poster/index.html?flambe=html&unlockall",
+      "Play Game": "http://www.bbaysinger.com/_projects/poster/index.html?flambe=html&unlockall",
       "Walkthrough": "https://www.youtube.com/watch?v=ZMkjbYGICcw"
     }
   },
@@ -226,7 +227,7 @@
       "<p>I activated a cheat here so all the levels are unlocked for you.</p>"
     ],
     "urls": {
-      "View Site": "http://www.bbaysinger.com/_projects/champions/index.html?flambe=html&unlockall"
+      "Play Game": "http://www.bbaysinger.com/_projects/champions/index.html?flambe=html&unlockall"
     }
   },
   "tomato": {
@@ -247,7 +248,7 @@
     ],
     "urls": {
       "Walkthrough": "https://www.youtube.com/watch?v=n2R0WPWcdWM",
-      "Site": "http://www.bbaysinger.com/_projects/tomato/index.html?flambe=html"
+      "Play Game": "http://www.bbaysinger.com/_projects/tomato/index.html?flambe=html"
     }
   },
   "butterslide": {
@@ -268,7 +269,7 @@
     ],
     "urls": {
       "Walkthrough": "https://www.youtube.com/watch?v=Cd7cWw3sUrA",
-      "Play": "http://www.bbaysinger.com/_projects/butterslide/index.html?flambe=html"
+      "Play Game": "http://www.bbaysinger.com/_projects/butterslide/index.html?flambe=html"
     }
   },
   "trivia": {
@@ -288,13 +289,13 @@
       "<p>I built this game in its entirety, minus some animations.</p>"
     ],
     "urls": {
-      "Walkthrough": "https://www.youtube.com/watch?v=YwXr7IdhQYU",
-      "Visit Site": "http://www.bbaysinger.com/_projects/trivia/index.html?flambe=html"
+      "Walkthrough": "https://www.youtube.com/watch?v=-kTV1QPDJ2Y",
+      "Play Game": "http://bbaysinger.com/_projects/trivia/index.html?flambe=html"
     }
   },
   "powerhouse": {
     "title": "Power House",
-    "active": "1",
+    "active": "0",
     "omitFromList": "0",
     "clientId": "teennick",
     "mobileOrientation": "",
@@ -307,7 +308,8 @@
     "desc": [
       "<p>An escape game that involves finding all the ways you can optimize energy usage in a fictional, slightly wacky home.</p>",
       "<p>Similar to the Expiration Date game, I developed a system where the entirety of the game state and logic are contained in a single XML document.</p>",
-      "<p>With the exception of level layout and some animation, I built the entire game.</p>"
+      "<p>With the exception of level layout and some animation, I built the entire game.</p>",
+      "<p>This game is Flash only, and I'm working a way to keep it in my porfolio.</p>"
     ],
     "urls": {
       "Walkthrough": "https://www.youtube.com/watch?v=amvK-cONMUE"
@@ -329,11 +331,11 @@
     "desc": [
       "<p>Two dress-up games in one. This was Seven2's first game for the Nickelodeon Group. That match mode is a true test. You could say I've become a master over the years.</p>",
       "<p>I programmed a drag-drop system that I eventually ported over into ActionScript 3.0, and then Haxe. I built most of the game, minus Blue and Magenta's animations, and the end screen. It's good to see that old alarm clock still keeps good time after all these years.</p>",
-      "<p>This project was the recipient of the Golden Pixel Addy Award in 2008.</p>"
+      "<p>This project was the recipient of the Golden Pixel Addy Award in 2008.</p>",
+      "<p style='color:#ee0000'>This project was built in Flash before Apple killed it. I'm still trying to find a way to provide a working example. For now please enjoy the walkthrough.</p>"
     ],
     "urls": {
-      "Walkthrough": "https://www.youtube.com/watch?v=DhvAuTsJq5o",
-      "View Site": "http://www.bbaysinger.com/_projects/dressup/index.html"
+      "Walkthrough": "https://www.youtube.com/watch?v=DhvAuTsJq5o"
     }
   },
   "template": {
