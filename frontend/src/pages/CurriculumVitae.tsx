@@ -303,7 +303,7 @@ export default class CurriculumVitae extends React.Component {
                   <div className="left-sub">
                     <h5>
                       <img
-                        src="/images/cv/epsilon.png"
+                        src="/images/cv/epsilon.svg"
                         className="cv-logo"
                         alt="Epsilon Logo"
                       />
@@ -380,11 +380,11 @@ export default class CurriculumVitae extends React.Component {
                   <div className="left-sub">
                     <h5>
                       <img
-                        src="/images/cv/bb.png"
+                        src="/images/cv/bb.svg"
                         className="cv-logo"
                         alt="BBInteractive Logo"
                       />
-                      BB Interactive [Independent Contractor]
+                      Independent Contractor
                       <span className="location">
                         &nbsp;&nbsp;-&nbsp;&nbsp;Front-end / Interactive Web
                         Developer
@@ -454,7 +454,7 @@ export default class CurriculumVitae extends React.Component {
                   <div className="left-sub">
                     <h5>
                       <img
-                        src="/images/cv/s2.png"
+                        src="/images/cv/s2.svg"
                         className="cv-logo"
                         alt="Seven2"
                       />
@@ -534,7 +534,7 @@ export default class CurriculumVitae extends React.Component {
                   <div className="left-sub">
                     <h5>
                       <img
-                        src="/images/cv/chalklabs.png"
+                        src="/images/cv/chalklabs.svg"
                         className="cv-logo"
                         alt="Seven2"
                       />
@@ -614,7 +614,7 @@ export default class CurriculumVitae extends React.Component {
                   <div className="left-sub">
                     <h5>
                       <img
-                        src="/images/cv/s2.png"
+                        src="/images/cv/s2.svg"
                         className="cv-logo"
                         alt="Seven2"
                       />
@@ -707,7 +707,7 @@ export default class CurriculumVitae extends React.Component {
                   <div className="left-sub">
                     <h5>
                       <img
-                        src="/images/cv/scw.png"
+                        src="/images/cv/scw.svg"
                         className="cv-logo"
                         alt="Seven2"
                       />
@@ -769,7 +769,7 @@ export default class CurriculumVitae extends React.Component {
                   <div className="left-sub">
                     <h5>
                       <img
-                        src="/images/cv/bb.png"
+                        src="/images/cv/bb.svg"
                         className="cv-logo"
                         alt="BV Logo"
                       />
@@ -824,7 +824,7 @@ export default class CurriculumVitae extends React.Component {
                   <div className="left-sub">
                     <h5>
                       <img
-                        src="/images/cv/bv.png"
+                        src="/images/cv/bv.svg"
                         className="cv-logo"
                         alt="BV Logo"
                       />
@@ -944,22 +944,80 @@ export default class CurriculumVitae extends React.Component {
               <div className="cv-listing">
                 <h5>14 gold badges on Stack Overflow</h5>
                 <div className="badges">
-                  <img src="/images/cv/gold-badge.svg" className="gold-badge" alt="Gold Badge" />
-                  <img src="/images/cv/gold-badge.svg" className="gold-badge" alt="Gold Badge" />
-                  <img src="/images/cv/gold-badge.svg" className="gold-badge" alt="Gold Badge" />
-                  <img src="/images/cv/gold-badge.svg" className="gold-badge" alt="Gold Badge" />
-                  <img src="/images/cv/gold-badge.svg" className="gold-badge" alt="Gold Badge" />
-                  <img src="/images/cv/gold-badge.svg" className="gold-badge" alt="Gold Badge" />
-                  <img src="/images/cv/gold-badge.svg" className="gold-badge" alt="Gold Badge" />
-                  <img src="/images/cv/gold-badge.svg" className="gold-badge" alt="Gold Badge" />
-                  <img src="/images/cv/gold-badge.svg" className="gold-badge" alt="Gold Badge" />
-                  <img src="/images/cv/gold-badge.svg" className="gold-badge" alt="Gold Badge" />
-                  <img src="/images/cv/gold-badge.svg" className="gold-badge" alt="Gold Badge" />
-                  <img src="/images/cv/gold-badge.svg" className="gold-badge" alt="Gold Badge" />
-                  <img src="/images/cv/gold-badge.svg" className="gold-badge" alt="Gold Badge" />
-                  <img src="/images/cv/gold-badge.svg" className="gold-badge" alt="Gold Badge" />
+                  <img
+                    src="/images/cv/gold-badge.svg"
+                    className="gold-badge"
+                    alt="Gold Badge"
+                  />
+                  <img
+                    src="/images/cv/gold-badge.svg"
+                    className="gold-badge"
+                    alt="Gold Badge"
+                  />
+                  <img
+                    src="/images/cv/gold-badge.svg"
+                    className="gold-badge"
+                    alt="Gold Badge"
+                  />
+                  <img
+                    src="/images/cv/gold-badge.svg"
+                    className="gold-badge"
+                    alt="Gold Badge"
+                  />
+                  <img
+                    src="/images/cv/gold-badge.svg"
+                    className="gold-badge"
+                    alt="Gold Badge"
+                  />
+                  <img
+                    src="/images/cv/gold-badge.svg"
+                    className="gold-badge"
+                    alt="Gold Badge"
+                  />
+                  <img
+                    src="/images/cv/gold-badge.svg"
+                    className="gold-badge"
+                    alt="Gold Badge"
+                  />
+                  <img
+                    src="/images/cv/gold-badge.svg"
+                    className="gold-badge"
+                    alt="Gold Badge"
+                  />
+                  <img
+                    src="/images/cv/gold-badge.svg"
+                    className="gold-badge"
+                    alt="Gold Badge"
+                  />
+                  <img
+                    src="/images/cv/gold-badge.svg"
+                    className="gold-badge"
+                    alt="Gold Badge"
+                  />
+                  <img
+                    src="/images/cv/gold-badge.svg"
+                    className="gold-badge"
+                    alt="Gold Badge"
+                  />
+                  <img
+                    src="/images/cv/gold-badge.svg"
+                    className="gold-badge"
+                    alt="Gold Badge"
+                  />
+                  <img
+                    src="/images/cv/gold-badge.svg"
+                    className="gold-badge"
+                    alt="Gold Badge"
+                  />
+                  <img
+                    src="/images/cv/gold-badge.svg"
+                    className="gold-badge"
+                    alt="Gold Badge"
+                  />
                 </div>
-                <br /><br />{/* Important br. */}
+                <br />
+                <br />
+                {/* Important br. */}
                 <h5>The Webby Awards</h5>
                 <div className="sub-container">
                   <div className="left-sub">International</div>

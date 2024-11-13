@@ -53,9 +53,9 @@ class Footer extends React.Component {
 
   componentDidMount() {
     // A dumb trick so that crawlers don't scrape my email address (probably still can, but only good ones.)
-    const e1 = "bh";
-    const e2 = "baysinger";
-    const e3 = "@gmail.com";
+    const e1 = "B";
+    const e2 = "Baysinger";
+    const e3 = "@gmx.com";
 
     setTimeout(() => {
       this.setState({ emailAddr: e1 + e2 + e3 });
@@ -109,7 +109,7 @@ class Footer extends React.Component {
                   </li> */}
                   <li>
                     <a
-                      href="http://www.linkedin.com/in/bradleybaysinger"
+                      href="http://www.linkedin.com/in/BBaysinger"
                       target="_blank"
                       rel="noopener noreferrer"
                     >
@@ -117,20 +117,20 @@ class Footer extends React.Component {
                         <div
                           style={{ backgroundImage: "url(" + linkedIn + ")" }}
                         ></div>
-                        linkedin.com/in/bradleybaysinger
+                        linkedin.com/in/BBaysinger
                       </span>
                     </a>
                   </li>
                   <li>
                     <a
-                      href="https://github.com/bbaysinger"
+                      href="https://github.com/BBaysinger"
                       target="_blank"
                       rel="noopener noreferrer"
                     >
                       <div
                         style={{ backgroundImage: "url(" + github + ")" }}
                       ></div>
-                      github.com/bbaysinger
+                      github.com/BBaysinger
                     </a>
                   </li>
                   <li>
