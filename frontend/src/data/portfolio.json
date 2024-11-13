@@ -39,7 +39,7 @@
       "<p>I also helped out on animation, responsive layout, and localization throughout the site.</p>"
     ],
     "urls": {
-      "View Site": "/_projects/marioandluigi/index.html"
+      "View Site": "http://www.bbaysinger.com/_projects/marioandluigi/index.html"
     }
   },
   "ua3": {
@@ -60,7 +60,7 @@
       "<p>Accessibility was a new requirement for Nintendo, and necessitated a 'reduce motion' feature that pauses animation everywhere, whether it be JavaScript, CSS3, canvas, or video.</p>"
     ],
     "urls": {
-      "View Site": "/_projects/ua3/index.html"
+      "View Site": "http://www.bbaysinger.com/_projects/ua3/index.html"
     }
   },
   "cfc": {
@@ -103,7 +103,7 @@
       "<p>The original design called for a blur effect applied to the page underlying the modal carousel, which required some trickery in support for different browsers.</p>"
     ],
     "urls": {
-      "View Site": "/_projects/premera/wa/index.html?slide-story=one"
+      "View Site": "http://www.bbaysinger.com/_projects/premera/wa/index.html?slide-story=one"
     }
   },
   "s2es": {
@@ -123,7 +123,7 @@
       "<p>This is an extremely simple project in contrast to Angular work I did with ChalkLabs. I've included it here as it's one of the only Angular/TypeScript projects I can present source publicly.</p>"
     ],
     "urls": {
-      "View Site": "/_projects/s2es/index.html",
+      "View Site": "http://www.bbaysinger.com/_projects/s2es/index.html",
       "Code Repo": "https://github.com/BBaysinger/s2-experience-spokane-2018"
     }
   },
@@ -140,13 +140,13 @@
     "type": "",
     "isGame": "0",
     "desc": [
-      "<p>The Pushgraph application is innovative software from ChalkLabs that uses semantics to analyze data and find similarities and redudancies. It is used by several government agencies for analyzing research nationwide, saving the federal government billions every year.</p>",
+      "<p>The Pushgraph application is innovative software from ChalkLabs that uses semantics to analyze data and find similarities and redudancies. It was used by several government agencies for analyzing research nationwide, saving the federal government billions every year.</p>",
       "<p>I designed the 2017 iteration UI of this software, which was a major rework over previous versions. The entirety of this version is delivered through an Angular drag/drop widget dashboard I designed and developed.</p>",
       "<p>As a screenshot is no longer available, this is of a rough design, which was all that was required to start development. All instances of Pushgraph (and other software I developed at ChalkLabs) are highly secure, and there are no live demos. Please review the reel to get a feel for how the project turned out.</p>"
     ],
     "urls": {
       "Watch Reel": "https://www.youtube.com/watch?v=Fr5IigbR36A",
-      "View Site": "https://chalklabs.com/"
+      "Company Website": "https://chalklabs.com/"
     }
   },
   "calc": {
@@ -165,7 +165,7 @@
       "<p>This is a non-responsive page, as this iteration is from before AT&T delivered on responsive technology.</p>"
     ],
     "urls": {
-      "View Site": "/_projects/data-calculator/"
+      "View Site": "http://www.bbaysinger.com/_projects/data-calculator/"
     }
   },
   "share": {
@@ -184,7 +184,7 @@
       "<p>This is a non-responsive page, as this iteration is from before AT&T delivered on responsive technology.</p>"
     ],
     "urls": {
-      "View Site": "/_projects/mobile-share/"
+      "View Site": "http://www.bbaysinger.com/_projects/mobile-share/"
     }
   },
   "bikini-bottom": {
@@ -204,14 +204,8 @@
       "<p>Though you might expect each level to progress in difficulty, instead these tend to progress in reward of each preceding play style, with the final level being the most fun. Drive the submarine around, and use radar to locate the characters.</p>"
     ],
     "urls": {
-      "View Site": "/_projects/poster/index.html?flambe=html&unlockall",
-      "Walkthroughs:": [
-        "https://www.youtube.com/watch?v=UE8V27j5wVQ",
-        "https://www.youtube.com/watch?v=xdmez-WZII4",
-        "https://www.youtube.com/watch?v=5Q9kfw6_0ZQ",
-        "https://www.youtube.com/watch?v=36yTjY9JX2k",
-        "https://www.youtube.com/watch?v=1neEU2XANsc"
-      ]
+      "View Site": "http://www.bbaysinger.com/_projects/poster/index.html?flambe=html&unlockall",
+      "Walkthrough": "https://www.youtube.com/watch?v=ZMkjbYGICcw"
     }
   },
   "champions": {
@@ -232,7 +226,7 @@
       "<p>I activated a cheat here so all the levels are unlocked for you.</p>"
     ],
     "urls": {
-      "View Site": "/_projects/champions/index.html?flambe=html&unlockall"
+      "View Site": "http://www.bbaysinger.com/_projects/champions/index.html?flambe=html&unlockall"
     }
   },
   "tomato": {
@@ -253,7 +247,7 @@
     ],
     "urls": {
       "Walkthrough": "https://www.youtube.com/watch?v=n2R0WPWcdWM",
-      "Site": "/_projects/tomato/index.html?flambe=html"
+      "Site": "http://www.bbaysinger.com/_projects/tomato/index.html?flambe=html"
     }
   },
   "butterslide": {
@@ -274,7 +268,7 @@
     ],
     "urls": {
       "Walkthrough": "https://www.youtube.com/watch?v=Cd7cWw3sUrA",
-      "Play": "/_projects/butterslide/index.html?flambe=html"
+      "Play": "http://www.bbaysinger.com/_projects/butterslide/index.html?flambe=html"
     }
   },
   "trivia": {
@@ -295,7 +289,7 @@
     ],
     "urls": {
       "Walkthrough": "https://www.youtube.com/watch?v=YwXr7IdhQYU",
-      "Visit Site": "/_projects/trivia/index.html?flambe=html"
+      "Visit Site": "http://www.bbaysinger.com/_projects/trivia/index.html?flambe=html"
     }
   },
   "powerhouse": {
@@ -316,8 +310,7 @@
       "<p>With the exception of level layout and some animation, I built the entire game.</p>"
     ],
     "urls": {
-      "Walkthrough": "https://www.youtube.com/watch?v=amvK-cONMUE",
-      "Visit Site": "http://staging.seven2.net/the-n/powerhouse/"
+      "Walkthrough": "https://www.youtube.com/watch?v=amvK-cONMUE"
     }
   },
   "mix-match": {
@@ -340,7 +333,7 @@
     ],
     "urls": {
       "Walkthrough": "https://www.youtube.com/watch?v=DhvAuTsJq5o",
-      "View Site": "/_projects/dressup/index.html"
+      "View Site": "http://www.bbaysinger.com/_projects/dressup/index.html"
     }
   },
   "template": {
