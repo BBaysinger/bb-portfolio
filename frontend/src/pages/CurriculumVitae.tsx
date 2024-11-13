@@ -810,9 +810,23 @@ export default class CurriculumVitae extends React.Component {
                     fitness&nbsp;equipment
                   </li>
                   <li>
-                    Produced websites and other projects that met criteria and
-                    received credit for school curriculum in the SFCC Web
-                    Design&nbsp;program
+                    Produced websites and other paying freelance projects that
+                    met criteria and so received credit for school curriculum in
+                    the SFCC Web Design&nbsp;program
+                  </li>
+                  <li>
+                    In the the program I was way ahead all the other students,
+                    having experience in Photoshop, HTML, JavaScript and art, I
+                    unofficially tutored other students any time I was in the
+                    lab, and was widely regarded as a{" "}
+                    <span
+                      style={{
+                        textWrap: "nowrap",
+                      }}
+                    >
+                      super-genius, lol. I'm not, but I'm focused and unafraid
+                      of challenges.
+                    </span>
                   </li>
                 </ul>
               </div>

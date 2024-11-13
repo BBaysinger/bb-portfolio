@@ -140,7 +140,7 @@ export default class PieceInfoFeatures extends React.Component<PieceInfoFeatures
           <span className="btn-group" ref={this.addMember} key={label}>
             <span className="btn btn-group-label">{label}</span>
             {urls.map((item, index) => (
-              <a key={item} href={item} className="btn">
+              <a key={item} href={item} className="btn" target="_blank">
                 {index + 1}
               </a>
             ))}
@@ -148,7 +148,7 @@ export default class PieceInfoFeatures extends React.Component<PieceInfoFeatures
         );
       } else if (typeof urls === "string") {
         return (
-          <a className="btn" href={urls} ref={this.addMember} key={urls}>
+          <a className="btn" href={urls} ref={this.addMember} key={urls} target="_blank">
             {label}
           </a>
         );
