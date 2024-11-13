@@ -80,11 +80,17 @@ class Footer extends React.Component {
                   className="img-responsive pull-left footer_photo"
                   alt="Pic of Bradley"
                 />
-                I'm keeping things simple here as there's never any shortage of
+                Thanks for the visit! Development on this site is ongoing, so
+                what you're viewing may have some issues and is subject to
+                change. I have big plans for this. Please let me know if you
+                encounter any problems. In any case, I look forward to speaking
+                with you about how I can bring unique interactive experiences to
+                your&nbsp;organization.
+                {/* I'm keeping things simple here as there's never any shortage of
                 things to do everywhere else. Feel free to reach out if there's
                 any further information I can provide. I look forward to
                 speaking with you about how I can bring unique interactive
-                experiences to your&nbsp;organization.
+                experiences to your&nbsp;organization. */}
               </p>
             </div>
 
