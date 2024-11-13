@@ -5,15 +5,21 @@
     position: relative;
     font-weight: 500;
     margin-bottom: 3px;
+    color: black;
+    white-space: normal;
 
     .location {
       font-weight: 500;
       font-size: 16px;
+      white-space: normal;
     }
   }
 
   .left-sub {
     font-weight: bold;
+    @media (max-width: $-mdpx) {
+      width: 100%;
+    }
     img.cv-logo {
       width: auto;
       height: 46px;
@@ -21,10 +27,20 @@
       position: relative;
       top: 5px;
       margin-right: 14px;
+      @media (max-width: $-mdpx) {
+        display: block;
+        float: none;
+        margin-bottom: 15px;
+        height: 180px;
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 30px;
+        margin-bottom: 30px;
+      }
     }
   }
 
-  @media (min-width: $-mdpx) {
+  @media (min-width: $-smpx) {
     .cv_right {
       border-left: 1px dashed $heavierThemeColor;
       padding-left: 30px;
@@ -72,11 +88,12 @@
     font-size: 16px;
     color: $heavierThemeColor;
     span:nth-child(1) {
-      color: #666666;
+      color: #000;
     }
   }
 
   .desc {
+    color: #000;
     font-weight: 500;
     font-size: 16px;
     margin-bottom: 17px;
@@ -97,9 +114,10 @@
   }
 
   .gold-badge {
-    width: 25px;
+    width: 20px;
     height: auto;
     float: left;
     margin-right: 6px;
+    margin-top: 6px;
   }
 }
