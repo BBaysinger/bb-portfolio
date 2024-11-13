@@ -37,8 +37,7 @@ interface PieceDetailRouterProps {
  *
  * Screenshots are displayed within depictions of devices. The paragraphs are sometimes styled
  * differently depending on the type of information. And the buttons
- * that link out to the features available for each portfolio peice. Features and some paragraph types
- * switch on and off, based on flags in the data.
+ * that link out to the features available for each portfolio peice.
  *
  * @author Bradley Baysinger
  * @since The beginning of time.

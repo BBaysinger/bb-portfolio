@@ -148,7 +148,13 @@ export default class PieceInfoFeatures extends React.Component<PieceInfoFeatures
         );
       } else if (typeof urls === "string") {
         return (
-          <a className="btn" href={urls} ref={this.addMember} key={urls} target="_blank">
+          <a
+            className="btn"
+            href={urls}
+            ref={this.addMember}
+            key={urls}
+            target="_blank"
+          >
             {label}
           </a>
         );
