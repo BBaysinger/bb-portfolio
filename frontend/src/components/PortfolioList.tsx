@@ -211,7 +211,7 @@ export default class PortfolioList extends React.Component {
             <h3>Bonjour, Olá</h3>
 
             <p>
-              I am a developer with three years in UI and front-end frameworks
+              I am a developer with five years in UI and front-end frameworks
               and eleven years in related interactive programming. Since landing
               a spot in a top-tier digital advertising agency nearly straight
               out of design school in 2005, I have passionatly pursued
