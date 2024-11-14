@@ -1,6 +1,15 @@
 @import "@/styles/_global";
 
 #main_content.cv-page {
+  margin-left: 10px;
+  margin-right: 10px;
+
+  .row {
+    padding-top: 30px;
+    padding-bottom: 30px;
+    border-bottom: 2px solid $heavierThemeColor;
+  }
+
   h5 {
     position: relative;
     font-weight: 500;
@@ -17,33 +26,32 @@
 
   .left-sub {
     font-weight: bold;
-    @media (max-width: $-mdpx) {
-      width: 100%;
-    }
+    width: 100%;
     img.cv-logo {
-      width: auto;
-      height: 46px;
-      float: left;
-      position: relative;
-      top: 5px;
-      margin-right: 14px;
-      @media (max-width: $-mdpx) {
-        display: block;
-        float: none;
-        margin-bottom: 15px;
-        height: 180px;
-        margin-left: auto;
-        margin-right: auto;
-        margin-top: 30px;
-        margin-bottom: 30px;
+      display: block;
+      float: none;
+      margin-bottom: 15px;
+      height: 180px;
+      margin-top: 40px;
+      margin-left: auto;
+      margin-right: auto;
+      margin-bottom: 30px;
+      @media (min-width: $smpx) {
+        display: inline-block;
+        width: auto;
+        height: 46px;
+        float: left;
+        position: relative;
+        top: 5px;
+        margin-right: 14px;
+        margin-top: 0;
       }
     }
   }
 
-  @media (min-width: $-smpx) {
-    .cv_right {
+  .cv_right {
+    @media (min-width: $-smpx) {
       border-left: 1px dashed $heavierThemeColor;
-      padding-left: 30px;
       p,
       ul {
         margin-bottom: 10px;
@@ -54,6 +62,12 @@
   h4:first-child {
     padding-top: 0px;
     margin-top: 0px;
+    @media (min-width: $-smpx) {
+      font-size: 26px;
+    }
+    @media (min-width: $-mdpx) {
+      font-size: 34px;
+    }
   }
 
   .cv-listing {

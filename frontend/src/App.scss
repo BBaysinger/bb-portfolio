@@ -13,6 +13,7 @@ html {
   font-size: 15px;
   -webkit-font-smoothing: antialiased; // From create-react-app's index.css.
   -moz-osx-font-smoothing: grayscale; // From create-react-app's index.css.
+  overflow-x: hidden;
 }
 
 body {
@@ -156,19 +157,19 @@ h5 .right-sub {
     margin-block-end: 6px;
   }
 
-  div.section {
+  .container {
     padding-top: 70px;
     padding-bottom: 70px;
     border-top: 2px solid $lighterThemeColor;
     overflow: hidden;
   }
 
-  div.section:first-child {
+  .container:first-child {
     border-top: 0;
     padding-top: 0;
   }
 
-  div.section:last-child {
+  .container:last-child {
     padding-bottom: 0;
   }
 
