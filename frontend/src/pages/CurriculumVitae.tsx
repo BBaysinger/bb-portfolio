@@ -1045,7 +1045,7 @@ export default class CurriculumVitae extends React.Component {
                     <div className="right-sub">[ 2008 ]</div>
                   </div>
 
-                  <div className="row">
+                  <div>
                     <div className="col-xs-12">
                       People's Choice — Art Website of the Year — Artocracy.org
                     </div>
