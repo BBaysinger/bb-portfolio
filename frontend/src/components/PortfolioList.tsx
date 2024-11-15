@@ -105,7 +105,7 @@ export default class PortfolioList extends React.Component {
 
     // Get all children of the parent that are of the same type (tag name)
     const siblings = Array.from(parent.children).filter(
-      (sibling) => sibling.tagName === element.tagName,
+      (sibling) => sibling.tagName === element.tagName
     );
 
     // Find the index of the element in the siblings array
@@ -135,7 +135,7 @@ export default class PortfolioList extends React.Component {
           // TODO: Should be able to ref a member of this component rather
           // than reaching for the child's DOM node? 🤔
           thumbDOMNode = ReactDOM.findDOMNode(
-            this.pieceThumbRefs[index],
+            this.pieceThumbRefs[index]
           ) as HTMLElement;
           bounding = thumbDOMNode?.getBoundingClientRect();
           linkHeight = thumbDOMNode.offsetHeight;
@@ -208,15 +208,16 @@ export default class PortfolioList extends React.Component {
         </div>
         <div className="list_note">
           <div className="container">
-            <h3>Bonjour, Olá</h3>
+            <h3>Welcome!</h3>
 
             <p>
-              I am a developer with five years in UI and front-end frameworks
-              and eleven years in related interactive programming. Since landing
-              a spot in a top-tier digital advertising agency nearly straight
-              out of design school in 2005, I have passionatly pursued
-              client-side programming, and the quality results have been as
-              unending as the prolific projects slung in my&nbsp;direction.
+              I am a developer with over six years in web UI and front-end
+              frameworks and eleven years in related interactive programming.
+              Since landing a spot in a top-tier digital advertising agency
+              nearly straight out of design school in 2005, I have passionatly
+              pursued interactive programming of various sorts, and the quality
+              results have been as unending as the prolific projects slung
+              my&nbsp;direction.
             </p>
 
             <p>
@@ -232,6 +233,21 @@ export default class PortfolioList extends React.Component {
               permits, but what's brought me fantastic opportunities has been my
               unending passion for breathing life into beautiful concepts. I'm
               always ready to build more great&nbsp;things.
+            </p>
+
+            <p>
+              My portfolio spans many years and types of technologies, and given
+              the nature, it would be a shame to exclude all projects that may
+              no longer be 100% relevant to my current direction, so I've opted
+              to show a taste of the older stuff; though it's tough that eight
+              years of Flash projects can no longer be deployed on the&nbsp;web.
+            </p>
+
+            <p>
+              I'm still working on adding newer projects, but that's often a
+              challenge, since not everything is public-facing and functionally
+              standalone. But check back soon, and send me any questions you
+              that come to&nbsp;mind!
             </p>
           </div>
         </div>

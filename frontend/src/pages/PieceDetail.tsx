@@ -201,7 +201,9 @@ export default class PieceDetail extends React.Component<PieceDetailRouterProps>
    */
   handleResize = () => {
     const pieceIndex: number = this.currentPieceIndex;
-    const height = this.infoRefElems[pieceIndex].domElem?.offsetHeight;
+    const height = this.infoRefElems[pieceIndex].domElem?.offsetHeight
+      ? this.infoRefElems[pieceIndex].domElem?.offsetHeight + 75
+      : 0;
 
     this.setState({
       scale: this.getScale(),
@@ -218,7 +220,7 @@ export default class PieceDetail extends React.Component<PieceDetailRouterProps>
    */
   get currentPieceIndex(): number {
     return Object.keys(portfolioData.activePiecesMap).indexOf(
-      this.state.currentPieceId,
+      this.state.currentPieceId
     );
   }
 
@@ -241,7 +243,7 @@ export default class PieceDetail extends React.Component<PieceDetailRouterProps>
       window.addEventListener("resize", this.handleResize);
       window.addEventListener(
         "orientationchange",
-        this.handleOrientationChange,
+        this.handleOrientationChange
       );
     }
 
@@ -268,7 +270,7 @@ export default class PieceDetail extends React.Component<PieceDetailRouterProps>
     window.removeEventListener("resize", this.handleResize);
     window.removeEventListener(
       "orientationchange",
-      this.handleOrientationChange,
+      this.handleOrientationChange
     );
 
     this.swipe.kill();
@@ -283,7 +285,7 @@ export default class PieceDetail extends React.Component<PieceDetailRouterProps>
    */
   componentDidUpdate(
     prevProps: PieceDetailRouterProps,
-    prevState: PieceDetailState,
+    prevState: PieceDetailState
   ) {
     if (prevState.currentPieceId !== this.state.currentPieceId) {
       this.handleResize();
@@ -404,7 +406,7 @@ export default class PieceDetail extends React.Component<PieceDetailRouterProps>
           key={key}
           className={"client-logo " + logoClass}
           style={logoStyle}
-        ></div>,
+        ></div>
       );
     });
 
