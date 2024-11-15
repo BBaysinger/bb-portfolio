@@ -105,7 +105,7 @@ export default class PortfolioList extends React.Component {
 
     // Get all children of the parent that are of the same type (tag name)
     const siblings = Array.from(parent.children).filter(
-      (sibling) => sibling.tagName === element.tagName,
+      (sibling) => sibling.tagName === element.tagName
     );
 
     // Find the index of the element in the siblings array
@@ -135,7 +135,7 @@ export default class PortfolioList extends React.Component {
           // TODO: Should be able to ref a member of this component rather
           // than reaching for the child's DOM node? 🤔
           thumbDOMNode = ReactDOM.findDOMNode(
-            this.pieceThumbRefs[index],
+            this.pieceThumbRefs[index]
           ) as HTMLElement;
           bounding = thumbDOMNode?.getBoundingClientRect();
           linkHeight = thumbDOMNode.offsetHeight;
@@ -246,8 +246,8 @@ export default class PortfolioList extends React.Component {
             <p>
               I'm still working on adding newer projects, but that's often a
               challenge, since not everything is public-facing and functionally
-              standalone. But check back soon, and send me any questions you
-              that come to&nbsp;mind!
+              standalone. But check back soon, and send me any questions that
+              come to&nbsp;mind!
             </p>
           </div>
         </div>
