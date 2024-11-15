@@ -387,8 +387,7 @@ export default class CurriculumVitae extends React.Component {
                         />
                         Independent Contractor
                         <span className="location">
-                          &nbsp;&nbsp;-&nbsp;&nbsp;Front-end / Interactive Web
-                          Developer
+                          &nbsp;&nbsp;-&nbsp;&nbsp;Spokane, WA | Remote
                         </span>
                       </h5>
                       Front-end Developer
