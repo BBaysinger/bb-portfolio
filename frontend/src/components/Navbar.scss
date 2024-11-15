@@ -116,30 +116,38 @@
       padding-left: 48px;
 
       &:first-of-type {
-        margin-bottom: -8px;
+        margin-top: -2px;
+        margin-bottom: -7px;
+
+        span:first-of-type {
+          color: #999;
+        }
+        span:last-of-type {
+          color: $lighterThemeColor;
+        }
       }
 
       &:last-of-type {
-        margin-bottom: 0px;
+        margin-bottom: 1px;
       }
 
       &:nth-child(2) {
         font-size: 14px;
 
-        @media (max-width: $smpx) {
-          font-size: 13px;
-        }
+        // @media (max-width: $smpx) {
+        //   font-size: 13px;
+        // }
 
-        @media (max-width: $xspx) {
-          font-size: 10.5px;
-          line-height: 10px;
-        }
+        // @media (max-width: $xspx) {
+        //   font-size: 10.5px;
+        //   line-height: 10px;
+        // }
 
-        @media (max-width: $sspx) {
-          font-size: 9px;
-          line-height: 9px;
-          min-width: 200px;
-        }
+        // @media (max-width: $sspx) {
+        //   font-size: 9px;
+        //   line-height: 9px;
+        //   min-width: 200px;
+        // }
       }
     }
   }

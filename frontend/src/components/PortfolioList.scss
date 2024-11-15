@@ -104,11 +104,13 @@
   .client-logo {
     max-width: 260px;
     max-height: 32px;
+    margin-bottom: 6px;
   }
 
   h4.thumb-title {
     color: #ffffff;
-    position: relative;
+    position: absolute;
+    bottom: 10px;
   }
 
   //Forces the parent to wrap all the way around.

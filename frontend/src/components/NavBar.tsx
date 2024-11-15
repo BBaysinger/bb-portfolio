@@ -2,7 +2,7 @@ import React from "react";
 import { NavLink } from "react-router-dom";
 import MiscUtils from "utils/MiscUtils";
 
-import navLogo from "assets/images/misc/logo-nav.png";
+import navLogo from "assets/images/misc/logo-nav.svg";
 
 import "./Navbar.scss";
 
@@ -56,35 +56,6 @@ class NavBar extends React.Component<NavBarProps, NavBarState> {
   };
 
   /**
-   * Not sure if this was working previously.
-   *
-   * @memberof NavBar
-   */
-  // handleClick = (e:MouseEvent) => {
-  //   //TODO: Figure out how to make so this doesn't rely on class names?
-
-  //   const targ = e.target as HTMLElement;
-  //   const name = targ?.className;
-  //   switch (name) {
-  //     case "navbar-toggle":
-  //     case "icon-bar":
-  //       break;
-
-  //     default:
-  //       switch (targ.id) {
-  //         case "slideout_nav":
-  //           break;
-  //         default:
-  //           if (Sniffer.mobile) {
-  //             setTimeout(this.collapse, 100);
-  //           } else {
-  //             setTimeout(this.collapse, 100);
-  //           }
-  //       }
-  //   }
-  // };
-
-  /**
    *
    *
    * @returns
@@ -98,10 +69,12 @@ class NavBar extends React.Component<NavBarProps, NavBarState> {
     const logoStyle: React.CSSProperties = {
       position: "absolute",
       maxHeight: "38px",
-      float: "left",
-      marginRight: "10px",
-      marginLeft: "15px",
-      marginTop: "6px",
+      top: "6px",
+      left: "-9px",
+      // float: "left",
+      // marginRight: "10px",
+      // marginLeft: "15px",
+      // marginTop: "5.5px",
     };
 
     const { collapsed } = this.state;
@@ -118,7 +91,9 @@ class NavBar extends React.Component<NavBarProps, NavBarState> {
         </NavLink>
         <div id="navTitle">
           <div className="nav-logo-text">
-            <p>BRADLEY BAYSINGER</p>
+            <p>
+              <span>BRADLEY</span> <span>BAYSINGER</span>
+            </p>
             <p>
               <span className="nobr">
                 Interactive Web &bull; Front-end Developer

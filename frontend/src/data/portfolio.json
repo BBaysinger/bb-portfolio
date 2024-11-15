@@ -40,7 +40,8 @@
       "<p>I'm forever a fan of Mario Bros games (though my favorite was for the Atari 7800). The mini-games in this one are addicting.</p>",
       "<p>I built the activity, which involves finding all of the Toadettes hiding behind elements on each page. It was integrated with Nintendo's microsite API, and has overlapping flow/states (disabled for portfolio) depending on user region and status.</p>",
       "<p>I integrated the 'event space' button and its effects. It's the big green button on each page that has a little random surprise for you.</p>",
-      "<p>I was also responsible for the video player, and various responsive elements around the site.</p>"
+      "<p>I was also responsible for the video player, and various responsive elements around the site.</p>",
+      "<p>If you've never done this sort of work, it's hard to appreciate this type of challenge. We would all like to develop in newfangled frameworks, but the timelines and budgets allow for no such things. Development starts well before designs are approved, since that's the only way to make the deadlines. These sites are short-lived and they aren't software, but they are no less of a challenge, given the requirements.</p>"
     ],
     "urls": {
       "View Site": "http://www.bbaysinger.com/_projects/marioparty/index.html"
