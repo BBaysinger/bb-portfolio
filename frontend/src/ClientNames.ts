@@ -15,5 +15,6 @@ export default class ClientNames {
   static nintendo = "Nintendo";
   static premera = "Premera";
   static chalklabs = "ChalkLabs";
-  static ball_construction = "Ball Constuction";
+  static citibank = "Citibank";
+  static golden1 = "Golden 1 Credit Union";
 }

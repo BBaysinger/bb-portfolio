@@ -1,4 +1,27 @@
 {
+  "citibank": {
+    "title": "Citibank Website",
+    "active": "1",
+    "omitFromList": "0",
+    "clientId": "citibank",
+    "mobileOrientation": "portrait",
+    "tags": "Angular, TypeScript, Bootstrap, HTML5, CSS3, Responsive",
+    "role": "Developer",
+    "year": "",
+    "awards": "",
+    "type": "",
+    "isGame": "0",
+    "mobileAvailability": "mobile_available",
+    "desc": [
+      "<p>I developed parts of the Citibank site, including the Citigold Benefits, Compare Cards, and the Home Equity Calculator, along with various modals around the site.</p>",
+      "<p>The benefits page includes drop-downs, a slider, and tabbed layouts, and a great number of dynamicly populated content.</p>"
+    ],
+    "urls": {
+      "Citigold Benefits": "https://www.citi.com/banking/citigold?intc=citihpmenu_overview_citigold",
+      "Home Equity Calculator": "https://www.citi.com/home-equity/loan-calculator",
+      "Compare Cards": "https://www.citi.com/credit-cards/compare/most-popular-credit-cards"
+    }
+  },
   "marioparty": {
     "title": "Super Mario Party",
     "active": "1",
