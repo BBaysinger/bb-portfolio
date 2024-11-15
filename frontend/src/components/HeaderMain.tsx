@@ -48,21 +48,21 @@ export default class HeaderMain extends React.Component<{}, HeaderMainState> {
     const startY = window.scrollY;
     const distance = targetY - startY;
     const startTime = performance.now();
-  
+
     const scrollAnimation = (currentTime: number) => {
       const elapsed = currentTime - startTime;
       const progress = Math.min(elapsed / duration, 1);
-  
+
       // Pure ease-out formula
       const easeOut = 1 - Math.pow(1 - progress, 3); // Cubic ease-out
-  
+
       window.scrollTo(0, startY + distance * easeOut);
-  
+
       if (progress < 1) {
         this.animationFrame = requestAnimationFrame(scrollAnimation);
       }
     };
-  
+
     this.animationFrame = requestAnimationFrame(scrollAnimation);
   };
 
@@ -97,7 +97,9 @@ export default class HeaderMain extends React.Component<{}, HeaderMainState> {
         <h1>Bradley Baysinger</h1>
 
         <h5 className="subhead">
-          <span className="nobr">Front-end Developer</span>
+          <span className="nobr">
+            Interactive Web &bull; Front-end Developer
+          </span>
         </h5>
 
         <div
