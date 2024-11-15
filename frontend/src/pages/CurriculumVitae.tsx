@@ -669,6 +669,10 @@ export default class CurriculumVitae extends React.Component {
                       in&nbsp;JavaScript/Require
                     </li>
                     <li>
+                      Lead developer of AT&T's first ever app store
+                      in&nbsp;JavaScript/Require
+                    </li>
+                    <li>
                       Developed custom music and video players for several MTV
                       websites in&nbsp;ActionScript
                     </li>
