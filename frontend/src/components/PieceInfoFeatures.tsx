@@ -177,7 +177,7 @@ export default class PieceInfoFeatures extends React.Component<PieceInfoFeatures
           {role && (
             <div ref={this.addMember}>
               <p>
-                <span>Role:</span> {role}
+                <span style={{ fontWeight: "bold" }}>Role:</span> {role}
               </p>
             </div>
           )}
