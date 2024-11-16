@@ -292,22 +292,25 @@ export default class CurriculumVitae extends React.Component {
 
         <div id="main_content" className="cv-page">
           <div className="container">
+            <h4>Experience</h4>
+          </div>
+
+          {/*-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --*/}
+
+          <div className="container">
             <div className="row">
               <div className={divClassLt}>
-                <h4>Experience</h4>
+                <img
+                  src="/images/cv/epsilon.svg"
+                  className="cv-logo"
+                  alt="Epsilon Logo"
+                />
               </div>
               <div className={divClassRt}>
-                {/*-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --*/}
-
                 <div className="cv-listing">
                   <div className="sub-container">
                     <div className="left-sub">
                       <h5>
-                        <img
-                          src="/images/cv/epsilon.svg"
-                          className="cv-logo"
-                          alt="Epsilon Logo"
-                        />
                         Epsilon
                         <span className="location">
                           &nbsp;&nbsp;-&nbsp;&nbsp;Irving, TX | Remote | W2
@@ -373,18 +376,24 @@ export default class CurriculumVitae extends React.Component {
                     </li>
                   </ul>
                 </div>
+              </div>
+            </div>
 
-                {/*-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --*/}
+            {/*-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --*/}
 
+            <div className="row">
+              <div className={divClassLt}>
+                <img
+                  src="/images/cv/bb.svg"
+                  className="cv-logo"
+                  alt="BB Interactive Logo"
+                />
+              </div>
+              <div className={divClassRt}>
                 <div className="cv-listing">
                   <div className="sub-container">
                     <div className="left-sub">
                       <h5>
-                        <img
-                          src="/images/cv/bb.svg"
-                          className="cv-logo"
-                          alt="BBInteractive Logo"
-                        />
                         Independent Contractor
                         <span className="location">
                           &nbsp;&nbsp;-&nbsp;&nbsp;Spokane, WA | Remote
@@ -448,18 +457,20 @@ export default class CurriculumVitae extends React.Component {
                     </li>
                   </ul>
                 </div>
+              </div>
+            </div>
 
-                {/*-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --*/}
+            {/*-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --*/}
 
+            <div className="row">
+              <div className={divClassLt}>
+                <img src="/images/cv/s2.svg" className="cv-logo" alt="Seven2" />
+              </div>
+              <div className={divClassRt}>
                 <div className="cv-listing">
                   <div className="sub-container">
                     <div className="left-sub">
                       <h5>
-                        <img
-                          src="/images/cv/s2.svg"
-                          className="cv-logo"
-                          alt="Seven2"
-                        />
                         Seven2 Interactive
                         <span className="location">
                           &nbsp;&nbsp;-&nbsp;&nbsp;Spokane, WA
@@ -528,18 +539,24 @@ export default class CurriculumVitae extends React.Component {
                     </li>
                   </ul>
                 </div>
+              </div>
+            </div>
 
-                {/*-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --*/}
+            {/*-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --*/}
 
+            <div className="row">
+              <div className={divClassLt}>
+                <img
+                  src="/images/cv/chalklabs.svg"
+                  className="cv-logo"
+                  alt="ChalkLabs Logo"
+                />
+              </div>
+              <div className={divClassRt}>
                 <div className="cv-listing">
                   <div className="sub-container">
                     <div className="left-sub">
                       <h5>
-                        <img
-                          src="/images/cv/chalklabs.svg"
-                          className="cv-logo"
-                          alt="Seven2"
-                        />
                         ChalkLabs
                         <span className="location">
                           &nbsp;&nbsp;-&nbsp;&nbsp;Spokane, WA
@@ -609,18 +626,24 @@ export default class CurriculumVitae extends React.Component {
                     </li>
                   </ul>
                 </div>
+              </div>
+            </div>
 
-                {/*-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --*/}
+            {/*-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --*/}
 
+            <div className="row">
+              <div className={divClassLt}>
+                <img
+                  src="/images/cv/s2.svg"
+                  className="cv-logo"
+                  alt="Seven2 Logo"
+                />{" "}
+              </div>
+              <div className={divClassRt}>
                 <div className="cv-listing">
                   <div className="sub-container">
                     <div className="left-sub">
                       <h5>
-                        <img
-                          src="/images/cv/s2.svg"
-                          className="cv-logo"
-                          alt="Seven2"
-                        />
                         Seven2 Interactive
                         <span className="location">
                           &nbsp;&nbsp;-&nbsp;&nbsp;Spokane, WA
@@ -708,18 +731,24 @@ export default class CurriculumVitae extends React.Component {
                     </li>
                   </ul>
                 </div>
+              </div>
+            </div>
 
-                {/*-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --*/}
+            {/*-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --*/}
 
+            <div className="row">
+              <div className={divClassLt}>
+                <img
+                  src="/images/cv/scw.svg"
+                  className="cv-logo"
+                  alt="SCW Logo"
+                />
+              </div>
+              <div className={divClassRt}>
                 <div className="cv-listing">
                   <div className="sub-container">
                     <div className="left-sub">
                       <h5>
-                        <img
-                          src="/images/cv/scw.svg"
-                          className="cv-logo"
-                          alt="Seven2"
-                        />
                         SCW Consulting
                         <span className="location">
                           &nbsp;&nbsp;-&nbsp;&nbsp;Spokane, WA
@@ -771,18 +800,24 @@ export default class CurriculumVitae extends React.Component {
                     </li>
                   </ul>
                 </div>
+              </div>
+            </div>
 
-                {/*-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --*/}
+            {/*-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --*/}
 
+            <div className="row">
+              <div className={divClassLt}>
+                <img
+                  src="/images/cv/bb.svg"
+                  className="cv-logo"
+                  alt="BB Interactive Logo"
+                />
+              </div>
+              <div className={divClassRt}>
                 <div className="cv-listing">
                   <div className="sub-container">
                     <div className="left-sub">
                       <h5>
-                        <img
-                          src="/images/cv/bb.svg"
-                          className="cv-logo"
-                          alt="BV Logo"
-                        />
                         Freelance
                         <span className="location">
                           &nbsp;&nbsp;-&nbsp;&nbsp;Spokane, WA
@@ -834,18 +869,24 @@ export default class CurriculumVitae extends React.Component {
                     </li>
                   </ul>
                 </div>
+              </div>
+            </div>
 
-                {/*-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --*/}
+            {/*-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --*/}
 
+            <div className="row">
+              <div className={divClassLt}>
+                <img
+                  src="/images/cv/bv.svg"
+                  className="cv-logo"
+                  alt="Hand Logo"
+                />
+              </div>
+              <div className={divClassRt}>
                 <div className="cv-listing">
                   <div className="sub-container">
                     <div className="left-sub">
                       <h5>
-                        <img
-                          src="/images/cv/bv.svg"
-                          className="cv-logo"
-                          alt="BV Logo"
-                        />
                         Hobbyist
                         <span className="location">
                           &nbsp;&nbsp;-&nbsp;&nbsp;Spokane, WA
@@ -907,11 +948,15 @@ export default class CurriculumVitae extends React.Component {
                 </div>
               </div>
             </div>
+          </div>
 
+          <div className="container">
+            <h4>Education</h4>
+          </div>
+
+          <div className="container">
             <div className="row">
-              <div className={divClassLt}>
-                <h4>Education</h4>
-              </div>
+              <div className={divClassLt}></div>
 
               <div className={divClassRt}>
                 <h5 className="sub-container">
@@ -929,11 +974,15 @@ export default class CurriculumVitae extends React.Component {
                 </p>
               </div>
             </div>
+          </div>
 
+          <div className="container">
+            <h4>Skills</h4>
+          </div>
+
+          <div className="container">
             <div className="row">
-              <div className={divClassLt}>
-                <h4>Skills</h4>
-              </div>
+              <div className={divClassLt}></div>
               <div className={divClassRt}>
                 <div className="cv-listing">
                   <h5>Languages</h5>
@@ -957,11 +1006,15 @@ export default class CurriculumVitae extends React.Component {
               </div> */}
               </div>
             </div>
+          </div>
 
+          <div className="container">
+            <h4>Achievements</h4>
+          </div>
+
+          <div className="container">
             <div className="row">
-              <div className={divClassLt}>
-                <h4>Achievements</h4>
-              </div>
+              <div className={divClassLt}></div>
 
               <div className={divClassRt}>
                 <div className="cv-listing">
@@ -1071,11 +1124,15 @@ export default class CurriculumVitae extends React.Component {
                 </div>
               </div>
             </div>
+          </div>
 
+          <div className="container">
+            <h4>Clients</h4>
+          </div>
+
+          <div className="container">
             <div className="row">
-              <div className={divClassLt}>
-                <h4>Clients</h4>
-              </div>
+              <div className={divClassLt}></div>
 
               <div className={divClassRt}>
                 <p>{this.clientElems}</p>

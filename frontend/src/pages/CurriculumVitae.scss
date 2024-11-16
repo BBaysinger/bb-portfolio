@@ -1,7 +1,6 @@
 @import "@/styles/_global";
 
 #main_content.cv-page {
-
   padding-top: 90px;
   padding-bottom: 90px;
 
@@ -13,10 +12,13 @@
   margin-left: 10px;
   margin-right: 10px;
 
+  .container {
+    border-bottom: 2px solid $heavierThemeColor;
+  }
+
   .row {
     padding-top: 30px;
     padding-bottom: 30px;
-    border-bottom: 2px solid $heavierThemeColor;
     &:last-of-type {
       border-bottom: 0;
     }
