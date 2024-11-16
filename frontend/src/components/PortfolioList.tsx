@@ -208,7 +208,7 @@ export default class PortfolioList extends React.Component {
         </div>
         <div className="list_note">
           <div className="container">
-            <h3>Welcome!</h3>
+            <h3>I'm glad you're&nbsp;here!</h3>
 
             <p>
               I am a developer with over six years in web UI and front-end
