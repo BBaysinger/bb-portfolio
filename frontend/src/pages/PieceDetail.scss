@@ -34,6 +34,13 @@
 
 /* Portfolio Piece */
 .portfolio_piece {
+  #main_content {
+    margin-top: 50px;
+    @media (min-width: $smpx) {
+      margin-top: 60px;
+    }
+  }
+
   #piece_nav {
     width: 100%;
     position: absolute;
@@ -191,7 +198,7 @@
 
   .logo_container {
     height: 40px;
-    margin-top: -20px;
+    // margin-top: -20px;
     margin-bottom: 30px;
   }
 

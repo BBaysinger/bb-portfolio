@@ -124,12 +124,6 @@ h5 .right-sub {
 }
 
 #main_content {
-  margin-top: 50px;
-  margin-bottom: 50px;
-  @media (min-width: $smpx) {
-    margin-top: 90px;
-    margin-bottom: 90px;
-  }
 
   h3 {
     color: #444444;
@@ -155,11 +149,6 @@ h5 .right-sub {
     font-weight: 400;
     margin-top: 0px;
     margin-block-end: 6px;
-  }
-
-  .container {
-    padding-top: 70px;
-    padding-bottom: 70px;
   }
 
   .container:first-child {
