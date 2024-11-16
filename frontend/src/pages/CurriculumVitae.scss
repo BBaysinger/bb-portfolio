@@ -1,6 +1,8 @@
 @import "@/styles/_global";
 
 #main_content.cv-page {
+  margin-left: 10px;
+  margin-right: 10px;
   padding-top: 90px;
   padding-bottom: 90px;
 
@@ -9,18 +11,18 @@
     padding-bottom: 60px;
   }
 
-  margin-left: 10px;
-  margin-right: 10px;
-
-  .container {
+  h4 {
     border-bottom: 2px solid $heavierThemeColor;
+    padding-bottom: 20px;
+    // margin-bottom: 40px;
   }
 
   .row {
-    padding-top: 30px;
-    padding-bottom: 30px;
-    &:last-of-type {
-      border-bottom: 0;
+    padding-top: 40px;
+    padding-bottom: 40px;
+
+    & > *:first-of-type {
+      text-align: center;
     }
   }
 
@@ -41,25 +43,20 @@
   .left-sub {
     font-weight: bold;
     width: 100%;
-    img.cv-logo {
-      display: block;
-      float: none;
-      margin-bottom: 15px;
-      height: 160px;
-      margin-top: 40px;
-      margin-left: auto;
-      margin-right: auto;
-      margin-bottom: 30px;
-      @media (min-width: $smpx) {
-        display: inline-block;
-        width: auto;
-        height: 46px;
-        float: left;
-        position: relative;
-        top: 5px;
-        margin-right: 14px;
-        margin-top: 0;
-      }
+  }
+
+  img.cv-logo {
+    margin-top: 20px;
+    margin-bottom: 40px;
+    margin-left: auto;
+    margin-right: auto;
+    height: calc(40px + 20vw);
+    @media (min-width: $smpx) {
+      height: 130px;
+      width: auto;
+      position: relative;
+      top: 5px;
+      margin-top: 0;
     }
   }
 
