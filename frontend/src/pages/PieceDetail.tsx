@@ -396,7 +396,7 @@ export default class PieceDetail extends React.Component<PieceDetailRouterProps>
     keys.forEach((key) => {
       let clientLogoURL =
         key === "att" || key === "premera" ? key + "_black" : key;
-      clientLogoURL = "url(/images/client-logos/" + clientLogoURL + ".png)";
+      clientLogoURL = "url(/images/client-logos/" + clientLogoURL + ".svg)";
 
       const logoStyle = { backgroundImage: clientLogoURL };
       const logoClass = key === clientId ? "visible" : "";
