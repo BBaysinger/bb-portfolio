@@ -941,7 +941,7 @@ export default class CurriculumVitae extends React.Component {
                       built with theme/color&nbsp;options
                     </li>
                     <li>
-                      Built my first game withing weeks of learning JavaScript,
+                      Built my first game within weeks of learning JavaScript,
                       a whimsical DHTML slot&nbsp;machine
                     </li>
                   </ul>
