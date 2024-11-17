@@ -48,7 +48,7 @@ export default class PieceThumbnail extends React.Component<PieceThumbnailProps>
           <div className="vingette"></div>
           <div className="thumb-content">
             <img
-              src={"/images/client-logos/" + clientId + ".png"}
+              src={"/images/client-logos/" + clientId + ".svg"}
               className="client-logo"
               alt={clientId + " logo"}
             />
