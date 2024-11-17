@@ -23,13 +23,17 @@ header {
   &.header_main {
     // Not setting height here, as we're relying on ios-inner-height
     max-height: 812px;
+    background-attachment: fixed;
+    background-position: center;
+    background-size: cover;
 
     .header-logo {
-      opacity: 0.4;
-      height: 40vh;
-      max-height: 300px;
+      opacity: 1;
+      height: 60vh;
+      max-height: 380px;
       position: relative;
       top: -11px;
+      margin-bottom: -30px;
     }
 
     .view_portfolio {

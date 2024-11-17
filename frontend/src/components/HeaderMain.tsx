@@ -1,7 +1,8 @@
 import React from "react";
 
 import NavBar from "./NavBar";
-import headerLogo from "assets/images/main-header/logo-header.png";
+import headerLogo from "assets/images/main-header/bb_gradient.png";
+import headerGrad from "assets/images/main-header/bg_grad.svg";
 import caret from "assets/images/main-header/caret.png";
 
 import "./Header.scss";
@@ -89,7 +90,10 @@ export default class HeaderMain extends React.Component<{}, HeaderMainState> {
     return (
       <header
         className="header_main"
-        style={{ minHeight: this.state.height + "px" }}
+        style={{
+          minHeight: this.state.height + "px",
+          backgroundImage: `url(${headerGrad})`, // Use the imported image
+        }}
       >
         <div className="overheadFill"></div>
 
