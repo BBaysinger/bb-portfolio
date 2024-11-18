@@ -8,6 +8,7 @@ import { ReduxRouter } from "@lagunovsky/redux-react-router";
 import store from "store/store";
 import { history } from "store/store";
 import { routerSelector } from "store/selectors";
+import ScrollToTopOnClick from "utils/ScrollToTopOnClick";
 
 import NavBar from "components/NavBar";
 import CurriculumVitae from "pages/CurriculumVitae";
@@ -149,18 +150,20 @@ class App extends Component<AppProps, AppState> {
               toggleSlideOutHandler={this.toggleSlideOutHandler}
               collapseSlideOutHandler={this.handleResize}
             ></NavBar>
-            <Routes>
-              <Route path="/">
-                <Route path="/" element={<PortfolioList />}></Route>
-                <Route path="/portfolio" element={<PortfolioList />}></Route>
-                <Route
-                  path="/portfolio/:pieceId"
-                  element={<PieceDetailWrapper pieceId="someId" />}
-                ></Route>
-                <Route path="/cv" element={<CurriculumVitae />}></Route>
-                <Route path="/whoami" element={<WhoAmI />}></Route>
-              </Route>
-            </Routes>
+            <ScrollToTopOnClick>
+              <Routes>
+                <Route path="/">
+                  <Route path="/" element={<PortfolioList />}></Route>
+                  <Route path="/portfolio" element={<PortfolioList />}></Route>
+                  <Route
+                    path="/portfolio/:pieceId"
+                    element={<PieceDetailWrapper pieceId="someId" />}
+                  ></Route>
+                  <Route path="/cv" element={<CurriculumVitae />}></Route>
+                  <Route path="/whoami" element={<WhoAmI />}></Route>
+                </Route>
+              </Routes>
+            </ScrollToTopOnClick>
             <Footer></Footer>
           </div>
         </ReduxRouter>
