@@ -1,4 +1,4 @@
-import json from "./data/portfolio.json";
+import json from "data/portfolio.json";
 
 /**
  * A helper to expediate the use of portfolio data, and help with

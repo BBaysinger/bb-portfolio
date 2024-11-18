@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import Sniffer from "../utils/Sniffer";
+import Sniffer from "utils/Sniffer";
 
 interface PieceThumbnailProps {
   focused: boolean;

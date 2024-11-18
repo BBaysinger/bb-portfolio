@@ -5,15 +5,15 @@ import { Link } from "react-router-dom";
 
 import HeaderSub from "components/HeaderSub";
 import ScreenShot from "components/ScreenShot";
-import ClientNames from "../ClientNames";
-import Sniffer from "../utils/Sniffer";
+import ClientNames from "data/ClientNames";
+import Sniffer from "utils/Sniffer";
 import Swipe from "bb/ui/Swipe";
 
-import portfolioData from "../PortfolioData";
+import portfolioData from "data/PortfolioData";
 import PieceInfoFeatures from "components/PieceInfoFeatures";
 
-import blankPNG from "../assets/images/misc/blank.png";
-import json from "../data/portfolio.json";
+import blankPNG from "assets/images/misc/blank.png";
+import json from "data/portfolio.json";
 
 import "./PieceDetail.scss";
 

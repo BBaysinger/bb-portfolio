@@ -4,9 +4,9 @@ import ReactDOM from "react-dom";
 import PieceThumbnail from "components/PieceThumbnail";
 import HeaderMain from "components/HeaderMain";
 
-import portfolioData from "../PortfolioData";
+import portfolioData from "data/PortfolioData";
 import ExecutionEnvironment from "exenv";
-import Sniffer from "../utils/Sniffer";
+import Sniffer from "utils/Sniffer";
 
 import "./PortfolioList.scss";
 
