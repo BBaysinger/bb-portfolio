@@ -98,7 +98,10 @@ export default class HeaderMain extends React.Component<{}, HeaderMainState> {
         <div className="overheadFill"></div>
 
         <img src={headerLogo} className="header-logo" alt="BB Logo" />
-        <h1>Bradley Baysinger</h1>
+        <h1>
+          <span className="firstName">Bradley</span>{" "}
+          <span className="lastName">Baysinger</span>
+        </h1>
 
         <h5 className="subhead">
           <span style={{ lineHeight: "26px" }}>
