@@ -44,12 +44,6 @@ class SlideOutNav extends React.Component<SlideOutNavProps> {
   render() {
     return (
       <nav id="slideout_nav" role="navigation">
-        <img
-          id="b_square_nav"
-          src="/images/misc/nav-backing-logo.png"
-          alt=""
-        ></img>
-
         <ul id="slideout_nav_buttons">
           <li>
             <NavLink
@@ -71,18 +65,6 @@ class SlideOutNav extends React.Component<SlideOutNavProps> {
               CV
             </NavLink>
           </li>
-          {/* <li>
-            <NavLink
-              onClick={this.handleCollapseNav}
-              to="/whoami"
-              className={({ isActive }) => (isActive ? "active" : "")}
-            >
-              Who Am I?
-            </NavLink>
-          </li> */}
-          {/* <li>
-            <NavLink onClick={this.handleCollapseNav} to="/whoami" activeClassName="active">Who Am I</NavLink>
-          </li> */}
         </ul>
       </nav>
     );
