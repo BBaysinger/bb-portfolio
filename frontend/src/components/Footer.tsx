@@ -8,6 +8,7 @@ import github from "assets/images/footer/icons/github.png";
 import linkedIn from "assets/images/footer/icons/linked-in.png";
 import location from "assets/images/footer/icons/location.png";
 import stackoverflow from "assets/images/footer/icons/stackoverflow.png";
+import phone from "assets/images/footer/icons/phone.png";
 
 import "./Footer.scss";
 
@@ -73,7 +74,7 @@ class Footer extends React.Component {
       <footer>
         <div className="container footer_container">
           <div className="row">
-            <div className="col-xs-12 col-sm-7 col-md-6 col-lg-6 footer_cell">
+            <div className="col-xs-12 col-sm-12 col-md-6 col-lg-6 footer_cell">
               <p>
                 <img
                   src="/images/footer/bb2.jpg"
@@ -93,7 +94,7 @@ class Footer extends React.Component {
               </p>
             </div>
 
-            <div className="col-xs-12 col-sm-5 col-md-4 col-lg-4 footer_cell contact">
+            <div className="col-xs-12 col-sm-12 col-md-4 col-lg-4 footer_cell contact">
               <div>
                 <ul>
                   <li>
@@ -104,14 +105,14 @@ class Footer extends React.Component {
                       {this.state.emailAddr}
                     </a>
                   </li>
-                  {/* <li>
+                  <li>
                     <a href="tel:+15092798603">
                       <div
                         style={{ backgroundImage: "url(" + phone + ")" }}
                       ></div>
-                      509.279.8603
+                      509-279-8603
                     </a>
-                  </li> */}
+                  </li>
                   <li>
                     <a
                       href="http://www.linkedin.com/in/BBaysinger"
@@ -191,14 +192,6 @@ class Footer extends React.Component {
                     CV
                   </NavLink>
                 </li>
-                {/* <li>
-                  <NavLink
-                    className={({ isActive }) => (isActive ? "active" : "")}
-                    to="/whoami"
-                  >
-                    Who Am I
-                  </NavLink>
-                </li> */}
               </ul>
             </div>
           </div>
@@ -215,7 +208,7 @@ class Footer extends React.Component {
               Built with React
             </a>
           </div>
-          &copy; <span style={{ color: "#ffffff" }}>BBInteractive</span>.io
+          &copy; <span style={{ color: "#fff" }}>BBInteractive</span>.io
         </div>
       </footer>
     );
