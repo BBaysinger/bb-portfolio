@@ -18,6 +18,7 @@
       top 0.3s ease-out,
       opacity 0.3s;
     background-image: url("../assets/images/piece-detail/desktop-device.png");
+    background-size: contain;
     background-repeat: no-repeat;
   }
 
@@ -30,6 +31,7 @@
 
     &.landscape {
       background-image: url("../assets/images/piece-detail/mobile-device-landscape.png");
+      background-size: contain;
 
       .full_piece_mobile_cap {
         top: 227px;
@@ -40,10 +42,11 @@
 
     &.portrait {
       background-image: url("../assets/images/piece-detail/mobile-device-portrait.png");
+      background-size: contain;
 
       .full_piece_mobile_cap {
-        top: 68px;
-        left: 483px;
+        top: 69px;
+        left: 484px;
         width: 162px;
       }
     }
