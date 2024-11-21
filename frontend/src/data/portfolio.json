@@ -159,7 +159,7 @@
       "Code Repo": "https://github.com/BBaysinger/s2-experience-spokane-2018"
     }
   },
-  "pushgraph-nifa": {
+  "pushgraph": {
     "title": "ChalkLabs Pushgraph",
     "active": "1",
     "omitFromList": "0",
