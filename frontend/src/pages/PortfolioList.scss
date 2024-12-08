@@ -1,9 +1,12 @@
 @use "@/styles/global";
 
 .portfolio_list {
+  $gap: 30px;
   background-color: #1a1a1a;
   display: flex;
   flex-wrap: wrap;
+  gap: $gap;
+  padding-bottom: -$gap;
 
   .piece-thumbnail {
     height: 290px;
@@ -12,14 +15,14 @@
     background-size: cover;
     position: relative;
     overflow: hidden; // This caused gap on left side of vingette.
-    width: 100%;
+    width: 100vw;
 
     @media screen and (min-width: global.$smpx) {
-      width: 50%;
+      width: calc(50vw - ($gap * .5));
     }
 
     @media screen and (min-width: global.$lgpx) {
-      width: 33.33%;
+      width: calc(33.33vw - ($gap * .666));
     }
   }
 

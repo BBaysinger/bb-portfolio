@@ -29,7 +29,8 @@ export default class HeaderMain extends React.Component<{}, HeaderMainState> {
   }
 
   getHeight = () => {
-    return Math.max(Math.min(window.innerHeight, 812), 500);
+    // return Math.max(Math.min(window.innerHeight, 812), 500);
+    return Math.max(window.innerHeight, 500);
   };
 
   stopCaret() {
