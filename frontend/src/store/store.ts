@@ -1,36 +1,27 @@
 import { configureStore } from "@reduxjs/toolkit";
-
 import {
-  createRouterMiddleware,
   createRouterReducer,
+  createRouterMiddleware,
+  createRouterReducerMapObject,
 } from "@lagunovsky/redux-react-router";
-
 import { createBrowserHistory } from "history";
+import { rootReducer } from "./reducers"; // Your root reducer
 
-/**
- *
- *
- *
- * @author Bradley Baysinger
- * @since The beginning of time.
- * @version N/A
- */
+// Create a browser history instance
+const history = createBrowserHistory();
 
-/*
- * Create a history object
- */
-export const history = createBrowserHistory();
+// Create router middleware
+const routerMiddleware = createRouterMiddleware(history);
 
-/**
- *
- */
+// Combine your reducers with the router reducers
 const store = configureStore({
   reducer: {
-    navigator: createRouterReducer(history),
+    ...rootReducer,
+    ...createRouterReducerMapObject(history),
+    router: createRouterReducer(history), // Add the router reducer
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(createRouterMiddleware(history)),
-  devTools: process.env.NODE_ENV !== "production", // Enable DevTools in development
+    getDefaultMiddleware().concat(routerMiddleware),
 });
 
-export default store;
+export { store, history };
