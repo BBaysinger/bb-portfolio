@@ -43,11 +43,17 @@ const FloatingObjectsWithDamping: React.FC = () => {
           // Apply damping
           const dampingFactor = 0.98; // Slows down gradually
           const minSpeed = 0.5; // Minimum speed for natural floating
-          vx = Math.abs(vx) > minSpeed ? vx * dampingFactor : Math.sign(vx) * minSpeed;
-          vy = Math.abs(vy) > minSpeed ? vy * dampingFactor : Math.sign(vy) * minSpeed;
+          vx =
+            Math.abs(vx) > minSpeed
+              ? vx * dampingFactor
+              : Math.sign(vx) * minSpeed;
+          vy =
+            Math.abs(vy) > minSpeed
+              ? vy * dampingFactor
+              : Math.sign(vy) * minSpeed;
 
           return { ...obj, x, y, vx, vy };
-        })
+        }),
       );
     }, 16); // Roughly 60fps
 
@@ -59,8 +65,8 @@ const FloatingObjectsWithDamping: React.FC = () => {
 
     setObjects((prev) =>
       prev.map((obj) =>
-        obj.id === id ? { ...obj, isDragging: true, vx: 0, vy: 0 } : obj
-      )
+        obj.id === id ? { ...obj, isDragging: true, vx: 0, vy: 0 } : obj,
+      ),
     );
   };
 
@@ -75,8 +81,8 @@ const FloatingObjectsWithDamping: React.FC = () => {
               x: obj.x + (e.movementX || 0),
               y: obj.y + (e.movementY || 0),
             }
-          : obj
-      )
+          : obj,
+      ),
     );
   };
 
@@ -97,8 +103,8 @@ const FloatingObjectsWithDamping: React.FC = () => {
               vy: deltaY * 0.1,
               isDragging: false,
             }
-          : obj
-      )
+          : obj,
+      ),
     );
 
     dragStartPosition.current = null;
