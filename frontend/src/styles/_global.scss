@@ -1,4 +1,5 @@
 @use "sass:math";
+@use "sass:map";
 
 /* Test Border */
 $t: red solid 1px;
@@ -11,12 +12,34 @@ $xs: 480;
 $sm: 768;
 $md: 992;
 $lg: 1200;
+$xl: 1400;
+$xxl: 1400;
 
 $sspx: $ss + "px";
 $xspx: $xs + "px";
 $smpx: $sm + "px";
 $mdpx: $md + "px";
 $lgpx: $lg + "px";
+
+// Breakpoints definition
+// Defines standard responsive breakpoints, including an additional 'xs' size (360px).
+// These breakpoints are mobile-first, following Bootstrap conventions.
+$breakpoints: (
+  // Super small devices (Not one of Bootstrap's default breakpoints)
+  ss: 360px,
+  // Extra small devices (Not one of Bootstrap's default breakpoints)
+  xs: 480px,
+  // Small devices (e.g., smartphones)
+  sm: 768px,
+  // Medium devices (e.g., tablets)
+  md: 992px,
+  // Large devices (e.g., desktops)
+  lg: 1200px,
+  // Extra large devices (e.g., larger desktops)
+  xl: 1200px,
+  // Extra extra large devices (e.g., very large screens)
+  xxl: 1400px
+);
 
 // For thin stokes and normal weight text.
 $heavierThemeColor: #719614;
@@ -36,4 +59,25 @@ $negative-device-halfWidthPx: - math.div($device-width, 2) + px;
   position: absolute;
   width: $device-widthPx;
   height: 512px;
+}
+
+// Mixin for mobile-first media queries
+// Usage: Apply styles starting from the specified breakpoint and up.
+// Example:
+// .example-class {
+//   @include breakpoint-up(md) {
+//     background-color: blue;
+//   }
+// }
+@mixin breakpoint-up($breakpoint) {
+  $min-width: map.get(
+    $breakpoints,
+    $breakpoint
+  ); // Get the breakpoint's value from the map
+  @if $min-width != null {
+    @media (min-width: $min-width) {
+      // Apply styles when the viewport meets the minimum width
+      @content;
+    }
+  }
 }
