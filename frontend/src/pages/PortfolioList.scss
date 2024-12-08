@@ -118,11 +118,11 @@
 
   //Forces the parent to wrap all the way around.
   //stackoverflow.com/questions/10969023/
-  &::after {
-    content: "";
-    display: table;
-    clear: both;
-  }
+  // &::after {
+  //   content: "";
+  //   display: table;
+  //   clear: both;
+  // }
 }
 
 .list_note {
