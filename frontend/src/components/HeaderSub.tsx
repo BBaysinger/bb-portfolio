@@ -33,10 +33,11 @@ export default class HeaderSub extends React.Component<HeaderSubProps> {
     const subheadElem = subhead ? <h5 className="subhead">{subhead}</h5> : null;
 
     return (
-      <header className="header_sub">
+      <header className="header_sub header" id="header">
         <div className="overheadFill"></div>
         <h1>{head}</h1>
         {subheadElem}
+        <div id="pieceScrollAnchor"></div>
       </header>
     );
   }

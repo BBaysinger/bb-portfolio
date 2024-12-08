@@ -1,9 +1,9 @@
 import React from "react";
+import ExecutionEnvironment from "exenv";
 
 import PieceThumbnail from "components/PieceThumbnail";
 import HeaderMain from "components/HeaderMain";
 import portfolioData from "data/PortfolioData";
-import ExecutionEnvironment from "exenv";
 import Sniffer from "utils/Sniffer";
 import "./PortfolioList.scss";
 

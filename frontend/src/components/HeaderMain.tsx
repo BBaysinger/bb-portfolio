@@ -89,10 +89,10 @@ export default class HeaderMain extends React.Component<{}, HeaderMainState> {
   render() {
     return (
       <header
-        className="header_main"
+        id="header"
+        className="header_main header"
         style={{
           minHeight: this.state.height + "px",
-          // backgroundImage: `url(${headerGrad})`, // Use the imported image
         }}
       >
         <div className="overheadFill"></div>

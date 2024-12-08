@@ -1,7 +1,5 @@
-import { Component } from "react";
-
+import { useState, useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
-// import { Routes, Route, ScrollRestoration } from "react-router-dom";
 import ExecutionEnvironment from "exenv";
 
 import NavBar from "components/NavBar";
@@ -10,153 +8,92 @@ import SlideOutNav from "components/SlideOutNavigation";
 import PortfolioList from "components/PortfolioList";
 import Footer from "components/Footer";
 import PieceDetailWrapper from "pages/PieceDetailWrapper";
+import ScrollToHash from "utils/ScrollToHash";
 
 import "./App.scss";
 
 /**
  *
  */
-interface AppProps {}
+const App = () => {
+  // State to manage whether the slide-out menu is active
+  const [slideOut, setSlideOut] = useState(false);
 
-/**
- *
- */
-interface AppState {
-  slideOut: boolean;
-}
+  // Tracks whether a scroll event is being handled
+  let ticking = false;
 
-/**
- *
- */
-class App extends Component<AppProps, AppState> {
-  /**
-   *
-   * @memberof App
-   */
-  ticking = false;
-
-  /**
-   *
-   * @memberof App
-   */
-  toggleSlideOutHandler = () => {
-    this.setState({
-      slideOut: !this.state.slideOut,
-    });
+  // Toggles the slide-out menu
+  const toggleSlideOutHandler = () => {
+    setSlideOut((prevSlideOut) => !prevSlideOut);
   };
 
-  /**
-   *
-   *
-   * @memberof App
-   */
-  collapseSlideOutHandler = () => {
-    if (this.state.slideOut) {
-      this.setState({
-        slideOut: false,
-      });
+  // Collapses the slide-out menu
+  const collapseSlideOutHandler = () => {
+    if (slideOut) {
+      setSlideOut(false);
     }
   };
 
-  /*
-   *
-   */
-  handleResize = () => {
-    this.collapseSlideOutHandler();
+  // Handles window resize and collapses the slide-out menu
+  const handleResize = () => {
+    collapseSlideOutHandler();
   };
 
-  /**
-   *
-   *
-   * @memberof App
-   */
-  handleScroll = () => {
-    if (!this.ticking) {
+  // Handles scroll events and collapses the slide-out menu
+  const handleScroll = () => {
+    if (!ticking) {
       window.requestAnimationFrame(() => {
-        this.collapseSlideOutHandler();
-        this.ticking = false;
+        collapseSlideOutHandler();
+        ticking = false;
       });
-      this.ticking = true;
+      ticking = true;
     }
   };
 
-  /**
-   *
-   *
-   * @memberof App
-   */
-  componentDidMount() {
+  // Effect to set up event listeners for scroll and resize
+  useEffect(() => {
     if (ExecutionEnvironment.canUseDOM) {
-      window.addEventListener("scroll", this.handleScroll, false);
-      window.addEventListener("resize", this.handleResize, false);
+      window.addEventListener("scroll", handleScroll, false);
+      window.addEventListener("resize", handleResize, false);
     }
-  }
 
-  /**
-   *
-   *
-   * @memberof App
-   */
-  componentWillUnmount() {
-    window.removeEventListener("scroll", this.handleScroll, false);
-    window.removeEventListener("resize", this.handleResize, false);
-  }
+    // Cleanup event listeners on component unmount
+    return () => {
+      window.removeEventListener("scroll", handleScroll, false);
+      window.removeEventListener("resize", handleResize, false);
+    };
+  }, [slideOut]); // Re-run effect when `slideOut` state changes
 
-  /**
-   *
-   *
-   * @returns
-   * @memberof App
-   */
-  getRoundedHalfWidth() {
+  // Calculate half the width of the window, rounded down
+  const getRoundedHalfWidth = () => {
     return Math.floor(window.innerWidth / 2) + "px";
-  }
+  };
 
-  /**
-   *
-   * @param props
-   */
-  constructor(props: AppProps) {
-    super(props);
-
-    this.state = { slideOut: false };
-  }
-
-  /**
-   *
-   * @returns
-   */
-  render() {
-    return (
-      <>
-        <SlideOutNav collapseSlideOutHandler={this.handleResize}></SlideOutNav>
-        <div
-          id="main"
-          style={
-            this.state.slideOut ? { right: this.getRoundedHalfWidth() } : {}
-          }
-        >
-          <NavBar
-            toggleSlideOutHandler={this.toggleSlideOutHandler}
-            collapseSlideOutHandler={this.handleResize}
-          ></NavBar>
-          {/* <ScrollRestoration /> */}
-          <Routes>
-            <Route path="/">
-              <Route path="/" element={<PortfolioList />}></Route>
-              <Route path="/portfolio" element={<PortfolioList />}></Route>
-              <Route
-                path="/portfolio/:pieceId"
-                element={<PieceDetailWrapper pieceId="someId" />}
-              ></Route>
-              <Route path="/cv" element={<CurriculumVitae />}></Route>
-            </Route>
-          </Routes>
-          <Footer></Footer>
-        </div>
-      </>
-    );
-  }
-}
+  return (
+    <>
+      <SlideOutNav collapseSlideOutHandler={handleResize}></SlideOutNav>
+      <div id="main" style={slideOut ? { right: getRoundedHalfWidth() } : {}}>
+        <NavBar
+          toggleSlideOutHandler={toggleSlideOutHandler}
+          collapseSlideOutHandler={handleResize}
+        ></NavBar>
+        {/* <ScrollRestoration /> */}
+        <ScrollToHash />
+        <Routes>
+          <Route path="/">
+            <Route path="/" element={<PortfolioList />}></Route>
+            <Route path="/portfolio" element={<PortfolioList />}></Route>
+            <Route
+              path="/portfolio/:pieceId"
+              element={<PieceDetailWrapper pieceId="someId" />}
+            ></Route>
+            <Route path="/cv" element={<CurriculumVitae />}></Route>
+          </Route>
+        </Routes>
+        <Footer></Footer>
+      </div>
+    </>
+  );
+};
 
 export default App;
