@@ -16,6 +16,11 @@ header {
   letter-spacing: 1px;
   background-color: #222;
 
+  background-image: url("/images/misc/bg_grad.svg");
+  background-attachment: fixed;
+  background-position: center;
+  background-size: cover;
+
   &.header_sub {
     padding-top: 50px;
   }
@@ -23,10 +28,6 @@ header {
   &.header_main {
     // Not setting height here, as we're relying on ios-inner-height
     max-height: 812px;
-    background-image: url("/images/misc/bg_grad.svg");
-    background-attachment: fixed;
-    background-position: center;
-    background-size: cover;
 
     .header-logo {
       opacity: 1;

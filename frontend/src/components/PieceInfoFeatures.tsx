@@ -100,7 +100,7 @@ export default class PieceInfoFeatures extends React.Component<PieceInfoFeatures
         this.members.length * 0.2 + "s, " + this.members.length * 0.2 + "s";
     } else {
       // TODO: Is this a problem?
-      console.log("eh?");
+      // console.log("eh?");
     }
   };
 
