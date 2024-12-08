@@ -1,6 +1,6 @@
 // TODO: This need split out for detail view and infos.
 
-@import "@/styles/_global";
+@use "@/styles/global";
 
 /**
  * @fileOverview 
@@ -9,7 +9,7 @@
 
 .piece_shot {
   @extend .device-shot_extend;
-  left: -$device-halfWidthPx;
+  left: global.$negative-device-halfWidthPx;
 
   .full_piece_desktop_shot {
     @extend .device-shot_extend;

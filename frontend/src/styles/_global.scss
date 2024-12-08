@@ -1,3 +1,5 @@
+@use "sass:math";
+
 /* Test Border */
 $t: red solid 1px;
 .test {
@@ -10,23 +12,11 @@ $sm: 768;
 $md: 992;
 $lg: 1200;
 
-$-ss: $ss - 1;
-$-xs: $xs - 1;
-$-sm: $sm - 1;
-$-md: $md - 1;
-$-lg: $lg - 1;
-
 $sspx: $ss + "px";
 $xspx: $xs + "px";
 $smpx: $sm + "px";
 $mdpx: $md + "px";
 $lgpx: $lg + "px";
-
-$-sspx: $-ss + "px";
-$-xspx: $-xs + "px";
-$-smpx: $-sm + "px";
-$-mdpx: $-md + "px";
-$-lgpx: $-lg + "px";
 
 // For thin stokes and normal weight text.
 $heavierThemeColor: #719614;
@@ -39,7 +29,8 @@ $red: #ff0000;
 /* Device Shots */
 $device-width: 693;
 $device-widthPx: $device-width + px;
-$device-halfWidthPx: calc($device-width/2) + px;
+$device-halfWidthPx: math.div($device-width, 2) + px;
+$negative-device-halfWidthPx: - math.div($device-width, 2) + px;
 
 .device-shot_extend {
   position: absolute;

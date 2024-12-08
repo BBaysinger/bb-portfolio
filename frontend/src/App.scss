@@ -1,4 +1,5 @@
-@import "@/styles/_global";
+@use "@/styles/global";
+
 //TODO: Bundle fonts with Webpack. Only those that show on first load.
 // @font-face {
 //   font-family: "Roboto";
@@ -41,7 +42,7 @@ div#main {
 /* Boostrap (theme) override stuff. */
 //Fixes an issue with nav height changing for unknown reason.
 //TODO: May want this to
-@media (min-width: $smpx) {
+@media (min-width: global.$smpx) {
   .navbar-nav > li > a {
     padding-top: 15px !important;
     padding-bottom: 15px !important;
@@ -81,7 +82,7 @@ h6,
 .right-sub,
 .left-sub {
   font-size: 18px;
-  color: $heavierThemeColor;
+  color: global.$heavierThemeColor;
   margin-bottom: 6px;
   margin-top: 0px;
   white-space: nowrap;
@@ -89,7 +90,7 @@ h6,
 
 .right-sub {
   font-size: 15px;
-  @media (max-width: $xspx) {
+  @media (max-width: global.$xspx) {
     margin-left: 0px;
   }
 }
@@ -120,7 +121,7 @@ h5 .right-sub {
 }
 
 .yellow-orange {
-  color: $yellowOrange !important;
+  color: global.$yellowOrange !important;
 }
 
 #main_content {
@@ -174,7 +175,7 @@ h5 .right-sub {
       line-height: 0;
       position: relative;
       top: 2px;
-      color: $heavierThemeColor;
+      color: global.$heavierThemeColor;
     }
 
     > * {
@@ -191,11 +192,11 @@ h5 .right-sub {
   }
 
   a {
-    color: $heavierThemeColor;
+    color: global.$heavierThemeColor;
   }
 
   a:hover {
-    color: $heavierThemeColor;
+    color: global.$heavierThemeColor;
   }
 
   a:active {
@@ -203,7 +204,7 @@ h5 .right-sub {
   }
 
   a:visited {
-    color: $heavierThemeColor;
+    color: global.$heavierThemeColor;
   }
 
   a:focused {

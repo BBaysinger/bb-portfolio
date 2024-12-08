@@ -1,13 +1,12 @@
 import { Component } from "react";
-import { Provider } from "react-redux";
-import { Route, Routes } from "react-router";
+// import { Provider } from "react-redux";
+import { HistoryRouter } from "redux-first-history/rr6";
+
+import { Routes, Route } from "react-router-dom";
 import ExecutionEnvironment from "exenv";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
-import { ReduxRouter } from "@lagunovsky/redux-react-router";
-
-import { store } from "store/store";
-import { history } from "store/store";
-
+import routes from "./routes"; // Imported routes
 import NavBar from "components/NavBar";
 import CurriculumVitae from "pages/CurriculumVitae";
 import WhoAmI from "pages/WhoAmI";
@@ -17,6 +16,8 @@ import Footer from "components/Footer";
 import PieceDetailWrapper from "pages/PieceDetailWrapper";
 
 import "./App.scss";
+
+const router = createBrowserRouter(routes);
 
 /**
  *
@@ -133,39 +134,35 @@ class App extends Component<AppProps, AppState> {
    */
   render() {
     return (
-      <Provider store={store}>
-        <ReduxRouter history={history}>
-          <SlideOutNav
+      <>
+        <SlideOutNav collapseSlideOutHandler={this.handleResize}></SlideOutNav>
+        <div
+          id="main"
+          style={
+            this.state.slideOut ? { right: this.getRoundedHalfWidth() } : {}
+          }
+        >
+          <NavBar
+            toggleSlideOutHandler={this.toggleSlideOutHandler}
             collapseSlideOutHandler={this.handleResize}
-          ></SlideOutNav>
-          <div
-            id="main"
-            style={
-              this.state.slideOut ? { right: this.getRoundedHalfWidth() } : {}
-            }
-          >
-            <NavBar
-              toggleSlideOutHandler={this.toggleSlideOutHandler}
-              collapseSlideOutHandler={this.handleResize}
-            ></NavBar>
-            {/* <ScrollToTopOnClick> */}
-            <Routes>
-              <Route path="/">
-                <Route path="/" element={<PortfolioList />}></Route>
-                <Route path="/portfolio" element={<PortfolioList />}></Route>
-                <Route
-                  path="/portfolio/:pieceId"
-                  element={<PieceDetailWrapper pieceId="someId" />}
-                ></Route>
-                <Route path="/cv" element={<CurriculumVitae />}></Route>
-                <Route path="/whoami" element={<WhoAmI />}></Route>
-              </Route>
-            </Routes>
-            {/* </ScrollToTopOnClick> */}
-            <Footer></Footer>
-          </div>
-        </ReduxRouter>
-      </Provider>
+          ></NavBar>
+          {/* <ScrollToTopOnClick> */}
+          <Routes>
+            <Route path="/">
+              <Route path="/" element={<PortfolioList />}></Route>
+              <Route path="/portfolio" element={<PortfolioList />}></Route>
+              <Route
+                path="/portfolio/:pieceId"
+                element={<PieceDetailWrapper pieceId="someId" />}
+              ></Route>
+              <Route path="/cv" element={<CurriculumVitae />}></Route>
+              <Route path="/whoami" element={<WhoAmI />}></Route>
+            </Route>
+          </Routes>
+          {/* </ScrollToTopOnClick> */}
+          <Footer></Footer>
+        </div>
+      </>
     );
   }
 }

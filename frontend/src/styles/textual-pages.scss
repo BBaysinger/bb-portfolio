@@ -1,4 +1,4 @@
-@import "@/styles/_global";
+@use "@/styles/global";
 
 .textual_page {
   margin-top: 90px;
@@ -6,7 +6,7 @@
 
   .emphasis {
     font-weight: bold;
-    color: $heavierThemeColor;
+    color: global.$heavierThemeColor;
   }
 
   h4 {
@@ -28,7 +28,7 @@
       margin-left: 1px;
     }
 
-    @media (max-width: $-xspx) {
+    @media (max-width: global.$xspx) {
       position: static;
       margin-left: 20px;
       top: auto;

@@ -1,4 +1,4 @@
-@import "@/styles/_global";
+@use "@/styles/global";
 
 .portfolio_list {
   background-color: #1a1a1a;
@@ -14,11 +14,11 @@
     overflow: hidden; // This caused gap on left side of vingette.
     width: 100%;
 
-    @media screen and (min-width: $smpx) {
+    @media screen and (min-width: global.$smpx) {
       width: 50%;
     }
 
-    @media screen and (min-width: $lgpx) {
+    @media screen and (min-width: global.$lgpx) {
       width: 33.33%;
     }
   }
@@ -155,7 +155,7 @@
 
   p {
     font-size: 20px;
-    color: $heavierThemeColor;
+    color: global.$heavierThemeColor;
     line-height: 28px;
     margin-bottom: 30px;
   }
