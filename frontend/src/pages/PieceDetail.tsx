@@ -110,10 +110,10 @@ export default class PieceDetail extends React.Component<PieceDetailRouterProps>
   /**
    *
    *
-   * @type {Array<JSX.Element>}
+   * @type {Array<React.ReactNode>}
    * @memberof PieceDetail
    */
-  infoReactElems: Array<JSX.Element> = [];
+  infoReactElems: Array<React.ReactNode> = [];
 
   /**
    * We're retaining references to some subcomponents merely to inspect their height and
@@ -352,7 +352,7 @@ export default class PieceDetail extends React.Component<PieceDetailRouterProps>
     }
 
     const pieceData = PieceDetail.json[pieceId];
-    const clientLogos: Array<JSX.Element> = [];
+    const clientLogos: Array<React.ReactNode> = [];
 
     if (pieceData === undefined) {
       let err =
@@ -370,7 +370,7 @@ export default class PieceDetail extends React.Component<PieceDetailRouterProps>
     const tagsSpaced = tags.split(",").join(", ");
     const subtitle = tagsSpaced;
     const scale = this.state.scale;
-    const ScreenShots: Array<JSX.Element> = [];
+    const ScreenShots: Array<React.ReactNode> = [];
 
     /* If phone is turned horizontally (landscape) the devices need scaled down further
     so as to avoid them bleeding off the edges of the viewport. */
