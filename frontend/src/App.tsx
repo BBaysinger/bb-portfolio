@@ -1,6 +1,7 @@
 import { Component } from "react";
 
-import { Routes, Route, ScrollRestoration } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
+// import { Routes, Route, ScrollRestoration } from "react-router-dom";
 import ExecutionEnvironment from "exenv";
 
 import NavBar from "components/NavBar";

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { createRef } from "react";
 import { Link } from "react-router-dom";
 import Sniffer from "utils/Sniffer";
 
@@ -23,6 +23,12 @@ interface PieceThumbnailProps {
  * @version N/A
  */
 export default class PieceThumbnail extends React.Component<PieceThumbnailProps> {
+  private divRef = createRef<HTMLDivElement>();
+
+  getDOMNode() {
+    return this.divRef.current; // Access the DOM element
+  }
+
   /**
    *
    *
@@ -43,6 +49,7 @@ export default class PieceThumbnail extends React.Component<PieceThumbnailProps>
       <div
         className={"piece-thumbnail " + focus + " " + hoverEnabled}
         style={style}
+        ref={this.divRef}
       >
         <Link to={"/portfolio/" + pieceId}>
           <div className="vingette"></div>
