@@ -10,11 +10,13 @@ footer {
   a,
   a:visited {
     color: #888888;
+    text-decoration: none;
   }
 
   a:hover,
   a:active {
     color: #ffffff;
+    text-decoration: underline;
   }
 
   .copyright {
