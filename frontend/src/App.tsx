@@ -1,23 +1,16 @@
 import { Component } from "react";
-// import { Provider } from "react-redux";
-import { HistoryRouter } from "redux-first-history/rr6";
 
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, ScrollRestoration } from "react-router-dom";
 import ExecutionEnvironment from "exenv";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
-import routes from "./routes"; // Imported routes
 import NavBar from "components/NavBar";
 import CurriculumVitae from "pages/CurriculumVitae";
-import WhoAmI from "pages/WhoAmI";
 import SlideOutNav from "components/SlideOutNavigation";
 import PortfolioList from "components/PortfolioList";
 import Footer from "components/Footer";
 import PieceDetailWrapper from "pages/PieceDetailWrapper";
 
 import "./App.scss";
-
-const router = createBrowserRouter(routes);
 
 /**
  *
@@ -146,7 +139,7 @@ class App extends Component<AppProps, AppState> {
             toggleSlideOutHandler={this.toggleSlideOutHandler}
             collapseSlideOutHandler={this.handleResize}
           ></NavBar>
-          {/* <ScrollToTopOnClick> */}
+          {/* <ScrollRestoration /> */}
           <Routes>
             <Route path="/">
               <Route path="/" element={<PortfolioList />}></Route>
@@ -156,10 +149,8 @@ class App extends Component<AppProps, AppState> {
                 element={<PieceDetailWrapper pieceId="someId" />}
               ></Route>
               <Route path="/cv" element={<CurriculumVitae />}></Route>
-              <Route path="/whoami" element={<WhoAmI />}></Route>
             </Route>
           </Routes>
-          {/* </ScrollToTopOnClick> */}
           <Footer></Footer>
         </div>
       </>
