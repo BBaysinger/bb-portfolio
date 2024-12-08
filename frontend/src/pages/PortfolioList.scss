@@ -18,11 +18,11 @@
     width: 100vw;
 
     @media screen and (min-width: global.$smpx) {
-      width: calc(50vw - ($gap * .5));
+      width: calc(50vw - ($gap * 0.5));
     }
 
     @media screen and (min-width: global.$lgpx) {
-      width: calc(33.33vw - ($gap * .666));
+      width: calc(33.33vw - ($gap * 0.666));
     }
   }
 
