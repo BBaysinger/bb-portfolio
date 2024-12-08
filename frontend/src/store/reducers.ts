@@ -1,3 +1,8 @@
+import { combineReducers } from "@reduxjs/toolkit";
+import { createRouterReducerMapObject } from "@lagunovsky/redux-react-router";
+import { createBrowserHistory } from "history";
+// import someFeatureReducer from './someFeatureSlice'; // Your application's slice reducers
+
 /**
  *
  *
@@ -7,22 +12,17 @@
  * @version N/A
  */
 
-/*
- * Example reducer
- */
-// const exampleReducer = (state = {}, action: any) => {
-//     switch (action.type) {
-//         // Define your cases here
-//         default:
-//             return state;
-//     }
-// };
+// Create a browser history instance
+const history = createBrowserHistory();
 
-/**
- * Combine reducers
- */
-// const rootReducer = combineReducers({
-//     router: connectRouter(history),
-//     example: exampleReducer,
-//     // Add other reducers here
-// });
+// Create router reducers
+const routerReducers = createRouterReducerMapObject(history);
+
+// Combine your reducers with the router reducers
+const rootReducer = combineReducers({
+  ...createRouterReducerMapObject(history), // Router reducers
+  ...routerReducers, // Include the router reducers
+  // someFeature: someFeatureReducer, // Your other app reducers
+});
+
+export { rootReducer, history };

@@ -23,7 +23,6 @@ class ScrollToTopOnClick extends Component<ScrollToTopProps> {
 
       // Scroll only if NOT navigating between /portfolio routes
       if (!(isPortfolioRoute(currentPath) && isPortfolioRoute(previousPath))) {
-        console.log("test1");
         window.scrollTo(0, 0); // Scroll to the top
       }
     }
