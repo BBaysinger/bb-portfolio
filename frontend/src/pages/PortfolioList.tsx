@@ -4,7 +4,7 @@ import ExecutionEnvironment from "exenv";
 import PieceThumbnail from "components/PieceThumbnail";
 import HeaderMain from "components/HeaderMain";
 import portfolioData from "data/PortfolioData";
-import Greeting from "components/Greeting";
+// import Greeting from "components/Greeting";
 import Sniffer from "utils/Sniffer";
 import "./PortfolioList.scss";
 
@@ -139,7 +139,7 @@ export default class PortfolioList extends React.Component {
           })}
         </div>
         {/* <Greeting></Greeting> */}
-        <div className="list_note">
+        {/* <div className="list_note">
           <div className="container">
             <h3>Welcome!</h3>
 
@@ -174,7 +174,7 @@ export default class PortfolioList extends React.Component {
               again&nbsp;soon!
             </p>
           </div>
-        </div>
+        </div> */}
       </div>
     );
   }
