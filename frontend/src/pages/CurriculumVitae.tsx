@@ -291,6 +291,104 @@ export default class CurriculumVitae extends React.Component {
         <HeaderSub head={"Curriculum Vitae"} subhead={""} />
 
         <div id="main_content" className="cv-page">
+          <div className="container ">
+            <h4>Summary</h4>
+          </div>
+
+          <div className="container summary">
+            <div className="row">
+              <div className={divClassLt}></div>
+
+              <div className={divClassRt}>
+                <p className="">
+                  Rare talent with a rich history in design, animation, and
+                  front-end development. Adaptable and results-driven,
+                  transitioning from award-winning Flash and interactive
+                  projects to delivery and focus on frameworks like Angular.
+                  Currently expanding expertise in React through impactful
+                  projects, including a portfolio site and a reusable slideshow
+                  component. Experienced in creating interactive user
+                  experiences for Fortune 500 companies, combining technical and
+                  creative problem-solving to deliver&nbsp;results.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="container">
+            <h4>Key Skills/Strengths</h4>
+          </div>
+
+          <div className="container skills">
+            <div className="row">
+              <div className={divClassLt}>
+                <img
+                  src="/images/cv/gear.svg"
+                  className="cv-logo"
+                  alt="Gear Logo"
+                />
+              </div>
+
+              <div className={divClassRt}>
+                <h5 className="sub-container">
+                  <div className="left-sub">
+                    Modern Front-End&nbsp;Development
+                  </div>
+                  <div className="break"></div>
+                </h5>
+
+                <ul className="">
+                  <li>
+                    Angular (3+ years): Advanced component architecture, RxJS,
+                    and SCSS integration
+                  </li>
+                  <li>
+                    TypeScript (4+ years): Strong typing (with further history
+                    in strongly typed ECMAScript)
+                  </li>
+                  <li>
+                    React (Growing expertise): Reusable components, state
+                    management, dynamic routing, and JSX
+                  </li>
+                </ul>
+
+                <h5 className="sub-container">
+                  <div className="left-sub">Creative Problem-Solving</div>
+                  <div className="break"></div>
+                </h5>
+
+                <ul className="">
+                  <li>
+                    Animation & UI Design: Transitioned from award-winning
+                    Flash/AS3 projects to modern CSS/JS&nbsp;animations
+                  </li>
+                  <li>
+                    Interactive Web Development: Built engaging tools like data
+                    explorers and educational SVG&nbsp;UIs
+                  </li>
+                </ul>
+
+                <h5 className="sub-container">
+                  <div className="left-sub">
+                    Design &amp; Animation Background
+                  </div>
+                  <div className="break"></div>
+                </h5>
+
+                <ul className="">
+                  <li>
+                    Strong foundation in design principles with deep experience
+                    in Adobe Creative&nbsp;Suite
+                  </li>
+                  <li>
+                    Developed physics-based engines and custom tween solutions
+                    for interactive&nbsp;projects
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
           <div className="container">
             <h4>Experience</h4>
           </div>

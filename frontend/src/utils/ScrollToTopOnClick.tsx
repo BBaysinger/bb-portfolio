@@ -10,16 +10,20 @@ interface ScrollToTopProps {
 // Utility function to check if a path is under a specific base route
 const isPortfolioRoute = (path: string) => path.startsWith("/portfolio");
 
+/**
+ *
+ */
 class ScrollToTopOnClick extends Component<ScrollToTopProps> {
   componentDidUpdate(prevProps: ScrollToTopProps) {
     const { location } = this.props;
 
     if (location && location !== prevProps.location) {
       const currentPath = location.pathname;
-      const previousPath = prevProps.location?.pathname || ""; // Default to an empty string if undefined
+      const previousPath = prevProps.location?.pathname || "";
 
       // Scroll only if NOT navigating between /portfolio routes
       if (!(isPortfolioRoute(currentPath) && isPortfolioRoute(previousPath))) {
+        console.log("test1");
         window.scrollTo(0, 0); // Scroll to the top
       }
     }
