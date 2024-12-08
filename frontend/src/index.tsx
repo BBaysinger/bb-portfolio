@@ -1,18 +1,21 @@
-import React from "react";
 import ReactDOM from "react-dom/client";
+import React from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import { wrapRouter } from "oaf-react-router";
+// import { wrapRouter } from "oaf-react-router";
+
 import App from "./App";
 
-// Create the router
-const router = createBrowserRouter([{ path: "*", element: <App /> }]);
+const routes = [{ path: "*", element: <App /> }];
+const router = createBrowserRouter(routes);
 
-// Wrap the router with `oaf-react-router`
-wrapRouter(router, {
-  announcePageNavigation: true, // Enable screen reader announcements
-});
+// wrapRouter(router); // Ensure `oaf-react-router` wraps this correctly.
 
-ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
+const rootElement = document.getElementById("root");
+if (!rootElement) {
+  throw new Error("Root element not found");
+}
+
+ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
     <RouterProvider router={router} />
   </React.StrictMode>,
