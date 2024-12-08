@@ -1,86 +1,38 @@
 import React from "react";
-import ReactDOM from "react-dom";
 
 import PieceThumbnail from "components/PieceThumbnail";
 import HeaderMain from "components/HeaderMain";
-
 import portfolioData from "data/PortfolioData";
 import ExecutionEnvironment from "exenv";
 import Sniffer from "utils/Sniffer";
-
 import "./PortfolioList.scss";
 
-/**
- * The list of portfolio pieces, each represented by buttons/thumbnails on the home/portfolio page that are
- * focused when they are either rolled over or scrolled to the vertical middle of the viewport.
- * On mobile/touch devices, the thumbnail closest to the middle of the viewport is focused in single column,
- * or if there are multiple columns, the focus proceeds through
- * items in each row from left to right when scrolling downward (or opposite).
- * That is determined by using math from scroll position.
- *
- * @author Bradley Baysinger
- * @since The beginning of time.
- * @version 0.1.0
- */
 export default class PortfolioList extends React.Component {
-  /**
-   *
-   *
-   * @memberof PortfolioList
-   */
-  pieceThumbRefs: Array<PieceThumbnail> = [];
+  pieceThumbRefs: Array<React.RefObject<PieceThumbnail | null>> = []; // Allow null
 
-  /**
-   *
-   *
-   * @memberof PortfolioList
-   */
   ticking = false;
 
-  /**
-   *
-   *
-   * @memberof PortfolioList
-   */
   state = { focusedThumbIndex: -1 };
 
-  /**
-   *
-   *
-   * @memberof PortfolioList
-   */
   componentDidMount() {
     document.addEventListener("scroll", this.handleScrollOrResize);
     window.addEventListener("resize", this.handleScrollOrResize);
   }
 
-  /**
-   *
-   *
-   * @memberof PortfolioList
-   */
   componentWillUnmount() {
     document.removeEventListener("scroll", this.handleScrollOrResize);
     window.removeEventListener("resize", this.handleScrollOrResize);
   }
 
-  /**
-   *
-   * @param {*} thumbComponent
-   */
-  setThumbRef = (thumbComponent: PieceThumbnail) => {
-    this.pieceThumbRefs.push(thumbComponent);
+  setThumbRef = (thumbComponent: PieceThumbnail | null, index: number) => {
+    if (!this.pieceThumbRefs[index]) {
+      this.pieceThumbRefs[index] = React.createRef<PieceThumbnail | null>();
+    }
+    this.pieceThumbRefs[index].current = thumbComponent;
   };
 
-  /**
-   *
-   *
-   * @param {*} e
-   */
   handleScrollOrResize = (e: Event) => {
     if (!this.ticking) {
-      // A best practice that can help performance for processes that
-      // may cause dropped frames on scroll.
       window.requestAnimationFrame(() => {
         this.update(e);
         this.ticking = false;
@@ -89,110 +41,89 @@ export default class PortfolioList extends React.Component {
     }
   };
 
-  /**
-   *
-   * @param element
-   * @returns
-   */
   getIndexOfElement = (element: HTMLElement): number => {
-    // Get the parent node
     const parent = element.parentNode;
 
-    // If the parent does not exist, return -1
     if (!parent) {
       return -1;
     }
 
-    // Get all children of the parent that are of the same type (tag name)
     const siblings = Array.from(parent.children).filter(
       (sibling) => sibling.tagName === element.tagName,
     );
 
-    // Find the index of the element in the siblings array
     return siblings.indexOf(element);
   };
 
-  /**
-   *
-   *
-   * @param {*} e
-   * @memberof PortfolioList
-   */
   update = (e: Event) => {
     if (ExecutionEnvironment.canUseDOM) {
       if (Sniffer.mobile) {
         let offset;
         let absOffset;
         let bounding;
-        let thumbDOMNode: HTMLElement;
         let linkHeight;
         let targetMaxOffset;
-        /* The row closest to vertical middle. */
-        let inRange: Array<PieceThumbnail> = [];
+        let inRange: Array<HTMLElement> = [];
 
-        // Collect the 1, 2, or 3 (of a row) that are closest to the middle of the viewport.
-        this.pieceThumbRefs.forEach((thumbRef, index) => {
-          // TODO: Should be able to ref a member of this component rather
-          // than reaching for the child's DOM node? 🤔
-          thumbDOMNode = ReactDOM.findDOMNode(
-            this.pieceThumbRefs[index],
-          ) as HTMLElement;
-          bounding = thumbDOMNode?.getBoundingClientRect();
-          linkHeight = thumbDOMNode.offsetHeight;
-          targetMaxOffset = linkHeight / 2;
-          offset = window.innerHeight / 2 - (bounding.top + targetMaxOffset);
-          absOffset = Math.abs(offset);
+        this.pieceThumbRefs.forEach((thumbRef) => {
+          if (thumbRef.current) {
+            const thumb: PieceThumbnail = thumbRef.current;
+            const domNode: HTMLElement | null = thumb?.getDOMNode();
+            if (domNode) {
+              bounding = domNode.getBoundingClientRect();
+              linkHeight = domNode.offsetHeight;
+              targetMaxOffset = linkHeight / 2;
+              offset =
+                window.innerHeight / 2 - (bounding.top + targetMaxOffset);
+              absOffset = Math.abs(offset);
 
-          if (absOffset < targetMaxOffset) {
-            inRange.push(thumbRef);
+              if (absOffset < targetMaxOffset) {
+                inRange.push(domNode);
+              }
+            }
           }
         });
 
-        // Loop over the ones in range to see which one to focus.
         inRange.forEach((thumbRef, index) => {
-          thumbDOMNode = ReactDOM.findDOMNode(thumbRef) as HTMLElement;
-          bounding = thumbDOMNode.getBoundingClientRect();
-          linkHeight = thumbDOMNode.offsetHeight / inRange.length;
-          let top = bounding.top + linkHeight * index;
-          targetMaxOffset = linkHeight / 2;
-          offset = window.innerHeight / 2 - (top + targetMaxOffset);
-          absOffset = Math.abs(offset);
+          const thumb = thumbRef;
 
-          if (absOffset < targetMaxOffset) {
-            this.setState({
-              focusedThumbIndex: this.getIndexOfElement(thumbDOMNode),
-            });
+          if (thumb) {
+            bounding = thumb.getBoundingClientRect();
+            linkHeight = thumb.offsetHeight / inRange.length;
+            const top = bounding.top + linkHeight * index;
+            targetMaxOffset = linkHeight / 2;
+            offset = window.innerHeight / 2 - (top + targetMaxOffset);
+            absOffset = Math.abs(offset);
+
+            if (absOffset < targetMaxOffset) {
+              this.setState({
+                focusedThumbIndex: this.getIndexOfElement(thumb),
+              });
+            }
           }
         });
       } else {
         if (e.type === "resize") {
-          // Force reset to hover mode.
           this.setState({ test: 1, focusedThumbIndex: -1 });
         }
       }
     }
   };
 
-  /**
-   *
-   *
-   * @returns
-   * @memberof PortfolioList
-   */
   render() {
     return (
       <div>
         <HeaderMain />
         <div className="portfolio_list">
           {portfolioData.listedPieces.map((pieceData, index) => {
-            let id = portfolioData.listedKeys[index];
-            let { title, omitFromList, clientId, property, shortDesc, desc } =
+            const id = portfolioData.listedKeys[index];
+            const { title, omitFromList, clientId, property, shortDesc, desc } =
               pieceData;
 
             return (
               <PieceThumbnail
                 focused={this.state.focusedThumbIndex === index}
-                key={title} //facebook.github.io/react/docs/multiple-components.html#dynamic-children
+                key={title}
                 index={index}
                 omitFromList={omitFromList}
                 pieceId={id}
@@ -201,7 +132,7 @@ export default class PortfolioList extends React.Component {
                 property={property}
                 shortDesc={shortDesc}
                 desc={desc}
-                ref={this.setThumbRef}
+                ref={(node) => this.setThumbRef(node, index)} // Pass DOM ref
               />
             );
           })}
