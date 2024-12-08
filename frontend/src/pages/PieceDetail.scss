@@ -1,4 +1,4 @@
-@import "@/styles/_global";
+@use "@/styles/global" as global;
 
 /**
  * @fileOverview 
@@ -23,11 +23,11 @@
   position: relative;
   display: block;
   transition: 0.5s;
-  @media (max-width: $mdpx) {
+  @media (max-width: global.$mdpx) {
     margin-top: 3vw;
   }
 
-  @media (max-width: $-xspx) {
+  @media (max-width: global.$xspx) {
     margin-top: 1vw;
   }
 }
@@ -36,7 +36,7 @@
 .portfolio_piece {
   #main_content {
     margin-top: 50px;
-    @media (min-width: $smpx) {
+    @media (min-width: global.$smpx) {
       margin-top: 60px;
     }
   }
@@ -51,7 +51,7 @@
       margin-top: -110px;
       margin-bottom: 120px;
 
-      @media (max-width: $xspx) {
+      @media (max-width: global.$xspx) {
       }
       .nav_button img {
         background-image: url("../assets/images/piece-detail/next-prev-mob.png");
@@ -72,7 +72,7 @@
     transform-origin: 0 50%;
     position: absolute;
     left: 50%;
-    padding-left: -$device-halfWidthPx;
+    padding-left: global.$negative-device-halfWidthPx;
   }
 
   .btn-group-label:hover {
@@ -97,21 +97,21 @@
       transform: scale(0.75);
       transform-origin: center left;
     }
-    @media (max-width: $-smpx) {
+    @media (max-width: global.$smpx) {
       transform: scale(0.8);
     }
-    @media (max-width: $-xspx) {
+    @media (max-width: global.$xspx) {
       transform: scale(0.6);
     }
   }
 
-  @media (max-width: $-smpx) {
+  @media (max-width: global.$smpx) {
     #full_piece_device_container {
       margin-top: 30px !important;
     }
   }
 
-  @media (max-width: $-xspx) {
+  @media (max-width: global.$xspx) {
     #piece_nav .nav_button img {
       height: 60px;
     }
@@ -162,10 +162,6 @@
   .warn_element,
   .btn {
     margin-top: 6px;
-  }
-
-  .warn_element {
-    color: $red;
   }
 
   .warn_element {
@@ -223,12 +219,12 @@
       filter: blur(0px);
       transform: scaleY(1);
 
-      @media (max-width: $-smpx) {
+      @media (max-width: global.$smpx) {
         transform: translateX(-50%) scale(0.75) scaleY(1);
       }
     }
 
-    @media (max-width: $-smpx) {
+    @media (max-width: global.$smpx) {
       background-position: center center;
       transform: translateX(-50%) scale(0.75) scaleY($scaleY);
       left: 50%;

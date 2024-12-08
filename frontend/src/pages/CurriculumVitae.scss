@@ -1,4 +1,4 @@
-@import "@/styles/_global";
+@use "@/styles/global";
 
 #main_content.cv-page {
   margin-left: 10px;
@@ -12,10 +12,9 @@
   }
 
   h4 {
-    border-bottom: 2px solid $heavierThemeColor;
+    border-bottom: 2px solid global.$heavierThemeColor;
     padding-bottom: 20px;
     font-size: 40px !important;
-    font-style: italic !important;
   }
 
   .row {
@@ -52,7 +51,7 @@
     margin-left: auto;
     margin-right: auto;
     height: calc(40px + 20vw);
-    @media (min-width: $smpx) {
+    @media (min-width: global.$smpx) {
       height: 130px;
       width: auto;
       position: relative;
@@ -66,8 +65,8 @@
       padding-left: 8px;
     }
 
-    @media (min-width: $-smpx) {
-      border-left: 1px dashed $heavierThemeColor;
+    @media (min-width: global.$smpx) {
+      border-left: 1px dashed global.$heavierThemeColor;
       padding-left: 20px;
 
       p,
@@ -80,10 +79,10 @@
   h4:first-child {
     padding-top: 0px;
     margin-top: 0px;
-    @media (min-width: $-smpx) {
+    @media (min-width: global.$smpx) {
       font-size: 26px;
     }
-    @media (min-width: $-mdpx) {
+    @media (min-width: global.$mdpx) {
       font-size: 34px;
     }
   }
@@ -107,7 +106,7 @@
     }
 
     .bullet {
-      color: $heavierThemeColor;
+      color: global.$heavierThemeColor;
       line-height: 18px;
       font-size: 20px;
       position: relative;
@@ -118,7 +117,7 @@
 
   .scope {
     font-size: 16px;
-    color: $heavierThemeColor;
+    color: global.$heavierThemeColor;
     span:nth-child(1) {
       color: #000;
     }

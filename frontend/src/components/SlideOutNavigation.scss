@@ -1,4 +1,4 @@
-@import "@/styles/_global";
+@use "@/styles/global";
 
 /* Not styling for the nav, but facilitates it. */
 div#main {
@@ -26,7 +26,7 @@ div#main {
     rgba(0, 0, 0, 1) 100%
   );
 
-  @media screen and (min-width: $smpx) {
+  @media screen and (min-width: global.$smpx) {
     display: none;
   }
 
@@ -82,7 +82,7 @@ div#main {
   }
 
   li.band {
-    background-color: $lighterThemeColor;
+    background-color: global.$lighterThemeColor;
     height: 0;
     opacity: 0.5;
   }

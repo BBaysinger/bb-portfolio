@@ -1,4 +1,4 @@
-@import "@/styles/_global";
+@use "@/styles/global";
 
 header {
   position: relative;
@@ -46,7 +46,7 @@ header {
     }
 
     .lastName {
-      color: $lighterThemeColor;
+      color: global.$lighterThemeColor;
     }
 
     .firstName {
@@ -76,13 +76,13 @@ header {
     font-size: 52px;
     line-height: 55px;
 
-    @media (max-width: $xspx) {
+    @media (max-width: global.$xspx) {
       font-size: 40px;
       line-height: 42px;
     }
   }
 
-  @media (min-width: $smpx) {
+  @media (min-width: global.$smpx) {
     br.responsive_br {
       display: none;
     }
@@ -91,7 +91,7 @@ header {
     }
   }
 
-  @media (min-width: $mdpx) {
+  @media (min-width: global.$mdpx) {
     h1 {
       font-size: 50px;
     }
@@ -104,7 +104,7 @@ header {
     top: -100vh;
     width: 100%;
     position: absolute;
-    background-color: $lighterThemeColor;
+    background-color: global.$lighterThemeColor;
   }
 
   .bull {

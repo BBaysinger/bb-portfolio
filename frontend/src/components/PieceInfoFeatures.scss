@@ -1,4 +1,4 @@
-@import "@/styles/_global";
+@use "@/styles/global";
 
 /**
  * @fileOverview 
@@ -43,40 +43,6 @@
       margin-bottom: 10px;
     }
   }
-
-  // .warn_paragraph {
-  //   color: #fcaa00; // TODO: Used to be red. We probably need separate orange and red...
-  // }
-
-  // .game_desktop_preferred,
-  // .game_mobile_unavailable,
-  // .site_mobile_unavailable {
-  //   a:link {
-  //     color: black !important;
-  //   }
-  //   a:visited {
-  //     color: black !important;
-  //   }
-  // }
-
-  // .game_desktop_preferred,
-  // .game_mobile_unavailable {
-  //   color: $red;
-  // }
-
-  // .site_mobile_unavailable {
-  //   color: $red;
-  // }
-
-  // .mobile_unavailable {
-  //   margin-top: 22px;
-  //   margin-bottom: 0;
-  // }
-
-  // .features_links {
-  //   display: flex;
-  //   margin-top: 30px;
-  // }
 }
 
 ////////////////////////////////
