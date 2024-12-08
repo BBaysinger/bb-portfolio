@@ -85,13 +85,20 @@ h6,
   color: global.$heavierThemeColor;
   margin-bottom: 6px;
   margin-top: 0px;
+  margin-left: 0px;
   white-space: nowrap;
+  margin-right: 0;
+  float: right;
 }
 
 .right-sub {
   font-size: 15px;
-  @media (max-width: global.$xspx) {
-    margin-left: 0px;
+}
+
+.left-sub {
+  width: 100%;
+  @include global.breakpoint-up(sm) {
+    width: unset;
   }
 }
 

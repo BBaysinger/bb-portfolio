@@ -77,7 +77,6 @@ const App = () => {
           toggleSlideOutHandler={toggleSlideOutHandler}
           collapseSlideOutHandler={handleResize}
         ></NavBar>
-        {/* <ScrollRestoration /> */}
         <ScrollToHash />
         <Routes>
           <Route path="/">
