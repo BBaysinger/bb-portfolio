@@ -21,6 +21,12 @@ header {
   background-position: center;
   background-size: cover;
 
+  #pieceScrollAnchor {
+    position: absolute;
+    bottom: 0;
+    opacity: 0;
+  }
+
   &.header_sub {
     padding-top: 50px;
   }
