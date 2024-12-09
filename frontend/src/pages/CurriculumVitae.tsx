@@ -14,11 +14,11 @@ import "./CurriculumVitae.scss";
 export default class CurriculumVitae extends React.Component {
   /**
    * Function also serves to help migrate inline lists into
-   * Illustrator or whatever else with rich text formatting intact.
+   * Word or whatever else with rich text formatting intact.
    * It needs to use actual spaces (not simulated with margins)
    * to be spaced correctly in migration.
    *
-   * To migrate into Illustrator with formatting intact
+   * To migrate into Illustrator/Word with formatting intact
    * (green bullet, grey text) copy from browser and paste into
    * an RTF document. Then in Illustrator open that RTF, and your
    * formatting will be intact there.
@@ -26,8 +26,8 @@ export default class CurriculumVitae extends React.Component {
    * And now you don't have to manually replicate
    * these lists every time you update your CV.
    *
-   * TODO: Make more consideration for migrating info from here
-   * into PDF versions. That may involve changing up PDF designs.
+   * TODO: Make more consideration for migrating info from here.
+   * That may involve changing up PDF designs.
    *
    * TODO: Consider a programmatic export option from this page.
    *
@@ -304,12 +304,13 @@ export default class CurriculumVitae extends React.Component {
                   Rare talent with a rich history in design, animation, and
                   front-end development. Adaptable and results-driven,
                   transitioning from award-winning Flash and interactive
-                  projects to delivery and focus on frameworks like Angular.
-                  Currently expanding expertise in React through impactful
-                  projects, including a portfolio site and a reusable slideshow
-                  component. Experienced in creating interactive user
+                  projects to delivering scalable solutions with frameworks like
+                  Angular. Currently expanding expertise in React through recent
+                  projects, including a custom portfolio site and a reusable
+                  slideshow component designed for scalability and
+                  interactivity. Experienced in creating user-focused
                   experiences for Fortune 500 companies, combining technical and
-                  creative problem-solving to deliver&nbsp;results.
+                  creative problem-solving to deliver impactful&nbsp;results.
                 </p>
               </div>
             </div>
