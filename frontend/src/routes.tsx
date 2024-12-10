@@ -1,4 +1,4 @@
-import PortfolioList from "pages/PortfolioList";
+import PortfolioList from "components/PortfolioList";
 import PieceDetailWrapper from "pages/PieceDetailWrapper";
 import CurriculumVitae from "pages/CurriculumVitae";
 import WhoAmI from "pages/WhoAmI";

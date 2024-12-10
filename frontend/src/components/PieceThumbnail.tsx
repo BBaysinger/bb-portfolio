@@ -1,6 +1,6 @@
 import React, { createRef } from "react";
 import { Link } from "react-router-dom";
-import Sniffer from "utils/Sniffer";
+import HoverCapabilityWatcher from "utils/HoverCapabilityWatcher";
 
 interface PieceThumbnailProps {
   focused: boolean;
@@ -43,7 +43,7 @@ export default class PieceThumbnail extends React.Component<PieceThumbnailProps>
     };
 
     const focus = this.props.focused ? "piece-thumbnail-focus" : "";
-    const hoverEnabled = !Sniffer.mobile ? "hover_enabled" : "";
+    const hoverEnabled = !HoverCapabilityWatcher.mobile ? "hover_enabled" : "";
 
     return (
       <div
