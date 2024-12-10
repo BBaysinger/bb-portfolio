@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  RefObject,
+} from "react";
 import ExecutionEnvironment from "exenv";
 
 import PieceThumbnail from "components/PieceThumbnail";
@@ -25,75 +31,66 @@ const PortfolioList: React.FC = () => {
     [],
   );
 
-  const getIndexOfElement = useCallback((element: HTMLElement): number => {
-    const parent = element.parentNode;
+  const update = useCallback((e: Event) => {
+    if (ExecutionEnvironment.canUseDOM) {
+      if (!HoverCapabilityWatcher.instance.isHoverCapable) {
+        let offset;
+        let absOffset;
+        let bounding;
+        let linkHeight;
+        let targetMaxOffset;
+        let inRange: Array<RefObject<PieceThumbnail | null>> = [];
 
-    if (!parent) {
-      return -1;
-    }
+        pieceThumbRefs.current.forEach((thumbRef) => {
+          if (thumbRef.current) {
+            const thumb: PieceThumbnail = thumbRef.current;
+            const domNode: HTMLElement | null = thumb?.getDOMNode();
+            if (domNode) {
+              bounding = domNode.getBoundingClientRect();
+              linkHeight = domNode.offsetHeight;
+              targetMaxOffset = linkHeight / 2;
+              offset =
+                window.innerHeight / 2 - (bounding.top + targetMaxOffset);
+              absOffset = Math.abs(offset);
 
-    const siblings = Array.from(parent.children).filter(
-      (sibling) => sibling.tagName === element.tagName,
-    );
-
-    return siblings.indexOf(element);
-  }, []);
-
-  const update = useCallback(
-    (e: Event) => {
-      if (ExecutionEnvironment.canUseDOM) {
-        if (HoverCapabilityWatcher.instance.isHoverCapable) {
-          let offset;
-          let absOffset;
-          let bounding;
-          let linkHeight;
-          let targetMaxOffset;
-          let inRange: Array<HTMLElement> = [];
-
-          pieceThumbRefs.current.forEach((thumbRef) => {
-            if (thumbRef.current) {
-              const thumb: PieceThumbnail = thumbRef.current;
-              const domNode: HTMLElement | null = thumb?.getDOMNode();
-              if (domNode) {
-                bounding = domNode.getBoundingClientRect();
-                linkHeight = domNode.offsetHeight;
-                targetMaxOffset = linkHeight / 2;
-                offset =
-                  window.innerHeight / 2 - (bounding.top + targetMaxOffset);
-                absOffset = Math.abs(offset);
-
-                if (absOffset < targetMaxOffset) {
-                  inRange.push(domNode);
-                }
+              if (absOffset < targetMaxOffset) {
+                inRange.push(thumbRef);
               }
             }
-          });
+          }
+        });
 
-          inRange.forEach((thumbRef, index) => {
-            const thumb = thumbRef;
+        inRange.forEach((thumbRef, index) => {
+          if (thumbRef.current) {
+            const thumb: PieceThumbnail = thumbRef.current;
+            const domNode: HTMLElement | null = thumb?.getDOMNode();
 
-            if (thumb) {
-              bounding = thumb.getBoundingClientRect();
-              linkHeight = thumb.offsetHeight / inRange.length;
+            if (domNode) {
+              bounding = domNode?.getBoundingClientRect();
+              linkHeight = domNode.offsetHeight / inRange.length;
               const top = bounding.top + linkHeight * index;
               targetMaxOffset = linkHeight / 2;
               offset = window.innerHeight / 2 - (top + targetMaxOffset);
               absOffset = Math.abs(offset);
-
               if (absOffset < targetMaxOffset) {
-                setFocusedThumbIndex(getIndexOfElement(thumb));
+                setFocusedThumbIndex(getThumbnailIndex(thumbRef));
               }
             }
-          });
-        } else {
-          if (e.type === "resize") {
-            setFocusedThumbIndex(-1);
           }
+        });
+      } else {
+        if (e.type === "resize") {
+          setFocusedThumbIndex(-1);
         }
       }
-    },
-    [getIndexOfElement],
-  );
+    }
+  }, []);
+
+  const getThumbnailIndex = (
+    thumbRef: RefObject<PieceThumbnail | null>,
+  ): number => {
+    return pieceThumbRefs.current.findIndex((ref) => ref === thumbRef);
+  };
 
   const handleScrollOrResize = useCallback(
     (e: Event) => {
