@@ -70,7 +70,7 @@ $negative-device-halfWidthPx: - math.div($device-width, 2) + px;
 // Example:
 // .example-class {
 //   @include breakpoint-up(md) {
-//     background-color: blue;
+//     global.background-color: blue;
 //   }
 // }
 @mixin breakpoint-up($breakpoint) {
