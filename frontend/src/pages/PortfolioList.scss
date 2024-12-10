@@ -2,11 +2,15 @@
 
 .portfolio_list {
   $gap: 30px;
-  background-color: #1a1a1a;
+  background: linear-gradient(to bottom, #2a2a2a, black);
   display: flex;
   flex-wrap: wrap;
   gap: $gap;
   padding-bottom: -$gap;
+
+  @include global.breakpoint-up(md) {
+    background: linear-gradient(to bottom, #262626, black);
+  }
 
   .piece-thumbnail {
     height: 290px;
@@ -17,11 +21,11 @@
     overflow: hidden; // This caused gap on left side of vingette.
     width: 100vw;
 
-    @media screen and (min-width: global.$smpx) {
+    @include global.breakpoint-up(sm) {
       width: calc(50vw - ($gap * 0.5));
     }
 
-    @media screen and (min-width: global.$lgpx) {
+    @include global.breakpoint-up(lg) {
       width: calc(33.33vw - ($gap * 0.666));
     }
   }
@@ -115,14 +119,6 @@
     position: absolute;
     bottom: 9px;
   }
-
-  //Forces the parent to wrap all the way around.
-  //stackoverflow.com/questions/10969023/
-  // &::after {
-  //   content: "";
-  //   display: table;
-  //   clear: both;
-  // }
 }
 
 .list_note {
