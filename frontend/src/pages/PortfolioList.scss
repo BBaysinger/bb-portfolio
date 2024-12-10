@@ -27,7 +27,7 @@
   }
 
   .vingette {
-    background-image: url("../assets/images/misc/vignette.png");
+    background-image: url("../assets/images/misc/vignette.svg");
     height: 100%;
     width: 100%;
 
@@ -36,7 +36,7 @@
     background-size: cover;
     left: 0px;
     z-index: 0;
-    opacity: 0.8;
+    opacity: 1;
     will-change: opacity;
     transition: opacity 0.5s linear;
   }
@@ -83,13 +83,13 @@
     }
   }
 
-  .hover-focus-vinette {
+  .hover-focus-vignette {
     opacity: 0.5;
     transition: opacity 0.3s linear;
   }
 
   .hover_enabled.piece-thumbnail:hover .vingette {
-    @extend .hover-focus-vinette;
+    @extend .hover-focus-vignette;
   }
 
   .hover_enabled.piece-thumbnail:hover .thumb-content {
@@ -97,7 +97,7 @@
   }
 
   .piece-thumbnail-focus .vingette {
-    @extend .hover-focus-vinette;
+    @extend .hover-focus-vignette;
   }
 
   .piece-thumbnail-focus .thumb-content {
