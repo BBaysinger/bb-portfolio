@@ -1,7 +1,7 @@
 @use "@/styles/global";
 
 .portfolio_list {
-  $gap: 30px;
+  $gap: 0px;
   background: linear-gradient(to bottom, #1c1c1c, black);
   display: flex;
   flex-wrap: wrap;
