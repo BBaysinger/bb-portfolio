@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 import HeaderSub from "components/HeaderSub";
 import ScreenShot from "components/ScreenShot";
 import ClientNames from "data/ClientNames";
-import Sniffer from "utils/Sniffer";
+import HoverCapabilityWatcher from "utils/HoverCapabilityWatcher";
 import Swipe from "bb/ui/Swipe";
 
 import portfolioData from "data/PortfolioData";
@@ -180,7 +180,7 @@ export default class PieceDetail extends React.Component<PieceDetailRouterProps>
   getScale() {
     let height = window.innerHeight;
 
-    if (Sniffer.mobile) {
+    if (HoverCapabilityWatcher.mobile) {
       // https://stackoverflow.com/a/16567475/1253298
       if (window.matchMedia("(orientation: portrait)").matches) {
         height = window.screen.height;
