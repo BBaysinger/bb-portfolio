@@ -319,7 +319,7 @@ export default class CurriculumVitae extends React.Component {
           </div>
 
           <div className="container">
-            <h4>Key Skills/Strengths</h4>
+            <h4>Core Strengths</h4>
           </div>
 
           <div className="container skills">
@@ -1076,7 +1076,7 @@ export default class CurriculumVitae extends React.Component {
           </div>
 
           <div className="container">
-            <h4>Skills</h4>
+            <h4>Technologies and Tools</h4>
           </div>
 
           <div className="container">
