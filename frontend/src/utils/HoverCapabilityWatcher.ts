@@ -6,7 +6,7 @@ import mitt from "mitt";
  * Detects if the device supports hover interactions and dispatches
  * a custom event when this capability changes.
  * Automatically initializes itself as a singleton when
- * `HoverCapabilityWatcher.instance` is gotten.
+ * `HoverCapabilityWatcher.instance` is accessed.
  */
 export default class HoverCapabilityWatcher {
   private static _instance: HoverCapabilityWatcher | null = null;
@@ -84,6 +84,8 @@ export default class HoverCapabilityWatcher {
    * @returns {boolean} True if the device supports hover interactions; otherwise, false.
    */
   get isHoverCapable(): boolean {
-    return this.mediaQueryList?.matches ?? false;
+    const retVal = this.mediaQueryList?.matches ?? false;
+    // console.info('isHoverCapable:', retVal);
+    return retVal;
   }
 }
