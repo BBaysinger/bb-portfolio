@@ -495,12 +495,12 @@ export default class CurriculumVitae extends React.Component {
                   <div className="sub-container">
                     <div className="left-sub">
                       <h5>
-                        Independent Contractor
+                        BB Interactive [Independent Contractor]
                         <span className="location">
                           &nbsp;&nbsp;-&nbsp;&nbsp;Spokane, WA | Remote
                         </span>
                       </h5>
-                      Front-end Developer
+                      Front-end / Interactive Web Developer
                     </div>
                     <div className="break"></div>
                     <div className="right-sub">[ 2020 - 2021 ]</div>
@@ -663,7 +663,7 @@ export default class CurriculumVitae extends React.Component {
                           &nbsp;&nbsp;-&nbsp;&nbsp;Spokane, WA
                         </span>
                       </h5>
-                      UI Developer
+                      UI Developer / Designer
                     </div>
                     <div className="break"></div>
                     <div className="right-sub">[ 2017 - 2018 ]</div>
@@ -1007,7 +1007,7 @@ export default class CurriculumVitae extends React.Component {
 
                   <p className="desc">
                     Self-directed learning of graphics software and
-                    cross-platform, dynamic, and interactive JavaScript.
+                    cross-platform, dynamic, and interactive&nbsp;JavaScript.
                   </p>
 
                   <p className="scope">
@@ -1038,40 +1038,17 @@ export default class CurriculumVitae extends React.Component {
           </div>
 
           <div className="container">
-            <h4>Education</h4>
+            <h4>Formal Education</h4>
           </div>
-
-          {/* <div className="container">
-            <div className="row">
-              <div className={divClassLt}></div>
-
-              <div className={divClassRt}>
-                <h5 className="sub-container">
-                  <div className="left-sub">
-                    Spokane Falls Community&nbsp;College
-                  </div>
-                  <div className="break"></div>
-                  <div className="right-sub">[ 2005 ]</div>
-                </h5>
-                A.A.S. Web Design — Honors
-
-                <p>
-                   — Recognized with multiple
-                  first-place awards; select works published officially for the
-                  college.
-                </p>
-              </div>
-            </div>
-          </div> */}
 
           <div className="container">
             <div className="row">
               <div className={divClassLt}>
-                {/* <img
-                  src="/images/cv/bv.svg"
+                <img
+                  src="/images/cv/ccs.svg"
                   className="cv-logo"
-                  alt="Hand Logo"
-                /> */}
+                  alt="SFCC Logo"
+                />
               </div>
               <div className={divClassRt}>
                 <div className="cv-listing">
