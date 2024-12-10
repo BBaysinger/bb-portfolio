@@ -5,7 +5,11 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import App from "./App";
 
 const routes = [{ path: "*", element: <App /> }];
-const router = createBrowserRouter(routes);
+const router = createBrowserRouter(routes, {
+  future: {
+    v7_startTransition: true,
+  },
+});
 
 const rootElement = document.getElementById("root");
 if (!rootElement) {
