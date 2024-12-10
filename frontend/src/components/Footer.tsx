@@ -200,11 +200,11 @@ class Footer extends React.Component {
         <div className="copyright">
           <div className="react">
             <a
-              href="https://facebook.github.io/react/"
+              href="https://github.com/BBaysinger/bb-portfolio"
               target="_blank"
               rel="noopener noreferrer"
             >
-              <img src="/images/footer/react.png" alt="React Logo" />
+              <img src="/images/footer/react.svg" alt="React Logo" />
               Built with React
             </a>
           </div>
