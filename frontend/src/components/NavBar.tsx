@@ -2,7 +2,7 @@ import React from "react";
 import { NavLink } from "react-router-dom";
 import MiscUtils from "utils/MiscUtils";
 
-import navLogo from "assets/images/misc/logo-nav.svg";
+import navLogo from "assets/images/misc/bb-logo.svg";
 
 import "./Navbar.scss";
 
@@ -70,11 +70,7 @@ class NavBar extends React.Component<NavBarProps, NavBarState> {
       position: "absolute",
       maxHeight: "38px",
       top: "6px",
-      left: "-9px",
-      // float: "left",
-      // marginRight: "10px",
-      // marginLeft: "15px",
-      // marginTop: "5.5px",
+      left: "14px",
     };
 
     const { collapsed } = this.state;
