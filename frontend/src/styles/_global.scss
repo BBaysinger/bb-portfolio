@@ -7,38 +7,42 @@ $t: red solid 1px;
   border: $t;
 }
 
-$ss: 360;
-$xs: 480;
-$sm: 768;
-$md: 992;
-$lg: 1200;
-$xl: 1400;
-$xxl: 1400;
+// Base Variables (Unitless)
+$ss: 360; // Super small devices
+$xs: 480; // Extra small smartphones
+$sm: 768; // Tablets
+$md: 992; // Small laptops
+$lg: 1200; // Large (standard) desktops
+$xl: 1400; // Extra large desktops
+$sl: 1600; // Super large desktops
 
-$sspx: $ss + "px";
-$xspx: $xs + "px";
-$smpx: $sm + "px";
-$mdpx: $md + "px";
-$lgpx: $lg + "px";
+// Derived Variables (With Units)
+$sspx: $ss * 1px;
+$xspx: $xs * 1px;
+$smpx: $sm * 1px;
+$mdpx: $md * 1px;
+$lgpx: $lg * 1px;
+$xlpx: $xl * 1px;
+$slpx: $sl * 1px;
 
 // Breakpoints definition
 // Defines standard responsive breakpoints, including an additional 'xs' size (360px).
 // These breakpoints are mobile-first, following Bootstrap conventions.
 $breakpoints: (
   // Super small devices (Not one of Bootstrap's default breakpoints)
-  ss: 360px,
+  ss: $sspx,
   // Extra small devices (Not one of Bootstrap's default breakpoints)
-  xs: 480px,
+  xs: $xspx,
   // Small devices (e.g., smartphones)
-  sm: 768px,
+  sm: $smpx,
   // Medium devices (e.g., tablets)
-  md: 992px,
+  md: $mdpx,
   // Large devices (e.g., desktops)
-  lg: 1200px,
+  lg: $lgpx,
   // Extra large devices (e.g., larger desktops)
-  xl: 1200px,
-  // Extra extra large devices (e.g., very large screens)
-  xxl: 1400px
+  xl: $xlpx,
+  // Super large devices (e.g., very large screens)
+  sl: $slpx
 );
 
 // For thin stokes and normal weight text.
@@ -79,5 +83,58 @@ $negative-device-halfWidthPx: - math.div($device-width, 2) + px;
       // Apply styles when the viewport meets the minimum width
       @content;
     }
+  }
+}
+
+// Function to remove the unit from a CSS value
+// This is useful for mathematical operations on CSS values
+@function strip-unit($value) {
+  // Divides the value by itself (multiplied by 0 plus 1) to effectively strip units
+  @return math.div($value, $value * 0 + 1);
+}
+
+// Mixin to create a fluid property based on viewport width
+// It interpolates between a minimum and maximum value as the viewport
+// width scales between the two specified breakpoints
+// Example:
+// h1 {
+//   @include global.fluid-property(height, global.$xs, global.$xl, 50px, 200px);
+// }
+@mixin fluid-property($property, $min-vw, $max-vw, $min-value, $max-value) {
+  // Extract units to ensure consistency for calculations
+  $unit-min-vw: math.unit($min-vw);
+  $unit-max-vw: math.unit($max-vw);
+  $unit-min-value: math.unit($min-value);
+  $unit-max-value: math.unit($max-value);
+
+  // Ensure the viewport breakpoint units match
+  @if $unit-min-vw != $unit-max-vw {
+    @error "Viewport breakpoint units ($unit-min-vw, $unit-max-vw) must match!";
+  }
+
+  // Ensure value units are consistent
+  @if $unit-min-value != $unit-max-value {
+    @error "Property value units ($unit-min-value, $unit-max-value) must match!";
+  }
+
+  // Base value to ensure proper fallback
+  & {
+    #{$property}: calc(
+      #{$min-value} +
+        (
+          #{strip-unit($max-value - $min-value)} *
+            ((100vw - #{$min-vw}) / #{strip-unit($max-vw - $min-vw)})
+        )
+    );
+  }
+
+  // Set the minimum value explicitly before the min viewport width
+  @media screen and (max-width: $min-vw) {
+    #{$property}: $min-value;
+  }
+
+  // Set the maximum value explicitly after the max viewport width
+  @media screen and (min-width: $max-vw) {
+    #{$property}: $max-value;
   }
 }

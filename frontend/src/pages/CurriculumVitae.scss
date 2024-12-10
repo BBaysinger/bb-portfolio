@@ -50,10 +50,24 @@
     margin-bottom: 40px;
     margin-left: auto;
     margin-right: auto;
-    height: calc(40px + 20vw);
+    // max-height: calc(40px + 20vw);
+    // max-width: calc(40px + 20vw);
+    @include global.fluid-property(
+      height,
+      global.$sspx,
+      global.$xlpx,
+      120px,
+      130px
+    );
+    @include global.fluid-property(
+      max-width,
+      global.$sspx,
+      global.$xlpx,
+      130px,
+      140px
+    );
+
     @media (min-width: global.$smpx) {
-      height: 130px;
-      width: auto;
       position: relative;
       top: 5px;
       margin-top: 0;
@@ -67,7 +81,7 @@
 
     @media (min-width: global.$smpx) {
       // border-left: 1px dashed global.$heavierThemeColor;
-      padding-left: 20px;
+      // padding-left: 20px;
 
       p,
       ul {
@@ -132,8 +146,6 @@
 
   p,
   ul {
-    max-width: 700px;
-
     li {
       margin-bottom: 6px;
     }
