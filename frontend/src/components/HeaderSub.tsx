@@ -37,7 +37,8 @@ export default class HeaderSub extends React.Component<HeaderSubProps> {
         <div className="overheadFill"></div>
         <h1>{head}</h1>
         {subheadElem}
-        <div id="pieceScrollAnchor"></div>
+        <div id="top"></div>
+        <div id="piece"></div>
       </header>
     );
   }

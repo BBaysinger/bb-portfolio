@@ -29,7 +29,6 @@ export default class HeaderMain extends React.Component<{}, HeaderMainState> {
   }
 
   getHeight = () => {
-    // return Math.max(Math.min(window.innerHeight, 812), 500);
     return Math.max(window.innerHeight, 500);
   };
 
@@ -115,17 +114,20 @@ export default class HeaderMain extends React.Component<{}, HeaderMainState> {
           className="view_portfolio"
           style={{ animation: this.state.caretAnimationStyle }}
         >
-          <div onClick={this.scrollDown}>
-            <h6>View Portfolio</h6>
-            <img
-              src={caret}
-              width="50"
-              height="30"
-              className="caret-img"
-              alt=""
-            />
+          <div>
+            <a href="#list">
+              <h6>View Portfolio</h6>
+              <img
+                src={caret}
+                width="50"
+                height="30"
+                className="caret-img"
+                alt=""
+              />
+            </a>
           </div>
         </div>
+        <div id="top"></div>
       </header>
     );
   }

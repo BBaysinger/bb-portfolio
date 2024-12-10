@@ -116,6 +116,7 @@ export default class PortfolioList extends React.Component {
       <div>
         <HeaderMain />
         <div className="portfolio_list">
+          <div id="list"></div>
           {portfolioData.listedPieces.map((pieceData, index) => {
             const id = portfolioData.listedKeys[index];
             const { title, omitFromList, clientId, property, shortDesc, desc } =
