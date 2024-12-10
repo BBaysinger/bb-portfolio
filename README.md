@@ -13,7 +13,7 @@
 
 ## Roadmap
 
-- **Backend Integration**: Plan to integrate a fully custom backend using Express and MongoDB.
+- **Backend Integration**: Plan to integrate a fully custom backend using Express, MongoDB, and Redux.
 - **Mobile-First Optimization**: TODO: This is needs finished up.
 - **React Hooks**: Refactor class components to use React hooks for cleaner and more efficient state management.
 - **Additional Features**: Many ideas for future improvements and features are under consideration.
