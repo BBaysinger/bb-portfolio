@@ -302,15 +302,17 @@ export default class CurriculumVitae extends React.Component {
               <div className={divClassRt}>
                 <p className="">
                   Rare talent with a rich history in design, animation, and
-                  front-end development. Adaptable and results-driven,
-                  transitioning from award-winning Flash and interactive
-                  projects to delivering scalable solutions with frameworks like
-                  Angular. Currently expanding expertise in React through recent
-                  projects, including a custom portfolio site and a reusable
-                  slideshow component designed for scalability and
-                  interactivity. Experienced in creating user-focused
-                  experiences for Fortune 500 companies, combining technical and
-                  creative problem-solving to deliver impactful&nbsp;results.
+                  front-end development. Adaptable and results-driven, with a
+                  proven ability to transition from award-winning Flash and
+                  interactive projects to delivering scalable solutions using
+                  frameworks like Angular. Currently deepening expertise in
+                  React through recent projects, including a custom portfolio
+                  site and a reusable slideshow component designed for
+                  scalability and interactivity. Skilled in crafting
+                  user-focused experiences for leading companies across
+                  industries—ranging from Fortune 500 firms to entertainment
+                  giants and innovative startups—blending technical and creative
+                  problem-solving to deliver impactful&nbsp;results.
                 </p>
               </div>
             </div>
