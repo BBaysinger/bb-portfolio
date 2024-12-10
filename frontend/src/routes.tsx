@@ -1,7 +1,6 @@
 import PortfolioList from "components/PortfolioList";
 import PieceDetailWrapper from "pages/PieceDetailWrapper";
 import CurriculumVitae from "pages/CurriculumVitae";
-import WhoAmI from "pages/WhoAmI";
 
 const routes = [
   {
@@ -19,10 +18,6 @@ const routes = [
       {
         path: "cv",
         element: <CurriculumVitae />,
-      },
-      {
-        path: "whoami",
-        element: <WhoAmI />,
       },
     ],
   },

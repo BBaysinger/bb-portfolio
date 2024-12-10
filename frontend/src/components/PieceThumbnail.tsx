@@ -43,7 +43,9 @@ export default class PieceThumbnail extends React.Component<PieceThumbnailProps>
     };
 
     const focus = this.props.focused ? "piece-thumbnail-focus" : "";
-    const hoverEnabled = !HoverCapabilityWatcher.mobile ? "hover_enabled" : "";
+    const hoverEnabled = HoverCapabilityWatcher.instance.isHoverCapable
+      ? "hover_enabled"
+      : "";
 
     return (
       <div

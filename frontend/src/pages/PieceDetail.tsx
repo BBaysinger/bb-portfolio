@@ -91,7 +91,7 @@ export default class PieceDetail extends React.Component<PieceDetailRouterProps>
    *
    * @memberof PieceDetail
    */
-  swipe = new Swipe();
+  swipe = Swipe.instance;
 
   /**
    *
@@ -144,7 +144,8 @@ export default class PieceDetail extends React.Component<PieceDetailRouterProps>
   constructor(props: any) {
     super(props);
 
-    this.swipe.swiped.add(this.handleSwiped);
+    this.swipe.init([document.body]);
+    this.swipe.onSwipe(this.handleSwiped);
 
     this.state = {
       currentPieceId: "",
@@ -180,7 +181,7 @@ export default class PieceDetail extends React.Component<PieceDetailRouterProps>
   getScale() {
     let height = window.innerHeight;
 
-    if (HoverCapabilityWatcher.mobile) {
+    if (!HoverCapabilityWatcher.instance.isHoverCapable) {
       // https://stackoverflow.com/a/16567475/1253298
       if (window.matchMedia("(orientation: portrait)").matches) {
         height = window.screen.height;
