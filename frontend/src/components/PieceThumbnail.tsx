@@ -51,7 +51,7 @@ export default class PieceThumbnail extends React.Component<PieceThumbnailProps>
         style={style}
         ref={this.divRef}
       >
-        <Link to={`/portfolio/${pieceId}#pieceScrollAnchor`}>
+        <Link to={`/portfolio/${pieceId}#piece`}>
           <div className="vingette"></div>
           <div className="thumb-content">
             <img

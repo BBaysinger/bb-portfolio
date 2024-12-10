@@ -3,7 +3,6 @@ import { NavLink } from "react-router-dom";
 import MiscUtils from "utils/MiscUtils";
 
 import navLogo from "assets/images/misc/bb-logo.svg";
-
 import "./Navbar.scss";
 
 /**
@@ -113,7 +112,7 @@ class NavBar extends React.Component<NavBarProps, NavBarState> {
           <ul className="nav navbar-nav" style={navStyle}>
             <li>
               <NavLink
-                to="/portfolio"
+                to="/portfolio#list"
                 className={({ isActive }) =>
                   MiscUtils.isActiveOrAlt(isActive, "/")
                 }
@@ -123,7 +122,7 @@ class NavBar extends React.Component<NavBarProps, NavBarState> {
             </li>
             <li>
               <NavLink
-                to="/cv"
+                to="/cv#top"
                 className={({ isActive }) => (isActive ? "active" : "")}
               >
                 CV

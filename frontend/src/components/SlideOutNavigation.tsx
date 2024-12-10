@@ -12,13 +12,7 @@ interface SlideOutNavProps {
  * This is the mobile nav that appears to populate behind the page conent that
  * slides over to reveal it.
  *
- * I think I made it separate from desktop nav for flexibility, but also that
- * I may have not known at the time that it wouldn't have been difficult to apply
- * the same feature with CSS alone. Specifically how flexbox and/or z-index would
- * have let me reorder the elements, where this needs populated behind the page
- * content. TODO: Maybe fix that, if we'll have lots of people reviewing code here.
- * But there are bigger fish to fry rn. Remember that I've had performance issues
- * toggling between fixed and static position before...
+ * TODO: Use same nav for both mobile and desktop via styling.
  *
  *
  * @author Bradley Baysinger
@@ -48,7 +42,7 @@ class SlideOutNav extends React.Component<SlideOutNavProps> {
           <li>
             <NavLink
               onClick={this.handleCollapseNav}
-              to="/portfolio"
+              to="/portfolio#list"
               className={({ isActive }) =>
                 MiscUtils.isActiveOrAlt(isActive, "/")
               }
@@ -59,7 +53,7 @@ class SlideOutNav extends React.Component<SlideOutNavProps> {
           <li>
             <NavLink
               onClick={this.handleCollapseNav}
-              to="/cv"
+              to="/cv#top"
               className={({ isActive }) => (isActive ? "active" : "")}
             >
               CV
