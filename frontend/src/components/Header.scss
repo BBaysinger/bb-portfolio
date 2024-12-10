@@ -18,7 +18,7 @@ header {
 
   background-image: url("/images/misc/bg_grad.svg");
   background-position: center;
-  background-size: cover;
+  background-size: 100% 100%;
 
   #piece {
     position: absolute;
@@ -37,9 +37,6 @@ header {
   }
 
   &.header_main {
-    // Not setting height here, as we're relying on ios-inner-height
-    // max-height: 812px;
-
     .header-logo {
       opacity: 1;
       height: 60vh;
