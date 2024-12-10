@@ -393,7 +393,7 @@ export default class CurriculumVitae extends React.Component {
           </div>
 
           <div className="container">
-            <h4>Experience</h4>
+            <h4>Professional Experience</h4>
           </div>
 
           {/*-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --*/}
@@ -974,7 +974,13 @@ export default class CurriculumVitae extends React.Component {
             </div>
 
             {/*-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --*/}
+          </div>
 
+          <div className="container">
+            <h4>Early Development Journey</h4>
+          </div>
+
+          <div className="container">
             <div className="row">
               <div className={divClassLt}>
                 <img
@@ -993,7 +999,7 @@ export default class CurriculumVitae extends React.Component {
                           &nbsp;&nbsp;-&nbsp;&nbsp;Spokane, WA
                         </span>
                       </h5>
-                      Interactive Web Tinkerer
+                      Interactive Web Enthusiast
                     </div>
                     <div className="break"></div>
                     <div className="right-sub">[ 2001 - 2003 ]</div>
@@ -1001,49 +1007,29 @@ export default class CurriculumVitae extends React.Component {
 
                   <p className="desc">
                     Self-directed learning of graphics software and
-                    cross-platform, dynamic, and interactive JavaScript while
-                    working full time as... a metal fabricator and
-                    welder.&nbsp;Yep.
+                    cross-platform, dynamic, and interactive JavaScript.
                   </p>
 
                   <p className="scope">
                     <span>Technical Scope:</span> Vanilla JavaScript, HTML, CSS,
-                    Dynamic HTML,&nbsp;PHP
+                    Dynamic HTML, PHP, and Adobe Create&nbsp;Suite
                   </p>
 
                   <ul>
                     <li>
-                      Operating solely on inspiration to experiment, delved into
-                      creative UI concepts initially beyond my skill and
-                      nurtured technical understanding to accomplish building
-                      them with extensive use of vanilla JavaScript and
-                      Dynamic&nbsp;HTML
+                      Pursued self-directed learning in{" "}
+                      <b>JavaScript, Dynamic HTML, and web animation</b> while
+                      working full-time in a non-technical&nbsp;role.
                     </li>
                     <li>
-                      Took an immediate fascination with the possibilities of
-                      animation in web&nbsp;media
+                      Built early browser-based UI experiments, including
+                      functional custom chrome (navigation bars, menus, etc.)
+                      and a slot-machine&nbsp;game.
                     </li>
                     <li>
-                      In a notoriously fragmented era for browsers, took on
-                      cross-platform and backward-compatible challenges, partly
-                      to stand out from other developers, but mostly as a
-                      rewarding&nbsp;challenge
-                    </li>
-                    <li>
-                      This lead to creating effects that looked like Flash with
-                      only early DOM elements, which was unusual due to
-                      notorious incompatibility issues of the&nbsp;era
-                    </li>
-                    <li>
-                      As an experiment, into a blank browser window, populated a
-                      set of fully-functional custom browser chrome (UI),
-                      including drop-down menus, history, location bar,
-                      navigation buttons, and proportional scrollbars — all
-                      built with theme/color&nbsp;options
-                    </li>
-                    <li>
-                      Built my first game within weeks of learning JavaScript, a
-                      whimsical DHTML slot&nbsp;machine
+                      Tackled cross-platform compatibility challenges in a
+                      fragmented browser era, delivering interactive, animated
+                      solutions without&nbsp;Flash.
                     </li>
                   </ul>
                 </div>
@@ -1055,7 +1041,7 @@ export default class CurriculumVitae extends React.Component {
             <h4>Education</h4>
           </div>
 
-          <div className="container">
+          {/* <div className="container">
             <div className="row">
               <div className={divClassLt}></div>
 
@@ -1067,12 +1053,47 @@ export default class CurriculumVitae extends React.Component {
                   <div className="break"></div>
                   <div className="right-sub">[ 2005 ]</div>
                 </h5>
+                A.A.S. Web Design — Honors
 
                 <p>
-                  A.A.S. Web Design — Honors — Recognized with multiple
+                   — Recognized with multiple
                   first-place awards; select works published officially for the
                   college.
                 </p>
+              </div>
+            </div>
+          </div> */}
+
+          <div className="container">
+            <div className="row">
+              <div className={divClassLt}>
+                {/* <img
+                  src="/images/cv/bv.svg"
+                  className="cv-logo"
+                  alt="Hand Logo"
+                /> */}
+              </div>
+              <div className={divClassRt}>
+                <div className="cv-listing">
+                  <div className="sub-container">
+                    <div className="left-sub">
+                      <h5>
+                        Spokane Falls Community&nbsp;College
+                        <span className="location">
+                          &nbsp;&nbsp;-&nbsp;&nbsp;Spokane, WA
+                        </span>
+                      </h5>
+                      A.A.S. Web Design — Honors
+                    </div>
+                    <div className="break"></div>
+                    <div className="right-sub">[ 2003 - 2005 ]</div>
+                  </div>
+
+                  <p className="desc">
+                    Recognized with multiple first-place awards; select works
+                    published officially for the&nbsp;college.
+                  </p>
+                </div>
               </div>
             </div>
           </div>
