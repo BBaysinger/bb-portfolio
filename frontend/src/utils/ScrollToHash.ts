@@ -8,7 +8,7 @@ const ScrollToHash = () => {
     if (hash) {
       const element = document.querySelector(hash);
       if (element) {
-        console.log("Scrolling to hash", hash);
+        // console.info("Scrolling to hash", hash);
         element.scrollIntoView({ behavior: "smooth" });
       }
     }

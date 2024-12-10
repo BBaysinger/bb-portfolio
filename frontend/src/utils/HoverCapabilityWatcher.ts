@@ -3,12 +3,15 @@ import mitt from "mitt";
 /**
  * HoverCapabilityWatcher
  *
- * Detects if the device supports hover interactions and dispatches a custom event when this capability changes.
- * Automatically initializes itself as a singleton when `HoverCapabilityWatcher.instance` is gotten.
+ * Detects if the device supports hover interactions and dispatches
+ * a custom event when this capability changes.
+ * Automatically initializes itself as a singleton when
+ * `HoverCapabilityWatcher.instance` is gotten.
  */
 export default class HoverCapabilityWatcher {
   private static _instance: HoverCapabilityWatcher | null = null;
-  private static mediaQuery = "(hover: hover)"; // Media query to detect hover capability
+  // Media query to detect hover capability
+  private static mediaQuery = "(hover: hover)";
   private mediaQueryList: MediaQueryList | null = null;
 
   // Mitt event emitter

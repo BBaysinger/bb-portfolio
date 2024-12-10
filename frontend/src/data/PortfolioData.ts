@@ -8,11 +8,9 @@ import json from "data/portfolio.json";
  * @since The beginning of time.
  * @version N/A
  */
-
 export default class PortfolioData {
   static json: any = json;
   static keys: Array<string> = Object.keys(json);
-
   static activeKeys: Array<string> = [];
   static activePieces: Array<any> = [];
   static listedPieces: Array<any> = [];
@@ -21,17 +19,17 @@ export default class PortfolioData {
   static activeIndex: number = 0;
 
   static initialize = (): any => {
-    PortfolioData.keys.forEach((key: string) => {
-      if (PortfolioData.json[key].active === "1") {
-        if (PortfolioData.json[key].omitFromList !== "1") {
-          PortfolioData.listedPieces.push(PortfolioData.json[key]);
-          PortfolioData.listedKeys.push(key);
+    var pd = PortfolioData;
+    pd.keys.forEach((key: string) => {
+      if (pd.json[key].active === "1") {
+        if (pd.json[key].omitFromList !== "1") {
+          pd.listedPieces.push(pd.json[key]);
+          pd.listedKeys.push(key);
         }
-        PortfolioData.activeKeys[PortfolioData.activeIndex] = key;
-        PortfolioData.activePieces[PortfolioData.activeIndex] =
-          PortfolioData.json[key];
-        PortfolioData.activePiecesMap[key] = PortfolioData.json[key];
-        PortfolioData.activeIndex++;
+        pd.activeKeys[pd.activeIndex] = key;
+        pd.activePieces[pd.activeIndex] = pd.json[key];
+        pd.activePiecesMap[key] = pd.json[key];
+        pd.activeIndex++;
       }
     });
   };
