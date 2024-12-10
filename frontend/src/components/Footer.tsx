@@ -179,7 +179,7 @@ class Footer extends React.Component {
                     className={({ isActive }) =>
                       MiscUtils.isActiveOrAlt(isActive, "/")
                     }
-                    to="/portfolio"
+                    to="/portfolio#list"
                   >
                     Portfolio
                   </NavLink>
@@ -187,7 +187,7 @@ class Footer extends React.Component {
                 <li>
                   <NavLink
                     className={({ isActive }) => (isActive ? "active" : "")}
-                    to="/cv"
+                    to="/cv#top"
                   >
                     CV
                   </NavLink>

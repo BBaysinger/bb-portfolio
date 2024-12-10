@@ -17,13 +17,18 @@ header {
   background-color: #222;
 
   background-image: url("/images/misc/bg_grad.svg");
-  background-attachment: fixed;
   background-position: center;
   background-size: cover;
 
-  #pieceScrollAnchor {
+  #piece {
     position: absolute;
     bottom: 0;
+    opacity: 0;
+  }
+
+  #top {
+    position: absolute;
+    top: 0;
     opacity: 0;
   }
 
@@ -48,6 +53,9 @@ header {
       img {
         position: relative;
         top: 10px;
+      }
+      a {
+        text-decoration: none;
       }
     }
 
@@ -118,8 +126,10 @@ header {
   }
 
   .view_portfolio {
+    $bottom: 30px;
+
     position: absolute;
-    bottom: 30px;
+    bottom: $bottom;
     left: 50%;
     text-align: center;
     width: 200px;
@@ -128,17 +138,20 @@ header {
 
     animation: fade 2s forwards;
     animation-iteration-count: infinite;
-  }
 
-  @keyframes fade {
-    0% {
-      opacity: 0.5;
-    }
-    50% {
-      opacity: 1;
-    }
-    100% {
-      opacity: 0.5;
+    @keyframes fade {
+      0% {
+        opacity: 0.5;
+        bottom: $bottom;
+      }
+      50% {
+        opacity: 1;
+        bottom: $bottom - 10px;
+      }
+      100% {
+        opacity: 0.5;
+        bottom: $bottom;
+      }
     }
   }
 }

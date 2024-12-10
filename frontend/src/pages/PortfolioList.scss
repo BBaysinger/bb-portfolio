@@ -2,14 +2,21 @@
 
 .portfolio_list {
   $gap: 30px;
-  background: linear-gradient(to bottom, #2a2a2a, black);
+  background: linear-gradient(to bottom, #1c1c1c, black);
   display: flex;
   flex-wrap: wrap;
   gap: $gap;
   padding-bottom: -$gap;
+  position: relative;
 
-  @include global.breakpoint-up(md) {
-    background: linear-gradient(to bottom, #262626, black);
+  @include global.breakpoint-up(lg) {
+    background: linear-gradient(to bottom, #1a1a1a, black);
+  }
+
+  #list {
+    position: absolute;
+    top: -global.$navBarHeight;
+    opacity: 0;
   }
 
   .piece-thumbnail {

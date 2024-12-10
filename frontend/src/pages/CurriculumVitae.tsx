@@ -149,7 +149,7 @@ export default class CurriculumVitae extends React.Component {
     "SEO",
     "REST APIs",
     "Design Patterns",
-    "Game Engines",
+    "Game Frameworks",
     "Tween Engines",
     "Quality Assurance",
     "Tracking / Analytics",
