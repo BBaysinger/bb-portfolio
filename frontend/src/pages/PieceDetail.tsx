@@ -7,7 +7,7 @@ import HeaderSub from "components/HeaderSub";
 import ScreenShot from "components/ScreenShot";
 import ClientNames from "data/ClientNames";
 import HoverCapabilityWatcher from "utils/HoverCapabilityWatcher";
-import Swipe from "bb/ui/Swipe";
+import Swipe from "utils/Swipe";
 
 import portfolioData from "data/PortfolioData";
 import PieceInfoFeatures from "components/PieceInfoFeatures";
@@ -144,8 +144,8 @@ export default class PieceDetail extends React.Component<PieceDetailRouterProps>
   constructor(props: any) {
     super(props);
 
-    this.swipe.init([document.body]);
-    this.swipe.onSwipe(this.handleSwiped);
+    // this.swipe.init([document.body]);
+    // this.swipe.onSwipe(this.handleSwiped);
 
     this.state = {
       currentPieceId: "",
@@ -254,6 +254,7 @@ export default class PieceDetail extends React.Component<PieceDetailRouterProps>
 
     if (swiper) {
       this.swipe.init([swiper as HTMLElement]);
+      this.swipe.onSwipe(this.handleSwiped);
     }
 
     this.setState({
