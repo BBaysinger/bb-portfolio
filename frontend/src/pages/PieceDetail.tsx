@@ -1,5 +1,4 @@
 import ExecutionEnvironment from "exenv";
-
 import React from "react";
 import { Link } from "react-router-dom";
 
@@ -8,16 +7,15 @@ import ScreenShot from "components/ScreenShot";
 import ClientNames from "data/ClientNames";
 import HoverCapabilityWatcher from "utils/HoverCapabilityWatcher";
 import Swipe from "utils/Swipe";
-
 import portfolioData from "data/PortfolioData";
 import PieceInfoFeatures from "components/PieceInfoFeatures";
-
 import blankPNG from "assets/images/misc/blank.png";
 import json from "data/portfolio.json";
-
+import { PortfolioData, PortfolioPieceBase } from "data/portfolioTypes";
 import "./PieceDetail.scss";
 
-type PieceDetailState = {
+// State for the PieceDetail component
+export type PieceDetailState = {
   scale: number;
   currentPieceId: string;
   transition: string;
@@ -26,7 +24,8 @@ type PieceDetailState = {
   slide?: string;
 };
 
-interface PieceDetailRouterProps {
+// Props for the PieceDetail component
+export interface PieceDetailRouterProps {
   pieceId: string;
   navigate: (to: string, options?: { replace?: boolean; state?: any }) => void;
 }
@@ -44,7 +43,7 @@ interface PieceDetailRouterProps {
  * @version N/A
  */
 export default class PieceDetail extends React.Component<PieceDetailRouterProps> {
-  static json: any = json;
+  static pdJson: PortfolioData = json;
 
   /**
    *
@@ -349,11 +348,11 @@ export default class PieceDetail extends React.Component<PieceDetailRouterProps>
   render() {
     const pieceId = this.state.currentPieceId;
 
-    if (typeof PieceDetail.json[pieceId] === "undefined") {
+    if (typeof PieceDetail.pdJson[pieceId] === "undefined") {
       throw new Error("No data associated with " + pieceId);
     }
 
-    const pieceData = PieceDetail.json[pieceId];
+    const pieceData: PortfolioPieceBase = PieceDetail.pdJson[pieceId];
     const clientLogos: Array<React.ReactNode> = [];
 
     if (pieceData === undefined) {
@@ -458,7 +457,7 @@ export default class PieceDetail extends React.Component<PieceDetailRouterProps>
               // NOTE: `ref` functions have different scope in a loop vs in a map!
               if (infoElem) this.infoRefElems[i] = infoElem;
             }}
-            pieceData={PieceDetail.json[activeKeys[i]]}
+            pieceData={PieceDetail.pdJson[activeKeys[i]]}
           ></PieceInfoFeatures>
         </div>
       );

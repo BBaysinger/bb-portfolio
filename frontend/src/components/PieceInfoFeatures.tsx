@@ -1,16 +1,17 @@
 import React, { ReactNode } from "react";
 
+import { PortfolioPieceBase } from "data/portfolioTypes";
 import "./PieceInfoFeatures.scss";
 
-interface PortfolioPieceData {
-  desc: string[];
-  urls: Map<string, string[] | string>;
-  role: string;
-}
+// interface PortfolioPieceData {
+//   desc: string[];
+//   urls: Map<string, string[] | string>;
+//   role: string;
+// }
 
 interface PieceInfoFeaturesProps {
   transition: string;
-  pieceData: PortfolioPieceData;
+  pieceData: PortfolioPieceBase;
 }
 
 /**
@@ -123,7 +124,7 @@ export default class PieceInfoFeatures extends React.Component<PieceInfoFeatures
    * @memberof PieceInfoFeatures
    */
   render() {
-    const pieceData: PortfolioPieceData = this.props.pieceData;
+    const pieceData: PortfolioPieceBase = this.props.pieceData;
     const { desc, urls, role } = pieceData;
 
     const descs = desc.map((htmlContent, index) => (

@@ -9,6 +9,11 @@ type FloatingObject = {
   isDragging: boolean;
 };
 
+/**
+ * Lol, this was some brainstomring I'll come back to later.
+ *
+ * Don't lose this code. It's amazing.
+ */
 const FloatingObjectsWithDamping: React.FC = () => {
   const [objects, setObjects] = useState<FloatingObject[]>([
     { id: 1, x: 50, y: 50, vx: 1, vy: 1, isDragging: false },
