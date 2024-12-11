@@ -1,23 +1,18 @@
 @use "sass:math";
 @use "sass:map";
 
-/* Test Border */
-$t: red solid 1px;
-.test {
-  border: $t;
-}
-
 // Height of top nav bar
 $navBarHeight: 46px;
 
 // Base Variables (Unitless)
-$ss: 360; // Super small devices
-$xs: 480; // Extra small smartphones
-$sm: 768; // Tablets
-$md: 992; // Small laptops
-$lg: 1200; // Large (standard) desktops
-$xl: 1400; // Extra large desktops
-$sl: 1600; // Super large desktops
+// TODO: Should these align better with Bootstrap's breakpoints?
+$ss: 360; // Super small (smartphones?)
+$xs: 480; // Extra small (smartphones)
+$sm: 768; // Small (Tablets)
+$md: 992; // Medium (Small laptops?)
+$lg: 1200; // Large (standard? desktops)
+$xl: 1400; // Extra large (large desktops)
+$sl: 1600; // Super large (HUGE desktops)
 
 // Derived Variables (With Units)
 $sspx: $ss * 1px;
@@ -32,20 +27,13 @@ $slpx: $sl * 1px;
 // Defines standard responsive breakpoints, including an additional 'xs' size (360px).
 // These breakpoints are mobile-first, following Bootstrap conventions.
 $breakpoints: (
-  // Super small devices (Not one of Bootstrap's default breakpoints)
   ss: $sspx,
-  // Extra small devices (Not one of Bootstrap's default breakpoints)
   xs: $xspx,
-  // Small devices (e.g., smartphones)
   sm: $smpx,
-  // Medium devices (e.g., tablets)
   md: $mdpx,
-  // Large devices (e.g., desktops)
   lg: $lgpx,
-  // Extra large devices (e.g., larger desktops)
   xl: $xlpx,
-  // Super large devices (e.g., very large screens)
-  sl: $slpx
+  sl: $slpx,
 );
 
 // For thin stokes and normal weight text.
