@@ -290,7 +290,7 @@ export default class CurriculumVitae extends React.Component {
       <div>
         <HeaderSub head={"Curriculum Vitae"} subhead={""} />
 
-        <div id="main_content" className="cv-page">
+        <div id="mainContent" className="cv-page">
           <div className="container ">
             <h4>Summary</h4>
           </div>

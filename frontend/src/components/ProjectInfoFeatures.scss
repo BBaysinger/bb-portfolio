@@ -5,7 +5,7 @@
  * @author Bradley Baysinger
  */
 
-#piece-info-and-features {
+#project-info-and-features {
   position: absolute;
   left: 0px;
   text-align: left;
@@ -49,18 +49,18 @@
 // Transitions
 ////////////////////////////////
 
-// TODO: Pass the transition states into PieceInfoFeatures so we aren't looking to the parent for transition state.
+// TODO: Pass the transition states into ProjectInfoFeatures so we aren't looking to the parent for transition state.
 
 .reset {
   pointer-events: none;
 }
 
-// #piece-info-and-features > div.desc-paragraphs > div {
+// #project-info-and-features > div.desc-paragraphs > div {
 //   // This is required for the paragraphs to animate their transform (in Chrome).
 //   display: block;
 // }
 
-#piece-info-and-features {
+#project-info-and-features {
   > div.desc-paragraphs > div,
   > .url-btns > * {
     transition-property: opacity, transform;
@@ -71,7 +71,7 @@
   }
 }
 
-.reset #piece-info-and-features {
+.reset #project-info-and-features {
   // NOTE: iOS Chrome does not load images in elements where opacity is zero.
   // Set it to minium allowed value instead of zero.
   > .desc-paragraphs > *,
@@ -81,7 +81,7 @@
   }
 }
 
-.trans_in #piece-info-and-features {
+.trans_in #project-info-and-features {
   > .desc-paragraphs > *,
   > .url-btns > * {
     opacity: 1;
@@ -89,7 +89,7 @@
   }
 }
 
-.trans_out #piece-info-and-features {
+.trans_out #project-info-and-features {
   > .desc-paragraphs > *,
   > .url-btns > * {
     opacity: 0.001;
@@ -97,7 +97,7 @@
   }
 }
 
-.init #piece-info-and-features {
+.init #project-info-and-features {
   > .desc-paragraphs > *,
   > .url-btns > * {
     opacity: 0.001;

@@ -1,0 +1,329 @@
+@use "@/styles/global" as global;
+
+// TODO: This needs finished splitting out for detail device and infos.
+// Should be split up for a separation of concerns.
+
+#projectCarousel {
+  #projectCarouselBody {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+
+    .test {
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+  }
+
+  #projectNav {
+    width: 100%;
+    position: absolute;
+
+    &.not-scaled-on-height {
+      position: static;
+      height: 75px;
+      margin-top: -110px;
+      margin-bottom: 120px;
+
+      .nav-button img {
+        background-image: url("../assets/images/project-carousel/next-prev-mob.png");
+        height: 75px;
+      }
+    }
+  }
+
+  // #full_project_device_container {
+  //   @extend .device-shot_extend;
+  //   position: relative;
+  //   margin: 60px auto 30px;
+  //   position: relative;
+  //   max-width: 100%;
+  // }
+
+  // #full_project_scaler {
+  //   transform-origin: 0 50%;
+  //   position: absolute;
+  //   left: 50%;
+  //   padding-left: global.$negative-device-halfWidthPx;
+  // }
+
+  .btn-group-label:hover {
+    color: #ffffff;
+  }
+
+  .btn-group-label:active {
+    color: #ffffff;
+    box-shadow: none;
+  }
+
+  #infoWrapper {
+    margin-top: -100px;
+  }
+
+  #mainContent {
+    position: relative;
+  }
+
+  #projectNav .nav-button img {
+    @media (max-width: 850px) {
+      transform: scale(0.75);
+      transform-origin: center left;
+    }
+    @media (max-width: global.$smpx) {
+      transform: scale(0.8);
+    }
+    @media (max-width: global.$xspx) {
+      transform: scale(0.6);
+    }
+  }
+
+  // @media (max-width: global.$smpx) {
+  //   #full_project_device_container {
+  //     margin-top: 30px !important;
+  //   }
+  // }
+
+  @media (max-width: global.$xspx) {
+    #projectNav .nav-button img {
+      height: 60px;
+    }
+
+    #projectNav {
+      height: 60px;
+      margin-bottom: 0;
+    }
+
+    // #full_project_device_container {
+    //   margin-top: 15px !important;
+    // }
+  }
+
+  #infoWrapper {
+    position: relative;
+    display: block;
+    transition: 0.5s;
+    @media (max-width: global.$mdpx) {
+      margin-top: 3vw;
+    }
+
+    @media (max-width: global.$xspx) {
+      margin-top: 1vw;
+    }
+  }
+
+  .desc-paragraph {
+    margin-top: 12px;
+  }
+
+  .desc-paragraph:first-child {
+    margin-top: 0;
+  }
+
+  #projectNav .nav-button {
+    position: absolute;
+  }
+
+  .nav-button img {
+    height: 98px;
+    width: 80px;
+    background-image: url("../assets/images/project-carousel/next-prev.png");
+    background-repeat: no-repeat;
+    background-size: contain;
+  }
+
+  #projectNav .nav-button:hover {
+    opacity: 0.8;
+  }
+
+  #projectNav .nav-button:active {
+    opacity: 0.6;
+  }
+
+  #projectNav .prev {
+    left: 0;
+  }
+
+  .desc-element,
+  .warn-element,
+  .btn {
+    margin-top: 6px;
+  }
+
+  .warn-element {
+    a:link,
+    a:hover,
+    a:visited,
+    a:active {
+      color: #666666 !important;
+    }
+  }
+
+  #projectNav .next {
+    transform: scaleX(-1);
+    right: 0;
+  }
+
+  .my-contribution {
+    color: #000000;
+    position: relative;
+    display: table;
+  }
+
+  .role {
+    color: #666666;
+  }
+
+  .description {
+    position: relative;
+  }
+
+  .logo-container {
+    height: 40px;
+    margin-top: 50px;
+    margin-bottom: 30px;
+
+    @media (min-width: global.$smpx) {
+      margin-top: 60px;
+    }
+  }
+
+  .logo-container .client-logo {
+    $scaleY: 0.5;
+    height: 60px;
+    width: 300px;
+    background-size: contain;
+    background-position: center left;
+    background-repeat: no-repeat;
+    position: absolute;
+    visibility: hidden;
+    transition:
+      filter 0.5s linear,
+      transform 0.5s linear;
+
+    filter: blur(20px);
+    transform: scaleY($scaleY);
+
+    &.visible {
+      visibility: visible;
+      filter: blur(0px);
+      transform: scaleY(1);
+
+      @media (max-width: global.$smpx) {
+        transform: translateX(-50%) scale(0.75) scaleY(1);
+      }
+    }
+
+    @media (max-width: global.$smpx) {
+      background-position: center center;
+      transform: translateX(-50%) scale(0.75) scaleY($scaleY);
+      left: 50%;
+    }
+  }
+
+  p {
+    margin-bottom: 0;
+  }
+
+  .btn-default {
+    margin-right: 15px;
+  }
+
+  .btn-group .btn-default {
+    margin-right: 0;
+  }
+}
+
+////////////////////////////////
+// Transitions
+////////////////////////////////
+
+// #full_project_scaler {
+//   .reset {
+//     // display:none prevents iOS Chrome from loading images.
+//     // visibility:hidden prevents iOS Safari from loading images.
+//     // But it is necessary to prevent excess of 9-12 (scaled) project shots from rendering (at negligible opacity).
+//     // For now, using left:-10000px with optimism that it helps, but TODO: need to research.
+//     position: absolute;
+//     will-change: transform, opacity;
+//     transform: translateX(-10000px);
+
+//     .shot {
+//       // NOTE: iOS Chrome does not load images in elements where opacity is zero.
+//       // Set it to minium allowed value instead of zero.
+//       transition: transform 0s;
+//     }
+//   }
+
+//   .trans_in .shot {
+//     opacity: 1;
+//     transform: translateX(0);
+//     top: 0;
+//   }
+
+//   .trans_out .shot {
+//     opacity: 0.001;
+//   }
+
+//   .init .shot {
+//     opacity: 0.001;
+//   }
+
+//   .init .full_project_desktop_shot {
+//     top: 50px;
+//   }
+
+//   .init .full_project_mobile_shot {
+//     top: 75px;
+//   }
+// }
+
+// #portfolioSlideDirection {
+//   overflow-x: hidden;
+//   overflow-y: hidden;
+//   height: 100%;
+//   width: 100vw;
+//   position: relative;
+
+//   &.slide_lt {
+//     .trans_out {
+//       .full_project_desktop_shot {
+//         transform: translateX(-150px);
+//       }
+//       .full_project_mobile_shot {
+//         transform: translateX(-300px);
+//       }
+//     }
+//     .reset {
+//       .full_project_desktop_shot {
+//         transform: translateX(150px);
+//       }
+//       .full_project_mobile_shot {
+//         transform: translateX(200px);
+//       }
+//     }
+//   }
+
+//   &.slide_rt {
+//     .trans_out {
+//       .full_project_desktop_shot {
+//         transform: translateX(150px);
+//       }
+//       .full_project_mobile_shot {
+//         transform: translateX(200px);
+//       }
+//     }
+//     .reset {
+//       .full_project_desktop_shot {
+//         transform: translateX(-150px);
+//       }
+//       .full_project_mobile_shot {
+//         transform: translateX(-300px);
+//       }
+//     }
+//   }
+// }
+
+////////////////////////////////
+// End Transitions
+////////////////////////////////

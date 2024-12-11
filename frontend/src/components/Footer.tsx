@@ -17,9 +17,7 @@ type State = {
   portfolioLinkActive: boolean;
 };
 
-type Props = {
-  currentPieceId: string;
-};
+type Props = {};
 
 /**
  * As you may have guessed, this is the footer, common to every page.
@@ -53,14 +51,16 @@ class Footer extends React.Component {
   }
 
   componentDidMount() {
-    // A dumb trick so that crawlers don't scrape my email address (probably still can, but only good ones.)
+    // A dumb trick so that crawlers don't scrape my email address
+    // (probably still can, but only the advanced ones.)
     const e1 = "B";
     const e2 = "Baysinger";
-    const e3 = "@gmx.com";
+    const e3 = "@";
+    const e4 = "gmx.com";
 
     setTimeout(() => {
-      this.setState({ emailAddr: e1 + e2 + e3 });
-    }, 500);
+      this.setState({ emailAddr: e1 + e2 + e3 + e4 });
+    }, 2000);
   }
 
   /**
