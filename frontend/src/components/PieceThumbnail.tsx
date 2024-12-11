@@ -10,9 +10,6 @@ interface PieceThumbnailProps {
   pieceId: string;
   title: string;
   clientId: string;
-  property: string;
-  shortDesc: string;
-  desc: string;
 }
 
 /**
