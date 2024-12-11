@@ -13,13 +13,35 @@ import portfolioData from "data/PortfolioData";
 import HoverCapabilityWatcher from "utils/HoverCapabilityWatcher";
 import "./PortfolioList.scss";
 
+/**
+ * PortfolioList Component
+ *
+ * This component dynamically displays a list of portfolio thumbnails.
+ * Each thumbnail reveals detailed information when hovered (on hover-capable devices)
+ * or dynamically scroll-focused (on non-hover-capable devices).
+ *
+ * Key Features:
+ * - Detects hover capability using HoverCapabilityWatcher.
+ * - Implements a fallback interaction for touch devices, dynamically focusing thumbnails during scroll events.
+ * - Handles flexible layout where thumbnails wrap into multiple rows, adapting interaction logic accordingly.
+ *
+ * @author Bradley Baysinger
+ * @contributor ChatGPT (Documentation)
+ * @version 1.0
+ * @since 2024-12-10
+ * @version N/A
+ */
 const PortfolioList: React.FC = () => {
-  const [focusedThumbIndex, setFocusedThumbIndex] = useState(-1);
+  const [focusedThumbIndex, setFocusedThumbIndex] = useState(-1); // Tracks the currently focused thumbnail index
   const pieceThumbRefs = useRef<Array<React.RefObject<PieceThumbnail | null>>>(
     [],
-  );
-  const ticking = useRef(false);
+  ); // Array of references to thumbnail components
+  const ticking = useRef(false); // Tracks whether a scroll/resize event is currently being processed
 
+  /**
+   * Initializes a reference to a PieceThumbnail component.
+   * Ensures each thumbnail has a corresponding ref stored in pieceThumbRefs.
+   */
   const setThumbRef = useCallback(
     (thumbComponent: PieceThumbnail | null, index: number) => {
       if (!pieceThumbRefs.current[index]) {
@@ -31,6 +53,16 @@ const PortfolioList: React.FC = () => {
     [],
   );
 
+  /**
+   * Updates the focused thumbnail based on scroll or resize events.
+   *
+   * Non-hover-capable devices:
+   * - Determines which thumbnails are in range vertically.
+   * - Sequentially highlights thumbnails in the same row based on their horizontal position.
+   *
+   * Hover-capable devices:
+   * - Resets focus to allow hover interaction to take precedence.
+   */
   const update = useCallback((e: Event) => {
     if (ExecutionEnvironment.canUseDOM) {
       if (!HoverCapabilityWatcher.instance.isHoverCapable) {
@@ -41,6 +73,7 @@ const PortfolioList: React.FC = () => {
         let targetMaxOffset;
         let inRange: Array<RefObject<PieceThumbnail | null>> = [];
 
+        // Identify thumbnails within vertical focus range
         pieceThumbRefs.current.forEach((thumbRef) => {
           if (thumbRef.current) {
             const thumb: PieceThumbnail = thumbRef.current;
@@ -60,6 +93,7 @@ const PortfolioList: React.FC = () => {
           }
         });
 
+        // Sequentially determine focus for thumbnails in the same row
         inRange.forEach((thumbRef, index) => {
           if (thumbRef.current) {
             const thumb: PieceThumbnail = thumbRef.current;
@@ -80,18 +114,25 @@ const PortfolioList: React.FC = () => {
         });
       } else {
         if (e.type === "resize") {
-          setFocusedThumbIndex(-1);
+          setFocusedThumbIndex(-1); // Reset focus on resize for hover-capable devices
         }
       }
     }
   }, []);
 
+  /**
+   * Retrieves the index of a given thumbnail ref from the pieceThumbRefs array.
+   */
   const getThumbnailIndex = (
     thumbRef: RefObject<PieceThumbnail | null>,
   ): number => {
     return pieceThumbRefs.current.findIndex((ref) => ref === thumbRef);
   };
 
+  /**
+   * Handles scroll and resize events efficiently using requestAnimationFrame.
+   * Prevents multiple redundant updates by batching logic.
+   */
   const handleScrollOrResize = useCallback(
     (e: Event) => {
       if (!ticking.current) {
@@ -105,6 +146,10 @@ const PortfolioList: React.FC = () => {
     [update],
   );
 
+  /**
+   * Sets up event listeners for scroll and resize events.
+   * Cleans up listeners when the component is unmounted.
+   */
   useEffect(() => {
     document.addEventListener("scroll", handleScrollOrResize);
     window.addEventListener("resize", handleScrollOrResize);
@@ -115,6 +160,9 @@ const PortfolioList: React.FC = () => {
     };
   }, [handleScrollOrResize]);
 
+  /**
+   * Renders the portfolio list and dynamically assigns refs to each thumbnail.
+   */
   return (
     <div>
       <HeaderMain />
