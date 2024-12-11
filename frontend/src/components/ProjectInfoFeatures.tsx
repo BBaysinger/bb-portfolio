@@ -1,17 +1,17 @@
 import React, { ReactNode } from "react";
 
-import { PortfolioPieceBase } from "data/portfolioTypes";
-import "./PieceInfoFeatures.scss";
+import { PortfolioProjectBase } from "data/portfolioTypes";
+import "./ProjectInfoFeatures.scss";
 
-// interface PortfolioPieceData {
+// interface PortfolioProjectData {
 //   desc: string[];
 //   urls: Map<string, string[] | string>;
 //   role: string;
 // }
 
-interface PieceInfoFeaturesProps {
+interface ProjectInfoFeaturesProps {
   transition: string;
-  pieceData: PortfolioPieceBase;
+  projectData: PortfolioProjectBase;
 }
 
 /**
@@ -23,40 +23,40 @@ interface PieceInfoFeaturesProps {
  * @since The beginning of time.
  * @version N/A
  */
-export default class PieceInfoFeatures extends React.Component<PieceInfoFeaturesProps> {
+export default class ProjectInfoFeatures extends React.Component<ProjectInfoFeaturesProps> {
   /**
    *
    *
-   * @memberof PieceInfoFeatures
+   * @memberof ProjectInfoFeatures
    */
-  peiceData = null;
+  // peiceData = null;
 
   /**
    * Need a reference to allow parent component access to computed height of div.
    *
    *
-   * @memberof PieceInfoFeatures
+   * @memberof ProjectInfoFeatures
    */
   public domElem: HTMLElement | null = null;
 
   /**
    *
    *
-   * @memberof PieceInfoFeatures
+   * @memberof ProjectInfoFeatures
    */
   transition = null;
 
   /**
    *
    *
-   * @memberof PieceInfoFeatures
+   * @memberof ProjectInfoFeatures
    */
   members: Array<HTMLElement | null> = [];
 
   /**
    *
    *
-   * @memberof PieceInfoFeatures
+   * @memberof ProjectInfoFeatures
    */
   timesUpdated = 0;
 
@@ -64,7 +64,7 @@ export default class PieceInfoFeatures extends React.Component<PieceInfoFeatures
    *
    *
    * @returns
-   * @memberof PieceInfoFeatures
+   * @memberof ProjectInfoFeatures
    */
   shouldComponentUpdate() {
     // HERE: https://medium.com/@User3141592/react-gotchas-and-best-practices-2d47fd67dd22
@@ -81,7 +81,7 @@ export default class PieceInfoFeatures extends React.Component<PieceInfoFeatures
    * TODO: Figure out why this member doesn't exist on refs at runtime.
    *
    * @readonly
-   * @memberof PieceInfoFeatures
+   * @memberof ProjectInfoFeatures
    */
   get height() {
     return this.domElem?.offsetHeight;
@@ -90,7 +90,7 @@ export default class PieceInfoFeatures extends React.Component<PieceInfoFeatures
   /**
    *
    *
-   * @memberof PieceInfoFeatures
+   * @memberof ProjectInfoFeatures
    */
   addMember = (member: HTMLElement | null) => {
     if (member && this.members) {
@@ -108,7 +108,7 @@ export default class PieceInfoFeatures extends React.Component<PieceInfoFeatures
   /**
    *
    *
-   * @memberof PieceInfoFeatures
+   * @memberof ProjectInfoFeatures
    */
   componentWillUnmount() {
     setTimeout(() => {
@@ -121,11 +121,11 @@ export default class PieceInfoFeatures extends React.Component<PieceInfoFeatures
    *
    *
    * @returns
-   * @memberof PieceInfoFeatures
+   * @memberof ProjectInfoFeatures
    */
   render() {
-    const pieceData: PortfolioPieceBase = this.props.pieceData;
-    const { desc, urls, role } = pieceData;
+    const projectData: PortfolioProjectBase = this.props.projectData;
+    const { desc, urls, role } = projectData;
 
     const descs = desc.map((htmlContent, index) => (
       <div
@@ -166,7 +166,7 @@ export default class PieceInfoFeatures extends React.Component<PieceInfoFeatures
 
     return (
       <div
-        id="piece-info-and-features"
+        id="project-info-and-features"
         className="info container"
         ref={(domElem) => {
           this.addMember(domElem);

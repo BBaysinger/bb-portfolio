@@ -1,5 +1,5 @@
-// Interface for individual portfolio pieces
-export interface PortfolioPieceBase {
+// Interface for individual portfolio projects
+export interface PortfolioProjectBase {
   title: string;
   active: boolean;
   omitFromList: boolean;
@@ -17,4 +17,4 @@ export interface PortfolioPieceBase {
 }
 
 // Type for the overall portfolio data structure
-export type PortfolioData = Record<string, PortfolioPieceBase>;
+export type PortfolioData = Record<string, PortfolioProjectBase>;

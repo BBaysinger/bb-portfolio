@@ -38,7 +38,7 @@ export default class HeaderSub extends React.Component<HeaderSubProps> {
         <h1>{head}</h1>
         {subheadElem}
         <div id="top"></div>
-        <div id="piece"></div>
+        <div id="project"></div>
       </header>
     );
   }

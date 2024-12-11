@@ -55,17 +55,17 @@ div#main {
     opacity: 0.04;
   }
 
-  div#slideout_nav_buttons {
+  div#slideout_nav-buttons {
     opacity: 0.9999;
     z-index: 1000;
   }
 
-  ul#slideout_nav_buttons {
+  ul#slideout_nav-buttons {
     width: 100%;
     padding-left: 0px;
   }
 
-  ul#slideout_nav_buttons li {
+  ul#slideout_nav-buttons li {
     position: relative;
     height: 6.5vh;
     max-height: 100px;
@@ -74,7 +74,7 @@ div#main {
     display: block;
   }
 
-  ul#slideout_nav_buttons li a {
+  ul#slideout_nav-buttons li a {
     display: inline-block;
     position: relative;
     color: #777777;

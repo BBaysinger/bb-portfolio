@@ -1,0 +1,119 @@
+import React, { useEffect, useState, useRef } from "react";
+import { Link, useParams } from "react-router-dom";
+
+import HeaderSub from "components/HeaderSub";
+import ProjectInfoFeatures from "components/ProjectInfoFeatures";
+import Swipe from "utils/Swipe";
+import PortfolioDataUtil from "data/PortfolioDataUtil";
+import blankPNG from "assets/images/misc/blank.png";
+import json from "data/portfolio.json";
+import { PortfolioData, PortfolioProjectBase } from "data/portfolioTypes";
+import "./ProjectCarousel.scss";
+
+const Constants = {
+  pdJson: json as PortfolioData,
+};
+
+const calculateScale = () => {
+  const height = window.innerHeight;
+  const width = window.innerWidth;
+  return Math.min(width / 693, height / 600, 1);
+};
+
+const ProjectCarousel: React.FC<{ projectId?: string }> = ({
+  projectId: propProjectId,
+}) => {
+  const params = useParams();
+  const projectId = propProjectId || params.projectId || "";
+
+  const [currentProjectId, setCurrentProjectId] = useState(projectId);
+  const [scale, setScale] = useState(() => calculateScale());
+  const infoRefElems = useRef<Array<ProjectInfoFeatures | null>>([]);
+  const swipe = useRef(Swipe.instance);
+
+  const handleResize = () => {
+    setScale(calculateScale());
+  };
+
+  const handleSwiped = () => {
+    if (swipe.current.swipeDirection === Swipe.SWIPE_LT) {
+      navigateToSlide(1);
+    } else if (swipe.current.swipeDirection === Swipe.SWIPE_RT) {
+      navigateToSlide(-1);
+    }
+  };
+
+  const navigateToSlide = (direction: number) => {
+    const keys = PortfolioDataUtil.activeKeys;
+    const currentIndex = keys.indexOf(currentProjectId);
+    const newIndex = (currentIndex + direction + keys.length) % keys.length;
+    setCurrentProjectId(keys[newIndex]);
+  };
+
+  useEffect(() => {
+    window.addEventListener("resize", handleResize);
+
+    const swiper = document.getElementById("swiper");
+    if (swiper) {
+      swipe.current.init([swiper as HTMLElement]);
+      swipe.current.onSwipe(handleSwiped);
+    }
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      swipe.current.kill();
+    };
+  }, []);
+
+  const keys = PortfolioDataUtil.activeKeys;
+  const projectData: PortfolioProjectBase = Constants.pdJson[currentProjectId];
+  if (!projectData) {
+    return (
+      <div className="error">
+        Error: No data for project ID "{currentProjectId}"
+      </div>
+    );
+  }
+
+  const prevId = PortfolioDataUtil.prevKey(currentProjectId);
+  const nextId = PortfolioDataUtil.nextKey(currentProjectId);
+
+  const clientLogos = Object.keys(Constants.pdJson).map((key) => {
+    const logoClass = key === projectData.clientId ? "visible" : "";
+    return <div key={key} className={`client-logo ${logoClass}`}></div>;
+  });
+
+  const infoElems = keys.map((key, i) => (
+    <ProjectInfoFeatures
+      key={key}
+      transition={""}
+      ref={(el: ProjectInfoFeatures | null) => {
+        if (el) infoRefElems.current[i] = el;
+      }}
+      projectData={Constants.pdJson[key]}
+    />
+  ));
+
+  return (
+    <div id="projectCarousel">
+      <HeaderSub head={projectData.title} subhead={projectData.tags} />
+
+      <div className="logo-container">{clientLogos}</div>
+
+      <div id="swiper" style={{ transform: `scale(${scale})` }}>
+        <div className="info-wrapper">{infoElems}</div>
+      </div>
+
+      <div className="nav-buttons">
+        <Link to={`/portfolio/${prevId}`} className="nav-button prev">
+          <img src={blankPNG} alt="Previous" />
+        </Link>
+        <Link to={`/portfolio/${nextId}`} className="nav-button next">
+          <img src={blankPNG} alt="Next" />
+        </Link>
+      </div>
+    </div>
+  );
+};
+
+export default ProjectCarousel;

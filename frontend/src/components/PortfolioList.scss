@@ -19,7 +19,7 @@
     opacity: 0;
   }
 
-  .piece-thumbnail {
+  .project-thumbnail {
     height: 290px;
     background-color: #000000;
     background-position: center center;
@@ -99,19 +99,19 @@
     transition: opacity 0.3s linear;
   }
 
-  .hover_enabled.piece-thumbnail:hover .vingette {
+  .hover_enabled.project-thumbnail:hover .vingette {
     @extend .hover-focus-vignette;
   }
 
-  .hover_enabled.piece-thumbnail:hover .thumb-content {
+  .hover_enabled.project-thumbnail:hover .thumb-content {
     @extend .hover-focus-thumb-content;
   }
 
-  .piece-thumbnail-focus .vingette {
+  .project-thumbnail-focus .vingette {
     @extend .hover-focus-vignette;
   }
 
-  .piece-thumbnail-focus .thumb-content {
+  .project-thumbnail-focus .thumb-content {
     @extend .hover-focus-thumb-content;
   }
 

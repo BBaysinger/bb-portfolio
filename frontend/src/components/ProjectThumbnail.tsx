@@ -2,24 +2,24 @@ import React, { createRef } from "react";
 import { Link } from "react-router-dom";
 import HoverCapabilityWatcher from "utils/HoverCapabilityWatcher";
 
-interface PieceThumbnailProps {
+interface ProjectThumbnailProps {
   focused: boolean;
   key: string; //facebook.github.io/react/docs/multiple-components.html#dynamic-children
   index: number;
   omitFromList: boolean;
-  pieceId: string;
+  projectId: string;
   title: string;
   clientId: string;
 }
 
 /**
- * The thumbnails in the portfolio/home that each link out to a specific portfolio piece.
+ * The thumbnails in the portfolio/home that each link out to a specific portfolio project.
  *
  * @author Bradley Baysinger
  * @since The beginning of time.
  * @version N/A
  */
-export default class PieceThumbnail extends React.Component<PieceThumbnailProps> {
+export default class ProjectThumbnail extends React.Component<ProjectThumbnailProps> {
   private divRef = createRef<HTMLDivElement>();
 
   getDOMNode() {
@@ -30,27 +30,27 @@ export default class PieceThumbnail extends React.Component<PieceThumbnailProps>
    *
    *
    * @returns
-   * @memberof PieceThumbnail
+   * @memberof ProjectThumbnail
    */
   render() {
-    const { pieceId, title, clientId } = this.props;
+    const { projectId, title, clientId } = this.props;
 
     const style = {
-      backgroundImage: "url('/images/thumbs/" + pieceId + ".jpg')",
+      backgroundImage: "url('/images/thumbs/" + projectId + ".jpg')",
     };
 
-    const focus = this.props.focused ? "piece-thumbnail-focus" : "";
+    const focus = this.props.focused ? "project-thumbnail-focus" : "";
     const hoverEnabled = HoverCapabilityWatcher.instance.isHoverCapable
       ? "hover_enabled"
       : "";
 
     return (
       <div
-        className={"piece-thumbnail " + focus + " " + hoverEnabled}
+        className={"project-thumbnail " + focus + " " + hoverEnabled}
         style={style}
         ref={this.divRef}
       >
-        <Link to={`/portfolio/${pieceId}#piece`}>
+        <Link to={`/portfolio/${projectId}#project`}>
           <div className="vingette"></div>
           <div className="thumb-content">
             <img
