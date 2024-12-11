@@ -25,7 +25,6 @@ export type PieceDetailState = {
 
 class Constants {
   static readonly pdJson: PortfolioData = json;
-  static readonly MOBILE_AVAILABLE = "mobile_available";
   static readonly SLIDE_LT = "slide_lt";
   static readonly SLIDE_RT = "slide_rt";
   static readonly SLIDE_NONE = "slide_none";
@@ -207,7 +206,7 @@ const PieceDetail: React.FC<{ pieceId?: string }> = ({
   const tagsSpaced = tags.split(",").join(", ");
   const subtitle = tagsSpaced;
   const scale = state.scale;
-  const ScreenShots: Array<React.ReactNode> = [];
+  const screenShots: Array<React.ReactNode> = [];
 
   const isScaledOnHeight = scale * 693 < window.innerWidth - 100;
 
@@ -244,17 +243,17 @@ const PieceDetail: React.FC<{ pieceId?: string }> = ({
     );
   });
 
-  let piece: any,
-    showMobile,
-    id,
-    transition = "";
+  let piece: PortfolioPieceBase,
+    showMobile: boolean,
+    id: string,
+    transition: string = "";
 
   const activeKeys: Array<string> = PortfolioDataUtil.activeKeys;
 
-  const infoReactElems = activeKeys.map((_, i) => {
+  const infoElems = activeKeys.map((_, i) => {
     piece = PortfolioDataUtil.activePieces[i];
 
-    showMobile = piece.mobileAvailability === Constants.MOBILE_AVAILABLE;
+    showMobile = piece.mobileCompatible;
     id = activeKeys[i];
 
     transition = ScreenShot.RESET;
@@ -263,7 +262,7 @@ const PieceDetail: React.FC<{ pieceId?: string }> = ({
       transition = state.transition;
     }
 
-    ScreenShots[i] = (
+    screenShots[i] = (
       <div
         className={transition}
         key={i}
@@ -308,7 +307,7 @@ const PieceDetail: React.FC<{ pieceId?: string }> = ({
           <div id="swiper">
             <div id="full_piece_device_container" style={containerStyle}>
               <div id="full_piece_scaler" style={scaleCSS}>
-                {ScreenShots}
+                {screenShots}
               </div>
             </div>
             <div id="piece_nav" className={navScaleModeClass} style={navStyle}>
@@ -330,7 +329,7 @@ const PieceDetail: React.FC<{ pieceId?: string }> = ({
           className="container"
           style={{ height: state.infoHeight + "px" }}
         >
-          {infoReactElems}
+          {infoElems}
         </span>
       </div>
     </div>

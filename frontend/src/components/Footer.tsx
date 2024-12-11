@@ -86,11 +86,6 @@ class Footer extends React.Component {
                 plans. Please let me know if you encounter any problems. In any
                 case, I look forward to speaking with you about how I can bring
                 unique interactive experience to your&nbsp;organization.
-                {/* I'm keeping things simple here as there's never any shortage of
-                things to do everywhere else. Feel free to reach out if there's
-                any further information I can provide. I look forward to
-                speaking with you about how I can bring unique interactive
-                experiences to your&nbsp;organization. */}
               </p>
             </div>
 

@@ -1,3 +1,4 @@
+import { PortfolioPieceBase, PortfolioData } from "data/portfolioTypes";
 import json from "data/portfolio.json";
 
 /**
@@ -9,20 +10,20 @@ import json from "data/portfolio.json";
  * @version N/A
  */
 export default class PortfolioDataUtil {
-  static json: any = json;
+  static json: PortfolioData = json;
   static keys: Array<string> = Object.keys(json);
   static activeKeys: Array<string> = [];
-  static activePieces: Array<any> = [];
-  static listedPieces: Array<any> = [];
+  static activePieces: Array<PortfolioPieceBase> = [];
+  static listedPieces: Array<PortfolioPieceBase> = [];
   static listedKeys: Array<string> = [];
-  static activePiecesMap: { [key: string]: any } = {};
+  static activePiecesMap: { [key: string]: PortfolioPieceBase } = {};
   static activeIndex: number = 0;
 
-  static initialize = (): any => {
+  static initialize = () => {
     var pd = PortfolioDataUtil;
     pd.keys.forEach((key: string) => {
-      if (pd.json[key].active === "1") {
-        if (pd.json[key].omitFromList !== "1") {
+      if (pd.json[key].active) {
+        if (pd.json[key].omitFromList !== true) {
           pd.listedPieces.push(pd.json[key]);
           pd.listedKeys.push(key);
         }
@@ -34,7 +35,7 @@ export default class PortfolioDataUtil {
     });
   };
 
-  static pieceIndex = (key: string) => {
+  static pieceIndex = (key: string): number => {
     return PortfolioDataUtil.activeKeys.indexOf(key);
   };
 

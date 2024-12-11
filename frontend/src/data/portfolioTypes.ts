@@ -1,8 +1,8 @@
 // Interface for individual portfolio pieces
 export interface PortfolioPieceBase {
   title: string;
-  active: string;
-  omitFromList: string;
+  active: boolean;
+  omitFromList: boolean;
   clientId: string;
   mobileOrientation?: string;
   tags: string;
@@ -10,8 +10,8 @@ export interface PortfolioPieceBase {
   year?: string;
   awards?: string;
   type?: string;
-  isGame: string;
-  mobileAvailability?: string;
+  isGame: boolean;
+  mobileCompatible: boolean;
   desc: string[];
   urls: Record<string, string | string[]>; // Allow both string and string[] as values
 }

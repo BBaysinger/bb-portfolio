@@ -5,7 +5,7 @@ import "./ScreenShot.scss";
 interface ScreenShotProps {
   showMobile: boolean;
   id: string;
-  mobileOrientation: string;
+  mobileOrientation?: string;
   loadImages: boolean;
 }
 
@@ -121,9 +121,9 @@ export default class ScreenShot extends React.Component<ScreenShotProps> {
       ? { visibility: "visible" }
       : { visibility: "hidden" };
 
-    let desktopSrc = imgDir + this.props.id + "_desktop.jpg";
-    let mobileSrc = imgDir + this.props.id + "_mobile.jpg";
-    let mobileOrientation = this.props.mobileOrientation;
+    const desktopSrc = imgDir + this.props.id + "_desktop.jpg";
+    const mobileSrc = imgDir + this.props.id + "_mobile.jpg";
+    const mobileOrientation = this.props.mobileOrientation;
 
     return (
       <div className={"piece_shot " + this.props.id}>
