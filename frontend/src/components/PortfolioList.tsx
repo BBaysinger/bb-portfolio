@@ -170,8 +170,7 @@ const PortfolioList: React.FC = () => {
         <div id="list"></div>
         {portfolioData.listedPieces.map((pieceData, index) => {
           const id = portfolioData.listedKeys[index];
-          const { title, omitFromList, clientId, property, shortDesc, desc } =
-            pieceData;
+          const { title, omitFromList, clientId } = pieceData;
 
           return (
             <PieceThumbnail
@@ -182,9 +181,6 @@ const PortfolioList: React.FC = () => {
               pieceId={id}
               title={title}
               clientId={clientId}
-              property={property}
-              shortDesc={shortDesc}
-              desc={desc}
               ref={(node) => setThumbRef(node, index)} // Pass DOM ref
             />
           );
