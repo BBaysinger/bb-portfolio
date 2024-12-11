@@ -299,10 +299,12 @@ const PieceDetail: React.FC<{ pieceId?: string }> = ({
   const navButtonNextClass = "nav_button next ";
 
   return (
-    <div className="portfolio_piece">
+    <div id="peiceDetail">
       <HeaderSub head={title} subhead={subtitle} />
-      <div id="main_content" className="portfolio_piece_body">
-        <div className="container logo_container">{clientLogos}</div>
+      <div id="peiceDetailBody">
+        <div className="test">{`currentPieceId: ${state.currentPieceId}`}</div>
+
+        <div className="container logo-container">{clientLogos}</div>
         <div id="portfolioSlideDirection" className={slideDirection}>
           <div id="swiper">
             <div id="full_piece_device_container" style={containerStyle}>
@@ -325,7 +327,7 @@ const PieceDetail: React.FC<{ pieceId?: string }> = ({
           </div>
         </div>
         <span
-          id="infoParent"
+          id="infoWrapper"
           className="container"
           style={{ height: state.infoHeight + "px" }}
         >
