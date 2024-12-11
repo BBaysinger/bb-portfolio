@@ -8,7 +8,7 @@ import PortfolioDataUtil from "data/PortfolioDataUtil";
 import blankPNG from "assets/images/misc/blank.png";
 import json from "data/portfolio.json";
 import { PortfolioData, PortfolioProjectBase } from "data/portfolioTypes";
-import "./ProjectCarousel.scss";
+import styles from "./ProjectCarousel.module.scss";
 
 const Constants = {
   pdJson: json as PortfolioData,
@@ -95,22 +95,23 @@ const ProjectCarousel: React.FC<{ projectId?: string }> = ({
   ));
 
   return (
-    <div id="projectCarousel">
+    <div id={styles.projectCarousel}>
       <HeaderSub head={projectData.title} subhead={projectData.tags} />
+      <div id={styles.projectCarouselBody}>
+        <div className="logo-container">{clientLogos}</div>
 
-      <div className="logo-container">{clientLogos}</div>
+        <div id="swiper" style={{ transform: `scale(${scale})` }}>
+          <div className="info-wrapper">{infoElems}</div>
+        </div>
 
-      <div id="swiper" style={{ transform: `scale(${scale})` }}>
-        <div className="info-wrapper">{infoElems}</div>
-      </div>
-
-      <div className="nav-buttons">
-        <Link to={`/portfolio/${prevId}`} className="nav-button prev">
-          <img src={blankPNG} alt="Previous" />
-        </Link>
-        <Link to={`/portfolio/${nextId}`} className="nav-button next">
-          <img src={blankPNG} alt="Next" />
-        </Link>
+        <div className="nav-buttons">
+          <Link to={`/portfolio/${prevId}`} className="nav-button prev">
+            <img src={blankPNG} alt="Previous" />
+          </Link>
+          <Link to={`/portfolio/${nextId}`} className="nav-button next">
+            <img src={blankPNG} alt="Next" />
+          </Link>
+        </div>
       </div>
     </div>
   );
