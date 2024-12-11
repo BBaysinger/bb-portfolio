@@ -109,7 +109,7 @@
       "<p>We developed an interactive component to provide information about their Second Step program, which consists of a multi-layered wheel navigation, dynamically rendered using SVG, React, and React Motion.</p>",
       "<p>I took the lead on technical advising, development, and contributed to conceptualization.</p>",
       "<p>Dynamic control of SVG in React proved powerful as it revealed to me new possibilities with vector rendering and interactivity.</p>",
-      "<p style='color:#ee0000'>The interactive piece is no longer on their site. I'm working on repurposing a working version.</p>"
+      "<p style='color:#ee0000'>The interactive project is no longer on their site. I'm working on repurposing a working version.</p>"
     ],
     "urls": {
       "View Site": "https://www.secondstep.org/what-is-second-step"

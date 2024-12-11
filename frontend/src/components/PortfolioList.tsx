@@ -7,7 +7,7 @@ import React, {
 } from "react";
 import ExecutionEnvironment from "exenv";
 
-import PieceThumbnail from "components/PieceThumbnail";
+import ProjectThumbnail from "components/ProjectThumbnail";
 import HeaderMain from "components/HeaderMain";
 import portfolioData from "data/PortfolioDataUtil";
 import HoverCapabilityWatcher from "utils/HoverCapabilityWatcher";
@@ -33,22 +33,22 @@ import "./PortfolioList.scss";
  */
 const PortfolioList: React.FC = () => {
   const [focusedThumbIndex, setFocusedThumbIndex] = useState(-1); // Tracks the currently focused thumbnail index
-  const pieceThumbRefs = useRef<Array<React.RefObject<PieceThumbnail | null>>>(
-    [],
-  ); // Array of references to thumbnail components
+  const projectThumbRefs = useRef<
+    Array<React.RefObject<ProjectThumbnail | null>>
+  >([]); // Array of references to thumbnail components
   const ticking = useRef(false); // Tracks whether a scroll/resize event is currently being processed
 
   /**
-   * Initializes a reference to a PieceThumbnail component.
-   * Ensures each thumbnail has a corresponding ref stored in pieceThumbRefs.
+   * Initializes a reference to a ProjectThumbnail component.
+   * Ensures each thumbnail has a corresponding ref stored in projectThumbRefs.
    */
   const setThumbRef = useCallback(
-    (thumbComponent: PieceThumbnail | null, index: number) => {
-      if (!pieceThumbRefs.current[index]) {
-        pieceThumbRefs.current[index] =
-          React.createRef<PieceThumbnail | null>();
+    (thumbComponent: ProjectThumbnail | null, index: number) => {
+      if (!projectThumbRefs.current[index]) {
+        projectThumbRefs.current[index] =
+          React.createRef<ProjectThumbnail | null>();
       }
-      pieceThumbRefs.current[index].current = thumbComponent;
+      projectThumbRefs.current[index].current = thumbComponent;
     },
     [],
   );
@@ -71,12 +71,12 @@ const PortfolioList: React.FC = () => {
         let bounding;
         let linkHeight;
         let targetMaxOffset;
-        let inRange: Array<RefObject<PieceThumbnail | null>> = [];
+        let inRange: Array<RefObject<ProjectThumbnail | null>> = [];
 
         // Identify thumbnails within vertical focus range
-        pieceThumbRefs.current.forEach((thumbRef) => {
+        projectThumbRefs.current.forEach((thumbRef) => {
           if (thumbRef.current) {
-            const thumb: PieceThumbnail = thumbRef.current;
+            const thumb: ProjectThumbnail = thumbRef.current;
             const domNode: HTMLElement | null = thumb?.getDOMNode();
             if (domNode) {
               bounding = domNode.getBoundingClientRect();
@@ -96,7 +96,7 @@ const PortfolioList: React.FC = () => {
         // Sequentially determine focus for thumbnails in the same row
         inRange.forEach((thumbRef, index) => {
           if (thumbRef.current) {
-            const thumb: PieceThumbnail = thumbRef.current;
+            const thumb: ProjectThumbnail = thumbRef.current;
             const domNode: HTMLElement | null = thumb?.getDOMNode();
 
             if (domNode) {
@@ -121,12 +121,12 @@ const PortfolioList: React.FC = () => {
   }, []);
 
   /**
-   * Retrieves the index of a given thumbnail ref from the pieceThumbRefs array.
+   * Retrieves the index of a given thumbnail ref from the projectThumbRefs array.
    */
   const getThumbnailIndex = (
-    thumbRef: RefObject<PieceThumbnail | null>,
+    thumbRef: RefObject<ProjectThumbnail | null>,
   ): number => {
-    return pieceThumbRefs.current.findIndex((ref) => ref === thumbRef);
+    return projectThumbRefs.current.findIndex((ref) => ref === thumbRef);
   };
 
   /**
@@ -168,17 +168,17 @@ const PortfolioList: React.FC = () => {
       <HeaderMain />
       <div className="portfolio_list">
         <div id="list"></div>
-        {portfolioData.listedPieces.map((pieceData, index) => {
+        {portfolioData.listedProjects.map((projectData, index) => {
           const id = portfolioData.listedKeys[index];
-          const { title, omitFromList, clientId } = pieceData;
+          const { title, omitFromList, clientId } = projectData;
 
           return (
-            <PieceThumbnail
+            <ProjectThumbnail
               focused={focusedThumbIndex === index}
               key={title}
               index={index}
               omitFromList={omitFromList}
-              pieceId={id}
+              projectId={id}
               title={title}
               clientId={clientId}
               ref={(node) => setThumbRef(node, index)} // Pass DOM ref

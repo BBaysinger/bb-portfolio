@@ -1,8 +1,8 @@
 import React, { CSSProperties } from "react";
 
-import "./ScreenShot.scss";
+import "./DeviceDisplay.scss";
 
-interface ScreenShotProps {
+interface DeviceDisplayProps {
   showMobile: boolean;
   id: string;
   mobileOrientation?: string;
@@ -20,12 +20,12 @@ interface ScreenShotProps {
  * @since The beginning of time.
  * @version N/A
  */
-export default class ScreenShot extends React.Component<ScreenShotProps> {
+export default class DeviceDisplay extends React.Component<DeviceDisplayProps> {
   /**
    *
    *
    * @static
-   * @memberof ScreenShot
+   * @memberof DeviceDisplay
    */
   static INIT = "init";
 
@@ -33,7 +33,7 @@ export default class ScreenShot extends React.Component<ScreenShotProps> {
    *
    *
    * @static
-   * @memberof ScreenShot
+   * @memberof DeviceDisplay
    */
   static RESET = "reset";
 
@@ -41,7 +41,7 @@ export default class ScreenShot extends React.Component<ScreenShotProps> {
    *
    *
    * @static
-   * @memberof ScreenShot
+   * @memberof DeviceDisplay
    */
   static TRANS_OUT = "trans_out";
 
@@ -49,14 +49,14 @@ export default class ScreenShot extends React.Component<ScreenShotProps> {
    *
    *
    * @static
-   * @memberof ScreenShot
+   * @memberof DeviceDisplay
    */
   static TRANS_IN = "trans_in";
 
   /**
    *
    *
-   * @memberof ScreenShot
+   * @memberof DeviceDisplay
    */
   timesUpdated = 0;
 
@@ -67,9 +67,9 @@ export default class ScreenShot extends React.Component<ScreenShotProps> {
    *
    * @param {*} newProps
    * @returns
-   * @memberof ScreenShot
+   * @memberof DeviceDisplay
    */
-  shouldComponentUpdate(newProps: ScreenShotProps) {
+  shouldComponentUpdate(newProps: DeviceDisplayProps) {
     // HERE: https://medium.com/@User3141592/react-gotchas-and-best-practices-2d47fd67dd22
     this.timesUpdated++;
 
@@ -86,11 +86,11 @@ export default class ScreenShot extends React.Component<ScreenShotProps> {
   /**
    *
    *
-   * @memberof ScreenShot
+   * @memberof DeviceDisplay
    */
   getDesktopImage = (src: string) => {
     if (this.props.loadImages) {
-      return <img className="full_piece_desktop_cap" src={src} alt="" />;
+      return <img className="full_project_desktop_cap" src={src} alt="" />;
     } else {
       return null;
     }
@@ -99,11 +99,11 @@ export default class ScreenShot extends React.Component<ScreenShotProps> {
   /**
    *
    *
-   * @memberof ScreenShot
+   * @memberof DeviceDisplay
    */
   getMobileImage = (src: string) => {
     if (this.props.loadImages) {
-      return <img className="full_piece_mobile_cap" src={src} alt="" />;
+      return <img className="full_project_mobile_cap" src={src} alt="" />;
     } else {
       return null;
     }
@@ -113,7 +113,7 @@ export default class ScreenShot extends React.Component<ScreenShotProps> {
    *
    *
    * @returns
-   * @memberof ScreenShot
+   * @memberof DeviceDisplay
    */
   render() {
     const imgDir = "/images/project_shots/";
@@ -126,12 +126,12 @@ export default class ScreenShot extends React.Component<ScreenShotProps> {
     const mobileOrientation = this.props.mobileOrientation;
 
     return (
-      <div className={"piece_shot " + this.props.id}>
-        <div className={"full_piece_desktop_shot shot"}>
+      <div className={"project_shot " + this.props.id}>
+        <div className={"full_project_desktop_shot shot"}>
           {this.getDesktopImage(desktopSrc)}
         </div>
         <div
-          className={"full_piece_mobile_shot shot " + mobileOrientation}
+          className={"full_project_mobile_shot shot " + mobileOrientation}
           style={mobileDeviceStyle}
         >
           {this.getMobileImage(mobileSrc)}
