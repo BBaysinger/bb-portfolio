@@ -8,7 +8,7 @@ import json from "data/portfolio.json";
  * @since The beginning of time.
  * @version N/A
  */
-export default class PortfolioData {
+export default class PortfolioDataUtil {
   static json: any = json;
   static keys: Array<string> = Object.keys(json);
   static activeKeys: Array<string> = [];
@@ -19,7 +19,7 @@ export default class PortfolioData {
   static activeIndex: number = 0;
 
   static initialize = (): any => {
-    var pd = PortfolioData;
+    var pd = PortfolioDataUtil;
     pd.keys.forEach((key: string) => {
       if (pd.json[key].active === "1") {
         if (pd.json[key].omitFromList !== "1") {
@@ -35,17 +35,18 @@ export default class PortfolioData {
   };
 
   static pieceIndex = (key: string) => {
-    return PortfolioData.activeKeys.indexOf(key);
+    return PortfolioDataUtil.activeKeys.indexOf(key);
   };
 
   static prevKey = (key: string): string => {
     let retVal;
-    const pI = PortfolioData.pieceIndex(key);
+    const pI = PortfolioDataUtil.pieceIndex(key);
 
     if (pI > 0) {
-      retVal = PortfolioData.activeKeys[pI - 1];
+      retVal = PortfolioDataUtil.activeKeys[pI - 1];
     } else {
-      retVal = PortfolioData.activeKeys[PortfolioData.activeKeys.length - 1];
+      retVal =
+        PortfolioDataUtil.activeKeys[PortfolioDataUtil.activeKeys.length - 1];
     }
 
     return retVal;
@@ -53,16 +54,16 @@ export default class PortfolioData {
 
   static nextKey = (key: string): string => {
     let retVal;
-    const pI = PortfolioData.pieceIndex(key);
+    const pI = PortfolioDataUtil.pieceIndex(key);
 
-    if (pI < PortfolioData.activeKeys.length - 1) {
-      retVal = PortfolioData.activeKeys[pI + 1];
+    if (pI < PortfolioDataUtil.activeKeys.length - 1) {
+      retVal = PortfolioDataUtil.activeKeys[pI + 1];
     } else {
-      retVal = PortfolioData.activeKeys[0];
+      retVal = PortfolioDataUtil.activeKeys[0];
     }
 
     return retVal;
   };
 }
 
-PortfolioData.initialize();
+PortfolioDataUtil.initialize();

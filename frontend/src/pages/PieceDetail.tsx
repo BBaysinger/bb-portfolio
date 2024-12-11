@@ -1,20 +1,19 @@
 import ExecutionEnvironment from "exenv";
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect, useState, useRef } from "react";
+import { Link, useParams, useNavigate } from "react-router-dom";
 
 import HeaderSub from "components/HeaderSub";
 import ScreenShot from "components/ScreenShot";
 import ClientNames from "data/ClientNames";
 import HoverCapabilityWatcher from "utils/HoverCapabilityWatcher";
 import Swipe from "utils/Swipe";
-import portfolioData from "data/PortfolioData";
+import PortfolioDataUtil from "data/PortfolioDataUtil";
 import PieceInfoFeatures from "components/PieceInfoFeatures";
 import blankPNG from "assets/images/misc/blank.png";
 import json from "data/portfolio.json";
 import { PortfolioData, PortfolioPieceBase } from "data/portfolioTypes";
 import "./PieceDetail.scss";
 
-// State for the PieceDetail component
 export type PieceDetailState = {
   scale: number;
   currentPieceId: string;
@@ -24,164 +23,26 @@ export type PieceDetailState = {
   slide?: string;
 };
 
-// Props for the PieceDetail component
-export interface PieceDetailRouterProps {
-  pieceId: string;
-  navigate: (to: string, options?: { replace?: boolean; state?: any }) => void;
+class Constants {
+  static readonly pdJson: PortfolioData = json;
+  static readonly MOBILE_AVAILABLE = "mobile_available";
+  static readonly SLIDE_LT = "slide_lt";
+  static readonly SLIDE_RT = "slide_rt";
+  static readonly SLIDE_NONE = "slide_none";
+  static readonly ANIMATION_PADDING = 70;
 }
 
-/**
- * The parent component that owns the different parts of the display of each portfolio item.
- * There are screenshots, paragraphs, warnings and buttons in various configurations.
- *
- * Screenshots are displayed within depictions of devices. The paragraphs are sometimes styled
- * differently depending on the type of information. And the buttons
- * that link out to the features available for each portfolio peice.
- *
- * @author Bradley Baysinger
- * @since The beginning of time.
- * @version N/A
- */
-export default class PieceDetail extends React.Component<PieceDetailRouterProps> {
-  static pdJson: PortfolioData = json;
+const PieceDetail: React.FC<{ pieceId?: string }> = ({
+  pieceId: propPieceId,
+}) => {
+  const params = useParams();
+  const pieceId = propPieceId || params.pieceId || "";
+  const navigate = useNavigate();
 
-  /**
-   *
-   *
-   * @static
-   * @memberof PieceDetail
-   */
-  static MOBILE_AVAILABLE = "mobile_available";
-
-  /**
-   *
-   *
-   * @static
-   * @memberof PieceDetail
-   */
-  static SLIDE_LT = "slide_lt";
-
-  /**
-   *
-   *
-   * @static
-   * @memberof PieceDetail
-   */
-  static SLIDE_RT = "slide_rt";
-
-  /**
-   *
-   *
-   * @static
-   * @memberof PieceDetail
-   */
-  static SLIDE_NONE = "slide_none";
-
-  /**
-   * Compensates for space needed in slide up upon entering the piece detail page.
-   *
-   * @static
-   * @memberof PieceDetail
-   */
-  static ANIMATION_PADDING = 70;
-
-  /**
-   *
-   *
-   * @memberof PieceDetail
-   */
-  swipe = Swipe.instance;
-
-  /**
-   *
-   *
-   * @memberof PieceDetail
-   */
-  prevId: string | null = null;
-
-  /**
-   *
-   *
-   * @memberof PieceDetail
-   */
-  nextId: string | null = null;
-
-  /**
-   *
-   *
-   * @type {Array<React.ReactNode>}
-   * @memberof PieceDetail
-   */
-  infoReactElems: Array<React.ReactNode> = [];
-
-  /**
-   * We're retaining references to some subcomponents merely to inspect their height and
-   * adjust for it with a tween. Maybe not ideal, but it's only a side effect.
-   *
-   * TODO: Determine if there is a better solution.
-   *
-   * @type {Array<PieceInfoFeatures>}
-   * @memberof PieceDetail
-   */
-  infoRefElems: Array<PieceInfoFeatures> = [];
-
-  /**
-   *
-   *
-   * @memberof PieceDetail
-   */
-  numImagesLoaded = 0;
-
-  /**
-   *
-   *
-   * @type {PieceDetailState}
-   * @memberof PieceDetail
-   */
-  public readonly state: PieceDetailState;
-
-  constructor(props: any) {
-    super(props);
-
-    // this.swipe.init([document.body]);
-    // this.swipe.onSwipe(this.handleSwiped);
-
-    this.state = {
-      currentPieceId: "",
-      scale: this.getScale(),
-      transition: ScreenShot.INIT,
-      infoHeight: 0,
-      initialShotImgsLoaded: false,
-    };
-
-    this.state.currentPieceId = props.pieceId;
-  }
-
-  /**
-   *
-   *
-   * @memberof PieceDetail
-   */
-  handleSwiped = () => {
-    if (this.swipe.swipeDirection === Swipe.SWIPE_LT) {
-      this.props.navigate("/portfolio/" + this.nextId);
-    } else if (this.swipe.swipeDirection === Swipe.SWIPE_RT) {
-      this.props.navigate("/portfolio/" + this.prevId);
-    }
-  };
-
-  /**
-   * TODO: Need to revisit this and see if there's a CSS3 solution and
-   * take scaling off of state.
-   *
-   * @returns
-   * @memberof PieceDetail
-   */
-  getScale() {
+  const getScale = () => {
     let height = window.innerHeight;
 
     if (!HoverCapabilityWatcher.instance.isHoverCapable) {
-      // https://stackoverflow.com/a/16567475/1253298
       if (window.matchMedia("(orientation: portrait)").matches) {
         height = window.screen.height;
       } else {
@@ -192,320 +53,288 @@ export default class PieceDetail extends React.Component<PieceDetailRouterProps>
     let min = Math.min(window.innerWidth / 693, height / 600);
 
     return Math.min(min, 1);
-  }
-
-  /**
-   *
-   *
-   * @memberof PieceDetail
-   */
-  handleResize = () => {
-    const pieceIndex: number = this.currentPieceIndex;
-    const height = this.infoRefElems[pieceIndex].domElem?.offsetHeight
-      ? this.infoRefElems[pieceIndex].domElem?.offsetHeight + 75
-      : 0;
-
-    this.setState({
-      scale: this.getScale(),
-      infoHeight: height,
-    });
   };
 
-  /**
-   *
-   *
-   * @readonly
-   * @type {number}
-   * @memberof PieceDetail
-   */
-  get currentPieceIndex(): number {
-    return Object.keys(portfolioData.activePiecesMap).indexOf(
-      this.state.currentPieceId,
-    );
-  }
+  const [state, setState] = useState<PieceDetailState>({
+    currentPieceId: pieceId,
+    scale: getScale(),
+    transition: ScreenShot.INIT,
+    infoHeight: 0,
+    initialShotImgsLoaded: false,
+  });
 
-  /**
-   *
-   *
-   * @memberof PieceDetail
-   */
-  handleOrientationChange = () => {
-    this.setState({ scale: this.getScale() });
-  };
+  const swipe = Swipe.instance;
+  const infoRefElems = useRef<Array<PieceInfoFeatures | null>>([]);
+  const numImagesLoaded = useRef(0);
+  const prevId = useRef<string | null>(null);
+  const nextId = useRef<string | null>(null);
 
-  /**
-   *
-   *
-   * @memberof PieceDetail
-   */
-  componentDidMount() {
+  useEffect(() => {
     if (ExecutionEnvironment.canUseDOM) {
-      window.addEventListener("resize", this.handleResize);
-      window.addEventListener(
-        "orientationchange",
-        this.handleOrientationChange,
-      );
+      window.addEventListener("resize", handleResize);
+      window.addEventListener("orientationchange", handleOrientationChange);
     }
 
-    this.handleResize();
+    handleResize();
 
     const swiper = document.getElementById("swiper");
 
     if (swiper) {
-      this.swipe.init([swiper as HTMLElement]);
-      this.swipe.onSwipe(this.handleSwiped);
+      swipe.init([swiper as HTMLElement]);
+      swipe.onSwipe(handleSwiped);
     }
 
-    this.setState({
-      currentPieceId: this.props.pieceId,
+    setState((prevState) => ({
+      ...prevState,
+      currentPieceId: pieceId,
       transition: ScreenShot.TRANS_IN,
-    });
-  }
+    }));
 
-  /**
-   *
-   *
-   * @memberof PieceDetail
-   */
-  componentWillUnmount() {
-    window.removeEventListener("resize", this.handleResize);
-    window.removeEventListener(
-      "orientationchange",
-      this.handleOrientationChange,
-    );
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      window.removeEventListener("orientationchange", handleOrientationChange);
+      swipe.kill();
+    };
+  }, [pieceId]);
 
-    this.swipe.kill();
-  }
-
-  /**
-   *
-   *
-   * @param {PieceDetailProps} prevProps
-   * @param {PieceDetailState} prevState
-   * @memberof PieceDetail
-   */
-  componentDidUpdate(
-    prevProps: PieceDetailRouterProps,
-    prevState: PieceDetailState,
-  ) {
-    if (prevState.currentPieceId !== this.state.currentPieceId) {
-      this.handleResize();
+  useEffect(() => {
+    if (state.currentPieceId !== pieceId) {
+      handleResize();
     }
 
-    let newPieceId: string = this.props.pieceId;
-    let prevPieceId: string = prevProps.pieceId;
+    const newPieceId = pieceId;
+    const prevPieceId = state.currentPieceId;
 
-    const prevId: string | null = portfolioData.prevKey(newPieceId);
-    const nextId: string | null = portfolioData.nextKey(newPieceId);
+    const prevIdValue = PortfolioDataUtil.prevKey(newPieceId);
+    const nextIdValue = PortfolioDataUtil.nextKey(newPieceId);
 
-    let slideDirection = PieceDetail.SLIDE_NONE;
+    let slideDirection = Constants.SLIDE_NONE;
 
-    if (prevPieceId === prevId) {
-      slideDirection = PieceDetail.SLIDE_LT;
-    } else if (prevPieceId === nextId) {
-      slideDirection = PieceDetail.SLIDE_RT;
+    if (prevPieceId === prevIdValue) {
+      slideDirection = Constants.SLIDE_LT;
+    } else if (prevPieceId === nextIdValue) {
+      slideDirection = Constants.SLIDE_RT;
     }
 
     if (newPieceId !== prevPieceId) {
-      this.setState({
+      setState((prevState) => ({
+        ...prevState,
         slide: slideDirection,
         transition: ScreenShot.TRANS_OUT,
-      });
+      }));
 
       setTimeout(() => {
-        this.setState({
+        setState((prevState) => ({
+          ...prevState,
           transition: ScreenShot.RESET,
-        });
+        }));
 
         setTimeout(() => {
-          this.setState({
+          setState((prevState) => ({
+            ...prevState,
             currentPieceId: newPieceId,
             transition: ScreenShot.TRANS_IN,
-          });
-        }, 30); // Timing nessary to trigger React to reflow.
-      }, 500);
+          }));
+        }, 300);
+      }, 1000);
     }
-  }
+  }, [pieceId, state.currentPieceId]);
 
-  /**
-   * Once the first two have loaded for the user, trigger the rest to start loading.
-   *
-   * @memberof PieceDetail
-   */
-  handleShotImageLoaded = () => {
-    this.numImagesLoaded++;
-    if (this.numImagesLoaded === 2) {
-      this.setState({ initialShotImgsLoaded: true });
+  const handleSwiped = () => {
+    if (swipe.swipeDirection === Swipe.SWIPE_LT) {
+      navigate("/portfolio/" + nextId.current);
+    } else if (swipe.swipeDirection === Swipe.SWIPE_RT) {
+      navigate("/portfolio/" + prevId.current);
     }
   };
 
-  /**
-   *
-   *
-   * @returns
-   * @memberof PieceDetail
-   */
-  render() {
-    const pieceId = this.state.currentPieceId;
+  const handleResize = () => {
+    const pieceIndex = currentPieceIndex;
+    const height = infoRefElems.current[pieceIndex]?.domElem?.offsetHeight
+      ? infoRefElems.current[pieceIndex]?.domElem?.offsetHeight + 75
+      : 0;
 
-    if (typeof PieceDetail.pdJson[pieceId] === "undefined") {
-      throw new Error("No data associated with " + pieceId);
+    setState((prevState) => ({
+      ...prevState,
+      scale: getScale(),
+      infoHeight: height,
+    }));
+  };
+
+  const handleOrientationChange = () => {
+    setState((prevState) => ({
+      ...prevState,
+      scale: getScale(),
+    }));
+  };
+
+  const handleShotImageLoaded = () => {
+    numImagesLoaded.current++;
+    if (numImagesLoaded.current === 2) {
+      setState((prevState) => ({
+        ...prevState,
+        initialShotImgsLoaded: true,
+      }));
+    }
+  };
+
+  const currentPieceIndex = Object.keys(
+    PortfolioDataUtil.activePiecesMap,
+  ).indexOf(state.currentPieceId);
+
+  const pieceIdState = state.currentPieceId;
+
+  if (typeof Constants.pdJson[pieceIdState] === "undefined") {
+    throw new Error("No data associated with " + pieceIdState);
+  }
+
+  const pieceData: PortfolioPieceBase = Constants.pdJson[pieceIdState];
+  const clientLogos: Array<React.ReactNode> = [];
+
+  if (pieceData === undefined) {
+    let err =
+      "The piece ID '" +
+      pieceIdState +
+      "' does not correspond to any portfolio items.";
+    console.error(err);
+    return <div className="error">{err}</div>;
+  }
+
+  prevId.current = PortfolioDataUtil.prevKey(pieceIdState);
+  nextId.current = PortfolioDataUtil.nextKey(pieceIdState);
+
+  const { title, tags, clientId } = pieceData;
+  const tagsSpaced = tags.split(",").join(", ");
+  const subtitle = tagsSpaced;
+  const scale = state.scale;
+  const ScreenShots: Array<React.ReactNode> = [];
+
+  const isScaledOnHeight = scale * 693 < window.innerWidth - 100;
+
+  const containerStyle = {
+    height: 500 * scale + 50 + "px",
+  };
+
+  const navStyle = { top: 220 * scale + "px" };
+
+  const scaleCSS = {
+    transform: "scale(" + scale + "," + scale + ")",
+  };
+
+  const navScaleModeClass = isScaledOnHeight
+    ? "scaled-on-height"
+    : "not-scaled-on-height";
+
+  let keys = Object.keys(ClientNames);
+
+  keys.forEach((key) => {
+    let clientLogoURL =
+      key === "att" || key === "premera" ? key + "_black" : key;
+    clientLogoURL = "url(/images/client-logos/" + clientLogoURL + ".svg)";
+
+    const logoStyle = { backgroundImage: clientLogoURL };
+    const logoClass = key === clientId ? "visible" : "";
+
+    clientLogos.push(
+      <div
+        key={key}
+        className={"client-logo " + logoClass}
+        style={logoStyle}
+      ></div>,
+    );
+  });
+
+  let piece: any,
+    showMobile,
+    id,
+    transition = "";
+
+  const activeKeys: Array<string> = PortfolioDataUtil.activeKeys;
+
+  const infoReactElems = activeKeys.map((_, i) => {
+    piece = PortfolioDataUtil.activePieces[i];
+
+    showMobile = piece.mobileAvailability === Constants.MOBILE_AVAILABLE;
+    id = activeKeys[i];
+
+    transition = ScreenShot.RESET;
+
+    if (activeKeys[i] === pieceIdState) {
+      transition = state.transition;
     }
 
-    const pieceData: PortfolioPieceBase = PieceDetail.pdJson[pieceId];
-    const clientLogos: Array<React.ReactNode> = [];
-
-    if (pieceData === undefined) {
-      let err =
-        "The piece ID '" +
-        pieceId +
-        "' does not correspond to any portfolio items.";
-      console.error(err);
-      return <div className="error">{err}</div>;
-    }
-
-    this.prevId = portfolioData.prevKey(pieceId);
-    this.nextId = portfolioData.nextKey(pieceId);
-
-    const { title, tags, clientId } = pieceData;
-    const tagsSpaced = tags.split(",").join(", ");
-    const subtitle = tagsSpaced;
-    const scale = this.state.scale;
-    const ScreenShots: Array<React.ReactNode> = [];
-
-    /* If phone is turned horizontally (landscape) the devices need scaled down further
-    so as to avoid them bleeding off the edges of the viewport. */
-    const isScaledOnHeight = scale * 693 < window.innerWidth - 100;
-
-    const containerStyle = {
-      // Height needs to take into account the slide up upon entering this section.
-      height: 500 * scale + 50 + "px",
-    };
-
-    const navStyle = { top: 220 * scale + "px" };
-
-    const scaleCSS = {
-      transform: "scale(" + scale + "," + scale + ")",
-    };
-
-    const navScaleModeClass = isScaledOnHeight
-      ? "scaled-on-height"
-      : "not-scaled-on-height";
-
-    let keys = Object.keys(ClientNames);
-
-    keys.forEach((key) => {
-      let clientLogoURL =
-        key === "att" || key === "premera" ? key + "_black" : key;
-      clientLogoURL = "url(/images/client-logos/" + clientLogoURL + ".svg)";
-
-      const logoStyle = { backgroundImage: clientLogoURL };
-      const logoClass = key === clientId ? "visible" : "";
-
-      clientLogos.push(
-        <div
-          key={key}
-          className={"client-logo " + logoClass}
-          style={logoStyle}
-        ></div>,
-      );
-    });
-
-    let piece: any,
-      showMobile,
-      id,
-      transition = "";
-
-    const activeKeys: Array<string> = portfolioData.activeKeys;
-
-    this.infoReactElems = activeKeys.map((_, i) => {
-      piece = portfolioData.activePieces[i];
-
-      showMobile = piece.mobileAvailability === PieceDetail.MOBILE_AVAILABLE;
-      id = activeKeys[i];
-
-      transition = ScreenShot.RESET;
-
-      if (activeKeys[i] === pieceId) {
-        transition = this.state.transition;
-      }
-
-      ScreenShots[i] = (
-        <div
-          className={transition}
-          key={i}
-          onLoad={() => {
-            this.handleShotImageLoaded();
-          }}
-        >
-          <ScreenShot
-            showMobile={showMobile}
-            mobileOrientation={piece.mobileOrientation}
-            loadImages={
-              this.state.initialShotImgsLoaded || activeKeys[i] === pieceId
-            }
-            id={id}
-          />
-        </div>
-      );
-
-      return (
-        <div className={transition} key={i}>
-          <PieceInfoFeatures
-            transition={transition}
-            ref={(infoElem) => {
-              // NOTE: `ref` functions have different scope in a loop vs in a map!
-              if (infoElem) this.infoRefElems[i] = infoElem;
-            }}
-            pieceData={PieceDetail.pdJson[activeKeys[i]]}
-          ></PieceInfoFeatures>
-        </div>
-      );
-    });
-
-    const slideDirection = this.state.slide || PieceDetail.SLIDE_NONE;
-    const navButtonPrevClass = "nav_button prev ";
-    const navButtonNextClass = "nav_button next ";
+    ScreenShots[i] = (
+      <div
+        className={transition}
+        key={i}
+        onLoad={() => {
+          handleShotImageLoaded();
+        }}
+      >
+        <ScreenShot
+          showMobile={showMobile}
+          mobileOrientation={piece.mobileOrientation}
+          loadImages={
+            state.initialShotImgsLoaded || activeKeys[i] === pieceIdState
+          }
+          id={id}
+        />
+      </div>
+    );
 
     return (
-      <div className="portfolio_piece">
-        <HeaderSub head={title} subhead={subtitle} />
-        <div id="main_content" className="portfolio_piece_body">
-          <div className="container logo_container">{clientLogos}</div>
-          <div id="portfolioSlideDirection" className={slideDirection}>
-            <div id="swiper">
-              <div id="full_piece_device_container" style={containerStyle}>
-                <div id="full_piece_scaler" style={scaleCSS}>
-                  {ScreenShots}
-                </div>
+      <div className={transition} key={i}>
+        <PieceInfoFeatures
+          transition={transition}
+          ref={(infoElem) => {
+            if (infoElem) infoRefElems.current[i] = infoElem;
+          }}
+          pieceData={Constants.pdJson[activeKeys[i]]}
+        ></PieceInfoFeatures>
+      </div>
+    );
+  });
+
+  const slideDirection = state.slide || Constants.SLIDE_NONE;
+  const navButtonPrevClass = "nav_button prev ";
+  const navButtonNextClass = "nav_button next ";
+
+  return (
+    <div className="portfolio_piece">
+      <HeaderSub head={title} subhead={subtitle} />
+      <div id="main_content" className="portfolio_piece_body">
+        <div className="container logo_container">{clientLogos}</div>
+        <div id="portfolioSlideDirection" className={slideDirection}>
+          <div id="swiper">
+            <div id="full_piece_device_container" style={containerStyle}>
+              <div id="full_piece_scaler" style={scaleCSS}>
+                {ScreenShots}
               </div>
-              <div
-                id="piece_nav"
-                className={navScaleModeClass}
-                style={navStyle}
-              >
-                <div id="nav_button_prev" className={navButtonPrevClass}>
-                  <Link to={"/portfolio/" + this.prevId}>
-                    <img src={blankPNG} alt="prev button" />
-                  </Link>
-                </div>
-                <div id="nav_button_next" className={navButtonNextClass}>
-                  <Link to={"/portfolio/" + this.nextId}>
-                    <img src={blankPNG} alt="next button" />
-                  </Link>
-                </div>
+            </div>
+            <div id="piece_nav" className={navScaleModeClass} style={navStyle}>
+              <div id="nav_button_prev" className={navButtonPrevClass}>
+                <Link to={"/portfolio/" + prevId.current}>
+                  <img src={blankPNG} alt="prev button" />
+                </Link>
+              </div>
+              <div id="nav_button_next" className={navButtonNextClass}>
+                <Link to={"/portfolio/" + nextId.current}>
+                  <img src={blankPNG} alt="next button" />
+                </Link>
               </div>
             </div>
           </div>
-          <span
-            id="infoParent"
-            className="container"
-            style={{ height: this.state.infoHeight + "px" }}
-          >
-            {this.infoReactElems}
-          </span>
         </div>
+        <span
+          id="infoParent"
+          className="container"
+          style={{ height: state.infoHeight + "px" }}
+        >
+          {infoReactElems}
+        </span>
       </div>
-    );
-  }
-}
+    </div>
+  );
+};
+
+export default PieceDetail;
