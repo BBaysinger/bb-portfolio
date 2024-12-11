@@ -9,7 +9,7 @@ import ExecutionEnvironment from "exenv";
 
 import PieceThumbnail from "components/PieceThumbnail";
 import HeaderMain from "components/HeaderMain";
-import portfolioData from "data/PortfolioData";
+import portfolioData from "data/PortfolioDataUtil";
 import HoverCapabilityWatcher from "utils/HoverCapabilityWatcher";
 import "./PortfolioList.scss";
 
