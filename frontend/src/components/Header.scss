@@ -115,7 +115,8 @@ header {
     top: -100vh;
     width: 100%;
     position: absolute;
-    background-color: global.$lighterThemeColor;
+    background-color: #000;
+    // background-color: global.$lighterThemeColor;
   }
 
   .bull {

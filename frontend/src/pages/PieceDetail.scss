@@ -1,43 +1,18 @@
 @use "@/styles/global" as global;
 
-/**
- * @fileOverview 
- * @author Bradley Baysinger
- */
-
 // TODO: This needs finished splitting out for detail device and infos.
-// We split those up for separation of concerns.
+// Should be split up for a separation of concerns.
 
-@mixin flipX() {
-  -moz-transform: scaleX(-1);
-  -webkit-transform: scaleX(-1);
-  -o-transform: scaleX(-1);
-  transform: scaleX(-1);
-  -ms-filter: fliph;
-  /*IE*/
-  filter: fliph;
-  /*IE*/
-}
+#peiceDetail {
+  #peiceDetailBody {
+    position: relative;
+    display: flex;
+    flex-direction: column;
 
-#infoParent {
-  position: relative;
-  display: block;
-  transition: 0.5s;
-  @media (max-width: global.$mdpx) {
-    margin-top: 3vw;
-  }
-
-  @media (max-width: global.$xspx) {
-    margin-top: 1vw;
-  }
-}
-
-/* Portfolio Piece */
-.portfolio_piece {
-  #main_content {
-    margin-top: 50px;
-    @media (min-width: global.$smpx) {
-      margin-top: 60px;
+    .test {
+      position: absolute;
+      top: 0;
+      left: 0;
     }
   }
 
@@ -51,8 +26,6 @@
       margin-top: -110px;
       margin-bottom: 120px;
 
-      @media (max-width: global.$xspx) {
-      }
       .nav_button img {
         background-image: url("../assets/images/piece-detail/next-prev-mob.png");
         height: 75px;
@@ -84,7 +57,7 @@
     box-shadow: none;
   }
 
-  #infoParent {
+  #infoWrapper {
     margin-top: -100px;
   }
 
@@ -123,6 +96,19 @@
 
     #full_piece_device_container {
       margin-top: 15px !important;
+    }
+  }
+
+  #infoWrapper {
+    position: relative;
+    display: block;
+    transition: 0.5s;
+    @media (max-width: global.$mdpx) {
+      margin-top: 3vw;
+    }
+
+    @media (max-width: global.$xspx) {
+      margin-top: 1vw;
     }
   }
 
@@ -174,7 +160,7 @@
   }
 
   #piece_nav .next {
-    @include flipX();
+    transform: scaleX(-1);
     right: 0;
   }
 
@@ -192,13 +178,17 @@
     position: relative;
   }
 
-  .logo_container {
+  .logo-container {
     height: 40px;
-    // margin-top: -20px;
+    margin-top: 50px;
     margin-bottom: 30px;
+
+    @media (min-width: global.$smpx) {
+      margin-top: 60px;
+    }
   }
 
-  .logo_container .client-logo {
+  .logo-container .client-logo {
     $scaleY: 0.5;
     height: 60px;
     width: 300px;
@@ -238,11 +228,6 @@
   .btn-default {
     margin-right: 15px;
   }
-
-  // .btn-default,
-  // .btn-group-label {
-  //   margin-top: 30px;
-  // }
 
   .btn-group .btn-default {
     margin-right: 0;
