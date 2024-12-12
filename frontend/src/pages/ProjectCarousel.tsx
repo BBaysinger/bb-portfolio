@@ -75,11 +75,6 @@ const ProjectCarousel: React.FC = () => {
   const prevId = PortfolioDataUtil.prevKey(projectId);
   const nextId = PortfolioDataUtil.nextKey(projectId);
 
-  // const clientLogos = Object.keys(Constants.projectJson).map((key) => {
-  //   const logoClass = key === projectData.clientId ? "visible" : "";
-  //   return <div key={key} className={`client-logo ${logoClass}`}></div>;
-  // });
-
   const infoElems = keys.map((key, i) => (
     <ProjectContent
       key={key}
@@ -95,7 +90,7 @@ const ProjectCarousel: React.FC = () => {
     <div id={styles.projectCarousel}>
       <HeaderSub head={projectData.title} subhead={projectData.tags} />
       <div id={styles.projectCarouselBody}>
-        <div id={styles.test}>{`projectId: ${projectId}`}</div>
+        {/* <div id={styles.test}>{`projectId: ${projectId}`}</div> */}
         <LogoSwapper id={Constants.projectJson[projectId].clientId} />
         <div id={styles.swiper}></div>
         <div id={styles.projectNav}>

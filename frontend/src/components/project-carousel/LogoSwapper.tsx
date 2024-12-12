@@ -28,17 +28,19 @@ const fileVariants: Record<string, string> = {
 
 const LogoSwapper: React.FC<LogoSwapperProps> = ({ id }) => {
   const [currentLogoId, setCurrentLogoId] = useState(id);
-  const [isBlurred, setIsBlurred] = useState(false);
+  const [isBlurred, setIsBlurred] = useState(true);
+  const [isMounted, setIsMounted] = useState(false); // Track mount state
 
   useEffect(() => {
-    // Trigger the blur effect
-    setIsBlurred(true);
+    // Set component as mounted to trigger fade-in
+    setIsMounted(true);
 
-    // Delay to allow the unblur transition
+    // Handle blur transition
+    setIsBlurred(true);
     const timeout = setTimeout(() => {
       setCurrentLogoId(id);
       setIsBlurred(false);
-    }, 300); // Match this to your CSS animation duration
+    }, 300);
 
     return () => clearTimeout(timeout);
   }, [id]);
@@ -46,11 +48,14 @@ const LogoSwapper: React.FC<LogoSwapperProps> = ({ id }) => {
   return (
     <div
       id="logoSwapper"
-      className={`${styles["logo-swapper"]} ${isBlurred ? styles.blurred : ""}`}
+      className={`${styles["logo-swapper"]} ${isBlurred ? "" : styles.unblurred} ${
+        isMounted ? styles["fade-in"] : styles["fade-out"]
+      }`}
     >
       {Object.entries(clientNames).map(([key, value]) => (
         <img
           key={key}
+          loading="lazy"
           src={`/images/client-logos/${key in fileVariants ? fileVariants[key] : key}.svg`}
           className={`${styles["client-logo"]} ${
             currentLogoId === key ? styles.visible : ""
