@@ -1,0 +1,14 @@
+.logo-swapper {
+  position: relative;
+  img.client-logo {
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 0.0001;
+    max-height: 40px;
+    max-width: 300px;
+    &.visible {
+      opacity: 1;
+    }
+  }
+}
