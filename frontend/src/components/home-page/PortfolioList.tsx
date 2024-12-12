@@ -7,8 +7,8 @@ import React, {
 } from "react";
 import ExecutionEnvironment from "exenv";
 
-import ProjectThumbnail from "components/ProjectThumbnail";
-import HeaderMain from "components/HeaderMain";
+import ProjectThumbnail from "components/home-page/ProjectThumbnail";
+import HeaderMain from "components/home-page/HeaderMain";
 import HoverCapabilityWatcher from "utils/HoverCapabilityWatcher";
 import portfolioData from "data/PortfolioDataUtil";
 import styles from "./PortfolioList.module.scss";

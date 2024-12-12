@@ -2,11 +2,11 @@ import { useState, useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
 import ExecutionEnvironment from "exenv";
 
-import NavBar from "components/NavBar";
+import NavBar from "components/layout/NavBar";
 import CurriculumVitae from "pages/CurriculumVitae";
-import SlideOutNav from "components/SlideOutNavigation";
-import PortfolioList from "components/PortfolioList";
-import Footer from "components/Footer";
+import SlideOutNav from "components/layout/SlideOutNavigation";
+import PortfolioList from "components/home-page/PortfolioList";
+import Footer from "components/layout/Footer";
 import ProjectCarousel from "pages/ProjectCarousel";
 import ScrollToHash from "utils/ScrollToHash";
 import "./App.scss";
