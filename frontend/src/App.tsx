@@ -7,7 +7,7 @@ import CurriculumVitae from "pages/CurriculumVitae";
 import SlideOutNav from "components/SlideOutNavigation";
 import PortfolioList from "components/PortfolioList";
 import Footer from "components/Footer";
-import ProjectDetail from "pages/ProjectCarousel";
+import ProjectCarousel from "pages/ProjectCarousel";
 import ScrollToHash from "utils/ScrollToHash";
 
 import "./App.scss";
@@ -84,7 +84,7 @@ const App = () => {
             <Route path="/portfolio" element={<PortfolioList />}></Route>
             <Route
               path="/portfolio/:projectId"
-              element={<ProjectDetail />}
+              element={<ProjectCarousel />}
             ></Route>
             <Route path="/cv" element={<CurriculumVitae />}></Route>
           </Route>

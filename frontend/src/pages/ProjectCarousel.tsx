@@ -23,13 +23,15 @@ const calculateScale = () => {
 const ProjectCarousel: React.FC<{ projectId?: string }> = ({
   projectId: propProjectId,
 }) => {
-  const params = useParams();
+  const params = useParams<{ projectId: string }>();
   const projectId = propProjectId || params.projectId || "";
 
   const [currentProjectId, setCurrentProjectId] = useState(projectId);
   const [scale, setScale] = useState(() => calculateScale());
   const infoRefElems = useRef<Array<ProjectContent | null>>([]);
   const swipe = useRef(Swipe.instance);
+
+  void scale;
 
   const handleResize = () => {
     setScale(calculateScale());
@@ -102,18 +104,26 @@ const ProjectCarousel: React.FC<{ projectId?: string }> = ({
 
         <div className="logo-container">{clientLogos}</div>
 
-        <div id="swiper" style={{ transform: `scale(${scale})` }}>
-          <div className="info-wrapper">{infoElems}</div>
+        <div id={styles.swiper}></div>
+
+        <div id={styles.projectNav}>
+          <Link
+            to={`/portfolio/${prevId}`}
+            className={`${styles["nav-button"]} ${styles.prev}`}
+          >
+            <img src={blankPNG} alt="Previous" />
+            {`/portfolio/${prevId}`}
+          </Link>
+          <Link
+            to={`/portfolio/${nextId}`}
+            className={`${styles["nav-button"]} ${styles.next}`}
+          >
+            <img src={blankPNG} alt="Next" />
+            {`/portfolio/${nextId}`}
+          </Link>
         </div>
 
-        <div className="nav-buttons">
-          <Link to={`/portfolio/${prevId}`} className="nav-button prev">
-            <img src={blankPNG} alt="Previous" />
-          </Link>
-          <Link to={`/portfolio/${nextId}`} className="nav-button next">
-            <img src={blankPNG} alt="Next" />
-          </Link>
-        </div>
+        <div id={styles.projectContent}>{infoElems}</div>
       </div>
     </div>
   );
