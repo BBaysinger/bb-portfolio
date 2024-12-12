@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { Link, useParams } from "react-router-dom";
 
 import HeaderSub from "components/HeaderSub";
-import ProjectInfoFeatures from "components/ProjectInfoFeatures";
+import ProjectContent from "components/ProjectContent";
 import Swipe from "utils/Swipe";
 import PortfolioDataUtil from "data/PortfolioDataUtil";
 import blankPNG from "assets/images/misc/blank.png";
@@ -28,7 +28,7 @@ const ProjectCarousel: React.FC<{ projectId?: string }> = ({
 
   const [currentProjectId, setCurrentProjectId] = useState(projectId);
   const [scale, setScale] = useState(() => calculateScale());
-  const infoRefElems = useRef<Array<ProjectInfoFeatures | null>>([]);
+  const infoRefElems = useRef<Array<ProjectContent | null>>([]);
   const swipe = useRef(Swipe.instance);
 
   const handleResize = () => {
@@ -84,10 +84,10 @@ const ProjectCarousel: React.FC<{ projectId?: string }> = ({
   });
 
   const infoElems = keys.map((key, i) => (
-    <ProjectInfoFeatures
+    <ProjectContent
       key={key}
       transition={""}
-      ref={(el: ProjectInfoFeatures | null) => {
+      ref={(el: ProjectContent | null) => {
         if (el) infoRefElems.current[i] = el;
       }}
       projectData={Constants.pdJson[key]}
@@ -98,6 +98,8 @@ const ProjectCarousel: React.FC<{ projectId?: string }> = ({
     <div id={styles.projectCarousel}>
       <HeaderSub head={projectData.title} subhead={projectData.tags} />
       <div id={styles.projectCarouselBody}>
+        <div id={styles.test}>{`currentProjectId: ${currentProjectId}`}</div>
+
         <div className="logo-container">{clientLogos}</div>
 
         <div id="swiper" style={{ transform: `scale(${scale})` }}>

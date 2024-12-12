@@ -1,7 +1,7 @@
 import React, { ReactNode } from "react";
 
 import { PortfolioProjectBase } from "data/portfolioTypes";
-import "./ProjectInfoFeatures.scss";
+import styles from "./ProjectContent.module.scss";
 
 // interface PortfolioProjectData {
 //   desc: string[];
@@ -9,7 +9,7 @@ import "./ProjectInfoFeatures.scss";
 //   role: string;
 // }
 
-interface ProjectInfoFeaturesProps {
+interface ProjectContentProps {
   transition: string;
   projectData: PortfolioProjectBase;
 }
@@ -23,11 +23,11 @@ interface ProjectInfoFeaturesProps {
  * @since The beginning of time.
  * @version N/A
  */
-export default class ProjectInfoFeatures extends React.Component<ProjectInfoFeaturesProps> {
+export default class ProjectContent extends React.Component<ProjectContentProps> {
   /**
    *
    *
-   * @memberof ProjectInfoFeatures
+   * @memberof ProjectContent
    */
   // peiceData = null;
 
@@ -35,28 +35,28 @@ export default class ProjectInfoFeatures extends React.Component<ProjectInfoFeat
    * Need a reference to allow parent component access to computed height of div.
    *
    *
-   * @memberof ProjectInfoFeatures
+   * @memberof ProjectContent
    */
   public domElem: HTMLElement | null = null;
 
   /**
    *
    *
-   * @memberof ProjectInfoFeatures
+   * @memberof ProjectContent
    */
   transition = null;
 
   /**
    *
    *
-   * @memberof ProjectInfoFeatures
+   * @memberof ProjectContent
    */
   members: Array<HTMLElement | null> = [];
 
   /**
    *
    *
-   * @memberof ProjectInfoFeatures
+   * @memberof ProjectContent
    */
   timesUpdated = 0;
 
@@ -64,7 +64,7 @@ export default class ProjectInfoFeatures extends React.Component<ProjectInfoFeat
    *
    *
    * @returns
-   * @memberof ProjectInfoFeatures
+   * @memberof ProjectContent
    */
   shouldComponentUpdate() {
     // HERE: https://medium.com/@User3141592/react-gotchas-and-best-practices-2d47fd67dd22
@@ -81,7 +81,7 @@ export default class ProjectInfoFeatures extends React.Component<ProjectInfoFeat
    * TODO: Figure out why this member doesn't exist on refs at runtime.
    *
    * @readonly
-   * @memberof ProjectInfoFeatures
+   * @memberof ProjectContent
    */
   get height() {
     return this.domElem?.offsetHeight;
@@ -90,7 +90,7 @@ export default class ProjectInfoFeatures extends React.Component<ProjectInfoFeat
   /**
    *
    *
-   * @memberof ProjectInfoFeatures
+   * @memberof ProjectContent
    */
   addMember = (member: HTMLElement | null) => {
     if (member && this.members) {
@@ -108,7 +108,7 @@ export default class ProjectInfoFeatures extends React.Component<ProjectInfoFeat
   /**
    *
    *
-   * @memberof ProjectInfoFeatures
+   * @memberof ProjectContent
    */
   componentWillUnmount() {
     setTimeout(() => {
@@ -121,7 +121,7 @@ export default class ProjectInfoFeatures extends React.Component<ProjectInfoFeat
    *
    *
    * @returns
-   * @memberof ProjectInfoFeatures
+   * @memberof ProjectContent
    */
   render() {
     const projectData: PortfolioProjectBase = this.props.projectData;
@@ -141,7 +141,7 @@ export default class ProjectInfoFeatures extends React.Component<ProjectInfoFeat
           <span className="btn-group" ref={this.addMember} key={label}>
             <span className="btn btn-group-label">{label}</span>
             {urls.map((item, index) => (
-              <a key={item} href={item} className="btn" target="_blank">
+              <a key={item} href={item} className={styles.btn} target="_blank">
                 {index + 1}
               </a>
             ))}
@@ -166,14 +166,14 @@ export default class ProjectInfoFeatures extends React.Component<ProjectInfoFeat
 
     return (
       <div
-        id="project-info-and-features"
+        id={styles.projectInfoAndFeatures}
         className="info container"
         ref={(domElem) => {
           this.addMember(domElem);
           this.domElem = domElem;
         }}
       >
-        <div className="desc-paragraphs">
+        <div className={styles["desc-paragraphs"]}>
           {descs}
           {role && (
             <div ref={this.addMember}>
@@ -183,7 +183,7 @@ export default class ProjectInfoFeatures extends React.Component<ProjectInfoFeat
             </div>
           )}
         </div>
-        <div className="url-btns">{urlBtns}</div>
+        <div className={styles["url-btns"]}>{urlBtns}</div>
       </div>
     );
   }
