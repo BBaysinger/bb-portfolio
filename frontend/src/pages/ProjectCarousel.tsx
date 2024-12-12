@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Link, useParams } from "react-router-dom";
 
-import HeaderSub from "components/HeaderSub";
+import HeaderSub from "components/layout/HeaderSub";
 import ProjectContent from "components/project-carousel/ProjectContent";
 import Swipe from "utils/Swipe";
 import PortfolioDataUtil from "data/PortfolioDataUtil";

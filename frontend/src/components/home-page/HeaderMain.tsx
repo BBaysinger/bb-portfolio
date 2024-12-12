@@ -1,13 +1,9 @@
 import React from "react";
 
-import NavBar from "./NavBar";
+import NavBar from "components/layout/NavBar";
 import headerLogo from "assets/images/main-header/bb_gradient.png";
-// import headerGrad from "assets/images/main-header/bg_grad.svg";
 import caret from "assets/images/main-header/caret.png";
-
-import "./Header.scss";
-
-interface HeaderMainProps {}
+import "components/layout/Header.scss";
 
 interface HeaderMainState {
   height: number;
@@ -20,7 +16,7 @@ export default class HeaderMain extends React.Component<{}, HeaderMainState> {
   scrolled = false;
   animationFrame: number = 0;
 
-  constructor(props: HeaderMainProps) {
+  constructor(props: {}) {
     super(props);
     this.state = {
       height: this.getHeight(),
@@ -42,7 +38,7 @@ export default class HeaderMain extends React.Component<{}, HeaderMainState> {
   scrollDown = () => {
     this.stopCaret();
     const targetY = this.getHeight() - NavBar.HEIGHT + 3;
-    this.smoothScrollTo(targetY, 500); // 500ms duration
+    this.smoothScrollTo(targetY, 500);
   };
 
   smoothScrollTo = (targetY: number, duration: number) => {
