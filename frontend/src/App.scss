@@ -102,11 +102,11 @@ h6,
 
 .break {
   // Forces the date to a new line.
-  display: none;
+  display: initial;
   flex-basis: 100%;
   height: 0;
-  @media (max-width: 500px) {
-    display: initial;
+  @include global.breakpoint-up(xs) {
+    display: none;
   }
 }
 

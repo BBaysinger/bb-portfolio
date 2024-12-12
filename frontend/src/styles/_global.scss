@@ -108,8 +108,13 @@ $negative-device-halfWidthPx: - math.div($device-width, 2) + px;
     @error "Property value units ($unit-min-value, $unit-max-value) must match!";
   }
 
-  // Base value to ensure proper fallback
+  // Set the default (fallback) value for small screens
   & {
+    #{$property}: $min-value;
+  }
+
+  // Set the fluid value between the breakpoints
+  @media screen and (min-width: $min-vw) {
     #{$property}: calc(
       #{$min-value} +
         (
@@ -119,12 +124,7 @@ $negative-device-halfWidthPx: - math.div($device-width, 2) + px;
     );
   }
 
-  // Set the minimum value explicitly before the min viewport width
-  @media screen and (max-width: $min-vw) {
-    #{$property}: $min-value;
-  }
-
-  // Set the maximum value explicitly after the max viewport width
+  // Set the maximum value explicitly for large screens
   @media screen and (min-width: $max-vw) {
     #{$property}: $max-value;
   }
