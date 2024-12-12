@@ -1,3 +1,6 @@
+@use "@/styles/global";
+@use "./PortfolioList.module.scss" as portfolioList;
+
 .project-thumbnail {
   height: 290px;
   background-color: #000000;
@@ -8,11 +11,11 @@
   width: 100vw;
 
   @include global.breakpoint-up(sm) {
-    width: calc(50vw - ($gap * 0.5));
+    width: calc(50vw - (portfolioList.$portfolioListGap * 0.5));
   }
 
   @include global.breakpoint-up(lg) {
-    width: calc(33.33vw - ($gap * 0.666));
+    width: calc(33.33vw - (portfolioList.$portfolioListGap * 0.666));
   }
 
   .vingette {
@@ -76,20 +79,26 @@
     transition: opacity 0.3s linear;
   }
 
-  .hover_enabled.project-thumbnail:hover .vingette {
-    @extend .hover-focus-vignette;
+  &.hover-enabled {
+    :hover {
+      .vingette {
+        @extend .hover-focus-vignette;
+      }
+
+      .thumb-content {
+        @extend .hover-focus-thumb-content;
+      }
+    }
   }
 
-  .hover_enabled.project-thumbnail:hover .thumb-content {
-    @extend .hover-focus-thumb-content;
-  }
+  &.project-thumbnail-focus {
+    .vingette {
+      @extend .hover-focus-vignette;
+    }
 
-  .project-thumbnail-focus .vingette {
-    @extend .hover-focus-vignette;
-  }
-
-  .project-thumbnail-focus .thumb-content {
-    @extend .hover-focus-thumb-content;
+    .thumb-content {
+      @extend .hover-focus-thumb-content;
+    }
   }
 
   .client-logo {

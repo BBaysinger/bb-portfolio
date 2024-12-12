@@ -9,9 +9,9 @@ import ExecutionEnvironment from "exenv";
 
 import ProjectThumbnail from "components/ProjectThumbnail";
 import HeaderMain from "components/HeaderMain";
-import portfolioData from "data/PortfolioDataUtil";
 import HoverCapabilityWatcher from "utils/HoverCapabilityWatcher";
-import "./PortfolioList.scss";
+import portfolioData from "data/PortfolioDataUtil";
+import styles from "./PortfolioList.module.scss";
 
 /**
  * PortfolioList Component
@@ -166,8 +166,8 @@ const PortfolioList: React.FC = () => {
   return (
     <div>
       <HeaderMain />
-      <div className="portfolio_list">
-        <div id="list"></div>
+      <div className={styles["portfolio-list"]}>
+        <div id="list" className={styles["list"]}></div>
         {portfolioData.listedProjects.map((projectData, index) => {
           const id = portfolioData.listedKeys[index];
           const { title, omitFromList, clientId } = projectData;
@@ -181,7 +181,7 @@ const PortfolioList: React.FC = () => {
               projectId={id}
               title={title}
               clientId={clientId}
-              ref={(node) => setThumbRef(node, index)} // Pass DOM ref
+              ref={(node) => setThumbRef(node, index)}
             />
           );
         })}

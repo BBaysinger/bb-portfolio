@@ -1,19 +1,20 @@
 @use "@/styles/global";
 
-.portfolio_list {
-  $gap: 30px;
+$portfolioListGap: 30px;
+
+.portfolio-list {
   background: linear-gradient(to bottom, #1c1c1c, black);
   display: flex;
   flex-wrap: wrap;
-  gap: $gap;
-  padding-bottom: -$gap;
+  gap: $portfolioListGap;
+  padding-bottom: -$portfolioListGap;
   position: relative;
 
   @include global.breakpoint-up(lg) {
     background: linear-gradient(to bottom, #1a1a1a, black);
   }
 
-  #list {
+  .list {
     position: absolute;
     top: -(global.$navBarHeight);
     opacity: 0;
