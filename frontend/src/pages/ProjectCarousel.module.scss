@@ -36,7 +36,12 @@
   }
 
   #swiper {
-    border: 1px solid red;
+    position: absolute;
+    height: 200px;
+    width: 60vw;
+    left: 50vw;
+    transform: translateX(-50%);
+    top: 80px;
   }
 
   .btn-group-label:hover {
