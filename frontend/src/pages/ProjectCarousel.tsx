@@ -20,36 +20,31 @@ const calculateScale = () => {
   return Math.min(width / 693, height / 600, 1);
 };
 
-const ProjectCarousel: React.FC<{ projectId?: string }> = ({
-  projectId: propProjectId,
-}) => {
-  const params = useParams<{ projectId: string }>();
-  const projectId = propProjectId || params.projectId || "";
+const ProjectCarousel: React.FC = () => {
+  const { projectId = "" } = useParams<{ projectId: string }>();
 
-  const [currentProjectId, setCurrentProjectId] = useState(projectId);
   const [scale, setScale] = useState(() => calculateScale());
   const infoRefElems = useRef<Array<ProjectContent | null>>([]);
   const swipe = useRef(Swipe.instance);
-
-  void scale;
 
   const handleResize = () => {
     setScale(calculateScale());
   };
 
-  const handleSwiped = () => {
-    if (swipe.current.swipeDirection === Swipe.SWIPE_LT) {
-      navigateToSlide(1);
-    } else if (swipe.current.swipeDirection === Swipe.SWIPE_RT) {
-      navigateToSlide(-1);
-    }
-  };
+  void scale;
 
-  const navigateToSlide = (direction: number) => {
+  const handleSwiped = () => {
     const keys = PortfolioDataUtil.activeKeys;
-    const currentIndex = keys.indexOf(currentProjectId);
-    const newIndex = (currentIndex + direction + keys.length) % keys.length;
-    setCurrentProjectId(keys[newIndex]);
+    const currentIndex = keys.indexOf(projectId);
+    const newIndex =
+      (currentIndex +
+        (swipe.current.swipeDirection === Swipe.SWIPE_LT ? 1 : -1) +
+        keys.length) %
+      keys.length;
+
+    // Navigate to the new slide
+    const newId = keys[newIndex];
+    window.history.pushState({}, "", `/portfolio/${newId}`);
   };
 
   useEffect(() => {
@@ -68,17 +63,15 @@ const ProjectCarousel: React.FC<{ projectId?: string }> = ({
   }, []);
 
   const keys = PortfolioDataUtil.activeKeys;
-  const projectData: PortfolioProjectBase = Constants.pdJson[currentProjectId];
+  const projectData: PortfolioProjectBase = Constants.pdJson[projectId];
   if (!projectData) {
     return (
-      <div className="error">
-        Error: No data for project ID "{currentProjectId}"
-      </div>
+      <div className="error">Error: No data for project ID "{projectId}"</div>
     );
   }
 
-  const prevId = PortfolioDataUtil.prevKey(currentProjectId);
-  const nextId = PortfolioDataUtil.nextKey(currentProjectId);
+  const prevId = PortfolioDataUtil.prevKey(projectId);
+  const nextId = PortfolioDataUtil.nextKey(projectId);
 
   const clientLogos = Object.keys(Constants.pdJson).map((key) => {
     const logoClass = key === projectData.clientId ? "visible" : "";
@@ -100,7 +93,7 @@ const ProjectCarousel: React.FC<{ projectId?: string }> = ({
     <div id={styles.projectCarousel}>
       <HeaderSub head={projectData.title} subhead={projectData.tags} />
       <div id={styles.projectCarouselBody}>
-        <div id={styles.test}>{`currentProjectId: ${currentProjectId}`}</div>
+        <div id={styles.test}>{`projectId: ${projectId}`}</div>
 
         <div className="logo-container">{clientLogos}</div>
 
