@@ -9,7 +9,6 @@ import PortfolioList from "components/PortfolioList";
 import Footer from "components/Footer";
 import ProjectCarousel from "pages/ProjectCarousel";
 import ScrollToHash from "utils/ScrollToHash";
-
 import "./App.scss";
 
 /**
