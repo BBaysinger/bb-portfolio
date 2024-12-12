@@ -2,16 +2,18 @@ import React, { useEffect, useState, useRef } from "react";
 import { Link, useParams } from "react-router-dom";
 
 import HeaderSub from "components/HeaderSub";
-import ProjectContent from "components/ProjectContent";
+import ProjectContent from "components/project-carousel/ProjectContent";
 import Swipe from "utils/Swipe";
 import PortfolioDataUtil from "data/PortfolioDataUtil";
+import LogoSwapper from "components/project-carousel/LogoSwapper";
+import { PortfolioData, PortfolioProjectBase } from "data/portfolioTypes";
+
 import blankPNG from "assets/images/misc/blank.png";
 import json from "data/portfolio.json";
-import { PortfolioData, PortfolioProjectBase } from "data/portfolioTypes";
 import styles from "./ProjectCarousel.module.scss";
 
 const Constants = {
-  pdJson: json as PortfolioData,
+  projectJson: json as PortfolioData,
 };
 
 const calculateScale = () => {
@@ -63,7 +65,7 @@ const ProjectCarousel: React.FC = () => {
   }, []);
 
   const keys = PortfolioDataUtil.activeKeys;
-  const projectData: PortfolioProjectBase = Constants.pdJson[projectId];
+  const projectData: PortfolioProjectBase = Constants.projectJson[projectId];
   if (!projectData) {
     return (
       <div className="error">Error: No data for project ID "{projectId}"</div>
@@ -73,10 +75,10 @@ const ProjectCarousel: React.FC = () => {
   const prevId = PortfolioDataUtil.prevKey(projectId);
   const nextId = PortfolioDataUtil.nextKey(projectId);
 
-  const clientLogos = Object.keys(Constants.pdJson).map((key) => {
-    const logoClass = key === projectData.clientId ? "visible" : "";
-    return <div key={key} className={`client-logo ${logoClass}`}></div>;
-  });
+  // const clientLogos = Object.keys(Constants.projectJson).map((key) => {
+  //   const logoClass = key === projectData.clientId ? "visible" : "";
+  //   return <div key={key} className={`client-logo ${logoClass}`}></div>;
+  // });
 
   const infoElems = keys.map((key, i) => (
     <ProjectContent
@@ -85,7 +87,7 @@ const ProjectCarousel: React.FC = () => {
       ref={(el: ProjectContent | null) => {
         if (el) infoRefElems.current[i] = el;
       }}
-      projectData={Constants.pdJson[key]}
+      projectData={Constants.projectJson[key]}
     />
   ));
 
@@ -94,28 +96,22 @@ const ProjectCarousel: React.FC = () => {
       <HeaderSub head={projectData.title} subhead={projectData.tags} />
       <div id={styles.projectCarouselBody}>
         <div id={styles.test}>{`projectId: ${projectId}`}</div>
-
-        <div className="logo-container">{clientLogos}</div>
-
+        <LogoSwapper id={Constants.projectJson[projectId].clientId} />
         <div id={styles.swiper}></div>
-
         <div id={styles.projectNav}>
           <Link
             to={`/portfolio/${prevId}`}
             className={`${styles["nav-button"]} ${styles.prev}`}
           >
             <img src={blankPNG} alt="Previous" />
-            {`/portfolio/${prevId}`}
           </Link>
           <Link
             to={`/portfolio/${nextId}`}
             className={`${styles["nav-button"]} ${styles.next}`}
           >
             <img src={blankPNG} alt="Next" />
-            {`/portfolio/${nextId}`}
           </Link>
         </div>
-
         <div id={styles.projectContent}>{infoElems}</div>
       </div>
     </div>
