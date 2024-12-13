@@ -8,7 +8,9 @@ import ProjectData from "data/ProjectData";
 import LogoSwapper from "components/project-carousel-page/LogoSwapper";
 import ParallaxStepCarousel from "components/project-carousel-page/ParallaxStepCarousel";
 import blankPNG from "assets/images/misc/blank.png";
-import DeviceDisplay from "components/project-carousel-page/DeviceDisplay";
+import DeviceDisplay, {
+  DeviceTypes,
+} from "components/project-carousel-page/DeviceDisplay";
 import styles from "./ProjectCarousel.module.scss";
 
 // const calculateScale = () => {
@@ -61,11 +63,11 @@ const ProjectCarousel: React.FC = () => {
   const nextId = ProjectData.nextKey(projectId);
   const projects = ProjectData.activeProjectsRecord;
 
-  const mobileSlides = ProjectData.activeProjects.map((project) => (
-    <DeviceDisplay deviceType={"phone"} id={project.id} />
+  const phoneSlides = ProjectData.activeProjects.map((project) => (
+    <DeviceDisplay deviceType={DeviceTypes.PHONE} id={project.id} />
   ));
-  const desktopSlides = ProjectData.activeProjects.map((project) => (
-    <DeviceDisplay deviceType={"desktop"} id={project.id} />
+  const laptopSlides = ProjectData.activeProjects.map((project) => (
+    <DeviceDisplay deviceType={DeviceTypes.LAPTOP} id={project.id} />
   ));
 
   const infoElems = keys.map((key, i) => (
@@ -88,8 +90,8 @@ const ProjectCarousel: React.FC = () => {
       <div id={styles.projectCarouselBody}>
         <LogoSwapper id={projects[projectId].clientId} />
         <ParallaxStepCarousel
-          layer1Slides={mobileSlides}
-          layer2Slides={desktopSlides}
+          layer1Slides={phoneSlides}
+          layer2Slides={phoneSlides}
         />
         <div id={styles.projectNav}>
           <Link
