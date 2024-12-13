@@ -1,5 +1,7 @@
 import React, { useRef, useEffect, useCallback } from "react";
 
+import styles from "./ParallaxStepCarousel.module.scss";
+
 interface ParallaxStepCarouselProps {
   layer1Slides: React.ReactNode[];
   layer2Slides: React.ReactNode[];
@@ -33,22 +35,13 @@ const ParallaxStepCarousel: React.FC<ParallaxStepCarouselProps> = ({
 
   return (
     <div
-      className="main-carousel"
+      className={`${styles["carousel"]} bb-parallax-step-carousel`}
       ref={containerRef}
-      style={{
-        display: "flex",
-        overflowX: "scroll",
-        scrollSnapType: "x mandatory",
-      }}
     >
       {layer1Slides.map((slide, index) => (
         <div
           key={index}
-          className="carousel-slide"
-          style={{
-            flex: "0 0 100%",
-            scrollSnapAlign: "start",
-          }}
+          className={`${styles["slide"]} ${styles["slide-layer-1"]} bb-slide bb-slide-layer-1`}
         >
           {slide}
         </div>
@@ -56,11 +49,7 @@ const ParallaxStepCarousel: React.FC<ParallaxStepCarouselProps> = ({
       {layer2Slides.map((slide, index) => (
         <div
           key={index}
-          className="carousel-slide"
-          style={{
-            flex: "0 0 100%",
-            scrollSnapAlign: "start",
-          }}
+          className={`${styles["slide"]} ${styles["slide-layer-2"]} bb-slide bb-slide-layer-2`}
         >
           {slide}
         </div>

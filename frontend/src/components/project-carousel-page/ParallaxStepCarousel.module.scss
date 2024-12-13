@@ -1,0 +1,32 @@
+@use "@/styles/global";
+
+.carousel {
+  position: relative;
+  display: flex;
+  overflow-x: scroll;
+  scroll-snap-type: x mandatory;
+  height: 500px;
+  margin-top: 150px;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 1px solid red;
+  @include global.fluid-property(
+    margin-top,
+    global.$b360px,
+    global.$b1440px,
+    75px,
+    150px
+  );
+  @include global.fluid-property(
+    width,
+    global.$b360px,
+    global.$b1440px,
+    75px,
+    150px
+  );
+}
+
+.slide {
+  flex: "0 0 100%";
+  scroll-snap-align: "start";
+}
