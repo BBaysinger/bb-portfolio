@@ -1,42 +1,35 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { Link, useParams } from "react-router-dom";
 
 import HeaderSub from "components/layout/HeaderSub";
-import ProjectContent from "components/project-carousel/ProjectContent";
+import ProjectContent from "components/project-carousel-page/ProjectContent";
 import Swipe from "utils/Swipe";
-import PortfolioDataUtil from "data/PortfolioDataUtil";
-import LogoSwapper from "components/project-carousel/LogoSwapper";
-import { PortfolioData, PortfolioProjectBase } from "data/portfolioTypes";
-
+import ProjectData from "data/ProjectData";
+import LogoSwapper from "components/project-carousel-page/LogoSwapper";
+import ParallaxStepCarousel from "components/project-carousel-page/ParallaxStepCarousel";
 import blankPNG from "assets/images/misc/blank.png";
-import json from "data/portfolio.json";
+import DeviceDisplay from "components/project-carousel-page/DeviceDisplay";
 import styles from "./ProjectCarousel.module.scss";
 
-const Constants = {
-  projectJson: json as PortfolioData,
-};
-
-const calculateScale = () => {
-  const height = window.innerHeight;
-  const width = window.innerWidth;
-  return Math.min(width / 693, height / 600, 1);
-};
+// const calculateScale = () => {
+//   const height = window.innerHeight;
+//   const width = window.innerWidth;
+//   return Math.min(width / 693, height / 600, 1);
+// };
 
 const ProjectCarousel: React.FC = () => {
   const { projectId = "" } = useParams<{ projectId: string }>();
 
-  const [scale, setScale] = useState(() => calculateScale());
+  // const [scale, setScale] = useState(() => calculateScale());
   const infoRefElems = useRef<Array<ProjectContent | null>>([]);
   const swipe = useRef(Swipe.instance);
 
   const handleResize = () => {
-    setScale(calculateScale());
+    // setScale(calculateScale());
   };
 
-  void scale;
-
   const handleSwiped = () => {
-    const keys = PortfolioDataUtil.activeKeys;
+    const keys = ProjectData.activeKeys;
     const currentIndex = keys.indexOf(projectId);
     const newIndex =
       (currentIndex +
@@ -44,7 +37,6 @@ const ProjectCarousel: React.FC = () => {
         keys.length) %
       keys.length;
 
-    // Navigate to the new slide
     const newId = keys[newIndex];
     window.history.pushState({}, "", `/portfolio/${newId}`);
   };
@@ -64,16 +56,17 @@ const ProjectCarousel: React.FC = () => {
     };
   }, []);
 
-  const keys = PortfolioDataUtil.activeKeys;
-  const projectData: PortfolioProjectBase = Constants.projectJson[projectId];
-  if (!projectData) {
-    return (
-      <div className="error">Error: No data for project ID "{projectId}"</div>
-    );
-  }
+  const keys = ProjectData.activeKeys;
+  const prevId = ProjectData.prevKey(projectId);
+  const nextId = ProjectData.nextKey(projectId);
+  const projects = ProjectData.activeProjectsRecord;
 
-  const prevId = PortfolioDataUtil.prevKey(projectId);
-  const nextId = PortfolioDataUtil.nextKey(projectId);
+  const mobileSlides = ProjectData.activeProjects.map((project) => (
+    <DeviceDisplay deviceType={"phone"} id={project.id} />
+  ));
+  const desktopSlides = ProjectData.activeProjects.map((project) => (
+    <DeviceDisplay deviceType={"desktop"} id={project.id} />
+  ));
 
   const infoElems = keys.map((key, i) => (
     <ProjectContent
@@ -82,17 +75,22 @@ const ProjectCarousel: React.FC = () => {
       ref={(el: ProjectContent | null) => {
         if (el) infoRefElems.current[i] = el;
       }}
-      projectData={Constants.projectJson[key]}
+      projectData={projects[key]}
     />
   ));
 
   return (
     <div id={styles.projectCarousel}>
-      <HeaderSub head={projectData.title} subhead={projectData.tags} />
+      <HeaderSub
+        head={projects[projectId].title}
+        subhead={projects[projectId].tags}
+      />
       <div id={styles.projectCarouselBody}>
-        {/* <div id={styles.test}>{`projectId: ${projectId}`}</div> */}
-        <LogoSwapper id={Constants.projectJson[projectId].clientId} />
-        <div id={styles.swiper}></div>
+        <LogoSwapper id={projects[projectId].clientId} />
+        <ParallaxStepCarousel
+          layer1Slides={mobileSlides}
+          layer2Slides={desktopSlides}
+        />
         <div id={styles.projectNav}>
           <Link
             to={`/portfolio/${prevId}`}

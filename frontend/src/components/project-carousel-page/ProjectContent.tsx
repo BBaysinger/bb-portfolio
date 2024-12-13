@@ -1,6 +1,6 @@
 import React, { ReactNode } from "react";
 
-import { PortfolioProjectBase } from "data/portfolioTypes";
+import { PortfolioProjectBase } from "data/ProjectData";
 import styles from "./ProjectContent.module.scss";
 
 // interface PortfolioProjectData {

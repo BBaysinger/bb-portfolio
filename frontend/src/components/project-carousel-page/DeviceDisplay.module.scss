@@ -1,18 +1,11 @@
-// TODO: This need split out for detail view and infos.
-
 @use "@/styles/global";
 
-/**
- * @fileOverview 
- * @author Bradley Baysinger
- */
-
-.project_shot {
-  @extend .device-shot_extend;
+.project-shot {
+  @extend .device-shot-extend;
   left: global.$negative-device-halfWidthPx;
 
-  .full_project_desktop_shot {
-    @extend .device-shot_extend;
+  .full-project-desktop-shot {
+    @extend .device-shot-extend;
     transition:
       transform 0.3s ease-out,
       top 0.3s ease-out,
@@ -22,8 +15,8 @@
     background-repeat: no-repeat;
   }
 
-  .full_project_mobile_shot {
-    @extend .device-shot_extend;
+  .full-project-mobile-shot {
+    @extend .device-shot-extend;
     transition:
       transform 0.4s ease-out,
       top 0.4s ease-out,
@@ -33,7 +26,7 @@
       background-image: url("../assets/images/project-carousel/mobile-device-landscape.png");
       background-size: contain;
 
-      .full_project_mobile_cap {
+      .full-project-mobile-cap {
         top: 227px;
         left: 294px;
         width: 354px;
@@ -44,7 +37,7 @@
       background-image: url("../assets/images/project-carousel/mobile-device-portrait.png");
       background-size: contain;
 
-      .full_project_mobile_cap {
+      .full-project-mobile-cap {
         top: 69px;
         left: 484px;
         width: 162px;
@@ -52,14 +45,14 @@
     }
   }
 
-  .full_project_desktop_cap {
+  .full-project-desktop-cap {
     position: absolute;
     top: 38px;
     left: 95px;
     width: 500px;
   }
 
-  .full_project_mobile_cap {
+  .full-project-mobile-cap {
     position: absolute;
   }
 }
