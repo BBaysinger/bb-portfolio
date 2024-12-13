@@ -10,7 +10,7 @@ import ExecutionEnvironment from "exenv";
 import ProjectThumbnail from "components/home-page/ProjectThumbnail";
 import HeaderMain from "components/home-page/HeaderMain";
 import HoverCapabilityWatcher from "utils/HoverCapabilityWatcher";
-import portfolioData from "data/PortfolioDataUtil";
+import ProjectData from "data/ProjectData";
 import styles from "./PortfolioList.module.scss";
 
 /**
@@ -168,8 +168,8 @@ const PortfolioList: React.FC = () => {
       <HeaderMain />
       <div className={styles["portfolio-list"]}>
         <div id="list" className={styles["list"]}></div>
-        {portfolioData.listedProjects.map((projectData, index) => {
-          const id = portfolioData.listedKeys[index];
+        {ProjectData.listedProjects.map((projectData, index) => {
+          const id = ProjectData.activeKeys[index];
           const { title, omitFromList, clientId } = projectData;
 
           return (
