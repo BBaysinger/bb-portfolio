@@ -235,7 +235,7 @@ export default class Swipe {
         else this._swipeDirection = Swipe.SWIPE_DN_LT;
 
         if (this.bDebug) {
-          console.log(
+          console.info(
             `Swipe detected: ${this._swipeDirection}, Angle: ${this._swipeAngle}`,
           );
         }

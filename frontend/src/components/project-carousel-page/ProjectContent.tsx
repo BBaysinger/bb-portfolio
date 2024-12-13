@@ -101,7 +101,7 @@ export default class ProjectContent extends React.Component<ProjectContentProps>
         this.members.length * 0.2 + "s, " + this.members.length * 0.2 + "s";
     } else {
       // TODO: Is this a problem?
-      // console.log("eh?");
+      // console.info("eh?");
     }
   };
 
