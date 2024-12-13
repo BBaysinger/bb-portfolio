@@ -113,7 +113,7 @@ export default class ProjectData {
     pd.keys.forEach((key: string) => {
       if (pd._projects[key].active) {
         if (pd._projects[key].omitFromList !== true) {
-          pd.listedProjects.push(pd._projects[key]);
+          pd._listedProjects.push(pd._projects[key]);
           pd._listedKeys.push(key);
         }
         pd._activeKeys[pd.activeIndex] = key;
