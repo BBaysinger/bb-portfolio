@@ -3,7 +3,13 @@ import React from "react";
 import { MobileOrientation } from "data/ProjectData";
 import styles from "./DeviceDisplay.module.scss";
 
-type DeviceType = "phone" | "tablet" | "desktop";
+// Define constants for DeviceTypes (Not used in the data.)
+export const DeviceTypes = {
+  LAPTOP: "laptop",
+  PHONE: "phone",
+} as const;
+
+export type DeviceType = (typeof DeviceTypes)[keyof typeof DeviceTypes];
 
 interface DeviceDisplayProps {
   deviceType: DeviceType;
@@ -13,7 +19,7 @@ interface DeviceDisplayProps {
 
 /**
  * Display screenshots overlaid onto device images.
- * For use in the project carousels.
+ * For use in the project presentation carousels.
  *
  * @author Bradley Baysinger
  * @since The beginning of time.
@@ -24,40 +30,35 @@ const DeviceDisplay: React.FC<DeviceDisplayProps> = ({
   id,
   mobileOrientation,
 }) => {
-  const getElement = () => {
-    const src = `/images/project-shots/${id}-${deviceType}.jpg`;
-    if (deviceType === "desktop") {
-      return (
-        <div
-          className={`${styles["full-project-desktop-shot"]} ${styles["shot"]}`}
-        >
-          <img
-            className={styles["full-project-desktop-cap"]}
-            src={src}
-            alt=""
-          />
-        </div>
-      );
-    } else {
-      return (
-        <div
-          className={`
-            ${styles["full-project-mobile-shot"]} 
-            ${styles["shot"]} 
-            ${mobileOrientation ? styles[mobileOrientation] : ""}
-          `.trim()}
-        >
-          <img className={styles["full-project-mobile-cap"]} src={src} alt="" />
-        </div>
-      );
-    }
-  };
+  const src = `/images/project-shots/${id}-${deviceType}.jpg`;
 
-  return (
-    <div className={`${styles["project-shot"]} ${styles[id]}`}>
-      {getElement()}
+  return deviceType === DeviceTypes.LAPTOP ? (
+    <div
+      className={`${styles[DeviceTypes.LAPTOP]} ${styles["device-presentation"]}`}
+    >
+      <img
+        src={src}
+        alt={`${id} screenshot`}
+        loading="lazy"
+        className={styles["sceencap"]}
+      />
     </div>
-  );
+  ) : deviceType === DeviceTypes.PHONE ? (
+    <div
+      className={`
+        ${styles[DeviceTypes.PHONE]} 
+        ${styles["device-presentation"]} 
+        ${mobileOrientation ? styles[mobileOrientation] : ""}
+      `.trim()}
+    >
+      <img
+        src={src}
+        alt={`${id} screenshot`}
+        loading="lazy"
+        className={styles["sceencap"]}
+      />
+    </div>
+  ) : null;
 };
 
 export default DeviceDisplay;
