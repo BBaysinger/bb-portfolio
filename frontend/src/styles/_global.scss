@@ -44,18 +44,6 @@ $orange: #ff5e00;
 $yellowOrange: #ffb600;
 $red: #ff0000;
 
-/* Device Shots */
-$device-width: 693;
-$device-widthPx: $device-width + px;
-$device-halfWidthPx: math.div($device-width, 2) + px;
-$negative-device-halfWidthPx: - math.div($device-width, 2) + px;
-
-.device-shot_extend {
-  position: absolute;
-  width: $device-widthPx;
-  height: 512px;
-}
-
 // Mixin for mobile-first media queries
 // Usage: Apply styles starting from the specified breakpoint and up.
 // Example:
