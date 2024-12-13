@@ -1,8 +1,20 @@
 @use "@/styles/global";
+@use "sass:math";
+
+$device-width: 693;
+$device-widthPx: $device-width + px;
+$device-halfWidthPx: math.div($device-width, 2) + px;
+$negative-device-halfWidthPx: - math.div($device-width, 2) + px; // Was previously global.
+
+.device-shot-extend {
+  position: absolute;
+  width: $device-widthPx;
+  height: 512px;
+}
 
 .project-shot {
   @extend .device-shot-extend;
-  left: global.$negative-device-halfWidthPx;
+  left: $negative-device-halfWidthPx;
 
   .full-project-desktop-shot {
     @extend .device-shot-extend;
@@ -10,7 +22,7 @@
       transform 0.3s ease-out,
       top 0.3s ease-out,
       opacity 0.3s;
-    background-image: url("../assets/images/project-carousel/desktop-device.png");
+    background-image: url("../../assets/images/project-carousel/desktop-device.png");
     background-size: contain;
     background-repeat: no-repeat;
   }
@@ -23,7 +35,7 @@
       opacity 0.4s;
 
     &.landscape {
-      background-image: url("../assets/images/project-carousel/mobile-device-landscape.png");
+      background-image: url("../../assets/images/project-carousel/mobile-device-landscape.png");
       background-size: contain;
 
       .full-project-mobile-cap {
@@ -34,7 +46,7 @@
     }
 
     &.portrait {
-      background-image: url("../assets/images/project-carousel/mobile-device-portrait.png");
+      background-image: url("../../assets/images/project-carousel/mobile-device-portrait.png");
       background-size: contain;
 
       .full-project-mobile-cap {
