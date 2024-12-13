@@ -97,11 +97,14 @@ export default class ProjectData {
       parsedData[key] = {
         ...item,
         id: key,
-        mobileOrientation: ["portrait", "landscape"].includes(
-          item.mobileOrientation || "",
-        )
-          ? (item.mobileOrientation as MobileOrientation)
-          : undefined,
+        mobileOrientation:
+          item.mobileOrientation && [
+            MobileOrientations.PORTRAIT,
+            MobileOrientations.LANDSCAPE].includes(
+              item.mobileOrientation,
+            )
+            ? (item.mobileOrientation as MobileOrientation)
+            : undefined,
       };
     }
 
