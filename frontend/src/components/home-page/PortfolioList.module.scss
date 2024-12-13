@@ -10,7 +10,7 @@ $portfolioListGap: 30px;
   padding-bottom: -$portfolioListGap;
   position: relative;
 
-  @include global.breakpoint-up(lg) {
+  @include global.breakpoint-up(global.$b1280) {
     background: linear-gradient(to bottom, #1a1a1a, black);
   }
 

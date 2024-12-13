@@ -15,7 +15,7 @@
     margin-right: 0px;
     display: none;
 
-    @include global.breakpoint-up(sm) {
+    @include global.breakpoint-up(global.$b768) {
       display: inline-block;
     }
 
@@ -99,7 +99,7 @@
       transition: all 0.3s ease;
     }
 
-    @media screen and (min-width: global.$smpx) {
+    @media screen and (min-width: global.$b768px) {
       display: none;
     }
   }

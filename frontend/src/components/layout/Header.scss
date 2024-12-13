@@ -87,13 +87,13 @@ header {
     font-size: 52px;
     line-height: 55px;
 
-    @media (max-width: global.$xspx) {
+    @media (max-width: global.$b480px) {
       font-size: 40px;
       line-height: 42px;
     }
   }
 
-  @media (min-width: global.$smpx) {
+  @media (min-width: global.$b768px) {
     br.responsive_br {
       display: none;
     }
@@ -102,7 +102,7 @@ header {
     }
   }
 
-  @media (min-width: global.$mdpx) {
+  @media (min-width: global.$b992px) {
     h1 {
       font-size: 50px;
     }

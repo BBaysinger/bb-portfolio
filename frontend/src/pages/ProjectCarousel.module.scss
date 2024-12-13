@@ -8,7 +8,6 @@
     position: relative;
     display: flex;
     flex-direction: column;
-    min-height: 400px;
 
     .test {
       position: absolute;
@@ -66,15 +65,15 @@
       transform: scale(0.75);
       transform-origin: center left;
     }
-    @media (max-width: global.$smpx) {
+    @media (max-width: global.$b768px) {
       transform: scale(0.8);
     }
-    @media (max-width: global.$xspx) {
+    @media (max-width: global.$b480px) {
       transform: scale(0.6);
     }
   }
 
-  @media (max-width: global.$xspx) {
+  @media (max-width: global.$b480px) {
     #projectNav .nav-button img {
       height: 60px;
     }
@@ -89,11 +88,11 @@
     position: relative;
     display: block;
     transition: 0.5s;
-    @media (max-width: global.$mdpx) {
+    @media (max-width: global.$b992px) {
       margin-top: 3vw;
     }
 
-    @media (max-width: global.$xspx) {
+    @media (max-width: global.$b480px) {
       margin-top: 1vw;
     }
   }
@@ -162,7 +161,7 @@
     margin-top: 50px;
     margin-bottom: 30px;
 
-    @media (min-width: global.$smpx) {
+    @media (min-width: global.$b768px) {
       margin-top: 60px;
     }
   }
@@ -188,12 +187,12 @@
       filter: blur(0px);
       transform: scaleY(1);
 
-      @media (max-width: global.$smpx) {
+      @media (max-width: global.$b768px) {
         transform: translateX(-50%) scale(0.75) scaleY(1);
       }
     }
 
-    @media (max-width: global.$smpx) {
+    @media (max-width: global.$b768px) {
       background-position: center center;
       transform: translateX(-50%) scale(0.75) scaleY($scaleY);
       left: 50%;
@@ -227,7 +226,7 @@
   //   padding-left: global.$negative-device-halfWidthPx;
   // }
 
-  // @media (max -width: global.$smpx) {
+  // @media (max -width: global.$b768px) {
   //   #full_project_device_container {
   //     margin-top: 30px !important;
   //   }

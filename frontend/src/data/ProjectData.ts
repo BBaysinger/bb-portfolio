@@ -48,8 +48,9 @@ export default class ProjectData {
   private static _activeKeys: string[] = [];
   private static _listedProjects: ParsedPortfolioProject[] = [];
   private static _listedKeys: string[] = [];
-  private static keys: string[] = Object.keys(typedUnprocessedProjects);
-  private static activeProjectsMap: Record<string, ParsedPortfolioProject> = {};
+  private static _keys: string[] = Object.keys(typedUnprocessedProjects);
+  private static _activeProjectsMap: Record<string, ParsedPortfolioProject> =
+    {};
 
   static get activeKeys(): string[] {
     return [...this._activeKeys]; // Shallow copy to prevent mutations
@@ -98,11 +99,10 @@ export default class ProjectData {
         ...item,
         id: key,
         mobileOrientation:
-          item.mobileOrientation && [
-            MobileOrientations.PORTRAIT,
-            MobileOrientations.LANDSCAPE].includes(
-              item.mobileOrientation,
-            )
+          item.mobileOrientation &&
+          [MobileOrientations.PORTRAIT, MobileOrientations.LANDSCAPE].includes(
+            item.mobileOrientation,
+          )
             ? (item.mobileOrientation as MobileOrientation)
             : undefined,
       };
@@ -117,12 +117,12 @@ export default class ProjectData {
   static initialize(): void {
     this._projects = this.parsePortfolioData(typedUnprocessedProjects);
 
-    for (const key of this.keys) {
+    for (const key of this._keys) {
       const project = this._projects[key];
       if (project.active) {
         this._activeKeys.push(key);
         this._activeProjects.push(project);
-        this.activeProjectsMap[key] = project;
+        this._activeProjectsMap[key] = project;
 
         if (!project.omitFromList) {
           this._listedKeys.push(key);
