@@ -45,7 +45,7 @@ const ParallaxStepCarousel: React.FC<ParallaxStepCarouselProps> = ({
     return Array.from({ length }, () => getRandomColorWithOpacity(opacity));
   }
 
-  const colorArray = generateColorArray(layer1Slides.length, 0.0);
+  const colorArray = generateColorArray(layer1Slides.length, 0.1);
 
   function handleScrollUpdate(scrollOffset: number) {
     console.log("scrollOffset:", scrollOffset);

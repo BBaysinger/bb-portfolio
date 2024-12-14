@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useCallback, useState } from "react";
+import React, { useRef, useCallback, useState } from "react";
 import styles from "./InfiniteStepCarousel.module.scss";
 
 interface InfiniteStepCarouselProps {
@@ -15,7 +15,6 @@ const InfiniteStepCarousel: React.FC<InfiniteStepCarouselProps> = ({
   onScrollPositionUpdate,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const phantomRefs = useRef<HTMLDivElement[]>([]);
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
 
   const totalSlides = slides.length;
@@ -59,23 +58,10 @@ const InfiniteStepCarousel: React.FC<InfiniteStepCarouselProps> = ({
       if (scrollTimeout.current) {
         clearTimeout(scrollTimeout.current);
       }
-      // Milliseconds controls if the scoll is halted to break the interaction
-      // and limit to a single step at a time, to smoothly allow continuous scrolling.
-      scrollTimeout.current = window.setTimeout(handleScrollStop, 100);
+
+      scrollTimeout.current = window.setTimeout(handleScrollStop, 0);
     }
   }, [handleScrollStop, onScrollPositionUpdate]);
-
-  useEffect(() => {
-    if (containerRef.current && phantomRefs.current[1]) {
-      const phantomSlide = phantomRefs.current[1];
-      const offset = phantomSlide.offsetLeft - containerRef.current.offsetLeft;
-
-      containerRef.current.scrollTo({
-        left: offset,
-        behavior: "auto",
-      });
-    }
-  }, []);
 
   const getSlideClassName = (index: number): string => {
     if (index === currentIndex) {
@@ -92,26 +78,8 @@ const InfiniteStepCarousel: React.FC<InfiniteStepCarouselProps> = ({
     <div
       ref={containerRef}
       className={`${styles["step-carousel"]} bb-infinite-step-carousel`}
-      style={{
-        display: "flex",
-        overflowX: "scroll",
-        scrollSnapType: "x mandatory",
-      }}
       onScroll={handleScroll}
     >
-      {/* Phantom slides for seamless infinite scroll */}
-      {[1, 2, 3].map((number, id) => (
-        <div
-          key={number}
-          ref={(el) => {
-            if (el) phantomRefs.current[id] = el;
-          }}
-          className={`${styles["phantom-slide"]} phantom-slide`}
-        >
-          {number}
-        </div>
-      ))}
-
       {slides.map((slide, index) => (
         <div
           key={index}
