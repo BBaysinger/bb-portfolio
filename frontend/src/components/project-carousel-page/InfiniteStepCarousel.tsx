@@ -15,10 +15,9 @@ const InfiniteStepCarousel: React.FC<InfiniteStepCarouselProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const phantomRefs = useRef<HTMLDivElement[]>([]);
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
-  const [isTouching, setIsTouching] = useState(false);
-  const [observerActive, setObserverActive] = useState(true);
 
   const totalSlides = slides.length;
+  const scrollTimeout = useRef<number | null>(null);
 
   const updateCurrentIndex = useCallback(
     (newIndex: number) => {
@@ -29,9 +28,39 @@ const InfiniteStepCarousel: React.FC<InfiniteStepCarouselProps> = ({
         }
       }
     },
-    [currentIndex, totalSlides, onScrollUpdate],
+    [currentIndex, onScrollUpdate],
   );
 
+  const handleScrollStop = useCallback(() => {
+    if (containerRef.current) {
+      const { scrollLeft, scrollWidth, offsetWidth } = containerRef.current;
+
+      // Calculate the width of a single slide
+      const slideWidth = offsetWidth;
+
+      // Scrolling past the end
+      if (scrollLeft >= scrollWidth - offsetWidth) {
+        const newIndex = Math.round(scrollLeft / offsetWidth) % totalSlides;
+        updateCurrentIndex(newIndex);
+        containerRef.current.scrollLeft = slideWidth; // Adjust to middle phantom
+      }
+      // Scrolling past the beginning
+      else if (scrollLeft <= 0) {
+        const newIndex = Math.round(scrollLeft / offsetWidth) % totalSlides;
+        updateCurrentIndex(newIndex);
+        containerRef.current.scrollLeft = slideWidth; // Adjust to middle phantom
+      }
+    }
+  }, [totalSlides, updateCurrentIndex]);
+
+  const handleScroll = useCallback(() => {
+    if (containerRef.current) {
+      if (scrollTimeout.current) {
+        clearTimeout(scrollTimeout.current);
+      }
+      scrollTimeout.current = window.setTimeout(handleScrollStop, 150); // Adjust delay as needed
+    }
+  }, [handleScrollStop]);
 
   useEffect(() => {
     if (containerRef.current && phantomRefs.current[1]) {
@@ -44,70 +73,6 @@ const InfiniteStepCarousel: React.FC<InfiniteStepCarouselProps> = ({
       });
     }
   }, []);
-
-  useEffect(() => {
-    if (!observerActive || isTouching) return;
-
-    const container = containerRef.current;
-
-    if (!container) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting && entry.intersectionRatio === 1) {
-            const phantomIndex = phantomRefs.current.indexOf(
-              entry.target as HTMLDivElement,
-            );
-
-            if (phantomIndex !== -1) {
-              // Reset scroll to the second phantom slide (index 1)
-              if (phantomIndex === 0 || phantomIndex === 2) {
-                const targetSlide = phantomRefs.current[1];
-                if (targetSlide) {
-                  const offset = targetSlide.offsetLeft - container.offsetLeft;
-
-                  setObserverActive(false); // Deactivate observer during scroll reset
-                  container.scrollTo({
-                    left: offset,
-                    behavior: "auto",
-                  });
-
-                  updateCurrentIndex((currentIndex + phantomIndex - 1 + totalSlides) % totalSlides);
-
-                  setTimeout(() => {
-                    setObserverActive(true); // Reactivate observer after reset
-                  }, 100); // Allow some delay to avoid triggering the observer prematurely
-                }
-              }
-            }
-          }
-        });
-      },
-      {
-        root: container,
-        threshold: 1.0,
-      },
-    );
-
-    phantomRefs.current.forEach((phantomSlide) => {
-      if (phantomSlide) observer.observe(phantomSlide);
-    });
-
-    return () => {
-      observer.disconnect();
-    };
-  }, [observerActive, isTouching]);
-
-  const handleTouchStart = () => {
-    setIsTouching(true);
-    setObserverActive(false); // Deactivate observer during touch
-  };
-
-  const handleTouchEnd = () => {
-    setIsTouching(false);
-    setTimeout(() => setObserverActive(true), 100); // Reactivate observer after touch ends
-  };
 
   const getSlideClassName = (index: number): string => {
     if (index === currentIndex) {
@@ -129,11 +94,9 @@ const InfiniteStepCarousel: React.FC<InfiniteStepCarouselProps> = ({
         overflowX: "scroll",
         scrollSnapType: "x mandatory",
       }}
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
-      onPointerDown={handleTouchStart}
-      onPointerUp={handleTouchEnd}
+      onScroll={handleScroll}
     >
+      {/* Phantom slides for seamless infinite scroll */}
       {[1, 2, 3].map((number, id) => (
         <div
           key={number}
