@@ -29,7 +29,7 @@ const InfiniteStepCarousel: React.FC<InfiniteStepCarouselProps> = ({
         );
         setCurrentIndex(index);
         if (onScrollUpdate) {
-          onScrollUpdate(index);
+          onScrollUpdate(currentIndex);
         }
       }
     },
