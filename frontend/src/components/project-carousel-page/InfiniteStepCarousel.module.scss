@@ -15,16 +15,16 @@
     display: block;
   }
 
-  &.active {
+  &.left {
     left: 0;
   }
 
-  &.left {
-    left: -100%;
+  &.active {
+    left: 100%;
   }
 
   &.right {
-    left: 100%;
+    left: 200%;
   }
 }
 

@@ -29,18 +29,9 @@ const InfiniteStepCarousel: React.FC<InfiniteStepCarouselProps> = ({
         }
       }
     },
-    [currentIndex, onScrollUpdate],
+    [currentIndex, totalSlides, onScrollUpdate],
   );
 
-  const getSlideClassName = (index: number): string => {
-    if (index === currentIndex) return styles["active"];
-    else if (index === (currentIndex - 1 + totalSlides) % totalSlides) {
-      return `${styles["adjacent"]} ${styles["left"]}`;
-    } else if (index === (currentIndex + 1) % totalSlides) {
-      return `${styles["adjacent"]} ${styles["right"]}`;
-    }
-    return "";
-  };
 
   useEffect(() => {
     if (containerRef.current && phantomRefs.current[1]) {
@@ -82,8 +73,7 @@ const InfiniteStepCarousel: React.FC<InfiniteStepCarouselProps> = ({
                     behavior: "auto",
                   });
 
-                  updateCurrentIndex(currentIndex + phantomIndex - 1);
-                  // console.log('phontomIndex:', phantomIndex);
+                  updateCurrentIndex((currentIndex + phantomIndex - 1 + totalSlides) % totalSlides);
 
                   setTimeout(() => {
                     setObserverActive(true); // Reactivate observer after reset
@@ -119,6 +109,17 @@ const InfiniteStepCarousel: React.FC<InfiniteStepCarouselProps> = ({
     setTimeout(() => setObserverActive(true), 100); // Reactivate observer after touch ends
   };
 
+  const getSlideClassName = (index: number): string => {
+    if (index === currentIndex) {
+      return styles["active"];
+    } else if (index === (currentIndex - 1 + totalSlides) % totalSlides) {
+      return `${styles["adjacent"]} ${styles["left"]}`;
+    } else if (index === (currentIndex + 1) % totalSlides) {
+      return `${styles["adjacent"]} ${styles["right"]}`;
+    }
+    return "";
+  };
+
   return (
     <div
       ref={containerRef}
@@ -133,11 +134,11 @@ const InfiniteStepCarousel: React.FC<InfiniteStepCarouselProps> = ({
       onPointerDown={handleTouchStart}
       onPointerUp={handleTouchEnd}
     >
-      {[1, 2, 3].map((number, idx) => (
+      {[1, 2, 3].map((number, id) => (
         <div
           key={number}
           ref={(el) => {
-            if (el) phantomRefs.current[idx] = el;
+            if (el) phantomRefs.current[id] = el;
           }}
           className={`${styles["phantom-slide"]} phantom-slide`}
         >
