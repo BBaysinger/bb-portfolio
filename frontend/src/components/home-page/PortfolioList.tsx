@@ -169,7 +169,7 @@ const PortfolioList: React.FC = () => {
       <div className={styles["portfolio-list"]}>
         <div id="list" className={styles["list"]}></div>
         {ProjectData.listedProjects.map((projectData, index) => {
-          const id = ProjectData.activeKeys[index];
+          const id = ProjectData.listedKeys[index];
           const { title, omitFromList, clientId } = projectData;
 
           return (
