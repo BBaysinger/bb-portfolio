@@ -15,20 +15,17 @@ const InfiniteStepCarousel: React.FC<InfiniteStepCarouselProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [slideWidth, setSlideWidth] = useState(0);
-
   const totalSlides = slides.length;
 
   useEffect(() => {
     if (containerRef.current) {
-      const container = containerRef.current;
-      setSlideWidth(container.offsetWidth);
+      setSlideWidth(containerRef.current.offsetWidth);
     }
   }, []);
 
   useEffect(() => {
     if (containerRef.current && slideWidth > 0) {
-      const container = containerRef.current;
-      container.scrollLeft = (initialIndex + 1) * slideWidth;
+      containerRef.current.scrollLeft = (initialIndex + 1) * slideWidth; // Start at initialIndex
     }
   }, [initialIndex, slideWidth]);
 
@@ -38,35 +35,15 @@ const InfiniteStepCarousel: React.FC<InfiniteStepCarouselProps> = ({
     const container = containerRef.current;
     const scrollLeft = container.scrollLeft;
 
+    // Compute the visible index based on scroll position
     const newIndex = Math.round(scrollLeft / slideWidth) - 1;
 
     if (newIndex !== currentIndex) {
-      const boundedIndex =
-        newIndex < 0 ? totalSlides - 1 : newIndex >= totalSlides ? 0 : newIndex;
+      const boundedIndex = (newIndex + totalSlides) % totalSlides; // Wrap around
       setCurrentIndex(boundedIndex);
       if (onIndexUpdate) onIndexUpdate(boundedIndex);
     }
-  }, [currentIndex, totalSlides, onIndexUpdate, slideWidth]);
-
-  const repositionSlides = useCallback(() => {
-    if (!containerRef.current || slideWidth === 0) return;
-
-    const container = containerRef.current;
-
-    if (currentIndex === -1) {
-      container.style.transition = "none";
-      container.scrollLeft = slideWidth * totalSlides;
-      setTimeout(() => (container.style.transition = ""), 0);
-    } else if (currentIndex === totalSlides) {
-      container.style.transition = "none";
-      container.scrollLeft = slideWidth;
-      setTimeout(() => (container.style.transition = ""), 0);
-    }
-  }, [currentIndex, totalSlides, slideWidth]);
-
-  useEffect(() => {
-    repositionSlides();
-  }, [currentIndex, repositionSlides]);
+  }, [currentIndex, slideWidth, totalSlides, onIndexUpdate]);
 
   return (
     <div
@@ -78,7 +55,10 @@ const InfiniteStepCarousel: React.FC<InfiniteStepCarouselProps> = ({
         <div
           key={index}
           className={`${styles["carousel-slide"]}`}
-          style={{ left: slideWidth * index + "px" }}
+          style={{
+            left: index * slideWidth + "px",
+            width: slideWidth + "px",
+          }}
         >
           {slide}
         </div>
