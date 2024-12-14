@@ -1,37 +1,43 @@
 @use "@/styles/global";
 @use "sass:math";
 
-$deviceWidth: 800;
-$deviceWidthPx: $deviceWidth * 1px;
-// $device-halfWidthPx: math.div($device-width, 2) + px;
-// $negative-device-halfWidthPx: - math.div($device-width, 2) + px;
-
 .device-presentation {
-  // One slide.
-  // Outer container
-  height: 512px;
+  height: 414px;
   position: relative;
   background-size: contain;
   background-repeat: no-repeat;
-  overflow: hidden;
-  flex: 0 0 $deviceWidthPx;
+  flex: 0 0 800px;
   scroll-snap-align: "start";
+  box-sizing: border-box;
 }
 
-.device-presentation {
+.background-wrapper {
+  // One slide.
+  height: 414px;
+  position: absolute;
+  left: calc(50% - 2px);
+  transform: translateX(-50%);
+  background-size: contain;
+  background-repeat: no-repeat;
+  width: 693px;
+  scroll-snap-align: "start";
+  box-sizing: border-box;
+
   .sceencap {
     position: absolute;
   }
 
   &.laptop {
-    background-image: url("../../assets/images/project-carousel/desktop-device.png");
+    background-image: url("../../images/project-carousel/laptop.png");
+    background-position: calc(50% + 4px) center;
+    background-size: 693px 414px;
 
-    .sceencap {
+    img {
       position: absolute;
-      top: 30px;
-      left: 40px;
-      height: 354px;
-      width: 162px;
+      top: 38px;
+      left: 98px;
+      height: 310px;
+      width: 500px;
     }
   }
 
@@ -39,16 +45,19 @@ $deviceWidthPx: $deviceWidth * 1px;
     &::before {
       content: "";
       position: absolute;
-      top: 60px;
-      left: 400px;
-      width: 170px;
-      height: 320px;
-      background-image: url("../../assets/images/project-carousel/mobile-device.png");
+      top: 50px;
+      left: 460px;
+      width: 220px;
+      height: 409px;
+      background-image: url("../../images/project-carousel/phone.png");
       background-size: cover;
       background-repeat: no-repeat;
     }
 
     img {
+      position: absolute;
+      left: 493px;
+      top: 75px;
       height: 354px;
       width: 162px;
     }
@@ -57,8 +66,6 @@ $deviceWidthPx: $deviceWidth * 1px;
       border: 1px solid green;
 
       img {
-        top: 69px;
-        left: 484px;
         top: 20px;
         left: 300px;
       }
