@@ -18,7 +18,6 @@ const InfiniteStepCarousel: React.FC<InfiniteStepCarouselProps> = ({
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
 
   const totalSlides = slides.length;
-  const scrollTimeout = useRef<number | null>(null);
 
   const updateCurrentIndex = useCallback(
     (newIndex: number) => {
@@ -32,21 +31,6 @@ const InfiniteStepCarousel: React.FC<InfiniteStepCarouselProps> = ({
     [currentIndex, onIndexUpdate],
   );
 
-  const handleScrollStop = useCallback(() => {
-    if (containerRef.current) {
-      const { scrollLeft, scrollWidth, offsetWidth } = containerRef.current;
-      if (scrollLeft === scrollWidth - offsetWidth) {
-        const newIndex = (currentIndex + 1) % totalSlides;
-        updateCurrentIndex(newIndex);
-        containerRef.current.scrollLeft = offsetWidth;
-      } else if (scrollLeft === 0) {
-        const newIndex = (currentIndex - 1 + totalSlides) % totalSlides;
-        updateCurrentIndex(newIndex);
-        containerRef.current.scrollLeft = offsetWidth;
-      }
-    }
-  }, [currentIndex, totalSlides, updateCurrentIndex]);
-
   const handleScroll = useCallback(() => {
     if (containerRef.current) {
       const { scrollLeft } = containerRef.current;
@@ -54,25 +38,8 @@ const InfiniteStepCarousel: React.FC<InfiniteStepCarouselProps> = ({
       if (onScrollPositionUpdate) {
         onScrollPositionUpdate(scrollLeft);
       }
-
-      if (scrollTimeout.current) {
-        clearTimeout(scrollTimeout.current);
-      }
-
-      scrollTimeout.current = window.setTimeout(handleScrollStop, 0);
     }
-  }, [handleScrollStop, onScrollPositionUpdate]);
-
-  const getSlideClassName = (index: number): string => {
-    if (index === currentIndex) {
-      return styles["active"];
-    } else if (index === (currentIndex - 1 + totalSlides) % totalSlides) {
-      return `${styles["adjacent"]} ${styles["left"]}`;
-    } else if (index === (currentIndex + 1) % totalSlides) {
-      return `${styles["adjacent"]} ${styles["right"]}`;
-    }
-    return "";
-  };
+  }, [onScrollPositionUpdate]);
 
   return (
     <div
@@ -84,7 +51,7 @@ const InfiniteStepCarousel: React.FC<InfiniteStepCarouselProps> = ({
         <div
           key={index}
           data-index={index}
-          className={`${styles["carousel-slide"]} carousel-slide ${getSlideClassName(index)}`}
+          className={`${styles["carousel-slide"]} carousel-slide`}
         >
           {slide}
         </div>
