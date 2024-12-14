@@ -4,13 +4,13 @@ import styles from "./InfiniteStepCarousel.module.scss";
 interface InfiniteStepCarouselProps {
   slides: React.ReactNode[];
   initialIndex?: number;
-  onScrollUpdate?: (currentIndex: number) => void;
+  onIndexUpdate?: (currentIndex: number) => void;
 }
 
 const InfiniteStepCarousel: React.FC<InfiniteStepCarouselProps> = ({
   slides,
   initialIndex = 0,
-  onScrollUpdate,
+  onIndexUpdate,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const phantomRefs = useRef<HTMLDivElement[]>([]);
@@ -23,12 +23,12 @@ const InfiniteStepCarousel: React.FC<InfiniteStepCarouselProps> = ({
     (newIndex: number) => {
       if (newIndex !== currentIndex) {
         setCurrentIndex(newIndex);
-        if (onScrollUpdate) {
-          onScrollUpdate(newIndex);
+        if (onIndexUpdate) {
+          onIndexUpdate(newIndex);
         }
       }
     },
-    [currentIndex, onScrollUpdate],
+    [currentIndex, onIndexUpdate],
   );
 
   const handleScrollStop = useCallback(() => {
