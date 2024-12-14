@@ -34,31 +34,24 @@ const InfiniteStepCarousel: React.FC<InfiniteStepCarouselProps> = ({
   const handleScrollStop = useCallback(() => {
     if (containerRef.current) {
       const { scrollLeft, scrollWidth, offsetWidth } = containerRef.current;
-
-      // Calculate the width of a single slide
-      const slideWidth = offsetWidth;
-
-      // Scrolling past the end
-      if (scrollLeft >= scrollWidth - offsetWidth) {
-        const newIndex = Math.round(scrollLeft / offsetWidth) % totalSlides;
+      if (scrollLeft === scrollWidth - offsetWidth) {
+        const newIndex = (currentIndex + 1) % totalSlides;
         updateCurrentIndex(newIndex);
-        containerRef.current.scrollLeft = slideWidth; // Adjust to middle phantom
-      }
-      // Scrolling past the beginning
-      else if (scrollLeft <= 0) {
-        const newIndex = Math.round(scrollLeft / offsetWidth) % totalSlides;
+        containerRef.current.scrollLeft = offsetWidth;
+      } else if (scrollLeft === 0) {
+        const newIndex = (currentIndex - 1 + totalSlides) % totalSlides;
         updateCurrentIndex(newIndex);
-        containerRef.current.scrollLeft = slideWidth; // Adjust to middle phantom
+        containerRef.current.scrollLeft = offsetWidth;
       }
     }
-  }, [totalSlides, updateCurrentIndex]);
+  }, [currentIndex, totalSlides, updateCurrentIndex]);
 
   const handleScroll = useCallback(() => {
     if (containerRef.current) {
       if (scrollTimeout.current) {
         clearTimeout(scrollTimeout.current);
       }
-      scrollTimeout.current = window.setTimeout(handleScrollStop, 150); // Adjust delay as needed
+      scrollTimeout.current = window.setTimeout(handleScrollStop, 0);
     }
   }, [handleScrollStop]);
 
