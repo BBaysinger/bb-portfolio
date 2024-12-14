@@ -34,13 +34,9 @@
     }
   }
 
-  #swiper {
-    position: absolute;
-    height: 200px;
-    width: 60vw;
-    left: 50vw;
-    transform: translateX(-50%);
-    top: 80px;
+  :global(.bb-parallax-step-carousel) {
+    margin-top: 40px;
+    margin-bottom: 100px;
   }
 
   .btn-group-label:hover {

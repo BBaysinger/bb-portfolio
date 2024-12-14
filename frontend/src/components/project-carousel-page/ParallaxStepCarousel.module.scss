@@ -1,25 +1,34 @@
 @use "@/styles/global";
 
 .carousel {
-  height: 600px;
+  height: 450px;
+  width: 693px;
+  margin-left: auto;
+  margin-right: auto;
   background-color: rgba(0, 0, 0, 0.1);
+  position: relative;
+  box-sizing: border-box;
+  margin-top: 40px;
+  z-index: 0;
+}
+
+.transparent-slide {
+  height: 100%;
+  font-size: 50px;
+  padding: 20px;
+  padding-top: 10px;
+  display: flex;
 }
 
 .slide-layer {
   position: absolute;
+  top: 0;
+  z-index: -1;
   display: flex;
   overflow-x: scroll;
   scroll-snap-type: x mandatory;
-  height: 500px;
   left: 50%;
   transform: translateX(-50%);
-  width: 1024px;
+  width: 100%;
   overflow: visible;
-  @include global.fluid-property(
-    margin-top,
-    global.$b360px,
-    global.$b1440px,
-    75px,
-    140px
-  );
 }

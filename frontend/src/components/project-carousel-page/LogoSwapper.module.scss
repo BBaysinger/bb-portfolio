@@ -1,12 +1,13 @@
 .logo-swapper {
+  position: relative;
   $maxHeight: 50px;
-  position: absolute;
-  left: 10vw;
-  top: 50px;
+  margin-left: 10vw;
+  margin-top: 50px;
   height: 50px;
   opacity: 0.0001;
   transition: opacity 0.5s;
   width: 300px;
+
   img.client-logo {
     position: absolute;
     top: 50%;
