@@ -6,7 +6,7 @@
   position: relative;
   background-size: contain;
   background-repeat: no-repeat;
-  flex: 0 0 800px;
+  flex: 0 0 693px;
   scroll-snap-align: "start";
   box-sizing: border-box;
 }
@@ -15,13 +15,13 @@
   // One slide.
   height: 414px;
   position: absolute;
-  left: calc(50% - 2px);
+  left: 50%;
   transform: translateX(-50%);
   background-size: contain;
   background-repeat: no-repeat;
-  width: 693px;
   scroll-snap-align: "start";
   box-sizing: border-box;
+  width: 100%;
 
   .sceencap {
     position: absolute;
@@ -29,13 +29,13 @@
 
   &.laptop {
     background-image: url("../../images/project-carousel/laptop.png");
-    background-position: calc(50% + 4px) center;
+    background-position: calc(50% + 2px) center;
     background-size: 693px 414px;
 
     img {
       position: absolute;
       top: 38px;
-      left: 98px;
+      left: 96px;
       height: 310px;
       width: 500px;
     }

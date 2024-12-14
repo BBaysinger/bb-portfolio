@@ -1,5 +1,7 @@
 import React, { useRef, useEffect, useCallback } from "react";
 
+import styles from "./InfiniteStepCarousel.module.scss";
+
 interface InfiniteStepCarouselProps {
   slides: React.ReactNode[];
   onScrollUpdate?: (scrollOffset: number) => void;
@@ -31,8 +33,8 @@ const InfiniteStepCarousel: React.FC<InfiniteStepCarouselProps> = ({
 
   return (
     <div
-      className="main-carousel"
       ref={containerRef}
+      className={`${styles["step-carousel"]} bb-infinite-step-carousel`}
       style={{
         display: "flex",
         overflowX: "scroll",

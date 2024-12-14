@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, useCallback } from "react";
 
+import InfiniteStepCarousel from "./InfiniteStepCarousel";
 import styles from "./ParallaxStepCarousel.module.scss";
 
 interface ParallaxStepCarouselProps {
@@ -33,11 +34,37 @@ const ParallaxStepCarousel: React.FC<ParallaxStepCarouselProps> = ({
     };
   }, [handleScroll]);
 
+  function getRandomColorWithOpacity(opacity = 0.1) {
+    const r = Math.floor(Math.random() * 256);
+    const g = Math.floor(Math.random() * 256);
+    const b = Math.floor(Math.random() * 256);
+    return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+  }
+
+  function generateColorArray(length: number, opacity = 0.1) {
+    return Array.from({ length }, () => getRandomColorWithOpacity(opacity));
+  }
+
+  const colorArray = generateColorArray(layer1Slides.length, 0.5);
+
+  // Map layer1Slides to generate an array of div elements for InfiniteStepCarousel
+  const transparentSlides = layer1Slides.map((_, index) => (
+    <div
+      key={index}
+      style={{ backgroundColor: colorArray[index] }}
+      className={`${styles["transparent-slide"]}`}
+    >
+      {index + 1}
+    </div>
+  ));
+
   return (
     <div
       className={`${styles["carousel"]} bb-parallax-step-carousel`}
       ref={containerRef}
     >
+      {/* Pass the mapped divs to InfiniteStepCarousel */}
+      <InfiniteStepCarousel slides={transparentSlides} />
       <div className={`${styles["slide-layer"]} bb-slide-layer`}>
         {layer1Slides.map((slide, index) => (
           <React.Fragment key={index}>{slide}</React.Fragment>
