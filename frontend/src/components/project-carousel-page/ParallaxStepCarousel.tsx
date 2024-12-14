@@ -47,6 +47,14 @@ const ParallaxStepCarousel: React.FC<ParallaxStepCarouselProps> = ({
 
   const colorArray = generateColorArray(layer1Slides.length, 0.5);
 
+  function handleScrollUpdate(scrollOffset: number) {
+    console.log(scrollOffset);
+
+    if (onScrollUpdate) {
+      onScrollUpdate(scrollOffset);
+    }
+  }
+
   // Map layer1Slides to generate an array of div elements for InfiniteStepCarousel
   const transparentSlides = layer1Slides.map((_, index) => (
     <div
@@ -64,7 +72,10 @@ const ParallaxStepCarousel: React.FC<ParallaxStepCarouselProps> = ({
       ref={containerRef}
     >
       {/* Pass the mapped divs to InfiniteStepCarousel */}
-      <InfiniteStepCarousel slides={transparentSlides} />
+      <InfiniteStepCarousel
+        slides={transparentSlides}
+        onScrollUpdate={handleScrollUpdate}
+      />
       <div className={`${styles["slide-layer"]} bb-slide-layer`}>
         {layer1Slides.map((slide, index) => (
           <React.Fragment key={index}>{slide}</React.Fragment>
