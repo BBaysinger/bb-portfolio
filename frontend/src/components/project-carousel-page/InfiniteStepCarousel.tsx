@@ -56,7 +56,9 @@ const InfiniteStepCarousel: React.FC<InfiniteStepCarouselProps> = ({
   }, []); // Empty dependency array ensures this runs only once
 
   useEffect(() => {
-    if (!containerRef.current) return;
+    const container = containerRef.current; // Store the ref value to avoid re-accessing it
+
+    if (!container) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -66,24 +68,39 @@ const InfiniteStepCarousel: React.FC<InfiniteStepCarouselProps> = ({
               const phantomIndex = phantomRefs.current.indexOf(
                 entry.target as HTMLDivElement,
               );
+
               if (phantomIndex !== -1) {
                 console.log(
                   `Phantom slide ${phantomIndex + 1} is fully visible`,
                 );
+
+                // Reset scroll instantly to the second phantom slide (index 1)
+                if (phantomIndex === 0 || phantomIndex === 2) {
+                  const targetSlide = phantomRefs.current[1]; // Second phantom slide
+                  if (targetSlide) {
+                    const offset =
+                      targetSlide.offsetLeft - container.offsetLeft;
+
+                    container.scrollTo({
+                      left: offset,
+                      behavior: "auto", // Instant scroll back
+                    });
+                  }
+                }
               }
             }
           });
         }
       },
       {
-        root: containerRef.current,
+        root: container,
         threshold: 1.0,
       },
     );
 
-    phantomRefs.current.forEach((phantomSlide) =>
-      observer.observe(phantomSlide),
-    );
+    phantomRefs.current.forEach((phantomSlide) => {
+      if (phantomSlide) observer.observe(phantomSlide);
+    });
 
     return () => {
       observer.disconnect();
