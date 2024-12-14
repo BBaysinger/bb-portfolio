@@ -1,7 +1,11 @@
 @use "@/styles/global";
 
 .carousel {
-  position: relative;
+  height: 500px;
+}
+
+.slide-layer {
+  position: absolute;
   display: flex;
   overflow-x: scroll;
   scroll-snap-type: x mandatory;
@@ -18,9 +22,4 @@
     75px,
     140px
   );
-}
-
-.slide {
-  flex: "0 0 100%";
-  scroll-snap-align: "start";
 }

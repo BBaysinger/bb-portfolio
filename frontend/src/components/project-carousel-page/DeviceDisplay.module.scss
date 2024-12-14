@@ -1,73 +1,78 @@
 @use "@/styles/global";
 @use "sass:math";
 
-$device-width: 693;
-$device-widthPx: $device-width + px;
-$device-halfWidthPx: math.div($device-width, 2) + px;
-$negative-device-halfWidthPx: - math.div($device-width, 2) + px;
+$deviceWidth: 800;
+$deviceWidthPx: $deviceWidth * 1px;
+// $device-halfWidthPx: math.div($device-width, 2) + px;
+// $negative-device-halfWidthPx: - math.div($device-width, 2) + px;
 
 .device-presentation {
+  // One slide.
   // Outer container
-  width: $device-widthPx;
   height: 512px;
-  border: 1px solid green;
   position: relative;
   background-size: contain;
   background-repeat: no-repeat;
   overflow: hidden;
+  flex: 0 0 $deviceWidthPx;
+  scroll-snap-align: "start";
 }
 
-.device-presentation.laptop {
-  background-image: url("../../assets/images/project-carousel/desktop-device.png");
-
+.device-presentation {
   .sceencap {
     position: absolute;
-    top: 30px;
-    left: 40px;
-    height: 450px;
-    width: 450px;
-    border: 1px solid red;
-  }
-}
-
-.sceencap {
-  position: absolute;
-  top: 30px;
-  left: 40px;
-  height: 450px;
-  width: 450px;
-  border: 1px solid red;
-}
-
-.device-presentation.phone {
-  &::before {
-    content: "";
-    position: absolute;
-    border: 1px solid orange;
-    top: 0;
-    left: 0;
-    width: 400px;
-    height: 200px;
-    background-image: url("../../assets/images/project-carousel/mobile-device.png");
-    background-size: cover;
-    background-repeat: no-repeat;
   }
 
-  &.portrait {
-    .screencap {
-      top: 69px;
-      left: 484px;
+  &.laptop {
+    background-image: url("../../assets/images/project-carousel/desktop-device.png");
+
+    .sceencap {
+      position: absolute;
+      top: 30px;
+      left: 40px;
+      height: 354px;
+      width: 162px;
     }
   }
 
-  &.landscape {
+  &.phone {
     &::before {
-      transform: rotate(90deg);
+      content: "";
+      position: absolute;
+      top: 60px;
+      left: 400px;
+      width: 170px;
+      height: 320px;
+      background-image: url("../../assets/images/project-carousel/mobile-device.png");
+      background-size: cover;
+      background-repeat: no-repeat;
     }
-    .screencap {
-      top: 227px;
-      left: 294px;
-      transform: rotate(90deg);
+
+    img {
+      height: 354px;
+      width: 162px;
+    }
+
+    &.portrait {
+      border: 1px solid green;
+
+      img {
+        top: 69px;
+        left: 484px;
+        top: 20px;
+        left: 300px;
+      }
+    }
+
+    &.landscape {
+      &::before {
+        transform: rotate(90deg);
+      }
+      img {
+        top: 227px;
+        left: 294px;
+        transform: rotate(90deg);
+      }
     }
   }
 }
