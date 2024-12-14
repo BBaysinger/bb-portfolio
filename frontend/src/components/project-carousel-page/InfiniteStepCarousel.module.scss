@@ -2,6 +2,9 @@
   position: relative;
   width: 100%;
   height: 100%;
+  display: flex;
+  overflow-x: scroll;
+  scroll-snap-type: x mandatory;
 }
 
 .carousel-slide {
@@ -9,6 +12,8 @@
   width: 100%;
   height: 100%;
   display: none;
+  flex: 0 0 100%;
+  scroll-snap-align: center;
 
   &.active,
   &.adjacent {
@@ -28,12 +33,12 @@
   }
 }
 
-.phantom-slide {
-  font-size: 40px;
-  padding: 20px;
-  padding-top: 50px;
-  flex: 0 0 100%;
-  scroll-snap-align: center;
-  position: relative;
-  z-index: 100;
-}
+// .phantom-slide {
+//   font-size: 40px;
+//   padding: 20px;
+//   padding-top: 50px;
+//   flex: 0 0 100%;
+//   scroll-snap-align: center;
+//   position: relative;
+//   z-index: 100;
+// }
