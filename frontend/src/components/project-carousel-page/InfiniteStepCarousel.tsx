@@ -4,15 +4,17 @@ import styles from "./InfiniteStepCarousel.module.scss";
 
 interface InfiniteStepCarouselProps {
   slides: React.ReactNode[];
+  initialIndex?: number;
   onScrollUpdate?: (currentIndex: number) => void;
 }
 
 const InfiniteStepCarousel: React.FC<InfiniteStepCarouselProps> = ({
   slides,
+  initialIndex = 0,
   onScrollUpdate,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const scrollTimeoutRef = useRef<number | null>(null);
 
   // Function to handle when a slide becomes fully visible
@@ -81,6 +83,8 @@ const InfiniteStepCarousel: React.FC<InfiniteStepCarouselProps> = ({
     };
   }, [handleIntersection, handleScroll]);
 
+  const phantomSlideIndexes = [-1, 0, 1]; // Indices for phantom slides: before, current, after
+
   return (
     <div
       ref={containerRef}
@@ -91,7 +95,7 @@ const InfiniteStepCarousel: React.FC<InfiniteStepCarouselProps> = ({
         scrollSnapType: "x mandatory",
       }}
     >
-      {slides.map((slide, index) => (
+      {/* {slides.map((slide, index) => (
         <div
           key={index}
           data-index={index}
@@ -102,6 +106,21 @@ const InfiniteStepCarousel: React.FC<InfiniteStepCarouselProps> = ({
           }}
         >
           {slide}
+        </div>
+      ))} */}
+      {phantomSlideIndexes.map((_, i) => (
+        <div
+          key={i}
+          className={styles["phantom-slide"]}
+          style={{
+            flex: "0 0 100%",
+            pointerEvents: "none",
+            scrollSnapAlign: "center",
+          }}
+        >
+          {i}
+          {/* Render slide from `slides` array with wrapping logic */}
+          {/* {slides[i]} */}
         </div>
       ))}
     </div>
