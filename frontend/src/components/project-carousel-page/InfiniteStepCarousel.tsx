@@ -17,28 +17,19 @@ const InfiniteStepCarousel: React.FC<InfiniteStepCarouselProps> = ({
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const scrollTimeoutRef = useRef<number | null>(null);
 
-  // Function to handle when a slide becomes fully visible
-  const handleIntersection = useCallback(
-    (entries: IntersectionObserverEntry[]) => {
-      const fullyVisibleSlide = entries.find(
-        (entry) => entry.isIntersecting && entry.intersectionRatio === 1,
-      );
+  const totalSlides = slides.length;
 
-      if (fullyVisibleSlide) {
-        const index = parseInt(
-          fullyVisibleSlide.target.getAttribute("data-index")!,
-          10,
-        );
-        setCurrentIndex(index);
-        if (onScrollUpdate) {
-          onScrollUpdate(currentIndex);
-        }
-      }
-    },
-    [onScrollUpdate],
-  );
+  // Reset scroll position to center phantom slide
+  const resetScrollPosition = useCallback(() => {
+    if (containerRef.current) {
+      containerRef.current.scrollTo({
+        left: containerRef.current.offsetWidth, // Second phantom slide
+        behavior: "auto", // Instant reset
+      });
+    }
+  }, []);
 
-  // Debounced scroll detection to ensure user stops scrolling
+  // Update active slide index after scroll
   const handleScroll = useCallback(() => {
     if (scrollTimeoutRef.current) {
       clearTimeout(scrollTimeoutRef.current);
@@ -46,44 +37,38 @@ const InfiniteStepCarousel: React.FC<InfiniteStepCarouselProps> = ({
 
     scrollTimeoutRef.current = window.setTimeout(() => {
       if (containerRef.current) {
-        // Ensure scroll position aligns with a slide
         const { scrollLeft, offsetWidth } = containerRef.current;
-        const closestIndex = Math.round(scrollLeft / offsetWidth);
-        containerRef.current.scrollTo({
-          left: closestIndex * offsetWidth,
-          behavior: "smooth",
-        });
+
+        // Determine which slide should be active
+        const index = Math.round(scrollLeft / offsetWidth) - 1; // Offset for phantom slides
+        const adjustedIndex = (index + totalSlides) % totalSlides;
+
+        setCurrentIndex(adjustedIndex);
+        if (onScrollUpdate) {
+          onScrollUpdate(adjustedIndex);
+        }
+
+        resetScrollPosition();
       }
-    }, 150); // Adjust debounce timeout as needed
-  }, []);
+    }, 150); // Debounce timeout
+  }, [onScrollUpdate, resetScrollPosition, totalSlides]);
 
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
 
-    // Set up IntersectionObserver for slides
-    const observer = new IntersectionObserver(handleIntersection, {
-      root: container,
-      threshold: 1.0, // Trigger when slide is fully visible
-    });
-
-    const slides = container.querySelectorAll(".carousel-slide");
-    slides.forEach((slide) => observer.observe(slide));
+    resetScrollPosition();
 
     // Add scroll event listener
     container.addEventListener("scroll", handleScroll);
 
     return () => {
-      slides.forEach((slide) => observer.unobserve(slide));
       container.removeEventListener("scroll", handleScroll);
-
       if (scrollTimeoutRef.current) {
         clearTimeout(scrollTimeoutRef.current);
       }
     };
-  }, [handleIntersection, handleScroll]);
-
-  const phantomSlideIndexes = [-1, 0, 1]; // Indices for phantom slides: before, current, after
+  }, [handleScroll, resetScrollPosition]);
 
   return (
     <div
@@ -95,34 +80,56 @@ const InfiniteStepCarousel: React.FC<InfiniteStepCarouselProps> = ({
         scrollSnapType: "x mandatory",
       }}
     >
+      {/* Phantom slides */}
+      <div
+        className={`${styles["phantom-slide"]} phantom-slide`}
+        style={{
+          flex: "0 0 100%",
+          pointerEvents: "none",
+          scrollSnapAlign: "center",
+        }}
+      >
+        1
+      </div>
+      <div
+        className={`${styles["phantom-slide"]} phantom-slide`}
+        style={{
+          flex: "0 0 100%",
+          pointerEvents: "none",
+          scrollSnapAlign: "center",
+        }}
+      >
+        2
+      </div>
+      <div
+        className={`${styles["phantom-slide"]} phantom-slide`}
+        style={{
+          flex: "0 0 100%",
+          pointerEvents: "none",
+          scrollSnapAlign: "center",
+        }}
+      >
+        3
+      </div>
+
+      {/* Actual slides */}
       {/* {slides.map((slide, index) => (
         <div
           key={index}
           data-index={index}
-          className="carousel-slide"
+          className={`${styles["carousel-slide"]} carousel-slide ${
+            index === currentIndex ? "active" : ""
+          }`}
           style={{
-            flex: "0 0 100%",
-            scrollSnapAlign: "center",
+            position: "absolute",
+            display: index === currentIndex ? "block" : "none", // Show only active slides
+            width: "100%",
+            height: "100%",
           }}
         >
           {slide}
         </div>
       ))} */}
-      {phantomSlideIndexes.map((_, i) => (
-        <div
-          key={i}
-          className={styles["phantom-slide"]}
-          style={{
-            flex: "0 0 100%",
-            pointerEvents: "none",
-            scrollSnapAlign: "center",
-          }}
-        >
-          {i}
-          {/* Render slide from `slides` array with wrapping logic */}
-          {/* {slides[i]} */}
-        </div>
-      ))}
     </div>
   );
 };
