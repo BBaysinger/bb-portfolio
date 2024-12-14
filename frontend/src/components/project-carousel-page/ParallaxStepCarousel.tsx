@@ -38,22 +38,16 @@ const ParallaxStepCarousel: React.FC<ParallaxStepCarouselProps> = ({
       className={`${styles["carousel"]} bb-parallax-step-carousel`}
       ref={containerRef}
     >
-      {layer1Slides.map((slide, index) => (
-        <div
-          key={index}
-          className={`${styles["slide"]} ${styles["slide-layer-1"]} bb-slide bb-slide-layer-1`}
-        >
-          {slide}
-        </div>
-      ))}
-      {layer2Slides.map((slide, index) => (
-        <div
-          key={index}
-          className={`${styles["slide"]} ${styles["slide-layer-2"]} bb-slide bb-slide-layer-2`}
-        >
-          {slide}
-        </div>
-      ))}
+      <div className={`${styles["slide-layer"]} bb-slide-layer`}>
+        {layer1Slides.map((slide, index) => (
+          <React.Fragment key={index}>{slide}</React.Fragment>
+        ))}
+      </div>
+      <div className={`${styles["slide-layer"]} bb-slide-layer`}>
+        {layer2Slides.map((slide, index) => (
+          <React.Fragment key={index}>{slide}</React.Fragment>
+        ))}
+      </div>
     </div>
   );
 };
