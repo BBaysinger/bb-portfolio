@@ -1,15 +1,6 @@
 @use "sass:math";
 @use "sass:map";
 
-// Previous breakpoint definitions
-// $ss: 360; // Super small (smartphones?)
-// $xs: 480; // Extra small (smartphones)
-// $sm: 768; // Small (Tablets)
-// $md: 992; // Medium (Small laptops?)
-// $lg: 1200; // Large (standard? desktops)
-// $xl: 1400; // Extra large (large desktops)
-// $sl: 1600;
-
 // Base Variables (Unitless)
 $b320: 320; // Ultra-narrow screens (e.g., smartwatches, highly compact UIs).
 $b360: 360; // Baseline for smaller smartphones (practical starting point for mobile-first design).
@@ -36,45 +27,35 @@ $b1920px: $b1920 * 1px;
 
 // Breakpoints definition
 $breakpoints: (
-  320: $b320,
-  360: $b360,
-  480: $b480,
-  576: $b576,
-  768: $b768,
-  992: $b992,
-  1024: $b1024,
-  1280: $b1280,
-  1440: $b1440,
-  1920: $b1920,
+  320: $b320px,
+  360: $b360px,
+  480: $b480px,
+  576: $b576px,
+  768: $b768px,
+  992: $b992px,
+  1024: $b1024px,
+  1280: $b1280px,
+  1440: $b1440px,
+  1920: $b1920px,
 );
-
-// Height of top nav bar
-$navBarHeight: 46px;
-
-// For thin stokes and normal weight text.
-$heavierThemeColor: #719614;
-// For heavy strokes and as a fill. (For contrast/readability)
-$lighterThemeColor: #8db528;
-$orange: #ff5e00;
-$yellowOrange: #ffb600;
-$red: #ff0000;
 
 // Mixin for mobile-first media queries
 // Usage: Apply styles starting from the specified breakpoint and up.
 // Example:
 // .example-class {
-//   @include breakpoint-up(global.$b768) {
+//   @include global.breakpoint-up(global.$b768) {
 //     global.$background-color: blue;
 //   }
 // }
 @mixin breakpoint-up($breakpoint) {
-  $min-width: map.get(
-    $breakpoints,
-    $breakpoint
-  ); // Get the breakpoint's value from the map
+  $min-width: map.get($breakpoints, $breakpoint); // Correct Dart Sass syntax
   @if $min-width != null {
     @media (min-width: $min-width) {
-      // Apply styles when the viewport meets the minimum width
+      @content;
+    }
+  } @else {
+    // Handle raw values like '900px'
+    @media (min-width: $breakpoint) {
       @content;
     }
   }
@@ -132,3 +113,15 @@ $red: #ff0000;
     #{$property}: $max-value;
   }
 }
+
+// Variables
+
+// Height of top nav bar
+$navBarHeight: 46px;
+// For thin stokes and normal weight text.
+$heavierThemeColor: #719614;
+// For heavy strokes and as a fill. (For contrast/readability)
+$lighterThemeColor: #8db528;
+$orange: #ff5e00;
+$yellowOrange: #ffb600;
+$red: #ff0000;
