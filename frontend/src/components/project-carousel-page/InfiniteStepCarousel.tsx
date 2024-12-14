@@ -70,6 +70,17 @@ const InfiniteStepCarousel: React.FC<InfiniteStepCarouselProps> = ({
     };
   }, [handleScroll, resetScrollPosition]);
 
+  // Determine if a slide should have the "adjacent" or "active" class
+  const getSlideClassName = (index: number) => {
+    if (index === currentIndex) return styles["active"];
+    else if (index === (currentIndex - 1 + totalSlides) % totalSlides) {
+      return `${styles["adjacent"]} ${styles["left"]}`;
+    } else if (index === (currentIndex + 1) % totalSlides) {
+      return `${styles["adjacent"]} ${styles["right"]}`;
+    }
+    return "";
+  };
+
   return (
     <div
       ref={containerRef}
@@ -80,56 +91,26 @@ const InfiniteStepCarousel: React.FC<InfiniteStepCarouselProps> = ({
         scrollSnapType: "x mandatory",
       }}
     >
-      {/* Phantom slides */}
-      <div
-        className={`${styles["phantom-slide"]} phantom-slide`}
-        style={{
-          flex: "0 0 100%",
-          pointerEvents: "none",
-          scrollSnapAlign: "center",
-        }}
-      >
-        1
-      </div>
-      <div
-        className={`${styles["phantom-slide"]} phantom-slide`}
-        style={{
-          flex: "0 0 100%",
-          pointerEvents: "none",
-          scrollSnapAlign: "center",
-        }}
-      >
-        2
-      </div>
-      <div
-        className={`${styles["phantom-slide"]} phantom-slide`}
-        style={{
-          flex: "0 0 100%",
-          pointerEvents: "none",
-          scrollSnapAlign: "center",
-        }}
-      >
-        3
-      </div>
+      {/* Static phantom slides just for controlling the interaction */}
+      {[1, 2, 3].map((number) => (
+        <div
+          key={number}
+          className={`${styles["phantom-slide"]} phantom-slide`}
+        >
+          {number}
+        </div>
+      ))}
 
-      {/* Actual slides */}
-      {/* {slides.map((slide, index) => (
+      {/* Actual slides with class-based visibility */}
+      {slides.map((slide, index) => (
         <div
           key={index}
           data-index={index}
-          className={`${styles["carousel-slide"]} carousel-slide ${
-            index === currentIndex ? "active" : ""
-          }`}
-          style={{
-            position: "absolute",
-            display: index === currentIndex ? "block" : "none", // Show only active slides
-            width: "100%",
-            height: "100%",
-          }}
+          className={`${styles["carousel-slide"]} carousel-slide ${getSlideClassName(index)}`}
         >
           {slide}
         </div>
-      ))} */}
+      ))}
     </div>
   );
 };
