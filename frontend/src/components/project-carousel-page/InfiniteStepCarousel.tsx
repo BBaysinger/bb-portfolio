@@ -16,6 +16,7 @@ const InfiniteStepCarousel: React.FC<InfiniteStepCarouselProps> = ({
   const phantomRefs = useRef<HTMLDivElement[]>([]);
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [isTouching, setIsTouching] = useState(false);
+  const [observerActive, setObserverActive] = useState(true);
 
   const totalSlides = slides.length;
 
@@ -41,56 +42,57 @@ const InfiniteStepCarousel: React.FC<InfiniteStepCarouselProps> = ({
     return "";
   };
 
-  // Scroll instantly to the second phantom slide before user interaction
   useEffect(() => {
     if (containerRef.current && phantomRefs.current[1]) {
       const phantomSlide = phantomRefs.current[1];
       const offset = phantomSlide.offsetLeft - containerRef.current.offsetLeft;
 
-      // Scroll instantly without animation
       containerRef.current.scrollTo({
         left: offset,
-        behavior: "auto", // No animation
+        behavior: "auto",
       });
     }
-  }, []); // Empty dependency array ensures this runs only once
+  }, []);
 
   useEffect(() => {
-    const container = containerRef.current; // Store the ref value to avoid re-accessing it
+    if (!observerActive || isTouching) return;
+
+    const container = containerRef.current;
 
     if (!container) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
-        if (!isTouching) {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting && entry.intersectionRatio === 1) {
-              const phantomIndex = phantomRefs.current.indexOf(
-                entry.target as HTMLDivElement,
-              );
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && entry.intersectionRatio === 1) {
+            const phantomIndex = phantomRefs.current.indexOf(
+              entry.target as HTMLDivElement,
+            );
 
-              if (phantomIndex !== -1) {
-                console.log(
-                  `Phantom slide ${phantomIndex + 1} is fully visible`,
-                );
+            if (phantomIndex !== -1) {
+              // Reset scroll to the second phantom slide (index 1)
+              if (phantomIndex === 0 || phantomIndex === 2) {
+                const targetSlide = phantomRefs.current[1];
+                if (targetSlide) {
+                  const offset = targetSlide.offsetLeft - container.offsetLeft;
 
-                // Reset scroll instantly to the second phantom slide (index 1)
-                if (phantomIndex === 0 || phantomIndex === 2) {
-                  const targetSlide = phantomRefs.current[1]; // Second phantom slide
-                  if (targetSlide) {
-                    const offset =
-                      targetSlide.offsetLeft - container.offsetLeft;
+                  setObserverActive(false); // Deactivate observer during scroll reset
+                  container.scrollTo({
+                    left: offset,
+                    behavior: "auto",
+                  });
 
-                    container.scrollTo({
-                      left: offset,
-                      behavior: "auto", // Instant scroll back
-                    });
-                  }
+                  updateCurrentIndex(currentIndex + phantomIndex - 1);
+                  // console.log('phontomIndex:', phantomIndex);
+
+                  setTimeout(() => {
+                    setObserverActive(true); // Reactivate observer after reset
+                  }, 100); // Allow some delay to avoid triggering the observer prematurely
                 }
               }
             }
-          });
-        }
+          }
+        });
       },
       {
         root: container,
@@ -105,10 +107,17 @@ const InfiniteStepCarousel: React.FC<InfiniteStepCarouselProps> = ({
     return () => {
       observer.disconnect();
     };
-  }, [isTouching]);
+  }, [observerActive, isTouching]);
 
-  const handleTouchStart = () => setIsTouching(true);
-  const handleTouchEnd = () => setIsTouching(false);
+  const handleTouchStart = () => {
+    setIsTouching(true);
+    setObserverActive(false); // Deactivate observer during touch
+  };
+
+  const handleTouchEnd = () => {
+    setIsTouching(false);
+    setTimeout(() => setObserverActive(true), 100); // Reactivate observer after touch ends
+  };
 
   return (
     <div
