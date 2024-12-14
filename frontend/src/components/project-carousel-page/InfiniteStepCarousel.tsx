@@ -1,5 +1,4 @@
 import React, { useRef, useEffect, useCallback, useState } from "react";
-
 import styles from "./InfiniteStepCarousel.module.scss";
 
 interface InfiniteStepCarouselProps {
@@ -14,64 +13,27 @@ const InfiniteStepCarousel: React.FC<InfiniteStepCarouselProps> = ({
   onScrollUpdate,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const phantomRefs = useRef<HTMLDivElement[]>([]);
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
-  const scrollTimeoutRef = useRef<number | null>(null);
+  const [isTouching, setIsTouching] = useState(false);
 
   const totalSlides = slides.length;
 
-  // Reset scroll position to center phantom slide
-  const resetScrollPosition = useCallback(() => {
-    if (containerRef.current) {
-      containerRef.current.scrollTo({
-        left: containerRef.current.offsetWidth, // Second phantom slide
-        behavior: "auto", // Instant reset
-      });
-    }
-  }, []);
-
-  // Update active slide index after scroll
-  const handleScroll = useCallback(() => {
-    if (scrollTimeoutRef.current) {
-      clearTimeout(scrollTimeoutRef.current);
-    }
-
-    scrollTimeoutRef.current = window.setTimeout(() => {
-      if (containerRef.current) {
-        const { scrollLeft, offsetWidth } = containerRef.current;
-
-        // Determine which slide should be active
-        const index = Math.round(scrollLeft / offsetWidth) - 1; // Offset for phantom slides
-        const adjustedIndex = (index + totalSlides) % totalSlides;
-
-        setCurrentIndex(adjustedIndex);
+  // Prevent recursive `onScrollUpdate` calls
+  const updateCurrentIndex = useCallback(
+    (newIndex: number) => {
+      if (newIndex !== currentIndex) {
+        setCurrentIndex(newIndex);
         if (onScrollUpdate) {
-          onScrollUpdate(adjustedIndex);
+          onScrollUpdate(newIndex);
         }
-
-        resetScrollPosition();
       }
-    }, 150); // Debounce timeout
-  }, [onScrollUpdate, resetScrollPosition, totalSlides]);
-
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-
-    resetScrollPosition();
-
-    // Add scroll event listener
-    container.addEventListener("scroll", handleScroll);
-
-    return () => {
-      container.removeEventListener("scroll", handleScroll);
-      if (scrollTimeoutRef.current) {
-        clearTimeout(scrollTimeoutRef.current);
-      }
-    };
-  }, [handleScroll, resetScrollPosition]);
+    },
+    [currentIndex, onScrollUpdate],
+  );
 
   // Determine if a slide should have the "adjacent" or "active" class
-  const getSlideClassName = (index: number) => {
+  const getSlideClassName = (index: number): string => {
     if (index === currentIndex) return styles["active"];
     else if (index === (currentIndex - 1 + totalSlides) % totalSlides) {
       return `${styles["adjacent"]} ${styles["left"]}`;
@@ -80,6 +42,46 @@ const InfiniteStepCarousel: React.FC<InfiniteStepCarouselProps> = ({
     }
     return "";
   };
+
+  // Handle intersection detection for phantom slides
+  useEffect(() => {
+    if (!containerRef.current) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!isTouching) {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting && entry.intersectionRatio === 1) {
+              const phantomIndex = phantomRefs.current.indexOf(
+                entry.target as HTMLDivElement,
+              );
+              if (phantomIndex !== -1) {
+                console.log(
+                  `Phantom slide ${phantomIndex + 1} is fully visible`,
+                );
+              }
+            }
+          });
+        }
+      },
+      {
+        root: containerRef.current,
+        threshold: 1.0, // Fully visible
+      },
+    );
+
+    phantomRefs.current.forEach((phantomSlide) =>
+      observer.observe(phantomSlide),
+    );
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [isTouching]);
+
+  // Touch events
+  const handleTouchStart = () => setIsTouching(true);
+  const handleTouchEnd = () => setIsTouching(false);
 
   return (
     <div
@@ -90,11 +92,18 @@ const InfiniteStepCarousel: React.FC<InfiniteStepCarouselProps> = ({
         overflowX: "scroll",
         scrollSnapType: "x mandatory",
       }}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+      onPointerDown={handleTouchStart}
+      onPointerUp={handleTouchEnd}
     >
       {/* Static phantom slides just for controlling the interaction */}
-      {[1, 2, 3].map((number) => (
+      {[1, 2, 3].map((number, idx) => (
         <div
           key={number}
+          ref={(el) => {
+            if (el) phantomRefs.current[idx] = el; // Explicitly assign without returning
+          }}
           className={`${styles["phantom-slide"]} phantom-slide`}
         >
           {number}
