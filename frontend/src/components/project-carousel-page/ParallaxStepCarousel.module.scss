@@ -1,7 +1,8 @@
 @use "@/styles/global";
 
 .carousel {
-  height: 500px;
+  height: 600px;
+  background-color: rgba(0, 0, 0, 0.1);
 }
 
 .slide-layer {
@@ -14,7 +15,6 @@
   transform: translateX(-50%);
   width: 1024px;
   overflow: visible;
-  background-color: rgba(0, 0, 0, 0.1);
   @include global.fluid-property(
     margin-top,
     global.$b360px,

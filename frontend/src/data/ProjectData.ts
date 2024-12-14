@@ -1,4 +1,4 @@
-import rawJson from "data/portfolioProjects.json";
+import rawJson from "data/portfolio-projects.json";
 
 const typedUnprocessedProjects = rawJson as PortfolioProjectData;
 

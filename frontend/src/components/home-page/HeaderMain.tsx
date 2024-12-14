@@ -1,8 +1,8 @@
 import React from "react";
 
 import NavBar from "components/layout/NavBar";
-import headerLogo from "assets/images/main-header/bb_gradient.png";
-import caret from "assets/images/main-header/caret.png";
+import headerLogo from "images/main-header/bb_gradient.png";
+import caret from "images/main-header/caret.png";
 import "components/layout/Header.scss";
 
 interface HeaderMainState {
