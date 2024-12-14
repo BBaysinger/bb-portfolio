@@ -14,6 +14,7 @@ const InfiniteStepCarousel: React.FC<InfiniteStepCarouselProps> = ({
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
+  const [previousIndex, setPreviousIndex] = useState(-1);
   const [slideWidth, setSlideWidth] = useState(0);
   const totalSlides = slides.length;
 
@@ -31,8 +32,14 @@ const InfiniteStepCarousel: React.FC<InfiniteStepCarouselProps> = ({
 
   useEffect(() => {
     if (onIndexUpdate) {
-      console.log(currentIndex);
-      onIndexUpdate(currentIndex);
+      if (currentIndex > previousIndex) {
+        const xPoses: number[] = [];
+        slides.map((_, index) => {
+          xPoses.push(index * slideWidth);
+        });
+        console.log(xPoses);
+        onIndexUpdate(currentIndex);
+      }
     }
   }, [currentIndex, onIndexUpdate]);
 
@@ -45,8 +52,9 @@ const InfiniteStepCarousel: React.FC<InfiniteStepCarouselProps> = ({
     const newIndex = Math.round(scrollLeft / slideWidth) - 1;
 
     if (newIndex !== currentIndex) {
-      const boundedIndex = (newIndex + totalSlides) % totalSlides;
-      setCurrentIndex(boundedIndex);
+      // const boundedIndex = (newIndex + totalSlides) % totalSlides;
+      setPreviousIndex(currentIndex);
+      setCurrentIndex(newIndex);
     }
   }, [currentIndex, slideWidth, totalSlides]);
 
