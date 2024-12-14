@@ -74,7 +74,7 @@ const ParallaxStepCarousel: React.FC<ParallaxStepCarouselProps> = ({
       {/* Pass the mapped divs to InfiniteStepCarousel */}
       <InfiniteStepCarousel
         slides={transparentSlides}
-        onScrollUpdate={handleScrollUpdate}
+        onIndexUpdate={handleScrollUpdate}
       />
       <div className={`${styles["slide-layer"]} bb-slide-layer`}>
         {layer1Slides.map((slide, index) => (
