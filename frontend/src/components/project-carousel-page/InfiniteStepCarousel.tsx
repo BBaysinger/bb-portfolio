@@ -25,9 +25,16 @@ const InfiniteStepCarousel: React.FC<InfiniteStepCarouselProps> = ({
 
   useEffect(() => {
     if (containerRef.current && slideWidth > 0) {
-      containerRef.current.scrollLeft = (initialIndex + 1) * slideWidth; // Start at initialIndex
+      containerRef.current.scrollLeft = (initialIndex + 1) * slideWidth;
     }
   }, [initialIndex, slideWidth]);
+
+  useEffect(() => {
+    if (onIndexUpdate) {
+      console.log(currentIndex);
+      onIndexUpdate(currentIndex);
+    }
+  }, [currentIndex, onIndexUpdate]);
 
   const handleScroll = useCallback(() => {
     if (!containerRef.current || slideWidth === 0) return;
@@ -35,15 +42,13 @@ const InfiniteStepCarousel: React.FC<InfiniteStepCarouselProps> = ({
     const container = containerRef.current;
     const scrollLeft = container.scrollLeft;
 
-    // Compute the visible index based on scroll position
     const newIndex = Math.round(scrollLeft / slideWidth) - 1;
 
     if (newIndex !== currentIndex) {
-      const boundedIndex = (newIndex + totalSlides) % totalSlides; // Wrap around
+      const boundedIndex = (newIndex + totalSlides) % totalSlides;
       setCurrentIndex(boundedIndex);
-      if (onIndexUpdate) onIndexUpdate(boundedIndex);
     }
-  }, [currentIndex, slideWidth, totalSlides, onIndexUpdate]);
+  }, [currentIndex, slideWidth, totalSlides]);
 
   return (
     <div
@@ -56,7 +61,7 @@ const InfiniteStepCarousel: React.FC<InfiniteStepCarouselProps> = ({
           key={index}
           className={`${styles["carousel-slide"]}`}
           style={{
-            left: index * slideWidth + "px",
+            left: (index + 1) * slideWidth + "px",
             width: slideWidth + "px",
           }}
         >
