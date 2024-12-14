@@ -5,12 +5,14 @@ interface InfiniteStepCarouselProps {
   slides: React.ReactNode[];
   initialIndex?: number;
   onIndexUpdate?: (currentIndex: number) => void;
+  onScrollPositionUpdate?: (scrollPosition: number) => void; // New Prop
 }
 
 const InfiniteStepCarousel: React.FC<InfiniteStepCarouselProps> = ({
   slides,
   initialIndex = 0,
   onIndexUpdate,
+  onScrollPositionUpdate,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const phantomRefs = useRef<HTMLDivElement[]>([]);
@@ -48,12 +50,20 @@ const InfiniteStepCarousel: React.FC<InfiniteStepCarouselProps> = ({
 
   const handleScroll = useCallback(() => {
     if (containerRef.current) {
+      const { scrollLeft } = containerRef.current;
+
+      if (onScrollPositionUpdate) {
+        onScrollPositionUpdate(scrollLeft);
+      }
+
       if (scrollTimeout.current) {
         clearTimeout(scrollTimeout.current);
       }
-      scrollTimeout.current = window.setTimeout(handleScrollStop, 0);
+      // Milliseconds controls if the scoll is halted to break the interaction
+      // and limit to a single step at a time, to smoothly allow continuous scrolling.
+      scrollTimeout.current = window.setTimeout(handleScrollStop, 100);
     }
-  }, [handleScrollStop]);
+  }, [handleScrollStop, onScrollPositionUpdate]);
 
   useEffect(() => {
     if (containerRef.current && phantomRefs.current[1]) {
