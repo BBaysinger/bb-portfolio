@@ -34,33 +34,37 @@ const DeviceDisplay: React.FC<DeviceDisplayProps> = ({
 
   console.log(mobileOrientation);
 
-  return deviceType === DeviceTypes.LAPTOP ? (
-    <div
-      className={`${styles[DeviceTypes.LAPTOP]} ${styles["device-presentation"]}`}
-    >
-      <img
-        src={src}
-        alt={`${id} screenshot`}
-        loading="lazy"
-        className={styles["sceencap"]}
-      />
+  return (
+    <div className={`${styles["device-presentation"]} bb-device-presentation`}>
+      {deviceType === DeviceTypes.LAPTOP ? (
+        <div
+          className={`${styles[DeviceTypes.LAPTOP]} ${styles["background-wrapper"]}`}
+        >
+          <img
+            src={src}
+            alt={`${id} screenshot`}
+            loading="lazy"
+            className={styles["screencap"]}
+          />
+        </div>
+      ) : deviceType === DeviceTypes.PHONE ? (
+        <div
+          className={`
+            ${styles[DeviceTypes.PHONE]} 
+            ${styles["background-wrapper"]} 
+            ${mobileOrientation ? styles[mobileOrientation] : ""}
+          `.trim()}
+        >
+          <img
+            src={src}
+            alt={`${id} screenshot`}
+            loading="lazy"
+            className={styles["screencap"]}
+          />
+        </div>
+      ) : null}
     </div>
-  ) : deviceType === DeviceTypes.PHONE ? (
-    <div
-      className={`
-        ${styles[DeviceTypes.PHONE]} 
-        ${styles["device-presentation"]} 
-        ${mobileOrientation ? styles[mobileOrientation] : ""}
-      `.trim()}
-    >
-      <img
-        src={src}
-        alt={`${id} screenshot`}
-        loading="lazy"
-        className={styles["sceencap"]}
-      />
-    </div>
-  ) : null;
+  );
 };
 
 export default DeviceDisplay;

@@ -7,7 +7,7 @@ import Swipe from "utils/Swipe";
 import ProjectData from "data/ProjectData";
 import LogoSwapper from "components/project-carousel-page/LogoSwapper";
 import ParallaxStepCarousel from "components/project-carousel-page/ParallaxStepCarousel";
-import blankPNG from "assets/images/misc/blank.png";
+import blankPNG from "images/misc/blank.png";
 import DeviceDisplay, {
   DeviceTypes,
 } from "components/project-carousel-page/DeviceDisplay";
@@ -63,11 +63,11 @@ const ProjectCarousel: React.FC = () => {
   const nextId = ProjectData.nextKey(projectId);
   const projects = ProjectData.activeProjectsRecord;
 
-  const phoneSlides = ProjectData.activeProjects.map((project) => (
-    <DeviceDisplay deviceType={DeviceTypes.PHONE} id={project.id} />
-  ));
   const laptopSlides = ProjectData.activeProjects.map((project) => (
     <DeviceDisplay deviceType={DeviceTypes.LAPTOP} id={project.id} />
+  ));
+  const phoneSlides = ProjectData.activeProjects.map((project) => (
+    <DeviceDisplay deviceType={DeviceTypes.PHONE} id={project.id} />
   ));
 
   const infoElems = keys.map((key, i) => (
@@ -90,8 +90,8 @@ const ProjectCarousel: React.FC = () => {
       <div id={styles.projectCarouselBody}>
         <LogoSwapper id={projects[projectId].clientId} />
         <ParallaxStepCarousel
-          layer1Slides={phoneSlides}
-          layer2Slides={laptopSlides}
+          layer1Slides={laptopSlides}
+          layer2Slides={phoneSlides}
         />
         <div id={styles.projectNav}>
           <Link

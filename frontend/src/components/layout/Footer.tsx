@@ -3,12 +3,12 @@ import { NavLink } from "react-router-dom";
 
 import MiscUtils from "utils/MiscUtils";
 
-import email from "assets/images/footer/icons/email.png";
-import github from "assets/images/footer/icons/github.png";
-import linkedIn from "assets/images/footer/icons/linked-in.png";
-import location from "assets/images/footer/icons/location.png";
-import stackoverflow from "assets/images/footer/icons/stackoverflow.png";
-import phone from "assets/images/footer/icons/phone.png";
+import email from "images/footer/icons/email.png";
+import github from "images/footer/icons/github.png";
+import linkedIn from "images/footer/icons/linked-in.png";
+import location from "images/footer/icons/location.png";
+import stackoverflow from "images/footer/icons/stackoverflow.png";
+import phone from "images/footer/icons/phone.png";
 
 import "./Footer.scss";
 

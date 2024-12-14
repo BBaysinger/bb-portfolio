@@ -2,7 +2,7 @@ import React from "react";
 import { NavLink } from "react-router-dom";
 import MiscUtils from "utils/MiscUtils";
 
-import navLogo from "assets/images/misc/bb-logo.svg";
+import navLogo from "images/misc/bb-logo.svg";
 import "./Navbar.scss";
 
 /**
