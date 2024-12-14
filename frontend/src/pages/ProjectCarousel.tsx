@@ -91,7 +91,7 @@ const ProjectCarousel: React.FC = () => {
         <LogoSwapper id={projects[projectId].clientId} />
         <ParallaxStepCarousel
           layer1Slides={phoneSlides}
-          layer2Slides={phoneSlides}
+          layer2Slides={laptopSlides}
         />
         <div id={styles.projectNav}>
           <Link

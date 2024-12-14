@@ -30,7 +30,9 @@ const DeviceDisplay: React.FC<DeviceDisplayProps> = ({
   id,
   mobileOrientation,
 }) => {
-  const src = `/images/project-shots/${id}-${deviceType}.jpg`;
+  const src = `/images/screencaps/${id}-${deviceType}.jpg`;
+
+  console.log(mobileOrientation);
 
   return deviceType === DeviceTypes.LAPTOP ? (
     <div
