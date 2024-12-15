@@ -1,5 +1,4 @@
 import React, { useRef, useState, useEffect, useCallback } from "react";
-
 import styles from "./Carousel.module.scss";
 
 const BASE_OFFSET = 100000;
@@ -36,56 +35,54 @@ const Carousel: React.FC<CarouselProps> = ({
     }
   }, [initialIndex, slideWidth]);
 
+  const computeRightPositions = () => {
+    const threshold = 1;
+    const newPositions: number[] = [];
+    const newOffsets: number[] = [];
+    slides.forEach((_, index) => {
+      const offset = Math.floor(
+        (index - currentIndex + threshold) / totalSlides,
+      );
+      newOffsets.push(offset);
+      newPositions.push(
+        -offset * (slideWidth * slides.length) + index * slideWidth,
+      );
+    });
+
+    setOffsets(newOffsets);
+    setPositions(newPositions);
+    console.info("Right scroll:", newOffsets);
+    console.info("Right Positions:", newPositions);
+  };
+
+  const computeLeftPositions = () => {
+    const threshold = 1;
+    const newPositions: number[] = [];
+    const newOffsets: number[] = [];
+    slides.forEach((_, index) => {
+      const offset = Math.floor(
+        (index - currentIndex + threshold) / totalSlides,
+      );
+      newOffsets.push(offset);
+      newPositions.push(
+        -offset * (slideWidth * slides.length) + index * slideWidth,
+      );
+    });
+
+    setOffsets(newOffsets);
+    setPositions(newPositions);
+    console.info("Left scroll:", newOffsets);
+    console.info("Left Positions:", newPositions);
+  };
+
   useEffect(() => {
-    const right = () => {
-      const threshold = 1;
-      const positions: number[] = [];
-      const offsets: number[] = [];
-      slides.forEach((_, index) => {
-        const offset = Math.floor(
-          (index - currentIndex + threshold) / totalSlides,
-        );
-        offsets.push(offset);
-        positions.push(
-          -offset * (slideWidth * slides.length) + index * slideWidth,
-        );
-      });
-
-      setOffsets(offsets);
-      setPositions(positions);
-      console.info("Right scroll:", offsets);
-      console.info("Right Positions:", positions);
-    };
-
-    const left = () => {
-      const threshold = 1;
-      const positions: number[] = [];
-      const offsets: number[] = [];
-      slides.forEach((_, index) => {
-        const offset = Math.floor(
-          (index - currentIndex + threshold) / totalSlides,
-        );
-        offsets.push(offset);
-        positions.push(
-          -offset * (slideWidth * slides.length) + index * slideWidth,
-        );
-      });
-
-      setOffsets(offsets);
-      setPositions(positions);
-      console.info("Left scroll:", offsets);
-    };
-
     if (onIndexUpdate) {
       if (currentIndex > previousIndex) {
-        left();
+        computeRightPositions();
       } else if (currentIndex < previousIndex) {
-        right();
+        computeLeftPositions();
       }
     }
-
-    // Always recompute for debugging and state tracking
-    right();
   }, [
     currentIndex,
     onIndexUpdate,
@@ -94,6 +91,11 @@ const Carousel: React.FC<CarouselProps> = ({
     totalSlides,
     previousIndex,
   ]);
+
+  useEffect(() => {
+    // Call the right() logic once after mount
+    computeRightPositions();
+  }, []);
 
   const handleScroll = useCallback(() => {
     if (!scrollerRef.current || slideWidth === 0) return;
@@ -121,8 +123,6 @@ const Carousel: React.FC<CarouselProps> = ({
           className={`${styles["carousel-slide"]}`}
           style={{
             left: index * slideWidth + BASE_OFFSET + "px",
-
-            // left: positions[index] + "px",
           }}
         >
           <div className={styles["debug-info"]}>
