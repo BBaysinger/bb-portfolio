@@ -1,5 +1,8 @@
 import React, { useRef, useEffect, useCallback, useMemo } from "react";
 
+import useEmblaCarousel from "embla-carousel-react";
+// import "./EmblaCarousel.css"; // Custom styles for Embla
+
 import styles from "./ProjectParallaxCarousel.module.scss";
 
 interface ProjectParallaxCarouselProps {
@@ -12,8 +15,9 @@ const ProjectParallaxCarousel: React.FC<ProjectParallaxCarouselProps> = ({
   layer1Slides,
   layer2Slides,
   onScrollUpdate,
-}) => {
+}): React.ReactElement => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [emblaRef] = useEmblaCarousel({ loop: true });
 
   const handleScroll = useCallback(() => {
     if (containerRef.current && onScrollUpdate) {
@@ -47,24 +51,44 @@ const ProjectParallaxCarousel: React.FC<ProjectParallaxCarouselProps> = ({
   const _colorArray = generateColorArray(layer1Slides.length, 0.1);
   void _colorArray;
 
-  // Memoize layer1Slides and layer2Slides
-  const memoizedLayer1Slides = useMemo(
-    () => layer1Slides.map((slide, _) => ({ slide })),
-    [layer1Slides],
-  );
+  const [emblaPrimaryRef, emblaPrimaryApi] = useEmblaCarousel({
+    loop: true,
+    // speed: 5, // Adjust speed for smoother scrolling
+    dragFree: true, // Enable free scrolling for native-like swipe
+  });
+  const [emblaSecondaryRef, emblaSecondaryApi] = useEmblaCarousel({
+    loop: true,
+    // speed: 5,
+    dragFree: true,
+  });
 
-  const memoizedLayer2Slides = useMemo(
-    () => layer2Slides.map((slide, _) => ({ slide })),
-    [layer2Slides],
-  );
+  useEffect(() => {
+    if (!emblaPrimaryApi || !emblaSecondaryApi) return;
+
+    // Synchronize the two sliders
+    emblaPrimaryApi.on("scroll", () => {
+      emblaSecondaryApi.scrollTo(emblaPrimaryApi.selectedScrollSnap(), true);
+    });
+
+    emblaSecondaryApi.on("scroll", () => {
+      emblaPrimaryApi.scrollTo(emblaSecondaryApi.selectedScrollSnap(), true);
+    });
+  }, [emblaPrimaryApi, emblaSecondaryApi]);
 
   return (
-    <div
-      className={`${styles["carousel"]} bb-project-parallax-carousel`}
-      ref={containerRef}
-    >
-      {/* {memoizedLayer1Slides}
-        {memoizedLayer2Slides} */}
+    <div className={styles["embla"]} ref={emblaRef}>
+      <div className={styles["embla__container"]}>
+        {layer1Slides.map((slide, index) => (
+          <div className={styles["embla__slide"]} key={`layer1-${index}`}>
+            {slide}
+          </div>
+        ))}
+        {/* {layer2Slides.map((slide, index) => (
+            <div className="embla__slide" key={`layer2-${index}`}>
+              {slide}
+            </div>
+          ))} */}
+      </div>
     </div>
   );
 };
