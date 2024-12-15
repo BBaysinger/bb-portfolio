@@ -19,13 +19,12 @@ const Carousel: React.FC<CarouselProps> = ({
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [previousIndex, setPreviousIndex] = useState(NaN);
   const [slideWidth, setSlideWidth] = useState(0);
+  const [positions, setPositions] = useState<number[]>([]);
+  const [offsets, setOffsets] = useState<number[]>([]);
   const totalSlides = slides.length;
-  let offsets: number[] = [];
-  let positions: number[] = [];
 
   useEffect(() => {
     if (scrollerRef.current) {
-      console.log("doing it");
       scrollerRef.current.scrollLeft = BASE_OFFSET;
       setSlideWidth(scrollerRef.current.offsetWidth);
     }
@@ -38,41 +37,63 @@ const Carousel: React.FC<CarouselProps> = ({
   }, [initialIndex, slideWidth]);
 
   useEffect(() => {
+    const right = () => {
+      const threshold = 1;
+      const positions: number[] = [];
+      const offsets: number[] = [];
+      slides.forEach((_, index) => {
+        const offset = Math.floor(
+          (index - currentIndex + threshold) / totalSlides,
+        );
+        offsets.push(offset);
+        positions.push(
+          -offset * (slideWidth * slides.length) + index * slideWidth,
+        );
+      });
+
+      setOffsets(offsets);
+      setPositions(positions);
+      console.info("Right scroll:", offsets);
+      console.info("Right Positions:", positions);
+    };
+
+    const left = () => {
+      const threshold = 1;
+      const positions: number[] = [];
+      const offsets: number[] = [];
+      slides.forEach((_, index) => {
+        const offset = Math.floor(
+          (index - currentIndex + threshold) / totalSlides,
+        );
+        offsets.push(offset);
+        positions.push(
+          -offset * (slideWidth * slides.length) + index * slideWidth,
+        );
+      });
+
+      setOffsets(offsets);
+      setPositions(positions);
+      console.info("Left scroll:", offsets);
+    };
+
     if (onIndexUpdate) {
-      console.log(currentIndex, previousIndex);
       if (currentIndex > previousIndex) {
-        const threshold = 1;
-        positions = [];
-        offsets = [];
-        let offset: number = NaN;
-        slides.map((_, index) => {
-          offset = Math.floor((index - currentIndex + threshold) / totalSlides);
-          offsets.push(offset);
-          positions.push(
-            -offset * (slideWidth * slides.length) + index * slideWidth,
-          );
-        });
-        console.info("Right scroll :", offsets);
-        // console.info(positions);
-        // onIndexUpdate(currentIndex);
+        left();
       } else if (currentIndex < previousIndex) {
-        const threshold = 1;
-        positions = [];
-        offsets = [];
-        let offset: number = NaN;
-        slides.map((_, index) => {
-          // offset = Math.floor((index - currentIndex + threshold) / totalSlides);
-          offsets.push(offset);
-          // positions.push(
-          //   -offset * (slideWidth * slides.length) + index * slideWidth,
-          // );
-        });
-        console.info("Right scroll offsets:", offsets);
-      } else {
-        // 🫣
+        right();
       }
     }
-  }, [currentIndex, onIndexUpdate]);
+
+    // Always recompute for debugging and state tracking
+    right();
+  }, [
+    currentIndex,
+    onIndexUpdate,
+    slideWidth,
+    slides,
+    totalSlides,
+    previousIndex,
+  ]);
 
   const handleScroll = useCallback(() => {
     if (!scrollerRef.current || slideWidth === 0) return;
@@ -86,7 +107,7 @@ const Carousel: React.FC<CarouselProps> = ({
       setPreviousIndex(currentIndex);
       setCurrentIndex(newIndex);
     }
-  }, [currentIndex, slideWidth, totalSlides]);
+  }, [currentIndex, slideWidth]);
 
   return (
     <div
@@ -100,16 +121,14 @@ const Carousel: React.FC<CarouselProps> = ({
           className={`${styles["carousel-slide"]}`}
           style={{
             left: index * slideWidth + BASE_OFFSET + "px",
+
             // left: positions[index] + "px",
-            width: slideWidth + "px",
           }}
         >
           <div className={styles["debug-info"]}>
             <div>Index: {index}</div>
             <div>Offset: {offsets[index]}</div>
             <div>Position: {positions[index]}</div>
-            <div>Left: {index * slideWidth + "px"}</div>
-            <div>Offset Left: {index * slideWidth + BASE_OFFSET + "px"}</div>
           </div>
           {slide}
         </div>
