@@ -1,7 +1,6 @@
 import React, { useRef, useEffect, useCallback, useMemo } from "react";
 
 import useEmblaCarousel from "embla-carousel-react";
-// import "./EmblaCarousel.css"; // Custom styles for Embla
 
 import styles from "./ProjectParallaxCarousel.module.scss";
 
@@ -17,7 +16,6 @@ const ProjectParallaxCarousel: React.FC<ProjectParallaxCarouselProps> = ({
   onScrollUpdate,
 }): React.ReactElement => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [emblaRef] = useEmblaCarousel({ loop: true });
 
   const handleScroll = useCallback(() => {
     if (containerRef.current && onScrollUpdate) {
@@ -53,43 +51,45 @@ const ProjectParallaxCarousel: React.FC<ProjectParallaxCarouselProps> = ({
 
   const [emblaPrimaryRef, emblaPrimaryApi] = useEmblaCarousel({
     loop: true,
-    // speed: 5, // Adjust speed for smoother scrolling
-    dragFree: true, // Enable free scrolling for native-like swipe
   });
   const [emblaSecondaryRef, emblaSecondaryApi] = useEmblaCarousel({
     loop: true,
-    // speed: 5,
-    dragFree: true,
   });
+
+  const syncCarousels = useCallback((emblaPrimaryApi:any, emblaSecondaryApi:any) => {
+    if (!emblaPrimaryApi || !emblaSecondaryApi) return;
+    const selectedIndex = emblaPrimaryApi.selectedScrollSnap();
+    emblaSecondaryApi.scrollTo(selectedIndex);
+  }, []);
 
   useEffect(() => {
     if (!emblaPrimaryApi || !emblaSecondaryApi) return;
-
-    // Synchronize the two sliders
-    emblaPrimaryApi.on("scroll", () => {
-      emblaSecondaryApi.scrollTo(emblaPrimaryApi.selectedScrollSnap(), true);
-    });
-
-    emblaSecondaryApi.on("scroll", () => {
-      emblaPrimaryApi.scrollTo(emblaSecondaryApi.selectedScrollSnap(), true);
-    });
-  }, [emblaPrimaryApi, emblaSecondaryApi]);
+  
+    emblaPrimaryApi.on('select', () => syncCarousels(emblaPrimaryApi, emblaSecondaryApi));
+    emblaSecondaryApi.on('select', () => syncCarousels(emblaSecondaryApi, emblaPrimaryApi));
+  }, [emblaPrimaryApi, emblaSecondaryApi, syncCarousels]);
 
   return (
-    <div className={styles["embla"]} ref={emblaRef}>
-      <div className={styles["embla__container"]}>
-        {layer1Slides.map((slide, index) => (
-          <div className={styles["embla__slide"]} key={`layer1-${index}`}>
-            {slide}
-          </div>
-        ))}
-        {/* {layer2Slides.map((slide, index) => (
-            <div className="embla__slide" key={`layer2-${index}`}>
+    <>
+      <div className={styles["embla"]} ref={emblaPrimaryRef}>
+        <div className={styles["embla__container"]}>
+          {layer1Slides.map((slide, index) => (
+            <div className={styles["embla__slide"]} key={`layer1-${index}`}>
               {slide}
             </div>
-          ))} */}
+          ))}
+        </div>
       </div>
-    </div>
+      <div className={styles["embla2"]} ref={emblaSecondaryRef}>
+        <div className={styles["embla2__container"]}>
+          {layer2Slides.map((slide, index) => (
+            <div className={styles["embla2__slide"]} key={`layer2-${index}`}>
+              {slide}
+            </div>
+          ))}
+        </div>
+      </div>
+    </>
   );
 };
 
