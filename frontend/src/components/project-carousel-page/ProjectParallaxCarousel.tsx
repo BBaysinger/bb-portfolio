@@ -1,7 +1,6 @@
-import React, { useRef, useEffect, useCallback, useMemo } from "react";
+import React, { useRef, useEffect, useCallback } from "react";
 
-import useEmblaCarousel from "embla-carousel-react";
-
+import Carousel from "./Carousel";
 import styles from "./ProjectParallaxCarousel.module.scss";
 
 interface ProjectParallaxCarouselProps {
@@ -14,7 +13,7 @@ const ProjectParallaxCarousel: React.FC<ProjectParallaxCarouselProps> = ({
   layer1Slides,
   layer2Slides,
   onScrollUpdate,
-}): React.ReactElement => {
+}) => {
   const containerRef = useRef<HTMLDivElement>(null);
 
   const handleScroll = useCallback(() => {
@@ -46,50 +45,45 @@ const ProjectParallaxCarousel: React.FC<ProjectParallaxCarouselProps> = ({
     return Array.from({ length }, () => getRandomColorWithOpacity(opacity));
   }
 
-  const _colorArray = generateColorArray(layer1Slides.length, 0.1);
-  void _colorArray;
+  const colorArray = generateColorArray(layer1Slides.length, 0.1);
 
-  const [emblaPrimaryRef, emblaPrimaryApi] = useEmblaCarousel({
-    loop: true,
-  });
-  const [emblaSecondaryRef, emblaSecondaryApi] = useEmblaCarousel({
-    loop: true,
-  });
+  function handleScrollUpdate(scrollOffset: number) {
+    console.log("scrollOffset:", scrollOffset);
 
-  const syncCarousels = useCallback((emblaPrimaryApi:any, emblaSecondaryApi:any) => {
-    if (!emblaPrimaryApi || !emblaSecondaryApi) return;
-    const selectedIndex = emblaPrimaryApi.selectedScrollSnap();
-    emblaSecondaryApi.scrollTo(selectedIndex);
-  }, []);
+    if (onScrollUpdate) {
+      onScrollUpdate(scrollOffset);
+    }
+  }
 
-  useEffect(() => {
-    if (!emblaPrimaryApi || !emblaSecondaryApi) return;
-  
-    emblaPrimaryApi.on('select', () => syncCarousels(emblaPrimaryApi, emblaSecondaryApi));
-    emblaSecondaryApi.on('select', () => syncCarousels(emblaSecondaryApi, emblaPrimaryApi));
-  }, [emblaPrimaryApi, emblaSecondaryApi, syncCarousels]);
+  // Map layer1Slides to generate an array of div elements for Carousel
+  const transparentSlides = layer1Slides.map((_, index) => (
+    <div
+      key={index}
+      style={{ backgroundColor: colorArray[index] }}
+      className={`${styles["transparent-slide"]}`}
+    >
+      {index + 1}
+    </div>
+  ));
 
   return (
-    <>
-      <div className={styles["embla"]} ref={emblaPrimaryRef}>
-        <div className={styles["embla__container"]}>
-          {layer1Slides.map((slide, index) => (
-            <div className={styles["embla__slide"]} key={`layer1-${index}`}>
-              {slide}
-            </div>
-          ))}
-        </div>
+    <div
+      className={`${styles["carousel"]} bb-parallax-step-carousel`}
+      ref={containerRef}
+    >
+      {/* Pass the mapped divs to Carousel */}
+      <Carousel slides={transparentSlides} onIndexUpdate={handleScrollUpdate} />
+      <div className={`${styles["slide-layer"]} bb-slide-layer`}>
+        {layer1Slides.map((slide, index) => (
+          <React.Fragment key={index}>{slide}</React.Fragment>
+        ))}
       </div>
-      <div className={styles["embla2"]} ref={emblaSecondaryRef}>
-        <div className={styles["embla2__container"]}>
-          {layer2Slides.map((slide, index) => (
-            <div className={styles["embla2__slide"]} key={`layer2-${index}`}>
-              {slide}
-            </div>
-          ))}
-        </div>
+      <div className={`${styles["slide-layer"]} bb-slide-layer`}>
+        {layer2Slides.map((slide, index) => (
+          <React.Fragment key={index}>{slide}</React.Fragment>
+        ))}
       </div>
-    </>
+    </div>
   );
 };
 
