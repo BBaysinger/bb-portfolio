@@ -6,7 +6,7 @@ import ProjectContent from "components/project-carousel-page/ProjectContent";
 import Swipe from "utils/Swipe";
 import ProjectData from "data/ProjectData";
 import LogoSwapper from "components/project-carousel-page/LogoSwapper";
-import ParallaxStepCarousel from "components/project-carousel-page/ParallaxStepCarousel";
+import ProjectParallaxCarousel from "components/project-carousel-page/ProjectParallaxCarousel";
 import blankPNG from "images/misc/blank.png";
 import DeviceDisplay, {
   DeviceTypes,
@@ -89,7 +89,7 @@ const ProjectCarousel: React.FC = () => {
       />
       <div id={styles.projectCarouselBody}>
         <LogoSwapper id={projects[projectId].clientId} />
-        <ParallaxStepCarousel
+        <ProjectParallaxCarousel
           layer1Slides={laptopSlides}
           layer2Slides={phoneSlides}
         />

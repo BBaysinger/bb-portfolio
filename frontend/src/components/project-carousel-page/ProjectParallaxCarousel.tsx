@@ -1,15 +1,16 @@
 import React, { useRef, useEffect, useCallback } from "react";
 
-import InfiniteStepCarousel from "./InfiniteStepCarousel";
-import styles from "./ParallaxStepCarousel.module.scss";
+import { Swiper, SwiperSlide } from "swiper/react";
 
-interface ParallaxStepCarouselProps {
+import styles from "./ProjectParallaxCarousel.module.scss";
+
+interface ProjectParallaxCarouselProps {
   layer1Slides: React.ReactNode[];
   layer2Slides: React.ReactNode[];
   onScrollUpdate?: (scrollOffset: number) => void;
 }
 
-const ParallaxStepCarousel: React.FC<ParallaxStepCarouselProps> = ({
+const ProjectParallaxCarousel: React.FC<ProjectParallaxCarouselProps> = ({
   layer1Slides,
   layer2Slides,
   onScrollUpdate,
@@ -45,49 +46,30 @@ const ParallaxStepCarousel: React.FC<ParallaxStepCarouselProps> = ({
     return Array.from({ length }, () => getRandomColorWithOpacity(opacity));
   }
 
-  const colorArray = generateColorArray(layer1Slides.length, 0.1);
-
-  function handleScrollUpdate(scrollOffset: number) {
-    console.log("scrollOffset:", scrollOffset);
-
-    if (onScrollUpdate) {
-      onScrollUpdate(scrollOffset);
-    }
-  }
-
-  // Map layer1Slides to generate an array of div elements for InfiniteStepCarousel
-  const transparentSlides = layer1Slides.map((_, index) => (
-    <div
-      key={index}
-      style={{ backgroundColor: colorArray[index] }}
-      className={`${styles["transparent-slide"]}`}
-    >
-      {index + 1}
-    </div>
-  ));
+  const _colorArray = generateColorArray(layer1Slides.length, 0.1);
+  void _colorArray;
 
   return (
     <div
-      className={`${styles["carousel"]} bb-parallax-step-carousel`}
+      className={`${styles["carousel"]} bb-project-parallax-carousel`}
       ref={containerRef}
     >
-      {/* Pass the mapped divs to InfiniteStepCarousel */}
-      <InfiniteStepCarousel
-        slides={transparentSlides}
-        onIndexUpdate={handleScrollUpdate}
-      />
-      <div className={`${styles["slide-layer"]} bb-slide-layer`}>
+      <Swiper spaceBetween={10} slidesPerView={1} loop={true}>
+        {/*
+        <SwiperSlide>Slide 1</SwiperSlide>
+        <SwiperSlide>Slide 2</SwiperSlide>
+        <SwiperSlide>Slide 3</SwiperSlide>
+        */}
+
         {layer1Slides.map((slide, index) => (
-          <React.Fragment key={index}>{slide}</React.Fragment>
+          <SwiperSlide key={index}>{slide}</SwiperSlide>
         ))}
-      </div>
-      <div className={`${styles["slide-layer"]} bb-slide-layer`}>
         {layer2Slides.map((slide, index) => (
-          <React.Fragment key={index}>{slide}</React.Fragment>
+          <SwiperSlide key={index}>{slide}</SwiperSlide>
         ))}
-      </div>
+      </Swiper>
     </div>
   );
 };
 
-export default ParallaxStepCarousel;
+export default ProjectParallaxCarousel;
