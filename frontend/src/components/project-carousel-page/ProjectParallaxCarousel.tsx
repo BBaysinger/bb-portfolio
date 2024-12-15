@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useCallback } from "react";
+import React, { useRef, useEffect, useCallback, useMemo } from "react";
 
 import { Swiper, SwiperSlide } from "swiper/react";
 import { FreeMode, Virtual } from "swiper/modules"; // Import required modules
@@ -53,6 +53,27 @@ const ProjectParallaxCarousel: React.FC<ProjectParallaxCarouselProps> = ({
   const _colorArray = generateColorArray(layer1Slides.length, 0.1);
   void _colorArray;
 
+  // Memoize layer1Slides and layer2Slides
+  const memoizedLayer1Slides = useMemo(
+    () =>
+      layer1Slides.map((slide, index) => (
+        <SwiperSlide key={`slide1-${index}`} virtualIndex={index}>
+          {slide}
+        </SwiperSlide>
+      )),
+    [layer1Slides]
+  );
+
+  const memoizedLayer2Slides = useMemo(
+    () =>
+      layer2Slides.map((slide, index) => (
+        <SwiperSlide key={`slide2-${index}`} virtualIndex={index}>
+          {slide}
+        </SwiperSlide>
+      )),
+    [layer2Slides]
+  );
+
   return (
     <div
       className={`${styles["carousel"]} bb-project-parallax-carousel`}
@@ -66,16 +87,8 @@ const ProjectParallaxCarousel: React.FC<ProjectParallaxCarouselProps> = ({
         modules={[FreeMode, Virtual]}
         virtual
       >
-        {layer1Slides.map((slide, index) => (
-          <SwiperSlide key={`slide1-${index}`} virtualIndex={index}>
-            {slide}
-          </SwiperSlide>
-        ))}
-        {layer2Slides.map((slide, index) => (
-          <SwiperSlide key={`slide2-${index}`} virtualIndex={index}>
-            {slide}
-          </SwiperSlide>
-        ))}
+        {memoizedLayer1Slides}
+        {memoizedLayer2Slides}
       </Swiper>
     </div>
   );
