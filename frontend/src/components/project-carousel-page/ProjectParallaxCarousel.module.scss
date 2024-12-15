@@ -32,35 +32,3 @@
   width: 100%;
   overflow: visible;
 }
-
-.embla {
-  width: 70vw;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.embla__container {
-  display: flex;
-}
-
-.embla__slide {
-  flex: 0 0 100%;
-  min-width: 0;
-}
-
-.embla2 {
-  position: absolute;
-  width: 70vw;
-  margin-left: auto;
-  margin-right: auto;
-  top: 0;
-}
-
-.embla2__container {
-  display: flex;
-}
-
-.embla2__slide {
-  flex: 0 0 100%;
-  min-width: 0;
-}
