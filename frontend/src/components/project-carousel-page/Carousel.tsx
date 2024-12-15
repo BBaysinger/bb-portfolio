@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect, useCallback } from "react";
 import styles from "./Carousel.module.scss";
 
-const START_OFFSET = 10000;
+const BASE_OFFSET = 10000;
 
 interface CarouselProps {
   slides: React.ReactNode[];
@@ -16,7 +16,7 @@ const Carousel: React.FC<CarouselProps> = ({
 }) => {
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
-  const [previousIndex, setPreviousIndex] = useState(-1);
+  const [previousIndex, setPreviousIndex] = useState(NaN);
   const [slideWidth, setSlideWidth] = useState(0);
   const totalSlides = slides.length;
   let offsets: number[] = [];
@@ -24,7 +24,8 @@ const Carousel: React.FC<CarouselProps> = ({
 
   useEffect(() => {
     if (scrollerRef.current) {
-      scrollerRef.current.scrollLeft = -START_OFFSET;
+      console.log("doing it");
+      scrollerRef.current.scrollLeft = BASE_OFFSET;
       setSlideWidth(scrollerRef.current.offsetWidth);
     }
   }, []);
@@ -37,9 +38,11 @@ const Carousel: React.FC<CarouselProps> = ({
 
   useEffect(() => {
     if (onIndexUpdate) {
+      console.log(currentIndex, previousIndex);
       if (currentIndex > previousIndex) {
         const threshold = 1;
         positions = [];
+        offsets = [];
         let offset: number = NaN;
         slides.map((_, index) => {
           offset = Math.floor((index - currentIndex + threshold) / totalSlides);
@@ -48,11 +51,22 @@ const Carousel: React.FC<CarouselProps> = ({
             -offset * (slideWidth * slides.length) + index * slideWidth,
           );
         });
-        console.info(offsets);
-        console.info(positions);
-        onIndexUpdate(currentIndex);
+        // console.info('offsets:', offsets);
+        // console.info(positions);
+        // onIndexUpdate(currentIndex);
       } else if (currentIndex < previousIndex) {
-        console.info("backwards");
+        const threshold = 1;
+        positions = [];
+        offsets = [];
+        let offset: number = NaN;
+        slides.map((_, index) => {
+          offset = Math.floor((index - currentIndex + threshold) / totalSlides);
+          offsets.push(offset);
+          // positions.push(
+          //   -offset * (slideWidth * slides.length) + index * slideWidth,
+          // );
+        });
+        console.info(offsets);
       } else {
         // 🫣
       }
@@ -62,8 +76,9 @@ const Carousel: React.FC<CarouselProps> = ({
   const handleScroll = useCallback(() => {
     if (!scrollerRef.current || slideWidth === 0) return;
 
-    const container = scrollerRef.current;
-    const scrollLeft = container.scrollLeft;
+    // const container = scrollerRef.current;
+    const scrollLeft = scrollerRef.current.scrollLeft - BASE_OFFSET;
+    console.log(scrollerRef.current.scrollLeft, BASE_OFFSET);
 
     const newIndex = Math.round(scrollLeft / slideWidth) - 1;
 
@@ -84,7 +99,7 @@ const Carousel: React.FC<CarouselProps> = ({
           key={index}
           className={`${styles["carousel-slide"]}`}
           style={{
-            left: (index + 1) * slideWidth + START_OFFSET + "px",
+            left: index * slideWidth + BASE_OFFSET + "px",
             // left: positions[index] + "px",
             width: slideWidth + "px",
           }}
