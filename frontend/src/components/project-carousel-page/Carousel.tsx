@@ -5,19 +5,20 @@ const BASE_OFFSET = 100000;
 
 interface CarouselProps {
   slides: React.ReactNode[];
+  slideWidth: number; // Provided by the parent
   initialIndex?: number;
   onIndexUpdate?: (currentIndex: number) => void;
 }
 
 const Carousel: React.FC<CarouselProps> = ({
   slides,
+  slideWidth,
   initialIndex = 0,
   onIndexUpdate,
 }) => {
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [previousIndex, setPreviousIndex] = useState(NaN);
-  const [slideWidth, setSlideWidth] = useState(0);
   const [positions, setPositions] = useState<number[]>([]);
   const [offsets, setOffsets] = useState<number[]>([]);
   const totalSlides = slides.length;
@@ -25,12 +26,11 @@ const Carousel: React.FC<CarouselProps> = ({
   useEffect(() => {
     if (scrollerRef.current) {
       scrollerRef.current.scrollLeft = BASE_OFFSET;
-      setSlideWidth(scrollerRef.current.offsetWidth);
     }
   }, []);
 
   useEffect(() => {
-    if (scrollerRef.current && slideWidth > 0) {
+    if (scrollerRef.current) {
       scrollerRef.current.scrollLeft = (initialIndex + 1) * slideWidth;
     }
   }, [initialIndex, slideWidth]);
@@ -95,10 +95,10 @@ const Carousel: React.FC<CarouselProps> = ({
   useEffect(() => {
     // Call the right() logic once after mount
     computeRightPositions();
-  }, []);
+  }, [currentIndex, onIndexUpdate, slideWidth, slides, totalSlides]);
 
   const handleScroll = useCallback(() => {
-    if (!scrollerRef.current || slideWidth === 0) return;
+    if (!scrollerRef.current) return;
 
     const scrollLeft = scrollerRef.current.scrollLeft;
     const scrollOffset = scrollLeft - BASE_OFFSET;
@@ -122,7 +122,7 @@ const Carousel: React.FC<CarouselProps> = ({
           key={index}
           className={`${styles["carousel-slide"]}`}
           style={{
-            left: index * slideWidth + BASE_OFFSET + "px",
+            left: positions[index] + "px",
           }}
         >
           <div className={styles["debug-info"]}>
