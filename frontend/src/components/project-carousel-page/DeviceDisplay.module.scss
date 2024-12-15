@@ -30,11 +30,12 @@
     background-image: url("../../images/project-carousel/laptop.png");
     background-position: calc(50% + 2px) center;
     background-size: 693px 414px;
+    width: 693px;
 
     img {
       position: absolute;
       top: 38px;
-      left: 386px;
+      left: 98px;
       height: 310px;
       width: 500px;
     }
