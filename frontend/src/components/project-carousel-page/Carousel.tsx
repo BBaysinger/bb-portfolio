@@ -76,11 +76,10 @@ const Carousel: React.FC<CarouselProps> = ({
   const handleScroll = useCallback(() => {
     if (!scrollerRef.current || slideWidth === 0) return;
 
-    // const container = scrollerRef.current;
-    const scrollLeft = scrollerRef.current.scrollLeft - BASE_OFFSET;
-    console.log(scrollerRef.current.scrollLeft, BASE_OFFSET);
+    const scrollLeft = scrollerRef.current.scrollLeft;
+    const scrollOffset = scrollLeft - BASE_OFFSET;
 
-    const newIndex = Math.round(scrollLeft / slideWidth) - 1;
+    const newIndex = Math.round(scrollOffset / slideWidth);
 
     if (newIndex !== currentIndex) {
       setPreviousIndex(currentIndex);
