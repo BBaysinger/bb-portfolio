@@ -71,7 +71,11 @@ const ProjectParallaxCarousel: React.FC<ProjectParallaxCarouselProps> = ({
       className={`${styles["carousel"]} bb-parallax-carousel`}
       ref={containerRef}
     >
-      <Carousel slides={layer1Slides} onIndexUpdate={handleScrollUpdate} slideWidth={693} />
+      <Carousel
+        slides={layer1Slides}
+        onIndexUpdate={handleScrollUpdate}
+        slideWidth={693}
+      />
       {/* <div className={`${styles["slide-layer"]} bb-slide-layer`}>
         {layer1Slides.map((slide, index) => (
           <React.Fragment key={index}>{slide}</React.Fragment>

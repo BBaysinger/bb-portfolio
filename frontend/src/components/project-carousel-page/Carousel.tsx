@@ -5,7 +5,7 @@ const BASE_OFFSET = 100000;
 
 interface CarouselProps {
   slides: React.ReactNode[];
-  slideWidth: number; // Provided by the parent
+  slideWidth: number;
   initialIndex?: number;
   onIndexUpdate?: (currentIndex: number) => void;
 }
@@ -18,20 +18,17 @@ const Carousel: React.FC<CarouselProps> = ({
 }) => {
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
-  const [previousIndex, setPreviousIndex] = useState(NaN);
+  const [_previousIndex, setPreviousIndex] = useState(NaN);
+  const [scrollDirection, setScrollDirection] = useState<
+    "left" | "right" | null
+  >(null);
   const [positions, setPositions] = useState<number[]>([]);
   const [offsets, setOffsets] = useState<number[]>([]);
   const totalSlides = slides.length;
 
   useEffect(() => {
     if (scrollerRef.current) {
-      scrollerRef.current.scrollLeft = BASE_OFFSET;
-    }
-  }, []);
-
-  useEffect(() => {
-    if (scrollerRef.current) {
-      scrollerRef.current.scrollLeft = (initialIndex + 1) * slideWidth;
+      scrollerRef.current.scrollLeft = BASE_OFFSET + initialIndex * slideWidth;
     }
   }, [initialIndex, slideWidth]);
 
@@ -51,7 +48,7 @@ const Carousel: React.FC<CarouselProps> = ({
 
     setOffsets(newOffsets);
     setPositions(newPositions);
-    console.info("Right scroll:", newOffsets);
+    console.info("Right scroll:", offsets);
     console.info("Right Positions:", newPositions);
   };
 
@@ -71,45 +68,37 @@ const Carousel: React.FC<CarouselProps> = ({
 
     setOffsets(newOffsets);
     setPositions(newPositions);
-    console.info("Left scroll:", newOffsets);
+    console.info("Left scroll:", offsets);
     console.info("Left Positions:", newPositions);
   };
-
-  useEffect(() => {
-    if (onIndexUpdate) {
-      if (currentIndex > previousIndex) {
-        computeRightPositions();
-      } else if (currentIndex < previousIndex) {
-        computeLeftPositions();
-      }
-    }
-  }, [
-    currentIndex,
-    onIndexUpdate,
-    slideWidth,
-    slides,
-    totalSlides,
-    previousIndex,
-  ]);
 
   useEffect(() => {
     // Call the right() logic once after mount
     computeRightPositions();
   }, [currentIndex, onIndexUpdate, slideWidth, slides, totalSlides]);
-
   const handleScroll = useCallback(() => {
     if (!scrollerRef.current) return;
 
     const scrollLeft = scrollerRef.current.scrollLeft;
-    const scrollOffset = scrollLeft - BASE_OFFSET;
-
-    const newIndex = Math.round(scrollOffset / slideWidth);
+    const newIndex = Math.round(scrollLeft / slideWidth);
 
     if (newIndex !== currentIndex) {
       setPreviousIndex(currentIndex);
+      setScrollDirection(newIndex > currentIndex ? "right" : "left");
       setCurrentIndex(newIndex);
+      onIndexUpdate && onIndexUpdate(newIndex);
     }
   }, [currentIndex, slideWidth]);
+
+  useEffect(() => {
+    if (scrollDirection) {
+      if (scrollDirection === "right") {
+        computeRightPositions();
+      } else if (scrollDirection === "left") {
+        computeLeftPositions();
+      }
+    }
+  }, [scrollDirection, computeRightPositions, computeLeftPositions]);
 
   return (
     <div
