@@ -34,18 +34,18 @@ const ProjectParallaxCarousel: React.FC<ProjectParallaxCarouselProps> = ({
     };
   }, [handleScroll]);
 
-  function getRandomColorWithOpacity(opacity = 0.1) {
-    const r = Math.floor(Math.random() * 256);
-    const g = Math.floor(Math.random() * 256);
-    const b = Math.floor(Math.random() * 256);
-    return `rgba(${r}, ${g}, ${b}, ${opacity})`;
-  }
+  // function getRandomColorWithOpacity(opacity = 0.1) {
+  //   const r = Math.floor(Math.random() * 256);
+  //   const g = Math.floor(Math.random() * 256);
+  //   const b = Math.floor(Math.random() * 256);
+  //   return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+  // }
 
-  function generateColorArray(length: number, opacity = 0.1) {
-    return Array.from({ length }, () => getRandomColorWithOpacity(opacity));
-  }
+  // function generateColorArray(length: number, opacity = 0.1) {
+  //   return Array.from({ length }, () => getRandomColorWithOpacity(opacity));
+  // }
 
-  const colorArray = generateColorArray(layer1Slides.length, 0.1);
+  // const colorArray = generateColorArray(layer1Slides.length, 0.1);
 
   function handleScrollUpdate(scrollOffset: number) {
     console.log("scrollOffset:", scrollOffset);
@@ -56,28 +56,28 @@ const ProjectParallaxCarousel: React.FC<ProjectParallaxCarouselProps> = ({
   }
 
   // Map layer1Slides to generate an array of div elements for Carousel
-  const transparentSlides = layer1Slides.map((_, index) => (
-    <div
-      key={index}
-      style={{ backgroundColor: colorArray[index] }}
-      className={`${styles["transparent-slide"]}`}
-    >
-      {index + 1}
-    </div>
-  ));
+  // const transparentSlides = layer1Slides.map((_, index) => (
+  //   <div
+  //     key={index}
+  //     style={{ backgroundColor: colorArray[index] }}
+  //     className={`${styles["transparent-slide"]}`}
+  //   >
+  //     {index + 1}
+  //   </div>
+  // ));
 
   return (
     <div
-      className={`${styles["carousel"]} bb-parallax-step-carousel`}
+      className={`${styles["carousel"]} bb-parallax-carousel`}
       ref={containerRef}
     >
       {/* Pass the mapped divs to Carousel */}
-      <Carousel slides={transparentSlides} onIndexUpdate={handleScrollUpdate} />
-      <div className={`${styles["slide-layer"]} bb-slide-layer`}>
+      <Carousel slides={layer1Slides} onIndexUpdate={handleScrollUpdate} />
+      {/* <div className={`${styles["slide-layer"]} bb-slide-layer`}>
         {layer1Slides.map((slide, index) => (
           <React.Fragment key={index}>{slide}</React.Fragment>
         ))}
-      </div>
+      </div> */}
       <div className={`${styles["slide-layer"]} bb-slide-layer`}>
         {layer2Slides.map((slide, index) => (
           <React.Fragment key={index}>{slide}</React.Fragment>

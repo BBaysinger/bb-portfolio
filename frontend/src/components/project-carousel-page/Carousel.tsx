@@ -1,7 +1,8 @@
 import React, { useRef, useState, useEffect, useCallback } from "react";
+
 import styles from "./Carousel.module.scss";
 
-const BASE_OFFSET = 10000;
+const BASE_OFFSET = 100000;
 
 interface CarouselProps {
   slides: React.ReactNode[];
@@ -51,7 +52,7 @@ const Carousel: React.FC<CarouselProps> = ({
             -offset * (slideWidth * slides.length) + index * slideWidth,
           );
         });
-        // console.info('offsets:', offsets);
+        console.info("Right scroll :", offsets);
         // console.info(positions);
         // onIndexUpdate(currentIndex);
       } else if (currentIndex < previousIndex) {
@@ -60,13 +61,13 @@ const Carousel: React.FC<CarouselProps> = ({
         offsets = [];
         let offset: number = NaN;
         slides.map((_, index) => {
-          offset = Math.floor((index - currentIndex + threshold) / totalSlides);
+          // offset = Math.floor((index - currentIndex + threshold) / totalSlides);
           offsets.push(offset);
           // positions.push(
           //   -offset * (slideWidth * slides.length) + index * slideWidth,
           // );
         });
-        console.info(offsets);
+        console.info("Right scroll offsets:", offsets);
       } else {
         // 🫣
       }
@@ -90,7 +91,7 @@ const Carousel: React.FC<CarouselProps> = ({
   return (
     <div
       ref={scrollerRef}
-      className={`${styles["step-carousel"]} bb-infinite-step-carousel`}
+      className={`${styles["carousel"]} bb-carousel`}
       onScroll={handleScroll}
     >
       {slides.map((slide, index) => (
@@ -103,6 +104,13 @@ const Carousel: React.FC<CarouselProps> = ({
             width: slideWidth + "px",
           }}
         >
+          <div className={styles["debug-info"]}>
+            <div>Index: {index}</div>
+            <div>Offset: {offsets[index]}</div>
+            <div>Position: {positions[index]}</div>
+            <div>Left: {index * slideWidth + "px"}</div>
+            <div>Offset Left: {index * slideWidth + BASE_OFFSET + "px"}</div>
+          </div>
           {slide}
         </div>
       ))}
