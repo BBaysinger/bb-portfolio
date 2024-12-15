@@ -1,6 +1,10 @@
 import React, { useRef, useEffect, useCallback } from "react";
 
 import { Swiper, SwiperSlide } from "swiper/react";
+import { FreeMode, Virtual } from "swiper/modules"; // Import required modules
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
 
 import styles from "./ProjectParallaxCarousel.module.scss";
 
@@ -54,18 +58,23 @@ const ProjectParallaxCarousel: React.FC<ProjectParallaxCarouselProps> = ({
       className={`${styles["carousel"]} bb-project-parallax-carousel`}
       ref={containerRef}
     >
-      <Swiper spaceBetween={10} slidesPerView={1} loop={true}>
-        {/*
-        <SwiperSlide>Slide 1</SwiperSlide>
-        <SwiperSlide>Slide 2</SwiperSlide>
-        <SwiperSlide>Slide 3</SwiperSlide>
-        */}
-
+      <Swiper
+        spaceBetween={10}
+        slidesPerView={1}
+        loop={true}
+        freeMode={{ enabled: true, momentum: true, momentumBounce: false }}
+        modules={[FreeMode, Virtual]}
+        virtual
+      >
         {layer1Slides.map((slide, index) => (
-          <SwiperSlide key={index}>{slide}</SwiperSlide>
+          <SwiperSlide key={`slide1-${index}`} virtualIndex={index}>
+            {slide}
+          </SwiperSlide>
         ))}
         {layer2Slides.map((slide, index) => (
-          <SwiperSlide key={index}>{slide}</SwiperSlide>
+          <SwiperSlide key={`slide2-${index}`} virtualIndex={index}>
+            {slide}
+          </SwiperSlide>
         ))}
       </Swiper>
     </div>
