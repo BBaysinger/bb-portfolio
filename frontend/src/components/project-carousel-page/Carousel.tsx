@@ -1,7 +1,15 @@
 import React, { useRef, useState, useEffect, useCallback } from "react";
+
 import styles from "./Carousel.module.scss";
 
 const BASE_OFFSET = 100000;
+
+const Direction = {
+  LEFT: "Left",
+  RIGHT: "Right",
+} as const;
+
+type DirectionType = (typeof Direction)[keyof typeof Direction];
 
 interface CarouselProps {
   slides: React.ReactNode[];
@@ -19,9 +27,9 @@ const Carousel: React.FC<CarouselProps> = ({
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [_previousIndex, setPreviousIndex] = useState(NaN);
-  const [scrollDirection, setScrollDirection] = useState<
-    "left" | "right" | null
-  >(null);
+  const [scrollDirection, setScrollDirection] = useState<DirectionType | null>(
+    null
+  );
   const [positions, setPositions] = useState<number[]>([]);
   const [offsets, setOffsets] = useState<number[]>([]);
   const totalSlides = slides.length;
@@ -32,49 +40,43 @@ const Carousel: React.FC<CarouselProps> = ({
     }
   }, [initialIndex, slideWidth]);
 
-  const computeRightPositions = () => {
+  const computePositions = (direction: DirectionType) => {
     const threshold = 1;
     const newPositions: number[] = [];
     const newOffsets: number[] = [];
-    slides.forEach((_, index) => {
-      const offset = Math.floor(
-        (index - currentIndex + threshold) / totalSlides,
-      );
-      newOffsets.push(offset);
-      newPositions.push(
-        -offset * (slideWidth * slides.length) + index * slideWidth,
-      );
-    });
+
+    if (direction === Direction.RIGHT) {
+      slides.forEach((_, index) => {
+        const offset = Math.floor(
+          (index - currentIndex + threshold) / totalSlides
+        );
+        newOffsets.push(offset);
+        newPositions.push(
+          -offset * (slideWidth * slides.length) + index * slideWidth
+        );
+      });
+    } else if (direction === Direction.LEFT) {
+      slides.forEach((_, index) => {
+        const offset = Math.floor(
+          (index - currentIndex + threshold) / totalSlides
+        );
+        newOffsets.push(offset);
+        newPositions.push(
+          -offset * (slideWidth * slides.length) + index * slideWidth
+        );
+      });
+    }
 
     setOffsets(newOffsets);
     setPositions(newPositions);
-    console.info("Right scroll:", offsets);
-    console.info("Right Positions:", newPositions);
-  };
-
-  const computeLeftPositions = () => {
-    const threshold = 1;
-    const newPositions: number[] = [];
-    const newOffsets: number[] = [];
-    slides.forEach((_, index) => {
-      const offset = Math.floor(
-        (index - currentIndex + threshold) / totalSlides,
-      );
-      newOffsets.push(offset);
-      newPositions.push(
-        -offset * (slideWidth * slides.length) + index * slideWidth,
-      );
-    });
-
-    setOffsets(newOffsets);
-    setPositions(newPositions);
-    console.info("Left scroll:", offsets);
-    console.info("Left Positions:", newPositions);
+    
+    console.info(`${direction} offsets:`, offsets);
+    console.info(`${direction} positions:`, newPositions);
   };
 
   useEffect(() => {
-    // Call the right() logic once after mount
-    computeRightPositions();
+    // Call the 'right' logic once after mount
+    computePositions(Direction.RIGHT);
   }, []);
 
   const handleScroll = useCallback(() => {
@@ -85,7 +87,9 @@ const Carousel: React.FC<CarouselProps> = ({
 
     if (newIndex !== currentIndex) {
       setPreviousIndex(currentIndex);
-      setScrollDirection(newIndex > currentIndex ? "right" : "left");
+      setScrollDirection(
+        newIndex > currentIndex ? Direction.RIGHT : Direction.LEFT
+      );
       setCurrentIndex(newIndex);
       onIndexUpdate && onIndexUpdate(newIndex);
     }
@@ -95,11 +99,11 @@ const Carousel: React.FC<CarouselProps> = ({
     let animationFrameId: number | null = null;
 
     const scrollListener = () => {
-      if (animationFrameId !== null) return; // Prevent multiple frames
+      if (animationFrameId !== null) return;
 
       animationFrameId = requestAnimationFrame(() => {
         handleScroll();
-        animationFrameId = null; // Reset for the next frame
+        animationFrameId = null;
       });
     };
 
@@ -114,11 +118,7 @@ const Carousel: React.FC<CarouselProps> = ({
 
   useEffect(() => {
     if (scrollDirection) {
-      if (scrollDirection === "right") {
-        computeRightPositions();
-      } else if (scrollDirection === "left") {
-        computeLeftPositions();
-      }
+      computePositions(scrollDirection);
     }
   }, [scrollDirection]);
 
