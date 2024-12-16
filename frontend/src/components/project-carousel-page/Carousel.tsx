@@ -75,7 +75,8 @@ const Carousel: React.FC<CarouselProps> = ({
   useEffect(() => {
     // Call the right() logic once after mount
     computeRightPositions();
-  }, [currentIndex, onIndexUpdate, slideWidth, slides, totalSlides]);
+  }, []);
+
   const handleScroll = useCallback(() => {
     if (!scrollerRef.current) return;
 
@@ -91,6 +92,27 @@ const Carousel: React.FC<CarouselProps> = ({
   }, [currentIndex, slideWidth]);
 
   useEffect(() => {
+    let animationFrameId: number | null = null;
+
+    const scrollListener = () => {
+      if (animationFrameId !== null) return; // Prevent multiple frames
+
+      animationFrameId = requestAnimationFrame(() => {
+        handleScroll();
+        animationFrameId = null; // Reset for the next frame
+      });
+    };
+
+    const scroller = scrollerRef.current;
+    scroller?.addEventListener("scroll", scrollListener);
+
+    return () => {
+      scroller?.removeEventListener("scroll", scrollListener);
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+    };
+  }, [handleScroll]);
+
+  useEffect(() => {
     if (scrollDirection) {
       if (scrollDirection === "right") {
         computeRightPositions();
@@ -98,7 +120,7 @@ const Carousel: React.FC<CarouselProps> = ({
         computeLeftPositions();
       }
     }
-  }, [scrollDirection, computeRightPositions, computeLeftPositions]);
+  }, [scrollDirection]);
 
   return (
     <div
