@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useCallback } from "react";
+import React, { useRef, useEffect, useCallback, useState } from "react";
 
 import Carousel from "./Carousel";
 import styles from "./ProjectParallaxCarousel.module.scss";
@@ -15,6 +15,35 @@ const ProjectParallaxCarousel: React.FC<ProjectParallaxCarouselProps> = ({
   onScrollUpdate,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(1); // Default scale
+
+  /**
+   * Tried everything to find a CSS variables or SCSS mixin way to 
+   * clamp/fluid scale the carousel, but hey, that's why we have JavaScript, right? 🤦‍♂️
+   * TODO: Come back to this.
+   */
+  const updateScale = () => {
+    const minWidth = 320; // Minimum viewport width
+    const maxWidth = 1024; // Maximum viewport width
+    const minScale = 0.45; // Minimum scale
+    const maxScale = 1; // Maximum scale
+
+    // Get current viewport width
+    const currentWidth = window.innerWidth;
+
+    // Calculate scale based on viewport width
+    const newScale = Math.max(
+      minScale,
+      Math.min(
+        maxScale,
+        minScale +
+          ((currentWidth - minWidth) / (maxWidth - minWidth)) *
+            (maxScale - minScale),
+      ),
+    );
+
+    setScale(newScale);
+  };
 
   const handleScroll = useCallback(() => {
     if (containerRef.current && onScrollUpdate) {
@@ -33,6 +62,14 @@ const ProjectParallaxCarousel: React.FC<ProjectParallaxCarouselProps> = ({
       container.removeEventListener("scroll", handleScroll);
     };
   }, [handleScroll]);
+
+  useEffect(() => {
+    // Update scale on mount and resize
+    updateScale();
+    window.addEventListener("resize", updateScale);
+
+    return () => window.removeEventListener("resize", updateScale); // Cleanup listener
+  }, []);
 
   // function getRandomColorWithOpacity(opacity = 0.1) {
   //   const r = Math.floor(Math.random() * 256);
@@ -68,7 +105,8 @@ const ProjectParallaxCarousel: React.FC<ProjectParallaxCarouselProps> = ({
 
   return (
     <div
-      className={`${styles["carousel"]} bb-parallax-carousel`}
+      className={`${styles["parallax-carousel"]} bb-parallax-carousel`}
+      style={{ transform: `scale(${scale})` }}
       ref={containerRef}
     >
       <Carousel
@@ -76,6 +114,7 @@ const ProjectParallaxCarousel: React.FC<ProjectParallaxCarouselProps> = ({
         onIndexUpdate={handleScrollUpdate}
         slideWidth={693}
         debug={false}
+        wrapperClassName="bb-carousel"
       />
       {/* <div className={`${styles["slide-layer"]} bb-slide-layer`}>
         {layer1Slides.map((slide, index) => (
