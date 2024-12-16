@@ -1,12 +1,18 @@
 @use "@/styles/global";
 
 .carousel {
-  position: relative;
-  width: 100%;
+  position: absolute;
+  width: 1024px;
   height: 100%;
   display: flex;
   overflow-x: scroll;
   scroll-snap-type: x mandatory;
+  scrollbar-width: none; // Firefox
+
+  &::-webkit-scrollbar {
+    // Webkit
+    display: none;
+  }
 }
 
 .debug-info {
