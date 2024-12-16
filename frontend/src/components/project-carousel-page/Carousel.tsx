@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect, useCallback } from "react";
 
 import styles from "./Carousel.module.scss";
 
-const BASE_OFFSET = 100000;
+const BASE_OFFSET = 1000000;
 
 const Direction = {
   LEFT: "Left",
@@ -43,17 +43,24 @@ const Carousel: React.FC<CarouselProps> = ({
 
   const computePositions = (direction: DirectionType) => {
     // Retain 1 slide opposite of scroll direction to avoid blanking while still in view.
-    const threshold = 1;
+
     const newPositions: number[] = [];
     const newMultipliers: number[] = [];
 
     slides.forEach((_, index) => {
       let multiplier: number = NaN;
+      // Threshold serves a slightly different purpose for each direction.
+      // Scrolling right, it's only required to prevent slides from blanking
+      // before they are completely out of view. Scrolling left, it's required
+      // to widen the scrollable distance before reversing directions, so the
+      // element doesn't halt scrolling mid scroll.
       if (direction === Direction.RIGHT) {
+        const threshold = 2;
         multiplier = -Math.floor(
           (index - currentIndex + threshold) / slides.length,
         );
       } else if (direction === Direction.LEFT) {
+        const threshold = 4;
         multiplier = Math.floor(
           (currentIndex - index + threshold) / slides.length,
         );
