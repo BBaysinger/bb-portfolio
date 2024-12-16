@@ -46,7 +46,7 @@ class Footer extends React.Component {
 
     this.state = {
       portfolioLinkActive: true,
-      emailAddr: "@gmail.com", // firstly render a non-functional email avert readers.
+      emailAddr: "Waiting...",
     };
   }
 

@@ -13,7 +13,7 @@
   position: absolute;
   top: 26px;
   transform: translateY(-50%);
-  left: 95px;
+  left: 96px;
   z-index: 100;
   color: #666;
   font-size: 8px;
@@ -28,3 +28,10 @@
   width: 693px;
   scroll-snap-align: center;
 }
+
+// .shim {
+//   position: absolute;
+//   height: 100%;
+//   left: 0;
+//   border: 1px solid red;
+// }

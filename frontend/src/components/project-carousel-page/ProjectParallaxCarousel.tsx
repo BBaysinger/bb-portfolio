@@ -48,7 +48,7 @@ const ProjectParallaxCarousel: React.FC<ProjectParallaxCarouselProps> = ({
   // const colorArray = generateColorArray(layer1Slides.length, 0.1);
 
   function handleScrollUpdate(scrollOffset: number) {
-    console.log("scrollOffset:", scrollOffset);
+    // console.log("scrollOffset:", scrollOffset);
 
     if (onScrollUpdate) {
       onScrollUpdate(scrollOffset);
