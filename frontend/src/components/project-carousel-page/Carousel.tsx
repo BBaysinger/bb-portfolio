@@ -16,6 +16,7 @@ interface CarouselProps {
   slideWidth: number;
   initialIndex?: number;
   onIndexUpdate?: (currentIndex: number) => void;
+  debug?: boolean;
 }
 
 const Carousel: React.FC<CarouselProps> = ({
@@ -23,6 +24,7 @@ const Carousel: React.FC<CarouselProps> = ({
   slideWidth,
   initialIndex = 0,
   onIndexUpdate,
+  debug = false,
 }) => {
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
@@ -31,7 +33,7 @@ const Carousel: React.FC<CarouselProps> = ({
     null,
   );
   const [positions, setPositions] = useState<number[]>([]);
-  const [offsets, setOffsets] = useState<number[]>([]);
+  const [multipliers, setMultipliers] = useState<number[]>([]);
 
   useEffect(() => {
     if (scrollerRef.current) {
@@ -43,7 +45,7 @@ const Carousel: React.FC<CarouselProps> = ({
     // Retain 1 slide opposite of scroll direction to avoid blanking while still in view.
     const threshold = 1;
     const newPositions: number[] = [];
-    const newOffsets: number[] = [];
+    const newMultipliers: number[] = [];
 
     slides.forEach((_, index) => {
       let offset: number = NaN;
@@ -55,16 +57,18 @@ const Carousel: React.FC<CarouselProps> = ({
       } else if (direction === Direction.LEFT) {
         // Insert logic for left direction here.
       }
-      
+
       newPositions.push(xPos);
-      newOffsets.push(offset);
+      newMultipliers.push(offset);
     });
 
-    console.info(`${direction} offsets:`, newOffsets);
-    console.info(`${direction} positions:`, newPositions);
+    if (debug) {
+      console.info(`${direction} multipliers:`, newMultipliers);
+      console.info(`${direction} positions:`, newPositions);
 
-    setOffsets(newOffsets);
-    setPositions(newPositions);
+      setMultipliers(newMultipliers);
+      setPositions(newPositions);
+    }
   };
 
   useEffect(() => {
@@ -134,11 +138,13 @@ const Carousel: React.FC<CarouselProps> = ({
             left: positions[index] + "px",
           }}
         >
-          <div className={styles["debug-info"]}>
-            <div>Index: {index}</div>
-            <div>Offset: {offsets[index]}</div>
-            <div>xPos: {positions[index]}</div>
-          </div>
+          {debug && (
+            <div className={styles["debug-info"]}>
+              <div>Index: {index}</div>
+              <div>Offset: {multipliers[index]}</div>
+              <div>xPos: {positions[index]}</div>
+            </div>
+          )}
           {slide}
         </div>
       ))}

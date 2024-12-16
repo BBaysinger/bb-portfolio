@@ -75,6 +75,7 @@ const ProjectParallaxCarousel: React.FC<ProjectParallaxCarouselProps> = ({
         slides={layer1Slides}
         onIndexUpdate={handleScrollUpdate}
         slideWidth={693}
+        debug={true}
       />
       {/* <div className={`${styles["slide-layer"]} bb-slide-layer`}>
         {layer1Slides.map((slide, index) => (
