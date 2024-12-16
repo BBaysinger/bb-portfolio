@@ -28,11 +28,10 @@ const Carousel: React.FC<CarouselProps> = ({
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [_previousIndex, setPreviousIndex] = useState(NaN);
   const [scrollDirection, setScrollDirection] = useState<DirectionType | null>(
-    null
+    null,
   );
   const [positions, setPositions] = useState<number[]>([]);
   const [offsets, setOffsets] = useState<number[]>([]);
-  const totalSlides = slides.length;
 
   useEffect(() => {
     if (scrollerRef.current) {
@@ -48,30 +47,22 @@ const Carousel: React.FC<CarouselProps> = ({
     if (direction === Direction.RIGHT) {
       slides.forEach((_, index) => {
         const offset = Math.floor(
-          (index - currentIndex + threshold) / totalSlides
+          (index - currentIndex + threshold) / slides.length,
         );
         newOffsets.push(offset);
         newPositions.push(
-          -offset * (slideWidth * slides.length) + index * slideWidth
+          -offset * (slideWidth * slides.length) + index * slideWidth,
         );
       });
     } else if (direction === Direction.LEFT) {
-      slides.forEach((_, index) => {
-        const offset = Math.floor(
-          (index - currentIndex + threshold) / totalSlides
-        );
-        newOffsets.push(offset);
-        newPositions.push(
-          -offset * (slideWidth * slides.length) + index * slideWidth
-        );
-      });
+      // Logic not yet implemented.
     }
+
+    console.info(`${direction} offsets:`, newOffsets);
+    console.info(`${direction} positions:`, newPositions);
 
     setOffsets(newOffsets);
     setPositions(newPositions);
-    
-    console.info(`${direction} offsets:`, offsets);
-    console.info(`${direction} positions:`, newPositions);
   };
 
   useEffect(() => {
@@ -88,12 +79,12 @@ const Carousel: React.FC<CarouselProps> = ({
     if (newIndex !== currentIndex) {
       setPreviousIndex(currentIndex);
       setScrollDirection(
-        newIndex > currentIndex ? Direction.RIGHT : Direction.LEFT
+        newIndex > currentIndex ? Direction.RIGHT : Direction.LEFT,
       );
       setCurrentIndex(newIndex);
       onIndexUpdate && onIndexUpdate(newIndex);
     }
-  }, [currentIndex, slideWidth]);
+  }, [currentIndex, slideWidth, onIndexUpdate]);
 
   useEffect(() => {
     let animationFrameId: number | null = null;
