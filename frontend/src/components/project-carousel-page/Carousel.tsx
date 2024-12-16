@@ -2,6 +2,11 @@ import React, { useRef, useState, useEffect, useCallback } from "react";
 
 import styles from "./Carousel.module.scss";
 
+// BASE_OFFSET is a HACK that accounts for that HTML elements don't scroll
+// to negative scrollLeft. TODO: This can be handled in a way that instead
+// repositions the slides and scroll position when the user
+// scroll stops. It works, I've done it elsewhere, but it's not critical for
+// current use cases. Until then, it's not technically infinite scrolling left.
 const BASE_OFFSET = 1000000;
 
 const Direction = {
@@ -17,14 +22,27 @@ interface CarouselProps {
   initialIndex?: number;
   onIndexUpdate?: (currentIndex: number) => void;
   debug?: boolean;
+  wrapperClassName?: string;
 }
 
+/**
+ * Infinite scolling carousel using native HTML element inertial scroll behavior.
+ * React is the only dependency.
+ *
+ * TODO: This should automatically clone slides when there are not enough
+ * to facilitate scrolling.
+ *
+ * @author Bradley Baysinger
+ * @since 2024-12-16
+ * @version N/A
+ */
 const Carousel: React.FC<CarouselProps> = ({
   slides,
   slideWidth,
   initialIndex = 0,
   onIndexUpdate,
   debug = false,
+  wrapperClassName = "",
 }) => {
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
@@ -35,56 +53,56 @@ const Carousel: React.FC<CarouselProps> = ({
   const [positions, setPositions] = useState<number[]>([]);
   const [multipliers, setMultipliers] = useState<number[]>([]);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (scrollerRef.current) {
       scrollerRef.current.scrollLeft = BASE_OFFSET + initialIndex * slideWidth;
     }
   }, [initialIndex, slideWidth]);
 
-  const computePositions = (direction: DirectionType) => {
-    // Retain 1 slide opposite of scroll direction to avoid blanking while still in view.
+  const computePositions = useCallback(
+    (direction: DirectionType) => {
+      // Keep arrays here to be able to console.log output from here
+      // only when they update.
+      const newPositions: number[] = [];
+      const newMultipliers: number[] = [];
 
-    const newPositions: number[] = [];
-    const newMultipliers: number[] = [];
+      slides.forEach((_, index) => {
+        let multiplier: number = NaN;
+        if (direction === Direction.RIGHT) {
+          const threshold = 2;
+          multiplier = -Math.floor(
+            (index - currentIndex + threshold) / slides.length,
+          );
+        } else if (direction === Direction.LEFT) {
+          const threshold = 4;
+          multiplier = Math.floor(
+            (currentIndex - index + threshold) / slides.length,
+          );
+        }
 
-    slides.forEach((_, index) => {
-      let multiplier: number = NaN;
-      // Threshold serves a slightly different purpose for each direction.
-      // Scrolling right, it's only required to prevent slides from blanking
-      // before they are completely out of view. Scrolling left, it's required
-      // to widen the scrollable distance before reversing directions, so the
-      // element doesn't halt scrolling mid scroll.
-      if (direction === Direction.RIGHT) {
-        const threshold = 2;
-        multiplier = -Math.floor(
-          (index - currentIndex + threshold) / slides.length,
+        newMultipliers.push(multiplier);
+        newPositions.push(
+          multiplier * slideWidth * slides.length + index * slideWidth,
         );
-      } else if (direction === Direction.LEFT) {
-        const threshold = 4;
-        multiplier = Math.floor(
-          (currentIndex - index + threshold) / slides.length,
-        );
+      });
+
+      if (debug) {
+        console.info(`${direction} multipliers:`, newMultipliers);
+        console.info(`${direction} positions:`, newPositions);
       }
 
-      newMultipliers.push(multiplier);
-      newPositions.push(
-        multiplier * slideWidth * slides.length + index * slideWidth,
-      );
-    });
+      setMultipliers(newMultipliers);
+      setPositions(newPositions);
+    },
+    [slides, currentIndex, slideWidth, debug],
+  );
 
-    if (debug) {
-      console.info(`${direction} multipliers:`, newMultipliers);
-      console.info(`${direction} positions:`, newPositions);
-    }
-
-    setMultipliers(newMultipliers);
-    setPositions(newPositions);
-  };
-
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     // Call the 'right' logic once after mount to compute the initial positions.
     computePositions(Direction.RIGHT);
-  }, []);
+  }, [computePositions]);
 
   const handleScroll = useCallback(() => {
     if (!scrollerRef.current) return;
@@ -133,10 +151,13 @@ const Carousel: React.FC<CarouselProps> = ({
     if (scrollDirection) {
       computePositions(scrollDirection);
     }
-  }, [scrollDirection, currentIndex]);
+  }, [scrollDirection, currentIndex, computePositions]);
 
   return (
-    <div ref={scrollerRef} className={`${styles["carousel"]} bb-carousel`}>
+    <div
+      ref={scrollerRef}
+      className={`${styles["carousel"]} ${wrapperClassName}`}
+    >
       {slides.map((slide, index) => (
         <div
           key={index}
