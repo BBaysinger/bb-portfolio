@@ -39,31 +39,24 @@ const Carousel: React.FC<CarouselProps> = ({
     }
   }, [initialIndex, slideWidth]);
 
-  useEffect(() => {
-    // Call 'computePositions' whenever the scroll direction changes
-    if (scrollDirection) {
-      computePositions(scrollDirection);
-    }
-  }, [scrollDirection]);
-
   const computePositions = (direction: DirectionType) => {
     const threshold = 1;
     const newPositions: number[] = [];
     const newOffsets: number[] = [];
 
     slides.forEach((_, index) => {
-      const offset = Math.floor(
+      const offset = -1 * Math.floor(
         (index - currentIndex + threshold) / slides.length,
       );
       newOffsets.push(offset);
 
       if (direction === Direction.RIGHT) {
         newPositions.push(
-          -offset * (slideWidth * slides.length) + index * slideWidth,
+          offset * (slideWidth * slides.length) + index * slideWidth,
         );
       } else if (direction === Direction.LEFT) {
         newPositions.push(
-          -offset * (slideWidth * slides.length) + index * slideWidth,
+          offset * (slideWidth * slides.length) + index * slideWidth,
         );
       }
     });
@@ -76,7 +69,7 @@ const Carousel: React.FC<CarouselProps> = ({
   };
 
   useEffect(() => {
-    // Call the 'right' logic once after mount
+    // Call the 'right' logic once after mount to compute the initial positions.
     computePositions(Direction.RIGHT);
   }, []);
 
@@ -90,7 +83,7 @@ const Carousel: React.FC<CarouselProps> = ({
       const newDirection =
         newIndex > currentIndex ? Direction.RIGHT : Direction.LEFT;
 
-      setScrollDirection(newDirection); // Update scroll direction
+      setScrollDirection(newDirection);
       setPreviousIndex(currentIndex);
       setCurrentIndex(newIndex);
 
