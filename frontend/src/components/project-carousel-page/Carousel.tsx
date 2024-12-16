@@ -39,24 +39,34 @@ const Carousel: React.FC<CarouselProps> = ({
     }
   }, [initialIndex, slideWidth]);
 
+  useEffect(() => {
+    // Call 'computePositions' whenever the scroll direction changes
+    if (scrollDirection) {
+      computePositions(scrollDirection);
+    }
+  }, [scrollDirection]);
+
   const computePositions = (direction: DirectionType) => {
     const threshold = 1;
     const newPositions: number[] = [];
     const newOffsets: number[] = [];
 
-    if (direction === Direction.RIGHT) {
-      slides.forEach((_, index) => {
-        const offset = Math.floor(
-          (index - currentIndex + threshold) / slides.length,
-        );
-        newOffsets.push(offset);
+    slides.forEach((_, index) => {
+      const offset = Math.floor(
+        (index - currentIndex + threshold) / slides.length,
+      );
+      newOffsets.push(offset);
+
+      if (direction === Direction.RIGHT) {
         newPositions.push(
           -offset * (slideWidth * slides.length) + index * slideWidth,
         );
-      });
-    } else if (direction === Direction.LEFT) {
-      // Logic not yet implemented.
-    }
+      } else if (direction === Direction.LEFT) {
+        newPositions.push(
+          -offset * (slideWidth * slides.length) + index * slideWidth,
+        );
+      }
+    });
 
     console.info(`${direction} offsets:`, newOffsets);
     console.info(`${direction} positions:`, newPositions);
@@ -77,12 +87,16 @@ const Carousel: React.FC<CarouselProps> = ({
     const newIndex = Math.round(scrollLeft / slideWidth);
 
     if (newIndex !== currentIndex) {
+      const newDirection =
+        newIndex > currentIndex ? Direction.RIGHT : Direction.LEFT;
+
+      setScrollDirection(newDirection); // Update scroll direction
       setPreviousIndex(currentIndex);
-      setScrollDirection(
-        newIndex > currentIndex ? Direction.RIGHT : Direction.LEFT,
-      );
       setCurrentIndex(newIndex);
-      onIndexUpdate && onIndexUpdate(newIndex);
+
+      if (onIndexUpdate) {
+        onIndexUpdate(newIndex);
+      }
     }
   }, [currentIndex, slideWidth, onIndexUpdate]);
 
