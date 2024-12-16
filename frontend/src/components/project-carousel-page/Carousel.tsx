@@ -49,19 +49,20 @@ const Carousel: React.FC<CarouselProps> = ({
 
     slides.forEach((_, index) => {
       let multiplier: number = NaN;
-      let xPos: number = NaN;
       if (direction === Direction.RIGHT) {
         multiplier = -Math.floor(
           (index - currentIndex + threshold) / slides.length,
         );
-        xPos = multiplier * slideWidth * slides.length + index * slideWidth;
       } else if (direction === Direction.LEFT) {
-        multiplier = Math.floor((currentIndex - index) / slides.length);
-        // xPos = BASE_OFFSET + multiplier * slideWidth * slides.length + index * slideWidth;
+        multiplier = Math.floor(
+          (currentIndex - index + threshold) / slides.length,
+        );
       }
 
-      newPositions.push(xPos);
       newMultipliers.push(multiplier);
+      newPositions.push(
+        multiplier * slideWidth * slides.length + index * slideWidth,
+      );
     });
 
     if (debug) {
@@ -122,7 +123,6 @@ const Carousel: React.FC<CarouselProps> = ({
   }, [handleScroll]);
 
   useEffect(() => {
-    // Compute directions when the index or the scroll direction changes.
     if (scrollDirection) {
       computePositions(scrollDirection);
     }
