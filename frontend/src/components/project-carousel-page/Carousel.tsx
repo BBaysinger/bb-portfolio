@@ -48,27 +48,29 @@ const Carousel: React.FC<CarouselProps> = ({
     const newMultipliers: number[] = [];
 
     slides.forEach((_, index) => {
-      let offset: number = NaN;
+      let multiplier: number = NaN;
       let xPos: number = NaN;
       if (direction === Direction.RIGHT) {
-        offset =
-          -1 * Math.floor((index - currentIndex + threshold) / slides.length);
-        xPos = offset * slideWidth * slides.length + index * slideWidth;
+        multiplier = -Math.floor(
+          (index - currentIndex + threshold) / slides.length,
+        );
+        xPos = multiplier * slideWidth * slides.length + index * slideWidth;
       } else if (direction === Direction.LEFT) {
-        // Insert logic for left direction here.
+        multiplier = Math.floor((currentIndex - index) / slides.length);
+        // xPos = BASE_OFFSET + multiplier * slideWidth * slides.length + index * slideWidth;
       }
 
       newPositions.push(xPos);
-      newMultipliers.push(offset);
+      newMultipliers.push(multiplier);
     });
 
     if (debug) {
       console.info(`${direction} multipliers:`, newMultipliers);
       console.info(`${direction} positions:`, newPositions);
-
-      setMultipliers(newMultipliers);
-      setPositions(newPositions);
     }
+
+    setMultipliers(newMultipliers);
+    setPositions(newPositions);
   };
 
   useEffect(() => {
@@ -80,13 +82,15 @@ const Carousel: React.FC<CarouselProps> = ({
     if (!scrollerRef.current) return;
 
     const scrollLeft = scrollerRef.current.scrollLeft;
-    const newIndex = Math.round(scrollLeft / slideWidth);
+    const newIndex = -Math.round((BASE_OFFSET - scrollLeft) / slideWidth);
 
     if (newIndex !== currentIndex) {
       const newDirection =
         newIndex > currentIndex ? Direction.RIGHT : Direction.LEFT;
 
-      setScrollDirection(newDirection);
+      if (newDirection !== scrollDirection) {
+        setScrollDirection(newDirection);
+      }
       setPreviousIndex(currentIndex);
       setCurrentIndex(newIndex);
 
@@ -125,24 +129,20 @@ const Carousel: React.FC<CarouselProps> = ({
   }, [scrollDirection, currentIndex]);
 
   return (
-    <div
-      ref={scrollerRef}
-      className={`${styles["carousel"]} bb-carousel`}
-      onScroll={handleScroll}
-    >
+    <div ref={scrollerRef} className={`${styles["carousel"]} bb-carousel`}>
       {slides.map((slide, index) => (
         <div
           key={index}
           className={`${styles["carousel-slide"]}`}
           style={{
-            left: positions[index] + "px",
+            left: BASE_OFFSET + positions[index] + "px",
           }}
         >
           {debug && (
             <div className={styles["debug-info"]}>
               <div>Index: {index}</div>
-              <div>Offset: {multipliers[index]}</div>
-              <div>xPos: {positions[index]}</div>
+              <div>Multiplier: {multipliers[index]}</div>
+              <div>xPos: {positions[index] + "px"}</div>
             </div>
           )}
           {slide}
