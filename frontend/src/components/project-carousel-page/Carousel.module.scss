@@ -1,3 +1,5 @@
+@use "@/styles/global";
+
 .carousel {
   position: relative;
   width: 100%;
@@ -11,13 +13,11 @@
   position: absolute;
   padding-left: 4px;
   z-index: 100;
-  color: orange;
+  color: global.$heavierThemeColor;
 }
 
 .carousel-slide {
   position: absolute;
-  width: 100%;
-  height: 100%;
-  flex: 0 0 100%;
+  width: 693px;
   scroll-snap-align: center;
 }
