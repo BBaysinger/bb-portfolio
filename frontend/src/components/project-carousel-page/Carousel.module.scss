@@ -11,9 +11,16 @@
 
 .debug-info {
   position: absolute;
-  padding-left: 4px;
+  top: 26px;
+  transform: translateY(-50%);
+  left: 95px;
   z-index: 100;
-  color: global.$heavierThemeColor;
+  color: #666;
+  font-size: 8px;
+  div {
+    display: inline;
+    margin-right: 4px;
+  }
 }
 
 .carousel-slide {

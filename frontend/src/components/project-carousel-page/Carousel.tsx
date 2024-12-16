@@ -40,25 +40,24 @@ const Carousel: React.FC<CarouselProps> = ({
   }, [initialIndex, slideWidth]);
 
   const computePositions = (direction: DirectionType) => {
+    // Retain 1 slide opposite of scroll direction to avoid blanking while still in view.
     const threshold = 1;
     const newPositions: number[] = [];
     const newOffsets: number[] = [];
 
     slides.forEach((_, index) => {
-      const offset = -1 * Math.floor(
-        (index - currentIndex + threshold) / slides.length,
-      );
-      newOffsets.push(offset);
-
+      let offset: number = NaN;
+      let xPos: number = NaN;
       if (direction === Direction.RIGHT) {
-        newPositions.push(
-          offset * (slideWidth * slides.length) + index * slideWidth,
-        );
+        offset =
+          -1 * Math.floor((index - currentIndex + threshold) / slides.length);
+        xPos = offset * slideWidth * slides.length + index * slideWidth;
       } else if (direction === Direction.LEFT) {
-        newPositions.push(
-          offset * (slideWidth * slides.length) + index * slideWidth,
-        );
+        // Insert logic for left direction here.
       }
+      
+      newPositions.push(xPos);
+      newOffsets.push(offset);
     });
 
     console.info(`${direction} offsets:`, newOffsets);
@@ -138,7 +137,7 @@ const Carousel: React.FC<CarouselProps> = ({
           <div className={styles["debug-info"]}>
             <div>Index: {index}</div>
             <div>Offset: {offsets[index]}</div>
-            <div>Position: {positions[index]}</div>
+            <div>xPos: {positions[index]}</div>
           </div>
           {slide}
         </div>
