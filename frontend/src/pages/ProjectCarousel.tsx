@@ -3,7 +3,6 @@ import { Link, useParams } from "react-router-dom";
 
 import HeaderSub from "components/layout/HeaderSub";
 import ProjectContent from "components/project-carousel-page/ProjectContent";
-import Swipe from "utils/Swipe";
 import ProjectData from "data/ProjectData";
 import LogoSwapper from "components/project-carousel-page/LogoSwapper";
 import ProjectParallaxCarousel from "components/project-carousel-page/ProjectParallaxCarousel";
@@ -24,37 +23,16 @@ const ProjectCarousel: React.FC = () => {
 
   // const [scale, setScale] = useState(() => calculateScale());
   const infoRefElems = useRef<Array<ProjectContent | null>>([]);
-  const swipe = useRef(Swipe.instance);
 
   const handleResize = () => {
     // setScale(calculateScale());
   };
 
-  const handleSwiped = () => {
-    const keys = ProjectData.activeKeys;
-    const currentIndex = keys.indexOf(projectId);
-    const newIndex =
-      (currentIndex +
-        (swipe.current.swipeDirection === Swipe.SWIPE_LT ? 1 : -1) +
-        keys.length) %
-      keys.length;
-
-    const newId = keys[newIndex];
-    window.history.pushState({}, "", `/portfolio/${newId}`);
-  };
-
   useEffect(() => {
     window.addEventListener("resize", handleResize);
 
-    const swiper = document.getElementById("swiper");
-    if (swiper) {
-      swipe.current.init([swiper as HTMLElement]);
-      swipe.current.onSwipe(handleSwiped);
-    }
-
     return () => {
       window.removeEventListener("resize", handleResize);
-      swipe.current.kill();
     };
   }, []);
 
