@@ -122,10 +122,11 @@ const Carousel: React.FC<CarouselProps> = ({
   }, [handleScroll]);
 
   useEffect(() => {
+    // Compute directions when the index or the scroll direction changes.
     if (scrollDirection) {
       computePositions(scrollDirection);
     }
-  }, [scrollDirection]);
+  }, [scrollDirection, currentIndex]);
 
   return (
     <div
