@@ -25,6 +25,8 @@ interface CarouselProps {
   wrapperClassName?: string;
   onScrollUpdate?: (scrollLeft: number) => void;
   externalScrollLeft?: number;
+  onStableIndex?: (stableIndex: number) => void; // New prop
+  stabilizationDuration?: number; // Duration for stabilization
 }
 
 /**
@@ -47,16 +49,17 @@ const Carousel: React.FC<CarouselProps> = ({
   wrapperClassName = "",
   onScrollUpdate,
   externalScrollLeft,
+  onStableIndex,
+  stabilizationDuration = 1000, // Default to 500ms
 }) => {
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
-  const [_previousIndex, setPreviousIndex] = useState(NaN);
-  const [scrollDirection, setScrollDirection] = useState<DirectionType | null>(
-    null,
-  );
+  const [previousIndex, setPreviousIndex] = useState(NaN);
+  const [scrollDirection, setScrollDirection] = useState<DirectionType | null>(null);
   const [positions, setPositions] = useState<number[]>([]);
   const [multipliers, setMultipliers] = useState<number[]>([]);
   const [isSyncing, setIsSyncing] = useState(false);
+  const stabilizationTimer = useRef<NodeJS.Timeout | null>(null);
 
   const computePositions = useCallback(
     (direction: DirectionType) => {
@@ -106,7 +109,6 @@ const Carousel: React.FC<CarouselProps> = ({
     if (!scrollerRef.current || isSyncing) return;
 
     const scrollLeft = scrollerRef.current.scrollLeft;
-
     const newIndex = -Math.round((BASE_OFFSET - scrollLeft) / slideSpacing);
 
     if (newIndex !== currentIndex) {
@@ -122,11 +124,18 @@ const Carousel: React.FC<CarouselProps> = ({
       if (onIndexUpdate) {
         onIndexUpdate(newIndex);
       }
+
+      // Stabilization detection logic
+      if (stabilizationTimer.current) {
+        clearTimeout(stabilizationTimer.current);
+      }
+      stabilizationTimer.current = setTimeout(() => {
+        if (onStableIndex) onStableIndex(newIndex);
+      }, stabilizationDuration);
     }
 
-    // Emit real-time scroll position to parent
     if (onScrollUpdate) {
-      onScrollUpdate(scrollLeft - BASE_OFFSET); // Normalize position
+      onScrollUpdate(scrollLeft - BASE_OFFSET);
     }
   }, [
     currentIndex,
@@ -135,6 +144,8 @@ const Carousel: React.FC<CarouselProps> = ({
     onScrollUpdate,
     scrollDirection,
     isSyncing,
+    onStableIndex,
+    stabilizationDuration,
   ]);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
