@@ -18,7 +18,7 @@ const ProjectParallaxCarousel: React.FC<ProjectParallaxCarouselProps> = ({
   const [scale, setScale] = useState(1); // Default scale
 
   /**
-   * Tried everything to find a CSS variables or SCSS mixin way to 
+   * Tried everything to find a CSS variables or SCSS mixin way to
    * clamp/fluid scale the carousel, but hey, that's why we have JavaScript, right? 🤦‍♂️
    * TODO: Come back to this.
    */
@@ -114,18 +114,15 @@ const ProjectParallaxCarousel: React.FC<ProjectParallaxCarouselProps> = ({
         onIndexUpdate={handleScrollUpdate}
         slideWidth={693}
         debug={false}
-        wrapperClassName="bb-carousel"
+        wrapperClassName="bb-carousel-laptops"
       />
-      {/* <div className={`${styles["slide-layer"]} bb-slide-layer`}>
-        {layer1Slides.map((slide, index) => (
-          <React.Fragment key={index}>{slide}</React.Fragment>
-        ))}
-      </div> */}
-      <div className={`${styles["slide-layer"]} bb-slide-layer`}>
-        {layer2Slides.map((slide, index) => (
-          <React.Fragment key={index}>{slide}</React.Fragment>
-        ))}
-      </div>
+      <Carousel
+        slides={layer2Slides}
+        onIndexUpdate={handleScrollUpdate}
+        slideWidth={693}
+        debug={false}
+        wrapperClassName="bb-carousel-phones"
+      />
     </div>
   );
 };
