@@ -1,6 +1,6 @@
 ## Features
 
-- **Interactive Slideshow**: Previews for each portfolio project are presented through an parallax carousel/slideshow with seamless user swiping from left to right.
+- **Interactive Slideshow**: Previews for each portfolio project are presented through an infinite parallax carousel with seamless, native user swiping from left to right.
   - **Device Overlays**: Screenshots are dynamically overlaid onto mobile and desktop device mockups for a professional presentation.
   - **Dynamic Routing**: Each slide is linked through dynamic routing, ensuring a smooth and engaging user experience with deep linkning available.
   - **Actionable Links**: Includes buttons to access:
