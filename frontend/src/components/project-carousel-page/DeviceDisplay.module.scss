@@ -53,30 +53,32 @@
 
     img {
       position: absolute;
-      left: 493px;
-      top: 75px;
       height: 354px;
       width: 162px;
     }
 
-    &.portrait {
-      border: 1px solid green;
+    &.none {
+      display: none;
+    }
 
+    &.portrait {
       img {
-        top: 20px;
-        left: 300px;
+        left: 493px;
+        top: 75px;
       }
     }
 
     &.landscape {
-      border: 1px solid red;
       &::before {
         transform: rotate(90deg);
+        top: 120px;
+        left: 340px;
       }
       img {
-        top: 227px;
-        left: 294px;
-        transform: rotate(90deg);
+        top: 248px;
+        left: 276px;
+        height: 162px;
+        width: 354px;
       }
     }
   }
