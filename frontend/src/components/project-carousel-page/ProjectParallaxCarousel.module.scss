@@ -35,6 +35,7 @@
   .bb-carousel-laptops {
     left: 50vw;
     transform: translateX(-50%);
+    scroll-snap-type: none; // Critical for the slave carousel!
 
     mask-image: linear-gradient(
       to right,
@@ -49,6 +50,7 @@
   .bb-carousel-phones {
     left: 50vw;
     transform: translateX(-50%);
+    height: 459px;
 
     mask-image: linear-gradient(
       to right,
