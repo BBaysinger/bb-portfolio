@@ -20,7 +20,7 @@ const ProjectParallaxCarousel: React.FC<ProjectParallaxCarouselProps> = ({
   const slideSpacings = {
     layer1: 693,
     master: 720,
-    layer2: 850,
+    layer2: 900,
   };
 
   const layerMultipliers = {

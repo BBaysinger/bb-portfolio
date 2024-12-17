@@ -2,11 +2,11 @@ import React, { useRef, useState, useEffect, useCallback } from "react";
 
 import styles from "./Carousel.module.scss";
 
-// BASE_OFFSET is a HACK that accounts for that HTML elements don't scroll
+// BASE_OFFSET accounts for that HTML elements don't scroll
 // to negative scrollLeft. TODO: This can be handled in a way that instead
 // repositions the slides and scroll position when the user
 // scroll stops. It works, I've done it elsewhere, but it's not critical for
-// current use cases. Until then, it's not technically infinite scrolling left.
+// current use cases. Until then, it's not *technically* infinite scrolling left.
 const BASE_OFFSET = 1000000;
 
 const Direction = {
@@ -50,7 +50,7 @@ const Carousel: React.FC<CarouselProps> = ({
   onScrollUpdate,
   externalScrollLeft,
   onStableIndex,
-  stabilizationDuration = 600, // Default to 500ms
+  stabilizationDuration = 400,
 }) => {
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
