@@ -58,14 +58,6 @@ const Carousel: React.FC<CarouselProps> = ({
   const [multipliers, setMultipliers] = useState<number[]>([]);
   const [isSyncing, setIsSyncing] = useState(false);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => {
-    if (scrollerRef.current) {
-      scrollerRef.current.scrollLeft =
-        BASE_OFFSET + initialIndex * slideSpacing;
-    }
-  }, [initialIndex, slideSpacing]);
-
   const computePositions = useCallback(
     (direction: DirectionType) => {
       // Keep arrays here to be able to console.log output from here
@@ -144,6 +136,18 @@ const Carousel: React.FC<CarouselProps> = ({
     scrollDirection,
     isSyncing,
   ]);
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (scrollerRef.current && typeof externalScrollLeft === "number") {
+      setIsSyncing(true);
+      scrollerRef.current.scrollLeft = BASE_OFFSET + externalScrollLeft; // Add BASE_OFFSET back
+      requestAnimationFrame(() => {
+        setIsSyncing(false);
+        handleScroll(); // Trigger manual scroll logic
+      });
+    }
+  }, [externalScrollLeft, handleScroll]);
 
   useEffect(() => {
     let animationFrameId: number | null = null;
