@@ -28,6 +28,11 @@
     background-position: calc(50% + 2px) center;
     background-size: 693px 414px;
     width: 693px;
+    filter: blur(2px);
+    transform: translateX(-50%) scale(0.98);
+    transition:
+      transform 0.5s ease-in-out,
+      filter 0.5s ease-in-out;
 
     img {
       position: absolute;
@@ -35,6 +40,7 @@
       left: 97px;
       height: 310px;
       width: 500px;
+      transition: transform 0.7s ease-in-out;
     }
   }
 
@@ -49,16 +55,22 @@
       background-image: url("../../images/project-carousel/phone.png");
       background-size: cover;
       background-repeat: no-repeat;
-      transition: transform 0.5s ease-in-out;
-      transform: rotate(2deg);
+      filter: blur(2px);
+      transition:
+        transform 0.5s ease-in-out 0.1s,
+        filter 0.5s ease-in-out;
+      transform: translateY(3%) rotate(1deg);
     }
 
     img {
       position: absolute;
       height: 354px;
       width: 162px;
-      transition: transform 0.5s ease-in-out;
-      transform: rotate(2deg);
+      filter: blur(2px);
+      transition:
+        transform 0.5s ease-in-out 0.1s,
+        filter 0.5s ease-in-out;
+      transform: translateY(3%) rotate(1deg);
     }
 
     &.none {
@@ -74,7 +86,8 @@
 
     &.landscape {
       &::before {
-        transform: rotate(92deg);
+        filter: blur(2px);
+        transform: translateY(5px) rotate(91deg);
         top: 130px;
         left: 340px;
       }
@@ -83,26 +96,35 @@
         left: 276px;
         height: 162px;
         width: 354px;
-        transform: rotate(2deg);
+        filter: blur(2px);
+        transform: translateY(5px) rotate(1deg);
       }
     }
   }
 }
 
 :global {
+  .bb-stabilized-slide .bb-laptop {
+    filter: blur(0);
+    transform: translateX(-50%) scale(1);
+  }
   .bb-stabilized-slide .bb-portrait.bb-phone {
     &::before {
+      filter: blur(0);
       transform: rotate(0deg);
     }
     img {
+      filter: blur(0);
       transform: rotate(0deg);
     }
   }
   .bb-stabilized-slide .bb-landscape.bb-phone {
     &::before {
+      filter: blur(0);
       transform: rotate(90deg);
     }
     img {
+      filter: blur(0);
       transform: rotate(0deg);
     }
   }
