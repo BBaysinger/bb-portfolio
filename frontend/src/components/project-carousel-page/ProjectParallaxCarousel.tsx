@@ -63,9 +63,9 @@ const ProjectParallaxCarousel: React.FC<ProjectParallaxCarouselProps> = ({
   }, []);
 
   const getSlideClass = (index: number) =>
-    index === stabilizedIndex
-      ? `{$styles["stabilized-slide"]} bb-stabilized-slide`
-      : "";
+    (index === stabilizedIndex
+      ? `${styles["stabilized-slide"]} bb-stabilized-slide`
+      : "") + ` bb-transparent-slide`;
 
   return (
     <div
@@ -90,10 +90,7 @@ const ProjectParallaxCarousel: React.FC<ProjectParallaxCarouselProps> = ({
       {/* Master */}
       <Carousel
         slides={layer1Slides.map((_, index) => (
-          <div
-            key={index}
-            className={`${styles["transparent-slide"]} getSlideClass(index)}`}
-          >
+          <div key={index} className={`${styles["transparent-slide"]}`}>
             {index + 1}
           </div>
         ))}
@@ -103,6 +100,7 @@ const ProjectParallaxCarousel: React.FC<ProjectParallaxCarouselProps> = ({
         onIndexUpdate={onIndexUpdate} // Detect destabilization
         debug={false}
         wrapperClassName="bb-carousel-master"
+        slideClassName="bb-slide-wrapper"
       />
 
       {/* Layer 2 */}

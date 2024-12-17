@@ -7,7 +7,7 @@ import styles from "./Carousel.module.scss";
 // repositions the slides and scroll position when the user
 // scroll stops. It works, I've done it elsewhere, but it's not critical for
 // current use cases. Until then, it's not *technically* infinite scrolling left.
-const BASE_OFFSET = 1000000;
+const BASE_OFFSET = 100000;
 
 const Direction = {
   LEFT: "Left",
@@ -23,6 +23,7 @@ interface CarouselProps {
   onIndexUpdate?: (currentIndex: number) => void;
   debug?: boolean;
   wrapperClassName?: string;
+  slideClassName?: string;
   onScrollUpdate?: (scrollLeft: number) => void;
   externalScrollLeft?: number;
   onStableIndex?: (stableIndex: number) => void;
@@ -47,6 +48,7 @@ const Carousel: React.FC<CarouselProps> = ({
   onIndexUpdate,
   debug = false,
   wrapperClassName = "",
+  slideClassName = "",
   onScrollUpdate,
   externalScrollLeft,
   onStableIndex,
@@ -207,7 +209,7 @@ const Carousel: React.FC<CarouselProps> = ({
       {slides.map((slide, index) => (
         <div
           key={index}
-          className={`${styles["carousel-slide"]}`}
+          className={`${styles["carousel-slide"]} ${slideClassName}`}
           style={{
             left: BASE_OFFSET + positions[index] + "px",
           }}
