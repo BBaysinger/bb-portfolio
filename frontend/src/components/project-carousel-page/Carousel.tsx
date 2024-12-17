@@ -23,6 +23,8 @@ interface CarouselProps {
   onIndexUpdate?: (currentIndex: number) => void;
   debug?: boolean;
   wrapperClassName?: string;
+  onScrollUpdate?: (scrollLeft: number) => void;
+  externalScrollLeft?: number;
 }
 
 /**
@@ -43,6 +45,8 @@ const Carousel: React.FC<CarouselProps> = ({
   onIndexUpdate,
   debug = false,
   wrapperClassName = "",
+  onScrollUpdate,
+  externalScrollLeft,
 }) => {
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
@@ -52,6 +56,7 @@ const Carousel: React.FC<CarouselProps> = ({
   );
   const [positions, setPositions] = useState<number[]>([]);
   const [multipliers, setMultipliers] = useState<number[]>([]);
+  const [isSyncing, setIsSyncing] = useState(false);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
@@ -105,9 +110,10 @@ const Carousel: React.FC<CarouselProps> = ({
   }, [computePositions]);
 
   const handleScroll = useCallback(() => {
-    if (!scrollerRef.current) return;
+    if (!scrollerRef.current || isSyncing) return;
 
     const scrollLeft = scrollerRef.current.scrollLeft;
+
     const newIndex = -Math.round((BASE_OFFSET - scrollLeft) / slideWidth);
 
     if (newIndex !== currentIndex) {
@@ -124,7 +130,19 @@ const Carousel: React.FC<CarouselProps> = ({
         onIndexUpdate(newIndex);
       }
     }
-  }, [currentIndex, slideWidth, onIndexUpdate]);
+
+    // Emit real-time scroll position to parent
+    if (onScrollUpdate) {
+      onScrollUpdate(scrollLeft - BASE_OFFSET); // Normalize position
+    }
+  }, [
+    currentIndex,
+    slideWidth,
+    onIndexUpdate,
+    onScrollUpdate,
+    scrollDirection,
+    isSyncing,
+  ]);
 
   useEffect(() => {
     let animationFrameId: number | null = null;
@@ -146,6 +164,14 @@ const Carousel: React.FC<CarouselProps> = ({
       if (animationFrameId) cancelAnimationFrame(animationFrameId);
     };
   }, [handleScroll]);
+
+  useEffect(() => {
+    if (scrollerRef.current && typeof externalScrollLeft === "number") {
+      setIsSyncing(true);
+      scrollerRef.current.scrollLeft = BASE_OFFSET + externalScrollLeft; // Add BASE_OFFSET back
+      requestAnimationFrame(() => setIsSyncing(false));
+    }
+  }, [externalScrollLeft]);
 
   useEffect(() => {
     if (scrollDirection) {

@@ -32,8 +32,6 @@ const DeviceDisplay: React.FC<DeviceDisplayProps> = ({
 }) => {
   const src = `/images/screencaps/${id}-${deviceType}.jpg`;
 
-  // console.log(mobileOrientation);
-
   return (
     <div className={`${styles["device-presentation"]} bb-device-presentation`}>
       {deviceType === DeviceTypes.LAPTOP ? (

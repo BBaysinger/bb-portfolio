@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useCallback, useState } from "react";
+import React, { useRef, useEffect, useState } from "react";
 
 import Carousel from "./Carousel";
 import styles from "./ProjectParallaxCarousel.module.scss";
@@ -16,6 +16,8 @@ const ProjectParallaxCarousel: React.FC<ProjectParallaxCarouselProps> = ({
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1); // Default scale
+
+  const [scrollLeft, setScrollLeft] = useState<number>();
 
   /**
    * Tried everything to find a CSS variables or SCSS mixin way to
@@ -45,23 +47,23 @@ const ProjectParallaxCarousel: React.FC<ProjectParallaxCarouselProps> = ({
     setScale(newScale);
   };
 
-  const handleScroll = useCallback(() => {
-    if (containerRef.current && onScrollUpdate) {
-      const scrollOffset = containerRef.current.scrollLeft;
-      onScrollUpdate(scrollOffset);
-    }
-  }, [onScrollUpdate]);
+  // const handleScroll = useCallback(() => {
+  //   if (containerRef.current && onScrollUpdate) {
+  //     const scrollOffset = containerRef.current.scrollLeft;
+  //     onScrollUpdate(scrollOffset);
+  //   }
+  // }, [onScrollUpdate]);
 
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
+  // useEffect(() => {
+  //   const container = containerRef.current;
+  //   if (!container) return;
 
-    container.addEventListener("scroll", handleScroll);
+  //   container.addEventListener("scroll", handleScroll);
 
-    return () => {
-      container.removeEventListener("scroll", handleScroll);
-    };
-  }, [handleScroll]);
+  //   return () => {
+  //     container.removeEventListener("scroll", handleScroll);
+  //   };
+  // }, [handleScroll]);
 
   useEffect(() => {
     // Update scale on mount and resize
@@ -84,13 +86,11 @@ const ProjectParallaxCarousel: React.FC<ProjectParallaxCarouselProps> = ({
 
   // const colorArray = generateColorArray(layer1Slides.length, 0.1);
 
-  function handleScrollUpdate(scrollOffset: number) {
-    // console.log("scrollOffset:", scrollOffset);
-
-    if (onScrollUpdate) {
-      onScrollUpdate(scrollOffset);
-    }
-  }
+  // function handleScrollUpdate(scrollOffset: number) {
+  //   if (onScrollUpdate) {
+  //     onScrollUpdate(scrollOffset);
+  //   }
+  // }
 
   // Map layer1Slides to generate an array of div elements for Carousel
   // const transparentSlides = layer1Slides.map((_, index) => (
@@ -111,17 +111,19 @@ const ProjectParallaxCarousel: React.FC<ProjectParallaxCarouselProps> = ({
     >
       <Carousel
         slides={layer1Slides}
-        onIndexUpdate={handleScrollUpdate}
+        // onIndexUpdate={handleScrollUpdate}
         slideWidth={693}
         debug={false}
         wrapperClassName="bb-carousel-laptops"
+        externalScrollLeft={scrollLeft}
       />
       <Carousel
         slides={layer2Slides}
-        onIndexUpdate={handleScrollUpdate}
+        // onIndexUpdate={handleScrollUpdate}
         slideWidth={693}
         debug={false}
         wrapperClassName="bb-carousel-phones"
+        onScrollUpdate={setScrollLeft}
       />
     </div>
   );
