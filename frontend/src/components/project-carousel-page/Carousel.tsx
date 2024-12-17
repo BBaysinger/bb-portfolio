@@ -61,7 +61,8 @@ const Carousel: React.FC<CarouselProps> = ({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (scrollerRef.current) {
-      scrollerRef.current.scrollLeft = BASE_OFFSET + initialIndex * slideSpacing;
+      scrollerRef.current.scrollLeft =
+        BASE_OFFSET + initialIndex * slideSpacing;
     }
   }, [initialIndex, slideSpacing]);
 

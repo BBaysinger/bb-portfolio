@@ -12,11 +12,11 @@
 }
 
 .transparent-slide {
-  height: 100%;
-  font-size: 50px;
+  height: 495px;
+  font-size: 8px;
   padding: 20px;
   padding-top: 6px;
-  display: flex;
+  width: 693px;
 }
 
 .slide-layer {
@@ -24,7 +24,6 @@
   top: 0;
   z-index: -1;
   display: flex;
-  scroll-snap-type: x mandatory;
   left: 50%;
   transform: translateX(-50%);
   width: 100%;
@@ -35,7 +34,8 @@
   .bb-carousel-laptops {
     left: 50vw;
     transform: translateX(-50%);
-    scroll-snap-type: none; // Critical for the slave carousel!
+    scroll-snap-type: none; // Critical for slave carousels!
+    pointer-events: none;
 
     mask-image: linear-gradient(
       to right,
@@ -47,10 +47,18 @@
     mask-repeat: no-repeat;
     mask-size: cover;
   }
+  .bb-carousel-master {
+    left: 50vw;
+    transform: translateX(-50%);
+    height: 459px;
+    scroll-snap-type: x mandatory;
+  }
   .bb-carousel-phones {
     left: 50vw;
     transform: translateX(-50%);
     height: 459px;
+    pointer-events: none;
+    scroll-snap-type: none; // Critical for slave carousels!
 
     mask-image: linear-gradient(
       to right,
