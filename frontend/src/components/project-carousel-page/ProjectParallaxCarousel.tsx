@@ -17,6 +17,19 @@ const ProjectParallaxCarousel: React.FC<ProjectParallaxCarouselProps> = ({
   // Track master scrollLeft to synchronize visible carousels
   const [masterScrollLeft, setMasterScrollLeft] = useState<number>(0);
 
+  // Slide spacings for each layer (including master)
+  const slideSpacings = {
+    layer1: 693, // Layer 1 spacing
+    master: 720, // Master layer spacing
+    layer2: 850, // Layer 2 spacing
+  };
+
+  // Dynamically calculate multipliers for each layer
+  const layerMultipliers = {
+    layer1: slideSpacings.layer1 / slideSpacings.master, // e.g., 650 / 693
+    layer2: slideSpacings.layer2 / slideSpacings.master, // e.g., 720 / 693
+  };
+
   // Update scale on resize for fluid scaling
   const updateScale = () => {
     const minWidth = 320;
@@ -44,25 +57,9 @@ const ProjectParallaxCarousel: React.FC<ProjectParallaxCarouselProps> = ({
     return () => window.removeEventListener("resize", updateScale);
   }, []);
 
-  // Function to generate random color with opacity
-  // const getRandomColorWithOpacity = (opacity = 0.1) =>
-  //   `rgba(${Math.floor(Math.random() * 256)}, ${Math.floor(
-  //     Math.random() * 256
-  //   )}, ${Math.floor(Math.random() * 256)}, ${opacity})`;
-
-  // // Generate random colors only once using useMemo
-  // const randomColors = useMemo(
-  //   () => layer1Slides.map(() => getRandomColorWithOpacity(0.1)),
-  //   [layer1Slides]
-  // );
-
-  // Transparent slides use the pre-generated random colors
+  // Transparent slides use placeholders
   const transparentSlides = layer1Slides.map((_, index) => (
-    <div
-      key={index}
-      // style={{ backgroundColor: randomColors[index] }}
-      className={styles["transparent-slide"]}
-    >
+    <div key={index} className={styles["transparent-slide"]}>
       {index + 1}
     </div>
   ));
@@ -76,8 +73,8 @@ const ProjectParallaxCarousel: React.FC<ProjectParallaxCarouselProps> = ({
       {/* Layer 1: Parallaxed Laptop Carousel */}
       <Carousel
         slides={layer1Slides}
-        slideSpacing={693} // Width for laptop carousel
-        externalScrollLeft={masterScrollLeft * 0.8} // Slight parallax effect
+        slideSpacing={slideSpacings.layer1}
+        externalScrollLeft={masterScrollLeft * layerMultipliers.layer1}
         debug={false}
         wrapperClassName="bb-carousel-laptops"
       />
@@ -85,8 +82,8 @@ const ProjectParallaxCarousel: React.FC<ProjectParallaxCarouselProps> = ({
       {/* Master: Phantom Carousel (Invisible) */}
       <Carousel
         slides={transparentSlides}
-        slideSpacing={693} // Phantom slide width
-        onScrollUpdate={setMasterScrollLeft} // Update master scroll position
+        slideSpacing={slideSpacings.master}
+        onScrollUpdate={setMasterScrollLeft}
         debug={false}
         wrapperClassName="bb-carousel-master"
       />
@@ -94,8 +91,8 @@ const ProjectParallaxCarousel: React.FC<ProjectParallaxCarouselProps> = ({
       {/* Layer 2: Parallaxed Phone Carousel */}
       <Carousel
         slides={layer2Slides}
-        slideSpacing={693} // Width for phone carousel
-        externalScrollLeft={masterScrollLeft * 1.2} // More parallax offset
+        slideSpacing={slideSpacings.layer2}
+        externalScrollLeft={masterScrollLeft * layerMultipliers.layer2}
         debug={false}
         wrapperClassName="bb-carousel-phones"
       />
