@@ -36,7 +36,10 @@ const DeviceDisplay: React.FC<DeviceDisplayProps> = ({
     <div className={`${styles["device-presentation"]}`}>
       {deviceType === DeviceTypes.LAPTOP ? (
         <div
-          className={`${styles[DeviceTypes.LAPTOP]} ${styles["background-wrapper"]}`}
+          className={`
+            ${styles[DeviceTypes.LAPTOP]}
+            bb-laptop
+            ${styles["background-wrapper"]}`}
         >
           <img
             src={src}
@@ -48,14 +51,16 @@ const DeviceDisplay: React.FC<DeviceDisplayProps> = ({
       ) : deviceType === DeviceTypes.PHONE ? (
         <div
           className={`
-            ${styles[DeviceTypes.PHONE]} 
+            ${styles[DeviceTypes.PHONE]}
+            bb-phone
             ${styles["background-wrapper"]} 
-            ${mobileStatus ? styles[mobileStatus] : ""}
+            ${mobileStatus ? styles[mobileStatus] : ''}
+            bb-${mobileStatus ? mobileStatus : ''}
           `.trim()}
         >
           <img
             src={src}
-            alt={`${id} screenshot`}
+            alt={`${id} bb-screenshot`}
             loading="lazy"
             className={styles["screencap"]}
           />

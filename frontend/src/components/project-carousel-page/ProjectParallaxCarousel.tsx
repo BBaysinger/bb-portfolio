@@ -14,23 +14,20 @@ const ProjectParallaxCarousel: React.FC<ProjectParallaxCarouselProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
 
-  // Track master scrollLeft to synchronize visible carousels
   const [masterScrollLeft, setMasterScrollLeft] = useState<number>(0);
+  const [stabilizedIndex, setStabilizedIndex] = useState<number | null>(null);
 
-  // Slide spacings for each layer (including master)
   const slideSpacings = {
-    layer1: 693, // Layer 1 spacing
-    master: 720, // Master layer spacing
-    layer2: 850, // Layer 2 spacing
+    layer1: 693,
+    master: 720,
+    layer2: 850,
   };
 
-  // Dynamically calculate multipliers for each layer
   const layerMultipliers = {
-    layer1: slideSpacings.layer1 / slideSpacings.master, // e.g., 650 / 693
-    layer2: slideSpacings.layer2 / slideSpacings.master, // e.g., 720 / 693
+    layer1: slideSpacings.layer1 / slideSpacings.master,
+    layer2: slideSpacings.layer2 / slideSpacings.master,
   };
 
-  // Update scale on resize for fluid scaling
   const updateScale = () => {
     const minWidth = 320;
     const maxWidth = 1024;
@@ -52,7 +49,11 @@ const ProjectParallaxCarousel: React.FC<ProjectParallaxCarouselProps> = ({
   };
 
   const onStableIndex = (index: number) => {
-    console.log(index);
+    setStabilizedIndex(index);
+  };
+
+  const onIndexUpdate = (_: number) => {
+    setStabilizedIndex(null);
   };
 
   useEffect(() => {
@@ -61,12 +62,10 @@ const ProjectParallaxCarousel: React.FC<ProjectParallaxCarouselProps> = ({
     return () => window.removeEventListener("resize", updateScale);
   }, []);
 
-  // Transparent slides use placeholders
-  const transparentSlides = layer1Slides.map((_, index) => (
-    <div key={index} className={styles["transparent-slide"]}>
-      {index + 1}
-    </div>
-  ));
+  const getSlideClass = (index: number) =>
+    index === stabilizedIndex
+      ? `{$styles["stabilized-slide"]} bb-stabilized-slide`
+      : "";
 
   return (
     <div
@@ -74,30 +73,48 @@ const ProjectParallaxCarousel: React.FC<ProjectParallaxCarouselProps> = ({
       style={{ transform: `scale(${scale})` }}
       ref={containerRef}
     >
-      {/* Layer 1: Parallaxed Laptop Carousel */}
+      {/* Layer 1 */}
       <Carousel
-        slides={layer1Slides}
+        slides={layer1Slides.map((slide, index) => (
+          <div key={index} className={getSlideClass(index)}>
+            {slide}
+          </div>
+        ))}
         slideSpacing={slideSpacings.layer1}
         externalScrollLeft={masterScrollLeft * layerMultipliers.layer1}
+        onIndexUpdate={onIndexUpdate} // Detect index changes
         debug={false}
         wrapperClassName="bb-carousel-laptops"
       />
 
-      {/* Master: Phantom Carousel (Invisible) */}
+      {/* Master */}
       <Carousel
-        slides={transparentSlides}
+        slides={layer1Slides.map((_, index) => (
+          <div
+            key={index}
+            className={`${styles["transparent-slide"]} getSlideClass(index)}`}
+          >
+            {index + 1}
+          </div>
+        ))}
         slideSpacing={slideSpacings.master}
         onScrollUpdate={setMasterScrollLeft}
+        onStableIndex={onStableIndex} // Detect stabilization
+        onIndexUpdate={onIndexUpdate} // Detect destabilization
         debug={false}
         wrapperClassName="bb-carousel-master"
-        onStableIndex={onStableIndex}
       />
 
-      {/* Layer 2: Parallaxed Phone Carousel */}
+      {/* Layer 2 */}
       <Carousel
-        slides={layer2Slides}
+        slides={layer2Slides.map((slide, index) => (
+          <div key={index} className={getSlideClass(index)}>
+            {slide}
+          </div>
+        ))}
         slideSpacing={slideSpacings.layer2}
         externalScrollLeft={masterScrollLeft * layerMultipliers.layer2}
+        onIndexUpdate={onIndexUpdate}
         debug={false}
         wrapperClassName="bb-carousel-phones"
       />

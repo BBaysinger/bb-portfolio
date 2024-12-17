@@ -30,6 +30,12 @@
   overflow: visible;
 }
 
+.stabilized-slide {
+  // transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+  // transform: scale(1.1); // Slightly scale up the stabilized slide
+  opacity: 1; // Full opacity for the active slide
+}
+
 :global {
   .bb-carousel-laptops {
     left: 50vw;
