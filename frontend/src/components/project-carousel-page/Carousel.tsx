@@ -18,7 +18,7 @@ type DirectionType = (typeof Direction)[keyof typeof Direction];
 
 interface CarouselProps {
   slides: React.ReactNode[];
-  slideWidth: number;
+  slideSpacing: number;
   initialIndex?: number;
   onIndexUpdate?: (currentIndex: number) => void;
   debug?: boolean;
@@ -40,7 +40,7 @@ interface CarouselProps {
  */
 const Carousel: React.FC<CarouselProps> = ({
   slides,
-  slideWidth,
+  slideSpacing,
   initialIndex = 0,
   onIndexUpdate,
   debug = false,
@@ -61,9 +61,9 @@ const Carousel: React.FC<CarouselProps> = ({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (scrollerRef.current) {
-      scrollerRef.current.scrollLeft = BASE_OFFSET + initialIndex * slideWidth;
+      scrollerRef.current.scrollLeft = BASE_OFFSET + initialIndex * slideSpacing;
     }
-  }, [initialIndex, slideWidth]);
+  }, [initialIndex, slideSpacing]);
 
   const computePositions = useCallback(
     (direction: DirectionType) => {
@@ -88,7 +88,7 @@ const Carousel: React.FC<CarouselProps> = ({
 
         newMultipliers.push(multiplier);
         newPositions.push(
-          multiplier * slideWidth * slides.length + index * slideWidth,
+          multiplier * slideSpacing * slides.length + index * slideSpacing,
         );
       });
 
@@ -100,7 +100,7 @@ const Carousel: React.FC<CarouselProps> = ({
       setMultipliers(newMultipliers);
       setPositions(newPositions);
     },
-    [slides, currentIndex, slideWidth, debug],
+    [slides, currentIndex, slideSpacing, debug],
   );
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -114,7 +114,7 @@ const Carousel: React.FC<CarouselProps> = ({
 
     const scrollLeft = scrollerRef.current.scrollLeft;
 
-    const newIndex = -Math.round((BASE_OFFSET - scrollLeft) / slideWidth);
+    const newIndex = -Math.round((BASE_OFFSET - scrollLeft) / slideSpacing);
 
     if (newIndex !== currentIndex) {
       const newDirection =
@@ -137,7 +137,7 @@ const Carousel: React.FC<CarouselProps> = ({
     }
   }, [
     currentIndex,
-    slideWidth,
+    slideSpacing,
     onIndexUpdate,
     onScrollUpdate,
     scrollDirection,
