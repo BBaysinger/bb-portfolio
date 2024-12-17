@@ -86,10 +86,12 @@ const Carousel: React.FC<CarouselProps> = ({
           );
         }
 
-        newMultipliers.push(multiplier);
-        newPositions.push(
+        const xPos = Math.round(
           multiplier * slideSpacing * slides.length + index * slideSpacing,
         );
+
+        newMultipliers.push(multiplier);
+        newPositions.push(xPos);
       });
 
       if (debug) {
@@ -190,7 +192,8 @@ const Carousel: React.FC<CarouselProps> = ({
   useEffect(() => {
     if (scrollerRef.current && typeof externalScrollLeft === "number") {
       setIsSyncing(true);
-      scrollerRef.current.scrollLeft = BASE_OFFSET + externalScrollLeft;
+      const x = Math.round(BASE_OFFSET + externalScrollLeft);
+      scrollerRef.current.style.transform = `translateX(${x})`;
       requestAnimationFrame(() => setIsSyncing(false));
     }
   }, [externalScrollLeft]);
@@ -211,7 +214,7 @@ const Carousel: React.FC<CarouselProps> = ({
           key={index}
           className={`${styles["carousel-slide"]} ${slideClassName}`}
           style={{
-            left: BASE_OFFSET + positions[index] + "px",
+            transform: `translateX(${BASE_OFFSET + positions[index]}px)`,
           }}
         >
           {debug && (
