@@ -6,9 +6,7 @@
   height: 100%;
   display: flex;
   overflow-x: scroll;
-  // scroll-snap-type: x mandatory;
   scrollbar-width: none; // Firefox
-
   &::-webkit-scrollbar {
     // Webkit
     display: none;
