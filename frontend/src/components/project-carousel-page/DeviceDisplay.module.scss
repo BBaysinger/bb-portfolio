@@ -49,12 +49,16 @@
       background-image: url("../../images/project-carousel/phone.png");
       background-size: cover;
       background-repeat: no-repeat;
+      transition: transform 0.5s ease-in-out;
+      transform: rotate(2deg);
     }
 
     img {
       position: absolute;
       height: 354px;
       width: 162px;
+      transition: transform 0.5s ease-in-out;
+      transform: rotate(2deg);
     }
 
     &.none {
@@ -79,7 +83,27 @@
         left: 276px;
         height: 162px;
         width: 354px;
+        transform: rotate(2deg);
       }
+    }
+  }
+}
+
+:global {
+  .bb-stabilized-slide .bb-portrait .bb-phone {
+    &::before {
+      transform: rotate(90deg) !important;
+    }
+    img {
+      transform: rotate(0deg) !important;
+    }
+  }
+  .bb-stabilized-slide .bb-landscape .bb-phone {
+    &::before {
+      transform: rotate(90deg) !important;
+    }
+    img {
+      transform: rotate(0deg) !important;
     }
   }
 }
