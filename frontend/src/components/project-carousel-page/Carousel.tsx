@@ -25,8 +25,8 @@ interface CarouselProps {
   wrapperClassName?: string;
   onScrollUpdate?: (scrollLeft: number) => void;
   externalScrollLeft?: number;
-  onStableIndex?: (stableIndex: number) => void; // New prop
-  stabilizationDuration?: number; // Duration for stabilization
+  onStableIndex?: (stableIndex: number) => void;
+  stabilizationDuration?: number;
 }
 
 /**
@@ -50,12 +50,14 @@ const Carousel: React.FC<CarouselProps> = ({
   onScrollUpdate,
   externalScrollLeft,
   onStableIndex,
-  stabilizationDuration = 1000, // Default to 500ms
+  stabilizationDuration = 600, // Default to 500ms
 }) => {
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
-  const [previousIndex, setPreviousIndex] = useState(NaN);
-  const [scrollDirection, setScrollDirection] = useState<DirectionType | null>(null);
+  const [_previousIndex, setPreviousIndex] = useState(NaN);
+  const [scrollDirection, setScrollDirection] = useState<DirectionType | null>(
+    null,
+  );
   const [positions, setPositions] = useState<number[]>([]);
   const [multipliers, setMultipliers] = useState<number[]>([]);
   const [isSyncing, setIsSyncing] = useState(false);
@@ -101,7 +103,6 @@ const Carousel: React.FC<CarouselProps> = ({
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
-    // Call the 'right' logic once after mount to compute the initial positions.
     computePositions(Direction.RIGHT);
   }, [computePositions]);
 
@@ -125,12 +126,15 @@ const Carousel: React.FC<CarouselProps> = ({
         onIndexUpdate(newIndex);
       }
 
-      // Stabilization detection logic
       if (stabilizationTimer.current) {
         clearTimeout(stabilizationTimer.current);
       }
       stabilizationTimer.current = setTimeout(() => {
-        if (onStableIndex) onStableIndex(newIndex);
+        if (onStableIndex) {
+          const normalizedIndex =
+            ((newIndex % slides.length) + slides.length) % slides.length;
+          onStableIndex(normalizedIndex);
+        }
       }, stabilizationDuration);
     }
 
@@ -152,10 +156,10 @@ const Carousel: React.FC<CarouselProps> = ({
   useEffect(() => {
     if (scrollerRef.current && typeof externalScrollLeft === "number") {
       setIsSyncing(true);
-      scrollerRef.current.scrollLeft = BASE_OFFSET + externalScrollLeft; // Add BASE_OFFSET back
+      scrollerRef.current.scrollLeft = BASE_OFFSET + externalScrollLeft;
       requestAnimationFrame(() => {
         setIsSyncing(false);
-        handleScroll(); // Trigger manual scroll logic
+        handleScroll();
       });
     }
   }, [externalScrollLeft, handleScroll]);
@@ -184,7 +188,7 @@ const Carousel: React.FC<CarouselProps> = ({
   useEffect(() => {
     if (scrollerRef.current && typeof externalScrollLeft === "number") {
       setIsSyncing(true);
-      scrollerRef.current.scrollLeft = BASE_OFFSET + externalScrollLeft; // Add BASE_OFFSET back
+      scrollerRef.current.scrollLeft = BASE_OFFSET + externalScrollLeft;
       requestAnimationFrame(() => setIsSyncing(false));
     }
   }, [externalScrollLeft]);

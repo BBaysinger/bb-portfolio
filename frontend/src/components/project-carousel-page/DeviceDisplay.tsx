@@ -47,7 +47,7 @@ const DeviceDisplay: React.FC<DeviceDisplayProps> = ({
         </div>
       ) : deviceType === DeviceTypes.PHONE ? (
         <div
-          className={`asdf
+          className={`
             ${styles[DeviceTypes.PHONE]} 
             ${styles["background-wrapper"]} 
             ${mobileStatus ? styles[mobileStatus] : ""}

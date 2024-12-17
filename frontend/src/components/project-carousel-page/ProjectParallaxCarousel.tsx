@@ -51,9 +51,9 @@ const ProjectParallaxCarousel: React.FC<ProjectParallaxCarouselProps> = ({
     setScale(newScale);
   };
 
-  const onStableIndex = (index: number) => { 
+  const onStableIndex = (index: number) => {
     console.log(index);
-  }
+  };
 
   useEffect(() => {
     updateScale();
