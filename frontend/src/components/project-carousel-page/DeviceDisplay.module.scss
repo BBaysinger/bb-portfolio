@@ -74,7 +74,7 @@
 
     &.landscape {
       &::before {
-        transform: rotate(90deg);
+        transform: rotate(92deg);
         top: 130px;
         left: 340px;
       }
@@ -90,20 +90,20 @@
 }
 
 :global {
-  .bb-stabilized-slide .bb-portrait .bb-phone {
+  .bb-stabilized-slide .bb-portrait.bb-phone {
     &::before {
-      transform: rotate(90deg) !important;
+      transform: rotate(0deg);
     }
     img {
-      transform: rotate(0deg) !important;
+      transform: rotate(0deg);
     }
   }
-  .bb-stabilized-slide .bb-landscape .bb-phone {
+  .bb-stabilized-slide .bb-landscape.bb-phone {
     &::before {
-      transform: rotate(90deg) !important;
+      transform: rotate(90deg);
     }
     img {
-      transform: rotate(0deg) !important;
+      transform: rotate(0deg);
     }
   }
 }

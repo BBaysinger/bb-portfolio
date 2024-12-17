@@ -54,8 +54,8 @@ const DeviceDisplay: React.FC<DeviceDisplayProps> = ({
             ${styles[DeviceTypes.PHONE]}
             bb-phone
             ${styles["background-wrapper"]} 
-            ${mobileStatus ? styles[mobileStatus] : ''}
-            bb-${mobileStatus ? mobileStatus : ''}
+            ${mobileStatus ? styles[mobileStatus] : ""}
+            bb-${mobileStatus ? mobileStatus : ""}
           `.trim()}
         >
           <img
