@@ -69,6 +69,7 @@
     }
 
     &.landscape {
+      border: 1px solid red;
       &::before {
         transform: rotate(90deg);
       }

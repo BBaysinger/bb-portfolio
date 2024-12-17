@@ -3,12 +3,6 @@ import React, { ReactNode } from "react";
 import { PortfolioProjectBase } from "data/ProjectData";
 import styles from "./ProjectContent.module.scss";
 
-// interface PortfolioProjectData {
-//   desc: string[];
-//   urls: Map<string, string[] | string>;
-//   role: string;
-// }
-
 interface ProjectContentProps {
   transition: string;
   projectData: PortfolioProjectBase;
