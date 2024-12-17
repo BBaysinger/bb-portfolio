@@ -45,7 +45,11 @@ const ProjectCarousel: React.FC = () => {
     <DeviceDisplay deviceType={DeviceTypes.LAPTOP} id={project.id} />
   ));
   const phoneSlides = ProjectData.activeProjects.map((project) => (
-    <DeviceDisplay deviceType={DeviceTypes.PHONE} id={project.id} />
+    <DeviceDisplay
+      deviceType={DeviceTypes.PHONE}
+      mobileStatus={project.mobileStatus}
+      id={project.id}
+    />
   ));
 
   const infoElems = keys.map((key, i) => (

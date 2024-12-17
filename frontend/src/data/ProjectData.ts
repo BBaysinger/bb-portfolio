@@ -3,27 +3,26 @@ import rawJson from "data/portfolio-projects.json";
 const typedUnprocessedProjects = rawJson as PortfolioProjectData;
 
 // Define constants for MobileOrientation
-export const MobileOrientations = {
+export const MobileStatuses = {
   PORTRAIT: "portrait",
   LANDSCAPE: "landscape",
+  NONE: "none",
 } as const;
 
-export type MobileOrientation =
-  (typeof MobileOrientations)[keyof typeof MobileOrientations];
+export type MobileStatus = (typeof MobileStatuses)[keyof typeof MobileStatuses];
 
 export interface PortfolioProjectBase {
   title: string;
   active: boolean;
   omitFromList: boolean;
   clientId: string;
-  mobileOrientation?: MobileOrientation;
+  mobileStatus: MobileStatus;
   tags: string;
   role: string;
   year?: string;
   awards?: string;
   type?: string;
   isGame: boolean;
-  mobileCompatible: boolean;
   desc: string[];
   urls: Record<string, string | string[]>;
 }
@@ -98,13 +97,6 @@ export default class ProjectData {
       parsedData[key] = {
         ...item,
         id: key,
-        mobileOrientation:
-          item.mobileOrientation &&
-          [MobileOrientations.PORTRAIT, MobileOrientations.LANDSCAPE].includes(
-            item.mobileOrientation,
-          )
-            ? (item.mobileOrientation as MobileOrientation)
-            : undefined,
       };
     }
 

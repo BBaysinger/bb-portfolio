@@ -1,6 +1,6 @@
 import React from "react";
 
-import { MobileOrientation } from "data/ProjectData";
+import { MobileStatus } from "data/ProjectData";
 import styles from "./DeviceDisplay.module.scss";
 
 // Define constants for DeviceTypes (Not used in the data.)
@@ -14,7 +14,7 @@ export type DeviceType = (typeof DeviceTypes)[keyof typeof DeviceTypes];
 interface DeviceDisplayProps {
   deviceType: DeviceType;
   id: string;
-  mobileOrientation?: MobileOrientation;
+  mobileStatus?: MobileStatus;
 }
 
 /**
@@ -28,12 +28,12 @@ interface DeviceDisplayProps {
 const DeviceDisplay: React.FC<DeviceDisplayProps> = ({
   deviceType,
   id,
-  mobileOrientation,
+  mobileStatus,
 }) => {
   const src = `/images/screencaps/${id}-${deviceType}.jpg`;
 
   return (
-    <div className={`${styles["device-presentation"]} bb-device-presentation`}>
+    <div className={`${styles["device-presentation"]}`}>
       {deviceType === DeviceTypes.LAPTOP ? (
         <div
           className={`${styles[DeviceTypes.LAPTOP]} ${styles["background-wrapper"]}`}
@@ -47,10 +47,10 @@ const DeviceDisplay: React.FC<DeviceDisplayProps> = ({
         </div>
       ) : deviceType === DeviceTypes.PHONE ? (
         <div
-          className={`
+          className={`asdf
             ${styles[DeviceTypes.PHONE]} 
             ${styles["background-wrapper"]} 
-            ${mobileOrientation ? styles[mobileOrientation] : ""}
+            ${mobileStatus ? styles[mobileStatus] : ""}
           `.trim()}
         >
           <img
