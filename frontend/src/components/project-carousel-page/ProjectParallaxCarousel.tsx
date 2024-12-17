@@ -51,6 +51,10 @@ const ProjectParallaxCarousel: React.FC<ProjectParallaxCarouselProps> = ({
     setScale(newScale);
   };
 
+  const onStableIndex = (index: number) => { 
+    console.log(index);
+  }
+
   useEffect(() => {
     updateScale();
     window.addEventListener("resize", updateScale);
@@ -86,6 +90,7 @@ const ProjectParallaxCarousel: React.FC<ProjectParallaxCarouselProps> = ({
         onScrollUpdate={setMasterScrollLeft}
         debug={false}
         wrapperClassName="bb-carousel-master"
+        onStableIndex={onStableIndex}
       />
 
       {/* Layer 2: Parallaxed Phone Carousel */}
