@@ -199,12 +199,6 @@ const Carousel: React.FC<CarouselProps> = ({
       return "";
   };
 
-  const slaveLeft = (): string => {
-    if (typeof externalScrollLeft === "number") {
-      return `${-externalScrollLeft}px`;
-    } else return "0";
-  };
-
   return (
     <div
       className={`
@@ -217,7 +211,6 @@ const Carousel: React.FC<CarouselProps> = ({
         ref={scrollerRef}
         className={`${styles["carousel-slider"]} ${sliderClassName}`}
         style={{ transform: slaveTransform() }}
-        // style={{ left: slaveLeft() }}
       >
         {slides.map((slide, index) => (
           <div
@@ -225,7 +218,6 @@ const Carousel: React.FC<CarouselProps> = ({
             className={`${styles["carousel-slide"]} ${slideClassName}`}
             style={{
               transform: `translateX(${offset() + positions[index]}px)`,
-              // left: offset() + positions[index] + "px",
             }}
           >
             {debug && (
