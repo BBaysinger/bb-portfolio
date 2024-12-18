@@ -108,10 +108,9 @@
 }
 
 :global {
-
-.filterOff {
-  filter: grayscale(0) blur(0);
-}
+  .filterOff {
+    filter: grayscale(0) blur(0);
+  }
   .bb-stabilized-slide .bb-laptop {
     @extend .filterOff;
     transform: translateX(-50%) scale(1);
