@@ -83,7 +83,7 @@ const ProjectParallaxCarousel: React.FC<ProjectParallaxCarouselProps> = ({
         slideSpacing={slideSpacings.layer1}
         externalScrollLeft={masterScrollLeft * layerMultipliers.layer1}
         onIndexUpdate={onIndexUpdate} // Detect index changes
-        debug={true}
+        debug={false}
         wrapperClassName="bb-carousel bb-carousel-laptops"
       />
 

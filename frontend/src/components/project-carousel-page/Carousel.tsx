@@ -100,16 +100,15 @@ const Carousel: React.FC<CarouselProps> = ({
           index * slideSpacing,
       );
 
-      const rawOffset = index - currentIndex;
-      const wraparoundOffset =
-        rawOffset > 0
-          ? rawOffset - memoizedSlides.length
-          : rawOffset + memoizedSlides.length;
+      const normalizedOffset =
+        (((index - currentIndex) % memoizedSlides.length) +
+          memoizedSlides.length) %
+        memoizedSlides.length;
 
       newOffsets.push(
-        Math.abs(rawOffset) <= Math.abs(wraparoundOffset)
-          ? rawOffset
-          : wraparoundOffset,
+        normalizedOffset <= memoizedSlides.length / 2
+          ? normalizedOffset
+          : normalizedOffset - memoizedSlides.length,
       );
     });
 
@@ -216,7 +215,8 @@ const Carousel: React.FC<CarouselProps> = ({
 
   useEffect(() => {
     if (scrollDirection) {
-      const { positions, multipliers, offsets } = memoizedPositionsAndMultipliers;
+      const { positions, multipliers, offsets } =
+        memoizedPositionsAndMultipliers;
       setPositions(positions);
       setMultipliers(multipliers);
       setOffsets(offsets);
