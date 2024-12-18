@@ -39,10 +39,14 @@ interface CarouselProps {
 
 /**
  * Infinite scolling carousel using native HTML element inertial scroll behavior.
+ * Can be a master or slave carousel. Master carousel intercepts and controls the
+ * interactions, and can then delegate the scroll parameters to slave carousels.
+ * This allows for parallax effects and other complex interactions.
  * React is the only dependency.
  *
  * TODO: This should automatically clone slides when there are not enough
- * to prevent blanking.
+ * to prevent blanking at the edges. Needs to control lazy loading in slides.
+ * Needs slider position to wrap to a bounding. 
  *
  * @author Bradley Baysinger
  * @since 2024-12-16
@@ -87,7 +91,7 @@ const Carousel: React.FC<CarouselProps> = ({
           (index - currentIndex + threshold) / memoizedSlides.length,
         );
       } else if (scrollDirection === Direction.LEFT) {
-        const threshold = 4;
+        const threshold = 5;
         multiplier = Math.floor(
           (currentIndex - index + threshold) / memoizedSlides.length,
         );
@@ -162,7 +166,7 @@ const Carousel: React.FC<CarouselProps> = ({
     }
 
     if (onScrollUpdate && !isSlave()) {
-      onScrollUpdate(scrollLeft - BASE_OFFSET);
+      onScrollUpdate(scrollLeft - offset());
     }
   };
 
@@ -225,7 +229,7 @@ const Carousel: React.FC<CarouselProps> = ({
 
   useEffect(() => {
     if (scrollerRef.current) {
-      scrollerRef.current.scrollLeft = BASE_OFFSET;
+      scrollerRef.current.scrollLeft = offset();
       setScrollDirection(Direction.RIGHT);
       const { positions, multipliers } = memoizedPositionsAndMultipliers;
       setPositions(positions);
