@@ -23,7 +23,6 @@
   position: absolute;
   top: 0;
   z-index: -1;
-  display: flex;
   left: 50%;
   transform: translateX(-50%);
   width: 100%;
@@ -37,6 +36,10 @@
 }
 
 :global {
+  .bb-carousel {
+    position: absolute;
+    // border: 1px solid red;
+  }
   .bb-carousel-laptops {
     left: 50vw;
     transform: translateX(-50%);
@@ -57,7 +60,6 @@
     left: 50vw;
     transform: translateX(-50%);
     height: 459px;
-    scroll-snap-type: x mandatory;
   }
   .bb-carousel-phones {
     left: 50vw;
@@ -78,15 +80,15 @@
   }
 
   .bb-slide-wrapper {
-    visibility: hidden;
-    // &:nth-child(3n-1) {
-    //   background-color: rgba(23, 200, 35, 0.1);
-    // }
-    // &:nth-child(3n-2) {
-    //   background-color: rgba(23, 65, 200, 0.1);
-    // }
-    // &:nth-child(3n-3) {
-    //   background-color: rgba(243, 65, 0, 0.1);
-    // }
+    // visibility: hidden;
+    &:nth-child(3n-1) {
+      background-color: rgba(23, 200, 35, 0.1);
+    }
+    &:nth-child(3n-2) {
+      background-color: rgba(23, 65, 200, 0.1);
+    }
+    &:nth-child(3n-3) {
+      background-color: rgba(243, 65, 0, 0.1);
+    }
   }
 }

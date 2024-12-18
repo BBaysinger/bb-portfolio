@@ -84,7 +84,7 @@ const ProjectParallaxCarousel: React.FC<ProjectParallaxCarouselProps> = ({
         externalScrollLeft={masterScrollLeft * layerMultipliers.layer1}
         onIndexUpdate={onIndexUpdate} // Detect index changes
         debug={false}
-        wrapperClassName="bb-carousel-laptops"
+        wrapperClassName="bb-carousel bb-carousel-laptops"
       />
 
       {/* Master */}
@@ -99,7 +99,7 @@ const ProjectParallaxCarousel: React.FC<ProjectParallaxCarouselProps> = ({
         onStableIndex={onStableIndex} // Detect stabilization
         onIndexUpdate={onIndexUpdate} // Detect destabilization
         debug={false}
-        wrapperClassName="bb-carousel-master"
+        wrapperClassName="bb-carousel bb-carousel-master"
         slideClassName="bb-slide-wrapper"
       />
 
@@ -114,7 +114,7 @@ const ProjectParallaxCarousel: React.FC<ProjectParallaxCarouselProps> = ({
         externalScrollLeft={masterScrollLeft * layerMultipliers.layer2}
         onIndexUpdate={onIndexUpdate}
         debug={false}
-        wrapperClassName="bb-carousel-phones"
+        wrapperClassName="bb-carousel bb-carousel-phones"
       />
     </div>
   );
