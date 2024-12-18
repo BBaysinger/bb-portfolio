@@ -70,12 +70,14 @@ const Carousel: React.FC<CarouselProps> = ({
   );
   const [positions, setPositions] = useState<number[]>([]);
   const [multipliers, setMultipliers] = useState<number[]>([]);
+  const [offsets, setOffsets] = useState<number[]>([]);
   const stabilizationTimer = useRef<NodeJS.Timeout | null>(null);
   const memoizedSlides = useMemo(() => slides, [slides]);
 
   const memoizedPositionsAndMultipliers = useMemo(() => {
     const newPositions: number[] = [];
     const newMultipliers: number[] = [];
+    const newOffsets: number[] = [];
 
     memoizedSlides.forEach((_, index) => {
       let multiplier: number = NaN;
@@ -92,17 +94,36 @@ const Carousel: React.FC<CarouselProps> = ({
       }
 
       newMultipliers.push(multiplier);
+
       newPositions.push(
-        multiplier * slideSpacing * memoizedSlides.length + index * slideSpacing,
+        multiplier * slideSpacing * memoizedSlides.length +
+          index * slideSpacing,
+      );
+
+      const rawOffset = index - currentIndex;
+      const wraparoundOffset =
+        rawOffset > 0
+          ? rawOffset - memoizedSlides.length
+          : rawOffset + memoizedSlides.length;
+
+      newOffsets.push(
+        Math.abs(rawOffset) <= Math.abs(wraparoundOffset)
+          ? rawOffset
+          : wraparoundOffset,
       );
     });
 
     if (debug) {
-      console.info(`${scrollDirection} multipliers:`, newMultipliers);
-      console.info(`${scrollDirection} positions:`, newPositions);
+      // console.info(`${scrollDirection} multipliers:`, newMultipliers);
+      // console.info(`${scrollDirection} positions:`, newPositions);
+      console.info(`${scrollDirection} offsets:`, newOffsets);
     }
 
-    return { positions: newPositions, multipliers: newMultipliers };
+    return {
+      positions: newPositions,
+      multipliers: newMultipliers,
+      offsets: newOffsets,
+    };
   }, [memoizedSlides, currentIndex, slideSpacing, scrollDirection, debug]);
 
   const updateIndex = (
@@ -134,7 +155,8 @@ const Carousel: React.FC<CarouselProps> = ({
       if (updateStableIndex && onStableIndex) {
         stabilizationTimer.current = setTimeout(() => {
           const normalizedIndex =
-            ((newIndex % memoizedSlides.length) + memoizedSlides.length) % memoizedSlides.length;
+            ((newIndex % memoizedSlides.length) + memoizedSlides.length) %
+            memoizedSlides.length;
           onStableIndex(normalizedIndex);
         }, stabilizationDuration);
       }
@@ -194,9 +216,10 @@ const Carousel: React.FC<CarouselProps> = ({
 
   useEffect(() => {
     if (scrollDirection) {
-      const { positions, multipliers } = memoizedPositionsAndMultipliers;
+      const { positions, multipliers, offsets } = memoizedPositionsAndMultipliers;
       setPositions(positions);
       setMultipliers(multipliers);
+      setOffsets(offsets);
     }
   }, [memoizedPositionsAndMultipliers, scrollDirection]);
 
@@ -235,7 +258,11 @@ const Carousel: React.FC<CarouselProps> = ({
         {memoizedSlides.map((slide, index) => (
           <div
             key={index}
-            className={`${styles["carousel-slide"]} ${slideClassName}`}
+            className={`
+              ${styles["carousel-slide"]}
+              ${Math.abs(offsets[index]) > 2 ? styles["hidden-slide"] : ""}
+              ${slideClassName}
+            `}
             style={{
               transform: `translateX(${offset() + positions[index]}px)`,
             }}
