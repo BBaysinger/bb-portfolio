@@ -78,7 +78,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
   ) => {
     const scrollerRef = useRef<HTMLDivElement>(null);
     const [currentIndex, setCurrentIndex] = useState(initialIndex);
-    const [_previousIndex, setPreviousIndex] = useState(NaN);
+    const [previousIndex, setPreviousIndex] = useState(NaN);
     const [scrollDirection, setScrollDirection] =
       useState<DirectionType | null>(null);
     const [positions, setPositions] = useState<number[]>([]);
@@ -87,22 +87,19 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
     const stabilizationTimer = useRef<NodeJS.Timeout | null>(null);
     const memoizedSlides = useMemo(() => slides, [slides]);
 
-    const computePositionsAndMultipliers = (
-      direction: DirectionType,
-    ): { positions: number[]; multipliers: number[]; offsets: number[] } => {
+    const memoizedPositionsAndMultipliers = useMemo(() => {
       const newPositions: number[] = [];
       const newMultipliers: number[] = [];
       const newOffsets: number[] = [];
 
       memoizedSlides.forEach((_, index) => {
         let multiplier: number = NaN;
-
-        if (direction === Direction.RIGHT) {
+        if (scrollDirection === Direction.RIGHT) {
           const threshold = 2;
           multiplier = -Math.floor(
             (index - currentIndex + threshold) / memoizedSlides.length,
           );
-        } else if (direction === Direction.LEFT) {
+        } else if (scrollDirection === Direction.LEFT) {
           const threshold = 5;
           multiplier = Math.floor(
             (currentIndex - index + threshold) / memoizedSlides.length,
@@ -129,9 +126,9 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       });
 
       if (debug) {
-        console.info(`${direction} multipliers:`, newMultipliers);
-        console.info(`${direction} positions:`, newPositions);
-        console.info(`${direction} offsets:`, newOffsets);
+        // console.info(${scrollDirection} multipliers:, newMultipliers);
+        // console.info(${scrollDirection} positions:, newPositions);
+        // console.info(`${scrollDirection} offsets:`, newOffsets);
       }
 
       return {
@@ -139,7 +136,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
         multipliers: newMultipliers,
         offsets: newOffsets,
       };
-    };
+    }, [memoizedSlides, currentIndex, slideSpacing, scrollDirection, debug]);
 
     const updateIndex = (
       scrollLeft: number,
@@ -186,27 +183,14 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       if (!scrollerRef.current) return;
       const scrollLeft = scrollerRef.current.scrollLeft;
       updateIndex(scrollLeft, scrollDirection);
-    }, [
-      scrollDirection,
-      slideSpacing,
-      onIndexUpdate,
-      onScrollUpdate,
-      onStableIndex,
-      stabilizationDuration,
-    ]);
+      // currentIndex is not a dependency, but it's used here to update the index
+    }, [scrollDirection, currentIndex]);
 
     useEffect(() => {
       if (typeof externalScrollLeft === "number") {
         updateIndex(externalScrollLeft, scrollDirection, false);
       }
-    }, [
-      externalScrollLeft,
-      scrollDirection,
-      slideSpacing,
-      onIndexUpdate,
-      onStableIndex,
-      stabilizationDuration,
-    ]);
+    }, [externalScrollLeft, scrollDirection]);
 
     useEffect(() => {
       let animationFrameId: number | null = null;
@@ -232,20 +216,18 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
     useEffect(() => {
       if (scrollDirection) {
         const { positions, multipliers, offsets } =
-          computePositionsAndMultipliers(scrollDirection);
+          memoizedPositionsAndMultipliers;
         setPositions(positions);
         setMultipliers(multipliers);
         setOffsets(offsets);
       }
-    }, [computePositionsAndMultipliers, scrollDirection]);
+    }, [memoizedPositionsAndMultipliers, scrollDirection]);
 
     useEffect(() => {
       if (scrollerRef.current) {
         scrollerRef.current.scrollLeft = offset();
         setScrollDirection(Direction.RIGHT);
-        const { positions, multipliers } = computePositionsAndMultipliers(
-          Direction.RIGHT,
-        );
+        const { positions, multipliers } = memoizedPositionsAndMultipliers;
         setPositions(positions);
         setMultipliers(multipliers);
       }
@@ -265,9 +247,9 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
 
       const offsetToTarget = offsets[targetIndex];
       const direction = offsetToTarget > 0 ? Direction.RIGHT : Direction.LEFT;
+      setScrollDirection(direction);
 
-      const { positions: newPositions } =
-        computePositionsAndMultipliers(direction);
+      const { positions: newPositions } = memoizedPositionsAndMultipliers;
 
       const targetPosition = newPositions[targetIndex] + offset();
 
