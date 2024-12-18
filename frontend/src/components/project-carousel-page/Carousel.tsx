@@ -62,7 +62,6 @@ const Carousel: React.FC<CarouselProps> = ({
   );
   const [positions, setPositions] = useState<number[]>([]);
   const [multipliers, setMultipliers] = useState<number[]>([]);
-  const [isSyncing, setIsSyncing] = useState(false);
   const stabilizationTimer = useRef<NodeJS.Timeout | null>(null);
 
   const computePositions = useCallback(
@@ -105,13 +104,12 @@ const Carousel: React.FC<CarouselProps> = ({
     [slides, currentIndex, slideSpacing, debug],
   );
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     computePositions(Direction.RIGHT);
   }, [computePositions]);
 
   const handleScroll = useCallback(() => {
-    if (!scrollerRef.current || isSyncing) return;
+    if (!scrollerRef.current) return;
 
     const scrollLeft = scrollerRef.current.scrollLeft;
     const newIndex = -Math.round((BASE_OFFSET - scrollLeft) / slideSpacing);
@@ -151,22 +149,9 @@ const Carousel: React.FC<CarouselProps> = ({
     onIndexUpdate,
     onScrollUpdate,
     scrollDirection,
-    isSyncing,
     onStableIndex,
     stabilizationDuration,
   ]);
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => {
-    if (scrollerRef.current && typeof externalScrollLeft === "number") {
-      setIsSyncing(true);
-      scrollerRef.current.scrollLeft = BASE_OFFSET + externalScrollLeft;
-      requestAnimationFrame(() => {
-        setIsSyncing(false);
-        handleScroll();
-      });
-    }
-  }, [externalScrollLeft, handleScroll]);
 
   useEffect(() => {
     let animationFrameId: number | null = null;
@@ -190,15 +175,6 @@ const Carousel: React.FC<CarouselProps> = ({
   }, [handleScroll]);
 
   useEffect(() => {
-    if (scrollerRef.current && typeof externalScrollLeft === "number") {
-      setIsSyncing(true);
-      const x = Math.round(BASE_OFFSET + externalScrollLeft);
-      scrollerRef.current.style.transform = `translateX(${x})`;
-      requestAnimationFrame(() => setIsSyncing(false));
-    }
-  }, [externalScrollLeft]);
-
-  useEffect(() => {
     if (scrollDirection) {
       computePositions(scrollDirection);
     }
@@ -214,7 +190,11 @@ const Carousel: React.FC<CarouselProps> = ({
           key={index}
           className={`${styles["carousel-slide"]} ${slideClassName}`}
           style={{
-            transform: `translateX(${BASE_OFFSET + positions[index]}px)`,
+            transform: `translateX(${
+              typeof externalScrollLeft === "number"
+                ? Math.round(positions[index] - externalScrollLeft)
+                : BASE_OFFSET + positions[index]
+            }px)`,
           }}
         >
           {debug && (
