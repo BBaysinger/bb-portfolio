@@ -98,7 +98,7 @@ const ProjectParallaxCarousel: React.FC<ProjectParallaxCarouselProps> = ({
         onScrollUpdate={setMasterScrollLeft}
         onStableIndex={onStableIndex} // Detect stabilization
         onIndexUpdate={onIndexUpdate} // Detect destabilization
-        debug={false}
+        debug={true}
         wrapperClassName="bb-carousel bb-carousel-master"
         slideClassName="bb-slide-wrapper"
       />
