@@ -1,5 +1,4 @@
 import React from "react";
-
 import { MobileStatus } from "data/ProjectData";
 import styles from "./DeviceDisplay.module.scss";
 
@@ -25,49 +24,51 @@ interface DeviceDisplayProps {
  * @since The beginning of time.
  * @version N/A
  */
-const DeviceDisplay: React.FC<DeviceDisplayProps> = ({
-  deviceType,
-  id,
-  mobileStatus,
-}) => {
-  const src = `/images/screencaps/${id}-${deviceType}.jpg`;
+const DeviceDisplay: React.FC<DeviceDisplayProps> = React.memo(
+  ({ deviceType, id, mobileStatus }) => {
+    const src = `/images/screencaps/${id}-${deviceType}.jpg`;
 
-  return (
-    <div className={`${styles["device-presentation"]}`}>
-      {deviceType === DeviceTypes.LAPTOP ? (
-        <div
-          className={`
-            ${styles[DeviceTypes.LAPTOP]}
-            bb-laptop
-            ${styles["background-wrapper"]}`}
-        >
-          <img
-            src={src}
-            alt={`${id} screenshot`}
-            loading="lazy"
-            className={styles["screencap"]}
-          />
-        </div>
-      ) : deviceType === DeviceTypes.PHONE ? (
-        <div
-          className={`
-            ${styles[DeviceTypes.PHONE]}
-            bb-phone
-            ${styles["background-wrapper"]} 
-            ${mobileStatus ? styles[mobileStatus] : ""}
-            bb-${mobileStatus ? mobileStatus : ""}
-          `.trim()}
-        >
-          <img
-            src={src}
-            alt={`${id} bb-screenshot`}
-            loading="lazy"
-            className={styles["screencap"]}
-          />
-        </div>
-      ) : null}
-    </div>
-  );
-};
+    return (
+      <div className={`${styles["device-presentation"]}`}>
+        {deviceType === DeviceTypes.LAPTOP ? (
+          <div
+            className={`
+              ${styles[DeviceTypes.LAPTOP]}
+              bb-laptop
+              ${styles["background-wrapper"]}`}
+          >
+            <img
+              src={src}
+              alt={`${id} screenshot`}
+              loading="lazy"
+              className={styles["screencap"]}
+            />
+          </div>
+        ) : deviceType === DeviceTypes.PHONE ? (
+          <div
+            className={`
+              ${styles[DeviceTypes.PHONE]}
+              bb-phone
+              ${styles["background-wrapper"]} 
+              ${mobileStatus ? styles[mobileStatus] : ""}
+              bb-${mobileStatus ? mobileStatus : ""}
+            `.trim()}
+          >
+            <img
+              src={src}
+              alt={`${id} bb-screenshot`}
+              loading="lazy"
+              className={styles["screencap"]}
+            />
+          </div>
+        ) : null}
+      </div>
+    );
+  },
+  (prevProps, nextProps) =>
+    prevProps.deviceType === nextProps.deviceType &&
+    prevProps.id === nextProps.id &&
+    prevProps.mobileStatus === nextProps.mobileStatus,
+);
 
 export default DeviceDisplay;
