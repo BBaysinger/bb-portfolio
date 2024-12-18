@@ -1,4 +1,10 @@
-import React, { useRef, useState, useEffect, useCallback } from "react";
+import React, {
+  useRef,
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+} from "react";
 
 import styles from "./Carousel.module.scss";
 
@@ -7,7 +13,7 @@ import styles from "./Carousel.module.scss";
 // repositions the slides and scroll position when the user
 // scroll stops. It works, I've done it elsewhere, but it's not critical for
 // current use cases. Until then, it's not *technically* infinite scrolling left.
-const BASE_OFFSET = 100000;
+const BASE_OFFSET = 1000000;
 
 const Direction = {
   LEFT: "Left",
@@ -66,47 +72,37 @@ const Carousel: React.FC<CarouselProps> = ({
   const [multipliers, setMultipliers] = useState<number[]>([]);
   const stabilizationTimer = useRef<NodeJS.Timeout | null>(null);
 
-  const computePositions = useCallback(
-    (direction: DirectionType) => {
-      const newPositions: number[] = [];
-      const newMultipliers: number[] = [];
+  const memoizedPositionsAndMultipliers = useMemo(() => {
+    const newPositions: number[] = [];
+    const newMultipliers: number[] = [];
 
-      slides.forEach((_, index) => {
-        let multiplier: number = NaN;
-        // Threshold serves a slightly different purpose for each direction.
-        // Scrolling right, it's only required to prevent slides from blanking
-        // before they are completely out of view. Scrolling left, it's required
-        // to widen the scrollable distance before reversing directions, so the
-        // element doesn't halt scrolling mid-scroll.
-        if (direction === Direction.RIGHT) {
-          const threshold = 2;
-          multiplier = -Math.floor(
-            (index - currentIndex + threshold) / slides.length,
-          );
-        } else if (direction === Direction.LEFT) {
-          const threshold = 4;
-          multiplier = Math.floor(
-            (currentIndex - index + threshold) / slides.length,
-          );
-        }
-
-        newMultipliers.push(multiplier);
-        newPositions.push(
-          multiplier * slideSpacing * slides.length + index * slideSpacing,
+    slides.forEach((_, index) => {
+      let multiplier: number = NaN;
+      if (scrollDirection === Direction.RIGHT) {
+        const threshold = 2;
+        multiplier = -Math.floor(
+          (index - currentIndex + threshold) / slides.length,
         );
-      });
-
-      if (debug) {
-        console.log(currentIndex);
-        console.info(`${direction} multipliers:`, newMultipliers);
-        console.info(`${direction} positions:`, newPositions);
+      } else if (scrollDirection === Direction.LEFT) {
+        const threshold = 4;
+        multiplier = Math.floor(
+          (currentIndex - index + threshold) / slides.length,
+        );
       }
 
-      setMultipliers(newMultipliers);
-      setPositions(newPositions);
-    },
-    [slides, currentIndex, slideSpacing, debug],
-  );
+      newMultipliers.push(multiplier);
+      newPositions.push(
+        multiplier * slideSpacing * slides.length + index * slideSpacing,
+      );
+    });
+
+    if (debug) {
+      console.info(`${scrollDirection} multipliers:`, newMultipliers);
+      console.info(`${scrollDirection} positions:`, newPositions);
+    }
+
+    return { positions: newPositions, multipliers: newMultipliers };
+  }, [slides, currentIndex, slideSpacing, scrollDirection, debug]);
 
   const updateIndex = (
     scrollLeft: number,
@@ -197,14 +193,19 @@ const Carousel: React.FC<CarouselProps> = ({
 
   useEffect(() => {
     if (scrollDirection) {
-      computePositions(scrollDirection);
+      const { positions, multipliers } = memoizedPositionsAndMultipliers;
+      setPositions(positions);
+      setMultipliers(multipliers);
     }
-  }, [scrollDirection, currentIndex, computePositions]);
+  }, [memoizedPositionsAndMultipliers, scrollDirection]);
 
   useEffect(() => {
     if (scrollerRef.current) {
       scrollerRef.current.scrollLeft = BASE_OFFSET;
-      computePositions(Direction.RIGHT);
+      setScrollDirection(Direction.RIGHT);
+      const { positions, multipliers } = memoizedPositionsAndMultipliers;
+      setPositions(positions);
+      setMultipliers(multipliers);
     }
   }, []);
 
