@@ -24,6 +24,7 @@ interface CarouselProps {
   debug?: boolean;
   wrapperClassName?: string;
   slideClassName?: string;
+  sliderClassName?: string;
   onScrollUpdate?: (scrollLeft: number) => void;
   externalScrollLeft?: number;
   onStableIndex?: (stableIndex: number) => void;
@@ -49,6 +50,7 @@ const Carousel: React.FC<CarouselProps> = ({
   debug = false,
   wrapperClassName = "",
   slideClassName = "",
+  sliderClassName = "",
   onScrollUpdate,
   externalScrollLeft,
   onStableIndex,
@@ -180,33 +182,55 @@ const Carousel: React.FC<CarouselProps> = ({
     }
   }, [scrollDirection, currentIndex, computePositions]);
 
+  // useEffect(() => {
+  //   if (scrollerRef.current) {
+  //     scrollerRef.current.scrollLeft = BASE_OFFSET;
+  //     computePositions(Direction.RIGHT);
+  //   }
+  // }, []);
+
+  const isSlave = typeof externalScrollLeft === "number";
+
+  const slaveTransform = (): string => {
+    return isSlave ? `translateX(${-externalScrollLeft}px)` : "";
+  };
+
   return (
     <div
-      ref={scrollerRef}
-      className={`${styles["carousel"]} ${wrapperClassName}`}
+      className={`
+        ${styles["carousel-wrapper"]}
+        ${isSlave ? styles["slave-wrapper"] : ""}
+        ${wrapperClassName}
+      `}
     >
-      {slides.map((slide, index) => (
-        <div
-          key={index}
-          className={`${styles["carousel-slide"]} ${slideClassName}`}
-          style={{
-            transform: `translateX(${
-              typeof externalScrollLeft === "number"
-                ? Math.round(positions[index] - externalScrollLeft)
-                : BASE_OFFSET + positions[index]
-            }px)`,
-          }}
-        >
-          {debug && (
-            <div className={styles["debug-info"]}>
-              <div>Index: {index}</div>
-              <div>Multiplier: {multipliers[index]}</div>
-              <div>xPos: {positions[index] + "px"}</div>
-            </div>
-          )}
-          {slide}
-        </div>
-      ))}
+      <div
+        ref={scrollerRef}
+        className={`${styles["carousel-slider"]} ${sliderClassName}`}
+        style={{ transform: slaveTransform() }}
+      >
+        {slides.map((slide, index) => (
+          <div
+            key={index}
+            className={`${styles["carousel-slide"]} ${slideClassName}`}
+            style={{
+              transform: `translateX(${
+                typeof externalScrollLeft === "number"
+                  ? positions[index]
+                  : BASE_OFFSET + positions[index]
+              }px)`,
+            }}
+          >
+            {debug && (
+              <div className={styles["debug-info"]}>
+                <div>Index: {index}</div>
+                <div>Multiplier: {multipliers[index]}</div>
+                <div>xPos: {positions[index] + "px"}</div>
+              </div>
+            )}
+            {slide}
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
