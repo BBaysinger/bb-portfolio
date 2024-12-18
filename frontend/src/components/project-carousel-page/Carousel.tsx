@@ -189,17 +189,27 @@ const Carousel: React.FC<CarouselProps> = ({
   //   }
   // }, []);
 
-  const isSlave = typeof externalScrollLeft === "number";
+  const isSlave = () => typeof externalScrollLeft === "number";
+  const offset = () => (isSlave() ? 0 : BASE_OFFSET);
 
   const slaveTransform = (): string => {
-    return isSlave ? `translateX(${-externalScrollLeft}px)` : "";
+    if (typeof externalScrollLeft === "number") {
+      return `translateX(${-externalScrollLeft}px)`;
+    } else
+      return "";
+  };
+
+  const slaveLeft = (): string => {
+    if (typeof externalScrollLeft === "number") {
+      return `${-externalScrollLeft}px`;
+    } else return "0";
   };
 
   return (
     <div
       className={`
         ${styles["carousel-wrapper"]}
-        ${isSlave ? styles["slave-wrapper"] : ""}
+        ${isSlave() ? styles["slave-wrapper"] : ""}
         ${wrapperClassName}
       `}
     >
@@ -207,17 +217,15 @@ const Carousel: React.FC<CarouselProps> = ({
         ref={scrollerRef}
         className={`${styles["carousel-slider"]} ${sliderClassName}`}
         style={{ transform: slaveTransform() }}
+        // style={{ left: slaveLeft() }}
       >
         {slides.map((slide, index) => (
           <div
             key={index}
             className={`${styles["carousel-slide"]} ${slideClassName}`}
             style={{
-              transform: `translateX(${
-                typeof externalScrollLeft === "number"
-                  ? positions[index]
-                  : BASE_OFFSET + positions[index]
-              }px)`,
+              transform: `translateX(${offset() + positions[index]}px)`,
+              // left: offset() + positions[index] + "px",
             }}
           >
             {debug && (
