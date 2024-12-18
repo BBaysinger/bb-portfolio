@@ -1,6 +1,10 @@
 @use "@/styles/global";
 @use "sass:math";
 
+.filterOn {
+  filter: grayscale(0.5) blur(1px);
+}
+
 .device-presentation {
   height: 414px;
   position: relative;
@@ -28,6 +32,7 @@
     background-position: calc(50% + 2px) center;
     background-size: 693px 414px;
     width: 693px;
+    @extend .filterOn;
     transform: translateX(-50%) scale(0.98);
     transition:
       transform 0.4s ease-in-out,
@@ -54,6 +59,7 @@
       background-image: url("../../images/project-carousel/phone.png");
       background-size: cover;
       background-repeat: no-repeat;
+      @extend .filterOn;
       transition:
         transform 0.4s ease-in-out,
         filter 0.4s ease-in-out;
@@ -64,6 +70,7 @@
       position: absolute;
       height: 354px;
       width: 162px;
+      @extend .filterOn;
       transition:
         transform 0.4s ease-in-out,
         filter 0.4s ease-in-out;
@@ -83,6 +90,7 @@
 
     &.landscape {
       &::before {
+        @extend .filterOn;
         transform: translateY(5px) rotate(91deg);
         top: 130px;
         left: 340px;
@@ -92,6 +100,7 @@
         left: 276px;
         height: 162px;
         width: 354px;
+        @extend .filterOn;
         transform: translateY(5px) rotate(1deg);
       }
     }
@@ -99,22 +108,31 @@
 }
 
 :global {
+
+.filterOff {
+  filter: grayscale(0) blur(0);
+}
   .bb-stabilized-slide .bb-laptop {
+    @extend .filterOff;
     transform: translateX(-50%) scale(1);
   }
   .bb-stabilized-slide .bb-portrait.bb-phone {
     &::before {
+      @extend .filterOff;
       transform: rotate(0deg);
     }
     img {
+      @extend .filterOff;
       transform: rotate(0deg);
     }
   }
   .bb-stabilized-slide .bb-landscape.bb-phone {
     &::before {
+      @extend .filterOff;
       transform: rotate(90deg);
     }
     img {
+      @extend .filterOff;
       transform: rotate(0deg);
     }
   }
