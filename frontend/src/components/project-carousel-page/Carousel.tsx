@@ -42,7 +42,7 @@ interface CarouselProps {
  * React is the only dependency.
  *
  * TODO: This should automatically clone slides when there are not enough
- * to facilitate scrolling.
+ * to prevent blanking.
  *
  * @author Bradley Baysinger
  * @since 2024-12-16
