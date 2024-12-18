@@ -5,10 +5,6 @@
   height: 100%;
 }
 
-// .slave-wrapper {
-//   border: 1px solid red;
-// }
-
 .carousel-slider {
   position: absolute;
   width: 100%;
@@ -19,6 +15,12 @@
   &::-webkit-scrollbar {
     // Webkit
     display: none;
+  }
+}
+
+.slave-wrapper {
+  .carousel-slider {
+    overflow-x: visible;
   }
 }
 
