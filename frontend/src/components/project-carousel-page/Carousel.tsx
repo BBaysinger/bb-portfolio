@@ -71,28 +71,29 @@ const Carousel: React.FC<CarouselProps> = ({
   const [positions, setPositions] = useState<number[]>([]);
   const [multipliers, setMultipliers] = useState<number[]>([]);
   const stabilizationTimer = useRef<NodeJS.Timeout | null>(null);
+  const memoizedSlides = useMemo(() => slides, [slides]);
 
   const memoizedPositionsAndMultipliers = useMemo(() => {
     const newPositions: number[] = [];
     const newMultipliers: number[] = [];
 
-    slides.forEach((_, index) => {
+    memoizedSlides.forEach((_, index) => {
       let multiplier: number = NaN;
       if (scrollDirection === Direction.RIGHT) {
         const threshold = 2;
         multiplier = -Math.floor(
-          (index - currentIndex + threshold) / slides.length,
+          (index - currentIndex + threshold) / memoizedSlides.length,
         );
       } else if (scrollDirection === Direction.LEFT) {
         const threshold = 4;
         multiplier = Math.floor(
-          (currentIndex - index + threshold) / slides.length,
+          (currentIndex - index + threshold) / memoizedSlides.length,
         );
       }
 
       newMultipliers.push(multiplier);
       newPositions.push(
-        multiplier * slideSpacing * slides.length + index * slideSpacing,
+        multiplier * slideSpacing * memoizedSlides.length + index * slideSpacing,
       );
     });
 
@@ -102,7 +103,7 @@ const Carousel: React.FC<CarouselProps> = ({
     }
 
     return { positions: newPositions, multipliers: newMultipliers };
-  }, [slides, currentIndex, slideSpacing, scrollDirection, debug]);
+  }, [memoizedSlides, currentIndex, slideSpacing, scrollDirection, debug]);
 
   const updateIndex = (
     scrollLeft: number,
@@ -133,7 +134,7 @@ const Carousel: React.FC<CarouselProps> = ({
       if (updateStableIndex && onStableIndex) {
         stabilizationTimer.current = setTimeout(() => {
           const normalizedIndex =
-            ((newIndex % slides.length) + slides.length) % slides.length;
+            ((newIndex % memoizedSlides.length) + memoizedSlides.length) % memoizedSlides.length;
           onStableIndex(normalizedIndex);
         }, stabilizationDuration);
       }
@@ -231,7 +232,7 @@ const Carousel: React.FC<CarouselProps> = ({
         className={`${styles["carousel-slider"]} ${sliderClassName}`}
         style={{ transform: slaveTransform() }}
       >
-        {slides.map((slide, index) => (
+        {memoizedSlides.map((slide, index) => (
           <div
             key={index}
             className={`${styles["carousel-slide"]} ${slideClassName}`}
