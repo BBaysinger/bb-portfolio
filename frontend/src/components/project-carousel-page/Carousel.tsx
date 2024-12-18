@@ -68,13 +68,16 @@ const Carousel: React.FC<CarouselProps> = ({
 
   const computePositions = useCallback(
     (direction: DirectionType) => {
-      // Keep arrays here to be able to console.log output from here
-      // only when they update.
       const newPositions: number[] = [];
       const newMultipliers: number[] = [];
 
       slides.forEach((_, index) => {
         let multiplier: number = NaN;
+        // Threshold serves a slightly different purpose for each direction.
+        // Scrolling right, it's only required to prevent slides from blanking
+        // before they are completely out of view. Scrolling left, it's required
+        // to widen the scrollable distance before reversing directions, so the
+        // element doesn't halt scrolling mid-scroll.
         if (direction === Direction.RIGHT) {
           const threshold = 2;
           multiplier = -Math.floor(
@@ -87,15 +90,14 @@ const Carousel: React.FC<CarouselProps> = ({
           );
         }
 
-        const xPos = Math.round(
+        newMultipliers.push(multiplier);
+        newPositions.push(
           multiplier * slideSpacing * slides.length + index * slideSpacing,
         );
-
-        newMultipliers.push(multiplier);
-        newPositions.push(xPos);
       });
 
       if (debug) {
+        console.log(currentIndex);
         console.info(`${direction} multipliers:`, newMultipliers);
         console.info(`${direction} positions:`, newPositions);
       }
@@ -106,23 +108,21 @@ const Carousel: React.FC<CarouselProps> = ({
     [slides, currentIndex, slideSpacing, debug],
   );
 
-  useEffect(() => {
-    computePositions(Direction.RIGHT);
-  }, [computePositions]);
-
-  const handleScroll = useCallback(() => {
-    if (!scrollerRef.current) return;
-
-    const scrollLeft = scrollerRef.current.scrollLeft;
-    const newIndex = -Math.round((BASE_OFFSET - scrollLeft) / slideSpacing);
+  const updateIndex = (
+    scrollLeft: number,
+    direction: DirectionType | null,
+    updateStableIndex: boolean = true,
+  ) => {
+    const newIndex = -Math.round((offset() - scrollLeft) / slideSpacing);
 
     if (newIndex !== currentIndex) {
       const newDirection =
         newIndex > currentIndex ? Direction.RIGHT : Direction.LEFT;
 
-      if (newDirection !== scrollDirection) {
+      if (newDirection !== direction) {
         setScrollDirection(newDirection);
       }
+
       setPreviousIndex(currentIndex);
       setCurrentIndex(newIndex);
 
@@ -133,24 +133,43 @@ const Carousel: React.FC<CarouselProps> = ({
       if (stabilizationTimer.current) {
         clearTimeout(stabilizationTimer.current);
       }
-      stabilizationTimer.current = setTimeout(() => {
-        if (onStableIndex) {
+
+      if (updateStableIndex && onStableIndex) {
+        stabilizationTimer.current = setTimeout(() => {
           const normalizedIndex =
             ((newIndex % slides.length) + slides.length) % slides.length;
           onStableIndex(normalizedIndex);
-        }
-      }, stabilizationDuration);
+        }, stabilizationDuration);
+      }
     }
 
-    if (onScrollUpdate) {
+    if (onScrollUpdate && !isSlave()) {
       onScrollUpdate(scrollLeft - BASE_OFFSET);
     }
+  };
+
+  const handleScroll = useCallback(() => {
+    if (!scrollerRef.current) return;
+    const scrollLeft = scrollerRef.current.scrollLeft;
+    updateIndex(scrollLeft, scrollDirection);
   }, [
-    currentIndex,
+    scrollDirection,
     slideSpacing,
     onIndexUpdate,
     onScrollUpdate,
+    onStableIndex,
+    stabilizationDuration,
+  ]);
+
+  useEffect(() => {
+    if (typeof externalScrollLeft === "number") {
+      updateIndex(externalScrollLeft, scrollDirection, false); // `false` disables the stabilization logic
+    }
+  }, [
+    externalScrollLeft,
     scrollDirection,
+    slideSpacing,
+    onIndexUpdate,
     onStableIndex,
     stabilizationDuration,
   ]);
@@ -182,12 +201,12 @@ const Carousel: React.FC<CarouselProps> = ({
     }
   }, [scrollDirection, currentIndex, computePositions]);
 
-  // useEffect(() => {
-  //   if (scrollerRef.current) {
-  //     scrollerRef.current.scrollLeft = BASE_OFFSET;
-  //     computePositions(Direction.RIGHT);
-  //   }
-  // }, []);
+  useEffect(() => {
+    if (scrollerRef.current) {
+      scrollerRef.current.scrollLeft = BASE_OFFSET;
+      computePositions(Direction.RIGHT);
+    }
+  }, []);
 
   const isSlave = () => typeof externalScrollLeft === "number";
   const offset = () => (isSlave() ? 0 : BASE_OFFSET);
@@ -195,8 +214,7 @@ const Carousel: React.FC<CarouselProps> = ({
   const slaveTransform = (): string => {
     if (typeof externalScrollLeft === "number") {
       return `translateX(${-externalScrollLeft}px)`;
-    } else
-      return "";
+    } else return "";
   };
 
   return (
