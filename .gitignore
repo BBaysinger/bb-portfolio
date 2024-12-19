@@ -24,3 +24,5 @@ lerna-debug.log*
 *.sw?
 
 tsconfig.tsbuildinfo
+# Local Netlify folder
+.netlify
