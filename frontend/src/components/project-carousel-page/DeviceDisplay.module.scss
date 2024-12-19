@@ -9,6 +9,7 @@
   box-sizing: border-box;
   // Cool effect, but too much jank?
   filter: grayscale(0.5) blur(1px);
+  will-change: filter;
   transition: filter 0.4s ease-in-out;
 }
 
@@ -32,10 +33,8 @@
     background-size: 693px 414px;
     width: 693px;
     transform: translateX(-50%) scale(0.98);
-    transition:
-      transform 0.4s ease-in-out,
-      filter 0.4s ease-in-out;
-
+    transition: transform 0.4s ease-in-out;
+    will-change: transform;
     img {
       position: absolute;
       top: 38px;
@@ -43,6 +42,7 @@
       height: 310px;
       width: 500px;
       transition: transform 0.4s ease-in-out;
+      will-change: transform;
     }
   }
 
@@ -57,20 +57,18 @@
       background-image: url("../../images/project-carousel/phone.png");
       background-size: cover;
       background-repeat: no-repeat;
-      transition:
-        transform 0.4s ease-in-out,
-        filter 0.4s ease-in-out;
+      transition: transform 0.4s ease-in-out;
       transform: translateY(3%) rotate(1deg);
+      will-change: transform;
     }
 
     img {
       position: absolute;
       height: 354px;
       width: 162px;
-      transition:
-        transform 0.4s ease-in-out,
-        filter 0.4s ease-in-out;
+      transition: transform 0.4s ease-in-out;
       transform: translateY(3%) rotate(1deg);
+      will-change: transform;
     }
 
     &.none {
