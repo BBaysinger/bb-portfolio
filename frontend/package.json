@@ -11,7 +11,8 @@
     "build": "prettier --write . && tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "deploy": "vite build && netlify deploy --dir=dist"
   },
   "dependencies": {
     "exenv": "^1.2.2",
