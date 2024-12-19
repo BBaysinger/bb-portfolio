@@ -1,20 +1,15 @@
 @use "@/styles/global";
 @use "sass:math";
 
-.filterOn {
-  // filter: none;
-  // Cool effect, but too much jank.
-  filter: grayscale(0.5) blur(1px);
-  // Better, but still a bit too much jank.
-  // filter: grayscale(0.5);
-}
-
 .device-presentation {
   height: 414px;
   position: relative;
   background-size: contain;
   background-repeat: no-repeat;
   box-sizing: border-box;
+  // Cool effect, but too much jank?
+  filter: grayscale(0.5) blur(1px);
+  transition: filter 0.4s ease-in-out;
 }
 
 .background-wrapper {
@@ -36,7 +31,6 @@
     background-position: calc(50% + 2px) center;
     background-size: 693px 414px;
     width: 693px;
-    @extend .filterOn;
     transform: translateX(-50%) scale(0.98);
     transition:
       transform 0.4s ease-in-out,
@@ -53,7 +47,6 @@
   }
 
   &.phone {
-    @extend .filterOn;
     &::before {
       content: "";
       position: absolute;
@@ -109,29 +102,28 @@
 }
 
 :global {
-  .filterOff {
-    filter: none;
-  }
-  .bb-stabilized-slide .bb-laptop {
-    @extend .filterOff;
-    transform: translateX(-50%) scale(1);
-  }
-  .bb-stabilized-slide .bb-portrait.bb-phone {
-    @extend .filterOff;
-    &::before {
-      transform: rotate(0deg);
+  .bb-stabilized-slide {
+    .bb-device-presentation {
+      filter: none;
     }
-    img {
-      transform: rotate(0deg);
+    .bb-laptop {
+      transform: translateX(-50%) scale(1);
     }
-  }
-  .bb-stabilized-slide .bb-landscape.bb-phone {
-    @extend .filterOff;
-    &::before {
-      transform: rotate(90deg);
+    .bb-portrait.bb-phone {
+      &::before {
+        transform: rotate(0deg);
+      }
+      img {
+        transform: rotate(0deg);
+      }
     }
-    img {
-      transform: rotate(0deg);
+    .bb-landscape.bb-phone {
+      &::before {
+        transform: rotate(90deg);
+      }
+      img {
+        transform: rotate(0deg);
+      }
     }
   }
 }

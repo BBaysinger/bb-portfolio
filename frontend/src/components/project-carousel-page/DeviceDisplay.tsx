@@ -29,7 +29,9 @@ const DeviceDisplay: React.FC<DeviceDisplayProps> = React.memo(
     const src = `/images/screencaps/${id}-${deviceType}.jpg`;
 
     return (
-      <div className={`${styles["device-presentation"]}`}>
+      <div
+        className={`${styles["device-presentation"]} bb-device-presentation`}
+      >
         {deviceType === DeviceTypes.LAPTOP ? (
           <div
             className={`
