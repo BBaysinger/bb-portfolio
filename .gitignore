@@ -26,3 +26,5 @@ lerna-debug.log*
 tsconfig.tsbuildinfo
 # Local Netlify folder
 .netlify
+
+.env
