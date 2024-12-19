@@ -41,8 +41,8 @@ const DeviceDisplay: React.FC<DeviceDisplayProps> = React.memo(
           >
             <img
               src={src}
-              alt={`${id} screenshot`}
-              loading="lazy"
+              alt={`${id} screencap`}
+              loading="eager"
               className={styles["screencap"]}
             />
           </div>
@@ -58,8 +58,8 @@ const DeviceDisplay: React.FC<DeviceDisplayProps> = React.memo(
           >
             <img
               src={src}
-              alt={`${id} bb-screenshot`}
-              loading="lazy"
+              alt={`${id} bb-screencap`}
+              loading="eager"
               className={styles["screencap"]}
             />
           </div>
