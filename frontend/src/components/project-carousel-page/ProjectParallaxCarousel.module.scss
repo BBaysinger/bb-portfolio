@@ -9,6 +9,7 @@
   box-sizing: border-box;
   margin-top: 40px;
   z-index: 0;
+  overflow: hidden;
 }
 
 .transparent-slide {
@@ -30,27 +31,24 @@
 }
 
 .stabilized-slide {
-  // transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
-  // transform: scale(1.1); // Slightly scale up the stabilized slide
-  opacity: 1; // Full opacity for the active slide
+  opacity: 1;
 }
 
 :global {
   .bb-carousel {
     position: absolute;
-    // border: 1px solid red;
   }
   .bb-carousel-laptops {
     left: 50vw;
     transform: translateX(-50%);
     scroll-snap-type: none; // Critical for slave carousels!
     pointer-events: none;
-
+    overflow: hidden;
     mask-image: linear-gradient(
       to right,
       rgba(0, 0, 0, 0),
-      rgba(0, 0, 0, 1) 15%,
-      rgba(0, 0, 0, 1) 85%,
+      rgba(0, 0, 0, 1) 20%,
+      rgba(0, 0, 0, 1) 80%,
       rgba(0, 0, 0, 0)
     );
     mask-repeat: no-repeat;
@@ -67,11 +65,11 @@
     height: 459px;
     pointer-events: none;
     scroll-snap-type: none; // Critical for slave carousels!
-
+    overflow: hidden;
     mask-image: linear-gradient(
       to right,
-      rgba(0, 0, 0, 0) 20%,
-      rgba(0, 0, 0, 1) 40%,
+      rgba(0, 0, 0, 0),
+      rgba(0, 0, 0, 1) 15%,
       rgba(0, 0, 0, 1) 85%,
       rgba(0, 0, 0, 0)
     );

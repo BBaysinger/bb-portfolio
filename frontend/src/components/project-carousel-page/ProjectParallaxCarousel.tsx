@@ -16,6 +16,7 @@ const ProjectParallaxCarousel: React.FC<ProjectParallaxCarouselProps> = ({
 
   const [masterScrollLeft, setMasterScrollLeft] = useState<number>(0);
   const [stabilizedIndex, setStabilizedIndex] = useState<number | null>(null);
+  const [currentIndex, setCurrentIndex] = useState<number | null>(null);
 
   const slideSpacings = {
     layer1: 693,
@@ -52,8 +53,9 @@ const ProjectParallaxCarousel: React.FC<ProjectParallaxCarouselProps> = ({
     setStabilizedIndex(index);
   };
 
-  const onIndexUpdate = (_: number) => {
+  const onIndexUpdate = (index: number) => {
     setStabilizedIndex(null);
+    setCurrentIndex(index);
   };
 
   useEffect(() => {
@@ -67,9 +69,16 @@ const ProjectParallaxCarousel: React.FC<ProjectParallaxCarouselProps> = ({
       ? `${styles["stabilized-slide"]} bb-stabilized-slide`
       : "") + ` bb-transparent-slide`;
 
+  const getWrapperClass = () => {
+    const base = `${styles["parallax-carousel"]} bb-parallax-carousel`;
+    return (
+      base + (currentIndex === stabilizedIndex ? " bb-stabilized-carousel" : "")
+    );
+  };
+
   return (
     <div
-      className={`${styles["parallax-carousel"]} bb-parallax-carousel`}
+      className={getWrapperClass()}
       style={{ transform: `scale(${scale})` }}
       ref={containerRef}
     >
