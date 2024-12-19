@@ -78,7 +78,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
   ) => {
     const scrollerRef = useRef<HTMLDivElement>(null);
     const [currentIndex, setCurrentIndex] = useState(initialIndex);
-    const [previousIndex, setPreviousIndex] = useState(NaN);
+    const [_previousIndex, setPreviousIndex] = useState(NaN);
     const [scrollDirection, setScrollDirection] =
       useState<DirectionType | null>(null);
     const [positions, setPositions] = useState<number[]>([]);
@@ -100,7 +100,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
             (index - currentIndex + threshold) / memoizedSlides.length,
           );
         } else if (scrollDirection === Direction.LEFT) {
-          const threshold = 5;
+          const threshold = 6;
           multiplier = Math.floor(
             (currentIndex - index + threshold) / memoizedSlides.length,
           );
@@ -109,8 +109,10 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
         newMultipliers.push(multiplier);
 
         newPositions.push(
-          multiplier * slideSpacing * memoizedSlides.length +
-            index * slideSpacing,
+          Math.round(
+            multiplier * slideSpacing * memoizedSlides.length +
+              index * slideSpacing,
+          ),
         );
 
         const normalizedOffset =
@@ -192,16 +194,26 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       }
     }, [externalScrollLeft, scrollDirection]);
 
+    const targetFPS = 50;
+    const frameDuration = 1000 / targetFPS;
+    let lastFrameTime = 0;
+
     useEffect(() => {
       let animationFrameId: number | null = null;
 
-      const scrollListener = () => {
-        if (animationFrameId !== null) return;
+      const scrollListener = (_: Event) => {
+        if (animationFrameId === null) {
+          animationFrameId = requestAnimationFrame((currentTime) => {
+            const deltaTime = currentTime - lastFrameTime;
 
-        animationFrameId = requestAnimationFrame(() => {
-          handleScroll();
-          animationFrameId = null;
-        });
+            if (deltaTime >= frameDuration) {
+              handleScroll();
+              lastFrameTime = currentTime;
+            }
+
+            animationFrameId = null;
+          });
+        }
       };
 
       const scroller = scrollerRef.current;
@@ -211,7 +223,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
         scroller?.removeEventListener("scroll", scrollListener);
         if (animationFrameId) cancelAnimationFrame(animationFrameId);
       };
-    }, [handleScroll]);
+    }, [handleScroll, frameDuration]);
 
     useEffect(() => {
       if (scrollDirection) {
@@ -238,7 +250,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
 
     const slaveTransform = (): string => {
       if (typeof externalScrollLeft === "number") {
-        return `translateX(${-externalScrollLeft}px)`;
+        return `translateX(${Math.round(-externalScrollLeft)}px)`;
       } else return "";
     };
 
