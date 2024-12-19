@@ -177,7 +177,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       }
 
       if (onScrollUpdate && !isSlave()) {
-        onScrollUpdate(scrollLeft - offset());
+        onScrollUpdate(Math.round(scrollLeft - offset()));
       }
     };
 
@@ -250,7 +250,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
 
     const slaveTransform = (): string => {
       if (typeof externalScrollLeft === "number") {
-        return `translateX(${Math.round(-externalScrollLeft)}px)`;
+        return `translateX(${-externalScrollLeft}px)`;
       } else return "";
     };
 
