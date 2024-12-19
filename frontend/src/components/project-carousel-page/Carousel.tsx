@@ -194,7 +194,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       }
     }, [externalScrollLeft, scrollDirection]);
 
-    const targetFPS = 50;
+    const targetFPS = 40;
     const frameDuration = 1000 / targetFPS;
     let lastFrameTime = 0;
 
@@ -250,7 +250,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
 
     const slaveTransform = (): string => {
       if (typeof externalScrollLeft === "number") {
-        return `translateX(${-externalScrollLeft}px)`;
+        return `translateX(${Math.round(-externalScrollLeft)}px)`;
       } else return "";
     };
 
@@ -293,7 +293,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
               key={index}
               className={`
               ${styles["carousel-slide"]}
-              ${Math.abs(offsets[index]) > 2 ? styles["hidden-slide"] : ""}
+              ${Math.abs(offsets[index]) > 1 ? styles["hidden-slide"] : ""}
               ${slideClassName}
             `}
               style={{
