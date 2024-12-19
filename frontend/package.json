@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "description": "A React slideshow component and demos with TypeScript",
+  "description": "Online F/E developer portfolio built in React.",
   "author": "Bradley Baysinger",
   "license": "MIT",
   "scripts": {
