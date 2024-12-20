@@ -52,8 +52,8 @@ $breakpoints: (
 // Usage: Apply styles starting from the specified breakpoint and up.
 // Example:
 // .example-class {
-//   @include global.breakpoint-up(global.$b768) {
-//     global.$background-color: blue;
+//   @include breakpoint-up($b768px) {
+//     background-color: $lighterThemeColor;
 //   }
 // }
 @mixin breakpoint-up($breakpoint) {
@@ -82,7 +82,7 @@ $breakpoints: (
 // width scales between the two specified breakpoints
 // Example:
 // h1 {
-//   @include global.fluid-property(height, global.$xs, global.$xl, 50px, 200px);
+//   @include fluid-property(height, $b320px, $b1024px, 50px, 200px);
 // }
 @mixin fluid-property($property, $min-vw, $max-vw, $min-value, $max-value) {
   // Extract units to ensure consistency for calculations

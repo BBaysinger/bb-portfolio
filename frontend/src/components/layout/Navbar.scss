@@ -1,4 +1,4 @@
-@use "@/styles/global";
+@use "@/styles/global" as *;
 
 #top-navbar {
   position: fixed;
@@ -6,7 +6,7 @@
   z-index: 10;
   width: 100vw;
   display: flex;
-  min-height: global.$navBarHeight;
+  min-height: $navBarHeight;
 
   div.the-navbar {
     padding-left: 0;
@@ -15,7 +15,7 @@
     margin-right: 0px;
     display: none;
 
-    @include global.breakpoint-up(global.$b768) {
+    @include breakpoint-up($b768px) {
       display: inline-block;
     }
 
@@ -99,7 +99,7 @@
       transition: all 0.3s ease;
     }
 
-    @media screen and (min-width: global.$b768px) {
+    @media screen and (min-width: $b768px) {
       display: none;
     }
   }
@@ -124,7 +124,7 @@
           color: #999;
         }
         span:last-of-type {
-          color: global.$lighterThemeColor;
+          color: $lighterThemeColor;
         }
       }
 
