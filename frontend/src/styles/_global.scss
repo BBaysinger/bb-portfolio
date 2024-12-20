@@ -59,12 +59,12 @@ $breakpoints: (
 @mixin breakpoint-up($breakpoint) {
   $min-width: map.get($breakpoints, $breakpoint); // Correct Dart Sass syntax
   @if $min-width != null {
-    @media (min-width: $min-width) {
+    @media screen and (min-width: $min-width) {
       @content;
     }
   } @else {
     // Handle raw values like '900px'
-    @media (min-width: $breakpoint) {
+    @media screen and (min-width: $breakpoint) {
       @content;
     }
   }

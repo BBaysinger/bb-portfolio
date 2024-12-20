@@ -40,7 +40,7 @@ div#main {
 /* Boostrap (theme) override stuff. */
 //Fixes an issue with nav height changing for unknown reason.
 //TODO: May want this to
-@media (min-width: $b768px) {
+@include breakpoint-up($b768px) {
   .navbar-nav > li > a {
     padding-top: 15px !important;
     padding-bottom: 15px !important;

@@ -93,7 +93,7 @@ header {
     }
   }
 
-  @media (min-width: $b768px) {
+  @include breakpoint-up($b768px) {
     br.responsive_br {
       display: none;
     }
@@ -102,7 +102,7 @@ header {
     }
   }
 
-  @media (min-width: $b992px) {
+  @include breakpoint-up($b992px) {
     h1 {
       font-size: 50px;
     }
