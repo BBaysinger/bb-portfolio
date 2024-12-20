@@ -99,7 +99,7 @@ div#main {
   }
 
   li.band {
-    background-color: $lighterThemeColor;
+    background-color: global.$lighterThemeColor;
     height: 0;
     opacity: 0.5;
   }

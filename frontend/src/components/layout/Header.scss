@@ -57,7 +57,7 @@ header {
     }
 
     .lastName {
-      color: $lighterThemeColor;
+      color: global.$lighterThemeColor;
     }
 
     .firstName {
@@ -93,7 +93,7 @@ header {
     }
   }
 
-  @include global.breakpoint-up(global.$b768px) {
+  @media (min-width: global.$b768px) {
     br.responsive_br {
       display: none;
     }
@@ -102,7 +102,7 @@ header {
     }
   }
 
-  @include global.breakpoint-up(global.$b992px) {
+  @media (min-width: global.$b992px) {
     h1 {
       font-size: 50px;
     }
@@ -116,6 +116,7 @@ header {
     width: 100%;
     position: absolute;
     background-color: #000;
+    // background-color: global.$lighterThemeColor;
   }
 
   .bull {
