@@ -152,7 +152,7 @@
     margin-top: 50px;
     margin-bottom: 30px;
 
-    @media (min-width: $b768px) {
+    @include breakpoint-up($b768px) {
       margin-top: 60px;
     }
   }
