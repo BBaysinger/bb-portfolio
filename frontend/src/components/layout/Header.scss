@@ -84,12 +84,12 @@ header {
     font-weight: 400; // Only a factor before fonts load.
     margin-top: 0px;
     margin-bottom: 10px;
-    font-size: 52px;
-    line-height: 55px;
+    font-size: 60px;
+    line-height: 62px;
 
-    @media (max-width: $b480px) {
-      font-size: 40px;
-      line-height: 42px;
+    @include breakpoint-up($b480px) {
+      font-size: 52px;
+      line-height: 55px;
     }
   }
 

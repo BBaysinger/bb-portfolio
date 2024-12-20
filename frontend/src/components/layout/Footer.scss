@@ -60,9 +60,10 @@ footer {
   .footer-nav {
     list-style: none;
     font-size: 15px;
+    text-align: center;
 
-    @media (max-width: $b992px) {
-      text-align: center;
+    @include breakpoint-up($b768px) {
+      text-align: left;
     }
 
     ul {
@@ -87,14 +88,6 @@ footer {
     a:hover {
       text-decoration: underline;
       color: #ffffff;
-    }
-  }
-
-  @media (max-width: $b992px) {
-    li {
-      margin-right: 20px;
-      margin-left: 20px;
-      display: inline-block;
     }
   }
 
@@ -131,11 +124,6 @@ footer {
       flex-direction: column;
       align-items: left;
       text-align: left;
-    }
-
-    @media (max-width: $b768px) {
-      margin-right: auto;
-      margin-left: auto;
     }
 
     li {
