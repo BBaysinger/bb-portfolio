@@ -52,39 +52,15 @@
   }
 
   #projectNav .nav-button img {
-    @media (max-width: 850px) {
-      transform: scale(0.75);
-      transform-origin: center left;
-    }
-    @media (max-width: $b768px) {
-      transform: scale(0.8);
-    }
-    @media (max-width: $b480px) {
+    transform-origin: center left;
+
+    @include breakpoint-up($b480px) {
       transform: scale(0.6);
     }
-  }
 
-  @media (max-width: $b480px) {
-    #projectNav .nav-button img {
-      height: 60px;
-    }
-
-    #projectNav {
-      height: 60px;
-      margin-bottom: 0;
-    }
-  }
-
-  #infoWrapper {
-    position: relative;
-    display: block;
-    transition: 0.5s;
-    @media (max-width: $b992px) {
-      margin-top: 3vw;
-    }
-
-    @media (max-width: $b480px) {
-      margin-top: 1vw;
+    @include breakpoint-up($b768px) {
+      transform: scale(0.75);
+      transform-origin: center left;
     }
   }
 
@@ -155,50 +131,5 @@
     @include breakpoint-up($b768px) {
       margin-top: 60px;
     }
-  }
-
-  .logo-container .client-logo {
-    $scaleY: 0.5;
-    height: 60px;
-    width: 300px;
-    background-size: contain;
-    background-position: center left;
-    background-repeat: no-repeat;
-    position: absolute;
-    visibility: hidden;
-    transition:
-      filter 0.5s linear,
-      transform 0.5s linear;
-
-    filter: blur(20px);
-    transform: scaleY($scaleY);
-
-    &.visible {
-      visibility: visible;
-      filter: blur(0px);
-      transform: scaleY(1);
-
-      @media (max-width: $b768px) {
-        transform: translateX(-50%) scale(0.75) scaleY(1);
-      }
-    }
-
-    @media (max-width: $b768px) {
-      background-position: center center;
-      transform: translateX(-50%) scale(0.75) scaleY($scaleY);
-      left: 50%;
-    }
-  }
-
-  p {
-    margin-bottom: 0;
-  }
-
-  .btn-default {
-    margin-right: 15px;
-  }
-
-  .btn-group .btn-default {
-    margin-right: 0;
   }
 }
