@@ -6,7 +6,7 @@
   z-index: 10;
   width: 100vw;
   display: flex;
-  min-height: $navBarHeight;
+  min-height: global.$navBarHeight;
 
   div.the-navbar {
     padding-left: 0;
@@ -15,7 +15,7 @@
     margin-right: 0px;
     display: none;
 
-    @include global.breakpoint-up(global.$b768px) {
+    @include global.breakpoint-up(global.$b768) {
       display: inline-block;
     }
 
@@ -124,7 +124,7 @@
           color: #999;
         }
         span:last-of-type {
-          color: $lighterThemeColor;
+          color: global.$lighterThemeColor;
         }
       }
 

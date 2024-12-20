@@ -152,7 +152,7 @@
     margin-top: 50px;
     margin-bottom: 30px;
 
-    @include global.breakpoint-up(global.$b768px) {
+    @media (min-width: global.$b768px) {
       margin-top: 60px;
     }
   }
