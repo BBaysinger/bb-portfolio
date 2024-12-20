@@ -1,4 +1,4 @@
-@use "@/styles/global" as global;
+@use "@/styles/global" as *;
 
 // TODO: This needs finished splitting out for detail device and infos.
 // Should be split up for a separation of concerns.
@@ -56,15 +56,15 @@
       transform: scale(0.75);
       transform-origin: center left;
     }
-    @media (max-width: global.$b768px) {
+    @media (max-width: $b768px) {
       transform: scale(0.8);
     }
-    @media (max-width: global.$b480px) {
+    @media (max-width: $b480px) {
       transform: scale(0.6);
     }
   }
 
-  @media (max-width: global.$b480px) {
+  @media (max-width: $b480px) {
     #projectNav .nav-button img {
       height: 60px;
     }
@@ -79,11 +79,11 @@
     position: relative;
     display: block;
     transition: 0.5s;
-    @media (max-width: global.$b992px) {
+    @media (max-width: $b992px) {
       margin-top: 3vw;
     }
 
-    @media (max-width: global.$b480px) {
+    @media (max-width: $b480px) {
       margin-top: 1vw;
     }
   }
@@ -152,7 +152,7 @@
     margin-top: 50px;
     margin-bottom: 30px;
 
-    @media (min-width: global.$b768px) {
+    @media (min-width: $b768px) {
       margin-top: 60px;
     }
   }
@@ -178,12 +178,12 @@
       filter: blur(0px);
       transform: scaleY(1);
 
-      @media (max-width: global.$b768px) {
+      @media (max-width: $b768px) {
         transform: translateX(-50%) scale(0.75) scaleY(1);
       }
     }
 
-    @media (max-width: global.$b768px) {
+    @media (max-width: $b768px) {
       background-position: center center;
       transform: translateX(-50%) scale(0.75) scaleY($scaleY);
       left: 50%;
