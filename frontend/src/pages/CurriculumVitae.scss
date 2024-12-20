@@ -1,4 +1,4 @@
-@use "@/styles/global";
+@use "@/styles/global" as *;
 
 #mainContent.cv-page {
   margin-left: 10px;
@@ -12,7 +12,7 @@
   }
 
   h4 {
-    border-bottom: 2px solid global.$heavierThemeColor;
+    border-bottom: 2px solid $heavierThemeColor;
     padding-bottom: 20px;
     font-size: 40px !important;
   }
@@ -50,22 +50,10 @@
     margin-bottom: 40px;
     margin-left: auto;
     margin-right: auto;
-    @include global.fluid-property(
-      height,
-      global.$b360px,
-      global.$b1440px,
-      120px,
-      130px
-    );
-    @include global.fluid-property(
-      max-width,
-      global.$b360px,
-      global.$b1440px,
-      130px,
-      140px
-    );
+    @include fluid-property(height, #{$b360}px, #{$b1440}px, 120px, 130px);
+    @include fluid-property(max-width, #{$b360}px, #{$b1440}px, 130px, 140px);
 
-    @media (min-width: global.$b768px) {
+    @include breakpoint-up(#{$b768}px) {
       position: relative;
       top: 5px;
       margin-top: 0;
@@ -77,10 +65,7 @@
       padding-left: 8px;
     }
 
-    @media (min-width: global.$b768px) {
-      // border-left: 1px dashed global.$heavierThemeColor;
-      // padding-left: 20px;
-
+    @include breakpoint-up(#{$b768}px) {
       p,
       ul {
         margin-bottom: 10px;
@@ -91,10 +76,10 @@
   h4:first-child {
     padding-top: 0px;
     margin-top: 0px;
-    @media (min-width: global.$b768px) {
+    @include breakpoint-up(#{$b768}px) {
       font-size: 26px;
     }
-    @media (min-width: global.$b992px) {
+    @include breakpoint-up(#{$b992}px) {
       font-size: 34px;
     }
   }
@@ -118,7 +103,7 @@
     }
 
     .bullet {
-      color: global.$heavierThemeColor;
+      color: $heavierThemeColor;
       line-height: 18px;
       font-size: 20px;
       position: relative;
@@ -129,7 +114,7 @@
 
   .scope {
     font-size: 16px;
-    color: global.$heavierThemeColor;
+    color: $heavierThemeColor;
     span:nth-child(1) {
       color: #000;
     }
