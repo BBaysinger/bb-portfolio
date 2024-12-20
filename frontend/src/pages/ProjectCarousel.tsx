@@ -1,44 +1,23 @@
-import React, { useEffect, useRef } from "react";
-import { Link, useParams } from "react-router-dom";
+import React, { useRef } from "react";
+import { useParams } from "react-router-dom";
 
 import HeaderSub from "components/layout/HeaderSub";
 import ProjectContent from "components/project-carousel-page/ProjectContent";
 import ProjectData from "data/ProjectData";
 import LogoSwapper from "components/project-carousel-page/LogoSwapper";
 import ProjectParallaxCarousel from "components/project-carousel-page/ProjectParallaxCarousel";
-import blankPNG from "images/misc/blank.png";
 import DeviceDisplay, {
   DeviceTypes,
 } from "components/project-carousel-page/DeviceDisplay";
+import NavButtons from "components/project-carousel-page/NavButtons";
 import styles from "./ProjectCarousel.module.scss";
-
-// const calculateScale = () => {
-//   const height = window.innerHeight;
-//   const width = window.innerWidth;
-//   return Math.min(width / 693, height / 600, 1);
-// };
 
 const ProjectCarousel: React.FC = () => {
   const { projectId = "" } = useParams<{ projectId: string }>();
 
-  // const [scale, setScale] = useState(() => calculateScale());
   const infoRefElems = useRef<Array<ProjectContent | null>>([]);
 
-  const handleResize = () => {
-    // setScale(calculateScale());
-  };
-
-  useEffect(() => {
-    window.addEventListener("resize", handleResize);
-
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, []);
-
   const keys = ProjectData.activeKeys;
-  const prevId = ProjectData.prevKey(projectId);
-  const nextId = ProjectData.nextKey(projectId);
   const projects = ProjectData.activeProjectsRecord;
 
   const laptopSlides = ProjectData.activeProjects.map((project) => (
@@ -75,7 +54,8 @@ const ProjectCarousel: React.FC = () => {
           layer1Slides={laptopSlides}
           layer2Slides={phoneSlides}
         />
-        <div id={styles.projectNav}>
+        <NavButtons />
+        {/* <div id={styles.projectNav}>
           <Link
             to={`/portfolio/${prevId}`}
             className={`${styles["nav-button"]} ${styles.prev}`}
@@ -88,7 +68,7 @@ const ProjectCarousel: React.FC = () => {
           >
             <img src={blankPNG} alt="Next" />
           </Link>
-        </div>
+        </div> */}
         <div id={styles.projectContent}>{infoElems}</div>
       </div>
     </div>
