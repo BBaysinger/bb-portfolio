@@ -1,4 +1,4 @@
-@use "@/styles/global" as *;
+@use "@/styles/global";
 
 #mainContent.cv-page {
   margin-left: 10px;
@@ -50,10 +50,10 @@
     margin-bottom: 40px;
     margin-left: auto;
     margin-right: auto;
-    @include fluid-property(height, #{$b360}px, #{$b1440}px, 120px, 130px);
-    @include fluid-property(max-width, #{$b360}px, #{$b1440}px, 130px, 140px);
+    @include fluid-property(height, global.$b360px, global.$b1440px, 120px, 130px);
+    @include fluid-property(max-width, global.$b360px, global.$b1440px, 130px, 140px);
 
-    @include breakpoint-up(#{$b768}px) {
+    @include global.breakpoint-up(global.$b768px) {
       position: relative;
       top: 5px;
       margin-top: 0;
@@ -65,7 +65,7 @@
       padding-left: 8px;
     }
 
-    @include breakpoint-up(#{$b768}px) {
+    @include global.breakpoint-up(global.$b768px) {
       p,
       ul {
         margin-bottom: 10px;
@@ -76,10 +76,10 @@
   h4:first-child {
     padding-top: 0px;
     margin-top: 0px;
-    @include breakpoint-up(#{$b768}px) {
+    @include global.breakpoint-up(global.$b768px) {
       font-size: 26px;
     }
-    @include breakpoint-up(#{$b992}px) {
+    @include global.breakpoint-up(global.$b992px) {
       font-size: 34px;
     }
   }

@@ -1,4 +1,4 @@
-@use "@/styles/global" as *;
+@use "@/styles/global";
 
 #top-navbar {
   position: fixed;
@@ -15,7 +15,7 @@
     margin-right: 0px;
     display: none;
 
-    @include breakpoint-up(#{$b768}px) {
+    @include global.breakpoint-up(global.$b768px) {
       display: inline-block;
     }
 
@@ -99,7 +99,7 @@
       transition: all 0.3s ease;
     }
 
-    @media screen and (min-width: #{$b768}px) {
+    @media screen and (min-width: global.$b768px) {
       display: none;
     }
   }
