@@ -1,4 +1,4 @@
-@use "@/styles/global";
+@use "@/styles/global" as *;
 
 .carousel-wrapper {
   width: 992px; // default to prevent collapse.
