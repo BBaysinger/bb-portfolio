@@ -1,4 +1,4 @@
-@use "@/styles/global" as *;
+@use "@/styles/global";
 @use "./PortfolioList.module.scss" as portfolioList;
 
 .project-thumbnail {
@@ -10,11 +10,11 @@
   overflow: hidden; // Fix gap on left side of vingette.
   width: 100vw;
 
-  @include breakpoint-up(#{$b768}px) {
+  @include global.breakpoint-up(global.$b768px) {
     width: calc(50vw - (portfolioList.$portfolioListGap * 0.5));
   }
 
-  @include breakpoint-up(#{$b1280}px) {
+  @include global.breakpoint-up(global.$b1280px) {
     width: calc(33.33vw - (portfolioList.$portfolioListGap * 0.666));
   }
 

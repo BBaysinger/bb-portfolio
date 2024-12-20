@@ -1,4 +1,4 @@
-@use "@/styles/global" as *;
+@use "@/styles/global";
 
 header {
   position: relative;
@@ -87,13 +87,13 @@ header {
     font-size: 52px;
     line-height: 55px;
 
-    @media (max-width: #{$b480}px) {
+    @media (max-width: global.$b480px) {
       font-size: 40px;
       line-height: 42px;
     }
   }
 
-  @include breakpoint-up(#{$b768}px) {
+  @include global.breakpoint-up(global.$b768px) {
     br.responsive_br {
       display: none;
     }
@@ -102,7 +102,7 @@ header {
     }
   }
 
-  @include breakpoint-up(#{$b992}px) {
+  @include global.breakpoint-up(global.$b992px) {
     h1 {
       font-size: 50px;
     }

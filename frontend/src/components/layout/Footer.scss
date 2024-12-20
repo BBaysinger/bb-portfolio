@@ -1,4 +1,4 @@
-@use "@/styles/global" as *;
+@use "@/styles/global";
 
 footer {
   padding-top: 0;
@@ -61,7 +61,7 @@ footer {
     list-style: none;
     font-size: 15px;
 
-    @media (max-width: #{$b992}px) {
+    @media (max-width: global.$b992px) {
       text-align: center;
     }
 
@@ -90,7 +90,7 @@ footer {
     }
   }
 
-  @media (max-width: #{$b992}px) {
+  @media (max-width: global.$b992px) {
     li {
       margin-right: 20px;
       margin-left: 20px;
@@ -133,7 +133,7 @@ footer {
       text-align: left;
     }
 
-    @media (max-width: #{$b768}px) {
+    @media (max-width: global.$b768px) {
       margin-right: auto;
       margin-left: auto;
     }

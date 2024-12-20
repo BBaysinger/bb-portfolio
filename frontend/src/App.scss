@@ -1,4 +1,4 @@
-@use "@/styles/global" as *;
+@use "@/styles/global";
 
 //TODO: Bundle fonts with Webpack. Only those that show on first load.
 // @font-face {
@@ -40,7 +40,7 @@ div#main {
 /* Boostrap (theme) override stuff. */
 //Fixes an issue with nav height changing for unknown reason.
 //TODO: May want this to
-@include breakpoint-up(#{$b768}px) {
+@include global.breakpoint-up(global.$b768px) {
   .navbar-nav > li > a {
     padding-top: 15px !important;
     padding-bottom: 15px !important;
@@ -95,7 +95,7 @@ h6,
 
 .left-sub {
   width: 100%;
-  @include breakpoint-up(#{$b768}px) {
+  @include global.breakpoint-up(global.$b768px) {
     width: unset;
   }
 }
@@ -105,7 +105,7 @@ h6,
   display: initial;
   flex-basis: 100%;
   height: 0;
-  @include breakpoint-up(#{$b480}px) {
+  @include global.breakpoint-up(global.$b480px) {
     display: none;
   }
 }
