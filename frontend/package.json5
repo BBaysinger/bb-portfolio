@@ -12,6 +12,7 @@
   "author": "Bradley Baysinger",
   "license": "MIT",
   "scripts": {
+    // Pretty build. Run before a commit. Ensures prettier hasn't broken anything, which it can.
     "pb": "prettier --write . && tsc -b && vite build",
     "dev": "vite",
     "build": "vite build",
@@ -52,6 +53,7 @@
     "typescript": "~5.7.2"
   },
   "engines": {
+    // Causes an incorrect error in Netlify, but it's what I'm using locally.
     "node": ">=23.4.0",
     "npm": ">=11.0.0"
   },
