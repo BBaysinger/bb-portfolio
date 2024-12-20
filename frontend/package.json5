@@ -1,3 +1,8 @@
+/**
+* Because I need comments in my package.
+*
+* Run npm run prepare-package to generate a new package.json.
+*/
 {
   "name": "bb-portfolio",
   "private": true,
