@@ -53,7 +53,7 @@
     @include fluid-property(height, $b360px, $b1440px, 120px, 130px);
     @include fluid-property(max-width, $b360px, $b1440px, 130px, 140px);
 
-    @media (min-width: $b768px) {
+    @include breakpoint-up($b768px) {
       position: relative;
       top: 5px;
       margin-top: 0;
@@ -65,7 +65,7 @@
       padding-left: 8px;
     }
 
-    @media (min-width: $b768px) {
+    @include breakpoint-up($b768px) {
       p,
       ul {
         margin-bottom: 10px;
@@ -76,10 +76,10 @@
   h4:first-child {
     padding-top: 0px;
     margin-top: 0px;
-    @media (min-width: $b768px) {
+    @include breakpoint-up($b768px) {
       font-size: 26px;
     }
-    @media (min-width: $b992px) {
+    @include breakpoint-up($b992px) {
       font-size: 34px;
     }
   }

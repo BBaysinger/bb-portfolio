@@ -99,7 +99,7 @@
       transition: all 0.3s ease;
     }
 
-    @media screen and (min-width: $b768px) {
+    @include breakpoint-up($b768px) {
       display: none;
     }
   }
