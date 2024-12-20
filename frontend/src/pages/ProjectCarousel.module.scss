@@ -56,15 +56,15 @@
       transform: scale(0.75);
       transform-origin: center left;
     }
-    @media (max-width: global.$b768px) {
+    @media (max-width: #{$b768}px) {
       transform: scale(0.8);
     }
-    @media (max-width: global.$b480px) {
+    @media (max-width: #{$b480}px) {
       transform: scale(0.6);
     }
   }
 
-  @media (max-width: global.$b480px) {
+  @media (max-width: #{$b480}px) {
     #projectNav .nav-button img {
       height: 60px;
     }
@@ -79,11 +79,11 @@
     position: relative;
     display: block;
     transition: 0.5s;
-    @media (max-width: global.$b992px) {
+    @media (max-width: #{$b992}px) {
       margin-top: 3vw;
     }
 
-    @media (max-width: global.$b480px) {
+    @media (max-width: #{$b480}px) {
       margin-top: 1vw;
     }
   }
@@ -152,7 +152,7 @@
     margin-top: 50px;
     margin-bottom: 30px;
 
-    @media (min-width: global.$b768px) {
+    @include breakpoint-up(#{$b768}px) {
       margin-top: 60px;
     }
   }
@@ -178,12 +178,12 @@
       filter: blur(0px);
       transform: scaleY(1);
 
-      @media (max-width: global.$b768px) {
+      @media (max-width: #{$b768}px) {
         transform: translateX(-50%) scale(0.75) scaleY(1);
       }
     }
 
-    @media (max-width: global.$b768px) {
+    @media (max-width: #{$b768}px) {
       background-position: center center;
       transform: translateX(-50%) scale(0.75) scaleY($scaleY);
       left: 50%;

@@ -6,56 +6,50 @@ $b320: 320; // Ultra-narrow screens (e.g., smartwatches, highly compact UIs).
 $b360: 360; // Baseline for smaller smartphones (practical starting point for mobile-first design).
 $b480: 480; // Compact smartphones or foldables in phone mode (slightly larger mobile devices).
 $b576: 576; // Small tablets in portrait mode or large phones in landscape.
+$b640: 640; // Medium-sized smartphones or tablets in portrait mode.
 $b768: 768; // Tablets in portrait mode or small landscape-oriented tablets.
 $b992: 992; // Entry-level laptop screens or larger tablets in landscape.
 $b1024: 1024; // Standard tablet landscape mode or compact laptops.
 $b1280: 1280; // Modern laptops or smaller desktop screens (common starting point for desktop layouts).
 $b1440: 1440; // High-resolution desktops or widescreen laptops.
+$b1600: 1600; // Larger desktop screens, mid-size monitors.
 $b1920: 1920; // Wide monitors or premium desktop setups (optimal for expansive layouts).
+$b2200: 2200; // Ultra-wide monitors and 4K setups.
 
-// Derived Variables (With Units)
-$b320px: $b320 * 1px;
-$b360px: $b360 * 1px;
-$b480px: $b480 * 1px;
-$b576px: $b576 * 1px;
-$b768px: $b768 * 1px;
-$b992px: $b992 * 1px;
-$b1024px: $b1024 * 1px;
-$b1280px: $b1280 * 1px;
-$b1440px: $b1440 * 1px;
-$b1920px: $b1920 * 1px;
-
-// Breakpoints definition
+// Breakpoints map (Unitless)
 $breakpoints: (
-  320: $b320px,
-  360: $b360px,
-  480: $b480px,
-  576: $b576px,
-  768: $b768px,
-  992: $b992px,
-  1024: $b1024px,
-  1280: $b1280px,
-  1440: $b1440px,
-  1920: $b1920px,
+  320: $b320,
+  360: $b360,
+  480: $b480,
+  576: $b576,
+  640: $b640,
+  768: $b768,
+  992: $b992,
+  1024: $b1024,
+  1280: $b1280,
+  1440: $b1440,
+  1600: $b1600,
+  1920: $b1920,
+  2200: $b2200,
 );
 
 // Mixin for mobile-first media queries
 // Usage: Apply styles starting from the specified breakpoint and up.
 // Example:
 // .example-class {
-//   @include global.breakpoint-up(global.$b768) {
-//     global.$background-color: blue;
+//   @include breakpoint-up(#{$b768}px) {
+//     $background-color: blue;
 //   }
 // }
 @mixin breakpoint-up($breakpoint) {
   $min-width: map.get($breakpoints, $breakpoint); // Correct Dart Sass syntax
   @if $min-width != null {
-    @media (min-width: $min-width) {
+    @include breakpoint-up($min-width) {
       @content;
     }
   } @else {
     // Handle raw values like '900px'
-    @media (min-width: $breakpoint) {
+    @include breakpoint-up($breakpoint) {
       @content;
     }
   }
@@ -73,7 +67,7 @@ $breakpoints: (
 // width scales between the two specified breakpoints
 // Example:
 // h1 {
-//   @include global.fluid-property(height, global.$xs, global.$xl, 50px, 200px);
+//   @include fluid-property(height, $b480px, $b768px, 50px, 200px);
 // }
 @mixin fluid-property($property, $min-vw, $max-vw, $min-value, $max-value) {
   // Extract units to ensure consistency for calculations

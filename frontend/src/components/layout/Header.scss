@@ -1,4 +1,4 @@
-@use "@/styles/global";
+@use "@/styles/global" as *;
 
 header {
   position: relative;
@@ -57,7 +57,7 @@ header {
     }
 
     .lastName {
-      color: global.$lighterThemeColor;
+      color: $lighterThemeColor;
     }
 
     .firstName {
@@ -87,13 +87,13 @@ header {
     font-size: 52px;
     line-height: 55px;
 
-    @media (max-width: global.$b480px) {
+    @media (max-width: #{$b480}px) {
       font-size: 40px;
       line-height: 42px;
     }
   }
 
-  @media (min-width: global.$b768px) {
+  @include breakpoint-up(#{$b768}px) {
     br.responsive_br {
       display: none;
     }
@@ -102,7 +102,7 @@ header {
     }
   }
 
-  @media (min-width: global.$b992px) {
+  @include breakpoint-up(#{$b992}px) {
     h1 {
       font-size: 50px;
     }
@@ -116,7 +116,6 @@ header {
     width: 100%;
     position: absolute;
     background-color: #000;
-    // background-color: global.$lighterThemeColor;
   }
 
   .bull {

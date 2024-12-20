@@ -31,7 +31,7 @@ const ProjectParallaxCarousel: React.FC<ProjectParallaxCarouselProps> = ({
 
   const updateScale = () => {
     const minWidth = 320;
-    const maxWidth = 1024;
+    const maxWidth = 700;
     const minScale = 0.45;
     const maxScale = 1;
 
