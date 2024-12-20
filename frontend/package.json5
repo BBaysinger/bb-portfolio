@@ -1,7 +1,8 @@
 /**
 * Because I need comments in my package.
 *
-* Run npm run prepare-package to generate a new package.json.
+* Run npm run prepare-package to generate a new package.json. But remember
+* to copy changes from package.json first.
 */
 {
   "name": "bb-portfolio",
