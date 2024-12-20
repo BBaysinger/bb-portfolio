@@ -12,7 +12,7 @@
   }
 
   h4 {
-    border-bottom: 2px solid $heavierThemeColor;
+    border-bottom: 2px solid global.$heavierThemeColor;
     padding-bottom: 20px;
     font-size: 40px !important;
   }
@@ -50,10 +50,22 @@
     margin-bottom: 40px;
     margin-left: auto;
     margin-right: auto;
-    @include fluid-property(height, global.$b360px, global.$b1440px, 120px, 130px);
-    @include fluid-property(max-width, global.$b360px, global.$b1440px, 130px, 140px);
+    @include global.fluid-property(
+      height,
+      global.$b360px,
+      global.$b1440px,
+      120px,
+      130px
+    );
+    @include global.fluid-property(
+      max-width,
+      global.$b360px,
+      global.$b1440px,
+      130px,
+      140px
+    );
 
-    @include global.breakpoint-up(global.$b768px) {
+    @media (min-width: global.$b768px) {
       position: relative;
       top: 5px;
       margin-top: 0;
@@ -65,7 +77,10 @@
       padding-left: 8px;
     }
 
-    @include global.breakpoint-up(global.$b768px) {
+    @media (min-width: global.$b768px) {
+      // border-left: 1px dashed global.$heavierThemeColor;
+      // padding-left: 20px;
+
       p,
       ul {
         margin-bottom: 10px;
@@ -76,10 +91,10 @@
   h4:first-child {
     padding-top: 0px;
     margin-top: 0px;
-    @include global.breakpoint-up(global.$b768px) {
+    @media (min-width: global.$b768px) {
       font-size: 26px;
     }
-    @include global.breakpoint-up(global.$b992px) {
+    @media (min-width: global.$b992px) {
       font-size: 34px;
     }
   }
@@ -103,7 +118,7 @@
     }
 
     .bullet {
-      color: $heavierThemeColor;
+      color: global.$heavierThemeColor;
       line-height: 18px;
       font-size: 20px;
       position: relative;
@@ -114,7 +129,7 @@
 
   .scope {
     font-size: 16px;
-    color: $heavierThemeColor;
+    color: global.$heavierThemeColor;
     span:nth-child(1) {
       color: #000;
     }

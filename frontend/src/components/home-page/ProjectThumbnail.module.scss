@@ -10,11 +10,11 @@
   overflow: hidden; // Fix gap on left side of vingette.
   width: 100vw;
 
-  @include global.breakpoint-up(global.$b768px) {
+  @include global.breakpoint-up(768) {
     width: calc(50vw - (portfolioList.$portfolioListGap * 0.5));
   }
 
-  @include global.breakpoint-up(global.$b1280px) {
+  @include global.breakpoint-up(1280) {
     width: calc(33.33vw - (portfolioList.$portfolioListGap * 0.666));
   }
 
