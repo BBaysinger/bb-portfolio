@@ -3,8 +3,8 @@
 .project-nav {
   top: 0;
   width: 100vw;
-  @include breakpoint-up($b1024px) {
-    top: 280px;
+  @include breakpoint-up($b768px) {
+    top: 340px;
     position: absolute;
   }
 }
@@ -12,12 +12,25 @@
 .nav-button {
   position: absolute;
 
+  @include breakpoint-up($b768px) {
+    transform: translateY(-50%);
+  }
+
   img {
     height: 98px;
     width: 80px;
     background-image: url("../../images/project-carousel/next-prev.png");
     background-repeat: no-repeat;
     background-size: contain;
+    transform-origin: left center;
+
+    @include breakpoint-up($b768px) {
+      transform: scale(0.75);
+    }
+
+    @include breakpoint-up($b992px) {
+      transform: scale(1);
+    }
   }
 
   &.prev {
@@ -25,8 +38,10 @@
   }
 
   &.next {
-    transform: scaleX(-1);
     right: 0;
+    @include breakpoint-up($b768px) {
+      transform: translateY(-50%) scaleX(-1);
+    }
   }
 
   &:hover {
