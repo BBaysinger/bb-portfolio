@@ -16,24 +16,6 @@
     }
   }
 
-  #projectNav {
-    width: 100%;
-    position: absolute;
-    top: 200px;
-
-    &.not-scaled-on-height {
-      position: static;
-      height: 75px;
-      margin-top: -110px;
-      margin-bottom: 120px;
-
-      .nav-button img {
-        background-image: url("../images/project-carousel/next-prev-mob.png");
-        height: 75px;
-      }
-    }
-  }
-
   .btn-group-label:hover {
     color: #ffffff;
   }

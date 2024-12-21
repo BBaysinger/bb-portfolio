@@ -216,13 +216,15 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
         }
       };
 
-      const scroller = scrollerRef.current;
-      scroller?.addEventListener("scroll", scrollListener);
+      if (!isSlave()) {
+        const scroller = scrollerRef.current;
+        scroller?.addEventListener("scroll", scrollListener);
 
-      return () => {
-        scroller?.removeEventListener("scroll", scrollListener);
-        if (animationFrameId) cancelAnimationFrame(animationFrameId);
-      };
+        return () => {
+          scroller?.removeEventListener("scroll", scrollListener);
+          if (animationFrameId) cancelAnimationFrame(animationFrameId);
+        };
+      }
     }, [handleScroll, frameDuration]);
 
     useEffect(() => {

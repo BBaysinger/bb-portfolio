@@ -3,6 +3,10 @@
 .project-nav {
   top: 0;
   width: 100vw;
+  display: flex;
+  justify-content: space-between; /* Positions the buttons at opposite ends */
+  align-items: center; /* Ensures buttons are vertically aligned */
+
   @include breakpoint-up($b768px) {
     top: 340px;
     position: absolute;
@@ -10,26 +14,30 @@
 }
 
 .nav-button {
-  position: absolute;
+  height: 98px;
+  width: 98px;
+  object-fit: cover;
+  border-radius: 0 50% 50% 0;
+  display: flex;
+  background-color: black;
 
   @include breakpoint-up($b768px) {
-    transform: translateY(-50%);
+    transform: translateY(-50%) translateX(-20px);
   }
 
   img {
-    height: 98px;
-    width: 80px;
-    background-image: url("../../images/project-carousel/next-prev.png");
+    width: 55px;
+    background-image: url("../../images/project-carousel/arrow.svg");
     background-repeat: no-repeat;
     background-size: contain;
-    transform-origin: left center;
+    transform: rotate(90deg) scale(0.75);
 
     @include breakpoint-up($b768px) {
-      transform: scale(0.75);
+      transform: rotate(90deg) scale(0.75);
     }
 
     @include breakpoint-up($b992px) {
-      transform: scale(1);
+      transform: rotate(90deg) scale(1);
     }
   }
 
@@ -39,8 +47,10 @@
 
   &.next {
     right: 0;
+    transform: scaleX(-1);
+
     @include breakpoint-up($b768px) {
-      transform: translateY(-50%) scaleX(-1);
+      transform: translateY(-50%) scaleX(-1) translateX(-20px);
     }
   }
 
