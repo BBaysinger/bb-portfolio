@@ -32,7 +32,7 @@ const DeviceDisplay: React.FC<DeviceDisplayProps> = React.memo(
 
     return (
       <div
-        className={`${styles["device-presentation"]} bb-device-presentation`}
+        className={`${styles["device-presentation"]} ${styles[deviceType]} bb-device-presentation`}
       >
         {deviceType === DeviceTypes.LAPTOP ? (
           <div
