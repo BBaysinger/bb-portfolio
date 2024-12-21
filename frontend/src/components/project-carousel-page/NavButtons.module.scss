@@ -23,7 +23,6 @@
   background-color: black;
   pointer-events: all;
 
-
   @include breakpoint-up($b768px) {
     transform: translateY(-50%) translateX(-20px);
   }
