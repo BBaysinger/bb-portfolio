@@ -21,6 +21,7 @@
 .slave-wrapper {
   .carousel-slider {
     overflow-x: visible;
+    scroll-snap-type: none;
   }
 }
 
