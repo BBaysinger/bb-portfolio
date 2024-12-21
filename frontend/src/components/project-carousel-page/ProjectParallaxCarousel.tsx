@@ -69,16 +69,12 @@ const ProjectParallaxCarousel: React.FC<ProjectParallaxCarouselProps> = ({
       ? `${styles["stabilized-slide"]} bb-stabilized-slide`
       : "") + ` bb-transparent-slide`;
 
-  const getWrapperClass = () => {
-    const base = `${styles["parallax-carousel"]} bb-parallax-carousel`;
-    return (
-      base + (currentIndex === stabilizedIndex ? " bb-stabilized-carousel" : "")
-    );
-  };
-
   return (
     <div
-      className={getWrapperClass()}
+      className={
+        `${styles["parallax-carousel"]} bb-parallax-carousel ` +
+        (currentIndex === stabilizedIndex ? "bb-stabilized-carousel" : "")
+      }
       style={{ transform: `scale(${scale})` }}
       ref={containerRef}
     >
