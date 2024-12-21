@@ -261,10 +261,10 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
 
       const offsetToTarget = offsets[targetIndex];
       const direction = offsetToTarget > 0 ? Direction.RIGHT : Direction.LEFT;
+
       setScrollDirection(direction);
 
       const { positions: newPositions } = memoizedPositionsAndMultipliers;
-
       const targetPosition = newPositions[targetIndex] + offset();
 
       scrollerRef.current.scrollTo({
@@ -279,11 +279,10 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
 
     return (
       <div
-        className={`
-        ${styles["carousel-wrapper"]}
-        ${isSlave() ? styles["slave-wrapper"] : ""}
-        ${wrapperClassName}
-      `}
+        className={
+          `${styles["carousel-wrapper"]} ${isSlave() ? styles["slave-wrapper"] : ""} ` +
+          wrapperClassName
+        }
       >
         <div
           ref={scrollerRef}
@@ -293,11 +292,11 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
           {memoizedSlides.map((slide, index) => (
             <div
               key={index}
-              className={`
-              ${styles["carousel-slide"]}
-              ${Math.abs(offsets[index]) > 1 ? styles["hidden-slide"] : ""}
-              ${slideClassName}
-            `}
+              className={
+                `${styles["carousel-slide"]} ` +
+                `${Math.abs(offsets[index]) > 1 ? styles["hidden-slide"] : ""} ` +
+                slideClassName
+              }
               style={{
                 transform: `translateX(${offset() + positions[index]}px)`,
               }}
