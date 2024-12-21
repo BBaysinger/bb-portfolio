@@ -2,7 +2,7 @@ import React from "react";
 import { MobileStatus } from "data/ProjectData";
 import styles from "./DeviceDisplay.module.scss";
 
-// Define constants for DeviceTypes (Not used in the data.)
+// Define constants for DeviceTypes (not used in the data)
 export const DeviceTypes = {
   LAPTOP: "laptop",
   PHONE: "phone",
@@ -20,6 +20,8 @@ interface DeviceDisplayProps {
  * Display screenshots overlaid onto device images.
  * For use in the project presentation carousels.
  *
+ * TODO: Handle preloading of images better.
+ *
  * @author Bradley Baysinger
  * @since The beginning of time.
  * @version N/A
@@ -34,10 +36,7 @@ const DeviceDisplay: React.FC<DeviceDisplayProps> = React.memo(
       >
         {deviceType === DeviceTypes.LAPTOP ? (
           <div
-            className={`
-              ${styles[DeviceTypes.LAPTOP]}
-              bb-laptop
-              ${styles["background-wrapper"]}`}
+            className={`bb-laptop ${styles["background-wrapper"]} ${styles[deviceType]}`}
           >
             <img
               src={src}
@@ -48,13 +47,10 @@ const DeviceDisplay: React.FC<DeviceDisplayProps> = React.memo(
           </div>
         ) : deviceType === DeviceTypes.PHONE ? (
           <div
-            className={`
-              ${styles[DeviceTypes.PHONE]}
-              bb-phone
-              ${styles["background-wrapper"]} 
-              ${mobileStatus ? styles[mobileStatus] : ""}
-              bb-${mobileStatus ? mobileStatus : ""}
-            `.trim()}
+            className={
+              `bb-phone ${styles["background-wrapper"]} ${mobileStatus ? styles[mobileStatus] : ""}` +
+              ` bb-${mobileStatus ? mobileStatus : ""} ${styles[deviceType]}`
+            }
           >
             <img
               src={src}
@@ -67,10 +63,6 @@ const DeviceDisplay: React.FC<DeviceDisplayProps> = React.memo(
       </div>
     );
   },
-  (prevProps, nextProps) =>
-    prevProps.deviceType === nextProps.deviceType &&
-    prevProps.id === nextProps.id &&
-    prevProps.mobileStatus === nextProps.mobileStatus,
 );
 
 export default DeviceDisplay;

@@ -1,8 +1,9 @@
 /**
- * Because I need comments in my package.
+ * Because I often need comments in my package list (though it's kind of an extra step to
+ * keep them in sync.)
  *
- * Run npm run prepare-package to generate a new package.json. But remember
- * to copy changes from package.json first.
+ * Copy changes from package.json, then run npm run prepare-package to generate a new package.json.
+ * Compare the output to make sure it matches.
  */
 {
   name: "bb-portfolio",
