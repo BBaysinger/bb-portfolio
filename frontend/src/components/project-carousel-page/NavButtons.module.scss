@@ -1,0 +1,39 @@
+@use "@/styles/global" as *;
+
+.project-nav {
+  top: 0;
+  width: 100vw;
+  @include breakpoint-up($b1024px) {
+    top: 280px;
+    position: absolute;
+  }
+}
+
+.nav-button {
+  position: absolute;
+
+  img {
+    height: 98px;
+    width: 80px;
+    background-image: url("../../images/project-carousel/next-prev.png");
+    background-repeat: no-repeat;
+    background-size: contain;
+  }
+
+  &.prev {
+    left: 0;
+  }
+
+  &.next {
+    transform: scaleX(-1);
+    right: 0;
+  }
+
+  &:hover {
+    opacity: 0.8;
+  }
+
+  &:active {
+    opacity: 0.6;
+  }
+}

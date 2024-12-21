@@ -55,20 +55,6 @@ const ProjectCarousel: React.FC = () => {
           layer2Slides={phoneSlides}
         />
         <NavButtons />
-        {/* <div id={styles.projectNav}>
-          <Link
-            to={`/portfolio/${prevId}`}
-            className={`${styles["nav-button"]} ${styles.prev}`}
-          >
-            <img src={blankPNG} alt="Previous" />
-          </Link>
-          <Link
-            to={`/portfolio/${nextId}`}
-            className={`${styles["nav-button"]} ${styles.next}`}
-          >
-            <img src={blankPNG} alt="Next" />
-          </Link>
-        </div> */}
         <div id={styles.projectContent}>{infoElems}</div>
       </div>
     </div>
