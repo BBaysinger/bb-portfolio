@@ -72,42 +72,14 @@
     margin-top: 0;
   }
 
-  #projectNav {
-    position: absolute;
-    .nav-button {
-      position: absolute;
-      &:hover {
-        opacity: 0.8;
-      }
-      &:active {
-        opacity: 0.6;
-      }
-      .prev {
-        left: 0;
-      }
-      img {
-        height: 98px;
-        width: 80px;
-        background-image: url("../images/project-carousel/next-prev.png");
-        background-repeat: no-repeat;
-        background-size: contain;
-      }
-    }
-  }
-
-  .warn-element {
-    a:link,
-    a:hover,
-    a:visited,
-    a:active {
-      color: #666666 !important;
-    }
-  }
-
-  #projectNav .next {
-    transform: scaleX(-1);
-    right: 0;
-  }
+  // .warn-element {
+  //   a:link,
+  //   a:hover,
+  //   a:visited,
+  //   a:active {
+  //     color: #666666 !important;
+  //   }
+  // }
 
   .my-contribution {
     color: #000000;
@@ -123,13 +95,13 @@
     position: relative;
   }
 
-  #logoContainer {
-    height: 40px;
-    margin-top: 50px;
-    margin-bottom: 30px;
+  // #logoContainer {
+  //   height: 40px;
+  //   margin-top: 50px;
+  //   margin-bottom: 30px;
 
-    @include breakpoint-up($b768px) {
-      margin-top: 60px;
-    }
-  }
+  //   @include breakpoint-up($b768px) {
+  //     margin-top: 60px;
+  //   }
+  // }
 }
