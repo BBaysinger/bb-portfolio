@@ -203,7 +203,12 @@ class Footer extends React.Component {
               Built with React
             </a>
           </div>
-          &copy; <span style={{ color: "#fff" }}>BBInteractive</span>.io
+          <NavLink
+            className=""
+            to="/portfolio#list"
+          >
+            &copy; <span style={{ color: "#fff" }}>BBInteractive</span>.io
+          </NavLink>
         </div>
       </footer>
     );
