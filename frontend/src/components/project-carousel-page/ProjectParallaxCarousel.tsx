@@ -30,7 +30,7 @@ const ProjectParallaxCarousel: React.FC<ProjectParallaxCarouselProps> = ({
   };
 
   // Necessitated by the spacing differences, but the values seem arbitrary.
-  // If you set the spacings all the same, the slides align as expected...
+  // Set the spacings all the same, and the slides align as expected...
   // TODO: Figure out how to calculate (and incorporate into carousel?)
   const layerShims = {
     layer1: -5,
