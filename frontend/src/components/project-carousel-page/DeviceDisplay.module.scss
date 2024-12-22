@@ -11,7 +11,6 @@
   filter: grayscale(0.5) blur(1px);
   will-change: filter;
   transition: filter 0.4s ease-in-out;
-  border: 1px solid red;
 }
 
 .background-wrapper {
