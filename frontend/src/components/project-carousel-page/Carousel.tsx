@@ -100,7 +100,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
             (index - currentIndex + threshold) / memoizedSlides.length,
           );
         } else if (scrollDirection === Direction.LEFT) {
-          const threshold = 6;
+          const threshold = 4;
           multiplier = Math.floor(
             (currentIndex - index + threshold) / memoizedSlides.length,
           );

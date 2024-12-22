@@ -7,8 +7,9 @@
   margin-right: auto;
   position: relative;
   box-sizing: border-box;
-  margin-top: 40px;
   z-index: 0;
+  @include fluid-property("margin-top", $b320px, 680px, -115px, 0px);
+  @include fluid-property("margin-bottom", $b320px, 680px, -115px, 0px);
 }
 
 .transparent-slide {
