@@ -1,12 +1,14 @@
 @use "@/styles/global" as *;
 
 .project-nav {
-  top: 0;
-  width: 100vw;
+  margin-left: auto;
+  margin-right: auto;
   display: flex;
   justify-content: space-between;
   align-items: center;
   pointer-events: none;
+  margin-top: 20px;
+  margin-bottom: 40px;
 
   @include breakpoint-up($b768px) {
     top: 340px;
@@ -15,11 +17,14 @@
 }
 
 .nav-button {
-  &.next {
-    right: 0;
-    transform: scaleX(-1);
-  }
-
+  position: relative;
+  height: 50px;
+  width: 40vw;
+  object-fit: cover;
+  border-radius: 25px 0 0 25px;
+  background-color: black;
+  pointer-events: all;
+  
   &:hover {
     opacity: 0.8;
   }
@@ -27,27 +32,22 @@
   &:active {
     opacity: 0.6;
   }
-}
-
-.inner {
-  height: 98px;
-  width: 98px;
-  object-fit: cover;
-  border-radius: 0 50% 50% 0;
-  display: flex;
-  background-color: black;
-  pointer-events: all;
 
   &::before {
     content: " ";
     position: absolute;
-    border-top: 9px solid #fff;
-    border-left: 9px solid #fff;
-    width: 40px;
-    height: 40px;
-    left: 35px;
+    border-top: 5px solid #fff;
+    border-left: 5px solid #fff;
+    width: 25px;
+    height: 25px;
+    left: 10px;
     top: 50%;
     transform-origin: 0 0;
     transform: rotate(-45deg);
+    z-index: 2;
+  }
+
+  &.next {
+    transform: scaleX(-1);
   }
 }
