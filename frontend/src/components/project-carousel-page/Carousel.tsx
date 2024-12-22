@@ -258,6 +258,12 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       } else return "";
     };
 
+    // const slaveLeft = (): string => {
+    //   if (typeof externalScrollLeft === "number") {
+    //     return `${Math.round(-externalScrollLeft)}px`;
+    //   } else return "";
+    // };
+
     const scrollToSlide = (targetIndex: number) => {
       if (!scrollerRef.current) return;
 
@@ -290,6 +296,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
           ref={scrollerRef}
           className={`${styles["carousel-slider"]} ${sliderClassName}`}
           style={{ transform: slaveTransform() }}
+          // style={{ left: slaveLeft() }}
         >
           {memoizedSlides.map((slide, index) => (
             <div
@@ -303,13 +310,13 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
                 transform: `translateX(${patchedOffset() + positions[index]}px)`,
               }}
             >
-              {debug === 1 ? (
+              {debug && (
                 <div className={styles["debug-info"]}>
                   <div>Index: {index}</div>
                   <div>Multiplier: {multipliers[index]}</div>
                   <div>xPos: {positions[index] + "px"}</div>
                 </div>
-              ) : null}
+              )}
               {slide}
             </div>
           ))}
