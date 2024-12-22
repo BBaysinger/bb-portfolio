@@ -33,8 +33,8 @@ const ProjectParallaxCarousel: React.FC<ProjectParallaxCarouselProps> = ({
   // Set the spacings all the same, and the slides align as expected...
   // TODO: Figure out how to calculate (and incorporate into carousel?)
   const layerShims = {
-    layer1: -5,
-    layer2: 38,
+    layer1: -6,
+    layer2: 37,
   };
 
   const updateScale = () => {
@@ -98,7 +98,7 @@ const ProjectParallaxCarousel: React.FC<ProjectParallaxCarouselProps> = ({
           masterScrollLeft * layerMultipliers.layer1 + layerShims.layer1
         }
         onIndexUpdate={onIndexUpdate}
-        debug={"1"}
+        debug={""}
         wrapperClassName="bb-carousel bb-carousel-laptops"
       />
 
