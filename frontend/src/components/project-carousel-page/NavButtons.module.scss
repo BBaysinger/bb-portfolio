@@ -7,7 +7,7 @@
   justify-content: space-between;
   align-items: center;
   pointer-events: none;
-  margin-top: 20px;
+  margin-top: 10px;
   margin-bottom: 40px;
 
   @include breakpoint-up($b768px) {
@@ -24,7 +24,8 @@
   border-radius: 25px 0 0 25px;
   background-color: black;
   pointer-events: all;
-  
+  background: linear-gradient(to right, #000, #555);
+
   &:hover {
     opacity: 0.8;
   }
@@ -49,5 +50,6 @@
 
   &.next {
     transform: scaleX(-1);
+    margin-left: -1px;
   }
 }
