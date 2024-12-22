@@ -187,7 +187,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       if (!scrollerRef.current) return;
       const scrollLeft = scrollerRef.current.scrollLeft;
       updateIndex(scrollLeft, scrollDirection);
-      // currentIndex is not a dependency, but it's used here to update the index
+      // currentIndex here to update the index
     }, [scrollDirection, currentIndex]);
 
     useEffect(() => {

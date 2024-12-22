@@ -2,28 +2,41 @@
 
 .logo-swapper {
   position: relative;
+  display: flex;
   $maxHeight: 50px;
-  margin-left: 10vw;
   margin-top: 50px;
+  margin-bottom: 42px;
   height: 50px;
   opacity: 0.0001;
   transition: opacity 0.5s;
   width: 300px;
+  margin-left: auto;
+  margin-right: auto;
+
+  @include breakpoint-up($b768px) {
+    margin-left: 0;
+  }
 
   img.client-logo {
     position: absolute;
     top: 50%;
-    left: 0;
+    left: 50%;
+    transform: translate(-50%, -50%);
     opacity: 0.0001;
     max-height: $maxHeight;
     max-width: 100%;
-    transform: translateY(-50%);
     transition: filter 0.5s;
     will-change: filter, opacity;
     object-fit: fill;
     filter: blur(20px);
     &.visible {
       opacity: 1;
+    }
+
+    @include breakpoint-up($b768px) {
+      margin-left: 0;
+      left: 0;
+      transform: translateY(-50%);
     }
   }
 
