@@ -29,7 +29,7 @@ interface CarouselProps {
   slideSpacing: number;
   initialIndex?: number;
   onIndexUpdate?: (currentIndex: number) => void;
-  debug?: boolean;
+  debug?: string;
   wrapperClassName?: string;
   slideClassName?: string;
   sliderClassName?: string;
@@ -65,7 +65,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       slideSpacing,
       initialIndex = 0,
       onIndexUpdate,
-      debug = false,
+      debug = 0,
       wrapperClassName = "",
       slideClassName = "",
       sliderClassName = "",
@@ -145,7 +145,9 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       direction: DirectionType | null,
       updateStableIndex: boolean = true,
     ) => {
-      const newIndex = -Math.round((offset() - scrollLeft) / slideSpacing);
+      const newIndex = -Math.round(
+        (patchedOffset() - scrollLeft) / slideSpacing,
+      );
 
       if (newIndex !== currentIndex) {
         const newDirection =
@@ -176,8 +178,8 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
         }
       }
 
-      if (onScrollUpdate && !isSlave()) {
-        onScrollUpdate(Math.round(scrollLeft - offset()));
+      if (onScrollUpdate) {
+        onScrollUpdate(scrollLeft - patchedOffset());
       }
     };
 
@@ -239,7 +241,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
 
     useEffect(() => {
       if (scrollerRef.current) {
-        scrollerRef.current.scrollLeft = offset();
+        scrollerRef.current.scrollLeft = patchedOffset();
         setScrollDirection(Direction.RIGHT);
         const { positions, multipliers } = memoizedPositionsAndMultipliers;
         setPositions(positions);
@@ -248,7 +250,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
     }, []);
 
     const isSlave = () => typeof externalScrollLeft === "number";
-    const offset = () => (isSlave() ? 0 : BASE_OFFSET);
+    const patchedOffset = () => (isSlave() ? 0 : BASE_OFFSET);
 
     const slaveTransform = (): string => {
       if (typeof externalScrollLeft === "number") {
@@ -265,7 +267,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       setScrollDirection(direction);
 
       const { positions: newPositions } = memoizedPositionsAndMultipliers;
-      const targetPosition = newPositions[targetIndex] + offset();
+      const targetPosition = newPositions[targetIndex] + patchedOffset();
 
       scrollerRef.current.scrollTo({
         left: targetPosition,
@@ -298,16 +300,16 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
                 slideClassName
               }
               style={{
-                transform: `translateX(${offset() + positions[index]}px)`,
+                transform: `translateX(${patchedOffset() + positions[index]}px)`,
               }}
             >
-              {debug && (
+              {debug === 1 ? (
                 <div className={styles["debug-info"]}>
                   <div>Index: {index}</div>
                   <div>Multiplier: {multipliers[index]}</div>
                   <div>xPos: {positions[index] + "px"}</div>
                 </div>
-              )}
+              ) : null}
               {slide}
             </div>
           ))}
