@@ -29,6 +29,14 @@ const ProjectParallaxCarousel: React.FC<ProjectParallaxCarouselProps> = ({
     layer2: slideSpacings.layer2 / slideSpacings.master,
   };
 
+  // Necessitated by the spacing differences, but the values seem arbitrary.
+  // If you set the spacings all the same, the slides align as expected...
+  // TODO: Figure out how to calculate (and incorporate into carousel?)
+  const layerShims = {
+    layer1: -5,
+    layer2: 38,
+  };
+
   const updateScale = () => {
     const minWidth = 320;
     const maxWidth = 680;
@@ -78,7 +86,7 @@ const ProjectParallaxCarousel: React.FC<ProjectParallaxCarouselProps> = ({
       style={{ transform: `scale(${scale})` }}
       ref={containerRef}
     >
-      {/* laptops slave */}
+      {/* laptops (slave) */}
       <Carousel
         slides={layer1Slides.map((slide, index) => (
           <div key={index} className={getSlideClass(index)}>
@@ -86,13 +94,15 @@ const ProjectParallaxCarousel: React.FC<ProjectParallaxCarouselProps> = ({
           </div>
         ))}
         slideSpacing={slideSpacings.layer1}
-        externalScrollLeft={masterScrollLeft * layerMultipliers.layer1 - 5}
+        externalScrollLeft={
+          masterScrollLeft * layerMultipliers.layer1 + layerShims.layer1
+        }
         onIndexUpdate={onIndexUpdate}
         debug={"1"}
         wrapperClassName="bb-carousel bb-carousel-laptops"
       />
 
-      {/* control master */}
+      {/* control (master) */}
       <Carousel
         slides={layer1Slides.map((_, index) => (
           <div key={index} className={`${styles["transparent-slide"]}`}>
@@ -108,7 +118,7 @@ const ProjectParallaxCarousel: React.FC<ProjectParallaxCarouselProps> = ({
         slideClassName="bb-slide-wrapper"
       />
 
-      {/* phones slave */}
+      {/* phones (slave) */}
       <Carousel
         slides={layer2Slides.map((slide, index) => (
           <div key={index} className={getSlideClass(index)}>
@@ -116,7 +126,9 @@ const ProjectParallaxCarousel: React.FC<ProjectParallaxCarouselProps> = ({
           </div>
         ))}
         slideSpacing={slideSpacings.layer2}
-        externalScrollLeft={masterScrollLeft * layerMultipliers.layer2 + 5}
+        externalScrollLeft={
+          masterScrollLeft * layerMultipliers.layer2 + layerShims.layer2
+        }
         onIndexUpdate={onIndexUpdate}
         debug={""}
         wrapperClassName="bb-carousel bb-carousel-phones"
