@@ -15,11 +15,15 @@ const NavButtons: React.FC = () => {
       <Link
         to={`/portfolio/${prevId}`}
         className={`${styles["nav-button"]} ${styles.prev}`}
-      ></Link>
+      >
+        <div className={styles["inner"]}></div>
+      </Link>
       <Link
         to={`/portfolio/${nextId}`}
         className={`${styles["nav-button"]} ${styles.next}`}
-      ></Link>
+      >
+        <div className={styles["inner"]}></div>
+      </Link>
     </div>
   );
 };

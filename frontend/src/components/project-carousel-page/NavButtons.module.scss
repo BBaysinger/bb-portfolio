@@ -1,5 +1,7 @@
 @use "@/styles/global" as *;
 
+$mainBreak: 680px;
+
 .project-nav {
   margin-left: auto;
   margin-right: auto;
@@ -7,24 +9,53 @@
   justify-content: space-between;
   align-items: center;
   pointer-events: none;
-  margin-top: 10px;
+  margin-top: 20px;
   margin-bottom: 40px;
 
-  @include breakpoint-up($b768px) {
-    top: 340px;
+  @include breakpoint-up($mainBreak) {
+    top: 310px;
     position: absolute;
+    width: 100%;
   }
 }
 
 .nav-button {
   position: relative;
+  pointer-events: all;
   height: 50px;
-  width: 40vw;
+  transform-origin: center 0;
+
+  &.next {
+    transform: scaleX(-1);
+    margin-left: -1px;
+  }
+}
+
+.inner {
+  position: relative;
+  display: flex;
+  height: 50px;
+  width: calc(30vw + 20px);
   object-fit: cover;
   border-radius: 25px 0 0 25px;
-  background-color: black;
-  pointer-events: all;
   background: linear-gradient(to right, #000, #555);
+
+  @include breakpoint-up($mainBreak) {
+    background: #000;
+    width: 45px;
+    border-radius: 0 25px 25px 0;
+    transform: scale(1.25);
+  }
+
+  @include breakpoint-up(710px) {
+    transform: scale(1.7);
+    left: 10px;
+  }
+
+  @include breakpoint-up(750px) {
+    transform: scale(1.9);
+    left: 10px;
+  }
 
   &:hover {
     opacity: 0.8;
@@ -37,19 +68,19 @@
   &::before {
     content: " ";
     position: absolute;
-    border-top: 5px solid #fff;
-    border-left: 5px solid #fff;
-    width: 25px;
-    height: 25px;
+    border-top: 5.5px solid #fff;
+    border-left: 5.5px solid #fff;
+    width: 27px;
+    height: 27px;
     left: 10px;
     top: 50%;
     transform-origin: 0 0;
     transform: rotate(-45deg);
     z-index: 2;
-  }
 
-  &.next {
-    transform: scaleX(-1);
-    margin-left: -1px;
+    @include breakpoint-up($mainBreak) {
+      transform: rotate(-45deg) scale(0.8);
+      left: 12px;
+    }
   }
 }
