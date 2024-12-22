@@ -15,45 +15,9 @@
 }
 
 .nav-button {
-  height: 98px;
-  width: 98px;
-  object-fit: cover;
-  border-radius: 0 50% 50% 0;
-  display: flex;
-  background-color: black;
-  pointer-events: all;
-
-  @include breakpoint-up($b768px) {
-    transform: translateY(-50%) translateX(-20px);
-  }
-
-  img {
-    width: 55px;
-    background-image: url("../../images/project-carousel/arrow.svg");
-    background-repeat: no-repeat;
-    background-size: contain;
-    transform: rotate(90deg) scale(0.75);
-
-    @include breakpoint-up($b768px) {
-      transform: rotate(90deg) scale(0.75);
-    }
-
-    @include breakpoint-up($b992px) {
-      transform: rotate(90deg) scale(1);
-    }
-  }
-
-  &.prev {
-    left: 0;
-  }
-
   &.next {
     right: 0;
     transform: scaleX(-1);
-
-    @include breakpoint-up($b768px) {
-      transform: translateY(-50%) scaleX(-1) translateX(-20px);
-    }
   }
 
   &:hover {
@@ -62,5 +26,28 @@
 
   &:active {
     opacity: 0.6;
+  }
+}
+
+.inner {
+  height: 98px;
+  width: 98px;
+  object-fit: cover;
+  border-radius: 0 50% 50% 0;
+  display: flex;
+  background-color: black;
+  pointer-events: all;
+
+  &::before {
+    content: " ";
+    position: absolute;
+    border-top: 9px solid #fff;
+    border-left: 9px solid #fff;
+    width: 40px;
+    height: 40px;
+    left: 35px;
+    top: 50%;
+    transform-origin: 0 0;
+    transform: rotate(-45deg);
   }
 }
