@@ -191,7 +191,6 @@ class Footer extends React.Component {
             </div>
           </div>
         </div>
-        <div className="clearfix"></div>
         <div className="copyright">
           <div className="react">
             <a
