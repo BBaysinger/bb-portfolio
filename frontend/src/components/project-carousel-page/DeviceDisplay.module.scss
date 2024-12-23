@@ -2,12 +2,12 @@
 @use "sass:math";
 
 .device-presentation {
-  height: 414px;
+  height: 420px;
   position: relative;
   background-size: contain;
   background-repeat: no-repeat;
   box-sizing: border-box;
-  // Cool effect, but too much jank?
+  // Too much jank?
   filter: grayscale(0.5) blur(1px);
   will-change: filter;
   transition: filter 0.4s ease-in-out;
@@ -50,7 +50,7 @@
     &::before {
       content: "";
       position: absolute;
-      top: 50px;
+      top: 42px;
       left: 460px;
       width: 220px;
       height: 409px;
@@ -78,7 +78,7 @@
     &.portrait {
       img {
         left: 493px;
-        top: 74px;
+        top: 67px;
       }
     }
 
