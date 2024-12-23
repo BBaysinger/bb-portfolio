@@ -1,7 +1,7 @@
 @use "@/styles/global" as *;
 
 .parallax-carousel {
-  height: 450px;
+  height: 470px;
   min-width: 100vw;
   margin-left: auto;
   margin-right: auto;
@@ -54,11 +54,12 @@
     );
     mask-repeat: no-repeat;
     mask-size: cover;
+    height: 100%;
   }
   .bb-carousel-master {
     left: 50vw;
     transform: translateX(-50%);
-    height: 459px;
+    height: 466px;
   }
   .bb-carousel-phones {
     left: 50vw;
