@@ -43,13 +43,13 @@ const ProjectCarousel: React.FC = () => {
   ));
 
   return (
-    <div id={styles.projectCarousel}>
+    <div className={styles["project-carousel"]}>
       <HeaderSub
         head={projects[projectId].title}
         subhead={projects[projectId].tags}
       />
-      <div id={styles.projectCarouselBody}>
-        <LogoSwapper id={projects[projectId].clientId} />
+      <div className={styles["project-carousel-body"]}>
+        <LogoSwapper projectId={projects[projectId].clientId} />
         <ProjectParallaxCarousel
           layer1Slides={laptopSlides}
           layer2Slides={phoneSlides}

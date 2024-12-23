@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import styles from "./LogoSwapper.module.scss";
 
 interface LogoSwapperProps {
-  id: string;
+  projectId: string;
 }
 
 const clientNames: Record<string, string> = {
@@ -26,8 +26,8 @@ const fileVariants: Record<string, string> = {
   premera: "premera_black",
 };
 
-const LogoSwapper: React.FC<LogoSwapperProps> = ({ id }) => {
-  const [currentLogoId, setCurrentLogoId] = useState(id);
+const LogoSwapper: React.FC<LogoSwapperProps> = ({ projectId }) => {
+  const [currentLogoId, setCurrentLogoId] = useState(projectId);
   const [isBlurred, setIsBlurred] = useState(true);
   const [isMounted, setIsMounted] = useState(false); // Track mount state
 
@@ -38,17 +38,16 @@ const LogoSwapper: React.FC<LogoSwapperProps> = ({ id }) => {
     // Handle blur transition
     setIsBlurred(true);
     const timeout = setTimeout(() => {
-      setCurrentLogoId(id);
+      setCurrentLogoId(projectId);
       setIsBlurred(false);
     }, 300);
 
     return () => clearTimeout(timeout);
-  }, [id]);
+  }, [projectId]);
 
   return (
     <div className="container">
       <div
-        id="logoSwapper"
         className={`${styles["logo-swapper"]} ${isBlurred ? "" : styles.unblurred} ${
           isMounted ? styles["fade-in"] : styles["fade-out"]
         }`}
