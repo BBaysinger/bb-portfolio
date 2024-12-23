@@ -6,11 +6,17 @@ import styles from "./ProjectParallaxCarousel.module.scss";
 interface ProjectParallaxCarouselProps {
   layer1Slides: React.ReactNode[];
   layer2Slides: React.ReactNode[];
+  onScrollUpdate?: (scrollLeft: number) => void;
+  onStableIndex?: (stableIndex: number) => void;
+  onIndexUpdate?: (currentIndex: number) => void;
 }
 
 const ProjectParallaxCarousel: React.FC<ProjectParallaxCarouselProps> = ({
   layer1Slides,
   layer2Slides,
+  onScrollUpdate,
+  onStableIndex,
+  onIndexUpdate,
 }) => {
   const masterCarouselRef = useRef<CarouselRef>(null);
   const [scale, setScale] = useState(1);
@@ -58,13 +64,20 @@ const ProjectParallaxCarousel: React.FC<ProjectParallaxCarouselProps> = ({
     setScale(newScale);
   };
 
-  const onStableIndex = (index: number) => {
-    setStabilizedIndex(index);
+  const handleMasterScrollLeft = (scrollLeft: number) => {
+    setMasterScrollLeft(scrollLeft);
+    if (onScrollUpdate) onScrollUpdate(scrollLeft);
   };
 
-  const onIndexUpdate = (index: number) => {
+  const handleStableIndex = (index: number) => {
+    setStabilizedIndex(index);
+    if (onStableIndex) onStableIndex(index);
+  };
+
+  const handleIndexUpdate = (index: number) => {
     setStabilizedIndex(null);
     setCurrentIndex(index);
+    if (onIndexUpdate) onIndexUpdate(index);
   };
 
   useEffect(() => {
@@ -103,7 +116,6 @@ const ProjectParallaxCarousel: React.FC<ProjectParallaxCarouselProps> = ({
         externalScrollLeft={
           masterScrollLeft * layerMultipliers.layer1 + layerShims.layer1
         }
-        onIndexUpdate={onIndexUpdate}
         debug={""}
         wrapperClassName="bb-carousel bb-carousel-laptops"
       />
@@ -117,9 +129,9 @@ const ProjectParallaxCarousel: React.FC<ProjectParallaxCarouselProps> = ({
           </div>
         ))}
         slideSpacing={slideSpacings.master}
-        onScrollUpdate={setMasterScrollLeft}
-        onStableIndex={onStableIndex}
-        onIndexUpdate={onIndexUpdate}
+        onScrollUpdate={handleMasterScrollLeft}
+        onStableIndex={handleStableIndex}
+        onIndexUpdate={handleIndexUpdate}
         debug={""}
         wrapperClassName="bb-carousel bb-carousel-master"
         slideClassName="bb-slide-wrapper"
@@ -136,7 +148,6 @@ const ProjectParallaxCarousel: React.FC<ProjectParallaxCarouselProps> = ({
         externalScrollLeft={
           masterScrollLeft * layerMultipliers.layer2 + layerShims.layer2
         }
-        onIndexUpdate={onIndexUpdate}
         debug={""}
         wrapperClassName="bb-carousel bb-carousel-phones"
       />

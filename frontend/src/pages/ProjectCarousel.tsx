@@ -1,8 +1,8 @@
-import React, { useRef } from "react";
+import React from "react";
 import { useParams } from "react-router-dom";
 
 import HeaderSub from "components/layout/HeaderSub";
-import ProjectContent from "components/project-carousel-page/ProjectContent";
+// import ProjectContent from "components/project-carousel-page/ProjectContent";
 import ProjectData from "data/ProjectData";
 import LogoSwapper from "components/project-carousel-page/LogoSwapper";
 import ProjectParallaxCarousel from "components/project-carousel-page/ProjectParallaxCarousel";
@@ -15,14 +15,15 @@ import styles from "./ProjectCarousel.module.scss";
 const ProjectCarousel: React.FC = () => {
   const { projectId = "" } = useParams<{ projectId: string }>();
 
-  const infoRefElems = useRef<Array<ProjectContent | null>>([]);
+  // const infoRefElems = useRef<Array<ProjectContent | null>>([]);
 
-  const keys = ProjectData.activeKeys;
+  // const keys = ProjectData.activeKeys;
   const projects = ProjectData.activeProjectsRecord;
 
   const laptopSlides = ProjectData.activeProjects.map((project) => (
     <DeviceDisplay deviceType={DeviceTypes.LAPTOP} id={project.id} />
   ));
+
   const phoneSlides = ProjectData.activeProjects.map((project) => (
     <DeviceDisplay
       deviceType={DeviceTypes.PHONE}
@@ -31,16 +32,16 @@ const ProjectCarousel: React.FC = () => {
     />
   ));
 
-  const infoElems = keys.map((key, i) => (
-    <ProjectContent
-      key={key}
-      transition={""}
-      ref={(el: ProjectContent | null) => {
-        if (el) infoRefElems.current[i] = el;
-      }}
-      projectData={projects[key]}
-    />
-  ));
+  // const infoElems = keys.map((key, i) => (
+  //   <ProjectContent
+  //     key={key}
+  //     transition={""}
+  //     ref={(el: ProjectContent | null) => {
+  //       if (el) infoRefElems.current[i] = el;
+  //     }}
+  //     projectData={projects[key]}
+  //   />
+  // ));
 
   return (
     <div className={styles["project-carousel"]}>
@@ -55,7 +56,8 @@ const ProjectCarousel: React.FC = () => {
           layer2Slides={phoneSlides}
         />
         <NavButtons />
-        <div id={styles.projectContent}>{infoElems}</div>
+        {/* <ProjectContent /> */}
+        {/* <div id={styles.projectContent}>{infoElems}</div> */}
       </div>
     </div>
   );
