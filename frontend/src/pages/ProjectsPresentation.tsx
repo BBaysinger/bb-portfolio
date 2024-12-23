@@ -10,7 +10,7 @@ import DeviceDisplay, {
   DeviceTypes,
 } from "components/project-carousel-page/DeviceDisplay";
 import NavButtons from "components/project-carousel-page/NavButtons";
-import styles from "./ProjectCarousel.module.scss";
+import styles from "./ProjectsPresentation.module.scss";
 
 const ProjectCarousel: React.FC = () => {
   const { projectId = "" } = useParams<{ projectId: string }>();

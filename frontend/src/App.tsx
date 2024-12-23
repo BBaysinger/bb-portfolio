@@ -7,7 +7,7 @@ import CurriculumVitae from "pages/CurriculumVitae";
 import SlideOutNav from "components/layout/SlideOutNavigation";
 import PortfolioList from "components/home-page/PortfolioList";
 import Footer from "components/layout/Footer";
-import ProjectCarousel from "pages/ProjectCarousel";
+import ProjectCarousel from "pages/ProjectsPresentation";
 import ScrollToHash from "utils/ScrollToHash";
 import "./App.scss";
 
