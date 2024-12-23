@@ -264,25 +264,23 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
     //   } else return "";
     // };
 
-    const scrollToSlide = (targetIndex: number) => {
-      if (!scrollerRef.current) return;
-
-      const offsetToTarget = offsets[targetIndex];
-      const direction = offsetToTarget > 0 ? Direction.RIGHT : Direction.LEFT;
-
-      setScrollDirection(direction);
-
-      const { positions: newPositions } = memoizedPositionsAndMultipliers;
-      const targetPosition = newPositions[targetIndex] + patchedOffset();
-
-      scrollerRef.current.scrollTo({
-        left: targetPosition,
-        behavior: "smooth",
-      });
-    };
-
     useImperativeHandle(ref, () => ({
-      scrollToSlide,
+      scrollToSlide: (targetIndex: number) => {
+        if (!scrollerRef.current) return;
+
+        const offsetToTarget = offsets[targetIndex];
+        const direction = offsetToTarget > 0 ? Direction.RIGHT : Direction.LEFT;
+
+        setScrollDirection(direction);
+
+        const { positions: newPositions } = memoizedPositionsAndMultipliers;
+        const targetPosition = newPositions[targetIndex] + patchedOffset();
+
+        scrollerRef.current.scrollTo({
+          left: targetPosition,
+          behavior: "smooth",
+        });
+      },
     }));
 
     return (
