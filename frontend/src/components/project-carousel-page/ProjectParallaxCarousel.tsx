@@ -1,5 +1,6 @@
-import React, { useRef, useEffect, useState } from "react";
-import Carousel from "./Carousel";
+import React, { useRef, useEffect, useState, useImperativeHandle } from "react";
+
+import Carousel, { CarouselRef } from "./Carousel";
 import styles from "./ProjectParallaxCarousel.module.scss";
 
 interface ProjectParallaxCarouselProps {
@@ -11,7 +12,7 @@ const ProjectParallaxCarousel: React.FC<ProjectParallaxCarouselProps> = ({
   layer1Slides,
   layer2Slides,
 }) => {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const masterCarouselRef = useRef<CarouselRef>(null);
   const [scale, setScale] = useState(1);
 
   const [masterScrollLeft, setMasterScrollLeft] = useState<number>(0);
@@ -72,6 +73,12 @@ const ProjectParallaxCarousel: React.FC<ProjectParallaxCarouselProps> = ({
     return () => window.removeEventListener("resize", updateScale);
   }, []);
 
+  useImperativeHandle(masterCarouselRef, () => ({
+    scrollToSlide: (targetIndex: number) => {
+      masterCarouselRef.current?.scrollToSlide(targetIndex);
+    },
+  }));
+
   const getSlideClass = (index: number) =>
     (index === stabilizedIndex
       ? `${styles["stabilized-slide"]} bb-stabilized-slide`
@@ -84,7 +91,6 @@ const ProjectParallaxCarousel: React.FC<ProjectParallaxCarouselProps> = ({
         (currentIndex === stabilizedIndex ? "bb-stabilized-carousel" : "")
       }
       style={{ transform: `scale(${scale})` }}
-      ref={containerRef}
     >
       {/* laptops (slave) */}
       <Carousel
@@ -104,6 +110,7 @@ const ProjectParallaxCarousel: React.FC<ProjectParallaxCarouselProps> = ({
 
       {/* control (master) */}
       <Carousel
+        ref={masterCarouselRef}
         slides={layer1Slides.map((_, index) => (
           <div key={index} className={`${styles["transparent-slide"]}`}>
             {index + 1}
