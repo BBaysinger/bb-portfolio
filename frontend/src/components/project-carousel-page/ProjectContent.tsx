@@ -10,9 +10,7 @@ interface ProjectContentProps {
 
 /**
  * Display and animate the descriptions, features, and urls/buttons of each portfolio item.
- *
- * TODO: Could this be more pure if we separated these out to two components?...
- *
+ * *
  * @author Bradley Baysinger
  * @since The beginning of time.
  * @version N/A
