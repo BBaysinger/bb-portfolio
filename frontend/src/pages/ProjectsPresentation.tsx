@@ -43,17 +43,27 @@ const ProjectCarousel: React.FC = () => {
   //   />
   // ));
 
+  const handleCarouselIndexUpdate = (index: number) => {
+    console.log("Updated index: ", index);
+  };
+
+  const onStableIndex = (index: number) => {
+    console.log("Stable index: ", index);
+  };
+
   return (
-    <div className={styles["project-carousel"]}>
+    <div className={styles["projects-presentation"]}>
       <HeaderSub
         head={projects[projectId].title}
         subhead={projects[projectId].tags}
       />
-      <div className={styles["project-carousel-body"]}>
+      <div className={styles["projects-presentation-body"]}>
         <LogoSwapper projectId={projects[projectId].clientId} />
         <ProjectParallaxCarousel
           layer1Slides={laptopSlides}
           layer2Slides={phoneSlides}
+          onIndexUpdate={handleCarouselIndexUpdate}
+          onStableIndex={onStableIndex}
         />
         <NavButtons />
         {/* <ProjectContent /> */}
