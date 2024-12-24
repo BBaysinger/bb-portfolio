@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import { useParams } from "react-router-dom";
 
 import HeaderSub from "components/layout/HeaderSub";
@@ -13,6 +13,9 @@ import NavButtons from "components/project-carousel-page/NavButtons";
 import styles from "./ProjectsPresentation.module.scss";
 
 const ProjectCarousel: React.FC = () => {
+  const carouselRef = useRef<{ scrollToSlide: (targetIndex: number) => void }>(
+    null,
+  );
   const { projectId = "" } = useParams<{ projectId: string }>();
 
   // const infoRefElems = useRef<Array<ProjectContent | null>>([]);
@@ -43,12 +46,12 @@ const ProjectCarousel: React.FC = () => {
   //   />
   // ));
 
-  const handleCarouselIndexUpdate = (index: number) => {
-    console.log("Updated index: ", index);
+  const handleCarouselIndexUpdate = (_index: number) => {
+    // console.log("Updated index: ", index);
   };
 
-  const onStableIndex = (index: number) => {
-    console.log("Stable index: ", index);
+  const onStableIndex = (_index: number) => {
+    // console.log("Stable index: ", index);
   };
 
   return (
@@ -60,6 +63,7 @@ const ProjectCarousel: React.FC = () => {
       <div className={styles["projects-presentation-body"]}>
         <LogoSwapper projectId={projects[projectId].clientId} />
         <ProjectParallaxCarousel
+          ref={carouselRef}
           layer1Slides={laptopSlides}
           layer2Slides={phoneSlides}
           onIndexUpdate={handleCarouselIndexUpdate}
