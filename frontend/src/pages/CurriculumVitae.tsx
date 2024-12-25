@@ -2,7 +2,7 @@ import React from "react";
 
 import HeaderSub from "components/layout/HeaderSub";
 
-import "./CurriculumVitae.scss";
+import styles from "./CurriculumVitae.module.scss";
 
 /**
  * CV Page. Mostly static HTML, with some helper functions for formatting.
@@ -38,10 +38,10 @@ export default class CurriculumVitae extends React.Component {
   wrapPhrases(phrases: Array<string>) {
     let wrappedPhrases = phrases.map((data: string, i: number) => {
       return (
-        <span className="inline-list-item" key={i}>
+        <span className={styles['inline-list-item']} key={i}>
           <span className="phrase">{data}</span>
           <span key={i} className="bullet">
-            &nbsp;&nbsp;•&nbsp;
+            &nbsp;&nbsp;&bull;&nbsp;
             {/* Allow wrap. */}
             <span>&#32;</span>
           </span>
@@ -283,24 +283,24 @@ export default class CurriculumVitae extends React.Component {
    * @memberof CurriculumVitae
    */
   render() {
-    const divClassLt = "col-xs-12 col-sm-12 col-md-3 col-lg-3 cv_left";
-    const divClassRt = "col-xs-12 col-sm-12 col-md-9 col-lg-9 cv_right";
+    const divClassLt = `col-xs-12 col-sm-12 col-md-3 col-lg-3`;
+    const divClassRt = `col-xs-12 col-sm-12 col-md-9 col-lg-9 ${styles["cv-right"]}`;
 
     return (
       <div>
         <HeaderSub head={"Curriculum Vitae"} subhead={""} />
 
-        <div id="mainContent" className="cv-page">
-          <div className="container ">
+        <div id="mainContent" className={styles["cv-page"]}>
+          <div className="container">
             <h4>Summary</h4>
           </div>
 
-          <div className="container summary">
+          <div className={`container ${styles["summary"]}`}>
             <div className="row">
               <div className={divClassLt}></div>
 
               <div className={divClassRt}>
-                <p className="">
+                <p>
                   Rare talent with a rich history in design, animation, and
                   front-end development. Adaptable and results-driven, with a
                   proven ability to transition from award-winning Flash and
@@ -322,25 +322,25 @@ export default class CurriculumVitae extends React.Component {
             <h4>Core Strengths</h4>
           </div>
 
-          <div className="container skills">
+          <div className={`container ${styles["skills"]}`}>
             <div className="row">
               <div className={divClassLt}>
                 <img
                   src="/images/cv/gear.svg"
-                  className="cv-logo"
+                  className={styles["cv-logo"]}
                   alt="Gear Logo"
                 />
               </div>
 
               <div className={divClassRt}>
-                <h5 className="sub-container">
-                  <div className="left-sub">
+                <h5 className={styles["sub-container"]}>
+                  <div className={styles["left-sub"]}>
                     Modern Front-End&nbsp;Development
                   </div>
-                  <div className="break"></div>
+                  <div className={styles["break"]}></div>
                 </h5>
 
-                <ul className="">
+                <ul>
                   <li>
                     Angular (3+ years): Advanced component architecture, RxJS,
                     and SCSS integration
@@ -355,12 +355,14 @@ export default class CurriculumVitae extends React.Component {
                   </li>
                 </ul>
 
-                <h5 className="sub-container">
-                  <div className="left-sub">Creative Problem-Solving</div>
-                  <div className="break"></div>
+                <h5 className={styles["sub-container"]}>
+                  <div className={styles["left-sub"]}>
+                    Creative Problem-Solving
+                  </div>
+                  <div className={styles["break"]}></div>
                 </h5>
 
-                <ul className="">
+                <ul>
                   <li>
                     Animation & UI Design: Transitioned from award-winning
                     Flash/AS3 projects to modern CSS/JS&nbsp;animations
@@ -371,14 +373,14 @@ export default class CurriculumVitae extends React.Component {
                   </li>
                 </ul>
 
-                <h5 className="sub-container">
-                  <div className="left-sub">
+                <h5 className={styles["sub-container"]}>
+                  <div className={styles["left-sub"]}>
                     Design &amp; Animation Background
                   </div>
-                  <div className="break"></div>
+                  <div className={styles["break"]}></div>
                 </h5>
 
-                <ul className="">
+                <ul>
                   <li>
                     Strong foundation in design principles with deep experience
                     in Adobe Creative&nbsp;Suite
@@ -403,33 +405,33 @@ export default class CurriculumVitae extends React.Component {
               <div className={divClassLt}>
                 <img
                   src="/images/cv/epsilon.svg"
-                  className="cv-logo"
+                  className={styles["cv-logo"]}
                   alt="Epsilon Logo"
                 />
               </div>
               <div className={divClassRt}>
-                <div className="cv-listing">
-                  <div className="sub-container">
-                    <div className="left-sub">
+                <div className={styles["cv-listing"]}>
+                  <div className={styles["sub-container"]}>
+                    <div className={styles["left-sub"]}>
                       <h5>
                         Epsilon
-                        <span className="location">
+                        <span className={styles["location"]}>
                           &nbsp;&nbsp;-&nbsp;&nbsp;Irving, TX | Remote | W2
                           Employee
                         </span>
                       </h5>
                       Senior Front-end Developer
                     </div>
-                    <div className="break"></div>
-                    <div className="right-sub">[ 2021 - 2024 ]</div>
+                    <div className={styles["break"]}></div>
+                    <div className={styles["right-sub"]}>[ 2021 - 2024 ]</div>
                   </div>
 
-                  <p className="desc">
+                  <p className={styles["desc"]}>
                     Interactive and responsive websites for Fortune 500
                     companies in banking, pharmaceuticals, and entertainment
                   </p>
 
-                  <p className="scope">
+                  <p className={styles["scope"]}>
                     <span>Technical Scope:</span> Angular 17, TypeScript, RxJS,
                     React 18, Redux, SiteCore, Modular HTML Email, Salesforce,
                     OneTrust,&nbsp;FreeMarker
@@ -486,34 +488,34 @@ export default class CurriculumVitae extends React.Component {
               <div className={divClassLt}>
                 <img
                   src="/images/cv/bb.svg"
-                  className="cv-logo"
+                  className={styles["cv-logo"]}
                   alt="BB Interactive Logo"
                 />
               </div>
               <div className={divClassRt}>
-                <div className="cv-listing">
-                  <div className="sub-container">
-                    <div className="left-sub">
+                <div className={styles["cv-listing"]}>
+                  <div className={styles["sub-container"]}>
+                    <div className={styles["left-sub"]}>
                       <h5>
                         BB Interactive [Independent Contractor]
-                        <span className="location">
+                        <span className={styles["location"]}>
                           &nbsp;&nbsp;-&nbsp;&nbsp;Spokane, WA | Remote
                         </span>
                       </h5>
                       Front-end / Interactive Web Developer
                     </div>
-                    <div className="break"></div>
-                    <div className="right-sub">[ 2020 - 2021 ]</div>
+                    <div className={styles["break"]}></div>
+                    <div className={styles["right-sub"]}>[ 2020 - 2021 ]</div>
                   </div>
 
-                  <p className="desc">
+                  <p className={styles["desc"]}>
                     Consulting and site production of specialized projects for
                     diverse clients, including local businesses, a national
                     startup, an international charity, and a major
                     pharmaceutical marketing&nbsp;agency
                   </p>
 
-                  <p className="scope">
+                  <p className={styles["scope"]}>
                     <span>Technical Scope:</span> Angular 8-11, TypeScript,
                     RxJS, React, SVG, SCSS, Elasticsearch, Craft&nbsp;CMS
                   </p>
@@ -565,30 +567,34 @@ export default class CurriculumVitae extends React.Component {
 
             <div className="row">
               <div className={divClassLt}>
-                <img src="/images/cv/s2.svg" className="cv-logo" alt="Seven2" />
+                <img
+                  src="/images/cv/s2.svg"
+                  className={styles["cv-logo"]}
+                  alt="Seven2"
+                />
               </div>
               <div className={divClassRt}>
-                <div className="cv-listing">
-                  <div className="sub-container">
-                    <div className="left-sub">
+                <div className={styles["cv-listing"]}>
+                  <div className={styles["sub-container"]}>
+                    <div className={styles["left-sub"]}>
                       <h5>
                         Seven2 Interactive
-                        <span className="location">
+                        <span className={styles["location"]}>
                           &nbsp;&nbsp;-&nbsp;&nbsp;Spokane, WA
                         </span>
                       </h5>
                       Interactive / Front-end Web Developer
                     </div>
-                    <div className="break"></div>
-                    <div className="right-sub">[ 2018 - 2019 ]</div>
+                    <div className={styles["break"]}></div>
+                    <div className={styles["right-sub"]}>[ 2018 - 2019 ]</div>
                   </div>
 
-                  <p className="desc">
+                  <p className={styles["desc"]}>
                     Interactive and responsive websites for Fortune 500
                     companies in technology and&nbsp;entertainment
                   </p>
 
-                  <p className="scope">
+                  <p className={styles["scope"]}>
                     <span>Technical Scope:</span> Angular, React, Vue, jQuery,
                     Craft CMS, Grunt, Handlebars,&nbsp;CreateJS
                   </p>
@@ -649,33 +655,33 @@ export default class CurriculumVitae extends React.Component {
               <div className={divClassLt}>
                 <img
                   src="/images/cv/chalklabs.svg"
-                  className="cv-logo"
+                  className={styles["cv-logo"]}
                   alt="ChalkLabs Logo"
                 />
               </div>
               <div className={divClassRt}>
-                <div className="cv-listing">
-                  <div className="sub-container">
-                    <div className="left-sub">
+                <div className={styles["cv-listing"]}>
+                  <div className={styles["sub-container"]}>
+                    <div className={styles["left-sub"]}>
                       <h5>
                         ChalkLabs
-                        <span className="location">
+                        <span className={styles["location"]}>
                           &nbsp;&nbsp;-&nbsp;&nbsp;Spokane, WA
                         </span>
                       </h5>
                       UI Developer / Designer
                     </div>
-                    <div className="break"></div>
-                    <div className="right-sub">[ 2017 - 2018 ]</div>
+                    <div className={styles["break"]}></div>
+                    <div className={styles["right-sub"]}>[ 2017 - 2018 ]</div>
                   </div>
 
-                  <p className="desc">
+                  <p className={styles["desc"]}>
                     User interface for web applications engineered to aid
                     government organizations in processing, analyzing,
                     visualizing, and understanding&nbsp;data
                   </p>
 
-                  <p className="scope">
+                  <p className={styles["scope"]}>
                     <span>Technical Scope:</span> Angular, TypeScript,
                     Bootstrap, Mapbox, Elasticsearch, HTML5, REST
                     APIs,&nbsp;Canvas
@@ -736,33 +742,33 @@ export default class CurriculumVitae extends React.Component {
               <div className={divClassLt}>
                 <img
                   src="/images/cv/s2.svg"
-                  className="cv-logo"
+                  className={styles["cv-logo"]}
                   alt="Seven2 Logo"
-                />{" "}
+                />
               </div>
               <div className={divClassRt}>
-                <div className="cv-listing">
-                  <div className="sub-container">
-                    <div className="left-sub">
+                <div className={styles["cv-listing"]}>
+                  <div className={styles["sub-container"]}>
+                    <div className={styles["left-sub"]}>
                       <h5>
                         Seven2 Interactive
-                        <span className="location">
+                        <span className={styles["location"]}>
                           &nbsp;&nbsp;-&nbsp;&nbsp;Spokane, WA
                         </span>
                       </h5>
                       Lead Flash / Interactive Web Developer
                     </div>
-                    <div className="break"></div>
-                    <div className="right-sub">[ 2005 - 2016 ]</div>
+                    <div className={styles["break"]}></div>
+                    <div className={styles["right-sub"]}>[ 2005 - 2016 ]</div>
                   </div>
 
-                  <p className="desc">
+                  <p className={styles["desc"]}>
                     Development of interactive websites, web banner advertising,
                     and browser games for nationally recognized corporations in
                     the technology and entertainment&nbsp;industries
                   </p>
 
-                  <p className="scope">
+                  <p className={styles["scope"]}>
                     <span>Technical Scope:</span> ActionScript 3, ActionScript
                     2, JavaScript, jQuery, Require/AMD,&nbsp;Haxe
                   </p>
@@ -841,33 +847,33 @@ export default class CurriculumVitae extends React.Component {
               <div className={divClassLt}>
                 <img
                   src="/images/cv/scw.svg"
-                  className="cv-logo"
+                  className={styles["cv-logo"]}
                   alt="SCW Logo"
                 />
               </div>
               <div className={divClassRt}>
-                <div className="cv-listing">
-                  <div className="sub-container">
-                    <div className="left-sub">
+                <div className={styles["cv-listing"]}>
+                  <div className={styles["sub-container"]}>
+                    <div className={styles["left-sub"]}>
                       <h5>
                         SCW Consulting
-                        <span className="location">
+                        <span className={styles["location"]}>
                           &nbsp;&nbsp;-&nbsp;&nbsp;Spokane, WA
                         </span>
                       </h5>
                       Designer / Front-end Web Developer
                     </div>
-                    <div className="break"></div>
-                    <div className="right-sub">[ 2005 ]</div>
+                    <div className={styles["break"]}></div>
+                    <div className={styles["right-sub"]}>[ 2005 ]</div>
                   </div>
 
-                  <p className="desc">
+                  <p className={styles["desc"]}>
                     Design and development of websites and apps for local
                     businesses at the front of C#/
                     <span className="nobr">.NET back-ends</span>
                   </p>
 
-                  <p className="scope">
+                  <p className={styles["scope"]}>
                     <span>Technical Scope:</span> HTML, CSS, Vanilla JavaScript,
                     Visual Studio, AJAX,&nbsp;DHTML
                   </p>
@@ -910,33 +916,33 @@ export default class CurriculumVitae extends React.Component {
               <div className={divClassLt}>
                 <img
                   src="/images/cv/bb.svg"
-                  className="cv-logo"
+                  className={styles["cv-logo"]}
                   alt="BB Interactive Logo"
                 />
               </div>
               <div className={divClassRt}>
-                <div className="cv-listing">
-                  <div className="sub-container">
-                    <div className="left-sub">
+                <div className={styles["cv-listing"]}>
+                  <div className={styles["sub-container"]}>
+                    <div className={styles["left-sub"]}>
                       <h5>
                         Freelance
-                        <span className="location">
+                        <span className={styles["location"]}>
                           &nbsp;&nbsp;-&nbsp;&nbsp;Spokane, WA
                         </span>
                       </h5>
                       Designer / Front-end Web Developer
                     </div>
-                    <div className="break"></div>
-                    <div className="right-sub">[ 2003 - 2005 ]</div>
+                    <div className={styles["break"]}></div>
+                    <div className={styles["right-sub"]}>[ 2003 - 2005 ]</div>
                   </div>
 
-                  <p className="desc">
+                  <p className={styles["desc"]}>
                     Design and development of interactive websites for
                     businesses in the Spokane area concurrently while in web
                     design school at SFCC
                   </p>
 
-                  <p className="scope">
+                  <p className={styles["scope"]}>
                     <span>Technical Scope:</span> XML, XSL, Vanilla JavaScript,
                     Dynamic HTML,&nbsp;PHP
                   </p>
@@ -985,39 +991,39 @@ export default class CurriculumVitae extends React.Component {
               <div className={divClassLt}>
                 <img
                   src="/images/cv/bv.svg"
-                  className="cv-logo"
+                  className={styles["cv-logo"]}
                   alt="Hand Logo"
                 />
               </div>
               <div className={divClassRt}>
-                <div className="cv-listing">
-                  <div className="sub-container">
-                    <div className="left-sub">
+                <div className={styles["cv-listing"]}>
+                  <div className={styles["sub-container"]}>
+                    <div className={styles["left-sub"]}>
                       <h5>
                         Hobbyist
-                        <span className="location">
+                        <span className={styles["location"]}>
                           &nbsp;&nbsp;-&nbsp;&nbsp;Spokane, WA
                         </span>
                       </h5>
                       Interactive Web Enthusiast
                     </div>
-                    <div className="break"></div>
-                    <div className="right-sub">[ 2001 - 2003 ]</div>
+                    <div className={styles["break"]}></div>
+                    <div className={styles["right-sub"]}>[ 2001 - 2003 ]</div>
                   </div>
 
-                  <p className="desc">
+                  <p className={styles["desc"]}>
                     Self-directed learning of graphics software and
                     cross-platform, dynamic, and interactive&nbsp;JavaScript.
                   </p>
 
-                  <p className="scope">
+                  <p className={styles["scope"]}>
                     <span>Technical Scope:</span> Vanilla JavaScript, HTML, CSS,
                     Dynamic HTML, PHP, and Adobe Create&nbsp;Suite
                   </p>
 
                   <ul>
                     <li>
-                      Pursued self-directed learning in{" "}
+                      Pursued self-directed learning in
                       <b>JavaScript, Dynamic HTML, and web animation</b> while
                       working full-time in a non-technical&nbsp;role.
                     </li>
@@ -1046,27 +1052,27 @@ export default class CurriculumVitae extends React.Component {
               <div className={divClassLt}>
                 <img
                   src="/images/cv/ccs.svg"
-                  className="cv-logo"
+                  className={styles["cv-logo"]}
                   alt="SFCC Logo"
                 />
               </div>
               <div className={divClassRt}>
-                <div className="cv-listing">
-                  <div className="sub-container">
-                    <div className="left-sub">
+                <div className={styles["cv-listing"]}>
+                  <div className={styles["sub-container"]}>
+                    <div className={styles["left-sub"]}>
                       <h5>
                         Spokane Falls Community&nbsp;College
-                        <span className="location">
+                        <span className={styles["location"]}>
                           &nbsp;&nbsp;-&nbsp;&nbsp;Spokane, WA
                         </span>
                       </h5>
                       A.A.S. Web Design — Honors
                     </div>
-                    <div className="break"></div>
-                    <div className="right-sub">[ 2003 - 2005 ]</div>
+                    <div className={styles["break"]}></div>
+                    <div className={styles["right-sub"]}>[ 2003 - 2005 ]</div>
                   </div>
 
-                  <p className="desc">
+                  <p className={styles["desc"]}>
                     Recognized with multiple first-place awards; select works
                     published officially for the&nbsp;college.
                   </p>
@@ -1083,23 +1089,23 @@ export default class CurriculumVitae extends React.Component {
             <div className="row">
               <div className={divClassLt}></div>
               <div className={divClassRt}>
-                <div className="cv-listing">
+                <div className={styles["cv-listing"]}>
                   <h5>Languages</h5>
                   <p>{this.langElems}</p>
                 </div>
-                <div className="cv-listing">
+                <div className={styles["cv-listing"]}>
                   <h5>Technologies</h5>
                   <p>{this.techElems}</p>
                 </div>
-                <div className="cv-listing">
+                <div className={styles["cv-listing"]}>
                   <h5>Concepts</h5>
                   <p>{this.conceptsElems}</p>
                 </div>
-                <div className="cv-listing">
+                <div className={styles["cv-listing"]}>
                   <h5>Software</h5>
                   <p>{this.softwareElems}</p>
                 </div>
-                {/* <div className="cv-listing">
+                {/* <div className={styles['cv-listing']}>
                 <h5>Other</h5>
                 <p>{this.otherElems}</p>
               </div> */}
@@ -1116,9 +1122,9 @@ export default class CurriculumVitae extends React.Component {
               <div className={divClassLt}></div>
 
               <div className={divClassRt}>
-                <div className="cv-listing">
+                <div className={styles["cv-listing"]}>
                   <h5>14 gold badges on Stack Overflow</h5>
-                  <div className="badges">
+                  <div className={styles["badges"]}>
                     <img
                       src="/images/cv/gold-badge.svg"
                       className="gold-badge"
@@ -1194,10 +1200,10 @@ export default class CurriculumVitae extends React.Component {
                   <br />
                   {/* Important br. */}
                   <h5>The Webby Awards</h5>
-                  <div className="sub-container">
-                    <div className="left-sub">International</div>
-                    <div className="break"></div>
-                    <div className="right-sub">[ 2008 ]</div>
+                  <div className={styles["sub-container"]}>
+                    <div className={styles["left-sub"]}>International</div>
+                    <div className={styles["break"]}></div>
+                    <div className={styles["right-sub"]}>[ 2008 ]</div>
                   </div>
 
                   <div>
@@ -1207,12 +1213,12 @@ export default class CurriculumVitae extends React.Component {
                   </div>
                 </div>
 
-                <div className="cv-listing">
+                <div className={styles["cv-listing"]}>
                   <h5>American Advertising Federation</h5>
-                  <div className="sub-container">
-                    <div className="left-sub">Spokane</div>
-                    <div className="break"></div>
-                    <div className="right-sub">[ 2009 - 2019 ]</div>
+                  <div className={styles["sub-container"]}>
+                    <div className={styles["left-sub"]}>Spokane</div>
+                    <div className={styles["break"]}></div>
+                    <div className={styles["right-sub"]}>[ 2009 - 2019 ]</div>
                   </div>
                   <div className="col-md-12">
                     Contributed to over thirteen projects that received awards

@@ -1,0 +1,72 @@
+@use "@/styles/global" as *;
+
+body,
+html {
+  font-family: "Roboto";
+  font-size: 15px;
+  overflow-x: hidden;
+}
+
+div#main {
+  position: relative;
+  background-color: #fff;
+  right: 0;
+  transition: right 0.5s;
+  box-shadow: 10px 5px 60px black;
+  min-width: 320px;
+
+  &.nav-expanded {
+    right: 50vw;
+  }
+}
+
+// Global styles
+
+h3 {
+  color: #444444;
+  font-size: 50px;
+  font-weight: 400;
+  margin-bottom: 0;
+  padding-top: 0;
+}
+
+h4 {
+  color: #444444;
+  font-size: 34px;
+  font-weight: 400;
+  margin-bottom: 6px;
+  &:not(:first-child) {
+    margin-top: 80px;
+  }
+}
+
+h5 {
+  color: #444444;
+  font-size: 24px;
+  font-weight: 400;
+  margin-top: 0px;
+  margin-block-end: 6px;
+}
+
+// :global {
+
+// }
+
+//http://stackoverflow.com/questions/5306640/
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+li {
+  padding-left: 1em;
+  text-indent: -0.7em;
+  &::before {
+    content: "• ";
+    font-size: 20px;
+    line-height: 0;
+    position: relative;
+    top: 2px;
+    color: $heavierThemeColor;
+  }
+}
