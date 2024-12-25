@@ -2,15 +2,7 @@ import React from "react";
 import { NavLink } from "react-router-dom";
 
 import MiscUtils from "utils/MiscUtils";
-
-import email from "images/footer/icons/email.png";
-import github from "images/footer/icons/github.png";
-import linkedIn from "images/footer/icons/linked-in.png";
-import location from "images/footer/icons/location.png";
-import stackoverflow from "images/footer/icons/stackoverflow.png";
-import phone from "images/footer/icons/phone.png";
-
-import "./Footer.scss";
+import styles from "./Footer.module.scss";
 
 type State = {
   emailAddr: string;
@@ -72,14 +64,16 @@ class Footer extends React.Component {
   render() {
     return (
       <footer>
-        <div className="container footer_container">
-          <div className="row">
-            <div className="col-xs-12 col-sm-12 col-md-6 col-lg-6 footer_cell">
+        <div className={`container ${styles["footer-container"]}`}>
+          <div className={"row"}>
+            <div
+              className={`col-xs-12 col-sm-12 col-md-6 col-lg-6 ${styles["footer-cell"]}`}
+            >
               <p>
                 <img
                   src="/images/footer/bb2.jpg"
-                  className="img-responsive pull-left footer_photo"
-                  alt="Pic of Bradley"
+                  className={`img-responsive ${styles["footer-photo"]}`}
+                  alt="Bradley's face"
                 />
                 Thanks for the visit! My site is under heavy development atm, so
                 there may be some issues. It's really just a start, I have big
@@ -89,13 +83,17 @@ class Footer extends React.Component {
               </p>
             </div>
 
-            <div className="col-xs-12 col-sm-12 col-md-4 col-lg-4 footer_cell contact">
+            <div
+              className={`col-xs-12 col-sm-12 col-md-4 col-lg-4 ${styles["footer-cell"]} ${styles["contact"]}`}
+            >
               <div>
                 <ul>
                   <li>
                     <a href={"mailto:" + this.state.emailAddr}>
                       <div
-                        style={{ backgroundImage: "url(" + email + ")" }}
+                        style={{
+                          backgroundImage: "url(/images/footer/email.png)",
+                        }}
                       ></div>
                       {this.state.emailAddr}
                     </a>
@@ -103,7 +101,9 @@ class Footer extends React.Component {
                   <li>
                     <a href="tel:+15092798603">
                       <div
-                        style={{ backgroundImage: "url(" + phone + ")" }}
+                        style={{
+                          backgroundImage: "url(/images/footer/phone.png)",
+                        }}
                       ></div>
                       509-279-8603
                     </a>
@@ -114,9 +114,12 @@ class Footer extends React.Component {
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      <span className="nobr">
+                      <span className={styles["nobr"]}>
                         <div
-                          style={{ backgroundImage: "url(" + linkedIn + ")" }}
+                          style={{
+                            backgroundImage:
+                              "url(/images/footer/linked-in.png)",
+                          }}
                         ></div>
                         linkedin.com/in/BBaysinger
                       </span>
@@ -129,7 +132,9 @@ class Footer extends React.Component {
                       rel="noopener noreferrer"
                     >
                       <div
-                        style={{ backgroundImage: "url(" + github + ")" }}
+                        style={{
+                          backgroundImage: "url(/images/footer/github.png)",
+                        }}
                       ></div>
                       github.com/BBaysinger
                     </a>
@@ -142,7 +147,8 @@ class Footer extends React.Component {
                     >
                       <div
                         style={{
-                          backgroundImage: "url(" + stackoverflow + ")",
+                          backgroundImage:
+                            "url(/images/footer/stackoverflow.png)",
                         }}
                       ></div>
                       stackoverflow.com/u/1253298
@@ -155,10 +161,12 @@ class Footer extends React.Component {
                       rel="noopener noreferrer"
                     >
                       <div
-                        style={{ backgroundImage: "url(" + location + ")" }}
+                        style={{
+                          backgroundImage: "url(/images/footer/location.png)",
+                        }}
                       ></div>
-                      Spokane, WA{" "}
-                      <span className="not_a_suburb">
+                      Spokane, WA
+                      <span className={styles["not-a-suburb"]}>
                         (<i>not</i> near Seattle)
                       </span>
                     </a>
@@ -167,12 +175,14 @@ class Footer extends React.Component {
               </div>
             </div>
 
-            <div className="col-xs-12 col-sm-12 col-md-2 col-lg-2 footer_cell footer-nav">
-              <ul className="bottom_nav">
+            <div
+              className={`col-xs-12 col-sm-12 col-md-2 col-lg-2 ${styles["footer-cell"]} ${styles["footer-nav"]}`}
+            >
+              <ul>
                 <li>
                   <NavLink
                     className={({ isActive }) =>
-                      MiscUtils.isActiveOrAlt(isActive, "/")
+                      MiscUtils.isActiveOrAlt(isActive, "/", styles["active"])
                     }
                     to="/portfolio#list"
                   >
@@ -181,7 +191,9 @@ class Footer extends React.Component {
                 </li>
                 <li>
                   <NavLink
-                    className={({ isActive }) => (isActive ? "active" : "")}
+                    className={({ isActive }) =>
+                      isActive ? styles["active"] : ""
+                    }
                     to="/cv#top"
                   >
                     CV
@@ -191,8 +203,8 @@ class Footer extends React.Component {
             </div>
           </div>
         </div>
-        <div className="copyright">
-          <div className="react">
+        <div className={styles["copyright"]}>
+          <div className={styles["react"]}>
             <a
               href="https://github.com/BBaysinger/bb-portfolio"
               target="_blank"
@@ -202,7 +214,7 @@ class Footer extends React.Component {
               Built with React
             </a>
           </div>
-          <NavLink className="" to="/portfolio#list">
+          <NavLink to="/portfolio#list">
             &copy; <span style={{ color: "#fff" }}>BBInteractive</span>.io
           </NavLink>
         </div>
