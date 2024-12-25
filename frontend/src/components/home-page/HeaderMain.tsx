@@ -1,15 +1,10 @@
 import React, { useState, useEffect, useCallback } from "react";
 
-// import NavBar from "components/layout/NavBar";
 import headerLogo from "images/main-header/bb-gradient.png";
 import caret from "images/main-header/caret.png";
 import styles from "components/layout/Header.module.scss";
 
 const HeaderMain: React.FC = () => {
-  // const getHeight = () => {
-  //   return Math.max(window.innerHeight, 500);
-  // };
-
   const [caretAnimationStyle, setCaretAnimationStyle] = useState("");
   const [scrolled, setScrolled] = useState(false);
 
@@ -22,59 +17,21 @@ const HeaderMain: React.FC = () => {
     }
   }, [scrolled]);
 
-  // const scrollDown = () => {
-  //   stopCaret();
-  //   const targetY = getHeight() - NavBar.HEIGHT + 3;
-  //   smoothScrollTo(targetY, 500);
-  // };
-
-  // const smoothScrollTo = (targetY: number, duration: number) => {
-  //   const startY = window.scrollY;
-  //   const distance = targetY - startY;
-  //   const startTime = performance.now();
-
-  //   const scrollAnimation = (currentTime: number) => {
-  //     const elapsed = currentTime - startTime;
-  //     const progress = Math.min(elapsed / duration, 1);
-
-  //     const easeOut = 1 - Math.pow(1 - progress, 3); // Cubic ease-out
-
-  //     window.scrollTo(0, startY + distance * easeOut);
-
-  //     if (progress < 1) {
-  //       animationFrame = requestAnimationFrame(scrollAnimation);
-  //     }
-  //   };
-
-  //   animationFrame = requestAnimationFrame(scrollAnimation);
-  // };
-
-  // const handleResize = useCallback(() => {
-  //   setTimeout(() => {
-  //     setHeight(getHeight());
-  //   }, 0);
-  // }, []);
-
   const handleScroll = useCallback(() => {
     stopCaret();
   }, [stopCaret]);
 
   useEffect(() => {
     window.addEventListener("scroll", handleScroll);
-    // window.addEventListener("resize", handleResize);
 
     return () => {
       window.removeEventListener("scroll", handleScroll);
-      // window.removeEventListener("resize", handleResize);
       cancelAnimationFrame(animationFrame);
     };
   }, [handleScroll]);
 
   return (
-    <header
-      className={`${styles["header-main"]} ${styles["header"]}`}
-      // style={{ minHeight: height + "px" }}
-    >
+    <header className={`${styles["header-main"]} ${styles["header"]}`}>
       <div className={styles["overhead-fill"]}></div>
 
       <img src={headerLogo} className={styles["header-logo"]} alt="BB Logo" />
@@ -95,13 +52,7 @@ const HeaderMain: React.FC = () => {
         style={{ animation: caretAnimationStyle }}
       >
         <div>
-          <a
-            href="#list"
-            // onClick={(e) => {
-            //   e.preventDefault();
-            //   scrollDown();
-            // }}
-          >
+          <a href="#list">
             <h6>View Portfolio</h6>
             <img
               src={caret}

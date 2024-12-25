@@ -94,8 +94,6 @@ header {
     text-align: center;
   }
 
-
-
   @include breakpoint-up($b768px) {
     br.responsive_br {
       display: none;
