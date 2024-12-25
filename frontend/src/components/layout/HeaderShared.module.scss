@@ -50,36 +50,6 @@ header {
     padding-top: 50px;
   }
 
-  &.header-main {
-    min-height: 100vh;
-    .header-logo {
-      opacity: 1;
-      height: 60vh;
-      max-height: 380px;
-      position: relative;
-      top: -11px;
-      margin-bottom: -30px;
-    }
-
-    .view_portfolio {
-      img {
-        position: relative;
-        top: 10px;
-      }
-      a {
-        text-decoration: none;
-      }
-    }
-
-    .lastName {
-      color: $lighterThemeColor;
-    }
-
-    .firstName {
-      color: #999;
-    }
-  }
-
   h4,
   .h4,
   h5,
@@ -90,19 +60,6 @@ header {
     color: #fff;
   }
 
-  > * {
-    text-align: center;
-  }
-
-  @include breakpoint-up($b768px) {
-    br.responsive_br {
-      display: none;
-    }
-    .bull {
-      display: none;
-    }
-  }
-
   @include breakpoint-up($b992px) {
     h1 {
       font-size: 50px;
@@ -110,7 +67,7 @@ header {
   }
 
   /* There's sometimes a one-pixel gap that appears over the navbar in iOS Safari that appears to be a
-  defect in the rendering engine. I see it in other sites sometimes. This fills the gap to keep things pretty. */
+  defect in the rendering engine. I see it in other sites sometimes. This fills the gap. */
   .overhead-fill {
     height: 100vh;
     top: -100vh;
@@ -121,35 +78,5 @@ header {
 
   .bull {
     font-size: 60%;
-  }
-
-  .view_portfolio {
-    $bottom: 30px;
-
-    position: absolute;
-    bottom: $bottom;
-    left: 50%;
-    text-align: center;
-    width: 200px;
-    margin-left: -100px;
-    cursor: pointer;
-
-    animation: fade 2s forwards;
-    animation-iteration-count: infinite;
-
-    @keyframes fade {
-      0% {
-        opacity: 0.5;
-        bottom: $bottom;
-      }
-      50% {
-        opacity: 1;
-        bottom: $bottom - 10px;
-      }
-      100% {
-        opacity: 0.5;
-        bottom: $bottom;
-      }
-    }
   }
 }
