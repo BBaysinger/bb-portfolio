@@ -1,0 +1,201 @@
+@use "@/styles/global" as *;
+
+.cv-page {
+  margin-left: 10px;
+  margin-right: 10px;
+  padding-top: 60px;
+  padding-bottom: 60px;
+
+  @include breakpoint-up($b768px) {
+    padding-top: 90px;
+    padding-bottom: 90px;
+  }
+
+  h4 {
+    border-bottom: 2px solid $heavierThemeColor;
+    padding-bottom: 20px;
+    font-size: 40px !important;
+  }
+
+  h5 {
+    position: relative;
+    font-weight: 500;
+    margin-bottom: 3px;
+    color: black;
+    white-space: normal;
+
+    .location {
+      font-weight: 500;
+      font-size: 16px;
+      white-space: normal;
+    }
+  }
+
+  h4:first-child {
+    padding-top: 0px;
+    margin-top: 0px;
+    @include breakpoint-up($b768px) {
+      font-size: 26px;
+    }
+    @include breakpoint-up($b992px) {
+      font-size: 34px;
+    }
+  }
+
+  li {
+    margin-bottom: 6px;
+  }
+}
+
+.row {
+  padding-top: 40px;
+  padding-bottom: 40px;
+
+  & > *:first-of-type {
+    text-align: center;
+  }
+}
+
+.sub-container {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  margin-top: 0px;
+  align-items: baseline;
+  flex-wrap: wrap;
+}
+
+.right-sub,
+.left-sub {
+  font-size: 18px;
+  color: $heavierThemeColor;
+  margin-bottom: 6px;
+  margin-top: 0px;
+  margin-left: 0px;
+  white-space: nowrap;
+  margin-right: 0;
+  float: right;
+}
+
+.right-sub {
+  font-size: 15px;
+}
+
+.left-sub {
+  width: 100%;
+  @include breakpoint-up($b768px) {
+    width: unset;
+  }
+}
+
+.left-sub {
+  font-weight: bold;
+  display: inline-block;
+}
+
+img.cv-logo {
+  margin-top: 20px;
+  margin-bottom: 40px;
+  margin-left: auto;
+  margin-right: auto;
+  @include fluid-property(height, $b360px, $b1440px, 120px, 130px);
+  @include fluid-property(max-width, $b360px, $b1440px, 130px, 140px);
+
+  @include breakpoint-up($b768px) {
+    position: relative;
+    top: 5px;
+    margin-top: 0;
+  }
+}
+
+.cv-right {
+  ul li {
+    padding-left: 8px;
+  }
+
+  @include breakpoint-up($b768px) {
+    p,
+    ul {
+      margin-bottom: 10px;
+    }
+  }
+}
+
+.cv-listing {
+  margin-bottom: 40px;
+  &:last-of-type {
+    margin-bottom: 0;
+  }
+}
+
+.inline-list-item {
+  &:last-of-type {
+    .bullet {
+      display: none;
+    }
+  }
+
+  .phrase {
+    white-space: nowrap;
+  }
+
+  .bullet {
+    color: $heavierThemeColor;
+    line-height: 18px;
+    font-size: 20px;
+    position: relative;
+    top: 1.75px;
+    left: 0.75px;
+  }
+}
+
+.scope {
+  font-size: 16px;
+  color: $heavierThemeColor;
+  span:nth-child(1) {
+    color: #000;
+  }
+}
+
+.desc {
+  color: #000;
+  font-weight: 500;
+  font-size: 16px;
+  margin-bottom: 17px;
+}
+
+.badges {
+  width: 100%;
+  margin-bottom: 30px;
+  img {
+    width: 20px;
+    height: auto;
+    float: left;
+    margin-right: 5px;
+    margin-top: 6px;
+  }
+}
+
+.strong {
+  margin-bottom: 30px;
+  font-weight: 800;
+  font-size: 16px;
+}
+
+.summary {
+  margin-bottom: 20px;
+  margin-top: 20px;
+  p {
+    font-size: 20px;
+    line-height: 1.5em;
+    h4 {
+      margin-bottom: 40px;
+    }
+  }
+}
+
+.skills {
+  ul {
+    margin-bottom: 40px;
+  }
+}
