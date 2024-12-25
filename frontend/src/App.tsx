@@ -50,7 +50,7 @@ const App = () => {
       <div id={styles.main} className={slideOut ? styles["nav-expanded"] : ""}>
         <NavBar
           toggleSlideOutHandler={toggleSlideOutHandler}
-          collapseSlideOutHandler={handleResize}
+          // collapseSlideOutHandler={handleResize}
         />
         <ScrollToHash />
         <Routes>

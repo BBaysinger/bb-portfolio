@@ -1,4 +1,4 @@
-import React, { ReactNode } from "react";
+import React, { useRef, useEffect, ReactNode } from "react";
 
 import { PortfolioProjectBase } from "data/ProjectData";
 import styles from "./ProjectContent.module.scss";
@@ -10,173 +10,94 @@ interface ProjectContentProps {
 
 /**
  * Display and animate the descriptions, features, and urls/buttons of each portfolio item.
- * *
+ *
  * @author Bradley Baysinger
  * @since The beginning of time.
  * @version N/A
  */
-export default class ProjectContent extends React.Component<ProjectContentProps> {
-  /**
-   *
-   *
-   * @memberof ProjectContent
-   */
-  // peiceData = null;
+const ProjectContent: React.FC<ProjectContentProps> = ({ projectData }) => {
+  const domElem = useRef<HTMLElement | null>(null);
+  const members = useRef<HTMLElement[]>([]);
+  // const timesUpdated = useRef(0);
 
-  /**
-   * Need a reference to allow parent component access to computed height of div.
-   *
-   *
-   * @memberof ProjectContent
-   */
-  public domElem: HTMLElement | null = null;
+  useEffect(() => {
+    return () => {
+      // Cleanup members on unmount
+      members.current = [];
+    };
+  }, []);
 
-  /**
-   *
-   *
-   * @memberof ProjectContent
-   */
-  transition = null;
-
-  /**
-   *
-   *
-   * @memberof ProjectContent
-   */
-  members: Array<HTMLElement | null> = [];
-
-  /**
-   *
-   *
-   * @memberof ProjectContent
-   */
-  timesUpdated = 0;
-
-  /**
-   *
-   *
-   * @returns
-   * @memberof ProjectContent
-   */
-  shouldComponentUpdate() {
-    // HERE: https://medium.com/@User3141592/react-gotchas-and-best-practices-2d47fd67dd22
-    this.timesUpdated++;
-
-    if (this.timesUpdated > 0) {
-      return false;
-    } else {
-      return true;
-    }
-  }
-
-  /**
-   * TODO: Figure out why this member doesn't exist on refs at runtime.
-   *
-   * @readonly
-   * @memberof ProjectContent
-   */
-  get height() {
-    return this.domElem?.offsetHeight;
-  }
-
-  /**
-   *
-   *
-   * @memberof ProjectContent
-   */
-  addMember = (member: HTMLElement | null) => {
-    if (member && this.members) {
-      this.members.push(member);
-      member.style.transitionDelay =
-        this.members.length * 0.0 + "s, " + this.members.length * 0.01 + "s";
-      member.style.transitionDuration =
-        this.members.length * 0.2 + "s, " + this.members.length * 0.2 + "s";
-    } else {
-      // TODO: Is this a problem?
-      // console.info("eh?");
+  const addMember = (member: HTMLElement | null) => {
+    if (member) {
+      members.current.push(member);
+      member.style.transitionDelay = `${members.current.length * 0.0}s, ${members.current.length * 0.01}s`;
+      member.style.transitionDuration = `${members.current.length * 0.2}s, ${members.current.length * 0.2}s`;
     }
   };
 
-  /**
-   *
-   *
-   * @memberof ProjectContent
-   */
-  componentWillUnmount() {
-    setTimeout(() => {
-      // Garbage collect.
-      this.members = [];
-    }, 0);
-  }
+  const { desc, urls, role } = projectData;
 
-  /**
-   *
-   *
-   * @returns
-   * @memberof ProjectContent
-   */
-  render() {
-    const projectData: PortfolioProjectBase = this.props.projectData;
-    const { desc, urls, role } = projectData;
+  const descs = desc.map((htmlContent, index) => (
+    <div
+      key={index}
+      ref={addMember}
+      dangerouslySetInnerHTML={{ __html: htmlContent }}
+    />
+  ));
 
-    const descs = desc.map((htmlContent, index) => (
-      <div
-        key={index}
-        ref={this.addMember}
-        dangerouslySetInnerHTML={{ __html: htmlContent }}
-      />
-    ));
+  const urlBtns: ReactNode = Object.entries(urls).map(([label, urls]) => {
+    if (Array.isArray(urls)) {
+      return (
+        <span className={"btn-group"} ref={addMember} key={label}>
+          <span className={"btn btn-group-label"}>{label}</span>
+          {urls.map((item, index) => (
+            <a key={item} href={item} className={styles.btn} target="_blank">
+              {index + 1}
+            </a>
+          ))}
+        </span>
+      );
+    } else if (typeof urls === "string") {
+      return (
+        <a
+          className={"btn"}
+          href={urls}
+          ref={addMember}
+          key={urls}
+          target="_blank"
+        >
+          {label}
+        </a>
+      );
+    } else {
+      throw new Error("Type must be string[] or string.");
+    }
+  });
 
-    const urlBtns: ReactNode = Object.entries(urls).map(([label, urls]) => {
-      if (Array.isArray(urls)) {
-        return (
-          <span className={"btn-group"} ref={this.addMember} key={label}>
-            <span className={"btn btn-group-label"}>{label}</span>
-            {urls.map((item, index) => (
-              <a key={item} href={item} className={styles.btn} target="_blank">
-                {index + 1}
-              </a>
-            ))}
-          </span>
-        );
-      } else if (typeof urls === "string") {
-        return (
-          <a
-            className={"btn"}
-            href={urls}
-            ref={this.addMember}
-            key={urls}
-            target="_blank"
-          >
-            {label}
-          </a>
-        );
-      } else {
-        throw new Error("Type must be string[] or string.");
-      }
-    });
-
-    return (
-      <div
-        id={styles.projectInfoAndFeatures}
-        className={"container"}
-        ref={(domElem) => {
-          this.addMember(domElem);
-          this.domElem = domElem;
-        }}
-      >
-        <div className={styles["desc-paragraphs"]}>
-          {descs}
-          {role && (
-            <div ref={this.addMember}>
-              <p>
-                <span style={{ fontWeight: "bold" }}>Role:</span> {role}
-              </p>
-            </div>
-          )}
-        </div>
-        <div className={styles["url-btns"]}>{urlBtns}</div>
+  return (
+    <div
+      id={styles.projectInfoAndFeatures}
+      className={"container"}
+      ref={(elem) => {
+        if (elem) {
+          addMember(elem);
+          domElem.current = elem;
+        }
+      }}
+    >
+      <div className={styles["desc-paragraphs"]}>
+        {descs}
+        {role && (
+          <div ref={addMember}>
+            <p>
+              <span style={{ fontWeight: "bold" }}>Role:</span> {role}
+            </p>
+          </div>
+        )}
       </div>
-    );
-  }
-}
+      <div className={styles["url-btns"]}>{urlBtns}</div>
+    </div>
+  );
+};
+
+export default ProjectContent;

@@ -1,23 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
 import MiscUtils from "utils/MiscUtils";
 
 import navLogo from "images/misc/bb-logo.svg";
 import styles from "./Navbar.module.scss";
 
-/**
- *
- */
 interface NavBarProps {
   toggleSlideOutHandler: () => void;
-  collapseSlideOutHandler: () => void;
-}
-
-/**
- *
- */
-interface NavBarState {
-  collapsed: boolean;
 }
 
 /**
@@ -30,114 +19,86 @@ interface NavBarState {
  * @since The beginning of time.
  * @version N/A
  */
-class NavBar extends React.Component<NavBarProps, NavBarState> {
-  /**
-   *
-   *
-   * @static
-   * @memberof NavBar
-   */
-  static HEIGHT = 50;
+const NavBar: React.FC<NavBarProps> = ({ toggleSlideOutHandler }) => {
+  const [collapsed, setCollapsed] = useState(true);
 
-  /**
-   * Creates an instance of NavBar.
-   * @memberof NavBar
-   */
-  constructor(props: NavBarProps) {
-    super(props);
-
-    this.state = { collapsed: true };
-  }
-
-  /**
-   *
-   * @memberof NavBar
-   */
-  handleToggleNav = () => {
-    this.props.toggleSlideOutHandler();
+  const navStyle = {
+    width: "100%",
   };
 
-  /**
-   *
-   *
-   * @returns
-   * @memberof NavBar
-   */
-  render() {
-    const navStyle = {
-      width: "100%",
-    };
+  const logoStyle: React.CSSProperties = {
+    position: "absolute",
+    maxHeight: "38px",
+    top: "6px",
+    left: "14px",
+  };
 
-    const logoStyle: React.CSSProperties = {
-      position: "absolute",
-      maxHeight: "38px",
-      top: "6px",
-      left: "14px",
-    };
+  const navClass = collapsed ? "collapse" : "";
 
-    const { collapsed } = this.state;
-    const navClass = collapsed ? "collapse" : "";
+  const handleToggleNav = () => {
+    toggleSlideOutHandler();
+    setCollapsed(!collapsed);
+  };
 
-    return (
-      <nav
-        className={`${styles["top-navbar"]} ${styles["navbar-fixed-top"]}`}
-        role="navigation"
+  return (
+    <nav
+      className={`${styles["top-navbar"]} ${styles["navbar-fixed-top"]}`}
+      role="navigation"
+    >
+      <NavLink to="/">
+        <img src={navLogo} alt="BB Logo" style={logoStyle} />
+      </NavLink>
+      <div id={styles.navTitle}>
+        <div className={styles["nav-logo-text"]}>
+          <p>
+            <span>BRADLEY</span> <span>BAYSINGER</span>
+          </p>
+          <p>
+            <span className={styles["nobr"]}>
+              Interactive Web &bull; Front-end Developer
+            </span>
+          </p>
+        </div>
+      </div>
+
+      <button
+        type="button"
+        className={styles["navbar-toggle"]}
+        onClick={handleToggleNav}
       >
-        <NavLink to="/">
-          <img src={navLogo} alt="BB Logo" style={logoStyle} />
-        </NavLink>
-        <div id={styles.navTitle}>
-          <div className={styles["nav-logo-text"]}>
-            <p>
-              <span>BRADLEY</span> <span>BAYSINGER</span>
-            </p>
-            <p>
-              <span className={styles["nobr"]}>
-                Interactive Web &bull; Front-end Developer
-              </span>
-            </p>
-          </div>
-        </div>
+        <span className={styles["sr-only"]}>Toggle navigation</span>
+        <span className={styles["icon-bar"]}></span>
+        <span className={styles["icon-bar"]}></span>
+        <span className={styles["icon-bar"]}></span>
+      </button>
 
-        <button
-          type="button"
-          className={styles["navbar-toggle"]}
-          onClick={this.handleToggleNav}
+      <div className={`${styles["the-navbar"]} ${navClass}`}>
+        <ul
+          className={`${styles["nav"]} ${styles["navbar-nav"]}`}
+          style={navStyle}
         >
-          <span className={styles["sr-only"]}>Toggle navigation</span>
-          <span className={styles["icon-bar"]}></span>
-          <span className={styles["icon-bar"]}></span>
-          <span className={styles["icon-bar"]}></span>
-        </button>
-
-        <div className={`${styles["the-navbar"]} ${navClass}`}>
-          <ul
-            className={`${styles["nav"]} ${styles["navbar-nav"]}`}
-            style={navStyle}
-          >
-            <li>
-              <NavLink
-                to="/portfolio#list"
-                className={({ isActive }) =>
-                  MiscUtils.isActiveOrAlt(isActive, "/", styles["active"])
-                }
-              >
-                Portfolio
-              </NavLink>
-            </li>
-            <li>
-              <NavLink
-                to="/cv#top"
-                className={({ isActive }) => (isActive ? styles["active"] : "")}
-              >
-                CV
-              </NavLink>
-            </li>
-          </ul>
-        </div>
-      </nav>
-    );
-  }
-}
+          <li>
+            <NavLink
+              to="/portfolio#list"
+              className={({ isActive }) =>
+                MiscUtils.isActiveOrAlt(isActive, "/", styles["active"])
+              }
+            >
+              Portfolio
+            </NavLink>
+          </li>
+          <li>
+            <NavLink
+              to="/cv#top"
+              className={({ isActive }) => (isActive ? styles["active"] : "")}
+            >
+              CV
+            </NavLink>
+          </li>
+        </ul>
+      </div>
+    </nav>
+  );
+};
 
 export default NavBar;

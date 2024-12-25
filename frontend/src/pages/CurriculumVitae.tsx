@@ -13,6 +13,8 @@ import styles from "./CurriculumVitae.module.scss";
  */
 export default class CurriculumVitae extends React.Component {
   /**
+   * TODO: This should be a component.
+   *
    * Function also serves to help migrate inline lists into
    * Word or whatever else with rich text formatting intact.
    * It needs to use actual spaces (not simulated with margins)
