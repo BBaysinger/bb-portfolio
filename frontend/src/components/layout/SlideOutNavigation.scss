@@ -1,13 +1,9 @@
 @use "@/styles/global" as *;
 
 /* Not styling for the nav, but facilitates it. */
-div#main {
-  position: relative;
-  right: 0;
-  transition: right 0.5s;
-  box-shadow: 10px 5px 60px black;
-  min-width: 320px;
-}
+// div#main {
+
+// }
 
 #slideout_nav {
   position: fixed;

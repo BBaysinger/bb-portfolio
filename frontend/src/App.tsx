@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Routes, Route } from "react-router-dom";
 import ExecutionEnvironment from "exenv";
 
@@ -9,86 +9,60 @@ import PortfolioList from "components/home-page/PortfolioList";
 import Footer from "components/layout/Footer";
 import ProjectsPresentation from "pages/ProjectsPresentation";
 import ScrollToHash from "utils/ScrollToHash";
-import "./App.scss";
+import styles from "./App.module.scss";
 
-/**
- *
- */
 const App = () => {
-  // State to manage whether the slide-out menu is active
   const [slideOut, setSlideOut] = useState(false);
+  const ticking = useRef(false);
 
-  // Tracks whether a scroll event is being handled
-  let ticking = false;
+  const toggleSlideOutHandler = () => setSlideOut((prev) => !prev);
+  const collapseSlideOutHandler = () => slideOut && setSlideOut(false);
 
-  // Toggles the slide-out menu
-  const toggleSlideOutHandler = () => {
-    setSlideOut((prevSlideOut) => !prevSlideOut);
-  };
+  const handleResize = collapseSlideOutHandler;
 
-  // Collapses the slide-out menu
-  const collapseSlideOutHandler = () => {
-    if (slideOut) {
-      setSlideOut(false);
-    }
-  };
-
-  // Handles window resize and collapses the slide-out menu
-  const handleResize = () => {
-    collapseSlideOutHandler();
-  };
-
-  // Handles scroll events and collapses the slide-out menu
   const handleScroll = () => {
-    if (!ticking) {
+    if (!ticking.current) {
       window.requestAnimationFrame(() => {
         collapseSlideOutHandler();
-        ticking = false;
+        ticking.current = false;
       });
-      ticking = true;
+      ticking.current = true;
     }
   };
 
-  // Effect to set up event listeners for scroll and resize
   useEffect(() => {
     if (ExecutionEnvironment.canUseDOM) {
       window.addEventListener("scroll", handleScroll, false);
       window.addEventListener("resize", handleResize, false);
     }
-
-    // Cleanup event listeners on component unmount
     return () => {
       window.removeEventListener("scroll", handleScroll, false);
       window.removeEventListener("resize", handleResize, false);
     };
-  }, [slideOut]); // Re-run effect when `slideOut` state changes
-
-  // Calculate half the width of the window, rounded down
-  const getRoundedHalfWidth = () => {
-    return Math.floor(window.innerWidth / 2) + "px";
-  };
+  }, []); // No dependencies needed here
 
   return (
     <>
-      <SlideOutNav collapseSlideOutHandler={handleResize}></SlideOutNav>
-      <div id="main" style={slideOut ? { right: getRoundedHalfWidth() } : {}}>
+      <SlideOutNav
+        collapseSlideOutHandler={handleResize}
+        aria-hidden={!slideOut}
+      />
+      <div id={styles.main} className={slideOut ? styles["nav-expanded"] : ""}>
         <NavBar
           toggleSlideOutHandler={toggleSlideOutHandler}
           collapseSlideOutHandler={handleResize}
-        ></NavBar>
+        />
         <ScrollToHash />
         <Routes>
-          <Route path="/">
-            <Route path="/" element={<PortfolioList />}></Route>
-            <Route path="/portfolio" element={<PortfolioList />}></Route>
-            <Route
-              path="/portfolio/:projectId"
-              element={<ProjectsPresentation />}
-            ></Route>
-            <Route path="/cv" element={<CurriculumVitae />}></Route>
-          </Route>
+          <Route path="/" element={<PortfolioList />} />
+          <Route path="/portfolio" element={<PortfolioList />} />
+          <Route
+            path="/portfolio/:projectId"
+            element={<ProjectsPresentation />}
+          />
+          <Route path="/cv" element={<CurriculumVitae />} />
         </Routes>
-        <Footer></Footer>
+        <Footer />
       </div>
     </>
   );
