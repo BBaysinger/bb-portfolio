@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 
 import headerLogo from "images/main-header/bb-gradient.png";
 import caret from "images/main-header/caret.png";
-import styles from "components/layout/Header.module.scss";
+import styles from "./HeaderMain.module.scss";
 
 const HeaderMain: React.FC = () => {
   const [caretAnimationStyle, setCaretAnimationStyle] = useState("");
