@@ -7,16 +7,16 @@ import React, {
 } from "react";
 import ExecutionEnvironment from "exenv";
 
-import ProjectThumbnail from "components/home-page/ProjectThumbnail";
-import HeaderMain from "components/home-page/HeaderMain";
 import HoverCapabilityWatcher from "utils/HoverCapabilityWatcher";
 import ProjectData from "data/ProjectData";
+import ProjectThumbnail from "components/home-page/ProjectThumbnail";
+import HeaderMain from "components/home-page/HeaderMain";
 import styles from "./PortfolioList.module.scss";
 
 /**
  * PortfolioList Component
  *
- * This component dynamically displays a list of portfolio thumbnails.
+ * Dynamically displays a list of portfolio thumbnails.
  * Each thumbnail reveals detailed information when hovered (on hover-capable devices)
  * or dynamically scroll-focused (on non-hover-capable devices).
  *
@@ -26,7 +26,6 @@ import styles from "./PortfolioList.module.scss";
  * - Handles flexible layout where thumbnails wrap into multiple rows, adapting interaction logic accordingly.
  *
  * @author Bradley Baysinger
- * @contributor ChatGPT (Documentation)
  * @version 1.0
  * @since 2024-12-10
  * @version N/A
@@ -34,34 +33,27 @@ import styles from "./PortfolioList.module.scss";
 const PortfolioList: React.FC = () => {
   const [focusedThumbIndex, setFocusedThumbIndex] = useState(-1); // Tracks the currently focused thumbnail index
   const projectThumbRefs = useRef<
-    Array<React.RefObject<ProjectThumbnail | null>>
-  >([]); // Array of references to thumbnail components
+    Array<React.RefObject<HTMLDivElement | null>>
+  >([]);
   const ticking = useRef(false); // Tracks whether a scroll/resize event is currently being processed
 
   /**
-   * Initializes a reference to a ProjectThumbnail component.
+   * Initializes a reference to a DOM node for a thumbnail.
    * Ensures each thumbnail has a corresponding ref stored in projectThumbRefs.
    */
   const setThumbRef = useCallback(
-    (thumbComponent: ProjectThumbnail | null, index: number) => {
+    (node: HTMLDivElement | null, index: number) => {
       if (!projectThumbRefs.current[index]) {
         projectThumbRefs.current[index] =
-          React.createRef<ProjectThumbnail | null>();
+          React.createRef<HTMLDivElement | null>();
       }
-      projectThumbRefs.current[index].current = thumbComponent;
+      projectThumbRefs.current[index].current = node;
     },
     [],
   );
 
   /**
    * Updates the focused thumbnail based on scroll or resize events.
-   *
-   * Non-hover-capable devices:
-   * - Determines which thumbnails are in range vertically.
-   * - Sequentially highlights thumbnails in the same row based on their horizontal position.
-   *
-   * Hover-capable devices:
-   * - Resets focus to allow hover interaction to take precedence.
    */
   const update = useCallback((e: Event) => {
     if (ExecutionEnvironment.canUseDOM) {
@@ -71,51 +63,41 @@ const PortfolioList: React.FC = () => {
         let bounding;
         let linkHeight;
         let targetMaxOffset;
-        let inRange: Array<RefObject<ProjectThumbnail | null>> = [];
+        let inRange: Array<RefObject<HTMLDivElement | null>> = [];
 
         // Identify thumbnails within vertical focus range
         projectThumbRefs.current.forEach((thumbRef) => {
-          if (thumbRef.current) {
-            const thumb: ProjectThumbnail = thumbRef.current;
-            const domNode: HTMLElement | null = thumb?.getDOMNode();
-            if (domNode) {
-              bounding = domNode.getBoundingClientRect();
-              linkHeight = domNode.offsetHeight;
-              targetMaxOffset = linkHeight / 2;
-              offset =
-                window.innerHeight / 2 - (bounding.top + targetMaxOffset);
-              absOffset = Math.abs(offset);
+          const domNode = thumbRef.current;
+          if (domNode) {
+            bounding = domNode.getBoundingClientRect();
+            linkHeight = domNode.offsetHeight;
+            targetMaxOffset = linkHeight / 2;
+            offset = window.innerHeight / 2 - (bounding.top + targetMaxOffset);
+            absOffset = Math.abs(offset);
 
-              if (absOffset < targetMaxOffset) {
-                inRange.push(thumbRef);
-              }
+            if (absOffset < targetMaxOffset) {
+              inRange.push(thumbRef);
             }
           }
         });
 
         // Sequentially determine focus for thumbnails in the same row
         inRange.forEach((thumbRef, index) => {
-          if (thumbRef.current) {
-            const thumb: ProjectThumbnail = thumbRef.current;
-            const domNode: HTMLElement | null = thumb?.getDOMNode();
-
-            if (domNode) {
-              bounding = domNode?.getBoundingClientRect();
-              linkHeight = domNode.offsetHeight / inRange.length;
-              const top = bounding.top + linkHeight * index;
-              targetMaxOffset = linkHeight / 2;
-              offset = window.innerHeight / 2 - (top + targetMaxOffset);
-              absOffset = Math.abs(offset);
-              if (absOffset < targetMaxOffset) {
-                setFocusedThumbIndex(getThumbnailIndex(thumbRef));
-              }
+          const domNode = thumbRef.current;
+          if (domNode) {
+            bounding = domNode.getBoundingClientRect();
+            linkHeight = domNode.offsetHeight / inRange.length;
+            const top = bounding.top + linkHeight * index;
+            targetMaxOffset = linkHeight / 2;
+            offset = window.innerHeight / 2 - (top + targetMaxOffset);
+            absOffset = Math.abs(offset);
+            if (absOffset < targetMaxOffset) {
+              setFocusedThumbIndex(getThumbnailIndex(thumbRef));
             }
           }
         });
-      } else {
-        if (e.type === "resize") {
-          setFocusedThumbIndex(-1); // Reset focus on resize for hover-capable devices
-        }
+      } else if (e.type === "resize") {
+        setFocusedThumbIndex(-1); // Reset focus on resize for hover-capable devices
       }
     }
   }, []);
@@ -124,7 +106,7 @@ const PortfolioList: React.FC = () => {
    * Retrieves the index of a given thumbnail ref from the projectThumbRefs array.
    */
   const getThumbnailIndex = (
-    thumbRef: RefObject<ProjectThumbnail | null>,
+    thumbRef: RefObject<HTMLDivElement | null>,
   ): number => {
     return projectThumbRefs.current.findIndex((ref) => ref === thumbRef);
   };
@@ -181,7 +163,7 @@ const PortfolioList: React.FC = () => {
               projectId={id}
               title={title}
               clientId={clientId}
-              ref={(node) => setThumbRef(node, index)}
+              ref={(node) => setThumbRef(node, index)} // Assign DOM node ref
             />
           );
         })}
