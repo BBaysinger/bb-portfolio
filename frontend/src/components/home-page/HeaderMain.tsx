@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 
 import headerLogo from "images/main-header/bb-gradient.png";
-import caret from "images/main-header/caret.png";
 import styles from "./HeaderMain.module.scss";
 
 const HeaderMain: React.FC = () => {
@@ -47,23 +46,13 @@ const HeaderMain: React.FC = () => {
         </span>
       </h5>
 
-      <div
+      <a
+        href="#list"
         className={styles["view-portfolio"]}
         style={{ animation: caretAnimationStyle }}
       >
-        <div>
-          <a href="#list">
-            <h6>View Portfolio</h6>
-            <img
-              src={caret}
-              width="50"
-              height="30"
-              className={styles["caret-img"]}
-              alt=""
-            />
-          </a>
-        </div>
-      </div>
+        <h6>View Portfolio</h6>
+      </a>
     </header>
   );
 };
