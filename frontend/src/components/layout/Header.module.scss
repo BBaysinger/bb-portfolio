@@ -20,13 +20,27 @@ header {
   background-position: center;
   background-size: 100% 100%;
 
-  #project {
+  h1 {
+    color: #fff;
+    font-weight: 400; // Only a factor before fonts load.
+    margin-top: 0px;
+    margin-bottom: 10px;
+    font-size: 60px;
+    line-height: 62px;
+
+    @include breakpoint-up($b480px) {
+      font-size: 52px;
+      line-height: 55px;
+    }
+  }
+
+  .project {
     position: absolute;
     bottom: 0;
     opacity: 0;
   }
 
-  #top {
+  .top {
     position: absolute;
     top: 0;
     opacity: 0;
@@ -36,7 +50,8 @@ header {
     padding-top: 50px;
   }
 
-  &.header_main {
+  &.header-main {
+    min-height: 100vh;
     .header-logo {
       opacity: 1;
       height: 60vh;
@@ -79,19 +94,7 @@ header {
     text-align: center;
   }
 
-  h1 {
-    color: #fff;
-    font-weight: 400; // Only a factor before fonts load.
-    margin-top: 0px;
-    margin-bottom: 10px;
-    font-size: 60px;
-    line-height: 62px;
 
-    @include breakpoint-up($b480px) {
-      font-size: 52px;
-      line-height: 55px;
-    }
-  }
 
   @include breakpoint-up($b768px) {
     br.responsive_br {
