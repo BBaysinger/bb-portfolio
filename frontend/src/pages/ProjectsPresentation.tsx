@@ -12,7 +12,7 @@ import DeviceDisplay, {
 import NavButtons from "components/project-carousel-page/NavButtons";
 import styles from "./ProjectsPresentation.module.scss";
 
-const ProjectCarousel: React.FC = () => {
+const ProjectsPresentation: React.FC = () => {
   const carouselRef = useRef<{ scrollToSlide: (targetIndex: number) => void }>(
     null,
   );
@@ -77,4 +77,4 @@ const ProjectCarousel: React.FC = () => {
   );
 };
 
-export default ProjectCarousel;
+export default ProjectsPresentation;

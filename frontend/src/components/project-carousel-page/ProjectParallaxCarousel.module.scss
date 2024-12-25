@@ -13,12 +13,12 @@
   @include fluid-property("margin-bottom", $b320px, 680px, -115px, 0px);
 }
 
-.transparent-slide {
-  font-size: 0;
-  padding: 20px;
-  padding-top: 6px;
-  display: none;
-}
+// .transparent-slide {
+//   font-size: 0;
+//   padding: 20px;
+//   padding-top: 6px;
+//   display: none;
+// }
 
 .slide-layer {
   position: absolute;
@@ -81,7 +81,7 @@
   .bb-slide-wrapper {
     visibility: hidden;
     width: 693px;
-    height: 495px;
+    height: 444px;
     &:nth-child(3n-1) {
       background-color: rgba(23, 200, 35, 0.1);
     }
