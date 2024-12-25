@@ -1,11 +1,6 @@
 @use "@/styles/global" as *;
 
-/* Not styling for the nav, but facilitates it. */
-// div#main {
-
-// }
-
-#slideout_nav {
+.slideout-nav {
   position: fixed;
   top: 0px;
   width: 50%;
@@ -41,27 +36,15 @@
   @include breakpoint-up($b768px) {
     display: none;
   }
+}
 
-  img#b_square_nav {
-    pointer-events: none;
-    width: 100%;
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    opacity: 0.04;
-  }
+.slideout-nav-buttons {
+  opacity: 0.9999;
+  z-index: 1000;
 
-  div#slideout_nav-buttons {
-    opacity: 0.9999;
-    z-index: 1000;
-  }
-
-  ul#slideout_nav-buttons {
-    width: 100%;
-    padding-left: 0px;
-  }
-
-  ul#slideout_nav-buttons li {
+  width: 100%;
+  padding-left: 0px;
+  li {
     position: relative;
     height: 6.5vh;
     max-height: 100px;
@@ -70,7 +53,7 @@
     display: block;
   }
 
-  ul#slideout_nav-buttons li a {
+  a {
     display: inline-block;
     position: relative;
     color: #777777;

@@ -80,8 +80,7 @@ class NavBar extends React.Component<NavBarProps, NavBarState> {
 
     return (
       <nav
-        id="top-navbar"
-        className={styles["navbar-fixed-top"]}
+        className={`${styles["top-navbar"]} ${styles["navbar-fixed-top"]}`}
         role="navigation"
       >
         <NavLink to="/">

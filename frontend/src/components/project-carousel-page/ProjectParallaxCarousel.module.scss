@@ -8,6 +8,7 @@
   position: relative;
   box-sizing: border-box;
   z-index: 0;
+  overflow: hidden;
   // Account for scaling.
   @include fluid-property("margin-top", $b320px, 680px, -115px, 0px);
   @include fluid-property("margin-bottom", $b320px, 680px, -115px, 0px);
