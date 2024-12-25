@@ -1,2 +1,66 @@
 @use "@/styles/global" as *;
 @use "@/components/layout/HeaderShared.module.scss" as headerShared;
+
+.header-main {
+  min-height: 100vh;
+}
+
+.header-logo {
+  opacity: 1;
+  max-height: 40vh;
+  position: relative;
+  top: -11px;
+  margin-bottom: -30px;
+}
+
+.view-portfolio {
+  $bottom: 30px;
+  position: absolute;
+  bottom: $bottom;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  cursor: pointer;
+
+  animation: fade 2s forwards;
+  animation-iteration-count: infinite;
+
+  @keyframes fade {
+    0% {
+      opacity: 0.5;
+      bottom: $bottom;
+    }
+    50% {
+      opacity: 1;
+      bottom: $bottom - 10px;
+    }
+    100% {
+      opacity: 0.5;
+      bottom: $bottom;
+    }
+  }
+
+  img {
+    position: relative;
+    top: 10px;
+  }
+
+  a {
+    text-decoration: none;
+  }
+}
+
+@include breakpoint-up($b768px) {
+  .bull {
+    display: none;
+  }
+}
+
+.last-name {
+  color: $lighterThemeColor;
+}
+
+.first-name {
+  color: #999;
+}
