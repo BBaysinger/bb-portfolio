@@ -3,7 +3,7 @@ import React from "react";
 import NavBar from "components/layout/NavBar";
 import headerLogo from "images/main-header/bb_gradient.png";
 import caret from "images/main-header/caret.png";
-import "components/layout/Header.scss";
+import styles from "components/layout/Header.module.scss";
 
 interface HeaderMainState {
   height: number;
@@ -85,29 +85,28 @@ export default class HeaderMain extends React.Component<{}, HeaderMainState> {
   render() {
     return (
       <header
-        id="header"
-        className="header_main header"
+        className={`${styles["header_main"]} ${styles["header"]}`}
         style={{
           minHeight: this.state.height + "px",
         }}
       >
-        <div className="overheadFill"></div>
+        <div className={styles["overhead-fill"]}></div>
 
-        <img src={headerLogo} className="header-logo" alt="BB Logo" />
+        <img src={headerLogo} className={styles["header-logo"]} alt="BB Logo" />
         <h1>
-          <span className="firstName">Bradley</span>{" "}
-          <span className="lastName">Baysinger</span>
+          <span className={styles["first-name"]}>Bradley</span>&nbsp;
+          <span className={styles["last-name"]}>Baysinger</span>
         </h1>
 
-        <h5 className="subhead">
+        <h5 className={styles["subhead"]}>
           <span style={{ lineHeight: "26px" }}>
-            Interactive&nbsp;Web &bull;{" "}
-            <span className="nobr">Front-end Developer</span>
+            Interactive&nbsp;Web &bull;
+            <span className={styles["nobr"]}>Front-end Developer</span>
           </span>
         </h5>
 
         <div
-          className="view_portfolio"
+          className={styles["view-portfolio"]}
           style={{ animation: this.state.caretAnimationStyle }}
         >
           <div>
@@ -117,13 +116,13 @@ export default class HeaderMain extends React.Component<{}, HeaderMainState> {
                 src={caret}
                 width="50"
                 height="30"
-                className="caret-img"
+                className={styles["caret-img"]}
                 alt=""
               />
             </a>
           </div>
         </div>
-        <div id="top"></div>
+        {/* <div id="top"></div> */}
       </header>
     );
   }
