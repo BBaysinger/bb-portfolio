@@ -1125,20 +1125,20 @@ export default class CurriculumVitae extends React.Component {
                 <div className={styles["cv-listing"]}>
                   <h5>14 gold badges on Stack Overflow</h5>
                   <div className={styles["badges"]}>
-                    <img src="/images/cv/gold-badge.svg" alt="Gold Badge" />
-                    <img src="/images/cv/gold-badge.svg" alt="Gold Badge" />
-                    <img src="/images/cv/gold-badge.svg" alt="Gold Badge" />
-                    <img src="/images/cv/gold-badge.svg" alt="Gold Badge" />
-                    <img src="/images/cv/gold-badge.svg" alt="Gold Badge" />
-                    <img src="/images/cv/gold-badge.svg" alt="Gold Badge" />
-                    <img src="/images/cv/gold-badge.svg" alt="Gold Badge" />
-                    <img src="/images/cv/gold-badge.svg" alt="Gold Badge" />
-                    <img src="/images/cv/gold-badge.svg" alt="Gold Badge" />
-                    <img src="/images/cv/gold-badge.svg" alt="Gold Badge" />
-                    <img src="/images/cv/gold-badge.svg" alt="Gold Badge" />
-                    <img src="/images/cv/gold-badge.svg" alt="Gold Badge" />
-                    <img src="/images/cv/gold-badge.svg" alt="Gold Badge" />
-                    <img src="/images/cv/gold-badge.svg" alt="Gold Badge" />
+                    <img src="/images/cv/gold-badge.svg" alt="" />
+                    <img src="/images/cv/gold-badge.svg" alt="" />
+                    <img src="/images/cv/gold-badge.svg" alt="" />
+                    <img src="/images/cv/gold-badge.svg" alt="" />
+                    <img src="/images/cv/gold-badge.svg" alt="" />
+                    <img src="/images/cv/gold-badge.svg" alt="" />
+                    <img src="/images/cv/gold-badge.svg" alt="" />
+                    <img src="/images/cv/gold-badge.svg" alt="" />
+                    <img src="/images/cv/gold-badge.svg" alt="" />
+                    <img src="/images/cv/gold-badge.svg" alt="" />
+                    <img src="/images/cv/gold-badge.svg" alt="" />
+                    <img src="/images/cv/gold-badge.svg" alt="" />
+                    <img src="/images/cv/gold-badge.svg" alt="" />
+                    <img src="/images/cv/gold-badge.svg" alt="" />
                   </div>
                   <br />
                   <br />

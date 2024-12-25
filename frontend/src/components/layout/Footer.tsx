@@ -92,7 +92,8 @@ class Footer extends React.Component {
                     <a href={"mailto:" + this.state.emailAddr}>
                       <div
                         style={{
-                          backgroundImage: "url(/images/footer/email.png)",
+                          backgroundImage:
+                            "url(/images/footer/icons/email.png)",
                         }}
                       ></div>
                       {this.state.emailAddr}
@@ -102,7 +103,8 @@ class Footer extends React.Component {
                     <a href="tel:+15092798603">
                       <div
                         style={{
-                          backgroundImage: "url(/images/footer/phone.png)",
+                          backgroundImage:
+                            "url(/images/footer/icons/phone.png)",
                         }}
                       ></div>
                       509-279-8603
@@ -118,7 +120,7 @@ class Footer extends React.Component {
                         <div
                           style={{
                             backgroundImage:
-                              "url(/images/footer/linked-in.png)",
+                              "url(/images/footer/icons/linked-in.png)",
                           }}
                         ></div>
                         linkedin.com/in/BBaysinger
@@ -133,7 +135,8 @@ class Footer extends React.Component {
                     >
                       <div
                         style={{
-                          backgroundImage: "url(/images/footer/github.png)",
+                          backgroundImage:
+                            "url(/images/footer/icons/github.png)",
                         }}
                       ></div>
                       github.com/BBaysinger
@@ -148,7 +151,7 @@ class Footer extends React.Component {
                       <div
                         style={{
                           backgroundImage:
-                            "url(/images/footer/stackoverflow.png)",
+                            "url(/images/footer/icons/stackoverflow.png)",
                         }}
                       ></div>
                       stackoverflow.com/u/1253298
@@ -162,7 +165,8 @@ class Footer extends React.Component {
                     >
                       <div
                         style={{
-                          backgroundImage: "url(/images/footer/location.png)",
+                          backgroundImage:
+                            "url(/images/footer/icons/location.png)",
                         }}
                       ></div>
                       Spokane, WA

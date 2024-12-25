@@ -1,7 +1,8 @@
 @use "@/styles/global" as *;
 
-#top-navbar {
+.top-navbar {
   position: fixed;
+  top: 0;
   background: linear-gradient(to right, #111, #222);
   z-index: 10;
   width: 100vw;
