@@ -37,8 +37,8 @@ class SlideOutNav extends React.Component<SlideOutNavProps> {
    */
   render() {
     return (
-      <nav id="slideout_nav" role="navigation">
-        <ul id="slideout_nav-buttons">
+      <nav className={styles["slideout-nav"]} role="navigation">
+        <ul className={styles["slideout-nav-buttons"]}>
           <li>
             <NavLink
               onClick={this.handleCollapseNav}
