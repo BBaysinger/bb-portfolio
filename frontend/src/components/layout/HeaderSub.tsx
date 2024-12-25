@@ -5,7 +5,7 @@ interface HeaderSubProps {
   subhead?: string;
 }
 
-import styles from "./Header.module.scss";
+import styles from "./HeaderSub.module.scss";
 
 /**
  * This is the header for every page other than the home page. It takes a parameter
