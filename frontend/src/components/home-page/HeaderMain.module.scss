@@ -7,55 +7,61 @@
 
 .header-logo {
   opacity: 1;
-  max-height: 40vh;
+  max-height: 45vh;
   position: relative;
   top: -11px;
   margin-bottom: -30px;
 }
 
 .view-portfolio {
-  $bottom: 30px;
   position: absolute;
-  bottom: $bottom;
-  position: absolute;
+  bottom: 50px;
   left: 50%;
   transform: translateX(-50%);
-  text-align: center;
   cursor: pointer;
+  will-change: bottom, opacity;
+  text-decoration: none;
 
-  animation: fade 2s forwards;
-  animation-iteration-count: infinite;
-
-  @keyframes fade {
-    0% {
-      opacity: 0.5;
-      bottom: $bottom;
-    }
-    50% {
-      opacity: 1;
-      bottom: $bottom - 10px;
-    }
-    100% {
-      opacity: 0.5;
-      bottom: $bottom;
-    }
+  &::after {
+    content: " ";
+    position: absolute;
+    border-top: 7px solid #fff;
+    border-left: 7px solid #fff;
+    width: 35px;
+    height: 35px;
+    left: 50%;
+    top: 55px;
+    transform-origin: 0 0;
+    transform: rotate(-135deg);
+    z-index: 2;
+    animation: fadeBounce 2s infinite forwards;
   }
 
-  img {
-    position: relative;
-    top: 10px;
-  }
-
-  a {
-    text-decoration: none;
+  > * {
+    animation: fadeBounce 2s infinite forwards;
   }
 }
 
-@include breakpoint-up($b768px) {
-  .bull {
-    display: none;
+@keyframes fadeBounce {
+  0% {
+    opacity: 0.25;
+    bottom: 50px;
+  }
+  50% {
+    opacity: 1;
+    bottom: 40px;
+  }
+  100% {
+    opacity: 0.25;
+    bottom: 50px;
   }
 }
+
+// @include breakpoint-up($b768px) {
+//   .bull {
+//     display: none;
+//   }
+// }
 
 .last-name {
   color: $lighterThemeColor;
