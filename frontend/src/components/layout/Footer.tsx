@@ -4,8 +4,6 @@ import MiscUtils from "utils/MiscUtils";
 import { NavLink } from "react-router-dom";
 import styles from "./Footer.module.scss"; // Assuming you're using SCSS modules
 
-type Props = {};
-
 /**
  * As you may have guessed, this is the footer, common to every page.
  *
@@ -13,7 +11,7 @@ type Props = {};
  * @since The beginning of time.
  * @version N/A
  */
-const Footer: React.FC<Props> = () => {
+const Footer: React.FC = () => {
   const [emailAddr, setEmailAddr] = useState<string>("Waiting...");
   // const [portfolioLinkActive] = useState<boolean>(true);
 

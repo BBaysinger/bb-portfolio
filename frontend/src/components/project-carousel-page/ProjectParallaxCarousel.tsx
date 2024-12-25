@@ -131,12 +131,7 @@ const ProjectParallaxCarousel = forwardRef<
 
         <Carousel
           ref={masterCarouselRef}
-          slides={layer1Slides.map(
-            (_, _index) => null,
-            // <div key={index} className={`${styles["transparent-slide"]}`}>
-            //   {index + 1}
-            // </div>
-          )}
+          slides={layer1Slides.map((_, _index) => null)}
           slideSpacing={slideSpacings.master}
           onScrollUpdate={handleMasterScrollLeft}
           onStableIndex={handleStableIndex}

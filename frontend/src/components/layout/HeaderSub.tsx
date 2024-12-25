@@ -20,26 +20,14 @@ import styles from "./Header.module.scss";
  * @since The beginning of time.
  * @version N/A
  */
-export default class HeaderSub extends React.Component<HeaderSubProps> {
-  /**
-   *
-   *
-   * @returns
-   * @memberof HeaderSub
-   */
-  render() {
-    const { head, subhead } = this.props;
+const HeaderSub: React.FC<HeaderSubProps> = ({ head, subhead }) => {
+  return (
+    <header className={`${styles["header-sub"]} ${styles["header"]}`}>
+      <div className={styles["overhead-fill"]}></div>
+      <h1>{head}</h1>
+      {subhead && <h5 className={styles["subhead"]}>{subhead}</h5>}
+    </header>
+  );
+};
 
-    const subheadElem = subhead ? (
-      <h5 className={styles["subhead"]}>{subhead}</h5>
-    ) : null;
-
-    return (
-      <header className={`${styles["header-sub"]} ${styles["header"]}`}>
-        <div className={styles["overhead-fill"]}></div>
-        <h1>{head}</h1>
-        {subheadElem}
-      </header>
-    );
-  }
-}
+export default HeaderSub;
