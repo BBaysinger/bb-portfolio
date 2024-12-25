@@ -32,7 +32,7 @@ header {
     opacity: 0;
   }
 
-  &.header_sub {
+  &.header-sub {
     padding-top: 50px;
   }
 
@@ -110,7 +110,7 @@ header {
 
   /* There's sometimes a one-pixel gap that appears over the navbar in iOS Safari that appears to be a
   defect in the rendering engine. I see it in other sites sometimes. This fills the gap to keep things pretty. */
-  .overheadFill {
+  .overhead-fill {
     height: 100vh;
     top: -100vh;
     width: 100%;

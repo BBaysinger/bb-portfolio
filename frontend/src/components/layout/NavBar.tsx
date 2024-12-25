@@ -3,7 +3,7 @@ import { NavLink } from "react-router-dom";
 import MiscUtils from "utils/MiscUtils";
 
 import navLogo from "images/misc/bb-logo.svg";
-import "./Navbar.scss";
+import styles from "./Navbar.module.scss";
 
 /**
  *
@@ -22,6 +22,9 @@ interface NavBarState {
 
 /**
  * Navigation as text buttons, and a button for slide-out nav, on mobile.
+ *
+ * TODO: Should be the same component as SlideOutNavigation, just styled differently
+ * (multiple instances used concurrently, since they will both be onscreen at the same time).
  *
  * @author Bradley Baysinger
  * @since The beginning of time.
@@ -78,19 +81,19 @@ class NavBar extends React.Component<NavBarProps, NavBarState> {
     return (
       <nav
         id="top-navbar"
-        className="navbar-inverse navbar-fixed-top"
+        className={styles["navbar-fixed-top"]}
         role="navigation"
       >
         <NavLink to="/">
           <img src={navLogo} alt="BB Logo" style={logoStyle} />
         </NavLink>
-        <div id="navTitle">
-          <div className="nav-logo-text">
+        <div id={styles.navTitle}>
+          <div className={styles["nav-logo-text"]}>
             <p>
               <span>BRADLEY</span> <span>BAYSINGER</span>
             </p>
             <p>
-              <span className="nobr">
+              <span className={styles["nobr"]}>
                 Interactive Web &bull; Front-end Developer
               </span>
             </p>
@@ -99,22 +102,25 @@ class NavBar extends React.Component<NavBarProps, NavBarState> {
 
         <button
           type="button"
-          className="navbar-toggle"
+          className={styles["navbar-toggle"]}
           onClick={this.handleToggleNav}
         >
-          <span className="sr-only">Toggle navigation</span>
-          <span className="icon-bar"></span>
-          <span className="icon-bar"></span>
-          <span className="icon-bar"></span>
+          <span className={styles["sr-only"]}>Toggle navigation</span>
+          <span className={styles["icon-bar"]}></span>
+          <span className={styles["icon-bar"]}></span>
+          <span className={styles["icon-bar"]}></span>
         </button>
 
-        <div className={"the-navbar " + navClass} id="navbar-collapse-1">
-          <ul className="nav navbar-nav" style={navStyle}>
+        <div className={`${styles["the-navbar"]} ${navClass}`}>
+          <ul
+            className={`${styles["nav"]} ${styles["navbar-nav"]}`}
+            style={navStyle}
+          >
             <li>
               <NavLink
                 to="/portfolio#list"
                 className={({ isActive }) =>
-                  MiscUtils.isActiveOrAlt(isActive, "/")
+                  MiscUtils.isActiveOrAlt(isActive, "/", styles["active"])
                 }
               >
                 Portfolio
@@ -123,19 +129,11 @@ class NavBar extends React.Component<NavBarProps, NavBarState> {
             <li>
               <NavLink
                 to="/cv#top"
-                className={({ isActive }) => (isActive ? "active" : "")}
+                className={({ isActive }) => (isActive ? styles["active"] : "")}
               >
                 CV
               </NavLink>
             </li>
-            {/* <li>
-              <NavLink
-                to="/whoami"
-                className={({ isActive }) => (isActive ? "active" : "")}
-              >
-                Who Am I
-              </NavLink>
-            </li> */}
           </ul>
         </div>
       </nav>

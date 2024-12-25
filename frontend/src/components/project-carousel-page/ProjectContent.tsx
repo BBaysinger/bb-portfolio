@@ -130,8 +130,8 @@ export default class ProjectContent extends React.Component<ProjectContentProps>
     const urlBtns: ReactNode = Object.entries(urls).map(([label, urls]) => {
       if (Array.isArray(urls)) {
         return (
-          <span className="btn-group" ref={this.addMember} key={label}>
-            <span className="btn btn-group-label">{label}</span>
+          <span className={"btn-group"} ref={this.addMember} key={label}>
+            <span className={"btn btn-group-label"}>{label}</span>
             {urls.map((item, index) => (
               <a key={item} href={item} className={styles.btn} target="_blank">
                 {index + 1}
@@ -142,7 +142,7 @@ export default class ProjectContent extends React.Component<ProjectContentProps>
       } else if (typeof urls === "string") {
         return (
           <a
-            className="btn"
+            className={"btn"}
             href={urls}
             ref={this.addMember}
             key={urls}
@@ -159,7 +159,7 @@ export default class ProjectContent extends React.Component<ProjectContentProps>
     return (
       <div
         id={styles.projectInfoAndFeatures}
-        className="info container"
+        className={"container"}
         ref={(domElem) => {
           this.addMember(domElem);
           this.domElem = domElem;

@@ -2,10 +2,10 @@ import React from "react";
 
 interface HeaderSubProps {
   head: string;
-  subhead: string;
+  subhead?: string;
 }
 
-import "./Header.scss";
+import styles from "./Header.module.scss";
 
 /**
  * This is the header for every page other than the home page. It takes a parameter
@@ -30,15 +30,15 @@ export default class HeaderSub extends React.Component<HeaderSubProps> {
   render() {
     const { head, subhead } = this.props;
 
-    const subheadElem = subhead ? <h5 className="subhead">{subhead}</h5> : null;
+    const subheadElem = subhead ? (
+      <h5 className={styles["subhead"]}>{subhead}</h5>
+    ) : null;
 
     return (
-      <header className="header_sub header" id="header">
-        <div className="overheadFill"></div>
+      <header className={`${styles["header-sub"]} ${styles["header"]}`}>
+        <div className={styles["overhead-fill"]}></div>
         <h1>{head}</h1>
         {subheadElem}
-        <div id="top"></div>
-        <div id="project"></div>
       </header>
     );
   }

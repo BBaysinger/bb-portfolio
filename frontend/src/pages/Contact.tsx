@@ -1,6 +1,7 @@
 import React from "react";
 
 import HeaderSub from "components/layout/HeaderSub";
+import _styles from "./Contact.module.scss";
 
 /**
  * Contact page that I need to develop...
@@ -19,7 +20,7 @@ export default class Contact extends React.Component {
   render() {
     return (
       <div>
-        <HeaderSub head={"Contact"} subhead={"[subhead text]"} />
+        <HeaderSub head={"Contact"} />
       </div>
     );
   }

@@ -2,7 +2,7 @@ import React from "react";
 import { NavLink } from "react-router-dom";
 import MiscUtils from "utils/MiscUtils";
 
-import "./SlideOutNavigation.scss";
+import styles from "./SlideOutNavigation.module.scss";
 
 interface SlideOutNavProps {
   collapseSlideOutHandler: Function;
@@ -44,7 +44,7 @@ class SlideOutNav extends React.Component<SlideOutNavProps> {
               onClick={this.handleCollapseNav}
               to="/portfolio#list"
               className={({ isActive }) =>
-                MiscUtils.isActiveOrAlt(isActive, "/")
+                MiscUtils.isActiveOrAlt(isActive, "/", styles["active"])
               }
             >
               Portfolio
@@ -54,7 +54,7 @@ class SlideOutNav extends React.Component<SlideOutNavProps> {
             <NavLink
               onClick={this.handleCollapseNav}
               to="/cv#top"
-              className={({ isActive }) => (isActive ? "active" : "")}
+              className={({ isActive }) => (isActive ? styles["active"] : "")}
             >
               CV
             </NavLink>

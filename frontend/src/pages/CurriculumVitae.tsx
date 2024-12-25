@@ -38,9 +38,9 @@ export default class CurriculumVitae extends React.Component {
   wrapPhrases(phrases: Array<string>) {
     let wrappedPhrases = phrases.map((data: string, i: number) => {
       return (
-        <span className={styles['inline-list-item']} key={i}>
-          <span className="phrase">{data}</span>
-          <span key={i} className="bullet">
+        <span className={styles["inline-list-item"]} key={i}>
+          <span className={styles["phrase"]}>{data}</span>
+          <span key={i} className={styles["bullet"]}>
             &nbsp;&nbsp;&bull;&nbsp;
             {/* Allow wrap. */}
             <span>&#32;</span>
@@ -288,15 +288,15 @@ export default class CurriculumVitae extends React.Component {
 
     return (
       <div>
-        <HeaderSub head={"Curriculum Vitae"} subhead={""} />
+        <HeaderSub head={"Curriculum Vitae"} />
 
         <div id="mainContent" className={styles["cv-page"]}>
-          <div className="container">
+          <div className={"container"}>
             <h4>Summary</h4>
           </div>
 
           <div className={`container ${styles["summary"]}`}>
-            <div className="row">
+            <div className={"row"}>
               <div className={divClassLt}></div>
 
               <div className={divClassRt}>
@@ -318,12 +318,12 @@ export default class CurriculumVitae extends React.Component {
             </div>
           </div>
 
-          <div className="container">
+          <div className={"container"}>
             <h4>Core Strengths</h4>
           </div>
 
           <div className={`container ${styles["skills"]}`}>
-            <div className="row">
+            <div className={"row"}>
               <div className={divClassLt}>
                 <img
                   src="/images/cv/gear.svg"
@@ -394,14 +394,14 @@ export default class CurriculumVitae extends React.Component {
             </div>
           </div>
 
-          <div className="container">
+          <div className={"container"}>
             <h4>Professional Experience</h4>
           </div>
 
           {/*-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --*/}
 
-          <div className="container">
-            <div className="row">
+          <div className={"container"}>
+            <div className={"row"}>
               <div className={divClassLt}>
                 <img
                   src="/images/cv/epsilon.svg"
@@ -484,7 +484,7 @@ export default class CurriculumVitae extends React.Component {
 
             {/*-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --*/}
 
-            <div className="row">
+            <div className={"row"}>
               <div className={divClassLt}>
                 <img
                   src="/images/cv/bb.svg"
@@ -565,7 +565,7 @@ export default class CurriculumVitae extends React.Component {
 
             {/*-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --*/}
 
-            <div className="row">
+            <div className={"row"}>
               <div className={divClassLt}>
                 <img
                   src="/images/cv/s2.svg"
@@ -651,7 +651,7 @@ export default class CurriculumVitae extends React.Component {
 
             {/*-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --*/}
 
-            <div className="row">
+            <div className={"row"}>
               <div className={divClassLt}>
                 <img
                   src="/images/cv/chalklabs.svg"
@@ -738,7 +738,7 @@ export default class CurriculumVitae extends React.Component {
 
             {/*-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --*/}
 
-            <div className="row">
+            <div className={"row"}>
               <div className={divClassLt}>
                 <img
                   src="/images/cv/s2.svg"
@@ -843,7 +843,7 @@ export default class CurriculumVitae extends React.Component {
 
             {/*-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --*/}
 
-            <div className="row">
+            <div className={"row"}>
               <div className={divClassLt}>
                 <img
                   src="/images/cv/scw.svg"
@@ -870,7 +870,7 @@ export default class CurriculumVitae extends React.Component {
                   <p className={styles["desc"]}>
                     Design and development of websites and apps for local
                     businesses at the front of C#/
-                    <span className="nobr">.NET back-ends</span>
+                    <span className={"nobr"}>.NET back-ends</span>
                   </p>
 
                   <p className={styles["scope"]}>
@@ -912,7 +912,7 @@ export default class CurriculumVitae extends React.Component {
 
             {/*-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --*/}
 
-            <div className="row">
+            <div className={"row"}>
               <div className={divClassLt}>
                 <img
                   src="/images/cv/bb.svg"
@@ -982,12 +982,12 @@ export default class CurriculumVitae extends React.Component {
             {/*-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --*/}
           </div>
 
-          <div className="container">
+          <div className={"container"}>
             <h4>Early Development Journey</h4>
           </div>
 
-          <div className="container">
-            <div className="row">
+          <div className={"container"}>
+            <div className={"row"}>
               <div className={divClassLt}>
                 <img
                   src="/images/cv/bv.svg"
@@ -1043,12 +1043,12 @@ export default class CurriculumVitae extends React.Component {
             </div>
           </div>
 
-          <div className="container">
+          <div className={"container"}>
             <h4>Formal Education</h4>
           </div>
 
-          <div className="container">
-            <div className="row">
+          <div className={"container"}>
+            <div className={"row"}>
               <div className={divClassLt}>
                 <img
                   src="/images/cv/ccs.svg"
@@ -1081,12 +1081,12 @@ export default class CurriculumVitae extends React.Component {
             </div>
           </div>
 
-          <div className="container">
+          <div className={"container"}>
             <h4>Technologies and Tools</h4>
           </div>
 
-          <div className="container">
-            <div className="row">
+          <div className={"container"}>
+            <div className={"row"}>
               <div className={divClassLt}></div>
               <div className={divClassRt}>
                 <div className={styles["cv-listing"]}>
@@ -1113,88 +1113,32 @@ export default class CurriculumVitae extends React.Component {
             </div>
           </div>
 
-          <div className="container">
+          <div className={"container"}>
             <h4>Achievements</h4>
           </div>
 
-          <div className="container">
-            <div className="row">
+          <div className={"container"}>
+            <div className={"row"}>
               <div className={divClassLt}></div>
 
               <div className={divClassRt}>
                 <div className={styles["cv-listing"]}>
                   <h5>14 gold badges on Stack Overflow</h5>
                   <div className={styles["badges"]}>
-                    <img
-                      src="/images/cv/gold-badge.svg"
-                      className="gold-badge"
-                      alt="Gold Badge"
-                    />
-                    <img
-                      src="/images/cv/gold-badge.svg"
-                      className="gold-badge"
-                      alt="Gold Badge"
-                    />
-                    <img
-                      src="/images/cv/gold-badge.svg"
-                      className="gold-badge"
-                      alt="Gold Badge"
-                    />
-                    <img
-                      src="/images/cv/gold-badge.svg"
-                      className="gold-badge"
-                      alt="Gold Badge"
-                    />
-                    <img
-                      src="/images/cv/gold-badge.svg"
-                      className="gold-badge"
-                      alt="Gold Badge"
-                    />
-                    <img
-                      src="/images/cv/gold-badge.svg"
-                      className="gold-badge"
-                      alt="Gold Badge"
-                    />
-                    <img
-                      src="/images/cv/gold-badge.svg"
-                      className="gold-badge"
-                      alt="Gold Badge"
-                    />
-                    <img
-                      src="/images/cv/gold-badge.svg"
-                      className="gold-badge"
-                      alt="Gold Badge"
-                    />
-                    <img
-                      src="/images/cv/gold-badge.svg"
-                      className="gold-badge"
-                      alt="Gold Badge"
-                    />
-                    <img
-                      src="/images/cv/gold-badge.svg"
-                      className="gold-badge"
-                      alt="Gold Badge"
-                    />
-                    <img
-                      src="/images/cv/gold-badge.svg"
-                      className="gold-badge"
-                      alt="Gold Badge"
-                    />
-                    <img
-                      src="/images/cv/gold-badge.svg"
-                      className="gold-badge"
-                      alt="Gold Badge"
-                    />
-                    <img
-                      src="/images/cv/gold-badge.svg"
-                      className="gold-badge"
-                      alt="Gold Badge"
-                    />
-                    <img
-                      src="/images/cv/gold-badge.svg"
-                      className="gold-badge"
-                      alt="Gold Badge"
-                    />
+                    <img src="/images/cv/gold-badge.svg" alt="Gold Badge" />
+                    <img src="/images/cv/gold-badge.svg" alt="Gold Badge" />
+                    <img src="/images/cv/gold-badge.svg" alt="Gold Badge" />
+                    <img src="/images/cv/gold-badge.svg" alt="Gold Badge" />
+                    <img src="/images/cv/gold-badge.svg" alt="Gold Badge" />
+                    <img src="/images/cv/gold-badge.svg" alt="Gold Badge" />
+                    <img src="/images/cv/gold-badge.svg" alt="Gold Badge" />
+                    <img src="/images/cv/gold-badge.svg" alt="Gold Badge" />
+                    <img src="/images/cv/gold-badge.svg" alt="Gold Badge" />
+                    <img src="/images/cv/gold-badge.svg" alt="Gold Badge" />
+                    <img src="/images/cv/gold-badge.svg" alt="Gold Badge" />
+                    <img src="/images/cv/gold-badge.svg" alt="Gold Badge" />
+                    <img src="/images/cv/gold-badge.svg" alt="Gold Badge" />
+                    <img src="/images/cv/gold-badge.svg" alt="Gold Badge" />
                   </div>
                   <br />
                   <br />
@@ -1207,7 +1151,7 @@ export default class CurriculumVitae extends React.Component {
                   </div>
 
                   <div>
-                    <div className="col-xs-12">
+                    <div className={"col-xs-12"}>
                       People's Choice — Art Website of the Year — Artocracy.org
                     </div>
                   </div>
@@ -1220,7 +1164,7 @@ export default class CurriculumVitae extends React.Component {
                     <div className={styles["break"]}></div>
                     <div className={styles["right-sub"]}>[ 2009 - 2019 ]</div>
                   </div>
-                  <div className="col-md-12">
+                  <div className={"col-md-12"}>
                     Contributed to over thirteen projects that received awards
                     in the annual Spokane Ad Fed (Addy) Awards, including five
                     Silver, four Gold, two Best of Division, one Best of Show,
@@ -1231,12 +1175,12 @@ export default class CurriculumVitae extends React.Component {
             </div>
           </div>
 
-          <div className="container">
+          <div className={"container"}>
             <h4>Clients</h4>
           </div>
 
-          <div className="container">
-            <div className="row">
+          <div className={"container"}>
+            <div className={"row"}>
               <div className={divClassLt}></div>
 
               <div className={divClassRt}>
