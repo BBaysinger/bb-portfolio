@@ -10,18 +10,12 @@ import _styles from "./Contact.module.scss";
  * @since The beginning of time.
  * @version N/A
  */
-export default class Contact extends React.Component {
-  /**
-   *
-   *
-   * @returns
-   * @memberof Contact
-   */
-  render() {
-    return (
-      <div>
-        <HeaderSub head={"Contact"} />
-      </div>
-    );
-  }
-}
+const Contact: React.FC = () => {
+  return (
+    <div>
+      <HeaderSub head={"Contact"} />
+    </div>
+  );
+};
+
+export default Contact;
