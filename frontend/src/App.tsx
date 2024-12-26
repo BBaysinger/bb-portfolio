@@ -11,7 +11,7 @@ import ProjectsPresentation from "pages/ProjectsPresentation";
 import ScrollToHash from "utils/ScrollToHash";
 import styles from "./App.module.scss";
 
-const App = () => {
+const App: React.FC = () => {
   const [slideOut, setSlideOut] = useState(false);
   const ticking = useRef(false);
 

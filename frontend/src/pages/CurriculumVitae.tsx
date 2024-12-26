@@ -20,18 +20,9 @@ export default class CurriculumVitae extends React.Component {
    * It needs to use actual spaces (not simulated with margins)
    * to be spaced correctly in migration.
    *
-   * To migrate into Illustrator/Word with formatting intact
-   * (green bullet, grey text) copy from browser and paste into
-   * an RTF document. Then in Illustrator open that RTF, and your
-   * formatting will be intact there.
-   *
-   * And now you don't have to manually replicate
-   * these lists every time you update your CV.
-   *
    * TODO: Make more consideration for migrating info from here.
-   * That may involve changing up PDF designs.
-   *
-   * TODO: Consider a programmatic export option from this page.
+   * Consider a programmatic export option from this page.
+   * Ulitmately, that could involve a backend genrated Word doc.
    *
    * @param {Array<string>} phrases
    * @returns
