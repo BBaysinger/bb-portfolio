@@ -3,20 +3,48 @@
 
 .header-main {
   min-height: 100dvh;
-  padding-left: 40px;
-  padding-right: 40px;
+  padding-left: 20px;
+  padding-right: 20px;
+
   * {
     text-align: center;
   }
+
   h1 {
+    letter-spacing: 0.05em;
     font-size: 48px;
     line-height: 1em;
-    margin-bottom: 0.4em;
+    margin-bottom: 0.5em;
+    @include breakpoint-up($b480px) {
+      font-size: 48px;
+    }
   }
+
   .subhead {
-    font-size: 24px;
+    font-size: 22px;
     line-height: 1.4em;
     margin-bottom: 20px;
+    letter-spacing: 0.07em;
+    overflow: hidden;
+    position: relative;
+    line-height: 0.9em;
+    > * {
+      display: block;
+      @include breakpoint-up(500px) {
+        display: inline;
+      }
+    }
+  }
+
+  .bull {
+    position: relative;
+    color: $lighterThemeColor;
+    font-size: 1.2em;
+    position: relative;
+    top: 1px;
+    @include breakpoint-up(500px) {
+      top: 2px;
+    }
   }
 }
 
@@ -29,13 +57,17 @@
 }
 
 .view-portfolio {
+  $bottom: 50px;
+  font-size: 16px;
   position: absolute;
-  bottom: 50px;
+  color: #fff;
+  bottom: $bottom;
   left: 50%;
   transform: translateX(-50%);
   cursor: pointer;
   will-change: bottom, opacity;
   text-decoration: none;
+  animation: fadeBounce 2s infinite forwards;
 
   &::after {
     content: " ";
@@ -45,38 +77,32 @@
     width: 35px;
     height: 35px;
     left: 50%;
-    top: 55px;
+    top: 60px;
     transform-origin: 0 0;
     transform: rotate(-135deg);
-    z-index: 2;
-    animation: fadeBounce 2s infinite forwards;
   }
 
-  > * {
-    animation: fadeBounce 2s infinite forwards;
+  @keyframes fadeBounce {
+    0% {
+      opacity: 0.25;
+      bottom: $bottom;
+    }
+    50% {
+      opacity: 1;
+      bottom: calc($bottom + 10px);
+    }
+    100% {
+      opacity: 0.25;
+      bottom: $bottom;
+    }
   }
 }
 
-@keyframes fadeBounce {
-  0% {
-    opacity: 0.25;
-    bottom: 50px;
-  }
-  50% {
-    opacity: 1;
-    bottom: 40px;
-  }
-  100% {
-    opacity: 0.25;
-    bottom: 50px;
+.scrolled {
+  .view-portfolio {
+    animation: none;
   }
 }
-
-// @include breakpoint-up($b768px) {
-//   .bull {
-//     display: none;
-//   }
-// }
 
 .last-name {
   color: $lighterThemeColor;
