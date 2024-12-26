@@ -26,7 +26,7 @@ const Footer: React.FC = () => {
       setEmailAddr(e1 + e2 + e3 + e4);
     }, 2000);
 
-    return () => clearTimeout(timeout); // Cleanup timeout on component unmount
+    return () => clearTimeout(timeout);
   }, []);
 
   return (
