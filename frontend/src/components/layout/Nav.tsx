@@ -1,35 +1,38 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
+import { useDispatch } from "react-redux";
+
+import { closeMenu } from "store/menuSlice";
 import MiscUtils from "utils/MiscUtils";
+import styles from "./Nav.module.scss";
 
-import styles from "./SlideOutNavigation.module.scss";
+const NavVariant = {
+  TOP_BAR: "top-bar",
+  SLIDE_OUT: "slide-out",
+} as const;
 
-interface SlideOutNavProps {
-  collapseSlideOutHandler: () => void;
+interface NavProps {
+  variant: (typeof NavVariant)[keyof typeof NavVariant];
 }
 
 /**
  * This is the mobile nav that appears to populate behind the page content.
  *
- * TODO: Use same nav for both mobile and desktop via styling.
- *
  * @author Bradley Baysinger
  * @since The beginning of time.
  * @version N/A
  */
-const SlideOutNav: React.FC<SlideOutNavProps> = ({
-  collapseSlideOutHandler,
-}) => {
-  const handleCollapseNav = () => {
-    collapseSlideOutHandler();
-  };
+const Nav: React.FC<NavProps> = ({}) => {
+  const dispatch = useDispatch();
 
   return (
     <nav className={styles["slideout-nav"]} role="navigation">
-      <ul className={styles["slideout-nav-buttons"]}>
+      <ul
+        onClick={() => dispatch(closeMenu())}
+        className={styles["slideout-nav-buttons"]}
+      >
         <li>
           <NavLink
-            onClick={handleCollapseNav}
             to="/portfolio#list"
             className={({ isActive }) =>
               MiscUtils.isActiveOrAlt(isActive, "/", styles["active"])
@@ -40,7 +43,6 @@ const SlideOutNav: React.FC<SlideOutNavProps> = ({
         </li>
         <li>
           <NavLink
-            onClick={handleCollapseNav}
             to="/cv#top"
             className={({ isActive }) => (isActive ? styles["active"] : "")}
           >
@@ -52,4 +54,5 @@ const SlideOutNav: React.FC<SlideOutNavProps> = ({
   );
 };
 
-export default SlideOutNav;
+export default Nav;
+export { NavVariant };
