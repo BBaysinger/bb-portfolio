@@ -12,7 +12,7 @@ interface NavBarProps {
 /**
  * Navigation as text buttons, and a button for slide-out nav, on mobile.
  *
- * TODO: Should be the same component as SlideOutNavigation, just styled differently
+ * TODO: Should be the same component as Navigation, just styled differently
  * (multiple instances used concurrently, since they will both be onscreen at the same time).
  *
  * @author Bradley Baysinger
