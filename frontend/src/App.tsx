@@ -1,29 +1,31 @@
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
+import { useSelector } from "react-redux";
 import { Routes, Route } from "react-router-dom";
 import ExecutionEnvironment from "exenv";
 
-import NavBar from "components/layout/NavBar";
 import CurriculumVitae from "pages/CurriculumVitae";
-import SlideOutNav from "components/layout/SlideOutNavigation";
+import Nav, { NavVariant } from "components/layout/Nav";
 import PortfolioList from "components/home-page/PortfolioList";
 import Footer from "components/layout/Footer";
 import ProjectsPresentation from "pages/ProjectsPresentation";
 import ScrollToHash from "utils/ScrollToHash";
+import { RootState } from "store/store";
 import styles from "./App.module.scss";
 
 const App: React.FC = () => {
-  const [slideOut, setSlideOut] = useState(false);
+  // const [slideOut, setSlideOut] = useState(false);
   const ticking = useRef(false);
+  const isMenuOpen = useSelector((state: RootState) => state.menu.isOpen);
 
-  const toggleSlideOutHandler = () => setSlideOut((prev) => !prev);
-  const collapseSlideOutHandler = () => slideOut && setSlideOut(false);
+  // const toggleSlideOutHandler = () => setSlideOut((prev) => !prev);
+  // const collapseSlideOutHandler = () => slideOut && setSlideOut(false);
 
-  const handleResize = collapseSlideOutHandler;
+  // const handleResize = collapseSlideOutHandler;
 
-  const handleScroll = () => {
+  const handleScrollOrScroll = () => {
     if (!ticking.current) {
       window.requestAnimationFrame(() => {
-        collapseSlideOutHandler();
+        // collapseSlideOutHandler();
         ticking.current = false;
       });
       ticking.current = true;
@@ -32,26 +34,26 @@ const App: React.FC = () => {
 
   useEffect(() => {
     if (ExecutionEnvironment.canUseDOM) {
-      window.addEventListener("scroll", handleScroll, false);
-      window.addEventListener("resize", handleResize, false);
+      window.addEventListener("scroll", handleScrollOrScroll, false);
+      window.addEventListener("resize", handleScrollOrScroll, false);
     }
     return () => {
-      window.removeEventListener("scroll", handleScroll, false);
-      window.removeEventListener("resize", handleResize, false);
+      window.removeEventListener("scroll", handleScrollOrScroll, false);
+      window.removeEventListener("resize", handleScrollOrScroll, false);
     };
-  }, []); // No dependencies needed here
+  }, []);
 
   return (
     <>
-      <SlideOutNav
-        collapseSlideOutHandler={handleResize}
-        aria-hidden={!slideOut}
+      <Nav
+        variant={NavVariant.TOP_BAR}
+        // aria-hidden={!slideOut}
       />
-      <div id={styles.main} className={slideOut ? styles["nav-expanded"] : ""}>
-        <NavBar
-          toggleSlideOutHandler={toggleSlideOutHandler}
-          // collapseSlideOutHandler={handleResize}
-        />
+      <div
+        id={styles.main}
+        className={isMenuOpen ? styles["nav-expanded"] : ""}
+      >
+        <Nav variant={NavVariant.TOP_BAR} />
         <ScrollToHash />
         <Routes>
           <Route path="/" element={<PortfolioList />} />
