@@ -34,17 +34,19 @@ const HeaderMain: React.FC = () => {
       <div className={styles["overhead-fill"]}></div>
 
       <img src={headerLogo} className={styles["header-logo"]} alt="BB Logo" />
-      <h1>
-        <span className={styles["first-name"]}>Bradley</span>&nbsp;
-        <span className={styles["last-name"]}>Baysinger</span>
-      </h1>
+      <div className={styles["main-text"]}>
+        <h1>
+          <span className={styles["first-name"]}>Bradley</span>{" "}
+          <span className={styles["last-name"]}>Baysinger</span>
+        </h1>
 
-      <h5 className={styles["subhead"]}>
-        <span style={{ lineHeight: "26px" }}>
-          Interactive&nbsp;Web &bull;
-          <span className={styles["nobr"]}>Front-end Developer</span>
-        </span>
-      </h5>
+        <h5 className={styles["subhead"]}>
+          <span>
+            Interactive&nbsp;Web &bull;{" "}
+            <span className={styles["nobr"]}>Front-end Developer</span>
+          </span>
+        </h5>
+      </div>
 
       <a
         href="#list"

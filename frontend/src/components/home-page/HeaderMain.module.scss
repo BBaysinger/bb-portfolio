@@ -2,12 +2,15 @@
 @use "@/components/layout/HeaderShared.module.scss" as headerShared;
 
 .header-main {
-  min-height: 100vh;
+  min-height: 100dvh;
+  * {
+    text-align: center;
+  }
 }
 
 .header-logo {
   opacity: 1;
-  max-height: 45vh;
+  max-height: 45dvh;
   position: relative;
   top: -11px;
   margin-bottom: -30px;
