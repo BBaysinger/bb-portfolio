@@ -1,7 +1,9 @@
 import ReactDOM from "react-dom/client";
 import React from "react";
+import { Provider } from "react-redux";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
+import store from "store/store";
 import App from "./App";
 
 const routes = [{ path: "*", element: <App /> }];
@@ -18,6 +20,8 @@ if (!rootElement) {
 
 ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <Provider store={store}>
+      <RouterProvider router={router} />
+    </Provider>
   </React.StrictMode>,
 );
