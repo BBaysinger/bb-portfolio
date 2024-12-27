@@ -17,7 +17,7 @@ export interface PortfolioProjectBase {
   omitFromList: boolean;
   clientId: string;
   mobileStatus: MobileStatus;
-  tags: string;
+  tags: string[];
   role: string;
   year?: string;
   awards?: string;
