@@ -9,7 +9,7 @@ import Nav, { NavVariant } from "components/layout/Nav";
 import PortfolioList from "components/home-page/PortfolioList";
 import Footer from "components/layout/Footer";
 import ProjectsPresentation from "pages/ProjectsPresentation";
-// import ScrollToHash from "utils/ScrollToHash";
+import ScrollToHash from "utils/ScrollToHash";
 import { RootState } from "store/store";
 import styles from "./App.module.scss";
 
@@ -44,7 +44,7 @@ const App: React.FC = () => {
         className={isMenuOpen ? styles["nav-expanded"] : ""}
       >
         <Nav variant={NavVariant.TOP_BAR} />
-        {/* <ScrollToHash /> */}
+        <ScrollToHash />
         <Routes>
           <Route path="/" element={<PortfolioList />} />
           <Route path="/portfolio" element={<PortfolioList />} />
