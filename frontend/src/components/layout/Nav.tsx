@@ -40,12 +40,13 @@ const Nav: React.FC<NavProps> = ({ variant }) => {
           <img src={navLogo} className={styles["nav-logo"]} alt="BB Logo" />
         </NavLink>
         <div className={styles["nav-logo-text"]}>
-          <div>
+          <div className={styles["name"]}>
             <span>BRADLEY</span> <span>BAYSINGER</span>
           </div>
           <div>
             <span className={styles["nobr"]}>
-              Interactive Web &bull; Front-end Developer
+              Interactive Web <span className={styles["bull"]}>&bull;</span>{" "}
+              Front-end Developer
             </span>
           </div>
         </div>
