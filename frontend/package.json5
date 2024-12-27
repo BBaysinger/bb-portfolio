@@ -1,6 +1,6 @@
 /**
- * Because I often need comments in my package list (though it's kind of an extra step to
- * keep them in sync.)
+ * Because I often need comments in my package list (ya, it's an extra step to
+ * but absense of comments is infuriating, lol.)
  *
  * Copy changes from package.json, then run npm run prepare-package to generate a new package.json.
  * Compare the output to make sure it matches.
@@ -71,7 +71,6 @@
     "react",
     "vite",
     "typescript",
-    "slideshow",
     "interactive",
     "dynamic-routing",
     "responsive-design",
