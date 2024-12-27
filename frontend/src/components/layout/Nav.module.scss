@@ -13,6 +13,7 @@
 
   li {
     a {
+      cursor: pointer;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -20,6 +21,7 @@
       text-decoration: none;
       font-size: 20px;
       height: 100%;
+      width: 100%;
       &.active,
       &.active:visited {
         color: #fff;
