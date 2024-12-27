@@ -9,7 +9,7 @@ import ProjectParallaxCarousel from "components/project-carousel-page/ProjectPar
 import DeviceDisplay, {
   DeviceTypes,
 } from "components/project-carousel-page/DeviceDisplay";
-import NavButtons from "components/project-carousel-page/NavButtons";
+import PageButtons from "components/project-carousel-page/PageButtons";
 import styles from "./ProjectsPresentation.module.scss";
 
 const ProjectsPresentation: React.FC = () => {
@@ -69,7 +69,7 @@ const ProjectsPresentation: React.FC = () => {
           onIndexUpdate={handleCarouselIndexUpdate}
           onStableIndex={onStableIndex}
         />
-        <NavButtons />
+        <PageButtons />
         {/* <ProjectContent /> */}
         {/* <div id={styles.projectContent}>{infoElems}</div> */}
       </div>

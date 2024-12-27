@@ -2,9 +2,9 @@ import React from "react";
 import { Link, useParams } from "react-router-dom";
 
 import ProjectData from "data/ProjectData";
-import styles from "./NavButtons.module.scss";
+import styles from "./PageButtons.module.scss";
 
-const NavButtons: React.FC = () => {
+const PageButtons: React.FC = () => {
   const { projectId = "" } = useParams<{ projectId: string }>();
 
   const prevId = ProjectData.prevKey(projectId);
@@ -28,4 +28,4 @@ const NavButtons: React.FC = () => {
   );
 };
 
-export default NavButtons;
+export default PageButtons;

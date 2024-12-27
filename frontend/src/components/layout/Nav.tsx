@@ -2,13 +2,14 @@ import React from "react";
 import { NavLink } from "react-router-dom";
 import { useDispatch } from "react-redux";
 
-import { closeMenu } from "store/menuSlice";
+import { closeMenu, toggleMenu } from "store/menuSlice";
 import MiscUtils from "utils/MiscUtils";
+import navLogo from "images/misc/bb-logo.svg";
 import styles from "./Nav.module.scss";
 
 const NavVariant = {
-  TOP_BAR: "top-bar",
-  SLIDE_OUT: "slide-out",
+  TOP_BAR: styles["top-bar"],
+  SLIDE_OUT: styles["slide-out"],
 } as const;
 
 interface NavProps {
@@ -16,21 +17,44 @@ interface NavProps {
 }
 
 /**
- * This is the mobile nav that appears to populate behind the page content.
+ * The nav that either gets revealed behind the page content (mobile),
+ * or is populated as a bar at the top of the page.
  *
  * @author Bradley Baysinger
  * @since The beginning of time.
  * @version N/A
  */
-const Nav: React.FC<NavProps> = ({}) => {
+const Nav: React.FC<NavProps> = ({ variant }) => {
   const dispatch = useDispatch();
 
+  const closeMenuHandler = () => {
+    if (variant === NavVariant.SLIDE_OUT) {
+      dispatch(closeMenu());
+    }
+  };
+
   return (
-    <nav className={styles["slideout-nav"]} role="navigation">
-      <ul
-        onClick={() => dispatch(closeMenu())}
-        className={styles["slideout-nav-buttons"]}
-      >
+    <nav
+      className={`${styles["slideout-nav"]} ${styles["top-bar"]} ${variant}`}
+      role="navigation"
+    >
+      <NavLink to="/">
+        <img src={navLogo} alt="BB Logo" />
+      </NavLink>
+      <div id={styles.navTitle}>
+        <div className={styles["nav-logo-text"]}>
+          <p>
+            <span>BRADLEY</span> <span>BAYSINGER</span>
+          </p>
+          <p>
+            <span className={styles["nobr"]}>
+              Interactive Web &bull; Front-end Developer
+            </span>
+          </p>
+        </div>
+      </div>
+
+      <ul onClick={closeMenuHandler} className={styles["slideout-nav-buttons"]}>
         <li>
           <NavLink
             to="/portfolio#list"
@@ -50,6 +74,17 @@ const Nav: React.FC<NavProps> = ({}) => {
           </NavLink>
         </li>
       </ul>
+
+      <button
+        type="button"
+        className={styles["navbar-toggle"]}
+        onClick={() => dispatch(toggleMenu())}
+      >
+        <span className={styles["sr-only"]}>Toggle navigation</span>
+        <span className={styles["icon-bar"]}></span>
+        <span className={styles["icon-bar"]}></span>
+        <span className={styles["icon-bar"]}></span>
+      </button>
     </nav>
   );
 };

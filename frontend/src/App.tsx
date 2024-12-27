@@ -45,10 +45,7 @@ const App: React.FC = () => {
 
   return (
     <>
-      <Nav
-        variant={NavVariant.TOP_BAR}
-        // aria-hidden={!slideOut}
-      />
+      <Nav variant={NavVariant.SLIDE_OUT} />
       <div
         id={styles.main}
         className={isMenuOpen ? styles["nav-expanded"] : ""}
