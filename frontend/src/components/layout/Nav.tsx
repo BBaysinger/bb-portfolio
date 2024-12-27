@@ -34,14 +34,11 @@ const Nav: React.FC<NavProps> = ({ variant }) => {
   };
 
   return (
-    <nav
-      className={`${styles["slideout-nav"]} ${styles["top-bar"]} ${variant}`}
-      role="navigation"
-    >
-      <NavLink to="/">
-        <img src={navLogo} alt="BB Logo" />
-      </NavLink>
-      <div id={styles.navTitle}>
+    <nav className={`${styles["nav"]} ${variant}`} role="navigation">
+      <div>
+        <NavLink to="/">
+          <img src={navLogo} className={styles["nav-logo"]} alt="BB Logo" />
+        </NavLink>
         <div className={styles["nav-logo-text"]}>
           <p>
             <span>BRADLEY</span> <span>BAYSINGER</span>
