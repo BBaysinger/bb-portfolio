@@ -11,18 +11,18 @@ body {
   background-color: #000;
 }
 
-div#main {
+#main {
   z-index: 10;
   position: relative;
   background-color: #fff;
-  right: 0;
-  transition: right 0.5s;
+  transform: none;
+  transition: transform 0.5s;
   box-shadow: 10px 5px 60px black;
   min-width: 320px;
   overflow-x: hidden;
 
   &.nav-expanded {
-    right: 50vw;
+    transform: translateX(-50vw);
   }
 }
 
