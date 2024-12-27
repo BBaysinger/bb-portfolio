@@ -22,12 +22,19 @@ header {
     font-weight: 400; // Only a factor before fonts load.
     margin-top: 0px;
     margin-bottom: 10px;
-    font-size: 60px;
-    line-height: 62px;
+    font-size: 42px;
+    line-height: 1em;
+
+    @include breakpoint-up($b360px) {
+      font-size: 46px;
+    }
 
     @include breakpoint-up($b480px) {
-      font-size: 52px;
-      line-height: 55px;
+      font-size: 54px;
+    }
+
+    @include breakpoint-up($b992px) {
+      font-size: 60px;
     }
   }
 
@@ -55,11 +62,5 @@ header {
   .h6 {
     margin-bottom: 0px;
     color: #fff;
-  }
-
-  @include breakpoint-up($b992px) {
-    h1 {
-      font-size: 50px;
-    }
   }
 }
