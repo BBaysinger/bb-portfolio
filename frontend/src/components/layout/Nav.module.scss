@@ -50,10 +50,6 @@
     rgba(0, 0, 0, 1) 100%
   );
 
-  // @include breakpoint-up($b768px) {
-  //   display: none;
-  // }
-
   ul {
     flex-direction: column;
     width: 100%;
@@ -94,7 +90,7 @@
 .top-bar {
   position: fixed;
   background: linear-gradient(to right, #111, #222);
-  z-index: 10;
+  z-index: 10000;
   width: 100vw;
   height: $navBarHeight;
   flex-direction: row;
