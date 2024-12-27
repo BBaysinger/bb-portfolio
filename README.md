@@ -22,6 +22,6 @@
 ## Technologies Used
 
 - **Front-End**: React, TypeScript, JSX, SCSS
-- **Back-End**: Express, MongoDB, TypeScript
+- **Back-End**: TypeScript, React Router, React Redux
 - **Tooling**: Vite, ESLint, Prettier
 - **Design**: Mobile-first approach, responsive breakpoints
