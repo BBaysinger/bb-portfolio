@@ -1,47 +1,40 @@
-import { useEffect, useRef } from "react";
-import { useSelector } from "react-redux";
+import { useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import { Routes, Route } from "react-router-dom";
 import ExecutionEnvironment from "exenv";
 
+import { closeMenu } from "store/menuSlice";
 import CurriculumVitae from "pages/CurriculumVitae";
 import Nav, { NavVariant } from "components/layout/Nav";
 import PortfolioList from "components/home-page/PortfolioList";
 import Footer from "components/layout/Footer";
 import ProjectsPresentation from "pages/ProjectsPresentation";
-import ScrollToHash from "utils/ScrollToHash";
+// import ScrollToHash from "utils/ScrollToHash";
 import { RootState } from "store/store";
 import styles from "./App.module.scss";
 
 const App: React.FC = () => {
-  // const [slideOut, setSlideOut] = useState(false);
-  const ticking = useRef(false);
   const isMenuOpen = useSelector((state: RootState) => state.menu.isOpen);
+  const dispatch = useDispatch();
+  let timer: NodeJS.Timeout | null = null;
 
-  // const toggleSlideOutHandler = () => setSlideOut((prev) => !prev);
-  // const collapseSlideOutHandler = () => slideOut && setSlideOut(false);
-
-  // const handleResize = collapseSlideOutHandler;
-
-  const handleScrollOrScroll = () => {
-    if (!ticking.current) {
-      window.requestAnimationFrame(() => {
-        // collapseSlideOutHandler();
-        ticking.current = false;
-      });
-      ticking.current = true;
-    }
+  const handleScrollOrResize = () => {
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(() => {
+      dispatch(closeMenu());
+    }, 100);
   };
 
   useEffect(() => {
     if (ExecutionEnvironment.canUseDOM) {
-      window.addEventListener("scroll", handleScrollOrScroll, false);
-      window.addEventListener("resize", handleScrollOrScroll, false);
+      window.addEventListener("scroll", handleScrollOrResize);
+      window.addEventListener("resize", handleScrollOrResize);
     }
     return () => {
-      window.removeEventListener("scroll", handleScrollOrScroll, false);
-      window.removeEventListener("resize", handleScrollOrScroll, false);
+      window.removeEventListener("scroll", handleScrollOrResize);
+      window.removeEventListener("resize", handleScrollOrResize);
     };
-  }, []);
+  }, [dispatch]);
 
   return (
     <>
@@ -51,7 +44,7 @@ const App: React.FC = () => {
         className={isMenuOpen ? styles["nav-expanded"] : ""}
       >
         <Nav variant={NavVariant.TOP_BAR} />
-        <ScrollToHash />
+        {/* <ScrollToHash /> */}
         <Routes>
           <Route path="/" element={<PortfolioList />} />
           <Route path="/portfolio" element={<PortfolioList />} />

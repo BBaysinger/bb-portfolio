@@ -35,19 +35,19 @@ const Nav: React.FC<NavProps> = ({ variant }) => {
 
   return (
     <nav className={`${styles["nav"]} ${variant}`} role="navigation">
-      <div>
+      <div className={styles["title"]}>
         <NavLink to="/">
           <img src={navLogo} className={styles["nav-logo"]} alt="BB Logo" />
         </NavLink>
         <div className={styles["nav-logo-text"]}>
-          <p>
+          <div>
             <span>BRADLEY</span> <span>BAYSINGER</span>
-          </p>
-          <p>
+          </div>
+          <div>
             <span className={styles["nobr"]}>
               Interactive Web &bull; Front-end Developer
             </span>
-          </p>
+          </div>
         </div>
       </div>
 
