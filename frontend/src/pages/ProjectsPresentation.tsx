@@ -58,7 +58,7 @@ const ProjectsPresentation: React.FC = () => {
     <div className={styles["projects-presentation"]}>
       <HeaderSub
         head={projects[projectId].title}
-        subhead={projects[projectId].tags}
+        subhead={projects[projectId].tags.join(", ")}
       />
       <div className={styles["projects-presentation-body"]}>
         <LogoSwapper projectId={projects[projectId].clientId} />
