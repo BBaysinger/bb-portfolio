@@ -54,13 +54,22 @@ header {
     padding-top: 50px;
   }
 
-  h4,
-  .h4,
   h5,
-  .h5,
-  h6,
-  .h6 {
+  .h5 {
     margin-bottom: 0px;
     color: #fff;
+    font-size: 18px;
+
+    @include breakpoint-up($b360px) {
+      font-size: 20px;
+    }
+
+    @include breakpoint-up($b480px) {
+      font-size: 26px;
+    }
+
+    @include breakpoint-up($b992px) {
+      font-size: 30px;
+    }
   }
 }
