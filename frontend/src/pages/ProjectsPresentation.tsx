@@ -60,7 +60,7 @@ const ProjectsPresentation: React.FC = () => {
         head={projects[projectId].title}
         subhead={projects[projectId].tags.join(", ")}
       />
-      <div className={styles["projects-presentation-body"]}>
+      <div id={"project"} className={styles["projects-presentation-body"]}>
         <LogoSwapper projectId={projects[projectId].clientId} />
         <ProjectParallaxCarousel
           ref={carouselRef}
