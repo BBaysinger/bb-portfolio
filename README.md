@@ -14,10 +14,9 @@
 ## Roadmap
 
 - **Backend Integration**: Integrate a fully custom backend using Express, MongoDB, and Redux. I have functioning boilerplate started for this in another repo that's ready to repurpose.
-- **Mobile-First Optimization**: TODO: This is needs finished up.
-- **React Hooks**: Refactor class components to use React hooks for cleaner and more efficient state management.
-- **Additional Features**: Many ideas for future improvements and features are under consideration.
 - **Project Enhancements**: I see defects in some of my portfolio projects as they age. Those are in separate repos, but this is on my radar. Some of them I'd love to upgrade to their current framework versions.
+- **Walktrough Videos Play in Project Carousel** This would be a dream, but I'll need to come back to it after the previous items.
+- **Additional Features**: Many more ideas for future improvements and features are under consideration that I'll need to have a lot of free time for, lol.
 
 ## Technologies Used
 
