@@ -41,8 +41,6 @@
       left: 97px;
       height: 310px;
       width: 500px;
-      // transition: transform 0.4s ease-in-out;
-      // will-change: transform;
     }
   }
 
@@ -50,8 +48,8 @@
     &::before {
       content: "";
       position: absolute;
-      top: 42px;
-      left: 460px;
+      top: 46px;
+      left: 465px;
       width: 220px;
       height: 409px;
       background-image: url("../../images/project-carousel/phone.png");
@@ -85,8 +83,8 @@
     &.landscape {
       &::before {
         transform: translateY(5px) rotate(91deg);
-        top: 130px;
-        left: 340px;
+        top: 135px;
+        left: 337px;
       }
       img {
         top: 258px;
