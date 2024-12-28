@@ -182,7 +182,7 @@ const Footer: React.FC = () => {
             Built with React
           </a>
         </div>
-        <NavLink to="/portfolio#list">
+        <NavLink className={styles["footer-link"]} to="/portfolio#headerMain">
           &copy; <span style={{ color: "#fff" }}>BBInteractive</span>.io
         </NavLink>
       </div>
