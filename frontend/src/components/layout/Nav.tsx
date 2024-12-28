@@ -35,7 +35,7 @@ const Nav: React.FC<NavProps> = ({ variant }) => {
 
   return (
     <nav className={`${styles["nav"]} ${variant}`} role="navigation">
-      <NavLink to="/" className={styles["title"]}>
+      <NavLink to="/#headerMain" className={styles["title"]}>
         <img src={navLogo} className={styles["nav-logo"]} alt="BB Logo" />
         <div className={styles["nav-logo-text"]}>
           <div className={styles["name"]}>
@@ -63,7 +63,7 @@ const Nav: React.FC<NavProps> = ({ variant }) => {
         </li>
         <li>
           <NavLink
-            to="/cv#top"
+            to="/cv#headerSub"
             className={({ isActive }) => (isActive ? styles["active"] : "")}
           >
             CV

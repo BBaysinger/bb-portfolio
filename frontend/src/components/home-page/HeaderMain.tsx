@@ -24,6 +24,7 @@ const HeaderMain: React.FC = () => {
 
   return (
     <header
+      id={"headerMain"}
       className={`${styles["header-main"]} ${styles["header"]} ${scrolled}`}
     >
       <div className={styles["overhead-fill"]}></div>

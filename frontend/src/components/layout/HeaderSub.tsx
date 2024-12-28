@@ -23,7 +23,7 @@ import styles from "./HeaderSub.module.scss";
 const HeaderSub: React.FC<HeaderSubProps> = ({ head, subhead }) => {
   return (
     <header
-      id={"top"}
+      id={"headerSub"}
       className={`${styles["header-sub"]} ${styles["header"]}`}
     >
       <div className={styles["overhead-fill"]}></div>
