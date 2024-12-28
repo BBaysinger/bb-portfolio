@@ -162,7 +162,7 @@ const Footer: React.FC = () => {
                   className={({ isActive }) =>
                     isActive ? styles["active"] : ""
                   }
-                  to="/cv#top"
+                  to="/cv#headerSub"
                 >
                   CV
                 </NavLink>
