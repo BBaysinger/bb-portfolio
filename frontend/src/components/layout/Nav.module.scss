@@ -203,7 +203,7 @@
 
   li {
     display: flex;
-    padding-left: 30px;
+    padding-left: 40px;
     height: 60px;
     background: linear-gradient(#353535, #2a2a2a);
     padding-top: 0px;
@@ -219,9 +219,11 @@
     width: 100%;
     height: 100%;
     z-index: 20;
+    filter: blur(10px);
     background: linear-gradient(
         to right,
-        rgba(0, 0, 0, 0) 93%,
+        rgba(0, 0, 0, 0) 92%,
+        rgba(0, 0, 0, 0.1) 96%,
         rgba(0, 0, 0, 0.3)
       ),
       linear-gradient(to bottom, rgba(0, 0, 0, 0) 92%, rgba(0, 0, 0, 0.3));
