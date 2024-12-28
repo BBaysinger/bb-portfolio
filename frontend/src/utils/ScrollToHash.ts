@@ -8,8 +8,6 @@ import { useLocation, useNavigate } from "react-router-dom";
  * whenever the hash changes. Handles repeated clicks on the same hash by
  * programmatically resetting the hash.
  *
- * @author Bradley Baysinger
- *
  * @returns {null} This component does not render anything visible on the screen.
  *
  * @remarks
@@ -30,6 +28,8 @@ import { useLocation, useNavigate } from "react-router-dom";
  *     </div>
  *   );
  * }
+ * 
+ * @author Bradley Baysinger
  */
 const ScrollToHash = () => {
   const { hash } = useLocation(); // Extracts the hash from the current URL.
