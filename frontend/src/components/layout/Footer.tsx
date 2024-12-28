@@ -85,7 +85,7 @@ const Footer: React.FC = () => {
                       <div
                         style={{
                           backgroundImage:
-                            "url(/images/footer/icons/linked-in.png)",
+                            "url(/images/footer/icons/linkedin.png)",
                         }}
                       ></div>
                       linkedin.com/in/BBaysinger
