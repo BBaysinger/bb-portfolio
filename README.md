@@ -1,6 +1,6 @@
 ## Features
 
-- **Native Swipe Parallax Carousel**: Previews for each portfolio project are presented through an infinite parallax carousel with seamless, native user swiping from left to right.
+- **Native Swipe Parallax Carousel**: Previews for each portfolio project are presented through an infinite parallax carousel with seamless, native left/right user swiping.
   - **Device Overlays**: Screenshots are dynamically overlaid onto mobile and desktop device mockups for a professional presentation.
   - **Dynamic Routing**: Each slide is linked through dynamic routing, ensuring a smooth and engaging user experience with deep linkning available.
   - **Actionable Links**: Includes buttons to access:
