@@ -15,6 +15,10 @@
     border-bottom: 2px solid $heavierThemeColor;
     padding-bottom: 20px;
     font-size: 40px !important;
+    color: #444;
+    font-size: 34px;
+    font-weight: 400;
+    margin-bottom: 6px;
   }
 
   h5 {
@@ -134,6 +138,11 @@ img.cv-logo {
       margin-bottom: 10px;
     }
   }
+}
+
+.cv-left {
+  display: flex;
+  justify-content: center;
 }
 
 .inline-list-item {

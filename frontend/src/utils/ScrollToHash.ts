@@ -28,7 +28,7 @@ import { useLocation, useNavigate } from "react-router-dom";
  *     </div>
  *   );
  * }
- * 
+ *
  * @author Bradley Baysinger
  */
 const ScrollToHash = () => {

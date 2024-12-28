@@ -182,7 +182,7 @@ const CurriculumVitae: React.FC = () => {
     "and many more...",
   ];
 
-  const divClassLt = `col-xs-12 col-sm-12 col-md-3 col-lg-3`;
+  const divClassLt = `col-xs-12 col-sm-12 col-md-3 col-lg-3 ${styles["cv-left"]}`;
   const divClassRt = `col-xs-12 col-sm-12 col-md-9 col-lg-9 ${styles["cv-right"]}`;
   const rowClass = `row ${styles["row"]}`;
 

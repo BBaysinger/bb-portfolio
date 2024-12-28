@@ -44,11 +44,13 @@ const ProjectThumbnail = forwardRef<HTMLDivElement, ProjectThumbnailProps>(
         <Link to={`/portfolio/${projectId}#project`}>
           <div className={styles["vingette"]}></div>
           <div className={styles["thumb-content"]}>
-            <img
-              src={`/images/client-logos/${clientId}.svg`}
-              className={styles["client-logo"]}
-              alt={`${clientId} logo`}
-            />
+            <div>
+              <img
+                src={`/images/client-logos/${clientId}.svg`}
+                className={styles["client-logo"]}
+                alt={`${clientId} logo`}
+              />
+            </div>
             <h4 className={styles["thumb-title"]}>{title}</h4>
           </div>
         </Link>
