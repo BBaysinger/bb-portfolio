@@ -1,5 +1,4 @@
 @use "@/styles/global" as *;
-@use "sass:math";
 
 .device-presentation {
   height: 420px;
@@ -7,7 +6,8 @@
   background-size: contain;
   background-repeat: no-repeat;
   box-sizing: border-box;
-  // Too much jank?
+  pointer-events: none;
+  // May introduce jank:
   filter: grayscale(0.5) blur(1px);
   will-change: filter;
   transition: filter 0.4s ease-in-out;
@@ -41,8 +41,8 @@
       left: 97px;
       height: 310px;
       width: 500px;
-      transition: transform 0.4s ease-in-out;
-      will-change: transform;
+      // transition: transform 0.4s ease-in-out;
+      // will-change: transform;
     }
   }
 
