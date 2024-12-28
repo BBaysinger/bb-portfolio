@@ -35,10 +35,8 @@ const Nav: React.FC<NavProps> = ({ variant }) => {
 
   return (
     <nav className={`${styles["nav"]} ${variant}`} role="navigation">
-      <div className={styles["title"]}>
-        <NavLink to="/">
-          <img src={navLogo} className={styles["nav-logo"]} alt="BB Logo" />
-        </NavLink>
+      <NavLink to="/" className={styles["title"]}>
+        <img src={navLogo} className={styles["nav-logo"]} alt="BB Logo" />
         <div className={styles["nav-logo-text"]}>
           <div className={styles["name"]}>
             <span>BRADLEY</span> <span>BAYSINGER</span>
@@ -50,7 +48,7 @@ const Nav: React.FC<NavProps> = ({ variant }) => {
             </span>
           </div>
         </div>
-      </div>
+      </NavLink>
 
       <ul onClick={closeMenuHandler} className={styles["slideout-nav-buttons"]}>
         <li>
