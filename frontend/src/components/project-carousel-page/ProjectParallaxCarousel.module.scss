@@ -14,13 +14,6 @@
   @include fluid-property("margin-bottom", $b320px, 680px, -115px, 0px);
 }
 
-// .transparent-slide {
-//   font-size: 0;
-//   padding: 20px;
-//   padding-top: 6px;
-//   display: none;
-// }
-
 .slide-layer {
   position: absolute;
   top: 0;
@@ -42,7 +35,6 @@
   .bb-carousel-laptops {
     left: 50vw;
     transform: translateX(-50%);
-    scroll-snap-type: none; // Critical for slave carousels!
     pointer-events: none;
     overflow: hidden;
     mask-image: linear-gradient(
@@ -66,7 +58,6 @@
     transform: translateX(-50%);
     height: 459px;
     pointer-events: none;
-    scroll-snap-type: none; // Critical for slave carousels!
     overflow: hidden;
     mask-image: linear-gradient(
       to right,
@@ -83,6 +74,7 @@
     visibility: hidden;
     width: 693px;
     height: 444px;
+    pointer-events: none;
     &:nth-child(3n-1) {
       background-color: rgba(23, 200, 35, 0.1);
     }

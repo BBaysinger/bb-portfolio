@@ -14,16 +14,28 @@
   h4 {
     border-bottom: 2px solid $heavierThemeColor;
     padding-bottom: 20px;
-    font-size: 40px !important;
+    font-size: 40px;
     color: #777;
     font-size: 34px;
     font-weight: 400;
     margin-bottom: 6px;
+    &:first-child {
+      padding-top: 0px;
+      margin-top: 0px;
+    }
+    @include breakpoint-up($b768px) {
+      font-size: 26px;
+    }
+    @include breakpoint-up($b992px) {
+      font-size: 34px;
+    }
+    @include breakpoint-up($b1024px) {
+      font-size: 40px;
+    }
   }
 
   h5 {
     position: relative;
-    font-weight: 500;
     font-size: 28px;
     margin-bottom: 3px;
     color: black;
@@ -33,17 +45,6 @@
       font-weight: 500;
       font-size: 16px;
       white-space: normal;
-    }
-  }
-
-  h4:first-child {
-    padding-top: 0px;
-    margin-top: 0px;
-    @include breakpoint-up($b768px) {
-      font-size: 26px;
-    }
-    @include breakpoint-up($b992px) {
-      font-size: 34px;
     }
   }
 
@@ -101,7 +102,7 @@
 }
 
 .left-sub {
-  font-weight: bold;
+  font-weight: 600;
   display: inline-block;
   width: 100%;
   font-size: 22px;
