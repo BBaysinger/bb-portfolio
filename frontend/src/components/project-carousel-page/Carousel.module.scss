@@ -13,8 +13,7 @@
   scroll-snap-type: x mandatory;
   scrollbar-width: none; // Firefox
   &::-webkit-scrollbar {
-    // Webkit
-    display: none;
+    display: none; // Webkit
   }
 }
 
