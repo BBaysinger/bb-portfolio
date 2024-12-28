@@ -49,6 +49,8 @@
 
   .title {
     display: flex;
+    text-decoration: none;
+
     > * {
       margin-left: 4px;
 
@@ -88,6 +90,7 @@
 
       &:nth-child(2) {
         font-size: 14px;
+        color: #fff;
       }
     }
   }
