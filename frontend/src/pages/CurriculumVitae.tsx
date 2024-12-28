@@ -1,7 +1,6 @@
 import React from "react";
 
 import HeaderSub from "components/layout/HeaderSub";
-
 import styles from "./CurriculumVitae.module.scss";
 
 /**
@@ -13,7 +12,7 @@ import styles from "./CurriculumVitae.module.scss";
  */
 export default class CurriculumVitae extends React.Component {
   /**
-   * TODO: This should be a component.
+   * TODO: These should be components.
    *
    * Function also serves to help migrate inline lists into
    * Word or whatever else with rich text formatting intact.
@@ -22,7 +21,7 @@ export default class CurriculumVitae extends React.Component {
    *
    * TODO: Make more consideration for migrating info from here.
    * Consider a programmatic export option from this page.
-   * Ulitmately, that could involve a backend genrated Word doc.
+   * (Ulitmately, a backend genrated Word doc.)
    *
    * @param {Array<string>} phrases
    * @returns
