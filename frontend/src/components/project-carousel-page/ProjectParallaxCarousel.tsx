@@ -203,7 +203,7 @@ const ProjectParallaxCarousel = forwardRef<
         />
 
         {/* Layer 2: Parallax carousel for display */}
-        {/* <Carousel
+        <Carousel
           slides={layer2Slides.map((slide, index) => (
             <div key={index} className={getSlideClass(index)}>
               {slide}
@@ -216,7 +216,7 @@ const ProjectParallaxCarousel = forwardRef<
           debug={3}
           initialIndex={initialIndex}
           wrapperClassName={"bb-carousel bb-carousel-phones"}
-        /> */}
+        />
       </div>
     );
   },
