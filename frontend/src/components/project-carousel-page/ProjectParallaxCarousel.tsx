@@ -173,9 +173,7 @@ const ProjectParallaxCarousel = forwardRef<
             </div>
           ))}
           slideSpacing={slideSpacings.layer1}
-          externalScrollLeft={
-            masterScrollLeft * layerMultipliers.layer1
-          }
+          externalScrollLeft={masterScrollLeft * layerMultipliers.layer1}
           debug={1}
           initialIndex={initialIndex}
           wrapperClassName={"bb-carousel bb-carousel-laptops"}
@@ -203,9 +201,7 @@ const ProjectParallaxCarousel = forwardRef<
             </div>
           ))}
           slideSpacing={slideSpacings.layer2}
-          externalScrollLeft={
-            masterScrollLeft * layerMultipliers.layer2
-          }
+          externalScrollLeft={masterScrollLeft * layerMultipliers.layer2}
           debug={3}
           initialIndex={initialIndex}
           wrapperClassName={"bb-carousel bb-carousel-phones"}
