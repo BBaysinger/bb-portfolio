@@ -69,13 +69,6 @@ const ProjectParallaxCarousel = forwardRef<
       layer2: slideSpacings.layer2 / slideSpacings.master,
     };
 
-    // Additional offsets (shims) for fine-tuning the parallax alignment
-    // TODO: Calculate these values dynamically.
-    const layerShims = {
-      layer1: -5,
-      layer2: 37,
-    };
-
     /**
      * Dynamically calculates and applies the appropriate scale transformation
      * based on the window width and existing `translateX` from external styles.
@@ -181,7 +174,7 @@ const ProjectParallaxCarousel = forwardRef<
           ))}
           slideSpacing={slideSpacings.layer1}
           externalScrollLeft={
-            masterScrollLeft * layerMultipliers.layer1 + layerShims.layer1
+            masterScrollLeft * layerMultipliers.layer1
           }
           debug={1}
           initialIndex={initialIndex}
@@ -203,7 +196,7 @@ const ProjectParallaxCarousel = forwardRef<
         />
 
         {/* Layer 2: Parallax carousel for display */}
-        {/* <Carousel
+        <Carousel
           slides={layer2Slides.map((slide, index) => (
             <div key={index} className={getSlideClass(index)}>
               {slide}
@@ -211,12 +204,12 @@ const ProjectParallaxCarousel = forwardRef<
           ))}
           slideSpacing={slideSpacings.layer2}
           externalScrollLeft={
-            masterScrollLeft * layerMultipliers.layer2 + layerShims.layer2
+            masterScrollLeft * layerMultipliers.layer2
           }
           debug={3}
           initialIndex={initialIndex}
           wrapperClassName={"bb-carousel bb-carousel-phones"}
-        /> */}
+        />
       </div>
     );
   },
