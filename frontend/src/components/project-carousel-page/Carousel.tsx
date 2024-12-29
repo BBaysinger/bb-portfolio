@@ -237,24 +237,24 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       }
     }, [handleScroll, frameDuration]);
 
-    useEffect(() => {
-      if (scrollDirection) {
-        const { positions, multipliers, offsets } =
-          memoizedPositionsAndMultipliers;
-        setPositions(positions);
-        setMultipliers(multipliers);
-        setOffsets(offsets);
-      }
-    }, [memoizedPositionsAndMultipliers, scrollDirection]);
-
     // useEffect(() => {
-    //   if (scrollerRef.current) {
-    //     scrollerRef.current.scrollLeft = patchedOffset();
-    //     const { positions, multipliers } = memoizedPositionsAndMultipliers;
+    //   if (scrollDirection) {
+    //     const { positions, multipliers, offsets } =
+    //       memoizedPositionsAndMultipliers;
     //     setPositions(positions);
     //     setMultipliers(multipliers);
+    //     setOffsets(offsets);
     //   }
-    // }, []);
+    // }, [memoizedPositionsAndMultipliers, scrollDirection]);
+
+    useEffect(() => {
+      if (scrollerRef.current) {
+        scrollerRef.current.scrollLeft = patchedOffset();
+        const { positions, multipliers } = memoizedPositionsAndMultipliers;
+        setPositions(positions);
+        setMultipliers(multipliers);
+      }
+    }, []);
 
     const isSlave = () => typeof externalScrollLeft === "number";
     const patchedOffset = () => (isSlave() ? 0 : BASE_OFFSET);
