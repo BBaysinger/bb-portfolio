@@ -245,20 +245,21 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       const { positions, multipliers, offsets } =
         memoizedPositionsAndMultipliers;
 
-      if (!compare(positions, currentPositions)) setCurrentPositions(positions);
-      if (!compare(multipliers, currentMultipliers))
+      if (!compare(positions, currentPositions)) {
+        setCurrentPositions(positions);
         setCurrentMultipliers(multipliers);
-      if (!compare(offsets, currentOffsets)) setCurrentOffsets(offsets);
+        setCurrentOffsets(offsets);
+      }
     }, [memoizedPositionsAndMultipliers]);
 
     useEffect(() => {
       if (scrollerRef.current) {
         scrollerRef.current.scrollLeft = patchedOffset();
         const { positions, multipliers } = memoizedPositionsAndMultipliers;
-        if (!compare(positions, currentPositions))
+        if (!compare(positions, currentPositions)) {
           setCurrentPositions(positions);
-        if (!compare(multipliers, currentMultipliers))
           setCurrentMultipliers(multipliers);
+        }
       }
     }, []);
 
