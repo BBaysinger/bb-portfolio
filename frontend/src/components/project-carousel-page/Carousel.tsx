@@ -237,15 +237,24 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       }
     }, [handleScroll, frameDuration]);
 
-    // useEffect(() => {
-    //   if (scrollDirection) {
-    //     const { positions, multipliers, offsets } =
-    //       memoizedPositionsAndMultipliers;
-    //     setPositions(positions);
-    //     setMultipliers(multipliers);
-    //     setOffsets(offsets);
-    //   }
-    // }, [memoizedPositionsAndMultipliers, scrollDirection]);
+    // Initial setup for positions, multipliers, and offsets
+    useEffect(() => {
+      const { positions, multipliers, offsets } = memoizedPositionsAndMultipliers;
+      setPositions(positions);
+      setMultipliers(multipliers);
+      setOffsets(offsets);
+    }, []);
+
+    // Updates when scrollDirection changes
+    useEffect(() => {
+      if (!scrollDirection) return;
+
+      const { positions, multipliers, offsets } = memoizedPositionsAndMultipliers;
+
+      setPositions(positions);
+      setMultipliers(multipliers);
+      setOffsets(offsets);
+    }, [memoizedPositionsAndMultipliers, scrollDirection]);
 
     useEffect(() => {
       if (scrollerRef.current) {
