@@ -10,7 +10,7 @@
   width: 100%;
   height: 100%;
   overflow-x: scroll;
-  // scroll-snap-type: x mandatory;
+  scroll-snap-type: x mandatory;
   scrollbar-width: none; // Firefox
   &::-webkit-scrollbar {
     display: none; // Webkit
@@ -49,13 +49,14 @@
 }
 
 .debug {
+  position: relative;
+  top: -5px;
   display: flex;
   justify-content: center;
 }
 
-
-// .carousel-test {
-//   position: absolute;
-//   border: 1px solid green;
-//   height: 100px;
-// }
+.carousel-test {
+  position: absolute;
+  border: 1px solid green;
+  height: 100px;
+}
