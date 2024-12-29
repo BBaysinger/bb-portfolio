@@ -7,6 +7,7 @@ import React, {
   useImperativeHandle,
   forwardRef,
 } from "react";
+import throttle from "lodash.throttle";
 
 import styles from "./Carousel.module.scss";
 
@@ -190,11 +191,15 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       // currentIndex here to update the index
     }, [scrollDirection, currentIndex]);
 
-    useEffect(() => {
-      if (typeof externalScrollLeft === "number") {
-        updateIndex(externalScrollLeft, scrollDirection, false);
-      }
-    }, [externalScrollLeft, scrollDirection]);
+useEffect(() => {
+  if (typeof externalScrollLeft === "number" && scrollerRef.current) {
+    // Update scroll position
+    scrollerRef.current.scrollLeft = externalScrollLeft;
+
+    // Update the index, but avoid triggering stabilization logic
+    updateIndex(externalScrollLeft, scrollDirection, false);
+  }
+}, [externalScrollLeft, scrollDirection]);
 
     const targetFPS = 40;
     const frameDuration = 1000 / targetFPS;
@@ -203,7 +208,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
     useEffect(() => {
       let animationFrameId: number | null = null;
 
-      const scrollListener = (_: Event) => {
+      const scrollListener = throttle((_: Event) => {
         if (animationFrameId === null) {
           animationFrameId = requestAnimationFrame((currentTime) => {
             const deltaTime = currentTime - lastFrameTime;
@@ -216,7 +221,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
             animationFrameId = null;
           });
         }
-      };
+      }, 0);
 
       if (!isSlave()) {
         const scroller = scrollerRef.current;
