@@ -194,16 +194,15 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
     const updateIndexRef = useRef(updateIndex);
 
     useEffect(() => {
-      updateIndexRef.current = updateIndex; // Keep a stable reference to the latest updateIndex
+      updateIndexRef.current = updateIndex;
     }, [updateIndex]);
     
     const handleScroll = useCallback(() => {
       if (!scrollerRef.current) return;
       const scrollLeft = scrollerRef.current.scrollLeft;
     
-      // Use the stable reference to avoid dependency issues
       updateIndexRef.current(scrollLeft);
-    }, []); // No dependencies since updateIndex is accessed via useRef
+    }, []);
 
     useEffect(() => {
       if (typeof externalScrollLeft === "number") {
@@ -279,24 +278,24 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       } else return "";
     };
 
-    // useImperativeHandle(ref, () => ({
-    //   scrollToSlide: (targetIndex: number) => {
-    //     if (!scrollerRef.current) return;
+    useImperativeHandle(ref, () => ({
+      scrollToSlide: (targetIndex: number) => {
+        if (!scrollerRef.current) return;
 
-    //     const offsetToTarget = currentOffsets[targetIndex];
-    //     const direction = offsetToTarget > 0 ? Direction.RIGHT : Direction.LEFT;
+        const offsetToTarget = currentOffsets[targetIndex];
+        const direction = offsetToTarget > 0 ? Direction.RIGHT : Direction.LEFT;
 
-    //     setScrollDirection(direction);
+        setScrollDirection(direction);
 
-    //     const { positions: newPositions } = memoizedPositionsAndMultipliers;
-    //     const targetPosition = newPositions[targetIndex] + patchedOffset();
+        const { positions: newPositions } = memoizedPositionsAndMultipliers;
+        const targetPosition = newPositions[targetIndex] + patchedOffset();
 
-    //     scrollerRef.current.scrollTo({
-    //       left: targetPosition,
-    //       behavior: "smooth",
-    //     });
-    //   },
-    // }));
+        scrollerRef.current.scrollTo({
+          left: targetPosition,
+          behavior: "smooth",
+        });
+      },
+    }));
 
     return (
       <div
@@ -323,13 +322,13 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
                 transform: `translateX(${patchedOffset() + currentPositions[index]}px)`,
               }}
             >
-              {/* {debug && (
+              {debug && (
                 <div className={styles["debug-info"]}>
                   <div>Index: {index}</div>
-                  <div>Multiplier: {multipliers[index]}</div>
-                  <div>xPos: {positions[index] + "px"}</div>
+                  <div>Multiplier: {currentMultipliers[index]}</div>
+                  <div>xPos: {currentPositions[index] + "px"}</div>
                 </div>
-              )} */}
+              )}
               {slide}
             </div>
           ))}
