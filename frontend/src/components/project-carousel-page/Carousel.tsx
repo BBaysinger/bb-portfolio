@@ -142,7 +142,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
         multipliers: newMultipliers,
         offsets: newOffsets,
       };
-    }, [memoizedSlides, currentIndex, slideSpacing, scrollDirection, debug]);
+    }, [memoizedSlides, currentIndex, scrollDirection]);
 
     const updateIndex = (
       scrollLeft: number,
