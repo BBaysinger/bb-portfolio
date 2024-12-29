@@ -29,7 +29,7 @@ interface CarouselProps {
   slideSpacing: number;
   initialIndex?: number;
   onIndexUpdate?: (currentIndex: number) => void;
-  debug?: string | number;
+  debug?: string | number | null;
   wrapperClassName?: string;
   slideClassName?: string;
   sliderClassName?: string;
@@ -87,7 +87,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
     const [scrollDirection, setScrollDirection] =
       useState<DirectionType | null>(Direction.RIGHT);
     const [currentPositions, setCurrentPositions] = useState<number[]>([]);
-    const [_currentMultipliers, setCurrentMultipliers] = useState<number[]>([]);
+    const [currentMultipliers, setCurrentMultipliers] = useState<number[]>([]);
     const [currentOffsets, setCurrentOffsets] = useState<number[]>([]);
     const stabilizationTimer = useRef<NodeJS.Timeout | null>(null);
     const memoizedSlides = useMemo(() => slides, [slides]);
