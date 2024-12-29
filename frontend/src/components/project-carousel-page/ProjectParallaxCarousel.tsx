@@ -10,6 +10,7 @@ import Carousel, { CarouselRef } from "./Carousel";
 import styles from "./ProjectParallaxCarousel.module.scss";
 
 interface ProjectParallaxCarouselProps {
+  initialIndex?: number;
   layer1Slides: React.ReactNode[];
   layer2Slides: React.ReactNode[];
   onScrollUpdate?: (scrollLeft: number) => void;
@@ -36,6 +37,7 @@ const ProjectParallaxCarousel = forwardRef<
 >(
   (
     {
+      initialIndex = 0,
       layer1Slides,
       layer2Slides,
       onScrollUpdate,
@@ -49,8 +51,10 @@ const ProjectParallaxCarousel = forwardRef<
 
     // State variables for carousel tracking
     const [masterScrollLeft, setMasterScrollLeft] = useState<number>(0);
-    const [stabilizedIndex, setStabilizedIndex] = useState<number | null>(null);
-    const [currentIndex, setCurrentIndex] = useState<number | null>(null);
+    const [stabilizedIndex, setStabilizedIndex] = useState<number | null>(
+      initialIndex,
+    );
+    const [currentIndex, setCurrentIndex] = useState<number>(initialIndex);
 
     // Spacing for each carousel layer, allowing different movement speeds for the parallax effect
     const slideSpacings = {
@@ -180,6 +184,7 @@ const ProjectParallaxCarousel = forwardRef<
             masterScrollLeft * layerMultipliers.layer1 + layerShims.layer1
           }
           debug={""}
+          initialIndex={initialIndex}
           wrapperClassName={"bb-carousel bb-carousel-laptops"}
         />
 
@@ -192,6 +197,7 @@ const ProjectParallaxCarousel = forwardRef<
           onStableIndex={handleStableIndex}
           onIndexUpdate={handleIndexUpdate}
           debug={""}
+          initialIndex={initialIndex}
           wrapperClassName={"bb-carousel bb-carousel-master"}
           slideClassName={"bb-slide-wrapper"}
         />
@@ -208,6 +214,7 @@ const ProjectParallaxCarousel = forwardRef<
             masterScrollLeft * layerMultipliers.layer2 + layerShims.layer2
           }
           debug={""}
+          initialIndex={initialIndex}
           wrapperClassName={"bb-carousel bb-carousel-phones"}
         />
       </div>

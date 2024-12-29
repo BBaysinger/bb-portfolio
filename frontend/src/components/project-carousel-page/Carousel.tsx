@@ -131,7 +131,6 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
 
       if (debug === 1) console.log(newPositions);
 
-
       if (debug) {
         // console.info(${scrollDirection} multipliers:, newMultipliers);
         // console.info(${scrollDirection} positions:, newPositions);
