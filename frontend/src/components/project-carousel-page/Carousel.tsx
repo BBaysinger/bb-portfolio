@@ -142,11 +142,10 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
         multipliers: newMultipliers,
         offsets: newOffsets,
       };
-    }, [memoizedSlides, currentIndex, scrollDirection]);
+    }, [currentIndex, scrollDirection]);
 
     const updateIndex = (
       scrollLeft: number,
-      direction: DirectionType | null,
       updateStableIndex: boolean = true,
     ) => {
       const newIndex = -Math.round(
@@ -154,10 +153,11 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       );
 
       if (newIndex !== currentIndex) {
+        
         const newDirection =
           newIndex > currentIndex ? Direction.RIGHT : Direction.LEFT;
 
-        if (newDirection !== direction) {
+        if (newDirection !== scrollDirection) {
           setScrollDirection(newDirection);
         }
 
@@ -194,13 +194,13 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
     const handleScroll = useCallback(() => {
       if (!scrollerRef.current) return;
       const scrollLeft = scrollerRef.current.scrollLeft;
-      updateIndex(scrollLeft, scrollDirection);
+      updateIndex(scrollLeft);
       // currentIndex here to update the index
     }, [scrollDirection, currentIndex]);
 
     useEffect(() => {
       if (typeof externalScrollLeft === "number") {
-        updateIndex(externalScrollLeft, scrollDirection, false);
+        updateIndex(externalScrollLeft, false);
       }
     }, [externalScrollLeft, scrollDirection]);
 
@@ -272,24 +272,24 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       } else return "";
     };
 
-    useImperativeHandle(ref, () => ({
-      scrollToSlide: (targetIndex: number) => {
-        if (!scrollerRef.current) return;
+    // useImperativeHandle(ref, () => ({
+    //   scrollToSlide: (targetIndex: number) => {
+    //     if (!scrollerRef.current) return;
 
-        const offsetToTarget = currentOffsets[targetIndex];
-        const direction = offsetToTarget > 0 ? Direction.RIGHT : Direction.LEFT;
+    //     const offsetToTarget = currentOffsets[targetIndex];
+    //     const direction = offsetToTarget > 0 ? Direction.RIGHT : Direction.LEFT;
 
-        setScrollDirection(direction);
+    //     setScrollDirection(direction);
 
-        const { positions: newPositions } = memoizedPositionsAndMultipliers;
-        const targetPosition = newPositions[targetIndex] + patchedOffset();
+    //     const { positions: newPositions } = memoizedPositionsAndMultipliers;
+    //     const targetPosition = newPositions[targetIndex] + patchedOffset();
 
-        scrollerRef.current.scrollTo({
-          left: targetPosition,
-          behavior: "smooth",
-        });
-      },
-    }));
+    //     scrollerRef.current.scrollTo({
+    //       left: targetPosition,
+    //       behavior: "smooth",
+    //     });
+    //   },
+    // }));
 
     return (
       <div
