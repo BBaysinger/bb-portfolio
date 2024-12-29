@@ -202,7 +202,7 @@ const CurriculumVitae: React.FC = () => {
             <div className={divClassRt}>
               <p>
                 Uncommon talent with a rich history in design, animation, and
-                front-end development. Adaptable and results-driven, with a
+                interactive development. Adaptable and results-driven, with a
                 proven ability to transition from award-winning Flash and
                 interactive projects to delivering scalable solutions using
                 frameworks like Angular. Currently deepening expertise in React
