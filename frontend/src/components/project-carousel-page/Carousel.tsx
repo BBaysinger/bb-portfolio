@@ -308,7 +308,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
         <div
           ref={scrollerRef}
           className={`${styles["carousel-slider"]} ${sliderClassName}`}
-          style={{ transform: slaveTransform() }}
+          // style={{ transform: slaveTransform() }}
         >
           <div className={styles["carousel-test"]} style={{left: BASE_OFFSET + "px"}}></div>
           {memoizedSlides.map((slide, index) => (
