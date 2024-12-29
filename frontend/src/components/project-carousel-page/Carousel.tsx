@@ -87,7 +87,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
     const [scrollDirection, setScrollDirection] =
       useState<DirectionType | null>(Direction.RIGHT);
     const [currentPositions, setCurrentPositions] = useState<number[]>([]);
-    const [currentMultipliers, setCurrentMultipliers] = useState<number[]>([]);
+    const [_currentMultipliers, setCurrentMultipliers] = useState<number[]>([]);
     const [currentOffsets, setCurrentOffsets] = useState<number[]>([]);
     const stabilizationTimer = useRef<NodeJS.Timeout | null>(null);
     const memoizedSlides = useMemo(() => slides, [slides]);
@@ -280,14 +280,16 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
     useEffect(() => {
       const measureWidths = () => {
         const widths = slideRefs.current.map((ref) => ref?.offsetWidth || 0);
-        const newSlideWidth = widths[0];
+        const newSlideWidth = Math.max(...widths);
         const newWrapperWidth = wrapperRef.current?.offsetWidth || 0;
-        if (newSlideWidth === 0 || newWrapperWidth === 0) {
-          setTimeout(measureWidths, 0);
+
+        if (!newSlideWidth || !newWrapperWidth) {
+          requestAnimationFrame(measureWidths);
           return;
         }
-        setSlideWidth(widths[0]);
-        setWrapperWidth(wrapperRef.current?.offsetWidth || 0);
+
+        setSlideWidth(newSlideWidth);
+        setWrapperWidth(newWrapperWidth);
       };
 
       // Measure widths after layout completion
