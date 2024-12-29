@@ -81,9 +81,9 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
     const [_previousIndex, setPreviousIndex] = useState(NaN);
     const [scrollDirection, setScrollDirection] =
       useState<DirectionType | null>(Direction.RIGHT);
-    const [positions, setPositions] = useState<number[]>([]);
-    const [multipliers, setMultipliers] = useState<number[]>([]);
-    const [offsets, setOffsets] = useState<number[]>([]);
+    const [currentPositions, setCurrentPositions] = useState<number[]>([]);
+    const [currentMultipliers, setCurrentMultipliers] = useState<number[]>([]);
+    const [currentOffsets, setCurrentOffsets] = useState<number[]>([]);
     const stabilizationTimer = useRef<NodeJS.Timeout | null>(null);
     const memoizedSlides = useMemo(() => slides, [slides]);
 
@@ -237,20 +237,24 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       }
     }, [handleScroll, frameDuration]);
 
+    const compare = (a: any[], b: any[]) => {
+      return JSON.stringify(a) === JSON.stringify(b);
+    }
+
     useEffect(() => {
-      const { positions, multipliers, offsets } =
-        memoizedPositionsAndMultipliers;
-      setPositions(positions);
-      setMultipliers(multipliers);
-      setOffsets(offsets);
+      const { positions, multipliers, offsets } = memoizedPositionsAndMultipliers;
+
+      if (!compare(positions, currentPositions)) setCurrentPositions(positions);
+      if (!compare(multipliers, currentMultipliers)) setCurrentMultipliers(multipliers);
+      if (!compare(offsets, currentOffsets)) setCurrentOffsets(offsets);
     }, [memoizedPositionsAndMultipliers]);
 
     useEffect(() => {
       if (scrollerRef.current) {
         scrollerRef.current.scrollLeft = patchedOffset();
         const { positions, multipliers } = memoizedPositionsAndMultipliers;
-        setPositions(positions);
-        setMultipliers(multipliers);
+        setCurrentPositions(positions);
+        setCurrentMultipliers(multipliers);
       }
     }, []);
 
@@ -267,7 +271,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       scrollToSlide: (targetIndex: number) => {
         if (!scrollerRef.current) return;
 
-        const offsetToTarget = offsets[targetIndex];
+        const offsetToTarget = currentOffsets[targetIndex];
         const direction = offsetToTarget > 0 ? Direction.RIGHT : Direction.LEFT;
 
         setScrollDirection(direction);
@@ -302,11 +306,11 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
               key={index}
               className={
                 `${styles["carousel-slide"]} ` +
-                `${Math.abs(offsets[index]) > 1 ? styles["hidden-slide"] : ""} ` +
+                `${Math.abs(currentOffsets[index]) > 1 ? styles["hidden-slide"] : ""} ` +
                 slideClassName
               }
               style={{
-                transform: `translateX(${patchedOffset() + positions[index]}px)`,
+                transform: `translateX(${patchedOffset() + currentPositions[index]}px)`,
               }}
             >
               {/* {debug && (
