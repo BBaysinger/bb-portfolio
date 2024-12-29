@@ -237,23 +237,23 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       }
     }, [handleScroll, frameDuration]);
 
-    // Initial setup for positions, multipliers, and offsets
-    useEffect(() => {
-      const { positions, multipliers, offsets } = memoizedPositionsAndMultipliers;
-      setPositions(positions);
-      setMultipliers(multipliers);
-      setOffsets(offsets);
-    }, []);
-
-    // Updates when scrollDirection changes
     useEffect(() => {
       if (!scrollDirection) return;
-
+    
       const { positions, multipliers, offsets } = memoizedPositionsAndMultipliers;
-
-      setPositions(positions);
-      setMultipliers(multipliers);
-      setOffsets(offsets);
+    
+      // Update only if values have changed
+      if (
+        !(
+          JSON.stringify(positions) === JSON.stringify(positions) &&
+          JSON.stringify(multipliers) === JSON.stringify(multipliers) &&
+          JSON.stringify(offsets) === JSON.stringify(offsets)
+        )
+      ) {
+        setPositions(positions);
+        setMultipliers(multipliers);
+        setOffsets(offsets);
+      }
     }, [memoizedPositionsAndMultipliers, scrollDirection]);
 
     useEffect(() => {
