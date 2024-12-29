@@ -191,12 +191,19 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       if (debug === 1) console.log("Index updated to:", currentIndex);
     }, [currentIndex]);
 
+    const updateIndexRef = useRef(updateIndex);
+
+    useEffect(() => {
+      updateIndexRef.current = updateIndex; // Keep a stable reference to the latest updateIndex
+    }, [updateIndex]);
+    
     const handleScroll = useCallback(() => {
       if (!scrollerRef.current) return;
       const scrollLeft = scrollerRef.current.scrollLeft;
-      updateIndex(scrollLeft);
-      // currentIndex here to update the index
-    }, [currentIndex]);
+    
+      // Use the stable reference to avoid dependency issues
+      updateIndexRef.current(scrollLeft);
+    }, []); // No dependencies since updateIndex is accessed via useRef
 
     useEffect(() => {
       if (typeof externalScrollLeft === "number") {
