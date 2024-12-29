@@ -49,11 +49,14 @@ const ProjectParallaxCarousel = forwardRef<
       layer2: slideSpacings.layer2 / slideSpacings.master,
     };
 
+    // TODO: Calculate these values dynamically.
     const layerShims = {
       layer1: -6,
       layer2: 37,
     };
 
+    // Tried doing this with a mixin and with calc() and CSS variables,
+    // but with no luck.
     const updateScale = () => {
       const minWidth = 320;
       const maxWidth = 680;
@@ -113,7 +116,7 @@ const ProjectParallaxCarousel = forwardRef<
           `${styles["parallax-carousel"]} bb-parallax-carousel ` +
           (currentIndex === stabilizedIndex ? "bb-stabilized-carousel" : "")
         }
-        style={{ transform: `scale(${scale})` }}
+        style={{ transform: `translateX(-50%) scale(${scale})` }}
       >
         <Carousel
           slides={layer1Slides.map((slide, index) => (
