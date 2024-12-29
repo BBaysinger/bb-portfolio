@@ -80,11 +80,14 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
     const wrapperRef = useRef<HTMLDivElement>(null);
     const [currentIndex, setCurrentIndex] = useState(initialIndex);
     const [_previousIndex, setPreviousIndex] = useState(NaN);
+    const [slideWidth, setSlideWidth] = useState<number>(0);
+    const [wrapperWidth, setWrapperWidth] = useState<number>(0);
+
     // const [enableSnap, setEnableSnap] = useState(false);
     const [scrollDirection, setScrollDirection] =
       useState<DirectionType | null>(Direction.RIGHT);
     const [currentPositions, setCurrentPositions] = useState<number[]>([]);
-    const [currentMultipliers, setCurrentMultipliers] = useState<number[]>([]);
+    const [_currentMultipliers, setCurrentMultipliers] = useState<number[]>([]);
     const [currentOffsets, setCurrentOffsets] = useState<number[]>([]);
     const stabilizationTimer = useRef<NodeJS.Timeout | null>(null);
     const memoizedSlides = useMemo(() => slides, [slides]);
@@ -113,8 +116,6 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
 
         newMultipliers.push(multiplier);
 
-        const wrapperWidth = wrapperRef.current?.offsetWidth || 0;
-        const slideWidth = slideRefs.current[0]?.offsetWidth || 0;
         const containerOffset = (wrapperWidth - slideWidth) / 2;
 
         newPositions.push(
@@ -137,18 +138,12 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
         );
       });
 
-      if (debug) {
-        // console.info(${scrollDirection} multipliers:, newMultipliers);
-        // console.info(${scrollDirection} positions:, newPositions);
-        // console.info(`${scrollDirection} offsets:`, newOffsets);
-      }
-
       return {
         positions: newPositions,
         multipliers: newMultipliers,
         offsets: newOffsets,
       };
-    }, [currentIndex, scrollDirection]);
+    }, [currentIndex, scrollDirection, slideWidth, wrapperWidth]);
 
     const updateIndex = (
       scrollLeft: number,
@@ -278,6 +273,27 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       }
     }, []);
 
+    useEffect(() => {
+      const measureWidths = () => {
+        const widths = slideRefs.current.map((ref) => ref?.offsetWidth || 0);
+        setSlideWidth(widths[0]);
+        setWrapperWidth(wrapperRef.current?.offsetWidth || 0);
+
+        if (slideWidth === 0) {
+          throw new Error("Slide width is 0.");
+        }
+
+        if (wrapperWidth === 0) {
+          throw new Error("Wrapper width is 0.");
+        }
+      };
+
+      // Measure widths after layout completion
+      const timer = setTimeout(measureWidths, 0);
+
+      return () => clearTimeout(timer);
+    }, [slides]);
+
     const isSlave = () => typeof externalScrollLeft === "number";
     const patchedOffset = () => (isSlave() ? 0 : BASE_OFFSET);
 
@@ -306,9 +322,9 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       },
     }));
 
-    const getWidth = () => {
-      return wrapperRef.current?.offsetWidth || 0;
-    };
+    // const getWidth = () => {
+    //   return wrapperRef.current?.offsetWidth || 0;
+    // };
 
     return (
       <div
@@ -320,7 +336,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       >
         {debug === 2 && (
           <div className={styles["debug"]}>
-            {currentIndex} {scrollerRef.current?.scrollLeft}
+            {/* {currentIndex} {scrollerRef.current?.scrollLeft} */}
           </div>
         )}
         <div
@@ -328,8 +344,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
           className={`${styles["carousel-slider"]} ${sliderClassName}`}
           style={{ transform: slaveTransform() }}
         >
-          <div className={styles["carousel-test1"]}></div>
-          <div className={styles["carousel-test2"]}></div>
+          <div className={styles["carousel-shim"]}></div>
           {memoizedSlides.map((slide, index) => (
             <div
               key={index}
