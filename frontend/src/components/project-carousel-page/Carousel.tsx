@@ -15,7 +15,7 @@ import styles from "./Carousel.module.scss";
 // repositions the slides and scroll position when the user
 // scroll stops. It works, I've done it elsewhere, but it's not critical for
 // current use cases. Until then, it's not *technically* infinite scrolling left.
-const BASE_OFFSET = 10000;
+const BASE_OFFSET = 1000000;
 
 const Direction = {
   LEFT: "Left",
@@ -310,7 +310,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
           className={`${styles["carousel-slider"]} ${sliderClassName}`}
           style={{ transform: slaveTransform() }}
         >
-          <div className={styles["carousel-test"]} style={{left: BASE_OFFSET + "px", width: BASE_OFFSET + "px"}}></div>
+          {/* <div className={styles["carousel-test"]} style={{left: BASE_OFFSET + "px", width: BASE_OFFSET + "px"}}></div> */}
           {memoizedSlides.map((slide, index) => (
             <div
               key={index}
