@@ -77,8 +77,10 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
     ref,
   ) => {
     const scrollerRef = useRef<HTMLDivElement>(null);
+    const wrapperRef = useRef<HTMLDivElement>(null);
     const [currentIndex, setCurrentIndex] = useState(initialIndex);
     const [_previousIndex, setPreviousIndex] = useState(NaN);
+    const [enableSnap, setEnableSnap] = useState(false);
     const [scrollDirection, setScrollDirection] =
       useState<DirectionType | null>(Direction.RIGHT);
     const [currentPositions, setCurrentPositions] = useState<number[]>([]);
@@ -128,8 +130,6 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
             : normalizedOffset - memoizedSlides.length,
         );
       });
-
-      // if (debug === 1) console.log(newPositions);
 
       if (debug) {
         // console.info(${scrollDirection} multipliers:, newMultipliers);
@@ -187,10 +187,6 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       }
     };
 
-    useEffect(() => {
-      if (debug === 1) console.log("Index updated to:", currentIndex);
-    }, [currentIndex]);
-
     const updateIndexRef = useRef(updateIndex);
 
     useEffect(() => {
@@ -199,6 +195,8 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
     
     const handleScroll = useCallback(() => {
       if (!scrollerRef.current) return;
+      setEnableSnap(true);
+
       const scrollLeft = scrollerRef.current.scrollLeft;
     
       updateIndexRef.current(scrollLeft);
@@ -269,12 +267,11 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       }
     }, []);
 
-    // useEffect(() => {
-    //   if (scrollerRef.current) {
-    //     console.log("patchedOffset", patchedOffset());
-    //     scrollerRef.current.scrollLeft = patchedOffset();
-    //   }
-    // }, []);
+    useEffect(() => {
+      if (scrollerRef.current && !isSlave()) {
+        scrollerRef.current.scrollLeft = patchedOffset();
+      }
+    }, []);
 
     const isSlave = () => typeof externalScrollLeft === "number";
     const patchedOffset = () => (isSlave() ? 0 : BASE_OFFSET);
@@ -304,8 +301,13 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       },
     }));
 
+    const getWidth = () => {
+      return wrapperRef.current?.offsetWidth || 0;
+    }
+
     return (
       <div
+        ref={wrapperRef}
         className={
           `${styles["carousel-wrapper"]} ${isSlave() ? styles["slave-wrapper"] : ""} ` +
           wrapperClassName
@@ -317,7 +319,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
           className={`${styles["carousel-slider"]} ${sliderClassName}`}
           style={{ transform: slaveTransform() }}
         >
-          <div className={styles["carousel-test"]} style={{left: BASE_OFFSET + "px"}}></div>
+          <div className={styles["carousel-test"]}></div>
           {memoizedSlides.map((slide, index) => (
             <div
               key={index}
@@ -330,13 +332,13 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
                 transform: `translateX(${patchedOffset() + currentPositions[index]}px)`,
               }}
             >
-              {debug && (
+              {/* {debug && (
                 <div className={styles["debug-info"]}>
                   <div>Index: {index}</div>
                   <div>Multiplier: {currentMultipliers[index]}</div>
                   <div>xPos: {currentPositions[index] + "px"}</div>
                 </div>
-              )}
+              )} */}
               {slide}
             </div>
           ))}
