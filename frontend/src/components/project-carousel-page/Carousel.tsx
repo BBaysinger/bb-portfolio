@@ -241,16 +241,16 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       return JSON.stringify(a) === JSON.stringify(b);
     };
 
-    useEffect(() => {
-      const { positions, multipliers, offsets } =
-        memoizedPositionsAndMultipliers;
+    // useEffect(() => {
+    //   const { positions, multipliers, offsets } =
+    //     memoizedPositionsAndMultipliers;
 
-      if (!compare(positions, currentPositions)) {
-        setCurrentPositions(positions);
-        setCurrentMultipliers(multipliers);
-        setCurrentOffsets(offsets);
-      }
-    }, [memoizedPositionsAndMultipliers]);
+    //   if (!compare(positions, currentPositions)) {
+    //     setCurrentPositions(positions);
+    //     setCurrentMultipliers(multipliers);
+    //     setCurrentOffsets(offsets);
+    //   }
+    // }, [memoizedPositionsAndMultipliers]);
 
     useEffect(() => {
       if (scrollerRef.current) {
