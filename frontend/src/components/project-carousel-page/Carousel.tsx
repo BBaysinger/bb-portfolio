@@ -80,7 +80,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
     const wrapperRef = useRef<HTMLDivElement>(null);
     const [currentIndex, setCurrentIndex] = useState(initialIndex);
     const [_previousIndex, setPreviousIndex] = useState(NaN);
-    const [enableSnap, setEnableSnap] = useState(false);
+    // const [enableSnap, setEnableSnap] = useState(false);
     const [scrollDirection, setScrollDirection] =
       useState<DirectionType | null>(Direction.RIGHT);
     const [currentPositions, setCurrentPositions] = useState<number[]>([]);
@@ -88,6 +88,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
     const [currentOffsets, setCurrentOffsets] = useState<number[]>([]);
     const stabilizationTimer = useRef<NodeJS.Timeout | null>(null);
     const memoizedSlides = useMemo(() => slides, [slides]);
+    const slideRefs = useRef<(HTMLDivElement | null)[]>([]);
 
     const memoizedPositionsAndMultipliers = useMemo(() => {
       const newPositions: number[] = [];
@@ -112,10 +113,15 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
 
         newMultipliers.push(multiplier);
 
+        const wrapperWidth = wrapperRef.current?.offsetWidth || 0;
+        const slideWidth = slideRefs.current[0]?.offsetWidth || 0;
+        const containerOffset = (wrapperWidth - slideWidth) / 2;
+
         newPositions.push(
           Math.round(
             multiplier * slideSpacing * memoizedSlides.length +
-              index * slideSpacing,
+              index * slideSpacing +
+              containerOffset,
           ),
         );
 
@@ -153,7 +159,6 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       );
 
       if (newIndex !== currentIndex) {
-        
         const newDirection =
           newIndex > currentIndex ? Direction.RIGHT : Direction.LEFT;
 
@@ -192,13 +197,13 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
     useEffect(() => {
       updateIndexRef.current = updateIndex;
     }, [updateIndex]);
-    
+
     const handleScroll = useCallback(() => {
       if (!scrollerRef.current) return;
-      setEnableSnap(true);
+      // setEnableSnap(true);
 
       const scrollLeft = scrollerRef.current.scrollLeft;
-    
+
       updateIndexRef.current(scrollLeft);
     }, []);
 
@@ -303,7 +308,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
 
     const getWidth = () => {
       return wrapperRef.current?.offsetWidth || 0;
-    }
+    };
 
     return (
       <div
@@ -313,16 +318,24 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
           wrapperClassName
         }
       >
-        {debug === 2 && <div className={styles["debug"]}>{currentIndex} {scrollerRef.current?.scrollLeft}</div>}
+        {debug === 2 && (
+          <div className={styles["debug"]}>
+            {currentIndex} {scrollerRef.current?.scrollLeft}
+          </div>
+        )}
         <div
           ref={scrollerRef}
           className={`${styles["carousel-slider"]} ${sliderClassName}`}
           style={{ transform: slaveTransform() }}
         >
-          <div className={styles["carousel-test"]}></div>
+          <div className={styles["carousel-test1"]}></div>
+          <div className={styles["carousel-test2"]}></div>
           {memoizedSlides.map((slide, index) => (
             <div
               key={index}
+              ref={(el) => {
+                slideRefs.current[index] = el; // Assign to the ref array
+              }} // Ensure the function does not return a value
               className={
                 `${styles["carousel-slide"]} ` +
                 `${Math.abs(currentOffsets[index]) > 1 ? styles["hidden-slide"] : ""} ` +
