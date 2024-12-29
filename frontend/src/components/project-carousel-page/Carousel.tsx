@@ -256,6 +256,16 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       }
     }, []);
 
+    useEffect(() => {
+      if (scrollerRef.current) {
+        const initialScrollLeft =
+          patchedOffset() +
+          memoizedPositionsAndMultipliers.positions[initialIndex];
+        scrollerRef.current.scrollLeft = initialScrollLeft;
+        updateIndex(initialScrollLeft, scrollDirection, false); // Sync index
+      }
+    }, []);
+
     const isSlave = () => typeof externalScrollLeft === "number";
     const patchedOffset = () => (isSlave() ? 0 : BASE_OFFSET);
 
