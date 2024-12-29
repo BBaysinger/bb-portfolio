@@ -291,6 +291,9 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
           wrapperClassName
         }
       >
+        {debug === 1 && (
+          <div className={styles["debug"]}>{currentIndex}</div>
+        )}
         <div
           ref={scrollerRef}
           className={`${styles["carousel-slider"]} ${sliderClassName}`}
@@ -308,13 +311,13 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
                 transform: `translateX(${patchedOffset() + positions[index]}px)`,
               }}
             >
-              {debug && (
+              {/* {debug && (
                 <div className={styles["debug-info"]}>
                   <div>Index: {index}</div>
                   <div>Multiplier: {multipliers[index]}</div>
                   <div>xPos: {positions[index] + "px"}</div>
                 </div>
-              )}
+              )} */}
               {slide}
             </div>
           ))}
