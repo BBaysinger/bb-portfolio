@@ -129,7 +129,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
         );
       });
 
-      if (debug === 1) console.log(newPositions);
+      // if (debug === 1) console.log(newPositions);
 
       if (debug) {
         // console.info(${scrollDirection} multipliers:, newMultipliers);
@@ -186,6 +186,10 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
         onScrollUpdate(scrollLeft - patchedOffset());
       }
     };
+
+    useEffect(() => {
+      if (debug === 1) console.log("Index updated to:", currentIndex);
+    }, [currentIndex]);
 
     const handleScroll = useCallback(() => {
       if (!scrollerRef.current) return;
