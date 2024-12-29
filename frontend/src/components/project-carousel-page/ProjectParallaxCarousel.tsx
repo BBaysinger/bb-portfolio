@@ -173,7 +173,7 @@ const ProjectParallaxCarousel = forwardRef<
         style={{ transform: dynamicTransform }}
       >
         {/* Layer 1: Parallax carousel for display */}
-        {/* <Carousel
+        <Carousel
           slides={layer1Slides.map((slide, index) => (
             <div key={index} className={getSlideClass(index)}>
               {slide}
@@ -186,7 +186,7 @@ const ProjectParallaxCarousel = forwardRef<
           debug={1}
           initialIndex={initialIndex}
           wrapperClassName={"bb-carousel bb-carousel-laptops"}
-        /> */}
+        />
 
         {/* Master Layer: Controls scroll and index synchronization */}
         <Carousel
