@@ -291,7 +291,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
           wrapperClassName
         }
       >
-        {debug === 1 && (
+        {debug === 2 && (
           <div className={styles["debug"]}>{currentIndex}</div>
         )}
         <div
