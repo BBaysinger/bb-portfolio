@@ -47,11 +47,11 @@ const ProjectsPresentation: React.FC = () => {
   // ));
 
   const handleCarouselIndexUpdate = (_index: number) => {
-    // console.log("Updated index: ", index);
+    // console.info("Updated index: ", index);
   };
 
   const onStableIndex = (_index: number) => {
-    // console.log("Stable index: ", index);
+    // console.info("Stable index: ", index);
   };
 
   return (
