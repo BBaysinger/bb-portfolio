@@ -59,6 +59,7 @@ header {
     margin-bottom: 0px;
     color: #fff;
     font-size: 18px;
+    font-weight: 400;
 
     @include breakpoint-up($b360px) {
       font-size: 20px;
