@@ -247,20 +247,20 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       return JSON.stringify(a) === JSON.stringify(b);
     };
 
-    // useEffect(() => {
-    //   const { positions, multipliers, offsets } =
-    //     memoizedPositionsAndMultipliers;
+    useEffect(() => {
+      const { positions, multipliers, offsets } =
+        memoizedPositionsAndMultipliers;
 
-    //   if (!compare(positions, currentPositions)) {
-    //     setCurrentPositions(positions);
-    //     setCurrentMultipliers(multipliers);
-    //     setCurrentOffsets(offsets);
-    //   }
-    // }, [memoizedPositionsAndMultipliers]);
+      if (!compare(positions, currentPositions)) {
+        setCurrentPositions(positions);
+        setCurrentMultipliers(multipliers);
+        setCurrentOffsets(offsets);
+      }
+    }, [memoizedPositionsAndMultipliers]);
 
     useEffect(() => {
       if (scrollerRef.current) {
-        // scrollerRef.current.scrollLeft = patchedOffset();
+        scrollerRef.current.scrollLeft = patchedOffset();
         const { positions, multipliers } = memoizedPositionsAndMultipliers;
         if (!compare(positions, currentPositions)) {
           setCurrentPositions(positions);
@@ -308,7 +308,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
         <div
           ref={scrollerRef}
           className={`${styles["carousel-slider"]} ${sliderClassName}`}
-          // style={{ transform: slaveTransform() }}
+          style={{ transform: slaveTransform() }}
         >
           <div className={styles["carousel-test"]} style={{left: BASE_OFFSET + "px", width: BASE_OFFSET + "px"}}></div>
           {memoizedSlides.map((slide, index) => (
