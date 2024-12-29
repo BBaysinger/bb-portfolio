@@ -196,13 +196,13 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       const scrollLeft = scrollerRef.current.scrollLeft;
       updateIndex(scrollLeft);
       // currentIndex here to update the index
-    }, [scrollDirection, currentIndex]);
+    }, [currentIndex]);
 
     useEffect(() => {
       if (typeof externalScrollLeft === "number") {
         updateIndex(externalScrollLeft, false);
       }
-    }, [externalScrollLeft, scrollDirection]);
+    }, [externalScrollLeft]);
 
     const targetFPS = 40;
     const frameDuration = 1000 / targetFPS;
