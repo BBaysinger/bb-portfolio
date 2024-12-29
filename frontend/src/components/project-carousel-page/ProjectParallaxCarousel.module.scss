@@ -8,6 +8,7 @@
   z-index: 0;
   overflow: hidden;
   left: 50%;
+  transform: translateX(-50%);
 
   // Account for scaling.
   @include fluid-property("margin-top", $b320px, 680px, -115px, 0px);
