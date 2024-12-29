@@ -17,6 +17,9 @@ interface ProjectParallaxCarouselProps {
   onIndexUpdate?: (currentIndex: number) => void;
 }
 
+/**
+ * 
+ */
 const ProjectParallaxCarousel = forwardRef<
   { scrollToSlide: (targetIndex: number) => void },
   ProjectParallaxCarouselProps
@@ -31,8 +34,8 @@ const ProjectParallaxCarousel = forwardRef<
     },
     ref,
   ) => {
+    const [dynamicTransform, setDynamicTransform] = useState("");
     const masterCarouselRef = useRef<CarouselRef>(null);
-    const [scale, setScale] = useState(1);
 
     const [masterScrollLeft, setMasterScrollLeft] = useState<number>(0);
     const [stabilizedIndex, setStabilizedIndex] = useState<number | null>(null);
@@ -57,7 +60,20 @@ const ProjectParallaxCarousel = forwardRef<
 
     // Tried doing this with a mixin and with calc() and CSS variables,
     // but with no luck.
-    const updateScale = () => {
+    const updateTransform = () => {
+      const element = document.querySelector(`.${styles["parallax-carousel"]}`);
+      if (!element) return;
+
+      const computedStyle = getComputedStyle(element);
+      const transformMatrix = computedStyle.transform;
+
+      // Parse the `translateX` from the matrix
+      const matrixValues = transformMatrix
+        .match(/matrix.*\((.+)\)/)?.[1]
+        .split(", ");
+      const translateX = matrixValues ? parseFloat(matrixValues[4]) || 0 : 0;
+
+      // Update scale dynamically
       const minWidth = 320;
       const maxWidth = 680;
       const minScale = 0.4755;
@@ -74,7 +90,7 @@ const ProjectParallaxCarousel = forwardRef<
         ),
       );
 
-      setScale(newScale);
+      setDynamicTransform(`translateX(${translateX}px) scale(${newScale})`);
     };
 
     const handleMasterScrollLeft = (scrollLeft: number) => {
@@ -94,9 +110,9 @@ const ProjectParallaxCarousel = forwardRef<
     };
 
     useEffect(() => {
-      updateScale();
-      window.addEventListener("resize", updateScale);
-      return () => window.removeEventListener("resize", updateScale);
+      updateTransform();
+      window.addEventListener("resize", updateTransform);
+      return () => window.removeEventListener("resize", updateTransform);
     }, []);
 
     useImperativeHandle(ref, () => ({
@@ -116,7 +132,7 @@ const ProjectParallaxCarousel = forwardRef<
           `${styles["parallax-carousel"]} bb-parallax-carousel ` +
           (currentIndex === stabilizedIndex ? "bb-stabilized-carousel" : "")
         }
-        style={{ transform: `translateX(-50%) scale(${scale})` }}
+        style={{ transform: dynamicTransform }}
       >
         <Carousel
           slides={layer1Slides.map((slide, index) => (
