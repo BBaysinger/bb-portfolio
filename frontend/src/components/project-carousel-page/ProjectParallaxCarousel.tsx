@@ -183,7 +183,7 @@ const ProjectParallaxCarousel = forwardRef<
           externalScrollLeft={
             masterScrollLeft * layerMultipliers.layer1 + layerShims.layer1
           }
-          debug={""}
+          debug={1}
           initialIndex={initialIndex}
           wrapperClassName={"bb-carousel bb-carousel-laptops"}
         />
@@ -196,7 +196,7 @@ const ProjectParallaxCarousel = forwardRef<
           onScrollUpdate={handleMasterScrollLeft}
           onStableIndex={handleStableIndex}
           onIndexUpdate={handleIndexUpdate}
-          debug={""}
+          debug={2}
           initialIndex={initialIndex}
           wrapperClassName={"bb-carousel bb-carousel-master"}
           slideClassName={"bb-slide-wrapper"}
@@ -213,7 +213,7 @@ const ProjectParallaxCarousel = forwardRef<
           externalScrollLeft={
             masterScrollLeft * layerMultipliers.layer2 + layerShims.layer2
           }
-          debug={""}
+          debug={3}
           initialIndex={initialIndex}
           wrapperClassName={"bb-carousel bb-carousel-phones"}
         />
