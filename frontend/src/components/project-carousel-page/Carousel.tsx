@@ -260,7 +260,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
 
     useEffect(() => {
       if (scrollerRef.current) {
-        scrollerRef.current.scrollLeft = patchedOffset();
+        // scrollerRef.current.scrollLeft = patchedOffset();
         const { positions, multipliers } = memoizedPositionsAndMultipliers;
         if (!compare(positions, currentPositions)) {
           setCurrentPositions(positions);
