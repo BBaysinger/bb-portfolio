@@ -258,12 +258,6 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       } else return "";
     };
 
-    // const slaveLeft = (): string => {
-    //   if (typeof externalScrollLeft === "number") {
-    //     return `${Math.round(-externalScrollLeft)}px`;
-    //   } else return "";
-    // };
-
     useImperativeHandle(ref, () => ({
       scrollToSlide: (targetIndex: number) => {
         if (!scrollerRef.current) return;
@@ -294,7 +288,6 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
           ref={scrollerRef}
           className={`${styles["carousel-slider"]} ${sliderClassName}`}
           style={{ transform: slaveTransform() }}
-          // style={{ left: slaveLeft() }}
         >
           {memoizedSlides.map((slide, index) => (
             <div
