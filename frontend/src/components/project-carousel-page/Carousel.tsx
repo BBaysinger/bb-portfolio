@@ -83,7 +83,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
     const [slideWidth, setSlideWidth] = useState<number>(0);
     const [wrapperWidth, setWrapperWidth] = useState<number>(0);
 
-    // const [enableSnap, setEnableSnap] = useState(false);
+    const [enableSnap, setEnableSnap] = useState(false);
     const [scrollDirection, setScrollDirection] =
       useState<DirectionType | null>(Direction.RIGHT);
     const [currentPositions, setCurrentPositions] = useState<number[]>([]);
@@ -117,6 +117,10 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
         newMultipliers.push(multiplier);
 
         const containerOffset = (wrapperWidth - slideWidth) / 2;
+
+        if (wrapperWidth > 0 && slideWidth > 0) {
+          setEnableSnap(true);
+        }
 
         newPositions.push(
           Math.round(
@@ -276,16 +280,14 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
     useEffect(() => {
       const measureWidths = () => {
         const widths = slideRefs.current.map((ref) => ref?.offsetWidth || 0);
+        const newSlideWidth = widths[0];
+        const newWrapperWidth = wrapperRef.current?.offsetWidth || 0;
+        if (newSlideWidth === 0 || newWrapperWidth === 0) {
+          setTimeout(measureWidths, 0);
+          return;
+        }
         setSlideWidth(widths[0]);
         setWrapperWidth(wrapperRef.current?.offsetWidth || 0);
-
-        if (slideWidth === 0) {
-          throw new Error("Slide width is 0.");
-        }
-
-        if (wrapperWidth === 0) {
-          throw new Error("Wrapper width is 0.");
-        }
       };
 
       // Measure widths after layout completion
@@ -322,10 +324,6 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       },
     }));
 
-    // const getWidth = () => {
-    //   return wrapperRef.current?.offsetWidth || 0;
-    // };
-
     return (
       <div
         ref={wrapperRef}
@@ -342,7 +340,10 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
         <div
           ref={scrollerRef}
           className={`${styles["carousel-slider"]} ${sliderClassName}`}
-          style={{ transform: slaveTransform() }}
+          style={{
+            transform: slaveTransform(),
+            scrollSnapType: enableSnap ? "x mandatory" : "none",
+          }}
         >
           <div className={styles["carousel-shim"]}></div>
           {memoizedSlides.map((slide, index) => (
