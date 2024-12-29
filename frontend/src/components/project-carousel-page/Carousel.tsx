@@ -7,7 +7,6 @@ import React, {
   useImperativeHandle,
   forwardRef,
 } from "react";
-import throttle from "lodash.throttle";
 
 import styles from "./Carousel.module.scss";
 
@@ -30,7 +29,7 @@ interface CarouselProps {
   slideSpacing: number;
   initialIndex?: number;
   onIndexUpdate?: (currentIndex: number) => void;
-  debug?: string;
+  debug?: string | number;
   wrapperClassName?: string;
   slideClassName?: string;
   sliderClassName?: string;
@@ -81,7 +80,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
     const [currentIndex, setCurrentIndex] = useState(initialIndex);
     const [_previousIndex, setPreviousIndex] = useState(NaN);
     const [scrollDirection, setScrollDirection] =
-      useState<DirectionType | null>(null);
+      useState<DirectionType | null>(Direction.RIGHT);
     const [positions, setPositions] = useState<number[]>([]);
     const [multipliers, setMultipliers] = useState<number[]>([]);
     const [offsets, setOffsets] = useState<number[]>([]);
@@ -105,6 +104,8 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
           multiplier = Math.floor(
             (currentIndex - index + threshold) / memoizedSlides.length,
           );
+        } else {
+          throw new Error("No scroll direction set.");
         }
 
         newMultipliers.push(multiplier);
@@ -127,6 +128,9 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
             : normalizedOffset - memoizedSlides.length,
         );
       });
+
+      if (debug === 1) console.log(newPositions);
+
 
       if (debug) {
         // console.info(${scrollDirection} multipliers:, newMultipliers);
@@ -191,15 +195,11 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       // currentIndex here to update the index
     }, [scrollDirection, currentIndex]);
 
-useEffect(() => {
-  if (typeof externalScrollLeft === "number" && scrollerRef.current) {
-    // Update scroll position
-    scrollerRef.current.scrollLeft = externalScrollLeft;
-
-    // Update the index, but avoid triggering stabilization logic
-    updateIndex(externalScrollLeft, scrollDirection, false);
-  }
-}, [externalScrollLeft, scrollDirection]);
+    useEffect(() => {
+      if (typeof externalScrollLeft === "number") {
+        updateIndex(externalScrollLeft, scrollDirection, false);
+      }
+    }, [externalScrollLeft, scrollDirection]);
 
     const targetFPS = 40;
     const frameDuration = 1000 / targetFPS;
@@ -208,7 +208,7 @@ useEffect(() => {
     useEffect(() => {
       let animationFrameId: number | null = null;
 
-      const scrollListener = throttle((_: Event) => {
+      const scrollListener = (_: Event) => {
         if (animationFrameId === null) {
           animationFrameId = requestAnimationFrame((currentTime) => {
             const deltaTime = currentTime - lastFrameTime;
@@ -221,7 +221,7 @@ useEffect(() => {
             animationFrameId = null;
           });
         }
-      }, 0);
+      };
 
       if (!isSlave()) {
         const scroller = scrollerRef.current;
@@ -247,7 +247,6 @@ useEffect(() => {
     useEffect(() => {
       if (scrollerRef.current) {
         scrollerRef.current.scrollLeft = patchedOffset();
-        setScrollDirection(Direction.RIGHT);
         const { positions, multipliers } = memoizedPositionsAndMultipliers;
         setPositions(positions);
         setMultipliers(multipliers);
