@@ -239,13 +239,15 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
 
     const compare = (a: any[], b: any[]) => {
       return JSON.stringify(a) === JSON.stringify(b);
-    }
+    };
 
     useEffect(() => {
-      const { positions, multipliers, offsets } = memoizedPositionsAndMultipliers;
+      const { positions, multipliers, offsets } =
+        memoizedPositionsAndMultipliers;
 
       if (!compare(positions, currentPositions)) setCurrentPositions(positions);
-      if (!compare(multipliers, currentMultipliers)) setCurrentMultipliers(multipliers);
+      if (!compare(multipliers, currentMultipliers))
+        setCurrentMultipliers(multipliers);
       if (!compare(offsets, currentOffsets)) setCurrentOffsets(offsets);
     }, [memoizedPositionsAndMultipliers]);
 
@@ -253,8 +255,10 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       if (scrollerRef.current) {
         scrollerRef.current.scrollLeft = patchedOffset();
         const { positions, multipliers } = memoizedPositionsAndMultipliers;
-        setCurrentPositions(positions);
-        setCurrentMultipliers(multipliers);
+        if (!compare(positions, currentPositions))
+          setCurrentPositions(positions);
+        if (!compare(multipliers, currentMultipliers))
+          setCurrentMultipliers(multipliers);
       }
     }, []);
 
@@ -293,9 +297,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
           wrapperClassName
         }
       >
-        {debug === 2 && (
-          <div className={styles["debug"]}>{currentIndex}</div>
-        )}
+        {debug === 2 && <div className={styles["debug"]}>{currentIndex}</div>}
         <div
           ref={scrollerRef}
           className={`${styles["carousel-slider"]} ${sliderClassName}`}
