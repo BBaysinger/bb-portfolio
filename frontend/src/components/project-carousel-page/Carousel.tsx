@@ -269,6 +269,13 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       }
     }, []);
 
+    // useEffect(() => {
+    //   if (scrollerRef.current) {
+    //     console.log("patchedOffset", patchedOffset());
+    //     scrollerRef.current.scrollLeft = patchedOffset();
+    //   }
+    // }, []);
+
     const isSlave = () => typeof externalScrollLeft === "number";
     const patchedOffset = () => (isSlave() ? 0 : BASE_OFFSET);
 
@@ -310,7 +317,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
           className={`${styles["carousel-slider"]} ${sliderClassName}`}
           style={{ transform: slaveTransform() }}
         >
-          {/* <div className={styles["carousel-test"]} style={{left: BASE_OFFSET + "px", width: BASE_OFFSET + "px"}}></div> */}
+          <div className={styles["carousel-test"]} style={{left: BASE_OFFSET + "px"}}></div>
           {memoizedSlides.map((slide, index) => (
             <div
               key={index}
