@@ -7,6 +7,7 @@ import React, {
   useImperativeHandle,
   forwardRef,
 } from "react";
+import gsap from "gsap";
 
 import styles from "./Carousel.module.scss";
 
@@ -45,29 +46,43 @@ export interface CarouselRef {
 }
 
 /**
- * Bi-directional, infinite-scolling (wraparound) carousel using native HTML
- * element inertial scroll behavior.
+ * Bi-directional, left/right infinite-scolling (wrap-around) carousel designed
+ * for parallaxing. Uses native HTML element inertial touch/trackpad scroll behavior.
+ *
  * Can be a master or slave carousel. Master carousel intercepts and controls the
  * interactions, and can then be used by a parent that delegates the scroll
  * parameters to slave carousels that are also instances of this FC, although
  * their mechanics are slightly different for performance and other reasons.
- * This allows for parallax effects and other complex interactions.
- * React is the only dependency.
+ * This allows for parallax effects and other complex interactions. Using just two
+ * (master/slave pair) carousels doesn't synch well enough for a parallax, so the
+ * master would typically be invisible. The slaves then appear in sync with each
+ * other, in response to the master.
  *
- * The main gotchas are:
+ * There are reasons you don't see many carousels this smooth, lol.
+ *
+ * React is the only totally necessary dependency, but GSAP is used for now for
+ * smooth scrolling on updates from the parent.
+ *
+ * The main gotchas, handled internally, that dictated the strategy are:
  *
  * 1. HTML element scrollLeft does not allow negative values, which normally would
- *    interfere with the infinite scrolling. This is handled by a BASE_OFFSET
- *    (temporary solution). It's not a critical issue for current use cases,
- *    but I come back to it.
+ *    interfere with infinite left scrolling. This is handled by a BASE_OFFSET
+ *    (temporary solution). This *could* be handled in a way that additionally resets
+ *    the offsets after scroll stops. I've done that and it works, but it will be
+ *    more elegant when Safari supports the `scrollend` event. It's not a critical
+ *    issue for current use cases, but I'll come back to it.
  *
  * 2. snap-type "x mandatory" can interfere with the initial scroll position
- *    and callbacks, so it gets set at a delay after the first render.
+ *    and callbacks, causing mysterious recusions, so it gets set on a delay
+ *    after the first render.
  *
  * 3. Setting scrollLeft initially to the base offset requires a shim element
  *    placed out somewhere beyond the intial scroll position plus wrapper width.
  *
  * TODO: There's more to write here, but this is some key info so far.
+ *
+ * TODO: Add support for *non-native* touch/trackpad/pointer initerial scrolling
+ * as an *option*.
  *
  * TODO: This should automatically clone slides when there are not enough
  * to prevent blanking at the edges. Needs to control lazy loading in slides.
@@ -348,9 +363,11 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
         const { positions: newPositions } = memoizedPositionsAndMultipliers;
         const targetPosition = newPositions[targetIndex] + patchedOffset();
 
-        scrollerRef.current.scrollTo({
-          left: targetPosition,
-          behavior: "smooth",
+        // Use GSAP for smooth scrolling
+        gsap.to(scrollerRef.current, {
+          scrollTo: { x: targetPosition }, // Scroll to the target position
+          duration: 1.5, // Duration in seconds
+          ease: "power2.inOut", // Easing function
         });
       },
       // scrollToDataIndex, // Add this method
