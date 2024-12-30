@@ -353,7 +353,11 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
         setScrollDirection(direction);
 
         const { positions: newPositions } = memoizedPositionsAndMultipliers;
-        const targetPosition = newPositions[targetIndex] + patchedOffset();
+
+        // Calculate the target position and adjust for centering
+        const containerOffset = (wrapperWidth - slideWidth) / 2;
+        const targetPosition =
+          newPositions[targetIndex] + patchedOffset() - containerOffset;
 
         gsap.to(scrollerRef.current, {
           scrollTo: { x: targetPosition },
@@ -361,7 +365,6 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
           ease: "power2.inOut",
         });
       },
-      // scrollToDataIndex, // Add this method
     }));
 
     const isDebug = () => debug != null && debug !== 0 && debug !== "";
