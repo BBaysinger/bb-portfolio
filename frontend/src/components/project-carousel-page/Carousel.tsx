@@ -46,51 +46,40 @@ export interface CarouselRef {
 }
 
 /**
- * Bi-directional, left/right infinite-scolling (wrap-around) carousel designed
- * for parallaxing. Uses native HTML element inertial touch/trackpad scroll behavior.
+ * Bi-directional, infinite-scroll carousel with wrap-around behavior, designed for parallax effects.
+ * Leverages native HTML inertial touch/trackpad scrolling for smooth interactions.
  *
- * Can be a master or slave carousel. Master carousel intercepts and controls the
- * interactions, and can then be used by a parent that delegates the scroll
- * parameters to slave carousels that are also instances of this FC, although
- * their mechanics are slightly different for performance and other reasons.
- * This allows for parallax effects and other complex interactions. Using just two
- * (master/slave pair) carousels doesn't synch well enough for a parallax, so the
- * master would typically be invisible. The slaves then appear in sync with each
- * other, in response to the master.
+ * Supports master/slave architecture:
+ * - **Master Carousel:** Intercepts and controls interactions, allowing delegation of scroll parameters to slave carousels via parent/child architecture.
+ * - **Slave Carousel:** Follows the master's scroll updates, enabling synchronized parallax effects.
+ *   For effective parallaxing, the master is typically invisible, while the slaves remain visible and synchronized.
  *
- * There are reasons you don't see many carousels this smooth, lol.
+ * Dependencies:
+ * - React (required)
+ * - GSAP (optional; used here for smooth scrolling during updates).
  *
- * React is the only totally necessary dependency, but GSAP is used for now for
- * smooth scrolling on updates from the parent.
+ * Key Challenges Addressed:
+ * 1. **Infinite Scrolling:** HTML's `scrollLeft` doesn't support negative values. This is mitigated with a `BASE_OFFSET` set to a large value.
+ *    - Future Improvement: Reset offsets during scroll stops once Safari supports the `scrollend` event.
  *
- * The main gotchas, handled internally, that dictated the strategy are:
+ * 2. **Scroll Snap Behavior:** `scroll-snap-type: x mandatory` interferes with initial positioning and callbacks.
+ *    - Resolution: Applied on a delay post-render to avoid recursion issues.
  *
- * 1. HTML element scrollLeft does not allow negative values, which normally would
- *    interfere with infinite left scrolling. This is handled by a BASE_OFFSET
- *    (temporary solution). This *could* be handled in a way that additionally resets
- *    the offsets after scroll stops. I've done that and it works, but it will be
- *    more elegant when Safari supports the `scrollend` event. It's not a critical
- *    issue for current use cases, but I'll come back to it.
+ * 3. **Initial Offset:** Setting `scrollLeft` to the base offset requires a shim element beyond the initial scroll position plus wrapper width.
  *
- * 2. snap-type "x mandatory" can interfere with the initial scroll position
- *    and callbacks, causing mysterious recusions, so it gets set on a delay
- *    after the first render.
+ * Known Quirks:
+ * - WebKit occasionally miscalculates positions during rightward scrolling, causing Chrome to "snap back." This is rare and non-critical but under investigation.
  *
- * 3. Setting scrollLeft initially to the base offset requires a shim element
- *    placed out somewhere beyond the intial scroll position plus wrapper width.
+ * TODO:
+ * - Add non-native inertial scrolling as an optional feature.
+ * - Clone slides dynamically to prevent blank spaces at edges.
+ * - Implement lazy loading for slides and ensure proper wrapping of slider positions.
  *
- * TODO: There's more to write here, but this is some key info so far.
- *
- * TODO: Add support for *non-native* touch/trackpad/pointer initerial scrolling
- * as an *option*.
- *
- * TODO: This should automatically clone slides when there are not enough
- * to prevent blanking at the edges. Needs to control lazy loading in slides.
- * Needs slider position to wrap to a bounding.
+ * Notes:
+ * - Smoothness achieved here the main objective, and uncommon if you compare it to most every other carousel you've seen.
  *
  * @author Bradley Baysinger
  * @since 2024-12-16
- * @version N/A
  */
 const Carousel = forwardRef<CarouselRef, CarouselProps>(
   (
