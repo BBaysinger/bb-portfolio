@@ -28,7 +28,7 @@ interface CarouselProps {
   slides: React.ReactNode[];
   slideSpacing: number;
   initialIndex?: number;
-  onIndexUpdate?: (scrollOffsetIndex: number) => void;
+  onIndexUpdate?: (scrollIndex: number) => void;
   debug?: string | number | null;
   wrapperClassName?: string;
   slideClassName?: string;
@@ -44,11 +44,16 @@ export interface CarouselRef {
 }
 
 /**
- * Infinite scolling carousel using native HTML element inertial scroll behavior.
+ * Bi-directional, infinite-scolling (wraparound) carousel using native HTML
+ * element inertial scroll behavior.
  * Can be a master or slave carousel. Master carousel intercepts and controls the
- * interactions, and can then delegate the scroll parameters to slave carousels.
+ * interactions, and can then but used by a parent that delegates the scroll
+ * parameters to slave carousels that are also instances of this FC, although
+ * thier mechanics are slightly different for performance and other reasons.
  * This allows for parallax effects and other complex interactions.
  * React is the only dependency.
+ *
+ * The two main gotchas... (TODO)
  *
  * TODO: This should automatically clone slides when there are not enough
  * to prevent blanking at the edges. Needs to control lazy loading in slides.
@@ -78,7 +83,8 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
   ) => {
     const scrollerRef = useRef<HTMLDivElement>(null);
     const wrapperRef = useRef<HTMLDivElement>(null);
-    const [scrollOffsetIndex, setScrollOffsetIndex] = useState(initialIndex);
+    const [scrollIndex, setScrollIndex] = useState(initialIndex);
+    const [dataIndex, setDataIndex] = useState(initialIndex);
     const [_previousIndex, setPreviousIndex] = useState(NaN);
     const [slideWidth, setSlideWidth] = useState<number>(0);
     const [wrapperWidth, setWrapperWidth] = useState<number>(0);
@@ -103,12 +109,12 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
         if (scrollDirection === Direction.RIGHT) {
           const threshold = 2;
           multiplier = -Math.floor(
-            (index - scrollOffsetIndex + threshold) / memoizedSlides.length,
+            (index - scrollIndex + threshold) / memoizedSlides.length,
           );
         } else if (scrollDirection === Direction.LEFT) {
           const threshold = 4;
           multiplier = Math.floor(
-            (scrollOffsetIndex - index + threshold) / memoizedSlides.length,
+            (scrollIndex - index + threshold) / memoizedSlides.length,
           );
         } else {
           throw new Error("No scroll direction set.");
@@ -131,7 +137,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
         );
 
         const normalizedOffset =
-          (((index - scrollOffsetIndex) % memoizedSlides.length) +
+          (((index - scrollIndex) % memoizedSlides.length) +
             memoizedSlides.length) %
           memoizedSlides.length;
 
@@ -147,31 +153,41 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
         multipliers: newMultipliers,
         offsets: newOffsets,
       };
-    }, [scrollOffsetIndex, scrollDirection, slideWidth, wrapperWidth]);
+    }, [scrollIndex, scrollDirection, slideWidth, wrapperWidth]);
 
-    const updateIndex = (
+    const updateIndexPerPosition = (
       scrollLeft: number,
       updateStableIndex: boolean = true,
     ) => {
-      const newScrollOffsetIndex = -Math.round(
+      const totalSlides = memoizedSlides.length;
+
+      const newScrollIndex = -Math.round(
         (patchedOffset() - scrollLeft) / slideSpacing,
       );
 
-      if (newScrollOffsetIndex !== scrollOffsetIndex) {
+      // const newScrollIndex = Math.round(
+      //   (scrollLeft - patchedOffset()) / slideSpacing,
+      // );
+
+      setDataIndex(
+        ((newScrollIndex % totalSlides) + totalSlides) % totalSlides,
+      );
+
+      // console.log("Indexes updated:", { newScrollIndex, dataIndex });
+
+      if (newScrollIndex !== scrollIndex) {
         const newDirection =
-          newScrollOffsetIndex > scrollOffsetIndex
-            ? Direction.RIGHT
-            : Direction.LEFT;
+          newScrollIndex > scrollIndex ? Direction.RIGHT : Direction.LEFT;
 
         if (newDirection !== scrollDirection) {
           setScrollDirection(newDirection);
         }
 
-        setPreviousIndex(scrollOffsetIndex);
-        setScrollOffsetIndex(newScrollOffsetIndex);
+        setPreviousIndex(scrollIndex);
+        setScrollIndex(newScrollIndex);
 
         if (onIndexUpdate) {
-          onIndexUpdate(newScrollOffsetIndex);
+          onIndexUpdate(dataIndex);
         }
 
         if (stabilizationTimer.current) {
@@ -180,11 +196,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
 
         if (updateStableIndex && onStableIndex) {
           stabilizationTimer.current = setTimeout(() => {
-            const normalizedIndex =
-              ((newScrollOffsetIndex % memoizedSlides.length) +
-                memoizedSlides.length) %
-              memoizedSlides.length;
-            onStableIndex(normalizedIndex);
+            onStableIndex(dataIndex);
           }, stabilizationDuration);
         }
       }
@@ -194,15 +206,14 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       }
     };
 
-    const updateIndexRef = useRef(updateIndex);
+    const updateIndexRef = useRef(updateIndexPerPosition);
 
     useEffect(() => {
-      updateIndexRef.current = updateIndex;
-    }, [updateIndex]);
+      updateIndexRef.current = updateIndexPerPosition;
+    }, [updateIndexPerPosition]);
 
     const handleScroll = useCallback(() => {
       if (!scrollerRef.current) return;
-      // setEnableSnap(true);
 
       const scrollLeft = scrollerRef.current.scrollLeft;
 
@@ -211,7 +222,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
 
     useEffect(() => {
       if (typeof externalScrollLeft === "number") {
-        updateIndex(externalScrollLeft, false);
+        updateIndexPerPosition(externalScrollLeft, false);
       }
     }, [externalScrollLeft]);
 
@@ -252,6 +263,9 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       return JSON.stringify(a) === JSON.stringify(b);
     };
 
+    const isSlave = () => typeof externalScrollLeft === "number";
+    const patchedOffset = () => (isSlave() ? 0 : BASE_OFFSET);
+
     useEffect(() => {
       const { positions, multipliers, offsets } =
         memoizedPositionsAndMultipliers;
@@ -264,13 +278,31 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
     }, [memoizedPositionsAndMultipliers]);
 
     useEffect(() => {
-      if (scrollerRef.current) {
-        scrollerRef.current.scrollLeft = patchedOffset();
-        const { positions, multipliers } = memoizedPositionsAndMultipliers;
-        if (!compare(positions, currentPositions)) {
-          setCurrentPositions(positions);
-          setCurrentMultipliers(multipliers);
-        }
+      if (!scrollerRef.current) return;
+
+      const totalSlides = memoizedSlides.length;
+      const normalizedIndex =
+        ((initialIndex % totalSlides) + totalSlides) % totalSlides;
+
+      const newScrollIndex = scrollIndex + (normalizedIndex - dataIndex);
+      const targetScrollLeft = newScrollIndex * slideSpacing + patchedOffset();
+
+      setDataIndex(normalizedIndex);
+      setScrollIndex(newScrollIndex);
+
+      if (!isSlave()) {
+        console.log("Scrolling to data index:", {
+          initialIndex,
+          normalizedIndex,
+          newScrollIndex,
+          targetScrollLeft,
+        });
+        scrollerRef.current.scrollLeft = targetScrollLeft;
+      }
+      const { positions, multipliers } = memoizedPositionsAndMultipliers;
+      if (!compare(positions, currentPositions)) {
+        setCurrentPositions(positions);
+        setCurrentMultipliers(multipliers);
       }
     }, []);
 
@@ -301,9 +333,6 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       return () => clearTimeout(timer);
     }, [slides]);
 
-    const isSlave = () => typeof externalScrollLeft === "number";
-    const patchedOffset = () => (isSlave() ? 0 : BASE_OFFSET);
-
     const slaveTransform = (): string => {
       if (typeof externalScrollLeft === "number") {
         return `translateX(${Math.round(-externalScrollLeft)}px)`;
@@ -327,6 +356,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
           behavior: "smooth",
         });
       },
+      // scrollToDataIndex, // Add this method
     }));
 
     return (
@@ -339,7 +369,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       >
         {debug === 2 && (
           <div className={styles["debug"]}>
-            {/* {scrollOffsetIndex} {scrollerRef.current?.scrollLeft} */}
+            {/* {scrollIndex} {scrollerRef.current?.scrollLeft} */}
           </div>
         )}
         <div
@@ -364,6 +394,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
               }
               style={{
                 transform: `translateX(${patchedOffset() + currentPositions[index]}px)`,
+                visibility: !isSlave() || debug ? "visible" : "unset",
               }}
             >
               {/* {debug && (
