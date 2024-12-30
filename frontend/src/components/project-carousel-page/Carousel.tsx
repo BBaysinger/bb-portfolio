@@ -28,7 +28,7 @@ interface CarouselProps {
   slides: React.ReactNode[];
   slideSpacing: number;
   initialIndex?: number;
-  onIndexUpdate?: (currentIndex: number) => void;
+  onIndexUpdate?: (scrollOffsetIndex: number) => void;
   debug?: string | number | null;
   wrapperClassName?: string;
   slideClassName?: string;
@@ -78,7 +78,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
   ) => {
     const scrollerRef = useRef<HTMLDivElement>(null);
     const wrapperRef = useRef<HTMLDivElement>(null);
-    const [currentIndex, setCurrentIndex] = useState(initialIndex);
+    const [scrollOffsetIndex, setScrollOffsetIndex] = useState(initialIndex);
     const [_previousIndex, setPreviousIndex] = useState(NaN);
     const [slideWidth, setSlideWidth] = useState<number>(0);
     const [wrapperWidth, setWrapperWidth] = useState<number>(0);
@@ -103,12 +103,12 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
         if (scrollDirection === Direction.RIGHT) {
           const threshold = 2;
           multiplier = -Math.floor(
-            (index - currentIndex + threshold) / memoizedSlides.length,
+            (index - scrollOffsetIndex + threshold) / memoizedSlides.length,
           );
         } else if (scrollDirection === Direction.LEFT) {
           const threshold = 4;
           multiplier = Math.floor(
-            (currentIndex - index + threshold) / memoizedSlides.length,
+            (scrollOffsetIndex - index + threshold) / memoizedSlides.length,
           );
         } else {
           throw new Error("No scroll direction set.");
@@ -131,7 +131,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
         );
 
         const normalizedOffset =
-          (((index - currentIndex) % memoizedSlides.length) +
+          (((index - scrollOffsetIndex) % memoizedSlides.length) +
             memoizedSlides.length) %
           memoizedSlides.length;
 
@@ -147,29 +147,31 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
         multipliers: newMultipliers,
         offsets: newOffsets,
       };
-    }, [currentIndex, scrollDirection, slideWidth, wrapperWidth]);
+    }, [scrollOffsetIndex, scrollDirection, slideWidth, wrapperWidth]);
 
     const updateIndex = (
       scrollLeft: number,
       updateStableIndex: boolean = true,
     ) => {
-      const newIndex = -Math.round(
+      const newScrollOffsetIndex = -Math.round(
         (patchedOffset() - scrollLeft) / slideSpacing,
       );
 
-      if (newIndex !== currentIndex) {
+      if (newScrollOffsetIndex !== scrollOffsetIndex) {
         const newDirection =
-          newIndex > currentIndex ? Direction.RIGHT : Direction.LEFT;
+          newScrollOffsetIndex > scrollOffsetIndex
+            ? Direction.RIGHT
+            : Direction.LEFT;
 
         if (newDirection !== scrollDirection) {
           setScrollDirection(newDirection);
         }
 
-        setPreviousIndex(currentIndex);
-        setCurrentIndex(newIndex);
+        setPreviousIndex(scrollOffsetIndex);
+        setScrollOffsetIndex(newScrollOffsetIndex);
 
         if (onIndexUpdate) {
-          onIndexUpdate(newIndex);
+          onIndexUpdate(newScrollOffsetIndex);
         }
 
         if (stabilizationTimer.current) {
@@ -179,7 +181,8 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
         if (updateStableIndex && onStableIndex) {
           stabilizationTimer.current = setTimeout(() => {
             const normalizedIndex =
-              ((newIndex % memoizedSlides.length) + memoizedSlides.length) %
+              ((newScrollOffsetIndex % memoizedSlides.length) +
+                memoizedSlides.length) %
               memoizedSlides.length;
             onStableIndex(normalizedIndex);
           }, stabilizationDuration);
@@ -336,7 +339,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       >
         {debug === 2 && (
           <div className={styles["debug"]}>
-            {/* {currentIndex} {scrollerRef.current?.scrollLeft} */}
+            {/* {scrollOffsetIndex} {scrollerRef.current?.scrollLeft} */}
           </div>
         )}
         <div
