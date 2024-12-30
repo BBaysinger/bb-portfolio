@@ -48,7 +48,7 @@ export interface CarouselRef {
  * Bi-directional, infinite-scolling (wraparound) carousel using native HTML
  * element inertial scroll behavior.
  * Can be a master or slave carousel. Master carousel intercepts and controls the
- * interactions, and can then but used by a parent that delegates the scroll
+ * interactions, and can then be used by a parent that delegates the scroll
  * parameters to slave carousels that are also instances of this FC, although
  * their mechanics are slightly different for performance and other reasons.
  * This allows for parallax effects and other complex interactions.
@@ -56,15 +56,16 @@ export interface CarouselRef {
  *
  * The main gotchas are:
  *
- * 1. HTML element scrollLeft does not allow negative values, which interferes
- *    with the infinite scrolling. This is handled by a BASE_OFFSET that is a
- *    temporary solution. It's not a critical issue for current use cases.
+ * 1. HTML element scrollLeft does not allow negative values, which normally would
+ *    interfere with the infinite scrolling. This is handled by a BASE_OFFSET
+ *    (temporary solution). It's not a critical issue for current use cases,
+ *    but I come back to it.
  *
- * 2. snap-type "x mandatory" can interfere with the initial scroll position,
- *    so it gets set at a delay after the first render.
+ * 2. snap-type "x mandatory" can interfere with the initial scroll position
+ *    and callbacks, so it gets set at a delay after the first render.
  *
  * 3. Setting scrollLeft initially to the base offset requires a shim element
- *    placed out somewhere beyond the intial scroll position.
+ *    placed out somewhere beyond the intial scroll position plus wrapper width.
  *
  * TODO: There's more to write here, but this is some key info so far.
  *
@@ -292,7 +293,9 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
         ((initialIndex % totalSlides) + totalSlides) % totalSlides;
 
       const newScrollIndex = scrollIndex + (normalizedIndex - dataIndex);
-      const targetScrollLeft = newScrollIndex * slideSpacing + patchedOffset();
+      const targetScrollLeft = Math.round(
+        newScrollIndex * slideSpacing + patchedOffset(),
+      );
 
       setDataIndex(normalizedIndex);
       setScrollIndex(newScrollIndex);
