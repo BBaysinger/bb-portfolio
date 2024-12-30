@@ -80,25 +80,25 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       stabilizationDuration = 400,
     },
     ref,
-  ) => {
-    const scrollerRef = useRef<HTMLDivElement>(null);
-    const wrapperRef = useRef<HTMLDivElement>(null);
+  ) => {    
     const [scrollIndex, setScrollIndex] = useState(initialIndex);
     const [dataIndex, setDataIndex] = useState(initialIndex);
     const [_previousIndex, setPreviousIndex] = useState<number | null>(null);
     const [stableIndex, setStableIndex] = useState(initialIndex);
     const [slideWidth, setSlideWidth] = useState<number>(0);
     const [wrapperWidth, setWrapperWidth] = useState<number>(0);
-
     const [enableSnap, setEnableSnap] = useState(false);
-    const [scrollDirection, setScrollDirection] =
-      useState<DirectionType | null>(Direction.RIGHT);
     const [currentPositions, setCurrentPositions] = useState<number[]>([]);
     const [currentMultipliers, setCurrentMultipliers] = useState<number[]>([]);
     const [currentOffsets, setCurrentOffsets] = useState<number[]>([]);
-    const stabilizationTimer = useRef<NodeJS.Timeout | null>(null);
+    const [scrollDirection, setScrollDirection] =
+    useState<DirectionType | null>(Direction.RIGHT);
+
     const memoizedSlides = useMemo(() => slides, [slides]);
+    const stabilizationTimer = useRef<NodeJS.Timeout | null>(null);
     const slideRefs = useRef<(HTMLDivElement | null)[]>([]);
+    const scrollerRef = useRef<HTMLDivElement>(null);
+    const wrapperRef = useRef<HTMLDivElement>(null);
 
     const memoizedPositionsAndMultipliers = useMemo(() => {
       const newPositions: number[] = [];
@@ -106,7 +106,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       const newOffsets: number[] = [];
 
       memoizedSlides.forEach((_, index) => {
-        let multiplier: number = NaN;
+        let multiplier: number | null = null;
         if (scrollDirection === Direction.RIGHT) {
           const threshold = 2;
           multiplier = -Math.floor(
