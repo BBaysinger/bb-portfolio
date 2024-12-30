@@ -85,7 +85,8 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
     const wrapperRef = useRef<HTMLDivElement>(null);
     const [scrollIndex, setScrollIndex] = useState(initialIndex);
     const [dataIndex, setDataIndex] = useState(initialIndex);
-    const [_previousIndex, setPreviousIndex] = useState(NaN);
+    const [_previousIndex, setPreviousIndex] = useState<number | null>(null);
+    const [stableIndex, setStableIndex] = useState(initialIndex);
     const [slideWidth, setSlideWidth] = useState<number>(0);
     const [wrapperWidth, setWrapperWidth] = useState<number>(0);
 
@@ -192,7 +193,8 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
 
         if (updateStableIndex && onStableIndex) {
           stabilizationTimer.current = setTimeout(() => {
-            onStableIndex(dataIndex);
+            setStableIndex(dataIndex);
+            onStableIndex(stableIndex);
           }, stabilizationDuration);
         }
       }
@@ -354,6 +356,8 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       // scrollToDataIndex, // Add this method
     }));
 
+    const isDebug = () => debug != null && debug !== 0 && debug !== "";
+
     return (
       <div
         ref={wrapperRef}
@@ -362,11 +366,11 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
           wrapperClassName
         }
       >
-        {/* {debug === 2 && (
+        {isDebug() && (
           <div className={styles["debug"]}>
-            {scrollIndex} {scrollerRef.current?.scrollLeft}
+            {scrollIndex} {stableIndex} {scrollerRef.current?.scrollLeft}
           </div>
-        )} */}
+        )}
         <div
           ref={scrollerRef}
           className={`${styles["carousel-slider"]} ${sliderClassName}`}
@@ -389,10 +393,10 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
               }
               style={{
                 transform: `translateX(${patchedOffset() + currentPositions[index]}px)`,
-                visibility: debug ? "visible" : "unset",
+                ...(isDebug() && { visibility: "visible" }),
               }}
             >
-              {debug != null && debug !== 0 && debug !== "" && (
+              {isDebug() && (
                 <div className={styles["debug-info"]}>
                   <div>Index: {index}</div>
                   <div>Multiplier: {currentMultipliers[index]}</div>
