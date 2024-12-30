@@ -8,8 +8,11 @@ import React, {
   forwardRef,
 } from "react";
 import gsap from "gsap";
+import { ScrollToPlugin } from "gsap/ScrollToPlugin";
 
 import styles from "./Carousel.module.scss";
+
+gsap.registerPlugin(ScrollToPlugin);
 
 // BASE_OFFSET accounts for that HTML elements don't scroll
 // to negative scrollLeft. TODO: This can be handled in a way that instead
@@ -352,11 +355,10 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
         const { positions: newPositions } = memoizedPositionsAndMultipliers;
         const targetPosition = newPositions[targetIndex] + patchedOffset();
 
-        // Use GSAP for smooth scrolling
         gsap.to(scrollerRef.current, {
-          scrollTo: { x: targetPosition }, // Scroll to the target position
-          duration: 1.5, // Duration in seconds
-          ease: "power2.inOut", // Easing function
+          scrollTo: { x: targetPosition },
+          duration: 1.0,
+          ease: "power2.inOut",
         });
       },
       // scrollToDataIndex, // Add this method
