@@ -52,11 +52,11 @@ export interface CarouselRef {
  * Supports master/slave architecture:
  * - **Master Carousel:** Intercepts and controls interactions, allowing delegation of scroll parameters to slave carousels via parent/child architecture.
  * - **Slave Carousel:** Follows the master's scroll updates, enabling synchronized parallax effects.
- *   For effective parallaxing, the master is typically invisible, while the slaves remain visible and synchronized.
+ *   For effective parallaxing, the master is typically invisible, while the slaves remain visible to appear more synchronized.
  *
  * Dependencies:
  * - React (required)
- * - GSAP (optional; used here for smooth scrolling during updates).
+ * - GSAP (used here for smooth scrolling during updates, but could be swapped out).
  *
  * Key Challenges Addressed:
  * 1. **Infinite Scrolling:** HTML's `scrollLeft` doesn't support negative values. This is mitigated with a `BASE_OFFSET` set to a large value.
@@ -65,7 +65,7 @@ export interface CarouselRef {
  * 2. **Scroll Snap Behavior:** `scroll-snap-type: x mandatory` interferes with initial positioning and callbacks.
  *    - Resolution: Applied on a delay post-render to avoid recursion issues.
  *
- * 3. **Initial Offset:** Setting `scrollLeft` to the base offset requires a shim element beyond the initial scroll position plus wrapper width.
+ * 3. **Initial Offset:** Setting `scrollLeft` to the base offset requires the scroller to be shimmed/propped to the required width.
  *
  * Known Quirks:
  * - WebKit occasionally miscalculates positions during rightward scrolling, causing Chrome to "snap back." This is rare and non-critical but under investigation.
@@ -76,7 +76,7 @@ export interface CarouselRef {
  * - Implement lazy loading for slides and ensure proper wrapping of slider positions.
  *
  * Notes:
- * - Smoothness achieved here the main objective, and uncommon if you compare it to most every other carousel you've seen.
+ * - Smoothness achieved here the main objective, and uncommon if you compare it to most every other carousel.
  *
  * @author Bradley Baysinger
  * @since 2024-12-16
