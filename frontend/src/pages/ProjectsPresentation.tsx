@@ -68,6 +68,7 @@ const ProjectsPresentation: React.FC = () => {
           layer2Slides={phoneSlides}
           onIndexUpdate={handleCarouselIndexUpdate}
           onStableIndex={onStableIndex}
+          initialIndex={projects[projectId].index}
         />
         <PageButtons />
         {/* <ProjectContent /> */}

@@ -29,6 +29,7 @@ export interface PortfolioProjectBase {
 
 export interface ParsedPortfolioProject extends PortfolioProjectBase {
   id: string;
+  index: number;
 }
 
 export type PortfolioProjectData = Record<string, PortfolioProjectBase>;
@@ -67,16 +68,19 @@ export default class ProjectData {
     return [...this._activeProjects];
   }
 
-  static get activeProjectsRecord(): Record<string, PortfolioProjectBase> {
+  static get activeProjectsRecord(): Record<string, ParsedPortfolioProject> {
     return this._activeProjects.reduce(
       (record, project) => {
         if (!project.id) {
-          throw new Error("Project ID is missing.");
+          throw new Error(`Project ${project.id} ID is missing.`);
+        }
+        if (typeof project.index !== "number") {
+          throw new Error(`Project ${project.id} index is missing.`);
         }
         record[project.id] = project;
         return record;
       },
-      {} as Record<string, PortfolioProjectBase>,
+      {} as Record<string, ParsedPortfolioProject>,
     );
   }
 
@@ -91,12 +95,13 @@ export default class ProjectData {
   ): ParsedPortfolioProjectData {
     const parsedData: ParsedPortfolioProjectData = {};
 
-    for (const key of Object.keys(data)) {
+    for (const [index, key] of Object.keys(data).entries()) {
       const item = data[key];
 
       parsedData[key] = {
         ...item,
         id: key,
+        index: index,
       };
     }
 
