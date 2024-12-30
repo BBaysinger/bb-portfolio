@@ -93,7 +93,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
     const [scrollDirection, setScrollDirection] =
       useState<DirectionType | null>(Direction.RIGHT);
     const [currentPositions, setCurrentPositions] = useState<number[]>([]);
-    const [_currentMultipliers, setCurrentMultipliers] = useState<number[]>([]);
+    const [currentMultipliers, setCurrentMultipliers] = useState<number[]>([]);
     const [currentOffsets, setCurrentOffsets] = useState<number[]>([]);
     const stabilizationTimer = useRef<NodeJS.Timeout | null>(null);
     const memoizedSlides = useMemo(() => slides, [slides]);
@@ -161,13 +161,9 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
     ) => {
       const totalSlides = memoizedSlides.length;
 
-      const newScrollIndex = -Math.round(
-        (patchedOffset() - scrollLeft) / slideSpacing,
+      const newScrollIndex = Math.round(
+        (scrollLeft - patchedOffset()) / slideSpacing,
       );
-
-      // const newScrollIndex = Math.round(
-      //   (scrollLeft - patchedOffset()) / slideSpacing,
-      // );
 
       setDataIndex(
         ((newScrollIndex % totalSlides) + totalSlides) % totalSlides,
@@ -306,11 +302,11 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       }
     }, []);
 
-    useEffect(() => {
-      if (scrollerRef.current && !isSlave()) {
-        scrollerRef.current.scrollLeft = patchedOffset();
-      }
-    }, []);
+    // useEffect(() => {
+    //   if (scrollerRef.current && !isSlave()) {
+    //     scrollerRef.current.scrollLeft = patchedOffset();
+    //   }
+    // }, []);
 
     useEffect(() => {
       const measureWidths = () => {
@@ -327,7 +323,6 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
         setWrapperWidth(newWrapperWidth);
       };
 
-      // Measure widths after layout completion
       const timer = setTimeout(measureWidths, 0);
 
       return () => clearTimeout(timer);
@@ -367,11 +362,11 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
           wrapperClassName
         }
       >
-        {debug === 2 && (
+        {/* {debug === 2 && (
           <div className={styles["debug"]}>
-            {/* {scrollIndex} {scrollerRef.current?.scrollLeft} */}
+            {scrollIndex} {scrollerRef.current?.scrollLeft}
           </div>
-        )}
+        )} */}
         <div
           ref={scrollerRef}
           className={`${styles["carousel-slider"]} ${sliderClassName}`}
@@ -385,8 +380,8 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
             <div
               key={index}
               ref={(el) => {
-                slideRefs.current[index] = el; // Assign to the ref array
-              }} // Ensure the function does not return a value
+                slideRefs.current[index] = el;
+              }}
               className={
                 `${styles["carousel-slide"]} ` +
                 `${Math.abs(currentOffsets[index]) > 1 ? styles["hidden-slide"] : ""} ` +
@@ -394,16 +389,16 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
               }
               style={{
                 transform: `translateX(${patchedOffset() + currentPositions[index]}px)`,
-                visibility: !isSlave() || debug ? "visible" : "unset",
+                visibility: debug ? "visible" : "unset",
               }}
             >
-              {/* {debug && (
+              {debug != null && debug !== 0 && debug !== "" && (
                 <div className={styles["debug-info"]}>
                   <div>Index: {index}</div>
                   <div>Multiplier: {currentMultipliers[index]}</div>
                   <div>xPos: {currentPositions[index] + "px"}</div>
                 </div>
-              )} */}
+              )}
               {slide}
             </div>
           ))}
