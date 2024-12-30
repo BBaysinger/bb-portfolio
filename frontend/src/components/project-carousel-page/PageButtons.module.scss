@@ -13,6 +13,7 @@ $mainBreak: 680px;
   margin-bottom: 40px;
 
   @include breakpoint-up($mainBreak) {
+    margin-top: 0;
     top: 310px;
     position: absolute;
     width: 100%;
