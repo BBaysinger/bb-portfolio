@@ -37,6 +37,7 @@ interface CarouselProps {
   externalScrollLeft?: number;
   onStableIndex?: (stableIndex: number) => void;
   stabilizationDuration?: number;
+  id?: string;
 }
 
 export interface CarouselRef {
@@ -49,11 +50,23 @@ export interface CarouselRef {
  * Can be a master or slave carousel. Master carousel intercepts and controls the
  * interactions, and can then but used by a parent that delegates the scroll
  * parameters to slave carousels that are also instances of this FC, although
- * thier mechanics are slightly different for performance and other reasons.
+ * their mechanics are slightly different for performance and other reasons.
  * This allows for parallax effects and other complex interactions.
  * React is the only dependency.
  *
- * The two main gotchas... (TODO)
+ * The main gotchas are:
+ *
+ * 1. HTML element scrollLeft does not allow negative values, which interferes
+ *    with the infinite scrolling. This is handled by a BASE_OFFSET that is a
+ *    temporary solution. It's not a critical issue for current use cases.
+ *
+ * 2. snap-type "x mandatory" can interfere with the initial scroll position,
+ *    so it gets set at a delay after the first render.
+ *
+ * 3. Setting scrollLeft initially to the base offset requires a shim element
+ *    placed out somewhere beyond the intial scroll position.
+ *
+ * TODO: There's more to write here, but this is some key info so far.
  *
  * TODO: This should automatically clone slides when there are not enough
  * to prevent blanking at the edges. Needs to control lazy loading in slides.
@@ -78,21 +91,22 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       externalScrollLeft,
       onStableIndex,
       stabilizationDuration = 400,
+      // id, // For debugging
     },
     ref,
-  ) => {    
+  ) => {
     const [scrollIndex, setScrollIndex] = useState(initialIndex);
     const [dataIndex, setDataIndex] = useState(initialIndex);
     const [_previousIndex, setPreviousIndex] = useState<number | null>(null);
     const [stableIndex, setStableIndex] = useState(initialIndex);
     const [slideWidth, setSlideWidth] = useState<number>(0);
     const [wrapperWidth, setWrapperWidth] = useState<number>(0);
-    const [enableSnap, setEnableSnap] = useState(false);
+    const [snap, setSnap] = useState("none");
     const [currentPositions, setCurrentPositions] = useState<number[]>([]);
     const [currentMultipliers, setCurrentMultipliers] = useState<number[]>([]);
     const [currentOffsets, setCurrentOffsets] = useState<number[]>([]);
     const [scrollDirection, setScrollDirection] =
-    useState<DirectionType | null>(Direction.RIGHT);
+      useState<DirectionType | null>(Direction.RIGHT);
 
     const memoizedSlides = useMemo(() => slides, [slides]);
     const stabilizationTimer = useRef<NodeJS.Timeout | null>(null);
@@ -125,8 +139,8 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
 
         const containerOffset = (wrapperWidth - slideWidth) / 2;
 
-        if (wrapperWidth > 0 && slideWidth > 0) {
-          setEnableSnap(true);
+        if (wrapperWidth > 0 && slideWidth > 0 && snap === "none") {
+          setTimeout(() => setSnap("x mandatory"), 100);
         }
 
         newPositions.push(
@@ -161,16 +175,13 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       updateStableIndex: boolean = true,
     ) => {
       const totalSlides = memoizedSlides.length;
+      const offset = scrollLeft - patchedOffset();
+      const newScrollIndex = Math.round(offset / slideSpacing);
 
-      const newScrollIndex = Math.round(
-        (scrollLeft - patchedOffset()) / slideSpacing,
-      );
+      const newValue =
+        ((newScrollIndex % totalSlides) + totalSlides) % totalSlides;
 
-      setDataIndex(
-        ((newScrollIndex % totalSlides) + totalSlides) % totalSlides,
-      );
-
-      // console.log("Indexes updated:", { newScrollIndex, dataIndex });
+      setDataIndex(newValue);
 
       if (newScrollIndex !== scrollIndex) {
         const newDirection =
@@ -193,8 +204,8 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
 
         if (updateStableIndex && onStableIndex) {
           stabilizationTimer.current = setTimeout(() => {
-            setStableIndex(dataIndex);
-            onStableIndex(stableIndex);
+            setStableIndex(newValue);
+            onStableIndex(newValue);
           }, stabilizationDuration);
         }
       }
@@ -212,9 +223,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
 
     const handleScroll = useCallback(() => {
       if (!scrollerRef.current) return;
-
       const scrollLeft = scrollerRef.current.scrollLeft;
-
       updateIndexRef.current(scrollLeft);
     }, []);
 
@@ -289,12 +298,6 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       setScrollIndex(newScrollIndex);
 
       if (!isSlave()) {
-        console.log("Scrolling to data index:", {
-          initialIndex,
-          normalizedIndex,
-          newScrollIndex,
-          targetScrollLeft,
-        });
         scrollerRef.current.scrollLeft = targetScrollLeft;
       }
       const { positions, multipliers } = memoizedPositionsAndMultipliers;
@@ -303,12 +306,6 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
         setCurrentMultipliers(multipliers);
       }
     }, []);
-
-    // useEffect(() => {
-    //   if (scrollerRef.current && !isSlave()) {
-    //     scrollerRef.current.scrollLeft = patchedOffset();
-    //   }
-    // }, []);
 
     useEffect(() => {
       const measureWidths = () => {
@@ -376,10 +373,15 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
           className={`${styles["carousel-slider"]} ${sliderClassName}`}
           style={{
             transform: slaveTransform(),
-            scrollSnapType: enableSnap ? "x mandatory" : "none",
+            scrollSnapType: snap,
           }}
         >
-          <div className={styles["carousel-shim"]}></div>
+          <div
+            className={styles["carousel-shim"]}
+            style={{
+              left: BASE_OFFSET * 2,
+            }}
+          ></div>
           {memoizedSlides.map((slide, index) => (
             <div
               key={index}

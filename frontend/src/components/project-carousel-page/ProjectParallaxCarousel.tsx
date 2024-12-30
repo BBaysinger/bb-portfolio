@@ -177,6 +177,7 @@ const ProjectParallaxCarousel = forwardRef<
           debug={0}
           initialIndex={initialIndex}
           wrapperClassName={"bb-carousel bb-carousel-laptops"}
+          id="laptops"
         />
 
         {/* Master Layer: Controls scroll and index synchronization */}
@@ -187,10 +188,11 @@ const ProjectParallaxCarousel = forwardRef<
           onScrollUpdate={handleMasterScrollLeft}
           onStableIndex={handleStableIndex}
           onIndexUpdate={handleIndexUpdate}
-          debug={1}
+          debug={0}
           initialIndex={initialIndex}
           wrapperClassName={"bb-carousel bb-carousel-master"}
           slideClassName={"bb-slide-wrapper"}
+          id="master"
         />
 
         {/* Layer 2: Parallax carousel for display */}
@@ -205,6 +207,7 @@ const ProjectParallaxCarousel = forwardRef<
           debug={0}
           initialIndex={initialIndex}
           wrapperClassName={"bb-carousel bb-carousel-phones"}
+          id="phones"
         />
       </div>
     );
