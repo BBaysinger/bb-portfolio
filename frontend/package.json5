@@ -25,7 +25,11 @@
     "prepare-package": "node -e \"require('fs').writeFileSync('./package.json', JSON.stringify(require('json5').parse(require('fs').readFileSync('./package.json5', 'utf8')), null, 2))\"",
   },
   dependencies: {
+    "@reduxjs/toolkit": "^2.5.0",
+    // Vite stuff here for Netflify deploy.
+    "@vitejs/plugin-react-swc": "^3.7.2",
     exenv: "^1.2.2",
+    gsap: "^3.12.5",
     mitt: "^3.0.1",
     react: "^19.0.0",
     "react-dom": "^19.0.0",
@@ -36,7 +40,6 @@
     // Vite stuff here for Netflify deploy.
     vite: "^6.0.6",
     "vite-tsconfig-paths": "^5.1.4",
-    "@vitejs/plugin-react-swc": "^3.7.2",
   },
   devDependencies: {
     "@eslint/js": "^9.17.0",
@@ -45,17 +48,17 @@
     "@types/react": "^19.0.2",
     "@types/react-dom": "^19.0.2",
     "@types/react-scroll": "^1.8.10",
-    "@typescript-eslint/eslint-plugin": "^8.18.2",
-    "@typescript-eslint/parser": "^8.18.2",
+    "@typescript-eslint/eslint-plugin": "^8.19.0",
+    "@typescript-eslint/parser": "^8.19.0",
     eslint: "^9.17.0",
     "eslint-plugin-react-hooks": "^5.1.0",
     "eslint-plugin-react-refresh": "^0.4.16",
     globals: "^15.14.0",
+    json5: "^2.2.3",
     "netlify-cli": "^17.38.1",
     prettier: "^3.4.2",
     sass: "^1.83.0",
     typescript: "~5.7.2",
-    json5: "^2.2.3",
   },
   engines: {
     // Causes an incorrect error in Netlify, but it's what I'm using locally anyhow.

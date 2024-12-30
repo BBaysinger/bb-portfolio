@@ -14,7 +14,7 @@ import styles from "./ProjectsPresentation.module.scss";
 
 const ProjectsPresentation: React.FC = () => {
   const carouselRef = useRef<{ scrollToSlide: (targetIndex: number) => void }>(
-    null
+    null,
   );
   const { projectId = "" } = useParams<{ projectId: string }>();
 
@@ -24,7 +24,11 @@ const ProjectsPresentation: React.FC = () => {
   const projects = ProjectData.activeProjectsRecord;
 
   const laptopSlides = ProjectData.activeProjects.map((project) => (
-    <DeviceDisplay deviceType={DeviceTypes.LAPTOP} id={project.id} key={project.id} />
+    <DeviceDisplay
+      deviceType={DeviceTypes.LAPTOP}
+      id={project.id}
+      key={project.id}
+    />
   ));
 
   const phoneSlides = ProjectData.activeProjects.map((project) => (
