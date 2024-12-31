@@ -1,9 +1,9 @@
 import { useState, useEffect, forwardRef } from "react";
 
 import { ParsedPortfolioProject } from "data/ProjectData";
-import styles from "./ProjectContent.module.scss";
+import styles from "./ProjectInfo.module.scss";
 
-interface ProjectContentProps {
+interface ProjectInfoProps {
   transition: string;
   dataNode: ParsedPortfolioProject;
   isActive: boolean;
@@ -16,15 +16,15 @@ interface ProjectContentProps {
  * @since The beginning of time.
  * @version N/A
  */
-const ProjectContent = forwardRef<HTMLDivElement, ProjectContentProps>(
+const ProjectInfo = forwardRef<HTMLDivElement, ProjectInfoProps>(
   ({ dataNode, isActive }, ref) => {
     const { desc, urls, role } = dataNode;
     const [delayedActive, setDelayedActive] = useState(false);
 
     useEffect(() => {
       if (isActive) {
-        const timeout = setTimeout(() => setDelayedActive(true), 500); // Adjust delay time as needed
-        return () => clearTimeout(timeout); // Cleanup timeout
+        const timeout = setTimeout(() => setDelayedActive(true), 600);
+        return () => clearTimeout(timeout);
       } else {
         setDelayedActive(false);
       }
@@ -89,4 +89,4 @@ const ProjectContent = forwardRef<HTMLDivElement, ProjectContentProps>(
   },
 );
 
-export default ProjectContent;
+export default ProjectInfo;

@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
 import HeaderSub from "components/layout/HeaderSub";
-import ProjectContent from "components/project-carousel-page/ProjectContent";
+import ProjectInfo from "components/project-carousel-page/ProjectInfo";
 import ProjectData from "data/ProjectData";
 import LogoSwapper from "components/project-carousel-page/LogoSwapper";
 import ProjectParallaxCarousel from "components/project-carousel-page/ProjectParallaxCarousel";
@@ -96,7 +96,7 @@ const ProjectsPresentation: React.FC = () => {
         <PageButtons />
         <div className={`${styles["project-info-wrapper"]} container`}>
           {keys.map((key, i) => (
-            <ProjectContent
+            <ProjectInfo
               key={key}
               isActive={i === stabilizedIndex}
               transition={""}
