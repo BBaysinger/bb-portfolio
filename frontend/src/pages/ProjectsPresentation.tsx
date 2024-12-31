@@ -100,11 +100,12 @@ const ProjectsPresentation: React.FC = () => {
           {keys.map((key, i) => (
             <ProjectContent
               key={key}
-              transition=""
+              isActive={key === projectId}
+              transition={""}
               ref={(el) => {
                 if (el) infoRefElems.current[i] = el;
               }}
-              projectData={projects[key]}
+              dataNode={projects[key]}
             />
           ))}
         </div>

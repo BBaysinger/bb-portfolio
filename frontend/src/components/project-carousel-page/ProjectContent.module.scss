@@ -4,12 +4,15 @@
  * @fileOverview 
  * @author Bradley Baysinger
  */
-#projectInfoAndFeatures {
+.project-info-and-features {
   position: absolute;
   left: 0px;
-  text-align: left;
-  display: inline-block;
   overflow: visible;
+  display: none;
+
+  &.active {
+    display: block;
+  }
 
   > * {
     position: relative;
