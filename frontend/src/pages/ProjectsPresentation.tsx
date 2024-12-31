@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
 import HeaderSub from "components/layout/HeaderSub";
-// import ProjectContent from "components/project-carousel-page/ProjectContent";
+import ProjectContent from "components/project-carousel-page/ProjectContent";
 import ProjectData from "data/ProjectData";
 import LogoSwapper from "components/project-carousel-page/LogoSwapper";
 import ProjectParallaxCarousel from "components/project-carousel-page/ProjectParallaxCarousel";
@@ -19,9 +19,9 @@ const ProjectsPresentation: React.FC = () => {
   const { projectId = "" } = useParams<{ projectId: string }>();
   const navigate = useNavigate();
 
-  // const infoRefElems = useRef<Array<ProjectContent | null>>([]);
+  const infoRefElems = useRef<(HTMLDivElement | null)[]>([]);
 
-  // const keys = ProjectData.activeKeys;
+  const keys = ProjectData.activeKeys;
   const projects = ProjectData.activeProjectsRecord;
 
   // Set the initial index only once during the first render
@@ -52,29 +52,14 @@ const ProjectsPresentation: React.FC = () => {
     />
   ));
 
-  // const infoElems = keys.map((key, i) => (
-  //   <ProjectContent
-  //     key={key}
-  //     transition={""}
-  //     ref={(el: ProjectContent | null) => {
-  //       if (el) infoRefElems.current[i] = el;
-  //     }}
-  //     projectData={projects[key]}
-  //   />
-  // ));
-
   const handleCarouselIndexUpdate = (_index: number) => {
     // Optional: Logic for intermediate updates
   };
 
   const onStableIndex = (index: number) => {
-    console.info("Stable index: ", index);
-
     if (stabilizedIndex !== index) {
-      // Mark that the stabilized index came from the carousel
       isCarouselSourceRef.current = true;
 
-      // Find the project ID corresponding to the index
       const newProjectId = Object.keys(projects).find(
         (key) => projects[key].index === index,
       );
@@ -85,21 +70,18 @@ const ProjectsPresentation: React.FC = () => {
     }
   };
 
-  // Effect: Sync carousel with route on projectId change
   useEffect(() => {
     if (carouselRef.current && projects[projectId]) {
       const targetIndex = projects[projectId].index;
 
       if (stabilizedIndex !== targetIndex) {
         if (!isCarouselSourceRef.current) {
-          // Only scroll if the change did not originate from the carousel
           carouselRef.current.scrollToSlide(targetIndex);
         }
         setStabilizedIndex(targetIndex);
       }
     }
 
-    // Reset the source flag after handling
     isCarouselSourceRef.current = false;
   }, [projectId, projects, stabilizedIndex]);
 
@@ -120,6 +102,16 @@ const ProjectsPresentation: React.FC = () => {
           initialIndex={initialIndex} // Fixed initial index
         />
         <PageButtons />
+        {keys.map((key, i) => (
+          <ProjectContent
+            key={key}
+            transition=""
+            ref={(el) => {
+              if (el) infoRefElems.current[i] = el;
+            }}
+            projectData={projects[key]}
+          />
+        ))}
       </div>
     </div>
   );
