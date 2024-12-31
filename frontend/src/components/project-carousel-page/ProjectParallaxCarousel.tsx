@@ -14,7 +14,7 @@ interface ProjectParallaxCarouselProps {
   layer1Slides: React.ReactNode[];
   layer2Slides: React.ReactNode[];
   onScrollUpdate?: (scrollLeft: number) => void;
-  onStableIndex?: (stableIndex: number) => void;
+  onStableIndex?: (stableIndex: number | null) => void;
   onIndexUpdate?: (currentIndex: number) => void;
 }
 
@@ -120,7 +120,7 @@ const ProjectParallaxCarousel = forwardRef<
      * Handles when a stable index is reached in the master carousel.
      * Updates the `stabilizedIndex` state and calls the `onStableIndex` prop if provided.
      */
-    const handleStableIndex = (index: number) => {
+    const handleStableIndex = (index: number | null) => {
       setStabilizedIndex(index);
       if (onStableIndex) onStableIndex(index);
     };
