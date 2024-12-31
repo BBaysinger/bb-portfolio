@@ -186,10 +186,10 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       const offset = scrollLeft - patchedOffset();
       const newScrollIndex = Math.round(offset / slideSpacing);
 
-      const newValue =
+      const newDataIndex =
         ((newScrollIndex % totalSlides) + totalSlides) % totalSlides;
 
-      setDataIndex(newValue);
+      setDataIndex(newDataIndex);
 
       if (newScrollIndex !== scrollIndex) {
         const newDirection =
@@ -203,7 +203,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
         setScrollIndex(newScrollIndex);
 
         if (onIndexUpdate) {
-          onIndexUpdate(dataIndex);
+          onIndexUpdate(newDataIndex);
         }
 
         if (stabilizationTimer.current) {
@@ -212,8 +212,8 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
 
         if (updateStableIndex && onStableIndex) {
           stabilizationTimer.current = setTimeout(() => {
-            setStableIndex(newValue);
-            onStableIndex(newValue);
+            setStableIndex(newDataIndex);
+            onStableIndex(newDataIndex);
           }, stabilizationDuration);
         }
       }
