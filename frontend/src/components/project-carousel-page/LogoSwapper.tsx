@@ -26,6 +26,13 @@ const fileVariants: Record<string, string> = {
   premera: "premera_black",
 };
 
+/**
+ *
+ *
+ * @author Bradley Baysinger
+ * @since The beginning of time.
+ * @version N/A
+ */
 const LogoSwapper: React.FC<LogoSwapperProps> = ({ projectId }) => {
   const [currentLogoId, setCurrentLogoId] = useState(projectId);
   const [isBlurred, setIsBlurred] = useState(true);
