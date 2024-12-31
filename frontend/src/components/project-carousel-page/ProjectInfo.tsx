@@ -1,4 +1,4 @@
-import { useState, useEffect, forwardRef } from "react";
+import { forwardRef } from "react";
 
 import { ParsedPortfolioProject } from "data/ProjectData";
 import styles from "./ProjectInfo.module.scss";
@@ -19,24 +19,13 @@ interface ProjectInfoProps {
 const ProjectInfo = forwardRef<HTMLDivElement, ProjectInfoProps>(
   ({ dataNode, isActive }, ref) => {
     const { desc, urls, role } = dataNode;
-    const [delayedActive, setDelayedActive] = useState(false);
-
-    useEffect(() => {
-      if (isActive) {
-        const timeout = setTimeout(() => setDelayedActive(true), 600);
-        return () => clearTimeout(timeout);
-      } else {
-        setDelayedActive(false);
-      }
-    }, [isActive]);
 
     return (
       <div
         ref={ref}
-        id={styles.projectInfoAndFeatures}
         className={
           `${styles["project-info-and-features"]} ` +
-          `${delayedActive ? styles["active"] : ""}`
+          `${isActive ? styles["active"] : ""}`
         }
       >
         {desc.map((htmlContent, index) => (
