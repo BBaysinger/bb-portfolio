@@ -39,7 +39,7 @@ interface CarouselProps {
   sliderClassName?: string;
   onScrollUpdate?: (scrollLeft: number) => void;
   externalScrollLeft?: number;
-  onStableIndex?: (stableIndex: number) => void;
+  onStableIndex?: (stableIndex: number | null) => void;
   stabilizationDuration?: number;
   id?: string;
 }
@@ -106,7 +106,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
     const [scrollIndex, setScrollIndex] = useState(initialIndex);
     const [dataIndex, setDataIndex] = useState(initialIndex);
     const [_previousIndex, setPreviousIndex] = useState<number | null>(null);
-    const [stableIndex, setStableIndex] = useState(initialIndex);
+    const [stableIndex, setStableIndex] = useState<number | null>(initialIndex);
     const [slideWidth, setSlideWidth] = useState<number>(0);
     const [wrapperWidth, setWrapperWidth] = useState<number>(0);
     const [snap, setSnap] = useState("none");
@@ -121,6 +121,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
     const slideRefs = useRef<(HTMLDivElement | null)[]>([]);
     const scrollerRef = useRef<HTMLDivElement>(null);
     const wrapperRef = useRef<HTMLDivElement>(null);
+    const scrollStarted = useRef(false);
 
     const memoizedPositionsAndMultipliers = useMemo(() => {
       const newPositions: number[] = [];
@@ -232,6 +233,17 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
     const handleScroll = useCallback(() => {
       if (!scrollerRef.current) return;
       const scrollLeft = scrollerRef.current.scrollLeft;
+
+      // if (!scrollStarted.current) {
+      //   scrollStarted.current = true;
+      //   if (stableIndex !== null) {
+      //     setStableIndex(null);
+      //     if (onStableIndex) {
+      //       onStableIndex(null);
+      //     }
+      //   }
+      // }
+
       updateIndexRef.current(scrollLeft);
     }, []);
 
@@ -244,6 +256,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
     const targetFPS = 40;
     const frameDuration = 1000 / targetFPS;
     let lastFrameTime = 0;
+    const scrollTimerRef = useRef<NodeJS.Timeout | null>(null);
 
     useEffect(() => {
       let animationFrameId: number | null = null;
@@ -256,6 +269,11 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
             if (deltaTime >= frameDuration) {
               handleScroll();
               lastFrameTime = currentTime;
+
+              // if (scrollTimerRef.current) clearTimeout(scrollTimerRef.current);
+              // scrollTimerRef.current = setTimeout(() => {
+              //   scrollStarted.current = false;
+              // }, 100);
             }
 
             animationFrameId = null;

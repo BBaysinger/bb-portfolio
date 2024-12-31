@@ -50,7 +50,7 @@ const ProjectsPresentation: React.FC = () => {
 
   const handleCarouselIndexUpdate = (_index: number) => {};
 
-  const onStableIndex = (index: number) => {
+  const onStableIndex = (index: number | null) => {
     if (stabilizedIndex !== index) {
       isCarouselSourceRef.current = true;
 
@@ -100,7 +100,7 @@ const ProjectsPresentation: React.FC = () => {
           {keys.map((key, i) => (
             <ProjectContent
               key={key}
-              isActive={key === projectId}
+              isActive={i === stabilizedIndex}
               transition={""}
               ref={(el) => {
                 if (el) infoRefElems.current[i] = el;

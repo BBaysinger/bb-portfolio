@@ -27,14 +27,6 @@ const ProjectContent = forwardRef<HTMLDivElement, ProjectContentProps>(
       };
     }, []);
 
-    // const addMember = (member: HTMLElement | null) => {
-    //   if (member) {
-    //     members.current.push(member);
-    //     member.style.transitionDelay = `${members.current.length * 0.0}s, ${members.current.length * 0.01}s`;
-    //     member.style.transitionDuration = `${members.current.length * 0.2}s, ${members.current.length * 0.2}s`;
-    //   }
-    // };
-
     const { desc, urls, role } = dataNode;
 
     const urlBtns: ReactNode = Object.entries(urls).map(([label, urls]) => {
@@ -77,18 +69,6 @@ const ProjectContent = forwardRef<HTMLDivElement, ProjectContentProps>(
           `${styles["project-info-and-features"]} ` +
           `${isActive ? styles["active"] : ""}`
         }
-        // ref={(elem) => {
-        //   if (elem) {
-        //     addMember(elem);
-        //     domElem.current = elem;
-        //     if (typeof ref === "function") {
-        //       ref(elem); // If the parent provided a callback ref, call it
-        //     } else if (ref) {
-        //       (ref as React.MutableRefObject<HTMLDivElement | null>).current =
-        //         elem;
-        //     }
-        //   }
-        // }}
       >
         {/* <div className={styles["desc-paragraphs"]}> */}
         {desc.map((htmlContent, index) => (
