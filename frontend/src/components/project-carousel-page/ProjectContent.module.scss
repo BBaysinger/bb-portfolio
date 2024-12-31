@@ -55,62 +55,62 @@
 // TODO: Pass the transition states into ProjectContent so we
 // aren't looking to the parent for transition state.
 
-.reset {
-  pointer-events: none;
-}
+// .reset {
+//   pointer-events: none;
+// }
 
 // #projectInfoAndFeatures > div.desc-paragraphs > div {
 //   // Required for the paragraphs to animate their transform (in Chrome).
 //   display: block;
 // }
 
-#projectInfoAndFeatures {
-  > div.desc-paragraphs > div,
-  > .url-btns > * {
-    // display: none;
-    transition-property: opacity, transform;
-    transition-timing-function: ease, ease;
-    transition-duration: 0.5s, 0.5s;
-    transition-delay: 0.1s, 0.1s;
-    position: relative;
-  }
-}
+// #projectInfoAndFeatures {
+//   > div.desc-paragraphs > div,
+//   > .url-btns > * {
+//     // display: none;
+//     transition-property: opacity, transform;
+//     transition-timing-function: ease, ease;
+//     transition-duration: 0.5s, 0.5s;
+//     transition-delay: 0.1s, 0.1s;
+//     position: relative;
+//   }
+// }
 
-.reset #projectInfoAndFeatures {
-  // NOTE: iOS Chrome does not load images in elements where opacity is zero.
-  // Set it to minium allowed value instead of zero.
-  > .desc-paragraphs > *,
-  > .url-btns > * {
-    opacity: 0.001;
-    transform: translateY(20px);
-  }
-}
+// .reset #projectInfoAndFeatures {
+//   // NOTE: iOS Chrome does not load images in elements where opacity is zero.
+//   // Set it to minium allowed value instead of zero.
+//   > .desc-paragraphs > *,
+//   > .url-btns > * {
+//     opacity: 0.001;
+//     transform: translateY(20px);
+//   }
+// }
 
-.trans_in #projectInfoAndFeatures {
-  > .desc-paragraphs > *,
-  > .url-btns > * {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
+// .trans_in #projectInfoAndFeatures {
+//   > .desc-paragraphs > *,
+//   > .url-btns > * {
+//     opacity: 1;
+//     transform: translateY(0);
+//   }
+// }
 
-.trans_out #projectInfoAndFeatures {
-  > .desc-paragraphs > *,
-  > .url-btns > * {
-    opacity: 0.001;
-    transform: translateY(-5px);
-  }
-}
+// .trans_out #projectInfoAndFeatures {
+//   > .desc-paragraphs > *,
+//   > .url-btns > * {
+//     opacity: 0.001;
+//     transform: translateY(-5px);
+//   }
+// }
 
-.init #projectInfoAndFeatures {
-  > .desc-paragraphs > *,
-  > .url-btns > * {
-    opacity: 0.001;
-    transition:
-      top 0.3s ease-out,
-      opacity 0.3s;
-  }
-}
+// .init #projectInfoAndFeatures {
+//   > .desc-paragraphs > *,
+//   > .url-btns > * {
+//     opacity: 0.001;
+//     transition:
+//       top 0.3s ease-out,
+//       opacity 0.3s;
+//   }
+// }
 
 ////////////////////////////////
 // End Transitions
