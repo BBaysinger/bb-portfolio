@@ -13,26 +13,22 @@ import PageButtons from "components/project-carousel-page/PageButtons";
 import styles from "./ProjectsPresentation.module.scss";
 
 const ProjectsPresentation: React.FC = () => {
-  const carouselRef = useRef<{ scrollToSlide: (targetIndex: number) => void }>(
-    null,
-  );
   const { projectId = "" } = useParams<{ projectId: string }>();
-  const navigate = useNavigate();
-
-  const infoRefElems = useRef<(HTMLDivElement | null)[]>([]);
 
   const keys = ProjectData.activeKeys;
   const projects = ProjectData.activeProjectsRecord;
 
-  // Set the initial index only once during the first render
+  const [stabilizedIndex, setStabilizedIndex] = useState<number | null>(null);
   const [initialIndex] = useState(() =>
     projectId && projects[projectId] ? projects[projectId].index : 0,
   );
 
-  // Track the current stabilized index
-  const [stabilizedIndex, setStabilizedIndex] = useState<number | null>(null);
+  const infoRefElems = useRef<(HTMLDivElement | null)[]>([]);
+  const carouselRef = useRef<{ scrollToSlide: (targetIndex: number) => void }>(
+    null,
+  );
 
-  // Ref to track if the last stabilized index was caused by the carousel
+  const navigate = useNavigate();
   const isCarouselSourceRef = useRef(false);
 
   const laptopSlides = ProjectData.activeProjects.map((project) => (
@@ -52,9 +48,7 @@ const ProjectsPresentation: React.FC = () => {
     />
   ));
 
-  const handleCarouselIndexUpdate = (_index: number) => {
-    // Optional: Logic for intermediate updates
-  };
+  const handleCarouselIndexUpdate = (_index: number) => {};
 
   const onStableIndex = (index: number) => {
     if (stabilizedIndex !== index) {
@@ -99,19 +93,21 @@ const ProjectsPresentation: React.FC = () => {
           layer2Slides={phoneSlides}
           onIndexUpdate={handleCarouselIndexUpdate}
           onStableIndex={onStableIndex}
-          initialIndex={initialIndex} // Fixed initial index
+          initialIndex={initialIndex}
         />
         <PageButtons />
-        {keys.map((key, i) => (
-          <ProjectContent
-            key={key}
-            transition=""
-            ref={(el) => {
-              if (el) infoRefElems.current[i] = el;
-            }}
-            projectData={projects[key]}
-          />
-        ))}
+        <div className={`${styles["project-info-wrapper"]} container`}>
+          {keys.map((key, i) => (
+            <ProjectContent
+              key={key}
+              transition=""
+              ref={(el) => {
+                if (el) infoRefElems.current[i] = el;
+              }}
+              projectData={projects[key]}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );
