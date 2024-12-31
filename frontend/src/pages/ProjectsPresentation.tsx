@@ -48,8 +48,6 @@ const ProjectsPresentation: React.FC = () => {
     />
   ));
 
-  const handleCarouselIndexUpdate = (_index: number) => {};
-
   const handleStableIndexUpdate = (index: number | null) => {
     if (stabilizedIndex !== index) {
       isCarouselSourceRef.current = true;
@@ -73,7 +71,6 @@ const ProjectsPresentation: React.FC = () => {
       if (stabilizedIndex !== targetIndex) {
         if (!isCarouselSourceRef.current) {
           carouselRef.current.scrollToSlide(targetIndex);
-          setStabilizedIndex(targetIndex);
         }
       }
     }
@@ -93,7 +90,6 @@ const ProjectsPresentation: React.FC = () => {
           ref={carouselRef}
           layer1Slides={laptopSlides}
           layer2Slides={phoneSlides}
-          onIndexUpdate={handleCarouselIndexUpdate}
           onStableIndex={handleStableIndexUpdate}
           initialIndex={initialIndex}
         />
