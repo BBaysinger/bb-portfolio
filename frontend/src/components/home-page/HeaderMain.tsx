@@ -3,6 +3,13 @@ import React, { useState, useEffect, useCallback } from "react";
 import headerLogo from "images/main-header/bb-gradient.png";
 import styles from "./HeaderMain.module.scss";
 
+/**
+ *
+ *
+ * @author Bradley Baysinger
+ * @since The beginning of time.
+ * @version N/A
+ */
 const HeaderMain: React.FC = () => {
   const [scrolled, setScrolled] = useState("");
 

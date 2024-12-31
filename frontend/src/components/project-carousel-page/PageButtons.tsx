@@ -4,6 +4,13 @@ import { Link, useParams } from "react-router-dom";
 import ProjectData from "data/ProjectData";
 import styles from "./PageButtons.module.scss";
 
+/**
+ *
+ *
+ * @author Bradley Baysinger
+ * @since The beginning of time.
+ * @version N/A
+ */
 const PageButtons: React.FC = () => {
   const { projectId = "" } = useParams<{ projectId: string }>();
 

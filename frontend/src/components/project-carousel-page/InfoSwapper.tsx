@@ -9,8 +9,13 @@ interface InfoSwapperProps {
 }
 
 /**
+ * Manages swapping between the project info components. Detects height of each component and
+ * fluidly adjusts the height of the container accordingly to avoid excessive whitespace and
+ * jarred transitions.
  *
- *
+ * @author Bradley Baysinger
+ * @since The beginning of time.
+ * @version N/A
  */
 const LogoSwapper: React.FC<InfoSwapperProps> = ({ stabilizedIndex }) => {
   const projects = ProjectData.activeProjectsRecord;
