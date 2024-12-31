@@ -50,7 +50,7 @@ const ProjectsPresentation: React.FC = () => {
 
   const handleCarouselIndexUpdate = (_index: number) => {};
 
-  const onStableIndex = (index: number | null) => {
+  const handleStableIndexUpdate = (index: number | null) => {
     if (stabilizedIndex !== index) {
       isCarouselSourceRef.current = true;
 
@@ -61,6 +61,8 @@ const ProjectsPresentation: React.FC = () => {
       if (newProjectId && newProjectId !== projectId) {
         navigate(`/portfolio/${newProjectId}`);
       }
+
+      setStabilizedIndex(index);
     }
   };
 
@@ -71,8 +73,8 @@ const ProjectsPresentation: React.FC = () => {
       if (stabilizedIndex !== targetIndex) {
         if (!isCarouselSourceRef.current) {
           carouselRef.current.scrollToSlide(targetIndex);
+          setStabilizedIndex(targetIndex);
         }
-        setStabilizedIndex(targetIndex);
       }
     }
 
@@ -92,7 +94,7 @@ const ProjectsPresentation: React.FC = () => {
           layer1Slides={laptopSlides}
           layer2Slides={phoneSlides}
           onIndexUpdate={handleCarouselIndexUpdate}
-          onStableIndex={onStableIndex}
+          onStableIndex={handleStableIndexUpdate}
           initialIndex={initialIndex}
         />
         <PageButtons />

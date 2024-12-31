@@ -121,7 +121,6 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
     const slideRefs = useRef<(HTMLDivElement | null)[]>([]);
     const scrollerRef = useRef<HTMLDivElement>(null);
     const wrapperRef = useRef<HTMLDivElement>(null);
-    const scrollStarted = useRef(false);
 
     const memoizedPositionsAndMultipliers = useMemo(() => {
       const newPositions: number[] = [];
@@ -211,6 +210,12 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
           clearTimeout(stabilizationTimer.current);
         }
 
+        setStableIndex(null);
+
+        if (onStableIndex) {
+          onStableIndex(null);
+        }
+
         if (updateStableIndex && onStableIndex) {
           stabilizationTimer.current = setTimeout(() => {
             setStableIndex(newDataIndex);
@@ -233,17 +238,6 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
     const handleScroll = useCallback(() => {
       if (!scrollerRef.current) return;
       const scrollLeft = scrollerRef.current.scrollLeft;
-
-      // if (!scrollStarted.current) {
-      //   scrollStarted.current = true;
-      //   if (stableIndex !== null) {
-      //     setStableIndex(null);
-      //     if (onStableIndex) {
-      //       onStableIndex(null);
-      //     }
-      //   }
-      // }
-
       updateIndexRef.current(scrollLeft);
     }, []);
 
@@ -256,7 +250,6 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
     const targetFPS = 40;
     const frameDuration = 1000 / targetFPS;
     let lastFrameTime = 0;
-    const scrollTimerRef = useRef<NodeJS.Timeout | null>(null);
 
     useEffect(() => {
       let animationFrameId: number | null = null;
@@ -269,11 +262,6 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
             if (deltaTime >= frameDuration) {
               handleScroll();
               lastFrameTime = currentTime;
-
-              // if (scrollTimerRef.current) clearTimeout(scrollTimerRef.current);
-              // scrollTimerRef.current = setTimeout(() => {
-              //   scrollStarted.current = false;
-              // }, 100);
             }
 
             animationFrameId = null;
