@@ -8,10 +8,10 @@
   position: absolute;
   left: 0px;
   overflow: visible;
-  display: none;
+  visibility: hidden;
 
   &.active {
-    display: block;
+    visibility: visible;
   }
 
   > * {
