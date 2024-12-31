@@ -1,5 +1,5 @@
-import React, { useRef, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import React, { useRef, useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 
 import HeaderSub from "components/layout/HeaderSub";
 // import ProjectContent from "components/project-carousel-page/ProjectContent";
@@ -17,11 +17,23 @@ const ProjectsPresentation: React.FC = () => {
     null,
   );
   const { projectId = "" } = useParams<{ projectId: string }>();
+  const navigate = useNavigate();
 
   // const infoRefElems = useRef<Array<ProjectContent | null>>([]);
 
   // const keys = ProjectData.activeKeys;
   const projects = ProjectData.activeProjectsRecord;
+
+  // Set the initial index only once during the first render
+  const [initialIndex] = useState(() =>
+    projectId && projects[projectId] ? projects[projectId].index : 0,
+  );
+
+  // Track the current stabilized index
+  const [stabilizedIndex, setStabilizedIndex] = useState<number | null>(null);
+
+  // Ref to track if route change is internal
+  const isInternalNavigationRef = useRef(false);
 
   const laptopSlides = ProjectData.activeProjects.map((project) => (
     <DeviceDisplay
@@ -52,20 +64,43 @@ const ProjectsPresentation: React.FC = () => {
   // ));
 
   const handleCarouselIndexUpdate = (_index: number) => {
-    // console.info("Updated index: ", index);
+    // Optional: Logic for intermediate updates
   };
 
-  const onStableIndex = (_index: number) => {
-    // console.info("Stable index: ", index);
+  const onStableIndex = (index: number) => {
+    console.info("Stable index: ", index);
+
+    if (stabilizedIndex !== index) {
+      // Find the project ID corresponding to the index
+      const newProjectId = Object.keys(projects).find(
+        (key) => projects[key].index === index,
+      );
+      console.log("New project ID: ", newProjectId);
+      if (newProjectId && newProjectId !== projectId) {
+        isInternalNavigationRef.current = true;
+        navigate(`/portfolio/${newProjectId}`);
+      }
+    }
   };
 
-  // Scroll to the initial slide when projectId changes
+  // Effect: Sync carousel with route on projectId change
   useEffect(() => {
     if (carouselRef.current && projects[projectId]) {
       const targetIndex = projects[projectId].index;
-      carouselRef.current.scrollToSlide(targetIndex);
+
+      if (stabilizedIndex !== targetIndex) {
+        carouselRef.current.scrollToSlide(targetIndex);
+        setStabilizedIndex(targetIndex);
+      }
     }
-  }, [projectId, projects]);
+  }, [projectId, projects, stabilizedIndex]);
+
+  // Effect: Reset internal navigation flag after route updates
+  useEffect(() => {
+    if (isInternalNavigationRef.current) {
+      isInternalNavigationRef.current = false;
+    }
+  }, [projectId]);
 
   return (
     <div className={styles["projects-presentation"]}>
@@ -81,11 +116,9 @@ const ProjectsPresentation: React.FC = () => {
           layer2Slides={phoneSlides}
           onIndexUpdate={handleCarouselIndexUpdate}
           onStableIndex={onStableIndex}
-          initialIndex={projects[projectId]?.index}
+          initialIndex={initialIndex} // Fixed initial index
         />
         <PageButtons />
-        {/* <ProjectContent /> */}
-        {/* <div id={styles.projectContent}>{infoElems}</div> */}
       </div>
     </div>
   );
