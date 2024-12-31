@@ -34,15 +34,20 @@ const LogoSwapper: React.FC<LogoSwapperProps> = ({ projectId }) => {
   useEffect(() => {
     // Set component as mounted to trigger fade-in
     setIsMounted(true);
-
+    let timeout2: NodeJS.Timeout;
     // Handle blur transition
-    setIsBlurred(true);
-    const timeout = setTimeout(() => {
-      setCurrentLogoId(projectId);
-      setIsBlurred(false);
-    }, 300);
+    const timeout1 = setTimeout(() => {
+      setIsBlurred(true);
+      timeout2 = setTimeout(() => {
+        setCurrentLogoId(projectId);
+        setIsBlurred(false);
+      }, 300);
+    }, 400);
 
-    return () => clearTimeout(timeout);
+    return () => {
+      clearTimeout(timeout1);
+      clearTimeout(timeout2);
+    };
   }, [projectId]);
 
   return (
