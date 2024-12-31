@@ -14,7 +14,7 @@ import styles from "./ProjectsPresentation.module.scss";
 
 const ProjectsPresentation: React.FC = () => {
   const carouselRef = useRef<{ scrollToSlide: (targetIndex: number) => void }>(
-    null
+    null,
   );
   const { projectId = "" } = useParams<{ projectId: string }>();
   const navigate = useNavigate();
@@ -26,7 +26,7 @@ const ProjectsPresentation: React.FC = () => {
 
   // Set the initial index only once during the first render
   const [initialIndex] = useState(() =>
-    projectId && projects[projectId] ? projects[projectId].index : 0
+    projectId && projects[projectId] ? projects[projectId].index : 0,
   );
 
   // Track the current stabilized index
@@ -76,7 +76,7 @@ const ProjectsPresentation: React.FC = () => {
 
       // Find the project ID corresponding to the index
       const newProjectId = Object.keys(projects).find(
-        (key) => projects[key].index === index
+        (key) => projects[key].index === index,
       );
 
       if (newProjectId && newProjectId !== projectId) {
