@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
 import HeaderSub from "components/layout/HeaderSub";
-import ProjectInfo from "components/project-carousel-page/ProjectInfo";
+import InfoSwapper from "components/project-carousel-page/InfoSwapper";
 import ProjectData from "data/ProjectData";
 import LogoSwapper from "components/project-carousel-page/LogoSwapper";
 import ProjectParallaxCarousel from "components/project-carousel-page/ProjectParallaxCarousel";
@@ -15,7 +15,6 @@ import styles from "./ProjectsPresentation.module.scss";
 const ProjectsPresentation: React.FC = () => {
   const { projectId = "" } = useParams<{ projectId: string }>();
 
-  const keys = ProjectData.activeKeys;
   const projects = ProjectData.activeProjectsRecord;
 
   const [stabilizedIndex, setStabilizedIndex] = useState<number | null>(null);
@@ -23,7 +22,6 @@ const ProjectsPresentation: React.FC = () => {
     projectId && projects[projectId] ? projects[projectId].index : 0,
   );
 
-  const infoRefElems = useRef<(HTMLDivElement | null)[]>([]);
   const carouselRef = useRef<{ scrollToSlide: (targetIndex: number) => void }>(
     null,
   );
@@ -94,19 +92,7 @@ const ProjectsPresentation: React.FC = () => {
           initialIndex={initialIndex}
         />
         <PageButtons />
-        <div className={`${styles["project-info-wrapper"]} container`}>
-          {keys.map((key, i) => (
-            <ProjectInfo
-              key={key}
-              isActive={i === stabilizedIndex}
-              transition={""}
-              ref={(el) => {
-                if (el) infoRefElems.current[i] = el;
-              }}
-              dataNode={projects[key]}
-            />
-          ))}
-        </div>
+        <InfoSwapper stabilizedIndex={stabilizedIndex} />
       </div>
     </div>
   );
