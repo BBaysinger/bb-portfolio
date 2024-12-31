@@ -10,7 +10,6 @@
   text-align: left;
   display: inline-block;
   overflow: visible;
-  // will-change: opacity, transform; // Didn't help?
 
   > * {
     position: relative;
@@ -41,7 +40,7 @@
   .desc-paragraphs {
     p {
       margin-bottom: 10px;
-      display: none;
+      // display: none;
     }
   }
 }
@@ -65,7 +64,7 @@
 #projectInfoAndFeatures {
   > div.desc-paragraphs > div,
   > .url-btns > * {
-    display: none;
+    // display: none;
     transition-property: opacity, transform;
     transition-timing-function: ease, ease;
     transition-duration: 0.5s, 0.5s;
