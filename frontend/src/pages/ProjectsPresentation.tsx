@@ -14,7 +14,7 @@ import styles from "./ProjectsPresentation.module.scss";
 
 const ProjectsPresentation: React.FC = () => {
   const carouselRef = useRef<{ scrollToSlide: (targetIndex: number) => void }>(
-    null,
+    null
   );
   const { projectId = "" } = useParams<{ projectId: string }>();
   const navigate = useNavigate();
@@ -26,14 +26,14 @@ const ProjectsPresentation: React.FC = () => {
 
   // Set the initial index only once during the first render
   const [initialIndex] = useState(() =>
-    projectId && projects[projectId] ? projects[projectId].index : 0,
+    projectId && projects[projectId] ? projects[projectId].index : 0
   );
 
   // Track the current stabilized index
   const [stabilizedIndex, setStabilizedIndex] = useState<number | null>(null);
 
-  // Ref to track if route change is internal
-  const isInternalNavigationRef = useRef(false);
+  // Ref to track if the last stabilized index was caused by the carousel
+  const isCarouselSourceRef = useRef(false);
 
   const laptopSlides = ProjectData.activeProjects.map((project) => (
     <DeviceDisplay
@@ -71,13 +71,15 @@ const ProjectsPresentation: React.FC = () => {
     console.info("Stable index: ", index);
 
     if (stabilizedIndex !== index) {
+      // Mark that the stabilized index came from the carousel
+      isCarouselSourceRef.current = true;
+
       // Find the project ID corresponding to the index
       const newProjectId = Object.keys(projects).find(
-        (key) => projects[key].index === index,
+        (key) => projects[key].index === index
       );
-      console.log("New project ID: ", newProjectId);
+
       if (newProjectId && newProjectId !== projectId) {
-        isInternalNavigationRef.current = true;
         navigate(`/portfolio/${newProjectId}`);
       }
     }
@@ -89,18 +91,17 @@ const ProjectsPresentation: React.FC = () => {
       const targetIndex = projects[projectId].index;
 
       if (stabilizedIndex !== targetIndex) {
-        carouselRef.current.scrollToSlide(targetIndex);
+        if (!isCarouselSourceRef.current) {
+          // Only scroll if the change did not originate from the carousel
+          carouselRef.current.scrollToSlide(targetIndex);
+        }
         setStabilizedIndex(targetIndex);
       }
     }
-  }, [projectId, projects, stabilizedIndex]);
 
-  // Effect: Reset internal navigation flag after route updates
-  useEffect(() => {
-    if (isInternalNavigationRef.current) {
-      isInternalNavigationRef.current = false;
-    }
-  }, [projectId]);
+    // Reset the source flag after handling
+    isCarouselSourceRef.current = false;
+  }, [projectId, projects, stabilizedIndex]);
 
   return (
     <div className={styles["projects-presentation"]}>
