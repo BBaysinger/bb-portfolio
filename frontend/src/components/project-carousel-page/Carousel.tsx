@@ -152,9 +152,9 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
 
         const containerOffset = (wrapperWidth - slideWidth) / 2;
 
-        if (snap === "none" && wrapperWidth > 0 && slideWidth > 0) {
-          setTimeout(() => setSnap("x mandatory"), 100);
-        }
+        // if (snap === "none" && wrapperWidth > 0 && slideWidth > 0) {
+        //   setTimeout(() => setSnap("x mandatory"), 100);
+        // }
 
         newPositions.push(
           Math.round(
@@ -336,6 +336,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
 
       const timer = setTimeout(() => {
         isMounted.current = true;
+        setSnap("x mandatory");
       }, 0);
 
       return () => clearTimeout(timer);
