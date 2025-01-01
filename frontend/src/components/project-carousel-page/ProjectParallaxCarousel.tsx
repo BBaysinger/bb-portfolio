@@ -6,7 +6,7 @@ import React, {
   forwardRef,
 } from "react";
 
-import Carousel, { CarouselRef } from "./Carousel";
+import Carousel, { DirectionType, CarouselRef } from "./Carousel";
 import styles from "./ProjectParallaxCarousel.module.scss";
 
 interface ProjectParallaxCarouselProps {
@@ -16,6 +16,7 @@ interface ProjectParallaxCarouselProps {
   onScrollUpdate?: (scrollLeft: number) => void;
   onStableIndex?: (stableIndex: number | null) => void;
   onIndexUpdate?: (currentIndex: number) => void;
+  onDirectionChange?: (direction: DirectionType) => void;
 }
 
 /**
@@ -43,6 +44,7 @@ const ProjectParallaxCarousel = forwardRef<
       onScrollUpdate,
       onStableIndex,
       onIndexUpdate,
+      onDirectionChange,
     },
     ref,
   ) => {
@@ -188,6 +190,7 @@ const ProjectParallaxCarousel = forwardRef<
           onScrollUpdate={handleMasterScrollLeft}
           onStableIndex={handleStableIndex}
           onIndexUpdate={handleIndexUpdate}
+          onDirectionChange={onDirectionChange}
           debug={0}
           initialIndex={initialIndex}
           wrapperClassName={"bb-carousel bb-carousel-master"}
