@@ -32,47 +32,50 @@ const ProjectInfo = forwardRef<HTMLDivElement, ProjectInfoProps>(
           <div key={index} dangerouslySetInnerHTML={{ __html: htmlContent }} />
         ))}
         {role && (
-          <div>
-            <p>
-              <span style={{ fontWeight: "bold" }}>Role:</span> {role}
-            </p>
-          </div>
+          <p>
+            <span style={{ fontWeight: "bold" }}>Role:</span> {role}
+          </p>
         )}
-        <div className={styles["url-btns"]}>
-          {Object.entries(urls).map(([label, urls]) => {
-            if (Array.isArray(urls)) {
-              return (
-                <span className={"btn-group"} key={label}>
-                  <span className={"btn btn-group-label"}>{label}</span>
-                  {urls.map((item, index) => (
-                    <a
-                      key={item}
-                      href={item}
-                      className={styles.btn}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      {index + 1}
-                    </a>
-                  ))}
-                </span>
-              );
-            } else if (typeof urls === "string") {
-              return (
-                <a
-                  className={"btn"}
-                  href={urls}
-                  key={urls}
-                  target="_blank"
-                  rel="noopener noreferrer"
+        {Object.entries(urls).map(([label, urls]) => {
+          if (Array.isArray(urls)) {
+            return (
+              <span className={`{${styles["btn-group"]} btn-group`} key={label}>
+                <span
+                  className={
+                    `${styles["btn"]} ${styles["btn-group-label"]} ` +
+                    `btn btn-group-label`
+                  }
                 >
                   {label}
-                </a>
-              );
-            }
-            return null;
-          })}
-        </div>
+                </span>
+                {urls.map((item, index) => (
+                  <a
+                    key={item}
+                    href={item}
+                    className={`${styles["btn"]} btn`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {index + 1}
+                  </a>
+                ))}
+              </span>
+            );
+          } else if (typeof urls === "string") {
+            return (
+              <a
+                className={`${styles["btn"]} btn`}
+                href={urls}
+                key={urls}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {label}
+              </a>
+            );
+          }
+          return null;
+        })}
       </div>
     );
   },
