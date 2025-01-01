@@ -6,6 +6,10 @@ import InfoSwapper from "components/project-carousel-page/InfoSwapper";
 import ProjectData from "data/ProjectData";
 import LogoSwapper from "components/project-carousel-page/LogoSwapper";
 import ProjectParallaxCarousel from "components/project-carousel-page/ProjectParallaxCarousel";
+import {
+  DirectionType,
+  Direction,
+} from "components/project-carousel-page/Carousel";
 import DeviceDisplay, {
   DeviceTypes,
 } from "components/project-carousel-page/DeviceDisplay";
@@ -14,20 +18,22 @@ import styles from "./ProjectsPresentation.module.scss";
 
 const ProjectsPresentation: React.FC = () => {
   const { projectId = "" } = useParams<{ projectId: string }>();
-
   const projects = ProjectData.activeProjectsRecord;
-
   const [stabilizedIndex, setStabilizedIndex] = useState<number | null>(null);
+  const [direction, setDirection] = useState<DirectionType | null>(null);
   const [initialIndex] = useState(() =>
     projectId && projects[projectId] ? projects[projectId].index : 0,
   );
-
   const carouselRef = useRef<{ scrollToSlide: (targetIndex: number) => void }>(
     null,
   );
 
   const navigate = useNavigate();
   const isCarouselSourceRef = useRef(false);
+
+  const onDirectionChange = (direction: DirectionType) => {
+    setDirection(direction);
+  };
 
   const laptopSlides = ProjectData.activeProjects.map((project) => (
     <DeviceDisplay
@@ -82,7 +88,13 @@ const ProjectsPresentation: React.FC = () => {
         head={projects[projectId]?.title || "Unknown Project"}
         subhead={projects[projectId]?.tags?.join(", ") || ""}
       />
-      <div id={"project"} className={styles["projects-presentation-body"]}>
+      <div
+        id={"project"}
+        className={
+          `${styles["projects-presentation-body"]} ` +
+          `${direction === Direction.LEFT ? styles["slide-left"] : styles["slide-right"]}`
+        }
+      >
         <LogoSwapper projectId={projects[projectId]?.clientId} />
         <ProjectParallaxCarousel
           ref={carouselRef}
@@ -90,6 +102,7 @@ const ProjectsPresentation: React.FC = () => {
           layer2Slides={phoneSlides}
           onStableIndex={handleStableIndexUpdate}
           initialIndex={initialIndex}
+          onDirectionChange={onDirectionChange}
         />
         <PageButtons />
         <InfoSwapper stabilizedIndex={stabilizedIndex} />
