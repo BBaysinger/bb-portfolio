@@ -21,6 +21,8 @@ gsap.registerPlugin(ScrollToPlugin);
 // current use cases. Until then, it's not *technically* infinite scrolling left.
 const BASE_OFFSET = 1000000;
 
+// 'Direction' throughout application is 'User Perspective', meaning the direction
+// the user swiped (versus the direction of progression.)
 export const Direction = {
   LEFT: "Left",
   RIGHT: "Right",
@@ -99,7 +101,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       onScrollUpdate,
       externalScrollLeft,
       onStableIndex,
-      stabilizationDuration = 400,
+      stabilizationDuration = 700,
       onDirectionChange,
       // id, // For debugging
     },
@@ -116,13 +118,14 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
     const [currentMultipliers, setCurrentMultipliers] = useState<number[]>([]);
     const [currentOffsets, setCurrentOffsets] = useState<number[]>([]);
     const [scrollDirection, setScrollDirection] =
-      useState<DirectionType | null>(Direction.RIGHT);
+      useState<DirectionType | null>(Direction.LEFT);
 
     const memoizedSlides = useMemo(() => slides, [slides]);
     const stabilizationTimer = useRef<NodeJS.Timeout | null>(null);
     const slideRefs = useRef<(HTMLDivElement | null)[]>([]);
     const scrollerRef = useRef<HTMLDivElement>(null);
     const wrapperRef = useRef<HTMLDivElement>(null);
+    const isMounted = useRef(false);
 
     const memoizedPositionsAndMultipliers = useMemo(() => {
       const newPositions: number[] = [];
@@ -137,7 +140,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
             (index - scrollIndex + threshold) / memoizedSlides.length,
           );
         } else if (scrollDirection === Direction.LEFT) {
-          const threshold = 4;
+          const threshold = 2;
           multiplier = Math.floor(
             (scrollIndex - index + threshold) / memoizedSlides.length,
           );
@@ -149,7 +152,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
 
         const containerOffset = (wrapperWidth - slideWidth) / 2;
 
-        if (wrapperWidth > 0 && slideWidth > 0 && snap === "none") {
+        if (snap === "none" && wrapperWidth > 0 && slideWidth > 0) {
           setTimeout(() => setSnap("x mandatory"), 100);
         }
 
@@ -184,6 +187,8 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       scrollLeft: number,
       updateStableIndex: boolean = true,
     ) => {
+      if (!isMounted.current) return;
+
       const totalSlides = memoizedSlides.length;
       const offset = scrollLeft - patchedOffset();
       const newScrollIndex = Math.round(offset / slideSpacing);
@@ -195,7 +200,9 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
 
       if (newScrollIndex !== scrollIndex) {
         const newDirection =
-          newScrollIndex > scrollIndex ? Direction.RIGHT : Direction.LEFT;
+          newScrollIndex > scrollIndex ? Direction.LEFT : Direction.RIGHT;
+
+        // console.log("newScrollIndex", newScrollIndex, "scrollIndex", scrollIndex);
 
         if (newDirection !== scrollDirection) {
           setScrollDirection(newDirection);
@@ -326,6 +333,12 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
         setCurrentPositions(positions);
         setCurrentMultipliers(multipliers);
       }
+
+      const timer = setTimeout(() => {
+        isMounted.current = true;
+      }, 0);
+
+      return () => clearTimeout(timer);
     }, []);
 
     useEffect(() => {

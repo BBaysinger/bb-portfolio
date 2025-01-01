@@ -43,7 +43,7 @@ const InfoSwapper: React.FC<InfoSwapperProps> = ({ stabilizedIndex }) => {
     } else {
       timeoutId = setTimeout(() => {
         setTimedIndex(stabilizedIndex);
-      }, 500);
+      }, 400);
     }
 
     return () => {
