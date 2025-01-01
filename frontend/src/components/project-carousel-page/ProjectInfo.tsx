@@ -19,8 +19,6 @@ interface ProjectInfoProps {
 const ProjectInfo = forwardRef<HTMLDivElement, ProjectInfoProps>(
   ({ dataNode, isActive }, ref) => {
     const { desc, urls, role } = dataNode;
-
-    // Use a variable to track the overall index across all elements
     let globalIndex = 0;
 
     return (
