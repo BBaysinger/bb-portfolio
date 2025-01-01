@@ -21,7 +21,7 @@ gsap.registerPlugin(ScrollToPlugin);
 // current use cases. Until then, it's not *technically* infinite scrolling left.
 const BASE_OFFSET = 1000000;
 
-const Direction = {
+export const Direction = {
   LEFT: "Left",
   RIGHT: "Right",
 } as const;
