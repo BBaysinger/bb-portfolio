@@ -111,7 +111,7 @@
       "<p>We developed an interactive component to provide information about their Second Step program, which consists of a multi-layered wheel navigation, dynamically rendered using SVG, React, and React Motion.</p>",
       "<p>I took the lead on technical advising, development, and contributed to conceptualization.</p>",
       "<p>Dynamic control of SVG in React proved powerful as it revealed to me new possibilities with vector rendering and interactivity.</p>",
-      "<p style='color:#ee0000'>The interactive project is no longer on their site. I'm working on repurposing a working version.</p>"
+      "<p>The interactive project is no longer on their site. I'm working on repurposing a working version.</p>"
     ],
     "urls": {
       "View Site": "https://www.secondstep.org/what-is-second-step"
@@ -342,7 +342,7 @@
       "<p>Two dress-up games in one. This was Seven2's first game for the Nickelodeon Group. That match mode is a true test. You could say I've become a master over the years.</p>",
       "<p>I programmed a drag-drop system that I eventually ported over into ActionScript 3.0, and then Haxe. I built most of the game, minus Blue and Magenta's animations, and the end screen. It's good to see that old alarm clock still keeps good time after all these years.</p>",
       "<p>This project was the recipient of the Golden Pixel Addy Award in 2008.</p>",
-      "<p style='color:#0000ee'>This project was built in Flash before Apple killed it. I'm still trying to find a way to provide a working example. For now please enjoy the walkthrough.</p>"
+      "<p>This project was built in Flash before Apple killed it. I'm still trying to find a way to provide a working example. For now please enjoy the walkthrough.</p>"
     ],
     "urls": {
       "Walkthrough": "https://www.youtube.com/watch?v=DhvAuTsJq5o"
