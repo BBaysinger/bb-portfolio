@@ -4,17 +4,18 @@
   position: absolute;
   overflow: visible;
   pointer-events: none;
+  visibility: hidden;
 
   > * {
     position: relative;
     opacity: 0;
-    transform: translateX(-20px);
   }
 
   &.active {
     pointer-events: all;
+    visibility: visible;
+
     > * {
-      animation: slide-fade-in 0.6s ease-out forwards;
       animation-delay: calc(var(--index) * 0.2s);
     }
   }
@@ -22,9 +23,27 @@
   p {
     margin-bottom: 10px;
   }
+
+  :global(.container) {
+    max-width: 1024px;
+  }
 }
 
-@keyframes slide-fade-in {
+:global(.bb-slide-left) {
+  .project-info-and-features.active > * {
+    animation: slide-left-fade-in 0.6s ease-out calc(var(--index) * 0.2s)
+      forwards;
+  }
+}
+
+:global(.bb-slide-right) {
+  .project-info-and-features.active > * {
+    animation: slide-right-fade-in 0.6s ease-out calc(var(--index) * 0.2s)
+      forwards;
+  }
+}
+
+@keyframes slide-right-fade-in {
   0% {
     opacity: 0;
     transform: translateX(-20px);
@@ -34,6 +53,21 @@
     transform: translateX(0);
   }
 }
+
+@keyframes slide-left-fade-in {
+  0% {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+////////////////////////////////////////
+/// Btns
+////////////////////////////////////////
 
 .btn-group-label,
 .btn {
