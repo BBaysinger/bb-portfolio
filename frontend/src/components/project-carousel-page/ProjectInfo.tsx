@@ -20,6 +20,9 @@ const ProjectInfo = forwardRef<HTMLDivElement, ProjectInfoProps>(
   ({ dataNode, isActive }, ref) => {
     const { desc, urls, role } = dataNode;
 
+    // Use a variable to track the overall index across all elements
+    let globalIndex = 0;
+
     return (
       <div
         ref={ref}
@@ -28,18 +31,26 @@ const ProjectInfo = forwardRef<HTMLDivElement, ProjectInfoProps>(
           `${isActive ? styles["active"] : ""}`
         }
       >
-        {desc.map((htmlContent, index) => (
-          <div key={index} dangerouslySetInnerHTML={{ __html: htmlContent }} />
+        {desc.map((htmlContent) => (
+          <p
+            key={globalIndex}
+            style={{ "--index": globalIndex++ } as React.CSSProperties}
+            dangerouslySetInnerHTML={{ __html: htmlContent }}
+          />
         ))}
         {role && (
-          <p>
+          <p style={{ "--index": globalIndex++ } as React.CSSProperties}>
             <span style={{ fontWeight: "bold" }}>Role:</span> {role}
           </p>
         )}
         {Object.entries(urls).map(([label, urls]) => {
           if (Array.isArray(urls)) {
             return (
-              <span className={`{${styles["btn-group"]} btn-group`} key={label}>
+              <span
+                className={`${styles["btn-group"]} btn-group`}
+                key={label}
+                style={{ "--index": globalIndex++ } as React.CSSProperties}
+              >
                 <span
                   className={
                     `${styles["btn"]} ${styles["btn-group-label"]} ` +
@@ -48,15 +59,16 @@ const ProjectInfo = forwardRef<HTMLDivElement, ProjectInfoProps>(
                 >
                   {label}
                 </span>
-                {urls.map((item, index) => (
+                {urls.map((item) => (
                   <a
                     key={item}
                     href={item}
                     className={`${styles["btn"]} btn`}
                     target="_blank"
                     rel="noopener noreferrer"
+                    style={{ "--index": globalIndex++ } as React.CSSProperties}
                   >
-                    {index + 1}
+                    {item}
                   </a>
                 ))}
               </span>
@@ -69,6 +81,7 @@ const ProjectInfo = forwardRef<HTMLDivElement, ProjectInfoProps>(
                 key={urls}
                 target="_blank"
                 rel="noopener noreferrer"
+                style={{ "--index": globalIndex++ } as React.CSSProperties}
               >
                 {label}
               </a>
