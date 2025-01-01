@@ -23,33 +23,47 @@ const InfoSwapper: React.FC<InfoSwapperProps> = ({ stabilizedIndex }) => {
   const infoRefElems = useRef<(HTMLDivElement | null)[]>([]);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [containerHeight, setContainerHeight] = useState<number | null>(null);
-  const [delayedIndex, setDelayedIndex] = useState<number | null>(null);
+  const [timedIndex, setTimedIndex] = useState<number | null>(null);
 
-  useEffect(() => {
-    let timeoutId: NodeJS.Timeout | null = null;
-
-    if (stabilizedIndex !== null) {
-      // Delay updating the delayedIndex state
-      timeoutId = setTimeout(() => {
-        setDelayedIndex(stabilizedIndex);
-      }, 500);
-    }
-
-    return () => {
-      // Clear timeout on cleanup
-      if (timeoutId) clearTimeout(timeoutId);
-    };
-  }, [stabilizedIndex]);
-
-  useEffect(() => {
-    if (delayedIndex !== null && infoRefElems.current[delayedIndex]) {
-      const activeElement = infoRefElems.current[delayedIndex];
+  const updateHeight = () => {
+    if (timedIndex !== null && infoRefElems.current[timedIndex]) {
+      const activeElement = infoRefElems.current[timedIndex];
       if (activeElement) {
         const { height } = activeElement.getBoundingClientRect();
         setContainerHeight(height);
       }
     }
-  }, [delayedIndex]);
+  };
+
+  // Delay the index update with a timeout
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout | null = null;
+
+    if (stabilizedIndex === null) {
+      setTimedIndex(stabilizedIndex);
+    } else {
+      timeoutId = setTimeout(() => {
+        setTimedIndex(stabilizedIndex);
+      }, 500);
+    }
+
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  }, [stabilizedIndex]);
+
+  useEffect(() => {
+    updateHeight();
+  }, [timedIndex]);
+
+  useEffect(() => {
+    const handleResize = () => updateHeight();
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, [timedIndex]);
 
   return (
     <div
@@ -62,7 +76,7 @@ const InfoSwapper: React.FC<InfoSwapperProps> = ({ stabilizedIndex }) => {
       {keys.map((key, i) => (
         <ProjectInfo
           key={key}
-          isActive={i === delayedIndex}
+          isActive={i === timedIndex}
           transition={""}
           ref={(el) => {
             if (el) infoRefElems.current[i] = el;
