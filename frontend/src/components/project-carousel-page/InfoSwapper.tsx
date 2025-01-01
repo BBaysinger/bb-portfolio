@@ -35,7 +35,6 @@ const InfoSwapper: React.FC<InfoSwapperProps> = ({ stabilizedIndex }) => {
     }
   };
 
-  // Delay the index update with a timeout
   useEffect(() => {
     let timeoutId: NodeJS.Timeout | null = null;
 
