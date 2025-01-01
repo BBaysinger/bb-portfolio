@@ -20,9 +20,8 @@ const ProjectsPresentation: React.FC = () => {
   const { projectId = "" } = useParams<{ projectId: string }>();
   const projects = ProjectData.activeProjectsRecord;
   const [stabilizedIndex, setStabilizedIndex] = useState<number | null>(null);
-  const [direction, setDirection] = useState<DirectionType | null>(
-    Direction.LEFT,
-  );
+  const directionRef = useRef<DirectionType>(Direction.LEFT);
+
   const [initialIndex] = useState(() =>
     projectId && projects[projectId] ? projects[projectId].index : 0,
   );
@@ -34,7 +33,7 @@ const ProjectsPresentation: React.FC = () => {
   const isCarouselSourceRef = useRef(false);
 
   const onDirectionChange = (direction: DirectionType) => {
-    setDirection(direction);
+    directionRef.current = direction;
   };
 
   const laptopSlides = ProjectData.activeProjects.map((project) => (
@@ -94,7 +93,7 @@ const ProjectsPresentation: React.FC = () => {
         id={"project"}
         className={
           `${styles["projects-presentation-body"]} ` +
-          `${direction === Direction.LEFT ? "bb-slide-left" : "bb-slide-right"}`
+          `${directionRef.current === Direction.LEFT ? "bb-slide-left" : "bb-slide-right"}`
         }
       >
         <LogoSwapper projectId={projects[projectId]?.clientId} />
