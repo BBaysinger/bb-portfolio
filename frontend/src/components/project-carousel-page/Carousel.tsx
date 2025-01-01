@@ -134,12 +134,12 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
 
       memoizedSlides.forEach((_, index) => {
         let multiplier: number | null = null;
-        if (scrollDirection === Direction.RIGHT) {
+        if (scrollDirection === Direction.LEFT) {
           const threshold = 2;
           multiplier = -Math.floor(
             (index - scrollIndex + threshold) / memoizedSlides.length,
           );
-        } else if (scrollDirection === Direction.LEFT) {
+        } else if (scrollDirection === Direction.RIGHT) {
           const threshold = 2;
           multiplier = Math.floor(
             (scrollIndex - index + threshold) / memoizedSlides.length,
@@ -151,10 +151,6 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
         newMultipliers.push(multiplier);
 
         const containerOffset = (wrapperWidth - slideWidth) / 2;
-
-        // if (snap === "none" && wrapperWidth > 0 && slideWidth > 0) {
-        //   setTimeout(() => setSnap("x mandatory"), 100);
-        // }
 
         newPositions.push(
           Math.round(
@@ -201,8 +197,6 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       if (newScrollIndex !== scrollIndex) {
         const newDirection =
           newScrollIndex > scrollIndex ? Direction.LEFT : Direction.RIGHT;
-
-        // console.log("newScrollIndex", newScrollIndex, "scrollIndex", scrollIndex);
 
         if (newDirection !== scrollDirection) {
           setScrollDirection(newDirection);
@@ -379,7 +373,6 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
 
         const { positions: newPositions } = memoizedPositionsAndMultipliers;
 
-        // Calculate the target position and adjust for centering
         const containerOffset = (wrapperWidth - slideWidth) / 2;
         const targetPosition =
           newPositions[targetIndex] + patchedOffset() - containerOffset;
@@ -402,6 +395,9 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
           wrapperClassName
         }
       >
+        {/* {
+        !isSlave() && (scrollDirection)
+        } */}
         {isDebug() && (
           <div className={styles["debug"]}>
             {scrollIndex} {stableIndex} {scrollerRef.current?.scrollLeft}
