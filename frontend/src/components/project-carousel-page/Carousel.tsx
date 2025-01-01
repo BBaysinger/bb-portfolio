@@ -26,7 +26,7 @@ const Direction = {
   RIGHT: "Right",
 } as const;
 
-type DirectionType = (typeof Direction)[keyof typeof Direction];
+export type DirectionType = (typeof Direction)[keyof typeof Direction];
 
 interface CarouselProps {
   slides: React.ReactNode[];
@@ -42,6 +42,7 @@ interface CarouselProps {
   onStableIndex?: (stableIndex: number | null) => void;
   stabilizationDuration?: number;
   id?: string;
+  onDirectionChange?: (direction: DirectionType) => void;
 }
 
 export interface CarouselRef {
@@ -99,6 +100,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       externalScrollLeft,
       onStableIndex,
       stabilizationDuration = 400,
+      onDirectionChange,
       // id, // For debugging
     },
     ref,
@@ -197,6 +199,9 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
 
         if (newDirection !== scrollDirection) {
           setScrollDirection(newDirection);
+          if (onDirectionChange) {
+            onDirectionChange(newDirection);
+          }
         }
 
         setPreviousIndex(scrollIndex);
