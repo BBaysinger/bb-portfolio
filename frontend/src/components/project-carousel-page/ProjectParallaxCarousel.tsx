@@ -1,7 +1,6 @@
 import React, {
   useRef,
   useEffect,
-  useState,
   useImperativeHandle,
   forwardRef,
 } from "react";
@@ -48,15 +47,11 @@ const ProjectParallaxCarousel = forwardRef<
     },
     ref,
   ) => {
-    const [dynamicTransform, setDynamicTransform] = useState(""); // Holds the combined translateX and scale transformations
-    const masterCarouselRef = useRef<CarouselRef>(null); // Reference to the master carousel for programmatic control
-
-    // State variables for carousel tracking
-    const [masterScrollLeft, setMasterScrollLeft] = useState<number>(0);
-    const [stabilizedIndex, setStabilizedIndex] = useState<number | null>(
-      initialIndex,
-    );
-    const [currentIndex, setCurrentIndex] = useState<number>(initialIndex);
+    const dynamicTransformRef = useRef("");
+    const masterScrollLeftRef = useRef(0);
+    const stabilizedIndexRef = useRef<number | null>(initialIndex);
+    const currentIndexRef = useRef(initialIndex);
+    const masterCarouselRef = useRef<CarouselRef>(null);
 
     // Spacing for each carousel layer, allowing different movement speeds for the parallax effect
     const slideSpacings = {
@@ -76,7 +71,9 @@ const ProjectParallaxCarousel = forwardRef<
      * based on the window width and existing `translateX` from external styles.
      */
     const updateTransform = () => {
-      const element = document.querySelector(`.${styles["parallax-carousel"]}`);
+      const element = document.querySelector(
+        `.${styles["parallax-carousel"]}`,
+      ) as HTMLElement; // Cast to HTMLElement
       if (!element) return;
 
       const computedStyle = getComputedStyle(element);
@@ -106,7 +103,8 @@ const ProjectParallaxCarousel = forwardRef<
       );
 
       // Update the dynamic transformation state
-      setDynamicTransform(`translateX(${translateX}px) scale(${newScale})`);
+      dynamicTransformRef.current = `translateX(${translateX}px) scale(${newScale})`;
+      element.style.transform = dynamicTransformRef.current;
     };
 
     /**
@@ -114,7 +112,7 @@ const ProjectParallaxCarousel = forwardRef<
      * Updates the `masterScrollLeft` state and calls the `onScrollUpdate` prop if provided.
      */
     const handleMasterScrollLeft = (scrollLeft: number) => {
-      setMasterScrollLeft(scrollLeft);
+      masterScrollLeftRef.current = scrollLeft;
       if (onScrollUpdate) onScrollUpdate(scrollLeft);
     };
 
@@ -123,7 +121,7 @@ const ProjectParallaxCarousel = forwardRef<
      * Updates the `stabilizedIndex` state and calls the `onStableIndex` prop if provided.
      */
     const handleStableIndex = (index: number | null) => {
-      setStabilizedIndex(index);
+      stabilizedIndexRef.current = index;
       if (onStableIndex) onStableIndex(index);
     };
 
@@ -132,8 +130,8 @@ const ProjectParallaxCarousel = forwardRef<
      * Clears the stabilized index and calls the `onIndexUpdate` prop if provided.
      */
     const handleIndexUpdate = (index: number) => {
-      setStabilizedIndex(null);
-      setCurrentIndex(index);
+      stabilizedIndexRef.current = null;
+      currentIndexRef.current = index;
       if (onIndexUpdate) onIndexUpdate(index);
     };
 
@@ -155,7 +153,7 @@ const ProjectParallaxCarousel = forwardRef<
      * Generates the class name for slides, adding styles for stabilization.
      */
     const getSlideClass = (index: number) =>
-      (index === stabilizedIndex
+      (index === stabilizedIndexRef.current
         ? `${styles["stabilized-slide"]} bb-stabilized-slide`
         : "") + ` bb-transparent-slide`;
 
@@ -163,9 +161,10 @@ const ProjectParallaxCarousel = forwardRef<
       <div
         className={
           `${styles["parallax-carousel"]} bb-parallax-carousel ` +
-          (currentIndex === stabilizedIndex ? "bb-stabilized-carousel" : "")
+          (currentIndexRef.current === stabilizedIndexRef.current
+            ? "bb-stabilized-carousel"
+            : "")
         }
-        style={{ transform: dynamicTransform }}
       >
         {/* Layer 1: Parallax carousel for display */}
         <Carousel
@@ -175,7 +174,9 @@ const ProjectParallaxCarousel = forwardRef<
             </div>
           ))}
           slideSpacing={slideSpacings.layer1}
-          externalScrollLeft={masterScrollLeft * layerMultipliers.layer1}
+          externalScrollLeft={
+            masterScrollLeftRef.current * layerMultipliers.layer1
+          }
           debug={0}
           initialIndex={initialIndex}
           wrapperClassName={"bb-carousel bb-carousel-laptops"}
@@ -206,7 +207,9 @@ const ProjectParallaxCarousel = forwardRef<
             </div>
           ))}
           slideSpacing={slideSpacings.layer2}
-          externalScrollLeft={masterScrollLeft * layerMultipliers.layer2}
+          externalScrollLeft={
+            masterScrollLeftRef.current * layerMultipliers.layer2
+          }
           debug={0}
           initialIndex={initialIndex}
           wrapperClassName={"bb-carousel bb-carousel-phones"}
