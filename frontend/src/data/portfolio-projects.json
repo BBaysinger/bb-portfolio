@@ -8,7 +8,6 @@
     "tags": [
       "Angular",
       "TypeScript",
-      "Bootstrap",
       "HTML5",
       "CSS3",
       "Responsive"
@@ -165,7 +164,7 @@
     "omitFromList": false,
     "clientId": "chalklabs",
     "mobileStatus": "none",
-    "tags": ["Angular", "TypeScript", "Bootstrap", "Responsive"],
+    "tags": ["Angular", "TypeScript", "Responsive"],
     "role": "Developer/Designer",
     "year": "",
     "awards": "",
