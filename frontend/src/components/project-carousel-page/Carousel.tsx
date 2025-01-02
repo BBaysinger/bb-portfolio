@@ -12,6 +12,8 @@ import { ScrollToPlugin } from "gsap/ScrollToPlugin";
 
 import styles from "./Carousel.module.scss";
 
+// TODO: Replace GSAP with a custom physics-based solution to eliminate interruption
+// of tween on button mashing.
 gsap.registerPlugin(ScrollToPlugin);
 
 // BASE_OFFSET accounts for that HTML elements don't scroll
@@ -54,11 +56,14 @@ export interface CarouselRef {
 }
 
 /**
- * Bi-directional, infinite-scroll carousel with wrap-around behavior, designed for parallax effects.
- * Leverages native HTML inertial touch/trackpad scrolling for smooth interactions.
  * Carousel Component
+ * - Bi-directional, infinite-scroll carousel with wrap-around behavior.
+ * - Leverages browser-native HTML inertial touch/trackpad scrolling for smooth interactions.
  * - Infinite scroll carousel supporting master-slave architecture for synchronized parallax effects.
  * - Built for performance and smooth user interaction with inertial scrolling and precise position tracking.
+ * - Designed to handle various use cases, including custom scroll synchronization.
+ * - Debug mode reveals index, multipliers, and scroll positions for troubleshooting.
+ * - Slides are passed as props.
  *
  * Supports master/slave architecture:
  * - **Master Carousel:** Intercepts and controls interactions, allowing delegation of scroll parameters to slave carousels via parent/child architecture.
@@ -67,19 +72,22 @@ export interface CarouselRef {
  *
  * Dependencies:
  * - React (required)
- * - GSAP (used here for smooth scrolling during updates, but could be swapped out).
+ * - GSAP (used here for smooth scrolling, but will be swapped out for a custom physics solution).
  *
  * Key Challenges Addressed:
  * 1. **Infinite Scrolling:** HTML's `scrollLeft` doesn't support negative values. This is mitigated with a `BASE_OFFSET` set to a large value.
- *    - Future Improvement: Reset offsets during scroll stops once Safari supports the `scrollend` event.
+ *    - Future Improvement: Reset offsets during scroll stops once Safari supports the `scrollend` event (which will make the solution more elegant).
  *
- * 2. **Scroll Snap Behavior:** `scroll-snap-type: x mandatory` interferes with initial positioning and callbacks.
- *    - Resolution: Applied on a delay post-render to avoid recursion issues.
+ * 2. **Scroll Snap Behavior:** `scroll-snap-type: x mandatory` can interfere with initial positioning and callbacks.
+ *    - Resolution: Applied on a delay post-render to avoid recursion issues, which also allows for visual inpsection of alignment before being applied.
  *
- * 3. **Initial Offset:** Setting `scrollLeft` to the base offset requires the scroller to be shimmed/propped to the required width.
+ * 3. **Initial Offset:** Initially setting `scrollLeft` to the base offset requires the scroller to be shimmed/propped to the required width
+ *    if there are no slides to the right of the initial index.
  *
  * TODO:
- * - Add non-native inertial scrolling as an optional feature.
+ * - Add non-native inertial scrolling as:
+ *   1. An optional feature to unify the experience between different browser types.
+ *   2. Enable inertial scroll for mouse-based drag and flick.
  * - Clone slides dynamically to prevent blank spaces at edges.
  * - Implement lazy loading for slides and ensure proper wrapping of slider positions.
  *
@@ -94,8 +102,6 @@ export interface CarouselRef {
  *
  * @author Bradley Baysinger
  * @since 2024-12-16
- * - Designed to handle various use cases, including custom scroll synchronization.
- * - Debug mode reveals index, multipliers, and scroll positions for troubleshooting.
  */
 const Carousel = forwardRef<CarouselRef, CarouselProps>(
   (
@@ -132,7 +138,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
     const scrollerRef = useRef<HTMLDivElement>(null); // Reference to the scrolling container.
     const wrapperRef = useRef<HTMLDivElement>(null); // Reference to the wrapper.
     const externalScrollLeftRef = useRef<number | null>(null); // External scroll position in slave mode.
-    const slideWidthRef = useRef<number>(0); // Current width of a slide.
+    const slideWidthRef = useRef<number>(0); // Current width of a slide (shouldn't change after initial render).
 
     // Memoized slides for optimized re-renders
     const memoizedSlides = useMemo(() => slides, [slides]);
