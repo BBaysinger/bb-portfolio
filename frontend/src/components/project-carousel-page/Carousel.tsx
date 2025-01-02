@@ -78,13 +78,11 @@ export interface CarouselRef {
  *
  * 3. **Initial Offset:** Setting `scrollLeft` to the base offset requires the scroller to be shimmed/propped to the required width.
  *
- * Known Quirks:
- * - WebKit occasionally miscalculates positions during rightward scrolling, causing Chrome to "snap back." This is rare and non-critical but under investigation.
- *
  * TODO:
  * - Add non-native inertial scrolling as an optional feature.
  * - Clone slides dynamically to prevent blank spaces at edges.
  * - Implement lazy loading for slides and ensure proper wrapping of slider positions.
+ * 
  * Main Features:
  * 1. Infinite scrolling with wrap-around behavior.
  * 2. Parallax-friendly master/slave architecture for multi-layer effects.
