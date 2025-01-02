@@ -189,51 +189,36 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       const totalSlides = memoizedSlides.length;
       const offset = scrollLeft - patchedOffset();
       const newScrollIndex = Math.round(offset / slideSpacing);
-
       const newDataIndex =
         ((newScrollIndex % totalSlides) + totalSlides) % totalSlides;
 
-      setDataIndex(newDataIndex);
-
-      if (newScrollIndex !== scrollIndex) {
+      if (scrollIndex !== newScrollIndex) {
         const newDirection =
           newScrollIndex > scrollIndex ? Direction.LEFT : Direction.RIGHT;
 
         if (newDirection !== scrollDirection) {
           setScrollDirection(newDirection);
-          if (onDirectionChange) {
-            onDirectionChange(newDirection);
-          }
+          onDirectionChange?.(newDirection);
         }
 
-        setPreviousIndex(scrollIndex);
         setScrollIndex(newScrollIndex);
+        setPreviousIndex(scrollIndex);
 
-        if (onIndexUpdate) {
-          onIndexUpdate(newDataIndex);
-        }
+        onIndexUpdate?.(newDataIndex);
 
         if (stabilizationTimer.current) {
           clearTimeout(stabilizationTimer.current);
         }
 
-        setStableIndex(null);
-
-        if (onStableIndex) {
-          onStableIndex(null);
-        }
-
-        if (updateStableIndex && onStableIndex) {
+        if (updateStableIndex) {
           stabilizationTimer.current = setTimeout(() => {
             setStableIndex(newDataIndex);
-            onStableIndex(newDataIndex);
+            onStableIndex?.(newDataIndex);
           }, stabilizationDuration);
         }
       }
 
-      if (onScrollUpdate) {
-        onScrollUpdate(scrollLeft - patchedOffset());
-      }
+      onScrollUpdate?.(scrollLeft - patchedOffset());
     };
 
     const updateIndexRef = useRef(updateIndexPerPosition);
@@ -337,26 +322,16 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
         const newSlideWidth = Math.max(...widths);
         const newWrapperWidth = wrapperRef.current?.offsetWidth || 0;
 
-        if (!newSlideWidth || !newWrapperWidth) {
+        if (newSlideWidth && newWrapperWidth) {
+          setSlideWidth(newSlideWidth);
+          setWrapperWidth(newWrapperWidth);
+        } else {
           requestAnimationFrame(measureWidths);
-          return;
         }
-
-        setSlideWidth(newSlideWidth);
-        setWrapperWidth(newWrapperWidth);
       };
 
-      const timer = setTimeout(measureWidths, 0);
-
-      return () => clearTimeout(timer);
+      measureWidths();
     }, [slides]);
-
-    const slaveTransform = (): string => {
-      console.log("slaveTransform", externalScrollLeftRef.current);
-      if (typeof externalScrollLeftRef.current === "number") {
-        return `translateX(${Math.round(-externalScrollLeftRef.current)}px)`;
-      } else return "";
-    };
 
     useImperativeHandle(ref, () => ({
       scrollToSlide: (targetIndex: number) => {
@@ -381,9 +356,10 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       },
       setExternalScrollLeft: (newLeft: number) => {
         externalScrollLeftRef.current = newLeft;
-        if (typeof newLeft === "number") {
-          updateIndexPerPosition(newLeft, false);
+        if (scrollerRef.current) {
+          scrollerRef.current.style.transform = `translateX(${-newLeft}px)`;
         }
+        updateIndexPerPosition(newLeft, false);
       },
     }));
 
@@ -408,10 +384,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
         <div
           ref={scrollerRef}
           className={`${styles["carousel-slider"]} ${sliderClassName}`}
-          style={{
-            transform: slaveTransform(),
-            scrollSnapType: snap,
-          }}
+          style={{ scrollSnapType: snap }}
         >
           <div
             className={styles["carousel-shim"]}
