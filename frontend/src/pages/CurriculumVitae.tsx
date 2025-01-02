@@ -893,7 +893,7 @@ const CurriculumVitae: React.FC = () => {
 
               <ul>
                 <li>
-                  Pursued self-directed learning in
+                  Pursued self-directed learning in{" "}
                   <b>JavaScript, Dynamic HTML, and web animation</b> while
                   working full-time in a non-technical&nbsp;role.
                 </li>
