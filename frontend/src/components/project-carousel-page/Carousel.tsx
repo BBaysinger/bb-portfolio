@@ -82,7 +82,7 @@ export interface CarouselRef {
  * - Add non-native inertial scrolling as an optional feature.
  * - Clone slides dynamically to prevent blank spaces at edges.
  * - Implement lazy loading for slides and ensure proper wrapping of slider positions.
- * 
+ *
  * Main Features:
  * 1. Infinite scrolling with wrap-around behavior.
  * 2. Parallax-friendly master/slave architecture for multi-layer effects.
