@@ -5,4 +5,12 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  justify-content: center;
+  align-items: center;
+
+  :global(.max-w-container) {
+    max-width: 1200px;
+    width: 100%;
+    padding: 0;
+  }
 }

@@ -58,23 +58,25 @@ const LogoSwapper: React.FC<LogoSwapperProps> = ({ projectId }) => {
   }, [projectId]);
 
   return (
-    <div className={"container"}>
-      <div
-        className={`${styles["logo-swapper"]} ${isBlurred ? "" : styles.unblurred} ${
-          isMounted ? styles["fade-in"] : styles["fade-out"]
-        }`}
-      >
-        {Object.entries(clientNames).map(([key, value]) => (
-          <img
-            key={key}
-            loading="lazy"
-            src={`/images/client-logos/${key in fileVariants ? fileVariants[key] : key}.svg`}
-            className={`${styles["client-logo"]} ${
-              currentLogoId === key ? styles.visible : ""
-            }`}
-            alt={value}
-          />
-        ))}
+    <div className={"max-w-container"}>
+      <div className={"container"}>
+        <div
+          className={`${styles["logo-swapper"]} ${isBlurred ? "" : styles.unblurred} ${
+            isMounted ? styles["fade-in"] : styles["fade-out"]
+          }`}
+        >
+          {Object.entries(clientNames).map(([key, value]) => (
+            <img
+              key={key}
+              loading="lazy"
+              src={`/images/client-logos/${key in fileVariants ? fileVariants[key] : key}.svg`}
+              className={`${styles["client-logo"]} ${
+                currentLogoId === key ? styles.visible : ""
+              }`}
+              alt={value}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );
