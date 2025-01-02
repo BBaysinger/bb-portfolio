@@ -28,10 +28,17 @@
     overflow: hidden;
     position: relative;
     line-height: 0.9em;
-    > * {
-      display: block;
-      @include breakpoint-up(500px) {
-        display: inline;
+
+    &.subhead-desktop {
+      display: none;
+    }
+
+    @include breakpoint-up(500px) {
+      &.subhead-mobile {
+        display: none;
+      }
+      &.subhead-desktop {
+        display: block;
       }
     }
   }

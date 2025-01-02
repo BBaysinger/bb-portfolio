@@ -43,7 +43,11 @@ const HeaderMain: React.FC = () => {
           <span className={styles["last-name"]}>Baysinger</span>
         </h1>
 
-        <h5 className={styles["subhead"]}>
+        <h5 className={`${styles["subhead-mobile"]} ${styles["subhead"]}`}>
+          Interactive Web Developer
+        </h5>
+
+        <h5 className={`${styles["subhead-desktop"]} ${styles["subhead"]}`}>
           Interactive&nbsp;Web <span className={styles["bull"]}>&bull;</span>{" "}
           <span className={styles["nobr"]}>Front-end Developer</span>
         </h5>
