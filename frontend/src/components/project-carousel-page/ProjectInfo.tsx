@@ -30,16 +30,16 @@ const ProjectInfo = forwardRef<HTMLDivElement, ProjectInfoProps>(
         }
       >
         {desc.map((htmlContent) => (
-          <p
+          <div
             key={globalIndex}
             style={{ "--index": globalIndex++ } as React.CSSProperties}
             dangerouslySetInnerHTML={{ __html: htmlContent }}
           />
         ))}
         {role && (
-          <p style={{ "--index": globalIndex++ } as React.CSSProperties}>
+          <div style={{ "--index": globalIndex++ } as React.CSSProperties}>
             <span style={{ fontWeight: "bold" }}>Role:</span> {role}
-          </p>
+          </div>
         )}
         {Object.entries(urls).map(([label, urls]) => {
           if (Array.isArray(urls)) {

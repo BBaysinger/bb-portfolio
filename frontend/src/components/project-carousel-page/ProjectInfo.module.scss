@@ -20,12 +20,11 @@
     }
   }
 
-  p {
+  div {
     margin-bottom: 10px;
-  }
-
-  :global(.container) {
-    max-width: 1024px;
+    &:last-of-type {
+      margin-bottom: 30px;
+    }
   }
 }
 
@@ -80,6 +79,10 @@
 
 .btn {
   margin-right: 20px;
+  &:hover {
+    color: #fff;
+    background-color: #444;
+  }
 }
 
 .btn-group {
