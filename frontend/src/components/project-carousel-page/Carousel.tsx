@@ -121,7 +121,6 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
     const slideRefs = useRef<(HTMLDivElement | null)[]>([]);
     const scrollerRef = useRef<HTMLDivElement>(null);
     const wrapperRef = useRef<HTMLDivElement>(null);
-    const isMounted = useRef(false);
     const externalScrollLeftRef = useRef<number | null>(null);
     const slideWidthRef = useRef<number>(0);
 
@@ -181,8 +180,6 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       scrollLeft: number,
       updateStableIndex: boolean = true,
     ) => {
-      if (!isMounted.current) return;
-
       const totalSlides = memoizedSlides.length;
       const offset = scrollLeft - patchedOffset();
       const newScrollIndex = Math.round(offset / slideSpacing);
@@ -296,7 +293,6 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       }
 
       const timer = setTimeout(() => {
-        isMounted.current = true;
         setSnap("x mandatory");
       }, 0);
 
@@ -309,7 +305,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
         const newSlideWidth = Math.max(...widths);
         const newWrapperWidth = wrapperRef.current?.offsetWidth || 0;
 
-        if (newSlideWidth && newWrapperWidth) {
+        if (newSlideWidth + newWrapperWidth > 0) {
           slideWidthRef.current = newSlideWidth;
           setWrapperWidth(newWrapperWidth);
         } else {

@@ -19,12 +19,13 @@ import styles from "./ProjectsPresentation.module.scss";
 const ProjectsPresentation: React.FC = () => {
   const { projectId = "" } = useParams<{ projectId: string }>();
   const projects = ProjectData.activeProjectsRecord;
-  const [stabilizedIndex, setStabilizedIndex] = useState<number | null>(null);
-  const directionRef = useRef<DirectionType>(Direction.LEFT);
-
-  const [initialIndex] = useState(() =>
-    projectId && projects[projectId] ? projects[projectId].index : 0,
+  const [stabilizedIndex, setStabilizedIndex] = useState<number | null>(() =>
+    projectId && projects[projectId] ? projects[projectId].index : null,
   );
+  const [initialIndex] = useState<number | null>(() =>
+    projectId && projects[projectId] ? projects[projectId].index : null,
+  );
+  const directionRef = useRef<DirectionType>(Direction.LEFT);
   const carouselRef = useRef<{ scrollToSlide: (targetIndex: number) => void }>(
     null,
   );
@@ -97,14 +98,16 @@ const ProjectsPresentation: React.FC = () => {
         }
       >
         <LogoSwapper projectId={projects[projectId]?.clientId} />
-        <ProjectParallaxCarousel
-          ref={carouselRef}
-          layer1Slides={laptopSlides}
-          layer2Slides={phoneSlides}
-          onStableIndex={handleStableIndexUpdate}
-          initialIndex={initialIndex}
-          onDirectionChange={onDirectionChange}
-        />
+        {initialIndex !== null && (
+          <ProjectParallaxCarousel
+            ref={carouselRef}
+            layer1Slides={laptopSlides}
+            layer2Slides={phoneSlides}
+            onStableIndex={handleStableIndexUpdate}
+            initialIndex={initialIndex}
+            onDirectionChange={onDirectionChange}
+          />
+        )}
         <PageButtons />
         <InfoSwapper stabilizedIndex={stabilizedIndex} />
       </div>
