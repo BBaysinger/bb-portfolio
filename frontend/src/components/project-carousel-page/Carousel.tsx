@@ -49,6 +49,7 @@ interface CarouselProps {
 
 export interface CarouselRef {
   scrollToSlide: (targetIndex: number) => void;
+  setExternalScrollLeft: (scrollLeft: number) => void;
 }
 
 /**
@@ -99,7 +100,6 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       slideClassName = "",
       sliderClassName = "",
       onScrollUpdate,
-      externalScrollLeft,
       onStableIndex,
       stabilizationDuration = 700,
       onDirectionChange,
@@ -126,6 +126,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
     const scrollerRef = useRef<HTMLDivElement>(null);
     const wrapperRef = useRef<HTMLDivElement>(null);
     const isMounted = useRef(false);
+    const externalScrollLeftRef = useRef<number | null>(null);
 
     const memoizedPositionsAndMultipliers = useMemo(() => {
       const newPositions: number[] = [];
@@ -247,12 +248,6 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       updateIndexRef.current(scrollLeft);
     }, []);
 
-    useEffect(() => {
-      if (typeof externalScrollLeft === "number") {
-        updateIndexPerPosition(externalScrollLeft, false);
-      }
-    }, [externalScrollLeft]);
-
     const targetFPS = 40;
     const frameDuration = 1000 / targetFPS;
     let lastFrameTime = 0;
@@ -290,7 +285,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       return JSON.stringify(a) === JSON.stringify(b);
     };
 
-    const isSlave = () => typeof externalScrollLeft === "number";
+    const isSlave = () => typeof externalScrollLeftRef.current === "number";
     const patchedOffset = () => (isSlave() ? 0 : BASE_OFFSET);
 
     useEffect(() => {
@@ -357,8 +352,9 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
     }, [slides]);
 
     const slaveTransform = (): string => {
-      if (typeof externalScrollLeft === "number") {
-        return `translateX(${Math.round(-externalScrollLeft)}px)`;
+      console.log("slaveTransform", externalScrollLeftRef.current);
+      if (typeof externalScrollLeftRef.current === "number") {
+        return `translateX(${Math.round(-externalScrollLeftRef.current)}px)`;
       } else return "";
     };
 
@@ -383,6 +379,12 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
           ease: "power2.inOut",
         });
       },
+      setExternalScrollLeft: (newLeft: number) => {
+        externalScrollLeftRef.current = newLeft;
+        if (typeof newLeft === "number") {
+          updateIndexPerPosition(newLeft, false);
+        }
+      },
     }));
 
     const isDebug = () => debug != null && debug !== 0 && debug !== "";
@@ -396,7 +398,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
         }
       >
         {/* {
-        !isSlave() && (scrollDirection)
+        isSlave() && (slaveTransform())
         } */}
         {isDebug() && (
           <div className={styles["debug"]}>

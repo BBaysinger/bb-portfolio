@@ -48,10 +48,11 @@ const ProjectParallaxCarousel = forwardRef<
     ref,
   ) => {
     const dynamicTransformRef = useRef("");
-    const masterScrollLeftRef = useRef(0);
     const stabilizedIndexRef = useRef<number | null>(initialIndex);
     const currentIndexRef = useRef(initialIndex);
+    const layer1CarouselRef = useRef<CarouselRef>(null);
     const masterCarouselRef = useRef<CarouselRef>(null);
+    const layer2CarouselRef = useRef<CarouselRef>(null);
 
     // Spacing for each carousel layer, allowing different movement speeds for the parallax effect
     const slideSpacings = {
@@ -112,7 +113,12 @@ const ProjectParallaxCarousel = forwardRef<
      * Updates the `masterScrollLeft` state and calls the `onScrollUpdate` prop if provided.
      */
     const handleMasterScrollLeft = (scrollLeft: number) => {
-      masterScrollLeftRef.current = scrollLeft;
+      layer1CarouselRef.current?.setExternalScrollLeft(
+        scrollLeft * layerMultipliers.layer1,
+      );
+      layer2CarouselRef.current?.setExternalScrollLeft(
+        scrollLeft * layerMultipliers.layer2,
+      );
       if (onScrollUpdate) onScrollUpdate(scrollLeft);
     };
 
@@ -168,15 +174,13 @@ const ProjectParallaxCarousel = forwardRef<
       >
         {/* Layer 1: Parallax carousel for display */}
         <Carousel
+          ref={layer1CarouselRef}
           slides={layer1Slides.map((slide, index) => (
             <div key={index} className={getSlideClass(index)}>
               {slide}
             </div>
           ))}
           slideSpacing={slideSpacings.layer1}
-          externalScrollLeft={
-            masterScrollLeftRef.current * layerMultipliers.layer1
-          }
           debug={0}
           initialIndex={initialIndex}
           wrapperClassName={"bb-carousel bb-carousel-laptops"}
@@ -201,15 +205,13 @@ const ProjectParallaxCarousel = forwardRef<
 
         {/* Layer 2: Parallax carousel for display */}
         <Carousel
+          ref={layer2CarouselRef}
           slides={layer2Slides.map((slide, index) => (
             <div key={index} className={getSlideClass(index)}>
               {slide}
             </div>
           ))}
           slideSpacing={slideSpacings.layer2}
-          externalScrollLeft={
-            masterScrollLeftRef.current * layerMultipliers.layer2
-          }
           debug={0}
           initialIndex={initialIndex}
           wrapperClassName={"bb-carousel bb-carousel-phones"}
