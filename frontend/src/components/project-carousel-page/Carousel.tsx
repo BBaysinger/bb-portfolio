@@ -321,6 +321,12 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
 
       if (!isSlave()) {
         scrollerRef.current.scrollLeft = targetScrollLeft;
+
+        // Force a repaint for Safari to prevent blank slides on initial render.
+        scrollerRef.current.style.opacity = "0.99";
+        requestAnimationFrame(() => {
+          if (scrollerRef.current) scrollerRef.current.style.opacity = "1";
+        });
       }
 
       // Delay applying `scroll-snap-type` to prevent recursion issues.

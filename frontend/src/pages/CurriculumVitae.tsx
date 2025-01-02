@@ -330,7 +330,7 @@ const CurriculumVitae: React.FC = () => {
               </p>
 
               <p className={styles["scope"]}>
-                <span>Technical Scope:</span> Angular 17, TypeScript, RxJS,
+                <span>Technical Scope:</span> Angular 14, TypeScript, RxJS,
                 React 18, Redux, SiteCore, Modular HTML Email, Salesforce,
                 OneTrust,&nbsp;FreeMarker
               </p>
