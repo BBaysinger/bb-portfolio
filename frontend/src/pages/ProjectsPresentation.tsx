@@ -95,6 +95,7 @@ const ProjectsPresentation: React.FC = () => {
         subhead={projects[projectId]?.tags?.join(", ") || ""}
       />
       <div
+        id="project" // Page anchor, NOT for CSS selection.
         className={
           `${styles["projects-presentation-body"]} ` +
           `${directionRef.current === Direction.LEFT ? "bb-slide-left" : "bb-slide-right"}`

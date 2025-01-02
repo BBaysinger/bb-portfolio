@@ -21,8 +21,7 @@ gsap.registerPlugin(ScrollToPlugin);
 // current use cases. Until then, it's not *technically* infinite scrolling left.
 const BASE_OFFSET = 1000000;
 
-// 'Direction' throughout application is 'User Perspective', meaning the direction
-// the user swiped (versus the direction of progression.)
+// Directions are defined from the user's perspective, e.g., swiping right means the carousel shifts left.
 export const Direction = {
   LEFT: "Left",
   RIGHT: "Right",
@@ -30,31 +29,36 @@ export const Direction = {
 
 export type DirectionType = (typeof Direction)[keyof typeof Direction];
 
+// CarouselProps defines the component's expected props, supporting features like callbacks, dynamic scroll positions, and debugging.
 interface CarouselProps {
-  slides: React.ReactNode[];
-  slideSpacing: number;
-  initialIndex?: number;
-  onIndexUpdate?: (scrollIndex: number) => void;
-  debug?: string | number | null;
-  wrapperClassName?: string;
-  slideClassName?: string;
-  sliderClassName?: string;
-  onScrollUpdate?: (scrollLeft: number) => void;
-  externalScrollLeft?: number;
-  onStableIndex?: (stableIndex: number | null) => void;
-  stabilizationDuration?: number;
-  id?: string;
-  onDirectionChange?: (direction: DirectionType) => void;
+  slides: React.ReactNode[]; // Array of slides (React elements) to display.
+  slideSpacing: number; // Space between slides in pixels.
+  initialIndex?: number; // Optional starting index for the carousel.
+  onIndexUpdate?: (scrollIndex: number) => void; // Callback for index changes during scroll.
+  debug?: string | number | null; // Debugging flag for showing additional info.
+  wrapperClassName?: string; // Custom CSS class for the wrapper.
+  slideClassName?: string; // Custom CSS class for slides.
+  sliderClassName?: string; // Custom CSS class for the slider.
+  onScrollUpdate?: (scrollLeft: number) => void; // Callback for scroll position changes.
+  externalScrollLeft?: number; // External scroll position (used in slave mode).
+  onStableIndex?: (stableIndex: number | null) => void; // Callback when the scroll stabilizes on a specific index.
+  stabilizationDuration?: number; // Delay (ms) before a new stable index is reported.
+  id?: string; // Optional ID for debugging or DOM referencing.
+  onDirectionChange?: (direction: DirectionType) => void; // Callback for direction changes.
 }
 
+// CarouselRef defines methods exposed to parent components via `ref`.
 export interface CarouselRef {
-  scrollToSlide: (targetIndex: number) => void;
-  setExternalScrollLeft: (scrollLeft: number) => void;
+  scrollToSlide: (targetIndex: number) => void; // Scroll programmatically to a specific slide.
+  setExternalScrollLeft: (scrollLeft: number) => void; // Manually adjust the scroll position in slave mode.
 }
 
 /**
  * Bi-directional, infinite-scroll carousel with wrap-around behavior, designed for parallax effects.
  * Leverages native HTML inertial touch/trackpad scrolling for smooth interactions.
+ * Carousel Component
+ * - Infinite scroll carousel supporting master-slave architecture for synchronized parallax effects.
+ * - Built for performance and smooth user interaction with inertial scrolling and precise position tracking.
  *
  * Supports master/slave architecture:
  * - **Master Carousel:** Intercepts and controls interactions, allowing delegation of scroll parameters to slave carousels via parent/child architecture.
@@ -81,12 +85,19 @@ export interface CarouselRef {
  * - Add non-native inertial scrolling as an optional feature.
  * - Clone slides dynamically to prevent blank spaces at edges.
  * - Implement lazy loading for slides and ensure proper wrapping of slider positions.
+ * Main Features:
+ * 1. Infinite scrolling with wrap-around behavior.
+ * 2. Parallax-friendly master/slave architecture for multi-layer effects.
+ * 3. Smooth scrolling using GSAP.
+ * 4. Dynamic slide positioning and spacing.
  *
  * Notes:
  * - Smoothness achieved here the main objective, and uncommon if you compare it to most every other carousel.
  *
  * @author Bradley Baysinger
  * @since 2024-12-16
+ * - Designed to handle various use cases, including custom scroll synchronization.
+ * - Debug mode reveals index, multipliers, and scroll positions for troubleshooting.
  */
 const Carousel = forwardRef<CarouselRef, CarouselProps>(
   (
@@ -107,24 +118,30 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
     },
     ref,
   ) => {
-    const [scrollIndex, setScrollIndex] = useState(initialIndex);
-    const [dataIndex, setDataIndex] = useState(initialIndex);
-    const [_previousIndex, setPreviousIndex] = useState<number | null>(null);
-    const [stableIndex, setStableIndex] = useState<number | null>(initialIndex);
-    const [wrapperWidth, setWrapperWidth] = useState<number>(0);
-    const [snap, setSnap] = useState("none");
+    // State Variables
+    const [scrollIndex, setScrollIndex] = useState(initialIndex); // Current scroll index.
+    const [dataIndex, setDataIndex] = useState(initialIndex); // Mapped data index (handles wrap-around).
+    const [_previousIndex, setPreviousIndex] = useState<number | null>(null); // Tracks the previous index.
+    const [stableIndex, setStableIndex] = useState<number | null>(initialIndex); // Index stabilized after scrolling stops.
+    const [wrapperWidth, setWrapperWidth] = useState<number>(0); // Current width of the wrapper.
+    const [snap, setSnap] = useState("none"); // CSS scroll snap behavior.
     const [scrollDirection, setScrollDirection] =
-      useState<DirectionType | null>(Direction.LEFT);
+      useState<DirectionType | null>(Direction.LEFT); // Current scroll direction.
 
+    // Refs for DOM elements and values
+    const stabilizationTimer = useRef<NodeJS.Timeout | null>(null); // Timer for stabilization.
+    const slideRefs = useRef<(HTMLDivElement | null)[]>([]); // References to slide elements.
+    const scrollerRef = useRef<HTMLDivElement>(null); // Reference to the scrolling container.
+    const wrapperRef = useRef<HTMLDivElement>(null); // Reference to the wrapper.
+    const externalScrollLeftRef = useRef<number | null>(null); // External scroll position in slave mode.
+    const slideWidthRef = useRef<number>(0); // Current width of a slide.
+
+    // Memoized slides for optimized re-renders
     const memoizedSlides = useMemo(() => slides, [slides]);
-    const stabilizationTimer = useRef<NodeJS.Timeout | null>(null);
-    const slideRefs = useRef<(HTMLDivElement | null)[]>([]);
-    const scrollerRef = useRef<HTMLDivElement>(null);
-    const wrapperRef = useRef<HTMLDivElement>(null);
-    const externalScrollLeftRef = useRef<number | null>(null);
-    const slideWidthRef = useRef<number>(0);
 
+    // Calculate slide positions, multipliers, and offsets
     const memoizedPositionsAndMultipliers = useMemo(() => {
+      // Helper arrays for computed values
       const newPositions: number[] = [];
       const newMultipliers: number[] = [];
       const newOffsets: number[] = [];
@@ -147,8 +164,8 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
 
         newMultipliers.push(multiplier);
 
+        // Calculate absolute position for each slide.
         const containerOffset = (wrapperWidth - slideWidthRef.current) / 2;
-
         newPositions.push(
           Math.round(
             multiplier * slideSpacing * memoizedSlides.length +
@@ -157,6 +174,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
           ),
         );
 
+        // Calculate normalized offsets for determining visibility and snapping.
         const normalizedOffset =
           (((index - scrollIndex) % memoizedSlides.length) +
             memoizedSlides.length) %
@@ -176,11 +194,14 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       };
     }, [scrollIndex, scrollDirection, wrapperWidth]);
 
+    // Updates the carousel's index based on scroll position.
     const updateIndexPerPosition = (
       scrollLeft: number,
       updateStableIndex: boolean = true,
     ) => {
       const totalSlides = memoizedSlides.length;
+
+      // Calculate the new scroll index and data index based on scrollLeft.
       const offset = scrollLeft - patchedOffset();
       const newScrollIndex = Math.round(offset / slideSpacing);
       const newDataIndex =
@@ -190,16 +211,18 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
         const newDirection =
           newScrollIndex > scrollIndex ? Direction.LEFT : Direction.RIGHT;
 
+        // Update the scroll direction if it has changed.
         if (newDirection !== scrollDirection) {
           setScrollDirection(newDirection);
           onDirectionChange?.(newDirection);
         }
 
+        // Update states and trigger callbacks for the new index.
         setScrollIndex(newScrollIndex);
         setPreviousIndex(scrollIndex);
-
         onIndexUpdate?.(newDataIndex);
 
+        // Clear any existing stabilization timer before setting a new one.
         if (stabilizationTimer.current) {
           clearTimeout(stabilizationTimer.current);
         }
@@ -212,21 +235,24 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
         }
       }
 
+      // Trigger the scroll update callback with the adjusted scrollLeft.
       onScrollUpdate?.(scrollLeft - patchedOffset());
     };
 
+    // Keeps the updateIndexPerPosition function reference stable across renders.
     const updateIndexRef = useRef(updateIndexPerPosition);
-
     useEffect(() => {
       updateIndexRef.current = updateIndexPerPosition;
     }, [updateIndexPerPosition]);
 
+    // Handles scroll events by updating the index based on current scroll position.
     const handleScroll = useCallback(() => {
       if (!scrollerRef.current) return;
       const scrollLeft = scrollerRef.current.scrollLeft;
       updateIndexRef.current(scrollLeft);
     }, []);
 
+    // Throttle scroll updates to the target FPS for performance.
     const targetFPS = 40;
     const frameDuration = 1000 / targetFPS;
     let lastFrameTime = 0;
@@ -234,6 +260,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
     useEffect(() => {
       let animationFrameId: number | null = null;
 
+      // Listener to manage scroll updates while throttling based on FPS.
       const scrollListener = (_: Event) => {
         if (animationFrameId === null) {
           animationFrameId = requestAnimationFrame((currentTime) => {
@@ -249,6 +276,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
         }
       };
 
+      // Only attach scroll listener if not in slave mode.
       if (!isSlave()) {
         const scroller = scrollerRef.current;
         scroller?.addEventListener("scroll", scrollListener);
@@ -260,9 +288,13 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       }
     }, [handleScroll, frameDuration]);
 
+    // Checks if the carousel is in slave mode.
     const isSlave = () => typeof externalScrollLeftRef.current === "number";
+
+    // Returns the base offset used for infinite scrolling.
     const patchedOffset = () => (isSlave() ? 0 : BASE_OFFSET);
 
+    // Extracts current positions, multipliers, and offsets for slides.
     const {
       positions: currentPositions,
       multipliers: currentMultipliers,
@@ -273,6 +305,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       return { positions, multipliers, offsets };
     }, [memoizedPositionsAndMultipliers]);
 
+    // Initializes the carousel's scroll position and snap behavior.
     useEffect(() => {
       if (!scrollerRef.current) return;
 
@@ -292,6 +325,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
         scrollerRef.current.scrollLeft = targetScrollLeft;
       }
 
+      // Delay applying `scroll-snap-type` to prevent recursion issues.
       const timer = setTimeout(() => {
         setSnap("x mandatory");
       }, 0);
@@ -299,6 +333,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       return () => clearTimeout(timer);
     }, []);
 
+    // Measures slide and wrapper widths for accurate positioning.
     useEffect(() => {
       const measureWidths = () => {
         const widths = slideRefs.current.map((ref) => ref?.offsetWidth || 0);
@@ -309,6 +344,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
           slideWidthRef.current = newSlideWidth;
           setWrapperWidth(newWrapperWidth);
         } else {
+          // Retry measuring if dimensions are unavailable.
           requestAnimationFrame(measureWidths);
         }
       };
@@ -316,7 +352,9 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       measureWidths();
     }, [slides]);
 
+    // Exposes carousel methods to the parent component via `ref`.
     useImperativeHandle(ref, () => ({
+      // Scrolls programmatically to a specific slide.
       scrollToSlide: (targetIndex: number) => {
         if (!scrollerRef.current) return;
 
@@ -331,12 +369,14 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
         const targetPosition =
           newPositions[targetIndex] + patchedOffset() - containerOffset;
 
+        // Smoothly scroll to the target position using GSAP.
         gsap.to(scrollerRef.current, {
           scrollTo: { x: targetPosition },
           duration: 1.0,
           ease: "power2.inOut",
         });
       },
+      // Adjusts the external scroll position in slave mode.
       setExternalScrollLeft: (newLeft: number) => {
         externalScrollLeftRef.current = Math.round(newLeft);
         if (scrollerRef.current) {
@@ -346,8 +386,10 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       },
     }));
 
+    // Checks if debug mode is enabled.
     const isDebug = () => debug != null && debug !== 0 && debug !== "";
 
+    // JSX structure of the carousel component.
     return (
       <div
         ref={wrapperRef}
