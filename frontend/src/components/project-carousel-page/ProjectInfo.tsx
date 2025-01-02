@@ -1,12 +1,14 @@
 import { forwardRef } from "react";
 
 import { ParsedPortfolioProject } from "data/ProjectData";
+import { DirectionType } from "./Carousel";
 import styles from "./ProjectInfo.module.scss";
 
 interface ProjectInfoProps {
   transition: string;
   dataNode: ParsedPortfolioProject;
   isActive: boolean;
+  direction: DirectionType;
 }
 
 /**
@@ -17,7 +19,7 @@ interface ProjectInfoProps {
  * @version N/A
  */
 const ProjectInfo = forwardRef<HTMLDivElement, ProjectInfoProps>(
-  ({ dataNode, isActive }, ref) => {
+  ({ dataNode, isActive, direction }, ref) => {
     const { desc, urls, role } = dataNode;
     let globalIndex = 0;
 
@@ -25,9 +27,10 @@ const ProjectInfo = forwardRef<HTMLDivElement, ProjectInfoProps>(
       <div
         ref={ref}
         className={
-          `${styles["project-info-and-features"]} ` +
-          `${isActive ? styles["active"] : ""}`
+          `${styles["project-info"]} ` +
+          `${isActive ? styles["active"] : ""} ${styles[direction.toLowerCase()]}`
         }
+        style={{ display: isActive ? "block" : "none" }}
       >
         {desc.map((htmlContent) => (
           <div

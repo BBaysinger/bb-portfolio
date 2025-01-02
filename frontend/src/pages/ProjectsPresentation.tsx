@@ -19,11 +19,14 @@ import styles from "./ProjectsPresentation.module.scss";
 const ProjectsPresentation: React.FC = () => {
   const { projectId = "" } = useParams<{ projectId: string }>();
   const projects = ProjectData.activeProjectsRecord;
-  const [stabilizedIndex, setStabilizedIndex] = useState<number | null>(() =>
-    projectId && projects[projectId] ? projects[projectId].index : null,
-  );
   const [initialIndex] = useState<number | null>(() =>
     projectId && projects[projectId] ? projects[projectId].index : null,
+  );
+  const [stabilizedIndex, setStabilizedIndex] = useState<number | null>(
+    () => initialIndex,
+  );
+  const [stabilizedDirection, setStabilizedDirection] = useState<DirectionType>(
+    () => Direction.LEFT,
   );
   const directionRef = useRef<DirectionType>(Direction.LEFT);
   const carouselRef = useRef<{ scrollToSlide: (targetIndex: number) => void }>(
@@ -66,6 +69,7 @@ const ProjectsPresentation: React.FC = () => {
         navigate(`/portfolio/${newProjectId}`);
       }
 
+      setStabilizedDirection(directionRef.current);
       setStabilizedIndex(index);
     }
   };
@@ -91,7 +95,6 @@ const ProjectsPresentation: React.FC = () => {
         subhead={projects[projectId]?.tags?.join(", ") || ""}
       />
       <div
-        id={"project"}
         className={
           `${styles["projects-presentation-body"]} ` +
           `${directionRef.current === Direction.LEFT ? "bb-slide-left" : "bb-slide-right"}`
@@ -109,7 +112,7 @@ const ProjectsPresentation: React.FC = () => {
           />
         )}
         <PageButtons />
-        <InfoSwapper stabilizedIndex={stabilizedIndex} />
+        <InfoSwapper direction={stabilizedDirection} index={stabilizedIndex} />
       </div>
     </div>
   );
