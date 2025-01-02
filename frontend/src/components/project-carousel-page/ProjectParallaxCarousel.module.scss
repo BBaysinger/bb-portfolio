@@ -7,8 +7,6 @@
   box-sizing: border-box;
   z-index: 0;
   overflow: hidden;
-  left: 50%;
-  transform: translateX(-50%);
 
   @include fluid-property("margin-top", $b320px, 680px, -115px, 0px);
   @include fluid-property("margin-bottom", $b320px, 680px, -115px, 0px);

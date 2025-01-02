@@ -1,6 +1,6 @@
 @use "@/styles/global" as *;
 
-.project-info-and-features {
+.project-info {
   position: absolute;
   overflow: visible;
   pointer-events: none;
@@ -29,14 +29,14 @@
 }
 
 :global(.bb-slide-left) {
-  .project-info-and-features.active > * {
+  .project-info.active > * {
     animation: slide-left-fade-in 0.6s ease-out calc(var(--index) * 0.2s)
       forwards;
   }
 }
 
 :global(.bb-slide-right) {
-  .project-info-and-features.active > * {
+  .project-info.active > * {
     animation: slide-right-fade-in 0.6s ease-out calc(var(--index) * 0.2s)
       forwards;
   }
