@@ -111,12 +111,8 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
     const [dataIndex, setDataIndex] = useState(initialIndex);
     const [_previousIndex, setPreviousIndex] = useState<number | null>(null);
     const [stableIndex, setStableIndex] = useState<number | null>(initialIndex);
-    const [slideWidth, setSlideWidth] = useState<number>(0);
     const [wrapperWidth, setWrapperWidth] = useState<number>(0);
     const [snap, setSnap] = useState("none");
-    const [currentPositions, setCurrentPositions] = useState<number[]>([]);
-    const [currentMultipliers, setCurrentMultipliers] = useState<number[]>([]);
-    const [currentOffsets, setCurrentOffsets] = useState<number[]>([]);
     const [scrollDirection, setScrollDirection] =
       useState<DirectionType | null>(Direction.LEFT);
 
@@ -127,6 +123,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
     const wrapperRef = useRef<HTMLDivElement>(null);
     const isMounted = useRef(false);
     const externalScrollLeftRef = useRef<number | null>(null);
+    const slideWidthRef = useRef<number>(0);
 
     const memoizedPositionsAndMultipliers = useMemo(() => {
       const newPositions: number[] = [];
@@ -151,7 +148,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
 
         newMultipliers.push(multiplier);
 
-        const containerOffset = (wrapperWidth - slideWidth) / 2;
+        const containerOffset = (wrapperWidth - slideWidthRef.current) / 2;
 
         newPositions.push(
           Math.round(
@@ -178,7 +175,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
         multipliers: newMultipliers,
         offsets: newOffsets,
       };
-    }, [scrollIndex, scrollDirection, slideWidth, wrapperWidth]);
+    }, [scrollIndex, scrollDirection, wrapperWidth]);
 
     const updateIndexPerPosition = (
       scrollLeft: number,
@@ -266,22 +263,17 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       }
     }, [handleScroll, frameDuration]);
 
-    const compare = (a: any[], b: any[]) => {
-      return JSON.stringify(a) === JSON.stringify(b);
-    };
-
     const isSlave = () => typeof externalScrollLeftRef.current === "number";
     const patchedOffset = () => (isSlave() ? 0 : BASE_OFFSET);
 
-    useEffect(() => {
+    const {
+      positions: currentPositions,
+      multipliers: currentMultipliers,
+      offsets: currentOffsets,
+    } = useMemo(() => {
       const { positions, multipliers, offsets } =
         memoizedPositionsAndMultipliers;
-
-      if (!compare(positions, currentPositions)) {
-        setCurrentPositions(positions);
-        setCurrentMultipliers(multipliers);
-        setCurrentOffsets(offsets);
-      }
+      return { positions, multipliers, offsets };
     }, [memoizedPositionsAndMultipliers]);
 
     useEffect(() => {
@@ -302,11 +294,6 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       if (!isSlave()) {
         scrollerRef.current.scrollLeft = targetScrollLeft;
       }
-      const { positions, multipliers } = memoizedPositionsAndMultipliers;
-      if (!compare(positions, currentPositions)) {
-        setCurrentPositions(positions);
-        setCurrentMultipliers(multipliers);
-      }
 
       const timer = setTimeout(() => {
         isMounted.current = true;
@@ -323,7 +310,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
         const newWrapperWidth = wrapperRef.current?.offsetWidth || 0;
 
         if (newSlideWidth && newWrapperWidth) {
-          setSlideWidth(newSlideWidth);
+          slideWidthRef.current = newSlideWidth;
           setWrapperWidth(newWrapperWidth);
         } else {
           requestAnimationFrame(measureWidths);
@@ -344,7 +331,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
 
         const { positions: newPositions } = memoizedPositionsAndMultipliers;
 
-        const containerOffset = (wrapperWidth - slideWidth) / 2;
+        const containerOffset = (wrapperWidth - slideWidthRef.current) / 2;
         const targetPosition =
           newPositions[targetIndex] + patchedOffset() - containerOffset;
 
@@ -355,7 +342,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
         });
       },
       setExternalScrollLeft: (newLeft: number) => {
-        externalScrollLeftRef.current = newLeft;
+        externalScrollLeftRef.current = Math.round(newLeft);
         if (scrollerRef.current) {
           scrollerRef.current.style.transform = `translateX(${-newLeft}px)`;
         }
