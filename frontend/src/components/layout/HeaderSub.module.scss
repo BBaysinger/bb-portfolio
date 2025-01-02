@@ -26,11 +26,11 @@ header {
     line-height: 1em;
 
     @include breakpoint-up($b360px) {
-      font-size: 46px;
+      font-size: 36px;
     }
 
     @include breakpoint-up($b480px) {
-      font-size: 54px;
+      font-size: 46px;
     }
 
     @include breakpoint-up($b992px) {
@@ -62,11 +62,11 @@ header {
     font-weight: 400;
 
     @include breakpoint-up($b360px) {
-      font-size: 20px;
+      font-size: 16px;
     }
 
     @include breakpoint-up($b480px) {
-      font-size: 26px;
+      font-size: 20px;
     }
 
     @include breakpoint-up($b992px) {
