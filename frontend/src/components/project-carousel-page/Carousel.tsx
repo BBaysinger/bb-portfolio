@@ -133,6 +133,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       useState<DirectionType | null>(Direction.LEFT); // Current scroll direction.
 
     // Refs for DOM elements and values
+    // TODO: Prevent stabilization while user is still dragging...
     const stabilizationTimer = useRef<NodeJS.Timeout | null>(null); // Timer for stabilization.
     const slideRefs = useRef<(HTMLDivElement | null)[]>([]); // References to slide elements.
     const scrollerRef = useRef<HTMLDivElement>(null); // Reference to the scrolling container.
@@ -337,9 +338,9 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
 
         // Force a repaint for Safari to prevent blank slides on initial render.
         scrollerRef.current.style.opacity = "0.99";
-        requestAnimationFrame(() => {
+        setTimeout(() => {
           if (scrollerRef.current) scrollerRef.current.style.opacity = "1";
-        });
+        }, 100);
       }
 
       // Delay applying `scroll-snap-type` to prevent recursion issues.
