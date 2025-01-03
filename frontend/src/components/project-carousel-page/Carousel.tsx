@@ -237,7 +237,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
           // TODO: Add a second stabilization duration prop?
           const time =
             scrollTriggerSource.current === "imperative"
-              ? 0
+              ? 300
               : stabilizationDuration;
           console.log(time);
           stabilizationTimer.current = setTimeout(() => {
