@@ -8,7 +8,7 @@ interface ProjectInfoProps {
   transition: string;
   dataNode: ParsedPortfolioProject;
   isActive: boolean;
-  direction: DirectionType;
+  direction?: DirectionType;
 }
 
 /**
@@ -28,7 +28,8 @@ const ProjectInfo = forwardRef<HTMLDivElement, ProjectInfoProps>(
         ref={ref}
         className={
           `${styles["project-info"]} ` +
-          `${isActive ? styles["active"] : ""} ${styles[direction.toLowerCase()]}`
+          `${isActive ? styles["active"] : ""} ` +
+          `${direction ? styles[direction.toLowerCase()] : ""}`
         }
         style={{ display: isActive ? "block" : "none" }}
       >

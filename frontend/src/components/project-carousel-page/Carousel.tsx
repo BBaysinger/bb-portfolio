@@ -116,7 +116,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       sliderClassName = "",
       onScrollUpdate,
       onStableIndex,
-      stabilizationDuration = 800,
+      stabilizationDuration = 500,
       onDirectionChange,
       // id, // For debugging
     },

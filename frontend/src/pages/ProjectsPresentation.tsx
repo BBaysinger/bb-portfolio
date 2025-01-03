@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
 import HeaderSub from "components/layout/HeaderSub";
@@ -25,9 +25,10 @@ const ProjectsPresentation: React.FC = () => {
   const [stabilizedIndex, setStabilizedIndex] = useState<number | null>(
     () => initialIndex,
   );
-  const [stabilizedDirection, setStabilizedDirection] = useState<DirectionType>(
-    () => Direction.LEFT,
+  const [stableDirection, setStableDirection] = useState<DirectionType>(
+    Direction.LEFT,
   );
+  const stabilizationTimer = useRef<NodeJS.Timeout | null>(null);
   const directionRef = useRef<DirectionType>(Direction.LEFT);
   const carouselRef = useRef<{ scrollToSlide: (targetIndex: number) => void }>(
     null,
@@ -40,22 +41,42 @@ const ProjectsPresentation: React.FC = () => {
     directionRef.current = direction;
   };
 
-  const laptopSlides = ProjectData.activeProjects.map((project) => (
-    <DeviceDisplay
-      deviceType={DeviceTypes.LAPTOP}
-      id={project.id}
-      key={project.id}
-    />
-  ));
+  const clientId = useMemo(
+    () => projects[projectId]?.clientId,
+    [projects, projectId],
+  );
+  const infoSwapperIndex = useMemo(() => stabilizedIndex, [stabilizedIndex]);
 
-  const phoneSlides = ProjectData.activeProjects.map((project) => (
-    <DeviceDisplay
-      deviceType={DeviceTypes.PHONE}
-      mobileStatus={project.mobileStatus}
-      id={project.id}
-      key={project.id}
-    />
-  ));
+  const slideDirectionClass = useMemo(() => {
+    return stableDirection === Direction.LEFT
+      ? "bb-slide-left"
+      : "bb-slide-right";
+  }, [stableDirection]);
+
+  const laptopSlides = useMemo(
+    () =>
+      ProjectData.activeProjects.map((project) => (
+        <DeviceDisplay
+          deviceType={DeviceTypes.LAPTOP}
+          id={project.id}
+          key={project.id}
+        />
+      )),
+    [],
+  );
+
+  const phoneSlides = useMemo(
+    () =>
+      ProjectData.activeProjects.map((project) => (
+        <DeviceDisplay
+          deviceType={DeviceTypes.PHONE}
+          mobileStatus={project.mobileStatus}
+          id={project.id}
+          key={project.id}
+        />
+      )),
+    [],
+  );
 
   const handleStableIndexUpdate = (index: number | null) => {
     if (stabilizedIndex !== index) {
@@ -69,8 +90,12 @@ const ProjectsPresentation: React.FC = () => {
         navigate(`/portfolio/${newProjectId}`);
       }
 
-      setStabilizedDirection(directionRef.current);
-      setStabilizedIndex(index);
+      clearTimeout(stabilizationTimer.current as NodeJS.Timeout);
+
+      stabilizationTimer.current = setTimeout(() => {
+        setStabilizedIndex(index);
+        setStableDirection(directionRef.current); // Update stable direction only after index stabilizes.
+      }, 500);
     }
   };
 
@@ -96,12 +121,9 @@ const ProjectsPresentation: React.FC = () => {
       />
       <div
         id="project" // Page anchor, NOT for CSS selection.
-        className={
-          `${styles["projects-presentation-body"]} ` +
-          `${directionRef.current === Direction.LEFT ? "bb-slide-left" : "bb-slide-right"}`
-        }
+        className={`${styles["projects-presentation-body"]} ${slideDirectionClass}`}
       >
-        <LogoSwapper projectId={projects[projectId]?.clientId} />
+        <LogoSwapper projectId={clientId} />
         {initialIndex !== null && (
           <ProjectParallaxCarousel
             ref={carouselRef}
@@ -113,7 +135,7 @@ const ProjectsPresentation: React.FC = () => {
           />
         )}
         <PageButtons />
-        <InfoSwapper direction={stabilizedDirection} index={stabilizedIndex} />
+        <InfoSwapper index={infoSwapperIndex} />
       </div>
     </div>
   );
