@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, memo } from "react";
 import ProjectData from "data/ProjectData";
 import ProjectInfo from "./ProjectInfo";
 import { DirectionType } from "./Carousel";
@@ -6,7 +6,7 @@ import styles from "./InfoSwapper.module.scss";
 
 interface InfoSwapperProps {
   index: number | null;
-  direction: DirectionType;
+  direction?: DirectionType;
 }
 
 /**
@@ -18,7 +18,7 @@ interface InfoSwapperProps {
  * @since The beginning of time.
  * @version N/A
  */
-const InfoSwapper: React.FC<InfoSwapperProps> = ({ direction, index }) => {
+const InfoSwapper = memo<InfoSwapperProps>(({ direction, index }) => {
   const projects = ProjectData.activeProjectsRecord;
   const keys = ProjectData.activeKeys;
   const infoRefElems = useRef<(HTMLDivElement | null)[]>([]);
@@ -72,6 +72,6 @@ const InfoSwapper: React.FC<InfoSwapperProps> = ({ direction, index }) => {
       </div>
     </div>
   );
-};
+});
 
 export default InfoSwapper;
