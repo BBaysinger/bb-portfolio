@@ -133,7 +133,7 @@ const Footer: React.FC = () => {
                           "url(/images/footer/icons/location.png)",
                       }}
                     ></div>
-                    Spokane, WA
+                    Spokane, WA{" "}
                     <span className={styles["not-a-suburb"]}>
                       (<i>not</i> near Seattle)
                     </span>
