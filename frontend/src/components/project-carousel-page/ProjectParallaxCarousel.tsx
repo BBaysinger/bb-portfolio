@@ -113,10 +113,10 @@ const ProjectParallaxCarousel = forwardRef<
      * Updates the `masterScrollLeft` state and calls the `onScrollUpdate` prop if provided.
      */
     const handleMasterScrollLeft = (scrollLeft: number) => {
-      layer1CarouselRef.current?.setExternalScrollLeft(
+      layer1CarouselRef.current?.setExternalScrollPosition(
         scrollLeft * layerMultipliers.layer1,
       );
-      layer2CarouselRef.current?.setExternalScrollLeft(
+      layer2CarouselRef.current?.setExternalScrollPosition(
         scrollLeft * layerMultipliers.layer2,
       );
       if (onScrollUpdate) onScrollUpdate(scrollLeft);

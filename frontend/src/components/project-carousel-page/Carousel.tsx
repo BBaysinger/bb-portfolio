@@ -52,7 +52,7 @@ interface CarouselProps {
 // CarouselRef defines methods exposed to parent components via `ref`.
 export interface CarouselRef {
   scrollToSlide: (targetIndex: number) => void; // Scroll programmatically to a specific slide.
-  setExternalScrollLeft: (scrollLeft: number) => void; // Manually adjust the scroll position in slave mode.
+  setExternalScrollPosition: (scrollLeft: number) => void; // Manually adjust the scroll position in slave mode.
 }
 
 /**
@@ -139,6 +139,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
     const wrapperRef = useRef<HTMLDivElement>(null); // Reference to the wrapper.
     const externalScrollLeftRef = useRef<number | null>(null); // External scroll position in slave mode.
     const slideWidthRef = useRef<number>(0); // Current width of a slide (shouldn't change after initial render).
+    const scrollTriggerSource = useRef<"imperative" | "natural">("natural"); // track the source of the scroll
 
     // Memoized slides for optimized re-renders
     const memoizedSlides = useMemo(() => slides, [slides]);
@@ -232,10 +233,16 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
         }
 
         if (updateStableIndex) {
+          // TODO: Add a second stabilization duration prop?
+          const time =
+            scrollTriggerSource.current === "imperative"
+              ? 0
+              : stabilizationDuration;
+          console.log(time);
           stabilizationTimer.current = setTimeout(() => {
             setStableIndex(newDataIndex);
             onStableIndex?.(newDataIndex);
-          }, stabilizationDuration);
+          }, time);
         }
       }
 
@@ -379,15 +386,20 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
         const targetPosition =
           newPositions[targetIndex] + patchedOffset() - containerOffset;
 
+        scrollTriggerSource.current = "imperative";
+
         // Smoothly scroll to the target position using GSAP.
         gsap.to(scrollerRef.current, {
           scrollTo: { x: targetPosition },
           duration: 1.0,
           ease: "power2.inOut",
+          onComplete: () => {
+            scrollTriggerSource.current = "natural";
+          },
         });
       },
       // Adjusts the external scroll position in slave mode.
-      setExternalScrollLeft: (newLeft: number) => {
+      setExternalScrollPosition: (newLeft: number) => {
         externalScrollLeftRef.current = Math.round(newLeft);
         if (scrollerRef.current) {
           scrollerRef.current.style.transform = `translateX(${-newLeft}px)`;
