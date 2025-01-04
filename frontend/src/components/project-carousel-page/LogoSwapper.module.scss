@@ -28,7 +28,7 @@
     transition: filter 0.5s;
     will-change: filter, opacity;
     object-fit: fill;
-    filter: blur(20px);
+    filter: blur(12px);
     &.visible {
       opacity: 1;
     }

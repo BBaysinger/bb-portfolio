@@ -236,7 +236,7 @@ const Carousel = memo(
           // TODO: Add a second stabilization duration prop?
           const time =
             scrollTriggerSource.current === "imperative"
-              ? 250 // TODO: Figure out why this breaks react router when below 200 or so!
+              ? 225 // TODO: Figure out why this breaks react router when below 200 or so!
               : stabilizationDuration;
           stabilizationTimer.current = setTimeout(() => {
             setStableIndex(newDataIndex);
@@ -341,10 +341,15 @@ const Carousel = memo(
         }, 100);
       }
 
-      // Delay applying `scroll-snap-type` to prevent recursion issues.
+      // Multipurpose delay for applying `scroll-snap-type`.
+      // Delay prevents weird recursion that happens if alignment isn't perfect.
+      // (this also helps visually identify that, since it should never happen.)
+      // also triggers a rerender necessary in some browsers (Safari desktop) to
+      // guarantee a paint after initial layout is run. Doesn't work if it's less
+      // than 200ms or so.
       const timer = setTimeout(() => {
         setSnap("x mandatory");
-      }, 0);
+      }, 200); 
 
       return () => clearTimeout(timer);
     }, []);
