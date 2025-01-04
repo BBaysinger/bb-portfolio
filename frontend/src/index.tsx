@@ -8,9 +8,9 @@ import App from "./App";
 
 const routes = [{ path: "*", element: <App /> }];
 const router = createBrowserRouter(routes, {
-  future: {
-    v7_startTransition: true,
-  },
+  // future: {
+  //   v7_startTransition: true,
+  // },
 });
 
 const rootElement = document.getElementById("root");
