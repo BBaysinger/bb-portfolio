@@ -6,6 +6,7 @@ import React, {
   useMemo,
   useImperativeHandle,
   forwardRef,
+  memo,
 } from "react";
 import gsap from "gsap";
 import { ScrollToPlugin } from "gsap/ScrollToPlugin";
@@ -103,9 +104,9 @@ export interface CarouselRef {
  * @author Bradley Baysinger
  * @since 2024-12-16
  */
-const Carousel = forwardRef<CarouselRef, CarouselProps>(
-  (
-    {
+const Carousel = memo(
+  forwardRef<CarouselRef, CarouselProps>((props, ref) => {
+    const {
       slides,
       slideSpacing,
       initialIndex = 0,
@@ -118,10 +119,8 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       onStableIndex,
       stabilizationDuration = 500,
       onDirectionChange,
-      // id, // For debugging
-    },
-    ref,
-  ) => {
+      // id,
+    } = props;
     // State Variables
     const [scrollIndex, setScrollIndex] = useState(initialIndex); // Current scroll index.
     const [dataIndex, setDataIndex] = useState(initialIndex); // Mapped data index (handles wrap-around).
@@ -237,9 +236,8 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
           // TODO: Add a second stabilization duration prop?
           const time =
             scrollTriggerSource.current === "imperative"
-              ? 300
+              ? 250 // TODO: Figure out why this breaks react router when below 200 or so!
               : stabilizationDuration;
-          console.log(time);
           stabilizationTimer.current = setTimeout(() => {
             setStableIndex(newDataIndex);
             onStableIndex?.(newDataIndex);
@@ -469,7 +467,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
         </div>
       </div>
     );
-  },
+  }),
 );
 
 export default Carousel;
