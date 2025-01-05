@@ -395,7 +395,7 @@ const Carousel = memo(
         // Smoothly scroll to the target position using GSAP.
         gsap.to(scrollerRef.current, {
           scrollTo: { x: targetPosition },
-          duration: 10,
+          duration: 1,
           ease: "power2.inOut",
           onComplete: () => {
             scrollTriggerSource.current = "natural";
