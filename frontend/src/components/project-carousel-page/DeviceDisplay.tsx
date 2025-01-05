@@ -1,4 +1,5 @@
 import React from "react";
+
 import { MobileStatus } from "data/ProjectData";
 import styles from "./DeviceDisplay.module.scss";
 

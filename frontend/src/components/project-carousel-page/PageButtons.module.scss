@@ -53,11 +53,6 @@ $mainBreak: 680px;
     transform: scale(1.25);
   }
 
-  // @include breakpoint-up(710px) {
-  //   transform: scale(1.7);
-  //   left: 10px;
-  // }
-
   @include breakpoint-up(780px) {
     transform: scale(1.8);
     left: 10px;
