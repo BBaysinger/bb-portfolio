@@ -349,7 +349,7 @@ const Carousel = memo(
       // than 200ms or so.
       const timer = setTimeout(() => {
         setSnap("x mandatory");
-      }, 200); 
+      }, 200);
 
       return () => clearTimeout(timer);
     }, []);
