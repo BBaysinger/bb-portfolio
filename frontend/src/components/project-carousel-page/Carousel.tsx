@@ -8,14 +8,9 @@ import React, {
   forwardRef,
   memo,
 } from "react";
-import gsap from "gsap";
-import { ScrollToPlugin } from "gsap/ScrollToPlugin";
 
+import SmoothEaser from "utils/SmoothEaser";
 import styles from "./Carousel.module.scss";
-
-// TODO: Replace GSAP with a custom physics-based solution to eliminate interruption
-// of tween on button mashing.
-gsap.registerPlugin(ScrollToPlugin);
 
 // BASE_OFFSET accounts for that HTML elements don't scroll
 // to negative scrollLeft. TODO: This can be handled in a way that instead
@@ -140,6 +135,10 @@ const Carousel = memo(
     const externalScrollLeftRef = useRef<number | null>(null); // External scroll position in slave mode.
     const slideWidthRef = useRef<number>(0); // Current width of a slide (shouldn't change after initial render).
     const scrollTriggerSource = useRef<"imperative" | "natural">("natural"); // track the source of the scroll
+
+    // const easerRef = useRef<SmoothEaser<HTMLDivElement> | null>(null);
+    // const animationRunningRef = useRef(false);
+    // const animateRef = useRef<(timestamp: DOMHighResTimeStamp) => void>();
 
     // Memoized slides for optimized re-renders
     const memoizedSlides = useMemo(() => slides, [slides]);
@@ -390,17 +389,20 @@ const Carousel = memo(
         const targetPosition =
           newPositions[targetIndex] + patchedOffset() - containerOffset;
 
+        // Mark the scroll trigger source as "imperative" during animation
         scrollTriggerSource.current = "imperative";
 
-        // Smoothly scroll to the target position using GSAP.
-        gsap.to(scrollerRef.current, {
-          scrollTo: { x: targetPosition },
-          duration: 1,
-          ease: "power2.inOut",
-          onComplete: () => {
-            scrollTriggerSource.current = "natural";
+        setSnap("none");
+
+        const easer = new SmoothEaser(
+          scrollerRef.current,
+          "scrollLeft",
+          scrollerRef.current?.scrollLeft,
+          targetPosition,
+          () => {
+            setSnap("x mandatory");
           },
-        });
+        );
       },
       // Adjusts the external scroll position in slave mode.
       setExternalScrollPosition: (newLeft: number) => {
