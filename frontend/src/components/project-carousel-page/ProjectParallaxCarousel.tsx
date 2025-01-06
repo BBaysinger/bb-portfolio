@@ -6,7 +6,7 @@ import React, {
   memo,
 } from "react";
 
-import Carousel, { DirectionType, CarouselRef } from "./Carousel";
+import Carousel, { DirectionType, CarouselRef, SourceType } from "./Carousel";
 import styles from "./ProjectParallaxCarousel.module.scss";
 
 interface ProjectParallaxCarouselProps {
@@ -14,9 +14,11 @@ interface ProjectParallaxCarouselProps {
   layer1Slides: React.ReactNode[];
   layer2Slides: React.ReactNode[];
   onScrollUpdate?: (scrollLeft: number) => void;
-  onStableIndex?: (stableIndex: number | null) => void;
-  onIndexUpdate?: (currentIndex: number) => void;
-  onDirectionChange?: (direction: DirectionType) => void;
+  onStabilizationUpdate?: (
+    index: number,
+    source: SourceType,
+    direction: DirectionType,
+  ) => void;
 }
 
 /**
@@ -43,9 +45,7 @@ const ProjectParallaxCarousel = memo(
         layer1Slides,
         layer2Slides,
         onScrollUpdate,
-        onStableIndex,
-        onIndexUpdate,
-        onDirectionChange,
+        onStabilizationUpdate,
       },
       ref,
     ) => {
@@ -128,19 +128,14 @@ const ProjectParallaxCarousel = memo(
        * Handles when a stable index is reached in the master carousel.
        * Updates the `stabilizedIndex` state and calls the `onStableIndex` prop if provided.
        */
-      const handleStableIndex = (index: number | null) => {
+      const handleStabilizationUpdate = (
+        index: number,
+        source: SourceType,
+        direction: DirectionType,
+      ) => {
         stabilizedIndexRef.current = index;
-        if (onStableIndex) onStableIndex(index);
-      };
-
-      /**
-       * Handles updates to the current active index in the master carousel.
-       * Clears the stabilized index and calls the `onIndexUpdate` prop if provided.
-       */
-      const handleIndexUpdate = (index: number) => {
-        stabilizedIndexRef.current = null;
-        currentIndexRef.current = index;
-        if (onIndexUpdate) onIndexUpdate(index);
+        if (onStabilizationUpdate)
+          onStabilizationUpdate(index, source, direction);
       };
 
       // Updates the transform dynamically on component mount and window resize
@@ -195,9 +190,7 @@ const ProjectParallaxCarousel = memo(
             slides={layer1Slides.map((_, _index) => null)}
             slideSpacing={slideSpacings.master}
             onScrollUpdate={handleMasterScrollLeft}
-            onStableIndex={handleStableIndex}
-            onIndexUpdate={handleIndexUpdate}
-            onDirectionChange={onDirectionChange}
+            onStabilizationUpdate={handleStabilizationUpdate}
             debug={0}
             initialIndex={initialIndex}
             wrapperClassName={"bb-carousel bb-carousel-master"}
