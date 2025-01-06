@@ -150,6 +150,7 @@ const Carousel = memo(
     const scrollTriggerSource = useRef<SourceType>(Source.NATURAL); // Track the source of the scroll
     const scrollLeftTo = useRef<((value: number) => void) | null>(null);
     const dataIndexRef = useRef(dataIndex);
+    const scrollDirectionRef = useRef(scrollDirection);
 
     // Memoized slides for optimized re-renders
     const memoizedSlides = useMemo(() => slides, [slides]);
@@ -386,6 +387,10 @@ const Carousel = memo(
     }, [dataIndex]);
 
     useEffect(() => {
+      scrollDirectionRef.current = scrollDirection;
+    }, [scrollDirection]);
+
+    useEffect(() => {
       if (scrollerRef.current) {
         scrollLeftTo.current = gsap.quickTo(scrollerRef.current, "scrollLeft", {
           duration: 0.7,
@@ -396,7 +401,7 @@ const Carousel = memo(
             onStabilizationUpdate?.(
               dataIndexRef.current,
               Source.IMPERATIVE,
-              scrollDirection,
+              scrollDirectionRef.current,
             );
           },
         });
@@ -404,6 +409,7 @@ const Carousel = memo(
     }, [
       scrollerRef.current,
       dataIndexRef.current,
+      scrollDirectionRef.current,
       scrollTriggerSource.current,
     ]);
 
