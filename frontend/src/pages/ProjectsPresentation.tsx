@@ -87,7 +87,7 @@ const ProjectsPresentation: React.FC = () => {
       );
 
       if (newProjectId && newProjectId !== projectId) {
-        navigate(`/portfolio/${newProjectId}`);
+        navigate(`/portfolio/${newProjectId}`, { state: { shallow: true } });
       }
 
       clearTimeout(stabilizationTimer.current as NodeJS.Timeout);
