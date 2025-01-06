@@ -9,6 +9,8 @@ import ProjectParallaxCarousel from "components/project-carousel-page/ProjectPar
 import {
   DirectionType,
   Direction,
+  SourceType,
+  Source,
 } from "components/project-carousel-page/Carousel";
 import DeviceDisplay, {
   DeviceTypes,
@@ -25,10 +27,8 @@ const ProjectsPresentation: React.FC = () => {
   const [stabilizedIndex, setStabilizedIndex] = useState<number | null>(
     () => initialIndex,
   );
-  const [stableDirection, setStableDirection] = useState<DirectionType>(
-    Direction.LEFT,
-  );
   const stabilizationTimer = useRef<NodeJS.Timeout | null>(null);
+  const sourceRef = useRef<SourceType>(Source.NATURAL);
   const directionRef = useRef<DirectionType>(Direction.LEFT);
   const carouselRef = useRef<{ scrollToSlide: (targetIndex: number) => void }>(
     null,
@@ -37,21 +37,18 @@ const ProjectsPresentation: React.FC = () => {
   const navigate = useNavigate();
   const isCarouselSourceRef = useRef(false);
 
-  const onDirectionChange = (direction: DirectionType) => {
-    directionRef.current = direction;
-  };
-
   const clientId = useMemo(
     () => projects[projectId]?.clientId,
     [projects, projectId],
   );
+
   const infoSwapperIndex = useMemo(() => stabilizedIndex, [stabilizedIndex]);
 
   const slideDirectionClass = useMemo(() => {
-    return stableDirection === Direction.LEFT
+    return directionRef.current === Direction.LEFT
       ? "bb-slide-left"
       : "bb-slide-right";
-  }, [stableDirection]);
+  }, [stabilizedIndex]);
 
   const laptopSlides = useMemo(
     () =>
@@ -78,7 +75,11 @@ const ProjectsPresentation: React.FC = () => {
     [],
   );
 
-  const handleStableIndexUpdate = (index: number | null) => {
+  const handleStabilizationUpdate = (
+    index: number,
+    source: SourceType,
+    direction: DirectionType,
+  ) => {
     if (stabilizedIndex !== index) {
       isCarouselSourceRef.current = true;
 
@@ -86,15 +87,20 @@ const ProjectsPresentation: React.FC = () => {
         (key) => projects[key].index === index,
       );
 
-      if (newProjectId && newProjectId !== projectId) {
+      if (
+        newProjectId &&
+        newProjectId !== projectId &&
+        source === Source.NATURAL
+      ) {
         navigate(`/portfolio/${newProjectId}`, { state: { shallow: true } });
       }
 
       clearTimeout(stabilizationTimer.current as NodeJS.Timeout);
 
       stabilizationTimer.current = setTimeout(() => {
+        sourceRef.current = source;
+        directionRef.current = direction;
         setStabilizedIndex(index);
-        setStableDirection(directionRef.current); // Update stable direction only after index stabilizes.
       }, 500);
     }
   };
@@ -129,9 +135,8 @@ const ProjectsPresentation: React.FC = () => {
             ref={carouselRef}
             layer1Slides={laptopSlides}
             layer2Slides={phoneSlides}
-            onStableIndex={handleStableIndexUpdate}
+            onStabilizationUpdate={handleStabilizationUpdate}
             initialIndex={initialIndex}
-            onDirectionChange={onDirectionChange}
           />
         )}
         <PageButtons />

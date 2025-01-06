@@ -28,7 +28,14 @@ export const Direction = {
   RIGHT: "Right",
 } as const;
 
+// Weather the scroll was triggered by natural HTML element scroll or programmatically (via routing/buttons).
+export const Source = {
+  IMPERATIVE: "Imperative",
+  NATURAL: "Natural",
+} as const;
+
 export type DirectionType = (typeof Direction)[keyof typeof Direction];
+export type SourceType = (typeof Source)[keyof typeof Source];
 
 // CarouselProps defines the component's expected props, supporting features like callbacks, dynamic scroll positions, and debugging.
 interface CarouselProps {
@@ -42,10 +49,13 @@ interface CarouselProps {
   sliderClassName?: string; // Custom CSS class for the slider.
   onScrollUpdate?: (scrollLeft: number) => void; // Callback for scroll position changes.
   externalScrollLeft?: number; // External scroll position (used in slave mode).
-  onStableIndex?: (stableIndex: number | null) => void; // Callback when the scroll stabilizes on a specific index.
+  onStabilizationUpdate?: (
+    index: number,
+    source: SourceType,
+    direction: DirectionType,
+  ) => void; // Callback when the scroll stabilizes on a specific index.
   stabilizationDuration?: number; // Delay (ms) before a new stable index is reported.
   id?: string; // Optional ID for debugging or DOM referencing.
-  onDirectionChange?: (direction: DirectionType) => void; // Callback for direction changes.
 }
 
 // CarouselRef defines methods exposed to parent components via `ref`.
@@ -114,9 +124,8 @@ const Carousel = memo(
       slideClassName = "",
       sliderClassName = "",
       onScrollUpdate,
-      onStableIndex,
+      onStabilizationUpdate,
       stabilizationDuration = 500,
-      onDirectionChange,
       // id,
     } = props;
     // State Variables
@@ -126,8 +135,9 @@ const Carousel = memo(
     const [stableIndex, setStableIndex] = useState<number | null>(initialIndex); // Index stabilized after scrolling stops.
     const [wrapperWidth, setWrapperWidth] = useState<number>(0); // Current width of the wrapper.
     const [snap, setSnap] = useState("none"); // CSS scroll snap behavior.
-    const [scrollDirection, setScrollDirection] =
-      useState<DirectionType | null>(Direction.LEFT); // Current scroll direction.
+    const [scrollDirection, setScrollDirection] = useState<DirectionType>(
+      Direction.LEFT,
+    ); // Current scroll direction.
 
     // Refs for DOM elements and values
     // TODO: Prevent stabilization while user is still dragging...
@@ -137,8 +147,9 @@ const Carousel = memo(
     const wrapperRef = useRef<HTMLDivElement>(null); // Reference to the wrapper.
     const externalScrollLeftRef = useRef<number | null>(null); // External scroll position in slave mode.
     const slideWidthRef = useRef<number>(0); // Current width of a slide (shouldn't change after initial render).
-    const scrollTriggerSource = useRef<"imperative" | "natural">("natural"); // track the source of the scroll
+    const scrollTriggerSource = useRef<SourceType>(Source.NATURAL); // Track the source of the scroll
     const scrollLeftTo = useRef<((value: number) => void) | null>(null);
+    const dataIndexRef = useRef(dataIndex);
 
     // Memoized slides for optimized re-renders
     const memoizedSlides = useMemo(() => slides, [slides]);
@@ -218,7 +229,7 @@ const Carousel = memo(
         // Update the scroll direction if it has changed.
         if (newDirection !== scrollDirection) {
           setScrollDirection(newDirection);
-          onDirectionChange?.(newDirection);
+          // onDirectionUpdate?.(newDirection);
         }
 
         // Update states and trigger callbacks for the new index.
@@ -231,16 +242,19 @@ const Carousel = memo(
           clearTimeout(stabilizationTimer.current);
         }
 
-        if (updateStableIndex) {
+        if (
+          updateStableIndex &&
+          scrollTriggerSource.current !== Source.IMPERATIVE
+        ) {
           // TODO: Add a second stabilization duration prop?
-          const time =
-            scrollTriggerSource.current === "imperative"
-              ? 225 // TODO: Figure out why this breaks react router when below 200 or so!
-              : stabilizationDuration;
           stabilizationTimer.current = setTimeout(() => {
             setStableIndex(newDataIndex);
-            onStableIndex?.(newDataIndex);
-          }, time);
+            onStabilizationUpdate?.(
+              newDataIndex,
+              scrollTriggerSource.current,
+              newDirection,
+            );
+          }, stabilizationDuration);
         }
       }
 
@@ -332,12 +346,6 @@ const Carousel = memo(
 
       if (!isSlave()) {
         scrollerRef.current.scrollLeft = targetScrollLeft;
-
-        // Force a repaint for Safari to prevent blank slides on initial render.
-        scrollerRef.current.style.opacity = "0.99";
-        setTimeout(() => {
-          if (scrollerRef.current) scrollerRef.current.style.opacity = "1";
-        }, 100);
       }
 
       // Multipurpose delay for applying `scroll-snap-type`.
@@ -372,17 +380,33 @@ const Carousel = memo(
       measureWidths();
     }, [slides]);
 
+    // Prevent `dataIndex` from becoming stale in gsap onComplete callback.
+    useEffect(() => {
+      dataIndexRef.current = dataIndex;
+    }, [dataIndex]);
+
     useEffect(() => {
       if (scrollerRef.current) {
         scrollLeftTo.current = gsap.quickTo(scrollerRef.current, "scrollLeft", {
-          duration: 0.5,
+          duration: 0.7,
           onComplete: () => {
-            scrollTriggerSource.current = "natural";
             setSnap("x mandatory");
+            scrollTriggerSource.current = Source.NATURAL;
+            setStableIndex(dataIndexRef.current);
+            onStabilizationUpdate?.(
+              dataIndexRef.current,
+              scrollTriggerSource.current,
+              scrollDirection,
+            );
           },
         });
       }
-    }, [scrollerRef.current]);
+    }, [
+      scrollerRef.current,
+      dataIndex,
+      scrollDirection,
+      scrollTriggerSource.current,
+    ]);
 
     // Exposes carousel methods to the parent component via `ref`.
     useImperativeHandle(ref, () => ({
@@ -394,6 +418,7 @@ const Carousel = memo(
         const direction = offsetToTarget > 0 ? Direction.RIGHT : Direction.LEFT;
 
         setScrollDirection(direction);
+        setDataIndex(targetIndex);
 
         const { positions: newPositions } = memoizedPositionsAndMultipliers;
 
@@ -401,11 +426,9 @@ const Carousel = memo(
         const targetPosition =
           newPositions[targetIndex] + patchedOffset() - containerOffset;
 
-        // Mark the scroll trigger source as "imperative" during animation
-        scrollTriggerSource.current = "imperative";
-
         setSnap("none");
-
+        // Mark the scroll trigger source as "imperative" during animation
+        scrollTriggerSource.current = Source.IMPERATIVE;
         scrollLeftTo.current?.(targetPosition);
       },
       // Adjusts the external scroll position in slave mode.
