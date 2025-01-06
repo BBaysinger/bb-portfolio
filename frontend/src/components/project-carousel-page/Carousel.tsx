@@ -393,6 +393,7 @@ const Carousel = memo(
     useEffect(() => {
       if (scrollerRef.current) {
         scrollLeftTo.current = gsap.quickTo(scrollerRef.current, "scrollLeft", {
+          overwrite: "auto",
           duration: 0.7,
           onComplete: () => {
             setSnap("x mandatory");
