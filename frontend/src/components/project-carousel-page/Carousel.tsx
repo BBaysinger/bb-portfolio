@@ -126,18 +126,13 @@ const Carousel = memo(
       onScrollUpdate,
       onStabilizationUpdate,
       stabilizationDuration = 500,
-      // id,
     } = props;
     // State Variables
     const [scrollIndex, setScrollIndex] = useState(initialIndex); // Current scroll index.
     const [dataIndex, setDataIndex] = useState(initialIndex); // Mapped data index (handles wrap-around).
-    const [_previousIndex, setPreviousIndex] = useState<number | null>(null); // Tracks the previous index.
     const [stableIndex, setStableIndex] = useState<number | null>(initialIndex); // Index stabilized after scrolling stops.
     const [wrapperWidth, setWrapperWidth] = useState<number>(0); // Current width of the wrapper.
     const [snap, setSnap] = useState("none"); // CSS scroll snap behavior.
-    const [scrollDirection, setScrollDirection] = useState<DirectionType>(
-      Direction.LEFT,
-    ); // Current scroll direction.
 
     // Refs for DOM elements and values
     // TODO: Prevent stabilization while user is still dragging...
@@ -150,7 +145,7 @@ const Carousel = memo(
     const scrollTriggerSource = useRef<SourceType>(Source.NATURAL); // Track the source of the scroll
     const scrollLeftTo = useRef<((value: number) => void) | null>(null);
     const dataIndexRef = useRef(dataIndex);
-    const scrollDirectionRef = useRef(scrollDirection);
+    const scrollDirectionRef = useRef<DirectionType>(Direction.LEFT);
 
     // Memoized slides for optimized re-renders
     const memoizedSlides = useMemo(() => slides, [slides]);
@@ -164,12 +159,12 @@ const Carousel = memo(
 
       memoizedSlides.forEach((_, index) => {
         let multiplier: number | null = null;
-        if (scrollDirection === Direction.LEFT) {
+        if (scrollDirectionRef.current === Direction.LEFT) {
           const threshold = 2;
           multiplier = -Math.floor(
             (index - scrollIndex + threshold) / memoizedSlides.length,
           );
-        } else if (scrollDirection === Direction.RIGHT) {
+        } else if (scrollDirectionRef.current === Direction.RIGHT) {
           const threshold = 2;
           multiplier = Math.floor(
             (scrollIndex - index + threshold) / memoizedSlides.length,
@@ -208,7 +203,7 @@ const Carousel = memo(
         multipliers: newMultipliers,
         offsets: newOffsets,
       };
-    }, [scrollIndex, scrollDirection, wrapperWidth]);
+    }, [scrollIndex, scrollDirectionRef.current, wrapperWidth]);
 
     // Updates the carousel's index based on scroll position.
     const updateIndexPerPosition = (
@@ -228,14 +223,12 @@ const Carousel = memo(
           newScrollIndex > scrollIndex ? Direction.LEFT : Direction.RIGHT;
 
         // Update the scroll direction if it has changed.
-        if (newDirection !== scrollDirection) {
-          setScrollDirection(newDirection);
-          // onDirectionUpdate?.(newDirection);
+        if (newDirection !== scrollDirectionRef.current) {
+          scrollDirectionRef.current = newDirection;
         }
 
         // Update states and trigger callbacks for the new index.
         setScrollIndex(newScrollIndex);
-        setPreviousIndex(scrollIndex);
         onIndexUpdate?.(newDataIndex);
 
         // Clear any existing stabilization timer before setting a new one.
@@ -357,7 +350,7 @@ const Carousel = memo(
       // than 200ms or so.
       const timer = setTimeout(() => {
         setSnap("x mandatory");
-      }, 200);
+      }, 150);
 
       return () => clearTimeout(timer);
     }, []);
@@ -385,10 +378,6 @@ const Carousel = memo(
     useEffect(() => {
       dataIndexRef.current = dataIndex;
     }, [dataIndex]);
-
-    useEffect(() => {
-      scrollDirectionRef.current = scrollDirection;
-    }, [scrollDirection]);
 
     useEffect(() => {
       if (scrollerRef.current) {
@@ -423,7 +412,7 @@ const Carousel = memo(
         const offsetToTarget = currentOffsets[targetIndex];
         const direction = offsetToTarget > 0 ? Direction.RIGHT : Direction.LEFT;
 
-        setScrollDirection(direction);
+        scrollDirectionRef.current = direction;
         setDataIndex(targetIndex);
 
         const { positions: newPositions } = memoizedPositionsAndMultipliers;
@@ -433,7 +422,6 @@ const Carousel = memo(
           newPositions[targetIndex] + patchedOffset() - containerOffset;
 
         setSnap("none");
-        // Mark the scroll trigger source as "imperative" during animation
         scrollTriggerSource.current = Source.IMPERATIVE;
         scrollLeftTo.current?.(targetPosition);
       },
@@ -450,7 +438,6 @@ const Carousel = memo(
     // Checks if debug mode is enabled.
     const isDebug = () => debug != null && debug !== 0 && debug !== "";
 
-    // JSX structure of the carousel component.
     return (
       <div
         ref={wrapperRef}
@@ -459,9 +446,6 @@ const Carousel = memo(
           wrapperClassName
         }
       >
-        {/* {
-        isSlave() && (slaveTransform())
-        } */}
         {isDebug() && (
           <div className={styles["debug"]}>
             {scrollIndex} {stableIndex} {scrollerRef.current?.scrollLeft}
