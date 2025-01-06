@@ -395,7 +395,7 @@ const Carousel = memo(
             setStableIndex(dataIndexRef.current);
             onStabilizationUpdate?.(
               dataIndexRef.current,
-              scrollTriggerSource.current,
+              Source.IMPERATIVE,
               scrollDirection,
             );
           },
@@ -403,8 +403,7 @@ const Carousel = memo(
       }
     }, [
       scrollerRef.current,
-      dataIndex,
-      scrollDirection,
+      dataIndexRef.current,
       scrollTriggerSource.current,
     ]);
 
