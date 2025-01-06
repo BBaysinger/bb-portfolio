@@ -1,4 +1,10 @@
-import React, { useRef, useState, useEffect, useMemo } from "react";
+import React, {
+  useRef,
+  useState,
+  useEffect,
+  useMemo,
+  useCallback,
+} from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
 import HeaderSub from "components/layout/HeaderSub";
@@ -75,35 +81,36 @@ const ProjectsPresentation: React.FC = () => {
     [],
   );
 
-  const handleStabilizationUpdate = (
-    index: number,
-    source: SourceType,
-    direction: DirectionType,
-  ) => {
-    if (stabilizedIndex !== index) {
-      isCarouselSourceRef.current = true;
+  const handleStabilizationUpdate = useCallback(
+    (
+      newStabilizedIndex: number,
+      source: SourceType,
+      direction: DirectionType,
+    ) => {
+      if (stabilizedIndex !== newStabilizedIndex) {
+        isCarouselSourceRef.current = true;
 
-      const newProjectId = Object.keys(projects).find(
-        (key) => projects[key].index === index,
-      );
+        const newProjectId = Object.keys(projects).find(
+          (key) => projects[key].index === newStabilizedIndex,
+        );
 
-      if (
-        newProjectId &&
-        newProjectId !== projectId &&
-        source === Source.NATURAL
-      ) {
-        navigate(`/portfolio/${newProjectId}`, { state: { shallow: true } });
-      }
+        if (
+          newProjectId &&
+          newProjectId !== projectId &&
+          source === Source.NATURAL
+        ) {
+          navigate(`/portfolio/${newProjectId}`, { state: { shallow: true } });
+        }
 
-      clearTimeout(stabilizationTimer.current as NodeJS.Timeout);
+        clearTimeout(stabilizationTimer.current as NodeJS.Timeout);
 
-      stabilizationTimer.current = setTimeout(() => {
         sourceRef.current = source;
         directionRef.current = direction;
-        setStabilizedIndex(index);
-      }, 500);
-    }
-  };
+        setStabilizedIndex(newStabilizedIndex);
+      }
+    },
+    [stabilizedIndex],
+  );
 
   useEffect(() => {
     if (carouselRef.current && projects[projectId]) {
