@@ -144,9 +144,14 @@ const Carousel = memo(
     const scrollLeftTo = useRef<((value: number) => void) | null>(null);
     const scrollDirectionRef = useRef<DirectionType>(Direction.LEFT);
     const stableIndex = useRef<number | null>(initialIndex);
+    const scrollIndexRef = useRef<number>(initialIndex);
 
     // Memoized slides for optimized re-renders
     const memoizedSlides = useMemo(() => slides, [slides]);
+
+    useEffect(() => {
+      scrollIndexRef.current = scrollIndex;
+    }, [scrollIndex]);
 
     /**
      * Derives the normalized dataIndex from the current scrollIndex.
@@ -154,15 +159,27 @@ const Carousel = memo(
      *
      * @returns The normalized data index (0 to slides.length - 1).
      */
-    const deriveDataIndex = (): number => {
-      const slidesLength = slides.length;
+    const deriveDataIndex = useCallback(
+      (overrideScrollIndex?: number): number => {
+        const slidesLength = slides.length;
 
-      if (slidesLength <= 0) {
-        throw new Error("Slides array must not be empty.");
-      }
+        overrideScrollIndex =
+          typeof overrideScrollIndex === "number"
+            ? overrideScrollIndex
+            : scrollIndexRef.current;
 
-      return ((scrollIndex % slidesLength) + slidesLength) % slidesLength;
-    };
+        return (
+          ((scrollIndexRef.current % slidesLength) + slidesLength) %
+          slidesLength
+        );
+      },
+      [scrollIndexRef.current],
+    );
+
+    const dataIndex = useMemo(
+      () => deriveDataIndex(),
+      [scrollIndexRef.current],
+    );
 
     // Calculate slide positions, multipliers, and offsets
     const memoizedPositionsAndMultipliers = useMemo(() => {
@@ -176,12 +193,14 @@ const Carousel = memo(
         if (scrollDirectionRef.current === Direction.LEFT) {
           const threshold = 2;
           multiplier = -Math.floor(
-            (index - scrollIndex + threshold) / memoizedSlides.length,
+            (index - scrollIndexRef.current + threshold) /
+              memoizedSlides.length,
           );
         } else if (scrollDirectionRef.current === Direction.RIGHT) {
           const threshold = 2;
           multiplier = Math.floor(
-            (scrollIndex - index + threshold) / memoizedSlides.length,
+            (scrollIndexRef.current - index + threshold) /
+              memoizedSlides.length,
           );
         } else {
           throw new Error("No scroll direction set.");
@@ -201,7 +220,7 @@ const Carousel = memo(
 
         // Calculate normalized offsets for determining visibility and snapping.
         const normalizedOffset =
-          (((index - scrollIndex) % memoizedSlides.length) +
+          (((index - scrollIndexRef.current) % memoizedSlides.length) +
             memoizedSlides.length) %
           memoizedSlides.length;
 
@@ -217,7 +236,7 @@ const Carousel = memo(
         multipliers: newMultipliers,
         offsets: newOffsets,
       };
-    }, [scrollIndex, scrollDirectionRef.current, wrapperWidth]);
+    }, [scrollIndexRef.current, scrollDirectionRef.current, wrapperWidth]);
 
     // Updates the carousel's index based on scroll position.
     const updateIndexPerPosition = (
@@ -232,9 +251,11 @@ const Carousel = memo(
       const newDataIndex =
         ((newScrollIndex % totalSlides) + totalSlides) % totalSlides;
 
-      if (scrollIndex !== newScrollIndex) {
+      if (scrollIndexRef.current !== newScrollIndex) {
         const newDirection =
-          newScrollIndex > scrollIndex ? Direction.LEFT : Direction.RIGHT;
+          newScrollIndex > scrollIndexRef.current
+            ? Direction.LEFT
+            : Direction.RIGHT;
 
         // Update the scroll direction if it has changed.
         if (newDirection !== scrollDirectionRef.current) {
@@ -336,10 +357,6 @@ const Carousel = memo(
       return { positions, multipliers, offsets };
     }, [memoizedPositionsAndMultipliers]);
 
-    useEffect(() => {
-      console.log(scrollIndex);
-    }, [scrollIndex]);
-
     // Initializes the carousel's scroll position and snap behavior.
     useEffect(() => {
       if (!scrollerRef.current) return;
@@ -348,7 +365,8 @@ const Carousel = memo(
       const normalizedIndex =
         ((initialIndex % totalSlides) + totalSlides) % totalSlides;
 
-      const newScrollIndex = scrollIndex + (normalizedIndex - deriveDataIndex());
+      const newScrollIndex =
+        scrollIndexRef.current + (normalizedIndex - dataIndex);
       const targetScrollLeft = Math.round(
         newScrollIndex * slideSpacing + patchedOffset(),
       );
@@ -391,30 +409,36 @@ const Carousel = memo(
       measureWidths();
     }, [slides]);
 
+    const onTweenComplete = useCallback(() => {
+      setSnap("x mandatory");
+      scrollTriggerSource.current = Source.NATURAL;
+
+      // Use scrollIndexRef to ensure we always have the latest value
+      const freshScrollIndex = scrollIndexRef.current;
+      const freshDataIndex = deriveDataIndex(freshScrollIndex);
+
+      stableIndex.current = freshDataIndex;
+      onStabilizationUpdate?.(
+        freshDataIndex,
+        Source.IMPERATIVE,
+        scrollDirectionRef.current,
+      );
+    }, [
+      scrollIndexRef.current,
+      dataIndex,
+      onStabilizationUpdate,
+      scrollDirectionRef.current,
+    ]);
+
     useEffect(() => {
       if (scrollerRef.current) {
         scrollLeftTo.current = gsap.quickTo(scrollerRef.current, "scrollLeft", {
           overwrite: "auto",
           duration: 0.7,
-          onComplete: () => {
-            setSnap("x mandatory");
-            scrollTriggerSource.current = Source.NATURAL;
-            const dataIndex = deriveDataIndex();
-            stableIndex.current = dataIndex;
-            onStabilizationUpdate?.(
-              dataIndex,
-              Source.IMPERATIVE,
-              scrollDirectionRef.current,
-            );
-          },
+          onComplete: onTweenComplete,
         });
       }
-    }, [
-      scrollerRef.current,
-      scrollIndex,
-      scrollDirectionRef.current,
-      scrollTriggerSource.current,
-    ]);
+    }, [scrollerRef.current, scrollIndexRef.current]);
 
     // Exposes carousel methods to the parent component via `ref`.
     useImperativeHandle(ref, () => ({
