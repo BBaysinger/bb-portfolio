@@ -194,14 +194,12 @@ const Carousel = memo(
         if (scrollDirectionRef.current === Direction.LEFT) {
           const threshold = 2;
           multiplier = -Math.floor(
-            (index - scrollIndex + threshold) /
-              memoizedSlides.length,
+            (index - scrollIndex + threshold) / memoizedSlides.length,
           );
         } else if (scrollDirectionRef.current === Direction.RIGHT) {
           const threshold = 2;
           multiplier = Math.floor(
-            (scrollIndex - index + threshold) /
-              memoizedSlides.length,
+            (scrollIndex - index + threshold) / memoizedSlides.length,
           );
         } else {
           throw new Error("No scroll direction set.");
@@ -232,6 +230,8 @@ const Carousel = memo(
         );
       });
 
+      // console.log("newOffsets", newOffsets);
+
       return {
         positions: newPositions,
         multipliers: newMultipliers,
@@ -254,9 +254,7 @@ const Carousel = memo(
 
       if (scrollIndex !== newScrollIndex) {
         const newDirection =
-          newScrollIndex > scrollIndex
-            ? Direction.LEFT
-            : Direction.RIGHT;
+          newScrollIndex > scrollIndex ? Direction.LEFT : Direction.RIGHT;
 
         // Update the scroll direction if it has changed.
         if (newDirection !== scrollDirectionRef.current) {
@@ -276,7 +274,6 @@ const Carousel = memo(
           updateStableIndex &&
           scrollTriggerSource.current !== Source.IMPERATIVE
         ) {
-          // TODO: Add a second stabilization duration prop?
           stabilizationTimer.current = setTimeout(() => {
             stableIndex.current = newDataIndex;
             onStabilizationUpdate?.(
@@ -413,10 +410,7 @@ const Carousel = memo(
     const onTweenComplete = useCallback(() => {
       setSnap("x mandatory");
       scrollTriggerSource.current = Source.NATURAL;
-
-      // Use scrollIndexRef to ensure we always have the latest value
-      const freshScrollIndex = scrollIndexRef.current;
-      const freshDataIndex = deriveDataIndex(freshScrollIndex);
+      const freshDataIndex = deriveDataIndex(scrollIndexRef.current);
 
       stableIndex.current = freshDataIndex;
       onStabilizationUpdate?.(
@@ -426,7 +420,6 @@ const Carousel = memo(
       );
     }, [
       scrollIndexRef.current,
-      dataIndex,
       onStabilizationUpdate,
       scrollDirectionRef.current,
     ]);
@@ -445,7 +438,10 @@ const Carousel = memo(
     useImperativeHandle(ref, () => ({
       // Scrolls programmatically to a specific slide.
       scrollToSlide: (targetIndex: number) => {
-        if (!scrollerRef.current) return;
+        if (!scrollerRef.current || !scrollLeftTo.current) return;
+
+        setSnap("none");
+        scrollTriggerSource.current = Source.IMPERATIVE;
 
         const offsetToTarget = currentOffsets[targetIndex];
         const direction = offsetToTarget > 0 ? Direction.RIGHT : Direction.LEFT;
@@ -458,9 +454,25 @@ const Carousel = memo(
         const targetPosition =
           newPositions[targetIndex] + patchedOffset() - containerOffset;
 
-        setSnap("none");
-        scrollTriggerSource.current = Source.IMPERATIVE;
-        scrollLeftTo.current?.(targetPosition);
+        // Calculate dynamic duration based on the distance to scroll
+        const currentScrollLeft = scrollerRef.current.scrollLeft;
+        const distanceToScroll = Math.abs(currentScrollLeft - targetPosition);
+        const baseDuration = 0.3; // Minimum duration for very short distances
+        const maxDuration = 2.5; // Maximum duration for very long distances
+        const duration = Math.min(
+          maxDuration,
+          baseDuration + distanceToScroll / 1000, // Adjust divisor to fine-tune scaling
+        );
+
+        // Dynamically update the tween duration
+        scrollLeftTo.current = gsap.quickTo(scrollerRef.current, "scrollLeft", {
+          overwrite: "auto",
+          duration, // Use the dynamically calculated duration
+          onComplete: onTweenComplete,
+        });
+
+        // Use the existing `scrollLeftTo` without recreating it
+        scrollLeftTo.current(targetPosition);
       },
       // Adjusts the external scroll position in slave mode.
       setExternalScrollPosition: (newLeft: number) => {
@@ -485,7 +497,8 @@ const Carousel = memo(
       >
         {isDebug() && (
           <div className={styles["debug"]}>
-            {scrollIndex} {stableIndex.current} {scrollerRef.current?.scrollLeft}
+            {scrollIndex} {stableIndex.current}{" "}
+            {scrollerRef.current?.scrollLeft}
           </div>
         )}
         <div
