@@ -99,6 +99,7 @@ const ProjectsPresentation: React.FC = () => {
           newProjectId !== projectId &&
           source === Source.NATURAL
         ) {
+          // window.history.pushState({ shallow: true, id: newProjectId }, '', `/portfolio/${newProjectId}`);
           navigate(`/portfolio/${newProjectId}`, { state: { shallow: true } });
         }
 
