@@ -193,13 +193,13 @@ const Carousel = memo(
         if (scrollDirectionRef.current === Direction.LEFT) {
           const threshold = 2;
           multiplier = -Math.floor(
-            (index - scrollIndexRef.current + threshold) /
+            (index - scrollIndex + threshold) /
               memoizedSlides.length,
           );
         } else if (scrollDirectionRef.current === Direction.RIGHT) {
           const threshold = 2;
           multiplier = Math.floor(
-            (scrollIndexRef.current - index + threshold) /
+            (scrollIndex - index + threshold) /
               memoizedSlides.length,
           );
         } else {
@@ -220,7 +220,7 @@ const Carousel = memo(
 
         // Calculate normalized offsets for determining visibility and snapping.
         const normalizedOffset =
-          (((index - scrollIndexRef.current) % memoizedSlides.length) +
+          (((index - scrollIndex) % memoizedSlides.length) +
             memoizedSlides.length) %
           memoizedSlides.length;
 
@@ -236,7 +236,7 @@ const Carousel = memo(
         multipliers: newMultipliers,
         offsets: newOffsets,
       };
-    }, [scrollIndexRef.current, scrollDirectionRef.current, wrapperWidth]);
+    }, [scrollIndex, scrollDirectionRef.current, wrapperWidth]);
 
     // Updates the carousel's index based on scroll position.
     const updateIndexPerPosition = (
@@ -251,9 +251,9 @@ const Carousel = memo(
       const newDataIndex =
         ((newScrollIndex % totalSlides) + totalSlides) % totalSlides;
 
-      if (scrollIndexRef.current !== newScrollIndex) {
+      if (scrollIndex !== newScrollIndex) {
         const newDirection =
-          newScrollIndex > scrollIndexRef.current
+          newScrollIndex > scrollIndex
             ? Direction.LEFT
             : Direction.RIGHT;
 
