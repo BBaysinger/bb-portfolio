@@ -11,6 +11,7 @@ import React, {
 
 import gsap from "gsap";
 import { ScrollToPlugin } from "gsap/all";
+
 import styles from "./Carousel.module.scss";
 
 gsap.registerPlugin(ScrollToPlugin);
@@ -130,7 +131,7 @@ const Carousel = memo(
     // State Variables
     const [scrollIndex, setScrollIndex] = useState(initialIndex); // Current scroll index.
     const [wrapperWidth, setWrapperWidth] = useState<number>(0); // Current width of the wrapper, (by design, this could change per responsiveness, but so far this is untested.)
-    const [snap, setSnap] = useState("none"); // CSS scroll snap behavior, can cause perplexing problems is not managed appropriately.
+    const [snap, setSnap] = useState<"none" | "x mandatory">("none"); // CSS scroll snap behavior, can cause perplexing problems is not managed appropriately.
 
     // Refs for DOM elements and values
     // TODO: Prevent stabilization while user is still dragging...
