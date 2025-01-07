@@ -54,7 +54,7 @@ interface CarouselProps {
     source: SourceType,
     direction: DirectionType,
   ) => void; // Callback when the scroll stabilizes on a specific index.
-  stabilizationDuration?: number; // Delay (ms) before a new stable index is reported.
+  stabilizationDelay?: number; // Delay (ms) before a new stable index is reported.
   id?: string; // Optional ID for debugging or DOM referencing.
 }
 
@@ -125,7 +125,7 @@ const Carousel = memo(
       sliderClassName = "",
       onScrollUpdate,
       onStabilizationUpdate,
-      stabilizationDuration = 500,
+      stabilizationDelay = 800,
     } = props;
     // State Variables
     const [scrollIndex, setScrollIndex] = useState(initialIndex); // Current scroll index.
@@ -283,7 +283,7 @@ const Carousel = memo(
               scrollTriggerSource.current,
               newDirection,
             );
-          }, stabilizationDuration);
+          }, stabilizationDelay);
         }
       }
 
