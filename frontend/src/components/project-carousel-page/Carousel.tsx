@@ -129,10 +129,8 @@ const Carousel = memo(
     } = props;
     // State Variables
     const [scrollIndex, setScrollIndex] = useState(initialIndex); // Current scroll index.
-    const [dataIndex, setDataIndex] = useState(initialIndex); // Mapped data index (handles wrap-around).
-    const [stableIndex, setStableIndex] = useState<number | null>(initialIndex); // Index stabilized after scrolling stops.
-    const [wrapperWidth, setWrapperWidth] = useState<number>(0); // Current width of the wrapper.
-    const [snap, setSnap] = useState("none"); // CSS scroll snap behavior.
+    const [wrapperWidth, setWrapperWidth] = useState<number>(0); // Current width of the wrapper, (by design, this could change per responsiveness, but so far this is untested.)
+    const [snap, setSnap] = useState("none"); // CSS scroll snap behavior, can cause perplexing problems is not managed appropriately.
 
     // Refs for DOM elements and values
     // TODO: Prevent stabilization while user is still dragging...
@@ -144,11 +142,27 @@ const Carousel = memo(
     const slideWidthRef = useRef<number>(0); // Current width of a slide (shouldn't change after initial render).
     const scrollTriggerSource = useRef<SourceType>(Source.NATURAL); // Track the source of the scroll
     const scrollLeftTo = useRef<((value: number) => void) | null>(null);
-    const dataIndexRef = useRef(dataIndex);
     const scrollDirectionRef = useRef<DirectionType>(Direction.LEFT);
+    const stableIndex = useRef<number | null>(initialIndex);
 
     // Memoized slides for optimized re-renders
     const memoizedSlides = useMemo(() => slides, [slides]);
+
+    /**
+     * Derives the normalized dataIndex from the current scrollIndex.
+     * Ensures the resulting index is within the bounds of 0 to slides.length - 1.
+     *
+     * @returns The normalized data index (0 to slides.length - 1).
+     */
+    const deriveDataIndex = (): number => {
+      const slidesLength = slides.length;
+
+      if (slidesLength <= 0) {
+        throw new Error("Slides array must not be empty.");
+      }
+
+      return ((scrollIndex % slidesLength) + slidesLength) % slidesLength;
+    };
 
     // Calculate slide positions, multipliers, and offsets
     const memoizedPositionsAndMultipliers = useMemo(() => {
@@ -242,7 +256,7 @@ const Carousel = memo(
         ) {
           // TODO: Add a second stabilization duration prop?
           stabilizationTimer.current = setTimeout(() => {
-            setStableIndex(newDataIndex);
+            stableIndex.current = newDataIndex;
             onStabilizationUpdate?.(
               newDataIndex,
               scrollTriggerSource.current,
@@ -322,6 +336,10 @@ const Carousel = memo(
       return { positions, multipliers, offsets };
     }, [memoizedPositionsAndMultipliers]);
 
+    useEffect(() => {
+      console.log(scrollIndex);
+    }, [scrollIndex]);
+
     // Initializes the carousel's scroll position and snap behavior.
     useEffect(() => {
       if (!scrollerRef.current) return;
@@ -330,12 +348,11 @@ const Carousel = memo(
       const normalizedIndex =
         ((initialIndex % totalSlides) + totalSlides) % totalSlides;
 
-      const newScrollIndex = scrollIndex + (normalizedIndex - dataIndex);
+      const newScrollIndex = scrollIndex + (normalizedIndex - deriveDataIndex());
       const targetScrollLeft = Math.round(
         newScrollIndex * slideSpacing + patchedOffset(),
       );
 
-      setDataIndex(normalizedIndex);
       setScrollIndex(newScrollIndex);
 
       if (!isSlave()) {
@@ -347,7 +364,7 @@ const Carousel = memo(
       // (this also helps visually identify that, since it should never happen.)
       // also triggers a rerender necessary in some browsers (Safari desktop) to
       // guarantee a paint after initial layout is run. Doesn't work if it's less
-      // than 200ms or so.
+      // than 150ms or so.
       const timer = setTimeout(() => {
         setSnap("x mandatory");
       }, 150);
@@ -374,11 +391,6 @@ const Carousel = memo(
       measureWidths();
     }, [slides]);
 
-    // Prevent `dataIndex` from becoming stale in gsap onComplete callback.
-    useEffect(() => {
-      dataIndexRef.current = dataIndex;
-    }, [dataIndex]);
-
     useEffect(() => {
       if (scrollerRef.current) {
         scrollLeftTo.current = gsap.quickTo(scrollerRef.current, "scrollLeft", {
@@ -387,9 +399,10 @@ const Carousel = memo(
           onComplete: () => {
             setSnap("x mandatory");
             scrollTriggerSource.current = Source.NATURAL;
-            setStableIndex(dataIndexRef.current);
+            const dataIndex = deriveDataIndex();
+            stableIndex.current = dataIndex;
             onStabilizationUpdate?.(
-              dataIndexRef.current,
+              dataIndex,
               Source.IMPERATIVE,
               scrollDirectionRef.current,
             );
@@ -398,7 +411,7 @@ const Carousel = memo(
       }
     }, [
       scrollerRef.current,
-      dataIndexRef.current,
+      scrollIndex,
       scrollDirectionRef.current,
       scrollTriggerSource.current,
     ]);
@@ -413,7 +426,6 @@ const Carousel = memo(
         const direction = offsetToTarget > 0 ? Direction.RIGHT : Direction.LEFT;
 
         scrollDirectionRef.current = direction;
-        setDataIndex(targetIndex);
 
         const { positions: newPositions } = memoizedPositionsAndMultipliers;
 
@@ -448,7 +460,7 @@ const Carousel = memo(
       >
         {isDebug() && (
           <div className={styles["debug"]}>
-            {scrollIndex} {stableIndex} {scrollerRef.current?.scrollLeft}
+            {scrollIndex} {stableIndex.current} {scrollerRef.current?.scrollLeft}
           </div>
         )}
         <div
