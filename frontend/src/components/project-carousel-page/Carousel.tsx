@@ -105,7 +105,6 @@ export interface CarouselRef {
  * 1. Infinite scrolling with wrap-around behavior.
  * 2. Parallax-friendly master/slave architecture for multi-layer effects.
  * 3. Smooth scrolling using GSAP.
- * 4. Dynamic slide positioning and spacing.
  *
  * Notes:
  * - Smoothness achieved here the main objective, and uncommon if you compare it to most every other carousel.
@@ -429,6 +428,7 @@ const Carousel = memo(
         scrollLeftTo.current = gsap.quickTo(scrollerRef.current, "scrollLeft", {
           overwrite: "auto",
           duration: 0.7,
+          ease: "power1.out",
           onComplete: onTweenComplete,
         });
       }
@@ -457,17 +457,13 @@ const Carousel = memo(
         // Calculate dynamic duration based on the distance to scroll
         const currentScrollLeft = scrollerRef.current.scrollLeft;
         const distanceToScroll = Math.abs(currentScrollLeft - targetPosition);
-        const baseDuration = 0.3; // Minimum duration for very short distances
-        const maxDuration = 2.5; // Maximum duration for very long distances
-        const duration = Math.min(
-          maxDuration,
-          baseDuration + distanceToScroll / 1000, // Adjust divisor to fine-tune scaling
-        );
+        const duration = Math.min(2.0, 0.3 + distanceToScroll / 1000);
 
         // Dynamically update the tween duration
         scrollLeftTo.current = gsap.quickTo(scrollerRef.current, "scrollLeft", {
           overwrite: "auto",
-          duration, // Use the dynamically calculated duration
+          duration,
+          ease: "power1.out",
           onComplete: onTweenComplete,
         });
 
