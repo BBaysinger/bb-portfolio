@@ -4,7 +4,7 @@ body,
 html {
   font-family: "Roboto";
   font-size: 15px;
-  overflow-x: hidden;
+  // overflow-x: hidden;
 }
 
 body {
@@ -19,7 +19,7 @@ body {
   right: 0;
   box-shadow: 10px 5px 60px black;
   min-width: 320px;
-  overflow-x: hidden;
+  // overflow-x: hidden;
 
   &.nav-expanded {
     // 'right' (or left) property must be used in favor of transform,
