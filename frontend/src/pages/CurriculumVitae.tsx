@@ -197,7 +197,13 @@ const CurriculumVitae: React.FC = () => {
 
         <div className={`container ${styles["summary"]}`}>
           <div className={rowClass}>
-            <div className={divClassLt}></div>
+            <div className={divClassLt}>
+            <img
+                src="/images/cv/dart.svg"
+                className={styles["cv-logo"]}
+                alt="Gear Logo"
+              />
+            </div>
 
             <div className={divClassRt}>
               <p>
