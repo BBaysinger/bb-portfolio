@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Routes, Route } from "react-router-dom";
 import ExecutionEnvironment from "exenv";
@@ -16,11 +16,9 @@ import styles from "./App.module.scss";
 const App: React.FC = () => {
   const isMenuOpen = useSelector((state: RootState) => state.menu.isOpen);
   const dispatch = useDispatch();
-  const isMenuClosing = useRef(false);
 
   const handleScrollOrResize = () => {
-    if (isMenuOpen && !isMenuClosing.current) {
-      isMenuClosing.current = true;
+    if (isMenuOpen) {
       dispatch(closeMenu());
     }
   };
@@ -35,12 +33,6 @@ const App: React.FC = () => {
       window.removeEventListener("resize", handleScrollOrResize);
     };
   }, [dispatch, isMenuOpen]);
-
-  useEffect(() => {
-    if (!isMenuOpen) {
-      isMenuClosing.current = false; // Reset the flag when the menu is closed
-    }
-  }, [isMenuOpen]);
 
   return (
     <>

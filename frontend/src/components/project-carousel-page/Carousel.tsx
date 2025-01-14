@@ -457,7 +457,7 @@ const Carousel = memo(
         // Calculate dynamic duration based on the distance to scroll
         const currentScrollLeft = scrollerRef.current.scrollLeft;
         const distanceToScroll = Math.abs(currentScrollLeft - targetPosition);
-        const duration = Math.min(2.0, 0.3 + distanceToScroll / 1000);
+        const duration = Math.min(2.0, 0.2 + distanceToScroll / 1500);
 
         // Dynamically update the tween duration
         scrollLeftTo.current = gsap.quickTo(scrollerRef.current, "scrollLeft", {
