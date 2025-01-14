@@ -2,23 +2,17 @@
 
 .navbar-toggle {
   position: relative;
-  margin: 0;
-  margin-right: 6px;
   font-size: 0;
   height: 100%;
-  width: 44px;
-  border-radius: 4px;
+  width: 50px;
   border: 0;
   background-color: transparent;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  outline: none; /* Prevents highlight on focus. */
+  outline: none; /* Prevent highlight on focus */
 
   .icon-bar {
     position: absolute;
     top: 50%;
+    left: 10px;
     width: 30px;
     height: 3px;
     background-color: #fff;
