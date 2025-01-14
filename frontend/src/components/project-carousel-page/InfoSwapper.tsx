@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, memo } from "react";
 import ProjectData from "data/ProjectData";
 import ProjectInfo from "./ProjectInfo";
-import { DirectionType } from "./Carousel";
+import { DirectionType } from "./CarouselTypes";
 import styles from "./InfoSwapper.module.scss";
 
 interface InfoSwapperProps {

@@ -17,7 +17,7 @@ import {
   Direction,
   SourceType,
   Source,
-} from "components/project-carousel-page/Carousel";
+} from "components/project-carousel-page/CarouselTypes";
 import DeviceDisplay, {
   DeviceTypes,
 } from "components/project-carousel-page/DeviceDisplay";
