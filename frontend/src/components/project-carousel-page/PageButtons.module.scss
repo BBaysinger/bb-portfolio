@@ -9,6 +9,7 @@ $maxScaleBreak: 680px; // Max vw limit of the carousel scaling
   justify-content: space-between;
   pointer-events: none;
   width: 100vw;
+  left: 0;
   @include fluid-property(top, $b320px, $maxScaleBreak, 225px, 302px);
 }
 

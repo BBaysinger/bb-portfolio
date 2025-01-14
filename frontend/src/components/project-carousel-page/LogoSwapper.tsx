@@ -16,9 +16,8 @@ const clientNames: Record<string, string> = {
   teennick: "Teen Nick",
   nintendo: "Nintendo",
   premera: "Premera",
-  chalklabs: "ChalkLabs",
+  usda: "USDA",
   citibank: "Citibank",
-  golden1: "Golden 1 Credit Union",
 };
 
 const fileVariants: Record<string, string> = {
