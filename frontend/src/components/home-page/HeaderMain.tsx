@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 
-import headerLogo from "images/main-header/bb-gradient.png";
+import headerLogo from "images/main-header/bb-gradient.webp";
 import styles from "./HeaderMain.module.scss";
 
 /**
