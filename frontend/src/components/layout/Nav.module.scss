@@ -178,6 +178,9 @@
   z-index: 1;
   mix-blend-mode: multiply;
   opacity: 0.7;
+  // mask-image: url("/images/misc/innards-mask.svg");
+  mask-repeat: no-repeat;
+  mask-size: cover;
   background: linear-gradient(
     0deg,
     rgba(50, 50, 50, 0) 0%,
