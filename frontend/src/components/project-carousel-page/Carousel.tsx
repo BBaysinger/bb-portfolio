@@ -44,7 +44,7 @@ interface CarouselProps {
   slideSpacing: number; // Space between slides in pixels.
   initialIndex?: number; // Optional starting index for the carousel.
   onIndexUpdate?: (scrollIndex: number) => void; // Callback for index changes during scroll.
-  debug?: string | number | null; // Debugging flag for showing additional info.
+  debug?: string | number | boolean | null; // Debugging flag for showing additional info.
   wrapperClassName?: string; // Custom CSS class for the wrapper.
   slideClassName?: string; // Custom CSS class for slides.
   sliderClassName?: string; // Custom CSS class for the slider.
