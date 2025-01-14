@@ -24,11 +24,10 @@ import styles from "./Carousel.module.scss";
 /**
  * Carousel Component
  * - Bi-directional, infinite-scroll carousel with wrap-around behavior.
- * - Leverages browser-native HTML inertial touch/trackpad scrolling for smooth interactions.
- * - Infinite scroll carousel supporting master-slave architecture for synchronized parallax effects.
+ * - Leverages browser-native HTML inertial touch/swipe trackpad/gesture scrolling for smooth interactions.
+ * - Infinite scroll supporting master-slave architecture for synchronized parallax effects.
  * - Built for performance and smooth user interaction with inertial scrolling and precise position tracking.
- * - Designed to handle various use cases, including custom scroll synchronization.
- * - Debug mode reveals index, multipliers, and scroll positions for troubleshooting.
+ * - Designed to handle various use cases, including custom scroll synchronization and routing.
  * - Slides are passed as props.
  *
  * Supports master/slave architecture:
