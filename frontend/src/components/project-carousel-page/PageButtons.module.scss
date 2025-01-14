@@ -1,6 +1,7 @@
 @use "@/styles/global" as *;
 
-$mainBreak: 992px;
+$mainBreak: $b992px;
+$maxScaleBreak: 680px; // Max vw limit of the carousel scaling
 
 .project-nav {
   display: flex;
@@ -8,7 +9,7 @@ $mainBreak: 992px;
   justify-content: space-between;
   pointer-events: none;
   width: 100vw;
-  @include fluid-property(top, $b320px, 680px, 235px, 308px);
+  @include fluid-property(top, $b320px, $maxScaleBreak, 225px, 308px);
 }
 
 .nav-button {
@@ -32,7 +33,7 @@ $mainBreak: 992px;
   @include fluid-property(height, $b320px, $mainBreak, 40px, 96px);
   @include fluid-property(width, $b320px, $mainBreak, 40px, 96px);
   @include fluid-property(margin-left, $b320px, $mainBreak, -10px, -20px);
-  @include breakpoint-up(680px) {
+  @include breakpoint-up($b640) {
     background: #000;
   }
 
