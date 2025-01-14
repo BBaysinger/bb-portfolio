@@ -2,7 +2,8 @@ import React from "react";
 import { NavLink } from "react-router-dom";
 import { useDispatch } from "react-redux";
 
-import { closeMenu, toggleMenu } from "store/menuSlice";
+import { closeMenu } from "store/menuSlice";
+import Hamburger from "components/layout/Hamburger";
 import MiscUtils from "utils/MiscUtils";
 import navLogo from "images/misc/bb-logo.svg";
 import styles from "./Nav.module.scss";
@@ -71,16 +72,7 @@ const Nav: React.FC<NavProps> = ({ variant }) => {
         </li>
       </ul>
 
-      <button
-        type="button"
-        className={styles["navbar-toggle"]}
-        onClick={() => dispatch(toggleMenu())}
-      >
-        <span className={styles["sr-only"]}>Toggle navigation</span>
-        <span className={styles["icon-bar"]}></span>
-        <span className={styles["icon-bar"]}></span>
-        <span className={styles["icon-bar"]}></span>
-      </button>
+      {variant === NavVariant.TOP_BAR && <Hamburger />}
     </nav>
   );
 };

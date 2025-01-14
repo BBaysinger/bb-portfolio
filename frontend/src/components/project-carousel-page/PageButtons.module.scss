@@ -9,7 +9,7 @@ $maxScaleBreak: 680px; // Max vw limit of the carousel scaling
   justify-content: space-between;
   pointer-events: none;
   width: 100vw;
-  @include fluid-property(top, $b320px, $maxScaleBreak, 225px, 308px);
+  @include fluid-property(top, $b320px, $maxScaleBreak, 225px, 302px);
 }
 
 .nav-button {
@@ -33,7 +33,7 @@ $maxScaleBreak: 680px; // Max vw limit of the carousel scaling
   @include fluid-property(height, $b320px, $mainBreak, 40px, 96px);
   @include fluid-property(width, $b320px, $mainBreak, 40px, 96px);
   @include fluid-property(margin-left, $b320px, $mainBreak, -10px, -20px);
-  @include breakpoint-up($b640) {
+  @include breakpoint-up($b640px) {
     background: #000;
   }
 
