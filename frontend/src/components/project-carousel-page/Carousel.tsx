@@ -427,7 +427,7 @@ const Carousel = memo(
       if (scrollerRef.current) {
         scrollLeftTo.current = gsap.quickTo(scrollerRef.current, "scrollLeft", {
           overwrite: "auto",
-          duration: 0.7,
+          duration: 0.6,
           ease: "power1.out",
           onComplete: onTweenComplete,
         });
