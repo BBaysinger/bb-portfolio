@@ -36,6 +36,10 @@ const Nav: React.FC<NavProps> = ({ variant }) => {
 
   return (
     <nav className={`${styles["nav"]} ${variant}`} role="navigation">
+      <div className={styles["effect-layer0"]}></div>
+      <div className={styles["effect-layer1"]}></div>
+      <div className={styles["effect-layer2"]}></div>
+
       <NavLink to="/#headerMain" className={styles["title"]}>
         <img src={navLogo} className={styles["nav-logo"]} alt="BB Logo" />
         <div className={styles["nav-logo-text"]}>
