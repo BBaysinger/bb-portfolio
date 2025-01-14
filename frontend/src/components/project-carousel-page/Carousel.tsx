@@ -173,13 +173,10 @@ const Carousel = memo(
           slidesLength
         );
       },
-      [scrollIndexRef.current],
+      [],
     );
 
-    const dataIndex = useMemo(
-      () => deriveDataIndex(),
-      [scrollIndexRef.current],
-    );
+    const dataIndex = useMemo(() => deriveDataIndex(), []);
 
     // Calculate slide positions, multipliers, and offsets
     const memoizedPositionsAndMultipliers = useMemo(() => {
@@ -236,7 +233,7 @@ const Carousel = memo(
         multipliers: newMultipliers,
         offsets: newOffsets,
       };
-    }, [scrollIndex, scrollDirectionRef.current, wrapperWidth]);
+    }, [scrollIndex, wrapperWidth]);
 
     // Updates the carousel's index based on scroll position.
     const updateIndexPerPosition = (
@@ -417,11 +414,7 @@ const Carousel = memo(
         Source.IMPERATIVE,
         scrollDirectionRef.current,
       );
-    }, [
-      scrollIndexRef.current,
-      onStabilizationUpdate,
-      scrollDirectionRef.current,
-    ]);
+    }, [onStabilizationUpdate]);
 
     useEffect(() => {
       if (scrollerRef.current) {
@@ -432,7 +425,7 @@ const Carousel = memo(
           onComplete: onTweenComplete,
         });
       }
-    }, [scrollerRef.current, scrollIndexRef.current]);
+    }, []);
 
     // Exposes carousel methods to the parent component via `ref`.
     useImperativeHandle(ref, () => ({
