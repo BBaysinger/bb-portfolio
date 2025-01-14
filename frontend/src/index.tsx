@@ -7,11 +7,7 @@ import store from "store/store";
 import App from "./App";
 
 const routes = [{ path: "*", element: <App /> }];
-const router = createBrowserRouter(routes, {
-  // future: {
-  //   v7_startTransition: true,
-  // },
-});
+const router = createBrowserRouter(routes);
 
 const rootElement = document.getElementById("root");
 if (!rootElement) {
