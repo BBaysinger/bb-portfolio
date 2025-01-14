@@ -8,9 +8,9 @@
   opacity: 0.0001;
   transition: opacity 0.5s;
   align-items: left;
-  @include fluid-property(margin-top, $b320px, $b768px, 40px, 50px);
-  @include fluid-property(margin-bottom, $b320px, $b768px, 30px, 42px);
-  @include fluid-property(width, $b320px, $b768px, 200px, 330px);
+  @include fluid-property(margin-top, $b320px, $b768px, 46px, 60px);
+  @include fluid-property(margin-bottom, $b320px, $b768px, 30px, 46px);
+  @include fluid-property(width, $b320px, $b768px, 240px, 330px);
   @include fluid-property(height, $b320px, $b768px, 50px, 65px);
 
   @include breakpoint-up($b768px) {
