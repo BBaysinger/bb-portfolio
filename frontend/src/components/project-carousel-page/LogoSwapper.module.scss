@@ -3,31 +3,34 @@
 .logo-swapper {
   position: relative;
   display: flex;
-  $maxHeight: 50px;
-  margin-top: 50px;
-  margin-bottom: 42px;
-  height: 50px;
-  opacity: 0.0001;
-  transition: opacity 0.5s;
-  width: 300px;
   margin-left: auto;
   margin-right: auto;
+  opacity: 0.0001;
+  transition: opacity 0.5s;
+  align-items: left;
+  @include fluid-property(margin-top, $b320px, $b768px, 40px, 50px);
+  @include fluid-property(margin-bottom, $b320px, $b768px, 30px, 42px);
+  @include fluid-property(width, $b320px, $b768px, 200px, 330px);
+  @include fluid-property(height, $b320px, $b768px, 50px, 65px);
 
   @include breakpoint-up($b768px) {
     margin-left: 0;
   }
 
-  img.client-logo {
+  img {
     position: absolute;
     top: 50%;
     left: 50%;
+    width: 100%;
+    max-height: 100%;
     transform: translate(-50%, -50%);
     opacity: 0.0001;
-    max-height: $maxHeight;
-    max-width: 100%;
     transition: filter 0.5s;
     will-change: filter, opacity;
     object-fit: fill;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center center;
     filter: blur(12px);
     &.visible {
       opacity: 1;
@@ -37,6 +40,7 @@
       margin-left: 0;
       left: 0;
       transform: translateY(-50%);
+      background-position: left center;
     }
   }
 
