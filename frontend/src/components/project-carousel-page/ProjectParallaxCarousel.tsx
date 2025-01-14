@@ -9,18 +9,6 @@ import React, {
 import Carousel, { DirectionType, CarouselRef, SourceType } from "./Carousel";
 import styles from "./ProjectParallaxCarousel.module.scss";
 
-interface ProjectParallaxCarouselProps {
-  initialIndex?: number;
-  layer1Slides: React.ReactNode[];
-  layer2Slides: React.ReactNode[];
-  onScrollUpdate?: (scrollLeft: number) => void;
-  onStabilizationUpdate?: (
-    index: number,
-    source: SourceType,
-    direction: DirectionType,
-  ) => void;
-}
-
 /**
  * ProjectParallaxCarousel is a layered carousel component with three carousels:
  * 1. The **master carousel** acts as the control layer, determining scroll positions and indices.
@@ -217,5 +205,17 @@ const ProjectParallaxCarousel = memo(
     },
   ),
 );
+
+interface ProjectParallaxCarouselProps {
+  initialIndex?: number;
+  layer1Slides: React.ReactNode[];
+  layer2Slides: React.ReactNode[];
+  onScrollUpdate?: (scrollLeft: number) => void;
+  onStabilizationUpdate?: (
+    index: number,
+    source: SourceType,
+    direction: DirectionType,
+  ) => void;
+}
 
 export default ProjectParallaxCarousel;
