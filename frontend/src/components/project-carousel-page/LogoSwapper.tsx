@@ -56,6 +56,15 @@ const LogoSwapper: React.FC<LogoSwapperProps> = ({ projectId }) => {
     };
   }, [projectId]);
 
+  const blankImage =
+    "data:image/png;base64,iVBORw0KGgoAAAANSUhEUg" +
+    "AAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/wIAAgEAEnMACQAAAABJRU5ErkJggg==";
+
+  const backgroundImage = (key: string) => {
+    const fileName = fileVariants[key] || key;
+    return `url(/images/client-logos/${fileName}.svg)`;
+  };
+
   return (
     <div className={"max-w-container"}>
       <div className={"container"}>
@@ -67,8 +76,8 @@ const LogoSwapper: React.FC<LogoSwapperProps> = ({ projectId }) => {
           {Object.entries(clientNames).map(([key, value]) => (
             <img
               key={key}
-              loading="lazy"
-              src={`/images/client-logos/${key in fileVariants ? fileVariants[key] : key}.svg`}
+              src={blankImage}
+              style={{ backgroundImage: backgroundImage(key) }}
               className={`${styles["client-logo"]} ${
                 currentLogoId === key ? styles.visible : ""
               }`}

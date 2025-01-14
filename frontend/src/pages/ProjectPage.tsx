@@ -22,9 +22,9 @@ import DeviceDisplay, {
   DeviceTypes,
 } from "components/project-carousel-page/DeviceDisplay";
 import PageButtons from "components/project-carousel-page/PageButtons";
-import styles from "./ProjectsPresentation.module.scss";
+import styles from "./ProjectPage.module.scss";
 
-const ProjectsPresentation: React.FC = () => {
+const ProjectPage: React.FC = () => {
   const { projectId = "" } = useParams<{ projectId: string }>();
   const projects = ProjectData.activeProjectsRecord;
   const [initialIndex] = useState<number | null>(() =>
@@ -138,20 +138,22 @@ const ProjectsPresentation: React.FC = () => {
         className={`${styles["projects-presentation-body"]} ${slideDirectionClass}`}
       >
         <LogoSwapper projectId={clientId} />
-        {initialIndex !== null && (
-          <ProjectParallaxCarousel
-            ref={carouselRef}
-            layer1Slides={laptopSlides}
-            layer2Slides={phoneSlides}
-            onStabilizationUpdate={handleStabilizationUpdate}
-            initialIndex={initialIndex}
-          />
-        )}
-        <PageButtons />
+        <div className={styles["carousel-control-wrapper"]}>
+          {initialIndex !== null && (
+            <ProjectParallaxCarousel
+              ref={carouselRef}
+              layer1Slides={laptopSlides}
+              layer2Slides={phoneSlides}
+              onStabilizationUpdate={handleStabilizationUpdate}
+              initialIndex={initialIndex}
+            />
+          )}
+          <PageButtons />
+        </div>
         <InfoSwapper index={infoSwapperIndex} />
       </div>
     </div>
   );
 };
 
-export default ProjectsPresentation;
+export default ProjectPage;

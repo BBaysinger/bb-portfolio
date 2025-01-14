@@ -8,7 +8,7 @@ import CurriculumVitae from "pages/CurriculumVitae";
 import Nav, { NavVariant } from "components/layout/Nav";
 import PortfolioList from "components/home-page/PortfolioList";
 import Footer from "components/layout/Footer";
-import ProjectsPresentation from "pages/ProjectsPresentation";
+import ProjectPage from "pages/ProjectPage";
 import ScrollToHash from "utils/ScrollToHash";
 import { RootState } from "store/store";
 import styles from "./App.module.scss";
@@ -46,10 +46,7 @@ const App: React.FC = () => {
         <Routes>
           <Route path="/" element={<PortfolioList />} />
           <Route path="/portfolio" element={<PortfolioList />} />
-          <Route
-            path="/portfolio/:projectId"
-            element={<ProjectsPresentation />}
-          />
+          <Route path="/portfolio/:projectId" element={<ProjectPage />} />
           <Route path="/cv" element={<CurriculumVitae />} />
         </Routes>
         <Footer />
