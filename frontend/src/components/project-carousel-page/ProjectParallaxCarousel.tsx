@@ -17,11 +17,11 @@ import styles from "./ProjectParallaxCarousel.module.scss";
  *    for a parallax effect, creating depth and a dynamic visual presentation.
  *
  * Props:
+ * - `initialIndex` Which slide to start at on initial render.
  * - `layer1Slides` (React.ReactNode[]): Slides for the first parallax layer.
  * - `layer2Slides` (React.ReactNode[]): Slides for the second parallax layer.
  * - `onScrollUpdate` (function): Callback for when the master carousel's scroll position updates.
- * - `onStableIndex` (function): Callback for when a stable slide index is reached.
- * - `onIndexUpdate` (function): Callback for when the current active index changes.
+ * - `onStabilizationUpdate` (function): Callback for when a stable slide index is reached.
  */
 const ProjectParallaxCarousel = memo(
   forwardRef<

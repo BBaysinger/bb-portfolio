@@ -9,6 +9,7 @@ import {
   memo,
 } from "react";
 import gsap from "gsap";
+import { ScrollToPlugin } from "gsap/all";
 
 import {
   CarouselProps,
@@ -18,8 +19,6 @@ import {
   type DirectionType,
   type CarouselRef,
 } from "./CarouselTypes";
-import { ScrollToPlugin } from "gsap/all";
-
 import styles from "./Carousel.module.scss";
 
 /**
