@@ -77,7 +77,7 @@
   animation: fadeBounce 2s infinite forwards;
 
   &::after {
-    content: " ";
+    content: "";
     position: absolute;
     border-top: 7px solid #fff;
     border-left: 7px solid #fff;

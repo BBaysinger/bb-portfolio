@@ -1,35 +1,20 @@
 @use "@/styles/global" as *;
 
-$mainBreak: 680px;
+$mainBreak: 992px;
 
 .project-nav {
-  margin-left: auto;
-  margin-right: auto;
   display: flex;
+  position: absolute;
   justify-content: space-between;
-  align-items: center;
   pointer-events: none;
-  margin-top: -10px;
-  margin-bottom: 40px;
   width: 100vw;
-
-  @include breakpoint-up($mainBreak) {
-    margin-top: 0;
-    top: 310px;
-    position: absolute;
-  }
+  @include fluid-property(top, $b320px, 680px, 235px, 308px);
 }
 
 .nav-button {
   position: relative;
   pointer-events: all;
-  height: 50px;
   transform-origin: center 0;
-
-  &.next {
-    transform: scaleX(-1);
-    margin-left: -1px;
-  }
 
   &.next {
     transform: scaleX(-1);
@@ -40,22 +25,15 @@ $mainBreak: 680px;
 .inner {
   position: relative;
   display: flex;
-  height: 50px;
-  width: calc(10vw + 20px);
   object-fit: cover;
-
-  @include breakpoint-up($mainBreak) {
-    border-radius: 25px 0 0 25px;
-    background: linear-gradient(to right, #000, #555);
+  background: linear-gradient(to right, #000, #555);
+  border-radius: 0 50% 50% 0;
+  background: rgba(0, 0, 0, 0.7);
+  @include fluid-property(height, $b320px, $mainBreak, 40px, 96px);
+  @include fluid-property(width, $b320px, $mainBreak, 40px, 96px);
+  @include fluid-property(margin-left, $b320px, $mainBreak, -10px, -20px);
+  @include breakpoint-up(680px) {
     background: #000;
-    width: 45px;
-    border-radius: 0 25px 25px 0;
-    transform: scale(1.25);
-  }
-
-  @include breakpoint-up(780px) {
-    transform: scale(1.8);
-    left: 10px;
   }
 
   &:hover {
@@ -67,25 +45,16 @@ $mainBreak: 680px;
   }
 
   &::before {
-    content: " ";
+    content: "";
     position: absolute;
-    border-top: 8px solid #000;
-    border-left: 8px solid #000;
-    width: 36px;
-    height: 36px;
-    left: 10px;
+    border-top: 0 solid #fff;
+    border-left: 0 solid #fff;
     top: 50%;
     transform-origin: 0 0;
     transform: rotate(-45deg);
-    z-index: 2;
-
-    @include breakpoint-up($mainBreak) {
-      transform: rotate(-45deg) scale(0.8);
-      left: 12px;
-      border-color: #fff;
-      border-width: 5.5px;
-      width: 27px;
-      height: 27px;
-    }
+    @include fluid-property(border-width, $b320px, $mainBreak, 4.5px, 8px);
+    @include fluid-property(height, $b320px, $mainBreak, 17px, 36px);
+    @include fluid-property(width, $b320px, $mainBreak, 17px, 36px);
+    @include fluid-property(left, $b320px, $mainBreak, 15px, 40px);
   }
 }
