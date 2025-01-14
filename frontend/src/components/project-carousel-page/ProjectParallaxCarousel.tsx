@@ -6,7 +6,8 @@ import React, {
   memo,
 } from "react";
 
-import Carousel, { DirectionType, CarouselRef, SourceType } from "./Carousel";
+import Carousel from "./Carousel";
+import { DirectionType, CarouselRef, SourceType } from "./CarouselTypes";
 import styles from "./ProjectParallaxCarousel.module.scss";
 
 /**
