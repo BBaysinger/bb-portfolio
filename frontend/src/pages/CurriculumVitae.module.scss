@@ -16,21 +16,12 @@
     padding-bottom: 20px;
     font-size: 40px;
     color: #777;
-    font-size: 34px;
     font-weight: 400;
     margin-bottom: 6px;
+    @include fluid-property(font-size, $b360px, $b1280px, 40px, 52px);
     &:first-child {
       padding-top: 0px;
       margin-top: 0px;
-    }
-    @include breakpoint-up($b768px) {
-      font-size: 26px;
-    }
-    @include breakpoint-up($b992px) {
-      font-size: 34px;
-    }
-    @include breakpoint-up($b1024px) {
-      font-size: 40px;
     }
   }
 
@@ -217,6 +208,6 @@ img.cv-logo {
 
 :global {
   .cv-page .container {
-    margin-bottom: 40px;
+    @include fluid-property(margin-bottom, $b360px, $b1280px, 40px, 80px);
   }
 }
