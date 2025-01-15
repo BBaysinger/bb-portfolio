@@ -36,6 +36,7 @@ const ProjectPage: React.FC = () => {
   const stabilizationTimer = useRef<NodeJS.Timeout | null>(null);
   const sourceRef = useRef<SourceType>(Source.NATURAL);
   const directionRef = useRef<DirectionType>(Direction.LEFT);
+  const lastKnownProjectId = useRef(projectId);
   const carouselRef = useRef<{ scrollToSlide: (targetIndex: number) => void }>(
     null,
   );
@@ -96,11 +97,11 @@ const ProjectPage: React.FC = () => {
 
         if (
           newProjectId &&
-          newProjectId !== projectId &&
+          newProjectId !== lastKnownProjectId.current &&
           source === Source.NATURAL
         ) {
-          // window.history.pushState({ shallow: true, id: newProjectId }, '', `/portfolio/${newProjectId}`);
           navigate(`/portfolio/${newProjectId}`, { state: { shallow: true } });
+          lastKnownProjectId.current = newProjectId;
         }
 
         clearTimeout(stabilizationTimer.current as NodeJS.Timeout);
@@ -110,8 +111,12 @@ const ProjectPage: React.FC = () => {
         setStabilizedIndex(newStabilizedIndex);
       }
     },
-    [stabilizedIndex],
+    [stabilizedIndex, projects, navigate],
   );
+
+  useEffect(() => {
+    lastKnownProjectId.current = projectId;
+  }, [projectId]);
 
   useEffect(() => {
     if (carouselRef.current && projects[projectId]) {
