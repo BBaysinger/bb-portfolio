@@ -12,13 +12,16 @@
     "type": "",
     "isGame": false,
     "desc": [
-      "<p>I developed parts of the Citibank site, including the Citigold Benefits, Compare Cards, and the Home Equity Calculator, along with various modals around the site.</p>",
-      "<p>The benefits page includes drop-downs, a slider, and tabbed layouts, and a great number of dynamicaly populated content.</p>"
+      "<p>I developed a few parts of the Citibank site, including the Citigold Benefits, Compare Cards, and a few of thes Calculators, along with various modals around the site.</p>",
+      "<p>The benefits page includes drop-downs, a slider, and tabbed layouts, and a plethora of dynamicaly populated fields.</p>",
+      "<p>The loan and equity calculators use Angular custom components and formulas provided by Citibank.</p>"
     ],
     "urls": {
       "Citigold Benefits": "https://www.citi.com/banking/citigold?intc=citihpmenu_overview_citigold",
       "Compare Cards": "https://www.citi.com/credit-cards/compare/most-popular-credit-cards",
-      "Home Equity Calculator": "https://www.citi.com/home-equity/loan-calculator"
+      "Home Equity Calculator": "https://www.citi.com/home-equity/loan-calculator",
+      "Home Affordability Calculator": "https://www.citi.com/mortgage/affordability-calculator",
+      "Early Payoff Calculator": "https://www.citi.com/mortgage/early-payoff-calculator"
     }
   },
   "marioparty": {
