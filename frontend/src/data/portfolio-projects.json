@@ -10,9 +10,9 @@
     "year": "",
     "awards": "",
     "type": "",
-    "isGame": false,
+
     "desc": [
-      "<p>I developed a few parts of the Citibank site, including the Citigold Benefits, Compare Cards, and a few of thes Calculators, along with various modals around the site.</p>",
+      "<p>I developed a few parts of the Citibank site, including the Citigold Benefits, Compare Cards, and a couple of thes Calculators, along with various modals around the site.</p>",
       "<p>The benefits page includes drop-downs, a slider, and tabbed layouts, and a plethora of dynamicaly populated fields.</p>",
       "<p>The loan and equity calculators use Angular custom components and formulas provided by Citibank.</p>"
     ],
@@ -20,9 +20,27 @@
       "Citigold Benefits": "https://www.citi.com/banking/citigold?intc=citihpmenu_overview_citigold",
       "Compare Cards": "https://www.citi.com/credit-cards/compare/most-popular-credit-cards",
       "Home Equity Calculator": "https://www.citi.com/home-equity/loan-calculator",
-      "Home Affordability Calculator": "https://www.citi.com/mortgage/affordability-calculator",
-      "Early Payoff Calculator": "https://www.citi.com/mortgage/early-payoff-calculator"
+      "Home Affordability Calculator": "https://www.citi.com/mortgage/affordability-calculator"
     }
+  },
+  "abbvie": {
+    "title": "Bystolic Email",
+    "active": true,
+    "omitFromList": false,
+    "clientId": "abbvie",
+    "mobileStatus": "portrait",
+    "tags": ["Email", "Responsive", "Salesforce"],
+    "role": "Developer",
+    "year": "",
+    "awards": "",
+    "type": "",
+
+    "desc": [
+      "<p>HTML email development is everyone's favorite, right? Lol, well I embrace any challenge and try to breathe innovation and improve processes on every project if there's room for it.</p>",
+      "<p>At the start, I was surprised that the Salesforce platform didn't have better features. No room for best practices, documentation, version control, or preprocessing. So I took this initiative to develop a system to bring all of that and standardization to the team's workflow.</p>",
+      "<p>I also served as a mentor for the new email developers, and moved on to developing email preference centers and workflows in OneTrust.</p>"
+    ],
+    "urls": {}
   },
   "marioparty": {
     "title": "Super Mario Party",
@@ -35,7 +53,7 @@
     "year": "",
     "awards": "",
     "type": "",
-    "isGame": false,
+
     "desc": [
       "<p>I'm forever a fan of Mario Bros games (though my favorite was for the Atari 7800). The mini-games in this one are addicting.</p>",
       "<p>I built the activity, which involves finding all of the Toadettes hiding behind elements on each page. It was integrated with Nintendo's microsite API, and has overlapping flow/states (disabled for portfolio) depending on user region and status.</p>",
@@ -58,7 +76,7 @@
     "year": "",
     "awards": "",
     "type": "",
-    "isGame": false,
+
     "desc": [
       "<p>The latest Mario Bros DS game site involved some tedious CSS3 in the hero animation, where I built the responsive elements largely without breakpoints, so the entire sequence only needed to be scripted once.</p>",
       "<p>The bounce effect seen in certain page elements, and the rubber buttons involved contriving a system for dynamically animating SVG paths.</p>",
@@ -79,7 +97,7 @@
     "year": "",
     "awards": "",
     "type": "",
-    "isGame": false,
+
     "desc": [
       "<p>In the latest from Marvel's Ultimate Alliance series, I built the central activity, a wallpaper creator where you can choose from the characters in the game for a personalized image for your phone, computer, or Facebook cover.</p>",
       "<p>I also worked with canvas animations throughout, the main video player, and some responsive page layout.</p>",
@@ -100,7 +118,7 @@
     "year": "",
     "awards": "",
     "type": "",
-    "isGame": false,
+
     "desc": [
       "<p>Committee for Children is an educational charity reaching more than 16.5 million children worldwide each year in 70+ countries.</p>",
       "<p>We developed an interactive component to provide information about their Second Step program, which consists of a multi-layered wheel navigation, dynamically rendered using SVG, React, and React Motion.</p>",
@@ -123,7 +141,7 @@
     "year": "",
     "awards": "",
     "type": "",
-    "isGame": false,
+
     "desc": [
       "<p>An informational landing page to help Premera customers understand their benefits and where to get treated.</p>",
       "<p>From email marketing, the page deep links into different states, via query string variables.</p>",
@@ -144,7 +162,7 @@
     "year": "",
     "awards": "",
     "type": "",
-    "isGame": false,
+
     "desc": [
       "<p>A promotional site for Seven2 where I had the liberty of developing in whichever way I felt comfortable. I chose Angular as it was most familiar to me. Not all of the features are complete, as the project was stopped before completion.</p>",
       "<p>This is an extremely simple project in contrast to Angular work I did with ChalkLabs. I've included it here as it's one of the only Angular/TypeScript projects I can present source publicly.</p>"
@@ -165,7 +183,7 @@
     "year": "",
     "awards": "",
     "type": "",
-    "isGame": false,
+
     "desc": [
       "<p>The Pushgraph application is innovative software from ChalkLabs that uses semantics to analyze data and find similarities and redudancies. It was used by several government agencies for analyzing research nationwide, saving the federal government billions every year.</p>",
       "<p>I designed the 2017 iteration UI of this software, which was a major rework over previous versions. The entirety of this version is delivered through an Angular drag/drop widget dashboard I designed and developed.</p>",
@@ -187,7 +205,7 @@
     "year": "",
     "awards": "",
     "type": "Utility",
-    "isGame": false,
+
     "desc": [
       "<p>A JavaScript web app for AT&T Wireless customers to estimate data usage, and select an appropriate plan. This is one of a few data usage calculators we developed for AT&T.</p>",
       "<p>This is a non-responsive page, as this iteration is from before AT&T delivered on responsive technology.</p>"
@@ -207,7 +225,7 @@
     "year": "",
     "awards": "",
     "type": "Utility",
-    "isGame": false,
+
     "desc": [
       "<p>A JavaScript web app for AT&T Wireless customers to estimate data usage between multiple devices, and select appropriate plans. Click on the 'Estimate my monthly usage in detail' links to view a hidden layer of complexity. This is one of a few data usage calculators we developed for AT&T.</p>",
       "<p>This is a non-responsive page, as this iteration is from before AT&T delivered on responsive technology.</p>"
@@ -227,7 +245,6 @@
     "year": "",
     "awards": "",
     "type": "Search",
-    "isGame": true,
     "desc": [
       "<p>A Where's-Waldo-type game with different clues and play style on each level. This would take some time to play through to the good stuff, so I activated a cheat so you can play any one of the five levels.</p>",
       "<p>Though you might expect each level to progress in difficulty, instead these tend to progress in reward of each preceding play style, with the final level being the most fun. Drive the submarine around, and use radar to locate the characters.</p>"
@@ -248,7 +265,6 @@
     "year": "",
     "awards": "",
     "type": "Multiple",
-    "isGame": true,
     "desc": [
       "<p>A winter sports, 8-bit-themed game with a different Nickelodeon property in each of four different mini-games.</p>",
       "<p>I produced the main site framework and navigation, and two of the mini-games, SpongeBob hockey and Turtles bobsled.</p>",
@@ -269,7 +285,6 @@
     "year": "",
     "awards": "",
     "type": "Escape",
-    "isGame": true,
     "desc": [
       "<p>A post-apocalyptic escape game. We've all been nuked, but you lived and your DNA has combined with that of a tomato. If you think that's freaky, just wait until you see the rest of the house! Watch out for Mom, she's quite upset with you.</p>",
       "<p>I produced the framework for the game and a logic system for all of the interactive elements to work with each other. At a glance, I could see that implementing 'if' statements dispersed around the site could be messy and hard to debug, so I devised a system that employs a single XML document to contain game state, define interactive elements, and how they behave with respect to each other.</p>"
@@ -290,7 +305,6 @@
     "year": "",
     "awards": "",
     "type": "",
-    "isGame": true,
     "desc": [
       "<p>Loosely based on an episode of Sanjay and Craig, launch Raska Boosh sky high from his underwear and a pipe lubricated with butter, then try to guide his landing in order to create some havoc in the trailer park.</p>",
       "<p>With the exception of the crash scene and animations, I built the entire game. I should point out that aiming is a bit convoluted (not one-to-one) because of a client request that had us a bit crosseyed. I'll fix that as time allows.</p>"
@@ -311,7 +325,6 @@
     "year": "2016",
     "awards": "",
     "type": "Trivia",
-    "isGame": true,
     "desc": [
       "<p>A trivia game to test your Nickelodeon knowledge with over two thousand possible questions, some of them multimedia.</p>",
       "<p>I built this game in its entirety, minus some animations.</p>"
@@ -332,7 +345,6 @@
     "year": "",
     "awards": "",
     "type": "",
-    "isGame": true,
     "desc": [
       "<p>Two dress-up games in one. This was Seven2's first game for the Nickelodeon Group. That match mode is a true test. You could say I've become a master over the years.</p>",
       "<p>I programmed a drag-drop system that I eventually ported over into ActionScript 3.0, and then Haxe. I built most of the game, minus Blue and Magenta's animations, and the end screen. It's good to see that old alarm clock still keeps good time after all these years.</p>",
@@ -354,7 +366,6 @@
     "year": "",
     "awards": "",
     "type": "",
-    "isGame": true,
     "desc": ["<p>Some HTML.</p>"],
     "urls": {
       "Walkthroughs:": ["some/url.html", "some/url.html"],
