@@ -78,7 +78,7 @@
     "type": "",
 
     "desc": [
-      "<p>The latest Mario Bros DS game site involved some tedious CSS3 in the hero animation, where I built the responsive elements largely without breakpoints, so the entire sequence only needed to be scripted once.</p>",
+      "<p>This Mario Bros Nintendo DS game site involved some tedious CSS3 in the hero animation, where I built the responsive elements largely without breakpoints, so the entire sequence only needed to be scripted once.</p>",
       "<p>The bounce effect seen in certain page elements, and the rubber buttons involved contriving a system for dynamically animating SVG paths.</p>",
       "<p>I also helped out on animation, responsive layout, and localization throughout the site.</p>"
     ],
