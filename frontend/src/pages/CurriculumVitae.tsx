@@ -248,7 +248,7 @@ const CurriculumVitae: React.FC = () => {
 
               <ul>
                 <li>
-                  Angular (3+ years): Advanced component architecture, RxJS, and
+                  Angular (2+ years): Advanced component architecture, RxJS, and
                   SCSS integration
                 </li>
                 <li>
