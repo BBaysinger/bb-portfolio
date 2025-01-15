@@ -860,65 +860,6 @@ const CurriculumVitae: React.FC = () => {
         </div>
 
         <div className={"container"}>
-          <h4>Early Development Journey</h4>
-        </div>
-
-        <div className={"container"}>
-          <div className={rowClass}>
-            <div className={divClassLt}>
-              <img
-                src="/images/cv/bv.svg"
-                className={styles["cv-logo"]}
-                alt="Hand Logo"
-              />
-            </div>
-            <div className={divClassRt}>
-              <div className={styles["sub-container"]}>
-                <div className={styles["left-sub"]}>
-                  <h5>
-                    Hobbyist
-                    <span className={styles["location"]}>
-                      &nbsp; - &nbsp;Spokane, WA
-                    </span>
-                  </h5>
-                  Interactive Web Enthusiast
-                </div>
-                <div className={styles["break"]}></div>
-                <div className={styles["right-sub"]}>[ 2001 - 2003 ]</div>
-              </div>
-
-              <p className={styles["desc"]}>
-                Self-directed learning of graphics software and cross-platform,
-                dynamic, and interactive&nbsp;JavaScript.
-              </p>
-
-              <p className={styles["scope"]}>
-                <span>Technical Scope:</span> Vanilla JavaScript, HTML, CSS,
-                Dynamic HTML, PHP, and Adobe Create&nbsp;Suite
-              </p>
-
-              <ul>
-                <li>
-                  Pursued self-directed learning in{" "}
-                  <b>JavaScript, Dynamic HTML, and web animation</b> while
-                  working full-time in a non-technical&nbsp;role.
-                </li>
-                <li>
-                  Built early browser-based UI experiments, including functional
-                  custom chrome (navigation bars, menus, etc.) and a
-                  slot-machine&nbsp;game.
-                </li>
-                <li>
-                  Tackled cross-platform compatibility challenges in a
-                  fragmented browser era, delivering interactive, animated
-                  solutions without&nbsp;Flash.
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
-
-        <div className={"container"}>
           <h4>Formal Education</h4>
         </div>
 
@@ -955,6 +896,66 @@ const CurriculumVitae: React.FC = () => {
         </div>
 
         <div className={"container"}>
+          <h4>Early Development Journey</h4>
+        </div>
+
+        <div className={"container"}>
+          <div className={rowClass}>
+            <div className={divClassLt}>
+              <img
+                src="/images/cv/bv.svg"
+                className={styles["cv-logo"]}
+                alt="Hand Logo"
+              />
+            </div>
+            <div className={divClassRt}>
+              <div className={styles["sub-container"]}>
+                <div className={styles["left-sub"]}>
+                  <h5>
+                    Hobbyist
+                    <span className={styles["location"]}>
+                      &nbsp; - &nbsp;Spokane, WA
+                    </span>
+                  </h5>
+                  Interactive Web Enthusiast
+                </div>
+                <div className={styles["break"]}></div>
+                <div className={styles["right-sub"]}>[ 2001 - 2003 ]</div>
+              </div>
+
+              <p className={styles["desc"]}>
+                Self-directed learning of graphics software and cross-platform,
+                dynamic, and interactive JavaScript (before the leap was taken
+                into design&nbsp;school.)
+              </p>
+
+              <p className={styles["scope"]}>
+                <span>Technical Scope:</span> Vanilla JavaScript, HTML, CSS,
+                Dynamic HTML, PHP, and Adobe Create&nbsp;Suite
+              </p>
+
+              <ul>
+                <li>
+                  Pursued self-directed learning in{" "}
+                  <b>JavaScript, Dynamic HTML, and web animation</b> while
+                  working full-time in a non-technical&nbsp;role.
+                </li>
+                <li>
+                  Built early browser-based UI experiments, including functional
+                  custom chrome (navigation bars, menus, etc.) and a
+                  slot-machine&nbsp;game.
+                </li>
+                <li>
+                  Tackled cross-platform compatibility challenges in a
+                  fragmented browser era, delivering interactive, animated
+                  solutions without&nbsp;Flash.
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div className={"container"}>
           <h4>Technologies and Tools</h4>
         </div>
 
@@ -980,10 +981,6 @@ const CurriculumVitae: React.FC = () => {
               <h5>Software</h5>
               <p>{wrapPhrases(software)}</p>
             </div>
-            {/* <div className={styles['cv-right']}>
-                <h5>Other</h5>
-                <p>{other}</p>
-              </div> */}
           </div>
         </div>
 
