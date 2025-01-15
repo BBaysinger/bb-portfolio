@@ -22,7 +22,6 @@ export interface PortfolioProjectBase {
   year?: string;
   awards?: string;
   type?: string;
-  isGame: boolean;
   desc: string[];
   urls: Record<string, string | string[]>;
 }

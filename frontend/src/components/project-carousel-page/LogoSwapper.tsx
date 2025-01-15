@@ -18,6 +18,7 @@ const clientNames: Record<string, string> = {
   premera: "Premera",
   usda: "USDA",
   citibank: "Citibank",
+  abbvie: "AbbVie",
 };
 
 const fileVariants: Record<string, string> = {
