@@ -201,7 +201,7 @@ const CurriculumVitae: React.FC = () => {
               <img
                 src="/images/cv/dart.svg"
                 className={styles["cv-logo"]}
-                alt="Gear Logo"
+                alt="Dart Logo"
               />
             </div>
 
@@ -232,9 +232,9 @@ const CurriculumVitae: React.FC = () => {
           <div className={rowClass}>
             <div className={divClassLt}>
               <img
-                src="/images/cv/gear.svg"
+                src="/images/cv/wrench.svg"
                 className={styles["cv-logo"]}
-                alt="Gear Logo"
+                alt="Wrench Logo"
               />
             </div>
 
