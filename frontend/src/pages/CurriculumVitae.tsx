@@ -995,23 +995,28 @@ const CurriculumVitae: React.FC = () => {
           <div className={rowClass}>
             <div className={divClassLt}></div>
             <div className={divClassRt}>
-              <h5>14 gold badges on Stack Overflow</h5>
-              <div className={styles["badges"]}>
-                <img src="/images/cv/gold-badge.svg" alt="" />
-                <img src="/images/cv/gold-badge.svg" alt="" />
-                <img src="/images/cv/gold-badge.svg" alt="" />
-                <img src="/images/cv/gold-badge.svg" alt="" />
-                <img src="/images/cv/gold-badge.svg" alt="" />
-                <img src="/images/cv/gold-badge.svg" alt="" />
-                <img src="/images/cv/gold-badge.svg" alt="" />
-                <img src="/images/cv/gold-badge.svg" alt="" />
-                <img src="/images/cv/gold-badge.svg" alt="" />
-                <img src="/images/cv/gold-badge.svg" alt="" />
-                <img src="/images/cv/gold-badge.svg" alt="" />
-                <img src="/images/cv/gold-badge.svg" alt="" />
-                <img src="/images/cv/gold-badge.svg" alt="" />
-                <img src="/images/cv/gold-badge.svg" alt="" />
+              <div className={styles["sub-container"]}>
+                <div className={styles["left-sub"]}>
+                  <h5>14 gold badges on Stack Overflow</h5>
+                  <div className={`${styles["badges"]} col-xs-12`}>
+                    <img src="/images/cv/gold-badge.svg" alt="" />
+                    <img src="/images/cv/gold-badge.svg" alt="" />
+                    <img src="/images/cv/gold-badge.svg" alt="" />
+                    <img src="/images/cv/gold-badge.svg" alt="" />
+                    <img src="/images/cv/gold-badge.svg" alt="" />
+                    <img src="/images/cv/gold-badge.svg" alt="" />
+                    <img src="/images/cv/gold-badge.svg" alt="" />
+                    <img src="/images/cv/gold-badge.svg" alt="" />
+                    <img src="/images/cv/gold-badge.svg" alt="" />
+                    <img src="/images/cv/gold-badge.svg" alt="" />
+                    <img src="/images/cv/gold-badge.svg" alt="" />
+                    <img src="/images/cv/gold-badge.svg" alt="" />
+                    <img src="/images/cv/gold-badge.svg" alt="" />
+                    <img src="/images/cv/gold-badge.svg" alt="" />
+                  </div>
+                </div>
               </div>
+              <div className={"col-xs-12"}>Reputation: ~7,000</div>
             </div>
             <div className={divClassLt}></div>
             <div className={divClassRt}>
