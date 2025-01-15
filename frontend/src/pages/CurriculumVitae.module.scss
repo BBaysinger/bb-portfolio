@@ -62,7 +62,7 @@
 
 .row {
   &:last-child {
-    .cv-right {
+    .cv-right:last-child {
       margin-bottom: 0;
     }
   }

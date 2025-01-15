@@ -964,17 +964,26 @@ const CurriculumVitae: React.FC = () => {
             <div className={divClassRt}>
               <h5>Languages</h5>
               <p>{wrapPhrases(lang)}</p>
+            </div>
+            <div className={divClassLt}></div>
+            <div className={divClassRt}>
               <h5>Technologies</h5>
               <p>{wrapPhrases(tech)}</p>
+            </div>
+            <div className={divClassLt}></div>
+            <div className={divClassRt}>
               <h5>Concepts</h5>
               <p>{wrapPhrases(concepts)}</p>
+            </div>
+            <div className={divClassLt}></div>
+            <div className={divClassRt}>
               <h5>Software</h5>
               <p>{wrapPhrases(software)}</p>
-              {/* <div className={styles['cv-right']}>
+            </div>
+            {/* <div className={styles['cv-right']}>
                 <h5>Other</h5>
                 <p>{other}</p>
               </div> */}
-            </div>
           </div>
         </div>
 
@@ -985,7 +994,6 @@ const CurriculumVitae: React.FC = () => {
         <div className={"container"}>
           <div className={rowClass}>
             <div className={divClassLt}></div>
-
             <div className={divClassRt}>
               <h5>14 gold badges on Stack Overflow</h5>
               <div className={styles["badges"]}>
@@ -1004,9 +1012,9 @@ const CurriculumVitae: React.FC = () => {
                 <img src="/images/cv/gold-badge.svg" alt="" />
                 <img src="/images/cv/gold-badge.svg" alt="" />
               </div>
-              <br />
-              <br />
-              {/* Important br. */}
+            </div>
+            <div className={divClassLt}></div>
+            <div className={divClassRt}>
               <h5>The Webby Awards</h5>
               <div className={styles["sub-container"]}>
                 <div className={styles["left-sub"]}>International</div>
@@ -1019,7 +1027,9 @@ const CurriculumVitae: React.FC = () => {
                   People's Choice — Art Website of the Year — Artocracy.org
                 </div>
               </div>
-
+            </div>
+            <div className={divClassLt}></div>
+            <div className={divClassRt}>
               <h5>American Advertising Federation</h5>
               <div className={styles["sub-container"]}>
                 <div className={styles["left-sub"]}>Spokane</div>
