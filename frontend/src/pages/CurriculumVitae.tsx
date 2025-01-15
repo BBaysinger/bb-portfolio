@@ -1016,7 +1016,9 @@ const CurriculumVitae: React.FC = () => {
                   </div>
                 </div>
               </div>
-              <div className={"col-xs-12"}>Reputation: ~7,000</div>
+              <div className={`${styles["desc"]} col-xs-12`}>
+                Reputation: ~7,000
+              </div>
             </div>
             <div className={divClassLt}></div>
             <div className={divClassRt}>
@@ -1029,7 +1031,7 @@ const CurriculumVitae: React.FC = () => {
                 <div className={styles["right-sub"]}>[ 2008 ]</div>
               </div>
 
-              <div className={"col-xs-12"}>
+              <div className={`${styles["desc"]} col-xs-12`}>
                 People's Choice — Art Website of the Year — Artocracy.org
               </div>
             </div>
@@ -1044,7 +1046,7 @@ const CurriculumVitae: React.FC = () => {
                 <div className={styles["right-sub"]}>[ 2009 - 2019 ]</div>
               </div>
 
-              <div className={"col-md-12"}>
+              <div className={`${styles["desc"]} col-xs-12`}>
                 Contributed to over thirteen projects that received awards in
                 the annual Spokane Ad Fed (Addy) Awards, including five Silver,
                 four Gold, two Best of Division, one Best of Show, and one
