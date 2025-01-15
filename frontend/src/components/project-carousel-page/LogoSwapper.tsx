@@ -22,8 +22,9 @@ const clientNames: Record<string, string> = {
 };
 
 const fileVariants: Record<string, string> = {
-  att: "att_black",
-  premera: "premera_black",
+  att: "att-black",
+  premera: "premera-black",
+  abbvie: "abbvie-dark",
 };
 
 /**
@@ -61,6 +62,7 @@ const LogoSwapper: React.FC<LogoSwapperProps> = ({ projectId }) => {
     "data:image/png;base64,iVBORw0KGgoAAAANSUhEUg" +
     "AAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/wIAAgEAEnMACQAAAABJRU5ErkJggg==";
 
+  // If there's a logo variant (for contrast on white), use it.
   const backgroundImage = (key: string) => {
     const fileName = fileVariants[key] || key;
     return `url(/images/client-logos/${fileName}.svg)`;
