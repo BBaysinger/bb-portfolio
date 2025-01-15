@@ -4,19 +4,16 @@ body,
 html {
   font-family: "Roboto";
   font-size: 15px;
-}
-
-body {
   background-color: #000;
 }
 
-$time: 0.5s;
+$nav-slide-time: 0.5s;
 
 #main {
   z-index: 10;
   position: relative;
   background-color: #fff;
-  transition: right $time;
+  transition: right $nav-slide-time;
   right: 0;
   box-shadow: 10px 5px 60px black;
   min-width: 320px;
@@ -36,7 +33,7 @@ $time: 0.5s;
   z-index: 5;
   height: 100dvh;
   width: 100vw;
-  transition: right $time;
+  transition: right $nav-slide-time;
   background-color: #000;
   right: 0;
   &.expanded {
