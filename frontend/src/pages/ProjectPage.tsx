@@ -24,6 +24,16 @@ import DeviceDisplay, {
 import PageButtons from "components/project-carousel-page/PageButtons";
 import styles from "./ProjectPage.module.scss";
 
+/**
+ * Handles bidirectional nature of the interaction between the dynamic route and
+ * the carousel. When the carousel is the source of the change, the route is updated,
+ * and when the route is the source of the change, the carousel is updated. The changes
+ * then propagate to the rest of the components.
+ * 
+ * @author Bradley Baysinger
+ * @since The beginning of time.
+ * @version N/A
+ */
 const ProjectPage: React.FC = () => {
   const { projectId = "" } = useParams<{ projectId: string }>();
   const projects = ProjectData.activeProjectsRecord;
