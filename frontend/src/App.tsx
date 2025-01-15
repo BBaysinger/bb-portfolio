@@ -38,9 +38,9 @@ const App: React.FC = () => {
     <>
       <Nav variant={NavVariant.SLIDE_OUT} />
       <div
-        id={styles.main}
-        className={isMenuOpen ? styles["nav-expanded"] : ""}
-      >
+        className={`${styles["underlay"]} ${isMenuOpen ? styles["expanded"] : ""}`}
+      />
+      <div id={styles.main} className={isMenuOpen ? styles["expanded"] : ""}>
         <Nav variant={NavVariant.TOP_BAR} />
         <ScrollToHash />
         <Routes>

@@ -4,27 +4,42 @@ body,
 html {
   font-family: "Roboto";
   font-size: 15px;
-  // overflow-x: hidden;
 }
 
 body {
   background-color: #000;
 }
 
+$time: 0.5s;
+
 #main {
   z-index: 10;
   position: relative;
   background-color: #fff;
-  transition: right 0.5s;
+  transition: right $time;
   right: 0;
   box-shadow: 10px 5px 60px black;
   min-width: 320px;
-  // overflow-x: hidden;
 
-  &.nav-expanded {
+  &.expanded {
     // 'right' (or left) property must be used in favor of transform,
     // as transform causes the fixed nav to shift off screen.
     // That might be a browser defect.
+    right: 50vw;
+  }
+}
+
+// Prevents the underlying nav from showing during recoil from
+// iniertial scroll.
+.underlay {
+  position: fixed;
+  z-index: 5;
+  height: 100dvh;
+  width: 100vw;
+  transition: right $time;
+  background-color: #000;
+  right: 0;
+  &.expanded {
     right: 50vw;
   }
 }
