@@ -321,7 +321,7 @@ const CurriculumVitae: React.FC = () => {
                   <h5>
                     Epsilon
                     <span className={styles["location"]}>
-                      &nbsp;&nbsp;-&nbsp;&nbsp;Irving, TX | Remote | W2 Employee
+                      &nbsp; - &nbsp;Irving, TX | Remote | W2 Employee
                     </span>
                   </h5>
                   Senior Front-end Developer
@@ -400,7 +400,7 @@ const CurriculumVitae: React.FC = () => {
                   <h5>
                     BB Interactive [Independent Contractor]
                     <span className={styles["location"]}>
-                      &nbsp;&nbsp;-&nbsp;&nbsp;Spokane, WA | Remote
+                      &nbsp; - &nbsp;Spokane, WA | Remote
                     </span>
                   </h5>
                   Front-end / Interactive Web Developer
@@ -476,7 +476,7 @@ const CurriculumVitae: React.FC = () => {
                   <h5>
                     Seven2 Interactive
                     <span className={styles["location"]}>
-                      &nbsp;&nbsp;-&nbsp;&nbsp;Spokane, WA
+                      &nbsp; - &nbsp;Spokane, WA
                     </span>
                   </h5>
                   Interactive / Front-end Web Developer
@@ -560,7 +560,7 @@ const CurriculumVitae: React.FC = () => {
                   <h5>
                     ChalkLabs
                     <span className={styles["location"]}>
-                      &nbsp;&nbsp;-&nbsp;&nbsp;Spokane, WA
+                      &nbsp; - &nbsp;Spokane, WA
                     </span>
                   </h5>
                   UI Developer / Designer
@@ -642,7 +642,7 @@ const CurriculumVitae: React.FC = () => {
                   <h5>
                     Seven2 Interactive
                     <span className={styles["location"]}>
-                      &nbsp;&nbsp;-&nbsp;&nbsp;Spokane, WA
+                      &nbsp; - &nbsp;Spokane, WA
                     </span>
                   </h5>
                   Lead Flash / Interactive Web Developer
@@ -742,7 +742,7 @@ const CurriculumVitae: React.FC = () => {
                   <h5>
                     SCW Consulting
                     <span className={styles["location"]}>
-                      &nbsp;&nbsp;-&nbsp;&nbsp;Spokane, WA
+                      &nbsp; - &nbsp;Spokane, WA
                     </span>
                   </h5>
                   Designer / Front-end Web Developer
@@ -808,7 +808,7 @@ const CurriculumVitae: React.FC = () => {
                   <h5>
                     Freelance
                     <span className={styles["location"]}>
-                      &nbsp;&nbsp;-&nbsp;&nbsp;Spokane, WA
+                      &nbsp; - &nbsp;Spokane, WA
                     </span>
                   </h5>
                   Designer / Front-end Web Developer
@@ -878,7 +878,7 @@ const CurriculumVitae: React.FC = () => {
                   <h5>
                     Hobbyist
                     <span className={styles["location"]}>
-                      &nbsp;&nbsp;-&nbsp;&nbsp;Spokane, WA
+                      &nbsp; - &nbsp;Spokane, WA
                     </span>
                   </h5>
                   Interactive Web Enthusiast
@@ -937,7 +937,7 @@ const CurriculumVitae: React.FC = () => {
                   <h5>
                     Spokane Falls Community&nbsp;College
                     <span className={styles["location"]}>
-                      &nbsp;&nbsp;-&nbsp;&nbsp;Spokane, WA
+                      &nbsp; - &nbsp;Spokane, WA
                     </span>
                   </h5>
                   A.A.S. Web Design — Honors
@@ -1015,27 +1015,30 @@ const CurriculumVitae: React.FC = () => {
             </div>
             <div className={divClassLt}></div>
             <div className={divClassRt}>
-              <h5>The Webby Awards</h5>
               <div className={styles["sub-container"]}>
-                <div className={styles["left-sub"]}>International</div>
+                <div className={styles["left-sub"]}>
+                  <h5>The Webby Awards</h5>
+                  International
+                </div>
                 <div className={styles["break"]}></div>
                 <div className={styles["right-sub"]}>[ 2008 ]</div>
               </div>
 
-              <div>
-                <div className={"col-xs-12"}>
-                  People's Choice — Art Website of the Year — Artocracy.org
-                </div>
+              <div className={"col-xs-12"}>
+                People's Choice — Art Website of the Year — Artocracy.org
               </div>
             </div>
             <div className={divClassLt}></div>
             <div className={divClassRt}>
-              <h5>American Advertising Federation</h5>
               <div className={styles["sub-container"]}>
-                <div className={styles["left-sub"]}>Spokane</div>
+                <div className={styles["left-sub"]}>
+                  <h5>American Advertising Federation</h5>
+                  Spokane
+                </div>
                 <div className={styles["break"]}></div>
                 <div className={styles["right-sub"]}>[ 2009 - 2019 ]</div>
               </div>
+
               <div className={"col-md-12"}>
                 Contributed to over thirteen projects that received awards in
                 the annual Spokane Ad Fed (Addy) Awards, including five Silver,
