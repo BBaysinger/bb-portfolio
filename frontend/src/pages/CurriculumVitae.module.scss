@@ -207,6 +207,11 @@ img.cv-logo {
   }
 }
 
+.parenthetical {
+  font-size: 0.7em;
+  color: #666;
+}
+
 :global {
   .cv-page .container {
     @include fluid-property(margin-bottom, $b360px, $b1280px, 28px, 80px);

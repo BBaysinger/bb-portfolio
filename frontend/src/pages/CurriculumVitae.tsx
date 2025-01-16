@@ -217,8 +217,8 @@ const CurriculumVitae: React.FC = () => {
                 interactivity. Skilled in crafting user-focused experiences for
                 leading companies across industries—ranging from Fortune 500
                 firms to entertainment giants and innovative startups—blending
-                technical and creative problem-solving to deliver
-                impactful&nbsp;results.
+                technical and creative problem-solving to deliver impactful and
+                polished&nbsp;results.
               </p>
             </div>
           </div>
@@ -398,12 +398,15 @@ const CurriculumVitae: React.FC = () => {
               <div className={styles["sub-container"]}>
                 <div className={styles["left-sub"]}>
                   <h5>
-                    BB Interactive [Independent Contractor]
+                    BB Interactive
                     <span className={styles["location"]}>
                       &nbsp; - &nbsp;Spokane, WA | Remote
                     </span>
                   </h5>
                   Front-end / Interactive Web Developer
+                  <div className={styles["parenthetical"]}>
+                    [Independent Contractor]
+                  </div>
                 </div>
                 <div className={styles["break"]}></div>
                 <div className={styles["right-sub"]}>[ 2020 - 2021 ]</div>
