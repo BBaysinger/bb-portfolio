@@ -15,7 +15,7 @@ import styles from "./PortfolioList.module.scss";
 /**
  * PortfolioList Component
  *
- * Dynamically displays a list of portfolio thumbnails.
+ * Dynamically displays a list of portfolio thumbnails in a responsive list on the home page.
  * Each thumbnail reveals detailed information when hovered (on hover-capable devices)
  * or dynamically scroll-focused (on non-hover-capable devices).
  *
