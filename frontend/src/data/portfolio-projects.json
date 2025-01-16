@@ -254,26 +254,6 @@
       "Walkthrough": "https://www.youtube.com/watch?v=ZMkjbYGICcw"
     }
   },
-  "champions": {
-    "title": "Champions of the Chill",
-    "active": true,
-    "omitFromList": false,
-    "clientId": "nick",
-    "mobileStatus": "landscape",
-    "tags": ["Haxe", "Game Framework", "Multi-Platform"],
-    "role": "Lead Developer",
-    "year": "",
-    "awards": "",
-    "type": "Multiple",
-    "desc": [
-      "<p>A winter sports, 8-bit-themed game with a different Nickelodeon property in each of four different mini-games.</p>",
-      "<p>I produced the main site framework and navigation, and two of the mini-games, SpongeBob hockey and Turtles bobsled.</p>",
-      "<p>I activated a cheat here so all the levels are unlocked for you.</p>"
-    ],
-    "urls": {
-      "Play Game": "http://www.bbaysinger.com/_projects/champions/index.html?flambe=html&unlockall"
-    }
-  },
   "tomato": {
     "title": "Expiration Date",
     "active": true,
@@ -292,26 +272,6 @@
     "urls": {
       "Walkthrough": "https://www.youtube.com/watch?v=n2R0WPWcdWM",
       "Play Game": "http://www.bbaysinger.com/_projects/tomato/index.html?flambe=html"
-    }
-  },
-  "butterslide": {
-    "title": "Butterslide",
-    "active": true,
-    "omitFromList": false,
-    "clientId": "nick",
-    "mobileStatus": "landscape",
-    "tags": ["Haxe", "Game Framework", "Multi-Platform"],
-    "role": "Lead Developer",
-    "year": "",
-    "awards": "",
-    "type": "",
-    "desc": [
-      "<p>Loosely based on an episode of Sanjay and Craig, launch Raska Boosh sky high from his underwear and a pipe lubricated with butter, then try to guide his landing in order to create some havoc in the trailer park.</p>",
-      "<p>With the exception of the crash scene and animations, I built the entire game. I should point out that aiming is a bit convoluted (not one-to-one) because of a client request that had us a bit crosseyed. I'll fix that as time allows.</p>"
-    ],
-    "urls": {
-      "Walkthrough": "https://www.youtube.com/watch?v=Cd7cWw3sUrA",
-      "Play Game": "http://www.bbaysinger.com/_projects/butterslide/index.html?flambe=html"
     }
   },
   "trivia": {

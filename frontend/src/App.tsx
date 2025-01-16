@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import ExecutionEnvironment from "exenv";
 
 import { closeMenu } from "store/menuSlice";
@@ -44,6 +44,8 @@ const App: React.FC = () => {
         <Nav variant={NavVariant.TOP_BAR} />
         <ScrollToHash />
         <Routes>
+          {/* Redirect for all unmatched paths */}
+          <Route path="*" element={<Navigate to="/" />} />
           <Route path="/" element={<PortfolioList />} />
           <Route path="/portfolio" element={<PortfolioList />} />
           <Route path="/portfolio/:projectId" element={<ProjectPage />} />
