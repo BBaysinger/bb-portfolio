@@ -1,7 +1,6 @@
 import React, { forwardRef } from "react";
 import { Link } from "react-router-dom";
 
-import HoverCapabilityWatcher from "utils/HoverCapabilityWatcher";
 import styles from "./ProjectThumbnail.module.scss";
 
 interface ProjectThumbnailProps {
@@ -25,23 +24,21 @@ interface ProjectThumbnailProps {
 const ProjectThumbnail = forwardRef<HTMLDivElement, ProjectThumbnailProps>(
   ({ focused, projectId, title, clientId }, ref) => {
     const style: React.CSSProperties = {
-      backgroundImage: `url('/images/thumbs/${projectId}.jpg')`,
+      backgroundImage: `url('/images/thumbs/${projectId}.webp')`,
     };
 
     const focusClass = focused ? styles["project-thumbnail-focus"] : "";
-    const isHoverEnabledClass = () => {
-      return HoverCapabilityWatcher.instance.isHoverCapable
-        ? styles["hover-enabled"]
-        : "";
-    };
+
+    // const isHoverEnabledClass = () => {
+    //   return HoverCapabilityWatcher.instance.isHoverCapable
+    //     ? styles["hover-enabled"]
+    //     : "";
+    // };
 
     return (
-      <div
-        className={`${styles["project-thumbnail"]} ${focusClass} ${isHoverEnabledClass()}`}
-        style={style}
-        ref={ref}
-      >
+      <div className={`${styles["project-thumbnail"]} ${focusClass}`} ref={ref}>
         <Link to={`/portfolio/${projectId}#project`}>
+          <div className={styles["thumb-bg"]} style={style}></div>
           <div className={styles["vingette"]}></div>
           <div className={styles["thumb-content"]}>
             <div>

@@ -7,7 +7,6 @@ import React, {
 } from "react";
 import ExecutionEnvironment from "exenv";
 
-import HoverCapabilityWatcher from "utils/HoverCapabilityWatcher";
 import ProjectData from "data/ProjectData";
 import ProjectThumbnail from "components/home-page/ProjectThumbnail";
 import HeaderMain from "components/home-page/HeaderMain";
@@ -57,46 +56,47 @@ const PortfolioList: React.FC = () => {
    */
   const update = useCallback((e: Event) => {
     if (ExecutionEnvironment.canUseDOM) {
-      if (!HoverCapabilityWatcher.instance.isHoverCapable) {
-        let offset;
-        let absOffset;
-        let bounding;
-        let linkHeight;
-        let targetMaxOffset;
-        let inRange: Array<RefObject<HTMLDivElement | null>> = [];
+      // if (!HoverCapabilityWatcher.instance.isHoverCapable) {
+      let offset;
+      let absOffset;
+      let bounding;
+      let linkHeight;
+      let targetMaxOffset;
+      let inRange: Array<RefObject<HTMLDivElement | null>> = [];
 
-        // Identify thumbnails within vertical focus range
-        projectThumbRefs.current.forEach((thumbRef) => {
-          const domNode = thumbRef.current;
-          if (domNode) {
-            bounding = domNode.getBoundingClientRect();
-            linkHeight = domNode.offsetHeight;
-            targetMaxOffset = linkHeight / 2;
-            offset = window.innerHeight / 2 - (bounding.top + targetMaxOffset);
-            absOffset = Math.abs(offset);
+      // Identify thumbnails within vertical focus range
+      projectThumbRefs.current.forEach((thumbRef) => {
+        const domNode = thumbRef.current;
+        if (domNode) {
+          bounding = domNode.getBoundingClientRect();
+          linkHeight = domNode.offsetHeight;
+          targetMaxOffset = linkHeight / 2;
+          offset = window.innerHeight / 2 - (bounding.top + targetMaxOffset);
+          absOffset = Math.abs(offset);
 
-            if (absOffset < targetMaxOffset) {
-              inRange.push(thumbRef);
-            }
+          if (absOffset < targetMaxOffset) {
+            inRange.push(thumbRef);
           }
-        });
+        }
+      });
 
-        // Sequentially determine focus for thumbnails in the same row
-        inRange.forEach((thumbRef, index) => {
-          const domNode = thumbRef.current;
-          if (domNode) {
-            bounding = domNode.getBoundingClientRect();
-            linkHeight = domNode.offsetHeight / inRange.length;
-            const top = bounding.top + linkHeight * index;
-            targetMaxOffset = linkHeight / 2;
-            offset = window.innerHeight / 2 - (top + targetMaxOffset);
-            absOffset = Math.abs(offset);
-            if (absOffset < targetMaxOffset) {
-              setFocusedThumbIndex(getThumbnailIndex(thumbRef));
-            }
+      // Sequentially determine focus for thumbnails in the same row
+      inRange.forEach((thumbRef, index) => {
+        const domNode = thumbRef.current;
+        if (domNode) {
+          bounding = domNode.getBoundingClientRect();
+          linkHeight = domNode.offsetHeight / inRange.length;
+          const top = bounding.top + linkHeight * index;
+          targetMaxOffset = linkHeight / 2;
+          offset = window.innerHeight / 2 - (top + targetMaxOffset);
+          absOffset = Math.abs(offset);
+          if (absOffset < targetMaxOffset) {
+            setFocusedThumbIndex(getThumbnailIndex(thumbRef));
           }
-        });
-      } else if (e.type === "resize") {
+        }
+      });
+      // } else
+      if (e.type === "resize") {
         setFocusedThumbIndex(-1); // Reset focus on resize for hover-capable devices
       }
     }
