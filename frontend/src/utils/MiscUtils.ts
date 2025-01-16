@@ -1,5 +1,5 @@
 /**
- * As the name suggests, miscellaneous items for global use.
+ * Miscellaneous items for global use.
  *
  * @author Bradley Baysinger
  * @since The beginning of time.
