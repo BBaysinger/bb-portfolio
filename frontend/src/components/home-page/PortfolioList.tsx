@@ -52,58 +52,60 @@ const PortfolioList: React.FC = () => {
   );
 
   /**
-   * Updates the focused thumbnail based on scroll or resize events.
+   * Updates the focused thumbnail on hoverless views based on scroll or resize events.
    */
-  const update = useCallback((e: Event) => {
-    if (ExecutionEnvironment.canUseDOM) {
-      // if (!HoverCapabilityWatcher.instance.isHoverCapable) {
-      let offset;
-      let absOffset;
-      let bounding;
-      let linkHeight;
-      let targetMaxOffset;
-      let inRange: Array<RefObject<HTMLDivElement | null>> = [];
+  const update = useCallback(
+    (_: Event) => {
+      if (ExecutionEnvironment.canUseDOM) {
+        let offset;
+        let absOffset;
+        let bounding;
+        let linkHeight;
+        let targetMaxOffset;
+        let inRange: Array<RefObject<HTMLDivElement | null>> = [];
 
-      // Identify thumbnails within vertical focus range
-      projectThumbRefs.current.forEach((thumbRef) => {
-        const domNode = thumbRef.current;
-        if (domNode) {
-          bounding = domNode.getBoundingClientRect();
-          linkHeight = domNode.offsetHeight;
-          targetMaxOffset = linkHeight / 2;
-          offset = window.innerHeight / 2 - (bounding.top + targetMaxOffset);
-          absOffset = Math.abs(offset);
+        projectThumbRefs.current.forEach((thumbRef) => {
+          const domNode = thumbRef.current;
+          if (domNode) {
+            bounding = domNode.getBoundingClientRect();
+            linkHeight = domNode.offsetHeight;
+            targetMaxOffset = linkHeight / 2;
+            offset = window.innerHeight / 2 - (bounding.top + targetMaxOffset);
+            absOffset = Math.abs(offset);
 
-          if (absOffset < targetMaxOffset) {
-            inRange.push(thumbRef);
+            if (absOffset < targetMaxOffset) {
+              inRange.push(thumbRef);
+            }
           }
-        }
-      });
+        });
 
-      // Sequentially determine focus for thumbnails in the same row when in
-      // multiple columns, based on their vertical scroll position. That is,
-      // As the user scrolls, along one row, from left to right, as the user
-      // scrolls down, the next thumbnail in the row will be focused.
-      inRange.forEach((thumbRef, index) => {
-        const domNode = thumbRef.current;
-        if (domNode) {
-          bounding = domNode.getBoundingClientRect();
-          linkHeight = domNode.offsetHeight / inRange.length;
-          const top = bounding.top + linkHeight * index;
-          targetMaxOffset = linkHeight / 2;
-          offset = window.innerHeight / 2 - (top + targetMaxOffset);
-          absOffset = Math.abs(offset);
-          if (absOffset < targetMaxOffset && focusedThumbIndex !== index) {
-            setFocusedThumbIndex(getThumbnailIndex(thumbRef));
+        // Sequentially determine focus for thumbnails in the same row when in
+        // multiple columns, based on their vertical scroll position. That is,
+        // As the user scrolls, along one row, from left to right, as the user
+        // scrolls down, the next thumbnail in the row will be focused.
+        inRange.forEach((thumbRef, index) => {
+          const domNode = thumbRef.current;
+          if (domNode) {
+            bounding = domNode.getBoundingClientRect();
+            linkHeight = domNode.offsetHeight / inRange.length;
+
+            const top = bounding.top + linkHeight * index;
+            targetMaxOffset = linkHeight / 2;
+            offset = window.innerHeight / 2 - (top + targetMaxOffset);
+            absOffset = Math.abs(offset);
+
+            if (absOffset < targetMaxOffset) {
+              const newIndex = getThumbnailIndex(thumbRef);
+              if (focusedThumbIndex !== newIndex) {
+                setFocusedThumbIndex(newIndex);
+              }
+            }
           }
-        }
-      });
-      // } else
-      if (e.type === "resize") {
-        setFocusedThumbIndex(-1); // Reset focus on resize for hover-capable devices
+        });
       }
-    }
-  }, []);
+    },
+    [focusedThumbIndex],
+  );
 
   /**
    * Retrieves the index of a given thumbnail ref from the projectThumbRefs array.
