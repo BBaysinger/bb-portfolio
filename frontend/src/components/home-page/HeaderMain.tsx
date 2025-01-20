@@ -34,8 +34,6 @@ const HeaderMain: React.FC = () => {
       id={"headerMain"}
       className={`${styles["header-main"]} ${styles["header"]} ${scrolled}`}
     >
-      <div className={styles["overhead-fill"]}></div>
-
       <img src={headerLogo} className={styles["header-logo"]} alt="BB Logo" />
       <div className={styles["main-text"]}>
         <h1>
