@@ -41,7 +41,7 @@
   position: fixed;
   background: linear-gradient(to right, #111, #222);
   z-index: 10000;
-  width: 100vw;
+  width: 100%; // vw or dvw here causes the scrollbar to overlap on Windows.
   min-width: 320px;
   height: $navBarHeight;
   flex-direction: row;

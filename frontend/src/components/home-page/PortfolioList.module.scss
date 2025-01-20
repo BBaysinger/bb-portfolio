@@ -3,20 +3,19 @@
 $portfolioListGap: 30px;
 
 .portfolio-list {
-  background: linear-gradient(to bottom, #1c1c1c, black);
+  position: relative;
   display: flex;
   flex-wrap: wrap;
   gap: $portfolioListGap;
-  padding-bottom: -$portfolioListGap;
-  position: relative;
+  background: linear-gradient(to bottom, #1c1c1c, black);
 
   @include breakpoint-up($b1280px) {
     background: linear-gradient(to bottom, #1a1a1a, black);
   }
+}
 
-  .list {
-    position: absolute;
-    top: -($navBarHeight);
-    opacity: 0;
-  }
+.list {
+  position: absolute;
+  top: -($navBarHeight);
+  opacity: 0;
 }

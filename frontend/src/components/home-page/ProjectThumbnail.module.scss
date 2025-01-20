@@ -8,78 +8,11 @@
   width: 100vw;
 
   @include breakpoint-up($b768px) {
-    width: calc(50vw - (portfolioList.$portfolioListGap * 0.5));
+    flex: 0 1 calc(50% - portfolioList.$portfolioListGap * 0.5);
   }
 
   @include breakpoint-up($b1280px) {
-    width: calc(33.33vw - (portfolioList.$portfolioListGap * 0.666));
-  }
-
-  .vingette {
-    position: absolute;
-    background-image: url("../../images/misc/vignette.svg");
-    height: 100%;
-    width: 100%;
-    background-position: center center;
-    background-size: cover;
-    left: 0px;
-    z-index: 0;
-    opacity: 1;
-    will-change: opacity;
-    transition: opacity 0.5s linear;
-  }
-
-  .thumb-content {
-    position: absolute;
-    display: flex;
-    flex-direction: column;
-    left: 0px;
-    padding-left: 20px;
-    padding-top: 16px;
-    width: 100%;
-    height: 100px;
-    opacity: 0.01; // Too small a decimal causes a frame drop? Seems like it.
-    will-change: opacity, filter;
-    background-color: rgba(0, 0, 0, 0.5);
-    transition: opacity 0.3s linear;
-    overflow: hidden;
-
-    // Name and logo
-    > * {
-      will-change: transform, filter;
-      transition:
-        transform 0.4s ease-out,
-        filter 0.3s linear;
-      filter: blur(10px);
-
-      &:first-child {
-        transform: translateX(-20%);
-        height: 44px;
-      }
-
-      &:nth-child(2) {
-        transition-delay: 0.03s;
-        transform: translateX(20%);
-      }
-    }
-
-    &.hover-focus-thumb-content {
-      opacity: 1;
-
-      > * {
-        transform: translateX(0px);
-        filter: blur(0px);
-
-        &:nth-child(1) {
-          transition-delay: 0s;
-        }
-      }
-    }
-  }
-
-  .hover-focus-vignette {
-    opacity: 0.5;
-    transition: opacity 0.3s linear;
+    flex: 0 1 calc(33.333% - portfolioList.$portfolioListGap * (2 / 3));
   }
 
   @media screen and (hover: hover) {
@@ -132,21 +65,88 @@
       }
     }
   }
+}
 
-  .client-logo {
-    max-height: 32px;
-    max-width: 90%;
-    width: auto;
-    margin-bottom: 6px;
-    object-fit: contain;
-    object-position: left;
+.client-logo {
+  max-height: 32px;
+  max-width: 90%;
+  width: auto;
+  margin-bottom: 6px;
+  object-fit: contain;
+  object-position: left;
+}
+
+h4.thumb-title {
+  color: #fff;
+  font-size: 24px;
+  font-weight: 400;
+}
+
+.vingette {
+  position: absolute;
+  background-image: url("../../images/misc/vignette.svg");
+  height: 100%;
+  width: 100%;
+  background-position: center center;
+  background-size: cover;
+  left: 0px;
+  z-index: 0;
+  opacity: 1;
+  will-change: opacity;
+  transition: opacity 0.5s linear;
+}
+
+.thumb-content {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  left: 0px;
+  padding-left: 20px;
+  padding-top: 16px;
+  width: 100%;
+  height: 100px;
+  opacity: 0.01; // Too small a decimal causes a frame drop? Seems like it.
+  will-change: opacity, filter;
+  background-color: rgba(0, 0, 0, 0.5);
+  transition: opacity 0.3s linear;
+  overflow: hidden;
+
+  // Name and logo
+  > * {
+    will-change: transform, filter;
+    transition:
+      transform 0.4s ease-out,
+      filter 0.3s linear;
+    filter: blur(10px);
+
+    &:first-child {
+      transform: translateX(-20%);
+      height: 44px;
+    }
+
+    &:nth-child(2) {
+      transition-delay: 0.03s;
+      transform: translateX(20%);
+    }
   }
 
-  h4.thumb-title {
-    color: #fff;
-    font-size: 24px;
-    font-weight: 400;
+  &.hover-focus-thumb-content {
+    opacity: 1;
+
+    > * {
+      transform: translateX(0px);
+      filter: blur(0px);
+
+      &:nth-child(1) {
+        transition-delay: 0s;
+      }
+    }
   }
+}
+
+.hover-focus-vignette {
+  opacity: 0.5;
+  transition: opacity 0.3s linear;
 }
 
 .thumb-bg {
