@@ -21,4 +21,8 @@ export default defineConfig({
     outDir: "dist", // The output directory
     emptyOutDir: true, // Clears the output directory before each build
   },
+  server: {
+    host: true, // Ensures it binds to all network interfaces
+    port: 5173, // Specify the port explicitly
+  },
 });

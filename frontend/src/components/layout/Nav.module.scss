@@ -143,18 +143,6 @@
   .effect-layer2 {
     display: none;
   }
-
-  // To deal with a 1px gap that occurs in iOS Safari above the nav,
-  // and below the navigation bar. Occurs occasionally during scroll.
-  // Probably a Safari defect.
-  // .navbar-fixed-top::before {
-  //   width: 100vw;
-  //   height: 1px;
-  //   background-color: black;
-  //   position: fixed;
-  //   top: -1px;
-  //   content: "";
-  // }
 }
 
 .effect-layer0 {
@@ -169,7 +157,6 @@
   background-image: url("/images/misc/innards.webp");
   background-size: auto 100%;
   background-position: right top;
-  // background-repeat: no-repeat;
 }
 
 .effect-layer1 {
