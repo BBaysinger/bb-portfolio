@@ -351,9 +351,9 @@ const CurriculumVitae: React.FC = () => {
                 </li>
                 <li>
                   Utilized Angular's template-driven and reactive forms, along
-                  with SASS, to create responsive forms, data grids, and
-                  interactive elements, enhancing user experience and visual
-                  consistency on the Citibank website admin&nbsp;area
+                  with SASS, to create responsive forms, and interactive
+                  elements, enhancing user experience and visual consistency on
+                  the Citibank&nbsp;website
                 </li>
                 <li>
                   Built and managed reusable email components in Salesforce
