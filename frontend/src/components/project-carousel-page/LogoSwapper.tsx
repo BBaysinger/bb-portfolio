@@ -58,10 +58,6 @@ const LogoSwapper: React.FC<LogoSwapperProps> = ({ projectId }) => {
     };
   }, [projectId]);
 
-  const blankImage =
-    "data:image/png;base64,iVBORw0KGgoAAAANSUhEUg" +
-    "AAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/wIAAgEAEnMACQAAAABJRU5ErkJggg==";
-
   // If there's a logo variant (for contrast on white), use it.
   const backgroundImage = (key: string) => {
     const fileName = fileVariants[key] || key;
@@ -77,14 +73,16 @@ const LogoSwapper: React.FC<LogoSwapperProps> = ({ projectId }) => {
           }`}
         >
           {Object.entries(clientNames).map(([key, value]) => (
-            <img
+            <div
               key={key}
-              src={blankImage}
-              style={{ backgroundImage: backgroundImage(key) }}
+              style={{
+                backgroundImage: backgroundImage(key),
+              }}
               className={`${styles["client-logo"]} ${
                 currentLogoId === key ? styles.visible : ""
               }`}
-              alt={value}
+              role="img"
+              aria-label={`${value} logo`}
             />
           ))}
         </div>
