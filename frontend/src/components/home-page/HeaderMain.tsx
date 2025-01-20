@@ -37,6 +37,7 @@ const HeaderMain: React.FC = () => {
       id={"headerMain"}
       className={`${styles["header-main"]} ${styles["header"]} ${scrolled}`}
     >
+      <div className={styles["header-wrapper"]}>
       <img src={headerLogo} className={styles["header-logo"]} alt="BB Logo" />
       <div className={styles["main-text"]}>
         <h1>
@@ -57,6 +58,7 @@ const HeaderMain: React.FC = () => {
       <a href="#list" className={styles["view-portfolio"]}>
         View Portfolio
       </a>
+      </div>
     </header>
   );
 };
