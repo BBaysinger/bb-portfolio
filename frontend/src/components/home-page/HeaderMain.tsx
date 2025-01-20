@@ -14,8 +14,11 @@ const HeaderMain: React.FC = () => {
   const [scrolled, setScrolled] = useState("");
 
   const handleScroll = useCallback(() => {
-    setScrolled(window.scrollY > 0 ? styles["scrolled"] : "");
-  }, []);
+    const newScrolled = window.scrollY > 0 ? styles["scrolled"] : "";
+    if (newScrolled !== scrolled) {
+      setScrolled(newScrolled);
+    }
+  }, [scrolled]);
 
   useEffect(() => {
     const scrollListener = () => {
