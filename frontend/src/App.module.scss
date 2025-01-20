@@ -7,6 +7,12 @@ html {
   background-color: #000;
 }
 
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 $nav-slide-time: 0.5s;
 
 #main {
