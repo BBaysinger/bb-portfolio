@@ -29,7 +29,7 @@ interface DeviceDisplayProps {
  */
 const DeviceDisplay: React.FC<DeviceDisplayProps> = React.memo(
   ({ deviceType, id, mobileStatus }) => {
-    const src = `/images/screencaps/${id}-${deviceType}.jpg`;
+    const src = `/images/screencaps/${id}-${deviceType}.webp`;
 
     return (
       <div
