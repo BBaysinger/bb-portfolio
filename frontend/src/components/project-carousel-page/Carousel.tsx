@@ -181,8 +181,6 @@ const Carousel = memo(
         );
       });
 
-      // console.log("newOffsets", newOffsets);
-
       return {
         positions: newPositions,
         multipliers: newMultipliers,
