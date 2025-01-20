@@ -2,14 +2,10 @@
 @use "@/components/layout/HeaderShared.module.scss" as headerShared;
 
 .header-main {
-  min-height: 100dvh;
+  justify-content: flex-start;
+  min-height: 100vh;
   padding-left: 20px;
   padding-right: 20px;
-  transition: height 0.5s;
-
-  * {
-    text-align: center;
-  }
 
   h1 {
     letter-spacing: 0.05em;
@@ -24,6 +20,17 @@
   &.scrolled {
     min-height: 100vh;
   }
+}
+
+.header-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  min-height: 100dvh;
+  margin-top: 0;
+  transition: height 0.5s;
 }
 
 .subhead {
