@@ -80,7 +80,10 @@ const PortfolioList: React.FC = () => {
         }
       });
 
-      // Sequentially determine focus for thumbnails in the same row
+      // Sequentially determine focus for thumbnails in the same row when in
+      // multiple columns, based on their vertical scroll position. That is,
+      // As the user scrolls, along one row, from left to right, as the user
+      // scrolls down, the next thumbnail in the row will be focused.
       inRange.forEach((thumbRef, index) => {
         const domNode = thumbRef.current;
         if (domNode) {
@@ -90,7 +93,7 @@ const PortfolioList: React.FC = () => {
           targetMaxOffset = linkHeight / 2;
           offset = window.innerHeight / 2 - (top + targetMaxOffset);
           absOffset = Math.abs(offset);
-          if (absOffset < targetMaxOffset) {
+          if (absOffset < targetMaxOffset && focusedThumbIndex !== index) {
             setFocusedThumbIndex(getThumbnailIndex(thumbRef));
           }
         }
@@ -142,9 +145,6 @@ const PortfolioList: React.FC = () => {
     };
   }, [handleScrollOrResize]);
 
-  /**
-   * Renders the portfolio list and dynamically assigns refs to each thumbnail.
-   */
   return (
     <div>
       <HeaderMain />
@@ -163,7 +163,7 @@ const PortfolioList: React.FC = () => {
               projectId={id}
               title={title}
               clientId={clientId}
-              ref={(node) => setThumbRef(node, index)} // Assign DOM node ref
+              ref={(node) => setThumbRef(node, index)}
             />
           );
         })}
