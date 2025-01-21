@@ -2,7 +2,6 @@
 @use "@/components/layout/HeaderShared.module.scss" as headerShared;
 
 header.header-main {
-  min-height: 100vh;
   padding-left: 15px;
   padding-right: 15px;
   padding-top: 0;
@@ -20,25 +19,11 @@ header.header-main {
 
 .header-wrapper {
   position: relative;
-  top: -30px;
-}
-
-.header-dvh {
-  top: 0;
   display: flex;
+  height: 100%;
   flex-direction: column;
+  justify-content: center;
   align-items: center;
-  justify-content: flex-end;
-  position: absolute;
-  height: 100vh;
-  transition: height 0.2s;
-  width: 100%;
-}
-
-.scrolled-to-top {
-  .header-dvh {
-    height: 100dvh;
-  }
 }
 
 .subhead {
@@ -86,15 +71,14 @@ header.header-main {
 $bottom: 50px;
 
 .view-portfolio {
-  font-size: 16px;
   position: absolute;
+  font-size: 16px;
   color: #fff;
-  bottom: $bottom;
-  left: 50%;
-  transform: translateX(-50%);
   cursor: pointer;
   will-change: bottom, opacity;
   text-decoration: none;
+  justify-self: end;
+  bottom: $bottom;
 
   &::after {
     content: "";
