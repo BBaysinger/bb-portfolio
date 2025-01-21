@@ -43,10 +43,10 @@ const Footer: React.FC = () => {
                 alt="Bradley's face"
               />
               Thanks for the visit! My site is under heavy development atm, so
-              there may be some issues. It's really just a start, I have big
-              plans. Please let me know if you encounter any problems. In any
-              case, I look forward to speaking with you about how I can bring
-              unique interactive experience to your&nbsp;organization.
+              there may be some issues. It's really just a start. Please let me
+              know if you encounter any problems. In any case, I look forward to
+              speaking with you about how I can bring unique interactive
+              experiences to your&nbsp;organization.
             </p>
           </div>
 
