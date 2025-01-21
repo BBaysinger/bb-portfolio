@@ -16,13 +16,19 @@ const HeaderMain: React.FC = () => {
   const lastScrollPosition = useRef(0);
   const ticking = useRef(false);
 
+  const getHeight = () => {
+    // This is the only way to get the 'short' height of the mobile viewport. That is,
+    // the height before the address bar is hidden from scrolling down.
+    return document.documentElement.clientHeight;
+  }
+
   const [clientHeight, setClientHeight] = useState(
-    document.documentElement.clientHeight,
+    getHeight(),
   );
 
   const updateClientHeight = () => {
-    if (document.documentElement.clientHeight !== clientHeight) {
-      setClientHeight(document.documentElement.clientHeight);
+    if (getHeight() !== clientHeight) {
+      setClientHeight(getHeight());
     }
   };
 
