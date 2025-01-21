@@ -18,7 +18,8 @@ const HeaderMain: React.FC = () => {
 
   const getHeight = () => {
     // This is the only way to get the 'short' height of the mobile viewport. That is,
-    // the height before the address bar is hidden from scrolling down.
+    // the height before the address bar is hidden from scrolling down. 'dvh' here can't
+    // be used because it causes a layout shift.
     return document.documentElement.clientHeight;
   }
 
