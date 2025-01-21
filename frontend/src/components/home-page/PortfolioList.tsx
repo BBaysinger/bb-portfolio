@@ -82,7 +82,10 @@ const PortfolioList: React.FC = () => {
         // Sequentially determine focus for thumbnails in the same row when in
         // multiple columns, based on their vertical scroll position. That is,
         // As the user scrolls, along one row, from left to right, as the user
-        // scrolls down, the next thumbnail in the row will be focused.
+        // scrolls down, the next (to the right) thumbnail in the row will be
+        // focused. Scrolling upward does the opposite, from right to left.
+        // It starts by counting the number of thumbnails in the row, then
+        // dividing their focus 'zone' into equal parts per the number of columns.
         inRange.forEach((thumbRef, index) => {
           const domNode = thumbRef.current;
           if (domNode) {
