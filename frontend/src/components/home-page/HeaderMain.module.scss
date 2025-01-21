@@ -1,11 +1,11 @@
 @use "@/styles/global" as *;
 @use "@/components/layout/HeaderShared.module.scss" as headerShared;
 
-.header-main {
-  justify-content: flex-start;
+header.header-main {
   min-height: 100vh;
-  padding-left: 20px;
-  padding-right: 20px;
+  padding-left: 15px;
+  padding-right: 15px;
+  padding-top: 0;
 
   h1 {
     letter-spacing: 0.05em;
@@ -16,21 +16,29 @@
       font-size: 48px;
     }
   }
-
-  &.scrolled {
-    min-height: 100vh;
-  }
 }
 
 .header-wrapper {
+  position: relative;
+  top: -30px;
+}
+
+.header-dvh {
+  top: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  position: relative;
-  min-height: 100dvh;
-  margin-top: 0;
-  transition: height 0.5s;
+  justify-content: flex-end;
+  position: absolute;
+  height: 100vh;
+  transition: height 0.2s;
+  width: 100%;
+}
+
+.scrolled-to-top {
+  .header-dvh {
+    height: 100dvh;
+  }
 }
 
 .subhead {
@@ -69,14 +77,15 @@
 
 .header-logo {
   opacity: 1;
-  max-height: 45dvh;
+  max-height: 45vh;
   position: relative;
   top: -11px;
   margin-bottom: -30px;
 }
 
+$bottom: 50px;
+
 .view-portfolio {
-  $bottom: 50px;
   font-size: 16px;
   position: absolute;
   color: #fff;
@@ -86,7 +95,6 @@
   cursor: pointer;
   will-change: bottom, opacity;
   text-decoration: none;
-  animation: fadeBounce 2s infinite forwards;
 
   &::after {
     content: "";
@@ -99,6 +107,12 @@
     top: 60px;
     transform-origin: 0 0;
     transform: rotate(-135deg);
+  }
+}
+
+.scrolled-to-top {
+  .view-portfolio {
+    animation: fadeBounce 2s infinite forwards;
   }
 
   @keyframes fadeBounce {
@@ -114,12 +128,6 @@
       opacity: 0.25;
       bottom: $bottom;
     }
-  }
-}
-
-.scrolled {
-  .view-portfolio {
-    animation: none;
   }
 }
 
