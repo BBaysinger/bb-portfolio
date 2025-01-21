@@ -11,13 +11,30 @@ import styles from "./HeaderMain.module.scss";
  * @version N/A
  */
 const HeaderMain: React.FC = () => {
-  const [lastScrollDirection, setLastScrollDirection] = useState<
-    "scrolled-up" | "scrolled-down"
-  >("scrolled-up");
   const [scrolledToTop, setScrolledToTop] = useState<string>("scrolled-to-top");
 
   const lastScrollPosition = useRef(0);
   const ticking = useRef(false);
+
+  const [clientHeight, setClientHeight] = useState(
+    document.documentElement.clientHeight,
+  );
+
+  const updateClientHeight = () => {
+    if (document.documentElement.clientHeight !== clientHeight) {
+      setClientHeight(document.documentElement.clientHeight);
+    }
+  };
+
+  useEffect(() => {
+    updateClientHeight();
+
+    window.addEventListener("resize", updateClientHeight);
+
+    return () => {
+      window.removeEventListener("resize", updateClientHeight);
+    };
+  }, []);
 
   useEffect(() => {
     const handleEvent = () => {
@@ -33,23 +50,6 @@ const HeaderMain: React.FC = () => {
             setScrolledToTop(newScrolledToTop);
           }
 
-          // Idea here is to have the header dynamic height reset before
-          // the header is scroll back into veiw. Unfortunately, the recoil
-          // from inertial scrolling makes scroll direction tricky.
-          // Coming back to this later.
-          if (
-            currentScrollPosition > lastScrollPosition.current &&
-            lastScrollDirection !== "scrolled-down"
-          ) {
-            setLastScrollDirection("scrolled-down");
-          } else if (
-            currentScrollPosition < lastScrollPosition.current &&
-            lastScrollDirection !== "scrolled-up"
-          ) {
-            setLastScrollDirection("scrolled-up");
-            console.log(currentScrollPosition);
-          }
-
           lastScrollPosition.current = currentScrollPosition;
           ticking.current = false;
         });
@@ -59,24 +59,29 @@ const HeaderMain: React.FC = () => {
     window.addEventListener("scroll", handleEvent);
     window.addEventListener("resize", handleEvent);
 
-    // Clean up the event listener on component unmount
     return () => {
       window.removeEventListener("scroll", handleEvent);
       window.removeEventListener("resize", handleEvent);
     };
-  }, [lastScrollDirection, scrolledToTop]);
+  }, [scrolledToTop]);
 
   return (
     <header
       id={"headerMain"}
       className={
         `${styles["header-main"]} ${styles["header"]} ` +
-        `${styles[lastScrollDirection]} ${scrolledToTop ? styles["scrolled-to-top"] : ""}`
+        `${scrolledToTop ? styles["scrolled-to-top"] : ""}`
       }
+      style={{ minHeight: `${clientHeight}px` }}
     >
       <div className={styles["header-wrapper"]}>
-        <img src={headerLogo} className={styles["header-logo"]} alt="BB Logo" />
-        <div className={styles["main-text"]}>
+        <div className={styles["middle"]}>
+          <img
+            src={headerLogo}
+            className={styles["header-logo"]}
+            alt="BB Logo"
+          />
+
           <h1>
             <span className={styles["first-name"]}>Bradley</span>{" "}
             <span className={styles["last-name"]}>Baysinger</span>
@@ -91,9 +96,6 @@ const HeaderMain: React.FC = () => {
             <span className={styles["nobr"]}>Front-end Developer</span>
           </h5>
         </div>
-      </div>
-
-      <div className={styles["header-dvh"]}>
         <a href="#list" className={styles["view-portfolio"]}>
           View Portfolio
         </a>
