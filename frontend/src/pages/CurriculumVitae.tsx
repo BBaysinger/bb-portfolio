@@ -207,18 +207,17 @@ const CurriculumVitae: React.FC = () => {
 
             <div className={divClassRt}>
               <p>
-                Uncommon talent with a rich history in design, animation, and
-                interactive development. Adaptable and results-driven, with a
-                proven ability to transition from award-winning Flash and
-                interactive projects to delivering scalable solutions using
-                frameworks like Angular. Currently deepening expertise in React
-                through recent projects, including a custom portfolio site and a
-                reusable slideshow component designed for scalability and
-                interactivity. Skilled in crafting user-focused experiences for
-                leading companies across industries—ranging from Fortune 500
-                firms to entertainment giants and innovative startups—blending
-                technical and creative problem-solving to deliver impactful and
-                polished&nbsp;results.
+                Uncommon talent with a rich history in design, interactive
+                animation, and interactive development. Adaptable and
+                results-driven, with a proven ability to transition from
+                award-winning Flash and interactive projects to delivering
+                scalable solutions using frameworks like Angular. Currently
+                deepening expertise in React through recent projects, including
+                some reusable interactive components. Skilled in crafting
+                user-focused experiences for leading companies across
+                industries—ranging from Fortune 500 firms to entertainment
+                giants and innovative startups—blending technical and creative
+                problem-solving to deliver impactful and polished&nbsp;results.
               </p>
             </div>
           </div>
@@ -344,8 +343,8 @@ const CurriculumVitae: React.FC = () => {
               <ul>
                 <li>
                   Developed dynamic and reusable UI components, including forms
-                  with robust validation and data-driven informational grids,
-                  for the Golden 1 Credit Union website. Leveraged Preact and
+                  with validation and data-driven informational grids, for the
+                  Golden 1 Credit Union website. Leveraged Preact, ES6, and
                   jQuery to create a seamless user experience with a SiteCore
                   CMS&nbsp;backend
                 </li>
@@ -605,10 +604,8 @@ const CurriculumVitae: React.FC = () => {
                   Highcharts, and other visualization&nbsp;libraries
                 </li>
                 <li>
-                  Learned Angular and TypeScript on the clock, and thrown into
-                  the fire of heavy development from the start after initial
-                  training in Angular, a video series tutorial and a two-week
-                  code test to demonstrate quick&nbsp;learning
+                  Learned Angular and TypeScript on the clock, starting from
+                  nearly zero knowlege other than some tutorial courses
                 </li>
                 <li>
                   Scoping, timelining, estimating tasks to be tracked and
@@ -787,8 +784,8 @@ const CurriculumVitae: React.FC = () => {
                   spent with&nbsp;DHTML
                 </li>
                 <li>
-                  Continually made a lot out of nothing due to unavailability
-                  (refusal) of budget for design basics like fonts and
+                  Continually made a lot out of nothing due on minimal budgets
+                  and absence necessities like the fonts and
                   stock&nbsp;photography
                 </li>
               </ul>
@@ -870,7 +867,7 @@ const CurriculumVitae: React.FC = () => {
           <div className={rowClass}>
             <div className={divClassLt}>
               <img
-                src="/images/cv/ccs.svg"
+                src="/images/cv/sfcc.svg"
                 className={styles["cv-logo"]}
                 alt="SFCC Logo"
               />
@@ -940,8 +937,8 @@ const CurriculumVitae: React.FC = () => {
               <ul>
                 <li>
                   Pursued self-directed learning in{" "}
-                  <b>JavaScript, Dynamic HTML, and web animation</b> while
-                  working full-time in a non-technical&nbsp;role.
+                  <b>JavaScript, Dynamic HTML, and interactive animation</b>{" "}
+                  while working full-time in a non-technical&nbsp;role.
                 </li>
                 <li>
                   Built early browser-based UI experiments, including functional
