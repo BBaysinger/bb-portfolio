@@ -21,11 +21,9 @@ const HeaderMain: React.FC = () => {
     // the height before the address bar is hidden from scrolling down. 'dvh' here can't
     // be used because it causes a layout shift.
     return document.documentElement.clientHeight;
-  }
+  };
 
-  const [clientHeight, setClientHeight] = useState(
-    getHeight(),
-  );
+  const [clientHeight, setClientHeight] = useState(getHeight());
 
   const updateClientHeight = () => {
     if (getHeight() !== clientHeight) {
