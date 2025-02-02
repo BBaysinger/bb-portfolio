@@ -23,6 +23,7 @@ import styles from "./Carousel.module.scss";
 
 /**
  * Carousel Component
+ * - Minimal state, for performance and smoothest user interaction possible.
  * - Bi-directional, infinite-scroll carousel with wrap-around behavior.
  * - Leverages browser-native HTML inertial touch/swipe trackpad/gesture scrolling for smooth interactions.
  * - Infinite scroll supporting master-slave architecture for synchronized parallax effects.
