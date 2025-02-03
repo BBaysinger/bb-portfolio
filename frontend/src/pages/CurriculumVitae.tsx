@@ -22,7 +22,7 @@ const CurriculumVitae: React.FC = () => {
       <span className={styles["inline-list-item"]} key={i}>
         <span className={styles["phrase"]}>{data}</span>
         <span className={styles["bullet"]}>
-          &bull;
+          &nbsp;&bull;
           {/* Allow wrap. */}
           <span>&#32;</span>
         </span>
@@ -128,8 +128,6 @@ const CurriculumVitae: React.FC = () => {
     "Windows",
     "Terminal / Command Prompt",
   ];
-
-  // const other = ["Quality Assurance", "Tracking / Analytics"];
 
   const clients = [
     "Nickelodeon",
@@ -449,8 +447,8 @@ const CurriculumVitae: React.FC = () => {
                   engagement for a multinational pharmaceutical company.
                 </li>
                 <li>
-                  Prototyped a legal investigation application in <b>Angular</b> to
-                  process and analyze large volumes of company documents
+                  Prototyped a legal investigation application in <b>Angular</b>{" "}
+                  to process and analyze large volumes of company documents
                   efficiently.
                 </li>
               </ul>
@@ -481,58 +479,61 @@ const CurriculumVitae: React.FC = () => {
               </div>
 
               <p className={styles["desc"]}>
-                Interactive and responsive websites for Fortune 500 companies in
-                technology and entertainment
+                Delivered interactive and responsive websites for Fortune 500
+                companies in the technology and entertainment industries.
+                Focused on high-performance animations, user interactivity,
+                accessibility, and streamlined development processes under tight
+                deadlines.
               </p>
 
               <p className={styles["scope"]}>
-                <span>Technical Scope:</span> Angular, React, Vue, jQuery, Craft
-                CMS, Grunt, Handlebars, CreateJS
+                <span>Technical Scope:</span> Angular 6-8, Typescript, RxJS,
+                jQuery, Craft CMS, Grunt/Gulp, Handlebars, CreateJS, Adobe
+                Creative Suite
               </p>
 
               <ul>
                 <li>
-                  Logic for central 'activities' (site-wide scavenger hunts,
-                  wallpaper creators, etc.), interactivity, and media
-                  integration in re-sponsive websites for several game launch
-                  sites for Nintendo
+                  Designed and implemented logic for interactive activities like
+                  site-wide scavenger hunts and wallpaper creators for
+                  responsive websites supporting Nintendo game launches.
                 </li>
                 <li>
-                  Contributed to development of single-page apps using
-                  Typescript and Angular 8+
+                  Optimized UI elements for accessibility by applying{" "}
+                  <b>WCAG</b> best practices for keyboard navigation and screen
+                  reader compatibility.
                 </li>
                 <li>
-                  Developed a JavaScript timeline animation framework with
-                  compact syntax and potential to eliminate the need for CSS3
-                  key frame animations that we found riddled with
-                  inconsistencies (still supporting IE)
+                  Contributed to the development of single-page applications (
+                  <b>SPA</b>s) using TypeScript and Angular 6+, ensuring
+                  scalability and modern functionality.
                 </li>
                 <li>
-                  Developed APIs to simplify, stabilize, and streamline
-                  integration of DOM and canvas animation
+                  Engineered a custom JavaScript timeline animation framework
+                  with compact syntax, eliminating inconsistencies in CSS3
+                  keyframe animations while maintaining support for legacy
+                  browsers like IE.
                 </li>
                 <li>
-                  Contribution and technical oversight of concepts with teams of
-                  designers, developers, and animators, synchronizing on
-                  development and QA via Trello
+                  Provided technical oversight and contributed to concept
+                  development in collaboration with designers, developers, and
+                  animators, ensuring alignment through Trello-managed
+                  workflows.
                 </li>
                 <li>
-                  Localization strategies for deployment in various
-                  international regions (which necessitates special design
-                  considerations)
+                  Implemented <b>localization</b> strategies to optimize
+                  international deployments, addressing unique design and
+                  content challenges across regions.
                 </li>
                 <li>
-                  Interfacing with Nintendo's Nclood API / platform for managing
-                  Nintendo user status and rewards system
+                  Built a zero-dependency, <b>vanilla JavaScript</b> carousel
+                  component for Comics Kingdom, enabling seamless embedding by
+                  local newspaper websites.
                 </li>
                 <li>
-                  Built a zero-dependency carousel in vanilla JavaScript for
-                  Comics Kingdom, a platform that local newspapers can embed
-                  from
-                </li>
-                <li>
-                  Strategic considerations for deadlines so tight that
-                  development regularly had to start before client approvals
+                  Delivered under extremely tight deadlines, often starting
+                  development before client design approvals to meet launch
+                  dates.
                 </li>
               </ul>
             </div>
@@ -898,9 +899,9 @@ const CurriculumVitae: React.FC = () => {
               </div>
 
               <p className={styles["desc"]}>
-                Self-directed learning of graphics software and cross-platform,
-                dynamic, and interactive JavaScript (before the leap was taken
-                into design school.)
+                Self-directed learning of graphics software and early
+                cross-platform, dynamic, and interactive JavaScript development
+                before formally pursuing design school.
               </p>
 
               <p className={styles["scope"]}>
