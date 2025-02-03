@@ -22,7 +22,7 @@ const CurriculumVitae: React.FC = () => {
       <span className={styles["inline-list-item"]} key={i}>
         <span className={styles["phrase"]}>{data}</span>
         <span className={styles["bullet"]}>
-          &nbsp;&nbsp;&bull;&nbsp;
+          &bull;
           {/* Allow wrap. */}
           <span>&#32;</span>
         </span>
@@ -217,7 +217,7 @@ const CurriculumVitae: React.FC = () => {
                 user-focused experiences for leading companies across
                 industries—ranging from Fortune 500 firms to entertainment
                 giants and innovative startups—blending technical and creative
-                problem-solving to deliver impactful and polished&nbsp;results.
+                problem-solving to deliver impactful and polished results.
               </p>
             </div>
           </div>
@@ -240,7 +240,7 @@ const CurriculumVitae: React.FC = () => {
             <div className={divClassRt}>
               <h5 className={styles["sub-container"]}>
                 <div className={styles["left-sub"]}>
-                  Modern Front-End&nbsp;Development
+                  Modern Front-End Development
                 </div>
                 <div className={styles["break"]}></div>
               </h5>
@@ -270,11 +270,11 @@ const CurriculumVitae: React.FC = () => {
               <ul>
                 <li>
                   Animation & UI Design: Transitioned from award-winning
-                  Flash/AS3 projects to modern CSS/JS&nbsp;animations
+                  Flash/AS3 projects to modern CSS/JS animations
                 </li>
                 <li>
                   Interactive Web Development: Built engaging tools like data
-                  explorers and educational SVG&nbsp;UIs
+                  explorers and educational SVG UIs
                 </li>
               </ul>
 
@@ -288,11 +288,11 @@ const CurriculumVitae: React.FC = () => {
               <ul>
                 <li>
                   Strong foundation in design principles with deep experience in
-                  Adobe Creative&nbsp;Suite
+                  Adobe Creative Suite
                 </li>
                 <li>
                   Developed physics-based engines and custom tween solutions for
-                  interactive&nbsp;projects
+                  interactive projects
                 </li>
               </ul>
             </div>
@@ -320,7 +320,7 @@ const CurriculumVitae: React.FC = () => {
                   <h5>
                     Epsilon
                     <span className={styles["location"]}>
-                      &nbsp; - &nbsp;Irving, TX | Remote | W2 Employee
+                      - Irving, TX | Remote | W2
                     </span>
                   </h5>
                   Senior Front-end Developer
@@ -344,45 +344,45 @@ const CurriculumVitae: React.FC = () => {
                   Implemented dynamic UI components, such as forms with
                   validation, data-driven informational grids, global
                   navigation, and collapsible menus for the Golden 1 Credit
-                  Union website, leveraging jQuery and <b>Sitecore</b>{" "}
-                  CMS&nbsp;integration.
+                  Union website, leveraging jQuery and <b>Sitecore</b> CMS
+                  integration.
                 </li>
                 <li>
                   Delivered responsive forms, data grids, and interactive
                   elements for the Citibank website and admin area using{" "}
                   <b>Angular</b> reactive forms and SASS, enhancing UX and
                   visual consistency. Developed loan rate calculators and modals
-                  using Angular&nbsp;projection.
+                  using Angular projection.
                 </li>
                 <li>
                   Built and maintained reusable, modular email components in{" "}
                   <b>Salesforce</b> Marketing Cloud. Streamlined and
                   standardized email production using preprocessing, ensuring
-                  brand consistency across&nbsp;campaigns.
+                  brand consistency across campaigns.
                 </li>
                 <li>
                   Optimized email campaigns with <b>Litmus</b> testing for
                   multi-device compatibility, including dark mode and
                   double-density graphics, achieving high deliverability and
-                  consistent&nbsp;rendering.
+                  consistent rendering.
                 </li>
                 <li>
                   Created the Oncotype DX Breast Recurrence Score Report
                   Explorer for the Exact Sciences website, helping users
                   understand diagnostic results documents. Contributed to
-                  responsive/interactive components, and defect&nbsp;resolution.
+                  responsive/interactive components, and defect resolution.
                 </li>
                 <li>
                   Developed consent management workflows using <b>FreeMarker</b>{" "}
                   for <b>OneTrust</b> integration, facilitating seamless data
                   exchange across platforms like MuleSoft and Veeva, enhancing
                   compliance and user experience through event-driven and
-                  scheduled&nbsp;processes.
+                  scheduled processes.
                 </li>
                 <li>
                   Implemented OneTrust preference centers to manage user
                   consent, data privacy preferences, and regulatory compliance
-                  (GDPR, CCPA) across multiple&nbsp;platforms.
+                  (GDPR, CCPA) across multiple platforms.
                 </li>
               </ul>
             </div>
@@ -404,7 +404,7 @@ const CurriculumVitae: React.FC = () => {
                   <h5>
                     BB Interactive
                     <span className={styles["location"]}>
-                      &nbsp; - &nbsp;Spokane, WA | Remote
+                      - Spokane, WA | Remote
                     </span>
                   </h5>
                   Front-end / Interactive Web Developer
@@ -417,51 +417,41 @@ const CurriculumVitae: React.FC = () => {
               </div>
 
               <p className={styles["desc"]}>
-                Consulting and site production of specialized projects for
-                diverse clients, including local businesses, a national startup,
-                an international charity, and a major pharmaceutical
-                marketing&nbsp;agency
+                Delivered specialized front-end and interactive web development
+                services for diverse clients, including local businesses, a
+                national startup, an international charity, and a pharmaceutical
+                manufacturer.
               </p>
 
               <p className={styles["scope"]}>
-                <span>Technical Scope:</span> Angular 8-11, TypeScript, RxJS,
-                React, SVG, SCSS, Elasticsearch, Craft&nbsp;CMS
+                <span>Technical Scope:</span> Angular 7-8, TypeScript, React,
+                SVG, SCSS, Elasticsearch, Craft CMS, Adobe Creative Suite
               </p>
 
               <ul>
                 <li>
-                  Implemented React Move to animate SVG for an informational UI
-                  for Committee for Children, a non-profit that helps millions
-                  of children in 70 countries every&nbsp;year
+                  Developed an animated informational UI using <b>React Move</b>{" "}
+                  for the Committee for Children, a nonprofit supporting
+                  education of millions of children across 70 countries.
                 </li>
                 <li>
-                  Built an employment application tracking system with Angular
-                  and Elasticsearch as the back end (consumed via&nbsp;GraphQL)
+                  Built a law enforcement employment application tracking system
+                  leveraging Angular and <b>Elasticsearch</b>, consuming{" "}
+                  <b>GraphQL</b> for efficient backend integration.
                 </li>
                 <li>
-                  Used Craft CMS to build and deploy an admin interface for a
-                  Spokane construction company&nbsp;website
+                  Created and deployed an admin interface for a Spokane
+                  construction company website using <b>Craft CMS</b>
                 </li>
                 <li>
-                  Animations in JavaScript and CSS3 for the website and banner
-                  ads for Novo Nordisk, a multinational
-                  pharmaceutical&nbsp;company
+                  Produced animations in vanilla JavaScript and CSS3 for
+                  websites and banner ads for Novo Nordisk, enhancing user
+                  engagement for a multinational pharmaceutical company.
                 </li>
                 <li>
-                  Prototyping in Angular for a legal investigation application
-                  designed to comb through masses of company&nbsp;documents
-                </li>
-                <li>
-                  Worked closely with clients, stakeholders, and freelance
-                  partners to conceptualize custom UI/UX&nbsp;presentations
-                </li>
-                <li>
-                  Lead authoring of site launch plans in collaboration with
-                  developers, business analysts, and account&nbsp;managers
-                </li>
-                <li>
-                  Consulting, scoping, wire-framing, time-lining, testing, and
-                  defect remediation of interactive, responsive&nbsp;websites
+                  Prototyped a legal investigation application in <b>Angular</b> to
+                  process and analyze large volumes of company documents
+                  efficiently.
                 </li>
               </ul>
             </div>
@@ -482,9 +472,7 @@ const CurriculumVitae: React.FC = () => {
                 <div className={styles["left-sub"]}>
                   <h5>
                     Seven2 Interactive
-                    <span className={styles["location"]}>
-                      &nbsp; - &nbsp;Spokane, WA
-                    </span>
+                    <span className={styles["location"]}>- Spokane, WA</span>
                   </h5>
                   Interactive / Front-end Web Developer
                 </div>
@@ -494,12 +482,12 @@ const CurriculumVitae: React.FC = () => {
 
               <p className={styles["desc"]}>
                 Interactive and responsive websites for Fortune 500 companies in
-                technology and&nbsp;entertainment
+                technology and entertainment
               </p>
 
               <p className={styles["scope"]}>
                 <span>Technical Scope:</span> Angular, React, Vue, jQuery, Craft
-                CMS, Grunt, Handlebars,&nbsp;CreateJS
+                CMS, Grunt, Handlebars, CreateJS
               </p>
 
               <ul>
@@ -507,45 +495,44 @@ const CurriculumVitae: React.FC = () => {
                   Logic for central 'activities' (site-wide scavenger hunts,
                   wallpaper creators, etc.), interactivity, and media
                   integration in re-sponsive websites for several game launch
-                  sites for&nbsp;Nintendo
+                  sites for Nintendo
                 </li>
                 <li>
                   Contributed to development of single-page apps using
-                  Typescript and&nbsp;Angular&nbsp;8+
+                  Typescript and Angular 8+
                 </li>
                 <li>
                   Developed a JavaScript timeline animation framework with
                   compact syntax and potential to eliminate the need for CSS3
                   key frame animations that we found riddled with
-                  inconsistencies (still supporting&nbsp;IE)
+                  inconsistencies (still supporting IE)
                 </li>
                 <li>
                   Developed APIs to simplify, stabilize, and streamline
-                  integration of DOM and canvas&nbsp;animation
+                  integration of DOM and canvas animation
                 </li>
                 <li>
                   Contribution and technical oversight of concepts with teams of
                   designers, developers, and animators, synchronizing on
-                  development and QA via&nbsp;Trello
+                  development and QA via Trello
                 </li>
                 <li>
                   Localization strategies for deployment in various
-                  international regions (which necessitates special
-                  design&nbsp;considerations)
+                  international regions (which necessitates special design
+                  considerations)
                 </li>
                 <li>
                   Interfacing with Nintendo's Nclood API / platform for managing
-                  Nintendo user status and rewards&nbsp;system
+                  Nintendo user status and rewards system
                 </li>
                 <li>
                   Built a zero-dependency carousel in vanilla JavaScript for
-                  Comics Kingdom, a platform that local newspapers can
-                  embed&nbsp;from
+                  Comics Kingdom, a platform that local newspapers can embed
+                  from
                 </li>
                 <li>
                   Strategic considerations for deadlines so tight that
-                  development regularly had to start before
-                  client&nbsp;approvals
+                  development regularly had to start before client approvals
                 </li>
               </ul>
             </div>
@@ -566,9 +553,7 @@ const CurriculumVitae: React.FC = () => {
                 <div className={styles["left-sub"]}>
                   <h5>
                     ChalkLabs
-                    <span className={styles["location"]}>
-                      &nbsp; - &nbsp;Spokane, WA
-                    </span>
+                    <span className={styles["location"]}>- Spokane, WA</span>
                   </h5>
                   UI Developer / Designer
                 </div>
@@ -579,12 +564,12 @@ const CurriculumVitae: React.FC = () => {
               <p className={styles["desc"]}>
                 User interface for web applications engineered to aid government
                 organizations in processing, analyzing, visualizing, and
-                understanding&nbsp;data
+                understanding data
               </p>
 
               <p className={styles["scope"]}>
                 <span>Technical Scope:</span> Angular, TypeScript, Bootstrap,
-                Mapbox, Elasticsearch, HTML5, REST APIs,&nbsp;Canvas
+                Mapbox, Elasticsearch, HTML5, REST APIs, Canvas
               </p>
 
               <ul>
@@ -592,21 +577,21 @@ const CurriculumVitae: React.FC = () => {
                   As a first project, solely developed the dashboard for an
                   iteration of ChalkLabs' flagship SaaS software, Pushgraph.
                   This was the first version as a user-customizable, responsive
-                  drag/drop widget&nbsp;framework
+                  drag/drop widget framework
                 </li>
                 <li>
                   With sparse instruction and minimal ramp-up, designed the
-                  entire UI for the new iteration of Pushgraph in under
-                  three&nbsp;days
+                  entire UI for the new iteration of Pushgraph in under three
+                  days
                 </li>
                 <li>
                   Interfacing with ChalkLabs' backend API using search syntax to
                   query results from databases to populate into custom
-                  infinite-scrolling data grid&nbsp;widgets
+                  infinite-scrolling data grid widgets
                 </li>
                 <li>
                   Data visualizations and custom interactions in D3, Mapbox,
-                  Highcharts, and other visualization&nbsp;libraries
+                  Highcharts, and other visualization libraries
                 </li>
                 <li>
                   Learned Angular and TypeScript on the clock, starting from
@@ -614,18 +599,17 @@ const CurriculumVitae: React.FC = () => {
                 </li>
                 <li>
                   Scoping, timelining, estimating tasks to be tracked and
-                  synchronized for sprints via Smartsheet in
-                  Kanban&nbsp;workflow
+                  synchronized for sprints via Smartsheet in Kanban workflow
                 </li>
                 <li>
                   Consuming REST APIs to manage users, configuration, and data
-                  processed by the Pushgraph application and other&nbsp;projects
+                  processed by the Pushgraph application and other projects
                 </li>
                 <li>
                   In June of 2017, worked 350+ hours along with my supervisor to
                   meet an all-or-nothing deadline/contract with EPA worth five
                   million USD, which was existentially everything for the
-                  company at the time. One other month there was&nbsp;comparable
+                  company at the time. One other month there was comparable
                 </li>
               </ul>
             </div>
@@ -646,9 +630,7 @@ const CurriculumVitae: React.FC = () => {
                 <div className={styles["left-sub"]}>
                   <h5>
                     Seven2 Interactive
-                    <span className={styles["location"]}>
-                      &nbsp; - &nbsp;Spokane, WA
-                    </span>
+                    <span className={styles["location"]}>- Spokane, WA</span>
                   </h5>
                   Lead Flash / Interactive Web Developer
                 </div>
@@ -659,73 +641,71 @@ const CurriculumVitae: React.FC = () => {
               <p className={styles["desc"]}>
                 Development of interactive websites, web banner advertising, and
                 browser games for nationally recognized corporations in the
-                technology and entertainment&nbsp;industries
+                technology and entertainment industries
               </p>
 
               <p className={styles["scope"]}>
                 <span>Technical Scope:</span> ActionScript 3, ActionScript 2,
-                JavaScript, jQuery, Require/AMD,&nbsp;Haxe
+                JavaScript, jQuery, Require/AMD, Haxe
               </p>
 
               <ul>
                 <li>
                   Lead developer of Seven2's first project for the Nickelodeon
-                  Group, a game called Blue's Clues — Mix 'N Match&nbsp;Dressup
+                  Group, a game called Blue's Clues — Mix 'N Match Dressup
                 </li>
                 <li>
                   Saved one project for an AT&T site release that was scoped
                   with an incorrect assumption that JavaScript can screenshot
                   the rendered page for an overlay effect. We faked the effect
-                  with video. It got 90 million interactions in one&nbsp;week
+                  with video. It got 90 million interactions in one week
                 </li>
                 <li>
                   Key / lead architect of solutions where many developers and
                   animators populated content / games into to flexible templates
                   and frameworks engineered by me for the collaboration of the
-                  other&nbsp;developers
+                  other developers
                 </li>
                 <li>
                   Lead developer of every one of several first iterations of
-                  AT&T's data usage calculators authored
-                  in&nbsp;JavaScript/Require
+                  AT&T's data usage calculators authored in JavaScript/Require
                 </li>
                 <li>
-                  Lead developer of AT&T's first ever app store
-                  in&nbsp;JavaScript/Require
+                  Lead developer of AT&T's first ever app store in
+                  JavaScript/Require
                 </li>
                 <li>
                   Developed custom music and video players for several MTV
-                  websites in&nbsp;ActionScript
+                  websites in ActionScript
                 </li>
                 <li>
                   Created a performant physics-based tween engine before the
-                  advent of systems like Tweener and&nbsp;GreenSock
+                  advent of systems like Tweener and GreenSock
                 </li>
                 <li>
                   Contributed a robust cross-platform mobile accelerometer
                   solution to a popular (then) open-source HTML5 game framework,
-                  Flambé, now known as&nbsp;2Dkit
+                  Flambé, now known as 2Dkit
                 </li>
                 <li>
                   Interfacing with backend APIs exchanging JSON, XML, CSV, plain
                   text, and image data for many types of user-initiated server /
                   database transactions, some in zero-dependency JavaScript, and
-                  some in&nbsp;ActionScript
+                  some in ActionScript
                 </li>
                 <li>
                   Contribution on entire process of project conceptualization
-                  for projects that consistently won annual&nbsp;awards
+                  for projects that consistently won annual awards
                 </li>
                 <li>
                   In addition to innumerable insane deadlines, in June 2014,
-                  worked 350+ hours to meet a critical deadline
-                  for&nbsp;WildBrain
+                  worked 350+ hours to meet a critical deadline for WildBrain
                 </li>
                 <li>
                   Contributed Flash/ActionScript and JavaScript animation and UI
                   for a project that ended up winning an international/global
-                  Webby Award — People's Choice, 2008 Art Website of the
-                  Year,&nbsp;Artocracy.org.
+                  Webby Award — People's Choice, 2008 Art Website of the Year,
+                  Artocracy.org.
                 </li>
               </ul>
             </div>
@@ -746,9 +726,7 @@ const CurriculumVitae: React.FC = () => {
                 <div className={styles["left-sub"]}>
                   <h5>
                     SCW Consulting
-                    <span className={styles["location"]}>
-                      &nbsp; - &nbsp;Spokane, WA
-                    </span>
+                    <span className={styles["location"]}>- Spokane, WA</span>
                   </h5>
                   Designer / Front-end Web Developer
                 </div>
@@ -764,34 +742,32 @@ const CurriculumVitae: React.FC = () => {
 
               <p className={styles["scope"]}>
                 <span>Technical Scope:</span> HTML, CSS, Vanilla JavaScript,
-                Visual Studio, AJAX,&nbsp;DHTML
+                Visual Studio, AJAX, DHTML
               </p>
 
               <ul>
                 <li>
                   As the sole designer, produced overall look, feel, and
-                  branding on sites for businesses new to an
-                  online&nbsp;presence
+                  branding on sites for businesses new to an online presence
                 </li>
                 <li>
                   Design and UI development of SCW's reusable e-commerce /
                   shopping cart platform that was ahead of its time in an era
-                  preceding solutions like&nbsp;Shopify
+                  preceding solutions like Shopify
                 </li>
                 <li>
                   On one project, impressed the agency owner by implementing
                   broad site revisions for under 50% of the budget. I think we
-                  then lied to the client about how much budget we&nbsp;used
+                  then lied to the client about how much budget we used
                 </li>
                 <li>
                   Produced several shortcuts and tricks that were new to others
                   in development, due to the extensive time I had previously
-                  spent with&nbsp;DHTML
+                  spent with DHTML
                 </li>
                 <li>
                   Continually made a lot out of nothing due on minimal budgets
-                  and absence necessities like the fonts and
-                  stock&nbsp;photography
+                  and absence necessities like the fonts and stock photography
                 </li>
               </ul>
             </div>
@@ -812,9 +788,7 @@ const CurriculumVitae: React.FC = () => {
                 <div className={styles["left-sub"]}>
                   <h5>
                     Freelance
-                    <span className={styles["location"]}>
-                      &nbsp; - &nbsp;Spokane, WA
-                    </span>
+                    <span className={styles["location"]}>- Spokane, WA</span>
                   </h5>
                   Designer / Front-end Web Developer
                 </div>
@@ -829,33 +803,32 @@ const CurriculumVitae: React.FC = () => {
 
               <p className={styles["scope"]}>
                 <span>Technical Scope:</span> XML, XSL, Vanilla JavaScript,
-                Dynamic HTML,&nbsp;PHP
+                Dynamic HTML, PHP
               </p>
 
               <ul>
                 <li>
                   Conceptualizing creative UI and navigation concepts in
-                  websites for a variety of businesses in the Spokane&nbsp;area
+                  websites for a variety of businesses in the Spokane area
                 </li>
                 <li>
                   Dynamic, multi-level navigation redesign and development for
-                  The Heart Institute of&nbsp;Spokane
+                  The Heart Institute of Spokane
                 </li>
                 <li>
                   Utilized XML and XSL in an astonishingly simple and effective
-                  CMS-like approach for retailing refurbished
-                  fitness&nbsp;equipment
+                  CMS-like approach for retailing refurbished fitness equipment
                 </li>
                 <li>
                   Produced websites and other paying freelance projects that met
-                  criteria and so received credit for school&nbsp;curriculum
+                  criteria and so received credit for school curriculum
                 </li>
                 <li>
                   In the program I was considerably ahead all the other
                   students, having history in Photoshop, HTML, JavaScript and
                   art, I unofficially tutored other students any time I was in
                   the lab, and was widely regarded as a prodigy by faculty and
-                  fellow&nbsp;students.
+                  fellow students.
                 </li>
               </ul>
             </div>
@@ -881,10 +854,8 @@ const CurriculumVitae: React.FC = () => {
               <div className={styles["sub-container"]}>
                 <div className={styles["left-sub"]}>
                   <h5>
-                    Spokane Falls Community&nbsp;College
-                    <span className={styles["location"]}>
-                      &nbsp; - &nbsp;Spokane, WA
-                    </span>
+                    Spokane Falls Community College
+                    <span className={styles["location"]}>- Spokane, WA</span>
                   </h5>
                   A.A.S. Web Design — Honors
                 </div>
@@ -894,7 +865,7 @@ const CurriculumVitae: React.FC = () => {
 
               <p className={styles["desc"]}>
                 Recognized with multiple first-place awards; select works
-                published officially for the&nbsp;college.
+                published officially for the college.
               </p>
             </div>
           </div>
@@ -918,9 +889,7 @@ const CurriculumVitae: React.FC = () => {
                 <div className={styles["left-sub"]}>
                   <h5>
                     Hobbyist
-                    <span className={styles["location"]}>
-                      &nbsp; - &nbsp;Spokane, WA
-                    </span>
+                    <span className={styles["location"]}>- Spokane, WA</span>
                   </h5>
                   Interactive Web Enthusiast
                 </div>
@@ -931,29 +900,29 @@ const CurriculumVitae: React.FC = () => {
               <p className={styles["desc"]}>
                 Self-directed learning of graphics software and cross-platform,
                 dynamic, and interactive JavaScript (before the leap was taken
-                into design&nbsp;school.)
+                into design school.)
               </p>
 
               <p className={styles["scope"]}>
                 <span>Technical Scope:</span> Vanilla JavaScript, HTML, CSS,
-                Dynamic HTML, PHP, and Adobe Create&nbsp;Suite
+                Dynamic HTML, PHP, and Adobe Create Suite
               </p>
 
               <ul>
                 <li>
                   Pursued self-directed learning in{" "}
                   <b>JavaScript, Dynamic HTML, and interactive animation</b>{" "}
-                  while working full-time in a non-technical&nbsp;role.
+                  while working full-time in a non-technical role.
                 </li>
                 <li>
                   Built early browser-based UI experiments, including functional
                   custom chrome (navigation bars, menus, etc.) and a
-                  slot-machine&nbsp;game.
+                  slot-machine game.
                 </li>
                 <li>
                   Tackled cross-platform compatibility challenges in a
                   fragmented browser era, delivering interactive, animated
-                  solutions without&nbsp;Flash.
+                  solutions without Flash.
                 </li>
               </ul>
             </div>
@@ -1052,7 +1021,7 @@ const CurriculumVitae: React.FC = () => {
                 Contributed to over thirteen projects that received awards in
                 the annual Spokane Ad Fed (Addy) Awards, including five Silver,
                 four Gold, two Best of Division, one Best of Show, and one
-                Golden&nbsp;Pixel
+                Golden Pixel
               </div>
             </div>
           </div>
