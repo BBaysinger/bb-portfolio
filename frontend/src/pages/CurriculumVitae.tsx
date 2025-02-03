@@ -662,8 +662,7 @@ const CurriculumVitae: React.FC = () => {
                   Mastered <b>AS2</b>, <b>AS3</b>, and <b>Haxe</b> (all very
                   similar to JavaScript) on the job, applying their frameworks
                   and design patterns to deliver hundreds of diverse
-                  cutting-edge interactive experiences (now irrelevant to my
-                  portfolio due to the obsolescence or obscurity.)
+                  cutting-edge interactive experiences.
                 </li>
                 <li>
                   Engineered flexible templates and frameworks in AS3, used by
