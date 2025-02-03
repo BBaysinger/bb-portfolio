@@ -318,7 +318,8 @@ const CurriculumVitae: React.FC = () => {
                   <h5>
                     Epsilon
                     <span className={styles["location"]}>
-                    {" "}— Irving, TX | Remote | W2
+                      {" "}
+                      — Irving, TX | Remote | W2
                     </span>
                   </h5>
                   Senior Front-end Developer
@@ -402,7 +403,8 @@ const CurriculumVitae: React.FC = () => {
                   <h5>
                     BB Interactive
                     <span className={styles["location"]}>
-                      {" "}— Spokane, WA | Remote
+                      {" "}
+                      — Spokane, WA | Remote
                     </span>
                   </h5>
                   Front-end / Interactive Web Developer
@@ -563,54 +565,57 @@ const CurriculumVitae: React.FC = () => {
               </div>
 
               <p className={styles["desc"]}>
-                User interface for web applications engineered to aid government
-                organizations in processing, analyzing, visualizing, and
-                understanding data
+                Designed and developed user interfaces for web applications
+                aimed at helping government organizations process, analyze, and
+                visualize data. Contributed to mission-critical projects under
+                tight deadlines, showcasing rapid learning and adaptability.
               </p>
 
               <p className={styles["scope"]}>
-                <span>Technical Scope:</span> Angular, TypeScript, Bootstrap,
-                Mapbox, Elasticsearch, HTML5, REST APIs, Canvas
+                <span>Technical Scope:</span> Angular 4-6, TypeScript, Mapbox,
+                Rest APIs, GraphQL, Data Visualizations, Adobe Create Suite
               </p>
 
               <ul>
                 <li>
-                  As a first project, solely developed the dashboard for an
-                  iteration of ChalkLabs' flagship SaaS software, Pushgraph.
-                  This was the first version as a user-customizable, responsive
-                  drag/drop widget framework
+                  Consumed an HTTP search API utilizing a custom domain-specific
+                  query language embedded in URL parameters, supporting logical
+                  operators, field-based queries, and similarity matching for
+                  ChalkLabs' flagship <b>SaaS</b> software, Pushgraph
                 </li>
                 <li>
-                  With sparse instruction and minimal ramp-up, designed the
-                  entire UI for the new iteration of Pushgraph in under three
-                  days
+                  Independently developed the Pushgraph dashboard drag-and-drop
+                  widget framework for end user customization, utilizing Angular
+                  component factory methods and local storage.
                 </li>
                 <li>
-                  Interfacing with ChalkLabs' backend API using search syntax to
-                  query results from databases to populate into custom
-                  infinite-scrolling data grid widgets
+                  Designed the entire UI for the new iteration of Pushgraph in
+                  under three days with minimal instruction and ramp-up.
                 </li>
                 <li>
-                  Data visualizations and custom interactions in D3, Mapbox,
-                  Highcharts, and other visualization libraries
+                  Created many widgets for the system including
+                  infinite-scrolling data grids and data visualizations using
+                  <b>D3</b>, <b>Mapbox</b>, <b>Highcharts</b>, and other
+                  visualization libraries.
                 </li>
                 <li>
-                  Learned Angular and TypeScript on the clock, starting from
-                  nearly zero knowlege other than some tutorial courses
+                  Quickly learned Angular and TypeScript in the role,
+                  progressing from initial training to delivering
+                  production-ready solutions under heavy development demands.
                 </li>
                 <li>
-                  Scoping, timelining, estimating tasks to be tracked and
-                  synchronized for sprints via Smartsheet in Kanban workflow
+                  Scoped, time-lined, and estimated tasks for sprint management
+                  in a <b>Kanban</b> workflow, tracked via <b>Smartsheet</b>.
                 </li>
                 <li>
-                  Consuming REST APIs to manage users, configuration, and data
-                  processed by the Pushgraph application and other projects
+                  Consumed <b>Rest APIs</b> to manage users, configuration
+                  settings, and data processed by the Pushgraph application and
+                  other projects.
                 </li>
                 <li>
-                  In June of 2017, worked 350+ hours along with my supervisor to
-                  meet an all-or-nothing deadline/contract with EPA worth five
-                  million USD, which was existentially everything for the
-                  company at the time. One other month there was comparable
+                  Worked over 350 hours in June 2017 with a supervisor to meet a
+                  critical $5M contract deadline, ensuring the company's
+                  viability.
                 </li>
               </ul>
             </div>
@@ -640,73 +645,78 @@ const CurriculumVitae: React.FC = () => {
               </div>
 
               <p className={styles["desc"]}>
-                Development of interactive websites, web banner advertising, and
-                browser games for nationally recognized corporations in the
-                technology and entertainment industries
+                Led the development of interactive websites, browser games, and
+                web advertising for nationally recognized corporations in
+                technology and entertainment. Delivered innovative solutions
+                under tight deadlines while mentoring junior developers and
+                shaping technical strategies.
               </p>
 
               <p className={styles["scope"]}>
                 <span>Technical Scope:</span> ActionScript 3, ActionScript 2,
-                JavaScript, jQuery, Require/AMD, Haxe
+                JavaScript, jQuery, Require/AMD, Haxe, Flash, Adobe Create Suite
               </p>
 
               <ul>
                 <li>
-                  Lead developer of Seven2's first project for the Nickelodeon
-                  Group, a game called Blue's Clues — Mix 'N Match Dressup
+                  Mastered <b>AS2</b>, <b>AS3</b>, and <b>Haxe</b> (all very
+                  similar to JavaScript) on the job, applying their frameworks
+                  and design patterns to deliver hundreds of diverse
+                  cutting-edge interactive experiences (now irrelevant to my
+                  portfolio due to the obsolescence or obscurity.)
                 </li>
                 <li>
-                  Saved one project for an AT&T site release that was scoped
-                  with an incorrect assumption that JavaScript can screenshot
-                  the rendered page for an overlay effect. We faked the effect
-                  with video. It got 90 million interactions in one week
+                  Engineered flexible templates and frameworks in AS3, used by
+                  teams of developers and animators to collaboratively build
+                  games and interactive content.
                 </li>
                 <li>
-                  Key / lead architect of solutions where many developers and
-                  animators populated content / games into to flexible templates
-                  and frameworks engineered by me for the collaboration of the
-                  other developers
+                  Served as the lead developer for several first iterations of
+                  AT&amp;T's projects, including their data usage calculators
+                  and first-ever app store, authored in vanilla JavaScript and
+                  Require/AMD.
                 </li>
                 <li>
-                  Lead developer of every one of several first iterations of
-                  AT&T's data usage calculators authored in JavaScript/Require
+                  Led Seven2's first Nickelodeon Group project: Blue's Clues —
+                  Mix 'N Match Dressup, built in Flash/ActionScript.
                 </li>
                 <li>
-                  Lead developer of AT&T's first ever app store in
-                  JavaScript/Require
+                  Rescued a high-visibility AT&T project by creating a
+                  video-based workaround for an incorrectly scoped JavaScript
+                  feature, achieving over 90 million interactions in one week.
                 </li>
                 <li>
-                  Developed custom music and video players for several MTV
-                  websites in ActionScript
+                  Developed custom audio and video players for MTV's
+                  high-production websites using AS3.
                 </li>
                 <li>
-                  Created a performant physics-based tween engine before the
-                  advent of systems like Tweener and GreenSock
+                  Designed and implemented a performant physics-based tween
+                  engine in AS3, preceding industry-standard systems like
+                  Tweener and GSAP.
                 </li>
                 <li>
-                  Contributed a robust cross-platform mobile accelerometer
-                  solution to a popular (then) open-source HTML5 game framework,
-                  Flambé, now known as 2Dkit
+                  Contributed a cross-platform <b>mobile accelerometer</b>{" "}
+                  solution to Flambé (now 2Dkit), a leading HTML5 and
+                  cross-platform game framework.
                 </li>
                 <li>
-                  Interfacing with backend APIs exchanging JSON, XML, CSV, plain
-                  text, and image data for many types of user-initiated server /
-                  database transactions, some in zero-dependency JavaScript, and
-                  some in ActionScript
+                  Built APIs for managing <b>JSON</b>, <b>XML</b>, and{" "}
+                  <b>CSV</b> data exchanges, enabling user-driven
+                  server/database interactions with zero-dependency JavaScript
+                  and AS3 solutions.
                 </li>
                 <li>
-                  Contribution on entire process of project conceptualization
-                  for projects that consistently won annual awards
+                  Played a critical role in project conceptualization,
+                  contributing to multiple award-winning projects at annual
+                  Spokane Ad Fed events.
                 </li>
                 <li>
-                  In addition to innumerable insane deadlines, in June 2014,
-                  worked 350+ hours to meet a critical deadline for WildBrain
+                  Worked 350+ hours in June 2014 to meet a critical WildBrain
+                  deadline.
                 </li>
                 <li>
-                  Contributed Flash/ActionScript and JavaScript animation and UI
-                  for a project that ended up winning an international/global
-                  Webby Award — People's Choice, 2008 Art Website of the Year,
-                  Artocracy.org.
+                  Led front-end development of a Webby Award-winning project
+                  (2008 People's Choice Art Website of the Year).
                 </li>
               </ul>
             </div>
@@ -736,39 +746,41 @@ const CurriculumVitae: React.FC = () => {
               </div>
 
               <p className={styles["desc"]}>
-                Design and development of websites and apps for local businesses
-                at the front of C#/
-                <span className={"nobr"}>.NET back-ends</span>
+                Designed and developed websites and applications for local
+                businesses with C#/.NET backends, establishing online presences
+                for clients while overcoming resource limitations.
               </p>
 
               <p className={styles["scope"]}>
                 <span>Technical Scope:</span> HTML, CSS, Vanilla JavaScript,
-                Visual Studio, AJAX, DHTML
+                Visual Studio, AJAX, Dynamic HTML, and Adobe Create Suite
               </p>
 
               <ul>
                 <li>
-                  As the sole designer, produced overall look, feel, and
-                  branding on sites for businesses new to an online presence
+                  Served as the sole designer, crafting the look, feel, and
+                  branding for businesses entering the online space for the
+                  first time.
                 </li>
                 <li>
-                  Design and UI development of SCW's reusable e-commerce /
-                  shopping cart platform that was ahead of its time in an era
-                  preceding solutions like Shopify
+                  Designed and developed SCW's reusable <b>e-commerce</b>
+                  /shopping cart platform, which was ahead of its time,
+                  preceding modern solutions like Shopify.
                 </li>
                 <li>
-                  On one project, impressed the agency owner by implementing
-                  broad site revisions for under 50% of the budget. I think we
-                  then lied to the client about how much budget we used
+                  Delivered major site revisions under 50% of the allocated
+                  budget, impressing the agency owner with efficiency and
+                  resourcefulness.
                 </li>
                 <li>
-                  Produced several shortcuts and tricks that were new to others
-                  in development, due to the extensive time I had previously
-                  spent with DHTML
+                  Created innovative shortcuts and development tricks leveraging
+                  extensive knowledge of DHTML, introducing new approaches to
+                  the team.
                 </li>
                 <li>
-                  Continually made a lot out of nothing due on minimal budgets
-                  and absence necessities like the fonts and stock photography
+                  Overcame limited budgets by maximizing creativity and
+                  resourcefulness, producing impactful designs despite a lack of
+                  stock photography and professional fonts.
                 </li>
               </ul>
             </div>
