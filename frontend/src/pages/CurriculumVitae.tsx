@@ -318,7 +318,7 @@ const CurriculumVitae: React.FC = () => {
                   <h5>
                     Epsilon
                     <span className={styles["location"]}>
-                      - Irving, TX | Remote | W2
+                    {" "}— Irving, TX | Remote | W2
                     </span>
                   </h5>
                   Senior Front-end Developer
@@ -402,7 +402,7 @@ const CurriculumVitae: React.FC = () => {
                   <h5>
                     BB Interactive
                     <span className={styles["location"]}>
-                      - Spokane, WA | Remote
+                      {" "}— Spokane, WA | Remote
                     </span>
                   </h5>
                   Front-end / Interactive Web Developer
@@ -470,7 +470,7 @@ const CurriculumVitae: React.FC = () => {
                 <div className={styles["left-sub"]}>
                   <h5>
                     Seven2 Interactive
-                    <span className={styles["location"]}>- Spokane, WA</span>
+                    <span className={styles["location"]}> — Spokane, WA</span>
                   </h5>
                   Interactive / Front-end Web Developer
                 </div>
@@ -554,7 +554,7 @@ const CurriculumVitae: React.FC = () => {
                 <div className={styles["left-sub"]}>
                   <h5>
                     ChalkLabs
-                    <span className={styles["location"]}>- Spokane, WA</span>
+                    <span className={styles["location"]}> — Spokane, WA</span>
                   </h5>
                   UI Developer / Designer
                 </div>
@@ -631,7 +631,7 @@ const CurriculumVitae: React.FC = () => {
                 <div className={styles["left-sub"]}>
                   <h5>
                     Seven2 Interactive
-                    <span className={styles["location"]}>- Spokane, WA</span>
+                    <span className={styles["location"]}> — Spokane, WA</span>
                   </h5>
                   Lead Flash / Interactive Web Developer
                 </div>
@@ -727,7 +727,7 @@ const CurriculumVitae: React.FC = () => {
                 <div className={styles["left-sub"]}>
                   <h5>
                     SCW Consulting
-                    <span className={styles["location"]}>- Spokane, WA</span>
+                    <span className={styles["location"]}> — Spokane, WA</span>
                   </h5>
                   Designer / Front-end Web Developer
                 </div>
@@ -789,7 +789,7 @@ const CurriculumVitae: React.FC = () => {
                 <div className={styles["left-sub"]}>
                   <h5>
                     Freelance
-                    <span className={styles["location"]}>- Spokane, WA</span>
+                    <span className={styles["location"]}> — Spokane, WA</span>
                   </h5>
                   Designer / Front-end Web Developer
                 </div>
@@ -856,7 +856,7 @@ const CurriculumVitae: React.FC = () => {
                 <div className={styles["left-sub"]}>
                   <h5>
                     Spokane Falls Community College
-                    <span className={styles["location"]}>- Spokane, WA</span>
+                    <span className={styles["location"]}> — Spokane, WA</span>
                   </h5>
                   A.A.S. Web Design — Honors
                 </div>
@@ -890,7 +890,7 @@ const CurriculumVitae: React.FC = () => {
                 <div className={styles["left-sub"]}>
                   <h5>
                     Hobbyist
-                    <span className={styles["location"]}>- Spokane, WA</span>
+                    <span className={styles["location"]}> — Spokane, WA</span>
                   </h5>
                   Interactive Web Enthusiast
                 </div>
@@ -901,7 +901,8 @@ const CurriculumVitae: React.FC = () => {
               <p className={styles["desc"]}>
                 Self-directed learning of graphics software and early
                 cross-platform, dynamic, and interactive JavaScript development
-                before formally pursuing design school.
+                before formally pursuing design school. My history with vanilla
+                JavaScript spans back to this era.
               </p>
 
               <p className={styles["scope"]}>
