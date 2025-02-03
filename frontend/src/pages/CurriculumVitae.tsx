@@ -251,12 +251,12 @@ const CurriculumVitae: React.FC = () => {
                   SCSS integration
                 </li>
                 <li>
-                  TypeScript (4+ years): Strong typing (with further history in
-                  strongly typed ECMAScript)
+                  TypeScript (3+ years): Strong typing (with further history in
+                  strict-typed ECMAScript)
                 </li>
                 <li>
                   React (Growing expertise): Reusable components, state
-                  management, dynamic routing, and JSX
+                  management, Redux, hooks, dynamic routing, and JSX
                 </li>
               </ul>
 
@@ -335,49 +335,54 @@ const CurriculumVitae: React.FC = () => {
               </p>
 
               <p className={styles["scope"]}>
-                <span>Technical Scope:</span> Angular 14, TypeScript, RxJS,
-                React 18, Redux, SiteCore, Modular HTML Email, Salesforce,
-                OneTrust,&nbsp;FreeMarker
+                <span>Technical Scope:</span> Angular, TypeScript, jQuery, Adobe
+                Suite, Sitecore, HTML Email, Salesforce, OneTrust, FreeMarker
               </p>
 
               <ul>
                 <li>
-                  Developed dynamic and reusable UI components, including forms
-                  with validation and data-driven informational grids, for the
-                  Golden 1 Credit Union website. Leveraged Preact, ES6, and
-                  jQuery to create a seamless user experience with a SiteCore
-                  CMS&nbsp;backend
+                  Implemented dynamic UI components, such as forms with
+                  validation, data-driven informational grids, global
+                  navigation, and collapsible menus for the Golden 1 Credit
+                  Union website, leveraging jQuery and <b>Sitecore</b>{" "}
+                  CMS&nbsp;integration.
                 </li>
                 <li>
-                  Utilized Angular's template-driven and reactive forms, along
-                  with SASS, to create responsive forms, and interactive
-                  elements, enhancing user experience and visual consistency on
-                  the Citibank website front-end and admin&nbsp;area
+                  Delivered responsive forms, data grids, and interactive
+                  elements for the Citibank website and admin area using{" "}
+                  <b>Angular</b> reactive forms and SASS, enhancing UX and
+                  visual consistency. Developed loan rate calculators and modals
+                  using Angular&nbsp;projection.
                 </li>
                 <li>
-                  Built and managed reusable email components in Salesforce
-                  Marketing Cloud's Content Builder, streamlined email
-                  production and ensured brand consistency across&nbsp;campaigns
+                  Built and maintained reusable, modular email components in{" "}
+                  <b>Salesforce</b> Marketing Cloud. Streamlined and
+                  standardized email production using preprocessing, ensuring
+                  brand consistency across&nbsp;campaigns.
                 </li>
                 <li>
-                  Utilized Litmus to test, troubleshoot, and optimize email
-                  campaigns across multiple devices and clients, ensuring
-                  consistent rendering, dark mode compatibility, and
-                  high&nbsp;deliverability
+                  Optimized email campaigns with <b>Litmus</b> testing for
+                  multi-device compatibility, including dark mode and
+                  double-density graphics, achieving high deliverability and
+                  consistent&nbsp;rendering.
                 </li>
                 <li>
-                  Created interactive tools using jQuery for the Exact Sciences
-                  website, including a detailed explorer for the Oncotype DX
-                  Breast Recurrence Score Report, enhancing user engagement and
-                  data&nbsp;accessibility
+                  Created the Oncotype DX Breast Recurrence Score Report
+                  Explorer for the Exact Sciences website, helping users
+                  understand diagnostic results documents. Contributed to
+                  responsive/interactive components, and defect&nbsp;resolution.
                 </li>
                 <li>
-                  Developed and optimized consent management workflows using
-                  FreeMarker for OneTrust integration, facilitating seamless
-                  data exchange between platforms including MuleSoft and Veeva.
-                  Specialized in building event-driven and scheduled processes
-                  to direct user consent across systems, enhancing data
-                  compliance and user&nbsp;experience
+                  Developed consent management workflows using <b>FreeMarker</b>{" "}
+                  for <b>OneTrust</b> integration, facilitating seamless data
+                  exchange across platforms like MuleSoft and Veeva, enhancing
+                  compliance and user experience through event-driven and
+                  scheduled&nbsp;processes.
+                </li>
+                <li>
+                  Implemented OneTrust preference centers to manage user
+                  consent, data privacy preferences, and regulatory compliance
+                  (GDPR, CCPA) across multiple&nbsp;platforms.
                 </li>
               </ul>
             </div>
