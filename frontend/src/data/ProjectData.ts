@@ -23,6 +23,7 @@ export interface PortfolioProjectBase {
   awards?: string;
   type?: string;
   desc: string[];
+  date: string;
   urls: Record<string, string | string[]>;
 }
 
