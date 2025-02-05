@@ -20,7 +20,7 @@ header {
   h1 {
     color: #fff;
     font-weight: 400; // Only a factor before fonts load.
-    margin-top: 0px;
+    margin-top: 0;
     margin-bottom: 10px;
     font-size: 42px;
     line-height: 1em;
@@ -56,7 +56,7 @@ header {
 
   h5,
   .h5 {
-    margin-bottom: 0px;
+    margin-bottom: 0;
     color: #fff;
     font-size: 18px;
     font-weight: 400;

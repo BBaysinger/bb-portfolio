@@ -6,6 +6,8 @@ import styles from "./CurriculumVitae.module.scss";
 /**
  * CV Page. Mostly static HTML, with some helper functions for formatting.
  *
+ * TODO: Sections should be modularised into reusable components.
+ *
  * @author Bradley Baysinger
  * @since The beginning of time.
  * @version N/A
@@ -129,7 +131,7 @@ const CurriculumVitae: React.FC = () => {
     "Terminal / Command Prompt",
   ];
 
-  const clients = [
+  const brands = [
     "Nickelodeon",
     "Nick Jr.",
     "Nintendo",
@@ -189,11 +191,9 @@ const CurriculumVitae: React.FC = () => {
       <HeaderSub head={"Curriculum Vitae"} />
 
       <div id="mainContent" className={`cv-page ${styles["cv-page"]}`}>
-        <div className={`container ${styles["subhead"]}`}>
-          <h4>Summary</h4>
-        </div>
-
         <div className={`container ${styles["summary"]}`}>
+          <h4>Summary</h4>
+
           <div className={rowClass}>
             <div className={divClassLt}>
               <img
@@ -221,11 +221,9 @@ const CurriculumVitae: React.FC = () => {
           </div>
         </div>
 
-        <div className={"container"}>
-          <h4>Core Strengths</h4>
-        </div>
-
         <div className={`container ${styles["skills"]}`}>
+          <h4>Core Strengths</h4>
+
           <div className={rowClass}>
             <div className={divClassLt}>
               <img
@@ -297,13 +295,11 @@ const CurriculumVitae: React.FC = () => {
           </div>
         </div>
 
-        <div className={"container"}>
-          <h4>Professional Experience</h4>
-        </div>
-
         {/*-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --*/}
 
         <div className={"container"}>
+          <h4>Professional Experience</h4>
+
           <div className={rowClass}>
             <div className={divClassLt}>
               <img
@@ -851,9 +847,7 @@ const CurriculumVitae: React.FC = () => {
 
         <div className={"container"}>
           <h4>Formal Education</h4>
-        </div>
 
-        <div className={"container"}>
           <div className={rowClass}>
             <div className={divClassLt}>
               <img
@@ -885,9 +879,7 @@ const CurriculumVitae: React.FC = () => {
 
         <div className={"container"}>
           <h4>Early Development Journey</h4>
-        </div>
 
-        <div className={"container"}>
           <div className={rowClass}>
             <div className={divClassLt}>
               <img
@@ -944,9 +936,7 @@ const CurriculumVitae: React.FC = () => {
 
         <div className={"container"}>
           <h4>Technologies and Tools</h4>
-        </div>
 
-        <div className={"container"}>
           <div className={rowClass}>
             <div className={divClassLt}></div>
             <div className={divClassRt}>
@@ -973,9 +963,7 @@ const CurriculumVitae: React.FC = () => {
 
         <div className={"container"}>
           <h4>Achievements</h4>
-        </div>
 
-        <div className={"container"}>
           <div className={rowClass}>
             <div className={divClassLt}></div>
             <div className={divClassRt}>
@@ -1041,21 +1029,15 @@ const CurriculumVitae: React.FC = () => {
         </div>
 
         <div className={"container"}>
-          <h4>Clients</h4>
-        </div>
+          <h4>Brands</h4>
 
-        <div className={"container"}>
           <div className={rowClass}>
             <div className={divClassLt}></div>
 
             <div className={divClassRt}>
-              <p>{wrapPhrases(clients)}</p>
+              <p>{wrapPhrases(brands)}</p>
             </div>
           </div>
-
-          {/*TempMessage.message()*/}
-
-          {/*///////////////////////////////////////////////////////////////////////////////*/}
         </div>
       </div>
     </div>

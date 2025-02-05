@@ -29,8 +29,8 @@
         opacity: 1;
 
         > * {
-          transform: translateX(0px);
-          filter: blur(0px);
+          transform: translateX(0);
+          filter: blur(0);
 
           &:nth-child(1) {
             transition-delay: 0s;
@@ -55,8 +55,8 @@
         opacity: 1;
 
         > * {
-          transform: translateX(0px);
-          filter: blur(0px);
+          transform: translateX(0);
+          filter: blur(0);
 
           &:nth-child(1) {
             transition-delay: 0s;
@@ -89,7 +89,7 @@ h4.thumb-title {
   width: 100%;
   background-position: center center;
   background-size: cover;
-  left: 0px;
+  left: 0;
   z-index: 0;
   opacity: 1;
   will-change: opacity;
@@ -100,7 +100,7 @@ h4.thumb-title {
   position: absolute;
   display: flex;
   flex-direction: column;
-  left: 0px;
+  left: 0;
   padding-left: 20px;
   padding-top: 16px;
   width: 100%;
@@ -135,7 +135,7 @@ h4.thumb-title {
 
     > * {
       transform: translateX(0px);
-      filter: blur(0px);
+      filter: blur(0);
 
       &:nth-child(1) {
         transition-delay: 0s;
@@ -157,5 +157,5 @@ h4.thumb-title {
   background-color: #000000;
   background-position: center center;
   background-size: cover;
-  filter: blur(1px);
+  // filter: blur(1px);
 }
