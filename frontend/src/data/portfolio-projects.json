@@ -4,24 +4,25 @@
     "active": true,
     "omitFromList": false,
     "clientId": "bbi",
-    "mobileStatus": "none",
+    "mobileStatus": "portrait",
     "tags": [""],
     "role": "",
     "year": "",
     "awards": "",
     "type": "",
-    "desc": ["<p>Some HTML.</p>"],
+    "desc": [
+      "<p>You can't put your own portfolio site in your portfolio without subjecting the spacetime continuum to a feedback loop, but fortunately I'm not trying to avoid that.</p>",
+      "<p>In all seriousness, there are a few things to say about it, and this is probably the best place...</p>"
+    ],
     "date": "",
-    "urls": {
-      "View Site": "some/url.html"
-    }
+    "urls": {}
   },
   "slideshow": {
     "title": "Slideshow Component",
     "active": true,
     "omitFromList": false,
     "clientId": "bbi",
-    "mobileStatus": "none",
+    "mobileStatus": "portrait",
     "tags": [""],
     "role": "",
     "year": "",
@@ -38,7 +39,7 @@
     "active": true,
     "omitFromList": false,
     "clientId": "exas",
-    "mobileStatus": "none",
+    "mobileStatus": "portrait",
     "tags": [""],
     "role": "",
     "year": "",
@@ -55,7 +56,7 @@
     "active": true,
     "omitFromList": false,
     "clientId": "golden1",
-    "mobileStatus": "none",
+    "mobileStatus": "portrait",
     "tags": [""],
     "role": "",
     "year": "",
