@@ -11,11 +11,15 @@
     "awards": "",
     "type": "",
     "desc": [
-      "<p>Obviously you can't put your own portfolio site in your portfolio without subjecting the spacetime continuum to a feedback loop, but fortunately I'm not trying to avoid that.</p>",
-      "<p>In all seriousness, there are a few things to say about it, and this is probably the best place...</p>"
+      "<p>Obviously, you can't put your portfolio in your own portfolio without subjecting the spacetime continuum to a feedback loop, but fortunately, I'm not trying to avoid that. In all seriousness, this portfolio is not just a showcase of my work—it's a project I built to deepen my experience with React and modern front-end architecture, and to show the level of polish I can put into projects.</p>",
+      "<p>At its core, it features a highly flexible carousel component (you're looking at it), designed for seamless interactivity. This carousel supports dynamic routing, browser-native gesture-based navigation, and synchronization with multiple carousels for unique effects, including parallaxing. This is best experienced with a laptop/trackpad or touchscreen. (I'll later add click/drag support for a similar experience for mouse/pointer input.)</p>",
+      "<p>This project is a long way from complete. It has a Node/Express backend comming that I started a while back, and enumerable features and enhancements that I'm always brainstorming. (But I'm already thinking about my <i>next</i> portfolio, which will be massively different but will borrow a few features from here.)</p>",
+      "<p>The repo is public, and you can take a gander at the documentation there for more info.</p>"
     ],
     "date": "",
-    "urls": {}
+    "urls": {
+      "Code Repo": "https://github.com/BBaysinger/bb-portfolio"
+  }
   },
   "slideshow": {
     "title": "Slideshow Component",
