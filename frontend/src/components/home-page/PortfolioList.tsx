@@ -9,7 +9,6 @@ import ExecutionEnvironment from "exenv";
 
 import ProjectData from "data/ProjectData";
 import ProjectThumbnail from "components/home-page/ProjectThumbnail";
-import HeaderMain from "components/home-page/HeaderMain";
 import styles from "./PortfolioList.module.scss";
 
 /**
@@ -152,7 +151,6 @@ const PortfolioList: React.FC = () => {
 
   return (
     <div>
-      <HeaderMain />
       <div className={styles["portfolio-list"]}>
         <div id="list" className={styles["list"]}></div>
         {ProjectData.listedProjects.map((projectData, index) => {
