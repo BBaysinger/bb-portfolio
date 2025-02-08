@@ -19,7 +19,7 @@
     "date": "",
     "urls": {
       "Code Repo": "https://github.com/BBaysinger/bb-portfolio"
-  }
+    }
   },
   "slideshow": {
     "title": "Slideshow Component",
@@ -33,11 +33,11 @@
     "awards": "",
     "type": "",
     "desc": [
-      "<p>As mentioned, I've been deepening my experience with React. This is a reusable slideshow component with full SPA (single page app) features.</p>",
+      "<p>As mentioned, I've been deepening my experience with React. This is a reusable React slideshow component with full SPA (single-page app) features that I developed for, among other things, a deep dive into React hooks and state management.</p>",
       "<p>Designed with scalability, performance, and accessibility in mind, it supports auto-slide functionality, deep linking via dynamic routing, and intuitive user interactions such as pausing, resuming, and manual navigation.</p>",
       "<p>The component is highly configurable, allowing developers to pass in slides as an array of objects containing foreground and background images, thumbnails, and JSX content. It dynamically adjusts its height based on slide content to eliminate excess whitespace, ensuring an elegant layout across devices. Additionally, it integrates lazy-loaded images and optimized animations to deliver a smooth experience with minimal performance overhead.</p>",
-      "<p>It also supports custom navigation controls. There are two options out of the box, plus you can make your own, and even add multiple sets.</p>",
-      "<p>There's more info in the repo. It's still pretty new, so there's more to come in the build and documentation. It's an example of code quality, so JavaScript is your thing, please take a gander at the solutions it contains in the repo.</p>"
+      "<p>It also supports custom navigation controls. There are two options out of the box, plus you can make your own and even add multiple sets.</p>",
+      "<p>There's more info in the repo. It's still pretty new, so there's more to come in the build and documentation. It's an example of code quality, so if JavaScript is your thing, please take a gander at the solutions it contains in the repo.</p>"
     ],
     "date": "",
     "urls": {
