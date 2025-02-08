@@ -6,7 +6,7 @@ import ExecutionEnvironment from "exenv";
 import { closeMenu } from "store/menuSlice";
 import CurriculumVitae from "pages/CurriculumVitae";
 import Nav, { NavVariant } from "components/layout/Nav";
-import PortfolioList from "components/home-page/PortfolioList";
+import HomePage from "pages/HomePage";
 import Footer from "components/layout/Footer";
 import ProjectPage from "pages/ProjectPage";
 import ScrollToHash from "utils/ScrollToHash";
@@ -46,8 +46,8 @@ const App: React.FC = () => {
         <Routes>
           {/* Redirect for all unmatched paths */}
           <Route path="*" element={<Navigate to="/" />} />
-          <Route path="/" element={<PortfolioList />} />
-          <Route path="/portfolio" element={<PortfolioList />} />
+          <Route path="/" element={<HomePage />} />
+          <Route path="/portfolio" element={<HomePage />} />
           <Route path="/portfolio/:projectId" element={<ProjectPage />} />
           <Route path="/cv" element={<CurriculumVitae />} />
         </Routes>
