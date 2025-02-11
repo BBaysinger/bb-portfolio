@@ -59,7 +59,7 @@
     "type": "",
     "desc": [
       "<p>Exact Sciences is a leading molecular diagnostics company specializing in early cancer detection and treatment guidance.</p>",
-      "<p>At Epsilon, I contributed to the development of their website within Sitecore, implementing interactive elements, refining styling, resolving defects, and building modular, reusable components to ensure scalability and consistency across the site.</p>",
+      "<p>At Epsilon, I contributed to the development of the Exact Sciences website within Sitecore, implementing interactive elements, refining styling, resolving defects, and building modular, reusable components to ensure scalability and consistency across the site.</p>",
       "<p>One of my key contributions was an interactive oncology report explorer, designed to help patients and practitioners better understand their diagnostics.</p>"
     ],
     "date": "",
@@ -78,7 +78,11 @@
     "year": "",
     "awards": "",
     "type": "",
-    "desc": ["<p></p>", "<p></p>", "<p></p>", "<p></p>"],
+    "desc": [
+      "<p>I contributed to the Golden1 Credit Union website by developing interactive features such as accordions, global navigation menus, and a card comparison tool—though the latter has become somewhat redundant now that the number of available cards has been reduced to three.</p>",
+      "<p>In addition to feature development, I was responsible for optimizing performance, accessibility, and SEO. Using Lighthouse diagnostics, I meticulously audited both the front-end and source code to identifiy and reduce unused and bloated code, and identify and resolve inefficiencies.</p>",
+      "<p>That said, I've noticed a few defects that have crept in since my time on the project—definitely not claiming those, lol.</p>"
+    ],
     "date": "",
     "urls": {
       "View Site": "https://www.golden1.com/"
@@ -140,11 +144,11 @@
     "type": "",
     "date": "",
     "desc": [
-      "<p>I'm forever a fan of Mario Bros games (though my favorite was for the Atari 7800). The mini-games in this one are addicting.</p>",
-      "<p>I built the activity, which involves finding all of the Toadettes hiding behind elements on each page. It was integrated with Nintendo's microsite API, and has overlapping flow/states (disabled for portfolio) depending on user region and status.</p>",
-      "<p>I integrated the 'event space' button and its effects. It's the big green button on each page that has a little random surprise for you.</p>",
-      "<p>I was also responsible for the video player, and various responsive elements around the site.</p>",
-      "<p>The nature of these projects is that there are only 2-3 weeks for development, and budgets are tight, so that's why they are developed the way they are.</p>"
+      "<p>I've always been a fan of Mario Bros. games (though my favorites were on the Atari 7800). The mini-games in this one are seriously addictive.</p>",
+      "<p>I developed the interactive activity where users search for hidden Toadettes behind various elements on each page. This feature was integrated with Nintendo's microsite API and included multiple overlapping states and flows (disabled for the portfolio) based on user region and status.</p>",
+      "<p>I also implemented the 'event space' button—the large green button on each page that delivers a fun little surprise.</p>",
+      "<p>Additionally, I was responsible for the video player and various responsive elements throughout the site.</p>",
+      "<p>These projects typically operate under tight deadlines, with only 2-3 weeks for development and limited budgets, which influenced the development approach.</p>"
     ],
     "urls": {
       "View Site": "http://www.bbaysinger.com/_projects/marioparty/index.html"
@@ -163,9 +167,10 @@
     "type": "",
     "date": "",
     "desc": [
-      "<p>This Mario Bros Nintendo DS game site involved some tedious CSS3 in the hero animation, where I built the responsive elements largely without breakpoints, so the entire sequence only needed to be scripted once.</p>",
-      "<p>The bounce effect seen in certain page elements, and the rubber buttons involved contriving a system for dynamically animating SVG paths.</p>",
-      "<p>I also helped out on animation, responsive layout, and localization throughout the site.</p>"
+      "<p>This Mario Bros. Nintendo DS game site featured a detailed hero animation, which required some intricate CSS3 work. I designed the responsive elements to adapt fluidly without relying on breakpoints, allowing the entire sequence to be scripted only once.</p>",
+      "<p>The bounce effects on certain page elements and the rubbery button interactions involved creating a custom system for dynamically animating SVG paths.</p>",
+      "<p>Beyond animations, I also contributed to the site's responsive layout and localization.</p>",
+      "<p>There were some challenges on this project, as the tech lead was adamant about avoiding modern development practices. I did my best to advocate for better solutions while navigating the constraints diplomatically.</p>"
     ],
     "urls": {
       "View Site": "http://www.bbaysinger.com/_projects/marioandluigi/index.html"
@@ -184,9 +189,9 @@
     "type": "",
     "date": "",
     "desc": [
-      "<p>In the latest from Marvel's Ultimate Alliance series, I built the central activity, a wallpaper creator where you can choose from the characters in the game for a personalized image for your phone, computer, or Facebook cover.</p>",
-      "<p>I also worked with canvas animations throughout, the main video player, and some responsive page layout.</p>",
-      "<p>Accessibility was a new requirement for Nintendo, and necessitated a 'reduce motion' feature that pauses animation everywhere, whether it be JavaScript, CSS3, canvas, or video.</p>"
+      "<p>For the latest entry in Marvel's Ultimate Alliance series, I developed the central interactive feature: a wallpaper creator that lets users select characters from the game to generate a personalized image for their phone, computer, or Facebook cover.</p>",
+      "<p>Additionally, I worked on canvas animations throughout the site, implemented the main video player, and contributed to the responsive page layout.</p>",
+      "<p>Accessibility became a new requirement for Nintendo on this project, which led to the implementation of a 'reduce motion' feature. This setting pauses all animations—whether JavaScript, CSS3, canvas, or video—ensuring a more accessible experience for users with motion sensitivity.</p>"
     ],
     "urls": {
       "View Site": "http://www.bbaysinger.com/_projects/ua3/index.html"
@@ -205,11 +210,11 @@
     "type": "",
     "date": "",
     "desc": [
-      "<p>Committee for Children is an educational charity reaching more than 16.5 million children worldwide each year in 70+ countries.</p>",
-      "<p>We developed an interactive component to provide information about their Second Step program, which consists of a multi-layered wheel navigation, dynamically rendered using SVG, React, and React Motion.</p>",
-      "<p>I took the lead on technical advising, development, and contributed to conceptualization.</p>",
-      "<p>Dynamic control of SVG in React proved powerful as it revealed to me new possibilities with vector rendering and interactivity.</p>",
-      "<p>The interactive project is no longer on their site. I'm working on repurposing a working version.</p>"
+      "<p>Committee for Children is an educational charity that reaches over 16.5 million children annually across 70+ countries.</p>",
+      "<p>We developed an interactive component to showcase their Second Step program, featuring a multi-layered wheel navigation dynamically rendered using SVG, React, and React Motion.</p>",
+      "<p>I took the lead on technical advising, development, and contributed to the project's conceptualization.</p>",
+      "<p>Working with SVG in React proved to be incredibly powerful, opening up new possibilities for vector-based rendering and interactivity.</p>",
+      "<p>The interactive feature is no longer available on their site, but I'm working on repurposing a functional version.</p>"
     ],
     "urls": {
       "View Site": "https://www.secondstep.org/what-is-second-step"
@@ -228,9 +233,9 @@
     "type": "",
     "date": "",
     "desc": [
-      "<p>An informational landing page to help Premera customers understand their benefits and where to get treated.</p>",
-      "<p>From email marketing, the page deep links into different states, via query string variables.</p>",
-      "<p>The original design called for a blur effect applied to the page underlying the modal carousel, which required some trickery in support for different browsers.</p>"
+      "<p>An informational landing page designed to help Premera customers understand their benefits and find the right treatment options.</p>",
+      "<p>The page integrates with email marketing campaigns, using query string variables to deep link users to state-specific information.</p>",
+      "<p>The original design included a blur effect on the page background when the modal carousel was active. Implementing this across different browsers required some creative problem-solving to ensure consistent support.</p>"
     ],
     "urls": {
       "View Site": "http://www.bbaysinger.com/_projects/premera/wa/index.html?slide-story=one"
@@ -249,8 +254,8 @@
     "type": "",
     "date": "",
     "desc": [
-      "<p>A promotional site for Seven2 where I had the liberty of developing in whichever way I felt comfortable. I chose Angular as it was most familiar to me. Not all of the features are complete, as the project was stopped before completion.</p>",
-      "<p>This is an extremely simple project in contrast to Angular work I did with ChalkLabs. I've included it here as it's one of the only Angular/TypeScript projects I can present source publicly.</p>"
+      "<p>A promotional site for Seven2, where I had full creative freedom in development. I chose Angular, as it was the framework I was most comfortable with at the time. The project was halted before completion, so some features remain unfinished.</p>",
+      "<p>Compared to my Angular work with ChalkLabs, this project is relatively simple. However, I've included it here as it's one of the few Angular/TypeScript projects where I can publicly share the source.</p>"
     ],
     "urls": {
       "View Site": "http://www.bbaysinger.com/_projects/s2es/index.html",
@@ -270,9 +275,9 @@
     "type": "",
     "date": "",
     "desc": [
-      "<p>The Pushgraph application is innovative software from ChalkLabs that uses semantics to analyze data and find similarities and redudancies. It was used by several government agencies for analyzing research nationwide, saving the federal government billions every year.</p>",
-      "<p>I designed the 2017 iteration UI of this software, which was a major rework over previous versions. The entirety of this version is delivered through an Angular drag/drop widget dashboard I designed and developed.</p>",
-      "<p>As a screenshot is no longer available, this is of a rough design, which was all that was required to start development. All instances of Pushgraph (and other software I developed at ChalkLabs) are highly secure, and there are no live demos. Please review the reel to get a feel for how the project turned out.</p>"
+      "<p>Pushgraph is an advanced data analysis tool developed by ChalkLabs, leveraging semantics to identify patterns, redundancies, and similarities in research data. It was widely used by government agencies, helping to save the federal government billions of dollars annually.</p>",
+      "<p>I designed the UI for the 2017 iteration, which was a significant overhaul of previous versions. This version was entirely built around an Angular-based drag-and-drop widget dashboard that I designed and developed.</p>",
+      "<p>As no screenshots are available, the image shown is a rough design used as the foundation for development. Due to the highly secure nature of Pushgraph and other ChalkLabs software, there are no live demos. Please review the project reel for a better sense of the final implementation.</p>"
     ],
     "urls": {
       "Watch Reel": "https://www.youtube.com/watch?v=Fr5IigbR36A",
@@ -292,8 +297,9 @@
     "type": "Utility",
     "date": "",
     "desc": [
-      "<p>A JavaScript web app for AT&T Wireless customers to estimate data usage, and select an appropriate plan. This is one of a few data usage calculators we developed for AT&T.</p>",
-      "<p>This is a non-responsive page, as this iteration is from before AT&T delivered on responsive technology.</p>"
+      "<p>A JavaScript web app designed for AT&T Wireless customers to estimate their data usage and choose the most suitable plan. This was one of several data usage calculators we developed for AT&T.</p>",
+      "<p>This version predates AT&T's transition to responsive design, so the page was built as a fixed-width layout.</p>",
+      "<p>Over the years, I worked on countless AT&T projects, many of which have since become legacy tech as the company evolved its platforms and offerings.</p>"
     ],
     "urls": {
       "View Site": "http://www.bbaysinger.com/_projects/data-calculator/"
@@ -312,8 +318,9 @@
     "type": "Utility",
     "date": "",
     "desc": [
-      "<p>A JavaScript web app for AT&T Wireless customers to estimate data usage between multiple devices, and select appropriate plans. Click on the 'Estimate my monthly usage in detail' links to view a hidden layer of complexity. This is one of a few data usage calculators we developed for AT&T.</p>",
-      "<p>This is a non-responsive page, as this iteration is from before AT&T delivered on responsive technology.</p>"
+      "<p>A JavaScript web app designed for AT&T Wireless customers to estimate data usage across multiple devices and select the most suitable plans. Clicking the 'Estimate my monthly usage in detail' links reveals an additional layer of complexity within the tool. This was one of several data usage calculators we developed for AT&T.</p>",
+      "<p>This version predates AT&T's transition to responsive design, so the page was built as a fixed-width layout.</p>",
+      "<p>Throughout my time working with AT&T, I contributed to numerous projects, many of which have since become legacy as the company modernized its platforms and technology.</p>"
     ],
     "urls": {
       "View Site": "http://www.bbaysinger.com/_projects/mobile-share/"
@@ -353,8 +360,8 @@
     "type": "Escape",
     "date": "",
     "desc": [
-      "<p>A post-apocalyptic escape game. We've all been nuked, but you lived and your DNA has combined with that of a tomato. If you think that's freaky, just wait until you see the rest of the house! Watch out for Mom, she's quite upset with you.</p>",
-      "<p>I produced the framework for the game and a logic system for all of the interactive elements to work with each other. At a glance, I could see that implementing 'if' statements dispersed around the site could be messy and hard to debug, so I devised a system that employs a single XML document to contain game state, define interactive elements, and how they behave with respect to each other.</p>"
+      "<p>A Where's-Waldo-style game featuring unique clues and play mechanics on each level. To save time, I activated a cheat that allows you to jump directly to any of the five levels.</p>",
+      "<p>Rather than simply increasing in difficulty, each level builds upon and enhances the gameplay style of the previous ones, leading to a more rewarding experience. The final level is the most fun—drive a submarine and use radar to locate the hidden characters.</p>"
     ],
     "urls": {
       "Walkthrough": "https://www.youtube.com/watch?v=n2R0WPWcdWM",
@@ -374,8 +381,8 @@
     "type": "Trivia",
     "date": "",
     "desc": [
-      "<p>A trivia game to test your Nickelodeon knowledge with over two thousand possible questions, some of them multimedia.</p>",
-      "<p>I built this game in its entirety, minus some animations.</p>"
+      "<p>A Nickelodeon trivia game featuring over two thousand possible questions, including multimedia-based challenges.</p>",
+      "<p>I developed the entire game, aside from contributions by animators.</p>"
     ],
     "urls": {
       "Walkthrough": "https://www.youtube.com/watch?v=-kTV1QPDJ2Y",
@@ -395,10 +402,10 @@
     "type": "",
     "date": "",
     "desc": [
-      "<p>Two dress-up games in one. This was Seven2's first game for the Nickelodeon Group. That match mode is a true test. You could say I've become a master over the years.</p>",
-      "<p>I programmed a drag-drop system that I eventually ported over into ActionScript 3.0, and then Haxe. I built most of the game, minus Blue and Magenta's animations, and the end screen. It's good to see that old alarm clock still keeps good time after all these years.</p>",
-      "<p>This project was the recipient of the Golden Pixel Addy Award in 2008.</p>",
-      "<p>This project was built in Flash before Apple killed it. I'm still trying to find a way to provide a working example. For now please enjoy the walkthrough.</p>"
+      "<p>Two dress-up games in one! This was Seven2's first game for the Nickelodeon Group. The match mode is a real challenge—you could say I've mastered it over the years.</p>",
+      "<p>I developed a custom drag-and-drop system for this project, which I later ported to ActionScript 3.0 and eventually Haxe. I built most of the game, aside from Blue and Magenta's animations and the end screen. Fun fact: that old alarm clock still keeps perfect time after all these years.</p>",
+      "<p>This project won the Golden Pixel Addy Award in 2008.</p>",
+      "<p>Originally built in Flash before Apple put an end to it, I'm still exploring ways to provide a working version. For now, please enjoy the walkthrough.</p>"
     ],
     "urls": {
       "Walkthrough": "https://www.youtube.com/watch?v=DhvAuTsJq5o"
