@@ -11,10 +11,11 @@
     "awards": "",
     "type": "",
     "desc": [
-      "<p>Obviously, you can't put your portfolio in your own portfolio without subjecting the spacetime continuum to a feedback loop, but fortunately, I'm not trying to avoid that. In all seriousness, this portfolio is not just a showcase of my work—it's a project I built to deepen my experience with React and modern front-end architecture, and to show the level of polish I can put into projects.</p>",
-      "<p>At its core, it features a highly flexible carousel component (you're looking at it), designed for seamless interactivity. This carousel supports dynamic routing, browser-native gesture-based navigation, and synchronization with multiple carousels for unique effects, including parallaxing. This is best experienced with a laptop/trackpad or touchscreen. (I'll later add click/drag support for a similar experience for mouse/pointer input.)</p>",
-      "<p>This project is a long way from complete. It has a Node/Express backend comming that I started a while back, and enumerable features and enhancements that I'm always brainstorming. (But I'm already thinking about my <i>next</i> portfolio, which will be massively different but will borrow a few features from here.)</p>",
-      "<p>The repo is public, and you can take a gander at the documentation there for more info.</p>"
+      "<p>Obviously, you can't put your portfolio in your own portfolio without risking a spacetime feedback loop—but I'm willing to take that chance.</p>",
+      "<p>In all seriousness, this portfolio isn’t just a showcase of my work; it’s a project I built to deepen my experience with React and modern front-end architecture while demonstrating the level of polish I bring to projects.</p>",
+      "<p>At its core, it features a highly flexible carousel component (you're looking at it), designed for seamless interactivity. This carousel supports dynamic routing, browser-native gesture-based navigation, and synchronized multi-carousel effects for parallax scrolling. The best experience is on a laptop/trackpad or touchscreen, though I plan to add click-and-drag support for a similar mouse interaction.</p>",
+      "<p>This project is far from finished. A Node/Express backend is in the works, and I’m constantly brainstorming enhancements. (That said, I’m already thinking about my next portfolio, which will be massively different but will borrow a few ideas from this one.)</p>",
+      "<p>The repo is public—feel free to check out the documentation for more details.</p>"
     ],
     "date": "",
     "urls": {
