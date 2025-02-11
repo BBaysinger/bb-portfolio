@@ -11,11 +11,11 @@
     "awards": "",
     "type": "",
     "desc": [
-      "<p>Obviously, you can't put your portfolio in your own portfolio without risking a spacetime feedback loop—but I'm willing to take that chance.</p>",
-      "<p>In all seriousness, this portfolio isn’t just a showcase of my work; it’s a project I built to deepen my experience with React and modern front-end architecture while demonstrating the level of polish I bring to projects.</p>",
+      "<p>Obviously, you can't put your portfolio in your own portfolio without risking a spacetime feedback loop — but I'm willing to take that chance.</p>",
+      "<p>In all seriousness, this portfolio isn't just a showcase of my work; it's a project I built to deepen my experience with React and modern front-end architecture while demonstrating the level of polish I bring to projects.</p>",
       "<p>At its core, it features a highly flexible carousel component (you're looking at it), designed for seamless interactivity. This carousel supports dynamic routing, browser-native gesture-based navigation, and synchronized multi-carousel effects for parallax scrolling. The best experience is on a laptop/trackpad or touchscreen, though I plan to add click-and-drag support for a similar mouse interaction.</p>",
-      "<p>This project is far from finished. A Node/Express backend is in the works, and I’m constantly brainstorming enhancements. (That said, I’m already thinking about my next portfolio, which will be massively different but will borrow a few ideas from this one.)</p>",
-      "<p>The repo is public—feel free to check out the documentation for more details.</p>"
+      "<p>This project is far from finished. A Node/Express backend is in the works, and I'm constantly brainstorming enhancements. (That said, I'm already thinking about my next portfolio, which will be massively different but will borrow a few ideas from this one.)</p>",
+      "<p>The code repo is public — feel free to check out the documentation for more details.</p>"
     ],
     "date": "",
     "urls": {
@@ -34,11 +34,11 @@
     "awards": "",
     "type": "",
     "desc": [
-      "<p>As mentioned, I've been deepening my experience with React. This is a reusable React slideshow component with full SPA (single-page app) features that I developed for, among other things, a deep dive into React hooks and state management.</p>",
-      "<p>Designed with scalability, performance, and accessibility in mind, it supports auto-slide functionality, deep linking via dynamic routing, and intuitive user interactions such as pausing, resuming, and manual navigation.</p>",
-      "<p>The component is highly configurable, allowing developers to pass in slides as an array of objects containing foreground and background images, thumbnails, and JSX content. It dynamically adjusts its height based on slide content to eliminate excess whitespace, ensuring an elegant layout across devices. Additionally, it integrates lazy-loaded images and optimized animations to deliver a smooth experience with minimal performance overhead.</p>",
-      "<p>It also supports custom navigation controls. There are two options out of the box, plus you can make your own and even add multiple sets.</p>",
-      "<p>There's more info in the repo. It's still pretty new, so there's more to come in the build and documentation. It's an example of code quality, so if JavaScript is your thing, please take a gander at the solutions it contains in the repo.</p>"
+      "<p>As mentioned, I've been deepening my experience with React. This project is a reusable React slideshow component with full single-page app (SPA) capabilities, developed as part of a deep dive into React hooks and state management.</p>",
+      "<p>Designed with scalability, performance, and accessibility in mind, it features auto-slide functionality, deep linking via dynamic routing, and intuitive user interactions, including pausing, resuming, and manual navigation.</p>",
+      "<p>The component is highly configurable — developers can pass in slides as an array of objects containing foreground and background images, thumbnails, and JSX content. It dynamically adjusts its height based on slide content to eliminate excess whitespace, ensuring an elegant layout across devices. Additionally, lazy-loaded images and optimized animations enhance performance for a smooth user experience.</p>",
+      "<p>Custom navigation controls are fully supported, with two built-in options available. Developers can also define their own controls and even integrate multiple sets.</p>",
+      "<p>More details are available in the code repo. This project is still evolving, with additional features and documentation in progress. It also serves as an example of code quality, so if JavaScript is your thing, take a look at the solutions it implements.</p>"
     ],
     "date": "",
     "urls": {
@@ -57,10 +57,14 @@
     "year": "",
     "awards": "",
     "type": "",
-    "desc": ["<p>Some HTML.</p>"],
+    "desc": [
+      "<p>Exact Sciences is a leading molecular diagnostics company specializing in early cancer detection and treatment guidance.</p>",
+      "<p>At Epsilon, I contributed to the development of their website within Sitecore, implementing interactive elements, refining styling, resolving defects, and building modular, reusable components to ensure scalability and consistency across the site.</p>",
+      "<p>One of my key contributions was an interactive oncology report explorer, designed to help patients and practitioners better understand their diagnostics.</p>"
+    ],
     "date": "",
     "urls": {
-      "View Site": "some/url.html"
+      "View Site": "https://www.exactsciences.com/"
     }
   },
   "golden1": {
@@ -74,10 +78,10 @@
     "year": "",
     "awards": "",
     "type": "",
-    "desc": ["<p>Some HTML.</p>"],
+    "desc": ["<p></p>", "<p></p>", "<p></p>", "<p></p>"],
     "date": "",
     "urls": {
-      "View Site": "some/url.html"
+      "View Site": "https://www.golden1.com/"
     }
   },
   "citibank": {
