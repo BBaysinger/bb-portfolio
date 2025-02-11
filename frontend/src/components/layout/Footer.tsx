@@ -42,11 +42,11 @@ const Footer: React.FC = () => {
                 className={`img-responsive ${styles["footer-photo"]}`}
                 alt="Bradley's face"
               />
-              Thanks for the visit! My site is under heavy development atm, so
-              there may be some issues. It's really just a start. Please let me
-              know if you encounter any problems. In any case, I look forward to
-              speaking with you about how I can bring unique interactive
-              experiences to your&nbsp;organization.
+              Thanks for stopping by! My site is currently under heavy
+              development, so you may run into a few issues — it's still a work
+              in progress. If you notice anything, feel free to let me know. I
+              look forward to connecting and exploring how I can bring unique
+              interactive experiences to your organization.
             </p>
           </div>
 
