@@ -287,8 +287,9 @@ const CurriculumVitae: React.FC = () => {
                   Adobe Creative Suite
                 </li>
                 <li>
-                  Developed physics-based engines and custom tween solutions for
-                  interactive projects
+                  Extensive experience with technical UI animation techniques,
+                  including the development of physics-based custom tween
+                  solutions for interactive projects.
                 </li>
               </ul>
             </div>
