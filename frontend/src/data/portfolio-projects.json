@@ -14,7 +14,8 @@
       "<p>Obviously, you can't put your portfolio in your own portfolio without risking a spacetime feedback loop — but I'm willing to take that chance.</p>",
       "<p>In all seriousness, this portfolio isn't just a showcase of my work; it's a project I built to deepen my experience with React and modern front-end architecture while demonstrating the level of polish I bring to projects.</p>",
       "<p>At its core, it features a highly flexible carousel component (you're looking at it), designed for seamless interactivity. This carousel supports dynamic routing, browser-native gesture-based navigation, and synchronized multi-carousel effects for parallax scrolling. The best experience is on a laptop/trackpad or touchscreen, though I plan to add click-and-drag support for a similar mouse interaction.</p>",
-      "<p>This project is far from finished. A Node/Express backend is in the works, and I'm constantly brainstorming enhancements. (That said, I'm already thinking about my next portfolio, which will be massively different but will borrow a few ideas from this one.)</p>",
+      "<p>This project is far from finished. A Node/Express backend is in the works, and I'm always brainstorming enhancements (and wishing I had time to implement them, lol.)</p>",
+      "<p>And I'm already thinking about my <i>next</i> portfolio, which will be massively different but will borrow a few ideas from this one.</p>",
       "<p>The code repo is public — feel free to check out the documentation for more details.</p>"
     ],
     "date": "",
@@ -170,7 +171,7 @@
       "<p>This Mario Bros. Nintendo DS game site featured a detailed hero animation, which required some intricate CSS3 work. I designed the responsive elements to adapt fluidly without relying on breakpoints, allowing the entire sequence to be scripted only once.</p>",
       "<p>The bounce effects on certain page elements and the rubbery button interactions involved creating a custom system for dynamically animating SVG paths.</p>",
       "<p>Beyond animations, I also contributed to the site's responsive layout and localization.</p>",
-      "<p>There were some challenges on this project, as the tech lead was adamant about avoiding modern development practices. I did my best to advocate for better solutions while navigating the constraints diplomatically.</p>"
+      "<p>Interestingly, of the three Nintendo projects in my portfolio, there were some challenges, as the tech lead was adamant about avoiding many modern development practices. I did my best to advocate for better solutions while navigating the constraints diplomatically.</p>"
     ],
     "urls": {
       "View Site": "http://www.bbaysinger.com/_projects/marioandluigi/index.html"
