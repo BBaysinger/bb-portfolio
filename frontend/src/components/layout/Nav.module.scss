@@ -189,7 +189,8 @@
   filter: blur(10px);
   mix-blend-mode: multiply;
   opacity: 1;
-  background: linear-gradient(
+  background:
+    linear-gradient(
       to right,
       rgba(0, 0, 0, 0) 92%,
       rgba(0, 0, 0, 0.1) 96%,

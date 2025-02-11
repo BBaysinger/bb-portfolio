@@ -1,7 +1,7 @@
 @use "@/styles/global" as *;
 @use "@/components/layout/HeaderShared.module.scss" as headerShared;
 
-header {
+header#headerSub {
   height: 37vw;
   padding-left: 20px;
   padding-right: 20px;
@@ -24,6 +24,7 @@ header {
     margin-bottom: 10px;
     font-size: 42px;
     line-height: 1em;
+    text-shadow: 3px 3px 0 rgba(0, 0, 0, 1);
 
     @include breakpoint-up($b360px) {
       font-size: 36px;
@@ -60,6 +61,7 @@ header {
     color: #fff;
     font-size: 18px;
     font-weight: 400;
+    text-shadow: 3px 3px 0 rgba(0, 0, 0, 1);
 
     @include breakpoint-up($b360px) {
       font-size: 16px;

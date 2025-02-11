@@ -5,15 +5,26 @@ header.header-main {
   padding-left: 15px;
   padding-right: 15px;
   padding-top: 0;
+  height: 37vw;
+  letter-spacing: 1px;
 
   h1 {
     letter-spacing: 0.05em;
     font-size: 48px;
     line-height: 1em;
     margin-bottom: 0.5em;
+
+    color: #fff;
+    font-weight: 400; // Only a factor before fonts load.
+
     @include breakpoint-up($b480px) {
       font-size: 48px;
     }
+  }
+
+  h5 {
+    color: white;
+    font-weight: 400;
   }
 }
 
