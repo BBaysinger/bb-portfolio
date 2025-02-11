@@ -236,7 +236,7 @@ const CurriculumVitae: React.FC = () => {
             <div className={divClassRt}>
               <h5 className={styles["sub-container"]}>
                 <div className={styles["left-sub"]}>
-                  Modern Front-End Development
+                  <h5>Modern Front-End Development</h5>
                 </div>
                 <div className={styles["break"]}></div>
               </h5>
@@ -258,7 +258,7 @@ const CurriculumVitae: React.FC = () => {
 
               <h5 className={styles["sub-container"]}>
                 <div className={styles["left-sub"]}>
-                  Creative Problem-Solving
+                  <h5>Creative Problem-Solving</h5>
                 </div>
                 <div className={styles["break"]}></div>
               </h5>
@@ -276,7 +276,7 @@ const CurriculumVitae: React.FC = () => {
 
               <h5 className={styles["sub-container"]}>
                 <div className={styles["left-sub"]}>
-                  Design &amp; Animation Background
+                  <h5>Design &amp; Animation Background</h5>
                 </div>
                 <div className={styles["break"]}></div>
               </h5>
@@ -289,7 +289,7 @@ const CurriculumVitae: React.FC = () => {
                 <li>
                   Extensive experience with technical UI animation techniques,
                   including the development of physics-based custom tween
-                  solutions for interactive projects.
+                  solutions for interactive projects
                 </li>
               </ul>
             </div>
