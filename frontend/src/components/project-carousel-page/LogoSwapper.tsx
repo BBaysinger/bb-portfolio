@@ -25,9 +25,10 @@ const clientNames: Record<string, string> = {
 };
 
 const fileVariants: Record<string, string> = {
-  att: "att-black",
-  premera: "premera-black",
+  att: "att-dark",
+  premera: "premera-dark",
   abbvie: "abbvie-dark",
+  exas: "exas-dark",
 };
 
 /**
