@@ -226,9 +226,8 @@ ul {
     display: flex;
     padding-left: 40px;
     height: 60px;
-    background: linear-gradient(#222, #111);
+    background: linear-gradient(rgba(30, 30, 30, 0.9), rgba(10, 10, 10, 0.9));
     padding-top: 0;
-    background-color: $lighterThemeColor;
   }
 
   .title,

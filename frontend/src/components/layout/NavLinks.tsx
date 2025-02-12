@@ -20,9 +20,9 @@ const NavLinks: React.FC<NavLinkProps> = ({ onClick }) => {
     <ul onClick={onClick} className={styles["nav-links"]}>
       <li>
         <NavLink
-          to="/"
+          to="/#headerMain"
           className={({ isActive }) =>
-            MiscUtils.isActiveOrAlt(isActive, "/", styles["active"])
+            MiscUtils.isActiveOrAlt(isActive, "/#headerMain", styles["active"])
           }
         >
           Home
