@@ -7,7 +7,9 @@ header.header {
   align-items: center;
   justify-content: center;
   background-image: url("/images/misc/bg-grad.svg");
-
+  background-position: center;
+  background-size: 100% 100%;
+  
   * {
     text-align: center;
   }
