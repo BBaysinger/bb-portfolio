@@ -221,7 +221,7 @@ const CurriculumVitae: React.FC = () => {
           </div>
         </div>
 
-        <div className={`container ${styles["skills"]}`}>
+        <div className={`container ${styles["strengths"]}`}>
           <h4>Core Strengths</h4>
 
           <div className={rowClass}>
