@@ -210,12 +210,16 @@ img.cv-logo {
   }
 }
 
-.skills {
+.strengths {
   ul {
     margin-bottom: 40px;
   }
   h5 {
     color: $heavierThemeColor;
+    font-size: 32px;
+  }
+  li {
+    font-size: 16px;
   }
 }
 
