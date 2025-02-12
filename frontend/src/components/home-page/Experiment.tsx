@@ -12,7 +12,7 @@ type FloatingObject = {
 /**
  * Lol, this was some brainstomring I'll come back to later.
  *
- * Don't lose this code. It's amazing.
+ * Don't lose this code.
  */
 const FloatingObjectsWithDamping: React.FC = () => {
   const [objects, setObjects] = useState<FloatingObject[]>([
