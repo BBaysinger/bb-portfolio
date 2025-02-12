@@ -4,7 +4,7 @@ import { useDispatch } from "react-redux";
 
 import { closeMenu } from "store/menuSlice";
 import Hamburger from "components/layout/Hamburger";
-import MiscUtils from "utils/MiscUtils";
+import NavLinks from "./NavLinks";
 import navLogo from "images/misc/bb-logo.svg";
 import styles from "./Nav.module.scss";
 
@@ -55,26 +55,7 @@ const Nav: React.FC<NavProps> = ({ variant }) => {
         </div>
       </NavLink>
 
-      <ul onClick={closeMenuHandler} className={styles["slideout-nav-buttons"]}>
-        <li>
-          <NavLink
-            to="/portfolio#list"
-            className={({ isActive }) =>
-              MiscUtils.isActiveOrAlt(isActive, "/", styles["active"])
-            }
-          >
-            Portfolio
-          </NavLink>
-        </li>
-        <li>
-          <NavLink
-            to="/cv#headerSub"
-            className={({ isActive }) => (isActive ? styles["active"] : "")}
-          >
-            CV
-          </NavLink>
-        </li>
-      </ul>
+      <NavLinks onClick={closeMenuHandler} />
 
       {variant === NavVariant.TOP_BAR && <Hamburger />}
     </nav>

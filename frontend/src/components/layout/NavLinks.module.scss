@@ -1,0 +1,34 @@
+@use "@/styles/global" as *;
+
+.nav-links {
+  ul {
+    display: flex;
+    list-style-type: none;
+    padding-left: 0;
+  }
+
+  li {
+    a {
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      color: #888;
+      text-decoration: none;
+      font-size: 20px;
+      height: 100%;
+      width: 100%;
+      &.active,
+      &.active:visited {
+        color: #fff;
+      }
+    }
+
+    &:hover {
+      a {
+        color: #fff;
+        text-decoration: underline;
+      }
+    }
+  }
+}

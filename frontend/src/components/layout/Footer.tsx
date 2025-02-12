@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-
-import MiscUtils from "utils/MiscUtils";
 import { NavLink } from "react-router-dom";
+
+import NavLinks from "./NavLinks";
 import styles from "./Footer.module.scss"; // Assuming you're using SCSS modules
 
 /**
@@ -146,28 +146,7 @@ const Footer: React.FC = () => {
           <div
             className={`col-xs-12 col-sm-12 col-md-2 col-lg-2 ${styles["footer-cell"]} ${styles["footer-nav"]}`}
           >
-            <ul>
-              <li>
-                <NavLink
-                  className={({ isActive }) =>
-                    MiscUtils.isActiveOrAlt(isActive, "/", styles["active"])
-                  }
-                  to="/portfolio#list"
-                >
-                  Portfolio
-                </NavLink>
-              </li>
-              <li>
-                <NavLink
-                  className={({ isActive }) =>
-                    isActive ? styles["active"] : ""
-                  }
-                  to="/cv#headerSub"
-                >
-                  CV
-                </NavLink>
-              </li>
-            </ul>
+            <NavLinks />
           </div>
         </div>
       </div>
