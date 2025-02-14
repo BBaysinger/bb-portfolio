@@ -20,7 +20,7 @@
     "@reduxjs/toolkit": "^2.5.1",
     "@vitejs/plugin-react-swc": "^3.8.0",
     "exenv": "^1.2.2",
-    "gsap": "^3.12.7",
+    "gsap": "npm:@gsap/shockingly@^3.12.7",
     "mitt": "^3.0.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
