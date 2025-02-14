@@ -23,7 +23,7 @@ export const useDragInertia = (
     const carousel = carouselRef.current;
     if (!carousel || isSlave) return;
 
-    const handlePointerDown = (e: PointerEvent) => {
+    const handleMouseDown = (e: MouseEvent) => {
       setIsDragging(true);
       setSnap("none"); // Disable snapping when dragging starts
       startXRef.current = e.clientX;
@@ -34,14 +34,14 @@ export const useDragInertia = (
       carousel.style.cursor = "grabbing";
     };
 
-    const handlePointerMove = (e: PointerEvent) => {
+    const handleMouseMove = (e: MouseEvent) => {
       if (!isDragging) return;
       const deltaX = e.clientX - startXRef.current;
       carousel.scrollLeft = scrollLeftRef.current - deltaX;
       velocityRef.current = deltaX; // Capture velocity
     };
 
-    const handlePointerUp = () => {
+    const handleMouseUp = () => {
       setIsDragging(false);
       applyInertia();
 
@@ -49,43 +49,30 @@ export const useDragInertia = (
     };
 
     const applyInertia = () => {
-      if (Math.abs(velocityRef.current) < 0.5) {
-        snapToClosest();
+      if (!carousel) return;
+
+      // Stop if velocity is low enough
+      if (Math.abs(velocityRef.current) < 0.1) {
+        velocityRef.current = 0;
         return;
       }
+
       carousel.scrollLeft -= velocityRef.current;
       velocityRef.current *= 0.95; // Apply friction
+
       animationRef.current = requestAnimationFrame(applyInertia);
     };
 
-    const snapToClosest = () => {
-      const index = Math.round(carousel.scrollLeft / slideSpacing);
-      const target = index * slideSpacing;
-      animateTo(target);
-    };
-
-    const animateTo = (target: number) => {
-      if (Math.abs(target - carousel.scrollLeft) < 1) {
-        carousel.scrollLeft = target;
-        setSnap("x mandatory"); // Re-enable snap after inertia stops
-        return;
-      }
-      carousel.scrollLeft += (target - carousel.scrollLeft) * 0.1;
-      animationRef.current = requestAnimationFrame(() => animateTo(target));
-    };
-
-    carousel.addEventListener("pointerdown", handlePointerDown);
-    carousel.addEventListener("pointermove", handlePointerMove);
-    carousel.addEventListener("pointerup", handlePointerUp);
-    carousel.addEventListener("pointerleave", handlePointerUp);
+    carousel.addEventListener("mousedown", handleMouseDown);
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleMouseUp);
 
     carousel.style.cursor = "grab";
 
     return () => {
-      carousel.removeEventListener("pointerdown", handlePointerDown);
-      carousel.removeEventListener("pointermove", handlePointerMove);
-      carousel.removeEventListener("pointerup", handlePointerUp);
-      carousel.removeEventListener("pointerleave", handlePointerUp);
+      carousel.removeEventListener("mousedown", handleMouseDown);
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
     };
   }, [isDragging, carouselRef, setSnap, isSlave, slideSpacing]);
 
