@@ -9,6 +9,9 @@ import { useRef, useState, useEffect } from "react";
  */
 export const useDragInertia = (
   carouselRef: React.RefObject<HTMLDivElement | null>,
+  setSnap: React.Dispatch<React.SetStateAction<"none" | "x mandatory">>,
+  slideSpacing: number,
+  isSlave: boolean,
 ) => {
   const [isDragging, setIsDragging] = useState(false);
   const velocityRef = useRef(0);
@@ -18,14 +21,17 @@ export const useDragInertia = (
 
   useEffect(() => {
     const carousel = carouselRef.current;
-    if (!carousel) return;
+    if (!carousel || isSlave) return;
 
     const handlePointerDown = (e: PointerEvent) => {
       setIsDragging(true);
+      setSnap("none"); // Disable snapping when dragging starts
       startXRef.current = e.clientX;
       scrollLeftRef.current = carousel.scrollLeft;
       velocityRef.current = 0;
       if (animationRef.current) cancelAnimationFrame(animationRef.current);
+
+      carousel.style.cursor = "grabbing";
     };
 
     const handlePointerMove = (e: PointerEvent) => {
@@ -38,6 +44,8 @@ export const useDragInertia = (
     const handlePointerUp = () => {
       setIsDragging(false);
       applyInertia();
+
+      carousel.style.cursor = "grab";
     };
 
     const applyInertia = () => {
@@ -51,15 +59,15 @@ export const useDragInertia = (
     };
 
     const snapToClosest = () => {
-      const slideWidth = carousel.clientWidth;
-      const index = Math.round(carousel.scrollLeft / slideWidth);
-      const target = index * slideWidth;
+      const index = Math.round(carousel.scrollLeft / slideSpacing);
+      const target = index * slideSpacing;
       animateTo(target);
     };
 
     const animateTo = (target: number) => {
       if (Math.abs(target - carousel.scrollLeft) < 1) {
         carousel.scrollLeft = target;
+        setSnap("x mandatory"); // Re-enable snap after inertia stops
         return;
       }
       carousel.scrollLeft += (target - carousel.scrollLeft) * 0.1;
@@ -71,13 +79,15 @@ export const useDragInertia = (
     carousel.addEventListener("pointerup", handlePointerUp);
     carousel.addEventListener("pointerleave", handlePointerUp);
 
+    carousel.style.cursor = "grab";
+
     return () => {
       carousel.removeEventListener("pointerdown", handlePointerDown);
       carousel.removeEventListener("pointermove", handlePointerMove);
       carousel.removeEventListener("pointerup", handlePointerUp);
       carousel.removeEventListener("pointerleave", handlePointerUp);
     };
-  }, [isDragging, carouselRef]);
+  }, [isDragging, carouselRef, setSnap, isSlave, slideSpacing]);
 
   return { isDragging };
 };

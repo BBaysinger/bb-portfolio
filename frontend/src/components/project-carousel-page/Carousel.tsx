@@ -68,6 +68,7 @@ import styles from "./Carousel.module.scss";
  *
  * @author Bradley Baysinger
  * @since 2024-12-16
+ * @version N/A
  */
 const Carousel = memo(
   forwardRef<CarouselRef, CarouselProps>((props, ref) => {
@@ -106,9 +107,7 @@ const Carousel = memo(
     // Checks if the carousel is in slave mode.
     const isSlave = () => typeof externalScrollLeftRef.current === "number";
 
-    const dragInertia = !isSlave()
-      ? useDragInertia(scrollerRef)
-      : { isDragging: false };
+    useDragInertia(scrollerRef, setSnap, slideSpacing, isSlave());
 
     // Memoized slides for optimized re-renders
     const memoizedSlides = useMemo(() => slides, [slides]);
