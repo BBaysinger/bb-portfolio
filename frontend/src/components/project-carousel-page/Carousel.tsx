@@ -19,6 +19,7 @@ import {
   type DirectionType,
   type CarouselRef,
 } from "./CarouselTypes";
+import { useDragInertia } from "./useDragInertia";
 import styles from "./Carousel.module.scss";
 
 /**
@@ -26,7 +27,7 @@ import styles from "./Carousel.module.scss";
  * - Minimal state, for performance and smoothest user interaction possible.
  * - Bi-directional, infinite-scroll carousel with wrap-around behavior.
  * - Leverages browser-native HTML inertial touch/swipe trackpad/gesture scrolling for smooth interactions.
- * - Infinite scroll supporting master-slave architecture for synchronized parallax effects.
+ * - Infinite scroll supporting master-slave architecture for synchronizing parallax effects.
  * - Built for performance and smooth user interaction with inertial scrolling and precise position tracking.
  * - Designed to handle various use cases, including custom scroll synchronization and routing.
  * - Slides are passed as props.
@@ -101,6 +102,13 @@ const Carousel = memo(
     const scrollDirectionRef = useRef<DirectionType>(Direction.LEFT);
     const stableIndex = useRef<number | null>(initialIndex);
     const scrollIndexRef = useRef<number>(initialIndex);
+
+    // Checks if the carousel is in slave mode.
+    const isSlave = () => typeof externalScrollLeftRef.current === "number";
+
+    const dragInertia = !isSlave()
+      ? useDragInertia(scrollerRef)
+      : { isDragging: false };
 
     // Memoized slides for optimized re-renders
     const memoizedSlides = useMemo(() => slides, [slides]);
@@ -287,9 +295,6 @@ const Carousel = memo(
         };
       }
     }, [handleScroll, frameDuration]);
-
-    // Checks if the carousel is in slave mode.
-    const isSlave = () => typeof externalScrollLeftRef.current === "number";
 
     // Returns the base offset used for infinite scrolling.
     const patchedOffset = () => (isSlave() ? 0 : BASE_OFFSET);
