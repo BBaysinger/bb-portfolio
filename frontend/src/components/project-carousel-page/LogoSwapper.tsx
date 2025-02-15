@@ -72,7 +72,7 @@ const LogoSwapper: React.FC<LogoSwapperProps> = ({ projectId }) => {
     <div className={"max-w-container"}>
       <div className={"container"}>
         <div
-          className={`${styles["logo-swapper"]} ${isBlurred ? "" : styles.unblurred} ${
+          className={`${styles["logo-swapper"]} ${isBlurred ? "" : styles["un-blurred"]} ${
             isMounted ? styles["fade-in"] : styles["fade-out"]
           }`}
         >

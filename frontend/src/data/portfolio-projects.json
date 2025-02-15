@@ -81,7 +81,7 @@
     "type": "",
     "desc": [
       "<p>I contributed to the Golden1 Credit Union website by developing interactive features such as accordions, global navigation menus, and a card comparison tool—though the latter has become somewhat redundant now that the number of available cards has been reduced to three.</p>",
-      "<p>In addition to feature development, I was responsible for optimizing performance, accessibility, and SEO. Using Lighthouse diagnostics, I meticulously audited both the front-end and source code to identifiy and reduce unused and bloated code, and identify and resolve inefficiencies.</p>",
+      "<p>In addition to feature development, I was responsible for optimizing performance, accessibility, and SEO. Using Lighthouse diagnostics, I meticulously audited both the front-end and source code to identify and reduce unused and bloated code, and identify and resolve inefficiencies.</p>",
       "<p>That said, I've noticed a few defects that have crept in since my time on the project—definitely not claiming those, lol.</p>"
     ],
     "date": "",
@@ -102,8 +102,8 @@
     "type": "",
     "date": "",
     "desc": [
-      "<p>I developed a few parts of the Citibank site, including the Citigold Benefits, Compare Cards, and a couple of thes Calculators, along with various modals around the site.</p>",
-      "<p>The benefits page includes drop-downs, a slider, and tabbed layouts, and a plethora of dynamicaly populated fields.</p>",
+      "<p>I developed a few parts of the Citibank site, including the Citigold Benefits, Compare Cards, and a couple of the Calculators, along with various modals around the site.</p>",
+      "<p>The benefits page includes drop-downs, a slider, and tabbed layouts, and a plethora of dynamically populated fields.</p>",
       "<p>The loan and equity calculators use Angular custom components and formulas provided by Citibank.</p>"
     ],
     "urls": {

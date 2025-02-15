@@ -51,7 +51,7 @@ const PortfolioList: React.FC = () => {
   );
 
   /**
-   * Updates the focused thumbnail on hoverless views based on scroll or resize events.
+   * Updates the focused thumbnail on hover-less views based on scroll or resize events.
    */
   const update = useCallback(
     (_: Event) => {

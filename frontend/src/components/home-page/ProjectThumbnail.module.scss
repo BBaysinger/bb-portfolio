@@ -4,7 +4,7 @@
 .project-thumbnail {
   height: 290px;
   position: relative;
-  overflow: hidden; // Fix gap on left side of vingette.
+  overflow: hidden; // Fix gap on left side of vignette.
   width: 100vw;
 
   @include breakpoint-up($b768px) {
@@ -20,7 +20,7 @@
       .thumb-bg {
         filter: blur(0);
       }
-      .vingette {
+      .vignette {
         opacity: 0.5;
         transition: opacity 0.3s linear;
       }
@@ -46,7 +46,7 @@
         filter: blur(0);
       }
 
-      .vingette {
+      .vignette {
         opacity: 0.5;
         transition: opacity 0.3s linear;
       }
@@ -82,7 +82,7 @@ h4.thumb-title {
   font-weight: 400;
 }
 
-.vingette {
+.vignette {
   position: absolute;
   background-image: url("../../images/misc/vignette.svg");
   height: 100%;
