@@ -32,6 +32,7 @@ interface CarouselProps {
   ) => void; // Callback when the scroll stabilizes on a specific index.
   stabilizationDelay?: number; // Delay (ms) before a new stable index is reported.
   id?: string; // Optional ID for debugging or DOM referencing.
+  isSlaveMode?: boolean; // Flag indicating if the carousel is in slave mode (synchronized with another carousel).
 }
 
 // CarouselRef defines methods exposed to parent components via `ref`.

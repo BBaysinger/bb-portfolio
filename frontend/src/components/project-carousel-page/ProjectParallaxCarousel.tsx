@@ -171,6 +171,7 @@ const ProjectParallaxCarousel = memo(
             initialIndex={initialIndex}
             wrapperClassName={"bb-carousel bb-carousel-laptops"}
             id="laptops"
+            isSlaveMode={true}
           />
 
           {/* Master Layer: Controls scroll and index synchronization */}
@@ -185,6 +186,7 @@ const ProjectParallaxCarousel = memo(
             wrapperClassName={"bb-carousel bb-carousel-master"}
             slideClassName={"bb-slide-wrapper"}
             id="master"
+            isSlaveMode={false}
           />
 
           {/* Layer 2: Parallax carousel for display */}
@@ -200,6 +202,7 @@ const ProjectParallaxCarousel = memo(
             initialIndex={initialIndex}
             wrapperClassName={"bb-carousel bb-carousel-phones"}
             id="phones"
+            isSlaveMode={true}
           />
         </div>
       );

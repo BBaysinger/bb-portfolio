@@ -84,6 +84,7 @@ const Carousel = memo(
       onScrollUpdate,
       onStabilizationUpdate,
       stabilizationDelay = 800,
+      isSlaveMode = false,
     } = props;
     // State Variables
     const [scrollIndex, setScrollIndex] = useState(initialIndex); // Current scroll index.
@@ -104,13 +105,10 @@ const Carousel = memo(
     const stableIndex = useRef<number | null>(initialIndex);
     const scrollIndexRef = useRef<number>(initialIndex);
 
-    // Checks if the carousel is in slave mode.
-    const isSlave = () => typeof externalScrollLeftRef.current === "number";
-
-    useDragInertia(scrollerRef, setSnap, slideSpacing, isSlave());
-
     // Memoized slides for optimized re-renders
     const memoizedSlides = useMemo(() => slides, [slides]);
+
+    useDragInertia(scrollerRef, setSnap, slideSpacing, isSlaveMode);
 
     useEffect(() => {
       scrollIndexRef.current = scrollIndex;
@@ -284,7 +282,7 @@ const Carousel = memo(
       };
 
       // Only attach scroll listener if not in slave mode.
-      if (!isSlave()) {
+      if (!isSlaveMode) {
         const scroller = scrollerRef.current;
         scroller?.addEventListener("scroll", scrollListener);
 
@@ -296,7 +294,7 @@ const Carousel = memo(
     }, [handleScroll, frameDuration]);
 
     // Returns the base offset used for infinite scrolling.
-    const patchedOffset = () => (isSlave() ? 0 : BASE_OFFSET);
+    const patchedOffset = () => (isSlaveMode ? 0 : BASE_OFFSET);
 
     // Extracts current positions, multipliers, and offsets for slides.
     const {
@@ -325,7 +323,7 @@ const Carousel = memo(
 
       setScrollIndex(newScrollIndex);
 
-      if (!isSlave()) {
+      if (!isSlaveMode) {
         scrollerRef.current.scrollLeft = targetScrollLeft;
       }
 
@@ -438,7 +436,7 @@ const Carousel = memo(
       <div
         ref={wrapperRef}
         className={
-          `${styles["carousel-wrapper"]} ${isSlave() ? styles["slave-wrapper"] : ""} ` +
+          `${styles["carousel-wrapper"]} ${isSlaveMode ? styles["slave-wrapper"] : ""} ` +
           wrapperClassName
         }
       >
