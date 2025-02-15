@@ -12,8 +12,8 @@
     "type": "",
     "desc": [
       "<p>Obviously, you can't add your portfolio as one of its own pieces without risking a spacetime feedback loop — but I'm willing to take a chance on that.</p>",
-      "<p>In all seriousness, this portfolio isn't just a showcase of my work; it's a project I built to deepen my experience with React and modern front-end architecture while demonstrating the level of polish I bring to projects.</p>",
-      "<p>At its core, this project features a highly flexible carousel component (you're looking at it). While it may seem standard at a glance, it's built for seamless interactivity with features that make it totally unique. It supports synchronization for parallaxing, native touch and gesture scrolling, and custom inertia-driven drag mechanics powered by GSAP — blending the best of native and enhanced interactions. The result? A smoother, more intuitive experience that's <i>accessible</i>, and feels as good as it looks.</p>",
+      "<p>In all seriousness, this portfolio isn't just a showcase of my work; it's a project I built to refresh and updated myself with React while demonstrating the level of polish I bring to projects.</p>",
+      "<p>At its core, this project features a highly flexible carousel component (you're looking at it). While it may seem standard at a glance, it's built for seamless interactivity with features that make it totally unique. It supports synchronization for parallaxing, native touch and gesture scrolling, and custom inertia-driven drag mechanics powered by GSAP — blending the best of native and enhanced interactions. The result? A smoother, more intuitive experience that's <i>accessible</i>, and feels as good as it looks. And it's integrated here with React router's dynamic routing. After a few interactions, navigate your history to watch it respond.</p>",
       "<p>This project is far from finished. A Node/Express backend is in the works, and I'm always brainstorming enhancements (and wishing I had time to implement them, lol.)</p>",
       "<p>And I'm already thinking about my <i>next</i> portfolio, which will be massively different but will borrow a few ideas from this one.</p>",
       "<p>The code repo is public — feel free to check out the documentation for more details.</p>"
@@ -256,7 +256,7 @@
     "date": "",
     "desc": [
       "<p>A promotional site for Seven2, where I had full creative freedom in development. I chose Angular, as it was the framework I was most comfortable with at the time. The project was halted before completion, so some features remain unfinished.</p>",
-      "<p>But there are some interesting animations that were created in Adobe Animate and exported for HTML5 canvas. I have extensive experience in animations created this way, and have authored some timeline tools that enable Flash-line interactivity.</p>"
+      "<p>But there are some interesting animations that were created in Adobe Animate and exported for HTML5 canvas. I have extensive experience in animations created this way, and have authored some timeline tools that enable Flash-like interactivity.</p>"
     ],
     "urls": {
       "View Site": "http://www.bbaysinger.com/_projects/s2es/index.html",
