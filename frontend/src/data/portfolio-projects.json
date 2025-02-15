@@ -12,10 +12,11 @@
     "type": "",
     "desc": [
       "<p>Obviously, you can't add your portfolio as one of its own pieces without risking a spacetime feedback loop — but I'm willing to take a chance on that.</p>",
-      "<p>In all seriousness, this portfolio isn't just a showcase of my work; it's a project I built to refresh and updated myself with React while demonstrating the level of polish I bring to projects.</p>",
-      "<p>At its core, this project features a highly flexible carousel component (you're looking at it). While it may seem standard at a glance, it's built for seamless interactivity with features that make it totally unique. It supports synchronization for parallaxing, native touch and gesture scrolling, and custom inertia-driven drag mechanics powered by GSAP — blending the best of native and enhanced interactions. The result? A smoother, more intuitive experience that's <i>accessible</i>, and feels as good as it looks. And it's integrated here with React router's dynamic routing. After a few interactions, navigate your history to watch it respond.</p>",
-      "<p>This project is far from finished. A Node/Express backend is in the works, and I'm always brainstorming enhancements (and wishing I had time to implement them, lol.)</p>",
-      "<p>And I'm already thinking about my <i>next</i> portfolio, which will be massively different but will borrow a few ideas from this one.</p>",
+      "<p>In all seriousness, this portfolio isn't just a showcase of my work; it's a project I built to refresh myself with React while demonstrating the level of polish I bring to projects.</p>",
+      "<p>At its core, this project features a highly-flexible carousel component (you're looking at it). While it may seem standard at a glance, it's built for seamless interactivity with features that make it totally unique. It supports synchronization for parallaxing, native touch and gesture scrolling, and custom inertia-driven drag mechanics powered by GSAP — blending the best of native and enhanced interactions.</p>",
+      "<p>My question to you is, have you ever seen a <i>natively-accessible</i> parallaxing carousel? No, and this is likely a first.</p>",
+      "<p>And on top of all that, it's integrated here with React Router dynamic routing. Make a few interactions, and then navigate the browser history buttons.</p>",
+      "<p>This project is far from finished. A Node/Express backend is in the works, and I'll otherwise be enhancing it on an ongoing basis.</p>",
       "<p>The code repo is public — feel free to check out the documentation for more details.</p>"
     ],
     "date": "",
