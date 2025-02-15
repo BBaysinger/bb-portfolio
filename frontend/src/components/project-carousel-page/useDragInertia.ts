@@ -12,7 +12,7 @@ gsap.registerPlugin(Draggable, InertiaPlugin);
  * strategies in the future. The user inputs built into the carousel are
  * browser-native, and this merely completes the component with expected
  * experience/behavior.
- * 
+ *
  * References:
  * https://gsap.com/community/forums/topic/33288-gsap-observer-velocity-drag/
  * https://gsap.com/community/forums/topic/32443-draggable-infinite-carousel-with-snap-and-indexing/
@@ -26,8 +26,15 @@ export const useDragInertia = (
   setSnap: React.Dispatch<React.SetStateAction<"none" | "x mandatory">>,
   slideSpacing: number,
   isSlave: boolean,
+  wrapperWidth: number,
+  slideWidth: React.RefObject<number>,
 ) => {
   const draggableRef = useRef<Draggable | null>(null);
+  const containerOffsetRef = useRef<number>(0);
+
+  useEffect(() => {
+    containerOffsetRef.current = (wrapperWidth - slideWidth.current) / 2;
+  }, [wrapperWidth, slideWidth]);
 
   useEffect(() => {
     const scroller = scrollerRef.current;
@@ -36,22 +43,26 @@ export const useDragInertia = (
     // Disable snapping when dragging starts
     const handlePress = () => setSnap("none");
 
-    // Re-enable snapping when dragging ends
-    // const handleRelease = () => setSnap("x mandatory");
-
     const draggable = Draggable.create(scroller, {
       type: "scrollLeft", // NOTE: Mutates the DOM by nesting the scroller
       allowNativeTouchScrolling: true,
       inertia: true,
       throwProps: true, // Enables smooth inertia-based scrolling
       cursor: "grab",
+      snap: (endValue) => {
+        // HACK: Hardcoded for now.
+        const retVal = -Math.round(endValue / slideSpacing) * slideSpacing - 79;
+        return retVal;
+      },
       onPress: () => {
         gsap.set(scroller, { cursor: "grabbing" });
         handlePress();
       },
       onRelease: () => {
         gsap.set(scroller, { cursor: "grab" });
-        // handleRelease();
+      },
+      onThrowComplete: () => {
+        setSnap("x mandatory");
       },
     })[0];
 
@@ -62,5 +73,5 @@ export const useDragInertia = (
     };
   }, [scrollerRef, setSnap, slideSpacing, isSlave]);
 
-  return { draggable: draggableRef.current };
+  return draggableRef;
 };
