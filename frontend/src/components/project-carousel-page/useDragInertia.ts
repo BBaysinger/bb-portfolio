@@ -3,7 +3,6 @@ import gsap from "gsap";
 import { Draggable } from "gsap/Draggable";
 import { InertiaPlugin } from "gsap/InertiaPlugin";
 
-// Register GSAP plugins
 gsap.registerPlugin(Draggable, InertiaPlugin);
 
 /**
@@ -11,7 +10,7 @@ gsap.registerPlugin(Draggable, InertiaPlugin);
  * One reason this is separate is that it uses GSAP's InertiaPlugin, which
  * is a paid subscription feature. And we may want different/optional
  * strategies in the future. The user inputs built into the carousel are
- * browser-native, and this merely completes the feature with expected
+ * browser-native, and this merely completes the component with expected
  * experience/behavior.
  * 
  * References:
@@ -42,7 +41,7 @@ export const useDragInertia = (
     // const handleRelease = () => setSnap("x mandatory");
 
     const draggable = Draggable.create(scroller, {
-      type: "scrollLeft",
+      type: "scrollLeft", // NOTE: Mutates the DOM by nesting the scroller
       allowNativeTouchScrolling: true,
       inertia: true,
       edgeResistance: 0.75, // Adds slight resistance at the edges
