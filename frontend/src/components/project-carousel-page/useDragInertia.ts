@@ -33,7 +33,6 @@ export const useDragInertia = (
     const scroller = scrollerRef.current;
     if (!scroller || isSlave) return;
 
-    console.log(isSlave);
     // Disable snapping when dragging starts
     const handlePress = () => setSnap("none");
 
@@ -44,7 +43,6 @@ export const useDragInertia = (
       type: "scrollLeft", // NOTE: Mutates the DOM by nesting the scroller
       allowNativeTouchScrolling: true,
       inertia: true,
-      edgeResistance: 0.75, // Adds slight resistance at the edges
       throwProps: true, // Enables smooth inertia-based scrolling
       cursor: "grab",
       onPress: () => {
