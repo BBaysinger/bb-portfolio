@@ -111,7 +111,14 @@ const Carousel = memo(
     // This mutates the DOM by adding a child to the scrollerRef as an additional
     // wrapper to the slides. That does't affect anything and doesn't necessitate
     // any changes in the code.
-    useDragInertia(scrollerRef, setSnap, slideSpacing, isSlaveMode);
+    const draggable = useDragInertia(
+      scrollerRef,
+      setSnap,
+      slideSpacing,
+      isSlaveMode,
+      wrapperWidth,
+      slideWidthRef,
+    );
 
     useEffect(() => {
       scrollIndexRef.current = scrollIndex;
@@ -270,6 +277,13 @@ const Carousel = memo(
 
       // Listener to manage scroll updates while throttling based on FPS.
       const scrollListener = (_: Event) => {
+        if (
+          !draggable.current?.isThrowing &&
+          !draggable.current?.isDragging &&
+          snap !== "x mandatory"
+        ) {
+          setSnap("x mandatory");
+        }
         if (animationFrameId === null) {
           animationFrameId = requestAnimationFrame((currentTime) => {
             const deltaTime = currentTime - lastFrameTime;
