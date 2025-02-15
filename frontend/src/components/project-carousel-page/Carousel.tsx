@@ -278,8 +278,10 @@ const Carousel = memo(
       // Listener to manage scroll updates while throttling based on FPS.
       const scrollListener = (_: Event) => {
         if (
+          // TODO: Maybe these should change scrollTriggerSource to IMPERATIVE?
           !draggable.current?.isThrowing &&
           !draggable.current?.isDragging &&
+          scrollTriggerSource.current !== Source.IMPERATIVE &&
           snap !== "x mandatory"
         ) {
           setSnap("x mandatory");
