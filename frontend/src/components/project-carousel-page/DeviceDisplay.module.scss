@@ -23,10 +23,6 @@
   box-sizing: border-box;
   width: 100%;
 
-  .sceencap {
-    position: absolute;
-  }
-
   &.laptop {
     background-image: url("../../images/project-carousel/laptop.webp");
     background-position: calc(50% + 2px) center;

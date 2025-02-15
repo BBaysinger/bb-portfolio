@@ -6,7 +6,7 @@ import styles from "./CurriculumVitae.module.scss";
 /**
  * CV Page. Mostly static HTML, with some helper functions for formatting.
  *
- * TODO: Sections should be modularised into reusable components.
+ * TODO: Sections should be modularized into reusable components.
  *
  * @author Bradley Baysinger
  * @since The beginning of time.

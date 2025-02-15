@@ -39,7 +39,7 @@ const ProjectThumbnail = forwardRef<HTMLDivElement, ProjectThumbnailProps>(
       <div className={`${styles["project-thumbnail"]} ${focusClass}`} ref={ref}>
         <Link to={`/portfolio/${projectId}#project`}>
           <div className={styles["thumb-bg"]} style={style}></div>
-          <div className={styles["vingette"]}></div>
+          <div className={styles["vignette"]}></div>
           <div className={styles["thumb-content"]}>
             <div>
               <img

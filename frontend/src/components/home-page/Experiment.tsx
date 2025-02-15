@@ -10,7 +10,7 @@ type FloatingObject = {
 };
 
 /**
- * Lol, this was some brainstomring I'll come back to later.
+ * Lol, this was some brainstorming I'll come back to later.
  *
  * Don't lose this code.
  */

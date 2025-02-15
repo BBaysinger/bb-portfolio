@@ -39,22 +39,22 @@ export const useDragInertia = (
 
     const draggable = Draggable.create(scroller, {
       type: "scrollLeft",
-        allowNativeTouchScrolling: true,
-        force3D: false,
-        trigger: scroller, // Ensures it uses the correct element
-        inertia: true,
-        edgeResistance: 0.75, // Adds slight resistance at the edges
-        bounds: scroller.parentElement || scroller, // Prevents dragging too far
-        throwProps: true, // Enables smooth inertia-based scrolling
-        cursor: "grab",
-        onPress: () => {
-          gsap.set(scroller, { cursor: "grabbing" });
-          handlePress();
-        },
-        onRelease: () => {
-          gsap.set(scroller, { cursor: "grab" });
-          // handleRelease();
-        },
+      allowNativeTouchScrolling: true,
+      force3D: false,
+      trigger: scroller, // Ensures it uses the correct element
+      inertia: true,
+      edgeResistance: 0.75, // Adds slight resistance at the edges
+      bounds: scroller.parentElement || scroller, // Prevents dragging too far
+      throwProps: true, // Enables smooth inertia-based scrolling
+      cursor: "grab",
+      onPress: () => {
+        gsap.set(scroller, { cursor: "grabbing" });
+        handlePress();
+      },
+      onRelease: () => {
+        gsap.set(scroller, { cursor: "grab" });
+        // handleRelease();
+      },
     })[0];
 
     draggableRef.current = draggable;
