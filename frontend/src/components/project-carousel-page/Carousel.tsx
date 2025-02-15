@@ -46,7 +46,7 @@ import styles from "./Carousel.module.scss";
  *    - Future Improvement: Reset offsets during scroll stops once Safari supports the `scrollend` event (which will make the solution more elegant).
  *
  * 2. **Scroll Snap Behavior:** `scroll-snap-type: x mandatory` can interfere with initial positioning and callbacks.
- *    - Resolution: Applied on a delay post-render to avoid recursion issues, which also allows for visual inpsection of alignment before being applied.
+ *    - Resolution: Applied on a delay post-render to avoid recursion issues, which also allows for visual inspection of alignment before being applied.
  *
  * 3. **Initial Offset:** Initially setting `scrollLeft` to the base offset requires the scroller to be shimmed/propped to the required width
  *    if there are no slides to the right of the initial index.
@@ -108,6 +108,9 @@ const Carousel = memo(
     // Memoized slides for optimized re-renders
     const memoizedSlides = useMemo(() => slides, [slides]);
 
+    // This mutates the DOM by adding a child to the scrollerRef as an additional
+    // wrapper to the slides. That does't affect anything and doesn't necessitate
+    // any changes in the code.
     useDragInertia(scrollerRef, setSnap, slideSpacing, isSlaveMode);
 
     useEffect(() => {
