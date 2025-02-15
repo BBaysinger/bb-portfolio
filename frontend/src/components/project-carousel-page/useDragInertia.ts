@@ -7,8 +7,14 @@ import { InertiaPlugin } from "gsap/InertiaPlugin";
 gsap.registerPlugin(Draggable, InertiaPlugin);
 
 /**
- * Custom hook to handle click/drag/inertia for a carousel component.
- * Reference:
+ * Custom hook to handle click/drag/inertia for mouse/pointer input.
+ * One reason this is separate is that it uses GSAP's InertiaPlugin, which
+ * is a paid subscription feature. And we may want different/optional
+ * strategies in the future. The user inputs built into the carousel are
+ * browser-native, and this merely completes the feature with expected
+ * experience/behavior.
+ * 
+ * References:
  * https://gsap.com/community/forums/topic/33288-gsap-observer-velocity-drag/
  * https://gsap.com/community/forums/topic/32443-draggable-infinite-carousel-with-snap-and-indexing/
  *
@@ -35,16 +41,11 @@ export const useDragInertia = (
     // Re-enable snapping when dragging ends
     // const handleRelease = () => setSnap("x mandatory");
 
-    // console.log("scroller", scroller);
-
     const draggable = Draggable.create(scroller, {
       type: "scrollLeft",
       allowNativeTouchScrolling: true,
-      force3D: false,
-      trigger: scroller, // Ensures it uses the correct element
       inertia: true,
       edgeResistance: 0.75, // Adds slight resistance at the edges
-      bounds: scroller.parentElement || scroller, // Prevents dragging too far
       throwProps: true, // Enables smooth inertia-based scrolling
       cursor: "grab",
       onPress: () => {
