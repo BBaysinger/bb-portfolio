@@ -16,7 +16,7 @@
       "<p>At its core, this project features a highly flexible carousel component (you're looking at it). While it might seem standard at first glance, it's designed for seamless interactivity with features that make it truly unique. It supports synchronization for parallax effects, native touch and gesture scrolling, and custom inertia-driven drag mechanics powered by GSAP — blending the best of native and enhanced interactions.</p>",
       "<p>Here's a question: have you ever seen a <i>natively accessible</i> parallaxing carousel? Probably not — and this might be the first.</p>",
       "<p>And beyond that, it's seamlessly integrated with React Router for dynamic navigation. Try interacting with it, then use your browser's history buttons.</p>",
-      "<p>This project is a work in progress. This page runs off of static data, but a Node/Express backend is on the way. And there's a long ways to go still with other site features.</p>",
+      "<p>This project is a work in progress. This page runs off of static data, but a Node/Express backend is in the works. And there's a long ways to go still with other site features.</p>",
       "<p>The code repository is public — feel free to check out the documentation for more details. The carousel will have an NPM repo, but I haven't got that far yet.</p>"
     ],
     "date": "",
