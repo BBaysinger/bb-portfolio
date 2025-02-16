@@ -20,7 +20,7 @@ header#headerSub {
     margin-bottom: 10px;
     font-size: 42px;
     line-height: 1em;
-    text-shadow: 2px 2px 0 rgba(0, 0, 0, 1);
+    // text-shadow: 2px 2px 0 rgba(0, 0, 0, 1);
 
     @include breakpoint-up($b360px) {
       font-size: 36px;
@@ -57,7 +57,7 @@ header#headerSub {
     color: #fff;
     font-size: 18px;
     font-weight: 400;
-    text-shadow: 2px 2px 0 rgba(0, 0, 0, 1);
+    // text-shadow: 2px 2px 0 rgba(0, 0, 0, 1);
 
     @include breakpoint-up($b360px) {
       font-size: 16px;

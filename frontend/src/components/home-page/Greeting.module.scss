@@ -18,11 +18,25 @@
   }
 
   &:before {
-    content: '"';
+    content: "\201C";
     display: block;
     position: absolute;
     top: -80px;
     left: 25px;
+    background-size: cover;
+    opacity: 0.5;
+    font-size: 400px;
+    color: #333;
+    z-index: -1;
+  }
+
+  &:after {
+    content: "\201D";
+    display: block;
+    position: absolute;
+    line-height: 0;
+    bottom: -40px;
+    right: 25px;
     background-size: cover;
     opacity: 0.5;
     font-size: 400px;
