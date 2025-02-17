@@ -23,7 +23,7 @@ const OscillatingCube = ({ position }) => {
   return (
     <mesh ref={meshRef} position={position} castShadow>
       <boxGeometry args={[1, 1, 1]} />
-      <meshStandardMaterial color="#3498db" />
+      <meshStandardMaterial color="#666" />
     </mesh>
   );
 };
@@ -34,7 +34,16 @@ const OscillatingCubes = () => {
     <Canvas
       className={styles["canvas"]}
       shadows
-      camera={{ position: [0, 0, 13], fov: 40 }}
+      orthographic
+      camera={{
+        left: -GRID_SIZE * 0.5,
+        right: GRID_SIZE * 0.5,
+        top: GRID_SIZE * 0.5,
+        bottom: -GRID_SIZE * 0.5,
+        near: 1,
+        far: 100,
+        position: [0, 0, 10], // Adjust as needed
+      }}
     >
       {/* Soft Shadows */}
       <SoftShadows />
@@ -60,7 +69,11 @@ const OscillatingCubes = () => {
         Array.from({ length: GRID_SIZE }).map((_, y) => (
           <OscillatingCube
             key={`${x}-${y}`}
-            position={[x * SPACING - 5, y * SPACING - 5, 0]}
+            position={[
+              x * SPACING - (GRID_SIZE * SPACING) / 2,
+              y * SPACING - (GRID_SIZE * SPACING) / 2,
+              0,
+            ]}
           />
         )),
       )}
