@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { OrbitControls, SoftShadows } from "@react-three/drei";
+import { OrbitControls, SoftShadows, SpotLight } from "@react-three/drei";
 import * as THREE from "three";
 
 import styles from "./OscillatingCubes.module.scss";
@@ -23,7 +23,7 @@ const OscillatingCube = ({ position }) => {
   return (
     <mesh ref={meshRef} position={position} castShadow receiveShadow>
       <boxGeometry args={[1, 1, 1]} />
-      <meshStandardMaterial color="#666" />
+      <meshLambertMaterial color="#666" />
     </mesh>
   );
 };
@@ -47,29 +47,44 @@ const OscillatingCubes = () => {
       }}
     >
       {/* Soft Shadows */}
-      <SoftShadows size={1} samples={1} />
+      <SoftShadows size={25} samples={16} />
 
       {/* Lighting */}
-      <ambientLight intensity={0.0} />
-      <directionalLight
+      <ambientLight intensity={0.3} />
+      
+      {/* <directionalLight
         castShadow
         position={[5, 0, 5]}
         intensity={1}
         shadow-mapSize-width={10000} // Increase resolution
         shadow-mapSize-height={10000} // Higher values = sharper shadows
-      />
+      /> */}
+
       <directionalLight
         castShadow
-        position={[0, 5, 5]}
-        intensity={1}
-        shadow-mapSize-width={10000} // Increase resolution
-        shadow-mapSize-height={10000} // Higher values = sharper shadows
+        position={[-5, 5, 5]}
+        intensity={10}
+        shadow-mapSize-width={5000} // Increase resolution
+        shadow-mapSize-height={5000} // Higher values = sharper shadows
+      />
+
+      <spotLight
+        castShadow
+        position={[5, 5, 10]} // Light position
+        intensity={20} // Brightness
+        penumbra={1} // Soft shadow edges
+        angle={Math.PI / 3} // Wider beam (prevents missing light)
+        distance={20} // Ensure light reaches objects
+        target-position={[0, 0, 0]} // Make sure it points to the cubes
+        shadow-mapSize-width={4096} // High shadow resolution
+        shadow-mapSize-height={4096}
+        shadow-bias={-0.002} // Fix shadow artifacts
       />
 
       {/* Ground Plane to Receive Shadows */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, -1]} receiveShadow>
         <planeGeometry args={[GRID_SIZE * SPACING, GRID_SIZE * SPACING]} />
-        <meshStandardMaterial color="#ccc" />
+        <meshLambertMaterial color="#ccc" />
       </mesh>
 
       {/* Grid of Cubes */}
