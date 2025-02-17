@@ -3,23 +3,25 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls, SoftShadows } from "@react-three/drei";
 import * as THREE from "three";
 
+import styles from "./OscillatingCubes.module.scss";
+
 const GRID_SIZE = 10; // 10x10 grid
 const SPACING = 0.1; // Distance between cubes
 
 // Cube Component with Oscillation
 const OscillatingCube = ({ position }) => {
-  const ref = useRef < THREE.Mesh > null;
+  const meshRef = useRef(null);
 
   useFrame(({ clock }) => {
-    if (ref.current) {
+    if (meshRef.current) {
       const t = clock.getElapsedTime();
-      ref.current.position.z =
+      meshRef.current.position.z =
         Math.sin(t + position[0] * 0.5 + position[1] * 0.5) * 0.5;
     }
   });
 
   return (
-    <mesh ref={ref} position={position} castShadow>
+    <mesh ref={meshRef} position={position} castShadow>
       <boxGeometry args={[1, 1, 1]} />
       <meshStandardMaterial color="#3498db" />
     </mesh>
@@ -29,7 +31,7 @@ const OscillatingCube = ({ position }) => {
 // Scene Component
 const OscillatingCubes = () => {
   return (
-    <Canvas shadows camera={{ position: [0, 0, 15], fov: 50 }}>
+    <Canvas className={styles["canvas"]} shadows camera={{ position: [0, 0, 15], fov: 50 }}>
       {/* Soft Shadows */}
       <SoftShadows />
 
