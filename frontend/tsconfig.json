@@ -13,6 +13,9 @@
     "isolatedModules": true,
     "moduleDetection": "force",
     "noEmit": true,
+    "allowArbitraryExtensions": true,
+    "allowJs": true,
+    "checkJs": false, // Optional: Set to true if you want TypeScript to check .js files
     "jsx": "react-jsx",
 
     /* Linting */
