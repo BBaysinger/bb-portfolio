@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 
+import OscillatingCubes from "./OscillatingCubes";
 import headerLogo from "images/main-header/bb-gradient.webp";
 import styles from "./HeaderMain.module.scss";
 
