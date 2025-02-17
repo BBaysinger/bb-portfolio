@@ -17,16 +17,20 @@
     "prepare-package": "node -e \"require('fs').writeFileSync('./package.json', JSON.stringify(require('json5').parse(require('fs').readFileSync('./package.json5', 'utf8')), null, 2))\""
   },
   "dependencies": {
+    "@react-three/drei": "^9.121.5",
+    "@react-three/fiber": "^8.17.14",
     "@reduxjs/toolkit": "^2.5.1",
     "@vitejs/plugin-react-swc": "^3.8.0",
     "exenv": "^1.2.2",
-    "gsap": "npm:@gsap/shockingly@^3.12.7",
+    "gsap": "file:gsap-bonus.tgz",
     "mitt": "^3.0.1",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "react-redux": "^9.2.0",
     "react-router": "^7.1.5",
     "react-router-dom": "^7.1.5",
+    "three": "^0.173.0",
+    "three-mesh-bvh": "^0.8.0",
     "vite": "^6.1.0",
     "vite-tsconfig-paths": "^5.1.4"
   },

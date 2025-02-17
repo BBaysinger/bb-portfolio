@@ -43,12 +43,11 @@ const Footer: React.FC = () => {
                 alt="Bradley's face"
               />
               Thanks for stopping by! My site is a work in progress, so you may
-              run into a few issues. If you spot anything, feel free to let me
-              know. That said, I'm glad you're here! I'm always looking to
-              collaborate with forward-thinking teams who value engaging,
-              high-quality digital experiences. I look forward to connecting and
-              exploring how I can bring unique interactive work to your
-              organization.
+              run into a few issues. If you spot anything, please let me know.
+              That said, I'm glad you're here! I'm always looking to collaborate
+              with forward-thinking teams who value engaging, high-quality
+              digital experiences. I look forward to connecting and exploring
+              how I can bring unique interactive work to your organization.
             </p>
           </div>
 
