@@ -21,7 +21,7 @@ const OscillatingCube = ({ position }) => {
   });
 
   return (
-    <mesh ref={meshRef} position={position} castShadow>
+    <mesh ref={meshRef} position={position} castShadow receiveShadow>
       <boxGeometry args={[1, 1, 1]} />
       <meshStandardMaterial color="#666" />
     </mesh>
@@ -42,20 +42,28 @@ const OscillatingCubes = () => {
         bottom: -GRID_SIZE * 0.5,
         near: 1,
         far: 100,
-        position: [0, 0, 10], // Adjust as needed
+        position: [0, 0, 5], // Adjust as needed
+        zoom: 4,
       }}
     >
       {/* Soft Shadows */}
-      <SoftShadows />
+      <SoftShadows size={1} samples={1} />
 
       {/* Lighting */}
-      <ambientLight intensity={0.3} />
+      <ambientLight intensity={0.0} />
       <directionalLight
         castShadow
-        position={[5, 5, 10]}
+        position={[5, 0, 5]}
         intensity={1}
-        shadow-mapSize-width={1024}
-        shadow-mapSize-height={1024}
+        shadow-mapSize-width={10000} // Increase resolution
+        shadow-mapSize-height={10000} // Higher values = sharper shadows
+      />
+      <directionalLight
+        castShadow
+        position={[0, 5, 5]}
+        intensity={1}
+        shadow-mapSize-width={10000} // Increase resolution
+        shadow-mapSize-height={10000} // Higher values = sharper shadows
       />
 
       {/* Ground Plane to Receive Shadows */}
