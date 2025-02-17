@@ -80,7 +80,9 @@ const HeaderMain: React.FC = () => {
       }
       style={{ minHeight: `${clientHeight}px` }}
     >
-      <OscillatingCubes></OscillatingCubes>
+      <div className={styles["cubes-wrapper"]}>
+        <OscillatingCubes ></OscillatingCubes>
+      </div>
       <div className={styles["header-wrapper"]}>
         <div className={styles["middle"]}>
           <img

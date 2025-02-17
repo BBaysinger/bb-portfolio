@@ -31,7 +31,11 @@ const OscillatingCube = ({ position }) => {
 // Scene Component
 const OscillatingCubes = () => {
   return (
-    <Canvas className={styles["canvas"]} shadows camera={{ position: [0, 0, 15], fov: 50 }}>
+    <Canvas
+      className={styles["canvas"]}
+      shadows
+      camera={{ position: [0, 0, 13], fov: 40 }}
+    >
       {/* Soft Shadows */}
       <SoftShadows />
 
