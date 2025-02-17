@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { OrbitControls, SoftShadows, SpotLight } from "@react-three/drei";
+import { OrbitControls, SoftShadows } from "@react-three/drei";
 import * as THREE from "three";
 
 import styles from "./OscillatingCubes.module.scss";
@@ -8,7 +8,7 @@ import styles from "./OscillatingCubes.module.scss";
 const GRID_SIZE = 10; // 10x10 grid
 const SPACING = 0.1; // Distance between cubes
 
-// Cube Component with Oscillation
+// Cube Component with Oscillation and Custom Shadow Fixes
 const OscillatingCube = ({ position }) => {
   const meshRef = useRef(null);
 
@@ -24,6 +24,9 @@ const OscillatingCube = ({ position }) => {
     <mesh ref={meshRef} position={position} castShadow receiveShadow>
       <boxGeometry args={[1, 1, 1]} />
       <meshLambertMaterial color="#666" />
+
+      {/* Fix for accurate depth rendering in shadows */}
+      <meshDepthMaterial attach="customDepthMaterial" depthPacking={THREE.RGBADepthPacking} />
     </mesh>
   );
 };
@@ -49,36 +52,31 @@ const OscillatingCubes = () => {
       {/* Soft Shadows */}
       <SoftShadows size={25} samples={16} />
 
-      {/* Lighting */}
-      <ambientLight intensity={0.3} />
-      
-      {/* <directionalLight
-        castShadow
-        position={[5, 0, 5]}
-        intensity={1}
-        shadow-mapSize-width={10000} // Increase resolution
-        shadow-mapSize-height={10000} // Higher values = sharper shadows
-      /> */}
+      {/* Ambient Light for Soft Global Illumination */}
+      <ambientLight intensity={0.2} />
 
+      {/* High-Quality Directional Light */}
       <directionalLight
         castShadow
         position={[-5, 5, 5]}
-        intensity={10}
-        shadow-mapSize-width={5000} // Increase resolution
-        shadow-mapSize-height={5000} // Higher values = sharper shadows
-      />
-
-      <spotLight
-        castShadow
-        position={[5, 5, 10]} // Light position
-        intensity={20} // Brightness
-        penumbra={1} // Soft shadow edges
-        angle={Math.PI / 3} // Wider beam (prevents missing light)
-        distance={20} // Ensure light reaches objects
-        target-position={[0, 0, 0]} // Make sure it points to the cubes
+        intensity={5}
         shadow-mapSize-width={4096} // High shadow resolution
         shadow-mapSize-height={4096}
-        shadow-bias={-0.002} // Fix shadow artifacts
+        shadow-bias={-0.002} // Fixes shadow artifacts
+      />
+
+      {/* 🔥 SpotLight to Ensure Cube-to-Cube Shadows Work 🔥 */}
+      <spotLight
+        castShadow
+        position={[5, 10, 5]} // Higher placement for better shadows
+        intensity={15} // Balanced brightness
+        penumbra={1} // Soft shadow edges
+        angle={Math.PI / 3} // Wider beam
+        distance={30} // Ensure light reaches objects
+        target-position={[0, 0, 0]} // Focus the light on cubes
+        shadow-mapSize-width={4096} // High-resolution shadows
+        shadow-mapSize-height={4096}
+        shadow-bias={-0.002} // Prevents shadow artifacts
       />
 
       {/* Ground Plane to Receive Shadows */}
