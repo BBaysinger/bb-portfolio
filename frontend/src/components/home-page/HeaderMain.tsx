@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
 
-import OscillatingCubes from "./OscillatingCubes";
 import headerLogo from "images/main-header/bb-gradient.webp";
 import styles from "./HeaderMain.module.scss";
 
@@ -81,7 +80,6 @@ const HeaderMain: React.FC = () => {
       style={{ minHeight: `${clientHeight}px` }}
     >
       <div className={styles["cubes-wrapper"]}>
-        <OscillatingCubes></OscillatingCubes>
       </div>
       <div className={styles["header-wrapper"]}>
         <div className={styles["middle"]}>
