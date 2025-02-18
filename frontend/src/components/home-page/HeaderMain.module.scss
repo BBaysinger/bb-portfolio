@@ -142,11 +142,7 @@ $bottom: 50px;
   color: #999;
 }
 
-:global {
-  header {
-    .barber-pole {
-      height: 34px;
-      width: 34px;
-    }
-  }
+.barber-pole {
+  height: 34px;
+  width: 34px;
 }
