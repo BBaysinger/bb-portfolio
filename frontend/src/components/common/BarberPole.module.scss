@@ -11,35 +11,19 @@
 .stripes {
   width: 400%;
   height: 100%;
-  background: repeating-linear-gradient(
-    45deg,
-    $lighterThemeColor 0%,
-    $lighterThemeColor 10%,
-    rgba(0, 0, 0, 0) 10%,
-    rgba(0, 0, 0, 0) 20%,
-    #999 20%,
-    #999 30%,
-    rgba(0, 0, 0, 0) 30%,
-    rgba(0, 0, 0, 0) 40%,
-    $lighterThemeColor 40%,
-    $lighterThemeColor 50%,
-    rgba(0, 0, 0, 0) 50%,
-    rgba(0, 0, 0, 0) 60%,
-    #999 60%,
-    #999 70%,
-    rgba(0, 0, 0, 0) 70%,
-    rgba(0, 0, 0, 0) 80%
-  );
+  background: url(/images/common/barber-pole.svg);
+  background-size: 50%;
   background-repeat: repeat;
   position: absolute;
-  animation: scrollStripes var(--speed, 3s) linear infinite;
+  animation: scrollStripes linear infinite;
+  animation-duration: 4s;
 }
 
 @keyframes scrollStripes {
   from {
-    transform: translateX(0);
+    transform: translateX(-50%);
   }
   to {
-    transform: translateX(-50%);
+    transform: translateX(0%);
   }
 }
