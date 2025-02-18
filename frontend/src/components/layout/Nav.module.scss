@@ -143,12 +143,6 @@
   .effect-layer2 {
     display: none;
   }
-
-  .barber-pole1,
-  .barber-pole2,
-  .barber-pole3 {
-    display: none;
-  }
 }
 
 .effect-layer0 {
@@ -190,7 +184,7 @@
   pointer-events: none;
   top: 0;
   width: 100%;
-  height: 101%;
+  height: 102%;
   z-index: 2;
   filter: blur(10px);
   mix-blend-mode: multiply;
@@ -206,7 +200,7 @@
       to bottom,
       rgba(0, 0, 0, 1) 0%,
       rgba(50, 50, 50, 0) 10%,
-      rgba(50, 50, 50, 0.5) 80%,
+      rgba(50, 50, 50, 0.5) 90%,
       rgba(0, 0, 0, 1) 100%
     );
 }
@@ -264,6 +258,7 @@ ul {
       transform: translateX(-50%);
     }
   }
+
   .barber-pole2 {
     position: absolute;
     z-index: 1;
