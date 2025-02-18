@@ -1,0 +1,45 @@
+@use "@/styles/global" as *;
+
+.barber-pole {
+  position: relative;
+  overflow: hidden;
+  display: inline-block;
+  width: 30px;
+  height: 16px;
+}
+
+.stripes {
+  width: 300%;
+  height: 300%;
+  background: repeating-linear-gradient(
+    45deg,
+    $lighterThemeColor 0%,
+    $lighterThemeColor 10%,
+    rgba(0, 0, 0, 0) 10%,
+    rgba(0, 0, 0, 0) 20%,
+    $lighterThemeColor 20%,
+    $lighterThemeColor 30%,
+    rgba(0, 0, 0, 0) 30%,
+    rgba(0, 0, 0, 0) 40%,
+    $lighterThemeColor 40%,
+    $lighterThemeColor 50%,
+    rgba(0, 0, 0, 0) 50%,
+    rgba(0, 0, 0, 0) 60%,
+    $lighterThemeColor 60%,
+    $lighterThemeColor 70%,
+    rgba(0, 0, 0, 0) 70%,
+    rgba(0, 0, 0, 0) 80%
+  );
+  background-repeat: repeat;
+  position: absolute;
+  animation: scrollStripes var(--speed, 3s) linear infinite;
+}
+
+@keyframes scrollStripes {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-39%);
+  }
+}

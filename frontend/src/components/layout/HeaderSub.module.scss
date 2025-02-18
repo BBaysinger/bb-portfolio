@@ -1,5 +1,5 @@
 @use "@/styles/global" as *;
-@use "@/components/layout/HeaderShared.module.scss" as headerShared;
+@use "@/components/common/HeaderShared.module.scss" as headerShared;
 
 header#headerSub {
   height: 37vw;

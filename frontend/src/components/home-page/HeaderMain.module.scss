@@ -1,5 +1,5 @@
 @use "@/styles/global" as *;
-@use "@/components/layout/HeaderShared.module.scss" as headerShared;
+@use "@/components/common/HeaderShared.module.scss" as headerShared;
 
 header.header-main {
   padding-left: 15px;
@@ -140,4 +140,13 @@ $bottom: 50px;
 
 .first-name {
   color: #999;
+}
+
+:global {
+  header {
+    .barber-pole {
+      height: 34px;
+      width: 34px;
+    }
+  }
 }
