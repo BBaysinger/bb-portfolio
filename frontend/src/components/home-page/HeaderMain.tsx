@@ -91,7 +91,7 @@ const HeaderMain: React.FC = () => {
 
           <h1>
             <span className={styles["first-name"]}>Bradley</span>{" "}
-            <BarberPole speed="2s" />{" "}
+            <BarberPole />{" "}
             <span className={styles["last-name"]}>Baysinger</span>
           </h1>
 
