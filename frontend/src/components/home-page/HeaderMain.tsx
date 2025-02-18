@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 
 import headerLogo from "images/main-header/bb-gradient.webp";
+import BarberPole from "components/common/BarberPole";
 import styles from "./HeaderMain.module.scss";
 
 /**
@@ -74,13 +75,12 @@ const HeaderMain: React.FC = () => {
     <header
       id={"headerMain"}
       className={
-        `${styles["header-main"]} ${styles["header"]} ` +
+        `${styles["header-main"]} ${styles["header"]} header-main` +
         `${scrolledToTop ? styles["scrolled-to-top"] : ""}`
       }
       style={{ minHeight: `${clientHeight}px` }}
     >
-      <div className={styles["cubes-wrapper"]}>
-      </div>
+      <div className={styles["cubes-wrapper"]}></div>
       <div className={styles["header-wrapper"]}>
         <div className={styles["middle"]}>
           <img
@@ -91,6 +91,7 @@ const HeaderMain: React.FC = () => {
 
           <h1>
             <span className={styles["first-name"]}>Bradley</span>{" "}
+            <BarberPole speed="2s" />{" "}
             <span className={styles["last-name"]}>Baysinger</span>
           </h1>
 
