@@ -40,7 +40,6 @@ const Nav: React.FC<NavProps> = ({ variant }) => {
       <div className={styles["effect-layer0"]}></div>
       <div className={styles["effect-layer1"]}></div>
       <div className={styles["effect-layer2"]}></div>
-
       <NavLink to="/#headerMain" className={styles["title"]}>
         <img src={navLogo} className={styles["nav-logo"]} alt="BB Logo" />
         <div className={styles["nav-logo-text"]}>
@@ -55,14 +54,17 @@ const Nav: React.FC<NavProps> = ({ variant }) => {
           </div>
         </div>
       </NavLink>
-
       <NavLinks onClick={closeMenuHandler} />
 
-      <BarberPole className={styles["barber-pole1"]} />
-      <BarberPole className={styles["barber-pole2"]} />
-      <BarberPole className={styles["barber-pole3"]} />
-
       {variant === NavVariant.TOP_BAR && <Hamburger />}
+
+      {variant === NavVariant.SLIDE_OUT && (
+        <>
+          <BarberPole className={styles["barber-pole1"]} />
+          <BarberPole className={styles["barber-pole2"]} />
+          <BarberPole className={styles["barber-pole3"]} />
+        </>
+      )}
     </nav>
   );
 };

@@ -21,6 +21,7 @@
     "@react-three/fiber": "^8.17.14",
     "@reduxjs/toolkit": "^2.5.1",
     "@vitejs/plugin-react-swc": "^3.8.0",
+    "bootstrap": "^5.3.3",
     "exenv": "^1.2.2",
     "gsap": "file:gsap-bonus.tgz",
     "mitt": "^3.0.1",

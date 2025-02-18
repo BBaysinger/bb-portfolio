@@ -18,27 +18,29 @@ const HeaderMain: React.FC = () => {
   const ticking = useRef(false);
 
   const getHeight = () => {
-    // This is the only way to get the 'short' height of the mobile viewport. That is,
-    // the height before the address bar is hidden from scrolling down. 'dvh' here can't
-    // be used because it causes a layout shift.
+    // This is the only way to get the 'short' height of the mobile viewport.
+    // That is, the height before the address bar is hidden from scrolling down.
+    // 'dvh' here can't be used because it causes a layout shift.
     return document.documentElement.clientHeight;
   };
 
   const [clientHeight, setClientHeight] = useState(getHeight());
 
-  const updateClientHeight = () => {
-    if (getHeight() !== clientHeight) {
-      setClientHeight(getHeight());
-    }
-  };
-
   useEffect(() => {
+    const updateClientHeight = () => {
+      if (getHeight() !== clientHeight) {
+        setClientHeight(getHeight());
+      }
+    };
+
     updateClientHeight();
 
     window.addEventListener("resize", updateClientHeight);
+    window.addEventListener("orientationchange", updateClientHeight);
 
     return () => {
-      window.removeEventListener("resize", updateClientHeight);
+      window.addEventListener("resize", updateClientHeight);
+      window.addEventListener("orientationchange", updateClientHeight);
     };
   }, []);
 
@@ -64,10 +66,12 @@ const HeaderMain: React.FC = () => {
 
     window.addEventListener("scroll", handleEvent);
     window.addEventListener("resize", handleEvent);
+    window.addEventListener("orientationchange", handleEvent);
 
     return () => {
       window.removeEventListener("scroll", handleEvent);
       window.removeEventListener("resize", handleEvent);
+      window.removeEventListener("orientationchange", handleEvent);
     };
   }, [scrolledToTop]);
 
