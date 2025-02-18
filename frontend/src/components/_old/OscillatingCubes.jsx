@@ -26,7 +26,10 @@ const OscillatingCube = ({ position }) => {
       <meshLambertMaterial color="#666" />
 
       {/* Fix for accurate depth rendering in shadows */}
-      <meshDepthMaterial attach="customDepthMaterial" depthPacking={THREE.RGBADepthPacking} />
+      <meshDepthMaterial
+        attach="customDepthMaterial"
+        depthPacking={THREE.RGBADepthPacking}
+      />
     </mesh>
   );
 };
