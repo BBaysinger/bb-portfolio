@@ -5,6 +5,7 @@ import { useDispatch } from "react-redux";
 import { closeMenu } from "store/menuSlice";
 import Hamburger from "components/layout/Hamburger";
 import NavLinks from "./NavLinks";
+import BarberPole from "components/common/BarberPole";
 import navLogo from "images/misc/bb-logo.svg";
 import styles from "./Nav.module.scss";
 
@@ -35,7 +36,7 @@ const Nav: React.FC<NavProps> = ({ variant }) => {
   };
 
   return (
-    <nav className={`${styles["nav"]} ${variant}`} role="navigation">
+    <nav className={`${styles["nav"]} ${variant} nav`} role="navigation">
       <div className={styles["effect-layer0"]}></div>
       <div className={styles["effect-layer1"]}></div>
       <div className={styles["effect-layer2"]}></div>
@@ -56,6 +57,10 @@ const Nav: React.FC<NavProps> = ({ variant }) => {
       </NavLink>
 
       <NavLinks onClick={closeMenuHandler} />
+
+      <BarberPole className={styles["barber-pole1"]} />
+      <BarberPole className={styles["barber-pole2"]} />
+      <BarberPole className={styles["barber-pole3"]} />
 
       {variant === NavVariant.TOP_BAR && <Hamburger />}
     </nav>
