@@ -1,4 +1,6 @@
 import React from "react";
+
+import Shadow from "./Shadow";
 import styles from "./Fluxel.module.scss";
 
 // Square type definition
@@ -22,6 +24,7 @@ const Fluxel: React.FC<{ data: FluxelData }> = ({ data }) => {
 
   return (
     <div className={`${styles["fluxel"]}`} style={transformStyle}>
+      <Shadow />
       {data.debug && (
         <>
           {data.row},{data.col}
