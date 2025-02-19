@@ -3,6 +3,8 @@ import React, { useEffect, useState } from "react";
 import Fluxel, { FluxelData } from "./Fluxel";
 import styles from "./FluxelGrid.module.scss";
 
+const DEBUG = false;
+
 // Grid component
 const FluxelGrid: React.FC<{ rows: number; cols: number }> = ({
   rows,
@@ -22,6 +24,7 @@ const FluxelGrid: React.FC<{ rows: number; cols: number }> = ({
           row,
           col,
           neighbors: [],
+          debug: DEBUG,
         };
       }
     }

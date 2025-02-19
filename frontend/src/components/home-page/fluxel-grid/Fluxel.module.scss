@@ -1,4 +1,7 @@
 .fluxel {
   flex: 1 1 calc(100% / var(--cols)); /* Each takes up equal space */
   aspect-ratio: 1 / 1; /* Maintain square shape */
+  border: 0.5px solid black;
+  background-color: transparent;
+  border-radius: 3px;
 }
