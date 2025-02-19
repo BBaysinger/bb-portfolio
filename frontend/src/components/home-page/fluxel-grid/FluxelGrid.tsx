@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-
 import Fluxel, { FluxelData } from "./Fluxel";
 import styles from "./FluxelGrid.module.scss";
 
@@ -11,6 +10,7 @@ const FluxelGrid: React.FC<{ rows: number; cols: number }> = ({
   cols,
 }) => {
   const [grid, setGrid] = useState<FluxelData[][]>([]);
+  const [time, setTime] = useState<number>(0); // Used to control wave oscillation
 
   useEffect(() => {
     // Initialize grid
@@ -25,6 +25,7 @@ const FluxelGrid: React.FC<{ rows: number; cols: number }> = ({
           col,
           neighbors: [],
           debug: DEBUG,
+          depth: 0, // Initialize depth for each square
         };
       }
     }
@@ -57,7 +58,26 @@ const FluxelGrid: React.FC<{ rows: number; cols: number }> = ({
     }
 
     setGrid(newGrid);
+
+    // Set up wave oscillation effect
+    const interval = setInterval(() => {
+      setTime((prevTime) => prevTime + 0.1); // Increment time for wave
+    }, 100);
+
+    return () => clearInterval(interval); // Clean up on component unmount
   }, [rows, cols]);
+
+  // Update depth for each square based on wave function
+  useEffect(() => {
+    setGrid((prevGrid) =>
+      prevGrid.map((row) =>
+        row.map((square) => ({
+          ...square,
+          depth: Math.sin((square.row + square.col + time) * 0.1), // Apply sine wave for depth
+        })),
+      ),
+    );
+  }, [time, rows, cols]);
 
   return (
     <div
