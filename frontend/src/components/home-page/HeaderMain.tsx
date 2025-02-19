@@ -88,7 +88,7 @@ const HeaderMain: React.FC = () => {
       <div className={styles["cubes-wrapper"]}></div>
       <div className={styles["header-wrapper"]}>
         <div className={styles["fluxel-wrapper"]}>
-          <FluxelGrid rows={10} cols={10} />
+          <FluxelGrid rows={12} cols={12} />
         </div>
 
         <div className={styles["middle"]}>
