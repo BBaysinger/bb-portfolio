@@ -25,10 +25,10 @@ const Shadow: React.FC<ShadowProps> = ({ className, neighbors }) => {
 
       <g filter="url(#blur)">
         <rect x="50%" y="-50%" width="72" height="72" />
-        {neighbors[0].depth && (
+        {neighbors[2] && neighbors[4] && (
           <polygon
-            x={neighbors[2].depth * 10}
-            y={neighbors[4].depth * 10}
+            x={neighbors[2].depth * 1000}
+            y={neighbors[4].depth * 1000}
             points="0 0 0 48 24 48 24 72 72 72 72 0 0 0"
           />
         )}
