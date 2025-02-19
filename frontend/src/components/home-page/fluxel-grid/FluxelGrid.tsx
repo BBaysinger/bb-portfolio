@@ -152,6 +152,21 @@ const FluxelGrid: React.FC<{ rows: number; cols: number }> = ({
       className={styles["fluxel-grid"]}
       style={{ "--cols": cols } as React.CSSProperties}
     >
+      <svg style={{ width: 0, height: 0, position: "absolute" }}>
+        <defs>
+          <filter id="fluxelShadowBlur">
+            <feGaussianBlur stdDeviation="10" result="blurred" />
+            <feMerge>
+              <feMergeNode in="blurred" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+            <feComponentTransfer>
+              <feFuncA type="linear" slope="0.4" />
+            </feComponentTransfer>
+          </filter>
+        </defs>
+      </svg>
+
       {grid.flat().map((square) => (
         <Fluxel key={square.id} data={square} />
       ))}
