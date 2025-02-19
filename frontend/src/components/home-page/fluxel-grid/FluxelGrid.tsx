@@ -4,13 +4,15 @@ import styles from "./FluxelGrid.module.scss";
 
 const DEBUG = false;
 
-// Grid component
 const FluxelGrid: React.FC<{ rows: number; cols: number }> = ({
   rows,
   cols,
 }) => {
   const [grid, setGrid] = useState<FluxelData[][]>([]);
   const [time, setTime] = useState<number>(0); // Used to control wave oscillation
+  const [mousePos, setMousePos] = useState<{ x: number; y: number } | null>(
+    null,
+  );
 
   useEffect(() => {
     // Initialize grid
@@ -26,6 +28,8 @@ const FluxelGrid: React.FC<{ rows: number; cols: number }> = ({
           neighbors: [],
           debug: DEBUG,
           depth: 0, // Initialize depth for each square
+          influence: 0, // New influence property
+          mouseEffect: { x: 0, y: 0 }, // Vector for directional movement
         };
       }
     }
@@ -78,6 +82,54 @@ const FluxelGrid: React.FC<{ rows: number; cols: number }> = ({
       ),
     );
   }, [time, rows, cols]);
+
+  // Track mouse movement
+  useEffect(() => {
+    const handleMouseMove = (event: MouseEvent) => {
+      setMousePos({ x: event.clientX, y: event.clientY });
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, []);
+
+  // Apply mouse influence effect
+  useEffect(() => {
+    if (!mousePos) return;
+
+    setGrid((prevGrid) => {
+      console.log("asf");
+      return prevGrid.map((row, rowIndex) => {
+        return row.map((square, colIndex) => {
+          const gridX = colIndex * 30 + 15; // Assuming each cell is 30px wide
+          const gridY = rowIndex * 30 + 15;
+
+          const dx = gridX - mousePos.x;
+          const dy = gridY - mousePos.y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+
+          const maxRadius = 150; // Influence radius
+          const strength =
+            Math.exp(-distance * 0.01) * (distance < maxRadius ? 1 : 0); // Exponential falloff
+
+          // Compute directional influence vector
+          const influenceVector =
+            distance === 0
+              ? { x: 0, y: 0 }
+              : {
+                  x: (dx / distance) * strength * 20, // Move away from cursor
+                  y: (dy / distance) * strength * 20,
+                };
+
+          return {
+            ...square,
+            influence: strength, // Store influence separately
+            mouseEffect: influenceVector, // Store movement direction
+          };
+        });
+      });
+    });
+  }, [mousePos, rows, cols]);
 
   return (
     <div
