@@ -19,13 +19,13 @@ export interface FluxelData {
 const Fluxel: React.FC<{ data: FluxelData }> = ({ data }) => {
   // Combine effects
   const transformStyle = {
-    transform: `translate(${data.mouseEffect.x}px, ${data.mouseEffect.y + data.depth * 50}px)`,
+    // transform: `translate(${data.mouseEffect.x}px, ${data.mouseEffect.y + data.depth * 50}px)`,
   };
 
   return (
     <div className={`${styles["fluxel"]}`} style={transformStyle}>
       <Shadow className={styles["shadow"]} neighbors={data.neighbors} />
-      {true && (
+      {data.debug && (
         <div className={styles["debug"]}>
           {data.neighbors[2] && <>{data.neighbors[2].depth}</>},
           {data.neighbors[4] && <>{data.neighbors[4].depth}</>},

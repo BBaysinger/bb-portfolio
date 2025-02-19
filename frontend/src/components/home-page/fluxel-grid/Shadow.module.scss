@@ -1,8 +1,8 @@
 .shadow {
   * {
-    fill: rgba(0, 0, 0, 0.6);
+    fill: rgba(0, 0, 0, 0.3);
   }
   polygon {
-    transform: translate(0, 72px) scale(3, 3) translate(0, -72px);
+    transform-origin: left bottom;
   }
 }
