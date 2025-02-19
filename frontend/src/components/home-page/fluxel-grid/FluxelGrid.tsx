@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Fluxel, { FluxelData } from "./Fluxel";
 import styles from "./FluxelGrid.module.scss";
 
@@ -13,6 +13,9 @@ const FluxelGrid: React.FC<{ rows: number; cols: number }> = ({
   const [mousePos, setMousePos] = useState<{ x: number; y: number } | null>(
     null,
   );
+  const [fluxelSize, setFluxelSize] = useState<number>(0); // Dynamically track size
+
+  const gridRef = useRef<HTMLDivElement>(null); // Reference to the grid container
 
   useEffect(() => {
     // Initialize grid
@@ -71,6 +74,20 @@ const FluxelGrid: React.FC<{ rows: number; cols: number }> = ({
     return () => clearInterval(interval); // Clean up on component unmount
   }, [rows, cols]);
 
+  // Dynamically update Fluxel size
+  useEffect(() => {
+    const updateFluxelSize = () => {
+      if (gridRef.current) {
+        const rect = gridRef.current.getBoundingClientRect();
+        setFluxelSize(rect.width / cols); // Calculate size dynamically
+      }
+    };
+
+    updateFluxelSize();
+    window.addEventListener("resize", updateFluxelSize);
+    return () => window.removeEventListener("resize", updateFluxelSize);
+  }, [cols]);
+
   // Update depth for each square based on wave function
   useEffect(() => {
     setGrid((prevGrid) =>
@@ -86,7 +103,13 @@ const FluxelGrid: React.FC<{ rows: number; cols: number }> = ({
   // Track mouse movement
   useEffect(() => {
     const handleMouseMove = (event: MouseEvent) => {
-      setMousePos({ x: event.clientX, y: event.clientY });
+      if (!gridRef.current) return;
+
+      const rect = gridRef.current.getBoundingClientRect();
+      const localX = event.clientX - rect.left;
+      const localY = event.clientY - rect.top;
+
+      setMousePos({ x: localX, y: localY });
     };
 
     window.addEventListener("mousemove", handleMouseMove);
@@ -95,44 +118,49 @@ const FluxelGrid: React.FC<{ rows: number; cols: number }> = ({
 
   // Apply mouse influence effect
   useEffect(() => {
-    if (!mousePos) return;
+    if (!mousePos || fluxelSize === 0) return;
 
     setGrid((prevGrid) => {
-      console.log("asf");
       return prevGrid.map((row, rowIndex) => {
         return row.map((square, colIndex) => {
-          const gridX = colIndex * 30 + 15; // Assuming each cell is 30px wide
-          const gridY = rowIndex * 30 + 15;
+          const gridX = colIndex * fluxelSize + fluxelSize / 2;
+          const gridY = rowIndex * fluxelSize + fluxelSize / 2;
 
           const dx = gridX - mousePos.x;
           const dy = gridY - mousePos.y;
           const distance = Math.sqrt(dx * dx + dy * dy);
 
-          const maxRadius = 150; // Influence radius
-          const strength =
-            Math.exp(-distance * 0.01) * (distance < maxRadius ? 1 : 0); // Exponential falloff
+          const maxRadius = fluxelSize * 5; // Influence radius scales with size
+          let strength =
+            Math.exp(-distance * 0.01) * (distance < maxRadius ? 1 : 0);
+          strength = Math.round(strength * 100) / 100; // ✅ Round influence
 
           // Compute directional influence vector
-          const influenceVector =
+          let influenceVector =
             distance === 0
               ? { x: 0, y: 0 }
               : {
-                  x: (dx / distance) * strength * 20, // Move away from cursor
-                  y: (dy / distance) * strength * 20,
+                  x: (dx / distance) * strength * fluxelSize * 0.7,
+                  y: (dy / distance) * strength * fluxelSize * 0.7,
                 };
+
+          // ✅ Round influence vector values
+          influenceVector.x = Math.round(influenceVector.x * 100) / 100;
+          influenceVector.y = Math.round(influenceVector.y * 100) / 100;
 
           return {
             ...square,
-            influence: strength, // Store influence separately
-            mouseEffect: influenceVector, // Store movement direction
+            influence: strength, // Store rounded influence
+            mouseEffect: influenceVector, // Store rounded movement direction
           };
         });
       });
     });
-  }, [mousePos, rows, cols]);
+  }, [mousePos, fluxelSize, rows, cols]);
 
   return (
     <div
+      ref={gridRef} // Attach ref to the grid container
       className={`${styles["fluxel-grid"]}`}
       style={{ "--cols": cols } as React.CSSProperties}
     >
