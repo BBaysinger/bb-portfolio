@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 
 import headerLogo from "images/main-header/bb-gradient.webp";
 import BarberPole from "components/common/BarberPole";
+import FluxelGrid from "./fluxel-grid/FluxelGrid";
 import styles from "./HeaderMain.module.scss";
 
 /**
@@ -86,6 +87,8 @@ const HeaderMain: React.FC = () => {
     >
       <div className={styles["cubes-wrapper"]}></div>
       <div className={styles["header-wrapper"]}>
+        <FluxelGrid rows={10} cols={10} />
+
         <div className={styles["middle"]}>
           <img
             src={headerLogo}
