@@ -124,8 +124,32 @@ $breakpoints: (
 }
 
 //////////////////////////////////////////////////////////////////////////
-// Misc Variables
+// SVG Trickery
 //////////////////////////////////////////////////////////////////////////
+
+// Removes redundancy of the rest of the SVG XML and allows you to declare a
+// shape with only the path data for a background or mask. It assumes your shape is
+// within a 1in x 1in viewbox, which may require reauthoring for this use, but that's
+// easy enough. In Illustrator, set the X and Y to 0,0 and scale the shape to fit a
+// 1in x 1in bounds. Helps to round decimals to 2 places for brevity.
+//
+// Example:
+// mask-image: svg("M0,0v72h72V0H0ZM22.33,55.31V16.69l36.27,19.31-36.27,19.31Z");
+@function svg($d, $color: #fff) {
+  // Ensure $color is treated as a string
+  $color-string: if(meta.type-of($color) == "string", $color, "#{$color}");
+  $formatted-color: if(
+    string.index($color-string, "#") == 1,
+    "%23#{string.slice($color-string, 2)}",
+    $color-string
+  );
+
+  // Return the SVG as a data URL
+  @return string.unquote(
+    "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' " +
+      "viewBox='0 0 72 72'%3E%3Cpath d='#{$d}' fill='#{$formatted-color}'/%3E%3C/svg%3E\")"
+  );
+}
 
 // Height of top nav bar
 $navBarHeight: 46px;
