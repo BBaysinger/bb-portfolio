@@ -7,6 +7,7 @@ header.header-main {
   padding-top: 0;
   height: 37vw;
   letter-spacing: 1px;
+  overflow: hidden;
 
   h1 {
     letter-spacing: 0.05em;
@@ -16,7 +17,7 @@ header.header-main {
 
     color: #fff;
     font-weight: 400; // Only a factor before fonts load.
-
+    opacity: 0.999; // Temp fix for z-index issue.
     @include breakpoint-up($b480px) {
       font-size: 48px;
     }
