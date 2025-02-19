@@ -8,14 +8,16 @@ export interface FluxelData {
   col: number;
   neighbors: FluxelData[];
   debug: boolean | string | number | object | null;
-  depth: number; // Added depth property
+  depth: number; // Depth property for wave oscillation
+  influence: number; // Influence property from mouse movement
+  mouseEffect: { x: number; y: number }; // Vector for directional displacement
 }
 
 // Square component
 const Fluxel: React.FC<{ data: FluxelData }> = ({ data }) => {
-  // Apply depth as a translate or scale effect
+  // Combine effects
   const transformStyle = {
-    transform: `translateY(${data.depth * 50}px)`, // Example: Oscillate up/down by 50px
+    transform: `translate(${data.mouseEffect.x}px, ${data.mouseEffect.y + data.depth * 50}px)`,
   };
 
   return (
