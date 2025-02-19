@@ -10,12 +10,12 @@ const FluxelGrid: React.FC<{ rows: number; cols: number }> = ({
 }) => {
   const [grid, setGrid] = useState<FluxelData[][]>([]);
   const [time, setTime] = useState<number>(0); // Used to control wave oscillation
+  const [fluxelSize, setFluxelSize] = useState<number>(0); // Dynamically track size
   const [mousePos, setMousePos] = useState<{ x: number; y: number } | null>(
     null,
   );
-  const [fluxelSize, setFluxelSize] = useState<number>(0); // Dynamically track size
 
-  const gridRef = useRef<HTMLDivElement>(null); // Reference to the grid container
+  const gridRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // Initialize grid
@@ -42,14 +42,14 @@ const FluxelGrid: React.FC<{ rows: number; cols: number }> = ({
       for (let col = 0; col < cols; col++) {
         const neighbors: FluxelData[] = [];
         const directions = [
-          [-1, -1], // Top-left
-          [-1, 0], // Top,
-          [-1, 1], // Top-right
-          [0, -1], // Left,
-          [0, 1], // Right
-          [1, -1], // Bottom-left,
-          [1, 0], // Bottom,
-          [1, 1], // Bottom-right
+          [-1, -1], // TL
+          [-1, 0], // T,
+          [-1, 1], // TR
+          [0, -1], // L,
+          [0, 1], // R
+          [1, -1], // BL,
+          [1, 0], // B,
+          [1, 1], // BR
         ];
 
         directions.forEach(([dRow, dCol]) => {
