@@ -17,7 +17,7 @@ const Shadow: React.FC<ShadowProps> = ({ className }) => {
     >
       <defs>
         <filter id="blur">
-          <feGaussianBlur stdDeviation="10" />
+          <feGaussianBlur stdDeviation="5" />
         </filter>
       </defs>
 
@@ -26,7 +26,7 @@ const Shadow: React.FC<ShadowProps> = ({ className }) => {
         <polygon
           x="50%"
           y="-50%"
-          points="36 0 0 0 0 36 36 36 36 72 72 72 72 36 72 0 36 0"
+          points="0 0 0 48 24 48 24 72 72 72 72 0 0 0"
         />
       </g>
     </svg>

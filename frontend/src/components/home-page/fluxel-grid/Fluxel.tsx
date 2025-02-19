@@ -24,7 +24,7 @@ const Fluxel: React.FC<{ data: FluxelData }> = ({ data }) => {
 
   return (
     <div className={`${styles["fluxel"]}`} style={transformStyle}>
-      <Shadow />
+      <Shadow className={styles["shadow"]} />
       {data.debug && (
         <>
           {data.row},{data.col}
