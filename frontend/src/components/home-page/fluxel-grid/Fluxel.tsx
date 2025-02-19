@@ -8,25 +8,18 @@ export interface FluxelData {
   row: number;
   col: number;
   neighbors: FluxelData[];
+  debug: boolean | string | number | object | null;
 }
 
 // Square component
 const Fluxel: React.FC<{ data: FluxelData }> = ({ data }) => {
   return (
-    <div
-      className={`${styles["fluxel"]}`}
-      key={data.id}
-      style={{
-        width: "50px",
-        height: "50px",
-        border: "1px solid black",
-        display: "inline-block",
-        background: "#ddd",
-        textAlign: "center",
-        lineHeight: "50px",
-      }}
-    >
-      {data.row},{data.col}
+    <div className={`${styles["fluxel"]}`} key={data.id}>
+      {data.debug && (
+        <>
+          {data.row},{data.col}
+        </>
+      )}
     </div>
   );
 };
