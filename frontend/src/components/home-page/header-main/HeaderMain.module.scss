@@ -37,6 +37,9 @@ header.header-main {
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  user-select: none; /* Prevents text selection */
+  -webkit-user-drag: none; /* Prevents image/element dragging */
+  pointer-events: none; /* Prevents interactions */
 }
 
 .subhead {

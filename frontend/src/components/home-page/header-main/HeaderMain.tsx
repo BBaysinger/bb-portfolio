@@ -3,10 +3,11 @@ import React, { useState, useEffect, useRef } from "react";
 import headerLogo from "images/main-header/bb-gradient.webp";
 import BarberPole from "components/common/BarberPole";
 import FluxelGrid from "./fluxel-grid/FluxelGrid";
+import Experiment from "./SlingyBall";
 import styles from "./HeaderMain.module.scss";
 
 /**
- *
+ * Header Main
  *
  * @author Bradley Baysinger
  * @since The beginning of time.
@@ -85,12 +86,11 @@ const HeaderMain: React.FC = () => {
       }
       style={{ minHeight: `${clientHeight}px` }}
     >
-      <div className={styles["cubes-wrapper"]}></div>
+      <div className={styles["fluxel-wrapper"]}>
+        <FluxelGrid rows={12} cols={12} />
+        <Experiment />
+      </div>
       <div className={styles["header-wrapper"]}>
-        <div className={styles["fluxel-wrapper"]}>
-          <FluxelGrid rows={12} cols={12} />
-        </div>
-
         <div className={styles["middle"]}>
           <img
             src={headerLogo}
@@ -117,7 +117,11 @@ const HeaderMain: React.FC = () => {
           View Portfolio
         </a>
       </div>
-      <img src="/images/home-header/spinner.webp" className={styles["spinner"]} alt="Spinner" />
+      <img
+        src="/images/home-header/spinner.webp"
+        className={styles["spinner"]}
+        alt="Spinner"
+      />
     </header>
   );
 };
