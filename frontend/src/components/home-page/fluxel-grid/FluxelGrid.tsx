@@ -128,7 +128,7 @@ const FluxelGrid: React.FC<{ rows: number; cols: number }> = ({
           const distance = Math.sqrt(dx * dx + dy * dy);
           const maxRadius = fluxelSize * 5;
           let strength =
-            Math.exp(-distance * 0.01) * (distance < maxRadius ? 1 : 0);
+            Math.exp(-distance * 0.008) * (distance < maxRadius ? 1 : 0);
           strength = Math.round(strength * 100) / 100;
 
           let influenceVector =

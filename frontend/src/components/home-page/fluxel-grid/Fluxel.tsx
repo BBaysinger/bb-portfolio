@@ -24,13 +24,16 @@ export interface FluxelData {
 const Fluxel: React.FC<{ data: FluxelData }> = ({ data }) => {
   const transformStyle = {
     // transform: `translate(${data.mouseEffect.x}px, ${data.mouseEffect.y + data.depth * 50}px)`,
+    // The most hilarious emergent behavior I've ever seen in my life. DO NOT DELETE.
+    // backgroundColor: `rgba(${data.depth * 360}, 100%, 50%)`, 
+    backgroundColor: `rgba(0, 0, 0, ${data.influence * 0.4 - 0.2})`, 
   };
 
   const x1 = data.neighbors[4]
-    ? Math.min(data.neighbors[4].influence - data.influence, 0) * 50
+    ? Math.min(data.neighbors[4].influence - data.influence, 0) * 75
     : 0;
   const y1 = data.neighbors[1]
-    ? Math.max(data.influence - data.neighbors[1].influence, 0) * 50
+    ? Math.max(data.influence - data.neighbors[1].influence, 0) * 75
     : 0;
   // const x1 = 0;
   // const y1 = 0;
@@ -48,8 +51,9 @@ const Fluxel: React.FC<{ data: FluxelData }> = ({ data }) => {
       <Shadow className={styles["shadow"]} x1={x1} y1={y1} x2={x2} y2={y2} />
       {data.debug && (
         <div className={styles["debug"]}>
-          {data.neighbors[4] && <>{data.neighbors[4].influence}</>}, ,{data.row}
-          ,{data.col}
+          {/* {data.neighbors[4] && <>{data.neighbors[4].influence}</>},{" "}
+          {data.row}, {data.col} */}
+          {data.depth}
         </div>
       )}
     </div>
