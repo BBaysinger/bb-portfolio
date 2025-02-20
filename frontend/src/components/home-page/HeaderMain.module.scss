@@ -151,3 +151,11 @@ $bottom: 50px;
   width: max(100vw, 100vh);
   height: max(100vw, 100vh);
 }
+
+.spinner {
+  position: absolute;
+  bottom: 100px;
+  right: 100px;
+  width: 50px;
+  z-index: 10000;
+}
