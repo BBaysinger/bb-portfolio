@@ -115,6 +115,11 @@ const FluxelGrid: React.FC<{ rows: number; cols: number }> = ({
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, []);
 
+  function smoothstep(edge0: number, edge1: number, x: number) {
+    let t = Math.max(0, Math.min(1, (x - edge0) / (edge1 - edge0)));
+    return t * t * (3 - 2 * t);
+  }
+
   useEffect(() => {
     if (!mousePos || fluxelSize === 0) return;
 
@@ -126,27 +131,29 @@ const FluxelGrid: React.FC<{ rows: number; cols: number }> = ({
           const dx = gridX - mousePos.x;
           const dy = gridY - mousePos.y;
           const distance = Math.sqrt(dx * dx + dy * dy);
-          const maxRadius = fluxelSize * 5;
+          const maxRadius = fluxelSize * 4;
           let strength =
-            Math.exp(-distance * 0.008) * (distance < maxRadius ? 1 : 0);
+            (1 - smoothstep(0, maxRadius, distance)) *
+            (distance < maxRadius ? 1 : 0);
           strength = Math.round(strength * 100) / 100;
 
-          let influenceVector =
-            distance === 0
-              ? { x: 0, y: 0 }
-              : {
-                  x:
-                    Math.round(
-                      (dx / distance) * strength * fluxelSize * 0.7 * 100,
-                    ) / 100,
-                  y:
-                    Math.round(
-                      (dy / distance) * strength * fluxelSize * 0.7 * 100,
-                    ) / 100,
-                };
+          // KEEP: Is this part of the wave fluxing?
+          // let influenceVector =
+          //   distance === 0
+          //     ? { x: 0, y: 0 }
+          //     : {
+          //         x:
+          //           Math.round(
+          //             (dx / distance) * strength * fluxelSize * 0.7 * 100,
+          //           ) / 100,
+          //         y:
+          //           Math.round(
+          //             (dy / distance) * strength * fluxelSize * 0.7 * 100,
+          //           ) / 100,
+          //       };
 
           square.influence = strength;
-          square.mouseEffect = influenceVector;
+          // square.mouseEffect = influenceVector;
         });
       });
       return [...prevGrid];

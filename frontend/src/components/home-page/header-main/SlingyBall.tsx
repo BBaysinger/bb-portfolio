@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 
+import styles from "./SlingyBall.module.scss";
+
 type FloatingObject = {
   id: number;
   x: number;
@@ -14,7 +16,7 @@ type FloatingObject = {
  *
  * Don't lose this code.
  */
-const FloatingObjectsWithDamping: React.FC = () => {
+const SlingyBall: React.FC = () => {
   const [objects, setObjects] = useState<FloatingObject[]>([
     { id: 1, x: 50, y: 50, vx: 1, vy: 1, isDragging: false },
     { id: 2, x: 150, y: 150, vx: -1, vy: 1, isDragging: false },
@@ -138,16 +140,7 @@ const FloatingObjectsWithDamping: React.FC = () => {
   }, [objects]);
 
   return (
-    <div
-      ref={containerRef}
-      style={{
-        position: "relative",
-        width: "100%",
-        height: "500px",
-        // border: "2px solid #ccc",
-        overflow: "hidden",
-      }}
-    >
+    <div ref={containerRef} className={styles["slingy-ball-container"]}>
       {objects.map((obj) => (
         <div
           key={obj.id}
@@ -168,4 +161,4 @@ const FloatingObjectsWithDamping: React.FC = () => {
   );
 };
 
-export default FloatingObjectsWithDamping;
+export default SlingyBall;
