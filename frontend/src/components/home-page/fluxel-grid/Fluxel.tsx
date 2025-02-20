@@ -26,14 +26,14 @@ const Fluxel: React.FC<{ data: FluxelData }> = ({ data }) => {
     // transform: `translate(${data.mouseEffect.x}px, ${data.mouseEffect.y + data.depth * 50}px)`,
   };
 
-  // const x1 = data.neighbors[4]
-  //   ? Math.min((data.neighbors[4].influence - data.influence) * 10, 0)
-  //   : 0;
-  // const y1 = data.neighbors[1]
-  //   ? Math.max(data.influence - data.neighbors[1].influence, 0) * 10
-  //   : 0;
-  const x1 = 36;
-  const y1 = 36;
+  const x1 = data.neighbors[4]
+    ? Math.min(data.neighbors[4].influence - data.influence, 0) * 50
+    : 0;
+  const y1 = data.neighbors[1]
+    ? Math.max(data.influence - data.neighbors[1].influence, 0) * 50
+    : 0;
+  // const x1 = 0;
+  // const y1 = 0;
   //   const x2 = data.neighbors[2]
   //   ? (data.influence - data.neighbors[2].influence) * 10
   //   : 0;
