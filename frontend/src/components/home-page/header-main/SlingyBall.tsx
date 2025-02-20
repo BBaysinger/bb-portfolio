@@ -19,7 +19,6 @@ type FloatingObject = {
 const SlingyBall: React.FC = () => {
   const [objects, setObjects] = useState<FloatingObject[]>([
     { id: 1, x: 50, y: 50, vx: 1, vy: 1, isDragging: false },
-    { id: 2, x: 150, y: 150, vx: -1, vy: 1, isDragging: false },
   ]);
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -30,7 +29,7 @@ const SlingyBall: React.FC = () => {
     const interval = setInterval(() => {
       setObjects((prev) =>
         prev.map((obj) => {
-          if (obj.isDragging) return obj; // Skip updating dragging objects
+          if (obj.isDragging) return obj;
 
           let { x, y, vx, vy } = obj;
 
@@ -143,18 +142,10 @@ const SlingyBall: React.FC = () => {
     <div ref={containerRef} className={styles["slingy-ball-container"]}>
       {objects.map((obj) => (
         <div
+          className={styles["slingy-ball"]}
           key={obj.id}
           onMouseDown={(e) => handleMouseDown(obj.id, e)}
-          style={{
-            position: "absolute",
-            left: obj.x,
-            top: obj.y,
-            width: "50px",
-            height: "50px",
-            borderRadius: "50%",
-            backgroundColor: obj.id === 1 ? "red" : "blue",
-            cursor: "pointer",
-          }}
+          style={{ transform: `translate(${obj.x}px, ${obj.y}px)` }}
         ></div>
       ))}
     </div>

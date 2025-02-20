@@ -117,11 +117,6 @@ const HeaderMain: React.FC = () => {
           View Portfolio
         </a>
       </div>
-      <img
-        src="/images/home-header/spinner.webp"
-        className={styles["spinner"]}
-        alt="Spinner"
-      />
     </header>
   );
 };
