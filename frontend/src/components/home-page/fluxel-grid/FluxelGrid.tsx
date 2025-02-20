@@ -26,7 +26,7 @@ const FluxelGrid: React.FC<{ rows: number; cols: number }> = ({
         col,
         neighbors: [],
         debug: DEBUG,
-        depth: Math.sin((row + col) * 0.1), // ✅ Initialize depth immediately
+        depth: Math.sin((row + col) * 0.1),
         influence: 0,
         mouseEffect: { x: 0, y: 0 },
       })),
@@ -142,7 +142,7 @@ const FluxelGrid: React.FC<{ rows: number; cols: number }> = ({
           square.mouseEffect = influenceVector;
         });
       });
-      return [...prevGrid]; // Force re-render by returning a new reference
+      return [...prevGrid];
     });
   }, [mousePos, fluxelSize]);
 
@@ -155,20 +155,20 @@ const FluxelGrid: React.FC<{ rows: number; cols: number }> = ({
       <svg style={{ width: 0, height: 0, position: "absolute" }}>
         <defs>
           <filter id="fluxelShadowBlur">
-            <feGaussianBlur stdDeviation="10" result="blurred" />
+            <feGaussianBlur stdDeviation="2" result="blurred" />
             <feMerge>
               <feMergeNode in="blurred" />
               <feMergeNode in="SourceGraphic" />
             </feMerge>
             <feComponentTransfer>
-              <feFuncA type="linear" slope="0.4" />
+              <feFuncA type="linear" slope="0.5" />
             </feComponentTransfer>
           </filter>
         </defs>
       </svg>
 
-      {grid.flat().map((square) => (
-        <Fluxel key={square.id} data={square} />
+      {grid.flat().map((data) => (
+        <Fluxel key={data.id} data={{ ...data, debug: false }} />
       ))}
     </div>
   );
