@@ -48,8 +48,8 @@ const Fluxel: React.FC<{ data: FluxelData }> = ({ data }) => {
       <Shadow className={styles["shadow"]} x1={x1} y1={y1} x2={x2} y2={y2} />
       {data.debug && (
         <div className={styles["debug"]}>
-          {data.neighbors[4] && <>{data.neighbors[4].influence}</>},
-          {/* ,{data.row},{data.col} */}
+          {data.neighbors[4] && <>{data.neighbors[4].influence}</>}, ,{data.row}
+          ,{data.col}
         </div>
       )}
     </div>
