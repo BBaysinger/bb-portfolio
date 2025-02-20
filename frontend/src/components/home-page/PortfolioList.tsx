@@ -12,7 +12,7 @@ import ProjectThumbnail from "components/home-page/ProjectThumbnail";
 import styles from "./PortfolioList.module.scss";
 
 /**
- * PortfolioList Component
+ * Portfolio List Component
  *
  * Dynamically displays a list of portfolio thumbnails in a responsive list on the home page.
  * Each thumbnail reveals detailed information when hovered (on hover-capable devices)

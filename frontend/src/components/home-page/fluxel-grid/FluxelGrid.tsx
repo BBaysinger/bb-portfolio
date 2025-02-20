@@ -4,6 +4,13 @@ import styles from "./FluxelGrid.module.scss";
 
 const DEBUG = false;
 
+/**
+ * Fluxing Pixel Grid
+ *
+ * @author Bradley Baysinger
+ * @since The beginning of time.
+ * @version N/A
+ */
 const FluxelGrid: React.FC<{ rows: number; cols: number }> = ({
   rows,
   cols,
@@ -155,7 +162,6 @@ const FluxelGrid: React.FC<{ rows: number; cols: number }> = ({
       <svg style={{ width: 0, height: 0, position: "absolute" }}>
         <defs>
           <filter id="fluxelShadowBlur">
-            <feGaussianBlur stdDeviation="2" result="blurred" />
             <feMerge>
               <feMergeNode in="blurred" />
               <feMergeNode in="SourceGraphic" />
