@@ -1,7 +1,9 @@
 import styles from "./Greeting.module.scss";
 
 /**
- *
+ * @author Bradley Baysinger
+ * @since The beginning of time.
+ * @version N/A
  */
 const Greeting: React.FC = () => {
   return (
