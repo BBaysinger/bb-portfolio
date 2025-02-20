@@ -31,7 +31,7 @@ const Shadow: React.FC<ShadowProps> = ({ className, x1, y1, x2, y2 }) => {
       viewBox="0 0 72 72"
       className={`${styles["shadow"]} ${className}`}
     >
-      <g filter="url(#fluxelShadowBlur)">
+      <g opacity="0.5">
         <g transform={`translate(${x1}, ${y1})`}>
           <polygon
             transform={`translate(${BLUR_OFFSET - 34}, ${-BLUR_OFFSET - 110})`}
