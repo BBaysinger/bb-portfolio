@@ -25,15 +25,15 @@ const Fluxel: React.FC<{ data: FluxelData }> = ({ data }) => {
   const transformStyle = {
     // transform: `translate(${data.mouseEffect.x}px, ${data.mouseEffect.y + data.depth * 50}px)`,
     // The most hilarious emergent behavior I've ever seen in my life. DO NOT DELETE.
-    // backgroundColor: `rgba(${data.depth * 360}, 100%, 50%)`, 
-    backgroundColor: `rgba(0, 0, 0, ${data.influence * 0.4 - 0.2})`, 
+    // backgroundColor: `rgba(${data.depth * 360}, 100%, 50%)`,
+    backgroundColor: `rgba(0, 0, 0, ${data.influence * 0.4 - 0.1})`,
   };
 
   const x1 = data.neighbors[4]
-    ? Math.min(data.neighbors[4].influence - data.influence, 0) * 75
+    ? Math.min(data.neighbors[4].influence - data.influence, 0) * 60
     : 0;
   const y1 = data.neighbors[1]
-    ? Math.max(data.influence - data.neighbors[1].influence, 0) * 75
+    ? Math.max(data.influence - data.neighbors[1].influence, 0) * 60
     : 0;
   // const x1 = 0;
   // const y1 = 0;
