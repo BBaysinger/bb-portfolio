@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
-
+import React, { useRef, useState, useEffect, useCallback } from "react";
 import styles from "./SlingyBall.module.scss";
 
 type FloatingObject = {
@@ -11,142 +10,138 @@ type FloatingObject = {
   isDragging: boolean;
 };
 
-/**
- * Lol, this was some brainstorming I'll come back to later.
- *
- * Don't lose this code.
- */
 const SlingyBall: React.FC = () => {
-  const [objects, setObjects] = useState<FloatingObject[]>([
+  const objectsRef = useRef<FloatingObject[]>([
     { id: 1, x: 50, y: 50, vx: 1, vy: 1, isDragging: false },
   ]);
 
   const containerRef = useRef<HTMLDivElement>(null);
-
+  const containerBounds = useRef<{ width: number; height: number } | null>(
+    null,
+  );
   const dragStartPosition = useRef<{ x: number; y: number } | null>(null);
+  const animationFrameRef = useRef<number | null>(null);
+  const triggerRender = useState(0)[1]; // Dummy state to force re-renders
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setObjects((prev) =>
-        prev.map((obj) => {
-          if (obj.isDragging) return obj;
+    if (containerRef.current) {
+      containerBounds.current = containerRef.current.getBoundingClientRect();
+    }
 
-          let { x, y, vx, vy } = obj;
+    const handleResize = () => {
+      if (containerRef.current) {
+        containerBounds.current = containerRef.current.getBoundingClientRect();
+      }
+    };
 
-          // Get bounds of the container
-          const container = containerRef.current;
-          if (!container) return obj;
-          const bounds = container.getBoundingClientRect();
-
-          // Update position
-          x += vx;
-          y += vy;
-
-          // Bounce off edges
-          if (x <= 0 || x >= bounds.width - 50) vx = -vx;
-          if (y <= 0 || y >= bounds.height - 50) vy = -vy;
-
-          // Apply damping
-          const dampingFactor = 0.98; // Slows down gradually
-          const minSpeed = 0.5; // Minimum speed for natural floating
-          vx =
-            Math.abs(vx) > minSpeed
-              ? vx * dampingFactor
-              : Math.sign(vx) * minSpeed;
-          vy =
-            Math.abs(vy) > minSpeed
-              ? vy * dampingFactor
-              : Math.sign(vy) * minSpeed;
-
-          return { ...obj, x, y, vx, vy };
-        }),
-      );
-    }, 24); // 1000ms / 24ms = 41.67 FPS
-
-    return () => clearInterval(interval);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+  const animate = useCallback(() => {
+    objectsRef.current.forEach((obj) => {
+      if (obj.isDragging) return;
+
+      let { x, y, vx, vy } = obj;
+      const bounds = containerBounds.current;
+      if (!bounds) return;
+
+      x += vx;
+      y += vy;
+
+      if (x <= 0 || x >= bounds.width - 50) vx = -vx;
+      if (y <= 0 || y >= bounds.height - 50) vy = -vy;
+
+      const dampingFactor = 0.98;
+      const minSpeed = 0.5;
+      vx =
+        Math.abs(vx) > minSpeed ? vx * dampingFactor : Math.sign(vx) * minSpeed;
+      vy =
+        Math.abs(vy) > minSpeed ? vy * dampingFactor : Math.sign(vy) * minSpeed;
+
+      obj.x = x;
+      obj.y = y;
+      obj.vx = vx;
+      obj.vy = vy;
+    });
+
+    triggerRender((prev) => prev + 1); // Force a re-render
+    animationFrameRef.current = requestAnimationFrame(animate);
+  }, []);
+
+  useEffect(() => {
+    animationFrameRef.current = requestAnimationFrame(animate);
+    return () => {
+      if (animationFrameRef.current)
+        cancelAnimationFrame(animationFrameRef.current);
+    };
+  }, [animate]);
 
   const handleMouseDown = (id: number, e: React.MouseEvent) => {
     dragStartPosition.current = { x: e.clientX, y: e.clientY };
 
-    setObjects((prev) =>
-      prev.map((obj) =>
-        obj.id === id ? { ...obj, isDragging: true, vx: 0, vy: 0 } : obj,
-      ),
-    );
+    objectsRef.current.forEach((obj) => {
+      if (obj.id === id) {
+        obj.isDragging = true;
+        obj.vx = 0;
+        obj.vy = 0;
+      }
+    });
+
+    triggerRender((prev) => prev + 1); // Force a re-render
   };
 
-  const handleMouseMove = (e: MouseEvent) => {
+  const handleMouseMove = useCallback((e: MouseEvent) => {
     if (!dragStartPosition.current) return;
 
-    setObjects((prev) =>
-      prev.map((obj) =>
-        obj.isDragging
-          ? {
-              ...obj,
-              x: obj.x + (e.movementX || 0),
-              y: obj.y + (e.movementY || 0),
-            }
-          : obj,
-      ),
-    );
-  };
+    objectsRef.current.forEach((obj) => {
+      if (obj.isDragging) {
+        obj.x += e.movementX;
+        obj.y += e.movementY;
+      }
+    });
 
-  const handleMouseUp = (id: number, e: MouseEvent) => {
+    triggerRender((prev) => prev + 1); // Force a re-render
+  }, []);
+
+  const handleMouseUp = useCallback((e: MouseEvent) => {
     if (!dragStartPosition.current) return;
 
-    const dragEndPosition = { x: e.clientX, y: e.clientY };
-    const deltaX = dragEndPosition.x - dragStartPosition.current.x;
-    const deltaY = dragEndPosition.y - dragStartPosition.current.y;
+    const { x: startX, y: startY } = dragStartPosition.current;
+    const deltaX = e.clientX - startX;
+    const deltaY = e.clientY - startY;
 
-    // Apply velocity based on drag motion
-    setObjects((prev) =>
-      prev.map((obj) =>
-        obj.id === id
-          ? {
-              ...obj,
-              vx: deltaX * 0.1, // Scale the velocity
-              vy: deltaY * 0.1,
-              isDragging: false,
-            }
-          : obj,
-      ),
-    );
+    objectsRef.current.forEach((obj) => {
+      if (obj.isDragging) {
+        obj.vx = deltaX * 0.1;
+        obj.vy = deltaY * 0.1;
+        obj.isDragging = false;
+      }
+    });
 
     dragStartPosition.current = null;
-  };
+    triggerRender((prev) => prev + 1); // Force a re-render
+  }, []);
 
   useEffect(() => {
-    const handleGlobalMouseUp = (e: MouseEvent) => {
-      objects.forEach((obj) => {
-        if (obj.isDragging) {
-          handleMouseUp(obj.id, e);
-        }
-      });
-    };
-
-    const handleGlobalMouseMove = (e: MouseEvent) => {
-      handleMouseMove(e);
-    };
-
-    window.addEventListener("mousemove", handleGlobalMouseMove);
-    window.addEventListener("mouseup", handleGlobalMouseUp);
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
 
     return () => {
-      window.removeEventListener("mousemove", handleGlobalMouseMove);
-      window.removeEventListener("mouseup", handleGlobalMouseUp);
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
     };
-  }, [objects]);
+  }, [handleMouseMove, handleMouseUp]);
 
   return (
     <div ref={containerRef} className={styles["slingy-ball-container"]}>
-      {objects.map((obj) => (
+      {objectsRef.current.map((obj) => (
         <div
           className={styles["slingy-ball"]}
           key={obj.id}
           onMouseDown={(e) => handleMouseDown(obj.id, e)}
           style={{ transform: `translate(${obj.x}px, ${obj.y}px)` }}
-        ></div>
+        />
       ))}
     </div>
   );
