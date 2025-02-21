@@ -5,6 +5,12 @@
   border: 0.5px solid rgba(0, 0, 0, 0.3);
   background-color: transparent;
   border-radius: 1px;
+  image-rendering: pixelated;
+  // background-repeat: no-repeat; // Breaks it!!!
+  background-size: 1200%;
+  overflow: hidden;
+  background-position-x: calc(var(--fluxel-col) * -100%);
+  background-position-y: calc(var(--fluxel-row) * -100%);
 }
 
 .debug {
