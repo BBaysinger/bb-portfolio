@@ -16,7 +16,7 @@ const FluxelGrid: React.FC<{ rows: number; cols: number }> = ({
   cols,
 }) => {
   const [grid, setGrid] = useState<FluxelData[][]>([]);
-  const [time, setTime] = useState<number>(0);
+  // const [time, setTime] = useState<number>(0);
   const [fluxelSize, setFluxelSize] = useState<number>(0);
   const [animation, setAnimation] = useState<string>();
   const [mousePos, setMousePos] = useState<{ x: number; y: number } | null>(
@@ -36,7 +36,7 @@ const FluxelGrid: React.FC<{ rows: number; cols: number }> = ({
         debug: DEBUG,
         depth: Math.sin((row + col) * 0.1),
         influence: 0,
-        mouseEffect: { x: 0, y: 0 },
+        // mouseEffect: { x: 0, y: 0 },
       })),
     );
 
@@ -69,28 +69,29 @@ const FluxelGrid: React.FC<{ rows: number; cols: number }> = ({
 
     setGrid(newGrid);
 
-    // Wave oscillation effect
-    const interval = setInterval(() => {
-      setTime((prevTime) => prevTime + 0.1);
-    }, 100);
+    // // Wave oscillation effect
+    // const interval = setInterval(() => {
+    //   setTime((prevTime) => prevTime + 0.1);
+    // }, 100);
 
-    return () => clearInterval(interval);
+    // return () => clearInterval(interval);
   }, [rows, cols]);
 
   // ✅ Mutable Depth Update (instead of replacing state)
-  useEffect(() => {
-    setGrid((prevGrid) => {
-      prevGrid.forEach((row) => {
-        row.forEach((fluxel) => {
-          fluxel.depth =
-            Math.round(
-              Math.sin((fluxel.row + fluxel.col + time) * 0.1) * 1000,
-            ) / 1000;
-        });
-      });
-      return [...prevGrid]; // Force re-render by returning a new reference
-    });
-  }, [time]);
+  // useEffect(() => {
+  //   setGrid((prevGrid) => {
+  //     prevGrid.forEach((row) => {
+  //       row.forEach((fluxel) => {
+  //         fluxel.depth =
+  //           Math.round(
+  //             Math.sin((fluxel.row + fluxel.col + time) * 0.1) * 1000,
+  //           ) / 1000;
+  //       });
+  //     });
+  //     return [...prevGrid]; // Force re-render by returning a new reference
+  //   });
+  // }, []);
+  // }, [time]);
 
   useEffect(() => {
     const updateFluxelSize = () => {
