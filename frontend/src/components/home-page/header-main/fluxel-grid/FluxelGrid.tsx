@@ -95,11 +95,11 @@ const FluxelGrid: React.FC<{ rows: number; cols: number }> = ({
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, []);
 
-  useEffect(() => {
-    setTimeout(() => {
-      setAnimation(styles["fluxel-hello"]);
-    }, 5000);
-  }, []);
+  // useEffect(() => {
+  //   setTimeout(() => {
+  //     setAnimation(styles["fluxel-hello"]);
+  //   }, 5000);
+  // }, []);
 
   function smoothstep(edge0: number, edge1: number, x: number) {
     let t = Math.max(0, Math.min(1, (x - edge0) / (edge1 - edge0)));
