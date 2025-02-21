@@ -61,7 +61,7 @@ const SlingyBall: React.FC = () => {
           return { ...obj, x, y, vx, vy };
         }),
       );
-    }, 16); // Roughly 60fps
+    }, 24); // 1000ms / 24ms = 41.67 FPS
 
     return () => clearInterval(interval);
   }, []);
