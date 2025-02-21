@@ -11,7 +11,6 @@ export interface FluxelData {
   debug: boolean | string | number | object | null;
   depth: number;
   influence: number;
-  // mouseEffect: { x: number; y: number };
 }
 
 /**
@@ -21,16 +20,15 @@ export interface FluxelData {
  * @since The beginning of time.
  * @version N/A
  */
-const Fluxel: React.FC<{ data: FluxelData; animation: string | undefined }> = ({
-  data,
-  animation,
-}) => {
+const Fluxel: React.FC<{
+  data: FluxelData;
+  animation: string | undefined;
+  gridSize: number;
+}> = ({ data, animation, gridSize }) => {
   const transformStyle = {
     "--fluxel-row": data.row, // CSS variable for row
     "--fluxel-col": data.col, // CSS variable for col
-    // transform: `translate(${data.mouseEffect.x}px, ${data.mouseEffect.y + data.depth * 50}px)`,
-    // The most hilarious emergent behavior I've ever seen in my life. DO NOT DELETE.
-    // backgroundColor: `rgba(${data.depth * 360}, 100%, 50%)`,
+    "--fluxel-gridSize": gridSize + "px", // CSS variable for col
     backgroundColor: `rgba(0, 0, 0, ${data.influence * 0.4 - 0.1})`,
   };
 

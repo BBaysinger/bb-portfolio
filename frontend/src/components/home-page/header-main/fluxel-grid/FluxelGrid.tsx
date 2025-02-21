@@ -16,8 +16,8 @@ const FluxelGrid: React.FC<{ rows: number; cols: number }> = ({
   cols,
 }) => {
   const [grid, setGrid] = useState<FluxelData[][]>([]);
-  // const [time, setTime] = useState<number>(0);
   const [fluxelSize, setFluxelSize] = useState<number>(0);
+  const [gridSize, setGridSize] = useState<number>(0);
   const [animation, setAnimation] = useState<string>();
   const [mousePos, setMousePos] = useState<{ x: number; y: number } | null>(
     null,
@@ -36,7 +36,6 @@ const FluxelGrid: React.FC<{ rows: number; cols: number }> = ({
         debug: DEBUG,
         depth: Math.sin((row + col) * 0.1),
         influence: 0,
-        // mouseEffect: { x: 0, y: 0 },
       })),
     );
 
@@ -68,40 +67,19 @@ const FluxelGrid: React.FC<{ rows: number; cols: number }> = ({
     }
 
     setGrid(newGrid);
-
-    // // Wave oscillation effect
-    // const interval = setInterval(() => {
-    //   setTime((prevTime) => prevTime + 0.1);
-    // }, 100);
-
-    // return () => clearInterval(interval);
   }, [rows, cols]);
 
-  // ✅ Mutable Depth Update (instead of replacing state)
-  // useEffect(() => {
-  //   setGrid((prevGrid) => {
-  //     prevGrid.forEach((row) => {
-  //       row.forEach((fluxel) => {
-  //         fluxel.depth =
-  //           Math.round(
-  //             Math.sin((fluxel.row + fluxel.col + time) * 0.1) * 1000,
-  //           ) / 1000;
-  //       });
-  //     });
-  //     return [...prevGrid]; // Force re-render by returning a new reference
-  //   });
-  // }, []);
-  // }, [time]);
-
   useEffect(() => {
-    const updateFluxelSize = () => {
+    const updateSizes = () => {
       if (gridRef.current) {
-        setFluxelSize(gridRef.current.getBoundingClientRect().width / cols);
+        const size = gridRef.current.getBoundingClientRect().width;
+        setGridSize(size);
+        setFluxelSize(size / cols);
       }
     };
-    updateFluxelSize();
-    window.addEventListener("resize", updateFluxelSize);
-    return () => window.removeEventListener("resize", updateFluxelSize);
+    updateSizes();
+    window.addEventListener("resize", updateSizes);
+    return () => window.removeEventListener("resize", updateSizes);
   }, [cols]);
 
   useEffect(() => {
@@ -145,23 +123,7 @@ const FluxelGrid: React.FC<{ rows: number; cols: number }> = ({
             (distance < maxRadius ? 1 : 0);
           strength = Math.round(strength * 100) / 100;
 
-          // KEEP: Is this part of the wave fluxing?
-          // let influenceVector =
-          //   distance === 0
-          //     ? { x: 0, y: 0 }
-          //     : {
-          //         x:
-          //           Math.round(
-          //             (dx / distance) * strength * fluxelSize * 0.7 * 100,
-          //           ) / 100,
-          //         y:
-          //           Math.round(
-          //             (dy / distance) * strength * fluxelSize * 0.7 * 100,
-          //           ) / 100,
-          //       };
-
           square.influence = strength;
-          // square.mouseEffect = influenceVector;
         });
       });
       return [...prevGrid];
@@ -179,6 +141,7 @@ const FluxelGrid: React.FC<{ rows: number; cols: number }> = ({
           key={data.id}
           animation={animation}
           data={{ ...data, debug: false }}
+          gridSize={gridSize}
         />
       ))}
     </div>
