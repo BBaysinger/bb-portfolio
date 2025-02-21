@@ -21,8 +21,13 @@ export interface FluxelData {
  * @since The beginning of time.
  * @version N/A
  */
-const Fluxel: React.FC<{ data: FluxelData }> = ({ data }) => {
+const Fluxel: React.FC<{ data: FluxelData; animation: string | undefined }> = ({
+  data,
+  animation,
+}) => {
   const transformStyle = {
+    "--fluxel-row": data.row, // CSS variable for row
+    "--fluxel-col": data.col, // CSS variable for col
     // transform: `translate(${data.mouseEffect.x}px, ${data.mouseEffect.y + data.depth * 50}px)`,
     // The most hilarious emergent behavior I've ever seen in my life. DO NOT DELETE.
     // backgroundColor: `rgba(${data.depth * 360}, 100%, 50%)`,
@@ -47,7 +52,7 @@ const Fluxel: React.FC<{ data: FluxelData }> = ({ data }) => {
   const y2 = 0;
 
   return (
-    <div className={`${styles["fluxel"]}`} style={transformStyle}>
+    <div className={`${styles["fluxel"]} ${animation}`} style={transformStyle}>
       <Shadow className={styles["shadow"]} x1={x1} y1={y1} x2={x2} y2={y2} />
       {data.debug && (
         <div className={styles["debug"]}>

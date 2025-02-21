@@ -23,6 +23,9 @@ const SlingyBall: React.FC = () => {
   const animationFrameRef = useRef<number | null>(null);
   const triggerRender = useState(0)[1]; // Dummy state to force re-renders
 
+  // Accelerometer state
+  const accelerationRef = useRef<{ ax: number; ay: number }>({ ax: 0, ay: 0 });
+
   useEffect(() => {
     if (containerRef.current) {
       containerBounds.current = containerRef.current.getBoundingClientRect();
@@ -38,6 +41,19 @@ const SlingyBall: React.FC = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  // Handle accelerometer data
+  useEffect(() => {
+    const handleMotion = (event: DeviceMotionEvent) => {
+      if (event.accelerationIncludingGravity) {
+        accelerationRef.current.ax = event.accelerationIncludingGravity.x ?? 0;
+        accelerationRef.current.ay = event.accelerationIncludingGravity.y ?? 0;
+      }
+    };
+
+    window.addEventListener("devicemotion", handleMotion);
+    return () => window.removeEventListener("devicemotion", handleMotion);
+  }, []);
+
   const animate = useCallback(() => {
     objectsRef.current.forEach((obj) => {
       if (obj.isDragging) return;
@@ -46,12 +62,20 @@ const SlingyBall: React.FC = () => {
       const bounds = containerBounds.current;
       if (!bounds) return;
 
+      // Apply accelerometer influence
+      const accelFactor = 0.5;
+
+      vx += accelerationRef.current.ax * accelFactor;
+      vy += accelerationRef.current.ay * accelFactor;
+
       x += vx;
       y += vy;
 
-      if (x <= 0 || x >= bounds.width - 50) vx = -vx;
-      if (y <= 0 || y >= bounds.height - 50) vy = -vy;
+      // Bounce off edges
+      if (x <= 0 || x >= bounds.width - 50) vx = -vx * 0.8;
+      if (y <= 0 || y >= bounds.height - 50) vy = -vy * 0.8;
 
+      // Apply damping to slow down movement
       const dampingFactor = 0.98;
       const minSpeed = 0.5;
       vx =
@@ -140,8 +164,10 @@ const SlingyBall: React.FC = () => {
           className={styles["slingy-ball"]}
           key={obj.id}
           onMouseDown={(e) => handleMouseDown(obj.id, e)}
-          style={{ transform: `translate(${obj.x}px, ${obj.y}px)` }}
-        />
+          style={{
+            transform: `translate(${Math.round(obj.x)}px, ${Math.round(obj.y)}px)`,
+          }}
+        ></div>
       ))}
     </div>
   );
