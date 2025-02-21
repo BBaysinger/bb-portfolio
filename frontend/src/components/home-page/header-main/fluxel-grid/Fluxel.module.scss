@@ -2,15 +2,21 @@
   position: relative;
   flex: 1 1 calc(100% / var(--cols));
   aspect-ratio: 1 / 1;
-  border: 0.5px solid rgba(20, 20, 20, 0.7);
+  outline: 0.5px solid rgba(20, 20, 20, 0.7);
   background-color: transparent;
   border-radius: 1px;
   image-rendering: pixelated;
-  // background-repeat: no-repeat; // Breaks it!!!
-  background-size: 1200%;
+  box-sizing: content-box;
+  background-repeat: no-repeat;
+  background-size: var(--fluxel-gridSize);
   overflow: hidden;
-  background-position-x: calc(var(--fluxel-col) * -100%);
-  background-position-y: calc(var(--fluxel-row) * -100%);
+  // Use variables in favor of percentages for accuracy in mobile.
+  background-position-x: calc(
+    var(--fluxel-col) * -1 * var(--fluxel-gridSize) / 12
+  );
+  background-position-y: calc(
+    var(--fluxel-row) * -1 * var(--fluxel-gridSize) / 12
+  );
 }
 
 .debug {
