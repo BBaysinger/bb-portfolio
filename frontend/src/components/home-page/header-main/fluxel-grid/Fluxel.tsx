@@ -11,7 +11,7 @@ export interface FluxelData {
   debug: boolean | string | number | object | null;
   depth: number;
   influence: number;
-  mouseEffect: { x: number; y: number };
+  // mouseEffect: { x: number; y: number };
 }
 
 /**
