@@ -105,6 +105,10 @@ const FluxelGrid: React.FC<{ rows: number; cols: number }> = ({
     setTimeout(() => {
       setAnimation(styles["fluxel-interactive"]);
     }, 5000);
+
+    setTimeout(() => {
+      setAnimation(styles["fluxel-burst1"]);
+    }, 28000);
   }, []);
 
   function smoothstep(edge0: number, edge1: number, x: number) {
@@ -139,9 +143,10 @@ const FluxelGrid: React.FC<{ rows: number; cols: number }> = ({
   return (
     <div
       ref={gridRef}
-      className={`${styles["fluxel-grid"]} ${animation}`}
+      className={`${styles["fluxel-grid"]}`}
       style={{ "--cols": cols } as React.CSSProperties}
     >
+      <div className={`${styles["fluxel-grid-background"]} ${animation}`}></div>
       {grid.flat().map((data) => (
         <Fluxel
           key={data.id}
