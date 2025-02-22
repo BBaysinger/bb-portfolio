@@ -17,10 +17,12 @@ const DEBUG = false;
  * @since The beginning of time.
  * @version N/A
  */
-const FluxelGrid: React.FC<{ rows: number; cols: number }> = ({
-  rows,
-  cols,
-}) => {
+const FluxelGrid: React.FC<{
+  rows: number;
+  cols: number;
+  width: number;
+  height: number;
+}> = ({ rows, cols, width, height }) => {
   const [grid, setGrid] = useState<FluxelData[][]>([]);
   const [fluxelSize, setFluxelSize] = useState<number>(0);
   const [gridSize, setGridSize] = useState<number>(0);
@@ -32,7 +34,7 @@ const FluxelGrid: React.FC<{ rows: number; cols: number }> = ({
   const gridRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Initialize grid
+    // Initialize grid with fluxel data
     const newGrid: FluxelData[][] = Array.from({ length: rows }, (_, row) =>
       Array.from({ length: cols }, (_, col) => ({
         id: `${row}-${col}`,
@@ -78,15 +80,14 @@ const FluxelGrid: React.FC<{ rows: number; cols: number }> = ({
   useEffect(() => {
     const updateSizes = () => {
       if (gridRef.current) {
-        const size = gridRef.current.getBoundingClientRect().width;
-        setGridSize(size);
-        setFluxelSize(size / cols);
+        setGridSize(width);
+        setFluxelSize(width / cols);
       }
     };
     updateSizes();
     window.addEventListener("resize", updateSizes);
     return () => window.removeEventListener("resize", updateSizes);
-  }, [cols]);
+  }, [cols, width]);
 
   useEffect(() => {
     const handleMouseMove = (event: MouseEvent) => {
@@ -121,7 +122,7 @@ const FluxelGrid: React.FC<{ rows: number; cols: number }> = ({
 
     setGrid((prevGrid) => {
       prevGrid.forEach((row, rowIndex) => {
-        row.forEach((square, colIndex) => {
+        row.forEach((fluxel, colIndex) => {
           const gridX = colIndex * fluxelSize + fluxelSize / 2;
           const gridY = rowIndex * fluxelSize + fluxelSize / 2;
           const dx = gridX - mousePos.x;
@@ -133,7 +134,7 @@ const FluxelGrid: React.FC<{ rows: number; cols: number }> = ({
             (distance < maxRadius ? 1 : 0);
           strength = Math.round(strength * 100) / 100;
 
-          square.influence = strength;
+          fluxel.influence = strength;
         });
       });
       return [...prevGrid];
@@ -143,18 +144,41 @@ const FluxelGrid: React.FC<{ rows: number; cols: number }> = ({
   return (
     <div
       ref={gridRef}
-      className={`${styles["fluxel-grid"]}`}
-      style={{ "--cols": cols } as React.CSSProperties}
+      className={styles["fluxel-grid"]}
+      style={
+        {
+          width: `${width}px`,
+          height: `${height}px`,
+          "--cols": cols,
+        } as React.CSSProperties
+      }
     >
       <div className={`${styles["fluxel-grid-background"]} ${animation}`}></div>
-      {grid.flat().map((data) => (
-        <Fluxel
-          key={data.id}
-          animation={""}
-          data={{ ...data, debug: false }}
-          gridSize={gridSize}
-        />
-      ))}
+      {grid.flat().map((data) => {
+        // Calculate the pixel position for each fluxel based on its row/col and fluxelSize.
+        const offsetX = (width - cols * fluxelSize) / 2;
+        const offsetY = (height - rows * fluxelSize) / 2;
+        // Determine if this fluxel is within the visible bounds.
+        // Here we check if its bounding box (x to x + fluxelSize, y to y + fluxelSize) overlaps
+        // the visible area defined by the width and height props.
+        const x = offsetX + data.col * fluxelSize;
+        const y = offsetY + data.row * fluxelSize;
+        const isVisible =
+          x + fluxelSize > 0 && x < width && y + fluxelSize > 0 && y < height;
+
+        // If not visible, don't render anything
+        if (!isVisible) {
+          return <div></div>;
+        } else {
+          return (
+            <Fluxel
+              key={data.id}
+              data={{ ...data, debug: false }}
+              gridSize={gridSize}
+            />
+          );
+        }
+      })}
     </div>
   );
 };

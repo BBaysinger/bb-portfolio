@@ -6,8 +6,8 @@ interface ShadowProps {
   className?: string;
   x1: number;
   y1: number;
-  x2: number;
-  y2: number;
+  // x2: number;
+  // y2: number;
 }
 
 // Accounts for blur radius to keep the shadow completely out of view,
@@ -22,7 +22,8 @@ const BLUR_OFFSET = 0;
  * @since The beginning of time.
  * @version N/A
  */
-const Shadow: React.FC<ShadowProps> = ({ className, x1, y1, x2, y2 }) => {
+// const Shadow: React.FC<ShadowProps> = ({ className, x1, y1, x2, y2 }) => {
+const Shadow: React.FC<ShadowProps> = ({ className, x1, y1 }) => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
