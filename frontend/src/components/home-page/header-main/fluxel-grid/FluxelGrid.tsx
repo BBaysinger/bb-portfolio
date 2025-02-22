@@ -7,6 +7,12 @@ const DEBUG = false;
 /**
  * Fluxing Pixel Grid
  *
+ * Makes a grid of giant pixels that can be interacted with.
+ * Here I've added simulated shadows for depth with mouse move effect and
+ * I mapped animated images to the grid for a unique experience.
+ * Built is React since that's my current focus, but I need to rebuild it in
+ * PixiJS with WebGL, for performance.
+ * 
  * @author Bradley Baysinger
  * @since The beginning of time.
  * @version N/A
@@ -95,11 +101,11 @@ const FluxelGrid: React.FC<{ rows: number; cols: number }> = ({
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, []);
 
-  // useEffect(() => {
-  //   setTimeout(() => {
-  //     setAnimation(styles["fluxel-hello"]);
-  //   }, 5000);
-  // }, []);
+  useEffect(() => {
+    setTimeout(() => {
+      setAnimation(styles["fluxel-interactive"]);
+    }, 5000);
+  }, []);
 
   function smoothstep(edge0: number, edge1: number, x: number) {
     let t = Math.max(0, Math.min(1, (x - edge0) / (edge1 - edge0)));
