@@ -139,13 +139,13 @@ const FluxelGrid: React.FC<{ rows: number; cols: number }> = ({
   return (
     <div
       ref={gridRef}
-      className={styles["fluxel-grid"]}
+      className={`${styles["fluxel-grid"]} ${animation}`}
       style={{ "--cols": cols } as React.CSSProperties}
     >
       {grid.flat().map((data) => (
         <Fluxel
           key={data.id}
-          animation={animation}
+          animation={""}
           data={{ ...data, debug: false }}
           gridSize={gridSize}
         />

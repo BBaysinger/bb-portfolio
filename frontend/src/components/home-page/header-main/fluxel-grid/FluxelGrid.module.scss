@@ -4,6 +4,8 @@
   aspect-ratio: 1 / 1;
   width: 100%;
   height: 100%;
+  image-rendering: pixelated;
+  background-size: cover;
   pointer-events: none;
   * {
     pointer-events: none;
