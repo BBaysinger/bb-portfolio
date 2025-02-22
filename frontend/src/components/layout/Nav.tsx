@@ -1,12 +1,13 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import { closeMenu } from "store/menuSlice";
 import Hamburger from "components/layout/Hamburger";
 import NavLinks from "./NavLinks";
 import BarberPole from "components/common/BarberPole";
 import navLogo from "images/misc/bb-logo.svg";
+import { RootState } from "store/store";
 import styles from "./Nav.module.scss";
 
 const NavVariant = {
@@ -27,6 +28,8 @@ interface NavProps {
  * @version N/A
  */
 const Nav: React.FC<NavProps> = ({ variant }) => {
+  const isMenuOpen = useSelector((state: RootState) => state.menu.isOpen);
+
   const dispatch = useDispatch();
 
   const closeMenuHandler = () => {
@@ -36,7 +39,7 @@ const Nav: React.FC<NavProps> = ({ variant }) => {
   };
 
   return (
-    <nav className={`${styles["nav"]} ${variant} nav`} role="navigation">
+    <nav className={`${styles["nav"]} ${variant}`} role="navigation">
       <div className={styles["effect-layer0"]}></div>
       <div className={styles["effect-layer1"]}></div>
       <div className={styles["effect-layer2"]}></div>
@@ -60,9 +63,9 @@ const Nav: React.FC<NavProps> = ({ variant }) => {
 
       {variant === NavVariant.SLIDE_OUT && (
         <>
-          <BarberPole className={styles["barber-pole1"]} />
-          <BarberPole className={styles["barber-pole2"]} />
-          <BarberPole className={styles["barber-pole3"]} />
+          <BarberPole className={styles["barber-pole1"]} paused={!isMenuOpen} />
+          <BarberPole className={styles["barber-pole2"]} paused={!isMenuOpen} />
+          <BarberPole className={styles["barber-pole3"]} paused={!isMenuOpen} />
         </>
       )}
     </nav>

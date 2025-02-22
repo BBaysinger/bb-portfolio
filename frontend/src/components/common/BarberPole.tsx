@@ -7,10 +7,16 @@ import styles from "./BarberPole.module.scss";
  * @since The beginning of time.
  * @version N/A
  */
-const BarberPole: React.FC<{ className: string }> = ({ className }) => {
+const BarberPole: React.FC<{ className: string; paused?: boolean }> = ({
+  className,
+  paused = false,
+}) => {
   return (
     <div className={`${styles["barber-pole"]} ${className}`}>
-      <div className={`${styles["stripes"]} stripes`}></div>
+      <div
+        className={`${styles["stripes"]} stripes`}
+        style={{ animationPlayState: paused ? "paused" : "running" }}
+      ></div>
     </div>
   );
 };
