@@ -2,21 +2,21 @@
   position: relative;
   flex: 1 1 calc(100% / var(--cols));
   aspect-ratio: 1 / 1;
-  outline: 0.5px solid rgba(20, 20, 20, 0.7);
+  outline: 1px solid rgba(20, 20, 20, 0.7);
   background-color: transparent;
   border-radius: 1px;
   image-rendering: pixelated;
   box-sizing: content-box;
   background-repeat: no-repeat;
-  background-size: var(--fluxel-gridSize);
+  // background-size: var(--fluxel-gridSize);
   overflow: hidden;
   // Use variables in favor of percentages for accuracy in mobile.
-  background-position-x: calc(
-    var(--fluxel-col) * -1 * var(--fluxel-gridSize) / 12
-  );
-  background-position-y: calc(
-    var(--fluxel-row) * -1 * var(--fluxel-gridSize) / 12
-  );
+  // background-position-x: calc(
+  //   var(--fluxel-col) * -1 * var(--fluxel-gridSize) / 12
+  // );
+  // background-position-y: calc(
+  //   var(--fluxel-row) * -1 * var(--fluxel-gridSize) / 12
+  // );
 }
 
 .debug {
