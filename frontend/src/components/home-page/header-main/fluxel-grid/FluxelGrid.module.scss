@@ -4,14 +4,27 @@
   aspect-ratio: 1 / 1;
   width: 100%;
   height: 100%;
-  image-rendering: pixelated;
-  background-size: cover;
   pointer-events: none;
   * {
     pointer-events: none;
   }
 }
 
+.fluxel-grid-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.3;
+  image-rendering: pixelated;
+  background-size: cover;
+}
+
 .fluxel-interactive {
-  background-image: (url("/images/fluxels/interactive.webp"));
+  background-image: (url("/images/fluxel-animations/interactive.gif"));
+}
+
+.fluxel-burst1 {
+  background-image: (url("/images/fluxel-animations/burst1.gif"));
 }
