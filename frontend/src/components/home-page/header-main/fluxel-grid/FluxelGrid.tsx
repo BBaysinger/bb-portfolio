@@ -168,7 +168,7 @@ const FluxelGrid: React.FC<{
 
         // If not visible, don't render anything
         if (!isVisible) {
-          return <div></div>;
+          return <div className={styles["inactive-placeholder"]}></div>;
         } else {
           return (
             <Fluxel
