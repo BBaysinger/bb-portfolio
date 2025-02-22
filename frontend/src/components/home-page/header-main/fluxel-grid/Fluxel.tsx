@@ -24,11 +24,11 @@ const Fluxel: React.FC<{
   data: FluxelData;
   animation?: string | undefined;
   gridSize: number;
-}> = ({ data, animation, gridSize }) => {
+}> = ({ data }) => {
   const transformStyle = {
-    "--fluxel-row": data.row, // CSS variable for row
-    "--fluxel-col": data.col, // CSS variable for col
-    "--fluxel-gridSize": gridSize + "px", // CSS variable for col
+    // "--fluxel-row": data.row, // CSS variable for row
+    // "--fluxel-col": data.col, // CSS variable for col
+    // "--fluxel-gridSize": gridSize + "px", // CSS variable for col
     backgroundColor: `rgba(0, 0, 0, ${data.influence * 0.4 - 0.1})`,
   };
 
@@ -38,20 +38,19 @@ const Fluxel: React.FC<{
   const y1 = data.neighbors[1]
     ? Math.max(data.influence - data.neighbors[1].influence, 0) * 60
     : 0;
-  // const x1 = 0;
-  // const y1 = 0;
   //   const x2 = data.neighbors[2]
   //   ? (data.influence - data.neighbors[2].influence) * 10
   //   : 0;
   // const y2 = data.neighbors[2]
   //   ? (data.neighbors[2].influence - data.influence) * 10
   //   : 0;
-  const x2 = 0;
-  const y2 = 0;
+  // const x2 = 0;
+  // const y2 = 0;
 
   return (
-    <div className={`${styles["fluxel"]} ${animation}`} style={transformStyle}>
-      <Shadow className={styles["shadow"]} x1={x1} y1={y1} x2={x2} y2={y2} />
+    <div className={`${styles["fluxel"]}`} style={transformStyle}>
+      <Shadow className={styles["shadow"]} x1={x1} y1={y1} />
+      {/* <Shadow className={styles["shadow"]} x1={x1} y1={y1} x2={x2} y2={y2} /> */}
       {data.debug && (
         <div className={styles["debug"]}>
           {/* {data.neighbors[4] && <>{data.neighbors[4].influence}</>},{" "}

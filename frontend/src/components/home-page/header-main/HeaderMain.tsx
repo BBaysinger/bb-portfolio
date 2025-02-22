@@ -26,23 +26,36 @@ const HeaderMain: React.FC = () => {
     return document.documentElement.clientHeight;
   };
 
+  const getWidth = () => {
+    return document.documentElement.clientWidth;
+  };
+
   const [clientHeight, setClientHeight] = useState(getHeight());
+  const [clientWidth, setClientWidth] = useState(getWidth());
 
   useEffect(() => {
-    const updateClientHeight = () => {
-      if (getHeight() !== clientHeight) {
-        setClientHeight(getHeight());
+    const updateClientDimensions = () => {
+      const height = getHeight();
+      const width = getWidth();
+      if (height !== clientHeight) {
+        // This is the only way to get the 'short' height of the mobile viewport.
+        // That is, the height before the address bar is hidden from scrolling down.
+        // 'dvh' here can't be used because it causes a layout shift.
+        setClientHeight(height);
+      }
+      if (width !== clientWidth) {
+        setClientWidth(width);
       }
     };
 
-    updateClientHeight();
+    updateClientDimensions();
 
-    window.addEventListener("resize", updateClientHeight);
-    window.addEventListener("orientationchange", updateClientHeight);
+    window.addEventListener("resize", updateClientDimensions);
+    window.addEventListener("orientationchange", updateClientDimensions);
 
     return () => {
-      window.addEventListener("resize", updateClientHeight);
-      window.addEventListener("orientationchange", updateClientHeight);
+      window.addEventListener("resize", updateClientDimensions);
+      window.addEventListener("orientationchange", updateClientDimensions);
     };
   }, []);
 
@@ -87,7 +100,12 @@ const HeaderMain: React.FC = () => {
       style={{ minHeight: `${clientHeight}px` }}
     >
       <div className={styles["fluxel-wrapper"]}>
-        <FluxelGrid rows={12} cols={12} />
+        <FluxelGrid
+          rows={12}
+          cols={12}
+          width={clientWidth}
+          height={clientHeight}
+        />
       </div>
       <div className={styles["balls-wrapper"]}>
         <Experiment />
