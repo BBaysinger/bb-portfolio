@@ -22,7 +22,7 @@ export interface FluxelData {
  */
 const Fluxel: React.FC<{
   data: FluxelData;
-  animation: string | undefined;
+  animation?: string | undefined;
   gridSize: number;
 }> = ({ data, animation, gridSize }) => {
   const transformStyle = {
