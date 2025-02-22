@@ -38,13 +38,13 @@ const Shadow: React.FC<ShadowProps> = ({ className, x1, y1, x2, y2 }) => {
             points="0 0 0 108 108 108 108 216 216 216 216 0 0 0"
           />
         </g>
-        <rect
+        {/* <rect
           x={x2}
           y={y2}
           width="144"
           height="144"
           transform={`translate(${BLUR_OFFSET + 72}, ${-BLUR_OFFSET - 144})`}
-        />
+        /> */}
       </g>
     </svg>
   );
