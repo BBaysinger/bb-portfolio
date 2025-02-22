@@ -12,12 +12,10 @@
     "type": "",
     "desc": [
       "<p>Obviously, adding your portfolio as one of its own featured pieces risks creating a spacetime feedback loop — but I'm willing to take that chance!</p>",
-      "<p>In all seriousness, this portfolio isn't just a showcase of my work; it's a project I built to sharpen my React skills while demonstrating the level of polish I bring to projects.</p>",
-      "<p>At its core, this project features a highly flexible carousel component (you're looking at it). While it might seem standard at first glance, it's designed for seamless interactivity with features that make it truly unique. It supports synchronization for parallax effects, native touch and gesture scrolling, and custom inertia-driven drag mechanics powered by GSAP — blending the best of native and enhanced interactions.</p>",
-      "<p>Here's a question: have you ever seen a <i>natively accessible</i>, synchronized parallax carousel that supports every interaction type and bi-directional wraparound? Well you haven't been keeping notes on that, but you may have noticed how smooth it is!</p>",
-      "<p>And beyond that, it's seamlessly integrated with React Router for dynamic navigation. Try interacting with it, then use your browser's history buttons.</p>",
-      "<p>This project is a work in progress. This page runs off of static data, but a Node/Express backend is in the works. And there's a long ways to go still with other site features.</p>",
-      "<p>The code repository is public — feel free to check out the documentation for more details. The carousel will have an NPM repo, but I haven't got that far yet.</p>"
+      "<p>One of the core features is the carousel on this page. It's unique in that it synchronizes native touch/gesture carousel sliding for parallaxing effects. Swipe the devices to experience this. Then navigate your browser history to see how deeply integrated it is with the experience. I've yet to build an example that fully illustrates how powerful this can be, but that's on my list. For now, take note of the smoothness, and think of this every time a retail website forces you to use their clunky product carousel.</p>",
+      "<p>I'm sure you noticed the home page header section with giant 8-bit pixels that respond to the user. This is just the beginning. Actually, I need to rebuild this feature in PixiJS for performance, but the direction is evident.</p>",
+      "<p>A feature that you might miss if you're not on the right platform for it is the mobile navigation, which peers into the insides of your phone or tablet.</p>",
+      "<p>This page so far runs off of static data, but a Node/Express backend is well underway. But I've been overflowing with UI features ideas, so that's been my focus.</p>"
     ],
     "date": "",
     "urls": {
