@@ -12,7 +12,7 @@ const DEBUG = false;
  * I mapped animated images to the grid for a unique experience.
  * Built is React since that's my current focus, but I need to rebuild it in
  * PixiJS with WebGL, for performance.
- * 
+ *
  * @author Bradley Baysinger
  * @since The beginning of time.
  * @version N/A
