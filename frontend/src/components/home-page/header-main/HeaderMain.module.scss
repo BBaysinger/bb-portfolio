@@ -8,7 +8,6 @@ header.header-main {
   height: 37vw;
   letter-spacing: 1px;
   overflow: hidden;
-  // border: 1px solid blue;
 
   h1 {
     letter-spacing: 0.05em;
@@ -43,9 +42,6 @@ header.header-main {
   & > * {
     position: absolute;
     overflow: hidden;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
     min-width: max(100vw, 100vh);
     min-height: max(100vw, 100vh);
   }
