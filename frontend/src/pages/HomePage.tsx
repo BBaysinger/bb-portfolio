@@ -18,8 +18,8 @@ const ProjectPage: React.FC = () => {
   return (
     <>
       <HeaderMain />
-      <PortfolioList />
       <Greeting />
+      <PortfolioList />
     </>
   );
 };
