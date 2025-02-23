@@ -6,6 +6,7 @@ import styles from "./NavLinks.module.scss";
 
 interface NavLinkProps {
   onClick?: () => void;
+  className?: string;
 }
 
 /**
@@ -15,9 +16,9 @@ interface NavLinkProps {
  * @since The beginning of time.
  * @version N/A
  */
-const NavLinks: React.FC<NavLinkProps> = ({ onClick }) => {
+const NavLinks: React.FC<NavLinkProps> = ({ onClick, className }) => {
   return (
-    <ul onClick={onClick} className={styles["nav-links"]}>
+    <ul onClick={onClick} className={`${styles["nav-links"]} ${className}`}>
       <li>
         <NavLink
           to="/#headerMain"

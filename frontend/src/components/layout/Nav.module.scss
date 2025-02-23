@@ -37,19 +37,29 @@
   }
 }
 
+////////////////////////////////////////////////////
+/// Top-bar variant
+////////////////////////////////////////////////////
+
 .top-bar {
   position: fixed;
-  background: linear-gradient(to right, #111, #222);
+
   z-index: 10000;
   width: 100%; // vw or dvw here causes the scrollbar to overlap on Windows.
   min-width: 320px;
   height: $navBarHeight;
-  flex-direction: row;
-  justify-content: space-between;
+  overflow: hidden;
 
   .title {
+    width: 100%;
     display: flex;
     text-decoration: none;
+    z-index: 0;
+    position: absolute;
+    right: 0;
+    transition: right 0.5s;
+    background: linear-gradient(to right, rgba(0, 0, 0, 1) 20%, #222 60%, #222);
+    height: $navBarHeight;
 
     > * {
       margin-left: 4px;
@@ -65,6 +75,24 @@
         margin-left: 10px;
       }
     }
+
+    &.home-unscrolled {
+      right: -100vw;
+    }
+  }
+
+  .nav-links {
+    position: absolute;
+    right: 0;
+    top: 0;
+    z-index: 2;
+    background: #222;
+    padding-left: 20px;
+  }
+
+  .hamburger {
+    background: #222;
+    margin-left: auto;
   }
 
   .nav-logo-text {
@@ -91,6 +119,7 @@
       &:nth-child(2) {
         font-size: 13.9px;
         color: #fff;
+        margin-top: -1px;
       }
     }
   }
@@ -138,76 +167,20 @@
     transform: translateY(-50%);
   }
 
-  .effect-layer0,
-  .effect-layer1,
-  .effect-layer2 {
+  .shadow-layer0,
+  .shadow-layer1,
+  .shadow-layer2 {
     display: none;
   }
-}
-
-.effect-layer0 {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 100%;
-  height: 100%;
-  min-height: 1000px;
-  opacity: 0.5;
-  mix-blend-mode: multiply;
-  background-image: url("/images/misc/innards2.webp");
-  background-size: auto 100%;
-  background-position: right top;
-}
-
-.effect-layer1 {
-  position: absolute;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 1;
-  opacity: 0.3;
-  // mask-image: url("/images/misc/innards-mask.svg");
-  mask-size: auto 100%;
-  mask-repeat: no-repeat;
-  mask-position: right top;
-  background: linear-gradient(
-    0deg,
-    rgba(0, 0, 0, 0.5) 0%,
-    rgba(0, 0, 0, 0.5) 10%,
-    rgba(0, 0, 0, 0.6) 85%,
-    rgba(0, 0, 0, 1) 100%
-  );
-}
-
-.effect-layer2 {
-  position: absolute;
-  pointer-events: none;
-  top: 0;
-  width: 100%;
-  height: 102%;
-  z-index: 2;
-  filter: blur(10px);
-  mix-blend-mode: multiply;
-  opacity: 1;
-  background:
-    linear-gradient(
-      to right,
-      rgba(0, 0, 0, 0) 92%,
-      rgba(0, 0, 0, 0.1) 96%,
-      rgba(0, 0, 0, 0.9)
-    ),
-    linear-gradient(
-      to bottom,
-      rgba(0, 0, 0, 1) 0%,
-      rgba(50, 50, 50, 0) 10%,
-      rgba(50, 50, 50, 0.5) 90%,
-      rgba(0, 0, 0, 1) 100%
-    );
 }
 
 ul {
   z-index: 1;
 }
+
+////////////////////////////////////////////////////
+/// Slide-out variant
+////////////////////////////////////////////////////
 
 .slide-out {
   position: fixed;
@@ -234,58 +207,132 @@ ul {
   .navbar-toggle {
     display: none;
   }
+}
 
-  .barber-pole1 {
-    position: absolute;
-    z-index: 1;
-    height: 100px;
-    width: 34px;
-    right: 67px;
-    top: 690px;
-    transform: scale(1.5);
-    border-radius: 0 7px 0 7px;
-    opacity: 0.7;
-    > * {
-      animation: scrollStripes linear infinite;
-      animation-duration: 10s;
-    }
-  }
-  @keyframes scrollStripes {
-    from {
-      transform: translateX(0);
-    }
-    to {
-      transform: translateX(-50%);
-    }
-  }
+.shadow-layer0 {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 1000px;
+  opacity: 0.5;
+  mix-blend-mode: multiply;
+  background-image: url("/images/misc/innards2.webp");
+  background-size: auto 100%;
+  background-position: right top;
+}
 
-  .barber-pole2 {
-    position: absolute;
-    z-index: 1;
-    height: 40px;
-    width: 40px;
-    right: 207px;
-    top: 15px;
-    border-radius: 50%;
-    opacity: 0.8;
-    transform: rotate(90deg);
-    > * {
-      animation-duration: 20s;
-      max-width: 400%;
-    }
-  }
-  .barber-pole3 {
-    position: absolute;
-    z-index: 1;
-    height: 28px;
-    width: 133px;
-    right: 33px;
-    top: 375px;
-    border-radius: 7px;
-    opacity: 0.6;
-    > * {
-      animation-duration: 20s;
-      max-width: 200%;
-    }
-  }
+.shadow-layer1 {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  opacity: 0.3;
+  // mask-image: url("/images/misc/innards-mask.svg");
+  mask-size: auto 100%;
+  mask-repeat: no-repeat;
+  mask-position: right top;
+  background: linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.5) 0%,
+    rgba(0, 0, 0, 0.5) 10%,
+    rgba(0, 0, 0, 0.6) 85%,
+    rgba(0, 0, 0, 1) 100%
+  );
+}
+
+.shadow-layer2 {
+  position: absolute;
+  pointer-events: none;
+  top: 0;
+  width: 100%;
+  height: 102%;
+  z-index: 2;
+  filter: blur(10px);
+  mix-blend-mode: multiply;
+  opacity: 1;
+  background:
+    linear-gradient(
+      to right,
+      rgba(0, 0, 0, 0) 92%,
+      rgba(0, 0, 0, 0.1) 96%,
+      rgba(0, 0, 0, 0.9)
+    ),
+    linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 1) 0%,
+      rgba(50, 50, 50, 0) 10%,
+      rgba(50, 50, 50, 0.5) 90%,
+      rgba(0, 0, 0, 1) 100%
+    );
+}
+
+////////////////////////////////////////////////////
+// Not sure if I'll keep the barber poles...
+////////////////////////////////////////////////////
+
+//   .barber-pole1 {
+//     position: absolute;
+//     z-index: 1;
+//     height: 100px;
+//     width: 34px;
+//     right: 67px;
+//     top: 690px;
+//     transform: scale(1.5);
+//     border-radius: 0 7px 0 7px;
+//     opacity: 0.7;
+//     > * {
+//       animation: scrollStripes linear infinite;
+//       animation-duration: 10s;
+//     }
+//   }
+//   @keyframes scrollStripes {
+//     from {
+//       transform: translateX(0);
+//     }
+//     to {
+//       transform: translateX(-50%);
+//     }
+//   }
+
+//   .barber-pole2 {
+//     position: absolute;
+//     z-index: 1;
+//     height: 40px;
+//     width: 40px;
+//     right: 207px;
+//     top: 15px;
+//     border-radius: 50%;
+//     opacity: 0.8;
+//     transform: rotate(90deg);
+//     > * {
+//       animation-duration: 20s;
+//       max-width: 400%;
+//     }
+//   }
+//   .barber-pole3 {
+//     position: absolute;
+//     z-index: 1;
+//     height: 28px;
+//     width: 133px;
+//     right: 33px;
+//     top: 375px;
+//     border-radius: 7px;
+//     opacity: 0.6;
+//     > * {
+//       animation-duration: 20s;
+//       max-width: 200%;
+//     }
+//   }
+
+////////////////////////////////////////////////////
+/// Debug
+////////////////////////////////////////////////////
+
+.debug {
+  position: absolute;
+  top: 200px;
+  left: 40px;
 }

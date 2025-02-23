@@ -13,15 +13,18 @@ import styles from "./Hamburger.module.scss";
  * @since The beginning of time.
  * @version N/A
  */
-const Hamburger: React.FC = ({}) => {
+const Hamburger: React.FC<{ className: string }> = ({ className }) => {
   const isMenuOpen = useSelector((state: RootState) => state.menu.isOpen);
 
   const dispatch = useDispatch();
+  const classNames =
+    `${styles["hamburger"]} ${className} ` +
+    `${isMenuOpen ? styles["nav-expanded"] : ""}`;
 
   return (
     <button
       type="button"
-      className={`${styles["navbar-toggle"]} ${isMenuOpen ? styles["nav-expanded"] : ""}`}
+      className={classNames}
       onClick={() => dispatch(toggleMenu())}
     >
       <div className={styles["sr-only"]}>Toggle navigation</div>

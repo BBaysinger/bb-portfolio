@@ -27,7 +27,7 @@ const Fluxel: React.FC<{
     // "--fluxel-row": data.row, // CSS variable for row
     // "--fluxel-col": data.col, // CSS variable for col
     // "--fluxel-gridSize": gridSize + "px", // CSS variable for col
-    backgroundColor: `rgba(0, 0, 0, ${data.influence * 0.4 - 0.1})`,
+    backgroundColor: `rgba(0, 0, 0, ${data.influence * 0.5 - 0.1})`,
   };
 
   const x1 = data.neighbors[4]
