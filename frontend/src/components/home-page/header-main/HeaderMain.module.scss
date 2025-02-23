@@ -151,6 +151,7 @@ $bottom: 50px;
     display: inline-block;
     font-size: 20px;
     line-height: 1.2em;
+    font-weight: bold;
   }
   &::before {
     content: "[";
@@ -160,6 +161,15 @@ $bottom: 50px;
     content: "]";
     padding-left: 10px;
   }
+}
+
+.debug {
+  position: absolute;
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.8);
+  max-width: 700px;
+  top: 200px;
+  right: 0;
 }
 
 .balls-wrapper {

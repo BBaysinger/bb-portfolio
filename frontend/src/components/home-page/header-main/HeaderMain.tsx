@@ -37,13 +37,12 @@ const HeaderMain: React.FC = () => {
     const updateClientDimensions = () => {
       const height = getHeight();
       const width = getWidth();
-      if (height !== clientHeight) {
+
+      if (height !== clientHeight || width !== clientWidth) {
         // This is the only way to get the 'short' height of the mobile viewport.
         // That is, the height before the address bar is hidden from scrolling down.
         // 'dvh' here can't be used because it causes a layout shift.
         setClientHeight(height);
-      }
-      if (width !== clientWidth) {
         setClientWidth(width);
       }
     };
@@ -54,10 +53,10 @@ const HeaderMain: React.FC = () => {
     window.addEventListener("orientationchange", updateClientDimensions);
 
     return () => {
-      window.addEventListener("resize", updateClientDimensions);
-      window.addEventListener("orientationchange", updateClientDimensions);
+      window.removeEventListener("resize", updateClientDimensions);
+      window.removeEventListener("orientationchange", updateClientDimensions);
     };
-  }, []);
+  }, [clientHeight, clientWidth]);
 
   useEffect(() => {
     const handleEvent = () => {
@@ -137,8 +136,14 @@ const HeaderMain: React.FC = () => {
       </div>
       <div className={styles["message"]}>
         Interactivity is not about clicking, tapping, or swiping. It's about
-        engagement—an invitation to explore, respond, and shape the experience.
+        engagement — an invitation to explore, respond, and shape the
+        experience.
       </div>
+      {/* {true && (
+        <div className={styles["debug"]}>
+          {clientWidth}, {clientHeight}
+        </div>
+      )} */}
     </header>
   );
 };
