@@ -103,8 +103,8 @@ const HeaderMain: React.FC = () => {
         <FluxelGrid
           rows={12}
           cols={12}
-          width={clientWidth}
-          height={clientHeight}
+          // viewableWidth={clientWidth}
+          // viewableHeight={clientHeight}
         />
       </div>
       <div className={styles["balls-wrapper"]}>
