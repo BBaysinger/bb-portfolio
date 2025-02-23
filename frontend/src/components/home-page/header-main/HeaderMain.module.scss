@@ -145,6 +145,21 @@ $bottom: 50px;
   right: 0;
   text-align: right;
   padding: 16px 20px 0 0;
+  &::before,
+  &::after {
+    color: $heavierThemeColor;
+    display: inline-block;
+    font-size: 20px;
+    line-height: 1.2em;
+  }
+  &::before {
+    content: "[";
+    padding-right: 10px;
+  }
+  &::after {
+    content: "]";
+    padding-left: 10px;
+  }
 }
 
 .balls-wrapper {
