@@ -135,6 +135,10 @@ const HeaderMain: React.FC = () => {
           View Portfolio
         </a> */}
       </div>
+      <div className={styles["message"]}>
+        Interactivity is not about clicking, tapping, or swiping. It's about
+        engagement—an invitation to explore, respond, and shape the experience.
+      </div>
     </header>
   );
 };
