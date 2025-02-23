@@ -10,22 +10,24 @@ const DEBUG = false;
  * Makes a grid of giant pixels that can be interacted with.
  * Here I've added simulated shadows for depth with mouse move effect and
  * I mapped animated images to the grid for a unique experience.
- * Built is React since that's my current focus, but I need to rebuild it in
- * PixiJS with WebGL, for performance.
+ * Built in React since that's my current focus, but I need to rebuild it in
+ * PixiJS with WebGL, for performance with other onscreen animations.
  *
  * @author Bradley Baysinger
  * @since The beginning of time.
  * @version N/A
  */
-const FluxelGrid: React.FC<{ rows: number; cols: number }> = ({
-  rows,
-  cols,
-}) => {
+const FluxelGrid: React.FC<{
+  rows: number;
+  cols: number;
+  viewableHeight: number;
+  viewableWidth: number;
+}> = ({ rows, cols, viewableHeight, viewableWidth }) => {
   const [grid, setGrid] = useState<FluxelData[][]>([]);
   const [fluxelSize, setFluxelSize] = useState<number>(0);
   const [animation, setAnimation] = useState<string>();
   const [mousePos, setMousePos] = useState<{ x: number; y: number } | null>(
-    null,
+    null
   );
 
   const gridRef = useRef<HTMLDivElement>(null);
@@ -41,7 +43,7 @@ const FluxelGrid: React.FC<{ rows: number; cols: number }> = ({
         debug: DEBUG,
         depth: Math.sin((row + col) * 0.1),
         influence: 0,
-      })),
+      }))
     );
 
     // Assign neighbors
@@ -138,6 +140,20 @@ const FluxelGrid: React.FC<{ rows: number; cols: number }> = ({
     });
   }, [mousePos, fluxelSize]);
 
+  let viewableRows = 0;
+  let viewableCols = 0;
+
+  if (gridRef.current?.offsetWidth) {
+    viewableRows = Math.ceil(
+      viewableHeight / (gridRef.current?.offsetHeight / rows)
+    );
+    viewableCols = Math.ceil(
+      viewableWidth / (gridRef.current?.offsetWidth / cols)
+    );
+  }
+  const rowOverlap = Math.ceil((rows - viewableRows) / 2);
+  const colOverlap = Math.ceil((rows - viewableCols) / 2);
+
   return (
     <div
       ref={gridRef}
@@ -145,9 +161,29 @@ const FluxelGrid: React.FC<{ rows: number; cols: number }> = ({
       style={{ "--cols": cols } as React.CSSProperties}
     >
       <div className={`${styles["fluxel-grid-background"]} ${animation}`}></div>
-      {grid.flat().map((data) => (
-        <Fluxel key={data.id} data={{ ...data }} />
-      ))}
+      {grid.flat().map((data) => {
+        const isVisible =
+          data.col >= colOverlap &&
+          data.col < cols - colOverlap &&
+          data.row >= rowOverlap &&
+          data.row < rows - rowOverlap;
+
+        if (!isVisible) {
+          return (
+            <div className={styles["inactive-placeholder"]}>
+               {colOverlap}
+            </div>
+          );
+        } else {
+          return (
+            <Fluxel
+              key={data.id}
+              data={data}
+              // debug={viewableHeight}
+            />
+          );
+        }
+      })}
     </div>
   );
 };
