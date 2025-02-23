@@ -171,7 +171,7 @@ const FluxelGrid: React.FC<{
         if (!isVisible) {
           return (
             <div key={data.id} className={styles["inactive-placeholder"]}>
-              {colOverlap}
+              {/* {colOverlap} */}
             </div>
           );
         } else {

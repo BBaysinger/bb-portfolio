@@ -7,8 +7,6 @@
   justify-content: center; /* Center items within each row (horizontal centering) */
   align-content: center; /* Center the entire group of rows vertically */
   pointer-events: none;
-  // transform: scale(0.58);
-  // transform: translate(20px, 300px );
   * {
     pointer-events: none;
   }
@@ -36,10 +34,10 @@
 }
 
 .inactive-placeholder {
-  // visibility: hidden;
+  visibility: hidden;
   color: white;
   overflow: hidden;
-  // background-color: yellow !important;
+  background-color: yellow !important;
   outline: 1px solid black;
 }
 
