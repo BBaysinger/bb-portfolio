@@ -2,22 +2,20 @@
 @use "@/components/common/HeaderShared.module.scss" as headerShared;
 
 header.header-main {
-  padding-left: 15px;
-  padding-right: 15px;
-  padding-top: 0;
-  height: 37vw;
+  display: flex;
+  align-items: bottom;
+  justify-content: flex-end;
   letter-spacing: 1px;
-  overflow: hidden;
 
   h1 {
     letter-spacing: 0.05em;
     font-size: 48px;
-    line-height: 1em;
-    margin-bottom: 0.5em;
+    line-height: 1.1em;
+    margin-bottom: 0.2em;
+    margin-left: -0.05em;
 
     color: #fff;
     font-weight: 400; // Only a factor before fonts load.
-    opacity: 0.999; // Temp fix for z-index issue.
     @include breakpoint-up($b480px) {
       font-size: 48px;
     }
@@ -29,58 +27,26 @@ header.header-main {
   }
 }
 
-.fluxel-wrapper {
-  position: absolute;
-  z-index: 0;
-  width: max(100vw, 100vh);
-  height: max(100vw, 100vh);
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  overflow: hidden;
-
-  & > * {
-    position: absolute;
-    overflow: hidden;
-    min-width: max(100vw, 100vh);
-    min-height: max(100vw, 100vh);
-  }
-}
-
 .header-wrapper {
+  width: 100vw;
   position: absolute;
   display: flex;
-  height: 100%;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
+  align-items: flex-start;
   z-index: 1000;
   user-select: none; /* Prevents text selection */
-  -webkit-user-drag: none; /* Prevents image/element dragging */
-  pointer-events: none; /* Prevents interactions */
+  // -webkit-user-drag: none; /* Prevents image/element dragging */
+  // pointer-events: none; /* Prevents interactions */
+  padding: 20px 20px;
 }
 
 .subhead {
   font-size: 22px;
-  line-height: 1.4em;
-  margin-bottom: 20px;
+  margin-bottom: -6px;
   letter-spacing: 0.07em;
   overflow: hidden;
   position: relative;
-  line-height: 0.9em;
-
-  &.subhead-desktop {
-    display: none;
-  }
-
-  @include breakpoint-up(500px) {
-    &.subhead-mobile {
-      display: none;
-    }
-    &.subhead-desktop {
-      display: block;
-    }
-  }
+  line-height: 1.4em;
 }
 
 .bull {
@@ -94,12 +60,17 @@ header.header-main {
   }
 }
 
+.logo-wrapper {
+  width: 140px;
+}
+
 .header-logo {
+  margin-left: -18%;
+  width: 100%;
   opacity: 1;
-  max-height: 45vh;
   position: relative;
   top: -11px;
-  margin-bottom: -30px;
+  margin-bottom: -20px;
 }
 
 $bottom: 50px;
@@ -160,6 +131,7 @@ $bottom: 50px;
 .barber-pole {
   height: 34px;
   width: 34px;
+  margin: 0 4px;
 }
 
 .balls-wrapper {
@@ -169,6 +141,27 @@ $bottom: 50px;
   z-index: 0;
   overflow: hidden;
   pointer-events: none;
+}
+
+.fluxel-wrapper {
+  position: absolute;
+  z-index: 0;
+  width: 100vw;
+  height: 100vh;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  overflow: hidden;
+
+  & > * {
+    position: absolute;
+    overflow: hidden;
+    min-width: max(100vw, 100vh);
+    min-height: max(100vw, 100vh);
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
 }
 
 .spinner {

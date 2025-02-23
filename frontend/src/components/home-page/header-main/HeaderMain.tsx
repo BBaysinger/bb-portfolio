@@ -111,31 +111,29 @@ const HeaderMain: React.FC = () => {
         <Experiment />
       </div>
       <div className={styles["header-wrapper"]}>
-        <div className={styles["middle"]}>
+        <div className={styles["logo-wrapper"]}>
           <img
             src={headerLogo}
             className={styles["header-logo"]}
             alt="BB Logo"
           />
+        </div>
 
-          <h1>
-            <span className={styles["first-name"]}>Bradley</span>{" "}
+        <h1>
+          <span className={styles["first-name"]}>Bradley</span>{" "}
+          <span className={styles["nobr"]}>
             <BarberPole className={styles["barber-pole"]} />{" "}
             <span className={styles["last-name"]}>Baysinger</span>
-          </h1>
+          </span>
+        </h1>
 
-          <h5 className={`${styles["subhead-mobile"]} ${styles["subhead"]}`}>
-            Interactive Web Developer
-          </h5>
-
-          <h5 className={`${styles["subhead-desktop"]} ${styles["subhead"]}`}>
-            Interactive&nbsp;Web <span className={styles["bull"]}>&bull;</span>{" "}
-            <span className={styles["nobr"]}>Front-end Developer</span>
-          </h5>
-        </div>
-        <a href="#list" className={styles["view-portfolio"]}>
+        <h5 className={`${styles["subhead"]}`}>
+          Interactive&nbsp;Web <span className={styles["bull"]}>&bull;</span>{" "}
+          <span className={styles["nobr"]}>Front-end Developer</span>
+        </h5>
+        {/* <a href="#list" className={styles["view-portfolio"]}>
           View Portfolio
-        </a>
+        </a> */}
       </div>
     </header>
   );

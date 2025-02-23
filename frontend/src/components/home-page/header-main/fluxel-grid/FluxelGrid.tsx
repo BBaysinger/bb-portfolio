@@ -151,8 +151,8 @@ const FluxelGrid: React.FC<{
       viewableWidth / (gridRef.current?.offsetWidth / cols),
     );
   }
-  const rowOverlap = Math.ceil((rows - viewableRows) / 2);
-  const colOverlap = Math.ceil((rows - viewableCols) / 2);
+  const rowOverlap = Math.floor((rows - viewableRows) / 2);
+  const colOverlap = Math.floor((rows - viewableCols) / 2);
 
   return (
     <div
