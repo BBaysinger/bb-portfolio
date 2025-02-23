@@ -27,7 +27,7 @@ const FluxelGrid: React.FC<{
   const [fluxelSize, setFluxelSize] = useState<number>(0);
   const [animation, setAnimation] = useState<string>();
   const [mousePos, setMousePos] = useState<{ x: number; y: number } | null>(
-    null
+    null,
   );
 
   const gridRef = useRef<HTMLDivElement>(null);
@@ -43,7 +43,7 @@ const FluxelGrid: React.FC<{
         debug: DEBUG,
         depth: Math.sin((row + col) * 0.1),
         influence: 0,
-      }))
+      })),
     );
 
     // Assign neighbors
@@ -145,10 +145,10 @@ const FluxelGrid: React.FC<{
 
   if (gridRef.current?.offsetWidth) {
     viewableRows = Math.ceil(
-      viewableHeight / (gridRef.current?.offsetHeight / rows)
+      viewableHeight / (gridRef.current?.offsetHeight / rows),
     );
     viewableCols = Math.ceil(
-      viewableWidth / (gridRef.current?.offsetWidth / cols)
+      viewableWidth / (gridRef.current?.offsetWidth / cols),
     );
   }
   const rowOverlap = Math.ceil((rows - viewableRows) / 2);
@@ -170,8 +170,8 @@ const FluxelGrid: React.FC<{
 
         if (!isVisible) {
           return (
-            <div className={styles["inactive-placeholder"]}>
-               {colOverlap}
+            <div key={data.id} className={styles["inactive-placeholder"]}>
+              {colOverlap}
             </div>
           );
         } else {
