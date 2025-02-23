@@ -205,17 +205,16 @@ const CurriculumVitae: React.FC = () => {
 
             <div className={divClassRt}>
               <p>
-                Uncommon talent with a rich history in design, interactive
-                animation, and interactive development. Adaptable and
-                results-driven, with a proven ability to transition from
-                award-winning Flash and interactive projects to delivering
-                scalable solutions using frameworks like Angular. Currently
-                deepening expertise in React through recent projects, including
-                some reusable interactive components. Skilled in crafting
-                user-focused experiences for leading companies across
-                industries—ranging from Fortune 500 firms to entertainment
-                giants and innovative startups—blending technical and creative
-                problem-solving to deliver impactful and polished results.
+                A developer with a unique background in design, technical
+                animation, and interactive development. From game development to
+                scalable front-end solutions, I bridge creativity with
+                technology to craft engaging user experiences. After delivering
+                award-winning interactive projects in Flash, I transitioned
+                seamlessly to modern frameworks like Angular and React, building
+                reusable, high-performance components. With a results-driven
+                approach, I've helped Fortune 500 companies, entertainment
+                giants, and startups create polished, impactful digital
+                experiences.
               </p>
             </div>
           </div>
