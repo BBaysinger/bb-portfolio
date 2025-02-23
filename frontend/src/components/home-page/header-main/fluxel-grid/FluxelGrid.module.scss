@@ -36,10 +36,11 @@
 }
 
 .inactive-placeholder {
-  visibility: hidden;
+  // visibility: hidden;
   color: white;
   overflow: hidden;
-  background-color: yellow;
+  // background-color: yellow !important;
+  outline: 1px solid black;
 }
 
 .fluxel-grid-background {
