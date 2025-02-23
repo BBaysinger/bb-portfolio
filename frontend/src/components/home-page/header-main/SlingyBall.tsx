@@ -64,16 +64,30 @@ const SlingyBall: React.FC = () => {
 
       // Apply accelerometer influence
       const accelFactor = 0.5;
-
       vx += accelerationRef.current.ax * accelFactor;
       vy += accelerationRef.current.ay * accelFactor;
 
       x += vx;
       y += vy;
 
-      // Bounce off edges
-      if (x <= 0 || x >= bounds.width - 50) vx = -vx * 0.8;
-      if (y <= 0 || y >= bounds.height - 50) vy = -vy * 0.8;
+      // Keep within bounds
+      const ballSize = 50;
+      if (x < 0) {
+        x = 0;
+        vx = -vx * 0.8;
+      }
+      if (x > bounds.width - ballSize) {
+        x = bounds.width - ballSize;
+        vx = -vx * 0.8;
+      }
+      if (y < 0) {
+        y = 0;
+        vy = -vy * 0.8;
+      }
+      if (y > bounds.height - ballSize) {
+        y = bounds.height - ballSize;
+        vy = -vy * 0.8;
+      }
 
       // Apply damping to slow down movement
       const dampingFactor = 0.98;
@@ -122,6 +136,27 @@ const SlingyBall: React.FC = () => {
       if (obj.isDragging) {
         obj.x += e.movementX;
         obj.y += e.movementY;
+
+        const bounds = containerBounds.current;
+        if (!bounds) return;
+
+        const ballSize = 50;
+        if (obj.x < 0) {
+          obj.x = 0;
+          handleMouseUp(e);
+        }
+        if (obj.x > bounds.width - ballSize) {
+          obj.x = bounds.width - ballSize;
+          handleMouseUp(e);
+        }
+        if (obj.y < 0) {
+          obj.y = 0;
+          handleMouseUp(e);
+        }
+        if (obj.y > bounds.height - ballSize) {
+          obj.y = bounds.height - ballSize;
+          handleMouseUp(e);
+        }
       }
     });
 
