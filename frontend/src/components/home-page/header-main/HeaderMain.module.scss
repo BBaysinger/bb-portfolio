@@ -145,6 +145,7 @@ $bottom: 50px;
   right: 0;
   text-align: right;
   padding: 16px 20px 0 0;
+  pointer-events: none;
   &::before,
   &::after {
     color: $heavierThemeColor;
