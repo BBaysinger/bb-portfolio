@@ -21,8 +21,8 @@ export interface FluxelData {
  */
 const Fluxel: React.FC<{
   data: FluxelData;
-  debug?: boolean | string | number | object | null;
-}> = ({ data, debug }) => {
+  _debug?: boolean | string | number | object | null;
+}> = ({ data, _debug }) => {
   const transformStyle = {
     // "--fluxel-row": data.row, // CSS variable for row
     // "--fluxel-col": data.col, // CSS variable for col
@@ -49,15 +49,15 @@ const Fluxel: React.FC<{
     <div className={`${styles["fluxel"]}`} style={transformStyle}>
       <Shadow className={styles["shadow"]} x1={x1} y1={y1} />
       {/* <Shadow className={styles["shadow"]} x1={x1} y1={y1} x2={x2} y2={y2} /> */}
-      {debug && (
+      {/* {debug && (
         <div className={styles["debug"]}>
-          {/* {data.neighbors[4] && <>{data.neighbors[4].influence}</>},{" "} */}
-          {/* {/* {data.row}, {data.col} <br /> */}
-          {/* {data.id}, */}
-          {/* {data.depth} */}
+          {/* {data.neighbors[4] && <>{data.neighbors[4].influence}</>},{" "} 
+          {/* {/* {data.row}, {data.col} <br /> 
+          {/* {data.id}, 
+          {/* {data.depth} 
           {debug.toString()}
         </div>
-      )}
+      )} */}
     </div>
   );
 };
