@@ -8,7 +8,6 @@ export interface FluxelData {
   row: number;
   col: number;
   neighbors: FluxelData[];
-  debug: boolean | string | number | object | null;
   depth: number;
   influence: number;
 }
@@ -22,17 +21,14 @@ export interface FluxelData {
  */
 const Fluxel: React.FC<{
   data: FluxelData;
-  animation?: string | undefined;
-  gridSize: number;
-}> = ({ data }) => {
+  debug?: boolean | string | number | object | null;
+}> = ({ data, debug }) => {
   const transformStyle = {
     // "--fluxel-row": data.row, // CSS variable for row
     // "--fluxel-col": data.col, // CSS variable for col
     // "--fluxel-gridSize": gridSize + "px", // CSS variable for col
     backgroundColor: `rgba(0, 0, 0, ${data.influence * 0.4 - 0.1})`,
   };
-
-  data.debug = true;
 
   const x1 = data.neighbors[4]
     ? Math.min(data.neighbors[4].influence - data.influence, 0) * 60
@@ -53,11 +49,13 @@ const Fluxel: React.FC<{
     <div className={`${styles["fluxel"]}`} style={transformStyle}>
       <Shadow className={styles["shadow"]} x1={x1} y1={y1} />
       {/* <Shadow className={styles["shadow"]} x1={x1} y1={y1} x2={x2} y2={y2} /> */}
-      {data.debug && (
+      {debug && (
         <div className={styles["debug"]}>
           {/* {data.neighbors[4] && <>{data.neighbors[4].influence}</>},{" "} */}
-          {data.row}, {data.col}
+          {/* {/* {data.row}, {data.col} <br /> */}
+          {/* {data.id}, */}
           {/* {data.depth} */}
+          {debug.toString()}
         </div>
       )}
     </div>

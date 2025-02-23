@@ -7,7 +7,8 @@
   justify-content: center; /* Center items within each row (horizontal centering) */
   align-content: center; /* Center the entire group of rows vertically */
   pointer-events: none;
-  // transform: scale(0.75);
+  // transform: scale(0.58);
+  // transform: translate(20px, 300px );
   * {
     pointer-events: none;
   }
@@ -25,9 +26,20 @@
   }
 }
 
+.debug {
+  position: absolute;
+  color: white;
+  font-size: 20px;
+  top: 300px;
+  left: 300px;
+  border: 10px solid red;
+}
+
 .inactive-placeholder {
   // visibility: hidden;
-  outline:1px solid red;
+  outline: 1px solid red;
+  color: white;
+  overflow: hidden;
 }
 
 .fluxel-grid-background {
