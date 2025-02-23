@@ -38,6 +38,7 @@ header.header-main {
   // -webkit-user-drag: none; /* Prevents image/element dragging */
   // pointer-events: none; /* Prevents interactions */
   padding: 20px 20px;
+  pointer-events: none;
 }
 
 .subhead {
@@ -132,6 +133,17 @@ $bottom: 50px;
   height: 34px;
   width: 34px;
   margin: 0 4px;
+}
+
+.message {
+  position: absolute;
+  font-size: 16px;
+  color: #aaa;
+  width: 70%;
+  top: $navBarHeight;
+  right: 0;
+  text-align: right;
+  padding: 16px 20px 0 0;
 }
 
 .balls-wrapper {
