@@ -1,5 +1,6 @@
 import React from "react";
 
+import cornerShadow from "images/main-header/corner-shadow.webp";
 import styles from "./Shadow.module.scss";
 
 interface ShadowProps {
@@ -34,10 +35,18 @@ const Shadow: React.FC<ShadowProps> = ({ className, x1, y1 }) => {
     >
       <g opacity="0.5">
         <g transform={`translate(${x1}, ${y1})`}>
-          <polygon
+          <image
+            href={cornerShadow}
+            x="35"
+            y="-35"
+            width="216"
+            height="216"
+            transform={`translate(${BLUR_OFFSET - 34}, ${-BLUR_OFFSET - 110})`}
+          />
+          {/* <polygon
             transform={`translate(${BLUR_OFFSET - 34}, ${-BLUR_OFFSET - 110})`}
             points="0 0 0 108 108 108 108 216 216 216 216 0 0 0"
-          />
+          /> */}
         </g>
         {/* <rect
           x={x2}
