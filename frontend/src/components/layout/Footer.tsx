@@ -2,10 +2,10 @@ import React, { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
 
 import NavLinks from "./NavLinks";
-import styles from "./Footer.module.scss"; // Assuming you're using SCSS modules
+import styles from "./Footer.module.scss";
 
 /**
- * As you may have guessed, this is the footer, common to every page.
+ * The footer, common to every page.
  *
  * @author Bradley Baysinger
  * @since The beginning of time.
@@ -13,7 +13,6 @@ import styles from "./Footer.module.scss"; // Assuming you're using SCSS modules
  */
 const Footer: React.FC = () => {
   const [emailAddr, setEmailAddr] = useState<string>("Waiting...");
-  // const [portfolioLinkActive] = useState<boolean>(true);
 
   useEffect(() => {
     // A dumb trick so that crawlers don't scrape my email address
