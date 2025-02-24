@@ -160,6 +160,8 @@ $bottom: 50px;
       display: inline-block;
       line-height: 1.2em;
       font-weight: bold;
+      white-space: nowrap;
+      display: inline;
     }
     &::before {
       content: "[";
