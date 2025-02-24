@@ -149,11 +149,11 @@ $bottom: 50px;
   @include breakpoint-up($b640px) {
     font-size: 18px;
   }
-  color: rgba(255, 255, 255, 0);
-  span {
-    color: rgba(255, 255, 255, 0.8);
-  }
   p {
+    color: rgba(255, 255, 255, 0);
+    span {
+      color: rgba(255, 255, 255, 0.8);
+    }
     &::before,
     &::after {
       color: $heavierThemeColor;
