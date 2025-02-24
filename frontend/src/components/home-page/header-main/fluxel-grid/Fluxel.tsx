@@ -22,7 +22,7 @@ export interface FluxelData {
 const Fluxel: React.FC<{
   data: FluxelData;
   _debug?: boolean | string | number | object | null;
-}> = ({ data, _debug }) => {
+}> = ({ data }) => {
   const transformStyle = {
     // "--fluxel-row": data.row, // CSS variable for row
     // "--fluxel-col": data.col, // CSS variable for col
