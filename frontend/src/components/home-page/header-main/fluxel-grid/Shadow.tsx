@@ -11,10 +11,6 @@ interface ShadowProps {
   // y2: number;
 }
 
-// Accounts for blur radius to keep the shadow completely out of view,
-// without hardcoding the value.
-const BLUR_OFFSET = 0;
-
 /**
  * Registration is set to the corner of the origin of the shadows, and
  * positioned to the top right of the fluxel.
@@ -25,6 +21,9 @@ const BLUR_OFFSET = 0;
  */
 // const Shadow: React.FC<ShadowProps> = ({ className, x1, y1, x2, y2 }) => {
 const Shadow: React.FC<ShadowProps> = ({ className, x1, y1 }) => {
+  const xPos = Math.round(Math.min(x1, 0));
+  const yPos = Math.round(Math.max(y1, 0));
+
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -34,19 +33,14 @@ const Shadow: React.FC<ShadowProps> = ({ className, x1, y1 }) => {
       className={`${styles["shadow"]} ${className}`}
     >
       <g opacity="0.5">
-        <g transform={`translate(${x1}, ${y1})`}>
+        <g transform={`translate(${xPos}, ${yPos})`}>
           <image
             href={cornerShadow}
-            x="35"
-            y="-35"
+            x={-34}
+            y={-110}
             width="216"
             height="216"
-            transform={`translate(${BLUR_OFFSET - 34}, ${-BLUR_OFFSET - 110})`}
           />
-          {/* <polygon
-            transform={`translate(${BLUR_OFFSET - 34}, ${-BLUR_OFFSET - 110})`}
-            points="0 0 0 108 108 108 108 216 216 216 216 0 0 0"
-          /> */}
         </g>
         {/* <rect
           x={x2}

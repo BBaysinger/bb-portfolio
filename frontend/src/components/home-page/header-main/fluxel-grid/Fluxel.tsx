@@ -24,9 +24,6 @@ const Fluxel: React.FC<{
   _debug?: boolean | string | number | object | null;
 }> = ({ data }) => {
   const transformStyle = {
-    // "--fluxel-row": data.row, // CSS variable for row
-    // "--fluxel-col": data.col, // CSS variable for col
-    // "--fluxel-gridSize": gridSize + "px", // CSS variable for col
     backgroundColor: `rgba(0, 0, 0, ${data.influence * 0.5 - 0.1})`,
   };
 
