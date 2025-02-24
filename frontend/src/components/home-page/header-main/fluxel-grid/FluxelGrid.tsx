@@ -103,12 +103,16 @@ const FluxelGrid: React.FC<{
 
   useEffect(() => {
     setTimeout(() => {
-      setAnimation(styles["fluxel-interactive"]);
-    }, 5000);
+      setAnimation(styles["fluxel-invaders"]);
+    }, 3000);
 
     setTimeout(() => {
       setAnimation(styles["fluxel-burst1"]);
-    }, 28000);
+    }, 20000);
+
+    setTimeout(() => {
+      setAnimation(styles["fluxel-interactive"]);
+    }, 40000);
   }, []);
 
   function smoothstep(edge0: number, edge1: number, x: number) {
