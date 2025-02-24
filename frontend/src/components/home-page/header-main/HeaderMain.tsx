@@ -4,6 +4,7 @@ import headerLogo from "images/main-header/bb-gradient.webp";
 import BarberPole from "components/common/BarberPole";
 import FluxelGrid from "./fluxel-grid/FluxelGrid";
 import Experiment from "./SlingyBall";
+import ParagraphAnimator from "./ParagraphAnimator";
 import styles from "./HeaderMain.module.scss";
 
 /**
@@ -18,6 +19,13 @@ const HeaderMain: React.FC = () => {
 
   const lastScrollPosition = useRef(0);
   const ticking = useRef(false);
+
+  const quotes = [
+    "Interactivity is not about clicking, tapping, or swiping. It's about engagement — an invitation to explore, respond, and shape the experience.",
+    "A great UI isn't just seen—it's felt. Every transition, every hover, every microinteraction should whisper to the user: ‘I understand you.'",
+    "Front-end development is storytelling in motion. It's not just about displaying content—it's about guiding, delighting, and responding to the user's curiosity.",
+    "True interactivity is invisible. The best experiences don't make users think about how they work—they just feel natural, intuitive, and alive.",
+  ];
 
   const getHeight = () => {
     // This is the only way to get the 'short' height of the mobile viewport.
@@ -134,11 +142,12 @@ const HeaderMain: React.FC = () => {
           View Portfolio
         </a> */}
       </div>
-      <div className={styles["message"]}>
+      {/* <div className={styles["message"]}>
         Interactivity is not about clicking, tapping, or swiping. It's about
         engagement — an invitation to explore, respond, and shape the
         experience.
-      </div>
+      </div> */}
+      <ParagraphAnimator paragraphs={quotes} className={styles["message"]} />
       {/* {true && (
         <div className={styles["debug"]}>
           {clientWidth}, {clientHeight}

@@ -149,20 +149,26 @@ $bottom: 50px;
   @include breakpoint-up($b640px) {
     font-size: 18px;
   }
-  &::before,
-  &::after {
-    color: $heavierThemeColor;
-    display: inline-block;
-    line-height: 1.2em;
-    font-weight: bold;
+  color: rgba(255, 255, 255, 0);
+  span {
+    color: rgba(255, 255, 255, 0.8);
   }
-  &::before {
-    content: "[";
-    padding-right: 10px;
-  }
-  &::after {
-    content: "]";
-    padding-left: 10px;
+  p {
+    &::before,
+    &::after {
+      color: $heavierThemeColor;
+      display: inline-block;
+      line-height: 1.2em;
+      font-weight: bold;
+    }
+    &::before {
+      content: "[";
+      padding-right: 10px;
+    }
+    &::after {
+      content: "]";
+      padding-left: 10px;
+    }
   }
 }
 
