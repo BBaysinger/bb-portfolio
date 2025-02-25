@@ -20,11 +20,14 @@ const SlingyBall: React.FC = () => {
     null,
   );
   const dragStartPosition = useRef<{ x: number; y: number } | null>(null);
+  const movementHistory = useRef<{ x: number; y: number; time: number }[]>([]);
+  const lastKnownVelocity = useRef<{ vx: number; vy: number }>({
+    vx: 0,
+    vy: 0,
+  });
+
   const animationFrameRef = useRef<number | null>(null);
   const triggerRender = useState(0)[1]; // Dummy state to force re-renders
-
-  // Accelerometer state
-  const accelerationRef = useRef<{ ax: number; ay: number }>({ ax: 0, ay: 0 });
 
   useEffect(() => {
     if (containerRef.current) {
@@ -41,19 +44,6 @@ const SlingyBall: React.FC = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Handle accelerometer data
-  useEffect(() => {
-    const handleMotion = (event: DeviceMotionEvent) => {
-      if (event.accelerationIncludingGravity) {
-        accelerationRef.current.ax = event.accelerationIncludingGravity.x ?? 0;
-        accelerationRef.current.ay = event.accelerationIncludingGravity.y ?? 0;
-      }
-    };
-
-    window.addEventListener("devicemotion", handleMotion);
-    return () => window.removeEventListener("devicemotion", handleMotion);
-  }, []);
-
   const animate = useCallback(() => {
     objectsRef.current.forEach((obj) => {
       if (obj.isDragging) return;
@@ -61,11 +51,6 @@ const SlingyBall: React.FC = () => {
       let { x, y, vx, vy } = obj;
       const bounds = containerBounds.current;
       if (!bounds) return;
-
-      // Apply accelerometer influence
-      const accelFactor = 0.5;
-      vx += accelerationRef.current.ax * accelFactor;
-      vy += accelerationRef.current.ay * accelFactor;
 
       x += vx;
       y += vy;
@@ -89,7 +74,7 @@ const SlingyBall: React.FC = () => {
         vy = -vy * 0.8;
       }
 
-      // Apply damping to slow down movement
+      // Apply damping
       const dampingFactor = 0.98;
       const minSpeed = 0.5;
       vx =
@@ -103,7 +88,7 @@ const SlingyBall: React.FC = () => {
       obj.vy = vy;
     });
 
-    triggerRender((prev) => prev + 1); // Force a re-render
+    triggerRender((prev) => prev + 1); // Force re-render
     animationFrameRef.current = requestAnimationFrame(animate);
   }, []);
 
@@ -117,6 +102,10 @@ const SlingyBall: React.FC = () => {
 
   const handleMouseDown = (id: number, e: React.MouseEvent) => {
     dragStartPosition.current = { x: e.clientX, y: e.clientY };
+    movementHistory.current = [
+      { x: e.clientX, y: e.clientY, time: performance.now() },
+    ];
+    lastKnownVelocity.current = { vx: 0, vy: 0 };
 
     objectsRef.current.forEach((obj) => {
       if (obj.id === id) {
@@ -126,7 +115,7 @@ const SlingyBall: React.FC = () => {
       }
     });
 
-    triggerRender((prev) => prev + 1); // Force a re-render
+    triggerRender((prev) => prev + 1);
   };
 
   const handleMouseMove = useCallback((e: MouseEvent) => {
@@ -136,50 +125,57 @@ const SlingyBall: React.FC = () => {
       if (obj.isDragging) {
         obj.x += e.movementX;
         obj.y += e.movementY;
-
-        const bounds = containerBounds.current;
-        if (!bounds) return;
-
-        const ballSize = 50;
-        if (obj.x < 0) {
-          obj.x = 0;
-          handleMouseUp(e);
-        }
-        if (obj.x > bounds.width - ballSize) {
-          obj.x = bounds.width - ballSize;
-          handleMouseUp(e);
-        }
-        if (obj.y < 0) {
-          obj.y = 0;
-          handleMouseUp(e);
-        }
-        if (obj.y > bounds.height - ballSize) {
-          obj.y = bounds.height - ballSize;
-          handleMouseUp(e);
-        }
       }
     });
 
-    triggerRender((prev) => prev + 1); // Force a re-render
+    // Track recent movement (keep only last 100ms worth of data)
+    const now = performance.now();
+    movementHistory.current.push({ x: e.clientX, y: e.clientY, time: now });
+
+    // Remove old entries (more than 100ms old)
+    movementHistory.current = movementHistory.current.filter(
+      (entry) => now - entry.time <= 100,
+    );
+
+    // Calculate latest velocity if movement happened
+    if (movementHistory.current.length > 1) {
+      const first = movementHistory.current[0];
+      const last = movementHistory.current[movementHistory.current.length - 1];
+
+      const elapsedTime = (last.time - first.time) / 1000; // Convert to seconds
+      if (elapsedTime > 0) {
+        lastKnownVelocity.current.vx = ((last.x - first.x) / elapsedTime) * 0.1;
+        lastKnownVelocity.current.vy = ((last.y - first.y) / elapsedTime) * 0.1;
+      }
+    }
+
+    triggerRender((prev) => prev + 1);
   }, []);
 
-  const handleMouseUp = useCallback((e: MouseEvent) => {
+  const handleMouseUp = useCallback((_e: MouseEvent) => {
     if (!dragStartPosition.current) return;
 
-    const { x: startX, y: startY } = dragStartPosition.current;
-    const deltaX = e.clientX - startX;
-    const deltaY = e.clientY - startY;
+    let vx = lastKnownVelocity.current.vx;
+    let vy = lastKnownVelocity.current.vy;
+
+    // If no movement was detected, set a small release velocity
+    const minVelocity = 0.5;
+    if (Math.abs(vx) < minVelocity && Math.abs(vy) < minVelocity) {
+      vx = Math.sign(vx) * minVelocity || minVelocity;
+      vy = Math.sign(vy) * minVelocity || minVelocity;
+    }
 
     objectsRef.current.forEach((obj) => {
       if (obj.isDragging) {
-        obj.vx = deltaX * 0.1;
-        obj.vy = deltaY * 0.1;
+        obj.vx = vx;
+        obj.vy = vy;
         obj.isDragging = false;
       }
     });
 
     dragStartPosition.current = null;
-    triggerRender((prev) => prev + 1); // Force a re-render
+    movementHistory.current = [];
+    triggerRender((prev) => prev + 1);
   }, []);
 
   useEffect(() => {
