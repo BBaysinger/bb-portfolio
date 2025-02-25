@@ -38,7 +38,8 @@ const Nav: React.FC<NavProps> = ({ variant }) => {
   const currentPath = location.pathname;
 
   const titleClass =
-    isScrolledToTop && currentPath === "/"
+    // TODO: Make so portfolio route isn't enabled when scrolled back up.
+    isScrolledToTop && (currentPath === "/" || currentPath === "/portfolio")
       ? `${styles["title"]} ${styles["home-unscrolled"]}`
       : styles["title"];
 
@@ -48,8 +49,10 @@ const Nav: React.FC<NavProps> = ({ variant }) => {
     };
 
     window.addEventListener("scroll", handleScroll);
+    window.addEventListener("orientationchange", handleScroll);
     return () => {
       window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("orientationchange", handleScroll);
     };
   }, []);
 
@@ -89,11 +92,10 @@ const Nav: React.FC<NavProps> = ({ variant }) => {
         <Hamburger className={styles["hamburger"]} />
       )}
 
-      {/* Debugging: Display current route and scroll status */}
-      {/* <p className={styles["debug"]}>
+      {/* <div className={styles["debug"]}>
         Current Route: {currentPath} <br />
         {isScrolledToTop ? "Scrolled to Top ✅" : "Scrolled Down ❌"}
-      </p> */}
+      </div> */}
 
       {/* {variant === NavVariant.SLIDE_OUT && (
         <>
