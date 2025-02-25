@@ -5,8 +5,8 @@ import React, { useEffect, useRef, useState } from "react";
  *
  * Using GIFs bc I'm having better luck than with WEBP.
  * FFMPEG is corrupting my colors.
- * 
- * But this will eventually rebuilt in PixiJS, along with 
+ *
+ * But this will eventually rebuilt in PixiJS, along with
  * the fluxel grid, and some
  * of the effects will be interactive.
  *
@@ -22,7 +22,7 @@ const PixelAnimations: React.FC<{ className: string }> = ({ className }) => {
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastIndexRef = useRef<number>(0); // Start from first animation
 
-  const delay = 4000;
+  const delay = 6000;
 
   const sequence = [
     {
@@ -57,27 +57,27 @@ const PixelAnimations: React.FC<{ className: string }> = ({ className }) => {
 
   const updateBackground = () => {
     // setTimeout(() => {
-      const isPortrait = window.matchMedia("(orientation: portrait)").matches;
-      const nextIndex = getRandomIndex(lastIndexRef.current);
-      lastIndexRef.current = nextIndex;
+    const isPortrait = window.matchMedia("(orientation: portrait)").matches;
+    const nextIndex = getRandomIndex(lastIndexRef.current);
+    lastIndexRef.current = nextIndex;
 
-      const imageUrl = isPortrait
-        ? sequence[nextIndex].portrait
-        : sequence[nextIndex].landscape;
+    const imageUrl = isPortrait
+      ? sequence[nextIndex].portrait
+      : sequence[nextIndex].landscape;
 
-      setBackgroundImage(imageUrl);
+    setBackgroundImage(imageUrl);
 
-      console.log(
-        "Next animation:",
-        imageUrl,
-        "Delay:",
-        sequence[nextIndex].delay,
-      );
+    // console.log(
+    //   "Next animation:",
+    //   imageUrl,
+    //   "Delay:",
+    //   sequence[nextIndex].delay,
+    // );
 
-      timeoutRef.current = setTimeout(
-        updateBackground,
-        sequence[nextIndex].delay + delay,
-      );
+    timeoutRef.current = setTimeout(
+      updateBackground,
+      sequence[nextIndex].delay + delay,
+    );
     // }, 500); // Wait for fade-out before switching images
   };
 

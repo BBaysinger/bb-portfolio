@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 
 import headerLogo from "images/main-header/bb-gradient.webp";
 import BarberPole from "components/common/BarberPole";
@@ -15,10 +15,10 @@ import styles from "./HeaderMain.module.scss";
  * @version N/A
  */
 const HeaderMain: React.FC = () => {
-  const [scrolledToTop, setScrolledToTop] = useState<string>("scrolled-to-top");
+  // const [scrolledToTop, setScrolledToTop] = useState<string>("scrolled-to-top");
 
-  const lastScrollPosition = useRef(0);
-  const ticking = useRef(false);
+  // const lastScrollPosition = useRef(0);
+  // const ticking = useRef(false);
 
   const quotes = [
     "Interactivity is not about clicking, tapping, or swiping. It's about engagement — an invitation to explore, respond, and shape the experience.",
@@ -43,15 +43,15 @@ const HeaderMain: React.FC = () => {
 
   useEffect(() => {
     const updateClientDimensions = () => {
-      const height = getHeight();
-      const width = getWidth();
+      const h = getHeight();
+      const w = getWidth();
 
-      if (height !== clientHeight || width !== clientWidth) {
+      if (h !== clientHeight || w !== clientWidth) {
         // This is the only way to get the 'short' height of the mobile viewport.
         // That is, the height before the address bar is hidden from scrolling down.
         // 'dvh' here can't be used because it causes a layout shift.
-        setClientHeight(height);
-        setClientWidth(width);
+        setClientHeight(h);
+        setClientWidth(w);
       }
     };
 
@@ -66,43 +66,45 @@ const HeaderMain: React.FC = () => {
     };
   }, [clientHeight, clientWidth]);
 
-  useEffect(() => {
-    const handleEvent = () => {
-      if (!ticking.current) {
-        ticking.current = true;
+  // useEffect(() => {
+  //  KEEP: This was for the view portfolio CTA that's probably coming back.
+  //   const handleEvent = () => {
+  //     if (!ticking.current) {
+  //       ticking.current = true;
 
-        requestAnimationFrame(() => {
-          const currentScrollPosition = window.scrollY;
+  //       requestAnimationFrame(() => {
+  //         const currentScrollPosition = window.scrollY;
 
-          const newScrolledToTop =
-            currentScrollPosition > 0 ? "" : styles["scrolled-to-top"];
-          if (newScrolledToTop !== scrolledToTop) {
-            setScrolledToTop(newScrolledToTop);
-          }
+  //         const newScrolledToTop =
+  //           currentScrollPosition > 0 ? "" : styles["scrolled-to-top"];
+  //         if (newScrolledToTop !== scrolledToTop) {
+  //           console.log('newScrolledToTop', newScrolledToTop);
+  //           setScrolledToTop(newScrolledToTop);
+  //         }
 
-          lastScrollPosition.current = currentScrollPosition;
-          ticking.current = false;
-        });
-      }
-    };
+  //         lastScrollPosition.current = currentScrollPosition;
+  //         ticking.current = false;
+  //       });
+  //     }
+  //   };
 
-    window.addEventListener("scroll", handleEvent);
-    window.addEventListener("resize", handleEvent);
-    window.addEventListener("orientationchange", handleEvent);
+  //   window.addEventListener("scroll", handleEvent);
+  //   window.addEventListener("resize", handleEvent);
+  //   window.addEventListener("orientationchange", handleEvent);
 
-    return () => {
-      window.removeEventListener("scroll", handleEvent);
-      window.removeEventListener("resize", handleEvent);
-      window.removeEventListener("orientationchange", handleEvent);
-    };
-  }, [scrolledToTop]);
+  //   return () => {
+  //     window.removeEventListener("scroll", handleEvent);
+  //     window.removeEventListener("resize", handleEvent);
+  //     window.removeEventListener("orientationchange", handleEvent);
+  //   };
+  // }, [scrolledToTop]);
 
   return (
     <header
       id={"headerMain"}
       className={
-        `${styles["header-main"]} ${styles["header"]} header-main` +
-        `${scrolledToTop ? styles["scrolled-to-top"] : ""}`
+        `${styles["header-main"]} ${styles["header"]} header-main` // +
+        // `${scrolledToTop ? styles["scrolled-to-top"] : ""}`
       }
       style={{ minHeight: `${clientHeight}px` }}
     >
@@ -142,11 +144,6 @@ const HeaderMain: React.FC = () => {
           View Portfolio
         </a> */}
       </div>
-      {/* <div className={styles["message"]}>
-        Interactivity is not about clicking, tapping, or swiping. It's about
-        engagement — an invitation to explore, respond, and shape the
-        experience.
-      </div> */}
       <ParagraphAnimator paragraphs={quotes} className={styles["message"]} />
       {/* {true && (
         <div className={styles["debug"]}>
