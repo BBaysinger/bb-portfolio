@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
 
-import FooterGreet from "./FooterGreet";
+import FootGreet from "./FootGreet";
 import NavLinks from "./NavLinks";
 import styles from "./Footer.module.scss";
 
@@ -36,7 +36,7 @@ const Footer: React.FC = () => {
           <div
             className={`col-xs-12 col-sm-12 col-md-6 col-lg-6 ${styles["footer-cell"]}`}
           >
-            <FooterGreet className={""} />
+            <FootGreet className={""} />
           </div>
 
           <div
