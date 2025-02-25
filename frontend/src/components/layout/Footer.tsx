@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
 
+import FooterGreet from "./FooterGreet";
 import NavLinks from "./NavLinks";
 import styles from "./Footer.module.scss";
 
@@ -35,19 +36,7 @@ const Footer: React.FC = () => {
           <div
             className={`col-xs-12 col-sm-12 col-md-6 col-lg-6 ${styles["footer-cell"]}`}
           >
-            <p>
-              <img
-                src="/images/footer/bb2.jpg"
-                className={`img-responsive ${styles["footer-photo"]}`}
-                alt="Bradley's face"
-              />
-              Thanks for stopping by! My site is a work in progress, so you may
-              run into a few issues. If you spot anything, please let me know.
-              That said, I'm glad you're here! I'm always looking to collaborate
-              with forward-thinking teams who value engaging, high-quality
-              digital experiences. I look forward to connecting and exploring
-              how I can bring unique interactive work to your organization.
-            </p>
+            <FooterGreet className={""} />
           </div>
 
           <div
