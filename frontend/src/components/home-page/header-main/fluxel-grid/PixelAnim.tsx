@@ -1,68 +1,107 @@
 import React, { useEffect, useRef, useState } from "react";
 
-import styles from "./PixelAnim.module.scss";
-
 /**
- * Giant pixel animations.
+ * Giant pixel animations using GIFs.
  *
  * Using GIFs bc I'm having better luck than with WEBP.
  * FFMPEG is corrupting my colors.
+ * 
+ * But this will eventually rebuilt in PixiJS, along with 
+ * the fluxel grid, and some
+ * of the effects will be interactive.
+ *
+ * Uses JavaScript to handle background images dynamically,
+ * including media query logic for orientation changes.
  *
  * @author Bradley Baysinger
  * @since The beginning of time.
  * @version N/A
  */
-const PixelAnimations: React.FC<{
-  className: string;
-}> = ({ className }) => {
-  const [animation, setAnimation] = useState<string>();
-
+const PixelAnimations: React.FC<{ className: string }> = ({ className }) => {
+  const [backgroundImage, setBackgroundImage] = useState<string>("");
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const gridRef = useRef<HTMLDivElement>(null);
-  const lastIndexRef = useRef<number | null>(null); // Store the last index
+  const lastIndexRef = useRef<number>(0); // Start from first animation
 
-  useEffect(() => {
-    const sequence = [
-      { class: styles["fluxel-interactive"], delay: 28000 },
-      { class: styles["fluxel-burst1"], delay: 8000 },
-      { class: styles["fluxel-invaders"], delay: 20000 },
-      { class: styles["spiral"], delay: 20000 },
-    ];
+  const sequence = [
+    {
+      landscape: "/images/fluxel-animations/interactive.gif",
+      portrait: "/images/fluxel-animations/interactive.gif",
+      delay: 21000,
+    },
+    {
+      landscape: "/images/fluxel-animations/burst1.gif",
+      portrait: "/images/fluxel-animations/burst1.gif",
+      delay: 7000,
+    },
+    {
+      landscape: "/images/fluxel-animations/invaders-landscape.gif",
+      portrait: "/images/fluxel-animations/invaders-portrait.gif",
+      delay: 17000,
+    },
+    {
+      landscape: "/images/fluxel-animations/spiral.gif",
+      portrait: "/images/fluxel-animations/spiral.gif",
+      delay: 9000,
+    },
+  ];
 
-    const getRandomIndex = (excludeIndex: number | null) => {
-      let newIndex: number;
-      do {
-        newIndex = Math.floor(Math.random() * sequence.length);
-      } while (newIndex === excludeIndex); // Ensure it's different from the last one
-      return newIndex;
-    };
+  const getRandomIndex = (excludeIndex: number) => {
+    let newIndex: number;
+    do {
+      newIndex = Math.floor(Math.random() * sequence.length);
+    } while (newIndex === excludeIndex);
+    return newIndex;
+  };
 
-    const loopAnimation = () => {
+  const updateBackground = () => {
+    setTimeout(() => {
+      const isPortrait = window.matchMedia("(orientation: portrait)").matches;
       const nextIndex = getRandomIndex(lastIndexRef.current);
       lastIndexRef.current = nextIndex;
 
-      setAnimation(sequence[nextIndex].class);
+      const imageUrl = isPortrait
+        ? sequence[nextIndex].portrait
+        : sequence[nextIndex].landscape;
+
+      setBackgroundImage(imageUrl);
 
       console.log(
         "Next animation:",
-        sequence[nextIndex].class,
+        imageUrl,
         "Delay:",
         sequence[nextIndex].delay,
       );
 
-      timeoutRef.current = setTimeout(loopAnimation, sequence[nextIndex].delay);
-    };
+      timeoutRef.current = setTimeout(
+        updateBackground,
+        sequence[nextIndex].delay,
+      );
+    }, 500); // Wait for fade-out before switching images
+  };
 
-    setTimeout(loopAnimation, 3000);
+  useEffect(() => {
+    // Set the initial background image immediately
+    const isPortrait = window.matchMedia("(orientation: portrait)").matches;
+    setBackgroundImage(
+      isPortrait ? sequence[0].portrait : sequence[0].landscape,
+    );
+
+    // Start animation cycle after initial delay
+    timeoutRef.current = setTimeout(updateBackground, sequence[0].delay);
 
     return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
   }, []);
 
-  return <div ref={gridRef} className={`${className} ${animation}`}></div>;
+  return (
+    <div
+      className={className}
+      style={{
+        backgroundImage: `url(${backgroundImage})`,
+      }}
+    ></div>
+  );
 };
 
 export default PixelAnimations;
