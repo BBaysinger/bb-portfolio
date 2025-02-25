@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-import styles from "./FooterGreet.module.scss";
+import styles from "./FootGreet.module.scss";
 
 const getGreeting = (): string => {
   const hour = new Date().getHours();
@@ -9,7 +9,7 @@ const getGreeting = (): string => {
   return "Good evening";
 };
 
-const Greeting: React.FC<{ className: string }> = ({className}) => {
+const FootGreet: React.FC<{ className: string }> = ({ className }) => {
   const [greeting, setGreeting] = useState(getGreeting());
 
   useEffect(() => {
@@ -38,4 +38,4 @@ const Greeting: React.FC<{ className: string }> = ({className}) => {
   );
 };
 
-export default Greeting;
+export default FootGreet;
