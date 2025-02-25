@@ -22,6 +22,8 @@ const PixelAnimations: React.FC<{ className: string }> = ({ className }) => {
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastIndexRef = useRef<number>(0); // Start from first animation
 
+  const delay = 4000;
+
   const sequence = [
     {
       landscape: "/images/fluxel-animations/interactive.gif",
@@ -54,7 +56,7 @@ const PixelAnimations: React.FC<{ className: string }> = ({ className }) => {
   };
 
   const updateBackground = () => {
-    setTimeout(() => {
+    // setTimeout(() => {
       const isPortrait = window.matchMedia("(orientation: portrait)").matches;
       const nextIndex = getRandomIndex(lastIndexRef.current);
       lastIndexRef.current = nextIndex;
@@ -74,9 +76,9 @@ const PixelAnimations: React.FC<{ className: string }> = ({ className }) => {
 
       timeoutRef.current = setTimeout(
         updateBackground,
-        sequence[nextIndex].delay,
+        sequence[nextIndex].delay + delay,
       );
-    }, 500); // Wait for fade-out before switching images
+    // }, 500); // Wait for fade-out before switching images
   };
 
   useEffect(() => {
