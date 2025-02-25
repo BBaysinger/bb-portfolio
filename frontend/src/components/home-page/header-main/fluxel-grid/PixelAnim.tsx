@@ -25,9 +25,9 @@ const PixelAnimations: React.FC<{
 
   useEffect(() => {
     const sequence = [
-      { class: styles["fluxel-interactive"], delay: 3000 },
-      { class: styles["fluxel-burst1"], delay: 40000 },
-      { class: styles["fluxel-invaders"], delay: 58000 },
+      { class: styles["fluxel-interactive"], delay: 28000 },
+      { class: styles["fluxel-burst1"], delay: 8000 },
+      { class: styles["fluxel-invaders"], delay: 20000 },
     ];
 
     let index = 0;
@@ -36,15 +36,20 @@ const PixelAnimations: React.FC<{
       setAnimation(sequence[index].class);
       const nextIndex = (index + 1) % sequence.length;
 
-      console.log("nextIndex", nextIndex, sequence[index].class, sequence[index].delay);
-      
+      console.log(
+        "nextIndex",
+        nextIndex,
+        sequence[index].class,
+        sequence[index].delay,
+      );
+
       timeoutRef.current = setTimeout(() => {
         index = nextIndex;
         loopAnimation();
       }, sequence[index].delay);
     };
 
-    setTimeout(loopAnimation, sequence[0].delay);
+    setTimeout(loopAnimation, 3000);
 
     return () => {
       if (timeoutRef.current) {
@@ -53,11 +58,7 @@ const PixelAnimations: React.FC<{
     };
   }, []);
 
-  return (
-    <div
-      ref={gridRef} className={`${className} ${animation}`} >
-    </div>
-  );
+  return <div ref={gridRef} className={`${className} ${animation}`}></div>;
 };
 
 export default PixelAnimations;
