@@ -3,13 +3,10 @@ import React, { useEffect, useRef, useState } from "react";
 import styles from "./PixelAnim.module.scss";
 
 /**
- * Fluxing Pixel Grid
+ * Giant pixel animations.
  *
- * Makes a grid of giant pixels that can be interacted with.
- * Here I've added simulated shadows for depth with mouse move effect and
- * I mapped animated images to the grid for a unique experience.
- * Built in React since that's my current focus, but I need to rebuild it in
- * PixiJS with WebGL, for performance with other onscreen animations.
+ * Using GIFs bc I'm having better luck than with WEBP.
+ * FFMPEG is corrupting my colors.
  *
  * @author Bradley Baysinger
  * @since The beginning of time.
@@ -20,33 +17,40 @@ const PixelAnimations: React.FC<{
 }> = ({ className }) => {
   const [animation, setAnimation] = useState<string>();
 
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null); // Store timeout ID
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const gridRef = useRef<HTMLDivElement>(null);
+  const lastIndexRef = useRef<number | null>(null); // Store the last index
 
   useEffect(() => {
     const sequence = [
       { class: styles["fluxel-interactive"], delay: 28000 },
       { class: styles["fluxel-burst1"], delay: 8000 },
       { class: styles["fluxel-invaders"], delay: 20000 },
+      { class: styles["spiral"], delay: 20000 },
     ];
 
-    let index = 0;
+    const getRandomIndex = (excludeIndex: number | null) => {
+      let newIndex: number;
+      do {
+        newIndex = Math.floor(Math.random() * sequence.length);
+      } while (newIndex === excludeIndex); // Ensure it's different from the last one
+      return newIndex;
+    };
 
     const loopAnimation = () => {
-      setAnimation(sequence[index].class);
-      const nextIndex = (index + 1) % sequence.length;
+      const nextIndex = getRandomIndex(lastIndexRef.current);
+      lastIndexRef.current = nextIndex;
+
+      setAnimation(sequence[nextIndex].class);
 
       console.log(
-        "nextIndex",
-        nextIndex,
-        sequence[index].class,
-        sequence[index].delay,
+        "Next animation:",
+        sequence[nextIndex].class,
+        "Delay:",
+        sequence[nextIndex].delay,
       );
 
-      timeoutRef.current = setTimeout(() => {
-        index = nextIndex;
-        loopAnimation();
-      }, sequence[index].delay);
+      timeoutRef.current = setTimeout(loopAnimation, sequence[nextIndex].delay);
     };
 
     setTimeout(loopAnimation, 3000);
