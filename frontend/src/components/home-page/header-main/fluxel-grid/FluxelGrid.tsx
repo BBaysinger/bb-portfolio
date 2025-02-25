@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
+
 import Fluxel, { FluxelData } from "./Fluxel";
+import PixelAnim from "./PixelAnim";
 import styles from "./FluxelGrid.module.scss";
 
 const DEBUG = false;
@@ -25,7 +27,6 @@ const FluxelGrid: React.FC<{
 }> = ({ rows, cols, viewableHeight, viewableWidth }) => {
   const [grid, setGrid] = useState<FluxelData[][]>([]);
   const [fluxelSize, setFluxelSize] = useState<number>(0);
-  const [animation, setAnimation] = useState<string>();
   const [mousePos, setMousePos] = useState<{ x: number; y: number } | null>(
     null,
   );
@@ -101,20 +102,6 @@ const FluxelGrid: React.FC<{
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, []);
 
-  useEffect(() => {
-    setTimeout(() => {
-      setAnimation(styles["fluxel-invaders"]);
-    }, 3000);
-
-    setTimeout(() => {
-      setAnimation(styles["fluxel-burst1"]);
-    }, 20000);
-
-    setTimeout(() => {
-      setAnimation(styles["fluxel-interactive"]);
-    }, 40000);
-  }, []);
-
   function smoothstep(edge0: number, edge1: number, x: number) {
     let t = Math.max(0, Math.min(1, (x - edge0) / (edge1 - edge0)));
     return t * t * (3 - 2 * t);
@@ -164,7 +151,7 @@ const FluxelGrid: React.FC<{
       className={`${styles["fluxel-grid"]}`}
       style={{ "--cols": cols } as React.CSSProperties}
     >
-      <div className={`${styles["fluxel-grid-background"]} ${animation}`}></div>
+      <PixelAnim className={`${styles["fluxel-grid-background"]}`}></PixelAnim>
       {grid.flat().map((data) => {
         const isVisible =
           data.col >= colOverlap &&
