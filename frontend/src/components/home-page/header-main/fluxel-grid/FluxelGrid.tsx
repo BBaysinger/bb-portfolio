@@ -89,17 +89,38 @@ const FluxelGrid: React.FC<{
     return () => window.removeEventListener("resize", updateSizes);
   }, [cols]);
 
+  const lastFrameTime = useRef(0);
+
   useEffect(() => {
+    let animationFrameId: number | null = null;
+
     const handleMouseMove = (event: MouseEvent) => {
       if (!gridRef.current) return;
-      const rect = gridRef.current.getBoundingClientRect();
-      setMousePos({
-        x: event.clientX - rect.left,
-        y: event.clientY - rect.top,
+
+      const now = performance.now();
+      const timeSinceLastFrame = now - lastFrameTime.current;
+
+      const targetFPS = 30;
+      const frameInterval = 1000 / targetFPS;
+      if (timeSinceLastFrame < frameInterval) return;
+
+      lastFrameTime.current = now;
+
+      animationFrameId = requestAnimationFrame(() => {
+        const rect = gridRef.current!.getBoundingClientRect();
+        setMousePos({
+          x: event.clientX - rect.left,
+          y: event.clientY - rect.top,
+        });
       });
     };
+
     window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
+
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+    };
   }, []);
 
   function smoothstep(edge0: number, edge1: number, x: number) {
