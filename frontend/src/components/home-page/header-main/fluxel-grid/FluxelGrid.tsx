@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 
 import Fluxel, { FluxelData } from "./Fluxel";
-import PixelAnim from "./PixelAnim";
+import PixelAnim from "./AnimationSequencer";
 import styles from "./FluxelGrid.module.scss";
 
 const DEBUG = false;
