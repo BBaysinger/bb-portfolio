@@ -135,45 +135,6 @@ $bottom: 50px;
   margin: 0 4px;
 }
 
-.message {
-  position: absolute;
-  font-size: 16px;
-  color: rgba(255, 255, 255, 0.8);
-  width: 70%;
-  max-width: 700px;
-  top: $navBarHeight;
-  right: 0;
-  text-align: right;
-  padding: 16px 20px 0 0;
-  pointer-events: none;
-  @include breakpoint-up($b640px) {
-    font-size: 18px;
-  }
-  p {
-    color: rgba(255, 255, 255, 0);
-    span {
-      color: rgba(255, 255, 255, 0.8);
-    }
-    &::before,
-    &::after {
-      color: $heavierThemeColor;
-      display: inline-block;
-      line-height: 1.2em;
-      font-weight: bold;
-      white-space: nowrap;
-      display: inline;
-    }
-    &::before {
-      content: "[";
-      padding-right: 10px;
-    }
-    &::after {
-      content: "]";
-      padding-left: 10px;
-    }
-  }
-}
-
 .debug {
   position: absolute;
   font-size: 16px;

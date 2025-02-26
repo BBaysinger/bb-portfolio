@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { NavLink, useLocation } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import { closeMenu } from "store/menuSlice";
 import Hamburger from "components/layout/Hamburger";
 import NavLinks from "./NavLinks";
 // import BarberPole from "components/common/BarberPole";
-// import { RootState } from "store/store";
+import { RootState } from "store/store";
 import navLogo from "images/misc/bb-logo.svg";
 import styles from "./Nav.module.scss";
 
@@ -28,6 +28,8 @@ interface NavProps {
  * @version N/A
  */
 const Nav: React.FC<NavProps> = ({ variant }) => {
+  const isMenuOpen = useSelector((state: RootState) => state.menu.isOpen);
+
   // Track if the page is scrolled to the top
   const [isScrolledToTop, setIsScrolledToTop] = useState<boolean>(
     window.scrollY === 0,
@@ -63,7 +65,10 @@ const Nav: React.FC<NavProps> = ({ variant }) => {
   };
 
   return (
-    <nav className={`${styles["nav"]} ${variant}`} role="navigation">
+    <nav
+      className={`${styles["nav"]} ${variant} ${isMenuOpen ? "enabled" : "disabled"}`}
+      role="navigation"
+    >
       {variant === NavVariant.SLIDE_OUT && (
         <>
           <div className={styles["shadow-layer0"]}></div>
