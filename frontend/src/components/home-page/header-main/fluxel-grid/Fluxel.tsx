@@ -8,7 +8,6 @@ export interface FluxelData {
   row: number;
   col: number;
   neighbors: FluxelData[];
-  depth: number;
   influence: number;
 }
 
@@ -28,32 +27,17 @@ const Fluxel: React.FC<{
   };
 
   const x1 = data.neighbors[4]
-    ? Math.min(data.neighbors[4].influence - data.influence, 0) * 60
+    ? Math.round(Math.min(data.neighbors[4].influence - data.influence, 0) * 60)
     : 0;
   const y1 = data.neighbors[1]
-    ? Math.max(data.influence - data.neighbors[1].influence, 0) * 60
+    ? Math.round(Math.max(data.influence - data.neighbors[1].influence, 0) * 60)
     : 0;
-  //   const x2 = data.neighbors[2]
-  //   ? (data.influence - data.neighbors[2].influence) * 10
-  //   : 0;
-  // const y2 = data.neighbors[2]
-  //   ? (data.neighbors[2].influence - data.influence) * 10
-  //   : 0;
-  // const x2 = 0;
-  // const y2 = 0;
 
   return (
     <div className={`${styles["fluxel"]}`} style={transformStyle}>
       <Shadow className={styles["shadow"]} x1={x1} y1={y1} />
-      {/* <Shadow className={styles["shadow"]} x1={x1} y1={y1} x2={x2} y2={y2} /> */}
-      {/* {debug && (
-        <div className={styles["debug"]}>
-          {/* {data.neighbors[4] && <>{data.neighbors[4].influence}</>},{" "} 
-          {/* {/* {data.row}, {data.col} <br /> 
-          {/* {data.id}, 
-          {/* {data.depth} 
-          {debug.toString()}
-        </div>
+      {/* {true && (
+        <div className={styles["debug"]}>{data.neighbors[4].influence}</div>
       )} */}
     </div>
   );
