@@ -4,11 +4,10 @@ import React, { useEffect, useRef, useState } from "react";
  * Giant pixel animations using GIFs.
  *
  * Using GIFs bc I'm having better luck than with WEBP.
- * FFMPEG is corrupting my colors.
+ * FFMPEG is corrupting colors horribly.
  *
- * But this will eventually rebuilt in PixiJS, along with
- * the fluxel grid, and some
- * of the effects will be interactive.
+ * This will eventually rebuilt in PixiJS, along with
+ * the fluxel grid, and some of the effects will be interactive.
  *
  * Uses JavaScript to handle background images dynamically,
  * including media query logic for orientation changes.
@@ -20,9 +19,10 @@ import React, { useEffect, useRef, useState } from "react";
 const PixelAnimations: React.FC<{ className: string }> = ({ className }) => {
   const [backgroundImage, setBackgroundImage] = useState<string>("");
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const lastIndexRef = useRef<number>(0); // Start from first animation
+  const lastIndexRef = useRef<number>(-1);
 
-  const delay = 6000;
+  const delay = 12000;
+  const initialDelay = 5000;
 
   const sequence = [
     {
@@ -56,7 +56,6 @@ const PixelAnimations: React.FC<{ className: string }> = ({ className }) => {
   };
 
   const updateBackground = () => {
-    // setTimeout(() => {
     const isPortrait = window.matchMedia("(orientation: portrait)").matches;
     const nextIndex = getRandomIndex(lastIndexRef.current);
     lastIndexRef.current = nextIndex;
@@ -67,29 +66,14 @@ const PixelAnimations: React.FC<{ className: string }> = ({ className }) => {
 
     setBackgroundImage(imageUrl);
 
-    // console.log(
-    //   "Next animation:",
-    //   imageUrl,
-    //   "Delay:",
-    //   sequence[nextIndex].delay,
-    // );
-
     timeoutRef.current = setTimeout(
       updateBackground,
       sequence[nextIndex].delay + delay,
     );
-    // }, 500); // Wait for fade-out before switching images
   };
 
   useEffect(() => {
-    // Set the initial background image immediately
-    const isPortrait = window.matchMedia("(orientation: portrait)").matches;
-    setBackgroundImage(
-      isPortrait ? sequence[0].portrait : sequence[0].landscape,
-    );
-
-    // Start animation cycle after initial delay
-    timeoutRef.current = setTimeout(updateBackground, sequence[0].delay);
+    timeoutRef.current = setTimeout(updateBackground, initialDelay);
 
     return () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
