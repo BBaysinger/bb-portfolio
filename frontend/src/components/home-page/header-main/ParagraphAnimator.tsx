@@ -10,17 +10,25 @@ interface ParagraphAnimatorProps {
   className?: string;
 }
 
+const shuffleArray = (array: number[]) => {
+  return array.sort(() => Math.random() - 0.5);
+};
+
 const ParagraphAnimator: React.FC<ParagraphAnimatorProps> = ({
   paragraphs,
   interval = 25,
   paragraphDelay = 20000,
-  initialDelay = 8000, // Default initial delay of 3 seconds
+  initialDelay = 8000,
   className,
 }) => {
-  const [currentIndex, setCurrentIndex] = useState(0);
   const [spanPosition, setSpanPosition] = useState(0);
   const [fade, setFade] = useState("fade-out");
   const [isInitialDelayOver, setIsInitialDelayOver] = useState(false);
+  const [indexQueue, setIndexQueue] = useState<number[]>(
+    shuffleArray([...Array(paragraphs.length).keys()]),
+  );
+  const [currentIndex, setCurrentIndex] = useState(indexQueue[0]);
+
   const currentParagraph = paragraphs[currentIndex];
 
   useEffect(() => {
@@ -46,9 +54,17 @@ const ParagraphAnimator: React.FC<ParagraphAnimatorProps> = ({
       }, paragraphDelay - 10000);
 
       const nextTimer = setTimeout(() => {
-        setCurrentIndex((prev) => (prev + 1) % paragraphs.length);
         setSpanPosition(0);
         setFade("fade-in");
+
+        setIndexQueue((prevQueue) => {
+          let newQueue = [...prevQueue.slice(1)];
+          if (newQueue.length === 0) {
+            newQueue = shuffleArray([...Array(paragraphs.length).keys()]);
+          }
+          setCurrentIndex(newQueue[0]);
+          return newQueue;
+        });
       }, paragraphDelay);
 
       return () => {
