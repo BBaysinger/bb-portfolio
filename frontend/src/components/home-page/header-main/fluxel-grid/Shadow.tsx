@@ -45,6 +45,23 @@ const Shadow: React.FC<ShadowProps> = ({ className, x1, y1 }) => {
         </g>
       </g>
     </svg>
+    // <div>
+    //   <img
+    //     src={cornerShadow}
+    //     alt="Shadow"
+    //     className={`${styles["shadow"]} ${className}`}
+    //     style={{
+    //       transform: `translate(${xPos}px, ${yPos}px)`,
+    //       position: "absolute",
+    //       width: "216px",
+    //       height: "216px",
+    //       left: "-10px",
+    //       top: "-110px",
+    //       opacity: 0.5,
+    //       filter: "blur(2px)",
+    //     }}
+    //   />
+    // </div>
   );
 };
 
