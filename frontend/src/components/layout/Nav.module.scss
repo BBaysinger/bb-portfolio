@@ -207,10 +207,15 @@ ul {
   .navbar-toggle {
     display: none;
   }
+
+  &.disabled {
+    pointer-events: none;
+  }
 }
 
 .shadow-layer0 {
   position: absolute;
+  pointer-events: none;
   top: 0;
   right: 0;
   width: 100%;
@@ -225,6 +230,7 @@ ul {
 
 .shadow-layer1 {
   position: absolute;
+  pointer-events: none;
   top: 0;
   width: 100%;
   height: 100%;
