@@ -6,7 +6,7 @@ import React, { useEffect, useRef, useState } from "react";
  * Using GIFs bc I'm having better luck than with WEBP.
  * FFMPEG is corrupting colors horribly.
  *
- * This will eventually rebuilt in PixiJS, along with
+ * This will eventually be rebuilt in PixiJS, along with
  * the fluxel grid, and some of the effects will be interactive.
  *
  * Uses JavaScript to handle background images dynamically,
@@ -16,11 +16,10 @@ import React, { useEffect, useRef, useState } from "react";
  * @since The beginning of time.
  * @version N/A
  */
-const PixelAnimations: React.FC<{ className: string }> = ({ className }) => {
+const AnimationSequencer: React.FC<{ className: string }> = ({ className }) => {
   const [backgroundImage, setBackgroundImage] = useState<string>("");
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const lastIndexRef = useRef<number>(-1);
-
+  const queueRef = useRef<number[]>([]);
   const delay = 12000;
   const initialDelay = 5000;
 
@@ -47,18 +46,19 @@ const PixelAnimations: React.FC<{ className: string }> = ({ className }) => {
     },
   ];
 
-  const getRandomIndex = (excludeIndex: number) => {
-    let newIndex: number;
-    do {
-      newIndex = Math.floor(Math.random() * sequence.length);
-    } while (newIndex === excludeIndex);
-    return newIndex;
+  const shuffleArray = (array: number[]) =>
+    array.sort(() => Math.random() - 0.5);
+
+  const getNextIndex = () => {
+    if (queueRef.current.length === 0) {
+      queueRef.current = shuffleArray([...Array(sequence.length).keys()]);
+    }
+    return queueRef.current.shift()!;
   };
 
   const updateBackground = () => {
     const isPortrait = window.matchMedia("(orientation: portrait)").matches;
-    const nextIndex = getRandomIndex(lastIndexRef.current);
-    lastIndexRef.current = nextIndex;
+    const nextIndex = getNextIndex();
 
     const imageUrl = isPortrait
       ? sequence[nextIndex].portrait
@@ -90,4 +90,4 @@ const PixelAnimations: React.FC<{ className: string }> = ({ className }) => {
   );
 };
 
-export default PixelAnimations;
+export default AnimationSequencer;
