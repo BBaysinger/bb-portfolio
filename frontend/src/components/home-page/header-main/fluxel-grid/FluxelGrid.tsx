@@ -42,7 +42,7 @@ const FluxelGrid: React.FC<{
         col,
         neighbors: [],
         debug: DEBUG,
-        depth: Math.sin((row + col) * 0.1),
+        // depth: Math.sin((row + col) * 0.1),
         influence: 0,
       })),
     );
@@ -110,25 +110,36 @@ const FluxelGrid: React.FC<{
   useEffect(() => {
     if (!mousePos || fluxelSize === 0) return;
 
-    setGrid((prevGrid) => {
-      prevGrid.forEach((row, rowIndex) => {
-        row.forEach((square, colIndex) => {
-          const gridX = colIndex * fluxelSize + fluxelSize / 2;
-          const gridY = rowIndex * fluxelSize + fluxelSize / 2;
-          const dx = gridX - mousePos.x;
-          const dy = gridY - mousePos.y;
-          const distance = Math.sqrt(dx * dx + dy * dy);
-          const maxRadius = fluxelSize * 4;
-          let strength =
-            (1 - smoothstep(0, maxRadius, distance)) *
-            (distance < maxRadius ? 1 : 0);
-          strength = Math.round(strength * 100) / 100;
+    let animationFrameId = requestAnimationFrame(() => {
+      setGrid((prevGrid) => {
+        let hasChanged = false;
 
-          square.influence = strength;
+        // Instead of creating new objects, update the existing ones
+        prevGrid.forEach((row, rowIndex) => {
+          row.forEach((square, colIndex) => {
+            const gridX = colIndex * fluxelSize + fluxelSize / 2;
+            const gridY = rowIndex * fluxelSize + fluxelSize / 2;
+            const dx = gridX - mousePos.x;
+            const dy = gridY - mousePos.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            const maxRadius = fluxelSize * 4;
+            let strength =
+              (1 - smoothstep(0, maxRadius, distance)) *
+              (distance < maxRadius ? 1 : 0);
+            strength = Math.round(strength * 100) / 100;
+
+            if (square.influence !== strength) {
+              hasChanged = true;
+              square.influence = strength; // Mutate in place
+            }
+          });
         });
+
+        return hasChanged ? [...prevGrid] : prevGrid; // Ensure React detects a change
       });
-      return [...prevGrid];
     });
+
+    return () => cancelAnimationFrame(animationFrameId);
   }, [mousePos, fluxelSize]);
 
   let viewableRows = 0;
