@@ -7,19 +7,20 @@ interface ShadowProps {
   className?: string;
   x1: number;
   y1: number;
-  // x2: number;
-  // y2: number;
 }
 
 /**
  * Registration is set to the corner of the origin of the shadows, and
  * positioned to the top right of the fluxel.
  *
+ * This had two shadows to create a more realistic effect, but it wasn't
+ * realistic to implement for performance reasons. Will try to implement
+ * it in the PixiJS version.
+ *
  * @author Bradley Baysinger
  * @since The beginning of time.
  * @version N/A
  */
-// const Shadow: React.FC<ShadowProps> = ({ className, x1, y1, x2, y2 }) => {
 const Shadow: React.FC<ShadowProps> = ({ className, x1, y1 }) => {
   const xPos = Math.round(Math.min(x1, 0));
   const yPos = Math.round(Math.max(y1, 0));
@@ -42,13 +43,6 @@ const Shadow: React.FC<ShadowProps> = ({ className, x1, y1 }) => {
             height="216"
           />
         </g>
-        {/* <rect
-          x={x2}
-          y={y2}
-          width="144"
-          height="144"
-          transform={`translate(${BLUR_OFFSET + 72}, ${-BLUR_OFFSET - 144})`}
-        /> */}
       </g>
     </svg>
   );
