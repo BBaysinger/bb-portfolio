@@ -30,7 +30,6 @@
     "@vitejs/plugin-react-swc": "^3.7.2",
     exenv: "^1.2.2",
     gsap: "^3.12.5",
-    mitt: "^3.0.1",
     react: "^19.0.0",
     "react-dom": "^19.0.0",
     "react-redux": "^9.2.0",
