@@ -24,7 +24,8 @@ const FluxelGrid: React.FC<{
   cols: number;
   viewableHeight: number;
   viewableWidth: number;
-}> = ({ rows, cols, viewableHeight, viewableWidth }) => {
+  externalMousePos?: { x: number; y: number } | null;
+}> = ({ rows, cols, viewableHeight, viewableWidth, externalMousePos }) => {
   const [grid, setGrid] = useState<FluxelData[][]>([]);
   const [fluxelSize, setFluxelSize] = useState<number>(0);
   const [mousePos, setMousePos] = useState<{ x: number; y: number } | null>(
@@ -32,6 +33,7 @@ const FluxelGrid: React.FC<{
   );
 
   const gridRef = useRef<HTMLDivElement>(null);
+  const lastFrameTime = useRef(0);
 
   useEffect(() => {
     // Initialize grid
@@ -42,7 +44,6 @@ const FluxelGrid: React.FC<{
         col,
         neighbors: [],
         debug: DEBUG,
-        // depth: Math.sin((row + col) * 0.1),
         influence: 0,
       })),
     );
@@ -89,8 +90,6 @@ const FluxelGrid: React.FC<{
     return () => window.removeEventListener("resize", updateSizes);
   }, [cols]);
 
-  const lastFrameTime = useRef(0);
-
   useEffect(() => {
     let animationFrameId: number | null = null;
 
@@ -98,11 +97,7 @@ const FluxelGrid: React.FC<{
       if (!gridRef.current) return;
 
       const now = performance.now();
-      const timeSinceLastFrame = now - lastFrameTime.current;
-
-      const targetFPS = 30;
-      const frameInterval = 1000 / targetFPS;
-      if (timeSinceLastFrame < frameInterval) return;
+      if (now - lastFrameTime.current < 1000 / 30) return;
 
       lastFrameTime.current = now;
 
@@ -129,19 +124,19 @@ const FluxelGrid: React.FC<{
   }
 
   useEffect(() => {
-    if (!mousePos || fluxelSize === 0) return;
+    const effectiveMousePos = externalMousePos || mousePos;
+    if (!effectiveMousePos || fluxelSize === 0) return;
 
     let animationFrameId = requestAnimationFrame(() => {
       setGrid((prevGrid) => {
         let hasChanged = false;
 
-        // Instead of creating new objects, update the existing ones
         prevGrid.forEach((row, rowIndex) => {
           row.forEach((square, colIndex) => {
             const gridX = colIndex * fluxelSize + fluxelSize / 2;
             const gridY = rowIndex * fluxelSize + fluxelSize / 2;
-            const dx = gridX - mousePos.x;
-            const dy = gridY - mousePos.y;
+            const dx = gridX - effectiveMousePos.x;
+            const dy = gridY - effectiveMousePos.y;
             const distance = Math.sqrt(dx * dx + dy * dy);
             const maxRadius = fluxelSize * 4;
             let strength =
@@ -151,17 +146,17 @@ const FluxelGrid: React.FC<{
 
             if (square.influence !== strength) {
               hasChanged = true;
-              square.influence = strength; // Mutate in place
+              square.influence = strength;
             }
           });
         });
 
-        return hasChanged ? [...prevGrid] : prevGrid; // Ensure React detects a change
+        return hasChanged ? [...prevGrid] : prevGrid;
       });
     });
 
     return () => cancelAnimationFrame(animationFrameId);
-  }, [mousePos, fluxelSize]);
+  }, [mousePos, externalMousePos, fluxelSize]);
 
   let viewableRows = 0;
   let viewableCols = 0;
@@ -174,16 +169,17 @@ const FluxelGrid: React.FC<{
       viewableWidth / (gridRef.current?.offsetWidth / cols),
     );
   }
+
   const rowOverlap = Math.floor((rows - viewableRows) / 2);
-  const colOverlap = Math.floor((rows - viewableCols) / 2);
+  const colOverlap = Math.floor((cols - viewableCols) / 2);
 
   return (
     <div
       ref={gridRef}
-      className={`${styles["fluxel-grid"]}`}
+      className={styles["fluxel-grid"]}
       style={{ "--cols": cols } as React.CSSProperties}
     >
-      <PixelAnim className={`${styles["fluxel-grid-background"]}`}></PixelAnim>
+      <PixelAnim className={styles["fluxel-grid-background"]} />
       {grid.flat().map((data) => {
         const isVisible =
           data.col >= colOverlap &&
@@ -191,21 +187,11 @@ const FluxelGrid: React.FC<{
           data.row >= rowOverlap &&
           data.row < rows - rowOverlap;
 
-        if (!isVisible) {
-          return (
-            <div key={data.id} className={styles["inactive-placeholder"]}>
-              {/* {colOverlap} */}
-            </div>
-          );
-        } else {
-          return (
-            <Fluxel
-              key={data.id}
-              data={data}
-              // debug={viewableHeight}
-            />
-          );
-        }
+        return isVisible ? (
+          <Fluxel key={data.id} data={data} />
+        ) : (
+          <div key={data.id} className={styles["inactive-placeholder"]}></div>
+        );
       })}
     </div>
   );

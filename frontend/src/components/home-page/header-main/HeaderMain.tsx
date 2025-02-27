@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 
 import headerLogo from "images/main-header/bb-gradient.webp";
 import BarberPole from "components/common/BarberPole";
 import FluxelGrid from "./fluxel-grid/FluxelGrid";
-import Experiment from "./Slinger";
+import Slinger from "./Slinger";
 import ParagraphAnimator from "./ParagraphAnimator";
 import styles from "./HeaderMain.module.scss";
 
@@ -15,6 +15,10 @@ import styles from "./HeaderMain.module.scss";
  * @version N/A
  */
 const HeaderMain: React.FC = () => {
+  const [slingerPos, setSlingerPos] = useState<{ x: number; y: number } | null>(
+    null,
+  );
+
   // const [scrolledToTop, setScrolledToTop] = useState<string>("scrolled-to-top");
 
   // const lastScrollPosition = useRef(0);
@@ -112,6 +116,24 @@ const HeaderMain: React.FC = () => {
   //   };
   // }, [scrolledToTop]);
 
+  const onSlingerDrag = useCallback(
+    (x: number, y: number, e: MouseEvent | TouchEvent) => {
+      if (e.type === "touchmove") {
+        setSlingerPos({ x: x, y: y });
+      }
+    },
+    [],
+  );
+
+  const onSlingerDragEnd = useCallback(
+    (_x: number, _y: number, e: MouseEvent | TouchEvent) => {
+      if (e.type === "touchmove") {
+        setSlingerPos(null);
+      }
+    },
+    [],
+  );
+
   return (
     <header
       id={"headerMain"}
@@ -127,10 +149,11 @@ const HeaderMain: React.FC = () => {
           cols={12}
           viewableWidth={clientWidth}
           viewableHeight={clientHeight}
+          externalMousePos={slingerPos}
         />
       </div>
       <div className={styles["balls-wrapper"]}>
-        <Experiment />
+        <Slinger onDrag={onSlingerDrag} onDragEnd={onSlingerDragEnd} />
       </div>
       <div className={styles["header-wrapper"]}>
         <div className={styles["logo-wrapper"]}>
