@@ -17,6 +17,8 @@ type SlingerProps = {
 };
 
 const Slinger: React.FC<SlingerProps> = ({ onDrag, onDragEnd }) => {
+  const ballSize = 50;
+
   const objectsRef = useRef<FloatingObject[]>([
     { id: 1, x: 50, y: 50, vx: 1, vy: 1, isDragging: false },
   ]);
@@ -61,8 +63,6 @@ const Slinger: React.FC<SlingerProps> = ({ onDrag, onDragEnd }) => {
       x += vx;
       y += vy;
 
-      // Keep within bounds
-      const ballSize = 50;
       if (x < 0) {
         x = 0;
         vx = -vx * 0.8;
@@ -160,7 +160,7 @@ const Slinger: React.FC<SlingerProps> = ({ onDrag, onDragEnd }) => {
         dragStartPosition.current = { x: clientX, y: clientY };
 
         // Invoke onDrag callback
-        onDrag?.(clientX, clientY, e);
+        onDrag?.(clientX + ballSize / 2, clientY + ballSize / 2, e);
       }
     });
 
@@ -209,7 +209,7 @@ const Slinger: React.FC<SlingerProps> = ({ onDrag, onDragEnd }) => {
         obj.isDragging = false;
 
         // Invoke onDragEnd callback
-        onDragEnd?.(vx, vy, e);
+        onDragEnd?.(vx + ballSize / 2, vy + ballSize / 2, e);
       }
     });
 
