@@ -126,14 +126,14 @@ const FluxelGrid: React.FC<{
   useEffect(() => {
     // If explicitly null, reset the grid.
     if (externalMousePos === null && externalMousePos !== undefined) {
-      setGrid((prevGrid) =>
-        prevGrid.map((row) =>
-          row.map((fluxel) => ({
-            ...fluxel,
-            influence: 0,
-          })),
-        ),
-      );
+      setGrid((prevGrid) => {
+        prevGrid.forEach((row) => {
+          row.forEach((fluxel) => {
+            fluxel.influence = 0;
+          });
+        });
+        return [...prevGrid]; // Force state update while keeping references
+      });
       return;
     }
 

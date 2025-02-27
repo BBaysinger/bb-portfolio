@@ -37,7 +37,7 @@ const Fluxel: React.FC<{
     <div className={`${styles["fluxel"]}`} style={transformStyle}>
       <Shadow className={styles["shadow"]} x1={x1} y1={y1} />
       {/* {true && (
-        <div className={styles["debug"]}>{data.neighbors[4].influence}</div>
+        <div className={styles["debug"]}>{data?.neighbors[4]?.influence}</div>
       )} */}
     </div>
   );
