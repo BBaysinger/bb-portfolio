@@ -1,5 +1,6 @@
 import React, { useRef, useState, useEffect, useCallback } from "react";
-import styles from "./SlingyBall.module.scss";
+
+import styles from "./Slinger.module.scss";
 
 type FloatingObject = {
   id: number;
@@ -10,7 +11,12 @@ type FloatingObject = {
   isDragging: boolean;
 };
 
-const SlingyBall: React.FC = () => {
+type SlingerProps = {
+  onDrag?: (id: number, x: number, y: number) => void;
+  onDragEnd?: (id: number, vx: number, vy: number) => void;
+};
+
+const Slinger: React.FC<SlingerProps> = ({ onDrag, onDragEnd }) => {
   const objectsRef = useRef<FloatingObject[]>([
     { id: 1, x: 50, y: 50, vx: 1, vy: 1, isDragging: false },
   ]);
@@ -152,6 +158,9 @@ const SlingyBall: React.FC = () => {
         obj.x += clientX - dragStartPosition.current!.x;
         obj.y += clientY - dragStartPosition.current!.y;
         dragStartPosition.current = { x: clientX, y: clientY };
+
+        // Invoke onDrag callback
+        onDrag?.(obj.id, obj.x, obj.y);
       }
     });
 
@@ -180,15 +189,6 @@ const SlingyBall: React.FC = () => {
     e.preventDefault();
   };
 
-  const handleMouseMove = useCallback((e: MouseEvent) => {
-    handleMove(e.clientX, e.clientY, e);
-  }, []);
-
-  const handleTouchMove = useCallback((e: TouchEvent) => {
-    const touch = e.touches[0];
-    handleMove(touch.clientX, touch.clientY, e);
-  }, []);
-
   const endDrag = () => {
     if (!dragStartPosition.current) return;
 
@@ -207,6 +207,9 @@ const SlingyBall: React.FC = () => {
         obj.vx = vx;
         obj.vy = vy;
         obj.isDragging = false;
+
+        // Invoke onDragEnd callback
+        onDragEnd?.(obj.id, vx, vy);
       }
     });
 
@@ -215,15 +218,17 @@ const SlingyBall: React.FC = () => {
     triggerRender((prev) => prev + 1);
   };
 
-  const handleMouseUp = useCallback((_e: MouseEvent) => {
-    endDrag();
-  }, []);
-
-  const handleTouchEnd = useCallback((_e: TouchEvent) => {
-    endDrag();
-  }, []);
-
   useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) =>
+      handleMove(e.clientX, e.clientY, e);
+    const handleTouchMove = (e: TouchEvent) => {
+      const touch = e.touches[0];
+      handleMove(touch.clientX, touch.clientY, e);
+    };
+
+    const handleMouseUp = () => endDrag();
+    const handleTouchEnd = () => endDrag();
+
     window.addEventListener("mousemove", handleMouseMove);
     window.addEventListener("mouseup", handleMouseUp);
     window.addEventListener("touchmove", handleTouchMove, { passive: false });
@@ -235,7 +240,7 @@ const SlingyBall: React.FC = () => {
       window.removeEventListener("touchmove", handleTouchMove);
       window.removeEventListener("touchend", handleTouchEnd);
     };
-  }, [handleMouseMove, handleMouseUp, handleTouchMove, handleTouchEnd]);
+  }, []);
 
   return (
     <div ref={containerRef} className={styles["slingy-ball-container"]}>
@@ -254,4 +259,4 @@ const SlingyBall: React.FC = () => {
   );
 };
 
-export default SlingyBall;
+export default Slinger;

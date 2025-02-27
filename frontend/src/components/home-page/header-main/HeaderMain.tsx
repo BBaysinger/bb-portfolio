@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import headerLogo from "images/main-header/bb-gradient.webp";
 import BarberPole from "components/common/BarberPole";
 import FluxelGrid from "./fluxel-grid/FluxelGrid";
-import Experiment from "./SlingyBall";
+import Experiment from "./Slinger";
 import ParagraphAnimator from "./ParagraphAnimator";
 import styles from "./HeaderMain.module.scss";
 
