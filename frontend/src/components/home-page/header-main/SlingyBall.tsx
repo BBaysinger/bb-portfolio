@@ -100,7 +100,19 @@ const SlingyBall: React.FC = () => {
     };
   }, [animate]);
 
-  const startDrag = (id: number, clientX: number, clientY: number) => {
+  const startDrag = (
+    id: number,
+    clientX: number,
+    clientY: number,
+    e: React.MouseEvent | React.TouchEvent,
+  ) => {
+    if (
+      !(e.target instanceof HTMLElement) ||
+      !e.target.classList.contains(styles["slingy-ball"])
+    ) {
+      return false; // Ensure the event started on a ball
+    }
+
     dragStartPosition.current = { x: clientX, y: clientY };
     movementHistory.current = [
       { x: clientX, y: clientY, time: performance.now() },
@@ -116,20 +128,23 @@ const SlingyBall: React.FC = () => {
     });
 
     triggerRender((prev) => prev + 1);
+    e.preventDefault();
   };
 
   const handleMouseDown = (id: number, e: React.MouseEvent) => {
-    e.preventDefault();
-    startDrag(id, e.clientX, e.clientY);
+    startDrag(id, e.clientX, e.clientY, e);
   };
 
   const handleTouchStart = (id: number, e: React.TouchEvent) => {
-    e.preventDefault(); // Prevent scrolling
     const touch = e.touches[0];
-    startDrag(id, touch.clientX, touch.clientY);
+    startDrag(id, touch.clientX, touch.clientY, e);
   };
 
-  const handleMove = (clientX: number, clientY: number) => {
+  const handleMove = (
+    clientX: number,
+    clientY: number,
+    e: MouseEvent | TouchEvent,
+  ) => {
     if (!dragStartPosition.current) return;
 
     objectsRef.current.forEach((obj) => {
@@ -162,17 +177,16 @@ const SlingyBall: React.FC = () => {
     }
 
     triggerRender((prev) => prev + 1);
+    e.preventDefault();
   };
 
   const handleMouseMove = useCallback((e: MouseEvent) => {
-    e.preventDefault();
-    handleMove(e.clientX, e.clientY);
+    handleMove(e.clientX, e.clientY, e);
   }, []);
 
   const handleTouchMove = useCallback((e: TouchEvent) => {
-    e.preventDefault(); // Prevent scrolling
     const touch = e.touches[0];
-    handleMove(touch.clientX, touch.clientY);
+    handleMove(touch.clientX, touch.clientY, e);
   }, []);
 
   const endDrag = () => {
