@@ -12,8 +12,8 @@ type FloatingObject = {
 };
 
 type SlingerProps = {
-  onDrag?: (id: number, x: number, y: number) => void;
-  onDragEnd?: (id: number, vx: number, vy: number) => void;
+  onDrag?: (x: number, y: number, e: MouseEvent | TouchEvent) => void;
+  onDragEnd?: (x: number, y: number, e: MouseEvent | TouchEvent) => void;
 };
 
 const Slinger: React.FC<SlingerProps> = ({ onDrag, onDragEnd }) => {
@@ -160,7 +160,7 @@ const Slinger: React.FC<SlingerProps> = ({ onDrag, onDragEnd }) => {
         dragStartPosition.current = { x: clientX, y: clientY };
 
         // Invoke onDrag callback
-        onDrag?.(obj.id, obj.x, obj.y);
+        onDrag?.(clientX, clientY, e);
       }
     });
 
@@ -189,7 +189,7 @@ const Slinger: React.FC<SlingerProps> = ({ onDrag, onDragEnd }) => {
     e.preventDefault();
   };
 
-  const endDrag = () => {
+  const endDrag = (e: MouseEvent | TouchEvent) => {
     if (!dragStartPosition.current) return;
 
     let vx = lastKnownVelocity.current.vx;
@@ -209,7 +209,7 @@ const Slinger: React.FC<SlingerProps> = ({ onDrag, onDragEnd }) => {
         obj.isDragging = false;
 
         // Invoke onDragEnd callback
-        onDragEnd?.(obj.id, vx, vy);
+        onDragEnd?.(vx, vy, e);
       }
     });
 
@@ -226,8 +226,8 @@ const Slinger: React.FC<SlingerProps> = ({ onDrag, onDragEnd }) => {
       handleMove(touch.clientX, touch.clientY, e);
     };
 
-    const handleMouseUp = () => endDrag();
-    const handleTouchEnd = () => endDrag();
+    const handleMouseUp = (e: MouseEvent) => endDrag(e);
+    const handleTouchEnd = (e: TouchEvent) => endDrag(e);
 
     window.addEventListener("mousemove", handleMouseMove);
     window.addEventListener("mouseup", handleMouseUp);
