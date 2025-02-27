@@ -100,10 +100,10 @@ const SlingyBall: React.FC = () => {
     };
   }, [animate]);
 
-  const handleMouseDown = (id: number, e: React.MouseEvent) => {
-    dragStartPosition.current = { x: e.clientX, y: e.clientY };
+  const startDrag = (id: number, clientX: number, clientY: number) => {
+    dragStartPosition.current = { x: clientX, y: clientY };
     movementHistory.current = [
-      { x: e.clientX, y: e.clientY, time: performance.now() },
+      { x: clientX, y: clientY, time: performance.now() },
     ];
     lastKnownVelocity.current = { vx: 0, vy: 0 };
 
@@ -118,19 +118,31 @@ const SlingyBall: React.FC = () => {
     triggerRender((prev) => prev + 1);
   };
 
-  const handleMouseMove = useCallback((e: MouseEvent) => {
+  const handleMouseDown = (id: number, e: React.MouseEvent) => {
+    e.preventDefault();
+    startDrag(id, e.clientX, e.clientY);
+  };
+
+  const handleTouchStart = (id: number, e: React.TouchEvent) => {
+    e.preventDefault(); // Prevent scrolling
+    const touch = e.touches[0];
+    startDrag(id, touch.clientX, touch.clientY);
+  };
+
+  const handleMove = (clientX: number, clientY: number) => {
     if (!dragStartPosition.current) return;
 
     objectsRef.current.forEach((obj) => {
       if (obj.isDragging) {
-        obj.x += e.movementX;
-        obj.y += e.movementY;
+        obj.x += clientX - dragStartPosition.current!.x;
+        obj.y += clientY - dragStartPosition.current!.y;
+        dragStartPosition.current = { x: clientX, y: clientY };
       }
     });
 
     // Track recent movement (keep only last 100ms worth of data)
     const now = performance.now();
-    movementHistory.current.push({ x: e.clientX, y: e.clientY, time: now });
+    movementHistory.current.push({ x: clientX, y: clientY, time: now });
 
     // Remove old entries (more than 100ms old)
     movementHistory.current = movementHistory.current.filter(
@@ -150,9 +162,20 @@ const SlingyBall: React.FC = () => {
     }
 
     triggerRender((prev) => prev + 1);
+  };
+
+  const handleMouseMove = useCallback((e: MouseEvent) => {
+    e.preventDefault();
+    handleMove(e.clientX, e.clientY);
   }, []);
 
-  const handleMouseUp = useCallback((_e: MouseEvent) => {
+  const handleTouchMove = useCallback((e: TouchEvent) => {
+    e.preventDefault(); // Prevent scrolling
+    const touch = e.touches[0];
+    handleMove(touch.clientX, touch.clientY);
+  }, []);
+
+  const endDrag = () => {
     if (!dragStartPosition.current) return;
 
     let vx = lastKnownVelocity.current.vx;
@@ -176,17 +199,29 @@ const SlingyBall: React.FC = () => {
     dragStartPosition.current = null;
     movementHistory.current = [];
     triggerRender((prev) => prev + 1);
+  };
+
+  const handleMouseUp = useCallback((_e: MouseEvent) => {
+    endDrag();
+  }, []);
+
+  const handleTouchEnd = useCallback((_e: TouchEvent) => {
+    endDrag();
   }, []);
 
   useEffect(() => {
     window.addEventListener("mousemove", handleMouseMove);
     window.addEventListener("mouseup", handleMouseUp);
+    window.addEventListener("touchmove", handleTouchMove, { passive: false });
+    window.addEventListener("touchend", handleTouchEnd);
 
     return () => {
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("mouseup", handleMouseUp);
+      window.removeEventListener("touchmove", handleTouchMove);
+      window.removeEventListener("touchend", handleTouchEnd);
     };
-  }, [handleMouseMove, handleMouseUp]);
+  }, [handleMouseMove, handleMouseUp, handleTouchMove, handleTouchEnd]);
 
   return (
     <div ref={containerRef} className={styles["slingy-ball-container"]}>
@@ -195,6 +230,7 @@ const SlingyBall: React.FC = () => {
           className={styles["slingy-ball"]}
           key={obj.id}
           onMouseDown={(e) => handleMouseDown(obj.id, e)}
+          onTouchStart={(e) => handleTouchStart(obj.id, e)}
           style={{
             transform: `translate(${Math.round(obj.x)}px, ${Math.round(obj.y)}px)`,
           }}
