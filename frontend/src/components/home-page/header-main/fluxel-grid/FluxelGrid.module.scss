@@ -11,6 +11,8 @@
     pointer-events: none;
   }
   > * {
+    // Here because the same styles need applied to
+    // the placeholders as well the actual fluxels
     position: relative;
     flex: 1 1 calc(100% / var(--cols));
     aspect-ratio: 1 / 1;
