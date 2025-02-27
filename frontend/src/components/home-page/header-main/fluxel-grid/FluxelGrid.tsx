@@ -24,7 +24,7 @@ const FluxelGrid: React.FC<{
   cols: number;
   viewableHeight: number;
   viewableWidth: number;
-  externalMousePos?: { x: number; y: number } | null;
+  externalMousePos?: { x: number; y: number } | null | undefined;
 }> = ({ rows, cols, viewableHeight, viewableWidth, externalMousePos }) => {
   const [grid, setGrid] = useState<FluxelData[][]>([]);
   const [fluxelSize, setFluxelSize] = useState<number>(0);
@@ -124,7 +124,21 @@ const FluxelGrid: React.FC<{
   }
 
   useEffect(() => {
+    // If explicitly null, reset the grid.
+    if (externalMousePos === null && externalMousePos !== undefined) {
+      setGrid((prevGrid) =>
+        prevGrid.map((row) =>
+          row.map((fluxel) => ({
+            ...fluxel,
+            influence: 0,
+          })),
+        ),
+      );
+      return;
+    }
+
     const effectiveMousePos = externalMousePos || mousePos;
+
     if (!effectiveMousePos || fluxelSize === 0) return;
 
     let animationFrameId = requestAnimationFrame(() => {

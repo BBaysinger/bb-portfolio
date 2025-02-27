@@ -15,9 +15,9 @@ import styles from "./HeaderMain.module.scss";
  * @version N/A
  */
 const HeaderMain: React.FC = () => {
-  const [slingerPos, setSlingerPos] = useState<{ x: number; y: number } | null>(
-    null,
-  );
+  const [slingerPos, setSlingerPos] = useState<
+    { x: number; y: number } | null | undefined
+  >(undefined);
 
   // const [scrolledToTop, setScrolledToTop] = useState<string>("scrolled-to-top");
 
@@ -95,7 +95,6 @@ const HeaderMain: React.FC = () => {
   //         const newScrolledToTop =
   //           currentScrollPosition > 0 ? "" : styles["scrolled-to-top"];
   //         if (newScrolledToTop !== scrolledToTop) {
-  //           console.log('newScrolledToTop', newScrolledToTop);
   //           setScrolledToTop(newScrolledToTop);
   //         }
 
@@ -127,7 +126,7 @@ const HeaderMain: React.FC = () => {
 
   const onSlingerDragEnd = useCallback(
     (_x: number, _y: number, e: MouseEvent | TouchEvent) => {
-      if (e.type === "touchmove") {
+      if (e.type === "touchend") {
         setSlingerPos(null);
       }
     },
