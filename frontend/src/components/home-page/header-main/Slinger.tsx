@@ -49,7 +49,7 @@ const Slinger: React.FC<SlingerProps> = ({ onDrag, onDragEnd }) => {
     }
 
     const handleResize = () => {
-      updateBounds();
+      // (iOS Safari) can set incorrect bounds on orientation change without requestAnimationFrame
       requestAnimationFrame(() => updateBounds());
     };
 
