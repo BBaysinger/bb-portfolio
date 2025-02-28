@@ -15,6 +15,7 @@ import styles from "./HeaderMain.module.scss";
  * @version N/A
  */
 const HeaderMain: React.FC = () => {
+  const headerRef = useRef<HTMLDivElement>(null);
   const getHeight = () => document.documentElement.clientHeight;
   const getWidth = () => document.documentElement.clientWidth;
 
@@ -24,21 +25,9 @@ const HeaderMain: React.FC = () => {
   const [clientHeight, setClientHeight] = useState(getHeight());
   const [clientWidth, setClientWidth] = useState(getWidth());
 
-  // Refs to store the latest height and width
-  const clientHeightRef = useRef(clientHeight);
-  const clientWidthRef = useRef(clientWidth);
-
-  useEffect(() => {
-    clientHeightRef.current = clientHeight;
-    clientWidthRef.current = clientWidth;
-  }, [clientHeight, clientWidth]);
-
   const updateClientDimensions = useCallback(() => {
-    const h = getHeight();
-    const w = getWidth();
-
-    if (clientHeightRef.current !== h) setClientHeight(h);
-    if (clientWidthRef.current !== w) setClientWidth(w);
+    setClientHeight(getHeight());
+    setClientWidth(getWidth());
   }, []);
 
   useEffect(() => {
@@ -59,12 +48,11 @@ const HeaderMain: React.FC = () => {
   const onSlingerDrag = useCallback(
     (x: number, y: number, e: MouseEvent | TouchEvent) => {
       if (e.type === "touchmove") {
-        const longestSide = Math.max(
-          clientWidthRef.current,
-          clientHeightRef.current,
-        );
-        const offsetX = x + (longestSide - clientWidthRef.current) / 2;
-        const offsetY = y + (longestSide - clientHeightRef.current) / 2;
+        const bounds = headerRef.current?.getBoundingClientRect();
+        if (!bounds) return;
+        const longestSide = Math.max(bounds.width, bounds.height);
+        const offsetX = x + (longestSide - bounds.width) / 2;
+        const offsetY = y + (longestSide - bounds.height) / 2;
         setSlingerPos({ x: offsetX, y: offsetY });
       }
     },
@@ -103,6 +91,7 @@ const HeaderMain: React.FC = () => {
   return (
     <header
       id="headerMain"
+      ref={headerRef}
       className={`${styles["header-main"]} ${styles["header"]} header-main`}
       style={{ minHeight: `${clientHeight}px` }}
     >
