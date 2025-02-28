@@ -6,6 +6,7 @@ header.header-main {
   align-items: bottom;
   justify-content: flex-end;
   letter-spacing: 1px;
+  user-select: none;
 
   h1 {
     letter-spacing: 0.05em;
@@ -13,7 +14,6 @@ header.header-main {
     line-height: 1.1em;
     margin-bottom: 0.2em;
     margin-left: -0.05em;
-
     color: #fff;
     font-weight: 400; // Only a factor before fonts load.
     @include breakpoint-up($b480px) {
@@ -24,6 +24,9 @@ header.header-main {
   h5 {
     color: white;
     font-weight: 400;
+  }
+  & > * {
+    user-select: none;
   }
 }
 
