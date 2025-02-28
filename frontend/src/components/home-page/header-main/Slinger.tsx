@@ -38,18 +38,28 @@ const Slinger: React.FC<SlingerProps> = ({ onDrag, onDragEnd }) => {
   const triggerRender = useState(0)[1]; // Dummy state to force re-renders
 
   useEffect(() => {
-    if (containerRef.current) {
-      containerBounds.current = containerRef.current.getBoundingClientRect();
-    }
-
-    const handleResize = () => {
+    const updateBounds = () => {
       if (containerRef.current) {
         containerBounds.current = containerRef.current.getBoundingClientRect();
       }
     };
 
+    if (containerRef.current) {
+      updateBounds();
+    }
+
+    const handleResize = () => {
+      updateBounds();
+      requestAnimationFrame(() => updateBounds());
+    };
+
     window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    window.addEventListener("orientationchange", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      window.removeEventListener("orientationchange", handleResize);
+    };
   }, []);
 
   const animate = useCallback(() => {
@@ -114,7 +124,7 @@ const Slinger: React.FC<SlingerProps> = ({ onDrag, onDragEnd }) => {
   ) => {
     if (
       !(e.target instanceof HTMLElement) ||
-      !e.target.classList.contains(styles["slingy-ball"])
+      !e.target.classList.contains(styles["slinger"])
     ) {
       return false; // Ensure the event started on a ball
     }
@@ -243,10 +253,10 @@ const Slinger: React.FC<SlingerProps> = ({ onDrag, onDragEnd }) => {
   }, []);
 
   return (
-    <div ref={containerRef} className={styles["slingy-ball-container"]}>
+    <div ref={containerRef} className={styles["slinger-container"]}>
       {objectsRef.current.map((obj) => (
         <div
-          className={styles["slingy-ball"]}
+          className={styles["slinger"]}
           key={obj.id}
           onMouseDown={(e) => handleMouseDown(obj.id, e)}
           onTouchStart={(e) => handleTouchStart(obj.id, e)}

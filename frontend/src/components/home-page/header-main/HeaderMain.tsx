@@ -118,8 +118,10 @@ const HeaderMain: React.FC = () => {
   const onSlingerDrag = useCallback(
     (x: number, y: number, e: MouseEvent | TouchEvent) => {
       if (e.type === "touchmove") {
-        const offsetX = x + (clientHeight - clientWidth) / 2;
-        setSlingerPos({ x: offsetX, y: y });
+        const longestSide = Math.max(clientWidth, clientHeight);
+        const offsetX = x + (longestSide - clientWidth) / 2;
+        const offsetY = y + (longestSide - clientHeight) / 2;
+        setSlingerPos({ x: offsetX, y: offsetY });
       }
     },
     [],
