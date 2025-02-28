@@ -18,56 +18,28 @@ type SlingerProps = {
 
 const Slinger: React.FC<SlingerProps> = ({ onDrag, onDragEnd }) => {
   const ballSize = 50;
-
-  const objectsRef = useRef<FloatingObject[]>([
-    { id: 1, x: 50, y: 50, vx: 1, vy: 1, isDragging: false },
-  ]);
-
+  const animationFrameRef = useRef<number | null>(null);
+  const triggerRender = useState(0)[1];
   const containerRef = useRef<HTMLDivElement>(null);
-  const containerBounds = useRef<{ width: number; height: number } | null>(
-    null,
-  );
   const dragStartPosition = useRef<{ x: number; y: number } | null>(null);
   const movementHistory = useRef<{ x: number; y: number; time: number }[]>([]);
   const lastKnownVelocity = useRef<{ vx: number; vy: number }>({
     vx: 0,
     vy: 0,
   });
-
-  const animationFrameRef = useRef<number | null>(null);
-  const triggerRender = useState(0)[1]; // Dummy state to force re-renders
-
-  useEffect(() => {
-    const updateBounds = () => {
-      if (containerRef.current) {
-        containerBounds.current = containerRef.current.getBoundingClientRect();
-      }
-    };
-
-    if (containerRef.current) {
-      updateBounds();
-    }
-
-    const handleResize = () => {
-      // (iOS Safari) can set incorrect bounds on orientation change without requestAnimationFrame
-      requestAnimationFrame(() => updateBounds());
-    };
-
-    window.addEventListener("resize", handleResize);
-    window.addEventListener("orientationchange", handleResize);
-    return () => {
-      window.removeEventListener("resize", handleResize);
-      window.removeEventListener("orientationchange", handleResize);
-    };
-  }, []);
+  const objectsRef = useRef<FloatingObject[]>([
+    { id: 1, x: 50, y: 50, vx: 1, vy: 1, isDragging: false },
+  ]);
 
   const animate = useCallback(() => {
+    if (!containerRef.current) return;
+
+    const bounds = containerRef.current.getBoundingClientRect();
+
     objectsRef.current.forEach((obj) => {
       if (obj.isDragging) return;
 
       let { x, y, vx, vy } = obj;
-      const bounds = containerBounds.current;
-      if (!bounds) return;
 
       x += vx;
       y += vy;
@@ -143,7 +115,10 @@ const Slinger: React.FC<SlingerProps> = ({ onDrag, onDragEnd }) => {
     });
 
     triggerRender((prev) => prev + 1);
-    e.preventDefault();
+
+    // if (e.cancelable) {
+    //   e.preventDefault();
+    // }
   };
 
   const handleMouseDown = (id: number, e: React.MouseEvent) => {
