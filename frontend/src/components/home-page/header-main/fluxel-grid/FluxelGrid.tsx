@@ -85,9 +85,20 @@ const FluxelGrid: React.FC<{
         setFluxelSize(size / cols);
       }
     };
+
     updateSizes();
-    window.addEventListener("resize", updateSizes);
-    return () => window.removeEventListener("resize", updateSizes);
+
+    const handleResize = () => {
+      // (iOS Safari) can set incorrect bounds on orientation change without requestAnimationFrame
+      requestAnimationFrame(() => updateSizes());
+    };
+
+    window.addEventListener("resize", handleResize);
+    window.addEventListener("orientationchange", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      window.removeEventListener("orientationchange", handleResize);
+    };
   }, [cols]);
 
   useEffect(() => {
@@ -137,11 +148,14 @@ const FluxelGrid: React.FC<{
       return;
     }
 
-    const effectiveMousePos = externalMousePos || mousePos;
+    const effectiveMousePos = externalMousePos || mousePos || { x: 0, y: 0 };
+
+    effectiveMousePos.x = Math.round(effectiveMousePos?.x * 100) / 100;
+    effectiveMousePos.y = Math.round(effectiveMousePos?.y * 100) / 100;
 
     if (!effectiveMousePos || fluxelSize === 0) return;
 
-    let animationFrameId = requestAnimationFrame(() => {
+    const animationFrameId = requestAnimationFrame(() => {
       setGrid((prevGrid) => {
         let hasChanged = false;
 
