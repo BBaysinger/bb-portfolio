@@ -12,7 +12,7 @@ export interface FluxelData {
 }
 
 /**
- * Fluxing Pixel (Receives Precomputed Data)
+ * Fluxing Pixel
  */
 const Fluxel: React.FC<{ data: FluxelData }> = ({ data }) => {
   const transformStyle = {
@@ -22,7 +22,7 @@ const Fluxel: React.FC<{ data: FluxelData }> = ({ data }) => {
   return (
     <div className={styles["fluxel"]} style={transformStyle}>
       <Shadow className={styles["shadow"]} x1={data.x1} y1={data.y1} />
-      <div className={styles["debug"]}>{data.influence}</div>
+      {/* <div className={styles["debug"]}>{data.influence}</div> */}
     </div>
   );
 };

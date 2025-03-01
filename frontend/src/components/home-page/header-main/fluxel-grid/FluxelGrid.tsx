@@ -35,7 +35,7 @@ const FluxelGrid: React.FC<{
           row,
           col,
           influence: 0,
-          x1: 0, // Shadow offsets
+          x1: 0,
           y1: 0,
         })),
       ),
@@ -76,7 +76,27 @@ const FluxelGrid: React.FC<{
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, []);
 
-  // Influence & Shadow Offset Calculation
+  const getShadowOffsets = (
+    fluxelPos: { col: number; row: number },
+    effectiveMousePos: { x: number; y: number },
+  ) => {
+    const gridX = fluxelPos.col * fluxelSize + fluxelSize / 2;
+    const gridY = fluxelPos.row * fluxelSize + fluxelSize / 2;
+
+    // **Calculate Distance Once**
+    const dx = gridX - effectiveMousePos.x;
+    const dy = gridY - effectiveMousePos.y;
+    const baseDistance = Math.sqrt(dx * dx + dy * dy);
+    const maxRadius = fluxelSize * 4;
+
+    const influence =
+      (1 - smoothStep(0, maxRadius, baseDistance)) *
+      (baseDistance < maxRadius ? 1 : 0);
+
+    return influence;
+  };
+
+  // Influence & Shadow Offset Calculation (without referencing actual neighbors)
   useEffect(() => {
     if (!gridRef.current || fluxelSize === 0) return;
 
@@ -89,53 +109,40 @@ const FluxelGrid: React.FC<{
 
         const updatedGrid = prevGrid.map((row, rowIndex) =>
           row.map((fluxel, colIndex) => {
-            const gridX = colIndex * fluxelSize + fluxelSize / 2;
-            const gridY = rowIndex * fluxelSize + fluxelSize / 2;
-
-            const dx = gridX - effectiveMousePos.x;
-            const dy = gridY - effectiveMousePos.y;
-            const baseDistance = Math.sqrt(dx * dx + dy * dy);
-            const maxRadius = fluxelSize * 4;
-
-            // **Step 1: Compute Influence (Using SmoothStep)**
-            const newInfluence = smoothStep(
-              0,
-              maxRadius,
-              maxRadius - baseDistance,
+            const newInfluenceData = getShadowOffsets(
+              { col: colIndex, row: rowIndex },
+              effectiveMousePos,
             );
 
-            // **Step 2: Compute Hypothetical Neighbor Influences (Offsetting Distance)**
-            const hypoRightInfluence = smoothStep(
-              0,
-              maxRadius,
-              maxRadius - (baseDistance + fluxelSize),
-            );
-            const hypoTopInfluence = smoothStep(
-              0,
-              maxRadius,
-              maxRadius - (baseDistance + fluxelSize),
+            const topFluxelInfluence = getShadowOffsets(
+              { col: colIndex, row: rowIndex - 1 },
+              { x: effectiveMousePos.x, y: effectiveMousePos.y },
             );
 
-            // **Step 3: Compute Shadow Offsets**
-            const newX1 = Math.round(
-              Math.min(hypoRightInfluence - newInfluence, 0) * 60,
+            const rightFluxelInfluence = getShadowOffsets(
+              { col: colIndex + 1, row: rowIndex },
+              { x: effectiveMousePos.x, y: effectiveMousePos.y },
             );
-            const newY1 = Math.round(
-              Math.max(newInfluence - hypoTopInfluence, 0) * 60,
+
+            const x1 = Math.round(
+              Math.min(rightFluxelInfluence - newInfluenceData, 0) * 60,
+            );
+            const y1 = Math.round(
+              Math.max(newInfluenceData - topFluxelInfluence, 0) * 60,
             );
 
             // **Only update if values actually changed**
             if (
-              Math.abs(newInfluence - fluxel.influence) > 0.01 ||
-              newX1 !== fluxel.x1 ||
-              newY1 !== fluxel.y1
+              Math.abs(newInfluenceData - fluxel.influence) > 0.009 ||
+              x1 !== fluxel.x1 ||
+              y1 !== fluxel.y1
             ) {
               hasChanged = true;
               return {
                 ...fluxel,
-                influence: Math.round(newInfluence * 100) / 100,
-                x1: newX1,
-                y1: newY1,
+                influence: Math.round(newInfluenceData * 100) / 100,
+                x1: x1,
+                y1: y1,
               };
             }
 
