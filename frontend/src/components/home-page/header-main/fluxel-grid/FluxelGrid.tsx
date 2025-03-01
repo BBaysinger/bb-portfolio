@@ -1,24 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
-
 import Fluxel, { FluxelData } from "./Fluxel";
 import PixelAnim from "./AnimationSequencer";
 import styles from "./FluxelGrid.module.scss";
 
 const DEBUG = false;
 
-/**
- * Fluxing Pixel Grid
- *
- * Makes a grid of giant pixels that can be interacted with.
- * Here I've added simulated shadows for depth with mouse move effect and
- * I mapped animated images to the grid for a unique experience.
- * Built in React since that's my current focus, but I need to rebuild it in
- * PixiJS with WebGL, for performance with other onscreen animations.
- *
- * @author Bradley Baysinger
- * @since The beginning of time.
- * @version N/A
- */
 const FluxelGrid: React.FC<{
   rows: number;
   cols: number;
@@ -37,169 +23,108 @@ const FluxelGrid: React.FC<{
 
   useEffect(() => {
     // Initialize grid
-    const newGrid: FluxelData[][] = Array.from({ length: rows }, (_, row) =>
-      Array.from({ length: cols }, (_, col) => ({
-        id: `${row}-${col}`,
-        row,
-        col,
-        neighbors: [],
-        debug: DEBUG,
-        influence: 0,
-      })),
+    setGrid(
+      Array.from({ length: rows }, (_, row) =>
+        Array.from({ length: cols }, (_, col) => ({
+          id: `${row}-${col}`,
+          row,
+          col,
+          influence: 0,
+          x1: 0, // Shadow offsets
+          y1: 0,
+        })),
+      ),
     );
-
-    // Assign neighbors
-    for (let row = 0; row < rows; row++) {
-      for (let col = 0; col < cols; col++) {
-        const neighbors: FluxelData[] = [];
-        const directions = [
-          [-1, -1], // TL
-          [-1, 0], // T,
-          [-1, 1], // TR
-          [0, -1], // L,
-          [0, 1], // R
-          [1, -1], // BL,
-          [1, 0], // B,
-          [1, 1], // BR
-        ];
-
-        directions.forEach(([dRow, dCol]) => {
-          const nRow = row + dRow;
-          const nCol = col + dCol;
-          if (nRow >= 0 && nRow < rows && nCol >= 0 && nCol < cols) {
-            neighbors.push(newGrid[nRow][nCol]);
-          }
-        });
-
-        newGrid[row][col].neighbors = neighbors;
-      }
-    }
-
-    setGrid(newGrid);
   }, [rows, cols]);
 
   useEffect(() => {
     const updateSizes = () => {
       if (gridRef.current) {
-        const size = gridRef.current.getBoundingClientRect().width;
-        setFluxelSize(size / cols);
+        setFluxelSize(gridRef.current.getBoundingClientRect().width / cols);
       }
     };
 
     updateSizes();
-
-    const handleResize = () => {
-      // (iOS Safari) can set incorrect bounds on orientation change without requestAnimationFrame
-      requestAnimationFrame(() => updateSizes());
-    };
-
-    window.addEventListener("resize", handleResize);
-    window.addEventListener("orientationchange", handleResize);
+    window.addEventListener("resize", updateSizes);
+    window.addEventListener("orientationchange", updateSizes);
     return () => {
-      window.removeEventListener("resize", handleResize);
-      window.removeEventListener("orientationchange", handleResize);
+      window.removeEventListener("resize", updateSizes);
+      window.removeEventListener("orientationchange", updateSizes);
     };
   }, [cols]);
 
   useEffect(() => {
-    let animationFrameId: number | null = null;
-
     const handleMouseMove = (event: MouseEvent) => {
       if (!gridRef.current) return;
-
       const now = performance.now();
       if (now - lastFrameTime.current < 1000 / 30) return;
 
       lastFrameTime.current = now;
-
-      animationFrameId = requestAnimationFrame(() => {
-        const rect = gridRef.current!.getBoundingClientRect();
-        setMousePos({
-          x: event.clientX - rect.left,
-          y: event.clientY - rect.top,
-        });
+      const rect = gridRef.current.getBoundingClientRect();
+      setMousePos({
+        x: event.clientX - rect.left,
+        y: event.clientY - rect.top,
       });
     };
 
     window.addEventListener("mousemove", handleMouseMove);
-
-    return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
-      if (animationFrameId) cancelAnimationFrame(animationFrameId);
-    };
+    return () => window.removeEventListener("mousemove", handleMouseMove);
   }, []);
 
-  function smoothstep(edge0: number, edge1: number, x: number) {
-    let t = Math.max(0, Math.min(1, (x - edge0) / (edge1 - edge0)));
-    return t * t * (3 - 2 * t);
-  }
-
+  // Influence & Shadow Offset Calculation
   useEffect(() => {
-    // If explicitly null, reset the grid.
-    if (externalMousePos === null && externalMousePos !== undefined) {
-      setGrid((prevGrid) => {
-        prevGrid.forEach((row) => {
-          row.forEach((fluxel) => {
-            fluxel.influence = 0;
-          });
-        });
-        return [...prevGrid]; // Force state update while keeping references
-      });
-      return;
-    }
+    if (!gridRef.current || fluxelSize === 0) return;
 
     const effectiveMousePos = externalMousePos || mousePos || { x: 0, y: 0 };
+    if (!effectiveMousePos) return;
 
-    effectiveMousePos.x = Math.round(effectiveMousePos?.x * 100) / 100;
-    effectiveMousePos.y = Math.round(effectiveMousePos?.y * 100) / 100;
-
-    if (!effectiveMousePos || fluxelSize === 0) return;
-
-    const animationFrameId = requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
       setGrid((prevGrid) => {
         let hasChanged = false;
 
-        prevGrid.forEach((row, rowIndex) => {
-          row.forEach((square, colIndex) => {
+        const updatedGrid = prevGrid.map((row, rowIndex) =>
+          row.map((fluxel, colIndex) => {
             const gridX = colIndex * fluxelSize + fluxelSize / 2;
             const gridY = rowIndex * fluxelSize + fluxelSize / 2;
+
             const dx = gridX - effectiveMousePos.x;
             const dy = gridY - effectiveMousePos.y;
             const distance = Math.sqrt(dx * dx + dy * dy);
             const maxRadius = fluxelSize * 4;
-            let strength =
-              (1 - smoothstep(0, maxRadius, distance)) *
+
+            // Influence strength (0 to 1)
+            const newInfluence =
+              (1 - Math.min(1, Math.max(0, (distance - 0) / (maxRadius - 0)))) *
               (distance < maxRadius ? 1 : 0);
-            strength = Math.round(strength * 100) / 100;
+            const roundedInfluence = Math.round(newInfluence * 100) / 100;
 
-            if (square.influence !== strength) {
+            // Shadow offsets (based on mouse movement direction)
+            const newX1 = Math.round(dx / 10);
+            const newY1 = Math.round(dy / 10);
+
+            // **Only update if values actually changed**
+            if (
+              Math.abs(roundedInfluence - fluxel.influence) > 0.01 ||
+              newX1 !== fluxel.x1 ||
+              newY1 !== fluxel.y1
+            ) {
               hasChanged = true;
-              square.influence = strength;
+              return {
+                ...fluxel,
+                influence: roundedInfluence,
+                x1: newX1,
+                y1: newY1,
+              };
             }
-          });
-        });
 
-        return hasChanged ? [...prevGrid] : prevGrid;
+            return fluxel;
+          }),
+        );
+
+        return hasChanged ? updatedGrid : prevGrid;
       });
     });
-
-    return () => cancelAnimationFrame(animationFrameId);
   }, [mousePos, externalMousePos, fluxelSize]);
-
-  let viewableRows = 0;
-  let viewableCols = 0;
-
-  if (gridRef.current?.offsetWidth) {
-    viewableRows = Math.ceil(
-      viewableHeight / (gridRef.current?.offsetHeight / rows),
-    );
-    viewableCols = Math.ceil(
-      viewableWidth / (gridRef.current?.offsetWidth / cols),
-    );
-  }
-
-  const rowOverlap = Math.floor((rows - viewableRows) / 2);
-  const colOverlap = Math.floor((cols - viewableCols) / 2);
 
   return (
     <div
@@ -208,19 +133,9 @@ const FluxelGrid: React.FC<{
       style={{ "--cols": cols } as React.CSSProperties}
     >
       <PixelAnim className={styles["fluxel-grid-background"]} />
-      {grid.flat().map((data) => {
-        const isVisible =
-          data.col >= colOverlap &&
-          data.col < cols - colOverlap &&
-          data.row >= rowOverlap &&
-          data.row < rows - rowOverlap;
-
-        return isVisible ? (
-          <Fluxel key={data.id} data={data} />
-        ) : (
-          <div key={data.id} className={styles["inactive-placeholder"]}></div>
-        );
-      })}
+      {grid.flat().map((data) => (
+        <Fluxel key={data.id} data={data} />
+      ))}
     </div>
   );
 };
