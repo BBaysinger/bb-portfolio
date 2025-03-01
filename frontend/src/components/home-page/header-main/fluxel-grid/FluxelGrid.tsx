@@ -22,14 +22,14 @@ const FluxelGrid: React.FC<{
         row,
         col,
         influence: 0,
-        x1: 0,
-        y1: 0,
-      }))
-    )
+        shadowOffsetX: 0,
+        shadowOffsetY: 0,
+      })),
+    ),
   );
   const [fluxelSize, setFluxelSize] = useState(0);
   const [mousePos, setMousePos] = useState<{ x: number; y: number } | null>(
-    null
+    null,
   );
 
   const gridRef = useRef<HTMLDivElement>(null);
@@ -68,7 +68,7 @@ const FluxelGrid: React.FC<{
 
   const getShadowInfluence = (
     { col, row }: { col: number; row: number },
-    { x, y }: { x: number; y: number }
+    { x, y }: { x: number; y: number },
   ) => {
     const gridX = col * fluxelSize + fluxelSize / 2;
     const gridY = row * fluxelSize + fluxelSize / 2;
@@ -91,30 +91,39 @@ const FluxelGrid: React.FC<{
           row.map((fluxel, colIndex) => {
             const influence = getShadowInfluence(
               { col: colIndex, row: rowIndex },
-              effectiveMousePos
+              effectiveMousePos,
             );
             const topInfluence = getShadowInfluence(
               { col: colIndex, row: rowIndex - 1 },
-              effectiveMousePos
+              effectiveMousePos,
             );
             const rightInfluence = getShadowInfluence(
               { col: colIndex + 1, row: rowIndex },
-              effectiveMousePos
+              effectiveMousePos,
             );
 
-            const x1 = Math.round(Math.min(rightInfluence - influence, 0) * 60);
-            const y1 = Math.round(Math.max(influence - topInfluence, 0) * 60);
+            const shadowOffsetX = Math.round(
+              Math.min(rightInfluence - influence, 0) * 60,
+            );
+            const shadowOffsetY = Math.round(
+              Math.max(influence - topInfluence, 0) * 60,
+            );
 
             if (
               Math.abs(influence - fluxel.influence) > 0.009 ||
-              x1 !== fluxel.x1 ||
-              y1 !== fluxel.y1
+              shadowOffsetX !== fluxel.shadowOffsetX ||
+              shadowOffsetY !== fluxel.shadowOffsetY
             ) {
               hasChanged = true;
-              return { ...fluxel, influence: +influence.toFixed(2), x1, y1 };
+              return {
+                ...fluxel,
+                influence: +influence.toFixed(2),
+                shadowOffsetX,
+                shadowOffsetY,
+              };
             }
             return fluxel;
-          })
+          }),
         );
 
         return hasChanged ? updatedGrid : prevGrid;
@@ -122,8 +131,8 @@ const FluxelGrid: React.FC<{
     });
   }, [mousePos, externalMousePos, fluxelSize]);
 
-  /** 
-   * **Determine Which Fluxels Are Visible**  
+  /**
+   * **Determine Which Fluxels Are Visible**
    * Uses `viewableHeight` and `viewableWidth` to hide overflow rows/columns.
    */
   let viewableRows = rows,
@@ -132,8 +141,12 @@ const FluxelGrid: React.FC<{
     colOverlap = 0;
 
   if (gridRef.current) {
-    viewableRows = Math.ceil(viewableHeight / (gridRef.current.offsetHeight / rows));
-    viewableCols = Math.ceil(viewableWidth / (gridRef.current.offsetWidth / cols));
+    viewableRows = Math.ceil(
+      viewableHeight / (gridRef.current.offsetHeight / rows),
+    );
+    viewableCols = Math.ceil(
+      viewableWidth / (gridRef.current.offsetWidth / cols),
+    );
     rowOverlap = Math.floor((rows - viewableRows) / 2);
     colOverlap = Math.floor((cols - viewableCols) / 2);
   }

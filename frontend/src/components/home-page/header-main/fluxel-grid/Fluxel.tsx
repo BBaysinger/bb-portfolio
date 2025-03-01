@@ -7,8 +7,8 @@ export interface FluxelData {
   row: number;
   col: number;
   influence: number;
-  x1: number;
-  y1: number;
+  shadowOffsetX: number;
+  shadowOffsetY: number;
 }
 
 /**
@@ -21,7 +21,11 @@ const Fluxel: React.FC<{ data: FluxelData }> = ({ data }) => {
 
   return (
     <div className={styles["fluxel"]} style={transformStyle}>
-      <Shadow className={styles["shadow"]} x1={data.x1} y1={data.y1} />
+      <Shadow
+        className={styles["shadow"]}
+        x1={data.shadowOffsetX}
+        y1={data.shadowOffsetY}
+      />
       {/* <div className={styles["debug"]}>{data.influence}</div> */}
     </div>
   );
