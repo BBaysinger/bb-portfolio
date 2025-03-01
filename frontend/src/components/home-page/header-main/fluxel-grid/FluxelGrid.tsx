@@ -3,6 +3,8 @@ import Fluxel, { FluxelData } from "./Fluxel";
 import PixelAnim from "./AnimationSequencer";
 import styles from "./FluxelGrid.module.scss";
 
+const FRAME_TIME = 1000 / 30; // 30fps → 33.33ms per frame
+
 const smoothStep = (edge0: number, edge1: number, x: number) => {
   let t = Math.max(0, Math.min(1, (x - edge0) / (edge1 - edge0)));
   return t * t * (3 - 2 * t);
@@ -34,6 +36,7 @@ const FluxelGrid: React.FC<{
 
   const gridRef = useRef<HTMLDivElement>(null);
   const lastFrameTime = useRef(0);
+  const animationFrameId = useRef<number | null>(null);
 
   useEffect(() => {
     const updateSizes = () => {
@@ -53,11 +56,12 @@ const FluxelGrid: React.FC<{
 
   useEffect(() => {
     const handleMouseMove = (event: MouseEvent) => {
-      if (!gridRef.current) return;
       const now = performance.now();
-      if (now - lastFrameTime.current < 1000 / 30) return;
+      if (now - lastFrameTime.current < FRAME_TIME) return; // Throttle at 30fps
+
       lastFrameTime.current = now;
 
+      if (!gridRef.current) return;
       const { left, top } = gridRef.current.getBoundingClientRect();
       setMousePos({ x: event.clientX - left, y: event.clientY - top });
     };
@@ -83,7 +87,12 @@ const FluxelGrid: React.FC<{
     if (!gridRef.current || !fluxelSize) return;
     const effectiveMousePos = externalMousePos || mousePos || { x: 0, y: 0 };
 
-    requestAnimationFrame(() => {
+    // Cancel any pending animation frames before setting a new one
+    if (animationFrameId.current) {
+      cancelAnimationFrame(animationFrameId.current);
+    }
+
+    animationFrameId.current = requestAnimationFrame(() => {
       setGrid((prevGrid) => {
         let hasChanged = false;
 
@@ -129,6 +138,11 @@ const FluxelGrid: React.FC<{
         return hasChanged ? updatedGrid : prevGrid;
       });
     });
+
+    return () => {
+      if (animationFrameId.current)
+        cancelAnimationFrame(animationFrameId.current);
+    };
   }, [mousePos, externalMousePos, fluxelSize]);
 
   /**
