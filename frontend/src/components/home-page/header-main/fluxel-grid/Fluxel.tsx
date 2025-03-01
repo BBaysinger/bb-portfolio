@@ -1,5 +1,4 @@
 import React from "react";
-
 import Shadow from "./Shadow";
 import styles from "./Fluxel.module.scss";
 
@@ -7,38 +6,23 @@ export interface FluxelData {
   id: string;
   row: number;
   col: number;
-  neighbors: FluxelData[];
   influence: number;
+  x1: number;
+  y1: number;
 }
 
 /**
- * Fluxing Pixel
- *
- * @author Bradley Baysinger
- * @since The beginning of time.
- * @version N/A
+ * Fluxing Pixel (Receives Precomputed Data)
  */
-const Fluxel: React.FC<{
-  data: FluxelData;
-  _debug?: boolean | string | number | object | null;
-}> = ({ data }) => {
+const Fluxel: React.FC<{ data: FluxelData }> = ({ data }) => {
   const transformStyle = {
     backgroundColor: `rgba(0, 0, 0, ${data.influence * 0.5 - 0.1})`,
   };
 
-  const x1 = data.neighbors[4]
-    ? Math.round(Math.min(data.neighbors[4].influence - data.influence, 0) * 60)
-    : 0;
-  const y1 = data.neighbors[1]
-    ? Math.round(Math.max(data.influence - data.neighbors[1].influence, 0) * 60)
-    : 0;
-
   return (
-    <div className={`${styles["fluxel"]}`} style={transformStyle}>
-      <Shadow className={styles["shadow"]} x1={x1} y1={y1} />
-      {/* {true && (
-        <div className={styles["debug"]}>{Math.round(data.neighbors[4]?.influence * 100) / 100},{Math.round(data.influence * 100) / 100}</div>
-      )} */}
+    <div className={styles["fluxel"]} style={transformStyle}>
+      <Shadow className={styles["shadow"]} x1={data.x1} y1={data.y1} />
+      <div className={styles["debug"]}>{data.influence}</div>
     </div>
   );
 };
