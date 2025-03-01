@@ -5,6 +5,11 @@ import styles from "./FluxelGrid.module.scss";
 
 const DEBUG = false;
 
+function smoothStep(edge0: number, edge1: number, x: number) {
+  let t = Math.max(0, Math.min(1, (x - edge0) / (edge1 - edge0)));
+  return t * t * (3 - 2 * t);
+}
+
 const FluxelGrid: React.FC<{
   rows: number;
   cols: number;
@@ -89,29 +94,46 @@ const FluxelGrid: React.FC<{
 
             const dx = gridX - effectiveMousePos.x;
             const dy = gridY - effectiveMousePos.y;
-            const distance = Math.sqrt(dx * dx + dy * dy);
+            const baseDistance = Math.sqrt(dx * dx + dy * dy);
             const maxRadius = fluxelSize * 4;
 
-            // Influence strength (0 to 1)
-            const newInfluence =
-              (1 - Math.min(1, Math.max(0, (distance - 0) / (maxRadius - 0)))) *
-              (distance < maxRadius ? 1 : 0);
-            const roundedInfluence = Math.round(newInfluence * 100) / 100;
+            // **Step 1: Compute Influence (Using SmoothStep)**
+            const newInfluence = smoothStep(
+              0,
+              maxRadius,
+              maxRadius - baseDistance,
+            );
 
-            // Shadow offsets (based on mouse movement direction)
-            const newX1 = Math.round(dx / 10);
-            const newY1 = Math.round(dy / 10);
+            // **Step 2: Compute Hypothetical Neighbor Influences (Offsetting Distance)**
+            const hypoRightInfluence = smoothStep(
+              0,
+              maxRadius,
+              maxRadius - (baseDistance + fluxelSize),
+            );
+            const hypoTopInfluence = smoothStep(
+              0,
+              maxRadius,
+              maxRadius - (baseDistance + fluxelSize),
+            );
+
+            // **Step 3: Compute Shadow Offsets**
+            const newX1 = Math.round(
+              Math.min(hypoRightInfluence - newInfluence, 0) * 60,
+            );
+            const newY1 = Math.round(
+              Math.max(newInfluence - hypoTopInfluence, 0) * 60,
+            );
 
             // **Only update if values actually changed**
             if (
-              Math.abs(roundedInfluence - fluxel.influence) > 0.01 ||
+              Math.abs(newInfluence - fluxel.influence) > 0.01 ||
               newX1 !== fluxel.x1 ||
               newY1 !== fluxel.y1
             ) {
               hasChanged = true;
               return {
                 ...fluxel,
-                influence: roundedInfluence,
+                influence: Math.round(newInfluence * 100) / 100,
                 x1: newX1,
                 y1: newY1,
               };
