@@ -9,9 +9,12 @@ header#headerSub {
   max-height: 500px;
   justify-content: center;
   align-items: center;
-
   letter-spacing: 1px;
   background-color: #222;
+
+  > * {
+    text-align: center;
+  }
 
   h1 {
     color: #fff;
