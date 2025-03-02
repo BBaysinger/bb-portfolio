@@ -74,10 +74,9 @@ const FluxelGrid: React.FC<{
         event.clientY < effectiveTop ||
         event.clientY > effectiveBottom
       ) {
+        setMousePos(null);
         return;
       }
-
-      // console.log(event.clientY, bottom);
 
       const now = performance.now();
       if (now - lastFrameTime.current < FRAME_TIME) return; // Throttle at 30fps
@@ -87,23 +86,22 @@ const FluxelGrid: React.FC<{
       setMousePos({ x: event.clientX - left, y: event.clientY - top });
     };
 
-    const handleMouseLeave = () => {
-      console.log("handleMouseLeave");
-      setMousePos(null); // Ensure we explicitly clear mouse tracking
+    const handleMouseLeave = (_e: MouseEvent | TouchEvent) => {
+      setMousePos(null);
     };
 
     window.addEventListener("mousemove", handleMouseMove);
-    window.addEventListener("mouseout", handleMouseLeave);
+    document.addEventListener("mouseleave", handleMouseLeave);
     if (gridRef.current) {
-      gridRef.current.addEventListener("mouseout", handleMouseLeave);
+      // gridRef.current.addEventListener("mouseout", handleMouseLeave);
       gridRef.current.addEventListener("touchend", handleMouseLeave);
     }
 
     return () => {
       window.removeEventListener("mousemove", handleMouseMove);
-      window.removeEventListener("mouseout", handleMouseLeave);
+      document.removeEventListener("mouseleave", handleMouseLeave);
       if (gridRef.current) {
-        gridRef.current.removeEventListener("mouseout", handleMouseLeave);
+        // gridRef.current.removeEventListener("mouseout", handleMouseLeave);
         gridRef.current.removeEventListener("touchend", handleMouseLeave);
       }
     };
