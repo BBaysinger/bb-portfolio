@@ -93,7 +93,6 @@ const FluxelGrid: React.FC<{
     window.addEventListener("mousemove", handleMouseMove);
     document.addEventListener("mouseleave", handleMouseLeave);
     if (gridRef.current) {
-      // gridRef.current.addEventListener("mouseout", handleMouseLeave);
       gridRef.current.addEventListener("touchend", handleMouseLeave);
     }
 
@@ -101,7 +100,6 @@ const FluxelGrid: React.FC<{
       window.removeEventListener("mousemove", handleMouseMove);
       document.removeEventListener("mouseleave", handleMouseLeave);
       if (gridRef.current) {
-        // gridRef.current.removeEventListener("mouseout", handleMouseLeave);
         gridRef.current.removeEventListener("touchend", handleMouseLeave);
       }
     };
@@ -116,14 +114,15 @@ const FluxelGrid: React.FC<{
     const dx = gridX - x;
     const dy = gridY - y;
     const baseDistance = Math.sqrt(dx * dx + dy * dy);
-    const influence = 1 - smoothStep(0, fluxelSize * 4, baseDistance);
+    const influence = 1 - smoothStep(0, fluxelSize * 3.5, baseDistance);
     return baseDistance < fluxelSize * 4 ? influence : 0;
   };
 
   useEffect(() => {
     if (!gridRef.current || !fluxelSize) return;
 
-    const effectiveMousePos = externalMousePos || mousePos || { x: -10000, y: -10000 };
+    const effectiveMousePos = externalMousePos ||
+      mousePos || { x: -10000, y: -10000 };
 
     // Cancel any pending animation frames before setting a new one
     if (animationFrameId.current) {
