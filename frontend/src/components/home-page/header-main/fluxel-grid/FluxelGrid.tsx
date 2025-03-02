@@ -58,18 +58,26 @@ const FluxelGrid: React.FC<{
     const handleMouseMove = (event: MouseEvent) => {
       if (!gridRef.current) return;
 
-      const { left, top, right, bottom } =
+      const { left, top, width, height } =
         gridRef.current.getBoundingClientRect();
+
+      // Compute effective boundaries, factoring in viewable clipping
+      const effectiveLeft = left + (width - viewableWidth) / 2;
+      const effectiveRight = effectiveLeft + viewableWidth;
+      const effectiveTop = top + (height - viewableHeight) / 2;
+      const effectiveBottom = effectiveTop + viewableHeight;
+
+      // Ignore mouse movement outside the clipped area
       if (
-        event.clientX < left ||
-        event.clientX > right ||
-        event.clientY < top ||
-        event.clientY > bottom
+        event.clientX < effectiveLeft ||
+        event.clientX > effectiveRight ||
+        event.clientY < effectiveTop ||
+        event.clientY > effectiveBottom
       ) {
-        return; // Ignore mousemove if outside the element
+        return;
       }
 
-      console.log(event.clientY, bottom);
+      // console.log(event.clientY, bottom);
 
       const now = performance.now();
       if (now - lastFrameTime.current < FRAME_TIME) return; // Throttle at 30fps
@@ -85,16 +93,16 @@ const FluxelGrid: React.FC<{
     };
 
     window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseout", handleMouseLeave);
     if (gridRef.current) {
-      window.addEventListener("mouseout", handleMouseLeave);
       gridRef.current.addEventListener("mouseout", handleMouseLeave);
       gridRef.current.addEventListener("touchend", handleMouseLeave);
     }
 
     return () => {
       window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseout", handleMouseLeave);
       if (gridRef.current) {
-        window.removeEventListener("mouseout", handleMouseLeave);
         gridRef.current.removeEventListener("mouseout", handleMouseLeave);
         gridRef.current.removeEventListener("touchend", handleMouseLeave);
       }
@@ -117,7 +125,7 @@ const FluxelGrid: React.FC<{
   useEffect(() => {
     if (!gridRef.current || !fluxelSize) return;
 
-    const effectiveMousePos = externalMousePos || mousePos;
+    const effectiveMousePos = externalMousePos || mousePos || { x: -10000, y: -10000 };
 
     // Cancel any pending animation frames before setting a new one
     if (animationFrameId.current) {
