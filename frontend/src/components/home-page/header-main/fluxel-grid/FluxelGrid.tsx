@@ -56,18 +56,49 @@ const FluxelGrid: React.FC<{
 
   useEffect(() => {
     const handleMouseMove = (event: MouseEvent) => {
+      if (!gridRef.current) return;
+
+      const { left, top, right, bottom } =
+        gridRef.current.getBoundingClientRect();
+      if (
+        event.clientX < left ||
+        event.clientX > right ||
+        event.clientY < top ||
+        event.clientY > bottom
+      ) {
+        return; // Ignore mousemove if outside the element
+      }
+
+      console.log(event.clientY, bottom);
+
       const now = performance.now();
       if (now - lastFrameTime.current < FRAME_TIME) return; // Throttle at 30fps
 
       lastFrameTime.current = now;
 
-      if (!gridRef.current) return;
-      const { left, top } = gridRef.current.getBoundingClientRect();
       setMousePos({ x: event.clientX - left, y: event.clientY - top });
     };
 
+    const handleMouseLeave = () => {
+      console.log("handleMouseLeave");
+      setMousePos(null); // Ensure we explicitly clear mouse tracking
+    };
+
     window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
+    if (gridRef.current) {
+      window.addEventListener("mouseout", handleMouseLeave);
+      gridRef.current.addEventListener("mouseout", handleMouseLeave);
+      gridRef.current.addEventListener("touchend", handleMouseLeave);
+    }
+
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      if (gridRef.current) {
+        window.removeEventListener("mouseout", handleMouseLeave);
+        gridRef.current.removeEventListener("mouseout", handleMouseLeave);
+        gridRef.current.removeEventListener("touchend", handleMouseLeave);
+      }
+    };
   }, []);
 
   const getShadowInfluence = (
@@ -85,7 +116,8 @@ const FluxelGrid: React.FC<{
 
   useEffect(() => {
     if (!gridRef.current || !fluxelSize) return;
-    const effectiveMousePos = externalMousePos || mousePos || { x: 0, y: 0 };
+
+    const effectiveMousePos = externalMousePos || mousePos;
 
     // Cancel any pending animation frames before setting a new one
     if (animationFrameId.current) {
@@ -96,28 +128,40 @@ const FluxelGrid: React.FC<{
       setGrid((prevGrid) => {
         let hasChanged = false;
 
-        const updatedGrid = prevGrid.map((row, rowIndex) =>
-          row.map((fluxel, colIndex) => {
-            const influence = getShadowInfluence(
-              { col: colIndex, row: rowIndex },
-              effectiveMousePos,
-            );
-            const topInfluence = getShadowInfluence(
-              { col: colIndex, row: rowIndex - 1 },
-              effectiveMousePos,
-            );
-            const rightInfluence = getShadowInfluence(
-              { col: colIndex + 1, row: rowIndex },
-              effectiveMousePos,
-            );
+        const updatedGrid = prevGrid.map((row) =>
+          row.map((fluxel) => {
+            let influence = 0;
+            let shadowOffsetX = 0;
+            let shadowOffsetY = 0;
 
-            const shadowOffsetX = Math.round(
-              Math.min(rightInfluence - influence, 0) * 60,
-            );
-            const shadowOffsetY = Math.round(
-              Math.max(influence - topInfluence, 0) * 60,
-            );
+            // If mouse is in a valid position, calculate influence
+            if (
+              effectiveMousePos &&
+              effectiveMousePos.x >= 0 &&
+              effectiveMousePos.y >= 0
+            ) {
+              influence = getShadowInfluence(
+                { col: fluxel.col, row: fluxel.row },
+                effectiveMousePos,
+              );
+              const topInfluence = getShadowInfluence(
+                { col: fluxel.col, row: fluxel.row - 1 },
+                effectiveMousePos,
+              );
+              const rightInfluence = getShadowInfluence(
+                { col: fluxel.col + 1, row: fluxel.row },
+                effectiveMousePos,
+              );
 
+              shadowOffsetX = Math.round(
+                Math.min(rightInfluence - influence, 0) * 60,
+              );
+              shadowOffsetY = Math.round(
+                Math.max(influence - topInfluence, 0) * 60,
+              );
+            }
+
+            // Only update if values actually changed
             if (
               Math.abs(influence - fluxel.influence) > 0.009 ||
               shadowOffsetX !== fluxel.shadowOffsetX ||
