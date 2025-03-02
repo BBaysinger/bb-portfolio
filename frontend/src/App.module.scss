@@ -23,6 +23,7 @@ $nav-slide-time: 0.5s;
   right: 0;
   box-shadow: 10px 5px 60px black;
   min-width: 320px;
+  overflow: hidden;
 
   &.expanded {
     // 'right' (or left) property must be used in favor of transform,

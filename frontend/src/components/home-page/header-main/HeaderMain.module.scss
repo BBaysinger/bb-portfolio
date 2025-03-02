@@ -2,11 +2,13 @@
 @use "@/components/common/HeaderShared.module.scss" as headerShared;
 
 header.header-main {
+  position: relative;
   display: flex;
   align-items: bottom;
   justify-content: flex-end;
   letter-spacing: 1px;
   user-select: none;
+  z-index: 10;
 
   h1 {
     letter-spacing: 0.05em;
