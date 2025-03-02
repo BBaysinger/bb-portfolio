@@ -2,8 +2,6 @@
 
 .greeting {
   position: relative;
-  padding-top: 200px;
-  padding-bottom: 150px;
   background: black;
   color: #999;
   font-size: 18px;
@@ -17,31 +15,60 @@
     font-size: 24px;
   }
 
-  &:before {
-    content: '"';
-    display: block;
+  &:before,
+  &:after {
+    background-size: auto 100%;
+    content: "";
+    height: 50%;
+    width: 100%;
+    background-color: #111;
     position: absolute;
-    top: -80px;
-    left: 25px;
-    background-size: cover;
-    opacity: 0.5;
-    font-size: 400px;
-    color: #333;
-    z-index: -1;
+    left: 0;
+  }
+
+  &:before {
+    top: 0;
+    background-image: url("/images/common/stripes1.svg");
   }
 
   &:after {
-    content: '"';
-    display: block;
-    position: absolute;
-    line-height: 0;
-    bottom: -10px;
-    right: 25px;
-    background-size: cover;
-    opacity: 0.5;
-    font-size: 400px;
-    color: #333;
-    z-index: -1;
-    transform: scaleX(-1);
+    bottom: 0;
+    z-index: 0;
+    background-image: url("/images/common/stripes2.svg");
+  }
+
+  .greeting-wrapper {
+    position: relative;
+    padding-top: 200px;
+    padding-bottom: 150px;
+    z-index: 1;
+
+    &:before {
+      content: '"';
+      display: block;
+      position: absolute;
+      top: -80px;
+      left: 25px;
+      background-size: cover;
+      opacity: 0.5;
+      font-size: 400px;
+      color: #333;
+      z-index: -1;
+    }
+
+    &:after {
+      content: '"';
+      display: block;
+      position: absolute;
+      line-height: 0;
+      bottom: -10px;
+      right: 25px;
+      background-size: cover;
+      opacity: 0.5;
+      font-size: 400px;
+      color: #333;
+      z-index: -1;
+      transform: scaleX(-1);
+    }
   }
 }
