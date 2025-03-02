@@ -1,11 +1,13 @@
 @use "@/styles/global" as *;
 
 footer {
+  position: relative;
   padding-top: 0;
   display: inline-block;
   width: 100%;
   background: linear-gradient(#000000, #242424);
   color: #ccc;
+  z-index: 10;
 
   a,
   a:visited {

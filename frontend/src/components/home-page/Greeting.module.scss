@@ -15,33 +15,64 @@
     font-size: 24px;
   }
 
-  &:before,
-  &:after {
-    background-size: auto 100%;
-    content: "";
-    height: 50%;
-    width: 100%;
-    background-color: #111;
-    position: absolute;
-    left: 0;
-  }
-
   &:before {
+    position: absolute;
+    background-size: auto 200%;
+    background-position: center center;
+    content: "";
+    height: 100vh;
+    width: 400vw;
+    background-color: #111;
+    left: 0;
     top: 0;
-    background-image: url("/images/common/stripes1.svg");
+    background-image: url("/images/common/stripes.svg");
+    animation: scrollStripes linear infinite;
+    animation-duration: 150s;
+    z-index: -1;
   }
 
   &:after {
-    bottom: 0;
-    z-index: 0;
-    background-image: url("/images/common/stripes2.svg");
+    position: absolute;
+    background-size: auto 200%;
+    background-position: center center;
+    content: "";
+    height: 100%;
+    width: 100vw;
+    top: 0;
+    left: 0;
+    z-index: -1;
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.5) 0%,
+      rgba(0, 0, 0, 0) 33%,
+      rgba(0, 0, 0, 0) 66%,
+      rgba(0, 0, 0, 0.5) 100%
+    );
+  }
+
+  @keyframes scrollStripes {
+    from {
+      transform: translateX(-50%);
+    }
+    to {
+      transform: translateX(0%);
+    }
   }
 
   .greeting-wrapper {
     position: relative;
     padding-top: 200px;
     padding-bottom: 150px;
-    z-index: 1;
+    z-index: 0;
+
+    &:before,
+    &:after {
+      content: '"';
+      display: block;
+      position: absolute;
+      font-size: 400px;
+      color: $lighterThemeColor;
+    }
 
     &:before {
       content: '"';
@@ -49,25 +80,13 @@
       position: absolute;
       top: -80px;
       left: 25px;
-      background-size: cover;
-      opacity: 0.5;
-      font-size: 400px;
-      color: #333;
-      z-index: -1;
     }
 
     &:after {
       content: '"';
-      display: block;
-      position: absolute;
       line-height: 0;
       bottom: -10px;
       right: 25px;
-      background-size: cover;
-      opacity: 0.5;
-      font-size: 400px;
-      color: #333;
-      z-index: -1;
       transform: scaleX(-1);
     }
   }
