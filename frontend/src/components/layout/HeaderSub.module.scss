@@ -1,7 +1,7 @@
 @use "@/styles/global" as *;
 @use "@/components/common/HeaderShared.module.scss" as headerShared;
 
-header#headerSub {
+header.header-sub {
   height: 37vw;
   padding-left: 20px;
   padding-right: 20px;
