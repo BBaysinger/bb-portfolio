@@ -200,13 +200,14 @@ const CurriculumVitae: React.FC = () => {
           <div className={rowClass}>
             <div className={divClassLt}>
               <img
+                ref={addToRefs}
                 src="/images/cv/dart.svg"
                 className={styles["cv-logo"]}
                 alt="Dart Logo"
               />
             </div>
 
-            <div className={divClassRt}>
+            <div ref={addToRefs} className={divClassRt}>
               <p>
                 A developer with a unique background in design, technical
                 animation, and interactive development. From game development to
@@ -224,11 +225,12 @@ const CurriculumVitae: React.FC = () => {
         </div>
 
         <div className={`container ${styles["strengths"]}`}>
-          <h4>Core Strengths</h4>
+          <h4 ref={addToRefs}>Core Strengths</h4>
 
           <div className={rowClass}>
             <div className={divClassLt}>
               <img
+                ref={addToRefs}
                 src="/images/cv/wrench.svg"
                 className={styles["cv-logo"]}
                 alt="Wrench Logo"
@@ -236,14 +238,14 @@ const CurriculumVitae: React.FC = () => {
             </div>
 
             <div className={divClassRt}>
-              <h5 className={styles["sub-container"]}>
+              <h5 ref={addToRefs} className={styles["sub-container"]}>
                 <div className={styles["left-sub"]}>
                   <h5>Modern Front-End Development</h5>
                 </div>
                 <div className={styles["break"]}></div>
               </h5>
 
-              <ul>
+              <ul ref={addToRefs}>
                 <li>
                   Angular (2+ years): Advanced component architecture, RxJS, and
                   SCSS integration
@@ -258,14 +260,14 @@ const CurriculumVitae: React.FC = () => {
                 </li>
               </ul>
 
-              <h5 className={styles["sub-container"]}>
+              <h5 ref={addToRefs} className={styles["sub-container"]}>
                 <div className={styles["left-sub"]}>
                   <h5>Creative Problem-Solving</h5>
                 </div>
                 <div className={styles["break"]}></div>
               </h5>
 
-              <ul>
+              <ul ref={addToRefs}>
                 <li>
                   Animation & UI Design: Transitioned from award-winning
                   Flash/AS3 projects to modern CSS/JS animations
@@ -276,14 +278,14 @@ const CurriculumVitae: React.FC = () => {
                 </li>
               </ul>
 
-              <h5 className={styles["sub-container"]}>
+              <h5 ref={addToRefs} className={styles["sub-container"]}>
                 <div className={styles["left-sub"]}>
                   <h5>Design &amp; Animation Background</h5>
                 </div>
                 <div className={styles["break"]}></div>
               </h5>
 
-              <ul>
+              <ul ref={addToRefs}>
                 <li>
                   Strong foundation in design principles with deep experience in
                   Adobe Creative Suite
@@ -301,18 +303,19 @@ const CurriculumVitae: React.FC = () => {
         {/*-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --*/}
 
         <div className={"container"}>
-          <h4>Professional Experience</h4>
+          <h4 ref={addToRefs}>Professional Experience</h4>
 
           <div className={rowClass}>
             <div className={divClassLt}>
               <img
+                ref={addToRefs}
                 src="/images/cv/epsilon.svg"
                 className={styles["cv-logo"]}
                 alt="Epsilon Logo"
               />
             </div>
             <div className={divClassRt}>
-              <div className={styles["sub-container"]}>
+              <div ref={addToRefs} className={styles["sub-container"]}>
                 <div className={styles["left-sub"]}>
                   <h5>
                     Epsilon
@@ -327,57 +330,57 @@ const CurriculumVitae: React.FC = () => {
                 <div className={styles["right-sub"]}>[ 2021 - 2024 ]</div>
               </div>
 
-              <p className={styles["desc"]}>
+              <p ref={addToRefs} className={styles["desc"]}>
                 Interactive and responsive websites for Fortune 500 companies in
                 banking, pharmaceuticals, and entertainment
               </p>
 
-              <p className={styles["scope"]}>
+              <p ref={addToRefs} className={styles["scope"]}>
                 <span>Technical Scope:</span> Angular, TypeScript, jQuery, Adobe
                 Suite, Sitecore, HTML Email, Salesforce, OneTrust, FreeMarker
               </p>
 
               <ul>
-                <li>
+                <li ref={addToRefs}>
                   Implemented dynamic UI components, such as forms with
                   validation, data-driven informational grids, global
                   navigation, and collapsible menus for the Golden 1 Credit
                   Union website, leveraging jQuery and <b>Sitecore</b> CMS
                   integration.
                 </li>
-                <li>
+                <li ref={addToRefs}>
                   Delivered responsive forms, data grids, and interactive
                   elements for the Citibank website and admin area using{" "}
                   <b>Angular</b> reactive forms and SASS, enhancing UX and
                   visual consistency. Developed loan rate calculators and modals
                   using Angular projection.
                 </li>
-                <li>
+                <li ref={addToRefs}>
                   Built and maintained reusable, modular email components in{" "}
                   <b>Salesforce</b> Marketing Cloud. Streamlined and
                   standardized email production using preprocessing, ensuring
                   brand consistency across campaigns.
                 </li>
-                <li>
+                <li ref={addToRefs}>
                   Optimized email campaigns with <b>Litmus</b> testing for
                   multi-device compatibility, including dark mode and
                   double-density graphics, achieving high deliverability and
                   consistent rendering.
                 </li>
-                <li>
+                <li ref={addToRefs}>
                   Created the Oncotype DX Breast Recurrence Score Report
                   Explorer for the Exact Sciences website, helping users
                   understand diagnostic results documents. Contributed to
                   responsive/interactive components, and defect resolution.
                 </li>
-                <li>
+                <li ref={addToRefs}>
                   Developed consent management workflows using <b>FreeMarker</b>{" "}
                   for <b>OneTrust</b> integration, facilitating seamless data
                   exchange across platforms like MuleSoft and Veeva, enhancing
                   compliance and user experience through event-driven and
                   scheduled processes.
                 </li>
-                <li>
+                <li ref={addToRefs}>
                   Implemented OneTrust preference centers to manage user
                   consent, data privacy preferences, and regulatory compliance
                   (GDPR, CCPA) across multiple platforms.
@@ -391,13 +394,14 @@ const CurriculumVitae: React.FC = () => {
           <div className={rowClass}>
             <div className={divClassLt}>
               <img
+                ref={addToRefs}
                 src="/images/cv/bb.svg"
                 className={styles["cv-logo"]}
                 alt="BB Interactive Logo"
               />
             </div>
             <div className={divClassRt}>
-              <div className={styles["sub-container"]}>
+              <div ref={addToRefs} className={styles["sub-container"]}>
                 <div className={styles["left-sub"]}>
                   <h5>
                     BB Interactive
@@ -415,39 +419,39 @@ const CurriculumVitae: React.FC = () => {
                 <div className={styles["right-sub"]}>[ 2020 - 2021 ]</div>
               </div>
 
-              <p className={styles["desc"]}>
+              <p ref={addToRefs} className={styles["desc"]}>
                 Delivered specialized front-end and interactive web development
                 services for diverse clients, including local businesses, a
                 national startup, an international charity, and a pharmaceutical
                 manufacturer.
               </p>
 
-              <p className={styles["scope"]}>
+              <p ref={addToRefs} className={styles["scope"]}>
                 <span>Technical Scope:</span> Angular 7-8, TypeScript, React,
                 SVG, SCSS, Elasticsearch, Craft CMS, Adobe Creative Suite
               </p>
 
               <ul>
-                <li>
+                <li ref={addToRefs}>
                   Developed an animated informational UI using <b>React Move</b>{" "}
                   for the Committee for Children, a nonprofit supporting
                   education of millions of children across 70 countries.
                 </li>
-                <li>
+                <li ref={addToRefs}>
                   Built a law enforcement employment application tracking system
                   leveraging Angular and <b>Elasticsearch</b>, consuming{" "}
                   <b>GraphQL</b> for efficient backend integration.
                 </li>
-                <li>
+                <li ref={addToRefs}>
                   Created and deployed an admin interface for a Spokane
                   construction company website using <b>Craft CMS</b>
                 </li>
-                <li>
+                <li ref={addToRefs}>
                   Produced animations in vanilla JavaScript and CSS3 for
                   websites and banner ads for Novo Nordisk, enhancing user
                   engagement for a multinational pharmaceutical company.
                 </li>
-                <li>
+                <li ref={addToRefs}>
                   Prototyped a legal investigation application in <b>Angular</b>{" "}
                   to process and analyze large volumes of company documents
                   efficiently.
@@ -461,13 +465,14 @@ const CurriculumVitae: React.FC = () => {
           <div className={rowClass}>
             <div className={divClassLt}>
               <img
+                ref={addToRefs}
                 src="/images/cv/s2.svg"
                 className={styles["cv-logo"]}
                 alt="Seven2"
               />
             </div>
             <div className={divClassRt}>
-              <div className={styles["sub-container"]}>
+              <div ref={addToRefs} className={styles["sub-container"]}>
                 <div className={styles["left-sub"]}>
                   <h5>
                     Seven2 Interactive
@@ -479,7 +484,7 @@ const CurriculumVitae: React.FC = () => {
                 <div className={styles["right-sub"]}>[ 2018 - 2019 ]</div>
               </div>
 
-              <p className={styles["desc"]}>
+              <p ref={addToRefs} className={styles["desc"]}>
                 Delivered interactive and responsive websites for Fortune 500
                 companies in the technology and entertainment industries.
                 Focused on high-performance animations, user interactivity,
@@ -487,51 +492,51 @@ const CurriculumVitae: React.FC = () => {
                 deadlines.
               </p>
 
-              <p className={styles["scope"]}>
+              <p ref={addToRefs} className={styles["scope"]}>
                 <span>Technical Scope:</span> Angular 6-8, Typescript, RxJS,
                 jQuery, Craft CMS, Grunt/Gulp, Handlebars, CreateJS, Adobe
                 Creative Suite
               </p>
 
               <ul>
-                <li>
+                <li ref={addToRefs}>
                   Designed and implemented logic for interactive activities like
                   site-wide scavenger hunts and wallpaper creators for
                   responsive websites supporting Nintendo game launches.
                 </li>
-                <li>
+                <li ref={addToRefs}>
                   Optimized UI elements for accessibility by applying{" "}
                   <b>WCAG</b> best practices for keyboard navigation and screen
                   reader compatibility.
                 </li>
-                <li>
+                <li ref={addToRefs}>
                   Contributed to the development of single-page applications (
                   <b>SPA</b>s) using TypeScript and Angular 6+, ensuring
                   scalability and modern functionality.
                 </li>
-                <li>
+                <li ref={addToRefs}>
                   Engineered a custom JavaScript timeline animation framework
                   with compact syntax, eliminating inconsistencies in CSS3
                   keyframe animations while maintaining support for legacy
                   browsers like IE.
                 </li>
-                <li>
+                <li ref={addToRefs}>
                   Provided technical oversight and contributed to concept
                   development in collaboration with designers, developers, and
                   animators, ensuring alignment through Trello-managed
                   workflows.
                 </li>
-                <li>
+                <li ref={addToRefs}>
                   Implemented <b>localization</b> strategies to optimize
                   international deployments, addressing unique design and
                   content challenges across regions.
                 </li>
-                <li>
+                <li ref={addToRefs}>
                   Built a zero-dependency, <b>vanilla JavaScript</b> carousel
                   component for Comics Kingdom, enabling seamless embedding by
                   local newspaper websites.
                 </li>
-                <li>
+                <li ref={addToRefs}>
                   Delivered under extremely tight deadlines, often starting
                   development before client design approvals to meet launch
                   dates.
@@ -545,13 +550,14 @@ const CurriculumVitae: React.FC = () => {
           <div className={rowClass}>
             <div className={divClassLt}>
               <img
+                ref={addToRefs}
                 src="/images/cv/chalklabs.svg"
                 className={styles["cv-logo"]}
                 alt="ChalkLabs Logo"
               />
             </div>
             <div className={divClassRt}>
-              <div className={styles["sub-container"]}>
+              <div ref={addToRefs} className={styles["sub-container"]}>
                 <div className={styles["left-sub"]}>
                   <h5>
                     ChalkLabs
@@ -563,55 +569,55 @@ const CurriculumVitae: React.FC = () => {
                 <div className={styles["right-sub"]}>[ 2017 - 2018 ]</div>
               </div>
 
-              <p className={styles["desc"]}>
+              <p ref={addToRefs} className={styles["desc"]}>
                 Designed and developed user interfaces for web applications
                 aimed at helping government organizations process, analyze, and
                 visualize data. Contributed to mission-critical projects under
                 tight deadlines, showcasing rapid learning and adaptability.
               </p>
 
-              <p className={styles["scope"]}>
+              <p ref={addToRefs} className={styles["scope"]}>
                 <span>Technical Scope:</span> Angular 4-6, TypeScript, Mapbox,
                 Rest APIs, GraphQL, Data Visualizations, Adobe Create Suite
               </p>
 
               <ul>
-                <li>
+                <li ref={addToRefs}>
                   Consumed an HTTP search API utilizing a custom domain-specific
                   query language embedded in URL parameters, supporting logical
                   operators, field-based queries, and similarity matching for
                   ChalkLabs' flagship <b>SaaS</b> software, Pushgraph
                 </li>
-                <li>
+                <li ref={addToRefs}>
                   Independently developed the Pushgraph dashboard drag-and-drop
                   widget framework for end user customization, utilizing Angular
                   component factory methods and local storage.
                 </li>
-                <li>
+                <li ref={addToRefs}>
                   Designed the entire UI for the new iteration of Pushgraph in
                   under three days with minimal instruction and ramp-up.
                 </li>
-                <li>
+                <li ref={addToRefs}>
                   Created many widgets for the system including
                   infinite-scrolling data grids and data visualizations using
                   <b>D3</b>, <b>Mapbox</b>, <b>Highcharts</b>, and other
                   visualization libraries.
                 </li>
-                <li>
+                <li ref={addToRefs}>
                   Quickly learned Angular and TypeScript in the role,
                   progressing from initial training to delivering
                   production-ready solutions under heavy development demands.
                 </li>
-                <li>
+                <li ref={addToRefs}>
                   Scoped, time-lined, and estimated tasks for sprint management
                   in a <b>Kanban</b> workflow, tracked via <b>Smartsheet</b>.
                 </li>
-                <li>
+                <li ref={addToRefs}>
                   Consumed <b>Rest APIs</b> to manage users, configuration
                   settings, and data processed by the Pushgraph application and
                   other projects.
                 </li>
-                <li>
+                <li ref={addToRefs}>
                   Worked over 350 hours in June 2017 with a supervisor to meet a
                   critical $5M contract deadline, ensuring the company's
                   viability.
@@ -625,13 +631,14 @@ const CurriculumVitae: React.FC = () => {
           <div className={rowClass}>
             <div className={divClassLt}>
               <img
+                ref={addToRefs}
                 src="/images/cv/s2.svg"
                 className={styles["cv-logo"]}
                 alt="Seven2 Logo"
               />
             </div>
             <div className={divClassRt}>
-              <div className={styles["sub-container"]}>
+              <div ref={addToRefs} className={styles["sub-container"]}>
                 <div className={styles["left-sub"]}>
                   <h5>
                     Seven2 Interactive
@@ -643,7 +650,7 @@ const CurriculumVitae: React.FC = () => {
                 <div className={styles["right-sub"]}>[ 2005 - 2016 ]</div>
               </div>
 
-              <p className={styles["desc"]}>
+              <p ref={addToRefs} className={styles["desc"]}>
                 Led the development of interactive websites, browser games, and
                 web advertising for nationally recognized corporations in
                 technology and entertainment. Delivered innovative solutions
@@ -651,68 +658,68 @@ const CurriculumVitae: React.FC = () => {
                 shaping technical strategies.
               </p>
 
-              <p className={styles["scope"]}>
+              <p ref={addToRefs} className={styles["scope"]}>
                 <span>Technical Scope:</span> ActionScript 3, ActionScript 2,
                 JavaScript, jQuery, Require/AMD, Haxe, Flash, Adobe Create Suite
               </p>
 
               <ul>
-                <li>
+                <li ref={addToRefs}>
                   Mastered <b>AS2</b>, <b>AS3</b>, and <b>Haxe</b> (all very
                   similar to JavaScript) on the job, applying their frameworks
                   and design patterns to deliver hundreds of diverse
                   cutting-edge interactive experiences.
                 </li>
-                <li>
+                <li ref={addToRefs}>
                   Engineered flexible templates and frameworks in AS3, used by
                   teams of developers and animators to collaboratively build
                   games and interactive content.
                 </li>
-                <li>
+                <li ref={addToRefs}>
                   Served as the lead developer for several first iterations of
                   AT&amp;T's projects, including their data usage calculators
                   and first-ever app store, authored in vanilla JavaScript and
                   Require/AMD.
                 </li>
-                <li>
+                <li ref={addToRefs}>
                   Led Seven2's first Nickelodeon Group project: Blue's Clues —
                   Mix 'N Match Dressup, built in Flash/ActionScript.
                 </li>
-                <li>
+                <li ref={addToRefs}>
                   Rescued a high-visibility AT&T project by creating a
                   video-based workaround for an incorrectly scoped JavaScript
                   feature, achieving over 90 million interactions in one week.
                 </li>
-                <li>
+                <li ref={addToRefs}>
                   Developed custom audio and video players for MTV's
                   high-production websites using AS3.
                 </li>
-                <li>
+                <li ref={addToRefs}>
                   Designed and implemented a performant physics-based tween
                   engine in AS3, preceding industry-standard systems like
                   Tweener and GSAP.
                 </li>
-                <li>
+                <li ref={addToRefs}>
                   Contributed a cross-platform <b>mobile accelerometer</b>{" "}
                   solution to Flambé (now 2Dkit), a leading HTML5 and
                   cross-platform game framework.
                 </li>
-                <li>
+                <li ref={addToRefs}>
                   Built APIs for managing <b>JSON</b>, <b>XML</b>, and{" "}
                   <b>CSV</b> data exchanges, enabling user-driven
                   server/database interactions with zero-dependency JavaScript
                   and AS3 solutions.
                 </li>
-                <li>
+                <li ref={addToRefs}>
                   Played a critical role in project conceptualization,
                   contributing to multiple award-winning projects at annual
                   Spokane Ad Fed events.
                 </li>
-                <li>
+                <li ref={addToRefs}>
                   Worked 350+ hours in June 2014 to meet a critical WildBrain
                   deadline.
                 </li>
-                <li>
+                <li ref={addToRefs}>
                   Led front-end development of a Webby Award-winning project
                   (2008 People's Choice Art Website of the Year).
                 </li>
@@ -725,13 +732,14 @@ const CurriculumVitae: React.FC = () => {
           <div className={rowClass}>
             <div className={divClassLt}>
               <img
+                ref={addToRefs}
                 src="/images/cv/scw.svg"
                 className={styles["cv-logo"]}
                 alt="SCW Logo"
               />
             </div>
             <div className={divClassRt}>
-              <div className={styles["sub-container"]}>
+              <div ref={addToRefs} className={styles["sub-container"]}>
                 <div className={styles["left-sub"]}>
                   <h5>
                     SCW Consulting
@@ -743,39 +751,39 @@ const CurriculumVitae: React.FC = () => {
                 <div className={styles["right-sub"]}>[ 2005 ]</div>
               </div>
 
-              <p className={styles["desc"]}>
+              <p ref={addToRefs} className={styles["desc"]}>
                 Designed and developed websites and applications for local
                 businesses with C#/.NET backends, establishing online presences
                 for clients while overcoming resource limitations.
               </p>
 
-              <p className={styles["scope"]}>
+              <p ref={addToRefs} className={styles["scope"]}>
                 <span>Technical Scope:</span> HTML, CSS, Vanilla JavaScript,
                 Visual Studio, AJAX, Dynamic HTML, and Adobe Create Suite
               </p>
 
               <ul>
-                <li>
+                <li ref={addToRefs}>
                   Served as the sole designer, crafting the look, feel, and
                   branding for businesses entering the online space for the
                   first time.
                 </li>
-                <li>
+                <li ref={addToRefs}>
                   Designed and developed SCW's reusable <b>e-commerce</b>
                   /shopping cart platform, which was ahead of its time,
                   preceding modern solutions like Shopify.
                 </li>
-                <li>
+                <li ref={addToRefs}>
                   Delivered major site revisions under 50% of the allocated
                   budget, impressing the agency owner with efficiency and
                   resourcefulness.
                 </li>
-                <li>
+                <li ref={addToRefs}>
                   Created innovative shortcuts and development tricks leveraging
                   extensive knowledge of DHTML, introducing new approaches to
                   the team.
                 </li>
-                <li>
+                <li ref={addToRefs}>
                   Overcame limited budgets by maximizing creativity and
                   resourcefulness, producing impactful designs despite a lack of
                   stock photography and professional fonts.
@@ -789,13 +797,14 @@ const CurriculumVitae: React.FC = () => {
           <div className={rowClass}>
             <div className={divClassLt}>
               <img
+                ref={addToRefs}
                 src="/images/cv/bb.svg"
                 className={styles["cv-logo"]}
                 alt="BB Interactive Logo"
               />
             </div>
             <div className={divClassRt}>
-              <div className={styles["sub-container"]}>
+              <div ref={addToRefs} className={styles["sub-container"]}>
                 <div className={styles["left-sub"]}>
                   <h5>
                     Freelance
@@ -807,34 +816,34 @@ const CurriculumVitae: React.FC = () => {
                 <div className={styles["right-sub"]}>[ 2003 - 2005 ]</div>
               </div>
 
-              <p className={styles["desc"]}>
+              <p ref={addToRefs} className={styles["desc"]}>
                 Design and development of interactive websites for businesses in
                 the Spokane area concurrently while in web design school at SFCC
               </p>
 
-              <p className={styles["scope"]}>
+              <p ref={addToRefs} className={styles["scope"]}>
                 <span>Technical Scope:</span> XML, XSL, Vanilla JavaScript,
                 Dynamic HTML, PHP
               </p>
 
               <ul>
-                <li>
+                <li ref={addToRefs}>
                   Conceptualizing creative UI and navigation concepts in
                   websites for a variety of businesses in the Spokane area
                 </li>
-                <li>
+                <li ref={addToRefs}>
                   Dynamic, multi-level navigation redesign and development for
                   The Heart Institute of Spokane
                 </li>
-                <li>
+                <li ref={addToRefs}>
                   Utilized XML and XSL in an astonishingly simple and effective
                   CMS-like approach for retailing refurbished fitness equipment
                 </li>
-                <li>
+                <li ref={addToRefs}>
                   Produced websites and other paying freelance projects that met
                   criteria and so received credit for school curriculum
                 </li>
-                <li>
+                <li ref={addToRefs}>
                   In the program I was considerably ahead all the other
                   students, having history in Photoshop, HTML, JavaScript and
                   art, I unofficially tutored other students any time I was in
@@ -849,18 +858,19 @@ const CurriculumVitae: React.FC = () => {
         </div>
 
         <div className={"container"}>
-          <h4>Formal Education</h4>
+          <h4 ref={addToRefs}>Formal Education</h4>
 
           <div className={rowClass}>
             <div className={divClassLt}>
               <img
+                ref={addToRefs}
                 src="/images/cv/sfcc.svg"
                 className={styles["cv-logo"]}
                 alt="SFCC Logo"
               />
             </div>
             <div className={divClassRt}>
-              <div className={styles["sub-container"]}>
+              <div ref={addToRefs} className={styles["sub-container"]}>
                 <div className={styles["left-sub"]}>
                   <h5>
                     Spokane Falls Community College
@@ -872,7 +882,7 @@ const CurriculumVitae: React.FC = () => {
                 <div className={styles["right-sub"]}>[ 2003 - 2005 ]</div>
               </div>
 
-              <p className={styles["desc"]}>
+              <p ref={addToRefs} className={styles["desc"]}>
                 Recognized with multiple first-place awards; select works
                 published officially for the college.
               </p>
@@ -881,18 +891,19 @@ const CurriculumVitae: React.FC = () => {
         </div>
 
         <div className={"container"}>
-          <h4>Early Development Journey</h4>
+          <h4 ref={addToRefs}>Early Development Journey</h4>
 
           <div className={rowClass}>
             <div className={divClassLt}>
               <img
+                ref={addToRefs}
                 src="/images/cv/bv.svg"
                 className={styles["cv-logo"]}
                 alt="Hand Logo"
               />
             </div>
             <div className={divClassRt}>
-              <div className={styles["sub-container"]}>
+              <div ref={addToRefs} className={styles["sub-container"]}>
                 <div className={styles["left-sub"]}>
                   <h5>
                     Hobbyist
@@ -904,30 +915,30 @@ const CurriculumVitae: React.FC = () => {
                 <div className={styles["right-sub"]}>[ 2001 - 2003 ]</div>
               </div>
 
-              <p className={styles["desc"]}>
+              <p ref={addToRefs} className={styles["desc"]}>
                 Self-directed learning of graphics software and early
                 cross-platform, dynamic, and interactive JavaScript development
                 before formally pursuing design school. My history with vanilla
                 JavaScript spans back to this era.
               </p>
 
-              <p className={styles["scope"]}>
+              <p ref={addToRefs} className={styles["scope"]}>
                 <span>Technical Scope:</span> Vanilla JavaScript, HTML, CSS,
                 Dynamic HTML, PHP, and Adobe Create Suite
               </p>
 
               <ul>
-                <li>
+                <li ref={addToRefs}>
                   Pursued self-directed learning in{" "}
                   <b>JavaScript, Dynamic HTML, and interactive animation</b>{" "}
                   while working full-time in a non-technical role.
                 </li>
-                <li>
+                <li ref={addToRefs}>
                   Built early browser-based UI experiments, including functional
                   custom chrome (navigation bars, menus, etc.) and a
                   slot-machine game.
                 </li>
-                <li>
+                <li ref={addToRefs}>
                   Tackled cross-platform compatibility challenges in a
                   fragmented browser era, delivering interactive, animated
                   solutions without Flash.
@@ -938,26 +949,26 @@ const CurriculumVitae: React.FC = () => {
         </div>
 
         <div className={"container"}>
-          <h4>Technologies and Tools</h4>
+          <h4 ref={addToRefs}>Technologies and Tools</h4>
 
           <div className={rowClass}>
-            <div className={divClassLt}></div>
-            <div className={divClassRt}>
+            <div ref={addToRefs} className={divClassLt}></div>
+            <div ref={addToRefs} className={divClassRt}>
               <h5>Languages</h5>
               <p>{wrapPhrases(lang)}</p>
             </div>
-            <div className={divClassLt}></div>
-            <div className={divClassRt}>
+            <div ref={addToRefs} className={divClassLt}></div>
+            <div ref={addToRefs} className={divClassRt}>
               <h5>Technologies</h5>
               <p>{wrapPhrases(tech)}</p>
             </div>
-            <div className={divClassLt}></div>
-            <div className={divClassRt}>
+            <div ref={addToRefs} className={divClassLt}></div>
+            <div ref={addToRefs} className={divClassRt}>
               <h5>Concepts</h5>
               <p>{wrapPhrases(concepts)}</p>
             </div>
-            <div className={divClassLt}></div>
-            <div className={divClassRt}>
+            <div ref={addToRefs} className={divClassLt}></div>
+            <div ref={addToRefs} className={divClassRt}>
               <h5>Software</h5>
               <p>{wrapPhrases(software)}</p>
             </div>
@@ -965,29 +976,24 @@ const CurriculumVitae: React.FC = () => {
         </div>
 
         <div className={"container"}>
-          <h4>Achievements</h4>
+          <h4 ref={addToRefs}>Achievements</h4>
 
           <div className={rowClass}>
-            <div className={divClassLt}></div>
-            <div className={divClassRt}>
+            <div ref={addToRefs} className={divClassLt}></div>
+            <div ref={addToRefs} className={divClassRt}>
               <div className={styles["sub-container"]}>
                 <div className={styles["left-sub"]}>
                   <h5>14 gold badges on Stack Overflow</h5>
                   <div className={`${styles["badges"]} col-xs-12`}>
-                    <img src="/images/cv/gold-badge.svg" alt="" />
-                    <img src="/images/cv/gold-badge.svg" alt="" />
-                    <img src="/images/cv/gold-badge.svg" alt="" />
-                    <img src="/images/cv/gold-badge.svg" alt="" />
-                    <img src="/images/cv/gold-badge.svg" alt="" />
-                    <img src="/images/cv/gold-badge.svg" alt="" />
-                    <img src="/images/cv/gold-badge.svg" alt="" />
-                    <img src="/images/cv/gold-badge.svg" alt="" />
-                    <img src="/images/cv/gold-badge.svg" alt="" />
-                    <img src="/images/cv/gold-badge.svg" alt="" />
-                    <img src="/images/cv/gold-badge.svg" alt="" />
-                    <img src="/images/cv/gold-badge.svg" alt="" />
-                    <img src="/images/cv/gold-badge.svg" alt="" />
-                    <img src="/images/cv/gold-badge.svg" alt="" />
+                    <div className={`${styles["badges"]} col-xs-12`}>
+                      {Array.from({ length: 14 }, (_, index) => (
+                        <img
+                          key={index}
+                          src="/images/cv/gold-badge.svg"
+                          alt=""
+                        />
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -995,8 +1001,8 @@ const CurriculumVitae: React.FC = () => {
                 Reputation: ~7,000
               </div>
             </div>
-            <div className={divClassLt}></div>
-            <div className={divClassRt}>
+            <div ref={addToRefs} className={divClassLt}></div>
+            <div ref={addToRefs} className={divClassRt}>
               <div className={styles["sub-container"]}>
                 <div className={styles["left-sub"]}>
                   <h5>The Webby Awards</h5>
@@ -1010,8 +1016,8 @@ const CurriculumVitae: React.FC = () => {
                 People's Choice — Art Website of the Year — Artocracy.org
               </div>
             </div>
-            <div className={divClassLt}></div>
-            <div className={divClassRt}>
+            <div ref={addToRefs} className={divClassLt}></div>
+            <div ref={addToRefs} className={divClassRt}>
               <div className={styles["sub-container"]}>
                 <div className={styles["left-sub"]}>
                   <h5>American Advertising Federation</h5>
@@ -1032,12 +1038,12 @@ const CurriculumVitae: React.FC = () => {
         </div>
 
         <div className={"container"}>
-          <h4>Brands</h4>
+          <h4 ref={addToRefs}>Brands</h4>
 
           <div className={rowClass}>
             <div className={divClassLt}></div>
 
-            <div className={divClassRt}>
+            <div ref={addToRefs} className={divClassRt}>
               <p>{wrapPhrases(brands)}</p>
             </div>
           </div>
