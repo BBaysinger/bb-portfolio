@@ -12,7 +12,7 @@ const Greeting: React.FC = () => {
         <div className="container">
           <div className="row">
             <div
-              className={`${styles["sign-wrapper"]} col-xs-12 col-sm-12 col-md-3 col-lg-3`}
+              className={`${styles["sign-wrapper"]} col-xs-12 col-sm-12 col-md-4 col-lg-4`}
             >
               <img
                 src="/images/home/road-sign.webp"
@@ -22,14 +22,15 @@ const Greeting: React.FC = () => {
             </div>
 
             <div
-              className={`${styles["text"]} col-xs-12 col-sm-12 col-md-9 col-lg-9`}
+              className={`${styles["text"]} col-xs-12 col-sm-12 col-md-8 col-lg-8`}
             >
               <p>
-                Hi, I'm Bradley. I'm a front-end web developer with a background
-                in design, specializing in building high-quality, interactive
-                web experiences. My current expertise lies in TypeScript,
-                JavaScript, and modern development practices, with a focus on
-                performance, scalability, and usability.
+                Hi, I'm Bradley. Welcome to my portfolio site. I'm a front-end
+                web developer with a background in design, specializing in
+                building high-quality, interactive web experiences. My current
+                expertise lies in TypeScript, JavaScript, and modern development
+                practices, with a focus on performance, scalability, and
+                usability.
               </p>
 
               <p>
