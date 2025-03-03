@@ -15,8 +15,13 @@ const Greeting: React.FC = () => {
               className={`${styles["sign-wrapper"]} col-xs-12 col-sm-12 col-md-4 col-lg-4`}
             >
               <img
-                src="/images/home/road-sign.webp"
-                className={styles["road-sign"]}
+                src="/images/home/road-sign-mobile.webp"
+                className={styles["road-sign-mobile"]}
+                alt="road sign"
+              />
+              <img
+                src="/images/home/road-sign-desktop.webp"
+                className={styles["road-sign-desktop"]}
                 alt="road sign"
               />
             </div>
