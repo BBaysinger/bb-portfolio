@@ -151,21 +151,31 @@ $breakpoints: (
   );
 }
 
+//////////////////////////////////////////////////////////////////////////
+// Text slide-in animation
+//////////////////////////////////////////////////////////////////////////
+
 // Height of top nav bar
 $navBarHeight: 46px;
 // For thin stokes and normal weight text.
 $heavierThemeColor: #87ad26;
-// For heavy strokes and as a fill. (For contrast/readability)
+// For heavy strokes and as a fill.
 $lighterThemeColor: #8db528;
+
+$complimentaryThemeColor: #660099;
 
 .nobr {
   white-space: nowrap;
 }
 
+//////////////////////////////////////////////////////////////////////////
+// Text slide-in animation
+//////////////////////////////////////////////////////////////////////////
+
 :global {
   .fade-in {
     opacity: 0;
-    transform: translateX(500px);
+    transform: translateX(300px);
     transition:
       opacity 0.6s ease-out,
       transform 0.6s ease-out;
@@ -174,5 +184,13 @@ $lighterThemeColor: #8db528;
       opacity: 1;
       transform: translateX(0);
     }
+  }
+
+  img.fade-in {
+    transform: translateX(-100px);
+  }
+
+  h4.fade-in {
+    transform: translateX(-300px);
   }
 }
