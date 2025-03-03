@@ -44,11 +44,21 @@
     z-index: -1;
     background: linear-gradient(
       to bottom,
-      rgba(0, 0, 0, 0.5) 0%,
+      rgba(0, 0, 0, 1) 0%,
       rgba(0, 0, 0, 0) 33%,
       rgba(0, 0, 0, 0) 66%,
-      rgba(0, 0, 0, 0.5) 100%
+      rgba(0, 0, 0, 1) 100%
     );
+  }
+
+  .sign-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  img.road-sign {
+    width: 100%;
+    top: 50%;
   }
 
   @keyframes scrollStripes {
@@ -60,7 +70,7 @@
     }
   }
 
-  .greeting-wrapper {
+  .text {
     position: relative;
     padding-top: 200px;
     padding-bottom: 150px;
