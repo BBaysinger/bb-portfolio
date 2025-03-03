@@ -4,16 +4,17 @@
   position: relative;
   background: black;
   color: #999;
-  font-size: 18px;
   z-index: 10;
   overflow: hidden;
 
+  font-size: 16px;
+
   @include breakpoint-up($b480px) {
-    font-size: 20px;
+    font-size: 18px;
   }
 
   @include breakpoint-up($b768px) {
-    font-size: 24px;
+    font-size: 20px;
   }
 
   &:before {
@@ -21,8 +22,8 @@
     background-size: auto 200%;
     background-position: center center;
     content: "";
-    height: 100vh;
-    width: 400vw;
+    height: 100%;
+    width: 200vw;
     background-color: #111;
     left: 0;
     top: 0;
@@ -72,16 +73,17 @@
 
   .text {
     position: relative;
-    padding-top: 200px;
-    padding-bottom: 150px;
-    z-index: 0;
+    padding-top: 140px;
+    padding-bottom: 130px;
+    z-index: 1;
+    padding-left: 30px;
 
     &:before,
     &:after {
       content: '"';
       display: block;
       position: absolute;
-      font-size: 400px;
+      font-size: 300px;
       color: $lighterThemeColor;
     }
 
@@ -89,15 +91,16 @@
       content: '"';
       display: block;
       position: absolute;
-      top: -80px;
-      left: 25px;
+      top: -50px;
+      left: 10px;
+      z-index: -1;
     }
 
     &:after {
       content: '"';
       line-height: 0;
-      bottom: -10px;
-      right: 25px;
+      bottom: 0;
+      right: 0;
       transform: scaleX(-1);
     }
   }
