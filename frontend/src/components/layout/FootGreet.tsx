@@ -21,20 +21,25 @@ const FootGreet: React.FC<{ className: string }> = ({ className }) => {
   }, []);
 
   return (
-    <p className={className}>
-      <img
-        src="/images/footer/bb2.jpg"
-        className={`img-responsive ${styles["footer-photo"]}`}
-        alt="Bradley's face"
-      />
-      {greeting}, and thanks for stopping by! My site usually a work in
-      progress, and as I'm always finding ways to make it more interactive. If
-      you spot issues, please let me know. That said, I'm glad you're here! I'm
-      always looking to collaborate with forward-thinking teams who value
-      engaging, high-quality digital experiences. I look forward to connecting
-      and exploring how I can bring unique interactive work to your
-      organization.
-    </p>
+    <>
+      <p className={className}>
+        <img
+          src="/images/footer/bb2.jpg"
+          className={`img-responsive ${styles["footer-photo"]}`}
+          alt="Bradley's face"
+        />
+        {greeting}, and thanks for stopping by! This site is a recent overhaul
+        with some huge improvements. I'll always be experimenting with UI
+        concepts here, as I'm overflowing with ideas, but never enough time to
+        do them all.
+      </p>
+      <p>
+        That said, I'm glad you're here! I'm always looking to collaborate with
+        forward-thinking teams who value engaging digital experiences. I look
+        forward to connecting and exploring how I can bring unique interactive
+        work to your organization.
+      </p>
+    </>
   );
 };
 
