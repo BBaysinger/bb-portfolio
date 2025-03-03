@@ -1,6 +1,7 @@
 import React from "react";
 
 import HeaderSub from "components/layout/HeaderSub";
+import useInViewAnimation from "utils/useInViewAnimation";
 import styles from "./CurriculumVitae.module.scss";
 
 /**
@@ -13,6 +14,8 @@ import styles from "./CurriculumVitae.module.scss";
  * @version N/A
  */
 const CurriculumVitae: React.FC = () => {
+  const addToRefs = useInViewAnimation("in-view");
+
   /**
    * Wraps phrases into styled span elements for display.
    *
@@ -192,7 +195,7 @@ const CurriculumVitae: React.FC = () => {
 
       <div id="mainContent" className={`cv-page ${styles["cv-page"]}`}>
         <div className={`container ${styles["summary"]}`}>
-          <h4>Summary</h4>
+          <h4 ref={addToRefs}>Summary</h4>
 
           <div className={rowClass}>
             <div className={divClassLt}>

@@ -161,3 +161,18 @@ $lighterThemeColor: #8db528;
 .nobr {
   white-space: nowrap;
 }
+
+:global {
+  .fade-in {
+    opacity: 0;
+    transform: translateX(500px);
+    transition:
+      opacity 0.6s ease-out,
+      transform 0.6s ease-out;
+
+    &.in-view {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+}
