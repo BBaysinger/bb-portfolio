@@ -62,7 +62,7 @@ header.header-main {
   position: relative;
   top: 1px;
   @include breakpoint-up(500px) {
-    top: 2px;
+    top: 3px;
   }
 }
 

@@ -6,21 +6,21 @@
   color: #fff;
   z-index: 10;
   overflow: hidden;
-  font-size: 16px;
   padding-top: 50px;
   padding-bottom: 50px;
+  font-size: 14px;
 
   @include breakpoint-up($b480px) {
-    font-size: 18px;
+    font-size: 16px;
   }
 
   @include breakpoint-up($b768px) {
-    font-size: 20px;
+    font-size: 18px;
   }
 
   &:before {
     position: absolute;
-    background-size: auto 200%;
+    background-size: auto;
     background-position: center center;
     content: "";
     height: 100%;
@@ -30,16 +30,16 @@
     top: 0;
     background-image: url("/images/common/stripes.webp");
     animation: scrollStripes linear infinite;
-    animation-duration: 125s;
+    animation-duration: 10s;
     z-index: -1;
   }
 
   @keyframes scrollStripes {
     from {
-      transform: translateX(-50%);
+      transform: translateX(-100vw);
     }
     to {
-      transform: translateX(0%);
+      transform: translateX(0);
     }
   }
 
@@ -88,47 +88,32 @@
 
   .text {
     position: relative;
-    padding-bottom: 130px;
-    z-index: 1;
-    padding-top: 80px;
+    top: 50%;
+    transform: translateY(-50%);
+
     @include breakpoint-up($b768px) {
-      padding-left: 30px;
-      padding-top: 140px;
+      padding-right: 30px;
     }
-
-    &:before,
-    &:after {
-      content: '"';
-      display: block;
-      position: absolute;
-      font-size: 200px;
-      color: $lighterThemeColor;
-      @include breakpoint-up($b768px) {
-        font-size: 300px;
+    p {
+      margin: 30px 0;
+      z-index: 1;
+      background: linear-gradient(
+        to right,
+        rgba(50, 50, 50, 1),
+        rgba(20, 20, 20, 1)
+      );
+      padding: 20px;
+      box-shadow: 20px 20px 10px rgba(0, 0, 0, 0.5);
+      &:first-child {
+        border-right: none;
+        background: linear-gradient(
+          to left,
+          rgba(50, 50, 50, 1),
+          rgba(20, 20, 20, 1)
+        );
+        margin-top: 0;
       }
-    }
 
-    &:before {
-      content: '"';
-      display: block;
-      position: absolute;
-      top: -50px;
-      left: 10px;
-      z-index: -1;
-      @include breakpoint-up($b992px) {
-        top: -50px;
-      }
-    }
-
-    &:after {
-      content: '"';
-      line-height: 0;
-      right: 0;
-      bottom: 50px;
-      transform: scaleX(-1);
-      @include breakpoint-up($b992px) {
-        bottom: 0;
-      }
     }
   }
 }
