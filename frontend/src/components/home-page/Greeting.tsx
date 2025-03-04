@@ -1,11 +1,16 @@
 import styles from "./Greeting.module.scss";
 
+import useInViewAnimation from "utils/useInViewAnimation";
+
 /**
  * @author Bradley Baysinger
  * @since The beginning of time.
  * @version N/A
  */
 const Greeting: React.FC = () => {
+
+  const addToRefs = useInViewAnimation("in-view");
+
   return (
     <div id="hello" className={styles["greeting"]}>
       <div className={styles["greeting-wrapper"]}>
@@ -14,12 +19,12 @@ const Greeting: React.FC = () => {
             <div
               className={`${styles["sign-wrapper"]} col-xs-12 col-sm-12 col-md-4 col-lg-4`}
             >
-              <img
+              <img ref={addToRefs}
                 src="/images/home/road-sign-mobile.webp"
                 className={styles["road-sign-mobile"]}
                 alt="road sign"
               />
-              <img
+              <img ref={addToRefs}
                 src="/images/home/road-sign-desktop.webp"
                 className={styles["road-sign-desktop"]}
                 alt="road sign"
@@ -28,7 +33,7 @@ const Greeting: React.FC = () => {
 
             <div className={`col-xs-12 col-sm-12 col-md-8 col-lg-8`}>
               <div className={`${styles["text"]}`}>
-                <p>
+                <p ref={addToRefs}>
                   Hi, I'm Bradley. Welcome to my portfolio site. I'm a front-end
                   web developer with a background in design, specializing in
                   building high-quality, interactive web experiences. My current
@@ -46,7 +51,7 @@ const Greeting: React.FC = () => {
                 brings designs to life.
                 </p> */}
 
-                <p>
+                <p ref={addToRefs}>
                   My portfolio includes both modern projects and select legacy
                   pieces, highlighting my unique history, adaptability, and
                   attention to detail. These showcase not only my technical
@@ -56,7 +61,7 @@ const Greeting: React.FC = () => {
                   talk!
                 </p>
 
-                <a href="#list">3. Take a look!</a>
+                <a ref={addToRefs} href="#list">3. Take a look!</a>
               </div>
             </div>
           </div>
