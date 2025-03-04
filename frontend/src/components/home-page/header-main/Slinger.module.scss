@@ -22,17 +22,17 @@
   pointer-events: all;
 
   &::before {
-    content: "1. Relieve Stress";
+    content: "1. De-stress";
     color: white;
     position: absolute;
-    width: 263px;
+    width: 208px;
     height: 68px;
     background-image: url("/images/home/ball-bolt.svg");
     font-size: 23px;
     padding-top: 17px;
     padding-left: 17px;
-    left: -260px;
-    top: -30px;
+    left: -208px;
+    top: -34px;
     pointer-events: none;
     transform-origin: 100% 50%;
     transform: rotate(45deg) scale(0.7);

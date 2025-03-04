@@ -8,7 +8,6 @@ import useInViewAnimation from "utils/useInViewAnimation";
  * @version N/A
  */
 const Greeting: React.FC = () => {
-
   const addToRefs = useInViewAnimation("in-view");
 
   return (
@@ -19,12 +18,14 @@ const Greeting: React.FC = () => {
             <div
               className={`${styles["sign-wrapper"]} col-xs-12 col-sm-12 col-md-4 col-lg-4`}
             >
-              <img ref={addToRefs}
+              <img
+                ref={addToRefs}
                 src="/images/home/road-sign-mobile.webp"
                 className={styles["road-sign-mobile"]}
                 alt="road sign"
               />
-              <img ref={addToRefs}
+              <img
+                ref={addToRefs}
                 src="/images/home/road-sign-desktop.webp"
                 className={styles["road-sign-desktop"]}
                 alt="road sign"
@@ -61,7 +62,9 @@ const Greeting: React.FC = () => {
                   talk!
                 </p>
 
-                <a ref={addToRefs} href="#list">3. Take a look!</a>
+                <a ref={addToRefs} href="#list">
+                  3. Take a look!
+                </a>
               </div>
             </div>
           </div>
