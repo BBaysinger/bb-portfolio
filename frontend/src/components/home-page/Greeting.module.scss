@@ -10,13 +10,14 @@
   padding-bottom: 50px;
   font-size: 14px;
   height: 100vh;
+  line-height: 1.5em;
 
   @include breakpoint-up($b480px) {
     font-size: 16px;
   }
 
   @include breakpoint-up($b768px) {
-    font-size: 18px;
+    font-size: 20px;
   }
 
   &:before {

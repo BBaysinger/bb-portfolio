@@ -103,7 +103,7 @@ const FluxelGrid: React.FC<{
         gridRef.current.removeEventListener("touchend", handleMouseLeave);
       }
     };
-  }, []);
+  }, [viewableHeight, viewableWidth]);
 
   const getShadowInfluence = (
     { col, row }: { col: number; row: number },
