@@ -167,7 +167,7 @@ const HeaderMain: React.FC = () => {
       </div>
       <ParagraphAnimator paragraphs={quotes} className={styles["message"]} />
       <a href="#hello" className={styles["cta"]}>
-        <div className={styles["cta-text"]}>2. Say Hello</div>
+        <div className={styles["cta-text"]}>2. Say hello</div>
       </a>
     </header>
   );
