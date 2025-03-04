@@ -44,7 +44,7 @@ const Greeting: React.FC = () => {
                 a dynamic web application, a pixel-perfect UI, or a custom-built
                 component, I strive to write clean, maintainable code that
                 brings designs to life.
-              </p> */}
+                </p> */}
 
                 <p>
                   My portfolio includes both modern projects and select legacy
@@ -55,6 +55,8 @@ const Greeting: React.FC = () => {
                   free to browse my work, and if you'd like to connect, let's
                   talk!
                 </p>
+
+                <button>Take a look!</button>
               </div>
             </div>
           </div>

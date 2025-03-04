@@ -9,6 +9,7 @@
   padding-top: 50px;
   padding-bottom: 50px;
   font-size: 14px;
+  height: 100vh;
 
   @include breakpoint-up($b480px) {
     font-size: 16px;
@@ -20,15 +21,15 @@
 
   &:before {
     position: absolute;
-    background-size: auto;
-    background-position: center center;
     content: "";
     height: 100%;
     width: 200vw;
-    background-color: #111;
     left: 0;
     top: 0;
+    background-color: #111;
     background-image: url("/images/common/stripes.webp");
+    background-size: 12.5% auto;
+    background-position: center center;
     animation: scrollStripes linear infinite;
     animation-duration: 10s;
     z-index: -1;
@@ -41,6 +42,10 @@
     to {
       transform: translateX(0);
     }
+  }
+
+  .greeting-wrapper {
+    height: 100%;
   }
 
   &:after {
@@ -86,16 +91,24 @@
     }
   }
 
+  :global(.container) {
+    position: relative;
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
   .text {
     position: relative;
     top: 50%;
     transform: translateY(-50%);
-
+    text-align: center;
     @include breakpoint-up($b768px) {
       padding-right: 30px;
     }
     p {
-      margin: 30px 0;
+      text-align: left;
+      margin: 50px 0;
       z-index: 1;
       background: linear-gradient(
         to right,
@@ -113,7 +126,16 @@
         );
         margin-top: 0;
       }
-
+    }
+    button {
+      border: none;
+      background-color: #f1fd02;
+      padding: 8px 28px;
+      font-size: 30px;
+      font-weight: 700;
+      box-shadow: 20px 20px 10px rgba(0, 0, 0, 0.5);
+      margin-left: auto;
+      margin-right: auto;
     }
   }
 }
