@@ -55,7 +55,11 @@ const FluxelGrid: React.FC<{
   }, [cols]);
 
   useEffect(() => {
-    const handleMouseMove = (event: MouseEvent) => {
+    const handleMouseMove = (event: any) => {
+      if (event.pointerType === "touch") {
+        return;
+      }
+
       if (!gridRef.current) return;
 
       const { left, top, width, height } =
@@ -90,14 +94,14 @@ const FluxelGrid: React.FC<{
       setMousePos(null);
     };
 
-    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("pointermove", handleMouseMove);
     document.addEventListener("mouseleave", handleMouseLeave);
     if (gridRef.current) {
       gridRef.current.addEventListener("touchend", handleMouseLeave);
     }
 
     return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("pointermove", handleMouseMove);
       document.removeEventListener("mouseleave", handleMouseLeave);
       if (gridRef.current) {
         gridRef.current.removeEventListener("touchend", handleMouseLeave);
