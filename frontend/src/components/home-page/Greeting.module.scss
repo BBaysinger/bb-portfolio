@@ -1,30 +1,35 @@
 @use "@/styles/global" as *;
 
 .greeting {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   position: relative;
   background: black;
   color: #fff;
   z-index: 10;
   overflow: hidden;
-  padding-top: 50px;
-  padding-bottom: 50px;
   font-size: 14px;
-  height: 100vh;
+  min-height: 100vh;
   line-height: 1.5em;
+  padding-top: 0px;
+  padding-bottom: 0px;
 
   @include breakpoint-up($b480px) {
     font-size: 16px;
   }
 
-  @include breakpoint-up($b768px) {
+  @include breakpoint-up($b992px) {
     font-size: 20px;
+    padding-top: 50px;
+    padding-bottom: 50px;
   }
 
   &:before {
     position: absolute;
     content: "";
     height: 100%;
-    width: 200vw;
+    width: 400vw;
     left: 0;
     top: 0;
     background-color: #111;
@@ -34,6 +39,10 @@
     animation: scrollStripes linear infinite;
     animation-duration: 10s;
     z-index: -1;
+
+    @include breakpoint-up($b768px) {
+      width: 200vw;
+    }
   }
 
   @keyframes scrollStripes {
@@ -75,8 +84,7 @@
   }
 
   img.road-sign-mobile {
-    width: 70%;
-    margin-top: 50px;
+    width: 60%;
     @include breakpoint-up($b768px) {
       display: none;
     }
@@ -92,32 +100,31 @@
     }
   }
 
-  :global(.container) {
-    position: relative;
-    position: relative;
-    top: 50%;
-    transform: translateY(-50%);
-  }
-
   .text {
     position: relative;
-    top: 50%;
-    transform: translateY(-50%);
     text-align: center;
     @include breakpoint-up($b768px) {
       padding-right: 30px;
     }
     p {
       text-align: left;
-      margin: 50px 0;
+      margin: 20px 0;
       z-index: 1;
+      padding: 10px;
+      box-shadow: 20px 20px 10px rgba(0, 0, 0, 0.5);
+      // margin-top: 40px;
       background: linear-gradient(
         to right,
         rgba(50, 50, 50, 1),
         rgba(20, 20, 20, 1)
       );
-      padding: 20px;
-      box-shadow: 20px 20px 10px rgba(0, 0, 0, 0.5);
+
+      @include breakpoint-up($b768px) {
+        margin-bottom: 40;
+        margin: 50px 0;
+        padding: 20px;
+      }
+
       &:first-child {
         border-right: none;
         background: linear-gradient(
@@ -125,7 +132,6 @@
           rgba(50, 50, 50, 1),
           rgba(20, 20, 20, 1)
         );
-        margin-top: 0;
       }
     }
 
@@ -143,6 +149,8 @@
       height: 46px;
       color: black;
       text-decoration: none;
+      line-height: 1em;
+      margin-bottom: 50px;
 
       &::before {
         content: "";

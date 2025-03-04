@@ -7,7 +7,7 @@ import styles from "./Greeting.module.scss";
  */
 const Greeting: React.FC = () => {
   return (
-    <div className={styles["greeting"]}>
+    <div id="hello" className={styles["greeting"]}>
       <div className={styles["greeting-wrapper"]}>
         <div className="container">
           <div className="row">
@@ -56,7 +56,7 @@ const Greeting: React.FC = () => {
                   talk!
                 </p>
 
-                <a href="#list">Take a look!</a>
+                <a href="#list">3. Take a look!</a>
               </div>
             </div>
           </div>

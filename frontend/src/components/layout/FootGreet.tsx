@@ -33,10 +33,9 @@ const FootGreet: React.FC<{ className: string }> = ({ className }) => {
         come here, as time allows.
       </p>
       <p>
-        That said, I'm glad you're here! I'm always looking to collaborate with
-        forward-thinking teams who value engaging digital experiences. I look
-        forward to connecting and exploring how I can bring unique interactive
-        work to your organization.
+        I'm always looking to collaborate with forward-thinking teams who value
+        engaging digital experiences. I look forward to connecting and exploring
+        how I can bring unique interactive work to your organization.
       </p>
     </>
   );

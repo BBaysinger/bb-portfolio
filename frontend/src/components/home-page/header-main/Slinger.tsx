@@ -228,17 +228,21 @@ const Slinger: React.FC<SlingerProps> = ({ onDrag, onDragEnd }) => {
 
   return (
     <div ref={containerRef} className={styles["slinger-container"]}>
-      {objectsRef.current.map((obj) => (
-        <div
-          className={styles["slinger"]}
-          key={obj.id}
-          onMouseDown={(e) => handleMouseDown(obj.id, e)}
-          onTouchStart={(e) => handleTouchStart(obj.id, e)}
-          style={{
-            transform: `translate(${Math.round(obj.x)}px, ${Math.round(obj.y)}px)`,
-          }}
-        ></div>
-      ))}
+      {objectsRef.current.map((obj) => {
+        const isIdle =
+          !obj.isDragging && Math.abs(obj.vx) <= 0.5 && Math.abs(obj.vy) <= 0.5;
+        return (
+          <div
+            className={`${styles["slinger"]} ${isIdle ? styles["idle"] : ""}`}
+            key={obj.id}
+            onMouseDown={(e) => handleMouseDown(obj.id, e)}
+            onTouchStart={(e) => handleTouchStart(obj.id, e)}
+            style={{
+              transform: `translate(${Math.round(obj.x)}px, ${Math.round(obj.y)}px)`,
+            }}
+          ></div>
+        );
+      })}
     </div>
   );
 };

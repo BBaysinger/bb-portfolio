@@ -18,4 +18,37 @@
   background-size: 50px 50px;
   background-repeat: -10px -10px;
   pointer-events: all;
+
+  &::before {
+    content: "1. Relieve Stress";
+    color: white;
+    position: absolute;
+    width: 263px;
+    height: 68px;
+    background-image: url("/images/home/ball-bolt.svg");
+    font-size: 23px;
+    padding-top: 17px;
+    padding-left: 17px;
+    left: -262px;
+    top: -30px;
+    pointer-events: none;
+    transform-origin: 100% 50%;
+    transform: rotate(45deg);
+    opacity: 0;
+    transition: opacity 0.3s linear;
+  }
+
+  &::after {
+    content: " ";
+    position: absolute;
+    width: 76px;
+    height: 76px;
+    transform: translate(-13px, -13px);
+  }
+
+  &.idle {
+    &::before {
+      opacity: 1;
+    }
+  }
 }
