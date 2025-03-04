@@ -1,3 +1,5 @@
+@use "@/styles/global" as *;
+
 .slinger-container {
   position: absolute;
   top: 0;
@@ -29,16 +31,21 @@
     font-size: 23px;
     padding-top: 17px;
     padding-left: 17px;
-    left: -262px;
+    left: -260px;
     top: -30px;
     pointer-events: none;
     transform-origin: 100% 50%;
-    transform: rotate(45deg);
+    transform: rotate(45deg) scale(0.7);
     opacity: 0;
     transition: opacity 0.3s linear;
+
+    @include breakpoint-up($b768px) {
+      transform: rotate(45deg) scale(0.8);
+    }
   }
 
   &::after {
+    // Expand the hit area
     content: " ";
     position: absolute;
     width: 76px;
