@@ -56,7 +56,7 @@ const Greeting: React.FC = () => {
                   talk!
                 </p>
 
-                <button>Take a look!</button>
+                <a href="#list">Take a look!</a>
               </div>
             </div>
           </div>
