@@ -79,7 +79,7 @@ header.header-main {
   margin-bottom: -20px;
 }
 
-$bottom: 50px;
+$bottom: 15px;
 
 .view-portfolio {
   position: absolute;
@@ -186,4 +186,49 @@ $bottom: 50px;
   right: 100px;
   width: 50px;
   z-index: 10000;
+}
+
+.cta {
+  position: absolute;
+  font-size: 16px;
+  color: #fff;
+  cursor: pointer;
+  will-change: bottom, opacity;
+  text-decoration: none;
+  bottom: $bottom;
+  right: 20px;
+  height: 243px;
+  width: 94px;
+  background-image: url("/images/home/hello-bolt-outline.svg");
+}
+
+.cta-text {
+  position: absolute;
+  top: -30px;
+  left: -76px;
+  transform-origin: 100% 100%;
+  transform: rotate(-90deg);
+  font-size: 30px;
+  width: 170px;
+}
+
+.scrolled-to-top {
+  .view-portfolio {
+    animation: fadeBounce 2s infinite forwards;
+  }
+
+  @keyframes fadeBounce {
+    0% {
+      opacity: 0.25;
+      bottom: $bottom;
+    }
+    50% {
+      opacity: 1;
+      bottom: calc($bottom + 10px);
+    }
+    100% {
+      opacity: 0.25;
+      bottom: $bottom;
+    }
+  }
 }
