@@ -45,6 +45,7 @@
     &.project-thumbnail-focus {
       .thumb-bg {
         filter: blur(0);
+        opacity: 1;
       }
 
       .vignette {
