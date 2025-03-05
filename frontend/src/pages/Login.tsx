@@ -1,19 +1,25 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import styles from "./Login.module.scss";
 
+// Yes, I know this is not secure. It doesn't need to be.
 const users = [
-  { username: "admin", hash: "5f4dcc3b5aa765d61d8327deb882cf99" }, // password: "password"
-  { username: "user1", hash: "ee11cbb19052e40b07aac0ca060c23ee" }, // password: "1234"
+  {
+    username: "admin",
+    hash: "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8",
+  }, // password: "password"
+  { username: "Bradley", hash: "5f4dcc3b5aa765d61d8327deb882cf99" },
 ];
 
 const hashPassword = (password: string) => {
   return crypto.subtle
     .digest("SHA-256", new TextEncoder().encode(password))
     .then((hashBuffer) => {
-      return Array.from(new Uint8Array(hashBuffer))
+      const retVal = Array.from(new Uint8Array(hashBuffer))
         .map((b) => b.toString(16).padStart(2, "0"))
         .join("");
+      console.log(retVal);
+      return retVal;
     });
 };
 
@@ -37,9 +43,9 @@ const Login = ({ onLogin }: { onLogin: () => void }) => {
     }
   };
 
-  useEffect(() => {
-    console.log("App component mounted");
-  });
+  // useEffect(() => {
+  //   console.log("App component mounted");
+  // }, []);
 
   return (
     <div className={styles["login"]}>
@@ -72,7 +78,7 @@ const Login = ({ onLogin }: { onLogin: () => void }) => {
             Login
           </button>
         </div>
-        {error && <p>{error}</p>}
+        <p className={styles["error"]}>{error}</p>
       </form>
     </div>
   );
