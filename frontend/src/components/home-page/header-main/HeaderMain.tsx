@@ -31,7 +31,7 @@ const HeaderMain: React.FC = () => {
   const [clientHeight, setClientHeight] = useState(getHeight());
   const [clientWidth, setClientWidth] = useState(getWidth());
 
-  const [hasDragged, setHasDragged] = useState(
+  const [_hasDragged, setHasDragged] = useState(
     sessionStorage.getItem("hasDragged") === "true",
   );
 
