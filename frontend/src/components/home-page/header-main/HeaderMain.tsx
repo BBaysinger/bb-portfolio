@@ -24,6 +24,7 @@ const HeaderMain: React.FC = () => {
   const getHeight = () => document.documentElement.clientHeight;
   const getWidth = () => document.documentElement.clientWidth;
 
+  // For sending position data to the FluxelGrid.
   const [slingerPos, setSlingerPos] = useState<
     { x: number; y: number } | null | undefined
   >(undefined);
@@ -52,6 +53,7 @@ const HeaderMain: React.FC = () => {
 
   const onSlingerDrag = useCallback(
     (x: number, y: number, e: MouseEvent | TouchEvent) => {
+      sessionStorage.setItem("hasDragged", "true");
       if (e.type === "touchmove") {
         const bounds = headerRef.current?.getBoundingClientRect();
         if (!bounds) return;
@@ -131,6 +133,9 @@ const HeaderMain: React.FC = () => {
       className={`${styles["header-main"]} ${styles["header"]} header-main`}
       style={{ minHeight: `${clientHeight}px` }}
     >
+      <div className={styles["debug"]}>
+        {sessionStorage.getItem("hasDragged")}
+      </div>
       <div className={styles["fluxel-wrapper"]}>
         <FluxelGrid
           rows={12}
@@ -140,7 +145,12 @@ const HeaderMain: React.FC = () => {
           externalMousePos={slingerPos}
         />
       </div>
-      <div className={styles["balls-wrapper"]}>
+      <div
+        className={
+          `${styles["balls-wrapper"]} ` +
+          `${sessionStorage.getItem("hasDragged") === "true" ? styles["has-dragged"] : ""}`
+        }
+      >
         <Slinger onDrag={onSlingerDrag} onDragEnd={onSlingerDragEnd} />
       </div>
       <div className={styles["header-wrapper"]}>
