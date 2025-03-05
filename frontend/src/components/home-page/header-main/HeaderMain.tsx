@@ -31,6 +31,10 @@ const HeaderMain: React.FC = () => {
   const [clientHeight, setClientHeight] = useState(getHeight());
   const [clientWidth, setClientWidth] = useState(getWidth());
 
+  const [hasDragged, setHasDragged] = useState(
+    sessionStorage.getItem("hasDragged") === "true",
+  );
+
   const updateClientDimensions = useCallback(() => {
     setClientHeight(getHeight());
     setClientWidth(getWidth());
@@ -54,6 +58,7 @@ const HeaderMain: React.FC = () => {
   const onSlingerDrag = useCallback(
     (x: number, y: number, e: MouseEvent | TouchEvent) => {
       sessionStorage.setItem("hasDragged", "true");
+      setHasDragged(true);
       if (e.type === "touchmove") {
         const bounds = headerRef.current?.getBoundingClientRect();
         if (!bounds) return;
