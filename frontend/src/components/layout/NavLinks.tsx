@@ -3,6 +3,7 @@ import { NavLink } from "react-router-dom";
 
 import MiscUtils from "utils/MiscUtils";
 import styles from "./NavLinks.module.scss";
+import LogoutButton from "components/common/LogoutButton";
 
 interface NavLinkProps {
   onClick?: () => void;
@@ -50,6 +51,9 @@ const NavLinks: React.FC<NavLinkProps> = ({ onClick, className }) => {
         >
           CV
         </NavLink>
+      </li>
+      <li>
+        <LogoutButton />
       </li>
     </ul>
   );
