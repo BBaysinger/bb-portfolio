@@ -18,6 +18,11 @@ interface NavLinkProps {
  * @version N/A
  */
 const NavLinks: React.FC<NavLinkProps> = ({ onClick, className }) => {
+
+  const isAuthenticated = sessionStorage.getItem("isLoggedIn") === "true";
+
+  if (!isAuthenticated) return null; // Hide button if user is logged
+
   return (
     <ul onClick={onClick} className={`${styles["nav-links"]} ${className}`}>
       <li>
