@@ -95,7 +95,7 @@ const Slinger: React.FC<SlingerProps> = ({ onDrag, onDragEnd }) => {
   ) => {
     if (
       !(e.target instanceof HTMLElement) ||
-      !e.target.classList.contains(styles["slinger"])
+      !e.target.classList.contains(styles["obj"])
     ) {
       return false; // Ensure the event started on a ball
     }
@@ -227,13 +227,16 @@ const Slinger: React.FC<SlingerProps> = ({ onDrag, onDragEnd }) => {
   }, []);
 
   return (
-    <div ref={containerRef} className={styles["slinger-container"]}>
+    <div ref={containerRef} className={styles["wrapper"]}>
       {objectsRef.current.map((obj) => {
         const isIdle =
           !obj.isDragging && Math.abs(obj.vx) <= 0.5 && Math.abs(obj.vy) <= 0.5;
         return (
           <div
-            className={`${styles["slinger"]} ${isIdle ? styles["idle"] : ""}`}
+            className={
+              `${styles["obj"]} ${isIdle ? styles["idle"] : ""} ` +
+              `slinger-obj ${isIdle ? "slinger-idle" : ""}`
+            }
             key={obj.id}
             onMouseDown={(e) => handleMouseDown(obj.id, e)}
             onTouchStart={(e) => handleTouchStart(obj.id, e)}
