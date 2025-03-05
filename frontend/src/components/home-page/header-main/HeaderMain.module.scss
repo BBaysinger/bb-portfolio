@@ -241,3 +241,19 @@ $bottom: 10px;
     }
   }
 }
+
+.debug {
+  display: none;
+  position: absolute;
+  z-index: 10000;
+  color: white;
+  left: 0;
+  top: 0;
+  margin-right: auto;
+}
+
+.has-dragged {
+  :global(.slinger-obj)::before {
+    opacity: 0;
+  }
+}

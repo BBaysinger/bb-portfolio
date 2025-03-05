@@ -14,6 +14,7 @@ const LogoutButton: React.FC = () => {
 
   const handleLogout = () => {
     sessionStorage.removeItem("isLoggedIn");
+    sessionStorage.removeItem("hasDragged");
     window.location.href = "/login";
   };
 
