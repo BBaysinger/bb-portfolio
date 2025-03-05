@@ -45,7 +45,16 @@ const Login = ({ onLogin }: { onLogin: () => void }) => {
     <div className={styles["login"]}>
       <form className={styles[""]} onSubmit={handleLogin}>
         <h1>Login</h1>
-        <p>Please login to continue</p>
+        <p>
+          Some of my work is protected under non-disclosure agreements (NDAs).
+          To respect these agreements and ensure confidentiality, access to my
+          portfolio requires authentication.
+        </p>
+        <p>
+          If you have been provided login credentials, please enter them below
+          to proceed. If you need access, feel free to reach out to me directly.
+        </p>
+        <p>Thank you for your understanding!</p>
         <div>
           <input
             type="text"
