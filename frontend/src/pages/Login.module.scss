@@ -4,13 +4,16 @@
   justify-content: center;
   align-items: center;
   background-image: url("/images/misc/bg-grad.svg");
+  background-color: black;
   color: #bbb;
+  padding: 16px;
 
   > form {
     max-width: 500px;
 
     > div {
       display: flex;
+      flex-wrap: wrap;
       gap: 10px;
       margin-bottom: 10px;
     }
