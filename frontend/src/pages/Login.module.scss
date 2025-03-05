@@ -12,6 +12,7 @@
     > div {
       display: flex;
       gap: 10px;
+      margin-bottom: 10px;
     }
   }
 
@@ -44,8 +45,13 @@
     height: 36px;
     width: 200px;
   }
+
   input:focus,
   textarea:focus {
     outline: none;
+  }
+
+  .error {
+    color: #990000;
   }
 }

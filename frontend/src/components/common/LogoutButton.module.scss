@@ -1,0 +1,17 @@
+@use "@/styles/global" as *;
+
+.logout {
+  img {
+    width: 20px;
+    height: 20px;
+    mask-image: url("/images/icons/logout.svg");
+    mask-size: 20px 20px;
+    background-color: currentColor;
+  }
+}
+
+footer {
+  :global(.logout) {
+    display: none !important;
+  }
+}
