@@ -197,21 +197,23 @@ $bottom: 10px;
 
 .cta {
   position: absolute;
-  bottom: 170px;
-  right: 80px;
+  bottom: 0;
+  right: 0;
   color: #fff;
+  width: 0;
+  height: 0;
 
   &:after {
     content: " ";
+    bottom: 0;
+    right: 0;
     position: absolute;
     color: #fff;
     cursor: pointer;
     will-change: bottom, opacity;
     text-decoration: none;
-
     height: 155px;
     width: 64px;
-    transform-origin: 100% 100%;
     background-repeat: repeat;
     background-image: url("/images/home/hello-bolt-outline.svg");
 
@@ -223,12 +225,13 @@ $bottom: 10px;
 
 .cta-text {
   position: absolute;
-  top: -85px;
-  left: -111px;
-  transform-origin: 100% 100%;
+  display: block;
+  left: -30px;
+  top: -45px;
+  transform-origin: 0 0;
   transform: rotate(-90deg);
   font-size: 16px;
-  width: 170px;
+  width: max-content;
 }
 
 .debug {
