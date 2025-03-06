@@ -280,59 +280,59 @@ ul {
 // Not sure if I'll keep the barber poles...
 ////////////////////////////////////////////////////
 
-//   .barber-pole1 {
-//     position: absolute;
-//     z-index: 1;
-//     height: 100px;
-//     width: 34px;
-//     right: 67px;
-//     top: 690px;
-//     transform: scale(1.5);
-//     border-radius: 0 7px 0 7px;
-//     opacity: 0.7;
-//     > * {
-//       animation: scrollStripes linear infinite;
-//       animation-duration: 10s;
-//     }
+// .barber-pole1 {
+//   position: absolute;
+//   z-index: 1;
+//   height: 143px;
+//   width: 133px;
+//   right: 117px;
+//   top: 572px;
+//   border-radius: 36px;
+//   opacity: 0.4;
+//   > * {
+//     animation: scrollStripes linear infinite;
+//     animation-duration: 10s;
 //   }
-//   @keyframes scrollStripes {
-//     from {
-//       transform: translateX(0);
-//     }
-//     to {
-//       transform: translateX(-50%);
-//     }
+// }
+// @keyframes scrollStripes {
+//   from {
+//     transform: translateX(0);
 //   }
+//   to {
+//     transform: translateX(-50%);
+//   }
+// }
 
-//   .barber-pole2 {
-//     position: absolute;
-//     z-index: 1;
-//     height: 40px;
-//     width: 40px;
-//     right: 207px;
-//     top: 15px;
-//     border-radius: 50%;
-//     opacity: 0.8;
-//     transform: rotate(90deg);
-//     > * {
-//       animation-duration: 20s;
-//       max-width: 400%;
-//     }
+// .barber-pole2 {
+//   position: absolute;
+//   z-index: 1;
+//   height: 40px;
+//   width: 40px;
+//   right: 207px;
+//   top: 15px;
+//   border-radius: 50%;
+//   opacity: 0.8;
+//   transform: rotate(90deg);
+//   > * {
+//     animation-duration: 20s;
+//     max-width: 400%;
 //   }
-//   .barber-pole3 {
-//     position: absolute;
-//     z-index: 1;
-//     height: 28px;
-//     width: 133px;
-//     right: 33px;
-//     top: 375px;
-//     border-radius: 7px;
-//     opacity: 0.6;
-//     > * {
-//       animation-duration: 20s;
-//       max-width: 200%;
-//     }
-//   }
+// }
+
+.barber-pole3 {
+  position: absolute;
+  z-index: 1;
+  height: 28px;
+  width: 133px;
+  right: 33px;
+  top: 375px;
+  border-radius: 7px;
+  opacity: 0.4;
+  > * {
+    animation-duration: 20s;
+    max-width: 200%;
+  }
+}
 
 ////////////////////////////////////////////////////
 /// Debug

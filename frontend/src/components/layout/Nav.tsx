@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { closeMenu } from "store/menuSlice";
 import Hamburger from "components/layout/Hamburger";
 import NavLinks from "./NavLinks";
-// import BarberPole from "components/common/BarberPole";
+import BarberPole from "components/common/BarberPole";
 import { RootState } from "store/store";
 import navLogo from "images/misc/bb-logo.svg";
 import styles from "./Nav.module.scss";
@@ -100,15 +100,15 @@ const Nav: React.FC<NavProps> = ({ variant }) => {
       {/* <div className={styles["debug"]}>
         Current Route: {currentPath} <br />
         {isScrolledToTop ? "Scrolled to Top ✅" : "Scrolled Down ❌"}
-      </div> */}
+      </div>  */}
 
-      {/* {variant === NavVariant.SLIDE_OUT && (
+      {variant === NavVariant.SLIDE_OUT && (
         <>
-          <BarberPole className={styles["barber-pole1"]} paused={!isMenuOpen} />
-          <BarberPole className={styles["barber-pole2"]} paused={!isMenuOpen} />
+          {/* <BarberPole className={styles["barber-pole1"]} paused={!isMenuOpen} />
+          <BarberPole className={styles["barber-pole2"]} paused={!isMenuOpen} /> */}
           <BarberPole className={styles["barber-pole3"]} paused={!isMenuOpen} />
         </>
-      )} */}
+      )}
     </nav>
   );
 };
