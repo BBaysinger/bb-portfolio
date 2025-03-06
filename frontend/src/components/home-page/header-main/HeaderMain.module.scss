@@ -83,57 +83,6 @@ header.header-main {
 
 $bottom: 10px;
 
-// .say-hello {
-//   position: absolute;
-//   font-size: 16px;
-//   color: #fff;
-//   cursor: pointer;
-//   will-change: bottom, opacity;
-//   text-decoration: none;
-//   justify-self: end;
-//   bottom: $bottom;
-//   transform-origin: 100% 100%;
-
-//   &::after {
-//     content: "";
-//     position: absolute;
-//     border-top: 7px solid #fff;
-//     border-left: 7px solid #fff;
-//     width: 35px;
-//     height: 35px;
-//     left: 50%;
-//     top: 60px;
-//     transform-origin: 0 0;
-//     transform: rotate(-135deg);
-//   }
-// }
-
-// .say-hello {
-//   animation: fadeBounce 2s infinite forwards;
-// }
-
-// @keyframes fadeBounce {
-//   0% {
-//     opacity: 0.25;
-//     bottom: $bottom;
-//   }
-//   50% {
-//     opacity: 1;
-//     bottom: calc($bottom + 10px);
-//   }
-//   100% {
-//     opacity: 0.25;
-//     bottom: $bottom;
-//   }
-// }
-
-.has-scrolled-out {
-  border: 1px solid red;
-  .say-hello {
-    display: none;
-  }
-}
-
 .last-name {
   color: $lighterThemeColor;
 }
@@ -197,6 +146,7 @@ $bottom: 10px;
 }
 
 .cta-wrapper {
+  display: none;
   position: absolute;
   bottom: 0;
   right: 0;
@@ -206,6 +156,14 @@ $bottom: 10px;
   @include breakpoint-up($b768px) {
     transform: scale(1.2);
   }
+}
+
+.has-dragged .cta-wrapper {
+  display: block;
+}
+
+.has-scrolled-out .cta-wrapper {
+  display: none;
 }
 
 .cta {
@@ -271,6 +229,6 @@ $bottom: 10px;
 
 .has-dragged {
   :global(.slinger-obj)::before {
-    opacity: 0;
+    display: none;
   }
 }

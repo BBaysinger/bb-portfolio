@@ -56,7 +56,9 @@ const HeaderMain: React.FC = () => {
 
   const onSlingerDrag = useCallback(
     (x: number, y: number, e: MouseEvent | TouchEvent) => {
+      // setTimeout(() => { // Allow time for transition/fade. Doesn't work.
       sessionStorage.setItem("hasDragged", "true");
+      // }, 600);
       setHasDragged(true);
       if (e.type === "touchmove") {
         const bounds = headerRef.current?.getBoundingClientRect();
@@ -105,7 +107,8 @@ const HeaderMain: React.FC = () => {
       ref={headerRef}
       className={
         `${styles["header-main"]} ${styles["header"]} header-main ` +
-        `${hasScrolledOut ? `has-scrolled-out` : ""}`
+        `${hasScrolledOut ? styles["has-scrolled-out"] : ""} ` +
+        `${sessionStorage.getItem("hasDragged") === "true" ? styles["has-dragged"] : ""}`
       }
       style={{ minHeight: `${clientHeight}px` }}
     >
@@ -121,12 +124,7 @@ const HeaderMain: React.FC = () => {
           externalMousePos={slingerPos}
         />
       </div>
-      <div
-        className={
-          `${styles["balls-wrapper"]} ` +
-          `${sessionStorage.getItem("hasDragged") === "true" ? styles["has-dragged"] : ""}`
-        }
-      >
+      <div className={`${styles["balls-wrapper"]} `}>
         <Slinger onDrag={onSlingerDrag} onDragEnd={onSlingerDragEnd} />
       </div>
       <div className={styles["header-wrapper"]}>
