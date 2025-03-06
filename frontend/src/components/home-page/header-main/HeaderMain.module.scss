@@ -145,25 +145,28 @@ $bottom: 10px;
   z-index: 10000;
 }
 
+$ctaOffset: -80px;
+
 .cta-wrapper {
-  display: none;
+  right: $ctaOffset;
+  display: block;
   position: absolute;
   bottom: 0;
-  right: 0;
   width: 0;
   height: 0;
   z-index: 10000;
+  transition: right 0.5s;
   @include breakpoint-up($b768px) {
     transform: scale(1.2);
   }
 }
 
 .has-dragged .cta-wrapper {
-  display: block;
+  right: 0;
 }
 
 .has-scrolled-out .cta-wrapper {
-  display: none;
+  right: $ctaOffset;
 }
 
 .cta {
