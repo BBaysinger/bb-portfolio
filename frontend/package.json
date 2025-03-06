@@ -45,7 +45,7 @@
     "eslint-plugin-react-refresh": "^0.4.19",
     "globals": "^16.0.0",
     "json5": "^2.2.3",
-    "netlify-cli": "^19.0.1",
+    "netlify-cli": "^19.0.2",
     "prettier": "^3.5.3",
     "sass": "^1.85.1",
     "typescript": "~5.8.2"

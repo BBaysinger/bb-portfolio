@@ -91,7 +91,7 @@
   },
   "citibank": {
     "title": "Citibank Website",
-    "active": true,
+    "active": false,
     "omitFromList": false,
     "clientId": "citibank",
     "mobileStatus": "portrait",
@@ -214,7 +214,7 @@
       "<p>Committee for Children is an educational charity that reaches over 16.5 million children annually across 70+ countries.</p>",
       "<p>We developed an interactive component to showcase their Second Step program, featuring a multi-layered wheel navigation dynamically rendered using SVG, React, and React Motion.</p>",
       "<p>I took the lead on technical advising, development, and contributed to the project's conceptualization.</p>",
-      "<p>Working with SVG in React proved to be incredibly powerful, opening up new possibilities for vector-based rendering and interactivity.</p>",
+      "<p>Working with SVG in React proved to be incredibly powerful to me, opening up new possibilities for vector-based rendering and interactivity.</p>",
       "<p>The interactive feature is no longer available on their site, but I'm working on repurposing a functional version.</p>"
     ],
     "urls": {
