@@ -1,6 +1,9 @@
 @use "@/styles/global" as *;
 
 .logout {
+  border: 0;
+  outline: 0;
+  background: none;
   img {
     width: 20px;
     height: 20px;

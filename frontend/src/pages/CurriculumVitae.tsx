@@ -1,7 +1,7 @@
 import React from "react";
 
 import HeaderSub from "components/layout/HeaderSub";
-import useInViewAnimation from "utils/useInViewAnimation";
+import useInViewAnimation from "hooks/useInViewAnimation";
 import styles from "./CurriculumVitae.module.scss";
 
 /**
