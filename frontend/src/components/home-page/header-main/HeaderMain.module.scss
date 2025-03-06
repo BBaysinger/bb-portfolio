@@ -197,32 +197,37 @@ $bottom: 10px;
 
 .cta {
   position: absolute;
-  font-size: 16px;
+  bottom: 170px;
+  right: 80px;
   color: #fff;
-  cursor: pointer;
-  will-change: bottom, opacity;
-  text-decoration: none;
-  bottom: $bottom;
-  right: 20px;
-  height: 243px;
-  width: 95px;
-  transform: scale(0.8);
-  transform-origin: 100% 100%;
-  background-repeat: no-repeat;
-  background-image: url("/images/home/hello-bolt-outline.svg");
 
-  @include breakpoint-up($b768px) {
-    transform: scale(1);
+  &:after {
+    content: " ";
+    position: absolute;
+    color: #fff;
+    cursor: pointer;
+    will-change: bottom, opacity;
+    text-decoration: none;
+
+    height: 155px;
+    width: 64px;
+    transform-origin: 100% 100%;
+    background-repeat: repeat;
+    background-image: url("/images/home/hello-bolt-outline.svg");
+
+    @include breakpoint-up($b768px) {
+      transform: scale(1.2);
+    }
   }
 }
 
 .cta-text {
   position: absolute;
-  top: -37px;
-  left: -76px;
+  top: -85px;
+  left: -111px;
   transform-origin: 100% 100%;
   transform: rotate(-90deg);
-  font-size: 30px;
+  font-size: 16px;
   width: 170px;
 }
 
