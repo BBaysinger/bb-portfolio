@@ -83,48 +83,49 @@ header.header-main {
 
 $bottom: 10px;
 
-.say-hello {
-  position: absolute;
-  font-size: 16px;
-  color: #fff;
-  cursor: pointer;
-  will-change: bottom, opacity;
-  text-decoration: none;
-  justify-self: end;
-  bottom: $bottom;
+// .say-hello {
+//   position: absolute;
+//   font-size: 16px;
+//   color: #fff;
+//   cursor: pointer;
+//   will-change: bottom, opacity;
+//   text-decoration: none;
+//   justify-self: end;
+//   bottom: $bottom;
+//   transform-origin: 100% 100%;
 
-  &::after {
-    content: "";
-    position: absolute;
-    border-top: 7px solid #fff;
-    border-left: 7px solid #fff;
-    width: 35px;
-    height: 35px;
-    left: 50%;
-    top: 60px;
-    transform-origin: 0 0;
-    transform: rotate(-135deg);
-  }
-}
+//   &::after {
+//     content: "";
+//     position: absolute;
+//     border-top: 7px solid #fff;
+//     border-left: 7px solid #fff;
+//     width: 35px;
+//     height: 35px;
+//     left: 50%;
+//     top: 60px;
+//     transform-origin: 0 0;
+//     transform: rotate(-135deg);
+//   }
+// }
 
-.say-hello {
-  animation: fadeBounce 2s infinite forwards;
-}
+// .say-hello {
+//   animation: fadeBounce 2s infinite forwards;
+// }
 
-@keyframes fadeBounce {
-  0% {
-    opacity: 0.25;
-    bottom: $bottom;
-  }
-  50% {
-    opacity: 1;
-    bottom: calc($bottom + 10px);
-  }
-  100% {
-    opacity: 0.25;
-    bottom: $bottom;
-  }
-}
+// @keyframes fadeBounce {
+//   0% {
+//     opacity: 0.25;
+//     bottom: $bottom;
+//   }
+//   50% {
+//     opacity: 1;
+//     bottom: calc($bottom + 10px);
+//   }
+//   100% {
+//     opacity: 0.25;
+//     bottom: $bottom;
+//   }
+// }
 
 .has-scrolled-out {
   border: 1px solid red;
@@ -195,13 +196,26 @@ $bottom: 10px;
   z-index: 10000;
 }
 
-.cta {
+.cta-wrapper {
   position: absolute;
   bottom: 0;
   right: 0;
+  width: 0;
+  height: 0;
+  z-index: 10000;
+  @include breakpoint-up($b768px) {
+    transform: scale(1.2);
+  }
+}
+
+.cta {
+  position: absolute;
+  bottom: 10px;
+  right: 12px;
   color: #fff;
   width: 0;
   height: 0;
+  animation: fadeBounce 2.5s infinite forwards;
 
   &:after {
     content: " ";
@@ -216,17 +230,28 @@ $bottom: 10px;
     width: 64px;
     background-repeat: repeat;
     background-image: url("/images/home/hello-bolt-outline.svg");
+  }
+}
 
-    @include breakpoint-up($b768px) {
-      transform: scale(1.2);
-    }
+@keyframes fadeBounce {
+  0% {
+    opacity: 0.25;
+    transform: translateY(-10px);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0.25;
+    transform: translateY(-10px);
   }
 }
 
 .cta-text {
   position: absolute;
   display: block;
-  left: -30px;
+  left: -29px;
   top: -45px;
   transform-origin: 0 0;
   transform: rotate(-90deg);
