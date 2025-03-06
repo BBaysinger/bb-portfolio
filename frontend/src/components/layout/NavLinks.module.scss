@@ -8,7 +8,8 @@
   }
 
   li {
-    a {
+    a,
+    button {
       cursor: pointer;
       display: flex;
       flex-direction: column;
@@ -25,7 +26,8 @@
     }
 
     &:hover {
-      a {
+      a,
+      button {
         color: #fff;
         text-decoration: underline;
       }

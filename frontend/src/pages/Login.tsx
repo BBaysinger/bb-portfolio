@@ -2,13 +2,12 @@ import { useState } from "react";
 
 import styles from "./Login.module.scss";
 
-// Yes, I know this is not secure. It doesn't need to be.
+// This is not secure. It doesn't need to be for now.
 const users = [
   {
     username: "admin",
-    hash: "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8",
-  }, // password: "password"
-  { username: "Bradley", hash: "5f4dcc3b5aa765d61d8327deb882cf99" },
+    hash: "713bfda78870bf9d1b261f565286f85e97ee614efe5f0faf7c34e7ca4f65baca",
+  }, // password: "adminpass"
 ];
 
 const hashPassword = (password: string) => {
@@ -18,7 +17,7 @@ const hashPassword = (password: string) => {
       const retVal = Array.from(new Uint8Array(hashBuffer))
         .map((b) => b.toString(16).padStart(2, "0"))
         .join("");
-      console.log(retVal);
+      console.info(retVal);
       return retVal;
     });
 };
@@ -42,10 +41,6 @@ const Login = ({ onLogin }: { onLogin: () => void }) => {
       setError("Invalid username or password");
     }
   };
-
-  // useEffect(() => {
-  //   console.log("App component mounted");
-  // }, []);
 
   return (
     <div className={styles["login"]}>

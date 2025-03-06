@@ -12,11 +12,13 @@
   font-size: 15px;
   min-height: 100vh;
   line-height: 1.5em;
-  padding-top: 0px;
-  padding-bottom: 0px;
+  padding-top: 30px;
+  padding-bottom: 30px;
 
   @include breakpoint-up($b480px) {
     font-size: 16px;
+    padding-top: 0px;
+    padding-bottom: 0px;
   }
 
   @include breakpoint-up($b992px) {
@@ -140,7 +142,7 @@
       display: inline-block;
       border: none;
       background-color: #f1fd02;
-      padding: 8px 28px;
+      padding: 8px 10px;
       font-size: 30px;
       font-weight: 700;
       box-shadow: 20px 20px 10px rgba(0, 0, 0, 0.5);
@@ -151,6 +153,9 @@
       text-decoration: none;
       line-height: 1em;
       margin-bottom: 50px;
+      @include breakpoint-up($b768px) {
+        padding: 8px 28px;
+      }
 
       &::before {
         content: "";

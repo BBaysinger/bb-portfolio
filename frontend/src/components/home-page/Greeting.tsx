@@ -1,6 +1,6 @@
 import styles from "./Greeting.module.scss";
 
-import useInViewAnimation from "utils/useInViewAnimation";
+import useInViewAnimation from "hooks/useInViewAnimation";
 
 /**
  * @author Bradley Baysinger

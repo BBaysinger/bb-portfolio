@@ -1,5 +1,15 @@
 import { useEffect, useRef } from "react";
 
+/**
+ * Adds a class to designated elements when they come into view.
+ *
+ * @param animationClass
+ * @param threshold
+ * @param baseClass
+ * @param delay
+ * @param scrollThreshold
+ * @returns
+ */
 const useInViewArray = (
   animationClass: string,
   threshold = 0.2,
