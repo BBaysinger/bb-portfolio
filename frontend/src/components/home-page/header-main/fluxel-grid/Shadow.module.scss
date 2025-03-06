@@ -4,4 +4,9 @@
   > g {
     filter: blur(2px);
   }
+
+  image {
+    image-rendering: pixelated; /* Works in most browsers */
+    // image-rendering: crisp-edges; /* Useful for additional support */
+  }
 }
