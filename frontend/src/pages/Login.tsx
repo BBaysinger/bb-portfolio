@@ -10,6 +10,10 @@ const users = [
     username: "admin",
     hash: "713bfda78870bf9d1b261f565286f85e97ee614efe5f0faf7c34e7ca4f65baca",
   }, // password: "adminpass"
+  {
+    username: "TheOther",
+    hash: "1ecb9e6bdf6cc8088693c11e366415fe5c73662ecdf08f3df337924d8ea26adc",
+  }, // password: "adminpass"
 ];
 
 const hashPassword = async (password: string) => {
@@ -17,8 +21,9 @@ const hashPassword = async (password: string) => {
     // return CryptoJS.SHA256(password).toString(CryptoJS.enc.Hex);
     // An error throws when testing in Safari for iOS over local network.
     // Use CryptoJS.SHA256 for testing, but beware that it bloats the bundle size.
-    alert("crypto.subtle is not supported in this browser.");
-    console.error("crypto.subtle is not supported in this browser.");
+    const message = "crypto.subtle is not supported in this browser.";
+    alert(message);
+    console.error(message);
     return null;
   }
 
@@ -29,6 +34,7 @@ const hashPassword = async (password: string) => {
   const retVal = Array.from(new Uint8Array(hashBuffer))
     .map((b) => b.toString(16).padStart(2, "0"))
     .join("");
+  console.info("Passed:", password, "Hashed:", retVal);
   return retVal;
 };
 
