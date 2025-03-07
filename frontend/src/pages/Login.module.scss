@@ -9,20 +9,22 @@
   color: #bbb;
   padding: 16px;
 
-  > form {
-    max-width: 500px;
-
-    > div {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 10px;
-    }
+  > div {
+    width: 500px;
+    max-width: 100%;
   }
 
   h1 {
     color: white;
   }
+}
+
+.form {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
 
   button {
     background-color: black;
@@ -54,9 +56,9 @@
   textarea:focus {
     outline: none;
   }
+}
 
-  .error {
-    height: 16px;
-    color: #990000;
-  }
+.error {
+  height: 16px;
+  color: #990000;
 }
