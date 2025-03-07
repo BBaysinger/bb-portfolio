@@ -8,6 +8,7 @@ import Nav, { NavVariant } from "components/layout/Nav";
 import Footer from "components/layout/Footer";
 import ScrollToHash from "utils/ScrollToHash";
 import { RootState } from "store/store";
+import { AuthProvider } from "context/AuthContext";
 import styles from "./App.module.scss";
 
 const App: React.FC = () => {
@@ -37,7 +38,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <>
+    <AuthProvider>
       <Nav variant={NavVariant.SLIDE_OUT} />
       <div
         className={`${styles["underlay"]} ${isMenuOpen ? styles["expanded"] : ""}`}
@@ -57,7 +58,7 @@ const App: React.FC = () => {
         </Routes> */}
         <Footer />
       </div>
-    </>
+    </AuthProvider>
   );
 };
 

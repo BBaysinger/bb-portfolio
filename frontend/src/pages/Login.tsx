@@ -1,6 +1,7 @@
 import { useState } from "react";
 // import CryptoJS from "crypto-js";
 
+import { useAuth } from "context/AuthContext";
 import styles from "./Login.module.scss";
 
 // This is not secure. It doesn't need to be for now.
@@ -32,6 +33,7 @@ const hashPassword = async (password: string) => {
 };
 
 const Login = ({ onLogin }: { onLogin: () => void }) => {
+  const { login } = useAuth();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -48,7 +50,7 @@ const Login = ({ onLogin }: { onLogin: () => void }) => {
     );
 
     if (user) {
-      sessionStorage.setItem("isLoggedIn", "true");
+      login(); // Updates global state
       onLogin();
     } else {
       setError("Invalid username or password");
@@ -86,11 +88,20 @@ const Login = ({ onLogin }: { onLogin: () => void }) => {
             onChange={(e) => setPassword(e.target.value)}
             disabled={isLoggingIn}
           />
-          <button className="btn" type="submit" disabled={isLoggingIn}>
-            {isLoggingIn ? "Logging in..." : "Login"}
+          <button type="submit" className="btn" disabled={isLoggingIn}>
+            Login
           </button>
-          <p className={styles["error"]}>{error}</p>
         </form>
+        <p>
+          <span className={styles["error"]}>{error}</span>
+          <span className={styles["status"]}>
+            {isLoggingIn ? (
+              "Logging in..."
+            ) : (
+              <>&nbsp;</> // Prevent layout shift
+            )}
+          </span>
+        </p>
       </div>
     </div>
   );
