@@ -1,4 +1,5 @@
 import { useState } from "react";
+// import CryptoJS from "crypto-js";
 
 import styles from "./Login.module.scss";
 
@@ -10,25 +11,37 @@ const users = [
   }, // password: "adminpass"
 ];
 
-const hashPassword = (password: string) => {
-  return crypto.subtle
-    .digest("SHA-256", new TextEncoder().encode(password))
-    .then((hashBuffer) => {
-      const retVal = Array.from(new Uint8Array(hashBuffer))
-        .map((b) => b.toString(16).padStart(2, "0"))
-        .join("");
-      console.info(retVal);
-      return retVal;
-    });
+const hashPassword = async (password: string) => {
+  if (!window.crypto?.subtle) {
+    // return CryptoJS.SHA256(password).toString(CryptoJS.enc.Hex);
+    // An error throws when testing in Safari for iOS over local network.
+    // Use CryptoJS.SHA256 for testing, but beware that it bloats the bundle size.
+    alert("crypto.subtle is not supported in this browser.");
+    console.error("crypto.subtle is not supported in this browser.");
+    return null;
+  }
+
+  const hashBuffer = await crypto.subtle.digest(
+    "SHA-256",
+    new TextEncoder().encode(password),
+  );
+  const retVal = Array.from(new Uint8Array(hashBuffer))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+  return retVal;
 };
 
 const Login = ({ onLogin }: { onLogin: () => void }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    setIsLoggingIn(true); // Disable form while processing
+
     const hashedPassword = await hashPassword(password);
     const user = users.find(
       (u) => u.username === username && u.hash === hashedPassword,
@@ -39,12 +52,13 @@ const Login = ({ onLogin }: { onLogin: () => void }) => {
       onLogin();
     } else {
       setError("Invalid username or password");
+      setIsLoggingIn(false); // Re-enable form if login fails
     }
   };
 
   return (
     <div className={styles["login"]}>
-      <form className={styles[""]} onSubmit={handleLogin}>
+      <div>
         <h1>Login</h1>
         <p>
           Some of my work is protected under non-disclosure agreements (NDAs).
@@ -56,25 +70,28 @@ const Login = ({ onLogin }: { onLogin: () => void }) => {
           to proceed. If you need access, feel free to reach out to me directly.
         </p>
         <p>Thank you for your understanding!</p>
-        <div>
+
+        <form className={styles["form"]} onSubmit={handleLogin}>
           <input
             type="text"
             placeholder="Username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
+            disabled={isLoggingIn}
           />
           <input
             type="password"
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            disabled={isLoggingIn}
           />
-          <button className="btn" type="submit">
-            Login
+          <button className="btn" type="submit" disabled={isLoggingIn}>
+            {isLoggingIn ? "Logging in..." : "Login"}
           </button>
-        </div>
-        <p className={styles["error"]}>{error}</p>
-      </form>
+          <p className={styles["error"]}>{error}</p>
+        </form>
+      </div>
     </div>
   );
 };
