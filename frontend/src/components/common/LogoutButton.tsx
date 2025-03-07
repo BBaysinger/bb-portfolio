@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
+import { useAuth } from "context/AuthContext";
 import styles from "./LogoutButton.module.scss";
 
 /**
@@ -9,17 +10,15 @@ import styles from "./LogoutButton.module.scss";
  * @version N/A
  */
 const LogoutButton: React.FC = () => {
-  const isAuthenticated = sessionStorage.getItem("isLoggedIn") === "true";
   const navigate = useNavigate(); // Get the navigate function from useNavigate
-
-  if (!isAuthenticated) return null; // Hide button if user is logged out
+  const { logout } = useAuth();
 
   const handleLogout = () => {
-    sessionStorage.removeItem("isLoggedIn");
     // Reset everything, so user gets the same experience on the next login
     sessionStorage.removeItem("hasDragged");
     sessionStorage.removeItem("hasScrolledOut");
 
+    logout();
     navigate("/login");
   };
 
