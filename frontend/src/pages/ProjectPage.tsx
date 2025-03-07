@@ -38,7 +38,9 @@ const ProjectPage: React.FC = () => {
   const { projectId = "" } = useParams<{ projectId: string }>();
   const projects = ProjectData.activeProjectsRecord;
   const [initialIndex] = useState<number | null>(() =>
-    projectId && projects[projectId] ? projects[projectId].index : null,
+    projectId && ProjectData.projectIndex(projectId)
+      ? ProjectData.projectIndex(projectId)
+      : null,
   );
   const [stabilizedIndex, setStabilizedIndex] = useState<number | null>(
     () => initialIndex,
@@ -102,7 +104,7 @@ const ProjectPage: React.FC = () => {
         isCarouselSourceRef.current = true;
 
         const newProjectId = Object.keys(projects).find(
-          (key) => projects[key].index === newStabilizedIndex,
+          (key) => ProjectData.projectIndex(key) === newStabilizedIndex,
         );
 
         if (
@@ -130,7 +132,7 @@ const ProjectPage: React.FC = () => {
 
   useEffect(() => {
     if (carouselRef.current && projects[projectId]) {
-      const targetIndex = projects[projectId].index;
+      const targetIndex = ProjectData.projectIndex(projectId);
 
       if (stabilizedIndex !== targetIndex) {
         if (!isCarouselSourceRef.current) {
