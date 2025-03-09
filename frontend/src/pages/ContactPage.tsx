@@ -70,12 +70,16 @@ const ContactPage = () => {
         <div className={`container`}>
           <div className={`${styles["form"]} row`}>
             <h1>Contact Me</h1>
-
             <p>
               Have a project in mind or just want to say hello? Drop me a
               message, and I'll get back to you as soon as possible!
             </p>
-            <form onSubmit={handleSubmit}>
+            <form
+              name="contact"
+              action="/?no_redirect=true"
+              data-netlify-honeypot="bot-field"
+              onSubmit={handleSubmit}
+            >
               <input type="hidden" name="form-name" value="contact" />
               <input type="hidden" name="bot-field" />
               <label>
