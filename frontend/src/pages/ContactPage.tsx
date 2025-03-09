@@ -76,7 +76,7 @@ const ContactPage = () => {
               onSubmit={handleSubmit}
             >
               <input type="hidden" name="form-name" value="contact" />
-              <input type="hidden" name="bot-field" />{" "}
+              <input type="hidden" name="bot-field" />
               <label>
                 <div>Name:</div>
                 <input
@@ -110,7 +110,7 @@ const ContactPage = () => {
             </form>
             {status && <p className={styles.successMessage}>{status}</p>}
             {error && <p className={styles.errorMessage}>{error}</p>}
-            {!status && !error && <p className={styles.preventShift}>.</p>}
+            {!status && !error && <p className={styles.preventShift}>&nbsp;</p>}
           </div>
         </div>
       </div>
