@@ -5,10 +5,8 @@ import styles from "./ContactPage.module.scss";
 /**
  * Obligatory contact page!
  *
- * Omit the action attribute on the form element to use Netlify's form handling,
- * as described in the Netlify documentation:
  * https://www.netlify.com/blog/2017/07/20/how-to-integrate-netlifys-form-handling-in-a-react-app/
- * 
+ *
  * @author Bradley Baysinger
  * @since The beginning of time.
  * @version N/A
@@ -26,39 +24,29 @@ const ContactPage = () => {
   const [status, setStatus] = useState<string>("");
   const [error, setError] = useState<string>("");
 
-  // const encodeFormData = (data: Record<string, string>) => {
-  //   return Object.keys(data)
-  //     .map(
-  //       (key) => encodeURIComponent(key) + "=" + encodeURIComponent(data[key]),
-  //     )
-  //     .join("&");
-  // };
-
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-
-    // Clear error/status when user modifies input
     if (error) setError("");
     if (status) setStatus("");
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault(); // Prevent normal form submission
+    e.preventDefault();
     setStatus("Sending...");
     setError("");
-  
+
     const form = e.currentTarget;
     const data = new FormData(form);
-  
+
     try {
       const response = await fetch("/", {
         method: "POST",
         body: new URLSearchParams(data as any).toString(),
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
       });
-  
+
       if (response.ok) {
         setStatus("Message sent successfully!");
         setFormData({ name: "", email: "", message: "" });
@@ -76,17 +64,14 @@ const ContactPage = () => {
       <div id="mainContent" className={`${styles["contact-page"]}`}>
         <div className={`container`}>
           <div className={`${styles["form"]} row`}>
-            <h1>Contact Me</h1>
-
+            <h1>Contact me!</h1>
             <p>
               Have a project in mind or just want to say hello? Drop me a
               message, and I'll get back to you as soon as possible!
             </p>
             <form
               name="contact"
-              // method="POST"
               action="/"
-              // data-netlify="true"
               data-netlify-honeypot="bot-field"
               onSubmit={handleSubmit}
             >
@@ -125,7 +110,7 @@ const ContactPage = () => {
             </form>
             {status && <p className={styles.successMessage}>{status}</p>}
             {error && <p className={styles.errorMessage}>{error}</p>}
-            {!status && !error && <p className={styles.preventShift}> </p>}
+            {!status && !error && <p className={styles.preventShift}>.</p>}
           </div>
         </div>
       </div>
