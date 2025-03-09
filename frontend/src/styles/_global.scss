@@ -225,6 +225,9 @@ $complimentaryThemeColor: #660099;
   label {
     width: 100%;
     margin-bottom: 10px;
+    > *:first-child {
+      margin-bottom: 3px;
+    }
   }
 
   input,
@@ -240,6 +243,9 @@ $complimentaryThemeColor: #660099;
     border-radius: 4px;
     height: 36px;
     width: 200px;
+    // Be sure fields are at least 16px to
+    // avoid automatic zooming on mobile.
+    font-size: 16px;
   }
 
   textarea {
@@ -250,9 +256,6 @@ $complimentaryThemeColor: #660099;
   input:focus,
   textarea:focus {
     outline: none;
-    // Be sure fields are at least 16px to
-    // avoid automatic zooming on mobile.
-    font-size: 16px;
   }
 }
 
