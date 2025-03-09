@@ -34,6 +34,10 @@ const ContactPage = () => {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+
+    // Clear error/status when user modifies input
+    if (error) setError("");
+    if (status) setStatus("");
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -83,9 +87,11 @@ const ContactPage = () => {
               name="contact"
               method="POST"
               data-netlify="true"
+              data-netlify-honeypot="bot-field"
               onSubmit={handleSubmit}
             >
               <input type="hidden" name="form-name" value="contact" />
+              <input type="hidden" name="bot-field" />{" "}
               <label>
                 <div>Name:</div>
                 <input
@@ -119,7 +125,9 @@ const ContactPage = () => {
             </form>
             {status && <p className={styles.successMessage}>{status}</p>}
             {error && <p className={styles.errorMessage}>{error}</p>}
-            {!status && !error && <p className={styles.preventShift}>{" "}</p>}
+            {!status && !error && <p className={styles.preventShift}>
+              {" "}
+            </p>}
           </div>
         </div>
       </div>
