@@ -62,6 +62,14 @@ const NavLinks: React.FC<NavLinkProps> = ({ onClick, className }) => {
             </NavLink>
           </li>
           <li>
+            <NavLink
+              to="/contact#headerSub"
+              className={({ isActive }) => (isActive ? styles["active"] : "")}
+            >
+              Contact
+            </NavLink>
+          </li>
+          <li>
             <LogoutButton />
           </li>
         </>

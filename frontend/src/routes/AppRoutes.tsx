@@ -5,6 +5,7 @@ import HomePage from "pages/HomePage";
 import ProjectPage from "pages/ProjectPage";
 import CurriculumVitae from "pages/CurriculumVitae";
 import ProtectedRoute from "./ProtectedRoute";
+import ContactPage from "pages/ContactPage";
 
 const AppRoutes = ({ onLogin }: { onLogin: () => void }) => {
   return (
@@ -18,6 +19,7 @@ const AppRoutes = ({ onLogin }: { onLogin: () => void }) => {
         <Route path="/portfolio" element={<HomePage />} />
         <Route path="/portfolio/:projectId" element={<ProjectPage />} />
         <Route path="/cv" element={<CurriculumVitae />} />
+        <Route path="/contact" element={<ContactPage />} />
       </Route>
     </Routes>
   );
