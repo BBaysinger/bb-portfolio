@@ -238,7 +238,8 @@ $complimentaryThemeColor: #660099;
   textarea,
   input:-webkit-autofill,
   input:-webkit-autofill:focus,
-  input:-webkit-autofill:hover {
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:active {
     background-color: #222 !important;
     box-shadow: inset 2px 2px 8px #000;
     border: 0;
@@ -249,7 +250,9 @@ $complimentaryThemeColor: #660099;
     width: 200px;
     // Be sure fields are at least 16px to
     // avoid automatic zooming on mobile.
-    font-size: 16px;
+    font-size: 16px !important;
+    // Prevents background flicker
+    transition: background-color 5000s ease-in-out 0s;
   }
 
   textarea {
