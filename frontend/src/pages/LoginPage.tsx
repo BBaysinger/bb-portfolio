@@ -2,7 +2,7 @@ import { useState } from "react";
 // import CryptoJS from "crypto-js";
 
 import { useAuth } from "context/AuthContext";
-import styles from "./Login.module.scss";
+import styles from "./LoginPage.module.scss";
 
 // This is not secure. It doesn't need to be for now.
 const users = [
