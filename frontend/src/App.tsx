@@ -47,15 +47,6 @@ const App: React.FC = () => {
         <Nav variant={NavVariant.TOP_BAR} />
         <ScrollToHash />
         <AppRoutes onLogin={handleLogin} />
-
-        {/* <Routes>
-          {/* Redirect for all unmatched paths *
-          <Route path="*" element={<Navigate to="/" />} />
-          <Route path="/" element={<HomePage />} />
-          <Route path="/portfolio" element={<HomePage />} />
-          <Route path="/portfolio/:projectId" element={<ProjectPage />} />
-          <Route path="/cv" element={<CurriculumVitae />} />
-        </Routes> */}
         <Footer />
       </div>
     </AuthProvider>

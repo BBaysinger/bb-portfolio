@@ -30,7 +30,7 @@ export interface PortfolioProjectBase {
 export interface ParsedPortfolioProject extends PortfolioProjectBase {
   id: string;
   // TODO: This index would be wrong with the assumption that it's in the
-  // context of the active projects vs all projects. It should probably 
+  // context of the active projects vs all projects. It should probably
   // be renamed and another index should be added for the active projects.
   index: number;
 }
