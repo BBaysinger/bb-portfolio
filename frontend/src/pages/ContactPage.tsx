@@ -53,11 +53,13 @@ const ContactPage = () => {
 
   return (
     <>
-      <HeaderSub head={"Contact"} />
-      <section className={`${styles["contact-page"]} ${styles["standard-page"]} container`}>
+      <div
+        id="mainContent"
+        className={`${styles["contact-page"]}`}
+      >
         <div className={`container`}>
           <div className={`${styles["form"]} row`}>
-            <h4>Contact Me</h4>
+            <h1>Contact Me</h1>
             <form
               name="contact"
               method="POST"
@@ -66,7 +68,7 @@ const ContactPage = () => {
             >
               <input type="hidden" name="form-name" value="contact" />
               <label>
-                Name:
+                <div>Name:</div>
                 <input
                   type="text"
                   name="name"
@@ -76,7 +78,7 @@ const ContactPage = () => {
                 />
               </label>
               <label>
-                Email:
+              <div>Email:</div>
                 <input
                   type="email"
                   name="email"
@@ -86,7 +88,7 @@ const ContactPage = () => {
                 />
               </label>
               <label>
-                Message:
+              <div>Message:</div>
                 <textarea
                   name="message"
                   value={formData.message}
@@ -99,7 +101,7 @@ const ContactPage = () => {
             {status && <p>{status}</p>}
           </div>
         </div>
-      </section>
+      </div>
     </>
   );
 };
