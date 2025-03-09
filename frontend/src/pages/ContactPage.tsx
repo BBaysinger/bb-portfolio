@@ -41,23 +41,20 @@ const ContactPage = () => {
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault(); // Prevent default HTML submission
+    e.preventDefault(); // Prevent normal form submission
     setStatus("Sending...");
     setError("");
-
-    const data = new URLSearchParams();
-    data.append("form-name", "contact");
-    data.append("name", formData.name);
-    data.append("email", formData.email);
-    data.append("message", formData.message);
-
+  
+    const form = e.currentTarget;
+    const data = new FormData(form);
+  
     try {
-      const response = await fetch("/contact", {
+      const response = await fetch("/", {
         method: "POST",
+        body: new URLSearchParams(data as any).toString(),
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: data.toString(),
       });
-
+  
       if (response.ok) {
         setStatus("Message sent successfully!");
         setFormData({ name: "", email: "", message: "" });
@@ -84,7 +81,7 @@ const ContactPage = () => {
             <form
               name="contact"
               // method="POST"
-              action="/?no_redirect=true" // This prevents Netlify from redirecting
+              action="/"
               // data-netlify="true"
               data-netlify-honeypot="bot-field"
               onSubmit={handleSubmit}
