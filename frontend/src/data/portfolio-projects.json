@@ -80,7 +80,7 @@
     "awards": "",
     "type": "",
     "desc": [
-      "<p>I contributed to the Golden1 Credit Union website by developing interactive features such as accordions, global navigation menus, and a card comparison tool—though the latter has become somewhat redundant now that the number of available cards has been reduced to three.</p>",
+      "<p>I contributed to the Golden1 Credit Union website by developing interactive features such as accordions, navigation, and a card comparison tool—though the latter has become somewhat redundant now that the number of available cards has been reduced to three.</p>",
       "<p>In addition to feature development, I was responsible for optimizing performance, accessibility, and SEO. Using Lighthouse diagnostics, I meticulously audited both the front-end and source code to identify and reduce unused and bloated code, and identify and resolve inefficiencies.</p>",
       "<p>That said, I've noticed a few defects that have crept in since my time on the project—definitely not claiming those, lol.</p>"
     ],

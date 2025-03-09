@@ -1001,7 +1001,7 @@ const CurriculumVitae: React.FC = () => {
                 </div>
               </div>
               <div className={`${styles["desc"]} col-xs-12`}>
-                Reputation: ~7,000
+                Reputation: ~6,900
               </div>
             </div>
             <div ref={addToRefs} className={divClassLt}></div>
