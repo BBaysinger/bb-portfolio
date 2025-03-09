@@ -13,7 +13,11 @@ const users = [
   {
     username: "TheOther",
     hash: "1ecb9e6bdf6cc8088693c11e366415fe5c73662ecdf08f3df337924d8ea26adc",
-  }, // password: "adminpass"
+  }, // password: ""
+  {
+    username: "Amzium",
+    hash: "9f58ba4e778ed01125abf65e70a3ab2a7a7c55b93d457bd95a87e8f7f5db371b",
+  }, // password: "AmziumWeb2025!"
 ];
 
 const hashPassword = async (password: string) => {
