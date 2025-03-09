@@ -76,7 +76,6 @@ const ContactPage = () => {
             </p>
             <form
               name="contact"
-              action="/?no_redirect=true"
               data-netlify-honeypot="bot-field"
               onSubmit={handleSubmit}
             >
