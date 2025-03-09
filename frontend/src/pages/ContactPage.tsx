@@ -54,10 +54,10 @@ const ContactPage = () => {
   return (
     <>
       <HeaderSub head={"Contact"} />
-      <section className="contact-page">
+      <section className={`${styles["contact-page"]} ${styles["standard-page"]} container`}>
         <div className={`container`}>
           <div className={`${styles["form"]} row`}>
-            <h2>Contact Me</h2>
+            <h4>Contact Me</h4>
             <form
               name="contact"
               method="POST"
