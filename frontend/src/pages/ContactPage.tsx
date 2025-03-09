@@ -104,7 +104,7 @@ const ContactPage = () => {
             </form>
             {status && <p className={styles.successMessage}>{status}</p>}
             {error && <p className={styles.errorMessage}>{error}</p>}
-            {!status && !error && <p className={styles.preventShift}></p>}
+            {!status && !error && <p className={styles.preventShift}>{" "}</p>}
           </div>
         </div>
       </div>
