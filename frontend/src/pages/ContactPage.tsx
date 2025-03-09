@@ -59,7 +59,7 @@ const ContactPage = () => {
 
             <p>
               Have a project in mind or just want to say hello? Drop me a
-              message, and I'll get back to you as soon as possible!"
+              message, and I'll get back to you as soon as possible!
             </p>
             <form
               name="contact"
