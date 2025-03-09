@@ -22,13 +22,13 @@ const ContactPage = () => {
   const [status, setStatus] = useState<string>("");
   const [error, setError] = useState<string>("");
 
-  const encodeFormData = (data: Record<string, string>) => {
-    return Object.keys(data)
-      .map(
-        (key) => encodeURIComponent(key) + "=" + encodeURIComponent(data[key]),
-      )
-      .join("&");
-  };
+  // const encodeFormData = (data: Record<string, string>) => {
+  //   return Object.keys(data)
+  //     .map(
+  //       (key) => encodeURIComponent(key) + "=" + encodeURIComponent(data[key]),
+  //     )
+  //     .join("&");
+  // };
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -41,22 +41,24 @@ const ContactPage = () => {
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault(); // Prevent default HTML form submission
+    e.preventDefault(); // Prevent default form submission behavior
     setStatus("Sending...");
     setError("");
 
-    const data = new URLSearchParams(); // Use URLSearchParams instead of FormData
-    data.append("form-name", "contact"); // Explicitly append form name
+    const data = new FormData();
+    data.append("form-name", "contact");
     data.append("name", formData.name);
     data.append("email", formData.email);
     data.append("message", formData.message);
 
     try {
-      const response = await fetch("/", {
+      const response = await fetch(e.currentTarget.action, {
         method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: data.toString(), // Convert data to string format
+        body: data,
       });
+
+      const textResponse = await response.text(); // Read response as text for debugging
+      console.log("Netlify Response:", textResponse); // Debugging output
 
       if (response.ok) {
         setStatus("Message sent successfully!");
@@ -84,6 +86,7 @@ const ContactPage = () => {
             <form
               name="contact"
               // method="POST"
+              action="/?no_redirect=true" // This prevents Netlify from redirecting
               data-netlify="true"
               data-netlify-honeypot="bot-field"
               onSubmit={handleSubmit}
