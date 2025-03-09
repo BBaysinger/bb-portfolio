@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 
-import HeaderSub from "components/layout/HeaderSub";
 import styles from "./ContactPage.module.scss";
 
 /**
@@ -53,10 +52,7 @@ const ContactPage = () => {
 
   return (
     <>
-      <div
-        id="mainContent"
-        className={`${styles["contact-page"]}`}
-      >
+      <div id="mainContent" className={`${styles["contact-page"]}`}>
         <div className={`container`}>
           <div className={`${styles["form"]} row`}>
             <h1>Contact Me</h1>
@@ -78,7 +74,7 @@ const ContactPage = () => {
                 />
               </label>
               <label>
-              <div>Email:</div>
+                <div>Email:</div>
                 <input
                   type="email"
                   name="email"
@@ -88,7 +84,7 @@ const ContactPage = () => {
                 />
               </label>
               <label>
-              <div>Message:</div>
+                <div>Message:</div>
                 <textarea
                   name="message"
                   value={formData.message}
