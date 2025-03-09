@@ -28,14 +28,14 @@ const FootGreet: React.FC<{ className: string }> = ({ className }) => {
           className={`img-responsive ${styles["footer-photo"]}`}
           alt="Bradley's face"
         />
-        {greeting}, and thanks for stopping by! This site is a recent major
-        overhaul, so there may be some glitches. There will always be more to
-        come here, as time allows.
+        {greeting}, and thanks for stopping by! Parts of this site are still in
+        experimental phases. Some of the concepts will come together more over
+        time.
       </p>
       <p>
-        I'm always looking to collaborate with forward-thinking teams who value
-        engaging digital experiences. I look forward to connecting and exploring
-        how I can bring unique interactive work to your organization.
+        Anyhow, I'm always looking to collaborate with forward-thinking teams
+        who value engaging digital experiences. I look forward to connecting and
+        exploring how I can bring unique interactive work to your organization.
       </p>
     </>
   );
