@@ -41,23 +41,21 @@ const ContactPage = () => {
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+    e.preventDefault(); // Prevent default HTML form submission
     setStatus("Sending...");
     setError("");
 
-    const form = e.currentTarget;
-    const formData = new FormData(form);
+    const data = new URLSearchParams(); // Use URLSearchParams instead of FormData
+    data.append("form-name", "contact"); // Explicitly append form name
+    data.append("name", formData.name);
+    data.append("email", formData.email);
+    data.append("message", formData.message);
 
     try {
       const response = await fetch("/", {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: encodeFormData({
-          "form-name": formData.get("form-name") as string,
-          name: formData.get("name") as string,
-          email: formData.get("email") as string,
-          message: formData.get("message") as string,
-        }),
+        body: data.toString(), // Convert data to string format
       });
 
       if (response.ok) {
@@ -85,7 +83,7 @@ const ContactPage = () => {
             </p>
             <form
               name="contact"
-              method="POST"
+              // method="POST"
               data-netlify="true"
               data-netlify-honeypot="bot-field"
               onSubmit={handleSubmit}
@@ -125,9 +123,7 @@ const ContactPage = () => {
             </form>
             {status && <p className={styles.successMessage}>{status}</p>}
             {error && <p className={styles.errorMessage}>{error}</p>}
-            {!status && !error && <p className={styles.preventShift}>
-              {" "}
-            </p>}
+            {!status && !error && <p className={styles.preventShift}> </p>}
           </div>
         </div>
       </div>

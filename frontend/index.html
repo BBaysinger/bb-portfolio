@@ -17,7 +17,7 @@
   </head>
   <body>
     <div id="root"></div>
-    <form name="contact" netlify hidden>
+    <form name="contact" netlify netlify-honeypot="bot-field" hidden>
       <!-- Only to get Netlify to register the contact from. Not needed after migrating to SSR. -->
       <input type="text" name="name" />
       <input type="email" name="email" />
