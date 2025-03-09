@@ -206,6 +206,10 @@ $complimentaryThemeColor: #660099;
   margin-bottom: 10px;
   flex-wrap: wrap;
 
+  > p {
+    font-size: 18px;
+  }
+
   button {
     background-color: black;
     color: white;
