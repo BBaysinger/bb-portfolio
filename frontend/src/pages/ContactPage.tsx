@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import styles from "./ContactPage.module.scss";
 
 /**
- * Contact page that I need to develop...
+ * Obligatory contact page!
  *
  * @author Bradley Baysinger
  * @since The beginning of time.
@@ -20,6 +20,7 @@ const ContactPage = () => {
     message: "",
   });
   const [status, setStatus] = useState<string>("");
+  const [error, setError] = useState<string>("");
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -30,6 +31,7 @@ const ContactPage = () => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setStatus("Sending...");
+    setError("");
 
     const form = e.currentTarget;
     const formData = new FormData(form);
@@ -46,7 +48,8 @@ const ContactPage = () => {
         throw new Error("Form submission failed");
       }
     } catch (error) {
-      setStatus("Failed to send message. Please try again later.");
+      setError("Failed to send message. Please try again later.");
+      setStatus("");
     }
   };
 
@@ -99,7 +102,8 @@ const ContactPage = () => {
               </label>
               <button type="submit">Send</button>
             </form>
-            {status && <p>{status}</p>}
+            {status && <p className={styles.successMessage}>{status}</p>}
+            {error && <p className={styles.errorMessage}>{error}</p>}
           </div>
         </div>
       </div>
