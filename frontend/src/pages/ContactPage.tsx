@@ -5,6 +5,10 @@ import styles from "./ContactPage.module.scss";
 /**
  * Obligatory contact page!
  *
+ * Omit the action attribute on the form element to use Netlify's form handling,
+ * as described in the Netlify documentation:
+ * https://www.netlify.com/blog/2017/07/20/how-to-integrate-netlifys-form-handling-in-a-react-app/
+ * 
  * @author Bradley Baysinger
  * @since The beginning of time.
  * @version N/A
@@ -75,8 +79,6 @@ const ContactPage = () => {
               message, and I'll get back to you as soon as possible!
             </p>
             <form
-              name="contact"
-              data-netlify-honeypot="bot-field"
               onSubmit={handleSubmit}
             >
               <input type="hidden" name="form-name" value="contact" />
