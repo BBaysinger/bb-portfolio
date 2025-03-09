@@ -16,7 +16,7 @@ const users = [
   }, // password: ""
   {
     username: "Amzium",
-    hash: "9f58ba4e778ed01125abf65e70a3ab2a7a7c55b93d457bd95a87e8f7f5db371b",
+    hash: "f0865a6c2e386aef626dabf5d8e087e1ab30fed5eff3a3ca78b76bbc1823bcd1",
   }, // password: "AmziumWeb2025!"
 ];
 
