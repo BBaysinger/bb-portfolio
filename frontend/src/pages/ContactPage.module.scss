@@ -1,2 +1,23 @@
 @use "@/styles/global" as *;
 @use "@/styles/standard-page" as *;
+
+.contact-page {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-image: url("/images/misc/bg-grad.svg");
+    background-color: black;
+    background-size: 100% 100%;
+    color: #bbb;
+    padding: 16px;
+  
+    > div {
+      width: 500px;
+      max-width: 100%;
+    }
+  
+    h1 {
+      color: white;
+    }
+  }

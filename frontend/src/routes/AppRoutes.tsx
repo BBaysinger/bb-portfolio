@@ -1,6 +1,6 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 
-import Login from "pages/Login";
+import Login from "pages/LoginPage";
 import HomePage from "pages/HomePage";
 import ProjectPage from "pages/ProjectPage";
 import CurriculumVitae from "pages/CurriculumVitae";
