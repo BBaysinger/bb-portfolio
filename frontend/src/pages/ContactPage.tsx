@@ -22,6 +22,14 @@ const ContactPage = () => {
   const [status, setStatus] = useState<string>("");
   const [error, setError] = useState<string>("");
 
+  const encodeFormData = (data: Record<string, string>) => {
+    return Object.keys(data)
+      .map(
+        (key) => encodeURIComponent(key) + "=" + encodeURIComponent(data[key]),
+      )
+      .join("&");
+  };
+
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
@@ -39,8 +47,15 @@ const ContactPage = () => {
     try {
       const response = await fetch("/", {
         method: "POST",
-        body: formData,
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: encodeFormData({
+          "form-name": formData.get("form-name") as string,
+          name: formData.get("name") as string,
+          email: formData.get("email") as string,
+          message: formData.get("message") as string,
+        }),
       });
+
       if (response.ok) {
         setStatus("Message sent successfully!");
         setFormData({ name: "", email: "", message: "" });
