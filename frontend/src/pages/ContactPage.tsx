@@ -22,13 +22,13 @@ const ContactPage = () => {
   const [status, setStatus] = useState<string>("");
   const [error, setError] = useState<string>("");
 
-  // const encodeFormData = (data: Record<string, string>) => {
-  //   return Object.keys(data)
-  //     .map(
-  //       (key) => encodeURIComponent(key) + "=" + encodeURIComponent(data[key]),
-  //     )
-  //     .join("&");
-  // };
+  const encode = (data: Record<string, string>) => {
+    return Object.keys(data)
+      .map(
+        (key) => encodeURIComponent(key) + "=" + encodeURIComponent(data[key]),
+      )
+      .join("&");
+  };
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -44,17 +44,14 @@ const ContactPage = () => {
     e.preventDefault(); // Prevent normal form submission
     setStatus("Sending...");
     setError("");
-  
-    const form = e.currentTarget;
-    const data = new FormData(form);
-  
+
     try {
       const response = await fetch("/", {
         method: "POST",
-        body: new URLSearchParams(data as any).toString(),
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: encode({ "form-name": "contact", ...formData }),
       });
-  
+
       if (response.ok) {
         setStatus("Message sent successfully!");
         setFormData({ name: "", email: "", message: "" });
@@ -78,16 +75,9 @@ const ContactPage = () => {
               Have a project in mind or just want to say hello? Drop me a
               message, and I'll get back to you as soon as possible!
             </p>
-            <form
-              name="contact"
-              // method="POST"
-              action="/"
-              // data-netlify="true"
-              data-netlify-honeypot="bot-field"
-              onSubmit={handleSubmit}
-            >
+            <form onSubmit={handleSubmit}>
               <input type="hidden" name="form-name" value="contact" />
-              <input type="hidden" name="bot-field" />{" "}
+              <input type="hidden" name="bot-field" />
               <label>
                 <div>Name:</div>
                 <input
