@@ -1,10 +1,9 @@
 import { useState } from "react";
-// import CryptoJS from "crypto-js";
 
 import { useAuth } from "context/AuthContext";
 import styles from "./LoginPage.module.scss";
 
-// This is not secure. It doesn't need to be for now.
+// Obvs, this is not secure. It doesn't need to be.
 const users = [
   {
     username: "admin",
@@ -18,6 +17,10 @@ const users = [
     username: "Amzium",
     hash: "f0865a6c2e386aef626dabf5d8e087e1ab30fed5eff3a3ca78b76bbc1823bcd1",
   }, // password: "AmziumWeb2025!"
+  {
+    username: "Leslie",
+    hash: "6e2a9c2005c195088bc774cdd44def3a886a3e2598219d4e39353ae837b8b081",
+  }, // password: "Interactive2025!"
 ];
 
 const hashPassword = async (password: string) => {
