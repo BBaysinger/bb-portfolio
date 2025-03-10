@@ -29,8 +29,8 @@ const FootGreet: React.FC<{ className: string }> = ({ className }) => {
           alt="Bradley's face"
         />
         {greeting}, and thanks for stopping by! Parts of this site are still in
-        experimental phases. Some of the concepts will come together more over
-        time.
+        experimental phases, and some of the concepts will come together more
+        over time.
       </p>
       <p>
         Anyhow, I'm always looking to collaborate with forward-thinking teams

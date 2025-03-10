@@ -35,7 +35,7 @@
     left: 0;
     top: 0;
     background-color: #111;
-    background-image: url("/images/common/stripes.webp");
+    background-image: url("/images/common/stripes-orange.webp");
     background-size: 12.5% auto;
     background-position: center center;
     animation: scrollStripes linear infinite;
@@ -57,7 +57,13 @@
   }
 
   .greeting-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
     height: 100%;
+    width: 100%;
+    padding-bottom: 40px;
+    padding-top: 40px;
   }
 
   &:after {
@@ -104,36 +110,68 @@
 
   .text {
     position: relative;
-    text-align: center;
+    color: black;
+    display: flex;
+    flex-direction: column;
     @include breakpoint-up($b768px) {
       padding-right: 30px;
     }
-    p {
+    div {
       text-align: left;
       margin: 20px 0;
+      padding: 0;
       z-index: 1;
-      padding: 10px;
-      box-shadow: 20px 20px 10px rgba(0, 0, 0, 0.5);
-      // margin-top: 40px;
-      background: linear-gradient(
-        to right,
-        rgba(50, 50, 50, 1),
-        rgba(20, 20, 20, 1)
-      );
-
+      border-style: solid;
+      border-color: transparent;
+      border-top-width: 40px;
+      border-right-width: 47px;
+      border-bottom-width: 60px;
+      border-left-width: 54px;
+      border-image: url("/images/home/highway-sign.webp") 90 104 136 116 stretch;
+      margin: 0;
+      margin-bottom: -20px;
+      line-height: 1.3em;
       @include breakpoint-up($b768px) {
-        margin-bottom: 40;
-        margin: 50px 0;
-        padding: 20px;
+        // margin-bottom: 40;
+        // margin: 50px 0;
+      }
+      @include breakpoint-up($b1280px) {
+        font-size: 24px;
+        margin-bottom: -10px;
+      }
+      &:first-child {
+        &:before {
+          content: "";
+          display: block;
+          width: 50px;
+          height: 50px;
+          background-image: url("/images/home/flasher.webp");
+          background-size: cover;
+          background-repeat: no-repeat;
+          position: absolute;
+          top: -72px;
+          left: -6px;
+        }
+        &:after {
+          content: "";
+          display: block;
+          width: 50px;
+          height: 50px;
+          background-image: url("/images/home/flasher.webp");
+          background-size: cover;
+          background-repeat: no-repeat;
+          position: absolute;
+          top: -72px;
+          right: -6px;
+        }
+      }
+      &:last-of-type {
+        margin-bottom: 0;
       }
 
-      &:first-child {
-        border-right: none;
-        background: linear-gradient(
-          to left,
-          rgba(50, 50, 50, 1),
-          rgba(20, 20, 20, 1)
-        );
+      p {
+        background-color: #e7eaec;
+        margin: 0;
       }
     }
 
