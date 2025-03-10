@@ -176,7 +176,7 @@
             position: absolute;
             top: -302px;
             left: -231px;
-            animation: strobe 1.5s infinite steps(1);
+            animation: strobe 1s infinite steps(1);
             pointer-events: none;
           }
 
@@ -191,7 +191,7 @@
             position: absolute;
             top: -302px;
             right: -231px;
-            animation: strobe 1.5s infinite steps(1) 0.12s;
+            animation: strobe 1s infinite steps(1) 0.12s;
             pointer-events: none;
             z-index: 100;
           }
@@ -200,7 +200,7 @@
             0% {
               opacity: 1;
             }
-            5% {
+            7% {
               opacity: 0;
             }
             100% {
