@@ -163,6 +163,52 @@
         margin-left: 20px;
         margin-right: -29px;
       }
+      &:first-of-type {
+        p {
+          &:before {
+            content: "";
+            display: block;
+            width: 500px;
+            height: 500px;
+            background-image: url("/images/home/flash.webp");
+            background-size: cover;
+            background-repeat: no-repeat;
+            position: absolute;
+            top: -302px;
+            left: -231px;
+            animation: strobe 1.5s infinite steps(1);
+            pointer-events: none;
+          }
+
+          &:after {
+            content: "";
+            display: block;
+            width: 500px;
+            height: 500px;
+            background-image: url("/images/home/flash.webp");
+            background-size: cover;
+            background-repeat: no-repeat;
+            position: absolute;
+            top: -302px;
+            right: -231px;
+            animation: strobe 1.5s infinite steps(1) 0.12s;
+            pointer-events: none;
+            z-index: 100;
+          }
+
+          @keyframes strobe {
+            0% {
+              opacity: 1;
+            }
+            5% {
+              opacity: 0;
+            }
+            100% {
+              opacity: 0;
+            }
+          }
+        }
+      }
       &:last-of-type {
         margin-bottom: 0;
         @include breakpoint-up($b992px) {
@@ -176,7 +222,7 @@
           display: block;
           width: 50px;
           height: 50px;
-          background-image: url("/images/home/flasher.webp");
+          background-image: url("/images/home/barricade-flasher.webp");
           background-size: cover;
           background-repeat: no-repeat;
           position: absolute;
@@ -188,7 +234,7 @@
           display: block;
           width: 50px;
           height: 50px;
-          background-image: url("/images/home/flasher.webp");
+          background-image: url("/images/home/barricade-flasher.webp");
           background-size: cover;
           background-repeat: no-repeat;
           position: absolute;
