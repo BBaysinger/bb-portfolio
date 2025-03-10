@@ -12,24 +12,24 @@ const Greeting: React.FC = () => {
 
   return (
     <div id="hello" className={styles["greeting"]}>
-      <div className={styles["greeting-wrapper"]}>
-        <div className={`${styles["sign-wrapper"]}`}>
+      <div className={styles.greetingWrapper}>
+        <div className={styles.helloSignWrapper}>
           <img
             ref={addToRefs}
             src="/images/home/road-sign-mobile.webp"
-            className={styles["road-sign-mobile"]}
+            className={styles.helloSignMobile}
             alt="road sign"
           />
           <img
             ref={addToRefs}
             src="/images/home/road-sign-desktop.webp"
-            className={styles["road-sign-desktop"]}
+            className={styles.helloSignDesktop}
             alt="road sign"
           />
         </div>
 
-        <div className={``}>
-          <div className={`${styles["text"]}`}>
+        <div>
+          <div className={styles.text}>
             <div ref={addToRefs}>
               <p>
                 Hi, I'm Bradley. Welcome to my portfolio site. I'm a front-end
@@ -39,7 +39,6 @@ const Greeting: React.FC = () => {
                 practices, with a focus on performance, scalability, and
                 usability.
               </p>
-
               {/* <p>
                 With years in crafting digital experiences, I take a thoughtful
                 approach to every project—balancing aesthetics with

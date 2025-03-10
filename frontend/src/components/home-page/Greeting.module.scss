@@ -56,7 +56,7 @@
     }
   }
 
-  .greeting-wrapper {
+  .greetingWrapper {
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -65,10 +65,14 @@
     width: 100%;
     padding-bottom: 40px;
     padding-top: 40px;
+    @include breakpoint-up($b480px) {
+      padding-left: 20px;
+      padding-right: 20px;
+    }
     @include breakpoint-up($b768px) {
       flex-direction: row;
-      padding-left: 40px;
-      padding-right: 40px;
+      padding-left: 50px;
+      padding-right: 50px;
     }
   }
 
@@ -91,25 +95,24 @@
     );
   }
 
-  .sign-wrapper {
+  .helloSignWrapper {
     display: flex;
     justify-content: center;
     align-items: center;
     max-width: 450px;
-
     @include breakpoint-up($b768px) {
       min-width: 300px;
     }
   }
 
-  img.road-sign-mobile {
+  img.helloSignMobile {
     width: 60%;
     @include breakpoint-up($b768px) {
       display: none;
     }
   }
 
-  img.road-sign-desktop {
+  img.helloSignDesktop {
     display: none;
     width: 100%;
     top: 50%;
@@ -130,12 +133,10 @@
     flex-direction: column;
     @include breakpoint-up($b768px) {
       margin-right: -20px;
+      padding-top: 30px;
     }
     div {
       text-align: left;
-      margin: 20px 0;
-      margin-left: -7px;
-      margin-bottom: -40px;
       padding: 0;
       z-index: 1;
       border-style: solid;
@@ -147,15 +148,28 @@
       border-image: url("/images/home/highway-sign.webp") 90 104 136 116 stretch;
       line-height: 1.3em;
       max-width: 600px;
+      margin: 20px 0;
+      margin-left: -7px;
+      margin-bottom: -35px;
       @include breakpoint-up($b992px) {
         max-width: 800px;
+        margin-left: 10px;
+        margin-bottom: -20px;
+        font-size: 20px;
       }
       @include breakpoint-up($b1280px) {
         font-size: 24px;
-        margin-bottom: -30px;
+        margin-bottom: -23px;
         margin-left: 20px;
         margin-right: -29px;
       }
+      &:last-of-type {
+        margin-bottom: 0;
+        @include breakpoint-up($b992px) {
+          margin-bottom: 12px;
+        }
+      }
+
       &:first-child {
         &:before {
           content: "";
@@ -181,9 +195,6 @@
           top: -72px;
           right: -6px;
         }
-      }
-      &:last-of-type {
-        margin-bottom: 0;
       }
 
       p {
