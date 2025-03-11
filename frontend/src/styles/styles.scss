@@ -146,10 +146,10 @@ form {
   }
 }
 
-.error {
-  height: 16px;
-  color: #990000;
-}
+// .error {
+//   height: 16px;
+//   color: #990000;
+// }
 
 /////////////////////////////////////////////////////////////
 // Standard textual page layout
@@ -188,4 +188,12 @@ form {
     color: black;
     white-space: normal;
   }
+}
+
+.errorMessage {
+  color: #990000;
+}
+
+.successMessage {
+  color: #009900;
 }
