@@ -41,6 +41,7 @@ const App: React.FC = () => {
   return (
     <AuthProvider>
       <Nav variant={NavVariant.SLIDE_OUT} />
+      <div id="top" style={{ position: "absolute", top: "0px" }}></div>
       <div
         className={`${styles["underlay"]} ${isMenuOpen ? styles["expanded"] : ""}`}
       />
