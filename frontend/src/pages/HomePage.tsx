@@ -5,16 +5,13 @@ import PortfolioList from "components/home-page/PortfolioList";
 import Greeting from "components/home-page/Greeting";
 
 /**
- * Handles bidirectional nature of the interaction between the dynamic route and
- * the carousel. When the carousel is the source of the change, the route is updated,
- * and when the route is the source of the change, the carousel is updated. The changes
- * then propagate to the rest of the components.
- *
+ * The home page of the website. Contains the header, greeting, and portfolio list.
+ * 
  * @author Bradley Baysinger
  * @since The beginning of time.
  * @version N/A
  */
-const ProjectPage: React.FC = () => {
+const HomePage: React.FC = () => {
   return (
     <>
       <HeaderMain />
@@ -24,4 +21,4 @@ const ProjectPage: React.FC = () => {
   );
 };
 
-export default ProjectPage;
+export default HomePage;
