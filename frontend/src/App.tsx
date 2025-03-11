@@ -10,6 +10,7 @@ import ScrollToHash from "utils/ScrollToHash";
 import { RootState } from "store/store";
 import { AuthProvider } from "context/AuthContext";
 import styles from "./App.module.scss";
+import "@/styles/styles.scss";
 
 const App: React.FC = () => {
   const isMenuOpen = useSelector((state: RootState) => state.menu.isOpen);

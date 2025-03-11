@@ -1,19 +1,5 @@
-@use "@/styles/global" as *;
-
-body,
-html {
-  font-family: "Roboto";
-  font-size: 15px;
-  background-color: #000;
-}
-
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
-
-$nav-slide-time: 0.5s;
+@use "@/styles/mixins" as *;
+@use "@/styles/variables" as *;
 
 #main {
   z-index: 10;
