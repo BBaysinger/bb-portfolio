@@ -60,27 +60,25 @@ html {
 // Text slide-in animation
 //////////////////////////////////////////////////////////////////////////
 
-:global {
-  .fade-in {
-    opacity: 0;
-    transform: translateX(200px);
-    transition:
-      opacity 0.6s ease-out,
-      transform 0.6s ease-out;
+.fade-in {
+  opacity: 0;
+  transform: translateX(200px);
+  transition:
+    opacity 0.6s ease-out,
+    transform 0.6s ease-out;
 
-    &.in-view {
-      opacity: 1;
-      transform: translateX(0);
-    }
+  &.in-view {
+    opacity: 1;
+    transform: translateX(0);
   }
+}
 
-  img.fade-in {
-    transform: translateX(-100px);
-  }
+img.fade-in {
+  transform: translateX(-100px);
+}
 
-  h4.fade-in {
-    transform: translateX(-300px);
-  }
+h4.fade-in {
+  transform: translateX(-300px);
 }
 
 /////////////////////////////////////////////////////////////
@@ -188,7 +186,7 @@ form {
     font-size: 40px;
     color: #777;
     font-weight: 400;
-    margin-bottom: 6px;
+    // margin-bottom: 6px;
     line-height: 1.1em;
     @include fluid-property(font-size, $b360px, $b1280px, 40px, 48px);
     &:first-child {

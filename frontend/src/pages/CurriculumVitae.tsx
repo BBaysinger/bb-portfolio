@@ -195,7 +195,7 @@ const CurriculumVitae: React.FC = () => {
 
       <section
         id="mainContent"
-        className={`cv-page ${styles["cv-page"]} ${styles["standard-page"]}`}
+        className={`cv-page ${styles["cv-page"]} standard-page`}
       >
         <div className={`container ${styles["summary"]}`}>
           <h4 ref={addToRefs}>Summary</h4>
@@ -227,7 +227,7 @@ const CurriculumVitae: React.FC = () => {
           </div>
         </div>
 
-        <div className={`container ${styles["strengths"]}`}>
+        <div className={`container ${styles.strengths}`}>
           <h4 ref={addToRefs}>Core Strengths</h4>
 
           <div className={rowClass}>

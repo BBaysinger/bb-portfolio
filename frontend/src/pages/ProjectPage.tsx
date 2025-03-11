@@ -38,8 +38,7 @@ const ProjectPage: React.FC = () => {
   const { projectId = "" } = useParams<{ projectId: string }>();
   const projects = ProjectData.activeProjectsRecord;
   const [initialIndex] = useState<number | null>(() => {
-    const index = projectId ? ProjectData.projectIndex(projectId) : null;
-    return index ?? null;
+    return projectId ? (ProjectData.projectIndex(projectId) ?? null) : null;
   });
   const [stabilizedIndex, setStabilizedIndex] = useState<number | null>(
     () => initialIndex,
