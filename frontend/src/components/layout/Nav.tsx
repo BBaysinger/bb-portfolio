@@ -84,7 +84,7 @@ const Nav: React.FC<NavProps> = ({ variant }) => {
             <span>BRADLEY</span> <span>BAYSINGER</span>
           </div>
           <div>
-            <span className={styles["nobr"]}>
+            <span className={"nobr"}>
               Interactive Web <span className={styles["bull"]}>&bull;</span>{" "}
               Front-end Developer
             </span>
