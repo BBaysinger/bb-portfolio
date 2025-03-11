@@ -137,6 +137,7 @@
       padding-top: 30px;
     }
     div {
+      position: relative;
       text-align: left;
       padding: 0;
       z-index: 1;
@@ -167,6 +168,7 @@
       &:first-of-type {
         p {
           &:before {
+            // Flasher
             content: "";
             display: block;
             width: 500px;
@@ -176,12 +178,13 @@
             background-repeat: no-repeat;
             position: absolute;
             top: -302px;
-            left: -231px;
+            left: -233px;
             animation: strobe 1s infinite steps(1);
             pointer-events: none;
           }
 
           &:after {
+            // Flasher
             content: "";
             display: block;
             width: 500px;
@@ -228,7 +231,7 @@
           background-repeat: no-repeat;
           position: absolute;
           top: -72px;
-          left: -6px;
+          left: -8px;
         }
         &:after {
           content: "";
