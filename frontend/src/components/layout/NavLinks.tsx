@@ -51,7 +51,7 @@ const NavLinks: React.FC<NavLinkProps> = ({ onClick, className }) => {
           </li>
           <li>
             <NavLink
-              to="/cv#headerSub"
+              to="/cv#top"
               className={({ isActive }) => (isActive ? styles["active"] : "")}
             >
               CV
@@ -59,7 +59,7 @@ const NavLinks: React.FC<NavLinkProps> = ({ onClick, className }) => {
           </li>
           <li>
             <NavLink
-              to="/contact#headerSub"
+              to="/contact#top"
               className={({ isActive }) => (isActive ? styles["active"] : "")}
             >
               Contact
