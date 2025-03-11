@@ -6,7 +6,7 @@ import Greeting from "components/home-page/Greeting";
 
 /**
  * The home page of the website. Contains the header, greeting, and portfolio list.
- * 
+ *
  * @author Bradley Baysinger
  * @since The beginning of time.
  * @version N/A
