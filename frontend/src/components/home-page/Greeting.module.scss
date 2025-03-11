@@ -31,13 +31,14 @@
   &:before {
     position: absolute;
     content: "";
-    height: 100vh;
-    width: 400vh; /* Proportionality is key to seamless wraparound */
+    height: 100%;
+    width: auto;
+    aspect-ratio: 4 / 1; // Maintain aspect ratio
     left: 0;
     top: 0;
     background-color: #111;
     background-image: url("/images/common/stripes-orange-short.webp");
-    background-size: auto 100vh;
+    background-size: auto 100%; // Maintain aspect ratio
     background-repeat: repeat-x;
     background-position: 0 0;
     animation: scroll-bg 10s linear infinite;
