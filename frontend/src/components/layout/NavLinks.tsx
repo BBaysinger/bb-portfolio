@@ -27,13 +27,9 @@ const NavLinks: React.FC<NavLinkProps> = ({ onClick, className }) => {
         <>
           <li>
             <NavLink
-              to="/#headerMain"
+              to="/#top"
               className={({ isActive }) =>
-                MiscUtils.isActiveOrAlt(
-                  isActive,
-                  "/#headerMain",
-                  styles["active"],
-                )
+                MiscUtils.isActiveOrAlt(isActive, "/#top", styles["active"])
               }
             >
               Home

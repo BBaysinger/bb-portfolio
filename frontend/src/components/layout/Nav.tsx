@@ -77,7 +77,7 @@ const Nav: React.FC<NavProps> = ({ variant }) => {
         </>
       )}
 
-      <NavLink to="/#headerMain" className={titleClass}>
+      <NavLink to="/#top" className={titleClass}>
         <img src={navLogo} className={styles["nav-logo"]} alt="BB Logo" />
         <div className={styles["nav-logo-text"]}>
           <div className={styles["name"]}>
