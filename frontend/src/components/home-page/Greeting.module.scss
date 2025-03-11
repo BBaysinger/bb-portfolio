@@ -41,13 +41,13 @@
     background-size: auto 100%; // Maintain aspect ratio
     background-repeat: repeat-x;
     background-position: 0 0;
-    animation: scroll-bg 10s linear infinite;
+    animation: scroll-bg 20s linear infinite;
     z-index: -1;
   }
 
   @keyframes scroll-bg {
     from {
-      transform: translateX(-50%);
+      transform: translateX(-100%);
     }
     to {
       transform: translateX(0);
