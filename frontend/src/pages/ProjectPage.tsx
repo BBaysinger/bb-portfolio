@@ -37,11 +37,10 @@ import styles from "./ProjectPage.module.scss";
 const ProjectPage: React.FC = () => {
   const { projectId = "" } = useParams<{ projectId: string }>();
   const projects = ProjectData.activeProjectsRecord;
-  const [initialIndex] = useState<number | null>(() =>
-    projectId && ProjectData.projectIndex(projectId)
-      ? ProjectData.projectIndex(projectId)
-      : null,
-  );
+  const [initialIndex] = useState<number | null>(() => {
+    const index = projectId ? ProjectData.projectIndex(projectId) : null;
+    return index ?? null;
+  });
   const [stabilizedIndex, setStabilizedIndex] = useState<number | null>(
     () => initialIndex,
   );
