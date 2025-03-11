@@ -138,7 +138,7 @@ const HeaderMain: React.FC = () => {
 
         <h1>
           <span className={styles["first-name"]}>Bradley</span>{" "}
-          <span className={styles["nobr"]}>
+          <span className={"nobr"}>
             <BarberPole className={styles["barber-pole"]} />{" "}
             <span className={styles["last-name"]}>Baysinger</span>
           </span>
@@ -146,7 +146,7 @@ const HeaderMain: React.FC = () => {
 
         <h5 className={`${styles["subhead"]}`}>
           Interactive&nbsp;Web <span className={styles["bull"]}>&bull;</span>{" "}
-          <span className={styles["nobr"]}>Front-end Developer</span>
+          <span className={"nobr"}>Front-end Developer</span>
         </h5>
       </div>
       <ParagraphAnimator paragraphs={quotes} className={styles["message"]} />

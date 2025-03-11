@@ -70,7 +70,7 @@ const Footer: React.FC = () => {
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    <span className={styles["nobr"]}>
+                    <span className={"nobr"}>
                       <div
                         style={{
                           backgroundImage:
