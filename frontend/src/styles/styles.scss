@@ -96,7 +96,7 @@ form {
     font-size: 18px;
   }
 
-  button {
+  button[type="submit"] {
     background-color: black;
     color: white;
     border: none;
@@ -134,17 +134,17 @@ form {
   select:-webkit-autofill:hover,
   select:-webkit-autofill:focus,
   select:-webkit-autofill:active {
-    background-color: #222 !important;
+    background-color: #222;
     box-shadow: inset 2px 2px 8px #000;
     border: 0;
     padding-left: 10px;
-    color: white !important;
+    color: white;
     border-radius: 4px;
     height: 36px;
     width: 200px;
     // Be sure fields are at least 16px to
     // avoid automatic zooming on mobile.
-    font-size: 16px !important;
+    font-size: 16px;
     // Prevents background flicker
     transition: background-color 5000s ease-in-out 0s;
   }
