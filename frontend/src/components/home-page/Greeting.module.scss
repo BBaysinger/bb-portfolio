@@ -31,26 +31,22 @@
   &:before {
     position: absolute;
     content: "";
-    height: 100%;
-    width: 400vw;
+    height: 100vh;
+    width: 400vh; /* Proportionality is key to seamless wraparound */
     left: 0;
     top: 0;
     background-color: #111;
-    background-image: url("/images/common/stripes-orange.webp");
-    background-size: 12.5% auto;
-    background-position: center center;
-    animation: scrollStripes linear infinite;
-    animation-duration: 10s;
+    background-image: url("/images/common/stripes-orange-short.webp");
+    background-size: auto 100vh;
+    background-repeat: repeat-x;
+    background-position: 0 0;
+    animation: scroll-bg 10s linear infinite;
     z-index: -1;
-
-    @include breakpoint-up($b768px) {
-      width: 200vw;
-    }
   }
 
-  @keyframes scrollStripes {
+  @keyframes scroll-bg {
     from {
-      transform: translateX(-100vw);
+      transform: translateX(-50%);
     }
     to {
       transform: translateX(0);

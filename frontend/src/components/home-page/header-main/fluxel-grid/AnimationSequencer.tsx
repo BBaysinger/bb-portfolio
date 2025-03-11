@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 
+import styles from "./AnimationSequencer.module.scss";
+
 /**
  * Giant pixel animations using GIFs.
  *
@@ -82,7 +84,7 @@ const AnimationSequencer: React.FC<{ className: string }> = ({ className }) => {
 
   return (
     <div
-      className={className}
+      className={`${styles.animation} ${className}`}
       style={{
         backgroundImage: `url(${backgroundImage})`,
       }}
