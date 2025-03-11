@@ -108,8 +108,8 @@ const ContactPage = () => {
               </label>
               <button type="submit">Send</button>
             </form>
-            {status && <p className={styles.successMessage}>{status}</p>}
-            {error && <p className={styles.errorMessage}>{error}</p>}
+            {status && <p className={"successMessage"}>{status}</p>}
+            {error && <p className={"errorMessage"}>{error}</p>}
             {!status && !error && <p className={styles.preventShift}>&nbsp;</p>}
           </div>
         </div>

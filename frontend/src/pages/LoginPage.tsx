@@ -117,14 +117,15 @@ const Login = ({ onLogin }: { onLogin: () => void }) => {
           </button>
         </form>
         <p>
-          <span className={styles["error"]}>{error}</span>
-          <span className={styles["status"]}>
+          <p>
             {isLoggingIn ? (
-              "Logging in..."
+              <span className={"statusMessage"}>Logging in...</span>
+            ) : error ? (
+              <span className={"errorMessage"}>{error}</span>
             ) : (
-              <>&nbsp;</> // Prevent layout shift
+              <>&nbsp;</> // Prevent layout shift when neither message is shown
             )}
-          </span>
+          </p>
         </p>
       </div>
     </div>
