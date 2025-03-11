@@ -21,6 +21,10 @@ const users = [
     username: "Leslie",
     hash: "6e2a9c2005c195088bc774cdd44def3a886a3e2598219d4e39353ae837b8b081",
   }, // password: "Interactive2025!"
+  {
+    username: "Blue541",
+    hash: "83c110213aa180fe751b5008f7ab7ee6579963f0c001149d1bd2066b9026f038",
+  }, // password: "Blue2025!"
 ];
 
 const hashPassword = async (password: string) => {
@@ -45,9 +49,11 @@ const hashPassword = async (password: string) => {
     "SHA-256",
     new TextEncoder().encode(password),
   );
-  return Array.from(new Uint8Array(hashBuffer))
+  const retVal = Array.from(new Uint8Array(hashBuffer))
     .map((b) => b.toString(16).padStart(2, "0"))
     .join("");
+  console.info("Passed:", password, "Hashed:", retVal);
+  return retVal;
 };
 
 const Login = ({ onLogin }: { onLogin: () => void }) => {
