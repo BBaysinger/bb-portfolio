@@ -1,5 +1,5 @@
 import { useState } from "react";
-
+import * as CryptoJS from "crypto-js";
 import { useAuth } from "context/AuthContext";
 import styles from "./LoginPage.module.scss";
 
@@ -24,10 +24,17 @@ const users = [
 ];
 
 const hashPassword = async (password: string) => {
+  const isLocalNetwork = /^192\.168\./.test(window.location.hostname);
+
   if (!window.crypto?.subtle) {
-    // return CryptoJS.SHA256(password).toString(CryptoJS.enc.Hex);
-    // An error throws when testing in Safari for iOS over local network.
-    // Use CryptoJS.SHA256 for testing, but beware that it bloats the bundle size.
+    if (isLocalNetwork) {
+      // return CryptoJS.SHA256(password).toString(CryptoJS.enc.Hex);
+      // An error throws when testing in Safari for iOS over local network.
+      // Use CryptoJS.SHA256 for testing, but beware that it bloats the bundle size.
+      console.warn("crypto.subtle is not available. Using fallback.");
+      return CryptoJS.SHA256(password).toString(CryptoJS.enc.Hex);
+    }
+
     const message = "crypto.subtle is not supported in this browser.";
     alert(message);
     console.error(message);
@@ -38,11 +45,9 @@ const hashPassword = async (password: string) => {
     "SHA-256",
     new TextEncoder().encode(password),
   );
-  const retVal = Array.from(new Uint8Array(hashBuffer))
+  return Array.from(new Uint8Array(hashBuffer))
     .map((b) => b.toString(16).padStart(2, "0"))
     .join("");
-  console.info("Passed:", password, "Hashed:", retVal);
-  return retVal;
 };
 
 const Login = ({ onLogin }: { onLogin: () => void }) => {
