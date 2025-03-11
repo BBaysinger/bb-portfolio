@@ -43,16 +43,27 @@
     background-position: 0 0;
     animation: scroll-bg 20s linear infinite;
     z-index: -1;
+    // will-change: transform;
+    // transform: translate3d(0, 0, 0); // Makes GIF render on the GPU layer
   }
 
-  @keyframes scroll-bg {
+    @keyframes scroll-bg {
     from {
-      transform: translateX(-100%);
+      background-position-x: -100%;
     }
     to {
-      transform: translateX(0);
+      background-position-x: 0%;
     }
   }
+
+  // @keyframes scroll-bg {
+  //   from {
+  //     transform: translateX(-75%);
+  //   }
+  //   to {
+  //     transform: translateX(-25%);
+  //   }
+  // }
 
   .greetingWrapper {
     display: flex;
