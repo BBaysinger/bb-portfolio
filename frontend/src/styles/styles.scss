@@ -1,0 +1,207 @@
+@use "@/styles/mixins" as *;
+@use "@/styles/variables" as *;
+@use "@/styles/mixins" as *;
+
+body,
+html {
+  font-family: "Roboto";
+  font-size: 15px;
+  background-color: #000;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+#main {
+  z-index: 10;
+  position: relative;
+  background-color: #fff;
+  transition: right $nav-slide-time;
+  right: 0;
+  box-shadow: 10px 5px 60px black;
+  min-width: 320px;
+  overflow: hidden;
+
+  &.expanded {
+    // 'right' (or left) property must be used in favor of transform,
+    // as transform causes the fixed nav to shift off screen.
+    // That might be a browser defect.
+    right: 50vw;
+  }
+}
+
+// Prevents the underlying nav from showing during recoil from
+// inertial scroll.
+.underlay {
+  position: fixed;
+  z-index: 5;
+  height: 100dvh;
+  width: 100vw;
+  transition: right $nav-slide-time;
+  background-color: #000;
+  right: 0;
+  &.expanded {
+    right: 50vw;
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////
+// Global stuff
+//////////////////////////////////////////////////////////////////////////
+
+.nobr {
+  white-space: nowrap;
+}
+
+//////////////////////////////////////////////////////////////////////////
+// Text slide-in animation
+//////////////////////////////////////////////////////////////////////////
+
+:global {
+  .fade-in {
+    opacity: 0;
+    transform: translateX(200px);
+    transition:
+      opacity 0.6s ease-out,
+      transform 0.6s ease-out;
+
+    &.in-view {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  img.fade-in {
+    transform: translateX(-100px);
+  }
+
+  h4.fade-in {
+    transform: translateX(-300px);
+  }
+}
+
+/////////////////////////////////////////////////////////////
+// Forms
+/////////////////////////////////////////////////////////////
+
+form {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+
+  > p {
+    font-size: 18px;
+  }
+
+  button {
+    background-color: black;
+    color: white;
+    border: none;
+    padding: 0.5rem;
+    cursor: pointer;
+    line-height: 1;
+    padding-left: 12px;
+    padding-right: 12px;
+    border-radius: 4px;
+
+    &:hover {
+      background-color: #181818;
+    }
+  }
+
+  label {
+    width: 100%;
+    margin-bottom: 10px;
+    > *:first-child {
+      margin-bottom: 3px;
+    }
+  }
+
+  input,
+  textarea,
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  input:-webkit-autofill:active,
+  textarea:-webkit-autofill,
+  textarea:-webkit-autofill:hover,
+  textarea:-webkit-autofill:focus,
+  textarea:-webkit-autofill:active,
+  select:-webkit-autofill,
+  select:-webkit-autofill:hover,
+  select:-webkit-autofill:focus,
+  select:-webkit-autofill:active {
+    background-color: #222 !important;
+    box-shadow: inset 2px 2px 8px #000;
+    border: 0;
+    padding-left: 10px;
+    color: white !important;
+    border-radius: 4px;
+    height: 36px;
+    width: 200px;
+    // Be sure fields are at least 16px to
+    // avoid automatic zooming on mobile.
+    font-size: 16px !important;
+    // Prevents background flicker
+    transition: background-color 5000s ease-in-out 0s;
+  }
+
+  textarea {
+    width: 100%;
+    min-height: 200px;
+  }
+
+  input:focus,
+  textarea:focus {
+    outline: none;
+  }
+}
+
+.error {
+  height: 16px;
+  color: #990000;
+}
+
+/////////////////////////////////////////////////////////////
+// Standard textual page layout
+/////////////////////////////////////////////////////////////
+
+.standard-page {
+  margin-left: 10px;
+  margin-right: 10px;
+  padding-top: 60px;
+  padding-bottom: 60px;
+
+  @include breakpoint-up($b768px) {
+    padding-top: 90px;
+    padding-bottom: 90px;
+  }
+
+  h4 {
+    border-bottom: 2px solid $heavierThemeColor;
+    padding-bottom: 20px;
+    font-size: 40px;
+    color: #777;
+    font-weight: 400;
+    margin-bottom: 6px;
+    line-height: 1.1em;
+    @include fluid-property(font-size, $b360px, $b1280px, 40px, 48px);
+    &:first-child {
+      padding-top: 0;
+      margin-top: 0;
+    }
+  }
+
+  h5 {
+    position: relative;
+    font-size: 28px;
+    margin-bottom: 3px;
+    color: black;
+    white-space: normal;
+  }
+}

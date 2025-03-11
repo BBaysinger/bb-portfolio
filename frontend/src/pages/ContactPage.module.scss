@@ -1,5 +1,5 @@
-@use "@/styles/global" as *;
-@use "@/styles/standard-page" as *;
+@use "@/styles/mixins" as *;
+@use "@/styles/variables" as *;
 
 .contact-page {
   height: 100vh;

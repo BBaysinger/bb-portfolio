@@ -1,0 +1,106 @@
+@use "sass:math";
+@use "sass:map";
+@use "@/styles/variables" as *;
+
+// Mixin for mobile-first media queries
+// Usage: Apply styles starting from the specified breakpoint and up.
+// Example:
+// .example-class {
+//   @include breakpoint-up($b768px) {
+//     background-color: $lighterThemeColor;
+//   }
+// }
+@mixin breakpoint-up($breakpoint) {
+  $min-width: map.get($breakpoints, $breakpoint); // Correct Dart Sass syntax
+  @if $min-width != null {
+    @media screen and (min-width: $min-width) {
+      @content;
+    }
+  } @else {
+    // Handle raw values like '900px'
+    @media screen and (min-width: $breakpoint) {
+      @content;
+    }
+  }
+}
+
+// Function to remove the unit from a CSS value
+// This is useful for mathematical operations on CSS values
+@function strip-unit($value) {
+  // Divides the value by itself (multiplied by 0 plus 1) to effectively strip units
+  @return math.div($value, $value * 0 + 1);
+}
+
+// Mixin to create a fluid property based on viewport width
+// It interpolates between a minimum and maximum value as the viewport
+// width scales between the two specified breakpoints
+// Example:
+// h1 {
+//   @include fluid-property(height, $b320px, $b1024px, 50px, 200px);
+// }
+@mixin fluid-property($property, $min-vw, $max-vw, $min-value, $max-value) {
+  // Extract units to ensure consistency for calculations
+  $unit-min-vw: math.unit($min-vw);
+  $unit-max-vw: math.unit($max-vw);
+  $unit-min-value: math.unit($min-value);
+  $unit-max-value: math.unit($max-value);
+
+  // Ensure the viewport breakpoint units match
+  @if $unit-min-vw != $unit-max-vw {
+    @error "Viewport breakpoint units ($unit-min-vw, $unit-max-vw) must match!";
+  }
+
+  // Ensure value units are consistent
+  @if $unit-min-value != $unit-max-value {
+    @error "Property value units ($unit-min-value, $unit-max-value) must match!";
+  }
+
+  // Set the default (fallback) value for small screens
+  & {
+    #{$property}: $min-value;
+  }
+
+  // Set the fluid value between the breakpoints
+  @media screen and (min-width: $min-vw) {
+    #{$property}: calc(
+      #{$min-value} +
+        (
+          #{strip-unit($max-value - $min-value)} *
+            ((100vw - #{$min-vw}) / #{strip-unit($max-vw - $min-vw)})
+        )
+    );
+  }
+
+  // Set the maximum value explicitly for large screens
+  @media screen and (min-width: $max-vw) {
+    #{$property}: $max-value;
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////
+// SVG Trickery
+//////////////////////////////////////////////////////////////////////////
+
+// Removes redundancy of the rest of the SVG XML and allows you to declare a
+// shape with only the path data for a background or mask. It assumes your shape is
+// within a 1in x 1in viewbox, which may require reauthoring for this use, but that's
+// easy enough. In Illustrator, set the X and Y to 0,0 and scale the shape to fit a
+// 1in x 1in bounds. Helps to round decimals to 2 places for brevity.
+//
+// Example:
+// mask-image: svg("M0,0v72h72V0H0ZM22.33,55.31V16.69l36.27,19.31-36.27,19.31Z");
+@function svg($d, $color: #fff) {
+  // Ensure $color is treated as a string
+  $color-string: if(meta.type-of($color) == "string", $color, "#{$color}");
+  $formatted-color: if(
+    string.index($color-string, "#") == 1,
+    "%23#{string.slice($color-string, 2)}",
+    $color-string
+  );
+
+  // Return the SVG as a data URL
+  @return string.unquote(
+    "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' " +
+      "viewBox='0 0 72 72'%3E%3Cpath d='#{$d}' fill='#{$formatted-color}'/%3E%3C/svg%3E\")"
+  );
+}

@@ -1,0 +1,64 @@
+@use "sass:math";
+@use "sass:map";
+
+// Breakpoint Base Variables (Unitless)
+$b320: 320; // Ultra-narrow screens (e.g., smartwatches, highly compact UIs).
+$b360: 360; // Baseline for smaller smartphones (practical starting point for mobile-first design).
+$b480: 480; // Compact smartphones or foldables in phone mode (slightly larger mobile devices).
+$b576: 576; // Small tablets in portrait mode or large phones in landscape.
+$b640: 640; // Medium-sized smartphones or tablets in portrait mode.
+$b768: 768; // Tablets in portrait mode or small landscape-oriented tablets.
+$b992: 992; // Entry-level laptop screens or larger tablets in landscape.
+$b1024: 1024; // Standard tablet landscape mode or compact laptops.
+$b1280: 1280; // Modern laptops or smaller desktop screens (common starting point for desktop layouts).
+$b1440: 1440; // High-resolution desktops or widescreen laptops.
+$b1600: 1600; // Larger desktop screens, mid-size monitors.
+$b1920: 1920; // Wide monitors or premium desktop setups (optimal for expansive layouts).
+$b2200: 2200; // Ultra-wide monitors and 4K setups.
+
+// Breakpoints w/ Units
+$b320px: $b320 * 1px;
+$b360px: $b360 * 1px;
+$b480px: $b480 * 1px;
+$b576px: $b576 * 1px;
+$b640px: $b640 * 1px;
+$b768px: $b768 * 1px;
+$b992px: $b992 * 1px;
+$b1024px: $b1024 * 1px;
+$b1280px: $b1280 * 1px;
+$b1440px: $b1440 * 1px;
+$b1600px: $b1600 * 1px;
+$b1920px: $b1920 * 1px;
+$b2200px: $b2200 * 1px;
+
+// Breakpoints map (Unitless) for iteration
+$breakpoints: (
+  320: $b320,
+  360: $b360,
+  480: $b480,
+  576: $b576,
+  640: $b640,
+  768: $b768,
+  992: $b992,
+  1024: $b1024,
+  1280: $b1280,
+  1440: $b1440,
+  1600: $b1600,
+  1920: $b1920,
+  2200: $b2200,
+);
+
+//////////////////////////////////////////////////////////////////////////
+// Text slide-in animation
+//////////////////////////////////////////////////////////////////////////
+
+// Height of top nav bar
+$navBarHeight: 46px;
+// For thin stokes and normal weight text.
+$heavierThemeColor: #87ad26;
+// For heavy strokes and as a fill.
+$lighterThemeColor: rgba(141, 181, 40, 1); // #8DB528
+
+$complimentaryThemeColor: #660099;
+
+$nav-slide-time: 0.5s;

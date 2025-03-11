@@ -1,4 +1,5 @@
-@use "@/styles/global" as *;
+@use "@/styles/mixins" as *;
+@use "@/styles/variables" as *;
 @use "@/components/common/HeaderShared.module.scss" as headerShared;
 
 header.header-sub {
