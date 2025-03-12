@@ -133,7 +133,7 @@
       margin-right: -20px;
       padding-top: 30px;
     }
-    div {
+    > div {
       position: relative;
       text-align: left;
       padding: 0;
@@ -254,23 +254,33 @@
       position: relative;
       display: flex;
       flex-direction: column;
-      justify-content: flex-start;
       align-items: center;
-      padding-top: 57px;
+      aspect-ratio: 3 / 1;
       border: none;
-      font-size: 30px;
+      font-size: 25px;
       font-weight: 700;
       margin-left: auto;
       margin-right: auto;
       color: black;
       text-decoration: none;
       line-height: 1em;
-      margin-bottom: 50px;
-      height: 160px;
-      width: 500px;
+      margin-bottom: 0px;
+      width: 100%;
+      max-width: 500px;
       background-image: url("/images/home/wide-arrow.webp");
       background-repeat: no-repeat;
       background-size: 100% 100%;
+      @include breakpoint-up($b360px) {
+        font-size: 27px;
+      }
+      @include breakpoint-up($b480px) {
+        font-size: 30px;
+      }
+      > * {
+        position: absolute;
+        top: 45%;
+        transform: translateY(-50%);
+      }
     }
   }
 }
