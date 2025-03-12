@@ -213,7 +213,7 @@
       &:last-of-type {
         margin-bottom: 0;
         @include breakpoint-up($b992px) {
-          margin-bottom: 12px;
+          margin-bottom: 0px;
         }
       }
 
