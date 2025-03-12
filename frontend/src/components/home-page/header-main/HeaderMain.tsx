@@ -56,6 +56,8 @@ const HeaderMain: React.FC = () => {
 
   const onSlingerDrag = useCallback(
     (x: number, y: number, e: MouseEvent | TouchEvent) => {
+      sessionStorage.setItem("hasDragged", "true");
+
       setHasDragged(true);
       if (e.type === "touchmove") {
         const bounds = headerRef.current?.getBoundingClientRect();
