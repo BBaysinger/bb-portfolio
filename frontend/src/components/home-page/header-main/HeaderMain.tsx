@@ -56,9 +56,6 @@ const HeaderMain: React.FC = () => {
 
   const onSlingerDrag = useCallback(
     (x: number, y: number, e: MouseEvent | TouchEvent) => {
-      // setTimeout(() => { // Allow time for transition/fade. Doesn't work.
-      sessionStorage.setItem("hasDragged", "true");
-      // }, 600);
       setHasDragged(true);
       if (e.type === "touchmove") {
         const bounds = headerRef.current?.getBoundingClientRect();

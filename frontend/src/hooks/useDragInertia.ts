@@ -42,6 +42,7 @@ export const useDragInertia = (
 
     // Disable snapping when dragging starts
     const handlePress = () => setSnap("none");
+    const offset = -79; // HACK: Hardcoded for now.
 
     const draggable = Draggable.create(scroller, {
       type: "scrollLeft", // NOTE: Mutates the DOM by nesting the scroller
@@ -49,9 +50,24 @@ export const useDragInertia = (
       inertia: true,
       throwProps: true, // Enables smooth inertia-based scrolling
       cursor: "grab",
-      snap: (endValue) => {
-        // HACK: Hardcoded for now.
-        const retVal = -Math.round(endValue / slideSpacing) * slideSpacing - 79;
+      // snap: (endValue) => {
+      //   const retVal = -Math.round(endValue / slideSpacing) * slideSpacing + offset;
+      //   return retVal;
+      // },
+      snap: function (endValue) {
+        const velocity = this.tween ? this.tween.getVelocity() : 0; // GSAP velocity
+        const threshold = slideSpacing * 0.3;
+        const remainder = Math.abs(endValue % slideSpacing);
+
+        let retVal;
+        if (Math.abs(velocity) > 300 || remainder > threshold) {
+          // If velocity is high or user drags beyond threshold, move to next slide
+          retVal = -Math.round(endValue / slideSpacing) * slideSpacing + offset;
+        } else {
+          // Otherwise, snap to the current one
+          retVal = -Math.floor(endValue / slideSpacing) * slideSpacing + offset;
+        }
+
         return retVal;
       },
       onPress: () => {
