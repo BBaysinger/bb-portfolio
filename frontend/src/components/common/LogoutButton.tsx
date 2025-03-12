@@ -19,7 +19,7 @@ const LogoutButton: React.FC = () => {
     sessionStorage.removeItem("hasScrolledOut");
 
     logout();
-    navigate("/login");
+    navigate("/login#top");
   };
 
   return (
