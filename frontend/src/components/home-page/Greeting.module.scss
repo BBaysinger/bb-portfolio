@@ -33,21 +33,19 @@
     content: "";
     height: 100%;
     width: auto;
-    aspect-ratio: 4 / 1; // Maintain aspect ratio
     left: 0;
     top: 0;
     background-color: #111;
     background-image: url("/images/common/stripes-orange-short.webp");
-    background-size: auto 100%; // Maintain aspect ratio
+    aspect-ratio: 2 / 1; // Maintains aspect ratio
+    background-size: auto 100%; // Maintains aspect ratio
     background-repeat: repeat-x;
     background-position: 0 0;
     animation: scroll-bg 20s linear infinite;
     z-index: -1;
-    // will-change: transform;
-    // transform: translate3d(0, 0, 0); // Makes GIF render on the GPU layer
   }
 
-    @keyframes scroll-bg {
+  @keyframes scroll-bg {
     from {
       background-position-x: -100%;
     }
@@ -55,15 +53,6 @@
       background-position-x: 0%;
     }
   }
-
-  // @keyframes scroll-bg {
-  //   from {
-  //     transform: translateX(-75%);
-  //   }
-  //   to {
-  //     transform: translateX(-25%);
-  //   }
-  // }
 
   .greetingWrapper {
     display: flex;
@@ -263,50 +252,25 @@
 
     a {
       position: relative;
-      display: inline-block;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+      padding-top: 57px;
       border: none;
-      background-color: #f1fd02;
-      padding: 8px 10px;
       font-size: 30px;
       font-weight: 700;
-      box-shadow: 20px 20px 10px rgba(0, 0, 0, 0.5);
       margin-left: auto;
       margin-right: auto;
-      height: 46px;
       color: black;
       text-decoration: none;
       line-height: 1em;
       margin-bottom: 50px;
-      @include breakpoint-up($b768px) {
-        padding: 8px 28px;
-      }
-
-      &::before {
-        content: "";
-        display: block;
-        width: 60px;
-        height: 76px;
-        background-image: url("/images/home/button-bolt.svg");
-        background-size: contain;
-        background-repeat: no-repeat;
-        position: absolute;
-        top: 0px;
-        left: -60px;
-      }
-
-      &::after {
-        content: "";
-        display: block;
-        width: 60px;
-        height: 76px;
-        background-image: url("/images/home/button-bolt.svg");
-        background-size: contain;
-        background-repeat: no-repeat;
-        position: absolute;
-        top: 0px;
-        right: -60px;
-        transform: scale(-1, 1);
-      }
+      height: 160px;
+      width: 500px;
+      background-image: url("/images/home/wide-arrow.webp");
+      background-repeat: no-repeat;
+      background-size: 100% 100%;
     }
   }
 }
