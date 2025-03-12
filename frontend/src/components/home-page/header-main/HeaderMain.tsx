@@ -93,7 +93,7 @@ const HeaderMain: React.FC = () => {
     "Great front-end development is like great stage design — you don't notice it when it's done well, but it shapes the entire experience.",
     "The web is a living medium. It breathes through animations, responds through interactions, and adapts through responsiveness.",
     "Users don't want to read manuals. They explore. A well-crafted interface should teach them as they interact — no instructions required.",
-    "Good UI is like a joke — if you have to explain it, it's not that good.",
+    // "Good UI is like a joke — if you have to explain it, it's not that good.",
     "Responsiveness isn't just about screen sizes — it's about responding to users' needs, behaviors, and expectations in real-time.",
     "Microinteractions are the punctuation marks of user experience. They add rhythm, personality, and meaning to an interface.",
     "Front-end development is the art of making complexity disappear, turning intricate logic into a seamless and intuitive experience.",
