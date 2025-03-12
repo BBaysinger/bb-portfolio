@@ -339,8 +339,8 @@ const CurriculumVitae: React.FC = () => {
               </p>
 
               <p ref={addToRefs} className={styles["scope"]}>
-                <span>Technical Scope:</span> Angular, TypeScript, jQuery, Adobe
-                Suite, Sitecore, HTML Email, Salesforce, OneTrust, FreeMarker
+                <span>Technical Scope:</span> jQuery, Adobe Suite, Sitecore,
+                HTML Email, Salesforce, OneTrust, FreeMarker
               </p>
 
               <ul>
@@ -373,8 +373,15 @@ const CurriculumVitae: React.FC = () => {
                 <li ref={addToRefs}>
                   Created the Oncotype DX Breast Recurrence Score Report
                   Explorer for the Exact Sciences website, helping users
-                  understand diagnostic results documents. Contributed to
-                  responsive/interactive components, and defect resolution.
+                  understand diagnostic results documents. Converted Figma
+                  designs into responsive and interactive web pages and
+                  components, ensuring pixel-perfect implementation and seamless
+                  user experience across all devices.
+                  {/* Created the Oncotype DX
+                  Breast Recurrence Score Report Explorer for the Exact Sciences
+                  website, helping users understand diagnostic results
+                  documents. Contributed to responsive/interactive components,
+                  and defect resolution. */}
                 </li>
                 <li ref={addToRefs}>
                   Developed consent management workflows using <b>FreeMarker</b>{" "}
@@ -451,7 +458,7 @@ const CurriculumVitae: React.FC = () => {
                 </li>
                 <li ref={addToRefs}>
                   Produced animations in vanilla JavaScript and CSS3 for
-                  websites and banner ads for Novo Nordisk, enhancing user
+                  websites and banner ads for Novo Nordisk, enhancing user UI/UX
                   engagement for a multinational pharmaceutical company.
                 </li>
                 <li ref={addToRefs}>
@@ -503,6 +510,12 @@ const CurriculumVitae: React.FC = () => {
 
               <ul>
                 <li ref={addToRefs}>
+                  Converted Sketch designs into responsive and interactive web
+                  pages and components, ensuring pixel-perfect implementation
+                  and seamless user experience across all devices.
+                </li>
+
+                <li ref={addToRefs}>
                   Designed and implemented logic for interactive activities like
                   site-wide scavenger hunts and wallpaper creators for
                   responsive websites supporting Nintendo game launches.
@@ -533,6 +546,10 @@ const CurriculumVitae: React.FC = () => {
                   Implemented <b>localization</b> strategies to optimize
                   international deployments, addressing unique design and
                   content challenges across regions.
+                </li>
+                <li ref={addToRefs}>
+                  Integrated with Nintendo's Nclood API for managing user
+                  statuses and rewards systems.
                 </li>
                 <li ref={addToRefs}>
                   Built a zero-dependency, <b>vanilla JavaScript</b> carousel
