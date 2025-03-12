@@ -30,7 +30,7 @@ const FootGreet: React.FC<{ className: string }> = ({ className }) => {
         />
         {greeting}, and thanks for stopping by! Parts of this site are still in
         experimental phases, and some of the concepts will come together more
-        over time.
+        over time. I'm having a lot of fun building it.
       </p>
       <p>
         Anyhow, I'm always looking to collaborate with forward-thinking teams
