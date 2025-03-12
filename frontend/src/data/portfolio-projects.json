@@ -170,8 +170,7 @@
     "desc": [
       "<p>This Mario Bros. Nintendo DS game site featured a detailed hero animation, which required some intricate CSS3 work. I designed the responsive elements to adapt fluidly without relying on breakpoints, allowing the entire sequence to be scripted only once.</p>",
       "<p>The bounce effects on certain page elements and the rubbery button interactions involved creating a custom system for dynamically animating SVG paths.</p>",
-      "<p>Beyond animations, I also contributed to the site's responsive layout and localization.</p>",
-      "<p>Interestingly, of the three Nintendo projects in my portfolio, there were some challenges, as a lead was adamant about avoiding modern development practices. I did my best to advocate for better solutions while navigating the constraints diplomatically.</p>"
+      "<p>Beyond animations, I also contributed to the site's responsive layout and localization.</p>"
     ],
     "urls": {
       "View Site": "http://www.bbaysinger.com/_projects/marioandluigi/index.html"
