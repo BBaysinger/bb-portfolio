@@ -28,9 +28,9 @@ const FootGreet: React.FC<{ className: string }> = ({ className }) => {
           className={`img-responsive ${styles["footer-photo"]}`}
           alt="Bradley's face"
         />
-        {greeting}, and thanks for stopping by! Parts of this site are still in
-        experimental phases, and some of the concepts will come together more
-        over time. I'm having a lot of fun building it.
+        {greeting}, and thanks for stopping by! I'll be honest—this space is an
+        experiment in progress, and I hope it always stays that way. Some things
+        might seem a bit mysterious, but give it time and check back later!
       </p>
       <p>
         Anyhow, I'm always looking to collaborate with forward-thinking teams
