@@ -56,6 +56,7 @@ const FluxelGrid: React.FC<{
 
   useEffect(() => {
     const handleMouseMove = (event: any) => {
+      // Touch events come from a different component.
       if (event.pointerType === "touch") {
         return;
       }
