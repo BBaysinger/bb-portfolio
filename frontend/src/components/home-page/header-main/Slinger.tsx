@@ -144,7 +144,8 @@ const Slinger: React.FC<SlingerProps> = ({ onDrag, onDragEnd }) => {
         dragStartPosition.current = { x: clientX, y: clientY };
 
         // Invoke onDrag callback
-        onDrag?.(clientX + ballSize / 2, clientY + ballSize / 2, e);
+        // onDrag?.(clientX + ballSize / 2, clientY + ballSize / 2, e);
+        onDrag?.(clientX, clientY, e);
       }
     });
 
