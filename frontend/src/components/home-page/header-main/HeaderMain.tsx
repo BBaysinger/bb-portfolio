@@ -19,7 +19,7 @@ const HeaderMain: React.FC = () => {
   const id = "headerMain";
   const hasScrolledOut = useScrollPersistedClass(id);
 
-  const headerRef = useRef<HTMLDivElement>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
   const getHeight = () => document.documentElement.clientHeight;
   const getWidth = () => document.documentElement.clientWidth;
 
@@ -57,14 +57,16 @@ const HeaderMain: React.FC = () => {
   const onSlingerDrag = useCallback(
     (x: number, y: number, e: MouseEvent | TouchEvent) => {
       sessionStorage.setItem("hasDragged", "true");
-
       setHasDragged(true);
-      if (e.type === "touchmove") {
-        const bounds = headerRef.current?.getBoundingClientRect();
+      if (
+        e.type === "touchmove" &&
+        wrapperRef.current?.firstElementChild instanceof HTMLElement
+      ) {
+        const bounds =
+          wrapperRef.current?.firstElementChild.getBoundingClientRect();
         if (!bounds) return;
-        const longestSide = Math.max(bounds.width, bounds.height);
-        const offsetX = x + (longestSide - bounds.width) / 2;
-        const offsetY = y + (longestSide - bounds.height) / 2;
+        const offsetX = x - bounds.x;
+        const offsetY = y - bounds.y;
         setSlingerPos({ x: offsetX, y: offsetY });
       }
     },
@@ -103,7 +105,7 @@ const HeaderMain: React.FC = () => {
   return (
     <header
       id={id}
-      ref={headerRef}
+      // ref={wrapperRef}
       className={
         `${styles["header-main"]} ${styles["header"]} header-main ` +
         `${hasScrolledOut ? styles["has-scrolled-out"] : ""} ` +
@@ -114,7 +116,7 @@ const HeaderMain: React.FC = () => {
       <div className={styles["debug"]}>
         {sessionStorage.getItem("hasDragged")}
       </div>
-      <div className={styles["fluxel-wrapper"]}>
+      <div ref={wrapperRef} className={styles["fluxel-wrapper"]}>
         <FluxelGrid
           rows={12}
           cols={16}
