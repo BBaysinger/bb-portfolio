@@ -125,14 +125,19 @@ $bottom: 10px;
   overflow: hidden;
 
   & > * {
+    border: 1px solid #000;
     position: absolute;
     overflow: hidden;
+    aspect-ratio: 1/1;
     width: 100vmax;
     height: 100vmax;
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    // transform: translate(-50%, -50%) scale(0.58);
+    // @media (min-aspect-ratio: 1/1) { // KEEP: Constrains the grid for wide aspect ratios
+    //   max-height: 150vmin;
+    //   max-width: 150vmin;
+    // }
   }
 }
 
