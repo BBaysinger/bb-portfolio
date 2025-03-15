@@ -117,7 +117,7 @@ const HeaderMain: React.FC = () => {
       <div className={styles["fluxel-wrapper"]}>
         <FluxelGrid
           rows={12}
-          cols={12}
+          cols={16}
           viewableWidth={clientWidth}
           viewableHeight={clientHeight}
           externalMousePos={slingerPos}
