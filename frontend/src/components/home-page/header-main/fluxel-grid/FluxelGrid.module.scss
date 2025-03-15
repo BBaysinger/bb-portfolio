@@ -1,9 +1,9 @@
 .fluxel-grid {
   display: flex;
   flex-wrap: wrap;
-  aspect-ratio: 1 / 1;
-  width: 100%;
-  height: 100%;
+  // aspect-ratio: 1 / 1;
+  // width: 100%;
+  // height: 100%;
   justify-content: center; /* Center items within each row (horizontal centering) */
   align-content: center; /* Center the entire group of rows vertically */
   pointer-events: none;
@@ -36,11 +36,10 @@
 }
 
 .inactive-placeholder {
-  visibility: hidden;
+  // visibility: hidden;
   color: white;
   overflow: hidden;
-  background-color: yellow !important;
-  outline: 1px solid black;
+  outline: 1px solid red;
 }
 
 .fluxel-grid-background {
