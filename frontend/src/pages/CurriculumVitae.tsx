@@ -255,7 +255,7 @@ const CurriculumVitae: React.FC = () => {
                 </li>
                 <li>
                   TypeScript (3+ years): Strong typing (with further history in
-                  strict-typed ECMAScript)
+                  strongly-typed ECMAScript)
                 </li>
                 <li>
                   React (Growing expertise): Reusable components, state
@@ -277,7 +277,7 @@ const CurriculumVitae: React.FC = () => {
                 </li>
                 <li>
                   Interactive Web Development: Built engaging tools like data
-                  explorers and educational SVG UIs
+                  explorers and Canvas and SVG UIs
                 </li>
               </ul>
 

@@ -8,23 +8,23 @@ const users = [
   {
     username: "admin",
     hash: "713bfda78870bf9d1b261f565286f85e97ee614efe5f0faf7c34e7ca4f65baca",
-  }, // password: "adminpass"
+  },
   {
     username: "TheOther",
     hash: "1ecb9e6bdf6cc8088693c11e366415fe5c73662ecdf08f3df337924d8ea26adc",
-  }, // password: ""
+  },
   {
     username: "Amzium",
     hash: "f0865a6c2e386aef626dabf5d8e087e1ab30fed5eff3a3ca78b76bbc1823bcd1",
-  }, // password: "AmziumWeb2025!"
+  },
   {
     username: "Leslie",
     hash: "6e2a9c2005c195088bc774cdd44def3a886a3e2598219d4e39353ae837b8b081",
-  }, // password: "Interactive2025!"
+  },
   {
     username: "Blue541",
     hash: "83c110213aa180fe751b5008f7ab7ee6579963f0c001149d1bd2066b9026f038",
-  }, // password: "Blue2025!"
+  },
 ];
 
 const hashPassword = async (password: string) => {
