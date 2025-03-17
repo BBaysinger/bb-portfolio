@@ -24,6 +24,7 @@ const AnimationSequencer: React.FC<{ className: string }> = ({ className }) => {
   const queueRef = useRef<number[]>([]);
   const delay = 12000;
   const initialDelay = 5000;
+  const ratio = 4 / 3.3;
 
   const sequence = [
     {
@@ -63,10 +64,10 @@ const AnimationSequencer: React.FC<{ className: string }> = ({ className }) => {
     const nextIndex = getNextIndex();
 
     const imageUrl =
-      aspect > 4 / 3 ? sequence[nextIndex].narrow : sequence[nextIndex].wide;
+      aspect < ratio ? sequence[nextIndex].narrow : sequence[nextIndex].wide;
 
-    // const orientation = aspect < 4 / 3 ? "narrow" : "wide";
-    // console.log(aspect, 4 / 3, orientation);
+    const orientation = aspect < ratio ? "narrow" : "wide";
+    console.log(aspect, ratio, orientation);
 
     setBackgroundImage(imageUrl);
 

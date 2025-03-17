@@ -1005,15 +1005,9 @@ const CurriculumVitae: React.FC = () => {
                 <div className={styles["left-sub"]}>
                   <h5>14 gold badges on Stack Overflow</h5>
                   <div className={`${styles["badges"]} col-xs-12`}>
-                    <div className={`${styles["badges"]} col-xs-12`}>
-                      {Array.from({ length: 14 }, (_, index) => (
-                        <img
-                          key={index}
-                          src="/images/cv/gold-badge.svg"
-                          alt=""
-                        />
-                      ))}
-                    </div>
+                    {Array.from({ length: 14 }, (_, index) => (
+                      <img key={index} src="/images/cv/gold-badge.svg" alt="" />
+                    ))}
                   </div>
                 </div>
               </div>
