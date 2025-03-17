@@ -35,13 +35,9 @@ header.header-sub {
   h1 {
     font-weight: 400; // Only a factor before fonts load.
     margin-top: 0;
-    margin-bottom: 10px;
+    margin-bottom: 0;
     font-size: 36px;
     line-height: 1em;
-
-    // @include breakpoint-up($b360px) {
-    //   font-size: 36px;
-    // }
 
     @include breakpoint-up($b480px) {
       font-size: 46px;
@@ -77,6 +73,7 @@ header.header-sub {
 
 h5,
 .h5 {
+  margin-top: 10px;
   margin-bottom: 0;
   font-size: 18px;
   font-weight: 400;
