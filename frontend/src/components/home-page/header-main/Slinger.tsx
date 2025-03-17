@@ -111,7 +111,7 @@ const Slinger: React.FC<SlingerProps> = ({ onDrag, onDragEnd }) => {
   ) => {
     if (
       !(e.target instanceof HTMLElement) ||
-      !e.target.classList.contains(styles["obj"])
+      !e.target.classList.contains(styles.slinger)
     )
       return;
 
@@ -230,7 +230,7 @@ const Slinger: React.FC<SlingerProps> = ({ onDrag, onDragEnd }) => {
     <div ref={containerRef} className={styles["wrapper"]}>
       {objectsRef.current.map((obj) => (
         <div
-          className={`${styles["obj"]} slinger-obj`}
+          className={`${styles.slinger} slinger-obj`}
           key={obj.id}
           onMouseDown={(e) => handleMouseDown(obj.id, e)}
           onTouchStart={(e) => handleTouchStart(obj.id, e)}
