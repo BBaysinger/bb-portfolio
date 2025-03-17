@@ -37,7 +37,7 @@
     pointer-events: none;
     transform-origin: 100% 50%;
     transform: rotate(45deg);
-    opacity: 0;
+    opacity: 1;
     transition: opacity 0.3s linear;
 
     @include breakpoint-up($b768px) {

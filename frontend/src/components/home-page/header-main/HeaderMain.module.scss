@@ -1,6 +1,5 @@
 @use "@/styles/mixins" as *;
 @use "@/styles/variables" as *;
-// @use "@/components/common/HeaderShared.module.scss" as headerShared;
 
 header.header-main {
   position: relative;
@@ -245,6 +244,16 @@ $ctaOffset: -91px;
 
 .has-dragged {
   :global(.slinger-obj)::before {
-    display: none;
+    animation: fadeOut 0.5s ease-out forwards;
+  }
+  @keyframes fadeOut {
+    0% {
+      opacity: 1;
+      visibility: visible;
+    }
+    100% {
+      opacity: 0;
+      visibility: hidden;
+    }
   }
 }

@@ -1,5 +1,5 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 
 import { useAuth } from "context/AuthContext";
 import styles from "./LogoutButton.module.scss";
@@ -11,11 +11,10 @@ import styles from "./LogoutButton.module.scss";
  */
 
 interface LogoutButtonProps {
-  className?: string;
+  className?: string | ((props: { isActive: boolean }) => string);
 }
 
 const LogoutButton: React.FC<LogoutButtonProps> = ({ className = "" }) => {
-  const navigate = useNavigate(); // Get the navigate function from useNavigate
   const { logout } = useAuth();
 
   const handleLogout = () => {
@@ -24,15 +23,19 @@ const LogoutButton: React.FC<LogoutButtonProps> = ({ className = "" }) => {
     sessionStorage.removeItem("hasScrolledOut");
 
     logout();
-    navigate("/login#top");
   };
 
   return (
     <li className={`${styles["logout"]} ${className}`} onClick={handleLogout}>
-      <img
-        src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
-        alt="Logout"
-      />
+      <NavLink
+        className={({ isActive }) => (isActive ? styles.active : "")}
+        to="/login#top"
+      >
+        <img
+          src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+          alt="Logout"
+        />
+      </NavLink>
     </li>
   );
 };
