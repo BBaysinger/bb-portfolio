@@ -25,6 +25,10 @@ const users = [
     username: "Blue541",
     hash: "83c110213aa180fe751b5008f7ab7ee6579963f0c001149d1bd2066b9026f038",
   },
+  {
+    username: "Guest",
+    hash: "8e6133f9422f1cb76f58c8b6b8e894fddb76104967babf7818b30a02493010ca",
+  },
 ];
 
 const hashPassword = async (password: string) => {

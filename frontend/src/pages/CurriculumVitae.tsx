@@ -384,11 +384,11 @@ const CurriculumVitae: React.FC = () => {
                   and defect resolution. */}
                 </li>
                 <li ref={addToRefs}>
-                  Developed consent management workflows using <b>FreeMarker</b>{" "}
-                  for <b>OneTrust</b> integration, facilitating seamless data
-                  exchange across platforms like MuleSoft and Veeva, enhancing
-                  compliance and user experience through event-driven and
-                  scheduled processes.
+                  Developed consent management workflows using{" "}
+                  <b>Apache FreeMarker</b> for <b>OneTrust</b> integration,
+                  facilitating seamless data exchange across platforms like
+                  MuleSoft and Veeva, enhancing compliance and user experience
+                  through event-driven and scheduled processes.
                 </li>
                 <li ref={addToRefs}>
                   Implemented OneTrust preference centers to manage user
@@ -736,12 +736,12 @@ const CurriculumVitae: React.FC = () => {
                   Spokane Ad Fed events.
                 </li>
                 <li ref={addToRefs}>
-                  Worked 350+ hours in June 2014 to meet a critical WildBrain
-                  deadline.
+                  Worked 350+ hours in June 2014 to meet a critical deadline for
+                  our WildBrain client.
                 </li>
                 <li ref={addToRefs}>
-                  Led front-end development of a Webby Award-winning project
-                  (2008 People's Choice Art Website of the Year).
+                  Led front-end development of a <b>Webby Award</b>-winning
+                  project (2008 People's Choice Art Website of the Year).
                 </li>
               </ul>
             </div>
