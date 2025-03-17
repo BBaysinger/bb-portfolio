@@ -67,7 +67,11 @@ const NavLinks: React.FC<NavLinkProps> = ({ onClick, className }) => {
           Contact
         </NavLink>
       </li>
-      {isLoggedIn && <LogoutButton className={`${styles.logout} logout`} />}
+      {isLoggedIn && (
+        <LogoutButton
+          className={({ isActive }) => (isActive ? styles.active : "")}
+        />
+      )}
       {!isLoggedIn && (
         <li>
           <NavLink
