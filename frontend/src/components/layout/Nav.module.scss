@@ -203,11 +203,10 @@ ul {
     height: 53px;
     background: linear-gradient(rgba(30, 30, 30, 0.85), rgba(10, 10, 10, 0.85));
     padding-top: 0;
-    &:last-of-type {
+    &:global(.logout) {
       position: absolute;
       bottom: 100px;
       width: 100%;
-      border: red;
     }
   }
 

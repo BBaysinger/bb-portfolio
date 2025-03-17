@@ -29,7 +29,7 @@ const NavLinks: React.FC<NavLinkProps> = ({ onClick, className }) => {
             <NavLink
               to="/#top"
               className={({ isActive }) =>
-                MiscUtils.isActiveOrAlt(isActive, "/#top", styles["active"])
+                MiscUtils.isActiveOrAlt(isActive, "/#top", styles.active)
               }
             >
               Home
@@ -42,7 +42,7 @@ const NavLinks: React.FC<NavLinkProps> = ({ onClick, className }) => {
                 MiscUtils.isActiveOrAlt(
                   isActive,
                   "/portfolio#list",
-                  styles["active"],
+                  styles.active,
                 )
               }
             >
@@ -52,23 +52,31 @@ const NavLinks: React.FC<NavLinkProps> = ({ onClick, className }) => {
           <li>
             <NavLink
               to="/cv#top"
-              className={({ isActive }) => (isActive ? styles["active"] : "")}
+              className={({ isActive }) => (isActive ? styles.active : "")}
             >
               CV
             </NavLink>
           </li>
-          <li>
-            <NavLink
-              to="/contact#top"
-              className={({ isActive }) => (isActive ? styles["active"] : "")}
-            >
-              Contact
-            </NavLink>
-          </li>
-          <li>
-            <LogoutButton />
-          </li>
         </>
+      )}
+      <li>
+        <NavLink
+          to="/contact#top"
+          className={({ isActive }) => (isActive ? styles.active : "")}
+        >
+          Contact
+        </NavLink>
+      </li>
+      {isLoggedIn && <LogoutButton className={`${styles.logout} logout`} />}
+      {!isLoggedIn && (
+        <li>
+          <NavLink
+            to="/login#top"
+            className={({ isActive }) => (isActive ? styles.active : "")}
+          >
+            Login
+          </NavLink>
+        </li>
       )}
     </ul>
   );

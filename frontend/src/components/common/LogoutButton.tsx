@@ -9,7 +9,12 @@ import styles from "./LogoutButton.module.scss";
  * @since The beginning of time.
  * @version N/A
  */
-const LogoutButton: React.FC = () => {
+
+interface LogoutButtonProps {
+  className?: string;
+}
+
+const LogoutButton: React.FC<LogoutButtonProps> = ({ className = "" }) => {
   const navigate = useNavigate(); // Get the navigate function from useNavigate
   const { logout } = useAuth();
 
@@ -23,12 +28,12 @@ const LogoutButton: React.FC = () => {
   };
 
   return (
-    <button className={`${styles["logout"]} logout`} onClick={handleLogout}>
+    <li className={`${styles["logout"]} ${className}`} onClick={handleLogout}>
       <img
         src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
         alt="Logout"
       />
-    </button>
+    </li>
   );
 };
 
