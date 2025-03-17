@@ -16,10 +16,17 @@ type SlingerProps = {
   onDragEnd?: (x: number, y: number, e: MouseEvent | TouchEvent) => void;
 };
 
+/**
+ * Slinger component - A draggable floating object with physics-based movement.
+ * Implements a bouncing effect inside a container and tracks velocity upon release.
+ *
+ * @component
+ * @param {SlingerProps} props - Component props containing optional drag event handlers.
+ */
 const Slinger: React.FC<SlingerProps> = ({ onDrag, onDragEnd }) => {
   const ballSize = 50;
   const animationFrameRef = useRef<number | null>(null);
-  const triggerRender = useState(0)[1];
+  const triggerRender = useState(0)[1]; // Used to force re-render when necessary
   const containerRef = useRef<HTMLDivElement>(null);
   const dragStartPosition = useRef<{ x: number; y: number } | null>(null);
   const movementHistory = useRef<{ x: number; y: number; time: number }[]>([]);
@@ -27,10 +34,12 @@ const Slinger: React.FC<SlingerProps> = ({ onDrag, onDragEnd }) => {
     vx: 0,
     vy: 0,
   });
+
   const objectsRef = useRef<FloatingObject[]>([
     { id: 1, x: 50, y: 50, vx: 1, vy: 1, isDragging: false },
   ]);
 
+  /** Animate floating object */
   const animate = useCallback(() => {
     if (!containerRef.current) return;
 
@@ -75,7 +84,13 @@ const Slinger: React.FC<SlingerProps> = ({ onDrag, onDragEnd }) => {
       obj.vy = vy;
     });
 
-    triggerRender((prev) => prev + 1); // Force re-render
+    // Direct DOM update (avoids React re-render)
+    // triggerRender((prev) => prev + 1); // Force re-render // Removed for performance
+    const el = document.querySelector(`.slinger-obj`) as HTMLElement | null;
+    if (el) {
+      el.style.transform = `translate(${Math.round(objectsRef.current[0].x)}px, ${Math.round(objectsRef.current[0].y)}px)`;
+    }
+
     animationFrameRef.current = requestAnimationFrame(animate);
   }, []);
 
@@ -87,6 +102,7 @@ const Slinger: React.FC<SlingerProps> = ({ onDrag, onDragEnd }) => {
     };
   }, [animate]);
 
+  /** Start dragging */
   const startDrag = (
     id: number,
     clientX: number,
@@ -96,9 +112,8 @@ const Slinger: React.FC<SlingerProps> = ({ onDrag, onDragEnd }) => {
     if (
       !(e.target instanceof HTMLElement) ||
       !e.target.classList.contains(styles["obj"])
-    ) {
-      return false; // Ensure the event started on a ball
-    }
+    )
+      return;
 
     dragStartPosition.current = { x: clientX, y: clientY };
     movementHistory.current = [
@@ -115,10 +130,6 @@ const Slinger: React.FC<SlingerProps> = ({ onDrag, onDragEnd }) => {
     });
 
     triggerRender((prev) => prev + 1);
-
-    // if (e.cancelable) {
-    //   e.preventDefault();
-    // }
   };
 
   const handleMouseDown = (id: number, e: React.MouseEvent) => {
@@ -130,6 +141,7 @@ const Slinger: React.FC<SlingerProps> = ({ onDrag, onDragEnd }) => {
     startDrag(id, touch.clientX, touch.clientY, e);
   };
 
+  /** Handle dragging movement */
   const handleMove = (
     clientX: number,
     clientY: number,
@@ -138,63 +150,50 @@ const Slinger: React.FC<SlingerProps> = ({ onDrag, onDragEnd }) => {
     if (!dragStartPosition.current) return;
 
     objectsRef.current.forEach((obj) => {
-      if (obj.isDragging) {
-        obj.x += clientX - dragStartPosition.current!.x;
-        obj.y += clientY - dragStartPosition.current!.y;
+      if (obj.isDragging && dragStartPosition.current) {
+        obj.x += clientX - dragStartPosition.current.x;
+        obj.y += clientY - dragStartPosition.current.y;
         dragStartPosition.current = { x: clientX, y: clientY };
 
-        // Invoke onDrag callback
-        // onDrag?.(clientX + ballSize / 2, clientY + ballSize / 2, e);
         onDrag?.(clientX, clientY, e);
       }
     });
 
-    // Track recent movement (keep only last 100ms worth of data)
+    // Track velocity history for smooth release
     const now = performance.now();
     movementHistory.current.push({ x: clientX, y: clientY, time: now });
 
-    // Remove old entries (more than 100ms old)
     movementHistory.current = movementHistory.current.filter(
       (entry) => now - entry.time <= 100,
     );
 
-    // Calculate latest velocity if movement happened
+    // Calculate velocity
     if (movementHistory.current.length > 1) {
       const first = movementHistory.current[0];
       const last = movementHistory.current[movementHistory.current.length - 1];
 
-      const elapsedTime = (last.time - first.time) / 1000; // Convert to seconds
+      const elapsedTime = (last.time - first.time) / 1000;
       if (elapsedTime > 0) {
         lastKnownVelocity.current.vx = ((last.x - first.x) / elapsedTime) * 0.1;
         lastKnownVelocity.current.vy = ((last.y - first.y) / elapsedTime) * 0.1;
       }
     }
 
-    triggerRender((prev) => prev + 1);
+    // triggerRender((prev) => prev + 1); // Removed for performance
     e.preventDefault();
   };
 
+  /** End drag event */
   const endDrag = (e: MouseEvent | TouchEvent) => {
     if (!dragStartPosition.current) return;
 
-    let vx = lastKnownVelocity.current.vx;
-    let vy = lastKnownVelocity.current.vy;
-
-    // If no movement was detected, set a small release velocity
-    const minVelocity = 0.5;
-    if (Math.abs(vx) < minVelocity && Math.abs(vy) < minVelocity) {
-      vx = Math.sign(vx) * minVelocity || minVelocity;
-      vy = Math.sign(vy) * minVelocity || minVelocity;
-    }
-
     objectsRef.current.forEach((obj) => {
       if (obj.isDragging) {
-        obj.vx = vx;
-        obj.vy = vy;
+        obj.vx = lastKnownVelocity.current.vx;
+        obj.vy = lastKnownVelocity.current.vy;
         obj.isDragging = false;
 
-        // Invoke onDragEnd callback
-        onDragEnd?.(vx + ballSize / 2, vy + ballSize / 2, e);
+        onDragEnd?.(obj.vx, obj.vy, e);
       }
     });
 
@@ -229,24 +228,14 @@ const Slinger: React.FC<SlingerProps> = ({ onDrag, onDragEnd }) => {
 
   return (
     <div ref={containerRef} className={styles["wrapper"]}>
-      {objectsRef.current.map((obj) => {
-        const isIdle =
-          !obj.isDragging && Math.abs(obj.vx) <= 0.5 && Math.abs(obj.vy) <= 0.5;
-        return (
-          <div
-            className={
-              `${styles["obj"]} ${isIdle ? styles["idle"] : ""} ` +
-              `slinger-obj ${isIdle ? "slinger-idle" : ""}`
-            }
-            key={obj.id}
-            onMouseDown={(e) => handleMouseDown(obj.id, e)}
-            onTouchStart={(e) => handleTouchStart(obj.id, e)}
-            style={{
-              transform: `translate(${Math.round(obj.x)}px, ${Math.round(obj.y)}px)`,
-            }}
-          ></div>
-        );
-      })}
+      {objectsRef.current.map((obj) => (
+        <div
+          className={`${styles["obj"]} slinger-obj`}
+          key={obj.id}
+          onMouseDown={(e) => handleMouseDown(obj.id, e)}
+          onTouchStart={(e) => handleTouchStart(obj.id, e)}
+        />
+      ))}
     </div>
   );
 };
