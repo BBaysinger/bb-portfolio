@@ -27,23 +27,23 @@ const AnimationSequencer: React.FC<{ className: string }> = ({ className }) => {
 
   const sequence = [
     {
-      landscape: "/images/fluxel-animations/interactive.gif",
-      portrait: "/images/fluxel-animations/interactive.gif",
+      wide: "/images/fluxel-animations/interactive.gif",
+      narrow: "/images/fluxel-animations/interactive.gif",
       delay: 21000,
     },
     {
-      landscape: "/images/fluxel-animations/burst1.gif",
-      portrait: "/images/fluxel-animations/burst1.gif",
+      wide: "/images/fluxel-animations/burst1.gif",
+      narrow: "/images/fluxel-animations/burst1.gif",
       delay: 7000,
     },
     {
-      landscape: "/images/fluxel-animations/invaders-landscape.gif",
-      portrait: "/images/fluxel-animations/invaders-portrait.gif",
+      wide: "/images/fluxel-animations/invaders-wide.gif",
+      narrow: "/images/fluxel-animations/invaders-narrow.gif",
       delay: 17000,
     },
     {
-      landscape: "/images/fluxel-animations/spiral.gif",
-      portrait: "/images/fluxel-animations/spiral.gif",
+      wide: "/images/fluxel-animations/spiral.gif",
+      narrow: "/images/fluxel-animations/spiral.gif",
       delay: 9000,
     },
   ];
@@ -59,12 +59,14 @@ const AnimationSequencer: React.FC<{ className: string }> = ({ className }) => {
   };
 
   const updateBackground = () => {
-    const isPortrait = window.matchMedia("(orientation: portrait)").matches;
+    const aspect = window.innerWidth / window.innerHeight;
     const nextIndex = getNextIndex();
 
-    const imageUrl = isPortrait
-      ? sequence[nextIndex].portrait
-      : sequence[nextIndex].landscape;
+    const imageUrl =
+      aspect > 4 / 3 ? sequence[nextIndex].narrow : sequence[nextIndex].wide;
+
+    // const orientation = aspect < 4 / 3 ? "narrow" : "wide";
+    // console.log(aspect, 4 / 3, orientation);
 
     setBackgroundImage(imageUrl);
 
