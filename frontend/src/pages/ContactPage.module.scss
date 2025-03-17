@@ -1,14 +1,13 @@
 @use "@/styles/mixins" as *;
 @use "@/styles/variables" as *;
+@use "@/styles/globals" as *;
 
 .contact-page {
+  @extend .graphite-page;
   height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  background-image: url("/images/misc/bg-grad.svg");
-  background-color: black;
-  background-size: 100% 100%;
   color: #bbb;
   padding: 16px;
 
