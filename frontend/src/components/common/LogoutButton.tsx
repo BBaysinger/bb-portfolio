@@ -26,7 +26,10 @@ const LogoutButton: React.FC<LogoutButtonProps> = ({ className = "" }) => {
   };
 
   return (
-    <li className={`${styles["logout"]} ${className}`} onClick={handleLogout}>
+    <li
+      className={`${styles["logout"]} ${className} logout`}
+      onClick={handleLogout}
+    >
       <NavLink
         className={({ isActive }) => (isActive ? styles.active : "")}
         to="/login#top"
