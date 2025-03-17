@@ -14,7 +14,7 @@ const useInViewArray = (
   animationClass: string,
   threshold = 0.2,
   baseClass = "fade-in",
-  delay = 1000, // Delay in milliseconds (default: 1 second)
+  delay = 500, // Delay in milliseconds (default: 1 second)
   scrollThreshold = 100, // How much the user needs to be scrolled down to trigger delay
 ) => {
   const elementsRef = useRef<HTMLElement[]>([]);
