@@ -28,7 +28,7 @@ const ProjectInfo = forwardRef<HTMLDivElement, ProjectInfoProps>(
         ref={ref}
         className={
           `${styles["project-info"]} ` +
-          `${isActive ? styles["active"] : ""} ` +
+          `${isActive ? styles.active : ""} ` +
           `${direction ? styles[direction.toLowerCase()] : ""}`
         }
         style={{ display: isActive ? "block" : "none" }}

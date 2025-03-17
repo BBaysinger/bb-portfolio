@@ -11,4 +11,12 @@
   background-position:
     0 bottom,
     0 0;
+
+  a {
+    color: white;
+    text-decoration: none;
+    &:hover {
+      text-decoration: underline;
+    }
+  }
 }

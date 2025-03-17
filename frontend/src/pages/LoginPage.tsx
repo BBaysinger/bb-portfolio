@@ -1,5 +1,7 @@
 import { useState } from "react";
+import { NavLink } from "react-router-dom";
 // import * as CryptoJS from "crypto-js"; // Add in for testing iOS on local network
+
 import { useAuth } from "context/AuthContext";
 import styles from "./LoginPage.module.scss";
 
@@ -97,7 +99,8 @@ const Login = ({ onLogin }: { onLogin: () => void }) => {
         </p>
         <p>
           If you have been provided login credentials, please enter them below
-          to proceed. If you need access, feel free to reach out to me directly.
+          to proceed. If you need access, feel free to{" "}
+          <NavLink to="/contact#top">reach out</NavLink> to me directly.
         </p>
         <p>Thank you for your understanding!</p>
 
