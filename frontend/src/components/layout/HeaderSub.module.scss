@@ -1,8 +1,13 @@
 @use "@/styles/mixins" as *;
 @use "@/styles/variables" as *;
-@use "@/components/common/HeaderShared.module.scss" as headerShared;
 
 header.header-sub {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
   height: 37vw;
   padding-left: 20px;
   padding-right: 20px;
@@ -11,24 +16,32 @@ header.header-sub {
   justify-content: center;
   align-items: center;
   letter-spacing: 1px;
-  background-color: #222;
+  background-position: center;
+  background-size: 60%;
+  background-color: #fff;
+  background-repeat: repeat !important;
+  background-image: url("/images/common/barber-pole.svg");
+  min-width: 100%;
+  padding-top: 50px;
+
+  @include breakpoint-up($b480px) {
+    background-size: 40%;
+  }
 
   > * {
     text-align: center;
   }
 
   h1 {
-    color: #fff;
     font-weight: 400; // Only a factor before fonts load.
     margin-top: 0;
     margin-bottom: 10px;
-    font-size: 42px;
+    font-size: 36px;
     line-height: 1em;
-    // text-shadow: 2px 2px 0 rgba(0, 0, 0, 1);
 
-    @include breakpoint-up($b360px) {
-      font-size: 36px;
-    }
+    // @include breakpoint-up($b360px) {
+    //   font-size: 36px;
+    // }
 
     @include breakpoint-up($b480px) {
       font-size: 46px;
@@ -38,40 +51,45 @@ header.header-sub {
       font-size: 60px;
     }
   }
+}
 
-  .project {
-    position: absolute;
-    bottom: 0;
-    opacity: 0;
+.textWrapper {
+  background-color: #fff;
+  color: #444;
+  padding: 20px;
+  border-radius: 20px;
+  @include breakpoint-up($b992px) {
+    padding: 30px;
+  }
+}
+
+.project {
+  position: absolute;
+  bottom: 0;
+  opacity: 0;
+}
+
+.top {
+  position: absolute;
+  top: 0;
+  opacity: 0;
+}
+
+h5,
+.h5 {
+  margin-bottom: 0;
+  font-size: 18px;
+  font-weight: 400;
+
+  @include breakpoint-up($b360px) {
+    font-size: 16px;
   }
 
-  .top {
-    position: absolute;
-    top: 0;
-    opacity: 0;
+  @include breakpoint-up($b480px) {
+    font-size: 20px;
   }
 
-  &.header-sub {
-    padding-top: 50px;
-  }
-
-  h5,
-  .h5 {
-    margin-bottom: 0;
-    color: #fff;
-    font-size: 18px;
-    font-weight: 400;
-
-    @include breakpoint-up($b360px) {
-      font-size: 16px;
-    }
-
-    @include breakpoint-up($b480px) {
-      font-size: 20px;
-    }
-
-    @include breakpoint-up($b992px) {
-      font-size: 30px;
-    }
+  @include breakpoint-up($b992px) {
+    font-size: 30px;
   }
 }
