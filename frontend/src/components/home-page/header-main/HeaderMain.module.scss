@@ -1,8 +1,11 @@
 @use "@/styles/mixins" as *;
 @use "@/styles/variables" as *;
-@use "@/components/common/HeaderShared.module.scss" as headerShared;
+// @use "@/components/common/HeaderShared.module.scss" as headerShared;
 
 header.header-main {
+  position: relative;
+  display: flex;
+  flex-direction: column;
   position: relative;
   display: flex;
   align-items: bottom;
@@ -10,6 +13,10 @@ header.header-main {
   letter-spacing: 1px;
   user-select: none;
   z-index: 10;
+  background-image: url("/images/misc/bg-grad.svg");
+  background-position: center;
+  background-size: 100% 100%;
+  background-color: #222;
 
   h1 {
     letter-spacing: 0.05em;
