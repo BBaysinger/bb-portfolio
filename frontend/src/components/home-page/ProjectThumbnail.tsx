@@ -29,12 +29,6 @@ const ProjectThumbnail = forwardRef<HTMLDivElement, ProjectThumbnailProps>(
 
     const focusClass = focused ? styles["project-thumbnail-focus"] : "";
 
-    // const isHoverEnabledClass = () => {
-    //   return HoverCapabilityWatcher.instance.isHoverCapable
-    //     ? styles["hover-enabled"]
-    //     : "";
-    // };
-
     return (
       <div className={`${styles["project-thumbnail"]} ${focusClass}`} ref={ref}>
         <Link to={`/portfolio/${projectId}#project`}>
@@ -45,6 +39,7 @@ const ProjectThumbnail = forwardRef<HTMLDivElement, ProjectThumbnailProps>(
               <img
                 src={`/images/client-logos/${clientId}.svg`}
                 className={styles["client-logo"]}
+                loading="lazy"
                 alt={`${clientId} logo`}
               />
             </div>
