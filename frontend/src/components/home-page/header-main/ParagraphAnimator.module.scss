@@ -28,7 +28,10 @@
     font-size: 18px;
   }
   @include breakpoint-up($b1024px) {
-    font-size: 20px;
+    font-size: 25px;
+  }
+  @include breakpoint-up($b1280px) {
+    font-size: 30px;
   }
   p {
     color: rgba(255, 255, 255, 0);
