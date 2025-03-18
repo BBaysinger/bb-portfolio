@@ -1,6 +1,6 @@
 import React from "react";
 
-import HeaderMain from "components/home-page/header-main/HeaderMain";
+import Hero from "components/home-page/header-main/Hero";
 import PortfolioList from "components/home-page/PortfolioList";
 import Greeting from "components/home-page/Greeting";
 
@@ -14,7 +14,7 @@ import Greeting from "components/home-page/Greeting";
 const HomePage: React.FC = () => {
   return (
     <>
-      <HeaderMain />
+      <Hero />
       <Greeting />
       <PortfolioList />
     </>

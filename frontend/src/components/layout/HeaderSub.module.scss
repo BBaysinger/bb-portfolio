@@ -16,13 +16,13 @@ header.header-sub {
   justify-content: center;
   align-items: center;
   letter-spacing: 1px;
+  min-width: 100%;
+  padding-top: 50px;
   background-position: center;
-  background-size: 60%;
   background-color: #fff;
   background-repeat: repeat !important;
   background-image: url("/images/common/barber-pole.webp");
-  min-width: 100%;
-  padding-top: 50px;
+  background-size: 80%;
 
   @include breakpoint-up($b480px) {
     background-size: 40%;

@@ -6,17 +6,17 @@ import FluxelGrid from "./fluxel-grid/FluxelGrid";
 import Slinger from "./Slinger";
 import ParagraphAnimator from "./ParagraphAnimator";
 import useScrollPersistedClass from "hooks/useScrollPersistedClass";
-import styles from "./HeaderMain.module.scss";
+import styles from "./Hero.module.scss";
 
 /**
- * Header Main
+ * Hero
  *
  * @author Bradley Baysinger
  * @since The beginning of time.
  * @version N/A
  */
-const HeaderMain: React.FC = () => {
-  const id = "headerMain";
+const Hero: React.FC = () => {
+  const id = "hero";
   const hasScrolledOut = useScrollPersistedClass(id);
 
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -160,4 +160,4 @@ const HeaderMain: React.FC = () => {
   );
 };
 
-export default HeaderMain;
+export default Hero;
