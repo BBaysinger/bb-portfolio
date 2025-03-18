@@ -2,6 +2,7 @@
 @use "@/styles/variables" as *;
 
 header.header-main {
+  visibility: visible;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -25,13 +26,13 @@ header.header-main {
     left: 0;
     width: 100vw;
     height: 100vh;
-    opacity: 0.5;
+    opacity: 0.7;
     z-index: 0;
     box-sizing: border-box;
     background-repeat: no-repeat;
     background-position: top center;
     background-size: 100vw;
-    // background-image: url("/images/fortune-tellers/teller-1.webp");
+    background-image: url("/images/fortune-tellers/teller-1.webp");
   }
 
   h1 {
