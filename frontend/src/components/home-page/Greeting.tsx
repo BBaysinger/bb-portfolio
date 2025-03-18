@@ -19,12 +19,14 @@ const Greeting: React.FC = () => {
             src="/images/home/road-sign-mobile.webp"
             className={styles.helloSignMobile}
             alt="road sign"
+            loading="lazy"
           />
           <img
             ref={addToRefs}
             src="/images/home/road-sign-desktop.webp"
             className={styles.helloSignDesktop}
             alt="road sign"
+            loading="lazy"
           />
         </div>
 

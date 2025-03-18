@@ -12,11 +12,27 @@ header.header-main {
   letter-spacing: 1px;
   user-select: none;
   z-index: 10;
-  background-image: url("/images/common/bg-grad.svg");
-  background-position: center;
-  background-size: 100% 100%;
-  background-color: #222;
   overflow: hidden;
+  background-color: #222;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  background-image: url("/images/common/bg-grad.svg");
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    opacity: 0.5;
+    z-index: 0;
+    box-sizing: border-box;
+    background-repeat: no-repeat;
+    background-position: top center;
+    background-size: 100vw;
+    // background-image: url("/images/fortune-tellers/teller-1.webp");
+  }
 
   h1 {
     letter-spacing: 0.05em;
@@ -119,6 +135,7 @@ $bottom: 10px;
   z-index: 0;
   overflow: hidden;
   pointer-events: none;
+  z-index: 2;
 }
 
 .fluxel-wrapper {
@@ -130,6 +147,7 @@ $bottom: 10px;
   top: 50%;
   transform: translate(-50%, -50%);
   overflow: hidden;
+  z-index: 1;
 
   & > * {
     border: 1px solid #000;
@@ -256,4 +274,8 @@ $ctaOffset: -91px;
       visibility: hidden;
     }
   }
+}
+
+.message {
+  z-index: 3;
 }
