@@ -17,7 +17,7 @@ header.header-main {
   background-color: #222;
   background-repeat: no-repeat;
   background-size: 100% 100%;
-  background-image: url("/images/common/bg-grad.svg");
+  // background-image: url("/images/common/bg-grad.svg");
 
   &::before {
     content: "";
@@ -33,6 +33,13 @@ header.header-main {
     background-position: top center;
     background-size: cover;
     background-image: url("/images/fortune-tellers/teller-1.webp");
+    // animation: fadeInOut 3s infinite ease-in-out;
+  }
+
+  @keyframes fadeInOut {
+    0% { opacity: 0; }
+    50% { opacity: 1; }
+    100% { opacity: 0; }
   }
 
   h1 {
