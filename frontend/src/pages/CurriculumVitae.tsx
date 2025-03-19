@@ -185,8 +185,8 @@ const CurriculumVitae: React.FC = () => {
     "and many more...",
   ];
 
-  const divClassLt = `col-xs-12 col-sm-12 col-md-3 col-lg-3 ${styles["cv-left"]}`;
-  const divClassRt = `col-xs-12 col-sm-12 col-md-9 col-lg-9 ${styles["cv-right"]}`;
+  const divClassLt = `col-xs-12 col-sm-12 col-md-3 col-lg-3 ${styles["cvLeft"]}`;
+  const divClassRt = `col-xs-12 col-sm-12 col-md-9 col-lg-9 ${styles["cvRight"]}`;
   const rowClass = `row ${styles["row"]}`;
 
   return (
@@ -195,7 +195,7 @@ const CurriculumVitae: React.FC = () => {
 
       <section
         id="mainContent"
-        className={`cv-page ${styles["cv-page"]} standard-page`}
+        className={`cvPage ${styles["cvPage"]} standardPage`}
       >
         <div className={`container ${styles["summary"]}`}>
           <h4 ref={addToRefs}>Summary</h4>
@@ -205,7 +205,7 @@ const CurriculumVitae: React.FC = () => {
               <img
                 ref={addToRefs}
                 src="/images/cv/dart.svg"
-                className={styles["cv-logo"]}
+                className={styles["cvLogo"]}
                 alt="Dart Logo"
               />
             </div>
@@ -235,14 +235,14 @@ const CurriculumVitae: React.FC = () => {
               <img
                 ref={addToRefs}
                 src="/images/cv/wrench.svg"
-                className={styles["cv-logo"]}
+                className={styles["cvLogo"]}
                 alt="Wrench Logo"
               />
             </div>
 
             <div className={divClassRt}>
-              <h5 ref={addToRefs} className={styles["sub-container"]}>
-                <div className={styles["left-sub"]}>
+              <h5 ref={addToRefs} className={styles["subContainer"]}>
+                <div className={styles["leftSub"]}>
                   <h5>Modern Front-End Development</h5>
                 </div>
                 <div className={styles["break"]}></div>
@@ -263,8 +263,8 @@ const CurriculumVitae: React.FC = () => {
                 </li>
               </ul>
 
-              <h5 ref={addToRefs} className={styles["sub-container"]}>
-                <div className={styles["left-sub"]}>
+              <h5 ref={addToRefs} className={styles["subContainer"]}>
+                <div className={styles["leftSub"]}>
                   <h5>Creative Problem-Solving</h5>
                 </div>
                 <div className={styles["break"]}></div>
@@ -281,8 +281,8 @@ const CurriculumVitae: React.FC = () => {
                 </li>
               </ul>
 
-              <h5 ref={addToRefs} className={styles["sub-container"]}>
-                <div className={styles["left-sub"]}>
+              <h5 ref={addToRefs} className={styles["subContainer"]}>
+                <div className={styles["leftSub"]}>
                   <h5>Design &amp; Animation Background</h5>
                 </div>
                 <div className={styles["break"]}></div>
@@ -313,13 +313,13 @@ const CurriculumVitae: React.FC = () => {
               <img
                 ref={addToRefs}
                 src="/images/cv/epsilon.svg"
-                className={styles["cv-logo"]}
+                className={styles["cvLogo"]}
                 alt="Epsilon Logo"
               />
             </div>
             <div className={divClassRt}>
-              <div ref={addToRefs} className={styles["sub-container"]}>
-                <div className={styles["left-sub"]}>
+              <div ref={addToRefs} className={styles["subContainer"]}>
+                <div className={styles["leftSub"]}>
                   <h5>
                     Epsilon
                     <span className={styles["location"]}>
@@ -330,7 +330,7 @@ const CurriculumVitae: React.FC = () => {
                   Senior Front-end Developer
                 </div>
                 <div className={styles["break"]}></div>
-                <div className={styles["right-sub"]}>[ 2021 - 2024 ]</div>
+                <div className={styles["rightSub"]}>[ 2021 - 2024 ]</div>
               </div>
 
               <p ref={addToRefs} className={styles["desc"]}>
@@ -406,13 +406,13 @@ const CurriculumVitae: React.FC = () => {
               <img
                 ref={addToRefs}
                 src="/images/cv/bb.svg"
-                className={styles["cv-logo"]}
+                className={styles["cvLogo"]}
                 alt="BB Interactive Logo"
               />
             </div>
             <div className={divClassRt}>
-              <div ref={addToRefs} className={styles["sub-container"]}>
-                <div className={styles["left-sub"]}>
+              <div ref={addToRefs} className={styles["subContainer"]}>
+                <div className={styles["leftSub"]}>
                   <h5>
                     BB Interactive
                     <span className={styles["location"]}>
@@ -426,7 +426,7 @@ const CurriculumVitae: React.FC = () => {
                   </div>
                 </div>
                 <div className={styles["break"]}></div>
-                <div className={styles["right-sub"]}>[ 2020 - 2021 ]</div>
+                <div className={styles["rightSub"]}>[ 2020 - 2021 ]</div>
               </div>
 
               <p ref={addToRefs} className={styles["desc"]}>
@@ -477,13 +477,13 @@ const CurriculumVitae: React.FC = () => {
               <img
                 ref={addToRefs}
                 src="/images/cv/s2.svg"
-                className={styles["cv-logo"]}
+                className={styles["cvLogo"]}
                 alt="Seven2"
               />
             </div>
             <div className={divClassRt}>
-              <div ref={addToRefs} className={styles["sub-container"]}>
-                <div className={styles["left-sub"]}>
+              <div ref={addToRefs} className={styles["subContainer"]}>
+                <div className={styles["leftSub"]}>
                   <h5>
                     Seven2 Interactive
                     <span className={styles["location"]}> — Spokane, WA</span>
@@ -491,7 +491,7 @@ const CurriculumVitae: React.FC = () => {
                   Interactive / Front-end Web Developer
                 </div>
                 <div className={styles["break"]}></div>
-                <div className={styles["right-sub"]}>[ 2018 - 2019 ]</div>
+                <div className={styles["rightSub"]}>[ 2018 - 2019 ]</div>
               </div>
 
               <p ref={addToRefs} className={styles["desc"]}>
@@ -572,13 +572,13 @@ const CurriculumVitae: React.FC = () => {
               <img
                 ref={addToRefs}
                 src="/images/cv/chalklabs.svg"
-                className={styles["cv-logo"]}
+                className={styles["cvLogo"]}
                 alt="ChalkLabs Logo"
               />
             </div>
             <div className={divClassRt}>
-              <div ref={addToRefs} className={styles["sub-container"]}>
-                <div className={styles["left-sub"]}>
+              <div ref={addToRefs} className={styles["subContainer"]}>
+                <div className={styles["leftSub"]}>
                   <h5>
                     ChalkLabs
                     <span className={styles["location"]}> — Spokane, WA</span>
@@ -586,7 +586,7 @@ const CurriculumVitae: React.FC = () => {
                   UI Developer / Designer
                 </div>
                 <div className={styles["break"]}></div>
-                <div className={styles["right-sub"]}>[ 2017 - 2018 ]</div>
+                <div className={styles["rightSub"]}>[ 2017 - 2018 ]</div>
               </div>
 
               <p ref={addToRefs} className={styles["desc"]}>
@@ -653,13 +653,13 @@ const CurriculumVitae: React.FC = () => {
               <img
                 ref={addToRefs}
                 src="/images/cv/s2.svg"
-                className={styles["cv-logo"]}
+                className={styles["cvLogo"]}
                 alt="Seven2 Logo"
               />
             </div>
             <div className={divClassRt}>
-              <div ref={addToRefs} className={styles["sub-container"]}>
-                <div className={styles["left-sub"]}>
+              <div ref={addToRefs} className={styles["subContainer"]}>
+                <div className={styles["leftSub"]}>
                   <h5>
                     Seven2 Interactive
                     <span className={styles["location"]}> — Spokane, WA</span>
@@ -667,7 +667,7 @@ const CurriculumVitae: React.FC = () => {
                   Lead Flash / Interactive Web Developer
                 </div>
                 <div className={styles["break"]}></div>
-                <div className={styles["right-sub"]}>[ 2005 - 2016 ]</div>
+                <div className={styles["rightSub"]}>[ 2005 - 2016 ]</div>
               </div>
 
               <p ref={addToRefs} className={styles["desc"]}>
@@ -754,13 +754,13 @@ const CurriculumVitae: React.FC = () => {
               <img
                 ref={addToRefs}
                 src="/images/cv/scw.svg"
-                className={styles["cv-logo"]}
+                className={styles["cvLogo"]}
                 alt="SCW Logo"
               />
             </div>
             <div className={divClassRt}>
-              <div ref={addToRefs} className={styles["sub-container"]}>
-                <div className={styles["left-sub"]}>
+              <div ref={addToRefs} className={styles["subContainer"]}>
+                <div className={styles["leftSub"]}>
                   <h5>
                     SCW Consulting
                     <span className={styles["location"]}> — Spokane, WA</span>
@@ -768,7 +768,7 @@ const CurriculumVitae: React.FC = () => {
                   Designer / Front-end Web Developer
                 </div>
                 <div className={styles["break"]}></div>
-                <div className={styles["right-sub"]}>[ 2005 ]</div>
+                <div className={styles["rightSub"]}>[ 2005 ]</div>
               </div>
 
               <p ref={addToRefs} className={styles["desc"]}>
@@ -819,13 +819,13 @@ const CurriculumVitae: React.FC = () => {
               <img
                 ref={addToRefs}
                 src="/images/cv/bb.svg"
-                className={styles["cv-logo"]}
+                className={styles["cvLogo"]}
                 alt="BB Interactive Logo"
               />
             </div>
             <div className={divClassRt}>
-              <div ref={addToRefs} className={styles["sub-container"]}>
-                <div className={styles["left-sub"]}>
+              <div ref={addToRefs} className={styles["subContainer"]}>
+                <div className={styles["leftSub"]}>
                   <h5>
                     Freelance
                     <span className={styles["location"]}> — Spokane, WA</span>
@@ -833,7 +833,7 @@ const CurriculumVitae: React.FC = () => {
                   Designer / Front-end Web Developer
                 </div>
                 <div className={styles["break"]}></div>
-                <div className={styles["right-sub"]}>[ 2003 - 2005 ]</div>
+                <div className={styles["rightSub"]}>[ 2003 - 2005 ]</div>
               </div>
 
               <p ref={addToRefs} className={styles["desc"]}>
@@ -885,13 +885,13 @@ const CurriculumVitae: React.FC = () => {
               <img
                 ref={addToRefs}
                 src="/images/cv/sfcc.svg"
-                className={styles["cv-logo"]}
+                className={styles["cvLogo"]}
                 alt="SFCC Logo"
               />
             </div>
             <div className={divClassRt}>
-              <div ref={addToRefs} className={styles["sub-container"]}>
-                <div className={styles["left-sub"]}>
+              <div ref={addToRefs} className={styles["subContainer"]}>
+                <div className={styles["leftSub"]}>
                   <h5>
                     Spokane Falls Community College
                     <span className={styles["location"]}> — Spokane, WA</span>
@@ -899,7 +899,7 @@ const CurriculumVitae: React.FC = () => {
                   A.A.S. Web Design — Honors
                 </div>
                 <div className={styles["break"]}></div>
-                <div className={styles["right-sub"]}>[ 2003 - 2005 ]</div>
+                <div className={styles["rightSub"]}>[ 2003 - 2005 ]</div>
               </div>
 
               <p ref={addToRefs} className={styles["desc"]}>
@@ -918,13 +918,13 @@ const CurriculumVitae: React.FC = () => {
               <img
                 ref={addToRefs}
                 src="/images/cv/bv.svg"
-                className={styles["cv-logo"]}
+                className={styles["cvLogo"]}
                 alt="Hand Logo"
               />
             </div>
             <div className={divClassRt}>
-              <div ref={addToRefs} className={styles["sub-container"]}>
-                <div className={styles["left-sub"]}>
+              <div ref={addToRefs} className={styles["subContainer"]}>
+                <div className={styles["leftSub"]}>
                   <h5>
                     Hobbyist
                     <span className={styles["location"]}> — Spokane, WA</span>
@@ -932,7 +932,7 @@ const CurriculumVitae: React.FC = () => {
                   Interactive Web Enthusiast
                 </div>
                 <div className={styles["break"]}></div>
-                <div className={styles["right-sub"]}>[ 2001 - 2003 ]</div>
+                <div className={styles["rightSub"]}>[ 2001 - 2003 ]</div>
               </div>
 
               <p ref={addToRefs} className={styles["desc"]}>
@@ -1001,8 +1001,8 @@ const CurriculumVitae: React.FC = () => {
           <div className={rowClass}>
             <div ref={addToRefs} className={divClassLt}></div>
             <div ref={addToRefs} className={divClassRt}>
-              <div className={styles["sub-container"]}>
-                <div className={styles["left-sub"]}>
+              <div className={styles["subContainer"]}>
+                <div className={styles["leftSub"]}>
                   <h5>14 gold badges on Stack Overflow</h5>
                   <div className={`${styles["badges"]} col-xs-12`}>
                     {Array.from({ length: 14 }, (_, index) => (
@@ -1017,13 +1017,13 @@ const CurriculumVitae: React.FC = () => {
             </div>
             <div ref={addToRefs} className={divClassLt}></div>
             <div ref={addToRefs} className={divClassRt}>
-              <div className={styles["sub-container"]}>
-                <div className={styles["left-sub"]}>
+              <div className={styles["subContainer"]}>
+                <div className={styles["leftSub"]}>
                   <h5>The Webby Awards</h5>
                   International
                 </div>
                 <div className={styles["break"]}></div>
-                <div className={styles["right-sub"]}>[ 2008 ]</div>
+                <div className={styles["rightSub"]}>[ 2008 ]</div>
               </div>
 
               <div className={`${styles["desc"]} col-xs-12`}>
@@ -1032,13 +1032,13 @@ const CurriculumVitae: React.FC = () => {
             </div>
             <div ref={addToRefs} className={divClassLt}></div>
             <div ref={addToRefs} className={divClassRt}>
-              <div className={styles["sub-container"]}>
-                <div className={styles["left-sub"]}>
+              <div className={styles["subContainer"]}>
+                <div className={styles["leftSub"]}>
                   <h5>American Advertising Federation</h5>
                   Spokane
                 </div>
                 <div className={styles["break"]}></div>
-                <div className={styles["right-sub"]}>[ 2009 - 2019 ]</div>
+                <div className={styles["rightSub"]}>[ 2009 - 2019 ]</div>
               </div>
 
               <div className={`${styles["desc"]} col-xs-12`}>

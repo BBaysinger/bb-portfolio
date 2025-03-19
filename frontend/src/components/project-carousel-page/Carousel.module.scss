@@ -1,12 +1,12 @@
 @use "@/styles/mixins" as *;
 @use "@/styles/variables" as *;
 
-.carousel-wrapper {
+.carouselWrapper {
   width: 992px; // default to prevent collapse.
   height: 100%;
 }
 
-.carousel-slider {
+.carouselSlider {
   position: absolute;
   width: 100%;
   height: 100%;
@@ -18,8 +18,8 @@
   }
 }
 
-.slave-wrapper {
-  .carousel-slider {
+.slaveWrapper {
+  .carouselSlider {
     overflow-x: visible;
     pointer-events: none;
     user-select: none;
@@ -27,11 +27,11 @@
   }
 }
 
-.hidden-slide {
+.hiddenSlide {
   visibility: hidden;
 }
 
-.debug-info {
+.debugInfo {
   position: absolute;
   top: 26px;
   transform: translateY(-50%);
@@ -45,7 +45,7 @@
   }
 }
 
-.carousel-slide {
+.carouselSlide {
   position: absolute;
   width: 693px;
   scroll-snap-align: center;
@@ -58,7 +58,7 @@
   justify-content: center;
 }
 
-.carousel-shim {
+.carouselShim {
   // Is this preventing the shift?
   visibility: hidden;
   position: absolute;

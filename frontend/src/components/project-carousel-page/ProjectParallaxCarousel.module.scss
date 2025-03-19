@@ -1,17 +1,17 @@
 @use "@/styles/mixins" as *;
 @use "@/styles/variables" as *;
 
-.parallax-carousel {
+.parallaxCarousel {
   height: 470px;
   position: relative;
   box-sizing: border-box;
   z-index: 0;
 
-  @include fluid-property("margin-top", $b320px, 680px, -115px, 0px);
-  @include fluid-property("margin-bottom", $b320px, 680px, -115px, 0px);
+  @include fluidProperty("margin-top", $b320px, 680px, -115px, 0px);
+  @include fluidProperty("margin-bottom", $b320px, 680px, -115px, 0px);
 }
 
-.slide-layer {
+.slideLayer {
   position: absolute;
   top: 0;
   z-index: -1;
@@ -21,17 +21,17 @@
   overflow: visible;
 }
 
-.stabilized-slide {
-  opacity: 1;
-}
+// .stabilizedSlide {
+//   opacity: 1;
+// }
 
 :global {
-  .bb-carousel {
+  .bbCarousel {
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
   }
-  .bb-carousel-laptops {
+  .bbCarouselLaptops {
     pointer-events: none;
     overflow: hidden;
     mask-image: linear-gradient(
@@ -45,10 +45,10 @@
     mask-size: cover;
     height: 100%;
   }
-  .bb-carousel-master {
+  .bbCarouselMaster {
     height: 466px;
   }
-  .bb-carousel-phones {
+  .bbCarouselPhones {
     height: 470px;
     pointer-events: none;
     overflow: hidden;
@@ -63,7 +63,7 @@
     mask-size: cover;
   }
 
-  .bb-slide-wrapper {
+  .bbSlideWrapper {
     visibility: hidden;
     width: 693px;
     height: 444px;

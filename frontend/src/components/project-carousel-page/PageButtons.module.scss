@@ -4,16 +4,16 @@
 $mainBreak: $b992px;
 $maxScaleBreak: 680px; // Max vw limit of the carousel scaling
 
-.project-nav {
+.projectNav {
   display: flex;
   position: absolute;
   justify-content: space-between;
   pointer-events: none;
   width: 100vw;
-  @include fluid-property(top, $b320px, $maxScaleBreak, 80px, 155px);
+  @include fluidProperty(top, $b320px, $maxScaleBreak, 80px, 155px);
 }
 
-.nav-button {
+.navButton {
   position: relative;
   pointer-events: all;
   transform-origin: center 0;
@@ -31,9 +31,9 @@ $maxScaleBreak: 680px; // Max vw limit of the carousel scaling
   background: linear-gradient(to right, #000, #555);
   border-radius: 0 50% 50% 0;
   background: rgba(0, 0, 0, 0.7);
-  @include fluid-property(height, $b320px, $mainBreak, 40px, 96px);
-  @include fluid-property(width, $b320px, $mainBreak, 40px, 96px);
-  @include fluid-property(margin-left, $b320px, $mainBreak, -10px, -20px);
+  @include fluidProperty(height, $b320px, $mainBreak, 40px, 96px);
+  @include fluidProperty(width, $b320px, $mainBreak, 40px, 96px);
+  @include fluidProperty(margin-left, $b320px, $mainBreak, -10px, -20px);
   @include breakpointUp($b640px) {
     background: #000;
   }
@@ -54,9 +54,9 @@ $maxScaleBreak: 680px; // Max vw limit of the carousel scaling
     top: 50%;
     transform-origin: 0 0;
     transform: rotate(-45deg);
-    @include fluid-property(border-width, $b320px, $mainBreak, 4.5px, 8px);
-    @include fluid-property(height, $b320px, $mainBreak, 17px, 36px);
-    @include fluid-property(width, $b320px, $mainBreak, 17px, 36px);
-    @include fluid-property(left, $b320px, $mainBreak, 15px, 40px);
+    @include fluidProperty(border-width, $b320px, $mainBreak, 4.5px, 8px);
+    @include fluidProperty(height, $b320px, $mainBreak, 17px, 36px);
+    @include fluidProperty(width, $b320px, $mainBreak, 17px, 36px);
+    @include fluidProperty(left, $b320px, $mainBreak, 15px, 40px);
   }
 }

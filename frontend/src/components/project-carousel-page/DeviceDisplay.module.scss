@@ -1,7 +1,7 @@
 @use "@/styles/mixins" as *;
 @use "@/styles/variables" as *;
 
-.device-presentation {
+.devicePresentation {
   height: 420px;
   position: relative;
   background-size: contain;
@@ -9,12 +9,12 @@
   box-sizing: border-box;
   pointer-events: none;
   // Introduces some jank:
-  filter: grayscale(0.4) blur(0.5px);
+  // filter: grayscale(0.4) blur(0.5px);
   will-change: filter;
   transition: filter 0.4s ease-in-out;
 }
 
-.background-wrapper {
+.backgroundWrapper {
   height: 414px;
   position: absolute;
   left: 50%;
@@ -70,14 +70,14 @@
       display: none;
     }
 
-    &.portrait {
+    &.Portrait {
       img {
         left: 493px;
         top: 67px;
       }
     }
 
-    &.landscape {
+    &.Landscape {
       &::before {
         transform: translateY(5px) rotate(91deg);
         top: 135px;
@@ -95,14 +95,14 @@
 }
 
 :global {
-  .bb-stabilized-slide {
-    .bb-device-presentation {
+  .bbStabilizedSlide {
+    .bbDevicePresentation {
       filter: none;
     }
-    .bb-laptop {
+    .bbLaptop {
       transform: translateX(-50%) scale(1);
     }
-    .bb-portrait.bb-phone {
+    .bbPortrait.bbPhone {
       &::before {
         transform: rotate(0deg);
       }
@@ -110,7 +110,7 @@
         transform: rotate(0deg);
       }
     }
-    .bb-landscape.bb-phone {
+    .bbLandscape.bbPhone {
       &::before {
         transform: rotate(90deg);
       }

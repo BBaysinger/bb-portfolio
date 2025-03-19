@@ -19,7 +19,7 @@ const Hamburger: React.FC<{ className: string }> = ({ className }) => {
   const dispatch = useDispatch();
   const classNames =
     `${styles["hamburger"]} ${className} ` +
-    `${isMenuOpen ? styles["nav-expanded"] : ""}`;
+    `${isMenuOpen ? styles["navExpanded"] : ""}`;
 
   return (
     <button
@@ -28,9 +28,9 @@ const Hamburger: React.FC<{ className: string }> = ({ className }) => {
       onClick={() => dispatch(toggleMenu())}
     >
       <div className={styles["sr-only"]}>Toggle navigation</div>
-      <span className={styles["icon-bar"]}></span>
-      <span className={styles["icon-bar"]}></span>
-      <span className={styles["icon-bar"]}></span>
+      <span className={styles["iconBar"]}></span>
+      <span className={styles["iconBar"]}></span>
+      <span className={styles["iconBar"]}></span>
     </button>
   );
 };
