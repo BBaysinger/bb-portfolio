@@ -1,0 +1,10 @@
+.needle {
+  background-color: blue;
+  width: 10px;
+  height: 100px;
+  top: 200px;
+  left: 300px;
+  position: absolute;
+  transform-origin: 50% 100%; // (Center horizontally, bottom vertically)
+  transition: transform 0.05s linear;
+}
