@@ -3,7 +3,7 @@
 
 $portfolioListGap: 30px;
 
-.portfolio-list {
+.portfolioList {
   position: relative;
   display: flex;
   flex-wrap: wrap;
@@ -11,7 +11,7 @@ $portfolioListGap: 30px;
   background: linear-gradient(to bottom, #1c1c1c, black);
   padding-bottom: $footer-barberPole-thickness;
 
-  @include breakpoint-up($b1280px) {
+  @include breakpointUp($b1280px) {
     background: linear-gradient(to bottom, #1a1a1a, black);
   }
 }

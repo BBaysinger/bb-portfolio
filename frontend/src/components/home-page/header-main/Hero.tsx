@@ -87,14 +87,14 @@ const Hero: React.FC = () => {
       className={
         `${styles.hero} ${styles["header"]} hero ` +
         `${hasScrolledOut ? styles["has-scrolled-out"] : ""} ` +
-        `${sessionStorage.getItem("hasDragged") === "true" ? styles["has-dragged"] : ""}`
+        `${sessionStorage.getItem("hasDragged") === "true" ? styles["hasDragged"] : ""}`
       }
       style={{ minHeight: `${clientHeight}px` }}
     >
       <div className={styles["debug"]}>
         {sessionStorage.getItem("hasDragged")}
       </div>
-      <div ref={wrapperRef} className={styles["fluxel-wrapper"]}>
+      <div ref={wrapperRef} className={styles["fluxelWrapper"]}>
         <FluxelGrid
           rows={12}
           cols={16}
@@ -103,16 +103,12 @@ const Hero: React.FC = () => {
           externalMousePos={slingerPos}
         />
       </div>
-      <div className={`${styles["balls-wrapper"]} `}>
+      <div className={`${styles["slingerWrapper"]} `}>
         <Slinger onDrag={onSlingerDrag} onDragEnd={onSlingerDragEnd} />
       </div>
       <div className={styles["heroWrapper"]}>
         <div className={styles["logoWrapper"]}>
-          <img
-            src={headerLogo}
-            className={styles["heroLogo"]}
-            alt="BB Logo"
-          />
+          <img src={headerLogo} className={styles["heroLogo"]} alt="BB Logo" />
         </div>
 
         <h1>
@@ -129,9 +125,9 @@ const Hero: React.FC = () => {
         </h5>
       </div>
       <ParagraphAnimator paragraphs={quotes} className={styles["message"]} />
-      <div className={styles["cta-wrapper"]}>
+      <div className={styles["ctaWrapper"]}>
         <a href="#hello" className={styles["cta"]}>
-          <div className={styles["cta-text"]}>2. Say hello</div>
+          <div className={styles["ctaText"]}>2. Say hello</div>
         </a>
       </div>
     </header>

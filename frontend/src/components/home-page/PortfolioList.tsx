@@ -151,7 +151,7 @@ const PortfolioList: React.FC = () => {
 
   return (
     <div>
-      <div className={styles["portfolio-list"]}>
+      <div className={styles["portfolioList"]}>
         <div id="list" className={styles["list"]}></div>
         {ProjectData.listedProjects.map((projectData, index) => {
           const id = ProjectData.listedKeys[index];

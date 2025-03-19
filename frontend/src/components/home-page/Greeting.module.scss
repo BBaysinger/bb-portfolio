@@ -16,13 +16,13 @@
   padding-top: 30px;
   padding-bottom: 30px;
 
-  @include breakpoint-up($b480px) {
+  @include breakpointUp($b480px) {
     font-size: 16px;
     padding-top: 0px;
     padding-bottom: 0px;
   }
 
-  @include breakpoint-up($b992px) {
+  @include breakpointUp($b992px) {
     font-size: 20px;
     padding-top: 50px;
     padding-bottom: 50px;
@@ -41,11 +41,11 @@
     background-size: auto 100%; // Maintains aspect ratio
     background-repeat: repeat-x;
     background-position: 0 0;
-    animation: scroll-bg 20s linear infinite;
+    animation: scrollBg 20s linear infinite;
     z-index: -1;
   }
 
-  @keyframes scroll-bg {
+  @keyframes scrollBg {
     from {
       background-position-x: -100%;
     }
@@ -63,11 +63,11 @@
     width: 100%;
     padding-bottom: 40px;
     padding-top: 40px;
-    @include breakpoint-up($b480px) {
+    @include breakpointUp($b480px) {
       padding-left: 20px;
       padding-right: 20px;
     }
-    @include breakpoint-up($b768px) {
+    @include breakpointUp($b768px) {
       flex-direction: row;
       padding-left: 50px;
       padding-right: 50px;
@@ -98,14 +98,14 @@
     justify-content: center;
     align-items: center;
     max-width: 450px;
-    @include breakpoint-up($b768px) {
+    @include breakpointUp($b768px) {
       min-width: 300px;
     }
   }
 
   img.helloSignMobile {
     width: 60%;
-    @include breakpoint-up($b768px) {
+    @include breakpointUp($b768px) {
       display: none;
     }
   }
@@ -116,10 +116,10 @@
     top: 50%;
     width: 35vw;
     max-width: 300px;
-    @include breakpoint-up($b768px) {
+    @include breakpointUp($b768px) {
       display: unset;
     }
-    @include breakpoint-up($b1280px) {
+    @include breakpointUp($b1280px) {
       max-width: 350px;
     }
   }
@@ -129,7 +129,7 @@
     color: black;
     display: flex;
     flex-direction: column;
-    @include breakpoint-up($b768px) {
+    @include breakpointUp($b768px) {
       margin-right: -20px;
       padding-top: 30px;
     }
@@ -150,13 +150,13 @@
       margin: 20px 0;
       margin-left: -7px;
       margin-bottom: -35px;
-      @include breakpoint-up($b992px) {
+      @include breakpointUp($b992px) {
         max-width: 800px;
         margin-left: 10px;
         margin-bottom: -20px;
         font-size: 20px;
       }
-      @include breakpoint-up($b1280px) {
+      @include breakpointUp($b1280px) {
         font-size: 24px;
         margin-bottom: -23px;
         margin-left: 20px;
@@ -212,7 +212,7 @@
       }
       &:last-of-type {
         margin-bottom: 0;
-        @include breakpoint-up($b992px) {
+        @include breakpointUp($b992px) {
           margin-bottom: 0px;
         }
       }
@@ -270,10 +270,10 @@
       background-image: url("/images/home/wide-arrow.webp");
       background-repeat: no-repeat;
       background-size: 100% 100%;
-      @include breakpoint-up($b360px) {
+      @include breakpointUp($b360px) {
         font-size: 27px;
       }
-      @include breakpoint-up($b480px) {
+      @include breakpointUp($b480px) {
         font-size: 30px;
       }
       > * {

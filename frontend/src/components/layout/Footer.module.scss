@@ -16,7 +16,7 @@ footer {
     top: -$footer-barberPole-thickness;
     height: $footer-barberPole-thickness;
     width: 100vw;
-    background-image: url("/images/common/barberPole-bottom.webp");
+    background-image: url("/images/common/barber-pole-bottom.webp");
     background-repeat: repeat-x;
     background-size: 350px 40px;
     background-position: 0 bottom;
@@ -88,7 +88,7 @@ footer {
     font-size: 15px;
     text-align: center;
 
-    @include breakpoint-up($b768px) {
+    @include breakpointUp($b768px) {
       text-align: left;
     }
 
