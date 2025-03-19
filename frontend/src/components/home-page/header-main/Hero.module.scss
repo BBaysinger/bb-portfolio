@@ -56,7 +56,7 @@ header.hero {
     margin-left: -0.05em;
     color: #fff;
     font-weight: 400; // Only a factor before fonts load.
-    @include breakpoint-up($b480px) {
+    @include breakpointUp($b480px) {
       font-size: 48px;
     }
   }
@@ -99,7 +99,7 @@ header.hero {
   font-size: 1.2em;
   position: relative;
   top: 1px;
-  @include breakpoint-up(500px) {
+  @include breakpointUp(500px) {
     top: 3px;
   }
 }
@@ -142,7 +142,7 @@ $bottom: 10px;
   right: 0;
 }
 
-.balls-wrapper {
+.slingerWrapper {
   position: absolute;
   width: 100%;
   height: 100%;
@@ -152,7 +152,7 @@ $bottom: 10px;
   z-index: 2;
 }
 
-.fluxel-wrapper {
+.fluxelWrapper {
   position: absolute;
   z-index: 0;
   width: 100vw;
@@ -189,7 +189,7 @@ $bottom: 10px;
 
 $ctaOffset: -91px;
 
-.cta-wrapper {
+.ctaWrapper {
   right: $ctaOffset;
   display: block;
   position: absolute;
@@ -198,17 +198,17 @@ $ctaOffset: -91px;
   height: 0;
   z-index: 10000;
   transition: right 0.5s;
-  @include breakpoint-up($b768px) {
+  @include breakpointUp($b768px) {
     transform: scale(1.2);
   }
 }
 
-.has-dragged .cta-wrapper {
+.hasDragged .ctaWrapper {
   transition-delay: 1s;
   right: 0;
 }
 
-.has-scrolled-out .cta-wrapper {
+.has-scrolled-out .ctaWrapper {
   transition-delay: 0s;
   right: $ctaOffset;
 }
@@ -253,7 +253,7 @@ $ctaOffset: -91px;
   }
 }
 
-.cta-text {
+.ctaText {
   position: absolute;
   display: block;
   left: -29px;
@@ -274,7 +274,7 @@ $ctaOffset: -91px;
   margin-right: auto;
 }
 
-.has-dragged {
+.hasDragged {
   :global(.slinger-obj)::before {
     animation: fadeOut 0.5s ease-out forwards;
   }

@@ -68,7 +68,7 @@
   display: inline-block;
   width: 100%;
   font-size: 24px;
-  @include breakpoint-up($b768px) {
+  @include breakpointUp($b768px) {
     width: unset;
   }
 }
@@ -81,7 +81,7 @@ img.cv-logo {
   @include fluid-property(height, $b360px, $b1440px, 120px, 130px);
   @include fluid-property(max-width, $b360px, $b1440px, 130px, 140px);
 
-  @include breakpoint-up($b768px) {
+  @include breakpointUp($b768px) {
     position: relative;
     top: 5px;
     margin-top: 0;
@@ -91,7 +91,7 @@ img.cv-logo {
 .row:first-of-type {
   img.cv-logo {
     margin-top: 20px;
-    @include breakpoint-up($b768px) {
+    @include breakpointUp($b768px) {
       margin-top: revert;
     }
   }
@@ -106,7 +106,7 @@ img.cv-logo {
     padding-left: 8px;
   }
 
-  @include breakpoint-up($b768px) {
+  @include breakpointUp($b768px) {
     p,
     ul {
       margin-bottom: 10px;
