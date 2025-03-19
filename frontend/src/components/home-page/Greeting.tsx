@@ -11,7 +11,7 @@ const Greeting: React.FC = () => {
   const addToRefs = useInViewAnimation("in-view");
 
   return (
-    <div id="hello" className={styles["greeting"]}>
+    <div id="hello" className={styles.greeting}>
       <div className={styles.greetingWrapper}>
         <div className={styles.helloSignWrapper}>
           <img
@@ -41,14 +41,6 @@ const Greeting: React.FC = () => {
                 practices, with a focus on performance, scalability, and
                 usability.
               </p>
-              {/* <p>
-                With years in crafting digital experiences, I take a thoughtful
-                approach to every project—balancing aesthetics with
-                functionality to create seamless user experiences. Whether it's
-                a dynamic web application, a pixel-perfect UI, or a custom-built
-                component, I strive to write clean, maintainable code that
-                brings designs to life.
-                </p> */}
             </div>
             <div ref={addToRefs}>
               <p>

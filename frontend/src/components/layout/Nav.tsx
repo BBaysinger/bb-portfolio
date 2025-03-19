@@ -11,8 +11,8 @@ import navLogo from "images/misc/bb-logo.svg";
 import styles from "./Nav.module.scss";
 
 export const NavVariant = {
-  TOP_BAR: styles["topBar"],
-  SLIDE_OUT: styles["slideOut"],
+  TOP_BAR: styles.topBar,
+  SLIDE_OUT: styles.slideOut,
 } as const;
 
 interface NavProps {
@@ -42,8 +42,8 @@ const Nav: React.FC<NavProps> = ({ variant }) => {
   const titleClass =
     // TODO: Make so portfolio route isn't enabled when scrolled back up.
     isScrolledToTop && (currentPath === "/" || currentPath === "/portfolio")
-      ? `${styles["title"]} ${styles["homeUnscrolled"]}`
-      : styles["title"];
+      ? `${styles.title} ${styles.homeUnscrolled}`
+      : styles.title;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -66,47 +66,47 @@ const Nav: React.FC<NavProps> = ({ variant }) => {
 
   return (
     <nav
-      className={`${styles["nav"]} ${variant} ${isMenuOpen ? "enabled" : "disabled"}`}
+      className={`${styles.nav} ${variant} ${isMenuOpen ? "enabled" : "disabled"}`}
       role="navigation"
     >
       {variant === NavVariant.SLIDE_OUT && (
         <>
-          <div className={styles["shadowLayer0"]}></div>
-          <div className={styles["shadowLayer1"]}></div>
-          <div className={styles["shadowLayer2"]}></div>
+          <div className={styles.shadowLayer0}></div>
+          <div className={styles.shadowLayer1}></div>
+          <div className={styles.shadowLayer2}></div>
         </>
       )}
 
       <NavLink to="/#top" className={titleClass}>
-        <img src={navLogo} className={styles["navLogo"]} alt="BB Logo" />
-        <div className={styles["navLogoText"]}>
-          <div className={styles["name"]}>
+        <img src={navLogo} className={styles.navLogo} alt="BB Logo" />
+        <div className={styles.navLogoText}>
+          <div className={styles.name}>
             <span>BRADLEY</span> <span>BAYSINGER</span>
           </div>
           <div>
             <span className={"nobr"}>
-              Interactive Web <span className={styles["bull"]}>&bull;</span>{" "}
+              Interactive Web <span className={styles.bull}>&bull;</span>{" "}
               Front-end Developer
             </span>
           </div>
         </div>
       </NavLink>
-      <NavLinks onClick={closeMenuHandler} className={styles["navLinks"]} />
+      <NavLinks onClick={closeMenuHandler} className={styles.navLinks} />
 
       {variant === NavVariant.TOP_BAR && (
-        <Hamburger className={styles["hamburger"]} />
+        <Hamburger className={styles.hamburger} />
       )}
 
-      {/* <div className={styles["debug"]}>
+      {/* <div className={styles.debug}>
         Current Route: {currentPath} <br />
         {isScrolledToTop ? "Scrolled to Top ✅" : "Scrolled Down ❌"}
       </div>  */}
 
       {variant === NavVariant.SLIDE_OUT && (
         <>
-          {/* <BarberPole className={styles["barberPole1"]} paused={!isMenuOpen} />
-          <BarberPole className={styles["barberPole2"]} paused={!isMenuOpen} /> */}
-          <BarberPole className={styles["barberPole3"]} paused={!isMenuOpen} />
+          {/* <BarberPole className={styles.barberPole1} paused={!isMenuOpen} />
+          <BarberPole className={styles.barberPole2} paused={!isMenuOpen} /> */}
+          <BarberPole className={styles.barberPole3} paused={!isMenuOpen} />
         </>
       )}
     </nav>

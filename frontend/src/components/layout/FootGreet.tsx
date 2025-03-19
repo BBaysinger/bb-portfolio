@@ -25,7 +25,7 @@ const FootGreet: React.FC<{ className: string }> = ({ className }) => {
       <p className={className}>
         <img
           src="/images/footer/bb2.jpg"
-          className={`img-responsive ${styles["footerPhoto"]}`}
+          className={`img-responsive ${styles.footerPhoto}`}
           alt="Bradley's face"
         />
         {greeting}, and thanks for stopping by! I'll be honest—this space is an

@@ -143,17 +143,17 @@ const ProjectPage: React.FC = () => {
   }, [projectId, projects, stabilizedIndex]);
 
   return (
-    <div className={styles["projects-presentation"]}>
+    <div className={styles.projectsPresentation}>
       <HeaderSub
         head={projects[projectId]?.title || "Unknown Project"}
         subhead={projects[projectId]?.tags?.join(", ") || ""}
       />
       <div
         id="project" // Page anchor, NOT for CSS selection.
-        className={`${styles["projectsPresentationBody"]} ${slideDirectionClass}`}
+        className={`${styles.projectsPresentationBody} ${slideDirectionClass}`}
       >
         <LogoSwapper projectId={clientId} />
-        <div className={styles["carouselControlWrapper"]}>
+        <div className={styles.carouselControlWrapper}>
           {initialIndex !== null && (
             <ProjectParallaxCarousel
               ref={carouselRef}

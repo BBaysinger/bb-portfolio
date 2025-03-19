@@ -85,16 +85,14 @@ const Hero: React.FC = () => {
     <header
       id={id}
       className={
-        `${styles.hero} ${styles["header"]} hero ` +
-        `${hasScrolledOut ? styles["has-scrolled-out"] : ""} ` +
-        `${sessionStorage.getItem("hasDragged") === "true" ? styles["hasDragged"] : ""}`
+        `${styles.hero} ${styles.header} hero ` +
+        `${hasScrolledOut ? styles.hasScrolledOut : ""} ` +
+        `${sessionStorage.getItem("hasDragged") === "true" ? styles.hasDragged : ""}`
       }
       style={{ minHeight: `${clientHeight}px` }}
     >
-      <div className={styles["debug"]}>
-        {sessionStorage.getItem("hasDragged")}
-      </div>
-      <div ref={wrapperRef} className={styles["fluxelWrapper"]}>
+      <div className={styles.debug}>{sessionStorage.getItem("hasDragged")}</div>
+      <div ref={wrapperRef} className={styles.fluxelWrapper}>
         <FluxelGrid
           rows={12}
           cols={16}
@@ -103,31 +101,31 @@ const Hero: React.FC = () => {
           externalMousePos={slingerPos}
         />
       </div>
-      <div className={`${styles["slingerWrapper"]} `}>
+      <div className={`${styles.slingerWrapper} `}>
         <Slinger onDrag={onSlingerDrag} onDragEnd={onSlingerDragEnd} />
       </div>
-      <div className={styles["heroWrapper"]}>
-        <div className={styles["logoWrapper"]}>
-          <img src={headerLogo} className={styles["heroLogo"]} alt="BB Logo" />
+      <div className={styles.heroWrapper}>
+        <div className={styles.logoWrapper}>
+          <img src={headerLogo} className={styles.heroLogo} alt="BB Logo" />
         </div>
 
         <h1>
-          <span className={styles["firstName"]}>Bradley</span>{" "}
+          <span className={styles.firstName}>Bradley</span>{" "}
           <span className={"nobr"}>
-            <BarberPole className={styles["barberPole"]} />{" "}
-            <span className={styles["lastName"]}>Baysinger</span>
+            <BarberPole className={styles.barberPole} />{" "}
+            <span className={styles.lastName}>Baysinger</span>
           </span>
         </h1>
 
-        <h5 className={`${styles["subhead"]}`}>
-          Interactive&nbsp;Web <span className={styles["bull"]}>&bull;</span>{" "}
+        <h5 className={`${styles.subhead}`}>
+          Interactive&nbsp;Web <span className={styles.bull}>&bull;</span>{" "}
           <span className={"nobr"}>Front-end Developer</span>
         </h5>
       </div>
-      <ParagraphAnimator paragraphs={quotes} className={styles["message"]} />
-      <div className={styles["ctaWrapper"]}>
-        <a href="#hello" className={styles["cta"]}>
-          <div className={styles["ctaText"]}>2. Say hello</div>
+      <ParagraphAnimator paragraphs={quotes} className={styles.message} />
+      <div className={styles.ctaWrapper}>
+        <a href="#hello" className={styles.cta}>
+          <div className={styles.ctaText}>2. Say hello</div>
         </a>
       </div>
     </header>
