@@ -23,7 +23,7 @@
   pointer-events: all;
 
   &::before {
-    content: "1. Dare you";
+    content: "1. Tempted?";
     color: white;
     position: absolute;
     width: 146px;
@@ -39,10 +39,6 @@
     transform: rotate(45deg);
     opacity: 1;
     transition: opacity 0.3s linear;
-
-    @include breakpoint-up($b768px) {
-      transform: rotate(45deg);
-    }
   }
 
   &::after {

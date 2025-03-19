@@ -10,6 +10,25 @@ footer {
   color: #ccc;
   z-index: 10;
 
+  &::before {
+    content: "";
+    position: absolute;
+    top: -$footer-barber-pole-thickness;
+    height: $footer-barber-pole-thickness;
+    width: 100vw;
+    background-image: url("/images/common/barber-pole-bottom.webp");
+    background-repeat: repeat-x;
+    background-size: 350px 40px;
+    background-position: 0 bottom;
+    a {
+      color: white;
+      text-decoration: none;
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+
   a,
   a:visited {
     color: #888888;

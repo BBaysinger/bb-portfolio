@@ -1,16 +1,14 @@
+@use "@/styles/variables" as *;
+
 .graphite-page {
-  height: 100dvh;
+  padding-top: $navBarHeight + 6px !important;
+  min-height: 100dvh;
+  overflow: hidden;
   background-color: black;
-  background-image:
-    url("/images/common/barber-pole-bottom.webp"),
-    url("/images/common/bg-grad.svg");
-  background-repeat: repeat-x, no-repeat;
-  background-size:
-    350px 40px,
-    100% 100%;
-  background-position:
-    0 bottom,
-    0 0;
+  background-image: url("/images/common/bg-grad.svg");
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  background-position: 0 0;
 
   a {
     color: white;
