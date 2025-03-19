@@ -38,7 +38,7 @@ const OscillatingCube = ({ position }) => {
 const OscillatingCubes = () => {
   return (
     <Canvas
-      className={styles["canvas"]}
+      className={styles.canvas}
       shadows
       orthographic
       camera={{

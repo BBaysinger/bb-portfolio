@@ -31,16 +31,16 @@ const Footer: React.FC = () => {
 
   return (
     <footer>
-      <div className={`container ${styles["footer-container"]}`}>
+      <div className={`container ${styles.footerContainer}`}>
         <div className="row">
           <div
-            className={`col-xs-12 col-sm-12 col-md-6 col-lg-6 ${styles["footerCell"]}`}
+            className={`col-xs-12 col-sm-12 col-md-6 col-lg-6 ${styles.footerCell}`}
           >
             <FootGreet className={""} />
           </div>
 
           <div
-            className={`col-xs-12 col-sm-12 col-md-4 col-lg-4 ${styles["footerCell"]} ${styles["contact"]}`}
+            className={`col-xs-12 col-sm-12 col-md-4 col-lg-4 ${styles.footerCell} ${styles.contact}`}
           >
             <div>
               <ul>
@@ -123,7 +123,7 @@ const Footer: React.FC = () => {
                       }}
                     ></div>
                     Spokane, WA{" "}
-                    <span className={styles["notASuburb"]}>
+                    <span className={styles.notASuburb}>
                       (<i>not</i> near Seattle)
                     </span>
                   </a>
@@ -133,14 +133,14 @@ const Footer: React.FC = () => {
           </div>
 
           <div
-            className={`col-xs-12 col-sm-12 col-md-2 col-lg-2 ${styles["footerCell"]} ${styles["footerNav"]}`}
+            className={`col-xs-12 col-sm-12 col-md-2 col-lg-2 ${styles.footerCell} ${styles.footerNav}`}
           >
             <NavLinks />
           </div>
         </div>
       </div>
-      <div className={styles["copyright"]}>
-        <div className={styles["react"]}>
+      <div className={styles.copyright}>
+        <div className={styles.react}>
           <a
             href="https://github.com/BBaysinger/bb-portfolio"
             target="_blank"
@@ -150,7 +150,7 @@ const Footer: React.FC = () => {
             Built with React
           </a>
         </div>
-        <NavLink className={styles["footerLink"]} to="/portfolio#top">
+        <NavLink className={styles.footerLink} to="/portfolio#top">
           &copy; <span style={{ color: "#fff" }}>BBInteractive</span>.io
         </NavLink>
       </div>

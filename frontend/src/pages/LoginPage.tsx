@@ -83,7 +83,7 @@ const Login = ({ onLogin }: { onLogin: () => void }) => {
   };
 
   return (
-    <div className={styles["login"]} style={{ minHeight: `${clientHeight}px` }}>
+    <div className={styles.login} style={{ minHeight: `${clientHeight}px` }}>
       <div>
         <h1>Login</h1>
         <p>
@@ -98,7 +98,7 @@ const Login = ({ onLogin }: { onLogin: () => void }) => {
         </p>
         <p>Thank you for your understanding!</p>
 
-        <form className={styles["form"]} onSubmit={handleLogin}>
+        <form className={styles.form} onSubmit={handleLogin}>
           <div className={styles.sameRow}>
             <label htmlFor="username">
               <div>Username:</div>

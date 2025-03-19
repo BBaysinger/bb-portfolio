@@ -27,7 +27,7 @@ const LogoutButton: React.FC<LogoutButtonProps> = ({ className = "" }) => {
 
   return (
     <li
-      className={`${styles["logout"]} ${className} logout`}
+      className={`${styles.logout} ${className} logout`}
       onClick={handleLogout}
     >
       <NavLink

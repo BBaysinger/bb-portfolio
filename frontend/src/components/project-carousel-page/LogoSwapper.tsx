@@ -72,8 +72,8 @@ const LogoSwapper: React.FC<LogoSwapperProps> = ({ projectId }) => {
     <div className={"max-w-container"}>
       <div className={"container"}>
         <div
-          className={`${styles["logoSwapper"]} ${isBlurred ? "" : styles["unBlurred"]} ${
-            isMounted ? styles["fadeIn"] : styles["fadeOut"]
+          className={`${styles.logoSwapper} ${isBlurred ? "" : styles.unBlurred} ${
+            isMounted ? styles.fadeIn : styles.fadeOut
           }`}
         >
           {Object.entries(clientNames).map(([key, value]) => (
@@ -82,7 +82,7 @@ const LogoSwapper: React.FC<LogoSwapperProps> = ({ projectId }) => {
               style={{
                 backgroundImage: backgroundImage(key),
               }}
-              className={`${styles["clientLogo"]} ${
+              className={`${styles.clientLogo} ${
                 currentLogoId === key ? styles.visible : ""
               }`}
               role="img"

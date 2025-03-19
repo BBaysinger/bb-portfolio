@@ -31,7 +31,7 @@ const Shadow: React.FC<ShadowProps> = ({ className, x1, y1 }) => {
       width="1in"
       height="1in"
       viewBox="0 0 72 72"
-      className={`${styles["shadow"]} ${className}`}
+      className={`${styles.shadow} ${className}`}
     >
       <g opacity="0.5">
         <g transform={`translate(${xPos}, ${yPos})`}>
@@ -49,7 +49,7 @@ const Shadow: React.FC<ShadowProps> = ({ className, x1, y1 }) => {
     //   <img
     //     src={cornerShadow}
     //     alt="Shadow"
-    //     className={`${styles["shadow"]} ${className}`}
+    //     className={`${styles.shadow} ${className}`}
     //     style={{
     //       transform: `translate(${xPos}px, ${yPos}px)`,
     //       position: "absolute",

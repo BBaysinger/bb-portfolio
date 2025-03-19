@@ -27,23 +27,23 @@ const ProjectThumbnail = forwardRef<HTMLDivElement, ProjectThumbnailProps>(
       backgroundImage: `url('/images/thumbs/${projectId}.webp')`,
     };
 
-    const focusClass = focused ? styles["projectThumbnailFocus"] : "";
+    const focusClass = focused ? styles.projectThumbnailFocus : "";
 
     return (
-      <div className={`${styles["projectThumbnail"]} ${focusClass}`} ref={ref}>
+      <div className={`${styles.projectThumbnail} ${focusClass}`} ref={ref}>
         <Link to={`/portfolio/${projectId}#project`}>
-          <div className={styles["thumbBg"]} style={style}></div>
-          <div className={styles["vignette"]}></div>
-          <div className={styles["thumbContent"]}>
+          <div className={styles.thumbBg} style={style}></div>
+          <div className={styles.vignette}></div>
+          <div className={styles.thumbContent}>
             <div>
               <img
                 src={`/images/client-logos/${clientId}.svg`}
-                className={styles["clientLogo"]}
+                className={styles.clientLogo}
                 loading="lazy"
                 alt={`${clientId} logo`}
               />
             </div>
-            <h4 className={styles["thumbTitle"]}>{title}</h4>
+            <h4 className={styles.thumbTitle}>{title}</h4>
           </div>
         </Link>
       </div>

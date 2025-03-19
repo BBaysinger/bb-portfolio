@@ -22,7 +22,7 @@ const NavLinks: React.FC<NavLinkProps> = ({ onClick, className }) => {
   const { isLoggedIn } = useAuth();
 
   return (
-    <ul onClick={onClick} className={`${styles["navLinks"]} ${className}`}>
+    <ul onClick={onClick} className={`${styles.navLinks} ${className}`}>
       {isLoggedIn && (
         <>
           <li>
@@ -67,7 +67,7 @@ const NavLinks: React.FC<NavLinkProps> = ({ onClick, className }) => {
           Contact
         </NavLink>
       </li>
-      {isLoggedIn && <LogoutButton className={styles["logout"]} />}
+      {isLoggedIn && <LogoutButton className={styles.logout} />}
       {!isLoggedIn && (
         <li>
           <NavLink
