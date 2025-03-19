@@ -1,112 +1,50 @@
-import { useState, useEffect, useRef } from "react";
+import React, { useRef, useEffect, useState } from "react";
 
-const MagneticMeter = () => {
-  const [pointerX, setPointerX] = useState(150);
-  const [pointerY, setPointerY] = useState(50);
-  const [needleAngle, setNeedleAngle] = useState(0);
-  const [stuck, setStuck] = useState(false);
-  const [stuckPosition, setStuckPosition] = useState({ x: 0, y: 0 });
-
-  const needleRef = useRef<HTMLDivElement>(null);
-  const animationFrameRef = useRef<number | null>(null);
-
-  // Constants for physics
-  const STICK_THRESHOLD = 10; // Distance where the needle sticks
-  const BREAK_FORCE = 30; // Distance required to unstick
-  const SPRING_CONSTANT = 0.1; // Attraction strength
-  const DAMPING = 0.9; // Damping to slow movement
+const NeedleAttraction: React.FC = () => {
+  const anchor = { x: 200, y: 200 }; // Fixed rotation point
+  const [angle, setAngle] = useState(0);
 
   useEffect(() => {
-    const updatePhysics = () => {
-      const needle = needleRef.current;
-      if (!needle) return;
+    const updateNeedleRotation = (e: MouseEvent) => {
+      const pointerX = e.clientX;
+      const pointerY = e.clientY;
 
-      const rect = needle.getBoundingClientRect();
-      const needleX = rect.left + rect.width / 2;
-      const needleY = rect.top + rect.height / 2;
+      // Calculate angle between the anchor and the pointer
+      const deltaX = pointerX - anchor.x;
+      const deltaY = pointerY - anchor.y;
+      const targetAngle = Math.atan2(deltaY, deltaX) * (180 / Math.PI);
 
-      const dx = pointerX - needleX;
-      const dy = pointerY - needleY;
-      const distance = Math.sqrt(dx * dx + dy * dy);
-      const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+      // Calculate distance and normalize attraction strength
+      const distance = Math.sqrt(deltaX ** 2 + deltaY ** 2);
+      const maxDistance = 300; // Beyond this distance, movement is negligible
+      const attractionStrength = Math.max(0, 1 - distance / maxDistance); // Closer -> stronger pull, farther -> weaker
 
-      if (stuck) {
-        // Check if the pointer moves far enough to break free
-        const breakDistance = Math.sqrt(
-          (pointerX - stuckPosition.x) ** 2 + (pointerY - stuckPosition.y) ** 2,
-        );
-        if (breakDistance > BREAK_FORCE) {
-          setStuck(false);
-        } else {
-          setNeedleAngle(angle);
-        }
-      } else {
-        if (distance < STICK_THRESHOLD) {
-          setStuck(true);
-          setStuckPosition({ x: pointerX, y: pointerY });
-          setNeedleAngle(angle);
-        } else {
-          // Apply magnetic attraction force
-          const force = SPRING_CONSTANT * (angle - needleAngle);
-          const newAngle = needleAngle + force;
-          setNeedleAngle(newAngle * DAMPING);
-        }
-      }
-
-      animationFrameRef.current = requestAnimationFrame(updatePhysics);
+      // Apply smooth interpolation with decreasing attraction
+      setAngle(
+        (prevAngle) =>
+          prevAngle + (targetAngle - prevAngle) * attractionStrength * 0.1,
+      );
     };
 
-    animationFrameRef.current = requestAnimationFrame(updatePhysics);
-    return () => {
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
-    };
-  }, [pointerX, pointerY, needleAngle, stuck, stuckPosition]);
+    window.addEventListener("mousemove", updateNeedleRotation);
+    return () => window.removeEventListener("mousemove", updateNeedleRotation);
+  }, []);
 
   return (
     <div
-      onMouseMove={(e) => {
-        setPointerX(e.clientX);
-        setPointerY(e.clientY);
-      }}
       style={{
-        position: "relative",
-        width: "300px",
-        height: "300px",
-        border: "1px solid black",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
+        position: "absolute",
+        left: `${anchor.x}px`,
+        top: `${anchor.y}px`,
+        transform: `rotate(${angle}deg)`,
+        transformOrigin: "0% 50%", // Fixed at one end
+        width: "100px",
+        height: "4px",
+        backgroundColor: "red",
+        transition: "transform 0.05s linear",
       }}
-    >
-      {/* Needle */}
-      <div
-        ref={needleRef}
-        style={{
-          width: "4px",
-          height: "100px",
-          background: "red",
-          position: "absolute",
-          transformOrigin: "bottom center",
-          transform: `rotate(${needleAngle}deg)`,
-          transition: stuck ? "none" : "transform 0.1s ease-out",
-        }}
-      />
-      {/* Pointer */}
-      <div
-        style={{
-          width: "10px",
-          height: "10px",
-          background: "blue",
-          position: "absolute",
-          left: pointerX - 5,
-          top: pointerY - 5,
-          borderRadius: "50%",
-        }}
-      />
-    </div>
+    />
   );
 };
 
-export default MagneticMeter;
+export default NeedleAttraction;
