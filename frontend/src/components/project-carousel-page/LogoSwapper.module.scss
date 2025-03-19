@@ -18,7 +18,7 @@
   @include fluid-property(width, $b320px, $b768px, 240px, 330px);
   @include fluid-property(height, $b320px, $b768px, 50px, 65px);
 
-  @include breakpoint-up($b768px) {
+  @include breakpointUp($b768px) {
     margin-left: 0;
   }
 
@@ -26,12 +26,12 @@
     filter: blur(0);
   }
 
-  &.fade-in {
+  &.fadeIn {
     opacity: 1;
   }
 }
 
-.client-logo {
+.clientLogo {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -51,7 +51,7 @@
     opacity: 1;
   }
 
-  @include breakpoint-up($b768px) {
+  @include breakpointUp($b768px) {
     margin-left: 0;
     left: 0;
     transform: translateY(-50%);

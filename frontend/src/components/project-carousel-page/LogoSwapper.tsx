@@ -44,7 +44,7 @@ const LogoSwapper: React.FC<LogoSwapperProps> = ({ projectId }) => {
   const [isMounted, setIsMounted] = useState(false); // Track mount state
 
   useEffect(() => {
-    // Set component as mounted to trigger fade-in
+    // Set component as mounted to trigger fadeIn
     setIsMounted(true);
     let timeout2: NodeJS.Timeout;
     // Handle blur transition
@@ -65,7 +65,7 @@ const LogoSwapper: React.FC<LogoSwapperProps> = ({ projectId }) => {
   // If there's a logo variant (for contrast on white), use it.
   const backgroundImage = (key: string) => {
     const fileName = fileVariants[key] || key;
-    return `url(/images/client-logos/${fileName}.svg)`;
+    return `url(/images/clientLogos/${fileName}.svg)`;
   };
 
   return (
@@ -73,7 +73,7 @@ const LogoSwapper: React.FC<LogoSwapperProps> = ({ projectId }) => {
       <div className={"container"}>
         <div
           className={`${styles["logo-swapper"]} ${isBlurred ? "" : styles["un-blurred"]} ${
-            isMounted ? styles["fade-in"] : styles["fade-out"]
+            isMounted ? styles["fadeIn"] : styles["fadeOut"]
           }`}
         >
           {Object.entries(clientNames).map(([key, value]) => (
@@ -82,7 +82,7 @@ const LogoSwapper: React.FC<LogoSwapperProps> = ({ projectId }) => {
               style={{
                 backgroundImage: backgroundImage(key),
               }}
-              className={`${styles["client-logo"]} ${
+              className={`${styles["clientLogo"]} ${
                 currentLogoId === key ? styles.visible : ""
               }`}
               role="img"

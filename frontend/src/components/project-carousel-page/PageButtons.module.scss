@@ -34,7 +34,7 @@ $maxScaleBreak: 680px; // Max vw limit of the carousel scaling
   @include fluid-property(height, $b320px, $mainBreak, 40px, 96px);
   @include fluid-property(width, $b320px, $mainBreak, 40px, 96px);
   @include fluid-property(margin-left, $b320px, $mainBreak, -10px, -20px);
-  @include breakpoint-up($b640px) {
+  @include breakpointUp($b640px) {
     background: #000;
   }
 

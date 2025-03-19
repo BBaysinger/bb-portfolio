@@ -2,23 +2,23 @@
 @use "@/styles/variables" as *;
 @use "./PortfolioList.module.scss" as portfolioList;
 
-.project-thumbnail {
+.projectThumbnail {
   height: 290px;
   position: relative;
   overflow: hidden; // Fix gap on left side of vignette.
   width: 100vw;
 
-  @include breakpoint-up($b768px) {
+  @include breakpointUp($b768px) {
     flex: 0 1 calc(50% - portfolioList.$portfolioListGap * 0.5);
   }
 
-  @include breakpoint-up($b1280px) {
+  @include breakpointUp($b1280px) {
     flex: 0 1 calc(33.333% - portfolioList.$portfolioListGap * (2 / 3));
   }
 
   @media screen and (hover: hover) {
     &:hover {
-      .thumb-bg {
+      .thumbBg {
         filter: blur(0);
         opacity: 1;
       }
@@ -27,7 +27,7 @@
         transition: opacity 0.3s linear;
       }
 
-      .thumb-content {
+      .thumbContent {
         opacity: 1;
 
         > * {
@@ -43,8 +43,8 @@
   }
 
   @media screen and (hover: none) {
-    &.project-thumbnail-focus {
-      .thumb-bg {
+    &.projectThumbnailFocus {
+      .thumbBg {
         filter: blur(0);
         opacity: 1;
       }
@@ -54,7 +54,7 @@
         transition: opacity 0.3s linear;
       }
 
-      .thumb-content {
+      .thumbContent {
         opacity: 1;
 
         > * {
@@ -70,7 +70,7 @@
   }
 }
 
-.client-logo {
+.clientLogo {
   max-height: 32px;
   max-width: 90%;
   width: auto;
@@ -79,7 +79,7 @@
   object-position: left;
 }
 
-h4.thumb-title {
+h4.thumbTitle {
   color: #fff;
   font-size: 24px;
   font-weight: 400;
@@ -99,7 +99,7 @@ h4.thumb-title {
   transition: opacity 0.5s linear;
 }
 
-.thumb-content {
+.thumbContent {
   position: absolute;
   display: flex;
   flex-direction: column;
@@ -133,7 +133,7 @@ h4.thumb-title {
     }
   }
 
-  &.hover-focus-thumb-content {
+  &.hoverFocusThumbContent {
     opacity: 1;
 
     > * {
@@ -147,12 +147,12 @@ h4.thumb-title {
   }
 }
 
-.hover-focus-vignette {
+.hoverFocusVignette {
   opacity: 0.5;
   transition: opacity 0.3s linear;
 }
 
-.thumb-bg {
+.thumbBg {
   position: absolute;
   height: 100%;
   width: 100%;

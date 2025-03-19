@@ -13,7 +13,7 @@ import { useEffect, useRef } from "react";
 const useInViewArray = (
   animationClass: string,
   threshold = 0.2,
-  baseClass = "fade-in",
+  baseClass = "fadeIn",
   delay = 500, // Delay in milliseconds (default: 1 second)
   scrollThreshold = 100, // How much the user needs to be scrolled down to trigger delay
 ) => {
@@ -22,7 +22,7 @@ const useInViewArray = (
   const addToRefs = (el: HTMLElement | null) => {
     if (el && !elementsRef.current.includes(el)) {
       elementsRef.current.push(el);
-      el.classList.add(baseClass); // Automatically add the "fade-in" class
+      el.classList.add(baseClass); // Automatically add the "fadeIn" class
     }
   };
 

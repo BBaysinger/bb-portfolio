@@ -66,14 +66,14 @@
     > * {
       margin-left: 4px;
 
-      @include breakpoint-up($b360px) {
+      @include breakpointUp($b360px) {
         margin-left: 8px;
       }
     }
     > *:first-child {
       margin-left: 6px;
 
-      @include breakpoint-up($b360px) {
+      @include breakpointUp($b360px) {
         margin-left: 10px;
       }
     }
@@ -146,7 +146,7 @@
     height: $navBarHeight;
     margin: 0;
     display: none;
-    @include breakpoint-up($b768px) {
+    @include breakpointUp($b768px) {
       display: flex;
     }
   }

@@ -60,7 +60,7 @@ html {
 // Text slide-in animation
 //////////////////////////////////////////////////////////////////////////
 
-.fade-in {
+.fadeIn {
   opacity: 0;
   transform: translateX(200px);
   transition:
@@ -73,11 +73,11 @@ html {
   }
 }
 
-img.fade-in {
+img.fadeIn {
   transform: translateX(-100px);
 }
 
-h4.fade-in {
+h4.fadeIn {
   transform: translateX(-300px);
 }
 
@@ -161,14 +161,14 @@ form {
   padding-top: 60px;
   padding-bottom: 60px;
 
-  @include breakpoint-up($b768px) {
+  @include breakpointUp($b768px) {
     padding-top: 90px;
     padding-bottom: 90px;
   }
 
   h4 {
     border-bottom: 10px solid transparent;
-    border-image-source: url("/images/common/barberPole.webp");
+    border-image-source: url("/images/common/barber-pole.webp");
     border-image-slice: 0 0 100 0;
     border-image-repeat: repeat;
     border-image-width: 10px;

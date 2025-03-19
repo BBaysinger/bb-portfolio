@@ -1,7 +1,7 @@
 @use "@/styles/mixins" as *;
 @use "@/styles/variables" as *;
 
-.paragraph-animator {
+.paragraphAnimator {
   position: absolute;
   font-size: 16px;
   color: rgba(255, 255, 255, 0.8);
@@ -16,21 +16,21 @@
   opacity: 1;
   transition: opacity 1s ease-in-out;
 
-  &.fade-in {
+  &.fadeIn {
     opacity: 1;
   }
 
-  &.fade-out {
+  &.fadeOut {
     opacity: 0;
   }
 
-  @include breakpoint-up($b640px) {
+  @include breakpointUp($b640px) {
     font-size: 18px;
   }
-  @include breakpoint-up($b1024px) {
+  @include breakpointUp($b1024px) {
     font-size: 20px;
   }
-  @include breakpoint-up($b1280px) {
+  @include breakpointUp($b1280px) {
     font-size: 25px;
   }
   p {

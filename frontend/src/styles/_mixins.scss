@@ -6,11 +6,11 @@
 // Usage: Apply styles starting from the specified breakpoint and up.
 // Example:
 // .example-class {
-//   @include breakpoint-up($b768px) {
+//   @include breakpointUp($b768px) {
 //     background-color: $lighterThemeColor;
 //   }
 // }
-@mixin breakpoint-up($breakpoint) {
+@mixin breakpointUp($breakpoint) {
   $min-width: map.get($breakpoints, $breakpoint); // Correct Dart Sass syntax
   @if $min-width != null {
     @media screen and (min-width: $min-width) {

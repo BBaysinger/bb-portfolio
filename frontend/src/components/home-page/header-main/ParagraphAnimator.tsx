@@ -22,7 +22,7 @@ const ParagraphAnimator: React.FC<ParagraphAnimatorProps> = ({
   className,
 }) => {
   const [spanPosition, setSpanPosition] = useState(0);
-  const [fade, setFade] = useState("fade-out");
+  const [fade, setFade] = useState("fadeOut");
   const [isInitialDelayOver, setIsInitialDelayOver] = useState(false);
   const [indexQueue, setIndexQueue] = useState<number[]>(
     shuffleArray([...Array(paragraphs.length).keys()]),
@@ -34,7 +34,7 @@ const ParagraphAnimator: React.FC<ParagraphAnimatorProps> = ({
   useEffect(() => {
     const initialTimer = setTimeout(() => {
       setIsInitialDelayOver(true);
-      setFade("fade-in");
+      setFade("fadeIn");
     }, initialDelay);
 
     return () => clearTimeout(initialTimer);
@@ -50,12 +50,12 @@ const ParagraphAnimator: React.FC<ParagraphAnimatorProps> = ({
       return () => clearTimeout(timer);
     } else {
       const fadeOutTimer = setTimeout(() => {
-        setFade("fade-out");
+        setFade("fadeOut");
       }, paragraphDelay - 10000);
 
       const nextTimer = setTimeout(() => {
         setSpanPosition(0);
-        setFade("fade-in");
+        setFade("fadeIn");
 
         setIndexQueue((prevQueue) => {
           let newQueue = [...prevQueue.slice(1)];
@@ -85,7 +85,7 @@ const ParagraphAnimator: React.FC<ParagraphAnimatorProps> = ({
 
   return (
     <div
-      className={`${styles["paragraph-animator"]} ${className} ${styles[fade]}`}
+      className={`${styles["paragraphAnimator"]} ${className} ${styles[fade]}`}
     >
       <p dangerouslySetInnerHTML={{ __html: `<span>${animatedText}` }} />
     </div>

@@ -21,10 +21,10 @@ header.header-sub {
   background-position: center;
   background-color: #fff;
   background-repeat: repeat !important;
-  background-image: url("/images/common/barberPole.webp");
+  background-image: url("/images/common/barber-pole.webp");
   background-size: 80%;
 
-  @include breakpoint-up($b480px) {
+  @include breakpointUp($b480px) {
     background-size: 40%;
   }
 
@@ -39,11 +39,11 @@ header.header-sub {
     font-size: 36px;
     line-height: 1em;
 
-    @include breakpoint-up($b480px) {
+    @include breakpointUp($b480px) {
       font-size: 46px;
     }
 
-    @include breakpoint-up($b992px) {
+    @include breakpointUp($b992px) {
       font-size: 60px;
     }
   }
@@ -54,7 +54,7 @@ header.header-sub {
   color: #444;
   padding: 20px;
   border-radius: 20px;
-  @include breakpoint-up($b992px) {
+  @include breakpointUp($b992px) {
     padding: 30px;
   }
 }
@@ -78,15 +78,15 @@ h5,
   font-size: 18px;
   font-weight: 400;
 
-  @include breakpoint-up($b360px) {
+  @include breakpointUp($b360px) {
     font-size: 16px;
   }
 
-  @include breakpoint-up($b480px) {
+  @include breakpointUp($b480px) {
     font-size: 20px;
   }
 
-  @include breakpoint-up($b992px) {
+  @include breakpointUp($b992px) {
     font-size: 30px;
   }
 }
