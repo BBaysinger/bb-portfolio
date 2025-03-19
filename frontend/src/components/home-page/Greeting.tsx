@@ -1,6 +1,7 @@
 import styles from "./Greeting.module.scss";
 
 import useInViewAnimation from "hooks/useInViewAnimation";
+import HelloSign from "components/home-page/HelloSign";
 
 /**
  * @author Bradley Baysinger
@@ -28,6 +29,7 @@ const Greeting: React.FC = () => {
             alt="road sign"
             loading="lazy"
           />
+          <HelloSign />
         </div>
 
         <div>
