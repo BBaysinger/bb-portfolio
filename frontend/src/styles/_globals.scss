@@ -17,4 +17,44 @@
       text-decoration: underline;
     }
   }
+
+  :global(.container) {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  label {
+    color: white;
+  }
+
+  button {
+    height: 36px;
+  }
+
+  input,
+  button,
+  select,
+  textarea {
+    margin-left: -2px;
+  }
+
+  .sameRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    width: 100%;
+    gap: 20px;
+    margin-bottom: 10px;
+
+    > label {
+      display: inline-block;
+      width: auto;
+      width: 49%;
+      margin-bottom: 0;
+
+      > input {
+        width: 100%;
+      }
+    }
+  }
 }
