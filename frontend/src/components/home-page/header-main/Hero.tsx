@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useCallback, useRef } from "react";
 
+import useClientDimensions from "hooks/useClientDimensions";
 import headerLogo from "images/main-header/bb-gradient.webp";
 import BarberPole from "components/common/BarberPole";
 import FluxelGrid from "./fluxel-grid/FluxelGrid";
@@ -20,39 +21,17 @@ const Hero: React.FC = () => {
   const hasScrolledOut = useScrollPersistedClass(id);
 
   const wrapperRef = useRef<HTMLDivElement>(null);
-  const getHeight = () => document.documentElement.clientHeight;
-  const getWidth = () => document.documentElement.clientWidth;
+
+  const { clientHeight, clientWidth } = useClientDimensions();
 
   // For sending position data to the FluxelGrid.
   const [slingerPos, setSlingerPos] = useState<
     { x: number; y: number } | null | undefined
   >(undefined);
-  const [clientHeight, setClientHeight] = useState(getHeight());
-  const [clientWidth, setClientWidth] = useState(getWidth());
 
   const [_hasDragged, setHasDragged] = useState(
     sessionStorage.getItem("hasDragged") === "true",
   );
-
-  const updateClientDimensions = useCallback(() => {
-    setClientHeight(getHeight());
-    setClientWidth(getWidth());
-  }, []);
-
-  useEffect(() => {
-    updateClientDimensions();
-
-    const handleResize = () => {
-      requestAnimationFrame(updateClientDimensions);
-    };
-
-    window.addEventListener("resize", handleResize);
-    window.addEventListener("orientationchange", handleResize);
-    return () => {
-      window.removeEventListener("resize", handleResize);
-      window.removeEventListener("orientationchange", handleResize);
-    };
-  }, [updateClientDimensions]);
 
   const onSlingerDrag = useCallback(
     (x: number, y: number, e: MouseEvent | TouchEvent) => {
@@ -105,7 +84,6 @@ const Hero: React.FC = () => {
   return (
     <header
       id={id}
-      // ref={wrapperRef}
       className={
         `${styles["header-main"]} ${styles["header"]} header-main ` +
         `${hasScrolledOut ? styles["has-scrolled-out"] : ""} ` +
