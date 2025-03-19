@@ -1,9 +1,6 @@
 .fluxel-grid {
   display: flex;
   flex-wrap: wrap;
-  // aspect-ratio: 1 / 1;
-  // width: 100%;
-  // height: 100%;
   justify-content: center; /* Center items within each row (horizontal centering) */
   align-content: center; /* Center the entire group of rows vertically */
   pointer-events: none;
@@ -11,7 +8,7 @@
     pointer-events: none;
   }
   > * {
-    // Here because the same styles need applied to
+    // Here because some of the same styles need applied to
     // the placeholders as well the actual fluxels
     position: relative;
     flex: 1 1 calc(100% / var(--cols));
