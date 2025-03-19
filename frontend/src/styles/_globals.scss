@@ -2,7 +2,6 @@
 
 .graphite-page {
   padding-top: $navBarHeight + 6px !important;
-  min-height: 100dvh;
   overflow: hidden;
   background-color: black;
   background-image: url("/images/common/bg-grad.svg");
@@ -43,7 +42,7 @@
     justify-content: space-between;
     align-items: flex-end;
     width: 100%;
-    gap: 20px;
+    gap: 14px;
     margin-bottom: 10px;
 
     > label {

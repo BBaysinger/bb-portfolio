@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 
+import useClientDimensions from "hooks/useClientDimensions";
 import styles from "./ContactPage.module.scss";
 
 /**
@@ -23,6 +24,7 @@ const ContactPage = () => {
   });
   const [status, setStatus] = useState<string>("");
   const [error, setError] = useState<string>("");
+  const { clientHeight } = useClientDimensions();
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -61,7 +63,11 @@ const ContactPage = () => {
 
   return (
     <>
-      <div id="mainContent" className={`${styles["contact-page"]}`}>
+      <div
+        id="mainContent"
+        className={`${styles["contact-page"]}`}
+        style={{ minHeight: `${clientHeight}px` }}
+      >
         <div className={`container`}>
           <div className={`${styles["form"]} row`}>
             <h1>Contact me!</h1>

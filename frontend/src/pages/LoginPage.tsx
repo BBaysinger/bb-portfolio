@@ -2,6 +2,7 @@ import { useState } from "react";
 import { NavLink } from "react-router-dom";
 // import * as CryptoJS from "crypto-js"; // Add in for testing iOS on local network
 
+import useClientDimensions from "hooks/useClientDimensions";
 import { useAuth } from "context/AuthContext";
 import styles from "./LoginPage.module.scss";
 
@@ -16,16 +17,8 @@ const users = [
     hash: "1ecb9e6bdf6cc8088693c11e366415fe5c73662ecdf08f3df337924d8ea26adc",
   },
   {
-    username: "Amzium",
-    hash: "f0865a6c2e386aef626dabf5d8e087e1ab30fed5eff3a3ca78b76bbc1823bcd1",
-  },
-  {
     username: "Leslie",
     hash: "6e2a9c2005c195088bc774cdd44def3a886a3e2598219d4e39353ae837b8b081",
-  },
-  {
-    username: "Blue541",
-    hash: "83c110213aa180fe751b5008f7ab7ee6579963f0c001149d1bd2066b9026f038",
   },
   {
     username: "Guest",
@@ -68,6 +61,7 @@ const Login = ({ onLogin }: { onLogin: () => void }) => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const { clientHeight } = useClientDimensions();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -89,7 +83,7 @@ const Login = ({ onLogin }: { onLogin: () => void }) => {
   };
 
   return (
-    <div className={styles["login"]}>
+    <div className={styles["login"]} style={{ minHeight: `${clientHeight}px` }}>
       <div>
         <h1>Login</h1>
         <p>
