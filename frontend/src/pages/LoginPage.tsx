@@ -105,20 +105,28 @@ const Login = ({ onLogin }: { onLogin: () => void }) => {
         <p>Thank you for your understanding!</p>
 
         <form className={styles["form"]} onSubmit={handleLogin}>
-          <input
-            type="text"
-            placeholder="Username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            disabled={isLoggingIn}
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            disabled={isLoggingIn}
-          />
+          <div className={styles.sameRow}>
+            <label htmlFor="username">
+              <div>Username:</div>
+              <input
+                type="text"
+                placeholder=""
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                disabled={isLoggingIn}
+              />
+            </label>
+            <label htmlFor="password">
+              <div>Password:</div>
+              <input
+                type="password"
+                placeholder=""
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                disabled={isLoggingIn}
+              />
+            </label>
+          </div>
           <button type="submit" className="btn" disabled={isLoggingIn}>
             Login
           </button>

@@ -77,26 +77,30 @@ const ContactPage = () => {
             >
               <input type="hidden" name="form-name" value="contact" />
               <input type="hidden" name="bot-field" />
-              <label>
-                <div>Name:</div>
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  required
-                />
-              </label>
-              <label>
-                <div>Email:</div>
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  required
-                />
-              </label>
+              <div className={styles.sameRow}>
+                <label className={styles.adjacent}>
+                  <div>Name:</div>
+                  <input
+                    type="text"
+                    name="name"
+                    placeholder=""
+                    value={formData.name}
+                    onChange={handleChange}
+                    required
+                  />
+                </label>
+                <label className={styles.adjacent}>
+                  <div>Email:</div>
+                  <input
+                    type="email"
+                    name="email"
+                    placeholder=""
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
+                  />
+                </label>
+              </div>
               <label>
                 <div>Message:</div>
                 <textarea
