@@ -22,13 +22,10 @@ import styles from "./HeaderSub.module.scss";
  */
 const HeaderSub: React.FC<HeaderSubProps> = ({ head, subhead }) => {
   return (
-    <header
-      id="headerSub"
-      className={`${styles["headerSub"]} ${styles["header"]}`}
-    >
+    <header id="headerSub" className={`${styles.headerSub} ${styles.header}`}>
       <div className={styles.textWrapper}>
         <h1>{head}</h1>
-        {subhead && <h5 className={styles["subhead"]}>{subhead}</h5>}
+        {subhead && <h5 className={styles.subhead}>{subhead}</h5>}
       </div>
     </header>
   );

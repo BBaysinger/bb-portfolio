@@ -24,9 +24,9 @@ const CurriculumVitae: React.FC = () => {
    */
   const wrapPhrases = (phrases: string[]): React.ReactNode[] => {
     return phrases.map((data, i) => (
-      <span className={styles["inline-list-item"]} key={i}>
-        <span className={styles["phrase"]}>{data}</span>
-        <span className={styles["bullet"]}>
+      <span className={styles.inlineListItem} key={i}>
+        <span className={styles.phrase}>{data}</span>
+        <span className={styles.bullet}>
           &nbsp;&bull;
           {/* Allow wrap. */}
           <span>&#32;</span>
@@ -185,9 +185,9 @@ const CurriculumVitae: React.FC = () => {
     "and many more...",
   ];
 
-  const divClassLt = `col-xs-12 col-sm-12 col-md-3 col-lg-3 ${styles["cvLeft"]}`;
-  const divClassRt = `col-xs-12 col-sm-12 col-md-9 col-lg-9 ${styles["cvRight"]}`;
-  const rowClass = `row ${styles["row"]}`;
+  const divClassLt = `col-xs-12 col-sm-12 col-md-3 col-lg-3 ${styles.cvLeft}`;
+  const divClassRt = `col-xs-12 col-sm-12 col-md-9 col-lg-9 ${styles.cvRight}`;
+  const rowClass = `row ${styles.row}`;
 
   return (
     <div>
@@ -195,9 +195,9 @@ const CurriculumVitae: React.FC = () => {
 
       <section
         id="mainContent"
-        className={`cvPage ${styles["cvPage"]} standardPage`}
+        className={`cvPage ${styles.cvPage} standardPage`}
       >
-        <div className={`container ${styles["summary"]}`}>
+        <div className={`container ${styles.summary}`}>
           <h4 ref={addToRefs}>Summary</h4>
 
           <div className={rowClass}>
@@ -205,7 +205,7 @@ const CurriculumVitae: React.FC = () => {
               <img
                 ref={addToRefs}
                 src="/images/cv/dart.svg"
-                className={styles["cvLogo"]}
+                className={styles.cvLogo}
                 alt="Dart Logo"
               />
             </div>
@@ -235,17 +235,17 @@ const CurriculumVitae: React.FC = () => {
               <img
                 ref={addToRefs}
                 src="/images/cv/wrench.svg"
-                className={styles["cvLogo"]}
+                className={styles.cvLogo}
                 alt="Wrench Logo"
               />
             </div>
 
             <div className={divClassRt}>
-              <h5 ref={addToRefs} className={styles["subContainer"]}>
-                <div className={styles["leftSub"]}>
+              <h5 ref={addToRefs} className={styles.subContainer}>
+                <div className={styles.leftSub}>
                   <h5>Modern Front-End Development</h5>
                 </div>
-                <div className={styles["break"]}></div>
+                <div className={styles.break}></div>
               </h5>
 
               <ul ref={addToRefs}>
@@ -263,11 +263,11 @@ const CurriculumVitae: React.FC = () => {
                 </li>
               </ul>
 
-              <h5 ref={addToRefs} className={styles["subContainer"]}>
-                <div className={styles["leftSub"]}>
+              <h5 ref={addToRefs} className={styles.subContainer}>
+                <div className={styles.leftSub}>
                   <h5>Creative Problem-Solving</h5>
                 </div>
-                <div className={styles["break"]}></div>
+                <div className={styles.break}></div>
               </h5>
 
               <ul ref={addToRefs}>
@@ -281,11 +281,11 @@ const CurriculumVitae: React.FC = () => {
                 </li>
               </ul>
 
-              <h5 ref={addToRefs} className={styles["subContainer"]}>
-                <div className={styles["leftSub"]}>
+              <h5 ref={addToRefs} className={styles.subContainer}>
+                <div className={styles.leftSub}>
                   <h5>Design &amp; Animation Background</h5>
                 </div>
-                <div className={styles["break"]}></div>
+                <div className={styles.break}></div>
               </h5>
 
               <ul ref={addToRefs}>
@@ -313,32 +313,32 @@ const CurriculumVitae: React.FC = () => {
               <img
                 ref={addToRefs}
                 src="/images/cv/epsilon.svg"
-                className={styles["cvLogo"]}
+                className={styles.cvLogo}
                 alt="Epsilon Logo"
               />
             </div>
             <div className={divClassRt}>
-              <div ref={addToRefs} className={styles["subContainer"]}>
-                <div className={styles["leftSub"]}>
+              <div ref={addToRefs} className={styles.subContainer}>
+                <div className={styles.leftSub}>
                   <h5>
                     Epsilon
-                    <span className={styles["location"]}>
+                    <span className={styles.location}>
                       {" "}
                       — Irving, TX | Remote | W2
                     </span>
                   </h5>
                   Senior Front-end Developer
                 </div>
-                <div className={styles["break"]}></div>
-                <div className={styles["rightSub"]}>[ 2021 - 2024 ]</div>
+                <div className={styles.break}></div>
+                <div className={styles.rightSub}>[ 2021 - 2024 ]</div>
               </div>
 
-              <p ref={addToRefs} className={styles["desc"]}>
+              <p ref={addToRefs} className={styles.desc}>
                 Interactive and responsive websites for Fortune 500 companies in
                 banking, pharmaceuticals, and entertainment
               </p>
 
-              <p ref={addToRefs} className={styles["scope"]}>
+              <p ref={addToRefs} className={styles.scope}>
                 <span>Technical Scope:</span> jQuery, Adobe Suite, Sitecore,
                 HTML Email, Salesforce, OneTrust, FreeMarker
               </p>
@@ -406,37 +406,37 @@ const CurriculumVitae: React.FC = () => {
               <img
                 ref={addToRefs}
                 src="/images/cv/bb.svg"
-                className={styles["cvLogo"]}
+                className={styles.cvLogo}
                 alt="BB Interactive Logo"
               />
             </div>
             <div className={divClassRt}>
-              <div ref={addToRefs} className={styles["subContainer"]}>
-                <div className={styles["leftSub"]}>
+              <div ref={addToRefs} className={styles.subContainer}>
+                <div className={styles.leftSub}>
                   <h5>
                     BB Interactive
-                    <span className={styles["location"]}>
+                    <span className={styles.location}>
                       {" "}
                       — Spokane, WA | Remote
                     </span>
                   </h5>
                   Front-end / Interactive Web Developer
-                  <div className={styles["parenthetical"]}>
+                  <div className={styles.parenthetical}>
                     [Independent Contractor]
                   </div>
                 </div>
-                <div className={styles["break"]}></div>
-                <div className={styles["rightSub"]}>[ 2020 - 2021 ]</div>
+                <div className={styles.break}></div>
+                <div className={styles.rightSub}>[ 2020 - 2021 ]</div>
               </div>
 
-              <p ref={addToRefs} className={styles["desc"]}>
+              <p ref={addToRefs} className={styles.desc}>
                 Delivered specialized front-end and interactive web development
                 services for diverse clients, including local businesses, a
                 national startup, an international charity, and a pharmaceutical
                 manufacturer.
               </p>
 
-              <p ref={addToRefs} className={styles["scope"]}>
+              <p ref={addToRefs} className={styles.scope}>
                 <span>Technical Scope:</span> Angular 7-8, TypeScript, React,
                 SVG, SCSS, Elasticsearch, Craft CMS, Adobe Creative Suite
               </p>
@@ -477,24 +477,24 @@ const CurriculumVitae: React.FC = () => {
               <img
                 ref={addToRefs}
                 src="/images/cv/s2.svg"
-                className={styles["cvLogo"]}
+                className={styles.cvLogo}
                 alt="Seven2"
               />
             </div>
             <div className={divClassRt}>
-              <div ref={addToRefs} className={styles["subContainer"]}>
-                <div className={styles["leftSub"]}>
+              <div ref={addToRefs} className={styles.subContainer}>
+                <div className={styles.leftSub}>
                   <h5>
                     Seven2 Interactive
-                    <span className={styles["location"]}> — Spokane, WA</span>
+                    <span className={styles.location}> — Spokane, WA</span>
                   </h5>
                   Interactive / Front-end Web Developer
                 </div>
-                <div className={styles["break"]}></div>
-                <div className={styles["rightSub"]}>[ 2018 - 2019 ]</div>
+                <div className={styles.break}></div>
+                <div className={styles.rightSub}>[ 2018 - 2019 ]</div>
               </div>
 
-              <p ref={addToRefs} className={styles["desc"]}>
+              <p ref={addToRefs} className={styles.desc}>
                 Delivered interactive and responsive websites for Fortune 500
                 companies in the technology and entertainment industries.
                 Focused on high-performance animations, user interactivity,
@@ -502,7 +502,7 @@ const CurriculumVitae: React.FC = () => {
                 deadlines.
               </p>
 
-              <p ref={addToRefs} className={styles["scope"]}>
+              <p ref={addToRefs} className={styles.scope}>
                 <span>Technical Scope:</span> Angular 6-8, Typescript, RxJS,
                 jQuery, Craft CMS, Grunt/Gulp, Handlebars, CreateJS, Adobe
                 Creative Suite
@@ -572,31 +572,31 @@ const CurriculumVitae: React.FC = () => {
               <img
                 ref={addToRefs}
                 src="/images/cv/chalklabs.svg"
-                className={styles["cvLogo"]}
+                className={styles.cvLogo}
                 alt="ChalkLabs Logo"
               />
             </div>
             <div className={divClassRt}>
-              <div ref={addToRefs} className={styles["subContainer"]}>
-                <div className={styles["leftSub"]}>
+              <div ref={addToRefs} className={styles.subContainer}>
+                <div className={styles.leftSub}>
                   <h5>
                     ChalkLabs
-                    <span className={styles["location"]}> — Spokane, WA</span>
+                    <span className={styles.location}> — Spokane, WA</span>
                   </h5>
                   UI Developer / Designer
                 </div>
-                <div className={styles["break"]}></div>
-                <div className={styles["rightSub"]}>[ 2017 - 2018 ]</div>
+                <div className={styles.break}></div>
+                <div className={styles.rightSub}>[ 2017 - 2018 ]</div>
               </div>
 
-              <p ref={addToRefs} className={styles["desc"]}>
+              <p ref={addToRefs} className={styles.desc}>
                 Designed and developed user interfaces for web applications
                 aimed at helping government organizations process, analyze, and
                 visualize data. Contributed to mission-critical projects under
                 tight deadlines, showcasing rapid learning and adaptability.
               </p>
 
-              <p ref={addToRefs} className={styles["scope"]}>
+              <p ref={addToRefs} className={styles.scope}>
                 <span>Technical Scope:</span> Angular 4-6, TypeScript, Mapbox,
                 Rest APIs, GraphQL, Data Visualizations, Adobe Create Suite
               </p>
@@ -653,24 +653,24 @@ const CurriculumVitae: React.FC = () => {
               <img
                 ref={addToRefs}
                 src="/images/cv/s2.svg"
-                className={styles["cvLogo"]}
+                className={styles.cvLogo}
                 alt="Seven2 Logo"
               />
             </div>
             <div className={divClassRt}>
-              <div ref={addToRefs} className={styles["subContainer"]}>
-                <div className={styles["leftSub"]}>
+              <div ref={addToRefs} className={styles.subContainer}>
+                <div className={styles.leftSub}>
                   <h5>
                     Seven2 Interactive
-                    <span className={styles["location"]}> — Spokane, WA</span>
+                    <span className={styles.location}> — Spokane, WA</span>
                   </h5>
                   Lead Flash / Interactive Web Developer
                 </div>
-                <div className={styles["break"]}></div>
-                <div className={styles["rightSub"]}>[ 2005 - 2016 ]</div>
+                <div className={styles.break}></div>
+                <div className={styles.rightSub}>[ 2005 - 2016 ]</div>
               </div>
 
-              <p ref={addToRefs} className={styles["desc"]}>
+              <p ref={addToRefs} className={styles.desc}>
                 Led the development of interactive websites, browser games, and
                 web advertising for nationally recognized corporations in
                 technology and entertainment. Delivered innovative solutions
@@ -678,7 +678,7 @@ const CurriculumVitae: React.FC = () => {
                 shaping technical strategies.
               </p>
 
-              <p ref={addToRefs} className={styles["scope"]}>
+              <p ref={addToRefs} className={styles.scope}>
                 <span>Technical Scope:</span> ActionScript 3, ActionScript 2,
                 JavaScript, jQuery, Require/AMD, Haxe, Flash, Adobe Create Suite
               </p>
@@ -754,30 +754,30 @@ const CurriculumVitae: React.FC = () => {
               <img
                 ref={addToRefs}
                 src="/images/cv/scw.svg"
-                className={styles["cvLogo"]}
+                className={styles.cvLogo}
                 alt="SCW Logo"
               />
             </div>
             <div className={divClassRt}>
-              <div ref={addToRefs} className={styles["subContainer"]}>
-                <div className={styles["leftSub"]}>
+              <div ref={addToRefs} className={styles.subContainer}>
+                <div className={styles.leftSub}>
                   <h5>
                     SCW Consulting
-                    <span className={styles["location"]}> — Spokane, WA</span>
+                    <span className={styles.location}> — Spokane, WA</span>
                   </h5>
                   Designer / Front-end Web Developer
                 </div>
-                <div className={styles["break"]}></div>
-                <div className={styles["rightSub"]}>[ 2005 ]</div>
+                <div className={styles.break}></div>
+                <div className={styles.rightSub}>[ 2005 ]</div>
               </div>
 
-              <p ref={addToRefs} className={styles["desc"]}>
+              <p ref={addToRefs} className={styles.desc}>
                 Designed and developed websites and applications for local
                 businesses with C#/.NET backends, establishing online presences
                 for clients while overcoming resource limitations.
               </p>
 
-              <p ref={addToRefs} className={styles["scope"]}>
+              <p ref={addToRefs} className={styles.scope}>
                 <span>Technical Scope:</span> HTML, CSS, Vanilla JavaScript,
                 Visual Studio, AJAX, Dynamic HTML, and Adobe Create Suite
               </p>
@@ -819,29 +819,29 @@ const CurriculumVitae: React.FC = () => {
               <img
                 ref={addToRefs}
                 src="/images/cv/bb.svg"
-                className={styles["cvLogo"]}
+                className={styles.cvLogo}
                 alt="BB Interactive Logo"
               />
             </div>
             <div className={divClassRt}>
-              <div ref={addToRefs} className={styles["subContainer"]}>
-                <div className={styles["leftSub"]}>
+              <div ref={addToRefs} className={styles.subContainer}>
+                <div className={styles.leftSub}>
                   <h5>
                     Freelance
-                    <span className={styles["location"]}> — Spokane, WA</span>
+                    <span className={styles.location}> — Spokane, WA</span>
                   </h5>
                   Designer / Front-end Web Developer
                 </div>
-                <div className={styles["break"]}></div>
-                <div className={styles["rightSub"]}>[ 2003 - 2005 ]</div>
+                <div className={styles.break}></div>
+                <div className={styles.rightSub}>[ 2003 - 2005 ]</div>
               </div>
 
-              <p ref={addToRefs} className={styles["desc"]}>
+              <p ref={addToRefs} className={styles.desc}>
                 Design and development of interactive websites for businesses in
                 the Spokane area concurrently while in web design school at SFCC
               </p>
 
-              <p ref={addToRefs} className={styles["scope"]}>
+              <p ref={addToRefs} className={styles.scope}>
                 <span>Technical Scope:</span> XML, XSL, Vanilla JavaScript,
                 Dynamic HTML, PHP
               </p>
@@ -885,24 +885,24 @@ const CurriculumVitae: React.FC = () => {
               <img
                 ref={addToRefs}
                 src="/images/cv/sfcc.svg"
-                className={styles["cvLogo"]}
+                className={styles.cvLogo}
                 alt="SFCC Logo"
               />
             </div>
             <div className={divClassRt}>
-              <div ref={addToRefs} className={styles["subContainer"]}>
-                <div className={styles["leftSub"]}>
+              <div ref={addToRefs} className={styles.subContainer}>
+                <div className={styles.leftSub}>
                   <h5>
                     Spokane Falls Community College
-                    <span className={styles["location"]}> — Spokane, WA</span>
+                    <span className={styles.location}> — Spokane, WA</span>
                   </h5>
                   A.A.S. Web Design — Honors
                 </div>
-                <div className={styles["break"]}></div>
-                <div className={styles["rightSub"]}>[ 2003 - 2005 ]</div>
+                <div className={styles.break}></div>
+                <div className={styles.rightSub}>[ 2003 - 2005 ]</div>
               </div>
 
-              <p ref={addToRefs} className={styles["desc"]}>
+              <p ref={addToRefs} className={styles.desc}>
                 Recognized with multiple first-place awards; select works
                 published officially for the college.
               </p>
@@ -918,31 +918,31 @@ const CurriculumVitae: React.FC = () => {
               <img
                 ref={addToRefs}
                 src="/images/cv/bv.svg"
-                className={styles["cvLogo"]}
+                className={styles.cvLogo}
                 alt="Hand Logo"
               />
             </div>
             <div className={divClassRt}>
-              <div ref={addToRefs} className={styles["subContainer"]}>
-                <div className={styles["leftSub"]}>
+              <div ref={addToRefs} className={styles.subContainer}>
+                <div className={styles.leftSub}>
                   <h5>
                     Hobbyist
-                    <span className={styles["location"]}> — Spokane, WA</span>
+                    <span className={styles.location}> — Spokane, WA</span>
                   </h5>
                   Interactive Web Enthusiast
                 </div>
-                <div className={styles["break"]}></div>
-                <div className={styles["rightSub"]}>[ 2001 - 2003 ]</div>
+                <div className={styles.break}></div>
+                <div className={styles.rightSub}>[ 2001 - 2003 ]</div>
               </div>
 
-              <p ref={addToRefs} className={styles["desc"]}>
+              <p ref={addToRefs} className={styles.desc}>
                 Self-directed learning of graphics software and early
                 cross-platform, dynamic, and interactive JavaScript development
                 before formally pursuing design school. My history with vanilla
                 JavaScript spans back to this era.
               </p>
 
-              <p ref={addToRefs} className={styles["scope"]}>
+              <p ref={addToRefs} className={styles.scope}>
                 <span>Technical Scope:</span> Vanilla JavaScript, HTML, CSS,
                 Dynamic HTML, PHP, and Adobe Create Suite
               </p>
@@ -1001,47 +1001,47 @@ const CurriculumVitae: React.FC = () => {
           <div className={rowClass}>
             <div ref={addToRefs} className={divClassLt}></div>
             <div ref={addToRefs} className={divClassRt}>
-              <div className={styles["subContainer"]}>
-                <div className={styles["leftSub"]}>
+              <div className={styles.subContainer}>
+                <div className={styles.leftSub}>
                   <h5>14 gold badges on Stack Overflow</h5>
-                  <div className={`${styles["badges"]} col-xs-12`}>
+                  <div className={`${styles.badges} col-xs-12`}>
                     {Array.from({ length: 14 }, (_, index) => (
                       <img key={index} src="/images/cv/gold-badge.svg" alt="" />
                     ))}
                   </div>
                 </div>
               </div>
-              <div className={`${styles["desc"]} col-xs-12`}>
+              <div className={`${styles.desc} col-xs-12`}>
                 Reputation: ~6,900
               </div>
             </div>
             <div ref={addToRefs} className={divClassLt}></div>
             <div ref={addToRefs} className={divClassRt}>
-              <div className={styles["subContainer"]}>
-                <div className={styles["leftSub"]}>
+              <div className={styles.subContainer}>
+                <div className={styles.leftSub}>
                   <h5>The Webby Awards</h5>
                   International
                 </div>
-                <div className={styles["break"]}></div>
-                <div className={styles["rightSub"]}>[ 2008 ]</div>
+                <div className={styles.break}></div>
+                <div className={styles.rightSub}>[ 2008 ]</div>
               </div>
 
-              <div className={`${styles["desc"]} col-xs-12`}>
+              <div className={`${styles.desc} col-xs-12`}>
                 People's Choice — Art Website of the Year — Artocracy.org
               </div>
             </div>
             <div ref={addToRefs} className={divClassLt}></div>
             <div ref={addToRefs} className={divClassRt}>
-              <div className={styles["subContainer"]}>
-                <div className={styles["leftSub"]}>
+              <div className={styles.subContainer}>
+                <div className={styles.leftSub}>
                   <h5>American Advertising Federation</h5>
                   Spokane
                 </div>
-                <div className={styles["break"]}></div>
-                <div className={styles["rightSub"]}>[ 2009 - 2019 ]</div>
+                <div className={styles.break}></div>
+                <div className={styles.rightSub}>[ 2009 - 2019 ]</div>
               </div>
 
-              <div className={`${styles["desc"]} col-xs-12`}>
+              <div className={`${styles.desc} col-xs-12`}>
                 Contributed to over thirteen projects that received awards in
                 the annual Spokane Ad Fed (Addy) Awards, including five Silver,
                 four Gold, two Best of Division, one Best of Show, and one

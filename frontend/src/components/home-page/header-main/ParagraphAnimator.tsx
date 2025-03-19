@@ -84,9 +84,7 @@ const ParagraphAnimator: React.FC<ParagraphAnimatorProps> = ({
   const animatedText = `${currentParagraph.slice(0, spanPosition)}</span>${currentParagraph.slice(spanPosition)}`;
 
   return (
-    <div
-      className={`${styles["paragraphAnimator"]} ${className} ${styles[fade]}`}
-    >
+    <div className={`${styles.paragraphAnimator} ${className} ${styles[fade]}`}>
       <p dangerouslySetInnerHTML={{ __html: `<span>${animatedText}` }} />
     </div>
   );

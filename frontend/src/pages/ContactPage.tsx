@@ -65,11 +65,11 @@ const ContactPage = () => {
     <>
       <div
         id="mainContent"
-        className={`${styles["contactPage"]}`}
+        className={`${styles.contactPage}`}
         style={{ minHeight: `${clientHeight}px` }}
       >
         <div className={`container`}>
-          <div className={`${styles["form"]} row`}>
+          <div className={`${styles.form} row`}>
             <h1>Contact me!</h1>
             <p>
               Have a project in mind or just want to say hello? Drop me a

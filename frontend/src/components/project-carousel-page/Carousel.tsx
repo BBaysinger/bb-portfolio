@@ -455,23 +455,23 @@ const Carousel = memo(
       <div
         ref={wrapperRef}
         className={
-          `${styles["carouselWrapper"]} ${isSlaveMode ? styles["slaveWrapper"] : ""} ` +
+          `${styles.carouselWrapper} ${isSlaveMode ? styles.slaveWrapper : ""} ` +
           wrapperClassName
         }
       >
         {isDebug() && (
-          <div className={styles["debug"]}>
+          <div className={styles.debug}>
             {scrollIndex} {stableIndex.current}{" "}
             {scrollerRef.current?.scrollLeft}
           </div>
         )}
         <div
           ref={scrollerRef}
-          className={`${styles["carouselSlider"]} ${sliderClassName}`}
+          className={`${styles.carouselSlider} ${sliderClassName}`}
           style={{ scrollSnapType: snap }}
         >
           <div
-            className={styles["carouselShim"]}
+            className={styles.carouselShim}
             style={{
               left: BASE_OFFSET * 2,
             }}
@@ -483,8 +483,8 @@ const Carousel = memo(
                 slideRefs.current[index] = el;
               }}
               className={
-                `${styles["carouselSlide"]} ` +
-                `${Math.abs(currentOffsets[index]) > 1 ? styles["hiddenSlide"] : ""} ` +
+                `${styles.carouselSlide} ` +
+                `${Math.abs(currentOffsets[index]) > 1 ? styles.hiddenSlide : ""} ` +
                 slideClassName
               }
               style={{
@@ -493,7 +493,7 @@ const Carousel = memo(
               }}
             >
               {isDebug() && (
-                <div className={styles["debugInfo"]}>
+                <div className={styles.debugInfo}>
                   <div>Index: {index}</div>
                   <div>Multiplier: {currentMultipliers[index]}</div>
                   <div>xPos: {currentPositions[index] + "px"}</div>

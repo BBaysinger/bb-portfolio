@@ -227,7 +227,7 @@ const Slinger: React.FC<SlingerProps> = ({ onDrag, onDragEnd }) => {
   }, []);
 
   return (
-    <div ref={containerRef} className={styles["wrapper"]}>
+    <div ref={containerRef} className={styles.wrapper}>
       {objectsRef.current.map((obj) => (
         <div
           className={`${styles.slinger} slinger-obj`}

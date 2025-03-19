@@ -43,9 +43,9 @@ const App: React.FC = () => {
       <Nav variant={NavVariant.SLIDE_OUT} />
       <div id="top" style={{ position: "absolute", top: "0px" }}></div>
       <div
-        className={`${styles["underlay"]} ${isMenuOpen ? styles["expanded"] : ""}`}
+        className={`${styles.underlay} ${isMenuOpen ? styles.expanded : ""}`}
       />
-      <div id={styles.main} className={isMenuOpen ? styles["expanded"] : ""}>
+      <div id={styles.main} className={isMenuOpen ? styles.expanded : ""}>
         <Nav variant={NavVariant.TOP_BAR} />
         <ScrollToHash />
         <AppRoutes onLogin={handleLogin} />

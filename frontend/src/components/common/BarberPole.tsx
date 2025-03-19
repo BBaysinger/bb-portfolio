@@ -12,9 +12,9 @@ const BarberPole: React.FC<{ className: string; paused?: boolean }> = ({
   paused = false,
 }) => {
   return (
-    <div className={`${styles["barberPole"]} ${className}`}>
+    <div className={`${styles.barberPole} ${className}`}>
       <div
-        className={`${styles["stripes"]} stripes`}
+        className={`${styles.stripes} stripes`}
         style={{ animationPlayState: paused ? "paused" : "running" }}
       ></div>
     </div>

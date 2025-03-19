@@ -33,23 +33,23 @@ const DeviceDisplay: React.FC<DeviceDisplayProps> = React.memo(
 
     return (
       <div
-        className={`${styles["devicePresentation"]} ${styles[deviceType]} bbDevicePresentation`}
+        className={`${styles.devicePresentation} ${styles[deviceType]} bbDevicePresentation`}
       >
         {deviceType === DeviceTypes.LAPTOP ? (
           <div
-            className={`bbLaptop ${styles["backgroundWrapper"]} ${styles[deviceType]}`}
+            className={`bbLaptop ${styles.backgroundWrapper} ${styles[deviceType]}`}
           >
             <img
               src={src}
               alt={`${id} screencap`}
               loading="eager"
-              className={styles["screencap"]}
+              className={styles.screencap}
             />
           </div>
         ) : deviceType === DeviceTypes.PHONE ? (
           <div
             className={
-              `bbPhone ${styles["backgroundWrapper"]} ${mobileStatus ? styles[mobileStatus] : ""}` +
+              `bbPhone ${styles.backgroundWrapper} ${mobileStatus ? styles[mobileStatus] : ""}` +
               ` bb${mobileStatus ? mobileStatus : ""} ${styles[deviceType]}`
             }
           >
@@ -57,7 +57,7 @@ const DeviceDisplay: React.FC<DeviceDisplayProps> = React.memo(
               src={src}
               alt={`${id} bbScreencap`}
               loading="eager"
-              className={styles["screencap"]}
+              className={styles.screencap}
             />
           </div>
         ) : null}

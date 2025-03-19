@@ -27,7 +27,7 @@ const ProjectInfo = forwardRef<HTMLDivElement, ProjectInfoProps>(
       <div
         ref={ref}
         className={
-          `${styles["projectInfo"]} ` +
+          `${styles.projectInfo} ` +
           `${isActive ? styles.active : ""} ` +
           `${direction ? styles[direction.toLowerCase()] : ""}`
         }
@@ -49,13 +49,13 @@ const ProjectInfo = forwardRef<HTMLDivElement, ProjectInfoProps>(
           if (Array.isArray(urls)) {
             return (
               <span
-                className={`${styles["btnGroup"]} btnGroup`}
+                className={`${styles.btnGroup} btnGroup`}
                 key={label}
                 style={{ "--index": globalIndex++ } as React.CSSProperties}
               >
                 <span
                   className={
-                    `${styles["btn"]} ${styles["btnGroupLabel"]} ` +
+                    `${styles.btn} ${styles.btnGroupLabel} ` +
                     `btn btnGroupLabel`
                   }
                 >
@@ -65,7 +65,7 @@ const ProjectInfo = forwardRef<HTMLDivElement, ProjectInfoProps>(
                   <a
                     key={item}
                     href={item}
-                    className={`${styles["btn"]} btn`}
+                    className={`${styles.btn} btn`}
                     target="_blank"
                     rel="noopener noreferrer"
                     style={{ "--index": globalIndex++ } as React.CSSProperties}
@@ -78,7 +78,7 @@ const ProjectInfo = forwardRef<HTMLDivElement, ProjectInfoProps>(
           } else if (typeof urls === "string") {
             return (
               <a
-                className={`${styles["btn"]} btn`}
+                className={`${styles.btn} btn`}
                 href={urls}
                 key={urls}
                 target="_blank"

@@ -64,7 +64,7 @@ const ProjectParallaxCarousel = memo(
        */
       const updateTransform = () => {
         const element = document.querySelector(
-          `.${styles["parallaxCarousel"]}`,
+          `.${styles.parallaxCarousel}`,
         ) as HTMLElement; // Cast to HTMLElement
         if (!element) return;
 
@@ -146,13 +146,13 @@ const ProjectParallaxCarousel = memo(
        */
       const getSlideClass = (index: number) =>
         (index === stabilizedIndexRef.current
-          ? `${styles["stabilizedSlide"]} bbStabilizedSlide`
+          ? `${styles.stabilizedSlide} bbStabilizedSlide`
           : "") + ` bbTransparentSlide`;
 
       return (
         <div
           className={
-            `${styles["parallaxCarousel"]} bbParallaxCarousel ` +
+            `${styles.parallaxCarousel} bbParallaxCarousel ` +
             (currentIndexRef.current === stabilizedIndexRef.current
               ? "bbStabilizedCarousel"
               : "")
