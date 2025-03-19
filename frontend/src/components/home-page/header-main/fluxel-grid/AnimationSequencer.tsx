@@ -66,8 +66,8 @@ const AnimationSequencer: React.FC<{ className: string }> = ({ className }) => {
     const imageUrl =
       aspect < ratio ? sequence[nextIndex].narrow : sequence[nextIndex].wide;
 
-    const orientation = aspect < ratio ? "narrow" : "wide";
-    console.log(aspect, ratio, orientation);
+    // const orientation = aspect < ratio ? "narrow" : "wide";
+    // console.log(aspect, ratio, orientation);
 
     setBackgroundImage(imageUrl);
 
