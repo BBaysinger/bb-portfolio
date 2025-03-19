@@ -3,7 +3,7 @@
 @use "@/styles/globals" as *;
 
 .login {
-  @extend .graphite-page;
+  @extend .graphitePage;
   display: flex;
   justify-content: center;
   align-items: center;

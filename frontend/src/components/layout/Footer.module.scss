@@ -13,10 +13,10 @@ footer {
   &::before {
     content: "";
     position: absolute;
-    top: -$footer-barber-pole-thickness;
-    height: $footer-barber-pole-thickness;
+    top: -$footer-barberPole-thickness;
+    height: $footer-barberPole-thickness;
     width: 100vw;
-    background-image: url("/images/common/barber-pole-bottom.webp");
+    background-image: url("/images/common/barberPole-bottom.webp");
     background-repeat: repeat-x;
     background-size: 350px 40px;
     background-position: 0 bottom;

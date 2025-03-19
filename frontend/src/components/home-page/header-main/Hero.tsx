@@ -85,7 +85,7 @@ const Hero: React.FC = () => {
     <header
       id={id}
       className={
-        `${styles["header-main"]} ${styles["header"]} header-main ` +
+        `${styles.hero} ${styles["header"]} hero ` +
         `${hasScrolledOut ? styles["has-scrolled-out"] : ""} ` +
         `${sessionStorage.getItem("hasDragged") === "true" ? styles["has-dragged"] : ""}`
       }
@@ -106,20 +106,20 @@ const Hero: React.FC = () => {
       <div className={`${styles["balls-wrapper"]} `}>
         <Slinger onDrag={onSlingerDrag} onDragEnd={onSlingerDragEnd} />
       </div>
-      <div className={styles["header-wrapper"]}>
-        <div className={styles["logo-wrapper"]}>
+      <div className={styles["heroWrapper"]}>
+        <div className={styles["logoWrapper"]}>
           <img
             src={headerLogo}
-            className={styles["header-logo"]}
+            className={styles["heroLogo"]}
             alt="BB Logo"
           />
         </div>
 
         <h1>
-          <span className={styles["first-name"]}>Bradley</span>{" "}
+          <span className={styles["firstName"]}>Bradley</span>{" "}
           <span className={"nobr"}>
-            <BarberPole className={styles["barber-pole"]} />{" "}
-            <span className={styles["last-name"]}>Baysinger</span>
+            <BarberPole className={styles["barberPole"]} />{" "}
+            <span className={styles["lastName"]}>Baysinger</span>
           </span>
         </h1>
 

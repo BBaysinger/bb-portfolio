@@ -104,9 +104,9 @@ const Nav: React.FC<NavProps> = ({ variant }) => {
 
       {variant === NavVariant.SLIDE_OUT && (
         <>
-          {/* <BarberPole className={styles["barber-pole1"]} paused={!isMenuOpen} />
-          <BarberPole className={styles["barber-pole2"]} paused={!isMenuOpen} /> */}
-          <BarberPole className={styles["barber-pole3"]} paused={!isMenuOpen} />
+          {/* <BarberPole className={styles["barberPole1"]} paused={!isMenuOpen} />
+          <BarberPole className={styles["barberPole2"]} paused={!isMenuOpen} /> */}
+          <BarberPole className={styles["barberPole3"]} paused={!isMenuOpen} />
         </>
       )}
     </nav>
