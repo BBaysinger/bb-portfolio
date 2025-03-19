@@ -1,7 +1,7 @@
 @use "@/styles/mixins" as *;
 @use "@/styles/variables" as *;
 
-header.header-main {
+header.hero {
   visibility: visible;
   position: relative;
   display: flex;
@@ -70,7 +70,7 @@ header.header-main {
   }
 }
 
-.header-wrapper {
+.heroWrapper {
   width: 100vw;
   position: absolute;
   display: flex;
@@ -104,11 +104,11 @@ header.header-main {
   }
 }
 
-.logo-wrapper {
+.logoWrapper {
   width: 140px;
 }
 
-.header-logo {
+.heroLogo {
   margin-left: -18%;
   width: 100%;
   opacity: 1;
@@ -119,15 +119,15 @@ header.header-main {
 
 $bottom: 10px;
 
-.last-name {
+.lastName {
   color: $lighterThemeColor;
 }
 
-.first-name {
+.firstName {
   color: #999;
 }
 
-.barber-pole {
+.barberPole {
   height: 34px;
   width: 34px;
   margin: 0 4px;
