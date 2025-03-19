@@ -8,11 +8,13 @@
   justify-content: center;
   align-items: center;
   color: #bbb;
-  padding: 16px;
 
   > div {
     width: 500px;
     max-width: 100%;
+    position: relative;
+    z-index: 100;
+    opacity: 0.9;
   }
 
   h1 {
