@@ -2,7 +2,7 @@
 @use "@/styles/variables" as *;
 @use "@/styles/globals" as *;
 
-.contact-page {
+.contactPage {
   @extend .graphitePage;
   display: flex;
   justify-content: center;

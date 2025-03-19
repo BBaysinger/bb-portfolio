@@ -1,7 +1,7 @@
 @use "@/styles/mixins" as *;
 @use "@/styles/variables" as *;
 
-.cv-page {
+.cvPage {
   h5 {
     .location {
       font-weight: 500;
@@ -32,13 +32,13 @@
 
 .row {
   &:last-child {
-    .cv-right:last-child {
+    .cvRight:last-child {
       margin-bottom: 0;
     }
   }
 }
 
-.sub-container {
+.subContainer {
   display: flex;
   justify-content: space-between;
   margin-bottom: 10px;
@@ -47,8 +47,8 @@
   flex-wrap: wrap;
 }
 
-.right-sub,
-.left-sub {
+.rightSub,
+.leftSub {
   font-size: 18px;
   color: $heavierThemeColor;
   margin-bottom: 6px;
@@ -59,11 +59,11 @@
   float: right;
 }
 
-.right-sub {
+.rightSub {
   font-size: 15px;
 }
 
-.left-sub {
+.leftSub {
   font-weight: 600;
   display: inline-block;
   width: 100%;
@@ -73,13 +73,13 @@
   }
 }
 
-img.cv-logo {
+img.cvLogo {
   margin-top: 40px;
   margin-bottom: 40px;
   margin-left: auto;
   margin-right: auto;
-  @include fluid-property(height, $b360px, $b1440px, 120px, 130px);
-  @include fluid-property(max-width, $b360px, $b1440px, 130px, 140px);
+  @include fluidProperty(height, $b360px, $b1440px, 120px, 130px);
+  @include fluidProperty(max-width, $b360px, $b1440px, 130px, 140px);
 
   @include breakpointUp($b768px) {
     position: relative;
@@ -89,7 +89,7 @@ img.cv-logo {
 }
 
 .row:first-of-type {
-  img.cv-logo {
+  img.cvLogo {
     margin-top: 20px;
     @include breakpointUp($b768px) {
       margin-top: revert;
@@ -97,7 +97,7 @@ img.cv-logo {
   }
 }
 
-.cv-right {
+.cvRight {
   margin-bottom: 40px;
   > *:last-child {
     margin-bottom: 0;
@@ -114,7 +114,7 @@ img.cv-logo {
   }
 }
 
-.cv-left {
+.cvLeft {
   display: flex;
   justify-content: center;
 }
@@ -199,10 +199,10 @@ img.cv-logo {
 }
 
 :global {
-  .cv-page .container {
-    @include fluid-property(margin-bottom, $b360px, $b1280px, 50px, 90px);
+  .cvPage .container {
+    @include fluidProperty(margin-bottom, $b360px, $b1280px, 50px, 90px);
   }
-  .cv-page h4 {
-    @include fluid-property(margin-bottom, $b360px, $b1280px, 28px, 80px);
+  .cvPage h4 {
+    @include fluidProperty(margin-bottom, $b360px, $b1280px, 28px, 80px);
   }
 }

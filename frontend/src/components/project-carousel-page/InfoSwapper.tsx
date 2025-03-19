@@ -51,7 +51,7 @@ const InfoSwapper = memo<InfoSwapperProps>(({ direction, index }) => {
   return (
     <div
       ref={containerRef}
-      className={`${styles["info-swapper"]} max-w-container`}
+      className={`${styles["infoSwapper"]} max-w-container`}
       style={{
         height: containerHeight ? `${containerHeight}px` : "auto",
       }}

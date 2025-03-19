@@ -11,8 +11,8 @@ import navLogo from "images/misc/bb-logo.svg";
 import styles from "./Nav.module.scss";
 
 export const NavVariant = {
-  TOP_BAR: styles["top-bar"],
-  SLIDE_OUT: styles["slide-out"],
+  TOP_BAR: styles["topBar"],
+  SLIDE_OUT: styles["slideOut"],
 } as const;
 
 interface NavProps {
@@ -42,7 +42,7 @@ const Nav: React.FC<NavProps> = ({ variant }) => {
   const titleClass =
     // TODO: Make so portfolio route isn't enabled when scrolled back up.
     isScrolledToTop && (currentPath === "/" || currentPath === "/portfolio")
-      ? `${styles["title"]} ${styles["home-unscrolled"]}`
+      ? `${styles["title"]} ${styles["homeUnscrolled"]}`
       : styles["title"];
 
   useEffect(() => {
@@ -71,15 +71,15 @@ const Nav: React.FC<NavProps> = ({ variant }) => {
     >
       {variant === NavVariant.SLIDE_OUT && (
         <>
-          <div className={styles["shadow-layer0"]}></div>
-          <div className={styles["shadow-layer1"]}></div>
-          <div className={styles["shadow-layer2"]}></div>
+          <div className={styles["shadowLayer0"]}></div>
+          <div className={styles["shadowLayer1"]}></div>
+          <div className={styles["shadowLayer2"]}></div>
         </>
       )}
 
       <NavLink to="/#top" className={titleClass}>
-        <img src={navLogo} className={styles["nav-logo"]} alt="BB Logo" />
-        <div className={styles["nav-logo-text"]}>
+        <img src={navLogo} className={styles["navLogo"]} alt="BB Logo" />
+        <div className={styles["navLogoText"]}>
           <div className={styles["name"]}>
             <span>BRADLEY</span> <span>BAYSINGER</span>
           </div>
@@ -91,7 +91,7 @@ const Nav: React.FC<NavProps> = ({ variant }) => {
           </div>
         </div>
       </NavLink>
-      <NavLinks onClick={closeMenuHandler} className={styles["nav-links"]} />
+      <NavLinks onClick={closeMenuHandler} className={styles["navLinks"]} />
 
       {variant === NavVariant.TOP_BAR && (
         <Hamburger className={styles["hamburger"]} />

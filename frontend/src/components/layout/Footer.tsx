@@ -34,13 +34,13 @@ const Footer: React.FC = () => {
       <div className={`container ${styles["footer-container"]}`}>
         <div className="row">
           <div
-            className={`col-xs-12 col-sm-12 col-md-6 col-lg-6 ${styles["footer-cell"]}`}
+            className={`col-xs-12 col-sm-12 col-md-6 col-lg-6 ${styles["footerCell"]}`}
           >
             <FootGreet className={""} />
           </div>
 
           <div
-            className={`col-xs-12 col-sm-12 col-md-4 col-lg-4 ${styles["footer-cell"]} ${styles["contact"]}`}
+            className={`col-xs-12 col-sm-12 col-md-4 col-lg-4 ${styles["footerCell"]} ${styles["contact"]}`}
           >
             <div>
               <ul>
@@ -123,7 +123,7 @@ const Footer: React.FC = () => {
                       }}
                     ></div>
                     Spokane, WA{" "}
-                    <span className={styles["not-a-suburb"]}>
+                    <span className={styles["notASuburb"]}>
                       (<i>not</i> near Seattle)
                     </span>
                   </a>
@@ -133,7 +133,7 @@ const Footer: React.FC = () => {
           </div>
 
           <div
-            className={`col-xs-12 col-sm-12 col-md-2 col-lg-2 ${styles["footer-cell"]} ${styles["footer-nav"]}`}
+            className={`col-xs-12 col-sm-12 col-md-2 col-lg-2 ${styles["footerCell"]} ${styles["footerNav"]}`}
           >
             <NavLinks />
           </div>
@@ -150,7 +150,7 @@ const Footer: React.FC = () => {
             Built with React
           </a>
         </div>
-        <NavLink className={styles["footer-link"]} to="/portfolio#top">
+        <NavLink className={styles["footerLink"]} to="/portfolio#top">
           &copy; <span style={{ color: "#fff" }}>BBInteractive</span>.io
         </NavLink>
       </div>

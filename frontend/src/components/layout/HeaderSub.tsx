@@ -24,7 +24,7 @@ const HeaderSub: React.FC<HeaderSubProps> = ({ head, subhead }) => {
   return (
     <header
       id="headerSub"
-      className={`${styles["header-sub"]} ${styles["header"]}`}
+      className={`${styles["headerSub"]} ${styles["header"]}`}
     >
       <div className={styles.textWrapper}>
         <h1>{head}</h1>

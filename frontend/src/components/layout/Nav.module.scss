@@ -43,7 +43,7 @@
 /// Top-bar variant
 ////////////////////////////////////////////////////
 
-.top-bar {
+.topBar {
   position: fixed;
 
   z-index: 10000;
@@ -78,12 +78,12 @@
       }
     }
 
-    &.home-unscrolled {
+    &.homeUnscrolled {
       right: -100vw;
     }
   }
 
-  .nav-links {
+  .navLinks {
     position: absolute;
     right: 0;
     top: 0;
@@ -97,7 +97,7 @@
     margin-left: auto;
   }
 
-  .nav-logo-text {
+  .navLogoText {
     display: flex;
     flex-direction: column;
 
@@ -162,16 +162,16 @@
     }
   }
 
-  img.nav-logo {
+  img.navLogo {
     position: relative;
     top: 50%;
     max-height: 38px;
     transform: translateY(-50%);
   }
 
-  .shadow-layer0,
-  .shadow-layer1,
-  .shadow-layer2 {
+  .shadowLayer0,
+  .shadowLayer1,
+  .shadowLayer2 {
     display: none;
   }
 }
@@ -184,7 +184,7 @@ ul {
 /// Slide-out variant
 ////////////////////////////////////////////////////
 
-.slide-out {
+.slideOut {
   position: fixed;
   width: 50%;
   right: 0;
@@ -211,7 +211,7 @@ ul {
   }
 
   .title,
-  .navbar-toggle {
+  .navbarToggle {
     display: none;
   }
 
@@ -220,7 +220,7 @@ ul {
   }
 }
 
-.shadow-layer0 {
+.shadowLayer0 {
   position: absolute;
   pointer-events: none;
   top: 0;
@@ -235,7 +235,7 @@ ul {
   background-position: right top;
 }
 
-.shadow-layer1 {
+.shadowLayer1 {
   position: absolute;
   pointer-events: none;
   top: 0;
@@ -256,7 +256,7 @@ ul {
   );
 }
 
-.shadow-layer2 {
+.shadowLayer2 {
   position: absolute;
   pointer-events: none;
   top: 0;

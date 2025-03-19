@@ -11,7 +11,7 @@
   outline: none; /* Prevent highlight on focus */
   cursor: pointer;
 
-  .icon-bar {
+  .iconBar {
     position: absolute;
     top: 50%;
     left: 10px;
@@ -32,8 +32,8 @@
     }
   }
 
-  &.nav-expanded {
-    .icon-bar {
+  &.navExpanded {
+    .iconBar {
       &:nth-of-type(1) {
         transform: translateY(-50%) rotate(315deg);
       }

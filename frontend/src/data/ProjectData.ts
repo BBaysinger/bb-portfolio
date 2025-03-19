@@ -4,8 +4,8 @@ const typedUnprocessedProjects = rawJson as PortfolioProjectData;
 
 // Define constants for MobileOrientation
 export const MobileStatuses = {
-  PORTRAIT: "portrait",
-  LANDSCAPE: "landscape",
+  PORTRAIT: "Portrait",
+  LANDSCAPE: "Landscape",
   NONE: "none",
 } as const;
 

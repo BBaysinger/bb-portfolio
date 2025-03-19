@@ -19,7 +19,7 @@ html {
   z-index: 10;
   position: relative;
   background-color: #fff;
-  transition: right $nav-slide-time;
+  transition: right $navSlideTime;
   right: 0;
   box-shadow: 10px 5px 60px black;
   min-width: 320px;
@@ -40,7 +40,7 @@ html {
   z-index: 5;
   height: 100dvh;
   width: 100vw;
-  transition: right $nav-slide-time;
+  transition: right $navSlideTime;
   background-color: #000;
   right: 0;
   &.expanded {
@@ -155,7 +155,7 @@ form {
 // Standard textual page layout
 /////////////////////////////////////////////////////////////
 
-.standard-page {
+.standardPage {
   margin-left: 10px;
   margin-right: 10px;
   padding-top: 60px;
@@ -178,7 +178,7 @@ form {
     color: #777;
     font-weight: 400;
     line-height: 1.1em;
-    @include fluid-property(font-size, $b360px, $b1280px, 40px, 48px);
+    @include fluidProperty(font-size, $b360px, $b1280px, 40px, 48px);
     &:first-child {
       padding-top: 0;
       margin-top: 0;

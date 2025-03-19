@@ -26,7 +26,7 @@
 
 // Function to remove the unit from a CSS value
 // This is useful for mathematical operations on CSS values
-@function strip-unit($value) {
+@function stripUnit($value) {
   // Divides the value by itself (multiplied by 0 plus 1) to effectively strip units
   @return math.div($value, $value * 0 + 1);
 }
@@ -36,9 +36,9 @@
 // width scales between the two specified breakpoints
 // Example:
 // h1 {
-//   @include fluid-property(height, $b320px, $b1024px, 50px, 200px);
+//   @include fluidProperty(height, $b320px, $b1024px, 50px, 200px);
 // }
-@mixin fluid-property($property, $min-vw, $max-vw, $min-value, $max-value) {
+@mixin fluidProperty($property, $min-vw, $max-vw, $min-value, $max-value) {
   // Extract units to ensure consistency for calculations
   $unit-min-vw: math.unit($min-vw);
   $unit-max-vw: math.unit($max-vw);
@@ -65,8 +65,8 @@
     #{$property}: calc(
       #{$min-value} +
         (
-          #{strip-unit($max-value - $min-value)} *
-            ((100vw - #{$min-vw}) / #{strip-unit($max-vw - $min-vw)})
+          #{stripUnit($max-value - $min-value)} *
+            ((100vw - #{$min-vw}) / #{stripUnit($max-vw - $min-vw)})
         )
     );
   }

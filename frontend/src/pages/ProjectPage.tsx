@@ -63,8 +63,8 @@ const ProjectPage: React.FC = () => {
 
   const slideDirectionClass = useMemo(() => {
     return directionRef.current === Direction.LEFT
-      ? "bb-slide-left"
-      : "bb-slide-right";
+      ? "bbSlideLeft"
+      : "bbSlideRight";
   }, [stabilizedIndex]);
 
   const laptopSlides = useMemo(

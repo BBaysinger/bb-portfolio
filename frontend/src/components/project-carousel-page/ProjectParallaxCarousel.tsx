@@ -64,7 +64,7 @@ const ProjectParallaxCarousel = memo(
        */
       const updateTransform = () => {
         const element = document.querySelector(
-          `.${styles["parallax-carousel"]}`,
+          `.${styles["parallaxCarousel"]}`,
         ) as HTMLElement; // Cast to HTMLElement
         if (!element) return;
 
@@ -146,15 +146,15 @@ const ProjectParallaxCarousel = memo(
        */
       const getSlideClass = (index: number) =>
         (index === stabilizedIndexRef.current
-          ? `${styles["stabilized-slide"]} bb-stabilized-slide`
-          : "") + ` bb-transparent-slide`;
+          ? `${styles["stabilizedSlide"]} bbStabilizedSlide`
+          : "") + ` bbTransparentSlide`;
 
       return (
         <div
           className={
-            `${styles["parallax-carousel"]} bb-parallax-carousel ` +
+            `${styles["parallaxCarousel"]} bbParallaxCarousel ` +
             (currentIndexRef.current === stabilizedIndexRef.current
-              ? "bb-stabilized-carousel"
+              ? "bbStabilizedCarousel"
               : "")
           }
         >
@@ -169,7 +169,7 @@ const ProjectParallaxCarousel = memo(
             slideSpacing={slideSpacings.layer1}
             debug={0}
             initialIndex={initialIndex}
-            wrapperClassName={"bb-carousel bb-carousel-laptops"}
+            wrapperClassName={"bbCarousel bbCarouselLaptops"}
             id="laptops"
             isSlaveMode={true}
           />
@@ -183,8 +183,8 @@ const ProjectParallaxCarousel = memo(
             onStabilizationUpdate={handleStabilizationUpdate}
             debug={0}
             initialIndex={initialIndex}
-            wrapperClassName={"bb-carousel bb-carousel-master"}
-            slideClassName={"bb-slide-wrapper"}
+            wrapperClassName={"bbCarousel bbCarouselMaster"}
+            slideClassName={"bbSlideWrapper"}
             id="master"
             isSlaveMode={false}
           />
@@ -200,7 +200,7 @@ const ProjectParallaxCarousel = memo(
             slideSpacing={slideSpacings.layer2}
             debug={0}
             initialIndex={initialIndex}
-            wrapperClassName={"bb-carousel bb-carousel-phones"}
+            wrapperClassName={"bbCarousel bbCarouselPhones"}
             id="phones"
             isSlaveMode={true}
           />
