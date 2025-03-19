@@ -222,10 +222,10 @@ const FluxelGrid: React.FC<{
   return (
     <div
       ref={gridRef}
-      className={styles["fluxel-grid"]}
+      className={styles["fluxelGrid"]}
       style={{ "--cols": cols } as React.CSSProperties}
     >
-      <PixelAnim className={styles["fluxel-grid-background"]} />
+      <PixelAnim className={styles["fluxelGridBackground"]} />
       {grid.flat().map((data) => {
         const isVisible =
           data.col >= colOverlap &&
@@ -236,7 +236,7 @@ const FluxelGrid: React.FC<{
         return isVisible ? (
           <Fluxel key={data.id} data={data} />
         ) : (
-          <div key={data.id} className={styles["inactive-placeholder"]}></div>
+          <div key={data.id} className={styles["inactivePlaceholder"]}></div>
         );
       })}
     </div>

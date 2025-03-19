@@ -1,4 +1,4 @@
-.fluxel-grid {
+.fluxelGrid {
   display: flex;
   flex-wrap: wrap;
   justify-content: center; /* Center items within each row (horizontal centering) */
@@ -31,13 +31,13 @@
   left: 300px;
 }
 
-.inactive-placeholder {
+.inactivePlaceholder {
   visibility: hidden;
   color: white;
   overflow: hidden;
 }
 
-.fluxel-grid-background {
+.fluxelGridBackground {
   position: absolute;
   top: 0;
   left: 0;

@@ -150,10 +150,10 @@ const ProjectPage: React.FC = () => {
       />
       <div
         id="project" // Page anchor, NOT for CSS selection.
-        className={`${styles["projects-presentation-body"]} ${slideDirectionClass}`}
+        className={`${styles["projectsPresentationBody"]} ${slideDirectionClass}`}
       >
         <LogoSwapper projectId={clientId} />
-        <div className={styles["carousel-control-wrapper"]}>
+        <div className={styles["carouselControlWrapper"]}>
           {initialIndex !== null && (
             <ProjectParallaxCarousel
               ref={carouselRef}
