@@ -18,16 +18,16 @@ const PageButtons: React.FC = () => {
   const nextId = ProjectData.nextKey(projectId);
 
   return (
-    <div className={styles["project-nav"]}>
+    <div className={styles["projectNav"]}>
       <Link
         to={`/portfolio/${prevId}`}
-        className={`${styles["nav-button"]} ${styles.prev}`}
+        className={`${styles["navButton"]} ${styles.prev}`}
       >
         <div className={styles["inner"]}></div>
       </Link>
       <Link
         to={`/portfolio/${nextId}`}
-        className={`${styles["nav-button"]} ${styles.next}`}
+        className={`${styles["navButton"]} ${styles.next}`}
       >
         <div className={styles["inner"]}></div>
       </Link>

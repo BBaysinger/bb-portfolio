@@ -65,7 +65,7 @@ const ContactPage = () => {
     <>
       <div
         id="mainContent"
-        className={`${styles["contact-page"]}`}
+        className={`${styles["contactPage"]}`}
         style={{ minHeight: `${clientHeight}px` }}
       >
         <div className={`container`}>

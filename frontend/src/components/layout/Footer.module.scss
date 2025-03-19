@@ -13,8 +13,8 @@ footer {
   &::before {
     content: "";
     position: absolute;
-    top: -$footer-barberPole-thickness;
-    height: $footer-barberPole-thickness;
+    top: -$footerBarberPoleThickness;
+    height: $footerBarberPoleThickness;
     width: 100vw;
     background-image: url("/images/common/barber-pole-bottom.webp");
     background-repeat: repeat-x;
@@ -56,7 +56,7 @@ footer {
     position: relative;
   }
 
-  .footer-link:hover {
+  .footerLink:hover {
     color: #777;
   }
 
@@ -83,7 +83,7 @@ footer {
     white-space: nowrap;
   }
 
-  .footer-nav {
+  .footerNav {
     list-style: none;
     font-size: 15px;
     text-align: center;
@@ -117,7 +117,7 @@ footer {
     }
   }
 
-  .footer-cell {
+  .footerCell {
     padding-top: 60px;
 
     p {
@@ -163,7 +163,7 @@ footer {
       vertical-align: middle;
     }
 
-    .not-a-suburb {
+    .notASuburb {
       // For recruiters who tend to think Spokane is a suburb of Seattle, 😂.
       font-size: 11px;
     }

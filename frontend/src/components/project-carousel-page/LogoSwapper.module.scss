@@ -1,7 +1,7 @@
 @use "@/styles/mixins" as *;
 @use "@/styles/variables" as *;
 
-.logo-swapper {
+.logoSwapper {
   position: relative;
   display: flex;
   margin-left: auto;
@@ -13,16 +13,16 @@
   align-items: left;
   filter: blur(12px);
 
-  @include fluid-property(margin-top, $b320px, $b768px, 46px, 60px);
-  @include fluid-property(margin-bottom, $b320px, $b768px, 30px, 46px);
-  @include fluid-property(width, $b320px, $b768px, 240px, 330px);
-  @include fluid-property(height, $b320px, $b768px, 50px, 65px);
+  @include fluidProperty(margin-top, $b320px, $b768px, 46px, 60px);
+  @include fluidProperty(margin-bottom, $b320px, $b768px, 30px, 46px);
+  @include fluidProperty(width, $b320px, $b768px, 240px, 330px);
+  @include fluidProperty(height, $b320px, $b768px, 50px, 65px);
 
   @include breakpointUp($b768px) {
     margin-left: 0;
   }
 
-  &.un-blurred {
+  &.unBlurred {
     filter: blur(0);
   }
 
