@@ -99,15 +99,13 @@ const MagneticThingy: React.FC<MagneticThingyProps> = ({
       ref={svgRef}
       className={`${styles.magneticThingy} ${className}`}
       viewBox="0 0 200 200"
-      preserveAspectRatio="xMidYMin meet" // 🔥 Pins the content to the TOP of the SVG
+      preserveAspectRatio="xMidYMin meet"
     >
       <path
         ref={pathRef}
-        d="M100,0 L180,80 L100,150 L20,80 Z"
-        fill="blue"
-        stroke="blue"
-        strokeWidth="3"
-        style={{ pointerEvents: "fill" }} // Ensures mouse events work
+        d="M101.5,-1 L202,96.5 L97,201 L-2,100.5 Z"
+        fill="transparent"
+        style={{ pointerEvents: "fill" }}
       />
       <foreignObject x="25" y="5000" width="150" height="100">
         <div
