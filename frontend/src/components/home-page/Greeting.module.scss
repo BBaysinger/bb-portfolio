@@ -103,19 +103,24 @@
     }
   }
 
-  img.helloSignMobile {
+  .helloSignMobile {
     width: 60%;
     @include breakpointUp($b768px) {
       display: none;
     }
   }
 
-  img.helloSignDesktop {
+  .helloSignDesktop {
     display: none;
     width: 100%;
     top: 50%;
     width: 35vw;
     max-width: 300px;
+    aspect-ratio: 1 / 2.038;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-image: url("/images/home/road-sign-desktop.webp");
     @include breakpointUp($b768px) {
       display: unset;
     }
