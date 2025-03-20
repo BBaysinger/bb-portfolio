@@ -16,19 +16,14 @@ const MagneticThingy: React.FC<MagneticThingyProps> = ({
   const svgRef = useRef<SVGSVGElement | null>(null);
   const pathRef = useRef<SVGPathElement | null>(null);
   const textRef = useRef<HTMLSpanElement | null>(null);
+  const buttonRef = useRef<HTMLButtonElement | null>(null);
 
   useEffect(() => {
     const svg = svgRef.current;
     const path = pathRef.current;
-    if (!svg || !path) return;
-
-    let textSpan: HTMLSpanElement | null = null;
-    if (magText) {
-      textSpan = document.createElement("span");
-      textSpan.innerText = children as string;
-      textRef.current = textSpan;
-      gsap.set(textSpan, { pointerEvents: "none", display: "block" });
-    }
+    const button = buttonRef.current;
+    const text = textRef.current;
+    if (!svg || !path || !button || !text) return;
 
     let { left, top, width, height } = path.getBoundingClientRect();
 
@@ -60,10 +55,11 @@ const MagneticThingy: React.FC<MagneticThingyProps> = ({
         },
       });
 
-      if (magText && textRef.current) {
-        gsap.to(textRef.current, {
+      if (magText && text) {
+        gsap.to(text, {
           x: xValue * 0.3,
           y: yValue * 0.2,
+          ease: "power2.out",
         });
       }
     };
@@ -77,8 +73,8 @@ const MagneticThingy: React.FC<MagneticThingyProps> = ({
         duration: 1,
       });
 
-      if (magText && textRef.current) {
-        gsap.to(textRef.current, {
+      if (magText && text) {
+        gsap.to(text, {
           x: 0,
           y: 0,
           ease: "elastic.out(1, 0.5)",
@@ -87,7 +83,6 @@ const MagneticThingy: React.FC<MagneticThingyProps> = ({
       }
     };
 
-    // Attach events directly to the <path> instead of the <svg>
     path.addEventListener("mousemove", moveEvent);
     path.addEventListener("mouseleave", leaveEvent);
     window.addEventListener("resize", updateDimensions);
@@ -125,8 +120,13 @@ const MagneticThingy: React.FC<MagneticThingyProps> = ({
             justifyContent: "center",
           }}
         >
-          <button className={`${styles.magneticThingy} ${className}`}>
-            {children}
+          <button
+            ref={buttonRef}
+            className={`${styles.magneticThingy} ${className}`}
+          >
+            <span ref={textRef} style={{ display: "inline-block" }}>
+              {children}
+            </span>
           </button>
         </div>
       </foreignObject>
