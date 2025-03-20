@@ -29,7 +29,7 @@ const Greeting: React.FC = () => {
             alt="road sign"
             loading="lazy"
           />
-          <HelloSign />
+          <HelloSign magText={true}>asdf</HelloSign>
         </div>
 
         <div>

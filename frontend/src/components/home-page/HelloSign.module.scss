@@ -1,10 +1,9 @@
-.needle {
-  background-color: blue;
-  width: 10px;
+.magneticButton {
+  width: 200px;
   height: 100px;
   top: 200px;
-  left: 300px;
+  left: 200px;
   position: absolute;
-  transform-origin: 50% 100%; // (Center horizontally, bottom vertically)
+  transform-origin: 50% 100%;
   transition: transform 0.05s linear;
 }
