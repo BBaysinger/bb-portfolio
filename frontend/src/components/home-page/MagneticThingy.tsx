@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
+
 import styles from "./MagneticThingy.module.scss";
 
 type MagneticThingyProps = {
@@ -8,6 +9,13 @@ type MagneticThingyProps = {
   className?: string;
 };
 
+/**
+ * Thingy that magnetically sticks to your pointer.
+ *
+ * @author Bradley Baysinger
+ * @since The beginning of time.
+ * @version N/A
+ */
 const MagneticThingy: React.FC<MagneticThingyProps> = ({
   children,
   magText = false,
@@ -16,12 +24,10 @@ const MagneticThingy: React.FC<MagneticThingyProps> = ({
   const svgRef = useRef<SVGSVGElement | null>(null);
   const pathRef = useRef<SVGPathElement | null>(null);
   const projectionWrapperRef = useRef<HTMLDivElement | null>(null);
-  // const buttonRef = useRef<HTMLButtonElement | null>(null);
 
   useEffect(() => {
     const svg = svgRef.current;
     const path = pathRef.current;
-    // const button = buttonRef.current;
     const text = projectionWrapperRef.current;
     if (!svg || !path || !text) return;
 
@@ -87,11 +93,13 @@ const MagneticThingy: React.FC<MagneticThingyProps> = ({
     path.addEventListener("mousemove", moveEvent);
     path.addEventListener("mouseleave", leaveEvent);
     window.addEventListener("resize", updateDimensions);
+    window.addEventListener("orientationchange", updateDimensions);
 
     return () => {
       path.removeEventListener("mousemove", moveEvent);
       path.removeEventListener("mouseleave", leaveEvent);
       window.removeEventListener("resize", updateDimensions);
+      window.removeEventListener("orientationchange", updateDimensions);
     };
   }, [magText, children]);
 
