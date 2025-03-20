@@ -23,7 +23,7 @@ const Greeting: React.FC = () => {
             loading="lazy"
           />
 
-          <MagneticThingy className={styles.helloSignDesktop} magText={true}>
+          <MagneticThingy className={styles.helloSignDesktop}>
             <img
               // ref={addToRefs}
               src="/images/home/hello.webp"
