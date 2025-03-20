@@ -5,7 +5,6 @@ import styles from "./MagneticThingy.module.scss";
 
 type MagneticThingyProps = {
   children: React.ReactNode;
-  magText?: boolean;
   className?: string;
 };
 
@@ -18,7 +17,6 @@ type MagneticThingyProps = {
  */
 const MagneticThingy: React.FC<MagneticThingyProps> = ({
   children,
-  magText = false,
   className = "",
 }) => {
   const svgRef = useRef<SVGSVGElement | null>(null);
@@ -28,8 +26,8 @@ const MagneticThingy: React.FC<MagneticThingyProps> = ({
   useEffect(() => {
     const svg = svgRef.current;
     const path = pathRef.current;
-    const text = projectionWrapperRef.current;
-    if (!svg || !path || !text) return;
+    const projectionWrapper = projectionWrapperRef.current;
+    if (!svg || !path || !projectionWrapper) return;
 
     let { left, top, width, height } = path.getBoundingClientRect();
 
@@ -62,8 +60,8 @@ const MagneticThingy: React.FC<MagneticThingyProps> = ({
         },
       });
 
-      if (magText && text) {
-        gsap.to(text, {
+      if (projectionWrapper) {
+        gsap.to(projectionWrapper, {
           x: xValue * 0.3,
           y: yValue * 0.2,
           ease: "power2.out",
@@ -80,8 +78,8 @@ const MagneticThingy: React.FC<MagneticThingyProps> = ({
         duration: 1,
       });
 
-      if (magText && text) {
-        gsap.to(text, {
+      if (projectionWrapper) {
+        gsap.to(projectionWrapper, {
           x: 0,
           y: 0,
           ease: "elastic.out(1, 0.5)",
@@ -101,7 +99,7 @@ const MagneticThingy: React.FC<MagneticThingyProps> = ({
       window.removeEventListener("resize", updateDimensions);
       window.removeEventListener("orientationchange", updateDimensions);
     };
-  }, [magText, children]);
+  }, [children]);
 
   return (
     <svg
