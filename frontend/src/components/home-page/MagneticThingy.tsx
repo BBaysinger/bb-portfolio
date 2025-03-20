@@ -97,20 +97,19 @@ const MagneticThingy: React.FC<MagneticThingyProps> = ({
   return (
     <svg
       ref={svgRef}
-      className={styles.svg}
-      width="200"
-      height="200"
+      className={`${styles.magneticThingy} ${className}`}
       viewBox="0 0 200 200"
+      preserveAspectRatio="xMidYMin meet" // 🔥 Pins the content to the TOP of the SVG
     >
       <path
         ref={pathRef}
-        d="M50,10 C100,-10,150,40,170,90 C180,130,120,180,80,190 C30,200,10,140,10,100 C10,60,20,30,50,10"
+        d="M100,0 L180,80 L100,150 L20,80 Z"
         fill="blue"
         stroke="blue"
         strokeWidth="3"
-        style={{ pointerEvents: "fill" }}
+        style={{ pointerEvents: "fill" }} // Ensures mouse events work
       />
-      <foreignObject x="25" y="50" width="150" height="100">
+      <foreignObject x="25" y="5000" width="150" height="100">
         <div
           style={{
             width: "200px",
@@ -120,10 +119,7 @@ const MagneticThingy: React.FC<MagneticThingyProps> = ({
             justifyContent: "center",
           }}
         >
-          <button
-            ref={buttonRef}
-            className={`${styles.magneticThingy} ${className}`}
-          >
+          <button ref={buttonRef}>
             <span ref={textRef} style={{ display: "inline-block" }}>
               {children}
             </span>
