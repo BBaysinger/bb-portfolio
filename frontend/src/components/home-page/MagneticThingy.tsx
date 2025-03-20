@@ -13,27 +13,24 @@ const MagneticThingy: React.FC<MagneticThingyProps> = ({
   magText = false,
   className = "",
 }) => {
-  const buttonRef = useRef<HTMLButtonElement | null>(null);
+  const svgRef = useRef<SVGSVGElement | null>(null);
+  const pathRef = useRef<SVGPathElement | null>(null);
   const textRef = useRef<HTMLSpanElement | null>(null);
-  const hitAreaRef = useRef<SVGPathElement | null>(null);
 
   useEffect(() => {
-    const target = buttonRef.current;
-    const hitArea = hitAreaRef.current;
-    // if (!target || !hitArea) return;
-    if (!target) return;
+    const svg = svgRef.current;
+    const path = pathRef.current;
+    if (!svg || !path) return;
 
     let textSpan: HTMLSpanElement | null = null;
     if (magText) {
       textSpan = document.createElement("span");
-      textSpan.innerText = target.innerText;
-      target.innerHTML = "";
-      target.appendChild(textSpan);
+      textSpan.innerText = children as string;
       textRef.current = textSpan;
       gsap.set(textSpan, { pointerEvents: "none", display: "block" });
     }
 
-    let { left, top, width, height } = target.getBoundingClientRect();
+    let { left, top, width, height } = path.getBoundingClientRect();
 
     const magnetize = (val: number) => {
       const dist = gsap.utils.normalize(0, width, Math.abs(val));
@@ -41,7 +38,7 @@ const MagneticThingy: React.FC<MagneticThingyProps> = ({
     };
 
     const updateDimensions = () => {
-      ({ left, top, width, height } = target.getBoundingClientRect());
+      ({ left, top, width, height } = path.getBoundingClientRect());
     };
 
     const moveEvent = (e: MouseEvent) => {
@@ -54,12 +51,12 @@ const MagneticThingy: React.FC<MagneticThingyProps> = ({
       const yValue = moveY * relY;
       const rotation = (relX / width) * 15;
 
-      gsap.to(target, {
+      gsap.to(svg, {
         x: xValue,
         y: yValue,
         rotation,
         onUpdate: () => {
-          gsap.set(target, { rotation });
+          gsap.set(svg, { rotation });
         },
       });
 
@@ -72,7 +69,7 @@ const MagneticThingy: React.FC<MagneticThingyProps> = ({
     };
 
     const leaveEvent = () => {
-      gsap.to(target, {
+      gsap.to(svg, {
         x: 0,
         y: 0,
         rotation: 0,
@@ -90,39 +87,50 @@ const MagneticThingy: React.FC<MagneticThingyProps> = ({
       }
     };
 
-    const enterEvent = () => {
-      target.addEventListener("mousemove", moveEvent);
-      target.addEventListener("mouseleave", leaveEvent);
-    };
-
-    target.addEventListener("mouseenter", enterEvent);
-    // hitArea.addEventListener("mouseenter", enterEvent);
+    // Attach events directly to the <path> instead of the <svg>
+    path.addEventListener("mousemove", moveEvent);
+    path.addEventListener("mouseleave", leaveEvent);
     window.addEventListener("resize", updateDimensions);
 
     return () => {
-      target.removeEventListener("mouseenter", enterEvent);
-      // hitArea.removeEventListener("mouseenter", enterEvent);
-      target.removeEventListener("mousemove", moveEvent);
-      target.removeEventListener("mouseleave", leaveEvent);
+      path.removeEventListener("mousemove", moveEvent);
+      path.removeEventListener("mouseleave", leaveEvent);
       window.removeEventListener("resize", updateDimensions);
     };
-  }, [magText]);
+  }, [magText, children]);
 
   return (
-    // <svg className={styles.svg} width="200" height="200" viewBox="0 0 200 200">
-    //   <path
-    //     ref={hitAreaRef}
-    //     d="M50,10 C100,-10,150,40,170,90 C180,130,120,180,80,190 C30,200,10,140,10,100 C10,60,20,30,50,10"
-    //     fill="transparent"
-    //     stroke="none"
-    //     style={{ pointerEvents: "fill" }}
-    //   />
-    //   <foreignObject x="25" y="50" width="150" height="100">
-    <button ref={buttonRef} className={`${styles.magneticThingy} ${className}`}>
-      {children}
-    </button>
-    //   </foreignObject>
-    // </svg>
+    <svg
+      ref={svgRef}
+      className={styles.svg}
+      width="200"
+      height="200"
+      viewBox="0 0 200 200"
+    >
+      <path
+        ref={pathRef}
+        d="M50,10 C100,-10,150,40,170,90 C180,130,120,180,80,190 C30,200,10,140,10,100 C10,60,20,30,50,10"
+        fill="blue"
+        stroke="blue"
+        strokeWidth="3"
+        style={{ pointerEvents: "fill" }}
+      />
+      <foreignObject x="25" y="50" width="150" height="100">
+        <div
+          style={{
+            width: "200px",
+            height: "200px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <button className={`${styles.magneticThingy} ${className}`}>
+            {children}
+          </button>
+        </div>
+      </foreignObject>
+    </svg>
   );
 };
 
