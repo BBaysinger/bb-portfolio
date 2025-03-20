@@ -1,15 +1,19 @@
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
 
-import styles from "./HelloSign.module.scss";
+import styles from "./MagneticThingy.module.scss";
 
-type MagneticButtonProps = {
+type MagneticThingyProps = {
   children: React.ReactNode;
   magText?: boolean;
   className?: string;
 };
 
-const MagneticButton: React.FC<MagneticButtonProps> = ({ children, magText = false, className = "" }) => {
+const MagneticThingy: React.FC<MagneticThingyProps> = ({
+  children,
+  magText = false,
+  className = "",
+}) => {
   const buttonRef = useRef<HTMLButtonElement | null>(null);
   const textRef = useRef<HTMLSpanElement | null>(null);
 
@@ -44,20 +48,43 @@ const MagneticButton: React.FC<MagneticButtonProps> = ({ children, magText = fal
       const moveX = magnetize(relX);
       const moveY = magnetize(relY);
 
-      gsap.to(target, { x: moveX * relX, y: moveY * relY });
+      const xValue = moveX * relX;
+      const yValue = moveY * relY;
+      const rotation = (relX / width) * 15;
+
+      gsap.to(target, {
+        x: xValue,
+        y: yValue,
+        rotation,
+        onUpdate: () => {
+          gsap.set(target, { rotation });
+        },
+      });
 
       if (magText && textRef.current) {
         gsap.to(textRef.current, {
-          x: moveX * relX * 0.3,
-          y: moveY * relY * 0.2,
+          x: xValue * 0.3,
+          y: yValue * 0.2,
         });
       }
     };
 
     const leaveEvent = () => {
-      gsap.to(target, { x: 0, y: 0, ease: "elastic.out(1, 0.5)", duration: 1 });
+      gsap.to(target, {
+        x: 0,
+        y: 0,
+        rotation: 0,
+        ease: "elastic.out(1, 0.5)",
+        duration: 1,
+      });
+
       if (magText && textRef.current) {
-        gsap.to(textRef.current, { x: 0, y: 0, ease: "elastic.out(1, 0.5)", duration: 1 });
+        gsap.to(textRef.current, {
+          x: 0,
+          y: 0,
+          ease: "elastic.out(1, 0.5)",
+          duration: 1,
+        });
       }
     };
 
@@ -84,4 +111,4 @@ const MagneticButton: React.FC<MagneticButtonProps> = ({ children, magText = fal
   );
 };
 
-export default MagneticButton;
+export default MagneticThingy;
