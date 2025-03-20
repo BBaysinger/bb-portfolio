@@ -1,7 +1,7 @@
 import styles from "./Greeting.module.scss";
 
 import useInViewAnimation from "hooks/useInViewAnimation";
-import HelloSign from "components/home-page/HelloSign";
+import MagneticThingy from "components/home-page/MagneticThingy";
 
 /**
  * @author Bradley Baysinger
@@ -29,7 +29,7 @@ const Greeting: React.FC = () => {
             alt="road sign"
             loading="lazy"
           />
-          <HelloSign magText={true}>asdf</HelloSign>
+          <MagneticThingy magText={true}>asdf</MagneticThingy>
         </div>
 
         <div>
