@@ -15,15 +15,15 @@ const MagneticThingy: React.FC<MagneticThingyProps> = ({
 }) => {
   const svgRef = useRef<SVGSVGElement | null>(null);
   const pathRef = useRef<SVGPathElement | null>(null);
-  const textRef = useRef<HTMLSpanElement | null>(null);
-  const buttonRef = useRef<HTMLButtonElement | null>(null);
+  const projectionWrapperRef = useRef<HTMLDivElement | null>(null);
+  // const buttonRef = useRef<HTMLButtonElement | null>(null);
 
   useEffect(() => {
     const svg = svgRef.current;
     const path = pathRef.current;
-    const button = buttonRef.current;
-    const text = textRef.current;
-    if (!svg || !path || !button || !text) return;
+    // const button = buttonRef.current;
+    const text = projectionWrapperRef.current;
+    if (!svg || !path || !text) return;
 
     let { left, top, width, height } = path.getBoundingClientRect();
 
@@ -50,6 +50,7 @@ const MagneticThingy: React.FC<MagneticThingyProps> = ({
         x: xValue,
         y: yValue,
         rotation,
+        transformOrigin: "50% 100%",
         onUpdate: () => {
           gsap.set(svg, { rotation });
         },
@@ -107,22 +108,14 @@ const MagneticThingy: React.FC<MagneticThingyProps> = ({
         fill="transparent"
         style={{ pointerEvents: "fill" }}
       />
-      <foreignObject x="25" y="5000" width="150" height="100">
-        <div
-          style={{
-            width: "200px",
-            height: "200px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <button ref={buttonRef}>
-            <span ref={textRef} style={{ display: "inline-block" }}>
-              {children}
-            </span>
-          </button>
-        </div>
+      <foreignObject
+        x="0"
+        y="0"
+        width="100%"
+        height="100%"
+        style={{ pointerEvents: "none" }}
+      >
+        <div ref={projectionWrapperRef}>{children}</div>
       </foreignObject>
     </svg>
   );

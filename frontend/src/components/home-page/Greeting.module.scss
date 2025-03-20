@@ -127,6 +127,19 @@
     @include breakpointUp($b1280px) {
       max-width: 350px;
     }
+
+    div {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding-top: 39%;
+    }
+
+    img {
+      width: 68%;
+      height: auto;
+      margin-left: 4%;
+    }
   }
 
   .text {

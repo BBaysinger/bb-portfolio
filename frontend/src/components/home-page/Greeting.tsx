@@ -22,15 +22,14 @@ const Greeting: React.FC = () => {
             alt="road sign"
             loading="lazy"
           />
-          {/* <img
-            ref={addToRefs}
-            src="/images/home/road-sign-desktop.webp"
-            className={styles.helloSignDesktop}
-            alt="road sign"
-            loading="lazy"
-          /> */}
+
           <MagneticThingy className={styles.helloSignDesktop} magText={true}>
-            asdf
+            <img
+              // ref={addToRefs}
+              src="/images/home/hello.webp"
+              alt="hello"
+              loading="lazy"
+            />
           </MagneticThingy>
         </div>
 
