@@ -53,20 +53,20 @@ const MagneticThingy: React.FC<MagneticThingyProps> = ({
       const moveX = magnetize(relX, width);
       const moveY = magnetize(relY, height);
 
-      const xValue = moveX * relX * 0.5;
-      const yValue = moveY * relY * 0.5;
+      const xValue = moveX * relX * 0.1;
+      const yValue = moveY * relY * 0.9;
       const rotation = (relX / width) * 15;
 
       gsap.to(svg, {
         x: xValue,
         y: yValue,
         rotation,
-        transformOrigin: "50% 100%",
+        transformOrigin: "50% 150%",
         ease: "power2.out",
       });
 
       gsap.to(projectionWrapper, {
-        x: xValue * 0.3,
+        x: xValue * -0.5,
         y: yValue * 0.2,
         ease: "power2.out",
       });
