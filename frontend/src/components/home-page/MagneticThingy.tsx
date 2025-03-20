@@ -29,25 +29,32 @@ const MagneticThingy: React.FC<MagneticThingyProps> = ({
     const projectionWrapper = projectionWrapperRef.current;
     if (!svg || !path || !projectionWrapper) return;
 
-    let { left, top, width, height } = path.getBoundingClientRect();
+    let bounds = path.getBoundingClientRect();
 
-    const magnetize = (val: number) => {
-      const dist = gsap.utils.normalize(0, width, Math.abs(val));
+    const updateDimensions = () => {
+      bounds = path.getBoundingClientRect();
+    };
+
+    updateDimensions();
+
+    const magnetize = (val: number, axisSize: number) => {
+      const dist = gsap.utils.normalize(0, axisSize / 2, Math.abs(val));
       return gsap.utils.interpolate([1, 0.4, 0], dist);
     };
 
-    const updateDimensions = () => {
-      ({ left, top, width, height } = path.getBoundingClientRect());
-    };
-
     const moveEvent = (e: MouseEvent) => {
-      const relX = e.pageX - left - width / 2;
-      const relY = e.pageY - top - height / 2;
-      const moveX = magnetize(relX);
-      const moveY = magnetize(relY);
+      const { left, top, width, height } = bounds;
 
-      const xValue = moveX * relX;
-      const yValue = moveY * relY;
+      const adjustedLeft = left + window.scrollX;
+      const adjustedTop = top + window.scrollY;
+
+      const relX = e.pageX - adjustedLeft - width / 2;
+      const relY = e.pageY - adjustedTop - height / 2;
+      const moveX = magnetize(relX, width);
+      const moveY = magnetize(relY, height);
+
+      const xValue = moveX * relX * 0.5;
+      const yValue = moveY * relY * 0.5;
       const rotation = (relX / width) * 15;
 
       gsap.to(svg, {
@@ -55,18 +62,14 @@ const MagneticThingy: React.FC<MagneticThingyProps> = ({
         y: yValue,
         rotation,
         transformOrigin: "50% 100%",
-        onUpdate: () => {
-          gsap.set(svg, { rotation });
-        },
+        ease: "power2.out",
       });
 
-      if (projectionWrapper) {
-        gsap.to(projectionWrapper, {
-          x: xValue * 0.3,
-          y: yValue * 0.2,
-          ease: "power2.out",
-        });
-      }
+      gsap.to(projectionWrapper, {
+        x: xValue * 0.3,
+        y: yValue * 0.2,
+        ease: "power2.out",
+      });
     };
 
     const leaveEvent = () => {
@@ -78,25 +81,25 @@ const MagneticThingy: React.FC<MagneticThingyProps> = ({
         duration: 1,
       });
 
-      if (projectionWrapper) {
-        gsap.to(projectionWrapper, {
-          x: 0,
-          y: 0,
-          ease: "elastic.out(1, 0.5)",
-          duration: 1,
-        });
-      }
+      gsap.to(projectionWrapper, {
+        x: 0,
+        y: 0,
+        ease: "elastic.out(1, 0.5)",
+        duration: 1,
+      });
     };
 
     path.addEventListener("mousemove", moveEvent);
     path.addEventListener("mouseleave", leaveEvent);
     window.addEventListener("resize", updateDimensions);
+    window.addEventListener("scroll", updateDimensions);
     window.addEventListener("orientationchange", updateDimensions);
 
     return () => {
       path.removeEventListener("mousemove", moveEvent);
       path.removeEventListener("mouseleave", leaveEvent);
       window.removeEventListener("resize", updateDimensions);
+      window.removeEventListener("scroll", updateDimensions);
       window.removeEventListener("orientationchange", updateDimensions);
     };
   }, [children]);
