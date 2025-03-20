@@ -1,6 +1,5 @@
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
-
 import styles from "./MagneticThingy.module.scss";
 
 type MagneticThingyProps = {
@@ -16,9 +15,12 @@ const MagneticThingy: React.FC<MagneticThingyProps> = ({
 }) => {
   const buttonRef = useRef<HTMLButtonElement | null>(null);
   const textRef = useRef<HTMLSpanElement | null>(null);
+  const hitAreaRef = useRef<SVGPathElement | null>(null);
 
   useEffect(() => {
     const target = buttonRef.current;
+    const hitArea = hitAreaRef.current;
+    // if (!target || !hitArea) return;
     if (!target) return;
 
     let textSpan: HTMLSpanElement | null = null;
@@ -94,10 +96,12 @@ const MagneticThingy: React.FC<MagneticThingyProps> = ({
     };
 
     target.addEventListener("mouseenter", enterEvent);
+    // hitArea.addEventListener("mouseenter", enterEvent);
     window.addEventListener("resize", updateDimensions);
 
     return () => {
       target.removeEventListener("mouseenter", enterEvent);
+      // hitArea.removeEventListener("mouseenter", enterEvent);
       target.removeEventListener("mousemove", moveEvent);
       target.removeEventListener("mouseleave", leaveEvent);
       window.removeEventListener("resize", updateDimensions);
@@ -105,9 +109,20 @@ const MagneticThingy: React.FC<MagneticThingyProps> = ({
   }, [magText]);
 
   return (
-    <button ref={buttonRef} className={`${styles.magneticButton} ${className}`}>
+    // <svg className={styles.svg} width="200" height="200" viewBox="0 0 200 200">
+    //   <path
+    //     ref={hitAreaRef}
+    //     d="M50,10 C100,-10,150,40,170,90 C180,130,120,180,80,190 C30,200,10,140,10,100 C10,60,20,30,50,10"
+    //     fill="transparent"
+    //     stroke="none"
+    //     style={{ pointerEvents: "fill" }}
+    //   />
+    //   <foreignObject x="25" y="50" width="150" height="100">
+    <button ref={buttonRef} className={`${styles.magneticThingy} ${className}`}>
       {children}
     </button>
+    //   </foreignObject>
+    // </svg>
   );
 };
 
