@@ -91,16 +91,19 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    max-width: 450px;
+    max-width: 350px;
+    width: 80%;
     @include breakpointUp($b768px) {
       min-width: 300px;
+      max-width: auto;
+      width: auto;
     }
     &:hover {
       z-index: 2;
     }
   }
 
-  .helloSignDesktop {
+  .helloSign {
     width: 100%;
     top: 50%;
     max-width: 350px;
@@ -109,11 +112,13 @@
     background-repeat: no-repeat;
     background-position: top center;
     background-image: url("/images/home/road-sign.webp");
+
     @include breakpointUp($b768px) {
       aspect-ratio: 1 / 2.038;
       background-image:
         url("/images/home/road-sign.webp"), url("/images/home/signpost.webp");
     }
+
     @include breakpointUp($b1280px) {
       max-width: 350px;
     }

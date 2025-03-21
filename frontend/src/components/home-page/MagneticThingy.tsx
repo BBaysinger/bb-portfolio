@@ -19,15 +19,17 @@ const MagneticThingy: React.FC<MagneticThingyProps> = ({
   children,
   className = "",
 }) => {
+  const elemRef = useRef<HTMLDivElement | null>(null);
   const svgRef = useRef<SVGSVGElement | null>(null);
   const pathRef = useRef<SVGPathElement | null>(null);
   const projectionWrapperRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
+    const elem = elemRef.current;
     const svg = svgRef.current;
     const path = pathRef.current;
     const projectionWrapper = projectionWrapperRef.current;
-    if (!svg || !path || !projectionWrapper) return;
+    if (!elem || !svg || !path || !projectionWrapper) return;
 
     let bounds = path.getBoundingClientRect();
 
@@ -71,7 +73,7 @@ const MagneticThingy: React.FC<MagneticThingyProps> = ({
       const yValue = moveY * relY * 0.9;
       const rotation = (relX / width) * 15;
 
-      gsap.to(svg, {
+      gsap.to(elem, {
         x: xValue,
         y: yValue,
         rotation,
@@ -87,7 +89,7 @@ const MagneticThingy: React.FC<MagneticThingyProps> = ({
     };
 
     const leaveEvent = () => {
-      gsap.to(svg, {
+      gsap.to(elem, {
         x: 0,
         y: 0,
         rotation: 0,
@@ -137,28 +139,24 @@ const MagneticThingy: React.FC<MagneticThingyProps> = ({
   }, [children]);
 
   return (
-    <svg
-      ref={svgRef}
-      className={`${styles.magneticThingy} ${className}`}
-      viewBox="0 0 200 200"
-      preserveAspectRatio="xMidYMin meet"
-    >
-      <path
-        ref={pathRef}
-        d="M101.5,-1 L202,96.5 L97,201 L-2,100.5 Z"
-        fill="transparent"
-        style={{ pointerEvents: "fill" }}
-      />
-      <foreignObject
-        x="0"
-        y="0"
-        width="100%"
-        height="100%"
-        style={{ pointerEvents: "none" }}
+    <div ref={elemRef} className={`${styles.magneticThingy} ${className}`}>
+      <svg
+        ref={svgRef}
+        viewBox="0 0 200 200"
+        preserveAspectRatio="xMidYMin meet"
       >
-        <div ref={projectionWrapperRef}>{children}</div>
-      </foreignObject>
-    </svg>
+        <path
+          ref={pathRef}
+          d="M101.5,-1 L202,96.5 L97,201 L-2,100.5 Z"
+          fill="transparent"
+          style={{ pointerEvents: "fill" }}
+        />
+      </svg>
+
+      <div className={styles.projectionWrapper} ref={projectionWrapperRef}>
+        {children}
+      </div>
+    </div>
   );
 };
 
