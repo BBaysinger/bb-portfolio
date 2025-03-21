@@ -42,14 +42,27 @@ const MagneticThingy: React.FC<MagneticThingyProps> = ({
       return gsap.utils.interpolate([1, 0.4, 0], dist);
     };
 
-    const moveEvent = (e: MouseEvent) => {
+    const moveEvent = (x: number, y: number, e?: Event) => {
       const { left, top, width, height } = bounds;
 
       const adjustedLeft = left + window.scrollX;
       const adjustedTop = top + window.scrollY;
 
-      const relX = e.pageX - adjustedLeft - width / 2;
-      const relY = e.pageY - adjustedTop - height / 2;
+      const inside =
+        x >= adjustedLeft &&
+        x <= adjustedLeft + width &&
+        y >= adjustedTop &&
+        y <= adjustedTop + height;
+
+      if (!inside) {
+        leaveEvent();
+        return;
+      }
+
+      e?.preventDefault();
+
+      const relX = x - adjustedLeft - width / 2;
+      const relY = y - adjustedTop - height / 2;
       const moveX = magnetize(relX, width);
       const moveY = magnetize(relY, height);
 
@@ -89,15 +102,33 @@ const MagneticThingy: React.FC<MagneticThingyProps> = ({
       });
     };
 
-    path.addEventListener("mousemove", moveEvent);
-    path.addEventListener("mouseleave", leaveEvent);
+    const onMouseMove = (e: MouseEvent) => moveEvent(e.pageX, e.pageY);
+    const onMouseLeave = () => leaveEvent();
+
+    const onTouchMove = (e: TouchEvent) => {
+      if (e.touches.length > 0) {
+        const touch = e.touches[0];
+        moveEvent(touch.pageX, touch.pageY, e);
+      }
+    };
+
+    const onTouchEnd = () => leaveEvent();
+
+    path.addEventListener("mousemove", onMouseMove);
+    path.addEventListener("mouseleave", onMouseLeave);
+    path.addEventListener("touchmove", onTouchMove, { passive: false });
+    path.addEventListener("touchend", onTouchEnd);
+    path.addEventListener("touchcancel", onTouchEnd);
     window.addEventListener("resize", updateDimensions);
     window.addEventListener("scroll", updateDimensions);
     window.addEventListener("orientationchange", updateDimensions);
 
     return () => {
-      path.removeEventListener("mousemove", moveEvent);
-      path.removeEventListener("mouseleave", leaveEvent);
+      path.removeEventListener("mousemove", onMouseMove);
+      path.removeEventListener("mouseleave", onMouseLeave);
+      path.removeEventListener("touchmove", onTouchMove);
+      path.removeEventListener("touchend", onTouchEnd);
+      path.removeEventListener("touchcancel", onTouchEnd);
       window.removeEventListener("resize", updateDimensions);
       window.removeEventListener("scroll", updateDimensions);
       window.removeEventListener("orientationchange", updateDimensions);
