@@ -43,23 +43,24 @@ const MagneticThingy: React.FC<MagneticThingyProps> = ({
     };
 
     const moveEvent = (x: number, y: number, e?: Event) => {
-      const { left, top, width, height } = bounds;
+      const viewportX = x - window.scrollX;
+      const viewportY = y - window.scrollY;
 
-      const adjustedLeft = left + window.scrollX;
-      const adjustedTop = top + window.scrollY;
+      const elementUnderPointer = document.elementFromPoint(
+        viewportX,
+        viewportY,
+      );
 
-      const inside =
-        x >= adjustedLeft &&
-        x <= adjustedLeft + width &&
-        y >= adjustedTop &&
-        y <= adjustedTop + height;
-
-      if (!inside) {
+      if (!elementUnderPointer || elementUnderPointer !== path) {
         leaveEvent();
         return;
       }
 
       e?.preventDefault();
+
+      const { left, top, width, height } = bounds;
+      const adjustedLeft = left + window.scrollX;
+      const adjustedTop = top + window.scrollY;
 
       const relX = x - adjustedLeft - width / 2;
       const relY = y - adjustedTop - height / 2;
