@@ -84,16 +84,10 @@
     top: 0;
     left: 0;
     z-index: -1;
-    // background: linear-gradient(
-    //   to bottom,
-    //   rgba(0, 0, 0, 1) 0%,
-    //   rgba(0, 0, 0, 0) 33%,
-    //   rgba(0, 0, 0, 0) 66%,
-    //   rgba(0, 0, 0, 1) 100%
-    // );
   }
 
   .helloSignWrapper {
+    position: relative;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -101,28 +95,24 @@
     @include breakpointUp($b768px) {
       min-width: 300px;
     }
-  }
-
-  .helloSignMobile {
-    width: 60%;
-    @include breakpointUp($b768px) {
-      display: none;
+    &:hover {
+      z-index: 2;
     }
   }
 
   .helloSignDesktop {
-    display: none;
     width: 100%;
     top: 50%;
-    width: 35vw;
-    max-width: 300px;
-    aspect-ratio: 1 / 2.038;
-    background-size: cover;
+    max-width: 350px;
+    aspect-ratio: 1 / 1;
+    background-size: contain, cover;
     background-repeat: no-repeat;
-    background-position: center center;
-    background-image: url("/images/home/road-sign-desktop.webp");
+    background-position: top center;
+    background-image: url("/images/home/road-sign.webp");
     @include breakpointUp($b768px) {
-      display: unset;
+      aspect-ratio: 1 / 2.038;
+      background-image:
+        url("/images/home/road-sign.webp"), url("/images/home/signpost.webp");
     }
     @include breakpointUp($b1280px) {
       max-width: 350px;
