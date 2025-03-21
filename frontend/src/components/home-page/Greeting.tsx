@@ -15,21 +15,8 @@ const Greeting: React.FC = () => {
     <div id="hello" className={styles.greeting}>
       <div className={styles.greetingWrapper}>
         <div className={styles.helloSignWrapper}>
-          <img
-            ref={addToRefs}
-            src="/images/home/road-sign-mobile.webp"
-            className={styles.helloSignMobile}
-            alt="road sign"
-            loading="lazy"
-          />
-
           <MagneticThingy className={styles.helloSignDesktop}>
-            <img
-              // ref={addToRefs}
-              src="/images/home/hello.webp"
-              alt="hello"
-              loading="lazy"
-            />
+            <img src="/images/home/hello.webp" alt="hello" loading="lazy" />
           </MagneticThingy>
         </div>
 

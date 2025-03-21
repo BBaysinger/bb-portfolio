@@ -14,15 +14,15 @@ const useInViewArray = (
   animationClass: string,
   threshold = 0.2,
   baseClass = "fadeIn",
-  delay = 500, // Delay in milliseconds (default: 1 second)
-  scrollThreshold = 100, // How much the user needs to be scrolled down to trigger delay
+  delay = 500,
+  scrollThreshold = 100,
 ) => {
-  const elementsRef = useRef<HTMLElement[]>([]);
+  const elementsRef = useRef<(HTMLElement | SVGElement)[]>([]);
 
-  const addToRefs = (el: HTMLElement | null) => {
+  const addToRefs = (el: HTMLElement | SVGElement | null) => {
     if (el && !elementsRef.current.includes(el)) {
       elementsRef.current.push(el);
-      el.classList.add(baseClass); // Automatically add the "fadeIn" class
+      el.classList.add(baseClass);
     }
   };
 
@@ -32,14 +32,13 @@ const useInViewArray = (
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             entry.target.classList.add(animationClass);
-            observer.unobserve(entry.target); // Stop observing once animated
+            observer.unobserve(entry.target);
           }
         });
       },
       { threshold },
     );
 
-    // Check if the user is already scrolled down
     const shouldDelay = window.scrollY > scrollThreshold;
 
     const timeoutId = shouldDelay
