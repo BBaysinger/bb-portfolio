@@ -22,10 +22,13 @@ header.headerSub {
   background-color: #fff;
   background-repeat: repeat !important;
   background-image: url("/images/common/barber-pole.webp");
-  background-size: 80%;
+  background-size: 400px;
 
   @include breakpointUp($b480px) {
-    background-size: 40%;
+    background-size: 500px;
+  }
+  @include breakpointUp($b992px) {
+    background-size: 50%;
   }
 
   > * {
