@@ -177,8 +177,8 @@
       }
       &:first-of-type {
         p {
-          &:before {
-            // Flasher
+          &:before,
+          &:after {
             content: "";
             display: block;
             width: 500px;
@@ -188,26 +188,16 @@
             background-repeat: no-repeat;
             position: absolute;
             top: -302px;
-            left: -233px;
-            animation: strobe 1s infinite steps(1);
             pointer-events: none;
           }
-
+          &:before {
+            left: -233px;
+            animation: strobe 1s infinite steps(1);
+          }
           &:after {
-            // Flasher
-            content: "";
-            display: block;
-            width: 500px;
-            height: 500px;
-            background-image: url("/images/home/flash.webp");
-            background-size: cover;
-            background-repeat: no-repeat;
-            position: absolute;
-            top: -302px;
             right: -231px;
             animation: strobe 1s infinite steps(1) 0.12s;
-            pointer-events: none;
-            z-index: 100;
+            z-index: 1;
           }
 
           @keyframes strobe {
