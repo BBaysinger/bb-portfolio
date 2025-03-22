@@ -112,8 +112,10 @@
     background-repeat: no-repeat;
     background-position: top center;
     background-image: url("/images/home/road-sign.webp");
+    transform-origin: 50% 300%;
 
     @include breakpointUp($b768px) {
+      transform-origin: 50% 150%;
       aspect-ratio: 1 / 2.038;
       background-image:
         url("/images/home/road-sign.webp"), url("/images/home/signpost.webp");
@@ -239,9 +241,6 @@
       }
       &:last-of-type {
         margin-bottom: 0;
-        @include breakpointUp($b992px) {
-          margin-bottom: 0px;
-        }
       }
 
       p {
