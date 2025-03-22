@@ -77,7 +77,6 @@ const MagneticThingy: React.FC<MagneticThingyProps> = ({
         x: xValue,
         y: yValue,
         rotation,
-        transformOrigin: "50% 150%",
         ease: "power2.out",
       });
 
