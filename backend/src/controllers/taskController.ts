@@ -1,41 +1,41 @@
 import asyncHandler from "express-async-handler";
 import { Request, Response } from "express";
-import Task from "models/taskModel";
+import Project from "models/projectModel";
 import User from "models/userModel";
 
-// Controller to get all tasks for the authenticated user
-export const getTasks = asyncHandler(async (req: Request, res: Response) => {
-  // Find tasks in the database associated with the logged-in user
-  const tasks = await Task.find({ user: req.user?._id });
+// Controller to get all projects for the authenticated user
+export const getProjects = asyncHandler(async (req: Request, res: Response) => {
+  // Find projects in the database associated with the logged-in user
+  const projects = await Project.find({ user: req.user?._id });
 
-  // Return the found tasks in the response
-  res.status(200).json(tasks);
+  // Return the found projects in the response
+  res.status(200).json(projects);
 });
 
-// Controller to create a new task for the authenticated user
-export const setTask = asyncHandler(async (req: Request, res: Response) => {
-  // Check if the task text is provided in the request body
+// Controller to create a new project for the authenticated user
+export const setProject = asyncHandler(async (req: Request, res: Response) => {
+  // Check if the project text is provided in the request body
   if (!req.body.text) {
     res.status(400);
-    throw new Error("Please enter a task");
+    throw new Error("Please enter a project");
   }
 
-  // Create a new task with the provided text and associate it with the user
-  const task = await Task.create({ text: req.body.text, user: req.user?._id });
+  // Create a new project with the provided text and associate it with the user
+  const project = await Project.create({ text: req.body.text, user: req.user?._id });
 
-  // Return the created task in the response
-  res.status(200).json(task);
+  // Return the created project in the response
+  res.status(200).json(project);
 });
 
-// Controller to update a specific task for the authenticated user
-export const updateTask = asyncHandler(async (req: Request, res: Response) => {
-  // Find the task by ID from the request parameters
-  const task = await Task.findById(req.params.id);
+// Controller to update a specific project for the authenticated user
+export const updateProject = asyncHandler(async (req: Request, res: Response) => {
+  // Find the project by ID from the request parameters
+  const project = await Project.findById(req.params.id);
 
-  // If the task is not found, throw an error
-  if (!task) {
+  // If the project is not found, throw an error
+  if (!project) {
     res.status(400);
-    throw new Error("Task not found");
+    throw new Error("Project not found");
   }
 
   // Find the user by ID from the request
@@ -47,30 +47,30 @@ export const updateTask = asyncHandler(async (req: Request, res: Response) => {
     throw new Error("No such user found");
   }
 
-  // Check if the logged-in user is authorized to update the task
-  if (task.user.toString() !== user.id) {
+  // Check if the logged-in user is authorized to update the project
+  if (project.user.toString() !== user.id) {
     res.status(401);
     throw new Error("User is not authorized to update");
   }
 
-  // Update the task with the new data from the request body
-  const updatedTask = await Task.findByIdAndUpdate(req.params.id, req.body, {
-    new: true, // Return the updated task
+  // Update the project with the new data from the request body
+  const updatedProject = await Project.findByIdAndUpdate(req.params.id, req.body, {
+    new: true, // Return the updated project
   });
 
-  // Return the updated task in the response
-  res.status(200).json(updatedTask);
+  // Return the updated project in the response
+  res.status(200).json(updatedProject);
 });
 
-// Controller to delete a specific task for the authenticated user
-export const deleteTask = asyncHandler(async (req: Request, res: Response) => {
-  // Find the task by ID from the request parameters
-  const task = await Task.findById(req.params.id);
+// Controller to delete a specific project for the authenticated user
+export const deleteProject = asyncHandler(async (req: Request, res: Response) => {
+  // Find the project by ID from the request parameters
+  const project = await Project.findById(req.params.id);
 
-  // If the task is not found, throw an error
-  if (!task) {
+  // If the project is not found, throw an error
+  if (!project) {
     res.status(400);
-    throw new Error("Task not found");
+    throw new Error("Project not found");
   }
 
   // Find the user by ID from the request
@@ -82,15 +82,15 @@ export const deleteTask = asyncHandler(async (req: Request, res: Response) => {
     throw new Error("No such user found");
   }
 
-  // Check if the logged-in user is authorized to delete the task
-  if (task.user.toString() !== user.id) {
+  // Check if the logged-in user is authorized to delete the project
+  if (project.user.toString() !== user.id) {
     res.status(401);
     throw new Error("User is not authorized to delete");
   }
 
-  // Delete the task from the database
-  await Task.findByIdAndDelete(req.params.id);
+  // Delete the project from the database
+  await Project.findByIdAndDelete(req.params.id);
 
-  // Return the ID of the deleted task in the response
+  // Return the ID of the deleted project in the response
   res.status(200).json({ id: req.params.id });
 });
