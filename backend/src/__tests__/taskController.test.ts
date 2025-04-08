@@ -1,85 +1,85 @@
 import request from "supertest";
 import app from "./app.test";
-import Task from "models/taskModel";
+import Project from "models/projectModel";
 import User from "models/userModel";
 
-// Mock the Task and User models
-jest.mock("models/taskModel");
+// Mock the Project and User models
+jest.mock("models/projectModel");
 jest.mock("models/userModel");
 
-describe("Task Controller (with SuperTest)", () => {
+describe("Project Controller (with SuperTest)", () => {
   // Clear all mock data after each test to prevent interference
   afterEach(() => {
     jest.clearAllMocks();
   });
 
-  // Test case for fetching tasks for an authenticated user
-  test("should get tasks for a user", async () => {
-    const tasks = [
-      { _id: "task-id-1", text: "Task 1", user: "user-id" },
-      { _id: "task-id-2", text: "Task 2", user: "user-id" },
+  // Test case for fetching projects for an authenticated user
+  test("should get projects for a user", async () => {
+    const projects = [
+      { _id: "project-id-1", text: "Project 1", user: "user-id" },
+      { _id: "project-id-2", text: "Project 2", user: "user-id" },
     ];
 
-    // Mock the Task.find method to return the mock tasks
-    jest.spyOn(Task, "find").mockReturnValue({
-      exec: jest.fn().mockResolvedValue(tasks),
+    // Mock the Project.find method to return the mock projects
+    jest.spyOn(Project, "find").mockReturnValue({
+      exec: jest.fn().mockResolvedValue(projects),
     } as any);
 
-    // Simulate a GET request to the /api/tasks endpoint
+    // Simulate a GET request to the /api/projects endpoint
     await request(app)
-      .get("/api/tasks")
+      .get("/api/projects")
       .set("Authorization", "Bearer mock-token") // Mock JWT if needed
       .expect(200) // Expect a 200 (OK) response
       .expect((res) => {
-        // Check if the response body matches the mock tasks
-        expect(res.body).toEqual(tasks);
+        // Check if the response body matches the mock projects
+        expect(res.body).toEqual(projects);
       });
   });
 
-  // Test case for creating a new task for an authenticated user
-  test("should set a new task for a user", async () => {
-    const task = { _id: "new-task-id", text: "New Task", user: "user-id" };
+  // Test case for creating a new project for an authenticated user
+  test("should set a new project for a user", async () => {
+    const project = { _id: "new-project-id", text: "New Project", user: "user-id" };
 
-    // Mock the Task.save method to return the mock task
-    jest.spyOn(Task.prototype, "save").mockResolvedValue(task);
+    // Mock the Project.save method to return the mock project
+    jest.spyOn(Project.prototype, "save").mockResolvedValue(project);
 
-    // Simulate a POST request to the /api/tasks endpoint
+    // Simulate a POST request to the /api/projects endpoint
     await request(app)
-      .post("/api/tasks")
-      .send({ text: "New Task" }) // Send a task with text
+      .post("/api/projects")
+      .send({ text: "New Project" }) // Send a project with text
       .set("Authorization", "Bearer mock-token")
       .expect(201) // Expect a 201 (Created) response
       .expect((res) => {
-        // Check if the response body matches the mock task
-        expect(res.body).toEqual(task);
+        // Check if the response body matches the mock project
+        expect(res.body).toEqual(project);
       });
   });
 
-  // Test case for handling missing task text during creation
-  test("should return a 400 error for missing task text", async () => {
-    // Simulate a POST request to the /api/tasks endpoint with missing text
+  // Test case for handling missing project text during creation
+  test("should return a 400 error for missing project text", async () => {
+    // Simulate a POST request to the /api/projects endpoint with missing text
     await request(app)
-      .post("/api/tasks")
+      .post("/api/projects")
       .send({})
       .set("Authorization", "Bearer mock-token")
       .expect(400) // Expect a 400 (Bad Request) response
       .expect((res) => {
         // Check if the response body contains the correct error message
-        expect(res.body.message).toBe("Please enter a task");
+        expect(res.body.message).toBe("Please enter a project");
       });
   });
 
-  // Test case for handling a missing user during task update
+  // Test case for handling a missing user during project update
   test("should return a 401 error if user is not found", async () => {
     // Mock the User.findById method to return null (user not found)
     jest.spyOn(User, "findById").mockReturnValue({
       exec: jest.fn().mockResolvedValue(null),
     } as any);
 
-    // Simulate a PUT request to update a task
+    // Simulate a PUT request to update a project
     await request(app)
-      .put("/api/tasks/task-id-1")
-      .send({ text: "Updated Task" })
+      .put("/api/projects/project-id-1")
+      .send({ text: "Updated Project" })
       .set("Authorization", "Bearer mock-token")
       .expect(401) // Expect a 401 (Unauthorized) response
       .expect((res) => {
@@ -88,17 +88,17 @@ describe("Task Controller (with SuperTest)", () => {
       });
   });
 
-  // Test case for handling unauthorized task update
-  test("should return a 401 error if user is not authorized to update the task", async () => {
-    const taskToUpdate = {
-      _id: "task-id-1",
-      text: "Original Task",
+  // Test case for handling unauthorized project update
+  test("should return a 401 error if user is not authorized to update the project", async () => {
+    const projectToUpdate = {
+      _id: "project-id-1",
+      text: "Original Project",
       user: "user-id-1",
     };
 
-    // Mock the Task.findById method to return a task with a different user ID
-    jest.spyOn(Task, "findById").mockReturnValue({
-      exec: jest.fn().mockResolvedValue(taskToUpdate),
+    // Mock the Project.findById method to return a project with a different user ID
+    jest.spyOn(Project, "findById").mockReturnValue({
+      exec: jest.fn().mockResolvedValue(projectToUpdate),
     } as any);
 
     // Mock the User.findById method to return a different user
@@ -106,10 +106,10 @@ describe("Task Controller (with SuperTest)", () => {
       exec: jest.fn().mockResolvedValue({ _id: "user-id-2" }),
     } as any);
 
-    // Simulate a PUT request to update a task
+    // Simulate a PUT request to update a project
     await request(app)
-      .put("/api/tasks/task-id-1")
-      .send({ text: "Updated Task" })
+      .put("/api/projects/project-id-1")
+      .send({ text: "Updated Project" })
       .set("Authorization", "Bearer mock-token")
       .expect(401) // Expect a 401 (Unauthorized) response
       .expect((res) => {

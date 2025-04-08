@@ -95,7 +95,7 @@ const createMockRequest = (user?: IUser): AuthenticatedRequest => {
     body: new MockRequestBody(),
     headers: new MockHeaders(),
     method: "GET",
-    originalUrl: "/tasks",
+    originalUrl: "/projects",
   };
 
   return req as AuthenticatedRequest;
