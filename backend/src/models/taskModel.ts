@@ -1,15 +1,15 @@
 import mongoose, { Schema, Document } from "mongoose";
 
-// Define an interface for the Task document to enforce type safety
-interface ITask extends Document {
+// Define an interface for the Project document to enforce type safety
+interface IProject extends Document {
   text: string;
   user: mongoose.Schema.Types.ObjectId;
 }
 
-// Define the Task schema with the appropriate fields and validation
-const taskSchema: Schema<ITask> = new Schema(
+// Define the Project schema with the appropriate fields and validation
+const projectSchema: Schema<IProject> = new Schema(
   {
-    // Task text: String, required field
+    // Project text: String, required field
     text: {
       type: String,
       required: [true, "Please add a text value"],
@@ -27,5 +27,5 @@ const taskSchema: Schema<ITask> = new Schema(
   },
 );
 
-// Export the Task model based on the schema
-export default mongoose.model<ITask>("Task", taskSchema);
+// Export the Project model based on the schema
+export default mongoose.model<IProject>("Project", projectSchema);

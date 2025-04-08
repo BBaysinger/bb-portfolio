@@ -2,7 +2,7 @@ import express, { Application } from "express";
 import errorHandler from "middleware/errorMiddleware";
 import cors from "cors";
 
-import taskRoutes from "routes/taskRoutes";
+import projectRoutes from "routes/projectRoutes";
 import userRoutes from "routes/userRoutes";
 
 // Create the Express app
@@ -14,7 +14,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cors());
 
 // Attach routes
-app.use("/api/tasks", taskRoutes);
+app.use("/api/projects", projectRoutes);
 app.use("/api/users", userRoutes);
 
 // Global error handling middleware

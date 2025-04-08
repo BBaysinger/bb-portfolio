@@ -1,81 +1,81 @@
 import { NextFunction } from "express";
 
-import { getTasks, setTask, updateTask } from "controllers/taskController";
-import Task from "models/taskModel";
+import { getProjects, setProject, updateProject } from "controllers/projectController";
+import Project from "models/projectModel";
 import User from "models/userModel";
 import createMockRequest from "./createMockRequest";
 import createMockResponse from "./createMockResponse";
 
-jest.mock("models/taskModel");
+jest.mock("models/projectModel");
 jest.mock("models/userModel");
 
-describe("Task Controller", () => {
+describe("Project Controller", () => {
   afterEach(() => {
     jest.clearAllMocks();
   });
 
-  test("should get tasks for a user", async () => {
+  test("should get projects for a user", async () => {
     const req = createMockRequest();
     const res = createMockResponse();
 
-    const tasks = [
-      { _id: "task-id-1", text: "Task 1", user: "user-id" },
-      { _id: "task-id-2", text: "Task 2", user: "user-id" },
+    const projects = [
+      { _id: "project-id-1", text: "Project 1", user: "user-id" },
+      { _id: "project-id-2", text: "Project 2", user: "user-id" },
     ];
 
-    jest.spyOn(Task, "find").mockReturnValue({
-      exec: jest.fn().mockResolvedValue(tasks),
+    jest.spyOn(Project, "find").mockReturnValue({
+      exec: jest.fn().mockResolvedValue(projects),
     } as any);
 
     const next: NextFunction = jest.fn();
 
-    await getTasks(req, res, next);
+    await getProjects(req, res, next);
 
     expect(res.status).toHaveBeenCalledWith(200);
-    expect(res.json).toHaveBeenCalledWith(tasks);
+    expect(res.json).toHaveBeenCalledWith(projects);
   });
 
-  test("should set a new task for a user", async () => {
+  test("should set a new project for a user", async () => {
     const req = createMockRequest();
     const res = createMockResponse();
 
-    const task = { _id: "new-task-id", text: "New Task", user: "user-id" };
+    const project = { _id: "new-project-id", text: "New Project", user: "user-id" };
 
-    jest.spyOn(Task.prototype, "save").mockResolvedValue(task);
+    jest.spyOn(Project.prototype, "save").mockResolvedValue(project);
 
     const next: NextFunction = jest.fn();
 
-    await setTask(req, res, next);
+    await setProject(req, res, next);
 
     expect(res.status).toHaveBeenCalledWith(201);
-    expect(res.json).toHaveBeenCalledWith(task);
+    expect(res.json).toHaveBeenCalledWith(project);
   });
 
-  test("should return a 400 error for missing task text", async () => {
+  test("should return a 400 error for missing project text", async () => {
     const req = createMockRequest();
     const res = createMockResponse();
 
     const next: NextFunction = jest.fn();
 
-    await expect(setTask(req, res, next)).rejects.toThrow(
-      "Please enter a task",
+    await expect(setProject(req, res, next)).rejects.toThrow(
+      "Please enter a project",
     );
     expect(res.status).toHaveBeenCalledWith(400);
   });
 
   test("should return a 401 error if user is not found", async () => {
-    const taskId = "task-id-1";
+    const projectId = "project-id-1";
     const userId = "non-existent-user-id";
     const req = createMockRequest();
 
-    const taskToUpdate = {
-      _id: taskId,
-      text: "Original Task",
+    const projectToUpdate = {
+      _id: projectId,
+      text: "Original Project",
       user: "user-id",
     };
 
-    jest.spyOn(Task, "findById").mockReturnValue({
-      exec: jest.fn().mockResolvedValue(taskToUpdate),
+    jest.spyOn(Project, "findById").mockReturnValue({
+      exec: jest.fn().mockResolvedValue(projectToUpdate),
     } as any);
 
     jest.spyOn(User, "findById").mockReturnValue({
@@ -85,25 +85,25 @@ describe("Task Controller", () => {
     const res = createMockResponse();
     const next: NextFunction = jest.fn();
 
-    await expect(updateTask(req, res, next)).rejects.toThrow(
+    await expect(updateProject(req, res, next)).rejects.toThrow(
       "No such user found",
     );
     expect(res.status).toHaveBeenCalledWith(401);
   });
 
-  test("should return a 401 error if user is not authorized to update the task", async () => {
-    const taskId = "task-id-1";
-    const userId = "user-id-2"; // Different user ID from the task owner
+  test("should return a 401 error if user is not authorized to update the project", async () => {
+    const projectId = "project-id-1";
+    const userId = "user-id-2"; // Different user ID from the project owner
     const req = createMockRequest();
 
-    const taskToUpdate = {
-      _id: taskId,
-      text: "Original Task",
+    const projectToUpdate = {
+      _id: projectId,
+      text: "Original Project",
       user: "user-id-1",
     };
 
-    jest.spyOn(Task, "findById").mockReturnValue({
-      exec: jest.fn().mockResolvedValue(taskToUpdate),
+    jest.spyOn(Project, "findById").mockReturnValue({
+      exec: jest.fn().mockResolvedValue(projectToUpdate),
     } as any);
 
     jest.spyOn(User, "findById").mockReturnValue({
@@ -113,7 +113,7 @@ describe("Task Controller", () => {
     const res = createMockResponse();
     const next: NextFunction = jest.fn();
 
-    await expect(updateTask(req, res, next)).rejects.toThrow(
+    await expect(updateProject(req, res, next)).rejects.toThrow(
       "User is not authorized to update",
     );
     expect(res.status).toHaveBeenCalledWith(401);
