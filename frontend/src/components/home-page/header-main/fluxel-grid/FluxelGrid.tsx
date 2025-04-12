@@ -26,6 +26,7 @@ const FluxelGrid: React.FC<{
   const [fluxelSize, setFluxelSize] = useState(0);
   const gridRef = useRef<HTMLDivElement>(null);
 
+  // TODO: Move to Hero.
   useFluxelShadows({
     gridRef,
     fluxelSize,
