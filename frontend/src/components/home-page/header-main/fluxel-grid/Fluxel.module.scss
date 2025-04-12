@@ -1,4 +1,20 @@
+.fluxel {
+  position: relative;
+  background-color: var(--base-color);
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-color: var(--overlay-color, transparent);
+    opacity: var(--overlay-opacity, 0);
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+  }
+}
+
 .debug {
+  display: none;
   color: rgba(255, 255, 255, 0.2);
   font-size: 12px;
   position: absolute;
