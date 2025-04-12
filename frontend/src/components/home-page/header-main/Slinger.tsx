@@ -14,6 +14,11 @@ type FloatingObject = {
 type SlingerProps = {
   onDrag?: (x: number, y: number, e: MouseEvent | TouchEvent) => void;
   onDragEnd?: (x: number, y: number, e: MouseEvent | TouchEvent) => void;
+  onWallCollision?: (
+    wall: "left" | "right" | "top" | "bottom",
+    x: number,
+    y: number,
+  ) => void;
 };
 
 /**
@@ -23,7 +28,11 @@ type SlingerProps = {
  * @component
  * @param {SlingerProps} props - Component props containing optional drag event handlers.
  */
-const Slinger: React.FC<SlingerProps> = ({ onDrag, onDragEnd }) => {
+const Slinger: React.FC<SlingerProps> = ({
+  onDrag,
+  onDragEnd,
+  onWallCollision,
+}) => {
   const ballSize = 50;
   const animationFrameRef = useRef<number | null>(null);
   const triggerRender = useState(0)[1]; // Used to force re-render when necessary
@@ -49,6 +58,7 @@ const Slinger: React.FC<SlingerProps> = ({ onDrag, onDragEnd }) => {
       if (obj.isDragging) return;
 
       let { x, y, vx, vy } = obj;
+      let collidedWall: null | "left" | "right" | "top" | "bottom" = null;
 
       x += vx;
       y += vy;
@@ -56,18 +66,22 @@ const Slinger: React.FC<SlingerProps> = ({ onDrag, onDragEnd }) => {
       if (x < 0) {
         x = 0;
         vx = -vx * 0.8;
+        collidedWall = "left";
       }
       if (x > bounds.width - ballSize) {
         x = bounds.width - ballSize;
         vx = -vx * 0.8;
+        collidedWall = "right";
       }
       if (y < 0) {
         y = 0;
         vy = -vy * 0.8;
+        collidedWall = "top";
       }
       if (y > bounds.height - ballSize) {
         y = bounds.height - ballSize;
         vy = -vy * 0.8;
+        collidedWall = "bottom";
       }
 
       // Apply damping
@@ -82,17 +96,22 @@ const Slinger: React.FC<SlingerProps> = ({ onDrag, onDragEnd }) => {
       obj.y = y;
       obj.vx = vx;
       obj.vy = vy;
+
+      // Trigger collision callback if one occurred
+      if (collidedWall && typeof onWallCollision === "function") {
+        const centerX = x + ballSize / 2;
+        const centerY = y + ballSize / 2;
+        onWallCollision(collidedWall, centerX, centerY);
+      }
     });
 
-    // Direct DOM update (avoids React re-render)
-    // triggerRender((prev) => prev + 1); // Force re-render // Removed for performance
     const el = document.querySelector(`.slinger-obj`) as HTMLElement | null;
     if (el) {
       el.style.transform = `translate(${Math.round(objectsRef.current[0].x)}px, ${Math.round(objectsRef.current[0].y)}px)`;
     }
 
     animationFrameRef.current = requestAnimationFrame(animate);
-  }, []);
+  }, [onWallCollision]);
 
   useEffect(() => {
     animationFrameRef.current = requestAnimationFrame(animate);
