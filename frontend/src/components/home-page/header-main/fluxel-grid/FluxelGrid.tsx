@@ -10,6 +10,7 @@ const FluxelGrid: React.FC<{
   viewableHeight: number;
   viewableWidth: number;
   externalMousePos?: { x: number; y: number } | null;
+  setGrid: React.Dispatch<React.SetStateAction<FluxelData[][]>>;
 }> = ({ rows, cols, viewableHeight, viewableWidth, externalMousePos }) => {
   const [grid, setGrid] = useState<FluxelData[][]>(
     Array.from({ length: rows }, (_, row) =>
