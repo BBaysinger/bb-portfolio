@@ -66,6 +66,13 @@ const Hero: React.FC = () => {
     [],
   );
 
+  const onSlingerWallCollision = useCallback(
+    (wall: "left" | "right" | "top" | "bottom", x: number, y: number) => {
+      console.log(`Slinger hit the ${wall} wall at position (${x}, ${y})`);
+    },
+    [],
+  );
+
   const quotes = [
     "Interactivity is not about clicking, tapping, or swiping. It's about engagement — an invitation to explore, respond, and shape the experience.",
     "A great UI isn't just seen — it's felt. Every transition, every hover, every microinteraction should whisper to the user: 'I understand you.'",
@@ -112,7 +119,11 @@ const Hero: React.FC = () => {
         />
       </div>
       <div className={styles.slingerWrapper}>
-        <Slinger onDrag={onSlingerDrag} onDragEnd={onSlingerDragEnd} />
+        <Slinger
+          onDrag={onSlingerDrag}
+          onDragEnd={onSlingerDragEnd}
+          onWallCollision={onSlingerWallCollision}
+        />
       </div>
       <div className={styles.heroWrapper}>
         <div className={styles.logoWrapper}>
