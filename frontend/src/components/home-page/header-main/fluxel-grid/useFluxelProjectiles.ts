@@ -20,7 +20,6 @@ export function useFluxelProjectiles({
   setGrid,
   intervalMs = 50,
 }: {
-  grid: FluxelData[][];
   setGrid: React.Dispatch<React.SetStateAction<FluxelData[][]>>;
   intervalMs?: number;
 }): LaunchFn {
@@ -91,3 +90,5 @@ export function useFluxelProjectiles({
 
   return launchProjectile;
 }
+
+export default useFluxelProjectiles;

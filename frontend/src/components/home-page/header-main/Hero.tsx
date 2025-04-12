@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from "react";
+import React, { useState, useCallback, useRef, useEffect } from "react";
 
 import useClientDimensions from "hooks/useClientDimensions";
 import headerLogo from "images/main-header/bb-gradient.webp";
@@ -7,6 +7,8 @@ import FluxelGrid from "./fluxel-grid/FluxelGrid";
 import Slinger from "./Slinger";
 import ParagraphAnimator from "./ParagraphAnimator";
 import useScrollPersistedClass from "hooks/useScrollPersistedClass";
+import useFluxelProjectiles from "./fluxel-grid/useFluxelProjectiles";
+import { FluxelData } from "./fluxel-grid/Fluxel";
 import styles from "./Hero.module.scss";
 
 /**
@@ -22,12 +24,15 @@ const Hero: React.FC = () => {
 
   const wrapperRef = useRef<HTMLDivElement>(null);
 
+  const [_grid, setGrid] = useState<FluxelData[][]>([]);
   const { clientHeight, clientWidth } = useClientDimensions();
 
   // For sending position data to the FluxelGrid.
   const [slingerPos, setSlingerPos] = useState<
     { x: number; y: number } | null | undefined
   >(undefined);
+
+  const launchProjectile = useFluxelProjectiles({ setGrid });
 
   const [_hasDragged, setHasDragged] = useState(
     sessionStorage.getItem("hasDragged") === "true",
@@ -81,11 +86,15 @@ const Hero: React.FC = () => {
     "Interfaces should be designed with curiosity in mind. If the user wants to explore, let them — and reward them for doing so.",
   ];
 
+  useEffect(() => {
+    launchProjectile(1, 1, "down");
+  });
+
   return (
     <header
       id={id}
       className={
-        `${styles.hero} ${styles.header} hero ` +
+        `${styles.hero} ${styles.header} ` +
         `${hasScrolledOut ? styles.hasScrolledOut : ""} ` +
         `${sessionStorage.getItem("hasDragged") === "true" ? styles.hasDragged : ""}`
       }
@@ -99,9 +108,10 @@ const Hero: React.FC = () => {
           viewableWidth={clientWidth}
           viewableHeight={clientHeight}
           externalMousePos={slingerPos}
+          setGrid={setGrid}
         />
       </div>
-      <div className={`${styles.slingerWrapper} `}>
+      <div className={styles.slingerWrapper}>
         <Slinger onDrag={onSlingerDrag} onDragEnd={onSlingerDragEnd} />
       </div>
       <div className={styles.heroWrapper}>
@@ -117,12 +127,14 @@ const Hero: React.FC = () => {
           </span>
         </h1>
 
-        <h5 className={`${styles.subhead}`}>
+        <h5 className={styles.subhead}>
           Interactive&nbsp;Web <span className={styles.bull}>&bull;</span>{" "}
           <span className={"nobr"}>Front-end Developer</span>
         </h5>
       </div>
+
       <ParagraphAnimator paragraphs={quotes} className={styles.message} />
+
       <div className={styles.ctaWrapper}>
         <a href="#hello" className={styles.cta}>
           <div className={styles.ctaText}>2. Say hello</div>
