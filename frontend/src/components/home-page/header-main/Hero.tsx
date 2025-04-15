@@ -9,6 +9,7 @@ import ParagraphAnimator from "./ParagraphAnimator";
 import useScrollPersistedClass from "hooks/useScrollPersistedClass";
 import useFluxelProjectiles from "./fluxel-grid/useFluxelProjectiles";
 import { FluxelData } from "./fluxel-grid/Fluxel";
+import BorderBlinker from "./BorderBlinker";
 import styles from "./Hero.module.scss";
 
 /**
@@ -118,6 +119,7 @@ const Hero: React.FC = () => {
           setGrid={setGrid}
         />
       </div>
+      <BorderBlinker></BorderBlinker>
       <div className={styles.slingerWrapper}>
         <Slinger
           onDrag={onSlingerDrag}
