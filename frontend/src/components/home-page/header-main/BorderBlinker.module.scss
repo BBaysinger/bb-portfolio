@@ -58,21 +58,21 @@ $thickness: clamp(10px, 3vw, 30px);
 }
 
 .blink-top {
-  animation: blinkBorder 5s ease;
+  animation: blinkBorder 1s ease;
   color: $lighterThemeColor;
 }
 
 .blink-right {
-  animation: blinkBorder 5s ease;
+  animation: blinkBorder 1s ease;
   color: $complimentaryThemeColor;
 }
 
 .blink-bottom {
-  animation: blinkBorder 5s ease;
+  animation: blinkBorder 1s ease;
   color: yellow;
 }
 
 .blink-left {
-  animation: blinkBorder 5s ease;
+  animation: blinkBorder 1s ease;
   color: orange;
 }
