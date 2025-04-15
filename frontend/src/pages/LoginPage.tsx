@@ -125,7 +125,7 @@ const Login = ({ onLogin }: { onLogin: () => void }) => {
             Login
           </button>
         </form>
-        <p>
+        <div>
           <p>
             {isLoggingIn ? (
               <span className={"statusMessage"}>Logging in...</span>
@@ -135,7 +135,7 @@ const Login = ({ onLogin }: { onLogin: () => void }) => {
               <>&nbsp;</> // Prevent layout shift when neither message is shown
             )}
           </p>
-        </p>
+        </div>
       </div>
     </div>
   );
