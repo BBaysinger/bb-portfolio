@@ -1,11 +1,14 @@
 @use "@/styles/mixins" as *;
 @use "@/styles/variables" as *;
 
+$thickness: clamp(10px, 3vw, 30px);
+
 .borderBlinker {
   position: absolute;
   width: 100%;
   height: 100%;
   pointer-events: none;
+  --thickness: #{$thickness};
 }
 
 .borderSide {
@@ -18,13 +21,13 @@
   top: 0;
   left: 0;
   width: 100%;
-  height: 10px;
+  height: var(--thickness);
 }
 
 .right {
   top: 0;
   right: 0;
-  width: 10px;
+  width: var(--thickness);
   height: 100%;
 }
 
@@ -32,13 +35,13 @@
   bottom: 0;
   left: 0;
   width: 100%;
-  height: 10px;
+  height: var(--thickness);
 }
 
 .left {
   top: 0;
   left: 0;
-  width: 10px;
+  width: var(--thickness);
   height: 100%;
 }
 
@@ -55,21 +58,21 @@
 }
 
 .blink-top {
-  animation: blinkBorder 0.3s ease;
+  animation: blinkBorder 5s ease;
   color: $lighterThemeColor;
 }
 
 .blink-right {
-  animation: blinkBorder 0.3s ease;
+  animation: blinkBorder 5s ease;
   color: $complimentaryThemeColor;
 }
 
 .blink-bottom {
-  animation: blinkBorder 0.3s ease;
+  animation: blinkBorder 5s ease;
   color: yellow;
 }
 
 .blink-left {
-  animation: blinkBorder 0.3s ease;
+  animation: blinkBorder 5s ease;
   color: orange;
 }
