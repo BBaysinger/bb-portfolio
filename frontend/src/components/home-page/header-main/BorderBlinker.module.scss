@@ -1,8 +1,75 @@
+@use "@/styles/mixins" as *;
+@use "@/styles/variables" as *;
+
 .borderBlinker {
   position: absolute;
   width: 100%;
   height: 100%;
-  border: 10px solid transparent;
-  box-sizing: border-box;
   pointer-events: none;
+}
+
+.borderSide {
+  position: absolute;
+  background-color: transparent;
+  pointer-events: none;
+}
+
+.top {
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 10px;
+}
+
+.right {
+  top: 0;
+  right: 0;
+  width: 10px;
+  height: 100%;
+}
+
+.bottom {
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 10px;
+}
+
+.left {
+  top: 0;
+  left: 0;
+  width: 10px;
+  height: 100%;
+}
+
+@keyframes blinkBorder {
+  0% {
+    background-color: transparent;
+  }
+  10% {
+    background-color: currentColor;
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+.blink-top {
+  animation: blinkBorder 0.3s ease;
+  color: $lighterThemeColor;
+}
+
+.blink-right {
+  animation: blinkBorder 0.3s ease;
+  color: $complimentaryThemeColor;
+}
+
+.blink-bottom {
+  animation: blinkBorder 0.3s ease;
+  color: yellow;
+}
+
+.blink-left {
+  animation: blinkBorder 0.3s ease;
+  color: orange;
 }

@@ -9,7 +9,7 @@ import ParagraphAnimator from "./ParagraphAnimator";
 import useScrollPersistedClass from "hooks/useScrollPersistedClass";
 import useFluxelProjectiles from "./fluxel-grid/useFluxelProjectiles";
 import { FluxelData } from "./fluxel-grid/Fluxel";
-import BorderBlinker from "./BorderBlinker";
+import BorderBlinker, { SideNull } from "./BorderBlinker";
 import styles from "./Hero.module.scss";
 
 /**
@@ -22,6 +22,8 @@ import styles from "./Hero.module.scss";
 const Hero: React.FC = () => {
   const id = "hero";
   const hasScrolledOut = useScrollPersistedClass(id);
+
+  const [highlightSide, setHighlightSide] = useState<SideNull>(null);
 
   const wrapperRef = useRef<HTMLDivElement>(null);
 
@@ -68,8 +70,8 @@ const Hero: React.FC = () => {
   );
 
   const onSlingerWallCollision = useCallback(
-    (wall: "left" | "right" | "top" | "bottom", x: number, y: number) => {
-      console.log(`Slinger hit the ${wall} wall at position (${x}, ${y})`);
+    (wall: "left" | "right" | "top" | "bottom", _x: number, _y: number) => {
+      setHighlightSide(wall);
     },
     [],
   );
@@ -119,7 +121,7 @@ const Hero: React.FC = () => {
           setGrid={setGrid}
         />
       </div>
-      <BorderBlinker></BorderBlinker>
+      <BorderBlinker highlightSide={highlightSide} />
       <div className={styles.slingerWrapper}>
         <Slinger
           onDrag={onSlingerDrag}
