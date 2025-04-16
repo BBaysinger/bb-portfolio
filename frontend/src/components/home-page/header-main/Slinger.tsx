@@ -19,6 +19,7 @@ type SlingerProps = {
     x: number,
     y: number,
   ) => void;
+  onIdle?: () => void;
 };
 
 /**
@@ -32,6 +33,7 @@ const Slinger: React.FC<SlingerProps> = ({
   onDrag,
   onDragEnd,
   onWallCollision,
+  onIdle,
 }) => {
   const ballSize = 50;
   const animationFrameRef = useRef<number | null>(null);
@@ -43,6 +45,9 @@ const Slinger: React.FC<SlingerProps> = ({
     vx: 0,
     vy: 0,
   });
+
+  const lastActivityTimeRef = useRef<number>(performance.now());
+  const hasBecomeIdleRef = useRef<boolean>(false);
 
   const objectsRef = useRef<FloatingObject[]>([
     { id: 1, x: 50, y: 50, vx: 1, vy: 1, isDragging: false },
@@ -103,15 +108,34 @@ const Slinger: React.FC<SlingerProps> = ({
         const centerY = y + ballSize / 2;
         onWallCollision(collidedWall, centerX, centerY);
       }
+
+      // IDLE CHECK
+      const speed = Math.sqrt(vx * vx + vy * vy);
+      const now = performance.now();
+
+      if (speed < 1 && !obj.isDragging) {
+        if (!hasBecomeIdleRef.current) {
+          hasBecomeIdleRef.current = true;
+          onIdle?.();
+        }
+      } else {
+        lastActivityTimeRef.current = now;
+        hasBecomeIdleRef.current = false;
+      }
     });
 
     const el = document.querySelector(`.slinger-obj`) as HTMLElement | null;
     if (el) {
       el.style.transform = `translate(${Math.round(objectsRef.current[0].x)}px, ${Math.round(objectsRef.current[0].y)}px)`;
+      if (hasBecomeIdleRef.current) {
+        el.classList.add(styles.idle);
+      } else {
+        el.classList.remove(styles.idle);
+      }
     }
 
     animationFrameRef.current = requestAnimationFrame(animate);
-  }, [onWallCollision]);
+  }, [onWallCollision, onIdle]);
 
   useEffect(() => {
     animationFrameRef.current = requestAnimationFrame(animate);
@@ -148,6 +172,8 @@ const Slinger: React.FC<SlingerProps> = ({
       }
     });
 
+    hasBecomeIdleRef.current = false;
+    lastActivityTimeRef.current = performance.now();
     triggerRender((prev) => prev + 1);
   };
 
@@ -218,6 +244,8 @@ const Slinger: React.FC<SlingerProps> = ({
 
     dragStartPosition.current = null;
     movementHistory.current = [];
+    hasBecomeIdleRef.current = false;
+    lastActivityTimeRef.current = performance.now();
     triggerRender((prev) => prev + 1);
   };
 
