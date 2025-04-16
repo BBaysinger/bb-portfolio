@@ -15,7 +15,7 @@ interface BorderBlinkerProps {
  * Supports multiple simultaneous side highlights.
  */
 const BorderBlinker: React.FC<BorderBlinkerProps> = ({ highlightSide }) => {
-  const [activeSides, setActiveSides] = useState<Set<Side>>(new Set());
+  const [activeSides, setActiveSides] = useState<Side[]>([]);
   const timersRef = useRef<
     Partial<Record<Side, ReturnType<typeof setTimeout>>>
   >({});
@@ -23,7 +23,10 @@ const BorderBlinker: React.FC<BorderBlinkerProps> = ({ highlightSide }) => {
   useEffect(() => {
     if (highlightSide) {
       // Add the new side to the set
-      setActiveSides((prev) => new Set(prev).add(highlightSide));
+      setActiveSides((prev) => {
+        const without = prev.filter((s) => s !== highlightSide); // remove if already exists
+        return [...without, highlightSide]; // re-add at the end
+      });
 
       // Clear any existing timer to restart the animation
       if (timersRef.current[highlightSide]) {
@@ -32,23 +35,18 @@ const BorderBlinker: React.FC<BorderBlinkerProps> = ({ highlightSide }) => {
 
       // Set a timer to remove the side after the animation ends
       timersRef.current[highlightSide] = setTimeout(() => {
-        setActiveSides((prev) => {
-          const next = new Set(prev);
-          next.delete(highlightSide);
-          return next;
-        });
-      }, 300); // match CSS animation duration
+        setActiveSides((prev) => prev.filter((s) => s !== highlightSide));
+      }, 300);
     }
   }, [highlightSide]);
 
   return (
     <div className={styles.borderBlinker}>
-      {(["top", "right", "bottom", "left"] as Side[]).map((side) => (
+      {activeSides.map((side, index) => (
         <div
           key={side}
-          className={`${styles.borderSide} ${styles[side]} ${
-            activeSides.has(side) ? styles[`blink-${side}`] : ""
-          }`}
+          className={`${styles.borderSide} ${styles[side]} ${styles[`blink-${side}`]}`}
+          style={{ zIndex: index }} // newer = higher
         />
       ))}
     </div>
