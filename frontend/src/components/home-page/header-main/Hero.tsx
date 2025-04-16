@@ -24,6 +24,7 @@ const Hero: React.FC = () => {
   const hasScrolledOut = useScrollPersistedClass(id);
 
   const [highlightSide, setHighlightSide] = useState<SideNull>(null);
+  const slingerIsIdle = useRef(false);
 
   const wrapperRef = useRef<HTMLDivElement>(null);
 
@@ -45,6 +46,7 @@ const Hero: React.FC = () => {
     (x: number, y: number, e: MouseEvent | TouchEvent) => {
       sessionStorage.setItem("hasDragged", "true");
       setHasDragged(true);
+      slingerIsIdle.current = false;
       if (
         e.type === "touchmove" &&
         wrapperRef.current?.firstElementChild instanceof HTMLElement
@@ -71,10 +73,16 @@ const Hero: React.FC = () => {
 
   const onSlingerWallCollision = useCallback(
     (wall: "left" | "right" | "top" | "bottom", _x: number, _y: number) => {
-      setHighlightSide(wall);
+      if (!slingerIsIdle.current) {
+        setHighlightSide(wall);
+      }
     },
     [],
   );
+
+  const onSlingerIdle = useCallback(() => {
+    slingerIsIdle.current = true;
+  }, []);
 
   const quotes = [
     "Interactivity is not about clicking, tapping, or swiping. It's about engagement — an invitation to explore, respond, and shape the experience.",
@@ -88,7 +96,7 @@ const Hero: React.FC = () => {
     "Great front-end development is like great stage design — you don't notice it when it's done well, but it shapes the entire experience.",
     "The web is a living medium. It breathes through animations, responds through interactions, and adapts through responsiveness.",
     "Users don't want to read manuals. They explore. A well-crafted interface should teach them as they interact — no instructions required.",
-    // "Good UI is like a joke — if you have to explain it, it's not that good.",
+    "Good UI is like a joke — if you have to explain it, it's not that good.",
     "Responsiveness isn't just about screen sizes — it's about responding to users' needs, behaviors, and expectations in real-time.",
     "Microinteractions are the punctuation marks of user experience. They add rhythm, personality, and meaning to an interface.",
     "Front-end development is the art of making complexity disappear, turning intricate logic into a seamless and intuitive experience.",
@@ -127,6 +135,7 @@ const Hero: React.FC = () => {
           onDrag={onSlingerDrag}
           onDragEnd={onSlingerDragEnd}
           onWallCollision={onSlingerWallCollision}
+          onIdle={onSlingerIdle}
         />
       </div>
       <div className={styles.heroWrapper}>
