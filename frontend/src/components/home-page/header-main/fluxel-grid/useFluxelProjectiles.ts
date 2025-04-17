@@ -37,6 +37,9 @@ export function useFluxelProjectiles({
       if (projectiles.current.length === 0) return;
 
       setGrid((prevGrid): FluxelData[][] => {
+        if (prevGrid.length === 0 || !prevGrid[0]) {
+          return prevGrid;
+        }
         const updatedGrid = prevGrid.map((row) =>
           row.map((fluxel) => ({ ...fluxel, colorVariation: "transparent" })),
         );
@@ -63,6 +66,7 @@ export function useFluxelProjectiles({
               newCol += 1;
               break;
           }
+          console.log(newRow, newCol, prevGrid.length, prevGrid[0]);
 
           const inBounds =
             newRow >= 0 &&
@@ -70,12 +74,21 @@ export function useFluxelProjectiles({
             newCol >= 0 &&
             newCol < prevGrid[0].length;
 
+          // console.log(newRow, newCol);
+
           if (inBounds) {
             updatedGrid[newRow][newCol] = {
               ...updatedGrid[newRow][newCol],
               colorVariation: "rgba(255, 0, 0, 1)", // You can animate this further over time
             };
             newProjectiles.push({ id, row: newRow, col: newCol, direction });
+            console.log(
+              "Updating grid at",
+              newRow,
+              newCol,
+              "to",
+              updatedGrid[newRow][newCol].colorVariation,
+            );
           }
         }
 
