@@ -1,7 +1,8 @@
 @use "@/styles/mixins" as *;
 @use "@/styles/variables" as *;
 
-$thickness: clamp(10px, 3vw, 30px);
+$thickness: clamp(10px, 4vw, 50px);
+$offset: -1vw;
 
 .borderBlinker {
   position: absolute;
@@ -20,7 +21,7 @@ $thickness: clamp(10px, 3vw, 30px);
 }
 
 .top {
-  top: 0;
+  top: $offset;
   left: 0;
   width: 100%;
   height: var(--thickness);
@@ -28,13 +29,13 @@ $thickness: clamp(10px, 3vw, 30px);
 
 .right {
   top: 0;
-  right: 0;
+  right: $offset;
   width: var(--thickness);
   height: 100%;
 }
 
 .bottom {
-  bottom: 0;
+  bottom: $offset;
   left: 0;
   width: 100%;
   height: var(--thickness);
@@ -42,7 +43,7 @@ $thickness: clamp(10px, 3vw, 30px);
 
 .left {
   top: 0;
-  left: 0;
+  left: $offset;
   width: var(--thickness);
   height: 100%;
 }
