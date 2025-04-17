@@ -105,8 +105,10 @@ const Hero: React.FC = () => {
   ];
 
   useEffect(() => {
-    launchProjectile(1, 1, "down");
-  }, []);
+    if (_grid.length > 0 && _grid[0]?.length > 0) {
+      launchProjectile(1, 1, "down");
+    }
+  }, [_grid]);
 
   return (
     <header
