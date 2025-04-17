@@ -9,7 +9,7 @@ export interface FluxelData {
   influence: number;
   shadowOffsetX: number;
   shadowOffsetY: number;
-  colorVariation: string;
+  colorVariation?: string;
 }
 
 /**
@@ -28,7 +28,7 @@ const Fluxel: React.FC<{ data: FluxelData }> = ({ data }) => {
         x1={data.shadowOffsetX}
         y1={data.shadowOffsetY}
       />
-      <div className={styles.debug}>{JSON.stringify(data)}</div>
+      {/* <div className={styles.debug}>{JSON.stringify(data)}</div> */}
     </div>
   );
 };
