@@ -9,6 +9,7 @@ export interface FluxelData {
   influence: number;
   shadowOffsetX: number;
   shadowOffsetY: number;
+  colorVariation: string;
 }
 
 /**
@@ -17,8 +18,7 @@ export interface FluxelData {
 const Fluxel: React.FC<{ data: FluxelData }> = ({ data }) => {
   const transformStyle = {
     "--base-color": `rgba(0, 0, 0, ${data.influence * 0.5 - 0.1})`,
-    // "--overlay-color": `rgba(255, 255, 0, 1)`,
-    // "--overlay-opacity": data.colorVariation ?? 0,
+    "--overlay-color": data.colorVariation,
   } as React.CSSProperties;
 
   return (
@@ -28,7 +28,7 @@ const Fluxel: React.FC<{ data: FluxelData }> = ({ data }) => {
         x1={data.shadowOffsetX}
         y1={data.shadowOffsetY}
       />
-      {/* <div className={styles.debug}>{data.influence}</div> */}
+      <div className={styles.debug}>{JSON.stringify(data)}</div>
     </div>
   );
 };

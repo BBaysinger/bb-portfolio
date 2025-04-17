@@ -106,7 +106,7 @@ const Hero: React.FC = () => {
 
   useEffect(() => {
     launchProjectile(1, 1, "down");
-  });
+  }, []);
 
   return (
     <header

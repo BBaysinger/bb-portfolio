@@ -29,15 +29,16 @@ export function useFluxelProjectiles({
   const launchProjectile: LaunchFn = (startRow, startCol, direction) => {
     const id = crypto.randomUUID();
     projectiles.current.push({ id, row: startRow, col: startCol, direction });
+    console.log("launchProjectile");
   };
 
   useEffect(() => {
     intervalRef.current = window.setInterval(() => {
       if (projectiles.current.length === 0) return;
 
-      setGrid((prevGrid) => {
+      setGrid((prevGrid): FluxelData[][] => {
         const updatedGrid = prevGrid.map((row) =>
-          row.map((fluxel) => ({ ...fluxel, colorVariation: 0 })),
+          row.map((fluxel) => ({ ...fluxel, colorVariation: "transparent" })),
         );
 
         const newProjectiles: Projectile[] = [];
@@ -72,7 +73,7 @@ export function useFluxelProjectiles({
           if (inBounds) {
             updatedGrid[newRow][newCol] = {
               ...updatedGrid[newRow][newCol],
-              colorVariation: 1, // You can animate this further over time
+              colorVariation: "rgba(255, 0, 0, 1)", // You can animate this further over time
             };
             newProjectiles.push({ id, row: newRow, col: newCol, direction });
           }
