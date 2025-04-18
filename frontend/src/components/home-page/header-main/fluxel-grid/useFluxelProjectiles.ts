@@ -35,6 +35,7 @@ export function useFluxelProjectiles({
   }, [grid]);
 
   const startInterval = () => {
+    console.log("Starting interval");
     if (intervalRef.current !== null) return; // already running
 
     intervalRef.current = window.setInterval(() => {
@@ -45,6 +46,7 @@ export function useFluxelProjectiles({
         prevGrid.length === 0 ||
         prevGrid[0].length === 0
       ) {
+        console.log("Stopping interval");
         clearInterval(intervalRef.current!);
         intervalRef.current = null;
         return;
