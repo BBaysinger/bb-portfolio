@@ -1,9 +1,9 @@
-import React, { useState, useCallback, useRef, useEffect } from "react";
+import React, { useState, useCallback, useRef } from "react";
 
 import useClientDimensions from "hooks/useClientDimensions";
 import headerLogo from "images/main-header/bb-gradient.webp";
 import BarberPole from "components/common/BarberPole";
-import FluxelGrid from "./fluxel-grid/FluxelGrid";
+import FluxelController from "./fluxel-grid/FluxelController";
 import Slinger from "./Slinger";
 import ParagraphAnimator from "./ParagraphAnimator";
 import useScrollPersistedClass from "hooks/useScrollPersistedClass";
@@ -28,7 +28,23 @@ const Hero: React.FC = () => {
 
   const wrapperRef = useRef<HTMLDivElement>(null);
 
-  const [_grid, setGrid] = useState<FluxelData[][]>([]);
+  const initialRows = 12;
+  const initialCols = 16;
+
+  const [grid, setGrid] = useState<FluxelData[][]>(() =>
+    Array.from({ length: initialRows }, (_, row) =>
+      Array.from({ length: initialCols }, (_, col) => ({
+        id: `${row}-${col}`,
+        row,
+        col,
+        colorVariation: "transparent",
+        influence: 0,
+        shadowOffsetX: 0,
+        shadowOffsetY: 0,
+      })),
+    ),
+  );
+
   const { clientHeight, clientWidth } = useClientDimensions();
 
   // For sending position data to the FluxelGrid.
@@ -36,7 +52,7 @@ const Hero: React.FC = () => {
     { x: number; y: number } | null | undefined
   >(undefined);
 
-  const launchProjectile = useFluxelProjectiles({ setGrid });
+  const launchProjectile = useFluxelProjectiles({ grid: grid, setGrid });
 
   const [_hasDragged, setHasDragged] = useState(
     sessionStorage.getItem("hasDragged") === "true",
@@ -75,6 +91,7 @@ const Hero: React.FC = () => {
     (wall: "left" | "right" | "top" | "bottom", _x: number, _y: number) => {
       if (!slingerIsIdle.current) {
         setHighlightSide(wall);
+        launchProjectile(3, 3, "down");
       }
     },
     [],
@@ -104,12 +121,6 @@ const Hero: React.FC = () => {
     "Interfaces should be designed with curiosity in mind. If the user wants to explore, let them — and reward them for doing so.",
   ];
 
-  useEffect(() => {
-    if (_grid.length > 0 && _grid[0]?.length > 0) {
-      launchProjectile(1, 1, "down");
-    }
-  }, [_grid]);
-
   return (
     <header
       id={id}
@@ -122,13 +133,12 @@ const Hero: React.FC = () => {
     >
       <div className={styles.debug}>{sessionStorage.getItem("hasDragged")}</div>
       <div ref={wrapperRef} className={styles.fluxelWrapper}>
-        <FluxelGrid
-          rows={12}
-          cols={16}
+        <FluxelController
+          rows={initialRows}
+          cols={initialCols}
           viewableWidth={clientWidth}
           viewableHeight={clientHeight}
           externalMousePos={slingerPos}
-          setGrid={setGrid}
         />
       </div>
       <BorderBlinker highlightSide={highlightSide} />
