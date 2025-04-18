@@ -3,7 +3,9 @@ import React, { useState, useCallback, useRef } from "react";
 import useClientDimensions from "hooks/useClientDimensions";
 import headerLogo from "images/main-header/bb-gradient.webp";
 import BarberPole from "components/common/BarberPole";
-import FluxelController, { FluxelControllerHandle } from "./fluxel-grid/FluxelController";
+import FluxelController, {
+  FluxelControllerHandle,
+} from "./fluxel-grid/FluxelController";
 import Slinger from "./Slinger";
 import ParagraphAnimator from "./ParagraphAnimator";
 import useScrollPersistedClass from "hooks/useScrollPersistedClass";
