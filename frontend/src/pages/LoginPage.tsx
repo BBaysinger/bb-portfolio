@@ -104,10 +104,12 @@ const Login = ({ onLogin }: { onLogin: () => void }) => {
               <div>Username:</div>
               <input
                 type="text"
-                placeholder=""
+                placeholder="CharlieBrown"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 disabled={isLoggingIn}
+                autoComplete="username"
+                required
               />
             </label>
             <label htmlFor="password">
@@ -118,6 +120,8 @@ const Login = ({ onLogin }: { onLogin: () => void }) => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={isLoggingIn}
+                autoComplete="password"
+                required
               />
             </label>
           </div>
