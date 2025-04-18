@@ -7,7 +7,6 @@ import FluxelController from "./fluxel-grid/FluxelController";
 import Slinger from "./Slinger";
 import ParagraphAnimator from "./ParagraphAnimator";
 import useScrollPersistedClass from "hooks/useScrollPersistedClass";
-import useFluxelProjectiles from "./fluxel-grid/useFluxelProjectiles";
 import { FluxelData } from "./fluxel-grid/Fluxel";
 import BorderBlinker, { SideNull } from "./BorderBlinker";
 import styles from "./Hero.module.scss";
@@ -52,8 +51,6 @@ const Hero: React.FC = () => {
     { x: number; y: number } | null | undefined
   >(undefined);
 
-  const launchProjectile = useFluxelProjectiles({ grid: grid, setGrid });
-
   const [_hasDragged, setHasDragged] = useState(
     sessionStorage.getItem("hasDragged") === "true",
   );
@@ -91,7 +88,6 @@ const Hero: React.FC = () => {
     (wall: "left" | "right" | "top" | "bottom", _x: number, _y: number) => {
       if (!slingerIsIdle.current) {
         setHighlightSide(wall);
-        launchProjectile(3, 3, "down");
       }
     },
     [],
