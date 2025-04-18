@@ -19,6 +19,13 @@ interface Props {
   externalMousePos?: { x: number; y: number } | null;
 }
 
+/**
+ * FluxelController
+ *
+ * @author Bradley Baysinger
+ * @since The beginning of time.
+ * @version N/A
+ */
 const FluxelController = forwardRef<FluxelControllerHandle, Props>(
   ({ rows, cols, viewableHeight, viewableWidth, externalMousePos }, ref) => {
     const [grid, setGrid] = useState<FluxelData[][]>(() =>
