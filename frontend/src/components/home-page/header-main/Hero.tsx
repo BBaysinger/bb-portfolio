@@ -3,7 +3,7 @@ import React, { useState, useCallback, useRef } from "react";
 import useClientDimensions from "hooks/useClientDimensions";
 import headerLogo from "images/main-header/bb-gradient.webp";
 import BarberPole from "components/common/BarberPole";
-import FluxelController from "./fluxel-grid/FluxelController";
+import FluxelController, { FluxelControllerHandle } from "./fluxel-grid/FluxelController";
 import Slinger from "./Slinger";
 import ParagraphAnimator from "./ParagraphAnimator";
 import useScrollPersistedClass from "hooks/useScrollPersistedClass";
@@ -23,6 +23,7 @@ const Hero: React.FC = () => {
 
   const [highlightSide, setHighlightSide] = useState<SideNull>(null);
   const slingerIsIdle = useRef(false);
+  const fluxelControllerRef = useRef<FluxelControllerHandle>(null);
 
   const wrapperRef = useRef<HTMLDivElement>(null);
 
@@ -73,6 +74,7 @@ const Hero: React.FC = () => {
     (wall: "left" | "right" | "top" | "bottom", _x: number, _y: number) => {
       if (!slingerIsIdle.current) {
         setHighlightSide(wall);
+        fluxelControllerRef.current?.launchProjectile(3, 3, "down"); // 🚀
       }
     },
     [],
@@ -115,6 +117,7 @@ const Hero: React.FC = () => {
       <div className={styles.debug}>{sessionStorage.getItem("hasDragged")}</div>
       <div ref={wrapperRef} className={styles.fluxelWrapper}>
         <FluxelController
+          ref={fluxelControllerRef}
           rows={initialRows}
           cols={initialCols}
           viewableWidth={clientWidth}
