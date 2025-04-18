@@ -7,7 +7,6 @@ import FluxelController from "./fluxel-grid/FluxelController";
 import Slinger from "./Slinger";
 import ParagraphAnimator from "./ParagraphAnimator";
 import useScrollPersistedClass from "hooks/useScrollPersistedClass";
-import { FluxelData } from "./fluxel-grid/Fluxel";
 import BorderBlinker, { SideNull } from "./BorderBlinker";
 import styles from "./Hero.module.scss";
 
@@ -29,20 +28,6 @@ const Hero: React.FC = () => {
 
   const initialRows = 12;
   const initialCols = 16;
-
-  const [grid, setGrid] = useState<FluxelData[][]>(() =>
-    Array.from({ length: initialRows }, (_, row) =>
-      Array.from({ length: initialCols }, (_, col) => ({
-        id: `${row}-${col}`,
-        row,
-        col,
-        colorVariation: "transparent",
-        influence: 0,
-        shadowOffsetX: 0,
-        shadowOffsetY: 0,
-      })),
-    ),
-  );
 
   const { clientHeight, clientWidth } = useClientDimensions();
 
