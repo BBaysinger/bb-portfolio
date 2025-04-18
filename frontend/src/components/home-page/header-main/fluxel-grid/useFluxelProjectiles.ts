@@ -29,26 +29,26 @@ export function useFluxelProjectiles({
   const intervalRef = useRef<number | null>(null);
   const gridRef = useRef<FluxelData[][]>([]);
 
-  // Keep the gridRef in sync with the latest grid
+  // Keep gridRef up to date
   useEffect(() => {
     gridRef.current = grid;
   }, [grid]);
 
-  const launchProjectile: LaunchFn = (startRow, startCol, direction) => {
-    const id = crypto.randomUUID();
-    projectiles.current.push({ id, row: startRow, col: startCol, direction });
-  };
+  const startInterval = () => {
+    if (intervalRef.current !== null) return; // already running
 
-  useEffect(() => {
     intervalRef.current = window.setInterval(() => {
+      console.log("Interval running");
       const prevGrid = gridRef.current;
-      // console.log(
-      //   "prevGrid",
-      //   projectiles.current.length,
-      //   prevGrid[0],
-      //   prevGrid.length,
-      // );
-      if (projectiles.current.length === 0 || prevGrid.length === 0) return;
+      if (
+        projectiles.current.length === 0 ||
+        prevGrid.length === 0 ||
+        prevGrid[0].length === 0
+      ) {
+        clearInterval(intervalRef.current!);
+        intervalRef.current = null;
+        return;
+      }
 
       const updatedGrid = prevGrid.map((row) =>
         row.map((fluxel) => ({ ...fluxel, colorVariation: "transparent" })),
@@ -95,11 +95,23 @@ export function useFluxelProjectiles({
       projectiles.current = newProjectiles;
       setGrid(updatedGrid);
     }, intervalMs);
+  };
 
+  const launchProjectile: LaunchFn = (startRow, startCol, direction) => {
+    const id = crypto.randomUUID();
+    projectiles.current.push({ id, row: startRow, col: startCol, direction });
+    startInterval();
+  };
+
+  // Cleanup on unmount
+  useEffect(() => {
     return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
+      if (intervalRef.current !== null) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
     };
-  }, [intervalMs, setGrid]);
+  }, []);
 
   return launchProjectile;
 }

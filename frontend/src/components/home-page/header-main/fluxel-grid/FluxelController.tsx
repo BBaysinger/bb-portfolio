@@ -52,14 +52,14 @@ const FluxelController = forwardRef<FluxelControllerHandle, Props>(
       viewableHeight,
     });
 
-    const launchProjectile = useFluxelProjectiles({
-      grid,
-      setGrid,
-    });
+    // const launchProjectile = useFluxelProjectiles({
+    //   grid,
+    //   setGrid,
+    // });
 
-    useImperativeHandle(ref, () => ({
-      launchProjectile,
-    }));
+    // useImperativeHandle(ref, () => ({
+    //   launchProjectile,
+    // }));
 
     return (
       <FluxelGrid
