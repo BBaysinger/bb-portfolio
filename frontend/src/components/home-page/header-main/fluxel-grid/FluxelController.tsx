@@ -1,4 +1,3 @@
-// FluxelController.tsx
 import { useState, useRef, useImperativeHandle, forwardRef } from "react";
 import FluxelGrid from "./FluxelGrid";
 import { useFluxelShadows } from "./useFluxelShadows";
