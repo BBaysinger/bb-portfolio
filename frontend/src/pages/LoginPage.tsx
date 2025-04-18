@@ -104,7 +104,7 @@ const Login = ({ onLogin }: { onLogin: () => void }) => {
               <div>Username:</div>
               <input
                 type="text"
-                placeholder="CharlieBrown"
+                placeholder=""
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 disabled={isLoggingIn}
