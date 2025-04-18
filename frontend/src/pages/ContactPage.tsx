@@ -89,9 +89,10 @@ const ContactPage = () => {
                   <input
                     type="text"
                     name="name"
-                    placeholder=""
+                    placeholder="Charlie Brown"
                     value={formData.name}
                     onChange={handleChange}
+                    autoComplete="name"
                     required
                   />
                 </label>
@@ -100,9 +101,10 @@ const ContactPage = () => {
                   <input
                     type="email"
                     name="email"
-                    placeholder=""
+                    placeholder="name@example.com"
                     value={formData.email}
                     onChange={handleChange}
+                    autoComplete="email"
                     required
                   />
                 </label>
