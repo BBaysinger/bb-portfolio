@@ -3,6 +3,13 @@ import Fluxel, { FluxelData } from "./Fluxel";
 import PixelAnim from "./AnimationSequencer";
 import styles from "./FluxelGrid.module.scss";
 
+/**
+ * FluxelGrid
+ *
+ * @author Bradley Baysinger
+ * @since The beginning of time.
+ * @version N/A
+ */
 const FluxelGrid: React.FC<{
   grid: FluxelData[][];
   gridRef: React.RefObject<HTMLDivElement | null>;

@@ -14,6 +14,10 @@ export interface FluxelData {
 
 /**
  * Fluxing Pixel
+ *
+ * @author Bradley Baysinger
+ * @since The beginning of time.
+ * @version N/A
  */
 const Fluxel: React.FC<{ data: FluxelData }> = ({ data }) => {
   const transformStyle = {

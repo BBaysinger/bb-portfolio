@@ -10,6 +10,8 @@ interface ShadowProps {
 }
 
 /**
+ * Fluxel Shadow
+ *
  * Registration is set to the corner of the origin of the shadows, and
  * positioned to the top right of the fluxel.
  *
