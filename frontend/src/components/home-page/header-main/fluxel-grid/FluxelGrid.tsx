@@ -1,41 +1,17 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Fluxel, { FluxelData } from "./Fluxel";
 import PixelAnim from "./AnimationSequencer";
-import { useFluxelShadows } from "./useFluxelShadows";
 import styles from "./FluxelGrid.module.scss";
 
 const FluxelGrid: React.FC<{
-  rows: number;
-  cols: number;
+  grid: FluxelData[][];
+  gridRef: React.RefObject<HTMLDivElement | null>;
   viewableHeight: number;
   viewableWidth: number;
-  externalMousePos?: { x: number; y: number } | null;
-  setGrid: React.Dispatch<React.SetStateAction<FluxelData[][]>>;
-}> = ({ rows, cols, viewableHeight, viewableWidth, externalMousePos }) => {
-  const [grid, setGrid] = useState<FluxelData[][]>(
-    Array.from({ length: rows }, (_, row) =>
-      Array.from({ length: cols }, (_, col) => ({
-        id: `${row}-${col}`,
-        row,
-        col,
-        influence: 0,
-        shadowOffsetX: 0,
-        shadowOffsetY: 0,
-      })),
-    ),
-  );
-  const [fluxelSize, setFluxelSize] = useState(0);
-  const gridRef = useRef<HTMLDivElement>(null);
-
-  // TODO: Move to Hero.
-  useFluxelShadows({
-    gridRef,
-    fluxelSize,
-    setGrid,
-    externalMousePos,
-    viewableWidth,
-    viewableHeight,
-  });
+}> = ({ grid, gridRef, viewableHeight, viewableWidth }) => {
+  const [_fluxelSize, setFluxelSize] = useState(0);
+  const rows = grid.length;
+  const cols = grid[0]?.length ?? 0;
 
   useEffect(() => {
     const updateSizes = () => {
