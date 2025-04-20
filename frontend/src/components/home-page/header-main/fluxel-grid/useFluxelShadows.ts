@@ -1,7 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { FluxelData } from "./Fluxel";
-
-const FRAME_TIME = 1000 / 30;
 
 const smoothStep = (edge0: number, edge1: number, x: number) => {
   let t = Math.max(0, Math.min(1, (x - edge0) / (edge1 - edge0)));
@@ -26,8 +24,6 @@ export function useFluxelShadows({
   gridRef,
   fluxelSize,
   setGrid,
-  viewableWidth,
-  viewableHeight,
   externalMousePos,
 }: {
   gridRef: React.RefObject<HTMLDivElement | null>;
@@ -37,78 +33,17 @@ export function useFluxelShadows({
   viewableHeight: number;
   externalMousePos?: { x: number; y: number } | null;
 }) {
-  const [mousePos, setMousePos] = useState<{ x: number; y: number } | null>(
-    null,
-  );
   const animationFrameId = useRef<number | null>(null);
-  const lastFrameTime = useRef(0);
-
-  // Detect touch-only devices
-  const isTouchDevice =
-    typeof navigator !== "undefined" &&
-    ("maxTouchPoints" in navigator
-      ? navigator.maxTouchPoints > 0
-      : "ontouchstart" in window);
-
-  useEffect(() => {
-    // Bail out entirely on touch devices, because the effect only
-    // occurs from dragging the slinger. That's strategic, to prevent
-    // the default touch interaction, which is to scroll the page.
-    // (The slinger was originally introduced as a way to enable the
-    // fluxel shadows without scrolling the page.)
-    if (isTouchDevice) return;
-
-    const handleMove = (event: PointerEvent) => {
-      // console.log(viewableWidth, viewableHeight);
-
-      if (!gridRef.current) return;
-
-      const { left, top, width, height } =
-        gridRef.current.getBoundingClientRect();
-
-      const effectiveLeft = left + (width - viewableWidth) / 2;
-      const effectiveTop = top + (height - viewableHeight) / 2;
-      const effectiveRight = effectiveLeft + viewableWidth;
-      const effectiveBottom = effectiveTop + viewableHeight;
-
-      if (
-        event.clientX < effectiveLeft ||
-        event.clientX > effectiveRight ||
-        event.clientY < effectiveTop ||
-        event.clientY > effectiveBottom
-      ) {
-        setMousePos(null);
-        return;
-      }
-
-      const now = performance.now();
-      if (now - lastFrameTime.current < FRAME_TIME) return;
-      lastFrameTime.current = now;
-
-      setMousePos({ x: event.clientX - left, y: event.clientY - top });
-    };
-
-    const clearPos = () => setMousePos(null);
-
-    window.addEventListener("pointermove", handleMove);
-    document.addEventListener("mouseleave", clearPos);
-    gridRef.current?.addEventListener("touchend", clearPos);
-
-    return () => {
-      window.removeEventListener("pointermove", handleMove);
-      document.removeEventListener("mouseleave", clearPos);
-      gridRef.current?.removeEventListener("touchend", clearPos);
-    };
-  }, [viewableWidth, viewableHeight]);
 
   useEffect(() => {
     if (!gridRef.current || !fluxelSize) return;
 
-    const effectiveMousePos = externalMousePos ||
-      mousePos || {
-        x: -10000,
-        y: -10000,
-      };
+    const effectiveMousePos = externalMousePos || {
+      x: -10000,
+      y: -10000,
+    };
+
+    console.log(effectiveMousePos);
 
     if (animationFrameId.current)
       cancelAnimationFrame(animationFrameId.current);
@@ -174,5 +109,5 @@ export function useFluxelShadows({
       if (animationFrameId.current)
         cancelAnimationFrame(animationFrameId.current);
     };
-  }, [mousePos, externalMousePos, fluxelSize]);
+  }, [externalMousePos, fluxelSize]);
 }

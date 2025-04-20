@@ -5,6 +5,7 @@ import React, {
   useEffect,
   useImperativeHandle,
 } from "react";
+
 import Fluxel, { FluxelData } from "./Fluxel";
 import PixelAnim from "./AnimationSequencer";
 import styles from "./FluxelGrid.module.scss";

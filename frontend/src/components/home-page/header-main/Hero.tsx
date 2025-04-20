@@ -27,7 +27,9 @@ const Hero: React.FC = () => {
   const slingerIsIdle = useRef(false);
   const fluxelControllerRef = useRef<FluxelControllerHandle>(null);
 
-  const wrapperRef = useRef<HTMLDivElement>(null);
+  const heroRef = useRef<HTMLDivElement>(null);
+
+  const gridWrapperRef = useRef<HTMLDivElement>(null);
 
   const initialRows = 12;
   const initialCols = 16;
@@ -58,10 +60,10 @@ const Hero: React.FC = () => {
 
       if (
         e.type === "touchmove" &&
-        wrapperRef.current?.firstElementChild instanceof HTMLElement
+        gridWrapperRef.current?.firstElementChild instanceof HTMLElement
       ) {
         const bounds =
-          wrapperRef.current.firstElementChild.getBoundingClientRect();
+          gridWrapperRef.current.firstElementChild.getBoundingClientRect();
         if (!bounds) return;
         setSlingerPos({
           x: x - bounds.x,
@@ -118,6 +120,7 @@ const Hero: React.FC = () => {
   return (
     <header
       id={id}
+      ref={heroRef}
       className={
         `${styles.hero} ${styles.header} ` +
         `${hasScrolledOut ? styles.hasScrolledOut : ""} ` +
@@ -129,7 +132,7 @@ const Hero: React.FC = () => {
         <div className={styles.debug}>
           {sessionStorage.getItem("hasDragged")}
         </div>
-        <div ref={wrapperRef} className={styles.fluxelWrapper}>
+        <div ref={gridWrapperRef} className={styles.fluxelWrapper}>
           <FluxelController
             ref={fluxelControllerRef}
             rows={initialRows}
@@ -137,6 +140,7 @@ const Hero: React.FC = () => {
             viewableWidth={clientWidth}
             viewableHeight={clientHeight}
             externalMousePos={slingerPos}
+            mouseMoveTargetRef={heroRef}
           />
         </div>
         <BorderBlinker highlightSide={highlightSide} />
