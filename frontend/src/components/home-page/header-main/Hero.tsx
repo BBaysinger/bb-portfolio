@@ -39,28 +39,37 @@ const Hero: React.FC = () => {
     { x: number; y: number } | null | undefined
   >(undefined);
 
-  const [_hasDragged, setHasDragged] = useState(
-    sessionStorage.getItem("hasDragged") === "true",
+  const [hasDragged, _setHasDragged] = useState<boolean>(
+    () => sessionStorage.getItem("hasDragged") === "true",
   );
+
+  const setHasDragged = useCallback((value: boolean) => {
+    sessionStorage.setItem("hasDragged", value ? "true" : "false");
+    _setHasDragged(value);
+  }, []);
 
   const onSlingerDrag = useCallback(
     (x: number, y: number, e: MouseEvent | TouchEvent) => {
-      sessionStorage.setItem("hasDragged", "true");
-      setHasDragged(true);
       slingerIsIdle.current = false;
+
+      if (!hasDragged) {
+        setHasDragged(true);
+      }
+
       if (
         e.type === "touchmove" &&
         wrapperRef.current?.firstElementChild instanceof HTMLElement
       ) {
         const bounds =
-          wrapperRef.current?.firstElementChild.getBoundingClientRect();
+          wrapperRef.current.firstElementChild.getBoundingClientRect();
         if (!bounds) return;
-        const offsetX = x - bounds.x;
-        const offsetY = y - bounds.y;
-        setSlingerPos({ x: offsetX, y: offsetY });
+        setSlingerPos({
+          x: x - bounds.x,
+          y: y - bounds.y,
+        });
       }
     },
-    [],
+    [hasDragged, setHasDragged],
   );
 
   const onSlingerDragEnd = useCallback(
