@@ -125,7 +125,7 @@ const Hero: React.FC = () => {
       }
       style={{ minHeight: `${clientHeight}px` }}
     >
-      <div className="headerWrapper">
+      <div className={styles.headerWrapper}>
         <div className={styles.debug}>
           {sessionStorage.getItem("hasDragged")}
         </div>
