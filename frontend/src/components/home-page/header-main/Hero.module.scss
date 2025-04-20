@@ -14,10 +14,6 @@ header.hero {
   user-select: none;
   z-index: 10;
   overflow: hidden;
-  background-color: #222;
-  background-repeat: no-repeat;
-  background-size: 100% 100%;
-  background-image: url("/images/common/bg-grad.svg");
 
   &::before {
     content: "";
@@ -85,10 +81,14 @@ header.hero {
   }
 }
 
-.heroWrapper {
-  position: relative;
+.headerWrapper {
+  position: fixed;
   width: 100vw;
   height: 100vh;
+  background-color: #222;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  background-image: url("/images/common/bg-grad.svg");
 }
 
 .subhead {
