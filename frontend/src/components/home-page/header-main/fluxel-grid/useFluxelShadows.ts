@@ -51,7 +51,12 @@ export function useFluxelShadows({
       : "ontouchstart" in window);
 
   useEffect(() => {
-    if (isTouchDevice) return; // bail out entirely on touch devices
+    // Bail out entirely on touch devices, because the effect only
+    // occurs from dragging the slinger. That's strategic, to prevent
+    // the default touch interaction, which is to scroll the page.
+    // (The slinger was originally introduced as a way to enable the
+    // fluxel shadows without scrolling the page.)
+    if (isTouchDevice) return;
 
     const handleMove = (event: PointerEvent) => {
       // console.log(viewableWidth, viewableHeight);
