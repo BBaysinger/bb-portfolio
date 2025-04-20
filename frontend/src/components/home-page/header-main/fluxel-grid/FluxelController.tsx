@@ -113,29 +113,11 @@ const FluxelController = forwardRef<FluxelControllerHandle, Props>(
       const handleMove = (event: PointerEvent) => {
         if (!gridRef.current) return;
 
-        const { left, top, width, height } =
-          gridRef.current.getBoundingClientRect();
-
-        const effectiveLeft = left + (width - viewableWidth) / 2;
-        const effectiveTop = top + (height - viewableHeight) / 2;
-        const effectiveRight = effectiveLeft + viewableWidth;
-        const effectiveBottom = effectiveTop + viewableHeight;
-
-        if (
-          event.clientX < effectiveLeft ||
-          event.clientX > effectiveRight ||
-          event.clientY < effectiveTop ||
-          event.clientY > effectiveBottom
-        ) {
-          setMousePos(null);
-          return;
-        }
-
         const now = performance.now();
         if (now - lastFrameTime.current < FRAME_TIME) return;
         lastFrameTime.current = now;
 
-        setMousePos({ x: event.clientX - left, y: event.clientY - top });
+        setMousePos({ x: event.clientX, y: event.clientY });
       };
 
       const clearPos = () => setMousePos(null);
