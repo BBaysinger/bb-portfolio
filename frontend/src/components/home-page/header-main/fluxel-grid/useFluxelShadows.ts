@@ -1,6 +1,8 @@
 import { useEffect, useRef } from "react";
 import { FluxelData } from "./Fluxel";
 
+import { globalToLocal } from "utils/globalToLocal";
+
 const smoothStep = (edge0: number, edge1: number, x: number) => {
   let t = Math.max(0, Math.min(1, (x - edge0) / (edge1 - edge0)));
   return t * t * (3 - 2 * t);
@@ -38,12 +40,9 @@ export function useFluxelShadows({
   useEffect(() => {
     if (!gridRef.current || !fluxelSize) return;
 
-    const effectiveMousePos = externalMousePos || {
-      x: -10000,
-      y: -10000,
-    };
-
-    console.log(effectiveMousePos);
+    const pos = externalMousePos
+      ? globalToLocal(gridRef.current, externalMousePos.x, externalMousePos.y)
+      : { x: -100000, y: -100000 };
 
     if (animationFrameId.current)
       cancelAnimationFrame(animationFrameId.current);
@@ -58,20 +57,20 @@ export function useFluxelShadows({
             let shadowOffsetX = 0;
             let shadowOffsetY = 0;
 
-            if (effectiveMousePos.x >= 0 && effectiveMousePos.y >= 0) {
+            if (pos.x >= 0 && pos.y >= 0) {
               influence = getShadowInfluence(
                 { col: fluxel.col, row: fluxel.row },
-                effectiveMousePos,
+                pos,
                 fluxelSize,
               );
               const topInfluence = getShadowInfluence(
                 { col: fluxel.col, row: fluxel.row - 1 },
-                effectiveMousePos,
+                pos,
                 fluxelSize,
               );
               const rightInfluence = getShadowInfluence(
                 { col: fluxel.col + 1, row: fluxel.row },
-                effectiveMousePos,
+                pos,
                 fluxelSize,
               );
 
