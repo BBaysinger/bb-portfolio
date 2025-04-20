@@ -43,10 +43,19 @@ export function useFluxelShadows({
   const animationFrameId = useRef<number | null>(null);
   const lastFrameTime = useRef(0);
 
-  // Mouse/Touch tracking
+  // Detect touch-only devices
+  const isTouchDevice =
+    typeof navigator !== "undefined" &&
+    ("maxTouchPoints" in navigator
+      ? navigator.maxTouchPoints > 0
+      : "ontouchstart" in window);
+
   useEffect(() => {
+    if (isTouchDevice) return; // bail out entirely on touch devices
+
     const handleMove = (event: PointerEvent) => {
-      if (event.pointerType === "touch") return;
+      // console.log(viewableWidth, viewableHeight);
+
       if (!gridRef.current) return;
 
       const { left, top, width, height } =
@@ -87,7 +96,6 @@ export function useFluxelShadows({
     };
   }, [viewableWidth, viewableHeight]);
 
-  // Shadow logic
   useEffect(() => {
     if (!gridRef.current || !fluxelSize) return;
 
