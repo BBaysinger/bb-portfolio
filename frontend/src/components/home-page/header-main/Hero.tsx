@@ -148,24 +148,6 @@ const Hero: React.FC = () => {
             onIdle={onSlingerIdle}
           />
         </div>
-        <div className={styles.branding}>
-          <div className={styles.logoWrapper}>
-            <img src={headerLogo} className={styles.heroLogo} alt="BB Logo" />
-          </div>
-
-          <h1>
-            <span className={styles.firstName}>Bradley</span>{" "}
-            <span className={"nobr"}>
-              <BarberPole className={styles.barberPole} />{" "}
-              <span className={styles.lastName}>Baysinger</span>
-            </span>
-          </h1>
-
-          <h5 className={styles.subhead}>
-            Interactive&nbsp;Web <span className={styles.bull}>&bull;</span>{" "}
-            <span className={"nobr"}>Front-end Developer</span>
-          </h5>
-        </div>
 
         <ParagraphAnimator paragraphs={quotes} className={styles.message} />
 
@@ -174,6 +156,24 @@ const Hero: React.FC = () => {
             <div className={styles.ctaText}>2. Say hello</div>
           </a>
         </div>
+      </div>
+      <div className={styles.branding}>
+        <div className={styles.logoWrapper}>
+          <img src={headerLogo} className={styles.heroLogo} alt="BB Logo" />
+        </div>
+
+        <h1>
+          <span className={styles.firstName}>Bradley</span>{" "}
+          <span className={"nobr"}>
+            <BarberPole className={styles.barberPole} />{" "}
+            <span className={styles.lastName}>Baysinger</span>
+          </span>
+        </h1>
+
+        <h5 className={styles.subhead}>
+          Interactive&nbsp;Web <span className={styles.bull}>&bull;</span>{" "}
+          <span className={"nobr"}>Front-end Developer</span>
+        </h5>
       </div>
     </header>
   );
