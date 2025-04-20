@@ -33,6 +33,7 @@ const hashPassword = async (password: string) => {
     if (isLocalNetwork) {
       // An error throws when testing in Safari for iOS over local network.
       // Use CryptoJS.SHA256 for testing, but beware that it bloats the bundle size.
+      // DO NOT INCLUDE IN PRODUCTION.
       console.warn("crypto.subtle is not available. Using fallback.");
       return CryptoJS.SHA256(password).toString(CryptoJS.enc.Hex);
     }
