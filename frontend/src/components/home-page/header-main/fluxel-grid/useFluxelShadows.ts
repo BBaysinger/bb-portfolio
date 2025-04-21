@@ -31,8 +31,6 @@ export function useFluxelShadows({
   gridRef: React.RefObject<HTMLDivElement | null>;
   fluxelSize: number;
   setGrid: React.Dispatch<React.SetStateAction<FluxelData[][]>>;
-  viewableWidth: number;
-  viewableHeight: number;
   externalMousePos?: { x: number; y: number } | null;
 }) {
   const animationFrameId = useRef<number | null>(null);
@@ -40,9 +38,14 @@ export function useFluxelShadows({
   useEffect(() => {
     if (!gridRef.current || !fluxelSize) return;
 
+    // const pos = externalMousePos ? externalMousePos : { x: -100000, y: -100000 };
     const pos = externalMousePos
       ? globalToLocal(gridRef.current, externalMousePos.x, externalMousePos.y)
       : { x: -100000, y: -100000 };
+
+    pos.x = externalMousePos?.x ?? -100000;
+
+    console.log(externalMousePos?.x);
 
     if (animationFrameId.current)
       cancelAnimationFrame(animationFrameId.current);

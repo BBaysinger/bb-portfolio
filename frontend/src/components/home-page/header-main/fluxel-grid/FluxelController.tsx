@@ -84,8 +84,6 @@ const FluxelController = forwardRef<FluxelControllerHandle, Props>(
       fluxelSize: viewableWidth / cols,
       setGrid,
       externalMousePos: combinedMousePos,
-      viewableWidth,
-      viewableHeight,
     });
 
     const launchProjectile = useFluxelProjectiles({ grid, setGrid });

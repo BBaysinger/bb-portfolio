@@ -62,12 +62,13 @@ const Hero: React.FC = () => {
         e.type === "touchmove" &&
         gridWrapperRef.current?.firstElementChild instanceof HTMLElement
       ) {
-        const bounds =
-          gridWrapperRef.current.firstElementChild.getBoundingClientRect();
-        if (!bounds) return;
+        // const bounds =
+        //   gridWrapperRef.current.firstElementChild.getBoundingClientRect();
+        // if (!bounds) return;
+        // console.log(x, y);
         setSlingerPos({
-          x: x - bounds.x,
-          y: y - bounds.y,
+          x: x,
+          y: y,
         });
       }
     },

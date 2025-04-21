@@ -53,6 +53,7 @@ const FluxelGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
     useEffect(() => {
       const updateSize = () => {
         if (containerRef.current) {
+          // TODO: This is wrong!!!
           setFluxelSize(containerRef.current.clientWidth / cols);
         }
       };
