@@ -23,17 +23,18 @@ export interface FluxelGridHandle {
 
 interface FluxelGridProps {
   grid: FluxelData[][];
-  /**
-   * Optional external ref to the grid's DOM element.
-   * Could be a RefObject or a callback ref.
-   */
   gridRef?: React.Ref<HTMLDivElement>;
   viewableHeight: number;
   viewableWidth: number;
+  onGridChange?: (info: {
+    rows: number;
+    cols: number;
+    fluxelSize: number;
+  }) => void;
 }
 
 const FluxelGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
-  ({ grid, gridRef, viewableHeight, viewableWidth }, ref) => {
+  ({ grid, gridRef, viewableHeight, viewableWidth, onGridChange }, ref) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const [fluxelSize, setFluxelSize] = useState(0);
 
@@ -52,11 +53,21 @@ const FluxelGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
     // 2) Recompute fluxelSize on mount + resize
     useEffect(() => {
       const updateSize = () => {
-        if (containerRef.current) {
-          // TODO: This is wrong!!!
-          setFluxelSize(containerRef.current.clientWidth / cols);
+        if (!containerRef.current) return;
+        const { width } = containerRef.current.getBoundingClientRect();
+        const newFluxelSize = width / cols;
+        setFluxelSize(newFluxelSize);
+
+        // Notify parent if callback provided
+        if (typeof onGridChange === "function") {
+          onGridChange({
+            rows,
+            cols,
+            fluxelSize: newFluxelSize,
+          });
         }
       };
+
       updateSize();
       window.addEventListener("resize", updateSize);
       window.addEventListener("orientationchange", updateSize);
@@ -64,7 +75,7 @@ const FluxelGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
         window.removeEventListener("resize", updateSize);
         window.removeEventListener("orientationchange", updateSize);
       };
-    }, [cols]);
+    }, [cols, rows]);
 
     // 3) Compute which rows/cols are visible (using containerRef)
     let viewableRows = rows,
