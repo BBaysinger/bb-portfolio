@@ -71,6 +71,7 @@ const FluxelController = forwardRef<FluxelControllerHandle, Props>(
     const [mousePos, setMousePos] = useState<{ x: number; y: number } | null>(
       null,
     );
+    const [fluxelSize, setFluxelSize] = useState(0);
 
     const gridRef = useRef<HTMLDivElement>(null);
 
@@ -81,7 +82,7 @@ const FluxelController = forwardRef<FluxelControllerHandle, Props>(
 
     useFluxelShadows({
       gridRef,
-      fluxelSize: viewableWidth / cols,
+      fluxelSize: fluxelSize,
       setGrid,
       externalMousePos: combinedMousePos,
     });
@@ -130,6 +131,10 @@ const FluxelController = forwardRef<FluxelControllerHandle, Props>(
       // eslint‑disable‑next‑line react‑hooks/exhaustive‑deps
     }, [viewableWidth, viewableHeight, mouseMoveTargetRef?.current]);
 
+    const onGridChange = ({ fluxelSize }: { fluxelSize: number }) => {
+      setFluxelSize(fluxelSize);
+    };
+
     /* ------------------------------------------------------------------ */
     /*  Render                                                            */
     /* ------------------------------------------------------------------ */
@@ -139,6 +144,7 @@ const FluxelController = forwardRef<FluxelControllerHandle, Props>(
         gridRef={gridRef}
         viewableWidth={viewableWidth}
         viewableHeight={viewableHeight}
+        onGridChange={onGridChange}
       />
     );
   },
