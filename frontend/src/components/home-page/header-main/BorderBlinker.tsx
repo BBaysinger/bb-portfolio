@@ -2,10 +2,9 @@ import React, { useEffect, useRef, useState } from "react";
 import styles from "./BorderBlinker.module.scss";
 
 export type Side = "top" | "right" | "bottom" | "left";
-export type SideNull = Side | null;
 
 interface BorderBlinkerProps {
-  highlightSide: SideNull;
+  highlightSide: Side | null;
 }
 
 /**
