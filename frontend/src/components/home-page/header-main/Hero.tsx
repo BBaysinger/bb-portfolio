@@ -10,6 +10,7 @@ import Slinger from "./Slinger";
 import ParagraphAnimator from "./ParagraphAnimator";
 import useScrollPersistedClass from "hooks/useScrollPersistedClass";
 import BorderBlinker, { SideNull } from "./BorderBlinker";
+import { Direction } from "./fluxel-grid/FluxelController";
 import styles from "./Hero.module.scss";
 
 /**
@@ -79,7 +80,27 @@ const Hero: React.FC = () => {
     (wall: "left" | "right" | "top" | "bottom", _x: number, _y: number) => {
       if (!slingerIsIdle.current) {
         setHighlightSide(wall);
-        fluxelControllerRef.current?.launchProjectile(3, 3, "down"); // 🚀
+
+        let direction: Direction;
+
+        switch (wall) {
+          case "left":
+            direction = "right";
+            break;
+          case "right":
+            direction = "left";
+            break;
+          case "top":
+            direction = "down";
+            break;
+          case "bottom":
+            direction = "up";
+            break;
+        }
+
+        console.log(_x, _y);
+
+        fluxelControllerRef.current?.launchProjectile(_x, _y, direction); // 🚀
       }
     },
     [],
