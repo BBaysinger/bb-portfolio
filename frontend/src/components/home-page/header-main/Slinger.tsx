@@ -1,5 +1,6 @@
 import React, { useRef, useState, useEffect, useCallback } from "react";
 
+import { SideNull, Side } from "./BorderBlinker";
 import styles from "./Slinger.module.scss";
 
 type FloatingObject = {
@@ -14,11 +15,7 @@ type FloatingObject = {
 type SlingerProps = {
   onDrag?: (x: number, y: number, e: MouseEvent | TouchEvent) => void;
   onDragEnd?: (x: number, y: number, e: MouseEvent | TouchEvent) => void;
-  onWallCollision?: (
-    wall: "left" | "right" | "top" | "bottom",
-    x: number,
-    y: number,
-  ) => void;
+  onWallCollision?: (wall: Side, x: number, y: number) => void;
   onIdle?: () => void;
 };
 
@@ -63,7 +60,7 @@ const Slinger: React.FC<SlingerProps> = ({
       if (obj.isDragging) return;
 
       let { x, y, vx, vy } = obj;
-      let collidedWall: null | "left" | "right" | "top" | "bottom" = null;
+      let collidedWall: SideNull = null;
 
       x += vx;
       y += vy;
@@ -103,9 +100,16 @@ const Slinger: React.FC<SlingerProps> = ({
       obj.vy = vy;
 
       // Trigger collision callback if one occurred
-      if (collidedWall && typeof onWallCollision === "function") {
+      if (
+        typeof collidedWall !== "undefined" &&
+        typeof onWallCollision === "function"
+      ) {
         const centerX = x + ballSize / 2;
         const centerY = y + ballSize / 2;
+        if (!collidedWall) {
+          console.error("Invalid collidedWall:", collidedWall);
+          return;
+        }
         onWallCollision(collidedWall, centerX, centerY);
       }
 

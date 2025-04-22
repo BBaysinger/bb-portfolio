@@ -7,13 +7,11 @@ import {
 } from "react";
 import FluxelGrid from "./FluxelGrid";
 import { useFluxelShadows } from "./useFluxelShadows";
-import useFluxelProjectiles from "./useFluxelProjectiles";
+import useFluxelProjectiles, { DirectionNull } from "./useFluxelProjectiles";
 import type { FluxelData } from "./Fluxel";
 
-export type Direction = "up" | "down" | "left" | "right";
-
 export interface FluxelControllerHandle {
-  launchProjectile: (x: number, y: number, direction: Direction) => void;
+  launchProjectile: (x: number, y: number, direction: DirectionNull) => void;
 }
 
 interface Props {

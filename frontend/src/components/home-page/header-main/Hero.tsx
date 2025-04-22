@@ -10,7 +10,7 @@ import Slinger from "./Slinger";
 import ParagraphAnimator from "./ParagraphAnimator";
 import useScrollPersistedClass from "hooks/useScrollPersistedClass";
 import BorderBlinker, { SideNull } from "./BorderBlinker";
-import { Direction } from "./fluxel-grid/FluxelController";
+import { DirectionNull } from "./fluxel-grid/useFluxelProjectiles";
 import styles from "./Hero.module.scss";
 
 /**
@@ -77,11 +77,12 @@ const Hero: React.FC = () => {
   );
 
   const onSlingerWallCollision = useCallback(
-    (wall: "left" | "right" | "top" | "bottom", _x: number, _y: number) => {
+    (wall: SideNull, _x: number, _y: number) => {
+      console.log("onSlingerWallCollision", wall, _x, _y);
       if (!slingerIsIdle.current) {
         setHighlightSide(wall);
 
-        let direction: Direction;
+        let direction: DirectionNull = null;
 
         switch (wall) {
           case "left":

@@ -1,7 +1,8 @@
 import React, { useEffect, useRef } from "react";
 import { FluxelData } from "./Fluxel";
 
-type Direction = "up" | "down" | "left" | "right";
+export type Direction = "up" | "down" | "left" | "right";
+export type DirectionNull = Direction | null;
 
 interface Projectile {
   id: string;
@@ -13,7 +14,7 @@ interface Projectile {
 type LaunchFn = (
   startRow: number,
   startCol: number,
-  direction: Direction,
+  direction: DirectionNull,
 ) => void;
 
 export function useFluxelProjectiles({
@@ -98,6 +99,10 @@ export function useFluxelProjectiles({
 
   const launchProjectile: LaunchFn = (startRow, startCol, direction) => {
     const id = crypto.randomUUID();
+    if (!direction) {
+      console.error("Invalid direction:", direction);
+      return;
+    }
     projectiles.current.push({ id, row: startRow, col: startCol, direction });
     startInterval();
   };
