@@ -100,17 +100,32 @@ const Slinger: React.FC<SlingerProps> = ({
       obj.vy = vy;
 
       // Trigger collision callback if one occurred
-      if (
-        typeof collidedWall !== "undefined" &&
-        typeof onWallCollision === "function"
-      ) {
-        const centerX = x + ballSize / 2;
-        const centerY = y + ballSize / 2;
-        if (!collidedWall) {
-          console.error("Invalid collidedWall:", collidedWall);
-          return;
+      if (collidedWall && typeof onWallCollision === "function") {
+        const roundX = Math.round(x);
+        const roundY = Math.round(y);
+        let collisionX = roundX;
+        let collisionY = roundY;
+
+        switch (collidedWall) {
+          case "left":
+            collisionX = 0;
+            collisionY = roundY + ballSize / 2;
+            break;
+          case "right":
+            collisionX = bounds.width;
+            collisionY = roundY + ballSize / 2;
+            break;
+          case "top":
+            collisionX = roundX + ballSize / 2;
+            collisionY = 0;
+            break;
+          case "bottom":
+            collisionX = roundX + ballSize / 2;
+            collisionY = bounds.height;
+            break;
         }
-        onWallCollision(collidedWall, centerX, centerY);
+
+        onWallCollision(collidedWall, collisionX, collisionY);
       }
 
       // IDLE CHECK
