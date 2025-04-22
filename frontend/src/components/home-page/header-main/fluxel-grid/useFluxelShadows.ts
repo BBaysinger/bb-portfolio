@@ -22,6 +22,12 @@ function getShadowInfluence(
   return baseDistance < fluxelSize * 4 ? influence : 0;
 }
 
+/**
+ * Creates the magnetic repulsion trailer effect on the fluxels.
+ *
+ * @param param0
+ *
+ */
 export function useFluxelShadows({
   gridRef,
   fluxelSize,
@@ -38,14 +44,9 @@ export function useFluxelShadows({
   useEffect(() => {
     if (!gridRef.current || !fluxelSize) return;
 
-    // const pos = externalMousePos ? externalMousePos : { x: -100000, y: -100000 };
     const pos = externalMousePos
       ? globalToLocal(gridRef.current, externalMousePos.x, externalMousePos.y)
       : { x: -100000, y: -100000 };
-
-    pos.x = externalMousePos?.x ?? -100000;
-
-    console.log(externalMousePos?.x);
 
     if (animationFrameId.current)
       cancelAnimationFrame(animationFrameId.current);

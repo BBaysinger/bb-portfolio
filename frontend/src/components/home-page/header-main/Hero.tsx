@@ -26,9 +26,7 @@ const Hero: React.FC = () => {
   const [highlightSide, setHighlightSide] = useState<SideNull>(null);
   const slingerIsIdle = useRef(false);
   const fluxelControllerRef = useRef<FluxelControllerHandle>(null);
-
   const heroRef = useRef<HTMLDivElement>(null);
-
   const gridWrapperRef = useRef<HTMLDivElement>(null);
 
   const initialRows = 12;
@@ -62,14 +60,7 @@ const Hero: React.FC = () => {
         e.type === "touchmove" &&
         gridWrapperRef.current?.firstElementChild instanceof HTMLElement
       ) {
-        // const bounds =
-        //   gridWrapperRef.current.firstElementChild.getBoundingClientRect();
-        // if (!bounds) return;
-        // console.log(x, y);
-        setSlingerPos({
-          x: x,
-          y: y,
-        });
+        setSlingerPos({ x: x, y: y });
       }
     },
     [hasDragged, setHasDragged],
