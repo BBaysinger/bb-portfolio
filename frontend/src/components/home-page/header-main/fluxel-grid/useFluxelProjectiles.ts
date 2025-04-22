@@ -2,7 +2,6 @@ import React, { useEffect, useRef } from "react";
 import { FluxelData } from "./Fluxel";
 
 export type Direction = "up" | "down" | "left" | "right";
-export type DirectionNull = Direction | null;
 
 interface Projectile {
   id: string;
@@ -14,7 +13,7 @@ interface Projectile {
 type LaunchFn = (
   startRow: number,
   startCol: number,
-  direction: DirectionNull,
+  direction: Direction | null,
 ) => void;
 
 export function useFluxelProjectiles({

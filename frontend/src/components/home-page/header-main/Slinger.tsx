@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect, useCallback } from "react";
 
-import { SideNull, Side } from "./BorderBlinker";
+import { Side } from "./BorderBlinker";
 import styles from "./Slinger.module.scss";
 
 type FloatingObject = {
@@ -60,7 +60,7 @@ const Slinger: React.FC<SlingerProps> = ({
       if (obj.isDragging) return;
 
       let { x, y, vx, vy } = obj;
-      let collidedWall: SideNull = null;
+      let collidedWall: Side | null = null;
 
       x += vx;
       y += vy;
