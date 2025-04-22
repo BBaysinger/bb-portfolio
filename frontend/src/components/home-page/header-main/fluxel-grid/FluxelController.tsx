@@ -13,7 +13,7 @@ import type { FluxelData } from "./Fluxel";
 export type Direction = "up" | "down" | "left" | "right";
 
 export interface FluxelControllerHandle {
-  launchProjectile: (row: number, col: number, direction: Direction) => void;
+  launchProjectile: (x: number, y: number, direction: Direction) => void;
 }
 
 interface Props {

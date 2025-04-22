@@ -22,14 +22,6 @@
   }
 }
 
-.debug {
-  position: absolute;
-  color: white;
-  font-size: 20px;
-  top: 300px;
-  left: 300px;
-}
-
 .inactivePlaceholder {
   visibility: hidden;
   color: white;
@@ -45,4 +37,12 @@
   opacity: 0.3;
   image-rendering: pixelated;
   background-size: cover;
+}
+
+.debug {
+  position: absolute;
+  color: white;
+  font-size: 20px;
+  top: 300px;
+  left: 300px;
 }
