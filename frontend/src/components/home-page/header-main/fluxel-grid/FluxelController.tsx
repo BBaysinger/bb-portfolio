@@ -75,15 +75,13 @@ const FluxelController = forwardRef<FluxelControllerHandle, Props>(
     );
     const [fluxelSize, setFluxelSize] = useState(0);
 
-    const gridRef = useRef<HTMLDivElement>(null);
-
     /* ------------------------------------------------------------------ */
     /*  Shadow & projectile helpers                                       */
     /* ------------------------------------------------------------------ */
     const combinedMousePos = externalMousePos ?? mousePos;
 
     useFluxelShadows({
-      gridRef,
+      gridRef: gridInstanceRef,
       fluxelSize: fluxelSize,
       setGridData,
       externalMousePos: combinedMousePos,
@@ -115,7 +113,8 @@ const FluxelController = forwardRef<FluxelControllerHandle, Props>(
       const target: EventTarget = mouseMoveTargetRef?.current ?? window;
 
       const handleMove = (event: PointerEvent) => {
-        if (!gridRef.current) return;
+        const gridEl = gridInstanceRef.current?.getElement();
+        if (!gridEl) return;
 
         const now = performance.now();
         if (now - lastFrameTime.current < FRAME_TIME) return;
