@@ -28,12 +28,10 @@ function getShadowInfluence(
  */
 export function useFluxelShadows({
   gridRef,
-  fluxelSize,
   setGridData,
   externalMousePos,
 }: {
   gridRef: React.RefObject<FluxelGridHandle | null>;
-  fluxelSize: number;
   setGridData: React.Dispatch<React.SetStateAction<FluxelData[][]>>;
   externalMousePos?: { x: number; y: number } | null;
 }) {
@@ -41,7 +39,7 @@ export function useFluxelShadows({
 
   useEffect(() => {
     const gridEl = gridRef.current?.getElement();
-
+    const fluxelSize = gridRef.current?.getFluxelSize();
     if (!gridEl || !fluxelSize) return;
 
     const pos = externalMousePos
@@ -112,5 +110,5 @@ export function useFluxelShadows({
       if (animationFrameId.current)
         cancelAnimationFrame(animationFrameId.current);
     };
-  }, [externalMousePos, fluxelSize, gridRef]);
+  }, [externalMousePos, gridRef]);
 }
