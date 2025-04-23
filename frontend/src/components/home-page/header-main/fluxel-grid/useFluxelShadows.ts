@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
-import { FluxelData } from "./Fluxel";
 
+import { FluxelData } from "./Fluxel";
+import type { FluxelGridHandle } from "./FluxelGrid";
 import { globalToLocal } from "utils/globalToLocal";
 
 const smoothStep = (edge0: number, edge1: number, x: number) => {
@@ -24,9 +25,6 @@ function getShadowInfluence(
 
 /**
  * Creates the magnetic repulsion trailer effect on the fluxels.
- *
- * @param param0
- *
  */
 export function useFluxelShadows({
   gridRef,
@@ -34,7 +32,7 @@ export function useFluxelShadows({
   setGridData,
   externalMousePos,
 }: {
-  gridRef: React.RefObject<HTMLDivElement | null>;
+  gridRef: React.RefObject<FluxelGridHandle | null>;
   fluxelSize: number;
   setGridData: React.Dispatch<React.SetStateAction<FluxelData[][]>>;
   externalMousePos?: { x: number; y: number } | null;
@@ -42,10 +40,12 @@ export function useFluxelShadows({
   const animationFrameId = useRef<number | null>(null);
 
   useEffect(() => {
-    if (!gridRef.current || !fluxelSize) return;
+    const gridEl = gridRef.current?.getElement();
+
+    if (!gridEl || !fluxelSize) return;
 
     const pos = externalMousePos
-      ? globalToLocal(gridRef.current, externalMousePos.x, externalMousePos.y)
+      ? globalToLocal(gridEl, externalMousePos.x, externalMousePos.y)
       : { x: -100000, y: -100000 };
 
     if (animationFrameId.current)
@@ -112,5 +112,5 @@ export function useFluxelShadows({
       if (animationFrameId.current)
         cancelAnimationFrame(animationFrameId.current);
     };
-  }, [externalMousePos, fluxelSize]);
+  }, [externalMousePos, fluxelSize, gridRef]);
 }
