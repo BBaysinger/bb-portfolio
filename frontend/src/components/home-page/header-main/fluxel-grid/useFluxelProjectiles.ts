@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { FluxelData } from "./Fluxel";
+import type { FluxelGridHandle } from "./FluxelGrid";
 
 export type Direction = "up" | "down" | "left" | "right";
 
@@ -13,28 +14,23 @@ interface Projectile {
 type LaunchFn = (x: number, y: number, direction: Direction) => void;
 
 export function useFluxelProjectiles({
-  gridData,
+  gridRef,
   setGridData,
   intervalMs = 50,
 }: {
-  gridData: FluxelData[][];
+  gridRef: React.RefObject<FluxelGridHandle | null>;
   setGridData: React.Dispatch<React.SetStateAction<FluxelData[][]>>;
   intervalMs?: number;
 }): LaunchFn {
   const projectiles = useRef<Projectile[]>([]);
   const intervalRef = useRef<number | null>(null);
-  const gridRef = useRef<FluxelData[][]>([]);
-
-  // Keep gridRef up to date
-  useEffect(() => {
-    gridRef.current = gridData;
-  }, [gridData]);
+  const lastKnownGrid = useRef<FluxelData[][]>([]); // store the grid for animation
 
   const startInterval = () => {
     if (intervalRef.current !== null) return; // already running
 
     intervalRef.current = window.setInterval(() => {
-      const prevGrid = gridRef.current;
+      const prevGrid = lastKnownGrid.current;
       if (
         projectiles.current.length === 0 ||
         prevGrid.length === 0 ||
@@ -88,19 +84,22 @@ export function useFluxelProjectiles({
       }
 
       projectiles.current = newProjectiles;
+      lastKnownGrid.current = updatedGrid;
       setGridData(updatedGrid);
     }, intervalMs);
   };
 
   const launchProjectile: LaunchFn = (x, y, direction) => {
-    console.log("Launching projectile:", x, y, direction);
-    // const id = crypto.randomUUID();
-    if (!direction) {
-      console.error("Invalid direction:", direction);
+    const fluxel = gridRef.current?.getFluxelAt(x, y);
+    if (!fluxel) {
+      console.warn("No fluxel found at", x, y);
       return;
     }
 
-    // projectiles.current.push({ id, row: startRow, col: startCol, direction });
+    const { row, col } = fluxel;
+    const id = crypto.randomUUID();
+    projectiles.current.push({ id, row, col, direction });
+
     startInterval();
   };
 

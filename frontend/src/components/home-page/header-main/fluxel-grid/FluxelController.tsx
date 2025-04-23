@@ -8,6 +8,8 @@ import {
 import FluxelGrid from "./FluxelGrid";
 import { useFluxelShadows } from "./useFluxelShadows";
 import useFluxelProjectiles, { Direction } from "./useFluxelProjectiles";
+import type { FluxelGridHandle } from "./FluxelGrid"; // make sure to import this
+
 import type { FluxelData } from "./Fluxel";
 
 export interface FluxelControllerHandle {
@@ -46,6 +48,8 @@ const FluxelController = forwardRef<FluxelControllerHandle, Props>(
     },
     ref,
   ) => {
+    const gridInstanceRef = useRef<FluxelGridHandle>(null);
+
     /* ------------------------------------------------------------------ */
     /*  Grid state                                                        */
     /* ------------------------------------------------------------------ */
@@ -85,7 +89,10 @@ const FluxelController = forwardRef<FluxelControllerHandle, Props>(
       externalMousePos: combinedMousePos,
     });
 
-    const launchProjectile = useFluxelProjectiles({ gridData, setGridData });
+    const launchProjectile = useFluxelProjectiles({
+      gridRef: gridInstanceRef,
+      setGridData,
+    });
 
     useImperativeHandle(ref, () => ({ launchProjectile }), [launchProjectile]);
 
@@ -138,8 +145,8 @@ const FluxelController = forwardRef<FluxelControllerHandle, Props>(
     /* ------------------------------------------------------------------ */
     return (
       <FluxelGrid
-        grid={gridData}
-        gridRef={gridRef}
+        ref={gridInstanceRef}
+        gridData={gridData}
         viewableWidth={viewableWidth}
         viewableHeight={viewableHeight}
         onGridChange={onGridChange}

@@ -19,10 +19,11 @@ import styles from "./FluxelGrid.module.scss";
  */
 export interface FluxelGridHandle {
   getFluxelAt: (x: number, y: number) => FluxelData | null;
+  getElement: () => HTMLDivElement | null; // 🔥 add this
 }
 
 interface FluxelGridProps {
-  grid: FluxelData[][];
+  gridData: FluxelData[][];
   gridRef?: React.Ref<HTMLDivElement>;
   viewableHeight: number;
   viewableWidth: number;
@@ -34,12 +35,12 @@ interface FluxelGridProps {
 }
 
 const FluxelGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
-  ({ grid, gridRef, viewableHeight, viewableWidth, onGridChange }, ref) => {
+  ({ gridData, gridRef, viewableHeight, viewableWidth, onGridChange }, ref) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const [fluxelSize, setFluxelSize] = useState(0);
 
-    const rows = grid.length;
-    const cols = grid[0]?.length ?? 0;
+    const rows = gridData.length;
+    const cols = gridData[0]?.length ?? 0;
 
     // 1) Merge the two refs onto the same DOM node
     const handleRef = (el: HTMLDivElement | null) => {
@@ -104,10 +105,15 @@ const FluxelGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
           const { left, top } = el.getBoundingClientRect();
           const c = Math.floor((x - left) / fluxelSize);
           const r = Math.floor((y - top) / fluxelSize);
-          return r >= 0 && r < rows && c >= 0 && c < cols ? grid[r][c] : null;
+          return r >= 0 && r < rows && c >= 0 && c < cols
+            ? gridData[r][c]
+            : null;
+        },
+        getElement() {
+          return containerRef.current;
         },
       }),
-      [fluxelSize, grid],
+      [fluxelSize, gridData],
     );
 
     return (
@@ -117,7 +123,7 @@ const FluxelGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
         style={{ "--cols": cols } as React.CSSProperties}
       >
         <PixelAnim className={styles.fluxelGridBackground} />
-        {grid.flat().map((data) => {
+        {gridData.flat().map((data) => {
           const isVisible =
             data.col >= colOverlap &&
             data.col < cols - colOverlap &&
