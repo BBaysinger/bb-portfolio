@@ -31,12 +31,12 @@ function getShadowInfluence(
 export function useFluxelShadows({
   gridRef,
   fluxelSize,
-  setGrid,
+  setGridData,
   externalMousePos,
 }: {
   gridRef: React.RefObject<HTMLDivElement | null>;
   fluxelSize: number;
-  setGrid: React.Dispatch<React.SetStateAction<FluxelData[][]>>;
+  setGridData: React.Dispatch<React.SetStateAction<FluxelData[][]>>;
   externalMousePos?: { x: number; y: number } | null;
 }) {
   const animationFrameId = useRef<number | null>(null);
@@ -52,7 +52,7 @@ export function useFluxelShadows({
       cancelAnimationFrame(animationFrameId.current);
 
     animationFrameId.current = requestAnimationFrame(() => {
-      setGrid((prevGrid) => {
+      setGridData((prevGrid) => {
         let hasChanged = false;
 
         const updatedGrid = prevGrid.map((row) =>

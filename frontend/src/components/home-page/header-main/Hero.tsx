@@ -78,7 +78,6 @@ const Hero: React.FC = () => {
 
   const onSlingerWallCollision = useCallback(
     (wall: Side, _x: number, _y: number) => {
-      console.log("onSlingerWallCollision", wall, _x, _y);
       if (!slingerIsIdle.current) {
         setHighlightSide(wall);
 
@@ -98,8 +97,6 @@ const Hero: React.FC = () => {
             direction = "up";
             break;
         }
-
-        console.log(_x, _y);
 
         fluxelControllerRef.current?.launchProjectile(_x, _y, direction); // 🚀
       }
