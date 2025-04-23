@@ -10,19 +10,15 @@ interface Projectile {
   direction: Direction;
 }
 
-type LaunchFn = (
-  startRow: number,
-  startCol: number,
-  direction: Direction | null,
-) => void;
+type LaunchFn = (x: number, y: number, direction: Direction) => void;
 
 export function useFluxelProjectiles({
-  grid,
-  setGrid,
+  gridData,
+  setGridData,
   intervalMs = 50,
 }: {
-  grid: FluxelData[][];
-  setGrid: React.Dispatch<React.SetStateAction<FluxelData[][]>>;
+  gridData: FluxelData[][];
+  setGridData: React.Dispatch<React.SetStateAction<FluxelData[][]>>;
   intervalMs?: number;
 }): LaunchFn {
   const projectiles = useRef<Projectile[]>([]);
@@ -31,8 +27,8 @@ export function useFluxelProjectiles({
 
   // Keep gridRef up to date
   useEffect(() => {
-    gridRef.current = grid;
-  }, [grid]);
+    gridRef.current = gridData;
+  }, [gridData]);
 
   const startInterval = () => {
     if (intervalRef.current !== null) return; // already running
@@ -92,17 +88,19 @@ export function useFluxelProjectiles({
       }
 
       projectiles.current = newProjectiles;
-      setGrid(updatedGrid);
+      setGridData(updatedGrid);
     }, intervalMs);
   };
 
-  const launchProjectile: LaunchFn = (startRow, startCol, direction) => {
-    const id = crypto.randomUUID();
+  const launchProjectile: LaunchFn = (x, y, direction) => {
+    console.log("Launching projectile:", x, y, direction);
+    // const id = crypto.randomUUID();
     if (!direction) {
       console.error("Invalid direction:", direction);
       return;
     }
-    projectiles.current.push({ id, row: startRow, col: startCol, direction });
+
+    // projectiles.current.push({ id, row: startRow, col: startCol, direction });
     startInterval();
   };
 
