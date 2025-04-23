@@ -19,7 +19,8 @@ import styles from "./FluxelGrid.module.scss";
  */
 export interface FluxelGridHandle {
   getFluxelAt: (x: number, y: number) => FluxelData | null;
-  getElement: () => HTMLDivElement | null; // 🔥 add this
+  getElement: () => HTMLDivElement | null;
+  getFluxelSize: () => number;
 }
 
 interface FluxelGridProps {
@@ -111,6 +112,9 @@ const FluxelGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
         },
         getElement() {
           return containerRef.current;
+        },
+        getFluxelSize() {
+          return fluxelSize;
         },
       }),
       [fluxelSize, gridData],
