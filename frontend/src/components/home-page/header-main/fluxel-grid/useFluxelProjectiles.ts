@@ -24,10 +24,10 @@ export function useFluxelProjectiles({
 }): LaunchFn {
   const projectiles = useRef<Projectile[]>([]);
   const intervalRef = useRef<number | null>(null);
-  const lastKnownGrid = useRef<FluxelData[][]>([]); // store the grid for animation
+  const lastKnownGrid = useRef<FluxelData[][]>([]);
 
   const startInterval = () => {
-    if (intervalRef.current !== null) return; // already running
+    if (intervalRef.current !== null) return;
 
     intervalRef.current = window.setInterval(() => {
       const prevGrid = lastKnownGrid.current;
