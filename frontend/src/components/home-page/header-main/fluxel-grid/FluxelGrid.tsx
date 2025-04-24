@@ -103,9 +103,25 @@ const FluxelGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
         getFluxelAt(x, y) {
           const el = containerRef.current;
           if (!el || fluxelSize === 0) return null;
-          const { left, top } = el.getBoundingClientRect();
-          const c = Math.floor((x - left) / fluxelSize);
-          const r = Math.floor((y - top) / fluxelSize);
+
+          const { left, top, width, height } = el.getBoundingClientRect();
+
+          const relativeX = x - left;
+          const relativeY = y - top;
+
+          const halfwayX = width / 2;
+          const halfwayY = height / 2;
+
+          const c =
+            relativeX < halfwayX
+              ? Math.ceil(relativeX / fluxelSize)
+              : Math.floor(relativeX / fluxelSize) - 1;
+
+          const r =
+            relativeY < halfwayY
+              ? Math.ceil(relativeY / fluxelSize)
+              : Math.floor(relativeY / fluxelSize) - 1;
+
           return r >= 0 && r < rows && c >= 0 && c < cols
             ? gridData[r][c]
             : null;
