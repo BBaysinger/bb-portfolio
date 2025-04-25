@@ -21,7 +21,7 @@ header.hero {
     top: 0;
     left: 0;
     width: 100vw;
-    height: 100vh;
+    height: 100%;
     opacity: 0.7;
     z-index: 0;
     box-sizing: border-box;
@@ -84,7 +84,7 @@ header.hero {
 .headerWrapper {
   position: fixed;
   width: 100vw;
-  height: 100vh;
+  height: 100%;
   background-color: #222;
   background-repeat: no-repeat;
   background-size: 100% 100%;
@@ -163,7 +163,7 @@ $bottom: 10px;
   position: absolute;
   z-index: 0;
   width: 100vw;
-  height: 100vh;
+  height: 100%;
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
