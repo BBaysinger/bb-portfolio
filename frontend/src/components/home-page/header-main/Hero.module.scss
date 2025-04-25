@@ -177,12 +177,6 @@ $bottom: 10px;
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    aspect-ratio: 4/3;
-    height: 100vmax;
-    @media (min-aspect-ratio: 4/3) {
-      height: auto;
-      width: 100vmax;
-    }
   }
 }
 

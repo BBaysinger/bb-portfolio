@@ -1,5 +1,7 @@
 import React, { useEffect, useRef } from "react";
+
 import { FluxelData } from "./Fluxel";
+import MiscUtils from "utils/MiscUtils";
 import type { FluxelGridHandle } from "./FluxelGrid";
 
 export type Direction = "up" | "down" | "left" | "right";
@@ -113,7 +115,7 @@ export function useFluxelProjectiles({
     }
 
     const { row, col } = fluxel;
-    const id = crypto.randomUUID();
+    const id = MiscUtils.safeUUID();
     projectiles.current.push({ id, row, col, direction });
 
     startInterval();
