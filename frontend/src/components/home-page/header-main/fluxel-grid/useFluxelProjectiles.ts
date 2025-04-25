@@ -24,14 +24,15 @@ export function useFluxelProjectiles({
 }): LaunchFn {
   const projectiles = useRef<Projectile[]>([]);
   const intervalRef = useRef<number | null>(null);
-  const lastKnownGrid = useRef<FluxelData[][]>([]);
 
   const startInterval = () => {
     if (intervalRef.current !== null) return;
 
     intervalRef.current = window.setInterval(() => {
-      const prevGrid = lastKnownGrid.current;
+      const prevGrid = gridRef.current?.getGridData();
+
       if (
+        !prevGrid ||
         projectiles.current.length === 0 ||
         prevGrid.length === 0 ||
         prevGrid[0].length === 0
@@ -75,16 +76,31 @@ export function useFluxelProjectiles({
           newCol < prevGrid[0].length;
 
         if (inBounds) {
+          let color: string;
+          switch (direction) {
+            case "up":
+              color = "yellow";
+              break;
+            case "down":
+              color = "#87ad26";
+              break;
+            case "left":
+              color = "#660099";
+              break;
+            case "right":
+              color = "orange";
+              break;
+          }
           updatedGrid[newRow][newCol] = {
             ...updatedGrid[newRow][newCol],
-            colorVariation: "rgba(255, 0, 0, 1)",
+            colorVariation: color,
           };
+
           newProjectiles.push({ id, row: newRow, col: newCol, direction });
         }
       }
 
       projectiles.current = newProjectiles;
-      lastKnownGrid.current = updatedGrid;
       setGridData(updatedGrid);
     }, intervalMs);
   };
@@ -103,7 +119,6 @@ export function useFluxelProjectiles({
     startInterval();
   };
 
-  // Cleanup on unmount
   useEffect(() => {
     return () => {
       if (intervalRef.current !== null) {
