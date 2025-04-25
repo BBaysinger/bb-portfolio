@@ -18,7 +18,7 @@ type LaunchFn = (x: number, y: number, direction: Direction) => void;
 export function useFluxelProjectiles({
   gridRef,
   setGridData,
-  intervalMs = 50,
+  intervalMs = 25,
 }: {
   gridRef: React.RefObject<FluxelGridHandle | null>;
   setGridData: React.Dispatch<React.SetStateAction<FluxelData[][]>>;
@@ -26,12 +26,25 @@ export function useFluxelProjectiles({
 }): LaunchFn {
   const projectiles = useRef<Projectile[]>([]);
   const intervalRef = useRef<number | null>(null);
+  // const isDev = process.env.NODE_ENV !== "production";
+  // const devGuard = useRef(0);
 
   const startInterval = () => {
-    if (intervalRef.current !== null) return;
+    if (intervalRef.current !== null) {
+      clearInterval(intervalRef.current); // kill any zombie interval
+      intervalRef.current = null;
+    }
 
     intervalRef.current = window.setInterval(() => {
-      // quick sanity‑check (cheap) before we touch state
+      // if (isDev) {
+      //   devGuard.current++;
+      //   console.log("[DEV] Interval tick", devGuard.current);
+      //   if (devGuard.current % 2 === 0) {
+      //     console.log("[DEV] Skipping duplicate setState");
+      //     return;
+      //   }
+      // }
+
       const snapshot = gridRef.current?.getGridData();
       if (
         !snapshot ||
@@ -44,23 +57,19 @@ export function useFluxelProjectiles({
         return;
       }
 
-      // ────────────────────────────────────────────────
-      // functional update so concurrent hooks don't overwrite each other
-      // ────────────────────────────────────────────────
       setGridData((prevGrid) => {
         if (
           projectiles.current.length === 0 ||
           prevGrid.length === 0 ||
           prevGrid[0].length === 0
-        )
+        ) {
           return prevGrid;
+        }
 
-        // 1️⃣ reset colors
         const nextGrid = prevGrid.map((row) =>
           row.map((fluxel) => ({ ...fluxel, colorVariation: "transparent" })),
         );
 
-        // 2️⃣ advance projectiles & color new cells
         const stillFlying: Projectile[] = [];
 
         for (const proj of projectiles.current) {
@@ -95,7 +104,7 @@ export function useFluxelProjectiles({
                   ? "#87ad26"
                   : direction === "left"
                     ? "#660099"
-                    : "orange"; // right
+                    : "orange";
 
             nextGrid[row][col] = {
               ...nextGrid[row][col],
@@ -115,12 +124,12 @@ export function useFluxelProjectiles({
   const launchProjectile: LaunchFn = (x, y, direction) => {
     const fluxel = gridRef.current?.getFluxelAt(x, y);
     if (!fluxel) {
-      console.warn("No fluxel found at", x, y);
       return;
     }
 
     const { row, col } = fluxel;
     const id = MiscUtils.safeUUID();
+
     projectiles.current.push({ id, row, col, direction });
 
     startInterval();
