@@ -21,6 +21,7 @@ export interface FluxelGridHandle {
   getFluxelAt: (x: number, y: number) => FluxelData | null;
   getElement: () => HTMLDivElement | null;
   getFluxelSize: () => number;
+  getGridData: () => FluxelData[][];
 }
 
 interface FluxelGridProps {
@@ -37,8 +38,10 @@ interface FluxelGridProps {
 
 const FluxelGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
   ({ gridData, gridRef, viewableHeight, viewableWidth, onGridChange }, ref) => {
-    const containerRef = useRef<HTMLDivElement>(null);
     const [fluxelSize, setFluxelSize] = useState(0);
+
+    const containerRef = useRef<HTMLDivElement>(null);
+    const gridDataRef = useRef<FluxelData[][]>([]);
 
     const rows = gridData.length;
     const cols = gridData[0]?.length ?? 0;
@@ -51,6 +54,10 @@ const FluxelGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
       else
         (gridRef as React.MutableRefObject<HTMLDivElement | null>).current = el;
     };
+
+    useEffect(() => {
+      gridDataRef.current = gridData;
+    }, [gridData]);
 
     // 2) Recompute fluxelSize on mount + resize
     useEffect(() => {
@@ -111,7 +118,7 @@ const FluxelGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
 
           const c = Math.min(Math.floor(relativeX / fluxelSize), cols - 1);
           const r = Math.min(Math.floor(relativeY / fluxelSize), rows - 1);
-          
+
           return gridData[r][c];
         },
         getElement() {
@@ -120,6 +127,7 @@ const FluxelGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
         getFluxelSize() {
           return fluxelSize;
         },
+        getGridData: () => gridDataRef.current,
       }),
       [fluxelSize, gridData],
     );
