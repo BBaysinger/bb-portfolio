@@ -31,79 +31,84 @@ export function useFluxelProjectiles({
     if (intervalRef.current !== null) return;
 
     intervalRef.current = window.setInterval(() => {
-      const prevGrid = gridRef.current?.getGridData();
-
+      // quick sanity‑check (cheap) before we touch state
+      const snapshot = gridRef.current?.getGridData();
       if (
-        !prevGrid ||
+        !snapshot ||
         projectiles.current.length === 0 ||
-        prevGrid.length === 0 ||
-        prevGrid[0].length === 0
+        snapshot.length === 0 ||
+        snapshot[0].length === 0
       ) {
         clearInterval(intervalRef.current!);
         intervalRef.current = null;
         return;
       }
 
-      const updatedGrid = prevGrid.map((row) =>
-        row.map((fluxel) => ({ ...fluxel, colorVariation: "transparent" })),
-      );
+      // ────────────────────────────────────────────────
+      // functional update so concurrent hooks don't overwrite each other
+      // ────────────────────────────────────────────────
+      setGridData((prevGrid) => {
+        if (
+          projectiles.current.length === 0 ||
+          prevGrid.length === 0 ||
+          prevGrid[0].length === 0
+        )
+          return prevGrid;
 
-      const newProjectiles: Projectile[] = [];
+        // 1️⃣ reset colors
+        const nextGrid = prevGrid.map((row) =>
+          row.map((fluxel) => ({ ...fluxel, colorVariation: "transparent" })),
+        );
 
-      for (const proj of projectiles.current) {
-        const { row, col, direction, id } = proj;
+        // 2️⃣ advance projectiles & color new cells
+        const stillFlying: Projectile[] = [];
 
-        let newRow = row;
-        let newCol = col;
+        for (const proj of projectiles.current) {
+          let { row, col, direction, id } = proj;
 
-        switch (direction) {
-          case "up":
-            newRow -= 1;
-            break;
-          case "down":
-            newRow += 1;
-            break;
-          case "left":
-            newCol -= 1;
-            break;
-          case "right":
-            newCol += 1;
-            break;
-        }
-
-        const inBounds =
-          newRow >= 0 &&
-          newRow < prevGrid.length &&
-          newCol >= 0 &&
-          newCol < prevGrid[0].length;
-
-        if (inBounds) {
-          let color: string;
           switch (direction) {
             case "up":
-              color = "yellow";
+              row -= 1;
               break;
             case "down":
-              color = "#87ad26";
+              row += 1;
               break;
             case "left":
-              color = "#660099";
+              col -= 1;
               break;
             case "right":
-              color = "orange";
+              col += 1;
               break;
           }
-          updatedGrid[newRow][newCol] = {
-            ...updatedGrid[newRow][newCol],
-            colorVariation: color,
-          };
 
-          newProjectiles.push({ id, row: newRow, col: newCol, direction });
+          const inBounds =
+            row >= 0 &&
+            row < nextGrid.length &&
+            col >= 0 &&
+            col < nextGrid[0].length;
+
+          if (inBounds) {
+            const color =
+              direction === "up"
+                ? "yellow"
+                : direction === "down"
+                  ? "#87ad26"
+                  : direction === "left"
+                    ? "#660099"
+                    : "orange"; // right
+
+            nextGrid[row][col] = {
+              ...nextGrid[row][col],
+              colorVariation: color,
+            };
+
+            stillFlying.push({ id, row, col, direction });
+          }
         }
-      }
 
-      projectiles.current = newProjectiles;
-      setGridData(updatedGrid);
+        projectiles.current = stillFlying;
+        return nextGrid;
+      });
     }, intervalMs);
   };
 
