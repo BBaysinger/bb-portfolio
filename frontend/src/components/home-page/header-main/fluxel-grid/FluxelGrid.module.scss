@@ -4,6 +4,8 @@
   justify-content: center; /* Center items within each row (horizontal centering) */
   align-content: center; /* Center the entire group of rows vertically */
   pointer-events: none;
+  box-sizing: border-box;
+  aspect-ratio: 4/3;
   * {
     pointer-events: none;
   }
