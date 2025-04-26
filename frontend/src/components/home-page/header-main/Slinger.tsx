@@ -49,7 +49,7 @@ const Slinger: React.FC<SlingerProps> = ({
 
   const lastActivityTimeRef = useRef<number>(performance.now());
   const hasBecomeIdleRef = useRef<boolean>(false);
-  const idleSpeedThreshold = 0.5;
+  const idleSpeedThreshold = 0.8;
 
   const objectsRef = useRef<FloatingObject[]>([
     { id: 1, x: 50, y: 50, vx: 1, vy: 1, isDragging: false },
