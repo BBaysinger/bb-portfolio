@@ -32,6 +32,8 @@ const FRAME_TIME = 1000 / 30;
 /**
  * FluxelController
  *
+ * Handles the grid and the effects we're applying to it.
+ *
  * @author Bradley Baysinger
  * @since The beginning of time.
  * @version N/A
