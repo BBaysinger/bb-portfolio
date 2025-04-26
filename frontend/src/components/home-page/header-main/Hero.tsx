@@ -24,7 +24,7 @@ const Hero: React.FC = () => {
   const id = "hero";
   const hasScrolledOut = useScrollPersistedClass(id);
 
-  const [highlightSide, setHighlightSide] = useState<Side | null>(null);
+  const [highlightSides, setHighlightSides] = useState<Side[]>([]);
   const slingerIsIdle = useRef(false);
   const fluxelControllerRef = useRef<FluxelControllerHandle>(null);
   const heroRef = useRef<HTMLDivElement>(null);
@@ -78,8 +78,9 @@ const Hero: React.FC = () => {
 
   const onSlingerWallCollision = useCallback(
     (wall: Side, _x: number, _y: number) => {
+      console.log("onSlingerWallCollision", wall, _x, _y);
       if (!slingerIsIdle.current) {
-        setHighlightSide(wall);
+        setHighlightSides((prev) => [...prev, wall]);
 
         let direction: Direction | null = null;
 
@@ -154,7 +155,7 @@ const Hero: React.FC = () => {
             mouseMoveTargetRef={heroRef}
           />
         </div>
-        <BorderBlinker highlightSide={highlightSide} />
+        <BorderBlinker highlightSides={highlightSides} />
         <div className={styles.slingerWrapper}>
           <Slinger
             onDrag={onSlingerDrag}
