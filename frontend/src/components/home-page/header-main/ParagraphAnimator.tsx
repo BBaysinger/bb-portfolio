@@ -16,7 +16,7 @@ const shuffleArray = (array: number[]) => {
 
 const ParagraphAnimator: React.FC<ParagraphAnimatorProps> = ({
   paragraphs,
-  interval = 25,
+  interval = 15,
   paragraphDelay = 20000,
   initialDelay = 8000,
   className,
