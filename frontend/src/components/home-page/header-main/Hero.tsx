@@ -78,7 +78,6 @@ const Hero: React.FC = () => {
 
   const onSlingerWallCollision = useCallback(
     (wall: Side, _x: number, _y: number) => {
-      console.log("onSlingerWallCollision", wall, _x, _y);
       if (!slingerIsIdle.current) {
         setHighlightSides((prev) => [...prev, wall]);
 
