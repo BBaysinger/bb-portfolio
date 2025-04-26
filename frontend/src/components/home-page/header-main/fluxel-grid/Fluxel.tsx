@@ -15,6 +15,9 @@ export interface FluxelData {
 /**
  * Fluxing Pixel
  *
+ * A square on the grid that can simulate depth and have color variations
+ * applied to it.
+ *
  * @author Bradley Baysinger
  * @since The beginning of time.
  * @version N/A

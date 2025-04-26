@@ -15,6 +15,15 @@ interface Projectile {
 
 type LaunchFn = (x: number, y: number, direction: Direction) => void;
 
+/**
+ * Animates squares (projectiles) moving in a given direction across the grid.
+ *
+ * They animate in double speed in dev mode due to strict mode. I tried to
+ * prevent that, but I'll need to come back to it later.
+ *
+ * @param param0
+ * @returns
+ */
 export function useFluxelProjectiles({
   gridRef,
   setGridData,
