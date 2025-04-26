@@ -20,8 +20,12 @@ type SlingerProps = {
 };
 
 /**
- * Slinger component - A draggable floating object with physics-based movement.
- * Implements a bouncing effect inside a container and tracks velocity upon release.
+ * Slinger component
+ *
+ * A draggable floating object with simple physics-based movement.
+ * Can be thrown and implements a bouncing effect inside a container.
+ * Tracks velocity and uses damping for realistic movement.
+ * Will eventually be gamified.
  *
  * @component
  * @param {SlingerProps} props - Component props containing optional drag event handlers.
@@ -34,7 +38,7 @@ const Slinger: React.FC<SlingerProps> = ({
 }) => {
   const ballSize = 50;
   const animationFrameRef = useRef<number | null>(null);
-  const triggerRender = useState(0)[1]; // Used to force re-render when necessary
+  const triggerRender = useState(0)[1];
   const containerRef = useRef<HTMLDivElement>(null);
   const dragStartPosition = useRef<{ x: number; y: number } | null>(null);
   const movementHistory = useRef<{ x: number; y: number; time: number }[]>([]);
@@ -50,7 +54,6 @@ const Slinger: React.FC<SlingerProps> = ({
     { id: 1, x: 50, y: 50, vx: 1, vy: 1, isDragging: false },
   ]);
 
-  /** Animate floating object */
   const animate = useCallback(() => {
     if (!containerRef.current) return;
 
@@ -60,30 +63,37 @@ const Slinger: React.FC<SlingerProps> = ({
       if (obj.isDragging) return;
 
       let { x, y, vx, vy } = obj;
-      let collidedWall: Side | null = null;
 
       x += vx;
       y += vy;
 
-      if (x < 0) {
+      // Wall collision and callback handling
+      if (x <= 0) {
         x = 0;
         vx = -vx * 0.8;
-        collidedWall = "left";
+        onWallCollision?.("left", 0, Math.round(y) + ballSize / 2);
       }
-      if (x > bounds.width - ballSize) {
+
+      if (x >= bounds.width - ballSize) {
         x = bounds.width - ballSize;
         vx = -vx * 0.8;
-        collidedWall = "right";
+        onWallCollision?.("right", bounds.width, Math.round(y) + ballSize / 2);
       }
-      if (y < 0) {
+
+      if (y <= 0) {
         y = 0;
         vy = -vy * 0.8;
-        collidedWall = "top";
+        onWallCollision?.("top", Math.round(x) + ballSize / 2, 0);
       }
-      if (y > bounds.height - ballSize) {
+
+      if (y >= bounds.height - ballSize) {
         y = bounds.height - ballSize;
         vy = -vy * 0.8;
-        collidedWall = "bottom";
+        onWallCollision?.(
+          "bottom",
+          Math.round(x) + ballSize / 2,
+          bounds.height,
+        );
       }
 
       // Apply damping
@@ -98,35 +108,6 @@ const Slinger: React.FC<SlingerProps> = ({
       obj.y = y;
       obj.vx = vx;
       obj.vy = vy;
-
-      // Trigger collision callback if one occurred
-      if (collidedWall && typeof onWallCollision === "function") {
-        const roundX = Math.round(x);
-        const roundY = Math.round(y);
-        let collisionX = roundX;
-        let collisionY = roundY;
-
-        switch (collidedWall) {
-          case "left":
-            collisionX = 0;
-            collisionY = roundY + ballSize / 2;
-            break;
-          case "right":
-            collisionX = bounds.width;
-            collisionY = roundY + ballSize / 2;
-            break;
-          case "top":
-            collisionX = roundX + ballSize / 2;
-            collisionY = 0;
-            break;
-          case "bottom":
-            collisionX = roundX + ballSize / 2;
-            collisionY = bounds.height;
-            break;
-        }
-
-        onWallCollision(collidedWall, collisionX, collisionY);
-      }
 
       // IDLE CHECK
       const speed = Math.sqrt(vx * vx + vy * vy);
@@ -243,7 +224,6 @@ const Slinger: React.FC<SlingerProps> = ({
       }
     }
 
-    // triggerRender((prev) => prev + 1); // Removed for performance
     e.preventDefault();
   };
 
