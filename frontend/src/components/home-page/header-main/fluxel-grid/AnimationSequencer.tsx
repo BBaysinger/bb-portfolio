@@ -1,6 +1,16 @@
-import React, { useEffect, useRef, useState } from "react";
-
+import {
+  useEffect,
+  useRef,
+  useState,
+  forwardRef,
+  useImperativeHandle,
+} from "react";
 import styles from "./AnimationSequencer.module.scss";
+
+export interface AnimationSequencerHandle {
+  fadeOut: () => void;
+  playImperativeAnimation: (index?: number) => void;
+}
 
 /**
  * Giant pixel animations using GIFs.
@@ -13,20 +23,26 @@ import styles from "./AnimationSequencer.module.scss";
  *
  * Uses JavaScript to handle background images dynamically,
  * including media query logic for orientation changes.
+ * the fluxel grid, and some effects will be interactive.
  *
  * @author Bradley Baysinger
  * @since The beginning of time.
  * @version N/A
  */
-const AnimationSequencer: React.FC<{ className: string }> = ({ className }) => {
+const AnimationSequencer = forwardRef<
+  AnimationSequencerHandle,
+  { className: string }
+>(({ className }, ref) => {
   const [backgroundImage, setBackgroundImage] = useState<string>("");
+  const [isFading, setIsFading] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const queueRef = useRef<number[]>([]);
   const delay = 12000;
   const initialDelay = 5000;
-  const ratio = 4 / 3.3;
+  const ratio = 40 / 33;
 
-  const sequence = [
+  // Separate pools
+  const inactivityAnimations = [
     {
       wide: "/images/fluxel-animations/interactive.gif",
       narrow: "/images/fluxel-animations/interactive.gif",
@@ -49,12 +65,28 @@ const AnimationSequencer: React.FC<{ className: string }> = ({ className }) => {
     },
   ];
 
+  const imperativeAnimations = [
+    {
+      wide: "/images/fluxel-animations/boom-wide.gif",
+      narrow: "/images/fluxel-animations/boom-narrow.gif",
+      delay: 6000,
+    },
+    {
+      wide: "/images/fluxel-animations/shockwave-wide.gif",
+      narrow: "/images/fluxel-animations/shockwave-narrow.gif",
+      delay: 8000,
+    },
+    // Add more imperative animations here
+  ];
+
   const shuffleArray = (array: number[]) =>
     array.sort(() => Math.random() - 0.5);
 
   const getNextIndex = () => {
     if (queueRef.current.length === 0) {
-      queueRef.current = shuffleArray([...Array(sequence.length).keys()]);
+      queueRef.current = shuffleArray([
+        ...Array(inactivityAnimations.length).keys(),
+      ]);
     }
     return queueRef.current.shift()!;
   };
@@ -64,15 +96,53 @@ const AnimationSequencer: React.FC<{ className: string }> = ({ className }) => {
     const nextIndex = getNextIndex();
 
     const imageUrl =
-      aspect < ratio ? sequence[nextIndex].narrow : sequence[nextIndex].wide;
+      aspect < ratio
+        ? inactivityAnimations[nextIndex].narrow
+        : inactivityAnimations[nextIndex].wide;
 
     setBackgroundImage(imageUrl);
 
     timeoutRef.current = setTimeout(
       updateBackground,
-      sequence[nextIndex].delay + delay,
+      inactivityAnimations[nextIndex].delay + delay,
     );
   };
+
+  const fadeOut = () => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+
+    setIsFading(true);
+
+    setTimeout(() => {
+      setBackgroundImage("");
+      setIsFading(false);
+    }, 1000); // Match this to your CSS fade-out timing
+  };
+
+  const playImperativeAnimation = (index = 0) => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+
+    const aspect = window.innerWidth / window.innerHeight;
+    const anim = imperativeAnimations[index % imperativeAnimations.length];
+
+    const imageUrl = aspect < ratio ? anim.narrow : anim.wide;
+    setBackgroundImage(imageUrl);
+
+    timeoutRef.current = setTimeout(() => {
+      fadeOut();
+    }, anim.delay);
+  };
+
+  useImperativeHandle(ref, () => ({
+    fadeOut,
+    playImperativeAnimation,
+  }));
 
   useEffect(() => {
     timeoutRef.current = setTimeout(updateBackground, initialDelay);
@@ -84,12 +154,12 @@ const AnimationSequencer: React.FC<{ className: string }> = ({ className }) => {
 
   return (
     <div
-      className={`${styles.animation} ${className}`}
+      className={`${styles.animation} ${className} ${isFading ? styles.fadeOut : ""}`}
       style={{
-        backgroundImage: `url(${backgroundImage})`,
+        backgroundImage: backgroundImage ? `url(${backgroundImage})` : "none",
       }}
     ></div>
   );
-};
+});
 
 export default AnimationSequencer;
