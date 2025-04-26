@@ -116,10 +116,16 @@ const FluxelGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
           const relativeX = x - left;
           const relativeY = y - top;
 
+          const currentGridData = gridDataRef.current;
+          const rows = currentGridData.length;
+          const cols = currentGridData[0]?.length ?? 0;
+
           const c = Math.min(Math.floor(relativeX / fluxelSize), cols - 1);
           const r = Math.min(Math.floor(relativeY / fluxelSize), rows - 1);
 
-          return gridData[r][c];
+          if (!currentGridData[r] || !currentGridData[r][c]) return null;
+
+          return currentGridData[r][c];
         },
         getElement() {
           return containerRef.current;
