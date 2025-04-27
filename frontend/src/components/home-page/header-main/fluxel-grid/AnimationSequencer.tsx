@@ -5,6 +5,7 @@ import {
   forwardRef,
   useImperativeHandle,
 } from "react";
+
 import styles from "./AnimationSequencer.module.scss";
 
 export interface AnimationSequencerHandle {
@@ -18,7 +19,7 @@ export interface AnimationSequencerHandle {
  * Using GIFs bc I'm having better luck than with WEBP.
  * FFMPEG is corrupting colors horribly.
  *
- * This will eventually be rebuilt in PixiJS, along with
+ * This may eventually be rebuilt in PixiJS, along with
  * the fluxel grid, and some of the effects will be interactive.
  *
  * Uses JavaScript to handle background images dynamically,
@@ -119,7 +120,7 @@ const AnimationSequencer = forwardRef<
     setTimeout(() => {
       setBackgroundImage("");
       setIsFading(false);
-    }, 1000); // Match this to your CSS fade-out timing
+    }, 1000); // Match this to CSS fade-out timing
   };
 
   const playImperativeAnimation = (index = 0) => {

@@ -7,11 +7,13 @@ import React, {
 } from "react";
 
 import Fluxel, { FluxelData } from "./Fluxel";
-import PixelAnim from "./AnimationSequencer";
 import styles from "./FluxelGrid.module.scss";
 
 /**
  * FluxelGrid
+ *
+ * This is a grid of fluxels (animated/fluxing pixels) that can be used to create
+ * effects and animations. Like 8-bit pixel art, but with mondo-sized pixels.
  *
  * @author Bradley Baysinger
  * @since The beginning of time.
@@ -103,7 +105,7 @@ const FluxelGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
       colOverlap = Math.floor((cols - viewableCols) / 2);
     }
 
-    // 4) Expose getFluxelAt on the forwarded ref
+    // 4) Expose imperative functions on the forwarded ref
     useImperativeHandle(
       ref,
       () => ({
@@ -144,7 +146,6 @@ const FluxelGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
         className={styles.fluxelGrid}
         style={{ "--cols": cols } as React.CSSProperties}
       >
-        <PixelAnim className={styles.fluxelGridBackground} />
         {gridData.flat().map((data) => {
           const isVisible =
             data.col >= colOverlap &&
