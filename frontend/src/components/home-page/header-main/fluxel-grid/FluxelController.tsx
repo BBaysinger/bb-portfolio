@@ -5,12 +5,14 @@ import {
   forwardRef,
   useEffect,
 } from "react";
+
 import FluxelGrid from "./FluxelGrid";
 import { useFluxelShadows } from "./useFluxelShadows";
 import useFluxelProjectiles, { Direction } from "./useFluxelProjectiles";
+import AnimationSequencer from "./AnimationSequencer";
 import type { FluxelGridHandle } from "./FluxelGrid"; // make sure to import this
-
 import type { FluxelData } from "./Fluxel";
+import styles from "./FluxelController.module.scss";
 
 export interface FluxelControllerHandle {
   launchProjectile: (x: number, y: number, direction: Direction) => void;
@@ -139,12 +141,16 @@ const FluxelController = forwardRef<FluxelControllerHandle, Props>(
     /*  Render                                                            */
     /* ------------------------------------------------------------------ */
     return (
-      <FluxelGrid
-        ref={gridInstanceRef}
-        gridData={gridData}
-        viewableWidth={viewableWidth}
-        viewableHeight={viewableHeight}
-      />
+      <>
+        <AnimationSequencer className={styles.fluxelGridBackground} />
+
+        <FluxelGrid
+          ref={gridInstanceRef}
+          gridData={gridData}
+          viewableWidth={viewableWidth}
+          viewableHeight={viewableHeight}
+        />
+      </>
     );
   },
 );
