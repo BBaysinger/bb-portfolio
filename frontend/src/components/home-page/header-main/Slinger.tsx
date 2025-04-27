@@ -55,88 +55,108 @@ const Slinger: React.FC<SlingerProps> = ({
     { id: 1, x: 50, y: 50, vx: 1, vy: 1, isDragging: false },
   ]);
 
-  const animate = useCallback(() => {
-    if (!containerRef.current) return;
+  const desiredFPS = 40;
+  const frameInterval = 1000 / desiredFPS; // e.g., 1000ms / 30fps ≈ 33.33ms
+  const lastFrameTime = useRef<number>(performance.now());
 
-    const bounds = containerRef.current.getBoundingClientRect();
+  const animate = useCallback(
+    (timestamp: number) => {
+      if (!containerRef.current) return;
 
-    objectsRef.current.forEach((obj) => {
-      if (obj.isDragging) return;
+      const bounds = containerRef.current.getBoundingClientRect();
 
-      let { x, y, vx, vy } = obj;
+      const elapsed = timestamp - lastFrameTime.current;
 
-      x += vx;
-      y += vy;
+      if (elapsed > frameInterval) {
+        lastFrameTime.current = timestamp - (elapsed % frameInterval);
 
-      // Wall collision and callback handling
-      if (x <= 0) {
-        x = 0;
-        vx = -vx * 0.8;
-        onWallCollision?.("left", 0, Math.round(y) + ballSize / 2);
-      }
+        objectsRef.current.forEach((obj) => {
+          if (obj.isDragging) return;
 
-      if (x >= bounds.width - ballSize) {
-        x = bounds.width - ballSize;
-        vx = -vx * 0.8;
-        onWallCollision?.("right", bounds.width, Math.round(y) + ballSize / 2);
-      }
+          let { x, y, vx, vy } = obj;
 
-      if (y <= 0) {
-        y = 0;
-        vy = -vy * 0.8;
-        onWallCollision?.("top", Math.round(x) + ballSize / 2, 0);
-      }
+          x += vx;
+          y += vy;
 
-      if (y >= bounds.height - ballSize) {
-        y = bounds.height - ballSize;
-        vy = -vy * 0.8;
-        onWallCollision?.(
-          "bottom",
-          Math.round(x) + ballSize / 2,
-          bounds.height,
-        );
-      }
+          // Wall collision and callback handling
+          if (x <= 0) {
+            x = 0;
+            vx = -vx * 0.8;
+            onWallCollision?.("left", 0, Math.round(y) + ballSize / 2);
+          }
 
-      // Apply damping
-      const dampingFactor = 0.98;
-      const minSpeed = 0.5;
-      vx =
-        Math.abs(vx) > minSpeed ? vx * dampingFactor : Math.sign(vx) * minSpeed;
-      vy =
-        Math.abs(vy) > minSpeed ? vy * dampingFactor : Math.sign(vy) * minSpeed;
+          if (x >= bounds.width - ballSize) {
+            x = bounds.width - ballSize;
+            vx = -vx * 0.8;
+            onWallCollision?.(
+              "right",
+              bounds.width,
+              Math.round(y) + ballSize / 2,
+            );
+          }
 
-      obj.x = x;
-      obj.y = y;
-      obj.vx = vx;
-      obj.vy = vy;
+          if (y <= 0) {
+            y = 0;
+            vy = -vy * 0.8;
+            onWallCollision?.("top", Math.round(x) + ballSize / 2, 0);
+          }
 
-      // IDLE CHECK
-      const speed = Math.sqrt(vx * vx + vy * vy);
-      const now = performance.now();
+          if (y >= bounds.height - ballSize) {
+            y = bounds.height - ballSize;
+            vy = -vy * 0.8;
+            onWallCollision?.(
+              "bottom",
+              Math.round(x) + ballSize / 2,
+              bounds.height,
+            );
+          }
 
-      if (speed < idleSpeedThreshold && !obj.isDragging) {
-        if (!hasBecomeIdleRef.current) {
-          hasBecomeIdleRef.current = true;
-          onIdle?.();
+          // Apply damping
+          const dampingFactor = 0.98;
+          const minSpeed = 0.5;
+          vx =
+            Math.abs(vx) > minSpeed
+              ? vx * dampingFactor
+              : Math.sign(vx) * minSpeed;
+          vy =
+            Math.abs(vy) > minSpeed
+              ? vy * dampingFactor
+              : Math.sign(vy) * minSpeed;
+
+          obj.x = x;
+          obj.y = y;
+          obj.vx = vx;
+          obj.vy = vy;
+
+          // IDLE CHECK
+          const speed = Math.sqrt(vx * vx + vy * vy);
+          const now = performance.now();
+
+          if (speed < idleSpeedThreshold && !obj.isDragging) {
+            if (!hasBecomeIdleRef.current) {
+              hasBecomeIdleRef.current = true;
+              onIdle?.();
+            }
+          } else {
+            lastActivityTimeRef.current = now;
+            hasBecomeIdleRef.current = false;
+          }
+        });
+
+        const el = document.querySelector(`.slinger-obj`) as HTMLElement | null;
+        if (el) {
+          el.style.transform = `translate(${Math.round(objectsRef.current[0].x)}px, ${Math.round(objectsRef.current[0].y)}px)`;
+          if (hasBecomeIdleRef.current) {
+            el.classList.add(styles.idle);
+          } else {
+            el.classList.remove(styles.idle);
+          }
         }
-      } else {
-        lastActivityTimeRef.current = now;
-        hasBecomeIdleRef.current = false;
       }
-    });
-
-    const el = document.querySelector(`.slinger-obj`) as HTMLElement | null;
-    if (el) {
-      el.style.transform = `translate(${Math.round(objectsRef.current[0].x)}px, ${Math.round(objectsRef.current[0].y)}px)`;
-      if (hasBecomeIdleRef.current) {
-        el.classList.add(styles.idle);
-      } else {
-        el.classList.remove(styles.idle);
-      }
-    }
-
-    animationFrameRef.current = requestAnimationFrame(animate);
-  }, [onWallCollision, onIdle]);
+      animationFrameRef.current = requestAnimationFrame(animate);
+    },
+    [onWallCollision, onIdle],
+  );
 
   useEffect(() => {
     animationFrameRef.current = requestAnimationFrame(animate);
