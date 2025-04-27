@@ -8,7 +8,7 @@
   aspect-ratio: 4/3;
   /* Note that scaling with vmax does NOT account for the location bar in iOS Safari,
   so that means the top and bottom rows are slightly clipped, which isn't really
-  a problem. It looks like the solution would be JavaScript, but that kind sucks.
+  a problem. It looks like the solution would be JavaScript, but that kinda sucks.
   */
   height: 100vmax;
   @media (min-aspect-ratio: 4/3) {

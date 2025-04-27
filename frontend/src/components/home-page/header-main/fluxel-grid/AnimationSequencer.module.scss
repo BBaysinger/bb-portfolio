@@ -6,18 +6,23 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  will-change: transform;
+  will-change: opacity;
   transform: translate3d(0, 0, 0); // Makes GIF render on the GPU layer
   aspect-ratio: 4/3;
-  border: 1000px solid red;
   box-sizing: border-box;
+  pointer-events: none;
+  transition: opacity 0.5s linear;
   /* Note that scaling with vmax does NOT account for the location bar in iOS Safari,
   so that means the top and bottom rows are slightly clipped, which isn't really
-  a problem. It looks like the solution would be JavaScript, but that kind sucks.
+  a problem. It looks like the solution would be JavaScript, but that kinda sucks.
   */
   height: 100vmax;
   @media (min-aspect-ratio: 4/3) {
     height: auto;
     width: 100vmax;
   }
+}
+
+.fade-out {
+  opacity: 0;
 }
