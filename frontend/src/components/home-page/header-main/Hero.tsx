@@ -28,7 +28,6 @@ const Hero: React.FC = () => {
   const slingerIsIdle = useRef(false);
   const fluxelControllerRef = useRef<FluxelControllerHandle>(null);
   const heroRef = useRef<HTMLDivElement>(null);
-  const gridWrapperRef = useRef<HTMLDivElement>(null);
 
   const initialRows = 12;
   const initialCols = 16;
@@ -59,7 +58,7 @@ const Hero: React.FC = () => {
 
       if (
         e.type === "touchmove" &&
-        gridWrapperRef.current?.firstElementChild instanceof HTMLElement
+        fluxelControllerRef.current // ?.firstElementChild instanceof HTMLElement
       ) {
         setSlingerPos({ x: x, y: y });
       }
@@ -143,18 +142,22 @@ const Hero: React.FC = () => {
         <div className={styles.debug}>
           {sessionStorage.getItem("hasDragged")}
         </div>
-        <div ref={gridWrapperRef} className={styles.fluxelWrapper}>
-          <FluxelController
-            ref={fluxelControllerRef}
-            rows={initialRows}
-            cols={initialCols}
-            viewableWidth={clientWidth}
-            viewableHeight={clientHeight}
-            externalMousePos={slingerPos}
-            mouseMoveTargetRef={heroRef}
-          />
-        </div>
-        <BorderBlinker highlightSides={highlightSides} />
+        {/* <div ref={gridWrapperRef} className={styles.fluxelWrapper}> */}
+        <FluxelController
+          className={styles.fluxelController}
+          ref={fluxelControllerRef}
+          rows={initialRows}
+          cols={initialCols}
+          viewableWidth={clientWidth}
+          viewableHeight={clientHeight}
+          externalMousePos={slingerPos}
+          mouseMoveTargetRef={heroRef}
+        />
+        {/* </div> */}
+        <BorderBlinker
+          className={styles.borderBlinker}
+          highlightSides={highlightSides}
+        />
         <div className={styles.slingerWrapper}>
           <Slinger
             onDrag={onSlingerDrag}
