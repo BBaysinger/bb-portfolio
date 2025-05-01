@@ -5,6 +5,7 @@ export type Side = "top" | "right" | "bottom" | "left";
 
 interface BorderBlinkerProps {
   highlightSides: Side[] | null;
+  className?: string;
 }
 
 /**
@@ -13,7 +14,10 @@ interface BorderBlinkerProps {
  * Flashes individual borders per side.
  * Just flashes based on highlightSides passed from parent.
  */
-const BorderBlinker: React.FC<BorderBlinkerProps> = ({ highlightSides }) => {
+const BorderBlinker: React.FC<BorderBlinkerProps> = ({
+  highlightSides,
+  className,
+}) => {
   const [activeSides, setActiveSides] = useState<Side[]>([]);
 
   useEffect(() => {
@@ -22,7 +26,7 @@ const BorderBlinker: React.FC<BorderBlinkerProps> = ({ highlightSides }) => {
   }, [highlightSides?.join(",")]);
 
   return (
-    <div className={styles.borderBlinker}>
+    <div className={`${className} ${styles.borderBlinker}`}>
       {activeSides.map((side, index) => (
         <div
           key={`${side}-${index}`} // allow for repeated sides if necessary
