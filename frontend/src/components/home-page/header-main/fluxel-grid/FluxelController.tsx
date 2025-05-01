@@ -18,7 +18,7 @@ export interface FluxelControllerHandle {
   launchProjectile: (x: number, y: number, direction: Direction) => void;
 }
 
-interface Props {
+interface FluxelControllerProps {
   rows: number;
   cols: number;
   viewableHeight: number;
@@ -27,6 +27,7 @@ interface Props {
   externalMousePos?: { x: number; y: number } | null;
   /** Element you want the pointer listeners attached to (optional) */
   mouseMoveTargetRef?: React.RefObject<HTMLElement | null>;
+  className?: string;
 }
 
 const FRAME_TIME = 1000 / 30;
@@ -40,7 +41,10 @@ const FRAME_TIME = 1000 / 30;
  * @since The beginning of time.
  * @version N/A
  */
-const FluxelController = forwardRef<FluxelControllerHandle, Props>(
+const FluxelController = forwardRef<
+  FluxelControllerHandle,
+  FluxelControllerProps
+>(
   (
     {
       rows,
@@ -49,6 +53,7 @@ const FluxelController = forwardRef<FluxelControllerHandle, Props>(
       viewableWidth,
       externalMousePos,
       mouseMoveTargetRef,
+      className,
     },
     ref,
   ) => {
@@ -141,7 +146,7 @@ const FluxelController = forwardRef<FluxelControllerHandle, Props>(
     /*  Render                                                            */
     /* ------------------------------------------------------------------ */
     return (
-      <>
+      <div className={className}>
         <AnimationSequencer className={styles.fluxelGridBackground} />
 
         <FluxelGrid
@@ -150,7 +155,7 @@ const FluxelController = forwardRef<FluxelControllerHandle, Props>(
           viewableWidth={viewableWidth}
           viewableHeight={viewableHeight}
         />
-      </>
+      </div>
     );
   },
 );
