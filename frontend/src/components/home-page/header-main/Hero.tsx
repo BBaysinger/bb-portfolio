@@ -47,7 +47,7 @@ const Hero: React.FC = () => {
   const [isSlingerIdle, setIsSlingerIdle] = useState(false);
 
   const slingerIsIdle = useRef(false);
-  const GridControllerRef = useRef<GridControllerHandle>(null);
+  const gridControllerRef = useRef<GridControllerHandle>(null);
   const heroRef = useRef<HTMLDivElement>(null);
 
   const initialRows = 12;
@@ -78,7 +78,7 @@ const Hero: React.FC = () => {
         setHasDragged(true);
       }
 
-      if (e.type === "touchmove" && GridControllerRef.current) {
+      if (e.type === "touchmove" && gridControllerRef.current) {
         setSlingerPos({ x: x, y: y });
       }
     },
@@ -95,7 +95,7 @@ const Hero: React.FC = () => {
   );
 
   const onSlingerWallCollision = useCallback(
-    (wall: Side, _x: number, _y: number) => {
+    (wall: Side, x: number, y: number) => {
       if (!slingerIsIdle.current) {
         setHighlightSides((prev) => [...prev, wall]);
 
@@ -116,10 +116,10 @@ const Hero: React.FC = () => {
             break;
         }
 
-        GridControllerRef.current?.launchProjectile(_x, _y, direction);
+        gridControllerRef.current?.launchProjectile(x, y, direction);
       }
     },
-    [],
+    [gridControllerRef, slingerIsIdle],
   );
 
   const onSlingerIdle = useCallback(() => {
@@ -131,16 +131,16 @@ const Hero: React.FC = () => {
     <header
       id={id}
       ref={heroRef}
-      className={
-        `${styles.hero} ` +
-        `${hasScrolledOut ? styles.hasScrolledOut : ""} ` +
-        `${isSlingerIdle ? `${styles.isSlingerIdle} isSlingerIdle ` : ""}` +
-        `${
-          sessionStorage.getItem("hasDragged") === "true"
-            ? `${styles.hasDragged} hasDragged`
-            : `${styles.notDragged} notDragged`
-        }`
-      }
+      className={[
+        styles.hero,
+        hasScrolledOut && styles.hasScrolledOut,
+        isSlingerIdle && `${styles.isSlingerIdle} isSlingerIdle`,
+        hasDragged
+          ? `${styles.hasDragged} hasDragged`
+          : `${styles.notDragged} notDragged`,
+      ]
+        .filter(Boolean)
+        .join(" ")}
       style={{ minHeight: `${clientHeight}px` }}
     >
       <div className={styles.headerWrapper}>
@@ -149,7 +149,7 @@ const Hero: React.FC = () => {
         </div>
         <GridController
           className={styles.gridController}
-          ref={GridControllerRef}
+          ref={gridControllerRef}
           rows={initialRows}
           cols={initialCols}
           viewableWidth={clientWidth}
