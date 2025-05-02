@@ -15,7 +15,7 @@ import "@/styles/styles.scss";
 
 const App: React.FC = () => {
   const isMenuOpen = useSelector(
-    (state: RootState) => state.ui.isMobileNavOpen,
+    (state: RootState) => state.ui.isMobileNavExpanded,
   );
 
   const isHeroInView = useSelector((state: RootState) => state.ui.isHeroInView);
@@ -30,21 +30,18 @@ const App: React.FC = () => {
 
   return (
     <AuthProvider>
-      <div>
+      <div
+        className={[
+          isHeroInView ? "heroVisible" : "",
+          isMenuOpen ? `isMobileNavExpanded ${styles.isMobileNavExpanded}` : "",
+        ].join(" ")}
+      >
         <Nav variant={NavVariant.SLIDE_OUT} />
         <div id="top" style={{ position: "absolute", top: "0px" }}></div>
 
-        <div
-          className={`${styles.underlay} ${isMenuOpen ? styles.mobileNavExpanded : ""}`}
-        />
+        <div className={styles.underlay} />
 
-        <div
-          id={styles.main}
-          className={[
-            isMenuOpen ? styles.mobileNavExpanded : "",
-            isHeroInView ? "heroVisible" : "",
-          ].join(" ")}
-        >
+        <div id={styles.main}>
           <Nav variant={NavVariant.TOP_BAR} />
           <ScrollToHash />
           <AppRoutes onLogin={handleLogin} />

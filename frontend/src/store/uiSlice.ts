@@ -2,12 +2,12 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 export interface UIState {
   isHeroInView: boolean;
-  isMobileNavOpen: boolean;
+  isMobileNavExpanded: boolean;
 }
 
 const initialState: UIState = {
   isHeroInView: false,
-  isMobileNavOpen: false,
+  isMobileNavExpanded: false,
 };
 
 const uiSlice = createSlice({
@@ -22,13 +22,13 @@ const uiSlice = createSlice({
     // Use imperative verbs without payloads for user interactions
     // with known results (open/close/toggle menus).
     openMobileNav: (state) => {
-      state.isMobileNavOpen = true;
+      state.isMobileNavExpanded = true;
     },
     closeMobileNav: (state) => {
-      state.isMobileNavOpen = false;
+      state.isMobileNavExpanded = false;
     },
     toggleMobileNav: (state) => {
-      state.isMobileNavOpen = !state.isMobileNavOpen;
+      state.isMobileNavExpanded = !state.isMobileNavExpanded;
     },
   },
 });
