@@ -139,6 +139,15 @@ $bottom: 10px;
   height: 34px;
   width: 34px;
   margin: 0 4px;
+  & > * {
+    animation-play-state: paused;
+  }
+}
+
+:global(.isSlingerIdle) {
+  .barberPole > * {
+    animation-play-state: running !important;
+  }
 }
 
 .debug {

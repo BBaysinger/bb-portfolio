@@ -25,6 +25,8 @@ const Hero: React.FC = () => {
   const hasScrolledOut = useScrollPersistedClass(id);
 
   const [highlightSides, setHighlightSides] = useState<Side[]>([]);
+  const [isSlingerIdle, setIsSlingerIdle] = useState(false);
+
   const slingerIsIdle = useRef(false);
   const GridControllerRef = useRef<GridControllerHandle>(null);
   const heroRef = useRef<HTMLDivElement>(null);
@@ -51,15 +53,13 @@ const Hero: React.FC = () => {
   const onSlingerDrag = useCallback(
     (x: number, y: number, e: MouseEvent | TouchEvent) => {
       slingerIsIdle.current = false;
+      setIsSlingerIdle(false);
 
       if (!hasDragged) {
         setHasDragged(true);
       }
 
-      if (
-        e.type === "touchmove" &&
-        GridControllerRef.current // ?.firstElementChild instanceof HTMLElement
-      ) {
+      if (e.type === "touchmove" && GridControllerRef.current) {
         setSlingerPos({ x: x, y: y });
       }
     },
@@ -97,7 +97,7 @@ const Hero: React.FC = () => {
             break;
         }
 
-        GridControllerRef.current?.launchProjectile(_x, _y, direction); // 🚀
+        GridControllerRef.current?.launchProjectile(_x, _y, direction);
       }
     },
     [],
@@ -105,6 +105,7 @@ const Hero: React.FC = () => {
 
   const onSlingerIdle = useCallback(() => {
     slingerIsIdle.current = true;
+    setIsSlingerIdle(true);
   }, []);
 
   const quotes = [
@@ -133,6 +134,7 @@ const Hero: React.FC = () => {
       className={
         `${styles.hero} ` +
         `${hasScrolledOut ? styles.hasScrolledOut : ""} ` +
+        `${isSlingerIdle ? `${styles.isSlingerIdle} isSlingerIdle ` : ""}` +
         `${
           sessionStorage.getItem("hasDragged") === "true"
             ? `${styles.hasDragged} hasDragged`
