@@ -47,9 +47,9 @@ export function useFluxelProjectiles({
     intervalRef.current = window.setInterval(() => {
       // if (isDev) {
       //   devGuard.current++;
-      //   console.log("[DEV] Interval tick", devGuard.current);
+      //   console.info("[DEV] Interval tick", devGuard.current);
       //   if (devGuard.current % 2 === 0) {
-      //     console.log("[DEV] Skipping duplicate setState");
+      //     console.info("[DEV] Skipping duplicate setState");
       //     return;
       //   }
       // }
