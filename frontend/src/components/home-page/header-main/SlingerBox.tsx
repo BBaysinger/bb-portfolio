@@ -37,28 +37,27 @@ const SlingerBox: React.FC<SlingerBoxProps> = ({
   onIdle,
 }) => {
   const ballSize = 50;
-  const animationFrameRef = useRef<number | null>(null);
-  // const triggerRender = useState(0)[1];
+  const idleSpeedThreshold = 0.8;
+  const desiredFPS = 60;
+  const frameInterval = 1000 / desiredFPS; // e.g., 1000ms / 30fps ≈ 33.33ms
   const [, forceUpdate] = useReducer((x) => x + 1, 0);
+
+  // refs
+  const animationFrameRef = useRef<number | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const dragStartPosition = useRef<{ x: number; y: number } | null>(null);
   const movementHistory = useRef<{ x: number; y: number; time: number }[]>([]);
+  const lastActivityTimeRef = useRef<number>(performance.now());
+  const hasBecomeIdleRef = useRef<boolean>(false);
+  const slingerRefs = useRef<Map<number, HTMLElement>>(new Map());
+  const lastFrameTime = useRef<number>(performance.now());
+  const objectsRef = useRef<SlingerObject[]>([
+    { id: 1, x: 50, y: 50, vx: 1, vy: 1, isDragging: false },
+  ]);
   const lastKnownVelocity = useRef<{ vx: number; vy: number }>({
     vx: 0,
     vy: 0,
   });
-
-  const lastActivityTimeRef = useRef<number>(performance.now());
-  const hasBecomeIdleRef = useRef<boolean>(false);
-  const idleSpeedThreshold = 0.8;
-  const slingerRefs = useRef<Map<number, HTMLElement>>(new Map());
-  const objectsRef = useRef<SlingerObject[]>([
-    { id: 1, x: 50, y: 50, vx: 1, vy: 1, isDragging: false },
-  ]);
-
-  const desiredFPS = 40;
-  const frameInterval = 1000 / desiredFPS; // e.g., 1000ms / 30fps ≈ 33.33ms
-  const lastFrameTime = useRef<number>(performance.now());
 
   const animate = useCallback(
     (timestamp: number) => {
