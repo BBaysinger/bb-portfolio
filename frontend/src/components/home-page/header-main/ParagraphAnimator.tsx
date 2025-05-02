@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useEffect, useRef } from "react";
+import gsap from "gsap";
 
 import styles from "./ParagraphAnimator.module.scss";
 
@@ -8,6 +9,7 @@ interface ParagraphAnimatorProps {
   paragraphDelay?: number;
   initialDelay?: number;
   className?: string;
+  paused?: boolean;
 }
 
 const shuffleArray = (array: number[]) => {
@@ -20,72 +22,83 @@ const ParagraphAnimator: React.FC<ParagraphAnimatorProps> = ({
   paragraphDelay = 20000,
   initialDelay = 8000,
   className,
+  paused = false,
 }) => {
-  const [spanPosition, setSpanPosition] = useState(0);
-  const [fade, setFade] = useState("fadeOut");
-  const [isInitialDelayOver, setIsInitialDelayOver] = useState(false);
-  const [indexQueue, setIndexQueue] = useState<number[]>(
-    shuffleArray([...Array(paragraphs.length).keys()]),
-  );
-  const [currentIndex, setCurrentIndex] = useState(indexQueue[0]);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const tl = useRef<gsap.core.Timeline | null>(null);
+  const currentIndex = useRef(0);
+  const queue = useRef(shuffleArray([...Array(paragraphs.length).keys()]));
 
-  const currentParagraph = paragraphs[currentIndex];
+  const playParagraph = () => {
+    const paragraph = paragraphs[queue.current[currentIndex.current]];
+    const p = containerRef.current?.querySelector("p");
+
+    if (!p) return;
+
+    let spanPosition = 0;
+
+    const updateText = () => {
+      const visible = paragraph.slice(0, spanPosition);
+      const invisible = paragraph.slice(spanPosition);
+      p.innerHTML = `<span>${visible}</span>${invisible}`;
+    };
+
+    updateText(); // Initial render
+
+    tl.current = gsap.timeline({
+      onComplete: () => {
+        currentIndex.current++;
+        if (currentIndex.current >= queue.current.length) {
+          queue.current = shuffleArray([...Array(paragraphs.length).keys()]);
+          currentIndex.current = 0;
+        }
+        playParagraph(); // loop again
+      },
+    });
+
+    tl.current.to({}, { duration: initialDelay / 1000 });
+
+    tl.current.to(
+      { value: 0 },
+      {
+        value: paragraph.length,
+        duration: (paragraph.length * interval) / 1000,
+        ease: "none",
+        onUpdate() {
+          spanPosition = Math.floor(this.targets()[0].value);
+          updateText();
+        },
+      },
+    );
+
+    tl.current.to({}, { duration: (paragraphDelay - 10000) / 1000 });
+    tl.current.to(containerRef.current, { opacity: 0, duration: 0.5 });
+    tl.current.set(containerRef.current, { opacity: 1 });
+  };
 
   useEffect(() => {
-    const initialTimer = setTimeout(() => {
-      setIsInitialDelayOver(true);
-      setFade("fadeIn");
-    }, initialDelay);
-
-    return () => clearTimeout(initialTimer);
-  }, [initialDelay]);
+    playParagraph();
+    return () => {
+      tl.current?.kill();
+    };
+  }, [paragraphs]);
 
   useEffect(() => {
-    if (!isInitialDelayOver || !currentParagraph) return;
-
-    if (spanPosition < currentParagraph.length) {
-      const timer = setTimeout(() => {
-        setSpanPosition((prev) => prev + 1);
-      }, interval);
-      return () => clearTimeout(timer);
+    if (paused) {
+      tl.current?.pause();
     } else {
-      const fadeOutTimer = setTimeout(() => {
-        setFade("fadeOut");
-      }, paragraphDelay - 10000);
-
-      const nextTimer = setTimeout(() => {
-        setSpanPosition(0);
-        setFade("fadeIn");
-
-        setIndexQueue((prevQueue) => {
-          let newQueue = [...prevQueue.slice(1)];
-          if (newQueue.length === 0) {
-            newQueue = shuffleArray([...Array(paragraphs.length).keys()]);
-          }
-          setCurrentIndex(newQueue[0]);
-          return newQueue;
-        });
-      }, paragraphDelay);
-
-      return () => {
-        clearTimeout(fadeOutTimer);
-        clearTimeout(nextTimer);
-      };
+      tl.current?.play();
     }
-  }, [
-    spanPosition,
-    currentParagraph,
-    interval,
-    paragraphDelay,
-    paragraphs.length,
-    isInitialDelayOver,
-  ]);
-
-  const animatedText = `${currentParagraph.slice(0, spanPosition)}</span>${currentParagraph.slice(spanPosition)}`;
+  }, [paused]);
 
   return (
-    <div className={`${styles.paragraphAnimator} ${className} ${styles[fade]}`}>
-      <p dangerouslySetInnerHTML={{ __html: `<span>${animatedText}` }} />
+    <div
+      ref={containerRef}
+      className={`${styles.paragraphAnimator} ${className}`}
+    >
+      <p>
+        <span />
+      </p>
     </div>
   );
 };
