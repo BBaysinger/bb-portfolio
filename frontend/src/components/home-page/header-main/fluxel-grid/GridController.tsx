@@ -12,13 +12,13 @@ import useFluxelProjectiles, { Direction } from "./useFluxelProjectiles";
 import AnimationSequencer from "./AnimationSequencer";
 import type { FluxelGridHandle } from "./FluxelGrid"; // make sure to import this
 import type { FluxelData } from "./Fluxel";
-import styles from "./FluxelController.module.scss";
+import styles from "./GridController.module.scss";
 
-export interface FluxelControllerHandle {
+export interface GridControllerHandle {
   launchProjectile: (x: number, y: number, direction: Direction) => void;
 }
 
-interface FluxelControllerProps {
+interface GridControllerProps {
   rows: number;
   cols: number;
   viewableHeight: number;
@@ -33,7 +33,7 @@ interface FluxelControllerProps {
 const FRAME_TIME = 1000 / 30;
 
 /**
- * FluxelController
+ * GridController
  *
  * Handles the grid and the effects we're applying to it.
  *
@@ -41,10 +41,7 @@ const FRAME_TIME = 1000 / 30;
  * @since The beginning of time.
  * @version N/A
  */
-const FluxelController = forwardRef<
-  FluxelControllerHandle,
-  FluxelControllerProps
->(
+const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
   (
     {
       rows,
@@ -160,4 +157,4 @@ const FluxelController = forwardRef<
   },
 );
 
-export default FluxelController;
+export default GridController;
