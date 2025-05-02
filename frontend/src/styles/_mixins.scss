@@ -123,6 +123,6 @@
   animation-play-state: paused;
 
   :global(.isMobileNavExpanded) & {
-    animation-play-state: running;
+    animation-play-state: running !important;
   }
 }
