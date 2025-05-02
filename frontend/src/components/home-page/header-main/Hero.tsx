@@ -6,7 +6,7 @@ import BarberPole from "components/common/BarberPole";
 import FluxelController, {
   FluxelControllerHandle,
 } from "./fluxel-grid/FluxelController";
-import Slinger from "./Slinger";
+import Slinger from "./SlingerBox";
 import ParagraphAnimator from "./ParagraphAnimator";
 import useScrollPersistedClass from "hooks/useScrollPersistedClass";
 import BorderBlinker, { Side } from "./BorderBlinker";
@@ -131,9 +131,13 @@ const Hero: React.FC = () => {
       id={id}
       ref={heroRef}
       className={
-        `${styles.hero} ${styles.header} ` +
+        `${styles.hero} ` +
         `${hasScrolledOut ? styles.hasScrolledOut : ""} ` +
-        `${sessionStorage.getItem("hasDragged") === "true" ? styles.hasDragged : ""}`
+        `${
+          sessionStorage.getItem("hasDragged") === "true"
+            ? `${styles.hasDragged} hasDragged`
+            : `${styles.notDragged} notDragged`
+        }`
       }
       style={{ minHeight: `${clientHeight}px` }}
     >
