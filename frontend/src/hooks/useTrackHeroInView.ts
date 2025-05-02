@@ -4,14 +4,14 @@ import { useDispatch } from "react-redux";
 
 import { setHeroInView } from "store/uiSlice";
 
-export function useGlobalScrollManager() {
+export function useTrackHeroInView() {
   const dispatch = useDispatch();
   const location = useLocation();
   const lastValueRef = useRef<boolean | null>(null);
 
   useEffect(() => {
-    const onScroll = () => {
-      const isAtTop = window.scrollY < 20;
+    const handle = () => {
+      const isAtTop = window.scrollY === 0;
       const onHome = location.pathname === "/";
       const nextValue = isAtTop && onHome;
 
@@ -21,8 +21,19 @@ export function useGlobalScrollManager() {
       }
     };
 
-    onScroll();
-    window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
-  }, [dispatch, location.pathname]);
+    handle();
+    
+    window.addEventListener("scroll", handle);
+    window.addEventListener("resize", handle);
+    window.addEventListener("orientationchange", handle);
+
+    return () => {
+      window.removeEventListener("scroll", handle);
+      window.removeEventListener("resize", handle);
+      window.removeEventListener("orientationchange", handle);
+    };
+
+    }, [dispatch, location.pathname]);
 }
+
+export default useTrackHeroInView;
