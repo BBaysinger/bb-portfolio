@@ -82,13 +82,14 @@ header.hero {
 }
 
 .headerWrapper {
-  position: fixed;
+  position: absolute;
   width: 100vw;
   height: 100%;
   background-color: #222;
   background-repeat: no-repeat;
   background-size: 100% 100%;
   background-image: url("/images/common/bg-grad.svg");
+  overflow: hidden;
 }
 
 .subhead {
@@ -225,7 +226,7 @@ $ctaOffset: -91px;
   color: #fff;
   width: 0;
   height: 0;
-  animation: fadeBounce 2.5s infinite forwards;
+  // animation: fadeBounce 2.5s infinite forwards;
 
   &:after {
     content: " ";
@@ -279,19 +280,30 @@ $ctaOffset: -91px;
   margin-right: auto;
 }
 
-.hasDragged {
-  :global(.slinger-obj)::before {
-    animation: fadeOut 0.5s ease-out forwards;
+:global(.slinger) {
+  &::before {
+    content: "1. Try me!";
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s linear;
+    position: absolute;
+    width: 146px;
+    height: 48px;
+    background-image: url("/images/home/ball-bolt.svg");
+    color: white;
+    font-size: 16px;
+    padding-top: 12px;
+    padding-left: 10px;
+    left: -142px;
+    top: -22px;
+    pointer-events: none;
+    transform-origin: 100% 50%;
+    transform: rotate(45deg);
   }
-  @keyframes fadeOut {
-    0% {
-      opacity: 1;
-      visibility: visible;
-    }
-    100% {
-      opacity: 0;
-      visibility: hidden;
-    }
+
+  :global(.notDragged) &::before {
+    display: block;
+    opacity: 1;
   }
 }
 
