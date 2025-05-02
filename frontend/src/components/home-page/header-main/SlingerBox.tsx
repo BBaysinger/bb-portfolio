@@ -1,9 +1,9 @@
 import React, { useRef, useState, useEffect, useCallback } from "react";
 
 import { Side } from "./BorderBlinker";
-import styles from "./Slinger.module.scss";
+import styles from "./SlingerBox.module.scss";
 
-type FloatingObject = {
+type SlingerObject = {
   id: number;
   x: number;
   y: number;
@@ -12,7 +12,7 @@ type FloatingObject = {
   isDragging: boolean;
 };
 
-type SlingerProps = {
+type SlingerBoxProps = {
   onDrag?: (x: number, y: number, e: MouseEvent | TouchEvent) => void;
   onDragEnd?: (x: number, y: number, e: MouseEvent | TouchEvent) => void;
   onWallCollision?: (wall: Side, x: number, y: number) => void;
@@ -20,17 +20,17 @@ type SlingerProps = {
 };
 
 /**
- * Slinger component
+ * SlingerBox component
  *
- * A draggable floating object with simple physics-based movement.
+ * Component containing draggable floating objects with simple physics-based movement.
  * Can be thrown and implements a bouncing effect inside a container.
  * Tracks velocity and uses damping for realistic movement.
  * Will eventually be gamified.
  *
  * @component
- * @param {SlingerProps} props - Component props containing optional drag event handlers.
+ * @param {SlingerBoxProps} props - Component props containing optional drag event handlers.
  */
-const Slinger: React.FC<SlingerProps> = ({
+const SlingerBox: React.FC<SlingerBoxProps> = ({
   onDrag,
   onDragEnd,
   onWallCollision,
@@ -51,7 +51,7 @@ const Slinger: React.FC<SlingerProps> = ({
   const hasBecomeIdleRef = useRef<boolean>(false);
   const idleSpeedThreshold = 0.8;
 
-  const objectsRef = useRef<FloatingObject[]>([
+  const objectsRef = useRef<SlingerObject[]>([
     { id: 1, x: 50, y: 50, vx: 1, vy: 1, isDragging: false },
   ]);
 
@@ -143,7 +143,7 @@ const Slinger: React.FC<SlingerProps> = ({
           }
         });
 
-        const el = document.querySelector(`.slinger-obj`) as HTMLElement | null;
+        const el = document.querySelector(`.slinger`) as HTMLElement | null;
         if (el) {
           el.style.transform = `translate(${Math.round(objectsRef.current[0].x)}px, ${Math.round(objectsRef.current[0].y)}px)`;
           if (hasBecomeIdleRef.current) {
@@ -294,10 +294,10 @@ const Slinger: React.FC<SlingerProps> = ({
   }, []);
 
   return (
-    <div ref={containerRef} className={styles.wrapper}>
+    <div ref={containerRef} className={styles.slingerWrapper}>
       {objectsRef.current.map((obj) => (
         <div
-          className={`${styles.slinger} slinger-obj`}
+          className={`${styles.slinger} slinger`}
           key={obj.id}
           onMouseDown={(e) => handleMouseDown(obj.id, e)}
           onTouchStart={(e) => handleTouchStart(obj.id, e)}
@@ -307,4 +307,4 @@ const Slinger: React.FC<SlingerProps> = ({
   );
 };
 
-export default Slinger;
+export default SlingerBox;
