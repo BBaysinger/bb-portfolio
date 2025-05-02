@@ -108,7 +108,7 @@ const Nav: React.FC<NavProps> = ({ variant }) => {
         <>
           {/* <BarberPole className={styles.barberPole1} paused={!isMenuOpen} />
           <BarberPole className={styles.barberPole2} paused={!isMenuOpen} /> */}
-          <BarberPole className={styles.barberPole3} paused={!isMenuOpen} />
+          <BarberPole className={styles.barberPole} paused={!isMenuOpen} />
         </>
       )}
     </nav>

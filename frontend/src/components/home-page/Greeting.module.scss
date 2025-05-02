@@ -43,7 +43,7 @@
     background-position: 0 0;
     z-index: -1;
     animation: scrollBg 20s linear infinite;
-    :global(.heroVisible) & {
+    :global(.isHeroInView) & {
       animation-play-state: paused;
     }
   }
@@ -222,14 +222,14 @@
           &:before {
             left: -233px;
             animation: strobe 1s infinite steps(1);
-            :global(.heroVisible) & {
+            :global(.isHeroInView) & {
               animation-play-state: paused;
             }
           }
           &:after {
             right: -231px;
             animation: strobe 1s infinite steps(1) 0.12s;
-            :global(.heroVisible) & {
+            :global(.isHeroInView) & {
               animation-play-state: paused;
             }
             z-index: 1;

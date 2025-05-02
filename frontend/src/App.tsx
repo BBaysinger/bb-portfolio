@@ -30,24 +30,26 @@ const App: React.FC = () => {
 
   return (
     <AuthProvider>
-      <Nav variant={NavVariant.SLIDE_OUT} />
-      <div id="top" style={{ position: "absolute", top: "0px" }}></div>
+      <div>
+        <Nav variant={NavVariant.SLIDE_OUT} />
+        <div id="top" style={{ position: "absolute", top: "0px" }}></div>
 
-      <div
-        className={`${styles.underlay} ${isMenuOpen ? styles.expanded : ""}`}
-      />
+        <div
+          className={`${styles.underlay} ${isMenuOpen ? styles.mobileNavExpanded : ""}`}
+        />
 
-      <div
-        id={styles.main}
-        className={[
-          isMenuOpen ? styles.expanded : "",
-          isHeroInView ? "heroVisible" : "",
-        ].join(" ")}
-      >
-        <Nav variant={NavVariant.TOP_BAR} />
-        <ScrollToHash />
-        <AppRoutes onLogin={handleLogin} />
-        <Footer />
+        <div
+          id={styles.main}
+          className={[
+            isMenuOpen ? styles.mobileNavExpanded : "",
+            isHeroInView ? "heroVisible" : "",
+          ].join(" ")}
+        >
+          <Nav variant={NavVariant.TOP_BAR} />
+          <ScrollToHash />
+          <AppRoutes onLogin={handleLogin} />
+          <Footer />
+        </div>
       </div>
     </AuthProvider>
   );
