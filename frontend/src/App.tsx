@@ -32,7 +32,7 @@ const App: React.FC = () => {
     <AuthProvider>
       <div
         className={[
-          isHeroInView ? "heroVisible" : "",
+          isHeroInView ? "isHeroInView" : "",
           isMenuOpen ? `isMobileNavExpanded ${styles.isMobileNavExpanded}` : "",
         ].join(" ")}
       >
