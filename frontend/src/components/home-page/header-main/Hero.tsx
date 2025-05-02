@@ -170,7 +170,11 @@ const Hero: React.FC = () => {
           />
         </div>
 
-        <ParagraphAnimator paragraphs={quotes} className={styles.message} />
+        <ParagraphAnimator
+          paragraphs={quotes}
+          paused={!isSlingerIdle}
+          className={styles.message}
+        />
 
         <div className={styles.ctaWrapper}>
           <a href="#hello" className={styles.cta}>
