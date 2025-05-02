@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect, useCallback } from "react";
+import React, { useRef, useEffect, useCallback, useReducer } from "react";
 
 import { Side } from "./BorderBlinker";
 import styles from "./SlingerBox.module.scss";
@@ -38,7 +38,8 @@ const SlingerBox: React.FC<SlingerBoxProps> = ({
 }) => {
   const ballSize = 50;
   const animationFrameRef = useRef<number | null>(null);
-  const triggerRender = useState(0)[1];
+  // const triggerRender = useState(0)[1];
+  const [, forceUpdate] = useReducer((x) => x + 1, 0);
   const containerRef = useRef<HTMLDivElement>(null);
   const dragStartPosition = useRef<{ x: number; y: number } | null>(null);
   const movementHistory = useRef<{ x: number; y: number; time: number }[]>([]);
@@ -50,7 +51,7 @@ const SlingerBox: React.FC<SlingerBoxProps> = ({
   const lastActivityTimeRef = useRef<number>(performance.now());
   const hasBecomeIdleRef = useRef<boolean>(false);
   const idleSpeedThreshold = 0.8;
-
+  const slingerRefs = useRef<Map<number, HTMLElement>>(new Map());
   const objectsRef = useRef<SlingerObject[]>([
     { id: 1, x: 50, y: 50, vx: 1, vy: 1, isDragging: false },
   ]);
@@ -64,7 +65,6 @@ const SlingerBox: React.FC<SlingerBoxProps> = ({
       if (!containerRef.current) return;
 
       const bounds = containerRef.current.getBoundingClientRect();
-
       const elapsed = timestamp - lastFrameTime.current;
 
       if (elapsed > frameInterval) {
@@ -78,7 +78,7 @@ const SlingerBox: React.FC<SlingerBoxProps> = ({
           x += vx;
           y += vy;
 
-          // Wall collision and callback handling
+          // Wall collision
           if (x <= 0) {
             x = 0;
             vx = -vx * 0.8;
@@ -111,7 +111,7 @@ const SlingerBox: React.FC<SlingerBoxProps> = ({
             );
           }
 
-          // Apply damping
+          // Damping
           const dampingFactor = 0.98;
           const minSpeed = 0.5;
           vx =
@@ -123,13 +123,14 @@ const SlingerBox: React.FC<SlingerBoxProps> = ({
               ? vy * dampingFactor
               : Math.sign(vy) * minSpeed;
 
+          // Write back
           obj.x = x;
           obj.y = y;
           obj.vx = vx;
           obj.vy = vy;
 
-          // IDLE CHECK
-          const speed = Math.sqrt(vx * vx + vy * vy);
+          // Idle detection
+          const speed = Math.hypot(vx, vy);
           const now = performance.now();
 
           if (speed < idleSpeedThreshold && !obj.isDragging) {
@@ -141,18 +142,21 @@ const SlingerBox: React.FC<SlingerBoxProps> = ({
             lastActivityTimeRef.current = now;
             hasBecomeIdleRef.current = false;
           }
-        });
 
-        const el = document.querySelector(`.slinger`) as HTMLElement | null;
-        if (el) {
-          el.style.transform = `translate(${Math.round(objectsRef.current[0].x)}px, ${Math.round(objectsRef.current[0].y)}px)`;
-          if (hasBecomeIdleRef.current) {
-            el.classList.add(styles.idle);
-          } else {
-            el.classList.remove(styles.idle);
+          // DOM update via ref
+          const el = slingerRefs.current.get(obj.id);
+          if (el) {
+            el.style.transform = `translate(${Math.round(x)}px, ${Math.round(y)}px)`;
+
+            if (hasBecomeIdleRef.current) {
+              el.classList.add(styles.idle);
+            } else {
+              el.classList.remove(styles.idle);
+            }
           }
-        }
+        });
       }
+
       animationFrameRef.current = requestAnimationFrame(animate);
     },
     [onWallCollision, onIdle],
@@ -175,7 +179,7 @@ const SlingerBox: React.FC<SlingerBoxProps> = ({
   ) => {
     if (
       !(e.target instanceof HTMLElement) ||
-      !e.target.classList.contains(styles.slinger)
+      !e.target.classList.contains("slinger")
     )
       return;
 
@@ -195,7 +199,7 @@ const SlingerBox: React.FC<SlingerBoxProps> = ({
 
     hasBecomeIdleRef.current = false;
     lastActivityTimeRef.current = performance.now();
-    triggerRender((prev) => prev + 1);
+    forceUpdate();
   };
 
   const handleMouseDown = (id: number, e: React.MouseEvent) => {
@@ -220,6 +224,11 @@ const SlingerBox: React.FC<SlingerBoxProps> = ({
         obj.x += clientX - dragStartPosition.current.x;
         obj.y += clientY - dragStartPosition.current.y;
         dragStartPosition.current = { x: clientX, y: clientY };
+
+        const el = slingerRefs.current.get(obj.id);
+        if (el) {
+          el.style.transform = `translate(${Math.round(obj.x)}px, ${Math.round(obj.y)}px)`;
+        }
 
         onDrag?.(clientX, clientY, e);
       }
@@ -266,7 +275,7 @@ const SlingerBox: React.FC<SlingerBoxProps> = ({
     movementHistory.current = [];
     hasBecomeIdleRef.current = false;
     lastActivityTimeRef.current = performance.now();
-    triggerRender((prev) => prev + 1);
+    forceUpdate();
   };
 
   useEffect(() => {
@@ -301,6 +310,13 @@ const SlingerBox: React.FC<SlingerBoxProps> = ({
           key={obj.id}
           onMouseDown={(e) => handleMouseDown(obj.id, e)}
           onTouchStart={(e) => handleTouchStart(obj.id, e)}
+          ref={(el) => {
+            if (el) {
+              slingerRefs.current.set(obj.id, el);
+            } else {
+              slingerRefs.current.delete(obj.id);
+            }
+          }}
         />
       ))}
     </div>
