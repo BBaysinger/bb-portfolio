@@ -15,12 +15,10 @@ import "@/styles/styles.scss";
 
 const App: React.FC = () => {
   const isMenuOpen = useSelector(
-    (state: RootState) => state.ui.isMobileNavOpen
+    (state: RootState) => state.ui.isMobileNavOpen,
   );
 
-  const isHeroInView = useSelector(
-    (state: RootState) => state.ui.isHeroInView
-  );
+  const isHeroInView = useSelector((state: RootState) => state.ui.isHeroInView);
 
   useTrackHeroInView();
   useAutoCloseMobileNavOnScroll();
@@ -43,7 +41,7 @@ const App: React.FC = () => {
         id={styles.main}
         className={[
           isMenuOpen ? styles.expanded : "",
-          isHeroInView ? styles.heroVisible : "",
+          isHeroInView ? "heroVisible" : "",
         ].join(" ")}
       >
         <Nav variant={NavVariant.TOP_BAR} />

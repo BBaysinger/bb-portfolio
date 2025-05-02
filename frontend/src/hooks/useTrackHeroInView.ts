@@ -22,7 +22,7 @@ export function useTrackHeroInView() {
     };
 
     handle();
-    
+
     window.addEventListener("scroll", handle);
     window.addEventListener("resize", handle);
     window.addEventListener("orientationchange", handle);
@@ -32,8 +32,7 @@ export function useTrackHeroInView() {
       window.removeEventListener("resize", handle);
       window.removeEventListener("orientationchange", handle);
     };
-
-    }, [dispatch, location.pathname]);
+  }, [dispatch, location.pathname]);
 }
 
 export default useTrackHeroInView;
