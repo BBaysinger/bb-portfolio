@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { closeMobileNav } from "store/uiSlice";
+import { expandMobileNav } from "store/uiSlice";
 import type { RootState } from "store/store";
 
 export function useAutoCloseMobileNavOnScroll() {
@@ -11,7 +11,7 @@ export function useAutoCloseMobileNavOnScroll() {
 
   useEffect(() => {
     const handle = () => {
-      if (isMenuOpen) dispatch(closeMobileNav());
+      if (isMenuOpen) dispatch(expandMobileNav());
     };
 
     window.addEventListener("scroll", handle);

@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
-import { NavLink, useLocation } from "react-router-dom";
+import React from "react";
+import { NavLink } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
-import { closeMobileNav } from "store/uiSlice";
+import { expandMobileNav } from "store/uiSlice";
 import Hamburger from "components/layout/Hamburger";
 import NavLinks from "./NavLinks";
 import BarberPole from "components/common/BarberPole";
@@ -32,37 +32,11 @@ const Nav: React.FC<NavProps> = ({ variant }) => {
     (state: RootState) => state.ui.isMobileNavExpanded,
   );
 
-  // Track if the page is scrolled to the top
-  const [isScrolledToTop, setIsScrolledToTop] = useState<boolean>(
-    window.scrollY === 0,
-  );
-
   const dispatch = useDispatch();
-  const location = useLocation();
-  const currentPath = location.pathname;
 
-  const titleClass =
-    // TODO: Make so portfolio route isn't enabled when scrolled back up.
-    isScrolledToTop && (currentPath === "/" || currentPath === "/portfolio")
-      ? `${styles.title} ${styles.homeUnscrolled}`
-      : styles.title;
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolledToTop(window.scrollY === 0);
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    window.addEventListener("orientationchange", handleScroll);
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-      window.removeEventListener("orientationchange", handleScroll);
-    };
-  }, []);
-
-  const closeMobileNavHandler = () => {
+  const expandMobileNavHandler = () => {
     if (variant === NavVariant.SLIDE_OUT) {
-      dispatch(closeMobileNav());
+      dispatch(expandMobileNav());
     }
   };
 
@@ -79,7 +53,7 @@ const Nav: React.FC<NavProps> = ({ variant }) => {
         </>
       )}
 
-      <NavLink to="/#top" className={titleClass}>
+      <NavLink to="/#top" className={styles.title}>
         <img src={navLogo} className={styles.navLogo} alt="BB Logo" />
         <div className={styles.navLogoText}>
           <div className={styles.name}>
@@ -93,7 +67,7 @@ const Nav: React.FC<NavProps> = ({ variant }) => {
           </div>
         </div>
       </NavLink>
-      <NavLinks onClick={closeMobileNavHandler} className={styles.navLinks} />
+      <NavLinks onClick={expandMobileNavHandler} className={styles.navLinks} />
 
       {variant === NavVariant.TOP_BAR && (
         <Hamburger className={styles.hamburger} />

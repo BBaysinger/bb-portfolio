@@ -12,7 +12,8 @@ export function useTrackHeroInView() {
   useEffect(() => {
     const handle = () => {
       const isAtTop = window.scrollY === 0;
-      const onHome = location.pathname === "/";
+      const onHome =
+        location.pathname === "/" || location.pathname === "/portfolio";
       const nextValue = isAtTop && onHome;
 
       if (nextValue !== lastValueRef.current) {
