@@ -5,7 +5,7 @@ import type { RootState } from "store/store";
 
 export function useAutoCloseMobileNavOnScroll() {
   const isMenuOpen = useSelector(
-    (state: RootState) => state.ui.isMobileNavOpen,
+    (state: RootState) => state.ui.isMobileNavExpanded,
   );
   const dispatch = useDispatch();
 

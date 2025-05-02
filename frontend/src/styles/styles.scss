@@ -15,39 +15,6 @@ html {
   box-sizing: border-box;
 }
 
-#main {
-  z-index: 10;
-  position: relative;
-  background-color: #fff;
-  transition: right $navSlideTime;
-  right: 0;
-  box-shadow: 10px 5px 60px black;
-  min-width: 320px;
-  overflow: hidden;
-
-  &.mobileNavExpanded {
-    // 'right' (or left) property must be used in favor of transform,
-    // as transform causes the fixed nav to shift off screen.
-    // That might be a browser defect.
-    right: 50vw;
-  }
-}
-
-// Prevents the underlying nav from showing during recoil from
-// inertial scroll.
-.underlay {
-  position: fixed;
-  z-index: 5;
-  height: 100dvh;
-  width: 100vw;
-  transition: right $navSlideTime;
-  background-color: #000;
-  right: 0;
-  &.mobileNavExpanded {
-    right: 50vw;
-  }
-}
-
 //////////////////////////////////////////////////////////////////////////
 // Global stuff
 //////////////////////////////////////////////////////////////////////////

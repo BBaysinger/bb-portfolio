@@ -29,7 +29,7 @@ interface NavProps {
  */
 const Nav: React.FC<NavProps> = ({ variant }) => {
   const isMenuOpen = useSelector(
-    (state: RootState) => state.ui.isMobileNavOpen,
+    (state: RootState) => state.ui.isMobileNavExpanded,
   );
 
   // Track if the page is scrolled to the top
@@ -106,9 +106,7 @@ const Nav: React.FC<NavProps> = ({ variant }) => {
 
       {variant === NavVariant.SLIDE_OUT && (
         <>
-          {/* <BarberPole className={styles.barberPole1} paused={!isMenuOpen} />
-          <BarberPole className={styles.barberPole2} paused={!isMenuOpen} /> */}
-          <BarberPole className={styles.barberPole} paused={!isMenuOpen} />
+          <BarberPole className={styles.barberPole} />
         </>
       )}
     </nav>

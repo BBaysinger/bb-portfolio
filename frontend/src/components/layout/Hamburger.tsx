@@ -15,7 +15,7 @@ import styles from "./Hamburger.module.scss";
  */
 const Hamburger: React.FC<{ className: string }> = ({ className }) => {
   const isMenuOpen = useSelector(
-    (state: RootState) => state.ui.isMobileNavOpen,
+    (state: RootState) => state.ui.isMobileNavExpanded,
   );
 
   const dispatch = useDispatch();

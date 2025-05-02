@@ -1,6 +1,8 @@
 @use "@/styles/mixins" as *;
 @use "@/styles/variables" as *;
 
+$navSlideTime: 0.5s;
+
 #main {
   z-index: 10;
   position: relative;
@@ -11,7 +13,7 @@
   min-width: 320px;
   overflow: hidden;
 
-  &.mobileNavExpanded {
+  :global(.isMobileNavExpanded) & {
     // 'right' (or left) property must be used in favor of transform,
     // as transform causes the fixed nav to shift off screen.
     // That might be a browser defect.
@@ -30,7 +32,7 @@
   transition: right $navSlideTime;
   background-color: #000;
   right: 0;
-  &.mobileNavExpanded {
+  :global(.isMobileNavExpanded) & {
     right: 50vw;
   }
 }
