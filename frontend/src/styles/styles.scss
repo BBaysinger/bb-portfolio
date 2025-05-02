@@ -25,7 +25,7 @@ html {
   min-width: 320px;
   overflow: hidden;
 
-  &.expanded {
+  &.mobileNavExpanded {
     // 'right' (or left) property must be used in favor of transform,
     // as transform causes the fixed nav to shift off screen.
     // That might be a browser defect.
@@ -43,7 +43,7 @@ html {
   transition: right $navSlideTime;
   background-color: #000;
   right: 0;
-  &.expanded {
+  &.mobileNavExpanded {
     right: 50vw;
   }
 }

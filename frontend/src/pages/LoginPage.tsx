@@ -55,7 +55,7 @@ const hashPassword = async (password: string) => {
   return retVal;
 };
 
-const Login = ({ onLogin }: { onLogin: () => void }) => {
+const LoginPage = ({ onLogin }: { onLogin: () => void }) => {
   const { login } = useAuth();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -145,4 +145,4 @@ const Login = ({ onLogin }: { onLogin: () => void }) => {
   );
 };
 
-export default Login;
+export default LoginPage;

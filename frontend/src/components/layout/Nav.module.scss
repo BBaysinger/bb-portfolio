@@ -283,49 +283,10 @@ ul {
 }
 
 ////////////////////////////////////////////////////
-// Not sure if I'll keep the barber poles...
+// Barber poles
 ////////////////////////////////////////////////////
 
-// .barberPole1 {
-//   position: absolute;
-//   z-index: 1;
-//   height: 143px;
-//   width: 133px;
-//   right: 117px;
-//   top: 572px;
-//   border-radius: 36px;
-//   opacity: 0.4;
-//   > * {
-//     animation: scrollStripes linear infinite;
-//     animation-duration: 10s;
-//   }
-// }
-// @keyframes scrollStripes {
-//   from {
-//     transform: translateX(0);
-//   }
-//   to {
-//     transform: translateX(-50%);
-//   }
-// }
-
-// .barberPole2 {
-//   position: absolute;
-//   z-index: 1;
-//   height: 40px;
-//   width: 40px;
-//   right: 207px;
-//   top: 15px;
-//   border-radius: 50%;
-//   opacity: 0.8;
-//   transform: rotate(90deg);
-//   > * {
-//     animation-duration: 20s;
-//     max-width: 400%;
-//   }
-// }
-
-.barberPole3 {
+.barberPole {
   position: absolute;
   z-index: 1;
   height: 28px;
@@ -337,6 +298,7 @@ ul {
   > * {
     animation-duration: 20s;
     max-width: 200%;
+    @include pauseUnlessMobileNavExpanded;
   }
 }
 

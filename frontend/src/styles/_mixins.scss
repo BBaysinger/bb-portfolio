@@ -104,3 +104,25 @@
       "viewBox='0 0 72 72'%3E%3Cpath d='#{$d}' fill='#{$formatted-color}'/%3E%3C/svg%3E\")"
   );
 }
+
+//////////////////////////////////////////////////////////////////////////
+// Pause elements based on certain conditions of the UI
+//////////////////////////////////////////////////////////////////////////
+
+// Everything on the page outside the hero should be paused when the hero is visible.
+@mixin pauseWhenHeroVisible {
+  animation-play-state: running;
+
+  :global(.heroVisible) & {
+    animation-play-state: paused !important;
+  }
+}
+
+// Animations within the nav should be paused when the mobile nav is collapsed.
+@mixin pauseUnlessMobileNavExpanded {
+  animation-play-state: paused;
+
+  :global(.isMobileNavExpanded) & {
+    animation-play-state: running;
+  }
+}
