@@ -1,7 +1,7 @@
 import React from "react";
 import { useSelector, useDispatch } from "react-redux";
 
-import { toggleMenu } from "store/menuSlice";
+import { toggleMobileNav } from "store/uiSlice";
 import { RootState } from "store/store";
 import styles from "./Hamburger.module.scss";
 
@@ -14,7 +14,9 @@ import styles from "./Hamburger.module.scss";
  * @version N/A
  */
 const Hamburger: React.FC<{ className: string }> = ({ className }) => {
-  const isMenuOpen = useSelector((state: RootState) => state.menu.isOpen);
+  const isMenuOpen = useSelector(
+    (state: RootState) => state.ui.isMobileNavOpen,
+  );
 
   const dispatch = useDispatch();
   const classNames =
@@ -25,7 +27,7 @@ const Hamburger: React.FC<{ className: string }> = ({ className }) => {
     <button
       type="button"
       className={classNames}
-      onClick={() => dispatch(toggleMenu())}
+      onClick={() => dispatch(toggleMobileNav())}
     >
       <div className={styles.srOnly}>Toggle navigation</div>
       <span className={styles.iconBar}></span>

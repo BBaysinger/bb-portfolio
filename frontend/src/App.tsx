@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from "react-redux";
 import ExecutionEnvironment from "exenv";
 
 import AppRoutes from "routes/AppRoutes";
-import { closeMenu } from "store/menuSlice";
+import { closeMobileNav } from "store/uiSlice";
 import Nav, { NavVariant } from "components/layout/Nav";
 import Footer from "components/layout/Footer";
 import ScrollToHash from "utils/ScrollToHash";
@@ -13,12 +13,14 @@ import styles from "./App.module.scss";
 import "@/styles/styles.scss";
 
 const App: React.FC = () => {
-  const isMenuOpen = useSelector((state: RootState) => state.menu.isOpen);
+  const isMenuOpen = useSelector(
+    (state: RootState) => state.ui.isMobileNavOpen,
+  );
   const dispatch = useDispatch();
 
   const handleScrollOrResize = () => {
     if (isMenuOpen) {
-      dispatch(closeMenu());
+      dispatch(closeMobileNav());
     }
   };
 

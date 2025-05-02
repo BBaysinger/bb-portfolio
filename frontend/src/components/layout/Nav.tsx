@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
-import { closeMenu } from "store/menuSlice";
+import { closeMobileNav } from "store/uiSlice";
 import Hamburger from "components/layout/Hamburger";
 import NavLinks from "./NavLinks";
 import BarberPole from "components/common/BarberPole";
@@ -28,7 +28,9 @@ interface NavProps {
  * @version N/A
  */
 const Nav: React.FC<NavProps> = ({ variant }) => {
-  const isMenuOpen = useSelector((state: RootState) => state.menu.isOpen);
+  const isMenuOpen = useSelector(
+    (state: RootState) => state.ui.isMobileNavOpen,
+  );
 
   // Track if the page is scrolled to the top
   const [isScrolledToTop, setIsScrolledToTop] = useState<boolean>(
@@ -58,9 +60,9 @@ const Nav: React.FC<NavProps> = ({ variant }) => {
     };
   }, []);
 
-  const closeMenuHandler = () => {
+  const closeMobileNavHandler = () => {
     if (variant === NavVariant.SLIDE_OUT) {
-      dispatch(closeMenu());
+      dispatch(closeMobileNav());
     }
   };
 
@@ -91,7 +93,7 @@ const Nav: React.FC<NavProps> = ({ variant }) => {
           </div>
         </div>
       </NavLink>
-      <NavLinks onClick={closeMenuHandler} className={styles.navLinks} />
+      <NavLinks onClick={closeMobileNavHandler} className={styles.navLinks} />
 
       {variant === NavVariant.TOP_BAR && (
         <Hamburger className={styles.hamburger} />

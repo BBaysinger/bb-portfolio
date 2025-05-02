@@ -1,5 +1,6 @@
 import { configureStore } from "@reduxjs/toolkit";
-import menuReducer from "./menuSlice";
+
+import uiReducer from "./uiSlice";
 
 /**
  *
@@ -11,7 +12,7 @@ import menuReducer from "./menuSlice";
  */
 const store = configureStore({
   reducer: {
-    menu: menuReducer,
+    ui: uiReducer,
   },
 });
 
