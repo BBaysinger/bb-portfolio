@@ -13,6 +13,25 @@ import BorderBlinker, { Side } from "./BorderBlinker";
 import { Direction } from "./fluxel-grid/useFluxelProjectiles";
 import styles from "./Hero.module.scss";
 
+const quotes = [
+  "Interactivity is not about clicking, tapping, or swiping. It's about engagement — an invitation to explore, respond, and shape the experience.",
+  "A great UI isn't just seen — it's felt. Every transition, every hover, every microinteraction should whisper to the user: 'I understand you.'",
+  "Front-end development is storytelling in motion. It's not just about displaying content — it's about guiding, delighting, and responding to the user's curiosity.",
+  "True interactivity is invisible. The best experiences don't make users think about how they work — they just feel natural, intuitive, and alive.",
+  "The best user interfaces don't compete for attention — they guide it, shaping experiences that feel effortless and inevitable.",
+  "Animation isn't decoration; it's communication. A well-timed motion can convey hierarchy, feedback, and flow better than words ever could.",
+  "Design is about clarity, development is about precision, and interactivity is about anticipation — knowing what the user needs before they do.",
+  "Every pixel, every transition, every interaction is a conversation with the user. Make sure you're speaking their language.",
+  "Great front-end development is like great stage design — you don't notice it when it's done well, but it shapes the entire experience.",
+  "The web is a living medium. It breathes through animations, responds through interactions, and adapts through responsiveness.",
+  "Users don't want to read manuals. They explore. A well-crafted interface should teach them as they interact — no instructions required.",
+  "Responsiveness isn't just about screen sizes — it's about responding to users' needs, behaviors, and expectations in real-time.",
+  "Microinteractions are the punctuation marks of user experience. They add rhythm, personality, and meaning to an interface.",
+  "Front-end development is the art of making complexity disappear, turning intricate logic into a seamless and intuitive experience.",
+  "A well-designed interface is like a well-told story — every detail matters, and every interaction should feel intentional.",
+  "Interfaces should be designed with curiosity in mind. If the user wants to explore, let them — and reward them for doing so.",
+];
+
 /**
  * Hero
  *
@@ -108,25 +127,6 @@ const Hero: React.FC = () => {
     setIsSlingerIdle(true);
   }, []);
 
-  const quotes = [
-    "Interactivity is not about clicking, tapping, or swiping. It's about engagement — an invitation to explore, respond, and shape the experience.",
-    "A great UI isn't just seen — it's felt. Every transition, every hover, every microinteraction should whisper to the user: 'I understand you.'",
-    "Front-end development is storytelling in motion. It's not just about displaying content — it's about guiding, delighting, and responding to the user's curiosity.",
-    "True interactivity is invisible. The best experiences don't make users think about how they work — they just feel natural, intuitive, and alive.",
-    "The best user interfaces don't compete for attention — they guide it, shaping experiences that feel effortless and inevitable.",
-    "Animation isn't decoration; it's communication. A well-timed motion can convey hierarchy, feedback, and flow better than words ever could.",
-    "Design is about clarity, development is about precision, and interactivity is about anticipation — knowing what the user needs before they do.",
-    "Every pixel, every transition, every interaction is a conversation with the user. Make sure you're speaking their language.",
-    "Great front-end development is like great stage design — you don't notice it when it's done well, but it shapes the entire experience.",
-    "The web is a living medium. It breathes through animations, responds through interactions, and adapts through responsiveness.",
-    "Users don't want to read manuals. They explore. A well-crafted interface should teach them as they interact — no instructions required.",
-    "Responsiveness isn't just about screen sizes — it's about responding to users' needs, behaviors, and expectations in real-time.",
-    "Microinteractions are the punctuation marks of user experience. They add rhythm, personality, and meaning to an interface.",
-    "Front-end development is the art of making complexity disappear, turning intricate logic into a seamless and intuitive experience.",
-    "A well-designed interface is like a well-told story — every detail matters, and every interaction should feel intentional.",
-    "Interfaces should be designed with curiosity in mind. If the user wants to explore, let them — and reward them for doing so.",
-  ];
-
   return (
     <header
       id={id}
@@ -148,7 +148,7 @@ const Hero: React.FC = () => {
           {sessionStorage.getItem("hasDragged")}
         </div>
         <GridController
-          className={styles.GridController}
+          className={styles.gridController}
           ref={GridControllerRef}
           rows={initialRows}
           cols={initialCols}
