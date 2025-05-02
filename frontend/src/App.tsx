@@ -1,14 +1,13 @@
-import { useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import ExecutionEnvironment from "exenv";
+import { useSelector } from "react-redux";
 
 import AppRoutes from "routes/AppRoutes";
-import { closeMobileNav } from "store/uiSlice";
 import Nav, { NavVariant } from "components/layout/Nav";
 import Footer from "components/layout/Footer";
 import ScrollToHash from "utils/ScrollToHash";
 import { RootState } from "store/store";
 import { AuthProvider } from "context/AuthContext";
+import { useTrackHeroInView } from "hooks/useTrackHeroInView";
+import { useAutoCloseMobileNavOnScroll } from "hooks/useAutoCloseMobileNavOnScroll";
 import styles from "./App.module.scss";
 import "@/styles/styles.scss";
 
@@ -16,24 +15,9 @@ const App: React.FC = () => {
   const isMenuOpen = useSelector(
     (state: RootState) => state.ui.isMobileNavOpen,
   );
-  const dispatch = useDispatch();
 
-  const handleScrollOrResize = () => {
-    if (isMenuOpen) {
-      dispatch(closeMobileNav());
-    }
-  };
-
-  useEffect(() => {
-    if (ExecutionEnvironment.canUseDOM) {
-      window.addEventListener("scroll", handleScrollOrResize);
-      window.addEventListener("resize", handleScrollOrResize);
-    }
-    return () => {
-      window.removeEventListener("scroll", handleScrollOrResize);
-      window.removeEventListener("resize", handleScrollOrResize);
-    };
-  }, [dispatch, isMenuOpen]);
+  useTrackHeroInView();
+  useAutoCloseMobileNavOnScroll();
 
   const handleLogin = () => {
     sessionStorage.setItem("isLoggedIn", "true");
