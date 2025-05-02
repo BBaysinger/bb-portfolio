@@ -3,9 +3,9 @@ import React, { useState, useCallback, useRef } from "react";
 import useClientDimensions from "hooks/useClientDimensions";
 import headerLogo from "images/main-header/bb-gradient.webp";
 import BarberPole from "components/common/BarberPole";
-import FluxelController, {
-  FluxelControllerHandle,
-} from "./fluxel-grid/FluxelController";
+import GridController, {
+  GridControllerHandle,
+} from "./fluxel-grid/GridController";
 import Slinger from "./SlingerBox";
 import ParagraphAnimator from "./ParagraphAnimator";
 import useScrollPersistedClass from "hooks/useScrollPersistedClass";
@@ -26,7 +26,7 @@ const Hero: React.FC = () => {
 
   const [highlightSides, setHighlightSides] = useState<Side[]>([]);
   const slingerIsIdle = useRef(false);
-  const fluxelControllerRef = useRef<FluxelControllerHandle>(null);
+  const GridControllerRef = useRef<GridControllerHandle>(null);
   const heroRef = useRef<HTMLDivElement>(null);
 
   const initialRows = 12;
@@ -58,7 +58,7 @@ const Hero: React.FC = () => {
 
       if (
         e.type === "touchmove" &&
-        fluxelControllerRef.current // ?.firstElementChild instanceof HTMLElement
+        GridControllerRef.current // ?.firstElementChild instanceof HTMLElement
       ) {
         setSlingerPos({ x: x, y: y });
       }
@@ -97,7 +97,7 @@ const Hero: React.FC = () => {
             break;
         }
 
-        fluxelControllerRef.current?.launchProjectile(_x, _y, direction); // 🚀
+        GridControllerRef.current?.launchProjectile(_x, _y, direction); // 🚀
       }
     },
     [],
@@ -145,9 +145,9 @@ const Hero: React.FC = () => {
         <div className={styles.debug}>
           {sessionStorage.getItem("hasDragged")}
         </div>
-        <FluxelController
-          className={styles.fluxelController}
-          ref={fluxelControllerRef}
+        <GridController
+          className={styles.GridController}
+          ref={GridControllerRef}
           rows={initialRows}
           cols={initialCols}
           viewableWidth={clientWidth}
