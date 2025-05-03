@@ -20,12 +20,12 @@ type SlingerBoxProps = {
 };
 
 /**
- * SlingerBox component
+ * SlingerBox Component
  *
- * Component containing draggable floating objects with simple physics-based movement.
+ * Component containing draggable floating objects (slingers) with simple physics-based movement.
  * Can be thrown and implements a bouncing effect inside a container.
  * Tracks velocity and uses damping for realistic movement.
- * Will eventually be gamified.
+ * Could eventually be gamified.
  *
  * @component
  * @param {SlingerBoxProps} props - Component props containing optional drag event handlers.

@@ -202,7 +202,7 @@ $bottom: 10px;
   z-index: 10000;
 }
 
-$ctaOffset: -91px;
+$ctaOffset: -120px;
 
 .ctaWrapper {
   right: $ctaOffset;
@@ -231,11 +231,11 @@ $ctaOffset: -91px;
 .cta {
   position: absolute;
   bottom: 10px;
-  right: 12px;
+  right: 30px;
   color: #fff;
   width: 0;
   height: 0;
-  // animation: fadeBounce 2.5s infinite forwards;
+  animation: fadeBounce 2.5s infinite forwards;
 
   &:after {
     content: " ";
@@ -246,10 +246,11 @@ $ctaOffset: -91px;
     cursor: pointer;
     will-change: bottom, opacity;
     text-decoration: none;
-    height: 155px;
-    width: 64px;
-    background-repeat: repeat;
-    background-image: url("/images/home/hello-bolt-outline.svg");
+    height: 250px;
+    width: 76px;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    background-image: url("/images/home/orange-arrow.webp");
   }
 }
 
@@ -271,12 +272,15 @@ $ctaOffset: -91px;
 .ctaText {
   position: absolute;
   display: block;
-  left: -29px;
-  top: -45px;
+  left: -38px;
+  top: -57px;
   transform-origin: 0 0;
   transform: rotate(-90deg);
-  font-size: 16px;
+  font-size: 25px;
+  font-weight: 700;
   width: max-content;
+  z-index: 2;
+  color: #000;
 }
 
 .debug {
