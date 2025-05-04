@@ -38,21 +38,21 @@
     span {
       color: rgba(255, 255, 255, 0.8);
     }
-    &::before,
-    &::after {
-      color: $heavierThemeColor;
-      line-height: 1.2em;
-      font-weight: bold;
-      white-space: nowrap;
-      display: inline;
-    }
-    &::before {
-      content: "[";
-      padding-right: 10px;
-    }
-    &::after {
-      content: "]";
-      padding-left: 10px;
-    }
+    // &::before,
+    // &::after {
+    //   color: $heavierThemeColor;
+    //   line-height: 1.2em;
+    //   font-weight: bold;
+    //   white-space: nowrap;
+    //   display: inline;
+    // }
+    // &::before {
+    //   content: "[";
+    //   padding-right: 10px;
+    // }
+    // &::after {
+    //   content: "]";
+    //   padding-left: 10px;
+    // }
   }
 }

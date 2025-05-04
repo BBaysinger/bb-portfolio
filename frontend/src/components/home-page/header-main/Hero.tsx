@@ -45,6 +45,21 @@ const Hero: React.FC = () => {
 
   const [highlightSides, setHighlightSides] = useState<Side[]>([]);
   const [isSlingerIdle, setIsSlingerIdle] = useState(false);
+  const [hasDraggedDelayed, setHasDraggedDelayed] = useState(false);
+  // For sending position data to the FluxelGrid.
+  const [slingerPos, setSlingerPos] = useState<
+    { x: number; y: number } | null | undefined
+  >(undefined);
+  const [hasDragged, _setHasDragged] = useState<boolean>(
+    () => sessionStorage.getItem("hasDragged") === "true",
+  );
+  const setHasDragged = useCallback((value: boolean) => {
+    sessionStorage.setItem("hasDragged", value ? "true" : "false");
+    _setHasDragged(value);
+    setTimeout(() => {
+      setHasDraggedDelayed(value);
+    }, 2000);
+  }, []);
 
   const slingerIsIdle = useRef(false);
   const gridControllerRef = useRef<GridControllerHandle>(null);
@@ -54,20 +69,6 @@ const Hero: React.FC = () => {
   const initialCols = 16;
 
   const { clientHeight, clientWidth } = useClientDimensions();
-
-  // For sending position data to the FluxelGrid.
-  const [slingerPos, setSlingerPos] = useState<
-    { x: number; y: number } | null | undefined
-  >(undefined);
-
-  const [hasDragged, _setHasDragged] = useState<boolean>(
-    () => sessionStorage.getItem("hasDragged") === "true",
-  );
-
-  const setHasDragged = useCallback((value: boolean) => {
-    sessionStorage.setItem("hasDragged", value ? "true" : "false");
-    _setHasDragged(value);
-  }, []);
 
   const onSlingerDrag = useCallback(
     (x: number, y: number, e: MouseEvent | TouchEvent) => {
@@ -135,7 +136,7 @@ const Hero: React.FC = () => {
         styles.hero,
         hasScrolledOut && styles.hasScrolledOut,
         isSlingerIdle && `${styles.isSlingerIdle} isSlingerIdle`,
-        hasDragged
+        hasDraggedDelayed
           ? `${styles.hasDragged} hasDragged`
           : `${styles.notDragged} notDragged`,
       ]
@@ -163,7 +164,7 @@ const Hero: React.FC = () => {
         />
         <div className={styles.slingerWrapper}>
           <Slinger
-            onDrag={onSlingerDrag}
+            onDragStart={onSlingerDrag}
             onDragEnd={onSlingerDragEnd}
             onWallCollision={onSlingerWallCollision}
             onIdle={onSlingerIdle}
