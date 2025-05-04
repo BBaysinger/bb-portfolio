@@ -13,7 +13,7 @@ type SlingerObject = {
 };
 
 type SlingerBoxProps = {
-  onDrag?: (x: number, y: number, e: MouseEvent | TouchEvent) => void;
+  onDragStart?: (x: number, y: number, e: MouseEvent | TouchEvent) => void;
   onDragEnd?: (x: number, y: number, e: MouseEvent | TouchEvent) => void;
   onWallCollision?: (wall: Side, x: number, y: number) => void;
   onIdle?: () => void;
@@ -31,7 +31,7 @@ type SlingerBoxProps = {
  * @param {SlingerBoxProps} props - Component props containing optional drag event handlers.
  */
 const SlingerBox: React.FC<SlingerBoxProps> = ({
-  onDrag,
+  onDragStart,
   onDragEnd,
   onWallCollision,
   onIdle,
@@ -229,7 +229,7 @@ const SlingerBox: React.FC<SlingerBoxProps> = ({
           el.style.transform = `translate(${Math.round(obj.x)}px, ${Math.round(obj.y)}px)`;
         }
 
-        onDrag?.(clientX, clientY, e);
+        onDragStart?.(clientX, clientY, e);
       }
     });
 
