@@ -298,7 +298,8 @@ $scrollCtaOffset: -100px;
     opacity: 1;
   }
 
-  // Reusing the dragged delayed feature, because we can.
+  // Reusing the dragged delay feature to prevent rendering
+  // of the transparent slinger CTA
   :global(.hasDraggedDelay) &::before {
     display: none;
   }
