@@ -50,6 +50,14 @@ const AnimationSequencer = forwardRef<
       delay: 21000,
     },
     {
+      wide: "/images/fluxel-animations/javascript-typescript.gif",
+      narrow: "/images/fluxel-animations/javascript-typescript.gif",
+      delay: 21000,
+    },
+  ];
+
+  const imperativeAnimations = [
+    {
       wide: "/images/fluxel-animations/burst1.gif",
       narrow: "/images/fluxel-animations/burst1.gif",
       delay: 7000,
@@ -63,19 +71,6 @@ const AnimationSequencer = forwardRef<
       wide: "/images/fluxel-animations/spiral.gif",
       narrow: "/images/fluxel-animations/spiral.gif",
       delay: 9000,
-    },
-  ];
-
-  const imperativeAnimations = [
-    {
-      wide: "/images/fluxel-animations/boom-wide.gif",
-      narrow: "/images/fluxel-animations/boom-narrow.gif",
-      delay: 6000,
-    },
-    {
-      wide: "/images/fluxel-animations/shockwave-wide.gif",
-      narrow: "/images/fluxel-animations/shockwave-narrow.gif",
-      delay: 8000,
     },
     // Add more imperative animations here
   ];
