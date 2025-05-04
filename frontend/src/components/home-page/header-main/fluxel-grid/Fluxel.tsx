@@ -24,7 +24,7 @@ export interface FluxelData {
  */
 const Fluxel: React.FC<{ data: FluxelData }> = ({ data }) => {
   const transformStyle = {
-    "--base-color": `rgba(0, 0, 0, ${data.influence * 0.5 - 0.1})`,
+    "--base-color": `rgba(20, 20, 20, ${data.influence * 1.0 - 0.1})`,
     "--overlay-color": data.colorVariation,
   } as React.CSSProperties;
 
