@@ -1,6 +1,6 @@
 import React from "react";
 
-import cornerShadow from "images/main-header/corner-shadow.webp";
+import cornerShadow from "images/hero/corner-shadow.webp";
 import styles from "./Shadow.module.scss";
 
 interface ShadowProps {

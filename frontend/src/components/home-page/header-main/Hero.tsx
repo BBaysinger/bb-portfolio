@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useRef } from "react";
 
 import useClientDimensions from "hooks/useClientDimensions";
-import headerLogo from "images/main-header/bb-gradient.webp";
+import headerLogo from "images/hero/bb-gradient.webp";
 import BarberPole from "components/common/BarberPole";
 import GridController, {
   GridControllerHandle,
