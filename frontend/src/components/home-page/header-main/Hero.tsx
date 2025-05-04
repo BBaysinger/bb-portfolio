@@ -45,7 +45,9 @@ const Hero: React.FC = () => {
 
   const [highlightSides, setHighlightSides] = useState<Side[]>([]);
   const [isSlingerIdle, setIsSlingerIdle] = useState(false);
-  const [hasDraggedDelayed, setHasDraggedDelayed] = useState(false);
+  const [hasDraggedDelayed, setHasDraggedDelayed] = useState(
+    () => sessionStorage.getItem("hasDragged") === "true",
+  );
   // For sending position data to the FluxelGrid.
   const [slingerPos, setSlingerPos] = useState<
     { x: number; y: number } | null | undefined

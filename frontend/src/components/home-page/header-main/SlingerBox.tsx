@@ -39,7 +39,7 @@ const SlingerBox: React.FC<SlingerBoxProps> = ({
   const ballSize = 50;
   const idleSpeedThreshold = 0.75;
   const desiredFPS = 60;
-  const frameInterval = 1000 / desiredFPS; // e.g., 1000ms / 30fps ≈ 33.33ms
+  const frameInterval = 1000 / desiredFPS;
   const [, forceUpdate] = useReducer((x) => x + 1, 0);
 
   // refs
