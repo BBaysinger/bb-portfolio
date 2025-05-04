@@ -306,6 +306,7 @@ const SlingerBox: React.FC<SlingerBoxProps> = ({
       {objectsRef.current.map((obj) => (
         <div
           className={`${styles.slinger} slinger`}
+          tabIndex={10} // For the 'grabbing' cursor TODO: Make sure it doesn't interfere accessibility.
           key={obj.id}
           onMouseDown={(e) => handleMouseDown(obj.id, e)}
           onTouchStart={(e) => handleTouchStart(obj.id, e)}
