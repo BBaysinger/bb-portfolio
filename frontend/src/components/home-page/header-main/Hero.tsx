@@ -182,9 +182,11 @@ const Hero: React.FC = () => {
           className={styles.message}
         />
 
-        <a href="#hello" className={styles.scrollCta}>
-          <div className={styles.scrollCtaText}>2. Say hello</div>
-        </a>
+        <div className={styles.scrollCtaWrapper}>
+          <a href="#hello" className={styles.scrollCta}>
+            <div className={styles.scrollCtaText}>2. Say hello</div>
+          </a>
+        </div>
       </div>
       <div className={styles.branding}>
         <div className={styles.logoWrapper}>

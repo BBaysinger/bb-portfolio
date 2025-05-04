@@ -1,7 +1,7 @@
 @use "@/styles/mixins" as *;
 @use "@/styles/variables" as *;
 
-$thickness: clamp(15px, 4vw, 40px);
+$thickness: clamp(20px, 3vw, 28px);
 $offset: -1vw;
 
 .borderBlinker {
