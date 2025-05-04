@@ -45,10 +45,10 @@ const Hero: React.FC = () => {
 
   const [highlightSides, setHighlightSides] = useState<Side[]>([]);
   const [isSlingerIdle, setIsSlingerIdle] = useState(false);
-  const [hasDraggedDelayed, setHasDraggedDelayed] = useState(
+  // To apply display: none to the Slinger CTA.
+  const [hasDraggedDelay, setHasDraggedDelay] = useState(
     () => sessionStorage.getItem("hasDragged") === "true",
   );
-  // For sending position data to the FluxelGrid.
   const [slingerPos, setSlingerPos] = useState<
     { x: number; y: number } | null | undefined
   >(undefined);
@@ -59,8 +59,8 @@ const Hero: React.FC = () => {
     sessionStorage.setItem("hasDragged", value ? "true" : "false");
     _setHasDragged(value);
     setTimeout(() => {
-      setHasDraggedDelayed(value);
-    }, 2000);
+      setHasDraggedDelay(value);
+    }, 1000);
   }, []);
 
   const slingerIsIdle = useRef(false);
@@ -141,9 +141,9 @@ const Hero: React.FC = () => {
         hasDragged
           ? `${styles.hasDragged} hasDragged`
           : `${styles.notDragged} notDragged`,
-        hasDraggedDelayed
-          ? `${styles.hasDraggedDelayed} hasDraggedDelayed`
-          : `${styles.notDraggedDelayed} notDraggedDelayed`,
+        hasDraggedDelay
+          ? `${styles.hasDraggedDelay} hasDraggedDelay`
+          : `${styles.notDraggedDelay} notDraggedDelay`,
       ]
         .filter(Boolean)
         .join(" ")}
@@ -182,11 +182,9 @@ const Hero: React.FC = () => {
           className={styles.message}
         />
 
-        <div className={styles.ctaWrapper}>
-          <a href="#hello" className={styles.cta}>
-            <div className={styles.ctaText}>2. Say hello</div>
-          </a>
-        </div>
+        <a href="#hello" className={styles.scrollCta}>
+          <div className={styles.scrollCtaText}>2. Say hello</div>
+        </a>
       </div>
       <div className={styles.branding}>
         <div className={styles.logoWrapper}>
