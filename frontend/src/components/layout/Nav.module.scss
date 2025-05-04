@@ -51,6 +51,10 @@
   min-width: 320px;
   height: $navBarHeight;
   overflow: hidden;
+  pointer-events: none;
+  > * {
+    pointer-events: all;
+  }
 
   .title {
     width: 100%;
@@ -69,7 +73,6 @@
 
     > * {
       margin-left: 4px;
-
       @include breakpointUp($b360px) {
         margin-left: 8px;
       }
