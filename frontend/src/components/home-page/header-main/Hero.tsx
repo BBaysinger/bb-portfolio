@@ -136,18 +136,21 @@ const Hero: React.FC = () => {
         styles.hero,
         hasScrolledOut && styles.hasScrolledOut,
         isSlingerIdle && `${styles.isSlingerIdle} isSlingerIdle`,
-        hasDraggedDelayed
+        hasDragged
           ? `${styles.hasDragged} hasDragged`
           : `${styles.notDragged} notDragged`,
+        hasDraggedDelayed
+          ? `${styles.hasDraggedDelayed} hasDraggedDelayed`
+          : `${styles.notDraggedDelayed} notDraggedDelayed`,
       ]
         .filter(Boolean)
         .join(" ")}
       style={{ minHeight: `${clientHeight}px` }}
     >
       <div className={styles.headerWrapper}>
-        <div className={styles.debug}>
+        {/* <div className={styles.debug}>
           {sessionStorage.getItem("hasDragged")}
-        </div>
+        </div> */}
         <GridController
           className={styles.gridController}
           ref={gridControllerRef}

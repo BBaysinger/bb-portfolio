@@ -212,13 +212,13 @@ $ctaOffset: -120px;
   width: 0;
   height: 0;
   z-index: 10000;
-  transition: right 0.5s;
+  transition: right 0.8s;
   @include breakpointUp($b768px) {
     transform: scale(1.2);
   }
 }
 
-.hasDragged .ctaWrapper {
+.hasDraggedDelayed .ctaWrapper {
   transition-delay: 1s;
   right: 0;
 }
@@ -272,7 +272,7 @@ $ctaOffset: -120px;
 .ctaText {
   position: absolute;
   display: block;
-  left: -38px;
+  left: -39px;
   top: -57px;
   transform-origin: 0 0;
   transform: rotate(-90deg);
@@ -296,7 +296,6 @@ $ctaOffset: -120px;
 :global(.slinger) {
   &::before {
     content: "1. Try me!";
-    display: none;
     opacity: 0;
     transition: opacity 0.3s linear;
     position: absolute;
@@ -312,11 +311,17 @@ $ctaOffset: -120px;
     pointer-events: none;
     transform-origin: 100% 50%;
     transform: rotate(45deg);
+    transition: opacity 0.5s linear;
   }
 
   :global(.notDragged) &::before {
     display: block;
     opacity: 1;
+  }
+
+  // Reusing the dragged delayed feature, because we can.
+  :global(.hasDraggedDelayed) &::before {
+    display: none;
   }
 }
 
