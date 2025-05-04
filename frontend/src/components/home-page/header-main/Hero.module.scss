@@ -202,55 +202,34 @@ $bottom: 10px;
   z-index: 10000;
 }
 
-$ctaOffset: -120px;
+$scrollCtaOffset: -100px;
 
-.ctaWrapper {
-  right: $ctaOffset;
-  display: block;
-  position: absolute;
-  bottom: 0;
-  width: 0;
-  height: 0;
-  z-index: 10000;
-  transition: right 0.8s;
-  @include breakpointUp($b768px) {
-    transform: scale(1.2);
-  }
+.hasDragged .scrollCta {
+  right: 30px;
 }
 
-.hasDraggedDelayed .ctaWrapper {
-  transition-delay: 1s;
-  right: 0;
-}
-
-.hasScrolledOut .ctaWrapper {
+.hasScrolledOut .scrollCta {
   transition-delay: 0s;
-  right: $ctaOffset;
+  right: $scrollCtaOffset;
+  animation-play-state: paused;
 }
 
-.cta {
+.scrollCta {
   position: absolute;
   bottom: 10px;
-  right: 30px;
+  right: $scrollCtaOffset;
   color: #fff;
-  width: 0;
-  height: 0;
+  height: 250px;
+  width: 76px;
+  z-index: 10000;
+  transition: right 0.8s;
+  transition-delay: 2s;
   animation: fadeBounce 2.5s infinite forwards;
-
-  &:after {
-    content: " ";
-    bottom: 0;
-    right: 0;
-    position: absolute;
-    color: #fff;
-    cursor: pointer;
-    will-change: bottom, opacity;
-    text-decoration: none;
-    height: 250px;
-    width: 76px;
-    background-repeat: no-repeat;
-    background-size: 100% 100%;
-    background-image: url("/images/home/orange-arrow.webp");
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  background-image: url("/images/home/orange-arrow.webp");
+  @include breakpointUp($b768px) {
+    transform: scale(1.2);
   }
 }
 
@@ -269,17 +248,17 @@ $ctaOffset: -120px;
   }
 }
 
-.ctaText {
+.scrollCtaText {
   position: absolute;
   display: block;
-  left: -39px;
-  top: -57px;
+  left: 37px;
+  top: 185px;
   transform-origin: 0 0;
   transform: rotate(-90deg);
   font-size: 25px;
   font-weight: 700;
+  letter-spacing: 0.01em;
   width: max-content;
-  z-index: 2;
   color: #000;
 }
 
@@ -320,7 +299,7 @@ $ctaOffset: -120px;
   }
 
   // Reusing the dragged delayed feature, because we can.
-  :global(.hasDraggedDelayed) &::before {
+  :global(.hasDraggedDelay) &::before {
     display: none;
   }
 }
