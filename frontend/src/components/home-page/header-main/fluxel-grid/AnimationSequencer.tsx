@@ -38,15 +38,15 @@ const AnimationSequencer = forwardRef<
   const [isFading, setIsFading] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const queueRef = useRef<number[]>([]);
-  const delay = 12000;
-  const initialDelay = 5000;
+  const delay = 16000;
+  const initialDelay = 10000;
   const ratio = 40 / 33;
 
   // Separate pools
   const inactivityAnimations = [
     {
-      wide: "/images/fluxel-animations/interactive.gif",
-      narrow: "/images/fluxel-animations/interactive.gif",
+      wide: "/images/fluxel-animations/interactive-web.gif",
+      narrow: "/images/fluxel-animations/interactive-web.gif",
       delay: 21000,
     },
     {
