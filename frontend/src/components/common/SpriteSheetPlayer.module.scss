@@ -1,0 +1,13 @@
+.spriteSheetPlayer {
+  background-size: auto;
+  background-repeat: repeat;
+}
+
+.debug {
+  position: absolute;
+  font-size: 100px;
+  left: 15%;
+  top: 50%;
+  transform: translateY(-50%);
+  color: white;
+}
