@@ -1,7 +1,10 @@
 .spriteSheetPlayer {
+  will-change: background-position;
   background-size: cover;
   background-repeat: no-repeat;
   object-fit: fill;
+  opacity: 0.4;
+  contain: strict;
 }
 
 .debug {
