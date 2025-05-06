@@ -33,9 +33,13 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
   useEffect(() => {
     if (!autoPlay) return;
 
+    let isCancelled = false;
     const frameDuration = 1000 / fps;
+    lastTimeRef.current = performance.now(); // Reset this!
 
     const animate = (now: number) => {
+      if (isCancelled) return;
+
       const elapsed = now - lastTimeRef.current;
 
       if (elapsed >= frameDuration) {
@@ -45,7 +49,7 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
           const next = prev + 1;
           if (next >= frameCount) {
             if (loop) return 0;
-            cancelAnimationFrame(animationFrameRef.current!);
+            isCancelled = true;
             onEnd?.();
             return prev;
           }
@@ -59,11 +63,18 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
     animationFrameRef.current = requestAnimationFrame(animate);
 
     return () => {
+      isCancelled = true;
       if (animationFrameRef.current !== null) {
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
   }, [fps, frameCount, loop, autoPlay]);
+
+  useEffect(() => {
+    if (autoPlay) {
+      setFrameIndex(0);
+    }
+  }, [autoPlay]);
 
   const lastIndex = Math.max(frameCount - 1, 1);
   const backgroundPosition = `${(frameIndex * 100) / lastIndex}% 0%`;

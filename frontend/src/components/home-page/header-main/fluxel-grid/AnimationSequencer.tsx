@@ -10,7 +10,6 @@ import SpriteSheetPlayer from "components/common/SpriteSheetPlayer";
 import styles from "./AnimationSequencer.module.scss";
 
 export interface AnimationSequencerHandle {
-  // fadeOut: () => void;
   playImperativeAnimation: (index?: number) => void;
 }
 
@@ -28,6 +27,7 @@ const AnimationSequencer = forwardRef<
   { className: string }
 >(({ className }, ref) => {
   const [activeAnim, setActiveAnim] = useState<AnimationMeta | null>(null);
+  const [animKey, setAnimKey] = useState(0);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const queueRef = useRef<number[]>([]);
 
@@ -118,6 +118,12 @@ const AnimationSequencer = forwardRef<
     return queueRef.current.shift()!;
   };
 
+  const safeSetAnim = (anim: AnimationMeta) => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    setActiveAnim(anim);
+    setAnimKey((k) => k + 1);
+  };
+
   const updateAnimation = () => {
     const aspect = window.innerWidth / window.innerHeight;
     const nextIndex = getNextIndex();
@@ -126,28 +132,19 @@ const AnimationSequencer = forwardRef<
 
     console.log(`AnimationSequencer: ${filename}`);
 
-    setActiveAnim({
+    safeSetAnim({
       ...anim,
       wide: directory + filename,
       narrow: directory + filename,
     });
   };
 
-  // const fadeOut = () => {
-  //   if (timeoutRef.current) clearTimeout(timeoutRef.current);
-  //   setTimeout(() => {
-  //     setActiveAnim(null);
-  //   }, 1000);
-  // };
-
   const playImperativeAnimation = (index = 0) => {
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
-
     const aspect = window.innerWidth / window.innerHeight;
     const anim = imperativeAnimations[index % imperativeAnimations.length];
     const filename = aspect < ratio ? anim.narrow : anim.wide;
 
-    setActiveAnim({
+    safeSetAnim({
       ...anim,
       wide: directory + filename,
       narrow: directory + filename,
@@ -170,9 +167,8 @@ const AnimationSequencer = forwardRef<
   }, []);
 
   const handleEnd = () => {
-    timeoutRef.current = setTimeout(() => {
-      updateAnimation();
-    }, delay);
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    timeoutRef.current = setTimeout(updateAnimation, delay);
   };
 
   const currentSrc =
@@ -185,6 +181,7 @@ const AnimationSequencer = forwardRef<
     <div className={`${styles.animationSequencer} ${className}`}>
       {activeAnim && currentSrc && (
         <SpriteSheetPlayer
+          key={animKey}
           className={styles.spriteSheetPlayer}
           src={currentSrc}
           frameWidth={activeAnim.frameWidth}
