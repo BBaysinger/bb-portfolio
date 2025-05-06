@@ -6,119 +6,108 @@ import {
   useImperativeHandle,
 } from "react";
 
+import SpriteSheetPlayer from "components/common/SpriteSheetPlayer";
 import styles from "./AnimationSequencer.module.scss";
 
 export interface AnimationSequencerHandle {
-  fadeOut: () => void;
+  // fadeOut: () => void;
   playImperativeAnimation: (index?: number) => void;
 }
 
-/**
- * Giant pixel animations using video.
- *
- * @author Bradley Baysinger
- * @since The beginning of time.
- * @version N/A
- */
+interface AnimationMeta {
+  wide: string;
+  narrow: string;
+  frameWidth: number;
+  frameHeight: number;
+  frameCount: number;
+  fps?: number;
+}
+
 const AnimationSequencer = forwardRef<
   AnimationSequencerHandle,
   { className: string }
 >(({ className }, ref) => {
-  const [videoSrc, setVideoSrc] = useState<string | null>(null);
-  const [isFading, setIsFading] = useState(false);
-  const [_key, setKey] = useState(0); // used to reset video element
+  const [activeAnim, setActiveAnim] = useState<AnimationMeta | null>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const queueRef = useRef<number[]>([]);
-  const videoRef = useRef<HTMLVideoElement | null>(null);
 
   const delay = 16000;
   const initialDelay = 3000;
   const ratio = 40 / 33;
-  const directory = "/video/fluxel-animations/";
+  const directory = "/spritesheets/fluxel-animations/";
 
-  const inactivityAnimations = [
+  const inactivityAnimations: AnimationMeta[] = [
     {
-      wide: "interactive-web.webm",
-      narrow: "interactive-web.webm",
+      wide: "interactive-web.webp",
+      narrow: "interactive-web.webp",
+      frameWidth: 16,
+      frameHeight: 12,
+      frameCount: 104,
+      fps: 10,
     },
     {
-      wide: "javascript-typescript.webm",
-      narrow: "javascript-typescript.webm",
+      wide: "javascript-typescript.webp",
+      narrow: "javascript-typescript.webp",
+      frameWidth: 16,
+      frameHeight: 12,
+      frameCount: 142,
+      fps: 10,
     },
     {
-      wide: "responsive-design.webm",
-      narrow: "responsive-design.webm",
+      wide: "responsive-design.webp",
+      narrow: "responsive-design.webp",
+      frameWidth: 16,
+      frameHeight: 12,
+      frameCount: 121,
+      fps: 20,
     },
     {
-      wide: "single-page-applications.webm",
-      narrow: "single-page-applications.webm",
+      wide: "single-page-applications.webp",
+      narrow: "single-page-applications.webp",
+      frameWidth: 16,
+      frameHeight: 12,
+      frameCount: 154,
+      fps: 10,
     },
     {
-      wide: "mobile-first.webm",
-      narrow: "mobile-first.webm",
+      wide: "mobile-first.webp",
+      narrow: "mobile-first.webp",
+      frameWidth: 16,
+      frameHeight: 12,
+      frameCount: 82,
+      fps: 10,
     },
   ];
 
-  const imperativeAnimations = [
+  const imperativeAnimations: AnimationMeta[] = [
     {
-      wide: "burst1.webm",
-      narrow: "burst1.webm",
+      wide: "burst1.webp",
+      narrow: "burst1.webp",
+      frameWidth: 16,
+      frameHeight: 12,
+      frameCount: 30,
+      fps: 10,
     },
     {
-      wide: "invaders-wide.webm",
-      narrow: "invaders-narrow.webm",
+      wide: "invaders-wide.webp",
+      narrow: "invaders-narrow.webp",
+      frameWidth: 16,
+      frameHeight: 12,
+      frameCount: 60,
+      fps: 10,
     },
     {
-      wide: "spiral.webm",
-      narrow: "spiral.webm",
+      wide: "spiral.webp",
+      narrow: "spiral.webp",
+      frameWidth: 16,
+      frameHeight: 12,
+      frameCount: 50,
+      fps: 10,
     },
   ];
 
   const shuffleArray = (array: number[]) =>
     array.sort(() => Math.random() - 0.5);
-
-  useEffect(() => {
-    if (!videoRef.current || !videoSrc) return;
-
-    let retryCount = 0;
-
-    const tryPlay = () => {
-      videoRef.current!.play().catch((err) => {
-        if (err.name === "AbortError") {
-          console.warn("play() aborted — waiting for refocus to retry.");
-          retryCount = 0; // wait for focus/visibility to retry
-        } else {
-          console.error("Video play() error:", err);
-        }
-      });
-    };
-
-    const handleVisibilityOrFocus = () => {
-      if (
-        document.visibilityState === "visible" &&
-        document.hasFocus() &&
-        videoRef.current &&
-        retryCount < 5
-      ) {
-        retryCount++;
-        console.log("Retrying play() after focus/visibility...");
-        videoRef.current.play().catch((err) => {
-          console.warn("Retry failed:", err);
-        });
-      }
-    };
-
-    document.addEventListener("visibilitychange", handleVisibilityOrFocus);
-    window.addEventListener("focus", handleVisibilityOrFocus);
-
-    videoRef.current.load();
-    tryPlay();
-
-    return () => {
-      document.removeEventListener("visibilitychange", handleVisibilityOrFocus);
-      window.removeEventListener("focus", handleVisibilityOrFocus);
-    };
-  }, [videoSrc]);
 
   const getNextIndex = () => {
     if (queueRef.current.length === 0) {
@@ -129,129 +118,79 @@ const AnimationSequencer = forwardRef<
     return queueRef.current.shift()!;
   };
 
-  const updateVideo = () => {
+  const updateAnimation = () => {
     const aspect = window.innerWidth / window.innerHeight;
     const nextIndex = getNextIndex();
     const anim = inactivityAnimations[nextIndex];
     const filename = aspect < ratio ? anim.narrow : anim.wide;
-    console.log("updateVideo:", filename);
 
-    // Set the video source
-    setVideoSrc(directory + filename);
-    setKey((prev) => prev + 1);
-
-    // Set timeout to clear the video and schedule the next one
-    // timeoutRef.current = setTimeout(() => {
-    //   setVideoSrc(null);
-    // }, delay);
+    setActiveAnim({
+      ...anim,
+      wide: directory + filename,
+      narrow: directory + filename,
+    });
   };
 
-  const fadeOut = () => {
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-      timeoutRef.current = null;
-    }
-
-    setIsFading(true);
-    setTimeout(() => {
-      setVideoSrc(null);
-      setIsFading(false);
-    }, 1000); // CSS fade-out duration
-  };
+  // const fadeOut = () => {
+  //   if (timeoutRef.current) clearTimeout(timeoutRef.current);
+  //   setTimeout(() => {
+  //     setActiveAnim(null);
+  //   }, 1000);
+  // };
 
   const playImperativeAnimation = (index = 0) => {
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-      timeoutRef.current = null;
-    }
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
 
     const aspect = window.innerWidth / window.innerHeight;
     const anim = imperativeAnimations[index % imperativeAnimations.length];
     const filename = aspect < ratio ? anim.narrow : anim.wide;
-    console.log("Playing imperative animation:", filename);
-    setVideoSrc(directory + filename);
-    setKey((prev) => prev + 1);
+
+    setActiveAnim({
+      ...anim,
+      wide: directory + filename,
+      narrow: directory + filename,
+    });
 
     timeoutRef.current = setTimeout(() => {
-      setVideoSrc(null);
+      setActiveAnim(null);
     }, delay);
   };
 
   useImperativeHandle(ref, () => ({
-    fadeOut,
     playImperativeAnimation,
   }));
 
   useEffect(() => {
-    timeoutRef.current = setTimeout(updateVideo, initialDelay);
-
+    timeoutRef.current = setTimeout(updateAnimation, initialDelay);
     return () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
   }, []);
 
-  const handleVideoEnded = () => {
-    console.log("Video ended");
-
-    setVideoSrc(null);
-
+  const handleEnd = () => {
     timeoutRef.current = setTimeout(() => {
-      updateVideo(); // Start next animation
+      updateAnimation();
     }, delay);
   };
 
-  const handleVideoError = (
-    e: React.SyntheticEvent<HTMLVideoElement, Event>,
-  ) => {
-    const target = e.currentTarget;
-    const error = target.error;
-
-    if (!error) {
-      console.error("Unknown video error occurred.");
-      return;
-    }
-
-    switch (error.code) {
-      case error.MEDIA_ERR_ABORTED:
-        console.error("Video playback was aborted.");
-        break;
-      case error.MEDIA_ERR_NETWORK:
-        console.error("A network error caused the video download to fail.");
-        break;
-      case error.MEDIA_ERR_DECODE:
-        console.error(
-          "The video playback was aborted due to a corruption or unsupported features.",
-        );
-        break;
-      case error.MEDIA_ERR_SRC_NOT_SUPPORTED:
-        console.error(
-          "The video format is not supported or the file could not be found.",
-        );
-        break;
-      default:
-        console.error("An unknown video error occurred.");
-        break;
-    }
-
-    // Try to skip to the next animation
-    timeoutRef.current = setTimeout(() => {
-      updateVideo();
-    }, delay);
-  };
+  const currentSrc =
+    activeAnim &&
+    (window.innerWidth / window.innerHeight < ratio
+      ? activeAnim.narrow
+      : activeAnim.wide);
 
   return (
-    <div
-      className={`${styles.animation} ${className} ${isFading ? styles.fadeOut : ""}`}
-    >
-      {videoSrc && (
-        <video
-          ref={videoRef}
-          src={videoSrc || "null"}
-          autoPlay
-          muted
-          playsInline
-          onEnded={handleVideoEnded}
-          onError={handleVideoError}
+    <div className={`${styles.animationSequencer} ${className}`}>
+      {activeAnim && currentSrc && (
+        <SpriteSheetPlayer
+          className={styles.spriteSheetPlayer}
+          src={currentSrc}
+          frameWidth={activeAnim.frameWidth}
+          frameHeight={activeAnim.frameHeight}
+          frameCount={activeAnim.frameCount}
+          fps={activeAnim.fps}
+          loop={false}
+          onEnd={handleEnd}
         />
       )}
     </div>
