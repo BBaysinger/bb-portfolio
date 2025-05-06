@@ -53,6 +53,10 @@ const AnimationSequencer = forwardRef<
       wide: "single-page-applications.webm",
       narrow: "single-page-applications.webm",
     },
+    {
+      wide: "mobile-first.webm",
+      narrow: "mobile-first.webm",
+    },
   ];
 
   const imperativeAnimations = [
