@@ -43,7 +43,7 @@ const Greeting: React.FC = () => {
               </p>
             </div>
             <a ref={addToRefs} href="#list">
-              <div>3. Take a look!</div>
+              <div>Take a look!</div>
             </a>
           </div>
         </div>

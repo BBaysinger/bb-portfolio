@@ -32,7 +32,7 @@ const AnimationSequencer = forwardRef<
   const queueRef = useRef<number[]>([]);
 
   const delay = 16000;
-  const initialDelay = 3000;
+  const initialDelay = 8000;
   const ratio = 40 / 33;
   const directory = "/spritesheets/fluxel-animations/";
 
