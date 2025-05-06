@@ -27,26 +27,41 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
   preserveAspectRatio = false,
 }) => {
   const [frameIndex, setFrameIndex] = useState(0);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const animationFrameRef = useRef<number | null>(null);
+  const lastTimeRef = useRef<number>(performance.now());
 
   useEffect(() => {
     if (!autoPlay) return;
 
-    intervalRef.current = setInterval(() => {
-      setFrameIndex((prev) => {
-        const next = prev + 1;
-        if (next >= frameCount) {
-          if (loop) return 0;
-          clearInterval(intervalRef.current!);
-          onEnd?.();
-          return prev;
-        }
-        return next;
-      });
-    }, 1000 / fps);
+    const frameDuration = 1000 / fps;
+
+    const animate = (now: number) => {
+      const elapsed = now - lastTimeRef.current;
+
+      if (elapsed >= frameDuration) {
+        lastTimeRef.current = now - (elapsed % frameDuration);
+
+        setFrameIndex((prev) => {
+          const next = prev + 1;
+          if (next >= frameCount) {
+            if (loop) return 0;
+            cancelAnimationFrame(animationFrameRef.current!);
+            onEnd?.();
+            return prev;
+          }
+          return next;
+        });
+      }
+
+      animationFrameRef.current = requestAnimationFrame(animate);
+    };
+
+    animationFrameRef.current = requestAnimationFrame(animate);
 
     return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
+      if (animationFrameRef.current !== null) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
     };
   }, [fps, frameCount, loop, autoPlay]);
 
@@ -65,13 +80,7 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
           aspectRatio: `${frameWidth} / ${frameHeight}`,
         }),
       }}
-    >
-      {/* <div className={styles.debug}>
-        {(frameIndex * 100) / frameCount}
-        <br />
-        {frameIndex}
-      </div> */}
-    </div>
+    />
   );
 };
 
