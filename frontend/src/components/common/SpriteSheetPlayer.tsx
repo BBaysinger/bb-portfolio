@@ -50,7 +50,8 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
     };
   }, [fps, frameCount, loop, autoPlay]);
 
-  const backgroundPosition = `${(frameIndex * 100) / frameCount}% 0%`;
+  const lastIndex = Math.max(frameCount - 1, 1);
+  const backgroundPosition = `${(frameIndex * 100) / lastIndex}% 0%`;
   const backgroundSize = `${frameCount * 100}% 100%`;
 
   return (
@@ -65,7 +66,11 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
         }),
       }}
     >
-      <div className={styles.debug}>{backgroundPosition}</div>
+      {/* <div className={styles.debug}>
+        {(frameIndex * 100) / frameCount}
+        <br />
+        {frameIndex}
+      </div> */}
     </div>
   );
 };
