@@ -26,9 +26,11 @@ const AnimationSequencer = forwardRef<
 >(({ className }, ref) => {
   const [videoSrc, setVideoSrc] = useState<string | null>(null);
   const [isFading, setIsFading] = useState(false);
-  const [key, setKey] = useState(0); // used to reset video element
+  const [_key, setKey] = useState(0); // used to reset video element
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const queueRef = useRef<number[]>([]);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+
   const delay = 16000;
   const initialDelay = 10000;
   const ratio = 40 / 33;
@@ -59,24 +61,31 @@ const AnimationSequencer = forwardRef<
 
   const imperativeAnimations = [
     {
-      wide: "/burst1.webm",
-      narrow: "/burst1.webm",
+      wide: "burst1.webm",
+      narrow: "burst1.webm",
       delay: 7000,
     },
     {
-      wide: "/invaders-wide.webm",
-      narrow: "/invaders-narrow.webm",
+      wide: "invaders-wide.webm",
+      narrow: "invaders-narrow.webm",
       delay: 17000,
     },
     {
-      wide: "/spiral.webm",
-      narrow: "/spiral.webm",
+      wide: "spiral.webm",
+      narrow: "spiral.webm",
       delay: 9000,
     },
   ];
 
   const shuffleArray = (array: number[]) =>
     array.sort(() => Math.random() - 0.5);
+
+  useEffect(() => {
+    if (videoRef.current && videoSrc) {
+      videoRef.current.load(); // Reload the video
+      videoRef.current.play(); // Restart playback
+    }
+  }, [videoSrc]);
 
   const getNextIndex = () => {
     if (queueRef.current.length === 0) {
@@ -93,12 +102,20 @@ const AnimationSequencer = forwardRef<
     const anim = inactivityAnimations[nextIndex];
     const filename = aspect < ratio ? anim.narrow : anim.wide;
     console.log("Playing inactivity animation:", filename);
-    setVideoSrc(directory + filename);
-    setKey((prev) => prev + 1); // Force video to re-render
 
+    // Set the video source
+    setVideoSrc(directory + filename);
+    setKey((prev) => prev + 1);
+
+    // Set timeout to clear the video and schedule the next one
     timeoutRef.current = setTimeout(() => {
       setVideoSrc(null);
-    }, anim.delay + delay);
+
+      // Small pause, then play the next animation
+      timeoutRef.current = setTimeout(() => {
+        updateVideo();
+      }, delay);
+    }, anim.delay);
   };
 
   const fadeOut = () => {
@@ -128,7 +145,10 @@ const AnimationSequencer = forwardRef<
     setKey((prev) => prev + 1);
 
     timeoutRef.current = setTimeout(() => {
-      fadeOut();
+      setVideoSrc(null);
+
+      // Schedule next animation after a pause
+      timeoutRef.current = setTimeout(updateVideo, delay);
     }, anim.delay);
   };
 
@@ -145,18 +165,65 @@ const AnimationSequencer = forwardRef<
     };
   }, []);
 
+  const handleVideoEnded = () => {
+    console.log("Video ended");
+    timeoutRef.current = setTimeout(() => {
+      updateVideo(); // Show the next one
+    }, delay);
+  };
+
+  const handleVideoError = (
+    e: React.SyntheticEvent<HTMLVideoElement, Event>,
+  ) => {
+    const target = e.currentTarget;
+    const error = target.error;
+
+    if (!error) {
+      console.error("Unknown video error occurred.");
+      return;
+    }
+
+    switch (error.code) {
+      case error.MEDIA_ERR_ABORTED:
+        console.error("Video playback was aborted.");
+        break;
+      case error.MEDIA_ERR_NETWORK:
+        console.error("A network error caused the video download to fail.");
+        break;
+      case error.MEDIA_ERR_DECODE:
+        console.error(
+          "The video playback was aborted due to a corruption or unsupported features.",
+        );
+        break;
+      case error.MEDIA_ERR_SRC_NOT_SUPPORTED:
+        console.error(
+          "The video format is not supported or the file could not be found.",
+        );
+        break;
+      default:
+        console.error("An unknown video error occurred.");
+        break;
+    }
+
+    // Try to skip to the next animation
+    timeoutRef.current = setTimeout(() => {
+      updateVideo();
+    }, delay);
+  };
+
   return (
     <div
       className={`${styles.animation} ${className} ${isFading ? styles.fadeOut : ""}`}
     >
       {videoSrc && (
         <video
-          key={key}
-          src={videoSrc}
+          ref={videoRef}
+          src={videoSrc || "null"}
           autoPlay
           muted
           playsInline
-          onEnded={() => setVideoSrc(null)}
+          onEnded={handleVideoEnded}
+          onError={handleVideoError}
         />
       )}
     </div>
