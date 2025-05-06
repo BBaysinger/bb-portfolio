@@ -190,7 +190,6 @@ const AnimationSequencer = forwardRef<
           fps={activeAnim.fps}
           loop={false}
           onEnd={handleEnd}
-          preserveAspectRatio={true}
         />
       )}
     </div>
