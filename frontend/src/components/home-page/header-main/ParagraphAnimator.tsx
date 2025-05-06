@@ -10,6 +10,7 @@ interface ParagraphAnimatorProps {
   initialDelay?: number;
   className?: string;
   paused?: boolean;
+  introMessage?: string;
 }
 
 const shuffleArray = (array: number[]) => {
@@ -23,16 +24,27 @@ const ParagraphAnimator: React.FC<ParagraphAnimatorProps> = ({
   initialDelay = 8000,
   className,
   paused = false,
+  introMessage,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const tl = useRef<gsap.core.Timeline | null>(null);
   const currentIndex = useRef(0);
-  const queue = useRef(shuffleArray([...Array(paragraphs.length).keys()]));
+  const queue = useRef<number[]>([]);
+  const hasPlayedIntro = useRef(false);
 
   const playParagraph = () => {
-    const paragraph = paragraphs[queue.current[currentIndex.current]];
-    const p = containerRef.current?.querySelector("p");
+    let paragraph: string;
 
+    if (!introMessage && paragraphs.length === 0) return;
+    // Play intro message once, if defined
+    if (introMessage && !hasPlayedIntro.current) {
+      paragraph = introMessage;
+      hasPlayedIntro.current = true;
+    } else {
+      paragraph = paragraphs[queue.current[currentIndex.current]];
+    }
+
+    const p = containerRef.current?.querySelector("p");
     if (!p) return;
 
     let spanPosition = 0;
@@ -47,12 +59,15 @@ const ParagraphAnimator: React.FC<ParagraphAnimatorProps> = ({
 
     tl.current = gsap.timeline({
       onComplete: () => {
-        currentIndex.current++;
-        if (currentIndex.current >= queue.current.length) {
-          queue.current = shuffleArray([...Array(paragraphs.length).keys()]);
-          currentIndex.current = 0;
+        // Only advance queue if we're in the main loop
+        if (hasPlayedIntro.current) {
+          currentIndex.current++;
+          if (currentIndex.current >= queue.current.length) {
+            queue.current = shuffleArray([...Array(paragraphs.length).keys()]);
+            currentIndex.current = 0;
+          }
         }
-        playParagraph(); // loop again
+        playParagraph();
       },
     });
 
@@ -77,19 +92,24 @@ const ParagraphAnimator: React.FC<ParagraphAnimatorProps> = ({
   };
 
   useEffect(() => {
-    playParagraph();
-    return () => {
-      tl.current?.kill();
-    };
-  }, [paragraphs]);
-
-  useEffect(() => {
     if (paused) {
       tl.current?.pause();
     } else {
       tl.current?.play();
     }
   }, [paused]);
+
+  useEffect(() => {
+    const baseQueue = [...Array(paragraphs.length).keys()];
+    queue.current = shuffleArray(baseQueue);
+    currentIndex.current = 0;
+    hasPlayedIntro.current = false;
+    playParagraph();
+
+    return () => {
+      tl.current?.kill();
+    };
+  }, [paragraphs, introMessage]);
 
   return (
     <div
