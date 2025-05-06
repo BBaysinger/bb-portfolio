@@ -130,8 +130,6 @@ const AnimationSequencer = forwardRef<
     const anim = inactivityAnimations[nextIndex];
     const filename = aspect < ratio ? anim.narrow : anim.wide;
 
-    console.log(`AnimationSequencer: ${filename}`);
-
     safeSetAnim({
       ...anim,
       wide: directory + filename,
