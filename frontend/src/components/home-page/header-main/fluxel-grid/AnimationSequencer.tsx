@@ -59,7 +59,7 @@ const AnimationSequencer = forwardRef<
       frameWidth: 16,
       frameHeight: 12,
       frameCount: 121,
-      fps: 20,
+      fps: 10,
     },
     {
       wide: "single-page-applications.webp",
@@ -123,6 +123,8 @@ const AnimationSequencer = forwardRef<
     const nextIndex = getNextIndex();
     const anim = inactivityAnimations[nextIndex];
     const filename = aspect < ratio ? anim.narrow : anim.wide;
+
+    console.log(`AnimationSequencer: ${filename}`);
 
     setActiveAnim({
       ...anim,
@@ -191,6 +193,7 @@ const AnimationSequencer = forwardRef<
           fps={activeAnim.fps}
           loop={false}
           onEnd={handleEnd}
+          preserveAspectRatio={true}
         />
       )}
     </div>
