@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from "react";
-
 import styles from "./SpriteSheetPlayer.module.scss";
 
 interface SpriteSheetPlayerProps {
@@ -12,17 +11,20 @@ interface SpriteSheetPlayerProps {
   autoPlay?: boolean;
   onEnd?: () => void;
   className?: string;
+  preserveAspectRatio?: boolean;
 }
 
 const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
   src,
   frameWidth,
+  frameHeight,
   frameCount,
   fps = 30,
   loop = true,
   autoPlay = true,
   onEnd,
   className = "",
+  preserveAspectRatio = false,
 }) => {
   const [frameIndex, setFrameIndex] = useState(0);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -48,17 +50,22 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
     };
   }, [fps, frameCount, loop, autoPlay]);
 
-  const offsetX = -(frameIndex * frameWidth);
+  const backgroundPosition = `${(frameIndex * 100) / frameCount}% 0%`;
+  const backgroundSize = `${frameCount * 100}% 100%`;
 
   return (
     <div
       className={`${styles.spriteSheetPlayer} ${className}`}
       style={{
         backgroundImage: `url(${src})`,
-        backgroundPosition: `${offsetX}px 0`,
+        backgroundPosition,
+        backgroundSize,
+        ...(preserveAspectRatio && {
+          aspectRatio: `${frameWidth} / ${frameHeight}`,
+        }),
       }}
     >
-      <div className={styles.debug}>{offsetX}</div>
+      <div className={styles.debug}>{backgroundPosition}</div>
     </div>
   );
 };
