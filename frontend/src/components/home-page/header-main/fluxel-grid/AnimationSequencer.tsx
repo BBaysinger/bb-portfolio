@@ -59,6 +59,11 @@ const AnimationSequencer = forwardRef<
       narrow: "/images/fluxel-animations/responsive-design.gif",
       delay: 21000,
     },
+    {
+      wide: "/images/fluxel-animations/single-page-applications.gif",
+      narrow: "/images/fluxel-animations/single-page-applications.gif",
+      delay: 21000,
+    },
   ];
 
   const imperativeAnimations = [
