@@ -74,41 +74,45 @@ const AnimationSequencer = forwardRef<
     array.sort(() => Math.random() - 0.5);
 
   useEffect(() => {
-    if (videoRef.current && videoSrc) {
-      videoRef.current.load();
-      videoRef.current.play().catch((err) => {
+    if (!videoRef.current || !videoSrc) return;
+
+    let retryCount = 0;
+
+    const tryPlay = () => {
+      videoRef.current!.play().catch((err) => {
         if (err.name === "AbortError") {
-          console.warn("Video play() was aborted by the browser:", err.message);
+          console.warn("play() aborted — waiting for refocus to retry.");
+          retryCount = 0; // wait for focus/visibility to retry
         } else {
           console.error("Video play() error:", err);
         }
       });
-    }
+    };
 
-    const handleVisibilityChange = () => {
+    const handleVisibilityOrFocus = () => {
       if (
         document.visibilityState === "visible" &&
+        document.hasFocus() &&
         videoRef.current &&
-        videoSrc
+        retryCount < 5
       ) {
-        videoRef.current
-          .play()
-          .then(() => {
-            console.log("Resumed video playback after tab became visible.");
-          })
-          .catch((err) => {
-            if (err.name === "AbortError") {
-              console.warn("Video play() aborted due to browser policy.");
-            } else {
-              console.error("Error resuming video playback:", err);
-            }
-          });
+        retryCount++;
+        console.log("Retrying play() after focus/visibility...");
+        videoRef.current.play().catch((err) => {
+          console.warn("Retry failed:", err);
+        });
       }
     };
 
-    document.addEventListener("visibilitychange", handleVisibilityChange);
+    document.addEventListener("visibilitychange", handleVisibilityOrFocus);
+    window.addEventListener("focus", handleVisibilityOrFocus);
+
+    videoRef.current.load();
+    tryPlay();
+
     return () => {
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      document.removeEventListener("visibilitychange", handleVisibilityOrFocus);
+      window.removeEventListener("focus", handleVisibilityOrFocus);
     };
   }, [videoSrc]);
 
@@ -133,14 +137,9 @@ const AnimationSequencer = forwardRef<
     setKey((prev) => prev + 1);
 
     // Set timeout to clear the video and schedule the next one
-    timeoutRef.current = setTimeout(() => {
-      setVideoSrc(null);
-
-      // Small pause, then play the next animation
-      // timeoutRef.current = setTimeout(() => {
-      //   updateVideo();
-      // }, delay);
-    }, delay);
+    // timeoutRef.current = setTimeout(() => {
+    //   setVideoSrc(null);
+    // }, delay);
   };
 
   const fadeOut = () => {
@@ -171,9 +170,6 @@ const AnimationSequencer = forwardRef<
 
     timeoutRef.current = setTimeout(() => {
       setVideoSrc(null);
-
-      // Schedule next animation after a pause
-      // timeoutRef.current = setTimeout(updateVideo, delay);
     }, delay);
   };
 
@@ -192,8 +188,11 @@ const AnimationSequencer = forwardRef<
 
   const handleVideoEnded = () => {
     console.log("Video ended");
+
+    setVideoSrc(null);
+
     timeoutRef.current = setTimeout(() => {
-      updateVideo(); // Show the next one
+      updateVideo(); // Start next animation
     }, delay);
   };
 
