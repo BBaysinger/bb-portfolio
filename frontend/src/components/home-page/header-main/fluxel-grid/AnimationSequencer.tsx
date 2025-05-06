@@ -14,17 +14,7 @@ export interface AnimationSequencerHandle {
 }
 
 /**
- * Giant pixel animations using GIFs.
- *
- * Using GIFs bc I'm having better luck than with WEBP.
- * FFMPEG is corrupting colors horribly.
- *
- * This may eventually be rebuilt in PixiJS, along with
- * the fluxel grid, and some of the effects will be interactive.
- *
- * Uses JavaScript to handle background images dynamically,
- * including media query logic for orientation changes.
- * the fluxel grid, and some effects will be interactive.
+ * Giant pixel animations using video.
  *
  * @author Bradley Baysinger
  * @since The beginning of time.
@@ -34,55 +24,55 @@ const AnimationSequencer = forwardRef<
   AnimationSequencerHandle,
   { className: string }
 >(({ className }, ref) => {
-  const [backgroundImage, setBackgroundImage] = useState<string>("");
+  const [videoSrc, setVideoSrc] = useState<string | null>(null);
   const [isFading, setIsFading] = useState(false);
+  const [key, setKey] = useState(0); // used to reset video element
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const queueRef = useRef<number[]>([]);
   const delay = 16000;
   const initialDelay = 10000;
   const ratio = 40 / 33;
+  const directory = "/video/fluxel-animations/";
 
-  // Separate pools
   const inactivityAnimations = [
     {
-      wide: "/images/fluxel-animations/interactive-web.gif",
-      narrow: "/images/fluxel-animations/interactive-web.gif",
+      wide: "interactive-web.webm",
+      narrow: "interactive-web.webm",
       delay: 21000,
     },
     {
-      wide: "/images/fluxel-animations/javascript-typescript.gif",
-      narrow: "/images/fluxel-animations/javascript-typescript.gif",
+      wide: "javascript-typescript.webm",
+      narrow: "javascript-typescript.webm",
       delay: 21000,
     },
     {
-      wide: "/images/fluxel-animations/responsive-design.gif",
-      narrow: "/images/fluxel-animations/responsive-design.gif",
+      wide: "responsive-design.webm",
+      narrow: "responsive-design.webm",
       delay: 21000,
     },
     {
-      wide: "/images/fluxel-animations/single-page-applications.gif",
-      narrow: "/images/fluxel-animations/single-page-applications.gif",
+      wide: "single-page-applications.webm",
+      narrow: "single-page-applications.webm",
       delay: 21000,
     },
   ];
 
   const imperativeAnimations = [
     {
-      wide: "/images/fluxel-animations/burst1.gif",
-      narrow: "/images/fluxel-animations/burst1.gif",
+      wide: "/burst1.webm",
+      narrow: "/burst1.webm",
       delay: 7000,
     },
     {
-      wide: "/images/fluxel-animations/invaders-wide.gif",
-      narrow: "/images/fluxel-animations/invaders-narrow.gif",
+      wide: "/invaders-wide.webm",
+      narrow: "/invaders-narrow.webm",
       delay: 17000,
     },
     {
-      wide: "/images/fluxel-animations/spiral.gif",
-      narrow: "/images/fluxel-animations/spiral.gif",
+      wide: "/spiral.webm",
+      narrow: "/spiral.webm",
       delay: 9000,
     },
-    // Add more imperative animations here
   ];
 
   const shuffleArray = (array: number[]) =>
@@ -97,21 +87,18 @@ const AnimationSequencer = forwardRef<
     return queueRef.current.shift()!;
   };
 
-  const updateBackground = () => {
+  const updateVideo = () => {
     const aspect = window.innerWidth / window.innerHeight;
     const nextIndex = getNextIndex();
+    const anim = inactivityAnimations[nextIndex];
+    const filename = aspect < ratio ? anim.narrow : anim.wide;
+    console.log("Playing inactivity animation:", filename);
+    setVideoSrc(directory + filename);
+    setKey((prev) => prev + 1); // Force video to re-render
 
-    const imageUrl =
-      aspect < ratio
-        ? inactivityAnimations[nextIndex].narrow
-        : inactivityAnimations[nextIndex].wide;
-
-    setBackgroundImage(imageUrl);
-
-    timeoutRef.current = setTimeout(
-      updateBackground,
-      inactivityAnimations[nextIndex].delay + delay,
-    );
+    timeoutRef.current = setTimeout(() => {
+      setVideoSrc(null);
+    }, anim.delay + delay);
   };
 
   const fadeOut = () => {
@@ -121,11 +108,10 @@ const AnimationSequencer = forwardRef<
     }
 
     setIsFading(true);
-
     setTimeout(() => {
-      setBackgroundImage("");
+      setVideoSrc(null);
       setIsFading(false);
-    }, 1000); // Match this to CSS fade-out timing
+    }, 1000); // CSS fade-out duration
   };
 
   const playImperativeAnimation = (index = 0) => {
@@ -136,9 +122,10 @@ const AnimationSequencer = forwardRef<
 
     const aspect = window.innerWidth / window.innerHeight;
     const anim = imperativeAnimations[index % imperativeAnimations.length];
-
-    const imageUrl = aspect < ratio ? anim.narrow : anim.wide;
-    setBackgroundImage(imageUrl);
+    const filename = aspect < ratio ? anim.narrow : anim.wide;
+    console.log("Playing imperative animation:", filename);
+    setVideoSrc(directory + filename);
+    setKey((prev) => prev + 1);
 
     timeoutRef.current = setTimeout(() => {
       fadeOut();
@@ -151,7 +138,7 @@ const AnimationSequencer = forwardRef<
   }));
 
   useEffect(() => {
-    timeoutRef.current = setTimeout(updateBackground, initialDelay);
+    timeoutRef.current = setTimeout(updateVideo, initialDelay);
 
     return () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
@@ -161,10 +148,18 @@ const AnimationSequencer = forwardRef<
   return (
     <div
       className={`${styles.animation} ${className} ${isFading ? styles.fadeOut : ""}`}
-      style={{
-        backgroundImage: backgroundImage ? `url(${backgroundImage})` : "none",
-      }}
-    ></div>
+    >
+      {videoSrc && (
+        <video
+          key={key}
+          src={videoSrc}
+          autoPlay
+          muted
+          playsInline
+          onEnded={() => setVideoSrc(null)}
+        />
+      )}
+    </div>
   );
 });
 
