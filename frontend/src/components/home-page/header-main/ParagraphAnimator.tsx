@@ -3,6 +3,8 @@ import gsap from "gsap";
 
 import styles from "./ParagraphAnimator.module.scss";
 
+const INTRO_KEY = "paragraphAnimator:introPlayed";
+
 interface ParagraphAnimatorProps {
   paragraphs: string[];
   interval?: number;
@@ -21,7 +23,7 @@ const ParagraphAnimator: React.FC<ParagraphAnimatorProps> = ({
   paragraphs,
   interval = 15,
   paragraphDelay = 20000,
-  initialDelay = 8000,
+  initialDelay = 1000,
   className,
   paused = false,
   introMessage,
@@ -49,10 +51,13 @@ const ParagraphAnimator: React.FC<ParagraphAnimatorProps> = ({
 
     let spanPosition = 0;
 
+    const formatText = (text: string) => text.replace(/\\n|\n/g, "<br />");
+
     const updateText = () => {
       const visible = paragraph.slice(0, spanPosition);
       const invisible = paragraph.slice(spanPosition);
-      p.innerHTML = `<span>${visible}</span>${invisible}`;
+
+      p.innerHTML = `<span>${formatText(visible)}</span>${formatText(invisible)}`;
     };
 
     updateText(); // Initial render
@@ -86,7 +91,7 @@ const ParagraphAnimator: React.FC<ParagraphAnimatorProps> = ({
       },
     );
 
-    tl.current.to({}, { duration: (paragraphDelay - 10000) / 1000 });
+    tl.current.to({}, { duration: paragraphDelay / 1000 });
     tl.current.to(containerRef.current, { opacity: 0, duration: 0.5 });
     tl.current.set(containerRef.current, { opacity: 1 });
   };
@@ -103,7 +108,11 @@ const ParagraphAnimator: React.FC<ParagraphAnimatorProps> = ({
     const baseQueue = [...Array(paragraphs.length).keys()];
     queue.current = shuffleArray(baseQueue);
     currentIndex.current = 0;
+
+    const storedValue = localStorage.getItem(INTRO_KEY);
+    hasPlayedIntro.current = storedValue === "true";
     hasPlayedIntro.current = false;
+
     playParagraph();
 
     return () => {
