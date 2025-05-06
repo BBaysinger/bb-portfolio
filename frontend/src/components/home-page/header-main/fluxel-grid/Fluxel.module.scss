@@ -1,15 +1,19 @@
 .fluxel {
   position: relative;
+  // --base-color: #ff0000;
   background-color: var(--base-color);
 
   &::after {
-    content: "";
+    content: " ";
     position: absolute;
     inset: 0;
     background-color: var(--overlay-color, transparent);
     opacity: 0.7;
     transition: opacity 0.2s ease;
     pointer-events: none;
+  }
+  > g {
+    // filter: blur(2px);
   }
 }
 

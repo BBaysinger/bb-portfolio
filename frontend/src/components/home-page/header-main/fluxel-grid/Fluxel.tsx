@@ -1,5 +1,6 @@
 import React from "react";
-import Shadow from "./Shadow";
+
+import cornerShadow from "images/hero/corner-shadow.webp";
 import styles from "./Fluxel.module.scss";
 
 export interface FluxelData {
@@ -29,14 +30,43 @@ const Fluxel: React.FC<{ data: FluxelData }> = ({ data }) => {
   } as React.CSSProperties;
 
   return (
-    <div className={styles.fluxel} style={transformStyle}>
-      <Shadow
-        className={styles.shadow}
-        x1={data.shadowOffsetX}
-        y1={data.shadowOffsetY}
-      />
-      {/* <div className={styles.debug}>{JSON.stringify(data)}</div> */}
-    </div>
+    <svg
+      className={styles.fluxel}
+      style={transformStyle}
+      xmlns="http://www.w3.org/2000/svg"
+      width="1in"
+      height="1in"
+      viewBox="0 0 72 72"
+    >
+      {/* Shadow group */}
+      <g opacity="0.5">
+        <g
+          transform={`translate(${data.shadowOffsetX}, ${data.shadowOffsetY})`}
+        >
+          <image
+            href={cornerShadow}
+            x={-34}
+            y={-110}
+            width="216"
+            height="216"
+          />
+        </g>
+        {/* <g
+          transform={`scale(-1, -1) translate(${data.shadowOffsetX}, ${data.shadowOffsetY})`}
+        >
+          <image
+            href={cornerShadow}
+            x={-34}
+            y={-110}
+            width="216"
+            height="216"
+          />
+        </g> */}
+
+        {/* Overlay colorVariation fill */}
+      </g>
+      <rect width="72" height="72" fill="var(--overlay-color)" />
+    </svg>
   );
 };
 

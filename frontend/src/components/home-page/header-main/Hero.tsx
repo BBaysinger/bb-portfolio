@@ -178,7 +178,9 @@ const Hero: React.FC = () => {
 
         <ParagraphAnimator
           introMessage={`Welcome! This is a tactile UI experiment.
-            Give the floating orb a toss.`}
+           Give the green floating orb a toss.
+           I dare you.
+          `}
           paragraphs={quotes}
           paused={!isSlingerIdle}
           className={styles.message}
