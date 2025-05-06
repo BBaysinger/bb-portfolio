@@ -41,20 +41,27 @@ const quotes = [
  */
 const Hero: React.FC = () => {
   const id = "hero";
-  const hasScrolledOut = useScrollPersistedClass(id);
 
   const [highlightSides, setHighlightSides] = useState<Side[]>([]);
   const [isSlingerIdle, setIsSlingerIdle] = useState(false);
-  // To apply display: none to the Slinger CTA.
-  const [hasDraggedDelay, setHasDraggedDelay] = useState(
-    () => sessionStorage.getItem("hasDragged") === "true",
-  );
+
   const [slingerPos, setSlingerPos] = useState<
     { x: number; y: number } | null | undefined
   >(undefined);
   const [hasDragged, _setHasDragged] = useState<boolean>(
     () => sessionStorage.getItem("hasDragged") === "true",
   );
+  // To apply display: none to the Slinger CTA.
+  const [hasDraggedDelay, setHasDraggedDelay] = useState(
+    () => sessionStorage.getItem("hasDragged") === "true",
+  );
+  const [hasSlung, setHasSlung] = useState(false);
+
+  const hasCalledFirstIdleAction = useRef(false);
+  const idleCount = useRef(0);
+
+  const hasScrolledOut = useScrollPersistedClass(id);
+
   const setHasDragged = useCallback((value: boolean) => {
     sessionStorage.setItem("hasDragged", value ? "true" : "false");
     _setHasDragged(value);
@@ -128,6 +135,15 @@ const Hero: React.FC = () => {
   const onSlingerIdle = useCallback(() => {
     slingerIsIdle.current = true;
     setIsSlingerIdle(true);
+
+    idleCount.current += 1;
+
+    if (idleCount.current === 2 && !hasCalledFirstIdleAction.current) {
+      hasCalledFirstIdleAction.current = true;
+
+      sessionStorage.setItem("hasSlung", "true");
+      setHasSlung(true);
+    }
   }, []);
 
   return (
@@ -144,6 +160,9 @@ const Hero: React.FC = () => {
         hasDraggedDelay
           ? `${styles.hasDraggedDelay} hasDraggedDelay`
           : `${styles.notDraggedDelay} notDraggedDelay`,
+        hasSlung
+          ? `${styles.hasSlung} hasSlung`
+          : `${styles.notSlung} notSlung`,
       ]
         .filter(Boolean)
         .join(" ")}
@@ -188,7 +207,7 @@ const Hero: React.FC = () => {
 
         <div className={styles.scrollCtaWrapper}>
           <a href="#hello" className={styles.scrollCta}>
-            <div className={styles.scrollCtaText}>2. Say hello</div>
+            <div className={styles.scrollCtaText}>Say hello!</div>
           </a>
         </div>
       </div>
