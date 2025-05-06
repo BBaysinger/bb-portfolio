@@ -123,7 +123,7 @@ const ParagraphAnimator: React.FC<ParagraphAnimatorProps> = ({
   return (
     <div
       ref={containerRef}
-      className={`${styles.paragraphAnimator} ${className}`}
+      className={`${styles.paragraphAnimator} ${className} ${paused ? styles.paused : ""}`}
     >
       <p>
         <span />
