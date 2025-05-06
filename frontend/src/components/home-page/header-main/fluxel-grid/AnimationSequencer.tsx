@@ -32,7 +32,7 @@ const AnimationSequencer = forwardRef<
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
   const delay = 16000;
-  const initialDelay = 10000;
+  const initialDelay = 3000;
   const ratio = 40 / 33;
   const directory = "/video/fluxel-animations/";
 
@@ -40,22 +40,18 @@ const AnimationSequencer = forwardRef<
     {
       wide: "interactive-web.webm",
       narrow: "interactive-web.webm",
-      delay: 21000,
     },
     {
       wide: "javascript-typescript.webm",
       narrow: "javascript-typescript.webm",
-      delay: 21000,
     },
     {
       wide: "responsive-design.webm",
       narrow: "responsive-design.webm",
-      delay: 21000,
     },
     {
       wide: "single-page-applications.webm",
       narrow: "single-page-applications.webm",
-      delay: 21000,
     },
   ];
 
@@ -63,17 +59,14 @@ const AnimationSequencer = forwardRef<
     {
       wide: "burst1.webm",
       narrow: "burst1.webm",
-      delay: 7000,
     },
     {
       wide: "invaders-wide.webm",
       narrow: "invaders-narrow.webm",
-      delay: 17000,
     },
     {
       wide: "spiral.webm",
       narrow: "spiral.webm",
-      delay: 9000,
     },
   ];
 
@@ -82,9 +75,41 @@ const AnimationSequencer = forwardRef<
 
   useEffect(() => {
     if (videoRef.current && videoSrc) {
-      videoRef.current.load(); // Reload the video
-      videoRef.current.play(); // Restart playback
+      videoRef.current.load();
+      videoRef.current.play().catch((err) => {
+        if (err.name === "AbortError") {
+          console.warn("Video play() was aborted by the browser:", err.message);
+        } else {
+          console.error("Video play() error:", err);
+        }
+      });
     }
+
+    const handleVisibilityChange = () => {
+      if (
+        document.visibilityState === "visible" &&
+        videoRef.current &&
+        videoSrc
+      ) {
+        videoRef.current
+          .play()
+          .then(() => {
+            console.log("Resumed video playback after tab became visible.");
+          })
+          .catch((err) => {
+            if (err.name === "AbortError") {
+              console.warn("Video play() aborted due to browser policy.");
+            } else {
+              console.error("Error resuming video playback:", err);
+            }
+          });
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
   }, [videoSrc]);
 
   const getNextIndex = () => {
@@ -101,7 +126,7 @@ const AnimationSequencer = forwardRef<
     const nextIndex = getNextIndex();
     const anim = inactivityAnimations[nextIndex];
     const filename = aspect < ratio ? anim.narrow : anim.wide;
-    console.log("Playing inactivity animation:", filename);
+    console.log("updateVideo:", filename);
 
     // Set the video source
     setVideoSrc(directory + filename);
@@ -112,10 +137,10 @@ const AnimationSequencer = forwardRef<
       setVideoSrc(null);
 
       // Small pause, then play the next animation
-      timeoutRef.current = setTimeout(() => {
-        updateVideo();
-      }, delay);
-    }, anim.delay);
+      // timeoutRef.current = setTimeout(() => {
+      //   updateVideo();
+      // }, delay);
+    }, delay);
   };
 
   const fadeOut = () => {
@@ -148,8 +173,8 @@ const AnimationSequencer = forwardRef<
       setVideoSrc(null);
 
       // Schedule next animation after a pause
-      timeoutRef.current = setTimeout(updateVideo, delay);
-    }, anim.delay);
+      // timeoutRef.current = setTimeout(updateVideo, delay);
+    }, delay);
   };
 
   useImperativeHandle(ref, () => ({
