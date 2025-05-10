@@ -109,7 +109,7 @@ const ParagraphAnimator: React.FC<ParagraphAnimatorProps> = ({
     queue.current = shuffleArray(baseQueue);
     currentIndex.current = 0;
 
-    const storedValue = localStorage.getItem(INTRO_KEY);
+    const storedValue = sessionStorage.getItem(INTRO_KEY);
     hasPlayedIntro.current = storedValue === "true";
     hasPlayedIntro.current = false;
 

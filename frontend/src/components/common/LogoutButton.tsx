@@ -18,10 +18,6 @@ const LogoutButton: React.FC<LogoutButtonProps> = ({ className = "" }) => {
   const { logout } = useAuth();
 
   const handleLogout = () => {
-    // Reset everything, so user gets the same experience on the next login
-    sessionStorage.removeItem("hasDragged");
-    sessionStorage.removeItem("hasScrolledOut");
-
     logout();
   };
 
