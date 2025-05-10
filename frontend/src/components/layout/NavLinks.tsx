@@ -23,7 +23,7 @@ const NavLinks: React.FC<NavLinkProps> = ({ onClick, className }) => {
 
   return (
     <ul onClick={onClick} className={`${styles.navLinks} ${className}`}>
-      {isLoggedIn && (
+      {/* {isLoggedIn && ( */}
         <>
           <li>
             <NavLink
@@ -58,7 +58,7 @@ const NavLinks: React.FC<NavLinkProps> = ({ onClick, className }) => {
             </NavLink>
           </li>
         </>
-      )}
+      {/* )} */}
       <li>
         <NavLink
           to="/contact#top"
