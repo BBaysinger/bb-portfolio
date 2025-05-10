@@ -35,7 +35,7 @@
     "awards": "",
     "type": "",
     "desc": [
-      "<p>As mentioned, I've been deepening my experience with React. This project is a reusable React slideshow component with full single-page app (SPA) capabilities, developed as part of a deep dive into React hooks and state management.</p>",
+      "<p>This project is a reusable React slideshow component with full single-page app (SPA) capabilities, developed as part of a deep dive into React hooks and state management.</p>",
       "<p>Designed with scalability, performance, and accessibility in mind, it features auto-slide functionality, deep linking via dynamic routing, and intuitive user interactions, including pausing, resuming, and manual navigation.</p>",
       "<p>The component is highly configurable — developers can pass in slides as an array of objects containing foreground and background images, thumbnails, and JSX content. It dynamically adjusts its height based on slide content to eliminate excess whitespace, ensuring an elegant layout across devices. Additionally, lazy-loaded images and optimized animations enhance performance for a smooth user experience.</p>",
       "<p>Custom navigation controls are fully supported, with two built-in options available. Developers can also define their own controls and even integrate multiple sets.</p>",
