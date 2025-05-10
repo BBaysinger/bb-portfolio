@@ -29,7 +29,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const logout = () => {
-    sessionStorage.removeItem("isLoggedIn");
+    // sessionStorage.removeItem("isLoggedIn");
+
+    // Reset the entire experience on logout (and refresh), because the intro
+    // sequence can get overlooked, and there's no harm in repeating it.
+    while (sessionStorage.length > 0) {
+      const key = sessionStorage.key(0);
+      if (key !== null) {
+        const value = sessionStorage.getItem(key);
+        console.info(`${key}: ${value}`);
+        sessionStorage.removeItem(key);
+      }
+    }
+
     setIsLoggedIn(false);
   };
 
