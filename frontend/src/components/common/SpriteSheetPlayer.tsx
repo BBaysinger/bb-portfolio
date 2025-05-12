@@ -7,7 +7,7 @@ interface SpriteSheetPlayerProps {
   fps?: number; // ✅ Optional override
   onEnd?: () => void;
   className?: string;
-  preserveAspectRatio?: boolean;
+  style?: React.CSSProperties;
 }
 
 const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
@@ -16,7 +16,7 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
   fps,
   onEnd,
   className = "",
-  preserveAspectRatio = false,
+  style,
 }) => {
   const [frameIndex, setFrameIndex] = useState(0);
   const animationFrameRef = useRef<number | null>(null);
@@ -43,7 +43,7 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
   useEffect(() => {
     if (!autoPlay || !meta) return;
 
-    console.info(meta);
+    // console.info(meta);
 
     let isCancelled = false;
     const frameDuration = 1000 / (fps ?? meta.fps);
@@ -99,22 +99,22 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
   const col = frameIndex % columns;
   const row = Math.floor(frameIndex / columns);
 
-  const backgroundPosition = `${-col * frameWidth}px ${-row * frameHeight}px`;
+  const backgroundPosition = `-${col * frameWidth}px -${row * frameHeight}px`;
+  const sheetWidth = columns * frameWidth;
+  const sheetHeight = Math.ceil(frameCount / columns) * frameHeight;
 
   return (
     <div
       className={`${styles.spriteSheetPlayer} ${className}`}
       style={{
-        width: frameWidth,
-        height: frameHeight,
+        ...style,
         backgroundImage: `url(${src})`,
         backgroundPosition,
-        backgroundSize: "auto",
-        ...(preserveAspectRatio && {
-          aspectRatio: `${frameWidth} / ${frameHeight}`,
-        }),
+        backgroundSize: `${sheetWidth}px ${sheetHeight}px`,
       }}
-    />
+    >
+      {/* <div className={styles.debug}>{backgroundPosition}</div> */}
+    </div>
   );
 };
 
