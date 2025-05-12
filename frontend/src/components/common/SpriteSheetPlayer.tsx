@@ -36,16 +36,16 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
       frameHeight: h,
       frameCount: f,
       fps: r,
-      loop: l,
+      loopCount: l, // 0 = infinite
     };
   }, [src]);
 
   useEffect(() => {
     if (!autoPlay || !meta) return;
 
-    // console.info(meta);
-
     let isCancelled = false;
+    let currentFrame = 0;
+    let completedLoops = 0;
     const frameDuration = 1000 / (fps ?? meta.fps);
     lastTimeRef.current = performance.now();
 
@@ -56,20 +56,30 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
 
       if (elapsed >= frameDuration) {
         lastTimeRef.current = now - (elapsed % frameDuration);
+        currentFrame += 1;
 
-        setFrameIndex((prev) => {
-          const next = prev + 1;
-          if (next >= meta.frameCount) {
-            if (meta.loop) return 0;
+        if (currentFrame >= meta.frameCount) {
+          completedLoops += 1;
+
+          // If loopCount is 0, it means infinite
+          const maxLoops = meta.loopCount === 0 ? Infinity : meta.loopCount;
+
+          if (completedLoops >= maxLoops) {
             isCancelled = true;
+            setFrameIndex(meta.frameCount - 1); // stay on last frame
             onEnd?.();
-            return prev;
+            return;
           }
-          return next;
-        });
+
+          currentFrame = 0; // reset for next loop
+        }
+
+        setFrameIndex(currentFrame);
       }
 
-      animationFrameRef.current = requestAnimationFrame(animate);
+      if (!isCancelled) {
+        animationFrameRef.current = requestAnimationFrame(animate);
+      }
     };
 
     animationFrameRef.current = requestAnimationFrame(animate);
@@ -80,7 +90,7 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [meta, fps, autoPlay]);
+  }, [meta, fps, autoPlay, onEnd]);
 
   useEffect(() => {
     if (autoPlay) {
@@ -112,9 +122,7 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
         backgroundPosition,
         backgroundSize: `${sheetWidth}px ${sheetHeight}px`,
       }}
-    >
-      {/* <div className={styles.debug}>{backgroundPosition}</div> */}
-    </div>
+    />
   );
 };
 
