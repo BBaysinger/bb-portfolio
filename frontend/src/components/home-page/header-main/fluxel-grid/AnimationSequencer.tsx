@@ -70,7 +70,7 @@ const AnimationSequencer = forwardRef<
     {
       wide: "spiral-green-purp_w16h12f215r10l1.webp",
       narrow: "spiral-green-purp_w16h12f215r10l1.webp",
-      fps: 10,
+      fps: 20,
     },
     {
       wide: "user-experience_w16h12f109r10l1.webp",
