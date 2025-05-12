@@ -36,12 +36,14 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
       frameHeight: h,
       frameCount: f,
       fps: r,
-      loop: l === 1,
+      loop: l,
     };
   }, [src]);
 
   useEffect(() => {
     if (!autoPlay || !meta) return;
+
+    console.info(meta);
 
     let isCancelled = false;
     const frameDuration = 1000 / (fps ?? meta.fps);
@@ -86,7 +88,10 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
     }
   }, [autoPlay, src]);
 
-  if (!meta) return null;
+  if (!meta) {
+    console.warn("Failed to extract meta from", src);
+    return null;
+  }
 
   const { frameWidth, frameHeight, frameCount } = meta;
 
