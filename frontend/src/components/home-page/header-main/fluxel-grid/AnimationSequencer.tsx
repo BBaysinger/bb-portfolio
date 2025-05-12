@@ -16,9 +16,6 @@ export interface AnimationSequencerHandle {
 interface AnimationMeta {
   wide: string;
   narrow: string;
-  frameWidth: number;
-  frameHeight: number;
-  frameCount: number;
   fps?: number;
 }
 
@@ -38,70 +35,56 @@ const AnimationSequencer = forwardRef<
 
   const inactivityAnimations: AnimationMeta[] = [
     {
-      wide: "interactive-web.webp",
-      narrow: "interactive-web.webp",
-      frameWidth: 16,
-      frameHeight: 12,
-      frameCount: 104,
+      wide: "burst1_Layer-Comp-_w16h12f30r10l1.webp",
+      narrow: "burst1_Layer-Comp-_w16h12f30r10l1.webp",
       fps: 10,
     },
     {
-      wide: "javascript-typescript.webp",
-      narrow: "javascript-typescript.webp",
-      frameWidth: 16,
-      frameHeight: 12,
-      frameCount: 142,
+      wide: "interactive-web_w16h12f105r10l1.webp",
+      narrow: "interactive-web_w16h12f105r10l1.webp",
       fps: 10,
     },
     {
-      wide: "responsive-design.webp",
-      narrow: "responsive-design.webp",
-      frameWidth: 16,
-      frameHeight: 12,
-      frameCount: 121,
+      wide: "javascript-typescript_w16h12f142r10l1.webp",
+      narrow: "javascript-typescript_w16h12f142r10l1.webp",
       fps: 10,
     },
     {
-      wide: "single-page-applications.webp",
-      narrow: "single-page-applications.webp",
-      frameWidth: 16,
-      frameHeight: 12,
-      frameCount: 154,
+      wide: "mobile-first_w16h12f82r10l1.webp",
+      narrow: "mobile-first_w16h12f82r10l1.webp",
       fps: 10,
     },
     {
-      wide: "mobile-first.webp",
-      narrow: "mobile-first.webp",
-      frameWidth: 16,
-      frameHeight: 12,
-      frameCount: 82,
+      wide: "responsive-design_w16h12f121r10l1.webp",
+      narrow: "responsive-design_w16h12f121r10l1.webp",
+      fps: 10,
+    },
+    {
+      wide: "single-page-application_w16h12f147r10l1.webp",
+      narrow: "single-page-application_w16h12f147r10l1.webp",
+      fps: 10,
+    },
+    {
+      wide: "spiral-green-purp_w16h12f215r10l1.webp",
+      narrow: "spiral-green-purp_w16h12f215r10l1.webp",
+      fps: 10,
+    },
+    {
+      wide: "user-experience_w16h12f109r10l1.webp",
+      narrow: "user-experience_w16h12f109r10l1.webp",
+      fps: 10,
+    },
+    {
+      wide: "user-interface_w16h12f99r10l1.webp",
+      narrow: "user-interface_w16h12f99r10l1.webp",
       fps: 10,
     },
   ];
 
   const imperativeAnimations: AnimationMeta[] = [
     {
-      wide: "burst1.webp",
-      narrow: "burst1.webp",
-      frameWidth: 16,
-      frameHeight: 12,
-      frameCount: 30,
-      fps: 10,
-    },
-    {
-      wide: "invaders-wide.webp",
-      narrow: "invaders-narrow.webp",
-      frameWidth: 16,
-      frameHeight: 12,
-      frameCount: 60,
-      fps: 10,
-    },
-    {
-      wide: "spiral.webp",
-      narrow: "spiral.webp",
-      frameWidth: 16,
-      frameHeight: 12,
-      frameCount: 50,
+      wide: ".webp",
+      narrow: ".webp",
       fps: 10,
     },
   ];
@@ -182,11 +165,7 @@ const AnimationSequencer = forwardRef<
           key={animKey}
           className={styles.spriteSheetPlayer}
           src={currentSrc}
-          frameWidth={activeAnim.frameWidth}
-          frameHeight={activeAnim.frameHeight}
-          frameCount={activeAnim.frameCount}
           fps={activeAnim.fps}
-          loop={false}
           onEnd={handleEnd}
         />
       )}
