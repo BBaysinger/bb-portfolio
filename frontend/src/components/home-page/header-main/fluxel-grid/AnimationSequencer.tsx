@@ -24,8 +24,6 @@ const AnimationSequencer = forwardRef<
   AnimationSequencerHandle,
   { className?: string }
 >(({ className }, ref) => {
-  const wrapperRef = useRef<HTMLDivElement>(null);
-  const [scale, setScale] = useState(1);
   const [activeAnim, setActiveAnim] = useState<AnimationMeta | null>(null);
   const [animKey, setAnimKey] = useState(0);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -144,22 +142,6 @@ const AnimationSequencer = forwardRef<
     };
   }, []);
 
-  useEffect(() => {
-    if (!wrapperRef.current) return;
-
-    const el = wrapperRef.current;
-    const observer = new ResizeObserver(() => {
-      const { offsetWidth: w, offsetHeight: h } = el;
-      const scaleX = w / 16;
-      const scaleY = h / 12;
-      const finalScale = Math.max(scaleX, scaleY);
-      setScale(finalScale);
-    });
-
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
-
   const handleEnd = () => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
     timeoutRef.current = setTimeout(updateAnimation, delay);
@@ -172,25 +154,8 @@ const AnimationSequencer = forwardRef<
       : activeAnim.wide;
   }, [activeAnim]);
 
-  const playerStyle = useMemo(() => {
-    const style = {
-      width: "16px",
-      height: "12px",
-      transform: `scale(${scale})`,
-      transformOrigin: "top left",
-      imageRendering: "pixelated",
-      position: "absolute",
-    } as React.CSSProperties;
-
-    console.log("🎨 Recalculating playerStyle with scale:", scale);
-    return style;
-  }, [scale]);
-
   return (
-    <div
-      ref={wrapperRef}
-      className={`${styles.animationSequencer} ${className}`}
-    >
+    <div className={`${styles.animationSequencer} ${className}`}>
       {activeAnim && currentSrc && (
         <SpriteSheetPlayer
           key={animKey}
@@ -198,7 +163,6 @@ const AnimationSequencer = forwardRef<
           src={currentSrc}
           fps={activeAnim.fps}
           onEnd={handleEnd}
-          style={playerStyle}
         />
       )}
     </div>
