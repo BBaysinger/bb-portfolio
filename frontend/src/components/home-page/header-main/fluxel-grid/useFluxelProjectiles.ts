@@ -35,8 +35,6 @@ export function useFluxelProjectiles({
 }): LaunchFn {
   const projectiles = useRef<Projectile[]>([]);
   const intervalRef = useRef<number | null>(null);
-  // const isDev = process.env.NODE_ENV !== "production";
-  // const devGuard = useRef(0);
 
   const startInterval = () => {
     if (intervalRef.current !== null) {
@@ -45,14 +43,6 @@ export function useFluxelProjectiles({
     }
 
     intervalRef.current = window.setInterval(() => {
-      // if (isDev) {
-      //   devGuard.current++;
-      //   console.info("[DEV] Interval tick", devGuard.current);
-      //   if (devGuard.current % 2 === 0) {
-      //     console.info("[DEV] Skipping duplicate setState");
-      //     return;
-      //   }
-      // }
 
       const snapshot = gridRef.current?.getGridData();
       if (
