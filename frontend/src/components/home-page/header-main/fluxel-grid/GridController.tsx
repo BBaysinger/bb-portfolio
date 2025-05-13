@@ -23,10 +23,6 @@ interface GridControllerProps {
   cols: number;
   viewableHeight: number;
   viewableWidth: number;
-  /** Pointer position calculated by a parent component (optional) */
-  externalMousePos?: { x: number; y: number } | null;
-  /** Element you want the pointer listeners attached to (optional) */
-  mouseMoveTargetRef?: React.RefObject<HTMLElement | null>;
   className?: string;
 }
 
@@ -42,17 +38,7 @@ const FRAME_TIME = 1000 / 30;
  * @version N/A
  */
 const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
-  (
-    {
-      rows,
-      cols,
-      viewableHeight,
-      viewableWidth,
-      mouseMoveTargetRef,
-      className,
-    },
-    ref,
-  ) => {
+  ({ rows, cols, viewableHeight, viewableWidth, className }, ref) => {
     const gridInstanceRef = useRef<FluxelGridHandle>(null);
     const wrapperRef = useRef<HTMLDivElement | null>(null);
 
@@ -100,19 +86,12 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
     /* ------------------------------------------------------------------ */
     const lastFrameTime = useRef(0);
 
-    // Detect touch‑only devices once (outside the effect).
-
     useEffect(() => {
-      // const target = wrapperRef.current;
-      // if (!target) {
-      //   console.warn("❌ wrapperRef.current is null");
-      //   return;
-      // }
-      const target = (mouseMoveTargetRef?.current ?? window) as
-        | HTMLElement
-        | Window;
+      let target = window;
 
-      console.log("✅ Adding pointer listeners to", target);
+      if (!target) {
+        throw new Error("❌ mouseMoveTargetRef.current is null");
+      }
 
       const handleMove = (event: PointerEvent) => {
         const gridEl = gridInstanceRef.current?.getElement();
@@ -134,13 +113,14 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
       };
 
       target.addEventListener("pointermove", handleMove as EventListener);
-      target.addEventListener("pointerleave", clearPos as EventListener);
+      target.addEventListener("pointerleave", clearPos);
 
       return () => {
         target.removeEventListener("pointermove", handleMove as EventListener);
-        target.removeEventListener("pointerleave", clearPos as EventListener);
+        target.removeEventListener("pointerleave", clearPos);
       };
-    }, [viewableWidth, viewableHeight, mouseMoveTargetRef?.current]);
+    }, [viewableWidth, viewableHeight]);
+
     /* ------------------------------------------------------------------ */
     /*  Render                                                            */
     /* ------------------------------------------------------------------ */

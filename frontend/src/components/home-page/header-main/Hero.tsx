@@ -45,7 +45,7 @@ const Hero: React.FC = () => {
   const [highlightSides, setHighlightSides] = useState<Side[]>([]);
   const [isSlingerIdle, setIsSlingerIdle] = useState(false);
 
-  const [slingerPos, setSlingerPos] = useState<
+  const [_slingerPos, setSlingerPos] = useState<
     { x: number; y: number } | null | undefined
   >(undefined);
   const [hasDragged, _setHasDragged] = useState<boolean>(
@@ -180,8 +180,6 @@ const Hero: React.FC = () => {
           cols={initialCols}
           viewableWidth={clientWidth}
           viewableHeight={clientHeight}
-          externalMousePos={slingerPos}
-          mouseMoveTargetRef={heroRef}
         />
         <BorderBlinker
           className={styles.borderBlinker}
