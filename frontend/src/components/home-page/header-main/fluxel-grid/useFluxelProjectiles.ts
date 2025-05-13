@@ -52,6 +52,19 @@ export function useFluxelProjectiles({
       ) {
         clearInterval(intervalRef.current!);
         intervalRef.current = null;
+        setGridData((prevGrid) => {
+          const rows = prevGrid.length;
+          const cols = prevGrid[0]?.length || 0;
+
+          const blankGrid = Array.from({ length: rows }, (_, rowIdx) =>
+            Array.from({ length: cols }, (_, colIdx) => ({
+              ...prevGrid[rowIdx][colIdx],
+              colorVariation: "transparent",
+            })),
+          );
+
+          return blankGrid;
+        });
         return;
       }
 
