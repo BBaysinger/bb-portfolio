@@ -4,6 +4,16 @@
   background-repeat: no-repeat;
   object-fit: fill;
   contain: strict;
+  transform-origin: top left;
+  image-rendering: pixelated;
+  position: absolute;
+  box-sizing: border-box;
+}
+
+.spriteSheetWrapper {
+  position: absolute;
+  height: 100%;
+  width: 100%;
 }
 
 .debug {
