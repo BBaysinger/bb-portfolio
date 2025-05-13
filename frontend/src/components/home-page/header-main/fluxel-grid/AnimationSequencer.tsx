@@ -1,4 +1,4 @@
-import {
+import React, {
   useEffect,
   useRef,
   useState,
@@ -205,4 +205,4 @@ const AnimationSequencer = forwardRef<
   );
 });
 
-export default AnimationSequencer;
+export default React.memo(AnimationSequencer);
