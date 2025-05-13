@@ -159,7 +159,6 @@ const AnimationSequencer = forwardRef<
       {activeAnim && currentSrc && (
         <SpriteSheetPlayer
           key={animKey}
-          className={styles.spriteSheetPlayer}
           src={currentSrc}
           fps={activeAnim.fps}
           onEnd={handleEnd}

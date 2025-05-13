@@ -7,6 +7,7 @@ interface SpriteSheetPlayerProps {
   fps?: number; // ✅ Optional override
   onEnd?: () => void;
   className?: string;
+  wrapperClassName?: string;
 }
 
 const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
@@ -15,9 +16,12 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
   fps,
   onEnd,
   className = "",
+  wrapperClassName = "",
 }) => {
   const [frameIndex, setFrameIndex] = useState(0);
   const [scale, setScale] = useState(1);
+  // Scaled with CSS then used detect size changes and apply it via transform: scale to
+  // the visual output element for GPU acceleration
   const wrapperRef = useRef<HTMLDivElement>(null);
   const animationFrameRef = useRef<number | null>(null);
   const lastTimeRef = useRef<number>(performance.now());
@@ -130,21 +134,23 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
   const sheetHeight = Math.ceil(frameCount / columns) * frameHeight;
 
   return (
-    <div ref={wrapperRef} className={className}>
+    <div
+      ref={wrapperRef}
+      className={[styles.spriteSheetWrapper, wrapperClassName].join(" ")}
+    >
       <div
-        className={styles.spriteSheetPlayer}
+        className={[styles.spriteSheetPlayer, className].join(" ")}
         style={{
           width: `${frameWidth}px`,
           height: `${frameHeight}px`,
           transform: `scale(${scale})`,
-          transformOrigin: "top left",
-          imageRendering: "pixelated",
-          position: "absolute",
           backgroundImage: `url(${src})`,
           backgroundPosition,
           backgroundSize: `${sheetWidth}px ${sheetHeight}px`,
         }}
-      />
+      >
+        {/* <div className={styles.debug}>{scale}</div> */}
+      </div>
     </div>
   );
 };
