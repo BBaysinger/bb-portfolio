@@ -2,7 +2,6 @@ import { useEffect, useRef } from "react";
 
 import { FluxelData } from "./Fluxel";
 import type { FluxelGridHandle } from "./FluxelGrid";
-import { globalToLocal } from "utils/globalToLocal";
 
 const smoothStep = (edge0: number, edge1: number, x: number) => {
   let t = Math.max(0, Math.min(1, (x - edge0) / (edge1 - edge0)));
@@ -50,10 +49,11 @@ export function useFluxelShadows({
       }
 
       const updateShadows = () => {
-        const raw = mousePosRef.current;
-        const pos = raw
-          ? globalToLocal(gridEl, raw.x, raw.y)
-          : { x: -100000, y: -100000 };
+        const gridEl = gridRef.current?.getElement();
+        const fluxelSize = gridRef.current?.getFluxelSize();
+        if (!gridEl || !fluxelSize) return;
+
+        const pos = mousePosRef.current ?? { x: -99999, y: -99999 };
 
         setGridData((prevGrid) => {
           let hasChanged = false;
@@ -114,7 +114,6 @@ export function useFluxelShadows({
           animationFrameId.current = requestAnimationFrame(updateShadows);
         }
       };
-
       animationFrameId.current = requestAnimationFrame(updateShadows);
     };
 
