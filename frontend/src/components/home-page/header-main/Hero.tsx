@@ -6,7 +6,7 @@ import BarberPole from "components/common/BarberPole";
 import GridController, {
   GridControllerHandle,
 } from "./fluxel-grid/GridController";
-import Slinger from "./SlingerBox";
+import SlingerBox from "./SlingerBox";
 import ParagraphAnimator from "./ParagraphAnimator";
 import useScrollPersistedClass from "hooks/useScrollPersistedClass";
 import BorderBlinker, { Side } from "./BorderBlinker";
@@ -188,7 +188,7 @@ const Hero: React.FC = () => {
           highlightSides={highlightSides}
         />
         <div className={styles.slingerWrapper}>
-          <Slinger
+          <SlingerBox
             onDragStart={onSlingerDrag}
             onDragEnd={onSlingerDragEnd}
             onWallCollision={onSlingerWallCollision}
