@@ -4,6 +4,7 @@ import {
   useState,
   forwardRef,
   useImperativeHandle,
+  useMemo,
 } from "react";
 
 import SpriteSheetPlayer from "components/common/SpriteSheetPlayer";
@@ -21,11 +22,10 @@ interface AnimationMeta {
 
 const AnimationSequencer = forwardRef<
   AnimationSequencerHandle,
-  { className: string }
+  { className?: string }
 >(({ className }, ref) => {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
-
   const [activeAnim, setActiveAnim] = useState<AnimationMeta | null>(null);
   const [animKey, setAnimKey] = useState(0);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -85,11 +85,7 @@ const AnimationSequencer = forwardRef<
   ];
 
   const imperativeAnimations: AnimationMeta[] = [
-    {
-      wide: ".webp",
-      narrow: ".webp",
-      fps: 10,
-    },
+    { wide: ".webp", narrow: ".webp", fps: 10 },
   ];
 
   const shuffleArray = (array: number[]) =>
@@ -139,9 +135,7 @@ const AnimationSequencer = forwardRef<
     }, delay);
   };
 
-  useImperativeHandle(ref, () => ({
-    playImperativeAnimation,
-  }));
+  useImperativeHandle(ref, () => ({ playImperativeAnimation }), []);
 
   useEffect(() => {
     timeoutRef.current = setTimeout(updateAnimation, initialDelay);
@@ -156,10 +150,9 @@ const AnimationSequencer = forwardRef<
     const el = wrapperRef.current;
     const observer = new ResizeObserver(() => {
       const { offsetWidth: w, offsetHeight: h } = el;
-      // Frame size is always 16x12
       const scaleX = w / 16;
       const scaleY = h / 12;
-      const finalScale = Math.max(scaleX, scaleY); // cover
+      const finalScale = Math.max(scaleX, scaleY);
       setScale(finalScale);
     });
 
@@ -172,11 +165,26 @@ const AnimationSequencer = forwardRef<
     timeoutRef.current = setTimeout(updateAnimation, delay);
   };
 
-  const currentSrc =
-    activeAnim &&
-    (window.innerWidth / window.innerHeight < ratio
+  const currentSrc = useMemo(() => {
+    if (!activeAnim) return null;
+    return window.innerWidth / window.innerHeight < ratio
       ? activeAnim.narrow
-      : activeAnim.wide);
+      : activeAnim.wide;
+  }, [activeAnim]);
+
+  const playerStyle = useMemo(() => {
+    const style = {
+      width: "16px",
+      height: "12px",
+      transform: `scale(${scale})`,
+      transformOrigin: "top left",
+      imageRendering: "pixelated",
+      position: "absolute",
+    } as React.CSSProperties;
+
+    console.log("🎨 Recalculating playerStyle with scale:", scale);
+    return style;
+  }, [scale]);
 
   return (
     <div
@@ -190,14 +198,7 @@ const AnimationSequencer = forwardRef<
           src={currentSrc}
           fps={activeAnim.fps}
           onEnd={handleEnd}
-          style={{
-            width: "16px",
-            height: "12px",
-            transform: `scale(${scale})`,
-            transformOrigin: "top left",
-            imageRendering: "pixelated",
-            position: "absolute",
-          }}
+          style={playerStyle}
         />
       )}
     </div>
