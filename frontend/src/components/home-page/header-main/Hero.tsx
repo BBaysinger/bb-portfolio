@@ -154,6 +154,7 @@ const Hero: React.FC = () => {
         styles.hero,
         hasScrolledOut && styles.hasScrolledOut,
         isSlingerIdle && `${styles.isSlingerIdle} isSlingerIdle`,
+        !isSlingerIdle && `${styles.notSlingerIdle} notSlingerIdle`,
         hasDragged
           ? `${styles.hasDragged} hasDragged`
           : `${styles.notDragged} notDragged`,
