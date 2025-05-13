@@ -120,7 +120,13 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
         if (now - lastFrameTime.current < FRAME_TIME) return;
         lastFrameTime.current = now;
 
-        mousePosRef.current = { x: event.clientX, y: event.clientY };
+        const rect = gridEl.getBoundingClientRect();
+
+        // Convert to grid-local coordinates immediately
+        const localX = event.clientX - rect.left;
+        const localY = event.clientY - rect.top;
+
+        mousePosRef.current = { x: localX, y: localY };
       };
 
       const clearPos = () => {
