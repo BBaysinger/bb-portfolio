@@ -18,8 +18,8 @@ type LaunchFn = (x: number, y: number, direction: Direction) => void;
 /**
  * Animates squares (projectiles) moving in a given direction across the grid.
  *
- * (They animate in double speed in dev mode due to strict mode. I tried to
- * prevent that, but I'll need to come back to it later.)
+ * They animate in double speed in dev mode due to strict mode. I tried to
+ * prevent that, but I'll need to come back to it later.
  *
  * @param param0
  * @returns
@@ -35,6 +35,8 @@ export function useFluxelProjectiles({
 }): LaunchFn {
   const projectiles = useRef<Projectile[]>([]);
   const intervalRef = useRef<number | null>(null);
+  // const isDev = process.env.NODE_ENV !== "production";
+  // const devGuard = useRef(0);
 
   const startInterval = () => {
     if (intervalRef.current !== null) {
@@ -42,7 +44,15 @@ export function useFluxelProjectiles({
       intervalRef.current = null;
     }
 
-    const tickFunction = () => {
+    intervalRef.current = window.setInterval(() => {
+      // if (isDev) {
+      //   devGuard.current++;
+      //   console.info("[DEV] Interval tick", devGuard.current);
+      //   if (devGuard.current % 2 === 0) {
+      //     console.info("[DEV] Skipping duplicate setState");
+      //     return;
+      //   }
+      // }
 
       const snapshot = gridRef.current?.getGridData();
       if (
@@ -117,8 +127,7 @@ export function useFluxelProjectiles({
         projectiles.current = stillFlying;
         return nextGrid;
       });
-    }
-    setInterval(tickFunction, intervalMs);
+    }, intervalMs);
   };
 
   const launchProjectile: LaunchFn = (x, y, direction) => {
