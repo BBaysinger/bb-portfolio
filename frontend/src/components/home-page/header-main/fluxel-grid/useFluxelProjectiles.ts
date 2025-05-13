@@ -42,8 +42,7 @@ export function useFluxelProjectiles({
       intervalRef.current = null;
     }
 
-    intervalRef.current = window.setInterval(() => {
-
+    const tickFunction = () => {
       const snapshot = gridRef.current?.getGridData();
       if (
         !snapshot ||
@@ -117,7 +116,9 @@ export function useFluxelProjectiles({
         projectiles.current = stillFlying;
         return nextGrid;
       });
-    }, intervalMs);
+    };
+
+    intervalRef.current = window.setInterval(tickFunction, intervalMs);
   };
 
   const launchProjectile: LaunchFn = (x, y, direction) => {
