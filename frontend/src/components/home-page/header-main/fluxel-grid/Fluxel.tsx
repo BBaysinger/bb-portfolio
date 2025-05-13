@@ -68,4 +68,15 @@ const Fluxel: React.FC<{ data: FluxelData }> = ({ data }) => {
   );
 };
 
-export default Fluxel;
+function areEqual(prev: { data: FluxelData }, next: { data: FluxelData }) {
+  const a = prev.data;
+  const b = next.data;
+  return (
+    a.influence === b.influence &&
+    a.shadowOffsetX === b.shadowOffsetX &&
+    a.shadowOffsetY === b.shadowOffsetY &&
+    a.colorVariation === b.colorVariation
+  );
+}
+
+export default React.memo(Fluxel, areEqual);
