@@ -35,8 +35,6 @@ export function useFluxelProjectiles({
 }): LaunchFn {
   const projectiles = useRef<Projectile[]>([]);
   const intervalRef = useRef<number | null>(null);
-  const gridNeedsFinalClear = useRef(false);
-
   // const isDev = process.env.NODE_ENV !== "production";
   // const devGuard = useRef(0);
 
@@ -47,15 +45,36 @@ export function useFluxelProjectiles({
     }
 
     intervalRef.current = window.setInterval(() => {
-      const snapshot = gridRef.current?.getGridData();
+      // if (isDev) {
+      //   devGuard.current++;
+      //   console.info("[DEV] Interval tick", devGuard.current);
+      //   if (devGuard.current % 2 === 0) {
+      //     console.info("[DEV] Skipping duplicate setState");
+      //     return;
+      //   }
+      // }
 
-      if (!snapshot || snapshot.length === 0 || snapshot[0].length === 0) {
+      const snapshot = gridRef.current?.getGridData();
+      if (
+        !snapshot ||
+        projectiles.current.length === 0 ||
+        snapshot.length === 0 ||
+        snapshot[0].length === 0
+      ) {
         clearInterval(intervalRef.current!);
         intervalRef.current = null;
         return;
       }
 
       setGridData((prevGrid) => {
+        if (
+          projectiles.current.length === 0 ||
+          prevGrid.length === 0 ||
+          prevGrid[0].length === 0
+        ) {
+          return prevGrid;
+        }
+
         const nextGrid = prevGrid.map((row) =>
           row.map((fluxel) => ({ ...fluxel, colorVariation: "transparent" })),
         );
@@ -86,126 +105,28 @@ export function useFluxelProjectiles({
             col >= 0 &&
             col < nextGrid[0].length;
 
-          if (!inBounds) {
-            console.log(`Projectile ${id} exited the grid.`);
-            continue;
+          if (inBounds) {
+            const color =
+              direction === "up"
+                ? "yellow"
+                : direction === "down"
+                  ? "#87ad26"
+                  : direction === "left"
+                    ? "#660099"
+                    : "orange";
+
+            nextGrid[row][col] = {
+              ...nextGrid[row][col],
+              colorVariation: color,
+            };
+
+            stillFlying.push({ id, row, col, direction });
           }
-
-          const color =
-            direction === "up"
-              ? "yellow"
-              : direction === "down"
-                ? "#87ad26"
-                : direction === "left"
-                  ? "#660099"
-                  : "orange";
-
-          nextGrid[row][col] = {
-            ...nextGrid[row][col],
-            colorVariation: color,
-          };
-
-          stillFlying.push({ id, row, col, direction });
         }
 
         projectiles.current = stillFlying;
-
-        if (stillFlying.length === 0) {
-          if (!gridNeedsFinalClear.current) {
-            gridNeedsFinalClear.current = true;
-          } else {
-            clearInterval(intervalRef.current!);
-            setTimeout(() => {}, intervalMs);
-            intervalRef.current = null;
-            gridNeedsFinalClear.current = false;
-          }
-        }
-
         return nextGrid;
       });
-    }, intervalMs);
-
-    const tickProjectiles = () => {
-      const snapshot = gridRef.current?.getGridData();
-
-      if (!snapshot || snapshot.length === 0 || snapshot[0].length === 0) {
-        return;
-      }
-
-      setGridData((prevGrid) => {
-        const nextGrid = prevGrid.map((row) =>
-          row.map((fluxel) => ({ ...fluxel, colorVariation: "transparent" })),
-        );
-
-        const stillFlying: Projectile[] = [];
-
-        for (const proj of projectiles.current) {
-          let { row, col, direction, id } = proj;
-
-          switch (direction) {
-            case "up":
-              row -= 1;
-              break;
-            case "down":
-              row += 1;
-              break;
-            case "left":
-              col -= 1;
-              break;
-            case "right":
-              col += 1;
-              break;
-          }
-
-          const inBounds =
-            row >= 0 &&
-            row < nextGrid.length &&
-            col >= 0 &&
-            col < nextGrid[0].length;
-
-          if (!inBounds) {
-            console.log(`Projectile ${id} exited the grid.`);
-            continue;
-          }
-
-          const color =
-            direction === "up"
-              ? "yellow"
-              : direction === "down"
-                ? "#87ad26"
-                : direction === "left"
-                  ? "#660099"
-                  : "orange";
-
-          nextGrid[row][col] = {
-            ...nextGrid[row][col],
-            colorVariation: color,
-          };
-
-          stillFlying.push({ id, row, col, direction });
-        }
-
-        projectiles.current = stillFlying;
-
-        if (stillFlying.length === 0) {
-          if (!gridNeedsFinalClear.current) {
-            gridNeedsFinalClear.current = true;
-          } else {
-            clearInterval(intervalRef.current!);
-            intervalRef.current = null;
-            gridNeedsFinalClear.current = false;
-
-            // ⏱️ Final clear pass after unmount interval (delayed by one tick)
-            setTimeout(tickProjectiles, intervalMs);
-          }
-        }
-
-        return nextGrid;
-      });
-    };
-
-    intervalRef.current = window.setInterval(() => {
-      tickProjectiles();
     }, intervalMs);
   };
 
