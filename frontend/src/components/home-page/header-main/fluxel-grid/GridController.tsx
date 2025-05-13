@@ -110,7 +110,9 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
       if (isTouchDevice) return;
 
       // Use the supplied target if it exists, otherwise fall back to `window`.
-      const target: EventTarget = mouseMoveTargetRef?.current ?? window;
+      const target = (mouseMoveTargetRef?.current ?? window) as
+        | HTMLElement
+        | Window;
 
       const handleMove = (event: PointerEvent) => {
         const gridEl = gridInstanceRef.current?.getElement();
@@ -133,12 +135,12 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
         mousePosRef.current = null;
       };
 
-      target.addEventListener("pointermove", handleMove as any);
-      target.addEventListener("pointerleave", clearPos as any);
+      target.addEventListener("pointermove", handleMove as EventListener);
+      target.addEventListener("pointerleave", clearPos as EventListener);
 
       return () => {
-        target.removeEventListener("pointermove", handleMove as any);
-        target.removeEventListener("pointerleave", clearPos as any);
+        target.removeEventListener("pointermove", handleMove as EventListener);
+        target.removeEventListener("pointerleave", clearPos as EventListener);
       };
       // eslint‑disable‑next‑line react‑hooks/exhaustive‑deps
     }, [viewableWidth, viewableHeight, mouseMoveTargetRef?.current]);
