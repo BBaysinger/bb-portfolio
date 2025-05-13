@@ -12,7 +12,7 @@ import useFluxelProjectiles, { Direction } from "./useFluxelProjectiles";
 import AnimationSequencer from "./AnimationSequencer";
 import type { FluxelGridHandle } from "./FluxelGrid"; // make sure to import this
 import type { FluxelData } from "./Fluxel";
-import styles from "./GridController.module.scss";
+import _styles from "./GridController.module.scss";
 
 export interface GridControllerHandle {
   launchProjectile: (x: number, y: number, direction: Direction) => void;
@@ -142,7 +142,7 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
     /* ------------------------------------------------------------------ */
     return (
       <div className={className}>
-        <AnimationSequencer className={styles.fluxelGridBackground} />
+        <AnimationSequencer />
 
         <FluxelGrid
           ref={gridInstanceRef}
