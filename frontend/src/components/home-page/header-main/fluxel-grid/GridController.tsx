@@ -31,7 +31,8 @@ const FRAME_TIME = 1000 / 30;
 /**
  * GridController
  *
- * Handles the grid and the effects we're applying to it.
+ * Handles the grid and the effects we're applying to it. Do it here so the 
+ * grid doesn't know anything specific about how we're using it.
  *
  * @author Bradley Baysinger
  * @since The beginning of time.
