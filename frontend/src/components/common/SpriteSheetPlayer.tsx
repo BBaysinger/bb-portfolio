@@ -7,7 +7,6 @@ interface SpriteSheetPlayerProps {
   fps?: number; // ✅ Optional override
   onEnd?: () => void;
   className?: string;
-  style?: React.CSSProperties;
 }
 
 const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
@@ -16,9 +15,10 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
   fps,
   onEnd,
   className = "",
-  style,
 }) => {
   const [frameIndex, setFrameIndex] = useState(0);
+  const [scale, setScale] = useState(1);
+  const wrapperRef = useRef<HTMLDivElement>(null);
   const animationFrameRef = useRef<number | null>(null);
   const lastTimeRef = useRef<number>(performance.now());
 
@@ -98,6 +98,22 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
     }
   }, [autoPlay, src]);
 
+  useEffect(() => {
+    if (!wrapperRef.current || !meta) return;
+
+    const el = wrapperRef.current;
+    const observer = new ResizeObserver(() => {
+      const { offsetWidth: w, offsetHeight: h } = el;
+      const scaleX = w / meta.frameWidth;
+      const scaleY = h / meta.frameHeight;
+      const finalScale = Math.max(scaleX, scaleY);
+      setScale(finalScale);
+    });
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [meta]);
+
   if (!meta) {
     console.warn("Failed to extract meta from", src);
     return null;
@@ -114,15 +130,22 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
   const sheetHeight = Math.ceil(frameCount / columns) * frameHeight;
 
   return (
-    <div
-      className={`${styles.spriteSheetPlayer} ${className}`}
-      style={{
-        ...style,
-        backgroundImage: `url(${src})`,
-        backgroundPosition,
-        backgroundSize: `${sheetWidth}px ${sheetHeight}px`,
-      }}
-    />
+    <div ref={wrapperRef} className={className}>
+      <div
+        className={styles.spriteSheetPlayer}
+        style={{
+          width: `${frameWidth}px`,
+          height: `${frameHeight}px`,
+          transform: `scale(${scale})`,
+          transformOrigin: "top left",
+          imageRendering: "pixelated",
+          position: "absolute",
+          backgroundImage: `url(${src})`,
+          backgroundPosition,
+          backgroundSize: `${sheetWidth}px ${sheetHeight}px`,
+        }}
+      />
+    </div>
   );
 };
 
