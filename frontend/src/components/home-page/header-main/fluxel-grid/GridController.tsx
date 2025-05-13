@@ -31,7 +31,7 @@ const FRAME_TIME = 1000 / 30;
 /**
  * GridController
  *
- * Handles the grid and the effects we're applying to it. Do it here so the 
+ * Handles the grid and the effects we're applying to it. Do it here so the
  * grid doesn't know anything specific about how we're using it.
  *
  * @author Bradley Baysinger
@@ -95,6 +95,21 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
       }
 
       const handleMove = (event: PointerEvent) => {
+        const isTouchOnly =
+          "ontouchstart" in window && matchMedia("(pointer: coarse)").matches;
+
+        const target = event.target as HTMLElement | null;
+        const isSlingerTarget = target?.className?.includes("slinger");
+
+        // console.log(
+        //   "ontouchstart" in window,
+        //   !("onmousemove" in window),
+        //   matchMedia("(pointer: coarse)").matches,
+        //   !isSlingerTarget,
+        // );
+
+        if (isTouchOnly && !isSlingerTarget) return;
+
         const gridEl = gridInstanceRef.current?.getElement();
         if (!gridEl) return;
 
@@ -129,6 +144,7 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
     /* ------------------------------------------------------------------ */
     /*  Render                                                            */
     /* ------------------------------------------------------------------ */
+
     return (
       <div
         ref={wrapperRef}
