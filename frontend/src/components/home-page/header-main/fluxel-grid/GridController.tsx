@@ -112,12 +112,16 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
         mousePosRef.current = null;
       };
 
-      target.addEventListener("pointermove", handleMove as EventListener);
+      target.addEventListener("pointermove", handleMove);
       target.addEventListener("pointerleave", clearPos);
+      target.addEventListener("scroll", clearPos, { passive: true });
+      target.addEventListener("touchend", clearPos);
 
       return () => {
-        target.removeEventListener("pointermove", handleMove as EventListener);
+        target.removeEventListener("pointermove", handleMove);
         target.removeEventListener("pointerleave", clearPos);
+        target.removeEventListener("scroll", clearPos);
+        target.removeEventListener("touchend", clearPos);
       };
     }, [viewableWidth, viewableHeight]);
 
