@@ -12,7 +12,7 @@ import useFluxelProjectiles, { Direction } from "./useFluxelProjectiles";
 import AnimationSequencer from "./AnimationSequencer";
 import type { FluxelGridHandle } from "./FluxelGrid"; // make sure to import this
 import type { FluxelData } from "./Fluxel";
-import _styles from "./GridController.module.scss";
+import styles from "./GridController.module.scss";
 
 export interface GridControllerHandle {
   launchProjectile: (x: number, y: number, direction: Direction) => void;
@@ -54,6 +54,7 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
     ref,
   ) => {
     const gridInstanceRef = useRef<FluxelGridHandle>(null);
+    const wrapperRef = useRef<HTMLDivElement | null>(null);
 
     /* ------------------------------------------------------------------ */
     /*  Grid state                                                        */
@@ -100,22 +101,20 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
     const lastFrameTime = useRef(0);
 
     // Detect touch‑only devices once (outside the effect).
-    const isTouchDevice =
-      typeof navigator !== "undefined" &&
-      ("maxTouchPoints" in navigator
-        ? navigator.maxTouchPoints > 0
-        : "ontouchstart" in window);
 
     useEffect(() => {
-      // if (isTouchDevice) return;
-
-      // Use the supplied target if it exists, otherwise fall back to `window`.
+      // const target = wrapperRef.current;
+      // if (!target) {
+      //   console.warn("❌ wrapperRef.current is null");
+      //   return;
+      // }
       const target = (mouseMoveTargetRef?.current ?? window) as
         | HTMLElement
         | Window;
 
+      console.log("✅ Adding pointer listeners to", target);
+
       const handleMove = (event: PointerEvent) => {
-        console.log("Pointer move event", event);
         const gridEl = gridInstanceRef.current?.getElement();
         if (!gridEl) return;
 
@@ -124,8 +123,6 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
         lastFrameTime.current = now;
 
         const rect = gridEl.getBoundingClientRect();
-
-        // Convert to grid-local coordinates immediately
         const localX = event.clientX - rect.left;
         const localY = event.clientY - rect.top;
 
@@ -143,14 +140,15 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
         target.removeEventListener("pointermove", handleMove as EventListener);
         target.removeEventListener("pointerleave", clearPos as EventListener);
       };
-      // eslint‑disable‑next‑line react‑hooks/exhaustive‑deps
     }, [viewableWidth, viewableHeight, mouseMoveTargetRef?.current]);
-
     /* ------------------------------------------------------------------ */
     /*  Render                                                            */
     /* ------------------------------------------------------------------ */
     return (
-      <div className={className}>
+      <div
+        ref={wrapperRef}
+        className={[styles.gridController, className].join(" ")}
+      >
         <AnimationSequencer />
 
         <FluxelGrid
