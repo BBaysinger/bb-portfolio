@@ -107,7 +107,7 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
         : "ontouchstart" in window);
 
     useEffect(() => {
-      if (isTouchDevice) return;
+      // if (isTouchDevice) return;
 
       // Use the supplied target if it exists, otherwise fall back to `window`.
       const target = (mouseMoveTargetRef?.current ?? window) as
@@ -115,6 +115,7 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
         | Window;
 
       const handleMove = (event: PointerEvent) => {
+        console.log("Pointer move event", event);
         const gridEl = gridInstanceRef.current?.getElement();
         if (!gridEl) return;
 
