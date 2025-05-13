@@ -136,14 +136,15 @@ $bottom: 10px;
   height: 34px;
   width: 34px;
   margin: 0 4px;
-  & > * {
+
+  > * {
     animation-play-state: paused;
   }
-}
 
-:global(.isSlingerIdle) {
-  .barberPole > * {
-    animation-play-state: running !important;
+  :global(.isSlingerIdle) & {
+    > * {
+      animation-play-state: running !important;
+    }
   }
 }
 
@@ -236,6 +237,13 @@ $scrollCtaOffset: -100px;
   background-repeat: no-repeat;
   background-size: 100% 100%;
   background-image: url("/images/home/orange-arrow.webp");
+  animation-play-state: paused;
+  :global(.isSlingerIdle) & {
+    animation-play-state: running !important;
+  }
+  :global(.notSlingerIdle) & {
+    opacity: 1 !important;
+  }
 }
 
 @keyframes fadeBounce {
