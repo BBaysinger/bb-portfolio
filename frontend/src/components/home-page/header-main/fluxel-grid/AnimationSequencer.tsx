@@ -33,57 +33,63 @@ const AnimationSequencer = forwardRef<
   const initialDelay = 8000;
   const ratio = 40 / 33;
   const directory = "/spritesheets/fluxel-animations/";
+  const extension = ".webp";
 
   const inactivityAnimations: AnimationMeta[] = [
     {
-      wide: "burst1_Layer-Comp-_w16h12f30r10l1.webp",
-      narrow: "burst1_Layer-Comp-_w16h12f30r10l1.webp",
+      wide: "burst1_Layer-Comp-_w16h12f30r10l1",
+      narrow: "burst1_Layer-Comp-_w16h12f30r10l1",
       fps: 10,
     },
     {
-      wide: "interactive-web_w16h12f105r10l1.webp",
-      narrow: "interactive-web_w16h12f105r10l1.webp",
+      wide: "interactive-web_w16h12f105r10l1",
+      narrow: "interactive-web_w16h12f105r10l1",
       fps: 10,
     },
     {
-      wide: "javascript-typescript_w16h12f142r10l1.webp",
-      narrow: "javascript-typescript_w16h12f142r10l1.webp",
+      wide: "javascript-typescript_w16h12f142r10l1",
+      narrow: "javascript-typescript_w16h12f142r10l1",
       fps: 10,
     },
     {
-      wide: "mobile-first_w16h12f82r10l1.webp",
-      narrow: "mobile-first_w16h12f82r10l1.webp",
+      wide: "mobile-first_w16h12f82r10l1",
+      narrow: "mobile-first_w16h12f82r10l1",
       fps: 10,
     },
     {
-      wide: "responsive-design_w16h12f121r10l1.webp",
-      narrow: "responsive-design_w16h12f121r10l1.webp",
+      wide: "responsive-design_w16h12f121r10l1",
+      narrow: "responsive-design_w16h12f121r10l1",
       fps: 10,
     },
     {
-      wide: "single-page-application_w16h12f147r10l1.webp",
-      narrow: "single-page-application_w16h12f147r10l1.webp",
+      wide: "single-page-application_w16h12f147r10l1",
+      narrow: "single-page-application_w16h12f147r10l1",
       fps: 10,
     },
     {
-      wide: "spiral-green-purp_w16h12f215r10l1.webp",
-      narrow: "spiral-green-purp_w16h12f215r10l1.webp",
-      fps: 20,
+      wide: "spiral-green-purp_w16h12f215r10l1",
+      narrow: "spiral-green-purp_w16h12f215r10l1",
+      fps: 30,
     },
     {
-      wide: "user-experience_w16h12f109r10l1.webp",
-      narrow: "user-experience_w16h12f109r10l1.webp",
+      wide: "user-experience_w16h12f109r10l1",
+      narrow: "user-experience_w16h12f109r10l1",
       fps: 10,
     },
     {
-      wide: "user-interface_w16h12f99r10l1.webp",
-      narrow: "user-interface_w16h12f99r10l1.webp",
+      wide: "user-interface_w16h12f99r10l1",
+      narrow: "user-interface_w16h12f99r10l1",
+      fps: 10,
+    },
+    {
+      wide: "runtime-optimization_w16h12f130r10l1",
+      narrow: "runtime-optimization_w16h12f130r10l1",
       fps: 10,
     },
   ];
 
   const imperativeAnimations: AnimationMeta[] = [
-    { wide: ".webp", narrow: ".webp", fps: 10 },
+    { wide: "", narrow: "", fps: 10 },
   ];
 
   const shuffleArray = (array: number[]) =>
@@ -112,8 +118,8 @@ const AnimationSequencer = forwardRef<
 
     safeSetAnim({
       ...anim,
-      wide: directory + filename,
-      narrow: directory + filename,
+      wide: directory + filename + extension,
+      narrow: directory + filename + extension,
     });
   };
 
