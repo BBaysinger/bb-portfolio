@@ -48,7 +48,6 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
       cols,
       viewableHeight,
       viewableWidth,
-      externalMousePos,
       mouseMoveTargetRef,
       className,
     },
@@ -76,19 +75,16 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
     /* ------------------------------------------------------------------ */
     /*  Local pointer position (fallback if parent isn't supplying one)   */
     /* ------------------------------------------------------------------ */
-    const [mousePos, setMousePos] = useState<{ x: number; y: number } | null>(
-      null,
-    );
+    const mousePosRef = useRef<{ x: number; y: number } | null>(null);
 
     /* ------------------------------------------------------------------ */
     /*  Shadow & projectile helpers                                       */
     /* ------------------------------------------------------------------ */
-    const combinedMousePos = externalMousePos ?? mousePos;
 
     useFluxelShadows({
       gridRef: gridInstanceRef,
       setGridData,
-      externalMousePos: combinedMousePos,
+      mousePosRef,
     });
 
     const launchProjectile = useFluxelProjectiles({
@@ -124,10 +120,12 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
         if (now - lastFrameTime.current < FRAME_TIME) return;
         lastFrameTime.current = now;
 
-        setMousePos({ x: event.clientX, y: event.clientY });
+        mousePosRef.current = { x: event.clientX, y: event.clientY };
       };
 
-      const clearPos = () => setMousePos(null);
+      const clearPos = () => {
+        mousePosRef.current = null;
+      };
 
       target.addEventListener("pointermove", handleMove as any);
       target.addEventListener("pointerleave", clearPos as any);
