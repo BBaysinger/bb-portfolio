@@ -8,8 +8,13 @@ export interface FluxelData {
   row: number;
   col: number;
   influence: number;
-  shadowOffsetX: number;
-  shadowOffsetY: number;
+
+  shadow1OffsetX: number;
+  shadow1OffsetY: number;
+
+  shadow2OffsetX?: number;
+  shadow2OffsetY?: number;
+
   colorVariation?: string;
 }
 
@@ -38,32 +43,36 @@ const Fluxel: React.FC<{ data: FluxelData }> = ({ data }) => {
     >
       {/* Shadow group */}
       <g opacity="0.5">
-        <g
-          transform={`translate(${data.shadowOffsetX}, ${data.shadowOffsetY})`}
-        >
-          <image
-            href={cornerShadow}
-            x={-34}
-            y={-110}
-            width="216"
-            height="216"
-          />
-        </g>
-        {/* <g
-          transform={`scale(-1, -1) translate(${data.shadowOffsetX}, ${data.shadowOffsetY})`}
-        >
-          <image
-            href={cornerShadow}
-            x={-34}
-            y={-110}
-            width="216"
-            height="216"
-          />
-        </g> */}
+        <image
+          href={cornerShadow}
+          x={-34}
+          y={-110}
+          width="216"
+          height="216"
+          transform={`translate(${data.shadow1OffsetX}, ${data.shadow1OffsetY})`}
+        />
+        {/* <image
+          href={cornerShadow}
+          x={-100}
+          y={-185}
+          width="216"
+          height="216"
+          transform={`translate(${-data.shadow2OffsetX}, ${-data.shadow2OffsetY}) scale(-1, -1)`}
+        /> */}
 
         {/* Overlay colorVariation fill */}
       </g>
       <rect width="72" height="72" fill="var(--overlay-color)" />
+      {/* <text
+        x="36"
+        y="36"
+        fontSize="12"
+        fill="white"
+        textAnchor="middle"
+        dominantBaseline="middle"
+      >
+        {data.shadow2OffsetX},{data.shadow2OffsetY}
+      </text> */}
     </svg>
   );
 };
@@ -73,8 +82,10 @@ function areEqual(prev: { data: FluxelData }, next: { data: FluxelData }) {
   const b = next.data;
   return (
     a.influence === b.influence &&
-    a.shadowOffsetX === b.shadowOffsetX &&
-    a.shadowOffsetY === b.shadowOffsetY &&
+    a.shadow1OffsetX === b.shadow1OffsetX &&
+    a.shadow1OffsetY === b.shadow1OffsetY &&
+    a.shadow2OffsetX === b.shadow2OffsetX &&
+    a.shadow2OffsetY === b.shadow2OffsetY &&
     a.colorVariation === b.colorVariation
   );
 }

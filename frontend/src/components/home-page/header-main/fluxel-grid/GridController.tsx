@@ -46,6 +46,7 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
     /* ------------------------------------------------------------------ */
     /*  Grid state                                                        */
     /* ------------------------------------------------------------------ */
+
     const [gridData, setGridData] = useState<FluxelData[][]>(() =>
       Array.from({ length: rows }, (_, row) =>
         Array.from({ length: cols }, (_, col) => ({
@@ -53,8 +54,10 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
           row,
           col,
           influence: 0,
-          shadowOffsetX: 0,
-          shadowOffsetY: 0,
+          shadow1OffsetX: 0,
+          shadow1OffsetY: 0,
+          shadow2OffsetX: 0,
+          shadow2OffsetY: 0,
           colorVariation: "transparent",
         })),
       ),
@@ -63,6 +66,7 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
     /* ------------------------------------------------------------------ */
     /*  Local pointer position (fallback if parent isn't supplying one)   */
     /* ------------------------------------------------------------------ */
+
     const mousePosRef = useRef<{ x: number; y: number } | null>(null);
 
     /* ------------------------------------------------------------------ */
@@ -85,6 +89,7 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
     /* ------------------------------------------------------------------ */
     /*  Pointer‑tracking effect                                           */
     /* ------------------------------------------------------------------ */
+
     const lastFrameTime = useRef(0);
 
     useEffect(() => {
@@ -100,13 +105,6 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
 
         const target = event.target as HTMLElement | null;
         const isSlingerTarget = target?.className?.includes("slinger");
-
-        // console.log(
-        //   "ontouchstart" in window,
-        //   !("onmousemove" in window),
-        //   matchMedia("(pointer: coarse)").matches,
-        //   !isSlingerTarget,
-        // );
 
         if (isTouchOnly && !isSlingerTarget) return;
 
@@ -128,12 +126,14 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
         mousePosRef.current = null;
       };
 
+      target.addEventListener("pointerdown", handleMove);
       target.addEventListener("pointermove", handleMove);
       target.addEventListener("pointerleave", clearPos);
       target.addEventListener("scroll", clearPos, { passive: true });
       target.addEventListener("touchend", clearPos);
 
       return () => {
+        target.removeEventListener("pointerdown", handleMove);
         target.removeEventListener("pointermove", handleMove);
         target.removeEventListener("pointerleave", clearPos);
         target.removeEventListener("scroll", clearPos);

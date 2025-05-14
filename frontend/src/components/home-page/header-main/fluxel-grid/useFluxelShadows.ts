@@ -61,8 +61,8 @@ export function useFluxelShadows({
           const updatedGrid = prevGrid.map((row) =>
             row.map((fluxel) => {
               let influence = 0;
-              let shadowOffsetX = 0;
-              let shadowOffsetY = 0;
+              let shadow1OffsetX = 0;
+              let shadow1OffsetY = 0;
 
               if (pos.x >= 0 && pos.y >= 0) {
                 influence = getShadowInfluence(
@@ -81,25 +81,25 @@ export function useFluxelShadows({
                   fluxelSize,
                 );
 
-                shadowOffsetX = Math.round(
+                shadow1OffsetX = Math.round(
                   Math.min(rightInfluence - influence, 0) * 60,
                 );
-                shadowOffsetY = Math.round(
+                shadow1OffsetY = Math.round(
                   Math.max(influence - topInfluence, 0) * 60,
                 );
               }
 
               if (
                 Math.abs(influence - fluxel.influence) > 0.009 ||
-                shadowOffsetX !== fluxel.shadowOffsetX ||
-                shadowOffsetY !== fluxel.shadowOffsetY
+                shadow1OffsetX !== fluxel.shadow1OffsetX ||
+                shadow1OffsetY !== fluxel.shadow1OffsetY
               ) {
                 hasChanged = true;
                 return {
                   ...fluxel,
                   influence: +influence.toFixed(2),
-                  shadowOffsetX,
-                  shadowOffsetY,
+                  shadow1OffsetX,
+                  shadow1OffsetY,
                 };
               }
 
