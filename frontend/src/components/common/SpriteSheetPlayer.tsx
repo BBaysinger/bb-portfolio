@@ -5,6 +5,7 @@ interface SpriteSheetPlayerProps {
   src: string; // filename must follow pattern: name_w16h12f82r10l1.webp
   autoPlay?: boolean;
   fps?: number; // ✅ Optional override
+  loops?: number; // ✅ Optional override
   onEnd?: () => void;
   className?: string;
   wrapperClassName?: string;
@@ -13,7 +14,8 @@ interface SpriteSheetPlayerProps {
 const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
   src,
   autoPlay = true,
-  fps,
+  fps = 30,
+  loops = 0, // Default zero so it's easier to identify on screen
   onEnd,
   className = "",
   wrapperClassName = "",
@@ -28,19 +30,17 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
 
   // Parse metadata from filename
   const meta = useMemo(() => {
-    const match = src.match(/_w(\d+)h(\d+)f(\d+)r(\d+)l(\d+)/);
+    const match = src.match(/_w(\d+)h(\d+)f(\d+)/);
     if (!match) {
       console.warn("Invalid sprite filename format:", src);
       return null;
     }
 
-    const [, w, h, f, r, l] = match.map(Number);
+    const [, w, h, f] = match.map(Number);
     return {
       frameWidth: w,
       frameHeight: h,
       frameCount: f,
-      fps: r,
-      loopCount: l, // 0 = infinite
     };
   }, [src]);
 
@@ -50,7 +50,7 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
     let isCancelled = false;
     let currentFrame = 0;
     let completedLoops = 0;
-    const frameDuration = 1000 / (fps ?? meta.fps);
+    const frameDuration = 1000 / fps;
     lastTimeRef.current = performance.now();
 
     const animate = (now: number) => {
@@ -65,8 +65,8 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
         if (currentFrame >= meta.frameCount) {
           completedLoops += 1;
 
-          // If loopCount is 0, it means infinite
-          const maxLoops = meta.loopCount === 0 ? Infinity : meta.loopCount;
+          // 0 = infinite
+          const maxLoops = loops === 0 ? Infinity : loops;
 
           if (completedLoops >= maxLoops) {
             isCancelled = true;

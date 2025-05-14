@@ -18,6 +18,7 @@ interface AnimationMeta {
   wide: string;
   narrow: string;
   fps?: number;
+  loops?: number;
 }
 
 const AnimationSequencer = forwardRef<
@@ -37,59 +38,75 @@ const AnimationSequencer = forwardRef<
 
   const inactivityAnimations: AnimationMeta[] = [
     {
-      wide: "burst1_Layer-Comp-_w16h12f30r10l1",
-      narrow: "burst1_Layer-Comp-_w16h12f30r10l1",
+      wide: "burst1_Layer-Comp-_w16h12f30",
+      narrow: "burst1_Layer-Comp-_w16h12f30",
       fps: 10,
+      loops: 1,
     },
     {
-      wide: "interactive-web_w16h12f105r10l1",
-      narrow: "interactive-web_w16h12f105r10l1",
+      wide: "interactive-web_w16h12f105",
+      narrow: "interactive-web_w16h12f105",
       fps: 10,
+      loops: 1,
     },
     {
-      wide: "javascript-typescript_w16h12f142r10l1",
-      narrow: "javascript-typescript_w16h12f142r10l1",
+      wide: "javascript-typescript_w16h12f142",
+      narrow: "javascript-typescript_w16h12f142",
       fps: 10,
+      loops: 1,
     },
     {
-      wide: "mobile-first_w16h12f82r10l1",
-      narrow: "mobile-first_w16h12f82r10l1",
+      wide: "mobile-first_w16h12f82",
+      narrow: "mobile-first_w16h12f82",
       fps: 10,
+      loops: 1,
     },
     {
-      wide: "responsive-design_w16h12f121r10l1",
-      narrow: "responsive-design_w16h12f121r10l1",
+      wide: "responsive-design_w16h12f121",
+      narrow: "responsive-design_w16h12f121",
       fps: 10,
+      loops: 1,
     },
     {
-      wide: "single-page-application_w16h12f147r10l1",
-      narrow: "single-page-application_w16h12f147r10l1",
+      wide: "single-page-application_w16h12f147",
+      narrow: "single-page-application_w16h12f147",
       fps: 10,
+      loops: 1,
     },
     {
-      wide: "spiral-green-purp_w16h12f215r10l1",
-      narrow: "spiral-green-purp_w16h12f215r10l1",
+      wide: "spiral-green-purp_w16h12f215",
+      narrow: "spiral-green-purp_w16h12f215",
       fps: 30,
+      loops: 1,
     },
     {
-      wide: "user-experience_w16h12f109r10l1",
-      narrow: "user-experience_w16h12f109r10l1",
+      wide: "user-experience_w16h12f109",
+      narrow: "user-experience_w16h12f109",
       fps: 10,
+      loops: 1,
     },
     {
-      wide: "user-interface_w16h12f99r10l1",
-      narrow: "user-interface_w16h12f99r10l1",
+      wide: "user-interface_w16h12f99",
+      narrow: "user-interface_w16h12f99",
       fps: 10,
+      loops: 1,
     },
     {
-      wide: "runtime-optimization_w16h12f130r10l1",
-      narrow: "runtime-optimization_w16h12f130r10l1",
+      wide: "runtime-optimization_w16h12f130",
+      narrow: "runtime-optimization_w16h12f130",
       fps: 10,
+      loops: 1,
+    },
+    {
+      wide: "invaders_w16h12f105",
+      narrow: "invaders_w16h12f105",
+      fps: 10,
+      loops: 1,
     },
   ];
 
   const imperativeAnimations: AnimationMeta[] = [
-    { wide: "", narrow: "", fps: 10 },
+    { wide: "", narrow: "", fps: 10, loops: 1 },
   ];
 
   const shuffleArray = (array: number[]) =>
@@ -167,6 +184,7 @@ const AnimationSequencer = forwardRef<
           key={animKey}
           src={currentSrc}
           fps={activeAnim.fps}
+          loops={activeAnim.fps}
           onEnd={handleEnd}
         />
       )}
