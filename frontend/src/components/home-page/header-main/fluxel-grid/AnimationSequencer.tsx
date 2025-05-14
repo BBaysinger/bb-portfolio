@@ -184,7 +184,7 @@ const AnimationSequencer = forwardRef<
           key={animKey}
           src={currentSrc}
           fps={activeAnim.fps}
-          loops={activeAnim.fps}
+          loops={activeAnim.loops}
           onEnd={handleEnd}
         />
       )}
