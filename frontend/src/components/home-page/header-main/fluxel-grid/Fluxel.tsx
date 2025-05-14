@@ -21,7 +21,7 @@ export interface FluxelData {
 /**
  * Fluxing Pixel
  *
- * A square on the grid that can simulate depth and have color variations
+ * A square/pixel on the grid that can simulate depth and have color variations
  * applied to it.
  *
  * @author Bradley Baysinger
@@ -41,28 +41,29 @@ const Fluxel: React.FC<{ data: FluxelData }> = ({ data }) => {
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 72 72"
     >
-      {/* Shadow group */}
-      <g opacity="0.5">
-        <image
-          href={cornerShadow}
-          x={-34}
-          y={-110}
-          width="216"
-          height="216"
-          transform={`translate(${data.shadow1OffsetX}, ${data.shadow1OffsetY})`}
-        />
-        <image
-          href={cornerShadow}
-          x={-100}
-          y={-185}
-          width="216"
-          height="216"
-          transform={`translate(${-data.shadow2OffsetX}, ${-data.shadow2OffsetY}) scale(-1, -1)`}
-        />
+      {/* Shadows */}
+      <image
+        opacity="0.5"
+        href={cornerShadow}
+        x={-34}
+        y={-110}
+        width="216"
+        height="216"
+        transform={`translate(${data.shadow1OffsetX}, ${data.shadow1OffsetY})`}
+      />
+      <image
+        opacity="0.25"
+        href={cornerShadow}
+        x={-100}
+        y={-185}
+        width="216"
+        height="216"
+        transform={`translate(${data.shadow2OffsetX}, ${data.shadow2OffsetY}) scale(-1, -1)`}
+      />
 
-        {/* Overlay colorVariation fill */}
-      </g>
+      {/* Overlay color variation fill. This is the 'projectiles'. */}
       <rect width="72" height="72" fill="var(--overlay-color)" />
+      {/* Debugging output. */}
       {/* <text
         x="36"
         y="36"
