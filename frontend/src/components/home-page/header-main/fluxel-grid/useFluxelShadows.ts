@@ -63,6 +63,8 @@ export function useFluxelShadows({
               let influence = 0;
               let shadow1OffsetX = 0;
               let shadow1OffsetY = 0;
+              let shadow2OffsetX = 0;
+              let shadow2OffsetY = 0;
 
               if (pos.x >= 0 && pos.y >= 0) {
                 influence = getShadowInfluence(
@@ -80,6 +82,16 @@ export function useFluxelShadows({
                   pos,
                   fluxelSize,
                 );
+                const bottomInfluence = getShadowInfluence(
+                  { col: fluxel.col, row: fluxel.row + 1 },
+                  pos,
+                  fluxelSize,
+                );
+                const leftInfluence = getShadowInfluence(
+                  { col: fluxel.col - 1, row: fluxel.row },
+                  pos,
+                  fluxelSize,
+                );
 
                 shadow1OffsetX = Math.round(
                   Math.min(rightInfluence - influence, 0) * 60,
@@ -87,12 +99,20 @@ export function useFluxelShadows({
                 shadow1OffsetY = Math.round(
                   Math.max(influence - topInfluence, 0) * 60,
                 );
+                shadow2OffsetX = Math.round(
+                  Math.max(influence - leftInfluence, 0) * 60,
+                );
+                shadow2OffsetY = Math.round(
+                  Math.min(bottomInfluence - influence, 0) * 60,
+                );
               }
 
               if (
                 Math.abs(influence - fluxel.influence) > 0.009 ||
                 shadow1OffsetX !== fluxel.shadow1OffsetX ||
-                shadow1OffsetY !== fluxel.shadow1OffsetY
+                shadow1OffsetY !== fluxel.shadow1OffsetY ||
+                shadow2OffsetX !== fluxel.shadow2OffsetX ||
+                shadow2OffsetY !== fluxel.shadow2OffsetY
               ) {
                 hasChanged = true;
                 return {
@@ -100,6 +120,8 @@ export function useFluxelShadows({
                   influence: +influence.toFixed(2),
                   shadow1OffsetX,
                   shadow1OffsetY,
+                  shadow2OffsetX,
+                  shadow2OffsetY,
                 };
               }
 
