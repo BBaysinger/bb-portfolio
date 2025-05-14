@@ -12,8 +12,8 @@ export interface FluxelData {
   shadow1OffsetX: number;
   shadow1OffsetY: number;
 
-  shadow2OffsetX?: number;
-  shadow2OffsetY?: number;
+  shadow2OffsetX: number;
+  shadow2OffsetY: number;
 
   colorVariation?: string;
 }
@@ -51,14 +51,14 @@ const Fluxel: React.FC<{ data: FluxelData }> = ({ data }) => {
           height="216"
           transform={`translate(${data.shadow1OffsetX}, ${data.shadow1OffsetY})`}
         />
-        {/* <image
+        <image
           href={cornerShadow}
           x={-100}
           y={-185}
           width="216"
           height="216"
           transform={`translate(${-data.shadow2OffsetX}, ${-data.shadow2OffsetY}) scale(-1, -1)`}
-        /> */}
+        />
 
         {/* Overlay colorVariation fill */}
       </g>
@@ -77,11 +77,13 @@ const Fluxel: React.FC<{ data: FluxelData }> = ({ data }) => {
   );
 };
 
+const round = (n: number) => +n.toFixed(2);
+
 function areEqual(prev: { data: FluxelData }, next: { data: FluxelData }) {
   const a = prev.data;
   const b = next.data;
   return (
-    a.influence === b.influence &&
+    round(a.influence) === round(b.influence) &&
     a.shadow1OffsetX === b.shadow1OffsetX &&
     a.shadow1OffsetY === b.shadow1OffsetY &&
     a.shadow2OffsetX === b.shadow2OffsetX &&
