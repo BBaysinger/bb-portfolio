@@ -5,6 +5,7 @@ import React, {
   forwardRef,
   useImperativeHandle,
   useMemo,
+  useCallback,
 } from "react";
 
 import SpriteSheetPlayer from "components/common/SpriteSheetPlayer";
@@ -19,7 +20,7 @@ interface AnimationMeta {
   narrow: string;
   fps?: number;
   loops?: number;
-  weight?: number; // default to 1 if not provided
+  weight: number; // made required for simplicity
 }
 
 const AnimationSequencer = forwardRef<
@@ -29,13 +30,22 @@ const AnimationSequencer = forwardRef<
   const [activeAnim, setActiveAnim] = useState<AnimationMeta | null>(null);
   const [animKey, setAnimKey] = useState(0);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const lastPlayedIndexRef = useRef<number | null>(null);
 
   const delay = 16000;
   const initialDelay = 8000;
   const ratio = 40 / 33;
   const directory = "/spritesheets/fluxel-animations/";
   const extension = ".webp";
-  const lastPlayedIndexRef = useRef<number | null>(null);
+
+  const isNarrow = () => window.innerWidth / window.innerHeight < ratio;
+  const buildFullPath = (name: string) => `${directory}${name}${extension}`;
+  const clearTimeoutIfSet = () => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+  };
 
   const inactivityAnimations: AnimationMeta[] = [
     {
@@ -118,31 +128,32 @@ const AnimationSequencer = forwardRef<
   ];
 
   const imperativeAnimations: AnimationMeta[] = [
-    { wide: "", narrow: "", fps: 10, loops: 1 },
+    { wide: "", narrow: "", fps: 10, loops: 1, weight: 1 },
   ];
 
   function weightedRandomIndex(
     items: AnimationMeta[],
     lastIndex: number | null,
   ): number {
-    const totalWeight = items.reduce(
-      (sum, item) => sum + (item.weight ?? 1),
-      0,
-    );
+    const totalWeight = items.reduce((sum, item) => sum + item.weight, 0);
     let attemptCount = 0;
+
     while (attemptCount < 10) {
       let r = Math.random() * totalWeight;
       let cumulative = 0;
+
       for (let i = 0; i < items.length; i++) {
-        cumulative += items[i].weight ?? 1;
+        cumulative += items[i].weight;
         if (r < cumulative) {
           if (i !== lastIndex) return i;
           break;
         }
       }
+
       attemptCount++;
     }
-    // fallback: return a different one if possible
+
+    // Fallback: return first different index
     const fallback = items.findIndex((_, i) => i !== lastIndex);
     return fallback >= 0 ? fallback : 0;
   }
@@ -157,59 +168,55 @@ const AnimationSequencer = forwardRef<
   };
 
   const safeSetAnim = (anim: AnimationMeta) => {
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    clearTimeoutIfSet();
     setActiveAnim(anim);
     setAnimKey((k) => k + 1);
   };
 
   const updateAnimation = () => {
-    const aspect = window.innerWidth / window.innerHeight;
     const nextIndex = getNextIndex();
     const anim = inactivityAnimations[nextIndex];
-    const filename = aspect < ratio ? anim.narrow : anim.wide;
+    const filename = isNarrow() ? anim.narrow : anim.wide;
 
     safeSetAnim({
       ...anim,
-      wide: directory + filename + extension,
-      narrow: directory + filename + extension,
+      wide: buildFullPath(filename),
+      narrow: buildFullPath(filename),
     });
   };
 
-  const playImperativeAnimation = (index = 0) => {
-    const aspect = window.innerWidth / window.innerHeight;
+  const playImperativeAnimation = useCallback((index = 0) => {
     const anim = imperativeAnimations[index % imperativeAnimations.length];
-    const filename = aspect < ratio ? anim.narrow : anim.wide;
+    const filename = isNarrow() ? anim.narrow : anim.wide;
 
     safeSetAnim({
       ...anim,
-      wide: directory + filename,
-      narrow: directory + filename,
+      wide: buildFullPath(filename),
+      narrow: buildFullPath(filename),
     });
 
     timeoutRef.current = setTimeout(() => {
       setActiveAnim(null);
     }, delay);
-  };
+  }, []);
 
-  useImperativeHandle(ref, () => ({ playImperativeAnimation }), []);
+  useImperativeHandle(ref, () => ({ playImperativeAnimation }), [
+    playImperativeAnimation,
+  ]);
 
   useEffect(() => {
     timeoutRef.current = setTimeout(updateAnimation, initialDelay);
-    return () => {
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    };
+    return clearTimeoutIfSet;
   }, []);
 
   const handleEnd = () => {
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    clearTimeoutIfSet();
     timeoutRef.current = setTimeout(updateAnimation, delay);
   };
 
   const currentSrc = useMemo(() => {
     if (!activeAnim) return null;
-    return window.innerWidth / window.innerHeight < ratio
-      ? activeAnim.narrow
-      : activeAnim.wide;
+    return isNarrow() ? activeAnim.narrow : activeAnim.wide;
   }, [activeAnim]);
 
   return (
