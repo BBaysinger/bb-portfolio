@@ -195,9 +195,9 @@ const Hero: React.FC = () => {
         </div>
 
         <ParagraphAnimator
-          introMessage={`Toss the orb for a fun surprise.`}
+          introMessage={`Welcome. Toss the orb for a fun surprise!`}
           paragraphs={quotes}
-          paused={!isSlingerIdle}
+          // paused={!isSlingerIdle}
           className={styles.message}
         />
 
