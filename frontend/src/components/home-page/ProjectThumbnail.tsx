@@ -1,4 +1,4 @@
-import React, { forwardRef } from "react";
+import React, { forwardRef, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 import styles from "./ProjectThumbnail.module.scss";
@@ -23,6 +23,25 @@ interface ProjectThumbnailProps {
  */
 const ProjectThumbnail = forwardRef<HTMLDivElement, ProjectThumbnailProps>(
   ({ focused, projectId, title, clientId }, ref) => {
+    const [logoSrc, setLogoSrc] = useState<string | null>(null);
+
+    useEffect(() => {
+      const loadLogo = () => {
+        setLogoSrc(`/images/client-logos/${clientId}.svg`);
+      };
+
+      // Since the brand logo is hidden, it falls outside of the browser-native
+      // prioritization strategy, but still needs deferred to idle time to prioritize
+      // the rest of the page. In other words, this is a deferred preload strategy
+      // that accounts for SPAs and SSR.
+      if ("requestIdleCallback" in window) {
+        window.requestIdleCallback(loadLogo, { timeout: 2000 });
+      } else {
+        // FALLBACK: For many modern browsers! KEEP!
+        setTimeout(loadLogo, 500);
+      }
+    }, [clientId]);
+
     const style: React.CSSProperties = {
       backgroundImage: `url('/images/thumbs/${projectId}.webp')`,
     };
@@ -36,12 +55,14 @@ const ProjectThumbnail = forwardRef<HTMLDivElement, ProjectThumbnailProps>(
           <div className={styles.vignette}></div>
           <div className={styles.thumbContent}>
             <div>
-              <img
-                src={`/images/client-logos/${clientId}.svg`}
-                className={styles.clientLogo}
-                loading="lazy"
-                alt={`${clientId} logo`}
-              />
+              {logoSrc && (
+                <img
+                  src={logoSrc}
+                  className={styles.clientLogo}
+                  loading="eager"
+                  alt={`${clientId} logo`}
+                />
+              )}
             </div>
             <h4 className={styles.thumbTitle}>{title}</h4>
           </div>
