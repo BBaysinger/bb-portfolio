@@ -514,7 +514,8 @@ gsap.registerPlugin(ScrollToPlugin);
 // to negative scrollLeft. TODO: This can be handled in a way that instead
 // repositions the slides and scroll position when the user
 // scroll stops. It works, I've done it elsewhere, but it's not critical for
-// current use cases. Until then, it's not *technically* infinite scrolling left.
+// current use cases. Until then, it's not *technically* infinite scrolling left,
+// but unlikely that anyone will ever scroll that far left.
 const BASE_OFFSET = 1000000;
 
 export default Carousel;
