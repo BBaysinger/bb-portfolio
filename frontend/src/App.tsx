@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import { useSelector } from "react-redux";
 
 import { RootState } from "store/store";
@@ -6,7 +7,7 @@ import Nav, { NavVariant } from "components/layout/Nav";
 import Footer from "components/layout/Footer";
 import ScrollToHash from "utils/ScrollToHash";
 import { AuthProvider } from "context/AuthContext";
-
+import { MainHeightProvider } from "context/MainHeightContext";
 import { useTrackHeroInView } from "hooks/useTrackHeroInView";
 import { useAutoCloseMobileNavOnScroll } from "hooks/useAutoCloseMobileNavOnScroll";
 
@@ -14,6 +15,8 @@ import styles from "./App.module.scss";
 import "@/styles/styles.scss";
 
 const App: React.FC = () => {
+  const heightRef = useRef<HTMLDivElement>(null);
+
   const isMenuOpen = useSelector(
     (state: RootState) => state.ui.isMobileNavExpanded,
   );
@@ -42,9 +45,13 @@ const App: React.FC = () => {
         <div className={styles.underlay} />
 
         <div id={styles.main}>
-          <Nav variant={NavVariant.TOP_BAR} />
-          <ScrollToHash />
-          <AppRoutes onLogin={handleLogin} />
+          <MainHeightProvider>
+            <div ref={heightRef}>
+              <Nav variant={NavVariant.TOP_BAR} />
+              <ScrollToHash />
+              <AppRoutes onLogin={handleLogin} />
+            </div>
+          </MainHeightProvider>
           <Footer />
         </div>
       </div>
