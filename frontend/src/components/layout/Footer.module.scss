@@ -40,6 +40,17 @@ footer {
     color: #ffffff;
     text-decoration: underline;
   }
+
+  ul {
+    padding-left: 0;
+    margin-left: 0;
+    list-style: none;
+    font-size: 15px;
+  }
+
+  li {
+    white-space: nowrap;
+  }
 }
 
 .copyright {
@@ -65,17 +76,6 @@ footer {
     margin-right: 10px;
     width: 30px;
   }
-}
-
-ul {
-  padding-left: 0;
-  margin-left: 0;
-  list-style: none;
-  font-size: 15px;
-}
-
-li {
-  white-space: nowrap;
 }
 
 .footerNav {
