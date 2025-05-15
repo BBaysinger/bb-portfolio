@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { expandMobileNav } from "store/uiSlice";
 import Hamburger from "components/layout/Hamburger";
 import NavLinks from "./NavLinks";
-import BarberPole from "components/common/BarberPole";
+// import BarberPole from "components/common/BarberPole";
 import { RootState } from "store/store";
 import navLogo from "images/misc/bb-logo.svg";
 import styles from "./Nav.module.scss";
@@ -79,9 +79,7 @@ const Nav: React.FC<NavProps> = ({ variant }) => {
       </div>  */}
 
       {variant === NavVariant.SLIDE_OUT && (
-        <>
-          <BarberPole className={styles.barberPole} />
-        </>
+        <>{/* <BarberPole className={styles.barberPole} /> */}</>
       )}
     </nav>
   );
