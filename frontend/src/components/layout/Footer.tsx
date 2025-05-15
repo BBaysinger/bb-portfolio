@@ -56,7 +56,7 @@ const Footer: React.FC = () => {
   return (
     <div
       className={styles.footerWrapper}
-      style={{ height: footerHeight + "px" }}
+      style={{ height: footerHeight + -1 + "px" }}
     >
       {/* <div className={styles.footerGradient}></div> */}
       <footer style={{ top: mainHeight + "px" }} ref={footerRef}>
