@@ -173,4 +173,5 @@ li {
 
 .footerWrapper {
   position: static;
+  margin-bottom: -1px; // Fixes a white line at the bottom of the page
 }
