@@ -15,7 +15,9 @@ import styles from "./Footer.module.scss";
  * @version N/A
  */
 const Footer: React.FC = () => {
-  const height = useMainHeight();
+  const mainHeight = useMainHeight();
+  const [footerHeight, setFooterHeight] = useState<number>(0);
+  const footerRef = React.useRef<HTMLDivElement>(null);
 
   const [emailAddr, setEmailAddr] = useState<string>("Waiting...");
 
@@ -34,13 +36,30 @@ const Footer: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    console.log("Main height updated in Footer:", height);
-  }, [height]);
+    const updateDimensions = () => {
+      setFooterHeight(footerRef.current?.offsetHeight || 0);
+    };
+
+    updateDimensions();
+
+    window.addEventListener("resize", updateDimensions);
+    window.addEventListener("scroll", updateDimensions);
+    window.addEventListener("orientationchange", updateDimensions);
+
+    return () => {
+      window.removeEventListener("resize", updateDimensions);
+      window.removeEventListener("scroll", updateDimensions);
+      window.removeEventListener("orientationchange", updateDimensions);
+    };
+  }, []);
 
   return (
-    <div className={styles.footerWrapper}>
+    <div
+      className={styles.footerWrapper}
+      style={{ height: footerHeight + "px" }}
+    >
       {/* <div className={styles.footerGradient}></div> */}
-      <footer style={{ top: height + "px" }}>
+      <footer style={{ top: mainHeight + "px" }} ref={footerRef}>
         <div className={`container ${styles.footerContainer}`}>
           <div className="row">
             <div
