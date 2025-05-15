@@ -2,7 +2,8 @@
 @use "@/styles/variables" as *;
 
 footer {
-  position: relative;
+  position: absolute;
+  top: 10000px;
   padding-top: 0;
   display: inline-block;
   width: 100%;
@@ -40,133 +41,137 @@ footer {
     color: #ffffff;
     text-decoration: underline;
   }
+}
 
-  .copyright {
-    text-align: center;
-    bottom: 50px;
-    width: 100%;
-    font-size: 13px;
-    margin-bottom: 20px;
-    margin-top: 50px;
+.copyright {
+  text-align: center;
+  bottom: 50px;
+  width: 100%;
+  font-size: 13px;
+  margin-bottom: 20px;
+  margin-top: 50px;
+}
+
+// footer:first-child {
+//   padding-top: 20px;
+//   margin-top: 0;
+//   position: relative;
+// }
+
+.footerLink:hover {
+  color: #777;
+}
+
+.react {
+  text-align: center;
+  width: 100%;
+  font-size: 18px;
+  margin-bottom: 20px;
+
+  img {
+    margin-right: 10px;
+    width: 30px;
   }
+}
 
-  footer:first-child {
-    padding-top: 20px;
-    margin-top: 0;
-    position: relative;
-  }
+ul {
+  padding-left: 0;
+  margin-left: 0;
+  list-style: none;
+  font-size: 15px;
+}
 
-  .footerLink:hover {
-    color: #777;
-  }
+li {
+  white-space: nowrap;
+}
 
-  .react {
-    text-align: center;
-    width: 100%;
-    font-size: 18px;
-    margin-bottom: 20px;
+.footerNav {
+  list-style: none;
+  font-size: 15px;
+  text-align: center;
 
-    img {
-      margin-right: 10px;
-      width: 30px;
-    }
+  @include breakpointUp($b768px) {
+    text-align: left;
   }
 
   ul {
-    padding-left: 0;
-    margin-left: 0;
-    list-style: none;
-    font-size: 15px;
+    display: inline-block;
+    margin-left: 10px;
   }
 
   li {
-    white-space: nowrap;
+    margin-bottom: 15px;
+    text-transform: uppercase;
   }
 
-  .footerNav {
-    list-style: none;
-    font-size: 15px;
-    text-align: center;
-
-    @include breakpointUp($b768px) {
-      text-align: left;
-    }
-
-    ul {
-      display: inline-block;
-      margin-left: 10px;
-    }
-
-    li {
-      margin-bottom: 15px;
-      text-transform: uppercase;
-    }
-
-    a {
-      text-decoration: none;
-      color: #888888;
-    }
-
-    a.active,
-    a:active {
-      color: #ffffff;
-    }
-
-    a:hover {
-      text-decoration: underline;
-      color: #ffffff;
-    }
+  a {
+    text-decoration: none;
+    color: #888888;
   }
 
-  .footerCell {
-    padding-top: 60px;
-
-    p {
-      line-height: 19px;
-    }
+  a.active,
+  a:active {
+    color: #ffffff;
   }
 
-  /* Contact List */
-
-  .contact {
-    text-align: center;
-
-    > div {
-      display: inline-block;
-    }
-
-    ul {
-      display: flex;
-      flex-direction: column;
-      align-items: left;
-      text-align: left;
-    }
-
-    li {
-      padding-bottom: 5px;
-    }
-
-    img {
-      margin-right: 5px;
-    }
-
-    li div {
-      background-repeat: no-repeat;
-      background-position: center center;
-      background-size: contain;
-      margin-right: 10px;
-      height: 27px;
-      width: 25px;
-      overflow: hidden;
-      margin-bottom: 5px;
-      padding-top: 3px;
-      display: inline-block;
-      vertical-align: middle;
-    }
-
-    .notASuburb {
-      // For recruiters who tend to think Spokane is a suburb of Seattle, 😂.
-      font-size: 11px;
-    }
+  a:hover {
+    text-decoration: underline;
+    color: #ffffff;
   }
+}
+
+.footerCell {
+  padding-top: 60px;
+
+  p {
+    line-height: 19px;
+  }
+}
+
+/* Contact List */
+
+.contact {
+  text-align: center;
+
+  > div {
+    display: inline-block;
+  }
+
+  ul {
+    display: flex;
+    flex-direction: column;
+    align-items: left;
+    text-align: left;
+  }
+
+  li {
+    padding-bottom: 5px;
+  }
+
+  img {
+    margin-right: 5px;
+  }
+
+  li div {
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: contain;
+    margin-right: 10px;
+    height: 27px;
+    width: 25px;
+    overflow: hidden;
+    margin-bottom: 5px;
+    padding-top: 3px;
+    display: inline-block;
+    vertical-align: middle;
+  }
+}
+
+.notASuburb {
+  // For recruiters who tend to think Spokane is a suburb of Seattle, 😂.
+  font-size: 11px;
+}
+
+.footerWrapper {
+  position: static;
 }
