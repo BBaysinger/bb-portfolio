@@ -50,6 +50,7 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
     let isCancelled = false;
     let currentFrame = 0;
     let completedLoops = 0;
+
     const frameDuration = 1000 / fps;
     lastTimeRef.current = performance.now();
 
@@ -70,8 +71,10 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
 
           if (completedLoops >= maxLoops) {
             isCancelled = true;
-            setFrameIndex(meta.frameCount - 1); // stay on last frame
+            setFrameIndex(meta.frameCount - 1); // st
+            // ay on last frame
             onEnd?.();
+
             return;
           }
 
@@ -111,7 +114,7 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
       const scaleX = w / meta.frameWidth;
       const scaleY = h / meta.frameHeight;
       const finalScale = Math.max(scaleX, scaleY);
-      setScale(finalScale);
+      setScale(finalScale); //
     });
 
     observer.observe(el);
