@@ -1,4 +1,3 @@
-import { useRef } from "react";
 import { useSelector } from "react-redux";
 
 import { RootState } from "store/store";
@@ -15,8 +14,6 @@ import styles from "./App.module.scss";
 import "@/styles/styles.scss";
 
 const App: React.FC = () => {
-  const heightRef = useRef<HTMLDivElement>(null);
-
   const isMenuOpen = useSelector(
     (state: RootState) => state.ui.isMobileNavExpanded,
   );
@@ -46,11 +43,9 @@ const App: React.FC = () => {
           <div id="top" style={{ position: "absolute", top: "0px" }}></div>
           <div className={styles.underlay} />
           <div id={styles.main}>
-            <div ref={heightRef}>
-              <Nav variant={NavVariant.TOP_BAR} />
-              <ScrollToHash />
-              <AppRoutes onLogin={handleLogin} />
-            </div>
+            <Nav variant={NavVariant.TOP_BAR} />
+            <ScrollToHash />
+            <AppRoutes onLogin={handleLogin} />
             <Footer />
           </div>
         </div>

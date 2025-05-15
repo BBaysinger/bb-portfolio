@@ -51,12 +51,6 @@ footer {
   margin-top: 50px;
 }
 
-// footer:first-child {
-//   padding-top: 20px;
-//   margin-top: 0;
-//   position: relative;
-// }
-
 .footerLink:hover {
   color: #777;
 }
@@ -166,12 +160,12 @@ li {
   }
 }
 
+// For recruiters who tend to think Spokane is a suburb of Seattle, 😂.
 .notASuburb {
-  // For recruiters who tend to think Spokane is a suburb of Seattle, 😂.
   font-size: 11px;
 }
 
 .footerWrapper {
   position: static;
-  margin-bottom: -1px; // Fixes a white line at the bottom of the page
+  background-color: #000000;
 }
