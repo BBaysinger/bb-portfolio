@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
 
+import { useMainHeight } from "context/MainHeightContext";
+
 import FootGreet from "./FootGreet";
 import NavLinks from "./NavLinks";
 import styles from "./Footer.module.scss";
@@ -13,6 +15,8 @@ import styles from "./Footer.module.scss";
  * @version N/A
  */
 const Footer: React.FC = () => {
+  const height = useMainHeight();
+
   const [emailAddr, setEmailAddr] = useState<string>("Waiting...");
 
   useEffect(() => {
@@ -29,10 +33,14 @@ const Footer: React.FC = () => {
     return () => clearTimeout(timeout);
   }, []);
 
+  useEffect(() => {
+    console.log("Main height updated in Footer:", height);
+  }, [height]);
+
   return (
     <div className={styles.footerWrapper}>
       {/* <div className={styles.footerGradient}></div> */}
-      <footer>
+      <footer style={{ top: height + "px" }}>
         <div className={`container ${styles.footerContainer}`}>
           <div className="row">
             <div

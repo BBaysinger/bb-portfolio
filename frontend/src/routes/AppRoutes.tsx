@@ -18,7 +18,7 @@ const AppRoutes = ({ onLogin }: { onLogin: () => void }) => {
     if (!node) return;
 
     const observer = new ResizeObserver(([entry]) => {
-      setHeight(entry.contentRect.height);
+      setHeight(Math.round(entry.contentRect.height));
     });
 
     observer.observe(node);

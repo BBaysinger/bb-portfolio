@@ -33,28 +33,28 @@ const App: React.FC = () => {
 
   return (
     <AuthProvider>
-      <div
-        className={[
-          isHeroInView ? "isHeroInView" : "",
-          isMenuOpen ? `isMobileNavExpanded ${styles.isMobileNavExpanded}` : "",
-        ].join(" ")}
-      >
-        <Nav variant={NavVariant.SLIDE_OUT} />
-        <div id="top" style={{ position: "absolute", top: "0px" }}></div>
-
-        <div className={styles.underlay} />
-
-        <div id={styles.main}>
-          <MainHeightProvider>
+      <MainHeightProvider>
+        <div
+          className={[
+            isHeroInView ? "isHeroInView" : "",
+            isMenuOpen
+              ? `isMobileNavExpanded ${styles.isMobileNavExpanded}`
+              : "",
+          ].join(" ")}
+        >
+          <Nav variant={NavVariant.SLIDE_OUT} />
+          <div id="top" style={{ position: "absolute", top: "0px" }}></div>
+          <div className={styles.underlay} />
+          <div id={styles.main}>
             <div ref={heightRef}>
               <Nav variant={NavVariant.TOP_BAR} />
               <ScrollToHash />
               <AppRoutes onLogin={handleLogin} />
             </div>
-          </MainHeightProvider>
-          <Footer />
+            <Footer />
+          </div>
         </div>
-      </div>
+      </MainHeightProvider>
     </AuthProvider>
   );
 };
