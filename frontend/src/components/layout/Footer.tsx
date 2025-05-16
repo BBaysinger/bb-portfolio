@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
-
-import { useMainHeight } from "context/MainHeightContext";
-
 import FootGreet from "./FootGreet";
 import NavLinks from "./NavLinks";
 import styles from "./Footer.module.scss";
+
+type FooterProps = {
+  mutationElemRef: React.RefObject<HTMLDivElement | null>;
+};
 
 /**
  * The footer, common to every page.
@@ -14,52 +15,65 @@ import styles from "./Footer.module.scss";
  * @since The beginning of time.
  * @version N/A
  */
-const Footer: React.FC = () => {
-  const mainHeight = useMainHeight();
-  const [footerHeight, setFooterHeight] = useState<number>(0);
-  const footerRef = React.useRef<HTMLDivElement>(null);
+const Footer: React.FC<FooterProps> = ({ mutationElemRef }) => {
+  const [mainContentHeight, setMainContentHeight] = useState(0);
+  const [footerHeight, setFooterHeight] = useState(0);
 
+  const footerRef = React.useRef<HTMLDivElement>(null);
   const [emailAddr, setEmailAddr] = useState<string>("Waiting...");
 
   useEffect(() => {
-    // A dumb trick so that crawlers don't scrape my email address
-    const e1 = "B";
-    const e2 = "Baysinger";
-    const e3 = "@";
-    const e4 = "gmx.com";
-
+    // Obfuscated email setup
     const timeout = setTimeout(() => {
-      setEmailAddr(e1 + e2 + e3 + e4);
+      setEmailAddr("B" + "Baysinger" + "@" + "gmx.com");
     }, 2000);
-
     return () => clearTimeout(timeout);
   }, []);
 
   useEffect(() => {
-    const updateDimensions = () => {
-      setFooterHeight(footerRef.current?.offsetHeight || 0);
+    const mainContentTarget = mutationElemRef.current;
+    const footerTarget = footerRef.current;
+
+    if (!mainContentTarget || !footerTarget) return;
+
+    const updateMainContentHeight = () => {
+      const height = mainContentTarget.offsetHeight || 0;
+      setMainContentHeight(height);
     };
 
-    updateDimensions();
+    const updateFooterHeight = () => {
+      const height = footerTarget.offsetHeight || 0;
+      setFooterHeight(height);
+    };
 
-    window.addEventListener("resize", updateDimensions);
-    window.addEventListener("scroll", updateDimensions);
-    window.addEventListener("orientationchange", updateDimensions);
+    // Initial set
+    updateMainContentHeight();
+    updateFooterHeight();
+
+    // Watch mainContent content
+    const mainContentResizeObserver = new ResizeObserver(([entry]) => {
+      setMainContentHeight(entry.contentRect.height);
+    });
+    mainContentResizeObserver.observe(mainContentTarget);
+
+    // Watch footer
+    const footerResizeObserver = new ResizeObserver(updateFooterHeight);
+    footerResizeObserver.observe(footerTarget);
 
     return () => {
-      window.removeEventListener("resize", updateDimensions);
-      window.removeEventListener("scroll", updateDimensions);
-      window.removeEventListener("orientationchange", updateDimensions);
+      mainContentResizeObserver.disconnect();
+      footerResizeObserver.disconnect();
     };
-  }, []);
+  }, [mutationElemRef]);
 
   return (
     <div
       className={styles.footerWrapper}
-      style={{ height: footerHeight + -1 + "px" }}
+      style={{
+        height: `${footerHeight - 1}px`,
+      }}
     >
-      {/* <div className={styles.footerGradient}></div> */}
-      <footer style={{ top: mainHeight + "px" }} ref={footerRef}>
+      <footer style={{ transform: `translateY(${mainContentHeight}px)` }}>
         <div className={`container ${styles.footerContainer}`}>
           <div className="row">
             <div

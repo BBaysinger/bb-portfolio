@@ -1,3 +1,4 @@
+import React from "react";
 import { useSelector } from "react-redux";
 
 import { RootState } from "store/store";
@@ -6,7 +7,6 @@ import Nav, { NavVariant } from "components/layout/Nav";
 import Footer from "components/layout/Footer";
 import ScrollToHash from "utils/ScrollToHash";
 import { AuthProvider } from "context/AuthContext";
-import { MainHeightProvider } from "context/MainHeightContext";
 import { useTrackHeroInView } from "hooks/useTrackHeroInView";
 import { useAutoCloseMobileNavOnScroll } from "hooks/useAutoCloseMobileNavOnScroll";
 
@@ -23,6 +23,8 @@ const App: React.FC = () => {
   useTrackHeroInView();
   useAutoCloseMobileNavOnScroll();
 
+  const mainContentRef = React.useRef<HTMLDivElement>(null);
+
   const handleLogin = () => {
     sessionStorage.setItem("isLoggedIn", "true");
     window.location.href = "/"; // Redirect to homepage after login
@@ -30,26 +32,24 @@ const App: React.FC = () => {
 
   return (
     <AuthProvider>
-      <MainHeightProvider>
-        <div
-          className={[
-            isHeroInView ? "isHeroInView" : "",
-            isMenuOpen
-              ? `isMobileNavExpanded ${styles.isMobileNavExpanded}`
-              : "",
-          ].join(" ")}
-        >
-          <Nav variant={NavVariant.SLIDE_OUT} />
-          <div id="top" style={{ position: "absolute", top: "0px" }}></div>
-          <div className={styles.underlay} />
-          <div id={styles.main}>
-            <Nav variant={NavVariant.TOP_BAR} />
-            <ScrollToHash />
-            <AppRoutes onLogin={handleLogin} />
-            <Footer />
-          </div>
+      {/* <MainHeightProvider> */}
+      <div
+        className={[
+          isHeroInView ? "isHeroInView" : "",
+          isMenuOpen ? `isMobileNavExpanded ${styles.isMobileNavExpanded}` : "",
+        ].join(" ")}
+      >
+        <Nav variant={NavVariant.SLIDE_OUT} />
+        <div id="top" style={{ position: "absolute", top: "0px" }}></div>
+        <div className={styles.underlay} />
+        <div id={styles.main} ref={mainContentRef}>
+          <Nav variant={NavVariant.TOP_BAR} />
+          <ScrollToHash />
+          <AppRoutes onLogin={handleLogin} />
         </div>
-      </MainHeightProvider>
+        <Footer mutationElemRef={mainContentRef} />
+      </div>
+      {/* </MainHeightProvider> */}
     </AuthProvider>
   );
 };
