@@ -9,7 +9,8 @@ type MagneticThingyProps = {
 };
 
 /**
- * Thingy that magnetically sticks to your pointer.
+ * Thingy that magnetically sticks to your pointer. Wags gently to attract attention
+ * until the user interacts with it via mouse or touch. Then sticks to the pointer.
  *
  * @author Bradley Baysinger
  * @since The beginning of time.
@@ -24,6 +25,9 @@ const MagneticThingy: React.FC<MagneticThingyProps> = ({
   const pathRef = useRef<SVGPathElement | null>(null);
   const projectionWrapperRef = useRef<HTMLDivElement | null>(null);
 
+  const hasInteracted = useRef(false);
+  const waveTL = useRef<gsap.core.Timeline | null>(null);
+
   useEffect(() => {
     const elem = elemRef.current;
     const svg = svgRef.current;
@@ -37,14 +41,21 @@ const MagneticThingy: React.FC<MagneticThingyProps> = ({
       bounds = path.getBoundingClientRect();
     };
 
-    updateDimensions();
-
     const magnetize = (val: number, axisSize: number) => {
       const dist = gsap.utils.normalize(0, axisSize / 2, Math.abs(val));
       return gsap.utils.interpolate([1, 0.4, 0], dist);
     };
 
+    const stopWave = () => {
+      if (!hasInteracted.current) {
+        waveTL.current?.pause(0).kill();
+        hasInteracted.current = true;
+      }
+    };
+
     const moveEvent = (x: number, y: number, e?: Event) => {
+      stopWave();
+
       const viewportX = x - window.scrollX;
       const viewportY = y - window.scrollY;
 
@@ -52,7 +63,6 @@ const MagneticThingy: React.FC<MagneticThingyProps> = ({
         viewportX,
         viewportY,
       );
-
       if (!elementUnderPointer || elementUnderPointer !== path) {
         leaveEvent();
         return;
@@ -105,8 +115,6 @@ const MagneticThingy: React.FC<MagneticThingyProps> = ({
     };
 
     const onMouseMove = (e: MouseEvent) => moveEvent(e.pageX, e.pageY);
-    const onMouseLeave = () => leaveEvent();
-
     const onTouchMove = (e: TouchEvent) => {
       if (e.touches.length > 0) {
         const touch = e.touches[0];
@@ -114,27 +122,62 @@ const MagneticThingy: React.FC<MagneticThingyProps> = ({
       }
     };
 
-    const onTouchEnd = () => leaveEvent();
+    const addListeners = () => {
+      path.addEventListener("mousemove", onMouseMove);
+      path.addEventListener("mouseleave", leaveEvent);
+      path.addEventListener("touchmove", onTouchMove, { passive: false });
+      path.addEventListener("touchend", leaveEvent);
+      path.addEventListener("touchcancel", leaveEvent);
+      window.addEventListener("resize", updateDimensions);
+      window.addEventListener("scroll", updateDimensions);
+      window.addEventListener("orientationchange", updateDimensions);
+    };
 
-    path.addEventListener("mousemove", onMouseMove);
-    path.addEventListener("mouseleave", onMouseLeave);
-    path.addEventListener("touchmove", onTouchMove, { passive: false });
-    path.addEventListener("touchend", onTouchEnd);
-    path.addEventListener("touchcancel", onTouchEnd);
-    window.addEventListener("resize", updateDimensions);
-    window.addEventListener("scroll", updateDimensions);
-    window.addEventListener("orientationchange", updateDimensions);
-
-    return () => {
+    const removeListeners = () => {
       path.removeEventListener("mousemove", onMouseMove);
-      path.removeEventListener("mouseleave", onMouseLeave);
+      path.removeEventListener("mouseleave", leaveEvent);
       path.removeEventListener("touchmove", onTouchMove);
-      path.removeEventListener("touchend", onTouchEnd);
-      path.removeEventListener("touchcancel", onTouchEnd);
+      path.removeEventListener("touchend", leaveEvent);
+      path.removeEventListener("touchcancel", leaveEvent);
       window.removeEventListener("resize", updateDimensions);
       window.removeEventListener("scroll", updateDimensions);
       window.removeEventListener("orientationchange", updateDimensions);
     };
+
+    // Initial bounds and idle waving animation
+    updateDimensions();
+
+    waveTL.current = gsap
+      .timeline({ repeat: -1, paused: false })
+      .to({}, { duration: 5 }) // pause
+      .to(elem, {
+        rotation: -5,
+        duration: 0.7,
+        ease: "sine.inOut",
+      })
+      .to(elem, {
+        rotation: 7,
+        duration: 0.3,
+        ease: "sine.inOut",
+      })
+      .to(elem, {
+        rotation: 0,
+        duration: 0.1,
+        ease: "sine.inOut",
+      })
+      .to(elem, {
+        rotation: 7,
+        duration: 0.3,
+        ease: "sine.inOut",
+      })
+      .to(elem, {
+        rotation: 0,
+        duration: 0.3,
+        ease: "sine.inOut",
+      });
+
+    addListeners();
+    return () => removeListeners();
   }, [children]);
 
   return (
