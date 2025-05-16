@@ -9,7 +9,7 @@ $navSlideTime: 0.5s;
   background-color: #fff;
   transition: right $navSlideTime;
   right: 0;
-  box-shadow: 10px 5px 60px black;
+  // box-shadow: 10px 5px 60px black;
   min-width: 320px;
   overflow: hidden;
 
@@ -24,14 +24,15 @@ $navSlideTime: 0.5s;
 // Prevents the underlying nav from showing during recoil from
 // inertial scroll.
 .underlay {
-  display: none;
+  // display: none;
   position: fixed;
   z-index: 5;
   height: 100dvh;
   width: 100vw;
   transition: right $navSlideTime;
-  background-color: #000;
+  background-color: #fff;
   right: 0;
+  // opacity: 0.5;
   :global(.isMobileNavExpanded) & {
     right: 50vw;
   }

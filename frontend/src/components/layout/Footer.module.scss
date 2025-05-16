@@ -1,7 +1,7 @@
 @use "@/styles/mixins" as *;
 @use "@/styles/variables" as *;
 
-footer {
+footer.footer {
   position: absolute;
   padding-top: 0;
   display: inline-block;
@@ -9,6 +9,7 @@ footer {
   background: linear-gradient(#000000, #242424);
   color: #ccc;
   z-index: 10;
+  top: 0;
   transition: transform 0.5s ease-in-out;
 
   &::before {
@@ -168,5 +169,5 @@ footer {
 
 .footerWrapper {
   position: static;
-  background-color: #000000;
+  background-color: white;
 }

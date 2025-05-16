@@ -16,7 +16,7 @@ type FooterProps = {
  * @version N/A
  */
 const Footer: React.FC<FooterProps> = ({ mutationElemRef }) => {
-  const [mainContentHeight, setMainContentHeight] = useState(0);
+  const [mainContentHeight, setMainContentHeight] = useState(9999999999);
   const [footerHeight, setFooterHeight] = useState(0);
 
   const footerRef = React.useRef<HTMLDivElement>(null);
@@ -34,10 +34,13 @@ const Footer: React.FC<FooterProps> = ({ mutationElemRef }) => {
     const mainContentTarget = mutationElemRef.current;
     const footerTarget = footerRef.current;
 
-    if (!mainContentTarget || !footerTarget) return;
+    if (!mainContentTarget || !footerTarget) {
+      throw new Error("Mutation element or footer element not found");
+    }
 
     const updateMainContentHeight = () => {
       const height = mainContentTarget.offsetHeight || 0;
+      console.log("Main content height:", height);
       setMainContentHeight(height);
     };
 
@@ -46,18 +49,21 @@ const Footer: React.FC<FooterProps> = ({ mutationElemRef }) => {
       setFooterHeight(height);
     };
 
-    // Initial set
-    updateMainContentHeight();
-    updateFooterHeight();
+    // Delay the first reads until layout stabilizes
+    requestAnimationFrame(() => {
+      updateMainContentHeight();
+      updateFooterHeight();
+    });
 
-    // Watch mainContent content
     const mainContentResizeObserver = new ResizeObserver(([entry]) => {
+      console.log("Main content resized:", entry.contentRect.height);
       setMainContentHeight(entry.contentRect.height);
     });
     mainContentResizeObserver.observe(mainContentTarget);
 
-    // Watch footer
-    const footerResizeObserver = new ResizeObserver(updateFooterHeight);
+    const footerResizeObserver = new ResizeObserver(() => {
+      updateFooterHeight();
+    });
     footerResizeObserver.observe(footerTarget);
 
     return () => {
@@ -70,11 +76,15 @@ const Footer: React.FC<FooterProps> = ({ mutationElemRef }) => {
     <div
       className={styles.footerWrapper}
       style={{
-        height: `${footerHeight - 1}px`,
+        height: `${Math.round(footerHeight) - 1}px`,
       }}
     >
-      <footer style={{ transform: `translateY(${mainContentHeight}px)` }}>
-        <div className={`container ${styles.footerContainer}`}>
+      <footer
+        ref={footerRef}
+        style={{ transform: `translateY(${Math.round(mainContentHeight)}px)` }}
+        className={styles.footer}
+      >
+        <div className={`container`}>
           <div className="row">
             <div
               className={`col-xs-12 col-sm-12 col-md-6 col-lg-6 ${styles.footerCell}`}
