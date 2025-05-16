@@ -149,7 +149,7 @@ const MagneticThingy: React.FC<MagneticThingyProps> = ({
 
     waveTL.current = gsap
       .timeline({ repeat: -1, paused: false })
-      .to({}, { duration: 5 }) // pause
+      .to({}, { duration: 8 }) // pause
       .to(elem, {
         rotation: -5,
         duration: 0.7,
