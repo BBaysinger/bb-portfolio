@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, memo } from "react";
+import { useRef, memo } from "react";
 import ProjectData from "data/ProjectData";
 import ProjectInfo from "./ProjectInfo";
 import { DirectionType } from "./CarouselTypes";
@@ -10,9 +10,7 @@ interface InfoSwapperProps {
 }
 
 /**
- * Manages swapping between the project info components. Detects height of each component and
- * fluidly adjusts the height of the container accordingly to avoid excessive whitespace and
- * jarred transitions.
+ * Manages swapping between the project info components.
  *
  * @author Bradley Baysinger
  * @since The beginning of time.
@@ -22,40 +20,9 @@ const InfoSwapper = memo<InfoSwapperProps>(({ direction, index }) => {
   const projects = ProjectData.activeProjectsRecord;
   const keys = ProjectData.activeKeys;
   const infoRefElems = useRef<(HTMLDivElement | null)[]>([]);
-  const containerRef = useRef<HTMLDivElement | null>(null);
-  const [containerHeight, setContainerHeight] = useState<number | null>(null);
-
-  const updateHeight = () => {
-    if (index !== null && infoRefElems.current[index]) {
-      const activeElement = infoRefElems.current[index];
-      if (activeElement) {
-        const { height } = activeElement.getBoundingClientRect();
-        setContainerHeight(height);
-      }
-    }
-  };
-
-  useEffect(() => {
-    updateHeight();
-  }, [index]);
-
-  useEffect(() => {
-    const handleResize = () => updateHeight();
-    window.addEventListener("resize", handleResize);
-
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, [index]);
 
   return (
-    <div
-      ref={containerRef}
-      className={`${styles.infoSwapper} max-w-container`}
-      style={{
-        height: containerHeight ? `${containerHeight}px` : "auto",
-      }}
-    >
+    <div className={`${styles.infoSwapper} max-w-container`}>
       <div className={"container"}>
         {keys.map((key, i) => (
           <ProjectInfo
