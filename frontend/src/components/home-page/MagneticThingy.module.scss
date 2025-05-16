@@ -1,9 +1,47 @@
 .magneticThingy {
   z-index: 100;
+  transform-origin: center center;
+  animation: waveMotion 5s ease-in-out infinite;
+
+  &.hasInteracted {
+    animation: none !important;
+  }
 
   div {
     position: absolute;
     top: 0;
     pointer-events: none;
+  }
+}
+
+// MagneticThingy.module.scss
+
+@keyframes waveMotion {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  74.6% {
+    transform: rotate(0deg); // ~5s pause out of 6.7s total
+  }
+
+  84.6% {
+    transform: rotate(-5deg); // 0.7s duration
+  }
+
+  89.1% {
+    transform: rotate(7deg); // 0.3s later
+  }
+
+  90.6% {
+    transform: rotate(0deg); // 0.1s later
+  }
+
+  95.1% {
+    transform: rotate(7deg); // 0.3s later
+  }
+
+  100% {
+    transform: rotate(0deg); // 0.3s later
   }
 }

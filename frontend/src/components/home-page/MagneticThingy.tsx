@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 
 import styles from "./MagneticThingy.module.scss";
@@ -20,13 +20,15 @@ const MagneticThingy: React.FC<MagneticThingyProps> = ({
   children,
   className = "",
 }) => {
+  const [interacted, setInteracted] = useState(false);
+
   const elemRef = useRef<HTMLDivElement | null>(null);
   const svgRef = useRef<SVGSVGElement | null>(null);
   const pathRef = useRef<SVGPathElement | null>(null);
   const projectionWrapperRef = useRef<HTMLDivElement | null>(null);
 
   const hasInteracted = useRef(false);
-  const waveTL = useRef<gsap.core.Timeline | null>(null);
+  // const waveTL = useRef<gsap.core.Timeline | null>(null);
 
   useEffect(() => {
     const elem = elemRef.current;
@@ -48,8 +50,8 @@ const MagneticThingy: React.FC<MagneticThingyProps> = ({
 
     const stopWave = () => {
       if (!hasInteracted.current) {
-        waveTL.current?.pause(0).kill();
         hasInteracted.current = true;
+        setInteracted(true); // trigger CSS class removal
       }
     };
 
@@ -144,47 +146,18 @@ const MagneticThingy: React.FC<MagneticThingyProps> = ({
       window.removeEventListener("orientationchange", updateDimensions);
     };
 
-    // Initial bounds and idle waving animation
     updateDimensions();
-
-    // Instead of starting the timeline immediately
-    requestIdleCallback(() => {
-      waveTL.current = gsap
-        .timeline({ repeat: -1, paused: false })
-        .to({}, { duration: 5 }) // pause
-        .to(elem, {
-          rotation: -5,
-          duration: 0.7,
-          ease: "sine.inOut",
-        })
-        .to(elem, {
-          rotation: 7,
-          duration: 0.3,
-          ease: "sine.inOut",
-        })
-        .to(elem, {
-          rotation: 0,
-          duration: 0.1,
-          ease: "sine.inOut",
-        })
-        .to(elem, {
-          rotation: 7,
-          duration: 0.3,
-          ease: "sine.inOut",
-        })
-        .to(elem, {
-          rotation: 0,
-          duration: 0.3,
-          ease: "sine.inOut",
-        });
-    });
-
     addListeners();
     return () => removeListeners();
   }, [children]);
-
   return (
-    <div ref={elemRef} className={`${styles.magneticThingy} ${className}`}>
+    <div
+      ref={elemRef}
+      className={`${styles.magneticThingy} ${
+        interacted ? styles.hasInteracted : ""
+      } ${className}`}
+    >
+      {" "}
       <svg
         ref={svgRef}
         viewBox="0 0 200 200"
@@ -197,7 +170,6 @@ const MagneticThingy: React.FC<MagneticThingyProps> = ({
           style={{ pointerEvents: "fill" }}
         />
       </svg>
-
       <div className={styles.projectionWrapper} ref={projectionWrapperRef}>
         {children}
       </div>
