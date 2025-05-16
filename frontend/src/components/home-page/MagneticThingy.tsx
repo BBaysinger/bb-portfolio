@@ -147,34 +147,37 @@ const MagneticThingy: React.FC<MagneticThingyProps> = ({
     // Initial bounds and idle waving animation
     updateDimensions();
 
-    waveTL.current = gsap
-      .timeline({ repeat: -1, paused: false })
-      .to({}, { duration: 8 }) // pause
-      .to(elem, {
-        rotation: -5,
-        duration: 0.7,
-        ease: "sine.inOut",
-      })
-      .to(elem, {
-        rotation: 7,
-        duration: 0.3,
-        ease: "sine.inOut",
-      })
-      .to(elem, {
-        rotation: 0,
-        duration: 0.1,
-        ease: "sine.inOut",
-      })
-      .to(elem, {
-        rotation: 7,
-        duration: 0.3,
-        ease: "sine.inOut",
-      })
-      .to(elem, {
-        rotation: 0,
-        duration: 0.3,
-        ease: "sine.inOut",
-      });
+    // Instead of starting the timeline immediately
+    requestIdleCallback(() => {
+      waveTL.current = gsap
+        .timeline({ repeat: -1, paused: false })
+        .to({}, { duration: 5 }) // pause
+        .to(elem, {
+          rotation: -5,
+          duration: 0.7,
+          ease: "sine.inOut",
+        })
+        .to(elem, {
+          rotation: 7,
+          duration: 0.3,
+          ease: "sine.inOut",
+        })
+        .to(elem, {
+          rotation: 0,
+          duration: 0.1,
+          ease: "sine.inOut",
+        })
+        .to(elem, {
+          rotation: 7,
+          duration: 0.3,
+          ease: "sine.inOut",
+        })
+        .to(elem, {
+          rotation: 0,
+          duration: 0.3,
+          ease: "sine.inOut",
+        });
+    });
 
     addListeners();
     return () => removeListeners();
