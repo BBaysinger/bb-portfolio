@@ -24,12 +24,11 @@ const Greeting: React.FC = () => {
           <div className={styles.text}>
             <div ref={addToRefs}>
               <p>
-                Hi, I'm Bradley. Welcome to my portfolio site. I'm a front-end
-                web developer with a background in design, specializing in
-                building high-quality, interactive web experiences. My current
-                expertise lies in TypeScript, JavaScript, and modern development
-                practices, with a focus on performance, scalability, and
-                usability.
+                Hi, I'm Bradley and I'm an interactive developer with a
+                background in design, specializing in building high-quality,
+                interactive web experiences. My current expertise lies in
+                TypeScript, JavaScript, and modern development practices, with a
+                focus on performance, scalability, and usability.
               </p>
             </div>
             <div ref={addToRefs}>
