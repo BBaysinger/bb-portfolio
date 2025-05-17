@@ -56,7 +56,7 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
     const getFrameDuration = (index: number): number => {
       if (Array.isArray(fps)) {
         const val = fps[index % fps.length];
-        return 1000 / (val || 30); // ✅ Convert fps to ms
+        return 1000 / (val || 30);
       }
       return 1000 / (fps || 30);
     };
@@ -99,7 +99,9 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
       }
     };
 
-    animationFrameRef.current = requestAnimationFrame(animate);
+    setTimeout(() => {
+      animationFrameRef.current = requestAnimationFrame(animate);
+    }, 50); // or 0 — but 50ms gives layout time
 
     return () => {
       isCancelled = true;
