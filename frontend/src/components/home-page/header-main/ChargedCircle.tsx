@@ -12,9 +12,9 @@ const ChargedCircle: React.FC = ({}) => {
   return (
     <div className={styles.chargedCircle}>
       <div className={styles.scaler}>
-      <Bolt className={[styles.bolt, styles.bolt1].join(" ")} />
-      <Bolt className={[styles.bolt, styles.bolt2].join(" ")} />
-      <Bolt className={[styles.bolt, styles.bolt3].join(" ")} />
+        <Bolt className={[styles.bolt, styles.bolt1].join(" ")} />
+        <Bolt className={[styles.bolt, styles.bolt2].join(" ")} />
+        <Bolt className={[styles.bolt, styles.bolt3].join(" ")} />
       </div>
     </div>
   );

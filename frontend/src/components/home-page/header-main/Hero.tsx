@@ -80,7 +80,7 @@ const Hero: React.FC = () => {
 
   const { clientHeight, clientWidth } = useClientDimensions();
 
-  const onSlingerDrag = useCallback(
+  const onSlingerDragStart = useCallback(
     (x: number, y: number, e: MouseEvent | TouchEvent) => {
       slingerIsIdle.current = false;
       setIsSlingerIdle(false);
@@ -188,7 +188,7 @@ const Hero: React.FC = () => {
         />
         <div className={styles.slingerWrapper}>
           <SlingerBox
-            onDragStart={onSlingerDrag}
+            onDragStart={onSlingerDragStart}
             onDragEnd={onSlingerDragEnd}
             onWallCollision={onSlingerWallCollision}
             onIdle={onSlingerIdle}

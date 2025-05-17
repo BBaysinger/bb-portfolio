@@ -4,8 +4,9 @@ import styles from "./SpriteSheetPlayer.module.scss";
 interface SpriteSheetPlayerProps {
   src: string; // filename must follow pattern: name_w16h12f82r10l1.webp
   autoPlay?: boolean;
-  fps?: number; // ✅ Optional override
-  loops?: number; // ✅ Optional override
+  fps?: number;
+  loops?: number;
+  randomFrame?: boolean; // ✅ New
   onEnd?: () => void;
   className?: string;
   scalerClassName?: string;
@@ -16,6 +17,7 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
   autoPlay = true,
   fps = 30,
   loops = 0, // Default zero so it's easier to identify on screen
+  randomFrame = false,
   onEnd,
   className = "",
   scalerClassName = "",
@@ -45,14 +47,12 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
   }, [src]);
 
   useEffect(() => {
-    if (!autoPlay || !meta) return;
+    if (!meta || !autoPlay) return;
 
     let isCancelled = false;
-    let currentFrame = 0;
-    let completedLoops = 0;
-
     const frameDuration = 1000 / fps;
     lastTimeRef.current = performance.now();
+    let completedLoops = 0;
 
     const animate = (now: number) => {
       if (isCancelled) return;
@@ -61,27 +61,28 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
 
       if (elapsed >= frameDuration) {
         lastTimeRef.current = now - (elapsed % frameDuration);
-        currentFrame += 1;
 
-        if (currentFrame >= meta.frameCount) {
-          completedLoops += 1;
+        if (randomFrame) {
+          const random = Math.floor(Math.random() * meta.frameCount);
+          setFrameIndex(random);
+        } else {
+          setFrameIndex((prev) => {
+            const next = prev + 1;
 
-          // 0 = infinite
-          const maxLoops = loops === 0 ? Infinity : loops;
+            if (next >= meta.frameCount) {
+              completedLoops += 1;
+              const maxLoops = loops === 0 ? Infinity : loops;
+              if (completedLoops >= maxLoops) {
+                isCancelled = true;
+                onEnd?.();
+                return meta.frameCount - 1;
+              }
+              return 0;
+            }
 
-          if (completedLoops >= maxLoops) {
-            isCancelled = true;
-            setFrameIndex(meta.frameCount - 1); // st
-            // ay on last frame
-            onEnd?.();
-
-            return;
-          }
-
-          currentFrame = 0; // reset for next loop
+            return next;
+          });
         }
-
-        setFrameIndex(currentFrame);
       }
 
       if (!isCancelled) {
@@ -97,13 +98,7 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [meta, fps, autoPlay, onEnd]);
-
-  useEffect(() => {
-    if (autoPlay) {
-      setFrameIndex(0);
-    }
-  }, [autoPlay, src]);
+  }, [meta, fps, autoPlay, loops, randomFrame, onEnd]);
 
   useEffect(() => {
     if (!wrapperRef.current || !meta) return;
@@ -114,7 +109,7 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
       const scaleX = w / meta.frameWidth;
       const scaleY = h / meta.frameHeight;
       const finalScale = Math.max(scaleX, scaleY);
-      setScale(finalScale); //
+      setScale(finalScale);
     });
 
     observer.observe(el);
@@ -127,7 +122,6 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
   }
 
   const { frameWidth, frameHeight, frameCount } = meta;
-
   const columns = Math.min(frameCount, Math.floor(4096 / frameWidth));
   const col = frameIndex % columns;
   const row = Math.floor(frameIndex / columns);
