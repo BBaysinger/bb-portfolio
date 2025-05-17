@@ -4,9 +4,9 @@ import styles from "./SpriteSheetPlayer.module.scss";
 interface SpriteSheetPlayerProps {
   src: string; // filename must follow pattern: name_w16h12f82r10l1.webp
   autoPlay?: boolean;
-  fps?: number | number[]; // ✅ Updated to allow array
+  fps?: number;
   loops?: number;
-  randomFrame?: boolean;
+  randomFrame?: boolean; // ✅ New
   onEnd?: () => void;
   className?: string;
   scalerClassName?: string;
@@ -50,45 +50,38 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
     if (!meta || !autoPlay) return;
 
     let isCancelled = false;
+    const frameDuration = 1000 / fps;
     lastTimeRef.current = performance.now();
     let completedLoops = 0;
-    let frame = 0; // ✅ Track manually
-
-    const getDuration = (index: number): number => {
-      if (Array.isArray(fps)) {
-        return 1000 / (fps[index % fps.length] || 30);
-      }
-      return 1000 / (fps || 30);
-    };
 
     const animate = (now: number) => {
       if (isCancelled) return;
 
       const elapsed = now - lastTimeRef.current;
-      const duration = getDuration(frame); // ✅ Correct frame's duration
 
-      if (elapsed >= duration) {
-        lastTimeRef.current = now - (elapsed % duration);
+      if (elapsed >= frameDuration) {
+        lastTimeRef.current = now - (elapsed % frameDuration);
 
         if (randomFrame) {
           const random = Math.floor(Math.random() * meta.frameCount);
           setFrameIndex(random);
-          frame = random;
         } else {
-          frame = (frame + 1) % meta.frameCount;
+          setFrameIndex((prev) => {
+            const next = prev + 1;
 
-          if (frame === 0) {
-            completedLoops += 1;
-            const maxLoops = loops === 0 ? Infinity : loops;
-            if (completedLoops >= maxLoops) {
-              isCancelled = true;
-              onEnd?.();
-              setFrameIndex(meta.frameCount - 1);
-              return;
+            if (next >= meta.frameCount) {
+              completedLoops += 1;
+              const maxLoops = loops === 0 ? Infinity : loops;
+              if (completedLoops >= maxLoops) {
+                isCancelled = true;
+                onEnd?.();
+                return meta.frameCount - 1;
+              }
+              return 0;
             }
-          }
 
-          setFrameIndex(frame);
+            return next;
+          });
         }
       }
 
@@ -97,9 +90,7 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
       }
     };
 
-    setTimeout(() => {
-      animationFrameRef.current = requestAnimationFrame(animate);
-    }, 50);
+    animationFrameRef.current = requestAnimationFrame(animate);
 
     return () => {
       isCancelled = true;
