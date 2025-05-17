@@ -2,9 +2,9 @@ import React, { useEffect, useRef, useState, useMemo } from "react";
 import styles from "./SpriteSheetPlayer.module.scss";
 
 interface SpriteSheetPlayerProps {
-  src: string; // filename must follow pattern: name_w16h12f82r10l1.webp
+  src: string;
   autoPlay?: boolean;
-  fps?: number | number[]; // Supports constant or per-frame FPS
+  fps?: number | number[]; // constant FPS or per-frame
   loops?: number;
   randomFrame?: boolean;
   onEnd?: () => void;
@@ -46,27 +46,37 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
     };
   }, [src]);
 
+  const frameDurations = useMemo(() => {
+    if (!meta) return [];
+    const count = meta.frameCount;
+
+    if (Array.isArray(fps)) {
+      const durations = new Array(count);
+      for (let i = 0; i < count; i++) {
+        const val = fps[i % fps.length] || 30;
+        durations[i] = 1000 / val;
+      }
+      return durations;
+    } else {
+      const duration = 1000 / (fps || 30);
+      return new Array(count).fill(duration);
+    }
+  }, [fps, meta]);
+
   useEffect(() => {
-    if (!meta || !autoPlay) return;
+    if (!meta || !autoPlay || !frameDurations.length) return;
 
     let isCancelled = false;
     lastTimeRef.current = performance.now();
     frameRef.current = 0;
     completedLoopsRef.current = 0;
 
-    const getFrameDuration = (index: number): number => {
-      if (Array.isArray(fps)) {
-        const value = fps[index % fps.length];
-        return value ? 1000 / value : 1000 / 30;
-      }
-      return 1000 / (fps || 30);
-    };
-
     const animate = (now: number) => {
       if (isCancelled || !meta) return;
 
       const elapsed = now - lastTimeRef.current;
-      const duration = getFrameDuration(frameRef.current);
+      const currentIndex = frameRef.current;
+      const duration = frameDurations[currentIndex] || 1000 / 30;
 
       if (elapsed >= duration) {
         lastTimeRef.current = now - (elapsed % duration);
@@ -76,9 +86,10 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
           frameRef.current = random;
           setFrameIndex(random);
         } else {
-          frameRef.current = (frameRef.current + 1) % meta.frameCount;
+          const next = (currentIndex + 1) % meta.frameCount;
+          frameRef.current = next;
 
-          if (frameRef.current === 0) {
+          if (next === 0) {
             completedLoopsRef.current += 1;
             const maxLoops = loops === 0 ? Infinity : loops;
             if (completedLoopsRef.current >= maxLoops) {
@@ -89,7 +100,7 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
             }
           }
 
-          setFrameIndex(frameRef.current);
+          setFrameIndex(next);
         }
       }
 
@@ -106,7 +117,7 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [meta, fps, autoPlay, loops, randomFrame, onEnd]);
+  }, [meta, autoPlay, frameDurations, loops, randomFrame, onEnd]);
 
   useEffect(() => {
     if (!wrapperRef.current || !meta) return;
