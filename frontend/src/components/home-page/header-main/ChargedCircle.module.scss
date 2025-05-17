@@ -3,8 +3,19 @@
 
 .chargedCircle {
   position: absolute;
-  top: 50%;
-  left: 50%;
+  top: 25px;
+  left: 25px;
+  animation: spin 3s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .bolt {
