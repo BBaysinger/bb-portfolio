@@ -7,7 +7,13 @@
 
 .yellowBolt {
   transform: translateX(-50%);
-  border: 1px solid yellow;
   width: 100px;
   height: 300px;
+}
+
+.lightning {
+  position: absolute;
+  top: 10px;
+  left: -50%;
+  transform-origin: -23px top;
 }

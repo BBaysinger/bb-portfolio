@@ -56,7 +56,6 @@ const Footer: React.FC<FooterProps> = ({ mutationElemRef }) => {
     });
 
     const mainContentResizeObserver = new ResizeObserver(([entry]) => {
-      console.log("Main content resized:", entry.contentRect.height);
       setMainContentHeight(entry.contentRect.height);
     });
     mainContentResizeObserver.observe(mainContentTarget);

@@ -319,7 +319,7 @@ const SlingerBox: React.FC<SlingerBoxProps> = ({
     };
   }, []);
   return (
-    <div ref={containerRef} className={styles.slingerWrapper}>
+    <div ref={containerRef} className={styles.slingerBoxWrapper}>
       {childArray.map((child, i) => {
         const obj = objectsRef.current[i];
         const x = Math.round(obj.x);
