@@ -3,6 +3,10 @@
 
 .bolt {
   position: absolute;
+  * {
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+  }
 }
 
 .yellowBolt {
@@ -13,7 +17,7 @@
   position: absolute;
   top: -10px;
   transform: translateX(-50%);
-  width: calc(150px + 10vw);
+  width: calc(120px + 8vw);
   animation: pulseScale 3s infinite ease-in-out;
 }
 
