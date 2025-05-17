@@ -47,32 +47,26 @@ const SlingerBox: React.FC<SlingerBoxProps> = ({
   children,
   pointerGravity = 1,
 }) => {
+  // vars
   const ballSize = 50;
   const idleSpeedThreshold = 0.75;
   const desiredFPS = 60;
   const frameInterval = 1000 / desiredFPS;
   const [, forceUpdate] = useReducer((x) => x + 1, 0);
-  const pointerPosition = useRef<{ x: number; y: number } | null>(null);
+  const childArray = React.Children.toArray(children);
+  const gravityRange = 300;
 
   // refs
   const animationFrameRef = useRef<number | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const dragStartPosition = useRef<{ x: number; y: number } | null>(null);
-  const movementHistory = useRef<{ x: number; y: number; time: number }[]>([]);
   const lastActivityTimeRef = useRef<number>(performance.now());
   const hasBecomeIdleRef = useRef<boolean>(false);
   const slingerRefs = useRef<Map<number, HTMLElement>>(new Map());
   const lastDragEndTime = useRef<number>(0);
-
-  const clearPointer = () => {
-    pointerPosition.current = null;
-  };
-  //
+  const dragStartPosition = useRef<{ x: number; y: number } | null>(null);
+  const movementHistory = useRef<{ x: number; y: number; time: number }[]>([]);
+  const pointerPosition = useRef<{ x: number; y: number } | null>(null);
   const lastFrameTime = useRef<number>(performance.now());
-  const childArray = React.Children.toArray(children);
-
-  const gravityRange = 300;
-
   const objectsRef = useRef<SlingerObject[]>(
     childArray.map((_, i) => ({
       id: i,
@@ -87,6 +81,10 @@ const SlingerBox: React.FC<SlingerBoxProps> = ({
     vx: 0,
     vy: 0,
   });
+
+  const clearPointer = () => {
+    pointerPosition.current = null;
+  };
 
   const animate = useCallback(
     (timestamp: number) => {
@@ -378,24 +376,21 @@ const SlingerBox: React.FC<SlingerBoxProps> = ({
       handleMove(touch.clientX, touch.clientY, e);
     };
 
-    // const handleMouseUp = (e: MouseEvent) => endDrag(e);
-    // const handleTouchEnd = (e: TouchEvent) => endDrag(e);
-
     const handleMouseUp = (e: MouseEvent) => {
       endDrag(e);
-      clearPointer(); // ✅ forget pointer
+      clearPointer();
     };
 
     const handleTouchEnd = (e: TouchEvent) => {
       endDrag(e);
-      clearPointer(); // ✅ forget pointer
+      clearPointer();
     };
 
     const handleMouseLeave = () => {
-      clearPointer(); // forget pointer if it leaves the window
+      clearPointer();
     };
-    window.addEventListener("mouseout", handleMouseLeave);
 
+    window.addEventListener("mouseout", handleMouseLeave);
     window.addEventListener("mousemove", handleMouseMove);
     window.addEventListener("mouseup", handleMouseUp);
     window.addEventListener("touchmove", handleTouchMove, { passive: false });
