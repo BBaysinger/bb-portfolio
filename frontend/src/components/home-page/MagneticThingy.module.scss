@@ -14,34 +14,32 @@
   }
 }
 
-// MagneticThingy.module.scss
-
 @keyframes waveMotion {
   0% {
     transform: rotate(0deg);
   }
 
-  74.6% {
-    transform: rotate(0deg); // ~5s pause out of 6.7s total
+  70% {
+    transform: rotate(0deg);
   }
 
-  84.6% {
-    transform: rotate(-5deg); // 0.7s duration
+  80% {
+    transform: rotate(-5deg);
   }
 
-  89.1% {
-    transform: rotate(7deg); // 0.3s later
+  85% {
+    transform: rotate(7deg);
   }
 
-  90.6% {
-    transform: rotate(0deg); // 0.1s later
+  91% {
+    transform: rotate(-5deg);
   }
 
-  95.1% {
-    transform: rotate(7deg); // 0.3s later
+  95% {
+    transform: rotate(7deg);
   }
 
   100% {
-    transform: rotate(0deg); // 0.3s later
+    transform: rotate(0deg);
   }
 }
