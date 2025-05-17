@@ -30,6 +30,13 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
   const lastTimeRef = useRef<number>(performance.now());
   const frameRef = useRef<number>(0);
   const completedLoopsRef = useRef<number>(0);
+  // 👇 Add this at the top, right after your other refs
+  const stableFpsRef = useRef(fps);
+
+  // 👇 Track it safely across renders
+  useEffect(() => {
+    stableFpsRef.current = fps;
+  }, [fps]);
 
   const meta = useMemo(() => {
     const match = src.match(/_w(\d+)h(\d+)f(\d+)/);
@@ -46,22 +53,24 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
     };
   }, [src]);
 
+  // 👇 Use this instead of reading from `fps` directly
   const frameDurations = useMemo(() => {
     if (!meta) return [];
     const count = meta.frameCount;
+    const safeFps = stableFpsRef.current;
 
-    if (Array.isArray(fps)) {
+    if (Array.isArray(safeFps)) {
       const durations = new Array(count);
       for (let i = 0; i < count; i++) {
-        const val = fps[i % fps.length] || 30;
+        const val = safeFps[i % safeFps.length] || 30;
         durations[i] = 1000 / val;
       }
       return durations;
     } else {
-      const duration = 1000 / (fps || 30);
+      const duration = 1000 / (safeFps || 30);
       return new Array(count).fill(duration);
     }
-  }, [fps, meta]);
+  }, [meta]);
 
   useEffect(() => {
     if (!meta || !autoPlay || !frameDurations.length) return;

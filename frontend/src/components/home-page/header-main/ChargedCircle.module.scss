@@ -5,8 +5,12 @@
   position: absolute;
   top: 25px;
   left: 25px;
-  animation: spin 6s linear infinite;
   pointer-events: none;
+  animation: spin 5s linear infinite;
+
+  :global(.isDragging) & {
+    animation: spin 6s linear infinite;
+  }
 }
 
 @keyframes spin {
