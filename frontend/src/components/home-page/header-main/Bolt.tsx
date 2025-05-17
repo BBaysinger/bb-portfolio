@@ -9,7 +9,7 @@ import styles from "./Bolt.module.scss";
  * @component
  */
 const Bolt: React.FC = ({}) => {
-  const src = "/spritesheets/blue-lightning_Layer-Comp-_w16h12f6.webp";
+  const src = "/spritesheets/lightning_Layer-Comp-_w500h1160f6.png";
   return (
     <>
       <SpriteSheetPlayer src={src} fps={30} loops={0} />

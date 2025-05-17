@@ -17,6 +17,7 @@ type SlingerBoxProps = {
   onDragEnd?: (x: number, y: number, e: MouseEvent | TouchEvent) => void;
   onWallCollision?: (wall: Side, x: number, y: number) => void;
   onIdle?: () => void;
+  children?: React.ReactNode;
 };
 
 /**
@@ -27,6 +28,13 @@ type SlingerBoxProps = {
  * Tracks velocity and uses damping for realistic movement.
  * Could eventually be gamified.
  *
+ * You can wrap a different child to each slinger like this:
+ * <SlingerBox ...>
+ *  <LightningBolt />
+ *  <Fireball />
+ *  <MeteorSmash />
+ * </SlingerBox>
+ *
  * @component
  * @param {SlingerBoxProps} props - Component props containing optional drag event handlers.
  */
@@ -35,6 +43,7 @@ const SlingerBox: React.FC<SlingerBoxProps> = ({
   onDragEnd,
   onWallCollision,
   onIdle,
+  children,
 }) => {
   const ballSize = 50;
   const idleSpeedThreshold = 0.75;
@@ -51,9 +60,18 @@ const SlingerBox: React.FC<SlingerBoxProps> = ({
   const hasBecomeIdleRef = useRef<boolean>(false);
   const slingerRefs = useRef<Map<number, HTMLElement>>(new Map());
   const lastFrameTime = useRef<number>(performance.now());
-  const objectsRef = useRef<SlingerObject[]>([
-    { id: 1, x: 50, y: 50, vx: 1, vy: 1, isDragging: false },
-  ]);
+  const childArray = React.Children.toArray(children);
+
+  const objectsRef = useRef<SlingerObject[]>(
+    childArray.map((_, i) => ({
+      id: i,
+      x: 50 + i * 60, // Spread them out
+      y: 50,
+      vx: 1 + Math.random(),
+      vy: 1 + Math.random(),
+      isDragging: false,
+    })),
+  );
   const lastKnownVelocity = useRef<{ vx: number; vy: number }>({
     vx: 0,
     vy: 0,
@@ -303,21 +321,23 @@ const SlingerBox: React.FC<SlingerBoxProps> = ({
 
   return (
     <div ref={containerRef} className={styles.slingerWrapper}>
-      {objectsRef.current.map((obj) => (
+      {childArray.map((child, i) => (
         <div
           className={`${styles.slinger} slinger`}
-          tabIndex={10} // For the 'grabbing' cursor TODO: Make sure it doesn't interfere accessibility.
-          key={obj.id}
-          onMouseDown={(e) => handleMouseDown(obj.id, e)}
-          onTouchStart={(e) => handleTouchStart(obj.id, e)}
+          tabIndex={10}
+          key={i}
+          onMouseDown={(e) => handleMouseDown(i, e)}
+          onTouchStart={(e) => handleTouchStart(i, e)}
           ref={(el) => {
             if (el) {
-              slingerRefs.current.set(obj.id, el);
+              slingerRefs.current.set(i, el);
             } else {
-              slingerRefs.current.delete(obj.id);
+              slingerRefs.current.delete(i);
             }
           }}
-        />
+        >
+          <div className={styles.test}>{child}</div>
+        </div>
       ))}
     </div>
   );
