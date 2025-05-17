@@ -62,6 +62,9 @@ const SlingerBox: React.FC<SlingerBoxProps> = ({
   const lastActivityTimeRef = useRef<number>(performance.now());
   const hasBecomeIdleRef = useRef<boolean>(false);
   const slingerRefs = useRef<Map<number, HTMLElement>>(new Map());
+  const lastDragEndTime = useRef<number>(0);
+
+  //
   const lastFrameTime = useRef<number>(performance.now());
   const childArray = React.Children.toArray(children);
 
@@ -98,7 +101,16 @@ const SlingerBox: React.FC<SlingerBoxProps> = ({
           let { x, y, vx, vy } = obj;
 
           // Pointer gravity effect
-          if ((pointerGravity ?? 0) > 0 && pointerPosition.current) {
+          // const now = performance.now();
+          const now = performance.now();
+
+          const gravityEnabled =
+            (pointerGravity ?? 0) > 0 &&
+            pointerPosition.current &&
+            now - lastDragEndTime.current > 500; // <-- skip gravity for 500ms
+
+          if (gravityEnabled) {
+            if (!pointerPosition.current) return;
             const pointerX = pointerPosition.current.x;
             const pointerY = pointerPosition.current.y;
             const el = containerRef.current;
@@ -113,11 +125,33 @@ const SlingerBox: React.FC<SlingerBoxProps> = ({
               const distance = Math.hypot(dx, dy);
 
               if (distance < gravityRange && distance > 1) {
-                const gravityPull =
-                  pointerGravity * (1 - distance / gravityRange);
+                const closeEnough = 8;
+                if (distance < closeEnough) {
+                  vx = 0;
+                  vy = 0;
+                } else {
+                  const gravityPull =
+                    pointerGravity * (1 - distance / gravityRange);
 
-                vx += (dx / distance) * gravityPull;
-                vy += (dy / distance) * gravityPull;
+                  // Normalize direction to pointer
+                  const nx = dx / distance;
+                  const ny = dy / distance;
+
+                  // Radial gravity pull
+                  vx += nx * gravityPull;
+                  vy += ny * gravityPull;
+
+                  // --- Orbit dampening (kill sideways motion) ---
+                  const dot = vx * nx + vy * ny;
+                  const radialVx = dot * nx;
+                  const radialVy = dot * ny;
+                  const tangentialVx = vx - radialVx;
+                  const tangentialVy = vy - radialVy;
+
+                  const orbitDamping = 0.85;
+                  vx = radialVx + tangentialVx * orbitDamping;
+                  vy = radialVy + tangentialVy * orbitDamping;
+                }
               }
             }
           }
@@ -178,7 +212,6 @@ const SlingerBox: React.FC<SlingerBoxProps> = ({
 
           // Idle detection
           const speed = Math.hypot(vx, vy);
-          const now = performance.now();
 
           if (speed < idleSpeedThreshold && !obj.isDragging) {
             if (!hasBecomeIdleRef.current) {
@@ -317,6 +350,7 @@ const SlingerBox: React.FC<SlingerBoxProps> = ({
         onDragEnd?.(obj.vx, obj.vy, e);
       }
     });
+    lastDragEndTime.current = performance.now();
 
     dragStartPosition.current = null;
     movementHistory.current = [];
