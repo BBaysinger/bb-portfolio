@@ -2,8 +2,8 @@
 @use "@/styles/variables" as *;
 
 .bolt {
+  position: absolute;
   border: 1px solid red;
   width: 100px;
   height: 300px;
-  position: absolute;
 }
