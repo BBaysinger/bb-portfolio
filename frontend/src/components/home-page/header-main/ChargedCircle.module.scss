@@ -30,3 +30,15 @@
 .bolt3 {
   transform: rotate(240deg);
 }
+
+.scaler {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: scale(0.0001);
+  transition: transform 0.3s ease-in-out;
+
+  :global(.isDragging) & {
+    transform: scale(0.5);
+  }
+}
