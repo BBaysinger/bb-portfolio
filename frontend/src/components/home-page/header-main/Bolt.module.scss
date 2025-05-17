@@ -3,7 +3,11 @@
 
 .bolt {
   position: absolute;
-  border: 1px solid red;
+}
+
+.yellowBolt {
+  transform: translateX(-50%);
+  border: 1px solid yellow;
   width: 100px;
   height: 300px;
 }
