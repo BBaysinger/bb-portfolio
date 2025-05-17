@@ -6,14 +6,25 @@
 }
 
 .yellowBolt {
-  transform: translateX(-50%);
-  width: 100px;
-  height: 300px;
+  position: absolute;
 }
 
 .lightning {
   position: absolute;
-  top: 10px;
-  left: -50%;
-  transform-origin: -23px top;
+  top: -10px;
+  transform: translateX(-50%);
+  width: 250px;
+  animation: pulseScale 3s infinite ease-in-out;
+}
+
+@keyframes pulseScale {
+  0% {
+    transform: translateX(-50%) scale(1);
+  }
+  50% {
+    transform: translateX(-50%) scale(1.2);
+  }
+  100% {
+    transform: translateX(-50%) scale(1);
+  }
 }
