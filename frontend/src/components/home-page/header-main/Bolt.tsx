@@ -19,7 +19,7 @@ const Bolt: React.FC<BoltProps> = ({ className }) => {
       <SpriteSheetPlayer
         className={styles.lightning}
         src={src}
-        fps={10}
+        fps={12}
         loops={0}
       />
       <div className={styles.yellowBolt} />

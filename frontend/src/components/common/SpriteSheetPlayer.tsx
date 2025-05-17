@@ -8,7 +8,7 @@ interface SpriteSheetPlayerProps {
   loops?: number; // ✅ Optional override
   onEnd?: () => void;
   className?: string;
-  wrapperClassName?: string;
+  scalerClassName?: string;
 }
 
 const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
@@ -18,7 +18,7 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
   loops = 0, // Default zero so it's easier to identify on screen
   onEnd,
   className = "",
-  wrapperClassName = "",
+  scalerClassName = "",
 }) => {
   const [frameIndex, setFrameIndex] = useState(0);
   const [scale, setScale] = useState(1);
@@ -139,10 +139,10 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
   return (
     <div
       ref={wrapperRef}
-      className={[styles.spriteSheetWrapper, wrapperClassName].join(" ")}
+      className={[styles.spriteSheetWrapper, className].join(" ")}
     >
       <div
-        className={[styles.spriteSheetPlayer, className].join(" ")}
+        className={[styles.spriteSheetScaler, scalerClassName].join(" ")}
         style={{
           width: `${frameWidth}px`,
           height: `${frameHeight}px`,
