@@ -58,9 +58,7 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
     const safeFps = stableFpsRef.current;
 
     const newDurations = Array.from({ length: count }, (_, i) => {
-      const val = Array.isArray(safeFps)
-        ? safeFps[i % safeFps.length] || 30
-        : safeFps || 30;
+      const val = Array.isArray(safeFps) ? safeFps[i % safeFps.length] || 30 : safeFps || 30;
       return 1000 / val;
     });
 
@@ -148,9 +146,9 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
   const col = frameIndex % columns;
   const row = Math.floor(frameIndex / columns);
 
-  const backgroundPosition = `-${col * frameWidth}px -${row * frameHeight}px`;
-  const sheetWidth = columns * frameWidth;
-  const sheetHeight = Math.ceil(frameCount / columns) * frameHeight;
+  const backgroundPosition = `-${Math.round(col * frameWidth)}px -${Math.round(row * frameHeight)}px`;
+  const sheetWidth = Math.round(columns * frameWidth);
+  const sheetHeight = Math.round(Math.ceil(frameCount / columns) * frameHeight);
 
   return (
     <div
@@ -163,6 +161,7 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
           width: `${frameWidth}px`,
           height: `${frameHeight}px`,
           transform: `scale(${scale})`,
+          transformOrigin: "top left",
           backgroundImage: `url(${src})`,
           backgroundPosition,
           backgroundSize: `${sheetWidth}px ${sheetHeight}px`,
