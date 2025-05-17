@@ -30,10 +30,9 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
   const lastTimeRef = useRef<number>(performance.now());
   const frameRef = useRef<number>(0);
   const completedLoopsRef = useRef<number>(0);
-  // 👇 Add this at the top, right after your other refs
   const stableFpsRef = useRef(fps);
+  const frameDurationsRef = useRef<number[]>([]);
 
-  // 👇 Track it safely across renders
   useEffect(() => {
     stableFpsRef.current = fps;
   }, [fps]);
@@ -53,27 +52,21 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
     };
   }, [src]);
 
-  // 👇 Use this instead of reading from `fps` directly
-  const frameDurations = useMemo(() => {
-    if (!meta) return [];
+  useEffect(() => {
+    if (!meta) return;
     const count = meta.frameCount;
     const safeFps = stableFpsRef.current;
 
-    if (Array.isArray(safeFps)) {
-      const durations = new Array(count);
-      for (let i = 0; i < count; i++) {
-        const val = safeFps[i % safeFps.length] || 30;
-        durations[i] = 1000 / val;
-      }
-      return durations;
-    } else {
-      const duration = 1000 / (safeFps || 30);
-      return new Array(count).fill(duration);
-    }
+    const newDurations = Array.from({ length: count }, (_, i) => {
+      const val = Array.isArray(safeFps) ? safeFps[i % safeFps.length] || 30 : safeFps || 30;
+      return 1000 / val;
+    });
+
+    frameDurationsRef.current = newDurations;
   }, [meta]);
 
   useEffect(() => {
-    if (!meta || !autoPlay || !frameDurations.length) return;
+    if (!meta || !autoPlay || frameDurationsRef.current.length === 0) return;
 
     let isCancelled = false;
     lastTimeRef.current = performance.now();
@@ -85,7 +78,7 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
 
       const elapsed = now - lastTimeRef.current;
       const currentIndex = frameRef.current;
-      const duration = frameDurations[currentIndex] || 1000 / 30;
+      const duration = frameDurationsRef.current[currentIndex] || 1000 / 30;
 
       if (elapsed >= duration) {
         lastTimeRef.current = now - (elapsed % duration);
@@ -126,17 +119,19 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [meta, autoPlay, frameDurations, loops, randomFrame, onEnd]);
+  }, [meta, autoPlay, loops, randomFrame, onEnd]);
 
   useEffect(() => {
     if (!wrapperRef.current || !meta) return;
 
     const el = wrapperRef.current;
     const observer = new ResizeObserver(() => {
-      const { offsetWidth: w, offsetHeight: h } = el;
-      const scaleX = w / meta.frameWidth;
-      const scaleY = h / meta.frameHeight;
-      setScale(Math.max(scaleX, scaleY));
+      requestIdleCallback(() => {
+        const { offsetWidth: w, offsetHeight: h } = el;
+        const scaleX = w / meta.frameWidth;
+        const scaleY = h / meta.frameHeight;
+        setScale(Math.max(scaleX, scaleY));
+      });
     });
 
     observer.observe(el);

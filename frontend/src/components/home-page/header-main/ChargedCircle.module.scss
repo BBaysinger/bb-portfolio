@@ -6,7 +6,8 @@
   top: 25px;
   left: 25px;
   pointer-events: none;
-  animation: spin 5s linear infinite;
+  transition: animation 1s ease-in-out;
+  animation: spin 2s linear infinite;
 
   :global(.isDragging) & {
     animation: spin 6s linear infinite;
@@ -40,7 +41,7 @@
   top: 0;
   left: 0;
   transform: scale(0.001);
-  transition: transform 0.1s ease-in-out;
+  transition: transform 0.3s ease-in-out;
 
   :global(.isDragging) & {
     transition: transform 2s ease-out;
