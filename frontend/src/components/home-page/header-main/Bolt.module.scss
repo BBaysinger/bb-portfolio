@@ -1,2 +1,9 @@
 @use "@/styles/mixins" as *;
 @use "@/styles/variables" as *;
+
+.bolt {
+  border: 1px solid red;
+  width: 100px;
+  height: 300px;
+  position: absolute;
+}
