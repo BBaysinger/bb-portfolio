@@ -12,7 +12,7 @@ import useScrollPersistedClass from "hooks/useScrollPersistedClass";
 import BorderBlinker, { Side } from "./BorderBlinker";
 import { Direction } from "./fluxel-grid/useFluxelProjectiles";
 import styles from "./Hero.module.scss";
-import LightningCircle from "components/home-page/header-main/LightningCircle";
+import ChargedCircle from "components/home-page/header-main/ChargedCircle";
 
 const quotes = [
   "Interactivity is not about clicking, tapping, or swiping. It's about engagement — an invitation to explore, respond, and shape the experience.",
@@ -193,7 +193,7 @@ const Hero: React.FC = () => {
             onWallCollision={onSlingerWallCollision}
             onIdle={onSlingerIdle}
           >
-            <LightningCircle />
+            <ChargedCircle />
           </SlingerBox>
         </div>
 

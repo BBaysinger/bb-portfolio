@@ -1,0 +1,20 @@
+@use "@/styles/mixins" as *;
+@use "@/styles/variables" as *;
+
+.chargedCircle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+}
+
+.bolt {
+  position: absolute;
+}
+
+.bolt2 {
+  transform: rotate(120deg);
+}
+
+.bolt3 {
+  transform: rotate(240deg);
+}

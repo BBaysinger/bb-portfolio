@@ -318,27 +318,33 @@ const SlingerBox: React.FC<SlingerBoxProps> = ({
       window.removeEventListener("touchend", handleTouchEnd);
     };
   }, []);
-
   return (
     <div ref={containerRef} className={styles.slingerWrapper}>
-      {childArray.map((child, i) => (
-        <div
-          className={`${styles.slinger} slinger`}
-          tabIndex={10}
-          key={i}
-          onMouseDown={(e) => handleMouseDown(i, e)}
-          onTouchStart={(e) => handleTouchStart(i, e)}
-          ref={(el) => {
-            if (el) {
-              slingerRefs.current.set(i, el);
-            } else {
-              slingerRefs.current.delete(i);
-            }
-          }}
-        >
-          <div className={styles.test}>{child}</div>
-        </div>
-      ))}
+      {childArray.map((child, i) => {
+        const obj = objectsRef.current[i];
+        const x = Math.round(obj.x);
+        const y = Math.round(obj.y);
+
+        return (
+          <div
+            className={`${styles.slinger} slinger`}
+            tabIndex={10}
+            key={i}
+            onMouseDown={(e) => handleMouseDown(i, e)}
+            onTouchStart={(e) => handleTouchStart(i, e)}
+            ref={(el) => {
+              if (el) {
+                slingerRefs.current.set(i, el);
+              } else {
+                slingerRefs.current.delete(i);
+              }
+            }}
+            style={{ transform: `translate(${x}px, ${y}px)` }}
+          >
+            {child}
+          </div>
+        );
+      })}
     </div>
   );
 };
