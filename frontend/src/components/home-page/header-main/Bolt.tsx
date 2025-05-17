@@ -22,10 +22,6 @@ const Bolt: React.FC<BoltProps> = ({ className }) => {
         fps={12}
         loops={0}
         randomFrame={true}
-        frameMap={[
-          0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4,
-          5, 0, 1, 2, 3, 4, 5, 6,
-        ]} // frame 6 is less frequent
       />
       {/* <div className={styles.yellowBolt} /> */}
     </div>
