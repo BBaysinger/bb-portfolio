@@ -1,7 +1,7 @@
 import React from "react";
 
 import Bolt from "./Bolt";
-import styles from "./Lightning.module.scss";
+import styles from "./LightningCircle.module.scss";
 
 /**
  * LightningCircle Component
@@ -10,7 +10,7 @@ import styles from "./Lightning.module.scss";
  */
 const LightningCircle: React.FC = ({}) => {
   return (
-    <div className={styles.lightning}>
+    <div className={styles.lightningCircle}>
       <Bolt />
       <Bolt />
       <Bolt />
