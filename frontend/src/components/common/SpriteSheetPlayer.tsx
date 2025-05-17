@@ -4,9 +4,9 @@ import styles from "./SpriteSheetPlayer.module.scss";
 interface SpriteSheetPlayerProps {
   src: string; // filename must follow pattern: name_w16h12f82r10l1.webp
   autoPlay?: boolean;
-  fps?: number;
+  fps?: number | number[]; // ✅ Updated to allow array
   loops?: number;
-  randomFrame?: boolean; // ✅ New
+  randomFrame?: boolean;
   onEnd?: () => void;
   className?: string;
   scalerClassName?: string;
@@ -50,17 +50,26 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
     if (!meta || !autoPlay) return;
 
     let isCancelled = false;
-    const frameDuration = 1000 / fps;
     lastTimeRef.current = performance.now();
     let completedLoops = 0;
+
+    const getFrameDuration = (index: number): number => {
+      if (Array.isArray(fps)) {
+        const val = fps[index % fps.length];
+        return 1000 / (val || 30); // ✅ Convert fps to ms
+      }
+      return 1000 / (fps || 30);
+    };
 
     const animate = (now: number) => {
       if (isCancelled) return;
 
       const elapsed = now - lastTimeRef.current;
+      const currentFrame = frameIndex;
+      const duration = getFrameDuration(currentFrame);
 
-      if (elapsed >= frameDuration) {
-        lastTimeRef.current = now - (elapsed % frameDuration);
+      if (elapsed >= duration) {
+        lastTimeRef.current = now - (elapsed % duration);
 
         if (randomFrame) {
           const random = Math.floor(Math.random() * meta.frameCount);
@@ -98,7 +107,7 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [meta, fps, autoPlay, loops, randomFrame, onEnd]);
+  }, [meta, fps, autoPlay, loops, randomFrame, onEnd, frameIndex]);
 
   useEffect(() => {
     if (!wrapperRef.current || !meta) return;
