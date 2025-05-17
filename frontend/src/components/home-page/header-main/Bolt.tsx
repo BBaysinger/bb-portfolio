@@ -19,7 +19,7 @@ const Bolt: React.FC<BoltProps> = ({ className }) => {
       <SpriteSheetPlayer
         className={styles.lightning}
         src={src}
-        fps={[12, 12, 12, 12, 12, 12, 6]}
+        fps={[12, 12, 12, 12, 12, 12, 1000]}
         // fps={12}
         loops={0}
         randomFrame={true}
