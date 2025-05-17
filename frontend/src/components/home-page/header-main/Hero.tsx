@@ -192,6 +192,7 @@ const Hero: React.FC = () => {
             onDragEnd={onSlingerDragEnd}
             onWallCollision={onSlingerWallCollision}
             onIdle={onSlingerIdle}
+            // enablePointerGravity={10}
           >
             <ChargedCircle />
           </SlingerBox>

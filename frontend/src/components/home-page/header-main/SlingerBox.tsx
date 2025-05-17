@@ -18,6 +18,7 @@ type SlingerBoxProps = {
   onWallCollision?: (wall: Side, x: number, y: number) => void;
   onIdle?: () => void;
   children?: React.ReactNode;
+  pointerGravity?: number; // ✅ Only a number now
 };
 
 /**
@@ -44,12 +45,14 @@ const SlingerBox: React.FC<SlingerBoxProps> = ({
   onWallCollision,
   onIdle,
   children,
+  pointerGravity = 1,
 }) => {
   const ballSize = 50;
   const idleSpeedThreshold = 0.75;
   const desiredFPS = 60;
   const frameInterval = 1000 / desiredFPS;
   const [, forceUpdate] = useReducer((x) => x + 1, 0);
+  const pointerPosition = useRef<{ x: number; y: number } | null>(null);
 
   // refs
   const animationFrameRef = useRef<number | null>(null);
@@ -61,6 +64,8 @@ const SlingerBox: React.FC<SlingerBoxProps> = ({
   const slingerRefs = useRef<Map<number, HTMLElement>>(new Map());
   const lastFrameTime = useRef<number>(performance.now());
   const childArray = React.Children.toArray(children);
+
+  const gravityRange = 300;
 
   const objectsRef = useRef<SlingerObject[]>(
     childArray.map((_, i) => ({
@@ -91,6 +96,31 @@ const SlingerBox: React.FC<SlingerBoxProps> = ({
           if (obj.isDragging) return;
 
           let { x, y, vx, vy } = obj;
+
+          // Pointer gravity effect
+          if ((pointerGravity ?? 0) > 0 && pointerPosition.current) {
+            const pointerX = pointerPosition.current.x;
+            const pointerY = pointerPosition.current.y;
+            const el = containerRef.current;
+
+            if (el) {
+              const bounds = el.getBoundingClientRect();
+              const centerX = bounds.left + x + ballSize / 2;
+              const centerY = bounds.top + y + ballSize / 2;
+
+              const dx = pointerX - centerX;
+              const dy = pointerY - centerY;
+              const distance = Math.hypot(dx, dy);
+
+              if (distance < gravityRange && distance > 1) {
+                const gravityPull =
+                  pointerGravity * (1 - distance / gravityRange);
+
+                vx += (dx / distance) * gravityPull;
+                vy += (dy / distance) * gravityPull;
+              }
+            }
+          }
 
           x += vx;
           y += vy;
@@ -296,10 +326,18 @@ const SlingerBox: React.FC<SlingerBoxProps> = ({
   };
 
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) =>
+    const handlePointerMove = (x: number, y: number) => {
+      pointerPosition.current = { x, y };
+    };
+
+    const handleMouseMove = (e: MouseEvent) => {
+      handlePointerMove(e.clientX, e.clientY);
       handleMove(e.clientX, e.clientY, e);
+    };
+
     const handleTouchMove = (e: TouchEvent) => {
       const touch = e.touches[0];
+      handlePointerMove(touch.clientX, touch.clientY);
       handleMove(touch.clientX, touch.clientY, e);
     };
 
