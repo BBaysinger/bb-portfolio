@@ -16,7 +16,7 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
   src,
   autoPlay = true,
   fps = 30,
-  loops = 0, // Default zero so it's easier to identify on screen
+  loops = 0,
   randomFrame = false,
   onEnd,
   className = "",
@@ -24,14 +24,13 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
 }) => {
   const [frameIndex, setFrameIndex] = useState(0);
   const [scale, setScale] = useState(1);
-  // Scaled with CSS then used detect size changes and apply it via transform: scale to
-  // the visual output element for GPU acceleration
+
   const wrapperRef = useRef<HTMLDivElement>(null);
   const animationFrameRef = useRef<number | null>(null);
   const lastTimeRef = useRef<number>(performance.now());
-  const frameRef = useRef(0); // ✅ persists across renders
+  const frameRef = useRef<number>(0);
+  const completedLoopsRef = useRef<number>(0);
 
-  // Extract metadata from filename
   const meta = useMemo(() => {
     const match = src.match(/_w(\d+)h(\d+)f(\d+)/);
     if (!match) {
@@ -53,35 +52,36 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
     let isCancelled = false;
     lastTimeRef.current = performance.now();
     frameRef.current = 0;
-    let completedLoops = 0;
+    completedLoopsRef.current = 0;
 
-    const getDuration = (index: number): number => {
+    const getFrameDuration = (index: number): number => {
       if (Array.isArray(fps)) {
-        return 1000 / (fps[index % fps.length] || 30);
+        const value = fps[index % fps.length];
+        return value ? 1000 / value : 1000 / 30;
       }
       return 1000 / (fps || 30);
     };
 
     const animate = (now: number) => {
-      if (isCancelled) return;
+      if (isCancelled || !meta) return;
 
       const elapsed = now - lastTimeRef.current;
-      const duration = getDuration(frameRef.current);
+      const duration = getFrameDuration(frameRef.current);
 
       if (elapsed >= duration) {
         lastTimeRef.current = now - (elapsed % duration);
 
         if (randomFrame) {
           const random = Math.floor(Math.random() * meta.frameCount);
-          setFrameIndex(random);
           frameRef.current = random;
+          setFrameIndex(random);
         } else {
           frameRef.current = (frameRef.current + 1) % meta.frameCount;
 
           if (frameRef.current === 0) {
-            completedLoops += 1;
+            completedLoopsRef.current += 1;
             const maxLoops = loops === 0 ? Infinity : loops;
-            if (completedLoops >= maxLoops) {
+            if (completedLoopsRef.current >= maxLoops) {
               isCancelled = true;
               onEnd?.();
               setFrameIndex(meta.frameCount - 1);
@@ -116,18 +116,14 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
       const { offsetWidth: w, offsetHeight: h } = el;
       const scaleX = w / meta.frameWidth;
       const scaleY = h / meta.frameHeight;
-      const finalScale = Math.max(scaleX, scaleY);
-      setScale(finalScale);
+      setScale(Math.max(scaleX, scaleY));
     });
 
     observer.observe(el);
     return () => observer.disconnect();
   }, [meta]);
 
-  if (!meta) {
-    console.warn("Failed to extract meta from", src);
-    return null;
-  }
+  if (!meta) return null;
 
   const { frameWidth, frameHeight, frameCount } = meta;
   const columns = Math.min(frameCount, Math.floor(4096 / frameWidth));
