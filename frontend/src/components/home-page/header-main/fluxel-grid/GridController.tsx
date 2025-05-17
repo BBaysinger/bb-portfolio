@@ -26,7 +26,7 @@ interface GridControllerProps {
   className?: string;
 }
 
-const FRAME_TIME = 1000 / 30;
+const FRAME_TIME = 1000 / 20;
 
 /**
  * GridController
