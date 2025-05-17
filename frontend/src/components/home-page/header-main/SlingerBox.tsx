@@ -64,6 +64,9 @@ const SlingerBox: React.FC<SlingerBoxProps> = ({
   const slingerRefs = useRef<Map<number, HTMLElement>>(new Map());
   const lastDragEndTime = useRef<number>(0);
 
+  const clearPointer = () => {
+    pointerPosition.current = null;
+  };
   //
   const lastFrameTime = useRef<number>(performance.now());
   const childArray = React.Children.toArray(children);
@@ -375,8 +378,23 @@ const SlingerBox: React.FC<SlingerBoxProps> = ({
       handleMove(touch.clientX, touch.clientY, e);
     };
 
-    const handleMouseUp = (e: MouseEvent) => endDrag(e);
-    const handleTouchEnd = (e: TouchEvent) => endDrag(e);
+    // const handleMouseUp = (e: MouseEvent) => endDrag(e);
+    // const handleTouchEnd = (e: TouchEvent) => endDrag(e);
+
+    const handleMouseUp = (e: MouseEvent) => {
+      endDrag(e);
+      clearPointer(); // ✅ forget pointer
+    };
+
+    const handleTouchEnd = (e: TouchEvent) => {
+      endDrag(e);
+      clearPointer(); // ✅ forget pointer
+    };
+
+    const handleMouseLeave = () => {
+      clearPointer(); // forget pointer if it leaves the window
+    };
+    window.addEventListener("mouseout", handleMouseLeave);
 
     window.addEventListener("mousemove", handleMouseMove);
     window.addEventListener("mouseup", handleMouseUp);
@@ -388,6 +406,7 @@ const SlingerBox: React.FC<SlingerBoxProps> = ({
       window.removeEventListener("mouseup", handleMouseUp);
       window.removeEventListener("touchmove", handleTouchMove);
       window.removeEventListener("touchend", handleTouchEnd);
+      window.removeEventListener("mouseout", handleMouseLeave);
     };
   }, []);
   return (
