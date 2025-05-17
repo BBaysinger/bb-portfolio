@@ -6,7 +6,8 @@ interface SpriteSheetPlayerProps {
   autoPlay?: boolean;
   fps?: number;
   loops?: number;
-  randomFrame?: boolean; // ✅ New
+  randomFrame?: boolean;
+  frameMap?: number[]; // ✅ New prop
   onEnd?: () => void;
   className?: string;
   scalerClassName?: string;
@@ -16,21 +17,21 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
   src,
   autoPlay = true,
   fps = 30,
-  loops = 0, // Default zero so it's easier to identify on screen
+  loops = 0,
   randomFrame = false,
+  frameMap,
   onEnd,
   className = "",
   scalerClassName = "",
 }) => {
   const [frameIndex, setFrameIndex] = useState(0);
+  const [mappedFrameIndex, setMappedFrameIndex] = useState(0); // for frameMap
   const [scale, setScale] = useState(1);
-  // Scaled with CSS then used detect size changes and apply it via transform: scale to
-  // the visual output element for GPU acceleration
+
   const wrapperRef = useRef<HTMLDivElement>(null);
   const animationFrameRef = useRef<number | null>(null);
   const lastTimeRef = useRef<number>(performance.now());
 
-  // Parse metadata from filename
   const meta = useMemo(() => {
     const match = src.match(/_w(\d+)h(\d+)f(\d+)/);
     if (!match) {
@@ -63,12 +64,28 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
         lastTimeRef.current = now - (elapsed % frameDuration);
 
         if (randomFrame) {
-          const random = Math.floor(Math.random() * meta.frameCount);
+          const random = frameMap?.length
+            ? frameMap[Math.floor(Math.random() * frameMap.length)]
+            : Math.floor(Math.random() * meta.frameCount);
           setFrameIndex(random);
+        } else if (frameMap?.length) {
+          setMappedFrameIndex((prev) => {
+            const next = prev + 1;
+            if (next >= frameMap.length) {
+              completedLoops += 1;
+              const maxLoops = loops === 0 ? Infinity : loops;
+              if (completedLoops >= maxLoops) {
+                isCancelled = true;
+                onEnd?.();
+                return frameMap.length - 1;
+              }
+              return 0;
+            }
+            return next;
+          });
         } else {
           setFrameIndex((prev) => {
             const next = prev + 1;
-
             if (next >= meta.frameCount) {
               completedLoops += 1;
               const maxLoops = loops === 0 ? Infinity : loops;
@@ -79,7 +96,6 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
               }
               return 0;
             }
-
             return next;
           });
         }
@@ -98,7 +114,7 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [meta, fps, autoPlay, loops, randomFrame, onEnd]);
+  }, [meta, fps, autoPlay, loops, randomFrame, frameMap, onEnd]);
 
   useEffect(() => {
     if (!wrapperRef.current || !meta) return;
@@ -123,9 +139,13 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
 
   const { frameWidth, frameHeight, frameCount } = meta;
   const columns = Math.min(frameCount, Math.floor(4096 / frameWidth));
-  const col = frameIndex % columns;
-  const row = Math.floor(frameIndex / columns);
-
+  const currentFrame = randomFrame
+    ? frameIndex // already set randomly
+    : frameMap?.length
+      ? frameMap[mappedFrameIndex % frameMap.length]
+      : frameIndex;
+  const col = currentFrame % columns;
+  const row = Math.floor(currentFrame / columns);
   const backgroundPosition = `-${col * frameWidth}px -${row * frameHeight}px`;
   const sheetWidth = columns * frameWidth;
   const sheetHeight = Math.ceil(frameCount / columns) * frameHeight;
@@ -145,9 +165,7 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
           backgroundPosition,
           backgroundSize: `${sheetWidth}px ${sheetHeight}px`,
         }}
-      >
-        {/* <div className={styles.debug}>{scale}</div> */}
-      </div>
+      />
     </div>
   );
 };
