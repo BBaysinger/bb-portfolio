@@ -13,18 +13,16 @@ interface BoltProps {
  * @component
  */
 const Bolt: React.FC<BoltProps> = ({ className }) => {
-  const src = "/spritesheets/lightning_Layer-Comp-_w500h1160f7.webp";
+  const src = "/spritesheets/lightning_Layer-Comp-_w480h1098f7.webp";
   return (
-    <div className={`${styles.bolt} ${className}`}>
+    <div className={[styles.bolt, className, "bolt"].join(" ")}>
       <SpriteSheetPlayer
         className={styles.lightning}
         src={src}
         fps={[12, 12, 12, 12, 12, 12, 1000]}
-        // fps={12}
         loops={0}
         randomFrame={true}
       />
-      {/* <div className={styles.yellowBolt} /> */}
     </div>
   );
 };
