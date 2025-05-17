@@ -18,7 +18,7 @@ function getShadowInfluence(
   const dx = gridX - x;
   const dy = gridY - y;
   const baseDistance = Math.sqrt(dx * dx + dy * dy);
-  const influence = 1 - smoothStep(0, fluxelSize * 5, baseDistance);
+  const influence = 1 - smoothStep(0, fluxelSize * 4.25, baseDistance);
   return baseDistance < fluxelSize * 5 ? influence : 0;
 }
 
@@ -94,16 +94,16 @@ export function useFluxelShadows({
                 );
 
                 shadow1OffsetX = Math.round(
-                  Math.min(rightInfluence - influence, 0) * 100,
+                  Math.min(rightInfluence - influence, 0) * 80,
                 );
                 shadow1OffsetY = Math.round(
-                  Math.max(influence - topInfluence, 0) * 100,
+                  Math.max(influence - topInfluence, 0) * 80,
                 );
                 shadow2OffsetX = Math.round(
-                  Math.max(influence - leftInfluence, 0) * 50,
+                  Math.max(influence - leftInfluence, 0) * 40,
                 );
                 shadow2OffsetY = Math.round(
-                  Math.min(bottomInfluence - influence, 0) * 50,
+                  Math.min(bottomInfluence - influence, 0) * 40,
                 );
               }
 
