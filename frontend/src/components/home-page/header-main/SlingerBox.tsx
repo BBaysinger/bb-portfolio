@@ -327,7 +327,11 @@ const SlingerBox: React.FC<SlingerBoxProps> = ({
 
         return (
           <div
-            className={`${styles.slinger} slinger`}
+            className={[
+              styles.slinger,
+              obj.isDragging ? "isDragging" : "",
+              "slinger",
+            ].join(" ")}
             tabIndex={10}
             key={i}
             onMouseDown={(e) => handleMouseDown(i, e)}
