@@ -58,7 +58,9 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
     const safeFps = stableFpsRef.current;
 
     const newDurations = Array.from({ length: count }, (_, i) => {
-      const val = Array.isArray(safeFps) ? safeFps[i % safeFps.length] || 30 : safeFps || 30;
+      const val = Array.isArray(safeFps)
+        ? safeFps[i % safeFps.length] || 30
+        : safeFps || 30;
       return 1000 / val;
     });
 
@@ -126,13 +128,10 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
 
     const el = wrapperRef.current;
     const observer = new ResizeObserver(() => {
-      requestIdleCallback(() => {
-        const { offsetWidth: w, offsetHeight: h } = el;
-        const scaleX = w / meta.frameWidth;
-        const scaleY = h / meta.frameHeight;
-        const finalScale = Math.round(Math.max(scaleX, scaleY) * 1000) / 1000;
-        setScale(finalScale);
-      });
+      const { offsetWidth: w, offsetHeight: h } = el;
+      const scaleX = w / meta.frameWidth;
+      const scaleY = h / meta.frameHeight;
+      setScale(Math.max(scaleX, scaleY));
     });
 
     observer.observe(el);
