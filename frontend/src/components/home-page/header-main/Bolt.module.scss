@@ -13,7 +13,7 @@
   position: absolute;
   top: -10px;
   transform: translateX(-50%);
-  width: 350px;
+  width: calc(150px + 10vw);
   animation: pulseScale 3s infinite ease-in-out;
 }
 

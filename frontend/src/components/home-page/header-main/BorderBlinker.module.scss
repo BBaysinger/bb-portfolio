@@ -61,21 +61,21 @@ $offset: -1vw;
 }
 
 .blink-top {
-  animation: blinkBorder 1s ease;
+  animation: blinkBorder 0.5s linear;
   color: $lighterThemeColor;
 }
 
 .blink-right {
-  animation: blinkBorder 1s ease;
+  animation: blinkBorder 0.5s linear;
   color: $complimentaryThemeColor;
 }
 
 .blink-bottom {
-  animation: blinkBorder 1s ease;
+  animation: blinkBorder 0.5s linear;
   color: yellow;
 }
 
 .blink-left {
-  animation: blinkBorder 1s ease;
+  animation: blinkBorder 0.5s linear;
   color: orange;
 }
