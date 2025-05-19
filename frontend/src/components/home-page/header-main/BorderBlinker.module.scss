@@ -1,7 +1,7 @@
 @use "@/styles/mixins" as *;
 @use "@/styles/variables" as *;
 
-$offset: -1vw;
+$offset: 0;
 
 .borderBlinker {
   position: absolute;
@@ -9,8 +9,11 @@ $offset: -1vw;
   width: 100%;
   height: 100%;
   pointer-events: none;
-  @include fluidProperty(--thickness, $b320px, $b1920px, 20px, 40px);
+  top: 0;
+  left: 0;
 }
+
+$thickness: 1vw;
 
 .borderSide {
   position: absolute;
@@ -23,13 +26,13 @@ $offset: -1vw;
   top: $offset;
   left: 0;
   width: 100%;
-  height: var(--thickness);
+  height: $thickness;
 }
 
 .right {
   top: 0;
   right: $offset;
-  width: var(--thickness);
+  width: $thickness;
   height: 100%;
 }
 
@@ -37,13 +40,13 @@ $offset: -1vw;
   bottom: $offset;
   left: 0;
   width: 100%;
-  height: var(--thickness);
+  height: $thickness;
 }
 
 .left {
   top: 0;
   left: $offset;
-  width: var(--thickness);
+  width: $thickness;
   height: 100%;
 }
 

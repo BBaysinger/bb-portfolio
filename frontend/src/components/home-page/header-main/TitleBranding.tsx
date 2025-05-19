@@ -20,21 +20,13 @@ const TitleBranding: React.FC<TitleBrandingProps> = ({ className = "" }) => {
         <BarberPole
           className={[styles.barberPole, styles.barberPole1].join(" ")}
         />
-        <span className={styles.firstName}>Bradley</span>{" "}
-        <BarberPole
-          className={[styles.barberPole, styles.barberPole2].join(" ")}
-        />
+        <span className={styles.firstName}>Bradley</span>&nbsp;{"   "}
         <span className={styles.lastName}>Baysinger</span>
         <BarberPole
           className={[styles.barberPole, styles.barberPole2].join(" ")}
         />
         <span className={styles.title}>Interactive Web Developer</span>
-        <BarberPole
-          className={[styles.barberPole, styles.barberPole2].join(" ")}
-        />
       </h1>
-
-      {/* <h5 className={styles.subhead}></h5> */}
     </div>
   );
 };
