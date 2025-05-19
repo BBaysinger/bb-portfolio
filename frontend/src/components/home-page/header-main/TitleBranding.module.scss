@@ -1,0 +1,109 @@
+@use "@/styles/mixins" as *;
+@use "@/styles/variables" as *;
+
+.titleBranding {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  z-index: 1000;
+  user-select: none;
+  padding: 20px 20px;
+  pointer-events: none;
+  max-width: 85vw;
+
+  h1 {
+    letter-spacing: 0.05em;
+    font-size: 48px;
+    line-height: 1.1em;
+    margin-bottom: 0;
+    margin-left: -0.05em;
+    color: #fff;
+    font-weight: 400; // Only a factor before fonts load.
+    @include breakpointUp($b480px) {
+      font-size: 48px;
+    }
+  }
+
+  h5 {
+    color: white;
+    font-weight: 400;
+  }
+  & > * {
+    user-select: none;
+  }
+}
+
+.subhead {
+  font-size: 3rem;
+  margin-bottom: -6px;
+  letter-spacing: 0.07em;
+  overflow: hidden;
+  position: relative;
+  line-height: 1.4em;
+}
+
+.bull {
+  position: relative;
+  color: $lighterThemeColor;
+  font-size: 1.2em;
+  position: relative;
+  top: 1px;
+  @include breakpointUp(500px) {
+    top: 3px;
+  }
+}
+
+.logoWrapper {
+  //   @include fluidProperty(width, $b320px, $b1280px, 6rem, 12rem);
+  // width: unquote("clamp(6rem, calc(6rem + ((100vw - 320px) * 0.00625)), 12rem)");
+  // width: clamp(2rem, calc(2rem + 8 * (100vw - 320px) / 960), 10rem);
+  // width: clamp(2rem, calc(2rem + 8rem * (100vw - 320px) / 960), 10rem);
+
+  @include fluidCSSVar(width, 64px, 196px, 320, 1600);
+
+  // width: 12rem;
+  border: 1px solid red;
+}
+
+.test {
+  border: 1px solid green;
+  width: 10rem;
+}
+
+.heroLogo {
+  margin-left: -18%;
+  width: 100%;
+  position: relative;
+  top: -11px;
+  margin-bottom: -20px;
+}
+
+$bottom: 10px;
+
+.lastName {
+  color: $lighterThemeColor;
+}
+
+.firstName {
+  color: #999;
+}
+
+.barberPole {
+  height: 34px;
+  width: 34px;
+  margin: 0 4px;
+
+  > * {
+    animation-play-state: paused;
+  }
+
+  :global(.isSlingerIdle) & {
+    > * {
+      animation-play-state: running !important;
+    }
+  }
+}
