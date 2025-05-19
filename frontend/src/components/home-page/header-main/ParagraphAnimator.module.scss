@@ -3,53 +3,25 @@
 
 .paragraphAnimator {
   position: absolute;
-  font-size: 16px;
-  color: rgba(255, 255, 255, 0.8);
-  width: 90%;
-  max-width: 700px;
-  top: $navBarHeight;
-  right: 0;
-  text-align: right;
-  padding: 16px 20px 0 0;
+  top: calc(100vh - 130px);
+  left: 0.7vw;
+  transform-origin: top left;
+  transform: rotate(-90deg);
+  width: 85.7vh;
   pointer-events: none;
-  line-height: 1.6em;
+  line-height: 1.3em;
   opacity: 1;
   transition: opacity 0.5s ease-in-out;
+  @include fluidCSSVar(font-size, 10px, 18px);
 
   &.paused {
     opacity: 0 !important;
   }
 
-  @include breakpointUp($b640px) {
-    font-size: 18px;
-    width: 70%;
-  }
-  @include breakpointUp($b1024px) {
-    font-size: 20px;
-  }
-  @include breakpointUp($b1280px) {
-    font-size: 25px;
-  }
   p {
     color: rgba(255, 255, 255, 0);
     span {
-      color: rgba(255, 255, 255, 0.8);
+      color: rgba(255, 255, 255, 0.4);
     }
-    // &::before,
-    // &::after {
-    //   color: $heavierThemeColor;
-    //   line-height: 1.2em;
-    //   font-weight: bold;
-    //   white-space: nowrap;
-    //   display: inline;
-    // }
-    // &::before {
-    //   content: "[";
-    //   padding-right: 10px;
-    // }
-    // &::after {
-    //   content: "]";
-    //   padding-left: 10px;
-    // }
   }
 }
