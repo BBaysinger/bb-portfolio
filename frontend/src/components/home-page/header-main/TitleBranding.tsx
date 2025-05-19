@@ -12,21 +12,18 @@ const TitleBranding: React.FC<TitleBrandingProps> = ({ className = "" }) => {
   return (
     <div className={`${styles.titleBranding} ${className}`}>
       <div className={styles.logoWrapper}>
-        {/* <img src={headerLogo} className={styles.heroLogo} alt="BB Logo" /> */}
+        <div>
+          <img src={headerLogo} className={styles.heroLogo} alt="BB Logo" />
+        </div>
       </div>
-      <div className={styles.test}></div>
       <h1>
         <span className={styles.firstName}>Bradley</span>{" "}
-        <span className={"nobr"}>
-          <BarberPole className={styles.barberPole} />{" "}
-          <span className={styles.lastName}>Baysinger</span>
-        </span>
+        <span className={styles.lastName}>Baysinger</span>
+        <BarberPole className={styles.barberPole} />
+        <span className={styles.title}>Interactive Web Developer</span>
       </h1>
 
-      <h5 className={styles.subhead}>
-        Interactive&nbsp;Web <span className={styles.bull}>&bull;</span>{" "}
-        <span className={"nobr"}>Front-end Developer</span>
-      </h5>
+      {/* <h5 className={styles.subhead}></h5> */}
     </div>
   );
 };
