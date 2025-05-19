@@ -1,8 +1,6 @@
 import React, { useState, useCallback, useRef } from "react";
 
 import useClientDimensions from "hooks/useClientDimensions";
-import headerLogo from "images/hero/bb-gradient.webp";
-import BarberPole from "components/common/BarberPole";
 import GridController, {
   GridControllerHandle,
 } from "./fluxel-grid/GridController";
@@ -13,6 +11,7 @@ import BorderBlinker, { Side } from "./BorderBlinker";
 import { Direction } from "./fluxel-grid/useFluxelProjectiles";
 import styles from "./Hero.module.scss";
 import ChargedCircle from "components/home-page/header-main/ChargedCircle";
+import TitleBranding from "./TitleBranding";
 
 const quotes = [
   "Interactivity is not about clicking, tapping, or swiping. It's about engagement — an invitation to explore, respond, and shape the experience.",
@@ -170,10 +169,7 @@ const Hero: React.FC = () => {
         .join(" ")}
       style={{ minHeight: `${clientHeight}px` }}
     >
-      <div className={styles.headerWrapper}>
-        {/* <div className={styles.debug}>
-          {sessionStorage.getItem("hasDragged")}
-        </div> */}
+      <div>
         <GridController
           className={styles.gridController}
           ref={gridControllerRef}
@@ -210,24 +206,7 @@ const Hero: React.FC = () => {
           </a>
         </div>
       </div>
-      <div className={styles.branding}>
-        <div className={styles.logoWrapper}>
-          <img src={headerLogo} className={styles.heroLogo} alt="BB Logo" />
-        </div>
-
-        <h1>
-          <span className={styles.firstName}>Bradley</span>{" "}
-          <span className={"nobr"}>
-            <BarberPole className={styles.barberPole} />{" "}
-            <span className={styles.lastName}>Baysinger</span>
-          </span>
-        </h1>
-
-        <h5 className={styles.subhead}>
-          Interactive&nbsp;Web <span className={styles.bull}>&bull;</span>{" "}
-          <span className={"nobr"}>Front-end Developer</span>
-        </h5>
-      </div>
+      <TitleBranding className={styles.titleBranding} />
     </header>
   );
 };

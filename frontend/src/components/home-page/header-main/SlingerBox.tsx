@@ -18,7 +18,7 @@ type SlingerBoxProps = {
   onWallCollision?: (wall: Side, x: number, y: number) => void;
   onIdle?: () => void;
   children?: React.ReactNode;
-  pointerGravity?: number; // ✅ Only a number now
+  pointerGravity?: number;
 };
 
 /**
@@ -102,7 +102,6 @@ const SlingerBox: React.FC<SlingerBoxProps> = ({
           let { x, y, vx, vy } = obj;
 
           // Pointer gravity effect
-          // const now = performance.now();
           const now = performance.now();
 
           const gravityEnabled =

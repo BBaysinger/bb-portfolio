@@ -9,6 +9,7 @@ import ScrollToHash from "utils/ScrollToHash";
 import { AuthProvider } from "context/AuthContext";
 import { useTrackHeroInView } from "hooks/useTrackHeroInView";
 import { useAutoCloseMobileNavOnScroll } from "hooks/useAutoCloseMobileNavOnScroll";
+import { useFluidPercents } from "hooks/useFluidPercents";
 
 import styles from "./App.module.scss";
 import "@/styles/styles.scss";
@@ -24,6 +25,14 @@ const App: React.FC = () => {
   useAutoCloseMobileNavOnScroll();
 
   const mainContentRef = React.useRef<HTMLDivElement>(null);
+  const fluidRef = useFluidPercents([
+    [320, 680], // maxScaleBreak, ProjectParallaxCarousel
+    [320, 768], // LogoSwapper
+    [320, 992], // mainBreak
+    [360, 1280], // CurriculumVitae + styles.scss
+    [360, 1440], // CurriculumVitae
+    [320, 1600], // Future use? Possibly should be the default
+  ]);
 
   const handleLogin = () => {
     sessionStorage.setItem("isLoggedIn", "true");
@@ -34,6 +43,7 @@ const App: React.FC = () => {
     <AuthProvider>
       {/* <MainHeightProvider> */}
       <div
+        ref={fluidRef}
         className={[
           isHeroInView ? "isHeroInView" : "",
           isMenuOpen ? `isMobileNavExpanded ${styles.isMobileNavExpanded}` : "",

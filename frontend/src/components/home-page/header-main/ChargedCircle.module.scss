@@ -8,6 +8,11 @@
   pointer-events: none;
   transition: animation 1s ease-in-out;
   animation: spin 2s linear infinite;
+  * {
+    pointer-events: none;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+  }
 
   :global(.isDragging) & {
     animation: spin 6s linear infinite;
