@@ -1,5 +1,6 @@
 @use "sass:math";
 @use "sass:map";
+@use "sass:string";
 @use "@/styles/variables" as *;
 
 // Mixin for mobile-first media queries
@@ -129,7 +130,6 @@
 
 //////////////////////////////////////////////////////////////////////////
 
-
 // Convert px to rem (assuming root font size = 16px)
 @function to-rems($px) {
   @return math.div($px, 16px) * 1rem;
@@ -148,15 +148,18 @@
 
 // Generate a variable reference like var(--fluid-percent-360-1280)
 @function percent-var($min, $max) {
-  @return unquote("var(--fluid-percent-#{$min}-#{$max})");
+  @return string.unquote("var(--fluid-percent-#{$min}-#{$max})");
 }
 
 // Mixin that applies fluid interpolation using CSS custom property
-@mixin fluidCSSVar($property, $min-px, $max-px, $min-vw: 360, $max-vw: 1280) {
+@mixin fluidCSSVar($property, $min-px, $max-px, $min-vw: 320, $max-vw: 1600) {
   $min-rem: rnd(to-rems($min-px), 4);
   $max-rem: rnd(to-rems($max-px), 4);
   $range: rnd($max-rem - $min-rem, 4);
-  $percent-var: percent-var($min-vw, $max-vw); // This now uses the viewport range
+  $percent-var: percent-var(
+    $min-vw,
+    $max-vw
+  ); // This now uses the viewport range
 
   #{$property}: calc(#{$min-rem} + #{$range} * #{$percent-var});
 }
