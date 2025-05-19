@@ -126,3 +126,37 @@
     animation-play-state: running !important;
   }
 }
+
+//////////////////////////////////////////////////////////////////////////
+
+
+// Convert px to rem (assuming root font size = 16px)
+@function to-rems($px) {
+  @return math.div($px, 16px) * 1rem;
+}
+
+// Round to optional number of decimal places
+@function rnd($number, $places: 0) {
+  $n: 1;
+  @if $places > 0 {
+    @for $i from 1 through $places {
+      $n: $n * 10;
+    }
+  }
+  @return math.div(math.round($number * $n), $n);
+}
+
+// Generate a variable reference like var(--fluid-percent-360-1280)
+@function percent-var($min, $max) {
+  @return unquote("var(--fluid-percent-#{$min}-#{$max})");
+}
+
+// Mixin that applies fluid interpolation using CSS custom property
+@mixin fluidCSSVar($property, $min-px, $max-px, $min-vw: 360, $max-vw: 1280) {
+  $min-rem: rnd(to-rems($min-px), 4);
+  $max-rem: rnd(to-rems($max-px), 4);
+  $range: rnd($max-rem - $min-rem, 4);
+  $percent-var: percent-var($min-vw, $max-vw); // This now uses the viewport range
+
+  #{$property}: calc(#{$min-rem} + #{$range} * #{$percent-var});
+}
