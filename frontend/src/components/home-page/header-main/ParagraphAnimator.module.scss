@@ -3,8 +3,9 @@
 
 .paragraphAnimator {
   position: absolute;
-  top: calc(100vh - 130px);
-  left: 0.7vw;
+  // top: calc(100vh - 130px);
+  // left: 0.7vw;
+  left: $headerPadding;
   transform-origin: top left;
   transform: rotate(-90deg);
   width: 85.7vh;
@@ -12,7 +13,8 @@
   line-height: 1.3em;
   opacity: 1;
   transition: opacity 0.5s ease-in-out;
-  @include remScaler(font-size, 10px, 18px);
+  @include remRange(font-size, 10px, 18px);
+  @include fluidProperty(bottom, $b320px, $b768px, 140px, 200px );
 
   &.paused {
     opacity: 0 !important;
