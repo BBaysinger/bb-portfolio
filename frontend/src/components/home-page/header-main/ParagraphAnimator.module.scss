@@ -3,18 +3,16 @@
 
 .paragraphAnimator {
   position: absolute;
-  // top: calc(100vh - 130px);
-  // left: 0.7vw;
   left: $heroPadding;
   transform-origin: top left;
   transform: rotate(-90deg);
-  width: 85.7vh;
   pointer-events: none;
   line-height: 1.3em;
   opacity: 1;
   transition: opacity 0.5s ease-in-out;
-  @include remRange(font-size, 10px, 18px);
-  @include staticRange(bottom, 140px, 200px, $b320px, $b768px);
+  @include remRange(font-size, 14px, 18px);
+  @include staticRange(width, 86vh, 81vh, $b320px, $b768px);
+  @include staticRange(bottom, 53px, 85px, $b320px, $b768px);
 
   &.paused {
     opacity: 0 !important;
