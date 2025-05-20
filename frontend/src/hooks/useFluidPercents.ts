@@ -5,6 +5,30 @@ import { useEffect, useRef, RefObject } from "react";
  * based on viewport width ranges. These variables can be used in SCSS to drive
  * responsive styles using `calc()` and `--fluid-percent-[min]-[max]`.
  *
+ * Usage:
+ *
+ * export default function ResponsiveBox() {
+ * const ref = useFluidPercents([[320, 1280], [480, 1440]]);
+ *
+ *  return (
+ *     <div
+ *       ref={ref}
+ *       style={{
+ *         width: "calc(100px + 200px * var(--fluid-percent-320-1280))",
+ *        height: "calc(50px + 100px * var(--fluid-percent-480-1440))",
+ *         backgroundColor: "#4CAF50",
+ *         transition: "all 0.2s ease",
+ *       }}
+ *     >
+ *      Resizes smoothly with viewport
+ *    </div>
+ *  );
+ * }
+ *
+ * @author Bradley Baysinger
+ * @since The beginning of time.
+ * @version N/A
+ *
  * @param ranges - An array of viewport width ranges [minVw, maxVw] to track.
  * @returns A ref that should be attached to a DOM element where the CSS variables will be applied.
  */
