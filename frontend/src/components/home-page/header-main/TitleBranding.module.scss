@@ -8,7 +8,7 @@
   width: 100vw;
   z-index: 100;
   user-select: none;
-  padding: $heroPadding;
+  padding: var(--hero-padding);
   pointer-events: none;
   max-width: 85vw;
 
