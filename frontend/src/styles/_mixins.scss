@@ -25,7 +25,7 @@
   } @else {
     @media screen and (min-width: $breakpoint) {
       @content;
-    }
+    } 
   }
 }
 
@@ -125,8 +125,8 @@
 /// @param $max-vw - The maximum viewport width (default: $b1600)
 ///
 /// @example
-/// @include rangeScaler(font-size, 16px, 48px, 360, 1440);
-@mixin rangeScaler(
+/// @include remScaler(font-size, 16px, 48px, 360, 1440);
+@mixin remScaler(
   $property,
   $min-px,
   $max-px,
@@ -139,4 +139,47 @@
   $percent-var: percent-var($min-vw, $max-vw);
 
   #{$property}: calc(#{$min-rem} + #{$range} * #{$percent-var});
+}
+
+/// Applies a fluid CSS property using native `calc()` math directly in the rule.
+///
+/// This mixin does not rely on `rem` or custom properties. Instead, it linearly
+/// interpolates a CSS value (e.g. `px`, `em`, `%`, etc.) between a minimum and
+/// maximum viewport width. This is ideal when you want to keep your scaling unit
+/// consistent (like pixel precision or em spacing) and avoid dependency on root font size.
+///
+/// @param $property - The CSS property to scale (e.g. `margin-top`)
+/// @param $min-px - The value at the minimum viewport width (in px or unit you want)
+/// @param $max-px - The value at the maximum viewport width (same unit as $min-px)
+/// @param $min-vw - Minimum viewport width in px or unitless (default: $b320)
+/// @param $max-vw - Maximum viewport width in px or unitless (default: $b1600)
+///
+/// @example
+/// @include rangeStatic(letter-spacing, 0.02em, 0.12em, 360, 1440);
+/// @include rangeStatic(width, 120px, 360px); // defaults to 320–1600px viewport
+@mixin rangeStatic($property, $min-px, $max-px, $min-vw: $b320, $max-vw: $b1600) {
+  $min-unitless-vw: strip-unit($min-vw);
+  $max-unitless-vw: strip-unit($max-vw);
+  $min-unit: math.unit($min-px);
+  $max-unit: math.unit($max-px);
+
+  @if $min-unit != $max-unit {
+    @error "Units must match for $property: got #{$min-unit} and #{$max-unit}";
+  }
+
+  & {
+    #{$property}: $min-px;
+  }
+
+  @media screen and (min-width: #{$min-unitless-vw}px) {
+    #{$property}: calc(
+      #{$min-px} +
+      #{strip-unit($max-px - $min-px)}#{$min-unit} *
+      ((100vw - #{$min-unitless-vw}px) / #{strip-unit($max-unitless-vw - $min-unitless-vw)})
+    );
+  }
+
+  @media screen and (min-width: #{$max-unitless-vw}px) {
+    #{$property}: $max-px;
+  }
 }

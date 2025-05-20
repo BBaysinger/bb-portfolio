@@ -13,10 +13,10 @@
   align-items: left;
   filter: blur(12px);
 
-  @include rangeScaler(margin-top, 46px, 60px, $b320, $b768);
-  @include rangeScaler(margin-bottom, 30px, 46px, $b320, $b768);
-  @include rangeScaler(width, 240px, 330px, $b320, $b768);
-  @include rangeScaler(height, 50px, 65px, $b320, $b768);
+  @include remScaler(margin-top, 46px, 60px, $b320, $b768);
+  @include remScaler(margin-bottom, 30px, 46px, $b320, $b768);
+  @include remScaler(width, 240px, 330px, $b320, $b768);
+  @include remScaler(height, 50px, 65px, $b320, $b768);
 
   @include breakpointUp($b768px) {
     margin-left: 0;
