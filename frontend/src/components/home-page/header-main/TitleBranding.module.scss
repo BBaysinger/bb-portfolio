@@ -21,7 +21,7 @@
     color: #fff;
     margin-bottom: 0;
     font-weight: 400; // Before fonts load.
-    @include fluidCSSVar(font-size, 20px, 38px);
+    @include rangeScaler(font-size, 20px, 38px);
     > * {
       line-height: 0.7em;
     }
@@ -31,7 +31,7 @@
 .logoWrapper {
   display: inline-block;
   margin-bottom: -1px;
-  @include fluidCSSVar(width, 64px, 60px);
+  @include rangeScaler(width, 64px, 60px);
   & > * {
     // Offset baked-in shadow
     margin-left: -31.5%;
@@ -53,15 +53,15 @@
 }
 
 .title {
-  @include fluidCSSVar(font-size, 5px, 23px);
+  @include rangeScaler(font-size, 5px, 23px);
 }
 
 .barberPole {
   border-radius: 5px;
-  @include fluidCSSVar(width, 16px, 16px);
-  @include fluidCSSVar(height, 16px, 16px);
-  @include fluidCSSVar(margin-left, 10px, 12px);
-  @include fluidCSSVar(margin-right, 10px, 12px);
+  @include rangeScaler(width, 16px, 16px);
+  @include rangeScaler(height, 16px, 16px);
+  @include rangeScaler(margin-left, 10px, 12px);
+  @include rangeScaler(margin-right, 10px, 12px);
 
   > * {
     animation-play-state: paused;
@@ -75,6 +75,6 @@
 }
 
 .barberPole1 {
-  @include fluidCSSVar(width, 16px, 27px);
-  @include fluidCSSVar(height, 16px, 27px);
+  @include rangeScaler(width, 16px, 27px);
+  @include rangeScaler(height, 16px, 27px);
 }

@@ -7,8 +7,8 @@
   box-sizing: border-box;
   z-index: 0;
 
-  @include fluidCSSVar("margin-top", -115px, 0px, $b320, 680);
-  @include fluidCSSVar("margin-bottom", -115px, 0px, $b320, 680);
+  @include rangeScaler("margin-top", -115px, 0px, $b320, 680);
+  @include rangeScaler("margin-bottom", -115px, 0px, $b320, 680);
 }
 
 .slideLayer {
