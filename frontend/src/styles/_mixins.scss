@@ -25,7 +25,7 @@
   } @else {
     @media screen and (min-width: $breakpoint) {
       @content;
-    } 
+    }
   }
 }
 
@@ -126,13 +126,7 @@
 ///
 /// @example
 /// @include remScaler(font-size, 16px, 48px, 360, 1440);
-@mixin remScaler(
-  $property,
-  $min-px,
-  $max-px,
-  $min-vw: $b320,
-  $max-vw: $b1600
-) {
+@mixin remScaler($property, $min-px, $max-px, $min-vw: $b320, $max-vw: $b1600) {
   $min-rem: rnd(to-rems($min-px), 4);
   $max-rem: rnd(to-rems($max-px), 4);
   $range: rnd($max-rem - $min-rem, 4);
@@ -157,7 +151,13 @@
 /// @example
 /// @include rangeStatic(letter-spacing, 0.02em, 0.12em, 360, 1440);
 /// @include rangeStatic(width, 120px, 360px); // defaults to 320–1600px viewport
-@mixin rangeStatic($property, $min-px, $max-px, $min-vw: $b320, $max-vw: $b1600) {
+@mixin staticRange(
+  $property,
+  $min-px,
+  $max-px,
+  $min-vw: $b320,
+  $max-vw: $b1600
+) {
   $min-unitless-vw: strip-unit($min-vw);
   $max-unitless-vw: strip-unit($max-vw);
   $min-unit: math.unit($min-px);
@@ -173,9 +173,11 @@
 
   @media screen and (min-width: #{$min-unitless-vw}px) {
     #{$property}: calc(
-      #{$min-px} +
-      #{strip-unit($max-px - $min-px)}#{$min-unit} *
-      ((100vw - #{$min-unitless-vw}px) / #{strip-unit($max-unitless-vw - $min-unitless-vw)})
+      #{$min-px} + #{strip-unit($max-px - $min-px)}#{$min-unit} *
+        (
+          (100vw - #{$min-unitless-vw}px) /
+            #{strip-unit($max-unitless-vw - $min-unitless-vw)}
+        )
     );
   }
 

@@ -2,6 +2,7 @@
 @use "@/styles/variables" as *;
 
 $offset: 0;
+$thickness: 16px;
 
 .borderBlinker {
   position: absolute;
@@ -12,8 +13,6 @@ $offset: 0;
   top: 0;
   left: 0;
 }
-
-$thickness: 1vw;
 
 .borderSide {
   position: absolute;
