@@ -129,6 +129,8 @@
 }
 
 //////////////////////////////////////////////////////////////////////////
+/// Fluid property and rem conversion helpers
+//////////////////////////////////////////////////////////////////////////
 
 // Convert px to rem (assuming root font size = 16px)
 @function to-rems($px) {
@@ -162,4 +164,8 @@
   ); // This now uses the viewport range
 
   #{$property}: calc(#{$min-rem} + #{$range} * #{$percent-var});
+}
+
+@function to-rems($px, $base: 16px) {
+  @return math.div($px, $base) * 1rem;
 }
