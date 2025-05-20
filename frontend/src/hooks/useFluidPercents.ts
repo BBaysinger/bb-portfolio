@@ -46,9 +46,10 @@ export function useFluidPercents<T extends HTMLElement = HTMLDivElement>(
       for (const [min, max] of ranges) {
         const percent = (window.innerWidth - min) / (max - min);
         const clamped = Math.max(0, Math.min(1, percent));
+        const rounded = Math.round(clamped * 100) / 100;
         el.style.setProperty(
           `--fluid-percent-${min}-${max}`,
-          clamped.toString(),
+          rounded.toString(),
         );
       }
     };
