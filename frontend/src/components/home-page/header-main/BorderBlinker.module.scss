@@ -2,7 +2,6 @@
 @use "@/styles/variables" as *;
 
 $offset: 0;
-$thickness: $heroPadding;
 
 .borderBlinker {
   position: absolute;
@@ -25,13 +24,13 @@ $thickness: $heroPadding;
   top: $offset;
   left: 0;
   width: 100%;
-  height: $thickness;
+  height: var(--hero-padding);
 }
 
 .right {
   top: 0;
   right: $offset;
-  width: $thickness;
+  width: var(--hero-padding);
   height: 100%;
 }
 
@@ -39,13 +38,13 @@ $thickness: $heroPadding;
   bottom: $offset;
   left: 0;
   width: 100%;
-  height: $thickness;
+  height: var(--hero-padding);
 }
 
 .left {
   top: 0;
   left: $offset;
-  width: $thickness;
+  width: var(--hero-padding);
   height: 100%;
 }
 

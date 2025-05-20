@@ -3,7 +3,7 @@
 
 .paragraphAnimator {
   position: absolute;
-  left: $heroPadding;
+  left: var(--hero-padding);
   transform-origin: top left;
   transform: rotate(-90deg);
   pointer-events: none;
@@ -19,6 +19,7 @@
   }
 
   p {
+    margin-top: -3px;
     color: rgba(255, 255, 255, 0);
     span {
       color: rgba(255, 255, 255, 0.4);
