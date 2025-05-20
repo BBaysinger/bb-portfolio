@@ -5,7 +5,7 @@
   position: absolute;
   // top: calc(100vh - 130px);
   // left: 0.7vw;
-  left: $headerPadding;
+  left: $heroPadding;
   transform-origin: top left;
   transform: rotate(-90deg);
   width: 85.7vh;
@@ -14,7 +14,7 @@
   opacity: 1;
   transition: opacity 0.5s ease-in-out;
   @include remRange(font-size, 10px, 18px);
-  @include fluidProperty(bottom, $b320px, $b768px, 140px, 200px );
+  @include staticRange(bottom, 140px, 200px, $b320px, $b768px);
 
   &.paused {
     opacity: 0 !important;

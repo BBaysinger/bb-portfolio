@@ -151,7 +151,7 @@
 /// @example
 /// @include rangeStatic(letter-spacing, 0.02em, 0.12em, 360, 1440);
 /// @include rangeStatic(width, 120px, 360px); // defaults to 320–1600px viewport
-@mixin fluidProperty($property, $min-vw, $max-vw, $min-value, $max-value) {
+@mixin staticRange($property, $min-value, $max-value, $min-vw, $max-vw) {
   // Extract units to ensure consistency for calculations
   $unit-min-vw: math.unit($min-vw);
   $unit-max-vw: math.unit($max-vw);
@@ -196,4 +196,3 @@
   // Divides the value by itself (multiplied by 0 plus 1) to effectively strip units
   @return math.div($value, $value * 0 + 1);
 }
-

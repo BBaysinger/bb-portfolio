@@ -8,7 +8,7 @@
   width: 100vw;
   z-index: 100;
   user-select: none;
-  padding: $headerPadding;
+  padding: $heroPadding;
   pointer-events: none;
   max-width: 85vw;
 
@@ -32,8 +32,8 @@
   margin-left: 2px; // Not sure why.
   display: inline-block;
   margin-bottom: -1px;
-  @include fluidProperty(width, $b320px, $b768px, 40px, 60px);
-  @include fluidProperty(min-width, $b320px, $b768px, 40px, 60px);
+  @include staticRange(width, 40px, 60px, $b320px, $b768px);
+  @include staticRange(min-width, 40px, 60px, $b320px, $b768px);
   & > * {
     // Offset baked-in shadow
     margin-left: -31.5%;
