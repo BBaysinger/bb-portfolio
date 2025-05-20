@@ -144,7 +144,7 @@ form {
     color: #777;
     font-weight: 400;
     line-height: 1.1em;
-    @include fluidCSSVar(font-size, 40px, 48px, $b360, $b1280);
+    @include rangeScaler(font-size, 40px, 48px, $b360, $b1280);
     &:first-child {
       padding-top: 0;
       margin-top: 0;
