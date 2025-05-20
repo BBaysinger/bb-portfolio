@@ -10,7 +10,7 @@ $maxScaleBreak: 680; // Max vw limit of the carousel scaling
   justify-content: space-between;
   pointer-events: none;
   width: 100vw;
-  @include rangeScaler(top, 80px, 155px, $b320, $maxScaleBreak);
+  @include remScaler(top, 80px, 155px, $b320, $maxScaleBreak);
 }
 
 .navButton {
@@ -31,9 +31,9 @@ $maxScaleBreak: 680; // Max vw limit of the carousel scaling
   background: linear-gradient(to right, #000, #555);
   border-radius: 0 50% 50% 0;
   background: rgba(0, 0, 0, 0.7);
-  @include rangeScaler(height, 40px, 96px, $b320, $mainBreak);
-  @include rangeScaler(width, 40px, 96px, $b320, $mainBreak);
-  @include rangeScaler(margin-left, -10px, -20px, $b320, $mainBreak);
+  @include remScaler(height, 40px, 96px, $b320, $mainBreak);
+  @include remScaler(width, 40px, 96px, $b320, $mainBreak);
+  @include remScaler(margin-left, -10px, -20px, $b320, $mainBreak);
   @include breakpointUp($b640px) {
     background: #000;
   }
@@ -54,9 +54,9 @@ $maxScaleBreak: 680; // Max vw limit of the carousel scaling
     top: 50%;
     transform-origin: 0 0;
     transform: rotate(-45deg);
-    @include rangeScaler(border-width, 4.5px, 8px, $b320, $mainBreak);
-    @include rangeScaler(height, 17px, 36px, $b320, $mainBreak);
-    @include rangeScaler(width, 17px, 36px, $b320, $mainBreak);
-    @include rangeScaler(left, 15px, 40px, $b320, $mainBreak);
+    @include remScaler(border-width, 4.5px, 8px, $b320, $mainBreak);
+    @include remScaler(height, 17px, 36px, $b320, $mainBreak);
+    @include remScaler(width, 17px, 36px, $b320, $mainBreak);
+    @include remScaler(left, 15px, 40px, $b320, $mainBreak);
   }
 }
