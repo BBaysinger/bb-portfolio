@@ -3,94 +3,50 @@
 @use "sass:string";
 @use "@/styles/variables" as *;
 
-// Mixin for mobile-first media queries
-// Usage: Apply styles starting from the specified breakpoint and up.
-// Example:
-// .example-class {
-//   @include breakpointUp($b768px) {
-//     background-color: $lighterThemeColor;
-//   }
-// }
+//////////////////////////////////////////////////////////////////////////
+// Responsive Breakpoints
+//////////////////////////////////////////////////////////////////////////
+
+/// Mobile-first media query mixin
+/// Usage: Apply styles starting from the specified breakpoint and up.
+///
+/// @example
+/// .example {
+///   @include breakpointUp($b768px) {
+///     background-color: $lighterThemeColor;
+///   }
+/// }
 @mixin breakpointUp($breakpoint) {
-  $min-width: map.get($breakpoints, $breakpoint); // Correct Dart Sass syntax
+  $min-width: map.get($breakpoints, $breakpoint);
   @if $min-width != null {
     @media screen and (min-width: $min-width) {
       @content;
     }
   } @else {
-    // Handle raw values like '900px'
     @media screen and (min-width: $breakpoint) {
       @content;
     }
   }
 }
 
-// Function to remove the unit from a CSS value
-// This is useful for mathematical operations on CSS values
+//////////////////////////////////////////////////////////////////////////
+// Unit Helpers
+//////////////////////////////////////////////////////////////////////////
+
+/// Removes the unit from a numeric CSS value for use in calculations
 @function strip-unit($value) {
   @return math.div($value, ($value * 0 + 1));
 }
 
-//////////////////////////////////////////////////////////////////////////
-// SVG Trickery
-//////////////////////////////////////////////////////////////////////////
-
-// Removes redundancy of the rest of the SVG XML and allows you to declare a
-// shape with only the path data for a background or mask. It assumes your shape is
-// within a 1in x 1in viewbox, which may require reauthoring for this use, but that's
-// easy enough. In Illustrator, set the X and Y to 0,0 and scale the shape to fit a
-// 1in x 1in bounds. Helps to round decimals to 2 places for brevity.
-//
-// Example:
-// mask-image: svg("M0,0v72h72V0H0ZM22.33,55.31V16.69l36.27,19.31-36.27,19.31Z");
-@function svg($d, $color: #fff) {
-  // Ensure $color is treated as a string
-  $color-string: if(meta.type-of($color) == "string", $color, "#{$color}");
-  $formatted-color: if(
-    string.index($color-string, "#") == 1,
-    "%23#{string.slice($color-string, 2)}",
-    $color-string
-  );
-
-  // Return the SVG as a data URL
-  @return string.unquote(
-    "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' " +
-      "viewBox='0 0 72 72'%3E%3Cpath d='#{$d}' fill='#{$formatted-color}'/%3E%3C/svg%3E\")"
-  );
+/// Converts pixel values to rems
+/// @param $px - Pixel value
+/// @param $base - Root font size (default: 16px)
+/// @return rem-converted value
+@function to-rems($px, $base: 16px) {
+  @return math.div($px, $base) * 1rem;
 }
 
-//////////////////////////////////////////////////////////////////////////
-// Pause elements based on certain conditions of the UI
-//////////////////////////////////////////////////////////////////////////
-
-// Everything on the page outside the hero should be paused when the hero is visible.
-@mixin pauseWhenHeroVisible {
-  animation-play-state: running;
-
-  :global(.isHeroInView) & {
-    animation-play-state: paused !important;
-  }
-}
-
-// Animations within the nav should be paused when the mobile nav is collapsed.
-@mixin pauseUnlessMobileNavExpanded {
-  animation-play-state: paused;
-
-  :global(.isMobileNavExpanded) & {
-    animation-play-state: running !important;
-  }
-}
-
-//////////////////////////////////////////////////////////////////////////
-/// Fluid property and rem helpers
-//////////////////////////////////////////////////////////////////////////
-
-// Convert px to rem (assuming root font size = 16px)
-@function to-rems($px) {
-  @return math.div($px, 16px) * 1rem;
-}
-
-// Round to optional decimal places
+/// Rounds a number to a given number of decimal places
 @function rnd($number, $places: 0) {
   $n: 1;
   @if $places > 0 {
@@ -101,7 +57,56 @@
   @return math.div(math.round($number * $n), $n);
 }
 
-// Generate variable reference like var(--fluid-percent-360-1440)
+//////////////////////////////////////////////////////////////////////////
+// SVG Trickery
+//////////////////////////////////////////////////////////////////////////
+
+/// Builds a minimal inline SVG data URL for background or masking
+/// Assumes path is scaled to a 1in x 1in viewbox
+///
+/// @example
+/// mask-image: svg("M0,0v72h72V0H0Z");
+@function svg($d, $color: #fff) {
+  $color-string: if(meta.type-of($color) == "string", $color, "#{$color}");
+  $formatted-color: if(
+    string.index($color-string, "#") == 1,
+    "%23#{string.slice($color-string, 2)}",
+    $color-string
+  );
+
+  @return string.unquote(
+    "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' " +
+      "viewBox='0 0 72 72'%3E%3Cpath d='#{$d}' fill='#{$formatted-color}'/%3E%3C/svg%3E\")"
+  );
+}
+
+//////////////////////////////////////////////////////////////////////////
+// UI Animation Pausing Utilities
+//////////////////////////////////////////////////////////////////////////
+
+/// Pauses animations when the hero is in view
+@mixin pauseWhenHeroVisible {
+  animation-play-state: running;
+
+  :global(.isHeroInView) & {
+    animation-play-state: paused !important;
+  }
+}
+
+/// Resumes nav animations when the mobile nav is expanded
+@mixin pauseUnlessMobileNavExpanded {
+  animation-play-state: paused;
+
+  :global(.isMobileNavExpanded) & {
+    animation-play-state: running !important;
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////
+// Fluid Scaling with Custom Properties
+//////////////////////////////////////////////////////////////////////////
+
+/// Generates a CSS variable reference like var(--fluid-percent-360-1440)
 @function percent-var($min, $max) {
   $min-unitless: strip-unit($min);
   $max-unitless: strip-unit($max);
@@ -110,16 +115,28 @@
   );
 }
 
-// Main mixin
-@mixin rangeScaler($property, $min-px, $max-px, $min-vw: 320, $max-vw: 1600) {
+/// Applies a fluidly scaled CSS property using CSS custom properties
+/// Values will interpolate between min and max across a viewport range
+///
+/// @param $property - The CSS property to scale
+/// @param $min-px - The value at the smallest viewport width
+/// @param $max-px - The value at the largest viewport width
+/// @param $min-vw - The minimum viewport width (default: $b320)
+/// @param $max-vw - The maximum viewport width (default: $b1600)
+///
+/// @example
+/// @include rangeScaler(font-size, 16px, 48px, 360, 1440);
+@mixin rangeScaler(
+  $property,
+  $min-px,
+  $max-px,
+  $min-vw: $b320,
+  $max-vw: $b1600
+) {
   $min-rem: rnd(to-rems($min-px), 4);
   $max-rem: rnd(to-rems($max-px), 4);
   $range: rnd($max-rem - $min-rem, 4);
   $percent-var: percent-var($min-vw, $max-vw);
 
   #{$property}: calc(#{$min-rem} + #{$range} * #{$percent-var});
-}
-
-@function to-rems($px, $base: 16px) {
-  @return math.div($px, $base) * 1rem;
 }
