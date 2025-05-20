@@ -16,12 +16,12 @@
     display: flex;
     flex-direction: row;
     align-items: flex-end;
-    @include fluidCSSVar(font-size, 20px, 38px);
     letter-spacing: 0.07em;
     margin-left: -0.05em;
     color: #fff;
     margin-bottom: 0;
     font-weight: 400; // Before fonts load.
+    @include fluidCSSVar(font-size, 20px, 38px);
     > * {
       line-height: 0.7em;
     }
@@ -30,8 +30,8 @@
 
 .logoWrapper {
   display: inline-block;
-  @include fluidCSSVar(width, 64px, 60px);
   margin-bottom: -1px;
+  @include fluidCSSVar(width, 64px, 60px);
   & > * {
     // Offset baked-in shadow
     margin-left: -31.5%;
@@ -57,11 +57,11 @@
 }
 
 .barberPole {
+  border-radius: 5px;
   @include fluidCSSVar(width, 16px, 16px);
   @include fluidCSSVar(height, 16px, 16px);
   @include fluidCSSVar(margin-left, 10px, 12px);
   @include fluidCSSVar(margin-right, 10px, 12px);
-  border-radius: 5px;
 
   > * {
     animation-play-state: paused;

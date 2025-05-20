@@ -140,11 +140,11 @@ form {
     border-image-width: 10px;
 
     padding-bottom: 20px;
-    font-size: 40px;
+    // font-size: 40px;
     color: #777;
     font-weight: 400;
     line-height: 1.1em;
-    @include fluidProperty(font-size, $b360px, $b1280px, 40px, 48px);
+    @include fluidCSSVar(font-size, 40px, 48px, $b360, $b1280);
     &:first-child {
       padding-top: 0;
       margin-top: 0;
