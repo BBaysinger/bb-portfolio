@@ -27,9 +27,8 @@
 
 // Function to remove the unit from a CSS value
 // This is useful for mathematical operations on CSS values
-@function stripUnit($value) {
-  // Divides the value by itself (multiplied by 0 plus 1) to effectively strip units
-  @return math.div($value, $value * 0 + 1);
+@function strip-unit($value) {
+  @return math.div($value, ($value * 0 + 1));
 }
 
 // Mixin to create a fluid property based on viewport width
@@ -137,7 +136,7 @@
   @return math.div($px, 16px) * 1rem;
 }
 
-// Round to optional number of decimal places
+// Round to optional decimal places
 @function rnd($number, $places: 0) {
   $n: 1;
   @if $places > 0 {
@@ -148,20 +147,21 @@
   @return math.div(math.round($number * $n), $n);
 }
 
-// Generate a variable reference like var(--fluid-percent-360-1280)
+// Generate variable reference like var(--fluid-percent-360-1440)
 @function percent-var($min, $max) {
-  @return string.unquote("var(--fluid-percent-#{$min}-#{$max})");
+  $min-unitless: strip-unit($min);
+  $max-unitless: strip-unit($max);
+  @return string.unquote(
+    "var(--fluid-percent-#{$min-unitless}-#{$max-unitless})"
+  );
 }
 
-// Mixin that applies fluid interpolation using CSS custom property
+// Main mixin
 @mixin fluidCSSVar($property, $min-px, $max-px, $min-vw: 320, $max-vw: 1600) {
   $min-rem: rnd(to-rems($min-px), 4);
   $max-rem: rnd(to-rems($max-px), 4);
   $range: rnd($max-rem - $min-rem, 4);
-  $percent-var: percent-var(
-    $min-vw,
-    $max-vw
-  ); // This now uses the viewport range
+  $percent-var: percent-var($min-vw, $max-vw);
 
   #{$property}: calc(#{$min-rem} + #{$range} * #{$percent-var});
 }
