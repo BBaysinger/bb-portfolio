@@ -13,10 +13,10 @@
   align-items: left;
   filter: blur(12px);
 
-  @include fluidProperty(margin-top, $b320px, $b768px, 46px, 60px);
-  @include fluidProperty(margin-bottom, $b320px, $b768px, 30px, 46px);
-  @include fluidProperty(width, $b320px, $b768px, 240px, 330px);
-  @include fluidProperty(height, $b320px, $b768px, 50px, 65px);
+  @include fluidCSSVar(margin-top, 46px, 60px, $b320, $b768);
+  @include fluidCSSVar(margin-bottom, 30px, 46px, $b320, $b768);
+  @include fluidCSSVar(width, 240px, 330px, $b320, $b768);
+  @include fluidCSSVar(height, 50px, 65px, $b320, $b768);
 
   @include breakpointUp($b768px) {
     margin-left: 0;
