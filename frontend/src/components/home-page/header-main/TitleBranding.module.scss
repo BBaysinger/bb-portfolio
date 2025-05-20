@@ -8,7 +8,7 @@
   width: 100vw;
   z-index: 100;
   user-select: none;
-  padding: 16px;
+  padding: $headerPadding;
   pointer-events: none;
   max-width: 85vw;
 
@@ -21,7 +21,7 @@
     color: #fff;
     margin-bottom: 0;
     font-weight: 400; // Before fonts load.
-    @include remScaler(font-size, 20px, 38px);
+    @include remRange(font-size, 20px, 38px);
     > * {
       line-height: 0.7em;
     }
@@ -29,9 +29,11 @@
 }
 
 .logoWrapper {
+  margin-left: 2px; // Not sure why.
   display: inline-block;
   margin-bottom: -1px;
-  @include remScaler(width, 64px, 60px);
+  @include fluidProperty(width, $b320px, $b768px, 40px, 60px);
+  @include fluidProperty(min-width, $b320px, $b768px, 40px, 60px);
   & > * {
     // Offset baked-in shadow
     margin-left: -31.5%;
@@ -53,15 +55,15 @@
 }
 
 .title {
-  @include remScaler(font-size, 5px, 23px);
+  @include remRange(font-size, 5px, 23px);
 }
 
 .barberPole {
   border-radius: 5px;
-  @include remScaler(width, 16px, 16px);
-  @include remScaler(height, 16px, 16px);
-  @include remScaler(margin-left, 10px, 12px);
-  @include remScaler(margin-right, 10px, 12px);
+  @include remRange(width, 16px, 16px);
+  @include remRange(height, 16px, 16px);
+  @include remRange(margin-left, 10px, 12px);
+  @include remRange(margin-right, 10px, 12px);
 
   > * {
     animation-play-state: paused;
@@ -75,6 +77,6 @@
 }
 
 .barberPole1 {
-  @include remScaler(width, 16px, 27px);
-  @include remScaler(height, 16px, 27px);
+  @include remRange(width, 16px, 27px);
+  @include remRange(height, 16px, 27px);
 }

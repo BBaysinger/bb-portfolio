@@ -7,8 +7,8 @@
   box-sizing: border-box;
   z-index: 0;
 
-  @include remScaler("margin-top", -115px, 0px, $b320, 680);
-  @include remScaler("margin-bottom", -115px, 0px, $b320, 680);
+  @include remRange("margin-top", -115px, 0px, $b320, 680);
+  @include remRange("margin-bottom", -115px, 0px, $b320, 680);
 }
 
 .slideLayer {

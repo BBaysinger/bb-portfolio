@@ -2,7 +2,7 @@
 @use "@/styles/variables" as *;
 
 $offset: 0;
-$thickness: 16px;
+$thickness: $headerPadding;
 
 .borderBlinker {
   position: absolute;

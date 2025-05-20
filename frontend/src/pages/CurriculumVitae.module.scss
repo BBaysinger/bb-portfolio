@@ -78,8 +78,8 @@ img.cvLogo {
   margin-bottom: 40px;
   margin-left: auto;
   margin-right: auto;
-  @include remScaler(height, 120px, 130px, $b360);
-  @include remScaler(max-width, 130px, 140px, $b360, $b1440);
+  @include remRange(height, 120px, 130px, $b360);
+  @include remRange(max-width, 130px, 140px, $b360, $b1440);
 
   @include breakpointUp($b768px) {
     position: relative;
@@ -201,9 +201,9 @@ img.cvLogo {
 
 :global {
   .cvPage .container {
-    @include remScaler(margin-bottom, 50px, 90px, $b360, $b1280);
+    @include remRange(margin-bottom, 50px, 90px, $b360, $b1280);
   }
   .cvPage h4 {
-    @include remScaler(margin-bottom, 28px, 80px, $b360, $b1280);
+    @include remRange(margin-bottom, 28px, 80px, $b360, $b1280);
   }
 }

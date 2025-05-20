@@ -125,8 +125,8 @@
 /// @param $max-vw - The maximum viewport width (default: $b1600)
 ///
 /// @example
-/// @include remScaler(font-size, 16px, 48px, 360, 1440);
-@mixin remScaler($property, $min-px, $max-px, $min-vw: $b320, $max-vw: $b1600) {
+/// @include remRange(font-size, 16px, 48px, 360, 1440);
+@mixin remRange($property, $min-px, $max-px, $min-vw: $b320, $max-vw: $b1600) {
   $min-rem: rnd(to-rems($min-px), 4);
   $max-rem: rnd(to-rems($max-px), 4);
   $range: rnd($max-rem - $min-rem, 4);
@@ -151,37 +151,49 @@
 /// @example
 /// @include rangeStatic(letter-spacing, 0.02em, 0.12em, 360, 1440);
 /// @include rangeStatic(width, 120px, 360px); // defaults to 320–1600px viewport
-@mixin staticRange(
-  $property,
-  $min-px,
-  $max-px,
-  $min-vw: $b320,
-  $max-vw: $b1600
-) {
-  $min-unitless-vw: strip-unit($min-vw);
-  $max-unitless-vw: strip-unit($max-vw);
-  $min-unit: math.unit($min-px);
-  $max-unit: math.unit($max-px);
+@mixin fluidProperty($property, $min-vw, $max-vw, $min-value, $max-value) {
+  // Extract units to ensure consistency for calculations
+  $unit-min-vw: math.unit($min-vw);
+  $unit-max-vw: math.unit($max-vw);
+  $unit-min-value: math.unit($min-value);
+  $unit-max-value: math.unit($max-value);
 
-  @if $min-unit != $max-unit {
-    @error "Units must match for $property: got #{$min-unit} and #{$max-unit}";
+  // Ensure the viewport breakpoint units match
+  @if $unit-min-vw != $unit-max-vw {
+    @error "Viewport breakpoint units ($unit-min-vw, $unit-max-vw) must match!";
   }
 
+  // Ensure value units are consistent
+  @if $unit-min-value != $unit-max-value {
+    @error "Property value units ($unit-min-value, $unit-max-value) must match!";
+  }
+
+  // Set the default (fallback) value for small screens
   & {
-    #{$property}: $min-px;
+    #{$property}: $min-value;
   }
 
-  @media screen and (min-width: #{$min-unitless-vw}px) {
+  // Set the fluid value between the breakpoints
+  @media screen and (min-width: $min-vw) {
     #{$property}: calc(
-      #{$min-px} + #{strip-unit($max-px - $min-px)}#{$min-unit} *
+      #{$min-value} +
         (
-          (100vw - #{$min-unitless-vw}px) /
-            #{strip-unit($max-unitless-vw - $min-unitless-vw)}
+          #{stripUnit($max-value - $min-value)} *
+            ((100vw - #{$min-vw}) / #{stripUnit($max-vw - $min-vw)})
         )
     );
   }
 
-  @media screen and (min-width: #{$max-unitless-vw}px) {
-    #{$property}: $max-px;
+  // Set the maximum value explicitly for large screens
+  @media screen and (min-width: $max-vw) {
+    #{$property}: $max-value;
   }
 }
+
+// Function to remove the unit from a CSS value
+// This is useful for mathematical operations on CSS values
+@function stripUnit($value) {
+  // Divides the value by itself (multiplied by 0 plus 1) to effectively strip units
+  @return math.div($value, $value * 0 + 1);
+}
+
