@@ -11,6 +11,7 @@ import BorderBlinker, { Side } from "./BorderBlinker";
 import { Direction } from "./fluxel-grid/useFluxelProjectiles";
 import styles from "./Hero.module.scss";
 import ChargedCircle from "components/home-page/header-main/ChargedCircle";
+import useTimeOfDay from "hooks/useTimeOfDay";
 import TitleBranding from "./TitleBranding";
 
 const quotes = [
@@ -59,7 +60,7 @@ const Hero: React.FC = () => {
 
   const hasCalledFirstIdleAction = useRef(false);
   const idleCount = useRef(0);
-
+  const timeOfDay = useTimeOfDay();
   const hasScrolledOut = useScrollPersistedClass(id);
 
   const setHasDragged = useCallback((value: boolean) => {
@@ -194,12 +195,6 @@ const Hero: React.FC = () => {
           </SlingerBox>
         </div>
 
-        <ParagraphAnimator
-          introMessage={`Welcome to this experimental portfolio website. Grab the orb and give it a toss for fun surprises!`}
-          paragraphs={quotes}
-          className={styles.message}
-        />
-
         <div className={styles.scrollCtaWrapper}>
           <a href="#hello" className={styles.scrollCta}>
             <div className={styles.scrollCtaInner}>Say hello!</div>
@@ -207,6 +202,14 @@ const Hero: React.FC = () => {
         </div>
       </div>
       <TitleBranding className={styles.titleBranding} />
+      <ParagraphAnimator
+        introMessage={[
+          `Good ${timeOfDay}`,
+          `. This is a tactile UI Experiment. Grab the orb and give it a toss for fun surprises!`,
+        ].join("")}
+        paragraphs={quotes}
+        className={styles.message}
+      />
     </header>
   );
 };

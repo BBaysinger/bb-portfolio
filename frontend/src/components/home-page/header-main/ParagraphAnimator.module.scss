@@ -3,6 +3,8 @@
 
 .paragraphAnimator {
   position: absolute;
+  top: 0;
+  left: 0;
   left: var(--hero-padding);
   transform-origin: top left;
   transform: rotate(-90deg);
@@ -11,7 +13,8 @@
   opacity: 1;
   transition: opacity 0.5s ease-in-out;
   @include remRange(font-size, 14px, 18px);
-  @include staticRange(width, 85dvh, 81dvh, $b320px, $b768px);
+  @include staticRange(width, 84.2dvh, 81dvh, $b320px, $b768px);
+  @include staticRange(top, 86.2dvh, 81dvh, $b320px, $b768px);
   @include staticRange(bottom, 53px, 85px, $b320px, $b768px);
 
   &.paused {
@@ -19,7 +22,6 @@
   }
 
   p {
-    margin-top: -3px;
     color: rgba(255, 255, 255, 0);
     span {
       color: rgba(255, 255, 255, 0.8);

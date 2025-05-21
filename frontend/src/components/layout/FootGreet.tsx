@@ -1,24 +1,8 @@
-import { useState, useEffect } from "react";
-
+import useTimeOfDay from "hooks/useTimeOfDay";
 import styles from "./FootGreet.module.scss";
 
-const getGreeting = (): string => {
-  const hour = new Date().getHours();
-  if (hour < 12) return "Good morning";
-  if (hour < 18) return "Good afternoon";
-  return "Good evening";
-};
-
 const FootGreet: React.FC<{ className: string }> = ({ className }) => {
-  const [greeting, setGreeting] = useState(getGreeting());
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setGreeting(getGreeting());
-    }, 60000); // Update every minute in case the time of day changes.
-
-    return () => clearInterval(interval);
-  }, []);
+  const currentTimeOfDay = useTimeOfDay(); // live value from the hook
 
   return (
     <>
@@ -28,9 +12,10 @@ const FootGreet: React.FC<{ className: string }> = ({ className }) => {
           className={`img-responsive ${styles.footerPhoto}`}
           alt="Bradley's face"
         />
-        {greeting}, and thanks for stopping by! I'll be honest—this space is an
-        experiment in progress, and I hope it always stays that way. Some things
-        might seem a bit mysterious, but give it time and check back later!
+        Good {currentTimeOfDay}, and thanks for stopping by! I'll be honest—this
+        space is an experiment in progress, and I hope it always stays that way.
+        Some things might seem a bit mysterious, but give it time and check back
+        later!
       </p>
       <p>
         Anyhow, I'm always looking to collaborate with forward-thinking teams
