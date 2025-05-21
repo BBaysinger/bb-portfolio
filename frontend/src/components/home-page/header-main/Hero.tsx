@@ -205,7 +205,7 @@ const Hero: React.FC = () => {
       <ParagraphAnimator
         introMessage={[
           `Good ${timeOfDay}`,
-          `. This is a tactile UI Experiment. Grab the orb and give it a toss for fun surprises!`,
+          `. This is a kinetic UI Experiment. Grab the orb and give it a toss for fun surprises!`,
         ].join("")}
         paragraphs={quotes}
         className={styles.message}
