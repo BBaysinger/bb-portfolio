@@ -3,32 +3,45 @@
 
 .titleBranding {
   position: absolute;
-  left: 0;
-  bottom: 0;
+  display: flex;
+  align-items: bottom;
+  justify-content: bottom;
+  left: var(--hero-padding);
+  bottom: var(--hero-padding);
   width: 100vw;
   z-index: 100;
   user-select: none;
-  padding: var(--hero-padding);
   pointer-events: none;
   max-width: 85vw;
   color: white;
-  display: flex;
   grid-gap: 12px;
+  padding-top: 0;
 
   h1 {
-    display: flex;
-    flex-direction: row;
-    align-items: flex-end;
+    margin-top: 0;
+    line-height: 0.55em;
     letter-spacing: 0.07em;
     margin-left: -0.05em;
     color: #fff;
-    margin-bottom: 0;
+    margin-bottom: 0.5em;
     font-weight: 400; // Before fonts load.
-    @include remRange(font-size, 25px, 40px);
-    > * {
-      line-height: 0.7em;
+    @include remRange(font-size, 26px, 40px, $b320px, $b768px);
+    @media screen and (min-width: $b768) {
+      @include remRange(font-size, 40px, 40px, $b768);
     }
   }
+}
+
+.hWrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  margin-bottom: -2px;
+}
+
+.title {
+  line-height: 0.9em;
+  @include remRange(font-size, 12px, 23px);
 }
 
 .logoWrapper {
@@ -42,6 +55,7 @@
     margin-left: -31.5%;
     margin-right: -30%;
     margin-bottom: -32.5%;
+    margin-top: -30%;
   }
 }
 
@@ -55,10 +69,6 @@
 
 .firstName {
   color: #999;
-}
-
-.title {
-  @include remRange(font-size, 12px, 23px);
 }
 
 .barberPole {

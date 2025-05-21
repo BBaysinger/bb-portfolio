@@ -16,18 +16,18 @@ const TitleBranding: React.FC<TitleBrandingProps> = ({ className = "" }) => {
           <img src={headerLogo} className={styles.heroLogo} alt="BB Logo" />
         </div>
       </span>
-      <span>
+      <span className={styles.hWrapper}>
         <BarberPole
           className={[styles.barberPole, styles.barberPole1].join(" ")}
         />
         <h1>
-          <span className={styles.firstName}>Bradley</span>&nbsp;{" "}
-          <span className={styles.lastName}>Baysinger</span>
+          <div className={styles.firstName}>Bradley</div>&nbsp;{" "}
+          <div className={styles.lastName}>Baysinger</div>
         </h1>
         <BarberPole
           className={[styles.barberPole, styles.barberPole2].join(" ")}
         />
-        <span className={styles.title}>Interactive Front-end Developer</span>
+        <div className={styles.title}>Interactive Front-end Developer</div>
       </span>
     </div>
   );
