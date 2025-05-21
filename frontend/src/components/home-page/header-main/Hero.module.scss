@@ -14,7 +14,7 @@ header.hero {
   user-select: none;
   z-index: 10;
   overflow: hidden;
-  @include staticRange(--hero-padding, 10px, 18px, $b320px, $b576px);
+  @include staticRange(--hero-padding, 10px, 18px, $b320, $b576);
 
   &::before {
     content: "";

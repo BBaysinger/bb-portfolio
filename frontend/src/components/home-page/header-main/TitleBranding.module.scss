@@ -18,16 +18,23 @@
   padding-top: 0;
 
   h1 {
-    margin-top: 0;
-    line-height: 0.55em;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
     letter-spacing: 0.07em;
+    height: 100%;
     margin-left: -0.05em;
     color: #fff;
-    margin-bottom: 0.5em;
+    margin-bottom: 0em;
     font-weight: 400; // Before fonts load.
-    @include remRange(font-size, 26px, 40px, $b320px, $b768px);
+    @include remRange(font-size, 26px, 40px, $b320, $b768);
     @media screen and (min-width: $b768) {
       @include remRange(font-size, 40px, 40px, $b768);
+    }
+    & > * {
+      margin: 0;
+      padding: 0;
+      line-height: 0.9em;
     }
   }
 }
@@ -35,17 +42,17 @@
 .hWrapper {
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
+  justify-content: space-between;
   margin-bottom: -2px;
 }
 
 .title {
+  letter-spacing: 0.09em;
   line-height: 0.9em;
   @include remRange(font-size, 12px, 23px);
 }
 
 .logoWrapper {
-  margin-left: 2px; // Not sure why.
   display: inline-block;
   margin-bottom: -1px;
   @include staticRange(width, 40px, 60px, $b320px, $b768px);
