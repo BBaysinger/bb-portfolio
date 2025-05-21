@@ -11,6 +11,9 @@
   padding: var(--hero-padding);
   pointer-events: none;
   max-width: 85vw;
+  color: white;
+  display: flex;
+  grid-gap: 12px;
 
   h1 {
     display: flex;
@@ -21,7 +24,7 @@
     color: #fff;
     margin-bottom: 0;
     font-weight: 400; // Before fonts load.
-    @include remRange(font-size, 20px, 38px);
+    @include remRange(font-size, 25px, 40px);
     > * {
       line-height: 0.7em;
     }
@@ -55,10 +58,12 @@
 }
 
 .title {
-  @include remRange(font-size, 5px, 23px);
+  @include remRange(font-size, 10px, 23px);
 }
 
 .barberPole {
+  display: none;
+
   border-radius: 5px;
   @include remRange(width, 16px, 16px);
   @include remRange(height, 16px, 16px);
@@ -73,6 +78,9 @@
     > * {
       animation-play-state: running !important;
     }
+  }
+  @include breakpointUp($b768px) {
+    display: block;
   }
 }
 
