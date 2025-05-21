@@ -3,7 +3,6 @@
 
 header.hero {
   visibility: visible;
-  position: fixed;
   display: flex;
   flex-direction: column;
   position: relative;
@@ -129,6 +128,7 @@ a.scrollCta {
   }
 
   .hasSlung & {
+    // TODO:
   }
 
   .hasScrolledOut & {
