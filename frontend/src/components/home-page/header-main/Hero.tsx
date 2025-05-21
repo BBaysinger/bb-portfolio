@@ -202,7 +202,7 @@ const Hero: React.FC = () => {
 
         <div className={styles.scrollCtaWrapper}>
           <a href="#hello" className={styles.scrollCta}>
-            <div className={styles.scrollCtaText}>Say hello!</div>
+            <div className={styles.scrollCtaInner}>Say hello!</div>
           </a>
         </div>
       </div>
