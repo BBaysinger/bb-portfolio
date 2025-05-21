@@ -29,8 +29,6 @@ header.hero {
     background-repeat: no-repeat;
     background-position: top center;
     background-size: cover;
-    // background-image: url("/images/fortune-tellers/teller-1.webp");
-    // animation: fadeInOut 3s infinite ease-in-out;
   }
 
   @keyframes fadeInOut {
@@ -98,79 +96,80 @@ header.hero {
   z-index: 10000;
 }
 
-$scrollCtaOffset: -100px;
-
-.hasSlung .scrollCta {
-  right: 30px;
-}
-
-.hasScrolledOut .scrollCta {
-  transition-delay: 0s;
-  right: $scrollCtaOffset;
-  animation-play-state: paused;
-}
-
 // Only for scaling.
 .scrollCtaWrapper {
   position: absolute;
-  bottom: 0;
-  right: 0;
-  transform: scale(0.8);
+  bottom: var(--hero-padding);
+  right: var(--hero-padding);
   z-index: 10000;
-  @include breakpointUp($b768px) {
-    transform: scale(1);
-  }
+  width: 1px;
+  height: 1px;
+  @include remRange(font-size, 18px, 25px);
 }
 
-.scrollCta {
+a.scrollCta {
   position: absolute;
-  bottom: 10px;
-  right: $scrollCtaOffset;
+  bottom: 0;
+  right: 0;
   color: #fff;
-  height: 250px;
-  width: 76px;
   transition: right 0.8s;
   transition-delay: 2s;
   animation: fadeBounce 2.5s infinite forwards;
-  background-repeat: no-repeat;
-  background-size: 100% 100%;
-  background-image: url("/images/home/orange-arrow.webp");
   animation-play-state: paused;
+  rotate: -90deg;
+  transform-origin: bottom right;
+  text-decoration: none;
+  text-wrap: nowrap;
+  color: #000;
+  font-weight: 700;
   :global(.isSlingerIdle) & {
     animation-play-state: running !important;
   }
+
   :global(.notSlingerIdle) & {
     opacity: 1 !important;
+  }
+
+  .hasSlung & {
+  }
+
+  .hasScrolledOut & {
+    transition-delay: 0s;
+    animation-play-state: paused;
   }
 }
 
 @keyframes fadeBounce {
   0% {
     opacity: 0.25;
-    transform: translateY(-10px);
+    transform: translateX(110%);
   }
   50% {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateX(100%);
   }
   100% {
     opacity: 0.25;
-    transform: translateY(-10px);
+    transform: translateX(110%);
   }
 }
 
-.scrollCtaText {
-  position: absolute;
+.scrollCtaInner {
+  margin-left: -0.57em;
+  aspect-ratio: 500/152;
+  height: 2.9em;
+  padding-top: 1.14em;
+  padding-left: 2.8em;
+  margin-top: -0.8em;
+  margin-right: -0.19em;
+  margin-bottom: -0.26em;
+  z-index: -1;
   display: block;
-  left: 37px;
-  top: 185px;
-  transform-origin: 0 0;
-  transform: rotate(-90deg);
-  font-size: 25px;
-  font-weight: 700;
   letter-spacing: 0.01em;
-  width: max-content;
-  color: #000;
+  pointer-events: none;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  background-image: url("/images/home/orange-arrow.webp");
 }
 
 .debug {

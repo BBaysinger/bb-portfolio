@@ -58,7 +58,7 @@
 }
 
 .title {
-  @include remRange(font-size, 10px, 23px);
+  @include remRange(font-size, 12px, 23px);
 }
 
 .barberPole {
