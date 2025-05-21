@@ -1,6 +1,7 @@
 @use "sass:math";
 @use "sass:map";
 @use "sass:string";
+@use "sass:meta";
 @use "@/styles/variables" as *;
 
 //////////////////////////////////////////////////////////////////////////
@@ -34,8 +35,29 @@
 //////////////////////////////////////////////////////////////////////////
 
 /// Removes the unit from a numeric CSS value for use in calculations
-@function strip-unit($value) {
-  @return math.div($value, ($value * 0 + 1));
+@function stripUnit($value) {
+  @return math.div($value, $value * 0 + 1);
+}
+
+/// Ensures a value has a specific unit
+@function ensureUnit($value, $unit) {
+  @if meta.type-of($value) != "number" {
+    @error "ensureUnit() expected a number, got: #{meta.inspect($value)}";
+  }
+
+  @if not math.is-unitless($value) {
+    @return $value; // already has a unit
+  }
+
+  @if $unit == "px" {
+    @return $value * 1px;
+  } @else if $unit == "vw" {
+    @return $value * 1vw;
+  } @else if $unit == "rem" {
+    @return $value * 1rem;
+  } @else {
+    @error "Unknown unit passed to ensureUnit(): `#{$unit}`";
+  }
 }
 
 /// Converts pixel values to rems
@@ -108,10 +130,10 @@
 
 /// Generates a CSS variable reference like var(--fluid-percent-360-1440)
 @function percent-var($min, $max) {
-  $min-unitless: strip-unit($min);
-  $max-unitless: strip-unit($max);
+  $min-stripped: stripUnit($min);
+  $max-stripped: stripUnit($max);
   @return string.unquote(
-    "var(--fluid-percent-#{$min-unitless}-#{$max-unitless})"
+    "var(--fluid-percent-#{$min-stripped}-#{$max-stripped})"
   );
 }
 
@@ -152,28 +174,37 @@
 /// @include rangeStatic(letter-spacing, 0.02em, 0.12em, 360, 1440);
 /// @include rangeStatic(width, 120px, 360px); // defaults to 320–1600px viewport
 @mixin staticRange($property, $min-value, $max-value, $min-vw, $max-vw) {
-  // Extract units to ensure consistency for calculations
+  // Normalize viewports first — allow unitless values like 320 → 320px
+  $min-vw: ensureUnit($min-vw, "px");
+  $max-vw: ensureUnit($max-vw, "px");
+
+  // Normalize value units (still allow unitless values if needed — optional!)
+  $min-value: ensureUnit(
+    $min-value,
+    math.unit($max-value)
+  ); // allow mixing unitless with unit
+  $max-value: ensureUnit($max-value, math.unit($min-value)); // same here
+
+  // Extract units for validation
   $unit-min-vw: math.unit($min-vw);
   $unit-max-vw: math.unit($max-vw);
   $unit-min-value: math.unit($min-value);
   $unit-max-value: math.unit($max-value);
 
-  // Ensure the viewport breakpoint units match
+  // Ensure consistent units
   @if $unit-min-vw != $unit-max-vw {
-    @error "Viewport breakpoint units ($unit-min-vw, $unit-max-vw) must match!";
+    @error "Viewport units must match. Got: #{$unit-min-vw} and #{$unit-max-vw}";
   }
-
-  // Ensure value units are consistent
   @if $unit-min-value != $unit-max-value {
-    @error "Property value units ($unit-min-value, $unit-max-value) must match!";
+    @error "Value units must match. Got: #{$unit-min-value} and #{$unit-max-value}";
   }
 
-  // Set the default (fallback) value for small screens
+  // Set the base value
   & {
     #{$property}: $min-value;
   }
 
-  // Set the fluid value between the breakpoints
+  // Interpolate between min and max across the viewport range
   @media screen and (min-width: $min-vw) {
     #{$property}: calc(
       #{$min-value} +
@@ -184,15 +215,8 @@
     );
   }
 
-  // Set the maximum value explicitly for large screens
+  // Set the maximum value explicitly
   @media screen and (min-width: $max-vw) {
     #{$property}: $max-value;
   }
-}
-
-// Function to remove the unit from a CSS value
-// This is useful for mathematical operations on CSS values
-@function stripUnit($value) {
-  // Divides the value by itself (multiplied by 0 plus 1) to effectively strip units
-  @return math.div($value, $value * 0 + 1);
 }
