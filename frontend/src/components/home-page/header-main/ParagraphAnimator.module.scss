@@ -11,7 +11,7 @@
   opacity: 1;
   transition: opacity 0.5s ease-in-out;
   @include remRange(font-size, 14px, 18px);
-  @include staticRange(width, 86vh, 81vh, $b320px, $b768px);
+  @include staticRange(width, 85dvh, 81dvh, $b320px, $b768px);
   @include staticRange(bottom, 53px, 85px, $b320px, $b768px);
 
   &.paused {
@@ -22,7 +22,7 @@
     margin-top: -3px;
     color: rgba(255, 255, 255, 0);
     span {
-      color: rgba(255, 255, 255, 0.4);
+      color: rgba(255, 255, 255, 0.8);
     }
   }
 }
