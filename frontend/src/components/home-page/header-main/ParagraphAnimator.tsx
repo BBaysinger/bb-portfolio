@@ -13,6 +13,7 @@ interface ParagraphAnimatorProps {
   className?: string;
   paused?: boolean;
   introMessage?: string;
+  style?: React.CSSProperties;
 }
 
 const shuffleArray = (array: number[]) => {
@@ -27,6 +28,7 @@ const ParagraphAnimator: React.FC<ParagraphAnimatorProps> = ({
   className,
   paused = false,
   introMessage,
+  style,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const tl = useRef<gsap.core.Timeline | null>(null);
@@ -124,6 +126,7 @@ const ParagraphAnimator: React.FC<ParagraphAnimatorProps> = ({
     <div
       ref={containerRef}
       className={`${styles.paragraphAnimator} ${className} ${paused ? styles.paused : ""}`}
+      style={{ ...style }}
     >
       <p>
         <span />
