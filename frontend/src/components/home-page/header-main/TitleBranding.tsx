@@ -17,17 +17,17 @@ const TitleBranding = forwardRef<HTMLDivElement, TitleBrandingProps>(
           </div>
         </span>
         <span className={styles.hWrapper}>
-          <BarberPole
-            className={[styles.barberPole, styles.barberPole1].join(" ")}
-          />
           <h1>
+            <BarberPole
+              className={[styles.barberPole, styles.barberPole1].join(" ")}
+            />
             <div className={styles.firstName}>Bradley</div>{" "}
             <div className={styles.lastName}>Baysinger</div>
+            <BarberPole
+              className={[styles.barberPole, styles.barberPole2].join(" ")}
+            />
             <div className={styles.title}>Interactive Front-end Developer</div>
           </h1>
-          <BarberPole
-            className={[styles.barberPole, styles.barberPole2].join(" ")}
-          />
         </span>
       </div>
     );
