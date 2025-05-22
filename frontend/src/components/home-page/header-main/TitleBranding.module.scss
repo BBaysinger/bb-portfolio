@@ -28,13 +28,16 @@
     margin-bottom: 0em;
     font-weight: 400; // Before fonts load.
     @include remRange(font-size, 26px, 40px, $b320, $b768);
-    @media screen and (min-width: $b768) {
-      @include remRange(font-size, 40px, 40px, $b768);
+    @include breakpointUp($b992px) {
+      flex-direction: row;
+      justify-content: flex-end;
+      align-items: flex-end;
+      line-height: 0.69em;
     }
     & > * {
-      margin: 0;
-      padding: 0;
-      line-height: 0.9em;
+      @include breakpointUp($b992px) {
+        display: inline-block;
+      }
     }
   }
 }
@@ -43,13 +46,21 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  margin-bottom: -2px;
+  // margin-bottom: -2px;
+  @include breakpointUp($b992px) {
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: flex-end;
+  }
 }
 
 .title {
   letter-spacing: 0.09em;
   line-height: 0.9em;
   @include remRange(font-size, 12px, 23px);
+  @include breakpointUp($b992px) {
+    line-height: 0.69em;
+  }
 }
 
 .logoWrapper {
@@ -80,7 +91,6 @@
 
 .barberPole {
   display: none;
-
   border-radius: 5px;
   @include remRange(width, 16px, 16px);
   @include remRange(height, 16px, 16px);
@@ -96,7 +106,7 @@
       animation-play-state: running !important;
     }
   }
-  @include breakpointUp($b768px) {
+  @include breakpointUp($b992px) {
     display: block;
   }
 }
