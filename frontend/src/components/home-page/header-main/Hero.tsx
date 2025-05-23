@@ -47,6 +47,7 @@ const Hero: React.FC = () => {
   const initialRows = 12;
   const initialCols = 16;
   const slingerRef = useRef<SlingerBoxHandle>(null);
+  const usePointerTracking = false; // ← or false to test pointer tracking
 
   // State
   const [highlightSides, setHighlightSides] = useState<Side[]>([]);
@@ -150,13 +151,14 @@ const Hero: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    if (usePointerTracking) return;
+
     let animationFrameId: number;
 
     const animate = () => {
       const pos = slingerRef.current?.getSlingerPosition?.();
-
       if (pos) {
-        gridControllerRef.current?.applyPointerPosition(pos.x, pos.y);
+        gridControllerRef.current?.applyFluxPosition(pos.x, pos.y);
       }
 
       animationFrameId = requestAnimationFrame(animate);
@@ -164,7 +166,7 @@ const Hero: React.FC = () => {
 
     animationFrameId = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(animationFrameId);
-  }, []);
+  }, [usePointerTracking]);
 
   return (
     <header
@@ -191,7 +193,7 @@ const Hero: React.FC = () => {
     >
       <div>
         <GridController
-          usePointerTracking={false}
+          usePointerTracking={usePointerTracking}
           className={styles.gridController}
           ref={gridControllerRef}
           rows={initialRows}
