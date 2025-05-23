@@ -47,7 +47,7 @@ const Hero: React.FC = () => {
   const initialRows = 12;
   const initialCols = 16;
   const slingerRef = useRef<SlingerBoxHandle>(null);
-  const usePointerTracking = false; // ← or false to test pointer tracking
+  const usePointerTracking = true; // ← or false to test pointer tracking
 
   // State
   const [highlightSides, setHighlightSides] = useState<Side[]>([]);
