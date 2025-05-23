@@ -1,11 +1,11 @@
-import React, { useState, useCallback, useRef } from "react";
+import React, { useState, useCallback, useRef, useEffect } from "react";
 
 import { useResizeObserverHeight } from "hooks/useResizeObserverHeight";
 import useClientDimensions from "hooks/useClientDimensions";
 import GridController, {
   GridControllerHandle,
 } from "./fluxel-grid/GridController";
-import SlingerBox from "./SlingerBox";
+import SlingerBox, { SlingerBoxHandle } from "./SlingerBox";
 import ParagraphAnimator from "./ParagraphAnimator";
 import useScrollPersistedClass from "hooks/useScrollPersistedClass";
 import BorderBlinker, { Side } from "./BorderBlinker";
@@ -42,29 +42,37 @@ const quotes = [
  * @version N/A
  */
 const Hero: React.FC = () => {
+  // Constants
   const id = "hero";
+  const initialRows = 12;
+  const initialCols = 16;
+  const slingerRef = useRef<SlingerBoxHandle>(null);
 
+  // State
   const [highlightSides, setHighlightSides] = useState<Side[]>([]);
   const [isSlingerIdle, setIsSlingerIdle] = useState(false);
-
+  const [hasSlung, setHasSlung] = useState(false);
   const [_slingerPos, setSlingerPos] = useState<
     { x: number; y: number } | null | undefined
   >(undefined);
   const [hasDragged, _setHasDragged] = useState<boolean>(
     () => sessionStorage.getItem("hasDragged") === "true",
   );
-  // To apply display: none to the Slinger CTA.
   const [hasDraggedDelay, setHasDraggedDelay] = useState(
     () => sessionStorage.getItem("hasDragged") === "true",
   );
-  const [hasSlung, setHasSlung] = useState(false);
 
+  // Refs
   const hasCalledFirstIdleAction = useRef(false);
   const idleCount = useRef(0);
   const timeOfDay = useTimeOfDay();
   const hasScrolledOut = useScrollPersistedClass(id);
   const titleRef = useRef<HTMLDivElement>(null);
   const titleHeight = useResizeObserverHeight(titleRef);
+  const slingerIsIdle = useRef(false);
+  const gridControllerRef = useRef<GridControllerHandle>(null);
+  const heroRef = useRef<HTMLDivElement>(null);
+  const { clientHeight, clientWidth } = useClientDimensions();
 
   const setHasDragged = useCallback((value: boolean) => {
     sessionStorage.setItem("hasDragged", value ? "true" : "false");
@@ -73,15 +81,6 @@ const Hero: React.FC = () => {
       setHasDraggedDelay(value);
     }, 1000);
   }, []);
-
-  const slingerIsIdle = useRef(false);
-  const gridControllerRef = useRef<GridControllerHandle>(null);
-  const heroRef = useRef<HTMLDivElement>(null);
-
-  const initialRows = 12;
-  const initialCols = 16;
-
-  const { clientHeight, clientWidth } = useClientDimensions();
 
   const onSlingerDragStart = useCallback(
     (x: number, y: number, e: MouseEvent | TouchEvent) => {
@@ -150,6 +149,23 @@ const Hero: React.FC = () => {
     }
   }, []);
 
+  useEffect(() => {
+    let animationFrameId: number;
+
+    const animate = () => {
+      const pos = slingerRef.current?.getSlingerPosition?.();
+
+      if (pos) {
+        gridControllerRef.current?.applyPointerPosition(pos.x, pos.y);
+      }
+
+      animationFrameId = requestAnimationFrame(animate);
+    };
+
+    animationFrameId = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(animationFrameId);
+  }, []);
+
   return (
     <header
       id={id}
@@ -175,6 +191,7 @@ const Hero: React.FC = () => {
     >
       <div>
         <GridController
+          usePointerTracking={false}
           className={styles.gridController}
           ref={gridControllerRef}
           rows={initialRows}
@@ -188,11 +205,11 @@ const Hero: React.FC = () => {
         />
         <div className={styles.slingerWrapper}>
           <SlingerBox
+            ref={slingerRef}
             onDragStart={onSlingerDragStart}
             onDragEnd={onSlingerDragEnd}
             onWallCollision={onSlingerWallCollision}
             onIdle={onSlingerIdle}
-            // enablePointerGravity={10}
           >
             <ChargedCircle />
           </SlingerBox>

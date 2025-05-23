@@ -16,6 +16,7 @@ import styles from "./GridController.module.scss";
 
 export interface GridControllerHandle {
   launchProjectile: (x: number, y: number, direction: Direction) => void;
+  applyPointerPosition: (clientX: number, clientY: number) => void;
 }
 
 interface GridControllerProps {
@@ -24,6 +25,7 @@ interface GridControllerProps {
   viewableHeight: number;
   viewableWidth: number;
   className?: string;
+  usePointerTracking?: boolean; // <-- NEW
 }
 
 const FRAME_TIME = 1000 / 20;
@@ -39,7 +41,17 @@ const FRAME_TIME = 1000 / 20;
  * @version N/A
  */
 const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
-  ({ rows, cols, viewableHeight, viewableWidth, className }, ref) => {
+  (
+    {
+      rows,
+      cols,
+      viewableHeight,
+      viewableWidth,
+      className,
+      usePointerTracking = true,
+    },
+    ref,
+  ) => {
     const gridInstanceRef = useRef<FluxelGridHandle>(null);
     const wrapperRef = useRef<HTMLDivElement | null>(null);
 
@@ -84,7 +96,14 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
       setGridData,
     });
 
-    useImperativeHandle(ref, () => ({ launchProjectile }), [launchProjectile]);
+    useImperativeHandle(
+      ref,
+      () => ({
+        launchProjectile,
+        applyPointerPosition: applyPointerPosition, // <- call it with global coords
+      }),
+      [launchProjectile],
+    );
 
     /* ------------------------------------------------------------------ */
     /*  Pointer‑tracking effect                                           */
@@ -92,12 +111,23 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
 
     const lastFrameTime = useRef(0);
 
-    useEffect(() => {
-      let target = window;
+    const applyPointerPosition = (clientX: number, clientY: number) => {
+      const gridEl = gridInstanceRef.current?.getElement();
+      if (!gridEl) return;
 
-      if (!target) {
-        throw new Error("❌ mouseMoveTargetRef.current is null");
-      }
+      const now = performance.now();
+      if (now - lastFrameTime.current < FRAME_TIME) return;
+      lastFrameTime.current = now;
+
+      const rect = gridEl.getBoundingClientRect();
+      const localX = clientX - rect.left;
+      const localY = clientY - rect.top;
+
+      mousePosRef.current = { x: localX, y: localY };
+    };
+
+    useEffect(() => {
+      if (!usePointerTracking) return;
 
       const handleMove = (event: PointerEvent) => {
         const isTouchOnly =
@@ -108,38 +138,27 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
 
         if (isTouchOnly && !isSlingerTarget) return;
 
-        const gridEl = gridInstanceRef.current?.getElement();
-        if (!gridEl) return;
-
-        const now = performance.now();
-        if (now - lastFrameTime.current < FRAME_TIME) return;
-        lastFrameTime.current = now;
-
-        const rect = gridEl.getBoundingClientRect();
-        const localX = event.clientX - rect.left;
-        const localY = event.clientY - rect.top;
-
-        mousePosRef.current = { x: localX, y: localY };
+        applyPointerPosition(event.clientX, event.clientY);
       };
 
       const clearPos = () => {
         mousePosRef.current = null;
       };
 
-      target.addEventListener("pointerdown", handleMove);
-      target.addEventListener("pointermove", handleMove);
-      target.addEventListener("pointerleave", clearPos);
-      target.addEventListener("scroll", clearPos, { passive: true });
-      target.addEventListener("touchend", clearPos);
+      window.addEventListener("pointerdown", handleMove);
+      window.addEventListener("pointermove", handleMove);
+      window.addEventListener("pointerleave", clearPos);
+      window.addEventListener("scroll", clearPos, { passive: true });
+      window.addEventListener("touchend", clearPos);
 
       return () => {
-        target.removeEventListener("pointerdown", handleMove);
-        target.removeEventListener("pointermove", handleMove);
-        target.removeEventListener("pointerleave", clearPos);
-        target.removeEventListener("scroll", clearPos);
-        target.removeEventListener("touchend", clearPos);
+        window.removeEventListener("pointerdown", handleMove);
+        window.removeEventListener("pointermove", handleMove);
+        window.removeEventListener("pointerleave", clearPos);
+        window.removeEventListener("scroll", clearPos);
+        window.removeEventListener("touchend", clearPos);
       };
-    }, [viewableWidth, viewableHeight]);
+    }, [usePointerTracking, viewableWidth, viewableHeight]);
 
     /* ------------------------------------------------------------------ */
     /*  Render                                                            */
