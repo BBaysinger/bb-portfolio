@@ -1,4 +1,9 @@
-import React from "react";
+import React, {
+  useImperativeHandle,
+  useRef,
+  forwardRef,
+  useEffect,
+} from "react";
 
 import cornerShadow from "images/hero/corner-shadow.webp";
 import styles from "./Fluxel.module.scss";
@@ -28,55 +33,67 @@ export interface FluxelData {
  * @since The beginning of time.
  * @version N/A
  */
-const Fluxel: React.FC<{ data: FluxelData }> = ({ data }) => {
-  const transformStyle = {
-    "--base-color": `rgba(20, 20, 20, ${data.influence * 1.0 - 0.1})`,
-    "--overlay-color": data.colorVariation,
-  } as React.CSSProperties;
+export interface FluxelHandle {
+  updateInfluence: (influence: number, colorVariation?: string) => void;
+}
 
-  return (
-    <svg
-      className={styles.fluxel}
-      style={transformStyle}
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 72 72"
-    >
-      {/* Shadows */}
-      <image
-        opacity="0.5"
-        href={cornerShadow}
-        x={-34}
-        y={-110}
-        width="216"
-        height="216"
-        transform={`translate(${data.shadow1OffsetX}, ${data.shadow1OffsetY})`}
-      />
-      <image
-        opacity="0.25"
-        href={cornerShadow}
-        x={-100}
-        y={-185}
-        width="216"
-        height="216"
-        transform={`translate(${data.shadow2OffsetX}, ${data.shadow2OffsetY}) scale(-1, -1)`}
-      />
+const Fluxel = forwardRef<FluxelHandle, { data: FluxelData }>(
+  ({ data }, ref) => {
+    const elRef = useRef<SVGSVGElement>(null);
 
-      {/* Overlay color variation fill. This is the 'projectiles'. */}
-      <rect width="72" height="72" fill="var(--overlay-color)" />
-      {/* Debugging output. */}
-      {/* <text
-        x="36"
-        y="36"
-        fontSize="12"
-        fill="white"
-        textAnchor="middle"
-        dominantBaseline="middle"
+    // Initial props-driven style
+    useEffect(() => {
+      updateInfluence(data.influence, data.colorVariation);
+    }, [data]);
+
+    const updateInfluence = (influence: number, colorVariation?: string) => {
+      const el = elRef.current;
+      if (!el) return;
+
+      el.style.setProperty(
+        "--base-color",
+        `rgba(20, 20, 20, ${influence * 1.0 - 0.1})`,
+      );
+
+      if (colorVariation) {
+        el.style.setProperty("--overlay-color", colorVariation);
+      }
+    };
+
+    useImperativeHandle(ref, () => ({
+      updateInfluence,
+    }));
+
+    return (
+      <svg
+        ref={elRef}
+        className={styles.fluxel}
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 72 72"
       >
-        {data.shadow2OffsetX},{data.shadow2OffsetY}
-      </text> */}
-    </svg>
-  );
-};
+        <image
+          opacity="0.5"
+          href={cornerShadow}
+          x={-34}
+          y={-110}
+          width="216"
+          height="216"
+          transform={`translate(${data.shadow1OffsetX}, ${data.shadow1OffsetY})`}
+        />
+        <image
+          opacity="0.25"
+          href={cornerShadow}
+          x={-100}
+          y={-185}
+          width="216"
+          height="216"
+          transform={`translate(${data.shadow2OffsetX}, ${data.shadow2OffsetY}) scale(-1, -1)`}
+        />
+        <rect width="72" height="72" fill="var(--overlay-color)" />
+      </svg>
+    );
+  },
+);
 
 const round = (n: number) => +n.toFixed(2);
 
