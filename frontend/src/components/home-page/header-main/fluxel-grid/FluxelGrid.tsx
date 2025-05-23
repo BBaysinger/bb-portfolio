@@ -25,7 +25,7 @@ export interface FluxelGridHandle {
   getElement: () => HTMLDivElement | null;
   getFluxelSize: () => number;
   getGridData: () => FluxelData[][];
-  updateInfluenceAt?: (
+  trackPosition?: (
     row: number,
     col: number,
     influence: number,
@@ -150,7 +150,7 @@ const FluxelGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
         getGridData() {
           return gridDataRef.current;
         },
-        updateInfluenceAt(row, col, influence, color) {
+        trackPosition(row, col, influence, color) {
           if (!imperativeMode) return;
           const ref = fluxelRefs.current[row]?.[col];
           ref?.current?.updateInfluence(influence, color);

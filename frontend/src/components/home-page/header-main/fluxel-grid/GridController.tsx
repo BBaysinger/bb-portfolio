@@ -16,7 +16,7 @@ import styles from "./GridController.module.scss";
 
 export interface GridControllerHandle {
   launchProjectile: (x: number, y: number, direction: Direction) => void;
-  applyPointerPosition: (clientX: number, clientY: number) => void;
+  applyFluxPosition: (clientX: number, clientY: number) => void;
 }
 
 interface GridControllerProps {
@@ -100,7 +100,7 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
       ref,
       () => ({
         launchProjectile,
-        applyPointerPosition: applyPointerPosition, // <- call it with global coords
+        applyFluxPosition: applyFluxPosition, // <- call it with global coords
       }),
       [launchProjectile],
     );
@@ -111,7 +111,7 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
 
     const lastFrameTime = useRef(0);
 
-    const applyPointerPosition = (clientX: number, clientY: number) => {
+    const applyFluxPosition = (clientX: number, clientY: number) => {
       const gridEl = gridInstanceRef.current?.getElement();
       if (!gridEl) return;
 
@@ -138,7 +138,7 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
 
         if (isTouchOnly && !isSlingerTarget) return;
 
-        applyPointerPosition(event.clientX, event.clientY);
+        applyFluxPosition(event.clientX, event.clientY);
       };
 
       const clearPos = () => {
