@@ -4,9 +4,10 @@ import React, {
   useState,
   useEffect,
   useImperativeHandle,
+  createRef,
 } from "react";
 
-import Fluxel, { FluxelData } from "./Fluxel";
+import Fluxel, { FluxelData, FluxelHandle } from "./Fluxel";
 import styles from "./FluxelGrid.module.scss";
 
 /**
@@ -24,6 +25,12 @@ export interface FluxelGridHandle {
   getElement: () => HTMLDivElement | null;
   getFluxelSize: () => number;
   getGridData: () => FluxelData[][];
+  updateInfluenceAt?: (
+    row: number,
+    col: number,
+    influence: number,
+    color?: string,
+  ) => void;
 }
 
 interface FluxelGridProps {
@@ -36,19 +43,38 @@ interface FluxelGridProps {
     cols: number;
     fluxelSize: number;
   }) => void;
+  imperativeMode?: boolean;
 }
 
 const FluxelGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
-  ({ gridData, gridRef, viewableHeight, viewableWidth, onGridChange }, ref) => {
+  (
+    {
+      gridData,
+      gridRef,
+      viewableHeight,
+      viewableWidth,
+      onGridChange,
+      imperativeMode = true,
+    },
+    ref,
+  ) => {
     const [fluxelSize, setFluxelSize] = useState(0);
-
     const containerRef = useRef<HTMLDivElement>(null);
     const gridDataRef = useRef<FluxelData[][]>([]);
+    const fluxelRefs = useRef<React.RefObject<FluxelHandle | null>[][]>([]);
 
     const rows = gridData.length;
     const cols = gridData[0]?.length ?? 0;
 
-    // 1) Merge the two refs onto the same DOM node
+    // Initialize 2D array of refs if in imperative mode
+    useEffect(() => {
+      if (imperativeMode) {
+        fluxelRefs.current = Array.from({ length: rows }, () =>
+          Array.from({ length: cols }, () => createRef<FluxelHandle>()),
+        );
+      }
+    }, [imperativeMode, rows, cols]);
+
     const handleRef = (el: HTMLDivElement | null) => {
       containerRef.current = el;
       if (!gridRef) return;
@@ -61,7 +87,6 @@ const FluxelGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
       gridDataRef.current = gridData;
     }, [gridData]);
 
-    // 2) Recompute fluxelSize on mount + resize
     useEffect(() => {
       const updateSize = () => {
         if (!containerRef.current) return;
@@ -69,13 +94,8 @@ const FluxelGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
         const newFluxelSize = width / cols;
         setFluxelSize(newFluxelSize);
 
-        // Notify parent if callback provided
         if (typeof onGridChange === "function") {
-          onGridChange({
-            rows,
-            cols,
-            fluxelSize: newFluxelSize,
-          });
+          onGridChange({ rows, cols, fluxelSize: newFluxelSize });
         }
       };
 
@@ -88,7 +108,6 @@ const FluxelGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
       };
     }, [cols, rows]);
 
-    // 3) Compute which rows/cols are visible (using containerRef)
     let viewableRows = rows,
       viewableCols = cols,
       rowOverlap = 0,
@@ -105,7 +124,6 @@ const FluxelGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
       colOverlap = Math.floor((cols - viewableCols) / 2);
     }
 
-    // 4) Expose imperative functions on the forwarded ref
     useImperativeHandle(
       ref,
       () => ({
@@ -114,20 +132,14 @@ const FluxelGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
           if (!el || fluxelSize === 0) return null;
 
           const { left, top } = el.getBoundingClientRect();
-
           const relativeX = x - left;
           const relativeY = y - top;
 
           const currentGridData = gridDataRef.current;
-          const rows = currentGridData.length;
-          const cols = currentGridData[0]?.length ?? 0;
-
-          const c = Math.min(Math.floor(relativeX / fluxelSize), cols - 1);
           const r = Math.min(Math.floor(relativeY / fluxelSize), rows - 1);
+          const c = Math.min(Math.floor(relativeX / fluxelSize), cols - 1);
 
-          if (!currentGridData[r] || !currentGridData[r][c]) return null;
-
-          return currentGridData[r][c];
+          return currentGridData[r]?.[c] || null;
         },
         getElement() {
           return containerRef.current;
@@ -135,9 +147,16 @@ const FluxelGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
         getFluxelSize() {
           return fluxelSize;
         },
-        getGridData: () => gridDataRef.current,
+        getGridData() {
+          return gridDataRef.current;
+        },
+        updateInfluenceAt(row, col, influence, color) {
+          if (!imperativeMode) return;
+          const ref = fluxelRefs.current[row]?.[col];
+          ref?.current?.updateInfluence(influence, color);
+        },
       }),
-      [fluxelSize, gridData],
+      [fluxelSize, gridData, imperativeMode],
     );
 
     return (
@@ -153,12 +172,20 @@ const FluxelGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
             data.row >= rowOverlap &&
             data.row < rows - rowOverlap;
 
-          return isVisible ? (
-            <Fluxel key={data.id} data={data} />
-          ) : (
-            <div key={data.id} className={styles.inactivePlaceholder} />
-          );
-        })}
+          const row = data.row;
+          const col = data.col;
+          const key = data.id;
+
+          if (!isVisible) {
+            return <div key={key} className={styles.inactivePlaceholder} />;
+          }
+
+          const ref = imperativeMode
+            ? fluxelRefs.current[row]?.[col]
+            : undefined;
+
+          return <Fluxel key={key} data={data} ref={ref} />;
+        })}{" "}
       </div>
     );
   },
