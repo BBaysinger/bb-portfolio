@@ -5,6 +5,8 @@
   position: absolute;
   top: 0;
   left: 0;
+  font-family: monospace;
+  white-space: pre-wrap;
   left: var(--hero-padding);
   transform-origin: top left;
   transform: rotate(-90deg);
@@ -27,4 +29,42 @@
       color: rgba(255, 255, 255, 0.8);
     }
   }
+}
+
+.paragraphLine {
+  position: relative;
+  font-size: 1.1rem;
+}
+
+.cursor {
+  display: inline-block;
+  width: 8px;
+  height: 1em;
+  background-color: $lighterThemeColor;
+  animation: blink 1s infinite;
+  margin-left: 1px;
+}
+
+.cursorSolid {
+  animation: none;
+}
+
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+.visible {
+  color: white;
+}
+
+.invisible {
+  color: gray;
+  opacity: 0.3;
+  display: none;
 }
