@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 
 import styles from "./ParagraphAnimator.module.scss";
@@ -30,17 +30,23 @@ const ParagraphAnimator: React.FC<ParagraphAnimatorProps> = ({
   introMessage,
   style,
 }) => {
+  const [visibleText, setVisibleText] = useState("");
+  const [invisibleText, setInvisibleText] = useState("");
+  const [_currentParagraph, setCurrentParagraph] = useState("");
+  const [isAnimating, setIsAnimating] = useState(false);
+
   const containerRef = useRef<HTMLDivElement>(null);
   const tl = useRef<gsap.core.Timeline | null>(null);
   const currentIndex = useRef(0);
   const queue = useRef<number[]>([]);
   const hasPlayedIntro = useRef(false);
+  const cursorRef = useRef<HTMLSpanElement>(null);
 
   const playParagraph = () => {
     let paragraph: string;
 
     if (!introMessage && paragraphs.length === 0) return;
-    // Play intro message once, if defined
+
     if (introMessage && !hasPlayedIntro.current) {
       paragraph = introMessage;
       hasPlayedIntro.current = true;
@@ -48,36 +54,16 @@ const ParagraphAnimator: React.FC<ParagraphAnimatorProps> = ({
       paragraph = paragraphs[queue.current[currentIndex.current]];
     }
 
-    const p = containerRef.current?.querySelector("p");
-    if (!p) return;
+    setCurrentParagraph(paragraph);
+    setVisibleText("");
+    setInvisibleText(paragraph);
 
     let spanPosition = 0;
 
-    const formatText = (text: string) => text.replace(/\\n|\n/g, "<br />");
+    setIsAnimating(true);
 
-    const updateText = () => {
-      const visible = paragraph.slice(0, spanPosition);
-      const invisible = paragraph.slice(spanPosition);
-
-      p.innerHTML = `<span>${formatText(visible)}</span>${formatText(invisible)}`;
-    };
-
-    updateText(); // Initial render
-
-    tl.current = gsap.timeline({
-      onComplete: () => {
-        // Only advance queue if we're in the main loop
-        if (hasPlayedIntro.current) {
-          currentIndex.current++;
-          if (currentIndex.current >= queue.current.length) {
-            queue.current = shuffleArray([...Array(paragraphs.length).keys()]);
-            currentIndex.current = 0;
-          }
-        }
-        playParagraph();
-      },
-    });
-
+    tl.current?.kill();
+    tl.current = gsap.timeline();
     tl.current.to({}, { duration: initialDelay / 1000 });
 
     tl.current.to(
@@ -88,14 +74,51 @@ const ParagraphAnimator: React.FC<ParagraphAnimatorProps> = ({
         ease: "none",
         onUpdate() {
           spanPosition = Math.floor(this.targets()[0].value);
-          updateText();
+          setVisibleText(paragraph.slice(0, spanPosition));
+          setInvisibleText(paragraph.slice(spanPosition));
+        },
+        onComplete() {
+          setIsAnimating(false); // ✅ ← Move it here
+          console.log("✅ Text finished animating");
         },
       },
     );
 
-    tl.current.to({}, { duration: paragraphDelay / 1000 });
-    tl.current.to(containerRef.current, { opacity: 0, duration: 0.5 });
+    tl.current.to(
+      {},
+      {
+        duration: paragraphDelay / 1000,
+        onStart: () => console.log("pause before fade"),
+      },
+    );
+    tl.current.to(containerRef.current, {
+      opacity: 0,
+      duration: 0.5,
+      onStart: () => console.log("fading out"),
+    });
     tl.current.set(containerRef.current, { opacity: 1 });
+
+    tl.current.to(
+      {},
+      {
+        duration: 0.001,
+        onComplete: () => {
+          console.log("⏭ Starting next paragraph");
+
+          if (hasPlayedIntro.current) {
+            currentIndex.current++;
+            if (currentIndex.current >= queue.current.length) {
+              queue.current = shuffleArray([
+                ...Array(paragraphs.length).keys(),
+              ]);
+              currentIndex.current = 0;
+            }
+          }
+
+          setTimeout(() => playParagraph(), 50);
+        },
+      },
+    );
   };
 
   useEffect(() => {
@@ -120,7 +143,7 @@ const ParagraphAnimator: React.FC<ParagraphAnimatorProps> = ({
     return () => {
       tl.current?.kill();
     };
-  }, [paragraphs, introMessage]);
+  }, []);
 
   return (
     <div
@@ -128,9 +151,15 @@ const ParagraphAnimator: React.FC<ParagraphAnimatorProps> = ({
       className={`${styles.paragraphAnimator} ${className} ${paused ? styles.paused : ""}`}
       style={{ ...style }}
     >
-      <p>
-        <span />
+      <p className={styles.paragraphLine}>
+        <span className={styles.visible}>{visibleText}</span>
+        <span
+          ref={cursorRef}
+          className={`${styles.cursor} ${isAnimating ? styles.cursorSolid : ""}`}
+        />{" "}
+        <span className={styles.invisible}>{invisibleText}</span>
       </p>
+      <span style={{ color: "white" }}>isAnimating{isAnimating}</span>
     </div>
   );
 };
