@@ -7,7 +7,7 @@ const connectDB = async () => {
     const connect = await mongoose.connect(process.env.MONGO_URI as string);
 
     // Log a message when the connection is successful
-    console.log(`MongoDB Connected: ${connect.connection.host}`);
+    console.info(`MongoDB Connected: ${connect.connection.host}`);
   } catch (err) {
     // Log an error message if the connection fails and exit the process
     console.error(err);
@@ -22,7 +22,7 @@ const disconnectDB = async () => {
     await mongoose.disconnect();
 
     // Log a message when the disconnection is successful
-    console.log("MongoDB Disconnected");
+    console.info("MongoDB Disconnected");
   } catch (err) {
     // Log an error message if the disconnection fails
     console.error("Error disconnecting from MongoDB:", err);
