@@ -40,7 +40,7 @@ const Footer: React.FC<FooterProps> = ({ mutationElemRef }) => {
 
     const updateMainContentHeight = () => {
       const height = mainContentTarget.offsetHeight || 0;
-      console.log("Main content height:", height);
+      console.info("Main content height:", height);
       setMainContentHeight(height);
     };
 
