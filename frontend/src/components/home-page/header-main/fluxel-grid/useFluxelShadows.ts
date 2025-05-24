@@ -29,10 +29,12 @@ export function useFluxelShadows({
   gridRef,
   setGridData,
   mousePosRef,
+  isPausedRef,
 }: {
   gridRef: React.RefObject<FluxelGridHandle | null>;
   setGridData: React.Dispatch<React.SetStateAction<FluxelData[][]>>;
   mousePosRef: React.RefObject<{ x: number; y: number } | null>;
+  isPausedRef?: React.RefObject<boolean>;
 }) {
   const animationFrameId = useRef<number | null>(null);
 
@@ -49,6 +51,7 @@ export function useFluxelShadows({
       }
 
       const updateShadows = () => {
+        if (isPausedRef?.current) return;
         const gridEl = gridRef.current?.getElement();
         const fluxelSize = gridRef.current?.getFluxelSize();
         if (!gridEl || !fluxelSize) return;

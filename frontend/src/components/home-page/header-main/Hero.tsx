@@ -75,6 +75,7 @@ const Hero: React.FC = () => {
   const gridControllerRef = useRef<GridControllerHandle>(null);
   const heroRef = useRef<HTMLDivElement>(null);
   const { clientHeight, clientWidth } = useClientDimensions();
+  const isSlingerInFlight = useRef(false);
 
   const setHasDragged = useCallback((value: boolean) => {
     sessionStorage.setItem("hasDragged", value ? "true" : "false");
@@ -88,6 +89,7 @@ const Hero: React.FC = () => {
     (x: number, y: number, e: MouseEvent | TouchEvent) => {
       slingerIsIdle.current = false;
       setIsSlingerIdle(false);
+      isSlingerInFlight.current = false;
 
       if (!hasDragged) {
         setHasDragged(true);
@@ -102,8 +104,12 @@ const Hero: React.FC = () => {
 
   const onSlingerDragEnd = useCallback(
     (_x: number, _y: number, e: MouseEvent | TouchEvent) => {
+      isSlingerInFlight.current = true;
       if (e.type === "touchend") {
         setSlingerPos(null);
+      }
+      if (!usePointerTracking) {
+        gridControllerRef.current?.resetAllFluxels?.();
       }
     },
     [],
@@ -140,6 +146,7 @@ const Hero: React.FC = () => {
   const onSlingerIdle = useCallback(() => {
     slingerIsIdle.current = true;
     setIsSlingerIdle(true);
+    isSlingerInFlight.current = false;
 
     idleCount.current += 1;
 
@@ -157,6 +164,8 @@ const Hero: React.FC = () => {
     let animationFrameId: number;
 
     const animate = () => {
+      if (isSlingerInFlight.current) return;
+
       const pos = slingerRef.current?.getSlingerPosition?.();
       if (pos) {
         gridControllerRef.current?.applyFluxPosition(pos.x, pos.y);
