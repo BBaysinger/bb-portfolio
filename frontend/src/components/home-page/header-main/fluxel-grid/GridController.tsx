@@ -17,6 +17,7 @@ import styles from "./GridController.module.scss";
 export interface GridControllerHandle {
   launchProjectile: (x: number, y: number, direction: Direction) => void;
   applyFluxPosition: (clientX: number, clientY: number) => void;
+  resetAllFluxels: () => void; // <-- add this
 }
 
 interface GridControllerProps {
@@ -54,6 +55,7 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
   ) => {
     const gridInstanceRef = useRef<FluxelGridHandle>(null);
     const wrapperRef = useRef<HTMLDivElement | null>(null);
+    const isShadowsPaused = useRef(false);
 
     /* ------------------------------------------------------------------ */
     /*  Grid state                                                        */
@@ -89,6 +91,7 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
       gridRef: gridInstanceRef,
       setGridData,
       mousePosRef,
+      isPausedRef: isShadowsPaused,
     });
 
     const launchProjectile = useFluxelProjectiles({
@@ -100,7 +103,28 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
       ref,
       () => ({
         launchProjectile,
-        applyFluxPosition: applyFluxPosition, // <- call it with global coords
+        applyFluxPosition,
+        resetAllFluxels: () => {
+          isShadowsPaused.current = true;
+
+          setGridData((prev) =>
+            prev.map((row) =>
+              row.map((fluxel) => ({
+                ...fluxel,
+                influence: 0,
+                shadow1OffsetX: 0,
+                shadow1OffsetY: 0,
+                shadow2OffsetX: 0,
+                shadow2OffsetY: 0,
+                colorVariation: "transparent",
+              })),
+            ),
+          );
+
+          setTimeout(() => {
+            isShadowsPaused.current = false;
+          }, 100); // you can adjust this to your liking
+        },
       }),
       [launchProjectile],
     );
