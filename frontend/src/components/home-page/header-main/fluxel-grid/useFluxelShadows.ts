@@ -51,7 +51,10 @@ export function useFluxelShadows({
       }
 
       const updateShadows = () => {
-        if (isPausedRef?.current) return;
+        if (isPausedRef?.current) {
+          animationFrameId.current = requestAnimationFrame(updateShadows);
+          return;
+        }
         const gridEl = gridRef.current?.getElement();
         const fluxelSize = gridRef.current?.getFluxelSize();
         if (!gridEl || !fluxelSize) return;

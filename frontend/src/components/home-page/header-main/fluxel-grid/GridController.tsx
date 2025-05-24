@@ -17,7 +17,8 @@ import styles from "./GridController.module.scss";
 export interface GridControllerHandle {
   launchProjectile: (x: number, y: number, direction: Direction) => void;
   applyFluxPosition: (clientX: number, clientY: number) => void;
-  resetAllFluxels: () => void; // <-- add this
+  resetAllFluxels: () => void;
+  resumeShadows: () => void;
 }
 
 interface GridControllerProps {
@@ -120,10 +121,9 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
               })),
             ),
           );
-
-          setTimeout(() => {
-            isShadowsPaused.current = false;
-          }, 100); // you can adjust this to your liking
+        },
+        resumeShadows: () => {
+          isShadowsPaused.current = false;
         },
       }),
       [launchProjectile],

@@ -42,7 +42,6 @@ const quotes = [
  * @version N/A
  */
 const Hero: React.FC = () => {
-  
   // Constants
   const id = "hero";
   const initialRows = 12;
@@ -148,21 +147,28 @@ const Hero: React.FC = () => {
     setIsSlingerIdle(true);
     isSlingerInFlight.current = false;
 
-    idleCount.current += 1;
+    // Set pointer back to slinger location
+    const pos = slingerRef.current?.getSlingerPosition?.();
+    if (pos) {
+      gridControllerRef.current?.applyFluxPosition(pos.x, pos.y);
+    }
 
+    // Resume shadows
+    gridControllerRef.current?.resumeShadows?.();
+
+    startSlingerTracking();
+
+    idleCount.current += 1;
     if (idleCount.current === 2 && !hasCalledFirstIdleAction.current) {
       hasCalledFirstIdleAction.current = true;
-
       sessionStorage.setItem("hasSlung", "true");
       setHasSlung(true);
     }
   }, []);
 
-  useEffect(() => {
-    if (usePointerTracking) return;
+  const slingerLoopId = useRef<number | null>(null);
 
-    let animationFrameId: number;
-
+  const startSlingerTracking = () => {
     const animate = () => {
       if (isSlingerInFlight.current) return;
 
@@ -171,11 +177,18 @@ const Hero: React.FC = () => {
         gridControllerRef.current?.applyFluxPosition(pos.x, pos.y);
       }
 
-      animationFrameId = requestAnimationFrame(animate);
+      slingerLoopId.current = requestAnimationFrame(animate);
     };
 
-    animationFrameId = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(animationFrameId);
+    slingerLoopId.current = requestAnimationFrame(animate);
+  };
+
+  useEffect(() => {
+    if (usePointerTracking) return;
+    startSlingerTracking();
+    return () => {
+      if (slingerLoopId.current) cancelAnimationFrame(slingerLoopId.current);
+    };
   }, [usePointerTracking]);
 
   return (
