@@ -47,7 +47,7 @@ export const protect = asyncHandler(
         // Move to the next middleware or route handler
         next();
       } catch (error) {
-        console.log(error); // Log the error for debugging
+        console.info(error); // Log the error for debugging
         res.status(401); // Set response status to 401 (Unauthorized)
         throw new Error("You are not authorized"); // Throw an error if JWT verification fails
       }
