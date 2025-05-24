@@ -42,12 +42,13 @@ const quotes = [
  * @version N/A
  */
 const Hero: React.FC = () => {
+  
   // Constants
   const id = "hero";
   const initialRows = 12;
   const initialCols = 16;
   const slingerRef = useRef<SlingerBoxHandle>(null);
-  const usePointerTracking = true; // ← or false to test pointer tracking
+  const usePointerTracking = false;
 
   // State
   const [highlightSides, setHighlightSides] = useState<Side[]>([]);
