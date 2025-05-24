@@ -42,14 +42,12 @@ const quotes = [
  * @version N/A
  */
 const Hero: React.FC = () => {
-  // Constants
   const id = "hero";
   const initialRows = 12;
   const initialCols = 16;
   const slingerRef = useRef<SlingerBoxHandle>(null);
-  const usePointerTracking = false;
+  const usePointerTracking = true;
 
-  // State
   const [highlightSides, setHighlightSides] = useState<Side[]>([]);
   const [isSlingerIdle, setIsSlingerIdle] = useState(false);
   const [hasSlung, setHasSlung] = useState(false);
@@ -63,7 +61,6 @@ const Hero: React.FC = () => {
     () => sessionStorage.getItem("hasDragged") === "true",
   );
 
-  // Refs
   const hasCalledFirstIdleAction = useRef(false);
   const idleCount = useRef(0);
   const timeOfDay = useTimeOfDay();
@@ -75,6 +72,7 @@ const Hero: React.FC = () => {
   const heroRef = useRef<HTMLDivElement>(null);
   const { clientHeight, clientWidth } = useClientDimensions();
   const isSlingerInFlight = useRef(false);
+  const slingerLoopId = useRef<number | null>(null);
 
   const setHasDragged = useCallback((value: boolean) => {
     sessionStorage.setItem("hasDragged", value ? "true" : "false");
@@ -95,7 +93,7 @@ const Hero: React.FC = () => {
       }
 
       if (e.type === "touchmove" && gridControllerRef.current) {
-        setSlingerPos({ x: x, y: y });
+        setSlingerPos({ x, y });
       }
     },
     [hasDragged, setHasDragged],
@@ -120,7 +118,6 @@ const Hero: React.FC = () => {
         setHighlightSides((prev) => [...prev, wall]);
 
         let direction: Direction | null = null;
-
         switch (wall) {
           case "left":
             direction = "right";
@@ -139,23 +136,33 @@ const Hero: React.FC = () => {
         gridControllerRef.current?.launchProjectile(x, y, direction);
       }
     },
-    [gridControllerRef, slingerIsIdle],
+    [],
   );
+
+  const startSlingerTracking = () => {
+    const animate = () => {
+      if (isSlingerInFlight.current) return;
+      const pos = slingerRef.current?.getSlingerPosition?.();
+      if (pos) {
+        gridControllerRef.current?.applyFluxPosition(pos.x, pos.y);
+      }
+      slingerLoopId.current = requestAnimationFrame(animate);
+    };
+    slingerLoopId.current = requestAnimationFrame(animate);
+  };
 
   const onSlingerIdle = useCallback(() => {
     slingerIsIdle.current = true;
     setIsSlingerIdle(true);
     isSlingerInFlight.current = false;
 
-    // Set pointer back to slinger location
+    if (usePointerTracking) return;
+
     const pos = slingerRef.current?.getSlingerPosition?.();
     if (pos) {
       gridControllerRef.current?.applyFluxPosition(pos.x, pos.y);
     }
-
-    // Resume shadows
     gridControllerRef.current?.resumeShadows?.();
-
     startSlingerTracking();
 
     idleCount.current += 1;
@@ -165,23 +172,6 @@ const Hero: React.FC = () => {
       setHasSlung(true);
     }
   }, []);
-
-  const slingerLoopId = useRef<number | null>(null);
-
-  const startSlingerTracking = () => {
-    const animate = () => {
-      if (isSlingerInFlight.current) return;
-
-      const pos = slingerRef.current?.getSlingerPosition?.();
-      if (pos) {
-        gridControllerRef.current?.applyFluxPosition(pos.x, pos.y);
-      }
-
-      slingerLoopId.current = requestAnimationFrame(animate);
-    };
-
-    slingerLoopId.current = requestAnimationFrame(animate);
-  };
 
   useEffect(() => {
     if (usePointerTracking) return;
@@ -239,7 +229,6 @@ const Hero: React.FC = () => {
             <ChargedCircle />
           </SlingerBox>
         </div>
-
         <div className={styles.scrollCtaWrapper}>
           <a href="#hello" className={styles.scrollCta}>
             <div className={styles.scrollCtaInner}>Say hello!</div>
@@ -256,10 +245,7 @@ const Hero: React.FC = () => {
             ? `${window.innerHeight - titleHeight - 56}px`
             : "0px",
         }}
-        introMessage={[
-          `Good ${timeOfDay}`,
-          `. This is a kinetic UI Experiment. Grab the orb and then give it a toss for fun surprises!`,
-        ].join("")}
+        introMessage={`Good ${timeOfDay}. This is a kinetic UI Experiment. Grab the orb and then give it a toss for fun surprises!`}
         paragraphs={quotes}
         className={styles.message}
       />
