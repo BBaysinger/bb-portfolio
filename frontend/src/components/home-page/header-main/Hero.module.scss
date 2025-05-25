@@ -234,7 +234,10 @@ a.scrollCta {
   mask-size: 98px 1em;
   mask-position: center;
   animation: bounceMask 2s infinite forwards;
-
+  :global(.hasSlung) & {
+    border: 1px solid red;
+    display: none !important;
+  }
   &::before {
     content: "Grab a hold! Grab a hold! Grab a hold!\00a0";
     position: absolute;

@@ -49,10 +49,12 @@ const Hero: React.FC = () => {
 
   const [highlightSides, setHighlightSides] = useState<Side[]>([]);
   const [isSlingerIdle, setIsSlingerIdle] = useState(false);
-  const [hasSlung, setHasSlung] = useState(false);
   const [_slingerPos, setSlingerPos] = useState<
     { x: number; y: number } | null | undefined
   >(undefined);
+  const [hasSlung, setHasSlung] = useState<boolean>(
+    () => sessionStorage.getItem("hasSlung") === "true",
+  );
   const [hasDragged, _setHasDragged] = useState<boolean>(
     () => sessionStorage.getItem("hasDragged") === "true",
   );
