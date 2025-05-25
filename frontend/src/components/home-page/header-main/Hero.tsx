@@ -1,6 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect } from "react";
 
-import { useResizeObserverHeight } from "hooks/useResizeObserverHeight";
 import useClientDimensions from "hooks/useClientDimensions";
 import GridController, {
   GridControllerHandle,
@@ -10,10 +9,11 @@ import ParagraphAnimator from "./ParagraphAnimator";
 import useScrollPersistedClass from "hooks/useScrollPersistedClass";
 import BorderBlinker, { Side } from "./BorderBlinker";
 import { Direction } from "./fluxel-grid/useFluxelProjectiles";
-import styles from "./Hero.module.scss";
 import ChargedCircle from "components/home-page/header-main/ChargedCircle";
 import useTimeOfDay from "hooks/useTimeOfDay";
 import TitleBranding from "./TitleBranding";
+import useQueryParams from "hooks/useQueryParams";
+import styles from "./Hero.module.scss";
 
 const quotes = [
   "Interactivity is not about clicking, tapping, or swiping. It's about engagement — an invitation to explore, respond, and shape the experience.",
@@ -46,7 +46,6 @@ const Hero: React.FC = () => {
   const initialRows = 12;
   const initialCols = 16;
   const slingerRef = useRef<SlingerBoxHandle>(null);
-  const usePointerTracking = true;
 
   const [highlightSides, setHighlightSides] = useState<Side[]>([]);
   const [isSlingerIdle, setIsSlingerIdle] = useState(false);
@@ -66,13 +65,14 @@ const Hero: React.FC = () => {
   const timeOfDay = useTimeOfDay();
   const hasScrolledOut = useScrollPersistedClass(id);
   const titleRef = useRef<HTMLDivElement>(null);
-  const titleHeight = useResizeObserverHeight(titleRef);
+  // const titleHeight = useResizeObserverHeight(titleRef);
   const slingerIsIdle = useRef(false);
   const gridControllerRef = useRef<GridControllerHandle>(null);
   const heroRef = useRef<HTMLDivElement>(null);
   const { clientHeight, clientWidth } = useClientDimensions();
   const isSlingerInFlight = useRef(false);
   const slingerLoopId = useRef<number | null>(null);
+  const usePointerTracking = useQueryParams<boolean>("usePointerTracking");
 
   const setHasDragged = useCallback((value: boolean) => {
     sessionStorage.setItem("hasDragged", value ? "true" : "false");
@@ -235,20 +235,14 @@ const Hero: React.FC = () => {
           </a>
         </div>
       </div>
-      <TitleBranding className={styles.titleBranding} ref={titleRef} />
-      <ParagraphAnimator
-        style={{
-          top: titleHeight
-            ? `${window.innerHeight - titleHeight - 38}px`
-            : "0px",
-          width: titleHeight
-            ? `${window.innerHeight - titleHeight - 56}px`
-            : "0px",
-        }}
-        introMessage={`Good ${timeOfDay}. This is a kinetic UI Experiment. Grab the orb and then give it a toss for fun surprises!`}
-        paragraphs={quotes}
-        className={styles.message}
-      />
+      <div className={styles.foreground}>
+        <ParagraphAnimator
+          introMessage={`Good ${timeOfDay}. This is a kinetic UI Experiment. Grab the orb and then give it a toss for fun surprises!`}
+          paragraphs={quotes}
+          className={styles.message}
+        />
+        <TitleBranding className={styles.titleBranding} ref={titleRef} />
+      </div>
     </header>
   );
 };

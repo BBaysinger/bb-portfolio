@@ -8,8 +8,18 @@ const useClientDimensions = () => {
   const [clientWidth, setClientWidth] = useState(getWidth());
 
   const updateClientDimensions = useCallback(() => {
-    setClientHeight(getHeight());
-    setClientWidth(getWidth());
+    const height = getHeight();
+    const width = getWidth();
+
+    setClientHeight(height);
+    setClientWidth(width);
+
+    // Set root-level CSS variables
+    document.documentElement.style.setProperty(
+      "--client-height",
+      `${height}px`,
+    );
+    document.documentElement.style.setProperty("--client-width", `${width}px`);
   }, []);
 
   useEffect(() => {

@@ -127,10 +127,6 @@ a.scrollCta {
     opacity: 1 !important;
   }
 
-  .hasSlung & {
-    // TODO:
-  }
-
   .hasScrolledOut & {
     transition-delay: 0s;
     animation-play-state: paused;
@@ -153,11 +149,11 @@ a.scrollCta {
 }
 
 .scrollCtaInner {
-  margin-left: -0.57em;
   aspect-ratio: 500/152;
   height: 2.9em;
   padding-top: 1.14em;
   padding-left: 2.8em;
+  margin-left: -0.57em;
   margin-top: -0.8em;
   margin-right: -0.19em;
   margin-bottom: -0.26em;
@@ -215,4 +211,15 @@ a.scrollCta {
 
 .message {
   z-index: 3;
+}
+
+.foreground {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  height: 100%;
+  padding: var(--hero-padding);
 }
