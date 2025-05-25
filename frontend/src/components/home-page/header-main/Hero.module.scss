@@ -207,24 +207,24 @@ a.scrollCta {
       opacity: 1;
       background-image: url("/images/home/orb-arrow-yellow.svg");
     }
-
-    @keyframes bounce {
-      0% {
-        transform: translate(4px, 4px) rotate(45deg);
-      }
-      50% {
-        transform: translate(-20px, -20px) rotate(45deg);
-      }
-      100% {
-        transform: translate(4px, 4px) rotate(45deg);
-      }
-    }
   }
 
   // Reusing the dragged delay feature to prevent rendering
   // of the transparent slinger CTA
   :global(.hasDraggedDelay) &::before {
     display: none;
+  }
+}
+
+@keyframes bounce {
+  0% {
+    transform: translate(4px, 4px) rotate(45deg);
+  }
+  50% {
+    transform: translate(-20px, -20px) rotate(45deg);
+  }
+  100% {
+    transform: translate(4px, 4px) rotate(45deg);
   }
 }
 
@@ -235,15 +235,16 @@ a.scrollCta {
   bottom: 0;
   right: 0;
   pointer-events: none;
-  transform: rotate(45deg) translateY(55%);
+  top: 2.5px;
+  left: -194px;
   width: 200px;
   height: 1em;
   transform-origin: bottom right;
   mask-image: linear-gradient(black, black);
   mask-repeat: no-repeat;
-  mask-size: 100px 1em;
+  mask-size: 98px 1em;
   mask-position: center;
-  animation: bounceMask 2s infinite forwards;
+  animation: bounce 2s infinite forwards;
 
   &::before {
     content: "Grab a hold! Grab a hold! Grab a hold!\00a0";
@@ -266,16 +267,15 @@ a.scrollCta {
     }
   }
 }
-
-@keyframes bounceMask {
+@keyframes bounce {
   0% {
-    mask-position: 73px center;
+    transform: translate(4px, 4px) rotate(45deg);
   }
   50% {
-    mask-position: 39px center;
+    transform: translate(-20px, -20px) rotate(45deg);
   }
   100% {
-    mask-position: 73px center;
+    transform: translate(4px, 4px) rotate(45deg);
   }
 }
 
