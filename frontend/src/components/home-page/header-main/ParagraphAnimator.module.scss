@@ -47,6 +47,9 @@
   background-color: $lighterThemeColor;
   animation: blink 1s infinite;
   margin-left: 1px;
+  :global(.notSlingerIdle) & {
+    animation-play-state: paused;
+  }
 }
 
 .cursorSolid {
