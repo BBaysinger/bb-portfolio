@@ -271,9 +271,15 @@ a.scrollCta {
 }
 
 @keyframes bounceMask {
-  0%   { mask-position: 53px center; }
-  50%  { mask-position: 32px center; }
-  100% { mask-position: 53px center; }
+  0% {
+    mask-position: 53px center;
+  }
+  50% {
+    mask-position: 32px center;
+  }
+  100% {
+    mask-position: 53px center;
+  }
 }
 
 @keyframes scrollText {
