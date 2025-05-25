@@ -243,9 +243,10 @@ a.scrollCta {
     background-size: cover;
     text-wrap: nowrap;
     text-align: right;
-    animation: scrollText 6s linear infinite;
+    animation: scrollText 2s linear infinite;
     transform-origin: bottom right;
     display: none;
+    animation-delay: -0.5s; /* Starts as if 0.5s has already passed */
 
     :global(.notDragged) & {
       display: block;
@@ -270,9 +271,9 @@ a.scrollCta {
 }
 
 @keyframes bounceMask {
-  0%   { mask-position: center 70%; }
-  50%  { mask-position: center 30%; }
-  100% { mask-position: center 70%; }
+  0%   { mask-position: 53px center; }
+  50%  { mask-position: 32px center; }
+  100% { mask-position: 53px center; }
 }
 
 @keyframes scrollText {
