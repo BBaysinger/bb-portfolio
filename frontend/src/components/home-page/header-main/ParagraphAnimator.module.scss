@@ -39,9 +39,11 @@
 }
 
 .cursor {
+  position: relative;
+  top: 0.1em;
   display: inline-block;
   width: 0.5em;
-  height: 0.8em;
+  height: 0.9em;
   background-color: $lighterThemeColor;
   animation: blink 1s infinite;
   margin-left: 1px;
