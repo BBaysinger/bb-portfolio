@@ -2,7 +2,6 @@
 @use "@/styles/variables" as *;
 
 .titleBranding {
-  position: absolute;
   display: flex;
   align-items: bottom;
   justify-content: bottom;
@@ -14,7 +13,7 @@
   pointer-events: none;
   max-width: 85vw;
   color: white;
-  grid-gap: 12px;
+  grid-gap: var(--hero-padding);
   padding-top: 0;
 
   h1 {
@@ -23,16 +22,16 @@
     justify-content: space-between;
     letter-spacing: 0.07em;
     height: 100%;
-    margin-left: -0.05em;
     color: #fff;
-    margin-bottom: 0em;
+    margin-bottom: 0;
     font-weight: 400; // Before fonts load.
+    line-height: 0.69em; // Compensated for in padding for alignment
+    padding-top: 0.1em;
     @include remRange(font-size, 26px, 40px, $b320, $b768);
     @include breakpointUp($b992px) {
       flex-direction: row;
       justify-content: flex-end;
       align-items: flex-end;
-      line-height: 0.69em;
     }
     & > * {
       @include breakpointUp($b992px) {
@@ -46,7 +45,6 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  // margin-bottom: -2px;
   @include breakpointUp($b992px) {
     flex-direction: row;
     justify-content: flex-end;
@@ -57,6 +55,7 @@
 .title {
   letter-spacing: 0.09em;
   line-height: 0.9em;
+  margin-bottom: -0.1em;
   @include remRange(font-size, 12px, 23px);
   @include breakpointUp($b992px) {
     line-height: 0.69em;

@@ -2,28 +2,30 @@
 @use "@/styles/variables" as *;
 
 .paragraphAnimator {
-  position: absolute;
-  top: 0;
-  left: 0;
+  position: relative;
+  top: calc(-1 * var(--hero-padding));
+  width: calc(
+    var(--client-height) - var(--logo-height) - (var(--hero-padding) * 2)
+  );
   font-family: monospace;
   white-space: pre-wrap;
-  left: var(--hero-padding);
   transform-origin: top left;
-  transform: rotate(-90deg);
+  transform: translateY(100%) rotate(-90deg);
   pointer-events: none;
-  line-height: 1.3em;
+  line-height: 1.5em;
   opacity: 1;
   transition: opacity 0.5s ease-in-out;
-  @include remRange(font-size, 14px, 18px);
-  @include staticRange(width, 84.2dvh, 81dvh, $b320px, $b768px);
-  @include staticRange(top, 86.2dvh, 81dvh, $b320px, $b768px);
-  @include staticRange(bottom, 53px, 85px, $b320px, $b768px);
+  box-sizing: border-box;
+  @include remRange(font-size, 12px, 18px);
+  @include remRange(--logo-height, 78px, 119px, $b320px, $b768px);
 
   &.paused {
     opacity: 0 !important;
   }
 
   p {
+    margin-top: -0.14em;
+    margin-bottom: 0;
     color: rgba(255, 255, 255, 0);
     span {
       color: rgba(255, 255, 255, 0.8);
@@ -38,8 +40,8 @@
 
 .cursor {
   display: inline-block;
-  width: 8px;
-  height: 1em;
+  width: 0.4em;
+  height: 0.8em;
   background-color: $lighterThemeColor;
   animation: blink 1s infinite;
   margin-left: 1px;

@@ -10,6 +10,7 @@ import { AuthProvider } from "context/AuthContext";
 import { useTrackHeroInView } from "hooks/useTrackHeroInView";
 import { useAutoCloseMobileNavOnScroll } from "hooks/useAutoCloseMobileNavOnScroll";
 import { useFluidPercents } from "hooks/useFluidPercents";
+import useClientDimensions from "hooks/useClientDimensions";
 
 import styles from "./App.module.scss";
 import "@/styles/styles.scss";
@@ -21,6 +22,7 @@ const App: React.FC = () => {
 
   const isHeroInView = useSelector((state: RootState) => state.ui.isHeroInView);
 
+  useClientDimensions();
   useTrackHeroInView();
   useAutoCloseMobileNavOnScroll();
 
