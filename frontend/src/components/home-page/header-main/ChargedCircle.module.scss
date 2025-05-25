@@ -6,6 +6,7 @@
   top: 25px;
   left: 25px;
   pointer-events: none;
+  z-index: -1;
   transition: animation 1s ease-in-out;
   animation: spin 2s linear infinite;
   * {
