@@ -60,8 +60,6 @@ const Hero: React.FC = () => {
     () => sessionStorage.getItem("hasDragged") === "true",
   );
 
-  const hasCalledFirstIdleAction = useRef(false);
-  const idleCount = useRef(0);
   const timeOfDay = useTimeOfDay();
   const hasScrolledOut = useScrollPersistedClass(id);
   const titleRef = useRef<HTMLDivElement>(null);
@@ -132,6 +130,11 @@ const Hero: React.FC = () => {
             break;
         }
 
+        if (sessionStorage.getItem("hasSlung") !== "true") {
+          sessionStorage.setItem("hasSlung", "true");
+          setHasSlung(true);
+        }
+
         gridControllerRef.current?.launchProjectile(x, y, direction);
       }
     },
@@ -163,13 +166,6 @@ const Hero: React.FC = () => {
     }
     gridControllerRef.current?.resumeShadows?.();
     startSlingerTracking();
-
-    idleCount.current += 1;
-    if (idleCount.current === 2 && !hasCalledFirstIdleAction.current) {
-      hasCalledFirstIdleAction.current = true;
-      sessionStorage.setItem("hasSlung", "true");
-      setHasSlung(true);
-    }
   }, []);
 
   useEffect(() => {
@@ -225,7 +221,10 @@ const Hero: React.FC = () => {
             onWallCollision={onSlingerWallCollision}
             onIdle={onSlingerIdle}
           >
-            <ChargedCircle />
+            <>
+              <div className={styles.orbText}></div>
+              <ChargedCircle />
+            </>
           </SlingerBox>
         </div>
         <div className={styles.scrollCtaWrapper}>
