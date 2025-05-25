@@ -216,18 +216,6 @@ a.scrollCta {
   }
 }
 
-@keyframes bounce {
-  0% {
-    transform: translate(4px, 4px) rotate(45deg);
-  }
-  50% {
-    transform: translate(-20px, -20px) rotate(45deg);
-  }
-  100% {
-    transform: translate(4px, 4px) rotate(45deg);
-  }
-}
-
 .orbText {
   position: absolute;
   display: block;
@@ -240,11 +228,12 @@ a.scrollCta {
   width: 200px;
   height: 1em;
   transform-origin: bottom right;
+  transform: rotate(45deg);
   mask-image: linear-gradient(black, black);
   mask-repeat: no-repeat;
   mask-size: 98px 1em;
   mask-position: center;
-  animation: bounce 2s infinite forwards;
+  animation: bounceMask 2s infinite forwards;
 
   &::before {
     content: "Grab a hold! Grab a hold! Grab a hold!\00a0";
@@ -254,7 +243,7 @@ a.scrollCta {
     background-size: cover;
     text-wrap: nowrap;
     text-align: right;
-    animation: scrollText 3s linear infinite;
+    animation: scrollText 6s linear infinite;
     transform-origin: bottom right;
     display: none;
 
@@ -267,16 +256,23 @@ a.scrollCta {
     }
   }
 }
+
 @keyframes bounce {
   0% {
-    transform: translate(4px, 4px) rotate(45deg);
+    transform: rotate(45deg) translateX(4px);
   }
   50% {
-    transform: translate(-20px, -20px) rotate(45deg);
+    transform: rotate(45deg) translateX(-20px);
   }
   100% {
-    transform: translate(4px, 4px) rotate(45deg);
+    transform: rotate(45deg) translateX(4px);
   }
+}
+
+@keyframes bounceMask {
+  0%   { mask-position: center 70%; }
+  50%  { mask-position: center 30%; }
+  100% { mask-position: center 70%; }
 }
 
 @keyframes scrollText {
