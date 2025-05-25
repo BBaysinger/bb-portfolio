@@ -34,6 +34,7 @@
       align-items: flex-end;
     }
     & > * {
+      margin-left: -0.08em;
       @include breakpointUp($b992px) {
         display: inline-block;
       }
