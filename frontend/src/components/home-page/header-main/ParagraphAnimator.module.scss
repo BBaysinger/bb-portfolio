@@ -25,6 +25,7 @@
 
   p {
     margin-top: -0.14em;
+    @include staticRange(margin-top, -0.14em, -0.34em);
     margin-bottom: 0;
     color: rgba(255, 255, 255, 0);
     span {

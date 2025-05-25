@@ -173,17 +173,20 @@
 /// @example
 /// @include rangeStatic(letter-spacing, 0.02em, 0.12em, 360, 1440);
 /// @include rangeStatic(width, 120px, 360px); // defaults to 320–1600px viewport
-@mixin staticRange($property, $min-value, $max-value, $min-vw, $max-vw) {
+@mixin staticRange(
+  $property,
+  $min-value,
+  $max-value,
+  $min-vw: $b320,
+  $max-vw: $b1600
+) {
   // Normalize viewports first — allow unitless values like 320 → 320px
   $min-vw: ensureUnit($min-vw, "px");
   $max-vw: ensureUnit($max-vw, "px");
 
   // Normalize value units (still allow unitless values if needed — optional!)
-  $min-value: ensureUnit(
-    $min-value,
-    math.unit($max-value)
-  ); // allow mixing unitless with unit
-  $max-value: ensureUnit($max-value, math.unit($min-value)); // same here
+  $min-value: ensureUnit($min-value, math.unit($max-value));
+  $max-value: ensureUnit($max-value, math.unit($min-value));
 
   // Extract units for validation
   $unit-min-vw: math.unit($min-vw);
