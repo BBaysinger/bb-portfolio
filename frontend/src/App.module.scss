@@ -6,7 +6,6 @@ $navSlideTime: 0.5s;
 #main {
   z-index: 10;
   position: relative;
-  background-color: #fff;
   transition: right $navSlideTime;
   right: 0;
   // box-shadow: 10px 5px 60px black;
@@ -30,7 +29,7 @@ $navSlideTime: 0.5s;
   height: 100dvh;
   width: 100vw;
   transition: right $navSlideTime;
-  background-color: #fff;
+  background-color: #000;
   right: 0;
   // opacity: 0.5;
   :global(.isMobileNavExpanded) & {
