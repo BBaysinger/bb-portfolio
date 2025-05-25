@@ -64,8 +64,20 @@
 /// @param $px - Pixel value
 /// @param $base - Root font size (default: 16px)
 /// @return rem-converted value
-@function to-rems($px, $base: 16px) {
-  @return math.div($px, $base) * 1rem;
+@function to-rems($value, $base: 16px) {
+  $unit: math.unit($value);
+
+  @if $unit == "px" {
+    @return math.div($value, $base) * 1rem;
+  } @else if $unit == "rem" {
+    @return $value;
+  } @else if $unit == "" {
+    @return $value * 1rem;
+  } @else {
+    // fallback: convert to rem based on base font size
+    @warn "to-rems(): Unsupported unit '#{$unit}'. Returning unconverted.";
+    @return $value;
+  }
 }
 
 /// Rounds a number to a given number of decimal places
@@ -148,13 +160,30 @@
 ///
 /// @example
 /// @include remRange(font-size, 16px, 48px, 360, 1440);
-@mixin remRange($property, $min-px, $max-px, $min-vw: $b320, $max-vw: $b1600) {
-  $min-rem: rnd(to-rems($min-px), 4);
-  $max-rem: rnd(to-rems($max-px), 4);
-  $range: rnd($max-rem - $min-rem, 4);
-  $percent-var: percent-var($min-vw, $max-vw);
+@mixin remRange(
+  $property,
+  $min-value,
+  $max-value,
+  $min-vw: $b320,
+  $max-vw: $b1600
+) {
+  $min-rem: to-rems($min-value);
+  $max-rem: to-rems($max-value);
 
-  #{$property}: calc(#{$min-rem} + #{$range} * #{$percent-var});
+  @if math.unit($min-rem) != "rem" or math.unit($max-rem) != "rem" {
+    @warn "remRange(): Values are not in px/rem. Falling back to unconverted interpolation.";
+    #{$property}: calc(
+      #{$min-value} +
+        (
+          #{stripUnit($max-value - $min-value)} *
+            #{percent-var($min-vw, $max-vw)}
+        )
+    );
+  } @else {
+    $range: rnd($max-rem - $min-rem, 4);
+    $percent-var: percent-var($min-vw, $max-vw);
+    #{$property}: calc(#{$min-rem} + #{$range} * #{$percent-var});
+  }
 }
 
 /// Applies a fluid CSS property using native `calc()` math directly in the rule.
