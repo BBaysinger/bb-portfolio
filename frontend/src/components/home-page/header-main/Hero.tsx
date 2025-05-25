@@ -65,7 +65,6 @@ const Hero: React.FC = () => {
   const timeOfDay = useTimeOfDay();
   const hasScrolledOut = useScrollPersistedClass(id);
   const titleRef = useRef<HTMLDivElement>(null);
-  // const titleHeight = useResizeObserverHeight(titleRef);
   const slingerIsIdle = useRef(false);
   const gridControllerRef = useRef<GridControllerHandle>(null);
   const heroRef = useRef<HTMLDivElement>(null);

@@ -34,9 +34,13 @@
       align-items: flex-end;
     }
     & > * {
-      margin-left: -0.08em;
+      margin-left: -0.1em; // Aligns left text at different sizes.
       @include breakpointUp($b992px) {
         display: inline-block;
+        margin-left: 0;
+        & + * {
+          margin-left: calc(var(--hero-padding) - 0.1em);
+        }
       }
     }
   }
@@ -60,6 +64,7 @@
   @include remRange(font-size, 12px, 23px);
   @include breakpointUp($b992px) {
     line-height: 0.69em;
+    margin-bottom: -0em;
   }
 }
 
@@ -89,14 +94,15 @@
   color: #999;
 }
 
+.name {
+  margin-right: -0.1em;
+}
+
 .barberPole {
   display: none;
   border-radius: 5px;
-  @include remRange(width, 16px, 16px);
-  @include remRange(height, 16px, 16px);
-  @include remRange(margin-left, 10px, 12px);
-  @include remRange(margin-right, 10px, 12px);
-
+  width: 0.74em;
+  height: 0.74em;
   > * {
     animation-play-state: paused;
   }
@@ -107,11 +113,10 @@
     }
   }
   @include breakpointUp($b992px) {
-    display: block;
+    display: inline-block;
   }
 }
 
-.barberPole1 {
-  @include remRange(width, 16px, 27px);
-  @include remRange(height, 16px, 27px);
+.barberPole2 {
+  margin-right: calc(var(--hero-padding) - 0.2em);
 }

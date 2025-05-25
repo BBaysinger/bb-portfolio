@@ -106,10 +106,10 @@ export function useFluxelShadows({
                   Math.max(influence - topInfluence, 0) * 80,
                 );
                 shadow2OffsetX = Math.round(
-                  Math.max(influence - leftInfluence, 0) * 60,
+                  Math.max(influence - leftInfluence, 0) * 56,
                 );
                 shadow2OffsetY = Math.round(
-                  Math.min(bottomInfluence - influence, 0) * 60,
+                  Math.min(bottomInfluence - influence, 0) * 56,
                 );
               }
 
