@@ -1,14 +1,10 @@
 .animationSequencer {
   position: absolute;
-  background-repeat: no-repeat;
-  background-size: 100% 100%;
-  background-image: url("/images/common/bg-grad.svg");
-  background-color: black;
-  background-size: cover;
   top: 50%;
   left: 50%;
+  opacity: 0.7;
   transform: translate(-50%, -50%);
-  will-change: opacity;
+  // will-change: opacity;
   transform: translate3d(0, 0, 0); // Makes GIF render on the GPU layer
   aspect-ratio: 4/3;
   box-sizing: border-box;
@@ -25,6 +21,6 @@
   }
 }
 
-.fade-out {
-  opacity: 0;
-}
+// .fade-out {
+//   opacity: 0;
+// }

@@ -13,6 +13,11 @@ header.hero {
   user-select: none;
   z-index: 10;
   overflow: hidden;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  background-image: url("/images/common/bg-grad.svg");
+  background-color: black;
+  background-size: cover;
   @include staticRange(--hero-padding, 10px, 18px, $b320, $b576);
 
   &::before {
