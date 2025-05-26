@@ -71,7 +71,7 @@ const Hero: React.FC = () => {
   const { clientHeight, clientWidth } = useClientDimensions();
   const isSlingerInFlight = useRef(false);
   const slingerLoopId = useRef<number | null>(null);
-  const usePointerTracking = useQueryParams<boolean>("usePointerTracking");
+  const useSlingerTracking = useQueryParams<boolean>("useSlingerTracking");
 
   const setHasDragged = useCallback((value: boolean) => {
     sessionStorage.setItem("hasDragged", value ? "true" : "false");
@@ -94,11 +94,11 @@ const Hero: React.FC = () => {
       if (e.type === "touchmove" && gridControllerRef.current) {
         setSlingerPos({ x, y });
       }
-      if (!usePointerTracking) {
+      if (useSlingerTracking) {
         gridControllerRef.current?.resumeShadows?.();
       }
     },
-    [hasDragged, setHasDragged, usePointerTracking],
+    [hasDragged, setHasDragged, useSlingerTracking],
   );
 
   const onSlingerDragEnd = useCallback(
@@ -107,7 +107,7 @@ const Hero: React.FC = () => {
       if (e.type === "touchend") {
         setSlingerPos(null);
       }
-      if (!usePointerTracking) {
+      if (useSlingerTracking) {
         gridControllerRef.current?.resetAllFluxels?.();
       }
     },
@@ -163,7 +163,7 @@ const Hero: React.FC = () => {
     setIsSlingerIdle(true);
     isSlingerInFlight.current = false;
 
-    if (usePointerTracking) return;
+    if (!useSlingerTracking) return;
 
     const pos = slingerRef.current?.getSlingerPosition?.();
     if (pos) {
@@ -174,12 +174,12 @@ const Hero: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (usePointerTracking) return;
+    if (!useSlingerTracking) return;
     startSlingerTracking();
     return () => {
       if (slingerLoopId.current) cancelAnimationFrame(slingerLoopId.current);
     };
-  }, [usePointerTracking]);
+  }, [useSlingerTracking]);
 
   return (
     <header
@@ -206,7 +206,7 @@ const Hero: React.FC = () => {
     >
       <div>
         <GridController
-          usePointerTracking={usePointerTracking}
+          useSlingerTracking={useSlingerTracking}
           className={styles.gridController}
           ref={gridControllerRef}
           rows={initialRows}
