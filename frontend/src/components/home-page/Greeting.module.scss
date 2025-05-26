@@ -96,6 +96,7 @@
     align-items: center;
     max-width: 350px;
     width: 80%;
+    user-select: none;
     @include breakpointUp($b768px) {
       min-width: 300px;
       max-width: auto;
