@@ -18,6 +18,9 @@
     left: 0;
     pointer-events: none !important;
   }
+  img {
+    pointer-events: none;
+  }
 }
 
 @keyframes waveMotion {
