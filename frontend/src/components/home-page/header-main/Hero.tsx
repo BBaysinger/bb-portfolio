@@ -17,7 +17,7 @@ import styles from "./Hero.module.scss";
 
 const quotes = [
   "Interactivity is not about clicking, tapping, or swiping. It's about engagement — an invitation to explore, respond, and shape the experience.",
-  "A great UI isn't just seen — it's felt. Every transition, every hover, every microinteraction should whisper to the user: 'I understand you.'",
+  "A great UI isn't just seen — it's felt. Every transition, every hover, every microinteraction should whisper to the user: 'I understand you.",
   "Front-end development is storytelling in motion. It's not just about displaying content — it's about guiding, delighting, and responding to the user's curiosity.",
   "True interactivity is invisible. The best experiences don't make users think about how they work — they just feel natural, intuitive, and alive.",
   "The best user interfaces don't compete for attention — they guide it, shaping experiences that feel effortless and inevitable.",
@@ -47,19 +47,20 @@ const Hero: React.FC = () => {
   const initialCols = 16;
   const slingerRef = useRef<SlingerBoxHandle>(null);
 
-  const [highlightSides, setHighlightSides] = useState<Side[]>([]);
+  const [blinkSides, setHighlightSides] = useState<Side[]>([]);
   const [isSlingerIdle, setIsSlingerIdle] = useState(false);
   const [_slingerPos, setSlingerPos] = useState<
     { x: number; y: number } | null | undefined
   >(undefined);
+  const [hasDragged, setHasDragged] = useState<boolean>(
+    () => sessionStorage.getItem("hasDragged") === "true",
+  );
   const [hasSlung, setHasSlung] = useState<boolean>(
     () => sessionStorage.getItem("hasSlung") === "true",
   );
-  const [hasDragged, _setHasDragged] = useState<boolean>(
-    () => sessionStorage.getItem("hasDragged") === "true",
-  );
-  const [hasDraggedDelay, setHasDraggedDelay] = useState(
-    () => sessionStorage.getItem("hasDragged") === "true",
+  const [hasSlungDelay, setHasSlungDelay] = useState(
+    // Always start the same value as hasDragged
+    () => sessionStorage.getItem("hasSlung") === "true",
   );
 
   const timeOfDay = useTimeOfDay();
@@ -73,12 +74,9 @@ const Hero: React.FC = () => {
   const slingerLoopId = useRef<number | null>(null);
   const useSlingerTracking = useQueryParams<boolean>("useSlingerTracking");
 
-  const setHasDragged = useCallback((value: boolean) => {
+  const updateHasDragged = useCallback((value: boolean) => {
     sessionStorage.setItem("hasDragged", value ? "true" : "false");
-    _setHasDragged(value);
-    setTimeout(() => {
-      setHasDraggedDelay(value);
-    }, 1000);
+    setHasDragged(value);
   }, []);
 
   const onSlingerDragStart = useCallback(
@@ -88,7 +86,7 @@ const Hero: React.FC = () => {
       isSlingerInFlight.current = false;
 
       if (!hasDragged) {
-        setHasDragged(true);
+        updateHasDragged(true);
       }
 
       if (e.type === "touchmove" && gridControllerRef.current) {
@@ -98,7 +96,7 @@ const Hero: React.FC = () => {
         gridControllerRef.current?.resumeShadows?.();
       }
     },
-    [hasDragged, setHasDragged, useSlingerTracking],
+    [hasDragged, updateHasDragged, useSlingerTracking],
   );
 
   const onSlingerDragEnd = useCallback(
@@ -138,6 +136,9 @@ const Hero: React.FC = () => {
         if (sessionStorage.getItem("hasSlung") !== "true") {
           sessionStorage.setItem("hasSlung", "true");
           setHasSlung(true);
+          setTimeout(() => {
+            setHasSlungDelay(true);
+          }, 2000);
         }
 
         gridControllerRef.current?.launchProjectile(x, y, direction);
@@ -187,15 +188,18 @@ const Hero: React.FC = () => {
       ref={heroRef}
       className={[
         styles.hero,
-        hasScrolledOut && styles.hasScrolledOut,
-        isSlingerIdle && `${styles.isSlingerIdle} isSlingerIdle`,
-        !isSlingerIdle && `${styles.notSlingerIdle} notSlingerIdle`,
+        isSlingerIdle
+          ? `${styles.isSlingerIdle} isSlingerIdle`
+          : `${styles.notSlingerIdle} notSlingerIdle`,
+        hasScrolledOut
+          ? `${styles.hasScrolledOut} hasScrolledOut`
+          : `${styles.notScrolledOut} notScrolledOut`,
         hasDragged
           ? `${styles.hasDragged} hasDragged`
           : `${styles.notDragged} notDragged`,
-        hasDraggedDelay
-          ? `${styles.hasDraggedDelay} hasDraggedDelay`
-          : `${styles.notDraggedDelay} notDraggedDelay`,
+        hasSlungDelay
+          ? `${styles.hasSlungDelay} hasSlungDelay`
+          : `${styles.notSlungDelay} notSlungDelay`,
         hasSlung
           ? `${styles.hasSlung} hasSlung`
           : `${styles.notSlung} notSlung`,
@@ -216,7 +220,7 @@ const Hero: React.FC = () => {
         />
         <BorderBlinker
           className={styles.borderBlinker}
-          highlightSides={highlightSides}
+          blinkSides={blinkSides}
         />
         <div className={styles.slingerWrapper}>
           <SlingerBox
