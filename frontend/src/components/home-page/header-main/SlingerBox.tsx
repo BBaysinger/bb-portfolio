@@ -31,6 +31,8 @@ export interface SlingerBoxHandle {
   getSlingerPosition: (id?: number) => { x: number; y: number } | null;
 }
 
+export const BALL_SIZE = 50;
+
 /**
  * SlingerBox Component
  *
