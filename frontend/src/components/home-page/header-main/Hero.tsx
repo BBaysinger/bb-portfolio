@@ -17,7 +17,7 @@ import styles from "./Hero.module.scss";
 
 const quotes = [
   "Interactivity is not about clicking, tapping, or swiping. It's about engagement — an invitation to explore, respond, and shape the experience.",
-  "A great UI isn't just seen — it's felt. Every transition, every hover, every microinteraction should whisper to the user: 'I understand you.",
+  "A great UI isn't just seen — it's felt. Every transition, every hover, every microinteraction should whisper to the user: 'I understand you'.",
   "Front-end development is storytelling in motion. It's not just about displaying content — it's about guiding, delighting, and responding to the user's curiosity.",
   "True interactivity is invisible. The best experiences don't make users think about how they work — they just feel natural, intuitive, and alive.",
   "The best user interfaces don't compete for attention — they guide it, shaping experiences that feel effortless and inevitable.",
