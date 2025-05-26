@@ -2,12 +2,8 @@ import { useEffect, useRef } from "react";
 
 import { FluxelData } from "./Fluxel";
 import type { FluxelGridHandle } from "./FluxelGrid";
+import MiscUtils from "utils/MiscUtils";
 import { BALL_SIZE } from "../SlingerBox";
-
-const smoothStep = (edge0: number, edge1: number, x: number) => {
-  let t = Math.max(0, Math.min(1, (x - edge0) / (edge1 - edge0)));
-  return t * t * (3 - 2 * t);
-};
 
 function getShadowInfluence(
   { col, row }: { col: number; row: number },
@@ -19,7 +15,8 @@ function getShadowInfluence(
   const dx = gridX - (x + BALL_SIZE / 2);
   const dy = gridY - (y + BALL_SIZE / 2);
   const baseDistance = Math.sqrt(dx * dx + dy * dy);
-  const influence = 1 - smoothStep(0, fluxelSize * 4.25, baseDistance);
+  const influence =
+    1 - MiscUtils.smoothStep(0, fluxelSize * 4.25, baseDistance);
   return baseDistance < fluxelSize * 5 ? influence : 0;
 }
 
