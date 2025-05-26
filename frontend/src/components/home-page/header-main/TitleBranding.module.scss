@@ -27,7 +27,7 @@
     font-weight: 400; // Before fonts load.
     line-height: 0.69em; // Compensated for in padding for alignment
     padding-top: 0.1em;
-    @include remRange(font-size, 26px, 40px, $b320, $b768);
+    @include remRange(font-size, 30px, 40px, $b320, $b768);
     @include breakpointUp($b992px) {
       flex-direction: row;
       justify-content: flex-end;
