@@ -15,8 +15,8 @@
   opacity: 1;
   transition: opacity 0.5s ease-in-out;
   box-sizing: border-box;
-  @include remRange(font-size, 10px, 18px);
-  @include remRange(line-height, 20px, 24px);
+  line-height: 1.3em;
+  @include remRange(font-size, 14px, 18px);
   @include remRange(--logo-height, 78px, 119px, $b320px, $b768px);
 
   &.paused {
@@ -31,11 +31,6 @@
       color: rgba(255, 255, 255, 0.8);
     }
   }
-}
-
-.paragraphLine {
-  position: relative;
-  font-size: 1.1rem;
 }
 
 .cursor {
