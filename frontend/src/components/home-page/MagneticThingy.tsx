@@ -29,20 +29,21 @@ const MagneticThingy: React.FC<MagneticThingyProps> = ({
   const projectionWrapperRef = useRef<HTMLDivElement | null>(null);
 
   const isInteractingRef = useRef(false);
-  // const waveTL = useRef<gsap.core.Timeline | null>(null);
 
   useEffect(() => {
+    let ticking = false;
+    let latestX = 0;
+    let latestY = 0;
+
+    const loop = () => {
+      ticking = false;
+      moveEvent(latestX, latestY);
+    };
     const elem = elemRef.current;
     const svg = svgRef.current;
     const path = pathRef.current;
     const projectionWrapper = projectionWrapperRef.current;
     if (!elem || !svg || !path || !projectionWrapper) return;
-
-    let bounds = path.getBoundingClientRect();
-
-    const updateDimensions = () => {
-      bounds = path.getBoundingClientRect();
-    };
 
     const magnetize = (val: number, axisSize: number) => {
       const dist = gsap.utils.normalize(0, axisSize / 2, Math.abs(val));
@@ -66,14 +67,16 @@ const MagneticThingy: React.FC<MagneticThingyProps> = ({
         viewportX,
         viewportY,
       );
-      if (!elementUnderPointer || elementUnderPointer !== path) {
+
+      if (!elementUnderPointer) return;
+      if (elementUnderPointer !== path) {
         leaveEvent();
         return;
       }
 
       e?.preventDefault();
 
-      const { left, top, width, height } = bounds;
+      const { left, top, width, height } = path.getBoundingClientRect();
       const adjustedLeft = left + window.scrollX;
       const adjustedTop = top + window.scrollY;
 
@@ -87,16 +90,19 @@ const MagneticThingy: React.FC<MagneticThingyProps> = ({
       const rotation = (relX / width) * 15;
 
       gsap.to(elem, {
-        x: xValue,
-        y: yValue,
+        x: Math.round(xValue),
+        y: Math.round(yValue),
         rotation,
         ease: "power2.out",
+        overwrite: "auto",
+        lazy: false,
       });
-
       gsap.to(projectionWrapper, {
-        x: xValue * -0.5,
-        y: yValue * 0.2,
+        x: Math.round(xValue * -0.5),
+        y: Math.round(yValue * 0.2),
         ease: "power2.out",
+        overwrite: "auto",
+        lazy: false,
       });
     };
 
@@ -129,11 +135,23 @@ const MagneticThingy: React.FC<MagneticThingyProps> = ({
       }, 1000);
     };
 
-    const onMouseMove = (e: MouseEvent) => moveEvent(e.pageX, e.pageY);
+    const onMouseMove = (e: MouseEvent) => {
+      latestX = e.pageX;
+      latestY = e.pageY;
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(loop);
+      }
+    };
+
     const onTouchMove = (e: TouchEvent) => {
       if (e.touches.length > 0) {
-        const touch = e.touches[0];
-        moveEvent(touch.pageX, touch.pageY, e);
+        latestX = e.touches[0].pageX;
+        latestY = e.touches[0].pageY;
+        if (!ticking) {
+          ticking = true;
+          requestAnimationFrame(loop);
+        }
       }
     };
 
@@ -143,9 +161,6 @@ const MagneticThingy: React.FC<MagneticThingyProps> = ({
       path.addEventListener("touchmove", onTouchMove, { passive: false });
       path.addEventListener("touchend", leaveEvent);
       path.addEventListener("touchcancel", leaveEvent);
-      window.addEventListener("resize", updateDimensions);
-      window.addEventListener("scroll", updateDimensions);
-      window.addEventListener("orientationchange", updateDimensions);
     };
 
     const removeListeners = () => {
@@ -154,12 +169,8 @@ const MagneticThingy: React.FC<MagneticThingyProps> = ({
       path.removeEventListener("touchmove", onTouchMove);
       path.removeEventListener("touchend", leaveEvent);
       path.removeEventListener("touchcancel", leaveEvent);
-      window.removeEventListener("resize", updateDimensions);
-      window.removeEventListener("scroll", updateDimensions);
-      window.removeEventListener("orientationchange", updateDimensions);
     };
 
-    updateDimensions();
     addListeners();
     return () => removeListeners();
   }, [children]);
