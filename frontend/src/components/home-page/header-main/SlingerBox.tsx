@@ -7,6 +7,7 @@ import React, {
 } from "react";
 
 import { Side } from "./BorderBlinker";
+import MiscUtils from "utils/MiscUtils";
 import styles from "./SlingerBox.module.scss";
 
 type SlingerObject = {
@@ -39,7 +40,7 @@ export const BALL_SIZE = 50;
  * Component containing draggable floating objects (slingers) with simple physics-based movement.
  * Can be thrown and implements a bouncing effect inside a container.
  * Tracks velocity and uses damping for realistic movement.
- * Could eventually be gamified.
+ * Eventually to be more gamified for fluxel grid and other projects.
  *
  * @component
  * @param {SlingerBoxProps} props - Component props containing optional drag event handlers.
@@ -141,9 +142,9 @@ const SlingerBox = React.forwardRef<SlingerBoxHandle, SlingerBoxProps>(
                     vx = 0;
                     vy = 0;
                   } else {
+                    const t = 1 - distance / gravityRange;
                     const gravityPull =
-                      pointerGravity * (1 - distance / gravityRange);
-
+                      pointerGravity * MiscUtils.smoothStep(0, 1, t);
                     // Normalize direction to pointer
                     const nx = dx / distance;
                     const ny = dy / distance;
