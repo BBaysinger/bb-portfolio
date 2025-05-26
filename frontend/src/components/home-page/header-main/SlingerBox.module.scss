@@ -36,6 +36,8 @@
   }
 
   &:active {
-    cursor: grabbing;
+    &::after {
+      cursor: grabbing;
+    }
   }
 }
