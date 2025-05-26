@@ -27,7 +27,7 @@ interface GridControllerProps {
   viewableHeight: number;
   viewableWidth: number;
   className?: string;
-  usePointerTracking?: boolean; // <-- NEW
+  useSlingerTracking?: boolean;
 }
 
 const FRAME_TIME = 1000 / 20;
@@ -50,7 +50,7 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
       viewableHeight,
       viewableWidth,
       className,
-      usePointerTracking = true,
+      useSlingerTracking = false,
     },
     ref,
   ) => {
@@ -151,7 +151,7 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
     };
 
     useEffect(() => {
-      if (!usePointerTracking) return;
+      if (useSlingerTracking) return;
 
       const handleMove = (event: PointerEvent) => {
         const isTouchOnly =
@@ -182,7 +182,7 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
         window.removeEventListener("scroll", clearPos);
         window.removeEventListener("touchend", clearPos);
       };
-    }, [usePointerTracking, viewableWidth, viewableHeight]);
+    }, [useSlingerTracking, viewableWidth, viewableHeight]);
 
     /* ------------------------------------------------------------------ */
     /*  Render                                                            */
