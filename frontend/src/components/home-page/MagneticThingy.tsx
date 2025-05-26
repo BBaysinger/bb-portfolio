@@ -20,14 +20,15 @@ const MagneticThingy: React.FC<MagneticThingyProps> = ({
   children,
   className = "",
 }) => {
-  const [interacted, setInteracted] = useState(false);
+  const [isInteracting, setIsInteracting] = useState(false);
 
   const elemRef = useRef<HTMLDivElement | null>(null);
   const svgRef = useRef<SVGSVGElement | null>(null);
   const pathRef = useRef<SVGPathElement | null>(null);
+  const resetTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const projectionWrapperRef = useRef<HTMLDivElement | null>(null);
 
-  const hasInteracted = useRef(false);
+  const isInteractingRef = useRef(false);
   // const waveTL = useRef<gsap.core.Timeline | null>(null);
 
   useEffect(() => {
@@ -48,15 +49,15 @@ const MagneticThingy: React.FC<MagneticThingyProps> = ({
       return gsap.utils.interpolate([1, 0.4, 0], dist);
     };
 
-    const stopWave = () => {
-      if (!hasInteracted.current) {
-        hasInteracted.current = true;
-        setInteracted(true); // trigger CSS class removal
+    const pauseWave = () => {
+      if (!isInteractingRef.current) {
+        isInteractingRef.current = true;
+        setIsInteracting(true); // trigger CSS class removal
       }
     };
 
     const moveEvent = (x: number, y: number, e?: Event) => {
-      stopWave();
+      pauseWave();
 
       const viewportX = x - window.scrollX;
       const viewportY = y - window.scrollY;
@@ -114,6 +115,18 @@ const MagneticThingy: React.FC<MagneticThingyProps> = ({
         ease: "elastic.out(1, 0.5)",
         duration: 1,
       });
+
+      if (resetTimeoutRef.current) {
+        clearTimeout(resetTimeoutRef.current);
+      }
+
+      resetTimeoutRef.current = setTimeout(() => {
+        if (isInteractingRef.current) {
+          setIsInteracting(false);
+          isInteractingRef.current = false;
+          resetTimeoutRef.current = null;
+        }
+      }, 1000);
     };
 
     const onMouseMove = (e: MouseEvent) => moveEvent(e.pageX, e.pageY);
@@ -154,7 +167,7 @@ const MagneticThingy: React.FC<MagneticThingyProps> = ({
     <div
       ref={elemRef}
       className={`${styles.magneticThingy} ${
-        interacted ? styles.hasInteracted : ""
+        isInteracting ? styles.isInteracting : ""
       } ${className}`}
     >
       {" "}
