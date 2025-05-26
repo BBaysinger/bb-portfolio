@@ -106,6 +106,15 @@ header.hero {
   bottom: var(--hero-padding);
   right: var(--hero-padding);
   z-index: 10000;
+  border: 1px solid red;
+  transform: translateX(200px);
+  transition:
+    transform 0.8s,
+    border 0.8s;
+  :global(.hasSlungDelay.notScrolledOut) & {
+    border: 0 !important;
+    transform: translateX(0) !important;
+  }
   @include remRange(font-size, 18px, 25px);
 }
 
@@ -124,17 +133,13 @@ a.scrollCta {
   text-wrap: nowrap;
   color: #000;
   font-weight: 700;
-  :global(.isSlingerIdle) & {
+  animation-play-state: paused;
+  :global(.hasSlung.isSlingerIdle) & {
     animation-play-state: running !important;
   }
-
-  :global(.notSlingerIdle) & {
-    opacity: 1 !important;
-  }
-
-  .hasScrolledOut & {
-    transition-delay: 0s;
+  :global(.isSlingerIdle.notScrolledOut.hasSlung) & {
     animation-play-state: paused;
+    transition-delay: 0s;
   }
 }
 
@@ -216,7 +221,7 @@ a.scrollCta {
 
   // Reusing the dragged delay feature to prevent rendering
   // of the transparent slinger CTA
-  :global(.hasDraggedDelay) &::before {
+  :global(.hasSlungDelay) &::before {
     display: none;
   }
 }

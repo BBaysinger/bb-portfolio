@@ -4,7 +4,7 @@ import styles from "./BorderBlinker.module.scss";
 export type Side = "top" | "right" | "bottom" | "left";
 
 interface BorderBlinkerProps {
-  highlightSides: Side[] | null;
+  blinkSides: Side[] | null;
   className?: string;
 }
 
@@ -12,18 +12,18 @@ interface BorderBlinkerProps {
  * Border Blinker
  *
  * Flashes individual borders per side.
- * Just flashes based on highlightSides passed from parent.
+ * Just flashes based on blinkSides passed from parent.
  */
 const BorderBlinker: React.FC<BorderBlinkerProps> = ({
-  highlightSides,
+  blinkSides,
   className,
 }) => {
   const [activeSides, setActiveSides] = useState<Side[]>([]);
 
   useEffect(() => {
-    if (!highlightSides) return;
-    setActiveSides(highlightSides);
-  }, [highlightSides?.join(",")]);
+    if (!blinkSides) return;
+    setActiveSides(blinkSides);
+  }, [blinkSides?.join(",")]);
 
   return (
     <div className={`${className} ${styles.borderBlinker}`}>
