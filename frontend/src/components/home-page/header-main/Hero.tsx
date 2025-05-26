@@ -94,8 +94,11 @@ const Hero: React.FC = () => {
       if (e.type === "touchmove" && gridControllerRef.current) {
         setSlingerPos({ x, y });
       }
+      if (!usePointerTracking) {
+        gridControllerRef.current?.resumeShadows?.();
+      }
     },
-    [hasDragged, setHasDragged],
+    [hasDragged, setHasDragged, usePointerTracking],
   );
 
   const onSlingerDragEnd = useCallback(
