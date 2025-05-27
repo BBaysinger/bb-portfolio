@@ -14,7 +14,6 @@ header.hero {
   z-index: 10;
   overflow: hidden;
   background-repeat: no-repeat;
-  background-size: 100% 100%;
   background-image: url("/images/common/bg-grad.svg");
   background-color: black;
   background-size: cover;
@@ -259,7 +258,7 @@ a.scrollCta {
     animation: scrollText 2s linear infinite;
     transform-origin: bottom right;
     display: none;
-    animation-delay: -0.5s; /* Starts as if 0.5s has already passed */
+    // animation-delay: -0.5s; /* Starts as if 0.5s has already passed */
 
     :global(.notDragged) & {
       display: block;
