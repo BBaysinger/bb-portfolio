@@ -1,6 +1,9 @@
 .wrapper {
   position: absolute;
   color: white;
+  overflow: visible;
+  border: 1px solid yellow;
+  pointer-events: none;
 }
 
 .measure {
@@ -12,11 +15,13 @@
 
 .frame {
   position: absolute;
+
   top: 0;
   left: 0;
   white-space: nowrap;
-  opacity: 0;
+  display: none;
   pointer-events: none;
+  border: 1px solid red;
 
   --frame-index: 0;
   --mask-step: 0;
@@ -31,7 +36,6 @@
   mask-position: calc(var(--mask-step) * 2px) 0%;
 
   &.active {
-    opacity: 1;
-    pointer-events: auto;
+    display: block;
   }
 }

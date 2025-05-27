@@ -235,7 +235,7 @@ const Hero: React.FC = () => {
           >
             <>
               <ChargedCircle />
-              <FlipBook text="Grab a hold!" maskWidth={200} fps={30} />
+              <FlipBook text="Grab a hold!" maskWidth={100} fps={30} />
             </>
           </SlingerBox>
         </div>
