@@ -1,0 +1,57 @@
+.wrapper {
+  position: absolute;
+  //   overflow: hidden;
+  height: 1em;
+  color: white;
+}
+
+.measure {
+  position: absolute;
+  visibility: hidden;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.frameStack {
+  position: relative;
+  height: 1em;
+}
+
+.frame {
+  position: absolute;
+  top: 0;
+  left: 0;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+
+  mask-image: linear-gradient(90deg, black 100%);
+  -webkit-mask-image: linear-gradient(90deg, black 100%);
+  mask-size: 100px 100%;
+  -webkit-mask-size: 100px 100%;
+  mask-repeat: no-repeat;
+  -webkit-mask-repeat: no-repeat;
+
+  animation-name: swayMaskSteps;
+  animation-duration: 1s;
+  animation-timing-function: steps(10);
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards;
+  animation-play-state: paused;
+
+  &.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+@keyframes swayMaskSteps {
+  from {
+    mask-position: 0px 0%;
+    -webkit-mask-position: 0px 0%;
+  }
+  to {
+    mask-position: 20px 0%;
+    -webkit-mask-position: 20px 0%;
+  }
+}
