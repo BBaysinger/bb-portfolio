@@ -2,7 +2,7 @@
   position: absolute;
   color: white;
   overflow: visible;
-  border: 1px solid yellow;
+  // border: 1px solid yellow;
   pointer-events: none;
 }
 
@@ -21,7 +21,7 @@
   white-space: nowrap;
   display: none;
   pointer-events: none;
-  border: 1px solid red;
+  // border: 1px solid red;
 
   --frame-index: 0;
   --mask-step: 0;
