@@ -13,6 +13,8 @@ import ChargedCircle from "components/home-page/header-main/ChargedCircle";
 import useTimeOfDay from "hooks/useTimeOfDay";
 import TitleBranding from "./TitleBranding";
 import useQueryParams from "hooks/useQueryParams";
+import useFPS from "hooks/useFPS";
+import FlipBook from "./FlipBook";
 import styles from "./Hero.module.scss";
 
 const quotes = [
@@ -73,6 +75,7 @@ const Hero: React.FC = () => {
   const isSlingerInFlight = useRef(false);
   const slingerLoopId = useRef<number | null>(null);
   const useSlingerTracking = useQueryParams<boolean>("useSlingerTracking");
+  const fps = useFPS();
 
   const updateHasDragged = useCallback((value: boolean) => {
     sessionStorage.setItem("hasDragged", value ? "true" : "false");
@@ -231,8 +234,16 @@ const Hero: React.FC = () => {
             onIdle={onSlingerIdle}
           >
             <>
-              <div className={styles.orbText}></div>
+              {/* <div className={styles.orbText}></div> */}
               <ChargedCircle />
+              {/* <FlipBook text={'Grab a hold!'} /> */}
+              <FlipBook
+                text="ANIMATED TEXT FTW"
+                maskWidth={200}
+                fontSize={18}
+                fontFamily="sans-serif"
+                fps={30}
+              />
             </>
           </SlingerBox>
         </div>
@@ -250,6 +261,7 @@ const Hero: React.FC = () => {
         />
         <TitleBranding className={styles.titleBranding} ref={titleRef} />
       </div>
+      <div className={styles.fpsCounter}>FPS: {fps}</div>
     </header>
   );
 };
