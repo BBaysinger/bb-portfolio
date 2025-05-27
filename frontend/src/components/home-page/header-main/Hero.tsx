@@ -234,16 +234,8 @@ const Hero: React.FC = () => {
             onIdle={onSlingerIdle}
           >
             <>
-              {/* <div className={styles.orbText}></div> */}
               <ChargedCircle />
-              {/* <FlipBook text={'Grab a hold!'} /> */}
-              <FlipBook
-                text="ANIMATED TEXT FTW"
-                maskWidth={200}
-                fontSize={18}
-                fontFamily="sans-serif"
-                fps={30}
-              />
+              <FlipBook text="Grab a hold!" maskWidth={200} fps={30} />
             </>
           </SlingerBox>
         </div>

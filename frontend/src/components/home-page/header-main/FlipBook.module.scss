@@ -1,7 +1,5 @@
 .wrapper {
   position: absolute;
-  //   overflow: hidden;
-  height: 1em;
   color: white;
 }
 
@@ -12,11 +10,6 @@
   pointer-events: none;
 }
 
-.frameStack {
-  position: relative;
-  height: 1em;
-}
-
 .frame {
   position: absolute;
   top: 0;
@@ -25,33 +18,20 @@
   opacity: 0;
   pointer-events: none;
 
-  mask-image: linear-gradient(90deg, black 100%);
-  -webkit-mask-image: linear-gradient(90deg, black 100%);
-  mask-size: 100px 100%;
-  -webkit-mask-size: 100px 100%;
-  mask-repeat: no-repeat;
-  -webkit-mask-repeat: no-repeat;
+  --frame-index: 0;
+  --mask-step: 0;
 
-  animation-name: swayMaskSteps;
-  animation-duration: 1s;
-  animation-timing-function: steps(10);
-  animation-iteration-count: 1;
-  animation-fill-mode: forwards;
-  animation-play-state: paused;
+  transform: translateX(calc(var(--frame-index) * -1px));
+
+  mask-image: linear-gradient(90deg, black 100%);
+  mask-size: 100px 100%;
+  mask-repeat: no-repeat;
+
+  // ✅ Use only simple variable math that Sass allows
+  mask-position: calc(var(--mask-step) * 2px) 0%;
 
   &.active {
     opacity: 1;
     pointer-events: auto;
-  }
-}
-
-@keyframes swayMaskSteps {
-  from {
-    mask-position: 0px 0%;
-    -webkit-mask-position: 0px 0%;
-  }
-  to {
-    mask-position: 20px 0%;
-    -webkit-mask-position: 20px 0%;
   }
 }

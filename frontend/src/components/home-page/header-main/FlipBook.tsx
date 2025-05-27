@@ -13,95 +13,56 @@ type Props = {
 const FlipBook: React.FC<Props> = ({
   text,
   maskWidth = 200,
-  fontSize = 20,
-  fontFamily = "sans-serif",
   fps = 30,
   className = "",
 }) => {
   const measureRef = useRef<HTMLDivElement | null>(null);
-  const [frames, setFrames] = useState<string[]>([]);
+  const [frameCount, setFrameCount] = useState(0);
   const [activeIndex, setActiveIndex] = useState(0);
-  const animationRef = useRef<number | null>(null);
 
-  const repeatedText = `${text} \u00A0 ${text}`;
+  const repeatedText = `${text}\u00A0${text}`;
 
   useEffect(() => {
     if (!measureRef.current) return;
 
-    const width = measureRef.current.offsetWidth;
-    const numFrames = Math.max(1, width - maskWidth + 1);
-
-    const newFrames: string[] = [];
-    for (let i = 0; i < numFrames; i++) {
-      newFrames.push(`translateX(-${i}px)`);
-    }
-
-    setFrames(newFrames);
+    const totalWidth = measureRef.current.offsetWidth;
+    const count = Math.max(1, totalWidth - maskWidth + 1);
+    setFrameCount(count);
     setActiveIndex(0);
   }, [text, maskWidth, repeatedText]);
 
   useEffect(() => {
-    if (frames.length <= 1) return;
+    if (frameCount <= 1) return;
 
-    let lastTime = performance.now();
-    const frameDuration = 1000 / fps;
+    const interval = setInterval(() => {
+      setActiveIndex((prev) => (prev + 1) % frameCount);
+    }, 1000 / fps);
 
-    const tick = (now: number) => {
-      const delta = now - lastTime;
-      if (delta >= frameDuration) {
-        setActiveIndex((prev) => (prev + 1) % frames.length);
-        lastTime = now - (delta % frameDuration);
-      }
-      animationRef.current = requestAnimationFrame(tick);
-    };
-
-    animationRef.current = requestAnimationFrame(tick);
-    return () => {
-      if (animationRef.current !== null) {
-        cancelAnimationFrame(animationRef.current);
-      }
-    };
-  }, [frames, fps]);
+    return () => clearInterval(interval);
+  }, [frameCount, fps]);
 
   return (
     <div
       className={`${styles.wrapper} ${className}`}
-      style={{ width: maskWidth, fontSize, fontFamily }}
+      style={{ width: maskWidth }}
     >
-      {/* Hidden measurer */}
-      <div
-        ref={measureRef}
-        className={styles.measure}
-        style={{ fontSize, fontFamily }}
-        aria-hidden
-      >
+      {/* Hidden measurement element */}
+      <div ref={measureRef} className={styles.measure} aria-hidden>
         {repeatedText}
       </div>
 
-      {/* Frame stack */}
-      <div className={styles.frameStack}>
-        {frames.map((transform, i) => {
-          const maskStepCount = 10; // total frames in your sway animation
-          const maskFrame = i % maskStepCount;
-          const delay = -(maskFrame / maskStepCount); // pause at specific point in animation
-
-          return (
-            <div
-              className={`${styles.frame} ${i === activeIndex ? styles.active : ""}`}
-              style={{
-                transform,
-                fontSize,
-                fontFamily,
-                width: "max-content",
-                animationDelay: `${delay}s`,
-              }}
-              key={i}
-            >
-              {repeatedText}
-            </div>
-          );
-        })}
-      </div>
+      {Array.from({ length: frameCount }).map((_, i) => (
+        <div
+          key={i}
+          className={`${styles.frame} ${i === activeIndex ? styles.active : ""}`}
+          style={{
+            ["--frame-index" as any]: i,
+            ["--mask-step" as any]: i % 10, // JS does the modulo
+          }}
+        >
+          {repeatedText}
+        </div>
+      ))}
     </div>
   );
 };
