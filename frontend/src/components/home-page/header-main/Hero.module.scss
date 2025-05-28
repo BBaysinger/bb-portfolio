@@ -208,13 +208,13 @@ a.scrollCta {
     :global(.notDragged) & {
       display: block;
       opacity: 1;
-      background-image: url("/images/home/orb-arrow-green.webp");
+      background-image: url("/images/home/orb-arrow-green.svg");
     }
 
     :global(.hasDragged.notSlung) & {
       display: block;
       opacity: 1;
-      background-image: url("/images/home/orb-arrow-yellow.webp");
+      background-image: url("/images/home/orb-arrow-yellow.svg");
     }
   }
 
@@ -235,18 +235,14 @@ a.scrollCta {
   pointer-events: none;
   top: 2.5px;
   left: -194px;
-  width: 100px;
-  height: 1.2em;
+  width: 200px;
+  height: 1em;
   transform-origin: bottom right;
   transform: rotate(45deg);
-  // mask-image: linear-gradient(black, black);
-  // mask-repeat: no-repeat;
-  // mask-size: 98px 1em;
-  // mask-position: center;
-  overflow: hidden;
-  // border: 1px solid red;
-  text-rendering: optimizeSpeed;
-  will-change: transform;
+  mask-image: linear-gradient(black, black);
+  mask-repeat: no-repeat;
+  mask-size: 98px 1em;
+  mask-position: center;
   animation: bounceMask 2s infinite forwards;
   :global(.hasSlung) & {
     display: none;
@@ -289,15 +285,12 @@ a.scrollCta {
 @keyframes bounceMask {
   0% {
     mask-position: 53px center;
-    transform: rotate(45deg) translateZ(0);
   }
   50% {
     mask-position: 32px center;
-    transform: rotate(45deg) translateZ(0);
   }
   100% {
     mask-position: 53px center;
-    transform: rotate(45deg) translateZ(0);
   }
 }
 
@@ -323,15 +316,4 @@ a.scrollCta {
   justify-content: flex-end;
   height: 100%;
   padding: var(--hero-padding);
-}
-
-.fpsCounter {
-  position: absolute;
-  top: $navBarHeight;
-  right: 0;
-  z-index: 10000;
-  color: #666;
-  font-size: 16px;
-  padding: var(--hero-padding);
-  pointer-events: none;
 }
