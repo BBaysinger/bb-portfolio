@@ -317,3 +317,11 @@ a.scrollCta {
   height: 100%;
   padding: var(--hero-padding);
 }
+
+.fpsCounter {
+  position: absolute;
+  top: $navBarHeight;
+  right: 0;
+  z-index: 10000;
+  color: #666;
+}
