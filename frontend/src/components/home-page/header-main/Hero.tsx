@@ -14,7 +14,6 @@ import useTimeOfDay from "hooks/useTimeOfDay";
 import TitleBranding from "./TitleBranding";
 import useQueryParams from "hooks/useQueryParams";
 import useFPS from "hooks/useFPS";
-import FlipBook from "./FlipBook";
 import styles from "./Hero.module.scss";
 
 const quotes = [
