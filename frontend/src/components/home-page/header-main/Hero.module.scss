@@ -188,33 +188,30 @@ a.scrollCta {
 :global(.slinger) {
   &::before {
     content: " ";
-    opacity: 0;
     transition: opacity 0.3s linear;
     position: absolute;
-    width: 146px;
-    height: 48px;
-    color: white;
+    width: 120px;
+    height: 120px;
     font-size: 16px;
-    padding-top: 12px;
-    padding-left: 10px;
-    left: -142px;
-    top: -22px;
+    left: -114px;
+    top: -114px;
     pointer-events: none;
-    transform-origin: 100% 50%;
-    transition: opacity 0.5s linear;
     background-repeat: no-repeat;
-    animation: bounce 2s infinite forwards;
+    animation: bounceMask 2s infinite forwards;
+    mask-image: url("/images/home/orb-arrow-tooltip.svg");
+    mask-repeat: no-repeat;
+    mask-size: cover;
 
     :global(.notDragged) & {
       display: block;
       opacity: 1;
-      background-image: url("/images/home/orb-arrow-green.svg");
+      background-color: $lighterThemeColor;
     }
 
     :global(.hasDragged.notSlung) & {
       display: block;
       opacity: 1;
-      background-image: url("/images/home/orb-arrow-yellow.svg");
+      background-color: #ff0;
     }
   }
 
@@ -233,14 +230,14 @@ a.scrollCta {
   bottom: 0;
   right: 0;
   pointer-events: none;
-  top: 2.5px;
-  left: -194px;
+  top: -2.5px;
+  left: -200px;
   width: 200px;
   height: 1em;
   transform-origin: bottom right;
   transform: rotate(45deg);
-  clip-path: inset(0 0 0 0 round 0); // Full visibility
-  animation: bounceClip 2s infinite ease-in-out;
+  clip-path: inset(0 0 0 0 round 0); // Start with full visibility
+  animation: bounceClip 2s infinite forwards;
   :global(.hasSlung) & {
     display: none;
   }
@@ -268,25 +265,25 @@ a.scrollCta {
 
 @keyframes bounceClip {
   0% {
-    clip-path: inset(0 30px 0 70px); // visible band slides left
+    clip-path: inset(0 41px 0 58px);
   }
   50% {
-    clip-path: inset(0 70px 0 30px); // visible band slides right
+    clip-path: inset(0 71px 0 29px);
   }
   100% {
-    clip-path: inset(0 30px 0 70px); // return to left
+    clip-path: inset(0 41px 0 58px);
   }
 }
 
-@keyframes bounce {
+@keyframes bounceMask {
   0% {
-    transform: rotate(45deg) translateX(4px);
+    transform: translate(0, 0);
   }
   50% {
-    transform: rotate(45deg) translateX(-20px);
+    transform: translate(-20px, -20px);
   }
   100% {
-    transform: rotate(45deg) translateX(4px);
+    transform: translate(0, 0);
   }
 }
 
