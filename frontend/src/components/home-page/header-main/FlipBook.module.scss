@@ -1,8 +1,7 @@
 .wrapper {
-  position: absolute;
+  position: relative;
+  height: 1em;
   color: white;
-  overflow: visible;
-  // border: 1px solid yellow;
   pointer-events: none;
 }
 
@@ -13,29 +12,40 @@
   pointer-events: none;
 }
 
+.frameStack {
+  position: relative;
+  height: 1em;
+}
+
 .frame {
   position: absolute;
-
   top: 0;
-  left: 0;
+  right: 0;
   white-space: nowrap;
-  display: none;
+  opacity: 0;
   pointer-events: none;
-  // border: 1px solid red;
 
-  --frame-index: 0;
-  --mask-step: 0;
-
-  transform: translateX(calc(var(--frame-index) * -1px));
-
+  transform: translateX(var(--scroll-offset)) translateY(var(--bounce-offset));
   mask-image: linear-gradient(90deg, black 100%);
   mask-size: 100px 100%;
   mask-repeat: no-repeat;
-
-  // ✅ Use only simple variable math that Sass allows
-  mask-position: calc(var(--mask-step) * 2px) 0%;
+  mask-position: var(--bounce-offset) 0%;
 
   &.active {
-    display: block;
+    opacity: 1;
+    pointer-events: auto;
   }
+}
+
+.arrowImage {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url("/images/home/orb-arrow-green.webp") center center no-repeat;
+  background-size: contain;
+  transform: translateY(var(--bounce-offset));
+  pointer-events: none;
+  z-index: 10;
 }
