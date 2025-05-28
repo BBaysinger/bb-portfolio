@@ -61,7 +61,7 @@
   letter-spacing: 0.09em;
   line-height: 0.9em;
   margin-bottom: -0.1em;
-  @include remRange(font-size, 12px, 23px);
+  @include remRange(font-size, 12px, 26px);
   @include breakpointUp($b992px) {
     line-height: 0.69em;
     margin-bottom: -0em;
