@@ -239,11 +239,8 @@ a.scrollCta {
   height: 1em;
   transform-origin: bottom right;
   transform: rotate(45deg);
-  mask-image: linear-gradient(black, black);
-  mask-repeat: no-repeat;
-  mask-size: 98px 1em;
-  mask-position: center;
-  animation: bounceMask 2s infinite forwards;
+  clip-path: inset(0 0 0 0 round 0); // Full visibility
+  animation: bounceClip 2s infinite ease-in-out;
   :global(.hasSlung) & {
     display: none;
   }
@@ -258,7 +255,6 @@ a.scrollCta {
     animation: scrollText 2s linear infinite;
     transform-origin: bottom right;
     display: none;
-    // animation-delay: -0.5s; /* Starts as if 0.5s has already passed */
 
     :global(.notDragged) & {
       display: block;
@@ -267,6 +263,18 @@ a.scrollCta {
       content: "Give a toss! Give a toss! Give a toss!\00a0";
       display: block;
     }
+  }
+}
+
+@keyframes bounceClip {
+  0% {
+    clip-path: inset(0 30px 0 70px); // visible band slides left
+  }
+  50% {
+    clip-path: inset(0 70px 0 30px); // visible band slides right
+  }
+  100% {
+    clip-path: inset(0 30px 0 70px); // return to left
   }
 }
 
@@ -279,18 +287,6 @@ a.scrollCta {
   }
   100% {
     transform: rotate(45deg) translateX(4px);
-  }
-}
-
-@keyframes bounceMask {
-  0% {
-    mask-position: 53px center;
-  }
-  50% {
-    mask-position: 32px center;
-  }
-  100% {
-    mask-position: 53px center;
   }
 }
 
