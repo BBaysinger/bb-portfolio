@@ -188,7 +188,7 @@ a.scrollCta {
 :global(.slinger) {
   &::before {
     content: " ";
-    transition: opacity 0.3s linear;
+    // transition: opacity 0.3s linear;
     position: absolute;
     width: 120px;
     height: 120px;
@@ -197,20 +197,19 @@ a.scrollCta {
     top: -114px;
     pointer-events: none;
     background-repeat: no-repeat;
-    animation: bounceMask 2s infinite forwards;
     mask-image: url("/images/home/orb-arrow-tooltip.svg");
     mask-repeat: no-repeat;
     mask-size: cover;
 
     :global(.notDragged) & {
       display: block;
-      opacity: 1;
+      // opacity: 1;
       background-color: $lighterThemeColor;
     }
 
     :global(.hasDragged.notSlung) & {
       display: block;
-      opacity: 1;
+      // opacity: 1;
       background-color: #ff0;
     }
   }
@@ -237,7 +236,6 @@ a.scrollCta {
   transform-origin: bottom right;
   transform: rotate(45deg);
   clip-path: inset(0 0 0 0 round 0); // Start with full visibility
-  animation: bounceClip 2s infinite forwards;
   :global(.hasSlung) & {
     display: none;
   }
@@ -249,9 +247,7 @@ a.scrollCta {
     background-size: cover;
     text-wrap: nowrap;
     text-align: right;
-    animation: scrollText 2s linear infinite;
     transform-origin: bottom right;
-    display: none;
 
     :global(.notDragged) & {
       display: block;
@@ -263,15 +259,31 @@ a.scrollCta {
   }
 }
 
+.hero.hasMounted {
+  :global(.slinger) {
+    &::before {
+      animation: bounceMask 2s infinite forwards;
+    }
+    .orbText {
+      animation: bounceClip 2s infinite forwards;
+    }
+    .orbText {
+      &::before {
+        animation: scrollText 2s linear infinite;
+      }
+    }
+  }
+}
+
 @keyframes bounceClip {
   0% {
-    clip-path: inset(0 42px 0 58px);
+    clip-path: inset(0 43px 0 58px);
   }
   50% {
-    clip-path: inset(0 70px 0 29px);
+    clip-path: inset(0 69px 0 29px);
   }
   100% {
-    clip-path: inset(0 42px 0 58px);
+    clip-path: inset(0 43px 0 58px);
   }
 }
 

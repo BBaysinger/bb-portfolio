@@ -50,6 +50,7 @@ const Hero: React.FC = () => {
 
   const [blinkSides, setHighlightSides] = useState<Side[]>([]);
   const [isSlingerIdle, setIsSlingerIdle] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const [_slingerPos, setSlingerPos] = useState<
     { x: number; y: number } | null | undefined
   >(undefined);
@@ -177,8 +178,11 @@ const Hero: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    setMounted(true);
+
     if (!useSlingerTracking) return;
     startSlingerTracking();
+
     return () => {
       if (slingerLoopId.current) cancelAnimationFrame(slingerLoopId.current);
     };
@@ -205,6 +209,7 @@ const Hero: React.FC = () => {
         hasSlung
           ? `${styles.hasSlung} hasSlung`
           : `${styles.notSlung} notSlung`,
+        mounted ? `${styles.hasMounted}` : `${styles.notMounted} test`,
       ]
         .filter(Boolean)
         .join(" ")}
