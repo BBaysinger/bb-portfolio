@@ -15,19 +15,18 @@ const Ray: React.FC<RayProps> = ({ className, isActive = false }) => {
   const [barsFrame, setBarsFrame] = useState<number | null>(-1); // hidden
 
   const onBarsEnded = () => {
-    console.log("Bars animation ended");
     setLightningFrame(null);
     setBarsFrame(-1); // hide bars
   };
 
   useEffect(() => {
-    if (!isActive) {
-      if (lightningFrame !== -1) setLightningFrame(-1);
-      if (barsFrame !== -1) setBarsFrame(-1);
+    if (isActive) {
+      setBarsFrame(null); // start/resume bars animation
     } else {
-      if (barsFrame === -1) setBarsFrame(null); // only resume if it was off
+      setLightningFrame(-1); // hide lightning
+      setBarsFrame(-1); // hide bars
     }
-  }, [isActive, lightningFrame, barsFrame]);
+  }, [isActive]);
 
   return (
     <div className={[styles.ray, className, "ray"].join(" ")}>

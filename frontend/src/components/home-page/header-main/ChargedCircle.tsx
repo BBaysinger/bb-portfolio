@@ -13,13 +13,6 @@ interface ChargedCircleProps {
  * @component
  */
 const ChargedCircle: React.FC<ChargedCircleProps> = ({ isActive = false }) => {
-  useEffect(() => {
-    // Log the paused state when the component mounts or updates
-    // console.log("ChargedCircle paused state:", paused);
-  }, [isActive]);
-
-  console.log("ChargedCircle render, isActive:", isActive);
-
   return (
     <div className={styles.chargedCircle}>
       <div className={styles.scaler}>
