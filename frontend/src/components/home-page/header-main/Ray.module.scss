@@ -1,11 +1,7 @@
 @use "@/styles/mixins" as *;
 @use "@/styles/variables" as *;
 
-.bolt {
-  position: absolute;
-}
-
-.yellowBolt {
+.ray {
   position: absolute;
 }
 
@@ -15,6 +11,13 @@
   transform: translateX(-50%);
   width: calc(120px + 8vw);
   animation: pulseScale 2s infinite ease-in-out;
+}
+
+.bars {
+  position: absolute;
+  top: 0;
+  width: calc(150px);
+  transform: translateX(-50%);
 }
 
 @keyframes pulseScale {

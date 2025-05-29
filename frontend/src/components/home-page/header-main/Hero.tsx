@@ -52,6 +52,7 @@ const Hero: React.FC = () => {
   const [blinkSides, setHighlightSides] = useState<Side[]>([]);
   const [isSlingerIdle, setIsSlingerIdle] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [circlePaused, setCirclePaused] = useState(true);
   const [_slingerPos, setSlingerPos] = useState<
     { x: number; y: number } | null | undefined
   >(undefined);
@@ -85,6 +86,7 @@ const Hero: React.FC = () => {
 
   const onSlingerDragStart = useCallback(
     (x: number, y: number, e: MouseEvent | TouchEvent) => {
+      setCirclePaused(false);
       slingerIsIdle.current = false;
       setIsSlingerIdle(false);
       isSlingerInFlight.current = false;
@@ -105,6 +107,7 @@ const Hero: React.FC = () => {
 
   const onSlingerDragEnd = useCallback(
     (_x: number, _y: number, e: MouseEvent | TouchEvent) => {
+      setCirclePaused(true);
       isSlingerInFlight.current = true;
       if (e.type === "touchend") {
         setSlingerPos(null);
@@ -242,7 +245,7 @@ const Hero: React.FC = () => {
           >
             <>
               <OrbArrowTooltip />
-              <ChargedCircle />
+              <ChargedCircle paused={circlePaused} />
             </>
           </SlingerBox>
         </div>

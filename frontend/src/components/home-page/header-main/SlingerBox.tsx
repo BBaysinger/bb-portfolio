@@ -268,6 +268,8 @@ const SlingerBox = React.forwardRef<SlingerBoxHandle, SlingerBoxProps>(
       hasBecomeIdleRef.current = false;
       lastActivityTimeRef.current = performance.now();
       forceUpdate();
+
+      onDragStart?.(clientX, clientY, e.nativeEvent);
     };
 
     const handleMouseDown = (id: number, e: React.MouseEvent) => {
@@ -298,7 +300,7 @@ const SlingerBox = React.forwardRef<SlingerBoxHandle, SlingerBoxProps>(
             el.style.transform = `translate(${Math.round(obj.x - radius)}px, ${Math.round(obj.y - radius)}px)`;
           }
 
-          onDragStart?.(clientX, clientY, e);
+          // onDragStart?.(clientX, clientY, e);
         }
       });
 
