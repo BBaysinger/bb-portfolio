@@ -33,7 +33,6 @@ export interface SlingerBoxHandle {
   getSlingerPosition: (id?: number) => { x: number; y: number } | null;
 }
 
-
 /**
  * SlingerBox Component
  *
