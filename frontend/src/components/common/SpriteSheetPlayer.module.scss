@@ -9,7 +9,7 @@
   position: absolute;
   box-sizing: border-box;
   contain: layout paint style; // FF performance optimization
-  transform: translateZ(0); // ✅ GPU layer for movement
+  transform: translateZ(0);
 }
 
 .spriteSheetWrapper {
