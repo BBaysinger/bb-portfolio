@@ -35,7 +35,7 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
   const frameRef = useRef<number>(0);
   const completedLoopsRef = useRef<number>(0);
   const frameDurationsRef = useRef<number[]>([]);
-  const prevFrameControl = useRef<number | null | undefined>(undefined); // <-- added
+  const prevFrameControl = useRef<number | null | undefined>(undefined);
 
   const meta = useMemo(() => {
     const match = src.match(/_w(\d+)h(\d+)f(\d+)/);
@@ -76,7 +76,7 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
       setFrameIndex(frameControl);
     } else if (frameControl === null) {
       frameRef.current = 0;
-      setFrameIndex(0); // Start at frame 0 again
+      setFrameIndex(0);
     }
   }, [frameControl, src]);
 
@@ -99,17 +99,23 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
       if (elapsed >= duration) {
         lastTimeRef.current = now - (elapsed % duration);
 
-        const next = (currentIndex + 1) % meta.frameCount;
-        frameRef.current = next;
-        setFrameIndex(next);
+        if (randomFrame) {
+          const random = Math.floor(Math.random() * meta.frameCount);
+          frameRef.current = random;
+          setFrameIndex(random);
+        } else {
+          const next = (currentIndex + 1) % meta.frameCount;
+          frameRef.current = next;
+          setFrameIndex(next);
 
-        if (next === 0) {
-          completedLoopsRef.current++;
-          const maxLoops = loops === 0 ? Infinity : loops;
-          if (completedLoopsRef.current >= maxLoops) {
-            isCancelled = true;
-            onEnd?.();
-            return;
+          if (next === 0) {
+            completedLoopsRef.current++;
+            const maxLoops = loops === 0 ? Infinity : loops;
+            if (completedLoopsRef.current >= maxLoops) {
+              isCancelled = true;
+              onEnd?.();
+              return;
+            }
           }
         }
       }
@@ -126,7 +132,7 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [meta, frameControl, autoPlay, loops, onEnd]); // ✅ all correct deps
+  }, [meta, frameControl, autoPlay, loops, randomFrame, onEnd]);
 
   useEffect(() => {
     if (!wrapperRef.current || !meta) return;
