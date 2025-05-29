@@ -14,6 +14,7 @@ import useTimeOfDay from "hooks/useTimeOfDay";
 import TitleBranding from "./TitleBranding";
 import useQueryParams from "hooks/useQueryParams";
 import useFPS from "hooks/useFPS";
+import OrbArrowTooltip from "components/home-page/header-main/OrbArrowTooltip";
 import styles from "./Hero.module.scss";
 
 const quotes = [
@@ -193,7 +194,7 @@ const Hero: React.FC = () => {
       id={id}
       ref={heroRef}
       className={[
-        styles.hero,
+        `${styles.hero} hero`,
         isSlingerIdle
           ? `${styles.isSlingerIdle} isSlingerIdle`
           : `${styles.notSlingerIdle} notSlingerIdle`,
@@ -209,7 +210,9 @@ const Hero: React.FC = () => {
         hasSlung
           ? `${styles.hasSlung} hasSlung`
           : `${styles.notSlung} notSlung`,
-        mounted ? `${styles.hasMounted}` : `${styles.notMounted} test`,
+        mounted
+          ? `${styles.hasMounted} hasMounted`
+          : `${styles.notMounted} notMounted`,
       ]
         .filter(Boolean)
         .join(" ")}
@@ -238,7 +241,7 @@ const Hero: React.FC = () => {
             onIdle={onSlingerIdle}
           >
             <>
-              <div className={styles.orbText}></div>
+              <OrbArrowTooltip />
               <ChargedCircle />
             </>
           </SlingerBox>

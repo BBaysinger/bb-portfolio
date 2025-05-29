@@ -1,0 +1,112 @@
+@use "@/styles/variables" as *;
+
+.orbArrowTooltip {
+  position: absolute;
+  z-index: 1000;
+  display: block;
+  color: #fff;
+  bottom: 0;
+  right: 0;
+  pointer-events: none;
+  transform-origin: bottom right;
+
+  &::after {
+    content: " ";
+    position: absolute;
+    width: 120px;
+    height: 120px;
+    left: -114px;
+    top: -114px;
+    pointer-events: none;
+    background-repeat: no-repeat;
+    mask-image: url("/images/home/orb-arrow-tooltip.svg");
+    mask-repeat: no-repeat;
+    mask-size: cover;
+    animation: bounceMask 2s infinite forwards;
+    :global(.notDragged) & {
+      display: block;
+      background-color: $lighterThemeColor;
+    }
+
+    :global(.hasDragged.notSlung) & {
+      display: block;
+      background-color: #ff0;
+    }
+  }
+
+  :global(.hasSlung) & {
+    // display: none;
+  }
+
+  &::before {
+    content: "Grab a hold! Grab a hold! Grab a hold!\00a0";
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    white-space: nowrap;
+    text-align: right;
+    transform-origin: bottom right;
+    display: block;
+    animation: scrollText 2s linear infinite;
+    width: max-content;
+    rotate: 45deg;
+  }
+}
+
+// Override content when parent has global state class
+:global(.hasDragged):global(.notSlung) .orbArrowTooltip::before {
+  content: "Give a toss! Give a toss! Give a toss!\00a0";
+}
+
+:global(.hasSlung) .orbArrowTooltip {
+  // display: none;
+}
+
+:global(.slinger) {
+  :global(.hasSlungDelay) &::before {
+    display: none;
+  }
+}
+
+:global(.hero.hasMounted) {
+  .orbArrowTooltip {
+    // animation: bounceClip 2s infinite forwards;
+  }
+
+  &::before {
+    // animation: bounceMask 2s infinite forwards;
+  }
+}
+
+@keyframes bounceClip {
+  0% {
+    clip-path: inset(0 42px 0 58px);
+  }
+  50% {
+    clip-path: inset(0 69px 0 29px);
+  }
+  100% {
+    clip-path: inset(0 42px 0 58px);
+  }
+}
+
+@keyframes scrollText {
+  0% {
+    transform: translate(24.6%, 50%);
+  }
+  100% {
+    transform: translate(-8.6%, 50%);
+  }
+}
+
+@keyframes bounceMask {
+  0% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(-20px, -20px);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
+}
