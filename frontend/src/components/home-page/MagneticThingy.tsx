@@ -184,7 +184,6 @@ const MagneticThingy: React.FC<MagneticThingyProps> = ({
         isInteracting ? styles.isInteracting : ""
       } ${className}`}
     >
-      {" "}
       <svg
         ref={svgRef}
         viewBox="0 0 200 200"
