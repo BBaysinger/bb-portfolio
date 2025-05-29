@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState, useMemo } from "react";
 import styles from "./SpriteSheetPlayer.module.scss";
 
-const DISABLE_FRAME_INDEX_NULLING = false;
+// const DISABLE_FRAME_INDEX_NULLING = false;
 
 interface SpriteSheetPlayerProps {
   src: string;
@@ -62,16 +62,21 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
   }, [meta, fps]);
 
   useEffect(() => {
-    if (prevFrameControl.current === frameControl) return;
     prevFrameControl.current = frameControl;
-    console.log("SpriteSheetPlayer frameControl changed:", frameControl, src);
+
+    if (animationFrameRef.current !== null) {
+      cancelAnimationFrame(animationFrameRef.current);
+      animationFrameRef.current = null;
+    }
 
     if (frameControl === -1) {
       frameRef.current = -1;
-      if (!DISABLE_FRAME_INDEX_NULLING) {
-        setFrameIndex(null);
-      }
-    } else if (typeof frameControl === "number") {
+      completedLoopsRef.current = 0;
+      setFrameIndex(null); // hide frame
+      return;
+    }
+
+    if (typeof frameControl === "number") {
       frameRef.current = frameControl;
       setFrameIndex(frameControl);
     } else if (frameControl === null) {
@@ -90,7 +95,13 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
     lastTimeRef.current = performance.now();
 
     const animate = (now: number) => {
-      if (isCancelled || frameControl !== null || !meta) return;
+      if (
+        isCancelled ||
+        frameControl !== null || // ⛔️ animation is externally controlled or paused
+        frameControl === -1 || // ⛔️ explicitly hidden/paused
+        !meta
+      )
+        return;
 
       const elapsed = now - lastTimeRef.current;
       const currentIndex = frameRef.current;
@@ -130,6 +141,7 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
       isCancelled = true;
       if (animationFrameRef.current !== null) {
         cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = null;
       }
     };
   }, [meta, frameControl, autoPlay, loops, randomFrame, onEnd]);
