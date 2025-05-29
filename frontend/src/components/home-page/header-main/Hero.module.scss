@@ -6,7 +6,6 @@ header.hero {
   display: flex;
   flex-direction: column;
   position: relative;
-  display: flex;
   align-items: bottom;
   justify-content: flex-end;
   letter-spacing: 1px;
@@ -48,12 +47,15 @@ header.hero {
 }
 
 .debug {
+  display: none;
   position: absolute;
+  z-index: 10000;
+  color: white;
+  left: 0;
+  top: 0;
+  margin-right: auto;
   font-size: 16px;
-  color: rgba(255, 255, 255, 0.8);
   max-width: 700px;
-  top: 200px;
-  right: 0;
 }
 
 .gridController {
@@ -99,13 +101,11 @@ header.hero {
   z-index: 10000;
 }
 
-// Only for positioning.
 .scrollCtaWrapper {
   position: absolute;
   bottom: var(--hero-padding);
   right: var(--hero-padding);
   z-index: 10000;
-  border: 1px solid red;
   transform: translateX(200px);
   transition:
     transform 0.8s,
@@ -121,21 +121,21 @@ a.scrollCta {
   position: absolute;
   bottom: 0;
   right: 0;
-  color: #fff;
+  color: #000;
+  font-weight: 700;
+  text-decoration: none;
+  text-wrap: nowrap;
+  rotate: -90deg;
+  transform-origin: bottom right;
   transition: right 0.8s;
   transition-delay: 2s;
   animation: fadeBounce 2.5s infinite forwards;
   animation-play-state: paused;
-  rotate: -90deg;
-  transform-origin: bottom right;
-  text-decoration: none;
-  text-wrap: nowrap;
-  color: #000;
-  font-weight: 700;
-  animation-play-state: paused;
+
   :global(.hasSlung.isSlingerIdle) & {
     animation-play-state: running !important;
   }
+
   :global(.isSlingerIdle.notScrolledOut.hasSlung) & {
     animation-play-state: paused;
     transition-delay: 0s;
@@ -173,139 +173,6 @@ a.scrollCta {
   background-repeat: no-repeat;
   background-size: 100% 100%;
   background-image: url("/images/home/orange-arrow.webp");
-}
-
-.debug {
-  display: none;
-  position: absolute;
-  z-index: 10000;
-  color: white;
-  left: 0;
-  top: 0;
-  margin-right: auto;
-}
-
-:global(.slinger) {
-  &::before {
-    content: " ";
-    // transition: opacity 0.3s linear;
-    position: absolute;
-    width: 120px;
-    height: 120px;
-    font-size: 16px;
-    left: -114px;
-    top: -114px;
-    pointer-events: none;
-    background-repeat: no-repeat;
-    mask-image: url("/images/home/orb-arrow-tooltip.svg");
-    mask-repeat: no-repeat;
-    mask-size: cover;
-
-    :global(.notDragged) & {
-      display: block;
-      // opacity: 1;
-      background-color: $lighterThemeColor;
-    }
-
-    :global(.hasDragged.notSlung) & {
-      display: block;
-      // opacity: 1;
-      background-color: #ff0;
-    }
-  }
-
-  // Reusing the dragged delay feature to prevent rendering
-  // of the transparent slinger CTA
-  :global(.hasSlungDelay) &::before {
-    display: none;
-  }
-}
-
-.orbText {
-  position: absolute;
-  z-index: 1000;
-  display: block;
-  color: #fff;
-  bottom: 0;
-  right: 0;
-  pointer-events: none;
-  top: -2.5px;
-  left: -200px;
-  width: 200px;
-  height: 1em;
-  transform-origin: bottom right;
-  transform: rotate(45deg);
-  clip-path: inset(0 0 0 0 round 0); // Start with full visibility
-  :global(.hasSlung) & {
-    display: none;
-  }
-  &::before {
-    content: "Grab a hold! Grab a hold! Grab a hold!\00a0";
-    position: absolute;
-    bottom: 10px;
-    right: 0;
-    background-size: cover;
-    text-wrap: nowrap;
-    text-align: right;
-    transform-origin: bottom right;
-
-    :global(.notDragged) & {
-      display: block;
-    }
-    :global(.hasDragged.notSlung) & {
-      content: "Give a toss! Give a toss! Give a toss!\00a0";
-      display: block;
-    }
-  }
-}
-
-.hero.hasMounted {
-  :global(.slinger) {
-    &::before {
-      animation: bounceMask 2s infinite forwards;
-    }
-    .orbText {
-      animation: bounceClip 2s infinite forwards;
-    }
-    .orbText {
-      &::before {
-        animation: scrollText 2s linear infinite;
-      }
-    }
-  }
-}
-
-@keyframes bounceClip {
-  0% {
-    clip-path: inset(0 42px 0 58px);
-  }
-  50% {
-    clip-path: inset(0 69px 0 29px);
-  }
-  100% {
-    clip-path: inset(0 42px 0 58px);
-  }
-}
-
-@keyframes bounceMask {
-  0% {
-    transform: translate(0, 0);
-  }
-  50% {
-    transform: translate(-20px, -20px);
-  }
-  100% {
-    transform: translate(0, 0);
-  }
-}
-
-@keyframes scrollText {
-  0% {
-    transform: translate(24.6%, 50%);
-  }
-  100% {
-    transform: translate(-8.6%, 50%);
-  }
 }
 
 .message {
