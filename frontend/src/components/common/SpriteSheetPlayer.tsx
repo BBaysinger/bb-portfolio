@@ -1,10 +1,11 @@
 import React, { useEffect, useRef, useState, useMemo } from "react";
 import styles from "./SpriteSheetPlayer.module.scss";
 
+const DISABLE_FRAMEINDEX_NULLING = true; // Set to false if you want to hide on -1
+
 interface SpriteSheetPlayerProps {
   src: string;
   autoPlay?: boolean;
-  paused?: boolean;
   fps?: number | number[];
   loops?: number;
   randomFrame?: boolean;
@@ -17,7 +18,6 @@ interface SpriteSheetPlayerProps {
 const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
   src,
   autoPlay = true,
-  paused = false,
   fps = 30,
   loops = 0,
   randomFrame = false,
@@ -34,12 +34,7 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
   const lastTimeRef = useRef<number>(performance.now());
   const frameRef = useRef<number>(0);
   const completedLoopsRef = useRef<number>(0);
-  const stableFpsRef = useRef(fps);
   const frameDurationsRef = useRef<number[]>([]);
-
-  useEffect(() => {
-    stableFpsRef.current = fps;
-  }, [fps]);
 
   const meta = useMemo(() => {
     const match = src.match(/_w(\d+)h(\d+)f(\d+)/);
@@ -47,7 +42,6 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
       console.warn("Invalid sprite filename format:", src);
       return null;
     }
-
     const [, w, h, f] = match.map(Number);
     return {
       frameWidth: w,
@@ -59,35 +53,22 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
   useEffect(() => {
     if (!meta) return;
     const count = meta.frameCount;
-    const safeFps = stableFpsRef.current;
-
     const newDurations = Array.from({ length: count }, (_, i) => {
-      const val = Array.isArray(safeFps)
-        ? safeFps[i % safeFps.length] || 30
-        : safeFps || 30;
-      return 1000 / val;
+      const val = Array.isArray(fps) ? fps[i % fps.length] || 30 : fps;
+      return 1000 / (val || 30);
     });
-
     frameDurationsRef.current = newDurations;
-  }, [meta]);
+  }, [meta, fps]);
 
   useEffect(() => {
-    if (
-      !meta ||
-      frameControl !== null ||
-      frameDurationsRef.current.length === 0 ||
-      paused ||
-      !autoPlay
-    )
-      return;
+    if (!meta || frameControl !== null || !autoPlay) return;
 
     let isCancelled = false;
-    lastTimeRef.current = performance.now();
     completedLoopsRef.current = 0;
+    lastTimeRef.current = performance.now();
 
     const animate = (now: number) => {
-      if (isCancelled || !meta || paused || frameControl !== null) return;
-
+      if (isCancelled || frameControl !== null || !meta) return;
       const elapsed = now - lastTimeRef.current;
       const currentIndex = frameRef.current;
       const duration = frameDurationsRef.current[currentIndex] || 1000 / 30;
@@ -102,19 +83,17 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
         } else {
           const next = (currentIndex + 1) % meta.frameCount;
           frameRef.current = next;
+          setFrameIndex(next);
 
           if (next === 0) {
-            completedLoopsRef.current += 1;
+            completedLoopsRef.current++;
             const maxLoops = loops === 0 ? Infinity : loops;
             if (completedLoopsRef.current >= maxLoops) {
               isCancelled = true;
               onEnd?.();
-              setFrameIndex(meta.frameCount - 1);
               return;
             }
           }
-
-          setFrameIndex(next);
         }
       }
 
@@ -124,57 +103,26 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
     };
 
     animationFrameRef.current = requestAnimationFrame(animate);
-
     return () => {
       isCancelled = true;
       if (animationFrameRef.current !== null) {
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [meta, autoPlay, paused, loops, randomFrame, onEnd, frameControl]);
+  }, [meta, frameControl, autoPlay, loops, randomFrame, onEnd]);
 
   useEffect(() => {
+    console.log("SpriteSheetPlayer frameControl changed:", frameControl);
     if (frameControl === -1) {
       frameRef.current = -1;
-      setFrameIndex(null);
+      if (!DISABLE_FRAMEINDEX_NULLING) {
+        setFrameIndex(null);
+      }
     } else if (typeof frameControl === "number") {
       frameRef.current = frameControl;
       setFrameIndex(frameControl);
     }
   }, [frameControl]);
-
-  useEffect(() => {
-    if (!meta || paused || frameControl === null) return;
-
-    lastTimeRef.current = performance.now();
-    completedLoopsRef.current = 0;
-    const current = frameRef.current;
-
-    const animate = (now: number) => {
-      if (!meta || paused || frameControl !== null) return;
-
-      const elapsed = now - lastTimeRef.current;
-      const duration = frameDurationsRef.current[current] || 1000 / 30;
-
-      if (elapsed >= duration) {
-        lastTimeRef.current = now - (elapsed % duration);
-        const next = (current + 1) % meta.frameCount;
-        frameRef.current = next;
-        setFrameIndex(next);
-        animationFrameRef.current = requestAnimationFrame(animate);
-      } else {
-        animationFrameRef.current = requestAnimationFrame(animate);
-      }
-    };
-
-    animationFrameRef.current = requestAnimationFrame(animate);
-
-    return () => {
-      if (animationFrameRef.current !== null) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
-    };
-  }, [paused]);
 
   useEffect(() => {
     if (!wrapperRef.current || !meta) return;
@@ -191,12 +139,12 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
     return () => observer.disconnect();
   }, [meta]);
 
-  if (!meta || frameIndex === null) return null;
+  if (!meta) return null;
 
   const { frameWidth, frameHeight, frameCount } = meta;
   const columns = Math.min(frameCount, Math.floor(4096 / frameWidth));
-  const col = frameIndex % columns;
-  const row = Math.floor(frameIndex / columns);
+  const col = frameIndex !== null ? frameIndex % columns : 0;
+  const row = frameIndex !== null ? Math.floor(frameIndex / columns) : 0;
 
   const backgroundPosition = `-${Math.round(col * frameWidth)}px -${Math.round(row * frameHeight)}px`;
   const sheetWidth = Math.round(columns * frameWidth);

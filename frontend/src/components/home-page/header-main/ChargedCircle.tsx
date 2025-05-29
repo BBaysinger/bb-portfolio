@@ -4,7 +4,7 @@ import Ray from "./Ray";
 import styles from "./ChargedCircle.module.scss";
 
 interface ChargedCircleProps {
-  paused?: boolean;
+  isActive?: boolean;
 }
 
 /**
@@ -12,21 +12,25 @@ interface ChargedCircleProps {
  *
  * @component
  */
-const ChargedCircle: React.FC<ChargedCircleProps> = ({ paused = true }) => {
+const ChargedCircle: React.FC<ChargedCircleProps> = ({ isActive = false }) => {
+  useEffect(() => {
+    // Log the paused state when the component mounts or updates
+    // console.log("ChargedCircle paused state:", paused);
+  }, [isActive]);
   return (
     <div className={styles.chargedCircle}>
       <div className={styles.scaler}>
         <Ray
           className={[styles.bolt, styles.bolt1].join(" ")}
-          paused={paused}
+          isActive={isActive}
         />
         <Ray
           className={[styles.bolt, styles.bolt2].join(" ")}
-          paused={paused}
+          isActive={isActive}
         />
         <Ray
           className={[styles.bolt, styles.bolt3].join(" ")}
-          paused={paused}
+          isActive={isActive}
         />
       </div>
     </div>
