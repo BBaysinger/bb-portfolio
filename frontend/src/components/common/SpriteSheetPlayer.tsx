@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState, useMemo } from "react";
 import styles from "./SpriteSheetPlayer.module.scss";
 
-const DISABLE_FRAMEINDEX_NULLING = true; // Set to false if you want to hide on -1
+const DISABLE_FRAME_INDEX_NULLING = true;
 
 interface SpriteSheetPlayerProps {
   src: string;
@@ -10,7 +10,7 @@ interface SpriteSheetPlayerProps {
   loops?: number;
   randomFrame?: boolean;
   onEnd?: () => void;
-  frameControl?: number | null; // null = play, number = stop on frame, -1 = blank
+  frameControl?: number | null;
   className?: string;
   scalerClassName?: string;
 }
@@ -35,6 +35,7 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
   const frameRef = useRef<number>(0);
   const completedLoopsRef = useRef<number>(0);
   const frameDurationsRef = useRef<number[]>([]);
+  const prevFrameControl = useRef<number | null | undefined>(undefined); // <-- added
 
   const meta = useMemo(() => {
     const match = src.match(/_w(\d+)h(\d+)f(\d+)/);
@@ -59,6 +60,22 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
     });
     frameDurationsRef.current = newDurations;
   }, [meta, fps]);
+
+  useEffect(() => {
+    if (prevFrameControl.current === frameControl) return;
+    prevFrameControl.current = frameControl;
+    console.log("SpriteSheetPlayer frameControl changed:", frameControl, src);
+
+    if (frameControl === -1) {
+      frameRef.current = -1;
+      if (!DISABLE_FRAME_INDEX_NULLING) {
+        setFrameIndex(null);
+      }
+    } else if (typeof frameControl === "number") {
+      frameRef.current = frameControl;
+      setFrameIndex(frameControl);
+    }
+  }, [frameControl, src]);
 
   useEffect(() => {
     if (!meta || frameControl !== null || !autoPlay) return;
@@ -110,19 +127,6 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
       }
     };
   }, [meta, frameControl, autoPlay, loops, randomFrame, onEnd]);
-
-  useEffect(() => {
-    console.log("SpriteSheetPlayer frameControl changed:", frameControl);
-    if (frameControl === -1) {
-      frameRef.current = -1;
-      if (!DISABLE_FRAMEINDEX_NULLING) {
-        setFrameIndex(null);
-      }
-    } else if (typeof frameControl === "number") {
-      frameRef.current = frameControl;
-      setFrameIndex(frameControl);
-    }
-  }, [frameControl]);
 
   useEffect(() => {
     if (!wrapperRef.current || !meta) return;
