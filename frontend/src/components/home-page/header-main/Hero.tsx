@@ -84,6 +84,10 @@ const Hero: React.FC = () => {
     setHasDragged(value);
   }, []);
 
+  useEffect(() => {
+    console.log("Hero rerender. circlePaused:", circlePaused);
+  }, [circlePaused]);
+
   const onSlingerDragStart = useCallback(
     (x: number, y: number, e: MouseEvent | TouchEvent) => {
       console.log("onSlingerDragStart", x, y, e.type);
