@@ -12,7 +12,9 @@ const OrbArrowTooltip: React.FC<Props> = ({ className = "" }) => {
       className={[`${styles.orbArrowTooltip} orbArrowTooltip`, className].join(
         " ",
       )}
-    ></div>
+    >
+      <div className={styles.tooltipText} />
+    </div>
   );
 };
 

@@ -24,57 +24,45 @@
     mask-size: cover;
     animation: bounceMask 2s infinite forwards;
     :global(.notDragged) & {
-      display: block;
       background-color: $lighterThemeColor;
     }
 
-    :global(.hasDragged.notSlung) & {
-      display: block;
+    :global(.hasDragged) & {
       background-color: #ff0;
     }
   }
 
   :global(.hasSlung) & {
-    // display: none;
+    display: none;
   }
+}
+
+.tooltipText {
+  position: absolute;
+  width: 200px;
+  height: 2em;
+  right: 0;
+  bottom: -50%;
+  rotate: 45deg;
+  transform-origin: bottom right;
+  transform: translate(10px, 52%);
+  animation: bounceClip 2s infinite forwards;
 
   &::before {
     content: "Grab a hold! Grab a hold! Grab a hold!\00a0";
     position: absolute;
-    bottom: 0;
+    top: 50%;
     right: 0;
+    margin-top: 0;
     white-space: nowrap;
     text-align: right;
     transform-origin: bottom right;
     display: block;
     animation: scrollText 2s linear infinite;
     width: max-content;
-    rotate: 45deg;
-  }
-}
-
-// Override content when parent has global state class
-:global(.hasDragged):global(.notSlung) .orbArrowTooltip::before {
-  content: "Give a toss! Give a toss! Give a toss!\00a0";
-}
-
-:global(.hasSlung) .orbArrowTooltip {
-  // display: none;
-}
-
-:global(.slinger) {
-  :global(.hasSlungDelay) &::before {
-    display: none;
-  }
-}
-
-:global(.hero.hasMounted) {
-  .orbArrowTooltip {
-    // animation: bounceClip 2s infinite forwards;
-  }
-
-  &::before {
-    // animation: bounceMask 2s infinite forwards;
+    :global(.hasDragged) & {
+      content: "Give a toss! Give a toss! Give a toss!\00a0";
+    }
   }
 }
 
@@ -92,10 +80,10 @@
 
 @keyframes scrollText {
   0% {
-    transform: translate(24.6%, 50%);
+    transform: translate(24.6%, -50%);
   }
   100% {
-    transform: translate(-8.6%, 50%);
+    transform: translate(-8.6%, -50%);
   }
 }
 
