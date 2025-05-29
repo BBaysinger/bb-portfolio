@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState, useMemo } from "react";
 import styles from "./SpriteSheetPlayer.module.scss";
 
-const DISABLE_FRAME_INDEX_NULLING = true;
+const DISABLE_FRAME_INDEX_NULLING = false;
 
 interface SpriteSheetPlayerProps {
   src: string;
@@ -156,7 +156,10 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
   const col = frameIndex !== null ? frameIndex % columns : 0;
   const row = frameIndex !== null ? Math.floor(frameIndex / columns) : 0;
 
-  const backgroundPosition = `-${Math.round(col * frameWidth)}px -${Math.round(row * frameHeight)}px`;
+  const backgroundPosition =
+    frameIndex === null
+      ? "0 0"
+      : `-${Math.round(col * frameWidth)}px -${Math.round(row * frameHeight)}px`;
   const sheetWidth = Math.round(columns * frameWidth);
   const sheetHeight = Math.round(Math.ceil(frameCount / columns) * frameHeight);
 
@@ -166,13 +169,17 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
       className={[styles.spriteSheetWrapper, className].join(" ")}
     >
       <div
-        className={[styles.spriteSheetScaler, scalerClassName].join(" ")}
+        className={[
+          styles.spriteSheetScaler,
+          scalerClassName,
+          frameIndex === null ? styles.empty : "",
+        ].join(" ")}
         style={{
           width: `${frameWidth}px`,
           height: `${frameHeight}px`,
           transform: `scale(${scale})`,
           transformOrigin: "top left",
-          backgroundImage: `url(${src})`,
+          backgroundImage: frameIndex === null ? "none" : `url(${src})`,
           backgroundPosition,
           backgroundSize: `${sheetWidth}px ${sheetHeight}px`,
         }}

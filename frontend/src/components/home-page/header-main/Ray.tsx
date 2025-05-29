@@ -15,7 +15,8 @@ const Ray: React.FC<RayProps> = ({ className, isActive = false }) => {
   const [barsFrame, setBarsFrame] = useState<number | null>(-1); // hidden
 
   const onBarsEnded = () => {
-    setLightningFrame(6); // freeze lightning
+    console.log("Bars animation ended");
+    setLightningFrame(null);
     setBarsFrame(-1); // hide bars
   };
 
