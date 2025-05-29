@@ -4,10 +4,12 @@ import styles from "./SpriteSheetPlayer.module.scss";
 interface SpriteSheetPlayerProps {
   src: string;
   autoPlay?: boolean;
-  fps?: number | number[]; // constant FPS or per-frame
+  paused?: boolean;
+  fps?: number | number[];
   loops?: number;
   randomFrame?: boolean;
   onEnd?: () => void;
+  frameControl?: number | null; // null = play, number = stop on frame, -1 = blank
   className?: string;
   scalerClassName?: string;
 }
@@ -15,14 +17,16 @@ interface SpriteSheetPlayerProps {
 const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
   src,
   autoPlay = true,
+  paused = false,
   fps = 30,
   loops = 0,
   randomFrame = false,
   onEnd,
+  frameControl = null,
   className = "",
   scalerClassName = "",
 }) => {
-  const [frameIndex, setFrameIndex] = useState(0);
+  const [frameIndex, setFrameIndex] = useState<number | null>(0);
   const [scale, setScale] = useState(1);
 
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -68,15 +72,21 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
   }, [meta]);
 
   useEffect(() => {
-    if (!meta || !autoPlay || frameDurationsRef.current.length === 0) return;
+    if (
+      !meta ||
+      frameControl !== null ||
+      frameDurationsRef.current.length === 0 ||
+      paused ||
+      !autoPlay
+    )
+      return;
 
     let isCancelled = false;
     lastTimeRef.current = performance.now();
-    frameRef.current = 0;
     completedLoopsRef.current = 0;
 
     const animate = (now: number) => {
-      if (isCancelled || !meta) return;
+      if (isCancelled || !meta || paused || frameControl !== null) return;
 
       const elapsed = now - lastTimeRef.current;
       const currentIndex = frameRef.current;
@@ -121,7 +131,50 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [meta, autoPlay, loops, randomFrame, onEnd]);
+  }, [meta, autoPlay, paused, loops, randomFrame, onEnd, frameControl]);
+
+  useEffect(() => {
+    if (frameControl === -1) {
+      frameRef.current = -1;
+      setFrameIndex(null);
+    } else if (typeof frameControl === "number") {
+      frameRef.current = frameControl;
+      setFrameIndex(frameControl);
+    }
+  }, [frameControl]);
+
+  useEffect(() => {
+    if (!meta || paused || frameControl === null) return;
+
+    lastTimeRef.current = performance.now();
+    completedLoopsRef.current = 0;
+    const current = frameRef.current;
+
+    const animate = (now: number) => {
+      if (!meta || paused || frameControl !== null) return;
+
+      const elapsed = now - lastTimeRef.current;
+      const duration = frameDurationsRef.current[current] || 1000 / 30;
+
+      if (elapsed >= duration) {
+        lastTimeRef.current = now - (elapsed % duration);
+        const next = (current + 1) % meta.frameCount;
+        frameRef.current = next;
+        setFrameIndex(next);
+        animationFrameRef.current = requestAnimationFrame(animate);
+      } else {
+        animationFrameRef.current = requestAnimationFrame(animate);
+      }
+    };
+
+    animationFrameRef.current = requestAnimationFrame(animate);
+
+    return () => {
+      if (animationFrameRef.current !== null) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
+  }, [paused]);
 
   useEffect(() => {
     if (!wrapperRef.current || !meta) return;
@@ -138,7 +191,7 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
     return () => observer.disconnect();
   }, [meta]);
 
-  if (!meta) return null;
+  if (!meta || frameIndex === null) return null;
 
   const { frameWidth, frameHeight, frameCount } = meta;
   const columns = Math.min(frameCount, Math.floor(4096 / frameWidth));
