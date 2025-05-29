@@ -53,7 +53,10 @@ const MagneticThingy: React.FC<MagneticThingyProps> = ({
     const pauseWave = () => {
       if (!isInteractingRef.current) {
         isInteractingRef.current = true;
-        setIsInteracting(true); // trigger CSS class removal
+        setIsInteracting(true); // trigger CSS animation pause
+      } else {
+        // Optional optimization: reset timeout each time
+        if (resetTimeoutRef.current) clearTimeout(resetTimeoutRef.current);
       }
     };
 
@@ -69,7 +72,7 @@ const MagneticThingy: React.FC<MagneticThingyProps> = ({
       );
 
       if (!elementUnderPointer) return;
-      if (elementUnderPointer !== path) {
+      if (!path.contains(elementUnderPointer)) {
         leaveEvent();
         return;
       }
