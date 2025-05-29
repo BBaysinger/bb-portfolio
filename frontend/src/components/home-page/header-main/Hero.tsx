@@ -86,7 +86,8 @@ const Hero: React.FC = () => {
 
   const onSlingerDragStart = useCallback(
     (x: number, y: number, e: MouseEvent | TouchEvent) => {
-      setCirclePaused(false);
+      console.log("onSlingerDragStart", x, y, e.type);
+      if (circlePaused) setCirclePaused(false); // ✅ unpause only on drag start
       slingerIsIdle.current = false;
       setIsSlingerIdle(false);
       isSlingerInFlight.current = false;
@@ -102,13 +103,14 @@ const Hero: React.FC = () => {
         gridControllerRef.current?.resumeShadows?.();
       }
     },
-    [hasDragged, updateHasDragged, useSlingerTracking],
+    [circlePaused, hasDragged, updateHasDragged, useSlingerTracking],
   );
 
   const onSlingerDragEnd = useCallback(
     (_x: number, _y: number, e: MouseEvent | TouchEvent) => {
-      setCirclePaused(true);
+      setCirclePaused(true); // ✅ pause only on drag end
       isSlingerInFlight.current = true;
+
       if (e.type === "touchend") {
         setSlingerPos(null);
       }
@@ -116,7 +118,7 @@ const Hero: React.FC = () => {
         gridControllerRef.current?.resetAllFluxels?.();
       }
     },
-    [],
+    [useSlingerTracking],
   );
 
   const onSlingerWallCollision = useCallback(
@@ -245,7 +247,7 @@ const Hero: React.FC = () => {
           >
             <>
               <OrbArrowTooltip />
-              <ChargedCircle paused={circlePaused} />
+              <ChargedCircle isActive={!circlePaused} />
             </>
           </SlingerBox>
         </div>
