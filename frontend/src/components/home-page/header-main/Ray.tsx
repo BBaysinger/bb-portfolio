@@ -21,12 +21,12 @@ const Ray: React.FC<RayProps> = ({ className, isActive = false }) => {
 
   useEffect(() => {
     if (!isActive) {
-      setLightningFrame(-1);
-      setBarsFrame(-1);
+      if (lightningFrame !== -1) setLightningFrame(-1);
+      if (barsFrame !== -1) setBarsFrame(-1);
     } else {
-      setBarsFrame(null); // resume
+      if (barsFrame === -1) setBarsFrame(null); // only resume if it was off
     }
-  }, [isActive]);
+  }, [isActive, lightningFrame, barsFrame]);
 
   return (
     <div className={[styles.ray, className, "ray"].join(" ")}>

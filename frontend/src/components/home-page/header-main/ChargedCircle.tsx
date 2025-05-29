@@ -17,6 +17,9 @@ const ChargedCircle: React.FC<ChargedCircleProps> = ({ isActive = false }) => {
     // Log the paused state when the component mounts or updates
     // console.log("ChargedCircle paused state:", paused);
   }, [isActive]);
+
+  console.log("ChargedCircle render, isActive:", isActive);
+
   return (
     <div className={styles.chargedCircle}>
       <div className={styles.scaler}>
@@ -37,4 +40,4 @@ const ChargedCircle: React.FC<ChargedCircleProps> = ({ isActive = false }) => {
   );
 };
 
-export default ChargedCircle;
+export default React.memo(ChargedCircle);
