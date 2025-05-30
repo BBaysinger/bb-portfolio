@@ -17,10 +17,11 @@ const SlingerRay: React.FC<SlingerRayProps> = ({
   const [lightningFrame, setLightningFrame] = useState<number | null>(-1); // hidden
   const [energyBarsFrame, setEnergyBarsFrame] = useState<number | null>(-1); // hidden
 
-  const onBarsEnded = () => {
-    setLightningFrame(null); // start lightning after energy bars end
-    setEnergyBarsFrame(-1); // hide energy bars
-  };
+const onBarsEnded = () => {
+  setEnergyBarsFrame(-1); // hide energy bars
+  setLightningFrame(Math.random()); // set to a unique value to force useEffect
+  requestAnimationFrame(() => setLightningFrame(null)); // release control to start animation
+};
 
   useEffect(() => {
     if (isActive) {
