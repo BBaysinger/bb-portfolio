@@ -210,6 +210,7 @@ ul {
     height: 53px;
     background: linear-gradient(rgba(30, 30, 30, 0.85), rgba(10, 10, 10, 0.85));
     padding-top: 0;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.9);
     &:global(.logout) {
       position: absolute;
       bottom: 100px;
@@ -237,8 +238,8 @@ ul {
   min-height: 1000px;
   opacity: 0.5;
   mix-blend-mode: multiply;
-  background-image: url("/images/misc/innards.webp");
-  background-size: auto 100%;
+  background-image: url("/images/nav/paisley.webp");
+  background-size: auto 50%;
   background-position: right top;
 }
 
@@ -250,7 +251,7 @@ ul {
   height: 100%;
   z-index: 1;
   opacity: 0.3;
-  // mask-image: url("/images/misc/innards-mask.svg");
+  // mask-image: url("/images/nav/innards-mask.svg");
   mask-size: auto 100%;
   mask-repeat: no-repeat;
   mask-position: right top;
