@@ -137,6 +137,16 @@ a.scrollCta {
     animation-play-state: paused;
     transition-delay: 0s;
   }
+  :global(.notSlingerIdle.notScrolledOut) & {
+    animation-play-state: paused;
+    transition-delay: 0s;
+    transition:
+      opacity 0.5s,
+      transform 0.5s !important;
+    opacity: 1;
+    transform: translateX(100%);
+    animation: none;
+  }
 }
 
 @keyframes fadeBounce {
