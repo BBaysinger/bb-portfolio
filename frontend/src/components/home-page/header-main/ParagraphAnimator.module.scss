@@ -24,11 +24,7 @@
 
   p {
     margin-bottom: 0;
-    color: rgba(255, 255, 255, 0);
     @include staticRange(margin-top, -0.18em, -0.25em);
-    span {
-      color: rgba(255, 255, 255, 0.8);
-    }
   }
 }
 
@@ -61,11 +57,10 @@
 }
 
 .visible {
-  color: white;
+  color: #ccc;
 }
 
 .invisible {
-  color: gray;
   opacity: 0.3;
   display: none;
 }
