@@ -25,14 +25,14 @@
     color: #fff;
     margin-bottom: 0;
     font-weight: 400; // Before fonts load.
-    line-height: 0.6em; // Compensated for in padding for alignment
-    padding-top: 0.1em;
-    @include remRange(font-size, 40px, 50px, $b320, $b1600);
+    @include remRange(padding-top, 0px, 0px, $b320px, $b992px);
+    @include remRange(line-height, 20px, 40px, $b320px, $b992px);
+    @include remRange(font-size, 32px, 50px, $b320px, $b992px);
     @include breakpointUp($b992px) {
       flex-direction: row;
       justify-content: flex-end;
       align-items: flex-end;
-      line-height: 0.71em; // Compensated for in padding for alignment
+      line-height: 0.71em;
     }
     & > * {
       margin-left: -0.1em; // Aligns left text at different sizes.
