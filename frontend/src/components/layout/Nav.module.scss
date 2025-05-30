@@ -291,26 +291,6 @@ ul {
 }
 
 ////////////////////////////////////////////////////
-// Barber poles
-////////////////////////////////////////////////////
-
-.barberPole {
-  position: absolute;
-  z-index: 1;
-  height: 28px;
-  width: 133px;
-  right: 33px;
-  top: 375px;
-  border-radius: 7px;
-  opacity: 0.4;
-  > * {
-    animation-duration: 20s;
-    max-width: 200%;
-    @include pauseUnlessMobileNavExpanded;
-  }
-}
-
-////////////////////////////////////////////////////
 /// Debug
 ////////////////////////////////////////////////////
 

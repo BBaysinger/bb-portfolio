@@ -20,7 +20,17 @@ const App: React.FC = () => {
     (state: RootState) => state.ui.isMobileNavExpanded,
   );
 
-  const isHeroInView = useSelector((state: RootState) => state.ui.isHeroInView);
+  const percentHeroInView = useSelector(
+    (state: RootState) => state.ui.percentHeroInView,
+  );
+
+  React.useEffect(() => {
+    if (percentHeroInView >= 0) {
+      console.log(`Hero in view: ${percentHeroInView}%`);
+    } else {
+      console.log("Hero not on this page");
+    }
+  }, [percentHeroInView]);
 
   useClientDimensions();
   useTrackHeroInView();
@@ -43,11 +53,10 @@ const App: React.FC = () => {
 
   return (
     <AuthProvider>
-      {/* <MainHeightProvider> */}
       <div
         ref={fluidRef}
         className={[
-          isHeroInView ? "isHeroInView" : "",
+          percentHeroInView >= 95 ? "isHeroInView" : "",
           isMenuOpen ? `isMobileNavExpanded ${styles.isMobileNavExpanded}` : "",
         ].join(" ")}
       >
@@ -61,7 +70,6 @@ const App: React.FC = () => {
         </div>
         <Footer mutationElemRef={mainContentRef} />
       </div>
-      {/* </MainHeightProvider> */}
     </AuthProvider>
   );
 };
