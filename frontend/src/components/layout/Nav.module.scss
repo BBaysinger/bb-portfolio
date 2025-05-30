@@ -208,7 +208,7 @@ ul {
     display: flex;
     padding-left: 40px;
     height: 53px;
-    background: linear-gradient(rgba(30, 30, 30, 0.85), rgba(10, 10, 10, 0.85));
+    background: linear-gradient(rgba(30, 30, 30, 0.92), rgba(10, 10, 10, 0.85));
     padding-top: 0;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.9);
     &:global(.logout) {
@@ -259,7 +259,7 @@ ul {
     0deg,
     rgba(0, 0, 0, 0.5) 0%,
     rgba(0, 0, 0, 0) 10%,
-    rgba(0, 0, 0, 0.6) 85%,
+    rgba(0, 0, 0, 0.0) 85%,
     rgba(0, 0, 0, 1) 100%
   );
 }
@@ -285,7 +285,7 @@ ul {
       to bottom,
       rgba(0, 0, 0, 1) 0%,
       rgba(50, 50, 50, 0) 10%,
-      rgba(50, 50, 50, 0.5) 90%,
+      rgba(50, 50, 50, 0.0) 90%,
       rgba(0, 0, 0, 1) 100%
     );
 }

@@ -9,13 +9,13 @@
   position: absolute;
   top: -10px;
   transform: translateX(-50%);
-  width: calc(120px + 6vw);
+  width: calc(122px + 6vw);
   animation: pulseScale 2s infinite ease-in-out;
 }
 
 .energyBars {
   position: absolute;
-  top: calc(20px + 1vw);
+  top: calc(21px + 1vw);
   width: calc(50px + 4vw);
   transform: translateX(-50%);
 }
