@@ -7,7 +7,7 @@ header.hero {
   flex-direction: column;
   position: relative;
   align-items: bottom;
-  justify-content: flex-end;
+  justify-content: space-between;
   letter-spacing: 1px;
   user-select: none;
   z-index: 10;
@@ -188,9 +188,13 @@ a.scrollCta {
 }
 
 .fpsCounter {
+  font-family: "Digital-7", sans-serif;
   position: absolute;
-  top: $navBarHeight;
-  right: 0;
+  top: calc($navBarHeight + var(--hero-padding));
+  right: var(--hero-padding);
   z-index: 10000;
-  color: #666;
+  color: $complimentaryThemeColor;
+  opacity: 0.7;
+  line-height: 0.8em;
+  @include remRange(font-size, 22px, 34px);
 }

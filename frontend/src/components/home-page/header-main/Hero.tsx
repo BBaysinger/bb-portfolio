@@ -256,12 +256,13 @@ const Hero: React.FC = () => {
           </a>
         </div>
       </div>
+
       <div className={styles.foreground}>
-        <ParagraphAnimator
-          introMessage={`Good ${timeOfDay}. This is a kinetic UI Experiment. Grab the orb and then give it a toss for fun surprises!`}
-          paragraphs={quotes}
-          className={styles.message}
-        />
+      <ParagraphAnimator
+        introMessage={`Good ${timeOfDay}. This is a kinetic UI Experiment. Grab the orb and then give it a toss for fun surprises!`}
+        paragraphs={quotes}
+        className={styles.message}
+      />
         <TitleBranding className={styles.titleBranding} ref={titleRef} />
       </div>
       <div className={styles.fpsCounter}>FPS: {fps}</div>
