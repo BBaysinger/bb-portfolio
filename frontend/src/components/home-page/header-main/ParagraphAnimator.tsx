@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 
 import styles from "./ParagraphAnimator.module.scss";
@@ -38,6 +38,8 @@ const ParagraphAnimator: React.FC<ParagraphAnimatorProps> = ({
   const currentIndex = useRef(0);
   const queue = useRef<number[]>([]);
   const hasPlayedIntro = useRef(false);
+  const readyForNext = useRef(false);
+  const resumeChecker = useRef<number | null>(null);
 
   const generateShuffledQueue = () => shuffleArray(paragraphs.map((_, i) => i));
 
@@ -61,8 +63,10 @@ const ParagraphAnimator: React.FC<ParagraphAnimatorProps> = ({
     tl.current?.kill();
     tl.current = gsap.timeline();
 
+    // Delay before animation starts
     tl.current.to({}, { duration: initialDelay / 1000 });
 
+    // Type the paragraph character-by-character
     tl.current.to(
       { value: 0 },
       {
@@ -80,25 +84,48 @@ const ParagraphAnimator: React.FC<ParagraphAnimatorProps> = ({
       },
     );
 
-    tl.current.to({}, { duration: paragraphDelay / 1000 });
-    tl.current.to(containerRef.current, { opacity: 0, duration: 0.5 });
-    tl.current.set(containerRef.current, { opacity: 1 });
-
+    // Pause after text is fully typed out
     tl.current.to(
       {},
       {
         duration: 0.001,
         onComplete: () => {
-          currentIndex.current++;
-          if (currentIndex.current >= queue.current.length) {
-            queue.current = shuffleArray(paragraphs.map((_, i) => i));
-            currentIndex.current = 0;
-          }
-          setTimeout(playParagraph, 50);
+          readyForNext.current = false;
+          setTimeout(() => {
+            readyForNext.current = true;
+            checkResume();
+          }, paragraphDelay);
         },
       },
     );
+
+    // Fade out and reset
+    tl.current.to(containerRef.current, { opacity: 0, duration: 0.5 });
+    tl.current.set(containerRef.current, { opacity: 1 });
   };
+  // Create a function to check whether we're allowed to continue
+  const checkResume = useCallback(() => {
+    if (readyForNext.current && !paused) {
+      currentIndex.current++;
+      if (currentIndex.current >= queue.current.length) {
+        queue.current = shuffleArray(paragraphs.map((_, i) => i));
+        currentIndex.current = 0;
+      }
+      playParagraph();
+    } else {
+      // Check again later
+      resumeChecker.current = window.setTimeout(checkResume, 100);
+    }
+  }, [paused, paragraphs]);
+
+  useEffect(() => {
+    return () => {
+      tl.current?.kill();
+      if (resumeChecker.current) {
+        clearTimeout(resumeChecker.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (paused) {

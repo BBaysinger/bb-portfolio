@@ -191,11 +191,10 @@ a.scrollCta {
   font-family: "Digital-7", sans-serif;
   position: absolute;
   top: calc($navBarHeight + var(--hero-padding));
-  right: calc(var(--hero-padding) + 0.8em);
+  right: calc(var(--hero-padding) + 1em);
   z-index: 10000;
   color: $complimentaryThemeColor;
   opacity: 0.7;
-  line-height: 0.8em;
   transform-origin: top right;
   rotate: -90deg;
   @include remRange(font-size, 22px, 34px);
