@@ -1,8 +1,6 @@
 import React, { useEffect, useRef, useState, useMemo } from "react";
 import styles from "./SpriteSheetPlayer.module.scss";
 
-// const DISABLE_FRAME_INDEX_NULLING = false;
-
 interface SpriteSheetPlayerProps {
   src: string;
   autoPlay?: boolean;
@@ -35,7 +33,6 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
   const frameRef = useRef<number>(0);
   const completedLoopsRef = useRef<number>(0);
   const frameDurationsRef = useRef<number[]>([]);
-  const prevFrameControl = useRef<number | null | undefined>(undefined);
 
   const meta = useMemo(() => {
     const match = src.match(/_w(\d+)h(\d+)f(\d+)/);
@@ -62,7 +59,7 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
   }, [meta, fps]);
 
   useEffect(() => {
-    prevFrameControl.current = frameControl;
+    if (!meta) return;
 
     if (animationFrameRef.current !== null) {
       cancelAnimationFrame(animationFrameRef.current);
@@ -72,21 +69,34 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
     if (frameControl === -1) {
       frameRef.current = -1;
       completedLoopsRef.current = 0;
-      setFrameIndex(null); // hide frame
+      setFrameIndex(null);
       return;
     }
 
     if (typeof frameControl === "number") {
       frameRef.current = frameControl;
       setFrameIndex(frameControl);
-    } else if (frameControl === null) {
+      return;
+    }
+
+    if (randomFrame) {
+      const random = Math.floor(Math.random() * meta.frameCount);
+      frameRef.current = random;
+      setFrameIndex(random);
+    } else {
       frameRef.current = 0;
       setFrameIndex(0);
     }
-  }, [frameControl, src]);
+  }, [frameControl, src, randomFrame, meta]);
 
   useEffect(() => {
-    if (!meta || frameControl !== null || !autoPlay) return;
+    if (!meta || frameControl === -1) return;
+
+    const shouldAnimate =
+      (autoPlay && frameControl === null) || // normal animation
+      (randomFrame && frameControl === null); // force animation for randomFrame
+
+    if (!shouldAnimate) return;
 
     let isCancelled = false;
     completedLoopsRef.current = 0;
@@ -95,12 +105,7 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
     lastTimeRef.current = performance.now();
 
     const animate = (now: number) => {
-      if (
-        isCancelled ||
-        frameControl !== null || // ⛔️ animation is externally controlled or paused
-        frameControl === -1 || // ⛔️ explicitly hidden/paused
-        !meta
-      )
+      if (isCancelled || frameControl !== null || frameControl === -1 || !meta)
         return;
 
       const elapsed = now - lastTimeRef.current;
@@ -114,6 +119,14 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
           const random = Math.floor(Math.random() * meta.frameCount);
           frameRef.current = random;
           setFrameIndex(random);
+
+          completedLoopsRef.current++;
+          const maxLoops = loops === 0 ? Infinity : loops;
+          if (completedLoopsRef.current >= maxLoops) {
+            isCancelled = true;
+            onEnd?.();
+            return;
+          }
         } else {
           const next = (currentIndex + 1) % meta.frameCount;
           frameRef.current = next;

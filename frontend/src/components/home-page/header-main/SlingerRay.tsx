@@ -1,35 +1,39 @@
 import React, { useEffect, useState } from "react";
 import SpriteSheetPlayer from "components/common/SpriteSheetPlayer";
-import styles from "./Ray.module.scss";
+import styles from "./SlingerRay.module.scss";
 
-interface RayProps {
+interface SlingerRayProps {
   className?: string;
   isActive?: boolean; // use this instead of paused
 }
 
-const Ray: React.FC<RayProps> = ({ className, isActive = false }) => {
+const SlingerRay: React.FC<SlingerRayProps> = ({
+  className,
+  isActive = false,
+}) => {
   const lightningSrc = "/spritesheets/lightning_Layer-Comp-_w480h1098f7.webp";
-  const barSrc = "/spritesheets/bars_w92h300f110.webp";
+  const energyBarSrc = "/spritesheets/energy-bars_w92h300f110.webp";
 
   const [lightningFrame, setLightningFrame] = useState<number | null>(-1); // hidden
-  const [barsFrame, setBarsFrame] = useState<number | null>(-1); // hidden
+  const [energyBarsFrame, setEnergyBarsFrame] = useState<number | null>(-1); // hidden
 
   const onBarsEnded = () => {
-    setLightningFrame(null);
-    setBarsFrame(-1); // hide bars
+    setLightningFrame(null); // start lightning after energy bars end
+    setEnergyBarsFrame(-1); // hide energy bars
   };
 
   useEffect(() => {
     if (isActive) {
-      setBarsFrame(null); // start/resume bars animation
+      setEnergyBarsFrame(null); // start/resume energy bars
+      setLightningFrame(-1); // make sure lightning is hidden until energy bars finish
     } else {
       setLightningFrame(-1); // hide lightning
-      setBarsFrame(-1); // hide bars
+      setEnergyBarsFrame(-1); // hide energy bars
     }
   }, [isActive]);
 
   return (
-    <div className={[styles.ray, className, "ray"].join(" ")}>
+    <div className={[styles.slingerRay, className, "slingerRay"].join(" ")}>
       <SpriteSheetPlayer
         className={styles.lightning}
         autoPlay={false}
@@ -40,15 +44,15 @@ const Ray: React.FC<RayProps> = ({ className, isActive = false }) => {
         frameControl={lightningFrame}
       />
       <SpriteSheetPlayer
-        className={styles.bars}
+        className={styles.energyBars}
         autoPlay={true}
-        src={barSrc}
+        src={energyBarSrc}
         loops={1}
         onEnd={onBarsEnded}
-        frameControl={barsFrame}
+        frameControl={energyBarsFrame}
       />
     </div>
   );
 };
 
-export default React.memo(Ray);
+export default React.memo(SlingerRay);
