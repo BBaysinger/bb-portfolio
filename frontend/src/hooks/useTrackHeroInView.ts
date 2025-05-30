@@ -6,21 +6,43 @@ import { setHeroInView } from "store/uiSlice";
 export function useTrackHeroInView() {
   const dispatch = useDispatch();
   const location = useLocation();
-  const lastValueRef = useRef<boolean | null>(null);
+  const lastBucketRef = useRef<number | null>(null);
 
   useEffect(() => {
-    const handle = () => {
-      const scrollThreshold = window.innerHeight; // 100vh
-      const hasScrolledPastThreshold = window.scrollY > scrollThreshold;
+    const heroEl = document.getElementById("hero");
 
+    const handle = () => {
       const onHome =
         location.pathname === "/" || location.pathname === "/portfolio";
 
-      const nextValue = !hasScrolledPastThreshold && onHome;
+      if (!onHome || !heroEl) {
+        if (lastBucketRef.current !== -1) {
+          lastBucketRef.current = -1;
+          dispatch(setHeroInView(-1));
+        }
+        return;
+      }
 
-      if (nextValue !== lastValueRef.current) {
-        lastValueRef.current = nextValue;
-        dispatch(setHeroInView(nextValue));
+      const rect = heroEl.getBoundingClientRect();
+      const vh = window.innerHeight;
+
+      const visibleHeight = Math.min(rect.bottom, vh) - Math.max(rect.top, 0);
+      const clampedHeight = Math.max(0, Math.min(visibleHeight, rect.height));
+      const percentVisible = (clampedHeight / rect.height) * 100;
+
+      let bucket: number;
+      if (percentVisible >= 99.5) bucket = 100;
+      else if (percentVisible >= 95) bucket = 95;
+      else if (percentVisible >= 90) bucket = 90;
+      else if (percentVisible >= 5) bucket = 5;
+      else bucket = 0;
+
+      if (bucket !== lastBucketRef.current) {
+        lastBucketRef.current = bucket;
+        dispatch(setHeroInView(bucket));
+        console.log(
+          `Hero in view: ${bucket}% (actual: ${percentVisible.toFixed(2)}%)`,
+        );
       }
     };
 
@@ -37,5 +59,3 @@ export function useTrackHeroInView() {
     };
   }, [dispatch, location.pathname]);
 }
-
-export default useTrackHeroInView;
