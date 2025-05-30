@@ -5,8 +5,8 @@ header.headerSub {
   position: relative;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  align-items: flex-start;
+  justify-content: flex-start;
   overflow: hidden;
   height: 37vw;
   padding-left: 20px;
@@ -19,10 +19,10 @@ header.headerSub {
   min-width: 100%;
   padding-top: 50px;
   background-position: center;
-  background-color: #fff;
+  background-color: #333;
   background-repeat: repeat !important;
   background-image: url("/images/common/barber-pole.webp");
-  background-size: 400px;
+  background-size: 500px;
 
   @include breakpointUp($b480px) {
     background-size: 500px;
@@ -39,24 +39,19 @@ header.headerSub {
     font-weight: 400; // Only a factor before fonts load.
     margin-top: 0;
     margin-bottom: 0;
-    font-size: 36px;
     line-height: 1em;
 
-    @include breakpointUp($b480px) {
-      font-size: 46px;
-    }
-
-    @include breakpointUp($b992px) {
-      font-size: 60px;
-    }
+    @include remRange(font-size, 36px, 70px);
   }
 }
 
 .textWrapper {
-  background-color: #fff;
-  color: #444;
+  background-color: rgba(255, 255, 255, 0.05);
+  color: #fff;
   padding: 20px;
-  border-radius: 20px;
+  border-radius: 5px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
   @include breakpointUp($b992px) {
     padding: 30px;
   }
