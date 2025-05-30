@@ -1,12 +1,12 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 export interface UIState {
-  isHeroInView: boolean;
+  percentHeroInView: number;
   isMobileNavExpanded: boolean;
 }
 
 const initialState: UIState = {
-  isHeroInView: false,
+  percentHeroInView: -1,
   isMobileNavExpanded: false,
 };
 
@@ -16,8 +16,8 @@ const uiSlice = createSlice({
   reducers: {
     // Use setters with payloads when setting state based
     // on external input (scroll position, screen size, etc).
-    setHeroInView(state, action: PayloadAction<boolean>) {
-      state.isHeroInView = action.payload;
+    setHeroInView(state, action: PayloadAction<number>) {
+      state.percentHeroInView = action.payload;
     },
     // Use imperative verbs without payloads for user interactions
     // with known results (open/close/toggle menus).

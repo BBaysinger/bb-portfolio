@@ -200,7 +200,6 @@ a.scrollCta {
 .fpsCounter {
   font-family: "Digital-7", sans-serif;
   position: absolute;
-  // top: calc($navBarHeight + var(--hero-padding));
   bottom: 54vh;
   white-space: nowrap;
   left: calc(100vw - var(--hero-padding) - 1em);
