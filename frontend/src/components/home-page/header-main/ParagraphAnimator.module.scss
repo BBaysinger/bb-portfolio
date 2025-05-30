@@ -5,7 +5,7 @@
   position: absolute;
   top: var(--hero-padding);
   left: var(--hero-padding);
-  width: calc(100vw - var(--hero-padding) * 2 - 400px);
+  width: calc(100vw - var(--hero-padding) * 2 - $navBarHeight);
   white-space: pre-wrap;
   transform-origin: top left;
   pointer-events: none;
@@ -13,7 +13,10 @@
   transition: opacity 0.5s ease-in-out;
   box-sizing: border-box;
   line-height: 1.3em;
-  @include remRange(font-size, 14px, 18px);
+  @include remRange(font-size, 16px, 18px);
+  @include breakpointUp(768px) {
+    width: calc(100vw - var(--hero-padding) * 2 - 400px);
+  }
 
   &.paused {
     opacity: 0 !important;
