@@ -128,19 +128,24 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
             return;
           }
         } else {
-          const next = (currentIndex + 1) % meta.frameCount;
-          frameRef.current = next;
-          setFrameIndex(next);
+          const maxLoops = loops === 0 ? Infinity : loops;
+          let next = currentIndex + 1;
 
-          if (next === 0) {
+          if (next >= meta.frameCount) {
             completedLoopsRef.current++;
-            const maxLoops = loops === 0 ? Infinity : loops;
             if (completedLoopsRef.current >= maxLoops) {
+              frameRef.current = meta.frameCount - 1; // stop on last frame
+              setFrameIndex(meta.frameCount - 1);
               isCancelled = true;
               onEnd?.();
               return;
+            } else {
+              next = 0; // continue looping
             }
           }
+
+          frameRef.current = next;
+          setFrameIndex(next);
         }
       }
 
