@@ -20,7 +20,7 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    letter-spacing: 0.07em;
+    letter-spacing: 0.05em;
     height: 100%;
     color: #fff;
     margin-bottom: 0;
@@ -32,6 +32,7 @@
       flex-direction: row;
       justify-content: flex-end;
       align-items: flex-end;
+      line-height: 0.71em; // Compensated for in padding for alignment
     }
     & > * {
       margin-left: -0.1em; // Aligns left text at different sizes.
@@ -48,12 +49,14 @@
 
 .hWrapper {
   display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+  min-width: 100vw;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: flex-start;
   @include breakpointUp($b992px) {
     flex-direction: row;
-    justify-content: flex-end;
-    align-items: flex-end;
+    justify-content: flex-start;
+    align-items: flex-start;
   }
 }
 
@@ -61,6 +64,7 @@
   letter-spacing: 0.09em;
   line-height: 0.9em;
   margin-bottom: -0.1em;
+  margin-right: 0;
   @include remRange(font-size, 14px, 26px);
   @include breakpointUp($b992px) {
     line-height: 0.69em;

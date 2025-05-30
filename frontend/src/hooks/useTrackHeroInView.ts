@@ -1,7 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { useDispatch } from "react-redux";
-
 import { setHeroInView } from "store/uiSlice";
 
 export function useTrackHeroInView() {
@@ -11,10 +10,13 @@ export function useTrackHeroInView() {
 
   useEffect(() => {
     const handle = () => {
-      const isAtTop = window.scrollY === 0;
+      const scrollThreshold = window.innerHeight; // 100vh
+      const hasScrolledPastThreshold = window.scrollY > scrollThreshold;
+
       const onHome =
         location.pathname === "/" || location.pathname === "/portfolio";
-      const nextValue = isAtTop && onHome;
+
+      const nextValue = !hasScrolledPastThreshold && onHome;
 
       if (nextValue !== lastValueRef.current) {
         lastValueRef.current = nextValue;
