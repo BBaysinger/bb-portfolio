@@ -1,7 +1,10 @@
 @use "@/styles/mixins" as *;
 @use "@/styles/variables" as *;
+@use "@/styles/globals" as *;
 
 .cvPage {
+  color: #fff;
+  @extend .graphitePage;
   h5 {
     .location {
       font-weight: 500;
