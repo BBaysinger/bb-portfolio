@@ -15,7 +15,7 @@ header.hero {
   background-repeat: no-repeat;
   background-image: url("/images/common/bg-grad.svg");
   background-color: black;
-  background-size: cover;
+  background-size: 100% 100%;
   @include staticRange(--hero-padding, 10px, 18px, $b320, $b576);
 
   &::before {
@@ -28,9 +28,6 @@ header.hero {
     opacity: 0.7;
     z-index: 0;
     box-sizing: border-box;
-    background-repeat: no-repeat;
-    background-position: top center;
-    background-size: cover;
   }
 
   @keyframes fadeInOut {
