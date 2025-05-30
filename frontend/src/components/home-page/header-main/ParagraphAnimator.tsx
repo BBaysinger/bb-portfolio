@@ -28,7 +28,6 @@ const ParagraphAnimator: React.FC<ParagraphAnimatorProps> = ({
   className,
   paused = false,
   introMessage,
-  style,
 }) => {
   const [visibleText, setVisibleText] = useState("");
   const [invisibleText, setInvisibleText] = useState("");
@@ -126,7 +125,6 @@ const ParagraphAnimator: React.FC<ParagraphAnimatorProps> = ({
     <div
       ref={containerRef}
       className={`${styles.paragraphAnimator} ${className} ${paused ? styles.paused : ""}`}
-      style={{ ...style }}
     >
       <p className={styles.paragraphLine}>
         <span className={styles.visible}>{visibleText}</span>
