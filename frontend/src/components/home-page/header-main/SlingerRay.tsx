@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+
+import useScopedImagePreload from "hooks/useScopedImagePreload";
 import SpriteSheetPlayer from "components/common/SpriteSheetPlayer";
 import styles from "./SlingerRay.module.scss";
 
@@ -8,7 +10,9 @@ interface SlingerRayProps {
 }
 
 /**
- *
+ * The rays of energy that radiate out from the Slinger orb.
+ * This handles both the lightning effect and the energy bars
+ * as separate sprite sheets.
  *
  * @author Bradley Baysinger
  * @since The beginning of time.
@@ -23,6 +27,8 @@ const SlingerRay: React.FC<SlingerRayProps> = ({
 
   const [lightningFrame, setLightningFrame] = useState<number | null>(-1); // hidden
   const [energyBarsFrame, setEnergyBarsFrame] = useState<number | null>(-1); // hidden
+
+  useScopedImagePreload("/spritesheets/lightning.webp");
 
   const onBarsEnded = () => {
     setEnergyBarsFrame(-1); // hide energy bars
