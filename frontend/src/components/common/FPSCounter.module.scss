@@ -2,15 +2,32 @@
 @use "@/styles/variables" as *;
 
 .fpsCounter {
+  position: relative;
+  margin-top: 10px;
   font-family: "Digital-7", sans-serif;
   white-space: nowrap;
   z-index: 10000;
-  color: green;
-  opacity: 0.5;
+  color: #00ff00;
+  opacity: 0.6;
   transform-origin: top left;
   z-index: 1;
   mix-blend-mode: exclusion;
-  margin-top: 0;
   line-height: 1em;
-  @include remRange(font-size, 60px, 80px);
+  @include remRange(font-size, 40px, 60px);
+
+  div {
+    position: absolute;
+
+    &:nth-child(2) {
+      // https://stackoverflow.com/a/28413382/1253298
+      background-color: var(--gunmetal-gray);
+      color: transparent;
+      text-shadow: 0px 0.04em 0.04em green;
+      -webkit-background-clip: text;
+      -moz-background-clip: text;
+      background-clip: text;
+      filter: brightness(1.3) blur(0.01em);
+      mix-blend-mode: darken;
+    }
+  }
 }

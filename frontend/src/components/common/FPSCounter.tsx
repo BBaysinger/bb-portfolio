@@ -41,7 +41,10 @@ const FPSCounter: React.FC<{ updateInterval?: number; className?: string }> = ({
   }, [updateInterval]);
 
   return (
-    <div className={[styles.fpsCounter, className].join(" ")}>FPS: {fps}</div>
+    <div className={[styles.fpsCounter, className].join(" ")}>
+      <div>FPS: {fps}</div>
+      <div>FPS: {fps}</div>
+    </div>
   );
 };
 
