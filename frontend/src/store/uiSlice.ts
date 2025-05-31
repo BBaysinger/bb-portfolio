@@ -10,6 +10,13 @@ const initialState: UIState = {
   isMobileNavExpanded: false,
 };
 
+/**
+ *
+ *
+ * @author Bradley Baysinger
+ * @since The beginning of time.
+ * @version N/A
+ */
 const uiSlice = createSlice({
   name: "ui",
   initialState,

@@ -24,6 +24,10 @@ function getShadowInfluence(
 
 /**
  * Creates the magnetic repulsion trailer effect on the fluxels.
+ *
+ * @author Bradley Baysinger
+ * @since The beginning of time.
+ * @version N/A
  */
 export function useFluxelShadows({
   gridRef,

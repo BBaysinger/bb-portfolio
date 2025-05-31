@@ -14,6 +14,13 @@ interface LogoutButtonProps {
   className?: string | ((props: { isActive: boolean }) => string);
 }
 
+/**
+ *
+ *
+ * @author Bradley Baysinger
+ * @since The beginning of time.
+ * @version N/A
+ */
 const LogoutButton: React.FC<LogoutButtonProps> = ({ className = "" }) => {
   const { logout } = useAuth();
 

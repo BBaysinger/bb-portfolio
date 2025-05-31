@@ -3,6 +3,13 @@ import { useLocation } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setHeroInView } from "store/uiSlice";
 
+/**
+ *
+ *
+ * @author Bradley Baysinger
+ * @since The beginning of time.
+ * @version N/A
+ */
 export function useTrackHeroInView() {
   const dispatch = useDispatch();
   const location = useLocation();
