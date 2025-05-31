@@ -1,6 +1,13 @@
 import useTimeOfDay from "hooks/useTimeOfDay";
 import styles from "./FootGreet.module.scss";
 
+/**
+ *
+ *
+ * @author Bradley Baysinger
+ * @since The beginning of time.
+ * @version N/A
+ */
 const FootGreet: React.FC<{ className: string }> = ({ className }) => {
   const currentTimeOfDay = useTimeOfDay(); // live value from the hook
 

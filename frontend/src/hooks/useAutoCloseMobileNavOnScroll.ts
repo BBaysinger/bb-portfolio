@@ -3,6 +3,13 @@ import { useSelector, useDispatch } from "react-redux";
 import { expandMobileNav } from "store/uiSlice";
 import type { RootState } from "store/store";
 
+/**
+ *
+ *
+ * @author Bradley Baysinger
+ * @since The beginning of time.
+ * @version N/A
+ */
 export function useAutoCloseMobileNavOnScroll() {
   const isMenuOpen = useSelector(
     (state: RootState) => state.ui.isMobileNavExpanded,

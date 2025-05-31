@@ -7,6 +7,13 @@ interface SlingerRayProps {
   isActive?: boolean; // use this instead of paused
 }
 
+/**
+ *
+ *
+ * @author Bradley Baysinger
+ * @since The beginning of time.
+ * @version N/A
+ */
 const SlingerRay: React.FC<SlingerRayProps> = ({
   className,
   isActive = false,

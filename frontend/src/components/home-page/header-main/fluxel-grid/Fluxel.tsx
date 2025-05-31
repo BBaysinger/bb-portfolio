@@ -37,6 +37,13 @@ export interface FluxelHandle {
   updateInfluence: (influence: number, colorVariation?: string) => void;
 }
 
+/**
+ *
+ *
+ * @author Bradley Baysinger
+ * @since The beginning of time.
+ * @version N/A
+ */
 const Fluxel = forwardRef<FluxelHandle, { data: FluxelData }>(
   ({ data }, ref) => {
     const elRef = useRef<SVGSVGElement>(null);

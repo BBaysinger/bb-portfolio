@@ -208,7 +208,7 @@ ul {
     display: flex;
     padding-left: 40px;
     height: 53px;
-    background: linear-gradient(rgba(30, 30, 30, 0.92), rgba(10, 10, 10, 0.85));
+    background: linear-gradient(rgba(30, 30, 30, 1), rgba(10, 10, 10, 1));
     padding-top: 0;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.9);
     &:global(.logout) {
@@ -246,9 +246,9 @@ ul {
 .shadowLayer1 {
   position: absolute;
   pointer-events: none;
-  top: 0;
+  bottom: 0;
   width: 100%;
-  height: 100%;
+  height: 1010%;
   z-index: 1;
   opacity: 0.3;
   // mask-image: url("/images/nav/innards-mask.svg");
@@ -257,9 +257,9 @@ ul {
   mask-position: right top;
   background: linear-gradient(
     0deg,
-    rgba(0, 0, 0, 0.5) 0%,
+    rgba(0, 0, 0, 1) 0%,
     rgba(0, 0, 0, 0) 10%,
-    rgba(0, 0, 0, 0.0) 85%,
+    rgba(0, 0, 0, 0) 85%,
     rgba(0, 0, 0, 1) 100%
   );
 }
@@ -268,24 +268,22 @@ ul {
   position: absolute;
   pointer-events: none;
   top: 0;
-  width: 100%;
+  width: 50vw;
   height: 102%;
   z-index: 2;
-  filter: blur(10px);
-  mix-blend-mode: multiply;
   opacity: 1;
   background:
     linear-gradient(
       to right,
-      rgba(0, 0, 0, 0) 92%,
-      rgba(0, 0, 0, 0.1) 96%,
-      rgba(0, 0, 0, 0.9)
+      rgba(0, 0, 0, 0) 0%,
+      rgba(0, 0, 0, 0) 91%,
+      rgba(0, 0, 0, 1) 100%
     ),
     linear-gradient(
       to bottom,
       rgba(0, 0, 0, 1) 0%,
       rgba(50, 50, 50, 0) 10%,
-      rgba(50, 50, 50, 0.0) 90%,
+      rgba(50, 50, 50, 0) 90%,
       rgba(0, 0, 0, 1) 100%
     );
 }

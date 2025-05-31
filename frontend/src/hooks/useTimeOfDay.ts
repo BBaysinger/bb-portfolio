@@ -1,5 +1,12 @@
 import { useEffect, useState } from "react";
 
+/**
+ *
+ *
+ * @author Bradley Baysinger
+ * @since The beginning of time.
+ * @version N/A
+ */
 export function useTimeOfDay(): string {
   const getTimeOfDay = (): string => {
     const hour = new Date().getHours();
@@ -15,7 +22,7 @@ export function useTimeOfDay(): string {
       setTimeOfDay(getTimeOfDay());
     }, 60_000); // check every minute
 
-    return () => clearInterval(interval); // clean up on unmount
+    return () => clearInterval(interval);
   }, []);
 
   return timeOfDay;

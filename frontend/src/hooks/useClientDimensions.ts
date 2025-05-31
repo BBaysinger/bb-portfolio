@@ -3,6 +3,13 @@ import { useState, useEffect, useCallback } from "react";
 const getHeight = () => document.documentElement.clientHeight;
 const getWidth = () => document.documentElement.clientWidth;
 
+/**
+ *
+ *
+ * @author Bradley Baysinger
+ * @since The beginning of time.
+ * @version N/A
+ */
 const useClientDimensions = () => {
   const [clientHeight, setClientHeight] = useState(getHeight());
   const [clientWidth, setClientWidth] = useState(getWidth());

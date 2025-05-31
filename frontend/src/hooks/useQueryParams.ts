@@ -27,6 +27,13 @@ export default function useQueryParams<T extends QueryParamValue>(
   key: string,
 ): T extends boolean ? boolean : T | undefined;
 
+/**
+ *
+ *
+ * @author Bradley Baysinger
+ * @since The beginning of time.
+ * @version N/A
+ */
 export default function useQueryParams<
   T extends QueryParamValue = QueryParamValue,
 >(

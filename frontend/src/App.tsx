@@ -15,6 +15,13 @@ import useClientDimensions from "hooks/useClientDimensions";
 import styles from "./App.module.scss";
 import "@/styles/styles.scss";
 
+/**
+ *
+ *
+ * @author Bradley Baysinger
+ * @since The beginning of time.
+ * @version N/A
+ */
 const App: React.FC = () => {
   const isMenuOpen = useSelector(
     (state: RootState) => state.ui.isMobileNavExpanded,
