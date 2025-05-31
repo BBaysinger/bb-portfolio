@@ -43,7 +43,7 @@ const shuffleArray = (array: number[]) => {
 const ParagraphAnimator: React.FC<ParagraphAnimatorProps> = ({
   paragraphs,
   interval = 15,
-  paragraphDelay = 10000,
+  paragraphDelay = 20000,
   initialDelay = 1000,
   className,
   paused = false,

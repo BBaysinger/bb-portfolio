@@ -82,8 +82,8 @@ const SlingerBox = React.forwardRef<SlingerBoxHandle, SlingerBoxProps>(
     const objectsRef = useRef<SlingerObject[]>(
       childArray.map((_, i) => ({
         id: i,
-        x: 100 + i * 60,
-        y: 100,
+        x: 0.2 * window.innerWidth + i * 60,
+        y: 0.3 * window.innerHeight,
         vx: 1 + Math.random(),
         vy: 1 + Math.random(),
         isDragging: false,

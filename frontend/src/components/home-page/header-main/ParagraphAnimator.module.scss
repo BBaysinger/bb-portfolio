@@ -37,12 +37,26 @@
   }
 }
 
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
 .cursorSolid {
   animation: none;
 }
 
 .visible {
   color: #fff;
+}
+
+.invisible {
+  display: none;
 }
 
 .debug {
