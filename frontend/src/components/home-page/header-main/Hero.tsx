@@ -13,7 +13,7 @@ import ChargedCircle from "components/home-page/header-main/ChargedCircle";
 import useTimeOfDay from "hooks/useTimeOfDay";
 import TitleBranding from "./TitleBranding";
 import useQueryParams from "hooks/useQueryParams";
-import useFPS from "hooks/useFPS";
+import FPSCounter from "components/common/FPSCounter";
 import OrbArrowTooltip from "components/home-page/header-main/OrbArrowTooltip";
 import styles from "./Hero.module.scss";
 
@@ -77,7 +77,6 @@ const Hero: React.FC = () => {
   const isSlingerInFlight = useRef(false);
   const slingerLoopId = useRef<number | null>(null);
   const useSlingerTracking = useQueryParams<boolean>("useSlingerTracking");
-  const fps = useFPS();
 
   const updateHasDragged = useCallback((value: boolean) => {
     sessionStorage.setItem("hasDragged", value ? "true" : "false");
@@ -263,10 +262,11 @@ const Hero: React.FC = () => {
           paragraphs={quotes}
           className={styles.message}
           paused={!mounted || isSlingerInFlight.current}
-        />
+        >
+          <FPSCounter />
+        </ParagraphAnimator>
         <TitleBranding className={styles.titleBranding} ref={titleRef} />
       </div>
-      <div className={styles.fpsCounter}>FPS: {fps}</div>
     </header>
   );
 };

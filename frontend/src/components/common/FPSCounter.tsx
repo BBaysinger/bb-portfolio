@@ -1,13 +1,19 @@
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+
+import styles from "./FPSCounter.module.scss";
 
 /**
  *
+ * Displays the current FPS using requestAnimationFrame.
  *
  * @author Bradley Baysinger
  * @since The beginning of time.
  * @version N/A
  */
-export default function useFPS(updateInterval = 500) {
+const FPSCounter: React.FC<{ updateInterval?: number; className?: string }> = ({
+  updateInterval = 500,
+  className = "",
+}) => {
   const [fps, setFps] = useState(0);
   const frameCount = useRef(0);
   const lastTime = useRef(performance.now());
@@ -34,5 +40,9 @@ export default function useFPS(updateInterval = 500) {
     return () => cancelAnimationFrame(animationFrameId);
   }, [updateInterval]);
 
-  return fps;
-}
+  return (
+    <div className={[styles.fpsCounter, className].join(" ")}>FPS: {fps}</div>
+  );
+};
+
+export default FPSCounter;

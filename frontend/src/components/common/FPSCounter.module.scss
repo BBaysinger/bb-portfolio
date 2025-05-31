@@ -1,0 +1,16 @@
+@use "@/styles/mixins" as *;
+@use "@/styles/variables" as *;
+
+.fpsCounter {
+  font-family: "Digital-7", sans-serif;
+  white-space: nowrap;
+  z-index: 10000;
+  color: green;
+  opacity: 0.5;
+  transform-origin: top left;
+  z-index: 1;
+  mix-blend-mode: exclusion;
+  margin-top: 0;
+  line-height: 1em;
+  @include remRange(font-size, 60px, 80px);
+}

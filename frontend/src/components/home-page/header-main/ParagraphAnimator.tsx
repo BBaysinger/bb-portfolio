@@ -14,6 +14,7 @@ interface ParagraphAnimatorProps {
   paused?: boolean;
   introMessage?: string;
   style?: React.CSSProperties;
+  children?: React.ReactNode;
 }
 
 const shuffleArray = (array: number[]) => {
@@ -35,6 +36,7 @@ const ParagraphAnimator: React.FC<ParagraphAnimatorProps> = ({
   className,
   paused = false,
   introMessage,
+  children,
 }) => {
   const [visibleText, setVisibleText] = useState("");
   const [invisibleText, setInvisibleText] = useState("");
@@ -167,6 +169,7 @@ const ParagraphAnimator: React.FC<ParagraphAnimatorProps> = ({
         />{" "}
         <span className={styles.invisible}>{invisibleText}</span>
       </p>
+      {children}
     </div>
   );
 };
