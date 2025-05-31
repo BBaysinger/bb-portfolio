@@ -51,12 +51,12 @@
   overflow: hidden;
 }
 
-.overlayWrapper {
-  * {
-    border-radius: 5%;
-    filter: blur(0.1vw);
-  }
-}
+// .overlayWrapper {
+//   * {
+//     border-radius: 5%;
+//     filter: blur(0.1vw);
+//   }
+// }
 
 .overlay {
   isolation: isolate;
