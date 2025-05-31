@@ -17,12 +17,12 @@
     width: calc(100vw - var(--hero-padding) * 2 - 400px);
   }
 
-  &.paused {
-    opacity: 0 !important;
-  }
+  // &.paused {
+  //   opacity: 0 !important;
+  // }
 
   p {
-    line-height: 1.3em;
+    line-height: 1.4em;
     margin-bottom: 0;
     @include staticRange(margin-top, -0.18em, -0.25em);
   }
@@ -63,4 +63,10 @@
 .invisible {
   opacity: 0.3;
   display: none;
+}
+
+.debug {
+  color: white;
+  margin-right: auto;
+  display: inline-block;
 }
