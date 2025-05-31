@@ -196,20 +196,3 @@ a.scrollCta {
   height: 100%;
   padding: var(--hero-padding);
 }
-
-.fpsCounter {
-  font-family: "Digital-7", sans-serif;
-  position: absolute;
-  white-space: nowrap;
-  z-index: 10000;
-  color: green;
-  opacity: 0.5;
-  transform-origin: top left;
-  // rotate: -90deg;
-  z-index: 1;
-  top:60px;
-  left: var(--hero-padding);
-  // transform: translate(-50%, -50%);
-  // mix-blend-mode: soft-light;
-  @include remRange(font-size, 60px, 80px);
-}
