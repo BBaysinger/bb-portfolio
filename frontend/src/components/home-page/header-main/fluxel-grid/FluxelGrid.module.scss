@@ -14,6 +14,7 @@
   so that means the top and bottom rows are slightly clipped, which isn't really
   a problem. It looks like the solution would be JavaScript, but that kinda sucks.
   */
+  contain: layout paint size;
   height: 100vmax;
   @media (min-aspect-ratio: 4/3) {
     height: auto;
@@ -22,6 +23,7 @@
   * {
     pointer-events: none;
     background-repeat: no-repeat;
+    contain: layout paint size;
   }
   > * {
     // Here because some of the same styles need applied to
@@ -51,12 +53,13 @@
   overflow: hidden;
 }
 
-// .overlayWrapper {
-//   * {
-//     border-radius: 5%;
-//     filter: blur(0.1vw);
-//   }
-// }
+.overlayWrapper {
+  * {
+    will-change: background-color;
+    // border-radius: 5%;
+    // filter: blur(0.1vw);
+  }
+}
 
 .overlay {
   isolation: isolate;
