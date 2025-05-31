@@ -46,7 +46,7 @@ export interface FluxelHandle {
  */
 const Fluxel = forwardRef<FluxelHandle, { data: FluxelData }>(
   ({ data }, ref) => {
-    const elRef = useRef<HTMLDivElement>(null);
+    const elRef = useRef<SVGSVGElement>(null);
 
     // Initial props-driven style
     useEffect(() => {
@@ -72,35 +72,32 @@ const Fluxel = forwardRef<FluxelHandle, { data: FluxelData }>(
     }));
 
     return (
-      <div ref={elRef} className={styles.fluxelWrapper}>
-        <svg
-          className={styles.fluxel}
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 72 72"
-        >
-          <image
-            opacity="0.5"
-            href={cornerShadow}
-            x={-34}
-            y={-110}
-            width="216"
-            height="216"
-            transform={`translate(${data.shadow1OffsetX}, ${data.shadow1OffsetY})`}
-          />
-          <image
-            opacity="0.25"
-            href={cornerShadow}
-            x={-100}
-            y={-185}
-            width="216"
-            height="216"
-            transform={`translate(${data.shadow2OffsetX}, ${data.shadow2OffsetY}) scale(-1, -1)`}
-          />
-        </svg>
-
-        {/* Now just a div above, not part of the blend */}
-        <div className={styles.overlayIsolated} />
-      </div>
+      <svg
+        ref={elRef}
+        className={styles.fluxel}
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 72 72"
+      >
+        <image
+          opacity="0.5"
+          href={cornerShadow}
+          x={-34}
+          y={-110}
+          width="216"
+          height="216"
+          transform={`translate(${data.shadow1OffsetX}, ${data.shadow1OffsetY})`}
+        />
+        <image
+          opacity="0.25"
+          href={cornerShadow}
+          x={-100}
+          y={-185}
+          width="216"
+          height="216"
+          transform={`translate(${data.shadow2OffsetX}, ${data.shadow2OffsetY}) scale(-1, -1)`}
+        />
+        {/* <rect width="72" height="72" fill="var(--overlay-color)" /> */}
+      </svg>
     );
   },
 );

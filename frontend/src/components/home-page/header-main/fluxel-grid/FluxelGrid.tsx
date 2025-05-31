@@ -160,33 +160,64 @@ const FluxelGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
     );
 
     return (
-      <div
-        ref={handleRef}
-        className={styles.fluxelGrid}
-        style={{ "--cols": cols } as React.CSSProperties}
-      >
-        {gridData.flat().map((data) => {
-          const isVisible =
-            data.col >= colOverlap &&
-            data.col < cols - colOverlap &&
-            data.row >= rowOverlap &&
-            data.row < rows - rowOverlap;
+      <>
+        <div
+          ref={handleRef}
+          className={styles.fluxelGrid}
+          style={{ "--cols": cols } as React.CSSProperties}
+        >
+          {gridData.flat().map((data) => {
+            const isVisible =
+              data.col >= colOverlap &&
+              data.col < cols - colOverlap &&
+              data.row >= rowOverlap &&
+              data.row < rows - rowOverlap;
 
-          const row = data.row;
-          const col = data.col;
-          const key = data.id;
+            const row = data.row;
+            const col = data.col;
+            const key = data.id;
 
-          if (!isVisible) {
-            return <div key={key} className={styles.inactivePlaceholder} />;
-          }
+            if (!isVisible) {
+              return <div key={key} className={styles.inactivePlaceholder} />;
+            }
 
-          const ref = imperativeMode
-            ? fluxelRefs.current[row]?.[col]
-            : undefined;
+            const ref = imperativeMode
+              ? fluxelRefs.current[row]?.[col]
+              : undefined;
 
-          return <Fluxel key={key} data={data} ref={ref} />;
-        })}{" "}
-      </div>
+            return <Fluxel key={key} data={data} ref={ref} />;
+          })}
+        </div>
+        <div className={styles.overlayWrapper}>
+          {gridData.flat().map((data) => {
+            const isVisible =
+              data.col >= colOverlap &&
+              data.col < cols - colOverlap &&
+              data.row >= rowOverlap &&
+              data.row < rows - rowOverlap;
+
+            const row = data.row;
+            const col = data.col;
+            const key = data.id;
+
+            if (!isVisible) {
+              return <div key={key} className={styles.inactivePlaceholder} />;
+            }
+
+            return (
+              <div
+                className={styles.overlay}
+                key={key}
+                style={{
+                  top: `${row * fluxelSize}px`,
+                  left: `${col * fluxelSize}px`,
+                  backgroundColor: data.colorVariation,
+                }}
+              />
+            );
+          })}
+        </div>
+      </>
     );
   },
 );
