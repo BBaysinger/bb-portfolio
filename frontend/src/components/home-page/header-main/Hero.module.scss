@@ -200,14 +200,16 @@ a.scrollCta {
 .fpsCounter {
   font-family: "Digital-7", sans-serif;
   position: absolute;
-  bottom: 30vh;
   white-space: nowrap;
-  left: calc(100px);
   z-index: 10000;
-  color: #333;
-  opacity: 0.7;
+  color: green;
+  opacity: 0.5;
   transform-origin: top left;
   // rotate: -90deg;
   z-index: 1;
-  @include remRange(font-size, 100px, 200px);
+  top:60px;
+  left: var(--hero-padding);
+  // transform: translate(-50%, -50%);
+  // mix-blend-mode: soft-light;
+  @include remRange(font-size, 60px, 80px);
 }
