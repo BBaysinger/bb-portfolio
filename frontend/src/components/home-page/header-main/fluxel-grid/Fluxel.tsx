@@ -96,7 +96,9 @@ const Fluxel = forwardRef<FluxelHandle, { data: FluxelData }>(
           height="216"
           transform={`translate(${data.shadow2OffsetX}, ${data.shadow2OffsetY}) scale(-1, -1)`}
         />
-        <rect width="72" height="72" fill="var(--overlay-color)" />
+        <g className={styles.overlayIsolated}>
+          <rect width="72" height="72" fill="var(--overlay-color)" />
+        </g>
       </svg>
     );
   },
