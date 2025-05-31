@@ -261,7 +261,7 @@ const Hero: React.FC = () => {
           introMessage={`Good ${timeOfDay}. This is a kinetic UI Experiment. Grab the orb and then give it a toss for fun surprises!`}
           paragraphs={quotes}
           className={styles.message}
-          paused={!mounted || isSlingerInFlight.current}
+          paused={!mounted || !isSlingerIdle}
         >
           <FPSCounter />
         </ParagraphAnimator>
