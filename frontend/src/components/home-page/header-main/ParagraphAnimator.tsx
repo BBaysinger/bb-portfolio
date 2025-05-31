@@ -2,8 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import styles from "./ParagraphAnimator.module.scss";
 
-const INTRO_KEY = "paragraphAnimator:introPlayed";
-
 interface ParagraphAnimatorProps {
   paragraphs: string[];
   interval?: number;
@@ -21,7 +19,22 @@ const shuffleArray = (array: number[]) => {
 };
 
 /**
+ * ParagraphAnimator
  *
+ * Animates a list of paragraphs using a typewriter-style effect,
+ * displaying one paragraph at a time with optional delays.
+ * Pausing prevents the next paragraph from starting, but does not interrupt
+ * any in-progress animations or delay timers. Includes optional intro message,
+ * initial delay, and configurable interval between characters.
+ *
+ * Usage:
+ * - Pass an array of strings via `paragraphs`
+ * - Optionally include `introMessage` to show before shuffling begins
+ * - Use the `paused` prop to prevent advancing to the next paragraph
+ *
+ * Example behavior:
+ * Typing starts → finishes → waits → if `paused === false`, show next.
+ * If `paused === true`, waits until unpaused before continuing.
  *
  * @author Bradley Baysinger
  * @since The beginning of time.
@@ -48,9 +61,8 @@ const ParagraphAnimator: React.FC<ParagraphAnimatorProps> = ({
   const hasPlayedIntro = useRef(false);
   const delayTimer = useRef<number | null>(null);
   const poller = useRef<number | null>(null);
-  const pausedRef = useRef(paused); // ✅ live reference to paused
+  const pausedRef = useRef(paused);
 
-  // Keep pausedRef current
   useEffect(() => {
     pausedRef.current = paused;
   }, [paused]);
@@ -69,7 +81,6 @@ const ParagraphAnimator: React.FC<ParagraphAnimatorProps> = ({
   const waitThenStart = () => {
     delayTimer.current = window.setTimeout(() => {
       if (pausedRef.current) {
-        // Begin polling for resumed state
         poller.current = window.setInterval(() => {
           if (!pausedRef.current) {
             clearInterval(poller.current!);
@@ -89,9 +100,9 @@ const ParagraphAnimator: React.FC<ParagraphAnimatorProps> = ({
     if (!hasPlayedIntro.current && introMessage) {
       paragraph = introMessage;
       hasPlayedIntro.current = true;
-      sessionStorage.setItem(INTRO_KEY, "true");
     } else {
-      paragraph = paragraphs[queue.current[currentIndex.current]];
+      const index = queue.current[currentIndex.current];
+      paragraph = paragraphs[index];
     }
 
     if (!paragraph) return;
@@ -135,7 +146,7 @@ const ParagraphAnimator: React.FC<ParagraphAnimatorProps> = ({
   useEffect(() => {
     queue.current = generateShuffledQueue();
     currentIndex.current = 0;
-    hasPlayedIntro.current = sessionStorage.getItem(INTRO_KEY) === "true";
+    hasPlayedIntro.current = false;
     playParagraph();
 
     return () => {
@@ -158,7 +169,6 @@ const ParagraphAnimator: React.FC<ParagraphAnimatorProps> = ({
         <span className={styles.invisible}>{invisibleText}</span>
       </p>
       <div>{children}</div>
-      {/* <div className={styles.debug}>paused: [{String(paused)}]</div> */}
     </div>
   );
 };
