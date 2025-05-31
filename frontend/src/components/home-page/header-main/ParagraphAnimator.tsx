@@ -20,6 +20,13 @@ const shuffleArray = (array: number[]) => {
   return array.sort(() => Math.random() - 0.5);
 };
 
+/**
+ *
+ *
+ * @author Bradley Baysinger
+ * @since The beginning of time.
+ * @version N/A
+ */
 const ParagraphAnimator: React.FC<ParagraphAnimatorProps> = ({
   paragraphs,
   interval = 15,

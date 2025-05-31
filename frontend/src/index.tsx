@@ -15,6 +15,13 @@ if (!rootElement) {
   throw new Error("Root element not found");
 }
 
+/**
+ *
+ *
+ * @author Bradley Baysinger
+ * @since The beginning of time.
+ * @version N/A
+ */
 ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
     <Provider store={store}>

@@ -1,5 +1,12 @@
 import { useEffect, useState, MutableRefObject } from "react";
 
+/**
+ *
+ *
+ * @author Bradley Baysinger
+ * @since The beginning of time.
+ * @version N/A
+ */
 export function useResizeObserverHeight<T extends HTMLElement>(
   ref: MutableRefObject<T | null>,
 ): number {

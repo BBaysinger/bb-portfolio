@@ -7,6 +7,13 @@ type TitleBrandingProps = {
   className?: string;
 };
 
+/**
+ *
+ *
+ * @author Bradley Baysinger
+ * @since The beginning of time.
+ * @version N/A
+ */
 const TitleBranding = forwardRef<HTMLDivElement, TitleBrandingProps>(
   ({ className = "" }, ref) => {
     return (

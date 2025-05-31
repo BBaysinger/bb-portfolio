@@ -23,6 +23,13 @@ interface AnimationMeta {
   weight: number; // made required for simplicity
 }
 
+/**
+ *
+ *
+ * @author Bradley Baysinger
+ * @since The beginning of time.
+ * @version N/A
+ */
 const AnimationSequencer = forwardRef<
   AnimationSequencerHandle,
   { className?: string }

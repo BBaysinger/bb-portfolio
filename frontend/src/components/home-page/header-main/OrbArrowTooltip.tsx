@@ -6,6 +6,13 @@ type Props = {
   className?: string;
 };
 
+/**
+ *
+ *
+ * @author Bradley Baysinger
+ * @since The beginning of time.
+ * @version N/A
+ */
 const OrbArrowTooltip: React.FC<Props> = ({ className = "" }) => {
   return (
     <div

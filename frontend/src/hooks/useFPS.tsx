@@ -1,5 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 
+/**
+ *
+ *
+ * @author Bradley Baysinger
+ * @since The beginning of time.
+ * @version N/A
+ */
 export default function useFPS(updateInterval = 500) {
   const [fps, setFps] = useState(0);
   const frameCount = useRef(0);

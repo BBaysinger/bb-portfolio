@@ -55,6 +55,13 @@ const hashPassword = async (password: string) => {
   return retVal;
 };
 
+/**
+ *
+ *
+ * @author Bradley Baysinger
+ * @since The beginning of time.
+ * @version N/A
+ */
 const LoginPage = ({ onLogin }: { onLogin: () => void }) => {
   const { login } = useAuth();
   const [username, setUsername] = useState("");

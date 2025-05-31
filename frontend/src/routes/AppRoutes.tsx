@@ -6,6 +6,14 @@ import HomePage from "pages/HomePage";
 import ProjectPage from "pages/ProjectPage";
 import CurriculumVitae from "pages/CurriculumVitae";
 import ContactPage from "pages/ContactPage";
+
+/**
+ *
+ *
+ * @author Bradley Baysinger
+ * @since The beginning of time.
+ * @version N/A
+ */
 const AppRoutes = ({ onLogin }: { onLogin: () => void }) => {
   const heightRef = useRef<HTMLDivElement>(null);
 

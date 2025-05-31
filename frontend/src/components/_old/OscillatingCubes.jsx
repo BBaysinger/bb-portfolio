@@ -8,7 +8,14 @@ import styles from "./OscillatingCubes.module.scss";
 const GRID_SIZE = 10; // 10x10 grid
 const SPACING = 0.1; // Distance between cubes
 
-// Cube Component with Oscillation and Custom Shadow Fixes
+/**
+ * Cube Component with Oscillation and Custom Shadow Fixes
+ *
+ * @author Bradley Baysinger
+ * @since The beginning of time.
+ * @version N/A
+ */
+
 const OscillatingCube = ({ position }) => {
   const meshRef = useRef(null);
 
@@ -34,7 +41,13 @@ const OscillatingCube = ({ position }) => {
   );
 };
 
-// Scene Component
+/**
+ * Scene Component
+ *
+ * @author Bradley Baysinger
+ * @since The beginning of time.
+ * @version N/A
+ */
 const OscillatingCubes = () => {
   return (
     <Canvas
