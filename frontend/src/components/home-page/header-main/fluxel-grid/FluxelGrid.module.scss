@@ -1,6 +1,9 @@
-.fluxelGrid {
-  mix-blend-mode: multiply;
+.fluxelGrid,
+.overlayWrapper {
+  // mix-blend-mode:color-burn; // Try again and compare with multiply
+  // mix-blend-mode:luminosity; // Try again and compare with multiply
   display: flex;
+  position: absolute;
   flex-wrap: wrap;
   justify-content: center; /* Center items within each row (horizontal centering) */
   align-content: center; /* Center the entire group of rows vertically */
@@ -25,12 +28,20 @@
     position: relative;
     flex: 1 1 calc(100% / var(--cols));
     aspect-ratio: 1 / 1;
-    outline: 1px solid rgba(20, 20, 20, 0.7);
-    border-radius: 1px;
     image-rendering: pixelated;
     box-sizing: content-box;
     background-repeat: no-repeat;
     overflow: hidden;
+    max-width: 6.25%;
+    max-height: 8.33333333%;
+  }
+}
+
+.fluxelGrid {
+  mix-blend-mode: multiply;
+  > * {
+    outline: 1px solid rgba(20, 20, 20, 0.7);
+    border-radius: 1px;
   }
 }
 
@@ -38,6 +49,25 @@
   visibility: hidden;
   color: white;
   overflow: hidden;
+}
+
+// .overlayWrapper {
+//   position: absolute;
+//   top: 0;
+//   left: 0;
+//   width: 100%;
+//   height: 100%;
+// }
+
+.overlay {
+  isolation: isolate;
+  mix-blend-mode: normal;
+  background-color: var(--overlay-color);
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 
 .debug {
