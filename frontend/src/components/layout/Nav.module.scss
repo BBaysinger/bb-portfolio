@@ -196,7 +196,8 @@ ul {
   width: 50%;
   right: 0;
   padding-top: 125px;
-  height: 100vh;
+  height: var(--client-height);
+  // height: 100vh;
   z-index: 0;
 
   ul {
@@ -207,7 +208,7 @@ ul {
   li {
     display: flex;
     padding-left: 40px;
-    height: 53px;
+    height: 53px; //
     background: linear-gradient(rgba(30, 30, 30, 1), rgba(10, 10, 10, 1));
     padding-top: 0;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.9);
@@ -235,7 +236,7 @@ ul {
   right: 0;
   width: 100%;
   height: 100%;
-  min-height: 1000px;
+  // min-height: 1000px;
   opacity: 0.5;
   mix-blend-mode: multiply;
   background-image: url("/images/nav/paisley.webp");
@@ -248,10 +249,10 @@ ul {
   pointer-events: none;
   bottom: 0;
   width: 100%;
-  height: 1010%;
+  height: 100%;
+  // height: 1010%;
   z-index: 1;
   opacity: 0.3;
-  // mask-image: url("/images/nav/innards-mask.svg");
   mask-size: auto 100%;
   mask-repeat: no-repeat;
   mask-position: right top;
@@ -269,7 +270,8 @@ ul {
   pointer-events: none;
   top: 0;
   width: 50vw;
-  height: 102%;
+  height: 100%;
+  // height: 102%;
   z-index: 2;
   opacity: 1;
   background:
