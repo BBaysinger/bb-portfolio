@@ -9,17 +9,12 @@
   white-space: pre-wrap;
   transform-origin: top left;
   pointer-events: none;
-  opacity: 1;
-  transition: opacity 0.5s ease-in-out;
+  opacity: 0.8;
   box-sizing: border-box;
-  @include remRange(font-size, 16px, 18px);
+  @include remRange(font-size, 16px, 20px);
   @include breakpointUp(768px) {
     width: calc(100vw - var(--hero-padding) * 2 - 400px);
   }
-
-  // &.paused {
-  //   opacity: 0 !important;
-  // }
 
   p {
     line-height: 1.4em;
@@ -46,23 +41,8 @@
   animation: none;
 }
 
-@keyframes blink {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0;
-  }
-}
-
 .visible {
-  color: #aaa;
-}
-
-.invisible {
-  opacity: 0.3;
-  display: none;
+  color: #fff;
 }
 
 .debug {

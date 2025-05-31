@@ -133,14 +133,6 @@ const ParagraphAnimator: React.FC<ParagraphAnimatorProps> = ({
         },
       },
     );
-
-    tl.current.to(containerRef.current, {
-      opacity: 0,
-      duration: 0.5,
-      delay: paragraph.length > 0 ? 0 : 0.001,
-    });
-
-    tl.current.set(containerRef.current, { opacity: 1 });
   };
 
   useEffect(() => {
@@ -154,7 +146,7 @@ const ParagraphAnimator: React.FC<ParagraphAnimatorProps> = ({
       if (delayTimer.current) clearTimeout(delayTimer.current);
       if (poller.current) clearInterval(poller.current);
     };
-  }, []); // Initial mount only
+  }, []);
 
   return (
     <div
