@@ -32,15 +32,21 @@ export function useTrackHeroInView() {
 
       const rect = heroEl.getBoundingClientRect();
       const vh = window.innerHeight;
+      const heroHeight = rect.height;
 
-      const visibleHeight = Math.min(rect.bottom, vh) - Math.max(rect.top, 0);
-      const clampedHeight = Math.max(0, Math.min(visibleHeight, rect.height));
-      const percentVisible = (clampedHeight / rect.height) * 100;
+      // Top and bottom boundaries of hero in viewport coordinates
+      const top = rect.top;
+      const bottom = rect.bottom;
+
+      // Clamp the visible portion
+      const visibleHeight = Math.min(bottom, vh) - Math.max(top, 0);
+      const clampedHeight = Math.max(0, Math.min(visibleHeight, heroHeight));
+      const percentVisible = (clampedHeight / heroHeight) * 100;
 
       let bucket: number;
       if (percentVisible >= 99.5) bucket = 100;
-      else if (percentVisible >= 95) bucket = 95;
-      else if (percentVisible >= 90) bucket = 90;
+      // else if (percentVisible >= 95) bucket = 95;
+      // else if (percentVisible >= 10) bucket = 10;
       else if (percentVisible >= 5) bucket = 5;
       else bucket = 0;
 
