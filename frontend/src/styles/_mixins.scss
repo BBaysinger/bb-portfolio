@@ -122,7 +122,7 @@
 @mixin pauseWhenHeroVisible {
   animation-play-state: running;
 
-  :global(.isHeroInView100pct) & {
+  :global(.isHeroInView100Pct) & {
     animation-play-state: paused !important;
   }
 }
