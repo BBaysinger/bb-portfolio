@@ -109,6 +109,7 @@ header.hero {
     border 0.8s;
   :global(.hasSlungDelay.notScrolledOut) & {
     border: 0 !important;
+    transform: translateX(0);
   }
   @include remRange(font-size, 18px, 25px);
 }
@@ -127,11 +128,9 @@ a.scrollCta {
   transition-delay: 2s;
   animation: fadeBounce 2.5s infinite forwards;
   animation-play-state: paused;
-
   :global(.hasSlung.isSlingerIdle) & {
     animation-play-state: running !important;
   }
-
   :global(.isSlingerIdle.notScrolledOut.hasSlung) & {
     animation-play-state: paused;
     transition-delay: 0s;
