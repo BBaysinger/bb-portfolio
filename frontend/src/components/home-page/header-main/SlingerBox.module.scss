@@ -13,6 +13,10 @@
 
 .slinger {
   position: absolute;
+  contain: layout paint size style;
+  * {
+    contain: layout paint size style;
+  }
   &::after {
     content: " ";
     position: absolute;
@@ -22,6 +26,7 @@
     background-size: 50px 50px;
     pointer-events: all;
     cursor: grab;
+    contain: layout paint size style;
   }
 
   &::before {
@@ -33,6 +38,7 @@
     width: 76px;
     height: 76px;
     transform: translate(-13px, -13px);
+    contain: layout paint size style;
   }
 
   &:active {
