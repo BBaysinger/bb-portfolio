@@ -74,7 +74,7 @@ const AnimationSequencer = forwardRef<
       narrow: "javascript-typescript_w16h12f142",
       fps: 10,
       loops: 1,
-      weight: 1,
+      weight: 2,
     },
     {
       wide: "mobile-first_w16h12f82",
