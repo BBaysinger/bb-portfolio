@@ -1,5 +1,5 @@
-.fluxelGrid {
-  mix-blend-mode: multiply;
+.fluxelGrid,
+.overlayWrapper {
   display: flex;
   flex-wrap: wrap;
   justify-content: center; /* Center items within each row (horizontal centering) */
@@ -25,44 +25,18 @@
     position: relative;
     flex: 1 1 calc(100% / var(--cols));
     aspect-ratio: 1 / 1;
-    outline: 1px solid rgba(20, 20, 20, 0.7);
     border-radius: 1px;
     image-rendering: pixelated;
     box-sizing: content-box;
     background-repeat: no-repeat;
     overflow: hidden;
+    outline: 1px solid rgba(20, 20, 20, 0.7);
   }
 }
 
 .overlayWrapper {
-  // mix-blend-mode:color-burn; // Try again and compare with multiply
-  // mix-blend-mode:luminosity; // Try again and compare with multiply
-  display: flex;
   position: absolute;
-  flex-wrap: wrap;
-  // justify-content: center; /* Center items within each row (horizontal centering) */
-  // align-content: center; /* Center the entire group of rows vertically */
-  pointer-events: none;
-  box-sizing: border-box;
-  aspect-ratio: 4/3;
-  /* Note that scaling with vmax does NOT account for the location bar in iOS Safari,
-  so that means the top and bottom rows are slightly clipped, which isn't really
-  a problem. It looks like the solution would be JavaScript, but that kinda sucks.
-  */
-  contain: layout paint size;
-  height: 100vmax;
-  @media (min-aspect-ratio: 4/3) {
-    height: auto;
-    width: 100vmax;
-  }
-  * {
-    pointer-events: none;
-    background-repeat: no-repeat;
-    contain: layout paint size;
-  }
   > * {
-    // Here because some of the same styles need applied to
-    // the placeholders as well the actual fluxels
     position: static;
     width: 6.25% !important;
     aspect-ratio: 1 / 1;
@@ -71,7 +45,13 @@
     overflow: hidden;
     max-height: 8.33333333%;
     will-change: background-color;
+    outline: none;
+    border: none;
   }
+}
+
+.fluxelGrid {
+  mix-blend-mode: multiply;
 }
 
 .inactivePlaceholder {
@@ -83,7 +63,6 @@
 .overlay {
   isolation: isolate;
   mix-blend-mode: normal;
-  background-color: var(--overlay-color);
   width: 100%;
   height: 100%;
   position: absolute;
