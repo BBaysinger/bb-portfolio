@@ -1,6 +1,7 @@
 import React from "react";
 
 import SlingerRay from "./SlingerRay";
+import useScopedImagePreload from "hooks/useScopedImagePreload";
 import styles from "./ChargedCircle.module.scss";
 
 interface ChargedCircleProps {
@@ -13,6 +14,9 @@ interface ChargedCircleProps {
  * @component
  */
 const ChargedCircle: React.FC<ChargedCircleProps> = ({ isActive = false }) => {
+  // Fixes issue with image data not staying decoded on mobile.
+  useScopedImagePreload("/spritesheets/energy-bars_w92h300f110.webp");
+
   return (
     <div className={styles.chargedCircle}>
       <div className={styles.scaler}>
