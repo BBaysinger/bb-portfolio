@@ -9,24 +9,15 @@ header.hero {
   align-items: bottom;
   justify-content: space-between;
   letter-spacing: 1px;
+  user-select: none;
   z-index: 10;
   overflow: hidden;
-  user-select: none !important;
-  touch-action: none !important;
-  pointer-events: none !important;
-  -webkit-touch-callout: none; /* Safari: Prevents select from 3D touch */
   background-repeat: no-repeat;
   background-image: url("/images/common/bg-grad.svg");
   background-color: black;
   background-size: 100% 100%;
   @include staticRange(--hero-padding, 10px, 18px, $b320, $b576);
 
-  * {
-    user-select: none !important;
-    touch-action: none !important;
-    pointer-events: none !important;
-    -webkit-touch-callout: none; /* Safari: Prevents select from 3D touch */
-  }
   &::before {
     content: "";
     position: absolute;
