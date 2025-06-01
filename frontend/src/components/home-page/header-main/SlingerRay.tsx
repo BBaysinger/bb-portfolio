@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 
-import useScopedImagePreload from "hooks/useScopedImagePreload";
 import SpriteSheetPlayer from "components/common/SpriteSheetPlayer";
 import styles from "./SlingerRay.module.scss";
 
@@ -28,13 +27,13 @@ const SlingerRay: React.FC<SlingerRayProps> = ({
   const [lightningFrame, setLightningFrame] = useState<number | null>(-1); // hidden
   const [energyBarsFrame, setEnergyBarsFrame] = useState<number | null>(-1); // hidden
 
-  // Fixes issue with image data not staying decoded on mobile.
-  useScopedImagePreload("/spritesheets/energy-bars_w92h300f110.webp");
-
   const onBarsEnded = () => {
     setEnergyBarsFrame(-1); // hide energy bars
-    setLightningFrame(Math.random()); // set to a unique value to force useEffect
-    requestAnimationFrame(() => setLightningFrame(null)); // release control to start animation
+    setLightningFrame(Math.random()); // trigger rerender with unique frameControl
+
+    setTimeout(() => {
+      setLightningFrame(null); // this will start the animation
+    }, 10); // 10ms seems to be the sweet spot, adjust if needed
   };
 
   useEffect(() => {
