@@ -3,7 +3,7 @@
   transform-origin: center center;
   animation: waveMotion 8s ease-in-out infinite;
 
-  :global(.isHeroInView100pct) & {
+  :global(.isHeroInView100Pct) & {
     animation-play-state: paused;
   }
 
