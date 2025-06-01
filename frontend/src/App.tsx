@@ -63,7 +63,8 @@ const App: React.FC = () => {
       <div
         ref={fluidRef}
         className={[
-          percentHeroInView >= 5 ? "isHeroInView" : "",
+          percentHeroInView >= 5 ? "isHeroInView5Pct" : "",
+          percentHeroInView >= 100 ? "isHeroInView100Pct" : "",
           isMenuOpen ? `isMobileNavExpanded ${styles.isMobileNavExpanded}` : "",
         ].join(" ")}
       >
