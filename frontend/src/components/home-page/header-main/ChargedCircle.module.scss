@@ -18,6 +18,9 @@
   :global(.isDragging) & {
     animation: spin 6s linear infinite;
   }
+  :global(.isSlingerIdle) & {
+    display: none !important;
+  }
 }
 
 @keyframes spin {
