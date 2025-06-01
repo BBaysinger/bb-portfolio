@@ -31,3 +31,7 @@
     }
   }
 }
+
+.fps {
+  @include remRange(font-size, 30px, 50px);
+}

@@ -109,7 +109,6 @@ header.hero {
     border 0.8s;
   :global(.hasSlungDelay.notScrolledOut) & {
     border: 0 !important;
-    // transform: translateX(0) !important;
   }
   @include remRange(font-size, 18px, 25px);
 }
