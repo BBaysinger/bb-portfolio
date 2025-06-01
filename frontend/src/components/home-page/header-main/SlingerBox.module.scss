@@ -15,7 +15,9 @@
 .slinger {
   position: absolute;
   contain: layout size style;
+  pointer-events: none;
   * {
+    pointer-events: none;
     contain: layout size style;
   }
   &::after {
@@ -38,6 +40,7 @@
     top: -25px;
     width: 76px;
     height: 76px;
+    pointer-events: all;
     transform: translate(-13px, -13px);
     contain: layout size style;
   }
