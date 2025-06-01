@@ -203,14 +203,14 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
   return (
     <div
       ref={wrapperRef}
-      className={[styles.spriteSheetWrapper, className].join(" ")}
+      className={[
+        styles.spriteSheetWrapper,
+        frameIndex === null || frameIndex === -1 ? styles.empty : "",
+        className,
+      ].join(" ")}
     >
       <div
-        className={[
-          styles.spriteSheetScaler,
-          scalerClassName,
-          frameIndex === null ? styles.empty : "",
-        ].join(" ")}
+        className={[styles.spriteSheetScaler, scalerClassName].join(" ")}
         style={{
           width: `${frameWidth}px`,
           height: `${frameHeight}px`,
