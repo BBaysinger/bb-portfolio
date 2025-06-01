@@ -38,9 +38,15 @@
 }
 
 .note {
+  position: absolute;
+  top: 50%;
+  left: 100%;
+  transform: translateY(-56%);
   font-family: "Roboto", sans-serif;
   @include remRange(font-size, 11px, 16px);
   letter-spacing: -0.006em;
+  display: inline-block;
+  vertical-align: middle;
 }
 
 .digit {
