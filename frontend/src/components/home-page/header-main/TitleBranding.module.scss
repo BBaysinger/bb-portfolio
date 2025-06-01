@@ -26,7 +26,7 @@
     margin-bottom: 0;
     font-weight: 400; // Before fonts load.
     @include remRange(padding-top, 0px, 0px, $b320px, $b992px);
-    @include remRange(line-height, 20px, 40px, $b320px, $b992px);
+    @include remRange(line-height, 22px, 42px, $b320px, $b992px);
     @include remRange(font-size, 32px, 50px, $b320px, $b992px);
     @include breakpointUp($b992px) {
       flex-direction: row;
