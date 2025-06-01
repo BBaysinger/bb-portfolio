@@ -28,13 +28,12 @@
   > * {
     // Here because some of the same styles need applied to
     // the placeholders as well the actual fluxels
-    position: relative;
-    flex: 1 1 calc(100% / var(--cols));
+    position: static;
+    width: 6.25% !important;
     aspect-ratio: 1 / 1;
     image-rendering: pixelated;
     box-sizing: content-box;
     overflow: hidden;
-    max-width: 6.25%;
     max-height: 8.33333333%;
   }
 }
@@ -56,8 +55,6 @@
 .overlayWrapper {
   * {
     will-change: background-color;
-    // border-radius: 5%;
-    // filter: blur(0.1vw);
   }
 }
 
