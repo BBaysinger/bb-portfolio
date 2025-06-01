@@ -31,13 +31,13 @@ const App: React.FC = () => {
     (state: RootState) => state.ui.percentHeroInView,
   );
 
-  React.useEffect(() => {
-    if (percentHeroInView >= 0) {
-      console.log(`Hero in view: ${percentHeroInView}%`);
-    } else {
-      console.log("Hero not on this page");
-    }
-  }, [percentHeroInView]);
+  // React.useEffect(() => {
+  //   if (percentHeroInView >= 0) {
+  //     console.info(`Hero in view: ${percentHeroInView}%`);
+  //   } else {
+  //     console.info("Hero not on this page");
+  //   }
+  // }, [percentHeroInView]);
 
   useClientDimensions();
   useTrackHeroInView();
