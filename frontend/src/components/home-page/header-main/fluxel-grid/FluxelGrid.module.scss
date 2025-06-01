@@ -18,6 +18,8 @@
   }
   * {
     pointer-events: none;
+    user-select: none;
+    contain: layout paint size style;
   }
   > * {
     // Here because some of the same styles need applied to
