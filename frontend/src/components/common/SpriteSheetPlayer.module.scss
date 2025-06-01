@@ -16,7 +16,12 @@
   height: 100%;
   width: 100%;
   &.empty {
-     display: none;
+    display: none;
+    pointer-events: none;
+    * {
+      pointer-events: none;
+      display: none;
+    }
   }
 }
 

@@ -52,7 +52,7 @@
     content: "Grab the orb! Grab the orb! Grab the orb!\00a0";
     position: absolute;
     top: 50%;
-    right: 0;
+    left: 0;
     margin-top: 0;
     white-space: nowrap;
     text-align: right;
@@ -61,7 +61,7 @@
     animation: scrollText 2s linear infinite;
     width: max-content;
     :global(.hasDragged) & {
-      content: "Give a toss! Give a toss! Give a toss!\00a0";
+      content: "Give a toss! Give a toss!\00a0";
     }
   }
 }
@@ -80,10 +80,10 @@
 
 @keyframes scrollText {
   0% {
-    transform: translate(24.6%, -50%);
+    transform: translate(0%, -50%);
   }
   100% {
-    transform: translate(-8.6%, -50%);
+    transform: translate(-33%, -50%);
   }
 }
 
