@@ -32,6 +32,19 @@
   }
 }
 
-.fps {
+.label {
   @include remRange(font-size, 30px, 50px);
+  margin-right: 0.12em;
+}
+
+.note {
+  font-family: "Roboto", sans-serif;
+  @include remRange(font-size, 11px, 16px);
+  letter-spacing: -0.006em;
+}
+
+.digit {
+  display: inline-block;
+  min-width: 0.5em;
+  text-align: right;
 }
