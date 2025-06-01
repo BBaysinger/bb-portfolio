@@ -45,9 +45,9 @@ export function useFluxelShadows({
 
   const MIN_FRAME_DELAY = 1000 / 20; // 20fps max
 
-  const updateShadows = () => {
+  const updateShadows = (force = false) => {
     const now = performance.now();
-    if (now - lastUpdateTime.current < MIN_FRAME_DELAY) return;
+    if (!force && now - lastUpdateTime.current < MIN_FRAME_DELAY) return;
 
     lastUpdateTime.current = now;
 
@@ -138,7 +138,7 @@ export function useFluxelShadows({
   };
 
   useEffect(() => {
-    const onPointerMove = () => {
+    const triggerUpdate = () => {
       if (animationFrameId.current != null) return;
       animationFrameId.current = requestAnimationFrame(() => {
         updateShadows();
@@ -146,10 +146,38 @@ export function useFluxelShadows({
       });
     };
 
+    const clearPointer = () => {
+      if (mousePosRef.current) {
+        mousePosRef.current.x = -99999;
+        mousePosRef.current.y = -99999;
+      }
+      requestAnimationFrame(() => {
+        updateShadows();
+        animationFrameId.current = null;
+      });
+    };
+
+    const onPointerDown = (e: PointerEvent) => {
+      e.preventDefault(); // Prevent selection
+      triggerUpdate();
+    };
+
+    const onPointerMove = () => {
+      triggerUpdate();
+    };
+
+    window.addEventListener("pointerdown", onPointerDown, { passive: false });
     window.addEventListener("pointermove", onPointerMove, { passive: true });
+    window.addEventListener("pointerup", clearPointer, { passive: true });
+    window.addEventListener("pointercancel", clearPointer, { passive: true });
+    window.addEventListener("pointerleave", clearPointer, { passive: true });
 
     return () => {
+      window.removeEventListener("pointerdown", onPointerDown);
       window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("pointerup", clearPointer);
+      window.removeEventListener("pointercancel", clearPointer);
+      window.removeEventListener("pointerleave", clearPointer);
       if (animationFrameId.current)
         cancelAnimationFrame(animationFrameId.current);
     };

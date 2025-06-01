@@ -8,11 +8,19 @@
   width: 100%;
   height: 100%;
   z-index: 2;
-  pointer-events: none;
+  user-select: none !important;
+  touch-action: none !important;
+  pointer-events: none !important;
+  -webkit-touch-callout: none; /* Safari: Prevents select from 3D touch */
 }
 
 .slinger {
   position: absolute;
+  user-select: none !important;
+  touch-action: none !important;
+  pointer-events: none !important;
+  -webkit-touch-callout: none; /* Safari: Prevents select from 3D touch */
+
   &::after {
     content: " ";
     position: absolute;
