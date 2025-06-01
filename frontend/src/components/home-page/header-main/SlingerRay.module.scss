@@ -9,8 +9,8 @@
   position: absolute;
   top: -10px;
   transform: translateX(-50%);
-  width: calc(122px + 6vw);
   animation: pulseScale 2s infinite ease-in-out;
+  @include staticRange(width, 100px, 200px);
 }
 
 .energyBars {
