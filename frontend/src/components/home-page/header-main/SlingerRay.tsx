@@ -28,7 +28,8 @@ const SlingerRay: React.FC<SlingerRayProps> = ({
   const [lightningFrame, setLightningFrame] = useState<number | null>(-1); // hidden
   const [energyBarsFrame, setEnergyBarsFrame] = useState<number | null>(-1); // hidden
 
-  useScopedImagePreload("/spritesheets/lightning.webp");
+  // Fixes issue with image data not staying decoded on mobile.
+  useScopedImagePreload("/spritesheets/energy-bars_w92h300f110.webp");
 
   const onBarsEnded = () => {
     setEnergyBarsFrame(-1); // hide energy bars
