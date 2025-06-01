@@ -53,9 +53,9 @@ export function useTrackHeroInView() {
       if (bucket !== lastBucketRef.current) {
         lastBucketRef.current = bucket;
         dispatch(setHeroInView(bucket));
-        console.log(
-          `Hero in view: ${bucket}% (actual: ${percentVisible.toFixed(2)}%)`,
-        );
+        // console.info(
+        //   `Hero in view: ${bucket}% (actual: ${percentVisible.toFixed(2)}%)`,
+        // );
       }
     };
 
