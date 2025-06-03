@@ -10,8 +10,8 @@
     // contain: layout paint size style;
   }
   canvas {
-    width: 100% !important;
-    height: 100% !important;
+    // width: 100% !important; // NO. Can't do this with Pixi.
+    // height: 100% !important; // NO. Can't do this with Pixi.
     display: block;
     image-rendering: pixelated;
   }

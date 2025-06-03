@@ -38,6 +38,7 @@ const FluxelGridCanvas = forwardRef<FluxelGridHandle, FluxelGridProps>(
 
       const setupPixi = async () => {
         const app = new Application();
+
         await app.init({
           canvas: canvasRef.current!,
           backgroundAlpha: 0,
