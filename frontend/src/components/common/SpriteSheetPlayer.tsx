@@ -141,8 +141,8 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
           if (next >= meta.frameCount) {
             completedLoopsRef.current++;
             if (completedLoopsRef.current >= maxLoops) {
-              frameRef.current = meta.frameCount - 1; // stop on last frame
-              setFrameIndex(meta.frameCount - 1);
+              frameRef.current = -1;
+              setFrameIndex(null); // blank the player
               isCancelled = true;
               onEnd?.();
               return;
