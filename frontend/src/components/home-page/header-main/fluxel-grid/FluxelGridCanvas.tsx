@@ -45,6 +45,7 @@ const FluxelGridCanvas = forwardRef<FluxelGridHandle, FluxelGridProps>(
           resolution: window.devicePixelRatio || 1,
           autoDensity: true,
         });
+        app.ticker.maxFPS = 20;
 
         if (!isMounted) return;
 
