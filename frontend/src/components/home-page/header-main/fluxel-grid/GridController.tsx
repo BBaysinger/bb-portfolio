@@ -6,11 +6,13 @@ import {
   useEffect,
 } from "react";
 
-import FluxelGrid from "./FluxelGrid";
+import FluxelGrid from "./FluxelGridDom";
+import FluxelGridCanvas from "./FluxelGridCanvas";
 import { useFluxelShadows } from "./useFluxelShadows";
 import useFluxelProjectiles, { Direction } from "./useFluxelProjectiles";
 import AnimationSequencer from "./AnimationSequencer";
-import type { FluxelGridHandle } from "./FluxelGrid"; // make sure to import this
+import type { FluxelGridHandle } from "./FluxelGridTypes";
+import type { FluxelGridCanvasHandle } from "./FluxelGridCanvas";
 import type { FluxelData } from "./Fluxel";
 import styles from "./GridController.module.scss";
 
@@ -32,16 +34,6 @@ interface GridControllerProps {
 
 const FRAME_TIME = 1000 / 20;
 
-/**
- * GridController
- *
- * Handles the grid and the effects we're applying to it. Do it here so the
- * grid doesn't know anything specific about how we're using it.
- *
- * @author Bradley Baysinger
- * @since The beginning of time.
- * @version N/A
- */
 const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
   (
     {
@@ -54,13 +46,18 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
     },
     ref,
   ) => {
-    const gridInstanceRef = useRef<FluxelGridHandle>(null);
+    const useDomGrid = () => {
+      if (typeof window === "undefined") return false;
+      return (
+        new URLSearchParams(window.location.search).get("fluxelGridDOM") ===
+        "true"
+      );
+    };
+    const gridInstanceRef = useRef<FluxelGridHandle & FluxelGridCanvasHandle>(
+      null,
+    );
     const wrapperRef = useRef<HTMLDivElement | null>(null);
     const isShadowsPaused = useRef(false);
-
-    /* ------------------------------------------------------------------ */
-    /*  Grid state                                                        */
-    /* ------------------------------------------------------------------ */
 
     const [gridData, setGridData] = useState<FluxelData[][]>(() =>
       Array.from({ length: rows }, (_, row) =>
@@ -78,15 +75,7 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
       ),
     );
 
-    /* ------------------------------------------------------------------ */
-    /*  Local pointer position (fallback if parent isn't supplying one)   */
-    /* ------------------------------------------------------------------ */
-
     const mousePosRef = useRef<{ x: number; y: number } | null>(null);
-
-    /* ------------------------------------------------------------------ */
-    /*  Shadow & projectile helpers                                       */
-    /* ------------------------------------------------------------------ */
 
     useFluxelShadows({
       gridRef: gridInstanceRef,
@@ -107,7 +96,6 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
         applyFluxPosition,
         resetAllFluxels: () => {
           isShadowsPaused.current = true;
-
           setGridData((prev) =>
             prev.map((row) =>
               row.map((fluxel) => ({
@@ -129,14 +117,10 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
       [launchProjectile],
     );
 
-    /* ------------------------------------------------------------------ */
-    /*  Pointer‑tracking effect                                           */
-    /* ------------------------------------------------------------------ */
-
     const lastFrameTime = useRef(0);
 
     const applyFluxPosition = (clientX: number, clientY: number) => {
-      const gridEl = gridInstanceRef.current?.getElement();
+      const gridEl = gridInstanceRef.current?.getContainerElement?.();
       if (!gridEl) return;
 
       const now = performance.now();
@@ -184,9 +168,7 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
       };
     }, [useSlingerTracking, viewableWidth, viewableHeight]);
 
-    /* ------------------------------------------------------------------ */
-    /*  Render                                                            */
-    /* ------------------------------------------------------------------ */
+    const fluxelSize = viewableWidth / cols;
 
     return (
       <div
@@ -195,12 +177,22 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
       >
         <AnimationSequencer />
 
-        <FluxelGrid
-          ref={gridInstanceRef}
-          gridData={gridData}
-          viewableWidth={viewableWidth}
-          viewableHeight={viewableHeight}
-        />
+        {!useDomGrid() ? (
+          <FluxelGridCanvas
+            ref={gridInstanceRef}
+            gridData={gridData}
+            width={viewableWidth}
+            height={viewableHeight}
+            size={fluxelSize}
+          />
+        ) : (
+          <FluxelGrid
+            ref={gridInstanceRef}
+            gridData={gridData}
+            viewableWidth={viewableWidth}
+            viewableHeight={viewableHeight}
+          />
+        )}
       </div>
     );
   },
