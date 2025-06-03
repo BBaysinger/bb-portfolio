@@ -15,7 +15,7 @@ interface ChargedCircleProps {
  */
 const ChargedCircle: React.FC<ChargedCircleProps> = ({ isActive = false }) => {
   // Fixes issue with image data not staying decoded on mobile.
-  useScopedImagePreload("/spritesheets/energy-bars_w92h300f110.webp");
+  useScopedImagePreload("/spritesheets/lightning_Layer-Comp-_w480h1098f7.webp");
 
   return (
     <div className={styles.chargedCircle}>
