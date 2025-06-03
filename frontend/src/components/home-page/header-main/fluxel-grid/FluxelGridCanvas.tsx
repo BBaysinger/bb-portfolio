@@ -60,7 +60,14 @@ const FluxelGridCanvas = forwardRef<
     fluxelsRef.current = fluxels;
 
     return () => {
-      app.destroy(true, { children: true });
+      if (appRef.current && typeof appRef.current.destroy === "function") {
+        try {
+          appRef.current.destroy(true, { children: true });
+        } catch (err) {
+          console.warn("Pixi app destroy failed:", err);
+        }
+        appRef.current = null;
+      }
     };
   }, [gridData, width, height, size]);
 

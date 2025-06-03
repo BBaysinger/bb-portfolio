@@ -8,6 +8,7 @@ import React, {
 } from "react";
 
 import Fluxel, { FluxelData, FluxelHandle } from "./Fluxel";
+import type { FluxelGridHandle, FluxelGridProps } from "./FluxelGridTypes";
 import styles from "./FluxelGrid.module.scss";
 
 /**
@@ -20,33 +21,7 @@ import styles from "./FluxelGrid.module.scss";
  * @since The beginning of time.
  * @version N/A
  */
-export interface FluxelGridHandle {
-  getFluxelAt: (x: number, y: number) => FluxelData | null;
-  getElement: () => HTMLDivElement | null;
-  getFluxelSize: () => number;
-  getGridData: () => FluxelData[][];
-  trackPosition?: (
-    row: number,
-    col: number,
-    influence: number,
-    color?: string,
-  ) => void;
-}
-
-interface FluxelGridProps {
-  gridData: FluxelData[][];
-  gridRef?: React.Ref<HTMLDivElement>;
-  viewableHeight: number;
-  viewableWidth: number;
-  onGridChange?: (info: {
-    rows: number;
-    cols: number;
-    fluxelSize: number;
-  }) => void;
-  imperativeMode?: boolean;
-}
-
-const FluxelGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
+const FluxelGridDom = forwardRef<FluxelGridHandle, FluxelGridProps>(
   (
     {
       gridData,
@@ -141,7 +116,7 @@ const FluxelGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
 
           return currentGridData[r]?.[c] || null;
         },
-        getElement() {
+        getContainerElement() {
           return containerRef.current;
         },
         getFluxelSize() {
@@ -222,4 +197,4 @@ const FluxelGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
   },
 );
 
-export default FluxelGrid;
+export default FluxelGridDom;

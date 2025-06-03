@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from "react";
 
 import { FluxelData } from "./Fluxel";
 import MiscUtils from "utils/MiscUtils";
-import type { FluxelGridHandle } from "./FluxelGrid";
+import type { FluxelGridHandle } from "./FluxelGridTypes";
 
 export type Direction = "up" | "down" | "left" | "right";
 
