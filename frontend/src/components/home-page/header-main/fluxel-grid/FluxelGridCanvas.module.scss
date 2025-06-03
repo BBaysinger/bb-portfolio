@@ -1,0 +1,12 @@
+.fluxelGridCanvas {
+  aspect-ratio: 4/3;
+  height: 100vmax;
+  @media (min-aspect-ratio: 4/3) {
+    height: auto;
+    width: 100vmax;
+  }
+  * {
+    pointer-events: none;
+    contain: layout paint size style;
+  }
+}
