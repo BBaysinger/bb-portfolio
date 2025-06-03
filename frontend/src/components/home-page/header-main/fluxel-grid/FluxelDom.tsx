@@ -5,8 +5,7 @@ import React, {
   useEffect,
 } from "react";
 
-import cornerShadow from "images/hero/corner-shadow.webp";
-import styles from "./Fluxel.module.scss";
+import styles from "./FluxelDom.module.scss";
 
 export interface FluxelData {
   id: string;
@@ -44,7 +43,7 @@ export interface FluxelHandle {
  * @since The beginning of time.
  * @version N/A
  */
-const Fluxel = forwardRef<FluxelHandle, { data: FluxelData }>(
+const FluxelDom = forwardRef<FluxelHandle, { data: FluxelData }>(
   ({ data }, ref) => {
     const elRef = useRef<SVGSVGElement>(null);
 
@@ -80,7 +79,7 @@ const Fluxel = forwardRef<FluxelHandle, { data: FluxelData }>(
       >
         <image
           opacity="0.5"
-          href={cornerShadow}
+          href={"/images/home/corner-shadow.webp"}
           x={-34}
           y={-110}
           width="216"
@@ -89,7 +88,7 @@ const Fluxel = forwardRef<FluxelHandle, { data: FluxelData }>(
         />
         <image
           opacity="0.25"
-          href={cornerShadow}
+          href={"/images/home/corner-shadow.webp"}
           x={-100}
           y={-185}
           width="216"
@@ -117,4 +116,4 @@ function areEqual(prev: { data: FluxelData }, next: { data: FluxelData }) {
   );
 }
 
-export default React.memo(Fluxel, areEqual);
+export default React.memo(FluxelDom, areEqual);

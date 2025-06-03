@@ -6,7 +6,7 @@ import {
   useState,
 } from "react";
 
-import { Application, Container } from "pixi.js";
+import { Application, Container, Graphics, Assets, Texture } from "pixi.js";
 import type { FluxelGridHandle, FluxelGridProps } from "./FluxelGridTypes";
 import { FluxelSprite } from "./FluxelSprite";
 import styles from "./FluxelGridCanvas.module.scss";
@@ -32,57 +32,76 @@ const FluxelGridCanvas = forwardRef<FluxelGridHandle, FluxelGridProps>(
     useEffect(() => {
       if (!canvasRef.current || !containerRef.current) return;
 
-      const canvas = canvasRef.current;
       const container = containerRef.current;
+      let isMounted = true;
+      let resizeObserver: ResizeObserver | null = null;
 
-      const app = new Application({
-        view: canvas,
-        backgroundAlpha: 0,
-        antialias: true,
-        resolution: window.devicePixelRatio || 1,
-        autoDensity: true,
-      });
-      appRef.current = app;
+      const setupPixi = async () => {
+        const app = new Application();
+        await app.init({
+          canvas: canvasRef.current!,
+          backgroundAlpha: 0,
+          antialias: true,
+          resolution: window.devicePixelRatio || 1,
+          autoDensity: true,
+        });
 
-      const fluxelContainer = new Container();
-      app.stage.addChild(fluxelContainer);
+        if (!isMounted) return;
 
-      const buildGrid = () => {
-        const rect = container.getBoundingClientRect();
-        const width = rect.width;
-        const height = rect.height;
+        appRef.current = app;
 
-        const newSize = Math.min(width / cols || 1, height / rows || 1);
-        setFluxelSize(newSize);
+        const fluxelContainer = new Container();
+        app.stage.addChild(fluxelContainer);
 
-        canvas.width = Math.floor(cols * newSize);
-        canvas.height = Math.floor(rows * newSize);
+        const shadowTexture = await Assets.load<Texture>(
+          "/images/home/corner-shadow.webp",
+        );
 
-        fluxelContainer.removeChildren(); // clear old sprites
-        const fluxels: FluxelSprite[][] = [];
+        const buildGrid = () => {
+          const rect = container.getBoundingClientRect();
+          const width = rect.width;
+          const height = rect.height;
 
-        for (let row = 0; row < rows; row++) {
-          const rowSprites: FluxelSprite[] = [];
-          for (let col = 0; col < cols; col++) {
-            const data = gridData[row][col];
-            const sprite = new FluxelSprite(data, newSize);
-            sprite.container.x = col * newSize;
-            sprite.container.y = row * newSize;
-            fluxelContainer.addChild(sprite.container);
-            rowSprites.push(sprite);
+          const newSize = Math.min(width / cols || 1, height / rows || 1);
+          setFluxelSize(newSize);
+
+          fluxelContainer.removeChildren();
+          const fluxels: FluxelSprite[][] = [];
+
+          for (let row = 0; row < rows; row++) {
+            const rowSprites: FluxelSprite[] = [];
+            for (let col = 0; col < cols; col++) {
+              const data = gridData[row][col];
+              const sprite = new FluxelSprite(data, newSize, shadowTexture);
+              sprite.container.x = col * newSize;
+              sprite.container.y = row * newSize;
+              fluxelContainer.addChild(sprite.container);
+              rowSprites.push(sprite);
+            }
+            fluxels.push(rowSprites);
           }
-          fluxels.push(rowSprites);
-        }
-        fluxelsRef.current = fluxels;
+
+          fluxelsRef.current = fluxels;
+        };
+
+        // Draw a test graphic
+        const g = new Graphics();
+        g.fill({ color: 0xff00ff });
+        g.circle(600, 600, 300);
+        app.stage.addChild(g);
+
+        buildGrid();
+
+        resizeObserver = new ResizeObserver(buildGrid);
+        resizeObserver.observe(container);
       };
 
-      buildGrid();
-
-      const resizeObserver = new ResizeObserver(buildGrid);
-      resizeObserver.observe(container);
+      setupPixi();
 
       return () => {
-        if (appRef.current?.destroy) {
+        isMounted = false;
+        resizeObserver?.disconnect();
+        if (appRef.current) {
           try {
             appRef.current.destroy(true, { children: true });
           } catch (err) {

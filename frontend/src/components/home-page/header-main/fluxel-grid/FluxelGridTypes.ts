@@ -1,5 +1,5 @@
 import React from "react";
-import { FluxelData } from "./Fluxel";
+import { FluxelData } from "./FluxelDom";
 
 export interface FluxelGridHandle {
   getFluxelAt: (x: number, y: number) => FluxelData | null;
