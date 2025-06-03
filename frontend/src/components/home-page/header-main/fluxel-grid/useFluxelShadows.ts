@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 
-import { FluxelData } from "./Fluxel";
+import { FluxelData } from "./FluxelDom";
 import type { FluxelGridHandle } from "./FluxelGridTypes";
 import MiscUtils from "utils/MiscUtils";
 
