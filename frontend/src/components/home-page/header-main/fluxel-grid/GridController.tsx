@@ -12,7 +12,6 @@ import { useFluxelShadows } from "./useFluxelShadows";
 import useFluxelProjectiles, { Direction } from "./useFluxelProjectiles";
 import AnimationSequencer from "./AnimationSequencer";
 import type { FluxelGridHandle } from "./FluxelGridTypes";
-import type { FluxelGridCanvasHandle } from "./FluxelGridCanvas";
 import type { FluxelData } from "./Fluxel";
 import styles from "./GridController.module.scss";
 
@@ -53,9 +52,7 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
         "true"
       );
     };
-    const gridInstanceRef = useRef<FluxelGridHandle & FluxelGridCanvasHandle>(
-      null,
-    );
+    const gridInstanceRef = useRef<FluxelGridHandle & FluxelGridHandle>(null);
     const wrapperRef = useRef<HTMLDivElement | null>(null);
     const isShadowsPaused = useRef(false);
 
@@ -168,8 +165,6 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
       };
     }, [useSlingerTracking, viewableWidth, viewableHeight]);
 
-    const fluxelSize = viewableWidth / cols;
-
     return (
       <div
         ref={wrapperRef}
@@ -181,9 +176,8 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
           <FluxelGridCanvas
             ref={gridInstanceRef}
             gridData={gridData}
-            width={viewableWidth}
-            height={viewableHeight}
-            size={fluxelSize}
+            viewableWidth={viewableWidth}
+            viewableHeight={viewableHeight}
           />
         ) : (
           <FluxelGrid
