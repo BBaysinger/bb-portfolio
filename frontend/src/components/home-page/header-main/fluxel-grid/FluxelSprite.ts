@@ -1,7 +1,4 @@
-import { Container, Graphics, Sprite, Texture } from "pixi.js";
-import { string2hex } from "@pixi/utils";
-
-import cornerShadow from "images/hero/corner-shadow.webp";
+import { Container, Graphics, Sprite, Texture, Color } from "pixi.js";
 
 export interface FluxelData {
   id: string;
@@ -22,34 +19,33 @@ export class FluxelSprite {
   private shadow1: Sprite;
   private shadow2: Sprite;
 
-  constructor(data: FluxelData, size: number) {
+  constructor(data: FluxelData, size: number, cornerShadow: Texture) {
     this.container = new Container();
     this.container.x = data.col * size;
     this.container.y = data.row * size;
 
     this.bg = new Graphics();
-    this.bg.beginFill(0x141414, data.influence * 1.0 - 0.1);
-    this.bg.drawRect(0, 0, size, size);
-    this.bg.endFill();
+    this.bg.fill({
+      color: 0x141414,
+      alpha: Math.max(0, Math.min(1, data.influence * 1.0 - 0.1)),
+    });
+    this.bg.rect(0, 0, size, size);
     this.container.addChild(this.bg);
 
     if (data.colorVariation) {
       this.overlay = new Graphics();
-      this.overlay.beginFill(string2hex(data.colorVariation));
-      this.overlay.drawRect(0, 0, size, size);
-      this.overlay.endFill();
+      this.overlay.fill({ color: new Color(data.colorVariation).toNumber() });
+      this.overlay.rect(0, 0, size, size);
       this.container.addChild(this.overlay);
     }
 
-    const shadowTex = Texture.from(cornerShadow);
-
-    this.shadow1 = new Sprite(shadowTex);
+    this.shadow1 = new Sprite(cornerShadow);
     this.shadow1.alpha = 0.5;
     this.shadow1.width = 216;
     this.shadow1.height = 216;
     this.container.addChild(this.shadow1);
 
-    this.shadow2 = new Sprite(shadowTex);
+    this.shadow2 = new Sprite(cornerShadow);
     this.shadow2.alpha = 0.25;
     this.shadow2.width = 216;
     this.shadow2.height = 216;
@@ -61,17 +57,17 @@ export class FluxelSprite {
 
   updateInfluence(influence: number, colorVariation?: string) {
     const size = this.bg.width;
-
     this.bg.clear();
-    this.bg.beginFill(0x141414, influence * 1.0 - 0.1);
-    this.bg.drawRect(0, 0, size, size);
-    this.bg.endFill();
+    this.bg.fill({
+      color: 0x141414,
+      alpha: Math.max(0, Math.min(1, influence * 1.0 - 0.1)),
+    });
+    this.bg.rect(0, 0, size, size);
 
     if (colorVariation && this.overlay) {
       this.overlay.clear();
-      this.overlay.beginFill(string2hex(colorVariation));
-      this.overlay.drawRect(0, 0, size, size);
-      this.overlay.endFill();
+      this.overlay.fill({ color: new Color(colorVariation).toNumber() });
+      this.overlay.rect(0, 0, size, size);
     }
   }
 

@@ -12,7 +12,7 @@ import { useFluxelShadows } from "./useFluxelShadows";
 import useFluxelProjectiles, { Direction } from "./useFluxelProjectiles";
 import AnimationSequencer from "./AnimationSequencer";
 import type { FluxelGridHandle } from "./FluxelGridTypes";
-import type { FluxelData } from "./Fluxel";
+import type { FluxelData } from "./FluxelDom";
 import styles from "./GridController.module.scss";
 
 export interface GridControllerHandle {
