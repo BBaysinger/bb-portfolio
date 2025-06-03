@@ -1,39 +1,7 @@
-// .fluxel {
-//   position: relative;
-//   aspect-ratio: 1 / 1;
-//   background-color: var(--base-color);
-//   width: var(--fluxel-size);
-//   height: var(--fluxel-size);
-//   border-width: var(--fluxel-border-width);
-//   contain: layout paint style;
-// }
-
-// .debug {
-//   color: rgba(255, 255, 255, 0.2);
-//   font-size: 12px;
-//   position: absolute;
-//   top: 0;
-// }
-
 .fluxel {
   position: relative;
-  width: var(--fluxel-size);
-  height: var(--fluxel-size);
+  aspect-ratio: 1 / 1;
   background-color: var(--base-color);
-  overflow: visible;
-  contain: layout paint style;
-}
-
-.shadow {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 216px;
-  height: 216px;
-  background-repeat: no-repeat;
-  background-size: contain;
-  pointer-events: none;
-  will-change: transform;
 }
 
 .debug {
