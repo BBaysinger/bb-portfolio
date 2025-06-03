@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 
 import { FluxelData } from "./Fluxel";
-import type { FluxelGridHandle } from "./FluxelGrid";
+import type { FluxelGridHandle } from "./FluxelGridTypes";
 import MiscUtils from "utils/MiscUtils";
 
 function getShadowInfluence(
@@ -46,7 +46,7 @@ export function useFluxelShadows({
     let isCancelled = false;
 
     const startLoop = () => {
-      const gridEl = gridRef.current?.getElement();
+      const gridEl = gridRef.current?.getContainerElement();
       const fluxelSize = gridRef.current?.getFluxelSize();
       if (!gridEl || !fluxelSize || isCancelled) {
         // Try again on next frame
@@ -59,7 +59,7 @@ export function useFluxelShadows({
           animationFrameId.current = requestAnimationFrame(updateShadows);
           return;
         }
-        const gridEl = gridRef.current?.getElement();
+        const gridEl = gridRef.current?.getContainerElement();
         const fluxelSize = gridRef.current?.getFluxelSize();
         if (!gridEl || !fluxelSize) return;
 

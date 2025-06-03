@@ -26,7 +26,7 @@ export default defineConfig({
   build: {
     outDir: "dist", // The output directory
     emptyOutDir: true, // Clears the output directory before each build
-    chunkSizeWarningLimit: 600,
+    chunkSizeWarningLimit: 1000,
   },
   server: {
     host: true, // Ensures it binds to all network interfaces
