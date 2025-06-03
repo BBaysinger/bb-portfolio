@@ -17,38 +17,106 @@ import { useEffect } from "react";
  * @since The beginning of time.
  * @version N/A
  */
-export function useScopedImagePreload(src: string, type = "image/webp") {
-  useEffect(() => {
-    if (!src) return;
+interface PreloadOptions {
+  decode?: boolean;
+  decodeOnIdle?: boolean;
+  retainInDOM?: boolean;
+  preloadOnly?: boolean;
+  loadPriority?: "high" | "auto" | "low";
+  type?: string;
+  debug?: boolean;
+}
 
-    // 1. Preload link in head
+export function useScopedImagePreload(
+  src: string,
+  options: PreloadOptions = {},
+) {
+  const {
+    decode = true,
+    decodeOnIdle = false,
+    retainInDOM = true,
+    preloadOnly = false,
+    loadPriority = "auto",
+    type = "image/webp",
+    debug = false,
+  } = options;
+
+  const log = (...args: any[]) => {
+    if (debug) console.info(...args);
+  };
+
+  useEffect(() => {
+    if (!src) {
+      if (debug) console.warn("🟡 useScopedImagePreload: No `src` provided.");
+      return;
+    }
+
+    log(`🔵 Preloading: ${src}`);
+    log(
+      `⚙️ Options -> decode: ${decode}, decodeOnIdle: ${decodeOnIdle}, retainInDOM: ${retainInDOM}, preloadOnly: ${preloadOnly}, priority: ${loadPriority}`,
+    );
+
     const link = document.createElement("link");
     link.rel = "preload";
     link.as = "image";
     link.href = src;
     link.type = type;
+    if ("fetchPriority" in link) {
+      (link as any).fetchPriority = loadPriority;
+    }
     document.head.appendChild(link);
+    log("🟢 Preload link inserted");
 
-    // 2. Image decode
+    if (preloadOnly) {
+      return () => document.head.removeChild(link);
+    }
+
     const img = new Image();
     img.src = src;
-    img.decode?.();
 
-    // 3. Offscreen <img> to keep in memory
-    const ghost = document.createElement("img");
-    ghost.src = src;
-    ghost.style.position = "absolute";
-    ghost.style.width = "1px";
-    ghost.style.height = "1px";
-    ghost.style.opacity = "0";
-    ghost.style.pointerEvents = "none";
-    document.body.appendChild(ghost);
+    if (decode && img.decode) {
+      const doDecode = () =>
+        img
+          .decode?.()
+          .then(() => log("✅ Image decoded:", src))
+          .catch((err) => debug && console.warn("❌ Decode failed:", err));
+
+      if (decodeOnIdle && "requestIdleCallback" in window) {
+        requestIdleCallback(doDecode);
+      } else {
+        doDecode();
+      }
+    }
+
+    let ghost: HTMLImageElement | null = null;
+
+    if (retainInDOM) {
+      ghost = document.createElement("img");
+      ghost.src = src;
+      ghost.style.position = "absolute";
+      ghost.style.width = "1px";
+      ghost.style.height = "1px";
+      ghost.style.opacity = "0";
+      ghost.style.pointerEvents = "none";
+      document.body.appendChild(ghost);
+      log("🟢 Ghost image inserted");
+    }
 
     return () => {
       document.head.removeChild(link);
-      document.body.removeChild(ghost);
+      if (ghost) document.body.removeChild(ghost);
+      log("🔴 Preload cleanup for", src);
     };
-  }, [src, type]);
+  }, [
+    src,
+    decode,
+    decodeOnIdle,
+    retainInDOM,
+    preloadOnly,
+    loadPriority,
+    type,
+    debug,
+  ]);
 }
 
 export default useScopedImagePreload;
