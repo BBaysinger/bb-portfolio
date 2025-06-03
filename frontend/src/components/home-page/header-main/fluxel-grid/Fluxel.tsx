@@ -23,34 +23,19 @@ export interface FluxelData {
   colorVariation?: string;
 }
 
-/**
- * Fluxing Pixel
- *
- * A square/pixel on the grid that can simulate depth and have color variations
- * applied to it.
- *
- * @author Bradley Baysinger
- * @since The beginning of time.
- * @version N/A
- */
 export interface FluxelHandle {
   updateInfluence: (influence: number, colorVariation?: string) => void;
 }
 
-/**
- *
- *
- * @author Bradley Baysinger
- * @since The beginning of time.
- * @version N/A
- */
 const Fluxel = forwardRef<FluxelHandle, { data: FluxelData }>(
   ({ data }, ref) => {
-    const elRef = useRef<SVGSVGElement>(null);
+    const elRef = useRef<HTMLDivElement>(null);
+    const shadow1Ref = useRef<HTMLDivElement>(null);
+    const shadow2Ref = useRef<HTMLDivElement>(null);
 
-    // Initial props-driven style
     useEffect(() => {
       updateInfluence(data.influence, data.colorVariation);
+      updateShadowTransforms();
     }, [data]);
 
     const updateInfluence = (influence: number, colorVariation?: string) => {
@@ -67,39 +52,39 @@ const Fluxel = forwardRef<FluxelHandle, { data: FluxelData }>(
       }
     };
 
+    const updateShadowTransforms = () => {
+      shadow1Ref.current?.style.setProperty(
+        "transform",
+        `translate(${data.shadow1OffsetX}px, ${data.shadow1OffsetY}px)`
+      );
+
+      shadow2Ref.current?.style.setProperty(
+        "transform",
+        `translate(${data.shadow2OffsetX}px, ${data.shadow2OffsetY}px) scale(-1, -1)`
+      );
+    };
+
     useImperativeHandle(ref, () => ({
       updateInfluence,
     }));
 
     return (
-      <svg
-        ref={elRef}
-        className={styles.fluxel}
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 72 72"
-      >
-        <image
-          opacity="0.5"
-          href={cornerShadow}
-          x={-34}
-          y={-110}
-          width="216"
-          height="216"
-          transform={`translate(${data.shadow1OffsetX}, ${data.shadow1OffsetY})`}
+      <div ref={elRef} className={styles.fluxel}>
+        <div
+          ref={shadow1Ref}
+          className={styles.shadow}
+          style={{ opacity: 0.5, backgroundImage: `url(${cornerShadow})` }}
         />
-        <image
-          opacity="0.25"
-          href={cornerShadow}
-          x={-100}
-          y={-185}
-          width="216"
-          height="216"
-          transform={`translate(${data.shadow2OffsetX}, ${data.shadow2OffsetY}) scale(-1, -1)`}
+        <div
+          ref={shadow2Ref}
+          className={styles.shadow}
+          style={{ opacity: 0.25, backgroundImage: `url(${cornerShadow})` }}
         />
-        {/* <rect width="72" height="72" fill="var(--overlay-color)" /> */}
-      </svg>
+        {/* Optional debug overlay */}
+        {/* <div className={styles.debug}>{data.row},{data.col}</div> */}
+      </div>
     );
-  },
+  }
 );
 
 const round = (n: number) => +n.toFixed(2);
