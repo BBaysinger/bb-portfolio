@@ -9,7 +9,7 @@ import React, {
 
 import Fluxel, { FluxelData, FluxelHandle } from "./Fluxel";
 import type { FluxelGridHandle, FluxelGridProps } from "./FluxelGridTypes";
-import styles from "./FluxelGrid.module.scss";
+import styles from "./FluxelGridDom.module.scss";
 
 /**
  * FluxelGrid

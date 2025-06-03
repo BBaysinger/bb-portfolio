@@ -9,6 +9,7 @@ import {
 import { Application, Container } from "pixi.js";
 import type { FluxelGridHandle, FluxelGridProps } from "./FluxelGridTypes";
 import { FluxelSprite } from "./FluxelSprite";
+import styles from "./FluxelGridCanvas.module.scss";
 
 const FluxelGridCanvas = forwardRef<FluxelGridHandle, FluxelGridProps>(
   ({ gridData, imperativeMode }, ref) => {
@@ -113,7 +114,7 @@ const FluxelGridCanvas = forwardRef<FluxelGridHandle, FluxelGridProps>(
     );
 
     return (
-      <div ref={containerRef} style={{ width: "100%", height: "100%" }}>
+      <div ref={containerRef} className={styles.fluxelGridCanvas}>
         <canvas
           ref={canvasRef}
           style={{ width: "100%", height: "100%", display: "block" }}
