@@ -33,15 +33,7 @@ const FluxelGridCanvas = forwardRef<FluxelGridHandle, FluxelGridProps>(
       if (!canvasRef.current || !containerRef.current) return;
 
       const canvas = canvasRef.current;
-      const rect = containerRef.current.getBoundingClientRect();
-      const width = rect.width;
-      const height = rect.height;
-
-      const newFluxelSize = Math.min(width / cols || 1, height / rows || 1);
-      setFluxelSize(newFluxelSize);
-
-      canvas.width = Math.floor(cols * newFluxelSize);
-      canvas.height = Math.floor(rows * newFluxelSize);
+      const container = containerRef.current;
 
       const app = new Application({
         view: canvas,
@@ -55,18 +47,39 @@ const FluxelGridCanvas = forwardRef<FluxelGridHandle, FluxelGridProps>(
       const fluxelContainer = new Container();
       app.stage.addChild(fluxelContainer);
 
-      const fluxels: FluxelSprite[][] = [];
-      for (let row = 0; row < rows; row++) {
-        const rowSprites: FluxelSprite[] = [];
-        for (let col = 0; col < cols; col++) {
-          const data = gridData[row][col];
-          const sprite = new FluxelSprite(data, newFluxelSize);
-          fluxelContainer.addChild(sprite.container);
-          rowSprites.push(sprite);
+      const buildGrid = () => {
+        const rect = container.getBoundingClientRect();
+        const width = rect.width;
+        const height = rect.height;
+
+        const newSize = Math.min(width / cols || 1, height / rows || 1);
+        setFluxelSize(newSize);
+
+        canvas.width = Math.floor(cols * newSize);
+        canvas.height = Math.floor(rows * newSize);
+
+        fluxelContainer.removeChildren(); // clear old sprites
+        const fluxels: FluxelSprite[][] = [];
+
+        for (let row = 0; row < rows; row++) {
+          const rowSprites: FluxelSprite[] = [];
+          for (let col = 0; col < cols; col++) {
+            const data = gridData[row][col];
+            const sprite = new FluxelSprite(data, newSize);
+            sprite.container.x = col * newSize;
+            sprite.container.y = row * newSize;
+            fluxelContainer.addChild(sprite.container);
+            rowSprites.push(sprite);
+          }
+          fluxels.push(rowSprites);
         }
-        fluxels.push(rowSprites);
-      }
-      fluxelsRef.current = fluxels;
+        fluxelsRef.current = fluxels;
+      };
+
+      buildGrid();
+
+      const resizeObserver = new ResizeObserver(buildGrid);
+      resizeObserver.observe(container);
 
       return () => {
         if (appRef.current?.destroy) {
@@ -114,11 +127,8 @@ const FluxelGridCanvas = forwardRef<FluxelGridHandle, FluxelGridProps>(
     );
 
     return (
-      <div ref={containerRef} className={styles.fluxelGridCanvas}>
-        <canvas
-          ref={canvasRef}
-          style={{ width: "100%", height: "100%", display: "block" }}
-        />
+      <div ref={containerRef} className={styles.fluxelGridWrapper}>
+        <canvas ref={canvasRef} />
       </div>
     );
   },
