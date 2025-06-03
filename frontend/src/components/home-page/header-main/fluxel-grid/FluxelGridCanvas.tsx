@@ -1,12 +1,7 @@
-import {
-  useRef,
-  useEffect,
-  forwardRef,
-  useImperativeHandle,
-  useState,
-} from "react";
+import { useRef, useEffect, forwardRef, useImperativeHandle } from "react";
 
-import { Application, Container, Graphics, Assets, Texture } from "pixi.js";
+import { Application, Container, Assets, Texture } from "pixi.js";
+
 import type { FluxelGridHandle, FluxelGridProps } from "./FluxelGridTypes";
 import { FluxelSprite } from "./FluxelSprite";
 import styles from "./FluxelGridCanvas.module.scss";
@@ -17,42 +12,42 @@ const FluxelGridCanvas = forwardRef<FluxelGridHandle, FluxelGridProps>(
     const containerRef = useRef<HTMLDivElement>(null);
     const appRef = useRef<Application | null>(null);
     const fluxelsRef = useRef<FluxelSprite[][]>([]);
+    const fluxelSizeRef = useRef(0);
+    const fluxelContainerRef = useRef<Container>(new Container());
     const gridDataRef = useRef(gridData);
 
-    const [fluxelSize, setFluxelSize] = useState(0);
-    const [rows, setRows] = useState(0);
-    const [cols, setCols] = useState(0);
+    const rows = gridData.length;
+    const cols = gridData[0]?.length || 0;
 
     useEffect(() => {
       gridDataRef.current = gridData;
-      setRows(gridData.length);
-      setCols(gridData[0]?.length || 0);
     }, [gridData]);
 
     useEffect(() => {
       if (!canvasRef.current || !containerRef.current) return;
 
+      const canvas = canvasRef.current;
       const container = containerRef.current;
       let isMounted = true;
-      let resizeObserver: ResizeObserver | null = null;
+      let resizeScheduled = false;
 
       const setupPixi = async () => {
         const app = new Application();
-
         await app.init({
-          canvas: canvasRef.current!,
+          canvas,
           backgroundAlpha: 0,
           antialias: true,
           resolution: window.devicePixelRatio || 1,
           autoDensity: true,
         });
+
         app.ticker.maxFPS = 20;
 
         if (!isMounted) return;
 
         appRef.current = app;
 
-        const fluxelContainer = new Container();
+        const fluxelContainer = fluxelContainerRef.current;
         app.stage.addChild(fluxelContainer);
 
         const shadowTexture = await Assets.load<Texture>(
@@ -65,7 +60,16 @@ const FluxelGridCanvas = forwardRef<FluxelGridHandle, FluxelGridProps>(
           const height = rect.height;
 
           const newSize = Math.min(width / cols || 1, height / rows || 1);
-          setFluxelSize(newSize);
+          const dpr = window.devicePixelRatio || 1;
+
+          // Resize canvas
+          canvas.width = Math.floor(cols * newSize * dpr);
+          canvas.height = Math.floor(rows * newSize * dpr);
+          canvas.style.width = `${cols * newSize}px`;
+          canvas.style.height = `${rows * newSize}px`;
+          canvas.style.imageRendering = "pixelated";
+
+          fluxelSizeRef.current = newSize;
 
           fluxelContainer.removeChildren();
           const fluxels: FluxelSprite[][] = [];
@@ -73,7 +77,7 @@ const FluxelGridCanvas = forwardRef<FluxelGridHandle, FluxelGridProps>(
           for (let row = 0; row < rows; row++) {
             const rowSprites: FluxelSprite[] = [];
             for (let col = 0; col < cols; col++) {
-              const data = gridData[row][col];
+              const data = gridDataRef.current[row][col];
               const sprite = new FluxelSprite(data, newSize, shadowTexture);
               sprite.container.x = col * newSize;
               sprite.container.y = row * newSize;
@@ -86,23 +90,32 @@ const FluxelGridCanvas = forwardRef<FluxelGridHandle, FluxelGridProps>(
           fluxelsRef.current = fluxels;
         };
 
-        // Draw a test graphic
-        const g = new Graphics();
-        g.fill({ color: 0xff00ff });
-        g.circle(600, 600, 300);
-        app.stage.addChild(g);
-
+        // Initial render
         buildGrid();
 
-        resizeObserver = new ResizeObserver(buildGrid);
+        // Throttled resize
+        const resizeObserver = new ResizeObserver(() => {
+          if (!resizeScheduled) {
+            resizeScheduled = true;
+            requestAnimationFrame(() => {
+              buildGrid();
+              resizeScheduled = false;
+            });
+          }
+        });
+
         resizeObserver.observe(container);
+
+        // Cleanup
+        return () => {
+          resizeObserver.disconnect();
+        };
       };
 
       setupPixi();
 
       return () => {
         isMounted = false;
-        resizeObserver?.disconnect();
         if (appRef.current) {
           try {
             appRef.current.destroy(true, { children: true });
@@ -119,14 +132,18 @@ const FluxelGridCanvas = forwardRef<FluxelGridHandle, FluxelGridProps>(
       () => ({
         getFluxelAt(x, y) {
           const el = containerRef.current;
-          if (!el || fluxelSize === 0) return null;
+          const size = fluxelSizeRef.current;
+          if (!el || size === 0) return null;
 
           const { left, top } = el.getBoundingClientRect();
           const relativeX = x - left;
           const relativeY = y - top;
 
-          const r = Math.min(Math.floor(relativeY / fluxelSize), rows - 1);
-          const c = Math.min(Math.floor(relativeX / fluxelSize), cols - 1);
+          const r = Math.min(Math.floor(relativeY / size), gridData.length - 1);
+          const c = Math.min(
+            Math.floor(relativeX / size),
+            gridData[0].length - 1,
+          );
 
           return gridDataRef.current[r]?.[c] || null;
         },
@@ -134,7 +151,7 @@ const FluxelGridCanvas = forwardRef<FluxelGridHandle, FluxelGridProps>(
           return containerRef.current;
         },
         getFluxelSize() {
-          return fluxelSize;
+          return fluxelSizeRef.current;
         },
         getGridData() {
           return gridDataRef.current;
@@ -144,7 +161,7 @@ const FluxelGridCanvas = forwardRef<FluxelGridHandle, FluxelGridProps>(
           fluxelsRef.current[row]?.[col]?.updateInfluence(influence, color);
         },
       }),
-      [fluxelSize, imperativeMode, rows, cols],
+      [imperativeMode],
     );
 
     return (
