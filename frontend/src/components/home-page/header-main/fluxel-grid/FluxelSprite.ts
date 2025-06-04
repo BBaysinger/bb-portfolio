@@ -12,12 +12,20 @@ export interface FluxelData {
   colorVariation?: string;
 }
 
+/**
+ *
+ * 
+ * @author Bradley Baysinger
+ * @since The beginning of time.
+ * @version N/A
+ */
 export class FluxelSprite {
   container: Container;
   private bg: Graphics;
   private overlay?: Graphics;
   private shadow1: Sprite;
   private shadow2: Sprite;
+  private debugOutline: number | null = 0xff0000;
 
   constructor(data: FluxelData, size: number, cornerShadow: Texture) {
     this.container = new Container();
@@ -25,11 +33,18 @@ export class FluxelSprite {
     this.container.y = data.row * size;
 
     this.bg = new Graphics();
+
     this.bg.fill({
       color: 0x141414,
       alpha: Math.max(0, Math.min(1, data.influence * 1.0 - 0.1)),
     });
     this.bg.rect(0, 0, size, size);
+
+    if (this.debugOutline) {
+      this.bg.stroke({ color: this.debugOutline, width: 1 });
+      this.bg.rect(0, 0, size, size);
+    }
+
     this.container.addChild(this.bg);
 
     if (data.colorVariation) {
@@ -46,11 +61,11 @@ export class FluxelSprite {
     this.container.addChild(this.shadow1);
 
     this.shadow2 = new Sprite(cornerShadow);
-    this.shadow2.alpha = 0.25;
-    this.shadow2.width = 216;
-    this.shadow2.height = 216;
-    this.shadow2.scale.set(-1, -1);
-    this.container.addChild(this.shadow2);
+    // this.shadow2.alpha = 0.25;
+    // this.shadow2.width = 216;
+    // this.shadow2.height = 216;
+    // this.shadow2.scale.set(-1, -1);
+    // this.container.addChild(this.shadow2);
 
     this.updateShadows(data);
   }
@@ -58,11 +73,17 @@ export class FluxelSprite {
   updateInfluence(influence: number, colorVariation?: string) {
     const size = this.bg.width;
     this.bg.clear();
+
     this.bg.fill({
       color: 0x141414,
       alpha: Math.max(0, Math.min(1, influence * 1.0 - 0.1)),
     });
     this.bg.rect(0, 0, size, size);
+
+    if (this.debugOutline) {
+      this.bg.stroke({ color: this.debugOutline, width: 1 });
+      this.bg.rect(0, 0, size, size);
+    }
 
     if (colorVariation && this.overlay) {
       this.overlay.clear();
