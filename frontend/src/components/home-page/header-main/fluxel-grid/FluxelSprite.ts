@@ -14,7 +14,7 @@ export interface FluxelData {
 
 /**
  *
- * 
+ *
  * @author Bradley Baysinger
  * @since The beginning of time.
  * @version N/A
@@ -55,10 +55,10 @@ export class FluxelSprite {
     }
 
     this.shadow1 = new Sprite(cornerShadow);
-    this.shadow1.alpha = 0.5;
-    this.shadow1.width = 216;
-    this.shadow1.height = 216;
-    this.container.addChild(this.shadow1);
+    // this.shadow1.alpha = 0.5;
+    // this.shadow1.width = 216;
+    // this.shadow1.height = 216;
+    // this.container.addChild(this.shadow1);
 
     this.shadow2 = new Sprite(cornerShadow);
     // this.shadow2.alpha = 0.25;
