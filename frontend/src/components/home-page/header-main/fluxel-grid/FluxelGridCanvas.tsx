@@ -6,6 +6,13 @@ import type { FluxelGridHandle, FluxelGridProps } from "./FluxelGridTypes";
 import { FluxelSprite } from "./FluxelSprite";
 import styles from "./FluxelGridCanvas.module.scss";
 
+/**
+ *
+ *
+ * @author Bradley Baysinger
+ * @since The beginning of time.
+ * @version N/A
+ */
 const FluxelGridCanvas = forwardRef<FluxelGridHandle, FluxelGridProps>(
   ({ gridData, imperativeMode }, ref) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -94,10 +101,8 @@ const FluxelGridCanvas = forwardRef<FluxelGridHandle, FluxelGridProps>(
           fluxelsRef.current = fluxels;
         };
 
-        // Initial render
         buildGrid();
 
-        // Throttled resize
         const resizeObserver = new ResizeObserver(() => {
           if (!resizeScheduled) {
             resizeScheduled = true;
@@ -110,7 +115,6 @@ const FluxelGridCanvas = forwardRef<FluxelGridHandle, FluxelGridProps>(
 
         resizeObserver.observe(container);
 
-        // Cleanup
         return () => {
           resizeObserver.disconnect();
         };
