@@ -1,19 +1,20 @@
 .fluxelGridWrapper {
   aspect-ratio: 4/3;
-  height: 100vmax;
-  @media (min-aspect-ratio: 4/3) {
-    height: auto;
-    width: 100vmax;
-  }
-  * {
-    pointer-events: none;
-    // contain: layout paint size style;
-  }
-  canvas {
-    width: 100% !important; // NO. Can't do this with Pixi.
-    height: 100% !important; // NO. Can't do this with Pixi.
-    display: block;
-    image-rendering: pixelated;
-    border: 1px solid red;
-  }
+  // // height: 100vmax;
+  // height: 400px;
+  // @media (min-aspect-ratio: 4/3) {
+  //   height: auto;
+  //   // width: 100vmax;
+  // }
+  // * {
+  //   pointer-events: none;
+  //   // contain: layout paint size style;
+  // }
+  // canvas {
+  //   width: 100% !important;
+  //   height: 100% !important;
+  //   display: block;
+  //   image-rendering: pixelated;
+  //   border: 1px solid red;
+  // }
 }

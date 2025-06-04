@@ -1,6 +1,6 @@
 import { useRef, useEffect, forwardRef, useImperativeHandle } from "react";
 
-import { Application, Container, Assets, Texture } from "pixi.js";
+import { Application, Container, Assets, Texture, Graphics } from "pixi.js";
 
 import type { FluxelGridHandle, FluxelGridProps } from "./FluxelGridTypes";
 import { FluxelSprite } from "./FluxelSprite";
@@ -30,95 +30,84 @@ const FluxelGridCanvas = forwardRef<FluxelGridHandle, FluxelGridProps>(
     }, [gridData]);
 
     useEffect(() => {
-      if (!canvasRef.current) return;
+      let destroyed = false;
+      let frameId: number;
 
-      const canvas = canvasRef.current;
-      let isMounted = true;
-      let resizeScheduled = false;
+      frameId = requestAnimationFrame(() => {
+        const canvas = canvasRef.current;
+        if (!canvas || destroyed) return;
 
-      const setupPixi = async () => {
+        const dpr = window.devicePixelRatio || 1;
         const app = new Application();
-        await app.init({
-          canvas,
-          backgroundAlpha: 0,
-          antialias: true,
-          resolution: 1,
-          autoDensity: false, // we'll handle our own
-        });
 
-        app.ticker.maxFPS = 20;
+        app
+          .init({
+            canvas,
+            backgroundAlpha: 0,
+            antialias: false,
+            resolution: dpr,
+            autoDensity: true,
+          })
+          .then(async () => {
+            if (destroyed) return;
 
-        if (!isMounted) return;
-        appRef.current = app;
+            appRef.current = app;
+            app.ticker.maxFPS = 60;
 
-        const fluxelContainer = fluxelContainerRef.current;
-        app.stage.addChild(fluxelContainer);
+            const fluxelContainer = fluxelContainerRef.current;
+            app.stage.addChild(fluxelContainer);
 
-        const shadowTexture = await Assets.load<Texture>(
-          "/images/home/corner-shadow.webp",
-        );
+            const shadowTexture = await Assets.load<Texture>(
+              "/images/home/corner-shadow.webp",
+            );
 
-        const buildGrid = () => {
-          const rect = canvas.getBoundingClientRect();
-          const width = rect.width;
-          const height = rect.height;
+            const buildGrid = () => {
+              const rect = canvas.getBoundingClientRect();
+              const logicalWidth = rect.width;
+              const logicalHeight = rect.height;
 
-          const dpr = window.devicePixelRatio || 1;
-          canvas.width = Math.floor(width * dpr);
-          canvas.height = Math.floor(height * dpr);
+              const sizeW = logicalWidth / cols;
+              const sizeH = logicalHeight / rows;
+              const newSize = Math.max(sizeW, sizeH);
+              fluxelSizeRef.current = newSize;
 
-          app.renderer.resize(canvas.width, canvas.height);
+              const offsetX = (logicalWidth - cols * newSize) / 2;
+              const offsetY = (logicalHeight - rows * newSize) / 2;
 
-          const sizeW = width / cols;
-          const sizeH = height / rows;
-          const newSize = Math.max(sizeW, sizeH);
-          fluxelSizeRef.current = newSize;
+              fluxelContainer.removeChildren();
+              const fluxels: FluxelSprite[][] = [];
 
-          fluxelContainer.removeChildren();
-          const fluxels: FluxelSprite[][] = [];
+              for (let row = 0; row < rows; row++) {
+                fluxels[row] = [];
+                for (let col = 0; col < cols; col++) {
+                  const data = gridDataRef.current[row][col];
+                  const sprite = new FluxelSprite(data, newSize, shadowTexture);
+                  sprite.container.x = Math.round(col * newSize + offsetX);
+                  sprite.container.y = Math.round(row * newSize + offsetY);
+                  fluxelContainer.addChild(sprite.container);
+                  fluxels[row][col] = sprite;
+                }
+              }
 
-          const offsetX = (width - cols * newSize) / 2;
-          const offsetY = (height - rows * newSize) / 2;
+              fluxelsRef.current = fluxels;
 
-          for (let row = 0; row < rows; row++) {
-            fluxels[row] = [];
-            for (let col = 0; col < cols; col++) {
-              console.log(row, col, col * newSize + offsetX, row * newSize + offsetY);
-              const data = gridDataRef.current[row][col];
-              const sprite = new FluxelSprite(data, newSize, shadowTexture);
-              sprite.container.x = col * newSize + offsetX;
-              sprite.container.y = row * newSize + offsetY;
-              fluxelContainer.addChild(sprite.container);
-              fluxels[row][col] = sprite;
-            }
-          }
+              const debug = new Graphics();
+              debug.rect(0, 0, 50, 50).fill(0xff00ff);
+              fluxelContainer.addChild(debug);
+            };
 
-          fluxelsRef.current = fluxels;
-        };
+            buildGrid();
 
-        buildGrid();
-
-        const resizeObserver = new ResizeObserver(() => {
-          if (!resizeScheduled) {
-            resizeScheduled = true;
-            requestAnimationFrame(() => {
-              buildGrid();
-              resizeScheduled = false;
+            const resizeObserver = new ResizeObserver(() => {
+              requestAnimationFrame(() => buildGrid());
             });
-          }
-        });
-
-        resizeObserver.observe(canvas);
-
-        return () => {
-          resizeObserver.disconnect();
-        };
-      };
-
-      setupPixi();
+            resizeObserver.observe(canvas);
+          });
+      });
 
       return () => {
-        isMounted = false;
+        destroyed = true;
+        cancelAnimationFrame(frameId);
         if (appRef.current) {
           try {
             appRef.current.destroy(true, { children: true });
