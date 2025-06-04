@@ -59,14 +59,18 @@ const FluxelGridCanvas = forwardRef<FluxelGridHandle, FluxelGridProps>(
           const width = rect.width;
           const height = rect.height;
 
-          const newSize = Math.min(width / cols || 1, height / rows || 1);
           const dpr = window.devicePixelRatio || 1;
 
-          // Resize canvas
-          canvas.width = Math.floor(cols * newSize * dpr);
-          canvas.height = Math.floor(rows * newSize * dpr);
-          canvas.style.width = `${cols * newSize}px`;
-          canvas.style.height = `${rows * newSize}px`;
+          const sizeW = width / cols;
+          const sizeH = height / rows;
+          const newSize = Math.max(sizeW, sizeH);
+
+          fluxelSizeRef.current = newSize;
+
+          canvas.style.width = `${width}px`;
+          canvas.style.height = `${height}px`;
+          canvas.width = Math.floor(width * dpr);
+          canvas.height = Math.floor(height * dpr);
           canvas.style.imageRendering = "pixelated";
 
           fluxelSizeRef.current = newSize;
@@ -74,17 +78,17 @@ const FluxelGridCanvas = forwardRef<FluxelGridHandle, FluxelGridProps>(
           fluxelContainer.removeChildren();
           const fluxels: FluxelSprite[][] = [];
 
+          const offsetX = (width - cols * newSize) / 2;
+          const offsetY = (height - rows * newSize) / 2;
+
           for (let row = 0; row < rows; row++) {
-            const rowSprites: FluxelSprite[] = [];
             for (let col = 0; col < cols; col++) {
               const data = gridDataRef.current[row][col];
               const sprite = new FluxelSprite(data, newSize, shadowTexture);
-              sprite.container.x = col * newSize;
-              sprite.container.y = row * newSize;
+              sprite.container.x = col * newSize + offsetX;
+              sprite.container.y = row * newSize + offsetY;
               fluxelContainer.addChild(sprite.container);
-              rowSprites.push(sprite);
             }
-            fluxels.push(rowSprites);
           }
 
           fluxelsRef.current = fluxels;
