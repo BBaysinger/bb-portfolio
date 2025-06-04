@@ -16,7 +16,6 @@ import styles from "./FluxelGridCanvas.module.scss";
 const FluxelGridCanvas = forwardRef<FluxelGridHandle, FluxelGridProps>(
   ({ gridData, imperativeMode }, ref) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const containerRef = useRef<HTMLDivElement>(null);
     const appRef = useRef<Application | null>(null);
     const fluxelsRef = useRef<FluxelSprite[][]>([]);
     const fluxelSizeRef = useRef(0);
@@ -31,10 +30,9 @@ const FluxelGridCanvas = forwardRef<FluxelGridHandle, FluxelGridProps>(
     }, [gridData]);
 
     useEffect(() => {
-      if (!canvasRef.current || !containerRef.current) return;
+      if (!canvasRef.current) return;
 
       const canvas = canvasRef.current;
-      const container = containerRef.current;
       let isMounted = true;
       let resizeScheduled = false;
 
@@ -44,14 +42,13 @@ const FluxelGridCanvas = forwardRef<FluxelGridHandle, FluxelGridProps>(
           canvas,
           backgroundAlpha: 0,
           antialias: true,
-          resolution: window.devicePixelRatio || 1,
-          autoDensity: true,
+          resolution: 1,
+          autoDensity: false, // we'll handle our own
         });
 
         app.ticker.maxFPS = 20;
 
         if (!isMounted) return;
-
         appRef.current = app;
 
         const fluxelContainer = fluxelContainerRef.current;
@@ -62,24 +59,19 @@ const FluxelGridCanvas = forwardRef<FluxelGridHandle, FluxelGridProps>(
         );
 
         const buildGrid = () => {
-          const rect = container.getBoundingClientRect();
+          const rect = canvas.getBoundingClientRect();
           const width = rect.width;
           const height = rect.height;
 
           const dpr = window.devicePixelRatio || 1;
+          canvas.width = Math.floor(width * dpr);
+          canvas.height = Math.floor(height * dpr);
+
+          app.renderer.resize(canvas.width, canvas.height);
 
           const sizeW = width / cols;
           const sizeH = height / rows;
           const newSize = Math.max(sizeW, sizeH);
-
-          fluxelSizeRef.current = newSize;
-
-          canvas.style.width = `${width}px`;
-          canvas.style.height = `${height}px`;
-          canvas.width = Math.floor(width * dpr);
-          canvas.height = Math.floor(height * dpr);
-          canvas.style.imageRendering = "pixelated";
-
           fluxelSizeRef.current = newSize;
 
           fluxelContainer.removeChildren();
@@ -89,12 +81,15 @@ const FluxelGridCanvas = forwardRef<FluxelGridHandle, FluxelGridProps>(
           const offsetY = (height - rows * newSize) / 2;
 
           for (let row = 0; row < rows; row++) {
+            fluxels[row] = [];
             for (let col = 0; col < cols; col++) {
+              console.log(row, col, col * newSize + offsetX, row * newSize + offsetY);
               const data = gridDataRef.current[row][col];
               const sprite = new FluxelSprite(data, newSize, shadowTexture);
               sprite.container.x = col * newSize + offsetX;
               sprite.container.y = row * newSize + offsetY;
               fluxelContainer.addChild(sprite.container);
+              fluxels[row][col] = sprite;
             }
           }
 
@@ -113,7 +108,7 @@ const FluxelGridCanvas = forwardRef<FluxelGridHandle, FluxelGridProps>(
           }
         });
 
-        resizeObserver.observe(container);
+        resizeObserver.observe(canvas);
 
         return () => {
           resizeObserver.disconnect();
@@ -128,7 +123,7 @@ const FluxelGridCanvas = forwardRef<FluxelGridHandle, FluxelGridProps>(
           try {
             appRef.current.destroy(true, { children: true });
           } catch (err) {
-            console.warn("Pixi app destroy failed:", err);
+            console.warn("Pixi destroy failed:", err);
           }
           appRef.current = null;
         }
@@ -139,11 +134,11 @@ const FluxelGridCanvas = forwardRef<FluxelGridHandle, FluxelGridProps>(
       ref,
       () => ({
         getFluxelAt(x, y) {
-          const el = containerRef.current;
+          const canvas = canvasRef.current;
           const size = fluxelSizeRef.current;
-          if (!el || size === 0) return null;
+          if (!canvas || size === 0) return null;
 
-          const { left, top } = el.getBoundingClientRect();
+          const { left, top } = canvas.getBoundingClientRect();
           const relativeX = x - left;
           const relativeY = y - top;
 
@@ -156,7 +151,7 @@ const FluxelGridCanvas = forwardRef<FluxelGridHandle, FluxelGridProps>(
           return gridDataRef.current[r]?.[c] || null;
         },
         getContainerElement() {
-          return containerRef.current;
+          return canvasRef.current?.parentElement as HTMLDivElement | null;
         },
         getFluxelSize() {
           return fluxelSizeRef.current;
@@ -173,8 +168,8 @@ const FluxelGridCanvas = forwardRef<FluxelGridHandle, FluxelGridProps>(
     );
 
     return (
-      <div ref={containerRef} className={styles.fluxelGridWrapper}>
-        <canvas ref={canvasRef} />
+      <div className={styles.fluxelGridWrapper}>
+        <canvas ref={canvasRef} className={styles.pixelCanvas} />
       </div>
     );
   },
