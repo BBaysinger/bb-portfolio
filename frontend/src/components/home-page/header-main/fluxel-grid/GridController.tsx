@@ -172,15 +172,15 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
       >
         <AnimationSequencer />
 
-        {!useDomGrid() ? (
-          <FluxelGridCanvas
+        {useDomGrid() ? (
+          <FluxelGridDom
             ref={gridInstanceRef}
             gridData={gridData}
             viewableWidth={viewableWidth}
             viewableHeight={viewableHeight}
           />
         ) : (
-          <FluxelGridDom
+          <FluxelGridCanvas
             ref={gridInstanceRef}
             gridData={gridData}
             viewableWidth={viewableWidth}
