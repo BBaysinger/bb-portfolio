@@ -6,7 +6,7 @@ import {
   useEffect,
 } from "react";
 
-import FluxelGrid from "./FluxelGridDom";
+import FluxelGridDom from "./FluxelGridDom";
 import FluxelGridCanvas from "./FluxelGridCanvas";
 import { useFluxelShadows } from "./useFluxelShadows";
 import useFluxelProjectiles, { Direction } from "./useFluxelProjectiles";
@@ -180,7 +180,7 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
             viewableHeight={viewableHeight}
           />
         ) : (
-          <FluxelGrid
+          <FluxelGridDom
             ref={gridInstanceRef}
             gridData={gridData}
             viewableWidth={viewableWidth}
