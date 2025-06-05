@@ -25,7 +25,7 @@ export class FluxelSprite {
   private overlay?: Graphics;
   private shadow1: Sprite;
   private shadow2: Sprite;
-  private debugOutline: number | null = 0xff0000;
+  private outline: number = 0x141414;
 
   constructor(data: FluxelData, size: number, cornerShadow: Texture) {
     this.container = new Container();
@@ -40,8 +40,8 @@ export class FluxelSprite {
     });
     this.bg.rect(0, 0, size, size);
 
-    if (this.debugOutline) {
-      this.bg.stroke({ color: this.debugOutline, width: 1 });
+    if (this.outline) {
+      this.bg.stroke({ color: this.outline, width: 1 });
       this.bg.rect(0, 0, size, size);
     }
 
@@ -80,10 +80,8 @@ export class FluxelSprite {
     });
     this.bg.rect(0, 0, size, size);
 
-    if (this.debugOutline) {
-      this.bg.stroke({ color: this.debugOutline, width: 1 });
-      this.bg.rect(0, 0, size, size);
-    }
+    this.bg.stroke({ color: this.outline, width: 1 });
+    this.bg.rect(0, 0, size, size);
 
     if (colorVariation && this.overlay) {
       this.overlay.clear();

@@ -5,7 +5,7 @@ import React, {
   useEffect,
 } from "react";
 
-import styles from "./FluxelDom.module.scss";
+import styles from "./FluxelDomSvg.module.scss";
 
 export interface FluxelData {
   id: string;
@@ -43,7 +43,7 @@ export interface FluxelHandle {
  * @since The beginning of time.
  * @version N/A
  */
-const FluxelDom = forwardRef<FluxelHandle, { data: FluxelData }>(
+const FluxelDomSvg = forwardRef<FluxelHandle, { data: FluxelData }>(
   ({ data }, ref) => {
     const elRef = useRef<SVGSVGElement>(null);
 
@@ -116,4 +116,4 @@ function areEqual(prev: { data: FluxelData }, next: { data: FluxelData }) {
   );
 }
 
-export default React.memo(FluxelDom, areEqual);
+export default React.memo(FluxelDomSvg, areEqual);
