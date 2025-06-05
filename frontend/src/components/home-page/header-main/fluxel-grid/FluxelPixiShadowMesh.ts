@@ -1,4 +1,12 @@
-import { Container, Graphics, Geometry, Shader, Mesh } from "pixi.js";
+import {
+  Container,
+  Graphics,
+  Geometry,
+  Shader,
+  Mesh,
+  GlProgram,
+} from "pixi.js";
+import { FluxelData } from "./FluxelAllTypes";
 import { IFluxel } from "./FluxelAllTypes";
 
 export class FluxelPixiShadowMesh extends Container implements IFluxel {
@@ -20,9 +28,7 @@ export class FluxelPixiShadowMesh extends Container implements IFluxel {
   private blur: number;
 
   constructor(
-    id: string,
-    row: number,
-    col: number,
+    data: FluxelData,
     size: number,
     trOffset: [number, number] = [0, 0],
     blOffset: [number, number] = [0, 0],
@@ -32,18 +38,19 @@ export class FluxelPixiShadowMesh extends Container implements IFluxel {
   ) {
     super();
 
-    this.id = id;
-    this.row = row;
-    this.col = col;
+    this.id = data.id;
+    this.row = data.row;
+    this.col = data.col;
     this.size = size;
+    this.color = data.colorVariation;
     this.trOffset = trOffset;
     this.blOffset = blOffset;
     this.alphaTr = alphaTr;
     this.alphaBl = alphaBl;
     this.blur = blur;
-    this.influence = 0;
+    this.influence = data.influence;
 
-    this.position.set(col * size, row * size);
+    this.position.set(this.col * size, this.row * size);
 
     this.background = this.createBackground();
     this.shadowMesh = this.createShadowMesh();
@@ -60,19 +67,20 @@ export class FluxelPixiShadowMesh extends Container implements IFluxel {
   }
 
   private createShadowMesh(): Mesh<Geometry, Shader> {
-    const vertexBuffer = new Float32Array([
-      0,
-      0,
-      this.size,
-      0,
-      this.size,
-      this.size,
-      0,
-      this.size,
-    ]);
-
     const geometry = new Geometry();
-    geometry.addAttribute("aVertexPosition", { buffer: vertexBuffer, size: 2 });
+    geometry.addAttribute(
+      "aVertexPosition",
+      new Float32Array([
+        0,
+        0,
+        this.size,
+        0,
+        this.size,
+        this.size,
+        0,
+        this.size,
+      ]),
+    );
     geometry.addIndex([0, 1, 2, 0, 2, 3]);
 
     const vertex = `
@@ -121,17 +129,27 @@ export class FluxelPixiShadowMesh extends Container implements IFluxel {
       }
     `;
 
-    const shader = Shader.from({
-      gl: {
-        vertex,
-        fragment,
-      },
+    console.log("Creating shader with uniforms:", {
+      shadowTrOffset: this.trOffset,
+      shadowBlOffset: this.blOffset,
+      blur: this.blur,
+      alphaTr: this.alphaTr,
+      alphaBl: this.alphaBl,
+    });
+
+    const program = new GlProgram({
+      vertex,
+      fragment,
+    });
+
+    const shader = new Shader({
+      glProgram: program,
       resources: {
-        shadowTrOffset: { value: this.trOffset, type: "vec2<f32>" },
-        shadowBlOffset: { value: this.blOffset, type: "vec2<f32>" },
-        blur: { value: this.blur, type: "f32" },
-        alphaTr: { value: this.alphaTr, type: "f32" },
-        alphaBl: { value: this.alphaBl, type: "f32" },
+        shadowTrOffset: this.trOffset,
+        shadowBlOffset: this.blOffset,
+        blur: this.blur,
+        alphaTr: this.alphaTr,
+        alphaBl: this.alphaBl,
       },
     });
 
