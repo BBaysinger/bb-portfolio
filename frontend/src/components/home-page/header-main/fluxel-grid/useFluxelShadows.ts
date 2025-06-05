@@ -49,7 +49,6 @@ export function useFluxelShadows({
       const gridEl = gridRef.current?.getContainerElement();
       const fluxelSize = gridRef.current?.getFluxelSize();
       if (!gridEl || !fluxelSize || isCancelled) {
-        // Try again on next frame
         animationFrameId.current = requestAnimationFrame(startLoop);
         return;
       }
@@ -59,6 +58,7 @@ export function useFluxelShadows({
           animationFrameId.current = requestAnimationFrame(updateShadows);
           return;
         }
+
         const gridEl = gridRef.current?.getContainerElement();
         const fluxelSize = gridRef.current?.getFluxelSize();
         if (!gridEl || !fluxelSize) return;
@@ -71,10 +71,10 @@ export function useFluxelShadows({
           const updatedGrid = prevGrid.map((row) =>
             row.map((fluxel) => {
               let influence = 0;
-              let shadow1OffsetX = 0;
-              let shadow1OffsetY = 0;
-              let shadow2OffsetX = 0;
-              let shadow2OffsetY = 0;
+              let shadowTrOffsetX = 0;
+              let shadowTrOffsetY = 0;
+              let shadowBlOffsetX = 0;
+              let shadowBlOffsetY = 0;
 
               if (pos.x >= 0 && pos.y >= 0) {
                 influence = getShadowInfluence(
@@ -103,35 +103,35 @@ export function useFluxelShadows({
                   fluxelSize,
                 );
 
-                shadow1OffsetX = Math.round(
+                shadowTrOffsetX = Math.round(
                   Math.min(rightInfluence - influence, 0) * 80,
                 );
-                shadow1OffsetY = Math.round(
+                shadowTrOffsetY = Math.round(
                   Math.max(influence - topInfluence, 0) * 80,
                 );
-                shadow2OffsetX = Math.round(
+                shadowBlOffsetX = Math.round(
                   Math.max(influence - leftInfluence, 0) * 56,
                 );
-                shadow2OffsetY = Math.round(
+                shadowBlOffsetY = Math.round(
                   Math.min(bottomInfluence - influence, 0) * 56,
                 );
               }
 
               if (
                 Math.abs(influence - fluxel.influence) > 0.009 ||
-                shadow1OffsetX !== fluxel.shadow1OffsetX ||
-                shadow1OffsetY !== fluxel.shadow1OffsetY ||
-                shadow2OffsetX !== fluxel.shadow2OffsetX ||
-                shadow2OffsetY !== fluxel.shadow2OffsetY
+                shadowTrOffsetX !== fluxel.shadowTrOffsetX ||
+                shadowTrOffsetY !== fluxel.shadowTrOffsetY ||
+                shadowBlOffsetX !== fluxel.shadowBlOffsetX ||
+                shadowBlOffsetY !== fluxel.shadowBlOffsetY
               ) {
                 hasChanged = true;
                 return {
                   ...fluxel,
                   influence: +influence.toFixed(2),
-                  shadow1OffsetX,
-                  shadow1OffsetY,
-                  shadow2OffsetX,
-                  shadow2OffsetY,
+                  shadowTrOffsetX,
+                  shadowTrOffsetY,
+                  shadowBlOffsetX,
+                  shadowBlOffsetY,
                 };
               }
 
