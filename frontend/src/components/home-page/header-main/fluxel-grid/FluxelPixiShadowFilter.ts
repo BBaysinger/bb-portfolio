@@ -11,7 +11,7 @@ interface ShadowUniforms {
 }
 
 export class FluxelPixiShadowFilter extends Filter {
-  private uniforms: UniformGroup<ShadowUniforms>;
+  private _uniformGroup: UniformGroup<ShadowUniforms>;
 
   constructor(size: number) {
     const vertex = `
@@ -82,14 +82,18 @@ export class FluxelPixiShadowFilter extends Filter {
     ) as UniformGroup<ShadowUniforms>;
 
     super({ glProgram: program, resources: uniforms });
-    this.uniforms = uniforms;
+    this._uniformGroup = uniforms;
   }
 
   setShadowOffsets(
     shadowTrOffset: [number, number],
     shadowBlOffset: [number, number],
   ) {
-    (this.uniforms as any).shadowTrOffset.value = shadowTrOffset;
-    (this.uniforms as any).shadowBlOffset.value = shadowBlOffset;
+    this._uniformGroup.uniforms.shadowTrOffset.value = shadowTrOffset;
+    this._uniformGroup.uniforms.shadowBlOffset.value = shadowBlOffset;
+  }
+
+  get uniforms(): ShadowUniforms {
+    return this._uniformGroup.uniforms;
   }
 }
