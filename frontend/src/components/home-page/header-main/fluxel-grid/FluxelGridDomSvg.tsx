@@ -9,7 +9,7 @@ import React, {
 
 import Fluxel, { FluxelData, FluxelHandle } from "./FluxelDom";
 import type { FluxelGridHandle, FluxelGridProps } from "./FluxelGridTypes";
-import styles from "./FluxelGridDom.module.scss";
+import styles from "./FluxelGridDomSvg.module.scss";
 
 /**
  * FluxelGrid
@@ -22,7 +22,7 @@ import styles from "./FluxelGridDom.module.scss";
  * @since The beginning of time.
  * @version N/A
  */
-const FluxelGridDom = forwardRef<FluxelGridHandle, FluxelGridProps>(
+const FluxelGridDomSvg = forwardRef<FluxelGridHandle, FluxelGridProps>(
   (
     {
       gridData,
@@ -199,4 +199,4 @@ const FluxelGridDom = forwardRef<FluxelGridHandle, FluxelGridProps>(
   },
 );
 
-export default FluxelGridDom;
+export default FluxelGridDomSvg;
