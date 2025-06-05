@@ -5,39 +5,14 @@ import React, {
   useEffect,
 } from "react";
 
+import type { FluxelHandle, FluxelData } from "./FluxelAllTypes";
 import styles from "./FluxelDomSvg.module.scss";
-
-export interface FluxelData {
-  id: string;
-  row: number;
-  col: number;
-  influence: number;
-
-  shadowTrOffsetX: number;
-  shadowTrOffsetY: number;
-
-  shadowBlOffsetX: number;
-  shadowBlOffsetY: number;
-
-  colorVariation?: string;
-}
 
 /**
  * Fluxing Pixel
  *
  * A square/pixel on the grid that can simulate depth and have color variations
  * applied to it.
- *
- * @author Bradley Baysinger
- * @since The beginning of time.
- * @version N/A
- */
-export interface FluxelHandle {
-  updateInfluence: (influence: number, colorVariation?: string) => void;
-}
-
-/**
- *
  *
  * @author Bradley Baysinger
  * @since The beginning of time.
@@ -67,6 +42,7 @@ const FluxelDomSvg = forwardRef<FluxelHandle, { data: FluxelData }>(
 
     useImperativeHandle(ref, () => ({
       updateInfluence,
+      updateShadowOffsets: () => {}, // no-op to fulfill interface
     }));
 
     return (

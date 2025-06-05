@@ -1,29 +1,61 @@
-import { Mesh, Geometry, Shader, Container, Graphics } from "pixi.js";
+import { Container, Graphics, Geometry, Shader, Mesh } from "pixi.js";
+import { IFluxel } from "./FluxelAllTypes";
 
-export class FluxelPixiShadowMesh extends Container {
+export class FluxelPixiShadowMesh extends Container implements IFluxel {
+  public id: string;
+  public row: number;
+  public col: number;
+
+  private size: number;
+  private influence: number;
+  private color?: string;
+
   private background: Graphics;
   private shadowMesh: Mesh<Geometry, Shader>;
 
+  private trOffset: [number, number];
+  private blOffset: [number, number];
+  private alphaTr: number;
+  private alphaBl: number;
+  private blur: number;
+
   constructor(
-    private size: number,
-    private trOffset: [number, number] = [0, 0],
-    private blOffset: [number, number] = [0, 0],
-    private alphaTr = 0.5,
-    private alphaBl = 0.25,
-    private blur = size / 2,
+    id: string,
+    row: number,
+    col: number,
+    size: number,
+    trOffset: [number, number] = [0, 0],
+    blOffset: [number, number] = [0, 0],
+    alphaTr = 0.5,
+    alphaBl = 0.25,
+    blur = size / 2,
   ) {
     super();
+
+    this.id = id;
+    this.row = row;
+    this.col = col;
+    this.size = size;
+    this.trOffset = trOffset;
+    this.blOffset = blOffset;
+    this.alphaTr = alphaTr;
+    this.alphaBl = alphaBl;
+    this.blur = blur;
+    this.influence = 0;
+
+    this.position.set(col * size, row * size);
 
     this.background = this.createBackground();
     this.shadowMesh = this.createShadowMesh();
 
-    this.addChild(this.shadowMesh);
     this.addChild(this.background);
+    this.addChild(this.shadowMesh);
   }
 
   private createBackground(): Graphics {
     const g = new Graphics();
-    g.rect(0, 0, this.size, this.size).fill({ color: 0x141414 });
+    g.rect(0, 0, this.size, this.size);
+    g.fill({ color: 0x141414 });
     return g;
   }
 
@@ -49,7 +81,6 @@ export class FluxelPixiShadowMesh extends Container {
       uniform mat3 translationMatrix;
       uniform mat3 projectionMatrix;
       varying vec2 vUV;
-
       void main() {
         vUV = aVertexPosition / ${this.size.toFixed(1)};
         gl_Position = vec4((projectionMatrix * translationMatrix * vec3(aVertexPosition, 1.0)).xy, 0.0, 1.0);
@@ -67,7 +98,6 @@ export class FluxelPixiShadowMesh extends Container {
 
       void main() {
         vec2 pixel = vUV * ${this.size.toFixed(1)};
-
         vec2 deltaTr = pixel - shadowTrOffset;
         vec2 deltaBl = pixel - shadowBlOffset;
 
@@ -91,11 +121,10 @@ export class FluxelPixiShadowMesh extends Container {
       }
     `;
 
-    // const program = new Program(vertex, fragment);
     const shader = Shader.from({
       gl: {
-        vertex: vertex,
-        fragment: fragment,
+        vertex,
+        fragment,
       },
       resources: {
         shadowTrOffset: { value: this.trOffset, type: "vec2<f32>" },
@@ -109,16 +138,31 @@ export class FluxelPixiShadowMesh extends Container {
     return new Mesh(geometry, shader);
   }
 
-  updateShadowOffsets(tr: [number, number], bl: [number, number]) {
-    const shader = this.shadowMesh?.shader as Shader & {
-      uniforms: {
-        shadowTrOffset: [number, number];
-        shadowBlOffset: [number, number];
-      };
-    };
-    if (shader?.uniforms) {
-      shader.uniforms.shadowTrOffset = tr;
-      shader.uniforms.shadowBlOffset = bl;
+  public updateInfluence(influence: number, color?: string) {
+    this.influence = influence;
+    this.alphaTr = influence; // You could scale this if needed
+    if (!this.shadowMesh.shader) return;
+    this.shadowMesh.shader.resources.alphaTr.value = this.alphaTr;
+
+    if (color && this.color !== color) {
+      this.color = color;
+      this.background
+        .clear()
+        .rect(0, 0, this.size, this.size)
+        .fill({ color: Number(color) });
     }
+  }
+
+  public updateShadowOffsets(tr: [number, number], bl: [number, number]) {
+    this.trOffset = tr;
+    this.blOffset = bl;
+
+    if (!this.shadowMesh.shader) return;
+    this.shadowMesh.shader.resources.shadowTrOffset.value = tr;
+    this.shadowMesh.shader.resources.shadowBlOffset.value = bl;
+  }
+
+  public reset() {
+    this.updateInfluence(0);
   }
 }

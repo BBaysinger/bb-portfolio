@@ -38,3 +38,11 @@ export interface FluxelData {
   shadowBlOffsetY: number;
   colorVariation?: string;
 }
+
+export interface FluxelHandle {
+  updateInfluence: (influence: number, colorVariation?: string) => void;
+}
+
+export interface IFluxel extends FluxelHandle {
+  updateShadowOffsets: (tr: [number, number], bl: [number, number]) => void;
+}
