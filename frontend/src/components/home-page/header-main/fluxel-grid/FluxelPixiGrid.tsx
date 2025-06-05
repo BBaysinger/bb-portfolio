@@ -3,7 +3,7 @@ import { useRef, useEffect, forwardRef, useImperativeHandle } from "react";
 import { Application, Container, Graphics } from "pixi.js";
 
 import type { FluxelGridHandle, FluxelGridProps } from "./FluxelAllTypes";
-import { FluxelPixiSprite } from "./FluxelPixiSprite";
+import { FluxelPixiShadowMesh } from "./FluxelPixiShadowMesh";
 import styles from "./FluxelPixiGrid.module.scss";
 
 /**
@@ -17,7 +17,7 @@ const FluxelPixiGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
   ({ gridData, imperativeMode, className }, ref) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const appRef = useRef<Application | null>(null);
-    const fluxelsRef = useRef<FluxelPixiSprite[][]>([]);
+    const fluxelsRef = useRef<FluxelPixiShadowMesh[][]>([]);
     const fluxelSizeRef = useRef(0);
     const fluxelContainerRef = useRef<Container>(new Container());
     const gridDataRef = useRef(gridData);
@@ -87,16 +87,16 @@ const FluxelPixiGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
               const offsetY = (logicalHeight - rows * newSize) / 2;
 
               fluxelContainer.removeChildren();
-              const fluxels: FluxelPixiSprite[][] = [];
+              const fluxels: FluxelPixiShadowMesh[][] = [];
 
               for (let row = 0; row < rows; row++) {
                 fluxels[row] = [];
                 for (let col = 0; col < cols; col++) {
                   const data = gridDataRef.current[row][col];
-                  const sprite = new FluxelPixiSprite(data, newSize);
-                  sprite.container.x = Math.round(col * newSize + offsetX);
-                  sprite.container.y = Math.round(row * newSize + offsetY);
-                  fluxelContainer.addChild(sprite.container);
+                  const sprite = new FluxelPixiShadowMesh(data, newSize);
+                  sprite.x = Math.round(col * newSize + offsetX);
+                  sprite.y = Math.round(row * newSize + offsetY);
+                  fluxelContainer.addChild(sprite);
                   fluxels[row][col] = sprite;
                 }
               }
