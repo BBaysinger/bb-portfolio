@@ -7,14 +7,14 @@ import { FluxelSprite } from "./FluxelSprite";
 import styles from "./FluxelGridCanvas.module.scss";
 
 /**
- *
+ * FluxelGridCanvas - renders a dynamic, resizable PixiJS grid of FluxelSprites
  *
  * @author Bradley Baysinger
  * @since The beginning of time.
  * @version N/A
  */
 const FluxelGridCanvas = forwardRef<FluxelGridHandle, FluxelGridProps>(
-  ({ gridData, imperativeMode }, ref) => {
+  ({ gridData, imperativeMode, className }, ref) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const appRef = useRef<Application | null>(null);
     const fluxelsRef = useRef<FluxelSprite[][]>([]);
@@ -32,6 +32,7 @@ const FluxelGridCanvas = forwardRef<FluxelGridHandle, FluxelGridProps>(
     useEffect(() => {
       let destroyed = false;
       let frameId: number;
+      let resizeObserver: ResizeObserver | null = null;
 
       frameId = requestAnimationFrame(() => {
         const canvas = canvasRef.current;
@@ -96,18 +97,29 @@ const FluxelGridCanvas = forwardRef<FluxelGridHandle, FluxelGridProps>(
               fluxelContainer.addChild(debug);
             };
 
-            buildGrid();
+            const resize = () => {
+              const bounds = canvas.getBoundingClientRect();
+              app.renderer.resize(bounds.width, bounds.height);
+              buildGrid();
+            };
 
-            const resizeObserver = new ResizeObserver(() => {
-              requestAnimationFrame(() => buildGrid());
+            resizeObserver = new ResizeObserver(() => {
+              requestAnimationFrame(resize);
             });
+
             resizeObserver.observe(canvas);
+            resize(); // initial layout
           });
       });
 
       return () => {
         destroyed = true;
         cancelAnimationFrame(frameId);
+
+        if (resizeObserver) {
+          resizeObserver.disconnect();
+        }
+
         if (appRef.current) {
           try {
             appRef.current.destroy(true, { children: true });
@@ -131,11 +143,8 @@ const FluxelGridCanvas = forwardRef<FluxelGridHandle, FluxelGridProps>(
           const relativeX = x - left;
           const relativeY = y - top;
 
-          const r = Math.min(Math.floor(relativeY / size), gridData.length - 1);
-          const c = Math.min(
-            Math.floor(relativeX / size),
-            gridData[0].length - 1,
-          );
+          const r = Math.min(Math.floor(relativeY / size), rows - 1);
+          const c = Math.min(Math.floor(relativeX / size), cols - 1);
 
           return gridDataRef.current[r]?.[c] || null;
         },
@@ -157,9 +166,10 @@ const FluxelGridCanvas = forwardRef<FluxelGridHandle, FluxelGridProps>(
     );
 
     return (
-      <div className={styles.fluxelGridWrapper}>
-        <canvas ref={canvasRef} className={styles.pixelCanvas} />
-      </div>
+      <canvas
+        ref={canvasRef}
+        className={[styles.fluxelGrid, className].join(" ")}
+      />
     );
   },
 );

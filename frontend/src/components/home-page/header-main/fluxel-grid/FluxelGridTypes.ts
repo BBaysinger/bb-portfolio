@@ -25,4 +25,5 @@ export interface FluxelGridProps {
     fluxelSize: number;
   }) => void;
   imperativeMode?: boolean;
+  className?: string;
 }
