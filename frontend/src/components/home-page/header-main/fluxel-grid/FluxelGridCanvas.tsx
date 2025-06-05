@@ -38,12 +38,27 @@ const FluxelGridCanvas = forwardRef<FluxelGridHandle, FluxelGridProps>(
         const canvas = canvasRef.current;
         if (!canvas || destroyed) return;
 
+        const rect = canvas.getBoundingClientRect();
         const dpr = window.devicePixelRatio || 1;
-        const app = new Application();
 
+        const fallbackWidth = 800;
+        const fallbackHeight = 600;
+
+        let width = rect.width;
+        let height = rect.height;
+
+        if (width < 1 || height < 1 || !isFinite(width) || !isFinite(height)) {
+          console.warn("⚠️ Invalid canvas size detected. Using fallback.");
+          width = fallbackWidth;
+          height = fallbackHeight;
+        }
+
+        const app = new Application();
         app
           .init({
             canvas,
+            width: width,
+            height: height,
             backgroundAlpha: 0,
             antialias: false,
             resolution: dpr,
@@ -63,9 +78,9 @@ const FluxelGridCanvas = forwardRef<FluxelGridHandle, FluxelGridProps>(
             );
 
             const buildGrid = () => {
-              const rect = canvas.getBoundingClientRect();
-              const logicalWidth = rect.width;
-              const logicalHeight = rect.height;
+              const bounds = canvas.getBoundingClientRect();
+              const logicalWidth = bounds.width;
+              const logicalHeight = bounds.height;
 
               const sizeW = logicalWidth / cols;
               const sizeH = logicalHeight / rows;
@@ -99,6 +114,14 @@ const FluxelGridCanvas = forwardRef<FluxelGridHandle, FluxelGridProps>(
 
             const resize = () => {
               const bounds = canvas.getBoundingClientRect();
+              if (bounds.width < 1 || bounds.height < 1) {
+                console.warn(
+                  "⚠️ Resize skipped due to invalid bounds:",
+                  bounds,
+                );
+                return;
+              }
+
               app.renderer.resize(bounds.width, bounds.height);
               buildGrid();
             };
@@ -108,7 +131,7 @@ const FluxelGridCanvas = forwardRef<FluxelGridHandle, FluxelGridProps>(
             });
 
             resizeObserver.observe(canvas);
-            resize(); // initial layout
+            resize(); // Initial layout
           });
       });
 
