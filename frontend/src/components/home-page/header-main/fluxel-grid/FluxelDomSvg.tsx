@@ -13,11 +13,11 @@ export interface FluxelData {
   col: number;
   influence: number;
 
-  shadow1OffsetX: number;
-  shadow1OffsetY: number;
+  shadowTrOffsetX: number;
+  shadowTrOffsetY: number;
 
-  shadow2OffsetX: number;
-  shadow2OffsetY: number;
+  shadowBlOffsetX: number;
+  shadowBlOffsetY: number;
 
   colorVariation?: string;
 }
@@ -47,7 +47,6 @@ const FluxelDomSvg = forwardRef<FluxelHandle, { data: FluxelData }>(
   ({ data }, ref) => {
     const elRef = useRef<SVGSVGElement>(null);
 
-    // Initial props-driven style
     useEffect(() => {
       updateInfluence(data.influence, data.colorVariation);
     }, [data]);
@@ -79,21 +78,21 @@ const FluxelDomSvg = forwardRef<FluxelHandle, { data: FluxelData }>(
       >
         <image
           opacity="0.5"
-          href={"/images/home/corner-shadow.webp"}
+          href="/images/home/corner-shadow.webp"
           x={-34}
           y={-110}
           width="216"
           height="216"
-          transform={`translate(${data.shadow1OffsetX}, ${data.shadow1OffsetY})`}
+          transform={`translate(${data.shadowTrOffsetX}, ${data.shadowTrOffsetY})`}
         />
         <image
           opacity="0.25"
-          href={"/images/home/corner-shadow.webp"}
+          href="/images/home/corner-shadow.webp"
           x={-100}
           y={-185}
           width="216"
           height="216"
-          transform={`translate(${data.shadow2OffsetX}, ${data.shadow2OffsetY}) scale(-1, -1)`}
+          transform={`translate(${data.shadowBlOffsetX}, ${data.shadowBlOffsetY}) scale(-1, -1)`}
         />
         {/* <rect width="72" height="72" fill="var(--overlay-color)" /> */}
       </svg>
@@ -108,10 +107,10 @@ function areEqual(prev: { data: FluxelData }, next: { data: FluxelData }) {
   const b = next.data;
   return (
     round(a.influence) === round(b.influence) &&
-    a.shadow1OffsetX === b.shadow1OffsetX &&
-    a.shadow1OffsetY === b.shadow1OffsetY &&
-    a.shadow2OffsetX === b.shadow2OffsetX &&
-    a.shadow2OffsetY === b.shadow2OffsetY &&
+    a.shadowTrOffsetX === b.shadowTrOffsetX &&
+    a.shadowTrOffsetY === b.shadowTrOffsetY &&
+    a.shadowBlOffsetX === b.shadowBlOffsetX &&
+    a.shadowBlOffsetY === b.shadowBlOffsetY &&
     a.colorVariation === b.colorVariation
   );
 }

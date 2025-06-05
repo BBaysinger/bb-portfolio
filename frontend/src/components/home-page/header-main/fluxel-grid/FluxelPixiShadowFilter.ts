@@ -2,11 +2,11 @@ import { Filter, GlProgram } from "pixi.js";
 import { UniformGroup } from "@pixi/core";
 
 interface ShadowUniforms {
-  shadow1Offset: { value: [number, number]; type: "vec2<f32>" };
-  shadow2Offset: { value: [number, number]; type: "vec2<f32>" };
+  shadowTrOffset: { value: [number, number]; type: "vec2<f32>" };
+  shadowBlOffset: { value: [number, number]; type: "vec2<f32>" };
   blur: { value: number; type: "f32" };
-  alpha1: { value: number; type: "f32" };
-  alpha2: { value: number; type: "f32" };
+  alphaTr: { value: number; type: "f32" };
+  alphaBl: { value: number; type: "f32" };
   resolution: { value: [number, number]; type: "vec2<f32>" };
 }
 
@@ -30,23 +30,38 @@ export class FluxelPixiShadowFilter extends Filter {
     const fragment = `
       precision mediump float;
 
-      uniform vec2 shadow1Offset;
-      uniform vec2 shadow2Offset;
+      uniform vec2 shadowTrOffset;
+      uniform vec2 shadowBlOffset;
       uniform float blur;
-      uniform float alpha1;
-      uniform float alpha2;
+      uniform float alphaTr;
+      uniform float alphaBl;
       uniform vec2 resolution;
 
       void main() {
         vec2 uv = gl_FragCoord.xy / resolution;
         vec2 pixel = uv * resolution;
 
-        float shadow1 = max(0.0, 1.0 - abs(pixel.x - shadow1Offset.x) / blur)
-                      * max(0.0, 1.0 - abs(pixel.y - shadow1Offset.y) / blur);
-        float shadow2 = max(0.0, 1.0 - abs(pixel.x - shadow2Offset.x) / blur)
-                      * max(0.0, 1.0 - abs(pixel.y - shadow2Offset.y) / blur);
+        vec2 deltaTr = pixel - shadowTrOffset;
+        vec2 deltaBl = pixel - shadowBlOffset;
 
-        float combined = shadow1 * alpha1 + shadow2 * alpha2;
+        float shadowTr = 0.0;
+        float shadowBl = 0.0;
+
+        if (shadowTrOffset.x != 0.0 || shadowTrOffset.y != 0.0) {
+          float x = max(0.0, 1.0 - abs(deltaTr.x) / blur);
+          float y = max(0.0, 1.0 - abs(deltaTr.y) / blur);
+          shadowTr = (shadowTrOffset.y == 0.0) ? x :
+                     (shadowTrOffset.x == 0.0) ? y : x * y;
+        }
+
+        if (shadowBlOffset.x != 0.0 || shadowBlOffset.y != 0.0) {
+          float x = max(0.0, 1.0 - abs(deltaBl.x) / blur);
+          float y = max(0.0, 1.0 - abs(deltaBl.y) / blur);
+          shadowBl = (shadowBlOffset.y == 0.0) ? x :
+                     (shadowBlOffset.x == 0.0) ? y : x * y;
+        }
+
+        float combined = shadowTr * alphaTr + shadowBl * alphaBl;
 
         gl_FragColor = vec4(0.0, 0.0, 0.0, combined);
       }
@@ -56,11 +71,11 @@ export class FluxelPixiShadowFilter extends Filter {
 
     const uniforms = UniformGroup.from(
       {
-        shadow1Offset: { value: [0, 0], type: "vec2<f32>" },
-        shadow2Offset: { value: [0, 0], type: "vec2<f32>" },
+        shadowTrOffset: { value: [0, 0], type: "vec2<f32>" },
+        shadowBlOffset: { value: [0, 0], type: "vec2<f32>" },
         blur: { value: size / 2, type: "f32" },
-        alpha1: { value: 0.5, type: "f32" },
-        alpha2: { value: 0.25, type: "f32" },
+        alphaTr: { value: 0.5, type: "f32" },
+        alphaBl: { value: 0.25, type: "f32" },
         resolution: { value: [size, size], type: "vec2<f32>" },
       },
       true,
@@ -70,8 +85,11 @@ export class FluxelPixiShadowFilter extends Filter {
     this.uniforms = uniforms;
   }
 
-  setShadowOffsets(shadow1: [number, number], shadow2: [number, number]) {
-    (this.uniforms as any).shadow1Offset.value = shadow1;
-    (this.uniforms as any).shadow2Offset.value = shadow2;
+  setShadowOffsets(
+    shadowTrOffset: [number, number],
+    shadowBlOffset: [number, number],
+  ) {
+    (this.uniforms as any).shadowTrOffset.value = shadowTrOffset;
+    (this.uniforms as any).shadowBlOffset.value = shadowBlOffset;
   }
 }
