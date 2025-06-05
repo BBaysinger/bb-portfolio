@@ -13,6 +13,7 @@ import useFluxelProjectiles, { Direction } from "./useFluxelProjectiles";
 import AnimationSequencer from "./AnimationSequencer";
 import type { FluxelGridHandle } from "./FluxelGridTypes";
 import type { FluxelData } from "./FluxelDom";
+import useResponsiveScaler from "hooks/useResponsiveScaler";
 import styles from "./GridController.module.scss";
 
 export interface GridControllerHandle {
@@ -55,6 +56,15 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
     const gridInstanceRef = useRef<FluxelGridHandle & FluxelGridHandle>(null);
     const wrapperRef = useRef<HTMLDivElement | null>(null);
     const isShadowsPaused = useRef(false);
+    const mousePosRef = useRef<{ x: number; y: number } | null>(null);
+    const lastFrameTime = useRef(0);
+
+    useResponsiveScaler(
+      4 / 3,
+      1280,
+      "cover",
+      wrapperRef as React.RefObject<HTMLDivElement>,
+    );
 
     const [gridData, setGridData] = useState<FluxelData[][]>(() =>
       Array.from({ length: rows }, (_, row) =>
@@ -71,8 +81,6 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
         })),
       ),
     );
-
-    const mousePosRef = useRef<{ x: number; y: number } | null>(null);
 
     useFluxelShadows({
       gridRef: gridInstanceRef,
@@ -113,8 +121,6 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
       }),
       [launchProjectile],
     );
-
-    const lastFrameTime = useRef(0);
 
     const applyFluxPosition = (clientX: number, clientY: number) => {
       const gridEl = gridInstanceRef.current?.getContainerElement?.();
@@ -174,6 +180,7 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
 
         {useDomGrid() ? (
           <FluxelGridDom
+            className={styles.fluxelGridDom}
             ref={gridInstanceRef}
             gridData={gridData}
             viewableWidth={viewableWidth}
@@ -181,6 +188,7 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
           />
         ) : (
           <FluxelGridCanvas
+            className={styles.fluxelGridCanvas}
             ref={gridInstanceRef}
             gridData={gridData}
             viewableWidth={viewableWidth}
