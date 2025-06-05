@@ -6,10 +6,10 @@ export interface FluxelData {
   row: number;
   col: number;
   influence: number;
-  shadow1OffsetX: number;
-  shadow1OffsetY: number;
-  shadow2OffsetX: number;
-  shadow2OffsetY: number;
+  shadowTrOffsetX: number;
+  shadowTrOffsetY: number;
+  shadowBlOffsetX: number;
+  shadowBlOffsetY: number;
   colorVariation?: string;
 }
 
@@ -87,8 +87,8 @@ export class FluxelSprite {
 
   updateShadows(data: FluxelData) {
     this.shadowFilter.setShadowOffsets(
-      [data.shadow1OffsetX, data.shadow1OffsetY],
-      [data.shadow2OffsetX, data.shadow2OffsetY],
+      [data.shadowTrOffsetX, data.shadowTrOffsetY],
+      [data.shadowBlOffsetX, data.shadowBlOffsetY],
     );
   }
 }
