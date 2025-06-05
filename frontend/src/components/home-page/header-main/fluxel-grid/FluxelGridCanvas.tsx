@@ -113,25 +113,24 @@ const FluxelGridCanvas = forwardRef<FluxelGridHandle, FluxelGridProps>(
             };
 
             const resize = () => {
-              const bounds = canvas.getBoundingClientRect();
-              if (bounds.width < 1 || bounds.height < 1) {
-                console.warn(
-                  "⚠️ Resize skipped due to invalid bounds:",
-                  bounds,
-                );
-                return;
-              }
+              const parent = canvas.parentElement;
+              if (!parent) return;
+
+              const bounds = parent.getBoundingClientRect();
+              if (bounds.width < 1 || bounds.height < 1) return;
 
               app.renderer.resize(bounds.width, bounds.height);
               buildGrid();
             };
 
+            let resizeTimeout: number | null = null;
             resizeObserver = new ResizeObserver(() => {
-              requestAnimationFrame(resize);
+              if (resizeTimeout) cancelAnimationFrame(resizeTimeout);
+              resizeTimeout = requestAnimationFrame(resize);
             });
 
-            resizeObserver.observe(canvas);
-            resize(); // Initial layout
+            resizeObserver.observe(canvas.parentElement!);
+            resize();
           });
       });
 
