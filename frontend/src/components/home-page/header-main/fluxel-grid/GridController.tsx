@@ -6,12 +6,12 @@ import {
   useEffect,
 } from "react";
 
-import FluxelGridDomSvg from "./FluxelGridDomSvg";
-import FluxelGridPixi from "./FluxelGridPixi";
+import FluxelDomSvgGrid from "./FluxelDomSvgGrid";
+import FluxelPixiGrid from "./FluxelPixiGrid";
 import { useFluxelShadows } from "./useFluxelShadows";
 import useFluxelProjectiles, { Direction } from "./useFluxelProjectiles";
 import AnimationSequencer from "./AnimationSequencer";
-import type { FluxelGridHandle } from "./FluxelGridTypes";
+import type { FluxelGridHandle } from "./FluxelAllTypes";
 import type { FluxelData } from "./FluxelDomSvg";
 import useResponsiveScaler from "hooks/useResponsiveScaler";
 import styles from "./GridController.module.scss";
@@ -181,7 +181,7 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
         <AnimationSequencer className={styles.animationSequencer} />
 
         {gridType === "domSvg" ? (
-          <FluxelGridDomSvg
+          <FluxelDomSvgGrid
             className={styles.fluxelGridDom}
             ref={gridInstanceRef}
             gridData={gridData}
@@ -189,7 +189,7 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
             viewableHeight={viewableHeight}
           />
         ) : (
-          <FluxelGridPixi
+          <FluxelPixiGrid
             className={styles.fluxelGridCanvas}
             ref={gridInstanceRef}
             gridData={gridData}

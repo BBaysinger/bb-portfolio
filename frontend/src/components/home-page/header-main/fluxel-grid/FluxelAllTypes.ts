@@ -1,5 +1,4 @@
 import React from "react";
-import { FluxelData } from "./FluxelDomSvg";
 
 export interface FluxelGridHandle {
   getFluxelAt: (x: number, y: number) => FluxelData | null;
@@ -26,4 +25,16 @@ export interface FluxelGridProps {
   }) => void;
   imperativeMode?: boolean;
   className?: string;
+}
+
+export interface FluxelData {
+  id: string;
+  row: number;
+  col: number;
+  influence: number;
+  shadowTrOffsetX: number;
+  shadowTrOffsetY: number;
+  shadowBlOffsetX: number;
+  shadowBlOffsetY: number;
+  colorVariation?: string;
 }

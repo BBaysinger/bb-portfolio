@@ -1,17 +1,6 @@
 import { Container, Graphics, Color, Sprite, Texture } from "pixi.js";
 import { FluxelPixiShadowFilter } from "./FluxelPixiShadowFilter";
-
-export interface FluxelData {
-  id: string;
-  row: number;
-  col: number;
-  influence: number;
-  shadowTrOffsetX: number;
-  shadowTrOffsetY: number;
-  shadowBlOffsetX: number;
-  shadowBlOffsetY: number;
-  colorVariation?: string;
-}
+import type { FluxelData } from "./FluxelAllTypes";
 
 /**
  * Pixi.js Fluxel (fluxing pixel)
@@ -20,7 +9,7 @@ export interface FluxelData {
  * @since The beginning of time.
  * @version N/A
  */
-export class FluxelSprite {
+export class FluxelPixiSprite {
   container: Container;
   private bg: Graphics;
   private overlay?: Graphics;

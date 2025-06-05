@@ -2,22 +2,22 @@ import { useRef, useEffect, forwardRef, useImperativeHandle } from "react";
 
 import { Application, Container, Graphics } from "pixi.js";
 
-import type { FluxelGridHandle, FluxelGridProps } from "./FluxelGridTypes";
-import { FluxelSprite } from "./FluxelSprite";
-import styles from "./FluxelGridPixi.module.scss";
+import type { FluxelGridHandle, FluxelGridProps } from "./FluxelAllTypes";
+import { FluxelPixiSprite } from "./FluxelPixiSprite";
+import styles from "./FluxelPixiGrid.module.scss";
 
 /**
- * FluxelGridPixi - renders a dynamic, resizable PixiJS grid of FluxelSprites
+ * FluxelPixiGrid - renders a dynamic, resizable PixiJS grid of FluxelPixiSprites
  *
  * @author Bradley Baysinger
  * @since The beginning of time.
  * @version N/A
  */
-const FluxelGridPixi = forwardRef<FluxelGridHandle, FluxelGridProps>(
+const FluxelPixiGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
   ({ gridData, imperativeMode, className }, ref) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const appRef = useRef<Application | null>(null);
-    const fluxelsRef = useRef<FluxelSprite[][]>([]);
+    const fluxelsRef = useRef<FluxelPixiSprite[][]>([]);
     const fluxelSizeRef = useRef(0);
     const fluxelContainerRef = useRef<Container>(new Container());
     const gridDataRef = useRef(gridData);
@@ -87,13 +87,13 @@ const FluxelGridPixi = forwardRef<FluxelGridHandle, FluxelGridProps>(
               const offsetY = (logicalHeight - rows * newSize) / 2;
 
               fluxelContainer.removeChildren();
-              const fluxels: FluxelSprite[][] = [];
+              const fluxels: FluxelPixiSprite[][] = [];
 
               for (let row = 0; row < rows; row++) {
                 fluxels[row] = [];
                 for (let col = 0; col < cols; col++) {
                   const data = gridDataRef.current[row][col];
-                  const sprite = new FluxelSprite(data, newSize);
+                  const sprite = new FluxelPixiSprite(data, newSize);
                   sprite.container.x = Math.round(col * newSize + offsetX);
                   sprite.container.y = Math.round(row * newSize + offsetY);
                   fluxelContainer.addChild(sprite.container);
@@ -192,4 +192,4 @@ const FluxelGridPixi = forwardRef<FluxelGridHandle, FluxelGridProps>(
   },
 );
 
-export default FluxelGridPixi;
+export default FluxelPixiGrid;
