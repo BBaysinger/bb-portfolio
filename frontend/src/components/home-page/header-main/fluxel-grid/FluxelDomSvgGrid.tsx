@@ -7,8 +7,9 @@ import React, {
   createRef,
 } from "react";
 
-import Fluxel, { FluxelData, FluxelHandle } from "./FluxelDomSvg";
+import type { FluxelHandle, FluxelData } from "./FluxelAllTypes";
 import type { FluxelGridHandle, FluxelGridProps } from "./FluxelAllTypes";
+import FluxelDomSvg from "./FluxelDomSvg"; // or whatever the actual filename is
 import styles from "./FluxelDomSvgGrid.module.scss";
 
 /**
@@ -162,7 +163,7 @@ const FluxelDomSvgGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
               ? fluxelRefs.current[row]?.[col]
               : undefined;
 
-            return <Fluxel key={key} data={data} ref={ref} />;
+            return <FluxelDomSvg key={key} data={data} ref={ref} />;
           })}
         </div>
         <div className={styles.overlayWrapper}>
