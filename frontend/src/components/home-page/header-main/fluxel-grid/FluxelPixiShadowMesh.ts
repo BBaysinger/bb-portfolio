@@ -84,73 +84,95 @@ export class FluxelPixiShadowMesh extends Container implements IFluxel {
     geometry.addIndex([0, 1, 2, 0, 2, 3]);
 
     const vertex = `
-      precision mediump float;
-      attribute vec2 aVertexPosition;
-      uniform mat3 translationMatrix;
-      uniform mat3 projectionMatrix;
-      varying vec2 vUV;
-      void main() {
-        vUV = aVertexPosition / ${this.size.toFixed(1)};
-        gl_Position = vec4((projectionMatrix * translationMatrix * vec3(aVertexPosition, 1.0)).xy, 0.0, 1.0);
-      }
-    `;
+    precision mediump float;
+    attribute vec2 aVertexPosition;
+    uniform mat3 translationMatrix;
+    uniform mat3 projectionMatrix;
+    varying vec2 vUV;
+    void main() {
+      vUV = aVertexPosition / ${this.size.toFixed(1)};
+      gl_Position = vec4((projectionMatrix * translationMatrix * vec3(aVertexPosition, 1.0)).xy, 0.0, 1.0);
+    }
+  `;
 
     const fragment = `
-      precision mediump float;
-      varying vec2 vUV;
-      uniform vec2 shadowTrOffset;
-      uniform vec2 shadowBlOffset;
-      uniform float blur;
-      uniform float alphaTr;
-      uniform float alphaBl;
+    precision mediump float;
+    varying vec2 vUV;
+    uniform vec2 shadowTrOffset;
+    uniform vec2 shadowBlOffset;
+    uniform float blur;
+    uniform float alphaTr;
+    uniform float alphaBl;
 
-      void main() {
-        vec2 pixel = vUV * ${this.size.toFixed(1)};
-        vec2 deltaTr = pixel - shadowTrOffset;
-        vec2 deltaBl = pixel - shadowBlOffset;
+    void main() {
+      vec2 pixel = vUV * ${this.size.toFixed(1)};
+      vec2 deltaTr = pixel - shadowTrOffset;
+      vec2 deltaBl = pixel - shadowBlOffset;
 
-        float shadowTr = 0.0;
-        float shadowBl = 0.0;
+      float shadowTr = 0.0;
+      float shadowBl = 0.0;
 
-        if (shadowTrOffset.x != 0.0 || shadowTrOffset.y != 0.0) {
-          float x = max(0.0, 1.0 - abs(deltaTr.x) / blur);
-          float y = max(0.0, 1.0 - abs(deltaTr.y) / blur);
-          shadowTr = (shadowTrOffset.y == 0.0) ? x : (shadowTrOffset.x == 0.0) ? y : x * y;
-        }
-
-        if (shadowBlOffset.x != 0.0 || shadowBlOffset.y != 0.0) {
-          float x = max(0.0, 1.0 - abs(deltaBl.x) / blur);
-          float y = max(0.0, 1.0 - abs(deltaBl.y) / blur);
-          shadowBl = (shadowBlOffset.y == 0.0) ? x : (shadowBlOffset.x == 0.0) ? y : x * y;
-        }
-
-        float combined = shadowTr * alphaTr + shadowBl * alphaBl;
-        gl_FragColor = vec4(0.0, 0.0, 0.0, combined);
+      if (shadowTrOffset.x != 0.0 || shadowTrOffset.y != 0.0) {
+        float x = max(0.0, 1.0 - abs(deltaTr.x) / blur);
+        float y = max(0.0, 1.0 - abs(deltaTr.y) / blur);
+        shadowTr = (shadowTrOffset.y == 0.0) ? x : (shadowTrOffset.x == 0.0) ? y : x * y;
       }
-    `;
 
-    console.log("Creating shader with uniforms:", {
-      shadowTrOffset: this.trOffset,
-      shadowBlOffset: this.blOffset,
-      blur: this.blur,
-      alphaTr: this.alphaTr,
-      alphaBl: this.alphaBl,
-    });
+      if (shadowBlOffset.x != 0.0 || shadowBlOffset.y != 0.0) {
+        float x = max(0.0, 1.0 - abs(deltaBl.x) / blur);
+        float y = max(0.0, 1.0 - abs(deltaBl.y) / blur);
+        shadowBl = (shadowBlOffset.y == 0.0) ? x : (shadowBlOffset.x == 0.0) ? y : x * y;
+      }
 
-    const program = new GlProgram({
-      vertex,
-      fragment,
-    });
+      float combined = shadowTr * alphaTr + shadowBl * alphaBl;
+      gl_FragColor = vec4(0.0, 0.0, 0.0, combined);
+    }
+  `;
+
+    const program = new GlProgram({ vertex, fragment });
+
+    const resources = {
+      shadowTrOffset: {
+        value: new Float32Array([this.trOffset[0], this.trOffset[1]]),
+        type: "vec2<f32>",
+      },
+      shadowBlOffset: {
+        value: new Float32Array([this.blOffset[0], this.blOffset[1]]),
+        type: "vec2<f32>",
+      },
+      blur: {
+        value: this.blur,
+        type: "f32",
+      },
+      alphaTr: {
+        value: this.alphaTr,
+        type: "f32",
+      },
+      alphaBl: {
+        value: this.alphaBl,
+        type: "f32",
+      },
+    };
+
+    console.info("Creating shader with resources:");
+    for (const [key, val] of Object.entries(resources)) {
+      if (!val.type) throw new Error(`Missing type for uniform: ${key}`);
+      console.log(`${key}:`, val.value, `type: ${val.type}`);
+    }
+    // Debug: Log resources to catch undefined or misspelled types
+    for (const [key, val] of Object.entries(resources)) {
+      if (
+        !val ||
+        typeof val.value === "undefined" ||
+        typeof val.type !== "string"
+      ) {
+        console.error("Invalid uniform resource:", key, val);
+      }
+    }
 
     const shader = new Shader({
       glProgram: program,
-      resources: {
-        shadowTrOffset: this.trOffset,
-        shadowBlOffset: this.blOffset,
-        blur: this.blur,
-        alphaTr: this.alphaTr,
-        alphaBl: this.alphaBl,
-      },
+      resources,
     });
 
     return new Mesh(geometry, shader);
@@ -158,7 +180,7 @@ export class FluxelPixiShadowMesh extends Container implements IFluxel {
 
   public updateInfluence(influence: number, color?: string) {
     this.influence = influence;
-    this.alphaTr = influence; // You could scale this if needed
+    this.alphaTr = influence;
     if (!this.shadowMesh.shader) return;
     this.shadowMesh.shader.resources.alphaTr.value = this.alphaTr;
 
@@ -176,8 +198,8 @@ export class FluxelPixiShadowMesh extends Container implements IFluxel {
     this.blOffset = bl;
 
     if (!this.shadowMesh.shader) return;
-    this.shadowMesh.shader.resources.shadowTrOffset.value = tr;
-    this.shadowMesh.shader.resources.shadowBlOffset.value = bl;
+    this.shadowMesh.shader.resources.shadowTrOffset.value = [tr[0], tr[1]];
+    this.shadowMesh.shader.resources.shadowBlOffset.value = [bl[0], bl[1]];
   }
 
   public reset() {
