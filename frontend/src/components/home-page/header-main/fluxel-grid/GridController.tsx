@@ -11,8 +11,7 @@ import FluxelPixiGrid from "./FluxelPixiGrid";
 import { useFluxelShadows } from "./useFluxelShadows";
 import useFluxelProjectiles, { Direction } from "./useFluxelProjectiles";
 import AnimationSequencer from "./AnimationSequencer";
-import type { FluxelGridHandle } from "./FluxelAllTypes";
-import type { FluxelData } from "./FluxelDomSvg";
+import type { FluxelGridHandle, FluxelData } from "./FluxelAllTypes";
 import useResponsiveScaler from "hooks/useResponsiveScaler";
 import styles from "./GridController.module.scss";
 
