@@ -1,27 +1,4 @@
-.animationSequencer {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  opacity: 1;
-  transform: translate(-50%, -50%);
-  transform: translate3d(0, 0, 0); // Makes GIF render on the GPU layer
-  aspect-ratio: 4/3;
-  box-sizing: border-box;
-  pointer-events: none;
-  transition: opacity 0.5s linear;
-  // NOTE: iOS Safari requires `will-change: opacity` for smooth performance.
-  // Promotes the sequencer to its own GPU layer, preventing jank in overlapping animations.
-  // Removing this can cause FPS drops or lag in complex stacking contexts.
-  // The issue was (barely) noticeable in the slinger's inertial motion,
-  // but it takes a good eye (without a FPS counter).
-  will-change: opacity;
-  /* Note that scaling with vmax does NOT account for the location bar in iOS Safari,
-  so that means the top and bottom rows are slightly clipped, which isn't really
-  a problem. It looks like the solution would be JavaScript, but that kinda sucks.
-  */
-  height: 100vmax;
-  @media (min-aspect-ratio: 4/3) {
-    height: auto;
-    width: 100vmax;
-  }
-}
+// .animationSequencer {
+  // Everything here was reduced and moved to GridController.module.scss, to keep this
+  // as reusable as possible.
+// }

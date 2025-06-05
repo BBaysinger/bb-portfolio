@@ -15,12 +15,16 @@ export interface AnimationSequencerHandle {
   playImperativeAnimation: (index?: number) => void;
 }
 
+export interface AnimationSequencerProps {
+  className?: string;
+}
+
 interface AnimationMeta {
   wide: string;
   narrow: string;
   fps?: number;
   loops?: number;
-  weight: number; // made required for simplicity
+  weight: number; // required for simplicity
 }
 
 /**
@@ -32,7 +36,7 @@ interface AnimationMeta {
  */
 const AnimationSequencer = forwardRef<
   AnimationSequencerHandle,
-  { className?: string }
+  AnimationSequencerProps
 >(({ className }, ref) => {
   const [activeAnim, setActiveAnim] = useState<AnimationMeta | null>(null);
   const [animKey, setAnimKey] = useState(0);

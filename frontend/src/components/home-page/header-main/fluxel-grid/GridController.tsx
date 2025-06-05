@@ -170,7 +170,7 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
         ref={wrapperRef}
         className={[styles.gridController, className].join(" ")}
       >
-        <AnimationSequencer />
+        <AnimationSequencer className={styles.animationSequencer} />
 
         {useDomGrid() ? (
           <FluxelGridDom
