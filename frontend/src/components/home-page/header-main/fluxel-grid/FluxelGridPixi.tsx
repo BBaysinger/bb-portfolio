@@ -1,6 +1,6 @@
 import { useRef, useEffect, forwardRef, useImperativeHandle } from "react";
 
-import { Application, Container, Assets, Texture, Graphics } from "pixi.js";
+import { Application, Container, Graphics } from "pixi.js";
 
 import type { FluxelGridHandle, FluxelGridProps } from "./FluxelGridTypes";
 import { FluxelSprite } from "./FluxelSprite";
@@ -73,10 +73,6 @@ const FluxelGridPixi = forwardRef<FluxelGridHandle, FluxelGridProps>(
             const fluxelContainer = fluxelContainerRef.current;
             app.stage.addChild(fluxelContainer);
 
-            const shadowTexture = await Assets.load<Texture>(
-              "/images/home/corner-shadow.webp",
-            );
-
             const buildGrid = () => {
               const bounds = canvas.getBoundingClientRect();
               const logicalWidth = bounds.width;
@@ -97,7 +93,7 @@ const FluxelGridPixi = forwardRef<FluxelGridHandle, FluxelGridProps>(
                 fluxels[row] = [];
                 for (let col = 0; col < cols; col++) {
                   const data = gridDataRef.current[row][col];
-                  const sprite = new FluxelSprite(data, newSize, shadowTexture);
+                  const sprite = new FluxelSprite(data, newSize);
                   sprite.container.x = Math.round(col * newSize + offsetX);
                   sprite.container.y = Math.round(row * newSize + offsetY);
                   fluxelContainer.addChild(sprite.container);
