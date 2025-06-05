@@ -5,6 +5,7 @@ import {
   Shader,
   Mesh,
   GlProgram,
+  UniformGroup,
 } from "pixi.js";
 import { FluxelData } from "./FluxelAllTypes";
 import { IFluxel } from "./FluxelAllTypes";
@@ -131,7 +132,7 @@ export class FluxelPixiShadowMesh extends Container implements IFluxel {
 
     const program = new GlProgram({ vertex, fragment });
 
-    const resources = {
+    const uniforms = new UniformGroup({
       shadowTrOffset: {
         value: new Float32Array([this.trOffset[0], this.trOffset[1]]),
         type: "vec2<f32>",
@@ -152,15 +153,15 @@ export class FluxelPixiShadowMesh extends Container implements IFluxel {
         value: this.alphaBl,
         type: "f32",
       },
-    };
+    });
 
     console.info("Creating shader with resources:");
-    for (const [key, val] of Object.entries(resources)) {
+    for (const [key, val] of Object.entries(uniforms)) {
       if (!val.type) throw new Error(`Missing type for uniform: ${key}`);
       console.log(`${key}:`, val.value, `type: ${val.type}`);
     }
     // Debug: Log resources to catch undefined or misspelled types
-    for (const [key, val] of Object.entries(resources)) {
+    for (const [key, val] of Object.entries(uniforms)) {
       if (
         !val ||
         typeof val.value === "undefined" ||
@@ -172,7 +173,7 @@ export class FluxelPixiShadowMesh extends Container implements IFluxel {
 
     const shader = new Shader({
       glProgram: program,
-      resources,
+      resources: uniforms,
     });
 
     return new Mesh(geometry, shader);
