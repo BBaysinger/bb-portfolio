@@ -7,7 +7,7 @@ import {
 } from "react";
 
 import FluxelGridDomSvg from "./FluxelGridDomSvg";
-import FluxelGridCanvas from "./FluxelGridCanvas";
+import FluxelGridPixi from "./FluxelGridPixi";
 import { useFluxelShadows } from "./useFluxelShadows";
 import useFluxelProjectiles, { Direction } from "./useFluxelProjectiles";
 import AnimationSequencer from "./AnimationSequencer";
@@ -189,7 +189,7 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
             viewableHeight={viewableHeight}
           />
         ) : (
-          <FluxelGridCanvas
+          <FluxelGridPixi
             className={styles.fluxelGridCanvas}
             ref={gridInstanceRef}
             gridData={gridData}

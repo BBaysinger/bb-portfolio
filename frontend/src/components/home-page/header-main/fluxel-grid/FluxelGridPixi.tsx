@@ -4,16 +4,16 @@ import { Application, Container, Assets, Texture, Graphics } from "pixi.js";
 
 import type { FluxelGridHandle, FluxelGridProps } from "./FluxelGridTypes";
 import { FluxelSprite } from "./FluxelSprite";
-import styles from "./FluxelGridCanvas.module.scss";
+import styles from "./FluxelGridPixi.module.scss";
 
 /**
- * FluxelGridCanvas - renders a dynamic, resizable PixiJS grid of FluxelSprites
+ * FluxelGridPixi - renders a dynamic, resizable PixiJS grid of FluxelSprites
  *
  * @author Bradley Baysinger
  * @since The beginning of time.
  * @version N/A
  */
-const FluxelGridCanvas = forwardRef<FluxelGridHandle, FluxelGridProps>(
+const FluxelGridPixi = forwardRef<FluxelGridHandle, FluxelGridProps>(
   ({ gridData, imperativeMode, className }, ref) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const appRef = useRef<Application | null>(null);
@@ -196,4 +196,4 @@ const FluxelGridCanvas = forwardRef<FluxelGridHandle, FluxelGridProps>(
   },
 );
 
-export default FluxelGridCanvas;
+export default FluxelGridPixi;

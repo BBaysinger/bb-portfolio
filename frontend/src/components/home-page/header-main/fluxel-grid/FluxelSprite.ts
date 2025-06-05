@@ -13,7 +13,7 @@ export interface FluxelData {
 }
 
 /**
- *
+ * Pixi.js Fluxel (fluxing pixel)
  *
  * @author Bradley Baysinger
  * @since The beginning of time.
@@ -26,6 +26,8 @@ export class FluxelSprite {
   private shadow1: Sprite;
   private shadow2: Sprite;
   private outline: number = 0x141414;
+  private shadowContainer: Container;
+  private shadowMask: Graphics;
 
   constructor(data: FluxelData, size: number, cornerShadow: Texture) {
     this.container = new Container();
@@ -33,7 +35,6 @@ export class FluxelSprite {
     this.container.y = data.row * size;
 
     this.bg = new Graphics();
-
     this.bg.fill({
       color: 0x141414,
       alpha: Math.max(0, Math.min(1, data.influence * 1.0 - 0.1)),
@@ -54,18 +55,29 @@ export class FluxelSprite {
       this.container.addChild(this.overlay);
     }
 
+    // 🟩 Shadow Mask and Container
+    this.shadowMask = new Graphics();
+    this.shadowMask.rect(0, 0, size, size);
+    this.container.addChild(this.shadowMask);
+
+    this.shadowContainer = new Container();
+
     this.shadow1 = new Sprite(cornerShadow);
-    // this.shadow1.alpha = 0.5;
-    // this.shadow1.width = 216;
-    // this.shadow1.height = 216;
-    // this.container.addChild(this.shadow1);
+    this.shadow1.alpha = 0.5;
+    this.shadow1.width = size * 2;
+    this.shadow1.height = size * 2;
 
     this.shadow2 = new Sprite(cornerShadow);
-    // this.shadow2.alpha = 0.25;
-    // this.shadow2.width = 216;
-    // this.shadow2.height = 216;
-    // this.shadow2.scale.set(-1, -1);
-    // this.container.addChild(this.shadow2);
+    this.shadow2.alpha = 0.25;
+    this.shadow2.width = size * 2;
+    this.shadow2.height = size * 2;
+    this.shadow2.scale.set(-1, -1);
+
+    this.shadowContainer.addChild(this.shadow1);
+    this.shadowContainer.addChild(this.shadow2);
+    this.shadowContainer.mask = this.shadowMask;
+
+    this.container.addChild(this.shadowContainer);
 
     this.updateShadows(data);
   }
@@ -80,8 +92,10 @@ export class FluxelSprite {
     });
     this.bg.rect(0, 0, size, size);
 
-    this.bg.stroke({ color: this.outline, width: 1 });
-    this.bg.rect(0, 0, size, size);
+    if (this.outline) {
+      this.bg.stroke({ color: this.outline, width: 1 });
+      this.bg.rect(0, 0, size, size);
+    }
 
     if (colorVariation && this.overlay) {
       this.overlay.clear();
