@@ -6,7 +6,7 @@ import {
   useEffect,
 } from "react";
 
-import FluxelGridDom from "./FluxelGridDom";
+import FluxelGridDomSvg from "./FluxelGridDomSvg";
 import FluxelGridCanvas from "./FluxelGridCanvas";
 import { useFluxelShadows } from "./useFluxelShadows";
 import useFluxelProjectiles, { Direction } from "./useFluxelProjectiles";
@@ -46,14 +46,16 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
     },
     ref,
   ) => {
-    const useDomGrid = () => {
-      if (typeof window === "undefined") return false;
-      return (
-        new URLSearchParams(window.location.search).get("fluxelGridDom") ===
-        "true"
-      );
+    // Determine grid type from URL param ?gridType=domSvg or canvas (default)
+    const getGridTypeFromUrl = (): "domSvg" | "canvas" => {
+      if (typeof window === "undefined") return "canvas";
+      const value = new URLSearchParams(window.location.search).get("gridType");
+      return value === "domSvg" ? "domSvg" : "canvas";
     };
-    const gridInstanceRef = useRef<FluxelGridHandle & FluxelGridHandle>(null);
+
+    const gridType = getGridTypeFromUrl();
+
+    const gridInstanceRef = useRef<FluxelGridHandle | null>(null);
     const wrapperRef = useRef<HTMLDivElement | null>(null);
     const isShadowsPaused = useRef(false);
     const mousePosRef = useRef<{ x: number; y: number } | null>(null);
@@ -94,6 +96,21 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
       setGridData,
     });
 
+    const applyFluxPosition = (clientX: number, clientY: number) => {
+      const gridEl = gridInstanceRef.current?.getContainerElement?.();
+      if (!gridEl) return;
+
+      const now = performance.now();
+      if (now - lastFrameTime.current < FRAME_TIME) return;
+      lastFrameTime.current = now;
+
+      const rect = gridEl.getBoundingClientRect();
+      const localX = clientX - rect.left;
+      const localY = clientY - rect.top;
+
+      mousePosRef.current = { x: localX, y: localY };
+    };
+
     useImperativeHandle(
       ref,
       () => ({
@@ -121,21 +138,6 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
       }),
       [launchProjectile],
     );
-
-    const applyFluxPosition = (clientX: number, clientY: number) => {
-      const gridEl = gridInstanceRef.current?.getContainerElement?.();
-      if (!gridEl) return;
-
-      const now = performance.now();
-      if (now - lastFrameTime.current < FRAME_TIME) return;
-      lastFrameTime.current = now;
-
-      const rect = gridEl.getBoundingClientRect();
-      const localX = clientX - rect.left;
-      const localY = clientY - rect.top;
-
-      mousePosRef.current = { x: localX, y: localY };
-    };
 
     useEffect(() => {
       if (useSlingerTracking) return;
@@ -178,8 +180,8 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
       >
         <AnimationSequencer className={styles.animationSequencer} />
 
-        {useDomGrid() ? (
-          <FluxelGridDom
+        {gridType === "domSvg" ? (
+          <FluxelGridDomSvg
             className={styles.fluxelGridDom}
             ref={gridInstanceRef}
             gridData={gridData}
