@@ -1,4 +1,5 @@
-import { Container, Graphics, Sprite, Texture, Color } from "pixi.js";
+import { Container, Graphics, Color, Sprite, Texture } from "pixi.js";
+import { FluxelPixiShadowFilter } from "./FluxelPixiShadowFilter";
 
 export interface FluxelData {
   id: string;
@@ -23,29 +24,35 @@ export class FluxelSprite {
   container: Container;
   private bg: Graphics;
   private overlay?: Graphics;
-  private shadow1: Sprite;
-  private shadow2: Sprite;
+  private shadowFilter: FluxelPixiShadowFilter;
+  private shadowSprite: Sprite;
   private outline: number = 0x141414;
-  private shadowContainer: Container;
-  private shadowMask: Graphics;
 
-  constructor(data: FluxelData, size: number, cornerShadow: Texture) {
+  constructor(data: FluxelData, size: number) {
     this.container = new Container();
     this.container.x = data.col * size;
     this.container.y = data.row * size;
 
+    // Shadow rendering via shader
+    const blank = Texture.WHITE;
+    this.shadowSprite = new Sprite(blank);
+    this.shadowSprite.width = size;
+    this.shadowSprite.height = size;
+    this.shadowFilter = new FluxelPixiShadowFilter(size);
+    this.shadowSprite.filters = [this.shadowFilter];
+    this.container.addChild(this.shadowSprite);
+
+    // Background rectangle
     this.bg = new Graphics();
     this.bg.fill({
       color: 0x141414,
       alpha: Math.max(0, Math.min(1, data.influence * 1.0 - 0.1)),
     });
     this.bg.rect(0, 0, size, size);
-
     if (this.outline) {
       this.bg.stroke({ color: this.outline, width: 1 });
       this.bg.rect(0, 0, size, size);
     }
-
     this.container.addChild(this.bg);
 
     if (data.colorVariation) {
@@ -55,43 +62,17 @@ export class FluxelSprite {
       this.container.addChild(this.overlay);
     }
 
-    // 🟩 Shadow Mask and Container
-    this.shadowMask = new Graphics();
-    this.shadowMask.rect(0, 0, size, size);
-    this.container.addChild(this.shadowMask);
-
-    this.shadowContainer = new Container();
-
-    this.shadow1 = new Sprite(cornerShadow);
-    this.shadow1.alpha = 0.5;
-    this.shadow1.width = size * 2;
-    this.shadow1.height = size * 2;
-
-    this.shadow2 = new Sprite(cornerShadow);
-    this.shadow2.alpha = 0.25;
-    this.shadow2.width = size * 2;
-    this.shadow2.height = size * 2;
-    this.shadow2.scale.set(-1, -1);
-
-    this.shadowContainer.addChild(this.shadow1);
-    this.shadowContainer.addChild(this.shadow2);
-    this.shadowContainer.mask = this.shadowMask;
-
-    this.container.addChild(this.shadowContainer);
-
     this.updateShadows(data);
   }
 
   updateInfluence(influence: number, colorVariation?: string) {
     const size = this.bg.width;
     this.bg.clear();
-
     this.bg.fill({
       color: 0x141414,
       alpha: Math.max(0, Math.min(1, influence * 1.0 - 0.1)),
     });
     this.bg.rect(0, 0, size, size);
-
     if (this.outline) {
       this.bg.stroke({ color: this.outline, width: 1 });
       this.bg.rect(0, 0, size, size);
@@ -105,9 +86,9 @@ export class FluxelSprite {
   }
 
   updateShadows(data: FluxelData) {
-    this.shadow1.x = data.shadow1OffsetX;
-    this.shadow1.y = data.shadow1OffsetY;
-    this.shadow2.x = data.shadow2OffsetX;
-    this.shadow2.y = data.shadow2OffsetY;
+    this.shadowFilter.setShadowOffsets(
+      [data.shadow1OffsetX, data.shadow1OffsetY],
+      [data.shadow2OffsetX, data.shadow2OffsetY],
+    );
   }
 }
