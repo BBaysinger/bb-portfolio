@@ -15,7 +15,8 @@ import styles from "./FluxelGridDom.module.scss";
  * FluxelGrid
  *
  * This is a grid of fluxels (animated/fluxing pixels) that can be used to create
- * effects and animations. Like 8-bit pixel art, but with mondo-sized pixels.
+ * effects and animations. Like 8-bit pixel art, but with mondo-sized pixels that
+ * each have an animatable shadow/depth affect.
  *
  * @author Bradley Baysinger
  * @since The beginning of time.
@@ -30,6 +31,7 @@ const FluxelGridDom = forwardRef<FluxelGridHandle, FluxelGridProps>(
       viewableWidth,
       onGridChange,
       imperativeMode = true,
+      className = "",
     },
     ref,
   ) => {
@@ -138,7 +140,7 @@ const FluxelGridDom = forwardRef<FluxelGridHandle, FluxelGridProps>(
       <>
         <div
           ref={handleRef}
-          className={styles.fluxelGrid}
+          className={[styles.fluxelGrid, className].join(" ")}
           style={{ "--cols": cols } as React.CSSProperties}
         >
           {gridData.flat().map((data) => {
