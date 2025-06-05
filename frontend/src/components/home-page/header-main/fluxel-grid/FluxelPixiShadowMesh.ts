@@ -4,12 +4,15 @@ import {
   Geometry,
   Shader,
   Mesh,
-  GlProgram,
   UniformGroup,
 } from "pixi.js";
 import { FluxelData } from "./FluxelAllTypes";
 import { IFluxel } from "./FluxelAllTypes";
 
+/**
+ * An attempt at a shader-based shadow mesh as Fluxels.
+ * We'll have to wait for AI to catch up to make this work. :/
+ */
 export class FluxelPixiShadowMesh extends Container implements IFluxel {
   public id: string;
   public row: number;
@@ -130,8 +133,6 @@ export class FluxelPixiShadowMesh extends Container implements IFluxel {
     }
   `;
 
-    const program = new GlProgram({ vertex, fragment });
-
     const uniforms = new UniformGroup({
       shadowTrOffset: {
         value: new Float32Array([this.trOffset[0], this.trOffset[1]]),
@@ -155,24 +156,11 @@ export class FluxelPixiShadowMesh extends Container implements IFluxel {
       },
     });
 
-    console.info("Creating shader with resources:");
-    for (const [key, val] of Object.entries(uniforms)) {
-      if (!val.type) throw new Error(`Missing type for uniform: ${key}`);
-      console.log(`${key}:`, val.value, `type: ${val.type}`);
-    }
-    // Debug: Log resources to catch undefined or misspelled types
-    for (const [key, val] of Object.entries(uniforms)) {
-      if (
-        !val ||
-        typeof val.value === "undefined" ||
-        typeof val.type !== "string"
-      ) {
-        console.error("Invalid uniform resource:", key, val);
-      }
-    }
-
-    const shader = new Shader({
-      glProgram: program,
+    const shader = Shader.from({
+      gl: {
+        vertex,
+        fragment,
+      },
       resources: uniforms,
     });
 
@@ -183,7 +171,7 @@ export class FluxelPixiShadowMesh extends Container implements IFluxel {
     this.influence = influence;
     this.alphaTr = influence;
     if (!this.shadowMesh.shader) return;
-    this.shadowMesh.shader.resources.alphaTr.value = this.alphaTr;
+    this.shadowMesh.shader.resources.alphaTr = this.alphaTr;
 
     if (color && this.color !== color) {
       this.color = color;
@@ -199,8 +187,8 @@ export class FluxelPixiShadowMesh extends Container implements IFluxel {
     this.blOffset = bl;
 
     if (!this.shadowMesh.shader) return;
-    this.shadowMesh.shader.resources.shadowTrOffset.value = [tr[0], tr[1]];
-    this.shadowMesh.shader.resources.shadowBlOffset.value = [bl[0], bl[1]];
+    this.shadowMesh.shader.resources.shadowTrOffset = new Float32Array(tr);
+    this.shadowMesh.shader.resources.shadowBlOffset = new Float32Array(bl);
   }
 
   public reset() {
