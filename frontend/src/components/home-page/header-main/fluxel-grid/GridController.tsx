@@ -48,7 +48,7 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
     const useDomGrid = () => {
       if (typeof window === "undefined") return false;
       return (
-        new URLSearchParams(window.location.search).get("fluxelGridDOM") ===
+        new URLSearchParams(window.location.search).get("fluxelGridDom") ===
         "true"
       );
     };
