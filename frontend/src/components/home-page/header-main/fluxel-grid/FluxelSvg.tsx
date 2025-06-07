@@ -53,8 +53,8 @@ const FluxelSvg = forwardRef<
       clipPath={`url(#${clipPathId})`}
     >
       <rect
-        width={size - 1}
-        height={size - 1}
+        width={size - 0.5}
+        height={size - 0.5}
         className="border"
         fill="var(--base-color)"
       />

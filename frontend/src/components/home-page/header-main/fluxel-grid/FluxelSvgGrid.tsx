@@ -132,23 +132,55 @@ const FluxelSvgGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
     const colOverlap = Math.floor((colCount - viewableColsRef.current) / 2);
 
     return (
-      <div
-        ref={handleRef}
-        className={[styles.fluxelGrid, className].join(" ")}
-        style={{ position: "relative", width: "100%", height: "100%" }}
-      >
-        <svg
-          width="100%"
-          height="100%"
-          style={{ display: "block" }}
-          viewBox={`0 0 ${colCount * fluxelSize} ${rowCount * fluxelSize}`}
+      <>
+        <div
+          ref={handleRef}
+          className={[styles.fluxelGrid, className].join(" ")}
+          style={{ position: "relative", width: "100%", height: "100%" }}
         >
-          <defs>
-            <clipPath id="fluxel-clip">
-              <rect x="0" y="0" width={fluxelSize} height={fluxelSize} />
-            </clipPath>
-          </defs>
+          <svg
+            width="100%"
+            height="100%"
+            style={{ display: "block" }}
+            viewBox={`0 0 ${colCount * fluxelSize} ${rowCount * fluxelSize}`}
+          >
+            <defs>
+              <clipPath id="fluxel-clip">
+                <rect x="0" y="0" width={fluxelSize} height={fluxelSize} />
+              </clipPath>
+            </defs>
 
+            {gridData.map((row, r) =>
+              row.map((data, c) => {
+                const isVisible =
+                  r >= rowOverlap &&
+                  r < rowCount - rowOverlap &&
+                  c >= colOverlap &&
+                  c < colCount - colOverlap;
+
+                if (!isVisible) return null;
+
+                const ref = imperativeMode
+                  ? fluxelRefs.current[r]?.[c]
+                  : undefined;
+
+                return (
+                  <FluxelSvg
+                    className={styles.fluxel}
+                    key={data.id}
+                    data={data}
+                    x={c * fluxelSize}
+                    y={r * fluxelSize}
+                    size={fluxelSize}
+                    clipPathId="fluxel-clip"
+                    ref={ref}
+                  />
+                );
+              }),
+            )}
+          </svg>
+        </div>
+        <div className={styles.overlayWrapper}>
           {gridData.map((row, r) =>
             row.map((data, c) => {
               const isVisible =
@@ -157,28 +189,27 @@ const FluxelSvgGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
                 c >= colOverlap &&
                 c < colCount - colOverlap;
 
-              if (!isVisible) return null;
-
-              const ref = imperativeMode
-                ? fluxelRefs.current[r]?.[c]
-                : undefined;
+              if (!isVisible) {
+                return (
+                  <div key={data.id} className={styles.inactivePlaceholder} />
+                );
+              }
 
               return (
-                <FluxelSvg
-                  className={styles.fluxel}
+                <div
+                  className={styles.overlay}
                   key={data.id}
-                  data={data}
-                  x={c * fluxelSize}
-                  y={r * fluxelSize}
-                  size={fluxelSize}
-                  clipPathId="fluxel-clip"
-                  ref={ref}
+                  style={{
+                    top: `${r * fluxelSize}px`,
+                    left: `${c * fluxelSize}px`,
+                    backgroundColor: data.colorVariation,
+                  }}
                 />
               );
             }),
           )}
-        </svg>
-      </div>
+        </div>
+      </>
     );
   },
 );

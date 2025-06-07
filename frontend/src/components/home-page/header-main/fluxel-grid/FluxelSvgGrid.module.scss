@@ -67,7 +67,7 @@
 
 .fluxel {
   :global(rect.border) {
-    stroke: black;
+    stroke: rgba(20, 20, 20, 1);
     stroke-width: 1;
     shape-rendering: crispEdges;
   }
