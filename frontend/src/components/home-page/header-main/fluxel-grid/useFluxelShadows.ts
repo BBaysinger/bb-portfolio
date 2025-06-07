@@ -3,6 +3,7 @@ import { useEffect, useRef } from "react";
 import { FluxelData } from "./FluxelAllTypes";
 import type { FluxelGridHandle } from "./FluxelAllTypes";
 import MiscUtils from "utils/MiscUtils";
+import { useElementRelativeMouse } from "hooks/useElementRelativeMouse";
 
 function getShadowInfluence(
   { col, row }: { col: number; row: number },
@@ -27,26 +28,36 @@ function getShadowInfluence(
  *
  * @author Bradley Baysinger
  * @since The beginning of time.
- * @version N/A
+ * @version Refactored for internal pointer tracking + debounced resize
  */
 export function useFluxelShadows({
   gridRef,
   setGridData,
-  mousePosRef,
   isPausedRef,
 }: {
   gridRef: React.RefObject<FluxelGridHandle | null>;
   setGridData: React.Dispatch<React.SetStateAction<FluxelData[][]>>;
-  mousePosRef: React.RefObject<{ x: number; y: number } | null>;
   isPausedRef?: React.RefObject<boolean>;
 }) {
   const animationFrameId = useRef<number | null>(null);
+  const containerRef = useRef<HTMLElement>(document.createElement("div"));
+
+  // Sync container element once available
+  useEffect(() => {
+    const gridHandle = gridRef.current;
+    const el = gridHandle?.getContainerElement?.();
+    if (el) containerRef.current = el;
+  }, [gridRef]);
+
+  // Use shared hook for relative pointer tracking
+  const internalMousePos = useElementRelativeMouse(containerRef);
+
   useEffect(() => {
     let isCancelled = false;
 
     const startLoop = (() => {
       let retryCount = 0;
-      const maxRetries = 300; // e.g. ~5s at 60fps
+      const maxRetries = 300;
 
       return function startLoopInner() {
         const gridHandle = gridRef.current;
@@ -55,22 +66,8 @@ export function useFluxelShadows({
 
         const isReady = !!gridHandle && !!fluxelSize && !!gridEl;
 
-        // const fluxelSize = gridHandle?.getFluxelSize?.();
-        if (process.env.NODE_ENV === "development") {
-          console.info("🧪 fluxelSize returned:", fluxelSize);
-        }
         if (!isReady || isCancelled) {
           if (retryCount < maxRetries) {
-            if (
-              process.env.NODE_ENV === "development" &&
-              retryCount % 10 === 0
-            ) {
-              // console.info("⏳ Waiting for grid to be ready...", {
-              //   gridRefReady: !!gridHandle,
-              //   containerReady: !!gridEl,
-              //   fluxelSizeReady: !!fluxelSize,
-              // });
-            }
             retryCount++;
             animationFrameId.current = requestAnimationFrame(startLoopInner);
           } else {
@@ -79,16 +76,26 @@ export function useFluxelShadows({
           return;
         }
 
-        console.info("✅ Grid ready. Starting shadow update loop.");
-        retryCount = 0; // reset for future mounts
+        retryCount = 0;
 
         const updateShadows = () => {
           if (isPausedRef?.current) {
             animationFrameId.current = requestAnimationFrame(updateShadows);
             return;
           }
+          const gridHandle = gridRef.current;
+          const gridData = gridHandle?.getGridData?.();
+          const container = containerRef.current;
 
-          const pos = mousePosRef.current ?? { x: -99999, y: -99999 };
+          const cols = gridData?.[0]?.length || 1;
+          const fluxelSize = container ? container.clientWidth / cols : 0;
+
+          if (!gridData || !fluxelSize || fluxelSize < 1) {
+            animationFrameId.current = requestAnimationFrame(updateShadows);
+            return;
+          }
+
+          const pos = internalMousePos.current ?? { x: -99999, y: -99999 };
 
           setGridData((prevGrid) => {
             let hasChanged = false;
@@ -183,5 +190,5 @@ export function useFluxelShadows({
       if (animationFrameId.current)
         cancelAnimationFrame(animationFrameId.current);
     };
-  }, [gridRef, mousePosRef, setGridData]);
+  }, [gridRef, setGridData, isPausedRef, internalMousePos]);
 }

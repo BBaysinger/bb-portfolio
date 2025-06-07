@@ -1,6 +1,6 @@
 import { useRef, useEffect, forwardRef, useImperativeHandle } from "react";
 
-import { Application, Container, Graphics } from "pixi.js";
+import { Application, Container } from "pixi.js";
 
 import type { FluxelGridHandle, FluxelGridProps } from "./FluxelAllTypes";
 import { FluxelPixiShadowMesh } from "./FluxelPixiShadowMesh";
@@ -11,7 +11,7 @@ import styles from "./FluxelPixiGrid.module.scss";
  *
  * @author Bradley Baysinger
  * @since The beginning of time.
- * @version N/A
+ * @version Enhanced with containerRef sync, debounced resize observer, and stable data refs
  */
 const FluxelPixiGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
   ({ gridData, imperativeMode, className }, ref) => {
@@ -21,6 +21,7 @@ const FluxelPixiGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
     const fluxelSizeRef = useRef(0);
     const fluxelContainerRef = useRef<Container>(new Container());
     const gridDataRef = useRef(gridData);
+    const resizeObserverRef = useRef<ResizeObserver | null>(null);
 
     const rows = gridData.length;
     const cols = gridData[0]?.length || 0;
@@ -32,7 +33,6 @@ const FluxelPixiGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
     useEffect(() => {
       let destroyed = false;
       let frameId: number;
-      let resizeObserver: ResizeObserver | null = null;
 
       frameId = requestAnimationFrame(() => {
         const canvas = canvasRef.current;
@@ -102,10 +102,6 @@ const FluxelPixiGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
               }
 
               fluxelsRef.current = fluxels;
-
-              const debug = new Graphics();
-              debug.rect(0, 0, 50, 50).fill(0xff00ff);
-              fluxelContainer.addChild(debug);
             };
 
             const resize = () => {
@@ -120,12 +116,14 @@ const FluxelPixiGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
             };
 
             let resizeTimeout: number | null = null;
-            resizeObserver = new ResizeObserver(() => {
+            const resizeObserver = new ResizeObserver(() => {
               if (resizeTimeout) cancelAnimationFrame(resizeTimeout);
               resizeTimeout = requestAnimationFrame(resize);
             });
 
             resizeObserver.observe(canvas.parentElement!);
+            resizeObserverRef.current = resizeObserver;
+
             resize();
           });
       });
@@ -134,8 +132,8 @@ const FluxelPixiGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
         destroyed = true;
         cancelAnimationFrame(frameId);
 
-        if (resizeObserver) {
-          resizeObserver.disconnect();
+        if (resizeObserverRef.current) {
+          resizeObserverRef.current.disconnect();
         }
 
         if (appRef.current) {
