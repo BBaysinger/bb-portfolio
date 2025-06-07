@@ -145,6 +145,11 @@ const FluxelDomSvgGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
       [colCount],
     );
 
+    const rowOverlap = Math.floor((rowCount - viewableRowsRef.current) / 2);
+    const colOverlap = Math.floor((colCount - viewableColsRef.current) / 2);
+
+    const flatGrid = useMemo(() => gridData.flat(), [gridData]);
+
     return (
       <>
         <div
@@ -152,14 +157,7 @@ const FluxelDomSvgGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
           className={[styles.fluxelGrid, className].join(" ")}
           style={gridStyle}
         >
-          {gridData.flat().map((data) => {
-            const rowOverlap = Math.floor(
-              (rowCount - viewableRowsRef.current) / 2,
-            );
-            const colOverlap = Math.floor(
-              (colCount - viewableColsRef.current) / 2,
-            );
-
+          {flatGrid.map((data) => {
             const isVisible =
               data.col >= colOverlap &&
               data.col < colCount - colOverlap &&
@@ -182,14 +180,7 @@ const FluxelDomSvgGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
           })}
         </div>
         <div className={styles.overlayWrapper}>
-          {gridData.flat().map((data) => {
-            const rowOverlap = Math.floor(
-              (rowCount - viewableRowsRef.current) / 2,
-            );
-            const colOverlap = Math.floor(
-              (colCount - viewableColsRef.current) / 2,
-            );
-
+          {flatGrid.map((data) => {
             const isVisible =
               data.col >= colOverlap &&
               data.col < colCount - colOverlap &&
