@@ -9,6 +9,9 @@ function getShadowInfluence(
   { col, row }: { col: number; row: number },
   { x, y }: { x: number; y: number },
   fluxelSize: number,
+  radiusMultiplier: number,
+  smoothRangeMultiplier: number,
+  smoothing: boolean,
 ) {
   const gridX = col * fluxelSize + fluxelSize / 2;
   const gridY = row * fluxelSize + fluxelSize / 2;
@@ -17,10 +20,15 @@ function getShadowInfluence(
   const dy = gridY - y;
 
   const baseDistance = Math.sqrt(dx * dx + dy * dy);
-  const influence =
-    1 - MiscUtils.smoothStep(0, fluxelSize * 4.25, baseDistance);
 
-  return baseDistance < fluxelSize * 5 ? influence : 0;
+  if (!smoothing) {
+    return baseDistance < fluxelSize * radiusMultiplier ? 1 : 0;
+  }
+
+  const influence =
+    1 - MiscUtils.smoothStep(0, fluxelSize * smoothRangeMultiplier, baseDistance);
+
+  return baseDistance < fluxelSize * radiusMultiplier ? influence : 0;
 }
 
 /**
@@ -35,16 +43,21 @@ export function useFluxelShadows({
   setGridData,
   isPausedRef,
   fps = 20,
+  radiusMultiplier = 5,
+  smoothRangeMultiplier = 4.25,
+  smoothing = true,
 }: {
   gridRef: React.RefObject<FluxelGridHandle | null>;
   setGridData: React.Dispatch<React.SetStateAction<FluxelData[][]>>;
   isPausedRef?: React.RefObject<boolean>;
   fps?: number;
+  radiusMultiplier?: number;
+  smoothRangeMultiplier?: number;
+  smoothing?: boolean;
 }) {
   const animationFrameId = useRef<number | null>(null);
   const containerRef = useRef<HTMLElement>(document.createElement("div"));
-  const intervalMs = 1000 / fps;
-  let lastTimestamp = 0;
+  const lastTimestampRef = useRef(0);
 
   useEffect(() => {
     const gridHandle = gridRef.current;
@@ -56,16 +69,17 @@ export function useFluxelShadows({
 
   useEffect(() => {
     let isCancelled = false;
+    const intervalMs = 1000 / fps;
 
     const loop = (timestamp: number) => {
       if (isCancelled) return;
 
-      const elapsed = timestamp - lastTimestamp;
+      const elapsed = timestamp - lastTimestampRef.current;
       if (elapsed < intervalMs) {
         animationFrameId.current = requestAnimationFrame(loop);
         return;
       }
-      lastTimestamp = timestamp;
+      lastTimestampRef.current = timestamp;
 
       const gridHandle = gridRef.current;
       const gridData = gridHandle?.getGridData?.();
@@ -98,26 +112,41 @@ export function useFluxelShadows({
                   { col: fluxel.col, row: fluxel.row },
                   pos,
                   fluxelSize,
+                  radiusMultiplier,
+                  smoothRangeMultiplier,
+                  smoothing,
                 );
                 const topInfluence = getShadowInfluence(
                   { col: fluxel.col, row: fluxel.row - 1 },
                   pos,
                   fluxelSize,
+                  radiusMultiplier,
+                  smoothRangeMultiplier,
+                  smoothing,
                 );
                 const rightInfluence = getShadowInfluence(
                   { col: fluxel.col + 1, row: fluxel.row },
                   pos,
                   fluxelSize,
+                  radiusMultiplier,
+                  smoothRangeMultiplier,
+                  smoothing,
                 );
                 const bottomInfluence = getShadowInfluence(
                   { col: fluxel.col, row: fluxel.row + 1 },
                   pos,
                   fluxelSize,
+                  radiusMultiplier,
+                  smoothRangeMultiplier,
+                  smoothing,
                 );
                 const leftInfluence = getShadowInfluence(
                   { col: fluxel.col - 1, row: fluxel.row },
                   pos,
                   fluxelSize,
+                  radiusMultiplier,
+                  smoothRangeMultiplier,
+                  smoothing,
                 );
 
                 shadowTrOffsetX = Math.round(
@@ -170,5 +199,5 @@ export function useFluxelShadows({
       if (animationFrameId.current)
         cancelAnimationFrame(animationFrameId.current);
     };
-  }, [gridRef, setGridData, isPausedRef, internalMousePos, fps]);
+  }, [gridRef, setGridData, isPausedRef, internalMousePos, fps, radiusMultiplier, smoothRangeMultiplier, smoothing]);
 }
