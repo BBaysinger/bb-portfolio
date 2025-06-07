@@ -1,16 +1,27 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useCallback } from "react";
+import { useDebouncedResizeObserver } from "./useDebouncedResizeObserver";
 
 export function useElementRelativeMouse(
   containerRef: React.RefObject<HTMLElement>,
 ) {
   const mousePosRef = useRef<{ x: number; y: number } | null>(null);
+  const rectRef = useRef<DOMRect | null>(null);
+
+  // Update bounding rect with debounced observer
+  const updateRect = useCallback(() => {
+    const el = containerRef.current;
+    if (el) rectRef.current = el.getBoundingClientRect();
+  }, [containerRef]);
+
+  useDebouncedResizeObserver(containerRef, updateRect, 50);
 
   useEffect(() => {
-    const updatePos = (e: PointerEvent) => {
-      const el = containerRef.current;
-      if (!el) return;
+    updateRect(); // initial call in case resize hasn’t triggered yet
 
-      const rect = el.getBoundingClientRect();
+    const updatePos = (e: PointerEvent) => {
+      const rect = rectRef.current;
+      if (!rect) return;
+
       mousePosRef.current = {
         x: e.clientX - rect.left,
         y: e.clientY - rect.top,
@@ -26,7 +37,7 @@ export function useElementRelativeMouse(
       window.removeEventListener("pointerdown", updatePos);
       window.removeEventListener("pointerup", updatePos);
     };
-  }, [containerRef]);
+  }, [updateRect]);
 
   return mousePosRef;
 }
