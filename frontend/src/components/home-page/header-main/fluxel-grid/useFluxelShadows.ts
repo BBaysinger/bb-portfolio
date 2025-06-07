@@ -35,7 +35,7 @@ function getShadowInfluence(
  *
  * @author Bradley Baysinger
  * @since The beginning of time.
- * @version Refactored for internal pointer tracking + debounced resize + external FPS control
+ * @version Simplified: reactive mousePos + FPS-throttled RAF
  */
 export function useFluxelShadows({
   gridRef,
@@ -57,148 +57,126 @@ export function useFluxelShadows({
   const containerRef = useRef<HTMLElement | null>(null);
   const animationFrameId = useRef<number | null>(null);
   const lastUpdateTime = useRef(0);
-  const lastPosRef = useRef<{ x: number; y: number } | null>(null);
 
-  // Set up the container
+  // Assign the container once gridRef resolves
   useEffect(() => {
     containerRef.current = gridRef.current?.getContainerElement?.() ?? null;
   }, [gridRef]);
 
-  const internalMousePos = useElementRelativeMouse(containerRef);
+  const mousePos = useElementRelativeMouse(containerRef);
 
   useEffect(() => {
+    if (!mousePos || !containerRef.current || isPausedRef?.current) return;
+
+    const now = performance.now();
     const intervalMs = 1000 / fps;
+    if (now - lastUpdateTime.current < intervalMs) return;
 
-    const checkForMouseChange = () => {
-      const pos = internalMousePos.current;
-      if (!pos || !containerRef.current) return;
+    lastUpdateTime.current = now;
 
-      const last = lastPosRef.current;
-      const moved = !last || pos.x !== last.x || pos.y !== last.y;
-      const now = performance.now();
-      const throttled = now - lastUpdateTime.current >= intervalMs;
+    if (animationFrameId.current !== null) return;
+    animationFrameId.current = requestAnimationFrame(() => {
+      animationFrameId.current = null;
 
-      if (moved && throttled && !animationFrameId.current) {
-        lastPosRef.current = pos;
-        lastUpdateTime.current = now;
+      const gridHandle = gridRef.current;
+      const gridData = gridHandle?.getGridData?.();
+      const container = containerRef.current;
+      if (!gridData || !container) return;
 
-        animationFrameId.current = requestAnimationFrame(() => {
-          animationFrameId.current = null;
+      const cols = gridData[0]?.length || 1;
+      const fluxelSize = container.clientWidth / cols;
+      if (fluxelSize < 1) return;
 
-          const gridHandle = gridRef.current;
-          const gridData = gridHandle?.getGridData?.();
-          const container = containerRef.current;
-          if (!gridData || !container) return;
+      setGridData((prevGrid) => {
+        let hasChanged = false;
 
-          const cols = gridData[0]?.length || 1;
-          const fluxelSize = container.clientWidth / cols;
-          if (fluxelSize < 1) return;
+        const updatedGrid = prevGrid.map((row) =>
+          row.map((fluxel) => {
+            let influence = 0;
+            let shadowTrOffsetX = 0;
+            let shadowTrOffsetY = 0;
+            let shadowBlOffsetX = 0;
+            let shadowBlOffsetY = 0;
 
-          if (isPausedRef?.current) return;
+            if (mousePos.x >= 0 && mousePos.y >= 0) {
+              influence = getShadowInfluence(
+                { col: fluxel.col, row: fluxel.row },
+                mousePos,
+                fluxelSize,
+                radiusMultiplier,
+                smoothRangeMultiplier,
+                smoothing,
+              );
 
-          setGridData((prevGrid) => {
-            let hasChanged = false;
+              const top = getShadowInfluence(
+                { col: fluxel.col, row: fluxel.row - 1 },
+                mousePos,
+                fluxelSize,
+                radiusMultiplier,
+                smoothRangeMultiplier,
+                smoothing,
+              );
+              const right = getShadowInfluence(
+                { col: fluxel.col + 1, row: fluxel.row },
+                mousePos,
+                fluxelSize,
+                radiusMultiplier,
+                smoothRangeMultiplier,
+                smoothing,
+              );
+              const bottom = getShadowInfluence(
+                { col: fluxel.col, row: fluxel.row + 1 },
+                mousePos,
+                fluxelSize,
+                radiusMultiplier,
+                smoothRangeMultiplier,
+                smoothing,
+              );
+              const left = getShadowInfluence(
+                { col: fluxel.col - 1, row: fluxel.row },
+                mousePos,
+                fluxelSize,
+                radiusMultiplier,
+                smoothRangeMultiplier,
+                smoothing,
+              );
 
-            const updatedGrid = prevGrid.map((row) =>
-              row.map((fluxel) => {
-                let influence = 0;
-                let shadowTrOffsetX = 0;
-                let shadowTrOffsetY = 0;
-                let shadowBlOffsetX = 0;
-                let shadowBlOffsetY = 0;
+              shadowTrOffsetX = Math.round(Math.min(right - influence, 0) * 80);
+              shadowTrOffsetY = Math.round(Math.max(influence - top, 0) * 80);
+              shadowBlOffsetX = Math.round(Math.max(influence - left, 0) * 56);
+              shadowBlOffsetY = Math.round(
+                Math.min(bottom - influence, 0) * 56,
+              );
+            }
 
-                if (pos.x >= 0 && pos.y >= 0) {
-                  influence = getShadowInfluence(
-                    { col: fluxel.col, row: fluxel.row },
-                    pos,
-                    fluxelSize,
-                    radiusMultiplier,
-                    smoothRangeMultiplier,
-                    smoothing,
-                  );
-                  const top = getShadowInfluence(
-                    { col: fluxel.col, row: fluxel.row - 1 },
-                    pos,
-                    fluxelSize,
-                    radiusMultiplier,
-                    smoothRangeMultiplier,
-                    smoothing,
-                  );
-                  const right = getShadowInfluence(
-                    { col: fluxel.col + 1, row: fluxel.row },
-                    pos,
-                    fluxelSize,
-                    radiusMultiplier,
-                    smoothRangeMultiplier,
-                    smoothing,
-                  );
-                  const bottom = getShadowInfluence(
-                    { col: fluxel.col, row: fluxel.row + 1 },
-                    pos,
-                    fluxelSize,
-                    radiusMultiplier,
-                    smoothRangeMultiplier,
-                    smoothing,
-                  );
-                  const left = getShadowInfluence(
-                    { col: fluxel.col - 1, row: fluxel.row },
-                    pos,
-                    fluxelSize,
-                    radiusMultiplier,
-                    smoothRangeMultiplier,
-                    smoothing,
-                  );
+            const changed =
+              Math.abs(influence - fluxel.influence) > 0.009 ||
+              shadowTrOffsetX !== fluxel.shadowTrOffsetX ||
+              shadowTrOffsetY !== fluxel.shadowTrOffsetY ||
+              shadowBlOffsetX !== fluxel.shadowBlOffsetX ||
+              shadowBlOffsetY !== fluxel.shadowBlOffsetY;
 
-                  shadowTrOffsetX = Math.round(
-                    Math.min(right - influence, 0) * 80,
-                  );
-                  shadowTrOffsetY = Math.round(
-                    Math.max(influence - top, 0) * 80,
-                  );
-                  shadowBlOffsetX = Math.round(
-                    Math.max(influence - left, 0) * 56,
-                  );
-                  shadowBlOffsetY = Math.round(
-                    Math.min(bottom - influence, 0) * 56,
-                  );
-                }
+            if (changed) {
+              hasChanged = true;
+              return {
+                ...fluxel,
+                influence: +influence.toFixed(2),
+                shadowTrOffsetX,
+                shadowTrOffsetY,
+                shadowBlOffsetX,
+                shadowBlOffsetY,
+              };
+            }
 
-                const changed =
-                  Math.abs(influence - fluxel.influence) > 0.009 ||
-                  shadowTrOffsetX !== fluxel.shadowTrOffsetX ||
-                  shadowTrOffsetY !== fluxel.shadowTrOffsetY ||
-                  shadowBlOffsetX !== fluxel.shadowBlOffsetX ||
-                  shadowBlOffsetY !== fluxel.shadowBlOffsetY;
+            return fluxel;
+          }),
+        );
 
-                if (changed) {
-                  hasChanged = true;
-                  return {
-                    ...fluxel,
-                    influence: +influence.toFixed(2),
-                    shadowTrOffsetX,
-                    shadowTrOffsetY,
-                    shadowBlOffsetX,
-                    shadowBlOffsetY,
-                  };
-                }
-
-                return fluxel;
-              }),
-            );
-
-            return hasChanged ? updatedGrid : prevGrid;
-          });
-        });
-      }
-    };
-
-    const intervalId = setInterval(checkForMouseChange, 1000 / 60); // monitor @ 60fps, not tied to your loop
-    return () => {
-      clearInterval(intervalId);
-      if (animationFrameId.current)
-        cancelAnimationFrame(animationFrameId.current);
-    };
+        return hasChanged ? updatedGrid : prevGrid;
+      });
+    });
   }, [
+    mousePos,
     gridRef,
     setGridData,
     isPausedRef,
@@ -206,6 +184,5 @@ export function useFluxelShadows({
     radiusMultiplier,
     smoothRangeMultiplier,
     smoothing,
-    internalMousePos,
   ]);
 }

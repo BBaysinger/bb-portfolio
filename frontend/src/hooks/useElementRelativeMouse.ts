@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useCallback, useState } from "react";
 import { useDebouncedResizeObserver } from "./useDebouncedResizeObserver";
 
 /**
@@ -10,47 +10,51 @@ import { useDebouncedResizeObserver } from "./useDebouncedResizeObserver";
  */
 export function useElementRelativeMouse(
   containerRef: React.RefObject<HTMLElement | null>,
-) {
-  const mousePosRef = useRef<{ x: number; y: number } | null>(null);
+): { x: number; y: number } | null {
+  const [mousePos, setMousePos] = useState<{ x: number; y: number } | null>(
+    null,
+  );
   const rectRef = useRef<DOMRect | null>(null);
 
   const updateRect = useCallback(() => {
+    console.log("Updating element rect");
     const el = containerRef.current;
     if (el) rectRef.current = el.getBoundingClientRect();
   }, [containerRef]);
 
-  // Resize observer for container size changes
   useDebouncedResizeObserver(containerRef, updateRect, 50);
 
   useEffect(() => {
-    updateRect(); // initial update
+    updateRect();
 
-    // Also update rect on window scroll and resize
-    window.addEventListener("scroll", updateRect, true); // true = capture phase
+    window.addEventListener("scroll", updateRect, true);
     window.addEventListener("resize", updateRect);
+    window.addEventListener("orientationchange", updateRect);
 
-    const updatePos = (e: PointerEvent) => {
+    const onPointerMove = (e: PointerEvent) => {
+      const el = containerRef.current;
       const rect = rectRef.current;
-      if (!rect) return;
+      if (!el || !rect) return;
 
-      mousePosRef.current = {
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top,
-      };
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      setMousePos({ x, y });
     };
 
-    window.addEventListener("pointermove", updatePos);
-    window.addEventListener("pointerdown", updatePos);
-    window.addEventListener("pointerup", updatePos);
+    window.addEventListener("pointermove", onPointerMove);
+    window.addEventListener("pointerdown", onPointerMove);
+    window.addEventListener("pointerup", onPointerMove);
 
     return () => {
-      window.removeEventListener("pointermove", updatePos);
-      window.removeEventListener("pointerdown", updatePos);
-      window.removeEventListener("pointerup", updatePos);
+      window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("pointerdown", onPointerMove);
+      window.removeEventListener("pointerup", onPointerMove);
       window.removeEventListener("scroll", updateRect, true);
       window.removeEventListener("resize", updateRect);
+      window.removeEventListener("orientationchange", updateRect);
     };
-  }, [updateRect]);
+  }, [containerRef, updateRect]);
 
-  return mousePosRef;
+  return mousePos;
 }
