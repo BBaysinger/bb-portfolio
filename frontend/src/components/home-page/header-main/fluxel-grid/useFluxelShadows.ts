@@ -26,7 +26,8 @@ function getShadowInfluence(
   }
 
   const influence =
-    1 - MiscUtils.smoothStep(0, fluxelSize * smoothRangeMultiplier, baseDistance);
+    1 -
+    MiscUtils.smoothStep(0, fluxelSize * smoothRangeMultiplier, baseDistance);
 
   return baseDistance < fluxelSize * radiusMultiplier ? influence : 0;
 }
@@ -199,5 +200,14 @@ export function useFluxelShadows({
       if (animationFrameId.current)
         cancelAnimationFrame(animationFrameId.current);
     };
-  }, [gridRef, setGridData, isPausedRef, internalMousePos, fps, radiusMultiplier, smoothRangeMultiplier, smoothing]);
+  }, [
+    gridRef,
+    setGridData,
+    isPausedRef,
+    internalMousePos,
+    fps,
+    radiusMultiplier,
+    smoothRangeMultiplier,
+    smoothing,
+  ]);
 }

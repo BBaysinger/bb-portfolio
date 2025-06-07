@@ -6,7 +6,7 @@ import {
   useEffect,
 } from "react";
 
-import FluxelDomSvgGrid from "./FluxelDomSvgGrid";
+import FluxelSvgGrid from "./FluxelSvgGrid";
 import FluxelPixiGrid from "./FluxelPixiGrid";
 import { useFluxelShadows } from "./useFluxelShadows";
 import useFluxelProjectiles, { Direction } from "./useFluxelProjectiles";
@@ -172,7 +172,7 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
         <AnimationSequencer className={styles.animationSequencer} />
 
         {gridType === "domSvg" ? (
-          <FluxelDomSvgGrid
+          <FluxelSvgGrid
             className={styles.fluxelGridDom}
             ref={gridInstanceRef}
             gridData={gridData}
