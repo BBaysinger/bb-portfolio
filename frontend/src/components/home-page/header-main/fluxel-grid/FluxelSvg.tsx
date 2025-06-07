@@ -6,7 +6,7 @@ import React, {
 } from "react";
 
 import type { FluxelHandle, FluxelData } from "./FluxelAllTypes";
-import styles from "./FluxelDomSvg.module.scss";
+import styles from "./FluxelSvg.module.scss";
 
 /**
  * Fluxing Pixel
@@ -18,7 +18,7 @@ import styles from "./FluxelDomSvg.module.scss";
  * @since The beginning of time.
  * @version N/A
  */
-const FluxelDomSvg = forwardRef<FluxelHandle, { data: FluxelData }>(
+const FluxelSvg = forwardRef<FluxelHandle, { data: FluxelData }>(
   ({ data }, ref) => {
     const elRef = useRef<SVGSVGElement>(null);
 
@@ -91,4 +91,4 @@ function areEqual(prev: { data: FluxelData }, next: { data: FluxelData }) {
   );
 }
 
-export default React.memo(FluxelDomSvg, areEqual);
+export default React.memo(FluxelSvg, areEqual);

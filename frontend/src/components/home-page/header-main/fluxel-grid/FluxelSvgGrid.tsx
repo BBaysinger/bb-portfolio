@@ -12,7 +12,7 @@ import React, {
 
 import type { FluxelHandle, FluxelData } from "./FluxelAllTypes";
 import type { FluxelGridHandle, FluxelGridProps } from "./FluxelAllTypes";
-import FluxelDomSvg from "./FluxelDomSvg";
+import FluxelSvg from "./FluxelSvg";
 import styles from "./FluxelSvgGrid.module.scss";
 import { useDebouncedResizeObserver } from "hooks/useDebouncedResizeObserver";
 
@@ -172,7 +172,7 @@ const FluxelSvgGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
               const ref = imperativeMode
                 ? fluxelRefs.current[r]?.[c]
                 : undefined;
-              return <FluxelDomSvg key={data.id} data={data} ref={ref} />;
+              return <FluxelSvg key={data.id} data={data} ref={ref} />;
             }),
           )}
         </div>
