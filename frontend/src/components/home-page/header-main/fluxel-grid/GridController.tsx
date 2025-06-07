@@ -7,6 +7,7 @@ import {
 } from "react";
 
 import FluxelSvgGrid from "./FluxelSvgGrid";
+import FluxelDomSvgGrid from "./FluxelDomSvgGrid";
 import FluxelPixiGrid from "./FluxelPixiGrid";
 import { useFluxelShadows } from "./useFluxelShadows";
 import useFluxelProjectiles, { Direction } from "./useFluxelProjectiles";
@@ -43,10 +44,16 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
     },
     ref,
   ) => {
-    const getGridTypeFromUrl = (): "domSvg" | "canvas" => {
-      if (typeof window === "undefined") return "canvas";
+    const getGridTypeFromUrl = (): "svg" | "domSvg" | "canvas" => {
+      if (typeof window === "undefined") return "svg";
+
       const value = new URLSearchParams(window.location.search).get("gridType");
-      return value === "canvas" ? "canvas" : "domSvg";
+
+      if (value === "svg" || value === "domSvg" || value === "canvas") {
+        return value;
+      }
+
+      return "svg";
     };
 
     const gridType = getGridTypeFromUrl();
@@ -171,9 +178,17 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
       >
         <AnimationSequencer className={styles.animationSequencer} />
 
-        {gridType === "domSvg" ? (
+        {gridType === "svg" ? (
           <FluxelSvgGrid
-            className={styles.fluxelGridDom}
+            className={styles.fluxelGridSvg}
+            ref={gridInstanceRef}
+            gridData={gridData}
+            viewableWidth={viewableWidth}
+            viewableHeight={viewableHeight}
+          />
+        ) : gridType === "domSvg" ? (
+          <FluxelDomSvgGrid
+            className={styles.fluxelGridDomSvg}
             ref={gridInstanceRef}
             gridData={gridData}
             viewableWidth={viewableWidth}

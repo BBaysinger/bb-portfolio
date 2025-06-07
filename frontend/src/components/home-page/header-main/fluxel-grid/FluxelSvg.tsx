@@ -66,8 +66,9 @@ const FluxelSvg = forwardRef<
         y={-110 * SCALE}
         width={216 * SCALE}
         height={216 * SCALE}
-        transform={`translate(${data.shadowTrOffsetX}, ${data.shadowTrOffsetY})`}
+        transform={`translate(${data.shadowTrOffsetX * SCALE}, ${data.shadowTrOffsetY * SCALE})`}
       />
+
       <image
         opacity="0.25"
         href="/images/home/corner-shadow.webp"
@@ -75,7 +76,7 @@ const FluxelSvg = forwardRef<
         y={-185 * SCALE}
         width={216 * SCALE}
         height={216 * SCALE}
-        transform={`translate(${data.shadowBlOffsetX}, ${data.shadowBlOffsetY}) scale(-1, -1)`}
+        transform={`translate(${data.shadowBlOffsetX * SCALE}, ${data.shadowBlOffsetY * SCALE}) scale(-1, -1)`}
       />
 
       {/* <rect width={size} height={size} fill="var(--overlay-color)" /> */}
