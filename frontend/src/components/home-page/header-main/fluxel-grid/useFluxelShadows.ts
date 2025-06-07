@@ -41,113 +41,140 @@ export function useFluxelShadows({
   isPausedRef?: React.RefObject<boolean>;
 }) {
   const animationFrameId = useRef<number | null>(null);
-
   useEffect(() => {
     let isCancelled = false;
 
-    const startLoop = () => {
-      const gridEl = gridRef.current?.getContainerElement();
-      const fluxelSize = gridRef.current?.getFluxelSize();
-      if (!gridEl || !fluxelSize || isCancelled) {
-        animationFrameId.current = requestAnimationFrame(startLoop);
-        return;
-      }
+    const startLoop = (() => {
+      let retryCount = 0;
+      const maxRetries = 300; // e.g. ~5s at 60fps
 
-      const updateShadows = () => {
-        if (isPausedRef?.current) {
-          animationFrameId.current = requestAnimationFrame(updateShadows);
+      return function startLoopInner() {
+        const gridHandle = gridRef.current;
+        const fluxelSize = gridHandle?.getFluxelSize?.();
+        const gridEl = gridHandle?.getContainerElement?.();
+
+        const isReady = !!gridHandle && !!fluxelSize && !!gridEl;
+
+        // const fluxelSize = gridHandle?.getFluxelSize?.();
+        if (process.env.NODE_ENV === "development") {
+          console.info("🧪 fluxelSize returned:", fluxelSize);
+        }
+        if (!isReady || isCancelled) {
+          if (retryCount < maxRetries) {
+            if (
+              process.env.NODE_ENV === "development" &&
+              retryCount % 10 === 0
+            ) {
+              // console.info("⏳ Waiting for grid to be ready...", {
+              //   gridRefReady: !!gridHandle,
+              //   containerReady: !!gridEl,
+              //   fluxelSizeReady: !!fluxelSize,
+              // });
+            }
+            retryCount++;
+            animationFrameId.current = requestAnimationFrame(startLoopInner);
+          } else {
+            console.warn("⚠️ Timed out waiting for grid readiness.");
+          }
           return;
         }
 
-        const gridEl = gridRef.current?.getContainerElement();
-        const fluxelSize = gridRef.current?.getFluxelSize();
-        if (!gridEl || !fluxelSize) return;
+        console.info("✅ Grid ready. Starting shadow update loop.");
+        retryCount = 0; // reset for future mounts
 
-        const pos = mousePosRef.current ?? { x: -99999, y: -99999 };
+        const updateShadows = () => {
+          if (isPausedRef?.current) {
+            animationFrameId.current = requestAnimationFrame(updateShadows);
+            return;
+          }
 
-        setGridData((prevGrid) => {
-          let hasChanged = false;
+          const pos = mousePosRef.current ?? { x: -99999, y: -99999 };
 
-          const updatedGrid = prevGrid.map((row) =>
-            row.map((fluxel) => {
-              let influence = 0;
-              let shadowTrOffsetX = 0;
-              let shadowTrOffsetY = 0;
-              let shadowBlOffsetX = 0;
-              let shadowBlOffsetY = 0;
+          setGridData((prevGrid) => {
+            let hasChanged = false;
 
-              if (pos.x >= 0 && pos.y >= 0) {
-                influence = getShadowInfluence(
-                  { col: fluxel.col, row: fluxel.row },
-                  pos,
-                  fluxelSize,
-                );
-                const topInfluence = getShadowInfluence(
-                  { col: fluxel.col, row: fluxel.row - 1 },
-                  pos,
-                  fluxelSize,
-                );
-                const rightInfluence = getShadowInfluence(
-                  { col: fluxel.col + 1, row: fluxel.row },
-                  pos,
-                  fluxelSize,
-                );
-                const bottomInfluence = getShadowInfluence(
-                  { col: fluxel.col, row: fluxel.row + 1 },
-                  pos,
-                  fluxelSize,
-                );
-                const leftInfluence = getShadowInfluence(
-                  { col: fluxel.col - 1, row: fluxel.row },
-                  pos,
-                  fluxelSize,
-                );
+            const updatedGrid = prevGrid.map((row) =>
+              row.map((fluxel) => {
+                let influence = 0;
+                let shadowTrOffsetX = 0;
+                let shadowTrOffsetY = 0;
+                let shadowBlOffsetX = 0;
+                let shadowBlOffsetY = 0;
 
-                shadowTrOffsetX = Math.round(
-                  Math.min(rightInfluence - influence, 0) * 80,
-                );
-                shadowTrOffsetY = Math.round(
-                  Math.max(influence - topInfluence, 0) * 80,
-                );
-                shadowBlOffsetX = Math.round(
-                  Math.max(influence - leftInfluence, 0) * 56,
-                );
-                shadowBlOffsetY = Math.round(
-                  Math.min(bottomInfluence - influence, 0) * 56,
-                );
-              }
+                if (pos.x >= 0 && pos.y >= 0) {
+                  influence = getShadowInfluence(
+                    { col: fluxel.col, row: fluxel.row },
+                    pos,
+                    fluxelSize!,
+                  );
+                  const topInfluence = getShadowInfluence(
+                    { col: fluxel.col, row: fluxel.row - 1 },
+                    pos,
+                    fluxelSize!,
+                  );
+                  const rightInfluence = getShadowInfluence(
+                    { col: fluxel.col + 1, row: fluxel.row },
+                    pos,
+                    fluxelSize!,
+                  );
+                  const bottomInfluence = getShadowInfluence(
+                    { col: fluxel.col, row: fluxel.row + 1 },
+                    pos,
+                    fluxelSize!,
+                  );
+                  const leftInfluence = getShadowInfluence(
+                    { col: fluxel.col - 1, row: fluxel.row },
+                    pos,
+                    fluxelSize!,
+                  );
 
-              if (
-                Math.abs(influence - fluxel.influence) > 0.009 ||
-                shadowTrOffsetX !== fluxel.shadowTrOffsetX ||
-                shadowTrOffsetY !== fluxel.shadowTrOffsetY ||
-                shadowBlOffsetX !== fluxel.shadowBlOffsetX ||
-                shadowBlOffsetY !== fluxel.shadowBlOffsetY
-              ) {
-                hasChanged = true;
-                return {
-                  ...fluxel,
-                  influence: +influence.toFixed(2),
-                  shadowTrOffsetX,
-                  shadowTrOffsetY,
-                  shadowBlOffsetX,
-                  shadowBlOffsetY,
-                };
-              }
+                  shadowTrOffsetX = Math.round(
+                    Math.min(rightInfluence - influence, 0) * 80,
+                  );
+                  shadowTrOffsetY = Math.round(
+                    Math.max(influence - topInfluence, 0) * 80,
+                  );
+                  shadowBlOffsetX = Math.round(
+                    Math.max(influence - leftInfluence, 0) * 56,
+                  );
+                  shadowBlOffsetY = Math.round(
+                    Math.min(bottomInfluence - influence, 0) * 56,
+                  );
+                }
 
-              return fluxel;
-            }),
-          );
+                if (
+                  Math.abs(influence - fluxel.influence) > 0.009 ||
+                  shadowTrOffsetX !== fluxel.shadowTrOffsetX ||
+                  shadowTrOffsetY !== fluxel.shadowTrOffsetY ||
+                  shadowBlOffsetX !== fluxel.shadowBlOffsetX ||
+                  shadowBlOffsetY !== fluxel.shadowBlOffsetY
+                ) {
+                  hasChanged = true;
+                  return {
+                    ...fluxel,
+                    influence: +influence.toFixed(2),
+                    shadowTrOffsetX,
+                    shadowTrOffsetY,
+                    shadowBlOffsetX,
+                    shadowBlOffsetY,
+                  };
+                }
 
-          return hasChanged ? updatedGrid : prevGrid;
-        });
+                return fluxel;
+              }),
+            );
 
-        if (!isCancelled) {
-          animationFrameId.current = requestAnimationFrame(updateShadows);
-        }
+            return hasChanged ? updatedGrid : prevGrid;
+          });
+
+          if (!isCancelled) {
+            animationFrameId.current = requestAnimationFrame(updateShadows);
+          }
+        };
+
+        animationFrameId.current = requestAnimationFrame(updateShadows);
       };
-      animationFrameId.current = requestAnimationFrame(updateShadows);
-    };
+    })();
 
     startLoop();
 

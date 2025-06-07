@@ -19,7 +19,7 @@ export class FluxelPixiShadowMesh extends Container implements IFluxel {
   public col: number;
 
   private size: number;
-  private influence: number;
+  // private influence: number;
   private color?: string;
 
   private background: Graphics;
@@ -52,7 +52,7 @@ export class FluxelPixiShadowMesh extends Container implements IFluxel {
     this.alphaTr = alphaTr;
     this.alphaBl = alphaBl;
     this.blur = blur;
-    this.influence = data.influence;
+    // this.influence = data.influence;
 
     this.position.set(this.col * size, this.row * size);
 
@@ -168,7 +168,7 @@ export class FluxelPixiShadowMesh extends Container implements IFluxel {
   }
 
   public updateInfluence(influence: number, color?: string) {
-    this.influence = influence;
+    // this.influence = influence;
     this.alphaTr = influence;
     if (!this.shadowMesh.shader) return;
     this.shadowMesh.shader.resources.alphaTr = this.alphaTr;

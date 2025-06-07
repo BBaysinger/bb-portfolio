@@ -45,11 +45,10 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
     },
     ref,
   ) => {
-    // Determine grid type from URL param ?gridType=domSvg or canvas (default)
     const getGridTypeFromUrl = (): "domSvg" | "canvas" => {
       if (typeof window === "undefined") return "canvas";
       const value = new URLSearchParams(window.location.search).get("gridType");
-      return value === "domSvg" ? "domSvg" : "canvas";
+      return value === "canvas" ? "canvas" : "domSvg";
     };
 
     const gridType = getGridTypeFromUrl();

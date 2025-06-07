@@ -3,14 +3,18 @@ import React, {
   useRef,
   useState,
   useEffect,
+  useLayoutEffect,
   useImperativeHandle,
   createRef,
+  useMemo,
+  useCallback,
 } from "react";
 
 import type { FluxelHandle, FluxelData } from "./FluxelAllTypes";
 import type { FluxelGridHandle, FluxelGridProps } from "./FluxelAllTypes";
-import FluxelDomSvg from "./FluxelDomSvg"; // or whatever the actual filename is
+import FluxelDomSvg from "./FluxelDomSvg";
 import styles from "./FluxelDomSvgGrid.module.scss";
+import { useDebouncedResizeObserver } from "hooks/useDebouncedResizeObserver";
 
 /**
  * FluxelGrid
@@ -37,21 +41,60 @@ const FluxelDomSvgGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
     ref,
   ) => {
     const [fluxelSize, setFluxelSize] = useState(0);
-    const containerRef = useRef<HTMLDivElement>(null);
+    const [rowCount, setRowCount] = useState(0);
+    const [colCount, setColCount] = useState(0);
+    const [viewableRows, setViewableRows] = useState(0);
+    const [viewableCols, setViewableCols] = useState(0);
+
+    const containerRef = useRef<HTMLDivElement | null>(null);
     const gridDataRef = useRef<FluxelData[][]>([]);
     const fluxelRefs = useRef<React.RefObject<FluxelHandle | null>[][]>([]);
 
-    const rows = gridData.length;
-    const cols = gridData[0]?.length ?? 0;
-
-    // Initialize 2D array of refs if in imperative mode
     useEffect(() => {
+      const rows = gridData.length;
+      const cols = gridData[0]?.length ?? 0;
+      setRowCount(rows);
+      setColCount(cols);
+      gridDataRef.current = gridData;
+
       if (imperativeMode) {
         fluxelRefs.current = Array.from({ length: rows }, () =>
           Array.from({ length: cols }, () => createRef<FluxelHandle>()),
         );
       }
-    }, [imperativeMode, rows, cols]);
+    }, [gridData, imperativeMode]);
+
+    const updateSize = useCallback(() => {
+      const el = containerRef.current;
+      if (!el || colCount === 0 || rowCount === 0) return;
+
+      const width = el.clientWidth;
+      const newSize = width / colCount;
+      if (newSize > 0 && newSize !== fluxelSize) {
+        setFluxelSize(newSize);
+        if (typeof onGridChange === "function") {
+          onGridChange({ rows: rowCount, cols: colCount, fluxelSize: newSize });
+        }
+      }
+
+      const vh = el.offsetHeight / rowCount;
+      const vw = el.offsetWidth / colCount;
+      setViewableRows(Math.ceil(viewableHeight / vh));
+      setViewableCols(Math.ceil(viewableWidth / vw));
+    }, [
+      colCount,
+      rowCount,
+      fluxelSize,
+      onGridChange,
+      viewableHeight,
+      viewableWidth,
+    ]);
+
+    useLayoutEffect(() => {
+      updateSize();
+    }, [updateSize]);
+
+    useDebouncedResizeObserver(containerRef, updateSize, 50);
 
     const handleRef = (el: HTMLDivElement | null) => {
       containerRef.current = el;
@@ -61,46 +104,8 @@ const FluxelDomSvgGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
         (gridRef as React.MutableRefObject<HTMLDivElement | null>).current = el;
     };
 
-    useEffect(() => {
-      gridDataRef.current = gridData;
-    }, [gridData]);
-
-    useEffect(() => {
-      const updateSize = () => {
-        if (!containerRef.current) return;
-        const { width } = containerRef.current.getBoundingClientRect();
-        const newFluxelSize = width / cols;
-        setFluxelSize(newFluxelSize);
-
-        if (typeof onGridChange === "function") {
-          onGridChange({ rows, cols, fluxelSize: newFluxelSize });
-        }
-      };
-
-      updateSize();
-      window.addEventListener("resize", updateSize);
-      window.addEventListener("orientationchange", updateSize);
-      return () => {
-        window.removeEventListener("resize", updateSize);
-        window.removeEventListener("orientationchange", updateSize);
-      };
-    }, [cols, rows]);
-
-    let viewableRows = rows,
-      viewableCols = cols,
-      rowOverlap = 0,
-      colOverlap = 0;
-
-    if (containerRef.current) {
-      viewableRows = Math.ceil(
-        viewableHeight / (containerRef.current.offsetHeight / rows),
-      );
-      viewableCols = Math.ceil(
-        viewableWidth / (containerRef.current.offsetWidth / cols),
-      );
-      rowOverlap = Math.floor((rows - viewableRows) / 2);
-      colOverlap = Math.floor((cols - viewableCols) / 2);
-    }
+    const rowOverlap = Math.floor((rowCount - viewableRows) / 2);
+    const colOverlap = Math.floor((colCount - viewableCols) / 2);
 
     useImperativeHandle(
       ref,
@@ -114,8 +119,8 @@ const FluxelDomSvgGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
           const relativeY = y - top;
 
           const currentGridData = gridDataRef.current;
-          const r = Math.min(Math.floor(relativeY / fluxelSize), rows - 1);
-          const c = Math.min(Math.floor(relativeX / fluxelSize), cols - 1);
+          const r = Math.min(Math.floor(relativeY / fluxelSize), rowCount - 1);
+          const c = Math.min(Math.floor(relativeX / fluxelSize), colCount - 1);
 
           return currentGridData[r]?.[c] || null;
         },
@@ -134,7 +139,12 @@ const FluxelDomSvgGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
           ref?.current?.updateInfluence(influence, color);
         },
       }),
-      [fluxelSize, gridData, imperativeMode],
+      [fluxelSize, imperativeMode, rowCount, colCount],
+    );
+
+    const gridStyle = useMemo(
+      () => ({ "--cols": colCount }) as React.CSSProperties,
+      [colCount],
     );
 
     return (
@@ -142,14 +152,14 @@ const FluxelDomSvgGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
         <div
           ref={handleRef}
           className={[styles.fluxelGrid, className].join(" ")}
-          style={{ "--cols": cols } as React.CSSProperties}
+          style={gridStyle}
         >
           {gridData.flat().map((data) => {
             const isVisible =
               data.col >= colOverlap &&
-              data.col < cols - colOverlap &&
+              data.col < colCount - colOverlap &&
               data.row >= rowOverlap &&
-              data.row < rows - rowOverlap;
+              data.row < rowCount - rowOverlap;
 
             const row = data.row;
             const col = data.col;
@@ -170,9 +180,9 @@ const FluxelDomSvgGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
           {gridData.flat().map((data) => {
             const isVisible =
               data.col >= colOverlap &&
-              data.col < cols - colOverlap &&
+              data.col < colCount - colOverlap &&
               data.row >= rowOverlap &&
-              data.row < rows - rowOverlap;
+              data.row < rowCount - rowOverlap;
 
             const row = data.row;
             const col = data.col;
