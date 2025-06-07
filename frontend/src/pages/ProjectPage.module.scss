@@ -8,6 +8,8 @@
   overflow: hidden;
   justify-content: center;
   align-items: center;
+  background-image: url("/images/common/bg-grad.svg");
+  color: #fff;
 
   :global(.max-w-container) {
     max-width: 1024px;
