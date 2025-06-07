@@ -6,7 +6,6 @@ import React, {
   useLayoutEffect,
   useImperativeHandle,
   createRef,
-  useMemo,
   useCallback,
 } from "react";
 
@@ -16,17 +15,6 @@ import FluxelSvg from "./FluxelSvg";
 import styles from "./FluxelSvgGrid.module.scss";
 import { useDebouncedResizeObserver } from "hooks/useDebouncedResizeObserver";
 
-/**
- * FluxelSvgGrid
- *
- * This is a grid of fluxels (animated/fluxing pixels) that can be used to create
- * effects and animations. Like 8-bit pixel art, but with mondo-sized pixels that
- * each have an animatable shadow/depth affect.
- *
- * @author Bradley Baysinger
- * @since The beginning of time.
- * @version N/A
- */
 const FluxelSvgGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
   (
     {
@@ -140,21 +128,27 @@ const FluxelSvgGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
       [fluxelSize, imperativeMode, rowCount, colCount],
     );
 
-    const gridStyle = useMemo(
-      () => ({ "--cols": colCount }) as React.CSSProperties,
-      [colCount],
-    );
-
     const rowOverlap = Math.floor((rowCount - viewableRowsRef.current) / 2);
     const colOverlap = Math.floor((colCount - viewableColsRef.current) / 2);
 
     return (
-      <>
-        <div
-          ref={handleRef}
-          className={[styles.fluxelGrid, className].join(" ")}
-          style={gridStyle}
+      <div
+        ref={handleRef}
+        className={[styles.fluxelGrid, className].join(" ")}
+        style={{ position: "relative", width: "100%", height: "100%" }}
+      >
+        <svg
+          width="100%"
+          height="100%"
+          style={{ display: "block" }}
+          viewBox={`0 0 ${colCount * fluxelSize} ${rowCount * fluxelSize}`}
         >
+          <defs>
+            <clipPath id="fluxel-clip">
+              <rect x="0" y="0" width={fluxelSize} height={fluxelSize} />
+            </clipPath>
+          </defs>
+
           {gridData.map((row, r) =>
             row.map((data, c) => {
               const isVisible =
@@ -163,49 +157,27 @@ const FluxelSvgGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
                 c >= colOverlap &&
                 c < colCount - colOverlap;
 
-              if (!isVisible) {
-                return (
-                  <div key={data.id} className={styles.inactivePlaceholder} />
-                );
-              }
+              if (!isVisible) return null;
 
               const ref = imperativeMode
                 ? fluxelRefs.current[r]?.[c]
                 : undefined;
-              return <FluxelSvg key={data.id} data={data} ref={ref} />;
-            }),
-          )}
-        </div>
-        <div className={styles.overlayWrapper}>
-          {gridData.map((row, r) =>
-            row.map((data, c) => {
-              const isVisible =
-                r >= rowOverlap &&
-                r < rowCount - rowOverlap &&
-                c >= colOverlap &&
-                c < colCount - colOverlap;
-
-              if (!isVisible) {
-                return (
-                  <div key={data.id} className={styles.inactivePlaceholder} />
-                );
-              }
 
               return (
-                <div
-                  className={styles.overlay}
+                <FluxelSvg
                   key={data.id}
-                  style={{
-                    top: `${r * fluxelSize}px`,
-                    left: `${c * fluxelSize}px`,
-                    backgroundColor: data.colorVariation,
-                  }}
+                  data={data}
+                  x={c * fluxelSize}
+                  y={r * fluxelSize}
+                  size={fluxelSize}
+                  clipPathId="fluxel-clip"
+                  ref={ref}
                 />
               );
             }),
           )}
-        </div>
-      </>
+        </svg>
+      </div>
     );
   },
 );
