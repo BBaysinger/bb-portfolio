@@ -85,7 +85,6 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
     useFluxelShadows({
       gridRef: gridInstanceRef,
       setGridData,
-      mousePosRef,
       isPausedRef: isShadowsPaused,
     });
 
