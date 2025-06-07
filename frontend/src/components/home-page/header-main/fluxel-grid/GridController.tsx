@@ -31,8 +31,6 @@ interface GridControllerProps {
   useSlingerTracking?: boolean;
 }
 
-const FRAME_TIME = 1000 / 20;
-
 const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
   (
     {
@@ -57,7 +55,6 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
     const wrapperRef = useRef<HTMLDivElement | null>(null);
     const isShadowsPaused = useRef(false);
     const mousePosRef = useRef<{ x: number; y: number } | null>(null);
-    const lastFrameTime = useRef(0);
 
     useResponsiveScaler(
       4 / 3,
@@ -86,6 +83,7 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
       gridRef: gridInstanceRef,
       setGridData,
       isPausedRef: isShadowsPaused,
+      fps: 20,
     });
 
     const launchProjectile = useFluxelProjectiles({
@@ -96,10 +94,6 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
     const applyFluxPosition = (clientX: number, clientY: number) => {
       const gridEl = gridInstanceRef.current?.getContainerElement?.();
       if (!gridEl) return;
-
-      const now = performance.now();
-      if (now - lastFrameTime.current < FRAME_TIME) return;
-      lastFrameTime.current = now;
 
       const rect = gridEl.getBoundingClientRect();
       const localX = clientX - rect.left;
