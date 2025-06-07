@@ -17,7 +17,6 @@ export function useElementRelativeMouse(
   const rectRef = useRef<DOMRect | null>(null);
 
   const updateRect = useCallback(() => {
-    console.log("Updating element rect");
     const el = containerRef.current;
     if (el) rectRef.current = el.getBoundingClientRect();
   }, [containerRef]);
