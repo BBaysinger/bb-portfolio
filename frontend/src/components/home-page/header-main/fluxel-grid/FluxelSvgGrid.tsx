@@ -13,11 +13,11 @@ import React, {
 import type { FluxelHandle, FluxelData } from "./FluxelAllTypes";
 import type { FluxelGridHandle, FluxelGridProps } from "./FluxelAllTypes";
 import FluxelDomSvg from "./FluxelDomSvg";
-import styles from "./FluxelDomSvgGrid.module.scss";
+import styles from "./FluxelSvgGrid.module.scss";
 import { useDebouncedResizeObserver } from "hooks/useDebouncedResizeObserver";
 
 /**
- * FluxelGrid
+ * FluxelSvgGrid
  *
  * This is a grid of fluxels (animated/fluxing pixels) that can be used to create
  * effects and animations. Like 8-bit pixel art, but with mondo-sized pixels that
@@ -27,7 +27,7 @@ import { useDebouncedResizeObserver } from "hooks/useDebouncedResizeObserver";
  * @since The beginning of time.
  * @version N/A
  */
-const FluxelDomSvgGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
+const FluxelSvgGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
   (
     {
       gridData,
@@ -148,7 +148,11 @@ const FluxelDomSvgGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
     const rowOverlap = Math.floor((rowCount - viewableRowsRef.current) / 2);
     const colOverlap = Math.floor((colCount - viewableColsRef.current) / 2);
 
-    const flatGrid = useMemo(() => gridData.flat(), [gridData]);
+    const visibleGrid = useMemo(() => {
+      return gridData
+        .slice(rowOverlap, rowCount - rowOverlap)
+        .flatMap((row) => row.slice(colOverlap, colCount - colOverlap));
+    }, [gridData, colCount, rowCount, rowOverlap, colOverlap]);
 
     return (
       <>
@@ -157,21 +161,10 @@ const FluxelDomSvgGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
           className={[styles.fluxelGrid, className].join(" ")}
           style={gridStyle}
         >
-          {flatGrid.map((data) => {
-            const isVisible =
-              data.col >= colOverlap &&
-              data.col < colCount - colOverlap &&
-              data.row >= rowOverlap &&
-              data.row < rowCount - rowOverlap;
-
+          {visibleGrid.map((data) => {
             const row = data.row;
             const col = data.col;
             const key = data.id;
-
-            if (!isVisible) {
-              return <div key={key} className={styles.inactivePlaceholder} />;
-            }
-
             const ref = imperativeMode
               ? fluxelRefs.current[row]?.[col]
               : undefined;
@@ -180,20 +173,10 @@ const FluxelDomSvgGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
           })}
         </div>
         <div className={styles.overlayWrapper}>
-          {flatGrid.map((data) => {
-            const isVisible =
-              data.col >= colOverlap &&
-              data.col < colCount - colOverlap &&
-              data.row >= rowOverlap &&
-              data.row < rowCount - rowOverlap;
-
+          {visibleGrid.map((data) => {
             const row = data.row;
             const col = data.col;
             const key = data.id;
-
-            if (!isVisible) {
-              return <div key={key} className={styles.inactivePlaceholder} />;
-            }
 
             return (
               <div
@@ -213,4 +196,4 @@ const FluxelDomSvgGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
   },
 );
 
-export default FluxelDomSvgGrid;
+export default FluxelSvgGrid;
