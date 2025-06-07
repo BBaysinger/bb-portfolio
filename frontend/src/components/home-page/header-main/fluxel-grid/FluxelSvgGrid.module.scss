@@ -65,6 +65,14 @@
   left: 0;
 }
 
+.fluxel {
+  :global(rect.border) {
+    stroke: black;
+    stroke-width: 1;
+    shape-rendering: crispEdges;
+  }
+}
+
 .debug {
   position: absolute;
   color: white;

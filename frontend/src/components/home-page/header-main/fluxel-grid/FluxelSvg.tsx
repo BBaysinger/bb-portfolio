@@ -16,9 +16,11 @@ const FluxelSvg = forwardRef<
     y: number;
     size: number;
     clipPathId: string;
+    className?: string;
   }
->(({ data, x, y, size, clipPathId }, ref) => {
+>(({ data, x, y, size, clipPathId, className }, ref) => {
   const elRef = useRef<SVGGElement>(null);
+  const SCALE = size / 72;
 
   useEffect(() => {
     updateInfluence(data.influence, data.colorVariation);
@@ -46,28 +48,33 @@ const FluxelSvg = forwardRef<
   return (
     <g
       ref={elRef}
-      className={styles.fluxel}
+      className={[styles.fluxel, className].join(" ")}
       transform={`translate(${x}, ${y})`}
       clipPath={`url(#${clipPathId})`}
     >
-      <rect width={size} height={size} fill="var(--base-color)" />
+      <rect
+        width={size - 1}
+        height={size - 1}
+        className="border"
+        fill="var(--base-color)"
+      />
 
       <image
         opacity="0.5"
         href="/images/home/corner-shadow.webp"
-        x={-34}
-        y={-110}
-        width="216"
-        height="216"
+        x={-34 * SCALE}
+        y={-110 * SCALE}
+        width={216 * SCALE}
+        height={216 * SCALE}
         transform={`translate(${data.shadowTrOffsetX}, ${data.shadowTrOffsetY})`}
       />
       <image
         opacity="0.25"
         href="/images/home/corner-shadow.webp"
-        x={-100}
-        y={-185}
-        width="216"
-        height="216"
+        x={-100 * SCALE}
+        y={-185 * SCALE}
+        width={216 * SCALE}
+        height={216 * SCALE}
         transform={`translate(${data.shadowBlOffsetX}, ${data.shadowBlOffsetY}) scale(-1, -1)`}
       />
 

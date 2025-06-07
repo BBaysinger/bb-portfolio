@@ -165,6 +165,7 @@ const FluxelSvgGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
 
               return (
                 <FluxelSvg
+                  className={styles.fluxel}
                   key={data.id}
                   data={data}
                   x={c * fluxelSize}
