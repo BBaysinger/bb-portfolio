@@ -1,9 +1,7 @@
 import { useEffect, useRef } from "react";
-
 import { FluxelData } from "./FluxelAllTypes";
 import type { FluxelGridHandle } from "./FluxelAllTypes";
 import MiscUtils from "utils/MiscUtils";
-import { useElementRelativeMouse } from "hooks/useElementRelativeMouse";
 
 function getShadowInfluence(
   { col, row }: { col: number; row: number },
@@ -18,7 +16,6 @@ function getShadowInfluence(
 
   const dx = gridX - x;
   const dy = gridY - y;
-
   const baseDistance = Math.sqrt(dx * dx + dy * dy);
 
   if (!smoothing) {
@@ -56,47 +53,45 @@ export function useFluxelShadows({
   smoothRangeMultiplier?: number;
   smoothing?: boolean;
 }) {
+  const containerRef = useRef<HTMLElement | null>(null);
   const animationFrameId = useRef<number | null>(null);
-  const containerRef = useRef<HTMLElement>(document.createElement("div"));
-  const lastTimestampRef = useRef(0);
+  const lastUpdateTime = useRef(0);
 
   useEffect(() => {
-    const gridHandle = gridRef.current;
-    const el = gridHandle?.getContainerElement?.();
-    if (el) containerRef.current = el;
-  }, [gridRef]);
+    const container = gridRef.current?.getContainerElement?.();
+    if (!container) return;
+    containerRef.current = container;
 
-  const internalMousePos = useElementRelativeMouse(containerRef);
-
-  useEffect(() => {
-    let isCancelled = false;
     const intervalMs = 1000 / fps;
 
-    const loop = (timestamp: number) => {
-      if (isCancelled) return;
+    const onPointerMove = (e: PointerEvent) => {
+      const now = performance.now();
+      if (now - lastUpdateTime.current < intervalMs) return;
 
-      const elapsed = timestamp - lastTimestampRef.current;
-      if (elapsed < intervalMs) {
-        animationFrameId.current = requestAnimationFrame(loop);
-        return;
-      }
-      lastTimestampRef.current = timestamp;
+      if (animationFrameId.current) return;
 
-      const gridHandle = gridRef.current;
-      const gridData = gridHandle?.getGridData?.();
-      const container = containerRef.current;
+      animationFrameId.current = requestAnimationFrame(() => {
+        animationFrameId.current = null;
+        lastUpdateTime.current = now;
 
-      const cols = gridData?.[0]?.length || 1;
-      const fluxelSize = container ? container.clientWidth / cols : 0;
+        const gridHandle = gridRef.current;
+        const gridData = gridHandle?.getGridData?.();
+        const container = containerRef.current;
 
-      if (!gridData || !fluxelSize || fluxelSize < 1) {
-        animationFrameId.current = requestAnimationFrame(loop);
-        return;
-      }
+        if (!gridData || !container) return;
 
-      const pos = internalMousePos.current ?? { x: -99999, y: -99999 };
+        const cols = gridData[0]?.length || 1;
+        const fluxelSize = container.clientWidth / cols;
+        if (fluxelSize < 1) return;
 
-      if (!isPausedRef?.current) {
+        const rect = container.getBoundingClientRect();
+        const pos = {
+          x: e.clientX - rect.left,
+          y: e.clientY - rect.top,
+        };
+
+        if (isPausedRef?.current) return;
+
         setGridData((prevGrid) => {
           let hasChanged = false;
 
@@ -117,7 +112,7 @@ export function useFluxelShadows({
                   smoothRangeMultiplier,
                   smoothing,
                 );
-                const topInfluence = getShadowInfluence(
+                const top = getShadowInfluence(
                   { col: fluxel.col, row: fluxel.row - 1 },
                   pos,
                   fluxelSize,
@@ -125,7 +120,7 @@ export function useFluxelShadows({
                   smoothRangeMultiplier,
                   smoothing,
                 );
-                const rightInfluence = getShadowInfluence(
+                const right = getShadowInfluence(
                   { col: fluxel.col + 1, row: fluxel.row },
                   pos,
                   fluxelSize,
@@ -133,7 +128,7 @@ export function useFluxelShadows({
                   smoothRangeMultiplier,
                   smoothing,
                 );
-                const bottomInfluence = getShadowInfluence(
+                const bottom = getShadowInfluence(
                   { col: fluxel.col, row: fluxel.row + 1 },
                   pos,
                   fluxelSize,
@@ -141,7 +136,7 @@ export function useFluxelShadows({
                   smoothRangeMultiplier,
                   smoothing,
                 );
-                const leftInfluence = getShadowInfluence(
+                const left = getShadowInfluence(
                   { col: fluxel.col - 1, row: fluxel.row },
                   pos,
                   fluxelSize,
@@ -151,26 +146,25 @@ export function useFluxelShadows({
                 );
 
                 shadowTrOffsetX = Math.round(
-                  Math.min(rightInfluence - influence, 0) * 80,
+                  Math.min(right - influence, 0) * 80,
                 );
-                shadowTrOffsetY = Math.round(
-                  Math.max(influence - topInfluence, 0) * 80,
-                );
+                shadowTrOffsetY = Math.round(Math.max(influence - top, 0) * 80);
                 shadowBlOffsetX = Math.round(
-                  Math.max(influence - leftInfluence, 0) * 56,
+                  Math.max(influence - left, 0) * 56,
                 );
                 shadowBlOffsetY = Math.round(
-                  Math.min(bottomInfluence - influence, 0) * 56,
+                  Math.min(bottom - influence, 0) * 56,
                 );
               }
 
-              if (
+              const changed =
                 Math.abs(influence - fluxel.influence) > 0.009 ||
                 shadowTrOffsetX !== fluxel.shadowTrOffsetX ||
                 shadowTrOffsetY !== fluxel.shadowTrOffsetY ||
                 shadowBlOffsetX !== fluxel.shadowBlOffsetX ||
-                shadowBlOffsetY !== fluxel.shadowBlOffsetY
-              ) {
+                shadowBlOffsetY !== fluxel.shadowBlOffsetY;
+
+              if (changed) {
                 hasChanged = true;
                 return {
                   ...fluxel,
@@ -188,23 +182,21 @@ export function useFluxelShadows({
 
           return hasChanged ? updatedGrid : prevGrid;
         });
-      }
-
-      animationFrameId.current = requestAnimationFrame(loop);
+      });
     };
 
-    animationFrameId.current = requestAnimationFrame(loop);
+    window.addEventListener("pointermove", onPointerMove);
 
     return () => {
-      isCancelled = true;
-      if (animationFrameId.current)
+      window.removeEventListener("pointermove", onPointerMove);
+      if (animationFrameId.current) {
         cancelAnimationFrame(animationFrameId.current);
+      }
     };
   }, [
     gridRef,
     setGridData,
     isPausedRef,
-    internalMousePos,
     fps,
     radiusMultiplier,
     smoothRangeMultiplier,
