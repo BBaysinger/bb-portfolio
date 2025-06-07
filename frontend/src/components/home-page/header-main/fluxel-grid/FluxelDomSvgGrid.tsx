@@ -43,12 +43,12 @@ const FluxelDomSvgGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
     const [fluxelSize, setFluxelSize] = useState(0);
     const [rowCount, setRowCount] = useState(0);
     const [colCount, setColCount] = useState(0);
-    const [viewableRows, setViewableRows] = useState(0);
-    const [viewableCols, setViewableCols] = useState(0);
 
     const containerRef = useRef<HTMLDivElement | null>(null);
     const gridDataRef = useRef<FluxelData[][]>([]);
     const fluxelRefs = useRef<React.RefObject<FluxelHandle | null>[][]>([]);
+    const viewableRowsRef = useRef(0);
+    const viewableColsRef = useRef(0);
 
     useEffect(() => {
       const rows = gridData.length;
@@ -70,6 +70,7 @@ const FluxelDomSvgGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
 
       const width = el.clientWidth;
       const newSize = width / colCount;
+
       if (newSize > 0 && newSize !== fluxelSize) {
         setFluxelSize(newSize);
         if (typeof onGridChange === "function") {
@@ -77,10 +78,10 @@ const FluxelDomSvgGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
         }
       }
 
-      const vh = el.offsetHeight / rowCount;
-      const vw = el.offsetWidth / colCount;
-      setViewableRows(Math.ceil(viewableHeight / vh));
-      setViewableCols(Math.ceil(viewableWidth / vw));
+      const vh = newSize;
+      const vw = newSize;
+      viewableRowsRef.current = Math.ceil(viewableHeight / vh);
+      viewableColsRef.current = Math.ceil(viewableWidth / vw);
     }, [
       colCount,
       rowCount,
@@ -103,9 +104,6 @@ const FluxelDomSvgGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
       else
         (gridRef as React.MutableRefObject<HTMLDivElement | null>).current = el;
     };
-
-    const rowOverlap = Math.floor((rowCount - viewableRows) / 2);
-    const colOverlap = Math.floor((colCount - viewableCols) / 2);
 
     useImperativeHandle(
       ref,
@@ -155,6 +153,13 @@ const FluxelDomSvgGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
           style={gridStyle}
         >
           {gridData.flat().map((data) => {
+            const rowOverlap = Math.floor(
+              (rowCount - viewableRowsRef.current) / 2,
+            );
+            const colOverlap = Math.floor(
+              (colCount - viewableColsRef.current) / 2,
+            );
+
             const isVisible =
               data.col >= colOverlap &&
               data.col < colCount - colOverlap &&
@@ -178,6 +183,13 @@ const FluxelDomSvgGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
         </div>
         <div className={styles.overlayWrapper}>
           {gridData.flat().map((data) => {
+            const rowOverlap = Math.floor(
+              (rowCount - viewableRowsRef.current) / 2,
+            );
+            const colOverlap = Math.floor(
+              (colCount - viewableColsRef.current) / 2,
+            );
+
             const isVisible =
               data.col >= colOverlap &&
               data.col < colCount - colOverlap &&
