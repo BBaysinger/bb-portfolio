@@ -64,6 +64,7 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
     const wrapperRef = useRef<HTMLDivElement | null>(null);
     const isShadowsPaused = useRef(false);
     const pointerOverrideRef = useRef<{ x: number; y: number } | null>(null);
+    const lastEventTypeRef = useRef<string | null>(null);
 
     const handleLayoutUpdateRequest = (fn: () => void) => {
       fn(); // optionally debounce or throttle here if needed
@@ -74,21 +75,26 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
       if (el) containerRef.current = el;
     }, []);
 
-    const pointerPos = useSlingerTracking
-      ? pointerOverrideRef.current
-      : useElementRelativePointer(containerRef, {
-          pointerdown: 0,
-          pointermove: 0,
-          pointerleave: 0,
-          pointerup: 0,
-          scroll: 100,
-          resize: 50,
-          orientationchange: 200,
-          visibilitychange: 200,
-          fullscreenchange: 200,
-          mutate: -1,
-          // override: pointerOverrideRef,
-        });
+    const { pos: pointerPos, lastEventType } = useElementRelativePointer(
+      containerRef,
+      {
+        pointerdown: 0,
+        pointermove: 0,
+        pointerleave: 0,
+        pointerup: 0,
+        scroll: 100,
+        resize: 50,
+        orientationchange: 200,
+        visibilitychange: 200,
+        fullscreenchange: 200,
+        mutate: -1,
+        override: useSlingerTracking ? pointerOverrideRef : undefined,
+      },
+    );
+
+    useEffect(() => {
+      lastEventTypeRef.current = lastEventType;
+    }, [lastEventType]);
 
     useResponsiveScaler(
       4 / 3,
