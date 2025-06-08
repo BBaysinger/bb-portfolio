@@ -20,6 +20,14 @@ export type CombinedEventType = MouseEventType | LayoutEventType;
 
 export type DebounceMap = Partial<Record<CombinedEventType, number>>;
 
+interface PointerMeta {
+  x: number;
+  y: number;
+  isPointerDown: boolean;
+  isInside: boolean;
+  isTouchEvent: boolean;
+}
+
 /**
  * Tracks pointer position relative to a target DOM element.
  *
@@ -78,12 +86,16 @@ export default function useElementRelativePointer<T extends HTMLElement>(
     pointercancel: 0,
     pointerleave: 0,
   },
-): { x: number; y: number } | null {
-  const [mousePos, setPointerPos] = useState<{ x: number; y: number } | null>(
-    null,
-  );
+): PointerMeta {
+  const [pointerMeta, setPointerMeta] = useState<PointerMeta>({
+    x: 0,
+    y: 0,
+    isPointerDown: false,
+    isInside: true,
+    isTouchEvent: false,
+  });
+
   const boundingRectRef = useRef<DOMRect | null>(null);
-  const isPointerDownRef = useRef(false);
   const debounceRefs = useRef<Partial<Record<MouseEventType, number>>>({});
 
   const trigger = (type: MouseEventType, e: PointerEvent) => {
@@ -91,32 +103,53 @@ export default function useElementRelativePointer<T extends HTMLElement>(
     if (debounce === -1) return;
 
     if (debounce === 0) {
-      updatePointerPos(type, e);
+      updatePointerMeta(type, e);
     } else {
       window.clearTimeout(debounceRefs.current[type]);
       debounceRefs.current[type] = window.setTimeout(() => {
-        updatePointerPos(type, e);
+        updatePointerMeta(type, e);
       }, debounce);
     }
   };
 
-  const updatePointerPos = (type: MouseEventType, e: PointerEvent) => {
+  const updatePointerMeta = (type: MouseEventType, e: PointerEvent) => {
     const rect = boundingRectRef.current;
     if (!rect) return;
 
+    const isTouchEvent = e.pointerType === "touch";
+    const inside =
+      e.clientX >= rect.left &&
+      e.clientX <= rect.right &&
+      e.clientY >= rect.top &&
+      e.clientY <= rect.bottom;
+
     if (type === "pointerdown") {
-      isPointerDownRef.current = true;
-      setPointerPos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+      setPointerMeta({
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top,
+        isPointerDown: true,
+        isInside: true,
+        isTouchEvent,
+      });
     } else if (type === "pointermove") {
-      if (!isPointerDownRef.current) return;
-      setPointerPos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+      setPointerMeta((prev) => ({
+        ...prev,
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top,
+        isInside: inside,
+        isTouchEvent,
+      }));
     } else if (
       type === "pointerup" ||
       type === "pointercancel" ||
       type === "pointerleave"
     ) {
-      isPointerDownRef.current = false;
-      setPointerPos(null);
+      setPointerMeta((prev) => ({
+        ...prev,
+        isPointerDown: false,
+        isInside: type !== "pointerleave",
+        isTouchEvent,
+      }));
     }
   };
 
@@ -166,5 +199,5 @@ export default function useElementRelativePointer<T extends HTMLElement>(
     };
   }, [targetRef, debounceMap]);
 
-  return mousePos;
+  return pointerMeta;
 }
