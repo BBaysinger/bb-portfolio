@@ -8,13 +8,13 @@ import {
 
 import FluxelSvgGrid from "./FluxelSvgGrid";
 import FluxelDomSvgGrid from "./FluxelDomSvgGrid";
-import FluxelPixiGrid from "./FluxelPixiGrid";
+// import FluxelPixiGrid from "./FluxelPixiGrid";
 import { useFluxelShadows } from "./useFluxelShadows";
 import useFluxelProjectiles, { Direction } from "./useFluxelProjectiles";
 import AnimationSequencer from "./AnimationSequencer";
 import type { FluxelGridHandle, FluxelData } from "./FluxelAllTypes";
 import useResponsiveScaler from "hooks/useResponsiveScaler";
-import useElementRelativeMouse from "hooks/useElementRelativePointer";
+import useElementRelativePointer from "hooks/useElementRelativePointer";
 import styles from "./GridController.module.scss";
 
 export interface GridControllerHandle {
@@ -63,10 +63,9 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
     const containerRef = useRef<HTMLElement>(document.createElement("div"));
     const wrapperRef = useRef<HTMLDivElement | null>(null);
     const isShadowsPaused = useRef(false);
-    const mousePosRef = useRef<{ x: number; y: number } | null>(null);
+    const pointerOverrideRef = useRef<{ x: number; y: number } | null>(null);
 
     const handleLayoutUpdateRequest = (fn: () => void) => {
-      // Save callback or trigger directly, depending on architecture
       fn(); // optionally debounce or throttle here if needed
     };
 
@@ -75,7 +74,21 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
       if (el) containerRef.current = el;
     }, []);
 
-    const mousePos = useElementRelativeMouse(containerRef);
+    const pointerPos = useSlingerTracking
+      ? pointerOverrideRef.current
+      : useElementRelativePointer(containerRef, {
+          pointerdown: 0,
+          pointermove: 0,
+          pointerleave: 0,
+          pointerup: 0,
+          scroll: 100,
+          resize: 50,
+          orientationchange: 200,
+          visibilitychange: 200,
+          fullscreenchange: 200,
+          mutate: -1,
+          // override: pointerOverrideRef,
+        });
 
     useResponsiveScaler(
       4 / 3,
@@ -103,7 +116,7 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
     useFluxelShadows({
       gridRef: gridInstanceRef,
       setGridData,
-      mousePos,
+      pointerPos: pointerPos,
       isPausedRef: isShadowsPaused,
       fps: 20,
     });
@@ -121,7 +134,7 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
       const localX = clientX - rect.left;
       const localY = clientY - rect.top;
 
-      mousePosRef.current = { x: localX, y: localY };
+      pointerOverrideRef.current = { x: localX, y: localY };
     };
 
     useImperativeHandle(
@@ -152,41 +165,6 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
       [launchProjectile],
     );
 
-    useEffect(() => {
-      if (useSlingerTracking) return;
-
-      const handleMove = (event: PointerEvent) => {
-        const isTouchOnly =
-          "ontouchstart" in window && matchMedia("(pointer: coarse)").matches;
-
-        const target = event.target as HTMLElement | null;
-        const isSlingerTarget = target?.className?.includes("slinger");
-
-        if (isTouchOnly && !isSlingerTarget) return;
-
-        applyFluxPosition(event.clientX, event.clientY);
-      };
-
-      const clearPos = (e?: Event) => {
-        console.log("🔥 clearPos triggered by", e?.type);
-        mousePosRef.current = null;
-      };
-
-      window.addEventListener("pointerdown", handleMove);
-      window.addEventListener("pointermove", handleMove);
-      window.addEventListener("pointerup", clearPos);
-      window.addEventListener("pointerleave", clearPos);
-      window.addEventListener("scroll", clearPos, { passive: true });
-
-      return () => {
-        window.removeEventListener("pointerdown", handleMove);
-        window.removeEventListener("pointermove", handleMove);
-        window.removeEventListener("pointerup", clearPos);
-        window.removeEventListener("pointerleave", clearPos);
-        window.removeEventListener("scroll", clearPos);
-      };
-    }, [useSlingerTracking, viewableWidth, viewableHeight]);
-
     return (
       <div
         ref={wrapperRef}
@@ -212,16 +190,16 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
             viewableHeight={viewableHeight}
             onLayoutUpdateRequest={handleLayoutUpdateRequest}
           />
-        ) : gridType === "canvas" ? (
-          <FluxelPixiGrid
-            className={styles.fluxelGridCanvas}
-            ref={gridInstanceRef}
-            gridData={gridData}
-            viewableWidth={viewableWidth}
-            viewableHeight={viewableHeight}
-            onLayoutUpdateRequest={handleLayoutUpdateRequest}
-          />
         ) : (
+          // ) : gridType === "canvas" ? (
+          //   <FluxelPixiGrid
+          //     className={styles.fluxelGridCanvas}
+          //     ref={gridInstanceRef}
+          //     gridData={gridData}
+          //     viewableWidth={viewableWidth}
+          //     viewableHeight={viewableHeight}
+          //     onLayoutUpdateRequest={handleLayoutUpdateRequest}
+          //   />
           <>No grid matches: {gridType} </>
         )}
       </div>
