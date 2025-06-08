@@ -35,14 +35,14 @@ function getShadowInfluence(
  *
  * This creates a dynamic magnetic-repulsion-style shadow effect that follows the
  * pointer, using customizable smoothing and radius multipliers. When the pointer
- * leaves the grid (i.e., `mousePos` is null), all shadow values are cleared.
+ * leaves the grid (i.e., `pointerPos` is null), all shadow values are cleared.
  *
  * The hook throttles rendering internally using `fps`, (while always consuming real-time
  * pointer data.) Rendering logic runs in `requestAnimationFrame` to avoid layout thrashing.
  *
  * @param gridRef - Ref to the Fluxel grid instance providing layout and data access
  * @param setGridData - React state setter for updating the fluxel grid
- * @param mousePos - Current pointer position relative to the grid container, or null if inactive
+ * @param pointerPos - Current pointer position relative to the grid container, or null if inactive
  * @param isPausedRef - Optional ref to pause shadow updates
  * @param fps - Max frames per second to update shadow effects (default: 20)
  * @param radiusMultiplier - Radius for maximum influence effect range (default: 5)
@@ -55,7 +55,7 @@ function getShadowInfluence(
 export function useFluxelShadows({
   gridRef,
   setGridData,
-  mousePos,
+  pointerPos,
   isPausedRef,
   fps = 20,
   radiusMultiplier = 5,
@@ -64,7 +64,7 @@ export function useFluxelShadows({
 }: {
   gridRef: React.RefObject<FluxelGridHandle | null>;
   setGridData: React.Dispatch<React.SetStateAction<FluxelData[][]>>;
-  mousePos: { x: number; y: number } | null;
+  pointerPos: { x: number; y: number } | null;
   isPausedRef?: React.RefObject<boolean>;
   fps?: number;
   radiusMultiplier?: number;
@@ -78,9 +78,9 @@ export function useFluxelShadows({
     containerRef.current = gridRef.current?.getContainerElement?.() ?? null;
   }, [gridRef]);
 
-  // Update grid on valid mousePos
+  // Update grid on valid pointerPos
   useEffect(() => {
-    if (!mousePos || !containerRef.current || isPausedRef?.current) return;
+    if (!pointerPos || !containerRef.current || isPausedRef?.current) return;
 
     const now = performance.now();
     const intervalMs = 1000 / fps;
@@ -112,10 +112,10 @@ export function useFluxelShadows({
             let shadowBlOffsetX = 0;
             let shadowBlOffsetY = 0;
 
-            if (mousePos.x >= 0 && mousePos.y >= 0) {
+            if (pointerPos.x >= 0 && pointerPos.y >= 0) {
               influence = getShadowInfluence(
                 { col: fluxel.col, row: fluxel.row },
-                mousePos,
+                pointerPos,
                 fluxelSize,
                 radiusMultiplier,
                 smoothRangeMultiplier,
@@ -124,7 +124,7 @@ export function useFluxelShadows({
 
               const top = getShadowInfluence(
                 { col: fluxel.col, row: fluxel.row - 1 },
-                mousePos,
+                pointerPos,
                 fluxelSize,
                 radiusMultiplier,
                 smoothRangeMultiplier,
@@ -132,7 +132,7 @@ export function useFluxelShadows({
               );
               const right = getShadowInfluence(
                 { col: fluxel.col + 1, row: fluxel.row },
-                mousePos,
+                pointerPos,
                 fluxelSize,
                 radiusMultiplier,
                 smoothRangeMultiplier,
@@ -140,7 +140,7 @@ export function useFluxelShadows({
               );
               const bottom = getShadowInfluence(
                 { col: fluxel.col, row: fluxel.row + 1 },
-                mousePos,
+                pointerPos,
                 fluxelSize,
                 radiusMultiplier,
                 smoothRangeMultiplier,
@@ -148,7 +148,7 @@ export function useFluxelShadows({
               );
               const left = getShadowInfluence(
                 { col: fluxel.col - 1, row: fluxel.row },
-                mousePos,
+                pointerPos,
                 fluxelSize,
                 radiusMultiplier,
                 smoothRangeMultiplier,
@@ -190,7 +190,7 @@ export function useFluxelShadows({
       });
     });
   }, [
-    mousePos,
+    pointerPos,
     gridRef,
     setGridData,
     isPausedRef,
@@ -200,9 +200,9 @@ export function useFluxelShadows({
     smoothing,
   ]);
 
-  // Clear shadows when pointer leaves (mousePos becomes null)
+  // Clear shadows when pointer leaves (pointerPos becomes null)
   useEffect(() => {
-    if (mousePos !== null) return;
+    if (pointerPos !== null) return;
 
     // Cancel any pending frame update to avoid re-applying shadows
     if (animationFrameId.current !== null) {
@@ -234,5 +234,5 @@ export function useFluxelShadows({
         }),
       ),
     );
-  }, [mousePos, setGridData]);
+  }, [pointerPos, setGridData]);
 }

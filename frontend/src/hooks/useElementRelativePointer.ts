@@ -79,7 +79,7 @@ export default function useElementRelativePointer<T extends HTMLElement>(
     pointerleave: 0,
   },
 ): { x: number; y: number } | null {
-  const [mousePos, setMousePos] = useState<{ x: number; y: number } | null>(
+  const [mousePos, setPointerPos] = useState<{ x: number; y: number } | null>(
     null,
   );
   const boundingRectRef = useRef<DOMRect | null>(null);
@@ -91,32 +91,32 @@ export default function useElementRelativePointer<T extends HTMLElement>(
     if (debounce === -1) return;
 
     if (debounce === 0) {
-      updateMousePos(type, e);
+      updatePointerPos(type, e);
     } else {
       window.clearTimeout(debounceRefs.current[type]);
       debounceRefs.current[type] = window.setTimeout(() => {
-        updateMousePos(type, e);
+        updatePointerPos(type, e);
       }, debounce);
     }
   };
 
-  const updateMousePos = (type: MouseEventType, e: PointerEvent) => {
+  const updatePointerPos = (type: MouseEventType, e: PointerEvent) => {
     const rect = boundingRectRef.current;
     if (!rect) return;
 
     if (type === "pointerdown") {
       isPointerDownRef.current = true;
-      setMousePos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+      setPointerPos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
     } else if (type === "pointermove") {
       if (!isPointerDownRef.current) return;
-      setMousePos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+      setPointerPos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
     } else if (
       type === "pointerup" ||
       type === "pointercancel" ||
       type === "pointerleave"
     ) {
       isPointerDownRef.current = false;
-      setMousePos(null);
+      setPointerPos(null);
     }
   };
 
