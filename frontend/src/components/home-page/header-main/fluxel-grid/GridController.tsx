@@ -64,7 +64,6 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
     const wrapperRef = useRef<HTMLDivElement | null>(null);
     const isShadowsPaused = useRef(false);
     const pointerOverrideRef = useRef<{ x: number; y: number } | null>(null);
-    const lastEventTypeRef = useRef<string | null>(null);
 
     const handleLayoutUpdateRequest = (fn: () => void) => {
       fn(); // optionally debounce or throttle here if needed
@@ -75,26 +74,24 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
       if (el) containerRef.current = el;
     }, []);
 
-    const { pos: pointerPos, lastEventType } = useElementRelativePointer(
-      containerRef,
-      {
-        pointerdown: 0,
-        pointermove: 0,
-        pointerleave: 0,
-        pointerup: 0,
-        scroll: 100,
-        resize: 50,
-        orientationchange: 200,
-        visibilitychange: 200,
-        fullscreenchange: 200,
-        mutate: -1,
-        override: useSlingerTracking ? pointerOverrideRef : undefined,
-      },
-    );
+    const pointerMeta = useElementRelativePointer(containerRef, {
+      pointerdown: 0,
+      pointermove: 0,
+      pointerleave: 0,
+      pointerup: 0,
+      scroll: 100,
+      resize: 50,
+      orientationchange: 200,
+      visibilitychange: 200,
+      fullscreenchange: 200,
+      mutate: -1,
+    });
 
-    useEffect(() => {
-      lastEventTypeRef.current = lastEventType;
-    }, [lastEventType]);
+    const shouldNullifyPointer =
+      !pointerMeta.isPointerDown && pointerMeta.isTouchEvent;
+
+    const filteredPointerPos = () =>
+      shouldNullifyPointer ? null : { x: pointerMeta.x, y: pointerMeta.y };
 
     useResponsiveScaler(
       4 / 3,
@@ -122,7 +119,7 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
     useFluxelShadows({
       gridRef: gridInstanceRef,
       setGridData,
-      pointerPos: pointerPos,
+      pointerPos: filteredPointerPos(),
       isPausedRef: isShadowsPaused,
       fps: 20,
     });
