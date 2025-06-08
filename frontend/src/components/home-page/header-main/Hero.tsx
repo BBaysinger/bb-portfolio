@@ -74,7 +74,7 @@ const Hero: React.FC = () => {
   const gridControllerRef = useRef<GridControllerHandle>(null);
   const heroRef = useRef<HTMLDivElement>(null);
   const { clientHeight, clientWidth } = useClientDimensions();
-  const isSlingerInFlight = useRef(false);
+  const [isSlingerInFlight, setIsSlingerInFlight] = useState(false);
   const slingerLoopId = useRef<number | null>(null);
   const useSlingerTracking = useQueryParams<boolean>("useSlingerTracking");
 
@@ -88,7 +88,7 @@ const Hero: React.FC = () => {
       if (circlePaused) setCirclePaused(false); // ✅ unpause only on drag start
       slingerIsIdle.current = false;
       setIsSlingerIdle(false);
-      isSlingerInFlight.current = false;
+      setIsSlingerInFlight(false);
 
       if (!hasDragged) {
         updateHasDragged(true);
@@ -107,7 +107,7 @@ const Hero: React.FC = () => {
   const onSlingerDragEnd = useCallback(
     (_x: number, _y: number, e: MouseEvent | TouchEvent) => {
       setCirclePaused(true); // ✅ pause only on drag end
-      isSlingerInFlight.current = true;
+      setIsSlingerInFlight(true);
 
       if (e.type === "touchend") {
         setSlingerPos(null);
@@ -156,7 +156,7 @@ const Hero: React.FC = () => {
 
   const startSlingerTracking = () => {
     const animate = () => {
-      if (isSlingerInFlight.current) return;
+      if (isSlingerInFlight) return;
       const pos = slingerRef.current?.getSlingerPosition?.();
       if (pos) {
         gridControllerRef.current?.applyFluxPosition(pos.x, pos.y);
@@ -169,7 +169,7 @@ const Hero: React.FC = () => {
   const onSlingerIdle = useCallback(() => {
     slingerIsIdle.current = true;
     setIsSlingerIdle(true);
-    isSlingerInFlight.current = false;
+    setIsSlingerInFlight(false);
 
     if (!useSlingerTracking) return;
 
@@ -244,8 +244,12 @@ const Hero: React.FC = () => {
             onIdle={onSlingerIdle}
           >
             <>
-              <OrbArrowTooltip />
-              <ChargedCircle isActive={!circlePaused} />
+              {!isSlingerInFlight && (
+                <>
+                  {!circlePaused && <ChargedCircle isActive={!circlePaused} />}
+                  <OrbArrowTooltip />
+                </>
+              )}
             </>
           </SlingerBox>
         </div>
