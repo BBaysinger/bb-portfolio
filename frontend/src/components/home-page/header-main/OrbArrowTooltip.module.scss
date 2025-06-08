@@ -23,6 +23,7 @@
     mask-repeat: no-repeat;
     mask-size: cover;
     animation: bounceMask 2s infinite forwards;
+
     :global(.notDragged) & {
       background-color: $lighterThemeColor;
     }
