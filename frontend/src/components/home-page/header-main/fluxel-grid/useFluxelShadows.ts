@@ -37,8 +37,8 @@ function getShadowInfluence(
  * pointer, using customizable smoothing and radius multipliers. When the pointer
  * leaves the grid (i.e., `mousePos` is null), all shadow values are cleared.
  *
- * The hook throttles updates internally using `fps`, while always consuming real-time
- * pointer data. Rendering logic runs in `requestAnimationFrame` to avoid layout thrashing.
+ * The hook throttles rendering internally using `fps`, (while always consuming real-time
+ * pointer data.) Rendering logic runs in `requestAnimationFrame` to avoid layout thrashing.
  *
  * @param gridRef - Ref to the Fluxel grid instance providing layout and data access
  * @param setGridData - React state setter for updating the fluxel grid
