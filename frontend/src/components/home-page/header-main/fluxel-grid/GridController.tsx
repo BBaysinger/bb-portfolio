@@ -85,6 +85,9 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
       visibilitychange: 200,
       fullscreenchange: 200,
       mutate: -1,
+      override: useSlingerTracking
+        ? (pointerOverrideRef.current ?? undefined)
+        : undefined,
     });
 
     const shouldNullifyPointer =
