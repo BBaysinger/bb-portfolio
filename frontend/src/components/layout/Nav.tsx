@@ -60,7 +60,7 @@ const Nav: React.FC<NavProps> = ({ variant }) => {
           </div>
           <div>
             <span className={[styles.jobTitle, "nobr"].join(" ")}>
-              Interactive Front-end Developer
+              Interactive IU Developer
             </span>
           </div>
         </div>
