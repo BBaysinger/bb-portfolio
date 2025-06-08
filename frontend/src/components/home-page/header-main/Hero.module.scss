@@ -70,7 +70,6 @@ header.hero {
   bottom: var(--hero-padding);
   right: var(--hero-padding);
   z-index: 10000;
-  color: #fff;
   transform: translateX(200px);
   transition:
     transform 0.8s,
@@ -141,6 +140,7 @@ a.scrollCta {
   margin-bottom: -0.26em;
   z-index: -1;
   display: block;
+  color: #fff;
   letter-spacing: 0.01em;
   pointer-events: none;
   background-repeat: no-repeat;
