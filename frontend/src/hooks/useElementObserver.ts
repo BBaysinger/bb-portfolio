@@ -73,13 +73,34 @@ export function useElementObserver<T extends Element>(
       observers.push(() => mutationObserver.disconnect());
     }
 
-    // Other window events
+    // Poll position (only if enabled)
+    const positionDebounce =
+      debounceMap.position ?? getDefaultDebounce("position");
+    if (positionDebounce !== -1) {
+      let lastX = 0;
+      let lastY = 0;
+      let frameId: number;
+
+      const checkPosition = () => {
+        const rect = el.getBoundingClientRect();
+        if (rect.left !== lastX || rect.top !== lastY) {
+          lastX = rect.left;
+          lastY = rect.top;
+          trigger("position");
+        }
+        frameId = requestAnimationFrame(checkPosition);
+      };
+
+      frameId = requestAnimationFrame(checkPosition);
+      observers.push(() => cancelAnimationFrame(frameId));
+    }
+
+    // Window events
     const events: [EventType, string][] = [
       ["scroll", "scroll"],
       ["orientationchange", "orientationchange"],
       ["visibilitychange", "visibilitychange"],
       ["fullscreenchange", "fullscreenchange"],
-      ["position", "resize"], // alias: uses resize event
     ];
 
     for (const [type, eventName] of events) {
