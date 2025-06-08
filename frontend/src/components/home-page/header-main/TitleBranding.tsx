@@ -39,7 +39,7 @@ const TitleBranding = forwardRef<HTMLDivElement, TitleBrandingProps>(
               <BarberPole
                 className={[styles.barberPole, styles.barberPole2].join(" ")}
               />
-              Interactive Front-end Developer
+              Interactive UI Developer
             </div>
           </h1>
         </span>
