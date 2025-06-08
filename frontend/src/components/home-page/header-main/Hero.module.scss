@@ -79,13 +79,20 @@ header.hero {
     transform: translateX(0);
   }
   @include remRange(font-size, 18px, 25px);
+
+  a {
+    color: #000;
+    &:visited,
+    &:active {
+      color: #000;
+    }
+  }
 }
 
 a.scrollCta {
   position: absolute;
   bottom: 0;
   right: 0;
-  color: #ccc;
   font-weight: 700;
   text-decoration: none;
   text-wrap: nowrap;
@@ -140,7 +147,6 @@ a.scrollCta {
   margin-bottom: -0.26em;
   z-index: -1;
   display: block;
-  color: #fff;
   letter-spacing: 0.01em;
   pointer-events: none;
   background-repeat: no-repeat;
