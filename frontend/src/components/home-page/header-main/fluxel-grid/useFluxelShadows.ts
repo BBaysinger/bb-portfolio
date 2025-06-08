@@ -2,7 +2,6 @@ import { useEffect, useRef } from "react";
 import { FluxelData } from "./FluxelAllTypes";
 import type { FluxelGridHandle } from "./FluxelAllTypes";
 import MiscUtils from "utils/MiscUtils";
-import { useElementRelativeMouse } from "hooks/useElementRelativeMouse";
 
 function getShadowInfluence(
   { col, row }: { col: number; row: number },
@@ -33,13 +32,12 @@ function getShadowInfluence(
 /**
  * Creates the magnetic repulsion trailer effect on the fluxels.
  *
- * @author Bradley Baysinger
- * @since The beginning of time.
- * @version Simplified: reactive mousePos + FPS-throttled RAF
+ * Now decoupled from pointer tracking: driven purely by the `mousePos` prop.
  */
 export function useFluxelShadows({
   gridRef,
   setGridData,
+  mousePos,
   isPausedRef,
   fps = 20,
   radiusMultiplier = 5,
@@ -48,6 +46,7 @@ export function useFluxelShadows({
 }: {
   gridRef: React.RefObject<FluxelGridHandle | null>;
   setGridData: React.Dispatch<React.SetStateAction<FluxelData[][]>>;
+  mousePos: { x: number; y: number } | null;
   isPausedRef?: React.RefObject<boolean>;
   fps?: number;
   radiusMultiplier?: number;
@@ -57,14 +56,11 @@ export function useFluxelShadows({
   const containerRef = useRef<HTMLElement | null>(null);
   const animationFrameId = useRef<number | null>(null);
   const lastUpdateTime = useRef(0);
-
-  // Assign the container once gridRef resolves
   useEffect(() => {
     containerRef.current = gridRef.current?.getContainerElement?.() ?? null;
   }, [gridRef]);
 
-  const mousePos = useElementRelativeMouse(containerRef);
-
+  // Update grid on valid mousePos
   useEffect(() => {
     if (!mousePos || !containerRef.current || isPausedRef?.current) return;
 
@@ -185,4 +181,22 @@ export function useFluxelShadows({
     smoothRangeMultiplier,
     smoothing,
   ]);
+
+  // Clear shadows when pointer leaves
+  useEffect(() => {
+    if (mousePos !== null) return;
+
+    setGridData((prev) =>
+      prev.map((row) =>
+        row.map((fluxel) => ({
+          ...fluxel,
+          influence: 0,
+          shadowTrOffsetX: 0,
+          shadowTrOffsetY: 0,
+          shadowBlOffsetX: 0,
+          shadowBlOffsetY: 0,
+        })),
+      ),
+    );
+  }, [mousePos, setGridData]);
 }

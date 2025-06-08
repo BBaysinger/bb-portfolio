@@ -25,6 +25,7 @@ export interface FluxelGridProps {
   }) => void;
   imperativeMode?: boolean;
   className?: string;
+  onLayoutUpdateRequest?: (updateFn: () => void) => void;
 }
 
 export interface FluxelData {

@@ -13,8 +13,18 @@ import type { FluxelHandle, FluxelData } from "./FluxelAllTypes";
 import type { FluxelGridHandle, FluxelGridProps } from "./FluxelAllTypes";
 import FluxelSvg from "./FluxelSvg";
 import styles from "./FluxelSvgGrid.module.scss";
-import { useDebouncedResizeObserver } from "hooks/useDebouncedResizeObserver";
+// import { useElementObserver } from "hooks/useElementObserver";
 
+/**
+ * Fluxing Pixel - SVG implementation. (Group elements arranged within a single SVG.)
+ *
+ * A square/pixel on the grid that can simulate depth and have color variations
+ * applied to it.
+ *
+ * @author Bradley Baysinger
+ * @since The beginning of time.
+ * @version N/A
+ */
 const FluxelSvgGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
   (
     {
@@ -25,6 +35,7 @@ const FluxelSvgGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
       onGridChange,
       imperativeMode = true,
       className = "",
+      onLayoutUpdateRequest,
     },
     ref,
   ) => {
@@ -83,7 +94,7 @@ const FluxelSvgGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
       updateSize();
     }, [updateSize]);
 
-    useDebouncedResizeObserver(containerRef, updateSize, 50);
+    // useElementObserver(containerRef, updateSize);
 
     const handleRef = (el: HTMLDivElement | null) => {
       containerRef.current = el;
@@ -92,6 +103,12 @@ const FluxelSvgGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
       else
         (gridRef as React.MutableRefObject<HTMLDivElement | null>).current = el;
     };
+
+    useEffect(() => {
+      if (typeof onLayoutUpdateRequest === "function") {
+        onLayoutUpdateRequest(updateSize);
+      }
+    }, [updateSize, onLayoutUpdateRequest]);
 
     useImperativeHandle(
       ref,

@@ -13,7 +13,7 @@ import React, {
 import type { FluxelHandle, FluxelData } from "./FluxelAllTypes";
 import type { FluxelGridHandle, FluxelGridProps } from "./FluxelAllTypes";
 import FluxelDomSvg from "./FluxelDomSvg";
-import { useDebouncedResizeObserver } from "hooks/useDebouncedResizeObserver";
+import { useElementObserver } from "hooks/useElementObserver";
 import styles from "./FluxelDomSvgGrid.module.scss";
 
 /**
@@ -95,7 +95,7 @@ const FluxelDomSvgGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
       updateSize();
     }, [updateSize]);
 
-    useDebouncedResizeObserver(containerRef, updateSize, 50);
+    useElementObserver(containerRef, updateSize);
 
     const handleRef = (el: HTMLDivElement | null) => {
       containerRef.current = el;
