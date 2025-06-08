@@ -30,9 +30,27 @@ function getShadowInfluence(
 }
 
 /**
- * Creates the magnetic repulsion trailer effect on the fluxels.
+ * Custom hook for calculating directional shadow offsets and influence values
+ * on a grid of Fluxels based on a pointer position.
  *
- * Now decoupled from pointer tracking: driven purely by the `mousePos` prop.
+ * This creates a dynamic magnetic-repulsion-style shadow effect that follows the
+ * pointer, using customizable smoothing and radius multipliers. When the pointer
+ * leaves the grid (i.e., `mousePos` is null), all shadow values are cleared.
+ *
+ * The hook throttles updates internally using `fps`, while always consuming real-time
+ * pointer data. Rendering logic runs in `requestAnimationFrame` to avoid layout thrashing.
+ *
+ * @param gridRef - Ref to the Fluxel grid instance providing layout and data access
+ * @param setGridData - React state setter for updating the fluxel grid
+ * @param mousePos - Current pointer position relative to the grid container, or null if inactive
+ * @param isPausedRef - Optional ref to pause shadow updates
+ * @param fps - Max frames per second to update shadow effects (default: 20)
+ * @param radiusMultiplier - Radius for maximum influence effect range (default: 5)
+ * @param smoothRangeMultiplier - Distance used for smooth influence dropoff (default: 4.25)
+ * @param smoothing - Whether to apply smooth falloff instead of binary influence (default: true)
+ *
+ * @author Bradley Baysinger
+ * @since The beginning of time.
  */
 export function useFluxelShadows({
   gridRef,
@@ -182,20 +200,38 @@ export function useFluxelShadows({
     smoothing,
   ]);
 
-  // Clear shadows when pointer leaves
+  // Clear shadows when pointer leaves (mousePos becomes null)
   useEffect(() => {
     if (mousePos !== null) return;
 
-    setGridData((prev) =>
-      prev.map((row) =>
-        row.map((fluxel) => ({
-          ...fluxel,
-          influence: 0,
-          shadowTrOffsetX: 0,
-          shadowTrOffsetY: 0,
-          shadowBlOffsetX: 0,
-          shadowBlOffsetY: 0,
-        })),
+    // Cancel any pending frame update to avoid re-applying shadows
+    if (animationFrameId.current !== null) {
+      cancelAnimationFrame(animationFrameId.current);
+      animationFrameId.current = null;
+    }
+
+    setGridData((prevGrid) =>
+      prevGrid.map((row) =>
+        row.map((fluxel) => {
+          if (
+            fluxel.influence === 0 &&
+            fluxel.shadowTrOffsetX === 0 &&
+            fluxel.shadowTrOffsetY === 0 &&
+            fluxel.shadowBlOffsetX === 0 &&
+            fluxel.shadowBlOffsetY === 0
+          ) {
+            return fluxel;
+          }
+
+          return {
+            ...fluxel,
+            influence: 0,
+            shadowTrOffsetX: 0,
+            shadowTrOffsetY: 0,
+            shadowBlOffsetX: 0,
+            shadowBlOffsetY: 0,
+          };
+        }),
       ),
     );
   }, [mousePos, setGridData]);

@@ -21,8 +21,44 @@ export type CombinedEventType = MouseEventType | LayoutEventType;
 export type DebounceMap = Partial<Record<CombinedEventType, number>>;
 
 /**
- * Tracks pointer position relative to a DOM element, using pointer events.
- * Integrates with useElementObserver for layout-bound recalculations.
+ * Tracks pointer position relative to a target DOM element.
+ *
+ * This hook monitors pointer events globally and calculates the position
+ * of the pointer relative to the provided `targetRef` element. It only
+ * updates when a pointer is actively started/moved, and resets when released,
+ * canceled, or leaves the window. Useful for drag-like interactions.
+ *
+ * Additionally, it recalculates the element's bounding rect on layout-affecting
+ * changes using `useElementObserver`, supporting events such as:
+ * - resize
+ * - scroll
+ * - orientationchange
+ * - visibilitychange
+ * - fullscreenchange
+ * - DOM mutations
+ *
+ * Debounce behavior for each event type can be customized. Use `-1` to disable
+ * any specific event, `0` for no debounce, or a positive number for debounce in ms.
+ *
+ * @example
+ * ```tsx
+ * const boxRef = useRef<HTMLDivElement | null>(null);
+ * const pos = useElementRelativePointer(boxRef);
+ *
+ * return (
+ *   <div ref={boxRef} style={{ width: 300, height: 300, background: "#222" }}>
+ *     {pos && (
+ *       <div style={{ position: "absolute", left: pos.x, top: pos.y }}>
+ *         Pointer is here
+ *       </div>
+ *     )}
+ *   </div>
+ * );
+ * ```
+ *
+ * @param targetRef The element to track relative pointer position against.
+ * @param debounceMap Optional map of debounce durations per event type.
+ * @returns `{ x, y }` coordinates relative to the element, or `null` when inactive.
  *
  * @author Bradley Baysinger
  * @since The beginning of time.
