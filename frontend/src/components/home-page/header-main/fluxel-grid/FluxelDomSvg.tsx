@@ -9,7 +9,7 @@ import type { FluxelHandle, FluxelData } from "./FluxelAllTypes";
 import styles from "./FluxelDomSvg.module.scss";
 
 /**
- * Fluxing Pixel
+ * Fluxing Pixel - DOM/SVG implementation. (Separate SVG elements arranged in a grid.)
  *
  * A square/pixel on the grid that can simulate depth and have color variations
  * applied to it.
