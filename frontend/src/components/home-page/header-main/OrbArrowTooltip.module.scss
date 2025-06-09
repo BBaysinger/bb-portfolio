@@ -62,7 +62,7 @@
     animation: scrollText 2s linear infinite;
     width: max-content;
     :global(.hasDragged) & {
-      content: "Give a toss! Give a toss!\00a0";
+      content: "Give a toss! Give a toss! Give a toss!\00a0";
     }
   }
 }

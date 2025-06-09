@@ -18,7 +18,10 @@ const ChargedCircle: React.FC<ChargedCircleProps> = ({ isActive = false }) => {
   useScopedImagePreload("/spritesheets/lightning_Layer-Comp-_w480h1098f7.webp");
 
   return (
-    <div className={styles.chargedCircle}>
+    <div
+      className={styles.chargedCircle}
+      style={{ display: isActive ? "unset" : "none" }}
+    >
       <div className={styles.scaler}>
         <SlingerRay
           className={[styles.bolt, styles.bolt1].join(" ")}
