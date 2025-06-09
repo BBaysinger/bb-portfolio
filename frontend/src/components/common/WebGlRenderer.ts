@@ -155,7 +155,23 @@ export class WebGlRenderer {
     };
   }
 
+  private syncCanvasSizeToDisplay() {
+    const dpr = window.devicePixelRatio || 1;
+    const displayWidth = this.canvas.clientWidth * dpr;
+    const displayHeight = this.canvas.clientHeight * dpr;
+
+    if (
+      this.canvas.width !== displayWidth ||
+      this.canvas.height !== displayHeight
+    ) {
+      this.canvas.width = displayWidth;
+      this.canvas.height = displayHeight;
+    }
+  }
+
   drawFrame(index: number) {
+    this.syncCanvasSizeToDisplay();
+
     const gl = this.gl;
     if (!this.texture || !this.uFrameOffset) return;
 
