@@ -243,10 +243,14 @@ const Hero: React.FC = () => {
             onWallCollision={onSlingerWallCollision}
             onIdle={onSlingerIdle}
           >
-            {/* <>
-              <ChargedCircle isActive={!circlePaused && !isSlingerInFlight} />
-              <OrbArrowTooltip className={isSlingerInFlight ? "hidden" : ""} />
-            </> */}
+            <>
+              {!isSlingerInFlight && (
+                <>
+                  {!circlePaused && <ChargedCircle isActive={!circlePaused} />}
+                  <OrbArrowTooltip />
+                </>
+              )}
+            </>
           </SlingerBox>
         </div>
         <div className={styles.scrollCtaWrapper}>
