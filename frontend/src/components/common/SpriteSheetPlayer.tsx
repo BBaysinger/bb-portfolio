@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState, useMemo } from "react";
 import styles from "./SpriteSheetPlayer.module.scss";
+import { WebGlRenderer } from "./WebGlRenderer";
 
 interface SpriteSheetPlayerProps {
   src: string;
@@ -10,7 +11,7 @@ interface SpriteSheetPlayerProps {
   onEnd?: () => void;
   frameControl?: number | null;
   className?: string;
-  scalerClassName?: string;
+  renderStrategy?: "css" | "canvas" | "webgl";
 }
 
 /**
@@ -29,12 +30,13 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
   onEnd,
   frameControl = null,
   className = "",
-  scalerClassName = "",
+  renderStrategy = "webgl",
 }) => {
   const [frameIndex, setFrameIndex] = useState<number | null>(0);
-  const [scale, setScale] = useState(1);
-
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const rendererRef = useRef<WebGlRenderer | null>(null);
+
   const animationFrameRef = useRef<number | null>(null);
   const lastTimeRef = useRef<number>(performance.now());
   const frameRef = useRef<number>(0);
@@ -66,18 +68,11 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
   }, [meta, fps]);
 
   useEffect(() => {
-    if (!meta) return;
+    if (!meta || frameControl === -1) return;
 
     if (animationFrameRef.current !== null) {
       cancelAnimationFrame(animationFrameRef.current);
       animationFrameRef.current = null;
-    }
-
-    if (frameControl === -1) {
-      frameRef.current = -1;
-      completedLoopsRef.current = 0;
-      setFrameIndex(null);
-      return;
     }
 
     if (typeof frameControl === "number") {
@@ -100,8 +95,8 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
     if (!meta || frameControl === -1) return;
 
     const shouldAnimate =
-      (autoPlay && frameControl === null) || // normal animation
-      (randomFrame && frameControl === null); // force animation for randomFrame
+      (autoPlay && frameControl === null) ||
+      (randomFrame && frameControl === null);
 
     if (!shouldAnimate) return;
 
@@ -128,26 +123,24 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
           setFrameIndex(random);
 
           completedLoopsRef.current++;
-          const maxLoops = loops === 0 ? Infinity : loops;
-          if (completedLoopsRef.current >= maxLoops) {
+          if (loops !== 0 && completedLoopsRef.current >= loops) {
             isCancelled = true;
             onEnd?.();
             return;
           }
         } else {
-          const maxLoops = loops === 0 ? Infinity : loops;
           let next = currentIndex + 1;
 
           if (next >= meta.frameCount) {
             completedLoopsRef.current++;
-            if (completedLoopsRef.current >= maxLoops) {
+            if (loops !== 0 && completedLoopsRef.current >= loops) {
               frameRef.current = -1;
-              setFrameIndex(null); // blank the player
+              setFrameIndex(null);
               isCancelled = true;
               onEnd?.();
               return;
             } else {
-              next = 0; // continue looping
+              next = 0;
             }
           }
 
@@ -172,19 +165,14 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
   }, [meta, frameControl, autoPlay, loops, randomFrame, onEnd]);
 
   useEffect(() => {
-    if (!wrapperRef.current || !meta) return;
-
-    const el = wrapperRef.current;
-    const observer = new ResizeObserver(() => {
-      const { offsetWidth: w, offsetHeight: h } = el;
-      const scaleX = w / meta.frameWidth;
-      const scaleY = h / meta.frameHeight;
-      setScale(Math.max(scaleX, scaleY));
-    });
-
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [meta]);
+    if (!canvasRef.current || !meta || renderStrategy !== "webgl") return;
+    if (!rendererRef.current) {
+      rendererRef.current = new WebGlRenderer(canvasRef.current, src, meta);
+    }
+    if (frameIndex !== null) {
+      rendererRef.current.drawFrame(frameIndex);
+    }
+  }, [frameIndex, meta, src, renderStrategy]);
 
   if (!meta) return null;
 
@@ -192,7 +180,6 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
   const columns = Math.min(frameCount, Math.floor(4096 / frameWidth));
   const col = frameIndex !== null ? frameIndex % columns : 0;
   const row = frameIndex !== null ? Math.floor(frameIndex / columns) : 0;
-
   const backgroundPosition =
     frameIndex === null
       ? "0 0"
@@ -201,26 +188,32 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
   const sheetHeight = Math.round(Math.ceil(frameCount / columns) * frameHeight);
 
   return (
-    <div
-      ref={wrapperRef}
-      className={[
-        styles.spriteSheetWrapper,
-        frameIndex === null || frameIndex === -1 ? styles.empty : "",
-        className,
-      ].join(" ")}
-    >
-      <div
-        className={[styles.spriteSheetScaler, scalerClassName].join(" ")}
-        style={{
-          width: `${frameWidth}px`,
-          height: `${frameHeight}px`,
-          transform: `scale(${scale})`,
-          transformOrigin: "top left",
-          backgroundImage: frameIndex === null ? "none" : `url(${src})`,
-          backgroundPosition,
-          backgroundSize: `${sheetWidth}px ${sheetHeight}px`,
-        }}
-      />
+    <div ref={wrapperRef} className={className}>
+      {renderStrategy === "webgl" ? (
+        <canvas
+          className={styles.spriteSheet}
+          ref={canvasRef}
+          width={frameWidth}
+          height={frameHeight}
+          style={{
+            width: "100%",
+            height: "100%",
+            display: frameIndex === null ? "none" : "block",
+          }}
+        />
+      ) : (
+        <div
+          className={styles.spriteSheet}
+          style={{
+            width: "100%",
+            height: "100%",
+            aspectRatio: `${frameWidth} / ${frameHeight}`,
+            backgroundImage: frameIndex === null ? "none" : `url(${src})`,
+            backgroundPosition,
+            backgroundSize: `${sheetWidth}px ${sheetHeight}px`,
+          }}
+        />
+      )}
     </div>
   );
 };
