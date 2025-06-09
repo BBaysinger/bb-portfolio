@@ -49,6 +49,7 @@ const SlingerRay: React.FC<SlingerRayProps> = ({
   return (
     <div className={[styles.slingerRay, className, "slingerRay"].join(" ")}>
       <SpriteSheetPlayer
+        // renderStrategy="css"
         className={styles.lightning}
         autoPlay={false}
         src={lightningSrc}
@@ -59,6 +60,7 @@ const SlingerRay: React.FC<SlingerRayProps> = ({
       />
       <SpriteSheetPlayer
         className={styles.energyBars}
+        // renderStrategy="css"
         autoPlay={true}
         src={energyBarSrc}
         loops={1}
