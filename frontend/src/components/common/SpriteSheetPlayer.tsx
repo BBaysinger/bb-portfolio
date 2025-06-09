@@ -15,7 +15,36 @@ interface SpriteSheetPlayerProps {
 }
 
 /**
+ * SpriteSheetPlayer
  *
+ * A versatile sprite sheet animation component supporting CSS, Canvas, and WebGL rendering strategies.
+ * Accepts sprite sheets with a specific filename format to auto-parse dimensions and frame count.
+ * Capable of auto-playing, looping, or manually controlling playback, with optional per-frame FPS and random frame selection.
+ *
+ * Supported filename format: `name_w{width}h{height}f{frameCount}.ext`
+ * Example: `explosion_w72h72f16.webp`
+ *
+ * ## Features:
+ * - Auto-parses sprite metadata from filename.
+ * - Supports multiple rendering strategies: `"css"`, `"canvas"`, or `"webgl"`.
+ * - Flexible FPS control: single value or per-frame array.
+ * - Handles looping and end callbacks.
+ * - Supports external frame control (via prop).
+ * - Optimized with requestAnimationFrame and useMemo.
+ *
+ * ## Props:
+ * @param {string} src - Sprite sheet URL with encoded dimensions and frame count.
+ * @param {boolean} [autoPlay=true] - Whether to automatically start playback on mount.
+ * @param {number | number[]} [fps=30] - Frames per second (single number or per-frame array).
+ * @param {number} [loops=0] - Number of times to loop (0 = infinite).
+ * @param {boolean} [randomFrame=false] - Whether to show a random frame on init or each step.
+ * @param {() => void} [onEnd] - Callback when animation completes all loops.
+ * @param {number | null} [frameControl=null] - Manually control the frame index (null = autoplay).
+ *                                             Use -1 to render blank.
+ * @param {string} [className=""] - Additional class name(s) to apply to wrapper div.
+ * @param {"css" | "canvas" | "webgl"} [renderStrategy="css"] - Strategy for rendering sprite frames.
+ *
+ * @returns A responsive, frame-accurate sprite player that adapts to playback and rendering requirements.
  *
  * @author Bradley Baysinger
  * @since The beginning of time.
