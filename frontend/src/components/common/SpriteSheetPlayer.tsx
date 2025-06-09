@@ -181,10 +181,8 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
   const totalRows = Math.ceil(frameCount / totalCols);
   const col = frameIndex !== null ? frameIndex % totalCols : 0;
   const row = frameIndex !== null ? Math.floor(frameIndex / totalCols) : 0;
-  const backgroundPosition =
-    frameIndex === null
-      ? "0% 0%"
-      : `${(-col * 100) / totalCols}% ${(-row * 100) / totalRows}%`;
+  const backgroundSize = `${totalCols * 100}% ${totalRows * 100}%`;
+  const backgroundPosition = `${(col / (totalCols - 1 || 1)) * 100}% ${(row / (totalRows - 1 || 1)) * 100}%`;
 
   return (
     <div ref={wrapperRef} className={className}>
@@ -210,7 +208,8 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
             aspectRatio: `${frameWidth} / ${frameHeight}`,
             backgroundImage: frameIndex === null ? "none" : `url(${src})`,
             backgroundPosition,
-            backgroundSize: `${totalCols * 100}% ${Math.ceil(frameCount / totalCols) * 100}%`,
+            backgroundSize,
+            imageRendering: "pixelated",
           }}
         />
       )}
