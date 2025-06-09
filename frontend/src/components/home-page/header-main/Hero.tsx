@@ -244,12 +244,8 @@ const Hero: React.FC = () => {
             onIdle={onSlingerIdle}
           >
             <>
-              {!isSlingerInFlight && (
-                <>
-                  {!circlePaused && <ChargedCircle isActive={!circlePaused} />}
-                  <OrbArrowTooltip />
-                </>
-              )}
+              <ChargedCircle isActive={!circlePaused && !isSlingerInFlight} />
+              <OrbArrowTooltip className={isSlingerInFlight ? "hidden" : ""} />
             </>
           </SlingerBox>
         </div>
