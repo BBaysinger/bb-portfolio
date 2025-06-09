@@ -13,7 +13,6 @@ import type { FluxelHandle, FluxelData } from "./FluxelAllTypes";
 import type { FluxelGridHandle, FluxelGridProps } from "./FluxelAllTypes";
 import FluxelSvg from "./FluxelSvg";
 import styles from "./FluxelSvgGrid.module.scss";
-// import { useElementObserver } from "hooks/useElementObserver";
 
 /**
  * Fluxing Pixel - SVG implementation. (Group elements arranged within a single SVG.)
