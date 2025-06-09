@@ -47,7 +47,8 @@
   rotate: 45deg;
   transform-origin: bottom right;
   transform: translate(10px, 52%);
-  animation: bounceClip 2s infinite forwards;
+  clip-path: inset(0 42px 0 58px);
+  // animation: bounceClip 2s infinite forwards;
 
   &::before {
     content: "Grab the orb! Grab the orb! Grab the orb!\00a0";
