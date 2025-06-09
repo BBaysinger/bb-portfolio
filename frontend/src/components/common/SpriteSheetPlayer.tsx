@@ -30,7 +30,7 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
   onEnd,
   frameControl = null,
   className = "",
-  renderStrategy = "webgl",
+  renderStrategy = "css",
 }) => {
   const [frameIndex, setFrameIndex] = useState<number | null>(0);
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -179,6 +179,7 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
   const { frameWidth, frameHeight, frameCount } = meta;
   const totalCols = Math.min(frameCount, Math.floor(4096 / frameWidth));
   const totalRows = Math.ceil(frameCount / totalCols);
+  const backgroundImage = frameControl !== -1 ? `url(${src})` : "none";
   const col = frameIndex !== null ? frameIndex % totalCols : 0;
   const row = frameIndex !== null ? Math.floor(frameIndex / totalCols) : 0;
   const backgroundSize = `${totalCols * 100}% ${totalRows * 100}%`;
@@ -200,18 +201,21 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
           }}
         />
       ) : (
-        <div
-          className={styles.spriteSheet}
-          style={{
-            width: "100%",
-            height: "100%",
-            aspectRatio: `${frameWidth} / ${frameHeight}`,
-            backgroundImage: frameIndex === null ? "none" : `url(${src})`,
-            backgroundPosition,
-            backgroundSize,
-            imageRendering: "pixelated",
-          }}
-        />
+        frameIndex !== null &&
+        frameIndex !== -1 && (
+          <div
+            className={styles.spriteSheet}
+            style={{
+              width: "100%",
+              height: "100%",
+              aspectRatio: `${frameWidth} / ${frameHeight}`,
+              backgroundImage,
+              backgroundPosition,
+              backgroundSize,
+              imageRendering: "pixelated",
+            }}
+          />
+        )
       )}
     </div>
   );
