@@ -10,6 +10,7 @@
   top: -10px;
   transform: translateX(-50%);
   animation: pulseScale 2s infinite ease-in-out;
+  aspect-ratio: 480 / 1098;
   @include staticRange(width, 100px, 200px);
 }
 
@@ -18,6 +19,7 @@
   top: calc(21px + 1vw);
   width: calc(50px + 4vw);
   transform: translateX(-50%);
+  aspect-ratio: 92 / 300;
 }
 
 @keyframes pulseScale {
