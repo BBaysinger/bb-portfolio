@@ -1,26 +1,17 @@
-.spriteSheetScaler {
-  will-change: background-position;
-  background-size: cover;
-  background-repeat: no-repeat;
-  object-fit: fill;
-  transform-origin: top left;
-  image-rendering: pixelated;
-  position: absolute;
-  box-sizing: border-box;
-  contain: layout paint style; // FF performance optimization
-  transform: translateZ(0);
-}
-
-.spriteSheetWrapper {
-  position: absolute;
-  height: 100%;
+.spriteSheet {
+  position: relative;
+  border: 1px solid red;
   width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+
   &.empty {
     display: none;
     pointer-events: none;
+
     * {
-      pointer-events: none;
       display: none;
+      pointer-events: none;
     }
   }
 }
