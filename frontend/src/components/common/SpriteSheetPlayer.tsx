@@ -199,6 +199,7 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
             width: "100%",
             height: "100%",
             display: frameIndex === null ? "none" : "block",
+            imageRendering: "pixelated",
           }}
         />
       ) : (
