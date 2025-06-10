@@ -6,7 +6,7 @@ import { CanvasRenderer } from "./sprite-rendering/CanvasRenderer";
 import { RenderStrategyType } from "./sprite-rendering/RenderingAllTypes";
 import styles from "./SpriteSheetPlayer.module.scss";
 
-const DEFAULT_RENDER_STRATEGY: RenderStrategyType = "canvas";
+const DEFAULT_RENDER_STRATEGY: RenderStrategyType = "webgl";
 
 interface SpriteSheetPlayerProps {
   src: string;
@@ -17,7 +17,7 @@ interface SpriteSheetPlayerProps {
   onEnd?: () => void;
   frameControl?: number | null;
   className?: string;
-  renderStrategy?: "css" | "canvas" | "webgl";
+  renderStrategy?: RenderStrategyType;
 }
 
 /**
