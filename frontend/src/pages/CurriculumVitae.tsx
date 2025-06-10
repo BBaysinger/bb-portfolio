@@ -168,6 +168,7 @@ const CurriculumVitae: React.FC = () => {
     "Site Release Reveals",
     "Media/Timeline Sequencers",
     "Interactive Slideshows",
+    "Configurable Sprite Sheet Player",
 
     // Business, Marketing & Utility
     "Synced Banner Advertising",
@@ -177,11 +178,12 @@ const CurriculumVitae: React.FC = () => {
     "App Stores",
     "Custom Navigation Menus",
     "Custom Scrollbars",
-    "Custom Tween Engines",
+    "Custom Tween Engine",
     "Data Usage Calculators",
     "Data Science Applications",
-    "Project Portfolios",
+    "Project Portfolio",
     "Informational Presentations",
+    "HTML Emails",
   ];
 
   const brands = [
