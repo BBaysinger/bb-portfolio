@@ -23,11 +23,10 @@
     letter-spacing: 0.05em;
     height: 100%;
     color: #fff;
-    margin-bottom: 0;
     font-weight: 400; // Before fonts load.
-    @include remRange(padding-top, 0px, 0px, $b320px, $b992px);
-    @include remRange(line-height, 22px, 42px, $b320px, $b992px);
-    @include remRange(font-size, 32px, 46px, $b320px, $b992px);
+    padding-top: 0;
+    @include remRange(line-height, 24px, 39px, $b320px, $b992px);
+    @include remRange(font-size, 28px, 44px, $b320px, $b992px);
     @include breakpointUp($b992px) {
       flex-direction: row;
       justify-content: flex-end;
@@ -47,28 +46,16 @@
   }
 }
 
-.hWrapper {
-  display: flex;
-  min-width: 100vw;
-  flex-direction: row;
-  justify-content: flex-start;
-  align-items: flex-start;
-  @include breakpointUp($b992px) {
-    flex-direction: row;
-    justify-content: flex-start;
-    align-items: flex-start;
-  }
-}
-
 .title {
   letter-spacing: 0.2em;
-  line-height: 1.5em;
-  margin-bottom: -0.1em;
+  line-height: 1.4em;
+  margin-bottom: -0.3em;
+  margin-top: -0.1em;
   margin-right: 0;
-  @include remRange(font-size, 14px, 26px);
+  @include remRange(font-size, 14px, 24px);
   @include breakpointUp($b992px) {
     line-height: 0.69em;
-    margin-bottom: -0em;
+    margin-bottom: 0;
   }
 }
 
