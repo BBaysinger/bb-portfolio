@@ -1,12 +1,12 @@
 import React, { useEffect, useRef, useState, useMemo } from "react";
 
-import { ISpriteRenderer } from "./sprite-rendering/RenderingAllTypes";
-import { WebGlRenderer } from "./sprite-rendering/WebGlRenderer";
-import { CanvasRenderer } from "./sprite-rendering/CanvasRenderer";
-import { RenderStrategyType } from "./sprite-rendering/RenderingAllTypes";
+import { ISpriteRenderer } from "./RenderingAllTypes";
+import { WebGlRenderer } from "./WebGlRenderer";
+import { CanvasRenderer } from "./CanvasRenderer";
+import { RenderStrategyType } from "./RenderingAllTypes";
 import styles from "./SpriteSheetPlayer.module.scss";
 
-const DEFAULT_RENDER_STRATEGY: RenderStrategyType = "webgl";
+const DEFAULT_RENDER_STRATEGY: RenderStrategyType = "canvas";
 
 interface SpriteSheetPlayerProps {
   src: string;

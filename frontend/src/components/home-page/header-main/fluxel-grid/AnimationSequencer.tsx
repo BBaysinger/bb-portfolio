@@ -8,7 +8,7 @@ import React, {
   useCallback,
 } from "react";
 
-import SpriteSheetPlayer from "components/common/SpriteSheetPlayer";
+import SpriteSheetPlayer from "components/common/sprite-rendering/SpriteSheetPlayer";
 import styles from "./AnimationSequencer.module.scss";
 
 export interface AnimationSequencerHandle {
