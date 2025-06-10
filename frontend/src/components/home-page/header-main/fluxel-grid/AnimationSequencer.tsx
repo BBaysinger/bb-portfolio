@@ -234,7 +234,7 @@ const AnimationSequencer = forwardRef<
     <div className={`${styles.animationSequencer} ${className}`}>
       {activeAnim && currentSrc && (
         <SpriteSheetPlayer
-          renderStrategy="css"
+          // renderStrategy="css"
           key={animKey}
           src={currentSrc}
           fps={activeAnim.fps}
