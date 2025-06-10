@@ -102,22 +102,20 @@ a.scrollCta {
   transition-delay: 2s;
   animation: fadeBounce 2.5s infinite forwards;
   animation-play-state: paused;
+  transition:
+    opacity 0.5s,
+    transform 0.5s !important;
   :global(.hasSlung.isSlingerIdle) & {
     animation-play-state: running !important;
   }
-  :global(.isSlingerIdle.notScrolledOut.hasSlung) & {
-    animation-play-state: paused;
-    transition-delay: 0s;
-  }
   :global(.notSlingerIdle.notScrolledOut) & {
+    opacity: 1 !important;
     animation-play-state: paused;
-    transition-delay: 0s;
     transition:
       opacity 0.5s,
       transform 0.5s !important;
     opacity: 1;
     transform: translateX(100%);
-    animation: none;
   }
 }
 
