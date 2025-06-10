@@ -27,7 +27,7 @@
     font-weight: 400; // Before fonts load.
     @include remRange(padding-top, 0px, 0px, $b320px, $b992px);
     @include remRange(line-height, 22px, 42px, $b320px, $b992px);
-    @include remRange(font-size, 32px, 50px, $b320px, $b992px);
+    @include remRange(font-size, 32px, 46px, $b320px, $b992px);
     @include breakpointUp($b992px) {
       flex-direction: row;
       justify-content: flex-end;
@@ -61,8 +61,8 @@
 }
 
 .title {
-  letter-spacing: 0.09em;
-  line-height: 0.9em;
+  letter-spacing: 0.2em;
+  line-height: 1.5em;
   margin-bottom: -0.1em;
   margin-right: 0;
   @include remRange(font-size, 14px, 26px);
