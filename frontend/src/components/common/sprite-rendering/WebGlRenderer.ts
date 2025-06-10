@@ -73,6 +73,10 @@ export class WebGlRenderer implements ISpriteRenderer {
     gl.useProgram(program);
     this.program = program;
 
+    // Enable proper alpha blending
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+
     this.uFrameOffset = gl.getUniformLocation(program, "u_frameOffset");
     this.uSheetSize = gl.getUniformLocation(program, "u_sheetSize");
     this.uFrameSize = gl.getUniformLocation(program, "u_frameSize");

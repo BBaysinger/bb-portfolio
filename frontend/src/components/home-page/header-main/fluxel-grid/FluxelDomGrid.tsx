@@ -12,12 +12,12 @@ import React, {
 
 import type { FluxelHandle, FluxelData } from "./FluxelAllTypes";
 import type { FluxelGridHandle, FluxelGridProps } from "./FluxelAllTypes";
-import FluxelDomSvg from "./FluxelDomSvg";
+import FluxelDomSvg from "./FluxelDom";
 import { useElementObserver } from "hooks/useElementObserver";
-import styles from "./FluxelDomSvgGrid.module.scss";
+import styles from "./FluxelDomGrid.module.scss";
 
 /**
- * FluxelDomSvgGrid
+ * FluxelDomGrid
  *
  * This is a grid of fluxels (animated/fluxing pixels) that can be used to create
  * effects and animations. Like 8-bit pixel art, but with mondo-sized pixels that
@@ -27,7 +27,7 @@ import styles from "./FluxelDomSvgGrid.module.scss";
  * @since The beginning of time.
  * @version N/A
  */
-const FluxelDomSvgGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
+const FluxelDomGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
   (
     {
       gridData,
@@ -210,4 +210,4 @@ const FluxelDomSvgGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
   },
 );
 
-export default FluxelDomSvgGrid;
+export default FluxelDomGrid;
