@@ -11,9 +11,9 @@ const clientNames: Record<string, string> = {
   addicting: "Addicting Games",
   att: "AT&T",
   cfc: "Committee for Children",
-  nickjr: "Nick Jr",
+  nickJr: "Nick Jr",
   seven2: "Seven2 Interactive",
-  teennick: "Teen Nick",
+  teenNick: "Teen Nick",
   nintendo: "Nintendo",
   premera: "Premera",
   usda: "USDA",
@@ -25,10 +25,10 @@ const clientNames: Record<string, string> = {
 };
 
 const fileVariants: Record<string, string> = {
-  att: "att-dark",
-  premera: "premera-dark",
-  abbvie: "abbvie-dark",
-  exas: "exas-dark",
+  // att: "att-dark",
+  // premera: "premera-dark",
+  // abbvie: "abbvie-dark",
+  // exas: "exas-dark",
 };
 
 /**
@@ -65,7 +65,7 @@ const LogoSwapper: React.FC<LogoSwapperProps> = ({ projectId }) => {
   // If there's a logo variant (for contrast on white), use it.
   const backgroundImage = (key: string) => {
     const fileName = fileVariants[key] || key;
-    return `url(/images/clientLogos/${fileName}.svg)`;
+    return `url(/images/client-logos/${fileName}.svg)`;
   };
 
   return (
