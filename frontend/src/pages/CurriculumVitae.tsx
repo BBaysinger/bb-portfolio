@@ -175,7 +175,7 @@ const CurriculumVitae: React.FC = () => {
     "Microsites",
     "Product Demos",
     "Product Catalogs",
-    "App Stores",
+    "App Store",
     "Custom Navigation Menus",
     "Custom Scrollbars",
     "Custom Tween Engine",
@@ -1104,7 +1104,7 @@ const CurriculumVitae: React.FC = () => {
         </div>
 
         <div className={"container"}>
-          <h4 ref={addToRefs}>Types of Projects Delivered</h4>
+          <h4 ref={addToRefs}>Projects Delivered</h4>
 
           <div className={rowClass}>
             <div className={divClassLt}></div>
