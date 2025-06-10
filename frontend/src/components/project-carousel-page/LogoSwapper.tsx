@@ -25,6 +25,7 @@ const clientNames: Record<string, string> = {
 };
 
 const fileVariants: Record<string, string> = {
+  // KEEP: Will need these again when light/dark mode is implemented.
   // att: "att-dark",
   // premera: "premera-dark",
   // abbvie: "abbvie-dark",
