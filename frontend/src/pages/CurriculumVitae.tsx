@@ -134,6 +134,56 @@ const CurriculumVitae: React.FC = () => {
     "Terminal / Command Prompt",
   ];
 
+  const projectTypes = [
+    // Games & Interactive Entertainment
+    "Escape Games",
+    "Shooter Games",
+    "Platformer Games",
+    "Puzzle Games",
+    "Edutainment Games",
+    "Skill Games",
+    "Tactical Movement Games",
+    "Dress-Up Games",
+    "Magnetic Poetry Games",
+    "Drawing Utilities",
+    "Wallpaper Generators",
+
+    // Media & Content Players
+    "Audio Players",
+    "Video Players",
+    "360° Video Players",
+    "Animated E-Cards",
+    "Screensavers",
+
+    // Interactive Web Experiences
+    "Quizzes",
+    "Surveys and Forms",
+    "Sweepstakes Activities",
+    "Photo Upload Personalization",
+    "Drag-and-Drop Builders",
+    "Interactive Tutorials",
+    "Virtual Tours",
+    "Call-a-Friend Message Builders",
+    "Movie/TV Show Tie-Ins",
+    "Site Release Reveals",
+    "Media/Timeline Sequencers",
+    "Interactive Slideshows",
+
+    // Business, Marketing & Utility
+    "Synced Banner Advertising",
+    "Microsites",
+    "Product Demos",
+    "Product Catalogs",
+    "App Stores",
+    "Custom Navigation Menus",
+    "Custom Scrollbars",
+    "Custom Tween Engines",
+    "Data Usage Calculators",
+    "Data Science Applications",
+    "Project Portfolios",
+    "Informational Presentations",
+  ];
+
   const brands = [
     "Nickelodeon",
     "Nick Jr.",
@@ -1047,6 +1097,18 @@ const CurriculumVitae: React.FC = () => {
                 four Gold, two Best of Division, one Best of Show, and one
                 Golden Pixel
               </div>
+            </div>
+          </div>
+        </div>
+
+        <div className={"container"}>
+          <h4 ref={addToRefs}>Types of Projects Delivered</h4>
+
+          <div className={rowClass}>
+            <div className={divClassLt}></div>
+
+            <div ref={addToRefs} className={divClassRt}>
+              <p>{wrapPhrases(projectTypes)}</p>
             </div>
           </div>
         </div>

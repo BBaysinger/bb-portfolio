@@ -43,6 +43,26 @@ header.headerSub {
 
     @include remRange(font-size, 36px, 70px);
   }
+
+  h5,
+  .h5 {
+    margin-top: 10px;
+    margin-bottom: 0;
+    font-size: 18px;
+    font-weight: 400;
+
+    @include breakpointUp($b360px) {
+      font-size: 16px;
+    }
+
+    @include breakpointUp($b480px) {
+      font-size: 20px;
+    }
+
+    @include breakpointUp($b992px) {
+      font-size: 30px;
+    }
+  }
 }
 
 .textWrapper {
@@ -67,24 +87,4 @@ header.headerSub {
   position: absolute;
   top: 0;
   opacity: 0;
-}
-
-h5,
-.h5 {
-  margin-top: 10px;
-  margin-bottom: 0;
-  font-size: 18px;
-  font-weight: 400;
-
-  @include breakpointUp($b360px) {
-    font-size: 16px;
-  }
-
-  @include breakpointUp($b480px) {
-    font-size: 20px;
-  }
-
-  @include breakpointUp($b992px) {
-    font-size: 30px;
-  }
 }
