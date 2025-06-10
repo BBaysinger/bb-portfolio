@@ -6,9 +6,15 @@ import React, {
 } from "react";
 
 import type { FluxelHandle, FluxelData } from "./FluxelAllTypes";
-import styles from "./FluxelDomSvg.module.scss";
+import styles from "./FluxelDom.module.scss";
 
 /**
+ * KEEP: TODO: THIS COMPONENT IS NOT NEEDED AS IS, BUT IT WILL BECOME FULL DOM JUST FOR
+ * BENCHMARKING PURPOSES. THIS HAS NOT BEEN IMPLEMENTED YET. I LITERALLY JUST
+ * RENAMED IT FROM FluxelDomSvg, BUT IT'S NONSENSICAL TO USE MULTIPLE SVG ELEMENTS
+ * AND TO PUT SUCH ELEMENTS IN A FLEXBOX. THAT SHOULD BE CONVERTED AS WELL TO ABSOLUTE
+ * POSITIONING.
+ *
  * Fluxing Pixel - DOM/SVG implementation. (Separate SVG elements arranged in a grid.)
  *
  * A square/pixel on the grid that can simulate depth and have color variations
