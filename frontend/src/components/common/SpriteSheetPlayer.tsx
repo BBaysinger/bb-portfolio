@@ -1,6 +1,12 @@
 import React, { useEffect, useRef, useState, useMemo } from "react";
+
+import { ISpriteRenderer } from "./sprite-rendering/RenderingAllTypes";
+import { WebGlRenderer } from "./sprite-rendering/WebGlRenderer";
+import { CanvasRenderer } from "./sprite-rendering/CanvasRenderer";
+import { RenderStrategyType } from "./sprite-rendering/RenderingAllTypes";
 import styles from "./SpriteSheetPlayer.module.scss";
-import { WebGlRenderer } from "./WebGlRenderer";
+
+const DEFAULT_RENDER_STRATEGY: RenderStrategyType = "canvas";
 
 interface SpriteSheetPlayerProps {
   src: string;
@@ -59,12 +65,12 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
   onEnd,
   frameControl = null,
   className = "",
-  renderStrategy = "css",
+  renderStrategy = DEFAULT_RENDER_STRATEGY,
 }) => {
   const [frameIndex, setFrameIndex] = useState<number | null>(0);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const rendererRef = useRef<WebGlRenderer | null>(null);
+  const rendererRef = useRef<ISpriteRenderer | null>(null);
 
   const animationFrameRef = useRef<number | null>(null);
   const lastTimeRef = useRef<number>(performance.now());
@@ -194,12 +200,39 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
   }, [meta, frameControl, autoPlay, loops, randomFrame, onEnd]);
 
   useEffect(() => {
-    if (!canvasRef.current || !meta || renderStrategy !== "webgl") return;
-    if (!rendererRef.current) {
-      rendererRef.current = new WebGlRenderer(canvasRef.current, src, meta);
+    if (!canvasRef.current || !meta) return;
+
+    if (!rendererRef.current || renderStrategyChanged()) {
+      // Clean up existing renderer if switching
+      rendererRef.current?.dispose();
+
+      switch (renderStrategy) {
+        case "webgl":
+          rendererRef.current = new WebGlRenderer(canvasRef.current, src, meta);
+          break;
+        case "canvas":
+          rendererRef.current = new CanvasRenderer(
+            canvasRef.current,
+            src,
+            meta,
+          );
+          break;
+        default:
+          rendererRef.current = null;
+      }
     }
-    if (frameIndex !== null) {
+
+    if (frameIndex !== null && rendererRef.current) {
       rendererRef.current.drawFrame(frameIndex);
+    }
+
+    function renderStrategyChanged() {
+      return (
+        (renderStrategy === "webgl" &&
+          !(rendererRef.current instanceof WebGlRenderer)) ||
+        (renderStrategy === "canvas" &&
+          !(rendererRef.current instanceof CanvasRenderer))
+      );
     }
   }, [frameIndex, meta, src, renderStrategy]);
 

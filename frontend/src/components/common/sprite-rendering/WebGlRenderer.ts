@@ -1,4 +1,6 @@
-export class WebGlRenderer {
+import { ISpriteRenderer } from "./RenderingAllTypes";
+
+export class WebGlRenderer implements ISpriteRenderer {
   private gl!: WebGLRenderingContext;
   private program!: WebGLProgram;
   private texture!: WebGLTexture;
