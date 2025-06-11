@@ -52,7 +52,7 @@ const FPSCounter: React.FC<{ updateInterval?: number; className?: string }> = ({
           </span>
         ))}
         <span className={styles.note}>
-          &nbsp;&larr; realtime render performance
+          &nbsp;&larr; render performance
         </span>
       </div>
       <div>
