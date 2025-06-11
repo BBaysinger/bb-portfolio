@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { NavLink } from "react-router-dom";
 import FootGreet from "./FootGreet";
 import NavLinks from "./NavLinks";
@@ -18,8 +18,10 @@ type FooterProps = {
 const Footer: React.FC<FooterProps> = ({ mutationElemRef }) => {
   const [mainContentHeight, setMainContentHeight] = useState(9999999999);
   const [footerHeight, setFooterHeight] = useState(0);
+  const [shouldSnap, setShouldSnap] = useState(false);
 
-  const footerRef = React.useRef<HTMLDivElement>(null);
+  const footerRef = useRef<HTMLDivElement>(null);
+  const prevHeightRef = useRef<number>(mainContentHeight);
   const [emailAddr, setEmailAddr] = useState<string>("Waiting...");
 
   useEffect(() => {
@@ -40,7 +42,6 @@ const Footer: React.FC<FooterProps> = ({ mutationElemRef }) => {
 
     const updateMainContentHeight = () => {
       const height = mainContentTarget.offsetHeight || 0;
-      console.info("Main content height:", height);
       setMainContentHeight(height);
     };
 
@@ -56,13 +57,21 @@ const Footer: React.FC<FooterProps> = ({ mutationElemRef }) => {
     });
 
     const mainContentResizeObserver = new ResizeObserver(([entry]) => {
-      setMainContentHeight(entry.contentRect.height);
+      const newHeight = entry.contentRect.height;
+      const wasShrinking = newHeight < prevHeightRef.current;
+
+      setShouldSnap(wasShrinking);
+      prevHeightRef.current = newHeight;
+
+      setMainContentHeight(newHeight);
     });
+
     mainContentResizeObserver.observe(mainContentTarget);
 
     const footerResizeObserver = new ResizeObserver(() => {
       updateFooterHeight();
     });
+
     footerResizeObserver.observe(footerTarget);
 
     return () => {
@@ -70,6 +79,13 @@ const Footer: React.FC<FooterProps> = ({ mutationElemRef }) => {
       footerResizeObserver.disconnect();
     };
   }, [mutationElemRef]);
+
+  // Reset snap flag after layout commit
+  useEffect(() => {
+    if (shouldSnap) {
+      requestAnimationFrame(() => setShouldSnap(false));
+    }
+  }, [shouldSnap]);
 
   return (
     <div
@@ -80,7 +96,10 @@ const Footer: React.FC<FooterProps> = ({ mutationElemRef }) => {
     >
       <footer
         ref={footerRef}
-        style={{ transform: `translateY(${Math.round(mainContentHeight)}px)` }}
+        style={{
+          transform: `translateY(${Math.round(mainContentHeight)}px)`,
+          transition: shouldSnap ? "none" : "transform 0.4s ease-in-out",
+        }}
         className={styles.footer}
       >
         <div className={`container`}>
