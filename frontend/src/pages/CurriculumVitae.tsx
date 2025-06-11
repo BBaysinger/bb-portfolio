@@ -213,7 +213,7 @@ const CurriculumVitae: React.FC = () => {
     "HTC",
     "OnSet Productions",
     "Ronix Wakeboards",
-    "RedHook Brewery",
+    "RedHook Brewing",
     "Stoli Vodka",
     "Tanteo Tequila",
     "Tobacco Smokes You",
