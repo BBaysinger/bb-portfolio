@@ -380,7 +380,7 @@ const CurriculumVitae: React.FC = () => {
                       — Irving, TX | Remote | W2
                     </span>
                   </h5>
-                  Senior Front-end Developer
+                  Front-end Developer
                 </div>
                 <div className={styles.break}></div>
                 <div className={styles.rightSub}>[ 2021 - 2024 ]</div>
