@@ -180,10 +180,11 @@ const CurriculumVitae: React.FC = () => {
     "Custom Scrollbars",
     "Custom Tween Engine",
     "Data Usage Calculators",
-    "Data Science Applications",
-    "Project Portfolio",
+    "Data Science Application",
+    "Interactive Portfolio",
     "Informational Presentations",
     "HTML Emails",
+    "Email Consent Workflows",
   ];
 
   const brands = [
