@@ -267,7 +267,7 @@ const CurriculumVitae: React.FC = () => {
               <p>
                 A developer with a unique background in design, technical
                 animation, and interactive development. From game development to
-                scalable front-end solutions, I bridge creativity with
+                scalable web UI solutions, I bridge creativity with
                 technology to craft engaging user experiences. After delivering
                 award-winning interactive projects in Flash, I transitioned
                 seamlessly to modern frameworks like Angular and React, building
@@ -296,7 +296,7 @@ const CurriculumVitae: React.FC = () => {
             <div className={divClassRt}>
               <h5 ref={addToRefs} className={styles.subContainer}>
                 <div className={styles.leftSub}>
-                  <h5>Modern Front-End Development</h5>
+                  <h5>Modern UI Development</h5>
                 </div>
                 <div className={styles.break}></div>
               </h5>
@@ -461,7 +461,7 @@ const CurriculumVitae: React.FC = () => {
                       — Spokane, WA | Remote
                     </span>
                   </h5>
-                  Front-end / Interactive Web Developer
+                  Interactive UI Web Developer
                   <div className={styles.parenthetical}>
                     [Independent Contractor]
                   </div>
@@ -471,7 +471,7 @@ const CurriculumVitae: React.FC = () => {
               </div>
 
               <p ref={addToRefs} className={styles.desc}>
-                Delivered specialized front-end and interactive web development
+                Delivered specialized UI and interactive web development
                 services for diverse clients, including local businesses, a
                 national startup, an international charity, and a pharmaceutical
                 manufacturer.
@@ -529,7 +529,7 @@ const CurriculumVitae: React.FC = () => {
                     Seven2 Interactive
                     <span className={styles.location}> — Spokane, WA</span>
                   </h5>
-                  Interactive / Front-end Web Developer
+                  Interactive / Web UI Developer
                 </div>
                 <div className={styles.break}></div>
                 <div className={styles.rightSub}>[ 2018 - 2019 ]</div>
@@ -781,7 +781,7 @@ const CurriculumVitae: React.FC = () => {
                   our WildBrain client.
                 </li>
                 <li ref={addToRefs}>
-                  Led front-end development of a <b>Webby Award</b>-winning
+                  Led development of a <b>Webby Award</b>-winning
                   project (2008 People's Choice Art Website of the Year).
                 </li>
               </ul>
@@ -806,7 +806,7 @@ const CurriculumVitae: React.FC = () => {
                     SCW Consulting
                     <span className={styles.location}> — Spokane, WA</span>
                   </h5>
-                  Designer / Front-end Web Developer
+                  Designer / Web UI Developer
                 </div>
                 <div className={styles.break}></div>
                 <div className={styles.rightSub}>[ 2005 ]</div>
@@ -871,7 +871,7 @@ const CurriculumVitae: React.FC = () => {
                     Freelance
                     <span className={styles.location}> — Spokane, WA</span>
                   </h5>
-                  Designer / Front-end Web Developer
+                  Designer / Web UI Developer
                 </div>
                 <div className={styles.break}></div>
                 <div className={styles.rightSub}>[ 2003 - 2005 ]</div>
