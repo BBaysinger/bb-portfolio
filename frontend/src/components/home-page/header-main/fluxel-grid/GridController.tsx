@@ -7,7 +7,6 @@ import {
 } from "react";
 
 import FluxelSvgGrid from "./FluxelSvgGrid";
-import FluxelDomGrid from "./FluxelDomGrid";
 // import FluxelPixiGrid from "./FluxelPixiGrid";
 import { useFluxelShadows } from "./useFluxelShadows";
 import useFluxelProjectiles, { Direction } from "./useFluxelProjectiles";
@@ -181,15 +180,6 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
         {gridType === "svg" ? (
           <FluxelSvgGrid
             className={styles.fluxelGridSvg}
-            ref={gridInstanceRef}
-            gridData={gridData}
-            viewableWidth={viewableWidth}
-            viewableHeight={viewableHeight}
-            onLayoutUpdateRequest={handleLayoutUpdateRequest}
-          />
-        ) : gridType === "domSvg" ? (
-          <FluxelDomGrid
-            className={styles.fluxelGridDomSvg}
             ref={gridInstanceRef}
             gridData={gridData}
             viewableWidth={viewableWidth}

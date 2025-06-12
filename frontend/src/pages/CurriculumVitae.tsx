@@ -267,8 +267,8 @@ const CurriculumVitae: React.FC = () => {
               <p>
                 A developer with a unique background in design, technical
                 animation, and interactive development. From game development to
-                scalable web UI solutions, I bridge creativity with
-                technology to craft engaging user experiences. After delivering
+                scalable web UI solutions, I bridge creativity with technology
+                to craft engaging user experiences. After delivering
                 award-winning interactive projects in Flash, I transitioned
                 seamlessly to modern frameworks like Angular and React, building
                 reusable, high-performance components. With a results-driven
@@ -781,8 +781,8 @@ const CurriculumVitae: React.FC = () => {
                   our WildBrain client.
                 </li>
                 <li ref={addToRefs}>
-                  Led development of a <b>Webby Award</b>-winning
-                  project (2008 People's Choice Art Website of the Year).
+                  Led development of a <b>Webby Award</b>-winning project (2008
+                  People's Choice Art Website of the Year).
                 </li>
               </ul>
             </div>
