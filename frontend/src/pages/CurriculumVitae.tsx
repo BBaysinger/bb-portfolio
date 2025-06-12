@@ -404,13 +404,6 @@ const CurriculumVitae: React.FC = () => {
                   Union website, leveraging jQuery and <b>Sitecore</b> CMS
                   integration.
                 </li>
-                {/* <li ref={addToRefs}>
-                  Delivered responsive forms, data grids, and interactive
-                  elements for the Citibank website and admin area using{" "}
-                  <b>Angular</b> reactive forms and SASS, enhancing UX and
-                  visual consistency. Developed loan rate calculators and modals
-                  using Angular projection.
-                </li> */}
                 <li ref={addToRefs}>
                   Built and maintained reusable, modular email components in{" "}
                   <b>Salesforce</b> Marketing Cloud. Streamlined and
@@ -430,11 +423,6 @@ const CurriculumVitae: React.FC = () => {
                   designs into responsive and interactive web pages and
                   components, ensuring pixel-perfect implementation and seamless
                   user experience across all devices.
-                  {/* Created the Oncotype DX
-                  Breast Recurrence Score Report Explorer for the Exact Sciences
-                  website, helping users understand diagnostic results
-                  documents. Contributed to responsive/interactive components,
-                  and defect resolution. */}
                 </li>
                 <li ref={addToRefs}>
                   Developed consent management workflows using{" "}

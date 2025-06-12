@@ -4,6 +4,8 @@ import useInViewAnimation from "hooks/useInViewAnimation";
 import MagneticThingy from "components/home-page/MagneticThingy";
 
 /**
+ * The "Hello" section on the home page.
+ * 
  * @author Bradley Baysinger
  * @since The beginning of time.
  * @version N/A

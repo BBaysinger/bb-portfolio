@@ -9,8 +9,9 @@ type MagneticThingyProps = {
 };
 
 /**
- * Thingy that magnetically sticks to your pointer. Wags gently to attract attention
- * until the user interacts with it via mouse or touch. Then sticks to the pointer.
+ * Thingy that magnetically sticks to your pointer. Waves gently to attract attention
+ * until the user interacts with it via mouse or touch, then sticks to the pointer
+ * to tease the user as an attention getter.
  *
  * @author Bradley Baysinger
  * @since The beginning of time.
