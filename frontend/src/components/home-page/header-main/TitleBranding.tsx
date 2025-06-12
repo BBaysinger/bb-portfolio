@@ -34,10 +34,7 @@ const TitleBranding = forwardRef<HTMLDivElement, TitleBrandingProps>(
             <div className={[styles.name, styles.lastName].join(" ")}>
               Baysinger
             </div>
-            <div className={styles.title}>
-              {" "}
-              Interactive UI Developer
-            </div>
+            <div className={styles.title}> Interactive UI Developer</div>
           </h1>
         </span>
       </div>
