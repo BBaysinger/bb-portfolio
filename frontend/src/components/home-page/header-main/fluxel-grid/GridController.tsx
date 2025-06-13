@@ -8,6 +8,7 @@ import {
 
 import FluxelSvgGrid from "./FluxelSvgGrid";
 // import FluxelPixiGrid from "./FluxelPixiGrid";
+import FluxelCanvasGrid from "./FluxelCanvasGrid";
 import { useFluxelShadows } from "./useFluxelShadows";
 import useFluxelProjectiles, { Direction } from "./useFluxelProjectiles";
 import AnimationSequencer from "./AnimationSequencer";
@@ -186,16 +187,16 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
             viewableHeight={viewableHeight}
             onLayoutUpdateRequest={handleLayoutUpdateRequest}
           />
+        ) : gridType === "canvas" ? (
+          <FluxelCanvasGrid
+            className={styles.fluxelGridCanvas}
+            ref={gridInstanceRef}
+            gridData={gridData}
+            viewableWidth={viewableWidth}
+            viewableHeight={viewableHeight}
+            onLayoutUpdateRequest={handleLayoutUpdateRequest}
+          />
         ) : (
-          // ) : gridType === "canvas" ? (
-          //   <FluxelPixiGrid
-          //     className={styles.fluxelGridCanvas}
-          //     ref={gridInstanceRef}
-          //     gridData={gridData}
-          //     viewableWidth={viewableWidth}
-          //     viewableHeight={viewableHeight}
-          //     onLayoutUpdateRequest={handleLayoutUpdateRequest}
-          //   />
           <>No grid matches: {gridType} </>
         )}
       </div>
