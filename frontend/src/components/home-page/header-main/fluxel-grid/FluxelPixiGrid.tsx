@@ -9,9 +9,11 @@ import styles from "./FluxelPixiGrid.module.scss";
 /**
  * FluxelPixiGrid - renders a dynamic, resizable PixiJS grid of FluxelPixiSprites
  *
+ * This is a noop. It wasn't completed, and since we've decided rendering straight to canvas
+ * will be more efficient anyhow. Don't know if it's worth keeping around...
+ *
  * @author Bradley Baysinger
  * @since The beginning of time.
- * @version Enhanced with containerRef sync, debounced resize observer, and stable data refs
  */
 const FluxelPixiGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
   ({ gridData, imperativeMode, className }, ref) => {

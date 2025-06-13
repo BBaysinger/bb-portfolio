@@ -6,9 +6,14 @@ import { CanvasRenderer } from "./CanvasRenderer";
 import { RenderStrategyType } from "./RenderingAllTypes";
 import styles from "./SpriteSheetPlayer.module.scss";
 
-// NOTE that WebGL has substantial rendering cost (on my machine full screen @ 3584×2240),
-// and there are some defects observed in CSS, including delayed load time, even though
-// the decoded image data is retained. Canvas seems the best for now...
+/**
+ * NOTE that WebGL has substantial rendering cost (on my machine full screen @ 3584×2240),
+ * and there are some defects observed in CSS, including delayed load time, even though
+ * the decoded image data is retained in memory. Canvas seems the best for now.
+ *
+ * TODO: Revisit the other rendering strategies later.
+ */
+
 const DEFAULT_RENDER_STRATEGY: RenderStrategyType = "canvas";
 
 interface SpriteSheetPlayerProps {
