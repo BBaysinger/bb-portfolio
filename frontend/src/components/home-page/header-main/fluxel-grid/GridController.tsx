@@ -45,12 +45,12 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
     },
     ref,
   ) => {
-    const getGridTypeFromUrl = (): "svg" | "domSvg" | "canvas" => {
+    const getGridTypeFromUrl = (): "svg" | "canvas" => {
       if (typeof window === "undefined") return "svg";
 
       const value = new URLSearchParams(window.location.search).get("gridType");
 
-      if (value === "svg" || value === "domSvg" || value === "canvas") {
+      if (value === "svg" || value === "canvas") {
         return value;
       }
 
