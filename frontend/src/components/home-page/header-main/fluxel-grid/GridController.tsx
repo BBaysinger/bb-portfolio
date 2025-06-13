@@ -123,7 +123,7 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
       setGridData,
       pointerPos: filteredPointerPos(),
       isPausedRef: isShadowsPaused,
-      fps: 20,
+      fps: 10,
     });
 
     const launchProjectile = useFluxelProjectiles({
