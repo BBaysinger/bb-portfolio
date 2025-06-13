@@ -8,7 +8,7 @@ import styles from "./SpriteSheetPlayer.module.scss";
 
 // NOTE that WebGL has substantial rendering cost (on my machine full screen @ 3584×2240),
 // and there are some defects observed in CSS. Canvas seems the best for now...
-const DEFAULT_RENDER_STRATEGY: RenderStrategyType = "webgl";
+const DEFAULT_RENDER_STRATEGY: RenderStrategyType = "css";
 
 interface SpriteSheetPlayerProps {
   src: string;
