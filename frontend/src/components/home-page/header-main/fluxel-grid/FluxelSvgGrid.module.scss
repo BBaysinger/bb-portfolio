@@ -1,9 +1,9 @@
 .fluxelGrid,
 .overlayWrapper {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center; /* Center items within each row (horizontal centering) */
-  align-content: center; /* Center the entire group of rows vertically */
+  // display: flex;
+  // flex-wrap: wrap;
+  // justify-content: center; /* Center items within each row (horizontal centering) */
+  // align-content: center; /* Center the entire group of rows vertically */
   pointer-events: none;
   box-sizing: border-box;
   aspect-ratio: 4/3;
@@ -15,17 +15,22 @@
     contain: layout paint size style;
   }
   > * {
+    pointer-events: none;
+    user-select: none;
+    contain: layout paint size style;
+    // border: 1px solid red;
+
     // Here because some of the same styles need applied to
     // the placeholders as well the actual fluxels
-    position: relative;
-    flex: 1 1 calc(100% / var(--cols));
-    aspect-ratio: 1 / 1;
-    border-radius: 1px;
-    image-rendering: pixelated;
-    box-sizing: content-box;
-    background-repeat: no-repeat;
-    overflow: hidden;
-    outline: 1px solid rgba(20, 20, 20, 0.7);
+    // position: relative;
+    // flex: 1 1 calc(100% / var(--cols));
+    // aspect-ratio: 1 / 1;
+    // border-radius: 1px;
+    // image-rendering: pixelated;
+    // box-sizing: content-box;
+    // background-repeat: no-repeat;
+    // overflow: hidden;
+    // outline: 1px solid rgba(20, 20, 20, 0.7);
   }
 }
 
@@ -71,12 +76,4 @@
     stroke-width: 1;
     shape-rendering: crispEdges;
   }
-}
-
-.debug {
-  position: absolute;
-  color: white;
-  font-size: 20px;
-  top: 300px;
-  left: 300px;
 }
