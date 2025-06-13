@@ -1,7 +1,7 @@
 import { ISpriteRenderer } from "./RenderingAllTypes";
 
 export class WebGlRenderer implements ISpriteRenderer {
-  private gl: WebGLRenderingContext;
+  private gl!: WebGLRenderingContext;
   private program!: WebGLProgram;
   private texture!: WebGLTexture;
   private positionBuffer!: WebGLBuffer;
@@ -10,13 +10,9 @@ export class WebGlRenderer implements ISpriteRenderer {
   private frameWidth: number;
   private frameHeight: number;
   private columns: number;
-
-  private uFrameOffset!: WebGLUniformLocation;
-  private uSheetSize!: WebGLUniformLocation;
-  private uFrameSize!: WebGLUniformLocation;
-
-  private canvasResized = true;
-  private resizeObserver: ResizeObserver;
+  private uFrameOffset: WebGLUniformLocation | null;
+  private uSheetSize: WebGLUniformLocation | null;
+  private uFrameSize: WebGLUniformLocation | null;
 
   constructor(
     private canvas: HTMLCanvasElement,
@@ -35,13 +31,12 @@ export class WebGlRenderer implements ISpriteRenderer {
       Math.floor(4096 / this.frameWidth),
     );
 
+    this.uFrameOffset = null;
+    this.uSheetSize = null;
+    this.uFrameSize = null;
+
     this.initGL();
     this.loadTexture(this.imageSrc);
-
-    this.resizeObserver = new ResizeObserver(() => {
-      this.canvasResized = true;
-    });
-    this.resizeObserver.observe(canvas);
   }
 
   private initGL() {
@@ -52,8 +47,8 @@ export class WebGlRenderer implements ISpriteRenderer {
       varying vec2 v_texcoord;
       void main() {
         gl_Position = vec4(a_position, 0, 1);
-        v_texcoord = vec2(a_texcoord.x, 1.0 - a_texcoord.y); // flip Y
-      }
+        v_texcoord = vec2(a_texcoord.x, 1.0 - a_texcoord.y); // <-- flip Y
+    }
     `;
 
     const frag = `
@@ -74,17 +69,19 @@ export class WebGlRenderer implements ISpriteRenderer {
     const vs = this.compileShader(gl.VERTEX_SHADER, vert);
     const fs = this.compileShader(gl.FRAGMENT_SHADER, frag);
     const program = this.createProgram(vs, fs);
+
     gl.useProgram(program);
     this.program = program;
 
+    // Enable proper alpha blending
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
-    this.uFrameOffset = gl.getUniformLocation(program, "u_frameOffset")!;
-    this.uSheetSize = gl.getUniformLocation(program, "u_sheetSize")!;
-    this.uFrameSize = gl.getUniformLocation(program, "u_frameSize")!;
+    this.uFrameOffset = gl.getUniformLocation(program, "u_frameOffset");
+    this.uSheetSize = gl.getUniformLocation(program, "u_sheetSize");
+    this.uFrameSize = gl.getUniformLocation(program, "u_frameSize");
 
-    const posBuffer = gl.createBuffer()!;
+    const posBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, posBuffer);
     gl.bufferData(
       gl.ARRAY_BUFFER,
@@ -96,8 +93,8 @@ export class WebGlRenderer implements ISpriteRenderer {
     gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
     this.positionBuffer = posBuffer;
 
-    const texBuffer = gl.createBuffer()!;
-    gl.bindBuffer(gl.ARRAY_BUFFER, texBuffer);
+    const texcoordBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, texcoordBuffer);
     gl.bufferData(
       gl.ARRAY_BUFFER,
       new Float32Array([0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 1]),
@@ -106,7 +103,7 @@ export class WebGlRenderer implements ISpriteRenderer {
     const texLoc = gl.getAttribLocation(program, "a_texcoord");
     gl.enableVertexAttribArray(texLoc);
     gl.vertexAttribPointer(texLoc, 2, gl.FLOAT, false, 0, 0);
-    this.texcoordBuffer = texBuffer;
+    this.texcoordBuffer = texcoordBuffer;
   }
 
   private compileShader(type: number, source: string): WebGLShader {
@@ -139,7 +136,6 @@ export class WebGlRenderer implements ISpriteRenderer {
     const texture = gl.createTexture()!;
     const image = new Image();
     image.src = src;
-
     image.onload = () => {
       gl.bindTexture(gl.TEXTURE_2D, texture);
       gl.texImage2D(
@@ -163,16 +159,9 @@ export class WebGlRenderer implements ISpriteRenderer {
 
       this.drawFrame(0);
     };
-
-    image.onerror = (e) => {
-      console.error("Failed to load texture image", e);
-    };
   }
 
   private syncCanvasSizeToDisplay() {
-    if (!this.canvasResized) return;
-    this.canvasResized = false;
-
     const dpr = window.devicePixelRatio || 1;
     const displayWidth = this.canvas.clientWidth * dpr;
     const displayHeight = this.canvas.clientHeight * dpr;
@@ -190,7 +179,7 @@ export class WebGlRenderer implements ISpriteRenderer {
     this.syncCanvasSizeToDisplay();
 
     const gl = this.gl;
-    if (!this.texture) return;
+    if (!this.texture || !this.uFrameOffset) return;
 
     const col = index % this.columns;
     const row = Math.floor(index / this.columns);
@@ -214,6 +203,5 @@ export class WebGlRenderer implements ISpriteRenderer {
     gl.deleteProgram(this.program);
     gl.deleteBuffer(this.positionBuffer);
     gl.deleteBuffer(this.texcoordBuffer);
-    this.resizeObserver.disconnect();
   }
 }
