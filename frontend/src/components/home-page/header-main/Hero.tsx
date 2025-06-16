@@ -258,7 +258,7 @@ const Hero: React.FC = () => {
 
       <div className={styles.foreground}>
         <ParagraphAnimator
-          introMessage={`Good ${timeOfDay}. This is a kinetic UI Experiment. Grab the orb and then give it a toss for fun surprises!`}
+          introMessage={`Good ${timeOfDay}. This is a kinetic UI Experiment (so far). Grab the orb and then give it a toss for fun surprises!`}
           paragraphs={quotes}
           className={styles.message}
           paused={!mounted || !isSlingerIdle}

@@ -264,10 +264,10 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
           width={frameWidth}
           height={frameHeight}
           style={{
-            width: "100%",
-            height: "100%",
+            // width: "100%",
+            // height: "100%",
             display: frameIndex === null ? "none" : "block",
-            imageRendering: "pixelated",
+            // imageRendering: "pixelated",
           }}
         />
       ) : (
