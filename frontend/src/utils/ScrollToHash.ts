@@ -32,25 +32,27 @@ import { useLocation, useNavigate } from "react-router-dom";
  * @author Bradley Baysinger
  */
 const ScrollToHash = () => {
-  const { hash } = useLocation(); // Extracts the hash from the current URL.
-  const navigate = useNavigate(); // Allows programmatic navigation.
+  const { hash } = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (hash) {
-      const element = document.querySelector(hash); // Selects the DOM element with the matching ID.
+      const element = document.querySelector(hash);
 
       if (element) {
-        // Scroll to the element with smooth scrolling.
-        element.scrollIntoView({ behavior: "smooth" });
+        requestAnimationFrame(() => {
+          element.scrollIntoView({ behavior: "smooth" });
 
-        // Temporarily remove the hash to enable repeated clicks.
-        const clearHash = () => navigate("", { replace: true });
-        setTimeout(clearHash, 300); // Delay to clear hash after scrolling.
+          // Temporarily remove the hash to allow repeated clicks.
+          setTimeout(() => {
+            navigate("", { replace: true });
+          }, 300);
+        });
       }
     }
-  }, [hash, navigate]); // Runs when `hash` changes.
+  }, [hash, navigate]);
 
-  return null; // Doesn't render anything visible on the screen.
+  return null; // Is a component, but doesn't render anything to the screen.
 };
 
 export default ScrollToHash;
