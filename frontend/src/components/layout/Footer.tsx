@@ -34,20 +34,15 @@ const Footer: React.FC<FooterProps> = ({ mutationElemRef }) => {
     return () => clearTimeout(timeout);
   }, []);
 
-  // Route-based snapping logic
-  const isSlugRoute = (pathname: string) =>
-    /^\/portfolio\/[^/]+$/.test(pathname);
-
   useEffect(() => {
     const prevPath = prevPathRef.current;
     const currentPath = location.pathname;
 
-    const wasSlug = isSlugRoute(prevPath);
-    const isSlug = isSlugRoute(currentPath);
+    const wasPortfolioSlug = /^\/portfolio\/[^/]+$/.test(prevPath);
+    const isPortfolioSlug = /^\/portfolio\/[^/]+$/.test(currentPath);
 
-    setShouldSnap(!(wasSlug && isSlug && prevPath !== currentPath));
-
-    console.log(shouldSnap);
+    const isSmooth = wasPortfolioSlug && isPortfolioSlug;
+    setShouldSnap(!isSmooth); // Only suppress snapping if both are slugs
 
     prevPathRef.current = currentPath;
   }, [location.pathname]);
