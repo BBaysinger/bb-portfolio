@@ -59,7 +59,8 @@
 }
 
 .carouselShim {
-  // Is this preventing the shift? TODO: Figure out what this was.
+  // A helper for positioning.
+  // Is this preventing the shift?
   visibility: hidden;
   position: absolute;
   border: 1px solid #666;
