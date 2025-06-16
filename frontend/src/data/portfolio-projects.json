@@ -89,30 +89,6 @@
       "View Site": "https://www.golden1.com/"
     }
   },
-  "citibank": {
-    "title": "Citibank Website",
-    "active": false,
-    "omitFromList": false,
-    "clientId": "citibank",
-    "mobileStatus": "Portrait",
-    "tags": ["Angular", "TypeScript", "HTML5", "CSS3", "Responsive"],
-    "role": "Developer",
-    "year": "",
-    "awards": "",
-    "type": "",
-    "date": "",
-    "desc": [
-      "<p>I developed a few parts of the Citibank site, including the Citigold Benefits, Compare Cards, and a couple of the Calculators, along with various modals around the site.</p>",
-      "<p>The benefits page includes drop-downs, a slider, and tabbed layouts, and a plethora of dynamically populated fields.</p>",
-      "<p>The loan and equity calculators use Angular custom components and formulas provided by Citibank.</p>"
-    ],
-    "urls": {
-      "Citigold Benefits": "https://www.citi.com/banking/citigold?intc=citihpmenu_overview_citigold",
-      "Compare Cards": "https://www.citi.com/credit-cards/compare/most-popular-credit-cards",
-      "Home Equity Calculator": "https://www.citi.com/home-equity/loan-calculator",
-      "Home Affordability Calculator": "https://www.citi.com/mortgage/affordability-calculator"
-    }
-  },
   "abbvie": {
     "title": "Bystolic Email",
     "active": true,
@@ -359,10 +335,7 @@
     "awards": "",
     "type": "Escape",
     "date": "",
-    "desc": [
-      "<p>A Where's-Waldo-style game featuring unique clues and play mechanics on each level. To save time, I activated a cheat that allows you to jump directly to any of the five levels.</p>",
-      "<p>Rather than simply increasing in difficulty, each level builds upon and enhances the gameplay style of the previous ones, leading to a more rewarding experience. The final level is the most fun—drive a submarine and use radar to locate the hidden characters.</p>"
-    ],
+    "desc": ["<p></p>"],
     "urls": {
       "Walkthrough": "https://www.youtube.com/watch?v=n2R0WPWcdWM",
       "Play Game": "http://www.bbaysinger.com/_projects/tomato/index.html?flambe=html"
