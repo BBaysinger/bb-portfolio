@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import FootGreet from "./FootGreet";
 import NavLinks from "./NavLinks";
 import styles from "./Footer.module.scss";
@@ -21,16 +21,36 @@ const Footer: React.FC<FooterProps> = ({ mutationElemRef }) => {
   const [shouldSnap, setShouldSnap] = useState(false);
 
   const footerRef = useRef<HTMLDivElement>(null);
-  const prevHeightRef = useRef<number>(mainContentHeight);
   const [emailAddr, setEmailAddr] = useState<string>("Waiting...");
 
+  const location = useLocation();
+  const prevPathRef = useRef<string>(location.pathname);
+
+  // Obfuscated email setup
   useEffect(() => {
-    // Obfuscated email setup
     const timeout = setTimeout(() => {
       setEmailAddr("B" + "Baysinger" + "@" + "gmx.com");
     }, 2000);
     return () => clearTimeout(timeout);
   }, []);
+
+  // Route-based snapping logic
+  const isSlugRoute = (pathname: string) =>
+    /^\/portfolio\/[^/]+$/.test(pathname);
+
+  useEffect(() => {
+    const prevPath = prevPathRef.current;
+    const currentPath = location.pathname;
+
+    const wasSlug = isSlugRoute(prevPath);
+    const isSlug = isSlugRoute(currentPath);
+
+    setShouldSnap(!(wasSlug && isSlug && prevPath !== currentPath));
+
+    console.log(shouldSnap);
+
+    prevPathRef.current = currentPath;
+  }, [location.pathname]);
 
   useEffect(() => {
     const mainContentTarget = mutationElemRef.current;
@@ -42,7 +62,9 @@ const Footer: React.FC<FooterProps> = ({ mutationElemRef }) => {
 
     const updateMainContentHeight = () => {
       const height = mainContentTarget.offsetHeight || 0;
-      setMainContentHeight(height);
+      setTimeout(() => {
+        setMainContentHeight(height);
+      }, 50);
     };
 
     const updateFooterHeight = () => {
@@ -50,20 +72,13 @@ const Footer: React.FC<FooterProps> = ({ mutationElemRef }) => {
       setFooterHeight(height);
     };
 
-    // Delay the first reads until layout stabilizes
     requestAnimationFrame(() => {
       updateMainContentHeight();
       updateFooterHeight();
     });
 
-    const mainContentResizeObserver = new ResizeObserver(([entry]) => {
-      const newHeight = entry.contentRect.height;
-      const wasShrinking = newHeight < prevHeightRef.current;
-
-      setShouldSnap(wasShrinking);
-      prevHeightRef.current = newHeight;
-
-      setMainContentHeight(newHeight);
+    const mainContentResizeObserver = new ResizeObserver(() => {
+      updateMainContentHeight();
     });
 
     mainContentResizeObserver.observe(mainContentTarget);
@@ -80,13 +95,6 @@ const Footer: React.FC<FooterProps> = ({ mutationElemRef }) => {
     };
   }, [mutationElemRef]);
 
-  // Reset snap flag after layout commit
-  useEffect(() => {
-    if (shouldSnap) {
-      requestAnimationFrame(() => setShouldSnap(false));
-    }
-  }, [shouldSnap]);
-
   return (
     <div
       className={styles.footerWrapper}
@@ -102,7 +110,7 @@ const Footer: React.FC<FooterProps> = ({ mutationElemRef }) => {
         }}
         className={styles.footer}
       >
-        <div className={`container`}>
+        <div className="container">
           <div className="row">
             <div
               className={`col-xs-12 col-sm-12 col-md-6 col-lg-6 ${styles.footerCell}`}
@@ -143,7 +151,7 @@ const Footer: React.FC<FooterProps> = ({ mutationElemRef }) => {
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      <span className={"nobr"}>
+                      <span className="nobr">
                         <div
                           style={{
                             backgroundImage:

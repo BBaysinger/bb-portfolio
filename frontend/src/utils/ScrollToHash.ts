@@ -40,6 +40,9 @@ const ScrollToHash = () => {
       const element = document.querySelector(hash);
 
       if (element) {
+        // Wait for the next frame to ensure layout is stable. Becomes
+        // a factor when the footer is positioned via translateY (the strategy
+        // used for the carousel to prevent content height changes from causing jank.)
         requestAnimationFrame(() => {
           element.scrollIntoView({ behavior: "smooth" });
 
