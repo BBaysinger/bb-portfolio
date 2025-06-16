@@ -43,14 +43,14 @@ const ScrollToHash = () => {
         // Wait for the next frame to ensure layout is stable. Becomes
         // a factor when the footer is positioned via translateY (the strategy
         // used for the carousel to prevent content height changes from causing jank.)
-        requestAnimationFrame(() => {
+        setTimeout(() => {
           element.scrollIntoView({ behavior: "smooth" });
 
           // Temporarily remove the hash to allow repeated clicks.
           setTimeout(() => {
             navigate("", { replace: true });
           }, 300);
-        });
+        }, 200);
       }
     }
   }, [hash, navigate]);
