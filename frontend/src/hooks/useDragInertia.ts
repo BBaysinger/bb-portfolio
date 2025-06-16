@@ -3,6 +3,8 @@ import gsap from "gsap";
 import { Draggable } from "gsap/Draggable";
 import { InertiaPlugin } from "gsap/InertiaPlugin";
 
+import useActivePointerType from "./useActivePointerType";
+
 gsap.registerPlugin(Draggable, InertiaPlugin);
 
 /**
@@ -16,6 +18,7 @@ gsap.registerPlugin(Draggable, InertiaPlugin);
  * References:
  * https://gsap.com/community/forums/topic/33288-gsap-observer-velocity-drag/
  * https://gsap.com/community/forums/topic/32443-draggable-infinite-carousel-with-snap-and-indexing/
+ * Uses GSAP Draggable + InertiaPlugin, but only responds to mouse input.
  *
  * @author Bradley Baysinger
  * @since The beginning of time.
@@ -31,6 +34,7 @@ export const useDragInertia = (
 ) => {
   const draggableRef = useRef<Draggable | null>(null);
   const containerOffsetRef = useRef<number>(0);
+  const pointerType = useActivePointerType();
 
   useEffect(() => {
     containerOffsetRef.current = (wrapperWidth - slideWidth.current) / 2;
@@ -38,7 +42,7 @@ export const useDragInertia = (
 
   useEffect(() => {
     const scroller = scrollerRef.current;
-    if (!scroller || isSlave) return;
+    if (!scroller || isSlave || pointerType !== "mouse") return;
 
     // Disable snapping when dragging starts
     const handlePress = () => setSnap("none");

@@ -111,14 +111,16 @@ const Carousel = memo(
     // This mutates the DOM by adding a child to the scrollerRef as an additional
     // wrapper to the slides. That does't affect anything and doesn't necessitate
     // any changes in the code.
-    const draggable = useDragInertia(
-      scrollerRef,
-      setSnap,
-      slideSpacing,
-      isSlaveMode,
-      wrapperWidth,
-      slideWidthRef,
-    );
+    const draggable = isSlaveMode
+      ? null
+      : useDragInertia(
+          scrollerRef,
+          setSnap,
+          slideSpacing,
+          isSlaveMode,
+          wrapperWidth,
+          slideWidthRef,
+        );
 
     useEffect(() => {
       scrollIndexRef.current = scrollIndex;
@@ -279,8 +281,8 @@ const Carousel = memo(
       const scrollListener = (_: Event) => {
         if (
           // TODO: Maybe these should change scrollTriggerSource to IMPERATIVE?
-          !draggable.current?.isThrowing &&
-          !draggable.current?.isDragging &&
+          !draggable?.current?.isThrowing &&
+          !draggable?.current?.isDragging &&
           scrollTriggerSource.current !== Source.IMPERATIVE &&
           snap !== "x mandatory"
         ) {
