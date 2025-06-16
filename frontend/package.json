@@ -24,7 +24,7 @@
     "bootstrap": "^5.3.6",
     "crypto-js": "^4.2.0",
     "exenv": "^1.2.2",
-    "gsap": "file:gsap-bonus.tgz",
+    "gsap": "^3.13.0",
     "pixi.js": "^8.10.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
