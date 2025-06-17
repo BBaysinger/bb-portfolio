@@ -6,14 +6,6 @@ import { CanvasRenderer } from "./CanvasRenderer";
 import { RenderStrategyType } from "./RenderingAllTypes";
 import styles from "./SpriteSheetPlayer.module.scss";
 
-/**
- * NOTE that WebGL has substantial rendering cost (on my machine full screen @ 3584×2240),
- * and there are some defects observed in CSS, including delayed load time, even though
- * the decoded image data is retained in memory. Canvas seems the best for now.
- *
- * TODO: Revisit the other rendering strategies later.
- */
-
 const DEFAULT_RENDER_STRATEGY: RenderStrategyType = "canvas";
 
 interface SpriteSheetPlayerProps {
@@ -34,6 +26,12 @@ interface SpriteSheetPlayerProps {
  * A versatile sprite sheet animation component supporting CSS, Canvas, and WebGL rendering strategies.
  * Accepts sprite sheets with a specific filename format to auto-parse dimensions and frame count.
  * Capable of auto-playing, looping, or manually controlling playback, with optional per-frame FPS and random frame selection.
+ *
+ * NOTE that WebGL has substantial rendering cost (on my machine full screen @ 3584×2240),
+ * and there are some defects observed in CSS, including delayed load time, even though
+ * the decoded image data is retained in memory. Canvas seems the best for now.
+ *
+ * TODO: Revisit the other rendering strategies later, particularly WebGL, which is supposed be the most performant.
  *
  * Supported filename format: `name_w{width}h{height}f{frameCount}.ext`
  * Example: `explosion_w72h72f16.webp`
@@ -264,10 +262,7 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
           width={frameWidth}
           height={frameHeight}
           style={{
-            // width: "100%",
-            // height: "100%",
             display: frameIndex === null ? "none" : "block",
-            // imageRendering: "pixelated",
           }}
         />
       ) : (
