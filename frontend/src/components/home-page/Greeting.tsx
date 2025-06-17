@@ -26,21 +26,21 @@ const Greeting: React.FC = () => {
           <div className={styles.text}>
             <div ref={addToRefs}>
               <p>
-                Hi, I'm Bradley and I'm an interactive developer with a
-                background in design, specializing in building high-quality,
-                interactive web experiences. My current expertise lies in
-                TypeScript, JavaScript, and modern development practices, with a
-                focus on performance, scalability, and usability.
+                Hi, I'm Bradley—an interactive developer with a background in
+                design, specializing in high-quality, animated web experiences.
+                My recent expertise lies in TypeScript, JavaScript, and modern
+                front-end development, with a focus on performance, scalability,
+                and usability.
               </p>
             </div>
             <div ref={addToRefs}>
               <p>
-                My portfolio includes both modern projects and select legacy
-                pieces, highlighting my unique history, adaptability, and
-                attention to detail. These showcase not only my technical
-                evolution but also my ability to refine and polish digital
-                experiences across different eras of web development. Feel free
-                to browse my work, and if you'd like to connect, let's talk!
+                This portfolio includes a range of work—from early projects
+                built with jQuery and Flash to recent builds in React and modern
+                animation frameworks. While some legacy projects reflect the
+                tools of their time, my direction today is focused on modern,
+                performant interfaces. Please explore—and if you'd like to
+                connect, let's talk!
               </p>
             </div>
             <a ref={addToRefs} href="#list">
