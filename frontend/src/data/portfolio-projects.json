@@ -368,7 +368,7 @@
     "omitFromList": false,
     "clientId": "nickjr",
     "mobileStatus": "none",
-    "tags": ["Flash", "AS3"],
+    "tags": ["Flash", "AS2"],
     "role": "Lead Developer",
     "year": "",
     "awards": "",
@@ -376,12 +376,14 @@
     "date": "",
     "desc": [
       "<p>Two dress-up games in one! This was Seven2's first game for the Nickelodeon Group. The match mode is a real challenge—you could say I've mastered it over the years.</p>",
-      "<p>I developed a custom drag-and-drop system for this project, which I later ported to ActionScript 3.0 and eventually Haxe. I built most of the game, aside from Blue and Magenta's animations and the end screen. Fun fact: that old alarm clock still keeps perfect time after all these years.</p>",
+      "<p>As well as building out most of both games, I created a reusable drag-and-drop system for this project, which I later ported to ActionScript 3.0 and eventually Haxe/Flambe. Fun fact: that old alarm clock still keeps perfect time after all these years.</p>",
+      "<p>It's not possible to pick a single project to represent the wide range of interactive pieces I created during the Flash era—but this one stands out as a notable mention.</p>",
       "<p>This project won the Golden Pixel Addy Award in 2008.</p>",
-      "<p>Originally built in Flash before Apple put an end to it, I'm still exploring ways to provide a working version. For now, please enjoy the walkthrough.</p>"
+      "<p>The linked emulation is far from perfect, but it at least runs... and brings back a lot of memories.</p>"
     ],
     "urls": {
-      "Walkthrough": "https://www.youtube.com/watch?v=DhvAuTsJq5o"
+      "Walkthrough": "https://www.youtube.com/watch?v=DhvAuTsJq5o",
+      "Emulator": "https://www.numuki.com/game/blue-s-mix-n-match-dress-up/"
     }
   },
   "template": {
