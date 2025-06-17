@@ -28,7 +28,32 @@ interface AnimationMeta {
 }
 
 /**
+ * AnimationSequencer Component
  *
+ * This component plays weighted, randomized sprite sheet animations after a delay
+ * of user inactivity (i.e., no imperative triggers). Animations are rendered using
+ * the `SpriteSheetPlayer` component, which supports frame control and playback options.
+ *
+ * The sequencer:
+ * - Loads `.webp` sprite sheets based on viewport ratio (wide vs. narrow).
+ * - Randomly selects from a list of predefined animations with optional weighting.
+ * - Waits a defined delay between animations to reduce visual clutter.
+ * - Supports triggering specific animations imperatively via ref (e.g., on user interaction).
+ * - Uses absolute file paths for sprite sheet lookup.
+ * - Plays each animation once unless loop count is specified.
+ *
+ * Usage:
+ * - Pass a `ref` to the component to gain access to the `playImperativeAnimation()` method.
+ * - This method can be used to override the inactivity timer and play a specific animation.
+ *
+ * Note:
+ * - This component assumes a sprite naming convention based on resolution (e.g., "wide" or "narrow").
+ * - Animations are selected using a weighted random system, avoiding immediate repeats.
+ *
+ * Dependencies:
+ * - React
+ * - SpriteSheetPlayer (for sprite-based animation rendering)
+ * - SCSS module styles (AnimationSequencer.module.scss)
  *
  * @author Bradley Baysinger
  * @since The beginning of time.
@@ -59,6 +84,13 @@ const AnimationSequencer = forwardRef<
   };
 
   const inactivityAnimations: AnimationMeta[] = [
+    {
+      wide: "invaders_w16h12f105",
+      narrow: "invaders_w16h12f105",
+      fps: 10,
+      loops: 1,
+      weight: 2,
+    },
     {
       wide: "burst1_Layer-Comp-_w16h12f30",
       narrow: "burst1_Layer-Comp-_w16h12f30",
@@ -128,13 +160,6 @@ const AnimationSequencer = forwardRef<
       fps: 10,
       loops: 1,
       weight: 1,
-    },
-    {
-      wide: "invaders_w16h12f105",
-      narrow: "invaders_w16h12f105",
-      fps: 10,
-      loops: 1,
-      weight: 2,
     },
   ];
 
