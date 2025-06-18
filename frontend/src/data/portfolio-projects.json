@@ -334,7 +334,10 @@
     "awards": "",
     "type": "Escape",
     "date": "",
-    "desc": ["<p></p>"],
+    "desc": [
+      "<p>A post-apocalyptic escape game. We've all been nuked, but you lived and your DNA has combined with that of a tomato. If you think that's freaky, just wait until you see the rest of the house! Watch out for Mom, she's quite upset with you.</p>",
+      "<p>I produced the framework for the game and a logic system for all of the interactive elements to work with each other. At a glance, I could see that implementing 'if' statements dispersed around the site could be messy and hard to debug, so I devised a system that employs a single XML document to contain game state, define interactive elements, and how they behave with respect to each other. The state of the entire game can observed by outputting a single sheet of XML, which is a native datatype in ActionScript 3.0.</p>"
+    ],
     "urls": {
       "Walkthrough": "https://www.youtube.com/watch?v=n2R0WPWcdWM",
       "Play Game": "http://www.bbaysinger.com/_projects/tomato/index.html?flambe=html"

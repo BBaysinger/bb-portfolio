@@ -36,11 +36,11 @@ const Greeting: React.FC = () => {
             <div ref={addToRefs}>
               <p>
                 This portfolio includes a range of work—from early projects
-                built with jQuery and Flash to recent builds in React and modern
-                animation frameworks. While some legacy projects reflect the
-                tools of their time, my direction today is focused on modern,
-                performant interfaces. Please explore—and if you'd like to
-                connect, let's talk!
+                built with vanilla ES5, Flash, jQuery, and Haxe to recent builds
+                in React and modern interactive frameworks. While some legacy
+                projects reflect the tools of their time, my direction today is
+                focused on modern, performant interfaces. Please explore—and if
+                you'd like to connect, let's talk!
               </p>
             </div>
             <a ref={addToRefs} href="#list">
