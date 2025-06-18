@@ -31,7 +31,9 @@ interface SpriteSheetPlayerProps {
  * and there are some defects observed in CSS, including delayed load time, even though
  * the decoded image data is retained in memory. Canvas seems the best for now.
  *
- * TODO: Revisit the other rendering strategies later, particularly WebGL, which is supposed be the most performant.
+ * TODO: Revisit the other rendering strategies later, particularly WebGL, which is *supposed* to be the most performant.
+ *
+ * TODO: We need a mode that animates by shifting an image containing a single visual (versus frame-by-frame).
  *
  * Supported filename format: `name_w{width}h{height}f{frameCount}.ext`
  * Example: `explosion_w72h72f16.webp`
