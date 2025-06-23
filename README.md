@@ -3,6 +3,7 @@
 [Visit the Live Site](https://bbinteractive.io)
 
 ## Features
+
 - **Native Swipe Parallax Carousel**: Previews for each portfolio project are presented through an infinite parallax carousel with seamless, native left/right user swiping. There are reasons you've probably never seen a carousel like this.
   - **Device Overlays**: Screenshots are dynamically overlaid onto mobile and desktop device mockups for a professional presentation.
   - **Dynamic Routing**: Each slide is linked through dynamic routing, ensuring a smooth and engaging user experience with deep linkning available.
