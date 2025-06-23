@@ -1,4 +1,10 @@
 {
   "files": [],
-  "references": [{ "path": "./backend" }, { "path": "./frontend" }]
+  "references": [{ "path": "./backend" }, { "path": "./frontend" }],
+  "compilerOptions": {
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "module": "CommonJS",
+    "moduleResolution": "node"
+  }
 }
