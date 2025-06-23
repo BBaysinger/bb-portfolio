@@ -1,16 +1,17 @@
 {
-  dependencies: {
-    "comment-json": "^4.2.5",
+  "dependencies": {
+    "comment-json": "^4.2.5"
   },
-  devDependencies: {
-    eslint: "^8.0.0",
-    prettier: "^3.6.0",
+  "devDependencies": {
+    "eslint": "^8.0.0",
+    "json5": "^2.2.3",
+    "prettier": "^3.6.0",
     "ts-node": "^10.9.2",
-    typescript: "^5.0.0",
+    "typescript": "^5.0.0"
   },
-  scripts: {
-    pb: "prettier --write . && tsc -b",
-    format: "prettier --write .",
-    lint: "eslint .",
-  },
+  "scripts": {
+    "pb": "prettier --write . && tsc -b",
+    "format": "prettier --write .",
+    "lint": "eslint ."
+  }
 }
