@@ -35,7 +35,6 @@ const syncJson5LineByLine = (pkgPath: string) => {
   const raw = fs.readFileSync(pkg5Path, "utf8");
   const trimmed = raw.trim();
 
-  // If file is empty or just an empty object, populate it fresh
   const isEmpty = trimmed === "" || trimmed === "{}";
 
   if (isEmpty) {
@@ -55,9 +54,8 @@ const syncJson5LineByLine = (pkgPath: string) => {
     }
 
     if (generated.length === 1) {
-      generated.push("}"); // Only opening brace so far — close it cleanly
+      generated.push("}");
     } else {
-      // Remove trailing comma from last block
       const lastLine = generated[generated.length - 1];
       if (lastLine.trim().endsWith(",")) {
         generated[generated.length - 1] = lastLine.replace(/,\s*$/, "");
@@ -70,38 +68,94 @@ const syncJson5LineByLine = (pkgPath: string) => {
     return;
   }
 
-  // Else: update existing file line-by-line
   const lines = raw.split(/\r?\n/);
   const updatedLines: string[] = [];
+  const touchedFields = new Set<string>();
 
   let currentField: string | null = null;
+  let blockLines: string[] = [];
+  let i = 0;
 
-  for (let line of lines) {
-    const lineTrimmed = line.trim();
+  while (i < lines.length) {
+    const line = lines[i];
+    const trimmed = line.trim();
 
-    for (const field of fieldsToSync) {
-      if (lineTrimmed.startsWith(`"${field}"`) && lineTrimmed.endsWith("{")) {
-        currentField = field;
-        break;
-      }
-    }
-
-    if (currentField && lineTrimmed === "},") {
-      currentField = null;
-    }
-
-    if (currentField) {
-      const match = line.match(/^(\s*)"([^"]+)"\s*:\s*"([^"]+)"(,?)/);
-      if (match) {
-        const [, indent, key, oldVal, comma] = match;
-        const newVal = json[currentField]?.[key];
-        if (newVal && newVal !== oldVal) {
-          line = `${indent}"${key}": "${newVal}"${comma}`;
+    if (!currentField) {
+      // Detect start of a syncable block
+      for (const field of fieldsToSync) {
+        if (
+          trimmed.startsWith(`"${field}"`) &&
+          trimmed.endsWith("{") &&
+          !touchedFields.has(field)
+        ) {
+          currentField = field;
+          blockLines = [line]; // Store block header
+          touchedFields.add(field);
+          i++;
+          // DO NOT push this line to updatedLines — it will be handled in full block rebuild
+          break;
         }
       }
+
+      if (!currentField) {
+        updatedLines.push(line);
+        i++;
+      }
+
+      continue;
     }
 
-    updatedLines.push(line);
+    // Inside a field block
+    blockLines.push(line);
+
+    if (trimmed === "},") {
+      const field = currentField;
+      currentField = null;
+
+      const fieldLines = blockLines.slice(1, blockLines.length - 1); // exclude header/footer
+      const finalBlock: string[] = [];
+
+      const existingKeys = new Set<string>();
+      for (const entryLine of fieldLines) {
+        const match = entryLine.match(/^\s*"([^"]+)"\s*:/);
+        if (match) {
+          existingKeys.add(match[1]);
+        }
+      }
+
+      for (let line of fieldLines) {
+        const match = line.match(/^(\s*)"([^"]+)"\s*:\s*"([^"]+)"(,?)/);
+        if (match) {
+          const [, indent, key, oldVal, comma] = match;
+          const newVal = json[field!]?.[key];
+          if (newVal && newVal !== oldVal) {
+            line = `${indent}"${key}": "${newVal}"${comma}`;
+          }
+        }
+        finalBlock.push(line);
+      }
+
+      // Add missing keys
+      const jsonField = json[field!] as Record<string, string>;
+      if (jsonField) {
+        for (const [key, value] of Object.entries(jsonField)) {
+          if (!existingKeys.has(key)) {
+            finalBlock.push(`    "${key}": "${value}",`);
+          }
+        }
+      }
+
+      // Rebuild block safely
+      updatedLines.push(blockLines[0]); // Header: "scripts": {
+      updatedLines.push(...finalBlock);
+      updatedLines.push(blockLines[blockLines.length - 1]); // Footer: "},"
+
+      blockLines = [];
+      i++;
+      continue;
+    }
+
+    i++;
   }
 
   fs.writeFileSync(pkg5Path, updatedLines.join("\n"));
