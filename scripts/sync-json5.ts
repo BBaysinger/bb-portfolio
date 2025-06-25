@@ -1,107 +1,67 @@
-import * as fs from 'fs';
-import * as path from 'path';
-import * as JSON5 from 'json5';
+// scripts/sync-json5.ts
+import fs from "fs";
+import path from "path";
+import { sync as globSync } from "glob";
+import ignore from "ignore";
 
-// Helper: Recursively walk JSON and build flat path map
-const flatten = (obj: any, prefix = ''): Record<string, any> => {
-  const result: Record<string, any> = {};
-  for (const key in obj) {
-    const value = obj[key];
-    const fullPath = prefix ? `${prefix}.${key}` : key;
-    if (value && typeof value === 'object' && !Array.isArray(value)) {
-      Object.assign(result, flatten(value, fullPath));
-    } else {
-      result[fullPath] = value;
-    }
-  }
-  return result;
-};
+const rootDir = process.cwd();
+const ig = ignore();
+const gitignorePath = path.join(rootDir, ".gitignore");
 
-// Helper: Unflatten into nested object
-const unflatten = (flatObj: Record<string, any>): any => {
-  const result: any = {};
-  for (const flatKey in flatObj) {
-    const keys = flatKey.split('.');
-    keys.reduce((acc, key, idx) => {
-      if (idx === keys.length - 1) {
-        acc[key] = flatObj[flatKey];
-        return;
-      }
-      if (!acc[key]) acc[key] = {};
-      return acc[key];
-    }, result);
-  }
-  return result;
-};
+if (fs.existsSync(gitignorePath)) {
+  const gitignoreContent = fs.readFileSync(gitignorePath, "utf8");
+  ig.add(gitignoreContent);
+}
 
-// Extract comments and associate them with nearby keys
-const extractComments = (lines: string[]): Record<string, string[]> => {
-  const comments: Record<string, string[]> = {};
-  let lastCommentLines: string[] = [];
-  let currentPath: string[] = [];
+const packageJsonPaths = globSync("**/package.json", {
+  cwd: rootDir,
+  ignore: ["**/node_modules/**"],
+  absolute: true,
+});
 
-  for (const line of lines) {
-    const trimmed = line.trim();
+function replaceValuesInJson5(rawJson5: string, sourceObj: any): string {
+  let updated = rawJson5;
 
-    if (/^\/\//.test(trimmed) || /^\/\*/.test(trimmed)) {
-      lastCommentLines.push(trimmed);
-    } else {
-      const match = trimmed.match(/^"([^"]+)":/);
-      if (match) {
-        const key = match[1];
-        const pathStr = [...currentPath, key].join('.');
-        if (lastCommentLines.length) {
-          comments[pathStr] = [...lastCommentLines];
-          lastCommentLines = [];
-        }
-      }
+  function recurse(obj: any, pathParts: string[] = []) {
+    for (const key in obj) {
+      const val = obj[key];
+      const jsonPath = [...pathParts, key];
+      const jsonPointer = `"${key}"`;
 
-      if (trimmed.endsWith('{')) {
-        const match = trimmed.match(/^"([^"]+)":\s*{/);
-        if (match) currentPath.push(match[1]);
-      } else if (trimmed === '},' || trimmed === '}') {
-        currentPath.pop();
+      if (typeof val === "object" && val !== null && !Array.isArray(val)) {
+        recurse(val, jsonPath);
+      } else {
+        // Create a regex that matches this key-value pair
+        const regex = new RegExp(
+          `"${key}"\\s*:\\s*(?:".*?"|\\d+|true|false|null)`,
+          "g",
+        );
+        const replacement = `"${key}": ${JSON.stringify(val)}`;
+        updated = updated.replace(regex, replacement);
       }
     }
   }
 
-  return comments;
-};
+  recurse(sourceObj);
+  return updated;
+}
 
-const syncPackageJsonToJson5 = (pkgPath: string) => {
-  const dir = path.dirname(pkgPath);
-  const pkg5Path = path.join(dir, 'package.json5');
+// Process each file
+for (const packageJsonPath of packageJsonPaths) {
+  const relPath = path.relative(rootDir, packageJsonPath);
+  if (ig.ignores(relPath)) continue;
 
-  if (!fs.existsSync(pkg5Path)) {
-    console.warn(`⚠️ No package.json5 found at ${pkg5Path}`);
-    return;
+  const json5Path = packageJsonPath + "5";
+  if (!fs.existsSync(json5Path)) {
+    console.log(`⏩ Skipping ${relPath} — no package.json5 found`);
+    continue;
   }
 
-  const json = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
-  const rawJson5 = fs.readFileSync(pkg5Path, 'utf8');
-  const json5Lines = rawJson5.split(/\r?\n/);
-  const commentsMap = extractComments(json5Lines);
+  const rawJson5 = fs.readFileSync(json5Path, "utf8");
+  const rawJson = fs.readFileSync(packageJsonPath, "utf8");
+  const parsedJson = JSON.parse(rawJson);
 
-  const flatJson = flatten(json);
-  const updatedFlat: Record<string, string[]> = {};
-
-  const outputLines: string[] = ['{'];
-  const keys = Object.keys(flatJson);
-  keys.forEach((key, index) => {
-    if (commentsMap[key]) {
-      commentsMap[key].forEach(comment => outputLines.push(`  ${comment}`));
-    }
-    const segments = key.split('.');
-    const indent = '  '.repeat(segments.length);
-    const k = segments[segments.length - 1];
-    const value = JSON.stringify(flatJson[key]);
-    const comma = index < keys.length - 1 ? ',' : '';
-    outputLines.push(`${indent}"${k}": ${value}${comma}`);
-  });
-  outputLines.push('}');
-
-  fs.writeFileSync(pkg5Path, outputLines.join('\n'));
-  console.log(`✅ Synced ${path.relative(process.cwd(), pkg5Path)}`);
-};
-
-syncPackageJsonToJson5(path.resolve(process.cwd(), 'package.json'));
+  const updated = replaceValuesInJson5(rawJson5, parsedJson);
+  fs.writeFileSync(json5Path, updated);
+  console.log(`✅ Synced ${relPath} → ${path.basename(json5Path)}`);
+}
