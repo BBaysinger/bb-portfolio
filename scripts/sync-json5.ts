@@ -17,29 +17,38 @@ const packageJsonPaths = globSync("**/package.json", {
   absolute: true,
 });
 
-function replaceValues(raw: string, source: any): string {
-  function recurse(obj: any): void {
-    for (const key of Object.keys(obj)) {
-      const val = obj[key];
-      if (val && typeof val === "object" && !Array.isArray(val)) {
-        recurse(val);
-      } else {
-        const value = JSON.stringify(val);
-        const keyPattern = new RegExp(
-          `^\\s*(?:"${key}"|${key})\\s*:\\s*(?:"(?:[^"\\\\]|\\\\.)*"|[^\\s,{}\\[\\]]+)`,
-          "m"
-        );
-        raw = raw.replace(keyPattern, `${key}: ${value}`);
+function replaceKeyValuesWithQuotedKeys(
+  raw: string,
+  source: Record<string, any>,
+): string {
+  const lines = raw.split("\n");
+  const topLevelKeys = new Set(Object.keys(source));
+
+  return lines
+    .map((line) => {
+      const match = line.match(
+        /^(\s*)(["']?)([a-zA-Z0-9_\-$@]+)\2(\s*:\s*)(.+?)(,?\s*)$/,
+      );
+      if (!match) return line;
+
+      const [_, indent, , key, sep, , trailingComma] = match;
+      const newVal = source.hasOwnProperty(key)
+        ? JSON.stringify(source[key], null, 0)
+        : null;
+
+      if (newVal !== null) {
+        return `${indent}"${key}"${sep}${newVal}${trailingComma}`;
       }
-    }
-  }
-  recurse(source);
-  return raw;
+
+      return line;
+    })
+    .join("\n");
 }
 
 function removeDeletedKeys(raw: string, source: any): string {
   const keep = new Set(Object.keys(source));
-  const linePattern = /^\s*(?:"([^"]+)"|([a-zA-Z0-9_$]+))\s*:\s*(?:\{[^{}]*\}|\[[^\[\]]*\]|"(?:[^"\\]|\\.)*"|[^,\n]+),?\s*$/gm;
+  const linePattern =
+    /^\s*(?:"([^"]+)"|([a-zA-Z0-9_$]+))\s*:\s*(?:\{[^{}]*\}|\[[^\[\]]*\]|"(?:[^"\\]|\\.)*"|[^,\n]+),?\s*$/gm;
 
   return raw.replace(linePattern, (match, quoted, bare) => {
     const key = quoted || bare;
@@ -49,15 +58,15 @@ function removeDeletedKeys(raw: string, source: any): string {
 
 function addMissingKeys(raw: string, source: any): string {
   const existingMatches = Array.from(
-    raw.matchAll(/(?:"([^"]+)"|([a-zA-Z0-9_$]+))\s*:/g)
+    raw.matchAll(/(?:"([^"]+)"|([a-zA-Z0-9_$]+))\s*:/g),
   );
   const existingKeys = new Set(
-    existingMatches.map(([_, q, b]) => q || b).filter(Boolean)
+    existingMatches.map(([_, q, b]) => q || b).filter(Boolean),
   );
 
   const additions = Object.entries(source)
     .filter(([key]) => !existingKeys.has(key))
-    .map(([key, val]) => `  ${key}: ${JSON.stringify(val)}`);
+    .map(([key, val]) => `  "${key}": ${JSON.stringify(val)}`);
 
   if (!additions.length) return raw;
   return raw.replace(/\}\s*$/, ",\n" + additions.join(",\n") + "\n}");
@@ -84,7 +93,7 @@ for (const packageJsonPath of packageJsonPaths) {
   const rawJson5 = fs.readFileSync(json5Path, "utf8");
   const sourceJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf8"));
 
-  let updated = replaceValues(rawJson5, sourceJson);
+  let updated = replaceKeyValuesWithQuotedKeys(rawJson5, sourceJson);
   updated = removeDeletedKeys(updated, sourceJson);
   updated = addMissingKeys(updated, sourceJson);
   updated = cleanupCommas(updated);
