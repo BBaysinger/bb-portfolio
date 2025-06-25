@@ -1,6 +1,7 @@
 {
   name: "bb-portfolio",
   private: true,
+  workspaces: ["frontend", "backend"],
   // Keep: Uncomment the following line to enable workspaces
   // "workspaces": [
   //   "frontend",
