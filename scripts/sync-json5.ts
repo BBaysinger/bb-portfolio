@@ -29,7 +29,6 @@ function matchKey(line: string): string | null {
 
 function buildCommentMap(lines: string[]): Record<string, string[]> {
   const commentsMap: Record<string, string[]> = {};
-  let currentPath: string[] = [];
   let currentComments: string[] = [];
   const pathStack: string[] = [];
 
@@ -103,7 +102,9 @@ function syncJson5(raw: string, source: Record<string, any>): string {
   }
 
   const generated = writeObject(source, [], 0);
-  return generated.join("\n") + "\n";
+  return `{
+${generated.join("\n")}
+}`;
 }
 
 // 🔁 Runner
