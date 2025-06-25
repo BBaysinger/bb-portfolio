@@ -20,7 +20,7 @@
     "preview": "npm run build && vite preview",
     "format": "prettier --write .",
     "deploy": "vite build && npx netlify deploy --dir=dist --prod",
-    "prepare-package": "node -e "require('fs').writeFileSync('./package.json', JSON.stringify(require('json5').parse(require('fs').readFileSync('./package.json5', 'utf8')), null, 2))""
+    "prepare-package": "node -e \"require('fs').writeFileSync('./package.json', JSON.stringify(require('json5').parse(require('fs').readFileSync('./package.json5', 'utf8')), null, 2))\""
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.8.2",
