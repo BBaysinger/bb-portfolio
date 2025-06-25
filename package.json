@@ -15,9 +15,7 @@
     "json5": "^2.2.3",
     "prettier": "^3.6.0",
     "ts-node": "^10.9.2",
-    "typescript": "^5.0.0"
-  },
-  "dependencies": {
-    "comment-json": "^4.2.5"
+    "typescript": "^5.0.0",
+    "ignore": "^7.0.5"
   }
 }

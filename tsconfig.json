@@ -2,6 +2,7 @@
   "files": [],
   "references": [{ "path": "./backend" }, { "path": "./frontend" }],
   "compilerOptions": {
+    "target": "ES2015",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "module": "CommonJS",
