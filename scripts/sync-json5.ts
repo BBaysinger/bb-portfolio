@@ -17,69 +17,68 @@ const packageJsonPaths = globSync("**/package.json", {
   absolute: true,
 });
 
-function replaceKeyValuesWithQuotedKeys(
-  raw: string,
-  source: Record<string, any>,
-): string {
+// Safely stringify values (with spacing preserved)
+function safeStringify(value: any): string {
+  return JSON.stringify(value, null, 2).replace(/\n/g, "\n  ");
+}
+
+function updateJson5(raw: string, source: Record<string, any>): string {
+  const existingKeys = new Set<string>();
   const lines = raw.split("\n");
-  const topLevelKeys = new Set(Object.keys(source));
+  const outputLines: string[] = [];
+  let insideObject = false;
+  let currentKey: string | null = null;
+  let bracketLevel = 0;
 
-  return lines
-    .map((line) => {
-      const match = line.match(
-        /^(\s*)(["']?)([a-zA-Z0-9_\-$@]+)\2(\s*:\s*)(.+?)(,?\s*)$/,
-      );
-      if (!match) return line;
+  for (let line of lines) {
+    const keyMatch = line.match(
+      /^(\s*)(["']?)([a-zA-Z0-9_\-$@]+)\2\s*:\s*(.+?)?([,{[]?)\s*(\/\/.*)?$/,
+    );
 
-      const [_, indent, , key, sep, , trailingComma] = match;
-      const newVal = source.hasOwnProperty(key)
-        ? JSON.stringify(source[key], null, 0)
-        : null;
+    if (keyMatch) {
+      const [_, indent, , key, valRaw, trailing, comment] = keyMatch;
+      existingKeys.add(key);
+      currentKey = key;
 
-      if (newVal !== null) {
-        return `${indent}"${key}"${sep}${newVal}${trailingComma}`;
+      if (source.hasOwnProperty(key)) {
+        let value = source[key];
+        let serialized = safeStringify(value);
+
+        // Handle single-line simple values
+        if (
+          typeof value !== "object" ||
+          value === null ||
+          (Array.isArray(value) && value.length <= 2)
+        ) {
+          serialized = JSON.stringify(value);
+        }
+
+        const fullLine = `${indent}"${key}": ${serialized}${comment ? " " + comment : ""}`;
+        outputLines.push(fullLine);
+      } else {
+        // Key not in source, skip it
       }
+    } else {
+      // Copy comments or non-matching lines verbatim
+      outputLines.push(line);
+    }
+  }
 
-      return line;
-    })
-    .join("\n");
+  // Add missing keys
+  for (const key of Object.keys(source)) {
+    if (!existingKeys.has(key)) {
+      const serialized = safeStringify(source[key]);
+      outputLines.splice(
+        outputLines.length - 1,
+        0,
+        `  "${key}": ${serialized},`,
+      );
+    }
+  }
+
+  return outputLines.join("\n").replace(/,\s*([}\]])/g, "$1"); // Final comma cleanup
 }
 
-function removeDeletedKeys(raw: string, source: any): string {
-  const keep = new Set(Object.keys(source));
-  const linePattern =
-    /^\s*(?:"([^"]+)"|([a-zA-Z0-9_$]+))\s*:\s*(?:\{[^{}]*\}|\[[^\[\]]*\]|"(?:[^"\\]|\\.)*"|[^,\n]+),?\s*$/gm;
-
-  return raw.replace(linePattern, (match, quoted, bare) => {
-    const key = quoted || bare;
-    return keep.has(key) ? match : "";
-  });
-}
-
-function addMissingKeys(raw: string, source: any): string {
-  const existingMatches = Array.from(
-    raw.matchAll(/(?:"([^"]+)"|([a-zA-Z0-9_$]+))\s*:/g),
-  );
-  const existingKeys = new Set(
-    existingMatches.map(([_, q, b]) => q || b).filter(Boolean),
-  );
-
-  const additions = Object.entries(source)
-    .filter(([key]) => !existingKeys.has(key))
-    .map(([key, val]) => `  "${key}": ${JSON.stringify(val)}`);
-
-  if (!additions.length) return raw;
-  return raw.replace(/\}\s*$/, ",\n" + additions.join(",\n") + "\n}");
-}
-
-function cleanupCommas(raw: string): string {
-  return raw
-    .replace(/,\s*,/g, ",")
-    .replace(/,\s*([}\]])/g, "$1")
-    .replace(/\n{2,}/g, "\n");
-}
-
-// 🔁 Main
 for (const packageJsonPath of packageJsonPaths) {
   const relPath = path.relative(rootDir, packageJsonPath);
   if (ig.ignores(relPath)) continue;
@@ -93,11 +92,7 @@ for (const packageJsonPath of packageJsonPaths) {
   const rawJson5 = fs.readFileSync(json5Path, "utf8");
   const sourceJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf8"));
 
-  let updated = replaceKeyValuesWithQuotedKeys(rawJson5, sourceJson);
-  updated = removeDeletedKeys(updated, sourceJson);
-  updated = addMissingKeys(updated, sourceJson);
-  updated = cleanupCommas(updated);
-
+  const updated = updateJson5(rawJson5, sourceJson);
   fs.writeFileSync(json5Path, updated);
   console.log(`✅ Synced ${relPath} → ${path.basename(json5Path)}`);
 }
