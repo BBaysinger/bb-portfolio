@@ -59,7 +59,7 @@ const ScrollToHash = () => {
           cleanupTimeoutRef.current = window.setTimeout(() => {
             navigate("", { replace: true });
             cleanupTimeoutRef.current = null;
-          }, 1000);
+          }, 2000);
         }, 200);
       }
     }
