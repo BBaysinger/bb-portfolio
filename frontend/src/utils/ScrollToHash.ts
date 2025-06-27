@@ -83,7 +83,7 @@ const ScrollToHash = () => {
             navigate("", { replace: true });
             cleanupTimeoutRef.current = null;
           }, 1000);
-        }, 100); // Enough delay for layout and auto-scroll (if any)
+        }, 300); // Enough delay for layout and auto-scroll (if any)
       }
     }
 
