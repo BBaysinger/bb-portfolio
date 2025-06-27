@@ -2,5 +2,7 @@
   base    = "frontend"
   publish = "frontend/dist"
   command = "npm run build"
+
 [build.environment]
   NODE_VERSION = "18.17.1"
+  NODE_ENV = "production"

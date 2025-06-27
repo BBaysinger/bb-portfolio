@@ -1,7 +1,0 @@
-[build]
-  command = "npm run build"
-  publish = "dist"
-  environment = { NODE_AUTH_TOKEN = "${GSAP_TOKEN}" }
-  
-[context.production.environment]
-  NODE_ENV = "production"
