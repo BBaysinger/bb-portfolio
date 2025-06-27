@@ -37,6 +37,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.29.0",
+    "@swc/core": "^1.12.7",
     "@types/crypto-js": "^4.2.2",
     "@types/exenv": "^1.2.2",
     "@types/node": "^24.0.3",
