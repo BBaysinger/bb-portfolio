@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 /**
@@ -34,25 +34,43 @@ import { useLocation, useNavigate } from "react-router-dom";
 const ScrollToHash = () => {
   const { hash } = useLocation();
   const navigate = useNavigate();
+  const cleanupTimeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
+    // Clear any pending timeout from previous hash change
+    if (cleanupTimeoutRef.current !== null) {
+      clearTimeout(cleanupTimeoutRef.current);
+      cleanupTimeoutRef.current = null;
+    }
+
     if (hash) {
       const element = document.querySelector(hash);
 
       if (element) {
-        // Wait for the next frame to ensure layout is stable. Becomes
-        // a factor when the footer is positioned via translateY (the strategy
-        // used for the carousel to prevent content height changes from causing jank.)
         setTimeout(() => {
           element.scrollIntoView({ behavior: "smooth" });
 
-          // Temporarily remove the hash to allow repeated clicks.
-          setTimeout(() => {
+          // Schedule the hash cleanup (remove the hash to
+          // allow repeated nav clicks, otherwise scrolling to an element
+          // the second time won't work.)
+          // Doesn't need to happen immediately, so give enough time
+          // for the scroll to complete, in order to avoid interrupting
+          // the smooth scroll.
+          cleanupTimeoutRef.current = window.setTimeout(() => {
             navigate("", { replace: true });
-          }, 300);
+            cleanupTimeoutRef.current = null;
+          }, 1000);
         }, 200);
       }
     }
+
+    // Cleanup when component unmounts or hash changes
+    return () => {
+      if (cleanupTimeoutRef.current !== null) {
+        clearTimeout(cleanupTimeoutRef.current);
+        cleanupTimeoutRef.current = null;
+      }
+    };
   }, [hash, navigate]);
 
   return null; // Is a component, but doesn't render anything to the screen.
