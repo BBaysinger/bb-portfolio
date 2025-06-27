@@ -51,7 +51,9 @@ const ScrollToHash = () => {
     }
 
     if (hash) {
-      const element = document.querySelector(hash);
+      const element = document.querySelector(hash) as HTMLElement | null;
+
+      console.info(`ScrollToHash: hash=${hash}, element=${element}`);
 
       if (element) {
         const initialScrollY = window.scrollY;
@@ -61,16 +63,26 @@ const ScrollToHash = () => {
           const currentScrollY = window.scrollY;
           const scrollDelta = Math.abs(currentScrollY - initialScrollY);
 
-          const isAtBottom =
-            Math.abs(
-              window.innerHeight + window.scrollY - document.body.scrollHeight,
-            ) < 2;
+          const maxScrollY =
+            document.documentElement.scrollHeight - window.innerHeight;
+          const isAtOrPastBottom = window.scrollY >= maxScrollY - 1;
+          const browserDidNotScroll = scrollDelta < 2;
 
-          const browserDidScrollToHash = scrollDelta > 2 && !isAtBottom;
+          // console.log(`ScrollToHash:`, isAtOrPastBottom, browserDidNotScroll);
+
+          if (isAtOrPastBottom || browserDidNotScroll) {
+            // Fix Safari: jump to bottom, then scroll smoothly to target
+            if (isAtOrPastBottom) {
+              window.scrollTo({
+                top: document.body.scrollHeight,
+                behavior: "auto",
+              });
+            }
 
           // If browser didn't scroll to the hash target, do it manually
-          if (!browserDidScrollToHash) {
-            element.scrollIntoView({ behavior: "smooth" });
+            setTimeout(() => {
+              element.scrollIntoView({ behavior: "smooth" });
+            }, 200);
           }
 
           // Schedule the hash cleanup (remove the hash to
@@ -83,7 +95,7 @@ const ScrollToHash = () => {
             navigate("", { replace: true });
             cleanupTimeoutRef.current = null;
           }, 1000);
-        }, 300); // Enough delay for layout and auto-scroll (if any)
+        }, 200);
       }
     }
 
