@@ -53,7 +53,7 @@ const ScrollToHash = () => {
     if (hash) {
       const element = document.querySelector(hash) as HTMLElement | null;
 
-      console.info(`ScrollToHash: hash=${hash}, element=${element}`);
+      // console.info(`ScrollToHash: hash=${hash}, element=${element}`);
 
       if (element) {
         const initialScrollY = window.scrollY;
@@ -88,9 +88,8 @@ const ScrollToHash = () => {
           // Schedule the hash cleanup (remove the hash to
           // allow repeated nav clicks, otherwise scrolling to an element
           // the second time won't work.)
-          // Doesn't need to happen immediately, so give enough time
-          // for the scroll to complete, in order to avoid interrupting
-          // the smooth scroll.
+          // Doesn't need to happen immediately, but give enough time
+          // for all scrolling to complete.
           cleanupTimeoutRef.current = window.setTimeout(() => {
             navigate("", { replace: true });
             cleanupTimeoutRef.current = null;
