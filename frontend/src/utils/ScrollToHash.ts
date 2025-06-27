@@ -4,6 +4,9 @@ import { useLocation, useNavigate } from "react-router-dom";
 /**
  * Component: ScrollToHash
  *
+ * Smoothly scrolling, hash-aware React SPA component that doesn’t scroll redundantly,
+ * works on both Chrome and Safari, and cleans up after itself.
+ *
  * Automatically scrolls to an element with the ID specified in the URL hash
  * whenever the hash changes. Handles repeated clicks on the same hash by
  * programmatically resetting the hash.
@@ -73,7 +76,7 @@ const ScrollToHash = () => {
           cleanupTimeoutRef.current = window.setTimeout(() => {
             navigate("", { replace: true });
             cleanupTimeoutRef.current = null;
-          }, 2000);
+          }, 300);
         }, 200);
       }
     }
