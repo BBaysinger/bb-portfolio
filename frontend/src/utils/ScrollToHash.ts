@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 /**
  * Component: ScrollToHash
  *
- * Smoothly scrolling, hash-aware React SPA component that avoids scroll redundantly,
+ * Smoothly scrolling, hash-aware React SPA component that avoids redundant scrolling,
  * works on both Chrome and Safari, and cleans up after itself.
  *
  * Automatically scrolls to an element with the ID specified in the URL hash
@@ -19,13 +19,12 @@ import { useLocation, useNavigate } from "react-router-dom";
  *
  * On mobile Safari, the browser often scrolls to the hash automatically. In Chrome
  * and other browsers, it may not. To avoid duplicate scrolling, this component compares
- * the scroll position before and after a short delay to determine if the browser already
- * scrolled, and only scrolls manually if it didn’t.
+ * the scroll position before and after a short delay. If the scroll position has changed,
+ * it also verifies whether the scroll was due to the page being shorter (i.e. clamped to bottom).
  *
  * @returns {null} This component does not render anything visible on the screen.
  *
  * @example
- * // Example usage in a React component
  * import ScrollToHash from './utils/ScrollToHash';
  *
  * function App() {
@@ -57,13 +56,20 @@ const ScrollToHash = () => {
       if (element) {
         const initialScrollY = window.scrollY;
 
-        // Wait for layout stabilization and browser's native scroll (if any)
+        // Wait for layout stabilization and potential browser-native scrolling
         setTimeout(() => {
           const currentScrollY = window.scrollY;
-          const didScroll = Math.abs(currentScrollY - initialScrollY) > 2;
+          const scrollDelta = Math.abs(currentScrollY - initialScrollY);
 
-          // If scroll position hasn't changed, scroll manually
-          if (!didScroll) {
+          const isAtBottom =
+            Math.abs(
+              window.innerHeight + window.scrollY - document.body.scrollHeight,
+            ) < 2;
+
+          const browserDidScrollToHash = scrollDelta > 2 && !isAtBottom;
+
+          // If browser didn't scroll to the hash target, do it manually
+          if (!browserDidScrollToHash) {
             element.scrollIntoView({ behavior: "smooth" });
           }
 
@@ -76,8 +82,8 @@ const ScrollToHash = () => {
           cleanupTimeoutRef.current = window.setTimeout(() => {
             navigate("", { replace: true });
             cleanupTimeoutRef.current = null;
-          }, 300);
-        }, 200);
+          }, 1000);
+        }, 100); // Enough delay for layout and auto-scroll (if any)
       }
     }
 
