@@ -4,17 +4,15 @@ import { useLocation, useNavigate } from "react-router-dom";
 /**
  * Component: ScrollToHash
  *
- * Smoothly scrolling, hash-aware React SPA component that doesn’t scroll redundantly,
+ * Smoothly scrolling, hash-aware React SPA component that avoids scroll redundantly,
  * works on both Chrome and Safari, and cleans up after itself.
  *
  * Automatically scrolls to an element with the ID specified in the URL hash
  * whenever the hash changes. Handles repeated clicks on the same hash by
  * programmatically resetting the hash.
  *
- * @returns {null} This component does not render anything visible on the screen.
- *
  * @remarks
- * This component uses the `useLocation` hook to extract the hash from the current URL
+ * Uses the `useLocation` hook to extract the hash from the current URL
  * and the `useNavigate` hook to enable programmatic navigation. When the hash changes,
  * it attempts to find a DOM element with the matching ID and scrolls to it smoothly.
  * After scrolling, it temporarily removes the hash to allow repeated clicks on the same hash.
@@ -23,6 +21,8 @@ import { useLocation, useNavigate } from "react-router-dom";
  * and other browsers, it may not. To avoid duplicate scrolling, this component compares
  * the scroll position before and after a short delay to determine if the browser already
  * scrolled, and only scrolls manually if it didn’t.
+ *
+ * @returns {null} This component does not render anything visible on the screen.
  *
  * @example
  * // Example usage in a React component
