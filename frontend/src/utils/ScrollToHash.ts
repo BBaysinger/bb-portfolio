@@ -56,10 +56,10 @@ const ScrollToHash = () => {
           // Doesn't need to happen immediately, so give enough time
           // for the scroll to complete, in order to avoid interrupting
           // the smooth scroll.
-          cleanupTimeoutRef.current = window.setTimeout(() => {
-            navigate("", { replace: true });
-            cleanupTimeoutRef.current = null;
-          }, 2000);
+          // cleanupTimeoutRef.current = window.setTimeout(() => {
+          //   navigate("", { replace: true });
+          //   cleanupTimeoutRef.current = null;
+          // }, 2000);
         }, 200);
       }
     }
