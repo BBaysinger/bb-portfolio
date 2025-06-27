@@ -79,10 +79,10 @@ const ScrollToHash = () => {
               });
             }
 
-          // If browser didn't scroll to the hash target, do it manually
+            // If browser didn't scroll to the hash target, do it manually
             setTimeout(() => {
               element.scrollIntoView({ behavior: "smooth" });
-            }, 200);
+            }, 100);
           }
 
           // Schedule the hash cleanup (remove the hash to
@@ -95,7 +95,7 @@ const ScrollToHash = () => {
             navigate("", { replace: true });
             cleanupTimeoutRef.current = null;
           }, 1000);
-        }, 200);
+        }, 100);
       }
     }
 
