@@ -46,22 +46,22 @@ const ScrollToHash = () => {
     if (hash) {
       const element = document.querySelector(hash);
 
-      if (element) {
-        setTimeout(() => {
-          element.scrollIntoView({ behavior: "smooth" });
+      // if (element) {
+      //   setTimeout(() => {
+      //     element.scrollIntoView({ behavior: "smooth" });
 
-          // Schedule the hash cleanup (remove the hash to
-          // allow repeated nav clicks, otherwise scrolling to an element
-          // the second time won't work.)
-          // Doesn't need to happen immediately, so give enough time
-          // for the scroll to complete, in order to avoid interrupting
-          // the smooth scroll.
-          // cleanupTimeoutRef.current = window.setTimeout(() => {
-          //   navigate("", { replace: true });
-          //   cleanupTimeoutRef.current = null;
-          // }, 2000);
-        }, 200);
-      }
+      //     // Schedule the hash cleanup (remove the hash to
+      //     // allow repeated nav clicks, otherwise scrolling to an element
+      //     // the second time won't work.)
+      //     // Doesn't need to happen immediately, so give enough time
+      //     // for the scroll to complete, in order to avoid interrupting
+      //     // the smooth scroll.
+      //     // cleanupTimeoutRef.current = window.setTimeout(() => {
+      //     //   navigate("", { replace: true });
+      //     //   cleanupTimeoutRef.current = null;
+      //     // }, 2000);
+      //   }, 200);
+      // }
     }
 
     // Cleanup when component unmounts or hash changes
