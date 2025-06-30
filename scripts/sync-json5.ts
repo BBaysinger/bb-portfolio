@@ -31,23 +31,23 @@ function buildCommentMap(lines: string[]): Record<string, string[]> {
   const commentsMap: Record<string, string[]> = {};
   const pathStack: string[] = [];
   const indentStack: number[] = [];
-  let currentComments: string[] = [];
+  let bufferedComments: string[] = [];
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     const trimmed = line.trim();
 
+    // Buffer any comments
     if (trimmed.startsWith("//")) {
-      currentComments.push(line);
+      bufferedComments.push(line);
       continue;
     }
 
-    const keyMatch = line.match(/^(\s*)(["']?)([\w\-$@]+)\2\s*:/);
+    const keyMatch = line.match(/^(\s*)(["']?)([\w\-@:$]+)\2\s*:/);
     if (keyMatch) {
       const indent = keyMatch[1].length;
       const key = keyMatch[3];
 
-      // Maintain stack depth
       while (
         indentStack.length &&
         indent <= indentStack[indentStack.length - 1]
@@ -58,16 +58,20 @@ function buildCommentMap(lines: string[]): Record<string, string[]> {
 
       const fullPath = [...pathStack, key].join(".");
 
-      if (currentComments.length > 0) {
-        commentsMap[fullPath] = [...currentComments];
-        currentComments = [];
+      if (bufferedComments.length > 0) {
+        commentsMap[fullPath] = [...bufferedComments];
+        bufferedComments = [];
       }
 
-      // If the line ends with a `{`, treat it as entering a block
       if (trimmed.endsWith("{")) {
         pathStack.push(key);
         indentStack.push(indent);
       }
+    }
+
+    // Reset buffer if any non-comment, non-key line appears
+    else if (bufferedComments.length > 0 && trimmed !== "") {
+      bufferedComments = [];
     }
 
     if (trimmed === "}" || trimmed === "}," || trimmed === "],") {
