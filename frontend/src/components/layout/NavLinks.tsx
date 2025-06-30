@@ -4,9 +4,10 @@ import { NavLink } from "react-router-dom";
 import { useAuth } from "context/AuthContext";
 import MiscUtils from "utils/MiscUtils";
 import styles from "./NavLinks.module.scss";
+import type { NavLinkProps } from "react-router-dom"; // ✅ external
 import LogoutButton from "components/common/LogoutButton";
 
-interface NavLinkProps {
+interface NavLinksProps {
   onClick?: () => void;
   className?: string;
 }
@@ -18,7 +19,7 @@ interface NavLinkProps {
  * @since The beginning of time.
  * @version N/A
  */
-const NavLinks: React.FC<NavLinkProps> = ({ onClick, className }) => {
+const NavLinks: React.FC<NavLinksProps> = ({ onClick, className }) => {
   const { isLoggedIn } = useAuth();
 
   return (
@@ -28,7 +29,7 @@ const NavLinks: React.FC<NavLinkProps> = ({ onClick, className }) => {
         <li>
           <NavLink
             to="/#top"
-            className={({ isActive }) =>
+            className={({ isActive }: NavLinkProps) =>
               MiscUtils.isActiveOrAlt(isActive, "/#top", styles.active)
             }
           >
@@ -38,7 +39,7 @@ const NavLinks: React.FC<NavLinkProps> = ({ onClick, className }) => {
         <li>
           <NavLink
             to="/portfolio#list"
-            className={({ isActive }) =>
+            className={({ isActive }: NavLinkProps) =>
               MiscUtils.isActiveOrAlt(
                 isActive,
                 "/portfolio#list",
@@ -52,7 +53,9 @@ const NavLinks: React.FC<NavLinkProps> = ({ onClick, className }) => {
         <li>
           <NavLink
             to="/cv#top"
-            className={({ isActive }) => (isActive ? styles.active : "")}
+            className={({ isActive }: NavLinkProps) =>
+              isActive ? styles.active : ""
+            }
           >
             CV
           </NavLink>
@@ -62,7 +65,9 @@ const NavLinks: React.FC<NavLinkProps> = ({ onClick, className }) => {
       <li>
         <NavLink
           to="/contact#top"
-          className={({ isActive }) => (isActive ? styles.active : "")}
+          className={({ isActive }: NavLinkProps) =>
+            isActive ? styles.active : ""
+          }
         >
           Contact
         </NavLink>
@@ -72,7 +77,9 @@ const NavLinks: React.FC<NavLinkProps> = ({ onClick, className }) => {
         <li className={styles.login}>
           <NavLink
             to="/login#top"
-            className={({ isActive }) => (isActive ? styles.active : "")}
+            className={({ isActive }: NavLinkProps) =>
+              isActive ? styles.active : ""
+            }
           >
             Login
           </NavLink>

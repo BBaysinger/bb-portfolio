@@ -1,8 +1,7 @@
 {
   name: "bb-portfolio",
   private: true,
-  workspaces: ["frontend", "backend"],
-  // Keep: Uncomment the following line to enable workspaces
+  // Keep: And the following lines (in package.json) to enable workspaces
   // "workspaces": [
   //   "frontend",
   //   "backend"
@@ -11,13 +10,16 @@
     pb: "prettier --write . && tsc -b",
     format: "prettier --write .",
     lint: "eslint .",
+    "sync:json5": "tsx scripts/sync-json5.ts",
   },
   devDependencies: {
-    eslint: "^8.0.0",
-    json5: "^2.2.3",
-    prettier: "^3.6.0",
-    "ts-node": "^10.9.2",
-    typescript: "^5.0.0",
+    "@types/glob": "^8.1.0",
+    eslint: "^9.30.0",
+    glob: "^7.2.3",
     ignore: "^7.0.5",
+    json5: "^2.2.3",
+    prettier: "^3.6.2",
+    "ts-node": "^10.9.2",
+    typescript: "^5.8.3",
   },
 }
