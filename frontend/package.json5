@@ -34,7 +34,8 @@
     "react-redux": "^9.2.0",
     "react-router": "^7.6.3",
     "react-router-dom": "^7.6.3",
-    vite: "^7.0.0",
+    // Vite 7.0.0 breaks on Netlify, so use previous version, 6.3.5
+    vite: "^6.3.5",
     "vite-tsconfig-paths": "^5.1.4",
   },
   devDependencies: {
