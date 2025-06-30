@@ -5,6 +5,7 @@
     "pb": "prettier --write . && tsc"
   },
   "dependencies": {
+    "@payloadcms/db-mongodb": "^3.44.0",
     "dotenv": "^17.0.0",
     "express": "^5.1.0",
     "mongoose": "^8.16.1",
