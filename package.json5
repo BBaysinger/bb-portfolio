@@ -1,26 +1,31 @@
 {
-  name: "bb-portfolio",
-  private: true,
+  "name": "bb-portfolio",
+  "private": true,
   // Keep: And the following lines (in package.json) to enable workspaces
   // "workspaces": [
   //   "frontend",
   //   "backend"
   // ],
-  scripts: {
-    pb: "prettier --write . && tsc -b",
-    format: "prettier --write .",
-    lint: "eslint .",
-    "sync:json5": "tsx scripts/sync-json5.ts",
+  "scripts": {
+    // "Pretty Build" — formats code, then runs TypeScript project build for type-checking.
+    // Use this before commits to catch formatting or type errors early, because formatters
+    // can sometimes cause type errors.
+    "pb": "prettier --write . && tsc -b",
+    "format": "prettier --write .",
+    "lint": "eslint .",
+    // Syncs package.json5 with package.json values while preserving comments and formatting.
+    // Run this after editing package.json to push updates back into the annotated JSON5 version.
+    "sync:json5": "tsx scripts/sync-json5.ts"
   },
-  devDependencies: {
+  "devDependencies": {
     "@types/glob": "^8.1.0",
-    eslint: "^9.30.0",
-    glob: "^7.2.3",
-    ignore: "^7.0.5",
-    json5: "^2.2.3",
-    prettier: "^3.6.2",
+    "eslint": "^9.30.0",
+    "glob": "^7.2.3",
+    "ignore": "^7.0.5",
+    "json5": "^2.2.3",
+    "prettier": "^3.6.2",
     "ts-node": "^10.9.2",
-    tsx: "^4.20.3",
-    typescript: "^5.8.3",
-  },
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3"
+  }
 }
