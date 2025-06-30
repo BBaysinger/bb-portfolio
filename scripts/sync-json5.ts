@@ -7,8 +7,8 @@ function quoteKey(key: string): string {
   return /^[$A-Z_][0-9A-Z_$]*$/i.test(key) ? `"${key}"` : JSON.stringify(key);
 }
 
-function indent(line: string, level = 2): string {
-  return " ".repeat(level) + line;
+function indent(line: string, level = 0): string {
+  return " ".repeat(level) + line.trim();
 }
 
 function extractBlock(lines: string[], startIdx: number): { endIdx: number } {
@@ -86,6 +86,7 @@ function syncJson5(raw: string, source: Record<string, any>): string {
   function writeObject(obj: any, path: string[] = [], level = 2): string[] {
     const result: string[] = [];
     const keys = Object.keys(obj);
+    const indentSize = 2;
 
     for (let i = 0; i < keys.length; i++) {
       const key = keys[i];
@@ -102,7 +103,7 @@ function syncJson5(raw: string, source: Record<string, any>): string {
 
       if (typeof val === "object" && val !== null && !Array.isArray(val)) {
         result.push(indent(`${quoteKey(key)}: {`, level));
-        result.push(...writeObject(val, [...path, key], level + 2));
+        result.push(...writeObject(val, [...path, key], level + indentSize));
         result.push(indent(`}${comma}`, level));
       } else if (Array.isArray(val)) {
         result.push(indent(`${quoteKey(key)}: [`, level));
@@ -110,7 +111,7 @@ function syncJson5(raw: string, source: Record<string, any>): string {
           result.push(
             indent(
               `${JSON.stringify(val[j])}${j < val.length - 1 ? "," : ""}`,
-              level + 2,
+              level + indentSize,
             ),
           );
         }
@@ -124,11 +125,8 @@ function syncJson5(raw: string, source: Record<string, any>): string {
 
     return result;
   }
-
-  const generated = writeObject(source, [], 0);
-  return `{
-${generated.join("\n")}
-}`;
+  const generated = writeObject(source, [], 2);
+  return `{\n${generated.join("\n")}\n}`;
 }
 
 // 🔁 Runner
