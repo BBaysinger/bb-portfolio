@@ -3,14 +3,35 @@ import path from "path";
 import { sync as globSync } from "glob";
 import ignore from "ignore";
 
+/**
+ * Quotes an object key if necessary (e.g., if it contains special characters).
+ * Always returns a quoted key for consistency.
+ *
+ * @param key - The key to quote.
+ * @returns The quoted key string.
+ */
 function quoteKey(key: string): string {
   return /^[$A-Z_][0-9A-Z_$]*$/i.test(key) ? `"${key}"` : JSON.stringify(key);
 }
 
+/**
+ * Indents a line by a given number of spaces and trims trailing whitespace.
+ *
+ * @param line - The line to indent.
+ * @param level - The number of spaces to indent.
+ * @returns The indented line.
+ */
 function indent(line: string, level = 0): string {
   return " ".repeat(level) + line.trim();
 }
 
+/**
+ * Finds the end of a JSON block (object or array) starting at the given line.
+ *
+ * @param lines - The full list of lines in the file.
+ * @param startIdx - The index where the block starts.
+ * @returns The index where the block ends.
+ */
 function extractBlock(lines: string[], startIdx: number): { endIdx: number } {
   let depth = 0;
   for (let i = startIdx; i < lines.length; i++) {
@@ -22,11 +43,25 @@ function extractBlock(lines: string[], startIdx: number): { endIdx: number } {
   return { endIdx: lines.length - 1 };
 }
 
+/**
+ * Matches and extracts a JSON key from a line.
+ *
+ * @param line - A single line of text.
+ * @returns The matched key name, or null if not found.
+ */
 function matchKey(line: string): string | null {
   const match = line.match(/^[ \t]*["']?([a-zA-Z0-9_\-$@]+)["']?\s*:/);
   return match ? match[1] : null;
 }
 
+/**
+ * Parses comments from a JSON5 file and maps them to their associated key paths.
+ *
+ * Handles nesting, indentation, and preserves multiline comment blocks.
+ *
+ * @param lines - Lines from the existing JSON5 file.
+ * @returns A map of key paths to associated comment lines.
+ */
 function buildCommentMap(lines: string[]): Record<string, string[]> {
   const commentsMap: Record<string, string[]> = {};
   const pathStack: string[] = [];
@@ -37,7 +72,7 @@ function buildCommentMap(lines: string[]): Record<string, string[]> {
     const line = lines[i];
     const trimmed = line.trim();
 
-    // Buffer any comments
+    // Buffer line if it's a comment
     if (trimmed.startsWith("//")) {
       bufferedComments.push(line);
       continue;
@@ -67,10 +102,8 @@ function buildCommentMap(lines: string[]): Record<string, string[]> {
         pathStack.push(key);
         indentStack.push(indent);
       }
-    }
-
-    // Reset buffer if any non-comment, non-key line appears
-    else if (bufferedComments.length > 0 && trimmed !== "") {
+    } else if (bufferedComments.length > 0 && trimmed !== "") {
+      // Non-comment non-key line breaks comment block
       bufferedComments = [];
     }
 
@@ -83,10 +116,26 @@ function buildCommentMap(lines: string[]): Record<string, string[]> {
   return commentsMap;
 }
 
+/**
+ * Synchronizes a JSON5 file's structure and values with the authoritative source JSON,
+ * while preserving existing comments and formatting.
+ *
+ * @param raw - Raw contents of the existing JSON5 file.
+ * @param source - Parsed JSON object from package.json.
+ * @returns The updated JSON5 content as a formatted string.
+ */
 function syncJson5(raw: string, source: Record<string, any>): string {
   const lines = raw.split("\n");
   const comments = buildCommentMap(lines);
 
+  /**
+   * Recursively writes a JSON object with proper formatting and inserted comments.
+   *
+   * @param obj - The object to write.
+   * @param path - Dot-path to the current object context.
+   * @param level - Current indentation level.
+   * @returns The formatted lines of the object.
+   */
   function writeObject(obj: any, path: string[] = [], level = 2): string[] {
     const result: string[] = [];
     const keys = Object.keys(obj);
@@ -129,11 +178,13 @@ function syncJson5(raw: string, source: Record<string, any>): string {
 
     return result;
   }
+
   const generated = writeObject(source, [], 2);
   return `{\n${generated.join("\n")}\n}`;
 }
 
 // 🔁 Runner
+
 const rootDir = process.cwd();
 const ig = ignore();
 const gitignorePath = path.join(rootDir, ".gitignore");
