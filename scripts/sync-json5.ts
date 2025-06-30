@@ -29,8 +29,9 @@ function matchKey(line: string): string | null {
 
 function buildCommentMap(lines: string[]): Record<string, string[]> {
   const commentsMap: Record<string, string[]> = {};
-  let currentComments: string[] = [];
   const pathStack: string[] = [];
+  const indentStack: number[] = [];
+  let currentComments: string[] = [];
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
@@ -41,21 +42,37 @@ function buildCommentMap(lines: string[]): Record<string, string[]> {
       continue;
     }
 
-    const key = matchKey(trimmed);
-    if (key) {
-      const path = [...pathStack, key].join(".");
+    const keyMatch = line.match(/^(\s*)(["']?)([\w\-$@]+)\2\s*:/);
+    if (keyMatch) {
+      const indent = keyMatch[1].length;
+      const key = keyMatch[3];
+
+      // Maintain stack depth
+      while (
+        indentStack.length &&
+        indent <= indentStack[indentStack.length - 1]
+      ) {
+        pathStack.pop();
+        indentStack.pop();
+      }
+
+      const fullPath = [...pathStack, key].join(".");
+
       if (currentComments.length > 0) {
-        commentsMap[path] = [...currentComments];
+        commentsMap[fullPath] = [...currentComments];
         currentComments = [];
       }
 
+      // If the line ends with a `{`, treat it as entering a block
       if (trimmed.endsWith("{")) {
         pathStack.push(key);
+        indentStack.push(indent);
       }
     }
 
-    if (trimmed.endsWith("},") || trimmed.endsWith("}")) {
+    if (trimmed === "}" || trimmed === "}," || trimmed === "],") {
       pathStack.pop();
+      indentStack.pop();
     }
   }
 
@@ -66,17 +83,23 @@ function syncJson5(raw: string, source: Record<string, any>): string {
   const lines = raw.split("\n");
   const comments = buildCommentMap(lines);
 
-  function writeObject(obj: any, path: string[] = [], level = 0): string[] {
+  function writeObject(obj: any, path: string[] = [], level = 2): string[] {
     const result: string[] = [];
     const keys = Object.keys(obj);
+
     for (let i = 0; i < keys.length; i++) {
       const key = keys[i];
       const fullPath = [...path, key].join(".");
-      const comment = comments[fullPath];
-      if (comment) result.push(...comment);
-
       const val = obj[key];
       const comma = i < keys.length - 1 ? "," : "";
+
+      const comment = comments[fullPath];
+      if (comment) {
+        for (const c of comment) {
+          result.push(indent(c, level));
+        }
+      }
+
       if (typeof val === "object" && val !== null && !Array.isArray(val)) {
         result.push(indent(`${quoteKey(key)}: {`, level));
         result.push(...writeObject(val, [...path, key], level + 2));
@@ -98,6 +121,7 @@ function syncJson5(raw: string, source: Record<string, any>): string {
         );
       }
     }
+
     return result;
   }
 
