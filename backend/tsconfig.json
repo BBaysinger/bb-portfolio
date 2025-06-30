@@ -37,7 +37,7 @@
       "payload/types": ["node_modules/payload/types"]
     }
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "payload.config.ts"],
   "exclude": ["node_modules"],
   "references": []
 }
