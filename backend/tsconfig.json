@@ -1,43 +1,44 @@
 {
   "compilerOptions": {
-    /* Basic Options */
-    "target": "ES2020",
-    "module": "CommonJS",
-    "lib": ["ES2020"],
-    "baseUrl": "./src",
-    "outDir": "dist",
-
-    /* Module Resolution */
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
+    "baseUrl": ".",
+    "lib": [
+      "DOM",
+      "DOM.Iterable",
+      "ES2022"
+    ],
     "allowJs": true,
-    "checkJs": false,
-
-    /* Type Support */
-    "types": ["node"],
-
-    /* Strictness & Safety */
-    "strict": true,
-    "forceConsistentCasingInFileNames": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true,
     "skipLibCheck": true,
-
-    /* Advanced */
-    "composite": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
     "isolatedModules": true,
-    "typeRoots": ["node_modules/@types", "src/types"],
+    "jsx": "preserve",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
     "paths": {
-      "payload": ["node_modules/payload"],
-      "payload/*": ["node_modules/payload/*"],
-      "payload/config": ["node_modules/payload/config"],
-      "payload/types": ["node_modules/payload/types"]
-    }
+      "@/*": [
+        "./src/*"
+      ],
+      "@payload-config": [
+        "./src/payload.config.ts"
+      ]
+    },
+    "target": "ES2022",
   },
-  "include": ["src/**/*", "payload.config.ts"],
-  "exclude": ["node_modules"],
-  "references": []
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ],
 }
