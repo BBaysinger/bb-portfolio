@@ -1,7 +1,7 @@
 {
   "name": "bb-portfolio",
   "private": true,
-  // Keep: And the following lines (in package.json) to enable workspaces
+  // Keep: Add the following lines (in package.json) to enable workspaces
   // "workspaces": [
   //   "frontend",
   //   "backend"
