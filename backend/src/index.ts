@@ -1,11 +1,25 @@
 import express from "express";
-import connectDB from "./db";
+import payload from "payload";
+import dotenv from "dotenv";
+import payloadConfig from "./payload.config"; // Import your full config
+
+dotenv.config();
 
 const app = express();
-connectDB();
+const PORT = process.env.PORT || 3000;
 
-// your middleware/routes/etc
+const start = async () => {
+  await payload.init({
+    // express: app,
+    config: payloadConfig, // ✅ Use your config file directly
+    onInit: () => {
+      payload.logger.info("Payload is ready.");
+    },
+  });
 
-app.listen(3000, () => {
-  console.log("Server running on port 3000");
-});
+  app.listen(PORT, () => {
+    console.log(`Server is listening on http://localhost:${PORT}`);
+  });
+};
+
+start();
