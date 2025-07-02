@@ -1,9 +1,10 @@
-import { CollectionConfig } from "payload";
+import type { CollectionConfig } from "payload";
 
 export const Projects: CollectionConfig = {
   slug: "projects",
   admin: {
     useAsTitle: "title",
+    defaultColumns: ["title", "slug", "active", "clientId"],
   },
   fields: [
     {
@@ -18,46 +19,107 @@ export const Projects: CollectionConfig = {
       unique: true,
     },
     {
-      name: "description",
-      type: "textarea",
+      name: "active",
+      type: "checkbox",
+      defaultValue: true,
     },
     {
-      name: "images",
-      type: "array",
-      fields: [
-        {
-          name: "image",
-          type: "upload",
-          relationTo: "media", // Make sure your Media collection exists
-        },
-        {
-          name: "altText",
-          type: "text",
-        },
-      ],
-    },
-    {
-      name: "liveURL",
-      type: "text",
-    },
-    {
-      name: "repoURL",
-      type: "text",
-    },
-    {
-      name: "technologies",
-      type: "array",
-      fields: [
-        {
-          name: "tech",
-          type: "text",
-        },
-      ],
-    },
-    {
-      name: "published",
+      name: "omitFromList",
       type: "checkbox",
       defaultValue: false,
+    },
+    {
+      name: "clientId",
+      type: "relationship",
+      relationTo: "clients", // optional: create a `clients` collection
+      required: false,
+    },
+    {
+      name: "mobileStatus",
+      type: "select",
+      options: ["Portrait", "Landscape", "none"],
+      defaultValue: "Portrait",
+    },
+    {
+      name: "tags",
+      type: "array",
+      label: "Tags",
+      fields: [
+        {
+          name: "tag",
+          type: "text",
+        },
+      ],
+    },
+    {
+      name: "role",
+      type: "array",
+      fields: [
+        {
+          name: "value",
+          type: "text",
+        },
+      ],
+    },
+    {
+      name: "year",
+      type: "text",
+    },
+    {
+      name: "awards",
+      type: "array",
+      fields: [
+        {
+          name: "award",
+          type: "text",
+        },
+      ],
+    },
+    {
+      name: "type",
+      type: "text",
+    },
+    {
+      name: "date",
+      type: "date",
+      admin: {
+        date: {
+          pickerAppearance: "dayOnly",
+        },
+      },
+    },
+    {
+      name: "desc",
+      label: "Description HTML Blocks",
+      type: "array",
+      fields: [
+        {
+          name: "block",
+          type: "textarea",
+          label: "HTML Block",
+          admin: {
+            rows: 6,
+            description: "Paste raw HTML like <p>...</p>.",
+          },
+        },
+      ],
+    },
+    {
+      name: "urls",
+      type: "array",
+      label: "External URLs",
+      fields: [
+        {
+          name: "label",
+          type: "text",
+          required: true,
+        },
+        {
+          name: "url",
+          type: "text",
+          required: true,
+        },
+      ],
     },
   ],
 };
