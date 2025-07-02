@@ -220,7 +220,8 @@ export interface Client {
   id: string;
   name: string;
   slug: string;
-  logo?: (string | null) | Media;
+  logoLight?: (string | null) | Media;
+  logoDark?: (string | null) | Media;
   website?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -385,7 +386,8 @@ export interface ProjectsSelect<T extends boolean = true> {
 export interface ClientsSelect<T extends boolean = true> {
   name?: T;
   slug?: T;
-  logo?: T;
+  logoLight?: T;
+  logoDark?: T;
   website?: T;
   updatedAt?: T;
   createdAt?: T;

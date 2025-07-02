@@ -18,9 +18,18 @@ export const Clients: CollectionConfig = {
       unique: true,
     },
     {
-      name: "logo",
+      name: "logoLight",
+      label: "Logo for Light Background",
       type: "upload",
-      relationTo: "media", // Optional: must exist if you use it
+      relationTo: "media",
+      required: false,
+    },
+    {
+      name: "logoDark",
+      label: "Logo for Dark Background",
+      type: "upload",
+      relationTo: "media",
+      required: false,
     },
     {
       name: "website",
