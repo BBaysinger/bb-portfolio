@@ -29,3 +29,5 @@ tsconfig.tsbuildinfo
 
 .env
 
+client-logos/
+
