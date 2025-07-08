@@ -59,447 +59,448 @@ export type SupportedTimezones =
   | 'Pacific/Guam'
   | 'Pacific/Noumea'
   | 'Pacific/Auckland'
-  | 'Pacific/Fiji';
+  | 'Pacific/Fiji'
 
 export interface Config {
   auth: {
-    users: UserAuthOperations;
-  };
-  blocks: {};
+    users: UserAuthOperations
+  }
+  blocks: {}
   collections: {
-    users: User;
-    projects: Project;
-    clients: Client;
-    clientLogos: ClientLogo;
-    projectScreenshots: ProjectScreenshot;
-    'payload-locked-documents': PayloadLockedDocument;
-    'payload-preferences': PayloadPreference;
-    'payload-migrations': PayloadMigration;
-  };
-  collectionsJoins: {};
+    users: User
+    projects: Project
+    brands: Client
+    brandLogos: ClientLogo
+    projectScreenshots: ProjectScreenshot
+    'payload-locked-documents': PayloadLockedDocument
+    'payload-preferences': PayloadPreference
+    'payload-migrations': PayloadMigration
+  }
+  collectionsJoins: {}
   collectionsSelect: {
-    users: UsersSelect<false> | UsersSelect<true>;
-    projects: ProjectsSelect<false> | ProjectsSelect<true>;
-    clients: ClientsSelect<false> | ClientsSelect<true>;
-    clientLogos: ClientLogosSelect<false> | ClientLogosSelect<true>;
-    projectScreenshots: ProjectScreenshotsSelect<false> | ProjectScreenshotsSelect<true>;
-    'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
-    'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
-    'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
-  };
+    users: UsersSelect<false> | UsersSelect<true>
+    projects: ProjectsSelect<false> | ProjectsSelect<true>
+    brands: ClientsSelect<false> | ClientsSelect<true>
+    brandLogos: BrandLogosSelect<false> | BrandLogosSelect<true>
+    projectScreenshots: ProjectScreenshotsSelect<false> | ProjectScreenshotsSelect<true>
+    'payload-locked-documents':
+      | PayloadLockedDocumentsSelect<false>
+      | PayloadLockedDocumentsSelect<true>
+    'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>
+    'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>
+  }
   db: {
-    defaultIDType: string;
-  };
-  globals: {};
-  globalsSelect: {};
-  locale: null;
+    defaultIDType: string
+  }
+  globals: {}
+  globalsSelect: {}
+  locale: null
   user: User & {
-    collection: 'users';
-  };
+    collection: 'users'
+  }
   jobs: {
-    tasks: unknown;
-    workflows: unknown;
-  };
+    tasks: unknown
+    workflows: unknown
+  }
 }
 export interface UserAuthOperations {
   forgotPassword: {
-    email: string;
-    password: string;
-  };
+    email: string
+    password: string
+  }
   login: {
-    email: string;
-    password: string;
-  };
+    email: string
+    password: string
+  }
   registerFirstUser: {
-    email: string;
-    password: string;
-  };
+    email: string
+    password: string
+  }
   unlock: {
-    email: string;
-    password: string;
-  };
+    email: string
+    password: string
+  }
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users".
  */
 export interface User {
-  id: string;
-  role: 'admin' | 'user';
-  updatedAt: string;
-  createdAt: string;
-  email: string;
-  resetPasswordToken?: string | null;
-  resetPasswordExpiration?: string | null;
-  salt?: string | null;
-  hash?: string | null;
-  loginAttempts?: number | null;
-  lockUntil?: string | null;
+  id: string
+  role: 'admin' | 'user'
+  updatedAt: string
+  createdAt: string
+  email: string
+  resetPasswordToken?: string | null
+  resetPasswordExpiration?: string | null
+  salt?: string | null
+  hash?: string | null
+  loginAttempts?: number | null
+  lockUntil?: string | null
   sessions?:
     | {
-        id: string;
-        createdAt?: string | null;
-        expiresAt: string;
+        id: string
+        createdAt?: string | null
+        expiresAt: string
       }[]
-    | null;
-  password?: string | null;
+    | null
+  password?: string | null
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "projects".
  */
 export interface Project {
-  id: string;
-  title: string;
-  slug: string;
-  active?: boolean | null;
-  omitFromList?: boolean | null;
-  clientId?: (string | null) | Client;
-  mobileStatus?: ('Portrait' | 'Landscape' | 'none') | null;
+  id: string
+  title: string
+  slug: string
+  active?: boolean | null
+  omitFromList?: boolean | null
+  brandId?: (string | null) | Client
+  mobileStatus?: ('Portrait' | 'Landscape' | 'none') | null
   tags?:
     | {
-        tag?: string | null;
-        id?: string | null;
+        tag?: string | null
+        id?: string | null
       }[]
-    | null;
+    | null
   role?:
     | {
-        value?: string | null;
-        id?: string | null;
+        value?: string | null
+        id?: string | null
       }[]
-    | null;
-  year?: string | null;
+    | null
+  year?: string | null
   awards?:
     | {
-        award?: string | null;
-        id?: string | null;
+        award?: string | null
+        id?: string | null
       }[]
-    | null;
-  type?: string | null;
-  date?: string | null;
+    | null
+  type?: string | null
+  date?: string | null
   desc?:
     | {
         /**
          * Paste raw HTML like <p>...</p>.
          */
-        block?: string | null;
-        id?: string | null;
+        block?: string | null
+        id?: string | null
       }[]
-    | null;
+    | null
   urls?:
     | {
-        label: string;
-        url: string;
-        id?: string | null;
+        label: string
+        url: string
+        id?: string | null
       }[]
-    | null;
+    | null
   /**
    * Associate desktop and mobile screenshots with this project.
    */
-  screenshots?: (string | ProjectScreenshot)[] | null;
-  updatedAt: string;
-  createdAt: string;
+  screenshots?: (string | ProjectScreenshot)[] | null
+  updatedAt: string
+  createdAt: string
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "clients".
+ * via the `definition` "brands".
  */
 export interface Client {
-  id: string;
-  name: string;
-  slug: string;
-  logoLight?: (string | null) | ClientLogo;
-  logoDark?: (string | null) | ClientLogo;
-  website?: string | null;
-  updatedAt: string;
-  createdAt: string;
+  id: string
+  name: string
+  slug: string
+  logoLight?: (string | null) | ClientLogo
+  logoDark?: (string | null) | ClientLogo
+  website?: string | null
+  updatedAt: string
+  createdAt: string
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "clientLogos".
+ * via the `definition` "brandLogos".
  */
 export interface ClientLogo {
-  id: string;
+  id: string
   /**
    * Accessible description of the logo (used for alt text).
    */
-  alt?: string | null;
+  alt?: string | null
   /**
    * Choose the background type this logo is intended for.
    */
-  logoType: 'light-mode' | 'dark-mode' | 'both-modes';
-  updatedAt: string;
-  createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
+  logoType: 'light-mode' | 'dark-mode' | 'both-modes'
+  updatedAt: string
+  createdAt: string
+  url?: string | null
+  thumbnailURL?: string | null
+  filename?: string | null
+  mimeType?: string | null
+  filesize?: number | null
+  width?: number | null
+  height?: number | null
+  focalX?: number | null
+  focalY?: number | null
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "projectScreenshots".
  */
 export interface ProjectScreenshot {
-  id: string;
+  id: string
   /**
    * Indicates whether the screenshot is for desktop or mobile view.
    */
-  screenType: 'desktop' | 'mobile';
-  project: string | Project;
+  screenType: 'desktop' | 'mobile'
+  project: string | Project
   /**
    * Optional alt text for accessibility or SEO.
    */
-  alt?: string | null;
-  updatedAt: string;
-  createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
+  alt?: string | null
+  updatedAt: string
+  createdAt: string
+  url?: string | null
+  thumbnailURL?: string | null
+  filename?: string | null
+  mimeType?: string | null
+  filesize?: number | null
+  width?: number | null
+  height?: number | null
+  focalX?: number | null
+  focalY?: number | null
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
-  id: string;
+  id: string
   document?:
     | ({
-        relationTo: 'users';
-        value: string | User;
+        relationTo: 'users'
+        value: string | User
       } | null)
     | ({
-        relationTo: 'projects';
-        value: string | Project;
+        relationTo: 'projects'
+        value: string | Project
       } | null)
     | ({
-        relationTo: 'clients';
-        value: string | Client;
+        relationTo: 'brands'
+        value: string | Client
       } | null)
     | ({
-        relationTo: 'clientLogos';
-        value: string | ClientLogo;
+        relationTo: 'brandLogos'
+        value: string | ClientLogo
       } | null)
     | ({
-        relationTo: 'projectScreenshots';
-        value: string | ProjectScreenshot;
-      } | null);
-  globalSlug?: string | null;
+        relationTo: 'projectScreenshots'
+        value: string | ProjectScreenshot
+      } | null)
+  globalSlug?: string | null
   user: {
-    relationTo: 'users';
-    value: string | User;
-  };
-  updatedAt: string;
-  createdAt: string;
+    relationTo: 'users'
+    value: string | User
+  }
+  updatedAt: string
+  createdAt: string
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-preferences".
  */
 export interface PayloadPreference {
-  id: string;
+  id: string
   user: {
-    relationTo: 'users';
-    value: string | User;
-  };
-  key?: string | null;
+    relationTo: 'users'
+    value: string | User
+  }
+  key?: string | null
   value?:
     | {
-        [k: string]: unknown;
+        [k: string]: unknown
       }
     | unknown[]
     | string
     | number
     | boolean
-    | null;
-  updatedAt: string;
-  createdAt: string;
+    | null
+  updatedAt: string
+  createdAt: string
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-migrations".
  */
 export interface PayloadMigration {
-  id: string;
-  name?: string | null;
-  batch?: number | null;
-  updatedAt: string;
-  createdAt: string;
+  id: string
+  name?: string | null
+  batch?: number | null
+  updatedAt: string
+  createdAt: string
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
-  role?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  email?: T;
-  resetPasswordToken?: T;
-  resetPasswordExpiration?: T;
-  salt?: T;
-  hash?: T;
-  loginAttempts?: T;
-  lockUntil?: T;
+  role?: T
+  updatedAt?: T
+  createdAt?: T
+  email?: T
+  resetPasswordToken?: T
+  resetPasswordExpiration?: T
+  salt?: T
+  hash?: T
+  loginAttempts?: T
+  lockUntil?: T
   sessions?:
     | T
     | {
-        id?: T;
-        createdAt?: T;
-        expiresAt?: T;
-      };
+        id?: T
+        createdAt?: T
+        expiresAt?: T
+      }
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "projects_select".
  */
 export interface ProjectsSelect<T extends boolean = true> {
-  title?: T;
-  slug?: T;
-  active?: T;
-  omitFromList?: T;
-  clientId?: T;
-  mobileStatus?: T;
+  title?: T
+  slug?: T
+  active?: T
+  omitFromList?: T
+  brandId?: T
+  mobileStatus?: T
   tags?:
     | T
     | {
-        tag?: T;
-        id?: T;
-      };
+        tag?: T
+        id?: T
+      }
   role?:
     | T
     | {
-        value?: T;
-        id?: T;
-      };
-  year?: T;
+        value?: T
+        id?: T
+      }
+  year?: T
   awards?:
     | T
     | {
-        award?: T;
-        id?: T;
-      };
-  type?: T;
-  date?: T;
+        award?: T
+        id?: T
+      }
+  type?: T
+  date?: T
   desc?:
     | T
     | {
-        block?: T;
-        id?: T;
-      };
+        block?: T
+        id?: T
+      }
   urls?:
     | T
     | {
-        label?: T;
-        url?: T;
-        id?: T;
-      };
-  screenshots?: T;
-  updatedAt?: T;
-  createdAt?: T;
+        label?: T
+        url?: T
+        id?: T
+      }
+  screenshots?: T
+  updatedAt?: T
+  createdAt?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "clients_select".
+ * via the `definition` "brands_select".
  */
 export interface ClientsSelect<T extends boolean = true> {
-  name?: T;
-  slug?: T;
-  logoLight?: T;
-  logoDark?: T;
-  website?: T;
-  updatedAt?: T;
-  createdAt?: T;
+  name?: T
+  slug?: T
+  logoLight?: T
+  logoDark?: T
+  website?: T
+  updatedAt?: T
+  createdAt?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "clientLogos_select".
+ * via the `definition` "brandLogos_select".
  */
-export interface ClientLogosSelect<T extends boolean = true> {
-  alt?: T;
-  logoType?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  url?: T;
-  thumbnailURL?: T;
-  filename?: T;
-  mimeType?: T;
-  filesize?: T;
-  width?: T;
-  height?: T;
-  focalX?: T;
-  focalY?: T;
+export interface BrandLogosSelect<T extends boolean = true> {
+  alt?: T
+  logoType?: T
+  updatedAt?: T
+  createdAt?: T
+  url?: T
+  thumbnailURL?: T
+  filename?: T
+  mimeType?: T
+  filesize?: T
+  width?: T
+  height?: T
+  focalX?: T
+  focalY?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "projectScreenshots_select".
  */
 export interface ProjectScreenshotsSelect<T extends boolean = true> {
-  screenType?: T;
-  project?: T;
-  alt?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  url?: T;
-  thumbnailURL?: T;
-  filename?: T;
-  mimeType?: T;
-  filesize?: T;
-  width?: T;
-  height?: T;
-  focalX?: T;
-  focalY?: T;
+  screenType?: T
+  project?: T
+  alt?: T
+  updatedAt?: T
+  createdAt?: T
+  url?: T
+  thumbnailURL?: T
+  filename?: T
+  mimeType?: T
+  filesize?: T
+  width?: T
+  height?: T
+  focalX?: T
+  focalY?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents_select".
  */
 export interface PayloadLockedDocumentsSelect<T extends boolean = true> {
-  document?: T;
-  globalSlug?: T;
-  user?: T;
-  updatedAt?: T;
-  createdAt?: T;
+  document?: T
+  globalSlug?: T
+  user?: T
+  updatedAt?: T
+  createdAt?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-preferences_select".
  */
 export interface PayloadPreferencesSelect<T extends boolean = true> {
-  user?: T;
-  key?: T;
-  value?: T;
-  updatedAt?: T;
-  createdAt?: T;
+  user?: T
+  key?: T
+  value?: T
+  updatedAt?: T
+  createdAt?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-migrations_select".
  */
 export interface PayloadMigrationsSelect<T extends boolean = true> {
-  name?: T;
-  batch?: T;
-  updatedAt?: T;
-  createdAt?: T;
+  name?: T
+  batch?: T
+  updatedAt?: T
+  createdAt?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "auth".
  */
 export interface Auth {
-  [k: string]: unknown;
+  [k: string]: unknown
 }
-
 
 declare module 'payload' {
   export interface GeneratedTypes extends Config {}

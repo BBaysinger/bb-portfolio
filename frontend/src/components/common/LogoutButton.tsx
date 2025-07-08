@@ -1,7 +1,7 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
 
-import type { NavLinkProps } from "react-router-dom";
+import type { NavLinkRenderProps } from "react-router-dom";
 import { useAuth } from "context/AuthContext";
 import styles from "./LogoutButton.module.scss";
 
@@ -35,7 +35,7 @@ const LogoutButton: React.FC<LogoutButtonProps> = ({ className = "" }) => {
       onClick={handleLogout}
     >
       <NavLink
-        className={({ isActive }: NavLinkProps) =>
+        className={({ isActive }: NavLinkRenderProps) =>
           isActive ? styles.active : ""
         }
         to="/login#top"

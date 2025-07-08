@@ -155,7 +155,7 @@ const PortfolioList: React.FC = () => {
         <div id="list" className={styles.list}></div>
         {ProjectData.listedProjects.map((projectData, index) => {
           const id = ProjectData.listedKeys[index];
-          const { title, omitFromList, clientId } = projectData;
+          const { title, omitFromList, brandId } = projectData;
 
           return (
             <ProjectThumbnail
@@ -165,7 +165,7 @@ const PortfolioList: React.FC = () => {
               omitFromList={omitFromList}
               projectId={id}
               title={title}
-              clientId={clientId}
+              brandId={brandId}
               ref={(node) => setThumbRef(node, index)}
             />
           );

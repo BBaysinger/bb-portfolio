@@ -15,7 +15,7 @@ export interface PortfolioProjectBase {
   title: string;
   active: boolean;
   omitFromList: boolean;
-  clientId: string;
+  brandId: string;
   mobileStatus: MobileStatus;
   tags: string[];
   role: string;

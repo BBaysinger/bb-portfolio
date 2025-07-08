@@ -472,7 +472,7 @@ const CurriculumVitae: React.FC = () => {
 
               <p ref={addToRefs} className={styles.desc}>
                 Delivered specialized UI and interactive web development
-                services for diverse clients, including local businesses, a
+                services for diverse brands, including local businesses, a
                 national startup, an international charity, and a pharmaceutical
                 manufacturer.
               </p>

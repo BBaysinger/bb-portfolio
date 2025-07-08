@@ -1,13 +1,13 @@
 import { CollectionConfig } from 'payload'
 
-export const ClientLogos: CollectionConfig = {
-  slug: 'clientLogos',
+export const BrandLogos: CollectionConfig = {
+  slug: 'brandLogos',
   labels: {
     singular: 'Client Logo',
     plural: 'Client Logos',
   },
   upload: {
-    staticDir: 'client-logos', // This will resolve to <projectRoot>/client-logos
+    staticDir: 'brand-logos', // This will resolve to <projectRoot>/brand-logos
     mimeTypes: ['image/webp', 'image/svg+xml'],
   },
   admin: {
@@ -46,4 +46,4 @@ export const ClientLogos: CollectionConfig = {
   ],
 }
 
-export default ClientLogos
+export default BrandLogos

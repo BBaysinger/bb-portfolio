@@ -4,7 +4,7 @@ export const Projects: CollectionConfig = {
   slug: 'projects',
   admin: {
     useAsTitle: 'title',
-    defaultColumns: ['title', 'slug', 'active', 'clientId'],
+    defaultColumns: ['title', 'slug', 'active', 'brandId'],
   },
   fields: [
     {
@@ -29,9 +29,9 @@ export const Projects: CollectionConfig = {
       defaultValue: false,
     },
     {
-      name: 'clientId',
+      name: 'brandId',
       type: 'relationship',
-      relationTo: 'clients', // optional: create a `clients` collection
+      relationTo: 'brands', // optional: create a `brands` collection
       required: false,
     },
     {
