@@ -29,22 +29,13 @@ export const ClientLogos: CollectionConfig = {
       },
     },
     {
-      name: 'usageNote',
-      type: 'text',
-      required: false,
-      admin: {
-        position: 'sidebar',
-        description: 'Optional: Describe usage (e.g., “for light backgrounds”, “used for both”).',
-      },
-    },
-    {
       name: 'logoType',
       label: 'Logo Type',
       type: 'select',
       options: [
-        { label: 'For Light Background', value: 'light' },
-        { label: 'For Dark Background', value: 'dark' },
-        { label: 'Works on Both', value: 'both' },
+        { label: 'For Light Background', value: 'light-mode' },
+        { label: 'For Dark Background', value: 'dark-mode' },
+        { label: 'Works on Both', value: 'both-modes' },
       ],
       required: true,
       admin: {
