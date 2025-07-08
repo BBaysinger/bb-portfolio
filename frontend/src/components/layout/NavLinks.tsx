@@ -1,10 +1,10 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
+import type { NavLinkRenderProps } from "react-router-dom";
 
 import { useAuth } from "context/AuthContext";
 import MiscUtils from "utils/MiscUtils";
 import styles from "./NavLinks.module.scss";
-import type { NavLinkProps } from "react-router-dom"; // ✅ external
 import LogoutButton from "components/common/LogoutButton";
 
 interface NavLinksProps {
@@ -29,7 +29,7 @@ const NavLinks: React.FC<NavLinksProps> = ({ onClick, className }) => {
         <li>
           <NavLink
             to="/#top"
-            className={({ isActive }: NavLinkProps) =>
+            className={({ isActive }: NavLinkRenderProps) =>
               MiscUtils.isActiveOrAlt(isActive, "/#top", styles.active)
             }
           >
@@ -39,7 +39,7 @@ const NavLinks: React.FC<NavLinksProps> = ({ onClick, className }) => {
         <li>
           <NavLink
             to="/portfolio#list"
-            className={({ isActive }: NavLinkProps) =>
+            className={({ isActive }: NavLinkRenderProps) =>
               MiscUtils.isActiveOrAlt(
                 isActive,
                 "/portfolio#list",
@@ -53,7 +53,7 @@ const NavLinks: React.FC<NavLinksProps> = ({ onClick, className }) => {
         <li>
           <NavLink
             to="/cv#top"
-            className={({ isActive }: NavLinkProps) =>
+            className={({ isActive }: NavLinkRenderProps) =>
               isActive ? styles.active : ""
             }
           >
@@ -65,7 +65,7 @@ const NavLinks: React.FC<NavLinksProps> = ({ onClick, className }) => {
       <li>
         <NavLink
           to="/contact#top"
-          className={({ isActive }: NavLinkProps) =>
+          className={({ isActive }: NavLinkRenderProps) =>
             isActive ? styles.active : ""
           }
         >
@@ -77,7 +77,7 @@ const NavLinks: React.FC<NavLinksProps> = ({ onClick, className }) => {
         <li className={styles.login}>
           <NavLink
             to="/login#top"
-            className={({ isActive }: NavLinkProps) =>
+            className={({ isActive }: NavLinkRenderProps) =>
               isActive ? styles.active : ""
             }
           >

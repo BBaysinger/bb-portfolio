@@ -1,7 +1,7 @@
 import type { CollectionConfig } from 'payload'
 
 export const Clients: CollectionConfig = {
-  slug: 'clients',
+  slug: 'brands',
   admin: {
     useAsTitle: 'name',
   },
@@ -21,14 +21,14 @@ export const Clients: CollectionConfig = {
       name: 'logoLight',
       label: 'Logo for Light Background',
       type: 'upload',
-      relationTo: 'clientLogos', // Ensure this collection exists for client logos
+      relationTo: 'brandLogos', // Ensure this collection exists for brand logos
       required: false,
     },
     {
       name: 'logoDark',
       label: 'Logo for Dark Background',
       type: 'upload',
-      relationTo: 'clientLogos',
+      relationTo: 'brandLogos',
       required: false,
     },
     {
