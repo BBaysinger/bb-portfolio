@@ -54,8 +54,8 @@ const ProjectPage: React.FC = () => {
   const navigate = useNavigate();
   const isCarouselSourceRef = useRef(false);
 
-  const clientId = useMemo(
-    () => projects[projectId]?.clientId,
+  const brandId = useMemo(
+    () => projects[projectId]?.brandId,
     [projects, projectId],
   );
 
@@ -152,7 +152,7 @@ const ProjectPage: React.FC = () => {
         id="project" // Page anchor, NOT for CSS selection.
         className={`${styles.projectsPresentationBody} ${slideDirectionClass}`}
       >
-        <LogoSwapper projectId={clientId} />
+        <LogoSwapper projectId={brandId} />
         <div className={styles.carouselControlWrapper}>
           {initialIndex !== null && (
             <ProjectParallaxCarousel

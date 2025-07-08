@@ -50,4 +50,4 @@ node_modules/
 /playwright/.cache/
 
 # backend
-backend/client-logos/
+backend/brand-logos/

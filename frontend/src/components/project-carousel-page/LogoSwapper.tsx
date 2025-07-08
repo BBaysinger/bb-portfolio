@@ -6,7 +6,7 @@ interface LogoSwapperProps {
   projectId: string;
 }
 
-const clientNames: Record<string, string> = {
+const brandNames: Record<string, string> = {
   nick: "Nickelodeon",
   addicting: "Addicting Games",
   att: "AT&T",
@@ -66,7 +66,7 @@ const LogoSwapper: React.FC<LogoSwapperProps> = ({ projectId }) => {
   // If there's a logo variant (for contrast on white), use it.
   const backgroundImage = (key: string) => {
     const fileName = fileVariants[key] || key;
-    return `url(/images/client-logos/${fileName}.svg)`;
+    return `url(/images/brand-logos/${fileName}.svg)`;
   };
 
   return (
@@ -77,13 +77,13 @@ const LogoSwapper: React.FC<LogoSwapperProps> = ({ projectId }) => {
             isMounted ? styles.fadeIn : styles.fadeOut
           }`}
         >
-          {Object.entries(clientNames).map(([key, value]) => (
+          {Object.entries(brandNames).map(([key, value]) => (
             <div
               key={key}
               style={{
                 backgroundImage: backgroundImage(key),
               }}
-              className={`${styles.clientLogo} ${
+              className={`${styles.brandLogo} ${
                 currentLogoId === key ? styles.visible : ""
               }`}
               role="img"

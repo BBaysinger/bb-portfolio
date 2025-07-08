@@ -10,7 +10,7 @@ interface ProjectThumbnailProps {
   omitFromList: boolean;
   projectId: string;
   title: string;
-  clientId: string;
+  brandId: string;
 }
 
 /**
@@ -22,12 +22,12 @@ interface ProjectThumbnailProps {
  * @version N/A
  */
 const ProjectThumbnail = forwardRef<HTMLDivElement, ProjectThumbnailProps>(
-  ({ focused, projectId, title, clientId }, ref) => {
+  ({ focused, projectId, title, brandId }, ref) => {
     const [logoSrc, setLogoSrc] = useState<string | null>(null);
 
     useEffect(() => {
       const loadLogo = () => {
-        setLogoSrc(`/images/client-logos/${clientId}.svg`);
+        setLogoSrc(`/images/brand-logos/${brandId}.svg`);
       };
 
       // Since the brand logo is hidden, it falls outside of the browser-native
@@ -40,7 +40,7 @@ const ProjectThumbnail = forwardRef<HTMLDivElement, ProjectThumbnailProps>(
         // FALLBACK: For many modern browsers! KEEP!
         setTimeout(loadLogo, 500);
       }
-    }, [clientId]);
+    }, [brandId]);
 
     const style: React.CSSProperties = {
       backgroundImage: `url('/images/thumbs/${projectId}.webp')`,
@@ -58,9 +58,9 @@ const ProjectThumbnail = forwardRef<HTMLDivElement, ProjectThumbnailProps>(
               {logoSrc && (
                 <img
                   src={logoSrc}
-                  className={styles.clientLogo}
+                  className={styles.brandLogo}
                   loading="eager"
-                  alt={`${clientId} logo`}
+                  alt={`${brandId} logo`}
                 />
               )}
             </div>
