@@ -226,6 +226,10 @@ export interface ClientLogo {
    * Accessible description of the logo (used for alt text).
    */
   alt?: string | null
+  /**
+   * Choose the background type this logo is intended for.
+   */
+  logoType: 'light' | 'dark' | 'both'
   updatedAt: string
   createdAt: string
   url?: string | null
@@ -425,6 +429,8 @@ export interface ClientsSelect<T extends boolean = true> {
  */
 export interface ClientLogosSelect<T extends boolean = true> {
   alt?: T
+  usageNote?: T
+  logoType?: T
   updatedAt?: T
   createdAt?: T
   url?: T
