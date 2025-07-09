@@ -16,7 +16,7 @@ interface LogoutButtonProps {
 }
 
 /**
- *
+ * Button for logging out of the front end.
  *
  * @author Bradley Baysinger
  * @since The beginning of time.
