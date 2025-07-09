@@ -69,8 +69,8 @@ export interface Config {
   collections: {
     users: User
     projects: Project
-    brands: Client
-    brandLogos: ClientLogo
+    brands: Brand
+    brandLogos: BrandLogo
     projectScreenshots: ProjectScreenshot
     'payload-locked-documents': PayloadLockedDocument
     'payload-preferences': PayloadPreference
@@ -80,7 +80,7 @@ export interface Config {
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>
     projects: ProjectsSelect<false> | ProjectsSelect<true>
-    brands: ClientsSelect<false> | ClientsSelect<true>
+    brands: BrandsSelect<false> | BrandsSelect<true>
     brandLogos: BrandLogosSelect<false> | BrandLogosSelect<true>
     projectScreenshots: ProjectScreenshotsSelect<false> | ProjectScreenshotsSelect<true>
     'payload-locked-documents':
@@ -156,7 +156,7 @@ export interface Project {
   slug: string
   active?: boolean | null
   omitFromList?: boolean | null
-  brandId?: (string | null) | Client
+  brandId?: (string | null) | Brand
   mobileStatus?: ('Portrait' | 'Landscape' | 'none') | null
   tags?:
     | {
@@ -206,12 +206,12 @@ export interface Project {
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "brands".
  */
-export interface Client {
+export interface Brand {
   id: string
   name: string
   slug: string
-  logoLight?: (string | null) | ClientLogo
-  logoDark?: (string | null) | ClientLogo
+  logoLight?: (string | null) | BrandLogo
+  logoDark?: (string | null) | BrandLogo
   website?: string | null
   updatedAt: string
   createdAt: string
@@ -220,7 +220,7 @@ export interface Client {
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "brandLogos".
  */
-export interface ClientLogo {
+export interface BrandLogo {
   id: string
   /**
    * Accessible description of the logo (used for alt text).
@@ -286,11 +286,11 @@ export interface PayloadLockedDocument {
       } | null)
     | ({
         relationTo: 'brands'
-        value: string | Client
+        value: string | Brand
       } | null)
     | ({
         relationTo: 'brandLogos'
-        value: string | ClientLogo
+        value: string | BrandLogo
       } | null)
     | ({
         relationTo: 'projectScreenshots'
@@ -414,7 +414,7 @@ export interface ProjectsSelect<T extends boolean = true> {
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "brands_select".
  */
-export interface ClientsSelect<T extends boolean = true> {
+export interface BrandsSelect<T extends boolean = true> {
   name?: T
   slug?: T
   logoLight?: T
