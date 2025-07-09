@@ -3,3 +3,4 @@ dist/
 package-lock.json
 package.json5
 backend/.next
+payload-types.ts
