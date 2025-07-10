@@ -24,7 +24,7 @@ export const ProjectThumbnails: CollectionConfig = {
       name: 'project',
       type: 'relationship',
       relationTo: 'projects',
-      required: true,
+      required: false,
     },
     {
       name: 'alt',
