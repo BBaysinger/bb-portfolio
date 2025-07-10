@@ -1,10 +1,25 @@
 import type { CollectionConfig } from 'payload'
+import slugify from 'slugify'
 
 export const Projects: CollectionConfig = {
   slug: 'projects',
   admin: {
     useAsTitle: 'title',
     defaultColumns: ['title', 'slug', 'active', 'brandId'],
+  },
+  hooks: {
+    beforeChange: [
+      ({ data, operation }) => {
+        if ((operation === 'create' || operation === 'update') && data?.title && !data?.slug) {
+          data.slug = slugify(data.title, {
+            lower: true,
+            strict: true,
+            trim: true,
+          })
+        }
+        return data
+      },
+    ],
   },
   fields: [
     {
