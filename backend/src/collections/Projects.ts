@@ -26,6 +26,13 @@ export const Projects: CollectionConfig = {
     {
       name: 'omitFromList',
       type: 'checkbox',
+      label: 'Omit from List',
+      defaultValue: false,
+    },
+    {
+      name: 'nda',
+      label: 'NDA',
+      type: 'checkbox',
       defaultValue: false,
     },
     {
@@ -33,12 +40,6 @@ export const Projects: CollectionConfig = {
       type: 'relationship',
       relationTo: 'brands', // optional: create a `brands` collection
       required: false,
-    },
-    {
-      name: 'mobileStatus',
-      type: 'select',
-      options: ['Portrait', 'Landscape', 'none'],
-      defaultValue: 'Portrait',
     },
     {
       name: 'tags',
@@ -78,15 +79,6 @@ export const Projects: CollectionConfig = {
     {
       name: 'type',
       type: 'text',
-    },
-    {
-      name: 'date',
-      type: 'date',
-      admin: {
-        date: {
-          pickerAppearance: 'dayOnly',
-        },
-      },
     },
     {
       name: 'desc',
