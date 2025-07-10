@@ -29,5 +29,5 @@ tsconfig.tsbuildinfo
 
 .env
 
-brand-logos/
-
+backend/brand-logos/
+backend/project-screenshots/

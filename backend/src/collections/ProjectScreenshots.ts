@@ -25,8 +25,8 @@ export const ProjectScreenshots: CollectionConfig = {
       type: 'select',
       required: true,
       options: [
-        { label: 'Desktop', value: 'desktop' },
-        { label: 'Mobile', value: 'mobile' },
+        { label: 'Laptop', value: 'laptop' },
+        { label: 'Phone', value: 'phone' },
       ],
       admin: {
         description: 'Indicates whether the screenshot is for desktop or mobile view.',
@@ -36,7 +36,7 @@ export const ProjectScreenshots: CollectionConfig = {
       name: 'project',
       type: 'relationship',
       relationTo: 'projects',
-      required: true,
+      required: false,
       admin: {
         position: 'sidebar',
       },

@@ -252,8 +252,8 @@ export interface ProjectScreenshot {
   /**
    * Indicates whether the screenshot is for desktop or mobile view.
    */
-  screenType: 'desktop' | 'mobile';
-  project: string | Project;
+  screenType: 'laptop' | 'phone';
+  project?: (string | null) | Project;
   /**
    * Optional alt text for accessibility or SEO.
    */
