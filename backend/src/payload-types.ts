@@ -157,8 +157,8 @@ export interface Project {
   slug: string;
   active?: boolean | null;
   omitFromList?: boolean | null;
+  nda?: boolean | null;
   brandId?: (string | null) | Brand;
-  mobileStatus?: ('Portrait' | 'Landscape' | 'none') | null;
   tags?:
     | {
         tag?: string | null;
@@ -179,7 +179,6 @@ export interface Project {
       }[]
     | null;
   type?: string | null;
-  date?: string | null;
   desc?:
     | {
         /**
@@ -253,6 +252,7 @@ export interface ProjectScreenshot {
    * Indicates whether the screenshot is for desktop or mobile view.
    */
   screenType: 'laptop' | 'phone';
+  orientation: 'portrait' | 'landscape';
   project?: (string | null) | Project;
   /**
    * Optional alt text for accessibility or SEO.
@@ -374,8 +374,8 @@ export interface ProjectsSelect<T extends boolean = true> {
   slug?: T;
   active?: T;
   omitFromList?: T;
+  nda?: T;
   brandId?: T;
-  mobileStatus?: T;
   tags?:
     | T
     | {
@@ -396,7 +396,6 @@ export interface ProjectsSelect<T extends boolean = true> {
         id?: T;
       };
   type?: T;
-  date?: T;
   desc?:
     | T
     | {
@@ -452,6 +451,7 @@ export interface BrandLogosSelect<T extends boolean = true> {
  */
 export interface ProjectScreenshotsSelect<T extends boolean = true> {
   screenType?: T;
+  orientation?: T;
   project?: T;
   alt?: T;
   updatedAt?: T;
