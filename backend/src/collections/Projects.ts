@@ -137,5 +137,14 @@ export const Projects: CollectionConfig = {
         description: 'Associate desktop and mobile screenshots with this project.',
       },
     },
+    {
+      name: 'thumbnail',
+      type: 'relationship',
+      relationTo: 'projectThumbnails',
+      hasMany: true,
+      admin: {
+        description: 'Associate a thumbnail with this project.',
+      },
+    },
   ],
 }
