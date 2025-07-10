@@ -201,6 +201,10 @@ export interface Project {
    * Associate desktop and mobile screenshots with this project.
    */
   screenshots?: (string | ProjectScreenshot)[] | null;
+  /**
+   * Associate a thumbnail with this project.
+   */
+  thumbnail?: (string | ProjectThumbnail)[] | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -439,6 +443,7 @@ export interface ProjectsSelect<T extends boolean = true> {
         id?: T;
       };
   screenshots?: T;
+  thumbnail?: T;
   updatedAt?: T;
   createdAt?: T;
 }
