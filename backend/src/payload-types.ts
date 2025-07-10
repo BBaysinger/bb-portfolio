@@ -72,6 +72,7 @@ export interface Config {
     brands: Brand;
     brandLogos: BrandLogo;
     projectScreenshots: ProjectScreenshot;
+    projectThumbnails: ProjectThumbnail;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -83,6 +84,7 @@ export interface Config {
     brands: BrandsSelect<false> | BrandsSelect<true>;
     brandLogos: BrandLogosSelect<false> | BrandLogosSelect<true>;
     projectScreenshots: ProjectScreenshotsSelect<false> | ProjectScreenshotsSelect<true>;
+    projectThumbnails: ProjectThumbnailsSelect<false> | ProjectThumbnailsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -272,6 +274,29 @@ export interface ProjectScreenshot {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "projectThumbnails".
+ */
+export interface ProjectThumbnail {
+  id: string;
+  project?: (string | null) | Project;
+  /**
+   * Accessible text for screen readers and SEO.
+   */
+  alt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
@@ -296,6 +321,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'projectScreenshots';
         value: string | ProjectScreenshot;
+      } | null)
+    | ({
+        relationTo: 'projectThumbnails';
+        value: string | ProjectThumbnail;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -452,6 +481,25 @@ export interface BrandLogosSelect<T extends boolean = true> {
 export interface ProjectScreenshotsSelect<T extends boolean = true> {
   screenType?: T;
   orientation?: T;
+  project?: T;
+  alt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "projectThumbnails_select".
+ */
+export interface ProjectThumbnailsSelect<T extends boolean = true> {
   project?: T;
   alt?: T;
   updatedAt?: T;
