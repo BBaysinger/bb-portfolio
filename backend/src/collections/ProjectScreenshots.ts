@@ -33,6 +33,15 @@ export const ProjectScreenshots: CollectionConfig = {
       },
     },
     {
+      name: 'orientation',
+      type: 'select',
+      required: true,
+      options: [
+        { label: 'Portrait', value: 'portrait' },
+        { label: 'Landscape', value: 'landscape' },
+      ],
+    },
+    {
       name: 'project',
       type: 'relationship',
       relationTo: 'projects',
@@ -50,6 +59,18 @@ export const ProjectScreenshots: CollectionConfig = {
       },
     },
   ],
+  hooks: {
+    beforeValidate: [
+      ({ data }) => {
+        if (data) {
+          if (!data.orientation && data.screenType) {
+            data.orientation = data.screenType === 'phone' ? 'portrait' : 'landscape'
+          }
+        }
+        return data
+      },
+    ],
+  },
 }
 
 export default ProjectScreenshots
