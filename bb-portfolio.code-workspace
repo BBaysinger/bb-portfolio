@@ -1,4 +1,8 @@
 {
   "folders": [{ "path": "frontend" }, { "path": "backend" }],
-  "settings": {},
+  "settings": {
+    "search.exclude": {
+      "**/old-repo/**": true
+    }
+  }  
 }
