@@ -1,3 +1,4 @@
+'use client';
 import React, {
   useRef,
   useState,
@@ -5,24 +6,24 @@ import React, {
   useMemo,
   useCallback,
 } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useRouter } from 'next/navigation';
 
-import HeaderSub from "components/layout/HeaderSub";
-import InfoSwapper from "components/project-carousel-page/InfoSwapper";
-import ProjectData from "data/ProjectData";
-import LogoSwapper from "components/project-carousel-page/LogoSwapper";
-import ProjectParallaxCarousel from "components/project-carousel-page/ProjectParallaxCarousel";
+import HeaderSub from "@/components/layout/HeaderSub";
+import InfoSwapper from "@/components/project-carousel-page/InfoSwapper";
+import ProjectData from "@/data/ProjectData";
+import LogoSwapper from "@/components/project-carousel-page/LogoSwapper";
+import ProjectParallaxCarousel from "@/components/project-carousel-page/ProjectParallaxCarousel";
 import {
   DirectionType,
   Direction,
   SourceType,
   Source,
-} from "components/project-carousel-page/CarouselTypes";
+} from "@/components/project-carousel-page/CarouselTypes";
 import DeviceDisplay, {
   DeviceTypes,
-} from "components/project-carousel-page/DeviceDisplay";
-import PageButtons from "components/project-carousel-page/PageButtons";
-import styles from "./ProjectPage.module.scss";
+} from "@/components/project-carousel-page/DeviceDisplay";
+import PageButtons from "@/components/project-carousel-page/PageButtons";
+import styles from "./page.module.scss";
 
 /**
  * Handles bidirectional nature of the interaction between the dynamic route and
@@ -51,7 +52,7 @@ const ProjectPage: React.FC = () => {
     null,
   );
 
-  const navigate = useNavigate();
+  const router = useRouter();
   const isCarouselSourceRef = useRef(false);
 
   const brandId = useMemo(
@@ -65,7 +66,7 @@ const ProjectPage: React.FC = () => {
     return directionRef.current === Direction.LEFT
       ? "bbSlideLeft"
       : "bbSlideRight";
-  }, [stabilizedIndex]);
+  }, []);
 
   const laptopSlides = useMemo(
     () =>
@@ -110,7 +111,8 @@ const ProjectPage: React.FC = () => {
           newProjectId !== lastKnownProjectId.current &&
           source === Source.NATURAL
         ) {
-          navigate(`/portfolio/${newProjectId}`, { state: { shallow: true } });
+          // router.push(`/portfolio/${newProjectId}`, { state: { shallow: true } });
+          router.push(`/portfolio/${newProjectId}`);
           lastKnownProjectId.current = newProjectId;
         }
 
@@ -121,7 +123,7 @@ const ProjectPage: React.FC = () => {
         setStabilizedIndex(newStabilizedIndex);
       }
     },
-    [stabilizedIndex, projects, navigate],
+    [stabilizedIndex, projects, router],
   );
 
   useEffect(() => {

@@ -1,0 +1,410 @@
+{
+  "portfolio": {
+    "title": "Portfolio Website",
+    "active": true,
+    "omitFromList": false,
+    "brandId": "bbi",
+    "mobileStatus": "Portrait",
+    "tags": ["React", "TypeScript"],
+    "role": "",
+    "year": "",
+    "awards": "",
+    "type": "",
+    "desc": [
+      "<p>This is the portfolio site you're currently viewing. It also serves as a personal UI experiment playground. Everything here is hand-coded <i>from scratch</i> in React and TypeScript—down to a home-baked sprite sheet animator with CSS, canvas, and WebGL rendering options available by the swap of a parameter. React and GSAP are the only dependencies in the brand bundle.</p>",
+      "<p>The project was built to sharpen my React skills and showcase the polish I bring to UI development.</p>",
+      "<p>A notable core feature is the carousel here on this page. It's absolutely unique to the internet, in that it leverages <i>browser-native</i> touch/gesture input with layered carousel elements for rigid parallax synchronization. Try swiping or dragging the devices, then use your browser's back/forward buttons to see how tightly it (optionally) integrates with routing. <i>Why isn't every carousel this elegant?</i> It's capable of more than you're seeing here... Parallax platformer games via browser-native gestures? It will do that. And I can't wait to explore the possibilities.</p>",
+      "<p>And you've probably noticed the home page header, where giant 8-bit pixels respond to pointer movement with magnetic repulsion via simulated depth. <i>That's not a 3-D library</i>. This system will become more optimized and featured as time allows, but I'm already exploring more advance rendering techniques for it.</p>",
+      "<p>A Payload + Next.js backend is in development here. But, the list of innovations across this site—and in my recent work—is already too long to fully cover here. Several features should be expanded into standalone open-source libraries, as time allows. The takeaway is that I compulsively invent new efficiencies and better processes, with reusability being cornerstone, as I loath redundancy.</p>"
+    ],
+    "date": "",
+    "urls": {
+      "Code Repo": "https://github.com/BBaysinger/bb-portfolio"
+    }
+  },
+  "slideshow": {
+    "title": "Slideshow Component",
+    "active": true,
+    "omitFromList": false,
+    "brandId": "bbi",
+    "mobileStatus": "Portrait",
+    "tags": ["React", "TypeScript"],
+    "role": "",
+    "year": "",
+    "awards": "",
+    "type": "",
+    "desc": [
+      "<p>This is a reusable React slideshow component built to be deployed (optionally) as self-contained single-page app (SPA), developed as part of a deep dive into React hooks and state management.</p>",
+      "<p>Designed with scalability, performance, and accessibility in mind, it features auto-slide functionality, deep linking via dynamic routing, and intuitive user interactions, including pausing, resuming, and manual navigation.</p>",
+      "<p>The component is highly configurable — developers can pass in slides as an array of objects containing foreground and background images, thumbnails, and JSX content. It dynamically adjusts its height based on slide content to eliminate excess whitespace, ensuring an elegant layout across devices. Additionally, lazy-loaded images and optimized animations enhance performance for a smooth user experience.</p>",
+      "<p>Custom navigation controls are fully supported, with two built-in options available. Developers can also define their own controls and even integrate multiple sets.</p>",
+      "<p>More details are available in the code repo. This project is still evolving, with additional features and documentation in progress. It also serves as an example of code quality, so if JavaScript is your thing, take a look at the solutions it implements.</p>"
+    ],
+    "date": "",
+    "urls": {
+      "Code Repo": "https://github.com/BBaysinger/bb-react-slideshow",
+      "Live Demo": "https://bb-react-slideshow.netlify.app"
+    }
+  },
+  "exas": {
+    "title": "Exact Sciences Website",
+    "active": true,
+    "omitFromList": false,
+    "brandId": "exas",
+    "mobileStatus": "Portrait",
+    "tags": ["JavaScript", "HTML5", "CSS3", "Responsive"],
+    "role": "",
+    "year": "",
+    "awards": "",
+    "type": "",
+    "desc": [
+      "<p>Exact Sciences is a leading molecular diagnostics company specializing in early cancer detection and treatment guidance.</p>",
+      "<p>At Epsilon, I contributed to the development of the Exact Sciences website within Sitecore, implementing interactive elements, refining styling, resolving defects, and building modular, reusable components to ensure scalability and consistency across the site.</p>",
+      "<p>One of my key contributions was an interactive oncology report explorer, designed to help patients and practitioners better understand their diagnostics.</p>"
+    ],
+    "date": "",
+    "urls": {
+      "View Site": "https://www.exactsciences.com/"
+    }
+  },
+  "golden1": {
+    "title": "Golden 1 Credit Union",
+    "active": true,
+    "omitFromList": false,
+    "brandId": "golden1",
+    "mobileStatus": "Portrait",
+    "tags": ["JavaScript", "HTML5", "CSS3", "Responsive"],
+    "role": "",
+    "year": "",
+    "awards": "",
+    "type": "",
+    "desc": [
+      "<p>I contributed to the Golden1 Credit Union website by developing interactive features such as accordions, navigation, and a card comparison tool—though the latter has become somewhat redundant now that the number of available cards has been reduced to three.</p>",
+      "<p>In addition to feature development, I was responsible for optimizing performance, accessibility, and SEO. Using Lighthouse diagnostics, I meticulously audited both the front-end and source code to identify and reduce unused and bloated code, and identify and resolve inefficiencies.</p>",
+      "<p>That said, I've noticed a few defects that have crept in since my time on the project—definitely not claiming those, lol.</p>"
+    ],
+    "date": "",
+    "urls": {
+      "View Site": "https://www.golden1.com/"
+    }
+  },
+  "abbvie": {
+    "title": "Bystolic Email",
+    "active": true,
+    "omitFromList": false,
+    "brandId": "abbvie",
+    "mobileStatus": "Portrait",
+    "tags": ["Email", "Responsive", "Salesforce"],
+    "role": "Developer",
+    "year": "",
+    "awards": "",
+    "type": "",
+    "date": "",
+    "desc": [
+      "<p>HTML email development is everyone's favorite, right? Lol, well I embrace any challenge and try to breathe innovation into and improve processes on every project if there's room for it. And there usually is.</p>",
+      "<p>At the start, I was surprised that the Salesforce platform didn't have better features. No room for best practices, documentation, version control, or preprocessing. Brand new to email, I took the initiative to develop a system to bring all of that and standardization to the team's workflow.</p>",
+      "<p>I also served as a mentor for the new email developers, and moved on as developing preference centers and concent workflows in OneTrust became my primary duty at Epsilon.</p>"
+    ],
+    "urls": {}
+  },
+  "marioparty": {
+    "title": "Super Mario Party",
+    "active": true,
+    "omitFromList": false,
+    "brandId": "nintendo",
+    "mobileStatus": "Portrait",
+    "tags": ["jQuery", "HTML5", "CSS3", "Responsive"],
+    "role": "Contributing Developer",
+    "year": "",
+    "awards": "",
+    "type": "",
+    "date": "",
+    "desc": [
+      "<p>I've always been a fan of Mario Bros. games (though my favorites were on the Atari 7800). The mini-games in this one are seriously addictive.</p>",
+      "<p>I developed the interactive activity where users search for hidden Toadettes behind various elements on each page. This feature was integrated with Nintendo's microsite API and included multiple overlapping states and flows (disabled for the portfolio) based on user region and status.</p>",
+      "<p>I also implemented the 'event space' button—the large green button on each page that delivers a fun little surprise.</p>",
+      "<p>Additionally, I was responsible for the video player and various responsive elements throughout the site.</p>",
+      "<p>These projects typically operate under tight deadlines, with only 2-3 weeks for development and limited budgets, which influenced the development approach.</p>"
+    ],
+    "urls": {
+      "View Site": "http://www.bbaysinger.com/_projects/marioparty/index.html"
+    }
+  },
+  "bowser": {
+    "title": "Bowser's Inside Story",
+    "active": true,
+    "omitFromList": false,
+    "brandId": "nintendo",
+    "mobileStatus": "Portrait",
+    "tags": ["SVG", "jQuery", "HTML5", "CSS3", "Responsive"],
+    "role": "Contributing Developer",
+    "year": "",
+    "awards": "",
+    "type": "",
+    "date": "",
+    "desc": [
+      "<p>This Mario Bros. Nintendo DS game site featured a detailed hero animation, which required some intricate CSS3 work. I designed the responsive elements to adapt fluidly without relying on breakpoints, allowing the entire sequence to be scripted only once.</p>",
+      "<p>The bounce effects on certain page elements and the rubbery button interactions involved creating a custom system for dynamically animating SVG paths.</p>",
+      "<p>Beyond animations, I also contributed to the site's responsive layout and localization.</p>"
+    ],
+    "urls": {
+      "View Site": "http://www.bbaysinger.com/_projects/marioandluigi/index.html"
+    }
+  },
+  "ua3": {
+    "title": "Ultimate Alliance 3",
+    "active": true,
+    "omitFromList": false,
+    "brandId": "nintendo",
+    "mobileStatus": "Portrait",
+    "tags": ["Canvas", "jQuery", "HTML5", "CSS3", "Responsive"],
+    "role": "Contributing Developer",
+    "year": "",
+    "awards": "",
+    "type": "",
+    "date": "",
+    "desc": [
+      "<p>For the latest entry in Marvel's Ultimate Alliance series, I developed the central interactive feature: a wallpaper creator that lets users select characters from the game to generate a personalized image for their phone, computer, or Facebook cover.</p>",
+      "<p>Additionally, I worked on canvas animations throughout the site, implemented the main video player, and contributed to the responsive page layout.</p>",
+      "<p>Accessibility became a new requirement for Nintendo on this project, which led to the implementation of a 'reduce motion' feature. This setting pauses all animations—whether JavaScript, CSS3, canvas, or video—ensuring a more accessible experience for users with motion sensitivity.</p>"
+    ],
+    "urls": {
+      "View Site": "http://www.bbaysinger.com/_projects/ua3/index.html"
+    }
+  },
+  "cfc": {
+    "title": "What is Second Step Landing",
+    "active": true,
+    "omitFromList": false,
+    "brandId": "cfc",
+    "mobileStatus": "Portrait",
+    "tags": ["React", "SVG"],
+    "role": "Lead Developer",
+    "year": "",
+    "awards": "",
+    "type": "",
+    "date": "",
+    "desc": [
+      "<p>Committee for Children is an educational charity that reaches over 16.5 million children annually across 70+ countries.</p>",
+      "<p>We developed an interactive component to showcase their Second Step program, featuring a multi-layered wheel navigation dynamically rendered using SVG, React, and React Motion.</p>",
+      "<p>I took the lead on technical advising, development, and contributed to the project's conceptualization.</p>",
+      "<p>Working with SVG in React proved to be incredibly powerful to me, opening up new possibilities for vector-based rendering and interactivity.</p>"
+    ],
+    "urls": {
+      "View Component": "https://www.bbaysinger.com/_projects/cfc-wiss-wheel",
+      "Code Repo": "https://github.com/BBaysinger/cfc-wiss-wheel"
+    }
+  },
+  "premera": {
+    "title": "Merit & Preferred Choice",
+    "active": true,
+    "omitFromList": false,
+    "brandId": "premera",
+    "mobileStatus": "Portrait",
+    "tags": ["jQuery", "HTML5", "CSS3", "Responsive"],
+    "role": "Lead Developer",
+    "year": "",
+    "awards": "",
+    "type": "",
+    "date": "",
+    "desc": [
+      "<p>An informational landing page designed to help Premera customers understand their benefits and find the right treatment options.</p>",
+      "<p>The page integrates with email marketing campaigns, using query string variables to deep link users to state-specific information.</p>",
+      "<p>The original design included a blur effect on the page background when the modal carousel was active. Implementing this across different browsers required some creative problem-solving to ensure consistent support.</p>"
+    ],
+    "urls": {
+      "View Site": "http://www.bbaysinger.com/_projects/premera/wa/index.html?slide-story=one"
+    }
+  },
+  "s2es": {
+    "title": "Seven2 Experience Spokane",
+    "active": true,
+    "omitFromList": false,
+    "brandId": "seven2",
+    "mobileStatus": "Portrait",
+    "tags": ["Angular", "TypeScript", "Canvas"],
+    "role": "Lead Developer",
+    "year": "",
+    "awards": "",
+    "type": "",
+    "date": "",
+    "desc": [
+      "<p>A promotional site for Seven2, where I had full creative freedom in development. I chose Angular, as it was the framework I was most comfortable with at the time. The project was halted before completion, so some features remain unfinished.</p>",
+      "<p>But there are some interesting animations that were created in Adobe Animate and exported for HTML5 canvas. I have extensive experience in animations created this way, and have authored some timeline tools that enable Flash-like interactivity.</p>"
+    ],
+    "urls": {
+      "View Site": "http://www.bbaysinger.com/_projects/s2es/index.html",
+      "Code Repo": "https://github.com/BBaysinger/s2-experience-spokane-2018"
+    }
+  },
+  "pushgraph": {
+    "title": "USDA Pushgraph",
+    "active": true,
+    "omitFromList": false,
+    "brandId": "usda",
+    "mobileStatus": "none",
+    "tags": ["Angular", "TypeScript", "Responsive"],
+    "role": "Developer/Designer",
+    "year": "",
+    "awards": "",
+    "type": "",
+    "date": "",
+    "desc": [
+      "<p>Pushgraph is an advanced data analysis tool developed by ChalkLabs, leveraging semantics to identify patterns, redundancies, and similarities in research data. It was widely used by government agencies, helping to save the federal government billions of dollars annually.</p>",
+      "<p>I designed the UI for the 2017 iteration, which was a significant overhaul of previous versions. This version was entirely built around an Angular-based drag-and-drop widget dashboard that I designed and developed.</p>",
+      "<p>As no screenshots are available, the image shown is a rough design used as the foundation for development. Due to the highly secure nature of Pushgraph and other ChalkLabs software, there are no live demos. Please review the project reel for a better sense of the final implementation.</p>"
+    ],
+    "urls": {
+      "Watch Reel": "https://www.youtube.com/watch?v=Fr5IigbR36A",
+      "Company Website": "https://chalklabs.com/"
+    }
+  },
+  "calc": {
+    "title": "Data Calculator",
+    "active": true,
+    "omitFromList": true,
+    "brandId": "att",
+    "mobileStatus": "none",
+    "tags": ["jQuery", "RequireJS", "AMD"],
+    "role": "Lead developer",
+    "year": "",
+    "awards": "",
+    "type": "Utility",
+    "date": "",
+    "desc": [
+      "<p>A JavaScript web app designed for AT&T Wireless customers to estimate their data usage and choose the most suitable plan. This was one of several data usage calculators we developed for AT&T.</p>",
+      "<p>This version predates AT&T's transition to responsive design, so the page was built as a fixed-width layout.</p>",
+      "<p>Over the years, I worked on countless AT&T projects, many of which have since become legacy tech as the company evolved its platforms and offerings.</p>"
+    ],
+    "urls": {
+      "View Site": "http://www.bbaysinger.com/_projects/data-calculator/"
+    }
+  },
+  "share": {
+    "title": "Mobile Share Planner",
+    "active": true,
+    "omitFromList": false,
+    "brandId": "att",
+    "mobileStatus": "none",
+    "tags": ["jQuery", "RequireJS", "AMD"],
+    "role": "Lead developer",
+    "year": "",
+    "awards": "",
+    "type": "Utility",
+    "date": "",
+    "desc": [
+      "<p>A JavaScript web app designed for AT&T Wireless customers to estimate data usage across multiple devices and select the most suitable plans. Clicking the 'Estimate my monthly usage in detail' links reveals an additional layer of complexity within the tool. This was one of several data usage calculators we developed for AT&T.</p>",
+      "<p>This version predates AT&T's transition to responsive design, so the page was built as a fixed-width layout.</p>",
+      "<p>Throughout my time working with AT&T, I contributed to numerous projects, many of which have since become legacy as the company modernized its platforms and technology.</p>"
+    ],
+    "urls": {
+      "View Site": "http://www.bbaysinger.com/_projects/mobile-share/"
+    }
+  },
+  "bikini-bottom": {
+    "title": "Bikini Bottom Buddy Search",
+    "active": true,
+    "omitFromList": false,
+    "brandId": "nick",
+    "mobileStatus": "Landscape",
+    "tags": ["Haxe", "Game Framework", "Multi-Platform"],
+    "role": "Lead Developer",
+    "year": "",
+    "awards": "",
+    "type": "Search",
+    "date": "",
+    "desc": [
+      "<p>A Where's-Waldo-type game with different clues and play style on each level. This would take some time to play through to the good stuff, so I activated a cheat so you can play any one of the five levels.</p>",
+      "<p>Though you might expect each level to progress in difficulty, instead these tend to progress in reward of each preceding play style, with the final level being the most fun. Drive the submarine around, and use radar to locate the characters.</p>"
+    ],
+    "urls": {
+      "Play Game": "http://www.bbaysinger.com/_projects/poster/index.html?flambe=html&unlockall",
+      "Walkthrough": "https://www.youtube.com/watch?v=ZMkjbYGICcw"
+    }
+  },
+  "tomato": {
+    "title": "Expiration Date",
+    "active": true,
+    "omitFromList": false,
+    "brandId": "addicting",
+    "mobileStatus": "Landscape",
+    "tags": ["Haxe", "Game Framework", "Multi-Platform"],
+    "role": "Lead Developer",
+    "year": "",
+    "awards": "",
+    "type": "Escape",
+    "date": "",
+    "desc": [
+      "<p>A post-apocalyptic escape game. We've all been nuked, but you lived and your DNA has combined with that of a tomato. If you think that's freaky, just wait until you see the rest of the house! Watch out for Mom, she's quite upset with you.</p>",
+      "<p>I produced the framework for the game and a logic system for all of the interactive elements to work with each other. At a glance, I could see that implementing 'if' statements dispersed around the site could be messy and hard to debug, so I devised a system that employs a single XML document to contain game state, define interactive elements, and how they behave with respect to each other. The state of the entire game can observed by outputting a single sheet of XML, which is a native datatype in ActionScript 3.0.</p>"
+    ],
+    "urls": {
+      "Walkthrough": "https://www.youtube.com/watch?v=n2R0WPWcdWM",
+      "Play Game": "http://www.bbaysinger.com/_projects/tomato/index.html?flambe=html"
+    }
+  },
+  "trivia": {
+    "title": "Ultimate Trivia",
+    "active": true,
+    "omitFromList": false,
+    "brandId": "nick",
+    "mobileStatus": "Landscape",
+    "tags": ["Haxe", "Game Framework", "Multi-Platform"],
+    "role": "Lead Developer",
+    "year": "2016",
+    "awards": "",
+    "type": "Trivia",
+    "date": "",
+    "desc": [
+      "<p>A Nickelodeon trivia game featuring over two thousand possible questions, including multimedia-based challenges.</p>",
+      "<p>I developed the entire game, aside from contributions by animators.</p>"
+    ],
+    "urls": {
+      "Walkthrough": "https://www.youtube.com/watch?v=-kTV1QPDJ2Y",
+      "Play Game": "http://bbaysinger.com/_projects/trivia/index.html?flambe=html"
+    }
+  },
+  "mix-match": {
+    "title": "Mix n' Match Dress-Up",
+    "active": true,
+    "omitFromList": false,
+    "brandId": "nickjr",
+    "mobileStatus": "none",
+    "tags": ["Flash", "AS2"],
+    "role": "Lead Developer",
+    "year": "",
+    "awards": "",
+    "type": "",
+    "date": "",
+    "desc": [
+      "<p>Two dress-up games in one! This was Seven2's first game for the Nickelodeon Group. The match mode is a real challenge—you could say I've mastered it over the years.</p>",
+      "<p>As well as building out most of both games, I created a reusable drag-and-drop system for this project, which I later ported to ActionScript 3.0 and eventually Haxe/Flambe. Fun fact: that old alarm clock still keeps perfect time after all these years.</p>",
+      "<p>It's not possible to pick a single project to represent the wide range of interactive pieces I created during the Flash era—but this one stands out as a notable mention.</p>",
+      "<p>This project won the Golden Pixel Addy Award in 2008.</p>",
+      "<p>The linked emulation is far from perfect, but it at least runs... and brings back a lot of memories.</p>"
+    ],
+    "urls": {
+      "Walkthrough": "https://www.youtube.com/watch?v=DhvAuTsJq5o",
+      "Emulator": "https://www.numuki.com/game/blue-s-mix-n-match-dress-up/"
+    }
+  },
+  "template": {
+    "title": "",
+    "active": false,
+    "omitFromList": false,
+    "brandId": "",
+    "mobileStatus": "none",
+    "tags": [""],
+    "role": "",
+    "year": "",
+    "awards": "",
+    "type": "",
+    "desc": ["<p>Some HTML.</p>"],
+    "date": "",
+    "urls": {
+      "Walkthroughs:": ["some/url.html", "some/url.html"],
+      "View Site": "some/url.html",
+      "Play Game": "some/url.html"
+    }
+  }
+}

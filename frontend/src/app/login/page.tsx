@@ -1,10 +1,13 @@
+'use client';
 import { useState } from "react";
-import { NavLink } from "react-router-dom";
-// import * as CryptoJS from "crypto-js"; // Add in for testing iOS on local network
+import Link from 'next/link';
+// Add in CryptoJS for testing iOS on local network, but remove in
+// production, since it bloats the bundle.
+// import * as CryptoJS from "crypto-js"; 
 
-import useClientDimensions from "hooks/useClientDimensions";
-import { useAuth } from "context/AuthContext";
-import styles from "./LoginPage.module.scss";
+import useClientDimensions from "@/hooks/useClientDimensions";
+import { useAuth } from "@/context/AuthContext";
+import styles from "./page.module.scss";
 
 // Obvs, this is not secure. It doesn't need to be.
 const users = [
@@ -101,7 +104,7 @@ const LoginPage = ({ onLogin }: { onLogin: () => void }) => {
         <p>
           If you have been provided login credentials, please enter them below
           to proceed. If you need access, feel free to{" "}
-          <NavLink to="/contact#top">reach out</NavLink> to me directly.
+          <Link href="/contact#top">reach out</Link> to me directly.
         </p>
         <p>Thank you for your understanding!</p>
 

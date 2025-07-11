@@ -1,13 +1,13 @@
 import React from "react";
-import { NavLink } from "react-router-dom";
-import type { NavLinkRenderProps } from "react-router-dom";
+import Link from 'next/link';
+import type { LinkRenderProps } from "react-router-dom";
 
-import { useAuth } from "context/AuthContext";
-import MiscUtils from "utils/MiscUtils";
-import styles from "./NavLinks.module.scss";
-import LogoutButton from "components/common/LogoutButton";
+import { useAuth } from "@/context/AuthContext";
+import MiscUtils from "@/utils/MiscUtils";
+import styles from "./Links.module.scss";
+import LogoutButton from "@/components/common/LogoutButton";
 
-interface NavLinksProps {
+interface LinksProps {
   onClick?: () => void;
   className?: string;
 }
@@ -19,7 +19,7 @@ interface NavLinksProps {
  * @since The beginning of time.
  * @version N/A
  */
-const NavLinks: React.FC<NavLinksProps> = ({ onClick, className }) => {
+const Links: React.FC<LinksProps> = ({ onClick, className }) => {
   const { isLoggedIn } = useAuth();
 
   return (
@@ -27,19 +27,19 @@ const NavLinks: React.FC<NavLinksProps> = ({ onClick, className }) => {
       {/* {isLoggedIn && ( */}
       <>
         <li>
-          <NavLink
+          <Link
             to="/#top"
-            className={({ isActive }: NavLinkRenderProps) =>
+            className={({ isActive }: LinkRenderProps) =>
               MiscUtils.isActiveOrAlt(isActive, "/#top", styles.active)
             }
           >
             Home
-          </NavLink>
+          </Link>
         </li>
         <li>
-          <NavLink
+          <Link
             to="/portfolio#list"
-            className={({ isActive }: NavLinkRenderProps) =>
+            className={({ isActive }: LinkRenderProps) =>
               MiscUtils.isActiveOrAlt(
                 isActive,
                 "/portfolio#list",
@@ -48,45 +48,45 @@ const NavLinks: React.FC<NavLinksProps> = ({ onClick, className }) => {
             }
           >
             Portfolio
-          </NavLink>
+          </Link>
         </li>
         <li>
-          <NavLink
+          <Link
             to="/cv#top"
-            className={({ isActive }: NavLinkRenderProps) =>
+            className={({ isActive }: LinkRenderProps) =>
               isActive ? styles.active : ""
             }
           >
             CV
-          </NavLink>
+          </Link>
         </li>
       </>
       {/* )} */}
       <li>
-        <NavLink
+        <Link
           to="/contact#top"
-          className={({ isActive }: NavLinkRenderProps) =>
+          className={({ isActive }: LinkRenderProps) =>
             isActive ? styles.active : ""
           }
         >
           Contact
-        </NavLink>
+        </Link>
       </li>
       {isLoggedIn && <LogoutButton className={styles.logout} />}
       {!isLoggedIn && (
         <li className={styles.login}>
-          <NavLink
+          <Link
             to="/login#top"
-            className={({ isActive }: NavLinkRenderProps) =>
+            className={({ isActive }: LinkRenderProps) =>
               isActive ? styles.active : ""
             }
           >
             Login
-          </NavLink>
+          </Link>
         </li>
       )}
     </ul>
   );
 };
 
-export default NavLinks;
+export default Links;

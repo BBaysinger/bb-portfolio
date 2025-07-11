@@ -1,18 +1,15 @@
-import React from "react";
-import { NavLink } from "react-router-dom";
+'use client';
 
-import type { NavLinkRenderProps } from "react-router-dom";
-import { useAuth } from "context/AuthContext";
-import styles from "./LogoutButton.module.scss";
+import React from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
+import { usePathname } from 'next/navigation';
 
-/**
- * @author Bradley Baysinger
- * @since The beginning of time.
- * @version N/A
- */
+import { useAuth } from '@/context/AuthContext';
+import styles from './LogoutButton.module.scss';
 
 interface LogoutButtonProps {
-  className?: string | ((props: { isActive: boolean }) => string);
+  className?: string;
 }
 
 /**
@@ -22,8 +19,11 @@ interface LogoutButtonProps {
  * @since The beginning of time.
  * @version N/A
  */
-const LogoutButton: React.FC<LogoutButtonProps> = ({ className = "" }) => {
+const LogoutButton: React.FC<LogoutButtonProps> = ({ className = '' }) => {
   const { logout } = useAuth();
+  const pathname = usePathname();
+
+  const isActive = pathname === '/login'; // Adjust if needed
 
   const handleLogout = () => {
     logout();
@@ -34,17 +34,14 @@ const LogoutButton: React.FC<LogoutButtonProps> = ({ className = "" }) => {
       className={`${styles.logout} ${className} logout`}
       onClick={handleLogout}
     >
-      <NavLink
-        className={({ isActive }: NavLinkRenderProps) =>
-          isActive ? styles.active : ""
-        }
-        to="/login#top"
-      >
-        <img
+      <Link href="/login#top" className={isActive ? styles.active : ''}>
+        <Image
           src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
           alt="Logout"
+          width={1}
+          height={1}
         />
-      </NavLink>
+      </Link>
     </li>
   );
 };
