@@ -2,10 +2,6 @@
 @use "@/styles/variables" as *;
 @use "@/styles/globals" as *;
 
-// :global(.container) {
-//   border: 1px solid red;
-// }
-
 .cvPage {
   color: #fff;
   @extend .graphitePage;
