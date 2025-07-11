@@ -1,0 +1,68 @@
+@use "@/styles/mixins" as *;
+@use "@/styles/variables" as *;
+
+.paragraphAnimator {
+  position: absolute;
+  top: var(--hero-padding);
+  left: var(--hero-padding);
+  width: calc(100vw - var(--hero-padding) * 2 - $navBarHeight);
+  white-space: pre-wrap;
+  transform-origin: top left;
+  pointer-events: none;
+  opacity: 0.9;
+  box-sizing: border-box;
+  @include remRange(font-size, 16px, 20px);
+  @include breakpointUp(768px) {
+    width: calc(100vw - var(--hero-padding) * 2 - 400px);
+  }
+
+  p {
+    line-height: 1.4em;
+    margin-bottom: 0;
+    @include staticRange(margin-top, -0.18em, -0.25em);
+  }
+}
+
+.cursor {
+  position: relative;
+  top: 0.1em;
+  display: inline-block;
+  width: 0.5em;
+  height: 0.9em;
+  background-color: $lighterThemeColor;
+  // background-color: #00ff00;
+  animation: blink 1s infinite;
+  margin-left: 1px;
+  :global(.notSlingerIdle) & {
+    animation-play-state: paused;
+  }
+}
+
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+.cursorSolid {
+  animation: none;
+}
+
+.visible {
+  color: #fff;
+  // color: #00ff00;
+}
+
+.invisible {
+  display: none;
+}
+
+.debug {
+  color: white;
+  margin-right: auto;
+  display: inline-block;
+}
