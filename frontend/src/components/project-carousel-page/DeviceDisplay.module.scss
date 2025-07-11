@@ -1,0 +1,122 @@
+@use "@/styles/mixins" as *;
+@use "@/styles/variables" as *;
+
+.devicePresentation {
+  height: 420px;
+  position: relative;
+  background-size: contain;
+  background-repeat: no-repeat;
+  box-sizing: border-box;
+  pointer-events: none;
+  // Introduces some jank:
+  // filter: grayscale(0.4) blur(0.5px);
+  will-change: filter;
+  transition: filter 0.4s ease-in-out;
+}
+
+.backgroundWrapper {
+  height: 414px;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  background-size: contain;
+  background-repeat: no-repeat;
+  box-sizing: border-box;
+  width: 100%;
+
+  &.laptop {
+    background-image: url("../../images/project-carousel/laptop.webp");
+    background-position: calc(50% + 2px) center;
+    background-size: 693px 414px;
+    width: 693px;
+    transform: translateX(-50%) scale(0.98);
+    transition: transform 0.4s ease-in-out;
+    will-change: transform;
+    img {
+      position: absolute;
+      top: 38px;
+      left: 97px;
+      height: 310px;
+      width: 500px;
+    }
+  }
+
+  &.phone {
+    &::before {
+      content: "";
+      position: absolute;
+      top: 46px;
+      left: 465px;
+      width: 220px;
+      height: 409px;
+      background-image: url("../../images/project-carousel/phone.webp");
+      background-size: cover;
+      background-repeat: no-repeat;
+      transition: transform 0.4s ease-in-out;
+      transform: translateY(3%) rotate(1deg);
+      will-change: transform;
+    }
+
+    img {
+      position: absolute;
+      height: 354px;
+      width: 162px;
+      transition: transform 0.4s ease-in-out;
+      transform: translateY(3%) rotate(1deg);
+      will-change: transform;
+    }
+
+    &.none {
+      display: none;
+    }
+
+    &.Portrait {
+      img {
+        left: 493px;
+        top: 67px;
+      }
+    }
+
+    &.Landscape {
+      &::before {
+        transform: translateY(5px) rotate(91deg);
+        top: 135px;
+        left: 337px;
+      }
+      img {
+        top: 258px;
+        left: 276px;
+        height: 162px;
+        width: 354px;
+        transform: translateY(5px) rotate(1deg);
+      }
+    }
+  }
+}
+
+:global {
+  .bbStabilizedSlide {
+    .bbDevicePresentation {
+      filter: none;
+    }
+    .bbLaptop {
+      transform: translateX(-50%) scale(1);
+    }
+    .bbPortrait.bbPhone {
+      &::before {
+        transform: rotate(0deg);
+      }
+      img {
+        transform: rotate(0deg);
+      }
+    }
+    .bbLandscape.bbPhone {
+      &::before {
+        transform: rotate(90deg);
+      }
+      img {
+        transform: rotate(0deg);
+      }
+    }
+  }
+}

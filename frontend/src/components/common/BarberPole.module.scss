@@ -1,0 +1,30 @@
+@use "@/styles/mixins" as *;
+@use "@/styles/variables" as *;
+
+.barberPole {
+  position: relative;
+  overflow: hidden;
+  display: inline-block;
+  width: 30px;
+  height: 16px;
+}
+
+.stripes {
+  width: 400%;
+  height: 100%;
+  background: url("/images/common/barber-pole.webp");
+  background-size: 50%;
+  background-repeat: repeat;
+  position: absolute;
+  animation: scrollStripes linear infinite;
+  animation-duration: 4s;
+}
+
+@keyframes scrollStripes {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0%);
+  }
+}

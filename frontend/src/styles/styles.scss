@@ -1,0 +1,167 @@
+@use "@/styles/mixins" as *;
+@use "@/styles/variables" as *;
+@use "@/styles/mixins" as *;
+
+body,
+html {
+  font-family: "Roboto";
+  background-color: #000;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+//////////////////////////////////////////////////////////////////////////
+// Global stuff
+//////////////////////////////////////////////////////////////////////////
+
+.nobr {
+  white-space: nowrap;
+}
+
+//////////////////////////////////////////////////////////////////////////
+// Text slide-in animation
+//////////////////////////////////////////////////////////////////////////
+
+.fadeIn {
+  opacity: 0;
+  transform: translateX(200px);
+  transition:
+    opacity 0.6s ease-out,
+    transform 0.6s ease-out;
+
+  &.in-view {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+img.fadeIn {
+  transform: translateX(-100px);
+}
+
+h4.fadeIn {
+  transform: translateX(-300px);
+}
+
+/////////////////////////////////////////////////////////////
+// Forms
+/////////////////////////////////////////////////////////////
+
+form {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+
+  > p {
+    font-size: 18px;
+  }
+
+  button[type="submit"] {
+    background-color: black;
+    color: white;
+    border: none;
+    padding: 0.5rem;
+    cursor: pointer;
+    line-height: 1;
+    padding-left: 12px;
+    padding-right: 12px;
+    border-radius: 4px;
+
+    &:hover {
+      background-color: #181818;
+    }
+  }
+
+  label {
+    width: 100%;
+    margin-bottom: 10px;
+    > *:first-child {
+      margin-bottom: 3px;
+    }
+  }
+
+  input,
+  textarea {
+    background-color: #222;
+    box-shadow: inset 2px 2px 8px #000;
+    border: 0;
+    padding-left: 10px;
+    color: #fff;
+    -webkit-text-fill-color: #fff; /* Ensures correct color after autofill */
+    border-radius: 4px;
+    height: 36px;
+    width: 200px;
+    font-size: 16px; /* Prevents mobile zoom */
+    transition: background-color 5000s ease-in-out 0s; /* Prevent autofill flash */
+  }
+
+  textarea {
+    width: 100%;
+    min-height: 200px;
+  }
+
+  input:focus,
+  textarea:focus {
+    outline: none;
+  }
+}
+
+// .error {
+//   height: 16px;
+//   color: #990000;
+// }
+
+/////////////////////////////////////////////////////////////
+// Standard textual page layout
+/////////////////////////////////////////////////////////////
+
+.standardPage {
+  padding-top: 60px;
+  padding-bottom: 60px;
+
+  @include breakpointUp($b768px) {
+    padding-top: 90px;
+    padding-bottom: 90px;
+  }
+
+  h4 {
+    border-bottom: 10px solid transparent;
+    border-image-source: url("/images/common/barber-pole.webp");
+    border-image-slice: 0 0 100 0;
+    border-image-repeat: repeat;
+    border-image-width: 10px;
+
+    padding-bottom: 20px;
+    // font-size: 40px;
+    color: #777;
+    font-weight: 400;
+    line-height: 1.1em;
+    @include remRange(font-size, 40px, 48px, $b360, $b1280);
+    &:first-child {
+      padding-top: 0;
+      margin-top: 0;
+    }
+  }
+
+  h5 {
+    position: relative;
+    font-size: 28px;
+    margin-bottom: 3px;
+    color: #fff;
+    white-space: normal;
+  }
+}
+
+.errorMessage {
+  color: #990000;
+}
+
+.successMessage {
+  color: #009900;
+}

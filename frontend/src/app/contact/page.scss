@@ -1,0 +1,22 @@
+@use "@/styles/mixins" as *;
+@use "@/styles/variables" as *;
+@use "@/styles/globals" as *;
+
+.contactPage {
+  @extend .graphitePage;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #bbb;
+  padding: 16px;
+
+  > div {
+    width: 500px;
+    max-width: 100%;
+    position: relative;
+  }
+
+  h1 {
+    color: white;
+  }
+}

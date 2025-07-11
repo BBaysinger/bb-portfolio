@@ -1,0 +1,62 @@
+@use "@/styles/mixins" as *;
+@use "@/styles/variables" as *;
+
+$mainBreak: $b992;
+$maxScaleBreak: 680; // Max vw limit of the carousel scaling
+
+.projectNav {
+  display: flex;
+  position: absolute;
+  justify-content: space-between;
+  pointer-events: none;
+  width: 100vw;
+  @include remRange(top, 80px, 155px, $b320, $maxScaleBreak);
+}
+
+.navButton {
+  position: relative;
+  pointer-events: all;
+  transform-origin: center 0;
+
+  &.next {
+    transform: scaleX(-1);
+    margin-left: -1px;
+  }
+}
+
+.inner {
+  position: relative;
+  display: flex;
+  object-fit: cover;
+  background: linear-gradient(to right, #000, #555);
+  border-radius: 0 50% 50% 0;
+  background: rgba(0, 0, 0, 0.7);
+  @include remRange(height, 40px, 96px, $b320, $mainBreak);
+  @include remRange(width, 40px, 96px, $b320, $mainBreak);
+  @include remRange(margin-left, -10px, -20px, $b320, $mainBreak);
+  @include breakpointUp($b640px) {
+    background: #000;
+  }
+
+  &:hover {
+    opacity: 0.8;
+  }
+
+  &:active {
+    opacity: 0.6;
+  }
+
+  &::before {
+    content: "";
+    position: absolute;
+    border-top: 0 solid #fff;
+    border-left: 0 solid #fff;
+    top: 50%;
+    transform-origin: 0 0;
+    transform: rotate(-45deg);
+    @include remRange(border-width, 4.5px, 8px, $b320, $mainBreak);
+    @include remRange(height, 17px, 36px, $b320, $mainBreak);
+    @include remRange(width, 17px, 36px, $b320, $mainBreak);
+    @include remRange(left, 15px, 40px, $b320, $mainBreak);
+  }
+}
