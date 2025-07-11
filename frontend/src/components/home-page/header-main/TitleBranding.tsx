@@ -1,6 +1,8 @@
 import { forwardRef } from "react";
-import headerLogo from "images/hero/bb-gradient.webp";
-import BarberPole from "components/common/BarberPole";
+import Image from "next/image";
+
+import headerLogo from "@/images/hero/bb-gradient.webp";
+import BarberPole from "@/components/common/BarberPole";
 import styles from "./TitleBranding.module.scss";
 
 type TitleBrandingProps = {
@@ -20,7 +22,7 @@ const TitleBranding = forwardRef<HTMLDivElement, TitleBrandingProps>(
       <div ref={ref} className={`${styles.titleBranding} ${className}`}>
         <span className={styles.logoWrapper}>
           <div>
-            <img src={headerLogo} className={styles.heroLogo} alt="BB Logo" />
+            <Image src={headerLogo} className={styles.heroLogo} alt="BB Logo" />
           </div>
         </span>
         <span className={styles.hWrapper}>

@@ -1,6 +1,7 @@
 import React from "react";
+import Image from "next/image";
 
-import { MobileStatus } from "data/ProjectData";
+import { MobileStatus } from "@/data/ProjectData";
 import styles from "./DeviceDisplay.module.scss";
 
 // Define constants for DeviceTypes (not used in the data)
@@ -39,7 +40,7 @@ const DeviceDisplay: React.FC<DeviceDisplayProps> = React.memo(
           <div
             className={`bbLaptop ${styles.backgroundWrapper} ${styles[deviceType]}`}
           >
-            <img
+            <Image
               src={src}
               alt={`${id} screencap`}
               loading="eager"
@@ -53,7 +54,7 @@ const DeviceDisplay: React.FC<DeviceDisplayProps> = React.memo(
               ` bb${mobileStatus ? mobileStatus : ""} ${styles[deviceType]}`
             }
           >
-            <img
+            <Image
               src={src}
               alt={`${id} bbScreencap`}
               loading="eager"

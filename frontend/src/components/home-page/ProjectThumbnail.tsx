@@ -1,5 +1,6 @@
 import React, { forwardRef, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import Image from "next/image";
 
 import styles from "./ProjectThumbnail.module.scss";
 
@@ -50,13 +51,13 @@ const ProjectThumbnail = forwardRef<HTMLDivElement, ProjectThumbnailProps>(
 
     return (
       <div className={`${styles.projectThumbnail} ${focusClass}`} ref={ref}>
-        <Link to={`/portfolio/${projectId}#project`}>
+        <Link href={`/portfolio/${projectId}#project`}>
           <div className={styles.thumbBg} style={style}></div>
           <div className={styles.vignette}></div>
           <div className={styles.thumbContent}>
             <div>
               {logoSrc && (
-                <img
+                <Image
                   src={logoSrc}
                   className={styles.brandLogo}
                   loading="eager"

@@ -7,7 +7,7 @@ import React, {
 } from "react";
 
 import { Side } from "./BorderBlinker";
-import MiscUtils from "utils/MiscUtils";
+import MiscUtils from "@/utils/MiscUtils";
 import styles from "./SlingerBox.module.scss";
 
 type SlingerObject = {

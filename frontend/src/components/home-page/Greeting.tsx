@@ -1,7 +1,8 @@
 import styles from "./Greeting.module.scss";
+import Image from "next/image";
 
-import useInViewAnimation from "hooks/useInViewAnimation";
-import MagneticThingy from "components/home-page/MagneticThingy";
+import useInViewAnimation from "@/hooks/useInViewAnimation";
+import MagneticThingy from "@/components/home-page/MagneticThingy";
 
 /**
  * The "Hello" section on the home page.
@@ -18,7 +19,7 @@ const Greeting: React.FC = () => {
       <div className={styles.greetingWrapper}>
         <div className={styles.helloSignWrapper}>
           <MagneticThingy className={styles.helloSign}>
-            <img src="/images/home/hello.webp" alt="hello" loading="lazy" />
+            <Image src="/images/home/hello.webp" alt="hello" loading="lazy" />
           </MagneticThingy>
         </div>
 

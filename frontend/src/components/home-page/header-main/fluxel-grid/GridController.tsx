@@ -13,8 +13,8 @@ import { useFluxelShadows } from "./useFluxelShadows";
 import useFluxelProjectiles, { Direction } from "./useFluxelProjectiles";
 import AnimationSequencer from "./AnimationSequencer";
 import type { FluxelGridHandle, FluxelData } from "./FluxelAllTypes";
-import useResponsiveScaler from "hooks/useResponsiveScaler";
-import useElementRelativePointer from "hooks/useElementRelativePointer";
+import useResponsiveScaler from "@/hooks/useResponsiveScaler";
+import useElementRelativePointer from "@/hooks/useElementRelativePointer";
 import styles from "./GridController.module.scss";
 
 export interface GridControllerHandle {

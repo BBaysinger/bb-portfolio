@@ -1,7 +1,8 @@
+'use client';
 import React, { useState } from "react";
 
-import useClientDimensions from "hooks/useClientDimensions";
-import styles from "./ContactPage.module.scss";
+import useClientDimensions from "@/hooks/useClientDimensions";
+import styles from "./page.module.scss";
 
 /**
  * Obligatory contact page!
@@ -45,7 +46,7 @@ const ContactPage = () => {
     try {
       const response = await fetch("/", {
         method: "POST",
-        body: new URLSearchParams(data as any).toString(),
+        body: new URLSearchParams([...data.entries()] as [string, string][]).toString(),
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
       });
 
@@ -55,7 +56,7 @@ const ContactPage = () => {
       } else {
         throw new Error("Form submission failed");
       }
-    } catch (error) {
+    } catch {
       setError("Failed to send message. Please try again later.");
       setStatus("");
     }
@@ -73,7 +74,7 @@ const ContactPage = () => {
             <h1>Contact me!</h1>
             <p>
               Have a project in mind or just want to say hello? Drop me a
-              message, and I'll get back to you as soon as possible!
+              message, and I&apos;ll get back to you as soon as possible!
             </p>
             <form
               name="contact"

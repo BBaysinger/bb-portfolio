@@ -7,8 +7,8 @@ import React, {
 } from "react";
 import ExecutionEnvironment from "exenv";
 
-import ProjectData from "data/ProjectData";
-import ProjectThumbnail from "components/home-page/ProjectThumbnail";
+import ProjectData from "@/data/ProjectData";
+import ProjectThumbnail from "@/components/home-page/ProjectThumbnail";
 import styles from "./PortfolioList.module.scss";
 
 /**

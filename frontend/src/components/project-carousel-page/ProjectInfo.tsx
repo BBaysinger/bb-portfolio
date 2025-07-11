@@ -1,6 +1,6 @@
 import { forwardRef } from "react";
 
-import { ParsedPortfolioProject } from "data/ProjectData";
+import { ParsedPortfolioProject } from "@/data/ProjectData";
 import { DirectionType } from "./CarouselTypes";
 import styles from "./ProjectInfo.module.scss";
 

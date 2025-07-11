@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
-import { NavLink, useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+import Image from "next/image";
+
 import FootGreet from "./FootGreet";
-import NavLinks from "./NavLinks";
+import Links from "./Links";
 import styles from "./Footer.module.scss";
 
 type FooterProps = {
@@ -212,7 +214,7 @@ const Footer: React.FC<FooterProps> = ({ mutationElemRef }) => {
             <div
               className={`col-xs-12 col-sm-12 col-md-2 col-lg-2 ${styles.footerCell} ${styles.footerNav}`}
             >
-              <NavLinks />
+              <Links />
             </div>
           </div>
         </div>
@@ -223,13 +225,13 @@ const Footer: React.FC<FooterProps> = ({ mutationElemRef }) => {
               target="_blank"
               rel="noopener noreferrer"
             >
-              <img src="/images/footer/react.svg" alt="React Logo" />
+              <Image src="/images/footer/react.svg" alt="React Logo" />
               Built with React
             </a>
           </div>
-          <NavLink className={styles.footerLink} to="/portfolio#top">
+          <Link className={styles.footerLink} to="/portfolio#top">
             &copy; <span style={{ color: "#fff" }}>BBInteractive</span>.io
-          </NavLink>
+          </Link>
         </div>
       </footer>
     </div>

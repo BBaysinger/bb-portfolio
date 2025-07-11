@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { setHeroInView } from "store/uiSlice";
+import { setHeroInView } from "@/store/uiSlice";
 
 /**
  *

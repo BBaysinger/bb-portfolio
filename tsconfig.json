@@ -7,5 +7,6 @@
     "allowSyntheticDefaultImports": true,
     "module": "CommonJS",
     "moduleResolution": "node"
-  }
+  },
+  "exclude": ["node_modules", "frontend-vite-old"]
 }

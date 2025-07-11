@@ -1,20 +1,20 @@
 import React, { useState, useCallback, useRef, useEffect } from "react";
 
-import useClientDimensions from "hooks/useClientDimensions";
+import useClientDimensions from "@/hooks/useClientDimensions";
 import GridController, {
   GridControllerHandle,
 } from "./fluxel-grid/GridController";
 import SlingerBox, { SlingerBoxHandle } from "./SlingerBox";
 import ParagraphAnimator from "./ParagraphAnimator";
-import useScrollPersistedClass from "hooks/useScrollPersistedClass";
+import useScrollPersistedClass from "@/hooks/useScrollPersistedClass";
 import BorderBlinker, { Side } from "./BorderBlinker";
 import { Direction } from "./fluxel-grid/useFluxelProjectiles";
-import ChargedCircle from "components/home-page/header-main/ChargedCircle";
-import useTimeOfDay from "hooks/useTimeOfDay";
+import ChargedCircle from "@/components/home-page/header-main/ChargedCircle";
+import useTimeOfDay from "@/hooks/useTimeOfDay";
 import TitleBranding from "./TitleBranding";
-import useQueryParams from "hooks/useQueryParams";
-import FPSCounter from "components/common/FPSCounter";
-import OrbArrowTooltip from "components/home-page/header-main/OrbArrowTooltip";
+import useQueryParams from "@/hooks/useQueryParams";
+import FPSCounter from "@/components/common/FPSCounter";
+import OrbArrowTooltip from "@/components/home-page/header-main/OrbArrowTooltip";
 import styles from "./Hero.module.scss";
 
 const quotes = [

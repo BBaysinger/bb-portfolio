@@ -1,12 +1,12 @@
 import React from "react";
-import { NavLink } from "react-router-dom";
+import Link from 'next/link';
 import { useDispatch, useSelector } from "react-redux";
 
-import { expandMobileNav } from "store/uiSlice";
-import Hamburger from "components/layout/Hamburger";
-import NavLinks from "./NavLinks";
-import { RootState } from "store/store";
-import navLogo from "images/misc/bb-logo.svg";
+import { expandMobileNav } from "@/store/uiSlice";
+import Hamburger from "@/components/layout/Hamburger";
+import Links from "./Links";
+import { RootState } from "@/store/store";
+import navLogo from "@/images/misc/bb-logo.svg";
 import styles from "./Nav.module.scss";
 
 export const NavVariant = {
@@ -52,8 +52,8 @@ const Nav: React.FC<NavProps> = ({ variant }) => {
         </>
       )}
 
-      <NavLink to="/#top" className={styles.title}>
-        <img src={navLogo} className={styles.navLogo} alt="BB Logo" />
+      <Link href="/#top" className={styles.title}>
+        <Image src={navLogo} className={styles.navLogo} alt="BB Logo" />
         <div className={styles.navLogoText}>
           <div className={styles.name}>
             <span>BRADLEY</span> <span>BAYSINGER</span>
@@ -64,8 +64,8 @@ const Nav: React.FC<NavProps> = ({ variant }) => {
             </span>
           </div>
         </div>
-      </NavLink>
-      <NavLinks onClick={expandMobileNavHandler} className={styles.navLinks} />
+      </Link>
+      <Links onClick={expandMobileNavHandler} className={styles.navLinks} />
 
       {variant === NavVariant.TOP_BAR && (
         <Hamburger className={styles.hamburger} />

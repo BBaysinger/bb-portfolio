@@ -1,5 +1,5 @@
 import { useRef, memo } from "react";
-import ProjectData from "data/ProjectData";
+import ProjectData from "@/data/ProjectData";
 import ProjectInfo from "./ProjectInfo";
 import { DirectionType } from "./CarouselTypes";
 import styles from "./InfoSwapper.module.scss";

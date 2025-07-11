@@ -19,7 +19,7 @@ import {
   type DirectionType,
   type CarouselRef,
 } from "./CarouselTypes";
-import { useDragInertia } from "hooks/useDragInertia";
+import { useDragInertia } from "@/hooks/useDragInertia";
 import styles from "./Carousel.module.scss";
 
 /**

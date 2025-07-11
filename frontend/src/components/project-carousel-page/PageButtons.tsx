@@ -1,7 +1,7 @@
 import React from "react";
 import { Link, useParams } from "react-router-dom";
 
-import ProjectData from "data/ProjectData";
+import ProjectData from "@/data/ProjectData";
 import styles from "./PageButtons.module.scss";
 
 /**
