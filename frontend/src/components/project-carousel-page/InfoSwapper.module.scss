@@ -1,0 +1,12 @@
+@use "@/styles/mixins" as *;
+@use "@/styles/variables" as *;
+
+.infoSwapper {
+  position: relative;
+  left: 0;
+  overflow: visible;
+  margin-bottom: 100px;
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+}

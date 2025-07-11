@@ -1,0 +1,60 @@
+@use "@/styles/mixins" as *;
+@use "@/styles/variables" as *;
+
+.logoSwapper {
+  position: relative;
+  display: flex;
+  margin-left: auto;
+  margin-right: auto;
+  opacity: 0.0001;
+  transition:
+    opacity 0.5s,
+    filter 0.5s;
+  align-items: left;
+  filter: blur(12px);
+
+  @include remRange(margin-top, 46px, 60px, $b320, $b768);
+  @include remRange(margin-bottom, 30px, 46px, $b320, $b768);
+  @include remRange(width, 240px, 330px, $b320, $b768);
+  @include remRange(height, 50px, 65px, $b320, $b768);
+
+  @include breakpointUp($b768px) {
+    margin-left: 0;
+  }
+
+  &.unBlurred {
+    filter: blur(0);
+  }
+
+  &.fadeIn {
+    opacity: 1;
+  }
+}
+
+.brandLogo {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  max-height: 100%;
+  transform: translate(-50%, -50%);
+  opacity: 0.0001;
+  transition: filter 0.5s;
+  will-change: filter, opacity;
+  object-fit: fill;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center center;
+
+  &.visible {
+    opacity: 1;
+  }
+
+  @include breakpointUp($b768px) {
+    margin-left: 0;
+    left: 0;
+    transform: translateY(-50%);
+    background-position: left center;
+  }
+}

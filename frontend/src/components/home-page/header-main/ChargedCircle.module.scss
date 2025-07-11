@@ -1,0 +1,52 @@
+@use "@/styles/mixins" as *;
+@use "@/styles/variables" as *;
+
+.chargedCircle {
+  position: absolute;
+  top: 25px;
+  left: 25px;
+  pointer-events: none;
+  z-index: -1;
+  transition: animation 1s ease-in-out;
+  animation: spin 2s linear infinite;
+  * {
+    pointer-events: none;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+  }
+
+  :global(.isDragging) & {
+    animation: spin 6s linear infinite;
+  }
+  :global(.isSlingerIdle) & {
+    display: none !important;
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.bolt {
+  position: absolute;
+  transform-origin: top left;
+}
+
+.bolt2 {
+  transform: rotate(120deg);
+}
+
+.bolt3 {
+  transform: rotate(240deg);
+}
+
+.scaler {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
