@@ -1,8 +1,10 @@
+'use client';
 import React from "react";
+import Image from "next/image";
 
-import HeaderSub from "components/layout/HeaderSub";
-import useInViewAnimation from "hooks/useInViewAnimation";
-import styles from "./CurriculumVitae.module.scss";
+import HeaderSub from "@/components/layout/HeaderSub";
+import useInViewAnimation from "@/hooks/useInViewAnimation";
+import styles from "./page.module.scss";
 
 /**
  * CV Page. Mostly static HTML, with some helper functions for formatting.
@@ -255,7 +257,7 @@ const CurriculumVitae: React.FC = () => {
 
           <div className={rowClass}>
             <div className={divClassLt}>
-              <img
+              <Image
                 ref={addToRefs}
                 src="/images/cv/dart.svg"
                 className={styles.cvLogo}
@@ -272,7 +274,7 @@ const CurriculumVitae: React.FC = () => {
                 award-winning interactive projects in Flash, I transitioned
                 seamlessly to modern frameworks like Angular and React, building
                 reusable, high-performance components. With a results-driven
-                approach, I've helped Fortune 500 companies, entertainment
+                approach, I&apos;ve helped Fortune 500 companies, entertainment
                 giants, and startups create polished, impactful digital
                 experiences.
               </p>
@@ -285,7 +287,7 @@ const CurriculumVitae: React.FC = () => {
 
           <div className={rowClass}>
             <div className={divClassLt}>
-              <img
+              <Image
                 ref={addToRefs}
                 src="/images/cv/wrench.svg"
                 className={styles.cvLogo}
@@ -363,7 +365,7 @@ const CurriculumVitae: React.FC = () => {
 
           <div className={rowClass}>
             <div className={divClassLt}>
-              <img
+              <Image
                 ref={addToRefs}
                 src="/images/cv/epsilon.svg"
                 className={styles.cvLogo}
@@ -444,7 +446,7 @@ const CurriculumVitae: React.FC = () => {
 
           <div className={rowClass}>
             <div className={divClassLt}>
-              <img
+              <Image
                 ref={addToRefs}
                 src="/images/cv/bb.svg"
                 className={styles.cvLogo}
@@ -515,7 +517,7 @@ const CurriculumVitae: React.FC = () => {
 
           <div className={rowClass}>
             <div className={divClassLt}>
-              <img
+              <Image
                 ref={addToRefs}
                 src="/images/cv/s2.svg"
                 className={styles.cvLogo}
@@ -589,7 +591,7 @@ const CurriculumVitae: React.FC = () => {
                   content challenges across regions.
                 </li>
                 <li ref={addToRefs}>
-                  Integrated with Nintendo's Nclood API for managing user
+                  Integrated with Nintendo&apos;s Nclood API for managing user
                   statuses and rewards systems.
                 </li>
                 <li ref={addToRefs}>
@@ -610,7 +612,7 @@ const CurriculumVitae: React.FC = () => {
 
           <div className={rowClass}>
             <div className={divClassLt}>
-              <img
+              <Image
                 ref={addToRefs}
                 src="/images/cv/chalklabs.svg"
                 className={styles.cvLogo}
@@ -647,7 +649,7 @@ const CurriculumVitae: React.FC = () => {
                   Consumed an HTTP search API utilizing a custom domain-specific
                   query language embedded in URL parameters, supporting logical
                   operators, field-based queries, and similarity matching for
-                  ChalkLabs' flagship <b>SaaS</b> software, Pushgraph
+                  ChalkLabs&apos; flagship <b>SaaS</b> software, Pushgraph
                 </li>
                 <li ref={addToRefs}>
                   Independently developed the Pushgraph dashboard drag-and-drop
@@ -680,7 +682,7 @@ const CurriculumVitae: React.FC = () => {
                 </li>
                 <li ref={addToRefs}>
                   Worked over 350 hours in June 2017 with a supervisor to meet a
-                  critical $5M contract deadline, ensuring the company's
+                  critical $5M contract deadline, ensuring the company&apos;s
                   viability.
                 </li>
               </ul>
@@ -691,7 +693,7 @@ const CurriculumVitae: React.FC = () => {
 
           <div className={rowClass}>
             <div className={divClassLt}>
-              <img
+              <Image
                 ref={addToRefs}
                 src="/images/cv/s2.svg"
                 className={styles.cvLogo}
@@ -738,13 +740,13 @@ const CurriculumVitae: React.FC = () => {
                 </li>
                 <li ref={addToRefs}>
                   Served as the lead developer for several first iterations of
-                  AT&amp;T's projects, including their data usage calculators
+                  AT&amp;T&apos;s projects, including their data usage calculators
                   and first-ever app store, authored in vanilla JavaScript and
                   Require/AMD.
                 </li>
                 <li ref={addToRefs}>
-                  Led Seven2's first Nickelodeon Group project: Blue's Clues —
-                  Mix 'N Match Dressup, built in Flash/ActionScript.
+                  Led Seven2&apos;s first Nickelodeon Group project: Blue&apos;s Clues —
+                  Mix &apos;N Match Dressup, built in Flash/ActionScript.
                 </li>
                 <li ref={addToRefs}>
                   Rescued a high-visibility AT&T project by creating a
@@ -752,7 +754,7 @@ const CurriculumVitae: React.FC = () => {
                   feature, achieving over 90 million interactions in one week.
                 </li>
                 <li ref={addToRefs}>
-                  Developed custom audio and video players for MTV's
+                  Developed custom audio and video players for MTV&apos;s
                   high-production websites using AS3.
                 </li>
                 <li ref={addToRefs}>
@@ -782,7 +784,7 @@ const CurriculumVitae: React.FC = () => {
                 </li>
                 <li ref={addToRefs}>
                   Led development of a <b>Webby Award</b>-winning project (2008
-                  People's Choice Art Website of the Year).
+                  People&apos;s Choice Art Website of the Year).
                 </li>
               </ul>
             </div>
@@ -792,7 +794,7 @@ const CurriculumVitae: React.FC = () => {
 
           <div className={rowClass}>
             <div className={divClassLt}>
-              <img
+              <Image
                 ref={addToRefs}
                 src="/images/cv/scw.svg"
                 className={styles.cvLogo}
@@ -830,7 +832,7 @@ const CurriculumVitae: React.FC = () => {
                   first time.
                 </li>
                 <li ref={addToRefs}>
-                  Designed and developed SCW's reusable <b>e-commerce</b>
+                  Designed and developed SCW&apos;s reusable <b>e-commerce</b>
                   /shopping cart platform, which was ahead of its time,
                   preceding modern solutions like Shopify.
                 </li>
@@ -857,7 +859,7 @@ const CurriculumVitae: React.FC = () => {
 
           <div className={rowClass}>
             <div className={divClassLt}>
-              <img
+              <Image
                 ref={addToRefs}
                 src="/images/cv/bb.svg"
                 className={styles.cvLogo}
@@ -923,7 +925,7 @@ const CurriculumVitae: React.FC = () => {
 
           <div className={rowClass}>
             <div className={divClassLt}>
-              <img
+              <Image
                 ref={addToRefs}
                 src="/images/cv/sfcc.svg"
                 className={styles.cvLogo}
@@ -956,7 +958,7 @@ const CurriculumVitae: React.FC = () => {
 
           <div className={rowClass}>
             <div className={divClassLt}>
-              <img
+              <Image
                 ref={addToRefs}
                 src="/images/cv/bv.svg"
                 className={styles.cvLogo}
@@ -1047,7 +1049,7 @@ const CurriculumVitae: React.FC = () => {
                   <h5>14 gold badges on Stack Overflow</h5>
                   <div className={`${styles.badges} col-xs-12`}>
                     {Array.from({ length: 14 }, (_, index) => (
-                      <img key={index} src="/images/cv/gold-badge.svg" alt="" />
+                      <Image key={index} src="/images/cv/gold-badge.svg" alt="" />
                     ))}
                   </div>
                 </div>
@@ -1068,7 +1070,7 @@ const CurriculumVitae: React.FC = () => {
               </div>
 
               <div className={`${styles.desc} col-xs-12`}>
-                People's Choice — Art Website of the Year — Artocracy.org
+                People&apos;s Choice — Art Website of the Year — Artocracy.org
               </div>
             </div>
             <div ref={addToRefs} className={divClassLt}></div>

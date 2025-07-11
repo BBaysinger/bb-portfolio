@@ -1,4 +1,4 @@
-import useTimeOfDay from "hooks/useTimeOfDay";
+import useTimeOfDay from "@/hooks/useTimeOfDay";
 import styles from "./FootGreet.module.scss";
 
 /**
@@ -14,7 +14,7 @@ const FootGreet: React.FC<{ className: string }> = ({ className }) => {
   return (
     <>
       <p className={className}>
-        <img
+        <Image
           src="/images/footer/bb2.jpg"
           className={`img-responsive ${styles.footerPhoto}`}
           alt="Bradley's face"
