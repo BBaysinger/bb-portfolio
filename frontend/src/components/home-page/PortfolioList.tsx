@@ -1,3 +1,5 @@
+"use client";
+
 import React, {
   useState,
   useEffect,
@@ -5,7 +7,6 @@ import React, {
   useCallback,
   RefObject,
 } from "react";
-import ExecutionEnvironment from "exenv";
 
 import ProjectData from "@/data/ProjectData";
 import ProjectThumbnail from "@/components/home-page/ProjectThumbnail";
@@ -29,11 +30,9 @@ import styles from "./PortfolioList.module.scss";
  * @version N/A
  */
 const PortfolioList: React.FC = () => {
-  const [focusedThumbIndex, setFocusedThumbIndex] = useState(-1); // Tracks the currently focused thumbnail index
-  const projectThumbRefs = useRef<
-    Array<React.RefObject<HTMLDivElement | null>>
-  >([]);
-  const ticking = useRef(false); // Tracks whether a scroll/resize event is currently being processed
+  const [focusedThumbIndex, setFocusedThumbIndex] = useState(-1);
+  const projectThumbRefs = useRef<Array<RefObject<HTMLDivElement | null>>>([]);
+  const ticking = useRef(false);
 
   /**
    * Initializes a reference to a DOM node for a thumbnail.
@@ -42,85 +41,73 @@ const PortfolioList: React.FC = () => {
   const setThumbRef = useCallback(
     (node: HTMLDivElement | null, index: number) => {
       if (!projectThumbRefs.current[index]) {
-        projectThumbRefs.current[index] =
-          React.createRef<HTMLDivElement | null>();
+        projectThumbRefs.current[index] = React.createRef<HTMLDivElement>();
       }
       projectThumbRefs.current[index].current = node;
     },
     [],
   );
 
-  /**
-   * Updates the focused thumbnail on hover-less views based on scroll or resize events.
-   */
-  const update = useCallback(
-    (_: Event) => {
-      if (ExecutionEnvironment.canUseDOM) {
-        let offset;
-        let absOffset;
-        let bounding;
-        let linkHeight;
-        let targetMaxOffset;
-        let inRange: Array<RefObject<HTMLDivElement | null>> = [];
-
-        projectThumbRefs.current.forEach((thumbRef) => {
-          const domNode = thumbRef.current;
-          if (domNode) {
-            bounding = domNode.getBoundingClientRect();
-            linkHeight = domNode.offsetHeight;
-            targetMaxOffset = linkHeight / 2;
-            offset = window.innerHeight / 2 - (bounding.top + targetMaxOffset);
-            absOffset = Math.abs(offset);
-
-            if (absOffset < targetMaxOffset) {
-              inRange.push(thumbRef);
-            }
-          }
-        });
-
-        // Sequentially determine focus for thumbnails in the same row when in
-        // multiple columns, based on their vertical scroll position. That is,
-        // As the user scrolls, along one row, from left to right, as the user
-        // scrolls down, the next (to the right) thumbnail in the row will be
-        // focused. Scrolling upward does the opposite, from right to left.
-        // It starts by counting the number of thumbnails in the row, then
-        // dividing their focus 'zone' into equal parts per the number of columns.
-        inRange.forEach((thumbRef, index) => {
-          const domNode = thumbRef.current;
-          if (domNode) {
-            bounding = domNode.getBoundingClientRect();
-            linkHeight = domNode.offsetHeight / inRange.length;
-
-            const top = bounding.top + linkHeight * index;
-            targetMaxOffset = linkHeight / 2;
-            offset = window.innerHeight / 2 - (top + targetMaxOffset);
-            absOffset = Math.abs(offset);
-
-            if (absOffset < targetMaxOffset) {
-              const newIndex = getThumbnailIndex(thumbRef);
-              if (focusedThumbIndex !== newIndex) {
-                setFocusedThumbIndex(newIndex);
-              }
-            }
-          }
-        });
-      }
-    },
-    [focusedThumbIndex],
-  );
-
-  /**
-   * Retrieves the index of a given thumbnail ref from the projectThumbRefs array.
-   */
   const getThumbnailIndex = (
     thumbRef: RefObject<HTMLDivElement | null>,
   ): number => {
     return projectThumbRefs.current.findIndex((ref) => ref === thumbRef);
   };
 
+  const update = useCallback(
+    (_: Event) => {
+      if (typeof window === "undefined") return;
+
+      let offset, absOffset, bounding, linkHeight, targetMaxOffset;
+      const inRange: Array<RefObject<HTMLDivElement | null>> = [];
+
+      projectThumbRefs.current.forEach((thumbRef) => {
+        const domNode = thumbRef.current;
+        if (domNode) {
+          bounding = domNode.getBoundingClientRect();
+          linkHeight = domNode.offsetHeight;
+          targetMaxOffset = linkHeight / 2;
+          offset = window.innerHeight / 2 - (bounding.top + targetMaxOffset);
+          absOffset = Math.abs(offset);
+
+          if (absOffset < targetMaxOffset) {
+            inRange.push(thumbRef);
+          }
+          // Sequentially determine focus for thumbnails in the same row when in
+          // multiple columns, based on their vertical scroll position. That is,
+          // As the user scrolls, along one row, from left to right, as the user
+          // scrolls down, the next (to the right) thumbnail in the row will be
+          // focused. Scrolling upward does the opposite, from right to left.
+          // It starts by counting the number of thumbnails in the row, then
+          // dividing their focus 'zone' into equal parts per the number of columns.
+        }
+      });
+
+      inRange.forEach((thumbRef, index) => {
+        const domNode = thumbRef.current;
+        if (domNode) {
+          bounding = domNode.getBoundingClientRect();
+          linkHeight = domNode.offsetHeight / inRange.length;
+
+          const top = bounding.top + linkHeight * index;
+          targetMaxOffset = linkHeight / 2;
+          offset = window.innerHeight / 2 - (top + targetMaxOffset);
+          absOffset = Math.abs(offset);
+
+          if (absOffset < targetMaxOffset) {
+            const newIndex = getThumbnailIndex(thumbRef);
+            if (focusedThumbIndex !== newIndex) {
+              setFocusedThumbIndex(newIndex);
+            }
+          }
+        }
+      });
+    },
+    [focusedThumbIndex],
+  );
+
   /**
-   * Handles scroll and resize events efficiently using requestAnimationFrame.
-   * Prevents multiple redundant updates by batching logic.
+   * Retrieves the index of a given thumbnail ref from the projectThumbRefs array.
    */
   const handleScrollOrResize = useCallback(
     (e: Event) => {
