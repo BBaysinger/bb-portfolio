@@ -82,7 +82,7 @@ export default function useResponsiveScaler(
       window.removeEventListener("resize", onResize);
       window.removeEventListener("orientationchange", onResize);
     };
-  }, [aspectRatio, baseWidth, mode, elementRef]);
+  }, [aspectRatio, baseWidth, mode, elementRef, calculate]);
 
   return scaler;
 }
