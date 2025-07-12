@@ -1,18 +1,24 @@
+"use client";
+
+import Link from "next/link";
+import { useParams } from "next/navigation";
 import React from "react";
-import { Link, useParams } from "react-router-dom";
 
 import ProjectData from "@/data/ProjectData";
+
 import styles from "./PageButtons.module.scss";
 
 /**
- *
+ * Navigation buttons to switch between projects in the portfolio view.
  *
  * @author Bradley Baysinger
  * @since The beginning of time.
  * @version N/A
  */
 const PageButtons: React.FC = () => {
-  const { projectId = "" } = useParams<{ projectId: string }>();
+  const params = useParams();
+  const projectId =
+    typeof params?.projectId === "string" ? params.projectId : "";
 
   const prevId = ProjectData.prevKey(projectId);
   const nextId = ProjectData.nextKey(projectId);
@@ -20,13 +26,13 @@ const PageButtons: React.FC = () => {
   return (
     <div className={styles.projectNav}>
       <Link
-        to={`/portfolio/${prevId}`}
+        href={`/portfolio/${prevId}`}
         className={`${styles.navButton} ${styles.prev}`}
       >
         <div className={styles.inner}></div>
       </Link>
       <Link
-        to={`/portfolio/${nextId}`}
+        href={`/portfolio/${nextId}`}
         className={`${styles.navButton} ${styles.next}`}
       >
         <div className={styles.inner}></div>

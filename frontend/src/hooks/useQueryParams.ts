@@ -1,5 +1,7 @@
+"use client";
+
+import { useSearchParams } from "next/navigation";
 import { useMemo } from "react";
-import { useLocation } from "react-router-dom";
 
 type QueryParamValue = string | number | boolean;
 
@@ -28,7 +30,10 @@ export default function useQueryParams<T extends QueryParamValue>(
 ): T extends boolean ? boolean : T | undefined;
 
 /**
+ * useQueryParams (Next.js version)
  *
+ * Retrieves query parameters as parsed values. Returns either all query params,
+ * a specific param by key, or the param with a fallback/default value.
  *
  * @author Bradley Baysinger
  * @since The beginning of time.
@@ -40,13 +45,12 @@ export default function useQueryParams<
   key?: string,
   defaultValue?: T,
 ): Record<string, QueryParamValue> | T | undefined {
-  const { search } = useLocation();
+  const searchParams = useSearchParams();
 
   return useMemo(() => {
-    const params = new URLSearchParams(search);
     const result: Record<string, QueryParamValue> = {};
 
-    for (const [k, value] of params.entries()) {
+    for (const [k, value] of searchParams.entries()) {
       result[k] = parseValue(value);
     }
 
@@ -75,5 +79,5 @@ export default function useQueryParams<
     }
 
     return result;
-  }, [search, key, defaultValue]);
+  }, [searchParams, key, defaultValue]);
 }

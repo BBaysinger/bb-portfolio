@@ -12,13 +12,17 @@ export default class MiscUtils {
    * @returns
    */
   static isActiveOrAlt(
-    isActive: any,
+    isActive: boolean,
     optionalRoute: string,
     activeClassNames: string,
-  ) {
-    return isActive || window.location.pathname === optionalRoute
-      ? activeClassNames
-      : "";
+  ): string {
+    if (
+      typeof window !== "undefined" &&
+      window.location.pathname === optionalRoute
+    ) {
+      return activeClassNames;
+    }
+    return isActive ? activeClassNames : "";
   }
 
   /**
