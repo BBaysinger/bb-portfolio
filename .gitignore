@@ -30,5 +30,6 @@ tsconfig.tsbuildinfo
 .env
 
 backend/brand-logos/
+backend/client-logos/
 backend/project-screenshots/
 backend/project-thumbnails/
