@@ -1,8 +1,9 @@
+"use client";
 import React from "react";
 
 import Hero from "@/components/home-page/header-main/Hero";
-import PortfolioList from "@/components/home-page/PortfolioList";
 import Greeting from "@/components/home-page/Greeting";
+import PortfolioList from "@/components/home-page/PortfolioList";
 
 /**
  * The home page of the website. Contains the header, greeting, and portfolio list.
