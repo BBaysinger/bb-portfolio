@@ -1,73 +1,22 @@
 "use client";
+
 import { useState } from "react";
 import Link from "next/link";
-// Add in CryptoJS for testing iOS on local network, but remove in
-// production, since it bloats the bundle.
-// import * as CryptoJS from "crypto-js";
 
 import useClientDimensions from "@/hooks/useClientDimensions";
 import { useAuth } from "@/context/AuthContext";
 import styles from "./page.module.scss";
 
-// Obvs, this is not secure. It doesn't need to be.
-const users = [
-  {
-    username: "admin",
-    hash: "713bfda78870bf9d1b261f565286f85e97ee614efe5f0faf7c34e7ca4f65baca",
-  },
-  {
-    username: "TheOther",
-    hash: "1ecb9e6bdf6cc8088693c11e366415fe5c73662ecdf08f3df337924d8ea26adc",
-  },
-  {
-    username: "Leslie",
-    hash: "6e2a9c2005c195088bc774cdd44def3a886a3e2598219d4e39353ae837b8b081",
-  },
-  {
-    username: "Guest",
-    hash: "8e6133f9422f1cb76f58c8b6b8e894fddb76104967babf7818b30a02493010ca",
-  },
-];
-
-const hashPassword = async (password: string) => {
-  const isLocalNetwork = /^192\.168\./.test(window.location.hostname);
-
-  if (!window.crypto?.subtle) {
-    if (isLocalNetwork) {
-      // An error throws when testing in Safari for iOS over local network.
-      // Use CryptoJS.SHA256 for testing, but beware that it bloats the bundle size.
-      // DO NOT INCLUDE IN PRODUCTION.
-      console.warn("crypto.subtle is not available. Using fallback.");
-      return CryptoJS.SHA256(password).toString(CryptoJS.enc.Hex);
-    }
-
-    const message = "crypto.subtle is not supported in this browser.";
-    alert(message);
-    console.error(message);
-    return null;
-  }
-
-  const hashBuffer = await crypto.subtle.digest(
-    "SHA-256",
-    new TextEncoder().encode(password),
-  );
-  const retVal = Array.from(new Uint8Array(hashBuffer))
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
-  console.info("Passed:", password, "Hashed:", retVal);
-  return retVal;
-};
-
 /**
- *
+ * LoginPage prompts user for credentials and attempts Payload CMS login.
  *
  * @author Bradley Baysinger
  * @since The beginning of time.
- * @version N/A
+ * @version Updated for PayloadCMS login.
  */
-const LoginPage = ({ onLogin }: { onLogin: () => void }) => {
+const LoginPage = () => {
   const { login } = useAuth();
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState(""); // using email, not username
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoggingIn, setIsLoggingIn] = useState(false);
@@ -75,20 +24,14 @@ const LoginPage = ({ onLogin }: { onLogin: () => void }) => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
 
     setIsLoggingIn(true); // Disable form while processing
-
-    const hashedPassword = await hashPassword(password);
-    const user = users.find(
-      (u) => u.username === username && u.hash === hashedPassword,
-    );
-
-    if (user) {
-      login(); // Updates global state
-      onLogin();
-    } else {
-      setError("Invalid username or password");
-      setIsLoggingIn(false); // Re-enable form if login fails
+    try {
+      await login(email, password); // real API call
+    } catch {
+      setError("Invalid email or password.");
+      setIsLoggingIn(false);
     }
   };
 
@@ -110,13 +53,14 @@ const LoginPage = ({ onLogin }: { onLogin: () => void }) => {
 
         <form className={styles.form} onSubmit={handleLogin}>
           <div className={styles.sameRow}>
-            <label htmlFor="username">
-              <div>Username:</div>
+            <label htmlFor="email">
+              <div>Email:</div>
               <input
-                type="text"
+                type="email"
+                id="email"
                 placeholder=""
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 disabled={isLoggingIn}
                 autoComplete="username"
                 required
@@ -126,11 +70,12 @@ const LoginPage = ({ onLogin }: { onLogin: () => void }) => {
               <div>Password:</div>
               <input
                 type="password"
+                id="password"
                 placeholder=""
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={isLoggingIn}
-                autoComplete="password"
+                autoComplete="current-password"
                 required
               />
             </label>
@@ -139,14 +84,15 @@ const LoginPage = ({ onLogin }: { onLogin: () => void }) => {
             Login
           </button>
         </form>
+
         <div>
           <p>
             {isLoggingIn ? (
-              <span className={"statusMessage"}>Logging in...</span>
+              <span className={styles.statusMessage}>Logging in...</span>
             ) : error ? (
-              <span className={"errorMessage"}>{error}</span>
+              <span className={styles.errorMessage}>{error}</span>
             ) : (
-              <>&nbsp;</> // Prevent layout shift when neither message is shown
+              <>&nbsp;</>
             )}
           </p>
         </div>

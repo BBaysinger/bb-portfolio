@@ -1,65 +1,117 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  ReactNode,
+} from "react";
+
+interface User {
+  id: string;
+  email: string;
+  name?: string;
+  role?: string;
+  // Add any custom fields from your Payload User collection
+}
 
 interface AuthContextType {
+  user: User | null;
   isLoggedIn: boolean;
-  login: () => void;
+  login: (email: string, password: string) => Promise<void>;
   logout: () => void;
+  resetExperience: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 /**
+ * AuthProvider handles Payload-based auth with session or JWT support.
  *
- *
- * @author Bradley Baysinger
- * @since The beginning of time.
- * @version N/A
+ * Stores user info and provides login/logout/reset helpers.
  */
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [isLoggedIn, setIsLoggedIn] = useState(
-    sessionStorage.getItem("isLoggedIn") === "true",
-  );
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
-    // Update state when sessionStorage changes
-    const handleStorageChange = () => {
-      setIsLoggedIn(sessionStorage.getItem("isLoggedIn") === "true");
+    // On mount, fetch the current user from Payload
+    const fetchUser = async () => {
+      try {
+        const res = await fetch("/api/users/me", {
+          credentials: "include", // needed for session cookie-based auth
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          setUser(data.user);
+          setIsLoggedIn(true);
+        } else {
+          setUser(null);
+          setIsLoggedIn(false);
+        }
+      } catch (err) {
+        console.error("Failed to fetch user", err);
+        setUser(null);
+        setIsLoggedIn(false);
+      }
     };
 
-    window.addEventListener("storage", handleStorageChange);
-    return () => window.removeEventListener("storage", handleStorageChange);
+    fetchUser();
   }, []);
 
-  const login = () => {
-    sessionStorage.setItem("isLoggedIn", "true");
-    setIsLoggedIn(true);
+  const login = async (email: string, password: string) => {
+    try {
+      const res = await fetch("/api/users/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (!res.ok) throw new Error("Login failed");
+
+      const data = await res.json();
+      setUser(data.user);
+      setIsLoggedIn(true);
+    } catch (err) {
+      console.error("Login error:", err);
+      throw err;
+    }
   };
 
-  const logout = () => {
-    // sessionStorage.removeItem("isLoggedIn");
-
-    // Reset the entire experience on logout (and refresh), because the intro
-    // sequence can get overlooked, and there's no harm in repeating it.
-    while (sessionStorage.length > 0) {
-      const key = sessionStorage.key(0);
-      if (key !== null) {
-        const value = sessionStorage.getItem(key);
-        console.info(`${key}: ${value}`);
-        sessionStorage.removeItem(key);
-      }
+  const logout = async () => {
+    try {
+      await fetch("/api/users/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+    } catch (err) {
+      console.warn("Logout may have failed:", err);
+    } finally {
+      setUser(null);
+      setIsLoggedIn(false);
     }
+  };
 
+  const resetExperience = () => {
+    console.info("Resetting local + session storage");
+    localStorage.clear();
+    sessionStorage.clear();
+    setUser(null);
     setIsLoggedIn(false);
+    window.location.reload();
   };
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, login, logout }}>
+    <AuthContext.Provider
+      value={{ user, isLoggedIn, login, logout, resetExperience }}
+    >
       {children}
     </AuthContext.Provider>
   );
 };
 
-export const useAuth = () => {
+export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
   if (!context) {
     throw new Error("useAuth must be used within an AuthProvider");
