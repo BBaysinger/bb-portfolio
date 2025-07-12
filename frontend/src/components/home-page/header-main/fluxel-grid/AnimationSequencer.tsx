@@ -9,6 +9,7 @@ import React, {
 } from "react";
 
 import SpriteSheetPlayer from "@/components/common/sprite-rendering/SpriteSheetPlayer";
+
 import styles from "./AnimationSequencer.module.scss";
 
 export interface AnimationSequencerHandle {
@@ -175,7 +176,7 @@ const AnimationSequencer = forwardRef<
     let attemptCount = 0;
 
     while (attemptCount < 10) {
-      let r = Math.random() * totalWeight;
+      const r = Math.random() * totalWeight;
       let cumulative = 0;
 
       for (let i = 0; i < items.length; i++) {
@@ -221,20 +222,23 @@ const AnimationSequencer = forwardRef<
     });
   };
 
-  const playImperativeAnimation = useCallback((index = 0) => {
-    const anim = imperativeAnimations[index % imperativeAnimations.length];
-    const filename = isNarrow() ? anim.narrow : anim.wide;
+  const playImperativeAnimation = useCallback(
+    (index = 0) => {
+      const anim = imperativeAnimations[index % imperativeAnimations.length];
+      const filename = isNarrow() ? anim.narrow : anim.wide;
 
-    safeSetAnim({
-      ...anim,
-      wide: buildFullPath(filename),
-      narrow: buildFullPath(filename),
-    });
+      safeSetAnim({
+        ...anim,
+        wide: buildFullPath(filename),
+        narrow: buildFullPath(filename),
+      });
 
-    timeoutRef.current = setTimeout(() => {
-      setActiveAnim(null);
-    }, delay);
-  }, []);
+      timeoutRef.current = setTimeout(() => {
+        setActiveAnim(null);
+      }, delay);
+    },
+    [imperativeAnimations, isNarrow, safeSetAnim],
+  );
 
   useImperativeHandle(ref, () => ({ playImperativeAnimation }), [
     playImperativeAnimation,
@@ -243,7 +247,7 @@ const AnimationSequencer = forwardRef<
   useEffect(() => {
     timeoutRef.current = setTimeout(updateAnimation, initialDelay);
     return clearTimeoutIfSet;
-  }, []);
+  }, [updateAnimation]);
 
   const handleEnd = () => {
     clearTimeoutIfSet();
@@ -253,7 +257,7 @@ const AnimationSequencer = forwardRef<
   const currentSrc = useMemo(() => {
     if (!activeAnim) return null;
     return isNarrow() ? activeAnim.narrow : activeAnim.wide;
-  }, [activeAnim]);
+  }, [activeAnim, isNarrow]);
 
   return (
     <div className={`${styles.animationSequencer} ${className}`}>
@@ -270,5 +274,7 @@ const AnimationSequencer = forwardRef<
     </div>
   );
 });
+
+AnimationSequencer.displayName = "AnimationSequencer";
 
 export default React.memo(AnimationSequencer);

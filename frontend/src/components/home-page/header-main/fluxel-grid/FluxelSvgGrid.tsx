@@ -230,4 +230,6 @@ const FluxelSvgGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
   },
 );
 
+FluxelSvgGrid.displayName = "FluxelSvgGrid";
+
 export default FluxelSvgGrid;

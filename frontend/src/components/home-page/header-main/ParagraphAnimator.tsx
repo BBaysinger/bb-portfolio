@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
+import { useEffect, useRef, useState } from "react";
+
 import styles from "./ParagraphAnimator.module.scss";
 
 interface ParagraphAnimatorProps {
@@ -146,7 +147,7 @@ const ParagraphAnimator: React.FC<ParagraphAnimatorProps> = ({
       if (delayTimer.current) clearTimeout(delayTimer.current);
       if (poller.current) clearInterval(poller.current);
     };
-  }, []);
+  }, [generateShuffledQueue, playParagraph]);
 
   return (
     <div

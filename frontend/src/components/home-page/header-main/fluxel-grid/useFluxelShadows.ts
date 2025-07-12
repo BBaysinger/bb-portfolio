@@ -1,7 +1,9 @@
 import { useEffect, useRef } from "react";
+
+import MiscUtils from "@/utils/MiscUtils";
+
 import { FluxelData } from "./FluxelAllTypes";
 import type { FluxelGridHandle } from "./FluxelAllTypes";
-import MiscUtils from "@/utils/MiscUtils";
 
 function getShadowInfluence(
   { col, row }: { col: number; row: number },

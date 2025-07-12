@@ -1,8 +1,10 @@
 import { useRef, memo } from "react";
+
 import ProjectData from "@/data/ProjectData";
-import ProjectInfo from "./ProjectInfo";
+
 import { DirectionType } from "./CarouselTypes";
 import styles from "./InfoSwapper.module.scss";
+import ProjectInfo from "./ProjectInfo";
 
 interface InfoSwapperProps {
   index: number | null;
@@ -40,5 +42,7 @@ const InfoSwapper = memo<InfoSwapperProps>(({ direction, index }) => {
     </div>
   );
 });
+
+InfoSwapper.displayName = "InfoSwapper";
 
 export default InfoSwapper;

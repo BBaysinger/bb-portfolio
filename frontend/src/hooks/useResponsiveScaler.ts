@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 
 type FitMode = "cover" | "contain";
 
@@ -28,7 +28,7 @@ export default function useResponsiveScaler(
   mode: FitMode = "cover",
   elementRef?: React.RefObject<HTMLElement | null>,
 ): ScalerOutput {
-  const calculate = (): ScalerOutput => {
+  const calculate = useCallback((): ScalerOutput => {
     const containerWidth = document.documentElement.clientWidth;
     const containerHeight = document.documentElement.clientHeight;
     const screenAspect = containerWidth / containerHeight;
@@ -53,7 +53,7 @@ export default function useResponsiveScaler(
     const scale = width / baseWidth;
 
     return { width, height, offsetX, offsetY, scale };
-  };
+  }, [aspectRatio, baseWidth, mode]);
 
   const [scaler, setScaler] = useState<ScalerOutput>(calculate);
 
@@ -82,7 +82,7 @@ export default function useResponsiveScaler(
       window.removeEventListener("resize", onResize);
       window.removeEventListener("orientationchange", onResize);
     };
-  }, [aspectRatio, baseWidth, mode, elementRef, calculate]);
+  }, [calculate, elementRef]);
 
   return scaler;
 }

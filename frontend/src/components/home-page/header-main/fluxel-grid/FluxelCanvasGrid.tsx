@@ -74,7 +74,7 @@ const FluxelCanvasGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
 
     useEffect(() => {
       drawGrid();
-    }, [gridData, viewableWidth, viewableHeight]);
+    }, [gridData, viewableWidth, viewableHeight, drawGrid]);
 
     useEffect(() => {
       if (!canvasRef.current || !onLayoutUpdateRequest) return;
@@ -86,7 +86,7 @@ const FluxelCanvasGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
       resizeObserver.observe(canvasRef.current.parentElement!);
 
       return () => resizeObserver.disconnect();
-    }, [onLayoutUpdateRequest]);
+    }, [onLayoutUpdateRequest, drawGrid]);
 
     useImperativeHandle(
       ref,
@@ -130,5 +130,7 @@ const FluxelCanvasGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
     );
   },
 );
+
+FluxelCanvasGrid.displayName = "FluxelCanvasGrid";
 
 export default FluxelCanvasGrid;

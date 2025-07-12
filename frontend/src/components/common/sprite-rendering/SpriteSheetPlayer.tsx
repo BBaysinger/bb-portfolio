@@ -1,10 +1,10 @@
 import React, { useEffect, useRef, useState, useMemo } from "react";
 
-import { ISpriteRenderer } from "./RenderingAllTypes";
-import { WebGlRenderer } from "./WebGlRenderer";
 import { CanvasRenderer } from "./CanvasRenderer";
+import { ISpriteRenderer } from "./RenderingAllTypes";
 import { RenderStrategyType } from "./RenderingAllTypes";
 import styles from "./SpriteSheetPlayer.module.scss";
+import { WebGlRenderer } from "./WebGlRenderer";
 
 const DEFAULT_RENDER_STRATEGY: RenderStrategyType = "canvas";
 

@@ -17,6 +17,8 @@ import { useEffect } from "react";
  * @since The beginning of time.
  * @version N/A
  */
+import { createDebugLogger } from "@/utils/Logging";
+
 interface PreloadOptions {
   decode?: boolean;
   decodeOnIdle?: boolean;
@@ -27,6 +29,15 @@ interface PreloadOptions {
   debug?: boolean;
 }
 
+/**
+ * useScopedImagePreload
+ *
+ * Preloads a single image and keeps it in memory while the component is mounted.
+ * Adds a <link rel="preload">, decodes the image, and inserts a hidden <img> to preserve memory cache.
+ *
+ * @author Bradley Baysinger
+ * @since The beginning of time.
+ */
 export function useScopedImagePreload(
   src: string,
   options: PreloadOptions = {},
@@ -41,9 +52,7 @@ export function useScopedImagePreload(
     debug = false,
   } = options;
 
-  const log = (...args: any[]) => {
-    if (debug) console.info(...args);
-  };
+  const log = createDebugLogger(debug);
 
   useEffect(() => {
     if (!src) {
@@ -61,14 +70,23 @@ export function useScopedImagePreload(
     link.as = "image";
     link.href = src;
     link.type = type;
+
     if ("fetchPriority" in link) {
-      (link as any).fetchPriority = loadPriority;
+      (
+        link as HTMLLinkElement & {
+          fetchPriority: "high" | "auto" | "low";
+        }
+      ).fetchPriority = loadPriority;
     }
+
     document.head.appendChild(link);
     log("🟢 Preload link inserted");
 
     if (preloadOnly) {
-      return () => document.head.removeChild(link);
+      return () => {
+        document.head.removeChild(link);
+        log("🔴 Preload-only cleanup for", src);
+      };
     }
 
     const img = new Image();
@@ -116,6 +134,7 @@ export function useScopedImagePreload(
     loadPriority,
     type,
     debug,
+    log,
   ]);
 }
 

@@ -1,6 +1,7 @@
 import { forwardRef } from "react";
 
 import { ParsedPortfolioProject } from "@/data/ProjectData";
+
 import { DirectionType } from "./CarouselTypes";
 import styles from "./ProjectInfo.module.scss";
 
@@ -95,5 +96,7 @@ const ProjectInfo = forwardRef<HTMLDivElement, ProjectInfoProps>(
     );
   },
 );
+
+ProjectInfo.displayName = "ProjectInfo";
 
 export default ProjectInfo;

@@ -1,8 +1,9 @@
-import { forwardRef } from "react";
 import Image from "next/image";
+import { forwardRef } from "react";
 
-import headerLogo from "@/images/hero/bb-gradient.webp";
 import BarberPole from "@/components/common/BarberPole";
+import headerLogo from "@/images/hero/bb-gradient.webp";
+
 import styles from "./TitleBranding.module.scss";
 
 type TitleBrandingProps = {
@@ -43,5 +44,7 @@ const TitleBranding = forwardRef<HTMLDivElement, TitleBrandingProps>(
     );
   },
 );
+
+TitleBranding.displayName = "TitleBranding";
 
 export default TitleBranding;

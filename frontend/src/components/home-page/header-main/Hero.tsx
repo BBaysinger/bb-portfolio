@@ -1,21 +1,22 @@
 import React, { useState, useCallback, useRef, useEffect } from "react";
 
+import FPSCounter from "@/components/common/FPSCounter";
+import ChargedCircle from "@/components/home-page/header-main/ChargedCircle";
+import OrbArrowTooltip from "@/components/home-page/header-main/OrbArrowTooltip";
 import useClientDimensions from "@/hooks/useClientDimensions";
+import useQueryParams from "@/hooks/useQueryParams";
+import useScrollPersistedClass from "@/hooks/useScrollPersistedClass";
+import useTimeOfDay from "@/hooks/useTimeOfDay";
+
+import BorderBlinker, { Side } from "./BorderBlinker";
 import GridController, {
   GridControllerHandle,
 } from "./fluxel-grid/GridController";
-import SlingerBox, { SlingerBoxHandle } from "./SlingerBox";
-import ParagraphAnimator from "./ParagraphAnimator";
-import useScrollPersistedClass from "@/hooks/useScrollPersistedClass";
-import BorderBlinker, { Side } from "./BorderBlinker";
 import { Direction } from "./fluxel-grid/useFluxelProjectiles";
-import ChargedCircle from "@/components/home-page/header-main/ChargedCircle";
-import useTimeOfDay from "@/hooks/useTimeOfDay";
-import TitleBranding from "./TitleBranding";
-import useQueryParams from "@/hooks/useQueryParams";
-import FPSCounter from "@/components/common/FPSCounter";
-import OrbArrowTooltip from "@/components/home-page/header-main/OrbArrowTooltip";
 import styles from "./Hero.module.scss";
+import ParagraphAnimator from "./ParagraphAnimator";
+import SlingerBox, { SlingerBoxHandle } from "./SlingerBox";
+import TitleBranding from "./TitleBranding";
 
 const quotes = [
   "Interactivity is not about clicking, tapping, or swiping. It's about engagement — an invitation to explore, respond, and shape the experience.",
@@ -179,7 +180,7 @@ const Hero: React.FC = () => {
     }
     gridControllerRef.current?.resumeShadows?.();
     startSlingerTracking();
-  }, []);
+  }, [startSlingerTracking, useSlingerTracking]);
 
   useEffect(() => {
     setMounted(true);
@@ -190,7 +191,7 @@ const Hero: React.FC = () => {
     return () => {
       if (slingerLoopId.current) cancelAnimationFrame(slingerLoopId.current);
     };
-  }, [useSlingerTracking]);
+  }, [useSlingerTracking, startSlingerTracking]);
 
   return (
     <header
