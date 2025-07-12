@@ -1,5 +1,5 @@
 import React from "react";
-import Link from 'next/link';
+import Link from "next/link";
 import { useDispatch, useSelector } from "react-redux";
 
 import { expandMobileNav } from "@/store/uiSlice";

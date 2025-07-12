@@ -1,5 +1,5 @@
 import React from "react";
-import Link from 'next/link';
+import Link from "next/link";
 import type { LinkRenderProps } from "react-router-dom";
 
 import { useAuth } from "@/context/AuthContext";

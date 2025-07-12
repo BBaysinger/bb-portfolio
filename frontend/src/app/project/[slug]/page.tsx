@@ -1,4 +1,4 @@
-'use client';
+"use client";
 import React, {
   useRef,
   useState,
@@ -6,7 +6,7 @@ import React, {
   useMemo,
   useCallback,
 } from "react";
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter } from "next/navigation";
 
 import HeaderSub from "@/components/layout/HeaderSub";
 import InfoSwapper from "@/components/project-carousel-page/InfoSwapper";

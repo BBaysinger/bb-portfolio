@@ -9,7 +9,7 @@ import uiReducer from "./uiSlice";
  * @since The beginning of time.
  * @version N/A
  */
-const store = configureStore({
+export const store = configureStore({
   reducer: {
     ui: uiReducer,
   },

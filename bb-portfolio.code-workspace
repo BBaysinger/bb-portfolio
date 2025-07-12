@@ -2,7 +2,7 @@
   "folders": [{ "path": "frontend" }, { "path": "backend" }],
   "settings": {
     "search.exclude": {
-      "**/old-repo/**": true
-    }
-  }  
+      "**/old-repo/**": true,
+    },
+  },
 }

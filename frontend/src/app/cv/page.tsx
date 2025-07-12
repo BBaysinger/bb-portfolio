@@ -1,4 +1,4 @@
-'use client';
+"use client";
 import React from "react";
 import Image from "next/image";
 
@@ -740,13 +740,14 @@ const CurriculumVitae: React.FC = () => {
                 </li>
                 <li ref={addToRefs}>
                   Served as the lead developer for several first iterations of
-                  AT&amp;T&apos;s projects, including their data usage calculators
-                  and first-ever app store, authored in vanilla JavaScript and
-                  Require/AMD.
+                  AT&amp;T&apos;s projects, including their data usage
+                  calculators and first-ever app store, authored in vanilla
+                  JavaScript and Require/AMD.
                 </li>
                 <li ref={addToRefs}>
-                  Led Seven2&apos;s first Nickelodeon Group project: Blue&apos;s Clues —
-                  Mix &apos;N Match Dressup, built in Flash/ActionScript.
+                  Led Seven2&apos;s first Nickelodeon Group project: Blue&apos;s
+                  Clues — Mix &apos;N Match Dressup, built in
+                  Flash/ActionScript.
                 </li>
                 <li ref={addToRefs}>
                   Rescued a high-visibility AT&T project by creating a
@@ -1049,7 +1050,11 @@ const CurriculumVitae: React.FC = () => {
                   <h5>14 gold badges on Stack Overflow</h5>
                   <div className={`${styles.badges} col-xs-12`}>
                     {Array.from({ length: 14 }, (_, index) => (
-                      <Image key={index} src="/images/cv/gold-badge.svg" alt="" />
+                      <Image
+                        key={index}
+                        src="/images/cv/gold-badge.svg"
+                        alt=""
+                      />
                     ))}
                   </div>
                 </div>

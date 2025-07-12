@@ -1,9 +1,9 @@
-'use client';
+"use client";
 import { useState } from "react";
-import Link from 'next/link';
+import Link from "next/link";
 // Add in CryptoJS for testing iOS on local network, but remove in
 // production, since it bloats the bundle.
-// import * as CryptoJS from "crypto-js"; 
+// import * as CryptoJS from "crypto-js";
 
 import useClientDimensions from "@/hooks/useClientDimensions";
 import { useAuth } from "@/context/AuthContext";
