@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useRef } from "react";
-import { Link, useLocation } from "react-router-dom";
 import Image from "next/image";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import React, { useState, useEffect, useRef } from "react";
 
-import FootGreet from "./FootGreet";
-import Links from "./Links";
 import styles from "./Footer.module.scss";
+import FootGreet from "./FootGreet";
+import Links from "./NavLinks";
 
 type FooterProps = {
   mutationElemRef: React.RefObject<HTMLDivElement | null>;
@@ -25,8 +26,8 @@ const Footer: React.FC<FooterProps> = ({ mutationElemRef }) => {
   const footerRef = useRef<HTMLDivElement>(null);
   const [emailAddr, setEmailAddr] = useState<string>("Waiting...");
 
-  const location = useLocation();
-  const prevPathRef = useRef<string>(location.pathname);
+  const pathname = usePathname();
+  const prevPathRef = useRef<string>(pathname);
 
   // Obfuscated email setup
   useEffect(() => {
@@ -47,7 +48,7 @@ const Footer: React.FC<FooterProps> = ({ mutationElemRef }) => {
     setShouldSnap(!isSmooth); // Only suppress snapping if both are slugs
 
     prevPathRef.current = currentPath;
-  }, [location.pathname]);
+  }, []);
 
   useEffect(() => {
     const mainContentTarget = mutationElemRef.current;
@@ -229,7 +230,7 @@ const Footer: React.FC<FooterProps> = ({ mutationElemRef }) => {
               Built with React
             </a>
           </div>
-          <Link className={styles.footerLink} to="/portfolio#top">
+          <Link className={styles.footerLink} href="/portfolio#top">
             &copy; <span style={{ color: "#fff" }}>BBInteractive</span>.io
           </Link>
         </div>
