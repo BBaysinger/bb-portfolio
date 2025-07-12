@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 import LogoutButton from "@/components/common/LogoutButton";
 import { useAuth } from "@/context/AuthContext";
@@ -16,7 +16,7 @@ interface LinksProps {
 }
 
 /**
- * Navigation link list populated around the site.
+ * Navigation link list populated around the site, like nav variants and footer.
  *
  * @author Bradley Baysinger
  * @since The beginning of time.
@@ -26,8 +26,20 @@ const Links: React.FC<LinksProps> = ({ onClick, className }) => {
   const pathname = usePathname();
   const { isLoggedIn } = useAuth();
 
-  const isActive = (href: string): string => {
-    return MiscUtils.isActiveOrAlt(pathname === href, href, styles.active);
+  const [currentHash, setCurrentHash] = useState("");
+
+  useEffect(() => {
+    const updateHash = () => setCurrentHash(window.location.hash);
+    updateHash(); // run once on mount
+
+    window.addEventListener("hashchange", updateHash);
+    return () => window.removeEventListener("hashchange", updateHash);
+  }, []);
+
+  const fullPath = `${pathname}${currentHash}`;
+
+  const isActive = (target: string) => {
+    return MiscUtils.isActiveOrAlt(fullPath === target, target, styles.active);
   };
 
   return (
@@ -43,18 +55,12 @@ const Links: React.FC<LinksProps> = ({ onClick, className }) => {
         </Link>
       </li>
       <li>
-        <Link
-          href="/cv#top"
-          className={pathname === "/cv" ? styles.active : ""}
-        >
+        <Link href="/cv#top" className={isActive("/cv#top")}>
           CV
         </Link>
       </li>
       <li>
-        <Link
-          href="/contact#top"
-          className={pathname === "/contact" ? styles.active : ""}
-        >
+        <Link href="/contact#top" className={isActive("/contact#top")}>
           Contact
         </Link>
       </li>
@@ -63,10 +69,7 @@ const Links: React.FC<LinksProps> = ({ onClick, className }) => {
         <LogoutButton className={styles.logout} />
       ) : (
         <li className={styles.login}>
-          <Link
-            href="/login#top"
-            className={pathname === "/login" ? styles.active : ""}
-          >
+          <Link href="/login#top" className={isActive("/login#top")}>
             Login
           </Link>
         </li>

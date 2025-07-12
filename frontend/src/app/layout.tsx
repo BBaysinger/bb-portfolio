@@ -1,17 +1,17 @@
-// app/layout.tsx
 "use client";
+
 import React, { useRef } from "react";
 import { useSelector } from "react-redux";
-import { RootState } from "@/store/store";
 
-import Nav, { NavVariant } from "@/components/layout/Nav";
 import Footer from "@/components/layout/Footer";
-import ScrollToHash from "@/utils/ScrollToHash";
+import Nav, { NavVariant } from "@/components/layout/Nav";
 import { AuthProvider } from "@/context/AuthContext";
-import { useTrackHeroInView } from "@/hooks/useTrackHeroInView";
 import { useAutoCloseMobileNavOnScroll } from "@/hooks/useAutoCloseMobileNavOnScroll";
-import { useFluidPercents } from "@/hooks/useFluidPercents";
 import useClientDimensions from "@/hooks/useClientDimensions";
+import { useFluidPercents } from "@/hooks/useFluidPercents";
+import { useTrackHeroInView } from "@/hooks/useTrackHeroInView";
+import { RootState } from "@/store/store";
+import ScrollToHash from "@/utils/ScrollToHash";
 
 import styles from "./layout.module.scss";
 import "@/styles/styles.scss";
