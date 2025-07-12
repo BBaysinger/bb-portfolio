@@ -132,4 +132,6 @@ const FluxelShadowCanvasRenderer = forwardRef<
   );
 });
 
+FluxelShadowCanvasRenderer.displayName = "FluxelShadowCanvasRenderer";
+
 export default FluxelShadowCanvasRenderer;

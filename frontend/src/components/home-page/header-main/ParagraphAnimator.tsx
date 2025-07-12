@@ -1,5 +1,5 @@
 import gsap from "gsap";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 
 import styles from "./ParagraphAnimator.module.scss";
 
@@ -68,34 +68,12 @@ const ParagraphAnimator: React.FC<ParagraphAnimatorProps> = ({
     pausedRef.current = paused;
   }, [paused]);
 
-  const generateShuffledQueue = () => shuffleArray(paragraphs.map((_, i) => i));
+  const generateShuffledQueue = useCallback(
+    () => shuffleArray(paragraphs.map((_, i) => i)),
+    [paragraphs],
+  );
 
-  const playNextParagraph = () => {
-    currentIndex.current++;
-    if (currentIndex.current >= queue.current.length) {
-      queue.current = generateShuffledQueue();
-      currentIndex.current = 0;
-    }
-    playParagraph();
-  };
-
-  const waitThenStart = () => {
-    delayTimer.current = window.setTimeout(() => {
-      if (pausedRef.current) {
-        poller.current = window.setInterval(() => {
-          if (!pausedRef.current) {
-            clearInterval(poller.current!);
-            poller.current = null;
-            playNextParagraph();
-          }
-        }, 100);
-      } else {
-        playNextParagraph();
-      }
-    }, paragraphDelay);
-  };
-
-  const playParagraph = () => {
+  const playParagraph = useCallback(() => {
     let paragraph: string;
 
     if (!hasPlayedIntro.current && introMessage) {
@@ -130,11 +108,40 @@ const ParagraphAnimator: React.FC<ParagraphAnimatorProps> = ({
         },
         onComplete: () => {
           setIsAnimating(false);
-          waitThenStart();
+
+          delayTimer.current = window.setTimeout(() => {
+            const next = () => {
+              currentIndex.current++;
+              if (currentIndex.current >= queue.current.length) {
+                queue.current = generateShuffledQueue();
+                currentIndex.current = 0;
+              }
+              playParagraph();
+            };
+
+            if (pausedRef.current) {
+              poller.current = window.setInterval(() => {
+                if (!pausedRef.current) {
+                  clearInterval(poller.current!);
+                  poller.current = null;
+                  next();
+                }
+              }, 100);
+            } else {
+              next();
+            }
+          }, paragraphDelay);
         },
       },
     );
-  };
+  }, [
+    introMessage,
+    interval,
+    initialDelay,
+    paragraphs,
+    paragraphDelay,
+    generateShuffledQueue,
+  ]);
 
   useEffect(() => {
     queue.current = generateShuffledQueue();

@@ -5,7 +5,7 @@ import styles from "./FPSCounter.module.scss";
 /**
  * Displays the current FPS using requestAnimationFrame.
  * Digits are rendered in separate divs to stabilize layout
- * even when using a non-monospaced 7-tile font.
+ * when using a non-monospaced 7-tile font.
  *
  * @author Bradley Baysinger
  * @since The beginning of time.

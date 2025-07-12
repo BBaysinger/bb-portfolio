@@ -283,72 +283,71 @@ const SlingerBox = React.forwardRef<SlingerBoxHandle, SlingerBoxProps>(
     };
 
     /** Handle dragging movement */
-    const handleMove = (
-      clientX: number,
-      clientY: number,
-      e: MouseEvent | TouchEvent,
-    ) => {
-      if (!dragStartPosition.current) return;
+    const handleMove = useCallback(
+      (clientX: number, clientY: number, e: MouseEvent | TouchEvent) => {
+        if (!dragStartPosition.current) return;
 
-      objectsRef.current.forEach((obj) => {
-        if (obj.isDragging && dragStartPosition.current) {
-          obj.x += clientX - dragStartPosition.current.x;
-          obj.y += clientY - dragStartPosition.current.y;
-          dragStartPosition.current = { x: clientX, y: clientY };
+        objectsRef.current.forEach((obj) => {
+          if (obj.isDragging && dragStartPosition.current) {
+            obj.x += clientX - dragStartPosition.current.x;
+            obj.y += clientY - dragStartPosition.current.y;
+            dragStartPosition.current = { x: clientX, y: clientY };
 
-          const el = slingerRefs.current.get(obj.id);
-          if (el) {
-            el.style.transform = `translate(${Math.round(obj.x - radius)}px, ${Math.round(obj.y - radius)}px)`;
+            const el = slingerRefs.current.get(obj.id);
+            if (el) {
+              el.style.transform = `translate(${Math.round(
+                obj.x - radius,
+              )}px, ${Math.round(obj.y - radius)}px)`;
+            }
           }
+        });
 
-          // onDragStart?.(clientX, clientY, e);
+        const now = performance.now();
+        movementHistory.current.push({ x: clientX, y: clientY, time: now });
+        movementHistory.current = movementHistory.current.filter(
+          (entry) => now - entry.time <= 100,
+        );
+
+        if (movementHistory.current.length > 1) {
+          const first = movementHistory.current[0];
+          const last =
+            movementHistory.current[movementHistory.current.length - 1];
+          const elapsedTime = (last.time - first.time) / 1000;
+          if (elapsedTime > 0) {
+            lastKnownVelocity.current.vx =
+              ((last.x - first.x) / elapsedTime) * 0.1;
+            lastKnownVelocity.current.vy =
+              ((last.y - first.y) / elapsedTime) * 0.1;
+          }
         }
-      });
 
-      // Track velocity history for smooth release
-      const now = performance.now();
-      movementHistory.current.push({ x: clientX, y: clientY, time: now });
-      movementHistory.current = movementHistory.current.filter(
-        (entry) => now - entry.time <= 100,
-      );
+        e.preventDefault();
+      },
+      [radius],
+    );
 
-      // Calculate velocity
-      if (movementHistory.current.length > 1) {
-        const first = movementHistory.current[0];
-        const last =
-          movementHistory.current[movementHistory.current.length - 1];
-        const elapsedTime = (last.time - first.time) / 1000;
-        if (elapsedTime > 0) {
-          lastKnownVelocity.current.vx =
-            ((last.x - first.x) / elapsedTime) * 0.1;
-          lastKnownVelocity.current.vy =
-            ((last.y - first.y) / elapsedTime) * 0.1;
-        }
-      }
+    const endDrag = useCallback(
+      (e: MouseEvent | TouchEvent) => {
+        if (!dragStartPosition.current) return;
 
-      e.preventDefault();
-    };
+        objectsRef.current.forEach((obj) => {
+          if (obj.isDragging) {
+            obj.vx = lastKnownVelocity.current.vx;
+            obj.vy = lastKnownVelocity.current.vy;
+            obj.isDragging = false;
+            onDragEnd?.(obj.vx, obj.vy, e);
+          }
+        });
 
-    /** End drag event */
-    const endDrag = (e: MouseEvent | TouchEvent) => {
-      if (!dragStartPosition.current) return;
-
-      objectsRef.current.forEach((obj) => {
-        if (obj.isDragging) {
-          obj.vx = lastKnownVelocity.current.vx;
-          obj.vy = lastKnownVelocity.current.vy;
-          obj.isDragging = false;
-          onDragEnd?.(obj.vx, obj.vy, e);
-        }
-      });
-
-      lastDragEndTime.current = performance.now();
-      dragStartPosition.current = null;
-      movementHistory.current = [];
-      hasBecomeIdleRef.current = false;
-      lastActivityTimeRef.current = performance.now();
-      forceUpdate();
-    };
+        lastDragEndTime.current = performance.now();
+        dragStartPosition.current = null;
+        movementHistory.current = [];
+        hasBecomeIdleRef.current = false;
+        lastActivityTimeRef.current = performance.now();
+        forceUpdate();
+      },
+      [onDragEnd],
+    );
 
     useImperativeHandle(ref, () => ({
       getSlingerPosition: (id = 0) => {

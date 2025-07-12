@@ -155,7 +155,7 @@ const Hero: React.FC = () => {
     [],
   );
 
-  const startSlingerTracking = () => {
+  const startSlingerTracking = useCallback(() => {
     const animate = () => {
       if (isSlingerInFlight) return;
       const pos = slingerRef.current?.getSlingerPosition?.();
@@ -165,7 +165,7 @@ const Hero: React.FC = () => {
       slingerLoopId.current = requestAnimationFrame(animate);
     };
     slingerLoopId.current = requestAnimationFrame(animate);
-  };
+  }, [isSlingerInFlight]);
 
   const onSlingerIdle = useCallback(() => {
     slingerIsIdle.current = true;
