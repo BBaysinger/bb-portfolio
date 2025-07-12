@@ -75,8 +75,12 @@ const AnimationSequencer = forwardRef<
   const directory = "/spritesheets/fluxel-animations/";
   const extension = ".webp";
 
-  const isNarrow = () => window.innerWidth / window.innerHeight < ratio;
+  const isNarrow = useCallback(() => {
+    return window.innerWidth / window.innerHeight < ratio;
+  }, [ratio]);
+
   const buildFullPath = (name: string) => `${directory}${name}${extension}`;
+
   const clearTimeoutIfSet = () => {
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
@@ -84,94 +88,98 @@ const AnimationSequencer = forwardRef<
     }
   };
 
-  const inactivityAnimations: AnimationMeta[] = [
-    {
-      wide: "invaders_w16h12f105",
-      narrow: "invaders_w16h12f105",
-      fps: 10,
-      loops: 1,
-      weight: 2,
-    },
-    {
-      wide: "burst1_Layer-Comp-_w16h12f30",
-      narrow: "burst1_Layer-Comp-_w16h12f30",
-      fps: 10,
-      loops: 1,
-      weight: 1,
-    },
-    {
-      wide: "interactive-web_w16h12f105",
-      narrow: "interactive-web_w16h12f105",
-      fps: 10,
-      loops: 1,
-      weight: 1,
-    },
-    {
-      wide: "javascript-typescript_w16h12f142",
-      narrow: "javascript-typescript_w16h12f142",
-      fps: 10,
-      loops: 1,
-      weight: 2,
-    },
-    {
-      wide: "mobile-first_w16h12f82",
-      narrow: "mobile-first_w16h12f82",
-      fps: 10,
-      loops: 1,
-      weight: 1,
-    },
-    {
-      wide: "responsive-design_w16h12f121",
-      narrow: "responsive-design_w16h12f121",
-      fps: 10,
-      loops: 1,
-      weight: 1,
-    },
-    {
-      wide: "single-page-application_w16h12f147",
-      narrow: "single-page-application_w16h12f147",
-      fps: 10,
-      loops: 1,
-      weight: 1,
-    },
-    {
-      wide: "spiral-green-purp_w16h12f215",
-      narrow: "spiral-green-purp_w16h12f215",
-      fps: 30,
-      loops: 1,
-      weight: 2,
-    },
-    {
-      wide: "user-experience_w16h12f109",
-      narrow: "user-experience_w16h12f109",
-      fps: 10,
-      loops: 1,
-      weight: 1,
-    },
-    {
-      wide: "user-interface_w16h12f99",
-      narrow: "user-interface_w16h12f99",
-      fps: 10,
-      loops: 1,
-      weight: 1,
-    },
-    {
-      wide: "runtime-optimization_w16h12f130",
-      narrow: "runtime-optimization_w16h12f130",
-      fps: 10,
-      loops: 1,
-      weight: 1,
-    },
-  ];
+  const inactivityAnimations = useMemo<AnimationMeta[]>(
+    () => [
+      {
+        wide: "invaders_w16h12f105",
+        narrow: "invaders_w16h12f105",
+        fps: 10,
+        loops: 1,
+        weight: 2,
+      },
+      {
+        wide: "burst1_Layer-Comp-_w16h12f30",
+        narrow: "burst1_Layer-Comp-_w16h12f30",
+        fps: 10,
+        loops: 1,
+        weight: 1,
+      },
+      {
+        wide: "interactive-web_w16h12f105",
+        narrow: "interactive-web_w16h12f105",
+        fps: 10,
+        loops: 1,
+        weight: 1,
+      },
+      {
+        wide: "javascript-typescript_w16h12f142",
+        narrow: "javascript-typescript_w16h12f142",
+        fps: 10,
+        loops: 1,
+        weight: 2,
+      },
+      {
+        wide: "mobile-first_w16h12f82",
+        narrow: "mobile-first_w16h12f82",
+        fps: 10,
+        loops: 1,
+        weight: 1,
+      },
+      {
+        wide: "responsive-design_w16h12f121",
+        narrow: "responsive-design_w16h12f121",
+        fps: 10,
+        loops: 1,
+        weight: 1,
+      },
+      {
+        wide: "single-page-application_w16h12f147",
+        narrow: "single-page-application_w16h12f147",
+        fps: 10,
+        loops: 1,
+        weight: 1,
+      },
+      {
+        wide: "spiral-green-purp_w16h12f215",
+        narrow: "spiral-green-purp_w16h12f215",
+        fps: 30,
+        loops: 1,
+        weight: 2,
+      },
+      {
+        wide: "user-experience_w16h12f109",
+        narrow: "user-experience_w16h12f109",
+        fps: 10,
+        loops: 1,
+        weight: 1,
+      },
+      {
+        wide: "user-interface_w16h12f99",
+        narrow: "user-interface_w16h12f99",
+        fps: 10,
+        loops: 1,
+        weight: 1,
+      },
+      {
+        wide: "runtime-optimization_w16h12f130",
+        narrow: "runtime-optimization_w16h12f130",
+        fps: 10,
+        loops: 1,
+        weight: 1,
+      },
+    ],
+    [],
+  );
 
-  const imperativeAnimations: AnimationMeta[] = [
-    { wide: "", narrow: "", fps: 10, loops: 1, weight: 1 },
-  ];
+  const imperativeAnimations = useMemo<AnimationMeta[]>(
+    () => [{ wide: "", narrow: "", fps: 10, loops: 1, weight: 1 }],
+    [],
+  );
 
-  function weightedRandomIndex(
+  const weightedRandomIndex = (
     items: AnimationMeta[],
     lastIndex: number | null,
-  ): number {
+  ): number => {
     const totalWeight = items.reduce((sum, item) => sum + item.weight, 0);
     let attemptCount = 0;
 
@@ -190,27 +198,26 @@ const AnimationSequencer = forwardRef<
       attemptCount++;
     }
 
-    // Fallback: return first different index
     const fallback = items.findIndex((_, i) => i !== lastIndex);
     return fallback >= 0 ? fallback : 0;
-  }
+  };
 
-  const getNextIndex = () => {
+  const getNextIndex = useCallback(() => {
     const index = weightedRandomIndex(
       inactivityAnimations,
       lastPlayedIndexRef.current,
     );
     lastPlayedIndexRef.current = index;
     return index;
-  };
+  }, [inactivityAnimations]);
 
-  const safeSetAnim = (anim: AnimationMeta) => {
+  const safeSetAnim = useCallback((anim: AnimationMeta) => {
     clearTimeoutIfSet();
     setActiveAnim(anim);
     setAnimKey((k) => k + 1);
-  };
+  }, []);
 
-  const updateAnimation = () => {
+  const updateAnimation = useCallback(() => {
     const nextIndex = getNextIndex();
     const anim = inactivityAnimations[nextIndex];
     const filename = isNarrow() ? anim.narrow : anim.wide;
@@ -220,7 +227,7 @@ const AnimationSequencer = forwardRef<
       wide: buildFullPath(filename),
       narrow: buildFullPath(filename),
     });
-  };
+  }, [getNextIndex, inactivityAnimations, isNarrow, safeSetAnim]);
 
   const playImperativeAnimation = useCallback(
     (index = 0) => {
@@ -263,7 +270,6 @@ const AnimationSequencer = forwardRef<
     <div className={`${styles.animationSequencer} ${className}`}>
       {activeAnim && currentSrc && (
         <SpriteSheetPlayer
-          // renderStrategy="css"
           key={animKey}
           src={currentSrc}
           fps={activeAnim.fps}
