@@ -1,13 +1,15 @@
-import React from "react";
+import Image from "next/image";
 import Link from "next/link";
+import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import { expandMobileNav } from "@/store/uiSlice";
 import Hamburger from "@/components/layout/Hamburger";
-import Links from "./Links";
-import { RootState } from "@/store/store";
 import navLogo from "@/images/misc/bb-logo.svg";
+import { RootState } from "@/store/store";
+import { expandMobileNav } from "@/store/uiSlice";
+
 import styles from "./Nav.module.scss";
+import NavLinks from "./NavLinks";
 
 export const NavVariant = {
   TOP_BAR: styles.topBar,
@@ -20,13 +22,15 @@ interface NavProps {
 
 /**
  * The nav that either gets revealed behind the page content (mobile),
- * or is populated as a bar at the top of the page.
+ * or is populated as a bar at the top of the page (desktop). Styled uniquely
+ * for either variant, but used twice, as switch between them dynamically
+ * at runtime causes a massive frame drop.
  *
  * @author Bradley Baysinger
  * @since The beginning of time.
  * @version N/A
  */
-const Nav: React.FC<NavProps> = ({ variant }) => {
+const Navigation: React.FC<NavProps> = ({ variant }) => {
   const isMenuOpen = useSelector(
     (state: RootState) => state.ui.isMobileNavExpanded,
   );
@@ -65,7 +69,7 @@ const Nav: React.FC<NavProps> = ({ variant }) => {
           </div>
         </div>
       </Link>
-      <Links onClick={expandMobileNavHandler} className={styles.navLinks} />
+      <NavLinks onClick={expandMobileNavHandler} className={styles.navLinks} />
 
       {variant === NavVariant.TOP_BAR && (
         <Hamburger className={styles.hamburger} />
@@ -79,4 +83,4 @@ const Nav: React.FC<NavProps> = ({ variant }) => {
   );
 };
 
-export default Nav;
+export default Navigation;
