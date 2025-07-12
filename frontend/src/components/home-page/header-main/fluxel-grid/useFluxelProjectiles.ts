@@ -1,7 +1,8 @@
 import React, { useEffect, useRef } from "react";
 
-import { FluxelData } from "./FluxelAllTypes";
 import MiscUtils from "@/utils/MiscUtils";
+
+import { FluxelData } from "./FluxelAllTypes";
 import type { FluxelGridHandle } from "./FluxelAllTypes";
 
 export type Direction = "up" | "down" | "left" | "right";
@@ -84,7 +85,8 @@ export function useFluxelProjectiles({
         const stillFlying: Projectile[] = [];
 
         for (const proj of projectiles.current) {
-          let { row, col, direction, id } = proj;
+          let { row, col } = proj;
+          const { id, direction } = proj;
 
           switch (direction) {
             case "up":

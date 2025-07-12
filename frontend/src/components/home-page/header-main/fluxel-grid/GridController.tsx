@@ -6,16 +6,16 @@ import {
   useEffect,
 } from "react";
 
-import FluxelSvgGrid from "./FluxelSvgGrid";
-// import FluxelPixiGrid from "./FluxelPixiGrid";
-import FluxelCanvasGrid from "./FluxelCanvasGrid";
-import { useFluxelShadows } from "./useFluxelShadows";
-import useFluxelProjectiles, { Direction } from "./useFluxelProjectiles";
+import useElementRelativePointer from "@/hooks/useElementRelativePointer";
+import useResponsiveScaler from "@/hooks/useResponsiveScaler";
+
 import AnimationSequencer from "./AnimationSequencer";
 import type { FluxelGridHandle, FluxelData } from "./FluxelAllTypes";
-import useResponsiveScaler from "@/hooks/useResponsiveScaler";
-import useElementRelativePointer from "@/hooks/useElementRelativePointer";
+import FluxelCanvasGrid from "./FluxelCanvasGrid";
+import FluxelSvgGrid from "./FluxelSvgGrid";
 import styles from "./GridController.module.scss";
+import useFluxelProjectiles, { Direction } from "./useFluxelProjectiles";
+import { useFluxelShadows } from "./useFluxelShadows";
 
 export interface GridControllerHandle {
   launchProjectile: (x: number, y: number, direction: Direction) => void;
@@ -203,5 +203,7 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
     );
   },
 );
+
+GridController.displayName = "GridController";
 
 export default GridController;
