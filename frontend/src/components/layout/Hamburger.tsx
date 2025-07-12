@@ -1,8 +1,9 @@
 import React from "react";
 import { useSelector, useDispatch } from "react-redux";
 
-import { toggleMobileNav } from "@/store/uiSlice";
 import { RootState } from "@/store/store";
+import { toggleMobileNav } from "@/store/uiSlice";
+
 import styles from "./Hamburger.module.scss";
 
 /**
