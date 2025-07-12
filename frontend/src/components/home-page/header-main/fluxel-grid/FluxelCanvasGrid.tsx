@@ -4,6 +4,7 @@ import {
   forwardRef,
   useImperativeHandle,
   useLayoutEffect,
+  useCallback,
 } from "react";
 
 import type { FluxelGridHandle, FluxelGridProps } from "./FluxelAllTypes";
@@ -38,7 +39,7 @@ const FluxelCanvasGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
       gridDataRef.current = gridData;
     }, [gridData]);
 
-    const drawGrid = () => {
+    const drawGrid = useCallback(() => {
       const canvas = canvasRef.current;
       if (!canvas) return;
 
@@ -70,7 +71,7 @@ const FluxelCanvasGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
           ctx.fillRect(c * fluxelSize, r * fluxelSize, fluxelSize, fluxelSize);
         }
       }
-    };
+    }, [viewableWidth, viewableHeight, rows, cols]);
 
     useEffect(() => {
       drawGrid();
