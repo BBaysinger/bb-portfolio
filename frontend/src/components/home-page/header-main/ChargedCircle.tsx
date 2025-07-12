@@ -1,8 +1,9 @@
 import React from "react";
 
-import SlingerRay from "./SlingerRay";
 import useScopedImagePreload from "@/hooks/useScopedImagePreload";
+
 import styles from "./ChargedCircle.module.scss";
+import SlingerRay from "./SlingerRay";
 
 interface ChargedCircleProps {
   isActive?: boolean;

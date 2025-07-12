@@ -105,4 +105,6 @@ function areEqual(
   );
 }
 
+FluxelSvg.displayName = "FluxelSvg";
+
 export default React.memo(FluxelSvg, areEqual);

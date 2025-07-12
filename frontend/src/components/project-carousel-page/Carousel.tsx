@@ -121,6 +121,11 @@ const Carousel = memo(
       slideWidthRef,
     );
 
+    // Returns the base offset used for infinite scrolling.
+    const patchedOffset = useCallback(() => {
+      return isSlaveMode ? 0 : BASE_OFFSET;
+    }, [isSlaveMode]);
+
     useEffect(() => {
       scrollIndexRef.current = scrollIndex;
     }, [scrollIndex]);
@@ -135,15 +140,12 @@ const Carousel = memo(
       (overrideScrollIndex?: number): number => {
         const slidesLength = slides.length;
 
-        overrideScrollIndex =
+        const index =
           typeof overrideScrollIndex === "number"
             ? overrideScrollIndex
             : scrollIndexRef.current;
 
-        return (
-          ((scrollIndexRef.current % slidesLength) + slidesLength) %
-          slidesLength
-        );
+        return ((index % slidesLength) + slidesLength) % slidesLength;
       },
       [slides.length],
     );
@@ -206,55 +208,57 @@ const Carousel = memo(
     }, [scrollIndex, wrapperWidth, slideSpacing, memoizedSlides]);
 
     // Updates the carousel's index based on scroll position.
-    const updateIndexPerPosition = (
-      scrollLeft: number,
-      updateStableIndex: boolean = true,
-    ) => {
-      const totalSlides = memoizedSlides.length;
+    const updateIndexPerPosition = useCallback(
+      (scrollLeft: number, updateStableIndex: boolean = true) => {
+        const totalSlides = memoizedSlides.length;
+        const offset = scrollLeft - patchedOffset();
+        const newScrollIndex = Math.round(offset / slideSpacing);
+        const newDataIndex =
+          ((newScrollIndex % totalSlides) + totalSlides) % totalSlides;
 
-      // Calculate the new scroll index and data index based on scrollLeft.
-      const offset = scrollLeft - patchedOffset();
-      const newScrollIndex = Math.round(offset / slideSpacing);
-      const newDataIndex =
-        ((newScrollIndex % totalSlides) + totalSlides) % totalSlides;
+        if (scrollIndex !== newScrollIndex) {
+          const newDirection =
+            newScrollIndex > scrollIndex ? Direction.LEFT : Direction.RIGHT;
 
-      if (scrollIndex !== newScrollIndex) {
-        const newDirection =
-          newScrollIndex > scrollIndex ? Direction.LEFT : Direction.RIGHT;
+          if (newDirection !== scrollDirectionRef.current) {
+            scrollDirectionRef.current = newDirection;
+          }
 
-        // Update the scroll direction if it has changed.
-        if (newDirection !== scrollDirectionRef.current) {
-          scrollDirectionRef.current = newDirection;
+          setScrollIndex(newScrollIndex);
+          onIndexUpdate?.(newDataIndex);
+
+          if (stabilizationTimer.current) {
+            clearTimeout(stabilizationTimer.current);
+          }
+
+          if (
+            updateStableIndex &&
+            scrollTriggerSource.current !== Source.IMPERATIVE
+          ) {
+            stabilizationTimer.current = setTimeout(() => {
+              stableIndex.current = newDataIndex;
+              onStabilizationUpdate?.(
+                newDataIndex,
+                scrollTriggerSource.current,
+                newDirection,
+              );
+            }, stabilizationDelay);
+          }
         }
 
-        // Update states and trigger callbacks for the new index.
-        setScrollIndex(newScrollIndex);
-        onIndexUpdate?.(newDataIndex);
-
-        // Clear any existing stabilization timer before setting a new one.
-        if (stabilizationTimer.current) {
-          clearTimeout(stabilizationTimer.current);
-        }
-
-        if (
-          updateStableIndex &&
-          scrollTriggerSource.current !== Source.IMPERATIVE
-        ) {
-          stabilizationTimer.current = setTimeout(() => {
-            stableIndex.current = newDataIndex;
-            onStabilizationUpdate?.(
-              newDataIndex,
-              scrollTriggerSource.current,
-              newDirection,
-            );
-          }, stabilizationDelay);
-        }
-      }
-
-      // Trigger the scroll update callback with the adjusted scrollLeft.
-      onScrollUpdate?.(scrollLeft - patchedOffset());
-    };
-
+        onScrollUpdate?.(scrollLeft - patchedOffset());
+      },
+      [
+        memoizedSlides.length,
+        scrollIndex,
+        slideSpacing,
+        onIndexUpdate,
+        onScrollUpdate,
+        onStabilizationUpdate,
+        stabilizationDelay,
+        patchedOffset,
+      ],
+    );
     // Keeps the updateIndexPerPosition function reference stable across renders.
     const updateIndexRef = useRef(updateIndexPerPosition);
     useEffect(() => {
@@ -271,10 +275,10 @@ const Carousel = memo(
     // Throttle scroll updates to the target FPS for performance.
     const targetFPS = 40;
     const frameDuration = 1000 / targetFPS;
-    let lastFrameTime = 0;
 
     useEffect(() => {
       let animationFrameId: number | null = null;
+      let lastFrameTime = 0;
 
       // Listener to manage scroll updates while throttling based on FPS.
       const scrollListener = (_: Event) => {
@@ -311,10 +315,7 @@ const Carousel = memo(
           if (animationFrameId) cancelAnimationFrame(animationFrameId);
         };
       }
-    }, [handleScroll, frameDuration]);
-
-    // Returns the base offset used for infinite scrolling.
-    const patchedOffset = () => (isSlaveMode ? 0 : BASE_OFFSET);
+    }, [handleScroll, frameDuration, draggable, isSlaveMode, snap]);
 
     // Extracts current positions, multipliers, and offsets for slides.
     const {

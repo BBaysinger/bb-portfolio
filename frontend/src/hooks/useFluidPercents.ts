@@ -15,7 +15,7 @@ import { useEffect, useRef, RefObject } from "react";
  *       ref={ref}
  *       style={{
  *         width: "calc(100px + 200px * var(--fluid-percent-320-1280))",
- *        height: "calc(50px + 100px * var(--fluid-percent-480-1440))",
+ *         height: "calc(50px + 100px * var(--fluid-percent-480-1440))",
  *         backgroundColor: "#4CAF50",
  *         transition: "all 0.2s ease",
  *       }}

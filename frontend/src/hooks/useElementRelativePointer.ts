@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 
 import { useElementObserver } from "./useElementObserver";
 
@@ -93,76 +93,82 @@ export default function useElementRelativePointer<T extends HTMLElement>(
   const boundingRectRef = useRef<DOMRect | null>(null);
   const debounceRefs = useRef<Partial<Record<MouseEventType, number>>>({});
 
-  const updatePointerMeta = (type: MouseEventType, e?: PointerEvent) => {
-    const rect = boundingRectRef.current;
-    if (!rect) return;
+  const updatePointerMeta = useCallback(
+    (type: MouseEventType, e?: PointerEvent) => {
+      const rect = boundingRectRef.current;
+      if (!rect) return;
 
-    let clientX: number, clientY: number;
-    let isTouchEvent = false;
+      let clientX: number, clientY: number;
+      let isTouchEvent = false;
 
-    if (override) {
-      clientX = rect.left + override.x;
-      clientY = rect.top + override.y;
-    } else if (e) {
-      clientX = e.clientX;
-      clientY = e.clientY;
-      isTouchEvent = e.pointerType === "touch";
-    } else {
-      return;
-    }
+      if (override) {
+        clientX = rect.left + override.x;
+        clientY = rect.top + override.y;
+      } else if (e) {
+        clientX = e.clientX;
+        clientY = e.clientY;
+        isTouchEvent = e.pointerType === "touch";
+      } else {
+        return;
+      }
 
-    const x = clientX - rect.left;
-    const y = clientY - rect.top;
+      const x = clientX - rect.left;
+      const y = clientY - rect.top;
 
-    const inside =
-      clientX >= rect.left &&
-      clientX <= rect.right &&
-      clientY >= rect.top &&
-      clientY <= rect.bottom;
+      const inside =
+        clientX >= rect.left &&
+        clientX <= rect.right &&
+        clientY >= rect.top &&
+        clientY <= rect.bottom;
 
-    if (type === "pointerdown") {
-      setPointerMeta({
-        x,
-        y,
-        isPointerDown: true,
-        isInside: true,
-        isTouchEvent,
-      });
-    } else if (type === "pointermove") {
-      setPointerMeta((prev) => ({
-        ...prev,
-        x,
-        y,
-        isInside: inside,
-        isTouchEvent,
-      }));
-    } else if (
-      type === "pointerup" ||
-      type === "pointercancel" ||
-      type === "pointerleave"
-    ) {
-      setPointerMeta((prev) => ({
-        ...prev,
-        isPointerDown: false,
-        isInside: type !== "pointerleave",
-        isTouchEvent,
-      }));
-    }
-  };
+      if (type === "pointerdown") {
+        setPointerMeta({
+          x,
+          y,
+          isPointerDown: true,
+          isInside: true,
+          isTouchEvent,
+        });
+      } else if (type === "pointermove") {
+        setPointerMeta((prev) => ({
+          ...prev,
+          x,
+          y,
+          isInside: inside,
+          isTouchEvent,
+        }));
+      } else if (
+        type === "pointerup" ||
+        type === "pointercancel" ||
+        type === "pointerleave"
+      ) {
+        setPointerMeta((prev) => ({
+          ...prev,
+          isPointerDown: false,
+          isInside: type !== "pointerleave",
+          isTouchEvent,
+        }));
+      }
+    },
+    [override],
+  );
 
-  const trigger = (type: MouseEventType, e: PointerEvent) => {
-    const debounce = debounceMap[type] ?? 0;
-    if (debounce === -1) return;
+  const trigger = useCallback(
+    (type: MouseEventType, e: PointerEvent) => {
+      const debounce = debounceMap[type] ?? 0;
+      if (debounce === -1) return;
 
-    if (debounce === 0) {
-      updatePointerMeta(type, e);
-    } else {
-      window.clearTimeout(debounceRefs.current[type]);
-      debounceRefs.current[type] = window.setTimeout(() => {
+      if (debounce === 0) {
         updatePointerMeta(type, e);
-      }, debounce);
-    }
-  };
+      } else {
+        window.clearTimeout(debounceRefs.current[type]);
+        debounceRefs.current[type] = window.setTimeout(() => {
+          updatePointerMeta(type, e);
+        }, debounce);
+      }
+    },
+    [debounceMap, updatePointerMeta],
+  );
 
   useElementObserver(
     targetRef,
@@ -189,6 +195,7 @@ export default function useElementRelativePointer<T extends HTMLElement>(
 
     const handlers: Partial<Record<MouseEventType, (e: PointerEvent) => void>> =
       {};
+    const currentDebounceRefs = debounceRefs.current; // ⬅️ moved here
 
     for (const type of events) {
       const debounce = debounceMap[type];
@@ -203,18 +210,18 @@ export default function useElementRelativePointer<T extends HTMLElement>(
           window.removeEventListener(type, handlers[type]!);
         }
       }
-      Object.values(debounceRefs.current).forEach((id) =>
+
+      Object.values(currentDebounceRefs).forEach((id) =>
         window.clearTimeout(id),
       );
     };
   }, [targetRef, debounceMap, trigger]);
 
-  // Update position on every render if override is live
   useEffect(() => {
     if (override) {
       updatePointerMeta("pointermove");
     }
-  });
+  }, [override, updatePointerMeta]);
 
   return pointerMeta;
 }

@@ -6,8 +6,9 @@ import React, {
   useImperativeHandle,
 } from "react";
 
-import { Side } from "./BorderBlinker";
 import MiscUtils from "@/utils/MiscUtils";
+
+import { Side } from "./BorderBlinker";
 import styles from "./SlingerBox.module.scss";
 
 type SlingerObject = {
@@ -227,7 +228,7 @@ const SlingerBox = React.forwardRef<SlingerBoxHandle, SlingerBoxProps>(
 
         animationFrameRef.current = requestAnimationFrame(animate);
       },
-      [onWallCollision, onIdle, pointerGravity, ballSize],
+      [onWallCollision, onIdle, pointerGravity, frameInterval, radius],
     );
 
     useEffect(() => {
@@ -399,7 +400,7 @@ const SlingerBox = React.forwardRef<SlingerBoxHandle, SlingerBoxProps>(
         window.removeEventListener("touchend", handleTouchEnd);
         window.removeEventListener("mouseout", handleMouseLeave);
       };
-    }, []);
+    }, [endDrag, handleMove]);
 
     return (
       <div ref={containerRef} className={styles.slingerBoxWrapper}>
@@ -436,5 +437,7 @@ const SlingerBox = React.forwardRef<SlingerBoxHandle, SlingerBoxProps>(
     );
   },
 );
+
+SlingerBox.displayName = "SlingerBox";
 
 export default SlingerBox;

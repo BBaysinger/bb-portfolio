@@ -1,5 +1,6 @@
 /**
  * Miscellaneous items for global use.
+ * TODO: Evaluate which items should be moved to a more specific location.
  *
  * @author Bradley Baysinger
  * @since The beginning of time.
