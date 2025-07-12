@@ -3,6 +3,7 @@ dist/
 package-lock.json
 package.json5
 backend/.next/
+backend-previous/.next/
 frontend/.next/
 frontend-vite-old/
 payload-types.ts
