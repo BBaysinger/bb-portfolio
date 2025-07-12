@@ -1,3 +1,5 @@
+import gsap from "gsap";
+import { ScrollToPlugin } from "gsap/all";
 import {
   useRef,
   useState,
@@ -8,9 +10,10 @@ import {
   forwardRef,
   memo,
 } from "react";
-import gsap from "gsap";
-import { ScrollToPlugin } from "gsap/all";
 
+import { useDragInertia } from "@/hooks/useDragInertia";
+
+import styles from "./Carousel.module.scss";
 import {
   CarouselProps,
   Direction,
@@ -19,8 +22,6 @@ import {
   type DirectionType,
   type CarouselRef,
 } from "./CarouselTypes";
-import { useDragInertia } from "@/hooks/useDragInertia";
-import styles from "./Carousel.module.scss";
 
 /**
  * Carousel Component
@@ -111,16 +112,14 @@ const Carousel = memo(
     // This mutates the DOM by adding a child to the scrollerRef as an additional
     // wrapper to the slides. That does't affect anything and doesn't necessitate
     // any changes in the code.
-    const draggable = isSlaveMode
-      ? null
-      : useDragInertia(
-          scrollerRef,
-          setSnap,
-          slideSpacing,
-          isSlaveMode,
-          wrapperWidth,
-          slideWidthRef,
-        );
+    const draggable = useDragInertia(
+      scrollerRef,
+      setSnap,
+      slideSpacing,
+      isSlaveMode, // ← passed but handled internally in the hook
+      wrapperWidth,
+      slideWidthRef,
+    );
 
     useEffect(() => {
       scrollIndexRef.current = scrollIndex;
@@ -146,10 +145,10 @@ const Carousel = memo(
           slidesLength
         );
       },
-      [],
+      [slides.length],
     );
 
-    const dataIndex = useMemo(() => deriveDataIndex(), []);
+    const dataIndex = useMemo(() => deriveDataIndex(), [deriveDataIndex]);
 
     // Calculate slide positions, multipliers, and offsets
     const memoizedPositionsAndMultipliers = useMemo(() => {
@@ -204,7 +203,7 @@ const Carousel = memo(
         multipliers: newMultipliers,
         offsets: newOffsets,
       };
-    }, [scrollIndex, wrapperWidth]);
+    }, [scrollIndex, wrapperWidth, slideSpacing, memoizedSlides]);
 
     // Updates the carousel's index based on scroll position.
     const updateIndexPerPosition = (
@@ -359,7 +358,14 @@ const Carousel = memo(
       }, 150);
 
       return () => clearTimeout(timer);
-    }, []);
+    }, [
+      dataIndex,
+      initialIndex,
+      isSlaveMode,
+      memoizedSlides.length,
+      slideSpacing,
+      patchedOffset,
+    ]);
 
     // Measures slide and wrapper widths for accurate positioning.
     useEffect(() => {
@@ -391,7 +397,7 @@ const Carousel = memo(
         Source.IMPERATIVE,
         scrollDirectionRef.current,
       );
-    }, [onStabilizationUpdate]);
+    }, [onStabilizationUpdate, deriveDataIndex]);
 
     useEffect(() => {
       if (scrollerRef.current) {
@@ -402,7 +408,7 @@ const Carousel = memo(
           onComplete: onTweenComplete,
         });
       }
-    }, []);
+    }, [onTweenComplete]);
 
     // Exposes carousel methods to the parent component via `ref`.
     useImperativeHandle(ref, () => ({

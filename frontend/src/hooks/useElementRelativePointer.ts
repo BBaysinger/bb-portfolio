@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+
 import { useElementObserver } from "./useElementObserver";
 
 export type MouseEventType =
@@ -206,7 +207,7 @@ export default function useElementRelativePointer<T extends HTMLElement>(
         window.clearTimeout(id),
       );
     };
-  }, [targetRef, debounceMap]);
+  }, [targetRef, debounceMap, trigger]);
 
   // Update position on every render if override is live
   useEffect(() => {

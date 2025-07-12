@@ -1,8 +1,9 @@
 "use client";
+
 import React from "react";
 
-import Hero from "@/components/home-page/header-main/Hero";
 import Greeting from "@/components/home-page/Greeting";
+import Hero from "@/components/home-page/header-main/Hero";
 import PortfolioList from "@/components/home-page/PortfolioList";
 
 /**

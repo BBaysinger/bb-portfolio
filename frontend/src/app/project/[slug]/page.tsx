@@ -1,4 +1,6 @@
 "use client";
+
+import { useParams, useRouter } from "next/navigation";
 import React, {
   useRef,
   useState,
@@ -6,13 +8,8 @@ import React, {
   useMemo,
   useCallback,
 } from "react";
-import { useParams, useRouter } from "next/navigation";
 
 import HeaderSub from "@/components/layout/HeaderSub";
-import InfoSwapper from "@/components/project-carousel-page/InfoSwapper";
-import ProjectData from "@/data/ProjectData";
-import LogoSwapper from "@/components/project-carousel-page/LogoSwapper";
-import ProjectParallaxCarousel from "@/components/project-carousel-page/ProjectParallaxCarousel";
 import {
   DirectionType,
   Direction,
@@ -22,7 +19,12 @@ import {
 import DeviceDisplay, {
   DeviceTypes,
 } from "@/components/project-carousel-page/DeviceDisplay";
+import InfoSwapper from "@/components/project-carousel-page/InfoSwapper";
+import LogoSwapper from "@/components/project-carousel-page/LogoSwapper";
 import PageButtons from "@/components/project-carousel-page/PageButtons";
+import ProjectParallaxCarousel from "@/components/project-carousel-page/ProjectParallaxCarousel";
+import ProjectData from "@/data/ProjectData";
+
 import styles from "./page.module.scss";
 
 /**

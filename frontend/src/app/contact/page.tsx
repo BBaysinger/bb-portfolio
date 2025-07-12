@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 
 import useClientDimensions from "@/hooks/useClientDimensions";
+
 import styles from "./page.module.scss";
 
 /**

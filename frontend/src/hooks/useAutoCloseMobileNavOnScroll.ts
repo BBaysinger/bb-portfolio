@@ -1,7 +1,8 @@
 import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { expandMobileNav } from "@/store/uiSlice";
+
 import type { RootState } from "@/store/store";
+import { expandMobileNav } from "@/store/uiSlice";
 
 /**
  *

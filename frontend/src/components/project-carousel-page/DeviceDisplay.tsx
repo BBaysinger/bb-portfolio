@@ -1,7 +1,8 @@
-import React from "react";
 import Image from "next/image";
+import React from "react";
 
 import { MobileStatus } from "@/data/ProjectData";
+
 import styles from "./DeviceDisplay.module.scss";
 
 // Define constants for DeviceTypes (not used in the data)
@@ -30,7 +31,7 @@ interface DeviceDisplayProps {
  */
 const DeviceDisplay: React.FC<DeviceDisplayProps> = React.memo(
   ({ deviceType, id, mobileStatus }) => {
-    const src = `/images/screencaps/${id}-${deviceType}.webp`;
+    const src = `/images/screenshots/${id}-${deviceType}.webp`;
 
     return (
       <div
@@ -42,9 +43,9 @@ const DeviceDisplay: React.FC<DeviceDisplayProps> = React.memo(
           >
             <Image
               src={src}
-              alt={`${id} screencap`}
+              alt={`${id} screenshot`}
               loading="eager"
-              className={styles.screencap}
+              className={styles.screenshot}
             />
           </div>
         ) : deviceType === DeviceTypes.PHONE ? (
@@ -58,7 +59,7 @@ const DeviceDisplay: React.FC<DeviceDisplayProps> = React.memo(
               src={src}
               alt={`${id} bbScreencap`}
               loading="eager"
-              className={styles.screencap}
+              className={styles.screenshot}
             />
           </div>
         ) : null}
@@ -66,5 +67,7 @@ const DeviceDisplay: React.FC<DeviceDisplayProps> = React.memo(
     );
   },
 );
+
+DeviceDisplay.displayName = "DeviceDisplay";
 
 export default DeviceDisplay;

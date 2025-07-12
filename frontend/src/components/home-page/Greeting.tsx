@@ -1,8 +1,9 @@
-import styles from "./Greeting.module.scss";
 import Image from "next/image";
 
-import useInViewAnimation from "@/hooks/useInViewAnimation";
 import MagneticThingy from "@/components/home-page/MagneticThingy";
+import useInViewAnimation from "@/hooks/useInViewAnimation";
+
+import styles from "./Greeting.module.scss";
 
 /**
  * The "Hello" section on the home page.
@@ -27,11 +28,11 @@ const Greeting: React.FC = () => {
           <div className={styles.text}>
             <div ref={addToRefs}>
               <p>
-                Hi, I'm Bradley—an interactive developer with a background in
-                design, specializing in high-quality, animated web experiences.
-                My recent expertise lies in TypeScript, JavaScript, and modern
-                front-end development, with a focus on performance, scalability,
-                and usability.
+                Hi, I&apos;m Bradley—an interactive developer with a background
+                in design, specializing in high-quality, animated web
+                experiences. My recent expertise lies in TypeScript, JavaScript,
+                and modern front-end development, with a focus on performance,
+                scalability, and usability.
               </p>
             </div>
             <div ref={addToRefs}>
@@ -41,7 +42,7 @@ const Greeting: React.FC = () => {
                 builds in React and modern interactive frameworks. While some
                 legacy projects reflect the tools of their time, my direction
                 today is focused on modern, performant interfaces. Please
-                explore—and if you'd like to connect, let's talk!
+                explore—and if you&apos;d like to connect, let&apos;s talk!
               </p>
             </div>
             <a ref={addToRefs} href="#list">

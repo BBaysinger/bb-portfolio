@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
+import { useState } from "react";
 
-import useClientDimensions from "@/hooks/useClientDimensions";
 import { useAuth } from "@/context/AuthContext";
+import useClientDimensions from "@/hooks/useClientDimensions";
+
 import styles from "./page.module.scss";
 
 /**
