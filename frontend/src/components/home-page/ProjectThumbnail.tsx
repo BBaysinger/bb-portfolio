@@ -1,6 +1,6 @@
-import React, { forwardRef, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import Image from "next/image";
+import Link from "next/link";
+import React, { forwardRef, useEffect, useState } from "react";
 
 import styles from "./ProjectThumbnail.module.scss";
 
@@ -52,25 +52,32 @@ const ProjectThumbnail = forwardRef<HTMLDivElement, ProjectThumbnailProps>(
     return (
       <div className={`${styles.projectThumbnail} ${focusClass}`} ref={ref}>
         <Link href={`/portfolio/${projectId}#project`}>
-          <div className={styles.thumbBg} style={style}></div>
-          <div className={styles.vignette}></div>
-          <div className={styles.thumbContent}>
-            <div>
-              {logoSrc && (
-                <Image
-                  src={logoSrc}
-                  className={styles.brandLogo}
-                  loading="eager"
-                  alt={`${brandId} logo`}
-                />
-              )}
+          {/* Must wrap with an actual element if not using legacyBehavior */}
+          <a>
+            <div className={styles.thumbBg} style={style}></div>
+            <div className={styles.vignette}></div>
+            <div className={styles.thumbContent}>
+              <div>
+                {logoSrc && (
+                  <Image
+                    src={logoSrc}
+                    className={styles.brandLogo}
+                    loading="eager"
+                    alt={`${brandId} logo`}
+                    width={200}
+                    height={100}
+                  />
+                )}
+              </div>
+              <h4 className={styles.thumbTitle}>{title}</h4>
             </div>
-            <h4 className={styles.thumbTitle}>{title}</h4>
-          </div>
+          </a>
         </Link>
       </div>
     );
   },
 );
+
+ProjectThumbnail.displayName = "ProjectThumbnail";
 
 export default ProjectThumbnail;
