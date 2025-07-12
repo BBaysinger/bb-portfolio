@@ -1,4 +1,4 @@
-'use client';
+"use client";
 import React, { useState } from "react";
 
 import useClientDimensions from "@/hooks/useClientDimensions";
@@ -46,7 +46,10 @@ const ContactPage = () => {
     try {
       const response = await fetch("/", {
         method: "POST",
-        body: new URLSearchParams([...data.entries()] as [string, string][]).toString(),
+        body: new URLSearchParams([...data.entries()] as [
+          string,
+          string,
+        ][]).toString(),
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
       });
 
