@@ -1,3 +1,4 @@
+import clsx from "clsx";
 import React, { useEffect, useState } from "react";
 
 import SpriteSheetPlayer from "@/components/common/sprite-rendering/SpriteSheetPlayer";
@@ -48,7 +49,7 @@ const SlingerRay: React.FC<SlingerRayProps> = ({
   }, [isActive]);
 
   return (
-    <div className={[styles.slingerRay, className, "slingerRay"].join(" ")}>
+    <div className={clsx(styles.slingerRay, className, "slingerRay")}>
       <SpriteSheetPlayer
         // renderStrategy="css"
         className={styles.lightning}

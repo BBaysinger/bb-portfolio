@@ -1,3 +1,4 @@
+// import clsx from "clsx";
 // import { useRef, useEffect, forwardRef, useImperativeHandle } from "react";
 
 // import { Application, Container } from "pixi.js";
@@ -193,7 +194,7 @@
 //     return (
 //       <canvas
 //         ref={canvasRef}
-//         className={[styles.fluxelGrid, className].join(" ")}
+//         className={clsx(styles.fluxelGrid, className)}
 //       />
 //     );
 //   },

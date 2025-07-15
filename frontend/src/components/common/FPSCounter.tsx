@@ -1,3 +1,4 @@
+import clsx from "clsx";
 import React, { useEffect, useRef, useState } from "react";
 
 import styles from "./FPSCounter.module.scss";
@@ -44,7 +45,7 @@ const FPSCounter: React.FC<{ updateInterval?: number; className?: string }> = ({
   const fpsDigits = fps.toString().padStart(2, "0").split("");
 
   return (
-    <div className={[styles.fpsCounter, className].join(" ")}>
+    <div className={clsx(styles.fpsCounter, className)}>
       <div>
         <span className={styles.label}>FPS:</span>
         {fpsDigits.map((digit, index) => (

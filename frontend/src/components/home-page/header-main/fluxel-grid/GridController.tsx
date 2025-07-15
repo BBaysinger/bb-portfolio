@@ -1,3 +1,4 @@
+import clsx from "clsx";
 import {
   useState,
   useRef,
@@ -221,10 +222,7 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
     );
 
     return (
-      <div
-        ref={wrapperRef}
-        className={[styles.gridController, className].join(" ")}
-      >
+      <div ref={wrapperRef} className={clsx(styles.gridController, className)}>
         <AnimationSequencer className={styles.animationSequencer} />
 
         {gridType === "svg" ? (

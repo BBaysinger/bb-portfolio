@@ -1,3 +1,4 @@
+import clsx from "clsx";
 import Image from "next/image";
 import { forwardRef } from "react";
 
@@ -29,16 +30,12 @@ const TitleBranding = forwardRef<HTMLDivElement, TitleBrandingProps>(
         <span className={styles.hWrapper}>
           <h1>
             <BarberPole
-              className={[styles.barberPole, styles.barberPole1].join(" ")}
+              className={clsx(styles.barberPole, styles.barberPole1)}
             />
-            <div className={[styles.name, styles.firstName].join(" ")}>
-              Bradley
-            </div>{" "}
-            <div className={[styles.name, styles.lastName].join(" ")}>
-              Baysinger
-            </div>
-            <div className={styles.title}> Interactive UI Developer</div>
-          </h1>
+            <div className={clsx(styles.name, styles.firstName)}>Bradley</div>{" "}
+            <div className={clsx(styles.name, styles.lastName)}>Baysinger</div>
+            <div className={styles.title}>Interactive UI Developer</div>
+          </h1>{" "}
         </span>
       </div>
     );
