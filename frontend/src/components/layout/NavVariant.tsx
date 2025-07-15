@@ -8,10 +8,10 @@ import navLogo from "@/images/misc/bb-logo.svg";
 import { RootState } from "@/store/store";
 import { expandMobileNav } from "@/store/uiSlice";
 
-import styles from "./Nav.module.scss";
 import NavLinks from "./NavLinks";
+import styles from "./NavVariant.module.scss";
 
-export const NavVariant = {
+export const NavVariants = {
   TOP_BAR: styles.topBar,
   SLIDE_OUT: styles.slideOut,
 } as const;
@@ -23,14 +23,14 @@ interface NavProps {
 /**
  * The nav that either gets revealed behind the page content (mobile),
  * or is populated as a bar at the top of the page (desktop). Styled uniquely
- * for either variant, but used twice, as switch between them dynamically
- * at runtime causes a massive frame drop.
+ * for either variant, but used twice, as switching between them dynamically
+ * at runtime causes a unbelievably massive frame drop.
  *
  * @author Bradley Baysinger
  * @since The beginning of time.
  * @version N/A
  */
-const Navigation: React.FC<NavProps> = ({ variant }) => {
+const NavVariant: React.FC<NavProps> = ({ variant }) => {
   const isMenuOpen = useSelector(
     (state: RootState) => state.ui.isMobileNavExpanded,
   );
@@ -38,17 +38,17 @@ const Navigation: React.FC<NavProps> = ({ variant }) => {
   const dispatch = useDispatch();
 
   const expandMobileNavHandler = () => {
-    if (variant === NavVariant.SLIDE_OUT) {
+    if (variant === NavVariants.SLIDE_OUT) {
       dispatch(expandMobileNav());
     }
   };
 
   return (
     <nav
-      className={`${styles.nav} ${variant} ${isMenuOpen ? "enabled" : "disabled"}`}
+      className={`${styles.navVariant} ${variant} ${isMenuOpen ? "enabled" : "disabled"}`}
       role="navigation"
     >
-      {variant === NavVariant.SLIDE_OUT && (
+      {variant === NavVariants.SLIDE_OUT && (
         <>
           <div className={styles.shadowLayer0}></div>
           <div className={styles.shadowLayer1}></div>
@@ -71,7 +71,7 @@ const Navigation: React.FC<NavProps> = ({ variant }) => {
       </Link>
       <NavLinks onClick={expandMobileNavHandler} className={styles.navLinks} />
 
-      {variant === NavVariant.TOP_BAR && (
+      {variant === NavVariants.TOP_BAR && (
         <Hamburger className={styles.hamburger} />
       )}
 
@@ -83,4 +83,4 @@ const Navigation: React.FC<NavProps> = ({ variant }) => {
   );
 };
 
-export default Navigation;
+export default NavVariant;
