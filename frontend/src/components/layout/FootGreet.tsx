@@ -6,7 +6,7 @@ import styles from "./FootGreet.module.scss";
 
 /**
  * The greeting in the footer.
- * Time of day included for a subtle dynamic touch.
+ * Time of day included for an unexpected dynamic.
  *
  * @author Bradley Baysinger
  * @since The beginning of time.
@@ -22,6 +22,7 @@ const FootGreet: React.FC<{ className: string }> = ({ className }) => {
           src="/images/footer/bb2.jpg"
           className={styles.footerPhoto}
           width={90}
+          height={93}
           alt="Bradley's head"
         />
         Good {currentTimeOfDay}, and thanks for stopping by! I&apos;ll be
