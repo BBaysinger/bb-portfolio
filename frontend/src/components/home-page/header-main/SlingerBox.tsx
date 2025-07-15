@@ -83,6 +83,7 @@ const SlingerBox = React.forwardRef<SlingerBoxHandle, SlingerBoxProps>(
     );
     const pointerPosition = useRef<{ x: number; y: number } | null>(null);
     const lastFrameTime = useRef<number>(performance.now());
+    const objectsRef = useRef<SlingerObject[]>([]);
     const lastKnownVelocity = useRef<{ vx: number; vy: number }>({
       vx: 0,
       vy: 0,
