@@ -8,7 +8,7 @@ import LogoutButton from "@/components/common/LogoutButton";
 import { useAuth } from "@/context/AuthContext";
 import MiscUtils from "@/utils/MiscUtils";
 
-import styles from "./Links.module.scss";
+import styles from "./NavLinks.module.scss";
 
 interface LinksProps {
   onClick?: () => void;
