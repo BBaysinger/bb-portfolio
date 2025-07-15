@@ -13,11 +13,13 @@ const useScrollPersistedClass = (
   threshold = 0.5,
   storageKey = "hasScrolledOut",
 ) => {
-  const [hasScrolledOut, setHasScrolledOut] = useState(() => {
-    return sessionStorage.getItem(storageKey) === "true";
-  });
+  const [hasScrolledOut, setHasScrolledOut] = useState(false);
 
   useEffect(() => {
+    if (typeof window !== "undefined") {
+      const stored = sessionStorage.getItem("hasScrolledOut") === "true";
+      setHasScrolledOut(stored);
+    }
     const handleScroll = () => {
       const element = document.getElementById(id);
       if (!element) return;
