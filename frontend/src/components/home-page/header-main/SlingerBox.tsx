@@ -1,3 +1,4 @@
+import clsx from "clsx";
 import React, {
   useRef,
   useEffect,
@@ -422,11 +423,11 @@ const SlingerBox = React.forwardRef<SlingerBoxHandle, SlingerBoxProps>(
 
           return (
             <div
-              className={[
+              className={clsx(
                 styles.slinger,
-                obj.isDragging ? "isDragging" : "",
+                obj.isDragging && "isDragging",
                 "slinger",
-              ].join(" ")}
+              )}
               tabIndex={10}
               key={i}
               onMouseDown={(e) => handleMouseDown(i, e)}

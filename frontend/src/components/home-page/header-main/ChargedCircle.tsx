@@ -1,3 +1,4 @@
+import clsx from "clsx";
 import React from "react";
 
 import useScopedImagePreload from "@/hooks/useScopedImagePreload";
@@ -25,15 +26,15 @@ const ChargedCircle: React.FC<ChargedCircleProps> = ({ isActive = false }) => {
     >
       <div className={styles.scaler}>
         <SlingerRay
-          className={[styles.bolt, styles.bolt1].join(" ")}
+          className={clsx(styles.bolt, styles.bolt1)}
           isActive={isActive}
         />
         <SlingerRay
-          className={[styles.bolt, styles.bolt2].join(" ")}
+          className={clsx(styles.bolt, styles.bolt2)}
           isActive={isActive}
         />
         <SlingerRay
-          className={[styles.bolt, styles.bolt3].join(" ")}
+          className={clsx(styles.bolt, styles.bolt3)}
           isActive={isActive}
         />
       </div>

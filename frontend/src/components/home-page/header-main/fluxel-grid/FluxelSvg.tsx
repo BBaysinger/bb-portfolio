@@ -1,3 +1,4 @@
+import clsx from "clsx";
 import React, {
   useImperativeHandle,
   useRef,
@@ -48,7 +49,7 @@ const FluxelSvg = forwardRef<
   return (
     <g
       ref={elRef}
-      className={[styles.fluxel, className].join(" ")}
+      className={clsx(styles.fluxel, className)}
       transform={`translate(${x}, ${y})`}
       clipPath={`url(#${clipPathId})`}
     >

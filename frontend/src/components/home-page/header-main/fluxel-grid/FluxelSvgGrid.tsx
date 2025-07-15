@@ -1,3 +1,4 @@
+import clsx from "clsx";
 import React, {
   forwardRef,
   useRef,
@@ -151,7 +152,7 @@ const FluxelSvgGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
       <>
         <div
           ref={handleRef}
-          className={[styles.fluxelGrid, className].join(" ")}
+          className={clsx(styles.fluxelGrid, className)}
           style={{ position: "relative", width: "100%", height: "100%" }}
         >
           <svg

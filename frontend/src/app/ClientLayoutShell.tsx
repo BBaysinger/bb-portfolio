@@ -1,5 +1,6 @@
 "use client";
 
+import clsx from "clsx";
 import React, { useRef } from "react";
 import { useSelector } from "react-redux";
 
@@ -40,11 +41,11 @@ export function ClientLayoutShell({ children }: { children: React.ReactNode }) {
   return (
     <div
       ref={fluidRef}
-      className={[
-        percentHeroInView >= 5 ? "isHeroInView5Pct" : "",
-        percentHeroInView >= 100 ? "isHeroInView100Pct" : "",
-        isMenuOpen ? `isMobileNavExpanded ${styles.isMobileNavExpanded}` : "",
-      ].join(" ")}
+      className={clsx(
+        percentHeroInView >= 5 && "isHeroInView5Pct",
+        percentHeroInView >= 100 && "isHeroInView100Pct",
+        isMenuOpen && ["isMobileNavExpanded", styles.isMobileNavExpanded],
+      )}
     >
       <NavVariant variant={NavVariants.SLIDE_OUT} />
       <div id="top" style={{ position: "absolute", top: "0px" }}></div>

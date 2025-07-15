@@ -1,3 +1,4 @@
+import clsx from "clsx";
 import {
   useRef,
   useEffect,
@@ -130,10 +131,7 @@ const FluxelCanvasGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
     );
 
     return (
-      <canvas
-        ref={canvasRef}
-        className={[styles.fluxelGrid, className].join(" ")}
-      />
+      <canvas ref={canvasRef} className={clsx(styles.fluxelGrid, className)} />
     );
   },
 );
