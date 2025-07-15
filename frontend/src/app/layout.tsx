@@ -5,7 +5,6 @@ import { useSelector } from "react-redux";
 
 import Footer from "@/components/layout/Footer";
 import NavVariant, { NavVariants } from "@/components/layout/NavVariant";
-import { AuthProvider } from "@/context/AuthContext";
 import { useAutoCloseMobileNavOnScroll } from "@/hooks/useAutoCloseMobileNavOnScroll";
 import useClientDimensions from "@/hooks/useClientDimensions";
 import { useFluidPercents } from "@/hooks/useFluidPercents";
@@ -14,6 +13,7 @@ import { RootState } from "@/store/store";
 import ScrollToHash from "@/utils/ScrollToHash";
 
 import styles from "./layout.module.scss";
+import { AppProviders } from "./providers/AppProviders";
 import "@/styles/styles.scss";
 
 export default function RootLayout({
@@ -46,7 +46,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <AuthProvider>
+        <AppProviders>
           <div
             ref={fluidRef}
             className={[
@@ -67,7 +67,7 @@ export default function RootLayout({
             </div>
             <Footer mutationElemRef={mainContentRef} />
           </div>
-        </AuthProvider>
+        </AppProviders>
       </body>
     </html>
   );
