@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React, { useState, useEffect, useRef } from "react";
@@ -226,7 +225,8 @@ const Footer: React.FC<FooterProps> = ({ mutationElemRef }) => {
               target="_blank"
               rel="noopener noreferrer"
             >
-              <Image src="/images/footer/react.svg" alt="React Logo" />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/images/footer/react.svg" alt="React Logo" />
               Built with React
             </a>
           </div>
