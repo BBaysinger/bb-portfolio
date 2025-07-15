@@ -57,12 +57,8 @@ const Hero: React.FC = () => {
   const [_slingerPos, setSlingerPos] = useState<
     { x: number; y: number } | null | undefined
   >(undefined);
-  const [hasDragged, setHasDragged] = useState<boolean>(
-    () => sessionStorage.getItem("hasDragged") === "true",
-  );
-  const [hasSlung, setHasSlung] = useState<boolean>(
-    () => sessionStorage.getItem("hasSlung") === "true",
-  );
+  const [hasDragged, setHasDragged] = useState<boolean>(false);
+  const [hasSlung, setHasSlung] = useState<boolean>(false);
   const [hasSlungDelay, setHasSlungDelay] = useState(
     // Always start the same value as hasDragged
     () => sessionStorage.getItem("hasSlung") === "true",
@@ -187,6 +183,11 @@ const Hero: React.FC = () => {
 
     if (!useSlingerTracking) return;
     startSlingerTracking();
+
+    if (typeof window !== "undefined") {
+      setHasDragged(sessionStorage.getItem("hasDragged") === "true");
+      setHasSlung(sessionStorage.getItem("hasSlung") === "true");
+    }
 
     return () => {
       if (slingerLoopId.current) cancelAnimationFrame(slingerLoopId.current);
