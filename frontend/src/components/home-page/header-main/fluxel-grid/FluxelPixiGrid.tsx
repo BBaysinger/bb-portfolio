@@ -7,6 +7,13 @@
 // import styles from "./FluxelPixiGrid.module.scss";
 
 // /**
+//  * KEEP: Come back to this when there is more time to explore various
+//  * render methods. We left off trying to make a custom WebGL shader to work
+//  * in Pixi. The goal is to explore and continue optimizing every rendering strategy.
+//  * Catches with Pixi:
+//  * 1.To explicity control the render interval to sync and reduce render updates.
+//  * 2. Limit Pixi from rerendering the entire canvas on every update.
+//  *
 //  * FluxelPixiGrid - renders a dynamic, resizable PixiJS grid of FluxelPixiSprites
 //  *
 //  * This is a noop. It wasn't completed, and since we've decided rendering straight to canvas

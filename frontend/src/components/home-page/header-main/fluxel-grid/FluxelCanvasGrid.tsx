@@ -11,6 +11,12 @@ import type { FluxelGridHandle, FluxelGridProps } from "./FluxelAllTypes";
 import styles from "./FluxelCanvasGrid.module.scss";
 
 /**
+ * KEEP: Come back to this when there is more time to explore different
+ * render methods. We left off where it seemed like SVG was more optimal.
+ * The goal is to explore and continue optimizing every rendering strategy.
+ * Catches with Canvas:
+ * 1. Prevent rerendering the entire canvas on every update.
+ *
  * FluxelCanvasGrid - imperatively renders fluxels to a canvas.
  *
  * @author Bradley Baysinger
