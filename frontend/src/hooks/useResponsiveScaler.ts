@@ -29,6 +29,16 @@ export default function useResponsiveScaler(
   elementRef?: React.RefObject<HTMLElement | null>,
 ): ScalerOutput {
   const calculate = useCallback((): ScalerOutput => {
+    if (typeof window === "undefined" || typeof document === "undefined") {
+      return {
+        width: 0,
+        height: 0,
+        offsetX: 0,
+        offsetY: 0,
+        scale: 1,
+      };
+    }
+
     const containerWidth = document.documentElement.clientWidth;
     const containerHeight = document.documentElement.clientHeight;
     const screenAspect = containerWidth / containerHeight;
