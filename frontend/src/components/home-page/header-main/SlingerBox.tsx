@@ -67,6 +67,9 @@ const SlingerBox = React.forwardRef<SlingerBoxHandle, SlingerBoxProps>(
     const childArray = React.Children.toArray(children);
     const gravityRange = 300;
 
+    // state
+    const [isReady, setIsReady] = React.useState(false);
+
     // refs
     const animationFrameRef = useRef<number | null>(null);
     const containerRef = useRef<HTMLDivElement>(null);
@@ -80,16 +83,6 @@ const SlingerBox = React.forwardRef<SlingerBoxHandle, SlingerBoxProps>(
     );
     const pointerPosition = useRef<{ x: number; y: number } | null>(null);
     const lastFrameTime = useRef<number>(performance.now());
-    const objectsRef = useRef<SlingerObject[]>(
-      childArray.map((_, i) => ({
-        id: i,
-        x: 0.2 * window.innerWidth + i * 60,
-        y: 0.3 * window.innerHeight,
-        vx: 1 + Math.random(),
-        vy: 1 + Math.random(),
-        isDragging: false,
-      })),
-    );
     const lastKnownVelocity = useRef<{ vx: number; vy: number }>({
       vx: 0,
       vy: 0,
@@ -232,6 +225,20 @@ const SlingerBox = React.forwardRef<SlingerBoxHandle, SlingerBoxProps>(
     );
 
     useEffect(() => {
+      if (objectsRef.current.length === 0) {
+        objectsRef.current = childArray.map((_, i) => ({
+          id: i,
+          x: 0.2 * window.innerWidth + i * 60,
+          y: 0.3 * window.innerHeight,
+          vx: 1 + Math.random(),
+          vy: 1 + Math.random(),
+          isDragging: false,
+        }));
+        setIsReady(true);
+      }
+    }, [childArray]);
+
+    useEffect(() => {
       animationFrameRef.current = requestAnimationFrame(animate);
       return () => {
         if (animationFrameRef.current)
@@ -269,7 +276,6 @@ const SlingerBox = React.forwardRef<SlingerBoxHandle, SlingerBoxProps>(
       hasBecomeIdleRef.current = false;
       lastActivityTimeRef.current = performance.now();
       forceUpdate();
-
       onDragStart?.(clientX, clientY, e.nativeEvent);
     };
 
@@ -401,10 +407,15 @@ const SlingerBox = React.forwardRef<SlingerBoxHandle, SlingerBoxProps>(
       };
     }, [endDrag, handleMove]);
 
+    // 👇 Add this line before the main return block
+    if (!isReady) return null;
+
     return (
       <div ref={containerRef} className={styles.slingerBoxWrapper}>
         {childArray.map((child, i) => {
           const obj = objectsRef.current[i];
+          if (!obj) return null;
+
           const x = Math.round(obj.x - radius);
           const y = Math.round(obj.y - radius);
 
