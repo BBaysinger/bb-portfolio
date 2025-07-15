@@ -1,3 +1,4 @@
+import clsx from "clsx";
 import { forwardRef } from "react";
 
 import { ParsedPortfolioProject } from "@/data/ProjectData";
@@ -27,11 +28,11 @@ const ProjectInfo = forwardRef<HTMLDivElement, ProjectInfoProps>(
     return (
       <div
         ref={ref}
-        className={[
-          `${styles.projectInfo}`,
-          `${isActive ? styles.active : ""}`,
-          `${direction ? styles[direction.toLowerCase()] : ""}`,
-        ].join(" ")}
+        className={clsx(
+          styles.projectInfo,
+          isActive && styles.active,
+          direction && styles[direction.toLowerCase()],
+        )}
         style={{ display: isActive ? "block" : "none" }}
       >
         {desc.map((htmlContent) => (

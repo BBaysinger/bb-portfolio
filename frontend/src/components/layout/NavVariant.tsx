@@ -1,3 +1,4 @@
+import clsx from "clsx";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
@@ -63,7 +64,7 @@ const NavVariant: React.FC<NavProps> = ({ variant }) => {
             <span>BRADLEY</span> <span>BAYSINGER</span>
           </div>
           <div>
-            <span className={[styles.jobTitle, "nobr"].join(" ")}>
+            <span className={clsx(styles.jobTitle, "nobr")}>
               Interactive UI Developer
             </span>
           </div>

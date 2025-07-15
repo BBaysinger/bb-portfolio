@@ -1,3 +1,4 @@
+import clsx from "clsx";
 import React, { useState, useCallback, useRef, useEffect } from "react";
 
 import FPSCounter from "@/components/common/FPSCounter";
@@ -198,7 +199,7 @@ const Hero: React.FC = () => {
     <header
       id={id}
       ref={heroRef}
-      className={[
+      className={clsx(
         `${styles.hero} hero`,
         isSlingerIdle
           ? `${styles.isSlingerIdle} isSlingerIdle`
@@ -218,9 +219,7 @@ const Hero: React.FC = () => {
         mounted
           ? `${styles.hasMounted} hasMounted`
           : `${styles.notMounted} notMounted`,
-      ]
-        .filter(Boolean)
-        .join(" ")}
+      )}
     >
       <div>
         <GridController
