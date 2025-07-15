@@ -20,8 +20,9 @@ const FootGreet: React.FC<{ className: string }> = ({ className }) => {
       <p className={className}>
         <Image
           src="/images/footer/bb2.jpg"
-          className={`img-responsive ${styles.footerPhoto}`}
-          alt="Bradley's face"
+          className={styles.footerPhoto}
+          width={90}
+          alt="Bradley's head"
         />
         Good {currentTimeOfDay}, and thanks for stopping by! I&apos;ll be
         honest—this space is an experiment in progress, and I hope it always
