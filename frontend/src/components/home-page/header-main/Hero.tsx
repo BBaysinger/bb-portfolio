@@ -40,6 +40,8 @@ const quotes = [
 /**
  * Hero
  *
+ * Interactive slinger and fluxel grid overlaid with graphics on the home page.
+ *
  * @author Bradley Baysinger
  * @since The beginning of time.
  * @version N/A
@@ -219,7 +221,6 @@ const Hero: React.FC = () => {
       ]
         .filter(Boolean)
         .join(" ")}
-      style={{ minHeight: `${clientHeight}px` }}
     >
       <div>
         <GridController
