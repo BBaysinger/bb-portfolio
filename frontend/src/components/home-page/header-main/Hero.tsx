@@ -59,13 +59,11 @@ const Hero: React.FC = () => {
   >(undefined);
   const [hasDragged, setHasDragged] = useState<boolean>(false);
   const [hasSlung, setHasSlung] = useState<boolean>(false);
-  const [hasSlungDelay, setHasSlungDelay] = useState(
-    // Always start the same value as hasDragged
-    () => sessionStorage.getItem("hasSlung") === "true",
-  );
+  const [hasSlungDelay, setHasSlungDelay] = useState(false);
 
   const timeOfDay = useTimeOfDay();
   const hasScrolledOut = useScrollPersistedClass(id);
+
   const titleRef = useRef<HTMLDivElement>(null);
   const slingerIsIdle = useRef(false);
   const gridControllerRef = useRef<GridControllerHandle>(null);

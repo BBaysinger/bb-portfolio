@@ -60,18 +60,30 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
     const gridType = getGridTypeFromUrl();
 
     const gridInstanceRef = useRef<FluxelGridHandle | null>(null);
-    const containerRef = useRef<HTMLElement>(document.createElement("div"));
+    const containerRef = useRef<HTMLElement | null>(null);
     const wrapperRef = useRef<HTMLDivElement | null>(null);
     const isShadowsPaused = useRef(false);
     const pointerOverrideRef = useRef<{ x: number; y: number } | null>(null);
 
-    const handleLayoutUpdateRequest = (fn: () => void) => {
+    const onLayoutUpdateRequest = (fn: () => void) => {
       fn(); // optionally debounce or throttle here if needed
     };
 
     useEffect(() => {
       const el = gridInstanceRef.current?.getContainerElement?.();
       if (el) containerRef.current = el;
+      if (typeof window !== "undefined" && !containerRef.current) {
+        containerRef.current = document.createElement("div");
+      }
+
+      return () => {
+        if (containerRef.current) {
+          containerRef.current = null;
+        }
+        if (gridInstanceRef.current) {
+          gridInstanceRef.current = null;
+        }
+      };
     }, []);
 
     const pointerMeta = useElementRelativePointer(containerRef, {
@@ -185,7 +197,7 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
             gridData={gridData}
             viewableWidth={viewableWidth}
             viewableHeight={viewableHeight}
-            onLayoutUpdateRequest={handleLayoutUpdateRequest}
+            onLayoutUpdateRequest={onLayoutUpdateRequest}
           />
         ) : gridType === "canvas" ? (
           <FluxelCanvasGrid
@@ -194,7 +206,7 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
             gridData={gridData}
             viewableWidth={viewableWidth}
             viewableHeight={viewableHeight}
-            onLayoutUpdateRequest={handleLayoutUpdateRequest}
+            onLayoutUpdateRequest={onLayoutUpdateRequest}
           />
         ) : (
           <>No grid matches: {gridType} </>
