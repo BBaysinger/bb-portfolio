@@ -33,6 +33,43 @@ interface GridControllerProps {
   useSlingerTracking?: boolean;
 }
 
+/**
+ * GridController dynamically selects between different rendering strategies (SVG, Canvas, Pixi)
+ * based on the URL query parameter `gridType`, and provides a unified interface for external
+ * control of the underlying fluxel grid.
+ *
+ * The goal is to explore and continue optimizing every rendering strategy, so
+ * DO NOT eliminate the various fluxel grids.
+ *
+ * It exposes methods to launch visual projectiles, apply pointer-based flux influence, reset
+ * the grid state, and resume background visual effects (e.g. shadows).
+ *
+ * Internally, it:
+ * - Uses either `<FluxelSvgGrid />` or `<FluxelCanvasGrid />` depending on URL param.
+ * - Tracks relative pointer position and exposes an override for programmatic interactions.
+ * - Manages internal grid state (`gridData`) and hooks into shadow and projectile effect logic.
+ * - Scales the component responsively using `useResponsiveScaler`.
+ *
+ * Designed as a flexible controller component for fluxel-based visual effects and user interactions.
+ *
+ * @example
+ * ```tsx
+ * const gridRef = useRef<GridControllerHandle>(null);
+ *
+ * return (
+ *   <GridController
+ *     ref={gridRef}
+ *     rows={10}
+ *     cols={10}
+ *     viewableHeight={720}
+ *     viewableWidth={1280}
+ *   />
+ * );
+ *
+ * // Programmatically launch a projectile
+ * gridRef.current?.launchProjectile(100, 100, "right");
+ * ```
+ */
 const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
   (
     {
