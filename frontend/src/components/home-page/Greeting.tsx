@@ -1,5 +1,3 @@
-import Image from "next/image";
-
 import MagneticThingy from "@/components/home-page/MagneticThingy";
 import useInViewAnimation from "@/hooks/useInViewAnimation";
 
@@ -20,12 +18,10 @@ const Greeting: React.FC = () => {
       <div className={styles.greetingWrapper}>
         <div className={styles.helloSignWrapper}>
           <MagneticThingy className={styles.helloSign}>
-            <Image
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
               src="/images/home/hello.webp"
-              fill
-              sizes="68%"
               alt="hello"
-              loading="lazy"
               className={styles.helloImage}
             />
           </MagneticThingy>
