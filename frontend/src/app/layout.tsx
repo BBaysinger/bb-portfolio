@@ -4,7 +4,7 @@ import React, { useRef } from "react";
 import { useSelector } from "react-redux";
 
 import Footer from "@/components/layout/Footer";
-import Nav, { NavVariant } from "@/components/layout/Nav";
+import NavVariant, { NavVariants } from "@/components/layout/NavVariant";
 import { AuthProvider } from "@/context/AuthContext";
 import { useAutoCloseMobileNavOnScroll } from "@/hooks/useAutoCloseMobileNavOnScroll";
 import useClientDimensions from "@/hooks/useClientDimensions";
@@ -57,11 +57,11 @@ export default function RootLayout({
                 : "",
             ].join(" ")}
           >
-            <Nav variant={NavVariant.SLIDE_OUT} />
+            <NavVariant variant={NavVariants.SLIDE_OUT} />
             <div id="top" style={{ position: "absolute", top: "0px" }}></div>
             <div className={styles.underlay} />
             <div id={styles.main} ref={mainContentRef}>
-              <Nav variant={NavVariant.TOP_BAR} />
+              <NavVariant variant={NavVariants.TOP_BAR} />
               <ScrollToHash />
               {children}
             </div>

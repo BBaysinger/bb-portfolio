@@ -32,7 +32,7 @@ const LogoutButton: React.FC<LogoutButtonProps> = ({ className = "" }) => {
 
   return (
     <li
-      className={`${styles.logout} ${className} logout`}
+      className={`${styles.logoutButton} ${className} logout`}
       onClick={handleLogout}
     >
       <Link href="/login#top" className={isActive ? styles.active : ""}>

@@ -1,7 +1,7 @@
 @use "@/styles/mixins" as *;
 @use "@/styles/variables" as *;
 
-.logout {
+.logoutButton {
   background: none;
   padding-left: 0;
   img {
@@ -11,9 +11,7 @@
     mask-size: 20px 20px;
     background-color: currentColor;
   }
-}
 
-footer {
   :global(.logout) {
     display: none !important;
   }
