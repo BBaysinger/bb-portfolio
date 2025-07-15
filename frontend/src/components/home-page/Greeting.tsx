@@ -20,7 +20,14 @@ const Greeting: React.FC = () => {
       <div className={styles.greetingWrapper}>
         <div className={styles.helloSignWrapper}>
           <MagneticThingy className={styles.helloSign}>
-            <Image src="/images/home/hello.webp" alt="hello" loading="lazy" />
+            <Image
+              src="/images/home/hello.webp"
+              fill
+              sizes="68%"
+              alt="hello"
+              loading="lazy"
+              className={styles.helloImage}
+            />
           </MagneticThingy>
         </div>
 
