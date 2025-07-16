@@ -46,7 +46,10 @@ const NavVariant: React.FC<NavProps> = ({ variant }) => {
 
   return (
     <nav
-      className={`${styles.navVariant} ${variant} ${isMenuOpen ? "enabled" : "disabled"}`}
+      className={clsx(styles.navVariant, variant, {
+        enabled: isMenuOpen,
+        disabled: !isMenuOpen,
+      })}
       role="navigation"
     >
       {variant === NavVariants.SLIDE_OUT && (
