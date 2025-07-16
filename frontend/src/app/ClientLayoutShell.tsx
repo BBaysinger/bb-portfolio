@@ -13,7 +13,7 @@ import { useTrackHeroInView } from "@/hooks/useTrackHeroInView";
 import { RootState } from "@/store/store";
 import ScrollToHash from "@/utils/ScrollToHash";
 
-import styles from "./layout.module.scss";
+import styles from "./ClientLayoutShell.module.scss";
 
 export function ClientLayoutShell({ children }: { children: React.ReactNode }) {
   const isMenuOpen = useSelector(
@@ -50,8 +50,8 @@ export function ClientLayoutShell({ children }: { children: React.ReactNode }) {
       <NavVariant variant={NavVariants.SLIDE_OUT} />
       <div id="top" style={{ position: "absolute", top: "0px" }}></div>
       <div className={styles.underlay} />
-      <div id={styles.main} ref={mainContentRef}>
-        <NavVariant variant={NavVariants.TOP_BAR} />
+      <NavVariant variant={NavVariants.TOP_BAR} />
+      <div className={styles.main} ref={mainContentRef}>
         <ScrollToHash />
         {children}
       </div>
