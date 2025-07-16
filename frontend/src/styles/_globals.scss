@@ -51,8 +51,7 @@
       }
     }
   }
-}
-
-:global(.hidden) {
-  display: none !important;
+  :global(.hidden) {
+    display: none !important;
+  }
 }

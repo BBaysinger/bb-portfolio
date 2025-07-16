@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import React from "react";
 
 import HeaderSub from "@/components/layout/HeaderSub";
@@ -259,7 +258,8 @@ const CurriculumVitae: React.FC = () => {
 
           <div className={rowClass}>
             <div className={divClassLt}>
-              <Image
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
                 ref={addToRefs}
                 src="/images/cv/dart.svg"
                 className={styles.cvLogo}
@@ -289,7 +289,8 @@ const CurriculumVitae: React.FC = () => {
 
           <div className={rowClass}>
             <div className={divClassLt}>
-              <Image
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
                 ref={addToRefs}
                 src="/images/cv/wrench.svg"
                 className={styles.cvLogo}
@@ -367,7 +368,8 @@ const CurriculumVitae: React.FC = () => {
 
           <div className={rowClass}>
             <div className={divClassLt}>
-              <Image
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
                 ref={addToRefs}
                 src="/images/cv/epsilon.svg"
                 className={styles.cvLogo}
@@ -448,7 +450,8 @@ const CurriculumVitae: React.FC = () => {
 
           <div className={rowClass}>
             <div className={divClassLt}>
-              <Image
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
                 ref={addToRefs}
                 src="/images/cv/bb.svg"
                 className={styles.cvLogo}
@@ -519,7 +522,8 @@ const CurriculumVitae: React.FC = () => {
 
           <div className={rowClass}>
             <div className={divClassLt}>
-              <Image
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
                 ref={addToRefs}
                 src="/images/cv/s2.svg"
                 className={styles.cvLogo}
@@ -614,7 +618,8 @@ const CurriculumVitae: React.FC = () => {
 
           <div className={rowClass}>
             <div className={divClassLt}>
-              <Image
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
                 ref={addToRefs}
                 src="/images/cv/chalklabs.svg"
                 className={styles.cvLogo}
@@ -695,7 +700,8 @@ const CurriculumVitae: React.FC = () => {
 
           <div className={rowClass}>
             <div className={divClassLt}>
-              <Image
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
                 ref={addToRefs}
                 src="/images/cv/s2.svg"
                 className={styles.cvLogo}
@@ -797,7 +803,8 @@ const CurriculumVitae: React.FC = () => {
 
           <div className={rowClass}>
             <div className={divClassLt}>
-              <Image
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
                 ref={addToRefs}
                 src="/images/cv/scw.svg"
                 className={styles.cvLogo}
@@ -862,7 +869,8 @@ const CurriculumVitae: React.FC = () => {
 
           <div className={rowClass}>
             <div className={divClassLt}>
-              <Image
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
                 ref={addToRefs}
                 src="/images/cv/bb.svg"
                 className={styles.cvLogo}
@@ -928,7 +936,8 @@ const CurriculumVitae: React.FC = () => {
 
           <div className={rowClass}>
             <div className={divClassLt}>
-              <Image
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
                 ref={addToRefs}
                 src="/images/cv/sfcc.svg"
                 className={styles.cvLogo}
@@ -961,7 +970,8 @@ const CurriculumVitae: React.FC = () => {
 
           <div className={rowClass}>
             <div className={divClassLt}>
-              <Image
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
                 ref={addToRefs}
                 src="/images/cv/bv.svg"
                 className={styles.cvLogo}
@@ -1052,12 +1062,11 @@ const CurriculumVitae: React.FC = () => {
                   <h5>14 gold badges on Stack Overflow</h5>
                   <div className={`${styles.badges} col-xs-12`}>
                     {Array.from({ length: 14 }, (_, index) => (
-                      <Image
-                        key={index}
-                        src="/images/cv/gold-badge.svg"
-                        alt=""
-                      />
-                    ))}
+                      <React.Fragment key={index}>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src="/images/cv/gold-badge.svg" alt="" />
+                      </React.Fragment>
+                    ))}{" "}
                   </div>
                 </div>
               </div>
