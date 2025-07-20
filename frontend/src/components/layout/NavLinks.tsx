@@ -6,7 +6,6 @@ import React, { useEffect, useState } from "react";
 
 import LogoutButton from "@/components/common/LogoutButton";
 import { useAuth } from "@/context/AuthContext";
-import MiscUtils from "@/utils/MiscUtils";
 
 import styles from "./NavLinks.module.scss";
 
@@ -28,39 +27,41 @@ const Links: React.FC<LinksProps> = ({ onClick, className }) => {
 
   const [currentHash, setCurrentHash] = useState("");
 
+  // Update hash on mount and on hashchange
   useEffect(() => {
     const updateHash = () => setCurrentHash(window.location.hash);
-    updateHash(); // run once on mount
-
+    updateHash();
     window.addEventListener("hashchange", updateHash);
     return () => window.removeEventListener("hashchange", updateHash);
   }, []);
 
   const fullPath = `${pathname}${currentHash}`;
 
-  const isActive = (target: string) => {
-    return MiscUtils.isActiveOrAlt(fullPath === target, target, styles.active);
+  // Returns the active class if target matches current route
+  const linkClass = (target: string) => {
+    console.log(`Checking link: ${target} against fullPath: ${fullPath}`);
+    return `${styles.link} ${fullPath === target ? styles.active : ""}`;
   };
 
   return (
     <ul onClick={onClick} className={`${styles.navLinks} ${className ?? ""}`}>
       <li>
-        <Link href="/#top" className={isActive("/#top")}>
+        <Link href="/#top" className={linkClass("/#top")}>
           Home
         </Link>
       </li>
       <li>
-        <Link href="/portfolio#list" className={isActive("/portfolio#list")}>
+        <Link href="/#portfolio-list" className={linkClass("/#portfolio-list")}>
           Portfolio
         </Link>
       </li>
       <li>
-        <Link href="/cv#top" className={isActive("/cv#top")}>
+        <Link href="/cv#top" className={linkClass("/cv#top")}>
           CV
         </Link>
       </li>
       <li>
-        <Link href="/contact#top" className={isActive("/contact#top")}>
+        <Link href="/contact#top" className={linkClass("/contact#top")}>
           Contact
         </Link>
       </li>
@@ -69,7 +70,7 @@ const Links: React.FC<LinksProps> = ({ onClick, className }) => {
         <LogoutButton className={styles.logout} />
       ) : (
         <li className={styles.login}>
-          <Link href="/login#top" className={isActive("/login#top")}>
+          <Link href="/login#top" className={linkClass("/login#top")}>
             Login
           </Link>
         </li>
