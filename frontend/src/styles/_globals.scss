@@ -55,3 +55,83 @@
     display: none !important;
   }
 }
+
+// TODO: Moved for Next.js on 7/24/25. Fix later
+.bbStabilizedSlide {
+  .bbDevicePresentation {
+    filter: none;
+  }
+  .bbLaptop {
+    transform: translateX(-50%) scale(1);
+  }
+  .bbPortrait.bbPhone {
+    &::before {
+      transform: rotate(0deg);
+    }
+    img {
+      transform: rotate(0deg);
+    }
+  }
+  .bbLandscape.bbPhone {
+    &::before {
+      transform: rotate(90deg);
+    }
+    img {
+      transform: rotate(0deg);
+    }
+  }
+}
+
+// TODO: Moved for Next.js on 7/24/25. Fix later
+.bbCarousel {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.bbCarouselLaptops {
+  pointer-events: none;
+  overflow: hidden;
+  mask-image: linear-gradient(
+    to right,
+    rgba(0, 0, 0, 0),
+    rgba(0, 0, 0, 1) 20%,
+    rgba(0, 0, 0, 1) 80%,
+    rgba(0, 0, 0, 0)
+  );
+  mask-repeat: no-repeat;
+  mask-size: cover;
+  height: 100%;
+}
+.bbCarouselMaster {
+  height: 466px;
+}
+.bbCarouselPhones {
+  height: 470px;
+  pointer-events: none;
+  overflow: hidden;
+  mask-image: linear-gradient(
+    to right,
+    rgba(0, 0, 0, 0),
+    rgba(0, 0, 0, 1) 15%,
+    rgba(0, 0, 0, 1) 85%,
+    rgba(0, 0, 0, 0)
+  );
+  mask-repeat: no-repeat;
+  mask-size: cover;
+}
+
+.bbSlideWrapper {
+  visibility: hidden;
+  width: 693px;
+  height: 444px;
+  pointer-events: none;
+  &:nth-child(3n-1) {
+    background-color: rgba(23, 200, 35, 0.1);
+  }
+  &:nth-child(3n-2) {
+    background-color: rgba(23, 65, 200, 0.1);
+  }
+  &:nth-child(3n-3) {
+    background-color: rgba(243, 65, 0, 0.1);
+  }
+}
