@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+
 import ProjectClientPage from "@/components/project-carousel-page/ProjectClientPage";
 import ProjectData from "@/data/ProjectData";
 
@@ -9,7 +10,7 @@ export function generateStaticParams() {
   }));
 }
 
-// ✅ Updated for Next.js 15
+// Next.js 15+ compatible dynamic route page
 export default async function ProjectPage({
   params,
 }: {
