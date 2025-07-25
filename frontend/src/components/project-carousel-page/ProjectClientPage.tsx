@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import React, {
   useRef,
   useState,
@@ -25,7 +25,7 @@ import PageButtons from "@/components/project-carousel-page/PageButtons";
 import ProjectParallaxCarousel from "@/components/project-carousel-page/ProjectParallaxCarousel";
 import ProjectData from "@/data/ProjectData";
 
-import styles from "./page.module.scss";
+import styles from "./ProjectClientPage.module.scss";
 
 /**
  * Handles bidirectional nature of the interaction between the dynamic route and
@@ -37,8 +37,8 @@ import styles from "./page.module.scss";
  * @since The beginning of time.
  * @version N/A
  */
-const ProjectPage: React.FC = () => {
-  const { projectId = "" } = useParams<{ projectId: string }>();
+const ProjectClientPage: React.FC<{ projectId: string }> = ({ projectId }) => {
+  // const { projectId = "" } = useParams<{ projectId: string }>();
   const projects = ProjectData.activeProjectsRecord;
   const [initialIndex] = useState<number | null>(() => {
     return projectId ? (ProjectData.projectIndex(projectId) ?? null) : null;
@@ -175,4 +175,4 @@ const ProjectPage: React.FC = () => {
   );
 };
 
-export default ProjectPage;
+export default ProjectClientPage;
