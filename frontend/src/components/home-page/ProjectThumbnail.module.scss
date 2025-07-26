@@ -1,6 +1,6 @@
 @use "@/styles/mixins" as *;
 @use "@/styles/variables" as *;
-@use "./PortfolioList.module.scss" as portfolioList;
+@use "./ProjectsList.module.scss" as projectsList;
 
 .projectThumbnail {
   height: 290px;
@@ -9,11 +9,11 @@
   width: 100vw;
 
   @include breakpointUp($b768px) {
-    flex: 0 1 calc(50% - portfolioList.$portfolioListGap * 0.5);
+    flex: 0 1 calc(50% - projectsList.$projectsListGap * 0.5);
   }
 
   @include breakpointUp($b1280px) {
-    flex: 0 1 calc(33.333% - portfolioList.$portfolioListGap * (2 / 3));
+    flex: 0 1 calc(33.333% - projectsList.$projectsListGap * (2 / 3));
   }
 
   @media screen and (hover: hover) {
