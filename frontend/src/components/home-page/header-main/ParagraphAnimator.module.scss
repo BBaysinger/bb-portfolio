@@ -13,7 +13,7 @@
   box-sizing: border-box;
   @include remRange(font-size, 16px, 20px);
   @include breakpointUp(768px) {
-    width: calc(100vw - var(--hero-padding) * 2 - 400px);
+    width: calc(100vw - var(--hero-padding) * 2 - 450px);
   }
 
   p {
@@ -30,7 +30,6 @@
   width: 0.5em;
   height: 0.9em;
   background-color: $lighterThemeColor;
-  // background-color: #00ff00;
   animation: blink 1s infinite;
   margin-left: 1px;
   :global(.notSlingerIdle) & {
@@ -54,7 +53,6 @@
 
 .visible {
   color: #fff;
-  // color: #00ff00;
 }
 
 .invisible {

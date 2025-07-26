@@ -41,7 +41,7 @@ const quotes = [
 /**
  * Hero
  *
- * Interactive slinger and fluxel grid overlaid with graphics on the home page.
+ * Interactive slinger and fluxel grid overlaid with branding graphics on the home page.
  *
  * @author Bradley Baysinger
  * @since The beginning of time.
@@ -83,7 +83,7 @@ const Hero: React.FC = () => {
 
   const onSlingerDragStart = useCallback(
     (x: number, y: number, e: MouseEvent | TouchEvent) => {
-      if (circlePaused) setCirclePaused(false); // ✅ unpause only on drag start
+      if (circlePaused) setCirclePaused(false); // unpause only on drag start
       slingerIsIdle.current = false;
       setIsSlingerIdle(false);
       setIsSlingerInFlight(false);
@@ -199,6 +199,7 @@ const Hero: React.FC = () => {
     <header
       id={id}
       ref={heroRef}
+      data-nav="hero"
       className={clsx(
         `${styles.hero} hero`,
         isSlingerIdle

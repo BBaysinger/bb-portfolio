@@ -138,27 +138,28 @@ const ProjectsList: React.FC = () => {
   }, [handleScrollOrResize]);
 
   return (
-    <div>
-      <div className={styles.projectsList}>
-        <div id="portfolio-list" className={styles.list}></div>
-        {ProjectData.listedProjects.map((projectData, index) => {
-          const id = ProjectData.listedKeys[index];
-          const { title, omitFromList, brandId } = projectData;
+    <div
+      id="projects-list"
+      className={styles.projectsList}
+      data-nav="projects-list"
+    >
+      {ProjectData.listedProjects.map((projectData, index) => {
+        const id = ProjectData.listedKeys[index];
+        const { title, omitFromList, brandId } = projectData;
 
-          return (
-            <ProjectThumbnail
-              focused={focusedThumbIndex === index}
-              key={title}
-              index={index}
-              omitFromList={omitFromList}
-              projectId={id}
-              title={title}
-              brandId={brandId}
-              ref={(node) => setThumbRef(node, index)}
-            />
-          );
-        })}
-      </div>
+        return (
+          <ProjectThumbnail
+            focused={focusedThumbIndex === index}
+            key={title}
+            index={index}
+            omitFromList={omitFromList}
+            projectId={id}
+            title={title}
+            brandId={brandId}
+            ref={(node) => setThumbRef(node, index)}
+          />
+        );
+      })}
     </div>
   );
 };
