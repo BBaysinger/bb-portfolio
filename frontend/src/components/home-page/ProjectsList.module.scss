@@ -1,14 +1,14 @@
 @use "@/styles/mixins" as *;
 @use "@/styles/variables" as *;
 
-$portfolioListGap: 30px;
+$projectsListGap: 30px;
 
-.portfolioList {
+.projectsList {
   position: relative;
   display: flex;
   flex-wrap: wrap;
   z-index: 10;
-  gap: $portfolioListGap;
+  gap: $projectsListGap;
   background: linear-gradient(to bottom, #1c1c1c, black);
   padding-bottom: $footerBarberPoleThickness;
 

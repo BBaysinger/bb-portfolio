@@ -11,12 +11,12 @@ import React, {
 import ProjectThumbnail from "@/components/home-page/ProjectThumbnail";
 import ProjectData from "@/data/ProjectData";
 
-import styles from "./PortfolioList.module.scss";
+import styles from "./ProjectsList.module.scss";
 
 /**
- * Portfolio List Component
+ * Projects List Component
  *
- * Dynamically displays a list of portfolio thumbnails in a responsive list on the home page.
+ * Dynamically displays a list of project thumbnails in a responsive list on the home page.
  * Each thumbnail reveals detailed information when hovered (on hover-capable devices)
  * or dynamically scroll-focused (on non-hover-capable devices).
  *
@@ -30,7 +30,7 @@ import styles from "./PortfolioList.module.scss";
  * @since 2024-12-10
  * @version N/A
  */
-const PortfolioList: React.FC = () => {
+const ProjectsList: React.FC = () => {
   const [focusedThumbIndex, setFocusedThumbIndex] = useState(-1);
   const projectThumbRefs = useRef<Array<RefObject<HTMLDivElement | null>>>([]);
   const ticking = useRef(false);
@@ -139,7 +139,7 @@ const PortfolioList: React.FC = () => {
 
   return (
     <div>
-      <div className={styles.portfolioList}>
+      <div className={styles.projectsList}>
         <div id="portfolio-list" className={styles.list}></div>
         {ProjectData.listedProjects.map((projectData, index) => {
           const id = ProjectData.listedKeys[index];
@@ -163,4 +163,4 @@ const PortfolioList: React.FC = () => {
   );
 };
 
-export default PortfolioList;
+export default ProjectsList;

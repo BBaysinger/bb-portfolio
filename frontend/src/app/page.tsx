@@ -4,7 +4,7 @@ import React from "react";
 
 import Greeting from "@/components/home-page/Greeting";
 import Hero from "@/components/home-page/header-main/Hero";
-import PortfolioList from "@/components/home-page/PortfolioList";
+import ProjectsList from "@/components/home-page/ProjectsList";
 
 /**
  * The home page of the website. Contains the header, greeting, and portfolio list.
@@ -18,7 +18,7 @@ const HomePage: React.FC = () => {
     <>
       <Hero />
       <Greeting />
-      <PortfolioList />
+      <ProjectsList />
     </>
   );
 };
