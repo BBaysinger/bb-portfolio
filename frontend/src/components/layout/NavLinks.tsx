@@ -31,7 +31,7 @@ const Links: React.FC<LinksProps> = ({ onClick, className }) => {
   return (
     <ul onClick={onClick} className={`${styles.navLinks} ${className ?? ""}`}>
       <li>
-        <Link href="/#top" className={linkClass("home")}>
+        <Link href="/#hero" className={linkClass("hero")}>
           Home
         </Link>
       </li>
@@ -41,7 +41,7 @@ const Links: React.FC<LinksProps> = ({ onClick, className }) => {
         </Link>
       </li>
       <li>
-        <Link href="/projects" className={linkClass("projects")}>
+        <Link href="/#projects-list" className={linkClass("projects-list")}>
           Projects
         </Link>
       </li>

@@ -14,7 +14,7 @@ const Greeting: React.FC = () => {
   const addToRefs = useInViewAnimation("in-view");
 
   return (
-    <div id="hello" className={styles.greeting}>
+    <div id="hello" className={styles.greeting} data-nav="hello">
       <div className={styles.greetingWrapper}>
         <div className={styles.helloSignWrapper}>
           <MagneticThingy className={styles.helloSign}>
