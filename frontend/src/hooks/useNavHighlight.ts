@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 const routeToNavMap: Record<string, string> = {
   "/hero": "hero",
   "/hello": "hello",
-  "/projects": "projects",
+  "/projects-list": "projects-list",
   "/project": "projects",
   "/cv": "cv",
   "/contact": "contact",
