@@ -26,13 +26,13 @@ const PageButtons: React.FC = () => {
   return (
     <div className={styles.projectNav}>
       <Link
-        href={`/portfolio/${prevId}`}
+        href={`/project-view/${prevId}`}
         className={`${styles.navButton} ${styles.prev}`}
       >
         <div className={styles.inner}></div>
       </Link>
       <Link
-        href={`/portfolio/${nextId}`}
+        href={`/project-view/${nextId}`}
         className={`${styles.navButton} ${styles.next}`}
       >
         <div className={styles.inner}></div>
