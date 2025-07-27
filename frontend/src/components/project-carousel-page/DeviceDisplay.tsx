@@ -1,4 +1,3 @@
-import Image from "next/image";
 import React from "react";
 
 import { MobileStatus } from "@/data/ProjectData";
@@ -41,9 +40,10 @@ const DeviceDisplay: React.FC<DeviceDisplayProps> = React.memo(
           <div
             className={`bbLaptop ${styles.backgroundWrapper} ${styles[deviceType]}`}
           >
-            <Image
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
               src={src}
-              alt={`${id} screenshot`}
+              alt={id}
               loading="eager"
               className={styles.screenshot}
             />
@@ -55,9 +55,10 @@ const DeviceDisplay: React.FC<DeviceDisplayProps> = React.memo(
               ` bb${mobileStatus ? mobileStatus : ""} ${styles[deviceType]}`
             }
           >
-            <Image
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
               src={src}
-              alt={`${id} bbScreencap`}
+              alt={id}
               loading="eager"
               className={styles.screenshot}
             />

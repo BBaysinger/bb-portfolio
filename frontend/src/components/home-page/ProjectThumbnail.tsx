@@ -51,7 +51,7 @@ const ProjectThumbnail = forwardRef<HTMLDivElement, ProjectThumbnailProps>(
 
     return (
       <div className={`${styles.projectThumbnail} ${focusClass}`} ref={ref}>
-        <Link href={`/portfolio/${projectId}#project`} className={styles.link}>
+        <Link href={`/project-view/${projectId}#project`} className={styles.link}>
           <div className={styles.thumbBg} style={style}></div>
           <div className={styles.vignette}></div>
           <div className={styles.thumbContent}>
