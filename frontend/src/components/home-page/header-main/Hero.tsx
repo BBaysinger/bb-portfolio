@@ -1,4 +1,5 @@
 import clsx from "clsx";
+import Link from "next/link";
 import React, { useState, useCallback, useRef, useEffect } from "react";
 
 import FPSCounter from "@/components/common/FPSCounter";
@@ -251,9 +252,9 @@ const Hero: React.FC = () => {
           </SlingerBox>
         </div>
         <div className={styles.scrollCtaWrapper}>
-          <a href="#hello" className={styles.scrollCta}>
+          <Link href="#hello" className={styles.scrollCta}>
             <div className={styles.scrollCtaInner}>Say hello!</div>
-          </a>
+          </Link>
         </div>
       </div>
 
