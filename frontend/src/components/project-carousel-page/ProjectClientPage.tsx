@@ -20,9 +20,9 @@ import DeviceDisplay, {
   DeviceTypes,
 } from "@/components/project-carousel-page/DeviceDisplay";
 import InfoSwapper from "@/components/project-carousel-page/InfoSwapper";
+import LayeredCarouselManager from "@/components/project-carousel-page/LayeredCarouselManager";
 import LogoSwapper from "@/components/project-carousel-page/LogoSwapper";
 import PageButtons from "@/components/project-carousel-page/PageButtons";
-import ProjectParallaxCarousel from "@/components/project-carousel-page/ProjectParallaxCarousel";
 import ProjectData from "@/data/ProjectData";
 
 import styles from "./ProjectClientPage.module.scss";
@@ -159,7 +159,7 @@ const ProjectClientPage: React.FC<{ projectId: string }> = ({ projectId }) => {
         <LogoSwapper projectId={brandId} />
         <div className={styles.carouselControlWrapper}>
           {initialIndex !== null && (
-            <ProjectParallaxCarousel
+            <LayeredCarouselManager
               ref={carouselRef}
               layer1Slides={laptopSlides}
               layer2Slides={phoneSlides}
