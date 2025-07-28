@@ -114,7 +114,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
   const scrollIndexRef = useRef<number>(initialIndex);
 
   const getWrapperClass = (): string => {
-    return clsx(
+    const retVal = clsx(
       resolveClass("Wrapper", classNamePrefix, styles, styleMap),
       resolveClass(
         isSlaveMode ? "slave" : "master",
@@ -124,6 +124,8 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
       ),
       resolveClass(layerId, classNamePrefix, styles, styleMap),
     );
+    console.log(retVal);
+    return retVal;
   };
 
   const getScrollerClass = (): string => {

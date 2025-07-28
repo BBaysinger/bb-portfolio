@@ -48,7 +48,7 @@ const ProjectCarouselView: React.FC<{
 
   const layers: CarouselLayerConfig[] = [
     {
-      id: "master",
+      id: "control",
       spacing: 720,
       slides: laptopSlides.map(() => null),
       type: "master",
