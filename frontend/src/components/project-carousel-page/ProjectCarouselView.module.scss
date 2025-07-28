@@ -15,6 +15,10 @@
   @include remRange("margin-bottom", -115px, 0px, $b320, 680);
 }
 
+.carouselWrapper {
+  position: relative;
+}
+
 .slideLayer {
   position: absolute;
   top: 0;
