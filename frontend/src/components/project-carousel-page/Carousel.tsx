@@ -81,20 +81,6 @@ gsap.registerPlugin(ScrollToPlugin);
 // but unlikely that anyone will ever scroll that far left.
 const BASE_OFFSET = 1000000;
 
-const getUnifiedClass = (
-  styleMap: CarouselProps["styleMap"],
-  layerId: string,
-  suffix: string,
-  classNamePrefix?: string,
-  fallback?: string,
-): string => {
-  const raw = `${layerId}${suffix}`;
-  const moduleClass = styleMap?.[raw]; // scoped override from parent (e.g. ProjectCarouselView_phonesSlide__abc)
-  const unscoped = raw; // plain unscoped class (e.g. phonesSlide)
-  const global = `${classNamePrefix}${raw}`; // global class (e.g. bb-phonesSlide)
-  return clsx(moduleClass || fallback, unscoped, global);
-};
-
 const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
   const {
     slides,
@@ -125,6 +111,60 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
   const scrollDirectionRef = useRef<DirectionType>(Direction.LEFT);
   const stableIndex = useRef<number | null>(initialIndex);
   const scrollIndexRef = useRef<number>(initialIndex);
+
+  const getWrapperClass = (
+    styleMap: CarouselProps["styleMap"],
+    layerId: string,
+    fallback?: string,
+  ): string => {
+    const suffix = "Wrapper";
+    const localFromCaller = styleMap?.[`${layerId}${suffix}`];
+    const localFromDefault = styles?.[`${layerId}${suffix}`];
+    const unscoped = `${layerId}${suffix}`;
+    const global = `${classNamePrefix}${layerId}${suffix}`;
+    return clsx(
+      localFromDefault || fallback,
+      localFromCaller,
+      unscoped,
+      global,
+    );
+  };
+
+  const getScrollerClass = (
+    styleMap: CarouselProps["styleMap"],
+    layerId: string,
+    fallback?: string,
+  ): string => {
+    const suffix = "Scroller";
+    const localFromCaller = styleMap?.[`${layerId}${suffix}`];
+    const localFromDefault = styles?.[`${layerId}${suffix}`];
+    const unscoped = `${layerId}${suffix}`;
+    const global = `${classNamePrefix}${layerId}${suffix}`;
+    return clsx(
+      localFromDefault || fallback,
+      localFromCaller,
+      unscoped,
+      global,
+    );
+  };
+
+  const getSlideClass = (
+    styleMap: CarouselProps["styleMap"],
+    layerId: string,
+    fallback?: string,
+  ): string => {
+    const suffix = "Slide";
+    const localFromCaller = styleMap?.[`${layerId}${suffix}`];
+    const localFromDefault = styles?.[`${layerId}${suffix}`];
+    const unscoped = `${layerId}${suffix}`;
+    const global = `${classNamePrefix}${layerId}${suffix}`;
+    return clsx(
+      localFromDefault || fallback,
+      localFromCaller,
+      unscoped,
+      global,
+    );
+  };
 
   const memoizedSlides = useMemo(() => slides, [slides]);
 
@@ -411,7 +451,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
       className={clsx(
         styles.carouselWrapper,
         isSlaveMode && styles.slaveWrapper,
-        getUnifiedClass(styleMap, layerId, "Carousel", classNamePrefix),
+        getWrapperClass(styleMap, layerId),
       )}
     >
       {isDebug() && (
@@ -423,7 +463,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
         ref={scrollerRef}
         className={clsx(
           styles.carouselSlider,
-          getUnifiedClass(styleMap, layerId, "Slider", classNamePrefix),
+          getScrollerClass(styleMap, layerId),
         )}
         style={{ scrollSnapType: snap }}
       >
@@ -440,7 +480,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
             className={clsx(
               styles.carouselSlide,
               Math.abs(currentOffsets[index]) > 1 && styles.hiddenSlide,
-              getUnifiedClass(styleMap, layerId, "Slide", classNamePrefix),
+              getSlideClass(styleMap, layerId),
             )}
             style={{
               transform: `translateX(${patchedOffset() + currentPositions[index]}px)`,
