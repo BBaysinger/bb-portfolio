@@ -1,3 +1,4 @@
+// import clsx from "clsx";
 import React, { useMemo } from "react";
 
 import ProjectData from "@/data/ProjectData";
@@ -8,19 +9,18 @@ import LayeredCarouselManager, {
   CarouselLayerConfig,
   LayeredCarouselManagerRef,
 } from "./LayeredCarouselManager";
-import styles from "./ProjectClientPage.module.scss";
+import styles from "./ProjectCarouselView.module.scss";
 
 const ProjectCarouselView: React.FC<{
   projectId: string;
   initialIndex: number;
   refObj: React.RefObject<LayeredCarouselManagerRef | null>;
-  styleMap?: { [key: string]: string };
   onStabilizationUpdate: (
     index: number,
     source: SourceType,
     direction: DirectionType,
   ) => void;
-}> = ({ initialIndex, refObj, onStabilizationUpdate, styleMap }) => {
+}> = ({ initialIndex, refObj, onStabilizationUpdate }) => {
   const laptopSlides = useMemo(
     () =>
       ProjectData.activeProjects.map((project) => (
@@ -67,15 +67,23 @@ const ProjectCarouselView: React.FC<{
     },
   ];
 
+  const prefix = "bbCarousel-";
+
   return (
-    <LayeredCarouselManager
-      ref={refObj}
-      prefix="bb-"
-      styleMap={{ ...styles, ...styleMap }}
-      layers={layers}
-      initialIndex={initialIndex}
-      onStabilizationUpdate={onStabilizationUpdate}
-    />
+    <div className={styles.projectCarouselView}>
+      <LayeredCarouselManager
+        ref={refObj}
+        prefix={prefix}
+        styleMap={styles}
+        layers={layers}
+        initialIndex={initialIndex}
+        onStabilizationUpdate={onStabilizationUpdate}
+        // className={clsx(
+        //   `${prefix}layeredCarouselManager`,
+        //   styles.layeredCarouselManager,
+        // )}
+      />
+    </div>
   );
 };
 
