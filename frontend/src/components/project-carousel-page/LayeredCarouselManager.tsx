@@ -1,9 +1,4 @@
-import React, {
-  forwardRef,
-  useImperativeHandle,
-  useRef,
-  useMemo,
-} from "react";
+import React, { forwardRef, useImperativeHandle, useRef, useMemo } from "react";
 
 import Carousel from "./Carousel";
 import { CarouselRef, DirectionType, SourceType } from "./CarouselTypes";
@@ -25,7 +20,7 @@ export interface LayeredCarouselManagerProps {
   onStabilizationUpdate?: (
     index: number,
     source: SourceType,
-    direction: DirectionType
+    direction: DirectionType,
   ) => void;
 }
 
@@ -46,7 +41,7 @@ const LayeredCarouselManager = forwardRef<
       onScrollUpdate,
       onStabilizationUpdate,
     },
-    ref
+    ref,
   ) => {
     const stabilizedIndexRef = useRef<number | null>(initialIndex);
     const masterCarouselRef = useRef<CarouselRef | null>(null);
@@ -63,7 +58,7 @@ const LayeredCarouselManager = forwardRef<
 
     const masterLayer = useMemo(
       () => layers.find((l) => l.type === "master"),
-      [layers]
+      [layers],
     );
 
     const multipliers = useMemo(() => {
@@ -81,7 +76,7 @@ const LayeredCarouselManager = forwardRef<
     const handleScrollUpdate = (scrollLeft: number) => {
       Object.entries(multipliers).forEach(([id, factor]) => {
         layerRefs[id]?.current?.setExternalScrollPosition?.(
-          scrollLeft * factor
+          scrollLeft * factor,
         );
       });
       onScrollUpdate?.(scrollLeft);
@@ -90,7 +85,7 @@ const LayeredCarouselManager = forwardRef<
     const handleStabilizationUpdate = (
       index: number,
       source: SourceType,
-      direction: DirectionType
+      direction: DirectionType,
     ) => {
       stabilizedIndexRef.current = index;
       onStabilizationUpdate?.(index, source, direction);
@@ -146,14 +141,16 @@ const LayeredCarouselManager = forwardRef<
               id={layer.id}
               isSlaveMode={!isMaster}
               onScrollUpdate={isMaster ? handleScrollUpdate : undefined}
-              onStabilizationUpdate={isMaster ? handleStabilizationUpdate : undefined}
+              onStabilizationUpdate={
+                isMaster ? handleStabilizationUpdate : undefined
+              }
               debug={0}
             />
           );
         })}
       </>
     );
-  }
+  },
 );
 
 LayeredCarouselManager.displayName = "LayeredCarouselManager";
