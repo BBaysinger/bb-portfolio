@@ -1,81 +1,158 @@
-import React, { useMemo } from "react";
+import React, { forwardRef, useImperativeHandle, useRef, useMemo } from "react";
 
-import ProjectData from "@/data/ProjectData";
+import Carousel from "./Carousel";
+import { CarouselRef, DirectionType, SourceType } from "./CarouselTypes";
 
-import { SourceType, DirectionType } from "./CarouselTypes";
-import DeviceDisplay, { DeviceTypes } from "./DeviceDisplay";
-import LayeredCarouselManager, {
-  CarouselLayerConfig,
-  LayeredCarouselManagerRef,
-} from "./LayeredCarouselManager";
-import styles from "./ProjectClientPage.module.scss";
+export interface CarouselLayerConfig {
+  id: string; // e.g. 'phones', 'laptops', 'depth1'
+  spacing: number;
+  slides: React.ReactNode[];
+  multiplier?: number; // Optional; derived if not provided
+  type: "slave" | "master";
+}
 
-const ProjectCarouselView: React.FC<{
-  projectId: string;
-  initialIndex: number;
-  refObj: React.RefObject<LayeredCarouselManagerRef>;
-  onStabilizationUpdate: (
+export interface LayeredCarouselManagerProps {
+  layers?: CarouselLayerConfig[];
+  prefix?: string; // e.g. 'bb-'
+  styles?: { [key: string]: string }; // optional SCSS module
+  initialIndex?: number;
+  onScrollUpdate?: (scrollLeft: number) => void;
+  onStabilizationUpdate?: (
     index: number,
     source: SourceType,
-    direction: DirectionType
+    direction: DirectionType,
   ) => void;
-}> = ({ initialIndex, refObj, onStabilizationUpdate }) => {
-  const laptopSlides = useMemo(
-    () =>
-      ProjectData.activeProjects.map((project) => (
-        <DeviceDisplay
-          deviceType={DeviceTypes.LAPTOP}
-          id={project.id}
-          key={project.id}
-        />
-      )),
-    []
-  );
+}
 
-  const phoneSlides = useMemo(
-    () =>
-      ProjectData.activeProjects.map((project) => (
-        <DeviceDisplay
-          deviceType={DeviceTypes.PHONE}
-          mobileStatus={project.mobileStatus}
-          id={project.id}
-          key={project.id}
-        />
-      )),
-    []
-  );
+export interface LayeredCarouselManagerRef {
+  scrollToSlide: (targetIndex: number) => void;
+}
 
-  const layers: CarouselLayerConfig[] = [
+const LayeredCarouselManager = forwardRef<
+  LayeredCarouselManagerRef,
+  LayeredCarouselManagerProps
+>(
+  (
     {
-      id: "master",
-      spacing: 720,
-      slides: laptopSlides.map(() => null),
-      type: "master",
+      layers = [],
+      prefix = "",
+      styles,
+      initialIndex = 0,
+      onScrollUpdate,
+      onStabilizationUpdate,
     },
-    {
-      id: "laptops",
-      spacing: 693,
-      slides: laptopSlides,
-      type: "slave",
-    },
-    {
-      id: "phones",
-      spacing: 900,
-      slides: phoneSlides,
-      type: "slave",
-    },
-  ];
+    ref,
+  ) => {
+    const stabilizedIndexRef = useRef<number | null>(initialIndex);
+    const masterCarouselRef = useRef<CarouselRef | null>(null);
 
-  return (
-    <LayeredCarouselManager
-      ref={refObj}
-      prefix="bb-"
-      styles={styles}
-      layers={layers}
-      initialIndex={initialIndex}
-      onStabilizationUpdate={onStabilizationUpdate}
-    />
-  );
-};
+    const layerRefs = useMemo(() => {
+      const refs: Record<string, React.RefObject<CarouselRef | null>> = {};
+      layers.forEach((layer) => {
+        if (layer.type === "slave") {
+          refs[layer.id] = React.createRef<CarouselRef>();
+        }
+      });
+      return refs;
+    }, [layers]);
 
-export default ProjectCarouselView;
+    const masterLayer = useMemo(
+      () => layers.find((l) => l.type === "master"),
+      [layers],
+    );
+
+    const multipliers = useMemo(() => {
+      if (!masterLayer) return {};
+      const map: Record<string, number> = {};
+      layers.forEach((layer) => {
+        if (layer.type === "slave") {
+          map[layer.id] =
+            layer.multiplier ?? layer.spacing / masterLayer.spacing;
+        }
+      });
+      return map;
+    }, [layers, masterLayer]);
+
+    const handleScrollUpdate = (scrollLeft: number) => {
+      Object.entries(multipliers).forEach(([id, factor]) => {
+        layerRefs[id]?.current?.setExternalScrollPosition?.(
+          scrollLeft * factor,
+        );
+      });
+      onScrollUpdate?.(scrollLeft);
+    };
+
+    const handleStabilizationUpdate = (
+      index: number,
+      source: SourceType,
+      direction: DirectionType,
+    ) => {
+      stabilizedIndexRef.current = index;
+      onStabilizationUpdate?.(index, source, direction);
+    };
+
+    useImperativeHandle(ref, () => ({
+      scrollToSlide: (targetIndex: number) => {
+        masterCarouselRef.current?.scrollToSlide(targetIndex);
+      },
+    }));
+
+    const getWrapperClass = (layerId: string) => {
+      const base = `${prefix}${layerId}Carousel`;
+      return styles?.[`${layerId}Wrapper`] ?? base;
+    };
+
+    const getSlideClass = (layerId: string, index: number) => {
+      const base = `${prefix}${layerId}Slide`;
+      const stabilizedClass =
+        index === stabilizedIndexRef.current
+          ? `${prefix}${layerId}Stabilized`
+          : "";
+      const transparentClass = `${prefix}${layerId}Transparent`;
+      return [
+        styles?.[`${layerId}Slide`],
+        base,
+        stabilizedClass,
+        transparentClass,
+      ]
+        .filter(Boolean)
+        .join(" ");
+    };
+
+    return (
+      <>
+        {layers.map((layer) => {
+          const isMaster = layer.type === "master";
+          const layerRef = isMaster ? masterCarouselRef : layerRefs[layer.id];
+
+          return (
+            <Carousel
+              key={layer.id}
+              ref={layerRef as React.Ref<CarouselRef>}
+              slides={layer.slides.map((slide, index) => (
+                <div key={index} className={getSlideClass(layer.id, index)}>
+                  {slide}
+                </div>
+              ))}
+              slideSpacing={layer.spacing}
+              initialIndex={initialIndex}
+              wrapperClassName={getWrapperClass(layer.id)}
+              slideClassName={`${prefix}${layer.id}SlideWrapper`}
+              id={layer.id}
+              isSlaveMode={!isMaster}
+              onScrollUpdate={isMaster ? handleScrollUpdate : undefined}
+              onStabilizationUpdate={
+                isMaster ? handleStabilizationUpdate : undefined
+              }
+              debug={0}
+            />
+          );
+        })}
+      </>
+    );
+  },
+);
+
+LayeredCarouselManager.displayName = "LayeredCarouselManager";
+
+export default LayeredCarouselManager;
