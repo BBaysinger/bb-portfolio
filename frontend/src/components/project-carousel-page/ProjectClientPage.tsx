@@ -161,10 +161,30 @@ const ProjectClientPage: React.FC<{ projectId: string }> = ({ projectId }) => {
           {initialIndex !== null && (
             <LayeredCarouselManager
               ref={carouselRef}
-              layer1Slides={laptopSlides}
-              layer2Slides={phoneSlides}
-              onStabilizationUpdate={handleStabilizationUpdate}
               initialIndex={initialIndex}
+              prefix="bb-"
+              styles={styles}
+              onStabilizationUpdate={handleStabilizationUpdate}
+              layers={[
+                {
+                  id: "master",
+                  spacing: 720,
+                  slides: laptopSlides.map(() => null),
+                  type: "master",
+                },
+                {
+                  id: "laptops",
+                  spacing: 693,
+                  slides: laptopSlides,
+                  type: "slave",
+                },
+                {
+                  id: "phones",
+                  spacing: 900,
+                  slides: phoneSlides,
+                  type: "slave",
+                },
+              ]}
             />
           )}
           <PageButtons />
