@@ -1,3 +1,4 @@
+import clsx from "clsx";
 import gsap from "gsap";
 import { ScrollToPlugin } from "gsap/all";
 import React, {
@@ -80,6 +81,20 @@ gsap.registerPlugin(ScrollToPlugin);
 // but unlikely that anyone will ever scroll that far left.
 const BASE_OFFSET = 1000000;
 
+const getUnifiedClass = (
+  styleMap: CarouselProps["styleMap"],
+  layerId: string,
+  suffix: string,
+  classNamePrefix?: string,
+  fallback?: string,
+): string => {
+  const raw = `${layerId}${suffix}`;
+  const moduleClass = styleMap?.[raw]; // scoped override from parent (e.g. ProjectCarouselView_phonesSlide__abc)
+  const unscoped = raw; // plain unscoped class (e.g. phonesSlide)
+  const global = `${classNamePrefix}${raw}`; // global class (e.g. bb-phonesSlide)
+  return clsx(moduleClass || fallback, unscoped, global);
+};
+
 const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
   const {
     slides,
@@ -87,9 +102,6 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
     initialIndex = 0,
     onIndexUpdate,
     debug = 0,
-    wrapperClassName = "",
-    slideClassName = "",
-    sliderClassName = "",
     onScrollUpdate,
     onStabilizationUpdate,
     stabilizationDelay = 800,
@@ -98,12 +110,6 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
     styleMap,
     layerId = "",
   } = props;
-
-  const getClass = (suffix: string, fallback: string = ""): string => {
-    if (!layerId || !classNamePrefix) return fallback;
-    const base = `${classNamePrefix}${layerId}${suffix}`;
-    return styleMap?.[`${layerId}${suffix}`] ?? base;
-  };
 
   const [scrollIndex, setScrollIndex] = useState(initialIndex);
   const [wrapperWidth, setWrapperWidth] = useState<number>(0);
@@ -402,7 +408,11 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
   return (
     <div
       ref={wrapperRef}
-      className={`${styles.carouselWrapper} ${isSlaveMode ? styles.slaveWrapper : ""} ${getClass("Carousel", wrapperClassName)}`}
+      className={clsx(
+        styles.carouselWrapper,
+        isSlaveMode && styles.slaveWrapper,
+        getUnifiedClass(styleMap, layerId, "Carousel", classNamePrefix),
+      )}
     >
       {isDebug() && (
         <div className={styles.debug}>
@@ -411,7 +421,10 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
       )}
       <div
         ref={scrollerRef}
-        className={`${styles.carouselSlider} ${getClass("Slider", sliderClassName)}`}
+        className={clsx(
+          styles.carouselSlider,
+          getUnifiedClass(styleMap, layerId, "Slider", classNamePrefix),
+        )}
         style={{ scrollSnapType: snap }}
       >
         <div
@@ -424,7 +437,11 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
             ref={(el) => {
               slideRefs.current[index] = el;
             }}
-            className={`${styles.carouselSlide} ${Math.abs(currentOffsets[index]) > 1 ? styles.hiddenSlide : ""} ${getClass("Slide", slideClassName)}`}
+            className={clsx(
+              styles.carouselSlide,
+              Math.abs(currentOffsets[index]) > 1 && styles.hiddenSlide,
+              getUnifiedClass(styleMap, layerId, "Slide", classNamePrefix),
+            )}
             style={{
               transform: `translateX(${patchedOffset() + currentPositions[index]}px)`,
               ...(isDebug() && { visibility: "visible" }),

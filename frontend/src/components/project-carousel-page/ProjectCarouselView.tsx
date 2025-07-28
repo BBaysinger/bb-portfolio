@@ -14,12 +14,13 @@ const ProjectCarouselView: React.FC<{
   projectId: string;
   initialIndex: number;
   refObj: React.RefObject<LayeredCarouselManagerRef | null>;
+  styleMap?: { [key: string]: string };
   onStabilizationUpdate: (
     index: number,
     source: SourceType,
     direction: DirectionType,
   ) => void;
-}> = ({ initialIndex, refObj, onStabilizationUpdate }) => {
+}> = ({ initialIndex, refObj, onStabilizationUpdate, styleMap }) => {
   const laptopSlides = useMemo(
     () =>
       ProjectData.activeProjects.map((project) => (
@@ -70,7 +71,7 @@ const ProjectCarouselView: React.FC<{
     <LayeredCarouselManager
       ref={refObj}
       prefix="bb-"
-      styleMap={styles}
+      styleMap={{ ...styles, ...styleMap }}
       layers={layers}
       initialIndex={initialIndex}
       onStabilizationUpdate={onStabilizationUpdate}
