@@ -57,7 +57,7 @@ import {
  *   1. An optional feature to unify the experience between different browser types.
  *   2. Enable inertial scroll for mouse-based drag and flick.
  * - Clone slides dynamically to prevent blank spaces at edges.
- * - Implement lazy loading for slides and ensure proper wrapping of slider positions.
+ * - Implement lazy loading for slides and ensure proper wrapping of scroller positions.
  *
  * Main Features:
  * 1. Infinite scrolling with wrap-around behavior.
@@ -120,12 +120,12 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
     const suffix = "Wrapper";
     const localFromCaller = styleMap?.[`${layerId}${suffix}`];
     const localFromDefault = styles?.[`${layerId}${suffix}`];
-    const unscoped = `${layerId}${suffix}`;
+    const viewScoped = `${layerId}${suffix}`;
     const global = `${classNamePrefix}${layerId}${suffix}`;
     return clsx(
       localFromDefault || fallback,
       localFromCaller,
-      unscoped,
+      viewScoped,
       global,
     );
   };
@@ -138,12 +138,12 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
     const suffix = "Scroller";
     const localFromCaller = styleMap?.[`${layerId}${suffix}`];
     const localFromDefault = styles?.[`${layerId}${suffix}`];
-    const unscoped = `${layerId}${suffix}`;
-    const global = `${classNamePrefix}${layerId}${suffix}`;
+    const viewScoped = `${suffix}`;
+    const global = `${classNamePrefix}${suffix}`;
     return clsx(
       localFromDefault || fallback,
       localFromCaller,
-      unscoped,
+      viewScoped,
       global,
     );
   };
@@ -156,12 +156,12 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
     const suffix = "Slide";
     const localFromCaller = styleMap?.[`${layerId}${suffix}`];
     const localFromDefault = styles?.[`${layerId}${suffix}`];
-    const unscoped = `${layerId}${suffix}`;
-    const global = `${classNamePrefix}${layerId}${suffix}`;
+    const viewScoped = `${suffix}`;
+    const global = `${classNamePrefix}${suffix}`;
     return clsx(
       localFromDefault || fallback,
       localFromCaller,
-      unscoped,
+      viewScoped,
       global,
     );
   };
@@ -462,7 +462,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
       <div
         ref={scrollerRef}
         className={clsx(
-          styles.carouselSlider,
+          styles.carouselScroller,
           getScrollerClass(styleMap, layerId),
         )}
         style={{ scrollSnapType: snap }}
