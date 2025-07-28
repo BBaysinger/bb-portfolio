@@ -34,9 +34,9 @@ interface CarouselProps {
   ) => void;
 
   // Styling
-  wrapperClassName?: string; // fallback class
-  slideClassName?: string; // fallback class
-  sliderClassName?: string; // fallback class
+  // wrapperClassName?: string; // fallback class
+  // slideClassName?: string; // fallback class
+  // sliderClassName?: string; // fallback class
 
   classNamePrefix?: string; // e.g. "bb-"
   styleMap?: { [key: string]: string }; // SCSS module object

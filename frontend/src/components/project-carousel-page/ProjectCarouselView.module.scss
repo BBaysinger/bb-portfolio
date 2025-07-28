@@ -1,11 +1,15 @@
 @use "@/styles/mixins" as *;
 @use "@/styles/variables" as *;
 
-.parallaxCarousel {
-  height: 470px;
+.projectCarouselView {
   position: relative;
+}
+
+.layeredCarouselManager {
+  height: 470px;
   box-sizing: border-box;
   z-index: 0;
+  border: 1px solid red;
 
   @include remRange("margin-top", -115px, 0px, $b320, 680);
   @include remRange("margin-bottom", -115px, 0px, $b320, 680);
@@ -27,6 +31,10 @@
   transform: translateX(-50%);
 }
 
+.carouselMaster {
+  height: 466px;
+}
+
 .carouselLaptops {
   pointer-events: none;
   overflow: hidden;
@@ -40,10 +48,6 @@
   mask-repeat: no-repeat;
   mask-size: cover;
   height: 100%;
-}
-
-.carouselMaster {
-  height: 466px;
 }
 
 .carouselPhones {
