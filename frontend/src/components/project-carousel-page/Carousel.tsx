@@ -12,6 +12,7 @@ import React, {
 } from "react";
 
 import { useDragInertia } from "@/hooks/useDragInertia";
+import { resolveClass } from "@/utils/resolveClass";
 
 import styles from "./Carousel.module.scss";
 import {
@@ -112,58 +113,25 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
   const stableIndex = useRef<number | null>(initialIndex);
   const scrollIndexRef = useRef<number>(initialIndex);
 
-  const getWrapperClass = (
-    styleMap: CarouselProps["styleMap"],
-    layerId: string,
-    fallback?: string,
-  ): string => {
-    const suffix = "Wrapper";
-    const localFromCaller = styleMap?.[`${layerId}${suffix}`];
-    const localFromDefault = styles?.[`${layerId}${suffix}`];
-    const viewScoped = `${layerId}${suffix}`;
-    const global = `${classNamePrefix}${layerId}${suffix}`;
+  const getWrapperClass = (): string => {
     return clsx(
-      localFromDefault || fallback,
-      localFromCaller,
-      viewScoped,
-      global,
+      resolveClass("Wrapper", classNamePrefix, styles, styleMap),
+      resolveClass(
+        isSlaveMode ? "slave" : "master",
+        classNamePrefix,
+        styles,
+        styleMap,
+      ),
+      resolveClass(layerId, classNamePrefix, styles, styleMap),
     );
   };
 
-  const getScrollerClass = (
-    styleMap: CarouselProps["styleMap"],
-    layerId: string,
-    fallback?: string,
-  ): string => {
-    const suffix = "Scroller";
-    const localFromCaller = styleMap?.[`${layerId}${suffix}`];
-    const localFromDefault = styles?.[`${layerId}${suffix}`];
-    const viewScoped = `${suffix}`;
-    const global = `${classNamePrefix}${suffix}`;
-    return clsx(
-      localFromDefault || fallback,
-      localFromCaller,
-      viewScoped,
-      global,
-    );
+  const getScrollerClass = (): string => {
+    return resolveClass("Scroller", classNamePrefix, styles, styleMap);
   };
 
-  const getSlideClass = (
-    styleMap: CarouselProps["styleMap"],
-    layerId: string,
-    fallback?: string,
-  ): string => {
-    const suffix = "Slide";
-    const localFromCaller = styleMap?.[`${layerId}${suffix}`];
-    const localFromDefault = styles?.[`${layerId}${suffix}`];
-    const viewScoped = `${suffix}`;
-    const global = `${classNamePrefix}${suffix}`;
-    return clsx(
-      localFromDefault || fallback,
-      localFromCaller,
-      viewScoped,
-      global,
-    );
+  const getSlideClass = (): string => {
+    return resolveClass("Slide", classNamePrefix, styles, styleMap);
   };
 
   const memoizedSlides = useMemo(() => slides, [slides]);
@@ -451,7 +419,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
       className={clsx(
         styles.carouselWrapper,
         isSlaveMode && styles.slaveWrapper,
-        getWrapperClass(styleMap, layerId),
+        getWrapperClass(),
       )}
     >
       {isDebug() && (
@@ -461,10 +429,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
       )}
       <div
         ref={scrollerRef}
-        className={clsx(
-          styles.carouselScroller,
-          getScrollerClass(styleMap, layerId),
-        )}
+        className={clsx(styles.carouselScroller, getScrollerClass())}
         style={{ scrollSnapType: snap }}
       >
         <div
@@ -480,7 +445,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
             className={clsx(
               styles.carouselSlide,
               Math.abs(currentOffsets[index]) > 1 && styles.hiddenSlide,
-              getSlideClass(styleMap, layerId),
+              getSlideClass(),
             )}
             style={{
               transform: `translateX(${patchedOffset() + currentPositions[index]}px)`,

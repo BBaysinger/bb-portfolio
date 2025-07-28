@@ -128,18 +128,13 @@ const ProjectClientPage: React.FC<{ projectId: string }> = ({ projectId }) => {
         className={`${styles.projectsPresentationBody} ${slideDirectionClass}`}
       >
         <LogoSwapper projectId={brandId} />
-        <div className={styles.carouselControlWrapper}>
+        <div className={styles.carouselControlsWrapper}>
           {initialIndex !== null && (
             <ProjectCarouselView
               refObj={carouselRef}
               initialIndex={initialIndex ?? 0}
               projectId={projectId}
               onStabilizationUpdate={handleStabilizationUpdate}
-              // styleMap={{
-              //   laptops: styles["bb-laptopsCarousel"],
-              //   master: styles["bb-masterCarousel"],
-              //   phones: styles["bb-phonesCarousel"],
-              // }}
             />
           )}
           <PageButtons />
