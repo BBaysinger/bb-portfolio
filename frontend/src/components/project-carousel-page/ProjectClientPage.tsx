@@ -16,15 +16,13 @@ import {
   SourceType,
   Source,
 } from "@/components/project-carousel-page/CarouselTypes";
-import DeviceDisplay, {
-  DeviceTypes,
-} from "@/components/project-carousel-page/DeviceDisplay";
 import InfoSwapper from "@/components/project-carousel-page/InfoSwapper";
-import LayeredCarouselManager from "@/components/project-carousel-page/LayeredCarouselManager";
+import { LayeredCarouselManagerRef } from "@/components/project-carousel-page/LayeredCarouselManager";
 import LogoSwapper from "@/components/project-carousel-page/LogoSwapper";
 import PageButtons from "@/components/project-carousel-page/PageButtons";
 import ProjectData from "@/data/ProjectData";
 
+import ProjectCarouselView from "./ProjectCarouselView";
 import styles from "./ProjectClientPage.module.scss";
 
 /**
@@ -50,9 +48,7 @@ const ProjectClientPage: React.FC<{ projectId: string }> = ({ projectId }) => {
   const sourceRef = useRef<SourceType>(Source.NATURAL);
   const directionRef = useRef<DirectionType>(Direction.LEFT);
   const lastKnownProjectId = useRef(projectId);
-  const carouselRef = useRef<{ scrollToSlide: (targetIndex: number) => void }>(
-    null,
-  );
+  const carouselRef = useRef<LayeredCarouselManagerRef>(null);
 
   const router = useRouter();
   const isCarouselSourceRef = useRef(false);
@@ -70,30 +66,30 @@ const ProjectClientPage: React.FC<{ projectId: string }> = ({ projectId }) => {
       : "bbSlideRight";
   }, []);
 
-  const laptopSlides = useMemo(
-    () =>
-      ProjectData.activeProjects.map((project) => (
-        <DeviceDisplay
-          deviceType={DeviceTypes.LAPTOP}
-          id={project.id}
-          key={project.id}
-        />
-      )),
-    [],
-  );
+  // const laptopSlides = useMemo(
+  //   () =>
+  //     ProjectData.activeProjects.map((project) => (
+  //       <DeviceDisplay
+  //         deviceType={DeviceTypes.LAPTOP}
+  //         id={project.id}
+  //         key={project.id}
+  //       />
+  //     )),
+  //   [],
+  // );
 
-  const phoneSlides = useMemo(
-    () =>
-      ProjectData.activeProjects.map((project) => (
-        <DeviceDisplay
-          deviceType={DeviceTypes.PHONE}
-          mobileStatus={project.mobileStatus}
-          id={project.id}
-          key={project.id}
-        />
-      )),
-    [],
-  );
+  // const phoneSlides = useMemo(
+  //   () =>
+  //     ProjectData.activeProjects.map((project) => (
+  //       <DeviceDisplay
+  //         deviceType={DeviceTypes.PHONE}
+  //         mobileStatus={project.mobileStatus}
+  //         id={project.id}
+  //         key={project.id}
+  //       />
+  //     )),
+  //   [],
+  // );
 
   const handleStabilizationUpdate = useCallback(
     (
@@ -159,32 +155,11 @@ const ProjectClientPage: React.FC<{ projectId: string }> = ({ projectId }) => {
         <LogoSwapper projectId={brandId} />
         <div className={styles.carouselControlWrapper}>
           {initialIndex !== null && (
-            <LayeredCarouselManager
-              ref={carouselRef}
-              initialIndex={initialIndex}
-              prefix="bb-"
-              styles={styles}
+            <ProjectCarouselView
+              refObj={carouselRef}
+              initialIndex={initialIndex ?? 0}
+              projectId={projectId}
               onStabilizationUpdate={handleStabilizationUpdate}
-              layers={[
-                {
-                  id: "master",
-                  spacing: 720,
-                  slides: laptopSlides.map(() => null),
-                  type: "master",
-                },
-                {
-                  id: "laptops",
-                  spacing: 693,
-                  slides: laptopSlides,
-                  type: "slave",
-                },
-                {
-                  id: "phones",
-                  spacing: 900,
-                  slides: phoneSlides,
-                  type: "slave",
-                },
-              ]}
             />
           )}
           <PageButtons />

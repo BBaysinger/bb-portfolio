@@ -2,19 +2,20 @@ import React, { forwardRef, useImperativeHandle, useRef, useMemo } from "react";
 
 import Carousel from "./Carousel";
 import { CarouselRef, DirectionType, SourceType } from "./CarouselTypes";
+import styles from "./LayeredCarouselManager.module.scss";
 
 export interface CarouselLayerConfig {
-  id: string; // e.g. 'phones', 'laptops', 'depth1'
+  id: string;
   spacing: number;
   slides: React.ReactNode[];
-  multiplier?: number; // Optional; derived if not provided
+  multiplier?: number;
   type: "slave" | "master";
 }
 
 export interface LayeredCarouselManagerProps {
   layers: CarouselLayerConfig[];
-  prefix?: string; // e.g. 'bb-'
-  styles?: { [key: string]: string }; // optional SCSS module
+  prefix?: string;
+  styleMap?: { [key: string]: string };
   initialIndex?: number;
   onScrollUpdate?: (scrollLeft: number) => void;
   onStabilizationUpdate?: (
@@ -36,7 +37,7 @@ const LayeredCarouselManager = forwardRef<
     {
       layers,
       prefix = "",
-      styles,
+      styleMap,
       initialIndex = 0,
       onScrollUpdate,
       onStabilizationUpdate,
@@ -45,6 +46,16 @@ const LayeredCarouselManager = forwardRef<
   ) => {
     const stabilizedIndexRef = useRef<number | null>(initialIndex);
     const masterCarouselRef = useRef<CarouselRef | null>(null);
+
+    const getClass = (
+      layerId: string,
+      suffix: string,
+      fallback = "",
+    ): string => {
+      const key = `${layerId}${suffix}`;
+      if (!layerId || !prefix) return fallback;
+      return styleMap?.[key] ?? `${prefix}${key}`;
+    };
 
     const layerRefs = useMemo(() => {
       const refs: Record<string, React.RefObject<CarouselRef | null>> = {};
@@ -97,30 +108,10 @@ const LayeredCarouselManager = forwardRef<
       },
     }));
 
-    const getWrapperClass = (layerId: string) => {
-      const base = `${prefix}${layerId}Carousel`;
-      return styles?.[`${layerId}Wrapper`] ?? base;
-    };
-
-    const getSlideClass = (layerId: string, index: number) => {
-      const base = `${prefix}${layerId}Slide`;
-      const stabilizedClass =
-        index === stabilizedIndexRef.current
-          ? `${prefix}${layerId}Stabilized`
-          : "";
-      const transparentClass = `${prefix}${layerId}Transparent`;
-      return [
-        styles?.[`${layerId}Slide`],
-        base,
-        stabilizedClass,
-        transparentClass,
-      ]
-        .filter(Boolean)
-        .join(" ");
-    };
+    const wrapperClass = styles.LayeredCarouselManager;
 
     return (
-      <>
+      <div className={wrapperClass}>
         {layers.map((layer) => {
           const isMaster = layer.type === "master";
           const layerRef = isMaster ? masterCarouselRef : layerRefs[layer.id];
@@ -129,16 +120,30 @@ const LayeredCarouselManager = forwardRef<
             <Carousel
               key={layer.id}
               ref={layerRef as React.Ref<CarouselRef>}
-              slides={layer.slides.map((slide, index) => (
-                <div key={index} className={getSlideClass(layer.id, index)}>
-                  {slide}
-                </div>
-              ))}
+              slides={layer.slides.map((slide, index) => {
+                const isStabilized = index === stabilizedIndexRef.current;
+                return (
+                  <div
+                    key={index}
+                    className={[
+                      getClass(layer.id, "Slide"),
+                      isStabilized ? getClass(layer.id, "Stabilized") : "",
+                      getClass(layer.id, "Transparent"),
+                    ]
+                      .filter(Boolean)
+                      .join(" ")}
+                  >
+                    {slide}
+                  </div>
+                );
+              })}
               slideSpacing={layer.spacing}
               initialIndex={initialIndex}
-              wrapperClassName={getWrapperClass(layer.id)}
-              slideClassName={`${prefix}${layer.id}SlideWrapper`}
-              id={layer.id}
+              wrapperClassName={getClass(layer.id, "Carousel")}
+              slideClassName={getClass(layer.id, "SlideWrapper")}
+              classNamePrefix={prefix}
+              styleMap={styleMap ?? styles}
+              layerId={layer.id}
               isSlaveMode={!isMaster}
               onScrollUpdate={isMaster ? handleScrollUpdate : undefined}
               onStabilizationUpdate={
@@ -148,7 +153,7 @@ const LayeredCarouselManager = forwardRef<
             />
           );
         })}
-      </>
+      </div>
     );
   },
 );

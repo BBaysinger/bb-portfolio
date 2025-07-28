@@ -15,24 +15,32 @@ type SourceType = (typeof Source)[keyof typeof Source];
 
 // CarouselProps defines the component's expected props, supporting features like callbacks, dynamic scroll positions, and debugging.
 interface CarouselProps {
-  slides: React.ReactNode[]; // Array of slides (React elements) to display.
-  slideSpacing: number; // Space between slides in pixels.
-  initialIndex?: number; // Optional starting index for the carousel.
-  onIndexUpdate?: (scrollIndex: number) => void; // Callback for index changes during scroll.
-  debug?: string | number | boolean | null; // Debugging flag for showing additional info.
-  wrapperClassName?: string; // Custom CSS class for the wrapper.
-  slideClassName?: string; // Custom CSS class for slides.
-  sliderClassName?: string; // Custom CSS class for the slider.
-  onScrollUpdate?: (scrollLeft: number) => void; // Callback for scroll position changes.
-  externalScrollLeft?: number; // External scroll position (used in slave mode).
+  slides: React.ReactNode[];
+  slideSpacing: number;
+  initialIndex?: number;
+  debug?: boolean | number;
+
+  // Behavioral props
+  isSlaveMode?: boolean;
+  stabilizationDelay?: number;
+
+  // Event callbacks
+  onScrollUpdate?: (scrollLeft: number) => void;
+  onIndexUpdate?: (index: number) => void;
   onStabilizationUpdate?: (
     index: number,
     source: SourceType,
     direction: DirectionType,
-  ) => void; // Callback when the scroll stabilizes on a specific index.
-  stabilizationDelay?: number; // Delay (ms) before a new stable index is reported.
-  id?: string; // Optional ID for debugging or DOM referencing.
-  isSlaveMode?: boolean; // Flag indicating if the carousel is in slave mode (synchronized with another carousel).
+  ) => void;
+
+  // Styling
+  wrapperClassName?: string; // fallback class
+  slideClassName?: string; // fallback class
+  sliderClassName?: string; // fallback class
+
+  classNamePrefix?: string; // e.g. "bb-"
+  styleMap?: { [key: string]: string }; // SCSS module object
+  layerId?: string; // e.g. "phones", "laptops"
 }
 
 // CarouselRef defines methods exposed to parent components via `ref`.

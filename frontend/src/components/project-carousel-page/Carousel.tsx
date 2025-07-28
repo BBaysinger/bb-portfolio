@@ -1,14 +1,13 @@
 import gsap from "gsap";
 import { ScrollToPlugin } from "gsap/all";
-import {
+import React, {
+  forwardRef,
+  useImperativeHandle,
   useRef,
   useState,
   useEffect,
   useCallback,
   useMemo,
-  useImperativeHandle,
-  forwardRef,
-  memo,
 } from "react";
 
 import { useDragInertia } from "@/hooks/useDragInertia";
@@ -71,452 +70,6 @@ import {
  * @since 2024-12-16
  * @version N/A
  */
-const Carousel = memo(
-  forwardRef<CarouselRef, CarouselProps>((props, ref) => {
-    const {
-      slides,
-      slideSpacing,
-      initialIndex = 0,
-      onIndexUpdate,
-      debug = 0,
-      wrapperClassName = "",
-      slideClassName = "",
-      sliderClassName = "",
-      onScrollUpdate,
-      onStabilizationUpdate,
-      stabilizationDelay = 800,
-      isSlaveMode = false,
-    } = props;
-    // State Variables
-    const [scrollIndex, setScrollIndex] = useState(initialIndex); // Current scroll index.
-    const [wrapperWidth, setWrapperWidth] = useState<number>(0); // Current width of the wrapper, (by design, this could change per responsiveness, but so far this is untested.)
-    const [snap, setSnap] = useState<"none" | "x mandatory">("none"); // CSS scroll snap behavior, can cause perplexing problems is not managed appropriately.
-
-    // Refs for DOM elements and values
-    // TODO: Prevent stabilization while user is still dragging...
-    const stabilizationTimer = useRef<NodeJS.Timeout | null>(null); // Timer for stabilization.
-    const slideRefs = useRef<(HTMLDivElement | null)[]>([]); // References to slide elements.
-    const scrollerRef = useRef<HTMLDivElement>(null); // Reference to the scrolling container.
-    const wrapperRef = useRef<HTMLDivElement>(null); // Reference to the wrapper.
-    const externalScrollLeftRef = useRef<number | null>(null); // External scroll position in slave mode.
-    const slideWidthRef = useRef<number>(0); // Current width of a slide (shouldn't change after initial render).
-    const scrollTriggerSource = useRef<SourceType>(Source.NATURAL); // Track the source of the scroll
-    const scrollLeftTo = useRef<((value: number) => void) | null>(null);
-    const scrollDirectionRef = useRef<DirectionType>(Direction.LEFT);
-    const stableIndex = useRef<number | null>(initialIndex);
-    const scrollIndexRef = useRef<number>(initialIndex);
-
-    // Memoized slides for optimized re-renders
-    const memoizedSlides = useMemo(() => slides, [slides]);
-
-    // This mutates the DOM by adding a child to the scrollerRef as an additional
-    // wrapper to the slides. That does't affect anything and doesn't necessitate
-    // any changes in the code.
-    const draggable = useDragInertia(
-      scrollerRef,
-      setSnap,
-      slideSpacing,
-      isSlaveMode, // ← passed but handled internally in the hook
-      wrapperWidth,
-      slideWidthRef,
-    );
-
-    // Returns the base offset used for infinite scrolling.
-    const patchedOffset = useCallback(() => {
-      return isSlaveMode ? 0 : BASE_OFFSET;
-    }, [isSlaveMode]);
-
-    useEffect(() => {
-      scrollIndexRef.current = scrollIndex;
-    }, [scrollIndex]);
-
-    /**
-     * Derives the normalized dataIndex from the current scrollIndex.
-     * Ensures the resulting index is within the bounds of 0 to slides.length - 1.
-     *
-     * @returns The normalized data index (0 to slides.length - 1).
-     */
-    const deriveDataIndex = useCallback(
-      (overrideScrollIndex?: number): number => {
-        const slidesLength = slides.length;
-
-        const index =
-          typeof overrideScrollIndex === "number"
-            ? overrideScrollIndex
-            : scrollIndexRef.current;
-
-        return ((index % slidesLength) + slidesLength) % slidesLength;
-      },
-      [slides.length],
-    );
-
-    const dataIndex = useMemo(() => deriveDataIndex(), [deriveDataIndex]);
-
-    // Calculate slide positions, multipliers, and offsets
-    const memoizedPositionsAndMultipliers = useMemo(() => {
-      // Helper arrays for computed values
-      const newPositions: number[] = [];
-      const newMultipliers: number[] = [];
-      const newOffsets: number[] = [];
-
-      memoizedSlides.forEach((_, index) => {
-        let multiplier: number | null = null;
-        if (scrollDirectionRef.current === Direction.LEFT) {
-          const threshold = 2;
-          multiplier = -Math.floor(
-            (index - scrollIndex + threshold) / memoizedSlides.length,
-          );
-        } else if (scrollDirectionRef.current === Direction.RIGHT) {
-          const threshold = 2;
-          multiplier = Math.floor(
-            (scrollIndex - index + threshold) / memoizedSlides.length,
-          );
-        } else {
-          throw new Error("No scroll direction set.");
-        }
-
-        newMultipliers.push(multiplier);
-
-        // Calculate absolute position for each slide.
-        const containerOffset = (wrapperWidth - slideWidthRef.current) / 2;
-        newPositions.push(
-          Math.round(
-            multiplier * slideSpacing * memoizedSlides.length +
-              index * slideSpacing +
-              containerOffset,
-          ),
-        );
-
-        // Calculate normalized offsets for determining visibility and snapping.
-        const normalizedOffset =
-          (((index - scrollIndex) % memoizedSlides.length) +
-            memoizedSlides.length) %
-          memoizedSlides.length;
-
-        newOffsets.push(
-          normalizedOffset <= memoizedSlides.length / 2
-            ? normalizedOffset
-            : normalizedOffset - memoizedSlides.length,
-        );
-      });
-
-      return {
-        positions: newPositions,
-        multipliers: newMultipliers,
-        offsets: newOffsets,
-      };
-    }, [scrollIndex, wrapperWidth, slideSpacing, memoizedSlides]);
-
-    // Updates the carousel's index based on scroll position.
-    const updateIndexPerPosition = useCallback(
-      (scrollLeft: number, updateStableIndex: boolean = true) => {
-        const totalSlides = memoizedSlides.length;
-        const offset = scrollLeft - patchedOffset();
-        const newScrollIndex = Math.round(offset / slideSpacing);
-        const newDataIndex =
-          ((newScrollIndex % totalSlides) + totalSlides) % totalSlides;
-
-        if (scrollIndex !== newScrollIndex) {
-          const newDirection =
-            newScrollIndex > scrollIndex ? Direction.LEFT : Direction.RIGHT;
-
-          if (newDirection !== scrollDirectionRef.current) {
-            scrollDirectionRef.current = newDirection;
-          }
-
-          setScrollIndex(newScrollIndex);
-          onIndexUpdate?.(newDataIndex);
-
-          if (stabilizationTimer.current) {
-            clearTimeout(stabilizationTimer.current);
-          }
-
-          if (
-            updateStableIndex &&
-            scrollTriggerSource.current !== Source.IMPERATIVE
-          ) {
-            stabilizationTimer.current = setTimeout(() => {
-              stableIndex.current = newDataIndex;
-              onStabilizationUpdate?.(
-                newDataIndex,
-                scrollTriggerSource.current,
-                newDirection,
-              );
-            }, stabilizationDelay);
-          }
-        }
-
-        onScrollUpdate?.(scrollLeft - patchedOffset());
-      },
-      [
-        memoizedSlides.length,
-        scrollIndex,
-        slideSpacing,
-        onIndexUpdate,
-        onScrollUpdate,
-        onStabilizationUpdate,
-        stabilizationDelay,
-        patchedOffset,
-      ],
-    );
-    // Keeps the updateIndexPerPosition function reference stable across renders.
-    const updateIndexRef = useRef(updateIndexPerPosition);
-    useEffect(() => {
-      updateIndexRef.current = updateIndexPerPosition;
-    }, [updateIndexPerPosition]);
-
-    // Handles scroll events by updating the index based on current scroll position.
-    const handleScroll = useCallback(() => {
-      if (!scrollerRef.current) return;
-      const scrollLeft = scrollerRef.current.scrollLeft;
-      updateIndexRef.current(scrollLeft);
-    }, []);
-
-    // Throttle scroll updates to the target FPS for performance.
-    const targetFPS = 40;
-    const frameDuration = 1000 / targetFPS;
-
-    useEffect(() => {
-      let animationFrameId: number | null = null;
-      let lastFrameTime = 0;
-
-      // Listener to manage scroll updates while throttling based on FPS.
-      const scrollListener = (_: Event) => {
-        if (
-          // TODO: Maybe these should change scrollTriggerSource to IMPERATIVE?
-          !draggable?.current?.isThrowing &&
-          !draggable?.current?.isDragging &&
-          scrollTriggerSource.current !== Source.IMPERATIVE &&
-          snap !== "x mandatory"
-        ) {
-          setSnap("x mandatory");
-        }
-        if (animationFrameId === null) {
-          animationFrameId = requestAnimationFrame((currentTime) => {
-            const deltaTime = currentTime - lastFrameTime;
-
-            if (deltaTime >= frameDuration) {
-              handleScroll();
-              lastFrameTime = currentTime;
-            }
-
-            animationFrameId = null;
-          });
-        }
-      };
-
-      // Only attach scroll listener if not in slave mode.
-      if (!isSlaveMode) {
-        const scroller = scrollerRef.current;
-        scroller?.addEventListener("scroll", scrollListener);
-
-        return () => {
-          scroller?.removeEventListener("scroll", scrollListener);
-          if (animationFrameId) cancelAnimationFrame(animationFrameId);
-        };
-      }
-    }, [handleScroll, frameDuration, draggable, isSlaveMode, snap]);
-
-    // Extracts current positions, multipliers, and offsets for slides.
-    const {
-      positions: currentPositions,
-      multipliers: currentMultipliers,
-      offsets: currentOffsets,
-    } = useMemo(() => {
-      const { positions, multipliers, offsets } =
-        memoizedPositionsAndMultipliers;
-      return { positions, multipliers, offsets };
-    }, [memoizedPositionsAndMultipliers]);
-
-    // Initializes the carousel's scroll position and snap behavior.
-    useEffect(() => {
-      if (!scrollerRef.current) return;
-
-      const totalSlides = memoizedSlides.length;
-      const normalizedIndex =
-        ((initialIndex % totalSlides) + totalSlides) % totalSlides;
-
-      const newScrollIndex =
-        scrollIndexRef.current + (normalizedIndex - dataIndex);
-      const targetScrollLeft = Math.round(
-        newScrollIndex * slideSpacing + patchedOffset(),
-      );
-
-      setScrollIndex(newScrollIndex);
-
-      if (!isSlaveMode) {
-        scrollerRef.current.scrollLeft = targetScrollLeft;
-      }
-
-      // Multipurpose delay for applying `scroll-snap-type`.
-      // Delay prevents weird recursion that happens if alignment isn't perfect.
-      // (this also helps visually identify that, since it should never happen.)
-      // also triggers a rerender necessary in some browsers (Safari desktop) to
-      // guarantee a paint after initial layout is run. Doesn't work if it's less
-      // than 150ms or so.
-      const timer = setTimeout(() => {
-        setSnap("x mandatory");
-      }, 150);
-
-      return () => clearTimeout(timer);
-    }, [
-      dataIndex,
-      initialIndex,
-      isSlaveMode,
-      memoizedSlides.length,
-      slideSpacing,
-      patchedOffset,
-    ]);
-
-    // Measures slide and wrapper widths for accurate positioning.
-    useEffect(() => {
-      const measureWidths = () => {
-        const widths = slideRefs.current.map((ref) => ref?.offsetWidth || 0);
-        const newSlideWidth = Math.max(...widths);
-        const newWrapperWidth = wrapperRef.current?.offsetWidth || 0;
-
-        if (newSlideWidth + newWrapperWidth > 0) {
-          slideWidthRef.current = newSlideWidth;
-          setWrapperWidth(newWrapperWidth);
-        } else {
-          // Retry measuring if dimensions are unavailable.
-          requestAnimationFrame(measureWidths);
-        }
-      };
-
-      measureWidths();
-    }, [slides]);
-
-    const onTweenComplete = useCallback(() => {
-      setSnap("x mandatory");
-      scrollTriggerSource.current = Source.NATURAL;
-      const freshDataIndex = deriveDataIndex(scrollIndexRef.current);
-
-      stableIndex.current = freshDataIndex;
-      onStabilizationUpdate?.(
-        freshDataIndex,
-        Source.IMPERATIVE,
-        scrollDirectionRef.current,
-      );
-    }, [onStabilizationUpdate, deriveDataIndex]);
-
-    useEffect(() => {
-      if (scrollerRef.current) {
-        scrollLeftTo.current = gsap.quickTo(scrollerRef.current, "scrollLeft", {
-          overwrite: "auto",
-          duration: 0.6,
-          ease: "power1.out",
-          onComplete: onTweenComplete,
-        });
-      }
-    }, [onTweenComplete]);
-
-    // Exposes carousel methods to the parent component via `ref`.
-    useImperativeHandle(ref, () => ({
-      // Scrolls programmatically to a specific slide.
-      scrollToSlide: (targetIndex: number) => {
-        if (!scrollerRef.current || !scrollLeftTo.current) return;
-
-        setSnap("none");
-        scrollTriggerSource.current = Source.IMPERATIVE;
-
-        const offsetToTarget = currentOffsets[targetIndex];
-        const direction = offsetToTarget > 0 ? Direction.RIGHT : Direction.LEFT;
-
-        scrollDirectionRef.current = direction;
-
-        const { positions: newPositions } = memoizedPositionsAndMultipliers;
-
-        const containerOffset = (wrapperWidth - slideWidthRef.current) / 2;
-        const targetPosition =
-          newPositions[targetIndex] + patchedOffset() - containerOffset;
-
-        // Calculate dynamic duration based on the distance to scroll
-        const currentScrollLeft = scrollerRef.current.scrollLeft;
-        const distanceToScroll = Math.abs(currentScrollLeft - targetPosition);
-        const duration = Math.min(2.0, 0.2 + distanceToScroll / 1500);
-
-        // Dynamically update the tween duration
-        scrollLeftTo.current = gsap.quickTo(scrollerRef.current, "scrollLeft", {
-          overwrite: "auto",
-          duration,
-          ease: "power1.out",
-          onComplete: onTweenComplete,
-        });
-
-        // Use the existing `scrollLeftTo` without recreating it
-        scrollLeftTo.current(targetPosition);
-      },
-      // Adjusts the external scroll position in slave mode.
-      setExternalScrollPosition: (newLeft: number) => {
-        externalScrollLeftRef.current = Math.round(newLeft);
-        if (scrollerRef.current) {
-          scrollerRef.current.style.transform = `translateX(${-newLeft}px)`;
-        }
-        updateIndexPerPosition(newLeft, false);
-      },
-    }));
-
-    // Checks if debug mode is enabled.
-    const isDebug = () => debug != null && debug !== 0 && debug !== "";
-
-    return (
-      <div
-        ref={wrapperRef}
-        className={
-          `${styles.carouselWrapper} ${isSlaveMode ? styles.slaveWrapper : ""} ` +
-          wrapperClassName
-        }
-      >
-        {isDebug() && (
-          <div className={styles.debug}>
-            {scrollIndex} {stableIndex.current}{" "}
-            {scrollerRef.current?.scrollLeft}
-          </div>
-        )}
-        <div
-          ref={scrollerRef}
-          className={`${styles.carouselSlider} ${sliderClassName}`}
-          style={{ scrollSnapType: snap }}
-        >
-          <div
-            className={styles.carouselShim}
-            style={{
-              left: BASE_OFFSET * 2,
-            }}
-          ></div>
-          {memoizedSlides.map((slide, index) => (
-            <div
-              key={index}
-              ref={(el) => {
-                slideRefs.current[index] = el;
-              }}
-              className={
-                `${styles.carouselSlide} ` +
-                `${Math.abs(currentOffsets[index]) > 1 ? styles.hiddenSlide : ""} ` +
-                slideClassName
-              }
-              style={{
-                transform: `translateX(${patchedOffset() + currentPositions[index]}px)`,
-                ...(isDebug() && { visibility: "visible" }),
-              }}
-            >
-              {isDebug() && (
-                <div className={styles.debugInfo}>
-                  <div>Index: {index}</div>
-                  <div>Multiplier: {currentMultipliers[index]}</div>
-                  <div>xPos: {currentPositions[index] + "px"}</div>
-                </div>
-              )}
-              {slide}
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  }),
-);
-
 gsap.registerPlugin(ScrollToPlugin);
 
 // BASE_OFFSET accounts for that HTML elements don't scroll
@@ -526,5 +79,372 @@ gsap.registerPlugin(ScrollToPlugin);
 // current use cases. Until then, it's not *technically* infinite scrolling left,
 // but unlikely that anyone will ever scroll that far left.
 const BASE_OFFSET = 1000000;
+
+const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
+  const {
+    slides,
+    slideSpacing,
+    initialIndex = 0,
+    onIndexUpdate,
+    debug = 0,
+    wrapperClassName = "",
+    slideClassName = "",
+    sliderClassName = "",
+    onScrollUpdate,
+    onStabilizationUpdate,
+    stabilizationDelay = 800,
+    isSlaveMode = false,
+    classNamePrefix = "",
+    styleMap,
+    layerId = "",
+  } = props;
+
+  const getClass = (suffix: string, fallback: string = ""): string => {
+    if (!layerId || !classNamePrefix) return fallback;
+    const base = `${classNamePrefix}${layerId}${suffix}`;
+    return styleMap?.[`${layerId}${suffix}`] ?? base;
+  };
+
+  const [scrollIndex, setScrollIndex] = useState(initialIndex);
+  const [wrapperWidth, setWrapperWidth] = useState<number>(0);
+  const [snap, setSnap] = useState<"none" | "x mandatory">("none");
+  const stabilizationTimer = useRef<NodeJS.Timeout | null>(null);
+  const slideRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const scrollerRef = useRef<HTMLDivElement>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const externalScrollLeftRef = useRef<number | null>(null);
+  const slideWidthRef = useRef<number>(0);
+  const scrollTriggerSource = useRef<SourceType>(Source.NATURAL);
+  const scrollLeftTo = useRef<((value: number) => void) | null>(null);
+  const scrollDirectionRef = useRef<DirectionType>(Direction.LEFT);
+  const stableIndex = useRef<number | null>(initialIndex);
+  const scrollIndexRef = useRef<number>(initialIndex);
+
+  const memoizedSlides = useMemo(() => slides, [slides]);
+
+  const draggable = useDragInertia(
+    scrollerRef,
+    setSnap,
+    slideSpacing,
+    isSlaveMode,
+    wrapperWidth,
+    slideWidthRef,
+  );
+
+  const patchedOffset = useCallback(() => {
+    return isSlaveMode ? 0 : BASE_OFFSET;
+  }, [isSlaveMode]);
+
+  useEffect(() => {
+    scrollIndexRef.current = scrollIndex;
+  }, [scrollIndex]);
+
+  const deriveDataIndex = useCallback(
+    (overrideScrollIndex?: number): number => {
+      const slidesLength = slides.length;
+      const index =
+        typeof overrideScrollIndex === "number"
+          ? overrideScrollIndex
+          : scrollIndexRef.current;
+      return ((index % slidesLength) + slidesLength) % slidesLength;
+    },
+    [slides.length],
+  );
+
+  const dataIndex = useMemo(() => deriveDataIndex(), [deriveDataIndex]);
+
+  const memoizedPositionsAndMultipliers = useMemo(() => {
+    const newPositions: number[] = [];
+    const newMultipliers: number[] = [];
+    const newOffsets: number[] = [];
+
+    memoizedSlides.forEach((_, index) => {
+      let multiplier: number | null = null;
+      const threshold = 2;
+      if (scrollDirectionRef.current === Direction.LEFT) {
+        multiplier = -Math.floor(
+          (index - scrollIndex + threshold) / memoizedSlides.length,
+        );
+      } else if (scrollDirectionRef.current === Direction.RIGHT) {
+        multiplier = Math.floor(
+          (scrollIndex - index + threshold) / memoizedSlides.length,
+        );
+      } else {
+        throw new Error("No scroll direction set.");
+      }
+      newMultipliers.push(multiplier);
+      const containerOffset = (wrapperWidth - slideWidthRef.current) / 2;
+      newPositions.push(
+        Math.round(
+          multiplier * slideSpacing * memoizedSlides.length +
+            index * slideSpacing +
+            containerOffset,
+        ),
+      );
+      const normalizedOffset =
+        (((index - scrollIndex) % memoizedSlides.length) +
+          memoizedSlides.length) %
+        memoizedSlides.length;
+      newOffsets.push(
+        normalizedOffset <= memoizedSlides.length / 2
+          ? normalizedOffset
+          : normalizedOffset - memoizedSlides.length,
+      );
+    });
+
+    return {
+      positions: newPositions,
+      multipliers: newMultipliers,
+      offsets: newOffsets,
+    };
+  }, [scrollIndex, wrapperWidth, slideSpacing, memoizedSlides]);
+
+  const updateIndexPerPosition = useCallback(
+    (scrollLeft: number, updateStableIndex: boolean = true) => {
+      const totalSlides = memoizedSlides.length;
+      const offset = scrollLeft - patchedOffset();
+      const newScrollIndex = Math.round(offset / slideSpacing);
+      const newDataIndex =
+        ((newScrollIndex % totalSlides) + totalSlides) % totalSlides;
+
+      if (scrollIndex !== newScrollIndex) {
+        const newDirection =
+          newScrollIndex > scrollIndex ? Direction.LEFT : Direction.RIGHT;
+        if (newDirection !== scrollDirectionRef.current) {
+          scrollDirectionRef.current = newDirection;
+        }
+        setScrollIndex(newScrollIndex);
+        onIndexUpdate?.(newDataIndex);
+        if (stabilizationTimer.current)
+          clearTimeout(stabilizationTimer.current);
+        if (
+          updateStableIndex &&
+          scrollTriggerSource.current !== Source.IMPERATIVE
+        ) {
+          stabilizationTimer.current = setTimeout(() => {
+            stableIndex.current = newDataIndex;
+            onStabilizationUpdate?.(
+              newDataIndex,
+              scrollTriggerSource.current,
+              newDirection,
+            );
+          }, stabilizationDelay);
+        }
+      }
+      onScrollUpdate?.(scrollLeft - patchedOffset());
+    },
+    [
+      memoizedSlides.length,
+      scrollIndex,
+      slideSpacing,
+      onIndexUpdate,
+      onScrollUpdate,
+      onStabilizationUpdate,
+      stabilizationDelay,
+      patchedOffset,
+    ],
+  );
+
+  const updateIndexRef = useRef(updateIndexPerPosition);
+  useEffect(() => {
+    updateIndexRef.current = updateIndexPerPosition;
+  }, [updateIndexPerPosition]);
+
+  const handleScroll = useCallback(() => {
+    if (!scrollerRef.current) return;
+    updateIndexRef.current(scrollerRef.current.scrollLeft);
+  }, []);
+
+  const targetFPS = 40;
+  const frameDuration = 1000 / targetFPS;
+
+  useEffect(() => {
+    let animationFrameId: number | null = null;
+    let lastFrameTime = 0;
+
+    const scrollListener = (_: Event) => {
+      if (
+        !draggable?.current?.isThrowing &&
+        !draggable?.current?.isDragging &&
+        scrollTriggerSource.current !== Source.IMPERATIVE &&
+        snap !== "x mandatory"
+      ) {
+        setSnap("x mandatory");
+      }
+      if (animationFrameId === null) {
+        animationFrameId = requestAnimationFrame((currentTime) => {
+          const deltaTime = currentTime - lastFrameTime;
+          if (deltaTime >= frameDuration) {
+            handleScroll();
+            lastFrameTime = currentTime;
+          }
+          animationFrameId = null;
+        });
+      }
+    };
+
+    if (!isSlaveMode) {
+      const scroller = scrollerRef.current;
+      scroller?.addEventListener("scroll", scrollListener);
+      return () => {
+        scroller?.removeEventListener("scroll", scrollListener);
+        if (animationFrameId) cancelAnimationFrame(animationFrameId);
+      };
+    }
+  }, [handleScroll, frameDuration, draggable, isSlaveMode, snap]);
+
+  const {
+    positions: currentPositions,
+    multipliers: currentMultipliers,
+    offsets: currentOffsets,
+  } = useMemo(
+    () => memoizedPositionsAndMultipliers,
+    [memoizedPositionsAndMultipliers],
+  );
+
+  useEffect(() => {
+    if (!scrollerRef.current) return;
+    const totalSlides = memoizedSlides.length;
+    const normalizedIndex =
+      ((initialIndex % totalSlides) + totalSlides) % totalSlides;
+    const newScrollIndex =
+      scrollIndexRef.current + (normalizedIndex - dataIndex);
+    const targetScrollLeft = Math.round(
+      newScrollIndex * slideSpacing + patchedOffset(),
+    );
+    setScrollIndex(newScrollIndex);
+    if (!isSlaveMode) scrollerRef.current.scrollLeft = targetScrollLeft;
+    const timer = setTimeout(() => {
+      setSnap("x mandatory");
+    }, 150);
+    return () => clearTimeout(timer);
+  }, [
+    dataIndex,
+    initialIndex,
+    isSlaveMode,
+    memoizedSlides.length,
+    slideSpacing,
+    patchedOffset,
+  ]);
+
+  useEffect(() => {
+    const measureWidths = () => {
+      const widths = slideRefs.current.map((ref) => ref?.offsetWidth || 0);
+      const newSlideWidth = Math.max(...widths);
+      const newWrapperWidth = wrapperRef.current?.offsetWidth || 0;
+      if (newSlideWidth + newWrapperWidth > 0) {
+        slideWidthRef.current = newSlideWidth;
+        setWrapperWidth(newWrapperWidth);
+      } else {
+        requestAnimationFrame(measureWidths);
+      }
+    };
+    measureWidths();
+  }, [slides]);
+
+  const onTweenComplete = useCallback(() => {
+    setSnap("x mandatory");
+    scrollTriggerSource.current = Source.NATURAL;
+    const freshDataIndex = deriveDataIndex(scrollIndexRef.current);
+    stableIndex.current = freshDataIndex;
+    onStabilizationUpdate?.(
+      freshDataIndex,
+      Source.IMPERATIVE,
+      scrollDirectionRef.current,
+    );
+  }, [onStabilizationUpdate, deriveDataIndex]);
+
+  useEffect(() => {
+    if (scrollerRef.current) {
+      scrollLeftTo.current = gsap.quickTo(scrollerRef.current, "scrollLeft", {
+        overwrite: "auto",
+        duration: 0.6,
+        ease: "power1.out",
+        onComplete: onTweenComplete,
+      });
+    }
+  }, [onTweenComplete]);
+
+  useImperativeHandle(ref, () => ({
+    scrollToSlide: (targetIndex: number) => {
+      if (!scrollerRef.current || !scrollLeftTo.current) return;
+      setSnap("none");
+      scrollTriggerSource.current = Source.IMPERATIVE;
+      const offsetToTarget = currentOffsets[targetIndex];
+      const direction = offsetToTarget > 0 ? Direction.RIGHT : Direction.LEFT;
+      scrollDirectionRef.current = direction;
+      const { positions: newPositions } = memoizedPositionsAndMultipliers;
+      const containerOffset = (wrapperWidth - slideWidthRef.current) / 2;
+      const targetPosition =
+        newPositions[targetIndex] + patchedOffset() - containerOffset;
+      const currentScrollLeft = scrollerRef.current.scrollLeft;
+      const distanceToScroll = Math.abs(currentScrollLeft - targetPosition);
+      const duration = Math.min(2.0, 0.2 + distanceToScroll / 1500);
+      scrollLeftTo.current = gsap.quickTo(scrollerRef.current, "scrollLeft", {
+        overwrite: "auto",
+        duration,
+        ease: "power1.out",
+        onComplete: onTweenComplete,
+      });
+      scrollLeftTo.current(targetPosition);
+    },
+    setExternalScrollPosition: (newLeft: number) => {
+      externalScrollLeftRef.current = Math.round(newLeft);
+      if (scrollerRef.current) {
+        scrollerRef.current.style.transform = `translateX(${-newLeft}px)`;
+      }
+      updateIndexPerPosition(newLeft, false);
+    },
+  }));
+
+  const isDebug = () => Boolean(debug);
+
+  return (
+    <div
+      ref={wrapperRef}
+      className={`${styles.carouselWrapper} ${isSlaveMode ? styles.slaveWrapper : ""} ${getClass("Carousel", wrapperClassName)}`}
+    >
+      {isDebug() && (
+        <div className={styles.debug}>
+          {scrollIndex} {stableIndex.current} {scrollerRef.current?.scrollLeft}
+        </div>
+      )}
+      <div
+        ref={scrollerRef}
+        className={`${styles.carouselSlider} ${getClass("Slider", sliderClassName)}`}
+        style={{ scrollSnapType: snap }}
+      >
+        <div
+          className={styles.carouselShim}
+          style={{ left: BASE_OFFSET * 2 }}
+        ></div>
+        {memoizedSlides.map((slide, index) => (
+          <div
+            key={index}
+            ref={(el) => {
+              slideRefs.current[index] = el;
+            }}
+            className={`${styles.carouselSlide} ${Math.abs(currentOffsets[index]) > 1 ? styles.hiddenSlide : ""} ${getClass("Slide", slideClassName)}`}
+            style={{
+              transform: `translateX(${patchedOffset() + currentPositions[index]}px)`,
+              ...(isDebug() && { visibility: "visible" }),
+            }}
+          >
+            {isDebug() && (
+              <div className={styles.debugInfo}>
+                <div>Index: {index}</div>
+                <div>Multiplier: {currentMultipliers[index]}</div>
+                <div>xPos: {currentPositions[index]}px</div>
+              </div>
+            )}
+            {slide}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+});
+
+Carousel.displayName = "Carousel";
 
 export default Carousel;
