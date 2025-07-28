@@ -66,31 +66,6 @@ const ProjectClientPage: React.FC<{ projectId: string }> = ({ projectId }) => {
       : "bbSlideRight";
   }, []);
 
-  // const laptopSlides = useMemo(
-  //   () =>
-  //     ProjectData.activeProjects.map((project) => (
-  //       <DeviceDisplay
-  //         deviceType={DeviceTypes.LAPTOP}
-  //         id={project.id}
-  //         key={project.id}
-  //       />
-  //     )),
-  //   [],
-  // );
-
-  // const phoneSlides = useMemo(
-  //   () =>
-  //     ProjectData.activeProjects.map((project) => (
-  //       <DeviceDisplay
-  //         deviceType={DeviceTypes.PHONE}
-  //         mobileStatus={project.mobileStatus}
-  //         id={project.id}
-  //         key={project.id}
-  //       />
-  //     )),
-  //   [],
-  // );
-
   const handleStabilizationUpdate = useCallback(
     (
       newStabilizedIndex: number,
@@ -160,6 +135,11 @@ const ProjectClientPage: React.FC<{ projectId: string }> = ({ projectId }) => {
               initialIndex={initialIndex ?? 0}
               projectId={projectId}
               onStabilizationUpdate={handleStabilizationUpdate}
+              // styleMap={{
+              //   laptops: styles["bb-laptopsCarousel"],
+              //   master: styles["bb-masterCarousel"],
+              //   phones: styles["bb-phonesCarousel"],
+              // }}
             />
           )}
           <PageButtons />
