@@ -19,7 +19,7 @@ interface ProjectThumbnailProps {
  * portfolio project via dynamic routing.
  *
  * @author Bradley Baysinger
- * @since The beginning of time.
+ * @since 2025
  * @version N/A
  */
 const ProjectThumbnail = forwardRef<HTMLDivElement, ProjectThumbnailProps>(

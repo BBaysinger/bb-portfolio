@@ -26,7 +26,7 @@ import { useEffect, useRef, RefObject } from "react";
  * }
  *
  * @author Bradley Baysinger
- * @since The beginning of time.
+ * @since 2025
  * @version N/A
  *
  * @param ranges - An array of viewport width ranges [minVw, maxVw] to track.

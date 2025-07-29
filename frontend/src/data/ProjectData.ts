@@ -43,7 +43,7 @@ export type ParsedPortfolioProjectData = Record<string, ParsedPortfolioProject>;
  * Handles data parsing, filtering, and navigation operations.
  *
  * @author Bradley Baysinger
- * @since The beginning of time.
+ * @since 2025
  */
 export default class ProjectData {
   private static _projects: ParsedPortfolioProjectData = {};

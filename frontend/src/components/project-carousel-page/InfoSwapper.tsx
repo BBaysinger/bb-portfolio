@@ -15,7 +15,7 @@ interface InfoSwapperProps {
  * Manages swapping between the project info components.
  *
  * @author Bradley Baysinger
- * @since The beginning of time.
+ * @since 2025
  * @version N/A
  */
 const InfoSwapper = memo<InfoSwapperProps>(({ direction, index }) => {

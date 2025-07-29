@@ -18,7 +18,7 @@ type DebounceMap = Partial<Record<EventType, number>>;
  * every way an element can change — with optional exclusions.
  *
  * @author Bradley Baysinger
- * @since The beginning of time.
+ * @since 2025
  */
 export function useElementObserver<T extends Element>(
   targetRef: React.RefObject<T | null>,

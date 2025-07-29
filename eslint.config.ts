@@ -10,7 +10,7 @@ const eslintPluginImport = require("eslint-plugin-import");
 /**
  *
  * @author Bradley Baysinger
- * @since The beginning of time.
+ * @since 2025
  * @version N/A
  */
 export default [

@@ -33,7 +33,7 @@ import clsx from "clsx";
  * @returns A space-separated string of resolved class names with optional global fallback.
  *
  * @author Bradley Baysinger
- * @since The beginning of time.
+ * @since 2025
  * @version N/A
  */
 

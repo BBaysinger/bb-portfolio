@@ -70,7 +70,7 @@ interface PointerMeta {
  * @returns `{ x, y }` coordinates relative to the element, or `null` when inactive.
  *
  * @author Bradley Baysinger
- * @since The beginning of time.
+ * @since 2025
  */
 interface UseElementRelativePointerOptions extends DebounceMap {
   override?: { x: number; y: number } | undefined;

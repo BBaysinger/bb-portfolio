@@ -10,7 +10,7 @@ const getWidth = () =>
  *
  *
  * @author Bradley Baysinger
- * @since The beginning of time.
+ * @since 2025
  * @version N/A
  */
 const useClientDimensions = () => {
