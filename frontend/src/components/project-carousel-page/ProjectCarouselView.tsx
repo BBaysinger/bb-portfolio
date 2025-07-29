@@ -48,26 +48,26 @@ const ProjectCarouselView: React.FC<{
 
   const layers: CarouselLayerConfig[] = [
     {
-      id: "control",
+      id: "Control",
       spacing: 720,
       slides: laptopSlides.map(() => null),
-      type: "master",
+      type: "Master",
     },
     {
-      id: "laptops",
+      id: "Laptops",
       spacing: 693,
       slides: laptopSlides,
-      type: "slave",
+      type: "Slave",
     },
     {
-      id: "phones",
+      id: "Phones",
       spacing: 900,
       slides: phoneSlides,
-      type: "slave",
+      type: "Slave",
     },
   ];
 
-  const prefix = "bbCarousel-";
+  const prefix = "bb-carousel-";
 
   return (
     <div className={styles.projectCarouselView}>
@@ -78,10 +78,6 @@ const ProjectCarouselView: React.FC<{
         layers={layers}
         initialIndex={initialIndex}
         onStabilizationUpdate={onStabilizationUpdate}
-        // className={clsx(
-        //   `${prefix}layeredCarouselManager`,
-        //   styles.layeredCarouselManager,
-        // )}
       />
     </div>
   );

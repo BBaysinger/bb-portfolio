@@ -2,8 +2,6 @@
 @use "@/styles/variables" as *;
 
 .carouselWrapper {
-  width: 992px; // default to prevent collapse.
-  height: 100%;
   position: absolute;
 }
 

@@ -12,7 +12,7 @@ export interface CarouselLayerConfig {
   spacing: number;
   slides: React.ReactNode[];
   multiplier?: number;
-  type: "slave" | "master";
+  type: "Slave" | "Master";
 }
 
 export interface LayeredCarouselManagerProps {
@@ -55,7 +55,7 @@ const LayeredCarouselManager = forwardRef<
     const layerRefs = useMemo(() => {
       const refs: Record<string, React.RefObject<CarouselRef | null>> = {};
       layers.forEach((layer) => {
-        if (layer.type === "slave") {
+        if (layer.type === "Slave") {
           refs[layer.id] = React.createRef<CarouselRef>();
         }
       });
@@ -63,7 +63,7 @@ const LayeredCarouselManager = forwardRef<
     }, [layers]);
 
     const masterLayer = useMemo(
-      () => layers.find((l) => l.type === "master"),
+      () => layers.find((l) => l.type === "Master"),
       [layers],
     );
 
@@ -71,7 +71,7 @@ const LayeredCarouselManager = forwardRef<
       if (!masterLayer) return {};
       const map: Record<string, number> = {};
       layers.forEach((layer) => {
-        if (layer.type === "slave") {
+        if (layer.type === "Slave") {
           map[layer.id] =
             layer.multiplier ?? layer.spacing / masterLayer.spacing;
         }
@@ -111,7 +111,7 @@ const LayeredCarouselManager = forwardRef<
         )}
       >
         {layers.map((layer) => {
-          const isMaster = layer.type === "master";
+          const isMaster = layer.type === "Master";
           const layerRef = isMaster ? masterCarouselRef : layerRefs[layer.id];
 
           return (
