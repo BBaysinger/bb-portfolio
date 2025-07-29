@@ -27,7 +27,7 @@
 }
 
 .hiddenSlide {
-  visibility: hidden;
+  // visibility: hidden;
 }
 
 .debugInfo {
@@ -46,9 +46,8 @@
 
 .carouselSlide {
   position: absolute;
-  // width: 693px;
   scroll-snap-align: center;
-  border: 1px solid green;
+  height: 100%;
 }
 
 .debug {

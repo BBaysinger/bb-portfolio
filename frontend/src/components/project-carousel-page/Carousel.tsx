@@ -133,11 +133,11 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
   };
 
   const getScrollerClass = (): string => {
-    return resolveClass("Scroller", classNamePrefix, styles, styleMap);
+    return resolveClass("carouselScroller", classNamePrefix, styles, styleMap);
   };
 
   const getSlideClass = (): string => {
-    return resolveClass("Slide", classNamePrefix, styles, styleMap);
+    return resolveClass("carouselSlide", classNamePrefix, styles, styleMap);
   };
 
   const memoizedSlides = useMemo(() => slides, [slides]);
