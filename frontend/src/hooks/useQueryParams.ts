@@ -36,7 +36,7 @@ export default function useQueryParams<T extends QueryParamValue>(
  * a specific param by key, or the param with a fallback/default value.
  *
  * @author Bradley Baysinger
- * @since The beginning of time.
+ * @since 2025
  * @version N/A
  */
 export default function useQueryParams<

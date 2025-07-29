@@ -7,7 +7,7 @@ import styles from "./Greeting.module.scss";
  * The "Hello" section on the home page.
  *
  * @author Bradley Baysinger
- * @since The beginning of time.
+ * @since 2025
  * @version N/A
  */
 const Greeting: React.FC = () => {

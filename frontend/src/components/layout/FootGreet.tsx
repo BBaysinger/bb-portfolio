@@ -9,7 +9,7 @@ import styles from "./FootGreet.module.scss";
  * Time of day included for an unexpected dynamic.
  *
  * @author Bradley Baysinger
- * @since The beginning of time.
+ * @since 2025
  * @version N/A
  */
 const FootGreet: React.FC<{ className: string }> = ({ className }) => {

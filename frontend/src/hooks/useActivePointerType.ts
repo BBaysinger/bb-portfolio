@@ -34,7 +34,7 @@ import { useEffect, useState } from "react";
  * @returns `"mouse"`, `"touch"`, `"pen"`, or `null` if no input has been detected and media queries failed.
  *
  * @author Bradley Baysinger
- * @since The beginning of time.
+ * @since 2025
  * @version N/A
  */
 export function useActivePointerType(): "mouse" | "touch" | "pen" | null {

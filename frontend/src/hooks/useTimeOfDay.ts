@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
  *
  *
  * @author Bradley Baysinger
- * @since The beginning of time.
+ * @since 2025
  * @version N/A
  */
 export function useTimeOfDay(): string {

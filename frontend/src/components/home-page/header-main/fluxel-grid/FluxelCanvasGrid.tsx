@@ -21,7 +21,7 @@ import styles from "./FluxelCanvasGrid.module.scss";
  * FluxelCanvasGrid - imperatively renders fluxels to a canvas.
  *
  * @author Bradley Baysinger
- * @since The beginning of time.
+ * @since 2025
  */
 const FluxelCanvasGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
   (

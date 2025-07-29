@@ -11,7 +11,7 @@ import styles from "./Hamburger.module.scss";
  * or is populated as a bar at the top of the page.
  *
  * @author Bradley Baysinger
- * @since The beginning of time.
+ * @since 2025
  * @version N/A
  */
 const Hamburger: React.FC<{ className: string }> = ({ className }) => {

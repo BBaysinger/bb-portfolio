@@ -25,7 +25,7 @@ interface DeviceDisplayProps {
  * TODO: Handle preloading of images better.
  *
  * @author Bradley Baysinger
- * @since The beginning of time.
+ * @since 2025
  * @version N/A
  */
 const DeviceDisplay: React.FC<DeviceDisplayProps> = React.memo(

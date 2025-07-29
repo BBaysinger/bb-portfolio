@@ -15,7 +15,7 @@ type TitleBrandingProps = {
  *
  *
  * @author Bradley Baysinger
- * @since The beginning of time.
+ * @since 2025
  * @version N/A
  */
 const TitleBranding = forwardRef<HTMLDivElement, TitleBrandingProps>(

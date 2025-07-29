@@ -38,7 +38,7 @@ const shuffleArray = (array: number[]) => {
  * If `paused === true`, waits until unpaused before continuing.
  *
  * @author Bradley Baysinger
- * @since The beginning of time.
+ * @since 2025
  * @version N/A
  */
 const ParagraphAnimator: React.FC<ParagraphAnimatorProps> = ({

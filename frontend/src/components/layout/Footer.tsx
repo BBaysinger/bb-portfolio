@@ -14,7 +14,7 @@ type FooterProps = {
  * The footer, common to every page.
  *
  * @author Bradley Baysinger
- * @since The beginning of time.
+ * @since 2025
  * @version N/A
  */
 const Footer: React.FC<FooterProps> = ({ mutationElemRef }) => {

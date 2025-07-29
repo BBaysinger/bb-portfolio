@@ -21,7 +21,7 @@
 //  * will be more efficient anyhow. Don't know if it's worth keeping around...
 //  *
 //  * @author Bradley Baysinger
-//  * @since The beginning of time.
+//  * @since 2025
 //  */
 // const FluxelPixiGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
 //   ({ gridData, imperativeMode, className }, ref) => {

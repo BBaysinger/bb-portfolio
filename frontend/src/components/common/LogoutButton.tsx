@@ -17,7 +17,7 @@ interface LogoutButtonProps {
  * Button for logging out of the front end.
  *
  * @author Bradley Baysinger
- * @since The beginning of time.
+ * @since 2025
  * @version N/A
  */
 const LogoutButton: React.FC<LogoutButtonProps> = ({ className = "" }) => {

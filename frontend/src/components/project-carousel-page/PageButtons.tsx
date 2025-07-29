@@ -12,7 +12,7 @@ import styles from "./PageButtons.module.scss";
  * Navigation buttons to switch between projects in the portfolio view.
  *
  * @author Bradley Baysinger
- * @since The beginning of time.
+ * @since 2025
  * @version N/A
  */
 const PageButtons: React.FC = () => {

@@ -14,7 +14,7 @@ import { setHeroInView } from "@/store/uiSlice";
  * (those are the same page, because the portfolio list is at the bottom).
  *
  * @author Bradley Baysinger
- * @since The beginning of time.
+ * @since 2025
  * @version N/A
  */
 export function useTrackHeroInView() {
