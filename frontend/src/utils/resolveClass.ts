@@ -1,12 +1,42 @@
 import clsx from "clsx";
 
 /**
- * Resolves a class name from multiple style sources.
+ * Standardizes and simplifies class name injection in reusable component libraries
+ * to ensure specificity, modularity, predictable overrides, and global fallback support.
  *
- * @param baseClassName - The base class key to resolve (e.g., "layeredCarouselManager")
- * @param prefix - Optional global prefix fallback (e.g., "bb-")
- * @param styleSources - Any number of style objects (e.g., CSS modules)
+ * Designed to accept styles from multiple layers of nested components—typically forwarded as props—
+ * this utility makes it easy to combine local CSS Modules with external or parent-injected styles.
+ *
+ * This function:
+ * 1. Searches each provided style source (typically CSS module objects) for a class matching, `baseClassName`.
+ * 2. Collects all matching class names (if found) from those sources.
+ * 3. If a `prefix` is provided, it adds a global fallback class name using that prefix,
+ *    constructed as `${prefix}${baseClassName}` with the first letter lowercased (e.g., "bb-layeredCarouselManager").
+ * 4. Returns a space-separated string of all matched class names with duplicates removed,
+ *    ensuring a clean and reliable className output for JSX.
+ *
+ * This allows for:
+ * - Coexistence of scoped CSS Modules and global styling conventions
+ * - Easy theming and override patterns (e.g., `.bb-component` as a fallback or override)
+ * - Consistent styling behavior across deeply nested or wrapped components
+ * - Improved DX when authoring flexible, portable UI components
+ *
+ * Example:
+ * ```ts
+ * const className = resolveClass("MyComponent", "bb-", styles1, styles2);
+ * // Might return: "abc123 def456 bb-myComponent"
+ * ```
+ *
+ * @param baseClassName - The key to look for in each style object (e.g., "MyComponent").
+ * @param prefix - Optional prefix for generating a global fallback class name (e.g., "bb-").
+ * @param styleSources - Any number of style objects (CSS modules) to search for the class name.
+ * @returns A space-separated string of resolved class names with optional global fallback.
+ *
+ * @author Bradley Baysinger
+ * @since The beginning of time.
+ * @version N/A
  */
+
 export function resolveClass(
   baseClassName: string,
   prefix?: string,
