@@ -18,7 +18,7 @@
   height: 100%;
 }
 
-.carouselWrapper {
+.carousel {
   width: 100%;
   height: 100%;
 }
@@ -44,6 +44,7 @@
 }
 
 .carouselLaptops {
+  border: 1px solid yellow;
   pointer-events: none;
   overflow: hidden;
   mask-image: linear-gradient(
@@ -55,7 +56,8 @@
   );
   mask-repeat: no-repeat;
   mask-size: cover;
-  height: 100%;
+  // height: 100%;
+  border: 1px solid green;
 }
 
 .carouselPhones {
@@ -73,19 +75,21 @@
   mask-size: cover;
 }
 
-.slideWrapper {
-  visibility: hidden;
-  width: 693px;
-  height: 444px;
-  pointer-events: none;
-  &:nth-child(3n-1) {
-    background-color: rgba(23, 200, 35, 0.1);
-  }
-  &:nth-child(3n-2) {
-    background-color: rgba(23, 65, 200, 0.1);
-  }
-  &:nth-child(3n-3) {
-    background-color: rgba(243, 65, 0, 0.1);
+.carouselMaster {
+  .carouselSlide {
+    // visibility: hidden;
+    width: 693px;
+    height: 444px;
+    pointer-events: none;
+    &:nth-child(3n-1) {
+      background-color: rgba(23, 200, 35, 0.1);
+    }
+    &:nth-child(3n-2) {
+      background-color: rgba(23, 65, 200, 0.1);
+    }
+    &:nth-child(3n-3) {
+      background-color: rgba(243, 65, 0, 0.1);
+    }
   }
 }
 
