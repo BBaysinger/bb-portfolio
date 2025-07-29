@@ -4,11 +4,11 @@ import clsx from "clsx";
  * Standardizes and simplifies class name injection in reusable component libraries
  * to ensure specificity, modularity, predictable overrides, and global fallback support.
  *
- * Designed to accept styles from multiple layers of nested components—typically forwarded as props—
- * this utility makes it easy to combine local CSS Modules with external or parent-injected styles.
+ * Designed to accept styles from multiple layers of nested components (typically CSS Modules forwarded via props),
+ * this utility enables consistent and maintainable styling across deeply composed UI elements.
  *
  * This function:
- * 1. Searches each provided style source (typically CSS module objects) for a class matching, `baseClassName`.
+ * 1. Searches each provided style source (typically CSS module objects) for a class matching `baseClassName`.
  * 2. Collects all matching class names (if found) from those sources.
  * 3. If a `prefix` is provided, it adds a global fallback class name using that prefix,
  *    constructed as `${prefix}${baseClassName}` with the first letter lowercased (e.g., "bb-layeredCarouselManager").
