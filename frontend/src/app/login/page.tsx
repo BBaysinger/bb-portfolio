@@ -12,7 +12,7 @@ import styles from "./page.module.scss";
  * LoginPage prompts user for credentials and attempts Payload CMS login.
  *
  * @author Bradley Baysinger
- * @since The beginning of time.
+ * @since 2025
  * @version Updated for PayloadCMS login.
  */
 const LoginPage = () => {

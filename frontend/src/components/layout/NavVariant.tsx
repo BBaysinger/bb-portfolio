@@ -28,7 +28,7 @@ interface NavProps {
  * at runtime causes a unbelievably massive frame drop.
  *
  * @author Bradley Baysinger
- * @since The beginning of time.
+ * @since 2025
  * @version N/A
  */
 const NavVariant: React.FC<NavProps> = ({ variant }) => {

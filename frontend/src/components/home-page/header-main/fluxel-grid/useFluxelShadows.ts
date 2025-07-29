@@ -52,7 +52,7 @@ function getShadowInfluence(
  * @param smoothing - Whether to apply smooth falloff instead of binary influence (default: true)
  *
  * @author Bradley Baysinger
- * @since The beginning of time.
+ * @since 2025
  */
 export function useFluxelShadows({
   gridRef,

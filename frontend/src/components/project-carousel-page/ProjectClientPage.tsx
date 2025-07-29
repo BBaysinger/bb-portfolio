@@ -32,7 +32,7 @@ import styles from "./ProjectClientPage.module.scss";
  * then propagate to the rest of the components.
  *
  * @author Bradley Baysinger
- * @since The beginning of time.
+ * @since 2025
  * @version N/A
  */
 const ProjectClientPage: React.FC<{ projectId: string }> = ({ projectId }) => {

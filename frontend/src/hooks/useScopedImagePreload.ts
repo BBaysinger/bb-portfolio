@@ -14,7 +14,7 @@ import { useEffect } from "react";
  * There's a list of todos at the end of the file for future enhancements.
  *
  * @author Bradley Baysinger
- * @since The beginning of time.
+ * @since 2025
  * @version N/A
  */
 import { createDebugLogger } from "@/utils/Logging";
@@ -36,7 +36,7 @@ interface PreloadOptions {
  * Adds a <link rel="preload">, decodes the image, and inserts a hidden <img> to preserve memory cache.
  *
  * @author Bradley Baysinger
- * @since The beginning of time.
+ * @since 2025
  */
 export function useScopedImagePreload(
   src: string,

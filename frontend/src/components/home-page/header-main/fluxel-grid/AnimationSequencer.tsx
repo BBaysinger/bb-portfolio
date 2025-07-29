@@ -57,7 +57,7 @@ interface AnimationMeta {
  * - SCSS module styles (AnimationSequencer.module.scss)
  *
  * @author Bradley Baysinger
- * @since The beginning of time.
+ * @since 2025
  * @version N/A
  */
 const AnimationSequencer = forwardRef<

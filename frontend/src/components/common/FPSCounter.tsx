@@ -9,7 +9,7 @@ import styles from "./FPSCounter.module.scss";
  * when using a non-monospaced 7-tile font.
  *
  * @author Bradley Baysinger
- * @since The beginning of time.
+ * @since 2025
  * @version N/A
  */
 const FPSCounter: React.FC<{ updateInterval?: number; className?: string }> = ({
