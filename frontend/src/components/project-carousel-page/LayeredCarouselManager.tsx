@@ -33,6 +33,44 @@ export interface LayeredCarouselManagerRef {
   scrollToSlide: (targetIndex: number) => void;
 }
 
+/**
+ * LayeredCarouselManager Component
+ *
+ * - Low-level core of the synchronized scroll system.
+ * - Accepts a configurable set of "layers" consisting of master and slave carousels.
+ * - The master layer drives scroll position and stabilization events.
+ * - Slave layers mirror the master layer’s scroll position via dynamic multipliers.
+ * - Enables parallax, synchronized device displays, and complex carousel-based UIs.
+ *
+ * Behavior:
+ * - Each layer is a Carousel instance, assigned either "Master" or "Slave" type.
+ * - Slaves listen to the master's scroll position (adjusted by spacing multipliers).
+ * - Master emits `onScrollUpdate` and `onStabilizationUpdate` when interaction occurs.
+ * - The component uses `useImperativeHandle` to expose `scrollToSlide` on the master.
+ * - Optionally stabilizes slide elements with a CSS class when their index matches.
+ *
+ * Props:
+ * - `layers`: Array of layer configs, each with ID, spacing, slides, and type.
+ * - `prefix`: Optional class name prefix for consistency and modularity.
+ * - `styleMap`: CSS module mapping used with `resolveClass`.
+ * - `initialIndex`: Starting slide index for all carousels.
+ * - `onScrollUpdate`: Callback fired on every master scroll position update.
+ * - `onStabilizationUpdate`: Callback when a scroll completes and locks onto a slide.
+ * - `className`: Optional external class for layout styling.
+ *
+ * Layer Design:
+ * - Slave layers display the visuals (e.g., phones, laptops).
+ * - Master layer may be invisible, acting purely as a control layer (e.g., scrollbar logic).
+ *
+ * Example Usage:
+ * Used by `ProjectCarouselView` to render a custom synchronized carousel with
+ * interactive parallax layers and route-driven slide control.
+ *
+ * This is the key abstraction for custom scrollbar behavior and layered scroll syncing.
+ *
+ * @author Bradley Baysinger
+ * @since 2025
+ */
 const LayeredCarouselManager = forwardRef<
   LayeredCarouselManagerRef,
   LayeredCarouselManagerProps

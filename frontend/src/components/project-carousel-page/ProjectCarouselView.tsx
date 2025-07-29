@@ -13,29 +13,36 @@ import styles from "./ProjectCarouselView.module.scss";
 /**
  * ProjectCarouselView Component
  *
- * - Defines and composes multiple synchronized carousel layers (laptop, phone, and control).
- * - Uses a master/slave architecture where the "Control" layer drives user interaction,
- *   and the visible layers (Laptop and Phone) are visual-only followers.
- * - Supports smooth inertial scrolling and synchronization across all layers.
- * - Acts as the top-level container for a layered carousel system.
- * - Creates a custom scrollbar effect by leveraging a hidden control layer that mirrors the visible slides.
+ * - High-level layout and configuration layer for the carousel system.
+ * - Assembles visual device layers (Laptop and Phone) and a hidden master control layer.
+ * - Delegates all scrolling and synchronization behavior to `LayeredCarouselManager`.
+ * - Defines the visual structure and data-driven content for each layer.
+ *
+ * Distinction:
+ * - Unlike `LayeredCarouselManager`, this component does **not handle scroll logic**.
+ *   Instead, it defines **what** to render and **how** it’s layered.
+ * - This is the “view” layer — wiring up project data, slide spacing, and visual types.
+ * - You could swap out the devices or modify layer behavior without touching the core scroll engine.
  *
  * Props:
- * - `projectId` (string): The ID of the current project (not directly used here but useful for future filtering or linking).
- * - `initialIndex` (number): The starting index of the carousel, applied to all layers.
- * - `refObj` (Ref): Ref used to imperatively control or query the LayeredCarouselManager.
- * - `onStabilizationUpdate` (function): Callback triggered when carousel scroll stabilizes,
- *    includes the stabilized index, scroll source, and scroll direction.
+ * - `projectId` (string): The project currently being viewed (useful for external state sync).
+ * - `initialIndex` (number): The index to start the carousel on.
+ * - `refObj` (Ref): Exposes scroll control on the master layer to parent components.
+ * - `onStabilizationUpdate`: Callback fired when scroll locks onto a slide.
  *
- * Children:
- * - Renders one `LayeredCarouselManager` instance containing 3 layers:
- *    1. `Laptops`: A slave layer showing widescreen previews of each project.
- *    2. `Phones`: A slave layer showing mobile previews of each project.
- *    3. `Control`: A master layer with invisible slides that drive synchronization and scroll logic.
+ * Behavior:
+ * - Builds a `layers` config array with three layers:
+ *   1. `Laptops`: A slave layer showing desktop project previews.
+ *   2. `Phones`: A slave layer showing mobile project previews.
+ *   3. `Control`: A master layer with `null` slides to serve as a scroll driver.
  *
  * Styling:
- * - Uses CSS Modules via `ProjectCarouselView.module.scss`.
- * - Class names are namespaced using the `bb-carousel-` prefix passed to the manager.
+ * - Uses namespaced class names and CSS modules.
+ * - The `bb-carousel-` prefix ensures consistent class resolution within nested components.
+ *
+ * Example:
+ * Used inside project detail pages to render a synchronized multi-device preview carousel.
+ * The scroll interactions and stabilization logic are handled entirely by LayeredCarouselManager.
  *
  * @author Bradley Baysinger
  * @since 2025
