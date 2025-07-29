@@ -16,7 +16,7 @@ const start = async () => {
 
   const port = process.env.PORT || 3001
   app.listen(port, () => {
-    console.log(`🚀 Payload Admin panel available at http://localhost:${port}/admin`)
+    console.info(`🚀 Payload Admin panel available at http://localhost:${port}/admin`)
   })
 }
 
