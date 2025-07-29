@@ -3,20 +3,25 @@
 
 .projectCarouselView {
   position: relative;
-}
-
-.layeredCarouselManager {
   height: 470px;
+  width: 992px;
   box-sizing: border-box;
   z-index: 0;
-  border: 1px solid red;
+  left: 50%;
+  transform: translateX(-50%);
 
   @include remRange("margin-top", -115px, 0px, $b320, 680);
   @include remRange("margin-bottom", -115px, 0px, $b320, 680);
 }
 
+.layeredCarouselManager {
+  height: 100%;
+}
+
 .carouselWrapper {
-  position: relative;
+  width: 100%;
+  height: 100%;
+  border: 1px solid black;
 }
 
 .slideLayer {

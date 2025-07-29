@@ -26,13 +26,13 @@ import {
 
 /**
  * Carousel Component
- * - Minimal state, for performance and smoothest user interaction possible.
  * - Bi-directional, infinite-scroll carousel with wrap-around behavior.
  * - Leverages browser-native HTML inertial touch/swipe trackpad/gesture scrolling for smooth interactions.
  * - Infinite scroll supporting master-slave architecture for synchronizing parallax effects.
  * - Built for performance and smooth user interaction with inertial scrolling and precise position tracking.
  * - Designed to handle various use cases, including custom scroll synchronization and routing.
  * - Slides are passed as props.
+ * - Minimal state, for performance and smoothest user interaction possible.
  *
  * Supports master/slave architecture:
  * - **Master Carousel:** Intercepts and controls interactions, allowing delegation of scroll parameters to slave carousels via parent/child architecture.
@@ -115,14 +115,19 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
 
   const getWrapperClass = (): string => {
     const retVal = clsx(
-      resolveClass("Wrapper", classNamePrefix, styles, styleMap),
+      resolveClass("carouselWrapper", classNamePrefix, styles, styleMap),
       resolveClass(
-        isSlaveMode ? "slave" : "master",
+        isSlaveMode ? "carouselSlaveWrapper" : "carouselMasterWrapper",
         classNamePrefix,
         styles,
         styleMap,
       ),
-      resolveClass(layerId, classNamePrefix, styles, styleMap),
+      resolveClass(
+        `carousel${layerId}Wrapper`,
+        classNamePrefix,
+        styles,
+        styleMap,
+      ),
     );
     console.log(retVal);
     return retVal;
@@ -416,14 +421,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
   const isDebug = () => Boolean(debug);
 
   return (
-    <div
-      ref={wrapperRef}
-      className={clsx(
-        styles.carouselWrapper,
-        isSlaveMode && styles.slaveWrapper,
-        getWrapperClass(),
-      )}
-    >
+    <div ref={wrapperRef} className={getWrapperClass()}>
       {isDebug() && (
         <div className={styles.debug}>
           {scrollIndex} {stableIndex.current} {scrollerRef.current?.scrollLeft}
