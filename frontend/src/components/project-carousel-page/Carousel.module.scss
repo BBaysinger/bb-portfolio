@@ -5,7 +5,7 @@
   position: absolute;
 }
 
-.carouselSlider {
+.carouselScroller {
   position: absolute;
   width: 100%;
   height: 100%;
@@ -18,7 +18,7 @@
 }
 
 .slaveWrapper {
-  .carouselSlider {
+  .carouselScroller {
     overflow-x: visible;
     pointer-events: none;
     user-select: none;
@@ -46,8 +46,9 @@
 
 .carouselSlide {
   position: absolute;
-  width: 693px;
+  // width: 693px;
   scroll-snap-align: center;
+  border: 1px solid green;
 }
 
 .debug {

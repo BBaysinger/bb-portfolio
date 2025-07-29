@@ -205,7 +205,7 @@ for (const packageJsonPath of packageJsonPaths) {
 
   const json5Path = packageJsonPath + "5";
   if (!fs.existsSync(json5Path)) {
-    console.log(`⏩ Skipping ${relPath} — no package.json5 found`);
+    console.info(`⏩ Skipping ${relPath} — no package.json5 found`);
     continue;
   }
 
@@ -214,5 +214,5 @@ for (const packageJsonPath of packageJsonPaths) {
   const updated = syncJson5(rawJson5, sourceJson);
 
   fs.writeFileSync(json5Path, updated);
-  console.log(`✅ Synced ${relPath} → ${path.basename(json5Path)}`);
+  console.info(`✅ Synced ${relPath} → ${path.basename(json5Path)}`);
 }

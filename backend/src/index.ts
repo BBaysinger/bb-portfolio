@@ -7,23 +7,23 @@ dotenv.config()
 const app = express()
 
 const start = async () => {
-  console.log('Before dynamic import')
+  console.info('Before dynamic import')
 
   const config = (await import('./payload.config')).default
-  console.log('Payload module loaded')
+  console.info('Payload module loaded')
 
-  console.log('Config loaded')
-  console.log('Calling init...')
+  console.info('Config loaded')
+  console.info('Calling init...')
 
   await payload.init({
     config,
   })
 
-  console.log('✅ Payload initialized')
+  console.info('✅ Payload initialized')
 
   const port = process.env.PORT || 3000
   app.listen(port, () => {
-    console.log(`🚀 Payload Admin URL: http://localhost:${port}/admin`)
+    console.info(`🚀 Payload Admin URL: http://localhost:${port}/admin`)
   })
 }
 

@@ -129,7 +129,6 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
         styleMap,
       ),
     );
-    console.log(retVal);
     return retVal;
   };
 

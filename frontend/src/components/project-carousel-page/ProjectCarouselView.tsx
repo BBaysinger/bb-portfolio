@@ -1,4 +1,3 @@
-// import clsx from "clsx";
 import React, { useMemo } from "react";
 
 import ProjectData from "@/data/ProjectData";

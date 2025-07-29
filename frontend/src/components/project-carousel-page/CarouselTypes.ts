@@ -33,11 +33,6 @@ interface CarouselProps {
     direction: DirectionType,
   ) => void;
 
-  // Styling
-  // wrapperClassName?: string; // fallback class
-  // slideClassName?: string; // fallback class
-  // sliderClassName?: string; // fallback class
-
   classNamePrefix?: string; // e.g. "bb-"
   styleMap?: { [key: string]: string }; // SCSS module object
   layerId?: string; // e.g. "phones", "laptops"
