@@ -84,8 +84,7 @@ const ProjectClientPage: React.FC<{ projectId: string }> = ({ projectId }) => {
           newProjectId !== lastKnownProjectId.current &&
           source === Source.NATURAL
         ) {
-          // router.push(`/project-view/${newProjectId}`, { state: { shallow: true } });
-          router.push(`/project-view/${newProjectId}`);
+          router.push(`/project-view/${newProjectId}`, { scroll: false });
           lastKnownProjectId.current = newProjectId;
         }
 
