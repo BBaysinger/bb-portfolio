@@ -17,7 +17,7 @@
   }
 }
 
-.slave {
+.carouselSlave {
   .carouselScroller {
     overflow-x: visible;
     pointer-events: none;
@@ -27,7 +27,7 @@
 }
 
 .hiddenSlide {
-  // visibility: hidden;
+  visibility: hidden;
 }
 
 .debugInfo {
