@@ -115,19 +115,14 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
 
   const getWrapperClass = (): string => {
     const retVal = clsx(
-      resolveClass("carouselWrapper", classNamePrefix, styles, styleMap),
+      resolveClass("carousel", classNamePrefix, styles, styleMap),
       resolveClass(
-        isSlaveMode ? "carouselSlaveWrapper" : "carouselMasterWrapper",
+        isSlaveMode ? "carouselSlave" : "carouselMaster",
         classNamePrefix,
         styles,
         styleMap,
       ),
-      resolveClass(
-        `carousel${layerId}Wrapper`,
-        classNamePrefix,
-        styles,
-        styleMap,
-      ),
+      resolveClass(`carousel${layerId}`, classNamePrefix, styles, styleMap),
     );
     return retVal;
   };
