@@ -94,7 +94,7 @@ const ContactPage = () => {
                   <input
                     type="text"
                     name="name"
-                    placeholder="Charlie Brown"
+                    placeholder="Your Name"
                     value={formData.name}
                     onChange={handleChange}
                     autoComplete="name"
