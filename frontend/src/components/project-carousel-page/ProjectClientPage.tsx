@@ -36,7 +36,7 @@ import styles from "./ProjectClientPage.module.scss";
  * @version N/A
  */
 const ProjectClientPage: React.FC<{ projectId: string }> = ({ projectId }) => {
-  // const { projectId = "" } = useParams<{ projectId: string }>();
+
   const projects = ProjectData.activeProjectsRecord;
   const [initialIndex] = useState<number | null>(() => {
     return projectId ? (ProjectData.projectIndex(projectId) ?? null) : null;
