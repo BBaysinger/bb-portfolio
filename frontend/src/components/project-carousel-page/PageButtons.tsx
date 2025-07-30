@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import React from "react";
 
 import ProjectData from "@/data/ProjectData";
@@ -16,9 +16,8 @@ import styles from "./PageButtons.module.scss";
  * @version N/A
  */
 const PageButtons: React.FC = () => {
-  const params = useParams();
-  const projectId =
-    typeof params?.projectId === "string" ? params.projectId : "";
+  const searchParams = useSearchParams();
+  const projectId = searchParams.get("project") ?? "";
 
   const prevId = ProjectData.prevKey(projectId);
   const nextId = ProjectData.nextKey(projectId);
@@ -26,13 +25,15 @@ const PageButtons: React.FC = () => {
   return (
     <div className={styles.projectNav}>
       <Link
-        href={`/project-view/${prevId}`}
+        href={`/project-view?project=${prevId}`}
+        scroll={false}
         className={`${styles.navButton} ${styles.prev}`}
       >
         <div className={styles.inner}></div>
       </Link>
       <Link
-        href={`/project-view/${nextId}`}
+        href={`/project-view?project=${nextId}`}
+        scroll={false}
         className={`${styles.navButton} ${styles.next}`}
       >
         <div className={styles.inner}></div>
