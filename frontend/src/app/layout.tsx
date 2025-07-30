@@ -1,3 +1,4 @@
+import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { ReactNode } from "react";
 
 import { ClientLayoutShell } from "./ClientLayoutShell";
@@ -10,9 +11,11 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <body>
-        <AppProviders>
-          <ClientLayoutShell>{children}</ClientLayoutShell>
-        </AppProviders>
+        <NuqsAdapter>
+          <AppProviders>
+            <ClientLayoutShell>{children}</ClientLayoutShell>
+          </AppProviders>
+        </NuqsAdapter>
       </body>
     </html>
   );

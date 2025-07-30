@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useQueryState, parseAsString } from "nuqs";
 import React, {
   useRef,
   useState,
@@ -35,26 +35,28 @@ import styles from "./ProjectClientPage.module.scss";
  * @since 2025
  * @version N/A
  */
-const ProjectClientPage: React.FC<{ projectId: string }> = ({ projectId }) => {
-
+const ProjectClientPage: React.FC = () => {
   const projects = ProjectData.activeProjectsRecord;
+
+  const [projectId, setProjectId] = useQueryState("project", parseAsString);
+
   const [initialIndex] = useState<number | null>(() => {
     return projectId ? (ProjectData.projectIndex(projectId) ?? null) : null;
   });
+
   const [stabilizedIndex, setStabilizedIndex] = useState<number | null>(
     () => initialIndex,
   );
+
   const stabilizationTimer = useRef<NodeJS.Timeout | null>(null);
   const sourceRef = useRef<SourceType>(Source.NATURAL);
   const directionRef = useRef<DirectionType>(Direction.LEFT);
-  const lastKnownProjectId = useRef(projectId);
+  const lastKnownProjectId = useRef(projectId ?? "");
   const carouselRef = useRef<LayeredCarouselManagerRef>(null);
-
-  const router = useRouter();
   const isCarouselSourceRef = useRef(false);
 
   const brandId = useMemo(
-    () => projects[projectId]?.brandId,
+    () => (projectId && projects[projectId]?.brandId) ?? "",
     [projects, projectId],
   );
 
@@ -84,7 +86,7 @@ const ProjectClientPage: React.FC<{ projectId: string }> = ({ projectId }) => {
           newProjectId !== lastKnownProjectId.current &&
           source === Source.NATURAL
         ) {
-          router.push(`/project-view/${newProjectId}`, { scroll: false });
+          setProjectId(newProjectId);
           lastKnownProjectId.current = newProjectId;
         }
 
@@ -95,18 +97,18 @@ const ProjectClientPage: React.FC<{ projectId: string }> = ({ projectId }) => {
         setStabilizedIndex(newStabilizedIndex);
       }
     },
-    [stabilizedIndex, projects, router],
+    [stabilizedIndex, projects, setProjectId],
   );
 
   useEffect(() => {
-    lastKnownProjectId.current = projectId;
+    lastKnownProjectId.current = projectId ?? "";
   }, [projectId]);
 
   useEffect(() => {
-    if (carouselRef.current && projects[projectId]) {
+    if (carouselRef.current && projectId && projects[projectId]) {
       const targetIndex = ProjectData.projectIndex(projectId);
 
-      if (stabilizedIndex !== targetIndex) {
+      if (targetIndex !== null && stabilizedIndex !== targetIndex) {
         if (!isCarouselSourceRef.current) {
           carouselRef.current.scrollToSlide(targetIndex);
         }
@@ -115,6 +117,10 @@ const ProjectClientPage: React.FC<{ projectId: string }> = ({ projectId }) => {
 
     isCarouselSourceRef.current = false;
   }, [projectId, projects, stabilizedIndex]);
+
+  if (!projectId || !projects[projectId]) {
+    return <div>Project not found.</div>;
+  }
 
   return (
     <div className={styles.projectsPresentation}>
