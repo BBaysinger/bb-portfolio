@@ -1,11 +1,9 @@
 import clsx from "clsx";
-import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import Hamburger from "@/components/layout/Hamburger";
-import navLogo from "@/images/misc/bb-logo.svg";
 import { RootState } from "@/store/store";
 import { expandMobileNav } from "@/store/uiSlice";
 
@@ -61,7 +59,12 @@ const NavVariant: React.FC<NavProps> = ({ variant }) => {
       )}
 
       <Link href="/#top" className={styles.title}>
-        <Image src={navLogo} className={styles.navLogo} alt="BB Logo" />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={"/images/home/bb-logo.svg"}
+          className={styles.navLogo}
+          alt="BB Logo"
+        />
         <div className={styles.navLogoText}>
           <div className={styles.name}>
             <span>BRADLEY</span> <span>BAYSINGER</span>
