@@ -1,8 +1,0 @@
-[build]
-  base    = "frontend"
-  publish = "dist"
-  command = "npm run build"
-
-[build.environment]
-  NODE_VERSION = "22.17.1"
-  NODE_ENV = "production"
