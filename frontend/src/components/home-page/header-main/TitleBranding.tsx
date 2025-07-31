@@ -3,7 +3,6 @@ import Image from "next/image";
 import { forwardRef } from "react";
 
 import BarberPole from "@/components/common/BarberPole";
-import headerLogo from "@/images/hero/bb-gradient.webp";
 
 import styles from "./TitleBranding.module.scss";
 
@@ -12,7 +11,21 @@ type TitleBrandingProps = {
 };
 
 /**
+ * TitleBranding component
  *
+ * Renders the site branding for the homepage hero section, including the BB logo,
+ * animated barber pole accent, and the site owner's name and title.
+ *
+ * This component overlays the Fluxel grid on the home screen and serves as
+ * the main identity marker for the user. It is typically placed in the hero section.
+ *
+ * @component
+ * @example
+ * <TitleBranding />
+ *
+ * @param {TitleBrandingProps} props
+ * @param {string} [props.className] - Optional additional className(s) to append to the wrapper.
+ * @param {React.Ref<HTMLDivElement>} ref - Forwarded ref to the root div.
  *
  * @author Bradley Baysinger
  * @since 2025
@@ -24,7 +37,11 @@ const TitleBranding = forwardRef<HTMLDivElement, TitleBrandingProps>(
       <div ref={ref} className={`${styles.titleBranding} ${className}`}>
         <span className={styles.logoWrapper}>
           <div>
-            <Image src={headerLogo} className={styles.heroLogo} alt="BB Logo" />
+            <Image
+              src={"/images/hero/bb-gradient.webp"}
+              className={styles.heroLogo}
+              alt="BB Logo"
+            />
           </div>
         </span>
         <span className={styles.hWrapper}>
