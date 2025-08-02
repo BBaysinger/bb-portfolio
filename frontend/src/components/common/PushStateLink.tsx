@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import Link from "next/link";
+import { useEffect, useState } from "react";
 
 interface PushStateLinkProps {
   /** The destination URL */
@@ -12,6 +12,8 @@ interface PushStateLinkProps {
   className?: string;
   /** Optional callback to run after navigation */
   onNavigate?: () => void;
+  /** Whether to scroll to top after pushState (default: false) */
+  scrollToTop?: boolean;
 }
 
 /**
@@ -22,8 +24,8 @@ interface PushStateLinkProps {
  * - On the client, it renders a plain `<a>` tag and uses `window.history.pushState`
  *   to update the URL without triggering a full page reload or rerender.
  *
- * This is useful for light-weight UI state transitions like filters, tabs, carousels, or query updates
- * where you want URL changes without Next.js routing overhead.
+ * This is useful for lightweight UI state transitions like carousels, filters, or tab-like views.
+ * By default, it preserves the current scroll position — but you can opt into scroll-to-top behavior.
  *
  * @component
  * @example
@@ -31,8 +33,12 @@ interface PushStateLinkProps {
  * <PushStateLink href="/projects?filter=featured" onNavigate={() => setFilter('featured')}>
  *   Featured Projects
  * </PushStateLink>
+ *
+ * <PushStateLink href="/page-top" scrollToTop>
+ *   Back to top
+ * </PushStateLink>
  * ```
- * 
+ *
  * @author Bradley Baysinger
  * @since 2025
  * @version N/A
@@ -42,6 +48,7 @@ export function PushStateLink({
   children,
   className,
   onNavigate,
+  scrollToTop = false,
 }: PushStateLinkProps) {
   const [isClient, setIsClient] = useState(false);
 
@@ -50,20 +57,25 @@ export function PushStateLink({
   }, []);
 
   if (!isClient) {
-    // Server: Render Next.js <Link> for static optimization
     return (
-      <Link href={href} className={className}>
+      <Link
+        href={href}
+        className={className}
+        scroll={!scrollToTop ? false : true}
+      >
         {children}
       </Link>
     );
   }
 
-  // Client: Use pushState to update URL without navigation
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
 
     if (window.location.pathname !== href) {
-      window.history.pushState(null, '', href);
+      window.history.pushState(null, "", href);
+      if (scrollToTop) {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
       onNavigate?.();
     }
   };
