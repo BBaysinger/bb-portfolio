@@ -32,8 +32,27 @@ export default function useQueryParams<T extends QueryParamValue>(
 /**
  * useQueryParams (Next.js version)
  *
- * Retrieves query parameters as parsed values. Returns either all query params,
- * a specific param by key, or the param with a fallback/default value.
+ * A custom hook for retrieving and parsing query parameters using `useSearchParams()` from
+ * `next/navigation`. This hook provides flexible overloads:
+ *
+ * - No arguments: returns all query parameters as a key-value map
+ * - With `key`: returns the typed value of that key (boolean, number, or string)
+ * - With `key` and `defaultValue`: returns the value or the default if undefined,
+ *   with type safety and runtime checks
+ *
+ * Useful for lightweight URL-driven state or feature toggles, such as experimental
+ * mode switches in interactive components.
+ *
+ * ⚠️ Must be used inside a Client Component wrapped in a `<Suspense>` boundary
+ * when used in a static export (`next export`) environment.
+ *
+ * @template T - The expected return type (boolean | number | string)
+ * @param {string} [key] - The query parameter to retrieve
+ * @param {T} [defaultValue] - A fallback value if the query param is missing
+ * @returns {Record<string, QueryParamValue> | T | undefined}
+ *
+ * @example
+ * const debug = useQueryParams("debug", false); // → boolean
  *
  * @author Bradley Baysinger
  * @since 2025
