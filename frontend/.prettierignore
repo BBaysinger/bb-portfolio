@@ -1,9 +1,21 @@
-**/dist/
-dist/
+# Node & Dependency Artifacts
+node_modules/
 package-lock.json
-package.json5
-backend/.next/
-backend-previous/.next/
-frontend/.next/
+pnpm-lock.yaml
+yarn.lock
+
+# Build Outputs
+dist/
+**/dist/
+
+# Next.js Build Artifacts
+.next/
+**/.next/
+out/
+
+# Legacy / Archived / Backup Folders
 frontend-vite-old/
-payload-types.ts
+backend-previous/
+
+# Misc
+package.json5
