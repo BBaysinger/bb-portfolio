@@ -1,3 +1,4 @@
+import { RawImg } from "@/components/common/RawImg";
 import MagneticThingy from "@/components/home-page/MagneticThingy";
 import useInViewAnimation from "@/hooks/useInViewAnimation";
 
@@ -18,8 +19,7 @@ const Greeting: React.FC = () => {
       <div className={styles.greetingWrapper}>
         <div className={styles.helloSignWrapper}>
           <MagneticThingy className={styles.helloSign}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+            <RawImg
               src="/images/home/hello.webp"
               alt="hello"
               className={styles.helloImage}

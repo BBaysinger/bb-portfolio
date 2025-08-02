@@ -3,6 +3,7 @@ import Link from "next/link";
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 
+import { RawImg } from "@/components/common/RawImg";
 import Hamburger from "@/components/layout/Hamburger";
 import { RootState } from "@/store/store";
 import { expandMobileNav } from "@/store/uiSlice";
@@ -59,8 +60,7 @@ const NavVariant: React.FC<NavProps> = ({ variant }) => {
       )}
 
       <Link href="/#top" className={styles.title}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+        <RawImg
           src={"/images/home/bb-logo.svg"}
           className={styles.navLogo}
           alt="BB Logo"
