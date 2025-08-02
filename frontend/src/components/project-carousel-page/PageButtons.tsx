@@ -9,7 +9,21 @@ import ProjectData from "@/data/ProjectData";
 import styles from "./PageButtons.module.scss";
 
 /**
- * Navigation buttons to switch between projects in the portfolio view.
+ * PageButtons component
+ *
+ * Responsive navigation buttons for the project carousel.
+ * These buttons appear on the left and right edges of the page and allow users
+ * to navigate to the previous or next project in the portfolio view by updating
+ * the `project` query parameter.
+ *
+ * The active project ID is pulled from the URL via `useSearchParams()`, and
+ * the appropriate next/previous IDs are calculated using the `ProjectData` utility.
+ *
+ * Button clicks trigger shallow route changes without scrolling the page,
+ * preserving scroll position and animation state across transitions.
+ *
+ * @component
+ * @returns {JSX.Element} Left/right navigation controls for the project view.
  *
  * @author Bradley Baysinger
  * @since 2025
