@@ -1,5 +1,6 @@
 import React from "react";
 
+import { RawImg } from "@/components/common/RawImg";
 import { MobileStatus } from "@/data/ProjectData";
 
 import styles from "./DeviceDisplay.module.scss";
@@ -40,8 +41,7 @@ const DeviceDisplay: React.FC<DeviceDisplayProps> = React.memo(
           <div
             className={`bbLaptop ${styles.backgroundWrapper} ${styles[deviceType]}`}
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+            <RawImg
               src={src}
               alt={id}
               loading="eager"
@@ -55,8 +55,7 @@ const DeviceDisplay: React.FC<DeviceDisplayProps> = React.memo(
               ` bb${mobileStatus ? mobileStatus : ""} ${styles[deviceType]}`
             }
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+            <RawImg
               src={src}
               alt={id}
               loading="eager"

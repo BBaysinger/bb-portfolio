@@ -2,6 +2,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React, { useState, useEffect, useRef } from "react";
 
+import { RawImg } from "@/components/common/RawImg";
+
 import styles from "./Footer.module.scss";
 import FootGreet from "./FootGreet";
 import Links from "./NavLinks";
@@ -225,8 +227,7 @@ const Footer: React.FC<FooterProps> = ({ mutationElemRef }) => {
               target="_blank"
               rel="noopener noreferrer"
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/images/footer/react.svg" alt="React Logo" />
+              <RawImg src="/images/footer/react.svg" alt="React Logo" />
               Built with React
             </a>
           </div>
