@@ -1,57 +1,51 @@
 "use client";
 
-import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useParams } from "next/navigation";
 import React from "react";
 
+import { PushStateLink } from "@/components/common/PushStateLink";
 import ProjectData from "@/data/ProjectData";
 
 import styles from "./PageButtons.module.scss";
 
 /**
- * PageButtons component
+ * Navigation buttons to switch between projects in the portfolio view.
+ * Uses manual pushState routing to avoid full rerenders or scroll resets.
  *
- * Responsive navigation buttons for the project carousel.
- * These buttons appear on the left and right edges of the page and allow users
- * to navigate to the previous or next project in the portfolio view by updating
- * the `project` query parameter.
+ * This component reads the current `projectId` from the route segment using `useParams()`,
+ * and uses `ProjectData` helpers to determine the next and previous project IDs.
  *
- * The active project ID is pulled from the URL via `useSearchParams()`, and
- * the appropriate next/previous IDs are calculated using the `ProjectData` utility.
- *
- * Button clicks trigger shallow route changes without scrolling the page,
- * preserving scroll position and animation state across transitions.
+ * Replaces traditional <Link> with <PushStateLink> to maintain animation and scroll state.
  *
  * @component
- * @returns {JSX.Element} Left/right navigation controls for the project view.
+ * @returns {JSX.Element} Prev/Next navigation buttons.
  *
  * @author Bradley Baysinger
  * @since 2025
  * @version N/A
  */
 const PageButtons: React.FC = () => {
-  const searchParams = useSearchParams();
-  const projectId = searchParams.get("project") ?? "";
+  const params = useParams();
+  const projectId =
+    typeof params?.projectId === "string" ? params.projectId : "";
 
   const prevId = ProjectData.prevKey(projectId);
   const nextId = ProjectData.nextKey(projectId);
 
   return (
     <div className={styles.projectNav}>
-      <Link
-        href={`/project-view?project=${prevId}`}
-        scroll={false}
+      <PushStateLink
+        href={`/project-view/${prevId}`}
         className={`${styles.navButton} ${styles.prev}`}
       >
         <div className={styles.inner}></div>
-      </Link>
-      <Link
-        href={`/project-view?project=${nextId}`}
-        scroll={false}
+      </PushStateLink>
+      <PushStateLink
+        href={`/project-view/${nextId}`}
         className={`${styles.navButton} ${styles.next}`}
       >
         <div className={styles.inner}></div>
-      </Link>
+      </PushStateLink>
     </div>
   );
 };
