@@ -1,12 +1,13 @@
 import clsx from "clsx";
 import Link from "next/link";
 import React, { useState, useCallback, useRef, useEffect } from "react";
+import { Suspense } from "react";
 
 import FPSCounter from "@/components/common/FPSCounter";
 import ChargedCircle from "@/components/home-page/header-main/ChargedCircle";
 import OrbArrowTooltip from "@/components/home-page/header-main/OrbArrowTooltip";
 import useClientDimensions from "@/hooks/useClientDimensions";
-import useQueryParams from "@/hooks/useQueryParams";
+// import useQueryParams from "@/hooks/useQueryParams";
 import useScrollPersistedClass from "@/hooks/useScrollPersistedClass";
 import useTimeOfDay from "@/hooks/useTimeOfDay";
 
@@ -16,6 +17,7 @@ import GridController, {
 } from "./fluxel-grid/GridController";
 import { Direction } from "./fluxel-grid/useFluxelProjectiles";
 import styles from "./Hero.module.scss";
+import HeroQueryConfig from "./HeroQueryConfig";
 import ParagraphAnimator from "./ParagraphAnimator";
 import SlingerBox, { SlingerBoxHandle } from "./SlingerBox";
 import TitleBranding from "./TitleBranding";
@@ -42,7 +44,24 @@ const quotes = [
 /**
  * Hero
  *
- * Interactive slinger and fluxel grid overlaid with branding graphics on the home page.
+ * The homepage hero section, featuring a dynamic Fluxel grid and physics-based "Slinger" interaction.
+ * Includes branding, animated tooltips, project nav triggers, and a kinetic interactive environment
+ * for engaging the user visually and experientially.
+ *
+ * This component overlays a logo and interactive text over a Fluxel grid background. Users can drag
+ * the Slinger (a draggable orb), triggering shadow and projectile effects on the grid, with behavior
+ * controlled by query string parameters (e.g., `?useSlingerTracking=true`).
+ *
+ * Additional elements include:
+ * - FPS counter for performance awareness
+ * - Time-aware greeting and quote rotation
+ * - Scroll-to-next-section CTA
+ *
+ * ⚠️ Requires rendering inside a `<Suspense>` boundary due to `useQueryParams()` (which uses `useSearchParams()`).
+ * This is essential for compatibility with `next export` and the App Router.
+ *
+ * @component
+ * @returns {JSX.Element} Hero header with grid and interactive branding.
  *
  * @author Bradley Baysinger
  * @since 2025
@@ -75,7 +94,8 @@ const Hero: React.FC = () => {
   const { clientHeight, clientWidth } = useClientDimensions();
   const [isSlingerInFlight, setIsSlingerInFlight] = useState(false);
   const slingerLoopId = useRef<number | null>(null);
-  const useSlingerTracking = useQueryParams<boolean>("useSlingerTracking");
+  // const useSlingerTracking = useQueryParams<boolean>("useSlingerTracking");
+  const [useSlingerTracking, setUseSlingerTracking] = useState(false);
 
   const updateHasDragged = useCallback((value: boolean) => {
     sessionStorage.setItem("hasDragged", value ? "true" : "false");
@@ -223,6 +243,9 @@ const Hero: React.FC = () => {
           : `${styles.notMounted} notMounted`,
       )}
     >
+      <Suspense fallback={null}>
+        <HeroQueryConfig onUpdate={setUseSlingerTracking} />
+      </Suspense>
       <div>
         <GridController
           useSlingerTracking={useSlingerTracking}
