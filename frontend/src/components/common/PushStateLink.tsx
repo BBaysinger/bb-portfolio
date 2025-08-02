@@ -58,11 +58,7 @@ export function PushStateLink({
 
   if (!isClient) {
     return (
-      <Link
-        href={href}
-        className={className}
-        scroll={!scrollToTop ? false : true}
-      >
+      <Link href={href} className={className}>
         {children}
       </Link>
     );
