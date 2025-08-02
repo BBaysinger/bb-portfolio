@@ -11,9 +11,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html lang="en">
       <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
       <body>
-          <AppProviders>
-            <ClientLayoutShell>{children}</ClientLayoutShell>
-          </AppProviders>
+        <AppProviders>
+          <ClientLayoutShell>{children}</ClientLayoutShell>
+        </AppProviders>
       </body>
     </html>
   );

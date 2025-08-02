@@ -1,18 +1,22 @@
 "use client";
 
 import { notFound } from "next/navigation";
-import { useSearchParams } from "next/navigation";
 
 import ProjectClientPage from "@/components/project-carousel-page/ProjectClientPage";
 import ProjectData from "@/data/ProjectData";
 
-export default function ProjectPage() {
-  const searchParams = useSearchParams();
-  const projectId = searchParams.get("project");
+type Props = {
+  params: {
+    projectId: string;
+  };
+};
+
+export default function ProjectPage({ params }: Props) {
+  const { projectId } = params;
 
   if (!projectId || !ProjectData.activeProjectsRecord[projectId]) {
     return notFound();
   }
 
-  return <ProjectClientPage />;
+  return <ProjectClientPage projectId={projectId} />;
 }
