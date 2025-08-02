@@ -1,8 +1,9 @@
 import clsx from "clsx";
-import Image from "next/image";
+
 import { forwardRef } from "react";
 
 import BarberPole from "@/components/common/BarberPole";
+import { RawImg } from "@/components/common/RawImg";
 
 import styles from "./TitleBranding.module.scss";
 
@@ -37,7 +38,7 @@ const TitleBranding = forwardRef<HTMLDivElement, TitleBrandingProps>(
       <div ref={ref} className={`${styles.titleBranding} ${className}`}>
         <span className={styles.logoWrapper}>
           <div>
-            <Image
+            <RawImg
               src={"/images/hero/bb-gradient.webp"}
               className={styles.heroLogo}
               alt="BB Logo"
