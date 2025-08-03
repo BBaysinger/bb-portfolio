@@ -23,7 +23,7 @@ import PageButtons from "@/components/project-carousel-page/PageButtons";
 import ProjectData from "@/data/ProjectData";
 
 import ProjectCarouselView from "./ProjectCarouselView";
-import styles from "./ProjectClientPage.module.scss";
+import styles from "./ProjectView.module.scss"; // You can rename this too if you want
 
 /**
  * Handles bidirectional nature of the interaction between the dynamic route and
@@ -31,18 +31,21 @@ import styles from "./ProjectClientPage.module.scss";
  * and when the route is the source of the change, the carousel is updated. The changes
  * then propagate to the rest of the components.
  *
+ * @component ProjectView
  * @author Bradley Baysinger
  * @since 2025
- * @version N/A
  */
-const ProjectClientPage: React.FC<{ projectId: string }> = ({ projectId }) => {
+const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
   const projects = ProjectData.activeProjectsRecord;
+
   const [initialIndex] = useState<number | null>(() => {
     return projectId ? (ProjectData.projectIndex(projectId) ?? null) : null;
   });
+
   const [stabilizedIndex, setStabilizedIndex] = useState<number | null>(
     () => initialIndex,
   );
+
   const stabilizationTimer = useRef<NodeJS.Timeout | null>(null);
   const sourceRef = useRef<SourceType>(Source.NATURAL);
   const directionRef = useRef<DirectionType>(Direction.LEFT);
@@ -126,7 +129,7 @@ const ProjectClientPage: React.FC<{ projectId: string }> = ({ projectId }) => {
         subhead={projects[projectId]?.tags?.join(", ") || ""}
       />
       <div
-        id="project" // Page anchor, NOT for CSS selection.
+        id="project"
         className={`${styles.projectsPresentationBody} ${slideDirectionClass}`}
       >
         <LogoSwapper projectId={brandId} />
@@ -134,7 +137,7 @@ const ProjectClientPage: React.FC<{ projectId: string }> = ({ projectId }) => {
           {initialIndex !== null && (
             <ProjectCarouselView
               refObj={carouselRef}
-              initialIndex={initialIndex ?? 0}
+              initialIndex={initialIndex}
               projectId={projectId}
               onStabilizationUpdate={handleStabilizationUpdate}
             />
@@ -147,4 +150,4 @@ const ProjectClientPage: React.FC<{ projectId: string }> = ({ projectId }) => {
   );
 };
 
-export default ProjectClientPage;
+export default ProjectView;
