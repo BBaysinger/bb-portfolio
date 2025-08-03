@@ -34,6 +34,7 @@ export function useRouteChange(
   const searchParams = useSearchParams();
 
   useEffect(() => {
+    console.log("Route change detected:", pathname, searchParams.toString());
     callback(pathname, searchParams.toString());
   }, [pathname, searchParams, callback]);
 }
