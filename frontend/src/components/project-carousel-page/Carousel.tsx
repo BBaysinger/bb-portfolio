@@ -232,10 +232,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
         onIndexUpdate?.(newDataIndex);
         if (stabilizationTimer.current)
           clearTimeout(stabilizationTimer.current);
-        if (
-          updateStableIndex &&
-          scrollTriggerSource.current !== Source.BUTTONS
-        ) {
+        if (updateStableIndex && scrollTriggerSource.current !== Source.ROUTE) {
           stabilizationTimer.current = setTimeout(() => {
             stableIndex.current = newDataIndex;
             onStabilizationUpdate?.(
@@ -281,7 +278,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
       if (
         !draggable?.current?.isThrowing &&
         !draggable?.current?.isDragging &&
-        scrollTriggerSource.current !== Source.BUTTONS &&
+        scrollTriggerSource.current !== Source.ROUTE &&
         snap !== "x mandatory"
       ) {
         setSnap("x mandatory");
@@ -364,7 +361,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
     stableIndex.current = freshDataIndex;
     onStabilizationUpdate?.(
       freshDataIndex,
-      Source.BUTTONS,
+      Source.ROUTE,
       scrollDirectionRef.current,
     );
   }, [onStabilizationUpdate, deriveDataIndex]);
@@ -384,7 +381,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
     scrollToSlide: (targetIndex: number) => {
       if (!scrollerRef.current || !scrollLeftTo.current) return;
       setSnap("none");
-      scrollTriggerSource.current = Source.BUTTONS;
+      scrollTriggerSource.current = Source.ROUTE;
       const offsetToTarget = currentOffsets[targetIndex];
       const direction = offsetToTarget > 0 ? Direction.RIGHT : Direction.LEFT;
       scrollDirectionRef.current = direction;

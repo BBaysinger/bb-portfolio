@@ -20,9 +20,10 @@ import { LayeredCarouselManagerRef } from "@/components/project-carousel-page/La
 import LogoSwapper from "@/components/project-carousel-page/LogoSwapper";
 import PageButtons from "@/components/project-carousel-page/PageButtons";
 import ProjectData from "@/data/ProjectData";
+import { useRouteChange } from "@/hooks/useRouteChange";
 
 import ProjectCarouselView from "./ProjectCarouselView";
-import styles from "./ProjectView.module.scss"; // You can rename this too if you want
+import styles from "./ProjectView.module.scss";
 
 /**
  * Handles bidirectional nature of the interaction between the dynamic route and
@@ -104,9 +105,11 @@ const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
   }, [projectId]);
 
   useEffect(() => {
+    console.log("asdf", carouselRef.current, projects[projectId]);
     if (carouselRef.current && projects[projectId]) {
       const targetIndex = ProjectData.projectIndex(projectId);
 
+      console.log("Attempting scroll to index:", targetIndex, "for", projectId);
       if (stabilizedIndex !== targetIndex) {
         if (!isCarouselSourceRef.current) {
           carouselRef.current.scrollToSlide(targetIndex);
@@ -117,33 +120,27 @@ const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
     isCarouselSourceRef.current = false;
   }, [projectId, projects, stabilizedIndex]);
 
-  useEffect(() => {
-    const handlePopState = () => {
-      const newPath = window.location.pathname;
-      const newProjectId = newPath.split("/").pop() ?? "";
-      const newIndex = ProjectData.projectIndex(newProjectId);
+  useRouteChange((pathname) => {
+    const newProjectId = pathname.split("/").pop() ?? "";
+    const newIndex = ProjectData.projectIndex(newProjectId);
 
-      if (
-        newProjectId &&
-        newIndex != null &&
-        newProjectId !== lastKnownProjectId.current
-      ) {
-        lastKnownProjectId.current = newProjectId;
-        sourceRef.current = Source.ROUTE;
-        directionRef.current =
-          newIndex < (stabilizedIndex ?? 0) ? Direction.LEFT : Direction.RIGHT;
+    if (
+      newProjectId &&
+      newIndex != null &&
+      newProjectId !== lastKnownProjectId.current
+    ) {
+      lastKnownProjectId.current = newProjectId;
+      sourceRef.current = Source.ROUTE;
+      directionRef.current =
+        newIndex < (stabilizedIndex ?? 0) ? Direction.LEFT : Direction.RIGHT;
 
-        if (carouselRef.current) {
-          carouselRef.current.scrollToSlide(newIndex);
-        }
-
-        setStabilizedIndex(newIndex);
+      if (carouselRef.current) {
+        carouselRef.current.scrollToSlide(newIndex);
       }
-    };
 
-    window.addEventListener("popstate", handlePopState);
-    return () => window.removeEventListener("popstate", handlePopState);
-  }, [stabilizedIndex]);
+      setStabilizedIndex(newIndex);
+    }
+  });
 
   if (!projectId || !projects[projectId]) {
     return <div>Project not found.</div>;
