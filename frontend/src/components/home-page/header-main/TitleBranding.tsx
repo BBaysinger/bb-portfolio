@@ -1,5 +1,4 @@
 import clsx from "clsx";
-
 import { forwardRef } from "react";
 
 import BarberPole from "@/components/common/BarberPole";
