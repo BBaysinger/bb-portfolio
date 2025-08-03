@@ -6,7 +6,7 @@ const Direction = {
 
 // Indicates what triggered a carousel index change:
 const Source = {
-  BUTTONS: "Buttons", // prev/next (left/right) UI button interaction
+  // BUTTONS: "Buttons", // prev/next (left/right) UI button interaction
   SCROLL: "Scroll", // user drag/swipe gesture
   ROUTE: "Route", // user navigated via browser history (popstate)
 } as const;
