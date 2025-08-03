@@ -4,10 +4,11 @@ const Direction = {
   RIGHT: "Right",
 } as const;
 
-// Weather the scroll was triggered by natural HTML element scroll or programmatically (via routing/buttons).
+// Indicates what triggered a carousel index change:
 const Source = {
-  IMPERATIVE: "Imperative",
-  NATURAL: "Natural",
+  BUTTONS: "Buttons", // prev/next (left/right) UI button interaction
+  SCROLL: "Scroll", // user drag/swipe gesture
+  ROUTE: "Route", // user navigated via browser history (popstate)
 } as const;
 
 type DirectionType = (typeof Direction)[keyof typeof Direction];

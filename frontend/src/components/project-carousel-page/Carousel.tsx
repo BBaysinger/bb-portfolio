@@ -107,7 +107,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const externalScrollLeftRef = useRef<number | null>(null);
   const slideWidthRef = useRef<number>(0);
-  const scrollTriggerSource = useRef<SourceType>(Source.NATURAL);
+  const scrollTriggerSource = useRef<SourceType>(Source.SCROLL);
   const scrollLeftTo = useRef<((value: number) => void) | null>(null);
   const scrollDirectionRef = useRef<DirectionType>(Direction.LEFT);
   const stableIndex = useRef<number | null>(initialIndex);
@@ -234,7 +234,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
           clearTimeout(stabilizationTimer.current);
         if (
           updateStableIndex &&
-          scrollTriggerSource.current !== Source.IMPERATIVE
+          scrollTriggerSource.current !== Source.BUTTONS
         ) {
           stabilizationTimer.current = setTimeout(() => {
             stableIndex.current = newDataIndex;
@@ -281,7 +281,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
       if (
         !draggable?.current?.isThrowing &&
         !draggable?.current?.isDragging &&
-        scrollTriggerSource.current !== Source.IMPERATIVE &&
+        scrollTriggerSource.current !== Source.BUTTONS &&
         snap !== "x mandatory"
       ) {
         setSnap("x mandatory");
@@ -359,12 +359,12 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
 
   const onTweenComplete = useCallback(() => {
     setSnap("x mandatory");
-    scrollTriggerSource.current = Source.NATURAL;
+    scrollTriggerSource.current = Source.SCROLL;
     const freshDataIndex = deriveDataIndex(scrollIndexRef.current);
     stableIndex.current = freshDataIndex;
     onStabilizationUpdate?.(
       freshDataIndex,
-      Source.IMPERATIVE,
+      Source.BUTTONS,
       scrollDirectionRef.current,
     );
   }, [onStabilizationUpdate, deriveDataIndex]);
@@ -384,7 +384,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
     scrollToSlide: (targetIndex: number) => {
       if (!scrollerRef.current || !scrollLeftTo.current) return;
       setSnap("none");
-      scrollTriggerSource.current = Source.IMPERATIVE;
+      scrollTriggerSource.current = Source.BUTTONS;
       const offsetToTarget = currentOffsets[targetIndex];
       const direction = offsetToTarget > 0 ? Direction.RIGHT : Direction.LEFT;
       scrollDirectionRef.current = direction;
