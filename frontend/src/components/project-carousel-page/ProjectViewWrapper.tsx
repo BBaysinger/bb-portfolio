@@ -1,42 +1,34 @@
-"use client";
-
-import { useEffect, useState } from "react";
-
-import { useRouteChange } from "@/hooks/useRouteChange";
-
-import ProjectView from "./ProjectView";
+import ProjectView from "@/components/project-carousel-page/ProjectView";
 
 /**
- * Wrapper component for ProjectView that synchronizes the `projectId`
- * from the current browser pathname. This component must only run
- * in the browser and will throw during SSR in development to catch misuse.
- *
- * @component ProjectViewWrapper
- * @throws Error during development if rendered on the server.
+ * Renders the ProjectView statically with a given projectId.
+ * This page is statically generated at build time per projectId.
  */
-export default function ProjectViewWrapper() {
-  const [projectId, setProjectId] = useState("");
+interface ProjectPageProps {
+  params: {
+    projectId: string;
+  };
+}
 
-  useEffect(() => {
-    if (typeof window === "undefined") {
-      if (process.env.NODE_ENV !== "production") {
-        throw new Error(
-          "ProjectViewWrapper must only be used in the browser. " +
-            "It cannot run during server-side rendering.",
-        );
-      }
-      return;
-    }
+export default function ProjectPage({ params }: ProjectPageProps) {
+  const { projectId } = params;
 
-    setProjectId(window.location.pathname.split("/").pop() ?? "");
-  }, []);
-
-  useRouteChange((pathname) => {
-    const newId = pathname.split("/").pop() ?? "";
-    setProjectId(newId);
-  });
-
-  if (!projectId) return null;
+  if (!projectId) {
+    return (
+      <div
+        style={{
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          flexDirection: "column",
+          justifyContent: "center",
+        }}
+      >
+        <h2>Oops! No project ID was provided!</h2>
+        <p>This page expects a valid projectId parameter.</p>
+      </div>
+    );
+  }
 
   return <ProjectView projectId={projectId} />;
 }
