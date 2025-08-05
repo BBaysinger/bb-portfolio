@@ -1,31 +1,62 @@
 {
   "name": "bb-portfolio",
   "private": true,
+
   // Keep: Add the following lines (in package.json) to enable workspaces
+  // Useful if you ever convert this monorepo into a Yarn/NPM workspace
   // "workspaces": [
   //   "frontend",
   //   "backend"
   // ],
+
   "scripts": {
-    // "Pretty Build" — formats code, then runs TypeScript project build for type-checking.
-    // Use this before commits to catch formatting or type errors early, because formatters
-    // can sometimes cause type errors.
-    "pb": "prettier --write . && tsc -b",
+    // 🔧 Run Prettier + build both Docker images (frontend & backend)
+    // Use this as your "one command to prep everything" before deployment.
+    "build:all": "npm run format && npm run docker:build:frontend && npm run docker:build:backend",
+
+    // 🐳 Build backend Docker image
+    // Tags the resulting image as `bb-backend` using Dockerfile inside ./backend
+    "docker:build:backend": "docker build -t bb-backend ./backend",
+
+    // 🐳 Build frontend Docker image
+    // Tags the resulting image as `bb-frontend` using Dockerfile inside ./frontend
+    "docker:build:frontend": "docker build -t bb-frontend ./frontend",
+
+    // ▶️ Run backend Docker container locally
+    // Maps to port 3000 and uses .env file for environment variables
+    "docker:run:backend": "docker run -p 3000:3000 --env-file ./backend/.env bb-backend",
+
+    // ▶️ Run frontend Docker container locally
+    // Maps to port 3000 and uses .env file for environment variables
+    "docker:run:frontend": "docker run -p 3000:3000 --env-file ./frontend/.env bb-frontend",
+
+    // 💅 Format all files with Prettier
+    // Ensures consistent code style
     "format": "prettier --write .",
+
+    // 🧼 Run ESLint on the full codebase
+    // Great for catching JS/TS issues or team rule violations
     "lint": "eslint .",
-    // Syncs package.json5 with package.json values while preserving comments and formatting.
+
+    // 🎯 "Pretty Build" — formats code, then runs TypeScript project build for type-checking.
+    // Use this before commits to catch formatting or type errors early, because formatters
+    // can sometimes introduce subtle breakages that TypeScript will catch.
+    "pb": "prettier --write . && tsc -b",
+
+    // 🔄 Syncs package.json5 with package.json values while preserving comments and formatting.
     // Run this after editing package.json to push updates back into the annotated JSON5 version.
     "sync:json5": "tsx scripts/sync-json5.ts"
   },
+
   "devDependencies": {
-    "@types/glob": "^9.0.0",
-    "eslint": "^9.31.0",
-    "glob": "^11.0.3",
-    "ignore": "^7.0.5",
-    "json5": "^2.2.3",
-    "prettier": "^3.6.2",
-    "ts-node": "^10.9.2",
-    "tsx": "^4.20.3",
-    "typescript": "^5.8.3"
+    "@types/glob": "^9.0.0",       // TypeScript types for glob
+    "eslint": "^9.31.0",           // Linting engine for JS/TS
+    "glob": "^11.0.3",             // File pattern matching
+    "ignore": "^7.0.5",            // Used for parsing .gitignore-style files
+    "json5": "^2.2.3",             // JSON parser with comments — used for package.json5 syncing
+    "prettier": "^3.6.2",          // Code formatter
+    "ts-node": "^10.9.2",          // Run TS scripts directly (likely used in custom tools)
+    "tsx": "^4.20.3",              // Fast TS/ESM script runner (modern alternative to ts-node)
+    "typescript": "^5.8.3",        // The TypeScript compiler itself
   }
 }
