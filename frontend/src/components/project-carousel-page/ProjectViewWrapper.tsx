@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 import ProjectView from "@/components/project-carousel-page/ProjectView";
-import { useDynamicPathParam } from "@/hooks/useDynamicPathParam";
+import { getDynamicPathParam } from "@/utils/getDynamicPathParam";
+import { useRouteChange } from "@/hooks/useRouteChange";
 
 /**
  * Renders the ProjectView statically with a given projectId.
@@ -36,11 +37,12 @@ function ProjectViewRouterBridge({
 }) {
   const [projectId, setProjectId] = useState(initialProjectId);
 
-  useEffect(() => {
-    // This will only run in the browser after hydration
-    const dynamicParam = useDynamicPathParam(-1, initialProjectId);
-    setProjectId(dynamicParam);
-  }, [initialProjectId]);
+  useRouteChange(() => {
+    const newId = getDynamicPathParam(-1, initialProjectId);
+    if (newId && newId !== projectId) {
+      setProjectId(newId);
+    }
+  });
 
   if (!projectId) {
     return (
