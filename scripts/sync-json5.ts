@@ -62,8 +62,12 @@ function matchKey(line: string): string | null {
  * @param lines - Lines from the existing JSON5 file.
  * @returns A map of key paths to associated comment lines.
  */
-function buildCommentMap(lines: string[]): Record<string, string[]> {
+function buildCommentMaps(lines: string[]): {
+  commentsMap: Record<string, string[]>;
+  inlineCommentsMap: Record<string, string>;
+} {
   const commentsMap: Record<string, string[]> = {};
+  const inlineCommentsMap: Record<string, string> = {};
   const pathStack: string[] = [];
   const indentStack: number[] = [];
   let bufferedComments: string[] = [];
@@ -73,6 +77,7 @@ function buildCommentMap(lines: string[]): Record<string, string[]> {
     const trimmed = line.trim();
 
     // Buffer line if it's a comment
+    // Full-line comment
     if (trimmed.startsWith("//")) {
       bufferedComments.push(line);
       continue;
@@ -93,9 +98,16 @@ function buildCommentMap(lines: string[]): Record<string, string[]> {
 
       const fullPath = [...pathStack, key].join(".");
 
+      // Save full-line comments (above key)
       if (bufferedComments.length > 0) {
         commentsMap[fullPath] = [...bufferedComments];
         bufferedComments = [];
+      }
+
+      // Save inline comment (after value on same line)
+      const inlineComment = line.split("//")[1]?.trim();
+      if (inlineComment) {
+        inlineCommentsMap[fullPath] = "// " + inlineComment;
       }
 
       if (trimmed.endsWith("{")) {
@@ -113,7 +125,7 @@ function buildCommentMap(lines: string[]): Record<string, string[]> {
     }
   }
 
-  return commentsMap;
+  return { commentsMap, inlineCommentsMap };
 }
 
 /**
@@ -126,8 +138,6 @@ function buildCommentMap(lines: string[]): Record<string, string[]> {
  */
 function syncJson5(raw: string, source: Record<string, any>): string {
   const lines = raw.split("\n");
-  const comments = buildCommentMap(lines);
-
   /**
    * Recursively writes a JSON object with proper formatting and inserted comments.
    *
@@ -136,6 +146,8 @@ function syncJson5(raw: string, source: Record<string, any>): string {
    * @param level - Current indentation level.
    * @returns The formatted lines of the object.
    */
+  const { commentsMap, inlineCommentsMap } = buildCommentMaps(lines);
+
   function writeObject(obj: any, path: string[] = [], level = 2): string[] {
     const result: string[] = [];
     const keys = Object.keys(obj);
@@ -147,7 +159,8 @@ function syncJson5(raw: string, source: Record<string, any>): string {
       const val = obj[key];
       const comma = i < keys.length - 1 ? "," : "";
 
-      const comment = comments[fullPath];
+      // Full-line comments before this key
+      const comment = commentsMap[fullPath];
       if (comment) {
         for (const c of comment) {
           result.push(indent(c, level));
@@ -170,8 +183,10 @@ function syncJson5(raw: string, source: Record<string, any>): string {
         }
         result.push(indent(`]${comma}`, level));
       } else {
+        const inlineComment = inlineCommentsMap[fullPath];
+        const line = `${quoteKey(key)}: ${JSON.stringify(val)}${comma}`;
         result.push(
-          indent(`${quoteKey(key)}: ${JSON.stringify(val)}${comma}`, level),
+          indent(inlineComment ? `${line} ${inlineComment}` : line, level),
         );
       }
     }
