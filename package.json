@@ -2,9 +2,14 @@
   "name": "bb-portfolio",
   "private": true,
   "scripts": {
-    "pb": "prettier --write . && tsc -b",
+    "build:all": "npm run format && npm run docker:build:frontend && npm run docker:build:backend",
+    "docker:build:backend": "docker build -t bb-backend ./backend",
+    "docker:build:frontend": "docker build -t bb-frontend ./frontend",
+    "docker:run:backend": "docker run -p 3000:3000 --env-file ./backend/.env bb-backend",
+    "docker:run:frontend": "docker run -p 3000:3000 --env-file ./frontend/.env bb-frontend",
     "format": "prettier --write .",
     "lint": "eslint .",
+    "pb": "prettier --write . && tsc -b",
     "sync:json5": "tsx scripts/sync-json5.ts"
   },
   "devDependencies": {
