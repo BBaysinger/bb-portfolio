@@ -30,7 +30,7 @@ export default async function ProjectPage({
 
   return (
     <Suspense fallback={<div>Loading project...</div>}>
-      <ProjectViewWrapper />
+      <ProjectViewWrapper params={{ projectId }} />
     </Suspense>
   );
 }
