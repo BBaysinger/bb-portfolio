@@ -1,21 +1,23 @@
 # Use Node LTS for Payload compatibility
 FROM node:20-alpine
 
-# Set working dir
+# Set working directory
 WORKDIR /app
 
-# Install dependencies
-COPY package.json pnpm-lock.yaml ./
-RUN npm install -g pnpm && pnpm install --frozen-lockfile
+# Copy package.json and lockfile
+COPY package.json package-lock.json ./
 
-# Copy code
+# Install dependencies with npm (clean install)
+RUN npm ci
+
+# Copy rest of the app
 COPY . .
 
-# Build TypeScript
-RUN pnpm build
+# Build the app
+RUN npm run build
 
-# Expose Payload's port
+# Expose Payload's default port
 EXPOSE 3000
 
-# Start Payload server
-CMD ["pnpm", "start"]
+# Start Payload CMS
+CMD ["npm", "start"]
