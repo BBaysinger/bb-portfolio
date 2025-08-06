@@ -1,131 +1,168 @@
 import { ParsedJson5, CommentedLine } from "./parseJson5File";
 
 /**
- * Recursively flattens an object into dot-path → value pairs.
- */
-function* walkObject(
-  obj: any,
-  parentPath: string[] = [],
-): Generator<[string[], any]> {
-  for (const key of Object.keys(obj)) {
-    const value = obj[key];
-    const currentPath = [...parentPath, key];
-
-    if (typeof value === "object" && value !== null && !Array.isArray(value)) {
-      yield [currentPath, value];
-      yield* walkObject(value, currentPath);
-    } else {
-      yield [currentPath, value];
-    }
-  }
-}
-
-/**
- * Syncs a parsed JSON5 file with the canonical JSON structure.
- * Adds, removes, and reorders entries based on the canonical object.
+ * Recursively builds the ParsedJson5 structure from a canonical object,
+ * injecting preserved comments and blank lines where available.
  */
 export function syncWithCanonical(
   parsed: ParsedJson5,
-  canonical: object,
+  canonical: object
 ): ParsedJson5 {
+  // Build comment map from existing parsed data
   const commentMap = new Map<
-    string, // joined path as key
+    string,
     { precedingComments: string[]; trailingComment?: string }
   >();
 
+  // Build a more sophisticated comment map based on the actual structure
   for (const entry of parsed) {
-    const key = entry.path.join(".");
-    commentMap.set(key, {
-      precedingComments: entry.precedingComments,
-      trailingComment: entry.trailingComment,
+    if (entry.rawLine.trim() !== "") {
+      let pathKey = JSON.stringify(entry.path);
+      
+      // For root-level properties, the path is [] but we need to map by property name
+      if (entry.path.length === 0 && entry.rawLine.includes(':')) {
+        const match = entry.rawLine.match(/"([^"]+)"\s*:/);
+        if (match) {
+          pathKey = JSON.stringify([match[1]]);
+        }
+      }
+      // For nested properties, we need to extract the key from the raw line
+      else if (entry.rawLine.includes(':') && !entry.rawLine.includes('{') && !entry.rawLine.includes('[')) {
+        const match = entry.rawLine.match(/"([^"]+)"\s*:/);
+        if (match) {
+          const key = match[1];
+          // Build the full path based on the existing path + this key
+          const fullPath = [...entry.path, key];
+          pathKey = JSON.stringify(fullPath);
+        }
+      }
+      
+      commentMap.set(pathKey, {
+        precedingComments: entry.precedingComments,
+        trailingComment: entry.trailingComment,
+      });
+    }
+  }
+
+  let lineNumber = 1;
+  const result: ParsedJson5 = [];
+
+  function emitLine(
+    path: string[],
+    rawLine: string,
+    precedingComments: string[] = [],
+    trailingComment?: string
+  ) {
+    result.push({
+      lineNumber: lineNumber++,
+      rawLine,
+      precedingComments,
+      trailingComment,
+      path,
     });
   }
 
-  const result: ParsedJson5 = [];
-  const flattened = Array.from(walkObject(canonical));
-
-  const openBraces = new Set<string>();
-  let lastDepth = 0;
-
-  result.push({
-    rawLine: "{",
-    precedingComments: [],
-    trailingComment: undefined,
-    lineNumber: 0,
-    path: [],
-  });
-
-  for (let i = 0; i < flattened.length; i++) {
-    const [pathArr, value] = flattened[i];
-    const key = pathArr[pathArr.length - 1];
-    const parentPathArr = pathArr.slice(0, -1);
-    const depth = pathArr.length - 1;
-    const indent = "  ".repeat(depth + 1);
-    const pathKey = pathArr.join(".");
-    const comments = commentMap.get(pathKey);
-
-    // Open nested object braces
-    for (let d = lastDepth; d < depth; d++) {
-      const openPathArr = pathArr.slice(0, d + 1);
-      const openPathKey = openPathArr.join(".");
-      if (!openBraces.has(openPathKey)) {
-        const openKey = openPathArr[d];
-        const openIndent = "  ".repeat(d + 1);
-        const openComments = commentMap.get(openPathKey);
-
-        result.push({
-          rawLine: `${openIndent}"${openKey}": {`,
-          precedingComments: openComments?.precedingComments ?? [],
-          trailingComment: openComments?.trailingComment,
-          lineNumber: i + 1,
-          path: [...openPathArr],
-        });
-
-        openBraces.add(openPathKey);
-      }
+  function buildObject(
+    obj: any,
+    path: string[],
+    indentLevel: number,
+    isLast: boolean = false
+  ) {
+    const indent = "  ".repeat(indentLevel);
+    
+    if (path.length === 0) {
+      // Root object opening brace
+      emitLine([], "{");
+    } else {
+      // Named object opening
+      const comments = commentMap.get(JSON.stringify(path));
+      emitLine(
+        path,
+        `${indent}"${path[path.length - 1]}": {`,
+        comments?.precedingComments ?? [],
+        comments?.trailingComment
+      );
     }
 
-    const isLast = i === flattened.length - 1;
-    const nextPathArr = !isLast ? flattened[i + 1][0] : [];
-    const nextDepth = nextPathArr.length - 1;
+    const keys = Object.keys(obj);
+    keys.forEach((key, index) => {
+      const childPath = [...path, key];
+      const value = obj[key];
+      const isLastKey = index === keys.length - 1;
+      
+      buildValue(value, childPath, indentLevel + 1, isLastKey);
+    });
 
-    if (typeof value !== "object" || value === null || Array.isArray(value)) {
-      const valueStr = JSON.stringify(value);
-      const needsComma = depth >= nextDepth;
-      const line = `${indent}"${key}": ${valueStr}${needsComma ? "," : ""}`;
-
-      result.push({
-        rawLine: line,
-        precedingComments: comments?.precedingComments ?? [],
-        trailingComment: comments?.trailingComment,
-        lineNumber: i + 1,
-        path: [...pathArr],
-      });
-    }
-
-    // Close braces if moving up
-    for (let d = lastDepth; d > nextDepth; d--) {
-      const closeIndent = "  ".repeat(d);
-      result.push({
-        rawLine: `${closeIndent}},`,
-        precedingComments: [],
-        trailingComment: undefined,
-        lineNumber: i + 2,
-        path: [`__close__${d}`],
-      });
-    }
-
-    lastDepth = nextDepth;
+    // Closing brace
+    const comma = path.length > 0 && !isLast ? "," : "";
+    emitLine(path, `${indent}}${comma}`);
   }
 
-  // Final closing brace
-  result.push({
-    rawLine: "}",
-    precedingComments: [],
-    trailingComment: undefined,
-    lineNumber: flattened.length + 1,
-    path: [],
-  });
+  function buildArray(
+    arr: any[],
+    path: string[],
+    indentLevel: number,
+    isLast: boolean = false
+  ) {
+    const indent = "  ".repeat(indentLevel);
+    const comments = commentMap.get(JSON.stringify(path));
+    
+    // Array opening with optional trailing comment
+    const trailingComment = comments?.trailingComment ? ` ${comments.trailingComment}` : "";
+    emitLine(
+      path,
+      `${indent}"${path[path.length - 1]}": [${trailingComment}`,
+      comments?.precedingComments ?? []
+    );
+
+    arr.forEach((item, index) => {
+      const itemPath = [...path, index.toString()];
+      const isLastItem = index === arr.length - 1;
+      buildValue(item, itemPath, indentLevel + 1, isLastItem);
+    });
+
+    // Closing bracket
+    const comma = !isLast ? "," : "";
+    emitLine(path, `${indent}]${comma}`);
+  }
+
+  function buildValue(
+    value: any,
+    path: string[],
+    indentLevel: number,
+    isLast: boolean = false
+  ) {
+    if (Array.isArray(value)) {
+      buildArray(value, path, indentLevel, isLast);
+    } else if (typeof value === "object" && value !== null) {
+      buildObject(value, path, indentLevel, isLast);
+    } else {
+      // Primitive value
+      const indent = "  ".repeat(indentLevel);
+      const comments = commentMap.get(JSON.stringify(path));
+      const comma = !isLast ? "," : "";
+      
+      let rawLine: string;
+      if (path.length > 0 && !isNaN(Number(path[path.length - 1]))) {
+        // Array item - no key, just value
+        rawLine = `${indent}${JSON.stringify(value)}${comma}`;
+      } else {
+        // Object property - key: value
+        const key = path[path.length - 1];
+        rawLine = `${indent}"${key}": ${JSON.stringify(value)}${comma}`;
+      }
+
+      emitLine(
+        path,
+        rawLine,
+        comments?.precedingComments ?? [],
+        comments?.trailingComment
+      );
+    }
+  }
+
+  // Start building from root
+  buildObject(canonical, [], 0);
 
   return result;
 }
