@@ -10,7 +10,7 @@ export function serializeJson5(parsed: ParsedJson5): string {
       const commentBlock = precedingComments.length
         ? precedingComments.join("\n") + "\n"
         : "";
-      const lineWithTrailing = trailingComment 
+      const lineWithTrailing = trailingComment
         ? `${rawLine} ${trailingComment}`
         : rawLine;
       return commentBlock + lineWithTrailing;

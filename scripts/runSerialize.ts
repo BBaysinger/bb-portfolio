@@ -38,12 +38,12 @@ const pairs = allPairs.filter(([json5Path]) => {
 });
 
 if (pairs.length === 0) {
-  console.log("No package.json5 + package.json pairs found in /backend.");
+  console.info("No package.json5 + package.json pairs found in /backend.");
   process.exit(0);
 }
 
 for (const [json5Path, jsonPath] of pairs) {
-  console.log(`🛠 Syncing: ${json5Path}`);
+  console.info(`🛠 Syncing: ${json5Path}`);
 
   const parsed = parseJson5File(json5Path);
   const canonical = JSON.parse(fs.readFileSync(jsonPath, "utf-8"));
@@ -51,5 +51,5 @@ for (const [json5Path, jsonPath] of pairs) {
   const synced = syncWithCanonical(parsed, canonical);
   fs.writeFileSync(json5Path, serializeJson5(synced), "utf-8");
 
-  console.log(`✅ Synced: ${json5Path}`);
+  console.info(`✅ Synced: ${json5Path}`);
 }

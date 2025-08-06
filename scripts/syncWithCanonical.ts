@@ -45,7 +45,7 @@ export function syncWithCanonical(
         pathKey = JSON.stringify(entry.path);
       }
 
-      console.log(
+      console.info(
         `Storing comment for path: ${pathKey}, line: "${entry.rawLine.trim()}"`,
       );
       commentMap.set(pathKey, {
@@ -55,7 +55,7 @@ export function syncWithCanonical(
     }
   }
 
-  console.log("All comment map keys:", Array.from(commentMap.keys()));
+  console.info("All comment map keys:", Array.from(commentMap.keys()));
 
   let lineNumber = 1;
   const result: ParsedJson5 = [];
@@ -138,10 +138,10 @@ export function syncWithCanonical(
       const isLastItem = index === arr.length - 1;
       const comma = !isLastItem ? "," : "";
 
-      console.log(
+      console.info(
         `Looking for array item comments at path: ${JSON.stringify(itemPathWithNumber)}`,
       );
-      console.log(`Found comments:`, itemComments);
+      console.info(`Found comments:`, itemComments);
 
       // Use string path for emitLine to satisfy type constraints
       const itemPath = [...path, index.toString()];
