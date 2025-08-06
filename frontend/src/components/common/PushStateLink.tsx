@@ -68,7 +68,7 @@ export function PushStateLink({
     e.preventDefault();
 
     if (window.location.pathname !== href) {
-      console.log(`Button navigating to ${href}`);
+      console.info(`Button navigating to ${href}`);
       window.history.pushState(null, "", href);
       if (scrollToTop) {
         window.scrollTo({ top: 0, behavior: "smooth" });
