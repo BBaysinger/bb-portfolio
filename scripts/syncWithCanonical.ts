@@ -19,6 +19,11 @@ export function syncWithCanonical(
     if (entry.rawLine.trim() !== "") {
       let pathKey = JSON.stringify(entry.path);
 
+      // Skip array closing brackets to avoid overwriting opening bracket comments
+      if (entry.rawLine.trim() === "]" || entry.rawLine.trim() === "],") {
+        continue;
+      }
+
       // For root-level properties, the path is [] but we need to map by property name
       if (entry.path.length === 0 && entry.rawLine.includes(":")) {
         const match = entry.rawLine.match(/"([^"]+)"\s*:/);
@@ -120,14 +125,15 @@ export function syncWithCanonical(
     const indent = "  ".repeat(indentLevel);
     const comments = commentMap.get(JSON.stringify(path));
 
-    // Array opening with optional trailing comment
-    const trailingComment = comments?.trailingComment
-      ? ` ${comments.trailingComment}`
-      : "";
+    console.log(`Array opening path: ${JSON.stringify(path)}`);
+    console.log(`Array opening comments:`, comments);
+
+    // Array opening with trailing comment passed separately
     emitLine(
       path,
-      `${indent}"${path[path.length - 1]}": [${trailingComment}`,
+      `${indent}"${path[path.length - 1]}": [`,
       comments?.precedingComments ?? [],
+      comments?.trailingComment,
     );
 
     arr.forEach((item, index) => {
