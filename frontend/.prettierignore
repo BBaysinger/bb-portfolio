@@ -1,21 +1,23 @@
-# Node & Dependency Artifacts
+# 📦 Node & Dependency Artifacts
 node_modules/
 package-lock.json
 pnpm-lock.yaml
 yarn.lock
 
-# Build Outputs
+# 🛠 Build Outputs
 dist/
 **/dist/
 
-# Next.js Build Artifacts
+# ⚙️ Next.js Build Artifacts
 .next/
 **/.next/
 out/
 
-# Legacy / Archived / Backup Folders
+# 🗃 Legacy / Archived / Backup Folders
 frontend-vite-old/
 backend-previous/
+**/*(from backup)*/
 
-# Misc
+# 🧠 Config / Misc
 package.json5
+*.tsbuildinfo
