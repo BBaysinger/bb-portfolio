@@ -71,11 +71,19 @@ export function parseJson5File(filePath: string): ParsedJson5 {
       const key = arrayStartMatch[1];
       pathStack.push(key);
       arrayIndexStack.push(0);
+
+      // Extract trailing comment from array start line
+      let trailingComment: string | undefined;
+      const inlineCommentIdx = line.indexOf("//");
+      if (inlineCommentIdx !== -1) {
+        trailingComment = line.slice(inlineCommentIdx).trim();
+      }
+
       parsed.push({
         lineNumber,
         rawLine: line,
         precedingComments: pendingComments,
-        trailingComment: undefined,
+        trailingComment,
         path: [...pathStack],
       });
       pendingComments = [];
