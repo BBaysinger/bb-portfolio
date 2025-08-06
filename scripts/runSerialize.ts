@@ -26,10 +26,19 @@ function findJsonPairs(dir: string): [string, string][] {
   return results;
 }
 
-const pairs = findJsonPairs(rootDir);
+const allPairs = findJsonPairs(rootDir);
+
+// Only keep pairs where the .json5 file is within the /backend/ folder
+const pairs = allPairs.filter(([json5Path]) => {
+  const normalized = path.normalize(json5Path);
+  return (
+    normalized.includes(`${path.sep}backend${path.sep}`) ||
+    normalized.includes(`${path.sep}backend${path.sep}package.json5`)
+  );
+});
 
 if (pairs.length === 0) {
-  console.log("No package.json5 + package.json pairs found.");
+  console.log("No package.json5 + package.json pairs found in /backend.");
   process.exit(0);
 }
 
@@ -37,7 +46,6 @@ for (const [json5Path, jsonPath] of pairs) {
   console.log(`🛠 Syncing: ${json5Path}`);
 
   const parsed = parseJson5File(json5Path);
-  // console.info(`Parsed JSON5: ${JSON.stringify(parsed, null, 2)}`);
   const canonical = JSON.parse(fs.readFileSync(jsonPath, "utf-8"));
 
   const synced = syncWithCanonical(parsed, canonical);
