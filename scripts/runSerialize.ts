@@ -2,7 +2,7 @@ import fs from "fs";
 import path from "path";
 import { syncWithCanonical } from "./syncWithCanonical";
 import { parseJson5File } from "./parseJson5File";
-import { writeJson5ToFile } from "./serializeJson5";
+import { serializeJson5 } from "./serializeJson5";
 
 const rootDir = process.cwd();
 
@@ -37,10 +37,11 @@ for (const [json5Path, jsonPath] of pairs) {
   console.log(`🛠 Syncing: ${json5Path}`);
 
   const parsed = parseJson5File(json5Path);
+  // console.info(`Parsed JSON5: ${JSON.stringify(parsed, null, 2)}`);
   const canonical = JSON.parse(fs.readFileSync(jsonPath, "utf-8"));
 
   const synced = syncWithCanonical(parsed, canonical);
-  fs.writeFileSync(json5Path, synced, "utf-8");
+  fs.writeFileSync(json5Path, serializeJson5(synced), "utf-8");
 
   console.log(`✅ Synced: ${json5Path}`);
 }

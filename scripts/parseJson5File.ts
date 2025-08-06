@@ -15,6 +15,7 @@ export type ParsedJson5 = CommentedLine[];
  */
 export function parseJson5File(filePath: string): ParsedJson5 {
   const lines = fs.readFileSync(filePath, "utf-8").split("\n");
+  // console.info(lines);
   const parsed: ParsedJson5 = [];
 
   let insideBlockComment = false;
@@ -63,6 +64,7 @@ export function parseJson5File(filePath: string): ParsedJson5 {
 
     pendingComments = []; // reset after attaching to line
   });
+  // console.info(parsed);
 
   return parsed;
 }
