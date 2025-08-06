@@ -5,7 +5,7 @@ export interface CommentedLine {
   rawLine: string;
   precedingComments: string[];
   trailingComment?: string;
-  path: string[];
+  path: (string | number)[];
 }
 
 export type ParsedJson5 = CommentedLine[];
@@ -16,7 +16,8 @@ export function parseJson5File(filePath: string): ParsedJson5 {
 
   let insideBlockComment = false;
   let pendingComments: string[] = [];
-  const pathStack: string[] = [];
+  const pathStack: (string | number)[] = [];
+  const arrayIndexStack: number[] = [];
 
   lines.forEach((line, index) => {
     const trimmed = line.trim();
@@ -28,8 +29,9 @@ export function parseJson5File(filePath: string): ParsedJson5 {
     if (trimmed.startsWith("/*")) insideBlockComment = true;
     if (insideBlockComment) {
       pendingComments.push(line);
-      if (trimmed.endsWith("*/") || trimmed.includes("*/"))
+      if (trimmed.endsWith("*/") || trimmed.includes("*/")) {
         insideBlockComment = false;
+      }
       return;
     }
 
@@ -39,8 +41,10 @@ export function parseJson5File(filePath: string): ParsedJson5 {
       return;
     }
 
-    // Closing brace: pop context
-    if (trimmed === "}," || trimmed === "}") {
+    // Closing brace or bracket
+    if (trimmed === "}," || trimmed === "}" || trimmed === "],") {
+      const last = pathStack[pathStack.length - 1];
+      if (typeof last === "number") arrayIndexStack.pop();
       pathStack.pop();
       return;
     }
@@ -61,6 +65,23 @@ export function parseJson5File(filePath: string): ParsedJson5 {
       return;
     }
 
+    // Start of array
+    const arrayStartMatch = trimmed.match(/^"([^"]+)":\s*\[.*$/);
+    if (arrayStartMatch) {
+      const key = arrayStartMatch[1];
+      pathStack.push(key);
+      arrayIndexStack.push(0);
+      parsed.push({
+        lineNumber,
+        rawLine: line,
+        precedingComments: pendingComments,
+        trailingComment: undefined,
+        path: [...pathStack],
+      });
+      pendingComments = [];
+      return;
+    }
+
     // Inline comment
     let mainContent = line;
     let trailingComment: string | undefined;
@@ -68,6 +89,22 @@ export function parseJson5File(filePath: string): ParsedJson5 {
     if (inlineCommentIdx !== -1) {
       mainContent = line.slice(0, inlineCommentIdx).trim();
       trailingComment = line.slice(inlineCommentIdx).trim();
+    }
+
+    // Array item
+    if (arrayIndexStack.length > 0 && mainContent.startsWith('"')) {
+      const index = arrayIndexStack[arrayIndexStack.length - 1];
+      const currentPath = [...pathStack, index];
+      parsed.push({
+        lineNumber,
+        rawLine: line,
+        precedingComments: pendingComments,
+        trailingComment,
+        path: currentPath,
+      });
+      arrayIndexStack[arrayIndexStack.length - 1]++;
+      pendingComments = [];
+      return;
     }
 
     // Key-value pair
@@ -86,6 +123,6 @@ export function parseJson5File(filePath: string): ParsedJson5 {
     pendingComments = [];
   });
 
-  console.info(parsed);
+  console.log(parsed);
   return parsed;
 }
