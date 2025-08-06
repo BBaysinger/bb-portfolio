@@ -6,12 +6,11 @@ import { ParsedJson5 } from "./parseJson5File";
  */
 export function serializeJson5(parsed: ParsedJson5): string {
   return parsed
-    .map(({ precedingComments, keyOrValue, trailingComment }) => {
+    .map(({ precedingComments, rawLine }) => {
       const commentBlock = precedingComments.length
         ? precedingComments.join("\n") + "\n"
         : "";
-      const line = keyOrValue + (trailingComment ? ` ${trailingComment}` : "");
-      return commentBlock + line;
+      return commentBlock + rawLine;
     })
     .join("\n");
 }
