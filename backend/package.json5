@@ -154,15 +154,15 @@
 
   // Custom PNPM config to limit which dependencies are built from source
   "pnpm": {
-    "onlyBuiltDependencies": [
+    "onlyBuiltDependencies": [ // test if this works
       // Sharp needs native bindings
-      "sharp",
+      "sharp", // test if this works
 
       // esbuild is often needed for plugins/tools
-      "esbuild",
+      "esbuild", // test if this works
 
       // Unrs-resolver may be used by Payload’s rich text or routing
-      "unrs-resolver"
+      "unrs-resolver" // test if this works
     ]
   }
 }
