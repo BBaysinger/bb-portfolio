@@ -20,7 +20,7 @@ import { useEffect } from "react";
  * @example
  * ```tsx
  * useRouteChange((pathname, search) => {
- *   console.log("Route changed to:", pathname, search);
+ *   console.info("Route changed to:", pathname, search);
  * });
  * ```
  *
@@ -34,7 +34,7 @@ export function useRouteChange(
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    console.log("Route change detected:", pathname, searchParams.toString());
+    console.info("Route change detected:", pathname, searchParams.toString());
     callback(pathname, searchParams.toString());
   }, [pathname, searchParams, callback]);
 }

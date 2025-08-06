@@ -123,6 +123,6 @@ export function parseJson5File(filePath: string): ParsedJson5 {
     pendingComments = [];
   });
 
-  console.log(parsed);
+  console.info(parsed);
   return parsed;
 }

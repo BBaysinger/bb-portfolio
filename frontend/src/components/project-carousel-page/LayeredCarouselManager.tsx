@@ -137,7 +137,7 @@ const LayeredCarouselManager = forwardRef<
 
     useImperativeHandle(ref, () => ({
       scrollToSlide: (targetIndex: number) => {
-        console.log("LayeredCarouselManager: scrolling to", targetIndex);
+        console.info("LayeredCarouselManager: scrolling to", targetIndex);
         masterCarouselRef.current?.scrollToSlide(targetIndex);
       },
     }));
