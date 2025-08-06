@@ -6,7 +6,7 @@ import { ParsedJson5, CommentedLine } from "./parseJson5File";
  */
 export function syncWithCanonical(
   parsed: ParsedJson5,
-  canonical: object
+  canonical: object,
 ): ParsedJson5 {
   // Build comment map from existing parsed data
   const commentMap = new Map<
@@ -18,16 +18,20 @@ export function syncWithCanonical(
   for (const entry of parsed) {
     if (entry.rawLine.trim() !== "") {
       let pathKey = JSON.stringify(entry.path);
-      
+
       // For root-level properties, the path is [] but we need to map by property name
-      if (entry.path.length === 0 && entry.rawLine.includes(':')) {
+      if (entry.path.length === 0 && entry.rawLine.includes(":")) {
         const match = entry.rawLine.match(/"([^"]+)"\s*:/);
         if (match) {
           pathKey = JSON.stringify([match[1]]);
         }
       }
       // For nested properties, we need to extract the key from the raw line
-      else if (entry.rawLine.includes(':') && !entry.rawLine.includes('{') && !entry.rawLine.includes('[')) {
+      else if (
+        entry.rawLine.includes(":") &&
+        !entry.rawLine.includes("{") &&
+        !entry.rawLine.includes("[")
+      ) {
         const match = entry.rawLine.match(/"([^"]+)"\s*:/);
         if (match) {
           const key = match[1];
@@ -36,13 +40,22 @@ export function syncWithCanonical(
           pathKey = JSON.stringify(fullPath);
         }
       }
-      
+      // For array items and other entries, use the path as-is
+      else {
+        pathKey = JSON.stringify(entry.path);
+      }
+
+      console.log(
+        `Storing comment for path: ${pathKey}, line: "${entry.rawLine.trim()}"`,
+      );
       commentMap.set(pathKey, {
         precedingComments: entry.precedingComments,
         trailingComment: entry.trailingComment,
       });
     }
   }
+
+  console.log("All comment map keys:", Array.from(commentMap.keys()));
 
   let lineNumber = 1;
   const result: ParsedJson5 = [];
@@ -51,7 +64,7 @@ export function syncWithCanonical(
     path: string[],
     rawLine: string,
     precedingComments: string[] = [],
-    trailingComment?: string
+    trailingComment?: string,
   ) {
     result.push({
       lineNumber: lineNumber++,
@@ -66,10 +79,10 @@ export function syncWithCanonical(
     obj: any,
     path: string[],
     indentLevel: number,
-    isLast: boolean = false
+    isLast: boolean = false,
   ) {
     const indent = "  ".repeat(indentLevel);
-    
+
     if (path.length === 0) {
       // Root object opening brace
       emitLine([], "{");
@@ -80,7 +93,7 @@ export function syncWithCanonical(
         path,
         `${indent}"${path[path.length - 1]}": {`,
         comments?.precedingComments ?? [],
-        comments?.trailingComment
+        comments?.trailingComment,
       );
     }
 
@@ -89,7 +102,7 @@ export function syncWithCanonical(
       const childPath = [...path, key];
       const value = obj[key];
       const isLastKey = index === keys.length - 1;
-      
+
       buildValue(value, childPath, indentLevel + 1, isLastKey);
     });
 
@@ -102,23 +115,42 @@ export function syncWithCanonical(
     arr: any[],
     path: string[],
     indentLevel: number,
-    isLast: boolean = false
+    isLast: boolean = false,
   ) {
     const indent = "  ".repeat(indentLevel);
     const comments = commentMap.get(JSON.stringify(path));
-    
+
     // Array opening with optional trailing comment
-    const trailingComment = comments?.trailingComment ? ` ${comments.trailingComment}` : "";
+    const trailingComment = comments?.trailingComment
+      ? ` ${comments.trailingComment}`
+      : "";
     emitLine(
       path,
       `${indent}"${path[path.length - 1]}": [${trailingComment}`,
-      comments?.precedingComments ?? []
+      comments?.precedingComments ?? [],
     );
 
     arr.forEach((item, index) => {
-      const itemPath = [...path, index.toString()];
+      // Create path with numeric index to match parsed data format
+      const itemPathWithNumber = [...path, index];
+      const itemComments = commentMap.get(JSON.stringify(itemPathWithNumber));
+      const itemIndent = "  ".repeat(indentLevel + 1);
       const isLastItem = index === arr.length - 1;
-      buildValue(item, itemPath, indentLevel + 1, isLastItem);
+      const comma = !isLastItem ? "," : "";
+
+      console.log(
+        `Looking for array item comments at path: ${JSON.stringify(itemPathWithNumber)}`,
+      );
+      console.log(`Found comments:`, itemComments);
+
+      // Use string path for emitLine to satisfy type constraints
+      const itemPath = [...path, index.toString()];
+      emitLine(
+        itemPath,
+        `${itemIndent}${JSON.stringify(item)}${comma}`,
+        itemComments?.precedingComments ?? [],
+        itemComments?.trailingComment,
+      );
     });
 
     // Closing bracket
@@ -130,7 +162,7 @@ export function syncWithCanonical(
     value: any,
     path: string[],
     indentLevel: number,
-    isLast: boolean = false
+    isLast: boolean = false,
   ) {
     if (Array.isArray(value)) {
       buildArray(value, path, indentLevel, isLast);
@@ -141,7 +173,7 @@ export function syncWithCanonical(
       const indent = "  ".repeat(indentLevel);
       const comments = commentMap.get(JSON.stringify(path));
       const comma = !isLast ? "," : "";
-      
+
       let rawLine: string;
       if (path.length > 0 && !isNaN(Number(path[path.length - 1]))) {
         // Array item - no key, just value
@@ -156,7 +188,7 @@ export function syncWithCanonical(
         path,
         rawLine,
         comments?.precedingComments ?? [],
-        comments?.trailingComment
+        comments?.trailingComment,
       );
     }
   }
