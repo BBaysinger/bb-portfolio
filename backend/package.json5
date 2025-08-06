@@ -9,13 +9,19 @@
   "description": "A blank template to get started with Payload 3.0",
 
   // License type (MIT is very permissive)
+  /* test test test
+      This is a test comment to check if the sync works.
+      It should not be removed by the sync script.
+      The script should only remove comments that are not in the canonical file.
+      This comment is here to test the sync functionality.
+  */
   "license": "MIT",
 
   // Declares this as an ES module project
   "type": "module",
 
   // Common dev scripts
-  "scripts": {
+  "scripts": { // test if this works
     // Format all files with Prettier, then run TypeScript build to validate formatting changes
     "pb": "prettier --write . && tsc -b",
 
