@@ -1,9 +1,26 @@
-**/dist/
+# 🛠 Build output (common patterns)
 dist/
-package-lock.json
-package.json5
+**/dist/
+build/
+
+# ⚙️ Next.js build folders (per package)
 backend/.next/
 backend-previous/.next/
 frontend/.next/
+
+# 🧪 Legacy or experimental folders
 frontend-vite-old/
+
+# 📦 Dependency lockfiles
+package-lock.json
+
+# 🧠 Config and generated types
+package.json5
 payload-types.ts
+*.tsbuildinfo
+
+# 🧪 Editor/IDE files (optional)
+.vscode/
+
+# 🗃 Backup folders or manually copied files (optional)
+**/*(from backup)*/

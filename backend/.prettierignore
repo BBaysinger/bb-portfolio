@@ -1,5 +1,26 @@
-**/dist/
+# 🛠 Build output
+.next/
 dist/
+**/dist/
+build/
+
+# 📦 Dependency directories and lockfiles
+node_modules/
 package-lock.json
+
+# 🧠 Config and generated types
+.prettierrc
+.prettierrc.json
 package.json5
 payload-types.ts
+*.tsbuildinfo
+
+# 🧪 Editor/IDE files
+.vscode/
+
+# 🗃 Backup folders or manually copied files
+**/*(from backup)*/
+
+# 🧪 Optional: test snapshot artifacts (if using jest or vitest snapshots)
+# **/__snapshots__/
+# **/*.spec.ts.snap
