@@ -18,6 +18,9 @@ import ignore from "ignore";
  * - Scoped packages (@org/package) and URLs in comments
  * - Trailing commas for version control benefits
  *
+ * TODO: Expose syncJson5(raw, source) as the core API, and let users pass their own
+ * file loaders if they want.
+ * TODO: Possibly support .jsonc as an option down the line, with a toggle.
  * TODO: Get this into an open source package for wider use
  *
  * @author Bradley Baysinger
