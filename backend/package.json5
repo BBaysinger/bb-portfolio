@@ -119,6 +119,6 @@
       "esbuild",
       // Module resolution utility
       "unrs-resolver"
-    ]
-  }
+    ],
+  },
 }
