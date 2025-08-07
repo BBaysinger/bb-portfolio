@@ -118,7 +118,7 @@
       // JavaScript bundler (native compilation for performance)
       "esbuild", // Module resolution utility
       // Module resolution utility
-      "unrs-resolver" // Module resolution utility
-    ],
+      "unrs-resolver", // Module resolution utility
+    ]
   },
 }

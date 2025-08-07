@@ -139,36 +139,10 @@ export function parseJson5File(filePath: string): ParsedJson5 {
     }
 
     if (
-      line.includes("sharp") ||
-      line.includes("github.com/bbaysinger/bb-portfolio.git")
-    ) {
-      console.log("Debug trailing comment detection (fixed both):", {
-        originalLine: JSON.stringify(line),
-        inlineCommentIdx,
-        mainContent: JSON.stringify(mainContent),
-        trailingComment: JSON.stringify(trailingComment),
-        beforeComment: JSON.stringify(line.slice(0, inlineCommentIdx)),
-        keyValuePattern: /^[^"]*"[^"]*":\s*"[^"]*",?\s*$/.test(
-          line.slice(0, inlineCommentIdx),
-        ),
-        arrayItemPattern: /^\s*"[^"]*",?\s*$/.test(
-          line.slice(0, inlineCommentIdx),
-        ),
-      });
-    }
-
-    if (
       arrayIndexStack.length > 0 &&
       mainContent.trim().startsWith('"') &&
       !mainContent.trim().includes(":")
     ) {
-      console.log("Array item with trailing comment:", {
-        line: JSON.stringify(line),
-        mainContent: JSON.stringify(mainContent),
-        trailingComment: JSON.stringify(trailingComment),
-        hasTrailingComment: !!trailingComment,
-      });
-
       const index = arrayIndexStack[arrayIndexStack.length - 1];
       const currentPath = [...pathStack, index];
       parsed.push({
