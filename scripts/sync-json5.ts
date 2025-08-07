@@ -66,8 +66,9 @@ function matchKey(line: string): string | null {
 
 /**
  * Parses comments from a JSON5 file and maps them to their associated key paths.
- *
- * Handles nesting, indentation, and preserves multiline comment blocks.
+ * 
+ * Handles nesting, indentation, preserves multiline comment blocks, and supports
+ * array item comments with numeric indices (e.g., "pnpm.onlyBuiltDependencies.0").
  *
  * @param lines - Lines from the existing JSON5 file.
  * @returns A map of key paths to associated comment lines.
@@ -76,7 +77,9 @@ function buildCommentMap(lines: string[]): Record<string, string[]> {
   const commentsMap: Record<string, string[]> = {};
   const pathStack: string[] = [];
   const indentStack: number[] = [];
+  const arrayIndexStack: number[] = []; // NEW: Track array indices
   let bufferedComments: string[] = [];
+  let insideArray = false; // NEW: Track if we're inside an array
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
@@ -88,6 +91,55 @@ function buildCommentMap(lines: string[]): Record<string, string[]> {
       continue;
     }
 
+    // NEW: Handle array start - "key": [
+    const arrayStartMatch = line.match(/^(\s*)(["']?)([\w\-@:$]+)\2\s*:\s*\[\s*$/);
+    if (arrayStartMatch) {
+      const indent = arrayStartMatch[1].length;
+      const key = arrayStartMatch[3];
+
+      // Handle nesting like regular keys
+      while (
+        indentStack.length &&
+        indent <= indentStack[indentStack.length - 1]
+      ) {
+        pathStack.pop();
+        indentStack.pop();
+        if (arrayIndexStack.length > 0) {
+          arrayIndexStack.pop();
+        }
+      }
+
+      const fullPath = [...pathStack, key].join(".");
+
+      // Store comments for the array itself
+      if (bufferedComments.length > 0) {
+        commentsMap[fullPath] = [...bufferedComments];
+        bufferedComments = [];
+      }
+
+      pathStack.push(key);
+      indentStack.push(indent);
+      arrayIndexStack.push(0); // Start array index at 0
+      insideArray = true;
+      continue;
+    }
+
+    // NEW: Handle array items - lines that start with quotes but no colon
+    if (insideArray && trimmed.startsWith('"') && !trimmed.includes(':')) {
+      const currentArrayIndex = arrayIndexStack[arrayIndexStack.length - 1];
+      const arrayItemPath = [...pathStack, currentArrayIndex.toString()].join(".");
+      
+      if (bufferedComments.length > 0) {
+        commentsMap[arrayItemPath] = [...bufferedComments];
+        bufferedComments = [];
+      }
+      
+      // Increment array index for next item
+      arrayIndexStack[arrayIndexStack.length - 1]++;
+      continue;
+    }
+
+    // Handle regular object keys
     const keyMatch = line.match(/^(\s*)(["']?)([\w\-@:$]+)\2\s*:/);
     if (keyMatch) {
       const indent = keyMatch[1].length;
@@ -99,6 +151,9 @@ function buildCommentMap(lines: string[]): Record<string, string[]> {
       ) {
         pathStack.pop();
         indentStack.pop();
+        if (arrayIndexStack.length > 0) {
+          arrayIndexStack.pop();
+        }
       }
 
       const fullPath = [...pathStack, key].join(".");
@@ -111,13 +166,21 @@ function buildCommentMap(lines: string[]): Record<string, string[]> {
       if (trimmed.endsWith("{")) {
         pathStack.push(key);
         indentStack.push(indent);
+        insideArray = false; // We're in an object now
       }
     } else if (bufferedComments.length > 0 && trimmed !== "") {
       // Non-comment non-key line breaks comment block
       bufferedComments = [];
     }
 
-    if (trimmed === "}" || trimmed === "}," || trimmed === "],") {
+    // Handle closing brackets
+    if (trimmed === "}" || trimmed === "}," || trimmed === "]" || trimmed === "],") {
+      if (trimmed.startsWith("]")) {
+        insideArray = false;
+        if (arrayIndexStack.length > 0) {
+          arrayIndexStack.pop();
+        }
+      }
       pathStack.pop();
       indentStack.pop();
     }
@@ -128,7 +191,7 @@ function buildCommentMap(lines: string[]): Record<string, string[]> {
 
 /**
  * Synchronizes a JSON5 file's structure and values with the authoritative source JSON,
- * while preserving existing comments and formatting.
+ * while preserving existing comments and formatting with trailing commas for version control.
  *
  * @param raw - Raw contents of the existing JSON5 file.
  * @param source - Parsed JSON object from package.json.
@@ -155,7 +218,7 @@ function syncJson5(raw: string, source: Record<string, any>): string {
       const key = keys[i];
       const fullPath = [...path, key].join(".");
       const val = obj[key];
-      const comma = i < keys.length - 1 ? "," : "";
+      const comma = ","; // NEW: Always add trailing comma for version control
 
       const comment = comments[fullPath];
       if (comment) {
@@ -169,11 +232,23 @@ function syncJson5(raw: string, source: Record<string, any>): string {
         result.push(...writeObject(val, [...path, key], level + indentSize));
         result.push(indent(`}${comma}`, level));
       } else if (Array.isArray(val)) {
+        // NEW: Enhanced array handling with item comments
         result.push(indent(`${quoteKey(key)}: [`, level));
         for (let j = 0; j < val.length; j++) {
+          // Check for comments on this specific array item
+          const itemPath = [...path, key, j.toString()].join(".");
+          const itemComments = comments[itemPath];
+          
+          if (itemComments) {
+            for (const c of itemComments) {
+              result.push(indent(c, level + indentSize));
+            }
+          }
+          
+          // NEW: Always add trailing comma to array items
           result.push(
             indent(
-              `${JSON.stringify(val[j])}${j < val.length - 1 ? "," : ""}`,
+              `${JSON.stringify(val[j])},`,
               level + indentSize,
             ),
           );
