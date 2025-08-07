@@ -19,7 +19,7 @@
     "preview": "npm run build && vite preview",
     "format": "prettier --write .",
     "deploy": "vite build && npx netlify deploy --dir=dist --prod",
-    "prepare-package": "node -e \"require('fs').writeFileSync('./package.json', JSON.stringify(require('json5').parse(require('fs').readFileSync('./package.json5', 'utf8')), null, 2))\""
+    "prepare-package": "node -e \"require('fs').writeFileSync('./package.json', JSON.stringify(require('json5').parse(require('fs').readFileSync('./package.json5', 'utf8')), null, 2))\"",
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.8.2",
@@ -36,7 +36,7 @@
     "react-router-dom": "^7.6.3",
     // Vite 7.0.0 breaks on Netlify, so use previous version, 6.3.5
     "vite": "^6.3.5",
-    "vite-tsconfig-paths": "^5.1.4"
+    "vite-tsconfig-paths": "^5.1.4",
   },
   "devDependencies": {
     "@eslint/js": "^9.30.1",
@@ -57,16 +57,16 @@
     "prettier": "^3.6.2",
     "rollup": "^4.44.2",
     "sass": "^1.89.2",
-    "typescript": "~5.8.3"
+    "typescript": "~5.8.3",
   },
   "engines": {
     // Causes an incorrect error in Netlify, but it's what I'm using locally anyhow.
     "node": ">=18.17.0",
-    "npm": ">=9.6.0"
+    "npm": ">=9.6.0",
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/bbaysinger/bb-portfolio.git" // github.com/bbaysinger/bb-portfolio.git
+    "url": "https://github.com/bbaysinger/bb-portfolio.git", // github.com/bbaysinger/bb-portfolio.git
   },
   "keywords": [
     "portfolio",
@@ -84,6 +84,6 @@
     "design",
     "developer-portfolio",
     "carousel",
-    "infinite-scrolling"
-  ]
+    "infinite-scrolling",
+  ],
 }
