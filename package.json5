@@ -1,5 +1,7 @@
 {
+  // Root package name for the portfolio monorepo
   "name": "bb-portfolio",
+  // Prevents accidental publishing to npm registry
   "private": true,
   // Keep: Add the following lines (in package.json) to enable workspaces
   // Useful if you ever convert this monorepo into a Yarn/NPM workspace
@@ -24,28 +26,38 @@
     // Maps to port 3000 and uses .env file for environment variables
     "docker:run:frontend": "docker run -p 3000:3000 --env-file ./frontend/.env bb-frontend",
     // 💅 Format all files with Prettier
-    // Ensures consistent code style
+    // Ensures consistent code style across the entire monorepo
     "format": "prettier --write .",
     // 🧼 Run ESLint on the full codebase
     // Great for catching JS/TS issues or team rule violations
     "lint": "eslint .",
-    // 🎯 "Pretty Build" — formats code, then runs TypeScript project build for type-checking.
+    // 🎯 "Pretty Build" — formats code, then runs TypeScript project build for type-checking
     // Use this before commits to catch formatting or type errors early, because formatters
-    // can sometimes introduce subtle breakages that TypeScript will catch.
+    // can sometimes introduce subtle breakages that TypeScript will catch
     "pb": "prettier --write . && tsc -b",
-    // 🔄 Syncs package.json5 with package.json values while preserving comments and formatting.
-    // Run this after editing package.json to push updates back into the annotated JSON5 version.
-    "sync:json5": "tsx scripts/sync-json5.ts",
+    // 🔄 Syncs package.json5 with package.json values while preserving comments and formatting
+    // Run this after editing package.json to push updates back into the annotated JSON5 version
+    "sync:json5": "tsx scripts/sync-json5.ts"
   },
+  // Development-only dependencies for monorepo tooling and build processes
   "devDependencies": {
+    // TypeScript definitions for glob package
     "@types/glob": "^9.0.0",
-    "eslint": "^9.32.0", // Linting engine for JS/TS
-    "glob": "^11.0.3", // File pattern matching
-    "ignore": "^7.0.5", // Used for parsing .gitignore-style files
-    "json5": "^2.2.3", // JSON parser with comments — used for package.json5 syncing
-    "prettier": "^3.6.2", // Code formatter
-    "ts-node": "^10.9.2", // Run TS scripts directly (likely used in custom tools)
-    "tsx": "^4.20.3", // Fast TS/ESM script runner (modern alternative to ts-node)
-    "typescript": "^5.9.2", // The TypeScript compiler itself
-  },
+    // JavaScript/TypeScript linting engine (v9 for latest rules)
+    "eslint": "^9.32.0",
+    // File pattern matching utility (used in build scripts)
+    "glob": "^11.0.3",
+    // Parser for .gitignore-style files (used in tooling)
+    "ignore": "^7.0.5",
+    // JSON parser with comment support (enables package.json5 syncing)
+    "json5": "^2.2.3",
+    // Opinionated code formatter for consistent style
+    "prettier": "^3.6.2",
+    // TypeScript execution engine for Node.js (legacy, kept for compatibility)
+    "ts-node": "^10.9.2",
+    // Fast TypeScript/ESM script runner (modern ts-node alternative)
+    "tsx": "^4.20.3",
+    // TypeScript compiler (v5.9 for latest language features)
+    "typescript": "^5.9.2"
+  }
 }

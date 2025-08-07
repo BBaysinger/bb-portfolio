@@ -1,38 +1,71 @@
 {
+  // Frontend package name for the portfolio site
   "name": "frontend",
+  // Version of this frontend package
   "version": "0.1.0",
+  // Prevents accidental publishing to npm registry
   "private": true,
+  // Frontend development and build scripts
   "scripts": {
+    // Start Next.js development server with hot reload
     "dev": "next dev",
+    // Build production-optimized static site
     "build": "next build",
+    // Preview the built static site using serve
     "preview": "npx serve out",
+    // Start Next.js production server
     "start": "next start",
+    // Run Next.js ESLint configuration
     "lint": "next lint",
-    "pb": "prettier --write . && tsc -b",
+    // "Pretty Build" - format code with Prettier then run TypeScript build for validation
+    "pb": "prettier --write . && tsc -b"
   },
+  // Runtime dependencies for the frontend application
   "dependencies": {
+    // Modern Redux state management with simplified API
     "@reduxjs/toolkit": "^2.8.2",
+    // CSS framework for responsive design and components
     "bootstrap": "^5.3.7",
+    // Utility for conditionally joining CSS class names
     "clsx": "^2.1.1",
+    // Professional animation library for smooth UI transitions
     "gsap": "^3.13.0",
+    // React framework with SSR, routing, and optimization features
     "next": "^15.4.6",
+    // React library for building user interfaces (v19 for latest features)
     "react": "^19.1.1",
+    // React DOM renderer for web applications (matches React 19)
     "react-dom": "^19.1.1",
+    // Official React bindings for Redux state management
     "react-redux": "^9.2.0",
-    "sass": "^1.90.0",
+    // CSS preprocessor with variables, nesting, and mixins
+    "sass": "^1.90.0"
   },
+  // Development-only dependencies for tooling and type checking
   "devDependencies": {
+    // Legacy ESLint configuration system (required by some plugins)
     "@eslint/eslintrc": "^3",
+    // Node.js TypeScript definitions (latest for Node 18+)
     "@types/node": "^24",
+    // React TypeScript definitions (v19 for latest React features)
     "@types/react": "^19",
+    // React DOM TypeScript definitions (v19 for latest React features)
     "@types/react-dom": "^19",
+    // TypeScript-specific ESLint rules and best practices
     "@typescript-eslint/eslint-plugin": "^8.39.0",
+    // TypeScript parser for ESLint to understand TS syntax
     "@typescript-eslint/parser": "^8.39.0",
+    // JavaScript/TypeScript linting engine (v9 for latest rules)
     "eslint": "^9",
+    // Next.js ESLint configuration with React and accessibility rules
     "eslint-config-next": "15.4.6",
+    // ESLint plugin for React Hooks rules and best practices
     "eslint-plugin-react-hooks": "^5.2.0",
+    // ESLint plugin for React Refresh (fast refresh) compatibility
     "eslint-plugin-react-refresh": "^0.4.20",
+    // Opinionated code formatter for consistent style
     "prettier": "^3.6.2",
-    "typescript": "^5",
-  },
+    // TypeScript compiler (v5 for latest language features)
+    "typescript": "^5"
+  }
 }
