@@ -111,11 +111,14 @@
   },
   // Custom PNPM config to limit which dependencies are built from source
   "pnpm": {
-      // Module resolution utility
+    // Only build these dependencies from source (others use prebuilt binaries)
     "onlyBuiltDependencies": [
+      // Image processing library (native compilation required)
       "sharp",
+      // JavaScript bundler (native compilation for performance)
       "esbuild",
-      "unrs-resolver",
-    ],
-  },
+      // Module resolution utility
+      "unrs-resolver"
+    ]
+  }
 }
