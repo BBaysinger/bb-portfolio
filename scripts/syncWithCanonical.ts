@@ -50,17 +50,12 @@ export function syncWithCanonical(
         pathKey = JSON.stringify(entry.path);
       }
 
-      console.info(
-        `Storing comment for path: ${pathKey}, line: "${entry.rawLine.trim()}"`,
-      );
       commentMap.set(pathKey, {
         precedingComments: entry.precedingComments,
         trailingComment: entry.trailingComment,
       });
     }
   }
-
-  console.info("All comment map keys:", Array.from(commentMap.keys()));
 
   let lineNumber = 1;
   const result: ParsedJson5 = [];
@@ -125,9 +120,6 @@ export function syncWithCanonical(
     const indent = "  ".repeat(indentLevel);
     const comments = commentMap.get(JSON.stringify(path));
 
-    console.log(`Array opening path: ${JSON.stringify(path)}`);
-    console.log(`Array opening comments:`, comments);
-
     // Array opening with trailing comment passed separately
     emitLine(
       path,
@@ -143,11 +135,6 @@ export function syncWithCanonical(
       const itemIndent = "  ".repeat(indentLevel + 1);
       const isLastItem = index === arr.length - 1;
       const comma = !isLastItem ? "," : "";
-
-      console.info(
-        `Looking for array item comments at path: ${JSON.stringify(itemPathWithNumber)}`,
-      );
-      console.info(`Found comments:`, itemComments);
 
       // Use string path for emitLine to satisfy type constraints
       const itemPath = [...path, index.toString()];
