@@ -18,6 +18,8 @@ import ignore from "ignore";
  * - Scoped packages (@org/package) and URLs in comments
  * - Trailing commas for version control benefits
  *
+ * TODO: Get this into an open source package for wider use
+ *
  * @author Bradley Baysinger
  * @since 2025
  * @version N/A
@@ -216,11 +218,6 @@ function buildCommentMap(
         ".",
       );
 
-      // Debug logging to track array item processing
-      console.log(
-        `Debug array item: index=${currentArrayIndex}, path="${arrayItemPath}", line="${trimmed}"`,
-      );
-
       const commentInfo: { preceding: string[]; trailing?: string } = {
         preceding: [...bufferedComments],
       };
@@ -228,9 +225,6 @@ function buildCommentMap(
       const trailing = extractTrailingComment(line);
       if (trailing) {
         commentInfo.trailing = trailing;
-        console.log(
-          `Found trailing comment for ${arrayItemPath}: "${trailing}"`,
-        );
       }
 
       if (commentInfo.preceding.length > 0 || commentInfo.trailing) {
