@@ -6,6 +6,12 @@ import { serializeJson5 } from "./serializeJson5";
 
 const rootDir = process.cwd();
 
+/**
+ *
+ * @author Bradley Baysinger
+ * @since 2025
+ * @version N/A
+ */
 function findJsonPairs(dir: string): [string, string][] {
   const results: [string, string][] = [];
 
