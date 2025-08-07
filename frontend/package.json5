@@ -18,7 +18,7 @@
     // Run Next.js ESLint configuration
     "lint": "next lint",
     // "Pretty Build" - format code with Prettier then run TypeScript build for validation
-    "pb": "prettier --write . && tsc -b"
+    "pb": "prettier --write . && tsc -b",
   },
   // Runtime dependencies for the frontend application
   "dependencies": {
@@ -39,7 +39,7 @@
     // Official React bindings for Redux state management
     "react-redux": "^9.2.0",
     // CSS preprocessor with variables, nesting, and mixins
-    "sass": "^1.90.0"
+    "sass": "^1.90.0",
   },
   // Development-only dependencies for tooling and type checking
   "devDependencies": {
@@ -66,6 +66,6 @@
     // Opinionated code formatter for consistent style
     "prettier": "^3.6.2",
     // TypeScript compiler (v5 for latest language features)
-    "typescript": "^5"
-  }
+    "typescript": "^5",
+  },
 }

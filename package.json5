@@ -37,7 +37,7 @@
     "pb": "prettier --write . && tsc -b",
     // 🔄 Syncs package.json5 with package.json values while preserving comments and formatting
     // Run this after editing package.json to push updates back into the annotated JSON5 version
-    "sync:json5": "tsx scripts/sync-json5.ts"
+    "sync:json5": "tsx scripts/sync-json5.ts",
   },
   // Development-only dependencies for monorepo tooling and build processes
   "devDependencies": {
@@ -58,6 +58,6 @@
     // Fast TypeScript/ESM script runner (modern ts-node alternative)
     "tsx": "^4.20.3",
     // TypeScript compiler (v5.9 for latest language features)
-    "typescript": "^5.9.2"
-  }
+    "typescript": "^5.9.2",
+  },
 }
