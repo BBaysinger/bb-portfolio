@@ -57,7 +57,7 @@
     // Required for GraphQL support in Payload
     "graphql": "^16.11.0",
     // Next.js framework for frontend/backend integration
-    "next": "15.4.5",
+    "next": "15.4.6",
     // Payload CMS core package
     "payload": "3.50.0",
     // React version to match Next.js 15
@@ -85,7 +85,7 @@
     "@vitejs/plugin-react": "4.7.0",
     // ESLint and Next.js linting support
     "eslint": "^9.32.0",
-    "eslint-config-next": "15.4.5",
+    "eslint-config-next": "15.4.6",
     // JavaScript DOM emulation (used in unit tests)
     "jsdom": "26.1.0",
     // Standalone version of Playwright test runner
