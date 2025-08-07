@@ -96,24 +96,65 @@ export function parseJson5File(filePath: string): ParsedJson5 {
       return;
     }
 
-    // Inline comment - find the last occurrence of // that's actually a comment
+    // Inline comment - find the LAST occurrence of // that's actually a comment
     let mainContent = line;
     let trailingComment: string | undefined;
 
-    // Simple approach: find "//" that's not inside quotes
-    const inlineCommentIdx = line.indexOf("//");
-    if (inlineCommentIdx !== -1) {
-      // Check if the "//" is inside a JSON string by looking at the structure
-      const beforeComment = line.slice(0, inlineCommentIdx);
-      // Count unescaped quotes
-      const quotesBeforeComment = (beforeComment.match(/(?<!\\)"/g) || [])
-        .length;
+    // Find ALL occurrences of "//" and check which one is the actual comment
+    let inlineCommentIdx = -1;
+    let searchStart = 0;
+    while (true) {
+      const idx = line.indexOf("//", searchStart);
+      if (idx === -1) break;
 
-      // If even number of quotes, we're outside a string (so it's a comment)
-      if (quotesBeforeComment % 2 === 0) {
+      // Check if this "//" is inside a string by counting quotes before it
+      const beforeComment = line.slice(0, idx);
+      const quoteCount = (beforeComment.match(/"/g) || []).length;
+
+      // If we have an even number of quotes, we're outside a string (comment)
+      if (quoteCount % 2 === 0) {
+        inlineCommentIdx = idx;
+        break;
+      }
+
+      searchStart = idx + 2;
+    }
+
+    if (inlineCommentIdx !== -1) {
+      const beforeComment = line.slice(0, inlineCommentIdx);
+
+      // Check for key-value pattern: "key": "value", (with optional comma)
+      const keyValuePattern = /^[^"]*"[^"]*":\s*"[^"]*",?\s*$/;
+      const isAfterValue = keyValuePattern.test(beforeComment);
+
+      // Check for array item pattern: "value", or "value" (with optional comma)
+      const arrayItemPattern = /^\s*"[^"]*",?\s*$/;
+      const isArrayItem = arrayItemPattern.test(beforeComment);
+
+      // If it's after a complete key-value pair OR it's an array item, the comment is valid
+      if (isAfterValue || isArrayItem || !beforeComment.includes('"')) {
         mainContent = beforeComment.trim();
         trailingComment = line.slice(inlineCommentIdx).trim();
       }
+    }
+
+    if (
+      line.includes("sharp") ||
+      line.includes("github.com/bbaysinger/bb-portfolio.git")
+    ) {
+      console.log("Debug trailing comment detection (fixed both):", {
+        originalLine: JSON.stringify(line),
+        inlineCommentIdx,
+        mainContent: JSON.stringify(mainContent),
+        trailingComment: JSON.stringify(trailingComment),
+        beforeComment: JSON.stringify(line.slice(0, inlineCommentIdx)),
+        keyValuePattern: /^[^"]*"[^"]*":\s*"[^"]*",?\s*$/.test(
+          line.slice(0, inlineCommentIdx),
+        ),
+        arrayItemPattern: /^\s*"[^"]*",?\s*$/.test(
+          line.slice(0, inlineCommentIdx),
+        ),
+      });
     }
 
     if (
@@ -121,6 +162,13 @@ export function parseJson5File(filePath: string): ParsedJson5 {
       mainContent.trim().startsWith('"') &&
       !mainContent.trim().includes(":")
     ) {
+      console.log("Array item with trailing comment:", {
+        line: JSON.stringify(line),
+        mainContent: JSON.stringify(mainContent),
+        trailingComment: JSON.stringify(trailingComment),
+        hasTrailingComment: !!trailingComment,
+      });
+
       const index = arrayIndexStack[arrayIndexStack.length - 1];
       const currentPath = [...pathStack, index];
       parsed.push({

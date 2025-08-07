@@ -114,11 +114,11 @@
     // Only build these dependencies from source (others use prebuilt binaries)
     "onlyBuiltDependencies": [
       // Image processing library (native compilation required)
-      "sharp",
+      "sharp", // Module resolution utility
       // JavaScript bundler (native compilation for performance)
-      "esbuild",
+      "esbuild", // Module resolution utility
       // Module resolution utility
-      "unrs-resolver"
+      "unrs-resolver" // Module resolution utility
     ],
   },
 }
