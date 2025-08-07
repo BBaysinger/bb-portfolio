@@ -26,19 +26,10 @@ function findJsonPairs(dir: string): [string, string][] {
   return results;
 }
 
-const allPairs = findJsonPairs(rootDir);
-
-// Only keep pairs where the .json5 file is within the /backend/ folder
-const pairs = allPairs.filter(([json5Path]) => {
-  const normalized = path.normalize(json5Path);
-  return (
-    normalized.includes(`${path.sep}backend${path.sep}`) ||
-    normalized.includes(`${path.sep}backend${path.sep}package.json5`)
-  );
-});
+const pairs = findJsonPairs(rootDir);
 
 if (pairs.length === 0) {
-  console.info("No package.json5 + package.json pairs found in /backend.");
+  console.info("No package.json5 + package.json pairs found.");
   process.exit(0);
 }
 
