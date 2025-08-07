@@ -130,7 +130,7 @@ export function syncWithCanonical(
     const indent = "  ".repeat(indentLevel);
     const comments = commentMap.get(JSON.stringify(path));
 
-    // Array opening with trailing comment passed separately
+    // Array opening
     emitLine(
       path,
       `${indent}"${path[path.length - 1]}": [`,
@@ -139,14 +139,13 @@ export function syncWithCanonical(
     );
 
     arr.forEach((item, index) => {
-      // FIXED: Use numeric index to match parseJson5File.ts path format
       const itemPathWithNumber = [...path, index];
       const itemComments = commentMap.get(JSON.stringify(itemPathWithNumber));
 
       const itemIndent = "  ".repeat(indentLevel + 1);
-      const comma = index < arr.length - 1 ? "," : "";
+      // ALWAYS add trailing comma for version control benefits
+      const comma = ",";
 
-      // FIXED: Convert numeric path back to string for emitLine
       const itemPathForEmit = [...path, index.toString()];
       emitLine(
         itemPathForEmit,
@@ -156,9 +155,9 @@ export function syncWithCanonical(
       );
     });
 
-    // Closing bracket - always add comma
-    const comma = ",";
-    emitLine(path, `${indent}]${comma}`);
+    // Closing bracket
+    const closingComma = isLast ? "" : ",";
+    emitLine(path, `${indent}]${closingComma}`);
   }
 
   function buildValue(
