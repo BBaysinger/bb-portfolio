@@ -40,9 +40,15 @@ export function syncWithCanonical(
         const match = entry.rawLine.match(/"([^"]+)"\s*:/);
         if (match) {
           const key = match[1];
-          // Build the full path based on the existing path + this key
-          const fullPath = [...entry.path, key];
-          pathKey = JSON.stringify(fullPath);
+          // Check if the path already includes this key to avoid duplication
+          if (entry.path[entry.path.length - 1] === key) {
+            // Path already includes the key, use as-is
+            pathKey = JSON.stringify(entry.path);
+          } else {
+            // Build the full path based on the existing path + this key
+            const fullPath = [...entry.path, key];
+            pathKey = JSON.stringify(fullPath);
+          }
         }
       }
       // For array items and other entries, use the path as-is

@@ -90,10 +90,30 @@ export function parseJson5File(filePath: string): ParsedJson5 {
       return;
     }
 
-    // Inline comment
+    // Inline comment - find the last occurrence of // that's actually a comment
     let mainContent = line;
     let trailingComment: string | undefined;
-    const inlineCommentIdx = line.indexOf("//");
+
+    // Find all occurrences of "//" and determine which one is the actual comment
+    let inlineCommentIdx = -1;
+    let searchStart = 0;
+    while (true) {
+      const idx = line.indexOf("//", searchStart);
+      if (idx === -1) break;
+
+      // Check if this "//" is inside a string by counting quotes before it
+      const beforeComment = line.slice(0, idx);
+      const quoteCount = (beforeComment.match(/"/g) || []).length;
+
+      // If we have an even number of quotes, we're outside a string (comment)
+      if (quoteCount % 2 === 0) {
+        inlineCommentIdx = idx;
+        break;
+      }
+
+      searchStart = idx + 2;
+    }
+
     if (inlineCommentIdx !== -1) {
       mainContent = line.slice(0, inlineCommentIdx).trim();
       trailingComment = line.slice(inlineCommentIdx).trim();
