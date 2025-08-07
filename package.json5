@@ -39,13 +39,13 @@
   },
   "devDependencies": {
     "@types/glob": "^9.0.0",
-    "eslint": "^9.31.0", // Linting engine for JS/TS
+    "eslint": "^9.32.0", // Linting engine for JS/TS
     "glob": "^11.0.3", // File pattern matching
     "ignore": "^7.0.5", // Used for parsing .gitignore-style files
     "json5": "^2.2.3", // JSON parser with comments — used for package.json5 syncing
     "prettier": "^3.6.2", // Code formatter
     "ts-node": "^10.9.2", // Run TS scripts directly (likely used in custom tools)
     "tsx": "^4.20.3", // Fast TS/ESM script runner (modern alternative to ts-node)
-    "typescript": "^5.8.3", // The TypeScript compiler itself
+    "typescript": "^5.9.2", // The TypeScript compiler itself
   },
 }
