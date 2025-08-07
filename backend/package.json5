@@ -34,7 +34,7 @@
     // Run Playwright tests (end-to-end testing framework)
     "test:e2e": "cross-env NODE_OPTIONS=\"--no-deprecation --no-experimental-strip-types\" pnpm exec playwright test",
     // Run Vitest (unit/integration tests) using its config file
-    "test:int": "cross-env NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.config.mts"
+    "test:int": "cross-env NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.config.mts",
   },
   // Runtime dependencies for backend and CMS functionality
   "dependencies": {
@@ -65,7 +65,7 @@
     // High-performance image processing (required for Payload image fields)
     "sharp": "0.34.3",
     // Converts strings into URL-friendly slugs (useful for dynamic routing)
-    "slugify": "^1.6.6"
+    "slugify": "^1.6.6",
   },
   // Development-only tools and type definitions
   "devDependencies": {
@@ -98,21 +98,21 @@
     // Support for `paths` aliasing in Vite
     "vite-tsconfig-paths": "5.1.4",
     // Modern unit test runner (used here instead of Jest)
-    "vitest": "3.2.4"
+    "vitest": "3.2.4",
   },
   // Minimum versions for runtime tools
   "engines": {
     // Supports latest Node LTS and Node 20+
     "node": "^18.20.2 || >=20.9.0",
     // Supports both pnpm v9 and v10
-    "pnpm": "^9 || ^10"
+    "pnpm": "^9 || ^10",
   },
   // Custom PNPM config to limit which dependencies are built from source
   "pnpm": {
     "onlyBuiltDependencies": [
       "sharp",
       "esbuild",
-      "unrs-resolver"
-    ]
-  }
+      "unrs-resolver",
+    ],
+  },
 }

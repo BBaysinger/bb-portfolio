@@ -35,7 +35,7 @@
     "pb": "prettier --write . && tsc -b",
     // 🔄 Syncs package.json5 with package.json values while preserving comments and formatting.
     // Run this after editing package.json to push updates back into the annotated JSON5 version.
-    "sync:json5": "tsx scripts/sync-json5.ts"
+    "sync:json5": "tsx scripts/sync-json5.ts",
   },
   "devDependencies": {
     "@types/glob": "^9.0.0",
@@ -46,6 +46,6 @@
     "prettier": "^3.6.2", // Code formatter
     "ts-node": "^10.9.2", // Run TS scripts directly (likely used in custom tools)
     "tsx": "^4.20.3", // Fast TS/ESM script runner (modern alternative to ts-node)
-    "typescript": "^5.8.3" // The TypeScript compiler itself
-  }
+    "typescript": "^5.8.3", // The TypeScript compiler itself
+  },
 }

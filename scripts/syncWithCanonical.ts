@@ -109,11 +109,11 @@ export function syncWithCanonical(
       const value = obj[key];
       const isLastKey = index === keys.length - 1;
 
-      buildValue(value, childPath, indentLevel + 1, isLastKey);
+      buildValue(value, childPath, indentLevel + 1, true); // Always pass true for trailing comma
     });
 
-    // Closing brace
-    const comma = path.length > 0 && !isLast ? "," : "";
+    // Closing brace - always add comma except for root object
+    const comma = path.length > 0 ? "," : "";
     emitLine(path, `${indent}}${comma}`);
   }
 
@@ -139,8 +139,8 @@ export function syncWithCanonical(
       const itemPathWithNumber = [...path, index];
       const itemComments = commentMap.get(JSON.stringify(itemPathWithNumber));
       const itemIndent = "  ".repeat(indentLevel + 1);
-      const isLastItem = index === arr.length - 1;
-      const comma = !isLastItem ? "," : "";
+      // Always add comma for array items
+      const comma = ",";
 
       // Use string path for emitLine to satisfy type constraints
       const itemPath = [...path, index.toString()];
@@ -152,8 +152,8 @@ export function syncWithCanonical(
       );
     });
 
-    // Closing bracket
-    const comma = !isLast ? "," : "";
+    // Closing bracket - always add comma
+    const comma = ",";
     emitLine(path, `${indent}]${comma}`);
   }
 
@@ -171,7 +171,8 @@ export function syncWithCanonical(
       // Primitive value
       const indent = "  ".repeat(indentLevel);
       const comments = commentMap.get(JSON.stringify(path));
-      const comma = !isLast ? "," : "";
+      // Always add comma for primitive values
+      const comma = ",";
 
       let rawLine: string;
       if (path.length > 0 && !isNaN(Number(path[path.length - 1]))) {
