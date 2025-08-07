@@ -3,6 +3,10 @@ import { ParsedJson5, CommentedLine } from "./parseJson5File";
 /**
  * Recursively builds the ParsedJson5 structure from a canonical object,
  * injecting preserved comments and blank lines where available.
+ *
+ * @author Bradley Baysinger
+ * @since 2025
+ * @version N/A
  */
 export function syncWithCanonical(
   parsed: ParsedJson5,

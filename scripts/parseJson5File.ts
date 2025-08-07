@@ -10,6 +10,12 @@ export interface CommentedLine {
 
 export type ParsedJson5 = CommentedLine[];
 
+/**
+ *
+ * @author Bradley Baysinger
+ * @since 2025
+ * @version N/A
+ */
 export function parseJson5File(filePath: string): ParsedJson5 {
   const lines = fs.readFileSync(filePath, "utf-8").split("\n");
   const parsed: ParsedJson5 = [];

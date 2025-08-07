@@ -3,6 +3,10 @@ import { ParsedJson5 } from "./parseJson5File";
 
 /**
  * Serializes a parsed JSON5 structure back into a string with preserved comments.
+ *
+ * @author Bradley Baysinger
+ * @since 2025
+ * @version N/A
  */
 export function serializeJson5(parsed: ParsedJson5): string {
   return parsed
