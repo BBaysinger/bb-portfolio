@@ -139,11 +139,17 @@ export function syncWithCanonical(
     );
 
     arr.forEach((item, index) => {
-      // Create path with numeric index to match parsed data format
+      // Try multiple path formats to find comments
       const itemPathWithNumber = [...path, index];
-      const itemComments = commentMap.get(JSON.stringify(itemPathWithNumber));
+      const itemPathWithString = [...path, index.toString()];
+
+      // Look for comments using both numeric and string index formats
+      let itemComments = commentMap.get(JSON.stringify(itemPathWithNumber));
+      if (!itemComments) {
+        itemComments = commentMap.get(JSON.stringify(itemPathWithString));
+      }
+
       const itemIndent = "  ".repeat(indentLevel + 1);
-      // Always add comma for array items
       const comma = ",";
 
       // Use string path for emitLine to satisfy type constraints
