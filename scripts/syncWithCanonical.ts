@@ -18,7 +18,7 @@ export function syncWithCanonical(
     { precedingComments: string[]; trailingComment?: string }
   >();
 
-  // Build a more sophisticated comment map based on the actual structure
+  // Replace the comment map building section with this debug version:
   for (const entry of parsed) {
     if (entry.rawLine.trim() !== "") {
       let pathKey = JSON.stringify(entry.path);
@@ -139,23 +139,17 @@ export function syncWithCanonical(
     );
 
     arr.forEach((item, index) => {
-      // Try multiple path formats to find comments
+      // FIXED: Use numeric index to match parseJson5File.ts path format
       const itemPathWithNumber = [...path, index];
-      const itemPathWithString = [...path, index.toString()];
-
-      // Look for comments using both numeric and string index formats
-      let itemComments = commentMap.get(JSON.stringify(itemPathWithNumber));
-      if (!itemComments) {
-        itemComments = commentMap.get(JSON.stringify(itemPathWithString));
-      }
+      const itemComments = commentMap.get(JSON.stringify(itemPathWithNumber));
 
       const itemIndent = "  ".repeat(indentLevel + 1);
-      const comma = ",";
+      const comma = index < arr.length - 1 ? "," : "";
 
-      // Use string path for emitLine to satisfy type constraints
-      const itemPath = [...path, index.toString()];
+      // FIXED: Convert numeric path back to string for emitLine
+      const itemPathForEmit = [...path, index.toString()];
       emitLine(
-        itemPath,
+        itemPathForEmit,
         `${itemIndent}${JSON.stringify(item)}${comma}`,
         itemComments?.precedingComments ?? [],
         itemComments?.trailingComment,
