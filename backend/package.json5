@@ -1,174 +1,118 @@
 {
   // Package name for the Payload backend
   "name": "bb-portfolio-backend",
-
   // Version of this backend package
   "version": "1.0.0",
-
   // Short description (Payload starter template)
   "description": "A blank template to get started with Payload 3.0",
-
   // License type (MIT is very permissive)
-  /* test test test
-      This is a test comment to check if the sync works.
-      It should not be removed by the sync script.
-      The script should only remove comments that are not in the canonical file.
-      This comment is here to test the sync functionality.
-  */
   "license": "MIT",
-
   // Declares this as an ES module project
   "type": "module",
-
   // Common dev scripts
-  "scripts": { // test if this works
+  "scripts": {
     // Format all files with Prettier, then run TypeScript build to validate formatting changes
     "pb": "prettier --write . && tsc -b",
-
     // Production build with increased memory and deprecation warnings suppressed
     "build": "cross-env NODE_OPTIONS=\"--no-deprecation --max-old-space-size=8000\" next build",
-
     // Start development server with deprecation warnings suppressed
     "dev": "cross-env NODE_OPTIONS=--no-deprecation next dev",
-
     // Clean cache and run dev server (useful if things break)
     "devsafe": "rm -rf .next && cross-env NODE_OPTIONS=--no-deprecation next dev",
-
     // Generates Payload importmap file (used when importing from plugins or dynamic code)
     "generate:importmap": "cross-env NODE_OPTIONS=--no-deprecation payload generate:importmap",
-
     // Generates TypeScript types from Payload collections and globals
     "generate:types": "cross-env NODE_OPTIONS=--no-deprecation payload generate:types",
-
     // Run Next.js linter with deprecation warnings suppressed
     "lint": "cross-env NODE_OPTIONS=--no-deprecation next lint",
-
     // Start Payload-only CLI (e.g., to seed or run utilities)
     "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
-
     // Start production server
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start",
-
     // Run both integration and E2E tests
     "test": "pnpm run test:int && pnpm run test:e2e",
-
     // Run Playwright tests (end-to-end testing framework)
     "test:e2e": "cross-env NODE_OPTIONS=\"--no-deprecation --no-experimental-strip-types\" pnpm exec playwright test",
-
     // Run Vitest (unit/integration tests) using its config file
     "test:int": "cross-env NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.config.mts"
   },
-
   // Runtime dependencies for backend and CMS functionality
   "dependencies": {
     // MongoDB adapter for Payload CMS
     "@payloadcms/db-mongodb": "3.50.0",
-
     // Enables Payload-Next.js integration (server-side rendering and routing)
     "@payloadcms/next": "3.50.0",
-
     // Payload Cloud tools (optional if self-hosting)
     "@payloadcms/payload-cloud": "3.50.0",
-
     // Rich text editor using Lexical (modern alternative to Slate)
     "@payloadcms/richtext-lexical": "3.50.0",
-
     // Payload’s core UI components
     "@payloadcms/ui": "3.50.0",
-
     // Ensures cross-platform environment variables work consistently
     "cross-env": "^10.0.0",
-
     // Loads `.env` variables into Node.js
     "dotenv": "17.2.1",
-
     // Backend server framework
     "express": "^5.1.0",
-
     // Required for GraphQL support in Payload
     "graphql": "^16.11.0",
-
     // Next.js framework for frontend/backend integration
     "next": "15.4.5",
-
     // Payload CMS core package
     "payload": "3.50.0",
-
     // React version to match Next.js 15
     "react": "19.1.1",
-
     // High-performance image processing (required for Payload image fields)
     "sharp": "0.34.3",
-
     // Converts strings into URL-friendly slugs (useful for dynamic routing)
     "slugify": "^1.6.6"
   },
-
   // Development-only tools and type definitions
   "devDependencies": {
     // E2E test runner
     "@playwright/test": "1.54.2",
-
     // Testing utilities for React components
     "@testing-library/react": "16.3.0",
-
     // Express types for TypeScript
     "@types/express": "^5.0.3",
-
     // Node types for TypeScript
     "@types/node": "^24.2.0",
-
     // React 19 types
     "@types/react": "19.1.9",
+    // React DOM 19 types
     "@types/react-dom": "19.1.7",
-
     // Vite plugin for React (useful if testing with Vite)
     "@vitejs/plugin-react": "4.7.0",
-
     // ESLint and Next.js linting support
     "eslint": "^9.32.0",
     "eslint-config-next": "15.4.5",
-
     // JavaScript DOM emulation (used in unit tests)
     "jsdom": "26.1.0",
-
     // Standalone version of Playwright test runner
     "playwright": "1.54.2",
     "playwright-core": "1.54.2",
-
     // Code formatter
     "prettier": "^3.6.2",
-
     // TypeScript compiler
     "typescript": "5.9.2",
-
     // Support for `paths` aliasing in Vite
     "vite-tsconfig-paths": "5.1.4",
-
     // Modern unit test runner (used here instead of Jest)
     "vitest": "3.2.4"
   },
-
   // Minimum versions for runtime tools
   "engines": {
     // Supports latest Node LTS and Node 20+
     "node": "^18.20.2 || >=20.9.0",
-
     // Supports both pnpm v9 and v10
     "pnpm": "^9 || ^10"
   },
-
   // Custom PNPM config to limit which dependencies are built from source
   "pnpm": {
-    "onlyBuiltDependencies": [ // test if this works
-      // Sharp needs native bindings
-      "sharp", // test if this works
-
-      // esbuild is often needed for plugins/tools
-      "esbuild", // test if this works
-
-      // Unrs-resolver may be used by Payload’s rich text or routing
-      "unrs-resolver" // test if this works
+    "onlyBuiltDependencies": [
+      "sharp",
+      "esbuild",
+      "unrs-resolver"
     ]
   }
 }
