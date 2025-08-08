@@ -1,24 +1,56 @@
-version: "3"
+# Docker Compose configuration for portfolio site
+# Run with: docker-compose up --build
+version: "3.8"
 
 services:
+  # Backend API service (Payload CMS)
   backend:
     build:
       context: ./backend
+      dockerfile: Dockerfile
     image: portfolio-backend
     container_name: portfolio-backend
     ports:
+      # Map host port 3000 to container port 3000
       - "3000:3000"
     env_file:
+      # Load environment variables from backend .env file
       - ./backend/.env
+    # Restart policy - restart unless manually stopped
     restart: unless-stopped
+    # Health check to ensure backend is responding
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
+  # Frontend service (Next.js)
   frontend:
     build:
       context: ./frontend
+      dockerfile: Dockerfile
     image: portfolio-frontend
     container_name: portfolio-frontend
     ports:
+      # Map host port 3001 to container port 3000 (avoid conflict with backend)
       - "3001:3000"
     env_file:
+      # Load environment variables from frontend .env file
       - ./frontend/.env
+    # Restart policy - restart unless manually stopped
     restart: unless-stopped
+    # Wait for backend to be ready before starting frontend
+    depends_on:
+      - backend
+    # Health check to ensure frontend is responding
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+# Custom network for service isolation
+networks:
+  default:
+    name: portfolio-network
