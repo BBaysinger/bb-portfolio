@@ -7,17 +7,17 @@
 # This is acceptable for a portfolio site - vulnerability will be patched in future releases
 FROM node:22.12.0-alpine AS builder
 
-# Set production environment for faster installs & smaller images
-ENV NODE_ENV=production
+# DON'T set NODE_ENV=production here - we need dev dependencies for the build
+# ENV NODE_ENV=production
 
 # Set working directory for build stage
 WORKDIR /app
 
 # Copy package files first for better Docker layer caching
-COPY package.json package-lock.json ./
+COPY package.json package-lock.json* ./
 
-# Install all dependencies (including dev deps needed for build)
-RUN npm ci
+# Install ALL dependencies (including dev dependencies needed for build)
+RUN npm install
 
 # Copy source code and build the application
 COPY . .
@@ -32,6 +32,9 @@ RUN npm prune --omit=dev
 # Use same base image for consistency
 FROM node:22.12.0-alpine AS runtime
 
+# Set production environment for runtime only
+ENV NODE_ENV=production
+
 # Create a non-root user for security (alpine uses adduser instead of useradd)
 RUN adduser -D -s /bin/sh appuser
 # Switch to non-root user
@@ -41,7 +44,7 @@ USER appuser
 WORKDIR /app
 
 # Copy package files with proper ownership
-COPY --chown=appuser:appuser package.json package-lock.json ./
+COPY --chown=appuser:appuser package.json package-lock.json* ./
 
 # Copy production dependencies from builder stage
 COPY --from=builder --chown=appuser:appuser /app/node_modules ./node_modules
