@@ -42,6 +42,8 @@
   "dependencies": {
     // MongoDB adapter for Payload CMS
     "@payloadcms/db-mongodb": "3.50.0",
+    // Nodemailer email adapter for Payload CMS (handles SMTP email sending, password resets, notifications)
+    "@payloadcms/email-nodemailer": "^3.50.0",
     // Enables Payload-Next.js integration (server-side rendering and routing)
     "@payloadcms/next": "3.50.0",
     // Payload Cloud tools (optional if self-hosting)
@@ -64,6 +66,8 @@
     "payload": "3.50.0",
     // React version to match Next.js 15
     "react": "19.1.1",
+    // React DOM library for rendering React components (required by Next.js and Payload UI)
+    "react-dom": "^19.1.1",
     // High-performance image processing (required for Payload image fields)
     "sharp": "0.34.3",
     // Converts strings into URL-friendly slugs (useful for dynamic routing)

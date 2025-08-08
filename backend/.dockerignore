@@ -38,3 +38,6 @@ jest.config.*
 .idea/
 *.swp
 *.swo
+# Exclude backup folder
+src (from backup)/
+# DON'T exclude package-lock.json - we need it for Docker builds
