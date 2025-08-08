@@ -12,6 +12,8 @@
   // Common dev scripts
   "scripts": {
     // Prettier + Build: Format all files with Prettier, then run TypeScript build to validate
+    // This approach helps to ensure that formatting doesn't break the build, because that does happen sometimes
+    // The command is short for frequent use (I use it very frequently, and *every* time before commit)
     "pb": "prettier --write . && tsc -b",
     // Production build with increased memory and deprecation warnings suppressed
     "build": "cross-env NODE_OPTIONS=\"--no-deprecation --max-old-space-size=8000\" next build",
