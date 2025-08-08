@@ -1,0 +1,33 @@
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.git
+.gitignore
+Dockerfile
+.dockerignore
+.next
+dist
+coverage
+*.env
+.env.local
+.env.*.local
+.DS_Store
+.vscode
+README.md
+*.log
+.nyc_output
+# Next.js specific
+.vercel
+out/
+# Testing
+__tests__/
+*.test.js
+*.test.ts
+*.spec.js
+*.spec.ts
+jest.config.*
+# IDE
+.idea/
+*.swp
+*.swo
