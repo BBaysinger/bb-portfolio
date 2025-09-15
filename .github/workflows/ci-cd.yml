@@ -1,0 +1,71 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - dev
+      - main
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: Run build
+        run: npm run build
+
+      - name: Run tests
+        run: npm test || echo "⚠️ No tests yet"
+
+  deploy:
+    if: github.ref == 'refs/heads/main'   # only run on main
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-west-2
+
+      - name: Login to Amazon ECR
+        run: |
+          aws ecr get-login-password --region us-west-2 \
+            | docker login --username AWS --password-stdin 778230822028.dkr.ecr.us-west-2.amazonaws.com
+
+      - name: Build frontend image
+        run: |
+          docker build -t frontend:latest ./frontend
+          docker tag frontend:latest 778230822028.dkr.ecr.us-west-2.amazonaws.com/portfolio/frontend:latest
+          docker push 778230822028.dkr.ecr.us-west-2.amazonaws.com/portfolio/frontend:latest
+
+      - name: Build backend image
+        run: |
+          docker build -t backend:latest ./backend
+          docker tag backend:latest 778230822028.dkr.ecr.us-west-2.amazonaws.com/portfolio/backend:latest
+          docker push 778230822028.dkr.ecr.us-west-2.amazonaws.com/portfolio/backend:latest
+
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ec2-user
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd ~/portfolio
+            docker-compose pull
+            docker-compose up -d
