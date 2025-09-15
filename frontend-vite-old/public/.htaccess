@@ -1,7 +1,0 @@
-Options -MultiViews
-RewriteCond %{REQUEST_FILENAME} -f [OR]
-RewriteCond %{REQUEST_FILENAME} -d
-RewriteRule ^ - [L]
-# Apache will stop here if a file or directory exists.
-# Add whatever you need afterwards, for example:
-RewriteRule . index.html [L]
