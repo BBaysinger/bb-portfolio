@@ -6,6 +6,15 @@ New decisions should be appended chronologically.
 
 ---
 
+## 📌 Template for new entries
+**Date:** YYYY-MM-DD – *Topic*  
+- **Decision:** …  
+- **Reasoning:** …  
+- **Alternatives considered:** …  
+- **Status:** Active / Superseded  
+
+---
+
 ## 2025-09-14 – Database
 
 **Decision:** Use **MongoDB Atlas (cloud-managed MongoDB)**  
@@ -54,5 +63,27 @@ New decisions should be appended chronologically.
 **Alternatives considered:**  
 - Manual SSH + docker-compose up (too manual, not professional).  
 - Other CI/CD services (CircleCI, GitLab CI): possible, but GitHub Actions is simpler and free.  
+
+**Status:** ✅ Active
+
+---
+
+## 2025-09-14 – Dev Environment Hosting
+
+**Decision:** Run **both dev and prod environments on the same EC2 instance** using separate Docker Compose projects.  
+- Reverse proxy routes traffic:  
+  - `mysite.com` → prod containers  
+  - `dev.mysite.com` → dev containers  
+
+**Reasoning:**  
+- Avoids cost of a second EC2 instance (~$7–8/mo).  
+- Still provides a live dev environment accessible at a separate subdomain.  
+- Keeps deployment consistent with production (same stack).  
+- Sufficient for portfolio purposes even if dev impacts prod occasionally.  
+
+**Alternatives considered:**  
+- **Separate EC2 instance for dev**: Cleaner isolation, but doubles costs.  
+- **Ephemeral dev envs (Fly.io, Railway, etc.)**: Cheaper, but less consistent with prod.  
+- **Local-only dev**: Fine for personal use, but doesn’t provide a shareable dev URL.  
 
 **Status:** ✅ Active
