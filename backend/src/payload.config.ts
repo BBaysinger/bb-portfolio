@@ -14,6 +14,7 @@ import { BrandLogos } from './collections/BrandLogos'
 import { ProjectThumbnails } from './collections/ProjectThumbnails'
 import { ProjectScreenshots } from './collections/ProjectScreenshots'
 
+const envProfile = process.env.ENV_PROFILE || 'local'
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
@@ -38,16 +39,19 @@ export default buildConfig({
     payloadCloudPlugin(),
     // storage-adapter-placeholder
   ],
-  email: nodemailerAdapter({
-    defaultFromAddress: 'noreply@yoursite.com',
-    defaultFromName: 'Your Portfolio',
-    transport: {
-      host: process.env.SMTP_HOST,
-      port: 587,
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-      },
-    },
-  })
+  email:
+    envProfile === 'prod' || envProfile === 'dev'
+      ? nodemailerAdapter({
+          defaultFromAddress: 'noreply@yoursite.com',
+          defaultFromName: 'Your Portfolio',
+          transport: {
+            host: process.env.SMTP_HOST,
+            port: 587,
+            auth: {
+              user: process.env.SMTP_USER,
+              pass: process.env.SMTP_PASS,
+            },
+          },
+        })
+      : undefined,
 })

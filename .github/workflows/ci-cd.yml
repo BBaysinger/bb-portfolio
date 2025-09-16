@@ -28,7 +28,7 @@ jobs:
         run: npm test || echo "⚠️ No tests yet"
 
   deploy:
-    if: github.ref == 'refs/heads/main'   # only run on main
+    if: github.ref == 'refs/heads/main' # only run on main
     needs: build-and-test
     runs-on: ubuntu-latest
     steps:
