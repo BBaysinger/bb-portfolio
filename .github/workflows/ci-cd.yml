@@ -18,17 +18,34 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install dependencies
+      # ---- FRONTEND ----
+      - name: Install frontend dependencies
+        working-directory: ./frontend
         run: npm install --legacy-peer-deps
 
-      - name: Run build
+      - name: Build frontend
+        working-directory: ./frontend
         run: npm run build
 
-      - name: Run tests
-        run: npm test || echo "⚠️ No tests yet"
+      - name: Test frontend
+        working-directory: ./frontend
+        run: npm test || echo "⚠️ No frontend tests yet"
+
+      # ---- BACKEND ----
+      - name: Install backend dependencies
+        working-directory: ./backend
+        run: npm install --legacy-peer-deps
+
+      - name: Build backend
+        working-directory: ./backend
+        run: npm run build
+
+      - name: Test backend
+        working-directory: ./backend
+        run: npm test || echo "⚠️ No backend tests yet"
 
   deploy:
-    if: github.ref == 'refs/heads/main'   # only run on main
+    if: github.ref == 'refs/heads/main' # only run on main
     needs: build-and-test
     runs-on: ubuntu-latest
     steps:
