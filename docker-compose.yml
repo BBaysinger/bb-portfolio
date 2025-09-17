@@ -1,35 +1,67 @@
-# Docker Compose configuration for portfolio site
+# =============================================================================
+# Docker Compose Configuration - BB Portfolio Site
+# =============================================================================
 #
-# Usage:
-#   ▶ Local (MacBook)
+# This configuration supports multiple deployment environments:
+# - Local development (MacBook) with hot reload
+# - AWS EC2 development sandbox
+# - AWS EC2 production
+#
+# QUICK START - Local Development:
+# --------------------------------
+# 1. Build and start services:
+#    docker compose --profile local up --build
+#
+# 2. Access your applications:
+#    - Frontend: http://localhost:5051 (with hot reload)
+#    - Backend:  http://localhost:5050 (with auto-restart)
+#
+# 3. Stop services:
+#    docker compose --profile local down
+#
+# 4. Restart just the backend (after code changes):
+#    docker compose --profile local restart portfolio-backend-local
+#
+# USAGE BY ENVIRONMENT:
+# ---------------------
+#   ▶ Local Development (MacBook):
 #     docker compose --profile local up --build
 #
-#   ▶ AWS EC2 (Production only)
+#   ▶ AWS EC2 Production Only:
 #     docker compose --profile prod up -d
 #
-#   ▶ AWS EC2 (Development only)
+#   ▶ AWS EC2 Development Only:
 #     docker compose --profile dev up -d
 #
-#   ▶ AWS EC2 (Production + Development together)
+#   ▶ AWS EC2 Both Environments:
 #     docker compose --profile prod --profile dev up -d
+#
+# =============================================================================
 
 services:
-  # ====================
-  # Production services (EC2)
-  # ====================
+  # =============================================================================
+  # PRODUCTION SERVICES (AWS EC2)
+  # =============================================================================
+  # These services run the optimized production builds with:
+  # - Multi-stage Docker builds for smaller images
+  # - Health checks for reliability
+  # - Automatic restart policies
+  # - No development dependencies or file watching
+  # =============================================================================
+
   backend-prod:
-    profiles: ["prod"]
+    profiles: ["prod"] # Only runs with --profile prod
     build:
-      context: ./backend
-      dockerfile: Dockerfile
-    image: portfolio-backend-prod
+      context: ./backend # Build from backend directory
+      dockerfile: Dockerfile # Uses production build (default stage)
+    image: portfolio-backend-prod # Tagged image name
     container_name: portfolio-backend-prod
     ports:
-      - "3000:3000"
+      - "3000:3000" # Direct port mapping for production
     env_file:
-      - ./backend/.env.prod
-    restart: unless-stopped
-    healthcheck:
+      - ./backend/.env.prod # Production environment variables
+    restart: unless-stopped # Auto-restart on failure/reboot
+    healthcheck: # Health monitoring for load balancers
       test:
         [
           "CMD",
@@ -39,27 +71,27 @@ services:
           "--spider",
           "http://localhost:3000",
         ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+      interval: 30s # Check every 30 seconds
+      timeout: 10s # 10 second timeout per check
+      retries: 3 # 3 failed checks = unhealthy
+      start_period: 40s # Wait 40s before first check
 
   frontend-prod:
-    profiles: ["prod"]
+    profiles: ["prod"] # Only runs with --profile prod
     build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    image: portfolio-frontend-prod
+      context: ./frontend # Build from frontend directory
+      dockerfile: Dockerfile # Uses production build (default stage)
+    image: portfolio-frontend-prod # Tagged image name
     container_name: portfolio-frontend-prod
     ports:
-      - "3001:3000"
+      - "3001:3000" # Avoid port conflict with backend
     env_file:
-      - ./frontend/.env.prod
-    restart: unless-stopped
+      - ./frontend/.env.prod # Production environment variables
+    restart: unless-stopped # Auto-restart on failure/reboot
     depends_on:
       backend-prod:
-        condition: service_healthy
-    healthcheck:
+        condition: service_healthy # Wait for backend health check
+    healthcheck: # Health monitoring
       test:
         [
           "CMD",
@@ -74,87 +106,115 @@ services:
       retries: 3
       start_period: 40s
 
-  # ====================
-  # Development services (EC2 sandbox)
-  # ====================
+  # =============================================================================
+  # DEVELOPMENT SERVICES (AWS EC2 Sandbox)
+  # =============================================================================
+  # These services run on EC2 for remote development/testing:
+  # - Same production builds as prod but different ports
+  # - No hot reload (use local profile for development)
+  # - Simpler health checks
+  # - Useful for testing production builds remotely
+  # =============================================================================
+
   backend-dev:
-    profiles: ["dev"]
+    profiles: ["dev"] # Only runs with --profile dev
     build:
-      context: ./backend
-      dockerfile: Dockerfile
-    image: portfolio-backend-dev
+      context: ./backend # Build from backend directory
+      dockerfile: Dockerfile # Uses production build (default stage)
+    image: portfolio-backend-dev # Tagged image name
     container_name: portfolio-backend-dev
     ports:
-      - "4000:3000"
+      - "4000:3000" # Different port to avoid prod conflicts
     env_file:
-      - ./backend/.env.dev
-    restart: unless-stopped
+      - ./backend/.env.dev # Development environment variables
+    restart: unless-stopped # Auto-restart on failure/reboot
 
   frontend-dev:
-    profiles: ["dev"]
+    profiles: ["dev"] # Only runs with --profile dev
     build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    image: portfolio-frontend-dev
+      context: ./frontend # Build from frontend directory
+      dockerfile: Dockerfile # Uses production build (default stage)
+    image: portfolio-frontend-dev # Tagged image name
     container_name: portfolio-frontend-dev
     ports:
-      - "4001:3000"
+      - "4001:3000" # Different port to avoid prod conflicts
     env_file:
-      - ./frontend/.env.dev
-    restart: unless-stopped
+      - ./frontend/.env.dev # Development environment variables
+    restart: unless-stopped # Auto-restart on failure/reboot
     depends_on:
       backend-dev:
-        condition: service_started
+        condition: service_started # Wait for backend (no health check needed)
 
-  # ====================
-  # Local development services (your Mac)
-  # ====================
-  backend-local:
-    profiles: ["local"]
+  # =============================================================================
+  # LOCAL DEVELOPMENT SERVICES (MacBook)
+  # =============================================================================
+  # These services are optimized for local development with:
+  # - Hot reload and auto-restart capabilities
+  # - Volume mounts for live code editing
+  # - Development builds with full dependencies
+  # - File watching for automatic updates
+  # =============================================================================
+
+  portfolio-backend-local:
+    profiles: ["local"] # Only runs with --profile local
     build:
-      context: ./backend
-      dockerfile: Dockerfile
-    image: portfolio-backend-local
+      context: ./backend # Build from backend directory
+      dockerfile: Dockerfile # Uses multi-stage Dockerfile
+      target: dev # Target the 'dev' stage (includes nodemon)
+    image: portfolio-backend-local # Tagged image name
     container_name: portfolio-backend-local
-    command: npm run dev
     volumes:
-      - ./backend:/app
-      - /app/node_modules
+      # Mount source code for live editing
+      - ./backend:/app # Host ./backend -> Container /app
+      # Preserve container's node_modules (avoid host override)
+      - /app/node_modules # Anonymous volume for dependencies
     ports:
-      - "5050:3000"
+      - "5050:3000" # Host port 5050 -> Container port 3000
     env_file:
-      - ./backend/.env.local
+      - ./backend/.env.local # Local development environment variables
     environment:
-      - CHOKIDAR_USEPOLLING=true
-    restart: unless-stopped
+      # Enable file watching in Docker (required for volume mounts)
+      - CHOKIDAR_USEPOLLING=true # Enables cross-platform file watching
+    restart: unless-stopped # Auto-restart container on failure
+    # Note: nodemon handles auto-restart on file changes via Dockerfile CMD
 
   frontend-local:
-    profiles: ["local"]
+    profiles: ["local"] # Only runs with --profile local
     build:
-      context: ./frontend
-      dockerfile: Dockerfile
-      target: dev
-    image: portfolio-frontend-local
+      context: ./frontend # Build from frontend directory
+      dockerfile: Dockerfile # Uses multi-stage Dockerfile
+      target: dev # Target the 'dev' stage (includes dev dependencies)
+    image: portfolio-frontend-local # Tagged image name
     container_name: portfolio-frontend-local
-    command: npm run dev
+    command: npm run dev # Override CMD to run Next.js dev server
     volumes:
-      - ./frontend:/app
-      - frontend_node_modules:/app/node_modules
+      # Mount source code for live editing
+      - ./frontend:/app # Host ./frontend -> Container /app
+      # Preserve container's node_modules with named volume
+      - frontend_node_modules:/app/node_modules # Named volume prevents host override
     ports:
-      - "5051:3000"
+      - "5051:3000" # Host port 5051 -> Container port 3000
     env_file:
-      - ./frontend/.env.local
+      - ./frontend/.env.local # Local development environment variables
     environment:
-      - CHOKIDAR_USEPOLLING=true
-    restart: unless-stopped
+      # Enable file watching in Docker (required for hot reload)
+      - CHOKIDAR_USEPOLLING=true # Enables cross-platform file watching
+    restart: unless-stopped # Auto-restart container on failure
     depends_on:
-      backend-local:
-        condition: service_started
+      portfolio-backend-local:
+        condition: service_started # Wait for backend to start first
 
-# Custom network for service isolation
+# =============================================================================
+# NETWORKING & STORAGE
+# =============================================================================
+
+# Custom network for service isolation and communication
 networks:
   default:
-    name: portfolio-network
+    name: portfolio-network # Named network for better organization
 
+# Named volumes for persistent data
 volumes:
-  frontend_node_modules:
+  # Preserves frontend node_modules in local development
+  # Prevents host directory from overriding container's installed dependencies
+  frontend_node_modules: # Used by frontend-local service
