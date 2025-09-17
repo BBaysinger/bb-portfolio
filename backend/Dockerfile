@@ -57,3 +57,29 @@ EXPOSE 3000
 
 # Start the application
 CMD ["npm", "start"]
+
+###########
+# Dev     #
+###########
+FROM node:22.12.0-alpine AS dev
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files first for better Docker layer caching
+COPY package.json package-lock.json* ./
+
+# Install ALL dependencies (including dev dependencies)
+RUN npm install
+
+# Install nodemon globally for auto-restart functionality
+RUN npm install -g nodemon
+
+# Copy source code
+COPY . .
+
+# Expose the port
+EXPOSE 3000
+
+# Use nodemon to watch for changes and restart
+CMD ["npx", "nodemon", "--exec", "npm run dev", "--watch", "src", "--watch", "payload.config.ts", "--watch", "collections", "--delay", "2"]
