@@ -9,6 +9,21 @@ export const ProjectScreenshots: CollectionConfig = {
   upload: {
     staticDir: 'project-screenshots',
     mimeTypes: ['image/webp'],
+    imageSizes: [
+      {
+        name: 'thumbnail',
+        width: 400,
+        height: 300,
+        position: 'centre',
+      },
+      {
+        name: 'small',
+        width: 800,
+        height: 600,
+        position: 'centre',
+      },
+    ],
+    adminThumbnail: 'thumbnail',
   },
   admin: {
     useAsTitle: 'filename',
@@ -60,6 +75,18 @@ export const ProjectScreenshots: CollectionConfig = {
     },
   ],
   hooks: {
+    beforeChange: [
+      async ({ data, req }) => {
+        // Security: Validate file type on server side
+        if (req.file && req.file.mimetype) {
+          const allowedTypes = ['image/webp']
+          if (!allowedTypes.includes(req.file.mimetype)) {
+            throw new Error('Invalid file type. Only WebP files are allowed.')
+          }
+        }
+        return data
+      },
+    ],
     beforeValidate: [
       ({ data }) => {
         if (data) {

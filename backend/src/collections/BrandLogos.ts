@@ -9,6 +9,15 @@ export const BrandLogos: CollectionConfig = {
   upload: {
     staticDir: 'brand-logos', // This will resolve to <projectRoot>/brand-logos
     mimeTypes: ['image/webp', 'image/svg+xml'],
+    imageSizes: [
+      {
+        name: 'thumbnail',
+        width: 400,
+        height: 300,
+        position: 'centre',
+      },
+    ],
+    adminThumbnail: 'thumbnail',
   },
   admin: {
     useAsTitle: 'filename',
@@ -18,6 +27,20 @@ export const BrandLogos: CollectionConfig = {
     create: ({ req }) => req.user?.role === 'admin',
     update: ({ req }) => req.user?.role === 'admin',
     delete: ({ req }) => req.user?.role === 'admin',
+  },
+  hooks: {
+    beforeChange: [
+      async ({ data, req }) => {
+        // Security: Validate file type on server side
+        if (req.file && req.file.mimetype) {
+          const allowedTypes = ['image/webp', 'image/svg+xml']
+          if (!allowedTypes.includes(req.file.mimetype)) {
+            throw new Error('Invalid file type. Only WebP and SVG files are allowed.')
+          }
+        }
+        return data
+      },
+    ],
   },
   fields: [
     {

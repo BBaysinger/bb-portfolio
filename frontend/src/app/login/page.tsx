@@ -27,6 +27,17 @@ const LoginPage = () => {
     e.preventDefault();
     setError("");
 
+    // Client-side validation
+    if (!email || !email.includes("@")) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+
+    if (!password || password.length < 3) {
+      setError("Password is required.");
+      return;
+    }
+
     setIsLoggingIn(true); // Disable form while processing
     try {
       await login(email, password); // real API call

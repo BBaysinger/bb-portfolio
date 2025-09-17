@@ -2,10 +2,37 @@ import { CollectionConfig } from 'payload'
 
 export const Users: CollectionConfig = {
   slug: 'users',
-  auth: true,
+  auth: {
+    depth: 0,
+    verify: false,
+    maxLoginAttempts: 5,
+    lockTime: 600 * 1000, // 10 minutes
+  },
   admin: {
     useAsTitle: 'fullName',
     defaultColumns: ['fullName', 'email', 'role'], // List view columns
+  },
+  access: {
+    create: ({ req }) => req.user?.role === 'admin',
+    read: ({ req }) => {
+      // Users can read their own data, admins can read all
+      if (req.user?.role === 'admin') return true
+      return {
+        id: {
+          equals: req.user?.id,
+        },
+      }
+    },
+    update: ({ req }) => {
+      // Users can update their own data, admins can update all
+      if (req.user?.role === 'admin') return true
+      return {
+        id: {
+          equals: req.user?.id,
+        },
+      }
+    },
+    delete: ({ req }) => req.user?.role === 'admin',
   },
   hooks: {
     beforeChange: [
