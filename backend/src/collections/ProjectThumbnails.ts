@@ -9,6 +9,15 @@ export const ProjectThumbnails: CollectionConfig = {
   upload: {
     staticDir: 'project-thumbnails', // saved to backend/project-thumbnails
     mimeTypes: ['image/webp'],
+    imageSizes: [
+      {
+        name: 'thumbnail',
+        width: 400,
+        height: 300,
+        position: 'centre',
+      },
+    ],
+    adminThumbnail: 'thumbnail',
   },
   admin: {
     useAsTitle: 'filename',
@@ -18,6 +27,20 @@ export const ProjectThumbnails: CollectionConfig = {
     create: ({ req }) => req.user?.role === 'admin',
     update: ({ req }) => req.user?.role === 'admin',
     delete: ({ req }) => req.user?.role === 'admin',
+  },
+  hooks: {
+    beforeChange: [
+      async ({ data, req }) => {
+        // Security: Validate file type on server side
+        if (req.file && req.file.mimetype) {
+          const allowedTypes = ['image/webp']
+          if (!allowedTypes.includes(req.file.mimetype)) {
+            throw new Error('Invalid file type. Only WebP files are allowed.')
+          }
+        }
+        return data
+      },
+    ],
   },
   fields: [
     {
