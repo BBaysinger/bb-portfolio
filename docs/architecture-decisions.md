@@ -119,3 +119,22 @@ New decisions should be appended chronologically.
 - **Reusing multiple keypairs**: Works, but adds complexity for no real gain.
 
 **Status:** ✅ Active
+
+## 2025-09-16 – Base OS Migration
+
+**Decision:** Standardize on **Debian (Bookworm)** as the base OS for the EC2 instance.  
+**Reasoning:**
+
+- More stable and lightweight than Ubuntu, with fewer default packages and less bloat.
+- Security updates are more conservative, reducing risk of sudden package breakage.
+- Long support cycles make it easier to “set and forget” for a low-maintenance portfolio server.
+- Strong ecosystem and compatibility with Docker + CI/CD workflows.
+- Clean baseline for learning: demonstrates deliberate OS choice and shows knowledge of trade-offs.
+
+**Alternatives considered:**
+
+- **Ubuntu 22.04 LTS**: Familiar, widely documented, but slightly heavier and more prone to frequent package churn.
+- **Amazon Linux 2023**: Tight AWS integration and security patches, but smaller community and not as general-purpose.
+- **Alpine Linux**: Extremely lightweight, but would require extra effort for tooling/packages, and debugging can be harder.
+
+**Status:** ✅ Active
