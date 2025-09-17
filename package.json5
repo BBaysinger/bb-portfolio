@@ -44,7 +44,7 @@
     // TypeScript definitions for glob package
     "@types/glob": "^9.0.0",
     // JavaScript/TypeScript linting engine (v9 for latest rules)
-    "eslint": "^9.32.0",
+    "eslint": "^9.35.0",
     // File pattern matching utility (used in build scripts)
     "glob": "^11.0.3",
     // Parser for .gitignore-style files (used in tooling)
@@ -56,7 +56,7 @@
     // TypeScript execution engine for Node.js (legacy, kept for compatibility)
     "ts-node": "^10.9.2",
     // Fast TypeScript/ESM script runner (modern ts-node alternative)
-    "tsx": "^4.20.3",
+    "tsx": "^4.20.5",
     // TypeScript compiler (v5.9 for latest language features)
     "typescript": "^5.9.2",
   },
