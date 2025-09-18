@@ -112,14 +112,17 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             # Clone or update the repository
-            if [ ! -d "~/portfolio" ]; then
-              cd ~
+            cd $HOME
+            if [ ! -d "portfolio" ]; then
               git clone https://github.com/BBaysinger/bb-portfolio.git portfolio
             else
-              cd ~/portfolio
-              git pull origin dev
+              cd portfolio
+              git fetch origin
+              git checkout dev
+              git reset --hard origin/dev
+              cd ..
             fi
             
             # Navigate to portfolio directory and deploy
-            cd ~/portfolio
+            cd $HOME/portfolio
             COMPOSE_PROFILES=dev docker-compose up -d --build
