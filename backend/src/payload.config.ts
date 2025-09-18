@@ -35,6 +35,22 @@ export default buildConfig({
     url: process.env.DATABASE_URI || '',
   }),
   sharp,
+  // Security settings
+  upload: {
+    limits: {
+      fileSize: 5000000, // 5MB limit
+    },
+  },
+  csrf: [
+    // Allow requests from your frontend domain
+    process.env.FRONTEND_URL || 'http://localhost:3000',
+    process.env.FRONTEND_URL_PROD || 'https://yourdomain.com',
+  ],
+  cors: [
+    // Allow CORS from your frontend domain
+    process.env.FRONTEND_URL || 'http://localhost:3000',
+    process.env.FRONTEND_URL_PROD || 'https://yourdomain.com',
+  ],
   plugins: [
     payloadCloudPlugin(),
     // storage-adapter-placeholder
