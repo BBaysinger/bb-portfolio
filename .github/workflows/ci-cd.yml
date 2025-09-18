@@ -111,33 +111,6 @@ jobs:
           username: ec2-user
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            # Install git if not present
-            if ! command -v git &> /dev/null; then
-              sudo yum update -y
-              sudo yum install -y git
-            fi
-            
-            # Install modern docker if not present or update if old version
-            if ! command -v docker &> /dev/null || ! docker compose version &> /dev/null; then
-              # Remove old docker if present
-              sudo yum remove -y docker docker-client docker-client-latest docker-common docker-latest docker-latest-logrotate docker-logrotate docker-engine
-              
-              # Install Docker's official repository
-              sudo yum update -y
-              sudo yum install -y yum-utils
-              sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
-              
-              # Install latest Docker CE
-              sudo yum install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-              
-              sudo systemctl start docker
-              sudo systemctl enable docker
-              sudo usermod -a -G docker ec2-user
-            fi
-            
-            # Ensure docker service is running
-            sudo systemctl start docker
-            
             # Clone or update the repository
             if [ ! -d "~/portfolio" ]; then
               cd ~
@@ -149,4 +122,4 @@ jobs:
             
             # Navigate to portfolio directory and deploy
             cd ~/portfolio
-            docker compose --profile dev up -d --build
+            COMPOSE_PROFILES=dev docker-compose up -d --build
