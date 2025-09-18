@@ -123,6 +123,22 @@ jobs:
               cd ..
             fi
             
-            # Navigate to portfolio directory and deploy
+            # Create dev environment files from secrets
             cd $HOME/portfolio
+            
+            # Create backend .env.dev
+            cat > backend/.env.dev << EOF
+            PORT=3000
+            DATABASE_URI=${{ secrets.DEV_DATABASE_URI }}
+            PAYLOAD_SECRET=${{ secrets.DEV_PAYLOAD_SECRET }}
+            NODE_ENV=development
+            EOF
+            
+            # Create frontend .env.dev (add variables as needed)
+            cat > frontend/.env.dev << EOF
+            NODE_ENV=development
+            NEXT_PUBLIC_API_URL=http://localhost:4000
+            EOF
+            
+            # Deploy with docker-compose
             COMPOSE_PROFILES=dev docker-compose up -d --build
