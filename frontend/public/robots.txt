@@ -1,5 +1,13 @@
 User-agent: *
 Disallow: /admin/
 Disallow: /dashboard/
+Disallow: /api/
+Disallow: /login/
+Disallow: /_next/
+Disallow: /private/
+Disallow: /.env
+Disallow: /config/
+Disallow: /tmp/
+Disallow: /logs/
 
 Sitemap: https://yourdomain.com/sitemap.xml

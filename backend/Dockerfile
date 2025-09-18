@@ -31,6 +31,9 @@
 # Using node:22-slim for consistency with frontend and better native module compatibility
 FROM node:22-slim AS builder
 
+# Upgrade system packages to mitigate known vulnerabilities
+RUN apt-get update && apt-get upgrade -y && rm -rf /var/lib/apt/lists/*
+
 # IMPORTANT: Don't set NODE_ENV=production here because we need dev dependencies for the build process
 # TypeScript compilation, bundling tools, and other build-time dependencies require devDependencies
 # ENV NODE_ENV=production
@@ -67,10 +70,10 @@ RUN npm prune --omit=dev
 #######################
 # Minimal production image containing only the compiled application and runtime dependencies
 # Implements security best practices with non-root user execution
-
-# Use same base image as builder for consistency and compatibility
-# Debian slim provides better ecosystem support than Alpine for Node.js applications
 FROM node:22-slim AS runtime
+
+# Upgrade system packages to mitigate known vulnerabilities
+RUN apt-get update && apt-get upgrade -y && rm -rf /var/lib/apt/lists/*
 
 # Set production environment to optimize application performance and disable debug features
 ENV NODE_ENV=production
@@ -106,13 +109,14 @@ EXPOSE 3000
 CMD ["npm", "start"]
 
 #######################
-# Development Stage
-#######################
 # Development environment with auto-restart functionality and all development tools
 # Used only for local development with docker-compose
 
 # Use same Debian slim base for consistency across all stages and with frontend
 FROM node:22-slim AS dev
+
+# Upgrade system packages to mitigate known vulnerabilities
+RUN apt-get update && apt-get upgrade -y && rm -rf /var/lib/apt/lists/*
 
 # Set working directory for development
 WORKDIR /app
