@@ -124,7 +124,15 @@ jobs:
             fi
             
             # Ensure docker service is running
+            sudo systemctl daemon-reload
             sudo systemctl start docker
+            sudo systemctl enable docker
+            
+            # Wait for docker to be ready
+            sleep 5
+            
+            # Verify docker is working
+            sudo docker --version
             
             # Create dev environment files from secrets
             cd $HOME/portfolio
