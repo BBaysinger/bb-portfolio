@@ -146,25 +146,34 @@ jobs:
             
             COMPOSE_PROFILES=prod docker compose pull
             
-            # Start containers with timeout
-            timeout 300 COMPOSE_PROFILES=prod docker compose up -d || echo "Timeout or failure during startup"
-            
-            # Always check status regardless of startup success
-            echo "=== Container Status ==="
-            docker ps -a
-            
-            echo "=== Docker Compose Status ==="
-            COMPOSE_PROFILES=prod docker compose ps
-            
-            echo "=== Backend Logs ==="
-            docker logs portfolio-backend-prod --tail 50 || echo "Backend container not found or no logs"
-            
-            echo "=== Frontend Logs ==="
-            docker logs portfolio-frontend-prod --tail 50 || echo "Frontend container not found or no logs"
-            
-            echo "=== System Resources ==="
+            # Check system resources first
+            echo "=== System Resources Before Startup ==="
             df -h
             free -h
+            
+            # Start backend only first to diagnose
+            echo "=== Starting Backend Only ==="
+            timeout 120 COMPOSE_PROFILES=prod docker compose up -d portfolio-backend-prod || echo "Backend startup timeout/failed"
+            
+            sleep 10
+            echo "=== Backend Status After 10s ==="
+            docker ps -a | grep backend
+            echo "=== Backend Logs ==="
+            docker logs portfolio-backend-prod --tail 20 || echo "No backend logs yet"
+            
+            # Now start frontend
+            echo "=== Starting Frontend ==="
+            timeout 60 COMPOSE_PROFILES=prod docker compose up -d portfolio-frontend-prod || echo "Frontend startup timeout/failed"
+            
+            # Final status check
+            echo "=== Final Container Status ==="
+            docker ps -a
+            echo "=== Docker Compose Status ==="
+            COMPOSE_PROFILES=prod docker compose ps
+            echo "=== All Backend Logs ==="
+            docker logs portfolio-backend-prod || echo "No backend logs"
+            echo "=== All Frontend Logs ==="
+            docker logs portfolio-frontend-prod || echo "No frontend logs"
 
   rebuild-dev:
     if: github.ref == 'refs/heads/dev' || github.event_name == 'workflow_dispatch'
