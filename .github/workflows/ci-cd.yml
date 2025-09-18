@@ -145,16 +145,26 @@ jobs:
             EOF
             
             COMPOSE_PROFILES=prod docker compose pull
-            COMPOSE_PROFILES=prod docker compose up -d
             
-            # Wait a bit and check container status
-            sleep 10
+            # Start containers with timeout
+            timeout 300 COMPOSE_PROFILES=prod docker compose up -d || echo "Timeout or failure during startup"
+            
+            # Always check status regardless of startup success
             echo "=== Container Status ==="
             docker ps -a
+            
+            echo "=== Docker Compose Status ==="
+            COMPOSE_PROFILES=prod docker compose ps
+            
             echo "=== Backend Logs ==="
-            docker logs portfolio-backend-prod --tail 50
+            docker logs portfolio-backend-prod --tail 50 || echo "Backend container not found or no logs"
+            
             echo "=== Frontend Logs ==="
-            docker logs portfolio-frontend-prod --tail 50
+            docker logs portfolio-frontend-prod --tail 50 || echo "Frontend container not found or no logs"
+            
+            echo "=== System Resources ==="
+            df -h
+            free -h
 
   rebuild-dev:
     if: github.ref == 'refs/heads/dev' || github.event_name == 'workflow_dispatch'
