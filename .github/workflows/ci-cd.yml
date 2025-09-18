@@ -93,8 +93,23 @@ jobs:
               sudo usermod -a -G docker ec2-user
             fi
             
+            # Install docker compose plugin if not present
+            if ! docker compose version &> /dev/null; then
+              sudo mkdir -p /usr/local/lib/docker/cli-plugins
+              sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/lib/docker/cli-plugins/docker-compose
+              sudo chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
+            fi
+            
             # Ensure docker service is running
+            sudo systemctl daemon-reload
             sudo systemctl start docker
+            sudo systemctl enable docker
+            
+            # Wait for docker to be ready
+            sleep 5
+            
+            # Verify docker is working
+            sudo docker --version
             
             cd ~/portfolio
             COMPOSE_PROFILES=prod docker compose pull
@@ -132,10 +147,11 @@ jobs:
               sudo usermod -a -G docker ec2-user
             fi
             
-            # Install docker-compose if not present
-            if ! command -v docker-compose &> /dev/null; then
-              sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-              sudo chmod +x /usr/local/bin/docker-compose
+            # Install docker compose plugin if not present
+            if ! docker compose version &> /dev/null; then
+              sudo mkdir -p /usr/local/lib/docker/cli-plugins
+              sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/lib/docker/cli-plugins/docker-compose
+              sudo chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
             fi
             
             # Ensure docker service is running
@@ -166,5 +182,5 @@ jobs:
             NEXT_PUBLIC_API_URL=http://localhost:4000
             EOF
             
-            # Deploy with docker-compose
-            COMPOSE_PROFILES=dev docker-compose up -d --build
+            # Deploy with docker compose
+            COMPOSE_PROFILES=dev docker compose up -d --build
