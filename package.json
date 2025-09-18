@@ -1,5 +1,5 @@
 {
-  "name": "bb-portfolio",
+  "name": "bb-portfolio-monorepo-root",
   "private": true,
   "scripts": {
     "build:all": "npm run format && npm run docker:build:frontend && npm run docker:build:backend",
