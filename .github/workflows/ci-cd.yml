@@ -123,6 +123,9 @@ jobs:
               cd ..
             fi
             
+            # Ensure docker service is running
+            sudo systemctl start docker
+            
             # Create dev environment files from secrets
             cd $HOME/portfolio
             
