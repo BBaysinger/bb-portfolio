@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - dev  # Enable automatic dev rebuilds
   workflow_dispatch: # allows manual trigger for dev rebuild
 
 jobs:
@@ -88,7 +89,7 @@ jobs:
             COMPOSE_PROFILES=prod docker compose up -d
 
   rebuild-dev:
-    if: github.event_name == 'workflow_dispatch'
+    if: github.ref == 'refs/heads/dev' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - name: Rebuild dev on EC2
