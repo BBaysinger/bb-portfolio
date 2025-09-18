@@ -146,6 +146,15 @@ jobs:
             
             COMPOSE_PROFILES=prod docker compose pull
             COMPOSE_PROFILES=prod docker compose up -d
+            
+            # Wait a bit and check container status
+            sleep 10
+            echo "=== Container Status ==="
+            docker ps -a
+            echo "=== Backend Logs ==="
+            docker logs portfolio-backend-prod --tail 50
+            echo "=== Frontend Logs ==="
+            docker logs portfolio-frontend-prod --tail 50
 
   rebuild-dev:
     if: github.ref == 'refs/heads/dev' || github.event_name == 'workflow_dispatch'
