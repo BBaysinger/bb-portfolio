@@ -3,8 +3,8 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - dev
       - main
+  workflow_dispatch: # allows manual trigger for dev rebuild
 
 jobs:
   build-and-test:
@@ -44,8 +44,8 @@ jobs:
         working-directory: ./backend
         run: npm test || echo "⚠️ No backend tests yet"
 
-  deploy:
-    if: github.ref == 'refs/heads/main' # only run on main
+  deploy-prod:
+    if: github.ref == 'refs/heads/main'
     needs: build-and-test
     runs-on: ubuntu-latest
     steps:
@@ -64,19 +64,19 @@ jobs:
           aws ecr get-login-password --region us-west-2 \
             | docker login --username AWS --password-stdin 778230822028.dkr.ecr.us-west-2.amazonaws.com
 
-      - name: Build frontend image
+      - name: Build and push frontend-prod
         run: |
           docker build -t frontend:latest ./frontend
           docker tag frontend:latest 778230822028.dkr.ecr.us-west-2.amazonaws.com/portfolio/frontend:latest
           docker push 778230822028.dkr.ecr.us-west-2.amazonaws.com/portfolio/frontend:latest
 
-      - name: Build backend image
+      - name: Build and push backend-prod
         run: |
           docker build -t backend:latest ./backend
           docker tag backend:latest 778230822028.dkr.ecr.us-west-2.amazonaws.com/portfolio/backend:latest
           docker push 778230822028.dkr.ecr.us-west-2.amazonaws.com/portfolio/backend:latest
 
-      - name: Deploy to EC2
+      - name: Deploy prod on EC2
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -84,5 +84,20 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             cd ~/portfolio
-            docker-compose pull
-            docker-compose up -d
+            COMPOSE_PROFILES=prod docker compose pull
+            COMPOSE_PROFILES=prod docker compose up -d
+
+  rebuild-dev:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Rebuild dev on EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ec2-user
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd ~/portfolio
+            git pull origin dev
+            COMPOSE_PROFILES=dev docker compose up -d --build
