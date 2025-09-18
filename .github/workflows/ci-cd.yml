@@ -93,6 +93,11 @@ jobs:
               sudo usermod -a -G docker ec2-user
             fi
             
+            # Install AWS CLI if not present
+            if ! command -v aws &> /dev/null; then
+              sudo yum install -y awscli
+            fi
+            
             # Install docker compose plugin if not present
             if ! docker compose version &> /dev/null; then
               sudo mkdir -p /usr/local/lib/docker/cli-plugins
@@ -111,7 +116,31 @@ jobs:
             # Verify docker is working
             sudo docker --version
             
+            # Configure AWS credentials (use the same ones from the workflow)
+            aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+            aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            aws configure set default.region us-west-2
+            
+            # Login to ECR
+            aws ecr get-login-password --region us-west-2 | sudo docker login --username AWS --password-stdin 778230822028.dkr.ecr.us-west-2.amazonaws.com
+            
+            # Create production environment files
             cd ~/portfolio
+            
+            # Create backend .env.prod
+            cat > backend/.env.prod << EOF
+            PORT=3000
+            DATABASE_URI=${{ secrets.PROD_DATABASE_URI }}
+            PAYLOAD_SECRET=${{ secrets.PROD_PAYLOAD_SECRET }}
+            NODE_ENV=production
+            EOF
+            
+            # Create frontend .env.prod (add variables as needed)
+            cat > frontend/.env.prod << EOF
+            NODE_ENV=production
+            NEXT_PUBLIC_API_URL=http://your-ec2-ip:4000
+            EOF
+            
             COMPOSE_PROFILES=prod docker compose pull
             COMPOSE_PROFILES=prod docker compose up -d
 
