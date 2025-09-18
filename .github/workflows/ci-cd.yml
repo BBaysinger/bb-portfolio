@@ -124,6 +124,9 @@ jobs:
             # Login to ECR
             aws ecr get-login-password --region us-west-2 | sudo docker login --username AWS --password-stdin 778230822028.dkr.ecr.us-west-2.amazonaws.com
             
+            # Also login as regular user for docker compose
+            aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 778230822028.dkr.ecr.us-west-2.amazonaws.com
+            
             # Create production environment files
             cd ~/portfolio
             
