@@ -129,6 +129,15 @@ jobs:
             # Ensure docker service is running
             sudo systemctl start docker
             
+            # Clone or update the repository
+            if [ ! -d "~/portfolio" ]; then
+              cd ~
+              git clone https://github.com/BBaysinger/bb-portfolio.git portfolio
+            else
+              cd ~/portfolio
+              git pull origin dev
+            fi
+            
+            # Navigate to portfolio directory and deploy
             cd ~/portfolio
-            git pull origin dev
-            COMPOSE_PROFILES=dev docker compose up -d --build
+            docker compose --profile dev up -d --build
