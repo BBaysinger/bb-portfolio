@@ -2,39 +2,48 @@
 # Docker Compose Configuration - BB Portfolio Site
 # =============================================================================
 #
-# This configuration supports multiple deployment environments:
-# - Local development (MacBook) with hot reload
-# - AWS EC2 development sandbox
-# - AWS EC2 production
+# This configuration supports multiple deployment environments using profiles:
+# - Local development (MacBook) with hot reload and volume mounts
+# - AWS EC2 development sandbox with builds on EC2
+# - AWS EC2 production with pre-built ECR images
 #
 # QUICK START - Local Development:
 # --------------------------------
 # 1. Build and start services:
-#    docker compose --profile local up --build
+#    COMPOSE_PROFILES=local docker compose up --build
 #
 # 2. Access your applications:
 #    - Frontend: http://localhost:5051 (with hot reload)
 #    - Backend:  http://localhost:5050 (with auto-restart)
 #
 # 3. Stop services:
-#    docker compose --profile local down
-#
-# 4. Restart just the backend (after code changes):
-#    docker compose --profile local restart portfolio-backend-local
+#    COMPOSE_PROFILES=local docker compose down
 #
 # USAGE BY ENVIRONMENT:
 # ---------------------
 #   ▶ Local Development (MacBook):
-#     docker compose --profile local up --build
+#     COMPOSE_PROFILES=local docker compose up --build
 #
 #   ▶ AWS EC2 Production Only:
-#     docker compose --profile prod up -d
+#     COMPOSE_PROFILES=prod docker compose up -d
 #
 #   ▶ AWS EC2 Development Only:
-#     docker compose --profile dev up -d
+#     COMPOSE_PROFILES=dev docker compose up -d --build
 #
 #   ▶ AWS EC2 Both Environments:
-#     docker compose --profile prod --profile dev up -d
+#     COMPOSE_PROFILES=prod,dev docker compose up -d
+#
+# DEPLOYMENT STRATEGY:
+# -------------------
+#   ▶ Production: Automated via CI/CD on main branch
+#     - Uses pre-built ECR images for fast, reliable deployments
+#     - Images are built, tested, and pushed by GitHub Actions
+#     - Zero build time on EC2, atomic deployments
+#
+#   ▶ Development: Manual trigger via workflow_dispatch
+#     - Builds directly on EC2 for flexibility
+#     - No ECR push, saves CI/CD minutes and complexity
+#     - Perfect for testing and iteration
 #
 # =============================================================================
 
@@ -42,19 +51,17 @@ services:
   # =============================================================================
   # PRODUCTION SERVICES (AWS EC2)
   # =============================================================================
-  # These services run the optimized production builds with:
-  # - Multi-stage Docker builds for smaller images
-  # - Health checks for reliability
-  # - Automatic restart policies
-  # - No development dependencies or file watching
+  # These services run optimized production builds with:
+  # - Pre-built ECR images (no build time on deployment)
+  # - Health checks for reliability and load balancer integration  
+  # - Automatic restart policies for high availability
+  # - Production environment variables and secrets
+  # - Atomic deployments via docker compose pull + up -d
   # =============================================================================
 
   backend-prod:
-    profiles: ["prod"] # Only runs with --profile prod
-    build:
-      context: ./backend # Build from backend directory
-      dockerfile: Dockerfile # Uses production build (default stage)
-    image: portfolio-backend-prod # Tagged image name
+    profiles: ["prod"] # Only runs with COMPOSE_PROFILES=prod
+    image: 778230822028.dkr.ecr.us-west-2.amazonaws.com/portfolio/backend:latest
     container_name: portfolio-backend-prod
     ports:
       - "3000:3000" # Direct port mapping for production
@@ -62,26 +69,15 @@ services:
       - ./backend/.env.prod # Production environment variables
     restart: unless-stopped # Auto-restart on failure/reboot
     healthcheck: # Health monitoring for load balancers
-      test:
-        [
-          "CMD",
-          "wget",
-          "--no-verbose",
-          "--tries=1",
-          "--spider",
-          "http://localhost:3000",
-        ]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000"]
       interval: 30s # Check every 30 seconds
       timeout: 10s # 10 second timeout per check
       retries: 3 # 3 failed checks = unhealthy
       start_period: 40s # Wait 40s before first check
 
   frontend-prod:
-    profiles: ["prod"] # Only runs with --profile prod
-    build:
-      context: ./frontend # Build from frontend directory
-      dockerfile: Dockerfile # Uses production build (default stage)
-    image: portfolio-frontend-prod # Tagged image name
+    profiles: ["prod"] # Only runs with COMPOSE_PROFILES=prod
+    image: 778230822028.dkr.ecr.us-west-2.amazonaws.com/portfolio/frontend:latest
     container_name: portfolio-frontend-prod
     ports:
       - "3001:3000" # Avoid port conflict with backend
@@ -91,16 +87,8 @@ services:
     depends_on:
       backend-prod:
         condition: service_healthy # Wait for backend health check
-    healthcheck: # Health monitoring
-      test:
-        [
-          "CMD",
-          "wget",
-          "--no-verbose",
-          "--tries=1",
-          "--spider",
-          "http://localhost:3000",
-        ]
+    healthcheck: # Health monitoring for load balancers
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -110,14 +98,15 @@ services:
   # DEVELOPMENT SERVICES (AWS EC2 Sandbox)
   # =============================================================================
   # These services run on EC2 for remote development/testing:
-  # - Same production builds as prod but different ports
-  # - No hot reload (use local profile for development)
-  # - Simpler health checks
-  # - Useful for testing production builds remotely
+  # - Build directly on EC2 for flexibility and speed
+  # - Different ports to avoid conflicts with production
+  # - Simpler health checks (no load balancer integration needed)
+  # - Manual deployment via workflow_dispatch or SSH
+  # - Perfect for testing production builds in a live environment
   # =============================================================================
 
   backend-dev:
-    profiles: ["dev"] # Only runs with --profile dev
+    profiles: ["dev"] # Only runs with COMPOSE_PROFILES=dev
     build:
       context: ./backend # Build from backend directory
       dockerfile: Dockerfile # Uses production build (default stage)
@@ -130,9 +119,9 @@ services:
     restart: unless-stopped # Auto-restart on failure/reboot
 
   frontend-dev:
-    profiles: ["dev"] # Only runs with --profile dev
+    profiles: ["dev"] # Only runs with COMPOSE_PROFILES=dev
     build:
-      context: ./frontend # Build from frontend directory
+      context: ./frontend # Build from frontend directory  
       dockerfile: Dockerfile # Uses production build (default stage)
     image: portfolio-frontend-dev # Tagged image name
     container_name: portfolio-frontend-dev
@@ -150,17 +139,18 @@ services:
   # =============================================================================
   # These services are optimized for local development with:
   # - Hot reload and auto-restart capabilities
-  # - Volume mounts for live code editing
-  # - Development builds with full dependencies
-  # - File watching for automatic updates
+  # - Volume mounts for live code editing (no rebuild needed)
+  # - Development builds with full dependencies and debugging tools
+  # - File watching for automatic updates via CHOKIDAR_USEPOLLING
+  # - Named volumes to preserve node_modules across container restarts
   # =============================================================================
 
   portfolio-backend-local:
-    profiles: ["local"] # Only runs with --profile local
+    profiles: ["local"] # Only runs with COMPOSE_PROFILES=local
     build:
       context: ./backend # Build from backend directory
       dockerfile: Dockerfile # Uses multi-stage Dockerfile
-      target: dev # Target the 'dev' stage (includes nodemon)
+      target: dev # Target the 'dev' stage (includes nodemon + dev deps)
     image: portfolio-backend-local # Tagged image name
     container_name: portfolio-backend-local
     volumes:
@@ -179,7 +169,7 @@ services:
     # Note: nodemon handles auto-restart on file changes via Dockerfile CMD
 
   frontend-local:
-    profiles: ["local"] # Only runs with --profile local
+    profiles: ["local"] # Only runs with COMPOSE_PROFILES=local
     build:
       context: ./frontend # Build from frontend directory
       dockerfile: Dockerfile # Uses multi-stage Dockerfile
@@ -213,7 +203,7 @@ networks:
   default:
     name: portfolio-network # Named network for better organization
 
-# Named volumes for persistent data
+# Named volumes for persistent data  
 volumes:
   # Preserves frontend node_modules in local development
   # Prevents host directory from overriding container's installed dependencies
