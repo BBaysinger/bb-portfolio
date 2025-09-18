@@ -1,6 +1,8 @@
 {
+  // 📌 NOTE: This root package.json is ONLY for managing monorepo-level tooling and scripts.
+  // It does not represent a real app or library, and should never be published to npm.
   // Root package name for the portfolio monorepo
-  "name": "bb-portfolio",
+  "name": "bb-portfolio-monorepo-root",
   // Prevents accidental publishing to npm registry
   "private": true,
   // Keep: Add the following lines (in package.json) to enable workspaces
