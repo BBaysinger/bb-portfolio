@@ -324,14 +324,20 @@ jobs:
     if: github.ref == 'refs/heads/dev' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
-      - name: Rebuild dev on EC2
+      - name: Debug SSH Connection
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ec2-user
           key: ${{ secrets.EC2_SSH_KEY }}
+          debug: true
+          timeout: 30s
+          command_timeout: 60s
           script: |
-            echo "Test 1: Basic connectivity"
-            echo "Current time: $(date)"
-            echo "Current user: $(whoami)"
-            echo "Test completed"
+            echo "=== SSH CONNECTION DEBUG ==="
+            echo "Connection successful at: $(date)"
+            echo "Hostname: $(hostname)"
+            echo "User: $(whoami)"
+            echo "Working directory: $(pwd)"
+            echo "Uptime: $(uptime)"
+            echo "=== DEBUG COMPLETE ==="
