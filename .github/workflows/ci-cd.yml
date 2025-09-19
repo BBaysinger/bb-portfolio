@@ -324,7 +324,7 @@ jobs:
   rebuild-dev:
     if: github.ref == 'refs/heads/dev' || github.event_name == 'workflow_dispatch'  # Dev branch or manual trigger
     runs-on: ubuntu-latest
-    timeout-minutes: 10  # Shorter timeout for development rebuilds
+    timeout-minutes: 25  # Extended timeout for Docker builds from scratch
     
     steps:
       # =======================================================================
@@ -335,12 +335,12 @@ jobs:
       # =======================================================================
       - name: Rebuild dev on EC2
         uses: appleboy/ssh-action@v1.0.3
-        timeout-minutes: 10  # Development rebuilds should be faster
+        timeout-minutes: 20  # Extended timeout for Docker builds
         with:
           host: ${{ secrets.EC2_HOST }}        # Same EC2 instance as production
           username: ec2-user                   # Default Amazon Linux user
           key: ${{ secrets.EC2_SSH_KEY }}      # SSH private key for authentication
-          command_timeout: 8m                  # Reasonable timeout for dev operations
+          command_timeout: 18m                 # Extended timeout for Docker build operations
           script: |
             echo "🔧 Starting development environment rebuild at $(date)"
             echo "📍 Rebuilding on: $(hostname)"
@@ -434,11 +434,68 @@ jobs:
             # Faster iteration cycle for development and testing
             # ===============================================================
             echo "🚀 Deploying development environment..."
+            
+            # Stop existing dev containers first to free up resources
+            echo "🛑 Stopping any existing development containers..."
+            COMPOSE_PROFILES=dev docker compose down || echo "No existing dev containers to stop"
+            
+            # Clean up Docker resources to prevent hanging builds
+            echo "🧹 Cleaning up Docker resources..."
+            docker container prune -f || echo "Container cleanup completed"
+            docker image prune -f || echo "Image cleanup completed"
+            docker network prune -f || echo "Network cleanup completed"
+            docker volume prune -f || echo "Volume cleanup completed"
+            
+            # Check available system resources before build
+            echo "📊 Pre-build system status:"
+            echo "💾 Disk space:"
+            df -h | head -5
+            echo "🧠 Memory usage:"
+            free -h
+            echo "⚡ CPU load:"
+            uptime
+            
+            # Set Docker build options for better resource management
+            export DOCKER_BUILDKIT=1
+            export COMPOSE_DOCKER_CLI_BUILD=1
+            
             echo "🏗️ Building and starting development containers..."
-            COMPOSE_PROFILES=dev docker compose up -d --build
+            echo "⏰ Using BuildKit and 20-minute timeout to prevent hanging..."
+            echo "📝 Build will be terminated if it hangs..."
+            
+            # Try building images individually first to isolate any hanging issues
+            echo "🔨 Building backend development image..."
+            if ! timeout 600 docker compose build backend-dev; then
+              echo "❌ Backend build failed or timed out after 10 minutes"
+              echo "📋 Backend build logs:"
+              docker compose logs backend-dev || echo "No backend logs available"
+              exit 1
+            fi
+            
+            echo "🔨 Building frontend development image..."
+            if ! timeout 600 docker compose build frontend-dev; then
+              echo "❌ Frontend build failed or timed out after 10 minutes"
+              echo "📋 Frontend build logs:"
+              docker compose logs frontend-dev || echo "No frontend logs available"
+              exit 1
+            fi
+            
+            echo "🚀 Starting development containers..."
+            # Start containers without building since we built them individually above
+            if ! timeout 300 docker compose --profile dev up -d --remove-orphans --no-deps; then
+              echo "❌ Container startup failed or timed out after 5 minutes"
+              echo "📋 Checking for any running containers:"
+              docker ps -a
+              echo "📋 Checking Docker daemon status:"
+              sudo systemctl status docker --no-pager
+              echo "📋 Checking system resources:"
+              free -h
+              df -h
+              exit 1
+            fi
 
             echo "⏳ Waiting for development containers to start..."
-            sleep 10
+            sleep 15
 
             echo "📊 Development deployment status:"
             docker ps
