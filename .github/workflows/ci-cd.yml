@@ -79,12 +79,12 @@ jobs:
 
       - name: Deploy prod on EC2
         uses: appleboy/ssh-action@v1.0.3
-        timeout-minutes: 10  # Hard limit on entire SSH session
+        timeout-minutes: 3  # Hard limit on entire SSH session
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ec2-user
           key: ${{ secrets.EC2_SSH_KEY }}
-          command_timeout: 10m  # SSH action timeout
+          command_timeout: 2m  # SSH action timeout
           script: |
             # Install docker if not present
             if ! command -v docker &> /dev/null; then
