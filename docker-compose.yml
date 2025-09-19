@@ -69,7 +69,13 @@ services:
       - ./backend/.env.prod # Production environment variables
     restart: unless-stopped # Auto-restart on failure/reboot
     healthcheck: # Health monitoring for load balancers
-      test: ["CMD", "node", "-e", "const net = require('net'); const client = net.createConnection(3000, 'localhost', () => { console.log('connected'); client.end(); process.exit(0); }); client.on('error', () => process.exit(1));"]
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "const net = require('net'); const client = net.createConnection(3000, 'localhost', () => { console.log('connected'); client.end(); process.exit(0); }); client.on('error', () => process.exit(1));",
+        ]
       interval: 15s # Check every 15 seconds (faster)
       timeout: 5s # 5 second timeout per check
       retries: 5 # 5 failed checks = unhealthy (more retries)
@@ -88,7 +94,13 @@ services:
       backend-prod:
         condition: service_started # Just wait for backend to start, not be healthy
     healthcheck: # Health monitoring for load balancers
-      test: ["CMD", "node", "-e", "const net = require('net'); const client = net.createConnection(3000, 'localhost', () => { console.log('connected'); client.end(); process.exit(0); }); client.on('error', () => process.exit(1));"]
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "const net = require('net'); const client = net.createConnection(3000, 'localhost', () => { console.log('connected'); client.end(); process.exit(0); }); client.on('error', () => process.exit(1));",
+        ]
       interval: 15s
       timeout: 5s
       retries: 5
