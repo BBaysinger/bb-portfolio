@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      - dev  # Enable automatic dev rebuilds
+      - dev # Enable automatic dev rebuilds
   workflow_dispatch: # allows manual trigger for dev rebuild
 
 jobs:
@@ -79,15 +79,15 @@ jobs:
 
       - name: Deploy prod on EC2
         uses: appleboy/ssh-action@v1.0.3
-        timeout-minutes: 10  # Increased timeout for Docker installation
+        timeout-minutes: 10 # Increased timeout for Docker installation
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ec2-user
           key: ${{ secrets.EC2_SSH_KEY }}
-          command_timeout: 8m  # Increased SSH action timeout
+          command_timeout: 8m # Increased SSH action timeout
           script: |
             echo "=== Starting deployment at $(date) ==="
-            
+
             # Install docker if not present
             if ! command -v docker &> /dev/null; then
               echo "Installing Docker..."
@@ -101,7 +101,7 @@ jobs:
             else
               echo "Docker already installed"
             fi
-            
+
             # Install AWS CLI if not present
             if ! command -v aws &> /dev/null; then
               echo "Installing AWS CLI..."
@@ -110,7 +110,7 @@ jobs:
             else
               echo "AWS CLI already installed"
             fi
-            
+
             # Install docker compose plugin if not present
             if ! docker compose version &> /dev/null; then
               echo "Installing Docker Compose..."
@@ -121,35 +121,35 @@ jobs:
             else
               echo "Docker Compose already installed"
             fi
-            
+
             # Ensure docker service is running
             sudo systemctl daemon-reload
             sudo systemctl start docker
             sudo systemctl enable docker
-            
+
             # Wait for docker to be ready
             sleep 5
-            
+
             # Verify docker is working
             sudo docker --version
-            
+
             # Configure AWS credentials (use the same ones from the workflow)
             aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
             aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
             aws configure set default.region us-west-2
-            
+
             # Login to ECR
             aws ecr get-login-password --region us-west-2 | sudo docker login --username AWS --password-stdin 778230822028.dkr.ecr.us-west-2.amazonaws.com
-            
+
             # Also login as regular user for docker compose
             aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 778230822028.dkr.ecr.us-west-2.amazonaws.com
-            
+
             # Install git if not present
             if ! command -v git &> /dev/null; then
               echo "Installing Git..."
               sudo yum install -y git
             fi
-            
+
             # Clone or update the repository
             echo "Setting up project repository..."
             cd $HOME
@@ -164,10 +164,10 @@ jobs:
               git reset --hard origin/main
               cd ..
             fi
-            
+
             # Create production environment files
             cd ~/portfolio
-            
+
             # Create backend .env.prod
             cat > backend/.env.prod << EOF
             PORT=3000
@@ -175,18 +175,18 @@ jobs:
             PAYLOAD_SECRET=${{ secrets.PROD_PAYLOAD_SECRET }}
             NODE_ENV=production
             EOF
-            
+
             # Create frontend .env.prod (add variables as needed)
             cat > frontend/.env.prod << EOF
             NODE_ENV=production
             NEXT_PUBLIC_API_URL=http://your-ec2-ip:4000
             EOF
-            
+
             echo "=== Pulling latest images ==="
             COMPOSE_PROFILES=prod docker compose pull || {
               echo "Failed to pull images. Continuing with existing images..."
             }
-            
+
             # Test that SSH connection is working
             echo "=== SSH Connection Test ==="
             echo "Connected successfully to $(hostname) at $(date)"
@@ -196,18 +196,23 @@ jobs:
             df -h | head -5
             echo "Memory:"
             free -h
-            
+
             echo "=== Starting production deployment ==="
             COMPOSE_PROFILES=prod docker compose up -d
-            
+
             # Wait a moment for containers to start
-            sleep 10
-            
+            echo "Waiting for containers to initialize..."
+            sleep 15
+
+            # Check backend logs if unhealthy
+            echo "=== Backend Container Logs ==="
+            docker logs portfolio-backend-prod --tail 50
+
             # Quick status check
             echo "=== Deployment Status ==="
             docker ps
             COMPOSE_PROFILES=prod docker compose ps
-            
+
             echo "=== Production deployment complete! ==="
 
   rebuild-dev:
@@ -216,19 +221,19 @@ jobs:
     steps:
       - name: Rebuild dev on EC2
         uses: appleboy/ssh-action@v1.0.3
-        timeout-minutes: 10  # Increased timeout for installations
+        timeout-minutes: 10 # Increased timeout for installations
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ec2-user
           key: ${{ secrets.EC2_SSH_KEY }}
-          command_timeout: 8m  # Increased SSH action timeout
+          command_timeout: 8m # Increased SSH action timeout
           script: |
             # Install git if not present
             if ! command -v git &> /dev/null; then
               echo "Installing Git..."
               sudo yum install -y git
             fi
-            
+
             # Clone or update the repository
             cd $HOME
             if [ ! -d "portfolio" ]; then
@@ -240,7 +245,7 @@ jobs:
               git reset --hard origin/dev
               cd ..
             fi
-            
+
             # Install docker if not present
             if ! command -v docker &> /dev/null; then
               sudo yum update -y
@@ -249,28 +254,28 @@ jobs:
               sudo systemctl enable docker
               sudo usermod -a -G docker ec2-user
             fi
-            
+
             # Install docker compose plugin if not present
             if ! docker compose version &> /dev/null; then
               sudo mkdir -p /usr/local/lib/docker/cli-plugins
               sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/lib/docker/cli-plugins/docker-compose
               sudo chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
             fi
-            
+
             # Ensure docker service is running
             sudo systemctl daemon-reload
             sudo systemctl start docker
             sudo systemctl enable docker
-            
+
             # Wait for docker to be ready
             sleep 5
-            
+
             # Verify docker is working
             sudo docker --version
-            
+
             # Create dev environment files from secrets
             cd $HOME/portfolio
-            
+
             # Create backend .env.dev
             cat > backend/.env.dev << EOF
             PORT=3000
@@ -278,12 +283,12 @@ jobs:
             PAYLOAD_SECRET=${{ secrets.DEV_PAYLOAD_SECRET }}
             NODE_ENV=development
             EOF
-            
+
             # Create frontend .env.dev (add variables as needed)
             cat > frontend/.env.dev << EOF
             NODE_ENV=development
             NEXT_PUBLIC_API_URL=http://localhost:4000
             EOF
-            
+
             # Deploy with docker compose
             COMPOSE_PROFILES=dev docker compose up -d --build

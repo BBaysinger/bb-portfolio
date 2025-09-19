@@ -141,20 +141,20 @@ New decisions should be appended chronologically.
 
 ## 2025-09-18 – Dev Deployment Strategy
 
-**Decision:** Keep **dev environment rebuilds manual on EC2**, while keeping **prod automated via CI/CD**.  
+**Decision:** Keep **dev environment rebuilds manual on EC2**, while keeping **prod automated via CI/CD**.
 
-- **Prod (`main` branch)** → Auto build/test/push via GitHub Actions → push images to ECR → deploy with `docker compose --profile prod`.  
-- **Dev (`dev` branch)** → Manual trigger: SSH into EC2 or run a GitHub Actions workflow button to pull latest code and run `docker compose --profile dev up -d --build`.  
+- **Prod (`main` branch)** → Auto build/test/push via GitHub Actions → push images to ECR → deploy with `docker compose --profile prod`.
+- **Dev (`dev` branch)** → Manual trigger: SSH into EC2 or run a GitHub Actions workflow button to pull latest code and run `docker compose --profile dev up -d --build`.
 
 **Reasoning:**
 
-- Keeps CI/CD simple: only `main` branch triggers full rebuilds and ECR pushes.  
-- Avoids unnecessary rebuilds every time code is pushed to `dev` (saves CI/CD minutes and clutter).  
-- Still provides a live dev sandbox on EC2 (`dev.mysite.com`) for testing, but updates happen only when explicitly triggered.  
-- Reflects professional workflow separation: **prod is automated, dev is flexible/manual**.  
+- Keeps CI/CD simple: only `main` branch triggers full rebuilds and ECR pushes.
+- Avoids unnecessary rebuilds every time code is pushed to `dev` (saves CI/CD minutes and clutter).
+- Still provides a live dev sandbox on EC2 (`dev.mysite.com`) for testing, but updates happen only when explicitly triggered.
+- Reflects professional workflow separation: **prod is automated, dev is flexible/manual**.
 
 **Alternatives considered:**
 
-- **Have `dev` auto-deploy like prod**: More consistent, but wastes builds on half-finished commits and requires managing separate ECR repos.  
+- **Have `dev` auto-deploy like prod**: More consistent, but wastes builds on half-finished commits and requires managing separate ECR repos.
 
 **Status:** ✅ Active
