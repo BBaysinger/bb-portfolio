@@ -166,7 +166,7 @@ New decisions should be appended chronologically.
 **Decision:** Use **Docker Compose profiles** for environment separation with distinct deployment strategies.
 
 - **Local (`local` profile)**: Volume mounts + hot reload for development
-- **Development (`dev` profile)**: Build on EC2 for remote testing 
+- **Development (`dev` profile)**: Build on EC2 for remote testing
 - **Production (`prod` profile)**: Pre-built ECR images for reliable deployments
 
 **Reasoning:**
@@ -193,7 +193,13 @@ New decisions should be appended chronologically.
 
 ```yaml
 healthcheck:
-  test: ["CMD", "node", "-e", "const net = require('net'); const client = net.createConnection(3000, 'localhost', () => { console.log('connected'); client.end(); process.exit(0); }); client.on('error', () => process.exit(1));"]
+  test:
+    [
+      "CMD",
+      "node",
+      "-e",
+      "const net = require('net'); const client = net.createConnection(3000, 'localhost', () => { console.log('connected'); client.end(); process.exit(0); }); client.on('error', () => process.exit(1));",
+    ]
 ```
 
 **Reasoning:**
@@ -300,6 +306,7 @@ healthcheck:
 **Problem:** Dev deployments were hanging indefinitely during Docker build process, causing GitHub Actions to timeout after 10+ minutes with no progress.
 
 **Solution implemented:**
+
 - Hard timeout on Docker builds (15 minutes with `timeout 900`)
 - Comprehensive resource cleanup before builds (containers, images, networks, volumes)
 - Enable parallel builds and Docker BuildKit for faster builds
@@ -309,12 +316,14 @@ healthcheck:
 **Important note:** During troubleshooting, ECR was mistakenly added to the dev workflow as a potential solution, but this was incorrect since ECR is production-only. The ECR addition was removed and dev deployment returned to building directly on EC2 as originally intended.
 
 **Reasoning:**
+
 - EC2 resource constraints (disk/memory) can cause builds to hang
 - Corrupted Docker cache can cause infinite loops during builds
 - Proper timeouts prevent indefinite hanging and provide faster feedback
 - Resource cleanup prevents conflicts between deployment attempts
 
 **Alternatives considered:**
+
 - **ECR for dev deployments**: Rejected - ECR is production-only, adds unnecessary complexity
 - **Separate EC2 for dev builds**: Too expensive for portfolio project
 - **Local builds only**: Loses the benefit of testing deployment pipeline

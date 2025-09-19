@@ -26,8 +26,8 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - main  # Production deployments
-      - dev   # Development environment rebuilds
+      - main # Production deployments
+      - dev # Development environment rebuilds
   workflow_dispatch: # Manual trigger for any branch
 
 jobs:
@@ -48,37 +48,37 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20  # LTS version for stability
+          node-version: 20 # LTS version for stability
 
       # =======================================================================
       # FRONTEND BUILD AND TEST
       # =======================================================================
       - name: Install frontend dependencies
         working-directory: ./frontend
-        run: npm install --legacy-peer-deps  # Required for some peer dependency conflicts
+        run: npm install --legacy-peer-deps # Required for some peer dependency conflicts
 
       - name: Build frontend
         working-directory: ./frontend
-        run: npm run build  # Next.js production build
+        run: npm run build # Next.js production build
 
       - name: Test frontend
         working-directory: ./frontend
-        run: npm test || echo "⚠️ No frontend tests yet"  # Graceful failure until tests are implemented
+        run: npm test || echo "⚠️ No frontend tests yet" # Graceful failure until tests are implemented
 
       # =======================================================================
       # BACKEND BUILD AND TEST
       # =======================================================================
       - name: Install backend dependencies
         working-directory: ./backend
-        run: npm install --legacy-peer-deps  # Required for some peer dependency conflicts
+        run: npm install --legacy-peer-deps # Required for some peer dependency conflicts
 
       - name: Build backend
         working-directory: ./backend
-        run: npm run build  # Next.js production build (Payload CMS)
+        run: npm run build # Next.js production build (Payload CMS)
 
       - name: Test backend
         working-directory: ./backend
-        run: npm test || echo "⚠️ No backend tests yet"  # Graceful failure until tests are implemented
+        run: npm test || echo "⚠️ No backend tests yet" # Graceful failure until tests are implemented
 
   # ==========================================================================
   # PRODUCTION DEPLOYMENT JOB
@@ -87,11 +87,11 @@ jobs:
   # Only runs on main branch pushes after successful build and test
   # ==========================================================================
   deploy-prod:
-    if: github.ref == 'refs/heads/main'  # Production deploys only from main branch
-    needs: build-and-test  # Wait for successful build and test
+    if: github.ref == 'refs/heads/main' # Production deploys only from main branch
+    needs: build-and-test # Wait for successful build and test
     runs-on: ubuntu-latest
-    timeout-minutes: 15  # Extended timeout for deployment operations
-    
+    timeout-minutes: 15 # Extended timeout for deployment operations
+
     steps:
       # Checkout source code for docker-compose.yml and deployment scripts
       - name: Checkout code
@@ -107,7 +107,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-west-2  # Oregon region for EC2 and ECR resources
+          aws-region: us-west-2 # Oregon region for EC2 and ECR resources
 
       # Login to Amazon ECR using AWS CLI authentication
       - name: Login to Amazon ECR
@@ -150,12 +150,12 @@ jobs:
       # =======================================================================
       - name: Deploy prod on EC2
         uses: appleboy/ssh-action@v1.0.3
-        timeout-minutes: 15  # Extended timeout for Docker installation and health checks
+        timeout-minutes: 15 # Extended timeout for Docker installation and health checks
         with:
-          host: ${{ secrets.EC2_HOST }}        # EC2 public IP address
-          username: ec2-user                   # Default Amazon Linux user
-          key: ${{ secrets.EC2_SSH_KEY }}      # SSH private key for authentication
-          command_timeout: 12m                 # Extended SSH command timeout
+          host: ${{ secrets.EC2_HOST }} # EC2 public IP address
+          username: ec2-user # Default Amazon Linux user
+          key: ${{ secrets.EC2_SSH_KEY }} # SSH private key for authentication
+          command_timeout: 12m # Extended SSH command timeout
           script: |
             echo "🚀 Starting production deployment at $(date)"
             echo "📍 Deploying to: $(hostname)"
@@ -165,7 +165,7 @@ jobs:
             # ===============================================================
             # Install required tools if not present on EC2 instance
             # ===============================================================
-            
+
             # Install Docker if not present
             if ! command -v docker &> /dev/null; then
               echo "📦 Installing Docker..."
@@ -324,7 +324,7 @@ jobs:
     if: github.ref == 'refs/heads/dev' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 25
-    
+
     steps:
       - name: Deploy dev environment to EC2
         uses: appleboy/ssh-action@v1.0.3
@@ -337,7 +337,7 @@ jobs:
           debug: true
           script: |
             echo "� Starting development environment rebuild at $(date)"
-            
+
             # Install Docker and dependencies if needed
             if ! command -v docker &> /dev/null; then
               echo "📦 Installing Docker..."
@@ -345,18 +345,18 @@ jobs:
               sudo systemctl start docker && sudo systemctl enable docker
               sudo usermod -a -G docker ec2-user
             fi
-            
+
             if ! docker compose version &> /dev/null; then
               echo "� Installing Docker Compose..."
               sudo mkdir -p /usr/local/lib/docker/cli-plugins
               sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/lib/docker/cli-plugins/docker-compose
               sudo chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
             fi
-            
+
             # Ensure Docker is running
             sudo systemctl start docker
             sleep 5
-            
+
             # Update repository
             cd $HOME
             if [ ! -d "portfolio" ]; then
@@ -364,9 +364,9 @@ jobs:
             else
               cd portfolio && git fetch origin && git checkout dev && git reset --hard origin/dev && cd ..
             fi
-            
+
             cd $HOME/portfolio
-            
+
             # Create dev environment files
             cat > backend/.env.dev << EOF
             PORT=3000
@@ -374,27 +374,27 @@ jobs:
             PAYLOAD_SECRET=${{ secrets.DEV_PAYLOAD_SECRET }}
             NODE_ENV=development
             EOF
-            
+
             cat > frontend/.env.dev << EOF
             NODE_ENV=development
             NEXT_PUBLIC_API_URL=http://localhost:4000
             EOF
-            
+
             # Clean up existing containers and resources
             echo "🧹 Cleaning up existing containers..."
             COMPOSE_PROFILES=dev docker compose down --remove-orphans || echo "No existing containers"
             docker container prune -f || echo "Container cleanup done"
             docker image prune -f || echo "Image cleanup done"
-            
+
             # Check system resources
             echo "📊 System status before build:"
             echo "💾 Disk: $(df -h / | tail -1 | awk '{print $4}') available"
             echo "🧠 Memory: $(free -h | grep Mem | awk '{print $7}') available"
-            
+
             # Enable BuildKit for faster builds
             export DOCKER_BUILDKIT=1
             export COMPOSE_DOCKER_CLI_BUILD=1
-            
+
             # Build with aggressive timeout and monitoring
             echo "🏗️ Starting Docker build with 15-minute hard timeout..."
             timeout 900 docker compose build --parallel --no-cache backend-dev frontend-dev || {
@@ -406,18 +406,17 @@ jobs:
               ps aux | grep -E "(docker|compose)" | grep -v grep || echo "No Docker processes"
               exit 1
             }
-            
+
             echo "✅ Build completed, starting containers..."
             COMPOSE_PROFILES=dev docker compose up -d --remove-orphans
-            
+
             echo "⏳ Waiting for containers to start..."
             sleep 15
-            
+
             echo "📊 Final deployment status:"
             docker ps
             COMPOSE_PROFILES=dev docker compose ps
-            
+
             echo "🎉 Development environment rebuild complete!"
             echo "🌐 Backend available on port 4000"
             echo "🌐 Frontend available on port 4001"
-    
