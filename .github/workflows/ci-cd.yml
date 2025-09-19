@@ -331,60 +331,7 @@ jobs:
           username: ec2-user
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            # Clone or update the repository
-            cd $HOME
-            if [ ! -d "portfolio" ]; then
-              git clone https://github.com/BBaysinger/bb-portfolio.git portfolio
-            else
-              cd portfolio
-              git fetch origin
-              git checkout dev
-              git reset --hard origin/dev
-              cd ..
-            fi
-            
-            # Install docker if not present
-            if ! command -v docker &> /dev/null; then
-              sudo yum update -y
-              sudo yum install -y docker
-              sudo systemctl start docker
-              sudo systemctl enable docker
-              sudo usermod -a -G docker ec2-user
-            fi
-            
-            # Install docker-compose if not present
-            if ! command -v docker-compose &> /dev/null; then
-              sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-              sudo chmod +x /usr/local/bin/docker-compose
-            fi
-            
-            # Ensure docker service is running
-            sudo systemctl daemon-reload
-            sudo systemctl start docker
-            sudo systemctl enable docker
-            
-            # Wait for docker to be ready
-            sleep 5
-            
-            # Verify docker is working
-            sudo docker --version
-            
-            # Create dev environment files from secrets
-            cd $HOME/portfolio
-            
-            # Create backend .env.dev
-            cat > backend/.env.dev << EOF
-            PORT=3000
-            DATABASE_URI=${{ secrets.DEV_DATABASE_URI }}
-            PAYLOAD_SECRET=${{ secrets.DEV_PAYLOAD_SECRET }}
-            NODE_ENV=development
-            EOF
-            
-            # Create frontend .env.dev (add variables as needed)
-            cat > frontend/.env.dev << EOF
-            NODE_ENV=development
-            NEXT_PUBLIC_API_URL=http://localhost:4000
-            EOF
-            
-            # Deploy with docker-compose
-            COMPOSE_PROFILES=dev docker-compose up -d --build
+            echo "Test 1: Basic connectivity"
+            echo "Current time: $(date)"
+            echo "Current user: $(whoami)"
+            echo "Test completed"
