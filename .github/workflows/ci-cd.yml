@@ -148,37 +148,22 @@ jobs:
             
             COMPOSE_PROFILES=prod docker compose pull
             
-            # Check system resources first
-            echo "=== System Resources ==="
-            df -h
+            # Test that SSH connection is working
+            echo "=== SSH Connection Test ==="
+            echo "Connected successfully to $(hostname) at $(date)"
+            echo "Current user: $(whoami)"
+            echo "Working directory: $(pwd)"
+            echo "Disk space:"
+            df -h | head -5
+            echo "Memory:"
             free -h
-            echo "=== Docker Info ==="
-            docker info
-            echo "=== Existing Containers ==="
-            docker ps -a
             
-            # Stop any existing containers first
-            echo "=== Stopping Existing Containers ==="
-            docker stop portfolio-backend-prod portfolio-frontend-prod 2>/dev/null || echo "No containers to stop"
-            docker rm portfolio-backend-prod portfolio-frontend-prod 2>/dev/null || echo "No containers to remove"
+            COMPOSE_PROFILES=prod docker compose up -d
             
-            # Try a simple test container first
-            echo "=== Testing Docker with Simple Container ==="
-            timeout 30 docker run --rm alpine:latest echo "Docker works!" || echo "Docker test failed"
-            
-            # Try backend container manually (no compose dependencies)
-            echo "=== Testing Backend Container Manually ==="
-            timeout 60 docker run -d --name test-backend \
-              -p 3001:3000 \
-              -e PORT=3000 \
-              -e NODE_ENV=production \
-              778230822028.dkr.ecr.us-west-2.amazonaws.com/portfolio/backend:latest || echo "Backend container failed"
-            
-            sleep 5
-            echo "=== Backend Test Results ==="
-            docker ps | grep test-backend || echo "Backend not running"
-            docker logs test-backend --tail 10 || echo "No backend logs"
-            docker stop test-backend && docker rm test-backend || echo "Cleanup failed"
+            # Quick status check
+            echo "=== Deployment Status ==="
+            docker ps
+            COMPOSE_PROFILES=prod docker compose ps
 
   rebuild-dev:
     if: github.ref == 'refs/heads/dev' || github.event_name == 'workflow_dispatch'
