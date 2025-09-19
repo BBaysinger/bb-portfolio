@@ -4,7 +4,14 @@ on:
   push:
     branches:
       - main
-      - dev # Enable automatic dev rebuilds
+      - dev # Enab      - name:           command_timeout: 12m  # Increased SSH action timeouteploy prod on EC2
+        uses: appleboy/ssh-action@v1.0.3
+        timeout-minutes: 15  # Increased timeout for health checks
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ec2-user
+          key: ${{ secrets.EC2_SSH_KEY }}
+          command_timeout: 12m  # Increased SSH action timeoutatic dev rebuilds
   workflow_dispatch: # allows manual trigger for dev rebuild
 
 jobs:
@@ -79,12 +86,12 @@ jobs:
 
       - name: Deploy prod on EC2
         uses: appleboy/ssh-action@v1.0.3
-        timeout-minutes: 10 # Increased timeout for Docker installation
+        timeout-minutes: 15  # Increased timeout for health checks
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ec2-user
           key: ${{ secrets.EC2_SSH_KEY }}
-          command_timeout: 8m # Increased SSH action timeout
+          command_timeout: 12m  # Increased SSH action timeout
           script: |
             echo "=== Starting deployment at $(date) ==="
 
@@ -202,11 +209,14 @@ jobs:
 
             # Wait a moment for containers to start
             echo "Waiting for containers to initialize..."
-            sleep 15
-
-            # Check backend logs if unhealthy
+            sleep 20
+            
+            # Check container logs
             echo "=== Backend Container Logs ==="
-            docker logs portfolio-backend-prod --tail 50
+            docker logs portfolio-backend-prod --tail 50 || echo "Backend container not found"
+            
+            echo "=== Frontend Container Logs ==="
+            docker logs portfolio-frontend-prod --tail 50 || echo "Frontend container not found"
 
             # Quick status check
             echo "=== Deployment Status ==="

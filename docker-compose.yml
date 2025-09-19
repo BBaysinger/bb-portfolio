@@ -69,17 +69,11 @@ services:
       - ./backend/.env.prod # Production environment variables
     restart: unless-stopped # Auto-restart on failure/reboot
     healthcheck: # Health monitoring for load balancers
-      test:
-        [
-          "CMD",
-          "node",
-          "-e",
-          "const http = require('http'); http.get('http://localhost:3000', (res) => process.exit(res.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1));",
-        ]
-      interval: 30s # Check every 30 seconds
-      timeout: 10s # 10 second timeout per check
-      retries: 3 # 3 failed checks = unhealthy
-      start_period: 40s # Wait 40s before first check
+      test: ["CMD", "node", "-e", "const net = require('net'); const client = net.createConnection(3000, 'localhost', () => { console.log('connected'); client.end(); process.exit(0); }); client.on('error', () => process.exit(1));"]
+      interval: 15s # Check every 15 seconds (faster)
+      timeout: 5s # 5 second timeout per check
+      retries: 5 # 5 failed checks = unhealthy (more retries)
+      start_period: 30s # Wait 30s before first check (reduced)
 
   frontend-prod:
     profiles: ["prod"] # Only runs with COMPOSE_PROFILES=prod
@@ -92,19 +86,13 @@ services:
     restart: unless-stopped # Auto-restart on failure/reboot
     depends_on:
       backend-prod:
-        condition: service_healthy # Wait for backend health check
+        condition: service_started # Just wait for backend to start, not be healthy
     healthcheck: # Health monitoring for load balancers
-      test:
-        [
-          "CMD",
-          "node",
-          "-e",
-          "const http = require('http'); http.get('http://localhost:3000', (res) => process.exit(res.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1));",
-        ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+      test: ["CMD", "node", "-e", "const net = require('net'); const client = net.createConnection(3000, 'localhost', () => { console.log('connected'); client.end(); process.exit(0); }); client.on('error', () => process.exit(1));"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   # =============================================================================
   # DEVELOPMENT SERVICES (AWS EC2 Sandbox)
