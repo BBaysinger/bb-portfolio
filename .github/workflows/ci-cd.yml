@@ -79,7 +79,7 @@ jobs:
 
       - name: Deploy prod on EC2
         uses: appleboy/ssh-action@v1.0.3
-        timeout-minutes: 3  # Hard limit on entire SSH session
+        timeout-minutes: 3  # Hard limit on entire SSH session - testing new instance
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ec2-user
