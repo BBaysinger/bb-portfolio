@@ -1,163 +1,248 @@
+# =============================================================================
+# CI/CD Pipeline - BB Portfolio Site
+# =============================================================================
+#
+# This workflow provides automated build, test, and deployment for the
+# portfolio application with support for multiple environments:
+#
+# TRIGGERS:
+# - Push to 'main' branch: Full CI/CD with production deployment
+# - Push to 'dev' branch: CI/CD with development environment rebuild
+# - Manual dispatch: Allows manual triggering for any branch
+#
+# JOBS:
+# 1. build-and-test: Validates code quality and builds both frontend/backend
+# 2. deploy-prod: Deploys to AWS EC2 production (main branch only)
+# 3. rebuild-dev: Rebuilds development environment (dev branch or manual)
+#
+# DEPLOYMENT TARGETS:
+# - Production: Uses pre-built ECR images for fast, reliable deployments
+# - Development: Builds directly on EC2 for flexibility and testing
+# =============================================================================
+
 name: CI/CD Pipeline
 
+# Workflow triggers
 on:
   push:
     branches:
-      - main
-      - dev # Enable automatic dev rebuilds
-  workflow_dispatch: # allows manual trigger for dev rebuild
+      - main  # Production deployments
+      - dev   # Development environment rebuilds
+  workflow_dispatch: # Manual trigger for any branch
 
 jobs:
+  # ==========================================================================
+  # BUILD AND TEST JOB
+  # ==========================================================================
+  # Validates code quality, runs tests, and ensures both frontend and backend
+  # can be built successfully before any deployment occurs
+  # ==========================================================================
   build-and-test:
     runs-on: ubuntu-latest
     steps:
+      # Checkout source code
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # Setup Node.js environment
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 20  # LTS version for stability
 
-      # ---- FRONTEND ----
+      # =======================================================================
+      # FRONTEND BUILD AND TEST
+      # =======================================================================
       - name: Install frontend dependencies
         working-directory: ./frontend
-        run: npm install --legacy-peer-deps
+        run: npm install --legacy-peer-deps  # Required for some peer dependency conflicts
 
       - name: Build frontend
         working-directory: ./frontend
-        run: npm run build
+        run: npm run build  # Next.js production build
 
       - name: Test frontend
         working-directory: ./frontend
-        run: npm test || echo "⚠️ No frontend tests yet"
+        run: npm test || echo "⚠️ No frontend tests yet"  # Graceful failure until tests are implemented
 
-      # ---- BACKEND ----
+      # =======================================================================
+      # BACKEND BUILD AND TEST
+      # =======================================================================
       - name: Install backend dependencies
         working-directory: ./backend
-        run: npm install --legacy-peer-deps
+        run: npm install --legacy-peer-deps  # Required for some peer dependency conflicts
 
       - name: Build backend
         working-directory: ./backend
-        run: npm run build
+        run: npm run build  # Next.js production build (Payload CMS)
 
       - name: Test backend
         working-directory: ./backend
-        run: npm test || echo "⚠️ No backend tests yet"
+        run: npm test || echo "⚠️ No backend tests yet"  # Graceful failure until tests are implemented
 
+  # ==========================================================================
+  # PRODUCTION DEPLOYMENT JOB
+  # ==========================================================================
+  # Deploys to AWS EC2 production environment using pre-built ECR images
+  # Only runs on main branch pushes after successful build and test
+  # ==========================================================================
   deploy-prod:
-    if: github.ref == 'refs/heads/main'
-    needs: build-and-test
+    if: github.ref == 'refs/heads/main'  # Production deploys only from main branch
+    needs: build-and-test  # Wait for successful build and test
     runs-on: ubuntu-latest
+    timeout-minutes: 15  # Extended timeout for deployment operations
+    
     steps:
+      # Checkout source code for docker-compose.yml and deployment scripts
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # =======================================================================
+      # AWS AUTHENTICATION AND ECR LOGIN
+      # =======================================================================
+      # Configure AWS credentials for ECR access and deployment operations
+      # =======================================================================
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-west-2
+          aws-region: us-west-2  # Oregon region for EC2 and ECR resources
 
+      # Login to Amazon ECR using AWS CLI authentication
       - name: Login to Amazon ECR
         run: |
+          echo "🔐 Authenticating with Amazon ECR..."
           aws ecr get-login-password --region us-west-2 \
             | docker login --username AWS --password-stdin 778230822028.dkr.ecr.us-west-2.amazonaws.com
 
+      # =======================================================================
+      # DOCKER IMAGE BUILD AND PUSH TO ECR
+      # =======================================================================
+      # Build production-optimized images and push to ECR registry
+      # Uses 'latest' tag for simplicity and fast deployment
+      # =======================================================================
       - name: Build and push frontend-prod
         run: |
+          echo "🏗️ Building frontend production image..."
           docker build -t frontend:latest ./frontend
+          echo "🏷️ Tagging frontend image for ECR..."
           docker tag frontend:latest 778230822028.dkr.ecr.us-west-2.amazonaws.com/portfolio/frontend:latest
+          echo "📤 Pushing frontend image to ECR..."
           docker push 778230822028.dkr.ecr.us-west-2.amazonaws.com/portfolio/frontend:latest
+          echo "✅ Frontend image push complete"
 
       - name: Build and push backend-prod
         run: |
+          echo "🏗️ Building backend production image..."
           docker build -t backend:latest ./backend
+          echo "🏷️ Tagging backend image for ECR..."
           docker tag backend:latest 778230822028.dkr.ecr.us-west-2.amazonaws.com/portfolio/backend:latest
+          echo "📤 Pushing backend image to ECR..."
           docker push 778230822028.dkr.ecr.us-west-2.amazonaws.com/portfolio/backend:latest
+          echo "✅ Backend image push complete"
 
+      # =======================================================================
+      # EC2 PRODUCTION DEPLOYMENT
+      # =======================================================================
+      # Deploy to production EC2 instance using SSH automation
+      # Handles Docker/AWS CLI installation and zero-downtime deployment
+      # =======================================================================
       - name: Deploy prod on EC2
         uses: appleboy/ssh-action@v1.0.3
-        timeout-minutes: 15 # Increased timeout for health checks
+        timeout-minutes: 15  # Extended timeout for Docker installation and health checks
         with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ec2-user
-          key: ${{ secrets.EC2_SSH_KEY }}
-          command_timeout: 12m # Increased SSH action timeout
+          host: ${{ secrets.EC2_HOST }}        # EC2 public IP address
+          username: ec2-user                   # Default Amazon Linux user
+          key: ${{ secrets.EC2_SSH_KEY }}      # SSH private key for authentication
+          command_timeout: 12m                 # Extended SSH command timeout
           script: |
-            echo "=== Starting deployment at $(date) ==="
+            echo "🚀 Starting production deployment at $(date)"
+            echo "📍 Deploying to: $(hostname)"
 
-            # Install docker if not present
+            # ===============================================================
+            # INFRASTRUCTURE SETUP
+            # ===============================================================
+            # Install required tools if not present on EC2 instance
+            # ===============================================================
+            
+            # Install Docker if not present
             if ! command -v docker &> /dev/null; then
-              echo "Installing Docker..."
+              echo "📦 Installing Docker..."
               sudo yum update -y
               sudo yum install -y docker
-              echo "Starting Docker service..."
               sudo systemctl start docker
               sudo systemctl enable docker
               sudo usermod -a -G docker ec2-user
-              echo "Docker installation complete"
+              echo "✅ Docker installation complete"
             else
-              echo "Docker already installed"
+              echo "✅ Docker already installed"
             fi
 
-            # Install AWS CLI if not present
+            # Install AWS CLI if not present (required for ECR authentication)
             if ! command -v aws &> /dev/null; then
-              echo "Installing AWS CLI..."
+              echo "📦 Installing AWS CLI..."
               sudo yum install -y awscli
-              echo "AWS CLI installation complete"
+              echo "✅ AWS CLI installation complete"
             else
-              echo "AWS CLI already installed"
+              echo "✅ AWS CLI already installed"
             fi
 
-            # Install docker compose plugin if not present
+            # Install Docker Compose plugin if not present
             if ! docker compose version &> /dev/null; then
-              echo "Installing Docker Compose..."
+              echo "📦 Installing Docker Compose..."
               sudo mkdir -p /usr/local/lib/docker/cli-plugins
               sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/lib/docker/cli-plugins/docker-compose
               sudo chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
-              echo "Docker Compose installation complete"
+              echo "✅ Docker Compose installation complete"
             else
-              echo "Docker Compose already installed"
+              echo "✅ Docker Compose already installed"
             fi
 
-            # Ensure docker service is running
+            # ===============================================================
+            # DOCKER SERVICE PREPARATION
+            # ===============================================================
+            # Ensure Docker daemon is running and accessible
+            # ===============================================================
+            echo "🔧 Preparing Docker service..."
             sudo systemctl daemon-reload
             sudo systemctl start docker
             sudo systemctl enable docker
+            sleep 5  # Wait for Docker daemon to be fully ready
+            sudo docker --version  # Verify Docker is working
 
-            # Wait for docker to be ready
-            sleep 5
-
-            # Verify docker is working
-            sudo docker --version
-
-            # Configure AWS credentials (use the same ones from the workflow)
+            # ===============================================================
+            # AWS AUTHENTICATION SETUP
+            # ===============================================================
+            # Configure AWS credentials for ECR access from EC2
+            # ===============================================================
+            echo "🔐 Configuring AWS credentials..."
             aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
             aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
             aws configure set default.region us-west-2
 
-            # Login to ECR
+            # ECR login for both sudo and regular user contexts
+            echo "🔐 Authenticating with ECR..."
             aws ecr get-login-password --region us-west-2 | sudo docker login --username AWS --password-stdin 778230822028.dkr.ecr.us-west-2.amazonaws.com
-
-            # Also login as regular user for docker compose
             aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 778230822028.dkr.ecr.us-west-2.amazonaws.com
 
-            # Install git if not present
+            # ===============================================================
+            # REPOSITORY SETUP
+            # ===============================================================
+            # Clone or update project repository for docker-compose.yml
+            # ===============================================================
             if ! command -v git &> /dev/null; then
-              echo "Installing Git..."
+              echo "📦 Installing Git..."
               sudo yum install -y git
             fi
 
-            # Clone or update the repository
-            echo "Setting up project repository..."
+            echo "📥 Setting up project repository..."
             cd $HOME
             if [ ! -d "portfolio" ]; then
-              echo "Cloning repository..."
+              echo "📥 Cloning repository..."
               git clone https://github.com/BBaysinger/bb-portfolio.git portfolio
             else
-              echo "Updating existing repository..."
+              echo "🔄 Updating existing repository..."
               cd portfolio
               git fetch origin
               git checkout main
@@ -165,10 +250,15 @@ jobs:
               cd ..
             fi
 
-            # Create production environment files
+            # ===============================================================
+            # ENVIRONMENT CONFIGURATION
+            # ===============================================================
+            # Create production environment files from GitHub secrets
+            # ===============================================================
             cd ~/portfolio
+            echo "⚙️ Creating production environment files..."
 
-            # Create backend .env.prod
+            # Backend production environment
             cat > backend/.env.prod << EOF
             PORT=3000
             DATABASE_URI=${{ secrets.PROD_DATABASE_URI }}
@@ -176,72 +266,102 @@ jobs:
             NODE_ENV=production
             EOF
 
-            # Create frontend .env.prod (add variables as needed)
+            # Frontend production environment
             cat > frontend/.env.prod << EOF
             NODE_ENV=production
             NEXT_PUBLIC_API_URL=http://your-ec2-ip:4000
             EOF
 
-            echo "=== Pulling latest images ==="
+            # ===============================================================
+            # CONTAINER DEPLOYMENT
+            # ===============================================================
+            # Pull latest images and deploy with zero-downtime strategy
+            # ===============================================================
+            echo "⬇️ Pulling latest production images..."
             COMPOSE_PROFILES=prod docker compose pull || {
-              echo "Failed to pull images. Continuing with existing images..."
+              echo "⚠️ Failed to pull images. Continuing with existing images..."
             }
 
-            # Test that SSH connection is working
-            echo "=== SSH Connection Test ==="
-            echo "Connected successfully to $(hostname) at $(date)"
-            echo "Current user: $(whoami)"
-            echo "Working directory: $(pwd)"
-            echo "Disk space:"
-            df -h | head -5
-            echo "Memory:"
-            free -h
+            # Deployment status check
+            echo "🔍 Pre-deployment status check..."
+            echo "📊 System resources:"
+            df -h | head -5  # Disk space
+            free -h          # Memory usage
+            echo "📍 Current user: $(whoami)"
+            echo "📁 Working directory: $(pwd)"
 
-            echo "=== Starting production deployment ==="
+            echo "🚀 Starting production deployment..."
             COMPOSE_PROFILES=prod docker compose up -d
 
-            # Wait a moment for containers to start
-            echo "Waiting for containers to initialize..."
+            # ===============================================================
+            # HEALTH CHECKS AND VALIDATION
+            # ===============================================================
+            # Wait for containers to start and validate deployment
+            # ===============================================================
+            echo "⏳ Waiting for containers to initialize..."
             sleep 20
 
-            # Check container logs
+            echo "📋 Checking container logs..."
             echo "=== Backend Container Logs ==="
-            docker logs portfolio-backend-prod --tail 50 || echo "Backend container not found"
+            docker logs portfolio-backend-prod --tail 50 || echo "⚠️ Backend container not found"
 
             echo "=== Frontend Container Logs ==="
-            docker logs portfolio-frontend-prod --tail 50 || echo "Frontend container not found"
+            docker logs portfolio-frontend-prod --tail 50 || echo "⚠️ Frontend container not found"
 
-            # Quick status check
-            echo "=== Deployment Status ==="
+            echo "📊 Final deployment status:"
             docker ps
             COMPOSE_PROFILES=prod docker compose ps
 
-            echo "=== Production deployment complete! ==="
+            echo "🎉 Production deployment complete at $(date)!"
 
+  # ==========================================================================
+  # DEVELOPMENT REBUILD JOB
+  # ==========================================================================
+  # Rebuilds development environment on EC2 for testing and iteration
+  # Triggered by pushes to 'dev' branch or manual workflow dispatch
+  # Builds images locally on EC2 for faster development cycles
+  # ==========================================================================
   rebuild-dev:
-    if: github.ref == 'refs/heads/dev' || github.event_name == 'workflow_dispatch'
+    if: github.ref == 'refs/heads/dev' || github.event_name == 'workflow_dispatch'  # Dev branch or manual trigger
     runs-on: ubuntu-latest
+    timeout-minutes: 10  # Shorter timeout for development rebuilds
+    
     steps:
+      # =======================================================================
+      # DEVELOPMENT ENVIRONMENT DEPLOYMENT
+      # =======================================================================
+      # Deploy to development environment using SSH and local Docker builds
+      # Faster iteration cycle with local builds instead of ECR pulls
+      # =======================================================================
       - name: Rebuild dev on EC2
         uses: appleboy/ssh-action@v1.0.3
-        timeout-minutes: 10 # Increased timeout for installations
+        timeout-minutes: 10  # Development rebuilds should be faster
         with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ec2-user
-          key: ${{ secrets.EC2_SSH_KEY }}
-          command_timeout: 8m # Increased SSH action timeout
+          host: ${{ secrets.EC2_HOST }}        # Same EC2 instance as production
+          username: ec2-user                   # Default Amazon Linux user
+          key: ${{ secrets.EC2_SSH_KEY }}      # SSH private key for authentication
+          command_timeout: 8m                  # Reasonable timeout for dev operations
           script: |
-            # Install git if not present
+            echo "🔧 Starting development environment rebuild at $(date)"
+            echo "📍 Rebuilding on: $(hostname)"
+
+            # ===============================================================
+            # REPOSITORY SETUP FOR DEVELOPMENT
+            # ===============================================================
+            # Clone or update repository and switch to dev branch
+            # ===============================================================
             if ! command -v git &> /dev/null; then
-              echo "Installing Git..."
+              echo "📦 Installing Git..."
               sudo yum install -y git
             fi
 
-            # Clone or update the repository
+            echo "📥 Setting up development repository..."
             cd $HOME
             if [ ! -d "portfolio" ]; then
+              echo "📥 Cloning repository for development..."
               git clone https://github.com/BBaysinger/bb-portfolio.git portfolio
             else
+              echo "🔄 Updating repository to dev branch..."
               cd portfolio
               git fetch origin
               git checkout dev
@@ -249,37 +369,51 @@ jobs:
               cd ..
             fi
 
-            # Install docker if not present
+            # ===============================================================
+            # DOCKER INSTALLATION AND SETUP
+            # ===============================================================
+            # Ensure Docker and Docker Compose are available for local builds
+            # ===============================================================
             if ! command -v docker &> /dev/null; then
+              echo "📦 Installing Docker for development..."
               sudo yum update -y
               sudo yum install -y docker
               sudo systemctl start docker
               sudo systemctl enable docker
               sudo usermod -a -G docker ec2-user
+              echo "✅ Docker installation complete"
             fi
 
-            # Install docker compose plugin if not present
             if ! docker compose version &> /dev/null; then
+              echo "📦 Installing Docker Compose for development..."
               sudo mkdir -p /usr/local/lib/docker/cli-plugins
               sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/lib/docker/cli-plugins/docker-compose
               sudo chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
+              echo "✅ Docker Compose installation complete"
             fi
 
-            # Ensure docker service is running
+            # ===============================================================
+            # DOCKER SERVICE PREPARATION
+            # ===============================================================
+            # Ensure Docker daemon is running for local builds
+            # ===============================================================
+            echo "🔧 Preparing Docker for development builds..."
             sudo systemctl daemon-reload
             sudo systemctl start docker
             sudo systemctl enable docker
+            sleep 5  # Wait for Docker daemon to be ready
+            sudo docker --version  # Verify Docker is working
 
-            # Wait for docker to be ready
-            sleep 5
-
-            # Verify docker is working
-            sudo docker --version
-
-            # Create dev environment files from secrets
+            # ===============================================================
+            # DEVELOPMENT ENVIRONMENT CONFIGURATION
+            # ===============================================================
+            # Create development environment files from GitHub secrets
+            # Different from production: uses localhost URLs and dev settings
+            # ===============================================================
             cd $HOME/portfolio
+            echo "⚙️ Creating development environment files..."
 
-            # Create backend .env.dev
+            # Backend development environment
             cat > backend/.env.dev << EOF
             PORT=3000
             DATABASE_URI=${{ secrets.DEV_DATABASE_URI }}
@@ -287,11 +421,28 @@ jobs:
             NODE_ENV=development
             EOF
 
-            # Create frontend .env.dev (add variables as needed)
+            # Frontend development environment (localhost for dev)
             cat > frontend/.env.dev << EOF
             NODE_ENV=development
             NEXT_PUBLIC_API_URL=http://localhost:4000
             EOF
 
-            # Deploy with docker compose
+            # ===============================================================
+            # DEVELOPMENT DEPLOYMENT WITH LOCAL BUILD
+            # ===============================================================
+            # Deploy using dev profile with local Docker builds
+            # Faster iteration cycle for development and testing
+            # ===============================================================
+            echo "🚀 Deploying development environment..."
+            echo "🏗️ Building and starting development containers..."
             COMPOSE_PROFILES=dev docker compose up -d --build
+
+            echo "⏳ Waiting for development containers to start..."
+            sleep 10
+
+            echo "📊 Development deployment status:"
+            docker ps
+            COMPOSE_PROFILES=dev docker compose ps
+
+            echo "🎉 Development environment rebuild complete at $(date)!"
+            echo "🌐 Development services should be available on dev ports"
