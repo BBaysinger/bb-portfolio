@@ -79,10 +79,12 @@ jobs:
 
       - name: Deploy prod on EC2
         uses: appleboy/ssh-action@v1.0.3
+        timeout-minutes: 10  # Hard limit on entire SSH session
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ec2-user
           key: ${{ secrets.EC2_SSH_KEY }}
+          command_timeout: 10m  # SSH action timeout
           script: |
             # Install docker if not present
             if ! command -v docker &> /dev/null; then
@@ -147,33 +149,36 @@ jobs:
             COMPOSE_PROFILES=prod docker compose pull
             
             # Check system resources first
-            echo "=== System Resources Before Startup ==="
+            echo "=== System Resources ==="
             df -h
             free -h
-            
-            # Start backend only first to diagnose
-            echo "=== Starting Backend Only ==="
-            timeout 120 COMPOSE_PROFILES=prod docker compose up -d portfolio-backend-prod || echo "Backend startup timeout/failed"
-            
-            sleep 10
-            echo "=== Backend Status After 10s ==="
-            docker ps -a | grep backend
-            echo "=== Backend Logs ==="
-            docker logs portfolio-backend-prod --tail 20 || echo "No backend logs yet"
-            
-            # Now start frontend
-            echo "=== Starting Frontend ==="
-            timeout 60 COMPOSE_PROFILES=prod docker compose up -d portfolio-frontend-prod || echo "Frontend startup timeout/failed"
-            
-            # Final status check
-            echo "=== Final Container Status ==="
+            echo "=== Docker Info ==="
+            docker info
+            echo "=== Existing Containers ==="
             docker ps -a
-            echo "=== Docker Compose Status ==="
-            COMPOSE_PROFILES=prod docker compose ps
-            echo "=== All Backend Logs ==="
-            docker logs portfolio-backend-prod || echo "No backend logs"
-            echo "=== All Frontend Logs ==="
-            docker logs portfolio-frontend-prod || echo "No frontend logs"
+            
+            # Stop any existing containers first
+            echo "=== Stopping Existing Containers ==="
+            docker stop portfolio-backend-prod portfolio-frontend-prod 2>/dev/null || echo "No containers to stop"
+            docker rm portfolio-backend-prod portfolio-frontend-prod 2>/dev/null || echo "No containers to remove"
+            
+            # Try a simple test container first
+            echo "=== Testing Docker with Simple Container ==="
+            timeout 30 docker run --rm alpine:latest echo "Docker works!" || echo "Docker test failed"
+            
+            # Try backend container manually (no compose dependencies)
+            echo "=== Testing Backend Container Manually ==="
+            timeout 60 docker run -d --name test-backend \
+              -p 3001:3000 \
+              -e PORT=3000 \
+              -e NODE_ENV=production \
+              778230822028.dkr.ecr.us-west-2.amazonaws.com/portfolio/backend:latest || echo "Backend container failed"
+            
+            sleep 5
+            echo "=== Backend Test Results ==="
+            docker ps | grep test-backend || echo "Backend not running"
+            docker logs test-backend --tail 10 || echo "No backend logs"
+            docker stop test-backend && docker rm test-backend || echo "Cleanup failed"
 
   rebuild-dev:
     if: github.ref == 'refs/heads/dev' || github.event_name == 'workflow_dispatch'
