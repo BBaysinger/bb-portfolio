@@ -315,191 +315,108 @@ jobs:
             echo "🎉 Production deployment complete at $(date)!"
 
   # ==========================================================================
-  # DEVELOPMENT REBUILD JOB
+  # DEVELOPMENT REBUILD JOB - SIMPLE EC2 BUILD
   # ==========================================================================
-  # Rebuilds development environment on EC2 for testing and iteration
+  # Rebuilds development environment directly on EC2 with hanging prevention
   # Triggered by pushes to 'dev' branch or manual workflow dispatch
-  # Builds images locally on EC2 for faster development cycles
   # ==========================================================================
   rebuild-dev:
-    if: github.ref == 'refs/heads/dev' || github.event_name == 'workflow_dispatch'  # Dev branch or manual trigger
+    if: github.ref == 'refs/heads/dev' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
-    timeout-minutes: 25  # Extended timeout for Docker builds from scratch
+    timeout-minutes: 25
     
     steps:
-      # =======================================================================
-      # DEVELOPMENT ENVIRONMENT DEPLOYMENT
-      # =======================================================================
-      # Deploy to development environment using SSH and local Docker builds
-      # Faster iteration cycle with local builds instead of ECR pulls
-      # =======================================================================
-      - name: Rebuild dev on EC2
+      - name: Deploy dev environment to EC2
         uses: appleboy/ssh-action@v1.0.3
-        timeout-minutes: 20  # Extended timeout for Docker builds
+        timeout-minutes: 20
         with:
-          host: ${{ secrets.EC2_HOST }}        # Same EC2 instance as production
-          username: ec2-user                   # Default Amazon Linux user
-          key: ${{ secrets.EC2_SSH_KEY }}      # SSH private key for authentication
-          command_timeout: 18m                 # Extended timeout for Docker build operations
+          host: ${{ secrets.EC2_HOST }}
+          username: ec2-user
+          key: ${{ secrets.EC2_SSH_KEY }}
+          command_timeout: 18m
           script: |
-            echo "🔧 Starting development environment rebuild at $(date)"
-            echo "📍 Rebuilding on: $(hostname)"
-
-            # ===============================================================
-            # REPOSITORY SETUP FOR DEVELOPMENT
-            # ===============================================================
-            # Clone or update repository and switch to dev branch
-            # ===============================================================
-            if ! command -v git &> /dev/null; then
-              echo "📦 Installing Git..."
-              sudo yum install -y git
-            fi
-
-            echo "📥 Setting up development repository..."
-            cd $HOME
-            if [ ! -d "portfolio" ]; then
-              echo "📥 Cloning repository for development..."
-              git clone https://github.com/BBaysinger/bb-portfolio.git portfolio
-            else
-              echo "🔄 Updating repository to dev branch..."
-              cd portfolio
-              git fetch origin
-              git checkout dev
-              git reset --hard origin/dev
-              cd ..
-            fi
-
-            # ===============================================================
-            # DOCKER INSTALLATION AND SETUP
-            # ===============================================================
-            # Ensure Docker and Docker Compose are available for local builds
-            # ===============================================================
+            echo "� Starting development environment rebuild at $(date)"
+            
+            # Install Docker and dependencies if needed
             if ! command -v docker &> /dev/null; then
-              echo "📦 Installing Docker for development..."
-              sudo yum update -y
-              sudo yum install -y docker
-              sudo systemctl start docker
-              sudo systemctl enable docker
+              echo "📦 Installing Docker..."
+              sudo yum update -y && sudo yum install -y docker
+              sudo systemctl start docker && sudo systemctl enable docker
               sudo usermod -a -G docker ec2-user
-              echo "✅ Docker installation complete"
             fi
-
+            
             if ! docker compose version &> /dev/null; then
-              echo "📦 Installing Docker Compose for development..."
+              echo "� Installing Docker Compose..."
               sudo mkdir -p /usr/local/lib/docker/cli-plugins
               sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/lib/docker/cli-plugins/docker-compose
               sudo chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
-              echo "✅ Docker Compose installation complete"
             fi
-
-            # ===============================================================
-            # DOCKER SERVICE PREPARATION
-            # ===============================================================
-            # Ensure Docker daemon is running for local builds
-            # ===============================================================
-            echo "🔧 Preparing Docker for development builds..."
-            sudo systemctl daemon-reload
+            
+            # Ensure Docker is running
             sudo systemctl start docker
-            sudo systemctl enable docker
-            sleep 5  # Wait for Docker daemon to be ready
-            sudo docker --version  # Verify Docker is working
-
-            # ===============================================================
-            # DEVELOPMENT ENVIRONMENT CONFIGURATION
-            # ===============================================================
-            # Create development environment files from GitHub secrets
-            # Different from production: uses localhost URLs and dev settings
-            # ===============================================================
+            sleep 5
+            
+            # Update repository
+            cd $HOME
+            if [ ! -d "portfolio" ]; then
+              git clone https://github.com/BBaysinger/bb-portfolio.git portfolio
+            else
+              cd portfolio && git fetch origin && git checkout dev && git reset --hard origin/dev && cd ..
+            fi
+            
             cd $HOME/portfolio
-            echo "⚙️ Creating development environment files..."
-
-            # Backend development environment
+            
+            # Create dev environment files
             cat > backend/.env.dev << EOF
             PORT=3000
             DATABASE_URI=${{ secrets.DEV_DATABASE_URI }}
             PAYLOAD_SECRET=${{ secrets.DEV_PAYLOAD_SECRET }}
             NODE_ENV=development
             EOF
-
-            # Frontend development environment (localhost for dev)
+            
             cat > frontend/.env.dev << EOF
             NODE_ENV=development
             NEXT_PUBLIC_API_URL=http://localhost:4000
             EOF
-
-            # ===============================================================
-            # DEVELOPMENT DEPLOYMENT WITH LOCAL BUILD
-            # ===============================================================
-            # Deploy using dev profile with local Docker builds
-            # Faster iteration cycle for development and testing
-            # ===============================================================
-            echo "🚀 Deploying development environment..."
             
-            # Stop existing dev containers first to free up resources
-            echo "🛑 Stopping any existing development containers..."
-            COMPOSE_PROFILES=dev docker compose down || echo "No existing dev containers to stop"
+            # Clean up existing containers and resources
+            echo "🧹 Cleaning up existing containers..."
+            COMPOSE_PROFILES=dev docker compose down --remove-orphans || echo "No existing containers"
+            docker container prune -f || echo "Container cleanup done"
+            docker image prune -f || echo "Image cleanup done"
             
-            # Clean up Docker resources to prevent hanging builds
-            echo "🧹 Cleaning up Docker resources..."
-            docker container prune -f || echo "Container cleanup completed"
-            docker image prune -f || echo "Image cleanup completed"
-            docker network prune -f || echo "Network cleanup completed"
-            docker volume prune -f || echo "Volume cleanup completed"
+            # Check system resources
+            echo "📊 System status before build:"
+            echo "💾 Disk: $(df -h / | tail -1 | awk '{print $4}') available"
+            echo "🧠 Memory: $(free -h | grep Mem | awk '{print $7}') available"
             
-            # Check available system resources before build
-            echo "📊 Pre-build system status:"
-            echo "💾 Disk space:"
-            df -h | head -5
-            echo "🧠 Memory usage:"
-            free -h
-            echo "⚡ CPU load:"
-            uptime
-            
-            # Set Docker build options for better resource management
+            # Enable BuildKit for faster builds
             export DOCKER_BUILDKIT=1
             export COMPOSE_DOCKER_CLI_BUILD=1
             
-            echo "🏗️ Building and starting development containers..."
-            echo "⏰ Using BuildKit and 20-minute timeout to prevent hanging..."
-            echo "📝 Build will be terminated if it hangs..."
-            
-            # Try building images individually first to isolate any hanging issues
-            echo "🔨 Building backend development image..."
-            if ! timeout 600 docker compose build backend-dev; then
-              echo "❌ Backend build failed or timed out after 10 minutes"
-              echo "📋 Backend build logs:"
-              docker compose logs backend-dev || echo "No backend logs available"
+            # Build with aggressive timeout and monitoring
+            echo "🏗️ Starting Docker build with 15-minute hard timeout..."
+            timeout 900 docker compose build --parallel --no-cache backend-dev frontend-dev || {
+              echo "❌ Build timed out or failed after 15 minutes"
+              echo "📋 System status after failed build:"
+              echo "💾 Disk: $(df -h / | tail -1 | awk '{print $4}') available"
+              echo "🧠 Memory: $(free -h | grep Mem | awk '{print $7}') available"
+              echo "🔍 Docker processes:"
+              ps aux | grep -E "(docker|compose)" | grep -v grep || echo "No Docker processes"
               exit 1
-            fi
+            }
             
-            echo "🔨 Building frontend development image..."
-            if ! timeout 600 docker compose build frontend-dev; then
-              echo "❌ Frontend build failed or timed out after 10 minutes"
-              echo "📋 Frontend build logs:"
-              docker compose logs frontend-dev || echo "No frontend logs available"
-              exit 1
-            fi
+            echo "✅ Build completed, starting containers..."
+            COMPOSE_PROFILES=dev docker compose up -d --remove-orphans
             
-            echo "🚀 Starting development containers..."
-            # Start containers without building since we built them individually above
-            if ! timeout 300 docker compose --profile dev up -d --remove-orphans --no-deps; then
-              echo "❌ Container startup failed or timed out after 5 minutes"
-              echo "📋 Checking for any running containers:"
-              docker ps -a
-              echo "📋 Checking Docker daemon status:"
-              sudo systemctl status docker --no-pager
-              echo "📋 Checking system resources:"
-              free -h
-              df -h
-              exit 1
-            fi
-
-            echo "⏳ Waiting for development containers to start..."
+            echo "⏳ Waiting for containers to start..."
             sleep 15
-
-            echo "📊 Development deployment status:"
+            
+            echo "📊 Final deployment status:"
             docker ps
             COMPOSE_PROFILES=dev docker compose ps
-
-            echo "🎉 Development environment rebuild complete at $(date)!"
-            echo "🌐 Development services should be available on dev ports"
+            
+            echo "🎉 Development environment rebuild complete!"
+            echo "🌐 Backend available on port 4000"
+            echo "🌐 Frontend available on port 4001"
+    
