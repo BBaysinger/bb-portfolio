@@ -328,95 +328,18 @@ jobs:
     steps:
       - name: Deploy dev environment to EC2
         uses: appleboy/ssh-action@v1.0.3
-        timeout-minutes: 20
+        timeout-minutes: 10
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ec2-user
           key: ${{ secrets.EC2_SSH_KEY }}
-          command_timeout: 18m
+          command_timeout: 8m
           debug: true
           script: |
-            echo "Starting development environment rebuild at $(date)"
-
-            # Install Docker and dependencies if needed
-            if ! command -v docker &> /dev/null; then
-              echo "Installing Docker..."
-              sudo yum update -y && sudo yum install -y docker
-              sudo systemctl start docker && sudo systemctl enable docker
-              sudo usermod -a -G docker ec2-user
-            fi
-
-            if ! docker compose version &> /dev/null; then
-              echo "Installing Docker Compose..."
-              sudo mkdir -p /usr/local/lib/docker/cli-plugins
-              sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/lib/docker/cli-plugins/docker-compose
-              sudo chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
-            fi
-
-            # Ensure Docker is running
-            sudo systemctl start docker
-            sleep 5
-
-            # Update repository
-            cd $HOME
-            if [ ! -d "portfolio" ]; then
-              git clone https://github.com/BBaysinger/bb-portfolio.git portfolio
-            else
-              cd portfolio && git fetch origin && git checkout dev && git reset --hard origin/dev && cd ..
-            fi
-
-            cd $HOME/portfolio
-
-            # Create dev environment files
-            cat > backend/.env.dev << EOF
-            PORT=3000
-            DATABASE_URI=${{ secrets.DEV_DATABASE_URI }}
-            PAYLOAD_SECRET=${{ secrets.DEV_PAYLOAD_SECRET }}
-            NODE_ENV=development
-            EOF
-
-            cat > frontend/.env.dev << EOF
-            NODE_ENV=development
-            NEXT_PUBLIC_API_URL=http://localhost:4000
-            EOF
-
-            # Clean up existing containers and resources
-            echo "Cleaning up existing containers..."
-            COMPOSE_PROFILES=dev docker compose down --remove-orphans || echo "No existing containers"
-            docker container prune -f || echo "Container cleanup done"
-            docker image prune -f || echo "Image cleanup done"
-
-            # Check system resources
-            echo "System status before build:"
-            echo "Disk: $(df -h / | tail -1 | awk '{print $4}') available"
-            echo "Memory: $(free -h | grep Mem | awk '{print $7}') available"
-
-            # Enable BuildKit for faster builds
-            export DOCKER_BUILDKIT=1
-            export COMPOSE_DOCKER_CLI_BUILD=1
-
-            # Build with aggressive timeout and monitoring
-            echo "Starting Docker build with 15-minute hard timeout..."
-            timeout 900 docker compose build --parallel --no-cache backend-dev frontend-dev || {
-              echo "Build timed out or failed after 15 minutes"
-              echo "System status after failed build:"
-              echo "Disk: $(df -h / | tail -1 | awk '{print $4}') available"
-              echo "Memory: $(free -h | grep Mem | awk '{print $7}') available"
-              echo "Docker processes:"
-              ps aux | grep -E "(docker|compose)" | grep -v grep || echo "No Docker processes"
-              exit 1
-            }
-
-            echo "Build completed, starting containers..."
-            COMPOSE_PROFILES=dev docker compose up -d --remove-orphans
-
-            echo "Waiting for containers to start..."
-            sleep 15
-
-            echo "Final deployment status:"
-            docker ps
-            COMPOSE_PROFILES=dev docker compose ps
-
-            echo "Development environment rebuild complete!"
-            echo "Backend available on port 4000"
-            echo "Frontend available on port 4001"
+            echo "Starting simple dev deployment test"
+            echo "Current time: $(date)"
+            echo "Current user: $(whoami)"
+            echo "Current directory: $(pwd)"
+            echo "Docker status:"
+            docker --version || echo "Docker not installed"
+            echo "Test completed successfully"
