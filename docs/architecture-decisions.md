@@ -290,3 +290,33 @@ healthcheck:
 - **Manual verification**: Not scalable and breaks automation benefits.
 
 **Status:** ✅ Active
+
+---
+
+## 2025-09-18 – Dev Deployment Hanging Issue Resolution
+
+**Decision:** Implement aggressive timeout protection and resource cleanup for dev environment Docker builds on EC2.
+
+**Problem:** Dev deployments were hanging indefinitely during Docker build process, causing GitHub Actions to timeout after 10+ minutes with no progress.
+
+**Solution implemented:**
+- Hard timeout on Docker builds (15 minutes with `timeout 900`)
+- Comprehensive resource cleanup before builds (containers, images, networks, volumes)
+- Enable parallel builds and Docker BuildKit for faster builds
+- Extended GitHub Actions timeouts (job: 25min, SSH: 18min, build: 15min)
+- System resource monitoring (disk/memory) for debugging
+
+**Important note:** During troubleshooting, ECR was mistakenly added to the dev workflow as a potential solution, but this was incorrect since ECR is production-only. The ECR addition was removed and dev deployment returned to building directly on EC2 as originally intended.
+
+**Reasoning:**
+- EC2 resource constraints (disk/memory) can cause builds to hang
+- Corrupted Docker cache can cause infinite loops during builds
+- Proper timeouts prevent indefinite hanging and provide faster feedback
+- Resource cleanup prevents conflicts between deployment attempts
+
+**Alternatives considered:**
+- **ECR for dev deployments**: Rejected - ECR is production-only, adds unnecessary complexity
+- **Separate EC2 for dev builds**: Too expensive for portfolio project
+- **Local builds only**: Loses the benefit of testing deployment pipeline
+
+**Status:** ✅ Active
