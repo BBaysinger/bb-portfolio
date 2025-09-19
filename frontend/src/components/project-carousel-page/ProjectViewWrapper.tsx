@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
+
 import ProjectView from "@/components/project-carousel-page/ProjectView";
-import { getDynamicPathParam } from "@/utils/getDynamicPathParam";
 import { useRouteChange } from "@/hooks/useRouteChange";
+import { getDynamicPathParam } from "@/utils/getDynamicPathParam";
 
 /**
  * Renders the ProjectView statically with a given projectId.

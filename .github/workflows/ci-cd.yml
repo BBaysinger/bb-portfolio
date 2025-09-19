@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      - dev
+      - dev # Enable automatic dev rebuilds
   workflow_dispatch: # allows manual trigger for dev rebuild
 
 jobs:
