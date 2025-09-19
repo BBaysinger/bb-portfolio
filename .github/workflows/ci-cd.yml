@@ -334,6 +334,7 @@ jobs:
           username: ec2-user
           key: ${{ secrets.EC2_SSH_KEY }}
           command_timeout: 18m
+          debug: true
           script: |
             echo "� Starting development environment rebuild at $(date)"
             
