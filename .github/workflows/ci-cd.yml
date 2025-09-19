@@ -124,23 +124,23 @@ jobs:
       # =======================================================================
       - name: Build and push frontend-prod
         run: |
-          echo "🏗️ Building frontend production image..."
+          echo "Building frontend production image..."
           docker build -t frontend:latest ./frontend
           echo "🏷️ Tagging frontend image for ECR..."
           docker tag frontend:latest 778230822028.dkr.ecr.us-west-2.amazonaws.com/portfolio/frontend:latest
           echo "📤 Pushing frontend image to ECR..."
           docker push 778230822028.dkr.ecr.us-west-2.amazonaws.com/portfolio/frontend:latest
-          echo "✅ Frontend image push complete"
+          echo "Frontend image push complete"
 
       - name: Build and push backend-prod
         run: |
-          echo "🏗️ Building backend production image..."
+          echo "Building backend production image..."
           docker build -t backend:latest ./backend
           echo "🏷️ Tagging backend image for ECR..."
           docker tag backend:latest 778230822028.dkr.ecr.us-west-2.amazonaws.com/portfolio/backend:latest
           echo "📤 Pushing backend image to ECR..."
           docker push 778230822028.dkr.ecr.us-west-2.amazonaws.com/portfolio/backend:latest
-          echo "✅ Backend image push complete"
+          echo "Backend image push complete"
 
       # =======================================================================
       # EC2 PRODUCTION DEPLOYMENT
@@ -168,35 +168,35 @@ jobs:
 
             # Install Docker if not present
             if ! command -v docker &> /dev/null; then
-              echo "📦 Installing Docker..."
+              echo "Installing Docker..."
               sudo yum update -y
               sudo yum install -y docker
               sudo systemctl start docker
               sudo systemctl enable docker
               sudo usermod -a -G docker ec2-user
-              echo "✅ Docker installation complete"
+              echo "Docker installation complete"
             else
-              echo "✅ Docker already installed"
+              echo "Docker already installed"
             fi
 
             # Install AWS CLI if not present (required for ECR authentication)
             if ! command -v aws &> /dev/null; then
-              echo "📦 Installing AWS CLI..."
+              echo "Installing AWS CLI..."
               sudo yum install -y awscli
-              echo "✅ AWS CLI installation complete"
+              echo "AWS CLI installation complete"
             else
-              echo "✅ AWS CLI already installed"
+              echo "AWS CLI already installed"
             fi
 
             # Install Docker Compose plugin if not present
             if ! docker compose version &> /dev/null; then
-              echo "📦 Installing Docker Compose..."
+              echo "Installing Docker Compose..."
               sudo mkdir -p /usr/local/lib/docker/cli-plugins
               sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/lib/docker/cli-plugins/docker-compose
               sudo chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
-              echo "✅ Docker Compose installation complete"
+              echo "Docker Compose installation complete"
             else
-              echo "✅ Docker Compose already installed"
+              echo "Docker Compose already installed"
             fi
 
             # ===============================================================
@@ -232,7 +232,7 @@ jobs:
             # Clone or update project repository for docker-compose.yml
             # ===============================================================
             if ! command -v git &> /dev/null; then
-              echo "📦 Installing Git..."
+              echo "Installing Git..."
               sudo yum install -y git
             fi
 
@@ -283,8 +283,8 @@ jobs:
             }
 
             # Deployment status check
-            echo "🔍 Pre-deployment status check..."
-            echo "📊 System resources:"
+            echo "Pre-deployment status check..."
+            echo "System resources:"
             df -h | head -5  # Disk space
             free -h          # Memory usage
             echo "📍 Current user: $(whoami)"
@@ -298,21 +298,21 @@ jobs:
             # ===============================================================
             # Wait for containers to start and validate deployment
             # ===============================================================
-            echo "⏳ Waiting for containers to initialize..."
+            echo "Waiting for containers to initialize..."
             sleep 20
 
-            echo "📋 Checking container logs..."
+            echo "Checking container logs..."
             echo "=== Backend Container Logs ==="
             docker logs portfolio-backend-prod --tail 50 || echo "⚠️ Backend container not found"
 
             echo "=== Frontend Container Logs ==="
             docker logs portfolio-frontend-prod --tail 50 || echo "⚠️ Frontend container not found"
 
-            echo "📊 Final deployment status:"
+            echo "Final deployment status:"
             docker ps
             COMPOSE_PROFILES=prod docker compose ps
 
-            echo "🎉 Production deployment complete at $(date)!"
+            echo "Production deployment complete at $(date)!"
 
   # ==========================================================================
   # DEVELOPMENT REBUILD JOB - SIMPLE EC2 BUILD
@@ -340,14 +340,14 @@ jobs:
 
             # Install Docker and dependencies if needed
             if ! command -v docker &> /dev/null; then
-              echo "📦 Installing Docker..."
+              echo "Installing Docker..."
               sudo yum update -y && sudo yum install -y docker
               sudo systemctl start docker && sudo systemctl enable docker
               sudo usermod -a -G docker ec2-user
             fi
 
             if ! docker compose version &> /dev/null; then
-              echo "� Installing Docker Compose..."
+              echo "Installing Docker Compose..."
               sudo mkdir -p /usr/local/lib/docker/cli-plugins
               sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/lib/docker/cli-plugins/docker-compose
               sudo chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
@@ -381,42 +381,42 @@ jobs:
             EOF
 
             # Clean up existing containers and resources
-            echo "🧹 Cleaning up existing containers..."
+            echo "Cleaning up existing containers..."
             COMPOSE_PROFILES=dev docker compose down --remove-orphans || echo "No existing containers"
             docker container prune -f || echo "Container cleanup done"
             docker image prune -f || echo "Image cleanup done"
 
             # Check system resources
-            echo "📊 System status before build:"
-            echo "💾 Disk: $(df -h / | tail -1 | awk '{print $4}') available"
-            echo "🧠 Memory: $(free -h | grep Mem | awk '{print $7}') available"
+            echo "System status before build:"
+            echo "Disk: $(df -h / | tail -1 | awk '{print $4}') available"
+            echo "Memory: $(free -h | grep Mem | awk '{print $7}') available"
 
             # Enable BuildKit for faster builds
             export DOCKER_BUILDKIT=1
             export COMPOSE_DOCKER_CLI_BUILD=1
 
             # Build with aggressive timeout and monitoring
-            echo "🏗️ Starting Docker build with 15-minute hard timeout..."
+            echo "Starting Docker build with 15-minute hard timeout..."
             timeout 900 docker compose build --parallel --no-cache backend-dev frontend-dev || {
-              echo "❌ Build timed out or failed after 15 minutes"
-              echo "📋 System status after failed build:"
-              echo "💾 Disk: $(df -h / | tail -1 | awk '{print $4}') available"
-              echo "🧠 Memory: $(free -h | grep Mem | awk '{print $7}') available"
-              echo "🔍 Docker processes:"
+              echo "Build timed out or failed after 15 minutes"
+              echo "System status after failed build:"
+              echo "Disk: $(df -h / | tail -1 | awk '{print $4}') available"
+              echo "Memory: $(free -h | grep Mem | awk '{print $7}') available"
+              echo "Docker processes:"
               ps aux | grep -E "(docker|compose)" | grep -v grep || echo "No Docker processes"
               exit 1
             }
 
-            echo "✅ Build completed, starting containers..."
+            echo "Build completed, starting containers..."
             COMPOSE_PROFILES=dev docker compose up -d --remove-orphans
 
-            echo "⏳ Waiting for containers to start..."
+            echo "Waiting for containers to start..."
             sleep 15
 
-            echo "📊 Final deployment status:"
+            echo "Final deployment status:"
             docker ps
             COMPOSE_PROFILES=dev docker compose ps
 
-            echo "🎉 Development environment rebuild complete!"
-            echo "🌐 Backend available on port 4000"
-            echo "🌐 Frontend available on port 4001"
+            echo "Development environment rebuild complete!"
+            echo "Backend available on port 4000"
+            echo "Frontend available on port 4001"
