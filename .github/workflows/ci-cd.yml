@@ -336,7 +336,7 @@ jobs:
           command_timeout: 18m
           debug: true
           script: |
-            echo "� Starting development environment rebuild at $(date)"
+            echo "Starting development environment rebuild at $(date)"
 
             # Install Docker and dependencies if needed
             if ! command -v docker &> /dev/null; then
