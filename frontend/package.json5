@@ -19,6 +19,8 @@
     "lint": "next lint",
     // "Pretty Build" - format code with Prettier then run TypeScript build for validation
     "pb": "prettier --write . && tsc -b",
+    // Come back to this when there's time to write some tests.
+    "test": "echo 'TODO: Add test scripts'",
   },
   // Runtime dependencies for the frontend application
   "dependencies": {

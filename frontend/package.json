@@ -8,7 +8,8 @@
     "preview": "npx serve out",
     "start": "next start",
     "lint": "next lint",
-    "pb": "prettier --write . && tsc -b"
+    "pb": "prettier --write . && tsc -b",
+    "test": "echo 'TODO: Add test scripts'"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.9.0",
