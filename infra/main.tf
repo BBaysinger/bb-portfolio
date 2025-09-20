@@ -67,12 +67,12 @@ resource "aws_iam_instance_profile" "ssm_profile" {
 
 # Elastic IP
 resource "aws_eip" "portfolio_ip" {
-  vpc = true
+  # Nothing else needed, defaults to VPC
 }
 
 # EC2 Instance
 resource "aws_instance" "portfolio" {
-  ami           = "ami-xxxxxxxx" # Amazon Linux 2023 AMI ID for us-west-2
+  ami           = "ami-0cf2b4e024cdb6960" # Amazon Linux 2023 AMI ID for us-west-2
   instance_type = "t3.micro"
   key_name      = "bb-portfolio-website-key" # must exist in AWS console
 
@@ -103,4 +103,9 @@ output "portfolio_instance_ip" {
 
 output "portfolio_elastic_ip" {
   value = aws_eip.portfolio_ip.public_ip
+}
+
+resource "aws_eip_association" "portfolio_assoc" {
+  instance_id   = aws_instance.portfolio.id
+  allocation_id = aws_eip.portfolio_ip.id
 }
