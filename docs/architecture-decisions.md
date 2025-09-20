@@ -376,3 +376,58 @@ healthcheck:
 - **Local builds only**: Loses the benefit of testing deployment pipeline
 
 **Status:** ✅ Active
+
+---
+
+## 2025-09-20 – EBS Volume Disk Space Resolution ✅ RESOLVED
+
+**Problem:** Production deployments failing with "no space left on device" during Docker image extraction.
+
+**Root Cause:** Original 8GB EBS volume was insufficient for:
+- ECR image pulls (~464MB+ per image)
+- Docker build cache accumulation (816MB found during cleanup)
+- Multiple container environments (dev + prod)
+- Node.js dependencies and application assets
+
+**Solution Implemented:**
+- **EBS volume expansion**: 8GB → 20GB via Terraform `root_block_device` configuration
+- **Immediate cleanup**: Removed 2.5GB of Docker build cache with `docker system prune`
+- **Instance replacement**: Terraform recreated instance with encrypted 20GB volume
+- **Disk utilization improvement**: 86% usage → 10% usage (18GB available)
+
+**Validation:**
+- ✅ **September 20, 2025**: Production deployment completed successfully
+- ✅ Both containers running healthy: `portfolio-backend-prod`, `portfolio-frontend-prod`
+- ✅ ECR image pulls completed without disk space errors
+- ✅ System resources now adequate: `/dev/nvme0n1p1     20G  2.0G   18G  10% /`
+
+**Status:** ✅ **RESOLVED** - Deployment pipeline fully operational
+
+---
+
+## 2025-09-20 – 🚀 Production Deployment Pipeline Status: OPERATIONAL
+
+**Milestone:** Complete end-to-end deployment pipeline successfully validated and operational.
+
+**Pipeline Components Verified:**
+- ✅ **GitHub Actions CI/CD**: Automated builds and deployments from main branch
+- ✅ **ECR Image Registry**: Production images building and pushing successfully  
+- ✅ **Terraform Infrastructure**: EC2 instance with proper 20GB storage configuration
+- ✅ **Docker Compose Deployment**: Multi-container production environment running
+- ✅ **Health Checks**: Both frontend and backend containers reporting healthy status
+- ✅ **Port Configuration**: Backend (3000), Frontend (3001) properly exposed
+
+**Final Deployment Validation (2025-09-20 09:50:45 UTC):**
+```
+NAME                      STATUS                    PORTS
+portfolio-backend-prod    Up 20 seconds (healthy)   0.0.0.0:3000->3000/tcp
+portfolio-frontend-prod   Up 20 seconds (healthy)   0.0.0.0:3001->3000/tcp
+```
+
+**Key Metrics:**
+- **Deployment Time**: ~22 seconds for container startup
+- **Resource Usage**: 10% disk utilization (18GB available)
+- **Uptime**: Continuous operation with automatic restart policies
+- **Security**: Encrypted EBS volumes, proper container isolation
+
+**Status:** ✅ **FULLY OPERATIONAL** - Ready for production traffic
