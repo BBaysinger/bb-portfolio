@@ -283,7 +283,7 @@ jobs:
             # Pull latest images and deploy with zero-downtime strategy
             # ===============================================================
             echo "⬇️ Pulling latest production images..."
-            COMPOSE_PROFILES=prod docker compose pull || {
+            sudo COMPOSE_PROFILES=prod docker compose pull || {
               echo "⚠️ Failed to pull images. Continuing with existing images..."
             }
 
@@ -296,7 +296,7 @@ jobs:
             echo "📁 Working directory: $(pwd)"
 
             echo "🚀 Starting production deployment..."
-            COMPOSE_PROFILES=prod docker compose up -d
+            sudo COMPOSE_PROFILES=prod docker compose up -d
 
             # ===============================================================
             # HEALTH CHECKS AND VALIDATION
@@ -308,14 +308,14 @@ jobs:
 
             echo "Checking container logs..."
             echo "=== Backend Container Logs ==="
-            docker logs portfolio-backend-prod --tail 50 || echo "⚠️ Backend container not found"
+            sudo docker logs portfolio-backend-prod --tail 50 || echo "⚠️ Backend container not found"
 
             echo "=== Frontend Container Logs ==="
-            docker logs portfolio-frontend-prod --tail 50 || echo "⚠️ Frontend container not found"
+            sudo docker logs portfolio-frontend-prod --tail 50 || echo "⚠️ Frontend container not found"
 
             echo "Final deployment status:"
-            docker ps
-            COMPOSE_PROFILES=prod docker compose ps
+            sudo docker ps
+            sudo COMPOSE_PROFILES=prod docker compose ps
 
             echo "Production deployment complete at $(date)!"
 
@@ -426,15 +426,15 @@ jobs:
             # =============================================================
             echo "Starting container deployment..."
             echo "Current directory: $(pwd)"
-            echo "Docker Compose version: $(docker compose version)"
+            echo "Docker Compose version: $(sudo docker compose version)"
 
             echo "Building and starting development containers..."
             echo "⚠️  Note: Docker builds may be slow on t3.micro instances"
             
-            # Try building with timeout
-            timeout 600 COMPOSE_PROFILES=dev docker compose up -d --build || {
+            # Try building with timeout (use sudo for Docker commands)
+            timeout 600 sudo COMPOSE_PROFILES=dev docker compose up -d --build || {
               echo "Build timed out or failed, trying without --build flag..."
-              COMPOSE_PROFILES=dev docker compose up -d
+              sudo COMPOSE_PROFILES=dev docker compose up -d
             }
 
             echo "Development environment rebuild complete!"
@@ -442,4 +442,4 @@ jobs:
             echo "Frontend available on port 4001"
 
             echo "Container status:"
-            docker ps
+            sudo docker ps
