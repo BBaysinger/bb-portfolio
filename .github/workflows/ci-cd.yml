@@ -429,7 +429,7 @@ jobs:
             echo "Docker Compose version: $(sudo docker compose version)"
 
             echo "Building and starting development containers..."
-            echo "⚠️  Note: Docker builds may be slow on t3.micro instances"
+            echo "⚠️  Note: Docker builds may take a few minutes on t3.small instances"
             
             # Try building with timeout (use sudo for Docker commands)
             timeout 600 sudo COMPOSE_PROFILES=dev docker compose up -d --build || {
