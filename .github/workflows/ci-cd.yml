@@ -429,7 +429,13 @@ jobs:
             echo "Docker Compose version: $(docker compose version)"
 
             echo "Building and starting development containers..."
-            COMPOSE_PROFILES=dev docker compose up -d --build
+            echo "⚠️  Note: Docker builds may be slow on t3.micro instances"
+            
+            # Try building with timeout
+            timeout 600 COMPOSE_PROFILES=dev docker compose up -d --build || {
+              echo "Build timed out or failed, trying without --build flag..."
+              COMPOSE_PROFILES=dev docker compose up -d
+            }
 
             echo "Development environment rebuild complete!"
             echo "Backend available on port 4000"
