@@ -299,6 +299,53 @@ healthcheck:
 
 ---
 
+## 2025-09-20 – Infrastructure as Code with Terraform
+
+**Decision:** Adopt **Terraform** for AWS infrastructure management instead of manual AWS Console configuration.
+
+**Reasoning:**
+
+- **Version control**: Infrastructure changes are tracked in git alongside application code.
+- **Reproducibility**: Entire infrastructure can be recreated consistently across environments.
+- **Documentation**: Terraform files serve as living documentation of infrastructure state.
+- **Professional practices**: Demonstrates modern DevOps workflow and Infrastructure as Code principles.
+- **Collaboration**: Team members can review infrastructure changes via pull requests.
+- **Disaster recovery**: Complete infrastructure rebuild possible from code repository.
+
+**Alternatives considered:**
+
+- **AWS CDK**: More programmatic but adds complexity for simple infrastructure needs.
+- **CloudFormation**: AWS-native but verbose YAML/JSON syntax is harder to maintain.
+- **Manual AWS Console**: Quick for prototyping but not scalable, no version control, prone to drift.
+- **Pulumi**: Modern IaC but adds another language/toolchain for a simple portfolio project.
+
+**Status:** ✅ Active
+
+---
+
+## 2025-09-20 – EC2 Instance Type Upgrade
+
+**Decision:** Upgrade from **t3.micro** to **t3.small** for the production EC2 instance.
+
+**Reasoning:**
+
+- **Performance requirements**: Running both frontend and backend containers simultaneously requires more resources.
+- **Memory constraints**: t3.micro (1GB RAM) was insufficient for Docker Compose with multiple services.
+- **Build performance**: Larger instance handles Docker builds and deployments more reliably.
+- **Cost vs. stability**: t3.small (~$15/month vs ~$8/month) provides better reliability for minimal cost increase.
+- **Headroom**: Additional resources prevent resource exhaustion during deployments and traffic spikes.
+
+**Alternatives considered:**
+
+- **t3.micro**: Too limited for multi-container deployment, frequent resource exhaustion.
+- **t3.medium**: Overkill for portfolio project scale, doubles cost compared to t3.small.
+- **Spot instances**: Cheaper but unreliable for always-on portfolio site.
+- **Container optimization**: Would require significant architecture changes to reduce resource needs.
+
+**Status:** ✅ Active
+
+---
+
 ## 2025-09-18 – Dev Deployment Hanging Issue Resolution
 
 **Decision:** Implement aggressive timeout protection and resource cleanup for dev environment Docker builds on EC2.
