@@ -373,7 +373,7 @@ jobs:
 
             # Modern Docker includes compose as a plugin, no need to install separately
             echo "Docker Compose is included with Docker installation"
-            
+
             # =============================================================
             # DOCKER SERVICE PREPARATION
             # =============================================================
