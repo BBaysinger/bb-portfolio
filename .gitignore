@@ -75,3 +75,25 @@ backend/brand-logos/
 backend/client-logos/
 backend/project-screenshots/
 backend/project-thumbnails/
+
+# ─────────────────────────────────────────────
+# Terraform
+# ─────────────────────────────────────────────
+
+# Terraform state
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+
+# Local overrides
+terraform.tfvars
+*.tfvars.json
+
+# Crash logs
+crash.log
+crash.*.log
+
+# CLI config
+.terraformrc
+terraform.rc

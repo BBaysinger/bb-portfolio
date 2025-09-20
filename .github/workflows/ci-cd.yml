@@ -372,20 +372,26 @@ jobs:
             fi
 
             # Modern Docker includes compose as a plugin, no need to install separately
-            echo "Docker Compose is included with Docker installation"            # =============================================================
+            echo "Docker Compose is included with Docker installation"
+            
+            # =============================================================
             # DOCKER SERVICE PREPARATION
             # =============================================================
             # Ensure Docker daemon is running and ready
             # =============================================================
+            echo "Preparing Docker services..."
             sudo systemctl daemon-reload
             sudo systemctl start docker
             sudo systemctl enable docker
 
             # Wait for docker to be ready
+            echo "Waiting for Docker to be ready..."
             sleep 5
 
             # Verify docker is working
+            echo "Verifying Docker installation..."
             sudo docker --version
+            echo "Docker verification complete"
 
             # =============================================================
             # ENVIRONMENT CONFIGURATION
