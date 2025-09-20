@@ -74,7 +74,7 @@ resource "aws_eip" "portfolio_ip" {
 resource "aws_instance" "portfolio" {
   ami           = "ami-0cf2b4e024cdb6960" # Amazon Linux 2023 AMI ID for us-west-2
   instance_type = "t3.micro"
-  key_name      = "bb-portfolio-website-key" # must exist in AWS console
+  key_name      = "bb-portfolio-site-key" # must exist in AWS console
 
   vpc_security_group_ids = [aws_security_group.portfolio_sg.id]
   iam_instance_profile   = aws_iam_instance_profile.ssm_profile.name
