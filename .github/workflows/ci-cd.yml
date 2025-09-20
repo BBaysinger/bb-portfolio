@@ -264,7 +264,7 @@ jobs:
           
           # Execute development rebuild via Session Manager
           COMMAND_ID=$(aws ssm send-command \
-            --instance-ids "i-05b77fe5e091dad62" \
+            --instance-ids "i-02ac398ee126a3366" \
             --document-name "AWS-RunShellScript" \
             --parameters 'commands=[
               "#!/bin/bash",
@@ -288,7 +288,7 @@ jobs:
               "if ! command -v docker &> /dev/null; then",
               "  echo \"Installing Docker...\"",
               "  sudo yum update -y",
-              "  sudo yum install -y docker",
+              "  sudo yum install -y docker git",
               "  sudo systemctl start docker",
               "  sudo systemctl enable docker",
               "  sudo usermod -a -G docker ec2-user",
@@ -322,7 +322,7 @@ jobs:
           for i in {1..60}; do
             STATUS=$(aws ssm get-command-invocation \
               --command-id "$COMMAND_ID" \
-              --instance-id "i-05b77fe5e091dad62" \
+              --instance-id "i-02ac398ee126a3366" \
               --region us-west-2 \
               --query 'Status' --output text 2>/dev/null || echo "InProgress")
             
@@ -332,7 +332,7 @@ jobs:
               echo "✅ Development rebuild completed successfully!"
               aws ssm get-command-invocation \
                 --command-id "$COMMAND_ID" \
-                --instance-id "i-05b77fe5e091dad62" \
+                --instance-id "i-02ac398ee126a3366" \
                 --region us-west-2 \
                 --query 'StandardOutputContent' \
                 --output text
@@ -341,7 +341,7 @@ jobs:
               echo "❌ Development rebuild failed!"
               aws ssm get-command-invocation \
                 --command-id "$COMMAND_ID" \
-                --instance-id "i-05b77fe5e091dad62" \
+                --instance-id "i-02ac398ee126a3366" \
                 --region us-west-2 \
                 --query 'StandardErrorContent' \
                 --output text

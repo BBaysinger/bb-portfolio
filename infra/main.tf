@@ -72,7 +72,7 @@ resource "aws_eip" "portfolio_ip" {
 
 # EC2 Instance
 resource "aws_instance" "portfolio" {
-  ami           = "ami-0cf2b4e024cdb6960" # Amazon Linux 2023 AMI ID for us-west-2
+  ami           = "ami-06a974f9b8a97ecf2" # Amazon Linux 2023 AMI ID for us-west-2 (2023.8.20250915.0)
   instance_type = "t3.micro"
   key_name      = "bb-portfolio-site-key" # must exist in AWS console
 
