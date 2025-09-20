@@ -81,6 +81,19 @@ resource "aws_instance" "portfolio" {
 
   associate_public_ip_address = true
 
+  # EBS Root Volume Configuration
+  root_block_device {
+    volume_type = "gp3"      # General Purpose SSD v3 (latest generation)
+    volume_size = 20         # 20GB storage
+    encrypted   = true       # Encrypt the volume for security
+    throughput  = 125        # MB/s (default for gp3)
+    iops        = 3000       # IOPS (default for gp3)
+    
+    tags = {
+      Name = "bb-portfolio-root-volume"
+    }
+  }
+
   user_data = <<-EOF
     #!/bin/bash
     yum update -y
