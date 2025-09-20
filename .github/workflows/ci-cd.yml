@@ -141,23 +141,21 @@ jobs:
             sudo yum install -y awscli
           fi
           
-          # Setup repository
-          cd $HOME
-          if [ ! -d "portfolio" ]; then
-            echo "📥 Cloning repository..."
-            git clone https://github.com/BBaysinger/bb-portfolio.git portfolio
-          else
-            echo "🔄 Updating existing repository..."
-            cd portfolio
-            git fetch origin
-            git checkout main
-            git reset --hard origin/main
-            cd ..
-          fi
-          
-          cd ~/portfolio
-          
-          # Create production environment files
+            # Setup repository
+            cd /home/ec2-user
+            if [ ! -d "portfolio" ]; then
+              echo "📥 Cloning repository..."
+              git clone https://github.com/BBaysinger/bb-portfolio.git portfolio
+            else
+              echo "🔄 Updating existing repository..."
+              cd portfolio
+              git fetch origin
+              git checkout main
+              git reset --hard origin/main
+              cd ..
+            fi
+            
+            cd /home/ec2-user/portfolio          # Create production environment files
           cat > backend/.env.prod << ENV_EOF
           PORT=3000
           DATABASE_URI=$DATABASE_URI
@@ -272,7 +270,7 @@ jobs:
               "#!/bin/bash",
               "set -e",
               "echo \"🔄 Development rebuild started at $(date)\"",
-              "cd $HOME",
+              "cd /home/ec2-user",
               "if [ ! -d \"portfolio\" ]; then",
               "  echo \"📥 Cloning repository...\"",
               "  git clone https://github.com/BBaysinger/bb-portfolio.git portfolio",
@@ -294,7 +292,7 @@ jobs:
               "fi",
               "sudo systemctl start docker",
               "sleep 5",
-              "cd $HOME/portfolio",
+              "cd /home/ec2-user/portfolio",
               "echo \"Creating development environment files...\"",
               "cat > backend/.env.dev << EOF",
               "PORT=3000",
