@@ -12,21 +12,30 @@
   //   "backend"
   // ],
   "scripts": {
-    // 🔧 Run Prettier + build both Docker images (frontend & backend)
-    // Use this as your "one command to prep everything" before deployment.
-    "build:all": "npm run format && npm run docker:build:frontend && npm run docker:build:backend",
-    // 🐳 Build backend Docker image
-    // Tags the resulting image as `bb-backend` using Dockerfile inside ./backend
-    "docker:build:backend": "docker build -t bb-backend ./backend",
-    // 🐳 Build frontend Docker image
-    // Tags the resulting image as `bb-frontend` using Dockerfile inside ./frontend
-    "docker:build:frontend": "docker build -t bb-frontend ./frontend",
-    // ▶️ Run backend Docker container locally
-    // Maps to port 3000 and uses .env file for environment variables
-    "docker:run:backend": "docker run -p 3000:3000 --env-file ./backend/.env bb-backend",
-    // ▶️ Run frontend Docker container locally
-    // Maps to port 3000 and uses .env file for environment variables
-    "docker:run:frontend": "docker run -p 3000:3000 --env-file ./frontend/.env bb-frontend",
+    // Use this as your "one command to build everything (without Docker)" for local development/production builds.
+    "build:all": "npm run format && concurrently \"npm run build:backend\" \"npm run build:frontend\" --names \"backend,frontend\" --prefix-colors \"blue,green\"",
+    // 🔧 Build backend (Payload CMS + Next.js) locally for production
+    // Creates optimized production build with static pages and API routes
+    "build:backend": "cd backend && npm run build",
+    // 🔧 Build frontend (Next.js) locally for production
+    // Creates optimized static build with pre-rendered pages and client bundles
+    "build:frontend": "cd frontend && npm run build",
+    // 🐳 Build both frontend and backend Docker images using docker-compose local profile
+    // Uses the local profile which includes development-optimized builds with hot reload
+    "docker:build": "COMPOSE_PROFILES=local docker compose build",
+    // ▶️ Start both frontend and backend containers with docker-compose (with build)
+    // Frontend runs on http://localhost:5051, Backend on http://localhost:5050
+    // Includes volume mounts for hot reload and file watching
+    "docker:up": "COMPOSE_PROFILES=local docker compose up --build",
+    // ▶️ Start containers in detached mode (runs in background)
+    // Same as docker:up but doesn't block the terminal - runs containers in background
+    "docker:up:detached": "COMPOSE_PROFILES=local docker compose up --build -d",
+    // 🛑 Stop and remove all local development containers
+    // Cleans up containers, networks, and anonymous volumes created by docker:up
+    "docker:down": "COMPOSE_PROFILES=local docker compose down",
+    // 📋 Follow logs from both frontend and backend containers in real-time
+    // Useful when running in detached mode to see what's happening
+    "docker:logs": "COMPOSE_PROFILES=local docker compose logs -f",
     // 🚀 Default dev command - runs both frontend and backend locally (without Docker)
     // Alias for dev:all to provide a simple "npm run dev" experience
     "dev": "npm run dev:all",
