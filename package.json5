@@ -27,6 +27,23 @@
     // ▶️ Run frontend Docker container locally
     // Maps to port 3000 and uses .env file for environment variables
     "docker:run:frontend": "docker run -p 3000:3000 --env-file ./frontend/.env bb-frontend",
+    // 🚀 Default dev command - runs both frontend and backend locally (without Docker)
+    // Alias for dev:all to provide a simple "npm run dev" experience
+    "dev": "npm run dev:all",
+    // 🎯 Run both frontend and backend in same terminal with colored output
+    // Uses concurrently to show logs from both services with blue/green prefixes
+    // Great for seeing everything at once, but logs can get mixed
+    "dev:all": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\" --names \"backend,frontend\" --prefix-colors \"blue,green\"",
+    // 📱 Run frontend and backend in separate macOS Terminal tabs
+    // Uses AppleScript to spawn new Terminal tabs for clean, separated logs
+    // Perfect for managing services independently (macOS only)
+    "dev:tabs": "osascript -e 'tell application \"Terminal\" to do script \"cd \\\"$(pwd)/backend\\\" && npm run dev\"' && osascript -e 'tell application \"Terminal\" to do script \"cd \\\"$(pwd)/frontend\\\" && npm run dev\"'",
+    // ⚙️ Run only the backend service locally (Payload CMS + API)
+    // Connects to portfolio-local MongoDB database via .env.local
+    "dev:backend": "cd backend && npm run dev",
+    // 🎨 Run only the frontend service locally (Next.js with hot reload)
+    // Serves the React frontend with automatic reloading on file changes
+    "dev:frontend": "cd frontend && npm run dev",
     // 💅 Format all files with Prettier
     // Ensures consistent code style across the entire monorepo
     "format": "prettier --write .",
@@ -45,6 +62,9 @@
   "devDependencies": {
     // TypeScript definitions for glob package
     "@types/glob": "^9.0.0",
+    // Run multiple commands simultaneously with colored output (used in dev:all script)
+    // Enables running frontend and backend together in same terminal
+    "concurrently": "^9.1.0",
     // JavaScript/TypeScript linting engine (v9 for latest rules)
     "eslint": "^9.35.0",
     // File pattern matching utility (used in build scripts)

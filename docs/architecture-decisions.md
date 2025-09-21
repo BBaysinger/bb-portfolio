@@ -384,18 +384,21 @@ healthcheck:
 **Problem:** Production deployments failing with "no space left on device" during Docker image extraction.
 
 **Root Cause:** Original 8GB EBS volume was insufficient for:
+
 - ECR image pulls (~464MB+ per image)
 - Docker build cache accumulation (816MB found during cleanup)
 - Multiple container environments (dev + prod)
 - Node.js dependencies and application assets
 
 **Solution Implemented:**
+
 - **EBS volume expansion**: 8GB → 20GB via Terraform `root_block_device` configuration
 - **Immediate cleanup**: Removed 2.5GB of Docker build cache with `docker system prune`
 - **Instance replacement**: Terraform recreated instance with encrypted 20GB volume
 - **Disk utilization improvement**: 86% usage → 10% usage (18GB available)
 
 **Validation:**
+
 - ✅ **September 20, 2025**: Production deployment completed successfully
 - ✅ Both containers running healthy: `portfolio-backend-prod`, `portfolio-frontend-prod`
 - ✅ ECR image pulls completed without disk space errors
@@ -410,14 +413,16 @@ healthcheck:
 **Milestone:** Complete end-to-end deployment pipeline successfully validated and operational.
 
 **Pipeline Components Verified:**
+
 - ✅ **GitHub Actions CI/CD**: Automated builds and deployments from main branch
-- ✅ **ECR Image Registry**: Production images building and pushing successfully  
+- ✅ **ECR Image Registry**: Production images building and pushing successfully
 - ✅ **Terraform Infrastructure**: EC2 instance with proper 20GB storage configuration
 - ✅ **Docker Compose Deployment**: Multi-container production environment running
 - ✅ **Health Checks**: Both frontend and backend containers reporting healthy status
 - ✅ **Port Configuration**: Backend (3000), Frontend (3001) properly exposed
 
 **Final Deployment Validation (2025-09-20 09:50:45 UTC):**
+
 ```
 NAME                      STATUS                    PORTS
 portfolio-backend-prod    Up 20 seconds (healthy)   0.0.0.0:3000->3000/tcp
@@ -425,9 +430,66 @@ portfolio-frontend-prod   Up 20 seconds (healthy)   0.0.0.0:3001->3000/tcp
 ```
 
 **Key Metrics:**
+
 - **Deployment Time**: ~22 seconds for container startup
 - **Resource Usage**: 10% disk utilization (18GB available)
 - **Uptime**: Continuous operation with automatic restart policies
 - **Security**: Encrypted EBS volumes, proper container isolation
 
 **Status:** ✅ **FULLY OPERATIONAL** - Ready for production traffic
+
+---
+
+## 2025-09-20 – Data & Asset Management Strategy
+
+**Decision:** Use **environment-specific databases and S3 buckets** for complete isolation across local, dev, and production environments.
+
+**Database Strategy (MongoDB Atlas):**
+
+- **Separate databases** within single Atlas cluster:
+  - `bb-portfolio-local` - Local development
+  - `bb-portfolio-dev` - EC2 development
+  - `bb-portfolio-prod` - EC2 production
+- **Benefits**: Complete data isolation, safe experimentation, cost-effective shared cluster
+- **Configuration**: Environment-specific `DATABASE_URI` in each `.env` file
+
+**Asset Storage Strategy (AWS S3):**
+
+- **Separate S3 buckets** per environment:
+  - `bb-portfolio-assets-local` - Local development uploads
+  - `bb-portfolio-assets-dev` - EC2 development uploads
+  - `bb-portfolio-assets-prod` - EC2 production uploads
+- **Payload Integration**: Use `@payloadcms/storage-s3` with dynamic bucket naming based on `ENV_PROFILE`
+- **Organization**: Environment-specific prefixes (screenshots, thumbnails, brand-logos)
+
+**Environment Configuration:**
+
+```bash
+# Local/Docker Local
+ENV_PROFILE=local
+DATABASE_URI=mongodb+srv://user:pass@cluster.mongodb.net/bb-portfolio-local
+
+# EC2 Development
+ENV_PROFILE=dev
+DATABASE_URI=mongodb+srv://user:pass@cluster.mongodb.net/bb-portfolio-dev
+
+# EC2 Production
+ENV_PROFILE=prod
+DATABASE_URI=mongodb+srv://user:pass@cluster.mongodb.net/bb-portfolio-prod
+```
+
+**Reasoning:**
+
+- **Data Isolation**: Prevents dev changes from affecting production
+- **Asset Organization**: Clean separation of uploaded media per environment
+- **Cost Optimization**: Single Atlas cluster with multiple databases is more cost-effective than separate clusters
+- **Development Safety**: Developers can safely test data changes and uploads
+- **Production Integrity**: Production data and assets remain untouched during development
+
+**Alternatives considered:**
+
+- **Shared database with environment prefixes**: Less clean, potential for data contamination
+- **Single S3 bucket with folder structure**: Possible but separate buckets provide better isolation
+- **Local file storage for development**: Inconsistent with production, harder to test cloud integration
+
+**Status:** ✅ Active
