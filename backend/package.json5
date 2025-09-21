@@ -50,6 +50,7 @@
     "@payloadcms/payload-cloud": "3.55.1",
     // Rich text editor using Lexical (modern alternative to Slate)
     "@payloadcms/richtext-lexical": "3.55.1",
+    "@payloadcms/storage-s3": "^3.56.0",
     // Payload's core UI components
     "@payloadcms/ui": "3.55.1",
     // Cross-platform environment variable setting (Windows/Unix compatibility)
@@ -81,14 +82,14 @@
     "@testing-library/react": "16.3.0",
     // Express.js TypeScript definitions
     "@types/express": "^5.0.3",
-    // Vite React plugin (enables React support in Vitest)
-    "@vitejs/plugin-react": "4.7.0",
     // Node.js TypeScript definitions (latest for Node 18+)
     "@types/node": "^24.5.0",
     // React 19 types
     "@types/react": "19.1.13",
     // React DOM 19 types
     "@types/react-dom": "19.1.9",
+    // Vite React plugin (enables React support in Vitest)
+    "@vitejs/plugin-react": "4.7.0",
     // ESLint JavaScript/TypeScript linter (v9 for latest rules)
     "eslint": "^9.35.0",
     // Next.js ESLint configuration (includes React and accessibility rules)
