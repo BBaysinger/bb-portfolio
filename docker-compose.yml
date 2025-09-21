@@ -119,10 +119,7 @@ services:
 
   backend-dev:
     profiles: ["dev"] # Only runs with COMPOSE_PROFILES=dev
-    build:
-      context: ./backend # Build from backend directory
-      dockerfile: Dockerfile # Uses production build (default stage)
-    image: portfolio-backend-dev # Tagged image name
+    image: bhbaysinger/portfolio-backend:dev # Pre-built image from Docker Hub
     container_name: portfolio-backend-dev
     ports:
       - "4000:3000" # Different port to avoid prod conflicts
@@ -132,10 +129,7 @@ services:
 
   frontend-dev:
     profiles: ["dev"] # Only runs with COMPOSE_PROFILES=dev
-    build:
-      context: ./frontend # Build from frontend directory
-      dockerfile: Dockerfile # Uses production build (default stage)
-    image: portfolio-frontend-dev # Tagged image name
+    image: bhbaysinger/portfolio-frontend:dev # Pre-built image from Docker Hub
     container_name: portfolio-frontend-dev
     ports:
       - "4001:3000" # Different port to avoid prod conflicts
