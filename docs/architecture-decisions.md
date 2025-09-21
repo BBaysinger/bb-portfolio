@@ -467,15 +467,15 @@ portfolio-frontend-prod   Up 20 seconds (healthy)   0.0.0.0:3001->3000/tcp
 ```bash
 # Local/Docker Local
 ENV_PROFILE=local
-DATABASE_URI=mongodb+srv://user:pass@cluster.mongodb.net/bb-portfolio-local
+DATABASE_URI=mongodb+srv://USERNAME:PASSWORD@CLUSTER.mongodb.net/bb-portfolio-local
 
 # EC2 Development
 ENV_PROFILE=dev
-DATABASE_URI=mongodb+srv://user:pass@cluster.mongodb.net/bb-portfolio-dev
+DATABASE_URI=mongodb+srv://USERNAME:PASSWORD@CLUSTER.mongodb.net/bb-portfolio-dev
 
 # EC2 Production
 ENV_PROFILE=prod
-DATABASE_URI=mongodb+srv://user:pass@cluster.mongodb.net/bb-portfolio-prod
+DATABASE_URI=mongodb+srv://USERNAME:PASSWORD@CLUSTER.mongodb.net/bb-portfolio-prod
 ```
 
 **Reasoning:**
