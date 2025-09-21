@@ -8,8 +8,8 @@ on:
 
 env:
   REGISTRY: docker.io
-  FRONTEND_IMAGE_NAME: bbaysinger/portfolio-frontend
-  BACKEND_IMAGE_NAME: bbaysinger/portfolio-backend
+  FRONTEND_IMAGE_NAME: bhbaysinger/portfolio-frontend
+  BACKEND_IMAGE_NAME: bhbaysinger/portfolio-backend
 
 jobs:
   build-and-push:
