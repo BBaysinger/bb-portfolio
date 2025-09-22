@@ -46,7 +46,18 @@ export default [
 
       "react-refresh/only-export-components": [
         "warn",
-        { allowConstantExport: true },
+        {
+          allowConstantExport: true,
+          allowExportNames: [
+            "metadata",
+            "generateMetadata",
+            "generateStaticParams",
+            "generateViewport",
+            "useAuth",
+            "useUser",
+            "useTheme",
+          ],
+        },
       ],
 
       "@typescript-eslint/no-unused-vars": [
