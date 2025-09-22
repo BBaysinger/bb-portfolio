@@ -451,7 +451,7 @@ portfolio-frontend-prod   Up 20 seconds (healthy)   0.0.0.0:3001->3000/tcp
   - `bb-portfolio-dev` - EC2 development
   - `bb-portfolio-prod` - EC2 production
 - **Benefits**: Complete data isolation, safe experimentation, cost-effective shared cluster
-- **Configuration**: Environment-specific `DATABASE_URI` in each `.env` file
+- **Configuration**: Environment-specific `MONGODB_URI` in each `.env` file
 
 **Asset Storage Strategy (AWS S3):**
 
@@ -467,15 +467,15 @@ portfolio-frontend-prod   Up 20 seconds (healthy)   0.0.0.0:3001->3000/tcp
 ```bash
 # Local/Docker Local
 ENV_PROFILE=local
-DATABASE_URI=mongodb+srv://USERNAME:PASSWORD@CLUSTER.mongodb.net/bb-portfolio-local
+MONGODB_URI=mongodb+srv://USERNAME:PASSWORD@CLUSTER.mongodb.net/bb-portfolio-local
 
 # EC2 Development
 ENV_PROFILE=dev
-DATABASE_URI=mongodb+srv://USERNAME:PASSWORD@CLUSTER.mongodb.net/bb-portfolio-dev
+MONGODB_URI=mongodb+srv://USERNAME:PASSWORD@CLUSTER.mongodb.net/bb-portfolio-dev
 
 # EC2 Production
 ENV_PROFILE=prod
-DATABASE_URI=mongodb+srv://USERNAME:PASSWORD@CLUSTER.mongodb.net/bb-portfolio-prod
+MONGODB_URI=mongodb+srv://USERNAME:PASSWORD@CLUSTER.mongodb.net/bb-portfolio-prod
 ```
 
 **Reasoning:**
