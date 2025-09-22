@@ -266,7 +266,7 @@ jobs:
             # Backend production environment
             cat > backend/.env.prod << EOF
             PORT=3000
-            DATABASE_URI=${{ secrets.PROD_DATABASE_URI }}
+            MONGODB_URI=${{ secrets.PROD_MONGODB_URI }}
             PAYLOAD_SECRET=${{ secrets.PROD_PAYLOAD_SECRET }}
             NODE_ENV=production
             EOF
@@ -405,7 +405,7 @@ jobs:
             echo "Creating backend .env.dev..."
             cat > backend/.env.dev << EOF
             PORT=3000
-            DATABASE_URI=${{ secrets.DATABASE_URI }}
+            MONGODB_URI=${{ secrets.MONGODB_URI }}
             PAYLOAD_SECRET=${{ secrets.PAYLOAD_SECRET }}
             NODE_ENV=development
             EOF
