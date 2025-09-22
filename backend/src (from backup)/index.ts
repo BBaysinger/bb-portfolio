@@ -10,7 +10,7 @@ const app = express()
 const start = async () => {
   await payload.init({
     secret: process.env.PAYLOAD_SECRET,
-    mongoURL: process.env.DATABASE_URI,
+    mongoURL: process.env.MONGODB_URI,
     express: app,
   } as any)
 
