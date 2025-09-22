@@ -97,3 +97,9 @@ crash.*.log
 # CLI config
 .terraformrc
 terraform.rc
+
+# ===============================================================
+# Local secrets documentation (do not commit)
+# ===============================================================
+github-secrets.json
+github-secrets.json5
