@@ -1,5 +1,13 @@
 # =============================================================================
 # CI/CD Pipeline - BB Portfolio Site
+# ===============================================================
+# ENVIRONMENT FILES (.env.dev, .env.prod)
+# ===============================================================
+# These files are NOT sourced from the repo during deployment.
+# They are dynamically generated on EC2 by the CI/CD workflow,
+# with contents exclusively pulled from GitHub Actions secrets and variables.
+# Local development uses .env only.
+# ===============================================================
 # =============================================================================
 #
 # This workflow provides automated build, test, and deployment for the

@@ -15,6 +15,15 @@ import { ProjectScreenshots } from './collections/ProjectScreenshots'
 import { ProjectThumbnails } from './collections/ProjectThumbnails'
 import { Users } from './collections/Users'
 
+// ===============================================================
+// ENVIRONMENT FILES (.env.dev, .env.prod)
+// ===============================================================
+// These files are NOT sourced from the repo during deployment.
+// They are dynamically generated on EC2 by the CI/CD workflow,
+// with contents exclusively pulled from GitHub Actions secrets and variables.
+// Local development uses .env only.
+// ===============================================================
+
 const envProfile = process.env.ENV_PROFILE || 'local'
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
