@@ -24,6 +24,7 @@
     "install:all": "concurrently \"npm install\" \"cd backend && npm install\" \"cd frontend && npm install\" --names \"root,backend,frontend\" --prefix-colors \"yellow,blue,green\""
   },
   "devDependencies": {
+    "@next/eslint-plugin-next": "^15.5.3",
     "@types/glob": "^9.0.0",
     "@typescript-eslint/eslint-plugin": "^8.44.0",
     "@typescript-eslint/parser": "^8.44.0",
