@@ -12,14 +12,12 @@
   //   "backend"
   // ],
   "scripts": {
-    // Use this as your "one command to build everything (without Docker)" for local development/production builds.
-    "build:all": "npm run format && concurrently \"npm run build:backend\" \"npm run build:frontend\" --names \"backend,frontend\" --prefix-colors \"blue,green\"",
-    // 🔧 Build backend (Payload CMS + Next.js) locally for production
-    // Creates optimized production build with static pages and API routes
-    "build:backend": "cd backend && npm run build",
-    // 🔧 Build frontend (Next.js) locally for production
-    // Creates optimized static build with pre-rendered pages and client bundles
-    "build:frontend": "cd frontend && npm run build",
+    // 🖥️ Build both backend and frontend locally without Docker (bare metal, laptop dev)
+    "baremetal:all": "npm run format && concurrently \"npm run baremetal:backend\" \"npm run baremetal:frontend\" --names \"backend,frontend\" --prefix-colors \"blue,green\"",
+    // 🖥️ Build backend service locally (bare metal, laptop dev)
+    "baremetal:backend": "cd backend && npm run build",
+    // 🖥️ Build frontend service locally (bare metal, laptop dev)
+    "baremetal:frontend": "cd frontend && npm run build",
     // 🐳 Build both frontend and backend Docker images using docker-compose local profile
     // Uses the local profile which includes development-optimized builds with hot reload
     "docker:build": "COMPOSE_PROFILES=local docker compose build",
