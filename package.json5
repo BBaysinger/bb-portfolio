@@ -59,27 +59,46 @@
     // 🧼 Run ESLint on the full codebase
     // Great for catching JS/TS issues or team rule violations
     "lint": "eslint .",
-    // 🎯 "Pretty Build" — formats code, then runs TypeScript project build for type-checking
-    // Use this before commits to catch formatting or type errors early, because formatters
-    // can sometimes introduce subtle breakages that TypeScript will catch
-    "pb": "prettier --write . && tsc -b",
+    // ✅ Fast pre-commit validation (format + lint + type check)
+    // Run before every commit for quick validation (~5-10 seconds)
+    // Auto-fixes ESLint issues when possible, continues with warnings
+    "precommit": "prettier --write . && eslint . --fix && tsc --noEmit",
+    // 🛡️ Comprehensive pre-push validation (precommit + tests)
+    // Run before pushing to ensure everything works (1-5 minutes)
+    // Includes all precommit checks plus full test suite
+    "prepush": "npm run precommit && npm test",
     // 🔄 Syncs package.json5 with package.json values while preserving comments and formatting
     // Run this after editing package.json to push updates back into the annotated JSON5 version
     "sync:json5": "tsx scripts/sync-json5.ts",
+    // 📦 Update dependencies to latest versions across all packages
+    // Runs npm-check-updates in root, backend, and frontend simultaneously
+    // Review changes before running npm run install:all
+    "update:deps": "concurrently \"ncu -u\" \"cd backend && ncu -u\" \"cd frontend && ncu -u\" --names \"root,backend,frontend\" --prefix-colors \"yellow,blue,green\"",
+    // 🔽 Install dependencies in all packages after updating
+    // Run after update:deps to install the newly updated dependencies
+    // Handles root, backend, and frontend package installations simultaneously
+    "install:all": "concurrently \"npm install\" \"cd backend && npm install\" \"cd frontend && npm install\" --names \"root,backend,frontend\" --prefix-colors \"yellow,blue,green\"",
   },
   // Development-only dependencies for monorepo tooling and build processes
   "devDependencies": {
     // TypeScript definitions for glob package
     "@types/glob": "^9.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.44.0",
+    "@typescript-eslint/parser": "^8.44.0",
     // Run multiple commands simultaneously with colored output (used in dev:all script)
     // Enables running frontend and backend together in same terminal
-    "concurrently": "^9.1.0",
+    "concurrently": "^9.2.1",
     // JavaScript/TypeScript linting engine (v9 for latest rules)
-    "eslint": "^9.35.0",
+    "eslint": "^9.36.0",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.20",
     // File pattern matching utility (used in build scripts)
     "glob": "^11.0.3",
+    "globals": "^16.4.0",
     // Parser for .gitignore-style files (used in tooling)
     "ignore": "^7.0.5",
+    "jiti": "^2.5.1",
     // JSON parser with comment support (enables package.json5 syncing)
     "json5": "^2.2.3",
     // Opinionated code formatter for consistent style

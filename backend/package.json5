@@ -70,7 +70,7 @@
     // React DOM library for rendering React components (required by Next.js and Payload UI)
     "react-dom": "^19.1.1",
     // High-performance image processing (required for Payload image fields)
-    "sharp": "0.34.3",
+    "sharp": "0.34.4",
     // Converts strings into URL-friendly slugs (useful for dynamic routing)
     "slugify": "^1.6.6",
   },
@@ -83,7 +83,7 @@
     // Express.js TypeScript definitions
     "@types/express": "^5.0.3",
     // Node.js TypeScript definitions (latest for Node 18+)
-    "@types/node": "^24.5.0",
+    "@types/node": "^24.5.2",
     // React 19 types
     "@types/react": "19.1.13",
     // React DOM 19 types
@@ -91,7 +91,7 @@
     // Vite React plugin (enables React support in Vitest)
     "@vitejs/plugin-react": "4.7.0",
     // ESLint JavaScript/TypeScript linter (v9 for latest rules)
-    "eslint": "^9.35.0",
+    "eslint": "^9.36.0",
     // Next.js ESLint configuration (includes React and accessibility rules)
     "eslint-config-next": "15.5.3",
     // Browser DOM simulation for Node.js testing environments
