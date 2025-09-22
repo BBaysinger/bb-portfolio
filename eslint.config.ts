@@ -3,9 +3,9 @@ import globals from "globals";
 
 const tseslint = require("@typescript-eslint/eslint-plugin");
 const parser = require("@typescript-eslint/parser");
+const eslintPluginImport = require("eslint-plugin-import");
 const reactHooks = require("eslint-plugin-react-hooks");
 const reactRefresh = require("eslint-plugin-react-refresh");
-const eslintPluginImport = require("eslint-plugin-import");
 
 /**
  *
@@ -15,7 +15,16 @@ const eslintPluginImport = require("eslint-plugin-import");
  */
 export default [
   {
-    ignores: ["dist", "node_modules"],
+    ignores: [
+      "dist",
+      "node_modules",
+      "**/.next/**",
+      "**/src (from backup)/**",
+      "**/.next/types/**",
+      "**/next-env.d.ts",
+      "**/.build/**",
+      "**/out/**",
+    ],
   },
   {
     files: ["**/*.{ts,tsx}"],

@@ -1,18 +1,19 @@
+import path from 'path'
+import { fileURLToPath } from 'url'
+
 import { mongooseAdapter } from '@payloadcms/db-mongodb'
+import { nodemailerAdapter } from '@payloadcms/email-nodemailer'
 import { payloadCloudPlugin } from '@payloadcms/payload-cloud'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
-import { nodemailerAdapter } from '@payloadcms/email-nodemailer'
-import path from 'path'
 import { buildConfig } from 'payload'
-import { fileURLToPath } from 'url'
 import sharp from 'sharp'
 
-import { Users } from './collections/Users'
+import { BrandLogos } from './collections/BrandLogos'
 import { Clients } from './collections/Brands'
 import { Projects } from './collections/Projects'
-import { BrandLogos } from './collections/BrandLogos'
-import { ProjectThumbnails } from './collections/ProjectThumbnails'
 import { ProjectScreenshots } from './collections/ProjectScreenshots'
+import { ProjectThumbnails } from './collections/ProjectThumbnails'
+import { Users } from './collections/Users'
 
 const envProfile = process.env.ENV_PROFILE || 'local'
 const filename = fileURLToPath(import.meta.url)
