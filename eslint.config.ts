@@ -1,11 +1,10 @@
-import js from "@eslint/js";
+import nextPlugin from "@next/eslint-plugin-next";
+import tseslint from "@typescript-eslint/eslint-plugin";
+import parser from "@typescript-eslint/parser";
+import eslintPluginImport from "eslint-plugin-import";
+import reactHooks from "eslint-plugin-react-hooks";
+import reactRefresh from "eslint-plugin-react-refresh";
 import globals from "globals";
-
-const tseslint = require("@typescript-eslint/eslint-plugin");
-const parser = require("@typescript-eslint/parser");
-const eslintPluginImport = require("eslint-plugin-import");
-const reactHooks = require("eslint-plugin-react-hooks");
-const reactRefresh = require("eslint-plugin-react-refresh");
 
 /**
  *
@@ -39,6 +38,7 @@ export default [
       "react-hooks": reactHooks,
       "react-refresh": reactRefresh,
       import: eslintPluginImport, // 👈 Register the plugin
+      "@next/next": nextPlugin,
     },
     rules: {
       ...tseslint.configs.recommended.rules,

@@ -3,7 +3,6 @@ import { describe, it, beforeAll, expect } from 'vitest'
 
 import config from '@/payload.config'
 
-
 let payload: Payload
 
 describe('API', () => {

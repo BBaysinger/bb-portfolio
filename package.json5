@@ -81,23 +81,32 @@
   },
   // Development-only dependencies for monorepo tooling and build processes
   "devDependencies": {
+    // ESLint plugin for Next.js specific rules and optimizations
+    "@next/eslint-plugin-next": "^15.5.3",
     // TypeScript definitions for glob package
     "@types/glob": "^9.0.0",
+    // TypeScript ESLint plugin for TS-specific linting rules
     "@typescript-eslint/eslint-plugin": "^8.44.0",
+    // TypeScript parser for ESLint to understand TS syntax
     "@typescript-eslint/parser": "^8.44.0",
     // Run multiple commands simultaneously with colored output (used in dev:all script)
     // Enables running frontend and backend together in same terminal
     "concurrently": "^9.2.1",
     // JavaScript/TypeScript linting engine (v9 for latest rules)
     "eslint": "^9.36.0",
+    // ESLint plugin for import/export statement validation
     "eslint-plugin-import": "^2.32.0",
+    // ESLint plugin for React Hooks rules (prevents hooks violations)
     "eslint-plugin-react-hooks": "^5.2.0",
+    // ESLint plugin for React Fast Refresh compatibility
     "eslint-plugin-react-refresh": "^0.4.20",
     // File pattern matching utility (used in build scripts)
     "glob": "^11.0.3",
+    // Global JavaScript objects definitions for ESLint
     "globals": "^16.4.0",
-    // Parser for .gitignore-style files (used in tooling)
+    // Parser for .gitignore-style files (used in ESLint configuration)
     "ignore": "^7.0.5",
+    // Just-in-time TypeScript and ESM loader for Node.js (enables TS config loading)
     "jiti": "^2.5.1",
     // JSON parser with comment support (enables package.json5 syncing)
     "json5": "^2.2.3",

@@ -66,7 +66,7 @@ function indent(line: string, level = 0): string {
  * @param startIdx - The index where the block starts
  * @returns Object containing the index where the block ends
  */
-function extractBlock(lines: string[], startIdx: number): { endIdx: number } {
+function _extractBlock(lines: string[], startIdx: number): { endIdx: number } {
   let depth = 0;
   for (let i = startIdx; i < lines.length; i++) {
     const open = (lines[i].match(/[{\[]/g) || []).length;
@@ -87,7 +87,7 @@ function extractBlock(lines: string[], startIdx: number): { endIdx: number } {
  * @param line - A single line of text
  * @returns The matched key name, or null if not found
  */
-function matchKey(line: string): string | null {
+function _matchKey(line: string): string | null {
   const match = line.match(/^[ \t]*["']?([a-zA-Z0-9_\-$@]+)["']?\s*:/);
   return match ? match[1] : null;
 }
@@ -325,7 +325,7 @@ function buildCommentMap(
  * @param source - Parsed JSON object from the canonical package.json
  * @returns The updated JSON5 content as a formatted string
  */
-function syncJson5(raw: string, source: Record<string, any>): string {
+function syncJson5(raw: string, source: Record<string, unknown>): string {
   const lines = raw.split("\n");
   const comments = buildCommentMap(lines);
 
@@ -343,15 +343,21 @@ function syncJson5(raw: string, source: Record<string, any>): string {
    * @param level - Current indentation level in spaces
    * @returns Array of formatted lines representing this object
    */
-  function writeObject(obj: any, path: string[] = [], level = 2): string[] {
+  function writeObject(obj: unknown, path: string[] = [], level = 2): string[] {
     const result: string[] = [];
-    const keys = Object.keys(obj);
+
+    // Type guard to ensure obj is an object
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+      return result;
+    }
+
+    const keys = Object.keys(obj as Record<string, unknown>);
     const indentSize = 2;
 
     for (let i = 0; i < keys.length; i++) {
       const key = keys[i];
       const fullPath = [...path, key].join(".");
-      const val = obj[key];
+      const val = (obj as Record<string, unknown>)[key];
       const comma = ","; // Always add trailing comma for version control benefits
 
       const commentInfo = comments[fullPath];
