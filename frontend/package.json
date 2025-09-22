@@ -20,7 +20,7 @@
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-redux": "^9.2.0",
-    "sass": "^1.92.1"
+    "sass": "^1.93.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+
 import { sync as globSync } from "glob";
 import ignore from "ignore";
 

@@ -41,7 +41,7 @@
     // Official React bindings for Redux state management
     "react-redux": "^9.2.0",
     // CSS preprocessor with variables, nesting, and mixins
-    "sass": "^1.92.1",
+    "sass": "^1.93.0",
   },
   // Development-only dependencies for tooling and type checking
   "devDependencies": {
