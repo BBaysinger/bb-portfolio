@@ -2,9 +2,9 @@
   "name": "bb-portfolio-monorepo-root",
   "private": true,
   "scripts": {
-    "build:all": "npm run format && concurrently \"npm run build:backend\" \"npm run build:frontend\" --names \"backend,frontend\" --prefix-colors \"blue,green\"",
-    "build:backend": "cd backend && npm run build",
-    "build:frontend": "cd frontend && npm run build",
+    "baremetal:all": "npm run format && concurrently \"npm run baremetal:backend\" \"npm run baremetal:frontend\" --names \"backend,frontend\" --prefix-colors \"blue,green\"",
+    "baremetal:backend": "cd backend && npm run build",
+    "baremetal:frontend": "cd frontend && npm run build",
     "docker:build": "COMPOSE_PROFILES=local docker compose build",
     "docker:up": "COMPOSE_PROFILES=local docker compose up --build",
     "docker:up:detached": "COMPOSE_PROFILES=local docker compose up --build -d",
