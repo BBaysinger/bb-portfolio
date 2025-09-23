@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Sync secrets.json into GitHub repo secrets (destructive: removes extras)
-# Usage: ./sync-secrets.sh owner/repo secrets.json
+# Usage: ./sync-github-secrets.sh BBaysinger/bb-portfolio github-secrets.json5
 
 # Example github-secrets.json5 file:
 # ----------------------------------
@@ -80,11 +80,12 @@ for key in $CURRENT_KEYS; do
   fi
 done
 
-# 3. Set/update secrets from JSON
-jq -r 'to_entries|map("\(.key)=\(.value)")|.[]' "$JSON_FILE" | \
-while IFS='=' read -r key value; do
+
+# 3. Set/update secrets from JSON (robust for multi-line and special chars)
+jq -r 'to_entries[] | [.key, .value] | @tsv' "$JSON_FILE" | \
+while IFS=$'\t' read -r key value; do
   echo "🔑 Setting $key ..."
-  gh secret set "$key" --repo "$REPO" -b"$value"
+  printf "%s" "$value" | gh secret set "$key" --repo "$REPO" -b-
 done
 
 echo "✅ Sync complete! Repo $REPO now matches $JSON_FILE exactly."
