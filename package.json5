@@ -53,7 +53,7 @@
     // Perfect for managing services independently (macOS only)
     "baremetalDev:tabs": "osascript -e 'tell application \"Terminal\" to do script \"cd \\\"$(pwd)/backend\\\" && npm run dev\"' && osascript -e 'tell application \"Terminal\" to do script \"cd \\\"$(pwd)/frontend\\\" && npm run dev\"'",
     // ⚙️ Run only the backend service locally (Payload CMS + API)
-    // Connects to portfolio-local MongoDB database via .env.local
+    // Connects to portfolio-local MongoDB database via .env
     "baremetalDev:backend": "cd backend && npm run dev",
     // 🎨 Run only the frontend service locally (Next.js with hot reload)
     // Serves the React frontend with automatic reloading on file changes
