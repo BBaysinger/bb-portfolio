@@ -99,7 +99,7 @@ crash.*.log
 terraform.rc
 
 # ===============================================================
-# Local secrets documentation (do not commit)
+# Github secrets
 # ===============================================================
-github-secrets.json
-github-secrets.json5
+
+.github-secrets.json5
