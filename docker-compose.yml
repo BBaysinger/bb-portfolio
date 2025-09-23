@@ -122,7 +122,7 @@ services:
     image: bhbaysinger/portfolio-backend:dev # Pre-built image from Docker Hub
     container_name: portfolio-backend-dev
     ports:
-      - "4000:3000" # Different port to avoid prod conflicts
+      - "4001:3000" # Backend gets xxx1
     env_file:
       - ./backend/.env.dev # Development environment variables
     restart: unless-stopped # Auto-restart on failure/reboot
@@ -132,7 +132,7 @@ services:
     image: bhbaysinger/portfolio-frontend:dev # Pre-built image from Docker Hub
     container_name: portfolio-frontend-dev
     ports:
-      - "4001:3000" # Different port to avoid prod conflicts
+      - "4000:3000" # Frontend gets xxx0
     env_file:
       - ./frontend/.env.dev # Development environment variables
     restart: unless-stopped # Auto-restart on failure/reboot
@@ -165,7 +165,7 @@ services:
       # Preserve container's node_modules (avoid host override)
       - /app/node_modules # Anonymous volume for dependencies
     ports:
-      - "5050:3000" # Host port 5050 -> Container port 3000
+      - "5051:3001" # Backend gets xxx1, matches app's actual port
     env_file:
       - ./backend/.env # Local development environment variables
     environment:
@@ -189,7 +189,7 @@ services:
       # Preserve container's node_modules with named volume
       - frontend_node_modules:/app/node_modules # Named volume prevents host override
     ports:
-      - "5051:3000" # Host port 5051 -> Container port 3000
+      - "5050:3000" # Frontend gets xxx0
     env_file:
       - ./frontend/.env # Local development environment variables
     environment:
