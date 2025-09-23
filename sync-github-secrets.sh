@@ -12,26 +12,16 @@
 # --------------------------------------------------------------------
 # // GitHub Actions secrets reference for CI/CD
 # // DO NOT COMMIT REAL VALUES
-# // Use sync-github-secrets.sh to sync to migrate these values to GitHub repository secrets automatically.
-# // Update this file as needed, then run the script to sync secrets with GitHub.
 # {
-#   // AWS IAM user credentials (AWS Console > IAM > Users > User for this deployment)
 #   "AWS_ACCESS_KEY_ID": "",
 #   "AWS_SECRET_ACCESS_KEY": "",
-#   // MongoDB Atlas connection string for dev database
 #   "DEV_MONGODB_URI": "",
-#   // Payload CMS secret
 #   "DEV_PAYLOAD_SECRET": "",
-#   // Docker Hub account credentials
 #   "DOCKER_HUB_ACCESS_TOKEN": "",
 #   "DOCKER_HUB_USERNAME": "",
-#   // Public IP or DNS of your EC2 instance
 #   "EC2_HOST": "",
-#   // Private SSH key for EC2 access (must be single-line with \n escapes)
 #   "EC2_SSH_KEY": "",
-#   // MongoDB Atlas connection string for prod database
 #   "PROD_MONGODB_URI": "",
-#   // Payload CMS secret
 #   "PROD_PAYLOAD_SECRET": ""
 # }
 
@@ -57,7 +47,14 @@ if [[ "$JSON_FILE" == *.json5 ]]; then
     exit 1
   fi
   TMP_JSON="${JSON_FILE%.json5}.json"
-  node -e "const fs=require('fs');const JSON5=require('json5');fs.writeFileSync('$TMP_JSON', JSON.stringify(JSON5.parse(fs.readFileSync('$JSON_FILE','utf8'))))"
+  node -e "
+    const fs = require('fs');
+    const JSON5 = require('json5');
+    const input = fs.readFileSync('$JSON_FILE', 'utf8');
+    const obj = JSON5.parse(input);
+    // Stringify with real newlines preserved
+    fs.writeFileSync('$TMP_JSON', JSON.stringify(obj, null, 2));
+  "
   JSON_FILE="$TMP_JSON"
 fi
 
@@ -101,7 +98,8 @@ while IFS=$'\t' read -r key value; do
     echo "🔑 (dry run) Would set $key (length: ${#value})"
   else
     echo "🔑 Setting $key ..."
-    printf "%s" "$value" | gh secret set "$key" --repo "$REPO" -b-
+    # Pipe the raw value to gh so multi-line secrets work
+    printf "%b" "$value" | gh secret set "$key" --repo "$REPO" -b-
   fi
 done
 
