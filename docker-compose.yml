@@ -167,7 +167,7 @@ services:
     ports:
       - "5050:3000" # Host port 5050 -> Container port 3000
     env_file:
-      - ./backend/.env.local # Local development environment variables
+      - ./backend/.env # Local development environment variables
     environment:
       # Enable file watching in Docker (required for volume mounts)
       - CHOKIDAR_USEPOLLING=true # Enables cross-platform file watching
@@ -191,7 +191,7 @@ services:
     ports:
       - "5051:3000" # Host port 5051 -> Container port 3000
     env_file:
-      - ./frontend/.env.local # Local development environment variables
+      - ./frontend/.env # Local development environment variables
     environment:
       # Enable file watching in Docker (required for hot reload)
       - CHOKIDAR_USEPOLLING=true # Enables cross-platform file watching

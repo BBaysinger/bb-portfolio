@@ -10,8 +10,6 @@ Dockerfile
 dist
 coverage
 *.env
-.env.local
-.env.*.local
 .DS_Store
 .vscode
 README.md
