@@ -64,7 +64,7 @@ services:
     image: 778230822028.dkr.ecr.us-west-2.amazonaws.com/portfolio/backend:latest
     container_name: portfolio-backend-prod
     ports:
-      - "3000:3000" # Direct port mapping for production
+      - "3001:3000" # Backend gets xxx1 for production
     env_file:
       - ./backend/.env.prod # Production environment variables
     restart: unless-stopped # Auto-restart on failure/reboot
@@ -86,7 +86,7 @@ services:
     image: 778230822028.dkr.ecr.us-west-2.amazonaws.com/portfolio/frontend:latest
     container_name: portfolio-frontend-prod
     ports:
-      - "3001:3000" # Avoid port conflict with backend
+      - "3000:3000" # Frontend gets xxx0 for production
     env_file:
       - ./frontend/.env.prod # Production environment variables
     restart: unless-stopped # Auto-restart on failure/reboot
