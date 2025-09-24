@@ -39,12 +39,15 @@
     // 📋 Follow logs from both frontend and backend containers in real-time
     // Useful when running in detached mode to see what's happening
     "docker:logs": "COMPOSE_PROFILES=local docker compose logs -f",
+    // ⚠️ Build static site generation containers (local-ssg profile)
     "docker:ssg:build": "COMPOSE_PROFILES=local-ssg docker compose build",
-    // ⚠️ Do NOT mount node_modules volume for SSG/production builds! The container must use node_modules from the image, not a blank or host volume, or dependencies will be missing.
+    // ⚠️ Not Hot reload or volume mounts - for static site generation test output only
     "docker:ssg:up": "COMPOSE_PROFILES=local-ssg docker compose up --build",
-    // ⚠️ Do NOT mount node_modules volume for SSG/production builds! The container must use node_modules from the image, not a blank or host volume, or dependencies will be missing.
+    // ⚠️ Not Hot reload or volume mounts - for static site generation test output only
     "docker:ssg:up:detached": "COMPOSE_PROFILES=local-ssg docker compose up --build -d",
+    // 🛑 Stop and remove static site generation containers (local-ssg profile)
     "docker:ssg:down": "COMPOSE_PROFILES=local-ssg docker compose down",
+    // 📋 Follow logs from static site generation containers in real-time (local-ssg profile)
     "docker:ssg:logs": "COMPOSE_PROFILES=local-ssg docker compose logs -f",
     // 🐳 Build backend Docker image for Docker Hub (dev tag)
     "docker:build:backend": "docker build -t bhbaysinger/portfolio-backend:dev ./backend",
@@ -97,27 +100,41 @@
     "install:all": "concurrently \"npm install\" \"cd backend && npm install\" \"cd frontend && npm install\" --names \"root,backend,frontend\" --prefix-colors \"yellow,blue,green\"",
   },
   "devDependencies": {
-    // ESLint plugin for Next.js specific rules and optimizations
+    // Next.js-specific ESLint rules for best practices
     "@next/eslint-plugin-next": "^15.5.4",
-    // TypeScript definitions for glob package
+    // TypeScript type definitions for glob
     "@types/glob": "^9.0.0",
-    // TypeScript ESLint plugin for TS-specific linting rules
+    // ESLint plugin for TypeScript-specific linting rules
     "@typescript-eslint/eslint-plugin": "^8.44.1",
-    // TypeScript parser for ESLint to understand TS syntax
+    // TypeScript parser for ESLint
     "@typescript-eslint/parser": "^8.44.1",
+    // Run multiple commands concurrently in scripts
     "concurrently": "^9.2.1",
+    // Main linter for JS/TS code
     "eslint": "^9.36.0",
+    // ESLint plugin for import/export syntax validation
     "eslint-plugin-import": "^2.32.0",
+    // ESLint plugin for React hooks rules
     "eslint-plugin-react-hooks": "^5.2.0",
+    // ESLint plugin for React Fast Refresh support
     "eslint-plugin-react-refresh": "^0.4.21",
+    // File pattern matching utility
     "glob": "^11.0.3",
+    // List of global variables for linting
     "globals": "^16.4.0",
+    // Utility for .gitignore-style file filtering
     "ignore": "^7.0.5",
+    // Runtime for dynamic JS/TS imports
     "jiti": "^2.6.0",
+    // JSON5 parser for annotated config files
     "json5": "^2.2.3",
+    // Code formatter for consistent style
     "prettier": "^3.6.2",
+    // TypeScript execution environment for scripts
     "ts-node": "^10.9.2",
+    // TypeScript/ESM runner for scripts
     "tsx": "^4.20.5",
+    // TypeScript language support
     "typescript": "^5.9.2",
   },
 }
