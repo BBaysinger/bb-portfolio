@@ -32,7 +32,7 @@
 FROM node:22-slim AS builder
 
 # Upgrade system packages to mitigate known vulnerabilities
-RUN apt-get update && apt-get upgrade -y && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get upgrade -y && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 
 # IMPORTANT: Don't set NODE_ENV=production here because we need dev dependencies for the build process
 # TypeScript compilation, bundling tools, and other build-time dependencies require devDependencies
@@ -73,7 +73,7 @@ RUN npm prune --omit=dev
 FROM node:22-slim AS runtime
 
 # Upgrade system packages to mitigate known vulnerabilities
-RUN apt-get update && apt-get upgrade -y && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get upgrade -y && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 
 # Set production environment to optimize application performance and disable debug features
 ENV NODE_ENV=production
@@ -116,7 +116,7 @@ CMD ["npm", "start"]
 FROM node:22-slim AS dev
 
 # Upgrade system packages to mitigate known vulnerabilities
-RUN apt-get update && apt-get upgrade -y && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get upgrade -y && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 
 # Set working directory for development
 WORKDIR /app
