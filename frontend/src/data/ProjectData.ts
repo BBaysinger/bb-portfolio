@@ -1,6 +1,10 @@
-import rawJson from "@/data/portfolio-projects.json";
 
-const typedUnprocessedProjects = rawJson as PortfolioProjectData;
+// Fetch project data from Next.js API endpoint
+async function fetchPortfolioProjects(): Promise<PortfolioProjectData> {
+  const res = await fetch("/api/projects"); // Adjust endpoint as needed
+  if (!res.ok) throw new Error("Failed to fetch project data");
+  return await res.json();
+}
 
 // Define constants for MobileOrientation
 export const MobileStatuses = {
@@ -25,6 +29,7 @@ export interface PortfolioProjectBase {
   desc: string[];
   date: string;
   urls: Record<string, string | string[]>;
+  nda?: boolean;
 }
 
 export interface ParsedPortfolioProject extends PortfolioProjectBase {
@@ -33,6 +38,7 @@ export interface ParsedPortfolioProject extends PortfolioProjectBase {
   // context of the active projects vs all projects. It should probably
   // be renamed and another index should be added for the active projects.
   index: number;
+  nda?: boolean;
 }
 
 export type PortfolioProjectData = Record<string, PortfolioProjectBase>;
@@ -51,7 +57,7 @@ export default class ProjectData {
   private static _activeKeys: string[] = [];
   private static _listedProjects: ParsedPortfolioProject[] = [];
   private static _listedKeys: string[] = [];
-  private static _keys: string[] = Object.keys(typedUnprocessedProjects);
+  private static _keys: string[] = [];
   private static _activeProjectsMap: Record<string, ParsedPortfolioProject> =
     {};
 
@@ -114,12 +120,15 @@ export default class ProjectData {
   /**
    * Initializes the ProjectData class by parsing raw JSON and organizing projects.
    */
-  static initialize(): void {
+  static async initialize(): Promise<void> {
+    const typedUnprocessedProjects = await fetchPortfolioProjects();
+    this._keys = Object.keys(typedUnprocessedProjects);
     this._projects = this.parsePortfolioData(typedUnprocessedProjects);
 
     for (const key of this._keys) {
       const project = this._projects[key];
-      if (project.active) {
+      // Only include active, non-NDA projects for SSG
+      if (project.active && !project.nda) {
         this._activeKeys.push(key);
         this._activeProjects.push(project);
         this._activeProjectsMap[key] = project;
@@ -167,5 +176,4 @@ export default class ProjectData {
   }
 }
 
-// Initialize the ProjectData class
-ProjectData.initialize();
+// Usage: await ProjectData.initialize();
