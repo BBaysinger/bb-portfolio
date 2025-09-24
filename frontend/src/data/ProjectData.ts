@@ -1,4 +1,3 @@
-
 // Fetch project data from Next.js API endpoint
 async function fetchPortfolioProjects(): Promise<PortfolioProjectData> {
   const res = await fetch("/api/projects"); // Adjust endpoint as needed

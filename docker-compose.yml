@@ -174,7 +174,7 @@ services:
     restart: unless-stopped # Auto-restart container on failure
     # Note: nodemon handles auto-restart on file changes via Dockerfile CMD
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3001/api/health" ]
+      test: ["CMD", "curl", "-f", "http://localhost:3001/api/health"]
       interval: 10s
       timeout: 5s
       retries: 5
