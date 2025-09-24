@@ -16,12 +16,12 @@
     "bootstrap": "^5.3.8",
     "clsx": "^2.1.1",
     "gsap": "^3.13.0",
-    "jsonwebtoken": "^9.0.2",
     "next": "^15.5.4",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-redux": "^9.2.0",
-    "sass": "^1.93.2"
+    "sass": "^1.93.2",
+    "jsonwebtoken": "^9.0.2"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
