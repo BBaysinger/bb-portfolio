@@ -40,7 +40,9 @@
     // Useful when running in detached mode to see what's happening
     "docker:logs": "COMPOSE_PROFILES=local docker compose logs -f",
     "docker:ssg:build": "COMPOSE_PROFILES=local-ssg docker compose build",
+    // ⚠️ Do NOT mount node_modules volume for SSG/production builds! The container must use node_modules from the image, not a blank or host volume, or dependencies will be missing.
     "docker:ssg:up": "COMPOSE_PROFILES=local-ssg docker compose up --build",
+    // ⚠️ Do NOT mount node_modules volume for SSG/production builds! The container must use node_modules from the image, not a blank or host volume, or dependencies will be missing.
     "docker:ssg:up:detached": "COMPOSE_PROFILES=local-ssg docker compose up --build -d",
     "docker:ssg:down": "COMPOSE_PROFILES=local-ssg docker compose down",
     "docker:ssg:logs": "COMPOSE_PROFILES=local-ssg docker compose logs -f",

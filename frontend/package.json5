@@ -32,7 +32,6 @@
     "clsx": "^2.1.1",
     // Professional animation library for smooth UI transitions
     "gsap": "^3.13.0",
-    "jsonwebtoken": "^9.0.2",
     // React framework with SSR, routing, and optimization features
     "next": "^15.5.4",
     // React library for building user interfaces (v19 for latest features)
@@ -43,6 +42,7 @@
     "react-redux": "^9.2.0",
     // CSS preprocessor with variables, nesting, and mixins
     "sass": "^1.93.2",
+    "jsonwebtoken": "^9.0.2",
   },
   // Development-only dependencies for tooling and type checking
   "devDependencies": {

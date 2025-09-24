@@ -35,11 +35,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
 
+
 # ==========================================
 # Dependencies Stage - Package Installation
 # ==========================================
 # This stage installs Node.js dependencies with package manager auto-detection
-# Separated for better Docker layer caching - dependencies change less frequently than source code
+# Separated for better Docker layer caching – dependencies change less frequently than source code
 FROM base AS deps
 
 # Copy package files first (enables Docker layer caching optimization)
