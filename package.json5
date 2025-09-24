@@ -42,6 +42,14 @@
     // 📋 Follow logs from both frontend and backend containers in real-time
     // Useful when running in detached mode to see what's happening
     "docker:logs": "COMPOSE_PROFILES=local docker compose logs -f",
+  // 🐳 Build backend Docker image for Docker Hub (dev tag)
+  "docker:build:backend": "docker build -t bhbaysinger/portfolio-backend:dev ./backend",
+  // 🐳 Build frontend Docker image for Docker Hub (dev tag)
+  "docker:build:frontend": "docker build -t bhbaysinger/portfolio-frontend:dev ./frontend",
+  // 🚀 Push backend Docker image to Docker Hub (dev tag)
+  "docker:push:backend": "docker push bhbaysinger/portfolio-backend:dev",
+  // 🚀 Push frontend Docker image to Docker Hub (dev tag)
+  "docker:push:frontend": "docker push bhbaysinger/portfolio-frontend:dev",
     // 🏁 Shortcut: Run both frontend and backend locally (bare metal dev)
     "baremetalDev": "npm run baremetalDev:all",
     // 🎯 Run both frontend and backend in same terminal with colored output
@@ -89,58 +97,26 @@
   // =====================
   "devDependencies": {
     // ESLint plugin for Next.js specific rules and optimizations
-    "@next/eslint-plugin-next": "^15.5.3",
+    "@next/eslint-plugin-next": "^15.5.4",
     // TypeScript definitions for glob package
     "@types/glob": "^9.0.0",
     // TypeScript ESLint plugin for TS-specific linting rules
-    "@typescript-eslint/eslint-plugin": "^8.44.0",
+    "@typescript-eslint/eslint-plugin": "^8.44.1",
     // TypeScript parser for ESLint to understand TS syntax
-    "@typescript-eslint/parser": "^8.44.0",
-    // Run multiple commands simultaneously with colored output (used in baremetalDev:all script)
-    // Enables running frontend and backend together in same terminal
-  // Run multiple commands concurrently in one terminal (used in scripts)
-  "concurrently": "^9.2.1",
-    // JavaScript/TypeScript linting engine (v9 for latest rules)
-  // Main JavaScript/TypeScript linter
-  "eslint": "^9.36.0",
-    // ESLint plugin for import/export statement validation
-  // Lint import/export statements
-  "eslint-plugin-import": "^2.32.0",
-    // ESLint plugin for React Hooks rules (prevents hooks violations)
-  // Lint React hooks usage
-  "eslint-plugin-react-hooks": "^5.2.0",
-    // ESLint plugin for React Fast Refresh compatibility
-  // Lint React Fast Refresh compatibility
-  "eslint-plugin-react-refresh": "^0.4.20",
-    // File pattern matching utility (used in build scripts)
-  // File pattern matching utility
-  "glob": "^11.0.3",
-    // Global JavaScript objects definitions for ESLint
-  // Definitions for global JS objects
-  "globals": "^16.4.0",
-    // Parser for .gitignore-style files (used in ESLint configuration)
-  // Parser for .gitignore-style files
-  "ignore": "^7.0.5",
-    // Just-in-time TypeScript and ESM loader for Node.js (enables TS config loading)
-  // Just-in-time TypeScript/ESM loader for Node.js
-  "jiti": "^2.5.1",
-    // JSON parser with comment support (enables package.json5 syncing)
-  // JSON parser with comment support (for package.json5 syncing)
-  "json5": "^2.2.3",
-    // Opinionated code formatter for consistent style
-  // Code formatter for consistent style
-  "prettier": "^3.6.2",
-    // TypeScript execution engine for Node.js (legacy, kept for compatibility)
-  // TypeScript execution engine for Node.js (legacy)
-  "ts-node": "^10.9.2",
-    // Fast TypeScript/ESM script runner (modern ts-node alternative)
-  // Fast TypeScript/ESM script runner (modern ts-node alternative)
-  "tsx": "^4.20.5",
-    // TypeScript compiler (v5.9 for latest language features)
-  // TypeScript compiler (latest features)
-  "typescript": "^5.9.2",
+    "@typescript-eslint/parser": "^8.44.1",
+    "concurrently": "^9.2.1",
+    "eslint": "^9.36.0",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.21",
+    "glob": "^11.0.3",
+    "globals": "^16.4.0",
+    "ignore": "^7.0.5",
+    "jiti": "^2.6.0",
+    "json5": "^2.2.3",
+    "prettier": "^3.6.2",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2",
   },
-  // =====================
-  // End of root package.json5
-  // =====================
 }

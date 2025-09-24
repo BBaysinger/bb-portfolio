@@ -62,7 +62,7 @@
     // GraphQL query language runtime (required by Payload's GraphQL API)
     "graphql": "^16.11.0",
     // Next.js framework for frontend/backend integration
-    "next": "15.5.3",
+    "next": "15.5.4",
     // Payload CMS core package
     "payload": "3.56.0",
     // React version to match Next.js 15
@@ -77,7 +77,7 @@
   // Development-only tools and type definitions
   "devDependencies": {
     // E2E test runner
-    "@playwright/test": "1.55.0",
+    "@playwright/test": "1.55.1",
     // Testing utilities for React components
     "@testing-library/react": "16.3.0",
     // Express.js TypeScript definitions
@@ -89,17 +89,17 @@
     // React DOM 19 types
     "@types/react-dom": "19.1.9",
     // Vite React plugin (enables React support in Vitest)
-    "@vitejs/plugin-react": "4.7.0",
+    "@vitejs/plugin-react": "5.0.3",
     // ESLint JavaScript/TypeScript linter (v9 for latest rules)
     "eslint": "^9.36.0",
     // Next.js ESLint configuration (includes React and accessibility rules)
-    "eslint-config-next": "15.5.3",
+    "eslint-config-next": "15.5.4",
     // Browser DOM simulation for Node.js testing environments
     "jsdom": "27.0.0",
     // Standalone version of Playwright test runner
-    "playwright": "1.55.0",
+    "playwright": "1.55.1",
     // Playwright core library (used for browser automation)
-    "playwright-core": "1.55.0",
+    "playwright-core": "1.55.1",
     // Code formatter with opinionated defaults
     "prettier": "^3.6.2",
     // TypeScript compiler (v5.9 for latest language features)
