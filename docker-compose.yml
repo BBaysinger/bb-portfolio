@@ -153,11 +153,7 @@ services:
 
   backend-local:
     profiles: ["local"]
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-      target: dev
-    image: backend-local
+    image: bhbaysinger/portfolio-backend:dev
     container_name: backend-local
     volumes:
       - ./backend:/app
@@ -178,11 +174,7 @@ services:
 
   frontend-local:
     profiles: ["local"]
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-      target: dev
-    image: frontend-local
+    image: bhbaysinger/portfolio-frontend:dev
     container_name: frontend-local
     command: npm run dev
     volumes:
@@ -205,11 +197,7 @@ services:
 
   backend-local-ssg-generate:
     profiles: ["local-ssg"]
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-      target: dev
-    image: backend-local-ssg-generate
+    image: bhbaysinger/portfolio-backend:dev
     container_name: backend-local-ssg-generate
     volumes:
       - ./backend:/app
@@ -230,11 +218,7 @@ services:
 
   frontend-local-ssg-generate:
     profiles: ["local-ssg"]
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-      target: dev
-    image: frontend-local-ssg-generate
+    image: bhbaysinger/portfolio-frontend:dev
     container_name: frontend-local-ssg-generate
     command: sh -c "npm run build && npm start"
     volumes:
