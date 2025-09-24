@@ -16,9 +16,6 @@
   //   "frontend",
   //   "backend"
   // ],
-  // =====================
-  // Monorepo scripts for local/dev/build/docker
-  // =====================
   "scripts": {
     // 🖥️ Build both backend and frontend locally without Docker (bare metal, laptop dev)
     "build:all": "npm run format && concurrently \"npm run build:backend\" \"npm run build:frontend\" --names \"backend,frontend\" --prefix-colors \"blue,green\"",
@@ -42,14 +39,19 @@
     // 📋 Follow logs from both frontend and backend containers in real-time
     // Useful when running in detached mode to see what's happening
     "docker:logs": "COMPOSE_PROFILES=local docker compose logs -f",
-  // 🐳 Build backend Docker image for Docker Hub (dev tag)
-  "docker:build:backend": "docker build -t bhbaysinger/portfolio-backend:dev ./backend",
-  // 🐳 Build frontend Docker image for Docker Hub (dev tag)
-  "docker:build:frontend": "docker build -t bhbaysinger/portfolio-frontend:dev ./frontend",
-  // 🚀 Push backend Docker image to Docker Hub (dev tag)
-  "docker:push:backend": "docker push bhbaysinger/portfolio-backend:dev",
-  // 🚀 Push frontend Docker image to Docker Hub (dev tag)
-  "docker:push:frontend": "docker push bhbaysinger/portfolio-frontend:dev",
+    "docker:ssg:build": "COMPOSE_PROFILES=local-ssg docker compose build",
+    "docker:ssg:up": "COMPOSE_PROFILES=local-ssg docker compose up --build",
+    "docker:ssg:up:detached": "COMPOSE_PROFILES=local-ssg docker compose up --build -d",
+    "docker:ssg:down": "COMPOSE_PROFILES=local-ssg docker compose down",
+    "docker:ssg:logs": "COMPOSE_PROFILES=local-ssg docker compose logs -f",
+    // 🐳 Build backend Docker image for Docker Hub (dev tag)
+    "docker:build:backend": "docker build -t bhbaysinger/portfolio-backend:dev ./backend",
+    // 🐳 Build frontend Docker image for Docker Hub (dev tag)
+    "docker:build:frontend": "docker build -t bhbaysinger/portfolio-frontend:dev ./frontend",
+    // 🚀 Push backend Docker image to Docker Hub (dev tag)
+    "docker:push:backend": "docker push bhbaysinger/portfolio-backend:dev",
+    // 🚀 Push frontend Docker image to Docker Hub (dev tag)
+    "docker:push:frontend": "docker push bhbaysinger/portfolio-frontend:dev",
     // 🏁 Shortcut: Run both frontend and backend locally (bare metal dev)
     "baremetalDev": "npm run baremetalDev:all",
     // 🎯 Run both frontend and backend in same terminal with colored output
@@ -92,9 +94,6 @@
     // Handles root, backend, and frontend package installations simultaneously
     "install:all": "concurrently \"npm install\" \"cd backend && npm install\" \"cd frontend && npm install\" --names \"root,backend,frontend\" --prefix-colors \"yellow,blue,green\"",
   },
-  // =====================
-  // Development-only dependencies for monorepo tooling and build processes
-  // =====================
   "devDependencies": {
     // ESLint plugin for Next.js specific rules and optimizations
     "@next/eslint-plugin-next": "^15.5.4",
