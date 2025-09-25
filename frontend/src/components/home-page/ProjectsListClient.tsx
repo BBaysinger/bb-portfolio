@@ -14,25 +14,31 @@ import { ParsedPortfolioProject } from "@/data/ProjectData";
 import styles from "./ProjectsListClient.module.scss";
 
 interface ProjectsListClientProps {
+  /**
+   * Full set of projects to render in the grid. Includes both
+   * public (non-NDA) and NDA entries. Public items render as
+   * thumbnails; NDA items can be rendered as placeholders or
+   * with alternate messaging/links.
+   */
   allProjects: ParsedPortfolioProject[];
 }
 
 /**
- * Projects List Component
+ * Client component: ProjectsListClient
  *
- * Dynamically displays a list of project thumbnails in a responsive list on the home page.
- * Each thumbnail reveals detailed information when hovered (on hover-capable devices)
- * or dynamically scroll-focused (on non-hover-capable devices).
+ * Responsibilities
+ * - Receives `allProjects` data from the server component (SSG/SSR).
+ * - Implements all client-only interactivity (hover effects, scroll focus,
+ *   and responsive behaviors) using React hooks and DOM APIs.
+ * - Renders public projects using `ProjectThumbnail` and can render NDA
+ *   entries as placeholders if desired. Currently, NDA-specific UI should be
+ *   handled by the caller or via future conditional UI here.
  *
- * Key Features:
- * - Detects hover capability using HoverCapabilityWatcher.
- * - Implements a fallback interaction for touch devices, dynamically focusing thumbnails during scroll events.
- * - Handles flexible layout where thumbnails wrap into multiple rows, adapting interaction logic accordingly.
- *
- * @author Bradley Baysinger
- * @version 1.0
- * @since 2024-12-10
- * @version N/A
+ * Interaction model
+ * - Scroll-based focus logic highlights the thumbnail closest to the viewport
+ *   center, providing a smooth browsing experience on touch devices.
+ * - Hover-capable devices benefit from CSS/hover interactions; scroll logic
+ *   remains a progressive enhancement.
  */
 const ProjectsListClient: React.FC<ProjectsListClientProps> = ({
   allProjects,
@@ -43,7 +49,7 @@ const ProjectsListClient: React.FC<ProjectsListClientProps> = ({
 
   /**
    * Initializes a reference to a DOM node for a thumbnail.
-   * Ensures each thumbnail has a corresponding ref stored in projectThumbRefs.
+   * Ensures each thumbnail has a corresponding ref stored in `projectThumbRefs`.
    */
   const setThumbRef = useCallback(
     (node: HTMLDivElement | null, index: number) => {
@@ -80,13 +86,9 @@ const ProjectsListClient: React.FC<ProjectsListClientProps> = ({
           if (absOffset < targetMaxOffset) {
             inRange.push(thumbRef);
           }
-          // Sequentially determine focus for thumbnails in the same row when in
-          // multiple columns, based on their vertical scroll position. That is,
-          // As the user scrolls, along one row, from left to right, as the user
-          // scrolls down, the next (to the right) thumbnail in the row will be
-          // focused. Scrolling upward does the opposite, from right to left.
-          // It starts by counting the number of thumbnails in the row, then
-          // dividing their focus 'zone' into equal parts per the number of columns.
+          // When thumbnails wrap into rows, progressively determine focus
+          // from left-to-right as the user scrolls forward (and reverse when
+          // scrolling upward). This approximates a grid-aware focus heuristic.
         }
       });
 
@@ -113,9 +115,7 @@ const ProjectsListClient: React.FC<ProjectsListClientProps> = ({
     [focusedThumbIndex],
   );
 
-  /**
-   * Retrieves the index of a given thumbnail ref from the projectThumbRefs array.
-   */
+  /** Get the index of a given thumbnail ref from `projectThumbRefs`. */
   const handleScrollOrResize = useCallback(
     (e: Event) => {
       if (!ticking.current) {
@@ -129,10 +129,7 @@ const ProjectsListClient: React.FC<ProjectsListClientProps> = ({
     [update],
   );
 
-  /**
-   * Sets up event listeners for scroll and resize events.
-   * Cleans up listeners when the component is unmounted.
-   */
+  /** Bind/unbind scroll and resize listeners for focus updates. */
   useEffect(() => {
     document.addEventListener("scroll", handleScrollOrResize);
     window.addEventListener("resize", handleScrollOrResize);
