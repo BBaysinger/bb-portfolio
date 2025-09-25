@@ -1,4 +1,5 @@
 // Fetch project data from the live API only (no JSON fallback)
+// Transforms Payload REST shape { docs: [...] } into a keyed record by slug.
 async function fetchPortfolioProjects(): Promise<PortfolioProjectData> {
   const isServer = typeof window === "undefined";
   const base =
@@ -10,25 +11,132 @@ async function fetchPortfolioProjects(): Promise<PortfolioProjectData> {
     process.env.SITE_URL ||
     "";
 
-  const apiUrl = isServer
-    ? base
-      ? `${base.replace(/\/$/, "")}/api/projects`
+  const apiBase = isServer ? (base ? base.replace(/\/$/, "") : null) : "";
+  const url = isServer
+    ? apiBase
+      ? `${apiBase}/api/projects?depth=1&limit=1000`
       : null
-    : "/api/projects";
+    : "/api/projects?depth=1&limit=1000";
 
-  if (!apiUrl) {
+  if (!url) {
     throw new Error(
       "Missing BACKEND URL for server fetch. Set NEXT_PUBLIC_BACKEND_URL or BACKEND_URL (or NEXT_PUBLIC_SITE_URL/SITE_URL) so the server can reach /api/projects.",
     );
   }
 
-  const res = await fetch(apiUrl, { next: { revalidate: 3600 } });
+  const res = await fetch(url, { next: { revalidate: 3600 } });
   if (!res.ok) {
     throw new Error(
       `Failed to fetch project data: ${res.status} ${res.statusText}`,
     );
   }
-  return (await res.json()) as PortfolioProjectData;
+  type BrandRel =
+    | string
+    | { slug?: string; id?: string }
+    | Array<{ slug?: string; id?: string }>;
+  interface PayloadProjectDoc {
+    slug?: string;
+    id?: string;
+    title?: string;
+    active?: boolean;
+    omitFromList?: boolean;
+    nda?: boolean;
+    brandId?: BrandRel;
+    tags?: Array<{ tag?: string }>;
+    role?: Array<{ value?: string }> | string;
+    year?: string;
+    awards?: Array<{ award?: string }> | string;
+    type?: string;
+    desc?: Array<{ block?: string }>;
+    date?: string;
+    urls?: Array<{ label?: string; url?: string }>;
+  }
+  interface PayloadProjectsRest {
+    docs: PayloadProjectDoc[];
+  }
+  const json = (await res.json()) as PayloadProjectsRest | PortfolioProjectData;
+
+  // Type guard to detect Payload REST shape
+  const isPayloadRest = (val: unknown): val is PayloadProjectsRest => {
+    return (
+      typeof val === "object" &&
+      val !== null &&
+      Array.isArray((val as Record<string, unknown>).docs)
+    );
+  };
+
+  if (!isPayloadRest(json)) {
+    // Already in expected record form
+    return json as PortfolioProjectData;
+  }
+
+  const out: PortfolioProjectData = {};
+  const docs: PayloadProjectDoc[] = json.docs;
+  for (const doc of docs) {
+    const slug: string | undefined = doc.slug || doc.id;
+    if (!slug) continue;
+
+    // Map relationship brandId → brand slug/id string
+    let brandId = "";
+    const b: BrandRel | undefined = doc.brandId;
+    if (typeof b === "string") {
+      brandId = b;
+    } else if (Array.isArray(b)) {
+      const first = b[0];
+      brandId = (first && (first.slug || first.id)) || "";
+    } else if (b && typeof b === "object") {
+      brandId = b.slug || b.id || "";
+    }
+
+    const tags = Array.isArray(doc.tags)
+      ? doc.tags.map((t) => t?.tag).filter((x): x is string => !!x)
+      : [];
+    const role = Array.isArray(doc.role)
+      ? doc.role
+          .map((r) => r?.value)
+          .filter((x): x is string => !!x)
+          .join(", ")
+      : typeof doc.role === "string"
+        ? doc.role
+        : "";
+    const awards = Array.isArray(doc.awards)
+      ? doc.awards
+          .map((a) => a?.award)
+          .filter((x): x is string => !!x)
+          .join(", ")
+      : typeof doc.awards === "string"
+        ? doc.awards
+        : "";
+    const desc = Array.isArray(doc.desc)
+      ? doc.desc.map((d) => d?.block).filter((x): x is string => !!x)
+      : [];
+    const urlsArray = Array.isArray(doc.urls) ? doc.urls : [];
+    const urls: Record<string, string | string[]> = {};
+    for (const u of urlsArray) {
+      if (u?.label && u?.url) urls[u.label] = u.url;
+    }
+
+    const item: PortfolioProjectBase = {
+      title: doc.title || "Untitled",
+      active: !!doc.active,
+      omitFromList: !!doc.omitFromList,
+      brandId,
+      mobileStatus: MobileStatuses.NONE,
+      tags,
+      role,
+      year: doc.year,
+      awards,
+      type: doc.type,
+      desc,
+      date: doc.date || "",
+      urls,
+      nda: !!doc.nda,
+    };
+
+    out[slug] = item;
+  }
+
+  return out;
 }
 
 // Define constants for MobileOrientation

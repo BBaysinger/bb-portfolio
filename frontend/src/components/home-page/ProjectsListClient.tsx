@@ -146,6 +146,11 @@ const ProjectsListClient: React.FC<ProjectsListClientProps> = ({
       className={styles.projectsList}
       data-nav="projects-list"
     >
+      {allProjects.length === 0 && (
+        <div aria-live="polite" style={{ opacity: 0.7 }}>
+          No projects to display yet.
+        </div>
+      )}
       {allProjects.map((projectData, index) => {
         const id = projectData.id;
         const { title, omitFromList, brandId, nda } = projectData;
@@ -153,7 +158,7 @@ const ProjectsListClient: React.FC<ProjectsListClientProps> = ({
         return (
           <ProjectThumbnail
             focused={focusedThumbIndex === index}
-            key={title}
+            key={id}
             index={index}
             omitFromList={omitFromList}
             projectId={id}
