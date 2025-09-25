@@ -148,7 +148,7 @@ const ProjectsListClient: React.FC<ProjectsListClientProps> = ({
     >
       {allProjects.map((projectData, index) => {
         const id = projectData.id;
-        const { title, omitFromList, brandId } = projectData;
+        const { title, omitFromList, brandId, nda } = projectData;
 
         return (
           <ProjectThumbnail
@@ -159,6 +159,7 @@ const ProjectsListClient: React.FC<ProjectsListClientProps> = ({
             projectId={id}
             title={title}
             brandId={brandId}
+            nda={nda}
             ref={(node) => setThumbRef(node, index)}
           />
         );

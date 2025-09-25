@@ -7,6 +7,20 @@ export const Projects: CollectionConfig = {
     useAsTitle: 'title',
     defaultColumns: ['title', 'slug', 'active', 'brandId'],
   },
+  access: {
+    // Public can read active projects (including NDA), but NDA fields are sanitized in afterRead.
+    // Admins can read all fields unmodified.
+    read: ({ req }) => {
+      if (req.user?.role === 'admin') return true
+      return {
+        active: { equals: true },
+      }
+    },
+    // Only admins can create/update/delete projects
+    create: ({ req }) => req.user?.role === 'admin',
+    update: ({ req }) => req.user?.role === 'admin',
+    delete: ({ req }) => req.user?.role === 'admin',
+  },
   hooks: {
     beforeChange: [
       ({ data, operation }) => {
@@ -18,6 +32,21 @@ export const Projects: CollectionConfig = {
           })
         }
         return data
+      },
+    ],
+    afterRead: [
+      ({ doc, req }) => {
+        // For unauthenticated requests, scrub sensitive textual fields on NDA docs.
+        // Any logged-in user (including non-admin) can see full NDA details.
+        const isAuthenticated = !!req.user
+        if (doc?.nda && !isAuthenticated) {
+          return {
+            ...doc,
+            title: 'Confidential Project',
+            desc: [],
+          }
+        }
+        return doc
       },
     ],
   },
