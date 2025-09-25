@@ -19,9 +19,24 @@ async function fetchPortfolioProjects(): Promise<PortfolioProjectData> {
     : "/api/projects?depth=1&limit=1000";
 
   if (!url) {
-    throw new Error(
-      "Missing BACKEND URL for server fetch. Set NEXT_PUBLIC_BACKEND_URL or BACKEND_URL (or NEXT_PUBLIC_SITE_URL/SITE_URL) so the server can reach /api/projects.",
-    );
+    // During static builds or misconfigured environments, we may not have a
+    // resolvable backend base URL.
+    // By default, keep builds resilient (warn + empty dataset).
+    // When STRICT_BACKEND_URL=true or in development, fail fast (error + throw).
+    const inCI = process.env.CI === "true" || process.env.GITHUB_ACTIONS === "true";
+    const strict =
+      process.env.STRICT_BACKEND_URL === "true" ||
+      inCI ||
+      // Fail fast in all non-production environments (dev, test, etc.)
+      process.env.NODE_ENV !== "production";
+    const msg =
+      "Missing BACKEND URL for server fetch. Set NEXT_PUBLIC_BACKEND_URL or BACKEND_URL (or NEXT_PUBLIC_SITE_URL/SITE_URL) so the server can reach /api/projects.";
+    if (strict) {
+      console.error(`ProjectData: ${msg}`);
+      throw new Error(msg);
+    }
+    console.warn(`ProjectData: ${msg} Returning empty dataset.`);
+    return {} as PortfolioProjectData;
   }
 
   const res = await fetch(url, { next: { revalidate: 3600 } });
