@@ -1,3 +1,5 @@
+"use client";
+
 import { RawImg } from "@/components/common/RawImg";
 import MagneticThingy from "@/components/home-page/MagneticThingy";
 import useInViewAnimation from "@/hooks/useInViewAnimation";

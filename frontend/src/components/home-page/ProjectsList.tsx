@@ -1,3 +1,4 @@
+// NOTE: This is a Server Component. Do NOT add 'use client'.
 import ProjectsListClient from "@/components/home-page/ProjectsListClient";
 import ProjectData from "@/data/ProjectData";
 
@@ -23,14 +24,9 @@ const ProjectsList = async () => {
   ) {
     await ProjectData.initialize();
   }
-  // Combine public listed projects with NDA entries that should display
-  // placeholders in the grid. The client decides how to render each.
-  const allProjects = [
-    ...ProjectData.listedProjects,
-    ...Object.values(ProjectData["_projects"] || {}).filter(
-      (p) => p.nda && !ProjectData.listedKeys.includes(p.id),
-    ),
-  ];
+  // Use listedProjects (active & not omitted) for the main grid, which may include NDA items.
+  // The client decides how to render NDA entries as placeholders.
+  const allProjects = [...ProjectData.listedProjects];
   // Delegate rendering and interactivity to the client component.
   return <ProjectsListClient allProjects={allProjects} />;
 };

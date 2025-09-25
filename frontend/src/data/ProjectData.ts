@@ -1,8 +1,34 @@
-// Fetch project data from Next.js API endpoint
+// Fetch project data from the live API only (no JSON fallback)
 async function fetchPortfolioProjects(): Promise<PortfolioProjectData> {
-  const res = await fetch("/api/projects"); // Adjust endpoint as needed
-  if (!res.ok) throw new Error("Failed to fetch project data");
-  return await res.json();
+  const isServer = typeof window === "undefined";
+  const base =
+    process.env.NEXT_PUBLIC_BACKEND_URL ||
+    process.env.BACKEND_URL ||
+    process.env.NEXT_PUBLIC_API_URL ||
+    process.env.API_URL ||
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    process.env.SITE_URL ||
+    "";
+
+  const apiUrl = isServer
+    ? base
+      ? `${base.replace(/\/$/, "")}/api/projects`
+      : null
+    : "/api/projects";
+
+  if (!apiUrl) {
+    throw new Error(
+      "Missing BACKEND URL for server fetch. Set NEXT_PUBLIC_BACKEND_URL or BACKEND_URL (or NEXT_PUBLIC_SITE_URL/SITE_URL) so the server can reach /api/projects.",
+    );
+  }
+
+  const res = await fetch(apiUrl, { next: { revalidate: 3600 } });
+  if (!res.ok) {
+    throw new Error(
+      `Failed to fetch project data: ${res.status} ${res.statusText}`,
+    );
+  }
+  return (await res.json()) as PortfolioProjectData;
 }
 
 // Define constants for MobileOrientation
@@ -126,12 +152,20 @@ export default class ProjectData {
 
     for (const key of this._keys) {
       const project = this._projects[key];
-      // Only include active, non-NDA projects for SSG
-      if (project.active && !project.nda) {
+      if (!project.active) continue;
+
+      if (!project.nda) {
+        // Non-NDA: included in active navigation and list (unless omitted)
         this._activeKeys.push(key);
         this._activeProjects.push(project);
         this._activeProjectsMap[key] = project;
 
+        if (!project.omitFromList) {
+          this._listedKeys.push(key);
+          this._listedProjects.push(project);
+        }
+      } else {
+        // NDA: not part of active navigation, but can appear in the list as placeholder
         if (!project.omitFromList) {
           this._listedKeys.push(key);
           this._listedProjects.push(project);

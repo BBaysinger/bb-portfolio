@@ -1,6 +1,6 @@
 @use "@/styles/mixins" as *;
 @use "@/styles/variables" as *;
-@use "./ProjectsList.module.scss" as projectsList;
+@use "./ProjectsListClient.module.scss" as projectsList;
 
 .projectThumbnail {
   height: 290px;

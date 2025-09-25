@@ -12,6 +12,7 @@ interface ProjectThumbnailProps {
   projectId: string;
   title: string;
   brandId: string;
+  nda?: boolean;
 }
 
 /**
@@ -23,7 +24,7 @@ interface ProjectThumbnailProps {
  * @version N/A
  */
 const ProjectThumbnail = forwardRef<HTMLDivElement, ProjectThumbnailProps>(
-  ({ focused, projectId, title, brandId }, ref) => {
+  ({ focused, projectId, title, brandId, nda }, ref) => {
     const [logoSrc, setLogoSrc] = useState<string | null>(null);
 
     useEffect(() => {
@@ -49,27 +50,41 @@ const ProjectThumbnail = forwardRef<HTMLDivElement, ProjectThumbnailProps>(
 
     const focusClass = focused ? styles.projectThumbnailFocus : "";
 
+    const inner = (
+      <>
+        <div className={styles.thumbBg} style={style}></div>
+        <div className={styles.vignette}></div>
+        <div className={styles.thumbContent}>
+          <div>
+            {logoSrc && (
+              <Image
+                src={logoSrc}
+                className={styles.brandLogo}
+                loading="eager"
+                alt={`${brandId} logo`}
+                width={200}
+                height={100}
+              />
+            )}
+          </div>
+          <h4 className={styles.thumbTitle}>
+            {nda ? "Confidential Project" : title}
+          </h4>
+        </div>
+      </>
+    );
+
     return (
       <div className={`${styles.projectThumbnail} ${focusClass}`} ref={ref}>
-        <Link href={`/project-view/${projectId}`} className={styles.link}>
-          <div className={styles.thumbBg} style={style}></div>
-          <div className={styles.vignette}></div>
-          <div className={styles.thumbContent}>
-            <div>
-              {logoSrc && (
-                <Image
-                  src={logoSrc}
-                  className={styles.brandLogo}
-                  loading="eager"
-                  alt={`${brandId} logo`}
-                  width={200}
-                  height={100}
-                />
-              )}
-            </div>
-            <h4 className={styles.thumbTitle}>{title}</h4>
+        {nda ? (
+          <div className={styles.link} aria-label="Confidential Project">
+            {inner}
           </div>
-        </Link>{" "}
+        ) : (
+          <Link href={`/project-view/${projectId}`} className={styles.link}>
+            {inner}
+          </Link>
+        )}
       </div>
     );
   },
