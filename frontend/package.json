@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "prebuild": "node ./scripts/check-required-env.js",
     "build": "next build",
     "preview": "npx serve out",
     "start": "next start",
