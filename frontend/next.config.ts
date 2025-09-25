@@ -9,6 +9,23 @@ const nextConfig: NextConfig = {
     unoptimized: true,
   },
   trailingSlash: true,
+  async rewrites() {
+    const internalApi =
+      process.env.BACKEND_INTERNAL_URL ||
+      process.env.INTERNAL_API_URL ||
+      process.env.NEXT_PUBLIC_API_URL ||
+      "";
+
+    if (!internalApi) return [];
+
+    const base = internalApi.replace(/\/$/, "");
+    return [
+      {
+        source: "/api/:path*",
+        destination: `${base}/api/:path*`,
+      },
+    ];
+  },
   // Security headers for frontend
   async headers() {
     return [
