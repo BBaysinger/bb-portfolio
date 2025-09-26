@@ -9,6 +9,8 @@
   "scripts": {
     // Start Next.js development server with hot reload
     "dev": "next dev",
+    // Check required environment variables for current profile
+    "prebuild": "node ./scripts/check-required-env.js",
     // Build production-optimized static site
     "build": "next build",
     // Preview the built static site using serve
@@ -18,7 +20,7 @@
     // Run Next.js ESLint configuration
     "lint": "next lint",
     // "Pretty Build" - format code with Prettier then run TypeScript build for validation
-    "pb": "prettier --write . && tsc -b",
+    "precommit": "prettier --write . && tsc -b",
     // Come back to this when there's time to write some tests.
     "test": "echo 'TODO: Add test scripts'",
   },
@@ -42,12 +44,14 @@
     "react-redux": "^9.2.0",
     // CSS preprocessor with variables, nesting, and mixins
     "sass": "^1.93.2",
+    // HTTP client for making API requests
     "jsonwebtoken": "^9.0.2",
   },
   // Development-only dependencies for tooling and type checking
   "devDependencies": {
     // Legacy ESLint configuration system (required by some plugins)
     "@eslint/eslintrc": "^3",
+    // TypeScript definitions for jsonwebtoken library
     "@types/jsonwebtoken": "^9.0.10",
     // Node.js TypeScript definitions (latest for Node 18+)
     "@types/node": "^24",

@@ -72,7 +72,7 @@ jobs:
           ENV_PROFILE: ${{ github.ref == 'refs/heads/main' && 'prod' || 'dev' }}
           # Bake internal Docker DNS for API rewrites and server fetch base
           # Prefer PROD_/DEV_ prefixed variables if they exist, otherwise fall back to literals
-          BACKEND_INTERNAL_URL: ${{ github.ref == 'refs/heads/main' && (secrets.PROD_FRONTEND_BACKEND_INTERNAL_URL || 'http://backend-prod:3000') || (secrets.DEV_FRONTEND_BACKEND_INTERNAL_URL || 'http://backend-dev:3000') }}
+          BACKEND_INTERNAL_URL: ${{ github.ref == 'refs/heads/main' && (secrets.PROD_BACKEND_INTERNAL_URL || 'http://backend-prod:3000') || (secrets.DEV_BACKEND_INTERNAL_URL || 'http://backend-dev:3000') }}
         run: npm run build # Next.js production build
 
       - name: Test frontend
@@ -154,7 +154,7 @@ jobs:
           echo "Building frontend production image..."
           docker build \
             --build-arg ENV_PROFILE=prod \
-            --build-arg BACKEND_INTERNAL_URL=${{ secrets.PROD_FRONTEND_BACKEND_INTERNAL_URL || 'http://backend-prod:3000' }} \
+            --build-arg BACKEND_INTERNAL_URL=${{ secrets.PROD_BACKEND_INTERNAL_URL || 'http://backend-prod:3000' }} \
             -t frontend:latest ./frontend
           echo "🏷️ Tagging frontend image for ECR..."
           docker tag frontend:latest 778230822028.dkr.ecr.us-west-2.amazonaws.com/portfolio/frontend:latest
@@ -313,9 +313,7 @@ jobs:
             NODE_ENV=production
             ENV_PROFILE=prod
             # Internal backend URL used for server-side fetch and rewrites
-            BACKEND_INTERNAL_URL=${{ secrets.PROD_FRONTEND_BACKEND_INTERNAL_URL || 'http://backend-prod:3000' }}
-            # Prefixed variant for prefix-first resolution
-            PROD_FRONTEND_BACKEND_INTERNAL_URL=${{ secrets.PROD_FRONTEND_BACKEND_INTERNAL_URL || 'http://backend-prod:3000' }}
+            BACKEND_INTERNAL_URL=${{ secrets.PROD_BACKEND_INTERNAL_URL || 'http://backend-prod:3000' }}
             EOF
 
             # ===============================================================
@@ -460,9 +458,7 @@ jobs:
             cat > frontend/.env.dev << EOF
             NODE_ENV=development
             ENV_PROFILE=dev
-            BACKEND_INTERNAL_URL=${{ secrets.DEV_FRONTEND_BACKEND_INTERNAL_URL || 'http://backend-dev:3000' }}
-            # Prefixed variant for prefix-first resolution
-            DEV_FRONTEND_BACKEND_INTERNAL_URL=${{ secrets.DEV_FRONTEND_BACKEND_INTERNAL_URL || 'http://backend-dev:3000' }}
+            BACKEND_INTERNAL_URL=${{ secrets.DEV_BACKEND_INTERNAL_URL || 'http://backend-dev:3000' }}
             EOF
             echo "Environment configuration complete"
 

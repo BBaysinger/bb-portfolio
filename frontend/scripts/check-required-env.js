@@ -49,7 +49,6 @@
 
   const defaultBackendGroup = [
     "BACKEND_INTERNAL_URL",
-    "FRONTEND_BACKEND_INTERNAL_URL",
     "BACKEND_URL",
     "NEXT_PUBLIC_BACKEND_URL",
     "NEXT_PUBLIC_API_URL",
