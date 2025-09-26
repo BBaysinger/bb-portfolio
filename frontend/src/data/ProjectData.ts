@@ -9,11 +9,17 @@ async function fetchPortfolioProjects(): Promise<PortfolioProjectData> {
     ""
   ).toLowerCase();
   const prefix = profile ? `${profile.toUpperCase()}_` : "";
-  const firstVal = (names: string[]) => names.find((n) => process.env[n]) || "";
+  // Return the VALUE of the first defined env var (not the name)
+  const firstVal = (names: string[]) => {
+    for (const n of names) {
+      const v = process.env[n];
+      if (v) return v;
+    }
+    return "";
+  };
   const base =
     firstVal([
       `${prefix}BACKEND_INTERNAL_URL`,
-      `${prefix}FRONTEND_BACKEND_INTERNAL_URL`,
       `${prefix}INTERNAL_API_URL`,
       `${prefix}BACKEND_URL`,
       `${prefix}NEXT_PUBLIC_BACKEND_URL`,
@@ -22,7 +28,6 @@ async function fetchPortfolioProjects(): Promise<PortfolioProjectData> {
       `${prefix}SITE_URL`,
     ]) ||
     process.env.BACKEND_INTERNAL_URL ||
-    process.env.FRONTEND_BACKEND_INTERNAL_URL ||
     process.env.INTERNAL_API_URL ||
     process.env.BACKEND_URL ||
     process.env.NEXT_PUBLIC_BACKEND_URL ||
