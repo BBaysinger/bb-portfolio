@@ -65,7 +65,8 @@ services:
     container_name: portfolio-backend-prod
     ports:
       - "3001:3000" # Backend gets xxx1 for production
-    # Uses environment variables provided by CI/CD or host; no env_file
+    env_file:
+      - ./backend/.env.prod
     restart: unless-stopped # Auto-restart on failure/reboot
     healthcheck: # Health monitoring for load balancers
       test:
@@ -86,7 +87,8 @@ services:
     container_name: portfolio-frontend-prod
     ports:
       - "3000:3000" # Frontend gets xxx0 for production
-    # Uses environment variables provided by CI/CD or host; no env_file
+    env_file:
+      - ./frontend/.env.prod
     restart: unless-stopped # Auto-restart on failure/reboot
     depends_on:
       backend-prod:
@@ -121,7 +123,8 @@ services:
     container_name: portfolio-backend-dev
     ports:
       - "4001:3000" # Backend gets xxx1
-    # Uses environment variables provided by CI/CD or host; no env_file
+    env_file:
+      - ./backend/.env.dev
     restart: unless-stopped # Auto-restart on failure/reboot
 
   frontend-dev:
@@ -130,7 +133,8 @@ services:
     container_name: portfolio-frontend-dev
     ports:
       - "4000:3000" # Frontend gets xxx0
-    # Uses environment variables provided by CI/CD or host; no env_file
+    env_file:
+      - ./frontend/.env.dev
     restart: unless-stopped # Auto-restart on failure/reboot
     depends_on:
       backend-dev:
