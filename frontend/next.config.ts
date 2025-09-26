@@ -18,10 +18,15 @@ const nextConfig: NextConfig = {
       ""
     ).toLowerCase();
     const prefix = profile ? `${profile.toUpperCase()}_` : "";
-    const pick = (...names: string[]) =>
-      names.find((n) => process.env[n]) || "";
+    const pickValue = (...names: string[]) => {
+      for (const n of names) {
+        const v = process.env[n];
+        if (v) return v;
+      }
+      return "";
+    };
     const internalApi =
-      pick(
+      pickValue(
         `${prefix}BACKEND_INTERNAL_URL`,
         `${prefix}FRONTEND_BACKEND_INTERNAL_URL`,
         `${prefix}INTERNAL_API_URL`,
@@ -29,7 +34,7 @@ const nextConfig: NextConfig = {
         `${prefix}NEXT_PUBLIC_BACKEND_URL`,
         `${prefix}NEXT_PUBLIC_API_URL`,
       ) ||
-      pick(
+      pickValue(
         "BACKEND_INTERNAL_URL",
         "FRONTEND_BACKEND_INTERNAL_URL",
         "INTERNAL_API_URL",
@@ -41,6 +46,13 @@ const nextConfig: NextConfig = {
     if (!internalApi) return [];
 
     const base = internalApi.replace(/\/$/, "");
+    // Ensure destination is a valid absolute URL for external rewrite
+    if (!/^https?:\/\//i.test(base)) {
+      throw new Error(
+        `Invalid BACKEND base URL for rewrites: ${base}. ` +
+          `Set one of ${prefix}BACKEND_INTERNAL_URL, ${prefix}FRONTEND_BACKEND_INTERNAL_URL, or BACKEND_INTERNAL_URL to a http(s) URL.`,
+      );
+    }
     return [
       {
         source: "/api/:path*",
