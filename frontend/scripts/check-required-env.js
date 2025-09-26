@@ -4,7 +4,7 @@
 
   Supports:
   - REQUIRED_ENVIRONMENT_VARIABLES: comma-separated list of env var names that MUST be set.
-  - REQUIRED_ENVIRONMENT_VARIABLES__<ENV_PROFILE>: per-environment override (e.g., __prod, __dev, __local).
+  - <PROFILE>_REQUIRED_ENVIRONMENT_VARIABLES: prefix-first per-environment override (e.g., PROD_REQUIRED_ENVIRONMENT_VARIABLES).
   - Any-of groups: use pipe within an entry to require at least one (e.g., "BACKEND_URL|NEXT_PUBLIC_BACKEND_URL").
   - Default behavior: in CI+prod, require at least one backend base URL var to avoid empty portfolio deploys.
 */
@@ -23,9 +23,12 @@
     .toLowerCase()
     .trim();
 
-  const perEnvKey = `REQUIRED_ENVIRONMENT_VARIABLES__${profile}`;
+  const profileUpper = (profile || "").toUpperCase();
+  const newProfileKey = profileUpper
+    ? `${profileUpper}_REQUIRED_ENVIRONMENT_VARIABLES`
+    : "";
   const rawList = (
-    (process.env[perEnvKey] || REQUIRED_ENVIRONMENT_VARIABLES || "") + ""
+    (process.env[newProfileKey] || REQUIRED_ENVIRONMENT_VARIABLES || "") + ""
   ).trim();
 
   const parseRequirements = (s) => {
@@ -74,10 +77,10 @@
       `Profile: ${profile || "<none>"}`,
       "The following requirements were not satisfied (ANY of within each group):",
       ...missingGroups.map((g) => `  - ${g}`),
-      "\nConfigure REQUIRED_ENVIRONMENT_VARIABLES or REQUIRED_ENVIRONMENT_VARIABLES__<profile>.",
+      "\nConfigure REQUIRED_ENVIRONMENT_VARIABLES or <PROFILE>_REQUIRED_ENVIRONMENT_VARIABLES.",
       "Examples:",
       "  REQUIRED_ENVIRONMENT_VARIABLES=BACKEND_INTERNAL_URL|BACKEND_URL|NEXT_PUBLIC_BACKEND_URL",
-      "  REQUIRED_ENVIRONMENT_VARIABLES__prod=BACKEND_INTERNAL_URL|BACKEND_URL|NEXT_PUBLIC_BACKEND_URL",
+      "  PROD_REQUIRED_ENVIRONMENT_VARIABLES=BACKEND_INTERNAL_URL|BACKEND_URL|NEXT_PUBLIC_BACKEND_URL",
       "\nNote: In CI+prod, a default requirement enforces at least one backend base URL variable to avoid empty portfolio deploys.",
     ].join("\n");
     console.error(msg);
