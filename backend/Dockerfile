@@ -41,6 +41,17 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y curl && rm -rf /v
 # Set working directory for all subsequent commands
 WORKDIR /app
 
+# Provide build-time environment to satisfy strict env checks in configuration
+# These values are used only during the build and are not persisted to the runtime image
+ARG ENV_PROFILE=prod
+ARG PROD_MONGODB_URI
+ARG DEV_MONGODB_URI
+ARG LOCAL_MONGODB_URI
+ENV ENV_PROFILE=${ENV_PROFILE}
+ENV PROD_MONGODB_URI=${PROD_MONGODB_URI}
+ENV DEV_MONGODB_URI=${DEV_MONGODB_URI}
+ENV LOCAL_MONGODB_URI=${LOCAL_MONGODB_URI}
+
 # Install system dependencies required for native Node.js modules compilation
 # Similar to frontend setup but focused on backend needs
 RUN apt-get update && apt-get install -y --no-install-recommends \

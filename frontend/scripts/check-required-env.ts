@@ -1,13 +1,14 @@
 #!/usr/bin/env node
 /*
-  Prebuild guard for required env vars (plain JS).
+  Conventional prebuild guard for required env vars (plain JS version).
 
-  Supports:
+  Features:
   - REQUIRED_ENVIRONMENT_VARIABLES: comma-separated list of env var names that MUST be set.
   - REQUIRED_ENVIRONMENT_VARIABLES__<ENV_PROFILE>: per-environment override (e.g., __prod, __dev, __local).
   - Any-of groups: use pipe within an entry to require at least one (e.g., "BACKEND_URL|NEXT_PUBLIC_BACKEND_URL").
-  - Default behavior: in CI+prod, require at least one backend base URL var to avoid empty portfolio deploys.
+  - Sensible default when nothing configured: in CI+prod, require one backend base URL var to avoid empty portfolio deploys.
 */
+
 (function () {
   const {
     CI,
@@ -28,7 +29,7 @@
     (process.env[perEnvKey] || REQUIRED_ENVIRONMENT_VARIABLES || "") + ""
   ).trim();
 
-  const parseRequirements = (s) => {
+  const parseRequirements = (s: string): string[][] => {
     if (!s) return [];
     return s
       .split(",")
@@ -45,14 +46,13 @@
   const requirements = parseRequirements(rawList);
 
   const defaultBackendGroup = [
-    "BACKEND_INTERNAL_URL",
-    "FRONTEND_BACKEND_INTERNAL_URL",
     "BACKEND_URL",
     "NEXT_PUBLIC_BACKEND_URL",
     "NEXT_PUBLIC_API_URL",
     "API_URL",
     "NEXT_PUBLIC_SITE_URL",
     "SITE_URL",
+    "BACKEND_INTERNAL_URL",
   ];
 
   const effectiveRequirements =
@@ -76,8 +76,8 @@
       ...missingGroups.map((g) => `  - ${g}`),
       "\nConfigure REQUIRED_ENVIRONMENT_VARIABLES or REQUIRED_ENVIRONMENT_VARIABLES__<profile>.",
       "Examples:",
-      "  REQUIRED_ENVIRONMENT_VARIABLES=BACKEND_INTERNAL_URL|BACKEND_URL|NEXT_PUBLIC_BACKEND_URL",
-      "  REQUIRED_ENVIRONMENT_VARIABLES__prod=BACKEND_INTERNAL_URL|BACKEND_URL|NEXT_PUBLIC_BACKEND_URL",
+      "  REQUIRED_ENVIRONMENT_VARIABLES=BACKEND_URL|NEXT_PUBLIC_BACKEND_URL,ANOTHER_REQUIRED_VAR",
+      "  REQUIRED_ENVIRONMENT_VARIABLES__prod=BACKEND_URL|NEXT_PUBLIC_BACKEND_URL",
       "\nNote: In CI+prod, a default requirement enforces at least one backend base URL variable to avoid empty portfolio deploys.",
     ].join("\n");
     console.error(msg);

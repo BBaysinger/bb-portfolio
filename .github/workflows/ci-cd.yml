@@ -67,6 +67,12 @@ jobs:
 
       - name: Build frontend
         working-directory: ./frontend
+        env:
+          # Ensure profile and backend base are available to prebuild guard and Next.js
+          ENV_PROFILE: ${{ github.ref == 'refs/heads/main' && 'prod' || 'dev' }}
+          # Bake internal Docker DNS for API rewrites and server fetch base
+          # Prefer PROD_/DEV_ prefixed variables if they exist, otherwise fall back to literals
+          BACKEND_INTERNAL_URL: ${{ github.ref == 'refs/heads/main' && (secrets.PROD_FRONTEND_BACKEND_INTERNAL_URL || 'http://backend-prod:3000') || (secrets.DEV_FRONTEND_BACKEND_INTERNAL_URL || 'http://backend-dev:3000') }}
         run: npm run build # Next.js production build
 
       - name: Test frontend
@@ -82,10 +88,18 @@ jobs:
 
       - name: Build backend
         working-directory: ./backend
+        env:
+          # Use dev profile with a dummy connection string just to satisfy build-time checks
+          ENV_PROFILE: dev
+          DEV_MONGODB_URI: mongodb://localhost:27017/dummy-db
+          # Payload secret is not required at build time, only at runtime
         run: npm run build # Next.js production build (Payload CMS)
 
       - name: Test backend
         working-directory: ./backend
+        env:
+          ENV_PROFILE: dev
+          DEV_MONGODB_URI: mongodb://localhost:27017/dummy-db
         run: npm test || echo "⚠️ No backend tests yet" # Graceful failure until tests are implemented
 
   # ==========================================================================
@@ -133,7 +147,10 @@ jobs:
       - name: Build and push frontend-prod
         run: |
           echo "Building frontend production image..."
-          docker build -t frontend:latest ./frontend
+          docker build \
+            --build-arg ENV_PROFILE=prod \
+            --build-arg BACKEND_INTERNAL_URL=${{ secrets.PROD_FRONTEND_BACKEND_INTERNAL_URL || 'http://backend-prod:3000' }} \
+            -t frontend:latest ./frontend
           echo "🏷️ Tagging frontend image for ECR..."
           docker tag frontend:latest 778230822028.dkr.ecr.us-west-2.amazonaws.com/portfolio/frontend:latest
           echo "📤 Pushing frontend image to ECR..."
@@ -143,7 +160,10 @@ jobs:
       - name: Build and push backend-prod
         run: |
           echo "Building backend production image..."
-          docker build -t backend:latest ./backend
+          docker build \
+            --build-arg ENV_PROFILE=prod \
+            --build-arg PROD_MONGODB_URI=mongodb://localhost:27017/dummy-db \
+            -t backend:latest ./backend
           echo "🏷️ Tagging backend image for ECR..."
           docker tag backend:latest 778230822028.dkr.ecr.us-west-2.amazonaws.com/portfolio/backend:latest
           echo "📤 Pushing backend image to ECR..."
@@ -274,15 +294,23 @@ jobs:
             # Backend production environment
             cat > backend/.env.prod << EOF
             PORT=3000
-            MONGODB_URI=${{ secrets.PROD_MONGODB_URI }}
-            PAYLOAD_SECRET=${{ secrets.PROD_PAYLOAD_SECRET }}
+            # Prefix-first envs: use PROD_MONGODB_URI exclusively
+            PROD_MONGODB_URI=${{ secrets.PROD_MONGODB_URI }}
+            PROD_PAYLOAD_SECRET=${{ secrets.PROD_PAYLOAD_SECRET }}
+            # Frontend origin for CORS/CSRF
+            PROD_FRONTEND_URL=${{ secrets.PROD_FRONTEND_URL }}
             NODE_ENV=production
+            ENV_PROFILE=prod
             EOF
 
             # Frontend production environment
             cat > frontend/.env.prod << EOF
             NODE_ENV=production
-            NEXT_PUBLIC_API_URL=http://your-ec2-ip:4000
+            ENV_PROFILE=prod
+            # Internal backend URL used for server-side fetch and rewrites
+            BACKEND_INTERNAL_URL=${{ secrets.PROD_FRONTEND_BACKEND_INTERNAL_URL || 'http://backend-prod:3000' }}
+            # Prefixed variant for prefix-first resolution
+            PROD_FRONTEND_BACKEND_INTERNAL_URL=${{ secrets.PROD_FRONTEND_BACKEND_INTERNAL_URL || 'http://backend-prod:3000' }}
             EOF
 
             # ===============================================================
@@ -413,16 +441,23 @@ jobs:
             echo "Creating backend .env.dev..."
             cat > backend/.env.dev << EOF
             PORT=3000
-            MONGODB_URI=${{ secrets.MONGODB_URI }}
-            PAYLOAD_SECRET=${{ secrets.PAYLOAD_SECRET }}
+            # Prefix-first envs: use DEV_MONGODB_URI exclusively
+            DEV_MONGODB_URI=${{ secrets.DEV_MONGODB_URI }}
+            DEV_PAYLOAD_SECRET=${{ secrets.DEV_PAYLOAD_SECRET }}
+            # Frontend origin for CORS/CSRF
+            DEV_FRONTEND_URL=${{ secrets.DEV_FRONTEND_URL }}
             NODE_ENV=development
+            ENV_PROFILE=dev
             EOF
 
             # Create frontend .env.dev
             echo "Creating frontend .env.dev..."
             cat > frontend/.env.dev << EOF
             NODE_ENV=development
-            NEXT_PUBLIC_API_URL=http://localhost:4000
+            ENV_PROFILE=dev
+            BACKEND_INTERNAL_URL=${{ secrets.DEV_FRONTEND_BACKEND_INTERNAL_URL || 'http://backend-dev:3000' }}
+            # Prefixed variant for prefix-first resolution
+            DEV_FRONTEND_BACKEND_INTERNAL_URL=${{ secrets.DEV_FRONTEND_BACKEND_INTERNAL_URL || 'http://backend-dev:3000' }}
             EOF
             echo "Environment configuration complete"
 
