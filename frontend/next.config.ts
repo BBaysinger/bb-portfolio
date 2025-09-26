@@ -10,11 +10,33 @@ const nextConfig: NextConfig = {
   },
   trailingSlash: true,
   async rewrites() {
+    // Prefer ENV_PROFILE-prefixed variables first (e.g., PROD_BACKEND_INTERNAL_URL),
+    // then fall back to unprefixed variants
+    const profile = (
+      process.env.ENV_PROFILE ||
+      process.env.NODE_ENV ||
+      ""
+    ).toLowerCase();
+    const prefix = profile ? `${profile.toUpperCase()}_` : "";
+    const pick = (...names: string[]) =>
+      names.find((n) => process.env[n]) || "";
     const internalApi =
-      process.env.BACKEND_INTERNAL_URL ||
-      process.env.INTERNAL_API_URL ||
-      process.env.NEXT_PUBLIC_API_URL ||
-      "";
+      pick(
+        `${prefix}BACKEND_INTERNAL_URL`,
+        `${prefix}FRONTEND_BACKEND_INTERNAL_URL`,
+        `${prefix}INTERNAL_API_URL`,
+        `${prefix}BACKEND_URL`,
+        `${prefix}NEXT_PUBLIC_BACKEND_URL`,
+        `${prefix}NEXT_PUBLIC_API_URL`,
+      ) ||
+      pick(
+        "BACKEND_INTERNAL_URL",
+        "FRONTEND_BACKEND_INTERNAL_URL",
+        "INTERNAL_API_URL",
+        "BACKEND_URL",
+        "NEXT_PUBLIC_BACKEND_URL",
+        "NEXT_PUBLIC_API_URL",
+      );
 
     if (!internalApi) return [];
 

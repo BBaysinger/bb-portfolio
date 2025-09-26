@@ -2,9 +2,30 @@
 // Transforms Payload REST shape { docs: [...] } into a keyed record by slug.
 async function fetchPortfolioProjects(): Promise<PortfolioProjectData> {
   const isServer = typeof window === "undefined";
+  // Support ENV-profile prefixed variables like DEV_BACKEND_INTERNAL_URL, PROD_BACKEND_URL, LOCAL_NEXT_PUBLIC_API_URL, etc.
+  const profile = (
+    process.env.ENV_PROFILE ||
+    process.env.NODE_ENV ||
+    ""
+  ).toLowerCase();
+  const prefix = profile ? `${profile.toUpperCase()}_` : "";
+  const firstVal = (names: string[]) => names.find((n) => process.env[n]) || "";
   const base =
-    process.env.NEXT_PUBLIC_BACKEND_URL ||
+    firstVal([
+      `${prefix}BACKEND_INTERNAL_URL`,
+      `${prefix}FRONTEND_BACKEND_INTERNAL_URL`,
+      `${prefix}INTERNAL_API_URL`,
+      `${prefix}BACKEND_URL`,
+      `${prefix}NEXT_PUBLIC_BACKEND_URL`,
+      `${prefix}NEXT_PUBLIC_API_URL`,
+      `${prefix}API_URL`,
+      `${prefix}SITE_URL`,
+    ]) ||
+    process.env.BACKEND_INTERNAL_URL ||
+    process.env.FRONTEND_BACKEND_INTERNAL_URL ||
+    process.env.INTERNAL_API_URL ||
     process.env.BACKEND_URL ||
+    process.env.NEXT_PUBLIC_BACKEND_URL ||
     process.env.NEXT_PUBLIC_API_URL ||
     process.env.API_URL ||
     process.env.NEXT_PUBLIC_SITE_URL ||
@@ -19,23 +40,26 @@ async function fetchPortfolioProjects(): Promise<PortfolioProjectData> {
     : "/api/projects?depth=1&limit=1000";
 
   if (!url) {
-    // During static builds or misconfigured environments, we may not have a
-    // resolvable backend base URL.
-    // By default, keep builds resilient (warn + empty dataset).
-    // When STRICT_BACKEND_URL=true or in development, fail fast (error + throw).
-    const inCI = process.env.CI === "true" || process.env.GITHUB_ACTIONS === "true";
-    const strict =
-      process.env.STRICT_BACKEND_URL === "true" ||
-      inCI ||
-      // Fail fast in all non-production environments (dev, test, etc.)
-      process.env.NODE_ENV !== "production";
+    // Missing backend base URL. Default behavior is to fail fast everywhere
+    // (dev and prod) to avoid silently rendering an empty portfolio.
+    // Exceptions:
+    // - In CI: always fail to block deployments.
+    // - For local preview only, you can opt-in to a non-fatal empty dataset by
+    //   setting ALLOW_EMPTY_PORTFOLIO_PREVIEW=true.
+    const inCI =
+      process.env.CI === "true" || process.env.GITHUB_ACTIONS === "true";
+    const allowPreviewEmpty =
+      process.env.ALLOW_EMPTY_PORTFOLIO_PREVIEW === "true";
     const msg =
       "Missing BACKEND URL for server fetch. Set NEXT_PUBLIC_BACKEND_URL or BACKEND_URL (or NEXT_PUBLIC_SITE_URL/SITE_URL) so the server can reach /api/projects.";
-    if (strict) {
+
+    if (inCI || !allowPreviewEmpty) {
       console.error(`ProjectData: ${msg}`);
       throw new Error(msg);
     }
-    console.warn(`ProjectData: ${msg} Returning empty dataset.`);
+    console.warn(
+      `ProjectData: ${msg} Local preview override active; returning empty dataset.`,
+    );
     return {} as PortfolioProjectData;
   }
 
