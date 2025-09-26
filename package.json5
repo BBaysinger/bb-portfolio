@@ -57,6 +57,8 @@
     "docker:push:backend": "docker push bhbaysinger/portfolio-backend:dev",
     // 🚀 Push frontend Docker image to Docker Hub (dev tag)
     "docker:push:frontend": "docker push bhbaysinger/portfolio-frontend:dev",
+    // 🚀 Build and push both backend and frontend Docker images to Docker Hub (dev tag)
+    "docker:build-push": "npm run docker:build:backend && npm run docker:build:frontend && npm run docker:push:backend && npm run docker:push:frontend",
     // 🏁 Shortcut: Run both frontend and backend locally (bare metal dev)
     "baremetalDev": "npm run baremetalDev:all",
     // 🎯 Run both frontend and backend in same terminal with colored output
@@ -90,6 +92,10 @@
     // 🔄 Syncs package.json5 with package.json values while preserving comments and formatting
     // Run this after editing package.json to push updates back into the annotated JSON5 version
     "sync:json5": "tsx scripts/sync-json5.ts",
+    // 🔐 Preview GitHub Secrets from .github-secrets.json5 to your repo
+    "sync:secrets:dry": "tsx scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./.github-secrets.json5 --dry-run",
+    // 🔐 Sync GitHub Secrets from .github-secrets.json5 to your repo
+    "sync:secrets": "tsx scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./.github-secrets.json5",
     // 📦 Update dependencies to latest versions across all packages
     // Runs npm-check-updates in root, backend, and frontend simultaneously
     // Review changes before running npm run install:all

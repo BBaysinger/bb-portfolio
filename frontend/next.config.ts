@@ -28,7 +28,6 @@ const nextConfig: NextConfig = {
     const internalApi =
       pickValue(
         `${prefix}BACKEND_INTERNAL_URL`,
-        `${prefix}FRONTEND_BACKEND_INTERNAL_URL`,
         `${prefix}INTERNAL_API_URL`,
         `${prefix}BACKEND_URL`,
         `${prefix}NEXT_PUBLIC_BACKEND_URL`,
@@ -36,7 +35,6 @@ const nextConfig: NextConfig = {
       ) ||
       pickValue(
         "BACKEND_INTERNAL_URL",
-        "FRONTEND_BACKEND_INTERNAL_URL",
         "INTERNAL_API_URL",
         "BACKEND_URL",
         "NEXT_PUBLIC_BACKEND_URL",
@@ -50,7 +48,7 @@ const nextConfig: NextConfig = {
     if (!/^https?:\/\//i.test(base)) {
       throw new Error(
         `Invalid BACKEND base URL for rewrites: ${base}. ` +
-          `Set one of ${prefix}BACKEND_INTERNAL_URL, ${prefix}FRONTEND_BACKEND_INTERNAL_URL, or BACKEND_INTERNAL_URL to a http(s) URL.`,
+          `Set ${prefix}BACKEND_INTERNAL_URL or BACKEND_INTERNAL_URL to a http(s) URL.`,
       );
     }
     return [
