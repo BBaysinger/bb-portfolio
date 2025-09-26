@@ -92,7 +92,10 @@ jobs:
           # Use dev profile with a dummy connection string just to satisfy build-time checks
           ENV_PROFILE: dev
           DEV_MONGODB_URI: mongodb://localhost:27017/dummy-db
-          # Payload secret is not required at build time, only at runtime
+          # Required by strict env checks in payload.config.ts for dev profile
+          DEV_PAYLOAD_SECRET: ${{ secrets.DEV_PAYLOAD_SECRET }}
+          # Frontend origin for CORS/CSRF checks during build-time config resolution
+          DEV_FRONTEND_URL: ${{ secrets.DEV_FRONTEND_URL }}
         run: npm run build # Next.js production build (Payload CMS)
 
       - name: Test backend
@@ -100,6 +103,8 @@ jobs:
         env:
           ENV_PROFILE: dev
           DEV_MONGODB_URI: mongodb://localhost:27017/dummy-db
+          DEV_PAYLOAD_SECRET: ${{ secrets.DEV_PAYLOAD_SECRET }}
+          DEV_FRONTEND_URL: ${{ secrets.DEV_FRONTEND_URL }}
         run: npm test || echo "⚠️ No backend tests yet" # Graceful failure until tests are implemented
 
   # ==========================================================================
