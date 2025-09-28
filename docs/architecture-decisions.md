@@ -493,3 +493,57 @@ MONGODB_URI=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/bb-portfol
 - **Local file storage for development**: Inconsistent with production, harder to test cloud integration
 
 **Status:** ✅ Active
+
+---
+
+## 2025-09-28 – Media Seeding and Export Pipeline
+
+- **Decision:** Standardize a local media workflow using an external `cms-seedings` folder and an export script that converts PSDs to WebP for import into the app.
+- **Details:**
+  - External working assets (PSDs) live outside the repo at:
+    - `.../Portfolio Site/_work/project-screenshots`
+    - `.../Portfolio Site/_work/project-thumbnails`
+  - Script `cms-seedings/_export-media.sh` converts PSDs → WebP and outputs to:
+    - `cms-seedings/project-screenshots/*.webp`
+    - `cms-seedings/project-thumbnails/*.webp`
+  - Script is location-independent and robust:
+    - Reads from parent-level `_work` (relative to `cms-seedings`)
+    - Writes into the `cms-seedings` folder
+    - Supports ImageMagick v7 (`magick mogrify`) and v6 (`mogrify`)
+    - Case-insensitive PSD matching (`*.psd` / `*.PSD`)
+  - Import for local dev via `npm run seed:media` (copies from `../cms-seedings` into `backend/media/*`).
+- **Reasoning:** Keep heavy/layered source files (PSDs) out of the repo, enable reproducible hydration for local dev, and standardize on WebP outputs for performance.
+- **Alternatives considered:**
+  - Commit images to repo → rejected due to repo bloat and history churn.
+  - Convert on-the-fly in backend → adds runtime overhead and complexity.
+  - S3-based transformation → unnecessary for local-only workflow.
+- **Status:** ✅ Active
+
+---
+
+## 2025-09-28 – S3 Buckets and Prefixes (Finalized)
+
+- **Decision:** Use per-environment S3 buckets named `bb-portfolio-media-<env>` with stable collection prefixes.
+- **Bucket naming:**
+  - `bb-portfolio-media-dev`
+  - `bb-portfolio-media-stg` (optional, if/when we add stage)
+  - `bb-portfolio-media-prod`
+- **Prefixes (unchanged and stable):**
+  - `brand-logos/`
+  - `project-screenshots/`
+  - `project-thumbnails/`
+- **Terraform:** Buckets and IAM are managed in `infra/`; variables expose per-env bucket names and region. Outputs provide names/ARNs for wiring.
+- **Backend configuration:**
+  - Enable `@payloadcms/storage-s3` when `ENV_PROFILE` is `dev` or `prod`; use filesystem when `ENV_PROFILE=local`.
+  - Environment variables (examples):
+    - `DEV_S3_BUCKET=bb-portfolio-media-dev`
+    - `PROD_S3_BUCKET=bb-portfolio-media-prod`
+    - `DEV_AWS_REGION=us-west-2` / `PROD_AWS_REGION=us-west-2`
+    - Optional base URL envs if fronted by CDN (e.g., CloudFront): `DEV_S3_BASE_URL`, `PROD_S3_BASE_URL`.
+- **CORS & IAM:**
+  - CORS allows GET/HEAD from frontend origins; tighten in Terraform as needed.
+  - IAM policy (per env) grants backend role `s3:GetObject`, `s3:PutObject`, `s3:DeleteObject` on `arn:aws:s3:::<bucket>/*` and `s3:ListBucket` on the bucket.
+- **Rationale:**
+  - Clear isolation across environments; simple promotion via `aws s3 sync` per prefix or whole bucket.
+  - Stable prefixes ensure DB keys remain portable across backends and CDNs.
+- **Status:** ✅ Active (supersedes earlier “assets” bucket naming in 2025-09-20 entry; that entry remains for historical context)
