@@ -10,7 +10,7 @@
  * - brand-logos/
  * - project-screenshots/
  * - project-thumbnails/
- * - profile-pictures/
+ *
  * or with an intermediate images/ folder, e.g. images/brand-logos, etc.
  * Also accepts legacy:
  * - client-logos/ (mapped to brand-logos)
@@ -115,14 +115,6 @@ async function main() {
         path.join(seedBase, "project-thumbnails"),
         path.join(seedBase, "images", "project-thumbnails"),
         path.join(seedBase, "project-carousel", "thumbs"), // legacy
-      ],
-    },
-    {
-      label: "profile-pictures",
-      dest: path.join(backendMedia, "profile-pictures"),
-      sources: [
-        path.join(seedBase, "profile-pictures"),
-        path.join(seedBase, "images", "profile-pictures"),
       ],
     },
   ];

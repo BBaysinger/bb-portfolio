@@ -8,12 +8,11 @@ const prefixToDir: Record<string, string> = {
   'brand-logos': 'brand-logos',
   'project-screenshots': 'project-screenshots',
   'project-thumbnails': 'project-thumbnails',
-  'profile-pictures': 'profile-pictures',
+
   // Collection slugs -> folder names
   brandLogos: 'brand-logos',
   projectScreenshots: 'project-screenshots',
   projectThumbnails: 'project-thumbnails',
-  profilePictures: 'profile-pictures',
 }
 
 function getContentType(filePath: string): string {

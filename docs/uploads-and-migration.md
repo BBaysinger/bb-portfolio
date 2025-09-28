@@ -13,7 +13,7 @@ This doc captures how uploads are set up today, recommended S3 patterns per envi
 ### Local folder conventions and fresh clones
 
 - Canonical upload root for local dev: `backend/media/`
-  - Subfolders: `brand-logos/`, `project-screenshots/`, `project-thumbnails/`, `profile-pictures/`
+  - Subfolders: `brand-logos/`, `project-screenshots/`, `project-thumbnails/`
 - These folders are ignored by git (we keep only `.gitkeep` so directories exist after clone).
 - To import assets from your external `../seedings` folder (or `../seedings/images/*`) into `backend/media/*`, use:
 
@@ -32,13 +32,11 @@ If you keep non-checked-in working assets outside the repo (recommended), place 
   brand-logos/
   project-screenshots/
   project-thumbnails/
-  profile-pictures/
 # or
 ../seedings/images/
   brand-logos/
   project-screenshots/
   project-thumbnails/
-  profile-pictures/
 # legacy names also supported:
 ../seedings/client-logos/            # → brand-logos
 ../seedings/project-carousel/        # → project-screenshots
