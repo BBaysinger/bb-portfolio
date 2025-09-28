@@ -39,9 +39,9 @@ export async function GET(_req: NextRequest, ctx: { params: Promise<{ path: stri
     const [prefix, ...rest] = pathParts
     const dir = prefixToDir[prefix]
     if (!dir || rest.length === 0) return new Response('Not found', { status: 404 })
-  const relPath = rest.join('/')
-  // Serve from backend/media/<dir>
-  const root = path.join(process.cwd(), 'media', dir)
+    const relPath = rest.join('/')
+    // Serve from backend/media/<dir>
+    const root = path.join(process.cwd(), 'media', dir)
     const unsafePath = path.join(root, relPath)
     const filePath = path.normalize(unsafePath)
     if (!filePath.startsWith(root)) {
