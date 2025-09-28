@@ -4,11 +4,11 @@ This doc captures how uploads are set up today, recommended S3 patterns per envi
 
 ## Current state (from repo)
 
-- Uploads are local filesystem based in Payload collections using `staticDir`:
+- Uploads use the local filesystem in development via `staticDir`:
   - `brand-logos/`, `project-screenshots/`, `project-thumbnails/`
-- No S3 buckets defined in Terraform yet (`infra/main.tf` only provisions EC2/SG/EIP/SSM).
-- `@payloadcms/storage-s3` is installed but not wired. `payload.config.ts` has a `// storage-adapter-placeholder` comment in `plugins`.
-- MongoDB is used via `@payloadcms/db-mongodb` with env-profile specific URIs: `LOCAL_MONGODB_URI`, `DEV_MONGODB_URI`, `PROD_MONGODB_URI`.
+- S3 buckets are now defined and managed by Terraform under `infra/` (one bucket per env, e.g., `dev` and `prod`).
+- `@payloadcms/storage-s3` is wired in `backend/src/payload.config.ts` and enabled when `ENV_PROFILE` is `dev` or `prod`. For `ENV_PROFILE=local`, filesystem storage is used.
+- MongoDB uses env-prefixed URIs: `LOCAL_MONGODB_URI`, `DEV_MONGODB_URI`, `PROD_MONGODB_URI`.
 
 ### Local folder conventions and fresh clones
 
@@ -79,6 +79,65 @@ Regardless of bucket choice, keep stable, predictable prefixes so DB keys don’
 - `project-thumbnails/`
 
 If you later enable a CDN (CloudFront), use the same path layout so URLs don’t require DB rewrites.
+
+## S3 with Terraform (now live)
+
+- Terraform provisions per-environment media buckets and the IAM access policy for the backend EC2 role.
+- Buckets are created from `infra/main.tf` using `var.media_envs` (defaults to `["dev", "prod"]`).
+- Outputs include `media_bucket_names` and `media_bucket_arns` so you can set application env vars easily.
+
+To initialize/apply (requires valid AWS credentials in your shell):
+
+```zsh
+# From the repo root (preferred):
+terraform -chdir=infra init
+terraform -chdir=infra apply
+
+# If your repo path has spaces and you're not in the repo root, quote the absolute path:
+terraform -chdir="/Users/<you>/.../Portfolio Site/portfolio-2025/infra" init
+terraform -chdir="/Users/<you>/.../Portfolio Site/portfolio-2025/infra" apply
+```
+
+If you see an AWS credentials error, configure your AWS CLI or export `AWS_ACCESS_KEY_ID`/`AWS_SECRET_ACCESS_KEY` (and optional `AWS_SESSION_TOKEN`) or set `AWS_PROFILE` to an authenticated profile.
+
+### Backend env vars for S3
+
+The backend reads the bucket and region per environment. Set these based on Terraform outputs and your chosen region (default is `us-west-2` via `var.region`).
+
+Required environment variables:
+
+- `DEV_S3_BUCKET` and `PROD_S3_BUCKET` — names from Terraform `media_bucket_names` output
+- `DEV_AWS_REGION` and `PROD_AWS_REGION` — typically the same as `var.region` in Terraform (default `us-west-2`)
+
+Get outputs and set env vars (example):
+
+```zsh
+# Get outputs as JSON
+terraform -chdir=infra output -json > tf-outputs.json
+
+# Using jq to extract bucket names
+DEV_BUCKET=$(jq -r '.media_bucket_names.value.dev' tf-outputs.json)
+PROD_BUCKET=$(jq -r '.media_bucket_names.value.prod' tf-outputs.json)
+
+# Set regions to match your Terraform var.region
+REGION=$(jq -r '.region.value // empty' tf-outputs.json 2>/dev/null || echo "us-west-2")
+
+echo DEV_S3_BUCKET=$DEV_BUCKET
+echo PROD_S3_BUCKET=$PROD_BUCKET
+echo DEV_AWS_REGION=$REGION
+echo PROD_AWS_REGION=$REGION
+
+# For local testing, you can export these (or add to your .env files)
+export DEV_S3_BUCKET=$DEV_BUCKET
+export DEV_AWS_REGION=$REGION
+# For prod deployments, set in your deployment environment/secrets
+```
+
+Notes:
+
+- The backend keeps using the local filesystem when `ENV_PROFILE=local`.
+- When `ENV_PROFILE` is `dev` or `prod`, the S3 storage plugin is enabled and uses the envs above. If the app runs on EC2 with the instance role created by Terraform, explicit AWS access keys are not required.
+- CORS for GET/HEAD is applied at the bucket level; tighten `var.media_cors_allowed_origins` as needed in `infra/variables.tf`.
 
 ## IAM, CORS, lifecycle
 
