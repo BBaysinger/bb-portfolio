@@ -12,3 +12,13 @@ output "elastic_ip" {
   description = "Elastic IP address"
   value       = aws_eip.portfolio_ip.public_ip
 }
+
+output "media_bucket_names" {
+  description = "Map of env => S3 bucket name for media"
+  value       = { for env, b in aws_s3_bucket.media : env => b.bucket }
+}
+
+output "media_bucket_arns" {
+  description = "Map of env => S3 bucket ARN for media"
+  value       = { for env, b in aws_s3_bucket.media : env => b.arn }
+}

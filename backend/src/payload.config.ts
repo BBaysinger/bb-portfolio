@@ -5,6 +5,7 @@ import { mongooseAdapter } from '@payloadcms/db-mongodb'
 import { nodemailerAdapter } from '@payloadcms/email-nodemailer'
 import { payloadCloudPlugin } from '@payloadcms/payload-cloud'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
+import { s3Storage } from '@payloadcms/storage-s3'
 import { buildConfig } from 'payload'
 import sharp from 'sharp'
 
@@ -14,6 +15,7 @@ import { Projects } from './collections/Projects'
 import { ProjectScreenshots } from './collections/ProjectScreenshots'
 import { ProjectThumbnails } from './collections/ProjectThumbnails'
 import { Users } from './collections/Users'
+import type { Config } from './payload-types'
 
 // ===============================================================
 // ENVIRONMENT FILES (.env.dev, .env.prod)
@@ -118,7 +120,42 @@ export default buildConfig({
   })(),
   plugins: [
     payloadCloudPlugin(),
-    // storage-adapter-placeholder
+    // Enable S3 storage when running in dev/prod; keep filesystem in local
+    ...(envProfile === 'dev' || envProfile === 'prod'
+      ? [
+          s3Storage({
+            collections: {
+              brandLogos: { prefix: 'brand-logos' },
+              projectScreenshots: { prefix: 'project-screenshots' },
+              projectThumbnails: { prefix: 'project-thumbnails' },
+            } as Partial<Record<keyof Config['collections'], { prefix: string } | true>>,
+            bucket: (() => {
+              const key = envProfile === 'prod' ? 'PROD_S3_BUCKET' : 'DEV_S3_BUCKET'
+              const val = process.env[key]
+              if (!val) throw new Error(`Missing required ${key} for ENV_PROFILE=${envProfile}`)
+              return val
+            })(),
+            config: {
+              region: (() => {
+                const key = envProfile === 'prod' ? 'PROD_AWS_REGION' : 'DEV_AWS_REGION'
+                const val = process.env[key]
+                if (!val) throw new Error(`Missing required ${key} for ENV_PROFILE=${envProfile}`)
+                return val
+              })(),
+              // Credentials are optional on EC2 when using instance role
+              ...(process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY
+                ? {
+                    credentials: {
+                      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+                      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+                    },
+                  }
+                : {}),
+            },
+            // Optionally set a CDN base URL in a future update if supported by the package version
+          }),
+        ]
+      : []),
   ],
   email: (() => {
     if (envProfile === 'prod' || envProfile === 'dev') {

@@ -25,3 +25,27 @@ variable "project_name" {
   type        = string
   default     = "bb-portfolio"
 }
+
+# Environments to provision media buckets for
+variable "media_envs" {
+  description = "List of environment names to create S3 media buckets for (e.g., [\"dev\", \"stg\", \"prod\"])."
+  type        = list(string)
+  default     = ["dev", "prod"]
+}
+
+# Optional suffix to ensure global uniqueness (e.g., your initials or short hash)
+variable "media_bucket_suffix" {
+  description = "Optional bucket name suffix to ensure global uniqueness (lowercase alphanumerics and hyphens)."
+  type        = string
+  default     = ""
+}
+
+# Allowed origins for S3 CORS (GET/HEAD)
+variable "media_cors_allowed_origins" {
+  description = "Allowed origins for S3 CORS on media buckets."
+  type        = list(string)
+  default = [
+    "http://localhost:3000",
+    "http://localhost:3001",
+  ]
+}
