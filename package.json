@@ -33,7 +33,8 @@
     "sync:secrets:dry": "tsx scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./.github-secrets.json5 --dry-run",
     "sync:secrets": "tsx scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./.github-secrets.json5",
     "update:deps": "concurrently \"ncu -u\" \"cd backend && ncu -u\" \"cd frontend && ncu -u\" --names \"root,backend,frontend\" --prefix-colors \"yellow,blue,green\"",
-    "install:all": "concurrently \"npm install\" \"cd backend && npm install\" \"cd frontend && npm install\" --names \"root,backend,frontend\" --prefix-colors \"yellow,blue,green\""
+    "install:all": "concurrently \"npm install\" \"cd backend && npm install\" \"cd frontend && npm install\" --names \"root,backend,frontend\" --prefix-colors \"yellow,blue,green\"",
+    "seed:media": "tsx scripts/import-media-from-seedings.ts"
   },
   "devDependencies": {
     "@next/eslint-plugin-next": "^15.5.4",
