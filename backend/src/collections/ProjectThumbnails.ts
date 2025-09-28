@@ -7,7 +7,7 @@ export const ProjectThumbnails: CollectionConfig = {
     plural: 'Project Thumbnails',
   },
   upload: {
-    staticDir: 'project-thumbnails', // saved to backend/project-thumbnails
+    staticDir: 'images/project-thumbnails', // saved to backend/images/project-thumbnails
     mimeTypes: ['image/webp'],
     imageSizes: [
       {
