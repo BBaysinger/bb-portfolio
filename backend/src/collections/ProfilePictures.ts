@@ -7,7 +7,7 @@ const ProfilePictures: CollectionConfig = {
     plural: 'Profile Pictures',
   },
   upload: {
-    staticDir: 'profile-pictures',
+    staticDir: 'images/profile-pictures',
     mimeTypes: ['image/webp', 'image/png', 'image/jpeg'],
   },
   admin: {
