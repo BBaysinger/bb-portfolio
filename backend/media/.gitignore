@@ -1,0 +1,8 @@
+# Ignore all contents of media collections from version control
+# Only this .gitignore file will be tracked; subfolders will not be kept in git
+
+brand-logos/**
+project-screenshots/**
+project-thumbnails/**
+
+!.gitignore
