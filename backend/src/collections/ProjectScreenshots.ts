@@ -7,7 +7,7 @@ export const ProjectScreenshots: CollectionConfig = {
     plural: 'Project Screenshots',
   },
   upload: {
-    staticDir: 'images/project-screenshots',
+    staticDir: 'media/project-screenshots',
     mimeTypes: ['image/webp'],
     imageSizes: [
       {

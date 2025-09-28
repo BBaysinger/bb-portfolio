@@ -7,7 +7,7 @@ export const BrandLogos: CollectionConfig = {
     plural: 'Client Logos',
   },
   upload: {
-    staticDir: 'images/brand-logos', // This will resolve to <projectRoot>/images/brand-logos
+    staticDir: 'media/brand-logos', // This will resolve to <projectRoot>/media/brand-logos
     mimeTypes: ['image/webp', 'image/svg+xml'],
     imageSizes: [
       {
