@@ -1,9 +1,9 @@
 /**
  * Import media from an external sibling folder (../seedings or ../seeding)
- * into backend/images/* for local development.
+ * into backend/media/* for local development.
  *
  * This does NOT commit any media. It only copies files into the ignored
- * backend/images folders so a fresh clone can be hydrated from your local
+ * backend/media folders so a fresh clone can be hydrated from your local
  * working assets directory that lives outside the repo.
  *
  * Supported structure examples under ../seedings (or ../seeding):
@@ -85,12 +85,12 @@ async function main() {
     process.exit(2)
   }
 
-  const backendImages = path.join(root, 'backend', 'images')
+  const backendMedia = path.join(root, 'backend', 'media')
 
   const mappers: Mapping[] = [
     {
       label: 'brand-logos',
-      dest: path.join(backendImages, 'brand-logos'),
+  dest: path.join(backendMedia, 'brand-logos'),
       sources: [
         path.join(seedBase, 'brand-logos'),
         path.join(seedBase, 'images', 'brand-logos'),
@@ -99,7 +99,7 @@ async function main() {
     },
     {
       label: 'project-screenshots',
-      dest: path.join(backendImages, 'project-screenshots'),
+  dest: path.join(backendMedia, 'project-screenshots'),
       sources: [
         path.join(seedBase, 'project-screenshots'),
         path.join(seedBase, 'images', 'project-screenshots'),
@@ -108,7 +108,7 @@ async function main() {
     },
     {
       label: 'project-thumbnails',
-      dest: path.join(backendImages, 'project-thumbnails'),
+  dest: path.join(backendMedia, 'project-thumbnails'),
       sources: [
         path.join(seedBase, 'project-thumbnails'),
         path.join(seedBase, 'images', 'project-thumbnails'),
@@ -117,7 +117,7 @@ async function main() {
     },
     {
       label: 'profile-pictures',
-      dest: path.join(backendImages, 'profile-pictures'),
+  dest: path.join(backendMedia, 'profile-pictures'),
       sources: [
         path.join(seedBase, 'profile-pictures'),
         path.join(seedBase, 'images', 'profile-pictures'),
