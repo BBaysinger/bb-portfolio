@@ -1,12 +1,12 @@
 /**
- * Import media from an external sibling folder (../seedings or ../seeding)
+ * Import media from an external sibling folder (../cms-seedings)
  * into backend/media/* for local development.
  *
  * This does NOT commit any media. It only copies files into the ignored
  * backend/media folders so a fresh clone can be hydrated from your local
  * working assets directory that lives outside the repo.
  *
- * Supported structure examples under ../seedings (or ../seeding):
+ * Supported structure examples under ../cms-seedings:
  * - brand-logos/
  * - project-screenshots/
  * - project-thumbnails/
@@ -68,10 +68,7 @@ type Mapping = { label: string; dest: string; sources: string[] };
 
 async function main() {
   const root = process.cwd();
-  const seedBaseCandidates = [
-    path.join(root, "..", "seedings"),
-    path.join(root, "..", "seeding"),
-  ];
+  const seedBaseCandidates = [path.join(root, "..", "cms-seedings")];
 
   let seedBase: string | null = null;
   for (const c of seedBaseCandidates) {
@@ -82,7 +79,7 @@ async function main() {
   }
   if (!seedBase) {
     console.error(
-      "No seed folder found. Create ../seedings (or ../seeding) next to the repo and place your images inside.",
+      "No seed folder found. Create ../cms-seedings next to the repo and place your images inside.",
     );
     process.exit(2);
   }

@@ -15,7 +15,7 @@ This doc captures how uploads are set up today, recommended S3 patterns per envi
 - Canonical upload root for local dev: `backend/media/`
   - Subfolders: `brand-logos/`, `project-screenshots/`, `project-thumbnails/`
 - These folders are ignored by git (we keep only `.gitkeep` so directories exist after clone).
-- To import assets from your external `../seedings` folder (or `../seedings/images/*`) into `backend/media/*`, use:
+- To import assets from your external `../cms-seedings` folder (or `../cms-seedings/images/*`) into `backend/media/*`, use:
 
 ```
 npm run seed:media
@@ -25,22 +25,22 @@ This script copies files into `backend/media/*` for local dev only. It won’t c
 
 ### Importing from an external seedings folder
 
-If you keep non-checked-in working assets outside the repo (recommended), place them under a sibling directory to this repo named `seedings` (or `seeding`). Supported layouts include either flat or under an `images/` folder. For example:
+If you keep non-checked-in working assets outside the repo (recommended), place them under a sibling directory to this repo named `seedings`. Supported layouts include either flat or under an `images/` folder. For example:
 
 ```
-../seedings/
+../cms-seedings/
   brand-logos/
   project-screenshots/
   project-thumbnails/
 # or
-../seedings/images/
+../cms-seedings/images/
   brand-logos/
   project-screenshots/
   project-thumbnails/
 # legacy names also supported:
-../seedings/client-logos/            # → brand-logos
-../seedings/project-carousel/        # → project-screenshots
-../seedings/project-carousel/thumbs  # → project-thumbnails
+../cms-seedings/client-logos/            # → brand-logos
+../cms-seedings/project-carousel/        # → project-screenshots
+../cms-seedings/project-carousel/thumbs  # → project-thumbnails
 ```
 
 Then run the same import:
