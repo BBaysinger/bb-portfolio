@@ -69,12 +69,22 @@ blob-report/
 playwright/.cache/
 
 # ─────────────────────────────────────────────
-# 📁 Backend Static Uploads
+# 📁 Backend Uploads (keep dirs, ignore contents)
+# Seeded locally, uploaded (S3/Payload) in deploys
 # ─────────────────────────────────────────────
-backend/brand-logos/
-backend/client-logos/
-backend/project-screenshots/
-backend/project-thumbnails/
+# New convention: backend/images/*
+backend/images/**
+!backend/images/**/.gitkeep
+
+# Legacy paths (retained for safety during transition)
+backend/brand-logos/**
+!backend/brand-logos/.gitkeep
+backend/client-logos/**
+!backend/client-logos/.gitkeep
+backend/project-screenshots/**
+!backend/project-screenshots/.gitkeep
+backend/project-thumbnails/**
+!backend/project-thumbnails/.gitkeep
 
 # ─────────────────────────────────────────────
 # Terraform
