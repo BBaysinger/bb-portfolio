@@ -1,5 +1,5 @@
 provider "aws" {
-  region = "us-west-2"
+  region = var.region
 }
 
 # Security Group for SSH, HTTP, HTTPS
@@ -83,12 +83,12 @@ resource "aws_instance" "portfolio" {
 
   # EBS Root Volume Configuration
   root_block_device {
-    volume_type = "gp3"      # General Purpose SSD v3 (latest generation)
-    volume_size = 20         # 20GB storage
-    encrypted   = true       # Encrypt the volume for security
-    throughput  = 125        # MB/s (default for gp3)
-    iops        = 3000       # IOPS (default for gp3)
-    
+    volume_type = "gp3" # General Purpose SSD v3 (latest generation)
+    volume_size = 20    # 20GB storage
+    encrypted   = true  # Encrypt the volume for security
+    throughput  = 125   # MB/s (default for gp3)
+    iops        = 3000  # IOPS (default for gp3)
+
     tags = {
       Name = "bb-portfolio-root-volume"
     }
@@ -121,4 +121,116 @@ output "portfolio_elastic_ip" {
 resource "aws_eip_association" "portfolio_assoc" {
   instance_id   = aws_instance.portfolio.id
   allocation_id = aws_eip.portfolio_ip.id
+}
+
+########################################
+# S3 media buckets (one per environment)
+########################################
+
+# Create a versioned, private bucket for each env in var.media_envs
+resource "aws_s3_bucket" "media" {
+  for_each = toset(var.media_envs)
+
+  # Bucket names must be globally unique across AWS
+  bucket = lower(
+    trim(
+      join("-", compact([
+        replace(var.project_name, "_", "-"),
+        "media",
+        each.value,
+        var.media_bucket_suffix
+      ])),
+      "-"
+    )
+  )
+
+  force_destroy = false
+
+  tags = {
+    Project = var.project_name
+    Env     = each.value
+  }
+}
+
+resource "aws_s3_bucket_versioning" "media" {
+  for_each = aws_s3_bucket.media
+  bucket   = each.value.id
+
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket_public_access_block" "media" {
+  for_each = aws_s3_bucket.media
+  bucket   = each.value.id
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
+# Default to SSE-S3 (AES256). Swap to KMS if needed later.
+resource "aws_s3_bucket_server_side_encryption_configuration" "media" {
+  for_each = aws_s3_bucket.media
+  bucket   = each.value.id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
+    }
+  }
+}
+
+# Simple CORS for GET/HEAD. Tighten allowed_origins in terraform.tfvars if needed.
+resource "aws_s3_bucket_cors_configuration" "media" {
+  for_each = aws_s3_bucket.media
+  bucket   = each.value.id
+
+  cors_rule {
+    allowed_methods = ["GET", "HEAD"]
+    allowed_origins = var.media_cors_allowed_origins
+    allowed_headers = ["*"]
+    expose_headers  = []
+    max_age_seconds = 300
+  }
+}
+
+# IAM: Grant EC2 role access to read/write objects in media buckets
+resource "aws_iam_policy" "media_access" {
+  name        = "${var.project_name}-media-access"
+  description = "Allow EC2 backend to access media S3 buckets"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "ListMediaBuckets"
+        Effect = "Allow"
+        Action = [
+          "s3:ListBucket"
+        ]
+        Resource = [for b in aws_s3_bucket.media : b.arn]
+      },
+      {
+        Sid    = "RWMediaObjects"
+        Effect = "Allow"
+        Action = [
+          "s3:GetObject",
+          "s3:PutObject",
+          "s3:DeleteObject",
+          "s3:AbortMultipartUpload",
+          "s3:ListBucketMultipartUploads",
+          "s3:ListMultipartUploadParts"
+        ]
+        Resource = [for b in aws_s3_bucket.media : "${b.arn}/*"]
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "media_access_attach" {
+  role       = aws_iam_role.ssm_role.name
+  policy_arn = aws_iam_policy.media_access.arn
 }
