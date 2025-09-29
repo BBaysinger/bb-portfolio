@@ -31,14 +31,12 @@ const nextConfig: NextConfig = {
         `${prefix}INTERNAL_API_URL`,
         `${prefix}BACKEND_URL`,
         `${prefix}NEXT_PUBLIC_BACKEND_URL`,
-        `${prefix}NEXT_PUBLIC_API_URL`,
       ) ||
       pickValue(
         "BACKEND_INTERNAL_URL",
         "INTERNAL_API_URL",
         "BACKEND_URL",
         "NEXT_PUBLIC_BACKEND_URL",
-        "NEXT_PUBLIC_API_URL",
       );
 
     if (!internalApi) return [];
