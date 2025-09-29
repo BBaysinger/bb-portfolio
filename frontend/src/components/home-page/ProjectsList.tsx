@@ -1,4 +1,7 @@
 // NOTE: This is a Server Component. Do NOT add 'use client'.
+import { unstable_noStore as noStore } from "next/cache";
+import { cookies } from "next/headers";
+
 import ProjectsListClient from "@/components/home-page/ProjectsListClient";
 import ProjectData from "@/data/ProjectData";
 
@@ -17,14 +20,20 @@ import ProjectData from "@/data/ProjectData";
  */
 
 const ProjectsList = async () => {
-  // Ensure project data is available (idempotent init)
+  // Mark this route as dynamic if auth can change NDA content.
+  noStore();
+  // Fetch fresh data per-request to honor auth and NDA differences
   try {
-    if (
-      !ProjectData["_projects"] ||
-      Object.keys(ProjectData["_projects"]).length === 0
-    ) {
-      await ProjectData.initialize();
-    }
+    // Forward cookies/headers for authenticated fetch to Payload
+    const cookieHeader = cookies().toString();
+    const forwardedHeaders: HeadersInit = {
+      // Narrow to only what's needed; avoid leaking sensitive headers
+      Cookie: cookieHeader,
+    };
+    await ProjectData.initialize({
+      headers: forwardedHeaders,
+      disableCache: true,
+    });
   } catch (err) {
     console.error("ProjectsList: failed to initialize ProjectData", err);
     // Continue gracefully; client will render empty state if no items

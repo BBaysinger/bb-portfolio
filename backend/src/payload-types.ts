@@ -155,6 +155,10 @@ export interface User {
  */
 export interface Project {
   id: string;
+  /**
+   * Lower numbers appear first in the portfolio list.
+   */
+  sortIndex?: number | null;
   title: string;
   slug: string;
   active?: boolean | null;
@@ -441,6 +445,7 @@ export interface UsersSelect<T extends boolean = true> {
  * via the `definition` "projects_select".
  */
 export interface ProjectsSelect<T extends boolean = true> {
+  sortIndex?: T;
   title?: T;
   slug?: T;
   active?: T;
