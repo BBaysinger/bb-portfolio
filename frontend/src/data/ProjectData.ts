@@ -8,7 +8,7 @@ async function fetchPortfolioProjects(opts?: {
 }): Promise<PortfolioProjectData> {
   const { requestHeaders, disableCache } = opts || {};
   const isServer = typeof window === "undefined";
-  // Support ENV-profile prefixed variables like DEV_BACKEND_INTERNAL_URL, PROD_BACKEND_URL, LOCAL_NEXT_PUBLIC_API_URL, etc.
+  // Support ENV-profile prefixed variables like DEV_BACKEND_INTERNAL_URL, PROD_BACKEND_URL, LOCAL_NEXT_PUBLIC_BACKEND_URL, etc.
   const profile = (
     process.env.ENV_PROFILE ||
     process.env.NODE_ENV ||
@@ -29,7 +29,6 @@ async function fetchPortfolioProjects(opts?: {
       `${prefix}INTERNAL_API_URL`,
       `${prefix}BACKEND_URL`,
       `${prefix}NEXT_PUBLIC_BACKEND_URL`,
-      `${prefix}NEXT_PUBLIC_API_URL`,
       `${prefix}API_URL`,
       `${prefix}SITE_URL`,
     ]) ||
@@ -37,42 +36,23 @@ async function fetchPortfolioProjects(opts?: {
     process.env.INTERNAL_API_URL ||
     process.env.BACKEND_URL ||
     process.env.NEXT_PUBLIC_BACKEND_URL ||
-    process.env.NEXT_PUBLIC_API_URL ||
     process.env.API_URL ||
     process.env.NEXT_PUBLIC_SITE_URL ||
     process.env.SITE_URL ||
     "";
 
-  const apiBase = isServer ? (base ? base.replace(/\/$/, "") : null) : "";
-  const url = isServer
-    ? apiBase
-      ? `${apiBase}/api/projects?depth=1&limit=1000&sort=sortIndex`
-      : null
-    : "/api/projects?depth=1&limit=1000&sort=sortIndex";
-
-  if (!url) {
-    // Missing backend base URL. Default behavior is to fail fast everywhere
-    // (dev and prod) to avoid silently rendering an empty portfolio.
-    // Exceptions:
-    // - In CI: always fail to block deployments.
-    // - For local preview only, you can opt-in to a non-fatal empty dataset by
-    //   setting ALLOW_EMPTY_PORTFOLIO_PREVIEW=true.
-    const inCI =
-      process.env.CI === "true" || process.env.GITHUB_ACTIONS === "true";
-    const allowPreviewEmpty =
-      process.env.ALLOW_EMPTY_PORTFOLIO_PREVIEW === "true";
+  // Conventional: rely on Next.js rewrites for /api/* on the server.
+  // Fail fast if .env is incomplete so misconfigurations are obvious.
+  const isHttpUrl = (s: string) => /^https?:\/\//i.test(s);
+  if (isServer && !isHttpUrl(base)) {
     const msg =
-      "Missing BACKEND URL for server fetch. Set NEXT_PUBLIC_BACKEND_URL or BACKEND_URL (or NEXT_PUBLIC_SITE_URL/SITE_URL) so the server can reach /api/projects.";
-
-    if (inCI || !allowPreviewEmpty) {
-      console.error(`ProjectData: ${msg}`);
-      throw new Error(msg);
-    }
-    console.warn(
-      `ProjectData: ${msg} Local preview override active; returning empty dataset.`,
-    );
-    return {} as PortfolioProjectData;
+      "Backend URL is not configured. Set NEXT_PUBLIC_BACKEND_URL (or BACKEND_INTERNAL_URL) to a valid http(s) URL so Next rewrites can proxy /api/*.";
+    console.error(`ProjectData: ${msg}`);
+    throw new Error(msg);
   }
+
+  // Always use relative path; rewrites will proxy to Payload when env is set
+  const url = "/api/projects?depth=1&limit=1000&sort=sortIndex";
 
   const fetchOptions: RequestInit & { next?: { revalidate?: number } } = {};
   if (disableCache) {

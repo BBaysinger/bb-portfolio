@@ -51,10 +51,6 @@
     "BACKEND_INTERNAL_URL",
     "BACKEND_URL",
     "NEXT_PUBLIC_BACKEND_URL",
-    "NEXT_PUBLIC_API_URL",
-    "API_URL",
-    "NEXT_PUBLIC_SITE_URL",
-    "SITE_URL",
   ];
 
   const effectiveRequirements =
