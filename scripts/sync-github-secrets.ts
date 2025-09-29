@@ -1,6 +1,23 @@
 #!/usr/bin/env ts-node
 
 /**
+ * TODO: Planned enhancement — Env-file mode
+ * ------------------------------------------------------------
+ * Add a flag-driven mode (e.g., `--from-env`) to read secrets from env files
+ * instead of JSON5, following the same override semantics we use in the apps:
+ *   - Precedence: .env.local > .env.dev/.env.prod > .env
+ *   - Environments:
+ *       - "dev"  <- .env.dev (+ .env.dev.local)
+ *       - "prod" <- .env.prod (+ .env.prod.local)
+ *   - Repo-level defaults may be derived from .env.prod unless overridden.
+ *   - Keep current JSON5 mode as default for backward compatibility.
+ *   - Add `--verify-json5` to report drift between JSON5 and env files.
+ *   - Use dotenv (and optionally dotenv-expand) for parsing.
+ *   - Preserve dry-run behavior; never print secret values (show lengths only).
+ *   - Optional: allow a simple mapping file if GH secret names differ from env keys.
+ */
+
+/**
  * Sync secrets.json5 into GitHub secrets (destructive: removes extras)
  * - Supports repo-level secrets (strings/files)
  * - Supports environment-scoped secrets via `environments: { <env>: { strings, files } }`
