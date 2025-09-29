@@ -93,14 +93,19 @@ export default buildConfig({
         : envProfile === 'dev'
           ? 'DEV_FRONTEND_URL'
           : 'LOCAL_FRONTEND_URL'
-    const origin = process.env[originKey]
-    if (!origin) {
+    const raw = process.env[originKey]
+    if (!raw) {
       throw new Error(
         `Missing required ${originKey} for ENV_PROFILE=${envProfile}. ` +
-          `Set it to your frontend's public URL (e.g., http://localhost:5050 for local, https://dev.example.com for dev).`,
+          `Set it to your frontend's public URL (e.g., http://localhost:5050 or http://localhost:3000 for local, https://dev.example.com for dev).`,
       )
     }
-    return [origin]
+    // Support comma-separated list of allowed origins (e.g., "http://localhost:5050,http://localhost:3000")
+    const origins = raw
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean)
+    return origins
   })(),
   cors: (() => {
     const originKey =
@@ -109,14 +114,18 @@ export default buildConfig({
         : envProfile === 'dev'
           ? 'DEV_FRONTEND_URL'
           : 'LOCAL_FRONTEND_URL'
-    const origin = process.env[originKey]
-    if (!origin) {
+    const raw = process.env[originKey]
+    if (!raw) {
       throw new Error(
         `Missing required ${originKey} for ENV_PROFILE=${envProfile}. ` +
-          `Set it to your frontend's public URL (e.g., http://localhost:5050 for local, https://dev.example.com for dev).`,
+          `Set it to your frontend's public URL (e.g., http://localhost:5050 or http://localhost:3000 for local, https://dev.example.com for dev).`,
       )
     }
-    return [origin]
+    const origins = raw
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean)
+    return origins
   })(),
   plugins: [
     payloadCloudPlugin(),
