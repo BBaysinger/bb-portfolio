@@ -5,7 +5,7 @@ export const Projects: CollectionConfig = {
   slug: 'projects',
   admin: {
     useAsTitle: 'title',
-    defaultColumns: ['title', 'slug', 'active', 'brandId'],
+    defaultColumns: ['sortIndex', 'title', 'slug', 'active', 'brandId'],
   },
   access: {
     // Public can read active projects (including NDA), but NDA fields are sanitized in afterRead.
@@ -51,6 +51,15 @@ export const Projects: CollectionConfig = {
     ],
   },
   fields: [
+    {
+      name: 'sortIndex',
+      label: 'Sort Order',
+      type: 'number',
+      defaultValue: 0,
+      admin: {
+        description: 'Lower numbers appear first in the portfolio list.',
+      },
+    },
     {
       name: 'title',
       type: 'text',
