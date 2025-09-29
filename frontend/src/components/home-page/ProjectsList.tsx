@@ -25,7 +25,8 @@ const ProjectsList = async () => {
   // Fetch fresh data per-request to honor auth and NDA differences
   try {
     // Forward cookies/headers for authenticated fetch to Payload
-    const cookieHeader = cookies().toString();
+    const cookieStore = await cookies();
+    const cookieHeader = cookieStore.toString();
     const forwardedHeaders: HeadersInit = {
       // Narrow to only what's needed; avoid leaking sensitive headers
       Cookie: cookieHeader,
