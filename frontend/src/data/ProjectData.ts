@@ -1,6 +1,12 @@
 // Fetch project data from the live API only (no JSON fallback)
 // Transforms Payload REST shape { docs: [...] } into a keyed record by slug.
-async function fetchPortfolioProjects(): Promise<PortfolioProjectData> {
+async function fetchPortfolioProjects(opts?: {
+  /** Optional request headers to forward (e.g., Cookie for auth-aware results). */
+  requestHeaders?: HeadersInit;
+  /** Disable cache for per-request SSR. */
+  disableCache?: boolean;
+}): Promise<PortfolioProjectData> {
+  const { requestHeaders, disableCache } = opts || {};
   const isServer = typeof window === "undefined";
   // Support ENV-profile prefixed variables like DEV_BACKEND_INTERNAL_URL, PROD_BACKEND_URL, LOCAL_NEXT_PUBLIC_API_URL, etc.
   const profile = (
@@ -40,9 +46,9 @@ async function fetchPortfolioProjects(): Promise<PortfolioProjectData> {
   const apiBase = isServer ? (base ? base.replace(/\/$/, "") : null) : "";
   const url = isServer
     ? apiBase
-      ? `${apiBase}/api/projects?depth=1&limit=1000`
+      ? `${apiBase}/api/projects?depth=1&limit=1000&sort=sortIndex`
       : null
-    : "/api/projects?depth=1&limit=1000";
+    : "/api/projects?depth=1&limit=1000&sort=sortIndex";
 
   if (!url) {
     // Missing backend base URL. Default behavior is to fail fast everywhere
@@ -68,7 +74,18 @@ async function fetchPortfolioProjects(): Promise<PortfolioProjectData> {
     return {} as PortfolioProjectData;
   }
 
-  const res = await fetch(url, { next: { revalidate: 3600 } });
+  const fetchOptions: RequestInit & { next?: { revalidate?: number } } = {};
+  if (disableCache) {
+    fetchOptions.cache = "no-store";
+  } else {
+    fetchOptions.next = { revalidate: 3600 };
+  }
+  if (requestHeaders) {
+    fetchOptions.headers = requestHeaders;
+    fetchOptions.credentials = "include";
+  }
+
+  const res = await fetch(url, fetchOptions);
   if (!res.ok) {
     throw new Error(
       `Failed to fetch project data: ${res.status} ${res.statusText}`,
@@ -82,6 +99,7 @@ async function fetchPortfolioProjects(): Promise<PortfolioProjectData> {
     slug?: string;
     id?: string;
     title?: string;
+    sortIndex?: number;
     active?: boolean;
     omitFromList?: boolean;
     nda?: boolean;
@@ -94,6 +112,8 @@ async function fetchPortfolioProjects(): Promise<PortfolioProjectData> {
     desc?: Array<{ block?: string }>;
     date?: string;
     urls?: Array<{ label?: string; url?: string }>;
+    // Relationships (populated via depth=1)
+    thumbnail?: unknown; // could be string | object | array of objects (upload docs)
   }
   interface PayloadProjectsRest {
     docs: PayloadProjectDoc[];
@@ -160,6 +180,41 @@ async function fetchPortfolioProjects(): Promise<PortfolioProjectData> {
       if (u?.label && u?.url) urls[u.label] = u.url;
     }
 
+    // Extract first thumbnail URL/alt if present without using `any`
+    interface UploadSize {
+      url?: string;
+      width?: number;
+      height?: number;
+    }
+    interface UploadDocLike {
+      url?: string;
+      alt?: string;
+      sizes?: Record<string, UploadSize> & {
+        thumbnail?: UploadSize;
+      };
+    }
+    const isUploadDocLike = (val: unknown): val is UploadDocLike => {
+      return (
+        !!val &&
+        typeof val === "object" &&
+        ("url" in (val as Record<string, unknown>) ||
+          "sizes" in (val as Record<string, unknown>) ||
+          "alt" in (val as Record<string, unknown>))
+      );
+    };
+    const firstUploadDoc = (val: unknown): UploadDocLike | undefined => {
+      if (!val) return undefined;
+      if (Array.isArray(val)) return val.find(isUploadDocLike);
+      return isUploadDocLike(val) ? val : undefined;
+    };
+    let thumbUrl: string | undefined;
+    let thumbAlt: string | undefined;
+    const thumbDoc = firstUploadDoc(doc.thumbnail);
+    if (thumbDoc) {
+      thumbUrl = thumbDoc.sizes?.thumbnail?.url || thumbDoc.url || undefined;
+      thumbAlt = thumbDoc.alt || undefined;
+    }
+
     const item: PortfolioProjectBase = {
       title: doc.title || "Untitled",
       active: !!doc.active,
@@ -175,6 +230,9 @@ async function fetchPortfolioProjects(): Promise<PortfolioProjectData> {
       date: doc.date || "",
       urls,
       nda: !!doc.nda,
+      sortIndex: typeof doc.sortIndex === "number" ? doc.sortIndex : undefined,
+      thumbUrl,
+      thumbAlt,
     };
 
     out[slug] = item;
@@ -207,6 +265,9 @@ export interface PortfolioProjectBase {
   date: string;
   urls: Record<string, string | string[]>;
   nda?: boolean;
+  sortIndex?: number;
+  thumbUrl?: string;
+  thumbAlt?: string;
 }
 
 export interface ParsedPortfolioProject extends PortfolioProjectBase {
@@ -297,10 +358,38 @@ export default class ProjectData {
   /**
    * Initializes the ProjectData class by parsing raw JSON and organizing projects.
    */
-  static async initialize(): Promise<void> {
-    const typedUnprocessedProjects = await fetchPortfolioProjects();
+  static async initialize(opts?: {
+    headers?: HeadersInit;
+    disableCache?: boolean;
+  }): Promise<void> {
+    // Reset caches to support re-initialization per-request when needed
+    this._projects = {} as ParsedPortfolioProjectData;
+    this._activeProjects = [];
+    this._activeKeys = [];
+    this._listedProjects = [];
+    this._listedKeys = [];
+    this._keys = [];
+    this._activeProjectsMap = {};
+
+    const typedUnprocessedProjects = await fetchPortfolioProjects({
+      requestHeaders: opts?.headers,
+      disableCache: opts?.disableCache,
+    });
     this._keys = Object.keys(typedUnprocessedProjects);
     this._projects = this.parsePortfolioData(typedUnprocessedProjects);
+
+    // Fallback local sort by sortIndex if provided (lower numbers first)
+    this._keys.sort((a, b) => {
+      const aa = this._projects[a]?.sortIndex;
+      const bb = this._projects[b]?.sortIndex;
+      const av = typeof aa === "number" ? aa : Number.MAX_SAFE_INTEGER;
+      const bv = typeof bb === "number" ? bb : Number.MAX_SAFE_INTEGER;
+      if (av !== bv) return av - bv;
+      // tie-break by title to keep stable ordering
+      const at = this._projects[a]?.title || "";
+      const bt = this._projects[b]?.title || "";
+      return at.localeCompare(bt);
+    });
 
     for (const key of this._keys) {
       const project = this._projects[key];

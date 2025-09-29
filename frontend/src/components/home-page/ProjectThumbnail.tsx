@@ -13,6 +13,8 @@ interface ProjectThumbnailProps {
   title: string;
   brandId: string;
   nda?: boolean;
+  thumbUrl?: string;
+  thumbAlt?: string;
 }
 
 /**
@@ -24,7 +26,7 @@ interface ProjectThumbnailProps {
  * @version N/A
  */
 const ProjectThumbnail = forwardRef<HTMLDivElement, ProjectThumbnailProps>(
-  ({ focused, projectId, title, brandId, nda }, ref) => {
+  ({ focused, projectId, title, brandId, nda, thumbUrl, thumbAlt }, ref) => {
     const [logoSrc, setLogoSrc] = useState<string | null>(null);
 
     useEffect(() => {
@@ -44,9 +46,12 @@ const ProjectThumbnail = forwardRef<HTMLDivElement, ProjectThumbnailProps>(
       }
     }, [brandId]);
 
-    const style: React.CSSProperties = {
-      backgroundImage: `url('/images/thumbs/${projectId}.webp')`,
-    };
+    const bgImage = !nda
+      ? thumbUrl || `/images/thumbs/${projectId}.webp`
+      : undefined;
+    const style: React.CSSProperties = bgImage
+      ? { backgroundImage: `url('${bgImage}')` }
+      : {};
 
     const focusClass = focused ? styles.projectThumbnailFocus : "";
 
