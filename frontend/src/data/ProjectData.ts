@@ -68,8 +68,14 @@ async function fetchPortfolioProjects(opts?: {
 
   const res = await fetch(url, fetchOptions);
   if (!res.ok) {
+    let detail = ''
+    try {
+      detail = await res.text()
+    } catch {}
     throw new Error(
-      `Failed to fetch project data: ${res.status} ${res.statusText}`,
+      `Failed to fetch project data: ${res.status} ${res.statusText}${
+        detail ? ` - ${detail.slice(0, 300)}` : ''
+      }`,
     );
   }
   type BrandRel =
