@@ -503,7 +503,7 @@ MONGODB_URI=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/bb-portfol
   - External working assets (PSDs) live outside the repo at:
     - `.../Portfolio Site/_work/project-screenshots`
     - `.../Portfolio Site/_work/project-thumbnails`
-  - Script `cms-seedings/_export-media.sh` converts PSDs → WebP and outputs to:
+  - Script `cms-seedings/export-media.sh` converts PSDs → WebP and outputs to:
     - `cms-seedings/project-screenshots/*.webp`
     - `cms-seedings/project-thumbnails/*.webp`
   - Script is location-independent and robust:
