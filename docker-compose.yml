@@ -165,12 +165,6 @@ services:
     environment:
       - CHOKIDAR_USEPOLLING=true
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3001/api/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 20s
 
   frontend-local:
     profiles: ["local"]
@@ -189,7 +183,7 @@ services:
     restart: unless-stopped
     depends_on:
       backend-local:
-        condition: service_healthy
+        condition: service_started
 
   # =============================================================================
   # LOCAL (MacBook) DEVELOPMENT SERVICES WITH SGG GENERATION
@@ -209,12 +203,6 @@ services:
     environment:
       - CHOKIDAR_USEPOLLING=true
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3001/api/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 20s
 
   frontend-local-ssg-generate:
     profiles: ["local-ssg"]
@@ -233,7 +221,7 @@ services:
     restart: unless-stopped
     depends_on:
       backend-local-ssg-generate:
-        condition: service_healthy
+        condition: service_started
 
 # =============================================================================
 # NETWORKING & STORAGE
