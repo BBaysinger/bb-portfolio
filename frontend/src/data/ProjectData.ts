@@ -51,8 +51,9 @@ async function fetchPortfolioProjects(opts?: {
     throw new Error(msg);
   }
 
-  // Always use relative path; rewrites will proxy to Payload when env is set
-  const url = "/api/projects?depth=1&limit=1000&sort=sortIndex";
+  // Build URL: server uses absolute backend URL; client can use relative path
+  const path = "/api/projects?depth=1&limit=1000&sort=sortIndex";
+  const url = isServer ? `${base.replace(/\/$/, "")}${path}` : path;
 
   const fetchOptions: RequestInit & { next?: { revalidate?: number } } = {};
   if (disableCache) {
