@@ -161,8 +161,8 @@ const AnimationSequencer = forwardRef<
         weight: 1,
       },
       {
-        wide: "runtime-optimization_w16h12f130",
-        narrow: "runtime-optimization_w16h12f130",
+        wide: "runtime-optimization_w16h12f129",
+        narrow: "runtime-optimization_w16h12f129",
         fps: 10,
         loops: 1,
         weight: 1,
