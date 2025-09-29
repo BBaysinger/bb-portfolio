@@ -35,12 +35,12 @@ SUBDIRS=(
 # Quality setting (0-100)
 QUALITY="70"
 
-# Verify ImageMagick is available (prefer v7 'magick mogrify', fallback to v6 'mogrify')
-MOGRIFY_CMD=()
+# Verify ImageMagick is available (prefer v7 'magick', fallback to v6 'convert')
+CONVERT_CMD=()
 if command -v magick >/dev/null 2>&1; then
-  MOGRIFY_CMD=(magick mogrify)
-elif command -v mogrify >/dev/null 2>&1; then
-  MOGRIFY_CMD=(mogrify)
+  CONVERT_CMD=(magick)
+elif command -v convert >/dev/null 2>&1; then
+  CONVERT_CMD=(convert)
 else
   echo "Error: ImageMagick is not installed or not in PATH." >&2
   echo "Install via Homebrew: brew install imagemagick" >&2
@@ -60,8 +60,8 @@ for SUB in "${SUBDIRS[@]}"; do
   mkdir -p "$OUTPUT_DIR"
   echo "Converting $INPUT_DIR -> $OUTPUT_DIR"
 
-  # Convert PSD (case-insensitive) to WebP into the same folder.
-  # Use bracket expansion to support .psd and .PSD without enabling nocaseglob globally.
+  # Convert PSD (case-insensitive) to WebP into the OUTPUT_DIR.
+  # We process files one-by-one and flatten layers to avoid animated WebP.
   shopt -s nullglob
   PSD_FILES=("$INPUT_DIR"/*.[Pp][Ss][Dd])
   if (( ${#PSD_FILES[@]} == 0 )); then
@@ -69,11 +69,13 @@ for SUB in "${SUBDIRS[@]}"; do
     continue
   fi
 
-  "${MOGRIFY_CMD[@]}" \
-    -path "$OUTPUT_DIR" \
-    -format webp \
-    -quality "$QUALITY" \
-    "${PSD_FILES[@]}"
+  for PSD in "${PSD_FILES[@]}"; do
+    base="$(basename "${PSD%.*}")"
+    out="$OUTPUT_DIR/${base}.webp"
+    # Read the PSD, flatten all layers into a single image, strip metadata, and write WebP.
+    # Using magick/convert per file ensures a single-frame output (no animation from layers).
+    "${CONVERT_CMD[@]}" "$PSD" -flatten -strip -quality "$QUALITY" "$out"
+  done
 done
 
 echo "✅ Done!"
