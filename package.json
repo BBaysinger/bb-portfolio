@@ -46,7 +46,7 @@
     "eslint": "^9.36.0",
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-react-hooks": "^5.2.0",
-    "eslint-plugin-react-refresh": "^0.4.21",
+    "eslint-plugin-react-refresh": "^0.4.22",
     "glob": "^11.0.3",
     "globals": "^16.4.0",
     "ignore": "^7.0.5",
@@ -54,7 +54,7 @@
     "json5": "^2.2.3",
     "prettier": "^3.6.2",
     "ts-node": "^10.9.2",
-    "tsx": "^4.20.5",
+    "tsx": "^4.20.6",
     "typescript": "^5.9.2"
   }
 }
