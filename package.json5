@@ -104,6 +104,10 @@
     // Run after update:deps to install the newly updated dependencies
     // Handles root, backend, and frontend package installations simultaneously
     "install:all": "concurrently \"npm install\" \"cd backend && npm install\" \"cd frontend && npm install\" --names \"root,backend,frontend\" --prefix-colors \"yellow,blue,green\"",
+    // 🪄 Import images from ../cms-seedings into backend/media/* for local dev
+    "seed:media": "tsx scripts/import-media-from-seedings.ts",
+    // 🪄 Generate the portfolio images from PSDs *outside* of the repo
+    "media:export": "bash scripts/_export-media.sh",
   },
   "devDependencies": {
     // Next.js-specific ESLint rules for best practices
