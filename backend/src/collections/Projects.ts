@@ -5,7 +5,8 @@ export const Projects: CollectionConfig = {
   slug: 'projects',
   admin: {
     useAsTitle: 'title',
-    defaultColumns: ['sortIndex', 'title', 'slug', 'active', 'brandId'],
+    // Put title in the first column (click target) and move sort order to the second column
+    defaultColumns: ['title', 'sortIndex', 'slug', 'active', 'brandId'],
   },
   access: {
     // Public can read active projects (including NDA), but NDA fields are sanitized in afterRead.
