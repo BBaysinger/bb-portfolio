@@ -28,8 +28,7 @@ const brandNames: Record<string, string> = {
   bbi: "BBInteractive",
 };
 
-// Deprecated: kept for reference during transition; dynamic URLs supersede this.
-const fileVariants: Record<string, string> = {};
+// No static filename fallbacks — URLs come from CMS brand relations only.
 
 /**
  *
@@ -84,9 +83,7 @@ const LogoSwapper: React.FC<LogoSwapperProps> = ({ projectId }) => {
 
   const backgroundImage = (key: string) => {
     const url = brandLogoMap[key];
-    const fallback = fileVariants[key] || key;
-    const chosen = url ?? `/images/brand-logos/${fallback}.svg`;
-    return url ? `url(${chosen})` : "none";
+    return url ? `url(${url})` : "none";
   };
 
   return (
