@@ -220,6 +220,7 @@ export interface Brand {
   id: string;
   name: string;
   slug: string;
+  nda?: boolean | null;
   logoLight?: (string | null) | BrandLogo;
   logoDark?: (string | null) | BrandLogo;
   website?: string | null;
@@ -497,6 +498,7 @@ export interface ProjectsSelect<T extends boolean = true> {
 export interface BrandsSelect<T extends boolean = true> {
   name?: T;
   slug?: T;
+  nda?: T;
   logoLight?: T;
   logoDark?: T;
   website?: T;
