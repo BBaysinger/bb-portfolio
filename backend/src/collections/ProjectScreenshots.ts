@@ -1,4 +1,14 @@
+import { promises as fs } from 'fs'
+import path from 'path'
+
 import type { CollectionConfig } from 'payload'
+
+type OverwriteMeta = {
+  screenType?: 'laptop' | 'phone'
+  orientation?: 'portrait' | 'landscape'
+  project?: string
+  alt?: string | null
+}
 
 export const ProjectScreenshots: CollectionConfig = {
   slug: 'projectScreenshots',
@@ -75,13 +85,92 @@ export const ProjectScreenshots: CollectionConfig = {
     },
   ],
   hooks: {
+    beforeOperation: [
+      // Overwrite behavior:
+      // - On create with a file, find an existing doc by the same filename and delete it first.
+      //   This allows the new upload to reuse the same filename (and S3 key) so the file is
+      //   effectively replaced in-place.
+      // - Capture selective metadata to re-apply in `beforeChange` so you don't lose fields
+      //   like screenType/orientation/alt/project that were already set on the prior doc.
+      async ({ args, operation, req, context }) => {
+        try {
+          const envProfile = process.env.ENV_PROFILE || 'local'
+          const overwriteEnabled = process.env.OVERWRITE_MEDIA_ON_CREATE
+            ? process.env.OVERWRITE_MEDIA_ON_CREATE === 'true'
+            : envProfile !== 'prod'
+
+          if (!overwriteEnabled) return args
+
+          if (operation === 'create' && req.file?.name) {
+            // Normalize filename to avoid Payload auto-suffixing (e.g., "-1") and force the name
+            const stripCounterSuffix = (name: string) => {
+              const lastDot = name.lastIndexOf('.')
+              if (lastDot <= 0) return name
+              const base = name.slice(0, lastDot)
+              const ext = name.slice(lastDot)
+              const m = base.match(/^(.*?)-(\d+)$/)
+              return m ? `${m[1]}${ext}` : name
+            }
+            const filename = stripCounterSuffix(req.file.name)
+            req.file.name = filename
+            // Remove any pre-existing local file to prevent counter suffixing in local env
+            if (envProfile !== 'dev' && envProfile !== 'prod') {
+              const staticDir = path.join(process.cwd(), 'media', 'project-screenshots')
+              try {
+                await fs.unlink(path.join(staticDir, filename))
+              } catch {}
+            }
+            const existing = await req.payload.find({
+              collection: 'projectScreenshots',
+              where: { filename: { equals: filename } },
+              limit: 100,
+              depth: 0,
+            })
+            if (existing?.docs?.length) {
+              // Preserve fields you likely want to keep on replacement
+              const doc = existing.docs[0] as unknown as {
+                screenType?: 'laptop' | 'phone'
+                orientation?: 'portrait' | 'landscape'
+                project?: string | { value?: string | undefined } | undefined
+                alt?: string | null
+              }
+              const projectVal =
+                typeof doc.project === 'object' && doc.project
+                  ? (doc.project as { value?: string | undefined }).value
+                  : (doc.project as string | undefined)
+              ;(context as Record<string, unknown>).__overwriteMeta = {
+                screenType: doc.screenType,
+                orientation: doc.orientation,
+                project: projectVal,
+                alt: doc.alt,
+              } as OverwriteMeta
+              for (const d of existing.docs) {
+                await req.payload.delete({ collection: 'projectScreenshots', id: d.id })
+              }
+            }
+          }
+        } catch (e) {
+          console.warn('[projectScreenshots] overwrite check failed:', e)
+        }
+        return args
+      },
+    ],
     beforeChange: [
-      async ({ data, req }) => {
+      async ({ data, req, context }) => {
         // Security: Validate file type on server side
         if (req.file && req.file.mimetype) {
           const allowedTypes = ['image/webp']
           if (!allowedTypes.includes(req.file.mimetype)) {
             throw new Error('Invalid file type. Only WebP files are allowed.')
+          }
+        }
+        // Re-apply any preserved metadata from `beforeOperation` unless the incoming
+        // payload explicitly sets those fields.
+        if (context && (context as Record<string, unknown>).__overwriteMeta) {
+          const meta = (context as Record<string, unknown>).__overwriteMeta as OverwriteMeta
+          data = {
+            ...meta,
+            ...data,
           }
         }
         return data

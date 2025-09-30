@@ -155,6 +155,9 @@ services:
     profiles: ["local"]
     image: bhbaysinger/portfolio-backend:dev
     container_name: backend-local
+    # Run Next.js dev directly to avoid double-watching and full process
+    # restarts from nodemon (which can break Server Actions during edits)
+    command: npm run dev
     volumes:
       - ./backend:/app
       - /app/node_modules
