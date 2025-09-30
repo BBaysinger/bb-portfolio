@@ -38,7 +38,7 @@ If you keep non-checked-in working assets outside the repo (recommended), place 
   project-screenshots/
   project-thumbnails/
 # legacy names also supported:
-../cms-seedings/client-logos/            # → brand-logos
+../cms-seedings/brand-logos/            # → brand-logos
 ../cms-seedings/project-carousel/        # → project-screenshots
 ../cms-seedings/project-carousel/thumbs  # → project-thumbnails
 ```

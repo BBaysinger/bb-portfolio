@@ -8,8 +8,8 @@ type OverwriteMeta = { alt?: string | null; logoType?: string | null }
 export const BrandLogos: CollectionConfig = {
   slug: 'brandLogos',
   labels: {
-    singular: 'Client Logo',
-    plural: 'Client Logos',
+    singular: 'Brand Logo',
+    plural: 'Brand Logos',
   },
   upload: {
     staticDir: 'media/brand-logos', // This will resolve to <projectRoot>/media/brand-logos
