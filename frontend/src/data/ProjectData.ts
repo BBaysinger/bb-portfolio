@@ -80,10 +80,14 @@ async function fetchPortfolioProjects(opts?: {
       }`,
     );
   }
-  type BrandRel =
-    | string
-    | { slug?: string; id?: string }
-    | Array<{ slug?: string; id?: string }>;
+  type BrandObj = {
+    slug?: string;
+    id?: string;
+    nda?: boolean;
+    logoLight?: unknown;
+    logoDark?: unknown;
+  };
+  type BrandRel = string | BrandObj | Array<BrandObj>;
   interface PayloadProjectDoc {
     slug?: string;
     id?: string;
@@ -131,6 +135,7 @@ async function fetchPortfolioProjects(opts?: {
 
     // Map relationship brandId → brand slug/id string and resolve logo URLs when available
     let brandId = "";
+    let brandIsNda = false;
     let brandLogoLightUrl: string | undefined;
     let brandLogoDarkUrl: string | undefined;
     const b: BrandRel | undefined = doc.brandId;
@@ -152,21 +157,20 @@ async function fetchPortfolioProjects(opts?: {
     if (typeof b === "string") {
       brandId = b;
     } else if (Array.isArray(b)) {
-      const first = b[0];
+      const first: BrandObj | undefined = b[0];
       brandId = (first && (first.slug || first.id)) || "";
-      // Attempt to resolve logos from first entry if populated
+      // Attempt to resolve NDA and logos from first entry if populated
       if (first && typeof first === "object") {
-        // @ts-expect-error dynamic shape from Payload depth
+        brandIsNda = !!first.nda;
         brandLogoLightUrl = extractUploadUrl(first.logoLight);
-        // @ts-expect-error dynamic shape from Payload depth
         brandLogoDarkUrl = extractUploadUrl(first.logoDark);
       }
     } else if (b && typeof b === "object") {
-      brandId = b.slug || b.id || "";
-      // @ts-expect-error dynamic shape from Payload depth
-      brandLogoLightUrl = extractUploadUrl(b.logoLight);
-      // @ts-expect-error dynamic shape from Payload depth
-      brandLogoDarkUrl = extractUploadUrl(b.logoDark);
+      const bo: BrandObj = b as BrandObj;
+      brandId = bo.slug || bo.id || "";
+      brandIsNda = !!bo.nda;
+      brandLogoLightUrl = extractUploadUrl(bo.logoLight);
+      brandLogoDarkUrl = extractUploadUrl(bo.logoDark);
     }
 
     const tags = Array.isArray(doc.tags)
@@ -242,11 +246,18 @@ async function fetchPortfolioProjects(opts?: {
       thumbAlt = thumbDoc.alt || undefined;
     }
 
+    // If brand is NDA on public requests, ensure we don't expose logos client-side
+    if (brandIsNda) {
+      brandLogoLightUrl = undefined;
+      brandLogoDarkUrl = undefined;
+    }
+
     const item: PortfolioProjectBase = {
       title: doc.title || "Untitled",
       active: !!doc.active,
       omitFromList: !!doc.omitFromList,
       brandId,
+      brandIsNda,
       mobileStatus: MobileStatuses.NONE,
       tags,
       role,
@@ -284,6 +295,8 @@ export interface PortfolioProjectBase {
   active: boolean;
   omitFromList: boolean;
   brandId: string;
+  /** True when brand is NDA; use to hide logo exposure in public UI. */
+  brandIsNda?: boolean;
   /** Optional logo for light backgrounds (from Brand.logoLight relation). */
   brandLogoLightUrl?: string;
   /** Optional logo for dark backgrounds (from Brand.logoDark relation). */

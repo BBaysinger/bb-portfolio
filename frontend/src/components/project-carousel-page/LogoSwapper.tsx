@@ -1,8 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
+
+import ProjectData from "@/data/ProjectData";
+import getBrandLogoUrl from "@/utils/getBrandLogoUrl";
 
 import styles from "./LogoSwapper.module.scss";
 
 interface LogoSwapperProps {
+  /** The brand key (slug) to focus on, not a project slug. */
   projectId: string;
 }
 
@@ -24,13 +28,8 @@ const brandNames: Record<string, string> = {
   bbi: "BBInteractive",
 };
 
-const fileVariants: Record<string, string> = {
-  // KEEP: Will need these again when light/dark mode is implemented.
-  // att: "att-dark",
-  // premera: "premera-dark",
-  // abbvie: "abbvie-dark",
-  // exas: "exas-dark",
-};
+// Deprecated: kept for reference during transition; dynamic URLs supersede this.
+const fileVariants: Record<string, string> = {};
 
 /**
  *
@@ -63,10 +62,31 @@ const LogoSwapper: React.FC<LogoSwapperProps> = ({ projectId }) => {
     };
   }, [projectId]);
 
-  // If there's a logo variant (for contrast on white), use it.
+  // Build a mapping of brandKey -> background-image URL (or none for NDA)
+  const brandLogoMap = useMemo(() => {
+    const map: Record<string, string | null> = {};
+    // Use all active projects' brand metadata to derive logo availability
+    const projects = ProjectData.activeProjects;
+    for (const p of projects) {
+      const key = p.brandId;
+      if (!key) continue;
+      if (map[key] !== undefined) continue; // first occurrence wins
+      map[key] = getBrandLogoUrl({
+        brandId: key,
+        brandIsNda: p.brandIsNda,
+        lightUrl: p.brandLogoLightUrl,
+        darkUrl: p.brandLogoDarkUrl,
+        preferDark: true,
+      });
+    }
+    return map;
+  }, []);
+
   const backgroundImage = (key: string) => {
-    const fileName = fileVariants[key] || key;
-    return `url(/images/brand-logos/${fileName}.svg)`;
+    const url = brandLogoMap[key];
+    const fallback = fileVariants[key] || key;
+    const chosen = url ?? `/images/brand-logos/${fallback}.svg`;
+    return url ? `url(${chosen})` : "none";
   };
 
   return (
