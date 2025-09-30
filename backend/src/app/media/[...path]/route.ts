@@ -49,6 +49,10 @@ export async function GET(_req: NextRequest, ctx: { params: Promise<{ path: stri
     }
     const data = await fs.readFile(filePath)
     const contentType = getContentType(filePath)
+    // Caveat: We intentionally return immutable, long-lived cache headers here to match how
+    // S3/CDN should serve media in non-local environments. To avoid staleness when files are
+    // overwritten in-place, the frontend must append a versioning query string (e.g. `?v=...`)
+    // so the URL changes whenever content does. Ensure your CDN includes query strings in cache keys.
     return new Response(new Uint8Array(data), {
       status: 200,
       headers: {

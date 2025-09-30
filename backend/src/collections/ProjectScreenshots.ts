@@ -92,6 +92,18 @@ export const ProjectScreenshots: CollectionConfig = {
       //   effectively replaced in-place.
       // - Capture selective metadata to re-apply in `beforeChange` so you don't lose fields
       //   like screenType/orientation/alt/project that were already set on the prior doc.
+      //
+      // Caveats & future considerations:
+      // - Overwriting is destructive without object-storage versioning; enable S3 versioning if
+      //   you need rollback. Otherwise prefer unique filenames per change.
+      // - CDN cache: Keep immutable caching on the media route/objects but ensure the frontend
+      //   changes the URL on content change (e.g., `?v=<updatedAt>`). Verify CDN includes query
+      //   strings in cache keys.
+      // - Filename normalization strips trailing counters ("-1"). Adjust if your workflow
+      //   requires preserving those literal suffixes.
+      // - Local dev: We unlink the old file from backend/media to avoid local adapter suffixing.
+      // - Env gating via OVERWRITE_MEDIA_ON_CREATE; defaults enabled for local/dev, disabled in prod.
+      // - Future: Consider a shared helper, optional update-time overwrite, and audit/webhook events.
       async ({ args, operation, req, context }) => {
         try {
           const envProfile = process.env.ENV_PROFILE || 'local'
