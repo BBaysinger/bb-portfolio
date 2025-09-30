@@ -13,7 +13,7 @@
  *
  * or with an intermediate images/ folder, e.g. images/brand-logos, etc.
  * Also accepts legacy:
- * - client-logos/ (mapped to brand-logos)
+ * - brand-logos/ (mapped to brand-logos)
  * - project-carousel/ (mapped to project-screenshots)
  * - project-carousel/thumbs (mapped to project-thumbnails)
  *
@@ -93,7 +93,7 @@ async function main() {
       sources: [
         path.join(seedBase, "brand-logos"),
         path.join(seedBase, "images", "brand-logos"),
-        path.join(seedBase, "client-logos"), // legacy
+        path.join(seedBase, "brand-logos"), // legacy
       ],
     },
     {
