@@ -52,7 +52,9 @@ async function fetchPortfolioProjects(opts?: {
   }
 
   // Build URL: server uses absolute backend URL; client can use relative path
-  const path = "/api/projects?depth=1&limit=1000&sort=sortIndex";
+  // We need depth=2 so that nested relations on brand (logoLight/logoDark uploads)
+  // are populated alongside the project -> brand -> upload chain.
+  const path = "/api/projects?depth=2&limit=1000&sort=sortIndex";
   const url = isServer ? `${base.replace(/\/$/, "")}${path}` : path;
 
   const fetchOptions: RequestInit & { next?: { revalidate?: number } } = {};
@@ -127,16 +129,44 @@ async function fetchPortfolioProjects(opts?: {
     const slug: string | undefined = doc.slug || doc.id;
     if (!slug) continue;
 
-    // Map relationship brandId → brand slug/id string
+    // Map relationship brandId → brand slug/id string and resolve logo URLs when available
     let brandId = "";
+    let brandLogoLightUrl: string | undefined;
+    let brandLogoDarkUrl: string | undefined;
     const b: BrandRel | undefined = doc.brandId;
+    // Helper to extract upload URL from a value that could be string | object
+    const extractUploadUrl = (val: unknown): string | undefined => {
+      if (!val) return undefined;
+      if (typeof val === "string") return undefined; // only an ID; no URL at this depth
+      if (Array.isArray(val)) {
+        const first = val[0] as Record<string, unknown> | undefined;
+        return first && typeof first === "object"
+          ? (first.url as string | undefined)
+          : undefined;
+      }
+      if (typeof val === "object") {
+        return (val as Record<string, unknown>).url as string | undefined;
+      }
+      return undefined;
+    };
     if (typeof b === "string") {
       brandId = b;
     } else if (Array.isArray(b)) {
       const first = b[0];
       brandId = (first && (first.slug || first.id)) || "";
+      // Attempt to resolve logos from first entry if populated
+      if (first && typeof first === "object") {
+        // @ts-expect-error dynamic shape from Payload depth
+        brandLogoLightUrl = extractUploadUrl(first.logoLight);
+        // @ts-expect-error dynamic shape from Payload depth
+        brandLogoDarkUrl = extractUploadUrl(first.logoDark);
+      }
     } else if (b && typeof b === "object") {
       brandId = b.slug || b.id || "";
+      // @ts-expect-error dynamic shape from Payload depth
+      brandLogoLightUrl = extractUploadUrl(b.logoLight);
+      // @ts-expect-error dynamic shape from Payload depth
+      brandLogoDarkUrl = extractUploadUrl(b.logoDark);
     }
 
     const tags = Array.isArray(doc.tags)
@@ -230,6 +260,8 @@ async function fetchPortfolioProjects(opts?: {
       sortIndex: typeof doc.sortIndex === "number" ? doc.sortIndex : undefined,
       thumbUrl,
       thumbAlt,
+      brandLogoLightUrl,
+      brandLogoDarkUrl,
     };
 
     out[slug] = item;
@@ -252,6 +284,10 @@ export interface PortfolioProjectBase {
   active: boolean;
   omitFromList: boolean;
   brandId: string;
+  /** Optional logo for light backgrounds (from Brand.logoLight relation). */
+  brandLogoLightUrl?: string;
+  /** Optional logo for dark backgrounds (from Brand.logoDark relation). */
+  brandLogoDarkUrl?: string;
   mobileStatus: MobileStatus;
   tags: string[];
   role: string;
