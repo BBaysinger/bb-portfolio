@@ -26,7 +26,7 @@ interface ProjectThumbnailProps {
  * @version N/A
  */
 const ProjectThumbnail = forwardRef<HTMLDivElement, ProjectThumbnailProps>(
-  ({ focused, projectId, title, brandId, nda, thumbUrl, thumbAlt }, ref) => {
+  ({ focused, projectId, title, brandId, nda, thumbUrl }, ref) => {
     const [logoSrc, setLogoSrc] = useState<string | null>(null);
 
     useEffect(() => {
