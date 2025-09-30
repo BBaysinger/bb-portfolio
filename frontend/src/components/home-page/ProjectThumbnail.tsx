@@ -12,6 +12,10 @@ interface ProjectThumbnailProps {
   projectId: string;
   title: string;
   brandId: string;
+  /** Optional logo URL for light backgrounds (preferred when site has light bg). */
+  brandLogoLightUrl?: string;
+  /** Optional logo URL for dark backgrounds (preferred for current site). */
+  brandLogoDarkUrl?: string;
   nda?: boolean;
   thumbUrl?: string;
   thumbAlt?: string;
@@ -26,12 +30,29 @@ interface ProjectThumbnailProps {
  * @version N/A
  */
 const ProjectThumbnail = forwardRef<HTMLDivElement, ProjectThumbnailProps>(
-  ({ focused, projectId, title, brandId, nda, thumbUrl }, ref) => {
+  (
+    {
+      focused,
+      projectId,
+      title,
+      brandId,
+      brandLogoLightUrl,
+      brandLogoDarkUrl,
+      nda,
+      thumbUrl,
+    },
+    ref,
+  ) => {
     const [logoSrc, setLogoSrc] = useState<string | null>(null);
 
     useEffect(() => {
       const loadLogo = () => {
-        setLogoSrc(`/images/brand-logos/${brandId}.svg`);
+        // Prefer dark variant on a dark-themed site, then fallback to provided light, then legacy static path
+        const chosen =
+          brandLogoDarkUrl ||
+          brandLogoLightUrl ||
+          `/images/brand-logos/${brandId}.svg`;
+        setLogoSrc(chosen);
       };
 
       // Since the brand logo is hidden, it falls outside of the browser-native
@@ -44,7 +65,7 @@ const ProjectThumbnail = forwardRef<HTMLDivElement, ProjectThumbnailProps>(
         // FALLBACK: For many modern browsers! KEEP!
         setTimeout(loadLogo, 500);
       }
-    }, [brandId]);
+    }, [brandId, brandLogoDarkUrl, brandLogoLightUrl]);
 
     const bgImage = !nda
       ? thumbUrl || `/images/thumbs/${projectId}.webp`
@@ -66,7 +87,7 @@ const ProjectThumbnail = forwardRef<HTMLDivElement, ProjectThumbnailProps>(
                 src={logoSrc}
                 className={styles.brandLogo}
                 loading="eager"
-                alt={`${brandId} logo`}
+                alt={`${title} logo`}
                 width={200}
                 height={100}
               />

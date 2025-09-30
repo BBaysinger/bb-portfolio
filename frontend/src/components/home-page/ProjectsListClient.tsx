@@ -153,8 +153,16 @@ const ProjectsListClient: React.FC<ProjectsListClientProps> = ({
       )}
       {allProjects.map((projectData, index) => {
         const id = projectData.id;
-        const { title, omitFromList, brandId, nda, thumbUrl, thumbAlt } =
-          projectData;
+        const {
+          title,
+          omitFromList,
+          brandId,
+          brandLogoLightUrl,
+          brandLogoDarkUrl,
+          nda,
+          thumbUrl,
+          thumbAlt,
+        } = projectData;
 
         return (
           <ProjectThumbnail
@@ -165,6 +173,8 @@ const ProjectsListClient: React.FC<ProjectsListClientProps> = ({
             projectId={id}
             title={title}
             brandId={brandId}
+            brandLogoLightUrl={brandLogoLightUrl}
+            brandLogoDarkUrl={brandLogoDarkUrl}
             nda={nda}
             thumbUrl={thumbUrl}
             thumbAlt={thumbAlt}
