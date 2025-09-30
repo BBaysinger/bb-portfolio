@@ -4,7 +4,9 @@ import { Suspense } from "react";
 
 import ProjectViewWrapper from "@/components/project-carousel-page/ProjectViewWrapper";
 import ProjectData from "@/data/ProjectData";
-import { verifyAuthToken } from "@/utils/authHelpers"; // You may need to implement this helper
+// Auth helper is imported only when needed (NDA branch) to keep SSG graph lean
+
+export const runtime = "nodejs";
 
 /**
  * Renders the project view page using a suspense-wrapped client-side component.
@@ -51,7 +53,11 @@ export default async function ProjectPage({
     // Check authentication (SSR)
     const cookieStore = await cookies();
     const token = cookieStore.get("authToken")?.value;
-    const isAuthenticated = token ? await verifyAuthToken(token) : false;
+    let isAuthenticated = false;
+    if (token) {
+      const { verifyAuthToken } = await import("@/utils/authHelpers");
+      isAuthenticated = await verifyAuthToken(token);
+    }
     if (isAuthenticated) {
       return (
         <Suspense fallback={<div>Loading NDA project...</div>}>
