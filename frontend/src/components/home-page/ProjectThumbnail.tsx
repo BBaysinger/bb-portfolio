@@ -54,7 +54,8 @@ const ProjectThumbnail = forwardRef<HTMLDivElement, ProjectThumbnailProps>(
       const loadLogo = () => {
         const chosen = getBrandLogoUrl({
           brandId,
-          brandIsNda,
+          // Hide logos if brand or project is NDA
+          brandIsNda: brandIsNda || !!nda,
           lightUrl: brandLogoLightUrl,
           darkUrl: brandLogoDarkUrl,
           preferDark: true,
@@ -71,7 +72,7 @@ const ProjectThumbnail = forwardRef<HTMLDivElement, ProjectThumbnailProps>(
       } else {
         setTimeout(loadLogo, 500);
       }
-    }, [brandId, brandLogoDarkUrl, brandLogoLightUrl, brandIsNda]);
+    }, [brandId, brandLogoDarkUrl, brandLogoLightUrl, brandIsNda, nda]);
 
     const bgImage = !nda ? thumbUrl : undefined;
     const style: React.CSSProperties = bgImage
