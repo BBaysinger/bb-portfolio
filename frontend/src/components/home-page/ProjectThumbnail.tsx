@@ -63,20 +63,17 @@ const ProjectThumbnail = forwardRef<HTMLDivElement, ProjectThumbnailProps>(
       };
 
       // Since the brand logo is hidden, it falls outside of the browser-native
-      // prioritization strategy, but still needs deferred to idle time to prioritize
-      // the rest of the page. In other words, this is a deferred preload strategy
+      // prioritization strategy, but still benefits from deferring to idle time
+      // to prioritize the rest of the page. This is a deferred preload strategy
       // that accounts for SPAs and SSR.
       if ("requestIdleCallback" in window) {
         window.requestIdleCallback(loadLogo, { timeout: 2000 });
       } else {
-        // FALLBACK: For many modern browsers! KEEP!
         setTimeout(loadLogo, 500);
       }
     }, [brandId, brandLogoDarkUrl, brandLogoLightUrl, brandIsNda]);
 
-    const bgImage = !nda
-      ? thumbUrl || `/images/thumbs/${projectId}.webp`
-      : undefined;
+    const bgImage = !nda ? thumbUrl : undefined;
     const style: React.CSSProperties = bgImage
       ? { backgroundImage: `url('${bgImage}')` }
       : {};
