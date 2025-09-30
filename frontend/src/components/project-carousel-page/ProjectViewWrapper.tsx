@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import ProjectView from "@/components/project-carousel-page/ProjectView";
+import ProjectData from "@/data/ProjectData";
 import { useRouteChange } from "@/hooks/useRouteChange";
 import { getDynamicPathParam } from "@/utils/getDynamicPathParam";
 
@@ -28,6 +29,37 @@ interface ProjectPageProps {
  * @returns A hydrated React component containing the project view.
  */
 export default function ProjectViewWrapper({ params }: ProjectPageProps) {
+  // Ensure project data is available on the client after hydration.
+  const [ready, setReady] = useState(false);
+  const initOnce = useRef(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    if (initOnce.current) {
+      setReady(true);
+      return;
+    }
+    (async () => {
+      try {
+        const haveProjects =
+          Object.keys(ProjectData.activeProjectsRecord).length > 0;
+        if (!haveProjects) {
+          await ProjectData.initialize({ disableCache: true });
+        }
+        initOnce.current = true;
+      } finally {
+        if (!cancelled) setReady(true);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  if (!ready) {
+    return <div>Loading project...</div>;
+  }
+
   return <ProjectViewRouterBridge initialProjectId={params.projectId} />;
 }
 

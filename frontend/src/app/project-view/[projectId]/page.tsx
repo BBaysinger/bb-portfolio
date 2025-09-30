@@ -28,6 +28,9 @@ export default async function ProjectPage({
 }) {
   const { projectId } = await params;
 
+  // Ensure data is initialized before accessing active/public records
+  await ProjectData.initialize();
+
   // Try to get the project from the active (public) record first
   const publicProject = ProjectData.activeProjectsRecord[projectId];
   if (publicProject) {
@@ -39,15 +42,7 @@ export default async function ProjectPage({
   }
 
   // If not public, check if it's NDA and SSR is allowed for logged-in users
-  const allProjects = await (async () => {
-    if (
-      !ProjectData["_projects"] ||
-      Object.keys(ProjectData["_projects"]).length === 0
-    ) {
-      await ProjectData.initialize();
-    }
-    return ProjectData["_projects"];
-  })();
+  const allProjects = ProjectData["_projects"];
   const project = allProjects[projectId];
   if (project && project.nda) {
     // Check authentication (SSR)
@@ -81,6 +76,7 @@ export default async function ProjectPage({
  */
 export async function generateStaticParams() {
   // Only generate static params for public (non-NDA) projects
+  await ProjectData.initialize();
   return Object.keys(ProjectData.activeProjectsRecord).map((projectId) => ({
     projectId,
   }));
