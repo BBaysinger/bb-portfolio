@@ -2,6 +2,8 @@ import Image from "next/image";
 import Link from "next/link";
 import React, { forwardRef, useEffect, useState } from "react";
 
+import getBrandLogoUrl from "@/utils/getBrandLogoUrl";
+
 import styles from "./ProjectThumbnail.module.scss";
 
 interface ProjectThumbnailProps {
@@ -16,6 +18,8 @@ interface ProjectThumbnailProps {
   brandLogoLightUrl?: string;
   /** Optional logo URL for dark backgrounds (preferred for current site). */
   brandLogoDarkUrl?: string;
+  /** When true, hide brand logos in public UI. */
+  brandIsNda?: boolean;
   nda?: boolean;
   thumbUrl?: string;
   thumbAlt?: string;
@@ -38,6 +42,7 @@ const ProjectThumbnail = forwardRef<HTMLDivElement, ProjectThumbnailProps>(
       brandId,
       brandLogoLightUrl,
       brandLogoDarkUrl,
+      brandIsNda,
       nda,
       thumbUrl,
     },
@@ -47,11 +52,13 @@ const ProjectThumbnail = forwardRef<HTMLDivElement, ProjectThumbnailProps>(
 
     useEffect(() => {
       const loadLogo = () => {
-        // Prefer dark variant on a dark-themed site, then fallback to provided light, then legacy static path
-        const chosen =
-          brandLogoDarkUrl ||
-          brandLogoLightUrl ||
-          `/images/brand-logos/${brandId}.svg`;
+        const chosen = getBrandLogoUrl({
+          brandId,
+          brandIsNda,
+          lightUrl: brandLogoLightUrl,
+          darkUrl: brandLogoDarkUrl,
+          preferDark: true,
+        });
         setLogoSrc(chosen);
       };
 
@@ -65,7 +72,7 @@ const ProjectThumbnail = forwardRef<HTMLDivElement, ProjectThumbnailProps>(
         // FALLBACK: For many modern browsers! KEEP!
         setTimeout(loadLogo, 500);
       }
-    }, [brandId, brandLogoDarkUrl, brandLogoLightUrl]);
+    }, [brandId, brandLogoDarkUrl, brandLogoLightUrl, brandIsNda]);
 
     const bgImage = !nda
       ? thumbUrl || `/images/thumbs/${projectId}.webp`

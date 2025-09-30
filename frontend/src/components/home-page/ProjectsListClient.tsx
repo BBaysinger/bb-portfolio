@@ -159,6 +159,7 @@ const ProjectsListClient: React.FC<ProjectsListClientProps> = ({
           brandId,
           brandLogoLightUrl,
           brandLogoDarkUrl,
+          brandIsNda,
           nda,
           thumbUrl,
           thumbAlt,
@@ -175,6 +176,7 @@ const ProjectsListClient: React.FC<ProjectsListClientProps> = ({
             brandId={brandId}
             brandLogoLightUrl={brandLogoLightUrl}
             brandLogoDarkUrl={brandLogoDarkUrl}
+            brandIsNda={brandIsNda}
             nda={nda}
             thumbUrl={thumbUrl}
             thumbAlt={thumbAlt}
