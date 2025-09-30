@@ -14,6 +14,7 @@ package-lock.json
 package.json5
 payload-types.ts
 *.tsbuildinfo
+importMap.js
 
 # 🧪 Editor/IDE files
 .vscode/
