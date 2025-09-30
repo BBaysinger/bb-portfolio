@@ -41,6 +41,22 @@ export const BrandLogos: CollectionConfig = {
       //   without generating a suffixed name. This results in "saving over" the older file.
       // - Before deleting, we stash select metadata into the hook `context` so we can restore
       //   values like alt/logoType in `beforeChange` below.
+      //
+      // Caveats & future considerations:
+      // - Risk: Overwriting by filename permanently removes the prior object. If you need
+      //   history, enable S3/Object Storage versioning or switch to unique filenames.
+      // - Caching: Media endpoints (local and CDN) use long-lived immutable caching. To avoid
+      //   stale assets, the frontend must change the URL when content changes (e.g., append
+      //   `?v=<updatedAt>`). Ensure the CDN includes query strings in its cache key and forwards
+      //   them to origin. With versioned URLs you generally don’t need CDN invalidations.
+      // - Normalization: We strip trailing "-N" counters so re-uploads reuse a stable key.
+      //   If you truly want filenames that end with "-1" etc, adjust the normalization logic.
+      // - Local dev: We unlink any pre-existing local file to prevent the filesystem adapter
+      //   from auto-suffixing. If you still see suffixes, check for residual files on disk.
+      // - Env gating: Controlled via OVERWRITE_MEDIA_ON_CREATE (defaults enabled for local/dev,
+      //   disabled in prod). Treat enabling in prod as an explicit action.
+      // - Future: Extract a shared helper for overwrite (normalize/delete/preserve/unlink),
+      //   add update-time overwrite if needed, and consider audit logs/webhooks.
       async ({ args, operation, req, context }) => {
         try {
           const envProfile = process.env.ENV_PROFILE || 'local'

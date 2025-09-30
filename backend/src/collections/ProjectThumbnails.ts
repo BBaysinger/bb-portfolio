@@ -42,6 +42,14 @@ export const ProjectThumbnails: CollectionConfig = {
       // - On create with a file, delete any existing doc with the same filename so we can reuse
       //   the filename/Key and replace the stored object in-place.
       // - Save simple metadata we want to retain across the replacement (project, alt).
+      //
+      // Caveats & future considerations:
+      // - Destructive without object-store versioning. Enable S3 versioning if rollback is needed.
+      // - CDN caching remains immutable; frontend should append a version query param to bust.
+      // - Normalization removes trailing counters like "-1". Adjust if you rely on them.
+      // - Local unlink avoids filesystem-based auto-suffixing.
+      // - Env gating via OVERWRITE_MEDIA_ON_CREATE; default enabled local/dev, disabled prod.
+      // - Future: shared helper, update-time overwrite option, and audit/webhook signals.
       async ({ args, operation, req, context }) => {
         try {
           const envProfile = process.env.ENV_PROFILE || 'local'
