@@ -246,8 +246,8 @@ async function fetchPortfolioProjects(opts?: {
       thumbAlt = thumbDoc.alt || undefined;
     }
 
-    // If brand is NDA on public requests, ensure we don't expose logos client-side
-    if (brandIsNda) {
+    // If brand OR project is NDA on public requests, ensure we don't expose logos client-side
+    if (brandIsNda || !!doc.nda) {
       brandLogoLightUrl = undefined;
       brandLogoDarkUrl = undefined;
     }
