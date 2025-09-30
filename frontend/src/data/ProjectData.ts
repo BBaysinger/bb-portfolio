@@ -176,6 +176,7 @@ async function fetchPortfolioProjects(opts?: {
     interface UploadDocLike {
       url?: string;
       alt?: string;
+      updatedAt?: string; // used for cache-busting
       sizes?: Record<string, UploadSize> & {
         thumbnail?: UploadSize;
       };
@@ -198,7 +199,16 @@ async function fetchPortfolioProjects(opts?: {
     let thumbAlt: string | undefined;
     const thumbDoc = firstUploadDoc(doc.thumbnail);
     if (thumbDoc) {
-      thumbUrl = thumbDoc.sizes?.thumbnail?.url || thumbDoc.url || undefined;
+      // Prefer a sized thumbnail URL when available
+      const baseUrl =
+        thumbDoc.sizes?.thumbnail?.url || thumbDoc.url || undefined;
+      // Append a version param derived from the upload's updatedAt to bust caches when overwriting same filename
+      const version = thumbDoc.updatedAt
+        ? Date.parse(thumbDoc.updatedAt)
+        : undefined;
+      thumbUrl = baseUrl
+        ? `${baseUrl}${baseUrl.includes("?") ? "&" : "?"}${version ? `v=${version}` : "v=1"}`
+        : undefined;
       thumbAlt = thumbDoc.alt || undefined;
     }
 
