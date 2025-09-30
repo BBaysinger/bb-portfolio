@@ -282,3 +282,24 @@ If you want, I can:
 - Wire the S3 plugin now (env-driven, no behavior change for local).
 - Add Terraform to provision per-env buckets and an IAM role for the backend.
 - Create a small script to rewrite historic absolute URLs, if any.
+
+## Caveats and future considerations
+
+This project intentionally overwrites media when a new upload has the same filename (env-gated). That’s convenient during authoring, but there are implications:
+
+- Client/CDN caching: Media endpoints and S3/CDN typically serve long-lived, immutable caches. Always change the URL when content changes. We do this by appending a version query param (e.g., `?v=updatedAt`) to rendered URLs. If your CDN ignores query strings for cache keys, enable forwarding/including query strings to make busting effective.
+- Safety and auditability: Overwriting by filename erases the prior object. If you need history, enable S3 versioning and/or switch to “new filenames per change” in the future. You can also add a Payload versioned field to keep a reference to older doc metadata.
+- Scope: Overwrite-on-create hooks are currently implemented for Brand Logos, Project Screenshots, and Project Thumbnails. If you introduce new upload collections, consider copying the same hook pattern or extracting a shared helper.
+- Environment gating: Behavior defaults to enabled for `local`/`dev` and disabled for `prod`. You can force-enable with `OVERWRITE_MEDIA_ON_CREATE=true`. Treat production enables as a conscious decision.
+- Local dev suffixing: The hooks attempt to remove pre-existing files in `backend/media/*` to prevent Payload’s local adapter from suffixing filenames (e.g., "-1"). If you see suffixes, check for residual files on disk and ensure the normalized filename path is cleaned.
+- Filenames and normalization: Hooks strip trailing `-N` counters from incoming names so repeated re-uploads keep a stable key. If you truly need filenames with `-1` in them, you’ll want to adjust the normalization logic.
+- S3 ACLs and headers: We haven’t explicitly set Cache-Control headers on S3 objects yet; the frontend relies on versioned URLs. You may set `Cache-Control: public, max-age=31536000, immutable` on objects via the storage adapter for consistency with the local media route.
+- CloudFront/CDN invalidations: With versioned URLs you generally don’t need invalidations. If you move away from query-string versioning, you’ll need to invalidate changed paths on promotions.
+
+Future improvements
+
+- Extract a shared overwrite utility to reduce duplication across collections (normalize filename, delete collisions, preserve metadata, unlink local).
+- Add update-time overwrite behavior (currently focused on create). Carefully ensure metadata preservation still works as intended.
+- Provide an admin UI toggle or per-collection setting to temporarily disable overwrites.
+- Add automated tests around filename normalization and metadata carryover on replacement.
+- Optional: Emit webhooks or audit logs when an overwrite occurs (capture who replaced which key and when).
