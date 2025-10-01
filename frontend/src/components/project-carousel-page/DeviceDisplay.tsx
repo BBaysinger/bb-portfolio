@@ -35,7 +35,7 @@ const DeviceDisplay: React.FC<DeviceDisplayProps> = React.memo(
     // Strictly use URLs from Payload uploads; if missing, render a transparent placeholder
     const payloadUrl =
       ProjectData.activeProjectsRecord[id]?.screenshotUrls?.[deviceType];
-    const src = payloadUrl || "/images/common/transparent-1x1.png";
+    const src = payloadUrl || "/images/common/transparent-1x1.gif";
 
     return (
       <div
