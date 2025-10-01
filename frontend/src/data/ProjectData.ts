@@ -391,6 +391,8 @@ export default class ProjectData {
   private static _keys: string[] = [];
   private static _activeProjectsMap: Record<string, ParsedPortfolioProject> =
     {};
+  // Prevent overlapping initialize() calls from interleaving state writes.
+  private static _initInFlight: Promise<void> | null = null;
 
   static get activeKeys(): string[] {
     return [...this._activeKeys]; // Shallow copy to prevent mutations
@@ -455,56 +457,103 @@ export default class ProjectData {
     headers?: HeadersInit;
     disableCache?: boolean;
   }): Promise<void> {
-    // Reset caches to support re-initialization per-request when needed
-    this._projects = {} as ParsedPortfolioProjectData;
-    this._activeProjects = [];
-    this._activeKeys = [];
-    this._listedProjects = [];
-    this._listedKeys = [];
-    this._keys = [];
-    this._activeProjectsMap = {};
+    // Coalesce concurrent calls: later callers await the same run
+    if (this._initInFlight) {
+      await this._initInFlight;
+      return;
+    }
 
-    const typedUnprocessedProjects = await fetchPortfolioProjects({
-      requestHeaders: opts?.headers,
-      disableCache: opts?.disableCache,
-    });
-    this._keys = Object.keys(typedUnprocessedProjects);
-    this._projects = this.parsePortfolioData(typedUnprocessedProjects);
+    this._initInFlight = (async () => {
+      const typedUnprocessedProjects = await fetchPortfolioProjects({
+        requestHeaders: opts?.headers,
+        disableCache: opts?.disableCache,
+      });
 
-    // Fallback local sort by sortIndex if provided (lower numbers first)
-    this._keys.sort((a, b) => {
-      const aa = this._projects[a]?.sortIndex;
-      const bb = this._projects[b]?.sortIndex;
-      const av = typeof aa === "number" ? aa : Number.MAX_SAFE_INTEGER;
-      const bv = typeof bb === "number" ? bb : Number.MAX_SAFE_INTEGER;
-      if (av !== bv) return av - bv;
-      // tie-break by title to keep stable ordering
-      const at = this._projects[a]?.title || "";
-      const bt = this._projects[b]?.title || "";
-      return at.localeCompare(bt);
-    });
+      // Reset caches AFTER awaiting network to avoid race conditions where
+      // overlapping calls each reset, then both push, causing duplicates.
+      this._projects = {} as ParsedPortfolioProjectData;
+      this._activeProjects = [];
+      this._activeKeys = [];
+      this._listedProjects = [];
+      this._listedKeys = [];
+      this._keys = [];
+      this._activeProjectsMap = {};
 
-    for (const key of this._keys) {
-      const project = this._projects[key];
-      if (!project.active) continue;
+      this._keys = Object.keys(typedUnprocessedProjects);
+      this._projects = this.parsePortfolioData(typedUnprocessedProjects);
 
-      if (!project.nda) {
-        // Non-NDA: included in active navigation and list (unless omitted)
-        this._activeKeys.push(key);
-        this._activeProjects.push(project);
-        this._activeProjectsMap[key] = project;
+      // Fallback local sort by sortIndex if provided (lower numbers first)
+      this._keys.sort((a, b) => {
+        const aa = this._projects[a]?.sortIndex;
+        const bb = this._projects[b]?.sortIndex;
+        const av = typeof aa === "number" ? aa : Number.MAX_SAFE_INTEGER;
+        const bv = typeof bb === "number" ? bb : Number.MAX_SAFE_INTEGER;
+        if (av !== bv) return av - bv;
+        // tie-break by title to keep stable ordering
+        const at = this._projects[a]?.title || "";
+        const bt = this._projects[b]?.title || "";
+        return at.localeCompare(bt);
+      });
 
-        if (!project.omitFromList) {
-          this._listedKeys.push(key);
-          this._listedProjects.push(project);
-        }
-      } else {
-        // NDA: not part of active navigation, but can appear in the list as placeholder
-        if (!project.omitFromList) {
-          this._listedKeys.push(key);
-          this._listedProjects.push(project);
+      for (const key of this._keys) {
+        const project = this._projects[key];
+        if (!project.active) continue;
+
+        if (!project.nda) {
+          // Non-NDA: included in active navigation and list (unless omitted)
+          this._activeKeys.push(key);
+          this._activeProjects.push(project);
+          this._activeProjectsMap[key] = project;
+
+          if (!project.omitFromList) {
+            this._listedKeys.push(key);
+            this._listedProjects.push(project);
+          }
+        } else {
+          // NDA: not part of active navigation, but can appear in the list as placeholder
+          if (!project.omitFromList) {
+            this._listedKeys.push(key);
+            this._listedProjects.push(project);
+          }
         }
       }
+
+      // Detect and always log duplicates; only normalize in development
+      const dupes = (arr: string[]) =>
+        Array.from(new Set(arr.filter((k, i, a) => a.indexOf(k) !== i)));
+      const activeDupes = dupes(this._activeKeys);
+      const listedDupes = dupes(this._listedKeys);
+      if (activeDupes.length || listedDupes.length) {
+        console.warn("[ProjectData.initialize] Duplicate keys detected", {
+          activeDupes,
+          listedDupes,
+        });
+        if (process.env.NODE_ENV !== "production") {
+          // Normalize to unique to avoid UI warnings during dev only
+          this._activeKeys = Array.from(new Set(this._activeKeys));
+          this._listedKeys = Array.from(new Set(this._listedKeys));
+          this._activeProjects = this._activeKeys
+            .map((k) => this._projects[k])
+            .filter(Boolean);
+          this._listedProjects = this._listedKeys
+            .map((k) => this._projects[k])
+            .filter(Boolean);
+          this._activeProjectsMap = this._activeKeys.reduce(
+            (acc, k) => {
+              const p = this._projects[k];
+              if (p) acc[k] = p;
+              return acc;
+            },
+            {} as Record<string, ParsedPortfolioProject>,
+          );
+        }
+      }
+    })();
+
+    try {
+      await this._initInFlight;
+    } finally {
+      this._initInFlight = null;
     }
   }
 
