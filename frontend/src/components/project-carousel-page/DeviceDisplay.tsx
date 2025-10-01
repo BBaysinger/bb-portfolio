@@ -2,6 +2,7 @@ import React from "react";
 
 import { RawImg } from "@/components/common/RawImg";
 import { MobileStatus } from "@/data/ProjectData";
+import ProjectData from "@/data/ProjectData";
 
 import styles from "./DeviceDisplay.module.scss";
 
@@ -31,7 +32,10 @@ interface DeviceDisplayProps {
  */
 const DeviceDisplay: React.FC<DeviceDisplayProps> = React.memo(
   ({ deviceType, id, mobileStatus }) => {
-    const src = `/images/screenshots/${id}-${deviceType}.webp`;
+    // Strictly use URLs from Payload uploads; if missing, render a transparent placeholder
+    const payloadUrl =
+      ProjectData.activeProjectsRecord[id]?.screenshotUrls?.[deviceType];
+    const src = payloadUrl || "/images/common/transparent-1x1.png";
 
     return (
       <div
