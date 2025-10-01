@@ -88,7 +88,28 @@ const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
           newProjectId !== lastKnownProjectId.current &&
           source === Source.SCROLL
         ) {
-          window.history.pushState({}, "", `/project-view/${newProjectId}`);
+          // Mark this navigation as originating from the carousel so we can
+          // suppress the subsequent route-driven programmatic scroll.
+          try {
+            const state = {
+              ...(window.history.state || {}),
+              source: "carousel",
+              projectId: newProjectId,
+              ts: Date.now(),
+            };
+            window.history.pushState(
+              state,
+              "",
+              `/project-view/${newProjectId}`,
+            );
+          } catch {
+            // Fallback if history.state is not accessible for any reason
+            window.history.pushState(
+              { source: "carousel" },
+              "",
+              `/project-view/${newProjectId}`,
+            );
+          }
           lastKnownProjectId.current = newProjectId;
         }
 
@@ -110,12 +131,37 @@ const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
     if (carouselRef.current && projects[projectId]) {
       const targetIndex = ProjectData.projectIndex(projectId);
 
-      if (stabilizedIndex !== targetIndex && !isCarouselSourceRef.current) {
+      // If the route change was initiated by the carousel (gesture), skip
+      // programmatic scrolling to avoid a duplicate slide and wrong index.
+      const routeFromCarousel =
+        typeof window !== "undefined" &&
+        !!(window.history?.state && window.history.state.source === "carousel");
+
+      if (
+        stabilizedIndex !== targetIndex &&
+        !isCarouselSourceRef.current &&
+        !routeFromCarousel
+      ) {
         carouselRef.current.scrollToSlide(targetIndex);
       }
     }
 
+    // Clear one-shot flags after handling this effect
     isCarouselSourceRef.current = false;
+
+    // Consume and clear the route-from-carousel marker so future route
+    // changes behave normally.
+    if (
+      typeof window !== "undefined" &&
+      window.history?.state?.source === "carousel"
+    ) {
+      try {
+        const { source, ...rest } = window.history.state || {};
+        window.history.replaceState(rest, "", window.location.href);
+      } catch {
+        // noop if replaceState fails
+      }
+    }
   }, [projectId, projects, stabilizedIndex]);
 
   if (!projectId || !projects[projectId]) {
