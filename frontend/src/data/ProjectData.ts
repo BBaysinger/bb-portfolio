@@ -26,16 +26,10 @@ async function fetchPortfolioProjects(opts?: {
   const base =
     firstVal([
       `${prefix}BACKEND_INTERNAL_URL`,
-      `${prefix}INTERNAL_API_URL`,
-      `${prefix}BACKEND_URL`,
       `${prefix}NEXT_PUBLIC_BACKEND_URL`,
-      `${prefix}API_URL`,
     ]) ||
     process.env.BACKEND_INTERNAL_URL ||
-    process.env.INTERNAL_API_URL ||
-    process.env.BACKEND_URL ||
     process.env.NEXT_PUBLIC_BACKEND_URL ||
-    process.env.API_URL ||
     "";
 
   // Conventional: rely on Next.js rewrites for /api/* on the server.

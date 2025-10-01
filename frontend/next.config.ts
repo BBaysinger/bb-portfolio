@@ -25,19 +25,13 @@ const nextConfig: NextConfig = {
       }
       return "";
     };
+    // Canonical backends only: prefer BACKEND_INTERNAL_URL (prefixed or not),
+    // with an optional fallback to NEXT_PUBLIC_BACKEND_URL for flexibility.
     const internalApi =
       pickValue(
         `${prefix}BACKEND_INTERNAL_URL`,
-        `${prefix}INTERNAL_API_URL`,
-        `${prefix}BACKEND_URL`,
         `${prefix}NEXT_PUBLIC_BACKEND_URL`,
-      ) ||
-      pickValue(
-        "BACKEND_INTERNAL_URL",
-        "INTERNAL_API_URL",
-        "BACKEND_URL",
-        "NEXT_PUBLIC_BACKEND_URL",
-      );
+      ) || pickValue("BACKEND_INTERNAL_URL", "NEXT_PUBLIC_BACKEND_URL");
 
     if (!internalApi) return [];
 
