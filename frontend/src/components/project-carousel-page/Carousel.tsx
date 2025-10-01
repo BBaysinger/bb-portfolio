@@ -232,7 +232,10 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
         onIndexUpdate?.(newDataIndex);
         if (stabilizationTimer.current)
           clearTimeout(stabilizationTimer.current);
-        if (updateStableIndex && scrollTriggerSource.current !== Source.ROUTE) {
+        if (
+          updateStableIndex &&
+          scrollTriggerSource.current !== Source.PROGRAMMATIC
+        ) {
           stabilizationTimer.current = setTimeout(() => {
             stableIndex.current = newDataIndex;
             onStabilizationUpdate?.(
@@ -275,10 +278,22 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
     let lastFrameTime = 0;
 
     const scrollListener = (_: Event) => {
+      // If a route-driven tween is in progress but the user starts interacting,
+      // hand control back to gesture-driven flow immediately.
+      if (
+        scrollTriggerSource.current === Source.PROGRAMMATIC &&
+        (draggable?.current?.isDragging || draggable?.current?.isThrowing)
+      ) {
+        scrollTriggerSource.current = Source.SCROLL;
+        // Cancel any in-flight tween to avoid fighting with native scroll.
+        if (scrollerRef.current) {
+          gsap.killTweensOf(scrollerRef.current, "scrollLeft");
+        }
+      }
       if (
         !draggable?.current?.isThrowing &&
         !draggable?.current?.isDragging &&
-        scrollTriggerSource.current !== Source.ROUTE &&
+        scrollTriggerSource.current !== Source.PROGRAMMATIC &&
         snap !== "x mandatory"
       ) {
         setSnap("x mandatory");
@@ -361,7 +376,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
     stableIndex.current = freshDataIndex;
     onStabilizationUpdate?.(
       freshDataIndex,
-      Source.ROUTE,
+      Source.PROGRAMMATIC,
       scrollDirectionRef.current,
     );
   }, [onStabilizationUpdate, deriveDataIndex]);
@@ -381,7 +396,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
     scrollToSlide: (targetIndex: number) => {
       if (!scrollerRef.current || !scrollLeftTo.current) return;
       setSnap("none");
-      scrollTriggerSource.current = Source.ROUTE;
+      scrollTriggerSource.current = Source.PROGRAMMATIC;
       const offsetToTarget = currentOffsets[targetIndex];
       const direction = offsetToTarget > 0 ? Direction.RIGHT : Direction.LEFT;
       scrollDirectionRef.current = direction;
