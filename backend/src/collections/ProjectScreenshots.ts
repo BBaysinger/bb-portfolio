@@ -70,7 +70,7 @@ export const ProjectScreenshots: CollectionConfig = {
       name: 'project',
       type: 'relationship',
       relationTo: 'projects',
-      required: false,
+      required: true,
       admin: {
         position: 'sidebar',
       },
@@ -168,6 +168,7 @@ export const ProjectScreenshots: CollectionConfig = {
       },
     ],
     beforeChange: [
+      // Validate file type and re-apply overwrite metadata
       async ({ data, req, context }) => {
         // Security: Validate file type on server side
         if (req.file && req.file.mimetype) {
@@ -184,6 +185,35 @@ export const ProjectScreenshots: CollectionConfig = {
             ...meta,
             ...data,
           }
+        }
+        return data
+      },
+      // Enforce only one screenshot per screenType for a given project
+      async ({ data, operation, req, originalDoc }) => {
+        try {
+          const projectId = (data as OverwriteMeta)?.project as string | undefined
+          const screenType = (data as OverwriteMeta)?.screenType as 'laptop' | 'phone' | undefined
+          if (!projectId || !screenType) return data
+
+          const existing = await req.payload.find({
+            collection: 'projectScreenshots',
+            where: {
+              and: [{ project: { equals: projectId } }, { screenType: { equals: screenType } }],
+            },
+            limit: 2,
+            depth: 0,
+          })
+
+          const currentId = operation === 'update' ? originalDoc?.id : undefined
+          const conflict = existing.docs.find((d) => d.id !== currentId)
+          if (conflict) {
+            throw new Error(
+              `Only one ${screenType} screenshot is allowed per project. Delete or replace the existing ${screenType} screenshot first.`,
+            )
+          }
+        } catch (e) {
+          // Re-throw to surface validation error in admin UI/API
+          throw e
         }
         return data
       },

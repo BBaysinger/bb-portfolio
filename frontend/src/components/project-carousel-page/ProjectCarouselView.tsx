@@ -74,7 +74,7 @@ const ProjectCarouselView: React.FC<{
       ProjectData.activeProjects.map((project) => (
         <DeviceDisplay
           deviceType={DeviceTypes.PHONE}
-          mobileStatus={project.mobileStatus}
+          mobileOrientation={project.mobileOrientation}
           id={project.id}
           key={project.id}
         />
