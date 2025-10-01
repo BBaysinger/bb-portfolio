@@ -21,7 +21,7 @@
  * Sync secrets.json5 into GitHub secrets (destructive: removes extras)
  * - Supports repo-level secrets (strings/files)
  * - Supports environment-scoped secrets via `environments: { <env>: { strings, files } }`
- * - NEW: If a sibling ".private" file exists (e.g., 
+ * - NEW: If a sibling ".private" file exists (e.g.,
  *        ./.github-secrets.private.json5 next to ./.github-secrets.json5),
  *        values from the private file are overlaid onto the provided
  *        template for keys defined in the template schema. Extra keys in

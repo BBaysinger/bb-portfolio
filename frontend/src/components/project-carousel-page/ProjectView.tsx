@@ -156,7 +156,7 @@ const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
       window.history?.state?.source === "carousel"
     ) {
       try {
-        const { source, ...rest } = window.history.state || {};
+        const { ...rest } = window.history.state || {};
         window.history.replaceState(rest, "", window.location.href);
       } catch {
         // noop if replaceState fails
