@@ -1,7 +1,7 @@
 import React from "react";
 
 import { RawImg } from "@/components/common/RawImg";
-import { MobileStatus } from "@/data/ProjectData";
+import { MobileOrientation } from "@/data/ProjectData";
 import ProjectData from "@/data/ProjectData";
 
 import styles from "./DeviceDisplay.module.scss";
@@ -17,7 +17,7 @@ export type DeviceType = (typeof DeviceTypes)[keyof typeof DeviceTypes];
 interface DeviceDisplayProps {
   deviceType: DeviceType;
   id: string;
-  mobileStatus?: MobileStatus;
+  mobileOrientation?: MobileOrientation;
 }
 
 /**
@@ -31,7 +31,7 @@ interface DeviceDisplayProps {
  * @version N/A
  */
 const DeviceDisplay: React.FC<DeviceDisplayProps> = React.memo(
-  ({ deviceType, id, mobileStatus }) => {
+  ({ deviceType, id, mobileOrientation }) => {
     // Strictly use URLs from Payload uploads; if missing, render a transparent placeholder
     const payloadUrl =
       ProjectData.activeProjectsRecord[id]?.screenshotUrls?.[deviceType];
@@ -55,8 +55,8 @@ const DeviceDisplay: React.FC<DeviceDisplayProps> = React.memo(
         ) : deviceType === DeviceTypes.PHONE ? (
           <div
             className={
-              `bbPhone ${styles.backgroundWrapper} ${mobileStatus ? styles[mobileStatus] : ""}` +
-              ` bb${mobileStatus ? mobileStatus : ""} ${styles[deviceType]}`
+              `bbPhone ${styles.backgroundWrapper} ${mobileOrientation ? styles[mobileOrientation] : ""}` +
+              ` bb${mobileOrientation ? mobileOrientation : ""} ${styles[deviceType]}`
             }
           >
             <RawImg

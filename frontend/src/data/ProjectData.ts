@@ -254,15 +254,33 @@ async function fetchPortfolioProjects(opts?: {
     // Map first laptop/phone screenshot URLs from relationship (if provided)
     let laptopUrl: string | undefined;
     let phoneUrl: string | undefined;
+    // Derive mobile status (Portrait/Landscape) from the first phone screenshot (for now)
+    // because orientation belongs to the screenshot/device, not the project itself,
+    // So hypothetically, we could add views with tablets, etc. in the future, all
+    // different orientations.
+    let derivedMobileOrientation: MobileOrientation = MobileOrientations.NONE;
     const ss = Array.isArray(doc.screenshots) ? doc.screenshots : [];
     for (const entry of ss) {
       if (!isScreenshotDocLike(entry)) continue;
       const base = entry.url;
       if (!base) continue;
+
       const v = entry.updatedAt ? Date.parse(entry.updatedAt) : undefined;
-      const withVersion = `${base}${base.includes("?") ? "&" : "?"}${v ? `v=${v}` : "v=1"}`;
-      if (entry.screenType === "laptop" && !laptopUrl) laptopUrl = withVersion;
-      if (entry.screenType === "phone" && !phoneUrl) phoneUrl = withVersion;
+      // Cache-busting version param
+      const url = `${base}${base.includes("?") ? "&" : "?"}${v ? `v=${v}` : "v=1"}`;
+      if (entry.screenType === "laptop" && !laptopUrl) {
+        laptopUrl = url;
+      } else if (entry.screenType === "phone" && !phoneUrl) {
+        phoneUrl = url;
+        if (entry.orientation === "portrait") {
+          derivedMobileOrientation = MobileOrientations.PORTRAIT;
+        } else if (entry.orientation === "landscape") {
+          derivedMobileOrientation = MobileOrientations.LANDSCAPE;
+        }
+      }
+
+      // Early exit if we have what we need
+      if (laptopUrl && phoneUrl) break;
     }
 
     // If brand OR project is NDA on public requests, ensure we don't expose logos client-side
@@ -277,7 +295,7 @@ async function fetchPortfolioProjects(opts?: {
       omitFromList: !!doc.omitFromList,
       brandId,
       brandIsNda,
-      mobileStatus: MobileStatuses.NONE,
+      mobileOrientation: derivedMobileOrientation,
       tags,
       role,
       year: doc.year,
@@ -305,13 +323,14 @@ async function fetchPortfolioProjects(opts?: {
 }
 
 // Define constants for MobileOrientation
-export const MobileStatuses = {
+export const MobileOrientations = {
   PORTRAIT: "Portrait",
   LANDSCAPE: "Landscape",
   NONE: "none",
 } as const;
 
-export type MobileStatus = (typeof MobileStatuses)[keyof typeof MobileStatuses];
+export type MobileOrientation =
+  (typeof MobileOrientations)[keyof typeof MobileOrientations];
 
 export interface PortfolioProjectBase {
   title: string;
@@ -324,7 +343,7 @@ export interface PortfolioProjectBase {
   brandLogoLightUrl?: string;
   /** Optional logo for dark backgrounds (from Brand.logoDark relation). */
   brandLogoDarkUrl?: string;
-  mobileStatus: MobileStatus;
+  mobileOrientation: MobileOrientation;
   tags: string[];
   role: string;
   year?: string;
