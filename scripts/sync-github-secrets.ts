@@ -21,6 +21,12 @@
  * Sync secrets.json5 into GitHub secrets (destructive: removes extras)
  * - Supports repo-level secrets (strings/files)
  * - Supports environment-scoped secrets via `environments: { <env>: { strings, files } }`
+ * - NEW: If a sibling ".private" file exists (e.g., 
+ *        ./.github-secrets.private.json5 next to ./.github-secrets.json5),
+ *        values from the private file are overlaid onto the provided
+ *        template for keys defined in the template schema. Extra keys in
+ *        the private file are ignored. This keeps JSON5 as the schema-of-record
+ *        while allowing real values to remain untracked.
  *
  * Usage:
  *   ./sync-github-secrets.ts <owner/repo> <secrets.json5> [--dry-run]
@@ -65,17 +71,93 @@ if (!fs.existsSync(JSON_FILE)) {
 console.log(`📥 Reading secrets from ${JSON_FILE} ...`);
 
 const raw = fs.readFileSync(JSON_FILE, "utf8");
-let data: SecretsFile = JSON5.parse(raw);
+let baseData: SecretsFile = JSON5.parse(raw);
 
-// Normalize structure
-data.strings = data.strings ?? {};
-data.files = data.files ?? {};
-data.environments = data.environments ?? {};
+// Normalize structure for base
+baseData.strings = baseData.strings ?? {};
+baseData.files = baseData.files ?? {};
+baseData.environments = baseData.environments ?? {};
 
-// Expand ~ in file paths
-for (const [k, v] of Object.entries(data.files)) {
+// Attempt to overlay private values from sibling ".private" file
+const privatePath = path.join(
+  path.dirname(JSON_FILE),
+  path.basename(JSON_FILE).replace(/\.json5$/, ".private.json5"),
+);
+
+let data: SecretsFile = baseData;
+if (
+  privatePath &&
+  path.resolve(privatePath) !== path.resolve(JSON_FILE) &&
+  fs.existsSync(privatePath)
+) {
+  try {
+    const rawPrivate = fs.readFileSync(privatePath, "utf8");
+    const privateData: SecretsFile = JSON5.parse(rawPrivate);
+
+    const merged: SecretsFile = {
+      strings: { ...baseData.strings },
+      files: { ...baseData.files },
+      environments: { ...baseData.environments },
+    };
+
+    // Helper to overlay by schema keys only
+    const overlayBySchema = (
+      schema: SecretGroup,
+      overlay: SecretGroup | undefined,
+    ): SecretGroup => {
+      const result: SecretGroup = {
+        strings: { ...(schema.strings ?? {}) },
+        files: { ...(schema.files ?? {}) },
+      };
+      if (overlay?.strings) {
+        for (const key of Object.keys(schema.strings ?? {})) {
+          if (key in overlay.strings!) {
+            result.strings![key] = overlay.strings![key];
+          }
+        }
+      }
+      if (overlay?.files) {
+        for (const key of Object.keys(schema.files ?? {})) {
+          if (key in overlay.files!) {
+            result.files![key] = overlay.files![key];
+          }
+        }
+      }
+      return result;
+    };
+
+    // Repo-level overlay
+    const repoOverlay = overlayBySchema(baseData, privateData);
+    merged.strings = repoOverlay.strings;
+    merged.files = repoOverlay.files;
+
+    // Environment-scoped overlay
+    merged.environments = {};
+    for (const [envName, envSchema] of Object.entries(
+      baseData.environments ?? {},
+    )) {
+      const envOverlay = overlayBySchema(
+        envSchema,
+        privateData.environments?.[envName],
+      );
+      merged.environments![envName] = envOverlay;
+    }
+
+    data = merged;
+    console.log(
+      `🔒 Using private overrides from ${privatePath} (restricted to template schema)`,
+    );
+  } catch {
+    console.warn(
+      `⚠️ Failed to parse private overrides at ${privatePath}; proceeding without overlays.`,
+    );
+  }
+}
+
+// Expand ~ in file paths (after overlay)
+for (const [k, v] of Object.entries(data.files ?? {})) {
   if (typeof v === "string" && v.startsWith("~")) {
-    data.files[k] = path.join(os.homedir(), v.slice(1));
+    data.files![k] = path.join(os.homedir(), v.slice(1));
   }
 }
 

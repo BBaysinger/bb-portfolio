@@ -103,4 +103,4 @@ terraform.rc
 # Github secrets
 # ===============================================================
 
-.github-secrets.json5
+.github-secrets.private.json5
