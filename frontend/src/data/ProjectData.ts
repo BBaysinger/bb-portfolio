@@ -30,15 +30,12 @@ async function fetchPortfolioProjects(opts?: {
       `${prefix}BACKEND_URL`,
       `${prefix}NEXT_PUBLIC_BACKEND_URL`,
       `${prefix}API_URL`,
-      `${prefix}SITE_URL`,
     ]) ||
     process.env.BACKEND_INTERNAL_URL ||
     process.env.INTERNAL_API_URL ||
     process.env.BACKEND_URL ||
     process.env.NEXT_PUBLIC_BACKEND_URL ||
     process.env.API_URL ||
-    process.env.NEXT_PUBLIC_SITE_URL ||
-    process.env.SITE_URL ||
     "";
 
   // Conventional: rely on Next.js rewrites for /api/* on the server.
@@ -107,6 +104,7 @@ async function fetchPortfolioProjects(opts?: {
     urls?: Array<{ label?: string; url?: string }>;
     // Relationships (populated via depth=1)
     thumbnail?: unknown; // could be string | object | array of objects (upload docs)
+    screenshots?: unknown; // relationship to projectScreenshots (array)
   }
   interface PayloadProjectsRest {
     docs: PayloadProjectDoc[];
@@ -215,6 +213,11 @@ async function fetchPortfolioProjects(opts?: {
         thumbnail?: UploadSize;
       };
     }
+    interface ScreenshotDocLike extends UploadDocLike {
+      screenType?: "laptop" | "phone";
+      orientation?: "portrait" | "landscape";
+      filename?: string;
+    }
     const isUploadDocLike = (val: unknown): val is UploadDocLike => {
       return (
         !!val &&
@@ -228,6 +231,14 @@ async function fetchPortfolioProjects(opts?: {
       if (!val) return undefined;
       if (Array.isArray(val)) return val.find(isUploadDocLike);
       return isUploadDocLike(val) ? val : undefined;
+    };
+    const isScreenshotDocLike = (val: unknown): val is ScreenshotDocLike => {
+      return (
+        !!val &&
+        typeof val === "object" &&
+        ("screenType" in (val as Record<string, unknown>) ||
+          "url" in (val as Record<string, unknown>))
+      );
     };
     let thumbUrl: string | undefined;
     let thumbAlt: string | undefined;
@@ -244,6 +255,20 @@ async function fetchPortfolioProjects(opts?: {
         ? `${baseUrl}${baseUrl.includes("?") ? "&" : "?"}${version ? `v=${version}` : "v=1"}`
         : undefined;
       thumbAlt = thumbDoc.alt || undefined;
+    }
+
+    // Map first laptop/phone screenshot URLs from relationship (if provided)
+    let laptopUrl: string | undefined;
+    let phoneUrl: string | undefined;
+    const ss = Array.isArray(doc.screenshots) ? doc.screenshots : [];
+    for (const entry of ss) {
+      if (!isScreenshotDocLike(entry)) continue;
+      const base = entry.url;
+      if (!base) continue;
+      const v = entry.updatedAt ? Date.parse(entry.updatedAt) : undefined;
+      const withVersion = `${base}${base.includes("?") ? "&" : "?"}${v ? `v=${v}` : "v=1"}`;
+      if (entry.screenType === "laptop" && !laptopUrl) laptopUrl = withVersion;
+      if (entry.screenType === "phone" && !phoneUrl) phoneUrl = withVersion;
     }
 
     // If brand OR project is NDA on public requests, ensure we don't expose logos client-side
@@ -273,6 +298,10 @@ async function fetchPortfolioProjects(opts?: {
       thumbAlt,
       brandLogoLightUrl,
       brandLogoDarkUrl,
+      screenshotUrls: {
+        laptop: laptopUrl,
+        phone: phoneUrl,
+      },
     };
 
     out[slug] = item;
@@ -314,6 +343,11 @@ export interface PortfolioProjectBase {
   sortIndex?: number;
   thumbUrl?: string;
   thumbAlt?: string;
+  /** Optional direct URLs for device screenshots resolved from Payload uploads. */
+  screenshotUrls?: {
+    laptop?: string;
+    phone?: string;
+  };
 }
 
 export interface ParsedPortfolioProject extends PortfolioProjectBase {
