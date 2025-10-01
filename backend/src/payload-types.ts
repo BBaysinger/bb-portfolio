@@ -274,7 +274,7 @@ export interface ProjectScreenshot {
    */
   screenType: 'laptop' | 'phone';
   orientation: 'portrait' | 'landscape';
-  project?: (string | null) | Project;
+  project: string | Project;
   /**
    * Optional alt text for accessibility or SEO.
    */
