@@ -67,35 +67,18 @@ const CurriculumVitae: React.FC = () => {
     "Redux",
     "Express",
     "Node",
-    "Babel",
-    "Craft CMS",
-    "NPM",
-    "Webpack",
-    "Grunt",
-    "Gulp",
-    "Mustache / Handlebars",
-    "Docker",
     "Bootstrap",
-    "SVG",
-    "Canvas",
-    "Flexbox",
-    "Grid",
-    "Require / AMD",
-    "Git",
-    "SVN",
-    "Elasticsearch",
-    "Create / Easel",
-    "Mapbox",
     "GreenSock / GSAP",
     "Flambé / 2DKit",
+    "Craft CMS",
     "Salesforce",
     "Sitecore",
+    "Elasticsearch",
+    "Mapbox",
+    "Mustache / Handlebars",
+    "Require / AMD",
     "OneTrust",
     "Litmus",
-    "Vite",
-    "ChatGPT",
-    "Copilot AI",
-    "Perplexity AI",
   ];
 
   const concepts = [
@@ -111,6 +94,10 @@ const CurriculumVitae: React.FC = () => {
     "Tween Engines",
     "Quality Assurance",
     "Tracking / Analytics",
+    "SVG",
+    "Canvas",
+    "Flexbox",
+    "Grid",
   ];
 
   const software = [
@@ -122,12 +109,21 @@ const CurriculumVitae: React.FC = () => {
     "Atom Editor",
     "Sublime Text",
     "Dreamweaver",
-    "VirtualBox",
-    "Sauce Labs",
-    "BrowserStack",
+    "Git",
     "Git Tower",
     "Sourcetree",
+    "SVN",
+    "NPM",
+    "Webpack",
+    "Grunt",
+    "Gulp",
+    "Babel",
+    "Vite",
+    "Docker",
+    "VirtualBox",
     "MAMP",
+    "Sauce Labs",
+    "BrowserStack",
     "Jira",
     "Trello",
     "Smartsheet",
@@ -136,6 +132,10 @@ const CurriculumVitae: React.FC = () => {
     "OS X",
     "Windows",
     "Terminal / Command Prompt",
+    "ChatGPT",
+    "Copilot AI",
+    "Perplexity AI",
+    "Create / Easel",
   ];
 
   const projectTypes = [
@@ -391,8 +391,8 @@ const CurriculumVitae: React.FC = () => {
               </div>
 
               <p ref={addToRefs} className={styles.desc}>
-                Interactive and responsive websites for Fortune 500 companies in
-                banking, pharmaceuticals, and entertainment
+                Developed interactive and responsive websites for Fortune 500
+                companies in banking, pharmaceuticals, and entertainment
               </p>
 
               <p ref={addToRefs} className={styles.scope}>
@@ -431,7 +431,7 @@ const CurriculumVitae: React.FC = () => {
                 <li ref={addToRefs}>
                   Developed consent management workflows using{" "}
                   <b>Apache FreeMarker</b> for <b>OneTrust</b> integration,
-                  facilitating seamless data exchange across platforms like
+                  facilitating efficient data exchange across platforms like
                   MuleSoft and Veeva, enhancing compliance and user experience
                   through event-driven and scheduled processes.
                 </li>
@@ -499,7 +499,7 @@ const CurriculumVitae: React.FC = () => {
                 </li>
                 <li ref={addToRefs}>
                   Created and deployed an admin interface for a Spokane
-                  construction company website using <b>Craft CMS</b>
+                  construction company website using <b>Craft CMS</b>.
                 </li>
                 <li ref={addToRefs}>
                   Produced animations in vanilla JavaScript and CSS3 for
@@ -557,7 +557,7 @@ const CurriculumVitae: React.FC = () => {
                 <li ref={addToRefs}>
                   Converted Sketch designs into responsive and interactive web
                   pages and components, ensuring pixel-perfect implementation
-                  and seamless user experience across all devices.
+                  and consistent user experience across all devices.
                 </li>
 
                 <li ref={addToRefs}>
@@ -598,8 +598,8 @@ const CurriculumVitae: React.FC = () => {
                 </li>
                 <li ref={addToRefs}>
                   Built a zero-dependency, <b>vanilla JavaScript</b> carousel
-                  component for Comics Kingdom, enabling seamless embedding by
-                  local newspaper websites.
+                  component for Comics Kingdom, enabling easy embedding by local
+                  newspaper websites.
                 </li>
                 <li ref={addToRefs}>
                   Delivered under extremely tight deadlines, often starting
@@ -910,11 +910,11 @@ const CurriculumVitae: React.FC = () => {
                   criteria and so received credit for school curriculum
                 </li>
                 <li ref={addToRefs}>
-                  In the program I was considerably ahead all the other
-                  students, having history in Photoshop, HTML, JavaScript and
-                  art, I unofficially tutored other students any time I was in
-                  the lab, and was widely regarded as a prodigy by faculty and
-                  fellow students.
+                  In the program I started out ahead of all the other students,
+                  having prior experience in Photoshop, HTML, JavaScript and
+                  art. I unofficially tutored other students whenever I was in
+                  the lab and received recognition from faculty for my technical
+                  skills.
                 </li>
               </ul>
             </div>
@@ -1015,27 +1015,27 @@ const CurriculumVitae: React.FC = () => {
         </div>
 
         <div className={"container"}>
-          <h4 ref={addToRefs}>Technologies and Tools</h4>
+          <h4 ref={addToRefs}>Technical Skills</h4>
 
           <div className={rowClass}>
             <div ref={addToRefs} className={divClassLt}></div>
             <div ref={addToRefs} className={divClassRt}>
-              <h5>Languages</h5>
+              <h5>Programming Languages & Markup</h5>
               <p>{wrapPhrases(lang)}</p>
             </div>
             <div ref={addToRefs} className={divClassLt}></div>
             <div ref={addToRefs} className={divClassRt}>
-              <h5>Technologies</h5>
+              <h5>Frameworks & Libraries</h5>
               <p>{wrapPhrases(tech)}</p>
             </div>
             <div ref={addToRefs} className={divClassLt}></div>
             <div ref={addToRefs} className={divClassRt}>
-              <h5>Concepts</h5>
+              <h5>Development Concepts</h5>
               <p>{wrapPhrases(concepts)}</p>
             </div>
             <div ref={addToRefs} className={divClassLt}></div>
             <div ref={addToRefs} className={divClassRt}>
-              <h5>Software</h5>
+              <h5>Tools & Platforms</h5>
               <p>{wrapPhrases(software)}</p>
             </div>
           </div>
