@@ -41,22 +41,22 @@
   // Runtime dependencies for backend and CMS functionality
   "dependencies": {
     // MongoDB adapter for Payload CMS
-    "@payloadcms/db-mongodb": "3.56.0",
+    "@payloadcms/db-mongodb": "3.58.0",
     // Nodemailer email adapter for Payload CMS (handles SMTP email sending, password resets, notifications)
-    "@payloadcms/email-nodemailer": "3.56.0",
+    "@payloadcms/email-nodemailer": "3.58.0",
     // Enables Payload-Next.js integration (server-side rendering and routing)
-    "@payloadcms/next": "3.56.0",
+    "@payloadcms/next": "3.58.0",
     // Payload Cloud tools (optional if self-hosting)
-    "@payloadcms/payload-cloud": "3.56.0",
+    "@payloadcms/payload-cloud": "3.58.0",
     // Rich text editor using Lexical (modern alternative to Slate)
-    "@payloadcms/richtext-lexical": "3.56.0",
-    "@payloadcms/storage-s3": "3.56.0",
+    "@payloadcms/richtext-lexical": "3.58.0",
+    "@payloadcms/storage-s3": "3.58.0",
     // Payload's core UI components
-    "@payloadcms/ui": "3.56.0",
+    "@payloadcms/ui": "3.58.0",
     // Cross-platform environment variable setting (Windows/Unix compatibility)
-    "cross-env": "^10.0.0",
+    "cross-env": "^10.1.0",
     // Environment variable loader (reads .env files into process.env)
-    "dotenv": "17.2.2",
+    "dotenv": "17.2.3",
     // Express.js web server framework (v5 for latest features)
     "express": "^5.1.0",
     // GraphQL query language runtime (required by Payload's GraphQL API)
@@ -64,11 +64,11 @@
     // Next.js framework for frontend/backend integration
     "next": "15.5.4",
     // Payload CMS core package
-    "payload": "3.56.0",
+    "payload": "3.58.0",
     // React version to match Next.js 15
-    "react": "19.1.1",
+    "react": "19.2.0",
     // React DOM library for rendering React components (required by Next.js and Payload UI)
-    "react-dom": "^19.1.1",
+    "react-dom": "^19.2.0",
     // High-performance image processing (required for Payload image fields)
     "sharp": "0.34.4",
     // Converts strings into URL-friendly slugs (useful for dynamic routing)
@@ -83,13 +83,13 @@
     // Express.js TypeScript definitions
     "@types/express": "^5.0.3",
     // Node.js TypeScript definitions (latest for Node 18+)
-    "@types/node": "^24.5.2",
+    "@types/node": "^24.6.2",
     // React 19 types
-    "@types/react": "19.1.13",
+    "@types/react": "19.2.0",
     // React DOM 19 types
-    "@types/react-dom": "19.1.9",
+    "@types/react-dom": "19.2.0",
     // Vite React plugin (enables React support in Vitest)
-    "@vitejs/plugin-react": "5.0.3",
+    "@vitejs/plugin-react": "5.0.4",
     // ESLint JavaScript/TypeScript linter (v9 for latest rules)
     "eslint": "^9.36.0",
     // Next.js ESLint configuration (includes React and accessibility rules)
@@ -103,7 +103,7 @@
     // Code formatter with opinionated defaults
     "prettier": "^3.6.2",
     // TypeScript compiler (v5.9 for latest language features)
-    "typescript": "5.9.2",
+    "typescript": "5.9.3",
     // Vite path mapping support (resolves TypeScript path aliases)
     "vite-tsconfig-paths": "5.1.4",
     // Fast unit test runner (modern Jest alternative)
