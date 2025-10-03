@@ -19,9 +19,15 @@ export const ProjectThumbnails: CollectionConfig = {
     mimeTypes: ['image/webp'],
     imageSizes: [
       {
-        name: 'thumbnail',
+        name: 'mobile',
         width: 400,
         height: 300,
+        position: 'centre',
+      },
+      {
+        name: 'thumbnail', // Keep existing name for admin interface
+        width: 800,
+        height: 600,
         position: 'centre',
       },
     ],
