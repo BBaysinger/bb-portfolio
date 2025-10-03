@@ -1,10 +1,11 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 import { PushStateLink } from "@/components/common/PushStateLink";
 import ProjectData from "@/data/ProjectData";
+import { useRouteChange } from "@/hooks/useRouteChange";
 
 import styles from "./PageButtons.module.scss";
 
@@ -26,14 +27,46 @@ import styles from "./PageButtons.module.scss";
  */
 const PageButtons: React.FC = () => {
   const params = useParams();
-  // Prefer reading from the current URL when pushState navigation is used,
-  // falling back to useParams for SSR/initial load.
-  let projectId = typeof params?.projectId === "string" ? params.projectId : "";
-  if (typeof window !== "undefined") {
+  const [clientProjectId, setClientProjectId] = useState<string>("");
+
+  // SSR-safe: Start with params.projectId, update with window.location on client
+  const baseProjectId =
+    typeof params?.projectId === "string" ? params.projectId : "";
+  const projectId = clientProjectId || baseProjectId;
+
+  // Update projectId from URL on client side only, and listen for route changes
+  useEffect(() => {
+    const updateProjectId = () => {
+      const segs = window.location.pathname.split("/").filter(Boolean);
+      const last = segs.at(-1);
+      const maybeId = last && last !== "project-view" ? last : segs.at(-2);
+      if (maybeId && maybeId !== baseProjectId) {
+        setClientProjectId(maybeId);
+      }
+    };
+
+    // Initial update
+    updateProjectId();
+  }, [baseProjectId]);
+
+  // Listen for route changes (pushState navigation, back/forward buttons)
+  useRouteChange(() => {
     const segs = window.location.pathname.split("/").filter(Boolean);
     const last = segs.at(-1);
     const maybeId = last && last !== "project-view" ? last : segs.at(-2);
-    if (maybeId) projectId = maybeId;
+    if (maybeId && maybeId !== clientProjectId && maybeId !== baseProjectId) {
+      setClientProjectId(maybeId);
+    }
+  });
+
+  // Ensure ProjectData is available and project exists
+  const activeProjects = ProjectData.activeProjectsRecord;
+  const hasValidProject =
+    projectId && activeProjects && activeProjects[projectId];
+
+  if (!hasValidProject) {
+    // Return empty nav during loading or for invalid projects
+    return <div className={styles.projectNav}></div>;
   }
 
   const prevId = ProjectData.prevKey(projectId);

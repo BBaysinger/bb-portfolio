@@ -96,7 +96,9 @@ const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
             navigateWithPushState(`/project-view/${newProjectId}/`, state);
           } catch {
             // Fallback if history.state is not accessible for any reason
-            navigateWithPushState(`/project-view/${newProjectId}/`, { source: "carousel" });
+            navigateWithPushState(`/project-view/${newProjectId}/`, {
+              source: "carousel",
+            });
           }
           lastKnownProjectId.current = newProjectId;
         }
