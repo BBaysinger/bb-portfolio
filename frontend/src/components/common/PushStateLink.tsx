@@ -68,9 +68,9 @@ export function PushStateLink({
 
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
-    
+
     navigateWithPushState(href);
-    
+
     if (scrollToTop) {
       window.scrollTo({ top: 0, behavior: "smooth" });
     }

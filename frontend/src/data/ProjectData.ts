@@ -245,19 +245,24 @@ async function fetchPortfolioProjects(opts?: {
         ? Date.parse(thumbDoc.updatedAt)
         : undefined;
       const versionParam = version ? `v=${version}` : "v=1";
-      
+
       // Full resolution URL (for medium/large viewports)
-      const fullUrl = thumbDoc.url || thumbDoc.sizes?.thumbnail?.url || undefined;
+      const fullUrl =
+        thumbDoc.url || thumbDoc.sizes?.thumbnail?.url || undefined;
       thumbUrl = fullUrl
         ? `${fullUrl}${fullUrl.includes("?") ? "&" : "?"}${versionParam}`
         : undefined;
-        
+
       // Mobile size URL (400x300, for small viewports)
-      const mobileUrl = thumbDoc.sizes?.mobile?.url || thumbDoc.sizes?.thumbnail?.url || thumbDoc.url || undefined;
+      const mobileUrl =
+        thumbDoc.sizes?.mobile?.url ||
+        thumbDoc.sizes?.thumbnail?.url ||
+        thumbDoc.url ||
+        undefined;
       thumbUrlMobile = mobileUrl
         ? `${mobileUrl}${mobileUrl.includes("?") ? "&" : "?"}${versionParam}`
         : undefined;
-        
+
       thumbAlt = thumbDoc.alt || undefined;
     }
 

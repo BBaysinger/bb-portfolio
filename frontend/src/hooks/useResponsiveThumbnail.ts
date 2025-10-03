@@ -10,16 +10,16 @@ import { useEffect, useState } from "react";
 export function useResponsiveThumbnail(
   thumbUrl?: string,
   thumbUrlMobile?: string,
-  breakpoint = 768
+  breakpoint = 768,
 ): string | undefined {
   const [currentUrl, setCurrentUrl] = useState<string | undefined>(thumbUrl);
 
   useEffect(() => {
     const updateUrl = () => {
       const isSmallViewport = window.innerWidth < breakpoint;
-      const selectedUrl = isSmallViewport 
-        ? (thumbUrlMobile || thumbUrl) 
-        : (thumbUrl || thumbUrlMobile);
+      const selectedUrl = isSmallViewport
+        ? thumbUrlMobile || thumbUrl
+        : thumbUrl || thumbUrlMobile;
       setCurrentUrl(selectedUrl);
     };
 
