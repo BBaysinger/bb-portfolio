@@ -26,8 +26,15 @@ import styles from "./PageButtons.module.scss";
  */
 const PageButtons: React.FC = () => {
   const params = useParams();
-  const projectId =
-    typeof params?.projectId === "string" ? params.projectId : "";
+  // Prefer reading from the current URL when pushState navigation is used,
+  // falling back to useParams for SSR/initial load.
+  let projectId = typeof params?.projectId === "string" ? params.projectId : "";
+  if (typeof window !== "undefined") {
+    const segs = window.location.pathname.split("/").filter(Boolean);
+    const last = segs.at(-1);
+    const maybeId = last && last !== "project-view" ? last : segs.at(-2);
+    if (maybeId) projectId = maybeId;
+  }
 
   const prevId = ProjectData.prevKey(projectId);
   const nextId = ProjectData.nextKey(projectId);
@@ -35,13 +42,13 @@ const PageButtons: React.FC = () => {
   return (
     <div className={styles.projectNav}>
       <PushStateLink
-        href={`/project-view/${prevId}`}
+        href={`/project-view/${prevId}/`}
         className={`${styles.navButton} ${styles.prev}`}
       >
         <div className={styles.inner}></div>
       </PushStateLink>
       <PushStateLink
-        href={`/project-view/${nextId}`}
+        href={`/project-view/${nextId}/`}
         className={`${styles.navButton} ${styles.next}`}
       >
         <div className={styles.inner}></div>

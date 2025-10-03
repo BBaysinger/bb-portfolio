@@ -112,7 +112,7 @@ const ProjectThumbnail = forwardRef<HTMLDivElement, ProjectThumbnailProps>(
             {inner}
           </div>
         ) : (
-          <Link href={`/project-view/${projectId}`} className={styles.link}>
+          <Link href={`/project-view/${projectId}/`} className={styles.link}>
             {inner}
           </Link>
         )}

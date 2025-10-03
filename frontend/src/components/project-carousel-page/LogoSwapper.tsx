@@ -6,8 +6,10 @@ import getBrandLogoUrl from "@/utils/getBrandLogoUrl";
 import styles from "./LogoSwapper.module.scss";
 
 interface LogoSwapperProps {
-  /** The brand key (slug) to focus on, not a project slug. */
-  projectId: string;
+  /** Preferred: stabilized carousel index to drive the active item. */
+  index?: number | null;
+  /** Back-compat: brand key (slug) to focus on if index not provided. */
+  projectId?: string;
 }
 
 const brandNames: Record<string, string> = {
@@ -37,8 +39,22 @@ const brandNames: Record<string, string> = {
  * @since 2025
  * @version N/A
  */
-const LogoSwapper: React.FC<LogoSwapperProps> = ({ projectId }) => {
-  const [currentLogoId, setCurrentLogoId] = useState(projectId);
+const LogoSwapper: React.FC<LogoSwapperProps> = ({
+  index = null,
+  projectId,
+}) => {
+  // Resolve the current brandId either from index (preferred) or projectId fallback
+  const projectsRecord = ProjectData.activeProjectsRecord;
+  const keys = ProjectData.activeKeys;
+  const resolvedBrandId = useMemo(() => {
+    if (typeof index === "number" && index >= 0 && index < keys.length) {
+      const projKey = keys[index];
+      return projectsRecord[projKey]?.brandId ?? projectId ?? "";
+    }
+    return projectId ?? "";
+  }, [index, keys, projectsRecord, projectId]);
+
+  const [currentLogoId, setCurrentLogoId] = useState(resolvedBrandId);
   const [isBlurred, setIsBlurred] = useState(true);
   const [isMounted, setIsMounted] = useState(false); // Track mount state
 
@@ -50,7 +66,7 @@ const LogoSwapper: React.FC<LogoSwapperProps> = ({ projectId }) => {
     const timeout1 = setTimeout(() => {
       setIsBlurred(true);
       timeout2 = setTimeout(() => {
-        setCurrentLogoId(projectId);
+        setCurrentLogoId(resolvedBrandId);
         setIsBlurred(false);
       }, 300);
     }, 400);
@@ -59,7 +75,7 @@ const LogoSwapper: React.FC<LogoSwapperProps> = ({ projectId }) => {
       clearTimeout(timeout1);
       clearTimeout(timeout2);
     };
-  }, [projectId]);
+  }, [resolvedBrandId]);
 
   // Build a mapping of brandKey -> background-image URL (or none for NDA)
   const brandLogoMap = useMemo(() => {
@@ -81,6 +97,10 @@ const LogoSwapper: React.FC<LogoSwapperProps> = ({ projectId }) => {
     return map;
   }, []);
 
+  // Derive the list of brands to render from the available logo map so that
+  // any active brand (even if not present in the static label map) is included.
+  const brandKeys = useMemo(() => Object.keys(brandLogoMap), [brandLogoMap]);
+
   const backgroundImage = (key: string) => {
     const url = brandLogoMap[key];
     return url ? `url(${url})` : "none";
@@ -94,7 +114,7 @@ const LogoSwapper: React.FC<LogoSwapperProps> = ({ projectId }) => {
             isMounted ? styles.fadeIn : styles.fadeOut
           }`}
         >
-          {Object.entries(brandNames).map(([key, value]) => (
+          {brandKeys.map((key) => (
             <div
               key={key}
               style={{
@@ -104,7 +124,7 @@ const LogoSwapper: React.FC<LogoSwapperProps> = ({ projectId }) => {
                 currentLogoId === key ? styles.visible : ""
               }`}
               role="img"
-              aria-label={`${value} logo`}
+              aria-label={`${brandNames[key] ?? key} logo`}
             />
           ))}
         </div>
