@@ -22,12 +22,6 @@ export const ProjectScreenshots: CollectionConfig = {
     imageSizes: [
       {
         name: 'thumbnail',
-        width: 400,
-        height: 300,
-        position: 'centre',
-      },
-      {
-        name: 'small',
         width: 800,
         height: 600,
         position: 'centre',

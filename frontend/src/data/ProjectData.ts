@@ -204,6 +204,7 @@ async function fetchPortfolioProjects(opts?: {
       alt?: string;
       updatedAt?: string; // used for cache-busting
       sizes?: Record<string, UploadSize> & {
+        mobile?: UploadSize;
         thumbnail?: UploadSize;
       };
     }
@@ -237,17 +238,26 @@ async function fetchPortfolioProjects(opts?: {
     let thumbUrl: string | undefined;
     let thumbAlt: string | undefined;
     const thumbDoc = firstUploadDoc(doc.thumbnail);
+    let thumbUrlMobile: string | undefined;
     if (thumbDoc) {
-      // Prefer a sized thumbnail URL when available
-      const baseUrl =
-        thumbDoc.sizes?.thumbnail?.url || thumbDoc.url || undefined;
-      // Append a version param derived from the upload's updatedAt to bust caches when overwriting same filename
+      // Store multiple size URLs so components can choose responsively
       const version = thumbDoc.updatedAt
         ? Date.parse(thumbDoc.updatedAt)
         : undefined;
-      thumbUrl = baseUrl
-        ? `${baseUrl}${baseUrl.includes("?") ? "&" : "?"}${version ? `v=${version}` : "v=1"}`
+      const versionParam = version ? `v=${version}` : "v=1";
+      
+      // Full resolution URL (for medium/large viewports)
+      const fullUrl = thumbDoc.url || thumbDoc.sizes?.thumbnail?.url || undefined;
+      thumbUrl = fullUrl
+        ? `${fullUrl}${fullUrl.includes("?") ? "&" : "?"}${versionParam}`
         : undefined;
+        
+      // Mobile size URL (400x300, for small viewports)
+      const mobileUrl = thumbDoc.sizes?.mobile?.url || thumbDoc.sizes?.thumbnail?.url || thumbDoc.url || undefined;
+      thumbUrlMobile = mobileUrl
+        ? `${mobileUrl}${mobileUrl.includes("?") ? "&" : "?"}${versionParam}`
+        : undefined;
+        
       thumbAlt = thumbDoc.alt || undefined;
     }
 
@@ -307,6 +317,7 @@ async function fetchPortfolioProjects(opts?: {
       nda: !!doc.nda,
       sortIndex: typeof doc.sortIndex === "number" ? doc.sortIndex : undefined,
       thumbUrl,
+      thumbUrlMobile,
       thumbAlt,
       brandLogoLightUrl,
       brandLogoDarkUrl,
@@ -355,6 +366,7 @@ export interface PortfolioProjectBase {
   nda?: boolean;
   sortIndex?: number;
   thumbUrl?: string;
+  thumbUrlMobile?: string;
   thumbAlt?: string;
   /** Optional direct URLs for device screenshots resolved from Payload uploads. */
   screenshotUrls?: {

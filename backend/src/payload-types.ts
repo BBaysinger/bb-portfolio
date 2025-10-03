@@ -299,14 +299,6 @@ export interface ProjectScreenshot {
       filesize?: number | null;
       filename?: string | null;
     };
-    small?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
   };
 }
 /**
@@ -332,6 +324,14 @@ export interface ProjectThumbnail {
   focalX?: number | null;
   focalY?: number | null;
   sizes?: {
+    mobile?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
     thumbnail?: {
       url?: string | null;
       width?: number | null;
@@ -571,16 +571,6 @@ export interface ProjectScreenshotsSelect<T extends boolean = true> {
               filesize?: T;
               filename?: T;
             };
-        small?:
-          | T
-          | {
-              url?: T;
-              width?: T;
-              height?: T;
-              mimeType?: T;
-              filesize?: T;
-              filename?: T;
-            };
       };
 }
 /**
@@ -604,6 +594,16 @@ export interface ProjectThumbnailsSelect<T extends boolean = true> {
   sizes?:
     | T
     | {
+        mobile?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
         thumbnail?:
           | T
           | {

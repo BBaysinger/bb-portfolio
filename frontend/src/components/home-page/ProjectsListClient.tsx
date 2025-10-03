@@ -162,6 +162,7 @@ const ProjectsListClient: React.FC<ProjectsListClientProps> = ({
           brandIsNda,
           nda,
           thumbUrl,
+          thumbUrlMobile,
           thumbAlt,
         } = projectData;
 
@@ -179,6 +180,7 @@ const ProjectsListClient: React.FC<ProjectsListClientProps> = ({
             brandIsNda={brandIsNda}
             nda={nda}
             thumbUrl={thumbUrl}
+            thumbUrlMobile={thumbUrlMobile}
             thumbAlt={thumbAlt}
             ref={(node) => setThumbRef(node, index)}
           />
