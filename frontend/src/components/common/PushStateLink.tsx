@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
+import { navigateWithPushState } from "@/utils/navigation";
+
 interface PushStateLinkProps {
   /** The destination URL */
   href: string;
@@ -66,19 +68,13 @@ export function PushStateLink({
 
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
-    // Normalize to trailing slash to match Next.js `trailingSlash: true`
-    const normalizedHref = href.endsWith("/") ? href : `${href}/`;
-
-    if (window.location.pathname !== normalizedHref) {
-      console.info(`Button navigating to ${href}`);
-      window.history.pushState(null, "", normalizedHref);
-      // Emit custom event so listeners (e.g., useRouteChange) react to this change
-      window.dispatchEvent(new CustomEvent("bb:routechange"));
-      if (scrollToTop) {
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      }
-      onNavigate?.();
+    
+    navigateWithPushState(href);
+    
+    if (scrollToTop) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
+    onNavigate?.();
   };
 
   return (
