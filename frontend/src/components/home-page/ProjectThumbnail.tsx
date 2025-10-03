@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import React, { forwardRef, useEffect, useState } from "react";
 
+import { useResponsiveThumbnail } from "@/hooks/useResponsiveThumbnail";
 import getBrandLogoUrl from "@/utils/getBrandLogoUrl";
 
 import styles from "./ProjectThumbnail.module.scss";
@@ -22,6 +23,7 @@ interface ProjectThumbnailProps {
   brandIsNda?: boolean;
   nda?: boolean;
   thumbUrl?: string;
+  thumbUrlMobile?: string;
   thumbAlt?: string;
 }
 
@@ -45,9 +47,12 @@ const ProjectThumbnail = forwardRef<HTMLDivElement, ProjectThumbnailProps>(
       brandIsNda,
       nda,
       thumbUrl,
+      thumbUrlMobile,
     },
     ref,
   ) => {
+    // Get the appropriate image URL based on viewport size
+    const responsiveThumbUrl = useResponsiveThumbnail(thumbUrl, thumbUrlMobile);
     const [logoSrc, setLogoSrc] = useState<string | null>(null);
 
     useEffect(() => {
@@ -74,7 +79,7 @@ const ProjectThumbnail = forwardRef<HTMLDivElement, ProjectThumbnailProps>(
       }
     }, [brandId, brandLogoDarkUrl, brandLogoLightUrl, brandIsNda, nda]);
 
-    const bgImage = !nda ? thumbUrl : undefined;
+    const bgImage = !nda ? responsiveThumbUrl : undefined;
     const style: React.CSSProperties = bgImage
       ? { backgroundImage: `url('${bgImage}')` }
       : {};
