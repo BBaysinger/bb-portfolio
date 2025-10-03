@@ -57,11 +57,6 @@ const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
   const carouselRef = useRef<LayeredCarouselManagerRef>(null);
   const isCarouselSourceRef = useRef(false);
 
-  const brandId = useMemo(
-    () => projects[projectId]?.brandId ?? "",
-    [projects, projectId],
-  );
-
   const infoSwapperIndex = useMemo(() => stabilizedIndex, [stabilizedIndex]);
 
   const slideDirectionClass = useMemo(() => {
@@ -100,15 +95,18 @@ const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
             window.history.pushState(
               state,
               "",
-              `/project-view/${newProjectId}`,
+              `/project-view/${newProjectId}/`,
             );
+            // Inform any listeners that a client-side URL change occurred
+            window.dispatchEvent(new CustomEvent("bb:routechange"));
           } catch {
             // Fallback if history.state is not accessible for any reason
             window.history.pushState(
               { source: "carousel" },
               "",
-              `/project-view/${newProjectId}`,
+              `/project-view/${newProjectId}/`,
             );
+            window.dispatchEvent(new CustomEvent("bb:routechange"));
           }
           lastKnownProjectId.current = newProjectId;
         }
@@ -158,6 +156,8 @@ const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
       try {
         const { ...rest } = window.history.state || {};
         window.history.replaceState(rest, "", window.location.href);
+        // Also emit a routechange so any consumers relying on replaceState react
+        window.dispatchEvent(new CustomEvent("bb:routechange"));
       } catch {
         // noop if replaceState fails
       }
@@ -178,7 +178,7 @@ const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
         id="project"
         className={`${styles.projectsPresentationBody} ${slideDirectionClass}`}
       >
-        <LogoSwapper projectId={brandId} />
+        <LogoSwapper index={infoSwapperIndex ?? undefined} />
         <div className={styles.carouselControlsWrapper}>
           {initialIndex !== null && (
             <ProjectCarouselView
