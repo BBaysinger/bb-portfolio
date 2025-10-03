@@ -73,9 +73,18 @@ function ProjectViewRouterBridge({
   useRouteChange(() => {
     const newId = getDynamicPathParam(-1, initialProjectId);
     if (newId && newId !== projectId) {
+      console.info("Route bridge updating projectId:", projectId, "→", newId);
       setProjectId(newId);
     }
   });
+
+  // Also sync projectId on mount/remount to handle edge cases
+  useEffect(() => {
+    const currentId = getDynamicPathParam(-1, initialProjectId);
+    if (currentId && currentId !== projectId) {
+      setProjectId(currentId);
+    }
+  }, [initialProjectId, projectId]);
 
   if (!projectId) {
     return (

@@ -7,6 +7,8 @@ import ProjectData from "@/data/ProjectData";
 // Auth helper is imported only when needed (NDA branch) to keep SSG graph lean
 
 export const runtime = "nodejs";
+// We statically generate all public project routes; disallow dynamic params at runtime
+export const dynamicParams = false;
 
 /**
  * Renders the project view page using a suspense-wrapped client-side component.
