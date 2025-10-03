@@ -115,9 +115,9 @@
     // TypeScript type definitions for glob
     "@types/glob": "^9.0.0",
     // ESLint plugin for TypeScript-specific linting rules
-    "@typescript-eslint/eslint-plugin": "^8.44.1",
+    "@typescript-eslint/eslint-plugin": "^8.45.0",
     // TypeScript parser for ESLint
-    "@typescript-eslint/parser": "^8.44.1",
+    "@typescript-eslint/parser": "^8.45.0",
     // Run multiple commands concurrently in scripts
     "concurrently": "^9.2.1",
     // Main linter for JS/TS code
@@ -125,9 +125,9 @@
     // ESLint plugin for import/export syntax validation
     "eslint-plugin-import": "^2.32.0",
     // ESLint plugin for React hooks rules
-    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-hooks": "^6.1.0",
     // ESLint plugin for React Fast Refresh support
-    "eslint-plugin-react-refresh": "^0.4.21",
+    "eslint-plugin-react-refresh": "^0.4.23",
     // File pattern matching utility
     "glob": "^11.0.3",
     // List of global variables for linting
@@ -135,7 +135,7 @@
     // Utility for .gitignore-style file filtering
     "ignore": "^7.0.5",
     // Runtime for dynamic JS/TS imports
-    "jiti": "^2.6.0",
+    "jiti": "^2.6.1",
     // JSON5 parser for annotated config files
     "json5": "^2.2.3",
     // Code formatter for consistent style
@@ -143,8 +143,8 @@
     // TypeScript execution environment for scripts
     "ts-node": "^10.9.2",
     // TypeScript/ESM runner for scripts
-    "tsx": "^4.20.5",
+    "tsx": "^4.20.6",
     // TypeScript language support
-    "typescript": "^5.9.2",
+    "typescript": "^5.9.3",
   },
 }
