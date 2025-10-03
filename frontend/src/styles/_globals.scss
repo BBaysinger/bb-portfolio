@@ -64,20 +64,4 @@
   .bbLaptop {
     transform: translateX(-50%) scale(1);
   }
-  .bbPortrait.bbPhone {
-    &::before {
-      transform: rotate(0deg);
-    }
-    img {
-      transform: rotate(0deg);
-    }
-  }
-  .bbLandscape.bbPhone {
-    &::before {
-      transform: rotate(90deg);
-    }
-    img {
-      transform: rotate(0deg);
-    }
-  }
 }

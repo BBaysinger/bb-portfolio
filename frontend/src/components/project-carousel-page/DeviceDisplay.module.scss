@@ -71,7 +71,7 @@
     &.Portrait {
       img {
         left: 493px;
-        top: 67px;
+        top: 69px;
       }
     }
 
@@ -87,6 +87,70 @@
         height: 162px;
         width: 354px;
         transform: translateY(5px) rotate(1deg);
+      }
+    }
+  }
+}
+
+// Stabilized and tilt overrides with higher specificity
+:global(.bbStabilizedSlide) {
+  .backgroundWrapper.phone {
+    &.Portrait {
+      &::before {
+        transform: translateY(3%) rotate(0deg) !important;
+      }
+      img {
+        transform: translateY(3%) rotate(0deg) !important;
+      }
+    }
+    &.Landscape {
+      &::before {
+        transform: translateY(5px) rotate(90deg) !important;
+      }
+      img {
+        transform: translateY(5px) rotate(0deg) !important;
+      }
+    }
+  }
+}
+
+:global(.bbTiltLeft) {
+  .backgroundWrapper.phone {
+    &.Portrait {
+      &::before {
+        transform: translateY(3%) rotate(2deg) !important;
+      }
+      img {
+        transform: translateY(3%) rotate(2deg) !important;
+      }
+    }
+    &.Landscape {
+      &::before {
+        transform: translateY(5px) rotate(92deg) !important;
+      }
+      img {
+        transform: translateY(5px) rotate(2deg) !important;
+      }
+    }
+  }
+}
+
+:global(.bbTiltRight) {
+  .backgroundWrapper.phone {
+    &.Portrait {
+      &::before {
+        transform: translateY(3%) rotate(-4deg) !important;
+      }
+      img {
+        transform: translateY(3%) rotate(-4deg) !important;
+      }
+    }
+    &.Landscape {
+      &::before {
+        transform: translateY(5px) rotate(87deg) !important;
+      }
+      img {
+        transform: translateY(5px) rotate(-3deg) !important;
       }
     }
   }

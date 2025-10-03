@@ -1,10 +1,21 @@
 import clsx from "clsx";
-import React, { forwardRef, useImperativeHandle, useRef, useMemo } from "react";
+import React, {
+  forwardRef,
+  useImperativeHandle,
+  useRef,
+  useMemo,
+  useState,
+} from "react";
 
 import { resolveClass } from "@/utils/resolveClass";
 
 import Carousel from "./Carousel";
-import { CarouselRef, DirectionType, SourceType } from "./CarouselTypes";
+import {
+  CarouselRef,
+  DirectionType,
+  SourceType,
+  Direction,
+} from "./CarouselTypes";
 import styles from "./LayeredCarouselManager.module.scss";
 
 export interface CarouselLayerConfig {
@@ -89,6 +100,9 @@ const LayeredCarouselManager = forwardRef<
   ) => {
     const stabilizedIndexRef = useRef<number | null>(initialIndex);
     const masterCarouselRef = useRef<CarouselRef | null>(null);
+    const [currentDirection, setCurrentDirection] =
+      useState<DirectionType | null>(null);
+    const lastScrollLeftRef = useRef<number>(0);
 
     const layerRefs = useMemo(() => {
       const refs: Record<string, React.RefObject<CarouselRef | null>> = {};
@@ -118,6 +132,14 @@ const LayeredCarouselManager = forwardRef<
     }, [layers, masterLayer]);
 
     const handleScrollUpdate = (scrollLeft: number) => {
+      // Determine direction based on scroll movement
+      if (scrollLeft > lastScrollLeftRef.current) {
+        setCurrentDirection(Direction.LEFT);
+      } else if (scrollLeft < lastScrollLeftRef.current) {
+        setCurrentDirection(Direction.RIGHT);
+      }
+      lastScrollLeftRef.current = scrollLeft;
+
       Object.entries(multipliers).forEach(([id, factor]) => {
         layerRefs[id]?.current?.setExternalScrollPosition?.(
           scrollLeft * factor,
@@ -132,6 +154,8 @@ const LayeredCarouselManager = forwardRef<
       direction: DirectionType,
     ) => {
       stabilizedIndexRef.current = index;
+      // Clear direction when stabilized so phones return to neutral position
+      setCurrentDirection(null);
       onStabilizationUpdate?.(index, source, direction);
     };
 
@@ -159,19 +183,27 @@ const LayeredCarouselManager = forwardRef<
               ref={layerRef as React.Ref<CarouselRef>}
               slides={layer.slides.map((slide, index) => {
                 const isStabilized = index === stabilizedIndexRef.current;
+                const shouldApplyTilt =
+                  layer.id === "Phones" && !isStabilized && currentDirection;
+                const appliedClasses = clsx(
+                  isStabilized && "bbStabilizedSlide",
+                  shouldApplyTilt &&
+                    currentDirection === Direction.LEFT &&
+                    "bbTiltLeft",
+                  shouldApplyTilt &&
+                    currentDirection === Direction.RIGHT &&
+                    "bbTiltRight",
+                );
+
+                // Debug logging for phones layer
+                if (layer.id === "Phones" && index === 0) {
+                  console.log(
+                    `Phone slide ${index}: stabilized=${isStabilized}, direction=${currentDirection}, classes="${appliedClasses}"`,
+                  );
+                }
+
                 return (
-                  <div
-                    key={index}
-                    className={clsx(
-                      isStabilized &&
-                        resolveClass(
-                          `${layer.id}Stabilized`,
-                          prefix,
-                          styles,
-                          styleMap,
-                        ),
-                    )}
-                  >
+                  <div key={index} className={appliedClasses}>
                     {slide}
                   </div>
                 );
