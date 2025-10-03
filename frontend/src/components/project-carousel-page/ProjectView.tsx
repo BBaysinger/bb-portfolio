@@ -20,6 +20,7 @@ import { LayeredCarouselManagerRef } from "@/components/project-carousel-page/La
 import LogoSwapper from "@/components/project-carousel-page/LogoSwapper";
 import PageButtons from "@/components/project-carousel-page/PageButtons";
 import ProjectData from "@/data/ProjectData";
+import { navigateWithPushState } from "@/utils/navigation";
 
 import ProjectCarouselView from "./ProjectCarouselView";
 import styles from "./ProjectView.module.scss";
@@ -92,21 +93,10 @@ const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
               projectId: newProjectId,
               ts: Date.now(),
             };
-            window.history.pushState(
-              state,
-              "",
-              `/project-view/${newProjectId}/`,
-            );
-            // Inform any listeners that a client-side URL change occurred
-            window.dispatchEvent(new CustomEvent("bb:routechange"));
+            navigateWithPushState(`/project-view/${newProjectId}/`, state);
           } catch {
             // Fallback if history.state is not accessible for any reason
-            window.history.pushState(
-              { source: "carousel" },
-              "",
-              `/project-view/${newProjectId}/`,
-            );
-            window.dispatchEvent(new CustomEvent("bb:routechange"));
+            navigateWithPushState(`/project-view/${newProjectId}/`, { source: "carousel" });
           }
           lastKnownProjectId.current = newProjectId;
         }
@@ -154,9 +144,11 @@ const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
       window.history?.state?.source === "carousel"
     ) {
       try {
-        const { ...rest } = window.history.state || {};
-        window.history.replaceState(rest, "", window.location.href);
-        // Also emit a routechange so any consumers relying on replaceState react
+        const { source: _source, ...rest } = window.history.state || {};
+        // Use our central utility, but pass current URL to avoid normalization issues
+        const currentUrl = window.location.pathname + window.location.search;
+        window.history.replaceState(rest, "", currentUrl);
+        // Emit event for consistency
         window.dispatchEvent(new CustomEvent("bb:routechange"));
       } catch {
         // noop if replaceState fails
