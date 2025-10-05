@@ -1,15 +1,20 @@
 @use "@/styles/mixins" as *;
 @use "@/styles/variables" as *;
 
+// Consistent spacing for footer list items
+$footerListItemSpacing: 12px;
+// Consistent height for footer list items
+$footerListItemHeight: 30px;
+
 footer.footer {
   position: absolute;
-  padding-top: 0;
+  top: 0;
   display: inline-block;
   width: 100%;
   background: linear-gradient(#000000, #242424);
   color: #ccc;
   z-index: 10;
-  top: 0;
+  padding-top: 60px;
   transition: transform 0.5s ease-in-out;
 
   &::before {
@@ -31,6 +36,48 @@ footer.footer {
     }
   }
 
+  .container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 20px;
+
+    @include breakpointUp($b576px) {
+      padding: 0 35px;
+    }
+
+    @include breakpointUp($b768px) {
+      padding: 0 50px;
+    }
+  }
+
+  .footerGrid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+    width: 100%;
+    row-gap: 60px;
+
+    // Tablet: 2 columns (greet takes full width, contact + nav share row)
+    @include breakpointUp($b576px) {
+      grid-template-columns: 1fr 1fr;
+
+      .greetSection {
+        grid-column: 1 / -1; // span full width
+      }
+    }
+
+    // Desktop: 3 columns matching Bootstrap's lg-6, lg-4, lg-2 proportions
+    @include breakpointUp($b992px) {
+      grid-template-columns: 3fr 2fr 1fr;
+      row-gap: 0; // No vertical spacing needed on desktop
+      column-gap: 40px; // Horizontal spacing between columns
+
+      .greetSection {
+        grid-column: auto; // reset to single column
+      }
+    }
+  }
+
   a,
   a:visited {
     color: #888888;
@@ -48,6 +95,9 @@ footer.footer {
     margin-left: 0;
     list-style: none;
     font-size: 15px;
+    &:last-of-type {
+      margin-bottom: 0;
+    }
   }
 
   li {
@@ -81,22 +131,32 @@ footer.footer {
 }
 
 .footerNav {
-  list-style: none;
+  display: flex;
+  flex-direction: column;
   font-size: 15px;
-  text-align: center;
 
-  @include breakpointUp($b768px) {
+  @include breakpointUp($b576px) {
     text-align: left;
   }
 
   ul {
-    display: inline-block;
+    display: flex;
+    flex-direction: column;
     margin-left: 10px;
+
+    &:last-of-type {
+      margin-bottom: 0;
+    }
   }
 
   li {
-    margin-bottom: 15px;
+    margin-bottom: $footerListItemSpacing;
+    height: $footerListItemHeight;
+    line-height: $footerListItemHeight;
     text-transform: uppercase;
+    &:last-of-type {
+      margin-bottom: 0;
+    }
   }
 
   a {
@@ -116,17 +176,19 @@ footer.footer {
 }
 
 .footerCell {
-  padding-top: 60px;
-
   p {
     line-height: 19px;
+
+    &:last-of-type {
+      margin-bottom: 0;
+    }
   }
 }
 
 /* Contact List */
 
 .contact {
-  text-align: center;
+  text-align: left;
 
   > div {
     display: inline-block;
@@ -140,7 +202,12 @@ footer.footer {
   }
 
   li {
-    padding-bottom: 5px;
+    margin-bottom: $footerListItemSpacing;
+    height: $footerListItemHeight;
+    line-height: $footerListItemHeight;
+    &:last-of-type {
+      margin-bottom: 0;
+    }
   }
 
   img {
