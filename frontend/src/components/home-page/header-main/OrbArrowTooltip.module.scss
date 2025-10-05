@@ -33,8 +33,16 @@
     }
   }
 
-  :global(.hasSlung) & {
-    display: none;
+  // Hide permanently after wall collision
+  :global(.hasCollided) & {
+    display: none !important;
+  }
+
+  // Hide temporarily only when slinger is in flight (after release, not during drag)
+  // This requires the isSlingerInFlight state to be exposed as a CSS class
+  :global(.slingerInFlight.notCollided) & {
+    opacity: 0;
+    pointer-events: none;
   }
 }
 

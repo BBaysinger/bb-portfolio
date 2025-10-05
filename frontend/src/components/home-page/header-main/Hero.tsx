@@ -76,15 +76,15 @@ const Hero: React.FC = () => {
   const slingerRef = useRef<SlingerBoxHandle>(null);
 
   const [blinkSides, setHighlightSides] = useState<Side[]>([]);
-  const [isSlingerIdle, setIsSlingerIdle] = useState(false);
+  const [isSlingerIdle, setIsSlingerIdle] = useState(true);
   const [mounted, setMounted] = useState(false);
   const [circlePaused, setCirclePaused] = useState(true);
   const [_slingerPos, setSlingerPos] = useState<
     { x: number; y: number } | null | undefined
   >(undefined);
   const [hasDragged, setHasDragged] = useState<boolean>(false);
-  const [hasSlung, setHasSlung] = useState<boolean>(false);
-  const [hasSlungDelay, setHasSlungDelay] = useState(false);
+  const [hasCollided, setHasCollided] = useState<boolean>(false);
+  const [hasAfterCollidedDelay, setHasAfterCollidedDelay] = useState(false);
 
   const timeOfDay = useTimeOfDay();
   const hasScrolledOut = useScrollPersistedClass(id);
@@ -161,11 +161,11 @@ const Hero: React.FC = () => {
             break;
         }
 
-        if (sessionStorage.getItem("hasSlung") !== "true") {
-          sessionStorage.setItem("hasSlung", "true");
-          setHasSlung(true);
+        if (sessionStorage.getItem("hasCollided") !== "true") {
+          sessionStorage.setItem("hasCollided", "true");
+          setHasCollided(true);
           setTimeout(() => {
-            setHasSlungDelay(true);
+            setHasAfterCollidedDelay(true);
           }, 2000);
         }
 
@@ -210,7 +210,7 @@ const Hero: React.FC = () => {
 
     if (typeof window !== "undefined") {
       setHasDragged(sessionStorage.getItem("hasDragged") === "true");
-      setHasSlung(sessionStorage.getItem("hasSlung") === "true");
+      setHasCollided(sessionStorage.getItem("hasCollided") === "true");
     }
 
     return () => {
@@ -234,15 +234,18 @@ const Hero: React.FC = () => {
         hasDragged
           ? `${styles.hasDragged} hasDragged`
           : `${styles.notDragged} notDragged`,
-        hasSlungDelay
-          ? `${styles.hasSlungDelay} hasSlungDelay`
-          : `${styles.notSlungDelay} notSlungDelay`,
-        hasSlung
-          ? `${styles.hasSlung} hasSlung`
-          : `${styles.notSlung} notSlung`,
+        hasAfterCollidedDelay
+          ? `${styles.hasAfterCollidedDelay} hasAfterCollidedDelay`
+          : `${styles.notAfterCollidedDelay} notAfterCollidedDelay`,
+        hasCollided
+          ? `${styles.hasCollided} hasCollided`
+          : `${styles.notCollided} notCollided`,
         mounted
           ? `${styles.hasMounted} hasMounted`
           : `${styles.notMounted} notMounted`,
+        isSlingerInFlight
+          ? `${styles.slingerInFlight} slingerInFlight`
+          : `${styles.slingerNotInFlight} slingerNotInFlight`,
       )}
     >
       <Suspense fallback={null}>
@@ -272,7 +275,7 @@ const Hero: React.FC = () => {
           >
             <>
               <ChargedCircle isActive={!circlePaused && !isSlingerInFlight} />
-              <OrbArrowTooltip className={isSlingerInFlight ? "hidden" : ""} />
+              <OrbArrowTooltip />
             </>
           </SlingerBox>
         </div>
@@ -285,7 +288,7 @@ const Hero: React.FC = () => {
 
       <div className={styles.foreground}>
         <ParagraphAnimator
-          introMessage={`Good ${timeOfDay}. This is a kinetic UI experiment in development. Grab the orb, drag it around, then give it a toss for fun surprises!`}
+          introMessage={`Good ${timeOfDay}. This is an ongoing kinetic UI experiment. Grab the orb, drag it around, then give it a toss for fun surprises!`}
           paragraphs={quotes}
           className={styles.message}
           paused={!mounted || !isSlingerIdle}
