@@ -151,41 +151,53 @@ const ProjectsListClient: React.FC<ProjectsListClientProps> = ({
           No projects to display yet.
         </div>
       )}
-      {allProjects.map((projectData, index) => {
-        const id = projectData.id;
-        const {
-          title,
-          omitFromList,
-          brandId,
-          brandLogoLightUrl,
-          brandLogoDarkUrl,
-          brandIsNda,
-          nda,
-          thumbUrl,
-          thumbUrlMobile,
-          thumbAlt,
-        } = projectData;
+      {(() => {
+        let ndaCount = 0;
+        return allProjects.map((projectData, index) => {
+          const id = projectData.id;
+          const {
+            title,
+            omitFromList,
+            brandId,
+            brandLogoLightUrl,
+            brandLogoDarkUrl,
+            brandIsNda,
+            nda,
+            thumbUrl,
+            thumbUrlMobile,
+            thumbAlt,
+          } = projectData;
 
-        return (
-          <ProjectThumbnail
-            focused={focusedThumbIndex === index}
-            key={id}
-            index={index}
-            omitFromList={omitFromList}
-            projectId={id}
-            title={title}
-            brandId={brandId}
-            brandLogoLightUrl={brandLogoLightUrl}
-            brandLogoDarkUrl={brandLogoDarkUrl}
-            brandIsNda={brandIsNda}
-            nda={nda}
-            thumbUrl={thumbUrl}
-            thumbUrlMobile={thumbUrlMobile}
-            thumbAlt={thumbAlt}
-            ref={(node) => setThumbRef(node, index)}
-          />
-        );
-      })}
+          // Track NDA index for color cycling
+          const isNdaProject = nda || brandIsNda;
+          let ndaIndex = 0;
+          if (isNdaProject) {
+            ndaIndex = ndaCount;
+            ndaCount++;
+          }
+
+          return (
+            <ProjectThumbnail
+              focused={focusedThumbIndex === index}
+              key={id}
+              index={index}
+              omitFromList={omitFromList}
+              projectId={id}
+              title={title}
+              brandId={brandId}
+              brandLogoLightUrl={brandLogoLightUrl}
+              brandLogoDarkUrl={brandLogoDarkUrl}
+              brandIsNda={brandIsNda}
+              nda={nda}
+              ndaIndex={ndaIndex}
+              thumbUrl={thumbUrl}
+              thumbUrlMobile={thumbUrlMobile}
+              thumbAlt={thumbAlt}
+              ref={(node) => setThumbRef(node, index)}
+            />
+          );
+        });
+      })()}
     </div>
   );
 };

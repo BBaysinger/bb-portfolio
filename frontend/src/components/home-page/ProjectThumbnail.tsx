@@ -22,6 +22,8 @@ interface ProjectThumbnailProps {
   /** When true, hide brand logos in public UI. */
   brandIsNda?: boolean;
   nda?: boolean;
+  /** Index among NDA projects only (0-based) for color cycling. */
+  ndaIndex?: number;
   thumbUrl?: string;
   thumbUrlMobile?: string;
   thumbAlt?: string;
@@ -46,6 +48,7 @@ const ProjectThumbnail = forwardRef<HTMLDivElement, ProjectThumbnailProps>(
       brandLogoDarkUrl,
       brandIsNda,
       nda,
+      ndaIndex = 0,
       thumbUrl,
       thumbUrlMobile,
     },
@@ -79,7 +82,16 @@ const ProjectThumbnail = forwardRef<HTMLDivElement, ProjectThumbnailProps>(
       }
     }, [brandId, brandLogoDarkUrl, brandLogoLightUrl, brandIsNda, nda]);
 
-    const bgImage = !nda ? responsiveThumbUrl : undefined;
+    // Cycle through colored confidential thumbnails for NDA projects
+    const getConfidentialThumbnail = (index: number) => {
+      const colors = ["green", "purple", "yellow"];
+      const colorIndex = index % colors.length;
+      return `/images/home/confidential-thumbnail-${colors[colorIndex]}.webp`;
+    };
+
+    const bgImage = nda
+      ? getConfidentialThumbnail(ndaIndex)
+      : responsiveThumbUrl;
     const style: React.CSSProperties = bgImage
       ? { backgroundImage: `url('${bgImage}')` }
       : {};
@@ -92,19 +104,19 @@ const ProjectThumbnail = forwardRef<HTMLDivElement, ProjectThumbnailProps>(
         <div className={styles.vignette}></div>
         <div className={styles.thumbContent}>
           <div>
-            {logoSrc && (
+            {(logoSrc || nda) && (
               <Image
-                src={logoSrc}
+                src={logoSrc || "/images/home/confidential-word.svg"}
                 className={styles.brandLogo}
                 loading="eager"
-                alt={`${title} logo`}
+                alt={nda ? "Confidential Project" : `${title} logo`}
                 width={200}
                 height={100}
               />
             )}
           </div>
           <h4 className={styles.thumbTitle}>
-            {nda ? "Confidential Project" : title}
+            {nda ? "Please log in to view this project" : title}
           </h4>
         </div>
       </>
