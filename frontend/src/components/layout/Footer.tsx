@@ -109,17 +109,13 @@ const Footer: React.FC<FooterProps> = ({ mutationElemRef }) => {
         }}
         className={styles.footer}
       >
-        <div className="container">
-          <div className="row">
-            <div
-              className={`col-xs-12 col-sm-12 col-md-6 col-lg-6 ${styles.footerCell}`}
-            >
+        <div className={styles.container}>
+          <div className={styles.footerGrid}>
+            <div className={`${styles.footerCell} ${styles.greetSection}`}>
               <FootGreet className={""} />
             </div>
 
-            <div
-              className={`col-xs-12 col-sm-12 col-md-4 col-lg-4 ${styles.footerCell} ${styles.contact}`}
-            >
+            <div className={`${styles.footerCell} ${styles.contact}`}>
               <div>
                 <ul>
                   <li>
@@ -213,9 +209,7 @@ const Footer: React.FC<FooterProps> = ({ mutationElemRef }) => {
               </div>
             </div>
 
-            <div
-              className={`col-xs-12 col-sm-12 col-md-2 col-lg-2 ${styles.footerCell} ${styles.footerNav}`}
-            >
+            <div className={`${styles.footerCell} ${styles.footerNav}`}>
               <Links />
             </div>
           </div>

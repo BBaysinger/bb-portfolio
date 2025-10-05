@@ -2,11 +2,10 @@
 @use "@/styles/variables" as *;
 
 .navLinks {
-  ul {
-    display: flex;
-    list-style-type: none;
-    padding-left: 0;
-  }
+  display: flex;
+  list-style-type: none;
+  padding-left: 0;
+  margin-bottom: 0 !important;
 
   li {
     a,
@@ -35,7 +34,3 @@
     }
   }
 }
-
-// .login {
-//   margin-top: 100px;
-// }
