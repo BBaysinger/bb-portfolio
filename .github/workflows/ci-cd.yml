@@ -59,28 +59,7 @@ jobs:
           node-version: 20 # LTS version for stability
 
       # =======================================================================
-      # FRONTEND BUILD AND TEST
-      # =======================================================================
-      - name: Install frontend dependencies
-        working-directory: ./frontend
-        run: npm install --legacy-peer-deps # Required for some peer dependency conflicts
-
-      - name: Build frontend (with health check)
-        working-directory: ./frontend
-        env:
-          # Ensure profile and backend base are available to prebuild guard and Next.js
-          ENV_PROFILE: ${{ github.ref == 'refs/heads/main' && 'prod' || 'dev' }}
-          # Use public backend URLs for build-time data fetching (generateStaticParams)
-          PROD_BACKEND_INTERNAL_URL: ${{ secrets.PROD_BACKEND_URL }}
-          DEV_BACKEND_INTERNAL_URL: ${{ secrets.DEV_BACKEND_URL }}
-        run: npm run build:when-ready # Health check + Next.js build with SSG feedback
-
-      - name: Test frontend
-        working-directory: ./frontend
-        run: npm test || echo "⚠️ No frontend tests yet" # Graceful failure until tests are implemented
-
-      # =======================================================================
-      # BACKEND BUILD AND TEST
+      # BACKEND BUILD AND TEST (Build backend first for frontend SSG)
       # =======================================================================
       - name: Install backend dependencies
         working-directory: ./backend
@@ -116,6 +95,27 @@ jobs:
           S3_AWS_ACCESS_KEY_ID: ${{ secrets.S3_AWS_ACCESS_KEY_ID }}
           S3_AWS_SECRET_ACCESS_KEY: ${{ secrets.S3_AWS_SECRET_ACCESS_KEY }}
         run: npm test || echo "⚠️ No backend tests yet" # Graceful failure until tests are implemented
+
+      # =======================================================================
+      # FRONTEND BUILD AND TEST (After backend is ready)
+      # =======================================================================
+      - name: Install frontend dependencies
+        working-directory: ./frontend
+        run: npm install --legacy-peer-deps # Required for some peer dependency conflicts
+
+      - name: Build frontend (with health check)
+        working-directory: ./frontend
+        env:
+          # Ensure profile and backend base are available to prebuild guard and Next.js
+          ENV_PROFILE: ${{ github.ref == 'refs/heads/main' && 'prod' || 'dev' }}
+          # Use public backend URLs for build-time data fetching (generateStaticParams)
+          PROD_BACKEND_INTERNAL_URL: ${{ secrets.PROD_BACKEND_URL }}
+          DEV_BACKEND_INTERNAL_URL: ${{ secrets.DEV_BACKEND_URL }}
+        run: npm run build:when-ready # Health check + Next.js build with SSG feedback
+
+      - name: Test frontend
+        working-directory: ./frontend
+        run: npm test || echo "⚠️ No frontend tests yet" # Graceful failure until tests are implemented
 
   # ==========================================================================
   # PRODUCTION DEPLOYMENT JOB
