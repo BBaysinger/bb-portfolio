@@ -110,7 +110,6 @@ export async function generateStaticParams() {
         await waitForBackendWithTimeout(backendUrl, {
           maxAttempts: 15, // 15 attempts max
           intervalMs: 2000, // 2 seconds between attempts
-          timeoutMs: 30000, // 30 second absolute timeout
           requestTimeoutMs: 5000, // 5 second per-request timeout
         });
 
