@@ -22,7 +22,7 @@
  * - Supports repo-level secrets (strings/files)
  * - Supports environment-scoped secrets via `environments: { <env>: { strings, files } }`
  * - NEW: If a sibling ".private" file exists (e.g.,
- *        ./.github-secrets.private.json5 next to ./.github-secrets.json5),
+ *        ./.github-secrets.private.json5 next to ./.github-secrets.private.json5),
  *        values from the private file are overlaid onto the provided
  *        template for keys defined in the template schema. Extra keys in
  *        the private file are ignored. This keeps JSON5 as the schema-of-record
@@ -32,8 +32,8 @@
  *   ./sync-github-secrets.ts <owner/repo> <secrets.json5> [--dry-run]
  *
  * Examples:
- * npx ts-node ./scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./.github-secrets.json5 --dry-run
- * npx ts-node ./scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./.github-secrets.json5
+ * npx ts-node ./scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./.github-secrets.private.json5 --dry-run
+ * npx ts-node ./scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./.github-secrets.private.json5
  */
 
 import { execSync } from "child_process";
