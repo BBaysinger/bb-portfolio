@@ -50,7 +50,7 @@
   // Strict requirement: accept canonical or profile-prefixed backend origin
   const defaultBackendGroup = [
     "BACKEND_INTERNAL_URL",
-    `${profile.toUpperCase()}_BACKEND_INTERNAL_URL`
+    `${profile.toUpperCase()}_BACKEND_INTERNAL_URL`,
   ].filter(Boolean);
 
   const effectiveRequirements =
