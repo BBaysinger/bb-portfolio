@@ -343,7 +343,7 @@ jobs:
             echo "⬇️ Getting AWS account ID for ECR URIs..."
             export AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text)
             echo "Using AWS Account ID: $AWS_ACCOUNT_ID"
-            
+
             echo "⬇️ Pulling latest production images from ECR..."
             sudo AWS_ACCOUNT_ID=$AWS_ACCOUNT_ID COMPOSE_PROFILES=prod docker compose pull || {
               echo "⚠️ Failed to pull images. Continuing with existing images..."
@@ -414,21 +414,21 @@ jobs:
       - name: Build and push dev images to Docker Hub
         run: |
           echo "🏗️ Building development images..."
-          
+
           # Build backend dev image
           docker build \
             --build-arg ENV_PROFILE=dev \
             -t bhbaysinger/portfolio-backend:dev ./backend
-          
+
           # Build frontend dev image  
           docker build \
             --build-arg ENV_PROFILE=dev \
             -t bhbaysinger/portfolio-frontend:dev ./frontend
-          
+
           echo "📤 Pushing images to Docker Hub..."
           docker push bhbaysinger/portfolio-backend:dev
           docker push bhbaysinger/portfolio-frontend:dev
-          
+
           echo "✅ Docker Hub push complete!"
 
       # =======================================================================
@@ -546,7 +546,7 @@ jobs:
             echo "Pulling latest development images from Docker Hub..."
             sudo docker pull bhbaysinger/portfolio-backend:dev
             sudo docker pull bhbaysinger/portfolio-frontend:dev
-            
+
             echo "Starting development containers with latest images..."
             sudo COMPOSE_PROFILES=dev docker compose up -d
 

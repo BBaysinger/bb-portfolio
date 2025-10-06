@@ -22,10 +22,13 @@ export async function waitForBackendWithTimeout(baseUrl, options = {}) {
   } = options;
 
   // Skip health checks in ALL CI/CD environments - backend is never reachable during image builds
-  const isCiCd = process.env.CI || process.env.GITHUB_ACTIONS || process.env.BUILD_ID;
+  const isCiCd =
+    process.env.CI || process.env.GITHUB_ACTIONS || process.env.BUILD_ID;
   if (isCiCd) {
-    console.log('🏗️ CI/CD environment detected - skipping backend health check (backend not reachable during image builds)');
-    throw new Error('CI/CD environment - backend not available');
+    console.log(
+      "🏗️ CI/CD environment detected - skipping backend health check (backend not reachable during image builds)",
+    );
+    throw new Error("CI/CD environment - backend not available");
   }
 
   const startTime = Date.now();
@@ -35,7 +38,6 @@ export async function waitForBackendWithTimeout(baseUrl, options = {}) {
   );
 
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-
     try {
       // Try a simple health check endpoint first, fallback to main API
       const healthUrls = [
