@@ -234,3 +234,108 @@ resource "aws_iam_role_policy_attachment" "media_access_attach" {
   role       = aws_iam_role.ssm_role.name
   policy_arn = aws_iam_policy.media_access.arn
 }
+
+# =============================================================================
+# ECR REPOSITORIES
+# =============================================================================
+# Private container registries for frontend and backend images
+# Used by CI/CD pipeline for production deployments
+# =============================================================================
+
+resource "aws_ecr_repository" "frontend" {
+  name                 = "bb-portfolio-frontend"
+  image_tag_mutability = "MUTABLE"
+  force_delete        = true # Allow deletion even with images (for portfolio project)
+
+  image_scanning_configuration {
+    scan_on_push = true # Automatic vulnerability scanning
+  }
+
+  tags = {
+    Name        = "BB Portfolio Frontend"
+    Environment = "production"
+    Project     = "bb-portfolio"
+  }
+}
+
+resource "aws_ecr_repository" "backend" {
+  name                 = "bb-portfolio-backend"
+  image_tag_mutability = "MUTABLE"
+  force_delete        = true # Allow deletion even with images (for portfolio project)
+
+  image_scanning_configuration {
+    scan_on_push = true # Automatic vulnerability scanning
+  }
+
+  tags = {
+    Name        = "BB Portfolio Backend"
+    Environment = "production"
+    Project     = "bb-portfolio"
+  }
+}
+
+# ECR Lifecycle Policy - Keep only latest 10 images to manage storage costs
+resource "aws_ecr_lifecycle_policy" "frontend_policy" {
+  repository = aws_ecr_repository.frontend.name
+
+  policy = jsonencode({
+    rules = [{
+      rulePriority = 1
+      description  = "Keep only 10 most recent images"
+      selection = {
+        tagStatus   = "any"
+        countType   = "imageCountMoreThan"
+        countNumber = 10
+      }
+      action = {
+        type = "expire"
+      }
+    }]
+  })
+}
+
+resource "aws_ecr_lifecycle_policy" "backend_policy" {
+  repository = aws_ecr_repository.backend.name
+
+  policy = jsonencode({
+    rules = [{
+      rulePriority = 1
+      description  = "Keep only 10 most recent images"
+      selection = {
+        tagStatus   = "any"
+        countType   = "imageCountMoreThan"
+        countNumber = 10
+      }
+      action = {
+        type = "expire"
+      }
+    }]
+  })
+}
+
+# IAM Policy for ECR access from EC2 instance
+resource "aws_iam_policy" "ecr_access" {
+  name        = "bb-portfolio-ecr-access"
+  description = "Allow EC2 instance to pull from ECR repositories"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "ecr:GetAuthorizationToken",
+          "ecr:BatchCheckLayerAvailability",
+          "ecr:GetDownloadUrlForLayer",
+          "ecr:BatchGetImage"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "ecr_access_attach" {
+  role       = aws_iam_role.ssm_role.name
+  policy_arn = aws_iam_policy.ecr_access.arn
+}
