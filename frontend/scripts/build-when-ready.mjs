@@ -55,7 +55,8 @@ async function buildWhenReady() {
 
     if (
       errorMessage.includes("Health check timed out") ||
-      errorMessage.includes("not healthy")
+      errorMessage.includes("not healthy") ||
+      errorMessage.includes("CI/CD environment - backend not available")
     ) {
       console.warn(
         "⚠️  Backend not ready, but proceeding with build anyway (pages will be generated on-demand)...",
