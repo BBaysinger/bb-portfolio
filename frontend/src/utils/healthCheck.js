@@ -9,16 +9,15 @@
  * @param {string} baseUrl - The backend base URL to check
  * @param {Object} options - Configuration options for the health check
  * @param {number} [options.maxAttempts=15] - Maximum number of attempts
- * @param {number} [options.intervalMs=2000] - Interval between attempts in milliseconds
- * @param {number} [options.timeoutMs=30000] - Total timeout in milliseconds
+ * @param {number} [options.intervalMs=3000] - Interval between attempts in milliseconds
  * @param {number} [options.requestTimeoutMs=5000] - Per-request timeout in milliseconds
  * @returns {Promise<void>} Promise that resolves when backend is healthy
- * @throws {Error} When health check times out or max attempts exceeded
+ * @throws {Error} When max attempts exceeded
  */
 export async function waitForBackendWithTimeout(baseUrl, options = {}) {
   const {
     maxAttempts = 15, // Max 15 tries
-    intervalMs = 3000, // 2 seconds between tries
+    intervalMs = 3000, // 3 seconds between tries
     requestTimeoutMs = 5000, // 5 second timeout per request
   } = options;
 
