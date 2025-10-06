@@ -26,9 +26,9 @@
     // 🐳 Build both frontend and backend Docker images using docker-compose local profile
     // Uses the local profile which includes development-optimized builds with hot reload
     "docker:build": "COMPOSE_PROFILES=local docker compose build",
-    // ▶️ Start both frontend and backend containers with docker-compose (with build)
+    // ⚡ DEVELOPMENT MODE: Start both frontend and backend containers with hot reload
     // Frontend runs on http://localhost:5051, Backend on http://localhost:5050
-    // Includes volume mounts for hot reload and file watching
+    // Uses 'npm run dev' - includes volume mounts for instant file changes and hot reload
     "docker:up": "COMPOSE_PROFILES=local docker compose up --build",
     // ▶️ Start containers in detached mode (runs in background)
     // Same as docker:up but doesn't block the terminal - runs containers in background
@@ -39,11 +39,12 @@
     // 📋 Follow logs from both frontend and backend containers in real-time
     // Useful when running in detached mode to see what's happening
     "docker:logs": "COMPOSE_PROFILES=local docker compose logs -f",
-    // ⚠️ Build static site generation containers (local-ssg profile)
+    // 🏗️ BUILD MODE: Build static site generation containers (local-ssg profile)
     "docker:ssg:build": "COMPOSE_PROFILES=local-ssg docker compose build",
-    // ⚠️ Not Hot reload or volume mounts - for static site generation test output only
+    // 🏗️ PRODUCTION BUILD TEST: Runs 'npm run build:when-ready' with health checks
+    // Tests static site generation, waits for backend, NO hot reload - production simulation
     "docker:ssg:up": "COMPOSE_PROFILES=local-ssg docker compose up --build",
-    // ⚠️ Not Hot reload or volume mounts - for static site generation test output only
+    // 🏗️ PRODUCTION BUILD TEST: Same as docker:ssg:up but runs in background (detached mode)
     "docker:ssg:up:detached": "COMPOSE_PROFILES=local-ssg docker compose up --build -d",
     // 🛑 Stop and remove static site generation containers (local-ssg profile)
     "docker:ssg:down": "COMPOSE_PROFILES=local-ssg docker compose down",
