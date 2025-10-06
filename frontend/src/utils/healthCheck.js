@@ -21,6 +21,13 @@ export async function waitForBackendWithTimeout(baseUrl, options = {}) {
     requestTimeoutMs = 5000, // 5 second timeout per request
   } = options;
 
+  // Skip health checks in CI/CD environments where backend services aren't running
+  const isCiCd = process.env.CI || process.env.GITHUB_ACTIONS || process.env.BUILD_ID;
+  if (isCiCd) {
+    console.log('🏗️ CI/CD environment detected - skipping backend health check');
+    throw new Error('CI/CD environment - backend not available');
+  }
+
   const startTime = Date.now();
 
   console.log(
