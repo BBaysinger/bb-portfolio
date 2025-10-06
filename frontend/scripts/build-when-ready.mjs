@@ -31,11 +31,10 @@ async function buildWhenReady() {
     } else {
       console.log("🔍 Waiting for backend to be ready before building...");
 
-      // Wait for backend with reasonable timeout for initial deployment
+      // Wait for backend with reasonable retry configuration
       await waitForBackendWithTimeout(backendUrl, {
-        maxAttempts: 30, // More attempts for initial deployment
+        maxAttempts: 15, // Try 15 times max
         intervalMs: 3000, // 3 seconds between attempts
-        timeoutMs: 90000, // 90 second total timeout
         requestTimeoutMs: 5000, // 5 second per-request timeout
       });
 
