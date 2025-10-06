@@ -18,7 +18,7 @@
 export async function waitForBackendWithTimeout(baseUrl, options = {}) {
   const {
     maxAttempts = 15, // Max 15 tries
-    intervalMs = 2000, // 2 seconds between tries
+    intervalMs = 3000, // 2 seconds between tries
     requestTimeoutMs = 5000, // 5 second timeout per request
   } = options;
 
