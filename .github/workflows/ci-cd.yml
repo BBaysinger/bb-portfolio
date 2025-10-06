@@ -65,7 +65,7 @@ jobs:
         working-directory: ./frontend
         run: npm install --legacy-peer-deps # Required for some peer dependency conflicts
 
-      - name: Build frontend
+      - name: Build frontend (with health check)
         working-directory: ./frontend
         env:
           # Ensure profile and backend base are available to prebuild guard and Next.js
@@ -73,7 +73,7 @@ jobs:
           # Use public backend URLs for build-time data fetching (generateStaticParams)
           PROD_BACKEND_INTERNAL_URL: ${{ secrets.PROD_BACKEND_URL }}
           DEV_BACKEND_INTERNAL_URL: ${{ secrets.DEV_BACKEND_URL }}
-        run: npm run build # Next.js production build
+        run: npm run build:when-ready # Health check + Next.js build with SSG feedback
 
       - name: Test frontend
         working-directory: ./frontend

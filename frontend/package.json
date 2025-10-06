@@ -6,6 +6,7 @@
     "dev": "next dev",
     "prebuild": "node ./scripts/check-required-env.js",
     "build": "next build",
+    "build:when-ready": "node ./scripts/build-when-ready.mjs",
     "preview": "npx serve out",
     "start": "next start",
     "lint": "next lint",

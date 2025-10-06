@@ -4,6 +4,7 @@ import { Suspense } from "react";
 
 import ProjectViewWrapper from "@/components/project-carousel-page/ProjectViewWrapper";
 import ProjectData from "@/data/ProjectData";
+import { waitForBackendWithTimeout } from "@/utils/healthCheck";
 // Auth helper is imported only when needed (NDA branch) to keep SSG graph lean
 
 export const runtime = "nodejs";
@@ -77,9 +78,66 @@ export default async function ProjectPage({
  * @returns An array of projectId param objects.
  */
 export async function generateStaticParams() {
-  // Only generate static params for public (non-NDA) projects
-  await ProjectData.initialize();
-  return Object.keys(ProjectData.activeProjectsRecord).map((projectId) => ({
-    projectId,
-  }));
+  try {
+    // Check if we should attempt backend health check during build
+    const isServer = typeof window === "undefined";
+    const forceHealthCheck = process.env.FORCE_HEALTH_CHECK === "true";
+
+    if (
+      isServer &&
+      (process.env.NODE_ENV === "production" || forceHealthCheck)
+    ) {
+      // Get the backend URL that ProjectData will use
+      const profile = (
+        process.env.ENV_PROFILE ||
+        process.env.NODE_ENV ||
+        ""
+      ).toLowerCase();
+      const prefix = profile ? `${profile.toUpperCase()}_` : "";
+
+      const backendUrl =
+        process.env[`${prefix}BACKEND_INTERNAL_URL`] ||
+        process.env[`${prefix}NEXT_PUBLIC_BACKEND_URL`] ||
+        process.env.BACKEND_INTERNAL_URL ||
+        process.env.NEXT_PUBLIC_BACKEND_URL;
+
+      if (backendUrl) {
+        console.log(
+          `🔍 [generateStaticParams] Attempting backend health check for static generation...`,
+        );
+
+        // Wait for backend with reasonable limits
+        await waitForBackendWithTimeout(backendUrl, {
+          maxAttempts: 15, // 15 attempts max
+          intervalMs: 2000, // 2 seconds between attempts
+          timeoutMs: 30000, // 30 second absolute timeout
+          requestTimeoutMs: 5000, // 5 second per-request timeout
+        });
+
+        console.log(
+          `✅ [generateStaticParams] Backend health check passed, proceeding with static generation`,
+        );
+      }
+    }
+
+    // Backend is healthy (or we're on client), proceed with static generation
+    await ProjectData.initialize();
+    const projectIds = Object.keys(ProjectData.activeProjectsRecord);
+
+    console.log(
+      `📄 [generateStaticParams] Generated static params for ${projectIds.length} projects`,
+    );
+
+    return projectIds.map((projectId) => ({
+      projectId,
+    }));
+  } catch (error) {
+    // Health check failed or timed out - fall back to on-demand generation
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
+    console.warn(
+      `⚠️  [generateStaticParams] Backend not accessible (${errorMessage}) - falling back to on-demand page generation`,
+    );
+    return [];
+  }
 }
