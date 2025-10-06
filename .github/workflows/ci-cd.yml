@@ -96,6 +96,11 @@ jobs:
           DEV_PAYLOAD_SECRET: ${{ secrets.DEV_PAYLOAD_SECRET }}
           # Frontend origin for CORS/CSRF checks during build-time config resolution
           DEV_FRONTEND_URL: ${{ secrets.DEV_FRONTEND_URL }}
+          # S3 and AWS configuration required by payload.config.ts during build
+          DEV_S3_BUCKET: ${{ secrets.DEV_S3_BUCKET }}
+          DEV_AWS_REGION: ${{ secrets.DEV_AWS_REGION }}
+          S3_AWS_ACCESS_KEY_ID: ${{ secrets.S3_AWS_ACCESS_KEY_ID }}
+          S3_AWS_SECRET_ACCESS_KEY: ${{ secrets.S3_AWS_SECRET_ACCESS_KEY }}
         run: npm run build # Next.js production build (Payload CMS)
 
       - name: Test backend
@@ -105,6 +110,11 @@ jobs:
           DEV_MONGODB_URI: mongodb://localhost:27017/dummy-db
           DEV_PAYLOAD_SECRET: ${{ secrets.DEV_PAYLOAD_SECRET }}
           DEV_FRONTEND_URL: ${{ secrets.DEV_FRONTEND_URL }}
+          # S3 and AWS configuration required by payload.config.ts during testing
+          DEV_S3_BUCKET: ${{ secrets.DEV_S3_BUCKET }}
+          DEV_AWS_REGION: ${{ secrets.DEV_AWS_REGION }}
+          S3_AWS_ACCESS_KEY_ID: ${{ secrets.S3_AWS_ACCESS_KEY_ID }}
+          S3_AWS_SECRET_ACCESS_KEY: ${{ secrets.S3_AWS_SECRET_ACCESS_KEY }}
         run: npm test || echo "⚠️ No backend tests yet" # Graceful failure until tests are implemented
 
   # ==========================================================================
