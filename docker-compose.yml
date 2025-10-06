@@ -110,11 +110,11 @@ services:
   # DEVELOPMENT SERVICES (AWS EC2 Sandbox)
   # =============================================================================
   # These services run on EC2 for remote development/testing:
-  # - Build directly on EC2 for flexibility and speed
+  # - Pull pre-built images from Docker Hub (fast deployments)
+  # - Images built and pushed via CI/CD on dev branch pushes
   # - Different ports to avoid conflicts with production
-  # - Simpler health checks (no load balancer integration needed)
-  # - Manual deployment via workflow_dispatch or SSH
-  # - Perfect for testing production builds in a live environment
+  # - Cost-optimized using free Docker Hub public repositories
+  # - Provides experience with dual-registry strategy (Docker Hub + ECR)
   # =============================================================================
 
   backend-dev:
