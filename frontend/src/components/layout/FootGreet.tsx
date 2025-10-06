@@ -34,14 +34,14 @@ const FootGreet: React.FC<{ className?: string }> = ({ className = "" }) => {
           alt="Bradley's head"
         />
         {currentTimeOfDay
-          ? `Good ${currentTimeOfDay}, and thanks for stopping by! I’ll be honest—this space is an experiment in progress, and I hope it always stays that way. Some things might seem a bit mysterious, but give it time and check back later!`
-          : "Thanks for stopping by! This space is an experiment in progress, and I hope it always stays that way. Some things might seem a bit mysterious, but give it time and check back later!"}
+          ? `Good ${currentTimeOfDay}! This space is always evolving — a bit of an ongoing experiment. Some things might seem mysterious for now, but that's part of the process.`
+          : "Thanks for stopping by! This space is always evolving — a bit of an ongoing experiment. Some things might seem mysterious for now, but that's part of the process."}
       </p>
       <p>
-        Anyhow, I&apos;m always looking to collaborate with forward-thinking
-        teams who value engaging digital experiences. I look forward to
-        connecting and exploring how I can bring unique interactive work to your
-        organization.
+        I&apos;m always excited to collaborate with forward-thinking teams who
+        care about creating meaningful digital experiences. Let&apos;s connect
+        and explore how my approach to interactive design and development can
+        bring something distinctive to your organization.
       </p>
     </>
   );
