@@ -19,24 +19,16 @@ export async function waitForBackendWithTimeout(baseUrl, options = {}) {
   const {
     maxAttempts = 15, // Max 15 tries
     intervalMs = 2000, // 2 seconds between tries
-    timeoutMs = 30000, // 30 second absolute limit
     requestTimeoutMs = 5000, // 5 second timeout per request
   } = options;
 
   const startTime = Date.now();
 
   console.log(
-    `🔍 Checking backend health at ${baseUrl} (max ${maxAttempts} attempts, ${timeoutMs}ms timeout)`,
+    `🔍 Checking backend health at ${baseUrl} (${maxAttempts} attempts @ ${intervalMs}ms intervals)`,
   );
 
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-    // Check total timeout
-    const elapsedTime = Date.now() - startTime;
-    if (elapsedTime > timeoutMs) {
-      throw new Error(
-        `Health check timed out after ${elapsedTime}ms (limit: ${timeoutMs}ms)`,
-      );
-    }
 
     try {
       // Try a simple health check endpoint first, fallback to main API
@@ -83,7 +75,7 @@ export async function waitForBackendWithTimeout(baseUrl, options = {}) {
     } catch (error) {
       const errorMessage = error?.message || "Unknown error";
       console.log(
-        `⚠️  Health check attempt ${attempt}/${maxAttempts} failed: ${errorMessage}`,
+        `⚠️ Try ${attempt} of ${maxAttempts} @ ${intervalMs}ms interval failed: ${errorMessage}`,
       );
 
       // Don't sleep after the last attempt
