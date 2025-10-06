@@ -152,11 +152,11 @@ export default buildConfig({
                 return val
               })(),
               // Credentials are optional on EC2 when using instance role
-              ...(process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY
+              ...(process.env.S3_AWS_ACCESS_KEY_ID && process.env.S3_AWS_SECRET_ACCESS_KEY
                 ? {
                     credentials: {
-                      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-                      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+                      accessKeyId: process.env.S3_AWS_ACCESS_KEY_ID,
+                      secretAccessKey: process.env.S3_AWS_SECRET_ACCESS_KEY,
                     },
                   }
                 : {}),
