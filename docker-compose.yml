@@ -61,7 +61,7 @@ services:
 
   backend-prod:
     profiles: ["prod"] # Only runs with COMPOSE_PROFILES=prod
-    image: 778230822028.dkr.ecr.us-west-2.amazonaws.com/portfolio/backend:latest
+    image: ${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/bb-portfolio-backend:latest
     container_name: portfolio-backend-prod
     ports:
       - "3001:3000" # Backend gets xxx1 for production
@@ -83,7 +83,7 @@ services:
 
   frontend-prod:
     profiles: ["prod"] # Only runs with COMPOSE_PROFILES=prod
-    image: 778230822028.dkr.ecr.us-west-2.amazonaws.com/portfolio/frontend:latest
+    image: ${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/bb-portfolio-frontend:latest
     container_name: portfolio-frontend-prod
     ports:
       - "3000:3000" # Frontend gets xxx0 for production

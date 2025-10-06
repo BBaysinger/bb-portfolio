@@ -22,3 +22,13 @@ output "media_bucket_arns" {
   description = "Map of env => S3 bucket ARN for media"
   value       = { for env, b in aws_s3_bucket.media : env => b.arn }
 }
+
+output "ecr_frontend_repository_url" {
+  description = "URL of the frontend ECR repository"
+  value       = aws_ecr_repository.frontend.repository_url
+}
+
+output "ecr_backend_repository_url" {
+  description = "URL of the backend ECR repository"  
+  value       = aws_ecr_repository.backend.repository_url
+}

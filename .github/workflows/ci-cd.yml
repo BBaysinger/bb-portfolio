@@ -146,44 +146,46 @@ jobs:
           aws-secret-access-key: ${{ secrets.CICD_AWS_SECRET_ACCESS_KEY }}
           aws-region: us-west-2 # Oregon region for EC2 and ECR resources
 
-      # Login to Amazon ECR using AWS CLI authentication
+      # Login to Amazon ECR for image registry
       - name: Login to Amazon ECR
-        run: |
-          echo "🔐 Authenticating with Amazon ECR..."
-          aws ecr get-login-password --region us-west-2 \
-            | docker login --username AWS --password-stdin 778230822028.dkr.ecr.us-west-2.amazonaws.com
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
 
       # =======================================================================
       # DOCKER IMAGE BUILD AND PUSH TO ECR
       # =======================================================================
-      # Build production-optimized images and push to ECR registry
-      # Uses 'latest' tag for simplicity and fast deployment
+      # Build production-optimized images and push to Amazon ECR registry
+      # Uses 'latest' tag for production deployments
       # =======================================================================
-      - name: Build and push frontend-prod
+      - name: Build and push frontend-prod to ECR
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: bb-portfolio-frontend
+          IMAGE_TAG: latest
         run: |
           echo "Building frontend production image..."
           docker build \
             --build-arg ENV_PROFILE=prod \
-            --build-arg BACKEND_INTERNAL_URL=http://backend-prod:3000 \
-            -t frontend:latest ./frontend
-          echo "🏷️ Tagging frontend image for ECR..."
-          docker tag frontend:latest 778230822028.dkr.ecr.us-west-2.amazonaws.com/portfolio/frontend:latest
+            --build-arg PROD_BACKEND_INTERNAL_URL=${{ secrets.PROD_BACKEND_URL }} \
+            -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./frontend
           echo "📤 Pushing frontend image to ECR..."
-          docker push 778230822028.dkr.ecr.us-west-2.amazonaws.com/portfolio/frontend:latest
-          echo "Frontend image push complete"
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          echo "Frontend ECR push complete: $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
 
-      - name: Build and push backend-prod
+      - name: Build and push backend-prod to ECR
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: bb-portfolio-backend
+          IMAGE_TAG: latest
         run: |
           echo "Building backend production image..."
           docker build \
             --build-arg ENV_PROFILE=prod \
             --build-arg PROD_MONGODB_URI=mongodb://localhost:27017/dummy-db \
-            -t backend:latest ./backend
-          echo "🏷️ Tagging backend image for ECR..."
-          docker tag backend:latest 778230822028.dkr.ecr.us-west-2.amazonaws.com/portfolio/backend:latest
+            -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./backend
           echo "📤 Pushing backend image to ECR..."
-          docker push 778230822028.dkr.ecr.us-west-2.amazonaws.com/portfolio/backend:latest
-          echo "Backend image push complete"
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          echo "Backend ECR push complete: $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
 
       # =======================================================================
       # EC2 PRODUCTION DEPLOYMENT
@@ -222,10 +224,13 @@ jobs:
               echo "Docker already installed"
             fi
 
-            # Install AWS CLI if not present (required for ECR authentication)
+            # Install AWS CLI for ECR authentication
             if ! command -v aws &> /dev/null; then
               echo "Installing AWS CLI..."
-              sudo yum install -y awscli
+              curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+              unzip awscliv2.zip
+              sudo ./aws/install
+              rm -rf aws awscliv2.zip
               echo "AWS CLI installation complete"
             else
               echo "AWS CLI already installed"
@@ -260,7 +265,7 @@ jobs:
             echo "Verifying Docker installation..."
             sudo docker --version
             echo "Docker verification complete"            # ===============================================================
-            # AWS AUTHENTICATION SETUP
+            # AWS AUTHENTICATION AND ECR SETUP
             # ===============================================================
             # Configure AWS credentials for ECR access from EC2
             # ===============================================================
@@ -269,10 +274,9 @@ jobs:
             aws configure set aws_secret_access_key ${{ secrets.CICD_AWS_SECRET_ACCESS_KEY }}
             aws configure set default.region us-west-2
 
-            # ECR login for both sudo and regular user contexts
-            echo "🔐 Authenticating with ECR..."
-            aws ecr get-login-password --region us-west-2 | sudo docker login --username AWS --password-stdin 778230822028.dkr.ecr.us-west-2.amazonaws.com
-            aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 778230822028.dkr.ecr.us-west-2.amazonaws.com
+            # Login to ECR for pulling production images
+            echo "🔐 Authenticating with Amazon ECR..."
+            aws ecr get-login-password --region us-west-2 | sudo docker login --username AWS --password-stdin ${{ steps.login-ecr.outputs.registry }}
 
             # ===============================================================
             # REPOSITORY SETUP
@@ -336,8 +340,12 @@ jobs:
             # ===============================================================
             # Pull latest images and deploy with zero-downtime strategy
             # ===============================================================
-            echo "⬇️ Pulling latest production images..."
-            sudo COMPOSE_PROFILES=prod docker compose pull || {
+            echo "⬇️ Getting AWS account ID for ECR URIs..."
+            export AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text)
+            echo "Using AWS Account ID: $AWS_ACCOUNT_ID"
+            
+            echo "⬇️ Pulling latest production images from ECR..."
+            sudo AWS_ACCOUNT_ID=$AWS_ACCOUNT_ID COMPOSE_PROFILES=prod docker compose pull || {
               echo "⚠️ Failed to pull images. Continuing with existing images..."
             }
 
@@ -350,7 +358,7 @@ jobs:
             echo "📁 Working directory: $(pwd)"
 
             echo "🚀 Starting production deployment..."
-            sudo COMPOSE_PROFILES=prod docker compose up -d
+            sudo AWS_ACCOUNT_ID=$AWS_ACCOUNT_ID COMPOSE_PROFILES=prod docker compose up -d
 
             # ===============================================================
             # HEALTH CHECKS AND VALIDATION
@@ -369,7 +377,7 @@ jobs:
 
             echo "Final deployment status:"
             sudo docker ps
-            sudo COMPOSE_PROFILES=prod docker compose ps
+            sudo AWS_ACCOUNT_ID=$AWS_ACCOUNT_ID COMPOSE_PROFILES=prod docker compose ps
 
             echo "Production deployment complete at $(date)!"
 
