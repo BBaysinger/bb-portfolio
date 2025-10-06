@@ -21,17 +21,11 @@ export async function waitForBackendWithTimeout(baseUrl, options = {}) {
     requestTimeoutMs = 5000, // 5 second timeout per request
   } = options;
 
-  // Skip health checks in CI/CD build validation, but allow them during production image builds
+  // Skip health checks in ALL CI/CD environments - backend is never reachable during image builds
   const isCiCd = process.env.CI || process.env.GITHUB_ACTIONS || process.env.BUILD_ID;
-  const isProductionBuild = process.env.ENV_PROFILE === 'prod' && baseUrl && !baseUrl.includes('localhost');
-  
-  if (isCiCd && !isProductionBuild) {
-    console.log('🏗️ CI/CD build validation detected - skipping backend health check');
+  if (isCiCd) {
+    console.log('🏗️ CI/CD environment detected - skipping backend health check (backend not reachable during image builds)');
     throw new Error('CI/CD environment - backend not available');
-  }
-  
-  if (isCiCd && isProductionBuild) {
-    console.log('🏭 Production image build in CI/CD - attempting health check with real backend');
   }
 
   const startTime = Date.now();
