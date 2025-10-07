@@ -47,9 +47,8 @@
 
   const requirements = parseRequirements(rawList);
 
-  // Strict requirement: accept canonical or profile-prefixed backend origin
+  // Strict requirement: accept only profile-prefixed backend origin (no backwards compatibility)
   const defaultBackendGroup = [
-    "BACKEND_INTERNAL_URL",
     `${profile.toUpperCase()}_BACKEND_INTERNAL_URL`,
   ].filter(Boolean);
 
@@ -74,8 +73,8 @@
       ...missingGroups.map((g) => `  - ${g}`),
       "\nConfigure REQUIRED_ENVIRONMENT_VARIABLES or <PROFILE>_REQUIRED_ENVIRONMENT_VARIABLES.",
       "Examples:",
-      "  REQUIRED_ENVIRONMENT_VARIABLES=BACKEND_INTERNAL_URL",
-      "  PROD_REQUIRED_ENVIRONMENT_VARIABLES=BACKEND_INTERNAL_URL",
+      "  REQUIRED_ENVIRONMENT_VARIABLES=PROD_BACKEND_INTERNAL_URL",
+      "  PROD_REQUIRED_ENVIRONMENT_VARIABLES=PROD_BACKEND_INTERNAL_URL",
       "\nNote: In CI+prod, a default requirement enforces at least one backend base URL variable to avoid empty portfolio deploys.",
     ].join("\n");
     console.error(msg);
