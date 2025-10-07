@@ -337,6 +337,8 @@ jobs:
             # Prefixed environment variables (ENV_PROFILE=prod means PROD_ prefix)
             PROD_BACKEND_INTERNAL_URL=${{ secrets.PROD_BACKEND_INTERNAL_URL }}
             PROD_NEXT_PUBLIC_BACKEND_URL=${{ secrets.PROD_NEXT_PUBLIC_BACKEND_URL }}
+            # Next.js requires NEXT_PUBLIC_ variables for browser exposure
+            NEXT_PUBLIC_BACKEND_URL=${{ secrets.PROD_NEXT_PUBLIC_BACKEND_URL }}
             EOF
             
             # Debug: Show environment file contents
@@ -535,12 +537,15 @@ jobs:
 
             # Create frontend .env.dev
             echo "Creating frontend .env.dev..."
+            # Frontend development environment  
             cat > frontend/.env.dev << EOF
             NODE_ENV=development
             ENV_PROFILE=dev
             # Prefixed environment variables (ENV_PROFILE=dev means DEV_ prefix)
             DEV_BACKEND_INTERNAL_URL=${{ secrets.DEV_BACKEND_INTERNAL_URL }}
             DEV_NEXT_PUBLIC_BACKEND_URL=${{ secrets.DEV_NEXT_PUBLIC_BACKEND_URL }}
+            # Next.js requires NEXT_PUBLIC_ variables for browser exposure
+            NEXT_PUBLIC_BACKEND_URL=${{ secrets.DEV_NEXT_PUBLIC_BACKEND_URL }}
             EOF
             echo "Environment configuration complete"
 
