@@ -44,7 +44,7 @@ New decisions should be appended chronologically.
 **Automation Features:**
 
 - **One-Command Deployment**: `terraform apply` creates entire infrastructure from scratch
-- **One-Command Teardown**: `terraform destroy` cleanly removes all 25+ AWS resources  
+- **One-Command Teardown**: `terraform destroy` cleanly removes all 25+ AWS resources
 - **Zero Manual Configuration**: All services configured automatically via user_data scripts
 - **Auto-Healing**: Systemd services ensure containers restart on failure
 - **Boot Persistence**: All services start automatically on server restart
@@ -74,7 +74,7 @@ terraform destroy # Clean teardown
 **Verified Capabilities:**
 
 - **Complete Infrastructure Recreation**: Successfully destroyed and recreated entire infrastructure
-- **Automatic Service Configuration**: Docker, Nginx, containers all start without manual intervention  
+- **Automatic Service Configuration**: Docker, Nginx, containers all start without manual intervention
 - **Production Reliability**: Website accessible at bbinteractive.io with professional architecture
 - **Development Workflow**: Easy switching between dev (Docker Hub) and prod (ECR) container sources
 - **Documentation**: Comprehensive README with troubleshooting and management procedures
@@ -97,7 +97,7 @@ terraform destroy # Clean teardown
 
 **Status:** ✅ Active - Production infrastructure deployed and verified working
 
-```
+`````
 
 ---
 
@@ -369,7 +369,7 @@ healthcheck:
       "-e",
       "const net = require('net'); const client = net.createConnection(3000, 'localhost', () => { console.log('connected'); client.end(); process.exit(0); }); client.on('error', () => process.exit(1));",
     ]
-````
+`````
 
 **Reasoning:**
 
