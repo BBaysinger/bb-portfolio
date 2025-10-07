@@ -114,7 +114,7 @@ resource "aws_instance" "portfolio" {
     systemctl enable nginx
     
     # Create Nginx configuration for portfolio
-    cat > /etc/nginx/conf.d/portfolio.conf << 'NGINX_EOF'
+    cat > /etc/nginx/conf.d/portfolio.conf << NGINX_EOF
 server {
     listen 80;
     server_name bbinteractive.io www.bbinteractive.io _;
@@ -123,23 +123,23 @@ server {
     location / {
         proxy_pass http://localhost:4000;
         proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Upgrade \$http_upgrade;
         proxy_set_header Connection "upgrade";
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_cache_bypass $http_upgrade;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+        proxy_cache_bypass \$http_upgrade;
     }
     
     # API proxy to development backend (port 4001)
     location /api/ {
         proxy_pass http://localhost:4001/api/;
         proxy_http_version 1.1;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
     }
 }
 NGINX_EOF
@@ -155,7 +155,7 @@ NGINX_EOF
     cd /home/ec2-user/portfolio
     
     # Create docker-compose.yml for the portfolio application
-    cat > /home/ec2-user/portfolio/docker-compose.yml << 'COMPOSE_EOF'
+    cat > /home/ec2-user/portfolio/docker-compose.yml << COMPOSE_EOF
 services:
   # =============================================================================
   # PRODUCTION CONTAINERS (ECR images, for production deployment)
@@ -226,21 +226,27 @@ COMPOSE_EOF
     chown -R ec2-user:ec2-user /home/ec2-user/portfolio
     
     # Create a startup script for the containers
-    cat > /home/ec2-user/portfolio/start-containers.sh << 'SCRIPT_EOF'
+    cat > /home/ec2-user/portfolio/start-containers.sh << SCRIPT_EOF
 #!/bin/bash
 cd /home/ec2-user/portfolio
 
+# Install Docker Compose if not available
+if ! command -v docker-compose &> /dev/null; then
+    curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64" -o /usr/local/bin/docker-compose
+    chmod +x /usr/local/bin/docker-compose
+fi
+
 # Start development containers by default (they work reliably)
-sudo docker compose --profile dev up -d
+sudo docker-compose --profile dev up -d
 
 # Log the startup
-echo "$(date): Portfolio containers started" >> /var/log/portfolio-startup.log
+echo "\$$(date): Portfolio containers started" >> /var/log/portfolio-startup.log
 SCRIPT_EOF
 
     chmod +x /home/ec2-user/portfolio/start-containers.sh
     
     # Create systemd service for automatic container startup
-    cat > /etc/systemd/system/portfolio.service << 'SERVICE_EOF'
+    cat > /etc/systemd/system/portfolio.service << SERVICE_EOF
 [Unit]
 Description=Portfolio Docker Containers
 After=docker.service nginx.service
@@ -294,15 +300,7 @@ output "portfolio_website_url" {
   description = "Direct URL to access the portfolio website"
 }
 
-output "ecr_frontend_repository_url" {
-  value = aws_ecr_repository.frontend.repository_url
-  description = "ECR repository URL for frontend images"
-}
 
-output "ecr_backend_repository_url" {
-  value = aws_ecr_repository.backend.repository_url
-  description = "ECR repository URL for backend images"
-}
 
 resource "aws_eip_association" "portfolio_assoc" {
   instance_id   = aws_instance.portfolio.id
