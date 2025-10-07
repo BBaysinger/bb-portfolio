@@ -265,13 +265,13 @@ Group=root
 WantedBy=multi-user.target
 SERVICE_EOF
 
-    # Enable and start the portfolio service
+    # Enable the portfolio service but don't start it automatically
+    # Let GitHub Actions handle container deployment with proper environment files
     systemctl daemon-reload
     systemctl enable portfolio.service
     
-    # Start containers after a short delay to ensure Docker is fully ready
-    sleep 10
-    systemctl start portfolio.service
+    # Note: Containers will be started by GitHub Actions deployment
+    echo "Infrastructure ready. Containers will be deployed via GitHub Actions." >> /var/log/portfolio-startup.log
     
   EOF
 
