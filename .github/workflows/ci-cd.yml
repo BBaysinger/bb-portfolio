@@ -169,7 +169,7 @@ jobs:
           echo "Building frontend production image..."
           docker build \
             --build-arg ENV_PROFILE=prod \
-            --build-arg PROD_BACKEND_INTERNAL_URL=${{ secrets.PROD_BACKEND_URL }} \
+            --build-arg PROD_BACKEND_INTERNAL_URL=${{ secrets.PROD_BACKEND_INTERNAL_URL }} \
             -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./frontend
           echo "📤 Pushing frontend image to ECR..."
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
