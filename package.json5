@@ -25,31 +25,31 @@
     "build:frontend": "cd frontend && npm run build",
     // 🐳 Build both frontend and backend Docker images using docker-compose local profile
     // Uses the local profile which includes development-optimized builds with hot reload
-    "docker:build": "COMPOSE_PROFILES=local docker compose build",
+    "docker:build": "AWS_ACCOUNT_ID=123456789012 COMPOSE_PROFILES=local docker compose build",
     // ⚡ DEVELOPMENT MODE: Start both frontend and backend containers with hot reload
     // Frontend runs on http://localhost:5051, Backend on http://localhost:5050
     // Uses 'npm run dev' - includes volume mounts for instant file changes and hot reload
-    "docker:up": "COMPOSE_PROFILES=local docker compose up --build",
+    "docker:up": "AWS_ACCOUNT_ID=123456789012 COMPOSE_PROFILES=local docker compose up --build -f",
     // ▶️ Start containers in detached mode (runs in background)
     // Same as docker:up but doesn't block the terminal - runs containers in background
-    "docker:up:detached": "COMPOSE_PROFILES=local docker compose up --build -d",
+    "docker:up:detached": "AWS_ACCOUNT_ID=123456789012 COMPOSE_PROFILES=local docker compose up --build -d",
     // 🛑 Stop and remove all local development containers
     // Cleans up containers, networks, and anonymous volumes created by docker:up
-    "docker:down": "COMPOSE_PROFILES=local docker compose down",
+    "docker:down": "AWS_ACCOUNT_ID=123456789012 COMPOSE_PROFILES=local docker compose down",
     // 📋 Follow logs from both frontend and backend containers in real-time
     // Useful when running in detached mode to see what's happening
-    "docker:logs": "COMPOSE_PROFILES=local docker compose logs -f",
+    "docker:logs": "AWS_ACCOUNT_ID=123456789012 COMPOSE_PROFILES=local docker compose logs -f",
     // 🏗️ BUILD MODE: Build static site generation containers (local-ssg profile)
-    "docker:ssg:build": "COMPOSE_PROFILES=local-ssg docker compose build",
+    "docker:ssg:build": "AWS_ACCOUNT_ID=123456789012 COMPOSE_PROFILES=local-ssg docker compose build",
     // 🏗️ PRODUCTION BUILD TEST: Runs 'npm run build:when-ready' with health checks
     // Tests static site generation, waits for backend, NO hot reload - production simulation
-    "docker:ssg:up": "COMPOSE_PROFILES=local-ssg docker compose up --build",
+    "docker:ssg:up": "AWS_ACCOUNT_ID=123456789012 COMPOSE_PROFILES=local-ssg docker compose up --build -f",
     // 🏗️ PRODUCTION BUILD TEST: Same as docker:ssg:up but runs in background (detached mode)
-    "docker:ssg:up:detached": "COMPOSE_PROFILES=local-ssg docker compose up --build -d",
+    "docker:ssg:up:detached": "AWS_ACCOUNT_ID=123456789012 COMPOSE_PROFILES=local-ssg docker compose up --build -d",
     // 🛑 Stop and remove static site generation containers (local-ssg profile)
-    "docker:ssg:down": "COMPOSE_PROFILES=local-ssg docker compose down",
+    "docker:ssg:down": "AWS_ACCOUNT_ID=123456789012 COMPOSE_PROFILES=local-ssg docker compose down",
     // 📋 Follow logs from static site generation containers in real-time (local-ssg profile)
-    "docker:ssg:logs": "COMPOSE_PROFILES=local-ssg docker compose logs -f",
+    "docker:ssg:logs": "AWS_ACCOUNT_ID=123456789012 COMPOSE_PROFILES=local-ssg docker compose logs -f",
     // 🐳 Build backend Docker image for Docker Hub (dev tag)
     "docker:build:backend": "docker build -t bhbaysinger/portfolio-backend:dev ./backend",
     // 🐳 Build frontend Docker image for Docker Hub (dev tag)
@@ -116,17 +116,17 @@
     // TypeScript type definitions for glob
     "@types/glob": "^9.0.0",
     // ESLint plugin for TypeScript-specific linting rules
-    "@typescript-eslint/eslint-plugin": "^8.45.0",
+    "@typescript-eslint/eslint-plugin": "^8.46.0",
     // TypeScript parser for ESLint
-    "@typescript-eslint/parser": "^8.45.0",
+    "@typescript-eslint/parser": "^8.46.0",
     // Run multiple commands concurrently in scripts
     "concurrently": "^9.2.1",
     // Main linter for JS/TS code
-    "eslint": "^9.36.0",
+    "eslint": "^9.37.0",
     // ESLint plugin for import/export syntax validation
     "eslint-plugin-import": "^2.32.0",
     // ESLint plugin for React hooks rules
-    "eslint-plugin-react-hooks": "^6.1.0",
+    "eslint-plugin-react-hooks": "^6.1.1",
     // ESLint plugin for React Fast Refresh support
     "eslint-plugin-react-refresh": "^0.4.23",
     // File pattern matching utility
