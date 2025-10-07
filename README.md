@@ -112,3 +112,4 @@ For detailed technical documentation:
 - **Architecture Decisions**: [`/docs/architecture-decisions.md`](./docs/architecture-decisions.md)
 - **Infrastructure Guide**: [`/infra/README.md`](./infra/README.md)
 - **Deployment Instructions**: [`/DEPLOYMENT.md`](./DEPLOYMENT.md)
+# Updated EC2 IP: 44.250.92.40
