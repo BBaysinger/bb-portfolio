@@ -22,7 +22,101 @@ New decisions should be appended chronologically.
 **Decision:** Use **MongoDB Atlas (cloud-managed MongoDB)**  
 **Reasoning:**
 
-- Avoid operational overhead of running a database on EC2.
+- Avoid operational over- **Status:** ✅ Active (supersedes earlier "assets" bucket naming in 2025-09-20 entry; that entry remains for historical context)
+
+---
+
+## 2025-10-06 – Dual Registry Strategy: Docker Hub + ECR
+
+**Decision:** Implement **dual container registry strategy** using Docker Hub for development and ECR for production.
+
+**Configuration:**
+
+- **Development environment**: Images built and pushed to Docker Hub (`bhbaysinger/portfolio-*:dev`)
+- **Production environment**: Images built and pushed to Amazon ECR (`*.dkr.ecr.us-west-2.amazonaws.com/bb-portfolio-*:latest`)
+- **CI/CD workflow**: Different registry authentication per environment
+- **Cost optimization**: Free Docker Hub public repositories for dev, ECR for production reliability
+
+**Reasoning:**
+
+- **Experience diversification**: Provides hands-on experience with both industry-standard registries
+- **Cost optimization**: Docker Hub free tier reduces operational costs for development environment
+- **Professional demonstration**: Shows understanding of multi-registry enterprise patterns
+- **Risk management**: Separate registries isolate development experiments from production deployments
+- **Performance**: ECR integration with AWS services provides better production performance
+
+**Alternatives considered:**
+
+- **ECR for all environments**: More consistent but higher costs and less registry experience
+- **Docker Hub for all environments**: Lower cost but less professional/enterprise experience
+- **Single environment setup**: Simpler but misses learning opportunities and cost optimization
+
+**Status:** ✅ Active
+
+---
+
+## 2025-10-06 – CI/CD Health Check Optimization
+
+**Decision:** Implement **environment-aware health check system** with intelligent CI/CD detection.
+
+**Behavior:**
+
+- **CI/CD environments**: Skip health checks entirely with clear messaging (`🏗️ CI/CD environment detected - skipping backend health check`)
+- **Local/Runtime environments**: Full health check optimization with bounded retries
+- **Build scripts**: Graceful fallback to on-demand generation when backend unavailable
+
+**Technical implementation:**
+
+- Detection via environment variables: `CI`, `GITHUB_ACTIONS`, `BUILD_ID`
+- Immediate failure in CI/CD with descriptive error message
+- 15 attempts @ 3-second intervals for runtime environments
+- Fallback handling in build scripts for graceful degradation
+
+**Reasoning:**
+
+- **Performance**: Eliminates 45+ second timeouts during CI/CD builds
+- **Clarity**: Clear messaging prevents debugging confusion ("backend not reachable during image builds")
+- **Optimization**: Maintains SSG benefits when backend is available at runtime
+- **Reliability**: Ensures CI/CD never hangs waiting for unreachable services
+- **User experience**: Faster deployments with better feedback
+
+**Alternatives considered:**
+
+- **Always attempt health checks**: Causes slow CI/CD builds and confusion
+- **Never attempt health checks**: Misses static generation optimization opportunities
+- **Fixed timeout approach**: Less intelligent and still causes CI/CD delays
+
+**Status:** ✅ Active
+
+---
+
+## 2025-10-06 – Docker Hub Authentication & Secret Management
+
+**Decision:** Integrate **Docker Hub access tokens** into existing automated secret management system.
+
+**Implementation:**
+
+- Added `DOCKER_HUB_USERNAME` and `DOCKER_HUB_ACCESS_TOKEN` to `.github-secrets.private.json5`
+- Leveraged existing `npm run sync:secrets` workflow for GitHub Actions integration
+- Used Docker Hub personal access tokens instead of passwords for enhanced security
+- Updated CI/CD workflows to authenticate with Docker Hub during dev builds
+
+**Reasoning:**
+
+- **Security**: Access tokens are more secure and revokable than passwords
+- **Consistency**: Integrates with established secret management patterns
+- **Automation**: Maintains "infrastructure as code" approach to credential management
+- **Auditability**: All secrets managed in single configuration file with sync tracking
+
+**Alternatives considered:**
+
+- **Manual GitHub secrets**: More work and breaks established automation patterns
+- **Password authentication**: Less secure and not following best practices
+- **Environment-specific credentials**: More complex and harder to manage
+
+**Status:** ✅ Active
+
+````ead of running a database on EC2.
 - Free/low-tier Atlas is sufficient for project scale.
 - Provides automatic backups and scaling without extra config.
 
@@ -37,7 +131,7 @@ New decisions should be appended chronologically.
 
 ## 2025-09-14 – Hosting Strategy
 
-**Decision:** Deploy **frontend + backend via Docker Compose on a single EC2 instance**.  
+**Decision:** Deploy **frontend + backend via Docker Compose on a single EC2 instance**.
 **Reasoning:**
 
 - Cheapest always-on option (~$7–15/mo).
@@ -105,7 +199,7 @@ New decisions should be appended chronologically.
 
 ## 2025-09-15 – Instance Consolidation & Key Management
 
-**Decision:** Consolidate to a single EC2 instance named `portfolio` with one keypair.  
+**Decision:** Consolidate to a single EC2 instance named `portfolio` with one keypair.
 **Reasoning:**
 
 - Simplifies management (one server to update/patch).
@@ -122,7 +216,7 @@ New decisions should be appended chronologically.
 
 ## 2025-09-16 – Base OS Migration
 
-**Decision:** Standardize on **Debian (Bookworm)** as the base OS for the EC2 instance.  
+**Decision:** Standardize on **Debian (Bookworm)** as the base OS for the EC2 instance.
 **Reasoning:**
 
 - More stable and lightweight than Ubuntu, with fewer default packages and less bloat.
@@ -200,7 +294,7 @@ healthcheck:
       "-e",
       "const net = require('net'); const client = net.createConnection(3000, 'localhost', () => { console.log('connected'); client.end(); process.exit(0); }); client.on('error', () => process.exit(1));",
     ]
-```
+````
 
 **Reasoning:**
 
