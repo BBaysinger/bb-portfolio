@@ -26,6 +26,8 @@ async function fetchPortfolioProjects(opts?: {
   const base = firstVal([
     `${prefix}BACKEND_INTERNAL_URL`,
     `${prefix}NEXT_PUBLIC_BACKEND_URL`,
+    // Fallback to non-prefixed for browser (Next.js only exposes NEXT_PUBLIC_ variables)
+    "NEXT_PUBLIC_BACKEND_URL",
   ]);
 
   // Conventional: rely on Next.js rewrites for /api/* on the server.
@@ -33,7 +35,7 @@ async function fetchPortfolioProjects(opts?: {
   const isHttpUrl = (s: string) => /^https?:\/\//i.test(s);
   if (isServer && !isHttpUrl(base)) {
     const msg =
-      `Backend URL is not configured. Set ${prefix}BACKEND_INTERNAL_URL or ${prefix}NEXT_PUBLIC_BACKEND_URL to a valid http(s) URL so Next rewrites can proxy /api/*.`;
+      `Backend URL is not configured. Set ${prefix}BACKEND_INTERNAL_URL, ${prefix}NEXT_PUBLIC_BACKEND_URL, or NEXT_PUBLIC_BACKEND_URL to a valid http(s) URL so Next rewrites can proxy /api/*.`;
     console.error(`ProjectData: ${msg}`);
     throw new Error(msg);
   }
