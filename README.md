@@ -28,3 +28,16 @@
 - **Back-End**: TypeScript, React Router, React Redux
 - **Tooling**: Vite, ESLint, Prettier
 - **Design**: Mobile-first approach, responsive breakpoints
+
+## Infrastructure & Deployment
+
+- **Cloud Provider**: Amazon Web Services (AWS)
+- **Infrastructure as Code**: Terraform for complete automation
+- **Compute**: EC2 t3.medium with auto-configuration
+- **Networking**: Elastic IP, Security Groups, Nginx reverse proxy
+- **Containers**: Docker with dual registry strategy (Docker Hub + ECR)
+- **Storage**: S3 buckets for media assets with environment isolation
+- **Domain**: Custom domain (bbinteractive.io) with professional DNS setup
+- **Automation**: Zero-manual deployment with systemd service management
+
+For detailed infrastructure documentation, see [`/docs/architecture-decisions.md`](./docs/architecture-decisions.md) and [`/infra/README.md`](./infra/README.md).
