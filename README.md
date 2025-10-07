@@ -31,13 +31,79 @@
 
 ## Infrastructure & Deployment
 
+This portfolio is deployed using **enterprise-grade Infrastructure as Code** practices, demonstrating professional DevOps capabilities and cloud architecture knowledge.
+
+### 🏗️ **Architecture Overview**
+
 - **Cloud Provider**: Amazon Web Services (AWS)
 - **Infrastructure as Code**: Terraform for complete automation
-- **Compute**: EC2 t3.medium with auto-configuration
-- **Networking**: Elastic IP, Security Groups, Nginx reverse proxy
-- **Containers**: Docker with dual registry strategy (Docker Hub + ECR)
+- **Compute**: EC2 t3.medium with automated configuration
+- **Load Balancing**: Nginx reverse proxy for professional routing
+- **Containerization**: Docker with dual registry strategy (Docker Hub + ECR)
 - **Storage**: S3 buckets for media assets with environment isolation
-- **Domain**: Custom domain (bbinteractive.io) with professional DNS setup
-- **Automation**: Zero-manual deployment with systemd service management
+- **Networking**: Elastic IP (44.250.92.40), Security Groups, VPC integration
+- **Domain**: Custom domain (bbinteractive.io) with DNS management
 
-For detailed infrastructure documentation, see [`/docs/architecture-decisions.md`](./docs/architecture-decisions.md) and [`/infra/README.md`](./infra/README.md).
+### 🚀 **Deployment Process**
+
+The entire infrastructure can be deployed or destroyed with single commands:
+
+```bash
+# Deploy complete infrastructure
+cd infra/
+terraform plan    # Review changes
+terraform apply   # Deploy infrastructure (creates 25+ AWS resources)
+
+# Destroy infrastructure  
+terraform destroy # Clean teardown of all resources
+```
+
+**What happens during deployment:**
+1. **AWS Resources Created**: EC2 instance, Elastic IP, Security Groups, IAM roles, S3 buckets, ECR repositories
+2. **Automated Configuration**: Docker, Nginx, and application services installed via user_data scripts
+3. **Container Deployment**: Development containers pulled from Docker Hub and started automatically
+4. **Service Management**: Systemd services configured for auto-restart and boot persistence
+5. **Domain Pointing**: DNS A records pointed to Elastic IP for live website access
+
+### 🔄 **Container Management**
+
+**Dual Registry Strategy:**
+- **Development**: Images from Docker Hub (`bhbaysinger/portfolio-*:dev`)
+- **Production**: Images from Amazon ECR (`*.dkr.ecr.us-west-2.amazonaws.com/bb-portfolio-*:latest`)
+
+**Container Profiles:**
+```bash
+# Switch between environments
+./portfolio-management.sh switch dev   # Use Docker Hub images
+./portfolio-management.sh switch prod  # Use ECR images
+./portfolio-management.sh status       # Check container health
+./portfolio-management.sh deploy       # Deploy from ECR
+```
+
+### 🛡️ **Production Features**
+
+- **Zero Manual Configuration**: Everything automated via Terraform and user_data scripts
+- **Auto-Healing**: Systemd services restart containers on failure
+- **Environment Isolation**: Separate S3 buckets and configurations for dev/staging/prod
+- **Security**: IAM roles with least-privilege access, encrypted storage, security groups
+- **Scalability Ready**: Architecture supports load balancers, auto-scaling, and CDN integration
+- **Cost Optimized**: Resources sized appropriately with lifecycle policies for cleanup
+
+### 📊 **Infrastructure Validation**
+
+This deployment demonstrates:
+- **Infrastructure as Code** mastery with Terraform
+- **Container orchestration** with Docker and systemd
+- **Cloud architecture** design and implementation
+- **DevOps automation** and best practices
+- **Professional deployment** workflows and documentation
+- **System reliability** with auto-restart and monitoring capabilities
+
+The infrastructure successfully passed **complete recreation testing** - the entire environment was destroyed and recreated to verify automation works flawlessly.
+
+### 📚 **Documentation**
+
+For detailed technical documentation:
+- **Architecture Decisions**: [`/docs/architecture-decisions.md`](./docs/architecture-decisions.md)
+- **Infrastructure Guide**: [`/infra/README.md`](./infra/README.md)
+- **Deployment Instructions**: [`/DEPLOYMENT.md`](./DEPLOYMENT.md)
