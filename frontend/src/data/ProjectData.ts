@@ -30,7 +30,7 @@ async function fetchPortfolioProjects(opts?: {
     "NEXT_PUBLIC_BACKEND_URL",
   ]);
 
-  // Debug: Log what we're looking for and what we found
+  // Debug: Log what we're looking for and what we found (force rebuild 2025-10-07)
   console.log(`ProjectData Debug - ENV_PROFILE: ${profile}, prefix: "${prefix}", isServer: ${isServer}`);
   console.log(`ProjectData Debug - Looking for: ${prefix}BACKEND_INTERNAL_URL, ${prefix}NEXT_PUBLIC_BACKEND_URL, NEXT_PUBLIC_BACKEND_URL`);
   console.log(`ProjectData Debug - Found base: "${base}"`);
