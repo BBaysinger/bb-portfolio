@@ -108,12 +108,12 @@ jobs:
         env:
           # Ensure profile and backend base are available to prebuild guard and Next.js
           ENV_PROFILE: ${{ github.ref == 'refs/heads/main' && 'prod' || 'dev' }}
-          # Use public backend URLs for build-time data fetching (generateStaticParams)
-          PROD_BACKEND_INTERNAL_URL: ${{ secrets.PROD_BACKEND_URL }}
-          DEV_BACKEND_INTERNAL_URL: ${{ secrets.DEV_BACKEND_URL }}
+          # Backend URLs for build-time and runtime (consistent naming)
+          PROD_BACKEND_INTERNAL_URL: ${{ secrets.PROD_BACKEND_INTERNAL_URL }}
+          DEV_BACKEND_INTERNAL_URL: ${{ secrets.DEV_BACKEND_INTERNAL_URL }}
           # Next.js client-side exposed environment variables (NEXT_PUBLIC_*)
-          PROD_NEXT_PUBLIC_BACKEND_URL: ${{ secrets.PROD_BACKEND_URL }}
-          DEV_NEXT_PUBLIC_BACKEND_URL: ${{ secrets.DEV_BACKEND_URL }}
+          PROD_NEXT_PUBLIC_BACKEND_URL: ${{ secrets.PROD_NEXT_PUBLIC_BACKEND_URL }}
+          DEV_NEXT_PUBLIC_BACKEND_URL: ${{ secrets.DEV_NEXT_PUBLIC_BACKEND_URL }}
         run: npm run build:when-ready # Health check + Next.js build with SSG feedback
 
       - name: Test frontend
@@ -335,13 +335,12 @@ jobs:
             NODE_ENV=production
             ENV_PROFILE=prod
             # Internal backend URL used for server-side fetch and rewrites (container-to-container)
-            BACKEND_INTERNAL_URL=http://backend-prod:3000
+            BACKEND_INTERNAL_URL=${{ secrets.PROD_BACKEND_INTERNAL_URL }}
             # Backend URL exposed to browser for client-side API calls (public URL)
-            NEXT_PUBLIC_BACKEND_URL=${{ secrets.PROD_BACKEND_URL }}
+            NEXT_PUBLIC_BACKEND_URL=${{ secrets.PROD_NEXT_PUBLIC_BACKEND_URL }}
             # Prefixed environment variables (ENV_PROFILE=prod means PROD_ prefix)
-            # Use internal URLs for server-side calls, public URLs for client-side
-            PROD_BACKEND_INTERNAL_URL=http://backend-prod:3000
-            PROD_NEXT_PUBLIC_BACKEND_URL=${{ secrets.PROD_BACKEND_URL }}
+            PROD_BACKEND_INTERNAL_URL=${{ secrets.PROD_BACKEND_INTERNAL_URL }}
+            PROD_NEXT_PUBLIC_BACKEND_URL=${{ secrets.PROD_NEXT_PUBLIC_BACKEND_URL }}
             EOF
 
             # ===============================================================
@@ -536,13 +535,12 @@ jobs:
             NODE_ENV=development
             ENV_PROFILE=dev
             # Internal backend URL used for server-side fetch and rewrites (container-to-container)
-            BACKEND_INTERNAL_URL=http://backend-dev:3000
+            BACKEND_INTERNAL_URL=${{ secrets.DEV_BACKEND_INTERNAL_URL }}
             # Backend URL exposed to browser for client-side API calls (public URL)
-            NEXT_PUBLIC_BACKEND_URL=${{ secrets.DEV_BACKEND_URL }}
+            NEXT_PUBLIC_BACKEND_URL=${{ secrets.DEV_NEXT_PUBLIC_BACKEND_URL }}
             # Prefixed environment variables (ENV_PROFILE=dev means DEV_ prefix)
-            # Use internal URLs for server-side calls, public URLs for client-side
-            DEV_BACKEND_INTERNAL_URL=http://backend-dev:3000
-            DEV_NEXT_PUBLIC_BACKEND_URL=${{ secrets.DEV_BACKEND_URL }}
+            DEV_BACKEND_INTERNAL_URL=${{ secrets.DEV_BACKEND_INTERNAL_URL }}
+            DEV_NEXT_PUBLIC_BACKEND_URL=${{ secrets.DEV_NEXT_PUBLIC_BACKEND_URL }}
             EOF
             echo "Environment configuration complete"
 
