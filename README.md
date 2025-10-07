@@ -54,11 +54,12 @@ cd infra/
 terraform plan    # Review changes
 terraform apply   # Deploy infrastructure (creates 25+ AWS resources)
 
-# Destroy infrastructure  
+# Destroy infrastructure
 terraform destroy # Clean teardown of all resources
 ```
 
 **What happens during deployment:**
+
 1. **AWS Resources Created**: EC2 instance, Elastic IP, Security Groups, IAM roles, S3 buckets, ECR repositories
 2. **Automated Configuration**: Docker, Nginx, and application services installed via user_data scripts
 3. **Container Deployment**: Development containers pulled from Docker Hub and started automatically
@@ -68,10 +69,12 @@ terraform destroy # Clean teardown of all resources
 ### 🔄 **Container Management**
 
 **Dual Registry Strategy:**
+
 - **Development**: Images from Docker Hub (`bhbaysinger/portfolio-*:dev`)
 - **Production**: Images from Amazon ECR (`*.dkr.ecr.us-west-2.amazonaws.com/bb-portfolio-*:latest`)
 
 **Container Profiles:**
+
 ```bash
 # Switch between environments
 ./portfolio-management.sh switch dev   # Use Docker Hub images
@@ -92,6 +95,7 @@ terraform destroy # Clean teardown of all resources
 ### 📊 **Infrastructure Validation**
 
 This deployment demonstrates:
+
 - **Infrastructure as Code** mastery with Terraform
 - **Container orchestration** with Docker and systemd
 - **Cloud architecture** design and implementation
@@ -104,6 +108,7 @@ The infrastructure successfully passed **complete recreation testing** - the ent
 ### 📚 **Documentation**
 
 For detailed technical documentation:
+
 - **Architecture Decisions**: [`/docs/architecture-decisions.md`](./docs/architecture-decisions.md)
 - **Infrastructure Guide**: [`/infra/README.md`](./infra/README.md)
 - **Deployment Instructions**: [`/DEPLOYMENT.md`](./DEPLOYMENT.md)
