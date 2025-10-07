@@ -334,14 +334,14 @@ jobs:
             cat > frontend/.env.prod << EOF
             NODE_ENV=production
             ENV_PROFILE=prod
-            # Internal backend URL used for server-side fetch and rewrites (container-to-container)
-            BACKEND_INTERNAL_URL=${{ secrets.PROD_BACKEND_INTERNAL_URL }}
-            # Backend URL exposed to browser for client-side API calls (public URL)
-            NEXT_PUBLIC_BACKEND_URL=${{ secrets.PROD_NEXT_PUBLIC_BACKEND_URL }}
             # Prefixed environment variables (ENV_PROFILE=prod means PROD_ prefix)
             PROD_BACKEND_INTERNAL_URL=${{ secrets.PROD_BACKEND_INTERNAL_URL }}
             PROD_NEXT_PUBLIC_BACKEND_URL=${{ secrets.PROD_NEXT_PUBLIC_BACKEND_URL }}
             EOF
+            
+            # Debug: Show environment file contents
+            echo "📋 Frontend .env.prod contents:"
+            cat frontend/.env.prod
 
             # ===============================================================
             # CONTAINER DEPLOYMENT
@@ -386,6 +386,10 @@ jobs:
             echo "Final deployment status:"
             sudo docker ps
             sudo AWS_ACCOUNT_ID=$AWS_ACCOUNT_ID COMPOSE_PROFILES=prod docker compose ps
+
+            # Debug: Check environment variables in running container
+            echo "🔍 Checking frontend container environment:"
+            sudo docker exec portfolio-frontend-prod env | grep -E "(BACKEND|NEXT_PUBLIC)" || echo "⚠️ No backend environment variables found"
 
             echo "Production deployment complete at $(date)!"
 
@@ -534,10 +538,6 @@ jobs:
             cat > frontend/.env.dev << EOF
             NODE_ENV=development
             ENV_PROFILE=dev
-            # Internal backend URL used for server-side fetch and rewrites (container-to-container)
-            BACKEND_INTERNAL_URL=${{ secrets.DEV_BACKEND_INTERNAL_URL }}
-            # Backend URL exposed to browser for client-side API calls (public URL)
-            NEXT_PUBLIC_BACKEND_URL=${{ secrets.DEV_NEXT_PUBLIC_BACKEND_URL }}
             # Prefixed environment variables (ENV_PROFILE=dev means DEV_ prefix)
             DEV_BACKEND_INTERNAL_URL=${{ secrets.DEV_BACKEND_INTERNAL_URL }}
             DEV_NEXT_PUBLIC_BACKEND_URL=${{ secrets.DEV_NEXT_PUBLIC_BACKEND_URL }}

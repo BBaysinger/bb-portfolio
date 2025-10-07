@@ -27,11 +27,10 @@ const nextConfig: NextConfig = {
     };
     // Canonical backends only: prefer BACKEND_INTERNAL_URL (prefixed or not),
     // with an optional fallback to NEXT_PUBLIC_BACKEND_URL for flexibility.
-    const internalApi =
-      pickValue(
-        `${prefix}BACKEND_INTERNAL_URL`,
-        `${prefix}NEXT_PUBLIC_BACKEND_URL`,
-      ) || pickValue("BACKEND_INTERNAL_URL", "NEXT_PUBLIC_BACKEND_URL");
+    const internalApi = pickValue(
+      `${prefix}BACKEND_INTERNAL_URL`,
+      `${prefix}NEXT_PUBLIC_BACKEND_URL`,
+    );
 
     if (!internalApi) return [];
 
@@ -40,7 +39,7 @@ const nextConfig: NextConfig = {
     if (!/^https?:\/\//i.test(base)) {
       throw new Error(
         `Invalid BACKEND base URL for rewrites: ${base}. ` +
-          `Set ${prefix}BACKEND_INTERNAL_URL or BACKEND_INTERNAL_URL to a http(s) URL.`,
+          `Set ${prefix}BACKEND_INTERNAL_URL to a http(s) URL.`,
       );
     }
     return [
