@@ -20,9 +20,7 @@ async function buildWhenReady() {
 
     const backendUrl =
       process.env[`${prefix}BACKEND_INTERNAL_URL`] ||
-      process.env[`${prefix}NEXT_PUBLIC_BACKEND_URL`] ||
-      process.env.BACKEND_INTERNAL_URL ||
-      process.env.NEXT_PUBLIC_BACKEND_URL;
+      process.env[`${prefix}NEXT_PUBLIC_BACKEND_URL`];
 
     if (!backendUrl) {
       console.log(
