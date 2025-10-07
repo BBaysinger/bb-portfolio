@@ -111,6 +111,9 @@ jobs:
           # Use public backend URLs for build-time data fetching (generateStaticParams)
           PROD_BACKEND_INTERNAL_URL: ${{ secrets.PROD_BACKEND_URL }}
           DEV_BACKEND_INTERNAL_URL: ${{ secrets.DEV_BACKEND_URL }}
+          # Next.js client-side exposed environment variables (NEXT_PUBLIC_*)
+          PROD_NEXT_PUBLIC_BACKEND_URL: ${{ secrets.PROD_BACKEND_URL }}
+          DEV_NEXT_PUBLIC_BACKEND_URL: ${{ secrets.DEV_BACKEND_URL }}
         run: npm run build:when-ready # Health check + Next.js build with SSG feedback
 
       - name: Test frontend
