@@ -73,7 +73,7 @@ resource "aws_eip" "portfolio_ip" {
 # EC2 Instance
 resource "aws_instance" "portfolio" {
   ami           = "ami-06a974f9b8a97ecf2" # Amazon Linux 2023 AMI ID for us-west-2 (2023.8.20250915.0)
-  instance_type = "t3.small"
+  instance_type = "t3.medium"
   key_name      = "bb-portfolio-site-key" # must exist in AWS console
 
   vpc_security_group_ids = [aws_security_group.portfolio_sg.id]
@@ -97,11 +97,176 @@ resource "aws_instance" "portfolio" {
   user_data = <<-EOF
     #!/bin/bash
     yum update -y
-    yum install -y docker git
+    yum install -y docker git nginx
+    
+    # Configure Docker
     systemctl enable docker
     systemctl start docker
+    
+    # Configure SSM Agent
     systemctl enable amazon-ssm-agent
     systemctl start amazon-ssm-agent
+    
+    # Add ec2-user to docker group for easier management
+    usermod -aG docker ec2-user
+    
+    # Configure Nginx
+    systemctl enable nginx
+    
+    # Create Nginx configuration for portfolio
+    cat > /etc/nginx/conf.d/portfolio.conf << 'NGINX_EOF'
+server {
+    listen 80;
+    server_name bbinteractive.io www.bbinteractive.io _;
+    
+    # Frontend proxy to development container (port 4000)
+    location / {
+        proxy_pass http://localhost:4000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+    }
+    
+    # API proxy to development backend (port 4001)
+    location /api/ {
+        proxy_pass http://localhost:4001/api/;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+NGINX_EOF
+    
+    # Disable default Nginx server block by commenting it out
+    sed -i '/^    server {/,/^    }/s/^/#/' /etc/nginx/nginx.conf
+    
+    # Test and start Nginx
+    nginx -t && systemctl start nginx
+    
+    # Setup Docker deployment directory and files
+    mkdir -p /home/ec2-user/portfolio
+    cd /home/ec2-user/portfolio
+    
+    # Create docker-compose.yml for the portfolio application
+    cat > /home/ec2-user/portfolio/docker-compose.yml << 'COMPOSE_EOF'
+services:
+  # =============================================================================
+  # PRODUCTION CONTAINERS (ECR images, for production deployment)
+  # =============================================================================
+  frontend-prod:
+    container_name: portfolio-frontend-prod
+    image: ${aws_ecr_repository.frontend.repository_url}:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - ENV_PROFILE=prod
+    profiles:
+      - prod
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  backend-prod:
+    container_name: portfolio-backend-prod
+    image: ${aws_ecr_repository.backend.repository_url}:latest
+    ports:
+      - "3001:3000"
+    environment:
+      - NODE_ENV=production
+      - ENV_PROFILE=prod
+    profiles:
+      - prod
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # =============================================================================
+  # DEVELOPMENT CONTAINERS (Docker Hub images, for fallback/development)
+  # =============================================================================
+  frontend-dev:
+    container_name: portfolio-frontend-dev
+    image: bhbaysinger/portfolio-frontend:dev
+    ports:
+      - "4000:3000"
+    environment:
+      - NODE_ENV=development
+      - ENV_PROFILE=dev
+    profiles:
+      - dev
+    restart: unless-stopped
+
+  backend-dev:
+    container_name: portfolio-backend-dev  
+    image: bhbaysinger/portfolio-backend:dev
+    ports:
+      - "4001:3000"
+    environment:
+      - NODE_ENV=development
+      - ENV_PROFILE=dev
+    profiles:
+      - dev
+    restart: unless-stopped
+COMPOSE_EOF
+
+    # Set proper ownership for ec2-user
+    chown -R ec2-user:ec2-user /home/ec2-user/portfolio
+    
+    # Create a startup script for the containers
+    cat > /home/ec2-user/portfolio/start-containers.sh << 'SCRIPT_EOF'
+#!/bin/bash
+cd /home/ec2-user/portfolio
+
+# Start development containers by default (they work reliably)
+sudo docker compose --profile dev up -d
+
+# Log the startup
+echo "$(date): Portfolio containers started" >> /var/log/portfolio-startup.log
+SCRIPT_EOF
+
+    chmod +x /home/ec2-user/portfolio/start-containers.sh
+    
+    # Create systemd service for automatic container startup
+    cat > /etc/systemd/system/portfolio.service << 'SERVICE_EOF'
+[Unit]
+Description=Portfolio Docker Containers
+After=docker.service nginx.service
+Requires=docker.service
+BindsTo=docker.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+WorkingDirectory=/home/ec2-user/portfolio
+ExecStart=/home/ec2-user/portfolio/start-containers.sh
+User=root
+Group=root
+
+[Install]
+WantedBy=multi-user.target
+SERVICE_EOF
+
+    # Enable and start the portfolio service
+    systemctl daemon-reload
+    systemctl enable portfolio.service
+    
+    # Start containers after a short delay to ensure Docker is fully ready
+    sleep 10
+    systemctl start portfolio.service
+    
   EOF
 
   tags = {
@@ -116,6 +281,27 @@ output "portfolio_instance_ip" {
 
 output "portfolio_elastic_ip" {
   value = aws_eip.portfolio_ip.public_ip
+  description = "The Elastic IP address assigned to the portfolio instance. Point your domain DNS A records to this IP."
+}
+
+output "portfolio_ssh_command" {
+  value = "ssh -i ~/.ssh/bb-portfolio-site-key.pem ec2-user@${aws_eip.portfolio_ip.public_ip}"
+  description = "SSH command to connect to the portfolio instance"
+}
+
+output "portfolio_website_url" {
+  value = "http://${aws_eip.portfolio_ip.public_ip}"
+  description = "Direct URL to access the portfolio website"
+}
+
+output "ecr_frontend_repository_url" {
+  value = aws_ecr_repository.frontend.repository_url
+  description = "ECR repository URL for frontend images"
+}
+
+output "ecr_backend_repository_url" {
+  value = aws_ecr_repository.backend.repository_url
+  description = "ECR repository URL for backend images"
 }
 
 resource "aws_eip_association" "portfolio_assoc" {
