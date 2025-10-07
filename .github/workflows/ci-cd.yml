@@ -339,7 +339,8 @@ jobs:
             # Backend URL exposed to browser for client-side API calls (public URL)
             NEXT_PUBLIC_BACKEND_URL=${{ secrets.PROD_BACKEND_URL }}
             # Prefixed environment variables (ENV_PROFILE=prod means PROD_ prefix)
-            PROD_BACKEND_INTERNAL_URL=${{ secrets.PROD_BACKEND_URL }}
+            # Use internal URLs for server-side calls, public URLs for client-side
+            PROD_BACKEND_INTERNAL_URL=http://backend-prod:3000
             PROD_NEXT_PUBLIC_BACKEND_URL=${{ secrets.PROD_BACKEND_URL }}
             EOF
 
@@ -539,7 +540,8 @@ jobs:
             # Backend URL exposed to browser for client-side API calls (public URL)
             NEXT_PUBLIC_BACKEND_URL=${{ secrets.DEV_BACKEND_URL }}
             # Prefixed environment variables (ENV_PROFILE=dev means DEV_ prefix)
-            DEV_BACKEND_INTERNAL_URL=${{ secrets.DEV_BACKEND_URL }}
+            # Use internal URLs for server-side calls, public URLs for client-side
+            DEV_BACKEND_INTERNAL_URL=http://backend-dev:3000
             DEV_NEXT_PUBLIC_BACKEND_URL=${{ secrets.DEV_BACKEND_URL }}
             EOF
             echo "Environment configuration complete"
