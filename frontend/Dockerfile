@@ -68,11 +68,13 @@ COPY --from=deps /app/node_modules ./node_modules
 # Copy all source code
 COPY . .
 
-# Accept build-time configuration for environment profile and prefixed backend URL
+# Accept build-time configuration for environment profile and prefixed backend URLs
 # so Next.js can bake correct rewrites and server-side fetch base.
 ARG ENV_PROFILE
+ARG DEV_BACKEND_INTERNAL_URL
 ARG PROD_BACKEND_INTERNAL_URL
 ENV ENV_PROFILE=${ENV_PROFILE}
+ENV DEV_BACKEND_INTERNAL_URL=${DEV_BACKEND_INTERNAL_URL}
 ENV PROD_BACKEND_INTERNAL_URL=${PROD_BACKEND_INTERNAL_URL}
 
 # Build the Next.js application with the detected package manager

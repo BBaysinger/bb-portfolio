@@ -164,7 +164,7 @@ jobs:
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: bb-portfolio-frontend
-          IMAGE_TAG: latest
+          IMAGE_TAG: ${{ github.sha }}
         run: |
           echo "Building frontend production image..."
           docker build --no-cache \
@@ -173,13 +173,16 @@ jobs:
             -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./frontend
           echo "📤 Pushing frontend image to ECR..."
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          echo "Frontend ECR push complete: $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+          # Also tag and push as latest for docker-compose compatibility
+          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          echo "Frontend ECR push complete: $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG and :latest"
 
       - name: Build and push backend-prod to ECR
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: bb-portfolio-backend
-          IMAGE_TAG: latest
+          IMAGE_TAG: ${{ github.sha }}
         run: |
           echo "Building backend production image..."
           docker build --no-cache \
@@ -188,7 +191,10 @@ jobs:
             -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./backend
           echo "📤 Pushing backend image to ECR..."
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          echo "Backend ECR push complete: $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+          # Also tag and push as latest for docker-compose compatibility  
+          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          echo "Backend ECR push complete: $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG and :latest"
 
       # =======================================================================
       # EC2 PRODUCTION DEPLOYMENT
@@ -438,6 +444,7 @@ jobs:
           # Build frontend dev image  
           docker build \
             --build-arg ENV_PROFILE=dev \
+            --build-arg DEV_BACKEND_INTERNAL_URL=${{ secrets.DEV_BACKEND_INTERNAL_URL }} \
             -t bhbaysinger/portfolio-frontend:dev ./frontend
 
           echo "📤 Pushing images to Docker Hub..."
