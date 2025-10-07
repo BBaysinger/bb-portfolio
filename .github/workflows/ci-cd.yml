@@ -335,6 +335,9 @@ jobs:
             BACKEND_INTERNAL_URL=http://backend-prod:3000
             # Backend URL exposed to browser for client-side API calls
             NEXT_PUBLIC_BACKEND_URL=http://backend-prod:3000
+            # Prefixed environment variables (ENV_PROFILE=prod means PROD_ prefix)
+            PROD_BACKEND_INTERNAL_URL=http://backend-prod:3000
+            PROD_NEXT_PUBLIC_BACKEND_URL=http://backend-prod:3000
             EOF
 
             # ===============================================================
@@ -529,6 +532,8 @@ jobs:
             ENV_PROFILE=dev
             BACKEND_INTERNAL_URL=http://backend-dev:3000
             NEXT_PUBLIC_BACKEND_URL=http://backend-dev:3000
+            DEV_BACKEND_INTERNAL_URL=http://backend-dev:3000
+            DEV_NEXT_PUBLIC_BACKEND_URL=http://backend-dev:3000
             EOF
             echo "Environment configuration complete"
 
