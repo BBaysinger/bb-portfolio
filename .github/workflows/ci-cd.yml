@@ -167,7 +167,7 @@ jobs:
           IMAGE_TAG: latest
         run: |
           echo "Building frontend production image..."
-          docker build \
+          docker build --no-cache \
             --build-arg ENV_PROFILE=prod \
             --build-arg PROD_BACKEND_INTERNAL_URL=${{ secrets.PROD_BACKEND_INTERNAL_URL }} \
             -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./frontend
@@ -182,7 +182,7 @@ jobs:
           IMAGE_TAG: latest
         run: |
           echo "Building backend production image..."
-          docker build \
+          docker build --no-cache \
             --build-arg ENV_PROFILE=prod \
             --build-arg PROD_MONGODB_URI=mongodb://localhost:27017/dummy-db \
             -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./backend
