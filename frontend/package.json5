@@ -5,6 +5,7 @@
   "version": "0.1.0",
   // Prevents accidental publishing to npm registry
   "private": true,
+  "type": "module",
   // Frontend development and build scripts
   "scripts": {
     // Start Next.js development server with hot reload
@@ -13,6 +14,7 @@
     "prebuild": "node ./scripts/check-required-env.js",
     // Build production-optimized static site
     "build": "next build",
+    "build:when-ready": "node ./scripts/build-when-ready.mjs",
     // Preview the built static site using serve
     "preview": "npx serve out",
     // Start Next.js production server
@@ -60,15 +62,15 @@
     // React DOM TypeScript definitions (v19 for latest React features)
     "@types/react-dom": "^19",
     // TypeScript-specific ESLint rules and best practices
-    "@typescript-eslint/eslint-plugin": "^8.45.0",
+    "@typescript-eslint/eslint-plugin": "^8.46.0",
     // TypeScript parser for ESLint to understand TS syntax
-    "@typescript-eslint/parser": "^8.45.0",
+    "@typescript-eslint/parser": "^8.46.0",
     // JavaScript/TypeScript linting engine (v9 for latest rules)
     "eslint": "^9",
     // Next.js ESLint configuration with React and accessibility rules
     "eslint-config-next": "15.5.4",
     // ESLint plugin for React Hooks rules and best practices
-    "eslint-plugin-react-hooks": "^6.1.0",
+    "eslint-plugin-react-hooks": "^6.1.1",
     // ESLint plugin for React Refresh (fast refresh) compatibility
     "eslint-plugin-react-refresh": "^0.4.23",
     // Opinionated code formatter for consistent style
