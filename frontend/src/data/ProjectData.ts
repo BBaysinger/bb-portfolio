@@ -30,6 +30,17 @@ async function fetchPortfolioProjects(opts?: {
     "NEXT_PUBLIC_BACKEND_URL",
   ]);
 
+  // Debug: Log what we're looking for and what we found
+  console.log(`ProjectData Debug - ENV_PROFILE: ${envProfile}, prefix: "${prefix}", isServer: ${isServer}`);
+  console.log(`ProjectData Debug - Looking for: ${prefix}BACKEND_INTERNAL_URL, ${prefix}NEXT_PUBLIC_BACKEND_URL, NEXT_PUBLIC_BACKEND_URL`);
+  console.log(`ProjectData Debug - Found base: "${base}"`);
+  console.log(`ProjectData Debug - Available env vars:`, {
+    [`${prefix}BACKEND_INTERNAL_URL`]: process.env[`${prefix}BACKEND_INTERNAL_URL`],
+    [`${prefix}NEXT_PUBLIC_BACKEND_URL`]: process.env[`${prefix}NEXT_PUBLIC_BACKEND_URL`],
+    'NEXT_PUBLIC_BACKEND_URL': process.env.NEXT_PUBLIC_BACKEND_URL,
+    'ENV_PROFILE': process.env.ENV_PROFILE
+  });
+
   // Conventional: rely on Next.js rewrites for /api/* on the server.
   // Fail fast if .env is incomplete so misconfigurations are obvious.
   const isHttpUrl = (s: string) => /^https?:\/\//i.test(s);
