@@ -402,6 +402,7 @@ jobs:
   rebuild-dev:
     if: github.ref == 'refs/heads/dev' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
+    # Run independently - don't wait for build-and-test to complete
     steps:
       # Checkout source code for building Docker images
       - name: Checkout code
