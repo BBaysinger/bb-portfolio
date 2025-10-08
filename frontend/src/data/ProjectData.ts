@@ -39,20 +39,10 @@ async function fetchPortfolioProjects(opts?: {
   // Conventional: rely on Next.js rewrites for /api/* on the server.
   // Fail fast if .env is incomplete so misconfigurations are obvious.
   const isHttpUrl = (s: string) => /^https?:\/\//i.test(s);
-  
-  // During build time (NODE_ENV=production but no actual backend available),
-  // be more lenient to avoid baking build-time errors into the compiled output
-  const isBuildTime = process.env.NODE_ENV === 'production' && !process.env.VERCEL && !process.env.CI;
-  
-  if (isServer && !isHttpUrl(base) && !isBuildTime) {
+  if (isServer && !isHttpUrl(base)) {
     const msg = `Backend URL is not configured. Expected ${prefix}BACKEND_INTERNAL_URL or ${prefix}NEXT_PUBLIC_BACKEND_URL to be a valid http(s) URL (found: "${base}").`;
     console.error(`ProjectData ERROR: ${msg}`);
     throw new Error(msg);
-  }
-  
-  // During build time, log warning but don't throw
-  if (isServer && !isHttpUrl(base) && isBuildTime) {
-    console.warn(`ProjectData BUILD-TIME WARNING: Backend URL not configured. Expected ${prefix}BACKEND_INTERNAL_URL or ${prefix}NEXT_PUBLIC_BACKEND_URL (found: "${base}"). This is normal during build time.`);
   }
 
   // Build URL: server uses absolute backend URL; client can use relative path
