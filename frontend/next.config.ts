@@ -10,36 +10,50 @@ const nextConfig: NextConfig = {
   },
   trailingSlash: true,
   async rewrites() {
-    // Prefer ENV_PROFILE-prefixed variables first (e.g., PROD_BACKEND_INTERNAL_URL),
-    // then fall back to unprefixed variants
     const profile = (
       process.env.ENV_PROFILE ||
       process.env.NODE_ENV ||
       ""
     ).toLowerCase();
     const prefix = profile ? `${profile.toUpperCase()}_` : "";
+    
+    console.log("[next.config.ts] DEBUG - Environment info:", {
+      ENV_PROFILE: process.env.ENV_PROFILE,
+      NODE_ENV: process.env.NODE_ENV,
+      profile,
+      prefix,
+      availableEnvVars: Object.keys(process.env).filter(key => 
+        key.includes('BACKEND') || key.includes('API')
+      ).sort()
+    });
+    
     const pickValue = (...names: string[]) => {
       for (const n of names) {
         const v = process.env[n];
+        console.log(`[next.config.ts] Checking ${n}:`, v ? '✓ found' : '✗ not found');
         if (v) return v;
       }
       return "";
     };
-    // Canonical backends only: prefer BACKEND_INTERNAL_URL (prefixed or not),
-    // with an optional fallback to NEXT_PUBLIC_BACKEND_URL for flexibility.
+    
+    // Only use prefixed variables now - no backwards compatibility
     const internalApi = pickValue(
       `${prefix}BACKEND_INTERNAL_URL`,
       `${prefix}NEXT_PUBLIC_BACKEND_URL`,
     );
 
-    if (!internalApi) return [];
+    if (!internalApi) {
+      console.error(`[next.config.ts] No backend URL found. Expected: ${prefix}BACKEND_INTERNAL_URL or ${prefix}NEXT_PUBLIC_BACKEND_URL`);
+      return [];
+    }
 
     const base = internalApi.replace(/\/$/, "");
     // Ensure destination is a valid absolute URL for external rewrite
     if (!/^https?:\/\//i.test(base)) {
       throw new Error(
-        `Invalid BACKEND base URL for rewrites: ${base}. ` +
-          `Set ${prefix}BACKEND_INTERNAL_URL to a http(s) URL.`,
+        `[next.config.ts] Invalid backend URL for rewrites: ${base}. ` +
+          `Set ${prefix}BACKEND_INTERNAL_URL to a valid http(s) URL. ` +
+          `Profile: ${profile}, Prefix: ${prefix}`,
       );
     }
     return [
