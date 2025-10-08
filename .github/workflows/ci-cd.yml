@@ -188,6 +188,7 @@ jobs:
         run: |
           echo "Building backend production image..."
           docker build --no-cache \
+            --target runtime \
             --build-arg ENV_PROFILE=prod \
             --build-arg PROD_MONGODB_URI=mongodb://localhost:27017/dummy-db \
             -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./backend
