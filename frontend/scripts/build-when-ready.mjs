@@ -22,9 +22,16 @@ async function buildWhenReady() {
       process.env[`${prefix}BACKEND_INTERNAL_URL`] ||
       process.env[`${prefix}NEXT_PUBLIC_BACKEND_URL`];
 
+    // Check if health check should be skipped
+    const skipHealthCheck = process.env.SKIP_HEALTH_CHECK === "true";
+
     if (!backendUrl) {
       console.log(
         "⚠️  No backend URL configured, proceeding with build anyway...",
+      );
+    } else if (skipHealthCheck) {
+      console.log(
+        "⚡ SKIP_HEALTH_CHECK=true - skipping backend health check, proceeding with build...",
       );
     } else {
       console.log("🔍 Waiting for backend to be ready before building...");
