@@ -65,6 +65,12 @@ services:
     container_name: portfolio-backend-prod
     ports:
       - "3001:3000" # Backend gets xxx1 for production
+    environment:
+      # Core backend environment  
+      - NODE_ENV=production
+      - ENV_PROFILE=prod
+      # Add any production-specific backend environment variables here
+      # Fallback to .env.prod file if environment variables aren't set
     env_file:
       - ./backend/.env.prod
     restart: unless-stopped # Auto-restart on failure/reboot
@@ -87,16 +93,17 @@ services:
     container_name: portfolio-frontend-prod
     ports:
       - "3000:3000" # Frontend gets xxx0 for production
-    env_file:
-      - ./frontend/.env.prod
     environment:
-      # Runtime environment variables from .env.prod (backup to env_file)
+      # Core Next.js environment
       - NODE_ENV=production
       - ENV_PROFILE=prod
-      # These should be populated from the .env.prod file, but adding as backup
+      # Backend connection URLs - these MUST be set for the app to work
       - PROD_BACKEND_INTERNAL_URL=${PROD_BACKEND_INTERNAL_URL}
       - PROD_NEXT_PUBLIC_BACKEND_URL=${PROD_NEXT_PUBLIC_BACKEND_URL}
       - NEXT_PUBLIC_BACKEND_URL=${PROD_NEXT_PUBLIC_BACKEND_URL}
+      # Fallback to .env.prod file if environment variables aren't set
+    env_file:
+      - ./frontend/.env.prod
     restart: unless-stopped # Auto-restart on failure/reboot
     depends_on:
       backend-prod:
