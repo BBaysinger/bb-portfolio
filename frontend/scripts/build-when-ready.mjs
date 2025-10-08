@@ -23,7 +23,7 @@ async function buildWhenReady() {
       process.env[`${prefix}NEXT_PUBLIC_BACKEND_URL`];
 
     // Check if health check should be skipped
-    const skipHealthCheck = 
+    const skipHealthCheck =
       process.env.SKIP_HEALTH_CHECK === "true" ||
       process.env.CI ||
       process.env.GITHUB_ACTIONS ||
