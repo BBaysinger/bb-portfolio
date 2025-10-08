@@ -124,7 +124,8 @@ RUN mkdir .next && chown nextjs:nodejs .next
 
 # Copy the standalone server build (includes only necessary files)
 # Next.js standalone output includes a minimal server.js with embedded dependencies
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+# Due to outputFileTracingRoot, the files are in a frontend/ subdirectory
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone/frontend ./
 
 # Copy static assets generated during build (CSS, JS, images)
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
