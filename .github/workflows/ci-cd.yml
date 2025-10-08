@@ -194,6 +194,7 @@ jobs:
             --build-arg PROD_PAYLOAD_SECRET=${{ secrets.PROD_PAYLOAD_SECRET }} \
             --build-arg PROD_FRONTEND_URL=${{ secrets.PROD_FRONTEND_URL }} \
             --build-arg PROD_S3_BUCKET=${{ secrets.PROD_S3_BUCKET }} \
+            --build-arg PROD_AWS_REGION=${{ secrets.PROD_AWS_REGION }} \
             --build-arg S3_AWS_ACCESS_KEY_ID=${{ secrets.S3_AWS_ACCESS_KEY_ID }} \
             --build-arg S3_AWS_SECRET_ACCESS_KEY=${{ secrets.S3_AWS_SECRET_ACCESS_KEY }} \
             -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./backend
