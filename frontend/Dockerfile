@@ -195,16 +195,13 @@ ENV PROD_NEXT_PUBLIC_BACKEND_URL=${PROD_NEXT_PUBLIC_BACKEND_URL}
 
 # Write env file so Next.js server has runtime access to environment variables
 # This ensures process.env can access these variables during SSR execution
-RUN bash -c "cat <<'EOF' > /app/.env.production.local && \
-echo ENV_PROFILE=${ENV_PROFILE} >> /app/.env.production.local && \
-echo PROD_BACKEND_INTERNAL_URL=${PROD_BACKEND_INTERNAL_URL} >> /app/.env.production.local && \
-echo PROD_NEXT_PUBLIC_BACKEND_URL=${PROD_NEXT_PUBLIC_BACKEND_URL} >> /app/.env.production.local && \
-echo DEV_BACKEND_INTERNAL_URL=${DEV_BACKEND_INTERNAL_URL} >> /app/.env.production.local && \
-echo DEV_NEXT_PUBLIC_BACKEND_URL=${DEV_NEXT_PUBLIC_BACKEND_URL} >> /app/.env.production.local && \
-echo 'Runtime .env.production.local created:' && \
-cat /app/.env.production.local"
-RUN echo "Runtime .env.production.local created with keys:" && \
-    grep -Eo '^[A-Z0-9_]+=' /app/.env.production.local
+RUN echo "ENV_PROFILE=${ENV_PROFILE}" > /app/.env.production.local && \
+    echo "PROD_BACKEND_INTERNAL_URL=${PROD_BACKEND_INTERNAL_URL}" >> /app/.env.production.local && \
+    echo "PROD_NEXT_PUBLIC_BACKEND_URL=${PROD_NEXT_PUBLIC_BACKEND_URL}" >> /app/.env.production.local && \
+    echo "DEV_BACKEND_INTERNAL_URL=${DEV_BACKEND_INTERNAL_URL}" >> /app/.env.production.local && \
+    echo "DEV_NEXT_PUBLIC_BACKEND_URL=${DEV_NEXT_PUBLIC_BACKEND_URL}" >> /app/.env.production.local && \
+    echo "Runtime .env.production.local created with:" && \
+    cat /app/.env.production.local
 
 ENV NEXT_PUBLIC_BACKEND_URL=${PROD_NEXT_PUBLIC_BACKEND_URL}
 
