@@ -170,6 +170,7 @@ jobs:
           docker build --no-cache \
             --build-arg ENV_PROFILE=prod \
             --build-arg PROD_BACKEND_INTERNAL_URL=${{ secrets.PROD_BACKEND_INTERNAL_URL }} \
+            --build-arg PROD_NEXT_PUBLIC_BACKEND_URL=${{ secrets.PROD_NEXT_PUBLIC_BACKEND_URL }} \
             -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./frontend
           echo "📤 Pushing frontend image to ECR..."
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
@@ -445,6 +446,7 @@ jobs:
           docker build \
             --build-arg ENV_PROFILE=dev \
             --build-arg DEV_BACKEND_INTERNAL_URL=${{ secrets.DEV_BACKEND_INTERNAL_URL }} \
+            --build-arg DEV_NEXT_PUBLIC_BACKEND_URL=${{ secrets.DEV_NEXT_PUBLIC_BACKEND_URL }} \
             -t bhbaysinger/portfolio-frontend:dev ./frontend
 
           echo "📤 Pushing images to Docker Hub..."
