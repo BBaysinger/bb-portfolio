@@ -439,6 +439,15 @@ jobs:
             export PROD_BACKEND_INTERNAL_URL="${{ secrets.PROD_BACKEND_INTERNAL_URL }}"
             export PROD_NEXT_PUBLIC_BACKEND_URL="${{ secrets.PROD_NEXT_PUBLIC_BACKEND_URL }}"
             export COMPOSE_PROFILES=prod
+            
+            # Backend environment variables - required for Payload CMS
+            export PROD_MONGODB_URI="${{ secrets.PROD_MONGODB_URI }}"
+            export PROD_PAYLOAD_SECRET="${{ secrets.PROD_PAYLOAD_SECRET }}"
+            export PROD_FRONTEND_URL="${{ secrets.PROD_FRONTEND_URL }}"
+            export S3_AWS_ACCESS_KEY_ID="${{ secrets.S3_AWS_ACCESS_KEY_ID }}"
+            export S3_AWS_SECRET_ACCESS_KEY="${{ secrets.S3_AWS_SECRET_ACCESS_KEY }}"
+            export PROD_AWS_REGION="${{ secrets.PROD_AWS_REGION }}"
+            export PROD_S3_BUCKET="${{ secrets.PROD_S3_BUCKET }}"
 
             echo "🐳 Environment variables for docker-compose:"
             echo "AWS_ACCOUNT_ID: ${AWS_ACCOUNT_ID}"
