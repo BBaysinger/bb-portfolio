@@ -71,6 +71,7 @@ COPY . .
 # Accept build-time configuration for environment profile and prefixed backend URLs
 # so Next.js can bake correct rewrites and server-side fetch base.
 ARG ENV_PROFILE
+ARG SKIP_HEALTH_CHECK=true
 ARG DEV_BACKEND_INTERNAL_URL
 ARG PROD_BACKEND_INTERNAL_URL
 ARG DEV_NEXT_PUBLIC_BACKEND_URL
@@ -78,6 +79,7 @@ ARG PROD_NEXT_PUBLIC_BACKEND_URL
 
 # Set environment variables with prefixes (these are available for your app logic)
 ENV ENV_PROFILE=${ENV_PROFILE}
+ENV SKIP_HEALTH_CHECK=${SKIP_HEALTH_CHECK}
 ENV DEV_BACKEND_INTERNAL_URL=${DEV_BACKEND_INTERNAL_URL}
 ENV PROD_BACKEND_INTERNAL_URL=${PROD_BACKEND_INTERNAL_URL}
 ENV DEV_NEXT_PUBLIC_BACKEND_URL=${DEV_NEXT_PUBLIC_BACKEND_URL}

@@ -108,6 +108,8 @@ jobs:
         env:
           # Ensure profile and backend base are available to prebuild guard and Next.js
           ENV_PROFILE: ${{ github.ref == 'refs/heads/main' && 'prod' || 'dev' }}
+          # Skip health check during CI/CD builds (backend not available in build environment)
+          SKIP_HEALTH_CHECK: "true"
           # Backend URLs for build-time and runtime (consistent naming)
           PROD_BACKEND_INTERNAL_URL: ${{ secrets.PROD_BACKEND_INTERNAL_URL }}
           DEV_BACKEND_INTERNAL_URL: ${{ secrets.DEV_BACKEND_INTERNAL_URL }}
@@ -170,6 +172,7 @@ jobs:
           docker build --no-cache \
             --target runner \
             --build-arg ENV_PROFILE=prod \
+            --build-arg SKIP_HEALTH_CHECK=true \
             --build-arg PROD_BACKEND_INTERNAL_URL=${{ secrets.PROD_BACKEND_INTERNAL_URL }} \
             --build-arg PROD_NEXT_PUBLIC_BACKEND_URL=${{ secrets.PROD_NEXT_PUBLIC_BACKEND_URL }} \
             -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./frontend
@@ -497,6 +500,7 @@ jobs:
           # Build frontend dev image  
           docker build \
             --build-arg ENV_PROFILE=dev \
+            --build-arg SKIP_HEALTH_CHECK=true \
             --build-arg DEV_BACKEND_INTERNAL_URL=${{ secrets.DEV_BACKEND_INTERNAL_URL }} \
             --build-arg DEV_NEXT_PUBLIC_BACKEND_URL=${{ secrets.DEV_NEXT_PUBLIC_BACKEND_URL }} \
             -t bhbaysinger/portfolio-frontend:dev ./frontend
