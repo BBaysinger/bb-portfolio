@@ -75,17 +75,27 @@ ARG DEV_BACKEND_INTERNAL_URL
 ARG PROD_BACKEND_INTERNAL_URL
 ARG DEV_NEXT_PUBLIC_BACKEND_URL
 ARG PROD_NEXT_PUBLIC_BACKEND_URL
+
+# Set environment variables with prefixes (these are available for your app logic)
 ENV ENV_PROFILE=${ENV_PROFILE}
 ENV DEV_BACKEND_INTERNAL_URL=${DEV_BACKEND_INTERNAL_URL}
 ENV PROD_BACKEND_INTERNAL_URL=${PROD_BACKEND_INTERNAL_URL}
 ENV DEV_NEXT_PUBLIC_BACKEND_URL=${DEV_NEXT_PUBLIC_BACKEND_URL}
 ENV PROD_NEXT_PUBLIC_BACKEND_URL=${PROD_NEXT_PUBLIC_BACKEND_URL}
 
+# CRITICAL FIX: Set the standard Next.js environment variables that will be embedded at build time
+# Next.js looks for NEXT_PUBLIC_BACKEND_URL specifically, so we need to set it from the correct prefixed version
+ENV NEXT_PUBLIC_BACKEND_URL=${PROD_NEXT_PUBLIC_BACKEND_URL:-${DEV_NEXT_PUBLIC_BACKEND_URL}}
+ENV BACKEND_INTERNAL_URL=${PROD_BACKEND_INTERNAL_URL:-${DEV_BACKEND_INTERNAL_URL}}
+
 # Debug: Show environment variables before build
 RUN echo "=== DOCKER BUILD DEBUG ===" && \
     echo "ENV_PROFILE: $ENV_PROFILE" && \
     echo "PROD_BACKEND_INTERNAL_URL: $PROD_BACKEND_INTERNAL_URL" && \
     echo "PROD_NEXT_PUBLIC_BACKEND_URL: $PROD_NEXT_PUBLIC_BACKEND_URL" && \
+    echo "🎯 CRITICAL: Next.js will use these variables during build:" && \
+    echo "NEXT_PUBLIC_BACKEND_URL: $NEXT_PUBLIC_BACKEND_URL" && \
+    echo "BACKEND_INTERNAL_URL: $BACKEND_INTERNAL_URL" && \
     echo "Available env vars:" && \
     env | grep -E "(BACKEND|NEXT_PUBLIC|ENV_PROFILE)" | sort && \
     echo "=== END DEBUG ==="
