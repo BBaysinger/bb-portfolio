@@ -81,6 +81,15 @@ ENV PROD_BACKEND_INTERNAL_URL=${PROD_BACKEND_INTERNAL_URL}
 ENV DEV_NEXT_PUBLIC_BACKEND_URL=${DEV_NEXT_PUBLIC_BACKEND_URL}
 ENV PROD_NEXT_PUBLIC_BACKEND_URL=${PROD_NEXT_PUBLIC_BACKEND_URL}
 
+# Debug: Show environment variables before build
+RUN echo "=== DOCKER BUILD DEBUG ===" && \
+    echo "ENV_PROFILE: $ENV_PROFILE" && \
+    echo "PROD_BACKEND_INTERNAL_URL: $PROD_BACKEND_INTERNAL_URL" && \
+    echo "PROD_NEXT_PUBLIC_BACKEND_URL: $PROD_NEXT_PUBLIC_BACKEND_URL" && \
+    echo "Available env vars:" && \
+    env | grep -E "(BACKEND|NEXT_PUBLIC|ENV_PROFILE)" | sort && \
+    echo "=== END DEBUG ==="
+
 # Build the Next.js application with the detected package manager
 # Creates optimized production bundle in .next directory
 RUN \
