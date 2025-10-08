@@ -89,6 +89,14 @@ services:
       - "3000:3000" # Frontend gets xxx0 for production
     env_file:
       - ./frontend/.env.prod
+    environment:
+      # Runtime environment variables from .env.prod (backup to env_file)
+      - NODE_ENV=production
+      - ENV_PROFILE=prod
+      # These should be populated from the .env.prod file, but adding as backup
+      - PROD_BACKEND_INTERNAL_URL=${PROD_BACKEND_INTERNAL_URL}
+      - PROD_NEXT_PUBLIC_BACKEND_URL=${PROD_NEXT_PUBLIC_BACKEND_URL}
+      - NEXT_PUBLIC_BACKEND_URL=${PROD_NEXT_PUBLIC_BACKEND_URL}
     restart: unless-stopped # Auto-restart on failure/reboot
     depends_on:
       backend-prod:

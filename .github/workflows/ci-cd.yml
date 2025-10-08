@@ -391,7 +391,12 @@ jobs:
 
             echo "🚀 Starting production deployment..."
             # Force recreate containers to use new images
-            sudo AWS_ACCOUNT_ID=$AWS_ACCOUNT_ID COMPOSE_PROFILES=prod docker compose up -d --force-recreate --pull always
+            # Pass environment variables explicitly to docker-compose
+            sudo AWS_ACCOUNT_ID=$AWS_ACCOUNT_ID \
+                 PROD_BACKEND_INTERNAL_URL=${{ secrets.PROD_BACKEND_INTERNAL_URL }} \
+                 PROD_NEXT_PUBLIC_BACKEND_URL=${{ secrets.PROD_NEXT_PUBLIC_BACKEND_URL }} \
+                 COMPOSE_PROFILES=prod \
+                 docker compose up -d --force-recreate --pull always
 
             # ===============================================================
             # HEALTH CHECKS AND VALIDATION
