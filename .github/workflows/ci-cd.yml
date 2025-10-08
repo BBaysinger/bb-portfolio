@@ -4,21 +4,7 @@
 # ENVIRONMENT FILES (.env.dev, .env.prod)
 # ===============================================================
 # These files are NOT sourced from the repo during deployment.
-# They are dynamically generated on EC2 by the CI/C                   # Create standard .env file for docker-compose (conventional approach)
-            echo "📋 Creating .env file for docker-compose..."
-            cat > .env << EOF
-AWS_ACCOUNT_ID=${AWS_ACCOUNT_ID}
-PROD_BACKEND_INTERNAL_URL=${PROD_BACKEND_INTERNAL_URL}
-PROD_NEXT_PUBLIC_BACKEND_URL=${PROD_NEXT_PUBLIC_BACKEND_URL}
-COMPOSE_PROFILES=prod
-EOFreate standard .env file for docker-compose (conventional approach)
-            echo "📋 Creating .env file for docker-compose..."
-            cat > .env << EOF
-AWS_ACCOUNT_ID=${AWS_ACCOUNT_ID}
-PROD_BACKEND_INTERNAL_URL=${PROD_BACKEND_INTERNAL_URL}
-PROD_NEXT_PUBLIC_BACKEND_URL=${PROD_NEXT_PUBLIC_BACKEND_URL}
-COMPOSE_PROFILES=prod
-EOFow,
+# They are dynamically generated on EC2 by the CI/CD workflow,
 # with contents exclusively pulled from GitHub Actions secrets and variables.
 # Local development uses .env only.
 # ===============================================================
@@ -417,21 +403,17 @@ jobs:
             echo "PROD_NEXT_PUBLIC_BACKEND_URL: ***"
             echo "COMPOSE_PROFILES: ${COMPOSE_PROFILES}"
             
-            # Create standard .env file for docker-compose (conventional approach)
-            echo "� Creating .env file for docker-compose..."
-            cat > .env << EOF
-AWS_ACCOUNT_ID=$AWS_ACCOUNT_ID
-PROD_BACKEND_INTERNAL_URL=${{ secrets.PROD_BACKEND_INTERNAL_URL }}
-PROD_NEXT_PUBLIC_BACKEND_URL=${{ secrets.PROD_NEXT_PUBLIC_BACKEND_URL }}
-COMPOSE_PROFILES=prod
-EOF
+            # Also source frontend env file to ensure variables are available
+            echo "📋 Sourcing frontend environment variables..."
+            set -a  # Automatically export all variables
+            source frontend/.env.prod
+            set +a  # Stop auto-exporting
             
-            # Show what variables are in the .env file
-            echo "🔍 Contents of .env file:"
-            cat .env | sed 's/=.*/=***/' # Hide values for security
+            # Show what variables are now available
+            echo "🔍 Environment variables available to docker-compose:"
+            env | grep -E "(AWS_ACCOUNT_ID|PROD_BACKEND|NEXT_PUBLIC|COMPOSE_PROFILES)" | sort
             
-            # Use standard docker-compose (it will automatically read .env file)
-            sudo docker compose up -d --force-recreate --pull always
+            sudo -E docker compose up -d --force-recreate --pull always
 
             # ===============================================================
             # HEALTH CHECKS AND VALIDATION
