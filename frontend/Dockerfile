@@ -170,16 +170,6 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 # Copy static assets generated during build (CSS, JS, images)
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-# Switch to non-root user for security
-USER nextjs
-
-# Expose port 3000 for the Next.js server
-EXPOSE 3000
-
-# Configure server networking
-ENV PORT=3000
-ENV HOSTNAME="0.0.0.0"
-
 # Runtime environment variables for production
 # These must be available at runtime for the Next.js server
 ARG ENV_PROFILE
@@ -195,15 +185,27 @@ ENV PROD_NEXT_PUBLIC_BACKEND_URL=${PROD_NEXT_PUBLIC_BACKEND_URL}
 
 # Write env file so Next.js server has runtime access to environment variables
 # This ensures process.env can access these variables during SSR execution
+# Must be done as root before switching to nextjs user
 RUN echo "ENV_PROFILE=${ENV_PROFILE}" > /app/.env.production.local && \
     echo "PROD_BACKEND_INTERNAL_URL=${PROD_BACKEND_INTERNAL_URL}" >> /app/.env.production.local && \
     echo "PROD_NEXT_PUBLIC_BACKEND_URL=${PROD_NEXT_PUBLIC_BACKEND_URL}" >> /app/.env.production.local && \
     echo "DEV_BACKEND_INTERNAL_URL=${DEV_BACKEND_INTERNAL_URL}" >> /app/.env.production.local && \
     echo "DEV_NEXT_PUBLIC_BACKEND_URL=${DEV_NEXT_PUBLIC_BACKEND_URL}" >> /app/.env.production.local && \
+    chown nextjs:nodejs /app/.env.production.local && \
     echo "Runtime .env.production.local created with:" && \
     cat /app/.env.production.local
 
 ENV NEXT_PUBLIC_BACKEND_URL=${PROD_NEXT_PUBLIC_BACKEND_URL}
+
+# Switch to non-root user for security
+USER nextjs
+
+# Expose port 3000 for the Next.js server
+EXPOSE 3000
+
+# Configure server networking
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
 
 # Start the Next.js production server
 CMD ["node", "server.js"]
