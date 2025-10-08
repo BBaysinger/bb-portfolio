@@ -168,6 +168,7 @@ jobs:
         run: |
           echo "Building frontend production image..."
           docker build --no-cache \
+            --target runner \
             --build-arg ENV_PROFILE=prod \
             --build-arg PROD_BACKEND_INTERNAL_URL=${{ secrets.PROD_BACKEND_INTERNAL_URL }} \
             --build-arg PROD_NEXT_PUBLIC_BACKEND_URL=${{ secrets.PROD_NEXT_PUBLIC_BACKEND_URL }} \
