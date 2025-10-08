@@ -42,29 +42,19 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y curl && rm -rf /v
 WORKDIR /app
 
 # Provide build-time environment to satisfy strict env checks in configuration
-# These values are used only during the build and are not persisted to the runtime image
+# Use Docker BuildKit secrets for sensitive data to avoid embedding in image layers
 ARG ENV_PROFILE=prod
-ARG PROD_MONGODB_URI
-ARG DEV_MONGODB_URI
-ARG LOCAL_MONGODB_URI
-ARG PROD_PAYLOAD_SECRET
 ARG PROD_FRONTEND_URL
 ARG PROD_S3_BUCKET
 ARG PROD_AWS_REGION
 ARG DEV_AWS_REGION
-ARG S3_AWS_ACCESS_KEY_ID
-ARG S3_AWS_SECRET_ACCESS_KEY
+
+# Set non-sensitive environment variables
 ENV ENV_PROFILE=${ENV_PROFILE}
-ENV PROD_MONGODB_URI=${PROD_MONGODB_URI}
-ENV DEV_MONGODB_URI=${DEV_MONGODB_URI}
-ENV LOCAL_MONGODB_URI=${LOCAL_MONGODB_URI}
-ENV PROD_PAYLOAD_SECRET=${PROD_PAYLOAD_SECRET}
 ENV PROD_FRONTEND_URL=${PROD_FRONTEND_URL}
 ENV PROD_S3_BUCKET=${PROD_S3_BUCKET}
 ENV PROD_AWS_REGION=${PROD_AWS_REGION}
 ENV DEV_AWS_REGION=${DEV_AWS_REGION}
-ENV S3_AWS_ACCESS_KEY_ID=${S3_AWS_ACCESS_KEY_ID}
-ENV S3_AWS_SECRET_ACCESS_KEY=${S3_AWS_SECRET_ACCESS_KEY}
 
 # Install system dependencies required for native Node.js modules compilation
 # Similar to frontend setup but focused on backend needs
@@ -83,8 +73,21 @@ RUN npm install
 # Copy all source code and configuration files
 COPY . .
 
-# Build the application (TypeScript compilation, asset bundling, etc.)
-RUN npm run build
+# Build the application with secrets available for TypeScript compilation
+# Secrets are mounted only during this step and not persisted to image layers
+RUN --mount=type=secret,id=prod_mongodb_uri \
+    --mount=type=secret,id=dev_mongodb_uri \
+    --mount=type=secret,id=local_mongodb_uri \
+    --mount=type=secret,id=prod_payload_secret \
+    --mount=type=secret,id=s3_aws_access_key_id \
+    --mount=type=secret,id=s3_aws_secret_access_key \
+    export PROD_MONGODB_URI="$(cat /run/secrets/prod_mongodb_uri 2>/dev/null || echo '')" && \
+    export DEV_MONGODB_URI="$(cat /run/secrets/dev_mongodb_uri 2>/dev/null || echo '')" && \
+    export LOCAL_MONGODB_URI="$(cat /run/secrets/local_mongodb_uri 2>/dev/null || echo '')" && \
+    export PROD_PAYLOAD_SECRET="$(cat /run/secrets/prod_payload_secret 2>/dev/null || echo '')" && \
+    export S3_AWS_ACCESS_KEY_ID="$(cat /run/secrets/s3_aws_access_key_id 2>/dev/null || echo '')" && \
+    export S3_AWS_SECRET_ACCESS_KEY="$(cat /run/secrets/s3_aws_secret_access_key 2>/dev/null || echo '')" && \
+    npm run build
 
 # Remove development dependencies to reduce final image size
 # Only production dependencies will remain for the runtime stage
