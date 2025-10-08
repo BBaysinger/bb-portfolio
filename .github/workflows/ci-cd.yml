@@ -306,10 +306,18 @@ jobs:
             else
               echo "🔄 Updating existing repository..."
               cd portfolio
-              git fetch origin
-              git checkout main
-              git reset --hard origin/main
-              cd ..
+              # Check if we're in a git repository
+              if [ -d ".git" ]; then
+                git fetch origin
+                git checkout main
+                git reset --hard origin/main
+              else
+                echo "⚠️ Not a git repository, removing and re-cloning..."
+                cd ..
+                rm -rf portfolio
+                git clone https://github.com/BBaysinger/bb-portfolio.git portfolio
+              fi
+              cd $HOME
             fi
 
             # ===============================================================
@@ -319,6 +327,12 @@ jobs:
             # ===============================================================
             cd ~/portfolio
             echo "⚙️ Creating production environment files..."
+            echo "📁 Current directory: $(pwd)"
+            echo "📂 Directory contents:"
+            ls -la
+
+            # Ensure directories exist
+            mkdir -p backend frontend
 
             # Backend production environment
             cat > backend/.env.prod << EOF
