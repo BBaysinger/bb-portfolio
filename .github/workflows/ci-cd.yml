@@ -4,7 +4,14 @@
 # ENVIRONMENT FILES (.env.dev, .env.prod)
 # ===============================================================
 # These files are NOT sourced from the repo during deployment.
-# They are dynamically generated on EC2 by the CI/C            # Create standard .env file for docker-compose (conventional approach)
+# They are dynamically generated on EC2 by the CI/C                   # Create standard .env file for docker-compose (conventional approach)
+            echo "📋 Creating .env file for docker-compose..."
+            cat > .env << EOF
+AWS_ACCOUNT_ID=${AWS_ACCOUNT_ID}
+PROD_BACKEND_INTERNAL_URL=${PROD_BACKEND_INTERNAL_URL}
+PROD_NEXT_PUBLIC_BACKEND_URL=${PROD_NEXT_PUBLIC_BACKEND_URL}
+COMPOSE_PROFILES=prod
+EOFreate standard .env file for docker-compose (conventional approach)
             echo "📋 Creating .env file for docker-compose..."
             cat > .env << EOF
 AWS_ACCOUNT_ID=${AWS_ACCOUNT_ID}
