@@ -419,7 +419,14 @@ jobs:
 
             # Debug: Check environment variables in running container
             echo "🔍 Checking frontend container environment:"
-            sudo docker exec portfolio-frontend-prod env | grep -E "(BACKEND|NEXT_PUBLIC)" || echo "⚠️ No backend environment variables found"
+            echo "=== All environment variables in frontend container ==="
+            sudo docker exec portfolio-frontend-prod env | sort || echo "⚠️ Could not read container environment"
+            
+            echo "=== Specific backend-related variables ==="
+            sudo docker exec portfolio-frontend-prod env | grep -E "(BACKEND|NEXT_PUBLIC|ENV_PROFILE|NODE_ENV)" || echo "⚠️ No backend environment variables found"
+            
+            echo "=== Contents of .env.prod file in container ==="
+            sudo docker exec portfolio-frontend-prod cat /app/.env.prod 2>/dev/null || echo "⚠️ No .env.prod file found in container"
 
             echo "Production deployment complete at $(date)!"
 
