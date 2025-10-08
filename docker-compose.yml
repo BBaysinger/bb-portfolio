@@ -93,8 +93,15 @@ services:
     container_name: portfolio-frontend-prod
     ports:
       - "3000:3000" # Frontend gets xxx0 for production
-    # All environment variables are loaded from .env.prod file
-    # This avoids docker-compose variable substitution timing issues
+    environment:
+      # Core Next.js environment
+      - NODE_ENV=production
+      - ENV_PROFILE=prod
+      # Backend connection URLs - these MUST be set for the app to work
+      - PROD_BACKEND_INTERNAL_URL=${PROD_BACKEND_INTERNAL_URL}
+      - PROD_NEXT_PUBLIC_BACKEND_URL=${PROD_NEXT_PUBLIC_BACKEND_URL}
+      - NEXT_PUBLIC_BACKEND_URL=${PROD_NEXT_PUBLIC_BACKEND_URL}
+    # Also load from .env.prod file as backup
     env_file:
       - ./frontend/.env.prod
     restart: unless-stopped # Auto-restart on failure/reboot
