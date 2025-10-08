@@ -6,7 +6,7 @@ Your portfolio infrastructure is now **fully automated** with Terraform! Here's 
 
 ### Infrastructure as Code
 
-- ✅ **EC2 Instance**: t3.medium with Elastic IP (35.161.23.114)
+- ✅ **EC2 Instance**: t3.medium with Elastic IP (44.250.92.40)
 - ✅ **Nginx Reverse Proxy**: Automatically configured and running
 - ✅ **Docker Containers**: Development containers running reliably
 - ✅ **ECR Repositories**: Ready for production image deployments
@@ -26,11 +26,11 @@ Your portfolio infrastructure is now **fully automated** with Terraform! Here's 
 Your site is ready! Point your domain DNS to the Elastic IP:
 
 ```
-A Record: bbinteractive.io → 35.161.23.114
-A Record: www.bbinteractive.io → 35.161.23.114
+A Record: bbinteractive.io → 44.250.92.40
+A Record: www.bbinteractive.io → 44.250.92.40
 ```
 
-**Test URL**: http://35.161.23.114 (already working!)
+**Test URL**: http://44.250.92.40 (already working!)
 
 ### 2. Future Infrastructure Changes (Optional)
 
@@ -86,7 +86,7 @@ Everything is now **Infrastructure as Code**! 🎉
 ## Current Architecture
 
 ```
-Internet → CloudFlare DNS → Elastic IP (35.161.23.114)
+Internet → CloudFlare DNS → Elastic IP (44.250.92.40)
     ↓
 AWS EC2 t3.medium
     ├── Nginx (:80) → Frontend Container (:4000)
@@ -143,7 +143,7 @@ If anything goes wrong, you have complete control:
 ./infra/portfolio-management.sh logs frontend-dev
 
 # SSH to server
-ssh -i ~/.ssh/bb-portfolio-site-key.pem ec2-user@35.161.23.114
+ssh -i ~/.ssh/bb-portfolio-site-key.pem ec2-user@44.250.92.40
 ```
 
 ## Production Readiness
