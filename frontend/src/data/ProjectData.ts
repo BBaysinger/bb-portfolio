@@ -30,33 +30,17 @@ async function fetchPortfolioProjects(opts?: {
     "NEXT_PUBLIC_BACKEND_URL",
   ]);
 
-  // Debug: Log what we're looking for and what we found (force rebuild 2025-10-08)
-  console.log(`ProjectData Debug - ENV_PROFILE: ${profile}, prefix: "${prefix}", isServer: ${isServer}`);
-  console.log(`ProjectData Debug - Looking for: ${prefix}BACKEND_INTERNAL_URL, ${prefix}NEXT_PUBLIC_BACKEND_URL, NEXT_PUBLIC_BACKEND_URL`);
-  console.log(`ProjectData Debug - Found base: "${base}"`);
-  console.log(`ProjectData Debug - Available env vars:`, {
-    [`${prefix}BACKEND_INTERNAL_URL`]: process.env[`${prefix}BACKEND_INTERNAL_URL`],
-    [`${prefix}NEXT_PUBLIC_BACKEND_URL`]: process.env[`${prefix}NEXT_PUBLIC_BACKEND_URL`],
-    'NEXT_PUBLIC_BACKEND_URL': process.env.NEXT_PUBLIC_BACKEND_URL,
-    'ENV_PROFILE': process.env.ENV_PROFILE,
-    'NODE_ENV': process.env.NODE_ENV
-  });
-  console.log('ProjectData Debug - ALL env vars starting with PROD_:', Object.keys(process.env).filter(k => k.startsWith('PROD_')));
-  console.log('ProjectData Debug - ALL env vars starting with NEXT_PUBLIC_:', Object.keys(process.env).filter(k => k.startsWith('NEXT_PUBLIC_')));
+  // Debug: Show environment configuration during resolution
+  console.log(`ProjectData - ENV_PROFILE: ${profile}, prefix: "${prefix}", isServer: ${isServer}`);
+  console.log(`ProjectData - Backend URL resolved to: "${base}"`);
 
   // Conventional: rely on Next.js rewrites for /api/* on the server.
   // Fail fast if .env is incomplete so misconfigurations are obvious.
   const isHttpUrl = (s: string) => /^https?:\/\//i.test(s);
   if (isServer && !isHttpUrl(base)) {
     const msg =
-      `Backend URL is not configured. Expected ${prefix}BACKEND_INTERNAL_URL or ${prefix}NEXT_PUBLIC_BACKEND_URL to be a valid http(s) URL (found: "${base}"). Check environment variables in container.`;
+      `Backend URL is not configured. Expected ${prefix}BACKEND_INTERNAL_URL or ${prefix}NEXT_PUBLIC_BACKEND_URL to be a valid http(s) URL (found: "${base}").`;
     console.error(`ProjectData ERROR: ${msg}`);
-    console.error(`ProjectData ERROR - Container env check:`, {
-      [`${prefix}BACKEND_INTERNAL_URL`]: process.env[`${prefix}BACKEND_INTERNAL_URL`] || 'MISSING',
-      [`${prefix}NEXT_PUBLIC_BACKEND_URL`]: process.env[`${prefix}NEXT_PUBLIC_BACKEND_URL`] || 'MISSING',
-      'ENV_PROFILE': process.env.ENV_PROFILE || 'MISSING',
-      'NODE_ENV': process.env.NODE_ENV || 'MISSING'
-    });
     throw new Error(msg);
   }
 
