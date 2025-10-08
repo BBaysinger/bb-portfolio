@@ -403,6 +403,16 @@ jobs:
             echo "PROD_NEXT_PUBLIC_BACKEND_URL: ***"
             echo "COMPOSE_PROFILES: ${COMPOSE_PROFILES}"
             
+            # Also source frontend env file to ensure variables are available
+            echo "📋 Sourcing frontend environment variables..."
+            set -a  # Automatically export all variables
+            source frontend/.env.prod
+            set +a  # Stop auto-exporting
+            
+            # Show what variables are now available
+            echo "🔍 Environment variables available to docker-compose:"
+            env | grep -E "(AWS_ACCOUNT_ID|PROD_BACKEND|NEXT_PUBLIC|COMPOSE_PROFILES)" | sort
+            
             sudo -E docker compose up -d --force-recreate --pull always
 
             # ===============================================================
