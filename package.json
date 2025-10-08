@@ -6,7 +6,7 @@
     "build:backend": "cd backend && npm run build",
     "build:frontend": "cd frontend && npm run build",
     "docker:build": "AWS_ACCOUNT_ID=123456789012 COMPOSE_PROFILES=local docker compose build",
-    "docker:up": "AWS_ACCOUNT_ID=123456789012 COMPOSE_PROFILES=local docker compose up --build -f",
+    "docker:up": "AWS_ACCOUNT_ID=123456789012 COMPOSE_PROFILES=local docker compose up --build",
     "docker:up:detached": "AWS_ACCOUNT_ID=123456789012 COMPOSE_PROFILES=local docker compose up --build -d",
     "docker:down": "AWS_ACCOUNT_ID=123456789012 COMPOSE_PROFILES=local docker compose down",
     "docker:logs": "AWS_ACCOUNT_ID=123456789012 COMPOSE_PROFILES=local docker compose logs -f",
