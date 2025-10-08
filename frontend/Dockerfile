@@ -122,16 +122,10 @@ COPY --from=builder /app/public ./public
 # Create .next directory and set proper ownership for nextjs user
 RUN mkdir .next && chown nextjs:nodejs .next
 
-# Copy the standalone server build (includes only necessary files)
-# Next.js standalone output includes a minimal server.js with embedded dependencies
-# Debug and handle multiple possible directory structures
+# Copy the standalone build from the builder stage
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone/ ./
-# Debug: Show what we copied
-RUN echo "=== DEBUG: Contents after copying standalone ===" && \
-    ls -la . && \
-    echo "=== Checking for subdirectories ===" && \
-    find . -maxdepth 2 -name "server.js" -type f
-# Handle various possible structures - check multiple subdirectories
+
+# Handle different possible locations of server.js after standalone build
 RUN if [ -f "./server.js" ]; then \
         echo "server.js found in root - no action needed"; \
     elif [ -f "./frontend/server.js" ]; then \
