@@ -384,6 +384,33 @@ jobs:
             cat frontend/.env.prod
 
             # ===============================================================
+            # DISK SPACE CLEANUP
+            # ===============================================================
+            # Clean up disk space before deployment to prevent "no space left" errors
+            # ===============================================================
+            echo "🧹 Checking and cleaning up disk space..."
+            df -h
+            
+            echo "🐳 Cleaning up Docker resources to free disk space..."
+            # Remove unused Docker images
+            sudo docker image prune -a -f || echo "⚠️ Docker image cleanup failed"
+            # Remove unused containers
+            sudo docker container prune -f || echo "⚠️ Docker container cleanup failed"
+            # Remove unused volumes
+            sudo docker volume prune -f || echo "⚠️ Docker volume cleanup failed"
+            # Remove build cache
+            sudo docker builder prune -a -f || echo "⚠️ Docker builder cache cleanup failed"
+            
+            echo "🗂️ Cleaning up system files..."
+            # Clean up logs if they're taking space
+            sudo journalctl --vacuum-size=100M || echo "⚠️ Journal cleanup failed"
+            # Clean up package cache
+            sudo yum clean all || echo "⚠️ Package cache cleanup failed"
+            
+            echo "📊 Disk usage after cleanup:"
+            df -h
+
+            # ===============================================================
             # CONTAINER DEPLOYMENT
             # ===============================================================
             # Pull latest images and deploy with zero-downtime strategy
