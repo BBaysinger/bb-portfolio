@@ -377,7 +377,7 @@ jobs:
             echo "Using AWS Account ID: $AWS_ACCOUNT_ID"
 
             echo "⬇️ Pulling latest production images from ECR..."
-            sudo AWS_ACCOUNT_ID=$AWS_ACCOUNT_ID COMPOSE_PROFILES=prod docker compose pull || {
+            sudo -E docker compose pull || {
               echo "⚠️ Failed to pull images. Continuing with existing images..."
             }
 
@@ -391,12 +391,19 @@ jobs:
 
             echo "🚀 Starting production deployment..."
             # Force recreate containers to use new images
-            # Pass environment variables explicitly to docker-compose
-            sudo AWS_ACCOUNT_ID=$AWS_ACCOUNT_ID \
-                 PROD_BACKEND_INTERNAL_URL=${{ secrets.PROD_BACKEND_INTERNAL_URL }} \
-                 PROD_NEXT_PUBLIC_BACKEND_URL=${{ secrets.PROD_NEXT_PUBLIC_BACKEND_URL }} \
-                 COMPOSE_PROFILES=prod \
-                 docker compose up -d --force-recreate --pull always
+            # Export environment variables for docker-compose
+            export AWS_ACCOUNT_ID=$AWS_ACCOUNT_ID
+            export PROD_BACKEND_INTERNAL_URL="${{ secrets.PROD_BACKEND_INTERNAL_URL }}"
+            export PROD_NEXT_PUBLIC_BACKEND_URL="${{ secrets.PROD_NEXT_PUBLIC_BACKEND_URL }}"
+            export COMPOSE_PROFILES=prod
+            
+            echo "🐳 Environment variables for docker-compose:"
+            echo "AWS_ACCOUNT_ID: ${AWS_ACCOUNT_ID}"
+            echo "PROD_BACKEND_INTERNAL_URL: ***"
+            echo "PROD_NEXT_PUBLIC_BACKEND_URL: ***"
+            echo "COMPOSE_PROFILES: ${COMPOSE_PROFILES}"
+            
+            sudo -E docker compose up -d --force-recreate --pull always
 
             # ===============================================================
             # HEALTH CHECKS AND VALIDATION
@@ -415,7 +422,7 @@ jobs:
 
             echo "Final deployment status:"
             sudo docker ps
-            sudo AWS_ACCOUNT_ID=$AWS_ACCOUNT_ID COMPOSE_PROFILES=prod docker compose ps
+            sudo -E docker compose ps
 
             # Debug: Check environment variables in running container
             echo "🔍 Checking frontend container environment:"
