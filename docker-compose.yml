@@ -69,8 +69,16 @@ services:
       # Core backend environment
       - NODE_ENV=production
       - ENV_PROFILE=prod
-      # Add any production-specific backend environment variables here
-      # Fallback to .env.prod file if environment variables aren't set
+      - PORT=3000
+      # Backend database and security configuration
+      - PROD_MONGODB_URI=${PROD_MONGODB_URI}
+      - PROD_PAYLOAD_SECRET=${PROD_PAYLOAD_SECRET}
+      - PROD_FRONTEND_URL=${PROD_FRONTEND_URL}
+      # AWS S3 Configuration for Payload uploads
+      - S3_AWS_ACCESS_KEY_ID=${S3_AWS_ACCESS_KEY_ID}
+      - S3_AWS_SECRET_ACCESS_KEY=${S3_AWS_SECRET_ACCESS_KEY}
+      - PROD_AWS_REGION=${PROD_AWS_REGION}
+      - PROD_S3_BUCKET=${PROD_S3_BUCKET}
     env_file:
       - ./backend/.env.prod
     restart: unless-stopped # Auto-restart on failure/reboot
