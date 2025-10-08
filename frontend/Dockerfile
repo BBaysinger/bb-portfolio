@@ -83,19 +83,50 @@ ENV PROD_BACKEND_INTERNAL_URL=${PROD_BACKEND_INTERNAL_URL}
 ENV DEV_NEXT_PUBLIC_BACKEND_URL=${DEV_NEXT_PUBLIC_BACKEND_URL}
 ENV PROD_NEXT_PUBLIC_BACKEND_URL=${PROD_NEXT_PUBLIC_BACKEND_URL}
 
-# CRITICAL FIX: Set the standard Next.js environment variables that will be embedded at build time
-# Next.js looks for NEXT_PUBLIC_BACKEND_URL specifically, so we need to set it from the correct prefixed version
-ENV NEXT_PUBLIC_BACKEND_URL=${PROD_NEXT_PUBLIC_BACKEND_URL:-${DEV_NEXT_PUBLIC_BACKEND_URL}}
-ENV BACKEND_INTERNAL_URL=${PROD_BACKEND_INTERNAL_URL:-${DEV_BACKEND_INTERNAL_URL}}
+# STRICT PREFIXED ENVIRONMENT VARIABLES - NO FALLBACKS
+# This project uses explicit environment-specific prefixed variables only.
+# Fail fast if the correct prefixed variables aren't provided for the target environment.
+# 
+# For ENV_PROFILE=prod: Requires PROD_BACKEND_INTERNAL_URL and PROD_NEXT_PUBLIC_BACKEND_URL
+# For ENV_PROFILE=dev:  Requires DEV_BACKEND_INTERNAL_URL and DEV_NEXT_PUBLIC_BACKEND_URL
+#
+# The prefixed versions are already set above from ARG -> ENV, but we ensure they're explicit:
+ENV PROD_BACKEND_INTERNAL_URL=${PROD_BACKEND_INTERNAL_URL}
+ENV PROD_NEXT_PUBLIC_BACKEND_URL=${PROD_NEXT_PUBLIC_BACKEND_URL}
+ENV DEV_BACKEND_INTERNAL_URL=${DEV_BACKEND_INTERNAL_URL}
+ENV DEV_NEXT_PUBLIC_BACKEND_URL=${DEV_NEXT_PUBLIC_BACKEND_URL}
 
-# Debug: Show environment variables before build
-RUN echo "=== DOCKER BUILD DEBUG ===" && \
+# Validate that required variables are set for the target environment profile
+RUN if [ "$ENV_PROFILE" = "prod" ]; then \
+        if [ -z "$PROD_BACKEND_INTERNAL_URL" ] || [ -z "$PROD_NEXT_PUBLIC_BACKEND_URL" ]; then \
+            echo "❌ ERROR: ENV_PROFILE=prod requires PROD_BACKEND_INTERNAL_URL and PROD_NEXT_PUBLIC_BACKEND_URL"; \
+            echo "   PROD_BACKEND_INTERNAL_URL: '$PROD_BACKEND_INTERNAL_URL'"; \
+            echo "   PROD_NEXT_PUBLIC_BACKEND_URL: '$PROD_NEXT_PUBLIC_BACKEND_URL'"; \
+            exit 1; \
+        fi; \
+    elif [ "$ENV_PROFILE" = "dev" ]; then \
+        if [ -z "$DEV_BACKEND_INTERNAL_URL" ] || [ -z "$DEV_NEXT_PUBLIC_BACKEND_URL" ]; then \
+            echo "❌ ERROR: ENV_PROFILE=dev requires DEV_BACKEND_INTERNAL_URL and DEV_NEXT_PUBLIC_BACKEND_URL"; \
+            echo "   DEV_BACKEND_INTERNAL_URL: '$DEV_BACKEND_INTERNAL_URL'"; \
+            echo "   DEV_NEXT_PUBLIC_BACKEND_URL: '$DEV_NEXT_PUBLIC_BACKEND_URL'"; \
+            exit 1; \
+        fi; \
+    else \
+        echo "❌ ERROR: ENV_PROFILE must be 'prod' or 'dev', got: '$ENV_PROFILE'"; \
+        exit 1; \
+    fi && \
+    echo "✅ Environment validation passed for ENV_PROFILE=$ENV_PROFILE"
+
+# Debug: Show strict prefixed environment variables before build
+RUN echo "=== DOCKER BUILD DEBUG (STRICT PREFIXED VARS) ===" && \
     echo "ENV_PROFILE: $ENV_PROFILE" && \
-    echo "PROD_BACKEND_INTERNAL_URL: $PROD_BACKEND_INTERNAL_URL" && \
-    echo "PROD_NEXT_PUBLIC_BACKEND_URL: $PROD_NEXT_PUBLIC_BACKEND_URL" && \
-    echo "🎯 CRITICAL: Next.js will use these variables during build:" && \
-    echo "NEXT_PUBLIC_BACKEND_URL: $NEXT_PUBLIC_BACKEND_URL" && \
-    echo "BACKEND_INTERNAL_URL: $BACKEND_INTERNAL_URL" && \
+    echo "🎯 PRODUCTION VARIABLES:" && \
+    echo "  PROD_BACKEND_INTERNAL_URL: $PROD_BACKEND_INTERNAL_URL" && \
+    echo "  PROD_NEXT_PUBLIC_BACKEND_URL: $PROD_NEXT_PUBLIC_BACKEND_URL" && \
+    echo "🎯 DEVELOPMENT VARIABLES:" && \
+    echo "  DEV_BACKEND_INTERNAL_URL: $DEV_BACKEND_INTERNAL_URL" && \
+    echo "  DEV_NEXT_PUBLIC_BACKEND_URL: $DEV_NEXT_PUBLIC_BACKEND_URL" && \
+    echo "🚫 NO FALLBACK VARIABLES - Prefixed vars only!" && \
     echo "Available env vars:" && \
     env | grep -E "(BACKEND|NEXT_PUBLIC|ENV_PROFILE)" | sort && \
     echo "=== END DEBUG ==="
