@@ -362,7 +362,7 @@ jobs:
             # Next.js requires NEXT_PUBLIC_ variables for browser exposure
             NEXT_PUBLIC_BACKEND_URL=${{ secrets.PROD_NEXT_PUBLIC_BACKEND_URL }}
             EOF
-            
+
             # Debug: Show environment file contents
             echo "📋 Frontend .env.prod contents:"
             cat frontend/.env.prod
@@ -421,10 +421,10 @@ jobs:
             echo "🔍 Checking frontend container environment:"
             echo "=== All environment variables in frontend container ==="
             sudo docker exec portfolio-frontend-prod env | sort || echo "⚠️ Could not read container environment"
-            
+
             echo "=== Specific backend-related variables ==="
             sudo docker exec portfolio-frontend-prod env | grep -E "(BACKEND|NEXT_PUBLIC|ENV_PROFILE|NODE_ENV)" || echo "⚠️ No backend environment variables found"
-            
+
             echo "=== Contents of .env.prod file in container ==="
             sudo docker exec portfolio-frontend-prod cat /app/.env.prod 2>/dev/null || echo "⚠️ No .env.prod file found in container"
 

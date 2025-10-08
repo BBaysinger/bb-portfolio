@@ -31,15 +31,16 @@ async function fetchPortfolioProjects(opts?: {
   ]);
 
   // Debug: Show environment configuration during resolution
-  console.log(`ProjectData - ENV_PROFILE: ${profile}, prefix: "${prefix}", isServer: ${isServer}`);
+  console.log(
+    `ProjectData - ENV_PROFILE: ${profile}, prefix: "${prefix}", isServer: ${isServer}`,
+  );
   console.log(`ProjectData - Backend URL resolved to: "${base}"`);
 
   // Conventional: rely on Next.js rewrites for /api/* on the server.
   // Fail fast if .env is incomplete so misconfigurations are obvious.
   const isHttpUrl = (s: string) => /^https?:\/\//i.test(s);
   if (isServer && !isHttpUrl(base)) {
-    const msg =
-      `Backend URL is not configured. Expected ${prefix}BACKEND_INTERNAL_URL or ${prefix}NEXT_PUBLIC_BACKEND_URL to be a valid http(s) URL (found: "${base}").`;
+    const msg = `Backend URL is not configured. Expected ${prefix}BACKEND_INTERNAL_URL or ${prefix}NEXT_PUBLIC_BACKEND_URL to be a valid http(s) URL (found: "${base}").`;
     console.error(`ProjectData ERROR: ${msg}`);
     throw new Error(msg);
   }
