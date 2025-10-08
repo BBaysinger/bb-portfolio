@@ -169,13 +169,7 @@ jobs:
           IMAGE_TAG: ${{ github.sha }}
         run: |
           echo "Building frontend production image..."
-          docker build --no-cache \
-            --target runner \
-            --build-arg ENV_PROFILE=prod \
-            --build-arg SKIP_HEALTH_CHECK=true \
-            --build-arg PROD_BACKEND_INTERNAL_URL=${{ secrets.PROD_BACKEND_INTERNAL_URL }} \
-            --build-arg PROD_NEXT_PUBLIC_BACKEND_URL=${{ secrets.PROD_NEXT_PUBLIC_BACKEND_URL }} \
-            -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./frontend
+          docker build --no-cache --target runner --build-arg ENV_PROFILE=prod --build-arg SKIP_HEALTH_CHECK=true --build-arg PROD_BACKEND_INTERNAL_URL="${{ secrets.PROD_BACKEND_INTERNAL_URL }}" --build-arg PROD_NEXT_PUBLIC_BACKEND_URL="${{ secrets.PROD_NEXT_PUBLIC_BACKEND_URL }}" -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./frontend
           echo "📤 Pushing frontend image to ECR..."
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           # Also tag and push as latest for docker-compose compatibility
@@ -190,17 +184,7 @@ jobs:
           IMAGE_TAG: ${{ github.sha }}
         run: |
           echo "Building backend production image..."
-          docker build --no-cache \
-            --target runtime \
-            --build-arg ENV_PROFILE=prod \
-            --build-arg PROD_MONGODB_URI=${{ secrets.PROD_MONGODB_URI }} \
-            --build-arg PROD_PAYLOAD_SECRET=${{ secrets.PROD_PAYLOAD_SECRET }} \
-            --build-arg PROD_FRONTEND_URL=${{ secrets.PROD_FRONTEND_URL }} \
-            --build-arg PROD_S3_BUCKET=${{ secrets.PROD_S3_BUCKET }} \
-            --build-arg PROD_AWS_REGION=${{ secrets.PROD_AWS_REGION }} \
-            --build-arg S3_AWS_ACCESS_KEY_ID=${{ secrets.S3_AWS_ACCESS_KEY_ID }} \
-            --build-arg S3_AWS_SECRET_ACCESS_KEY=${{ secrets.S3_AWS_SECRET_ACCESS_KEY }} \
-            -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./backend
+          docker build --no-cache --target runtime --build-arg ENV_PROFILE=prod --build-arg PROD_MONGODB_URI="${{ secrets.PROD_MONGODB_URI }}" --build-arg PROD_PAYLOAD_SECRET="${{ secrets.PROD_PAYLOAD_SECRET }}" --build-arg PROD_FRONTEND_URL="${{ secrets.PROD_FRONTEND_URL }}" --build-arg PROD_S3_BUCKET="${{ secrets.PROD_S3_BUCKET }}" --build-arg PROD_AWS_REGION="${{ secrets.PROD_AWS_REGION }}" --build-arg S3_AWS_ACCESS_KEY_ID="${{ secrets.S3_AWS_ACCESS_KEY_ID }}" --build-arg S3_AWS_SECRET_ACCESS_KEY="${{ secrets.S3_AWS_SECRET_ACCESS_KEY }}" -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./backend
           echo "📤 Pushing backend image to ECR..."
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           # Also tag and push as latest for docker-compose compatibility  
