@@ -193,6 +193,16 @@ ENV PROD_BACKEND_INTERNAL_URL=${PROD_BACKEND_INTERNAL_URL}
 ENV DEV_NEXT_PUBLIC_BACKEND_URL=${DEV_NEXT_PUBLIC_BACKEND_URL}
 ENV PROD_NEXT_PUBLIC_BACKEND_URL=${PROD_NEXT_PUBLIC_BACKEND_URL}
 
+# Write env file so Next.js server has runtime access to environment variables
+# This ensures process.env can access these variables during SSR execution
+RUN echo "ENV_PROFILE=${ENV_PROFILE}" > /app/.env.production && \
+    echo "PROD_BACKEND_INTERNAL_URL=${PROD_BACKEND_INTERNAL_URL}" >> /app/.env.production && \
+    echo "PROD_NEXT_PUBLIC_BACKEND_URL=${PROD_NEXT_PUBLIC_BACKEND_URL}" >> /app/.env.production && \
+    echo "DEV_BACKEND_INTERNAL_URL=${DEV_BACKEND_INTERNAL_URL}" >> /app/.env.production && \
+    echo "DEV_NEXT_PUBLIC_BACKEND_URL=${DEV_NEXT_PUBLIC_BACKEND_URL}" >> /app/.env.production && \
+    echo "Runtime .env.production created with:" && \
+    cat /app/.env.production
+
 # Start the Next.js production server
 CMD ["node", "server.js"]
 
