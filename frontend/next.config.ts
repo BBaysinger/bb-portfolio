@@ -4,7 +4,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   output: "standalone",
-  // Removed outputFileTracingRoot to follow Next.js conventions - 
+  // Removed outputFileTracingRoot to follow Next.js conventions -
   // server.js should be directly in .next/standalone/ root
   images: {
     unoptimized: true,
