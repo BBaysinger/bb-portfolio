@@ -35,7 +35,9 @@
     "update:deps": "concurrently \"ncu -u\" \"cd backend && ncu -u\" \"cd frontend && ncu -u\" --names \"root,backend,frontend\" --prefix-colors \"yellow,blue,green\"",
     "install:all": "concurrently \"npm install\" \"cd backend && npm install\" \"cd frontend && npm install\" --names \"root,backend,frontend\" --prefix-colors \"yellow,blue,green\"",
     "media:export": "bash scripts/export-media.sh",
-    "seed:media": "tsx scripts/import-media-from-seedings.ts"
+    "seed:media": "tsx scripts/import-media-from-seedings.ts",
+    "media:upload": "tsx scripts/upload-media-to-s3.ts",
+    "media:verify": "tsx scripts/verify-media-s3.ts"
   },
   "devDependencies": {
     "@next/eslint-plugin-next": "^15.5.4",
