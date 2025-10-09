@@ -67,7 +67,7 @@ async function fetchPortfolioProjects(opts?: {
   }
 
   // Temporary debugging with client/server distinction
-  const context = isServer ? '[SERVER]' : '[CLIENT]';
+  const context = isServer ? "[SERVER]" : "[CLIENT]";
   console.log(
     `ProjectData ${context} - About to fetch: "${url}" with options:`,
     JSON.stringify(fetchOptions),
@@ -79,7 +79,7 @@ async function fetchPortfolioProjects(opts?: {
       `ProjectData ${context} - Fetch response: ${res.status} ${res.statusText}`,
     );
   } catch (error) {
-    const context = isServer ? '[SERVER]' : '[CLIENT]';
+    const context = isServer ? "[SERVER]" : "[CLIENT]";
     console.error(`ProjectData ${context} - Fetch error:`, error);
     throw error;
   }
