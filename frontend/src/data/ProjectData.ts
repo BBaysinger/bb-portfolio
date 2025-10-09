@@ -62,6 +62,17 @@ async function fetchPortfolioProjects(opts?: {
     fetchOptions.credentials = "include";
   }
 
+  // Temporary debugging
+  console.log(`ProjectData - About to fetch: "${url}" with options:`, JSON.stringify(fetchOptions));
+  
+  try {
+    const res = await fetch(url, fetchOptions);
+    console.log(`ProjectData - Fetch response: ${res.status} ${res.statusText}`);
+  } catch (error) {
+    console.error(`ProjectData - Fetch error:`, error);
+    throw error;
+  }
+
   const res = await fetch(url, fetchOptions);
   if (!res.ok) {
     let detail = "";
