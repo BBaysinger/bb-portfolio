@@ -34,7 +34,9 @@ async function fetchPortfolioProjects(opts?: {
   console.log(
     `ProjectData - ENV_PROFILE: ${profile}, prefix: "${prefix}", isServer: ${isServer}`,
   );
-  console.log(`ProjectData - Backend URL resolved to: "${base}" (client-side uses relative URLs)`);
+  console.log(
+    `ProjectData - Backend URL resolved to: "${base}" (client-side uses relative URLs)`,
+  );
 
   // Conventional: rely on Next.js rewrites for /api/* on the server.
   // Fail fast if .env is incomplete so misconfigurations are obvious.
@@ -62,14 +64,21 @@ async function fetchPortfolioProjects(opts?: {
     fetchOptions.credentials = "include";
   }
 
-  // Temporary debugging
-  console.log(`ProjectData - About to fetch: "${url}" with options:`, JSON.stringify(fetchOptions));
-  
+  // Temporary debugging with client/server distinction
+  const context = isServer ? '[SERVER]' : '[CLIENT]';
+  console.log(
+    `ProjectData ${context} - About to fetch: "${url}" with options:`,
+    JSON.stringify(fetchOptions),
+  );
+
   try {
     const res = await fetch(url, fetchOptions);
-    console.log(`ProjectData - Fetch response: ${res.status} ${res.statusText}`);
+    console.log(
+      `ProjectData ${context} - Fetch response: ${res.status} ${res.statusText}`,
+    );
   } catch (error) {
-    console.error(`ProjectData - Fetch error:`, error);
+    const context = isServer ? '[SERVER]' : '[CLIENT]';
+    console.error(`ProjectData ${context} - Fetch error:`, error);
     throw error;
   }
 
