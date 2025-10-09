@@ -187,7 +187,7 @@ async function main() {
     if (payload && payload.db && typeof payload.db.destroy === 'function') {
       try {
         await payload.db.destroy()
-      } catch (_) {
+      } catch {
         // Ignore cleanup errors
       }
     }
