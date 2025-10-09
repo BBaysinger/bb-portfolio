@@ -436,7 +436,7 @@ jobs:
             # Force recreate containers to use new images
             # Export environment variables for docker-compose
             export AWS_ACCOUNT_ID=$AWS_ACCOUNT_ID
-            export PROD_BACKEND_INTERNAL_URL="http://backend-prod:3000"
+            export PROD_BACKEND_INTERNAL_URL="${{ secrets.PROD_BACKEND_INTERNAL_URL }}"
             export PROD_NEXT_PUBLIC_BACKEND_URL="${{ secrets.PROD_NEXT_PUBLIC_BACKEND_URL }}"
             export COMPOSE_PROFILES=prod
             
