@@ -29,7 +29,7 @@
     // ⚡ DEVELOPMENT MODE: Start both frontend and backend containers with hot reload
     // Frontend runs on http://localhost:5051, Backend on http://localhost:5050
     // Uses 'npm run dev' - includes volume mounts for instant file changes and hot reload
-    "docker:up": "AWS_ACCOUNT_ID=123456789012 COMPOSE_PROFILES=local docker compose up --build -f",
+    "docker:up": "AWS_ACCOUNT_ID=123456789012 COMPOSE_PROFILES=local docker compose up --build",
     // ▶️ Start containers in detached mode (runs in background)
     // Same as docker:up but doesn't block the terminal - runs containers in background
     "docker:up:detached": "AWS_ACCOUNT_ID=123456789012 COMPOSE_PROFILES=local docker compose up --build -d",
@@ -109,6 +109,12 @@
     "media:export": "bash scripts/export-media.sh",
     // 🪄 Import images from ../cms-seedings into backend/media/* for local dev
     "seed:media": "tsx scripts/import-media-from-seedings.ts",
+    // 🪄 Upload local media files to S3 for production use
+    "media:upload": "tsx scripts/upload-media-to-s3.ts",
+    // 🪄 Verify uploaded media files on S3 to ensure integrity
+    "media:verify": "tsx scripts/verify-media-s3.ts",
+    // 🪄 Migrate existing media URLs in PayloadCMS from local storage to S3 URLs
+    "migrate:media-to-s3": "cd backend && tsx scripts/migrate-media-to-s3.ts",
   },
   "devDependencies": {
     // Next.js-specific ESLint rules for best practices

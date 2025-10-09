@@ -21,11 +21,12 @@ const eslintConfig = [
         {
           vars: 'all',
           args: 'after-used',
+          caughtErrors: 'all',
           ignoreRestSiblings: false,
           argsIgnorePattern: '^_',
           varsIgnorePattern: '^_',
           destructuredArrayIgnorePattern: '^_',
-          caughtErrorsIgnorePattern: '^(_|ignore)',
+          caughtErrorsIgnorePattern: '^_',
         },
       ],
     },

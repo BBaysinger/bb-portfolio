@@ -37,7 +37,8 @@
     "media:export": "bash scripts/export-media.sh",
     "seed:media": "tsx scripts/import-media-from-seedings.ts",
     "media:upload": "tsx scripts/upload-media-to-s3.ts",
-    "media:verify": "tsx scripts/verify-media-s3.ts"
+    "media:verify": "tsx scripts/verify-media-s3.ts",
+    "migrate:media-to-s3": "cd backend && tsx scripts/migrate-media-to-s3.ts"
   },
   "devDependencies": {
     "@next/eslint-plugin-next": "^15.5.4",
