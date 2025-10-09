@@ -4,7 +4,6 @@ import { Suspense } from "react";
 
 import ProjectViewWrapper from "@/components/project-carousel-page/ProjectViewWrapper";
 import ProjectData from "@/data/ProjectData";
-import { waitForBackendWithTimeout } from "@/utils/healthCheck";
 // Auth helper is imported only when needed (NDA branch) to keep SSG graph lean
 
 export const runtime = "nodejs";
@@ -79,54 +78,7 @@ export default async function ProjectPage({
  */
 export async function generateStaticParams() {
   try {
-    // Check if we should attempt backend health check during build
-    const isServer = typeof window === "undefined";
-    const forceHealthCheck = process.env.FORCE_HEALTH_CHECK === "true";
-
-    // Skip health check in CI/CD environments (same logic as build-when-ready.mjs)
-    const isCiCd =
-      process.env.CI || process.env.GITHUB_ACTIONS || process.env.BUILD_ID;
-    const skipHealthCheck = process.env.SKIP_HEALTH_CHECK === "true" || isCiCd;
-
-    if (skipHealthCheck) {
-      console.log(
-        `⚡ [generateStaticParams] Skipping backend health check (CI/CD environment or SKIP_HEALTH_CHECK=true)`,
-      );
-    } else if (
-      isServer &&
-      (process.env.NODE_ENV === "production" || forceHealthCheck)
-    ) {
-      // Get the backend URL that ProjectData will use
-      const profile = (
-        process.env.ENV_PROFILE ||
-        process.env.NODE_ENV ||
-        ""
-      ).toLowerCase();
-      const prefix = profile ? `${profile.toUpperCase()}_` : "";
-
-      const backendUrl =
-        process.env[`${prefix}BACKEND_INTERNAL_URL`] ||
-        process.env[`${prefix}NEXT_PUBLIC_BACKEND_URL`];
-
-      if (backendUrl) {
-        console.log(
-          `🔍 [generateStaticParams] Attempting backend health check for static generation...`,
-        );
-
-        // Wait for backend with reasonable limits
-        await waitForBackendWithTimeout(backendUrl, {
-          maxAttempts: 15, // 15 attempts max
-          intervalMs: 2000, // 2 seconds between attempts
-          requestTimeoutMs: 5000, // 5 second per-request timeout
-        });
-
-        console.log(
-          `✅ [generateStaticParams] Backend health check passed, proceeding with static generation`,
-        );
-      }
-    }
-
-    // Backend is healthy (or we're on client), proceed with static generation
+    // Initialize project data from backend API
     await ProjectData.initialize();
     const projectIds = Object.keys(ProjectData.activeProjectsRecord);
 
@@ -138,7 +90,7 @@ export async function generateStaticParams() {
       projectId,
     }));
   } catch (error) {
-    // Health check failed or timed out - fall back to on-demand generation
+    // Backend not accessible - fall back to on-demand page generation
     const errorMessage =
       error instanceof Error ? error.message : "Unknown error";
     console.warn(

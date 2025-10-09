@@ -103,20 +103,18 @@ jobs:
         working-directory: ./frontend
         run: npm install --legacy-peer-deps # Required for some peer dependency conflicts
 
-      - name: Build frontend (with health check)
+      - name: Build frontend
         working-directory: ./frontend
         env:
           # Ensure profile and backend base are available to prebuild guard and Next.js
           ENV_PROFILE: ${{ github.ref == 'refs/heads/main' && 'prod' || 'dev' }}
-          # Skip health check during CI/CD builds (backend not available in build environment)
-          SKIP_HEALTH_CHECK: "true"
           # Backend URLs for build-time and runtime (consistent naming)
           PROD_BACKEND_INTERNAL_URL: ${{ secrets.PROD_BACKEND_INTERNAL_URL }}
           DEV_BACKEND_INTERNAL_URL: ${{ secrets.DEV_BACKEND_INTERNAL_URL }}
           # Next.js client-side exposed environment variables (NEXT_PUBLIC_*)
           PROD_NEXT_PUBLIC_BACKEND_URL: ${{ secrets.PROD_NEXT_PUBLIC_BACKEND_URL }}
           DEV_NEXT_PUBLIC_BACKEND_URL: ${{ secrets.DEV_NEXT_PUBLIC_BACKEND_URL }}
-        run: npm run build:when-ready # Health check + Next.js build with SSG feedback
+        run: npm run build:when-ready # Simplified Next.js build
 
       - name: Test frontend
         working-directory: ./frontend
@@ -169,7 +167,7 @@ jobs:
           IMAGE_TAG: ${{ github.sha }}
         run: |
           echo "Building frontend production image..."
-          docker build --no-cache --target runner --build-arg ENV_PROFILE=prod --build-arg SKIP_HEALTH_CHECK=true --build-arg PROD_BACKEND_INTERNAL_URL="${{ secrets.PROD_BACKEND_INTERNAL_URL }}" --build-arg PROD_NEXT_PUBLIC_BACKEND_URL="${{ secrets.PROD_NEXT_PUBLIC_BACKEND_URL }}" -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./frontend
+          docker build --no-cache --target runner --build-arg ENV_PROFILE=prod --build-arg PROD_BACKEND_INTERNAL_URL="${{ secrets.PROD_BACKEND_INTERNAL_URL }}" --build-arg PROD_NEXT_PUBLIC_BACKEND_URL="${{ secrets.PROD_NEXT_PUBLIC_BACKEND_URL }}" -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./frontend
           echo "📤 Pushing frontend image to ECR..."
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           # Also tag and push as latest for docker-compose compatibility
@@ -542,7 +540,6 @@ jobs:
           # Build frontend dev image  
           docker build \
             --build-arg ENV_PROFILE=dev \
-            --build-arg SKIP_HEALTH_CHECK=true \
             --build-arg DEV_BACKEND_INTERNAL_URL=${{ secrets.DEV_BACKEND_INTERNAL_URL }} \
             --build-arg DEV_NEXT_PUBLIC_BACKEND_URL=${{ secrets.DEV_NEXT_PUBLIC_BACKEND_URL }} \
             -t bhbaysinger/portfolio-frontend:dev ./frontend
