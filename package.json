@@ -38,7 +38,16 @@
     "seed:media": "tsx scripts/import-media-from-seedings.ts",
     "media:upload": "tsx scripts/upload-media-to-s3.ts",
     "media:verify": "tsx scripts/verify-media-s3.ts",
-    "migrate:media-to-s3": "cd backend && tsx scripts/migrate-media-to-s3.ts"
+    "migrate:media:dev": "tsx scripts/upload-media-to-s3.ts --env dev",
+    "migrate:media:prod": "tsx scripts/upload-media-to-s3.ts --env prod",
+    "migrate:db:dev:dry": "cd backend && tsx scripts/update-media-urls.ts --env dev --dry-run",
+    "migrate:db:dev": "cd backend && tsx scripts/update-media-urls.ts --env dev",
+    "migrate:db:prod:dry": "cd backend && tsx scripts/update-media-urls.ts --env prod --dry-run",
+    "migrate:db:prod": "cd backend && tsx scripts/update-media-urls.ts --env prod",
+    "migrate:all:dev:dry": "npm run migrate:media:dev && npm run migrate:db:dev:dry",
+    "migrate:all:dev": "npm run migrate:media:dev && npm run migrate:db:dev",
+    "migrate:all:prod:dry": "npm run migrate:media:prod && npm run migrate:db:prod:dry",
+    "migrate:all:prod": "npm run migrate:media:prod && npm run migrate:db:prod"
   },
   "devDependencies": {
     "@next/eslint-plugin-next": "^15.5.4",
