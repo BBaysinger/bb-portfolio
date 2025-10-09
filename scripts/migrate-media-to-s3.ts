@@ -18,7 +18,7 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 
 import JSON5 from 'json5'
-import { getPayload, type Payload } from 'payload'
+import { getPayload, type Payload } from '../backend/node_modules/payload/dist/index.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -27,7 +27,7 @@ const __dirname = path.dirname(__filename)
  * Load environment variables from GitHub secrets file
  */
 function loadEnvironmentFromSecrets(environment: 'dev' | 'prod') {
-  const secretsPath = path.resolve(__dirname, '../../.github-secrets.private.json5')
+  const secretsPath = path.resolve(__dirname, '../.github-secrets.private.json5')
   
   if (!fs.existsSync(secretsPath)) {
     throw new Error(
