@@ -10,7 +10,7 @@ import { execSync } from "child_process";
 async function buildWhenReady() {
   try {
     console.log("🏗️  Running Next.js build...");
-    
+
     execSync("npm run build", {
       stdio: "inherit",
       cwd: process.cwd(),
