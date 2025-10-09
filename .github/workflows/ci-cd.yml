@@ -388,7 +388,7 @@ jobs:
             # ===============================================================
             echo "🧹 Checking and cleaning up disk space..."
             df -h
-            
+
             echo "🐳 Cleaning up Docker resources to free disk space..."
             # Remove unused Docker images
             sudo docker image prune -a -f || echo "⚠️ Docker image cleanup failed"
@@ -398,13 +398,13 @@ jobs:
             sudo docker volume prune -f || echo "⚠️ Docker volume cleanup failed"
             # Remove build cache
             sudo docker builder prune -a -f || echo "⚠️ Docker builder cache cleanup failed"
-            
+
             echo "🗂️ Cleaning up system files..."
             # Clean up logs if they're taking space
             sudo journalctl --vacuum-size=100M || echo "⚠️ Journal cleanup failed"
             # Clean up package cache
             sudo yum clean all || echo "⚠️ Package cache cleanup failed"
-            
+
             echo "📊 Disk usage after cleanup:"
             df -h
 
@@ -437,7 +437,7 @@ jobs:
             export PROD_BACKEND_INTERNAL_URL="${{ secrets.PROD_BACKEND_INTERNAL_URL }}"
             export PROD_NEXT_PUBLIC_BACKEND_URL="${{ secrets.PROD_NEXT_PUBLIC_BACKEND_URL }}"
             export COMPOSE_PROFILES=prod
-            
+
             # Backend environment variables - required for Payload CMS
             export PROD_MONGODB_URI="${{ secrets.PROD_MONGODB_URI }}"
             export PROD_PAYLOAD_SECRET="${{ secrets.PROD_PAYLOAD_SECRET }}"

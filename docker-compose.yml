@@ -65,20 +65,6 @@ services:
     container_name: portfolio-backend-prod
     ports:
       - "3001:3000" # Backend gets xxx1 for production
-    environment:
-      # Core backend environment
-      - NODE_ENV=production
-      - ENV_PROFILE=prod
-      - PORT=3000
-      # Backend database and security configuration
-      - PROD_MONGODB_URI=${PROD_MONGODB_URI}
-      - PROD_PAYLOAD_SECRET=${PROD_PAYLOAD_SECRET}
-      - PROD_FRONTEND_URL=${PROD_FRONTEND_URL}
-      # AWS S3 Configuration for Payload uploads
-      - S3_AWS_ACCESS_KEY_ID=${S3_AWS_ACCESS_KEY_ID}
-      - S3_AWS_SECRET_ACCESS_KEY=${S3_AWS_SECRET_ACCESS_KEY}
-      - PROD_AWS_REGION=${PROD_AWS_REGION}
-      - PROD_S3_BUCKET=${PROD_S3_BUCKET}
     env_file:
       - ./backend/.env.prod
     restart: unless-stopped # Auto-restart on failure/reboot
@@ -101,15 +87,6 @@ services:
     container_name: portfolio-frontend-prod
     ports:
       - "3000:3000" # Frontend gets xxx0 for production
-    environment:
-      # Core Next.js environment
-      - NODE_ENV=production
-      - ENV_PROFILE=prod
-      # Backend connection URLs - these MUST be set for the app to work
-      - PROD_BACKEND_INTERNAL_URL=${PROD_BACKEND_INTERNAL_URL}
-      - PROD_NEXT_PUBLIC_BACKEND_URL=${PROD_NEXT_PUBLIC_BACKEND_URL}
-      - NEXT_PUBLIC_BACKEND_URL=${PROD_NEXT_PUBLIC_BACKEND_URL}
-    # Also load from .env.prod file as backup
     env_file:
       - ./frontend/.env.prod
     restart: unless-stopped # Auto-restart on failure/reboot
@@ -146,8 +123,6 @@ services:
     container_name: portfolio-backend-dev
     ports:
       - "4001:3000" # Backend gets xxx1
-    env_file:
-      - ./backend/.env.dev
     restart: unless-stopped # Auto-restart on failure/reboot
 
   frontend-dev:
@@ -156,8 +131,6 @@ services:
     container_name: portfolio-frontend-dev
     ports:
       - "4000:3000" # Frontend gets xxx0
-    env_file:
-      - ./frontend/.env.dev
     restart: unless-stopped # Auto-restart on failure/reboot
     depends_on:
       backend-dev:

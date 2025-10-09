@@ -11,7 +11,10 @@ frontend/.next/
 # 🧪 Legacy or experimental folders
 frontend-vite-old/
 
-# 📦 Dependency lockfiles
+# � Database dumps (NDJSON format, don't format)
+dump/
+
+# �📦 Dependency lockfiles
 package-lock.json
 
 # 🧠 Config and generated types
