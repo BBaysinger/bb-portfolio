@@ -83,7 +83,16 @@ export async function generateStaticParams() {
     const isServer = typeof window === "undefined";
     const forceHealthCheck = process.env.FORCE_HEALTH_CHECK === "true";
 
-    if (
+    // Skip health check in CI/CD environments (same logic as build-when-ready.mjs)
+    const isCiCd =
+      process.env.CI || process.env.GITHUB_ACTIONS || process.env.BUILD_ID;
+    const skipHealthCheck = process.env.SKIP_HEALTH_CHECK === "true" || isCiCd;
+
+    if (skipHealthCheck) {
+      console.log(
+        `⚡ [generateStaticParams] Skipping backend health check (CI/CD environment or SKIP_HEALTH_CHECK=true)`,
+      );
+    } else if (
       isServer &&
       (process.env.NODE_ENV === "production" || forceHealthCheck)
     ) {
