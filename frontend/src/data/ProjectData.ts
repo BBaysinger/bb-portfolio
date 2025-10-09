@@ -50,8 +50,10 @@ async function fetchPortfolioProjects(opts?: {
   // Build URL: server uses absolute backend URL; client can use relative path
   // We need depth=2 so that nested relations on brand (logoLight/logoDark uploads)
   // are populated alongside the project -> brand -> upload chain.
-  const path = "/api/projects?depth=2&limit=1000&sort=sortIndex";
-  const url = isServer ? `${base.replace(/\/$/, "")}${path}` : path;
+  // Note: Using trailing slash for client-side to match Next.js trailingSlash: true config
+  const path = "/api/projects/?depth=2&limit=1000&sort=sortIndex";
+  const serverPath = "/api/projects?depth=2&limit=1000&sort=sortIndex";
+  const url = isServer ? `${base.replace(/\/$/, "")}${serverPath}` : path;
 
   const fetchOptions: RequestInit & { next?: { revalidate?: number } } = {};
   if (disableCache) {
