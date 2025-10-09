@@ -34,7 +34,7 @@ async function fetchPortfolioProjects(opts?: {
   console.log(
     `ProjectData - ENV_PROFILE: ${profile}, prefix: "${prefix}", isServer: ${isServer}`,
   );
-  console.log(`ProjectData - Backend URL resolved to: "${base}"`);
+  console.log(`ProjectData - Backend URL resolved to: "${base}" (client-side uses relative URLs)`);
 
   // Conventional: rely on Next.js rewrites for /api/* on the server.
   // Fail fast if .env is incomplete so misconfigurations are obvious.

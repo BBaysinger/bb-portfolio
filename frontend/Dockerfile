@@ -99,18 +99,19 @@ ENV DEV_BACKEND_INTERNAL_URL=${DEV_BACKEND_INTERNAL_URL}
 ENV DEV_NEXT_PUBLIC_BACKEND_URL=${DEV_NEXT_PUBLIC_BACKEND_URL}
 
 # Validate that required variables are set for the target environment profile
+# Note: NEXT_PUBLIC_BACKEND_URL can be empty (client uses relative URLs with Next.js rewrites)
 RUN if [ "$ENV_PROFILE" = "prod" ]; then \
-        if [ -z "$PROD_BACKEND_INTERNAL_URL" ] || [ -z "$PROD_NEXT_PUBLIC_BACKEND_URL" ]; then \
-            echo "❌ ERROR: ENV_PROFILE=prod requires PROD_BACKEND_INTERNAL_URL and PROD_NEXT_PUBLIC_BACKEND_URL"; \
+        if [ -z "$PROD_BACKEND_INTERNAL_URL" ]; then \
+            echo "❌ ERROR: ENV_PROFILE=prod requires PROD_BACKEND_INTERNAL_URL for Next.js rewrites"; \
             echo "   PROD_BACKEND_INTERNAL_URL: '$PROD_BACKEND_INTERNAL_URL'"; \
-            echo "   PROD_NEXT_PUBLIC_BACKEND_URL: '$PROD_NEXT_PUBLIC_BACKEND_URL'"; \
+            echo "   PROD_NEXT_PUBLIC_BACKEND_URL: '$PROD_NEXT_PUBLIC_BACKEND_URL' (can be empty for relative URLs)"; \
             exit 1; \
         fi; \
     elif [ "$ENV_PROFILE" = "dev" ]; then \
-        if [ -z "$DEV_BACKEND_INTERNAL_URL" ] || [ -z "$DEV_NEXT_PUBLIC_BACKEND_URL" ]; then \
-            echo "❌ ERROR: ENV_PROFILE=dev requires DEV_BACKEND_INTERNAL_URL and DEV_NEXT_PUBLIC_BACKEND_URL"; \
+        if [ -z "$DEV_BACKEND_INTERNAL_URL" ]; then \
+            echo "❌ ERROR: ENV_PROFILE=dev requires DEV_BACKEND_INTERNAL_URL for Next.js rewrites"; \
             echo "   DEV_BACKEND_INTERNAL_URL: '$DEV_BACKEND_INTERNAL_URL'"; \
-            echo "   DEV_NEXT_PUBLIC_BACKEND_URL: '$DEV_NEXT_PUBLIC_BACKEND_URL'"; \
+            echo "   DEV_NEXT_PUBLIC_BACKEND_URL: '$DEV_NEXT_PUBLIC_BACKEND_URL' (can be empty for relative URLs)"; \
             exit 1; \
         fi; \
     else \
