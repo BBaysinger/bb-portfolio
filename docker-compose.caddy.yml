@@ -27,6 +27,7 @@ services:
     environment:
       - NODE_ENV=development
       - ENV_PROFILE=local
+      - REACT_STRICT_MODE=${REACT_STRICT_MODE:-true}
     volumes:
       - ./frontend:/app
       - /app/node_modules
