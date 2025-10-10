@@ -8,5 +8,5 @@
     "module": "CommonJS",
     "moduleResolution": "node"
   },
-  "exclude": ["node_modules", "frontend-vite-old"]
+  "exclude": ["node_modules", "database-backups", "temp_dump_*"]
 }
