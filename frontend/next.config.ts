@@ -8,6 +8,8 @@ const nextConfig: NextConfig = {
     unoptimized: true,
   },
   trailingSlash: true,
+  // Disable React StrictMode for dev environment to avoid double-rendering
+  reactStrictMode: process.env.ENV_PROFILE !== "dev",
   async rewrites() {
     const profile = (
       process.env.ENV_PROFILE ||
