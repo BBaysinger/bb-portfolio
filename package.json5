@@ -41,7 +41,7 @@
     "docker:logs": "AWS_ACCOUNT_ID=123456789012 COMPOSE_PROFILES=local docker compose logs -f",
     // 🏗️ BUILD MODE: Build static site generation containers (local-ssg profile)
     "docker:ssg:build": "AWS_ACCOUNT_ID=123456789012 COMPOSE_PROFILES=local-ssg docker compose build",
-    // 🏗️ PRODUCTION BUILD TEST: Runs 'npm run build:when-ready' with health checks
+    // 🏗️ PRODUCTION BUILD TEST: Runs 'npm run build:when-ready' with health checks and follows logs
     // Tests static site generation, waits for backend, NO hot reload - production simulation
     "docker:ssg:up": "AWS_ACCOUNT_ID=123456789012 COMPOSE_PROFILES=local-ssg docker compose up --build -f",
     // 🏗️ PRODUCTION BUILD TEST: Same as docker:ssg:up but runs in background (detached mode)
@@ -60,17 +60,17 @@
     "docker:push:frontend": "docker push bhbaysinger/portfolio-frontend:dev",
     // 🚀 Build and push both backend and frontend Docker images to Docker Hub (dev tag)
     "docker:build-push": "npm run docker:build:backend && npm run docker:build:frontend && npm run docker:push:backend && npm run docker:push:frontend",
-    // 🔄 Caddy reverse proxy  up
+    // 🚀 Start Caddy reverse proxy in detached mode
     "caddy:up": "docker compose -f docker-compose.caddy.yml up --build -d",
-    // 🔄 Caddy reverse proxy  down
+    // 🛑 Stop Caddy reverse proxy containers
     "caddy:down": "docker compose -f docker-compose.caddy.yml down",
-    // 🔄 Caddy reverse proxy  logs
+    // � Follow Caddy reverse proxy logs in real-time
     "caddy:logs": "docker compose -f docker-compose.caddy.yml logs -f",
-    // 🔄 Caddy reverse proxy  restart
+    // 🔄 Restart Caddy reverse proxy (stop + start)
     "caddy:restart": "docker compose -f docker-compose.caddy.yml down && docker compose -f docker-compose.caddy.yml up --build -d",
-    // 🔄 Caddy reverse proxy  reload
+    // ⚡ Reload Caddy configuration without restarting containers
     "caddy:reload": "docker exec portfolio-caddy-local caddy reload --config /etc/caddy/Caddyfile",
-    // 🔄 Caddy reverse proxy  status
+    // � Check status of portfolio containers
     "caddy:status": "docker ps --filter name=portfolio- --format 'table {{.Names}}\\t{{.Status}}\\t{{.Ports}}'",
     // 🏁 Shortcut: Run both frontend and backend locally (bare metal dev)
     "bareMetalDev": "npm run bareMetalDev:all",
