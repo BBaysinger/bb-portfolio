@@ -28,18 +28,18 @@ const __dirname = path.dirname(__filename)
  */
 function loadEnvironmentFromSecrets(environment: 'dev' | 'prod') {
   const secretsPath = path.resolve(__dirname, '../../.github-secrets.private.json5')
-  
+
   if (!fs.existsSync(secretsPath)) {
     throw new Error(
       `GitHub secrets file not found: ${secretsPath}\n` +
-      `This script requires .github-secrets.private.json5 to load environment variables.`
+        `This script requires .github-secrets.private.json5 to load environment variables.`,
     )
   }
 
   try {
     const secretsContent = fs.readFileSync(secretsPath, 'utf-8')
     const secrets = JSON5.parse(secretsContent)
-    
+
     if (!secrets.strings) {
       throw new Error('Invalid secrets file format: missing "strings" section')
     }
@@ -51,12 +51,12 @@ function loadEnvironmentFromSecrets(environment: 'dev' | 'prod') {
     const envPrefix = environment.toUpperCase()
     const requiredVars = [
       `${envPrefix}_MONGODB_URI`,
-      `${envPrefix}_PAYLOAD_SECRET`, 
+      `${envPrefix}_PAYLOAD_SECRET`,
       `${envPrefix}_FRONTEND_URL`,
       `${envPrefix}_S3_BUCKET`,
       `${envPrefix}_AWS_REGION`,
       'S3_AWS_ACCESS_KEY_ID',
-      'S3_AWS_SECRET_ACCESS_KEY'
+      'S3_AWS_SECRET_ACCESS_KEY',
     ]
 
     for (const varName of requiredVars) {
@@ -64,7 +64,7 @@ function loadEnvironmentFromSecrets(environment: 'dev' | 'prod') {
       if (!value) {
         throw new Error(
           `Missing required variable "${varName}" in GitHub secrets file.\n` +
-          `Please add it to .github-secrets.private.json5`
+            `Please add it to .github-secrets.private.json5`,
         )
       }
       process.env[varName] = value
@@ -74,7 +74,7 @@ function loadEnvironmentFromSecrets(environment: 'dev' | 'prod') {
   } catch (error) {
     throw new Error(
       `Failed to load GitHub secrets: ${error instanceof Error ? error.message : String(error)}\n` +
-      `Check that .github-secrets.private.json5 exists and contains valid JSON5.`
+        `Check that .github-secrets.private.json5 exists and contains valid JSON5.`,
     )
   }
 }
@@ -197,7 +197,10 @@ async function main() {
   try {
     loadEnvironmentFromSecrets(environment)
   } catch (error) {
-    console.error('❌ Failed to load environment:', error instanceof Error ? error.message : String(error))
+    console.error(
+      '❌ Failed to load environment:',
+      error instanceof Error ? error.message : String(error),
+    )
     process.exit(1)
   }
 
@@ -221,7 +224,7 @@ async function main() {
   try {
     // Dynamically import payload config after environment is set
     const { default: config } = await import('../src/payload.config.js')
-    
+
     // Initialize Payload
     payload = await getPayload({ config })
 

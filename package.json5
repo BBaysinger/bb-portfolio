@@ -3,7 +3,7 @@
   // Root package.json5 for monorepo tooling only
   // =====================
   // 📌 NOTE: This root package.json is ONLY for managing monorepo-level tooling and scripts.
-  // It does not represent a real app or library, and should never be published to npm.
+  // It does not represent a real app or library (and should not be published to npm).
   // Root package name for the portfolio monorepo
   // Monorepo root name (not a real app or package)
   "name": "bb-portfolio-monorepo-root",
@@ -61,21 +61,21 @@
     // 🚀 Build and push both backend and frontend Docker images to Docker Hub (dev tag)
     "docker:build-push": "npm run docker:build:backend && npm run docker:build:frontend && npm run docker:push:backend && npm run docker:push:frontend",
     // 🏁 Shortcut: Run both frontend and backend locally (bare metal dev)
-    "baremetalDev": "npm run baremetalDev:all",
+    "bareMetalDev": "npm run bareMetalDev:all",
     // 🎯 Run both frontend and backend in same terminal with colored output
     // Uses concurrently to show logs from both services with blue/green prefixes
     // Great for seeing everything at once, but logs can get mixed
-    "baremetalDev:all": "concurrently \"npm run baremetalDev:backend\" \"npm run baremetalDev:frontend\" --names \"backend,frontend\" --prefix-colors \"blue,green\"",
+    "bareMetalDev:all": "concurrently \"npm run bareMetalDev:backend\" \"npm run bareMetalDev:frontend\" --names \"backend,frontend\" --prefix-colors \"blue,green\"",
     // 📱 Run frontend and backend in separate macOS Terminal tabs
     // Uses AppleScript to spawn new Terminal tabs for clean, separated logs
     // Perfect for managing services independently (macOS only)
-    "baremetalDev:tabs": "osascript -e 'tell application \"Terminal\" to do script \"cd \\\"$(pwd)/backend\\\" && npm run dev\"' && osascript -e 'tell application \"Terminal\" to do script \"cd \\\"$(pwd)/frontend\\\" && npm run dev\"'",
+    "bareMetalDev:tabs": "osascript -e 'tell application \"Terminal\" to do script \"cd \\\"$(pwd)/backend\\\" && npm run dev\"' && osascript -e 'tell application \"Terminal\" to do script \"cd \\\"$(pwd)/frontend\\\" && npm run dev\"'",
     // ⚙️ Run only the backend service locally (Payload CMS + API)
     // Connects to portfolio-local MongoDB database via .env
-    "baremetalDev:backend": "cd backend && npm run dev",
+    "bareMetalDev:backend": "cd backend && npm run dev",
     // 🎨 Run only the frontend service locally (Next.js with hot reload)
     // Serves the React frontend with automatic reloading on file changes
-    "baremetalDev:frontend": "cd frontend && npm run dev",
+    "bareMetalDev:frontend": "cd frontend && npm run dev",
     // 💅 Format all files with Prettier
     // Ensures consistent code style across the entire monorepo
     "format": "prettier --write .",
@@ -113,8 +113,32 @@
     "media:upload": "tsx scripts/upload-media-to-s3.ts",
     // 🪄 Verify uploaded media files on S3 to ensure integrity
     "media:verify": "tsx scripts/verify-media-s3.ts",
-    // 🪄 Migrate existing media URLs in PayloadCMS from local storage to S3 URLs
-    "migrate:media-to-s3": "cd backend && tsx scripts/migrate-media-to-s3.ts",
+    // 📤 Upload local media files to S3 development environment
+    "migrate:media:dev": "tsx scripts/upload-media-to-s3.ts --env dev",
+    // 📤 Upload local media files to S3 production environment
+    "migrate:media:prod": "tsx scripts/upload-media-to-s3.ts --env prod",
+    // 🔗 PREVIEW: Update media URLs in development database to point to S3 (dry run)
+    "sync:media-urls:dev:dry": "cd backend && tsx scripts/update-media-urls.ts --env dev --dry-run",
+    // 🔗 Update media URLs in development database to point to S3
+    "sync:media-urls:dev": "cd backend && tsx scripts/update-media-urls.ts --env dev",
+    // 🔗 PREVIEW: Update media URLs in production database to point to S3 (dry run)
+    "sync:media-urls:prod:dry": "cd backend && tsx scripts/update-media-urls.ts --env prod --dry-run",
+    // 🔗 Update media URLs in production database to point to S3
+    "sync:media-urls:prod": "cd backend && tsx scripts/update-media-urls.ts --env prod",
+    // 📦 PREVIEW: Complete media migration to development (upload + URL sync, dry run)
+    "migrate:all:dev:dry": "npm run migrate:media:dev && npm run sync:media-urls:dev:dry",
+    // 📦 Complete media migration to development environment (upload + URL sync)
+    "migrate:all:dev": "npm run migrate:media:dev && npm run sync:media-urls:dev",
+    // 📦 PREVIEW: Complete media migration to production (upload + URL sync, dry run)
+    "migrate:all:prod:dry": "npm run migrate:media:prod && npm run sync:media-urls:prod:dry",
+    // 📦 Complete media migration to production environment (upload + URL sync)
+    "migrate:all:prod": "npm run migrate:media:prod && npm run sync:media-urls:prod",
+    // ☢️💀 DANGER: NUCLEAR DATABASE REPLACEMENT - Completely overwrites production DB with local data
+    "db:migrate:local-to-prod": "bash scripts/migrate-database.sh local prod",
+    // ☢️🔥 DANGER: APOCALYPTIC DB REPLACEMENT - Completely overwrites dev DB with local data
+    "db:migrate:local-to-dev": "bash scripts/migrate-database.sh local dev",
+    // ☢️⚰️ DANGER: ARMAGEDDON DB REPLACEMENT - Completely overwrites dev DB with production data
+    "db:migrate:prod-to-dev": "bash scripts/migrate-database.sh prod dev",
   },
   "devDependencies": {
     // Next.js-specific ESLint rules for best practices
