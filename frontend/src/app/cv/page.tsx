@@ -40,101 +40,149 @@ const CurriculumVitae: React.FC = () => {
   };
 
   const lang = [
+    // Modern JavaScript/TypeScript
     "TypeScript",
     "ES6",
-    "Vanilla JavaScript",
     "JSX",
+    "Vanilla JavaScript",
+
+    // Web Markup & Styling
     "HTML5",
     "CSS3",
     "SASS / SCSS",
+
+    // Data & Template Languages
     "JSON",
     "XML",
     "XSL",
     "PHP",
     "Twig",
+    "FreeMarker",
+
+    // Legacy/Specialized
     "Haxe",
     "ActionScript 3",
     "ActionScript 2",
-    "FreeMarker",
   ];
 
   const tech = [
+    // Modern Frontend Frameworks
+    "React",
     "Angular",
     "Angular CLI",
-    "React",
-    "jQuery",
-    "RxJS",
     "Redux",
-    "Express",
+    "RxJS",
+
+    // Backend & Runtime
     "Node",
+    "Express",
+
+    // UI Libraries & Animation
     "Bootstrap",
     "GreenSock / GSAP",
-    "Flambé / 2DKit",
+    "jQuery",
+
+    // CMS & Platforms
     "Craft CMS",
     "Salesforce",
     "Sitecore",
+
+    // Services & APIs
     "Elasticsearch",
     "Mapbox",
-    "Mustache / Handlebars",
-    "Require / AMD",
     "OneTrust",
     "Litmus",
+
+    // Template Engines & Module Systems
+    "Mustache / Handlebars",
+    "Require / AMD",
+
+    // Game Development (Legacy)
+    "Flambé / 2DKit",
   ];
 
   const concepts = [
+    // Architecture & Patterns
     "SPAs",
-    "OOP",
     "MVC",
-    "DHTML",
+    "OOP",
+    "Design Patterns",
+    "REST APIs",
+
+    // Web Standards & Layout
     "Accessibility",
     "SEO",
-    "REST APIs",
-    "Design Patterns",
-    "Game Frameworks",
-    "Tween Engines",
-    "Quality Assurance",
-    "Tracking / Analytics",
-    "SVG",
-    "Canvas",
     "Flexbox",
     "Grid",
+
+    // Graphics & Animation
+    "SVG",
+    "Canvas",
+    "Tween Engines",
+
+    // Quality & Analytics
+    "Quality Assurance",
+    "Tracking / Analytics",
+
+    // Legacy/Specialized
+    "DHTML",
+    "Game Frameworks",
   ];
 
   const software = [
-    "Illustrator",
-    "Photoshop",
-    "Animate (w/ scripting & HTML5 export)",
-    "Visual Studio",
+    // Code Editors & IDEs
     "VSCode",
-    "Atom Editor",
+    "Visual Studio",
     "Sublime Text",
+    "Atom Editor",
     "Dreamweaver",
+
+    // Version Control
     "Git",
     "Git Tower",
     "Sourcetree",
     "SVN",
+
+    // Build Tools & Package Managers
     "NPM",
+    "Vite",
     "Webpack",
+    "Babel",
     "Grunt",
     "Gulp",
-    "Babel",
-    "Vite",
+
+    // Adobe Creative Suite
+    "Illustrator",
+    "Photoshop",
+    "Animate (w/ scripting & HTML5 export)",
+
+    // Development Environment
     "Docker",
     "VirtualBox",
     "MAMP",
+    "Terminal / Command Prompt",
+
+    // Testing & Browser Tools
     "Sauce Labs",
     "BrowserStack",
+
+    // Project Management & Documentation
     "Jira",
     "Trello",
     "Smartsheet",
-    "Google Docs",
     "Confluence",
-    "OS X",
-    "Windows",
-    "Terminal / Command Prompt",
+    "Google Docs",
+
+    // AI Tools
     "ChatGPT",
     "Copilot AI",
     "Perplexity AI",
+
+    // Operating Systems
+    "OS X",
+    "Windows",
+
+    // Legacy/Specialized
     "Create / Easel",
   ];
 
