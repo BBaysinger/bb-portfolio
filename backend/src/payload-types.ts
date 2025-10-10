@@ -241,7 +241,6 @@ export interface BrandLogo {
    * Choose the background type this logo is intended for.
    */
   logoType: 'light-mode' | 'dark-mode' | 'both-modes';
-  prefix?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -280,7 +279,6 @@ export interface ProjectScreenshot {
    * Optional alt text for accessibility or SEO.
    */
   alt?: string | null;
-  prefix?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -314,7 +312,6 @@ export interface ProjectThumbnail {
    * Accessible text for screen readers and SEO.
    */
   alt?: string | null;
-  prefix?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -515,7 +512,6 @@ export interface BrandsSelect<T extends boolean = true> {
 export interface BrandLogosSelect<T extends boolean = true> {
   alt?: T;
   logoType?: T;
-  prefix?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -551,7 +547,6 @@ export interface ProjectScreenshotsSelect<T extends boolean = true> {
   orientation?: T;
   project?: T;
   alt?: T;
-  prefix?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -585,7 +580,6 @@ export interface ProjectScreenshotsSelect<T extends boolean = true> {
 export interface ProjectThumbnailsSelect<T extends boolean = true> {
   project?: T;
   alt?: T;
-  prefix?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;

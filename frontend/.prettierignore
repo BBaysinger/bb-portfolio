@@ -14,8 +14,6 @@ dist/
 out/
 
 # 🗃 Legacy / Archived / Backup Folders
-frontend-vite-old/
-backend-previous/
 **/*(from backup)*/
 
 # 🧠 Config / Misc

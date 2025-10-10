@@ -1,0 +1,29 @@
+:80 {
+    # Admin routes go to backend container
+    handle /admin* {
+        reverse_proxy backend-local:3001
+    }
+    
+    # API routes go to backend container  
+    handle /api/* {
+        reverse_proxy backend-local:3001
+    }
+    
+    # PayloadCMS specific static assets (based on path patterns)
+    handle /_next/static/css/app/(payload)/* {
+        reverse_proxy backend-local:3001
+    }
+    
+    handle /_next/static/chunks/app/(payload)/* {
+        reverse_proxy backend-local:3001
+    }
+    
+    handle /_next/static/media/payload-* {
+        reverse_proxy backend-local:3001
+    }
+    
+    # Everything else goes to frontend container
+    handle {
+        reverse_proxy frontend-local:3000
+    }
+}

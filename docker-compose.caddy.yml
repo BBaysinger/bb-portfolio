@@ -1,0 +1,53 @@
+services:
+  # =============================================================================
+  # LOCAL CADDY REVERSE PROXY
+  # =============================================================================
+  caddy:
+    image: caddy:alpine
+    container_name: portfolio-caddy-local
+    ports:
+      - "8080:80"
+      - "8443:443" 
+    volumes:
+      - ./docker/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+    depends_on:
+      - frontend-local
+      - backend-local
+    networks:
+      - portfolio-local
+
+  # =============================================================================
+  # LOCAL DEVELOPMENT SERVICES
+  # =============================================================================
+  frontend-local:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: portfolio-frontend-local
+    environment:
+      - NODE_ENV=development
+      - ENV_PROFILE=local
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    networks:
+      - portfolio-local
+
+  backend-local:
+    build:
+      context: ./backend  
+      dockerfile: Dockerfile.dev
+    container_name: portfolio-backend-local
+    environment:
+      - NODE_ENV=development
+      - ENV_PROFILE=local
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    networks:
+      - portfolio-local
+
+networks:
+  portfolio-local:
+    driver: bridge
