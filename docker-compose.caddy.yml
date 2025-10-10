@@ -7,7 +7,7 @@ services:
     container_name: portfolio-caddy-local
     ports:
       - "8080:80"
-      - "8443:443" 
+      - "8443:443"
     volumes:
       - ./docker/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
     depends_on:
@@ -36,7 +36,7 @@ services:
 
   backend-local:
     build:
-      context: ./backend  
+      context: ./backend
       dockerfile: Dockerfile.dev
     container_name: portfolio-backend-local
     environment:

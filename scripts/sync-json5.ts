@@ -315,7 +315,7 @@ function buildCommentMap(
  * @returns A blank comment string
  */
 function generateScriptComment(): string {
-  return '//';
+  return "//";
 }
 
 /**
@@ -376,7 +376,11 @@ function syncJson5(raw: string, source: Record<string, unknown>): string {
         for (const c of commentInfo.preceding) {
           result.push(indent(c, level));
         }
-      } else if (path.length > 0 && path[0] === 'scripts' && typeof val === 'string') {
+      } else if (
+        path.length > 0 &&
+        path[0] === "scripts" &&
+        typeof val === "string"
+      ) {
         // Auto-generate blank comment for uncommented script entries
         const autoComment = generateScriptComment();
         result.push(indent(autoComment, level));
