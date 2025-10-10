@@ -14,6 +14,7 @@
     "prebuild": "node ./scripts/check-required-env.js",
     // Build production-optimized static site
     "build": "next build",
+    // 🏗️ Build the  when-ready component
     "build:when-ready": "node ./scripts/build-when-ready.mjs",
     // Preview the built static site using serve
     "preview": "npx serve out",
