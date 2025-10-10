@@ -127,26 +127,26 @@ resource "aws_instance" "portfolio" {
   }
 
   user_data = <<-EOF
-    #!/bin/bash
-    yum update -y
-    yum install -y docker git nginx
-    
-    # Configure Docker
-    systemctl enable docker
-    systemctl start docker
-    
-    # Configure SSM Agent
-    systemctl enable amazon-ssm-agent
-    systemctl start amazon-ssm-agent
-    
-    # Add ec2-user to docker group for easier management
-    usermod -aG docker ec2-user
-    
-    # Configure Nginx
-    systemctl enable nginx
-    
-    # Create Nginx configuration for portfolio
-    cat > /etc/nginx/conf.d/portfolio.conf << NGINX_EOF
+#!/bin/bash
+yum update -y
+yum install -y docker git nginx
+
+# Configure Docker
+systemctl enable docker
+systemctl start docker
+
+# Configure SSM Agent
+systemctl enable amazon-ssm-agent
+systemctl start amazon-ssm-agent
+
+# Add ec2-user to docker group for easier management
+usermod -aG docker ec2-user
+
+# Configure Nginx
+systemctl enable nginx
+
+# Create Nginx configuration for portfolio
+cat > /etc/nginx/conf.d/portfolio.conf << NGINX_EOF
 # Production/Main domain server block
 server {
     listen 80;
@@ -234,19 +234,19 @@ server {
     return 444; # Close connection without response for unknown domains
 }
 NGINX_EOF
+
+# Disable default Nginx server block by commenting it out
+sed -i '/^    server {/,/^    }/s/^/#/' /etc/nginx/nginx.conf
+
+# Test and start Nginx
+nginx -t && systemctl start nginx
+
+# Setup Docker deployment directory and files
+mkdir -p /home/ec2-user/portfolio
+cd /home/ec2-user/portfolio
     
-    # Disable default Nginx server block by commenting it out
-    sed -i '/^    server {/,/^    }/s/^/#/' /etc/nginx/nginx.conf
-    
-    # Test and start Nginx
-    nginx -t && systemctl start nginx
-    
-    # Setup Docker deployment directory and files
-    mkdir -p /home/ec2-user/portfolio
-    cd /home/ec2-user/portfolio
-    
-    # Create docker-compose.yml for the portfolio application
-    cat > /home/ec2-user/portfolio/docker-compose.yml << COMPOSE_EOF
+# Create docker-compose.yml for the portfolio application
+cat > /home/ec2-user/portfolio/docker-compose.yml << COMPOSE_EOF
 services:
   # =============================================================================
   # PRODUCTION CONTAINERS (ECR images, for production deployment)
@@ -272,7 +272,7 @@ services:
     container_name: portfolio-backend-prod
     image: ${aws_ecr_repository.backend.repository_url}:latest
     ports:
-      - "3001:3000"
+      - "3001:3001"
     environment:
       - NODE_ENV=production
       - ENV_PROFILE=prod
@@ -280,7 +280,7 @@ services:
       - prod
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:3001/api/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -304,7 +304,7 @@ services:
     container_name: portfolio-backend-dev  
     image: bhbaysinger/portfolio-backend:dev
     ports:
-      - "4001:3000"
+      - "4001:3001"
     environment:
       - NODE_ENV=development
       - ENV_PROFILE=dev
@@ -313,11 +313,11 @@ services:
     restart: unless-stopped
 COMPOSE_EOF
 
-    # Set proper ownership for ec2-user
-    chown -R ec2-user:ec2-user /home/ec2-user/portfolio
-    
-    # Create a startup script for the containers
-    cat > /home/ec2-user/portfolio/start-containers.sh << SCRIPT_EOF
+# Set proper ownership for ec2-user
+chown -R ec2-user:ec2-user /home/ec2-user/portfolio
+
+# Create a startup script for the containers
+cat > /home/ec2-user/portfolio/start-containers.sh << SCRIPT_EOF
 #!/bin/bash
 cd /home/ec2-user/portfolio
 
@@ -334,10 +334,10 @@ sudo docker-compose --profile dev up -d
 echo "\$$(date): Portfolio containers started" >> /var/log/portfolio-startup.log
 SCRIPT_EOF
 
-    chmod +x /home/ec2-user/portfolio/start-containers.sh
-    
-    # Create systemd service for automatic container startup
-    cat > /etc/systemd/system/portfolio.service << SERVICE_EOF
+chmod +x /home/ec2-user/portfolio/start-containers.sh
+
+# Create systemd service for automatic container startup
+cat > /etc/systemd/system/portfolio.service << SERVICE_EOF
 [Unit]
 Description=Portfolio Docker Containers
 After=docker.service nginx.service
@@ -356,15 +356,15 @@ Group=root
 WantedBy=multi-user.target
 SERVICE_EOF
 
-    # Enable the portfolio service but don't start it automatically
-    # Let GitHub Actions handle container deployment with proper environment files
-    systemctl daemon-reload
-    systemctl enable portfolio.service
-    
-    # Note: Containers will be started by GitHub Actions deployment
-    echo "Infrastructure ready. Containers will be deployed via GitHub Actions." >> /var/log/portfolio-startup.log
-    
-  EOF
+# Enable the portfolio service but don't start it automatically
+# Let GitHub Actions handle container deployment with proper environment files
+systemctl daemon-reload
+systemctl enable portfolio.service
+
+# Note: Containers will be started by GitHub Actions deployment
+echo "Infrastructure ready. Containers will be deployed via GitHub Actions." >> /var/log/portfolio-startup.log
+
+EOF
 
   tags = {
     Name = "bb-portfolio"
