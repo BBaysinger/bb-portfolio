@@ -8,9 +8,6 @@ backend/.next/
 backend-previous/.next/
 frontend/.next/
 
-# 🧪 Legacy or experimental folders
-frontend-vite-old/
-
 # � Database dumps (NDJSON format, don't format)
 dump/
 
