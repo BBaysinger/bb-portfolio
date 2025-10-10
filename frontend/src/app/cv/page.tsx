@@ -68,9 +68,11 @@ const CurriculumVitae: React.FC = () => {
   const tech = [
     // Modern Frontend Frameworks
     "React",
+    "Next.js",
+    "Vite",
+    "Redux",
     "Angular",
     "Angular CLI",
-    "Redux",
     "RxJS",
 
     // Backend & Runtime
