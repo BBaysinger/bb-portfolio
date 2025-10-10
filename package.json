@@ -25,6 +25,7 @@
     "docker:push:frontend": "docker push bhbaysinger/portfolio-frontend:dev",
     "docker:build-push": "npm run docker:build:backend && npm run docker:build:frontend && npm run docker:push:backend && npm run docker:push:frontend",
     "caddy:up": "docker compose -f docker-compose.caddy.yml up --build -d",
+    "caddy:up:no-strict": "REACT_STRICT_MODE=false docker compose -f docker-compose.caddy.yml up --build -d",
     "caddy:down": "docker compose -f docker-compose.caddy.yml down",
     "caddy:logs": "docker compose -f docker-compose.caddy.yml logs -f",
     "caddy:restart": "docker compose -f docker-compose.caddy.yml down && docker compose -f docker-compose.caddy.yml up --build -d",
