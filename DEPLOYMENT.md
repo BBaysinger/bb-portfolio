@@ -28,13 +28,29 @@ Your site is ready! Point your domain DNS to the Elastic IP:
 ```
 A Record: bbinteractive.io → 44.250.92.40
 A Record: www.bbinteractive.io → 44.250.92.40
+A Record: dev.bbinteractive.io → 44.250.92.40
 ```
 
-**Test URL**: http://44.250.92.40 (already working!)
+**Test URLs**:
 
-### 2. Future Infrastructure Changes (Optional)
+- Production: http://44.250.92.40 (already working!)
+- Development subdomain: http://dev.bbinteractive.io (after DNS propagation)
 
-If you need to modify infrastructure, simply:
+### 2. Deploy .dev Subdomain Support (Required)
+
+The infrastructure has been updated to support `dev.bbinteractive.io`. To deploy this change:
+
+```bash
+cd infra/
+terraform plan    # Review the Nginx configuration changes
+terraform apply   # Deploy the updated server configuration
+```
+
+This will update the Nginx configuration on your server to handle the new subdomain.
+
+### 3. Future Infrastructure Changes (Optional)
+
+For any additional infrastructure changes:
 
 ```bash
 cd infra/
@@ -89,8 +105,10 @@ Everything is now **Infrastructure as Code**! 🎉
 Internet → CloudFlare DNS → Elastic IP (44.250.92.40)
     ↓
 AWS EC2 t3.medium
-    ├── Nginx (:80) → Frontend Container (:4000)
-    │                └── API requests → Backend Container (:4001)
+    ├── Nginx (:80)
+    │   ├── bbinteractive.io & www.bbinteractive.io → Production Containers (:3000/:3001)
+    │   ├── dev.bbinteractive.io → Development Containers (:4000/:4001)
+    │   └── API requests (/api/) routed per domain
     ├── ECR Images (for production deployment)
     └── S3 Buckets (media storage)
 ```
