@@ -29,8 +29,8 @@ log_success() { echo -e "${GREEN}✅ $1${NC}"; }
 log_warning() { echo -e "${YELLOW}⚠️  $1${NC}"; }
 log_error() { echo -e "${RED}❌ $1${NC}"; }
 
-# Database connection strings
-MONGODB_BASE="mongodb+srv://payload-admin:lCuGCcoZkdpGY5Rr@portfolio-2025.p1lq6fs.mongodb.net"
+# Database connection strings - Use environment variable
+MONGODB_BASE="${MONGODB_BASE_URI:-mongodb+srv://username:password@portfolio-2025.p1lq6fs.mongodb.net}"
 
 # Function to get database name by environment
 get_db_name() {
