@@ -1,0 +1,21 @@
+/* Digital-7 Font Face Declarations */
+
+@font-face {
+  font-family: "Digital-7";
+  src:
+    url("/fonts/digital-7.woff2") format("woff2"),
+    url("/fonts/digital-7.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap; /* Improves loading performance, especially on iOS */
+}
+
+@font-face {
+  font-family: "Digital-7 Mono";
+  src:
+    url("/fonts/digital-7-mono.woff2") format("woff2"),
+    url("/fonts/digital-7-mono.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
