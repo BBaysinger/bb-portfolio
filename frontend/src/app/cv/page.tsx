@@ -725,7 +725,8 @@ const CurriculumVitae: React.FC = () => {
 
               <p ref={addToRefs} className={styles.scope}>
                 <span>Technical Scope:</span> ActionScript 3, ActionScript 2,
-                JavaScript, jQuery, Require/AMD, Haxe, Flash, Adobe Creative Suite
+                JavaScript, jQuery, Require/AMD, Haxe, Flash, Adobe Creative
+                Suite
               </p>
 
               <ul>
