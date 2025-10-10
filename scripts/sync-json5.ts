@@ -310,6 +310,74 @@ function buildCommentMap(
 }
 
 /**
+ * Generates automatic comments for script entries that don't have comments.
+ * Creates helpful descriptions based on common script naming patterns.
+ *
+ * @param scriptName - The name of the npm script
+ * @param scriptCommand - The command being executed
+ * @returns A generated comment string or null if no automatic comment should be added
+ */
+function generateScriptComment(scriptName: string, scriptCommand: string): string | null {
+  // Skip auto-comments for very generic or self-explanatory names
+  if (['start', 'test', 'build', 'dev', 'lint'].includes(scriptName)) {
+    return null;
+  }
+
+  // Pattern-based comment generation
+  const patterns = [
+    // Build patterns
+    { regex: /^build:(.+)$/, template: '🏗️ Build the {1} component' },
+    
+    // Docker patterns
+    { regex: /^docker:build:(.+)$/, template: '🐳 Build Docker image for {1}' },
+    { regex: /^docker:push:(.+)$/, template: '📤 Push Docker image for {1} to registry' },
+    { regex: /^docker:(.+):(.+)$/, template: '🐳 Docker {1} for {2} environment' },
+    { regex: /^docker:(.+)$/, template: '🐳 Docker {1} operation' },
+    
+    // Caddy patterns
+    { regex: /^caddy:(.+)$/, template: '🔄 Caddy reverse proxy: {1}' },
+    
+    // Migration patterns
+    { regex: /^migrate:(.+):(.+):dry$/, template: '🔍 PREVIEW: Migrate {1} for {2} (dry run)' },
+    { regex: /^migrate:(.+):(.+)$/, template: '🚀 Migrate {1} for {2} environment' },
+    { regex: /^migrate:(.+)$/, template: '📦 Migration operation: {1}' },
+    
+    // Environment patterns
+    { regex: /^(.+):dev:?(.*)$/, template: '🛠️ {1} for development {2}' },
+    { regex: /^(.+):prod:?(.*)$/, template: '🌟 {1} for production {2}' },
+    { regex: /^(.+):local:?(.*)$/, template: '💻 {1} for local environment {2}' },
+    
+    // Action patterns
+    { regex: /^(.+):up$/, template: '🚀 Start {1} services' },
+    { regex: /^(.+):down$/, template: '🛑 Stop {1} services' },
+    { regex: /^(.+):logs$/, template: '📋 View {1} logs' },
+    { regex: /^(.+):restart$/, template: '🔄 Restart {1} services' },
+    { regex: /^(.+):reload$/, template: '⚡ Reload {1} configuration' },
+    { regex: /^(.+):status$/, template: '📊 Check {1} status' },
+    
+    // Compound operations
+    { regex: /^(.+)-push$/, template: '🚀 Build and push {1}' },
+    { regex: /^(.+):all:(.+)$/, template: '📦 Complete {1} process for {2}' },
+  ];
+
+  for (const pattern of patterns) {
+    const match = scriptName.match(pattern.regex);
+    if (match) {
+      let comment = pattern.template;
+      for (let i = 1; i < match.length; i++) {
+        const replacement = match[i] || '';
+        comment = comment.replace(`{${i}}`, replacement);
+      }
+      return `// ${comment}`;
+    }
+  }
+
+  // Fallback: generate a basic comment
+  const action = scriptName.split(':')[0] || scriptName;
+  return `// ${action.charAt(0).toUpperCase()}${action.slice(1)} operation`;
+}
+
+/**
  * Synchronizes a JSON5 file with its canonical JSON source while preserving formatting.
  *
  * This is the main synchronization function that:
@@ -362,10 +430,16 @@ function syncJson5(raw: string, source: Record<string, unknown>): string {
 
       const commentInfo = comments[fullPath];
 
-      // Add any preceding comments above this key
+      // Add any preceding comments above this key, or generate one if missing for scripts
       if (commentInfo?.preceding) {
         for (const c of commentInfo.preceding) {
           result.push(indent(c, level));
+        }
+      } else if (path.length > 0 && path[0] === 'scripts' && typeof val === 'string') {
+        // Auto-generate comment for uncommented script entries
+        const autoComment = generateScriptComment(key, val);
+        if (autoComment) {
+          result.push(indent(autoComment, level));
         }
       }
 

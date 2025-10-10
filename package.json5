@@ -60,6 +60,18 @@
     "docker:push:frontend": "docker push bhbaysinger/portfolio-frontend:dev",
     // 🚀 Build and push both backend and frontend Docker images to Docker Hub (dev tag)
     "docker:build-push": "npm run docker:build:backend && npm run docker:build:frontend && npm run docker:push:backend && npm run docker:push:frontend",
+    // 🔄 Caddy reverse proxy  up
+    "caddy:up": "docker compose -f docker-compose.caddy.yml up --build -d",
+    // 🔄 Caddy reverse proxy  down
+    "caddy:down": "docker compose -f docker-compose.caddy.yml down",
+    // 🔄 Caddy reverse proxy  logs
+    "caddy:logs": "docker compose -f docker-compose.caddy.yml logs -f",
+    // 🔄 Caddy reverse proxy  restart
+    "caddy:restart": "docker compose -f docker-compose.caddy.yml down && docker compose -f docker-compose.caddy.yml up --build -d",
+    // 🔄 Caddy reverse proxy  reload
+    "caddy:reload": "docker exec portfolio-caddy-local caddy reload --config /etc/caddy/Caddyfile",
+    // 🔄 Caddy reverse proxy  status
+    "caddy:status": "docker ps --filter name=portfolio- --format 'table {{.Names}}\\t{{.Status}}\\t{{.Ports}}'",
     // 🏁 Shortcut: Run both frontend and backend locally (bare metal dev)
     "bareMetalDev": "npm run bareMetalDev:all",
     // 🎯 Run both frontend and backend in same terminal with colored output
@@ -118,21 +130,21 @@
     // 📤 Upload local media files to S3 production environment
     "migrate:media:prod": "tsx scripts/upload-media-to-s3.ts --env prod",
     // 🔗 PREVIEW: Update media URLs in development database to point to S3 (dry run)
-    "sync:media-urls:dev:dry": "cd backend && tsx scripts/update-media-urls.ts --env dev --dry-run",
+    "migrate:db:dev:dry": "cd backend && tsx scripts/update-media-urls.ts --env dev --dry-run",
     // 🔗 Update media URLs in development database to point to S3
-    "sync:media-urls:dev": "cd backend && tsx scripts/update-media-urls.ts --env dev",
+    "migrate:db:dev": "cd backend && tsx scripts/update-media-urls.ts --env dev",
     // 🔗 PREVIEW: Update media URLs in production database to point to S3 (dry run)
-    "sync:media-urls:prod:dry": "cd backend && tsx scripts/update-media-urls.ts --env prod --dry-run",
+    "migrate:db:prod:dry": "cd backend && tsx scripts/update-media-urls.ts --env prod --dry-run",
     // 🔗 Update media URLs in production database to point to S3
-    "sync:media-urls:prod": "cd backend && tsx scripts/update-media-urls.ts --env prod",
+    "migrate:db:prod": "cd backend && tsx scripts/update-media-urls.ts --env prod",
     // 📦 PREVIEW: Complete media migration to development (upload + URL sync, dry run)
-    "migrate:all:dev:dry": "npm run migrate:media:dev && npm run sync:media-urls:dev:dry",
+    "migrate:all:dev:dry": "npm run migrate:media:dev && npm run migrate:db:dev:dry",
     // 📦 Complete media migration to development environment (upload + URL sync)
-    "migrate:all:dev": "npm run migrate:media:dev && npm run sync:media-urls:dev",
+    "migrate:all:dev": "npm run migrate:media:dev && npm run migrate:db:dev",
     // 📦 PREVIEW: Complete media migration to production (upload + URL sync, dry run)
-    "migrate:all:prod:dry": "npm run migrate:media:prod && npm run sync:media-urls:prod:dry",
+    "migrate:all:prod:dry": "npm run migrate:media:prod && npm run migrate:db:prod:dry",
     // 📦 Complete media migration to production environment (upload + URL sync)
-    "migrate:all:prod": "npm run migrate:media:prod && npm run sync:media-urls:prod",
+    "migrate:all:prod": "npm run migrate:media:prod && npm run migrate:db:prod",
     // ☢️💀 DANGER: NUCLEAR DATABASE REPLACEMENT - Completely overwrites production DB with local data
     "db:migrate:local-to-prod": "bash scripts/migrate-database.sh local prod",
     // ☢️🔥 DANGER: APOCALYPTIC DB REPLACEMENT - Completely overwrites dev DB with local data
