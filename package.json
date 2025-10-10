@@ -20,11 +20,11 @@
     "docker:push:backend": "docker push bhbaysinger/portfolio-backend:dev",
     "docker:push:frontend": "docker push bhbaysinger/portfolio-frontend:dev",
     "docker:build-push": "npm run docker:build:backend && npm run docker:build:frontend && npm run docker:push:backend && npm run docker:push:frontend",
-    "baremetalDev": "npm run baremetalDev:all",
-    "baremetalDev:all": "concurrently \"npm run baremetalDev:backend\" \"npm run baremetalDev:frontend\" --names \"backend,frontend\" --prefix-colors \"blue,green\"",
-    "baremetalDev:tabs": "osascript -e 'tell application \"Terminal\" to do script \"cd \\\"$(pwd)/backend\\\" && npm run dev\"' && osascript -e 'tell application \"Terminal\" to do script \"cd \\\"$(pwd)/frontend\\\" && npm run dev\"'",
-    "baremetalDev:backend": "cd backend && npm run dev",
-    "baremetalDev:frontend": "cd frontend && npm run dev",
+    "bareMetalDev": "npm run bareMetalDev:all",
+    "bareMetalDev:all": "concurrently \"npm run bareMetalDev:backend\" \"npm run bareMetalDev:frontend\" --names \"backend,frontend\" --prefix-colors \"blue,green\"",
+    "bareMetalDev:tabs": "osascript -e 'tell application \"Terminal\" to do script \"cd \\\"$(pwd)/backend\\\" && npm run dev\"' && osascript -e 'tell application \"Terminal\" to do script \"cd \\\"$(pwd)/frontend\\\" && npm run dev\"'",
+    "bareMetalDev:backend": "cd backend && npm run dev",
+    "bareMetalDev:frontend": "cd frontend && npm run dev",
     "format": "prettier --write .",
     "lint": "eslint .",
     "precommit": "prettier --write . && eslint . --fix && tsc --noEmit",
@@ -47,7 +47,10 @@
     "migrate:all:dev:dry": "npm run migrate:media:dev && npm run migrate:db:dev:dry",
     "migrate:all:dev": "npm run migrate:media:dev && npm run migrate:db:dev",
     "migrate:all:prod:dry": "npm run migrate:media:prod && npm run migrate:db:prod:dry",
-    "migrate:all:prod": "npm run migrate:media:prod && npm run migrate:db:prod"
+    "migrate:all:prod": "npm run migrate:media:prod && npm run migrate:db:prod",
+    "db:migrate:local-to-prod": "bash scripts/migrate-database.sh local prod",
+    "db:migrate:local-to-dev": "bash scripts/migrate-database.sh local dev",
+    "db:migrate:prod-to-dev": "bash scripts/migrate-database.sh prod dev"
   },
   "devDependencies": {
     "@next/eslint-plugin-next": "^15.5.4",
