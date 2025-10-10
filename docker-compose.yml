@@ -183,6 +183,7 @@ services:
       - ./frontend/.env
     environment:
       - CHOKIDAR_USEPOLLING=true
+      - REACT_STRICT_MODE=${REACT_STRICT_MODE:-true}
     restart: unless-stopped
     depends_on:
       backend-local:
@@ -221,6 +222,7 @@ services:
       - ./frontend/.env
     environment:
       - CHOKIDAR_USEPOLLING=true
+      - REACT_STRICT_MODE=${REACT_STRICT_MODE:-true}
       - BACKEND_INTERNAL_URL=http://backend-local-ssg-generate:3001
       - NEXT_PUBLIC_BACKEND_URL=http://backend-local-ssg-generate:3001
     restart: unless-stopped
