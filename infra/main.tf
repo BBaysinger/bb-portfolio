@@ -147,9 +147,39 @@ resource "aws_instance" "portfolio" {
     
     # Create Nginx configuration for portfolio
     cat > /etc/nginx/conf.d/portfolio.conf << NGINX_EOF
+# Production/Main domain server block
 server {
     listen 80;
-    server_name bbinteractive.io www.bbinteractive.io _;
+    server_name bbinteractive.io www.bbinteractive.io;
+    
+    # Frontend proxy to production container (port 3000)
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+        proxy_cache_bypass \$http_upgrade;
+    }
+    
+    # API proxy to production backend (port 3001)
+    location /api/ {
+        proxy_pass http://localhost:3001/api/;
+        proxy_http_version 1.1;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+    }
+}
+
+# Development subdomain server block
+server {
+    listen 80;
+    server_name dev.bbinteractive.io *.dev.bbinteractive.io;
     
     # Frontend proxy to development container (port 4000)
     location / {
@@ -173,6 +203,13 @@ server {
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto \$scheme;
     }
+}
+
+# Default server block for unknown domains
+server {
+    listen 80 default_server;
+    server_name _;
+    return 444; # Close connection without response for unknown domains
 }
 NGINX_EOF
     

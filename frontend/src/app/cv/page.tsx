@@ -643,7 +643,7 @@ const CurriculumVitae: React.FC = () => {
 
               <p ref={addToRefs} className={styles.scope}>
                 <span>Technical Scope:</span> Angular 4-6, TypeScript, Mapbox,
-                Rest APIs, GraphQL, Data Visualizations, Adobe Create Suite
+                Rest APIs, GraphQL, Data Visualizations, Adobe Creative Suite
               </p>
 
               <ul>
@@ -725,7 +725,8 @@ const CurriculumVitae: React.FC = () => {
 
               <p ref={addToRefs} className={styles.scope}>
                 <span>Technical Scope:</span> ActionScript 3, ActionScript 2,
-                JavaScript, jQuery, Require/AMD, Haxe, Flash, Adobe Create Suite
+                JavaScript, jQuery, Require/AMD, Haxe, Flash, Adobe Creative
+                Suite
               </p>
 
               <ul>
@@ -825,7 +826,7 @@ const CurriculumVitae: React.FC = () => {
 
               <p ref={addToRefs} className={styles.scope}>
                 <span>Technical Scope:</span> HTML, CSS, Vanilla JavaScript,
-                Visual Studio, AJAX, Dynamic HTML, and Adobe Create Suite
+                Visual Studio, AJAX, Dynamic HTML, and Adobe Creative Suite
               </p>
 
               <ul>
@@ -990,7 +991,7 @@ const CurriculumVitae: React.FC = () => {
 
               <p ref={addToRefs} className={styles.scope}>
                 <span>Technical Scope:</span> Vanilla JavaScript, HTML, CSS,
-                Dynamic HTML, PHP, and Adobe Create Suite
+                Dynamic HTML, PHP, and Adobe Creative Suite
               </p>
 
               <ul>
