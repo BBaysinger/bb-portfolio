@@ -252,3 +252,48 @@
     #{$property}: $max-value;
   }
 }
+
+//////////////////////////////////////////////////////////////////////////
+// Transform Scaling
+//////////////////////////////////////////////////////////////////////////
+
+/// Applies fluid transform scaling across a viewport range
+/// Follows the same pattern as staticRange but specifically for transform: scale()
+///
+/// @param $min-scale - The scale value at the minimum viewport width (unitless)
+/// @param $max-scale - The scale value at the maximum viewport width (unitless)
+/// @param $min-vw - Minimum viewport width in px or unitless (default: $b320)
+/// @param $max-vw - Maximum viewport width in px or unitless (default: $b1600)
+/// @param $preserve-transform - Existing transform to preserve (default: null)
+///
+/// @example
+/// @include scaleRange(0.8, 1.2, 360px, 1440px);
+/// @include scaleRange(0.5, 1.0, $b320, $b768, translateX(-50%));
+@mixin scaleRange(
+  $min-scale,
+  $max-scale,
+  $min-vw: $b320,
+  $max-vw: $b1600,
+  $preserve-transform: null
+) {
+  // Normalize viewports
+  $min-vw: ensureUnit($min-vw, "px");
+  $max-vw: ensureUnit($max-vw, "px");
+
+  // Validate scale values are unitless numbers
+  @if math.unit($min-scale) != "" {
+    @error "scaleRange(): Scale values must be unitless. Got: #{$min-scale}";
+  }
+  @if math.unit($max-scale) != "" {
+    @error "scaleRange(): Scale values must be unitless. Got: #{$max-scale}";
+  }
+
+  // Build transform with clamp - generate the exact working syntax
+  $base-transform: if($preserve-transform, "#{$preserve-transform} ", "");
+  $range: $max-scale - $min-scale;
+  $vw-range: stripUnit($max-vw - $min-vw);
+
+  transform: string.unquote(
+    "#{$base-transform}scale(clamp(#{$min-scale}, #{$min-scale} + #{$range} * ((100vw - #{$min-vw}) / #{$vw-range}px), #{$max-scale}))"
+  );
+}
