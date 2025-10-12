@@ -118,6 +118,7 @@ const CurriculumVitae: React.FC = () => {
     "SPAs",
     "MVC",
     "OOP",
+    "Functional Programming",
     "Design Patterns",
     "REST APIs",
     "Monorepo Architecture",
