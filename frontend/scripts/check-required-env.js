@@ -83,7 +83,7 @@
     const summary = effectiveRequirements.length
       ? effectiveRequirements.map((g) => `[${g.join("|")}]`).join(", ")
       : "<none> (no requirements enforced)";
-    console.log(
+    console.info(
       `[check-required-env] All required envs satisfied. Profile=${profile} Requirements=${summary}\nCI=${CI} NODE_ENV=${NODE_ENV} ENV_PROFILE=${ENV_PROFILE}`,
     );
   }

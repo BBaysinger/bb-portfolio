@@ -195,13 +195,6 @@ const LayeredCarouselManager = forwardRef<
                     "bbTiltRight",
                 );
 
-                // Debug logging for phones layer
-                if (layer.id === "Phones" && index === 0) {
-                  console.log(
-                    `Phone slide ${index}: stabilized=${isStabilized}, direction=${currentDirection}, classes="${appliedClasses}"`,
-                  );
-                }
-
                 return (
                   <div key={index} className={appliedClasses}>
                     {slide}

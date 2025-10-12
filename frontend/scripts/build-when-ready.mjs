@@ -9,14 +9,14 @@ import { execSync } from "child_process";
 
 async function buildWhenReady() {
   try {
-    console.log("🏗️  Running Next.js build...");
+    console.info("🏗️  Running Next.js build...");
 
     execSync("npm run build", {
       stdio: "inherit",
       cwd: process.cwd(),
     });
 
-    console.log("🎉 Build completed successfully!");
+    console.info("🎉 Build completed successfully!");
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "Unknown error";

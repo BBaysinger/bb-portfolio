@@ -57,11 +57,11 @@ async function waitForReachable(
   path: string,
 ) {
   const start = Date.now();
-  console.log(`Waiting for ${label} on http://${host}:${port}${path} ...`);
+  console.info(`Waiting for ${label} on http://${host}:${port}${path} ...`);
   while (true) {
     const code = await httpGet(host, port, path);
     if (code > 0) {
-      console.log(
+      console.info(
         `✓ ${label} reachable on http://${host}:${port}${path} (status ${code})`,
       );
       return;
@@ -85,7 +85,7 @@ async function warm(
   for (const p of paths) {
     const code = await httpGet(host, port, p);
     if (code > 0) {
-      console.log(`• Warmed ${label} ${p} -> ${code}`);
+      console.info(`• Warmed ${label} ${p} -> ${code}`);
     } else {
       console.warn(`• Skipped ${label} ${p} (not reachable yet)`);
     }
@@ -101,7 +101,7 @@ async function main() {
   await warm(FRONTEND.host, FRONTEND.port, FRONTEND.paths, "frontend");
   await warm(BACKEND.host, BACKEND.port, BACKEND.paths, "backend");
 
-  console.log("Warm-up complete.");
+  console.info("Warm-up complete.");
 }
 
 main().catch((err) => {

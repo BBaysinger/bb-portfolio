@@ -23,7 +23,7 @@ async function exportCollection(
   payload: Payload,
   collectionName: (typeof COLLECTIONS_TO_EXPORT)[number],
 ): Promise<void> {
-  console.log(`📥 Exporting ${collectionName}...`)
+  console.info(`📥 Exporting ${collectionName}...`)
 
   try {
     const result = await payload.find({
@@ -40,18 +40,18 @@ async function exportCollection(
 
     await writeFile(outputFile, jsonData, 'utf-8')
 
-    console.log(`  ✅ Exported ${result.docs.length} records to ${outputFile}`)
+    console.info(`  ✅ Exported ${result.docs.length} records to ${outputFile}`)
   } catch (error) {
     console.error(`  ❌ Failed to export ${collectionName}:`, error)
   }
 }
 
 async function main() {
-  console.log('📦 Export Local Database Collections')
-  console.log('===================================')
+  console.info('📦 Export Local Database Collections')
+  console.info('===================================')
 
   // Use local environment (don't load from secrets)
-  console.log('🔧 Using local database connection...')
+  console.info('🔧 Using local database connection...')
 
   let payload: Payload | null = null
 
@@ -59,17 +59,17 @@ async function main() {
     const { default: config } = await import('../src/payload.config.js')
     payload = await getPayload({ config })
 
-    console.log('✅ Connected to local database')
+    console.info('✅ Connected to local database')
 
     for (const collection of COLLECTIONS_TO_EXPORT) {
       await exportCollection(payload, collection)
     }
 
-    console.log('\n📊 Export Complete!')
-    console.log('Files created in dump/local-export/')
-    console.log('\nNext steps:')
-    console.log('1. Review the exported files')
-    console.log('2. Run import script on production to sync data')
+    console.info('\n📊 Export Complete!')
+    console.info('Files created in dump/local-export/')
+    console.info('\nNext steps:')
+    console.info('1. Review the exported files')
+    console.info('2. Run import script on production to sync data')
   } catch (error) {
     console.error('❌ Error during export:', error)
   } finally {

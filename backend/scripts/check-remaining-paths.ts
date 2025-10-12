@@ -7,7 +7,7 @@ import config from '../src/payload.config.js'
 async function checkRemainingPaths() {
   const payload = await getPayload({ config })
 
-  console.log('🔍 Checking for remaining local paths...')
+  console.info('🔍 Checking for remaining local paths...')
 
   // Check all collections for any remaining local paths
   const collections = ['brandLogos', 'projectScreenshots', 'projectThumbnails', 'projects'] as const
@@ -19,7 +19,7 @@ async function checkRemainingPaths() {
         limit: 1000,
       })
 
-      console.log(`\n📦 ${collection} (${docs.length} records):`)
+      console.info(`\n📦 ${collection} (${docs.length} records):`)
 
       let foundIssues = false
       for (const doc of docs) {
@@ -27,7 +27,7 @@ async function checkRemainingPaths() {
         const jsonStr = JSON.stringify(doc)
         if (jsonStr.includes('/media/') || jsonStr.includes('/project-view/')) {
           foundIssues = true
-          console.log(`   ⚠️  ${doc.id}: Contains local paths`)
+          console.info(`   ⚠️  ${doc.id}: Contains local paths`)
 
           // Show specific fields with issues
           Object.entries(doc).forEach(([key, value]) => {
@@ -35,17 +35,17 @@ async function checkRemainingPaths() {
               typeof value === 'string' &&
               (value.includes('/media/') || value.includes('/project-view/'))
             ) {
-              console.log(`      ${key}: ${value}`)
+              console.info(`      ${key}: ${value}`)
             }
           })
         }
       }
 
       if (!foundIssues) {
-        console.log('   ✅ No local paths found')
+        console.info('   ✅ No local paths found')
       }
     } catch (error) {
-      console.log(
+      console.info(
         `   ❌ Error checking ${collection}:`,
         error instanceof Error ? error.message : String(error),
       )

@@ -68,7 +68,7 @@ if (!fs.existsSync(JSON_FILE)) {
   process.exit(1);
 }
 
-console.log(`📥 Reading secrets from ${JSON_FILE} ...`);
+console.info(`📥 Reading secrets from ${JSON_FILE} ...`);
 
 const raw = fs.readFileSync(JSON_FILE, "utf8");
 let baseData: SecretsFile = JSON5.parse(raw);
@@ -144,7 +144,7 @@ if (
     }
 
     data = merged;
-    console.log(
+    console.info(
       `🔒 Using private overrides from ${privatePath} (restricted to template schema)`,
     );
   } catch {
@@ -188,11 +188,11 @@ function removeExtras(
     if (!desired.includes(key)) {
       const scopeFlag = scope === "env" && env ? `--env ${env}` : "";
       if (DRY_RUN) {
-        console.log(
+        console.info(
           `🗑 (dry run) Would remove old secret${env ? ` (${env})` : ""}: ${key}`,
         );
       } else {
-        console.log(`🗑 Removing old secret${env ? ` (${env})` : ""}: ${key}`);
+        console.info(`🗑 Removing old secret${env ? ` (${env})` : ""}: ${key}`);
         execSync(`gh secret delete ${key} --repo ${REPO} ${scopeFlag}`.trim(), {
           stdio: "inherit",
         });
@@ -209,11 +209,11 @@ function setStrings(
   for (const [key, value] of Object.entries(strings)) {
     const scopeFlag = scope === "env" && env ? `--env ${env}` : "";
     if (DRY_RUN) {
-      console.log(
+      console.info(
         `🔑 (dry run) Would set string${env ? ` (${env})` : ""} ${key} (length: ${value.length})`,
       );
     } else {
-      console.log(`🔑 Setting string${env ? ` (${env})` : ""} ${key} ...`);
+      console.info(`🔑 Setting string${env ? ` (${env})` : ""} ${key} ...`);
       execSync(`gh secret set ${key} --repo ${REPO} ${scopeFlag}`.trim(), {
         input: value,
         stdio: ["pipe", "inherit", "inherit"],
@@ -237,11 +237,11 @@ function setFiles(
     const size = fs.statSync(filepath).size;
     const scopeFlag = scope === "env" && env ? `--env ${env}` : "";
     if (DRY_RUN) {
-      console.log(
+      console.info(
         `📄 (dry run) Would set file${env ? ` (${env})` : ""} ${key} from ${filepath} (${size} bytes)`,
       );
     } else {
-      console.log(
+      console.info(
         `📄 Setting file${env ? ` (${env})` : ""} ${key} from ${filepath} ...`,
       );
       const content = fs.readFileSync(filepath, "utf8");
@@ -277,9 +277,9 @@ for (const [envName, group] of Object.entries(data.environments!)) {
 }
 
 if (DRY_RUN) {
-  console.log("✅ Dry run complete! No secrets were changed.");
+  console.info("✅ Dry run complete! No secrets were changed.");
 } else {
-  console.log(
+  console.info(
     `✅ Sync complete! Repo ${REPO} (repo-level and environments) now matches ${JSON_FILE}.`,
   );
 }
