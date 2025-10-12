@@ -4,8 +4,8 @@
 /**
  * Warm up local dev containers by hitting key routes to trigger JIT compilation.
  *
- * - Frontend (Next.js): http://localhost:5050/
- * - Backend (Payload):  http://localhost:5051/api/health and http://localhost:5051/admin
+ * - Frontend (Next.js): http://localhost:8080/
+ * - Backend (Payload):  http://localhost:8081/api/health and http://localhost:8081/admin
  *
  * Options via env vars:
  * - WARM_TIMEOUT_MS: total time to wait for services (default 600000 = 10min)
@@ -19,19 +19,19 @@ import http from "node:http";
 
 const FRONTEND: { host: string; port: number; paths: string[] } = {
   host: "localhost",
-  port: 5050,
+  port: 8080,
   paths: ["/"],
 };
 const BACKEND: { host: string; port: number; paths: string[] } = {
   host: "localhost",
-  port: 5051,
+  port: 8081,
   // hit health first, then admin to trigger UI bundle
   paths: ["/api/health", "/admin"],
 };
 
 const RETRY_INTERVAL = parseInt(
   process.env.WARM_RETRY_INTERVAL_MS || "2000",
-  10,
+  10
 );
 const TIMEOUT = parseInt(process.env.WARM_TIMEOUT_MS || "600000", 10); // 10 minutes
 
@@ -54,7 +54,7 @@ async function waitForReachable(
   host: string,
   port: number,
   label: string,
-  path: string,
+  path: string
 ) {
   const start = Date.now();
   console.log(`Waiting for ${label} on http://${host}:${port}${path} ...`);
@@ -62,13 +62,13 @@ async function waitForReachable(
     const code = await httpGet(host, port, path);
     if (code > 0) {
       console.log(
-        `✓ ${label} reachable on http://${host}:${port}${path} (status ${code})`,
+        `✓ ${label} reachable on http://${host}:${port}${path} (status ${code})`
       );
       return;
     }
     if (Date.now() - start > TIMEOUT) {
       throw new Error(
-        `Timeout waiting for ${label} on http://${host}:${port}${path}`,
+        `Timeout waiting for ${label} on http://${host}:${port}${path}`
       );
     }
     process.stdout.write(".");
@@ -80,7 +80,7 @@ async function warm(
   host: string,
   port: number,
   paths: string[],
-  label: string,
+  label: string
 ) {
   for (const p of paths) {
     const code = await httpGet(host, port, p);

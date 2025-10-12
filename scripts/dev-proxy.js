@@ -34,9 +34,9 @@ server.on("upgrade", (req, socket, head) => {
   });
 });
 
-// Start proxy on port 8080
-server.listen(8080, () => {
-  console.log("🚀 Local development proxy running on http://localhost:8080");
-  console.log("📝 Admin available at: http://localhost:8080/admin");
-  console.log("🌐 Frontend available at: http://localhost:8080/");
+// Start proxy on port 8082
+server.listen(8082, () => {
+  console.log("🚀 Local development proxy running on http://localhost:8082");
+  console.log("📝 Admin available at: http://localhost:8082/admin");
+  console.log("🌐 Frontend available at: http://localhost:8082/");
 });

@@ -97,10 +97,10 @@ export default buildConfig({
     if (!raw) {
       throw new Error(
         `Missing required ${originKey} for ENV_PROFILE=${envProfile}. ` +
-          `Set it to your frontend's public URL (e.g., http://localhost:5050 or http://localhost:3000 for local, https://dev.example.com for dev).`,
+          `Set it to your frontend's public URL (e.g., http://localhost:8080 or http://localhost:3000 for local, https://dev.example.com for dev).`,
       )
     }
-    // Support comma-separated list of allowed origins (e.g., "http://localhost:5050,http://localhost:3000")
+    // Support comma-separated list of allowed origins (e.g., "http://localhost:8080,http://localhost:3000")
     const origins = raw
       .split(',')
       .map((s) => s.trim())

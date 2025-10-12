@@ -6,7 +6,7 @@ services:
     image: caddy:alpine
     container_name: portfolio-caddy-local
     ports:
-      - "8080:80"
+      - "8082:80"
       - "8443:443"
     volumes:
       - ./docker/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
