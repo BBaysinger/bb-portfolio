@@ -17,22 +17,43 @@
   //   "backend"
   // ],
   "scripts": {
+    // =============================================================================
+    // 🚀 DEVELOPMENT MODES OVERVIEW (for junior developers)
+    // =============================================================================
+    // 1. 🖥️  Bare Metal: Run directly on your machine (fastest, most direct)
+    // 2. 🐳 Docker SSR: Containerized with hot reload (pages render on-demand)
+    // 3. 🏗️  Docker SSG: Pre-builds pages like production (slower, but tests real build)
+    // 4. 🌐 Caddy Proxy: Same as SSR but with production-like URLs (single port)
+    //
+    // Choose based on what you're testing:
+    // - Daily dev: Use Bare Metal or Docker SSR
+    // - Pre-commit: Use Docker SSG to test production builds
+    // - URL testing: Use Caddy for production-like routing
+    // =============================================================================
     // 🖥️ Build both backend and frontend locally without Docker (bare metal, laptop dev)
     "build:all": "npm run format && concurrently \"npm run build:backend\" \"npm run build:frontend\" --names \"backend,frontend\" --prefix-colors \"blue,green\"",
     // 🖥️ Build backend service locally (bare metal, laptop dev)
     "build:backend": "cd backend && npm run build",
     // 🖥️ Build frontend service locally (bare metal, laptop dev)
     "build:frontend": "cd frontend && npm run build",
+    // =============================================================================
+    // 🐳 DOCKER DEVELOPMENT (Containerized - consistent across machines)
+    // =============================================================================
     // 🐳 Build both frontend and backend Docker images using docker-compose local profile
     // Uses the local profile which includes development-optimized builds with hot reload
     "docker:build": "AWS_ACCOUNT_ID=123456789012 COMPOSE_PROFILES=local docker compose build",
-    // ⚡ DEVELOPMENT MODE: Start both frontend and backend containers with hot reload
-    // Frontend runs on http://localhost:8080, Backend on http://localhost:8081
-    // Uses 'npm run dev' - includes volume mounts for instant file changes and hot reload
+    // ⚡ DEVELOPMENT MODE (SSR): Start containers with hot reload for fast development
+    // Frontend: http://localhost:8080, Backend: http://localhost:8081
+    // Uses 'npm run dev' with volume mounts - pages render on-demand with fresh data from backend
     "docker:up": "AWS_ACCOUNT_ID=123456789012 COMPOSE_PROFILES=local docker compose up --build",
-    // ▶️ Start containers in detached mode (runs in background)
-    // Same as docker:up but doesn't block the terminal - runs containers in background
+    // ▶️ Same as docker:up but runs in background (doesn't block your terminal)
+    // Use this if you want to continue using your terminal while containers run
     "docker:up:detached": "AWS_ACCOUNT_ID=123456789012 COMPOSE_PROFILES=local docker compose up --build -d",
+    // ⚡ Same as docker:up but with React Strict Mode disabled (helps with legacy libraries)
+    // Useful when React's strict mode causes issues with third-party components
+    "docker:up:no-strict": "AWS_ACCOUNT_ID=123456789012 COMPOSE_PROFILES=local REACT_STRICT_MODE=false docker compose up --build",
+    // ▶️ Same as docker:up:no-strict but runs in background (detached mode)
+    "docker:up:no-strict:detached": "AWS_ACCOUNT_ID=123456789012 COMPOSE_PROFILES=local REACT_STRICT_MODE=false docker compose up --build -d",
     // 🛑 Stop and remove all local development containers
     // Cleans up containers, networks, and anonymous volumes created by docker:up
     "docker:down": "AWS_ACCOUNT_ID=123456789012 COMPOSE_PROFILES=local docker compose down",
@@ -41,11 +62,16 @@
     "docker:logs": "AWS_ACCOUNT_ID=123456789012 COMPOSE_PROFILES=local docker compose logs -f",
     // 🏗️ BUILD MODE: Build static site generation containers (local-ssg profile)
     "docker:ssg:build": "AWS_ACCOUNT_ID=123456789012 COMPOSE_PROFILES=local-ssg docker compose build",
-    // 🏗️ PRODUCTION BUILD TEST: Runs 'npm run build:when-ready' with health checks and follows logs
-    // Tests static site generation, waits for backend, NO hot reload - production simulation
-    "docker:ssg:up": "AWS_ACCOUNT_ID=123456789012 COMPOSE_PROFILES=local-ssg docker compose up --build -f",
-    // 🏗️ PRODUCTION BUILD TEST: Same as docker:ssg:up but runs in background (detached mode)
+    // 🏗️ PRODUCTION MODE (SSG): Pre-builds all pages with data baked-in at build time
+    // Frontend: Static HTML files generated, Backend: Hot reload for development
+    // Slower startup but faster page loads - tests how production will behave
+    "docker:ssg:up": "AWS_ACCOUNT_ID=123456789012 COMPOSE_PROFILES=local-ssg docker compose up --build",
+    // 🏗️ Same as docker:ssg:up but runs in background (detached mode)
     "docker:ssg:up:detached": "AWS_ACCOUNT_ID=123456789012 COMPOSE_PROFILES=local-ssg docker compose up --build -d",
+    // 🏗️ Same as docker:ssg:up but with React Strict Mode disabled (for compatibility)
+    "docker:ssg:up:no-strict": "AWS_ACCOUNT_ID=123456789012 COMPOSE_PROFILES=local-ssg REACT_STRICT_MODE=false docker compose up --build",
+    // 🏗️ Same as docker:ssg:up:no-strict but runs in background (detached mode)
+    "docker:ssg:up:no-strict:detached": "AWS_ACCOUNT_ID=123456789012 COMPOSE_PROFILES=local-ssg REACT_STRICT_MODE=false docker compose up --build -d",
     // 🛑 Stop and remove static site generation containers (local-ssg profile)
     "docker:ssg:down": "AWS_ACCOUNT_ID=123456789012 COMPOSE_PROFILES=local-ssg docker compose down",
     // 📋 Follow logs from static site generation containers in real-time (local-ssg profile)
@@ -60,19 +86,27 @@
     "docker:push:frontend": "docker push bhbaysinger/portfolio-frontend:dev",
     // 🚀 Build and push both backend and frontend Docker images to Docker Hub (dev tag)
     "docker:build-push": "npm run docker:build:backend && npm run docker:build:frontend && npm run docker:push:backend && npm run docker:push:frontend",
-    // 🌐 Start Caddy reverse proxy - SOLVES URL CONSISTENCY: Routes /api/* to backend and /* to frontend
-    // so URLs are the same in local dev and production (no localhost:8080 vs localhost:8081 confusion)
+    // 🌐 PROXY MODE (SSR + URL consistency): Single port access like production
+    // Access everything at http://localhost:8080 - routes /api/* to backend, /* to frontend
+    // Uses development containers (hot reload) but with production-like URL structure
     "caddy:up": "docker compose -f docker-compose.caddy.yml up --build -d",
+    // 🌐 Same as caddy:up but with React Strict Mode disabled (for legacy compatibility)
+    "caddy:up:no-strict": "REACT_STRICT_MODE=false docker compose -f docker-compose.caddy.yml up --build -d",
     // 🛑 Stop Caddy reverse proxy containers
     "caddy:down": "docker compose -f docker-compose.caddy.yml down",
     // � Follow Caddy reverse proxy logs in real-time
+    // 📋 Follow Caddy reverse proxy logs in real-time
     "caddy:logs": "docker compose -f docker-compose.caddy.yml logs -f",
     // 🔄 Restart Caddy reverse proxy (stop + start)
     "caddy:restart": "docker compose -f docker-compose.caddy.yml down && docker compose -f docker-compose.caddy.yml up --build -d",
     // ⚡ Reload Caddy configuration without restarting containers
     "caddy:reload": "docker exec portfolio-caddy-local caddy reload --config /etc/caddy/Caddyfile",
     // � Check status of portfolio containers
+    // 📊 Check status of portfolio containers
     "caddy:status": "docker ps --filter name=portfolio- --format 'table {{.Names}}\\t{{.Status}}\\t{{.Ports}}'",
+    // =============================================================================
+    // 🖥️  BARE METAL DEVELOPMENT (No Docker - runs directly on your machine)
+    // =============================================================================
     // 🏁 Shortcut: Run both frontend and backend locally (bare metal dev)
     "bareMetalDev": "npm run bareMetalDev:all",
     // 🎯 Run both frontend and backend in same terminal with colored output

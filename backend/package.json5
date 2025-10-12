@@ -18,7 +18,7 @@
     // Production build with increased memory and deprecation warnings suppressed
     "build": "cross-env NODE_OPTIONS=\"--no-deprecation --max-old-space-size=8000\" next build",
     // Start development server with deprecation warnings suppressed
-    "dev": "cross-env NODE_OPTIONS=--no-deprecation PORT=3001 next dev",
+    "dev": "cross-env NODE_OPTIONS=--no-deprecation next dev -p ${PORT:-3001}",
     // Clean Next.js cache and run dev server (useful when build cache is corrupted)
     "devsafe": "rm -rf .next && cross-env NODE_OPTIONS=--no-deprecation next dev",
     // Generates Payload importmap file (used when importing from plugins or dynamic code)
