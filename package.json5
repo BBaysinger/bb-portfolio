@@ -60,7 +60,8 @@
     "docker:push:frontend": "docker push bhbaysinger/portfolio-frontend:dev",
     // 🚀 Build and push both backend and frontend Docker images to Docker Hub (dev tag)
     "docker:build-push": "npm run docker:build:backend && npm run docker:build:frontend && npm run docker:push:backend && npm run docker:push:frontend",
-    // 🚀 Start Caddy reverse proxy in detached mode
+    // 🌐 Start Caddy reverse proxy - SOLVES URL CONSISTENCY: Routes /api/* to backend and /* to frontend
+    // so URLs are the same in local dev and production (no localhost:8080 vs localhost:8081 confusion)
     "caddy:up": "docker compose -f docker-compose.caddy.yml up --build -d",
     // 🛑 Stop Caddy reverse proxy containers
     "caddy:down": "docker compose -f docker-compose.caddy.yml down",

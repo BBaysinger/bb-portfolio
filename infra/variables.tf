@@ -45,7 +45,8 @@ variable "media_cors_allowed_origins" {
   description = "Allowed origins for S3 CORS on media buckets."
   type        = list(string)
   default = [
+    "http://localhost:8080",
+    "http://localhost:8081",
     "http://localhost:3000",
-    "http://localhost:3001",
   ]
 }

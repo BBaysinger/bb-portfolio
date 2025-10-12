@@ -118,7 +118,7 @@ export default buildConfig({
     if (!raw) {
       throw new Error(
         `Missing required ${originKey} for ENV_PROFILE=${envProfile}. ` +
-          `Set it to your frontend's public URL (e.g., http://localhost:5050 or http://localhost:3000 for local, https://dev.example.com for dev).`,
+          `Set it to your frontend's public URL (e.g., http://localhost:8080 or http://localhost:3000 for local, https://dev.example.com for dev).`,
       )
     }
     const origins = raw
