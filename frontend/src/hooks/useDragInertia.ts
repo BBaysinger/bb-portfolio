@@ -18,7 +18,7 @@ export function useDragInertia(
   slideSpacing: number,
   isSlaveMode: boolean,
   wrapperWidth: number,
-  slideWidthRef: React.MutableRefObject<number>,
+  slideWidthRef: React.MutableRefObject<number>
 ) {
   const draggableRef = useRef<Draggable | null>(null);
   const containerOffsetRef = useRef<number>(0);
