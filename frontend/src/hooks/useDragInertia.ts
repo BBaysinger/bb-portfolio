@@ -1,4 +1,11 @@
+import gsap from "gsap";
+import { Draggable } from "gsap/Draggable";
+import { InertiaPlugin } from "gsap/InertiaPlugin";
 import { useEffect, useRef } from "react";
+
+import useActivePointerType from "./useActivePointerType";
+
+gsap.registerPlugin(Draggable, InertiaPlugin);
 
 interface DraggableState {
   isDragging: boolean;
@@ -13,72 +20,78 @@ export function useDragInertia(
   wrapperWidth: number,
   slideWidthRef: React.MutableRefObject<number>,
 ) {
-  // Always return a ref to keep the return type consistent
+  const draggableRef = useRef<Draggable | null>(null);
+  const containerOffsetRef = useRef<number>(0);
+  const pointerType = useActivePointerType();
+
+  // Keep the drag state for compatibility with existing code
   const dragState = useRef<DraggableState>({
     isDragging: false,
     isThrowing: false,
   });
 
   useEffect(() => {
-    if (isSlaveMode || !scrollerRef.current) return;
+    containerOffsetRef.current = (wrapperWidth - slideWidthRef.current) / 2;
+  }, [wrapperWidth, slideWidthRef]);
 
-    const el = scrollerRef.current;
-    let isDown = false;
-    let startX = 0;
-    let scrollLeft = 0;
+  useEffect(() => {
+    const scroller = scrollerRef.current;
+    if (!scroller || isSlaveMode || pointerType !== "mouse") return;
 
-    const onMouseDown = (e: MouseEvent) => {
-      isDown = true;
-      dragState.current.isDragging = true;
+    // Disable snapping when dragging starts
+    const handlePress = () => {
       setSnap("none");
-      startX = e.pageX - el.offsetLeft;
-      scrollLeft = el.scrollLeft;
-      el.classList.add("dragging");
+      dragState.current.isDragging = true;
+      dragState.current.isThrowing = false;
     };
 
-    const onMouseLeave = () => {
-      if (!isDown) return;
-      isDown = false;
-      dragState.current.isDragging = false;
-      el.classList.remove("dragging");
-      // Optional: handle inertia or momentum here
-    };
+    const offset = -79; // HACK: Hardcoded for now (from original)
 
-    const onMouseUp = () => {
-      if (!isDown) return;
-      isDown = false;
-      dragState.current.isDragging = false;
-      el.classList.remove("dragging");
-      // Optional: handle inertia or momentum here
-    };
+    const draggable = Draggable.create(scroller, {
+      type: "scrollLeft", // NOTE: Mutates the DOM by nesting the scroller
+      allowNativeTouchScrolling: true,
+      inertia: true,
+      throwProps: true, // Enables smooth inertia-based scrolling
+      cursor: "grab",
+      snap: function (endValue) {
+        const velocity = this.tween ? this.tween.getVelocity() : 0; // GSAP velocity
+        const threshold = slideSpacing * 0.3;
+        const remainder = Math.abs(endValue % slideSpacing);
 
-    const onMouseMove = (e: MouseEvent) => {
-      if (!isDown) return;
-      e.preventDefault();
-      const x = e.pageX - el.offsetLeft;
-      const walk = (x - startX) * 1; // Speed multiplier
-      el.scrollLeft = scrollLeft - walk;
-    };
+        let retVal;
+        if (Math.abs(velocity) > 300 || remainder > threshold) {
+          // If velocity is high or user drags beyond threshold, move to next slide
+          retVal = -Math.round(endValue / slideSpacing) * slideSpacing + offset;
+        } else {
+          // Otherwise, snap to the current one
+          retVal = -Math.floor(endValue / slideSpacing) * slideSpacing + offset;
+        }
 
-    el.addEventListener("mousedown", onMouseDown);
-    el.addEventListener("mouseleave", onMouseLeave);
-    el.addEventListener("mouseup", onMouseUp);
-    el.addEventListener("mousemove", onMouseMove);
+        return retVal;
+      },
+      onPress: () => {
+        gsap.set(scroller, { cursor: "grabbing" });
+        handlePress();
+      },
+      onRelease: () => {
+        gsap.set(scroller, { cursor: "grab" });
+        dragState.current.isDragging = false;
+      },
+      onThrowUpdate: () => {
+        dragState.current.isThrowing = true;
+      },
+      onThrowComplete: () => {
+        dragState.current.isThrowing = false;
+        setSnap("x mandatory");
+      },
+    })[0];
+
+    draggableRef.current = draggable;
 
     return () => {
-      el.removeEventListener("mousedown", onMouseDown);
-      el.removeEventListener("mouseleave", onMouseLeave);
-      el.removeEventListener("mouseup", onMouseUp);
-      el.removeEventListener("mousemove", onMouseMove);
+      draggable.kill(); // Clean up GSAP instance
     };
-  }, [
-    isSlaveMode,
-    scrollerRef,
-    setSnap,
-    slideSpacing,
-    wrapperWidth,
-    slideWidthRef,
-  ]);
+  }, [scrollerRef, setSnap, slideSpacing, isSlaveMode, pointerType]);
 
   return dragState;
 }
