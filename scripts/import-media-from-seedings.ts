@@ -123,17 +123,17 @@ async function main() {
       copied += await copyDirFiltered(src, map.dest);
     }
     if (copied > 0) {
-      console.log(`Imported ${copied} file(s) into ${map.label}`);
+      console.info(`Imported ${copied} file(s) into ${map.label}`);
       grandTotal += copied;
     }
   }
 
   if (grandTotal === 0) {
-    console.log(
+    console.info(
       "No media imported. Ensure you placed files under the seed folder in one of the supported subpaths.",
     );
   } else {
-    console.log(`Import complete. Total files copied: ${grandTotal}`);
+    console.info(`Import complete. Total files copied: ${grandTotal}`);
   }
 }
 

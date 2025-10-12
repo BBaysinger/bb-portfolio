@@ -82,7 +82,7 @@ export async function generateStaticParams() {
     await ProjectData.initialize();
     const projectIds = Object.keys(ProjectData.activeProjectsRecord);
 
-    console.log(
+    console.info(
       `📄 [generateStaticParams] Generated static params for ${projectIds.length} projects`,
     );
 

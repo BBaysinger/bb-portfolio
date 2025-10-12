@@ -67,7 +67,7 @@ function parseArgs(): Options {
         break;
       case "--help":
       case "-h":
-        console.log(`
+        console.info(`
 Usage: npm run media:upload -- [options]
 
 Options:
@@ -86,7 +86,7 @@ Examples:
 
   if (options.environments.length === 0) {
     console.error("Please specify an environment with --env <dev|prod|both>");
-    console.log("Use --help for more information");
+    console.info("Use --help for more information");
     process.exit(1);
   }
 
@@ -147,10 +147,10 @@ function syncCollection(
 
   const fullCommand = cmdParts.join(" ");
 
-  console.log(
+  console.info(
     `\n${dryRun ? "[DRY RUN] " : ""}Syncing ${collection} to ${environment}...`,
   );
-  console.log(`Command: ${fullCommand}`);
+  console.info(`Command: ${fullCommand}`);
 
   try {
     execSync(fullCommand, {
@@ -179,54 +179,54 @@ function countFiles(collection: string): number {
 function main() {
   const options = parseArgs();
 
-  console.log("🚀 Portfolio Media Upload Script");
-  console.log("================================");
+  console.info("🚀 Portfolio Media Upload Script");
+  console.info("================================");
 
   checkPrerequisites();
 
   // Show summary of what will be uploaded
-  console.log("\nMedia files summary:");
+  console.info("\nMedia files summary:");
   let totalFiles = 0;
   for (const collection of MEDIA_COLLECTIONS) {
     const count = countFiles(collection);
-    console.log(`  ${collection}: ${count} files`);
+    console.info(`  ${collection}: ${count} files`);
     totalFiles += count;
   }
-  console.log(`  Total: ${totalFiles} files`);
+  console.info(`  Total: ${totalFiles} files`);
 
   if (totalFiles === 0) {
-    console.log(
+    console.info(
       '\nNo media files found. Run "npm run seed:media" first to import files.',
     );
     process.exit(0);
   }
 
-  console.log(`\nTarget environments: ${options.environments.join(", ")}`);
-  console.log(`Mode: ${options.dryRun ? "DRY RUN" : "UPLOAD"}`);
+  console.info(`\nTarget environments: ${options.environments.join(", ")}`);
+  console.info(`Mode: ${options.dryRun ? "DRY RUN" : "UPLOAD"}`);
 
   // Confirm before proceeding (unless dry run)
   if (!options.dryRun) {
-    console.log("\n⚠️  This will upload files to AWS S3. Continue? (y/N)");
+    console.info("\n⚠️  This will upload files to AWS S3. Continue? (y/N)");
     // Note: In a real interactive script, you'd want to read from stdin
     // For now, we'll proceed since it's called with explicit args
   }
 
   // Upload to each environment
   for (const env of options.environments) {
-    console.log(`\n📦 Uploading to ${env.toUpperCase()} environment...`);
+    console.info(`\n📦 Uploading to ${env.toUpperCase()} environment...`);
 
     for (const collection of MEDIA_COLLECTIONS) {
       syncCollection(collection, env, options.dryRun);
     }
   }
 
-  console.log("\n✅ Upload complete!");
+  console.info("\n✅ Upload complete!");
 
   if (!options.dryRun) {
-    console.log("\nNext steps:");
-    console.log("1. Deploy your application to use S3 storage");
-    console.log("2. Test image loading in the target environment");
-    console.log('3. Run "npm run media:verify" to check uploaded files');
+    console.info("\nNext steps:");
+    console.info("1. Deploy your application to use S3 storage");
+    console.info("2. Test image loading in the target environment");
+    console.info('3. Run "npm run media:verify" to check uploaded files');
   }
 }
 

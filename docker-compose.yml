@@ -74,7 +74,7 @@ services:
           "CMD",
           "node",
           "-e",
-          "const net = require('net'); const client = net.createConnection(3000, 'localhost', () => { console.log('connected'); client.end(); process.exit(0); }); client.on('error', () => process.exit(1));",
+          "const net = require('net'); const client = net.createConnection(3000, 'localhost', () => { console.info('connected'); client.end(); process.exit(0); }); client.on('error', () => process.exit(1));",
         ]
       interval: 15s # Check every 15 seconds (faster)
       timeout: 5s # 5 second timeout per check
@@ -99,7 +99,7 @@ services:
           "CMD",
           "node",
           "-e",
-          "const net = require('net'); const client = net.createConnection(3000, 'localhost', () => { console.log('connected'); client.end(); process.exit(0); }); client.on('error', () => process.exit(1));",
+          "const net = require('net'); const client = net.createConnection(3000, 'localhost', () => { console.info('connected'); client.end(); process.exit(0); }); client.on('error', () => process.exit(1));",
         ]
       interval: 15s
       timeout: 5s

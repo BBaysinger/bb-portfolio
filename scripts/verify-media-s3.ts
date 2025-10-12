@@ -58,7 +58,7 @@ function parseArgs(): Options {
         break;
       case "--help":
       case "-h":
-        console.log(`
+        console.info(`
 Usage: npm run media:verify -- [options]
 
 Options:
@@ -75,7 +75,7 @@ Examples:
 
   if (options.environments.length === 0) {
     console.error("Please specify an environment with --env <dev|prod|both>");
-    console.log("Use --help for more information");
+    console.info("Use --help for more information");
     process.exit(1);
   }
 
@@ -111,7 +111,7 @@ function testSampleUrls(environment: Environment) {
     "project-thumbnails/bikini-bottom-phone.webp",
   ];
 
-  console.log(`\nTesting sample URLs for ${environment}...`);
+  console.info(`\nTesting sample URLs for ${environment}...`);
 
   for (const file of sampleFiles) {
     const url = `https://${bucket}.s3.amazonaws.com/${file}`;
@@ -120,9 +120,9 @@ function testSampleUrls(environment: Environment) {
         stdio: "pipe",
         encoding: "utf8",
       });
-      console.log(`  ✅ ${file}`);
+      console.info(`  ✅ ${file}`);
     } catch {
-      console.log(`  ❌ ${file} - Not accessible`);
+      console.info(`  ❌ ${file} - Not accessible`);
     }
   }
 }
@@ -130,8 +130,8 @@ function testSampleUrls(environment: Environment) {
 function main() {
   const options = parseArgs();
 
-  console.log("🔍 Portfolio Media Verification");
-  console.log("==============================");
+  console.info("🔍 Portfolio Media Verification");
+  console.info("==============================");
 
   // Check AWS CLI
   try {
@@ -142,14 +142,14 @@ function main() {
   }
 
   for (const env of options.environments) {
-    console.log(`\n📦 Verifying ${env.toUpperCase()} environment...`);
+    console.info(`\n📦 Verifying ${env.toUpperCase()} environment...`);
 
     let totalFiles = 0;
     let hasErrors = false;
 
     for (const collection of MEDIA_COLLECTIONS) {
       const result = verifyCollection(collection, env);
-      console.log(`  ${collection}: ${result.count} files`);
+      console.info(`  ${collection}: ${result.count} files`);
 
       if (!result.success) {
         hasErrors = true;
@@ -157,10 +157,10 @@ function main() {
       totalFiles += result.count;
     }
 
-    console.log(`  Total: ${totalFiles} files`);
+    console.info(`  Total: ${totalFiles} files`);
 
     if (totalFiles === 0) {
-      console.log(
+      console.info(
         `  ⚠️  No files found in ${env} bucket. Run media upload first.`,
       );
       hasErrors = true;
@@ -171,7 +171,7 @@ function main() {
     }
   }
 
-  console.log("\n✅ Verification complete!");
+  console.info("\n✅ Verification complete!");
 }
 
 // Run main function if this script is executed directly

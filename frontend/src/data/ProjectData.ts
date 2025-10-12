@@ -30,14 +30,6 @@ async function fetchPortfolioProjects(opts?: {
     "NEXT_PUBLIC_BACKEND_URL",
   ]);
 
-  // Debug: Show environment configuration during resolution
-  console.log(
-    `ProjectData - ENV_PROFILE: ${profile}, prefix: "${prefix}", isServer: ${isServer}`,
-  );
-  console.log(
-    `ProjectData - Backend URL resolved to: "${base}" (client-side uses relative URLs)`,
-  );
-
   // Conventional: rely on Next.js rewrites for /api/* on the server.
   // Fail fast if .env is incomplete so misconfigurations are obvious.
   const isHttpUrl = (s: string) => /^https?:\/\//i.test(s);
@@ -67,22 +59,22 @@ async function fetchPortfolioProjects(opts?: {
   }
 
   // Temporary debugging with client/server distinction
-  const context = isServer ? "[SERVER]" : "[CLIENT]";
-  console.log(
-    `ProjectData ${context} - About to fetch: "${url}" with options:`,
-    JSON.stringify(fetchOptions),
-  );
+  // const context = isServer ? "[SERVER]" : "[CLIENT]";
+  // console.info(
+  //   `ProjectData ${context} - About to fetch: "${url}" with options:`,
+  //   JSON.stringify(fetchOptions)
+  // );
 
-  try {
-    const res = await fetch(url, fetchOptions);
-    console.log(
-      `ProjectData ${context} - Fetch response: ${res.status} ${res.statusText}`,
-    );
-  } catch (error) {
-    const context = isServer ? "[SERVER]" : "[CLIENT]";
-    console.error(`ProjectData ${context} - Fetch error:`, error);
-    throw error;
-  }
+  // try {
+  //   const res = await fetch(url, fetchOptions);
+  //   console.info(
+  //     `ProjectData ${context} - Fetch response: ${res.status} ${res.statusText}`
+  //   );
+  // } catch (error) {
+  //   const context = isServer ? "[SERVER]" : "[CLIENT]";
+  //   console.error(`ProjectData ${context} - Fetch error:`, error);
+  //   throw error;
+  // }
 
   const res = await fetch(url, fetchOptions);
   if (!res.ok) {

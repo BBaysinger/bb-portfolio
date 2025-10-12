@@ -77,7 +77,7 @@ function loadEnvironmentFromSecrets(environment: "dev" | "prod") {
       process.env[varName] = value;
     }
 
-    console.log(
+    console.info(
       `✅ Loaded ${requiredVars.length} environment variables from GitHub secrets`,
     );
   } catch (error) {
@@ -126,7 +126,7 @@ async function migrateMediaCollection(
 }> {
   const stats: MigrationStats = { total: 0, updated: 0, skipped: 0, errors: 0 };
 
-  console.log(`\n📦 Processing ${collectionName}...`);
+  console.info(`\n📦 Processing ${collectionName}...`);
 
   try {
     // Get all documents in the collection
@@ -139,7 +139,7 @@ async function migrateMediaCollection(
     });
 
     stats.total = result.docs.length;
-    console.log(`   Found ${stats.total} records`);
+    console.info(`   Found ${stats.total} records`);
 
     for (const doc of result.docs) {
       try {
@@ -153,7 +153,7 @@ async function migrateMediaCollection(
 
         // Skip if no filename
         if (!filename) {
-          console.log(`   ⚠️ Skipping ${id}: No filename`);
+          console.info(`   ⚠️ Skipping ${id}: No filename`);
           stats.skipped++;
           continue;
         }
@@ -164,7 +164,7 @@ async function migrateMediaCollection(
           .replace(/^\/?/, "");
         const s3Url = `${bucketUrl}/${s3Prefix}/${cleanFilename}`;
 
-        console.log(
+        console.info(
           `   ${dryRun ? "[DRY RUN]" : "✏️"} ${id}: ${filename} → ${s3Url}`,
         );
 
@@ -227,18 +227,18 @@ async function main() {
 
   const bucketUrl = S3_BUCKET_URLS[environment];
 
-  console.log("🔄 PayloadCMS Media Migration: Local → S3");
-  console.log("==========================================");
-  console.log(`Environment: ${environment.toUpperCase()}`);
-  console.log(`S3 Bucket: ${bucketUrl}`);
-  console.log(
+  console.info("🔄 PayloadCMS Media Migration: Local → S3");
+  console.info("==========================================");
+  console.info(`Environment: ${environment.toUpperCase()}`);
+  console.info(`S3 Bucket: ${bucketUrl}`);
+  console.info(
     `Mode: ${dryRunFlag ? "DRY RUN (preview only)" : "LIVE MIGRATION"}`,
   );
 
   if (!dryRunFlag) {
-    console.log("\n⚠️  WARNING: This will modify your database!");
-    console.log("   Run with --dry-run first to preview changes.");
-    console.log("   Press Ctrl+C to cancel, or wait 5 seconds to continue...");
+    console.info("\n⚠️  WARNING: This will modify your database!");
+    console.info("   Run with --dry-run first to preview changes.");
+    console.info("   Press Ctrl+C to cancel, or wait 5 seconds to continue...");
     await new Promise((resolve) => setTimeout(resolve, 5000));
   }
 
@@ -274,19 +274,19 @@ async function main() {
       totalStats.errors += stats.errors;
     }
 
-    console.log("\n📊 Migration Summary");
-    console.log("===================");
-    console.log(`Total records: ${totalStats.total}`);
-    console.log(`Updated: ${totalStats.updated}`);
-    console.log(`Skipped: ${totalStats.skipped}`);
-    console.log(`Errors: ${totalStats.errors}`);
+    console.info("\n📊 Migration Summary");
+    console.info("===================");
+    console.info(`Total records: ${totalStats.total}`);
+    console.info(`Updated: ${totalStats.updated}`);
+    console.info(`Skipped: ${totalStats.skipped}`);
+    console.info(`Errors: ${totalStats.errors}`);
 
     if (dryRunFlag) {
-      console.log(
+      console.info(
         "\n💡 This was a dry run. Add --env prod (without --dry-run) to apply changes.",
       );
     } else {
-      console.log("\n✅ Migration complete!");
+      console.info("\n✅ Migration complete!");
     }
   } catch (error) {
     console.error("❌ Migration failed:", error);

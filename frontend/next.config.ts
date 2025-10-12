@@ -19,7 +19,7 @@ const nextConfig: NextConfig = {
     ).toLowerCase();
     const prefix = profile ? `${profile.toUpperCase()}_` : "";
 
-    console.log("[next.config.ts] DEBUG - Environment info:", {
+    console.info("[next.config.ts] DEBUG - Environment info:", {
       ENV_PROFILE: process.env.ENV_PROFILE,
       NODE_ENV: process.env.NODE_ENV,
       profile,
@@ -32,7 +32,7 @@ const nextConfig: NextConfig = {
     const pickValue = (...names: string[]) => {
       for (const n of names) {
         const v = process.env[n];
-        console.log(
+        console.info(
           `[next.config.ts] Checking ${n}:`,
           v ? "✓ found" : "✗ not found",
         );

@@ -367,7 +367,7 @@ healthcheck:
       "CMD",
       "node",
       "-e",
-      "const net = require('net'); const client = net.createConnection(3000, 'localhost', () => { console.log('connected'); client.end(); process.exit(0); }); client.on('error', () => process.exit(1));",
+      "const net = require('net'); const client = net.createConnection(3000, 'localhost', () => { console.info('connected'); client.end(); process.exit(0); }); client.on('error', () => process.exit(1));",
     ]
 `````
 

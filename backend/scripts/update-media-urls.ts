@@ -70,7 +70,7 @@ function loadEnvironmentFromSecrets(environment: 'dev' | 'prod') {
       process.env[varName] = value
     }
 
-    console.log(`✅ Loaded ${requiredVars.length} environment variables from GitHub secrets`)
+    console.info(`✅ Loaded ${requiredVars.length} environment variables from GitHub secrets`)
   } catch (error) {
     throw new Error(
       `Failed to load GitHub secrets: ${error instanceof Error ? error.message : String(error)}\n` +
@@ -112,7 +112,7 @@ async function migrateMediaCollection(
 ): Promise<{ total: number; updated: number; skipped: number; errors: number }> {
   const stats: MigrationStats = { total: 0, updated: 0, skipped: 0, errors: 0 }
 
-  console.log(`\n📦 Processing ${collectionName}...`)
+  console.info(`\n📦 Processing ${collectionName}...`)
 
   try {
     // Get all documents in the collection
@@ -122,7 +122,7 @@ async function migrateMediaCollection(
     })
 
     stats.total = result.docs.length
-    console.log(`   Found ${stats.total} records`)
+    console.info(`   Found ${stats.total} records`)
 
     for (const doc of result.docs) {
       try {
@@ -136,7 +136,7 @@ async function migrateMediaCollection(
 
         // Skip if no filename
         if (!filename) {
-          console.log(`   ⚠️ Skipping ${id}: No filename`)
+          console.info(`   ⚠️ Skipping ${id}: No filename`)
           stats.skipped++
           continue
         }
@@ -145,7 +145,7 @@ async function migrateMediaCollection(
         const cleanFilename = filename.replace(/^\/media\//, '').replace(/^\/?/, '')
         const s3Url = `${bucketUrl}/${s3Prefix}/${cleanFilename}`
 
-        console.log(`   ${dryRun ? '[DRY RUN]' : '✏️'} ${id}: ${filename} → ${s3Url}`)
+        console.info(`   ${dryRun ? '[DRY RUN]' : '✏️'} ${id}: ${filename} → ${s3Url}`)
 
         if (!dryRun) {
           // Use direct Mongoose update to bypass PayloadCMS validation
@@ -206,16 +206,16 @@ async function main() {
 
   const bucketUrl = S3_BUCKET_URLS[environment]
 
-  console.log('🔄 PayloadCMS Media Migration: Local → S3')
-  console.log('==========================================')
-  console.log(`Environment: ${environment.toUpperCase()}`)
-  console.log(`S3 Bucket: ${bucketUrl}`)
-  console.log(`Mode: ${dryRunFlag ? 'DRY RUN (preview only)' : 'LIVE MIGRATION'}`)
+  console.info('🔄 PayloadCMS Media Migration: Local → S3')
+  console.info('==========================================')
+  console.info(`Environment: ${environment.toUpperCase()}`)
+  console.info(`S3 Bucket: ${bucketUrl}`)
+  console.info(`Mode: ${dryRunFlag ? 'DRY RUN (preview only)' : 'LIVE MIGRATION'}`)
 
   if (!dryRunFlag) {
-    console.log('\n⚠️  WARNING: This will modify your database!')
-    console.log('   Run with --dry-run first to preview changes.')
-    console.log('   Press Ctrl+C to cancel, or wait 5 seconds to continue...')
+    console.info('\n⚠️  WARNING: This will modify your database!')
+    console.info('   Run with --dry-run first to preview changes.')
+    console.info('   Press Ctrl+C to cancel, or wait 5 seconds to continue...')
     await new Promise((resolve) => setTimeout(resolve, 5000))
   }
 
@@ -240,17 +240,17 @@ async function main() {
       totalStats.errors += stats.errors
     }
 
-    console.log('\n📊 Migration Summary')
-    console.log('===================')
-    console.log(`Total records: ${totalStats.total}`)
-    console.log(`Updated: ${totalStats.updated}`)
-    console.log(`Skipped: ${totalStats.skipped}`)
-    console.log(`Errors: ${totalStats.errors}`)
+    console.info('\n📊 Migration Summary')
+    console.info('===================')
+    console.info(`Total records: ${totalStats.total}`)
+    console.info(`Updated: ${totalStats.updated}`)
+    console.info(`Skipped: ${totalStats.skipped}`)
+    console.info(`Errors: ${totalStats.errors}`)
 
     if (dryRunFlag) {
-      console.log('\n💡 This was a dry run. Add --env prod (without --dry-run) to apply changes.')
+      console.info('\n💡 This was a dry run. Add --env prod (without --dry-run) to apply changes.')
     } else {
-      console.log('\n✅ Migration complete!')
+      console.info('\n✅ Migration complete!')
     }
   } catch (error) {
     console.error('❌ Migration failed:', error)

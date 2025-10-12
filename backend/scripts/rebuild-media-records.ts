@@ -26,7 +26,7 @@ async function loadEnvironmentFromSecrets() {
           process.env[key] = value
         }
       }
-      console.log(`✅ Loaded ${environment} environment variables`)
+      console.info(`✅ Loaded ${environment} environment variables`)
     }
   } catch (error) {
     console.error('Failed to load secrets:', error)
@@ -120,9 +120,9 @@ async function extractExpectedIds() {
     COLLECTIONS.find((c) => c.name === 'projectScreenshots')!.expectedIds =
       Array.from(allScreenshotIds)
 
-    console.log(`📋 Expected IDs extracted:`)
-    console.log(`  - Thumbnails: ${allThumbnailIds.size}`)
-    console.log(`  - Screenshots: ${allScreenshotIds.size}`)
+    console.info(`📋 Expected IDs extracted:`)
+    console.info(`  - Thumbnails: ${allThumbnailIds.size}`)
+    console.info(`  - Screenshots: ${allScreenshotIds.size}`)
   } catch (error) {
     console.error('Failed to extract expected IDs:', error)
   }
@@ -133,11 +133,11 @@ async function rebuildMediaCollection(
   config: MediaCollectionConfig,
   bucketUrl: string,
 ): Promise<{ created: number; errors: number }> {
-  console.log(`\n📁 Rebuilding ${config.name} collection...`)
+  console.info(`\n📁 Rebuilding ${config.name} collection...`)
 
   // Get files from S3
   const s3Files = await getS3Files('bb-portfolio-media-prod', config.s3Prefix)
-  console.log(`  Found ${s3Files.length} files in S3`)
+  console.info(`  Found ${s3Files.length} files in S3`)
 
   let created = 0
   let errors = 0
@@ -172,7 +172,7 @@ async function rebuildMediaCollection(
           })
         } catch (idError) {
           // If setting ID fails, create normally and log the mismatch
-          console.log(
+          console.info(
             `  ⚠️  Could not set specific ID for ${filename}, creating with auto-generated ID`,
             idError instanceof Error ? idError.message : String(idError),
           )
@@ -189,9 +189,9 @@ async function rebuildMediaCollection(
         })
       }
 
-      console.log(`  ✅ Created: ${filename} (ID: ${mediaRecord.id})`)
+      console.info(`  ✅ Created: ${filename} (ID: ${mediaRecord.id})`)
       if (expectedId && mediaRecord.id !== expectedId) {
-        console.log(`  ⚠️  ID mismatch: expected ${expectedId}, got ${mediaRecord.id}`)
+        console.info(`  ⚠️  ID mismatch: expected ${expectedId}, got ${mediaRecord.id}`)
       }
       created++
     } catch (error) {
@@ -207,8 +207,8 @@ async function rebuildMediaCollection(
 }
 
 async function main() {
-  console.log('🔧 Rebuild Media Records from S3')
-  console.log('===============================')
+  console.info('🔧 Rebuild Media Records from S3')
+  console.info('===============================')
 
   await loadEnvironmentFromSecrets()
   await extractExpectedIds()
@@ -229,11 +229,11 @@ async function main() {
       totalStats.errors += stats.errors
     }
 
-    console.log('\n📊 Rebuild Summary')
-    console.log('==================')
-    console.log(`Total created: ${totalStats.created}`)
-    console.log(`Total errors: ${totalStats.errors}`)
-    console.log('\n✅ Media records rebuilt!')
+    console.info('\n📊 Rebuild Summary')
+    console.info('==================')
+    console.info(`Total created: ${totalStats.created}`)
+    console.info(`Total errors: ${totalStats.errors}`)
+    console.info('\n✅ Media records rebuilt!')
   } catch (error) {
     console.error('❌ Error during rebuild:', error)
   } finally {
