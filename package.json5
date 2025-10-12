@@ -27,7 +27,7 @@
     // Uses the local profile which includes development-optimized builds with hot reload
     "docker:build": "AWS_ACCOUNT_ID=123456789012 COMPOSE_PROFILES=local docker compose build",
     // ⚡ DEVELOPMENT MODE: Start both frontend and backend containers with hot reload
-    // Frontend runs on http://localhost:5051, Backend on http://localhost:5050
+    // Frontend runs on http://localhost:8080, Backend on http://localhost:8081
     // Uses 'npm run dev' - includes volume mounts for instant file changes and hot reload
     "docker:up": "AWS_ACCOUNT_ID=123456789012 COMPOSE_PROFILES=local docker compose up --build",
     // ▶️ Start containers in detached mode (runs in background)
