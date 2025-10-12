@@ -290,13 +290,23 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
           gsap.killTweensOf(scrollerRef.current, "scrollLeft");
         }
       }
+      // Only enable snap after scroll has settled and no interactions are happening
       if (
         !draggable?.current?.isThrowing &&
         !draggable?.current?.isDragging &&
         scrollTriggerSource.current !== Source.PROGRAMMATIC &&
         snap !== "x mandatory"
       ) {
-        setSnap("x mandatory");
+        // Add a small delay to ensure scroll has truly settled
+        setTimeout(() => {
+          if (
+            !draggable?.current?.isThrowing &&
+            !draggable?.current?.isDragging &&
+            scrollTriggerSource.current !== Source.PROGRAMMATIC
+          ) {
+            setSnap("x mandatory");
+          }
+        }, 50);
       }
       if (animationFrameId === null) {
         animationFrameId = requestAnimationFrame((currentTime) => {
@@ -381,39 +391,87 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
     );
   }, [onStabilizationUpdate, deriveDataIndex]);
 
+  // Stable reference for onComplete callback
+  const onTweenCompleteRef = useRef(onTweenComplete);
   useEffect(() => {
-    if (scrollerRef.current) {
+    onTweenCompleteRef.current = onTweenComplete;
+  }, [onTweenComplete]);
+
+  useEffect(() => {
+    if (scrollerRef.current && !scrollLeftTo.current) {
       scrollLeftTo.current = gsap.quickTo(scrollerRef.current, "scrollLeft", {
         overwrite: "auto",
         duration: 0.6,
         ease: "power1.out",
-        onComplete: onTweenComplete,
+        onComplete: () => onTweenCompleteRef.current?.(),
       });
     }
-  }, [onTweenComplete]);
+  }, []); // Only create once
 
   useImperativeHandle(ref, () => ({
     scrollToSlide: (targetIndex: number) => {
-      if (!scrollerRef.current || !scrollLeftTo.current) return;
+      if (!scrollerRef.current) return;
+
+      // Kill any existing tweens first
+      gsap.killTweensOf(scrollerRef.current);
+
       setSnap("none");
       scrollTriggerSource.current = Source.PROGRAMMATIC;
       const offsetToTarget = currentOffsets[targetIndex];
       const direction = offsetToTarget > 0 ? Direction.RIGHT : Direction.LEFT;
       scrollDirectionRef.current = direction;
-      const { positions: newPositions } = memoizedPositionsAndMultipliers;
-      const containerOffset = (wrapperWidth - slideWidthRef.current) / 2;
-      const targetPosition =
-        newPositions[targetIndex] + patchedOffset() - containerOffset;
+
+      // Calculate the target scroll position to center the slide
+      // Use the same calculation as the snap points
+      const targetDataIndex =
+        ((targetIndex % memoizedSlides.length) + memoizedSlides.length) %
+        memoizedSlides.length;
+
+      // Calculate how many steps we need to move from current position
+      let steps = targetDataIndex - deriveDataIndex();
+
+      // Handle wrap-around for shortest path
+      if (Math.abs(steps) > memoizedSlides.length / 2) {
+        steps =
+          steps > 0
+            ? steps - memoizedSlides.length
+            : steps + memoizedSlides.length;
+      }
+
+      const targetScrollIndex = scrollIndexRef.current + steps;
+      const targetScrollLeft = Math.round(
+        targetScrollIndex * slideSpacing + patchedOffset(),
+      );
+
       const currentScrollLeft = scrollerRef.current.scrollLeft;
-      const distanceToScroll = Math.abs(currentScrollLeft - targetPosition);
+      const distanceToScroll = Math.abs(currentScrollLeft - targetScrollLeft);
       const duration = Math.min(2.0, 0.2 + distanceToScroll / 1500);
-      scrollLeftTo.current = gsap.quickTo(scrollerRef.current, "scrollLeft", {
-        overwrite: "auto",
+
+      console.log("Scrolling to slide:", {
+        targetIndex,
+        targetDataIndex,
+        steps,
+        currentScrollLeft,
+        targetScrollLeft,
+        slideSpacing,
+        scrollIndexRef: scrollIndexRef.current,
+        targetScrollIndex,
+      });
+
+      // Use direct scrollLeft animation instead of ScrollToPlugin
+      gsap.to(scrollerRef.current, {
+        scrollLeft: targetScrollLeft,
         duration,
         ease: "power1.out",
-        onComplete: onTweenComplete,
+        overwrite: "auto",
+        onUpdate: function () {
+          // Ensure we're actually moving to prevent snap interference
+          if (scrollerRef.current) {
+            scrollTriggerSource.current = Source.PROGRAMMATIC;
+          }
+        },
+        onComplete: () => onTweenCompleteRef.current?.(),
       });
-      scrollLeftTo.current(targetPosition);
     },
     setExternalScrollPosition: (newLeft: number) => {
       externalScrollLeftRef.current = Math.round(newLeft);
