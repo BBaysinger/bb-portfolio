@@ -275,7 +275,7 @@ const Hero: React.FC = () => {
           >
             <>
               <ChargedCircle isActive={!circlePaused && !isSlingerInFlight} />
-              <OrbArrowTooltip />
+              <OrbArrowTooltip hidden={hasCollided} />
             </>
           </SlingerBox>
         </div>
