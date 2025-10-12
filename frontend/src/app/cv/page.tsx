@@ -53,11 +53,15 @@ const CurriculumVitae: React.FC = () => {
 
     // Data & Template Languages
     "JSON",
+    "GraphQL",
     "XML",
     "XSL",
     "PHP",
     "Twig",
     "FreeMarker",
+
+    // Infrastructure as Code
+    "Terraform",
 
     // Legacy/Specialized
     "Haxe",
@@ -70,7 +74,7 @@ const CurriculumVitae: React.FC = () => {
     "React",
     "Next.js",
     "Vite",
-    "Redux",
+    "Redux Toolkit",
     "Angular",
     "Angular CLI",
     "RxJS",
@@ -78,26 +82,32 @@ const CurriculumVitae: React.FC = () => {
     // Backend & Runtime
     "Node",
     "Express",
+    "JWT",
+
+    // CMS & Headless Platforms
+    "Payload CMS",
+    "Craft CMS",
+    "Salesforce",
+    "Sitecore",
+
+    // Database & Storage
+    "MongoDB",
+    "AWS S3",
 
     // UI Libraries & Animation
     "Bootstrap",
     "GreenSock / GSAP",
     "jQuery",
 
-    // CMS & Platforms
-    "Craft CMS",
-    "Salesforce",
-    "Sitecore",
-
     // Services & APIs
     "Elasticsearch",
     "Mapbox",
     "OneTrust",
     "Litmus",
+    "Nodemailer",
 
-    // Template Engines & Module Systems
+    // Template Engines
     "Mustache / Handlebars",
-    "Require / AMD",
 
     // Game Development (Legacy)
     "Flambé / 2DKit",
@@ -110,6 +120,8 @@ const CurriculumVitae: React.FC = () => {
     "OOP",
     "Design Patterns",
     "REST APIs",
+    "Monorepo Architecture",
+    "Headless CMS",
 
     // Web Standards & Layout
     "Accessibility",
@@ -117,14 +129,21 @@ const CurriculumVitae: React.FC = () => {
     "Flexbox",
     "Grid",
 
+    // DevOps & Infrastructure
+    "Infrastructure as Code",
+    "Container Orchestration",
+    "Cloud Computing",
+
     // Graphics & Animation
     "SVG",
     "Canvas",
     "Tween Engines",
+    "Image Processing",
 
     // Quality & Analytics
     "Quality Assurance",
     "Tracking / Analytics",
+    "E2E Testing",
 
     // Legacy/Specialized
     "DHTML",
@@ -136,14 +155,11 @@ const CurriculumVitae: React.FC = () => {
     "VSCode",
     "Visual Studio",
     "Sublime Text",
-    "Atom Editor",
-    "Dreamweaver",
 
     // Version Control
     "Git",
     "Git Tower",
     "Sourcetree",
-    "SVN",
 
     // Build Tools & Package Managers
     "NPM",
@@ -158,11 +174,18 @@ const CurriculumVitae: React.FC = () => {
     "Photoshop",
     "Animate (w/ scripting & HTML5 export)",
 
-    // Development Environment
+    // Development Environment & DevOps
     "Docker",
+    "Docker Compose",
+    "Terraform",
+    "AWS",
+    "Caddy",
     "VirtualBox",
-    "MAMP",
-    "Terminal / Command Prompt",
+
+    // Code Quality & Testing
+    "ESLint",
+    "Prettier",
+    "Vitest",
 
     // Testing & Browser Tools
     "Sauce Labs",
@@ -180,10 +203,6 @@ const CurriculumVitae: React.FC = () => {
     "Copilot AI",
     "Perplexity AI",
 
-    // Operating Systems
-    "OS X",
-    "Windows",
-
     // Legacy/Specialized
     "Create / Easel",
   ];
@@ -197,7 +216,7 @@ const CurriculumVitae: React.FC = () => {
     "Edutainment Games",
     "Skill Games",
     "Tactical Movement Games",
-    "Dress-Up Games",
+    "Character Customization Games",
     "Magnetic Poetry Games",
     "Drawing Utilities",
     "Wallpaper Generators",
@@ -289,7 +308,6 @@ const CurriculumVitae: React.FC = () => {
     "AbbVie Pharmaceuticals",
     "Exact Sciences",
     "Comics Kingdom",
-    "and many more...",
   ];
 
   const divClassLt = `col-xs-12 col-sm-12 col-md-3 col-lg-3 ${styles.cvLeft}`;
@@ -733,7 +751,7 @@ const CurriculumVitae: React.FC = () => {
                   other projects.
                 </li>
                 <li ref={addToRefs}>
-                  Worked over 350 hours in June 2017 with a supervisor to meet a
+                  Worked over 320 hours in June 2017 with a supervisor to meet a
                   critical $5M contract deadline, ensuring the company&apos;s
                   viability.
                 </li>
@@ -833,8 +851,9 @@ const CurriculumVitae: React.FC = () => {
                   Spokane Ad Fed events.
                 </li>
                 <li ref={addToRefs}>
-                  Worked 350+ hours in June 2014 to meet a critical deadline for
-                  our WildBrain client.
+                  Worked 320+ hours in June 2014 to meet a critical deadline for
+                  our WildBrain client, in addition to <i>many</i> other crunch
+                  times with <i>insane</i> deadlines.
                 </li>
                 <li ref={addToRefs}>
                   Led development of a <b>Webby Award</b>-winning project (2008
@@ -892,8 +911,7 @@ const CurriculumVitae: React.FC = () => {
                 </li>
                 <li ref={addToRefs}>
                   Delivered major site revisions under 50% of the allocated
-                  budget, impressing the agency owner with efficiency and
-                  resourcefulness.
+                  budget on one particular project.
                 </li>
                 <li ref={addToRefs}>
                   Created innovative shortcuts and development tricks leveraging
@@ -953,8 +971,8 @@ const CurriculumVitae: React.FC = () => {
                   The Heart Institute of Spokane
                 </li>
                 <li ref={addToRefs}>
-                  Utilized XML and XSL in an astonishingly simple and effective
-                  CMS-like approach for retailing refurbished fitness equipment
+                  Utilized XML and XSL in an simple and effective CMS-like
+                  approach for retailing fitness equipment
                 </li>
                 <li ref={addToRefs}>
                   Produced websites and other paying freelance projects that met
