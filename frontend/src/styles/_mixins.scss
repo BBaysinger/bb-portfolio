@@ -149,17 +149,25 @@
   );
 }
 
-/// Applies a fluidly scaled CSS property using CSS custom properties
-/// Values will interpolate between min and max across a viewport range
+/// Applies accessibility-friendly fluid scaling using CSS custom properties
+///
+/// **Requires useFluidVariables hook** to provide CSS variables like `--fluid-percent-320-680`.
+/// Converts values to rem units for accessibility - scales with user font preferences.
+///
+/// Use for: Typography, UI elements, text-related spacing
+/// Don't use for: Fixed layouts, images, precise visual spacing (use staticRange instead)
 ///
 /// @param $property - The CSS property to scale
-/// @param $min-px - The value at the smallest viewport width
-/// @param $max-px - The value at the largest viewport width
-/// @param $min-vw - The minimum viewport width (default: $b320)
-/// @param $max-vw - The maximum viewport width (default: $b1600)
+/// @param $min-value - Value at minimum viewport width (px or rem)
+/// @param $max-value - Value at maximum viewport width (px or rem)
+/// @param $min-vw - Minimum viewport width (must match useFluidVariables range)
+/// @param $max-vw - Maximum viewport width (must match useFluidVariables range)
 ///
-/// @example
-/// @include remRange(font-size, 16px, 48px, 360, 1440);
+/// @example Setup useFluidVariables hook first:
+/// const fluidRef = useFluidVariables([[360, 1440]]);
+///
+/// @example SCSS usage:
+/// @include remRange(font-size, 16px, 24px, 360, 1440);
 @mixin remRange(
   $property,
   $min-value,
@@ -186,22 +194,26 @@
   }
 }
 
-/// Applies a fluid CSS property using native `calc()` math directly in the rule.
+/// Applies pixel-precise fluid scaling using media queries with linear interpolation
 ///
-/// This mixin does not rely on `rem` or custom properties. Instead, it linearly
-/// interpolates a CSS value (e.g. `px`, `em`, `%`, etc.) between a minimum and
-/// maximum viewport width. This is ideal when you want to keep your scaling unit
-/// consistent (like pixel precision or em spacing) and avoid dependency on root font size.
+/// **Independent of useFluidVariables** - generates pure CSS with media queries.
+/// Maintains exact unit precision without converting to rem. Ideal for layouts and visual elements
+/// that should scale with viewport, not user font preferences.
 ///
-/// @param $property - The CSS property to scale (e.g. `margin-top`)
-/// @param $min-px - The value at the minimum viewport width (in px or unit you want)
-/// @param $max-px - The value at the maximum viewport width (same unit as $min-px)
-/// @param $min-vw - Minimum viewport width in px or unitless (default: $b320)
-/// @param $max-vw - Maximum viewport width in px or unitless (default: $b1600)
+/// Use for: Container dimensions, layout spacing, visual components, grid gaps
+/// Don't use for: Typography, UI elements that should respect font size (use remRange instead)
 ///
-/// @example
-/// @include rangeStatic(letter-spacing, 0.02em, 0.12em, 360, 1440);
-/// @include rangeStatic(width, 120px, 360px); // defaults to 320–1600px viewport
+/// @param $property - The CSS property to scale (e.g. `width`, `margin-top`)
+/// @param $min-value - Value at minimum viewport (any unit: px, em, %)
+/// @param $max-value - Value at maximum viewport (same unit as min-value)
+/// @param $min-vw - Minimum viewport width (px or unitless, default: $b320)
+/// @param $max-vw - Maximum viewport width (px or unitless, default: $b1600)
+///
+/// @example Container scaling:
+/// @include staticRange(width, 300px, 1200px, 320, 1440);
+///
+/// @example Visual spacing:
+/// @include staticRange(gap, 16px, 48px, 320, 768);
 @mixin staticRange(
   $property,
   $min-value,
@@ -257,18 +269,25 @@
 // Transform Scaling
 //////////////////////////////////////////////////////////////////////////
 
-/// Applies fluid transform scaling across a viewport range
-/// Follows the same pattern as staticRange but specifically for transform: scale()
+/// Applies smooth transform scaling using clamp() for linear interpolation without jumps
 ///
-/// @param $min-scale - The scale value at the minimum viewport width (unitless)
-/// @param $max-scale - The scale value at the maximum viewport width (unitless)
-/// @param $min-vw - Minimum viewport width in px or unitless (default: $b320)
-/// @param $max-vw - Maximum viewport width in px or unitless (default: $b1600)
-/// @param $preserve-transform - Existing transform to preserve (default: null)
+/// **Independent of useFluidVariables** - uses clamp() for truly smooth scaling.
+/// Combines with existing transforms and provides pixel-perfect responsive scaling.
 ///
-/// @example
-/// @include scaleRange(0.8, 1.2, 360px, 1440px);
-/// @include scaleRange(0.5, 1.0, $b320, $b768, translateX(-50%));
+/// Use for: Component scaling, zoom effects, responsive animations
+/// Advantage: No media query jumps - perfectly smooth across all viewport sizes
+///
+/// @param $min-scale - Scale value at minimum viewport (unitless number, e.g. 0.8)
+/// @param $max-scale - Scale value at maximum viewport (unitless number, e.g. 1.2)
+/// @param $min-vw - Minimum viewport width (px or unitless, default: $b320)
+/// @param $max-vw - Maximum viewport width (px or unitless, default: $b1600)
+/// @param $preserve-transform - Existing transform functions to preserve (default: null)
+///
+/// @example Basic scaling:
+/// @include scaleRange(0.8, 1.2, 320, 1280);
+///
+/// @example Preserve centering:
+/// @include scaleRange(0.9, 1.0, 320, 768, translateX(-50%) translateY(-50%));
 @mixin scaleRange(
   $min-scale,
   $max-scale,
