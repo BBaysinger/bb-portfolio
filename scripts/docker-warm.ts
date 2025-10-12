@@ -31,7 +31,7 @@ const BACKEND: { host: string; port: number; paths: string[] } = {
 
 const RETRY_INTERVAL = parseInt(
   process.env.WARM_RETRY_INTERVAL_MS || "2000",
-  10
+  10,
 );
 const TIMEOUT = parseInt(process.env.WARM_TIMEOUT_MS || "600000", 10); // 10 minutes
 
@@ -54,7 +54,7 @@ async function waitForReachable(
   host: string,
   port: number,
   label: string,
-  path: string
+  path: string,
 ) {
   const start = Date.now();
   console.log(`Waiting for ${label} on http://${host}:${port}${path} ...`);
@@ -62,13 +62,13 @@ async function waitForReachable(
     const code = await httpGet(host, port, path);
     if (code > 0) {
       console.log(
-        `✓ ${label} reachable on http://${host}:${port}${path} (status ${code})`
+        `✓ ${label} reachable on http://${host}:${port}${path} (status ${code})`,
       );
       return;
     }
     if (Date.now() - start > TIMEOUT) {
       throw new Error(
-        `Timeout waiting for ${label} on http://${host}:${port}${path}`
+        `Timeout waiting for ${label} on http://${host}:${port}${path}`,
       );
     }
     process.stdout.write(".");
@@ -80,7 +80,7 @@ async function warm(
   host: string,
   port: number,
   paths: string[],
-  label: string
+  label: string,
 ) {
   for (const p of paths) {
     const code = await httpGet(host, port, p);
