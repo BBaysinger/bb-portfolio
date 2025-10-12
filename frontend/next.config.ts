@@ -112,9 +112,9 @@ const nextConfig: NextConfig = {
               return [
                 "default-src 'self';",
                 "script-src 'self' 'unsafe-inline' 'unsafe-eval';",
-                "style-src 'self' 'unsafe-inline';",
+                "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;",
                 imgSrc,
-                "font-src 'self';",
+                "font-src 'self' https://fonts.gstatic.com;",
                 "connect-src 'self' https: http:;",
                 "media-src 'self';",
                 "object-src 'none';",
