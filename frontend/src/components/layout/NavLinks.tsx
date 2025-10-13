@@ -4,7 +4,7 @@ import Link from "next/link";
 import React from "react";
 
 import LogoutButton from "@/components/common/LogoutButton";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/hooks/useAuth";
 import { useNavHighlight } from "@/hooks/useNavHighlight";
 
 import styles from "./NavLinks.module.scss";

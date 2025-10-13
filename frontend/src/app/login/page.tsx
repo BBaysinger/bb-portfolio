@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/hooks/useAuth";
 import useClientDimensions from "@/hooks/useClientDimensions";
 
 import styles from "./page.module.scss";
@@ -16,34 +16,60 @@ import styles from "./page.module.scss";
  * @version Updated for PayloadCMS login.
  */
 const LoginPage = () => {
-  const { login } = useAuth();
+  const { login, isLoggedIn, isLoading, error: authError, clearAuthError } = useAuth();
   const [email, setEmail] = useState(""); // using email, not username
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [localError, setLocalError] = useState("");
   const { clientHeight } = useClientDimensions();
+
+  // Clear any existing auth errors when component mounts
+  useEffect(() => {
+    if (authError) {
+      clearAuthError();
+    }
+  }, [authError, clearAuthError]);
+
+  // Redirect if already logged in (but wait for loading to finish)
+  if (!isLoading && isLoggedIn) {
+    window.location.href = "/";
+    return null;
+  }
+
+  // Show loading state while checking authentication
+  if (isLoading) {
+    return (
+      <div className={styles.login} style={{ minHeight: `${clientHeight}px` }}>
+        <div>
+          <p>Checking authentication...</p>
+        </div>
+      </div>
+    );
+  }
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
+    setLocalError("");
+    clearAuthError();
 
     // Client-side validation
     if (!email || !email.includes("@")) {
-      setError("Please enter a valid email address.");
+      setLocalError("Please enter a valid email address.");
       return;
     }
 
     if (!password || password.length < 3) {
-      setError("Password is required.");
+      setLocalError("Password is required.");
       return;
     }
 
-    setIsLoggingIn(true); // Disable form while processing
     try {
       await login(email, password); // real API call
-    } catch {
-      setError("Invalid email or password.");
-      setIsLoggingIn(false);
+      // Login successful - the useAuth hook will handle redirect
+    } catch (loginError) {
+      const errorMessage = loginError instanceof Error 
+        ? loginError.message 
+        : "Invalid email or password.";
+      setLocalError(errorMessage);
     }
   };
 
@@ -73,7 +99,7 @@ const LoginPage = () => {
                 placeholder=""
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                disabled={isLoggingIn}
+                disabled={isLoading}
                 autoComplete="username"
                 required
               />
@@ -86,23 +112,23 @@ const LoginPage = () => {
                 placeholder=""
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                disabled={isLoggingIn}
+                disabled={isLoading}
                 autoComplete="current-password"
                 required
               />
             </label>
           </div>
-          <button type="submit" className="btn" disabled={isLoggingIn}>
-            Login
+          <button type="submit" className="btn" disabled={isLoading}>
+            {isLoading ? "Logging in..." : "Login"}
           </button>
         </form>
 
         <div>
           <p>
-            {isLoggingIn ? (
-              <span className={styles.statusMessage}>Logging in...</span>
-            ) : error ? (
-              <span className={styles.errorMessage}>{error}</span>
+            {(authError || localError) ? (
+              <span className={styles.errorMessage}>
+                {authError || localError}
+              </span>
             ) : (
               <>&nbsp;</>
             )}
