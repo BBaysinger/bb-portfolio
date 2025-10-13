@@ -10,4 +10,4 @@ Disallow: /config/
 Disallow: /tmp/
 Disallow: /logs/
 
-Sitemap: https://yourdomain.com/sitemap.xml
+Sitemap: https://bbinteractive.io/sitemap.xml
