@@ -78,8 +78,11 @@ jobs:
           # S3 and AWS configuration required by payload.config.ts during build
           DEV_S3_BUCKET: ${{ secrets.DEV_S3_BUCKET }}
           DEV_AWS_REGION: ${{ secrets.DEV_AWS_REGION }}
-          S3_AWS_ACCESS_KEY_ID: ${{ secrets.S3_AWS_ACCESS_KEY_ID }}
-          S3_AWS_SECRET_ACCESS_KEY: ${{ secrets.S3_AWS_SECRET_ACCESS_KEY }}
+          # Unified AWS credentials for all services (S3, SES, deployment)
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          DEV_SES_FROM_EMAIL: ${{ secrets.DEV_SES_FROM_EMAIL }}
+          DEV_SES_TO_EMAIL: ${{ secrets.DEV_SES_TO_EMAIL }}
         run: npm run build # Next.js production build (Payload CMS)
 
       - name: Test backend
@@ -92,8 +95,11 @@ jobs:
           # S3 and AWS configuration required by payload.config.ts during testing
           DEV_S3_BUCKET: ${{ secrets.DEV_S3_BUCKET }}
           DEV_AWS_REGION: ${{ secrets.DEV_AWS_REGION }}
-          S3_AWS_ACCESS_KEY_ID: ${{ secrets.S3_AWS_ACCESS_KEY_ID }}
-          S3_AWS_SECRET_ACCESS_KEY: ${{ secrets.S3_AWS_SECRET_ACCESS_KEY }}
+          # Unified AWS credentials for all services (S3, SES, deployment)
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          DEV_SES_FROM_EMAIL: ${{ secrets.DEV_SES_FROM_EMAIL }}
+          DEV_SES_TO_EMAIL: ${{ secrets.DEV_SES_TO_EMAIL }}
         run: npm test || echo "⚠️ No backend tests yet" # Graceful failure until tests are implemented
 
       # =======================================================================
@@ -187,8 +193,8 @@ jobs:
           echo "${{ secrets.DEV_MONGODB_URI }}" > /tmp/dev_mongodb_uri  
           echo "${{ secrets.LOCAL_MONGODB_URI }}" > /tmp/local_mongodb_uri
           echo "${{ secrets.PROD_PAYLOAD_SECRET }}" > /tmp/prod_payload_secret
-          echo "${{ secrets.S3_AWS_ACCESS_KEY_ID }}" > /tmp/s3_aws_access_key_id
-          echo "${{ secrets.S3_AWS_SECRET_ACCESS_KEY }}" > /tmp/s3_aws_secret_access_key
+          echo "${{ secrets.AWS_ACCESS_KEY_ID }}" > /tmp/aws_access_key_id
+          echo "${{ secrets.AWS_SECRET_ACCESS_KEY }}" > /tmp/aws_secret_access_key
           # Build with secrets and non-sensitive build args
           DOCKER_BUILDKIT=1 docker build --no-cache --target runtime \
             --build-arg ENV_PROFILE=prod \
@@ -200,11 +206,11 @@ jobs:
             --secret id=dev_mongodb_uri,src=/tmp/dev_mongodb_uri \
             --secret id=local_mongodb_uri,src=/tmp/local_mongodb_uri \
             --secret id=prod_payload_secret,src=/tmp/prod_payload_secret \
-            --secret id=s3_aws_access_key_id,src=/tmp/s3_aws_access_key_id \
-            --secret id=s3_aws_secret_access_key,src=/tmp/s3_aws_secret_access_key \
+            --secret id=aws_access_key_id,src=/tmp/aws_access_key_id \
+            --secret id=aws_secret_access_key,src=/tmp/aws_secret_access_key \
             -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./backend
           # Clean up temporary files
-          rm -f /tmp/prod_mongodb_uri /tmp/dev_mongodb_uri /tmp/local_mongodb_uri /tmp/prod_payload_secret /tmp/s3_aws_access_key_id /tmp/s3_aws_secret_access_key
+          rm -f /tmp/prod_mongodb_uri /tmp/dev_mongodb_uri /tmp/local_mongodb_uri /tmp/prod_payload_secret /tmp/aws_access_key_id /tmp/aws_secret_access_key
           echo "📤 Pushing backend image to ECR..."
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           # Also tag and push as latest for docker-compose compatibility  
@@ -295,8 +301,8 @@ jobs:
             # Configure AWS credentials for ECR access from EC2
             # ===============================================================
             echo "🔐 Configuring AWS credentials..."
-            aws configure set aws_access_key_id ${{ secrets.CICD_AWS_ACCESS_KEY_ID }}
-            aws configure set aws_secret_access_key ${{ secrets.CICD_AWS_SECRET_ACCESS_KEY }}
+            aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+            aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
             aws configure set default.region us-west-2
 
             # Login to ECR for pulling production images
@@ -357,11 +363,13 @@ jobs:
             PROD_PAYLOAD_SECRET=${{ secrets.PROD_PAYLOAD_SECRET }}
             # Frontend origin for CORS/CSRF
             PROD_FRONTEND_URL=${{ secrets.PROD_FRONTEND_URL }}
-            # AWS S3 Configuration for Payload uploads
-            S3_AWS_ACCESS_KEY_ID=${{ secrets.S3_AWS_ACCESS_KEY_ID }}
-            S3_AWS_SECRET_ACCESS_KEY=${{ secrets.S3_AWS_SECRET_ACCESS_KEY }}
+            # Unified AWS credentials for all services (S3, SES, deployment)
+            AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
+            AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
             PROD_AWS_REGION=${{ secrets.PROD_AWS_REGION }}
             PROD_S3_BUCKET=${{ secrets.PROD_S3_BUCKET }}
+            PROD_SES_FROM_EMAIL=${{ secrets.PROD_SES_FROM_EMAIL }}
+            PROD_SES_TO_EMAIL=${{ secrets.PROD_SES_TO_EMAIL }}
             NODE_ENV=production
             ENV_PROFILE=prod
             EOF
@@ -442,10 +450,13 @@ jobs:
             export PROD_MONGODB_URI="${{ secrets.PROD_MONGODB_URI }}"
             export PROD_PAYLOAD_SECRET="${{ secrets.PROD_PAYLOAD_SECRET }}"
             export PROD_FRONTEND_URL="${{ secrets.PROD_FRONTEND_URL }}"
-            export S3_AWS_ACCESS_KEY_ID="${{ secrets.S3_AWS_ACCESS_KEY_ID }}"
-            export S3_AWS_SECRET_ACCESS_KEY="${{ secrets.S3_AWS_SECRET_ACCESS_KEY }}"
+            # Unified AWS credentials for all services (S3, SES, deployment)
+            export AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}"
+            export AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}"
             export PROD_AWS_REGION="${{ secrets.PROD_AWS_REGION }}"
             export PROD_S3_BUCKET="${{ secrets.PROD_S3_BUCKET }}"
+            export PROD_SES_FROM_EMAIL="${{ secrets.PROD_SES_FROM_EMAIL }}"
+            export PROD_SES_TO_EMAIL="${{ secrets.PROD_SES_TO_EMAIL }}"
 
             echo "🐳 Environment variables for docker-compose:"
             echo "AWS_ACCOUNT_ID: ${AWS_ACCOUNT_ID}"
@@ -630,11 +641,13 @@ jobs:
             DEV_PAYLOAD_SECRET=${{ secrets.DEV_PAYLOAD_SECRET }}
             # Frontend origin for CORS/CSRF
             DEV_FRONTEND_URL=${{ secrets.DEV_FRONTEND_URL }}
-            # AWS S3 Configuration for Payload uploads
-            S3_AWS_ACCESS_KEY_ID=${{ secrets.S3_AWS_ACCESS_KEY_ID }}
-            S3_AWS_SECRET_ACCESS_KEY=${{ secrets.S3_AWS_SECRET_ACCESS_KEY }}
+            # Unified AWS credentials for all services (S3, SES, deployment)
+            AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
+            AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
             DEV_AWS_REGION=${{ secrets.DEV_AWS_REGION }}
             DEV_S3_BUCKET=${{ secrets.DEV_S3_BUCKET }}
+            DEV_SES_FROM_EMAIL=${{ secrets.DEV_SES_FROM_EMAIL }}
+            DEV_SES_TO_EMAIL=${{ secrets.DEV_SES_TO_EMAIL }}
             NODE_ENV=development
             ENV_PROFILE=dev
             EOF
