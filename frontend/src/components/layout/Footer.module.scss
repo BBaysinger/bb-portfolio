@@ -132,7 +132,6 @@ footer.footer {
 
 .footerNav {
   display: flex;
-  flex-direction: column;
   font-size: 15px;
 
   @include breakpointUp($b576px) {
@@ -176,6 +175,11 @@ footer.footer {
 }
 
 .footerCell {
+  &:has(> *:first-child:last-child) {
+    display: flex;
+    justify-content: center;
+  }
+
   p {
     line-height: 19px;
 
