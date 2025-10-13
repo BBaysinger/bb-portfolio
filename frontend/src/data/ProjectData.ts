@@ -58,24 +58,6 @@ async function fetchPortfolioProjects(opts?: {
     fetchOptions.credentials = "include";
   }
 
-  // Temporary debugging with client/server distinction
-  // const context = isServer ? "[SERVER]" : "[CLIENT]";
-  // console.info(
-  //   `ProjectData ${context} - About to fetch: "${url}" with options:`,
-  //   JSON.stringify(fetchOptions)
-  // );
-
-  // try {
-  //   const res = await fetch(url, fetchOptions);
-  //   console.info(
-  //     `ProjectData ${context} - Fetch response: ${res.status} ${res.statusText}`
-  //   );
-  // } catch (error) {
-  //   const context = isServer ? "[SERVER]" : "[CLIENT]";
-  //   console.error(`ProjectData ${context} - Fetch error:`, error);
-  //   throw error;
-  // }
-
   const res = await fetch(url, fetchOptions);
   if (!res.ok) {
     let detail = "";
