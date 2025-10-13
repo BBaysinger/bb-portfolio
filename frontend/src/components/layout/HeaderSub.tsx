@@ -16,9 +16,6 @@ import styles from "./HeaderSub.module.scss";
  * multiple lines, so as to prevent content
  * from snapping around from page to page, consistent with the handling on info/features height.
  *
- * @author Bradley Baysinger
- * @since 2025
- * @version N/A
  */
 const HeaderSub: React.FC<HeaderSubProps> = ({ head, subhead }) => {
   return (

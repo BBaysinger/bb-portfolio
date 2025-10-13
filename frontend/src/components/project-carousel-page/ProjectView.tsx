@@ -37,8 +37,6 @@ import styles from "./ProjectView.module.scss";
  *
  * @component ProjectView
  * @param {string} projectId - The current project ID from the wrapper component.
- * @author Bradley Baysinger
- * @since 2025
  */
 const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
   const projects = ProjectData.activeProjectsRecord;

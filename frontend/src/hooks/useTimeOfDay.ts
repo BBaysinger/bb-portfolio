@@ -1,11 +1,7 @@
 import { useEffect, useState } from "react";
 
 /**
- *
- *
- * @author Bradley Baysinger
- * @since 2025
- * @version N/A
+ * Custom React hook for time-of-day functionality.
  */
 export function useTimeOfDay(): string {
   const getTimeOfDay = (): string => {

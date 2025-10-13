@@ -21,9 +21,6 @@ import styles from "./FluxelSvgGrid.module.scss";
  * A square/pixel on the grid that can simulate depth and have color variations
  * applied to it.
  *
- * @author Bradley Baysinger
- * @since 2025
- * @version N/A
  */
 const FluxelSvgGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
   (

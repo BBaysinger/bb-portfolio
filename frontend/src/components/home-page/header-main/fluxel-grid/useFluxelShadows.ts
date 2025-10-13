@@ -51,8 +51,6 @@ function getShadowInfluence(
  * @param smoothRangeMultiplier - Distance used for smooth influence dropoff (default: 4.25)
  * @param smoothing - Whether to apply smooth falloff instead of binary influence (default: true)
  *
- * @author Bradley Baysinger
- * @since 2025
  */
 export function useFluxelShadows({
   gridRef,

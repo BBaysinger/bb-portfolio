@@ -32,9 +32,6 @@ import clsx from "clsx";
  * @param styleSources - Any number of style objects (CSS modules) to search for the class name.
  * @returns A space-separated string of resolved class names with optional global fallback.
  *
- * @author Bradley Baysinger
- * @since 2025
- * @version N/A
  */
 
 export function resolveClass(

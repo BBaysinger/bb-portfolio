@@ -8,9 +8,6 @@ import styles from "./FPSCounter.module.scss";
  * Digits are rendered in separate divs to stabilize layout
  * when using a non-monospaced 7-tile font.
  *
- * @author Bradley Baysinger
- * @since 2025
- * @version N/A
  */
 const FPSCounter: React.FC<{ updateInterval?: number; className?: string }> = ({
   updateInterval = 500,

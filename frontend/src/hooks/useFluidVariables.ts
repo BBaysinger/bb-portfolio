@@ -53,8 +53,6 @@ import { useEffect, useRef, RefObject } from "react";
  * />
  * ```
  *
- * @author Bradley Baysinger
- * @since 2025
  *
  * @param ranges - Viewport width ranges to track as [minVw, maxVw] pairs
  * @returns Ref to attach to DOM element where CSS variables will be applied

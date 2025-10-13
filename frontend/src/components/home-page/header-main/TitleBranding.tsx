@@ -27,9 +27,6 @@ type TitleBrandingProps = {
  * @param {string} [props.className] - Optional additional className(s) to append to the wrapper.
  * @param {React.Ref<HTMLDivElement>} ref - Forwarded ref to the root div.
  *
- * @author Bradley Baysinger
- * @since 2025
- * @version N/A
  */
 const TitleBranding = forwardRef<HTMLDivElement, TitleBrandingProps>(
   ({ className = "" }, ref) => {

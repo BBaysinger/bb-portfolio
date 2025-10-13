@@ -9,9 +9,6 @@ const getWidth = () =>
 /**
  *
  *
- * @author Bradley Baysinger
- * @since 2025
- * @version N/A
  */
 const useClientDimensions = () => {
   // Start with 0 to avoid SSR crash and mismatch

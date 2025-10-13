@@ -33,9 +33,6 @@ interface ProjectThumbnailProps {
  * The thumbnails in the home/portfolio page section that each link out to a specific
  * portfolio project via dynamic routing.
  *
- * @author Bradley Baysinger
- * @since 2025
- * @version N/A
  */
 const ProjectThumbnail = forwardRef<HTMLDivElement, ProjectThumbnailProps>(
   (

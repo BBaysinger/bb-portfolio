@@ -15,6 +15,9 @@ import ScrollToHash from "@/utils/ScrollToHash";
 
 import styles from "./ClientLayoutShell.module.scss";
 
+/**
+ * Client-side layout shell component
+ */
 export function ClientLayoutShell({ children }: { children: React.ReactNode }) {
   const isMenuOpen = useSelector(
     (state: RootState) => state.ui.isMobileNavExpanded,

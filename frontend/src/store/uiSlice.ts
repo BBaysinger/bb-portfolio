@@ -11,11 +11,9 @@ const initialState: UIState = {
 };
 
 /**
- *
- *
- * @author Bradley Baysinger
- * @since 2025
- * @version N/A
+ * Redux store for UI state management
+ * UI slice for managing global UI state including hero scroll tracking
+ * and mobile navigation state.
  */
 const uiSlice = createSlice({
   name: "ui",

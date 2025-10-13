@@ -13,9 +13,6 @@ import { setHeroInView } from "@/store/uiSlice";
  * Only activates when on the homepage or /portfolio route
  * (those are the same page, because the portfolio list is at the bottom).
  *
- * @author Bradley Baysinger
- * @since 2025
- * @version N/A
  */
 export function useTrackHeroInView() {
   const dispatch = useDispatch();

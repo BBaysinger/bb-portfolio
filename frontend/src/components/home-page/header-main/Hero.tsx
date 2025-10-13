@@ -64,10 +64,6 @@ const quotes = [
  *
  * @component
  * @returns {JSX.Element} Hero header with grid and interactive branding.
- *
- * @author Bradley Baysinger
- * @since 2025
- * @version N/A
  */
 const Hero: React.FC = () => {
   const id = "hero";

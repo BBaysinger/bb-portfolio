@@ -8,6 +8,9 @@ import { AppProviders } from "./providers/AppProviders";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "@/styles/styles.scss";
 
+/**
+ * layout component
+ */
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">

@@ -6,6 +6,9 @@ interface Subscriber {
   lastTime: number;
 }
 
+/**
+ * Utility functions for frame synchronization
+ */
 class FrameSync {
   private subscribers = new Set<Subscriber>();
   private rafId: number | null = null;

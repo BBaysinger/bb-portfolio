@@ -17,9 +17,6 @@ interface LinksProps {
 /**
  * Navigation link list populated around the site, like nav variants and footer.
  *
- * @author Bradley Baysinger
- * @since 2025
- * @version N/A
  */
 const Links: React.FC<LinksProps> = ({ onClick, className }) => {
   const { isLoggedIn } = useAuth();

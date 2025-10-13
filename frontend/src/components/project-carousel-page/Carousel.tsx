@@ -68,9 +68,6 @@ import {
  * Notes:
  * - Smoothness achieved here the main objective, and uncommon if you compare it to most every other carousel.
  *
- * @author Bradley Baysinger
- * @since 2024-12-16
- * @version N/A
  */
 gsap.registerPlugin(ScrollToPlugin);
 

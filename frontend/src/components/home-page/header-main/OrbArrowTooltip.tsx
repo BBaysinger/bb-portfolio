@@ -11,9 +11,6 @@ type Props = {
  * Arrow tooltip that appears on the draggable orb to guide first-time users.
  * Hides permanently after the first wall collision to avoid clutter for experienced users.
  *
- * @author Bradley Baysinger
- * @since 2025
- * @version N/A
  */
 const OrbArrowTooltip: React.FC<Props> = ({
   className = "",

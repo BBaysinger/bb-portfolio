@@ -79,8 +79,6 @@ export interface LayeredCarouselManagerRef {
  *
  * This is the key abstraction for custom scrollbar behavior and layered scroll syncing.
  *
- * @author Bradley Baysinger
- * @since 2025
  */
 const LayeredCarouselManager = forwardRef<
   LayeredCarouselManagerRef,

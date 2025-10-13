@@ -11,12 +11,15 @@ import styles from "./page.module.scss";
 /**
  * LoginPage prompts user for credentials and attempts Payload CMS login.
  *
- * @author Bradley Baysinger
- * @since 2025
- * @version Updated for PayloadCMS login.
  */
 const LoginPage = () => {
-  const { login, isLoggedIn, isLoading, error: authError, clearAuthError } = useAuth();
+  const {
+    login,
+    isLoggedIn,
+    isLoading,
+    error: authError,
+    clearAuthError,
+  } = useAuth();
   const [email, setEmail] = useState(""); // using email, not username
   const [password, setPassword] = useState("");
   const [localError, setLocalError] = useState("");
@@ -66,9 +69,10 @@ const LoginPage = () => {
       await login(email, password); // real API call
       // Login successful - the useAuth hook will handle redirect
     } catch (loginError) {
-      const errorMessage = loginError instanceof Error 
-        ? loginError.message 
-        : "Invalid email or password.";
+      const errorMessage =
+        loginError instanceof Error
+          ? loginError.message
+          : "Invalid email or password.";
       setLocalError(errorMessage);
     }
   };
@@ -125,7 +129,7 @@ const LoginPage = () => {
 
         <div>
           <p>
-            {(authError || localError) ? (
+            {authError || localError ? (
               <span className={styles.errorMessage}>
                 {authError || localError}
               </span>

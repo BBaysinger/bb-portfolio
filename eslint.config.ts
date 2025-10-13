@@ -7,10 +7,6 @@ import reactRefresh from "eslint-plugin-react-refresh";
 import globals from "globals";
 
 /**
- *
- * @author Bradley Baysinger
- * @since 2025
- * @version N/A
  */
 export default [
   {
