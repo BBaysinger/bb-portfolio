@@ -6,9 +6,7 @@ import useClientDimensions from "@/hooks/useClientDimensions";
 import styles from "./page.module.scss";
 
 /**
- * Obligatory contact page!
- *
- * https://www.netlify.com/blog/2017/07/20/how-to-integrate-netlifys-form-handling-in-a-react-app/
+ * Contact page with AWS SES email integration
  *
  * @author Bradley Baysinger
  * @since 2025
@@ -41,27 +39,49 @@ const ContactPage = () => {
     setStatus("Sending...");
     setError("");
 
-    const form = e.currentTarget;
-    const data = new FormData(form);
+    // Client-side validation
+    if (
+      !formData.name.trim() ||
+      !formData.email.trim() ||
+      !formData.message.trim()
+    ) {
+      setError("Please fill in all fields.");
+      setStatus("");
+      return;
+    }
+
+    if (!formData.email.includes("@")) {
+      setError("Please enter a valid email address.");
+      setStatus("");
+      return;
+    }
 
     try {
-      const response = await fetch("/", {
+      // Use environment variable or default to localhost for development
+      const apiUrl =
+        process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3001";
+      const response = await fetch(`${apiUrl}/api/contact`, {
         method: "POST",
-        body: new URLSearchParams([...data.entries()] as [
-          string,
-          string,
-        ][]).toString(),
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
       });
 
+      const result = await response.json();
+
       if (response.ok) {
-        setStatus("Message sent successfully!");
+        setStatus(result.message || "Message sent successfully!");
         setFormData({ name: "", email: "", message: "" });
       } else {
-        throw new Error("Form submission failed");
+        throw new Error(result.error || "Form submission failed");
       }
-    } catch {
-      setError("Failed to send message. Please try again later.");
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : "Failed to send message. Please try again later.";
+      setError(errorMessage);
       setStatus("");
     }
   };
@@ -80,14 +100,7 @@ const ContactPage = () => {
               Have a project in mind or just want to say hello? Drop me a
               message, and I&apos;ll get back to you as soon as possible!
             </p>
-            <form
-              name="contact"
-              action="/"
-              data-netlify-honeypot="bot-field"
-              onSubmit={handleSubmit}
-            >
-              <input type="hidden" name="form-name" value="contact" />
-              <input type="hidden" name="bot-field" />
+            <form onSubmit={handleSubmit}>
               <div className={styles.sameRow}>
                 <label className={styles.adjacent}>
                   <div>Name:</div>
