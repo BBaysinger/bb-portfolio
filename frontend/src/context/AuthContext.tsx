@@ -17,6 +17,7 @@ interface User {
 interface AuthContextType {
   user: User | null;
   isLoggedIn: boolean;
+  isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
   resetExperience: () => void;
@@ -32,9 +33,10 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // On mount, fetch the current user from Payload
+    // On mount, fetch the current user from our API proxy
     const fetchUser = async () => {
       try {
         const res = await fetch("/api/users/me", {
@@ -53,6 +55,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         console.error("Failed to fetch user", err);
         setUser(null);
         setIsLoggedIn(false);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -68,11 +72,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         body: JSON.stringify({ email, password }),
       });
 
-      if (!res.ok) throw new Error("Login failed");
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || "Login failed");
+      }
 
       const data = await res.json();
       setUser(data.user);
       setIsLoggedIn(true);
+
+      // Redirect to home page on successful login
+      window.location.href = "/";
     } catch (err) {
       console.error("Login error:", err);
       throw err;
@@ -104,7 +114,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <AuthContext.Provider
-      value={{ user, isLoggedIn, login, logout, resetExperience }}
+      value={{ user, isLoggedIn, isLoading, login, logout, resetExperience }}
     >
       {children}
     </AuthContext.Provider>
