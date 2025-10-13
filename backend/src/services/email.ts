@@ -17,8 +17,15 @@ class AWSEmailService implements EmailService {
 
   constructor() {
     const region = this.getEnvVar('AWS_REGION')
-    const accessKeyId = this.getEnvVar('AWS_ACCESS_KEY_ID')
-    const secretAccessKey = this.getEnvVar('AWS_SECRET_ACCESS_KEY')
+    // Use unified AWS credentials (no environment prefix needed)
+    const accessKeyId = process.env.AWS_ACCESS_KEY_ID
+    const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY
+
+    if (!accessKeyId || !secretAccessKey) {
+      throw new Error(
+        'Missing required AWS credentials: AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY',
+      )
+    }
 
     this.fromEmail = this.getEnvVar('SES_FROM_EMAIL')
     this.toEmail = this.getEnvVar('SES_TO_EMAIL')
