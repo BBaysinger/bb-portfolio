@@ -195,6 +195,8 @@ jobs:
           echo "${{ secrets.PROD_PAYLOAD_SECRET }}" > /tmp/prod_payload_secret
           echo "${{ secrets.AWS_ACCESS_KEY_ID }}" > /tmp/aws_access_key_id
           echo "${{ secrets.AWS_SECRET_ACCESS_KEY }}" > /tmp/aws_secret_access_key
+          echo "${{ secrets.PROD_SES_FROM_EMAIL }}" > /tmp/prod_ses_from_email
+          echo "${{ secrets.PROD_SES_TO_EMAIL }}" > /tmp/prod_ses_to_email
           # Build with secrets and non-sensitive build args
           DOCKER_BUILDKIT=1 docker build --no-cache --target runtime \
             --build-arg ENV_PROFILE=prod \
@@ -208,9 +210,11 @@ jobs:
             --secret id=prod_payload_secret,src=/tmp/prod_payload_secret \
             --secret id=aws_access_key_id,src=/tmp/aws_access_key_id \
             --secret id=aws_secret_access_key,src=/tmp/aws_secret_access_key \
+            --secret id=prod_ses_from_email,src=/tmp/prod_ses_from_email \
+            --secret id=prod_ses_to_email,src=/tmp/prod_ses_to_email \
             -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./backend
           # Clean up temporary files
-          rm -f /tmp/prod_mongodb_uri /tmp/dev_mongodb_uri /tmp/local_mongodb_uri /tmp/prod_payload_secret /tmp/aws_access_key_id /tmp/aws_secret_access_key
+          rm -f /tmp/prod_mongodb_uri /tmp/dev_mongodb_uri /tmp/local_mongodb_uri /tmp/prod_payload_secret /tmp/aws_access_key_id /tmp/aws_secret_access_key /tmp/prod_ses_from_email /tmp/prod_ses_to_email
           echo "📤 Pushing backend image to ECR..."
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           # Also tag and push as latest for docker-compose compatibility  
