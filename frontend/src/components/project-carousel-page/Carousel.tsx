@@ -120,9 +120,9 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
         isSlaveMode ? "carouselSlave" : "carouselMaster",
         classNamePrefix,
         styles,
-        styleMap
+        styleMap,
       ),
-      resolveClass(`carousel${layerId}`, classNamePrefix, styles, styleMap)
+      resolveClass(`carousel${layerId}`, classNamePrefix, styles, styleMap),
     );
     return retVal;
   };
@@ -143,7 +143,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
     slideSpacing,
     isSlaveMode,
     wrapperWidth,
-    slideWidthRef
+    slideWidthRef,
   );
 
   const patchedOffset = useCallback(() => {
@@ -163,7 +163,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
           : scrollIndexRef.current;
       return ((index % slidesLength) + slidesLength) % slidesLength;
     },
-    [slides.length]
+    [slides.length],
   );
 
   const dataIndex = useMemo(() => deriveDataIndex(), [deriveDataIndex]);
@@ -178,11 +178,11 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
       const threshold = 2;
       if (scrollDirectionRef.current === Direction.LEFT) {
         multiplier = -Math.floor(
-          (index - scrollIndex + threshold) / memoizedSlides.length
+          (index - scrollIndex + threshold) / memoizedSlides.length,
         );
       } else if (scrollDirectionRef.current === Direction.RIGHT) {
         multiplier = Math.floor(
-          (scrollIndex - index + threshold) / memoizedSlides.length
+          (scrollIndex - index + threshold) / memoizedSlides.length,
         );
       } else {
         throw new Error("No scroll direction set.");
@@ -193,8 +193,8 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
         Math.round(
           multiplier * slideSpacing * memoizedSlides.length +
             index * slideSpacing +
-            containerOffset
-        )
+            containerOffset,
+        ),
       );
       const normalizedOffset =
         (((index - scrollIndex) % memoizedSlides.length) +
@@ -203,7 +203,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
       newOffsets.push(
         normalizedOffset <= memoizedSlides.length / 2
           ? normalizedOffset
-          : normalizedOffset - memoizedSlides.length
+          : normalizedOffset - memoizedSlides.length,
       );
     });
 
@@ -241,7 +241,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
             onStabilizationUpdate?.(
               newDataIndex,
               scrollTriggerSource.current,
-              newDirection
+              newDirection,
             );
           }, stabilizationDelay);
         }
@@ -257,7 +257,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
       onStabilizationUpdate,
       stabilizationDelay,
       patchedOffset,
-    ]
+    ],
   );
 
   const updateIndexRef = useRef(updateIndexPerPosition);
@@ -336,7 +336,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
     offsets: currentOffsets,
   } = useMemo(
     () => memoizedPositionsAndMultipliers,
-    [memoizedPositionsAndMultipliers]
+    [memoizedPositionsAndMultipliers],
   );
 
   useEffect(() => {
@@ -347,7 +347,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
     const newScrollIndex =
       scrollIndexRef.current + (normalizedIndex - dataIndex);
     const targetScrollLeft = Math.round(
-      newScrollIndex * slideSpacing + patchedOffset()
+      newScrollIndex * slideSpacing + patchedOffset(),
     );
     setScrollIndex(newScrollIndex);
     if (!isSlaveMode) scrollerRef.current.scrollLeft = targetScrollLeft;
@@ -387,7 +387,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
     onStabilizationUpdate?.(
       freshDataIndex,
       Source.PROGRAMMATIC,
-      scrollDirectionRef.current
+      scrollDirectionRef.current,
     );
   }, [onStabilizationUpdate, deriveDataIndex]);
 
@@ -440,7 +440,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
 
       const targetScrollIndex = scrollIndexRef.current + steps;
       const targetScrollLeft = Math.round(
-        targetScrollIndex * slideSpacing + patchedOffset()
+        targetScrollIndex * slideSpacing + patchedOffset(),
       );
 
       const currentScrollLeft = scrollerRef.current.scrollLeft;
@@ -509,7 +509,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
             className={clsx(
               styles.carouselSlide,
               Math.abs(currentOffsets[index]) > 1 && styles.hiddenSlide,
-              getSlideClass()
+              getSlideClass(),
             )}
             style={{
               transform: `translateX(${patchedOffset() + currentPositions[index]}px)`,
