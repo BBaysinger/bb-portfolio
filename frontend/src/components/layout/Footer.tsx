@@ -15,9 +15,6 @@ type FooterProps = {
 /**
  * The footer, common to every page.
  *
- * @author Bradley Baysinger
- * @since 2025
- * @version N/A
  */
 const Footer: React.FC<FooterProps> = ({ mutationElemRef }) => {
   const [mainContentHeight, setMainContentHeight] = useState(9999999999);

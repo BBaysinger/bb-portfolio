@@ -69,8 +69,6 @@ interface PointerMeta {
  * @param debounceMap Optional map of debounce durations per event type.
  * @returns `{ x, y }` coordinates relative to the element, or `null` when inactive.
  *
- * @author Bradley Baysinger
- * @since 2025
  */
 interface UseElementRelativePointerOptions extends DebounceMap {
   override?: { x: number; y: number } | undefined;

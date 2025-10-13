@@ -26,9 +26,6 @@ interface NavProps {
  * for either variant, but used twice, as switching between them dynamically
  * at runtime causes a unbelievably massive frame drop.
  *
- * @author Bradley Baysinger
- * @since 2025
- * @version N/A
  */
 const NavVariant: React.FC<NavProps> = ({ variant }) => {
   const isMenuOpen = useSelector(

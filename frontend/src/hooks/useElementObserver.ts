@@ -17,8 +17,6 @@ type DebounceMap = Partial<Record<EventType, number>>;
  * A comprehensive debounced layout change observer that listens for
  * every way an element can change — with optional exclusions.
  *
- * @author Bradley Baysinger
- * @since 2025
  */
 export function useElementObserver<T extends Element>(
   targetRef: React.RefObject<T | null>,

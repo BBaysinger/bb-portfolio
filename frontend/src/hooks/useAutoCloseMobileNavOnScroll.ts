@@ -5,11 +5,7 @@ import type { RootState } from "@/store/store";
 import { expandMobileNav } from "@/store/uiSlice";
 
 /**
- *
- *
- * @author Bradley Baysinger
- * @since 2025
- * @version N/A
+ * Custom React hook (useAutoCloseMobileNavOnScroll)
  */
 export function useAutoCloseMobileNavOnScroll() {
   const isMenuOpen = useSelector(

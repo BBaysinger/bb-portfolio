@@ -16,9 +16,6 @@ interface ProjectInfoProps {
 /**
  * Display and animate the descriptions, features, and urls/buttons of each portfolio item.
  *
- * @author Bradley Baysinger
- * @since 2025
- * @version N/A
  */
 const ProjectInfo = forwardRef<HTMLDivElement, ProjectInfoProps>(
   ({ dataNode, isActive, direction }, ref) => {

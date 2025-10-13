@@ -1,20 +1,25 @@
-import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
+import {
+  checkAuthStatus,
+  loginUser,
+  logoutUser,
+  clearError,
+  resetAuthState,
+} from "@/store/authSlice";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { checkAuthStatus, loginUser, logoutUser, clearError, resetAuthState } from "@/store/authSlice";
 
 /**
  * Custom hook for authentication using Redux
- * 
- * @author Bradley Baysinger
- * @since 2025
- * @version N/A
+ *
  */
 export const useAuth = () => {
   const dispatch = useAppDispatch();
   const router = useRouter();
-  const { user, isLoggedIn, isLoading, error } = useAppSelector((state) => state.auth);
+  const { user, isLoggedIn, isLoading, error } = useAppSelector(
+    (state) => state.auth,
+  );
 
   // Check auth status on mount
   useEffect(() => {
@@ -25,7 +30,7 @@ export const useAuth = () => {
     try {
       const result = await dispatch(loginUser({ email, password })).unwrap();
       // Redirect on successful login
-      router.push('/');
+      router.push("/");
       return result;
     } catch (error) {
       // Error is already in Redux state, just re-throw for form handling
@@ -37,11 +42,11 @@ export const useAuth = () => {
     try {
       await dispatch(logoutUser()).unwrap();
       // Redirect to login page after logout
-      router.push('/login');
+      router.push("/login");
     } catch (error) {
-      console.warn('Logout error:', error);
+      console.warn("Logout error:", error);
       // Still redirect even if logout API call fails
-      router.push('/login');
+      router.push("/login");
     }
   };
 

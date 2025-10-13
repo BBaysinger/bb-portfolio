@@ -8,9 +8,6 @@ import styles from "./page.module.scss";
 /**
  * Contact page with AWS SES email integration
  *
- * @author Bradley Baysinger
- * @since 2025
- * @version N/A
  */
 const ContactPage = () => {
   const [formData, setFormData] = useState<{

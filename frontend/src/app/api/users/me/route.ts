@@ -5,7 +5,8 @@ import { NextRequest, NextResponse } from "next/server";
  */
 export async function GET(request: NextRequest) {
   try {
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8081";
+    const backendUrl =
+      process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8081";
 
     // Forward cookies from the request to maintain session
     const cookieHeader = request.headers.get("cookie") || "";
@@ -24,7 +25,7 @@ export async function GET(request: NextRequest) {
       // User not authenticated
       return NextResponse.json(
         { error: data.message || "Not authenticated" },
-        { status: response.status }
+        { status: response.status },
       );
     }
 
@@ -34,7 +35,7 @@ export async function GET(request: NextRequest) {
     console.error("User me API error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

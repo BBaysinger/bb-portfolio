@@ -60,9 +60,6 @@ interface SpriteSheetPlayerProps {
  *
  * @returns A responsive, frame-accurate sprite player that adapts to playback and rendering requirements.
  *
- * @author Bradley Baysinger
- * @since 2025
- * @version N/A
  */
 const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
   src,

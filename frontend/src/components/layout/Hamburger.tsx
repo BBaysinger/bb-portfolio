@@ -10,9 +10,6 @@ import styles from "./Hamburger.module.scss";
  * The nav that either gets revealed behind the page content (mobile),
  * or is populated as a bar at the top of the page.
  *
- * @author Bradley Baysinger
- * @since 2025
- * @version N/A
  */
 const Hamburger: React.FC<{ className: string }> = ({ className }) => {
   const isMenuOpen = useSelector(

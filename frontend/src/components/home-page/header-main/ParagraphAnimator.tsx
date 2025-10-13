@@ -37,9 +37,6 @@ const shuffleArray = (array: number[]) => {
  * Typing starts → finishes → waits → if `paused === false`, show next.
  * If `paused === true`, waits until unpaused before continuing.
  *
- * @author Bradley Baysinger
- * @since 2025
- * @version N/A
  */
 const ParagraphAnimator: React.FC<ParagraphAnimatorProps> = ({
   paragraphs,

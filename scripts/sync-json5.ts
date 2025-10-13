@@ -24,9 +24,6 @@ import ignore from "ignore";
  * TODO: Possibly support .jsonc as an option down the line, with a toggle.
  * TODO: Get this into an open source package for wider use
  *
- * @author Bradley Baysinger
- * @since 2025
- * @version N/A
  */
 
 /**
@@ -35,9 +32,6 @@ import ignore from "ignore";
  *
  * @param key - The key to quote
  * @returns The quoted key string (e.g., "scripts", "dependencies")
- * @author Bradley Baysinger
- * @since 2025
- * @version N/A
  */
 function quoteKey(key: string): string {
   return /^[$A-Z_][0-9A-Z_$]*$/i.test(key) ? `"${key}"` : JSON.stringify(key);

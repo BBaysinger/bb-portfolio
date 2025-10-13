@@ -13,9 +13,6 @@ import styles from "./page.module.scss";
  *
  * TODO: Sections should be modularized into reusable components.
  *
- * @author Bradley Baysinger
- * @since 2025
- * @version N/A
  */
 const CurriculumVitae: React.FC = () => {
   const addToRefs = useInViewAnimation("in-view");

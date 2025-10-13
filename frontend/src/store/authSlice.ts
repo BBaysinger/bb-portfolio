@@ -5,7 +5,7 @@ export interface User {
   email: string;
   firstName?: string;
   lastName?: string;
-  role?: 'admin' | 'user';
+  role?: "admin" | "user";
 }
 
 export interface AuthState {
@@ -24,82 +24,81 @@ const initialState: AuthState = {
 
 // Async thunks for API calls
 export const checkAuthStatus = createAsyncThunk(
-  'auth/checkStatus',
+  "auth/checkStatus",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await fetch('/api/users/me', {
-        credentials: 'include',
+      const response = await fetch("/api/users/me", {
+        credentials: "include",
       });
 
       if (!response.ok) {
-        return rejectWithValue('Not authenticated');
+        return rejectWithValue("Not authenticated");
       }
 
       const data = await response.json();
       return data.user;
     } catch (error) {
-      return rejectWithValue('Failed to check auth status');
+      return rejectWithValue("Failed to check auth status");
     }
-  }
+  },
 );
 
 export const loginUser = createAsyncThunk(
-  'auth/login',
-  async ({ email, password }: { email: string; password: string }, { rejectWithValue }) => {
+  "auth/login",
+  async (
+    { email, password }: { email: string; password: string },
+    { rejectWithValue },
+  ) => {
     try {
-      const response = await fetch('/api/users/login', {
-        method: 'POST',
+      const response = await fetch("/api/users/login", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-        credentials: 'include',
+        credentials: "include",
         body: JSON.stringify({ email, password }),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        return rejectWithValue(errorData.error || 'Login failed');
+        return rejectWithValue(errorData.error || "Login failed");
       }
 
       const data = await response.json();
       return data.user;
     } catch (error) {
-      return rejectWithValue('Network error during login');
+      return rejectWithValue("Network error during login");
     }
-  }
+  },
 );
 
 export const logoutUser = createAsyncThunk(
-  'auth/logout',
+  "auth/logout",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await fetch('/api/users/logout', {
-        method: 'POST',
-        credentials: 'include',
+      const response = await fetch("/api/users/logout", {
+        method: "POST",
+        credentials: "include",
       });
 
       if (!response.ok) {
-        console.warn('Logout request failed, but continuing with local logout');
+        console.warn("Logout request failed, but continuing with local logout");
       }
 
       return null;
     } catch (error) {
-      console.warn('Logout error:', error);
+      console.warn("Logout error:", error);
       // Still clear local auth state even if API call fails
       return null;
     }
-  }
+  },
 );
 
 /**
  * Redux slice for authentication state management
- * 
- * @author Bradley Baysinger
- * @since 2025
- * @version N/A
  */
 const authSlice = createSlice({
-  name: 'auth',
+  name: "auth",
   initialState,
   reducers: {
     clearError: (state) => {
@@ -119,19 +118,22 @@ const authSlice = createSlice({
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(checkAuthStatus.fulfilled, (state, action: PayloadAction<User>) => {
-        state.user = action.payload;
-        state.isLoggedIn = true;
-        state.isLoading = false;
-        state.error = null;
-      })
+      .addCase(
+        checkAuthStatus.fulfilled,
+        (state, action: PayloadAction<User>) => {
+          state.user = action.payload;
+          state.isLoggedIn = true;
+          state.isLoading = false;
+          state.error = null;
+        },
+      )
       .addCase(checkAuthStatus.rejected, (state) => {
         state.user = null;
         state.isLoggedIn = false;
         state.isLoading = false;
         state.error = null; // Don't show error for failed auth check
       })
-      
+
       // Login user
       .addCase(loginUser.pending, (state) => {
         state.isLoading = true;
@@ -149,7 +151,7 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.error = action.payload as string;
       })
-      
+
       // Logout user
       .addCase(logoutUser.pending, (state) => {
         state.isLoading = true;

@@ -15,9 +15,6 @@ interface SlingerRayProps {
  * This handles both the lightning effect and the energy bars
  * as separate sprite sheets.
  *
- * @author Bradley Baysinger
- * @since 2025
- * @version N/A
  */
 const SlingerRay: React.FC<SlingerRayProps> = ({
   className,

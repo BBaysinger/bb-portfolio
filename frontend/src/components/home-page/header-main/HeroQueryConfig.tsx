@@ -28,9 +28,6 @@ type Props = {
  * @see Hero.tsx
  * @see useQueryParams
  *
- * @author Bradley Baysinger
- * @since 2025
- * @version N/A
  */
 export default function HeroQueryConfig({ onUpdate }: Props) {
   const useSlingerTracking = useQueryParams<boolean>(

@@ -54,9 +54,6 @@ export default function useQueryParams<T extends QueryParamValue>(
  * @example
  * const debug = useQueryParams("debug", false); // → boolean
  *
- * @author Bradley Baysinger
- * @since 2025
- * @version N/A
  */
 export default function useQueryParams<
   T extends QueryParamValue = QueryParamValue,

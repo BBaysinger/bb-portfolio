@@ -9,7 +9,6 @@ import { useEffect, useRef } from "react";
  * Smoothly scrolls to an element matching the current hash in the URL.
  * Works around browser inconsistencies and resets the hash to allow repeated clicks.
  *
- * @author Bradley Baysinger
  */
 const ScrollToHash = () => {
   const pathname = usePathname();

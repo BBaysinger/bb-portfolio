@@ -13,9 +13,6 @@ type MagneticThingyProps = {
  * until the user interacts with it via mouse or touch, then sticks to the pointer
  * to tease the user as an attention getter.
  *
- * @author Bradley Baysinger
- * @since 2025
- * @version N/A
  */
 const MagneticThingy: React.FC<MagneticThingyProps> = ({
   children,

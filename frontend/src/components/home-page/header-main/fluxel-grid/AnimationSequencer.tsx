@@ -56,9 +56,6 @@ interface AnimationMeta {
  * - SpriteSheetPlayer (for sprite-based animation rendering)
  * - SCSS module styles (AnimationSequencer.module.scss)
  *
- * @author Bradley Baysinger
- * @since 2025
- * @version N/A
  */
 const AnimationSequencer = forwardRef<
   AnimationSequencerHandle,

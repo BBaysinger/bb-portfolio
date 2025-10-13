@@ -6,7 +6,8 @@ import { NextRequest, NextResponse } from "next/server";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8081";
+    const backendUrl =
+      process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8081";
 
     // Forward the request to Payload CMS backend
     const response = await fetch(`${backendUrl}/api/users/login`, {
@@ -22,7 +23,7 @@ export async function POST(request: NextRequest) {
     if (!response.ok) {
       return NextResponse.json(
         { error: data.message || "Login failed" },
-        { status: response.status }
+        { status: response.status },
       );
     }
 
@@ -40,7 +41,7 @@ export async function POST(request: NextRequest) {
     console.error("Login API error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

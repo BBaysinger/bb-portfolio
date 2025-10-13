@@ -44,8 +44,6 @@ import styles from "./ProjectCarouselView.module.scss";
  * Used inside project detail pages to render a synchronized multi-device preview carousel.
  * The scroll interactions and stabilization logic are handled entirely by LayeredCarouselManager.
  *
- * @author Bradley Baysinger
- * @since 2025
  */
 const ProjectCarouselView: React.FC<{
   projectId: string;

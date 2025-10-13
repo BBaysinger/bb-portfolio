@@ -21,9 +21,6 @@ import styles from "./PageButtons.module.scss";
  * @component
  * @returns {JSX.Element} Prev/Next navigation buttons.
  *
- * @author Bradley Baysinger
- * @since 2025
- * @version N/A
  */
 const PageButtons: React.FC = () => {
   const params = useParams();

@@ -4,11 +4,7 @@ import authReducer from "./authSlice";
 import uiReducer from "./uiSlice";
 
 /**
- *
- *
- * @author Bradley Baysinger
- * @since 2025
- * @version N/A
+ * Main Redux store configuration for store state management
  */
 export const store = configureStore({
   reducer: {

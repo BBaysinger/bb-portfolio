@@ -41,9 +41,6 @@ interface PushStateLinkProps {
  * </PushStateLink>
  * ```
  *
- * @author Bradley Baysinger
- * @since 2025
- * @version N/A
  */
 export function PushStateLink({
   href,
