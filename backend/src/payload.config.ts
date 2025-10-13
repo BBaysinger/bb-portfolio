@@ -174,7 +174,7 @@ export default buildConfig({
       const pass = process.env[`${prefix}SMTP_PASS`]
       if (host && user && pass) {
         return nodemailerAdapter({
-          defaultFromAddress: 'noreply@yoursite.com',
+          defaultFromAddress: 'noreply@bbinteractive.io',
           defaultFromName: 'Your Portfolio',
           transport: {
             host,
