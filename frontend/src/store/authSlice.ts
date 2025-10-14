@@ -37,7 +37,7 @@ export const checkAuthStatus = createAsyncThunk(
 
       const data = await response.json();
       return data.user;
-    } catch (error) {
+    } catch (_error) {
       return rejectWithValue("Failed to check auth status");
     }
   },
@@ -66,7 +66,7 @@ export const loginUser = createAsyncThunk(
 
       const data = await response.json();
       return data.user;
-    } catch (error) {
+    } catch (_error) {
       return rejectWithValue("Network error during login");
     }
   },
@@ -74,7 +74,7 @@ export const loginUser = createAsyncThunk(
 
 export const logoutUser = createAsyncThunk(
   "auth/logout",
-  async (_, { rejectWithValue }) => {
+  async (_, { rejectWithValue: _rejectWithValue }) => {
     try {
       const response = await fetch("/api/users/logout", {
         method: "POST",
