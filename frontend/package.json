@@ -10,7 +10,7 @@
     "build:when-ready": "node ./scripts/build-when-ready.mjs",
     "preview": "npx serve out",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint .",
     "precommit": "prettier --write . && tsc -b",
     "test": "echo 'TODO: Add test scripts'"
   },

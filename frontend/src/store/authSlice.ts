@@ -40,14 +40,14 @@ export const checkAuthStatus = createAsyncThunk(
     } catch (_error) {
       return rejectWithValue("Failed to check auth status");
     }
-  },
+  }
 );
 
 export const loginUser = createAsyncThunk(
   "auth/login",
   async (
     { email, password }: { email: string; password: string },
-    { rejectWithValue },
+    { rejectWithValue }
   ) => {
     try {
       const response = await fetch("/api/users/login", {
@@ -69,7 +69,7 @@ export const loginUser = createAsyncThunk(
     } catch (_error) {
       return rejectWithValue("Network error during login");
     }
-  },
+  }
 );
 
 export const logoutUser = createAsyncThunk(
@@ -91,7 +91,7 @@ export const logoutUser = createAsyncThunk(
       // Still clear local auth state even if API call fails
       return null;
     }
-  },
+  }
 );
 
 /**
@@ -125,7 +125,7 @@ const authSlice = createSlice({
           state.isLoggedIn = true;
           state.isLoading = false;
           state.error = null;
-        },
+        }
       )
       .addCase(checkAuthStatus.rejected, (state) => {
         state.user = null;
