@@ -1,18 +1,19 @@
 @use "@/styles/mixins" as *;
 @use "@/styles/variables" as *;
 
-.logoutButton {
-  background: none;
-  padding-left: 0;
-  img {
-    width: 20px;
-    height: 20px;
-    mask-image: url("/images/icons/logout.svg");
-    mask-size: 20px 20px;
-    background-color: currentColor;
-  }
+// .logoutButton {
+//   background: none;
+//   padding-left: 0;
+//   border: 1px solid red;
+//   img {
+//     width: 20px;
+//     height: 20px;
+//     mask-image: url("/images/icons/logout.svg");
+//     mask-size: 20px 20px;
+//     background-color: currentColor;
+//   }
 
-  :global(.logout) {
-    display: none !important;
-  }
-}
+//   :global(.logout) {
+//     display: none !important;
+//   }
+// }

@@ -1,8 +1,8 @@
 "use client";
 
-import Image from "next/image";
+// import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+// import { usePathname } from "next/navigation";
 import React from "react";
 
 import { useAuth } from "@/hooks/useAuth";
@@ -19,11 +19,12 @@ interface LogoutButtonProps {
  */
 const LogoutButton: React.FC<LogoutButtonProps> = ({ className = "" }) => {
   const { logout } = useAuth();
-  const pathname = usePathname();
+  // const pathname = usePathname();
 
-  const isActive = pathname === "/login"; // Adjust if needed
+  // const isActive = pathname === "/login"; // Adjust if needed
 
-  const handleLogout = () => {
+  const handleLogout = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent bubbling to parent elements
     logout();
   };
 
@@ -32,13 +33,14 @@ const LogoutButton: React.FC<LogoutButtonProps> = ({ className = "" }) => {
       className={`${styles.logoutButton} ${className} logout`}
       onClick={handleLogout}
     >
-      <Link href="/login#top" className={isActive ? styles.active : ""}>
-        <Image
+      <Link href="/login#top">
+        Logout
+        {/* <img
           src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
           alt="Logout"
-          width={1}
-          height={1}
-        />
+          width={100}
+          height={100}
+        /> */}
       </Link>
     </li>
   );

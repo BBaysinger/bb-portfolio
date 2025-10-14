@@ -4,7 +4,6 @@ import { useEffect } from "react";
 import {
   checkAuthStatus,
   loginUser,
-  logoutUser,
   clearError,
   resetAuthState,
 } from "@/store/authSlice";
@@ -17,18 +16,32 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks";
 export const useAuth = () => {
   const dispatch = useAppDispatch();
   const router = useRouter();
-  const { user, isLoggedIn, isLoading, error } = useAppSelector(
+  const { user, isLoggedIn, isLoading, error, hasInitialized } = useAppSelector(
     (state) => state.auth,
   );
 
-  // Check auth status on mount
+  // Check auth status on mount, but only once globally
   useEffect(() => {
-    dispatch(checkAuthStatus());
-  }, [dispatch]);
+    if (!hasInitialized) {
+      // Check if user manually logged out
+      const manualLogout = localStorage.getItem("manualLogout");
+      if (manualLogout === "true") {
+        // Don't check auth status, just set initialized to prevent loops
+        dispatch(resetAuthState());
+        return;
+      }
+
+      dispatch(checkAuthStatus());
+    }
+  }, [dispatch, hasInitialized]);
 
   const login = async (email: string, password: string) => {
     try {
       const result = await dispatch(loginUser({ email, password })).unwrap();
+
+      // Clear manual logout flag on successful login
+      localStorage.removeItem("manualLogout");
+
       // Redirect on successful login
       router.push("/");
       return result;
@@ -39,21 +52,34 @@ export const useAuth = () => {
   };
 
   const logout = async () => {
-    try {
-      await dispatch(logoutUser()).unwrap();
-      // Redirect to login page after logout
-      router.push("/login");
-    } catch (error) {
-      console.warn("Logout error:", error);
-      // Still redirect even if logout API call fails
-      router.push("/login");
-    }
+    // Skip backend logout since it's failing - just clear local state
+
+    // Force clear Redux auth state
+    dispatch(resetAuthState());
+
+    // Clear all local storage
+    localStorage.clear();
+    sessionStorage.clear();
+
+    // Set a flag to prevent automatic re-authentication
+    localStorage.setItem("manualLogout", "true");
+
+    // Redirect to login page after logout
+    // router.push("/login");
   };
 
   const resetExperience = () => {
-    console.info("Resetting local + session storage");
+    console.info("Resetting local + session storage + cookies");
     localStorage.clear();
     sessionStorage.clear();
+
+    // Clear all cookies by setting them to expire
+    document.cookie.split(";").forEach((cookie) => {
+      const eqPos = cookie.indexOf("=");
+      const name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
+      document.cookie = `${name}=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT`;
+    });
+
     dispatch(resetAuthState());
     window.location.reload();
   };

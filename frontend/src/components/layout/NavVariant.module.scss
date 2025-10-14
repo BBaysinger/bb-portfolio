@@ -204,7 +204,6 @@
     right: 0;
     padding-top: 125px;
     height: var(--client-height);
-    // height: 100vh;
     z-index: 0;
 
     ul {
@@ -215,15 +214,15 @@
     li {
       display: flex;
       padding-left: 40px;
-      height: 53px; //
+      height: 45px;
       background: linear-gradient(rgba(30, 30, 30, 1), rgba(10, 10, 10, 1));
       padding-top: 0;
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.9);
-      &:global(.logout) {
-        position: absolute;
-        bottom: 100px;
-        width: 100%;
-      }
+      // &:global(.logout) {
+      //   position: absolute;
+      //   bottom: 100px;
+      //   width: 100%;
+      // }
     }
 
     .title,

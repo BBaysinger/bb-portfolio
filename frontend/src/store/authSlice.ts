@@ -13,6 +13,7 @@ export interface AuthState {
   isLoggedIn: boolean;
   isLoading: boolean;
   error: string | null;
+  hasInitialized: boolean; // Track if we've checked auth status
 }
 
 const initialState: AuthState = {
@@ -20,6 +21,7 @@ const initialState: AuthState = {
   isLoggedIn: false,
   isLoading: true, // Start with loading true to check existing session
   error: null,
+  hasInitialized: false,
 };
 
 // Async thunks for API calls
@@ -76,18 +78,25 @@ export const logoutUser = createAsyncThunk(
   "auth/logout",
   async (_, { rejectWithValue: _rejectWithValue }) => {
     try {
+      console.log("🚀 Making logout request to /api/users/logout");
       const response = await fetch("/api/users/logout", {
         method: "POST",
         credentials: "include",
       });
 
+      console.log("📡 Logout response status:", response.status);
+
       if (!response.ok) {
-        console.warn("Logout request failed, but continuing with local logout");
+        const errorText = await response.text();
+        console.warn("Logout request failed:", response.status, errorText);
+        console.warn("But continuing with local logout anyway...");
+      } else {
+        console.log("✅ Backend logout successful");
       }
 
       return null;
     } catch (error) {
-      console.warn("Logout error:", error);
+      console.warn("Logout network error:", error);
       // Still clear local auth state even if API call fails
       return null;
     }
@@ -109,6 +118,7 @@ const authSlice = createSlice({
       state.isLoggedIn = false;
       state.error = null;
       state.isLoading = false;
+      state.hasInitialized = false;
     },
   },
   extraReducers: (builder) => {
@@ -121,17 +131,24 @@ const authSlice = createSlice({
       .addCase(
         checkAuthStatus.fulfilled,
         (state, action: PayloadAction<User>) => {
+          console.log(
+            "✅ checkAuthStatus.fulfilled - User found:",
+            action.payload,
+          );
           state.user = action.payload;
           state.isLoggedIn = true;
           state.isLoading = false;
           state.error = null;
+          state.hasInitialized = true;
         },
       )
       .addCase(checkAuthStatus.rejected, (state) => {
+        console.log("❌ checkAuthStatus.rejected - No valid session");
         state.user = null;
         state.isLoggedIn = false;
         state.isLoading = false;
         state.error = null; // Don't show error for failed auth check
+        state.hasInitialized = true;
       })
 
       // Login user
@@ -157,6 +174,7 @@ const authSlice = createSlice({
         state.isLoading = true;
       })
       .addCase(logoutUser.fulfilled, (state) => {
+        console.log("🚪 logoutUser.fulfilled - Clearing auth state");
         state.user = null;
         state.isLoggedIn = false;
         state.isLoading = false;
