@@ -10,7 +10,6 @@ $navSlideTime: 0.5s;
 .main {
   z-index: 10;
   position: relative;
-  box-shadow: 10px 5px 60px black;
   min-width: 320px;
   overflow: hidden;
 }
@@ -18,6 +17,7 @@ $navSlideTime: 0.5s;
 .navRevelator {
   right: 0;
   transition: right $navSlideTime;
+  box-shadow: 10px 5px 60px black;
 
   .isMobileNavExpanded & {
     // 'right' (or left) property must be used in favor of transform,
