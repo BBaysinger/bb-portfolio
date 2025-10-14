@@ -1,15 +1,16 @@
+import { clsx } from "clsx";
 import { ReactNode } from "react";
 
 import { roboto } from "@/fonts";
 
-import { ClientLayoutShell } from "./ClientLayoutShell";
+import { AppShell } from "./AppShell";
+import styles from "./layout.module.scss";
 import { AppProviders } from "./providers/AppProviders";
-
 import "bootstrap/dist/css/bootstrap.min.css";
 import "@/styles/styles.scss";
 
 /**
- * layout component
+ * Root layout component
  */
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
@@ -27,9 +28,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           rel="stylesheet"
         />
       </head>
-      <body className={roboto.className}>
+      <body className={clsx(roboto.className, styles.body)}>
         <AppProviders>
-          <ClientLayoutShell>{children}</ClientLayoutShell>
+          <AppShell>{children}</AppShell>
         </AppProviders>
       </body>
     </html>

@@ -1,3 +1,4 @@
+import { clsx } from "clsx";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React, { useState, useEffect, useRef } from "react";
@@ -10,13 +11,32 @@ import Links from "./NavLinks";
 
 type FooterProps = {
   mutationElemRef: React.RefObject<HTMLDivElement | null>;
+  className: string | undefined;
+  transitionSegment: string | undefined;
 };
 
 /**
- * The footer, common to every page.
+ * The page footer, common to every page, but *positioned dynamically* to optimize
+ * smooth transitions in the project carousel. Since project info/text can vary in height,
+ * we dynamically position the footer to eliminate large blank spaces on projects with
+ * less content. This creates a smooth, continuous experience as users navigate between
+ * projects without jarring "jumps" in the UI.
  *
+ * **Performance Strategy:**
+ * - Uses `transform: translateY()` instead of `top` property changes to avoid layout jank
+ * - Detects main content height via ResizeObserver for responsive positioning
+ * - Wraps footer in a statically positioned container that reserves natural footer height
+ * - Leverages GPU-accelerated transforms for 60fps smooth animations
+ *
+ * The footer also responds to mobile navigation state via the `navRevelator` (from the
+ * parent) class pattern, sliding horizontally alongside the main content when the mobile
+ * menu is expanded.
  */
-const Footer: React.FC<FooterProps> = ({ mutationElemRef }) => {
+const Footer: React.FC<FooterProps> = ({
+  mutationElemRef,
+  className,
+  transitionSegment,
+}) => {
   const [mainContentHeight, setMainContentHeight] = useState(9999999999);
   const [footerHeight, setFooterHeight] = useState(0);
   const [shouldSnap, setShouldSnap] = useState(false);
@@ -93,7 +113,7 @@ const Footer: React.FC<FooterProps> = ({ mutationElemRef }) => {
 
   return (
     <div
-      className={styles.footerWrapper}
+      className={clsx(styles.footerWrapper)}
       style={{
         height: `${Math.round(footerHeight) - 1}px`,
       }}
@@ -102,9 +122,9 @@ const Footer: React.FC<FooterProps> = ({ mutationElemRef }) => {
         ref={footerRef}
         style={{
           transform: `translateY(${Math.round(mainContentHeight)}px)`,
-          transition: shouldSnap ? "none" : "transform 0.4s ease-in-out",
+          transition: `${shouldSnap ? "none" : "transform 0.4s ease-in-out"}, ${transitionSegment}`,
         }}
-        className={styles.footer}
+        className={clsx(className, styles.footer)}
       >
         <div className={styles.container}>
           <div className={styles.footerGrid}>

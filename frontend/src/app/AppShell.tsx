@@ -13,12 +13,12 @@ import { useTrackHeroInView } from "@/hooks/useTrackHeroInView";
 import { RootState } from "@/store/store";
 import ScrollToHash from "@/utils/ScrollToHash";
 
-import styles from "./ClientLayoutShell.module.scss";
+import styles from "./AppShell.module.scss";
 
 /**
- * Client-side layout shell component
+ * Client-side application shell component
  */
-export function ClientLayoutShell({ children }: { children: React.ReactNode }) {
+export function AppShell({ children }: { children: React.ReactNode }) {
   const isMenuOpen = useSelector(
     (state: RootState) => state.ui.isMobileNavExpanded,
   );
@@ -63,18 +63,26 @@ export function ClientLayoutShell({ children }: { children: React.ReactNode }) {
       className={clsx(
         percentHeroInView >= 5 && "isHeroInView5Pct",
         percentHeroInView >= 100 && "isHeroInView100Pct",
-        isMenuOpen && ["isMobileNavExpanded", styles.isMobileNavExpanded],
+        styles.appShell,
+        isMenuOpen && styles.isMobileNavExpanded,
       )}
     >
       <NavVariant variant={NavVariants.SLIDE_OUT} />
       <div id="top" style={{ position: "absolute", top: "0px" }}></div>
       <div className={styles.underlay} />
       <NavVariant variant={NavVariants.TOP_BAR} />
-      <div className={styles.main} ref={mainContentRef}>
+      <div
+        className={clsx(styles.main, styles.navRevelator)}
+        ref={mainContentRef}
+      >
         <ScrollToHash />
         {children}
       </div>
-      <Footer mutationElemRef={mainContentRef} />
+      <Footer
+        className={styles.navRevelator}
+        mutationElemRef={mainContentRef}
+        transitionSegment={"right 0.5s"}
+      />
     </div>
   );
 }
