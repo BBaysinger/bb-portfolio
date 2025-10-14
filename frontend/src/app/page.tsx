@@ -4,6 +4,8 @@ import Greeting from "@/components/home-page/Greeting";
 import Hero from "@/components/home-page/header-main/Hero";
 import ProjectsList from "@/components/home-page/ProjectsList";
 
+// import styles from "./HomePage.module.scss";
+
 /**
  * The home page of the website. Contains the header, greeting, and portfolio list.
  *

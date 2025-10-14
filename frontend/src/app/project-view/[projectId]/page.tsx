@@ -4,7 +4,7 @@ import { Suspense } from "react";
 
 import ProjectViewWrapper from "@/components/project-carousel-page/ProjectViewWrapper";
 import ProjectData from "@/data/ProjectData";
-// Auth helper is imported only when needed (NDA branch) to keep SSG graph lean
+// import styles from "@/styles/ProjectPage.module.css";
 
 export const runtime = "nodejs";
 // We statically generate all public project routes; disallow dynamic params at runtime
