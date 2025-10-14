@@ -3,16 +3,23 @@
 
 $navSlideTime: 0.5s;
 
+.appShell {
+  position: relative;
+}
+
 .main {
   z-index: 10;
   position: relative;
-  transition: right $navSlideTime;
-  right: 0;
   box-shadow: 10px 5px 60px black;
   min-width: 320px;
   overflow: hidden;
+}
 
-  :global(.isMobileNavExpanded) & {
+.navRevelator {
+  right: 0;
+  transition: right $navSlideTime;
+
+  .isMobileNavExpanded & {
     // 'right' (or left) property must be used in favor of transform,
     // as transform causes the fixed nav to shift off screen.
     // That might be a browser defect.
@@ -23,7 +30,6 @@ $navSlideTime: 0.5s;
 // Prevents the underlying nav from showing during recoil from
 // inertial scroll.
 .underlay {
-  // display: none;
   position: fixed;
   z-index: 5;
   height: 100dvh;
@@ -31,8 +37,7 @@ $navSlideTime: 0.5s;
   transition: right $navSlideTime;
   background-color: #000;
   right: 0;
-  // opacity: 0.5;
-  :global(.isMobileNavExpanded) & {
+  .isMobileNavExpanded & {
     right: 50vw;
   }
 }

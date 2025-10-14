@@ -15,7 +15,14 @@ footer.footer {
   color: #ccc;
   z-index: 10;
   padding-top: 60px;
-  transition: transform 0.5s ease-in-out;
+  transition:
+    transform 0.5s ease-in-out,
+    right 0.5s ease-in-out;
+
+  // Target the footer when it has the mobile nav expanded class passed from AppShell
+  // &[class*="isMobileNavExpanded"] {
+  //   right: 50vw; // Match the main content shift
+  // }
 
   &::before {
     content: "";
@@ -240,5 +247,4 @@ footer.footer {
 
 .footerWrapper {
   position: static;
-  background-color: white;
 }
