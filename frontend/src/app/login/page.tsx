@@ -6,7 +6,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import useClientDimensions from "@/hooks/useClientDimensions";
 
-import styles from "./page.module.scss";
+import styles from "./LoginPage.module.scss";
 
 /**
  * LoginPage prompts user for credentials and attempts Payload CMS login.

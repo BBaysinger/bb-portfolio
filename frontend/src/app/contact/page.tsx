@@ -3,7 +3,7 @@ import React, { useState } from "react";
 
 import useClientDimensions from "@/hooks/useClientDimensions";
 
-import styles from "./page.module.scss";
+import styles from "./ContactPage.module.scss";
 
 /**
  * Contact page with AWS SES email integration

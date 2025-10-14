@@ -6,7 +6,7 @@ import { RawImg } from "@/components/common/RawImg";
 import HeaderSub from "@/components/layout/HeaderSub";
 import useInViewAnimation from "@/hooks/useInViewAnimation";
 
-import styles from "./page.module.scss";
+import styles from "./CvPage.module.scss";
 
 /**
  * CV Page. Mostly static HTML, with some helper functions for formatting.
