@@ -266,7 +266,7 @@ terraform destroy # Clean teardown
 
 - **Separate EC2 instance for dev**: Cleaner isolation, but doubles costs.
 - **Ephemeral dev envs (Fly.io, Railway, etc.)**: Cheaper, but less consistent with prod.
-- **Local-only dev**: Fine for personal use, but doesn’t provide a shareable dev URL.
+- **Local-only dev**: Fine for personal use, but doesn't provide a shareable dev URL.
 
 **Status:** ✅ Active
 
