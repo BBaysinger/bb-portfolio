@@ -202,7 +202,7 @@
     position: fixed;
     width: 50%;
     right: 0;
-    padding-top: 125px;
+    padding-top: 160px;
     height: var(--client-height);
     z-index: 0;
 
@@ -218,11 +218,6 @@
       background: linear-gradient(rgba(30, 30, 30, 1), rgba(10, 10, 10, 1));
       padding-top: 0;
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.9);
-      // &:global(.logout) {
-      //   position: absolute;
-      //   bottom: 100px;
-      //   width: 100%;
-      // }
     }
 
     .title,
