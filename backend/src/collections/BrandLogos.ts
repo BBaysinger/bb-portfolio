@@ -48,7 +48,7 @@ export const BrandLogos: CollectionConfig = {
       // - Caching: Media endpoints (local and CDN) use long-lived immutable caching. To avoid
       //   stale assets, the frontend must change the URL when content changes (e.g., append
       //   `?v=<updatedAt>`). Ensure the CDN includes query strings in its cache key and forwards
-      //   them to origin. With versioned URLs you generally don’t need CDN invalidations.
+      //   them to origin. With versioned URLs you generally don't need CDN invalidations.
       // - Normalization: We strip trailing "-N" counters so re-uploads reuse a stable key.
       //   If you truly want filenames that end with "-1" etc, adjust the normalization logic.
       // - Local dev: We unlink any pre-existing local file to prevent the filesystem adapter

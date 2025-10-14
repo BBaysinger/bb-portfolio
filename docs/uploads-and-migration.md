@@ -21,7 +21,7 @@ This doc captures how uploads are set up today, recommended S3 patterns per envi
 npm run seed:media
 ```
 
-This script copies files into `backend/media/*` for local dev only. It won’t commit media to git.
+This script copies files into `backend/media/*` for local dev only. It won't commit media to git.
 
 ### Importing from an external seedings folder
 
@@ -72,13 +72,13 @@ Most teams choose one-bucket-per-env.
 
 ### Prefixes by collection
 
-Regardless of bucket choice, keep stable, predictable prefixes so DB keys don’t change when you switch storage backends:
+Regardless of bucket choice, keep stable, predictable prefixes so DB keys don't change when you switch storage backends:
 
 - `brand-logos/`
 - `project-screenshots/`
 - `project-thumbnails/`
 
-If you later enable a CDN (CloudFront), use the same path layout so URLs don’t require DB rewrites.
+If you later enable a CDN (CloudFront), use the same path layout so URLs don't require DB rewrites.
 
 ## S3 with Terraform (now live)
 
@@ -147,7 +147,7 @@ Notes:
 
 ## Wiring Payload to S3 (high level)
 
-You have the dependency installed. You’ll need to add the S3 storage plugin and map each collection to a prefix in `payload.config.ts`. Use env-prefixed variables so each env is independent:
+You have the dependency installed. You'll need to add the S3 storage plugin and map each collection to a prefix in `payload.config.ts`. Use env-prefixed variables so each env is independent:
 
 Environment variables (examples):
 
@@ -163,9 +163,9 @@ General approach in code:
   - `brandLogos` → `brand-logos/`
   - `projectScreenshots` → `project-screenshots/`
   - `projectThumbnails` → `project-thumbnails/`
-- Prefer computing the public URL at read time from a base URL (e.g., `https://cdn.example.com/brand-logos/<key>`), so you don’t store hard-coded absolute URLs in Mongo. That way, promotions between buckets require no DB rewrites.
+- Prefer computing the public URL at read time from a base URL (e.g., `https://cdn.example.com/brand-logos/<key>`), so you don't store hard-coded absolute URLs in Mongo. That way, promotions between buckets require no DB rewrites.
 
-Note: If you want me to wire the plugin now, say the word and I’ll add a safe, env-driven configuration that still defaults to local for `ENV_PROFILE=local`.
+Note: If you want me to wire the plugin now, say the word and I'll add a safe, env-driven configuration that still defaults to local for `ENV_PROFILE=local`.
 
 ## Promotion/migration runbook
 
@@ -231,8 +231,8 @@ mongorestore \
 Notes:
 
 - Ensure the user has dump/restore privileges.
-- If you keep only relative file keys in docs and compute URLs at runtime, you don’t need to rewrite DB fields when buckets change.
-- If you’ve previously stored absolute URLs in upload docs, add a small one-off script to rewrite the `url` field. I can generate that if needed.
+- If you keep only relative file keys in docs and compute URLs at runtime, you don't need to rewrite DB fields when buckets change.
+- If you've previously stored absolute URLs in upload docs, add a small one-off script to rewrite the `url` field. I can generate that if needed.
 
 ### Roll-forward/back
 
@@ -241,7 +241,7 @@ Notes:
 
 ## Terraform sketch (optional)
 
-Below is a minimal pattern if you want to add S3 via Terraform. This is a sketch; we can add the real code when you’re ready.
+Below is a minimal pattern if you want to add S3 via Terraform. This is a sketch; we can add the real code when you're ready.
 
 ```hcl
 variable "env" { type = string }
@@ -269,11 +269,11 @@ resource "aws_s3_bucket_public_access_block" "media" {
 ## FAQ
 
 - Do I need three buckets and three DBs?
-  - It’s the most common setup. It isolates risk and simplifies access control. It also makes promotion explicit.
+  - It's the most common setup. It isolates risk and simplifies access control. It also makes promotion explicit.
 - Can I “move everything together”?
-  - Yes. The runbook above does exactly that: snapshot DB + sync media. For many teams, that’s the standard content promotion process.
+  - Yes. The runbook above does exactly that: snapshot DB + sync media. For many teams, that's the standard content promotion process.
 - What about local?
-  - Stay on filesystem for `ENV_PROFILE=local`. When you’re ready, you can also point local at a dev bucket using an IAM user and a `DEV_*` .env.
+  - Stay on filesystem for `ENV_PROFILE=local`. When you're ready, you can also point local at a dev bucket using an IAM user and a `DEV_*` .env.
 
 ---
 
@@ -285,16 +285,16 @@ If you want, I can:
 
 ## Caveats and future considerations
 
-This project intentionally overwrites media when a new upload has the same filename (env-gated). That’s convenient during authoring, but there are implications:
+This project intentionally overwrites media when a new upload has the same filename (env-gated). That's convenient during authoring, but there are implications:
 
 - Client/CDN caching: Media endpoints and S3/CDN typically serve long-lived, immutable caches. Always change the URL when content changes. We do this by appending a version query param (e.g., `?v=updatedAt`) to rendered URLs. If your CDN ignores query strings for cache keys, enable forwarding/including query strings to make busting effective.
 - Safety and auditability: Overwriting by filename erases the prior object. If you need history, enable S3 versioning and/or switch to “new filenames per change” in the future. You can also add a Payload versioned field to keep a reference to older doc metadata.
 - Scope: Overwrite-on-create hooks are currently implemented for Brand Logos, Project Screenshots, and Project Thumbnails. If you introduce new upload collections, consider copying the same hook pattern or extracting a shared helper.
 - Environment gating: Behavior defaults to enabled for `local`/`dev` and disabled for `prod`. You can force-enable with `OVERWRITE_MEDIA_ON_CREATE=true`. Treat production enables as a conscious decision.
-- Local dev suffixing: The hooks attempt to remove pre-existing files in `backend/media/*` to prevent Payload’s local adapter from suffixing filenames (e.g., "-1"). If you see suffixes, check for residual files on disk and ensure the normalized filename path is cleaned.
-- Filenames and normalization: Hooks strip trailing `-N` counters from incoming names so repeated re-uploads keep a stable key. If you truly need filenames with `-1` in them, you’ll want to adjust the normalization logic.
-- S3 ACLs and headers: We haven’t explicitly set Cache-Control headers on S3 objects yet; the frontend relies on versioned URLs. You may set `Cache-Control: public, max-age=31536000, immutable` on objects via the storage adapter for consistency with the local media route.
-- CloudFront/CDN invalidations: With versioned URLs you generally don’t need invalidations. If you move away from query-string versioning, you’ll need to invalidate changed paths on promotions.
+- Local dev suffixing: The hooks attempt to remove pre-existing files in `backend/media/*` to prevent Payload's local adapter from suffixing filenames (e.g., "-1"). If you see suffixes, check for residual files on disk and ensure the normalized filename path is cleaned.
+- Filenames and normalization: Hooks strip trailing `-N` counters from incoming names so repeated re-uploads keep a stable key. If you truly need filenames with `-1` in them, you'll want to adjust the normalization logic.
+- S3 ACLs and headers: We haven't explicitly set Cache-Control headers on S3 objects yet; the frontend relies on versioned URLs. You may set `Cache-Control: public, max-age=31536000, immutable` on objects via the storage adapter for consistency with the local media route.
+- CloudFront/CDN invalidations: With versioned URLs you generally don't need invalidations. If you move away from query-string versioning, you'll need to invalidate changed paths on promotions.
 
 Future improvements
 

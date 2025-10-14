@@ -50,7 +50,7 @@ export interface LayeredCarouselManagerRef {
  * - Low-level core of the synchronized scroll system.
  * - Accepts a configurable set of "layers" consisting of master and slave carousels.
  * - The master layer drives scroll position and stabilization events.
- * - Slave layers mirror the master layer’s scroll position via dynamic multipliers.
+ * - Slave layers mirror the master layer's scroll position via dynamic multipliers.
  * - Enables parallax, synchronized device displays, and complex carousel-based UIs.
  *
  * Behavior:

@@ -20,7 +20,7 @@ import styles from "./ProjectCarouselView.module.scss";
  *
  * Distinction:
  * - Unlike `LayeredCarouselManager`, this component does **not handle scroll logic**.
- *   Instead, it defines **what** to render and **how** it’s layered.
+ *   Instead, it defines **what** to render and **how** it's layered.
  * - This is the “view” layer — wiring up project data, slide spacing, and visual types.
  * - You could swap out the devices or modify layer behavior without touching the core scroll engine.
  *
