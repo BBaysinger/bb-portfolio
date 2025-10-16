@@ -337,11 +337,17 @@ if [[ "$refresh_env" == true ]]; then
       const feProd = [
         "NODE_ENV=production",
         "ENV_PROFILE=prod",
+        // Internal URL used by Next.js SSR/server for rewrites/fetches
+        `PROD_BACKEND_INTERNAL_URL=${sVal("PROD_BACKEND_INTERNAL_URL", "http://backend-prod:3000")}`,
+        // Public URL exposed to the browser
         `NEXT_PUBLIC_BACKEND_URL=${sVal("PROD_NEXT_PUBLIC_BACKEND_URL")}`,
       ].join("\n") + "\n";
       const feDev = [
         "NODE_ENV=development",
         "ENV_PROFILE=dev",
+        // Internal URL used by Next.js SSR/server inside the compose network
+        `DEV_BACKEND_INTERNAL_URL=${sVal("DEV_BACKEND_INTERNAL_URL", "http://backend-dev:3000")}`,
+        // Public URL for the browser to reach the dev backend via host port
         `NEXT_PUBLIC_BACKEND_URL=${sVal("DEV_NEXT_PUBLIC_BACKEND_URL")}`,
       ].join("\n") + "\n";
       mkdirSync(outDir, { recursive: true });
