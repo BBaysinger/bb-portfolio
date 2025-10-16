@@ -164,7 +164,7 @@ destroy_infrastructure() {
     local instance_id
     instance_id=$(terraform output -raw instance_id 2>/dev/null || echo 'unknown')
     
-    # Get list of non-S3 resources for targeted destruction
+    # Get list of resources for targeted destruction, preserving S3, ECR, and Elastic IP
     local resources_to_destroy=()
     while IFS= read -r resource; do
         # Skip S3 buckets and ECR resources entirely (preserve media and images)
@@ -174,16 +174,20 @@ destroy_infrastructure() {
         if [[ "$resource" =~ aws_ecr_repository|aws_ecr_lifecycle_policy ]]; then
             continue
         fi
+        # Skip Elastic IP and its association (preserve static public IP)
+        if [[ "$resource" =~ aws_eip$|aws_eip_association$ ]]; then
+            continue
+        fi
         resources_to_destroy+=("$resource")
     done < <(terraform state list)
     
     if [[ ${#resources_to_destroy[@]} -eq 0 ]]; then
-        log_warning "No non-S3 infrastructure found to destroy"
+        log_warning "No destroyable infrastructure found (S3/ECR/EIP preserved)"
         return
     fi
     
-    # Show what will be destroyed (excluding S3 buckets)
-    log_warning "The following infrastructure will be DESTROYED (S3 buckets and ECR repositories preserved):"
+    # Show what will be destroyed (excluding S3/ECR/EIP)
+    log_warning "The following infrastructure will be DESTROYED (S3 buckets, ECR repositories, and Elastic IP preserved):"
     for resource in "${resources_to_destroy[@]}"; do
         echo "  - $resource"
     done
@@ -212,7 +216,7 @@ destroy_infrastructure() {
         log_warning "Skipping confirmation prompt (force mode enabled)"
     fi
     
-    log_info "Destroying EC2 infrastructure (preserving S3 buckets)..."
+    log_info "Destroying EC2 infrastructure (preserving S3, ECR, and Elastic IP)..."
     
     # Build terraform destroy command with targeted resources (skip S3 buckets)
     local destroy_args=()
@@ -223,7 +227,7 @@ destroy_infrastructure() {
     # Execute targeted destruction
     terraform destroy "${destroy_args[@]}" -auto-approve
     
-    log_success "EC2 infrastructure destroyed (S3 buckets preserved)"
+    log_success "EC2 infrastructure destroyed (S3, ECR, and Elastic IP preserved)"
 }
 
 deploy_infrastructure() {
@@ -446,6 +450,30 @@ update_env_files_on_ec2() {
     JS
             # Run the generator with environment variables
             OUT_DIR="${TMP_ENV_DIR}" EC2_IP="${ec2_ip}" npx tsx "${TMP_JS}"
+            
+            # Validate required env vars exist before uploading (fail fast, don't print values)
+            log_info "Validating generated env files have required keys..."
+            validate_env_file() {
+                local file="$1"; shift
+                local missing=()
+                for key in "$@"; do
+                    if ! grep -qE "^${key}=.+$" "$file"; then
+                        missing+=("$key")
+                    fi
+                done
+                if (( ${#missing[@]} > 0 )); then
+                    log_error "Missing required keys in $(basename "$file"): ${missing[*]}"
+                    log_info "Ensure these are present in .github-secrets.private.json5 under 'strings' and rerun."
+                    exit 1
+                fi
+            }
+
+            validate_env_file "${TMP_ENV_DIR}/backend.env.prod" \
+                PROD_MONGODB_URI PROD_PAYLOAD_SECRET PROD_S3_BUCKET PROD_AWS_REGION \
+                PROD_FRONTEND_URL PROD_NEXT_PUBLIC_BACKEND_URL
+            validate_env_file "${TMP_ENV_DIR}/backend.env.dev" \
+                DEV_MONGODB_URI DEV_PAYLOAD_SECRET DEV_S3_BUCKET DEV_AWS_REGION \
+                DEV_FRONTEND_URL DEV_NEXT_PUBLIC_BACKEND_URL
             popd >/dev/null
 
         log_info "Uploading env files to EC2..."
@@ -472,6 +500,10 @@ COMPOSE_PROFILES=prod docker-compose up -d || {
         echo "Prod images not available or failed to start. Fallback to dev profile..."
         COMPOSE_PROFILES=dev docker-compose up -d || exit 1
 }
+
+# Also start dev profile to serve dev.bbinteractive.io (ports 4000/4001)
+echo "Starting dev profile alongside prod to power dev subdomain..."
+COMPOSE_PROFILES=dev docker-compose up -d || true
 '
 
         log_success "Environment files updated and containers restarted with correct IP"
