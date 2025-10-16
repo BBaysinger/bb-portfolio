@@ -37,19 +37,19 @@ on:
         default: both
       start_dev:
         description: Ensure dev containers are up in addition to prod
-        type: boolean
+        type: string
         required: true
-        default: true
+        default: "true"
       refresh_env:
         description: Regenerate and upload .env files to EC2 (requires secrets)
-        type: boolean
+        type: string
         required: true
-        default: false
+        default: "false"
       restart_containers:
         description: Restart containers on EC2 (docker-compose pull/up)
-        type: boolean
+        type: string
         required: true
-        default: true
+        default: "true"
 
 jobs:
   deploy:
