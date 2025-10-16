@@ -101,6 +101,9 @@ resource "aws_iam_instance_profile" "ssm_profile" {
 # Elastic IP
 resource "aws_eip" "portfolio_ip" {
   # Nothing else needed, defaults to VPC
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 # EC2 Instance

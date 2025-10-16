@@ -111,93 +111,52 @@ jobs:
 
       - name: Build frontend
         working-directory: ./frontend
-        env:
-          # Ensure profile and backend base are available to prebuild guard and Next.js
-          ENV_PROFILE: ${{ github.ref == 'refs/heads/main' && 'prod' || 'dev' }}
-          # Backend URLs for build-time and runtime (consistent naming)
-          PROD_BACKEND_INTERNAL_URL: ${{ secrets.PROD_BACKEND_INTERNAL_URL }}
-          DEV_BACKEND_INTERNAL_URL: ${{ secrets.DEV_BACKEND_INTERNAL_URL }}
-          # Next.js client-side exposed environment variables (NEXT_PUBLIC_*)
-          PROD_NEXT_PUBLIC_BACKEND_URL: ${{ secrets.PROD_NEXT_PUBLIC_BACKEND_URL }}
-          DEV_NEXT_PUBLIC_BACKEND_URL: ${{ secrets.DEV_NEXT_PUBLIC_BACKEND_URL }}
-        run: npm run build:when-ready # Simplified Next.js build
 
-      - name: Test frontend
-        working-directory: ./frontend
-        run: npm test || echo "⚠️ No frontend tests yet" # Graceful failure until tests are implemented
-
-  # ==========================================================================
-  # PRODUCTION DEPLOYMENT JOB
-  # ==========================================================================
-  # Deploys to AWS EC2 production environment using pre-built ECR images
-  # Only runs on main branch pushes after successful build and test
-  # ==========================================================================
-  deploy-prod:
-    if: github.ref == 'refs/heads/main' # Production deploys only from main branch
-    needs: build-and-test # Wait for successful build and test
+  # Build and push production images to ECR (main branch)
+  build-push-prod-images:
+    if: github.ref == 'refs/heads/main'
+    needs: build-and-test
     runs-on: ubuntu-latest
-    timeout-minutes: 15 # Extended timeout for deployment operations
-
     steps:
-      # Checkout source code for docker-compose.yml and deployment scripts
       - name: Checkout code
         uses: actions/checkout@v4
-
-      # =======================================================================
-      # AWS AUTHENTICATION AND ECR LOGIN
-      # =======================================================================
-      # Configure AWS credentials for ECR access and deployment operations
-      # =======================================================================
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-west-2 # Oregon region for EC2 and ECR resources
-
-      # Login to Amazon ECR for image registry
+          aws-region: us-west-2
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
-
-      # =======================================================================
-      # DOCKER IMAGE BUILD AND PUSH TO ECR
-      # =======================================================================
-      # Build production-optimized images and push to Amazon ECR registry
-      # Uses 'latest' tag for production deployments
-      # =======================================================================
       - name: Build and push frontend-prod to ECR
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: bb-portfolio-frontend
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          echo "Building frontend production image..."
-          docker build --no-cache --target runner --build-arg ENV_PROFILE=prod --build-arg PROD_BACKEND_INTERNAL_URL="${{ secrets.PROD_BACKEND_INTERNAL_URL }}" --build-arg PROD_NEXT_PUBLIC_BACKEND_URL="${{ secrets.PROD_NEXT_PUBLIC_BACKEND_URL }}" -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./frontend
-          echo "📤 Pushing frontend image to ECR..."
+          docker build --no-cache --target runner \
+            --build-arg ENV_PROFILE=prod \
+            --build-arg PROD_BACKEND_INTERNAL_URL="${{ secrets.PROD_BACKEND_INTERNAL_URL }}" \
+            --build-arg PROD_NEXT_PUBLIC_BACKEND_URL="${{ secrets.PROD_NEXT_PUBLIC_BACKEND_URL }}" \
+            -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./frontend
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          # Also tag and push as latest for docker-compose compatibility
           docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
-          echo "Frontend ECR push complete: $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG and :latest"
-
       - name: Build and push backend-prod to ECR
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: bb-portfolio-backend
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          echo "Building backend production image with Docker BuildKit secrets..."
-          # Create temporary files for secrets
           echo "${{ secrets.PROD_MONGODB_URI }}" > /tmp/prod_mongodb_uri
-          echo "${{ secrets.DEV_MONGODB_URI }}" > /tmp/dev_mongodb_uri  
+          echo "${{ secrets.DEV_MONGODB_URI }}" > /tmp/dev_mongodb_uri
           echo "${{ secrets.LOCAL_MONGODB_URI }}" > /tmp/local_mongodb_uri
           echo "${{ secrets.PROD_PAYLOAD_SECRET }}" > /tmp/prod_payload_secret
           echo "${{ secrets.AWS_ACCESS_KEY_ID }}" > /tmp/aws_access_key_id
           echo "${{ secrets.AWS_SECRET_ACCESS_KEY }}" > /tmp/aws_secret_access_key
           echo "${{ secrets.PROD_SES_FROM_EMAIL }}" > /tmp/prod_ses_from_email
           echo "${{ secrets.PROD_SES_TO_EMAIL }}" > /tmp/prod_ses_to_email
-          # Build with secrets and non-sensitive build args
           DOCKER_BUILDKIT=1 docker build --no-cache --target runtime \
             --build-arg ENV_PROFILE=prod \
             --build-arg PROD_FRONTEND_URL="${{ secrets.PROD_FRONTEND_URL }}" \
@@ -213,160 +172,59 @@ jobs:
             --secret id=prod_ses_from_email,src=/tmp/prod_ses_from_email \
             --secret id=prod_ses_to_email,src=/tmp/prod_ses_to_email \
             -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./backend
-          # Clean up temporary files
           rm -f /tmp/prod_mongodb_uri /tmp/dev_mongodb_uri /tmp/local_mongodb_uri /tmp/prod_payload_secret /tmp/aws_access_key_id /tmp/aws_secret_access_key /tmp/prod_ses_from_email /tmp/prod_ses_to_email
-          echo "📤 Pushing backend image to ECR..."
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          # Also tag and push as latest for docker-compose compatibility  
           docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
-          echo "Backend ECR push complete: $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG and :latest"
 
-      # =======================================================================
-      # EC2 PRODUCTION DEPLOYMENT
-      # =======================================================================
-      # Deploy to production EC2 instance using SSH automation
-      # Handles Docker/AWS CLI installation and zero-downtime deployment
-      # =======================================================================
-      - name: Deploy prod on EC2
-        uses: appleboy/ssh-action@v1.0.3
-        timeout-minutes: 15 # Extended timeout for Docker installation and health checks
+  # Deploy to EC2 via reusable workflow (prod)
+  deploy-prod:
+    if: github.ref == 'refs/heads/main'
+    needs: [build-and-test, build-push-prod-images]
+    uses: ./.github/workflows/redeploy.yml
+    secrets: inherit
+    with:
+      environment: prod
+      start_dev: false
+      refresh_env: false
+      restart_containers: true
+
+  # Build and push dev images to Docker Hub (dev branch or manual)
+  build-push-dev-images:
+    if: github.ref == 'refs/heads/dev' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
         with:
-          host: ${{ secrets.EC2_HOST }} # EC2 public IP address
-          username: ec2-user # Default Amazon Linux user
-          key: ${{ secrets.EC2_SSH_KEY }} # SSH private key for authentication
-          command_timeout: 12m # Extended SSH command timeout
-          script: |
-            echo "🚀 Starting production deployment at $(date)"
-            echo "📍 Deploying to: $(hostname)"
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+      - name: Build and push dev images to Docker Hub
+        run: |
+          docker build --build-arg ENV_PROFILE=dev \
+            -t bhbaysinger/portfolio-backend:dev ./backend
+          docker build --build-arg ENV_PROFILE=dev \
+            --build-arg DEV_BACKEND_INTERNAL_URL=${{ secrets.DEV_BACKEND_INTERNAL_URL }} \
+            --build-arg DEV_NEXT_PUBLIC_BACKEND_URL=${{ secrets.DEV_NEXT_PUBLIC_BACKEND_URL }} \
+            -t bhbaysinger/portfolio-frontend:dev ./frontend
+          docker push bhbaysinger/portfolio-backend:dev
+          docker push bhbaysinger/portfolio-frontend:dev
 
-            # ===============================================================
-            # INFRASTRUCTURE SETUP
-            # ===============================================================
-            # Install required tools if not present on EC2 instance
-            # ===============================================================
-
-            # Install Docker if not present
-            if ! command -v docker &> /dev/null; then
-              echo "Installing Docker..."
-              sudo yum update -y
-              sudo yum install -y docker
-              sudo systemctl start docker
-              sudo systemctl enable docker
-              sudo usermod -a -G docker ec2-user
-              echo "Docker installation complete"
-            else
-              echo "Docker already installed"
-            fi
-
-            # Install AWS CLI for ECR authentication
-            if ! command -v aws &> /dev/null; then
-              echo "Installing AWS CLI..."
-              curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-              unzip awscliv2.zip
-              sudo ./aws/install
-              rm -rf aws awscliv2.zip
-              echo "AWS CLI installation complete"
-            else
-              echo "AWS CLI already installed"
-            fi
-
-            # Install Docker Compose plugin if not present
-            if ! docker compose version &> /dev/null; then
-              echo "Installing Docker Compose..."
-              sudo mkdir -p /usr/local/lib/docker/cli-plugins
-              sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/lib/docker/cli-plugins/docker-compose
-              sudo chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
-              echo "Docker Compose installation complete"
-            else
-              echo "Docker Compose already installed"
-            fi
-
-            # =============================================================
-            # DOCKER SERVICE PREPARATION
-            # =============================================================
-            # Ensure Docker daemon is running and ready
-            # =============================================================
-            echo "Preparing Docker services..."
-            sudo systemctl daemon-reload
-            sudo systemctl start docker
-            sudo systemctl enable docker
-
-            # Wait for docker to be ready
-            echo "Waiting for Docker to be ready..."
-            sleep 5
-
-            # Verify docker is working
-            echo "Verifying Docker installation..."
-            sudo docker --version
-            echo "Docker verification complete"            # ===============================================================
-            # AWS AUTHENTICATION AND ECR SETUP
-            # ===============================================================
-            # Configure AWS credentials for ECR access from EC2
-            # ===============================================================
-            echo "🔐 Configuring AWS credentials..."
-            aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
-            aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-            aws configure set default.region us-west-2
-
-            # Login to ECR for pulling production images
-            echo "🔐 Authenticating with Amazon ECR..."
-            aws ecr get-login-password --region us-west-2 | sudo docker login --username AWS --password-stdin ${{ steps.login-ecr.outputs.registry }}
-
-            # ===============================================================
-            # REPOSITORY SETUP
-            # ===============================================================
-            # Clone or update project repository for docker-compose.yml
-            # ===============================================================
-            if ! command -v git &> /dev/null; then
-              echo "Installing Git..."
-              sudo yum install -y git
-            fi
-
-            echo "📥 Setting up project repository..."
-            cd $HOME
-            if [ ! -d "portfolio" ]; then
-              echo "📥 Cloning repository..."
-              git clone https://github.com/BBaysinger/bb-portfolio.git portfolio
-            else
-              echo "🔄 Updating existing repository..."
-              cd portfolio
-              # Check if we're in a git repository
-              if [ -d ".git" ]; then
-                git fetch origin
-                git checkout main
-                git reset --hard origin/main
-              else
-                echo "⚠️ Not a git repository, removing and re-cloning..."
-                cd ..
-                rm -rf portfolio
-                git clone https://github.com/BBaysinger/bb-portfolio.git portfolio
-              fi
-              cd $HOME
-            fi
-
-            # ===============================================================
-            # ENVIRONMENT CONFIGURATION
-            # ===============================================================
-            # Create production environment files from GitHub secrets
-            # ===============================================================
-            cd ~/portfolio
-            echo "⚙️ Creating production environment files..."
-            echo "📁 Current directory: $(pwd)"
-            echo "📂 Directory contents:"
-            ls -la
-
-            # Ensure directories exist
-            mkdir -p backend frontend
-
-            # Backend production environment
-            cat > backend/.env.prod << EOF
-            PORT=3000
-            # Prefix-first envs: use PROD_MONGODB_URI exclusively
-            PROD_MONGODB_URI=${{ secrets.PROD_MONGODB_URI }}
-            PROD_PAYLOAD_SECRET=${{ secrets.PROD_PAYLOAD_SECRET }}
-            # Frontend origin for CORS/CSRF
-            PROD_FRONTEND_URL=${{ secrets.PROD_FRONTEND_URL }}
+  # Deploy dev via reusable workflow
+  deploy-dev:
+    if: github.ref == 'refs/heads/dev' || github.event_name == 'workflow_dispatch'
+    needs: build-push-dev-images
+    uses: ./.github/workflows/redeploy.yml
+    secrets: inherit
+    with:
+      environment: dev
+      start_dev: true
+      refresh_env: false
+      restart_containers: true
+                    restart_containers: true
+                  secrets: inherit
             # Unified AWS credentials for all services (S3, SES, deployment)
             AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
             AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}

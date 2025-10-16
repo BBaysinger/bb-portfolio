@@ -179,7 +179,7 @@ dev_ses_to_email   = "${strings.DEV_SES_TO_EMAIL}"
 function main() {
   try {
     console.log(
-      "🔄 Generating terraform.tfvars from github-secrets.private.json5...",
+      "🔄 Generating terraform.tfvars from github-secrets.private.json5..."
     );
     console.log("Project root:", projectRoot);
     console.log("Secrets file:", secretsFile);
@@ -230,7 +230,7 @@ function main() {
     if (missingVars.length > 0) {
       console.warn("⚠️  Missing required variables in secrets file:");
       missingVars.forEach((varName) =>
-        console.warn(`   - ${varName.toUpperCase()}`),
+        console.warn(`   - ${varName.toUpperCase()}`)
       );
     } else {
       console.log("✅ All required variables are present");
