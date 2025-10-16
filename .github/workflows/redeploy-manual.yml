@@ -31,7 +31,7 @@ on:
 jobs:
   call-redeploy:
     name: Call reusable redeploy
-    uses: ./.github/workflows/redeploy.yml
+    uses: BBaysinger/bb-portfolio/.github/workflows/redeploy.yml@main
     secrets: inherit
     with:
       environment: ${{ inputs.environment }}
