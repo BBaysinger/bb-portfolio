@@ -28,7 +28,20 @@ on:
         default: "true"
         options: ["true", "false"]
 
+permissions:
+  contents: read
+  actions: read
+
 jobs:
+  sanity:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print inputs
+        run: |
+          echo "environment=${{ inputs.environment }}"
+          echo "start_dev=${{ inputs.start_dev }}"
+          echo "refresh_env=${{ inputs.refresh_env }}"
+          echo "restart_containers=${{ inputs.restart_containers }}"
   call-redeploy:
     name: Call reusable redeploy
     uses: BBaysinger/bb-portfolio/.github/workflows/redeploy.yml@main
