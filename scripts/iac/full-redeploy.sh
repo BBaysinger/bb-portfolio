@@ -339,107 +339,114 @@ update_env_files_on_ec2() {
         local TMP_ENV_DIR
         TMP_ENV_DIR="$(mktemp -d)"
 
-        log_info "Generating .env files from .github-secrets.private.json5..."
-        pushd "${PROJECT_ROOT}" >/dev/null
-        npx tsx -e "
-        import { readFileSync, writeFileSync, mkdirSync } from 'fs';
-        // @ts-ignore - tsx supports ESM import
-        import JSON5 from 'json5';
-        const secretsFile = '.github-secrets.private.json5';
-        const cfg = JSON5.parse(readFileSync(secretsFile, 'utf8'));
-        const s = (cfg.strings||cfg) as Record<string,string>;
-        const ensure = (k:string, d?:string) => (s[k] ?? d ?? '');
-        const IP='${ec2_ip}';
-        // Prefer values that were already updated in the secrets file during update_secrets_with_new_ip
-        const PROD_FRONTEND_URL = ensure('PROD_FRONTEND_URL', `https://bbinteractive.io,http://${IP}:3000`);
-        const DEV_FRONTEND_URL  = ensure('DEV_FRONTEND_URL',  `https://dev.bbinteractive.io,http://${IP}:4000`);
-        const PROD_BACKEND_URL  = ensure('PROD_NEXT_PUBLIC_BACKEND_URL', `http://${IP}:3001`);
-        const DEV_BACKEND_URL   = ensure('DEV_NEXT_PUBLIC_BACKEND_URL',  `http://${IP}:4001`);
+            log_info "Generating .env files from .github-secrets.private.json5..."
+            pushd "${PROJECT_ROOT}" >/dev/null
+            # Write a temporary JS module to avoid shell expansion of ${...}
+            local TMP_JS
+            TMP_JS="${TMP_ENV_DIR}/gen-env.mjs"
+            cat > "${TMP_JS}" <<'JS'
+    import { readFileSync, writeFileSync, mkdirSync } from 'fs';
+    import JSON5 from 'json5';
 
-        const prodBackend = [
-            'NODE_ENV=production',
-            'ENV_PROFILE=prod',
-            '',
-            // AWS
-            `AWS_ACCESS_KEY_ID=${ensure('AWS_ACCESS_KEY_ID')}`,
-            `AWS_SECRET_ACCESS_KEY=${ensure('AWS_SECRET_ACCESS_KEY')}`,
-            `PROD_AWS_REGION=${ensure('PROD_AWS_REGION', ensure('AWS_REGION'))}`,
-            '',
-            // DB & App
-            `PROD_MONGODB_URI=${ensure('PROD_MONGODB_URI')}`,
-            `PROD_PAYLOAD_SECRET=${ensure('PROD_PAYLOAD_SECRET')}`,
-            '',
-            // S3
-            `PROD_S3_BUCKET=${ensure('PROD_S3_BUCKET')}`,
-            `S3_AWS_ACCESS_KEY_ID=${ensure('S3_AWS_ACCESS_KEY_ID', ensure('AWS_ACCESS_KEY_ID'))}`,
-            `S3_AWS_SECRET_ACCESS_KEY=${ensure('S3_AWS_SECRET_ACCESS_KEY', ensure('AWS_SECRET_ACCESS_KEY'))}`,
-            `S3_REGION=${ensure('S3_REGION', ensure('PROD_AWS_REGION'))}`,
-            '',
-            // URLs
-            `PROD_FRONTEND_URL=${PROD_FRONTEND_URL}`,
-            `PROD_NEXT_PUBLIC_BACKEND_URL=${PROD_BACKEND_URL}`,
-            `PROD_BACKEND_INTERNAL_URL=${ensure('PROD_BACKEND_INTERNAL_URL', 'http://portfolio-backend-prod:3000')}`,
-            '',
-            // Email
-            `PROD_SES_FROM_EMAIL=${ensure('PROD_SES_FROM_EMAIL')}`,
-            `PROD_SES_TO_EMAIL=${ensure('PROD_SES_TO_EMAIL')}`,
-            ''
-        ].join('\n');
+    const OUT_DIR = process.env.OUT_DIR || '';
+    const IP = process.env.EC2_IP || '';
+    const secretsFile = '.github-secrets.private.json5';
+    const cfg = JSON5.parse(readFileSync(secretsFile, 'utf8'));
+    const s = (cfg.strings || cfg);
+    const ensure = (k, d = '') => (s[k] ?? d);
 
-        const devBackend = [
-            'NODE_ENV=development',
-            'ENV_PROFILE=dev',
-            '',
-            // AWS
-            `AWS_ACCESS_KEY_ID=${ensure('AWS_ACCESS_KEY_ID')}`,
-            `AWS_SECRET_ACCESS_KEY=${ensure('AWS_SECRET_ACCESS_KEY')}`,
-            `DEV_AWS_REGION=${ensure('DEV_AWS_REGION', ensure('AWS_REGION'))}`,
-            '',
-            // DB & App
-            `DEV_MONGODB_URI=${ensure('DEV_MONGODB_URI')}`,
-            `DEV_PAYLOAD_SECRET=${ensure('DEV_PAYLOAD_SECRET')}`,
-            '',
-            // S3
-            `DEV_S3_BUCKET=${ensure('DEV_S3_BUCKET')}`,
-            `S3_AWS_ACCESS_KEY_ID=${ensure('S3_AWS_ACCESS_KEY_ID', ensure('AWS_ACCESS_KEY_ID'))}`,
-            `S3_AWS_SECRET_ACCESS_KEY=${ensure('S3_AWS_SECRET_ACCESS_KEY', ensure('AWS_SECRET_ACCESS_KEY'))}`,
-            `S3_REGION=${ensure('S3_REGION', ensure('DEV_AWS_REGION'))}`,
-            '',
-            // URLs
-            `DEV_FRONTEND_URL=${DEV_FRONTEND_URL}`,
-            `DEV_NEXT_PUBLIC_BACKEND_URL=${DEV_BACKEND_URL}`,
-            `DEV_BACKEND_INTERNAL_URL=${ensure('DEV_BACKEND_INTERNAL_URL', 'http://portfolio-backend-dev:3000')}`,
-            '',
-            // Email
-            `DEV_SES_FROM_EMAIL=${ensure('DEV_SES_FROM_EMAIL')}`,
-            `DEV_SES_TO_EMAIL=${ensure('DEV_SES_TO_EMAIL')}`,
-            ''
-        ].join('\n');
+    // Prefer values already updated by update_secrets_with_new_ip
+    const PROD_FRONTEND_URL = ensure('PROD_FRONTEND_URL', `https://bbinteractive.io,http://${IP}:3000`);
+    const DEV_FRONTEND_URL  = ensure('DEV_FRONTEND_URL',  `https://dev.bbinteractive.io,http://${IP}:4000`);
+    const PROD_BACKEND_URL  = ensure('PROD_NEXT_PUBLIC_BACKEND_URL', `http://${IP}:3001`);
+    const DEV_BACKEND_URL   = ensure('DEV_NEXT_PUBLIC_BACKEND_URL',  `http://${IP}:4001`);
 
-        const prodFrontend = [
-            'NODE_ENV=production',
-            'ENV_PROFILE=prod',
-            '',
-            `NEXT_PUBLIC_BACKEND_URL=${PROD_BACKEND_URL}`,
-            ''
-        ].join('\n');
+    const prodBackend = [
+        'NODE_ENV=production',
+        'ENV_PROFILE=prod',
+        '',
+        // AWS
+        `AWS_ACCESS_KEY_ID=${ensure('AWS_ACCESS_KEY_ID')}`,
+        `AWS_SECRET_ACCESS_KEY=${ensure('AWS_SECRET_ACCESS_KEY')}`,
+        `PROD_AWS_REGION=${ensure('PROD_AWS_REGION', ensure('AWS_REGION'))}`,
+        '',
+        // DB & App
+        `PROD_MONGODB_URI=${ensure('PROD_MONGODB_URI')}`,
+        `PROD_PAYLOAD_SECRET=${ensure('PROD_PAYLOAD_SECRET')}`,
+        '',
+        // S3
+        `PROD_S3_BUCKET=${ensure('PROD_S3_BUCKET')}`,
+        `S3_AWS_ACCESS_KEY_ID=${ensure('S3_AWS_ACCESS_KEY_ID', ensure('AWS_ACCESS_KEY_ID'))}`,
+        `S3_AWS_SECRET_ACCESS_KEY=${ensure('S3_AWS_SECRET_ACCESS_KEY', ensure('AWS_SECRET_ACCESS_KEY'))}`,
+        `S3_REGION=${ensure('S3_REGION', ensure('PROD_AWS_REGION'))}`,
+        '',
+        // URLs
+        `PROD_FRONTEND_URL=${PROD_FRONTEND_URL}`,
+        `PROD_NEXT_PUBLIC_BACKEND_URL=${PROD_BACKEND_URL}`,
+        `PROD_BACKEND_INTERNAL_URL=${ensure('PROD_BACKEND_INTERNAL_URL', 'http://portfolio-backend-prod:3000')}`,
+        '',
+        // Email
+        `PROD_SES_FROM_EMAIL=${ensure('PROD_SES_FROM_EMAIL')}`,
+        `PROD_SES_TO_EMAIL=${ensure('PROD_SES_TO_EMAIL')}`,
+        ''
+    ].join('\n');
 
-        const devFrontend = [
-            'NODE_ENV=development',
-            'ENV_PROFILE=dev',
-            '',
-            `NEXT_PUBLIC_BACKEND_URL=${DEV_BACKEND_URL}`,
-            ''
-        ].join('\n');
+    const devBackend = [
+        'NODE_ENV=development',
+        'ENV_PROFILE=dev',
+        '',
+        // AWS
+        `AWS_ACCESS_KEY_ID=${ensure('AWS_ACCESS_KEY_ID')}`,
+        `AWS_SECRET_ACCESS_KEY=${ensure('AWS_SECRET_ACCESS_KEY')}`,
+        `DEV_AWS_REGION=${ensure('DEV_AWS_REGION', ensure('AWS_REGION'))}`,
+        '',
+        // DB & App
+        `DEV_MONGODB_URI=${ensure('DEV_MONGODB_URI')}`,
+        `DEV_PAYLOAD_SECRET=${ensure('DEV_PAYLOAD_SECRET')}`,
+        '',
+        // S3
+        `DEV_S3_BUCKET=${ensure('DEV_S3_BUCKET')}`,
+        `S3_AWS_ACCESS_KEY_ID=${ensure('S3_AWS_ACCESS_KEY_ID', ensure('AWS_ACCESS_KEY_ID'))}`,
+        `S3_AWS_SECRET_ACCESS_KEY=${ensure('S3_AWS_SECRET_ACCESS_KEY', ensure('AWS_SECRET_ACCESS_KEY'))}`,
+        `S3_REGION=${ensure('S3_REGION', ensure('DEV_AWS_REGION'))}`,
+        '',
+        // URLs
+        `DEV_FRONTEND_URL=${DEV_FRONTEND_URL}`,
+        `DEV_NEXT_PUBLIC_BACKEND_URL=${DEV_BACKEND_URL}`,
+        `DEV_BACKEND_INTERNAL_URL=${ensure('DEV_BACKEND_INTERNAL_URL', 'http://portfolio-backend-dev:3000')}`,
+        '',
+        // Email
+        `DEV_SES_FROM_EMAIL=${ensure('DEV_SES_FROM_EMAIL')}`,
+        `DEV_SES_TO_EMAIL=${ensure('DEV_SES_TO_EMAIL')}`,
+        ''
+    ].join('\n');
 
-        mkdirSync('${TMP_ENV_DIR}', { recursive: true });
-        writeFileSync('${TMP_ENV_DIR}/backend.env.prod', prodBackend);
-        writeFileSync('${TMP_ENV_DIR}/backend.env.dev', devBackend);
-        writeFileSync('${TMP_ENV_DIR}/frontend.env.prod', prodFrontend);
-        writeFileSync('${TMP_ENV_DIR}/frontend.env.dev', devFrontend);
-        console.log('Local env files generated at: ${TMP_ENV_DIR}');
-        "
-        popd >/dev/null
+    const prodFrontend = [
+        'NODE_ENV=production',
+        'ENV_PROFILE=prod',
+        '',
+        `NEXT_PUBLIC_BACKEND_URL=${PROD_BACKEND_URL}`,
+        ''
+    ].join('\n');
+
+    const devFrontend = [
+        'NODE_ENV=development',
+        'ENV_PROFILE=dev',
+        '',
+        `NEXT_PUBLIC_BACKEND_URL=${DEV_BACKEND_URL}`,
+        ''
+    ].join('\n');
+
+    mkdirSync(OUT_DIR, { recursive: true });
+    writeFileSync(`${OUT_DIR}/backend.env.prod`, prodBackend);
+    writeFileSync(`${OUT_DIR}/backend.env.dev`, devBackend);
+    writeFileSync(`${OUT_DIR}/frontend.env.prod`, prodFrontend);
+    writeFileSync(`${OUT_DIR}/frontend.env.dev`, devFrontend);
+    console.log(`Local env files generated at: ${OUT_DIR}`);
+    JS
+            # Run the generator with environment variables
+            OUT_DIR="${TMP_ENV_DIR}" EC2_IP="${ec2_ip}" npx tsx "${TMP_JS}"
+            popd >/dev/null
 
         log_info "Uploading env files to EC2..."
         # Ensure target directories exist
