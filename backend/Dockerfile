@@ -31,9 +31,6 @@
 # Using node:22-slim for consistency with frontend and better native module compatibility
 FROM node:22-slim AS builder
 
-# Upgrade system packages to mitigate known vulnerabilities
-RUN apt-get update && apt-get upgrade -y && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
-
 # IMPORTANT: Don't set NODE_ENV=production here because we need dev dependencies for the build process
 # TypeScript compilation, bundling tools, and other build-time dependencies require devDependencies
 # ENV NODE_ENV=production
@@ -41,13 +38,19 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y curl && rm -rf /v
 # Set working directory for all subsequent commands
 WORKDIR /app
 
-# Provide build-time environment to satisfy strict env checks in configuration
-# Use Docker BuildKit secrets for sensitive data to avoid embedding in image layers
+# Provide build-time environment to satisfy strict env checks in configuration.
+# Rationale:
+# - Non-sensitive values are passed as ARG/ENV (e.g., *_FRONTEND_URL, *_AWS_REGION, *_S3_BUCKET)
+#   because Next.js build and config validation rely on these to pre-render and set CORS/CSRF.
+# - Sensitive values (Mongo URI, Payload secret, AWS creds, SES emails) are mounted via BuildKit
+#   secrets in the RUN step below so they never persist into layers or the final image.
 ARG ENV_PROFILE=prod
 ARG PROD_FRONTEND_URL
 ARG PROD_S3_BUCKET
 ARG PROD_AWS_REGION
 ARG DEV_AWS_REGION
+ARG DEV_FRONTEND_URL
+ARG DEV_S3_BUCKET
 
 # Set non-sensitive environment variables
 ENV ENV_PROFILE=${ENV_PROFILE}
@@ -55,13 +58,10 @@ ENV PROD_FRONTEND_URL=${PROD_FRONTEND_URL}
 ENV PROD_S3_BUCKET=${PROD_S3_BUCKET}
 ENV PROD_AWS_REGION=${PROD_AWS_REGION}
 ENV DEV_AWS_REGION=${DEV_AWS_REGION}
+ENV DEV_FRONTEND_URL=${DEV_FRONTEND_URL}
+ENV DEV_S3_BUCKET=${DEV_S3_BUCKET}
 
-# Install system dependencies required for native Node.js modules compilation
-# Similar to frontend setup but focused on backend needs
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    python3 \
-    build-essential \
-    && rm -rf /var/lib/apt/lists/*
+## Skipping apt-get steps to reduce CI fragility; base image is sufficient for this project
 
 # Copy package files first to leverage Docker layer caching
 # Dependencies change less frequently than source code, so this optimizes rebuild times
@@ -79,18 +79,24 @@ RUN --mount=type=secret,id=prod_mongodb_uri \
     --mount=type=secret,id=dev_mongodb_uri \
     --mount=type=secret,id=local_mongodb_uri \
     --mount=type=secret,id=prod_payload_secret \
+    --mount=type=secret,id=dev_payload_secret \
     --mount=type=secret,id=aws_access_key_id \
     --mount=type=secret,id=aws_secret_access_key \
     --mount=type=secret,id=prod_ses_from_email \
     --mount=type=secret,id=prod_ses_to_email \
+    --mount=type=secret,id=dev_ses_from_email \
+    --mount=type=secret,id=dev_ses_to_email \
     export PROD_MONGODB_URI="$(cat /run/secrets/prod_mongodb_uri 2>/dev/null || echo '')" && \
     export DEV_MONGODB_URI="$(cat /run/secrets/dev_mongodb_uri 2>/dev/null || echo '')" && \
     export LOCAL_MONGODB_URI="$(cat /run/secrets/local_mongodb_uri 2>/dev/null || echo '')" && \
     export PROD_PAYLOAD_SECRET="$(cat /run/secrets/prod_payload_secret 2>/dev/null || echo '')" && \
+    export DEV_PAYLOAD_SECRET="$(cat /run/secrets/dev_payload_secret 2>/dev/null || echo '')" && \
     export AWS_ACCESS_KEY_ID="$(cat /run/secrets/aws_access_key_id 2>/dev/null || echo '')" && \
     export AWS_SECRET_ACCESS_KEY="$(cat /run/secrets/aws_secret_access_key 2>/dev/null || echo '')" && \
     export PROD_SES_FROM_EMAIL="$(cat /run/secrets/prod_ses_from_email 2>/dev/null || echo '')" && \
     export PROD_SES_TO_EMAIL="$(cat /run/secrets/prod_ses_to_email 2>/dev/null || echo '')" && \
+    export DEV_SES_FROM_EMAIL="$(cat /run/secrets/dev_ses_from_email 2>/dev/null || echo '')" && \
+    export DEV_SES_TO_EMAIL="$(cat /run/secrets/dev_ses_to_email 2>/dev/null || echo '')" && \
     npm run build
 
 # Remove development dependencies to reduce final image size
@@ -103,9 +109,6 @@ RUN npm prune --omit=dev
 # Minimal production image containing only the compiled application and runtime dependencies
 # Implements security best practices with non-root user execution
 FROM node:22-slim AS runtime
-
-# Upgrade system packages to mitigate known vulnerabilities
-RUN apt-get update && apt-get upgrade -y && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 
 # Set production environment to optimize application performance and disable debug features
 ENV NODE_ENV=production

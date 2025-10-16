@@ -77,15 +77,22 @@
     // 📋 Follow logs from static site generation containers in real-time (local-ssg profile)
     "docker:ssg:logs": "AWS_ACCOUNT_ID=123456789012 COMPOSE_PROFILES=local-ssg docker compose logs -f",
     // 🐳 Build backend Docker image for Docker Hub (dev tag)
-    "docker:build:backend": "docker build -t bhbaysinger/portfolio-backend:dev ./backend",
+    // NOTE: Builds the production runtime stage with ENV_PROFILE=dev (no hot reload)
+    // This ensures EC2 dev behaves like prod, just with dev config.
+    "docker:build:backend": "docker build --target runtime --build-arg ENV_PROFILE=dev -t bhbaysinger/portfolio-backend:dev ./backend",
     // 🐳 Build frontend Docker image for Docker Hub (dev tag)
-    "docker:build:frontend": "docker build -t bhbaysinger/portfolio-frontend:dev ./frontend",
+    // NOTE: Builds the production runner stage with ENV_PROFILE=dev (no hot reload)
+    // Dev internal URL points to the dev compose service name for server-to-server calls.
+    "docker:build:frontend": "docker build --target runner --build-arg ENV_PROFILE=dev --build-arg DEV_BACKEND_INTERNAL_URL=http://backend-dev:3000 -t bhbaysinger/portfolio-frontend:dev ./frontend",
     // 🚀 Push backend Docker image to Docker Hub (dev tag)
     "docker:push:backend": "docker push bhbaysinger/portfolio-backend:dev",
     // 🚀 Push frontend Docker image to Docker Hub (dev tag)
     "docker:push:frontend": "docker push bhbaysinger/portfolio-frontend:dev",
-    // 🚀 Build and push both backend and frontend Docker images to Docker Hub (dev tag)
-    "docker:build-push": "npm run docker:build:backend && npm run docker:build:frontend && npm run docker:push:backend && npm run docker:push:frontend",
+    // 🚀 Build and push both backend and frontend images to Docker Hub (dev tag).
+    "docker:build-push": "bash scripts/publish-dockerhub-dev-images.sh",
+    // 🚀 Build and push production images to AWS ECR (:latest for frontend/backend)
+    // Uses scripts/publish-ecr-images.sh which reads build-time secrets from infra/terraform.tfvars
+    "ecr:build-push": "bash scripts/publish-ecr-images.sh",
     // 🌐 PROXY MODE (SSR + URL consistency): Single port access like production
     // Access everything at http://localhost:8080 - routes /api/* to backend, /* to frontend
     // Uses development containers (hot reload) but with production-like URL structure

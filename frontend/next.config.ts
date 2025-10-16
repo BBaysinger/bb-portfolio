@@ -111,11 +111,11 @@ const nextConfig: NextConfig = {
                 : "img-src 'self' data: https:;";
               return [
                 "default-src 'self';",
-                "script-src 'self' 'unsafe-inline' 'unsafe-eval';",
-                "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;",
+                "script-src 'self' 'unsafe-inline' 'unsafe-eval' data:;",
+                "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com data:;",
                 imgSrc,
-                "font-src 'self' https://fonts.gstatic.com;",
-                "connect-src 'self' https: http:;",
+                "font-src 'self' https://fonts.gstatic.com data:;",
+                "connect-src 'self' https: http: ws: wss:;",
                 "media-src 'self';",
                 "object-src 'none';",
                 "frame-src 'none';",
