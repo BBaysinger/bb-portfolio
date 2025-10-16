@@ -1,4 +1,4 @@
-name: Redeploy
+name: Redeploy (Manual)
 
 on:
   workflow_dispatch:
@@ -28,32 +28,22 @@ on:
         default: "true"
         options: ["true", "false"]
 
-  workflow_call:
-    inputs:
-      environment:
-        description: Which profiles to (re)start
-        type: string
-        required: true
-        default: both
-      start_dev:
-        description: Ensure dev containers are up in addition to prod
-        type: string
-        required: true
-        default: "true"
-      refresh_env:
-        description: Regenerate and upload .env files to EC2 (requires secrets)
-        type: string
-        required: true
-        default: "false"
-      restart_containers:
-        description: Restart containers on EC2 (docker-compose pull/up)
-        type: string
-        required: true
-        default: "true"
+permissions:
+  contents: read
+  actions: read
 
 jobs:
+  sanity:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print inputs
+        run: |
+          echo "environment=${{ inputs.environment }}"
+          echo "start_dev=${{ inputs.start_dev }}"
+          echo "refresh_env=${{ inputs.refresh_env }}"
+          echo "restart_containers=${{ inputs.restart_containers }}"
   deploy:
-    name: SSH redeploy on EC2
+    name: SSH redeploy on EC2 (manual)
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
