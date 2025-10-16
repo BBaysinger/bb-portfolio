@@ -1,0 +1,40 @@
+name: Redeploy (Manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Which profiles to (re)start
+        type: choice
+        required: true
+        default: both
+        options: [prod, dev, both]
+      start_dev:
+        description: Ensure dev containers are up in addition to prod
+        type: choice
+        required: true
+        default: "true"
+        options: ["true", "false"]
+      refresh_env:
+        description: Regenerate and upload .env files to EC2 (requires secrets)
+        type: choice
+        required: true
+        default: "false"
+        options: ["true", "false"]
+      restart_containers:
+        description: Restart containers on EC2 (docker-compose pull/up)
+        type: choice
+        required: true
+        default: "true"
+        options: ["true", "false"]
+
+jobs:
+  call-redeploy:
+    name: Call reusable redeploy
+    uses: ./.github/workflows/redeploy.yml
+    secrets: inherit
+    with:
+      environment: ${{ inputs.environment }}
+      start_dev: ${{ inputs.start_dev }}
+      refresh_env: ${{ inputs.refresh_env }}
+      restart_containers: ${{ inputs.restart_containers }}
