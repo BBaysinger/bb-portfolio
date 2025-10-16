@@ -24,17 +24,6 @@
 FROM node:22-slim AS base
 WORKDIR /app
 
-# Install system dependencies required for:
-# - Native Node.js modules compilation (python3, build-essential)
-# - Image optimization libraries like Sharp (libc6, libstdc++6)
-# Clean up apt cache to reduce image size
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    libc6 \
-    libstdc++6 \
-    python3 \
-    build-essential \
-    && rm -rf /var/lib/apt/lists/*
-
 
 # ==========================================
 # Dependencies Stage - Package Installation

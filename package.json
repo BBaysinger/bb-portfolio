@@ -19,11 +19,12 @@
     "docker:ssg:up:no-strict:detached": "AWS_ACCOUNT_ID=123456789012 COMPOSE_PROFILES=local-ssg REACT_STRICT_MODE=false docker compose up --build -d",
     "docker:ssg:down": "AWS_ACCOUNT_ID=123456789012 COMPOSE_PROFILES=local-ssg docker compose down",
     "docker:ssg:logs": "AWS_ACCOUNT_ID=123456789012 COMPOSE_PROFILES=local-ssg docker compose logs -f",
-    "docker:build:backend": "docker build -t bhbaysinger/portfolio-backend:dev ./backend",
-    "docker:build:frontend": "docker build -t bhbaysinger/portfolio-frontend:dev ./frontend",
+    "docker:build:backend": "docker build --target runtime --build-arg ENV_PROFILE=dev -t bhbaysinger/portfolio-backend:dev ./backend",
+    "docker:build:frontend": "docker build --target runner --build-arg ENV_PROFILE=dev --build-arg DEV_BACKEND_INTERNAL_URL=http://backend-dev:3000 -t bhbaysinger/portfolio-frontend:dev ./frontend",
     "docker:push:backend": "docker push bhbaysinger/portfolio-backend:dev",
     "docker:push:frontend": "docker push bhbaysinger/portfolio-frontend:dev",
-    "docker:build-push": "npm run docker:build:backend && npm run docker:build:frontend && npm run docker:push:backend && npm run docker:push:frontend",
+    "docker:build-push": "bash scripts/publish-dockerhub-dev-images.sh",
+    "ecr:build-push": "bash scripts/publish-ecr-images.sh",
     "caddy:up": "docker compose -f docker-compose.caddy.yml up --build -d",
     "caddy:up:no-strict": "REACT_STRICT_MODE=false docker compose -f docker-compose.caddy.yml up --build -d",
     "caddy:down": "docker compose -f docker-compose.caddy.yml down",
@@ -61,7 +62,8 @@
     "migrate:all:prod": "npm run migrate:media:prod && npm run migrate:db:prod",
     "db:migrate:local-to-prod": "bash scripts/migrate-database.sh local prod",
     "db:migrate:local-to-dev": "bash scripts/migrate-database.sh local dev",
-    "db:migrate:prod-to-dev": "bash scripts/migrate-database.sh prod dev"
+    "db:migrate:prod-to-dev": "bash scripts/migrate-database.sh prod dev",
+    "iac:full-redeploy": "bash scripts/iac/full-redeploy.sh"
   },
   "devDependencies": {
     "@next/eslint-plugin-next": "^15.5.4",

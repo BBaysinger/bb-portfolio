@@ -8,7 +8,9 @@
         "**/.env*",
         "**/terraform.tfstate*",
         "**/package-lock.json",
-        "**/yarn.lock"
+        "**/yarn.lock",
+        "**/*.tf",
+        "**/*.tfvars"
     ],
     "npm.packageManager": "pnpm",
     "editor.defaultFormatter": "esbenp.prettier-vscode",
@@ -82,6 +84,7 @@
         "Dressup",
         "dryrun",
         "elif",
+        "esbenp",
         "esbuild",
         "exas",
         "Fargate",
@@ -94,6 +97,7 @@
         "jiti",
         "journalctl",
         "jsdom",
+        "keygen",
         "keypair",
         "keypairs",
         "libc",
