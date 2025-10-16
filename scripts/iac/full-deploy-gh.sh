@@ -179,28 +179,30 @@ if [[ "$do_infra" == true ]]; then
   # Update local private secrets with the new EC2 IP so GitHub Secrets get the latest EC2_HOST
   if [[ -n "${EC2_IP:-}" && "${EC2_IP}" != "null" ]]; then
     log "Updating .github-secrets.private.json5 with new EC2 IP: ${EC2_IP}"
-    npx tsx -e "
-      import { readFileSync, writeFileSync } from 'fs';
-      import JSON5 from 'json5';
-      const file = '.github-secrets.private.json5';
-      const ip = process.env.EC2_IP || '';
-      const raw = readFileSync(file, 'utf8');
+    export EC2_IP
+    npx tsx -e '
+      import { readFileSync, writeFileSync } from "fs";
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const JSON5 = require("json5");
+      const file = ".github-secrets.private.json5";
+      const ip = process.env.EC2_IP || "";
+      const raw = readFileSync(file, "utf8");
       const cfg = JSON5.parse(raw);
-      const s = cfg.strings || cfg;
+      const s = (cfg.strings || cfg);
       const before = s.EC2_HOST;
       s.EC2_HOST = ip;
-      const replaceHost = (val) => typeof val === 'string' ? val.replace(/http:\/\/[0-9.]+:/g, `http://${ip}:`) : val;
+      const replaceHost = (val: any) => typeof val === "string" ? val.replace(/http:\/\/[0-9.]+:/g, "http://" + ip + ":") : val;
       // Update common URL fields if present
       s.DEV_FRONTEND_URL = replaceHost(s.DEV_FRONTEND_URL);
       s.PROD_FRONTEND_URL = replaceHost(s.PROD_FRONTEND_URL);
       s.DEV_NEXT_PUBLIC_BACKEND_URL = replaceHost(s.DEV_NEXT_PUBLIC_BACKEND_URL);
       s.PROD_NEXT_PUBLIC_BACKEND_URL = replaceHost(s.PROD_NEXT_PUBLIC_BACKEND_URL);
       s.NEXT_PUBLIC_BACKEND_URL = replaceHost(s.NEXT_PUBLIC_BACKEND_URL);
-      const banner = '// Private secrets file for syncing to GitHub Actions secrets\n// This file is ignored by git. Keep real values here.\n// Do NOT commit this file to version control!\n// cspell:disable\n';
+      const banner = "// Private secrets file for syncing to GitHub Actions secrets\n// This file is ignored by git. Keep real values here.\n// Do NOT commit this file to version control!\n// cspell:disable\n";
       const out = banner + JSON5.stringify(cfg, null, 2);
-      writeFileSync(file, out, 'utf8');
+      writeFileSync(file, out, "utf8");
       console.log(`Updated EC2_HOST from ${before} to ${ip}`);
-    "
+    '
   else
     warn "EC2 IP not detected from Terraform outputs; skipping secrets IP update"
   fi
@@ -220,32 +222,167 @@ ok "Infra and images complete. Handing off container restart to GitHub Actions."
 
 need jq
 
-IFS="," read -r -a WF_ARR <<< "$workflows"
-for WF in "${WF_ARR[@]}"; do
-  log "Triggering workflow '$WF' with environment=$profiles start_dev=true"
-  BRANCH=$(git rev-parse --abbrev-ref HEAD)
-  gh workflow run "$WF" \
+# Try multiple identifiers for the workflow to avoid 422 dispatch issues
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
+WF_CANDIDATES=("$workflows" "Redeploy" ".github/workflows/redeploy.yml" "redeploy.yml")
+
+dispatch_ok=false
+RUN_ID=""
+for WF in "${WF_CANDIDATES[@]}"; do
+  [[ -n "$WF" ]] || continue
+  log "Attempting dispatch of workflow '$WF' on branch $BRANCH (env=$profiles, refresh_env=$refresh_env, restart=$restart_containers)"
+  set +e
+  OUT=$(gh workflow run "$WF" \
     --repo "$GH_REPO" \
     --ref "$BRANCH" \
     -f environment="$profiles" \
     -f start_dev=true \
     -f refresh_env="$refresh_env" \
-    -f restart_containers="$restart_containers"
-
-  sleep 3
-  RUN_ID=$(gh run list --repo "$GH_REPO" --workflow "$WF" --branch "$BRANCH" --limit 1 --json databaseId,status | jq -r '.[0].databaseId // empty')
-  [[ -n "$RUN_ID" ]] || die "Failed to detect workflow run for '$WF'"
-
-  log "Watching run $RUN_ID for '$WF'"
-  if [[ "$watch_logs" == true ]]; then
-    gh run watch "$RUN_ID" --repo "$GH_REPO"
-    echo "\n--- Logs ($WF) ---"
-    gh run view "$RUN_ID" --repo "$GH_REPO" --log || true
+    -f restart_containers="$restart_containers" 2>&1)
+  STATUS=$?
+  set -e
+  if [[ $STATUS -eq 0 ]]; then
+    sleep 3
+    # Resolve latest run for this workflow and branch
+    RUN_ID=$(gh run list --repo "$GH_REPO" --workflow "$WF" --branch "$BRANCH" --limit 1 --json databaseId,status | jq -r '.[0].databaseId // empty') || true
+    if [[ -n "$RUN_ID" ]]; then
+      dispatch_ok=true
+      ok "Dispatch succeeded for '$WF' (run id: $RUN_ID)"
+      break
+    else
+      warn "Dispatch returned success but could not resolve run id for '$WF'"
+    fi
   else
-    ok "Started workflow run $RUN_ID for '$WF' (not watching)"
+    warn "Dispatch failed for '$WF' (status $STATUS): ${OUT//$'\n'/  }"
+    # Keep trying next candidate
   fi
 done
 
-ok "Full deploy via GitHub completed. EC2 IP: ${EC2_IP:-unknown}"
+if [[ "$dispatch_ok" == true ]]; then
+  log "Watching run $RUN_ID"
+  if [[ "$watch_logs" == true ]]; then
+    gh run watch "$RUN_ID" --repo "$GH_REPO" || true
+    echo "\n--- Logs ---"
+    gh run view "$RUN_ID" --repo "$GH_REPO" --log || true
+  else
+    ok "Started workflow run $RUN_ID (not watching)"
+  fi
+  ok "Full deploy via GitHub completed. EC2 IP: ${EC2_IP:-unknown}"
+  popd >/dev/null
+  exit 0
+fi
+
+warn "All GitHub workflow dispatch attempts failed. Falling back to direct SSH restart from this script."
+
+# SSH fallback: generate env files locally if requested and upload, then restart compose profiles
+SSH_KEY="$HOME/.ssh/bb-portfolio-site-key.pem"
+[[ -f "$SSH_KEY" ]] || die "SSH key not found at $SSH_KEY"
+
+# Determine EC2_HOST (prefer Terraform outputs; fallback to GH secret)
+EC2_HOST="${EC2_IP:-}"
+if [[ -z "$EC2_HOST" ]] && command -v terraform >/dev/null 2>&1; then
+  pushd "$INFRA_DIR" >/dev/null
+  EC2_HOST=$(terraform output -raw elastic_ip 2>/dev/null || terraform output -raw portfolio_elastic_ip 2>/dev/null || true)
+  popd >/dev/null
+fi
+if [[ -z "$EC2_HOST" ]] && command -v gh >/dev/null 2>&1; then
+  EC2_HOST=$(gh secret view EC2_HOST -q .value 2>/dev/null || true)
+fi
+[[ -n "$EC2_HOST" ]] || die "EC2 host unknown for SSH fallback"
+
+if [[ "$refresh_env" == true ]]; then
+  log "Generating env files locally from .github-secrets.private.json5 for upload"
+  [[ -f "$REPO_ROOT/.github-secrets.private.json5" ]] || die ".github-secrets.private.json5 missing for env generation"
+  TMP_DIR="$(mktemp -d)"
+  (
+    cd "$REPO_ROOT"
+    EC2_ENV_OUT_DIR="$TMP_DIR" npx tsx -e '
+      import { readFileSync, writeFileSync, mkdirSync } from "fs";
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const JSON5 = require("json5");
+      const outDir = process.env.EC2_ENV_OUT_DIR as string;
+      const raw = readFileSync(".github-secrets.private.json5", "utf8");
+      const cfg = JSON5.parse(raw);
+      const s = (cfg.strings || cfg);
+      const sVal = (k: string, def?: string) => (s[k] ?? def ?? "");
+      const S3_REGION = sVal("S3_REGION", "");
+      const beProd = [
+        "NODE_ENV=production",
+        "ENV_PROFILE=prod",
+        `PROD_AWS_REGION=${sVal("PROD_AWS_REGION", S3_REGION)}`,
+        `PROD_MONGODB_URI=${sVal("PROD_MONGODB_URI")}`,
+        `PROD_PAYLOAD_SECRET=${sVal("PROD_PAYLOAD_SECRET")}`,
+        `PROD_S3_BUCKET=${sVal("PROD_S3_BUCKET")}`,
+        `S3_REGION=${sVal("S3_REGION", sVal("PROD_AWS_REGION", ""))}`,
+        `PROD_FRONTEND_URL=${sVal("PROD_FRONTEND_URL")}`,
+        `PROD_NEXT_PUBLIC_BACKEND_URL=${sVal("PROD_NEXT_PUBLIC_BACKEND_URL")}`,
+        `PROD_BACKEND_INTERNAL_URL=${sVal("PROD_BACKEND_INTERNAL_URL", "http://portfolio-backend-prod:3000")}`,
+        `PROD_SES_FROM_EMAIL=${sVal("PROD_SES_FROM_EMAIL")}`,
+        `PROD_SES_TO_EMAIL=${sVal("PROD_SES_TO_EMAIL")}`,
+      ].join("\n") + "\n";
+      const beDev = [
+        "NODE_ENV=development",
+        "ENV_PROFILE=dev",
+        `DEV_AWS_REGION=${sVal("DEV_AWS_REGION", S3_REGION)}`,
+        `DEV_MONGODB_URI=${sVal("DEV_MONGODB_URI")}`,
+        `DEV_PAYLOAD_SECRET=${sVal("DEV_PAYLOAD_SECRET")}`,
+        `DEV_S3_BUCKET=${sVal("DEV_S3_BUCKET")}`,
+        `S3_REGION=${sVal("S3_REGION", sVal("DEV_AWS_REGION", ""))}`,
+        `DEV_FRONTEND_URL=${sVal("DEV_FRONTEND_URL")}`,
+        `DEV_NEXT_PUBLIC_BACKEND_URL=${sVal("DEV_NEXT_PUBLIC_BACKEND_URL")}`,
+        `DEV_BACKEND_INTERNAL_URL=${sVal("DEV_BACKEND_INTERNAL_URL", "http://portfolio-backend-dev:3000")}`,
+        `DEV_SES_FROM_EMAIL=${sVal("DEV_SES_FROM_EMAIL")}`,
+        `DEV_SES_TO_EMAIL=${sVal("DEV_SES_TO_EMAIL")}`,
+      ].join("\n") + "\n";
+      const feProd = [
+        "NODE_ENV=production",
+        "ENV_PROFILE=prod",
+        `NEXT_PUBLIC_BACKEND_URL=${sVal("PROD_NEXT_PUBLIC_BACKEND_URL")}`,
+      ].join("\n") + "\n";
+      const feDev = [
+        "NODE_ENV=development",
+        "ENV_PROFILE=dev",
+        `NEXT_PUBLIC_BACKEND_URL=${sVal("DEV_NEXT_PUBLIC_BACKEND_URL")}`,
+      ].join("\n") + "\n";
+      mkdirSync(outDir, { recursive: true });
+      writeFileSync(`${outDir}/backend.env.prod`, beProd, "utf8");
+      writeFileSync(`${outDir}/backend.env.dev`, beDev, "utf8");
+      writeFileSync(`${outDir}/frontend.env.prod`, feProd, "utf8");
+      writeFileSync(`${outDir}/frontend.env.dev`, feDev, "utf8");
+    '
+  )
+  log "Uploading env files to EC2 ($EC2_HOST)"
+  ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" "mkdir -p /home/ec2-user/portfolio/backend /home/ec2-user/portfolio/frontend"
+  scp -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$TMP_DIR/backend.env.prod"  ec2-user@"$EC2_HOST":/home/ec2-user/portfolio/backend/.env.prod
+  scp -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$TMP_DIR/backend.env.dev"   ec2-user@"$EC2_HOST":/home/ec2-user/portfolio/backend/.env.dev
+  scp -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$TMP_DIR/frontend.env.prod" ec2-user@"$EC2_HOST":/home/ec2-user/portfolio/frontend/.env.prod
+  scp -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$TMP_DIR/frontend.env.dev"  ec2-user@"$EC2_HOST":/home/ec2-user/portfolio/frontend/.env.dev
+fi
+
+log "Logging into ECR and restarting compose profiles via SSH"
+ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" "aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 778230822028.dkr.ecr.us-west-2.amazonaws.com >/dev/null 2>&1 || true"
+ssh -i "$SSH_KEY" -tt -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" bash -lc $'set -e
+cd /home/ec2-user/portfolio
+docker-compose down || true
+case '"$profiles"' in
+  prod)
+    COMPOSE_PROFILES=prod docker-compose pull || true
+    COMPOSE_PROFILES=prod docker-compose up -d
+    ;;
+  dev)
+    COMPOSE_PROFILES=dev docker-compose pull || true
+    COMPOSE_PROFILES=dev docker-compose up -d
+    ;;
+  both)
+    COMPOSE_PROFILES=prod docker-compose pull || true
+    COMPOSE_PROFILES=prod docker-compose up -d || true
+    COMPOSE_PROFILES=dev docker-compose pull || true
+    COMPOSE_PROFILES=dev docker-compose up -d || true
+    ;;
+esac
+'
+
+ok "Containers restarted via SSH fallback. EC2 IP: $EC2_HOST"
+ok "Full deploy completed (fallback path)."
 
 popd >/dev/null
