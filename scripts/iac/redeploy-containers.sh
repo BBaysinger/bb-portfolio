@@ -139,12 +139,14 @@ if [ "$REFRESH_ENV" = "true" ]; then
       const feProd = [
         "NODE_ENV=production",
         "ENV_PROFILE=prod",
+        `PROD_BACKEND_INTERNAL_URL=${sVal("PROD_BACKEND_INTERNAL_URL", "http://backend-prod:3000")}`,
         `NEXT_PUBLIC_BACKEND_URL=${sVal("PROD_NEXT_PUBLIC_BACKEND_URL")}`,
       ].join("\n") + "\n";
       // Frontend dev
       const feDev = [
         "NODE_ENV=development",
         "ENV_PROFILE=dev",
+        `DEV_BACKEND_INTERNAL_URL=${sVal("DEV_BACKEND_INTERNAL_URL", "http://backend-dev:3000")}`,
         `NEXT_PUBLIC_BACKEND_URL=${sVal("DEV_NEXT_PUBLIC_BACKEND_URL")}`,
       ].join("\n") + "\n";
       mkdirSync(outDir, { recursive: true });
