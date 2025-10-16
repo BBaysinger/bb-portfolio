@@ -3,22 +3,32 @@
 
 .fpsCounter {
   position: relative;
+  left: calc(-1 * var(--hero-padding));
+  display: inline-block;
   margin-top: 10px;
   font-family: "Digital-7", "Courier New", "Monaco", "Consolas", monospace;
   white-space: nowrap;
   z-index: 10000;
   color: #00ff00;
-  opacity: 0.7;
+  height: 6.5rem;
+  opacity: 0.8;
   transform-origin: top left;
   z-index: 1;
   mix-blend-mode: exclusion;
   line-height: 1em;
-  @include remRange(font-size, 40px, 60px);
+  border: 1px solid #00ff00;
+  border-left-width: 0;
+  padding-left: 0.15em;
+  padding-right: 0.1em;
+  padding-top: 0;
+  background-color: rgba(0, 255, 0, 0.06);
 
-  div {
-    position: absolute;
+  @include remRange(font-size, 48px, 68px);
 
+  & > div {
     &:nth-child(2) {
+      position: absolute;
+      top: 0;
       // https://stackoverflow.com/a/28413382/1253298
       background-color: var(--gunmetal-gray);
       color: transparent;
@@ -33,24 +43,43 @@
 }
 
 .label {
-  @include remRange(font-size, 30px, 50px);
-  margin-right: 0.12em;
+  @include remRange(font-size, 16px, 36px);
+  display: block;
+  margin: 0.1em;
+  line-height: 1.45em;
+  margin-bottom: 0.21em;
 }
 
-.note {
+.tab {
   position: absolute;
-  top: 50%;
+  top: calc(100% + 1px);
   left: 100%;
-  transform: translateY(-56%);
+  width: 6.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #00ff00;
+  transform-origin: top left;
+  transform: rotate(-90deg);
   font-family: "Roboto", sans-serif;
-  @include remRange(font-size, 11px, 16px);
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+  @include remRange(font-size, 8px, 11px);
   letter-spacing: -0.006em;
-  display: inline-block;
-  vertical-align: middle;
+  line-height: normal !important;
+  cursor: pointer;
+  z-index: 10000;
 }
 
 .digit {
   display: inline-block;
-  min-width: 0.5em;
+  min-width: 0.6em;
   text-align: right;
+  // line-height: 0.1em;
+  margin-top: -0.7em;
+}
+
+.output {
+  line-height: 0.4em;
+  letter-spacing: 0.1em;
 }
