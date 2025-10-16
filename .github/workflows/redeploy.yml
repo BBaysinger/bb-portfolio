@@ -11,19 +11,22 @@ on:
         options: [prod, dev, both]
       start_dev:
         description: Ensure dev containers are up in addition to prod
-        type: boolean
+        type: choice
         required: true
-        default: true
+        default: "true"
+        options: ["true", "false"]
       refresh_env:
         description: Regenerate and upload .env files to EC2 (requires secrets)
-        type: boolean
+        type: choice
         required: true
-        default: false
+        default: "false"
+        options: ["true", "false"]
       restart_containers:
         description: Restart containers on EC2 (docker-compose pull/up)
-        type: boolean
+        type: choice
         required: true
-        default: true
+        default: "true"
+        options: ["true", "false"]
 
   workflow_call:
     inputs:
@@ -119,7 +122,7 @@ jobs:
 
       - name: Generate env files (in runner temp)
         id: genenv
-        if: ${{ inputs.refresh_env }}
+        if: ${{ inputs.refresh_env == 'true' || inputs.refresh_env == true }}
         env:
           ENVIRONMENT: ${{ inputs.environment }}
           START_DEV: ${{ inputs.start_dev }}
@@ -208,7 +211,7 @@ EOF
           echo "dir=$OUT_DIR" >> "$GITHUB_OUTPUT"
 
       - name: Upload env files to EC2
-        if: ${{ inputs.refresh_env }}
+        if: ${{ inputs.refresh_env == 'true' || inputs.refresh_env == true }}
         env:
           ENVIRONMENT: ${{ inputs.environment }}
           START_DEV: ${{ inputs.start_dev }}
@@ -231,7 +234,7 @@ EOF
             "$OUT_DIR/frontend.env.dev"  ec2-user@"$EC2_HOST":/home/ec2-user/portfolio/frontend/.env.dev
 
       - name: Restart containers
-        if: ${{ inputs.restart_containers }}
+        if: ${{ inputs.restart_containers == 'true' || inputs.restart_containers == true }}
         env:
           ENVIRONMENT: ${{ inputs.environment }}
           START_DEV: ${{ inputs.start_dev }}
