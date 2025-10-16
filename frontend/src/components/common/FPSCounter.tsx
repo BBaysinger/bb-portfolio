@@ -44,22 +44,29 @@ const FPSCounter: React.FC<{ updateInterval?: number; className?: string }> = ({
   return (
     <div className={clsx(styles.fpsCounter, className)}>
       <div>
-        <span className={styles.label}>FPS:</span>
-        {fpsDigits.map((digit, index) => (
-          <span key={index} className={styles.digit}>
-            {digit}
-          </span>
-        ))}
-        <span className={styles.note}>&nbsp;&larr; render performance</span>
+        <div className={styles.label}>FPS:</div>
+        <div className={styles.output}>
+          {fpsDigits.map((digit, index) => (
+            <span key={index} className={styles.digit}>
+              {digit}
+            </span>
+          ))}
+        </div>
+        {/* <span className={styles.note}>&nbsp;&larr; render performance</span> */}
       </div>
       <div>
-        <span className={styles.label}>FPS:</span>
-        {fpsDigits.map((digit, index) => (
-          <span key={index} className={styles.digit}>
-            {digit}
-          </span>
-        ))}
+        <div className={styles.label}>FPS:</div>
+        <div className={styles.output}>
+          {fpsDigits.map((digit, index) => (
+            <span key={index} className={styles.digit}>
+              {digit}
+            </span>
+          ))}
+        </div>
       </div>
+      <span className={styles.tab}>
+        <span>render performance</span>
+      </span>
     </div>
   );
 };

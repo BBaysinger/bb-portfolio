@@ -40,6 +40,8 @@
   },
   // Runtime dependencies for backend and CMS functionality
   "dependencies": {
+    "@aws-sdk/client-ses": "^3.908.0",
+    "@aws-sdk/types": "^3.901.0",
     // MongoDB adapter for Payload CMS
     "@payloadcms/db-mongodb": "3.58.0",
     // Nodemailer email adapter for Payload CMS (handles SMTP email sending, password resets, notifications)

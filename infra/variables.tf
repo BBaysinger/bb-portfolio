@@ -50,3 +50,109 @@ variable "media_cors_allowed_origins" {
     "http://localhost:3000",
   ]
 }
+
+# =============================================================================
+# ENVIRONMENT VARIABLES FOR CONTAINERS
+# =============================================================================
+
+variable "aws_access_key_id" {
+  description = "AWS access key ID for services"
+  type        = string
+  sensitive   = true
+}
+
+variable "aws_secret_access_key" {
+  description = "AWS secret access key for services"
+  type        = string
+  sensitive   = true
+}
+
+variable "prod_aws_region" {
+  description = "AWS region for production environment"
+  type        = string
+  default     = "us-west-2"
+}
+
+variable "prod_mongodb_uri" {
+  description = "MongoDB connection string for production"
+  type        = string
+  sensitive   = true
+}
+
+variable "prod_payload_secret" {
+  description = "Payload CMS secret for production"
+  type        = string
+  sensitive   = true
+}
+
+variable "prod_s3_bucket" {
+  description = "S3 bucket name for production media"
+  type        = string
+}
+
+variable "prod_frontend_url" {
+  description = "Frontend URL for production CORS"
+  type        = string
+}
+
+variable "prod_next_public_backend_url" {
+  description = "Backend URL for frontend client-side requests"
+  type        = string
+}
+
+variable "prod_backend_internal_url" {
+  description = "Backend URL for container-to-container communication"
+  type        = string
+}
+
+variable "prod_ses_from_email" {
+  description = "SES from email for production"
+  type        = string
+}
+
+variable "prod_ses_to_email" {
+  description = "SES to email for production"
+  type        = string
+}
+
+# =============================================================================
+# DEVELOPMENT ENVIRONMENT VARIABLES
+# =============================================================================
+
+variable "dev_aws_region" {
+  description = "AWS region for development environment"
+  type        = string
+  default     = "us-west-2"
+}
+
+variable "dev_mongodb_uri" {
+  description = "MongoDB connection string for development"
+  type        = string
+  sensitive   = true
+}
+
+variable "dev_payload_secret" {
+  description = "Payload CMS secret for development"
+  type        = string
+  sensitive   = true
+}
+
+variable "dev_s3_bucket" {
+  description = "S3 bucket name for development media"
+  type        = string
+}
+
+variable "dev_backend_internal_url" {
+  description = "Backend URL for dev container-to-container communication"
+  type        = string
+}
+
+variable "dev_ses_from_email" {
+  description = "SES from email for development"
+  type        = string
+}
+
+variable "dev_ses_to_email" {
+  description = "SES to email for development"
+  type        = string
+}

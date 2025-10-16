@@ -21,7 +21,7 @@
     // Start Next.js production server
     "start": "next start",
     // Run Next.js ESLint configuration
-    "lint": "next lint",
+    "lint": "eslint .",
     // "Pretty Build" - format code with Prettier then run TypeScript build for validation
     "precommit": "prettier --write . && tsc -b",
     // Come back to this when there's time to write some tests.
