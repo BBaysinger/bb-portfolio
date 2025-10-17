@@ -66,7 +66,7 @@ services:
     ports:
       - "3001:3000" # Backend gets xxx1 for production
     env_file:
-      - ./backend/.env.prod
+      - ../../backend/.env.prod
     restart: unless-stopped # Auto-restart on failure/reboot
     healthcheck: # Health monitoring for load balancers
       test:
@@ -88,7 +88,7 @@ services:
     ports:
       - "3000:3000" # Frontend gets xxx0 for production
     env_file:
-      - ./frontend/.env.prod
+      - ../../frontend/.env.prod
     restart: unless-stopped # Auto-restart on failure/reboot
     depends_on:
       backend-prod:
@@ -124,7 +124,7 @@ services:
     ports:
       - "4001:3000" # Backend gets xxx1
     env_file:
-      - ./backend/.env.dev
+      - ../../backend/.env.dev
     restart: unless-stopped # Auto-restart on failure/reboot
 
   frontend-dev:
@@ -134,7 +134,7 @@ services:
     ports:
       - "4000:3000" # Frontend gets xxx0
     env_file:
-      - ./frontend/.env.dev
+      - ../../frontend/.env.dev
     restart: unless-stopped # Auto-restart on failure/reboot
     depends_on:
       backend-dev:
@@ -159,12 +159,12 @@ services:
     # restarts from nodemon (which can break Server Actions during edits)
     command: npm run dev
     volumes:
-      - ./backend:/app
+      - ../../backend:/app
       - /app/node_modules
     ports:
       - "8081:3001"
     env_file:
-      - ./backend/.env
+      - ../../backend/.env
     environment:
       - CHOKIDAR_USEPOLLING=true
     restart: unless-stopped
@@ -175,12 +175,12 @@ services:
     container_name: frontend-local
     command: npm run dev
     volumes:
-      - ./frontend:/app
+      - ../../frontend:/app
       - frontend_node_modules:/app/node_modules
     ports:
       - "8080:3000"
     env_file:
-      - ./frontend/.env
+      - ../../frontend/.env
     environment:
       - CHOKIDAR_USEPOLLING=true
       - REACT_STRICT_MODE=${REACT_STRICT_MODE:-true}
@@ -198,12 +198,12 @@ services:
     image: bhbaysinger/portfolio-backend:dev
     container_name: backend-local-ssg-generate
     volumes:
-      - ./backend:/app
+      - ../../backend:/app
       - /app/node_modules
     ports:
       - "8081:3001"
     env_file:
-      - ./backend/.env
+      - ../../backend/.env
     environment:
       - CHOKIDAR_USEPOLLING=true
       - PORT=3001
@@ -215,12 +215,12 @@ services:
     container_name: frontend-local-ssg-generate
     command: sh -c "npm run build:when-ready && npm start"
     volumes:
-      - ./frontend:/app
+      - ../../frontend:/app
       # - frontend_node_modules:/app/node_modules
     ports:
       - "8080:3000"
     env_file:
-      - ./frontend/.env
+      - ../../frontend/.env
     environment:
       - CHOKIDAR_USEPOLLING=true
       - REACT_STRICT_MODE=${REACT_STRICT_MODE:-true}
