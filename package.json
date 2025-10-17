@@ -41,7 +41,7 @@
     "lint": "eslint .",
     "precommit": "prettier --write . && eslint . --fix && tsc --noEmit",
     "prepush": "npm run precommit && npm test",
-    "sync:json5": "tsx scripts/sync-json5.ts",
+    "sync:json5": "tsx scripts/sync-json5-packages.ts",
     "sync:secrets:dry": "tsx scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./.github-secrets.private.json5 --dry-run",
     "sync:secrets": "tsx scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./.github-secrets.private.json5",
     "update:deps": "concurrently \"ncu -u\" \"cd backend && ncu -u\" \"cd frontend && ncu -u\" --names \"root,backend,frontend\" --prefix-colors \"yellow,blue,green\"",
@@ -66,10 +66,10 @@
     "iac:full-redeploy": "bash scripts/iac/full-deploy-gh.sh --build-images both --profiles both --refresh-env"
   },
   "devDependencies": {
-    "@next/eslint-plugin-next": "^15.5.4",
+    "@next/eslint-plugin-next": "^15.5.6",
     "@types/glob": "^9.0.0",
-    "@typescript-eslint/eslint-plugin": "^8.46.0",
-    "@typescript-eslint/parser": "^8.46.0",
+    "@typescript-eslint/eslint-plugin": "^8.46.1",
+    "@typescript-eslint/parser": "^8.46.1",
     "concurrently": "^9.2.1",
     "eslint": "^9.37.0",
     "eslint-plugin-import": "^2.32.0",
