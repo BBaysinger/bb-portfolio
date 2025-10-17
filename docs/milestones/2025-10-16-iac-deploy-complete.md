@@ -8,14 +8,14 @@ We have reached a stable, repeatable end-to-end deployment workflow driven by In
 - S3 media buckets with versioning + SSE and CORS for both prod/dev
 - ECR for production images; Docker Hub for dev images
 - Reusable GitHub Actions Redeploy workflow (manual dispatch + reusable from CI)
-- One orchestrator: `scripts/iac/full-deploy-gh.sh` handles infra, secrets sync, image builds, and container restarts
+- One orchestrator: `deploy/scripts/full-deployment.sh.sh` handles infra, secrets sync, image builds, and container restarts
 - Safe fallback: if GH dispatch is flaky, orchestrator uploads envs + restarts via SSH automatically
 
 ## What’s in place
 - `.github/workflows/redeploy.yml` with workflow_dispatch and workflow_call
-- `scripts/iac/full-deploy-gh.sh` (preferred entrypoint)
-- `scripts/iac/publish-ecr-images.sh` and `scripts/publish-dockerhub-dev-images.sh`
-- `scripts/iac/generate-terraform-vars.ts` to derive `infra/terraform.tfvars` from private JSON5
+- `deploy/scripts/full-deployment.sh.sh` (preferred entrypoint)
+- `deploy/publish-ecr-images.sh` and `deploy/publish-dockerhub-dev-images.sh`
+- `deploy/scripts/generate-terraform-vars.ts` to derive `infra/terraform.tfvars` from private JSON5
 - `infra/` Terraform with lifecycle protection for EIP and targeted-destroy filters
 
 ## Ops notes

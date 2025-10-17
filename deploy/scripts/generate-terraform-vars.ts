@@ -6,7 +6,7 @@
  * This script reads the secrets from github-secrets.private.json5 and generates
  * a terraform.tfvars file with the appropriate values, ensuring single source of truth.
  *
- * Usage: npx tsx scripts/iac/generate-terraform-vars.ts [--secrets <path>] [--out <path>]
+ * Usage: npx tsx deploy/scripts/generate-terraform-vars.ts [--secrets <path>] [--out <path>]
  *  - --secrets, -s: Optional path to .github-secrets.private.json5 (relative to repo root or absolute)
  *  - --out,     -o: Optional path to output terraform.tfvars (relative to repo root or absolute)
  */

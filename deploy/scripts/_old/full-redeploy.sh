@@ -11,7 +11,7 @@
 # 4. Validate all 4 containers (prod + dev environments)
 # 5. Perform comprehensive health checks
 #
-# Usage: ./scripts/iac/full-redeploy.sh
+# Usage: ./deploy/scripts/full-deployment.sh.sh (replaced)
 #
 # Prerequisites:
 # - github-secrets.private.json5 configured with current secrets
@@ -24,7 +24,7 @@ set -euo pipefail  # Exit on any error, undefined variable, or pipe failure
 
 # Configuration
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# scripts/iac -> repo root is two levels up
+# deploy/scripts -> repo root is two levels up
 PROJECT_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 INFRA_DIR="${PROJECT_ROOT}/infra"
 SSH_KEY="${HOME}/.ssh/bb-portfolio-site-key.pem"
@@ -124,7 +124,7 @@ prepare_initial_deployment() {
     
     # Generate terraform.tfvars from secrets (with current IP, will be updated later)
     log_info "Generating initial terraform.tfvars from github-secrets.private.json5..."
-    npx tsx scripts/iac/generate-terraform-vars.ts
+    npx tsx deploy/scripts/generate-terraform-vars.ts
     
     log_success "Initial deployment configuration prepared"
 }
@@ -770,7 +770,7 @@ main() {
     
     # Regenerate terraform variables with updated IP
     log_info "Regenerating terraform variables with updated IP..."
-    npx tsx scripts/iac/generate-terraform-vars.ts
+    npx tsx deploy/scripts/generate-terraform-vars.ts
     
     # Update environment files on EC2 with correct IP
     update_env_files_on_ec2 "${new_ec2_ip}"

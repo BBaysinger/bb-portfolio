@@ -4,10 +4,10 @@
 # - Uses local build/push (current setup) and hands off restart to GH workflow
 #
 # Usage examples:
-#   scripts/iac/update-containers-gh.sh --target prod --build prod
-#   scripts/iac/update-containers-gh.sh --target dev --build dev --refresh-env
-#   scripts/iac/update-containers-gh.sh --target both --build both
-#   scripts/iac/update-containers-gh.sh --target none                 # build none, restart none
+#   deploy/scripts/update-containers-gh.sh --target prod --build prod
+#   deploy/scripts/update-containers-gh.sh --target dev --build dev --refresh-env
+#   deploy/scripts/update-containers-gh.sh --target both --build both
+#   deploy/scripts/update-containers-gh.sh --target none                 # build none, restart none
 #
 # Flags:
 #   --target [prod|dev|both|none]   Which compose profiles to restart (default: both)
