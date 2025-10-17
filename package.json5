@@ -146,7 +146,7 @@
     "prepush": "npm run precommit && npm test",
     // 🔄 Syncs package.json5 with package.json values while preserving comments and formatting
     // Run this after editing package.json to push updates back into the annotated JSON5 version
-    "sync:json5": "tsx scripts/sync-json5.ts",
+    "sync:json5": "tsx scripts/sync-json5-packages.ts",
     // 🔐 Preview GitHub Secrets from .github-secrets.private.json5 to your repo
     "sync:secrets:dry": "tsx scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./.github-secrets.private.json5 --dry-run",
     // 🔐 Sync GitHub Secrets from .github-secrets.private.json5 to your repo
