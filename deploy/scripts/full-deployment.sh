@@ -106,7 +106,7 @@ log "Installing npm deps if needed"
 
 if [[ "$do_infra" == true ]]; then
   log "Generating terraform.tfvars from private secrets"
-  npx tsx deploy/scripts/generate-terraform-vars.ts
+  npx tsx ./deploy/scripts/generate-terraform-vars.ts
 fi
 
 # Optional image build/push (delegates to existing npm scripts)
@@ -174,7 +174,7 @@ if [[ "$do_infra" == true ]]; then
 
   # Regenerate tfvars in case IP-based URLs in secrets changed locally
   log "Regenerating terraform vars after apply"
-  npx tsx deploy/scripts/generate-terraform-vars.ts
+  npx tsx ./deploy/scripts/generate-terraform-vars.ts
   
   # Update local private secrets with the new EC2 IP so GitHub Secrets get the latest EC2_HOST
   if [[ -n "${EC2_IP:-}" && "${EC2_IP}" != "null" ]]; then
@@ -213,7 +213,7 @@ fi
 # Optionally sync secrets to GitHub (keeps GH secrets aligned with local private json5)
 if [[ "$sync_secrets" == true ]]; then
   log "Syncing GitHub secrets from private json5"
-  npx tsx scripts/sync-github-secrets.ts BBaysinger/bb-portfolio .github-secrets.private.json5
+  npx tsx ./scripts/sync-github-secrets.ts BBaysinger/bb-portfolio .github-secrets.private.json5
 else
   warn "Skipping GitHub secrets sync per --no-secrets-sync"
 fi
