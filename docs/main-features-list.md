@@ -1,6 +1,6 @@
 This document contains a list of main features in the site so we can keep track of everything that deserves mentioning in the main readme and such.
 
-simulated depth 'fluxel' grid
+simulated depth magnetic 'fluxel' grid
 parallax project carousel
 custom sprite rendering
 ssr/next portfolio projects list
@@ -14,3 +14,5 @@ static fluid scaling property mixin
 scroll-aware highlighting project list
 confidential/NDA project filtering
 fully-automated complete (re)deployment
+page slide-out nav
+transform-positioned footer
