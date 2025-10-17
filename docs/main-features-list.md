@@ -13,6 +13,6 @@ rem-based fluid scaling property mixin
 static fluid scaling property mixin
 scroll-aware highlighting project list
 confidential/NDA project filtering
-fully-automated complete (re)deployment
+automated (re)deployment orchestrator
 page slide-out nav
 transform-positioned footer
