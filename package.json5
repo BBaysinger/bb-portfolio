@@ -194,7 +194,7 @@
     // ☢️⚰️ DANGER: ARMAGEDDON DB REPLACEMENT - Completely overwrites dev DB with production data
     "db:migrate:prod-to-dev": "bash scripts/migrate-database.sh prod dev",
     //
-  "iac:full-redeploy": "bash deploy/scripts/full-deployment.sh --build-images both --profiles both --refresh-env",
+  "iac:full-redeploy": "bash deploy/scripts/deployment-orchestrator.sh --build-images both --profiles both --refresh-env",
   },
   "devDependencies": {
     // Next.js-specific ESLint rules for best practices
