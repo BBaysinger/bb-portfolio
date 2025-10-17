@@ -54,14 +54,19 @@ jobs:
         id: ssh
         env:
           SSH_KEY_PEM: ${{ secrets.EC2_SSH_KEY_PEM }}
+          SSH_KEY_ALT: ${{ secrets.EC2_SSH_KEY }}
         run: |
           set -euo pipefail
-          if [ -z "${SSH_KEY_PEM:-}" ]; then
-            echo "EC2_SSH_KEY_PEM is missing in GitHub Secrets" >&2
+          CONTENT="${SSH_KEY_PEM:-}"
+          if [ -z "$CONTENT" ] && [ -n "${SSH_KEY_ALT:-}" ]; then
+            CONTENT="$SSH_KEY_ALT"
+          fi
+          if [ -z "$CONTENT" ]; then
+            echo "Missing SSH key secret: provide EC2_SSH_KEY_PEM or EC2_SSH_KEY" >&2
             exit 1
           fi
           umask 177
-          echo "$SSH_KEY_PEM" > key.pem
+          printf "%s" "$CONTENT" > key.pem
           echo "key=key.pem" >> "$GITHUB_OUTPUT"
 
       - name: Validate required inputs and secrets
