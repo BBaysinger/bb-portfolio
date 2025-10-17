@@ -193,8 +193,8 @@
     "db:migrate:local-to-dev": "bash scripts/migrate-database.sh local dev",
     // ☢️⚰️ DANGER: ARMAGEDDON DB REPLACEMENT - Completely overwrites dev DB with production data
     "db:migrate:prod-to-dev": "bash scripts/migrate-database.sh prod dev",
-    //
-  "iac:full-redeploy": "bash deploy/scripts/deployment-orchestrator.sh --build-images both --profiles both --refresh-env",
+    // 🛠️ Infrastructure as Code: Full redeployment
+    "deploy:full": "bash deploy/scripts/deployment-orchestrator.sh --build-images both --profiles both --refresh-env",
   },
   "devDependencies": {
     // Next.js-specific ESLint rules for best practices

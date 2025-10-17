@@ -63,7 +63,7 @@
     "db:migrate:local-to-prod": "bash scripts/migrate-database.sh local prod",
     "db:migrate:local-to-dev": "bash scripts/migrate-database.sh local dev",
     "db:migrate:prod-to-dev": "bash scripts/migrate-database.sh prod dev",
-    "iac:full-redeploy": "bash deploy/scripts/deployment-orchestrator.sh --build-images both --profiles both --refresh-env"
+    "deploy:full": "bash deploy/scripts/deployment-orchestrator.sh --build-images both --profiles both --refresh-env"
   },
   "devDependencies": {
     "@next/eslint-plugin-next": "^15.5.6",
