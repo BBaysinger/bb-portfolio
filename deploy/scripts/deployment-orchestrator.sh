@@ -221,38 +221,42 @@ need jq
 
 # Try multiple identifiers for the workflow to avoid 422 dispatch issues
 BRANCH=$(git rev-parse --abbrev-ref HEAD)
-WF_CANDIDATES=("$workflows" "Redeploy" ".github/workflows/redeploy.yml" "redeploy.yml")
+WF_CANDIDATES=("$workflows" "Redeploy" ".github/workflows/redeploy.yml" "redeploy.yml" ".github/workflows/redeploy-manual.yml" "redeploy-manual.yml")
+REF_CANDIDATES=("$BRANCH" "main")
 
 dispatch_ok=false
 RUN_ID=""
 for WF in "${WF_CANDIDATES[@]}"; do
   [[ -n "$WF" ]] || continue
-  log "Attempting dispatch of workflow '$WF' on branch $BRANCH (env=$profiles, refresh_env=$refresh_env, restart=$restart_containers)"
-  set +e
-  OUT=$(gh workflow run "$WF" \
-    --repo "$GH_REPO" \
-    --ref "$BRANCH" \
-    -f environment="$profiles" \
-    -f start_dev=true \
-    -f refresh_env="$refresh_env" \
-    -f restart_containers="$restart_containers" 2>&1)
-  STATUS=$?
-  set -e
-  if [[ $STATUS -eq 0 ]]; then
-    sleep 3
-    # Resolve latest run for this workflow and branch
-    RUN_ID=$(gh run list --repo "$GH_REPO" --workflow "$WF" --branch "$BRANCH" --limit 1 --json databaseId,status | jq -r '.[0].databaseId // empty') || true
-    if [[ -n "$RUN_ID" ]]; then
-      dispatch_ok=true
-      ok "Dispatch succeeded for '$WF' (run id: $RUN_ID)"
-      break
+  for REF in "${REF_CANDIDATES[@]}"; do
+    [[ -n "$REF" ]] || continue
+    log "Attempting dispatch of workflow '$WF' on ref $REF (env=$profiles, refresh_env=$refresh_env, restart=$restart_containers)"
+    set +e
+    OUT=$(gh workflow run "$WF" \
+      --repo "$GH_REPO" \
+      --ref "$REF" \
+      -f environment="$profiles" \
+      -f start_dev=true \
+      -f refresh_env="$refresh_env" \
+      -f restart_containers="$restart_containers" 2>&1)
+    STATUS=$?
+    set -e
+    if [[ $STATUS -eq 0 ]]; then
+      sleep 3
+      # Resolve latest run for this workflow and ref
+      RUN_ID=$(gh run list --repo "$GH_REPO" --workflow "$WF" --branch "$REF" --limit 1 --json databaseId,status | jq -r '.[0].databaseId // empty') || true
+      if [[ -n "$RUN_ID" ]]; then
+        dispatch_ok=true
+        ok "Dispatch succeeded for '$WF' on '$REF' (run id: $RUN_ID)"
+        break 2
+      else
+        warn "Dispatch returned success but could not resolve run id for '$WF' on '$REF'"
+      fi
     else
-      warn "Dispatch returned success but could not resolve run id for '$WF'"
+      warn "Dispatch failed for '$WF' on '$REF' (status $STATUS): ${OUT//$'\n'/  }"
+      # Try next REF or workflow
     fi
-  else
-    warn "Dispatch failed for '$WF' (status $STATUS): ${OUT//$'\n'/  }"
-    # Keep trying next candidate
-  fi
+  done
 done
 
 if [[ "$dispatch_ok" == true ]]; then
