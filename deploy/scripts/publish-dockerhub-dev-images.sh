@@ -13,7 +13,7 @@ set -euo pipefail
 #
 # Usage: ./deploy/publish-dockerhub-dev-images.sh
 
-ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 SECRETS_FILE="$ROOT_DIR/.github-secrets.private.json5"
 
 # Helper to read values from JSON5 via node + json5 package
