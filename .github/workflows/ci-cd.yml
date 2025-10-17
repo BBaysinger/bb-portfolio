@@ -111,6 +111,12 @@ jobs:
 
       - name: Build frontend
         working-directory: ./frontend
+        env:
+          ENV_PROFILE: dev
+          DEV_BACKEND_INTERNAL_URL: ${{ secrets.DEV_BACKEND_INTERNAL_URL }}
+          DEV_NEXT_PUBLIC_BACKEND_URL: ${{ secrets.DEV_NEXT_PUBLIC_BACKEND_URL }}
+          NEXT_PUBLIC_BACKEND_URL: ${{ secrets.DEV_NEXT_PUBLIC_BACKEND_URL }}
+        run: npm run build
 
   # Build and push production images to ECR (main branch)
   build-push-prod-images:
@@ -223,152 +229,6 @@ jobs:
       start_dev: true
       refresh_env: false
       restart_containers: true
-                    restart_containers: true
-                  secrets: inherit
-            # Unified AWS credentials for all services (S3, SES, deployment)
-            AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
-            AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
-            PROD_AWS_REGION=${{ secrets.PROD_AWS_REGION }}
-            PROD_S3_BUCKET=${{ secrets.PROD_S3_BUCKET }}
-            PROD_SES_FROM_EMAIL=${{ secrets.PROD_SES_FROM_EMAIL }}
-            PROD_SES_TO_EMAIL=${{ secrets.PROD_SES_TO_EMAIL }}
-            NODE_ENV=production
-            ENV_PROFILE=prod
-            EOF
-
-            # Frontend production environment
-            cat > frontend/.env.prod << EOF
-            NODE_ENV=production
-            ENV_PROFILE=prod
-            # Prefixed environment variables (ENV_PROFILE=prod means PROD_ prefix)
-            PROD_BACKEND_INTERNAL_URL=${{ secrets.PROD_BACKEND_INTERNAL_URL }}
-            PROD_NEXT_PUBLIC_BACKEND_URL=${{ secrets.PROD_NEXT_PUBLIC_BACKEND_URL }}
-            # Next.js requires NEXT_PUBLIC_ variables for browser exposure
-            NEXT_PUBLIC_BACKEND_URL=${{ secrets.PROD_NEXT_PUBLIC_BACKEND_URL }}
-            EOF
-
-            # Debug: Show environment file contents
-            echo "📋 Frontend .env.prod contents:"
-            cat frontend/.env.prod
-
-            # ===============================================================
-            # DISK SPACE CLEANUP
-            # ===============================================================
-            # Clean up disk space before deployment to prevent "no space left" errors
-            # ===============================================================
-            echo "🧹 Checking and cleaning up disk space..."
-            df -h
-
-            echo "🐳 Cleaning up Docker resources to free disk space..."
-            # Remove unused Docker images
-            sudo docker image prune -a -f || echo "⚠️ Docker image cleanup failed"
-            # Remove unused containers
-            sudo docker container prune -f || echo "⚠️ Docker container cleanup failed"
-            # Remove unused volumes
-            sudo docker volume prune -f || echo "⚠️ Docker volume cleanup failed"
-            # Remove build cache
-            sudo docker builder prune -a -f || echo "⚠️ Docker builder cache cleanup failed"
-
-            echo "🗂️ Cleaning up system files..."
-            # Clean up logs if they're taking space
-            sudo journalctl --vacuum-size=100M || echo "⚠️ Journal cleanup failed"
-            # Clean up package cache
-            sudo yum clean all || echo "⚠️ Package cache cleanup failed"
-
-            echo "📊 Disk usage after cleanup:"
-            df -h
-
-            # ===============================================================
-            # CONTAINER DEPLOYMENT
-            # ===============================================================
-            # Pull latest images and deploy with zero-downtime strategy
-            # ===============================================================
-            echo "⬇️ Getting AWS account ID for ECR URIs..."
-            export AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text)
-            echo "Using AWS Account ID: $AWS_ACCOUNT_ID"
-
-            echo "⬇️ Pulling latest production images from ECR..."
-            sudo -E docker compose pull || {
-              echo "⚠️ Failed to pull images. Continuing with existing images..."
-            }
-
-            # Deployment status check
-            echo "Pre-deployment status check..."
-            echo "System resources:"
-            df -h | head -5  # Disk space
-            free -h          # Memory usage
-            echo "📍 Current user: $(whoami)"
-            echo "📁 Working directory: $(pwd)"
-
-            echo "🚀 Starting production deployment..."
-            # Force recreate containers to use new images
-            # Export environment variables for docker-compose
-            export AWS_ACCOUNT_ID=$AWS_ACCOUNT_ID
-            export PROD_BACKEND_INTERNAL_URL="${{ secrets.PROD_BACKEND_INTERNAL_URL }}"
-            export PROD_NEXT_PUBLIC_BACKEND_URL="${{ secrets.PROD_NEXT_PUBLIC_BACKEND_URL }}"
-            export COMPOSE_PROFILES=prod
-
-            # Backend environment variables - required for Payload CMS
-            export PROD_MONGODB_URI="${{ secrets.PROD_MONGODB_URI }}"
-            export PROD_PAYLOAD_SECRET="${{ secrets.PROD_PAYLOAD_SECRET }}"
-            export PROD_FRONTEND_URL="${{ secrets.PROD_FRONTEND_URL }}"
-            # Unified AWS credentials for all services (S3, SES, deployment)
-            export AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}"
-            export AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}"
-            export PROD_AWS_REGION="${{ secrets.PROD_AWS_REGION }}"
-            export PROD_S3_BUCKET="${{ secrets.PROD_S3_BUCKET }}"
-            export PROD_SES_FROM_EMAIL="${{ secrets.PROD_SES_FROM_EMAIL }}"
-            export PROD_SES_TO_EMAIL="${{ secrets.PROD_SES_TO_EMAIL }}"
-
-            echo "🐳 Environment variables for docker-compose:"
-            echo "AWS_ACCOUNT_ID: ${AWS_ACCOUNT_ID}"
-            echo "PROD_BACKEND_INTERNAL_URL: ***"
-            echo "PROD_NEXT_PUBLIC_BACKEND_URL: ***"
-            echo "COMPOSE_PROFILES: ${COMPOSE_PROFILES}"
-
-            # Also source frontend env file to ensure variables are available
-            echo "📋 Sourcing frontend environment variables..."
-            set -a  # Automatically export all variables
-            source frontend/.env.prod
-            set +a  # Stop auto-exporting
-
-            # Show what variables are now available
-            echo "🔍 Environment variables available to docker-compose:"
-            env | grep -E "(AWS_ACCOUNT_ID|PROD_BACKEND|NEXT_PUBLIC|COMPOSE_PROFILES)" | sort
-
-            sudo -E docker compose up -d --force-recreate --pull always
-
-            # ===============================================================
-            # HEALTH CHECKS AND VALIDATION
-            # ===============================================================
-            # Wait for containers to start and validate deployment
-            # ===============================================================
-            echo "Waiting for containers to initialize..."
-            sleep 20
-
-            echo "Checking container logs..."
-            echo "=== Backend Container Logs ==="
-            sudo docker logs portfolio-backend-prod --tail 50 || echo "⚠️ Backend container not found"
-
-            echo "=== Frontend Container Logs ==="
-            sudo docker logs portfolio-frontend-prod --tail 50 || echo "⚠️ Frontend container not found"
-
-            echo "Final deployment status:"
-            sudo docker ps
-            sudo -E docker compose ps
-
-            # Debug: Check environment variables in running container
-            echo "🔍 Checking frontend container environment:"
-            echo "=== All environment variables in frontend container ==="
-            sudo docker exec portfolio-frontend-prod env | sort || echo "⚠️ Could not read container environment"
-
-            echo "=== Specific backend-related variables ==="
-            sudo docker exec portfolio-frontend-prod env | grep -E "(BACKEND|NEXT_PUBLIC|ENV_PROFILE|NODE_ENV)" || echo "⚠️ No backend environment variables found"
-
-            echo "=== Contents of .env.prod file in container ==="
-            sudo docker exec portfolio-frontend-prod cat /app/.env.prod 2>/dev/null || echo "⚠️ No .env.prod file found in container"
-
-            echo "Production deployment complete at $(date)!"
 
   # ==========================================================================
   # DEVELOPMENT REBUILD JOB - SIMPLE EC2 BUILD
