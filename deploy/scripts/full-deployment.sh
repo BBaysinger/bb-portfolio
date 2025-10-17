@@ -8,9 +8,9 @@
 # a single source of truth in GitHub for runtime env files and container start.
 #
 # Usage examples:
-#   deploy/scripts/full-deploy-gh.sh --force --build-images both --profiles both
-#   deploy/scripts/full-deploy-gh.sh --build-images prod --profiles prod
-#   deploy/scripts/full-deploy-gh.sh --no-build --profiles dev
+#   deploy/scripts/full-deployment.sh --force --build-images both --profiles both
+#   deploy/scripts/full-deployment.sh --build-images prod --profiles prod
+#   deploy/scripts/full-deployment.sh --no-build --profiles dev
 #
 # Requirements:
 # - aws, terraform, node/npm, docker (if building images), gh CLI (auth'd)
@@ -96,9 +96,9 @@ GH_REPO="BBaysinger/bb-portfolio"
 gh repo view "$GH_REPO" >/dev/null 2>&1 || die "Cannot access repo $GH_REPO via gh CLI"
 
 [[ -f "${REPO_ROOT}/.github-secrets.private.json5" ]] || die ".github-secrets.private.json5 missing at repo root"
-
-chmod 600 "$HOME/.ssh/bb-portfolio-site-key.pem" 2>/dev/null || true
-
+#   deploy/scripts/full-deployment.sh --force --build-images both --profiles both
+#   deploy/scripts/full-deployment.sh --build-images prod --profiles prod
+#   deploy/scripts/full-deployment.sh --no-build --profiles dev
 pushd "$REPO_ROOT" >/dev/null
 
 log "Installing npm deps if needed"

@@ -11,7 +11,7 @@
 # 4. Validate all 4 containers (prod + dev environments)
 # 5. Perform comprehensive health checks
 #
-# Usage: ./deploy/scripts/full-deployment.sh.sh (replaced)
+# Usage: ./deploy/scripts/full-deployment.sh (replaced)
 #
 # Prerequisites:
 # - github-secrets.private.json5 configured with current secrets

@@ -8,9 +8,9 @@
 # a single source of truth in GitHub for runtime env files and container start.
 #
 # Usage examples:
-#   deploy/scripts/full-deploy-gh.sh --force --build-images both --profiles both
-#   deploy/scripts/full-deploy-gh.sh --build-images prod --profiles prod
-#   deploy/scripts/full-deploy-gh.sh --no-build --profiles dev
+#   deploy/scripts/full-deployment.sh --force --build-images both --profiles both
+#   deploy/scripts/full-deployment.sh --build-images prod --profiles prod
+#   deploy/scripts/full-deployment.sh --no-build --profiles dev
 #
 # Requirements:
 # - aws, terraform, node/npm, docker (if building images), gh CLI (auth'd)
