@@ -297,7 +297,8 @@ jobs:
             printf '%s\n' 'aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 778230822028.dkr.ecr.us-west-2.amazonaws.com >/dev/null 2>&1 || true'
             printf '%s\n' 'export AWS_ACCOUNT_ID=778230822028'
             printf '%s\n' 'COMPOSE_FILE="deploy/compose/docker-compose.yml"'
-            printf '%s\n' 'docker-compose -f "$COMPOSE_FILE" down --remove-orphans || true'
+            # Avoid full down to reduce downtime; rely on up --force-recreate per profile
+            printf '%s\n' '# docker-compose -f "$COMPOSE_FILE" down --remove-orphans || true'
             printf '%s\n' ''
             printf '%s\n' 'case "${ENVIRONMENT}" in'
             printf '%s\n' '  prod)'
