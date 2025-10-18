@@ -34,7 +34,7 @@ New decisions should be appended chronologically.
 
 - **Terraform IaC**: Complete AWS infrastructure defined as code with full automation
 - **EC2 Instance**: t3.medium with automated configuration via user_data scripts
-- **Elastic IP**: Static IP assignment for consistent domain pointing (44.250.92.40)
+- **Elastic IP**: Static IP assignment for consistent domain pointing (54.70.138.1)
 - **Nginx Reverse Proxy**: Automated configuration for professional routing and load balancing
 - **Docker Containerization**: Development and production container profiles with systemd management
 - **ECR Integration**: Private container registries with lifecycle policies and IAM authentication
