@@ -224,80 +224,101 @@ ok "Infra and images complete. Handing off container restart to GitHub Actions."
 
 need jq
 
-# Try multiple identifiers for the workflow to avoid 422 dispatch issues
 BRANCH=$(git rev-parse --abbrev-ref HEAD)
 WF_CANDIDATES=("$workflows" "Redeploy" ".github/workflows/redeploy.yml" "redeploy.yml" ".github/workflows/redeploy-manual.yml" "redeploy-manual.yml")
-REF_CANDIDATES=("$BRANCH" "main")
 
-dispatch_ok=false
-RUN_ID=""
-RUN_URL=""
-for WF in "${WF_CANDIDATES[@]}"; do
-  [[ -n "$WF" ]] || continue
-  for REF in "${REF_CANDIDATES[@]}"; do
-    [[ -n "$REF" ]] || continue
-    log "Attempting dispatch of workflow '$WF' on ref $REF (env=$profiles, refresh_env=$refresh_env, restart=$restart_containers)"
-    set +e
-    OUT=$(gh workflow run "$WF" \
-      --repo "$GH_REPO" \
-      --ref "$REF" \
-      -f environment="$profiles" \
-      -f start_dev=true \
-      -f refresh_env="$refresh_env" \
-      -f restart_containers="$restart_containers" 2>&1)
-    STATUS=$?
-    set -e
-    if [[ $STATUS -eq 0 ]]; then
-      # Give GitHub a moment to materialize the run
-      sleep 3
-      # Resolve latest workflow_dispatch run for this workflow and ref to avoid picking up push runs
-      RUN_ID=$(gh run list --repo "$GH_REPO" --workflow "$WF" --branch "$REF" --limit 10 \
-        --json databaseId,event,status,createdAt,url | jq -r '[.[] | select(.event=="workflow_dispatch")] | .[0].databaseId // empty') || true
-      RUN_URL=$(gh run list --repo "$GH_REPO" --workflow "$WF" --branch "$REF" --limit 10 \
-        --json databaseId,event,status,createdAt,url | jq -r '[.[] | select(.event=="workflow_dispatch")] | .[0].url // empty') || true
-      if [[ -n "$RUN_ID" ]]; then
-        dispatch_ok=true
-        ok "Dispatch succeeded for '$WF' on '$REF' (run id: $RUN_ID)"
-        break 2
+# Helper to dispatch a single Redeploy run for a specific environment (prod|dev)
+dispatch_redeploy() {
+  local ENV_IN=$1; shift
+  local -a REFS=("$@")
+  local DISPATCHED=false
+  local RUN_ID="" RUN_URL=""
+  for WF in "${WF_CANDIDATES[@]}"; do
+    [[ -n "$WF" ]] || continue
+    for REF in "${REFS[@]}"; do
+      [[ -n "$REF" ]] || continue
+      log "Attempting dispatch of workflow '$WF' on ref $REF (env=$ENV_IN, refresh_env=$refresh_env, restart=$restart_containers)"
+      set +e
+      OUT=$(gh workflow run "$WF" \
+        --repo "$GH_REPO" \
+        --ref "$REF" \
+        -f environment="$ENV_IN" \
+        -f start_dev=false \
+        -f refresh_env="$refresh_env" \
+        -f restart_containers="$restart_containers" 2>&1)
+      STATUS=$?
+      set -e
+      if [[ $STATUS -eq 0 ]]; then
+        sleep 3
+        RUN_ID=$(gh run list --repo "$GH_REPO" --workflow "$WF" --branch "$REF" --limit 10 \
+          --json databaseId,event,status,createdAt,url | jq -r '[.[] | select(.event=="workflow_dispatch")] | .[0].databaseId // empty') || true
+        RUN_URL=$(gh run list --repo "$GH_REPO" --workflow "$WF" --branch "$REF" --limit 10 \
+          --json databaseId,event,status,createdAt,url | jq -r '[.[] | select(.event=="workflow_dispatch")] | .[0].url // empty') || true
+        if [[ -n "$RUN_ID" ]]; then
+          DISPATCHED=true
+          ok "Dispatch succeeded for '$WF' on '$REF' (run id: $RUN_ID)"
+          if [[ "$watch_logs" == true ]]; then
+            log "Watching run $RUN_ID ($ENV_IN)"
+            if ! gh run watch "$RUN_ID" --repo "$GH_REPO" --exit-status; then
+              warn "Run $RUN_ID ($ENV_IN) concluded with failure. ${RUN_URL:+See: $RUN_URL}"
+            fi
+            echo "\n--- Logs ($ENV_IN) ---"
+            attempts=0
+            until gh run view "$RUN_ID" --repo "$GH_REPO" --log >/dev/null 2>&1 || [[ $attempts -ge 5 ]]; do
+              attempts=$((attempts+1))
+              sleep 2
+            done
+            gh run view "$RUN_ID" --repo "$GH_REPO" --log || warn "failed to get run log after retries ($ENV_IN)"
+            if gh run view "$RUN_ID" --repo "$GH_REPO" --json conclusion,status,jobs --jq '.conclusion' 2>/dev/null | grep -qi failure; then
+              warn "Job summary ($ENV_IN):"
+              gh run view "$RUN_ID" --repo "$GH_REPO" --json jobs --jq '.jobs[] | {name: .name, conclusion: .conclusion, startedAt: .startedAt, completedAt: .completedAt}' || true
+            fi
+          else
+            ok "Started workflow run $RUN_ID ($ENV_IN) (not watching)"
+          fi
+          echo "$RUN_URL"
+          return 0
+        else
+          warn "Dispatch returned success but could not resolve run id for '$WF' on '$REF' ($ENV_IN)"
+        fi
       else
-        warn "Dispatch returned success but could not resolve run id for '$WF' on '$REF'"
+        warn "Dispatch failed for '$WF' on '$REF' ($ENV_IN) (status $STATUS): ${OUT//$'\n'/  }"
       fi
-    else
-      warn "Dispatch failed for '$WF' on '$REF' (status $STATUS): ${OUT//$'\n'/  }"
-      # Try next REF or workflow
-    fi
-  done
-done
-
-if [[ "$dispatch_ok" == true ]]; then
-  log "Watching run $RUN_ID"
-  if [[ "$watch_logs" == true ]]; then
-    # Watch and propagate exit status so failures are visible to the caller
-    if ! gh run watch "$RUN_ID" --repo "$GH_REPO" --exit-status; then
-      warn "Run $RUN_ID concluded with failure. ${RUN_URL:+See: $RUN_URL}"
-    fi
-    echo "\n--- Logs ---"
-    # Logs may take a moment to be available; retry a few times
-    attempts=0
-    until gh run view "$RUN_ID" --repo "$GH_REPO" --log >/dev/null 2>&1 || [[ $attempts -ge 5 ]]; do
-      attempts=$((attempts+1))
-      sleep 2
     done
-    gh run view "$RUN_ID" --repo "$GH_REPO" --log || warn "failed to get run log after retries"
-    # On failure, print a brief job summary to aid debugging
-    if gh run view "$RUN_ID" --repo "$GH_REPO" --json conclusion,status,jobs --jq '.conclusion' 2>/dev/null | grep -qi failure; then
-      warn "Job summary:" 
-      gh run view "$RUN_ID" --repo "$GH_REPO" --json jobs --jq '.jobs[] | {name: .name, conclusion: .conclusion, startedAt: .startedAt, completedAt: .completedAt}' || true
-    fi
-  else
-    ok "Started workflow run $RUN_ID (not watching)"
-  fi
-  ok "Full deploy via GitHub completed. EC2 IP: ${EC2_IP:-unknown} ${RUN_URL:+(Run: $RUN_URL)}"
-  popd >/dev/null
-  exit 0
-fi
+  done
+  return 1
+}
 
-warn "All GitHub workflow dispatch attempts failed. Falling back to direct SSH restart from this script."
+# Decide how to dispatch based on --profiles
+case "$profiles" in
+  prod)
+    # Prefer main for prod, fallback to current branch
+    if dispatch_redeploy prod main "$BRANCH"; then
+      ok "Prod redeploy dispatched via GitHub Actions. EC2 IP: ${EC2_IP:-unknown}"
+      popd >/dev/null; exit 0
+    fi
+    ;;
+  dev)
+    # Prefer current branch for dev, fallback to 'dev' then main
+    if dispatch_redeploy dev "$BRANCH" dev main; then
+      ok "Dev redeploy dispatched via GitHub Actions. EC2 IP: ${EC2_IP:-unknown}"
+      popd >/dev/null; exit 0
+    fi
+    ;;
+  both)
+    # Always dispatch two separate runs: prod (main) then dev (current/dev)
+    PROD_OK=false
+    DEV_OK=false
+    if dispatch_redeploy prod main "$BRANCH"; then PROD_OK=true; fi
+    if dispatch_redeploy dev "$BRANCH" dev main; then DEV_OK=true; fi
+    if [[ "$PROD_OK" == true && "$DEV_OK" == true ]]; then
+      ok "Prod and Dev redeploys dispatched via GitHub Actions. EC2 IP: ${EC2_IP:-unknown}"
+      popd >/dev/null; exit 0
+    fi
+    ;;
+esac
+
+warn "All GitHub workflow dispatch attempts failed for requested profiles. Falling back to direct SSH restart from this script."
 
 # SSH fallback: generate env files locally if requested and upload, then restart compose profiles
 SSH_KEY="$HOME/.ssh/bb-portfolio-site-key.pem"
