@@ -28,16 +28,28 @@ const FPSCounter: React.FC<{ updateInterval?: number; className?: string }> = ({
   if (!isDevLike) return null;
 
   const [fps, setFps] = useState(0);
+  const [mounted, setMounted] = useState(false);
   const frameCount = useRef(0);
-  const lastTime = useRef(performance.now());
+  const lastTime = useRef<number | null>(null);
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
     let animationFrameId: number;
 
     const update = () => {
       frameCount.current++;
       const now = performance.now();
-      const delta = now - lastTime.current;
+      const prev = lastTime.current;
+      if (prev == null) {
+        lastTime.current = now;
+        animationFrameId = requestAnimationFrame(update);
+        return;
+      }
+      const delta = now - prev;
 
       if (delta >= updateInterval) {
         const newFps = (frameCount.current * 1000) / delta;
@@ -51,7 +63,7 @@ const FPSCounter: React.FC<{ updateInterval?: number; className?: string }> = ({
 
     animationFrameId = requestAnimationFrame(update);
     return () => cancelAnimationFrame(animationFrameId);
-  }, [updateInterval]);
+  }, [mounted, updateInterval]);
 
   const fpsDigits = fps.toString().padStart(2, "0").split("");
 
