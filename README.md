@@ -41,7 +41,7 @@ This portfolio is deployed using **enterprise-grade Infrastructure as Code** pra
 - **Load Balancing**: Nginx reverse proxy for professional routing
 - **Containerization**: Docker with dual registry strategy (Docker Hub + ECR)
 - **Storage**: S3 buckets for media assets with environment isolation
-- **Networking**: Elastic IP (44.250.92.40), Security Groups, VPC integration
+- **Networking**: Elastic IP (54.70.138.1), Security Groups, VPC integration
 - **Domain**: Custom domain (bbinteractive.io) with DNS management
 
 ### 🚀 **Deployment Process**
@@ -113,6 +113,6 @@ For detailed technical documentation:
 - **Infrastructure Guide**: [`/infra/README.md`](./infra/README.md)
 - **Deployment Instructions**: [`/DEPLOYMENT.md`](./DEPLOYMENT.md)
 
-# Updated EC2 IP: 44.250.92.40
+# Updated EC2 IP: 54.70.138.1
 
 # Updated Wed Oct 8 02:06:08 PDT 2025
