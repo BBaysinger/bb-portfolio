@@ -10,7 +10,9 @@ async function fetchPortfolioProjects(opts?: {
   const isServer = typeof window === "undefined";
   // Support ENV-profile prefixed variables like DEV_BACKEND_INTERNAL_URL, PROD_BACKEND_URL, LOCAL_NEXT_PUBLIC_BACKEND_URL, etc.
   const rawProfile = (
-    process.env.ENV_PROFILE || process.env.NODE_ENV || ""
+    process.env.ENV_PROFILE ||
+    process.env.NODE_ENV ||
+    ""
   ).toLowerCase();
   // Normalize common synonyms so we look up DEV_ vars when NODE_ENV=development
   const normalizedProfile = rawProfile.startsWith("prod")
