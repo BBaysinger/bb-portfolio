@@ -9,6 +9,7 @@ on:
         required: true
         default: both
         options: [prod, dev, both]
+        # TODO(staging): when ready, extend options to include 'staging' and wire staging secrets below.
       start_dev:
         description: Ensure dev containers are up in addition to prod
         type: choice
@@ -35,6 +36,7 @@ on:
         type: string
         required: true
         default: both
+        # TODO(staging): accept 'staging' here and treat as prod-like with staging-scoped secrets.
       start_dev:
         description: Ensure dev containers are up in addition to prod
         type: string
