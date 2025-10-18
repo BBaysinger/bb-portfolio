@@ -266,28 +266,53 @@ jobs:
           EC2_HOST: ${{ secrets.EC2_HOST }}
         run: |
           set -euo pipefail
+          # Pre-clean on EC2 to prevent disk-full and name conflicts
+          {
+            printf '%s\n' 'set -e'
+            printf '%s\n' 'echo "== Disk usage before =="'
+            printf '%s\n' 'df -h / || true'
+            printf '%s\n' 'docker system df || true'
+            printf '%s\n' 'echo "== Stop/remove any stale containers (ignore errors) =="'
+            printf '%s\n' 'docker rm -f portfolio-backend-dev portfolio-frontend-dev portfolio-backend-prod portfolio-frontend-prod 2>/dev/null || true'
+            printf '%s\n' 'echo "== Prune unused images/containers/networks (no volumes) =="'
+            printf '%s\n' 'docker system prune -af || true'
+            printf '%s\n' 'echo "== Prune builder cache =="'
+            printf '%s\n' 'docker builder prune -af || true'
+            printf '%s\n' 'echo "== Check free space and prune volumes only if critically low =="'
+            printf '%s\n' 'FREE_KB=$(df -Pk / | awk "NR==2{print $4}")'
+            printf '%s\n' 'THRESHOLD_KB=$((3 * 1024 * 1024)) # 3GB'
+            printf '%s\n' 'if [ "$FREE_KB" -lt "$THRESHOLD_KB" ]; then'
+            printf '%s\n' '  echo "Low disk space detected ($(df -h / | awk \"NR==2{print \$4}\")) — pruning unused volumes..."'
+            printf '%s\n' '  docker volume prune -f || true'
+            printf '%s\n' 'fi'
+            printf '%s\n' 'echo "== Disk usage after prune =="'
+            printf '%s\n' 'df -h / || true'
+            printf '%s\n' 'docker system df || true'
+          } | ssh -i "${{ steps.ssh.outputs.key }}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" "bash -s"
+
+          # Now perform the actual restart using docker-compose
           {
             printf '%s\n' 'set -e'
             printf '%s\n' 'cd /home/ec2-user/portfolio'
             printf '%s\n' 'aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 778230822028.dkr.ecr.us-west-2.amazonaws.com >/dev/null 2>&1 || true'
             printf '%s\n' 'export AWS_ACCOUNT_ID=778230822028'
             printf '%s\n' 'COMPOSE_FILE="deploy/compose/docker-compose.yml"'
-            printf '%s\n' 'docker-compose -f "$COMPOSE_FILE" down || true'
+            printf '%s\n' 'docker-compose -f "$COMPOSE_FILE" down --remove-orphans || true'
             printf '%s\n' ''
             printf '%s\n' 'case "${ENVIRONMENT}" in'
             printf '%s\n' '  prod)'
             printf '%s\n' '    COMPOSE_PROFILES=prod docker-compose -f "$COMPOSE_FILE" pull || true'
-            printf '%s\n' '    COMPOSE_PROFILES=prod docker-compose -f "$COMPOSE_FILE" up -d'
+            printf '%s\n' '    COMPOSE_PROFILES=prod docker-compose -f "$COMPOSE_FILE" up -d --force-recreate'
             printf '%s\n' '    ;;'
             printf '%s\n' '  dev)'
             printf '%s\n' '    COMPOSE_PROFILES=dev docker-compose -f "$COMPOSE_FILE" pull || true'
-            printf '%s\n' '    COMPOSE_PROFILES=dev docker-compose -f "$COMPOSE_FILE" up -d'
+            printf '%s\n' '    COMPOSE_PROFILES=dev docker-compose -f "$COMPOSE_FILE" up -d --force-recreate'
             printf '%s\n' '    ;;'
             printf '%s\n' '  both)'
             printf '%s\n' '    COMPOSE_PROFILES=prod docker-compose -f "$COMPOSE_FILE" pull || true'
-            printf '%s\n' '    COMPOSE_PROFILES=prod docker-compose -f "$COMPOSE_FILE" up -d || true'
+            printf '%s\n' '    COMPOSE_PROFILES=prod docker-compose -f "$COMPOSE_FILE" up -d --force-recreate || true'
             printf '%s\n' '    COMPOSE_PROFILES=dev docker-compose -f "$COMPOSE_FILE" pull || true'
-            printf '%s\n' '    COMPOSE_PROFILES=dev docker-compose -f "$COMPOSE_FILE" up -d || true'
+            printf '%s\n' '    COMPOSE_PROFILES=dev docker-compose -f "$COMPOSE_FILE" up -d --force-recreate || true'
             printf '%s\n' '    ;;'
             printf '%s\n' 'esac'
           } | ssh -i "${{ steps.ssh.outputs.key }}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" "ENVIRONMENT='${ENVIRONMENT}' bash -s"
