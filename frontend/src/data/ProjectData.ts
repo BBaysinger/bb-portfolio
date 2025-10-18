@@ -41,15 +41,17 @@ async function fetchPortfolioProjects(opts?: {
   // Conventional: rely on Next.js rewrites for /api/* on the server.
   // Fail fast if .env is incomplete so misconfigurations are obvious.
   const isHttpUrl = (s: string) => /^https?:\/\//i.test(s);
+  // Determine a service-DNS fallback usable inside the compose network
+  const serviceDnsFallback =
+    normalizedProfile === "dev"
+      ? "http://backend-dev:3000"
+      : normalizedProfile === "prod"
+        ? "http://backend-prod:3000"
+        : "";
+
   if (isServer && !isHttpUrl(base)) {
-    // Safety net: if envs are stale or misnamed, use service DNS as a last resort
-    if (normalizedProfile === "dev") base = "http://backend-dev:3000";
-    else if (normalizedProfile === "prod") base = "http://backend-prod:3000";
-    if (!isHttpUrl(base)) {
-      const msg = `Backend URL is not configured. Expected ${prefix}BACKEND_INTERNAL_URL or ${prefix}NEXT_PUBLIC_BACKEND_URL to be a valid http(s) URL (found: "${base}").`;
-      console.error(`ProjectData ERROR: ${msg}`);
-      throw new Error(msg);
-    }
+    // Safety net: if envs are stale or misnamed, prefer service DNS rather than throwing
+    if (serviceDnsFallback) base = serviceDnsFallback;
   }
 
   // Build URL: server uses absolute backend URL; client can use relative path
@@ -58,7 +60,12 @@ async function fetchPortfolioProjects(opts?: {
   // Note: Using trailing slash for client-side to match Next.js trailingSlash: true config
   const path = "/api/projects/?depth=2&limit=1000&sort=sortIndex";
   const serverPath = "/api/projects?depth=2&limit=1000&sort=sortIndex";
-  const url = isServer ? `${base.replace(/\/$/, "")}${serverPath}` : path;
+  const primaryUrl = isServer
+    ? `${base.replace(/\/$/, "")}${serverPath}`
+    : path;
+  const fallbackUrl = isServer && serviceDnsFallback
+    ? `${serviceDnsFallback.replace(/\/$/, "")}${serverPath}`
+    : undefined;
 
   const fetchOptions: RequestInit & { next?: { revalidate?: number } } = {};
   if (disableCache) {
@@ -71,7 +78,48 @@ async function fetchPortfolioProjects(opts?: {
     fetchOptions.credentials = "include";
   }
 
-  const res = await fetch(url, fetchOptions);
+  // Helper to add a short timeout so we can fail fast and try fallback
+  const withTimeout = async (url: string) => {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 4000);
+    try {
+      return await fetch(url, { ...fetchOptions, signal: controller.signal });
+    } finally {
+      clearTimeout(timer);
+    }
+  };
+
+  let res: Response;
+  try {
+    res = await withTimeout(primaryUrl);
+    // If upstream is clearly failing (>=500) and we have a service DNS alternative, try it
+    if (!res.ok && res.status >= 500 && fallbackUrl && fallbackUrl !== primaryUrl) {
+      try {
+        const alt = await withTimeout(fallbackUrl);
+        if (alt.ok) {
+          res = alt;
+        }
+      } catch {
+        // ignore, will error on primary result below
+      }
+    }
+  } catch (e) {
+    // Network failure on primary; try service DNS fallback once if available
+    if (fallbackUrl && fallbackUrl !== primaryUrl) {
+      try {
+        res = await withTimeout(fallbackUrl);
+      } catch (e2) {
+        // Provide a clearer message including both attempts
+        throw new Error(
+          `Failed to fetch project data: primary ${primaryUrl} and fallback ${fallbackUrl} both failed (${(e as Error).message}; ${(e2 as Error).message})`,
+        );
+      }
+    } else {
+      throw new Error(
+        `Failed to fetch project data: ${primaryUrl} (${(e as Error).message})`,
+      );
+    }
+  }
   if (!res.ok) {
     let detail = "";
     try {
