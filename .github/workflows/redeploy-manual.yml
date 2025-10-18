@@ -237,13 +237,14 @@ jobs:
           EC2_HOST: ${{ secrets.EC2_HOST }}
         run: |
           set -euo pipefail
-          ssh -i "${{ steps.ssh.outputs.key }}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" $'set -e
+          ssh -i "${{ steps.ssh.outputs.key }}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" "ENVIRONMENT='${ENVIRONMENT}' bash -s" <<'REMOTE_SCRIPT'
+set -e
 cd /home/ec2-user/portfolio
 aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 778230822028.dkr.ecr.us-west-2.amazonaws.com >/dev/null 2>&1 || true
 export AWS_ACCOUNT_ID=778230822028
 docker-compose down || true
 
-case '"$ENVIRONMENT"' in
+case "${ENVIRONMENT}" in
   prod)
     COMPOSE_PROFILES=prod docker-compose pull || true
     COMPOSE_PROFILES=prod docker-compose up -d
@@ -259,7 +260,7 @@ case '"$ENVIRONMENT"' in
     COMPOSE_PROFILES=dev docker-compose up -d || true
     ;;
 esac
-'
+REMOTE_SCRIPT
 
       - name: Health checks
         if: always()
