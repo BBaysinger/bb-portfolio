@@ -231,6 +231,7 @@ REF_CANDIDATES=("$BRANCH" "main")
 
 dispatch_ok=false
 RUN_ID=""
+RUN_URL=""
 for WF in "${WF_CANDIDATES[@]}"; do
   [[ -n "$WF" ]] || continue
   for REF in "${REF_CANDIDATES[@]}"; do
@@ -247,9 +248,13 @@ for WF in "${WF_CANDIDATES[@]}"; do
     STATUS=$?
     set -e
     if [[ $STATUS -eq 0 ]]; then
+      # Give GitHub a moment to materialize the run
       sleep 3
-      # Resolve latest run for this workflow and ref
-      RUN_ID=$(gh run list --repo "$GH_REPO" --workflow "$WF" --branch "$REF" --limit 1 --json databaseId,status | jq -r '.[0].databaseId // empty') || true
+      # Resolve latest workflow_dispatch run for this workflow and ref to avoid picking up push runs
+      RUN_ID=$(gh run list --repo "$GH_REPO" --workflow "$WF" --branch "$REF" --limit 10 \
+        --json databaseId,event,status,createdAt,url | jq -r '[.[] | select(.event=="workflow_dispatch")] | .[0].databaseId // empty') || true
+      RUN_URL=$(gh run list --repo "$GH_REPO" --workflow "$WF" --branch "$REF" --limit 10 \
+        --json databaseId,event,status,createdAt,url | jq -r '[.[] | select(.event=="workflow_dispatch")] | .[0].url // empty') || true
       if [[ -n "$RUN_ID" ]]; then
         dispatch_ok=true
         ok "Dispatch succeeded for '$WF' on '$REF' (run id: $RUN_ID)"
@@ -267,13 +272,27 @@ done
 if [[ "$dispatch_ok" == true ]]; then
   log "Watching run $RUN_ID"
   if [[ "$watch_logs" == true ]]; then
-    gh run watch "$RUN_ID" --repo "$GH_REPO" || true
+    # Watch and propagate exit status so failures are visible to the caller
+    if ! gh run watch "$RUN_ID" --repo "$GH_REPO" --exit-status; then
+      warn "Run $RUN_ID concluded with failure. ${RUN_URL:+See: $RUN_URL}"
+    fi
     echo "\n--- Logs ---"
-    gh run view "$RUN_ID" --repo "$GH_REPO" --log || true
+    # Logs may take a moment to be available; retry a few times
+    attempts=0
+    until gh run view "$RUN_ID" --repo "$GH_REPO" --log >/dev/null 2>&1 || [[ $attempts -ge 5 ]]; do
+      attempts=$((attempts+1))
+      sleep 2
+    done
+    gh run view "$RUN_ID" --repo "$GH_REPO" --log || warn "failed to get run log after retries"
+    # On failure, print a brief job summary to aid debugging
+    if gh run view "$RUN_ID" --repo "$GH_REPO" --json conclusion,status,jobs --jq '.conclusion' 2>/dev/null | grep -qi failure; then
+      warn "Job summary:" 
+      gh run view "$RUN_ID" --repo "$GH_REPO" --json jobs --jq '.jobs[] | {name: .name, conclusion: .conclusion, startedAt: .startedAt, completedAt: .completedAt}' || true
+    fi
   else
     ok "Started workflow run $RUN_ID (not watching)"
   fi
-  ok "Full deploy via GitHub completed. EC2 IP: ${EC2_IP:-unknown}"
+  ok "Full deploy via GitHub completed. EC2 IP: ${EC2_IP:-unknown} ${RUN_URL:+(Run: $RUN_URL)}"
   popd >/dev/null
   exit 0
 fi
