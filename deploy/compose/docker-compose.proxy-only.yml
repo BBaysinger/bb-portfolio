@@ -1,11 +1,5 @@
-services:
-  # Just Caddy proxy - assumes you're running frontend/backend outside Docker
-  caddy:
-    image: caddy:alpine
-    container_name: portfolio-caddy-proxy
-    ports:
-      - "8080:80" # Use 8080 to avoid conflicts
-    volumes:
-      - ../docker/caddy/Caddyfile.host:/etc/caddy/Caddyfile:ro
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+version: "3.9"
+# This file has been deprecated. To run a proxy only against host apps, use:
+#   COMPOSE_PROFILES=proxy docker compose up
+# And adjust the Caddyfile to reverse_proxy host.docker.internal:3000/3001
+
