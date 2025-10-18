@@ -17,9 +17,7 @@ automated (re)deployment orchestrator
 page slide-out nav
 transform-positioned footer
 
-
 Here's what GTP suggested:
-
 
 I reviewed your current features list and scanned the repo (frontend carousel code, Payload config/collections, infra/deploy docs and scripts) to propose concrete additions you can highlight next.
 
