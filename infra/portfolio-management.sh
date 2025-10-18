@@ -8,8 +8,10 @@ set -e
 
 # Configuration - Get IP from Terraform output or use default
 INSTANCE_IP=$(terraform output -raw portfolio_elastic_ip 2>/dev/null || echo "54.70.138.1")
-SSH_KEY="~/.ssh/bb-portfolio-site-key.pem"
+SSH_KEY="$HOME/.ssh/bb-portfolio-site-key.pem"
 SSH_USER="ec2-user"
+AWS_ACCOUNT_ID="778230822028"
+ECR_REGION="us-west-2"
 
 # Function to execute commands on the remote server
 run_remote() {
@@ -32,6 +34,12 @@ elif docker-compose version >/dev/null 2>&1; then \
 else \
     echo "❌ Neither 'docker compose' nor 'docker-compose' found" >&2; exit 1; \
 fi'
+}
+
+# Ensure the EC2 host is authenticated to ECR before pulling prod images
+ecr_login() {
+    echo "🔐 Logging into ECR on remote host..."
+    run_remote "aws ecr get-login-password --region $ECR_REGION | sudo docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$ECR_REGION.amazonaws.com"
 }
 
 # Function to show usage
@@ -62,6 +70,9 @@ case "${1:-help}" in
     start)
         PROFILE=${2:-dev}
         echo "Starting $PROFILE containers..."
+        if [ "$PROFILE" = "prod" ]; then
+            ecr_login
+        fi
         run_remote "cd portfolio && sudo bash -lc $(printf %q "$(remote_compose_cmd "$PROFILE" "up -d")")"
         echo "✅ $PROFILE containers started"
         ;;
@@ -78,7 +89,11 @@ case "${1:-help}" in
     restart)
         PROFILE=${2:-dev}
         echo "Restarting $PROFILE containers..."
-        run_remote "cd portfolio && sudo bash -lc $(printf %q "$(remote_compose_cmd "$PROFILE" "down")") && sudo bash -lc $(printf %q "$(remote_compose_cmd "$PROFILE" "up -d")")"
+        run_remote "cd portfolio && sudo bash -lc $(printf %q "$(remote_compose_cmd "$PROFILE" "down")")"
+        if [ "$PROFILE" = "prod" ]; then
+            ecr_login
+        fi
+        run_remote "cd portfolio && sudo bash -lc $(printf %q "$(remote_compose_cmd "$PROFILE" "up -d")")"
         echo "✅ $PROFILE containers restarted"
         ;;
     
@@ -89,7 +104,8 @@ case "${1:-help}" in
             run_remote "cd portfolio && sudo docker logs $SERVICE --tail 50 -f"
         else
             echo "Showing logs for all containers..."
-            run_remote "cd portfolio && sudo docker compose logs --tail 50"
+            # Use docker compose if available, otherwise fallback to docker-compose with explicit file
+            run_remote "cd portfolio && if docker compose version >/dev/null 2>&1; then sudo docker compose logs --tail 50; else sudo docker-compose -f deploy/compose/docker-compose.yml logs --tail 50; fi"
         fi
         ;;
     
@@ -104,6 +120,7 @@ case "${1:-help}" in
     deploy-prod)
         echo "🚀 Deploying production containers..."
         echo "1. Pulling latest ECR images..."
+        ecr_login
         run_remote "cd portfolio && sudo bash -lc $(printf %q "$(AWS_ACCOUNT_ID=778230822028 remote_compose_cmd "prod" "pull")")"
         
         echo "2. Stopping development containers..."
@@ -138,7 +155,8 @@ case "${1:-help}" in
         run_remote "cd portfolio && sudo bash -lc $(printf %q "$(remote_compose_cmd "dev" "down")")" || true
         
         echo "2. Pulling and starting production containers..."
-        run_remote "cd portfolio && sudo bash -lc $(printf %q "$(AWS_ACCOUNT_ID=778230822028 remote_compose_cmd "prod" "pull && "")") && sudo bash -lc $(printf %q "$(AWS_ACCOUNT_ID=778230822028 remote_compose_cmd "prod" "up -d")")"
+        ecr_login
+        run_remote "cd portfolio && sudo bash -lc $(printf %q "$(AWS_ACCOUNT_ID=778230822028 remote_compose_cmd "prod" "pull")") && sudo bash -lc $(printf %q "$(AWS_ACCOUNT_ID=778230822028 remote_compose_cmd "prod" "up -d")")"
         
         echo "3. Updating Nginx to point to production (port 3000)..."
         run_remote "sudo sed -i 's/localhost:4000/localhost:3000/g' /etc/nginx/conf.d/portfolio.conf && sudo nginx -t && sudo systemctl reload nginx"
