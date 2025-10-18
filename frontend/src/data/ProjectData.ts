@@ -9,12 +9,18 @@ async function fetchPortfolioProjects(opts?: {
   const { requestHeaders, disableCache } = opts || {};
   const isServer = typeof window === "undefined";
   // Support ENV-profile prefixed variables like DEV_BACKEND_INTERNAL_URL, PROD_BACKEND_URL, LOCAL_NEXT_PUBLIC_BACKEND_URL, etc.
-  const profile = (
-    process.env.ENV_PROFILE ||
-    process.env.NODE_ENV ||
-    ""
+  const rawProfile = (
+    process.env.ENV_PROFILE || process.env.NODE_ENV || ""
   ).toLowerCase();
-  const prefix = profile ? `${profile.toUpperCase()}_` : "";
+  // Normalize common synonyms so we look up DEV_ vars when NODE_ENV=development
+  const normalizedProfile = rawProfile.startsWith("prod")
+    ? "prod"
+    : rawProfile === "development" || rawProfile.startsWith("dev")
+      ? "dev"
+      : rawProfile.startsWith("local")
+        ? "local"
+        : rawProfile;
+  const prefix = normalizedProfile ? `${normalizedProfile.toUpperCase()}_` : "";
   // Return the VALUE of the first defined env var (not the name)
   const firstVal = (names: string[]) => {
     for (const n of names) {
@@ -23,7 +29,7 @@ async function fetchPortfolioProjects(opts?: {
     }
     return "";
   };
-  const base = firstVal([
+  let base = firstVal([
     `${prefix}BACKEND_INTERNAL_URL`,
     `${prefix}NEXT_PUBLIC_BACKEND_URL`,
     // Fallback to non-prefixed for browser (Next.js only exposes NEXT_PUBLIC_ variables)
@@ -34,9 +40,14 @@ async function fetchPortfolioProjects(opts?: {
   // Fail fast if .env is incomplete so misconfigurations are obvious.
   const isHttpUrl = (s: string) => /^https?:\/\//i.test(s);
   if (isServer && !isHttpUrl(base)) {
-    const msg = `Backend URL is not configured. Expected ${prefix}BACKEND_INTERNAL_URL or ${prefix}NEXT_PUBLIC_BACKEND_URL to be a valid http(s) URL (found: "${base}").`;
-    console.error(`ProjectData ERROR: ${msg}`);
-    throw new Error(msg);
+    // Safety net: if envs are stale or misnamed, use service DNS as a last resort
+    if (normalizedProfile === "dev") base = "http://backend-dev:3000";
+    else if (normalizedProfile === "prod") base = "http://backend-prod:3000";
+    if (!isHttpUrl(base)) {
+      const msg = `Backend URL is not configured. Expected ${prefix}BACKEND_INTERNAL_URL or ${prefix}NEXT_PUBLIC_BACKEND_URL to be a valid http(s) URL (found: "${base}").`;
+      console.error(`ProjectData ERROR: ${msg}`);
+      throw new Error(msg);
+    }
   }
 
   // Build URL: server uses absolute backend URL; client can use relative path
