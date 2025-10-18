@@ -369,6 +369,7 @@ if [[ "$refresh_env" == true ]]; then
       const beDev = [
         "NODE_ENV=development",
         "ENV_PROFILE=dev",
+        "PORT=3000",
         `DEV_AWS_REGION=${sVal("DEV_AWS_REGION", S3_REGION)}`,
         `DEV_MONGODB_URI=${sVal("DEV_MONGODB_URI")}`,
         `DEV_PAYLOAD_SECRET=${sVal("DEV_PAYLOAD_SECRET")}`,

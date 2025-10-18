@@ -188,6 +188,7 @@ jobs:
           printf "%s\n" \
             "NODE_ENV=development" \
             "ENV_PROFILE=dev" \
+            "PORT=3000" \
             "" \
             "DEV_AWS_REGION=$(s_val DEV_AWS_REGION \"$S3_REGION\")" \
             "" \
