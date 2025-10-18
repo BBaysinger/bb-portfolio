@@ -249,30 +249,30 @@ jobs:
           EC2_HOST: ${{ secrets.EC2_HOST }}
         run: |
           set -euo pipefail
-          ssh -i "${{ steps.ssh.outputs.key }}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" "ENVIRONMENT='${ENVIRONMENT}' bash -s" <<'REMOTE_SCRIPT'
-set -e
-cd /home/ec2-user/portfolio
-aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 778230822028.dkr.ecr.us-west-2.amazonaws.com >/dev/null 2>&1 || true
-export AWS_ACCOUNT_ID=778230822028
-docker-compose down || true
-
-case "${ENVIRONMENT}" in
-  prod)
-    COMPOSE_PROFILES=prod docker-compose pull || true
-    COMPOSE_PROFILES=prod docker-compose up -d
-    ;;
-  dev)
-    COMPOSE_PROFILES=dev docker-compose pull || true
-    COMPOSE_PROFILES=dev docker-compose up -d
-    ;;
-  both)
-    COMPOSE_PROFILES=prod docker-compose pull || true
-    COMPOSE_PROFILES=prod docker-compose up -d || true
-    COMPOSE_PROFILES=dev docker-compose pull || true
-    COMPOSE_PROFILES=dev docker-compose up -d || true
-    ;;
-esac
-REMOTE_SCRIPT
+          {
+            printf '%s\n' 'set -e'
+            printf '%s\n' 'cd /home/ec2-user/portfolio'
+            printf '%s\n' 'aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 778230822028.dkr.ecr.us-west-2.amazonaws.com >/dev/null 2>&1 || true'
+            printf '%s\n' 'export AWS_ACCOUNT_ID=778230822028'
+            printf '%s\n' 'docker-compose down || true'
+            printf '%s\n' ''
+            printf '%s\n' 'case "${ENVIRONMENT}" in'
+            printf '%s\n' '  prod)'
+            printf '%s\n' '    COMPOSE_PROFILES=prod docker-compose pull || true'
+            printf '%s\n' '    COMPOSE_PROFILES=prod docker-compose up -d'
+            printf '%s\n' '    ;;'
+            printf '%s\n' '  dev)'
+            printf '%s\n' '    COMPOSE_PROFILES=dev docker-compose pull || true'
+            printf '%s\n' '    COMPOSE_PROFILES=dev docker-compose up -d'
+            printf '%s\n' '    ;;'
+            printf '%s\n' '  both)'
+            printf '%s\n' '    COMPOSE_PROFILES=prod docker-compose pull || true'
+            printf '%s\n' '    COMPOSE_PROFILES=prod docker-compose up -d || true'
+            printf '%s\n' '    COMPOSE_PROFILES=dev docker-compose pull || true'
+            printf '%s\n' '    COMPOSE_PROFILES=dev docker-compose up -d || true'
+            printf '%s\n' '    ;;'
+            printf '%s\n' 'esac'
+          } | ssh -i "${{ steps.ssh.outputs.key }}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" "ENVIRONMENT='${ENVIRONMENT}' bash -s"
 
       - name: Health checks
         if: always()
