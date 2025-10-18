@@ -68,6 +68,8 @@ services:
     env_file:
       - ../../backend/.env.prod
     restart: unless-stopped # Auto-restart on failure/reboot
+    networks:
+      default: {}
     healthcheck: # Health monitoring for load balancers
       test:
         [
@@ -126,6 +128,8 @@ services:
     env_file:
       - ../../backend/.env.dev
     restart: unless-stopped # Auto-restart on failure/reboot
+    networks:
+      default: {}
 
   frontend-dev:
     profiles: ["dev"] # Only runs with COMPOSE_PROFILES=dev
