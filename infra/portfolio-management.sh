@@ -16,6 +16,24 @@ run_remote() {
     ssh -i "$SSH_KEY" "$SSH_USER@$INSTANCE_IP" "$1"
 }
 
+# Build a remote-safe compose command that works with either:
+# - docker compose (v2 plugin) with --profile
+# - docker-compose (v1) using COMPOSE_PROFILES and explicit -f path
+# Usage: remote_compose_cmd <profile> "<compose args>"
+remote_compose_cmd() {
+        local PROFILE="$1"
+        local COMPOSE_ARGS="$2"
+        # Note: this string is evaluated on the remote host
+        # shellcheck disable=SC2016
+        echo 'if docker compose version >/dev/null 2>&1; then \
+    AWS_ACCOUNT_ID='"$AWS_ACCOUNT_ID"' docker compose --profile '"$PROFILE"' '"$COMPOSE_ARGS"'; \
+elif docker-compose version >/dev/null 2>&1; then \
+    COMPOSE_PROFILES='"$PROFILE"' AWS_ACCOUNT_ID='"$AWS_ACCOUNT_ID"' docker-compose -f deploy/compose/docker-compose.yml '"$COMPOSE_ARGS"'; \
+else \
+    echo "❌ Neither 'docker compose' nor 'docker-compose' found" >&2; exit 1; \
+fi'
+}
+
 # Function to show usage
 show_usage() {
     echo "Usage: $0 [command] [profile]"
@@ -44,7 +62,7 @@ case "${1:-help}" in
     start)
         PROFILE=${2:-dev}
         echo "Starting $PROFILE containers..."
-        run_remote "cd portfolio && sudo docker compose --profile $PROFILE up -d"
+        run_remote "cd portfolio && sudo bash -lc $(printf %q "$(remote_compose_cmd "$PROFILE" "up -d")")"
         echo "✅ $PROFILE containers started"
         ;;
     
@@ -52,7 +70,7 @@ case "${1:-help}" in
         PROFILE=${2:-"dev prod"}
         echo "Stopping containers..."
         for p in $PROFILE; do
-            run_remote "cd portfolio && sudo docker compose --profile $p down" || true
+            run_remote "cd portfolio && sudo bash -lc $(printf %q "$(remote_compose_cmd "$p" "down")")" || true
         done
         echo "✅ Containers stopped"
         ;;
@@ -60,7 +78,7 @@ case "${1:-help}" in
     restart)
         PROFILE=${2:-dev}
         echo "Restarting $PROFILE containers..."
-        run_remote "cd portfolio && sudo docker compose --profile $PROFILE down && sudo docker compose --profile $PROFILE up -d"
+        run_remote "cd portfolio && sudo bash -lc $(printf %q "$(remote_compose_cmd "$PROFILE" "down")") && sudo bash -lc $(printf %q "$(remote_compose_cmd "$PROFILE" "up -d")")"
         echo "✅ $PROFILE containers restarted"
         ;;
     
@@ -86,13 +104,13 @@ case "${1:-help}" in
     deploy-prod)
         echo "🚀 Deploying production containers..."
         echo "1. Pulling latest ECR images..."
-        run_remote "cd portfolio && sudo AWS_ACCOUNT_ID=778230822028 docker compose --profile prod pull"
+        run_remote "cd portfolio && sudo bash -lc $(printf %q "$(AWS_ACCOUNT_ID=778230822028 remote_compose_cmd "prod" "pull")")"
         
         echo "2. Stopping development containers..."
-        run_remote "cd portfolio && sudo docker compose --profile dev down" || true
+        run_remote "cd portfolio && sudo bash -lc $(printf %q "$(remote_compose_cmd "dev" "down")")" || true
         
         echo "3. Starting production containers..."
-        run_remote "cd portfolio && sudo AWS_ACCOUNT_ID=778230822028 docker compose --profile prod up -d"
+        run_remote "cd portfolio && sudo bash -lc $(printf %q "$(AWS_ACCOUNT_ID=778230822028 remote_compose_cmd "prod" "up -d")")"
         
         echo "4. Updating Nginx to point to production (port 3000)..."
         run_remote "sudo sed -i 's/localhost:4000/localhost:3000/g' /etc/nginx/conf.d/portfolio.conf && sudo nginx -t && sudo systemctl reload nginx"
@@ -103,10 +121,10 @@ case "${1:-help}" in
     switch-to-dev)
         echo "🔄 Switching to development containers..."
         echo "1. Stopping production containers..."
-        run_remote "cd portfolio && sudo docker compose --profile prod down" || true
+        run_remote "cd portfolio && sudo bash -lc $(printf %q "$(remote_compose_cmd "prod" "down")")" || true
         
         echo "2. Starting development containers..."
-        run_remote "cd portfolio && sudo docker compose --profile dev up -d"
+        run_remote "cd portfolio && sudo bash -lc $(printf %q "$(remote_compose_cmd "dev" "up -d")")"
         
         echo "3. Updating Nginx to point to development (port 4000)..."
         run_remote "sudo sed -i 's/localhost:3000/localhost:4000/g' /etc/nginx/conf.d/portfolio.conf && sudo nginx -t && sudo systemctl reload nginx"
@@ -117,10 +135,10 @@ case "${1:-help}" in
     switch-to-prod)
         echo "🔄 Switching to production containers..."
         echo "1. Stopping development containers..."
-        run_remote "cd portfolio && sudo docker compose --profile dev down" || true
+        run_remote "cd portfolio && sudo bash -lc $(printf %q "$(remote_compose_cmd "dev" "down")")" || true
         
         echo "2. Pulling and starting production containers..."
-        run_remote "cd portfolio && sudo AWS_ACCOUNT_ID=778230822028 docker compose --profile prod pull && sudo AWS_ACCOUNT_ID=778230822028 docker compose --profile prod up -d"
+        run_remote "cd portfolio && sudo bash -lc $(printf %q "$(AWS_ACCOUNT_ID=778230822028 remote_compose_cmd "prod" "pull && "")") && sudo bash -lc $(printf %q "$(AWS_ACCOUNT_ID=778230822028 remote_compose_cmd "prod" "up -d")")"
         
         echo "3. Updating Nginx to point to production (port 3000)..."
         run_remote "sudo sed -i 's/localhost:4000/localhost:3000/g' /etc/nginx/conf.d/portfolio.conf && sudo nginx -t && sudo systemctl reload nginx"
