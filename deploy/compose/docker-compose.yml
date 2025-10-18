@@ -171,6 +171,7 @@ services:
       - ../../backend/.env
     environment:
       - CHOKIDAR_USEPOLLING=true
+      - ENV_PROFILE=local
     restart: unless-stopped
 
   frontend-local:
@@ -188,6 +189,9 @@ services:
     environment:
       - CHOKIDAR_USEPOLLING=true
       - REACT_STRICT_MODE=${REACT_STRICT_MODE:-true}
+      - ENV_PROFILE=local
+      - LOCAL_BACKEND_INTERNAL_URL=http://backend-local:3001
+      - NEXT_PUBLIC_BACKEND_URL=http://localhost:8081
     restart: unless-stopped
     depends_on:
       backend-local:

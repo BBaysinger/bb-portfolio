@@ -47,7 +47,9 @@ async function fetchPortfolioProjects(opts?: {
       ? "http://backend-dev:3000"
       : normalizedProfile === "prod"
         ? "http://backend-prod:3000"
-        : "";
+        : normalizedProfile === "local"
+          ? "http://backend-local:3001"
+          : "";
 
   if (isServer && !isHttpUrl(base)) {
     // Safety net: if envs are stale or misnamed, prefer service DNS rather than throwing
@@ -117,12 +119,12 @@ async function fetchPortfolioProjects(opts?: {
       } catch (e2) {
         // Provide a clearer message including both attempts
         throw new Error(
-          `Failed to fetch project data: primary ${primaryUrl} and fallback ${fallbackUrl} both failed (${(e as Error).message}; ${(e2 as Error).message})`
+          `Failed to fetch project data: primary ${primaryUrl} and fallback ${fallbackUrl} both failed (${(e as Error).message}; ${(e2 as Error).message})`,
         );
       }
     } else {
       throw new Error(
-        `Failed to fetch project data: ${primaryUrl} (${(e as Error).message})`
+        `Failed to fetch project data: ${primaryUrl} (${(e as Error).message})`,
       );
     }
   }
@@ -134,7 +136,7 @@ async function fetchPortfolioProjects(opts?: {
     throw new Error(
       `Failed to fetch project data: ${res.status} ${res.statusText}${
         detail ? ` - ${detail.slice(0, 300)}` : ""
-      }`
+      }`,
     );
   }
   type BrandObj = {
@@ -503,7 +505,7 @@ export default class ProjectData {
         record[project.id] = project;
         return record;
       },
-      {} as Record<string, ParsedPortfolioProject>
+      {} as Record<string, ParsedPortfolioProject>,
     );
   }
 
@@ -514,7 +516,7 @@ export default class ProjectData {
    * @returns Parsed portfolio data
    */
   private static parsePortfolioData(
-    data: PortfolioProjectData
+    data: PortfolioProjectData,
   ): ParsedPortfolioProjectData {
     const parsedData: ParsedPortfolioProjectData = {};
 
@@ -625,7 +627,7 @@ export default class ProjectData {
               if (p) acc[k] = p;
               return acc;
             },
-            {} as Record<string, ParsedPortfolioProject>
+            {} as Record<string, ParsedPortfolioProject>,
           );
         }
       }
