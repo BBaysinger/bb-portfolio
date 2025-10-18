@@ -149,68 +149,60 @@ jobs:
 
           s_val() { [ -n "${!1:-}" ] && echo "${!1}" || echo "${2:-}"; }
 
-          # Write with indentation for YAML safety, then strip leading whitespace
-          cat > "$OUT_DIR/backend.env.prod.tmp" <<EOF
-          NODE_ENV=production
-          ENV_PROFILE=prod
+          # Write files using printf to avoid heredoc/YAML indentation pitfalls
+          printf "%s\n" \
+            "NODE_ENV=production" \
+            "ENV_PROFILE=prod" \
+            "" \
+            "PROD_AWS_REGION=$(s_val PROD_AWS_REGION \"$S3_REGION\")" \
+            "" \
+            "PROD_MONGODB_URI=$(s_val PROD_MONGODB_URI)" \
+            "PROD_PAYLOAD_SECRET=$(s_val PROD_PAYLOAD_SECRET)" \
+            "" \
+            "PROD_S3_BUCKET=$(s_val PROD_S3_BUCKET)" \
+            "S3_REGION=$(s_val S3_REGION \"$PROD_AWS_REGION\")" \
+            "" \
+            "PROD_FRONTEND_URL=$(s_val PROD_FRONTEND_URL)" \
+            "PROD_NEXT_PUBLIC_BACKEND_URL=$(s_val PROD_NEXT_PUBLIC_BACKEND_URL)" \
+            "PROD_BACKEND_INTERNAL_URL=$(s_val PROD_BACKEND_INTERNAL_URL 'http://portfolio-backend-prod:3000')" \
+            "" \
+            "PROD_SES_FROM_EMAIL=$(s_val PROD_SES_FROM_EMAIL)" \
+            "PROD_SES_TO_EMAIL=$(s_val PROD_SES_TO_EMAIL)" \
+            > "$OUT_DIR/backend.env.prod"
 
-          PROD_AWS_REGION=$(s_val PROD_AWS_REGION "$S3_REGION")
+          printf "%s\n" \
+            "NODE_ENV=development" \
+            "ENV_PROFILE=dev" \
+            "" \
+            "DEV_AWS_REGION=$(s_val DEV_AWS_REGION \"$S3_REGION\")" \
+            "" \
+            "DEV_MONGODB_URI=$(s_val DEV_MONGODB_URI)" \
+            "DEV_PAYLOAD_SECRET=$(s_val DEV_PAYLOAD_SECRET)" \
+            "" \
+            "DEV_S3_BUCKET=$(s_val DEV_S3_BUCKET)" \
+            "S3_REGION=$(s_val S3_REGION \"$DEV_AWS_REGION\")" \
+            "" \
+            "DEV_FRONTEND_URL=$(s_val DEV_FRONTEND_URL)" \
+            "DEV_NEXT_PUBLIC_BACKEND_URL=$(s_val DEV_NEXT_PUBLIC_BACKEND_URL)" \
+            "DEV_BACKEND_INTERNAL_URL=$(s_val DEV_BACKEND_INTERNAL_URL 'http://portfolio-backend-dev:3000')" \
+            "" \
+            "DEV_SES_FROM_EMAIL=$(s_val DEV_SES_FROM_EMAIL)" \
+            "DEV_SES_TO_EMAIL=$(s_val DEV_SES_TO_EMAIL)" \
+            > "$OUT_DIR/backend.env.dev"
 
-          PROD_MONGODB_URI=$(s_val PROD_MONGODB_URI)
-          PROD_PAYLOAD_SECRET=$(s_val PROD_PAYLOAD_SECRET)
+          printf "%s\n" \
+            "NODE_ENV=production" \
+            "ENV_PROFILE=prod" \
+            "" \
+            "NEXT_PUBLIC_BACKEND_URL=$(s_val PROD_NEXT_PUBLIC_BACKEND_URL)" \
+            > "$OUT_DIR/frontend.env.prod"
 
-          PROD_S3_BUCKET=$(s_val PROD_S3_BUCKET)
-          S3_REGION=$(s_val S3_REGION "$PROD_AWS_REGION")
-
-          PROD_FRONTEND_URL=$(s_val PROD_FRONTEND_URL)
-          PROD_NEXT_PUBLIC_BACKEND_URL=$(s_val PROD_NEXT_PUBLIC_BACKEND_URL)
-          PROD_BACKEND_INTERNAL_URL=$(s_val PROD_BACKEND_INTERNAL_URL 'http://portfolio-backend-prod:3000')
-
-          PROD_SES_FROM_EMAIL=$(s_val PROD_SES_FROM_EMAIL)
-          PROD_SES_TO_EMAIL=$(s_val PROD_SES_TO_EMAIL)
-EOF
-          sed -E 's/^[[:space:]]+//' "$OUT_DIR/backend.env.prod.tmp" > "$OUT_DIR/backend.env.prod"
-          rm -f "$OUT_DIR/backend.env.prod.tmp"
-
-          cat > "$OUT_DIR/backend.env.dev.tmp" <<EOF
-          NODE_ENV=development
-          ENV_PROFILE=dev
-
-          DEV_AWS_REGION=$(s_val DEV_AWS_REGION "$S3_REGION")
-
-          DEV_MONGODB_URI=$(s_val DEV_MONGODB_URI)
-          DEV_PAYLOAD_SECRET=$(s_val DEV_PAYLOAD_SECRET)
-
-          DEV_S3_BUCKET=$(s_val DEV_S3_BUCKET)
-          S3_REGION=$(s_val S3_REGION "$DEV_AWS_REGION")
-
-          DEV_FRONTEND_URL=$(s_val DEV_FRONTEND_URL)
-          DEV_NEXT_PUBLIC_BACKEND_URL=$(s_val DEV_NEXT_PUBLIC_BACKEND_URL)
-          DEV_BACKEND_INTERNAL_URL=$(s_val DEV_BACKEND_INTERNAL_URL 'http://portfolio-backend-dev:3000')
-
-          DEV_SES_FROM_EMAIL=$(s_val DEV_SES_FROM_EMAIL)
-          DEV_SES_TO_EMAIL=$(s_val DEV_SES_TO_EMAIL)
-EOF
-          sed -E 's/^[[:space:]]+//' "$OUT_DIR/backend.env.dev.tmp" > "$OUT_DIR/backend.env.dev"
-          rm -f "$OUT_DIR/backend.env.dev.tmp"
-
-          cat > "$OUT_DIR/frontend.env.prod.tmp" <<EOF
-          NODE_ENV=production
-          ENV_PROFILE=prod
-
-          NEXT_PUBLIC_BACKEND_URL=$(s_val PROD_NEXT_PUBLIC_BACKEND_URL)
-EOF
-          sed -E 's/^[[:space:]]+//' "$OUT_DIR/frontend.env.prod.tmp" > "$OUT_DIR/frontend.env.prod"
-          rm -f "$OUT_DIR/frontend.env.prod.tmp"
-
-          cat > "$OUT_DIR/frontend.env.dev.tmp" <<EOF
-          NODE_ENV=development
-          ENV_PROFILE=dev
-
-          NEXT_PUBLIC_BACKEND_URL=$(s_val DEV_NEXT_PUBLIC_BACKEND_URL)
-EOF
-          sed -E 's/^[[:space:]]+//' "$OUT_DIR/frontend.env.dev.tmp" > "$OUT_DIR/frontend.env.dev"
-          rm -f "$OUT_DIR/frontend.env.dev.tmp"
+          printf "%s\n" \
+            "NODE_ENV=development" \
+            "ENV_PROFILE=dev" \
+            "" \
+            "NEXT_PUBLIC_BACKEND_URL=$(s_val DEV_NEXT_PUBLIC_BACKEND_URL)" \
+            > "$OUT_DIR/frontend.env.dev"
 
           echo "dir=$OUT_DIR" >> "$GITHUB_OUTPUT"
 
