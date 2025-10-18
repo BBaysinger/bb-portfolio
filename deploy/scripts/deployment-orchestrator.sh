@@ -341,7 +341,7 @@ if [[ "$refresh_env" == true ]]; then
         `S3_REGION=${sVal("S3_REGION", sVal("PROD_AWS_REGION", ""))}`,
         `PROD_FRONTEND_URL=${sVal("PROD_FRONTEND_URL")}`,
         `PROD_NEXT_PUBLIC_BACKEND_URL=${sVal("PROD_NEXT_PUBLIC_BACKEND_URL")}`,
-        `PROD_BACKEND_INTERNAL_URL=${sVal("PROD_BACKEND_INTERNAL_URL", "http://portfolio-backend-prod:3000")}`,
+  `PROD_BACKEND_INTERNAL_URL=${sVal("PROD_BACKEND_INTERNAL_URL", "http://backend-prod:3000")}`,
         `PROD_SES_FROM_EMAIL=${sVal("PROD_SES_FROM_EMAIL")}`,
         `PROD_SES_TO_EMAIL=${sVal("PROD_SES_TO_EMAIL")}`,
       ].join("\n") + "\n";
@@ -355,7 +355,7 @@ if [[ "$refresh_env" == true ]]; then
         `S3_REGION=${sVal("S3_REGION", sVal("DEV_AWS_REGION", ""))}`,
         `DEV_FRONTEND_URL=${sVal("DEV_FRONTEND_URL")}`,
         `DEV_NEXT_PUBLIC_BACKEND_URL=${sVal("DEV_NEXT_PUBLIC_BACKEND_URL")}`,
-        `DEV_BACKEND_INTERNAL_URL=${sVal("DEV_BACKEND_INTERNAL_URL", "http://portfolio-backend-dev:3000")}`,
+  `DEV_BACKEND_INTERNAL_URL=${sVal("DEV_BACKEND_INTERNAL_URL", "http://backend-dev:3000")}`,
         `DEV_SES_FROM_EMAIL=${sVal("DEV_SES_FROM_EMAIL")}`,
         `DEV_SES_TO_EMAIL=${sVal("DEV_SES_TO_EMAIL")}`,
       ].join("\n") + "\n";
