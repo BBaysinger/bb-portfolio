@@ -1,5 +1,4 @@
-#!/bin/bash
-
+#!/usr/bin/env bash
 # Full deploy orchestrator: run infra/image steps locally, then hand off
 # container (re)start to the GitHub Actions "Redeploy" workflow.
 #
@@ -16,6 +15,11 @@
 # Requirements:
 # - aws, terraform, node/npm, docker (if building images), gh CLI (auth'd)
 # - .github-secrets.private.json5 present locally for terraform var generation
+
+# Ensure we're running under bash even if invoked via sh
+if [ -z "${BASH_VERSION:-}" ]; then
+  exec /bin/bash "$0" "$@"
+fi
 
 set -euo pipefail
 
