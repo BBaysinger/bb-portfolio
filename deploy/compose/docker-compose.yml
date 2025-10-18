@@ -194,6 +194,28 @@ services:
         condition: service_started
 
   # =============================================================================
+  # OPTIONAL LOCAL REVERSE PROXY (Caddy)
+  # =============================================================================
+  # Enable with: COMPOSE_PROFILES=local,proxy docker compose up
+  # This mirrors the production routing pattern locally while keeping hot reload.
+  caddy-local:
+    profiles: ["proxy"]
+    image: caddy:alpine
+    container_name: portfolio-caddy-local
+    ports:
+      - "8080:80"
+      - "8443:443"
+    volumes:
+      - ../caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+    depends_on:
+      frontend-local:
+        condition: service_started
+      backend-local:
+        condition: service_started
+    networks:
+      default: {}
+
+  # =============================================================================
   # LOCAL (MacBook) DEVELOPMENT SERVICES WITH SGG GENERATION
   # =============================================================================
 

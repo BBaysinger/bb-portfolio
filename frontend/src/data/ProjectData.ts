@@ -63,9 +63,10 @@ async function fetchPortfolioProjects(opts?: {
   const primaryUrl = isServer
     ? `${base.replace(/\/$/, "")}${serverPath}`
     : path;
-  const fallbackUrl = isServer && serviceDnsFallback
-    ? `${serviceDnsFallback.replace(/\/$/, "")}${serverPath}`
-    : undefined;
+  const fallbackUrl =
+    isServer && serviceDnsFallback
+      ? `${serviceDnsFallback.replace(/\/$/, "")}${serverPath}`
+      : undefined;
 
   const fetchOptions: RequestInit & { next?: { revalidate?: number } } = {};
   if (disableCache) {
@@ -93,7 +94,12 @@ async function fetchPortfolioProjects(opts?: {
   try {
     res = await withTimeout(primaryUrl);
     // If upstream is clearly failing (>=500) and we have a service DNS alternative, try it
-    if (!res.ok && res.status >= 500 && fallbackUrl && fallbackUrl !== primaryUrl) {
+    if (
+      !res.ok &&
+      res.status >= 500 &&
+      fallbackUrl &&
+      fallbackUrl !== primaryUrl
+    ) {
       try {
         const alt = await withTimeout(fallbackUrl);
         if (alt.ok) {
@@ -111,12 +117,12 @@ async function fetchPortfolioProjects(opts?: {
       } catch (e2) {
         // Provide a clearer message including both attempts
         throw new Error(
-          `Failed to fetch project data: primary ${primaryUrl} and fallback ${fallbackUrl} both failed (${(e as Error).message}; ${(e2 as Error).message})`,
+          `Failed to fetch project data: primary ${primaryUrl} and fallback ${fallbackUrl} both failed (${(e as Error).message}; ${(e2 as Error).message})`
         );
       }
     } else {
       throw new Error(
-        `Failed to fetch project data: ${primaryUrl} (${(e as Error).message})`,
+        `Failed to fetch project data: ${primaryUrl} (${(e as Error).message})`
       );
     }
   }
@@ -128,7 +134,7 @@ async function fetchPortfolioProjects(opts?: {
     throw new Error(
       `Failed to fetch project data: ${res.status} ${res.statusText}${
         detail ? ` - ${detail.slice(0, 300)}` : ""
-      }`,
+      }`
     );
   }
   type BrandObj = {
@@ -497,7 +503,7 @@ export default class ProjectData {
         record[project.id] = project;
         return record;
       },
-      {} as Record<string, ParsedPortfolioProject>,
+      {} as Record<string, ParsedPortfolioProject>
     );
   }
 
@@ -508,7 +514,7 @@ export default class ProjectData {
    * @returns Parsed portfolio data
    */
   private static parsePortfolioData(
-    data: PortfolioProjectData,
+    data: PortfolioProjectData
   ): ParsedPortfolioProjectData {
     const parsedData: ParsedPortfolioProjectData = {};
 
@@ -619,7 +625,7 @@ export default class ProjectData {
               if (p) acc[k] = p;
               return acc;
             },
-            {} as Record<string, ParsedPortfolioProject>,
+            {} as Record<string, ParsedPortfolioProject>
           );
         }
       }
