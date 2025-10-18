@@ -82,7 +82,8 @@ async function fetchPortfolioProjects(opts?: {
   }
 
   // Timeout policy: give dev/local a bit more time, prod moderate.
-  const baseTimeoutMs = normalizedProfile === "dev" || normalizedProfile === "local" ? 8000 : 5000;
+  const baseTimeoutMs =
+    normalizedProfile === "dev" || normalizedProfile === "local" ? 8000 : 5000;
   const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
   // Helper to add a timeout so we can fail fast and try a retry/fallback
   const withTimeout = async (url: string, ms: number = baseTimeoutMs) => {
@@ -116,9 +117,10 @@ async function fetchPortfolioProjects(opts?: {
     }
   } catch (e) {
     // Network failure on primary; try one retry path.
-  const err = e as Error & { name?: string };
+    const err = e as Error & { name?: string };
     // Prefer fallback URL if it's different; otherwise retry primary once after a brief backoff with longer timeout.
-    const retryUrl = fallbackUrl && fallbackUrl !== primaryUrl ? fallbackUrl : primaryUrl;
+    const retryUrl =
+      fallbackUrl && fallbackUrl !== primaryUrl ? fallbackUrl : primaryUrl;
     try {
       if (process.env.NODE_ENV !== "production") {
         // small jitter to allow backend warm-up
@@ -127,7 +129,10 @@ async function fetchPortfolioProjects(opts?: {
       res = await withTimeout(retryUrl, Math.floor(baseTimeoutMs * 1.5));
     } catch (e2) {
       // Provide a clearer message including both attempts
-      const suffix = retryUrl === primaryUrl ? "(retried primary)" : `(fallback ${retryUrl})`;
+      const suffix =
+        retryUrl === primaryUrl
+          ? "(retried primary)"
+          : `(fallback ${retryUrl})`;
       throw new Error(
         `Failed to fetch project data: ${primaryUrl} (${err?.message}) ${suffix} also failed (${(e2 as Error).message})`,
       );
