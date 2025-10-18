@@ -89,10 +89,10 @@
     // 🚀 Push frontend Docker image to Docker Hub (dev tag)
     "docker:push:frontend": "docker push bhbaysinger/portfolio-frontend:dev",
     // 🚀 Build and push both backend and frontend images to Docker Hub (dev tag).
-    "docker:build-push": "bash deploy/publish-dockerhub-dev-images.sh",
+    "docker:build-push": "bash deploy/scripts/publish-dockerhub-dev-images.sh",
     // 🚀 Build and push production images to AWS ECR (:latest for frontend/backend)
     // Uses scripts/publish-ecr-images.sh which reads build-time secrets from infra/terraform.tfvars
-    "ecr:build-push": "bash deploy/publish-ecr-images.sh",
+    "ecr:build-push": "bash deploy/scripts/publish-ecr-images.sh",
     // 🌐 PROXY MODE (SSR + URL consistency): Single port access like production
     // Access everything at http://localhost:8080 - routes /api/* to backend, /* to frontend
     // Uses development containers (hot reload) but with production-like URL structure

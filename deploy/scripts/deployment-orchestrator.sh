@@ -1,11 +1,12 @@
 #!/bin/bash
 
-# Full deploy orchestrator: run all infra/image steps locally, then hand off
-# container (re)start to GitHub Actions "Redeploy" workflow.
+# Full deploy orchestrator: run infra/image steps locally, then hand off
+# container (re)start to the GitHub Actions "Redeploy" workflow.
 #
-# This mirrors scripts/iac/full-redeploy.sh except the final step uses GH to
-# restart compose profiles on EC2 (no SSH/scp from local). Useful when you want
-# a single source of truth in GitHub for runtime env files and container start.
+# This is the single source of truth for local infra and image workflows. Runtime env files
+# and container restarts are performed by GitHub Actions on EC2 to keep secrets
+# centralized and avoid SSH/scp from the local machine. If the workflow dispatch
+# fails, this script includes a safe SSH-based fallback to restart containers.
 #
 # Usage examples:
 #   deploy/scripts/deployment-orchestrator.sh --force --build-images both --profiles both
