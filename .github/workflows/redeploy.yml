@@ -246,6 +246,18 @@ jobs:
           scp -i "${{ steps.ssh.outputs.key }}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
             "$OUT_DIR/frontend.env.dev"  ec2-user@"$EC2_HOST":/home/ec2-user/portfolio/frontend/.env.dev
 
+      - name: Upload compose file to EC2
+        env:
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+        run: |
+          set -euo pipefail
+          # Ensure target directory exists on EC2
+          ssh -i "${{ steps.ssh.outputs.key }}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" "mkdir -p /home/ec2-user/portfolio/deploy/compose"
+          # Upload the compose file from repo to the expected remote path
+          scp -i "${{ steps.ssh.outputs.key }}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+            "deploy/compose/docker-compose.yml" \
+            ec2-user@"$EC2_HOST":/home/ec2-user/portfolio/deploy/compose/docker-compose.yml
+
       - name: Restart containers
         if: ${{ inputs.restart_containers == 'true' || inputs.restart_containers == true }}
         env:
