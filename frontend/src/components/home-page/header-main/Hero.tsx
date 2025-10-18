@@ -157,13 +157,14 @@ const Hero: React.FC = () => {
             break;
         }
 
-        if (sessionStorage.getItem("hasCollided") !== "true") {
-          sessionStorage.setItem("hasCollided", "true");
-          setHasCollided(true);
-          setTimeout(() => {
-            setHasAfterCollidedDelay(true);
-          }, 2000);
-        }
+        // Persist and reflect collision immediately so the tooltip is hidden right away
+        // Do not gate the state update behind sessionStorage; it may already be true from a prior session
+        sessionStorage.setItem("hasCollided", "true");
+        setHasCollided(true);
+        // Scheduling this repeatedly is harmless; state is idempotent once true
+        setTimeout(() => {
+          setHasAfterCollidedDelay(true);
+        }, 2000);
 
         gridControllerRef.current?.launchProjectile(x, y, direction);
       }
@@ -201,12 +202,15 @@ const Hero: React.FC = () => {
   useEffect(() => {
     setMounted(true);
 
-    if (!useSlingerTracking) return;
-    startSlingerTracking();
-
+    // Hydrate persisted flags regardless of tracking mode
     if (typeof window !== "undefined") {
       setHasDragged(sessionStorage.getItem("hasDragged") === "true");
       setHasCollided(sessionStorage.getItem("hasCollided") === "true");
+    }
+
+    // Only start the tracking loop if enabled
+    if (useSlingerTracking) {
+      startSlingerTracking();
     }
 
     return () => {
