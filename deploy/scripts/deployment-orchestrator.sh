@@ -8,6 +8,8 @@
 #   so runtime env files are generated on EC2 from GitHub Secrets.
 # - If the workflow dispatch fails, falls back to a safe SSH path to restart
 #   Compose profiles directly on the instance.
+# - First-time friendly: if no EC2 exists yet, Terraform apply will create it.
+#   To keep an existing instance, use --no-destroy; to skip infra entirely, use --containers-only.
 #
 # Runtime architecture on EC2:
 # - Reverse proxy: Nginx on the host forwards traffic to Compose services.
