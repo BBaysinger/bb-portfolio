@@ -1,11 +1,31 @@
 #!/usr/bin/env bash
-# Full deploy orchestrator: run infra/image steps locally, then hand off
-# container (re)start to the GitHub Actions "Redeploy" workflow.
+# Deployment Orchestrator — EC2 + Docker Compose (4 Debian-based containers)
+# -------------------------------------------------------------------------
+# What this does (high level):
+# - Provisions/updates an AWS EC2 instance via Terraform.
+# - Builds and publishes images (optional) to ECR (prod) and Docker Hub (dev).
+# - Hands off container (re)starts to the GitHub Actions "Redeploy" workflow
+#   so runtime env files are generated on EC2 from GitHub Secrets.
+# - If the workflow dispatch fails, falls back to a safe SSH path to restart
+#   Compose profiles directly on the instance.
 #
-# This is the single source of truth for local infra and image workflows. Runtime env files
-# and container restarts are performed by GitHub Actions on EC2 to keep secrets
-# centralized and avoid SSH/scp from the local machine. If the workflow dispatch
-# fails, this script includes a safe SSH-based fallback to restart containers.
+# Runtime architecture on EC2:
+# - Reverse proxy: Nginx on the host forwards traffic to Compose services.
+# - Containers: four Node.js containers based on Debian (node:22-slim) images
+#   managed by Docker Compose using two profiles:
+#   • prod:   frontend-prod (host:3000 → container:3000)
+#             backend-prod  (host:3001 → container:3000)
+#   • dev:    frontend-dev  (host:4000 → container:3000)
+#             backend-dev   (host:4001 → container:3000)
+# - DNS/routing (typical):
+#   • bbinteractive.io      → frontend-prod:3000 and backend-prod:3001
+#   • dev.bbinteractive.io  → frontend-dev:4000 and backend-dev:4001
+#
+# Secrets and env files:
+# - .env.dev / .env.prod are not committed; they are generated on EC2 by the
+#   GitHub workflow from repository secrets. Local dev only uses .env.
+# - This script can also generate env files from .github-secrets.private.json5
+#   for the SSH fallback path when requested.
 #
 # Usage examples:
 #   deploy/scripts/deployment-orchestrator.sh --force --build-images both --profiles both
