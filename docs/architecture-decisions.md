@@ -314,21 +314,15 @@ terraform destroy # Clean teardown
 
 - **Prod (`main` branch)** → Auto build/test/push via GitHub Actions → push images to ECR → deploy with `docker compose --profile prod`.
 - **Dev (`dev` branch)** → Manual trigger: SSH into EC2 or run a GitHub Actions workflow button to pull latest code and run `docker compose --profile dev up -d --build`.
-
 **Reasoning:**
 
 - Keeps CI/CD simple: only `main` branch triggers full rebuilds and ECR pushes.
-- Avoids unnecessary rebuilds every time code is pushed to `dev` (saves CI/CD minutes and clutter).
-- Still provides a live dev sandbox on EC2 (`dev.mysite.com`) for testing, but updates happen only when explicitly triggered.
 - Reflects professional workflow separation: **prod is automated, dev is flexible/manual**.
 
 **Alternatives considered:**
-
 - **Have `dev` auto-deploy like prod**: More consistent, but wastes builds on half-finished commits and requires managing separate ECR repos.
 
 **Status:** ✅ Active
-
----
 
 ## 2025-09-18 – Multi-Environment Docker Strategy
 
@@ -348,21 +342,60 @@ terraform destroy # Clean teardown
 
 **Alternatives considered:**
 
-- **Separate docker-compose files per environment**: More complex to maintain, higher drift risk.
-- **Environment variables only**: Less explicit, harder to reason about differences.
-- **Different repositories**: Massive overhead, doesn't reflect real-world monorepo patterns.
-
-**Status:** ✅ Active
 
 ---
 
-## 2025-09-18 – Health Check Strategy
-
-**Decision:** Use **TCP connection checks** instead of HTTP health checks for container monitoring.
 
 ```yaml
 healthcheck:
   test:
+---
+
+## 2025-10-19 – Deployment Orchestrator (Terraform + GitHub Actions + SSH Fallback)
+
+- **Decision:** Adopt a single orchestrator script `deploy/scripts/deployment-orchestrator.sh` as the source of truth for provisioning/updating EC2 infrastructure, optionally building/publishing images, and triggering container (re)starts via GitHub Actions with a robust SSH fallback.
+
+- **Context / Architecture:**
+  - Orchestrator responsibilities:
+    - Runs Terraform (init/plan/apply) to create/update the EC2 instance and supporting resources.
+    - Optionally builds and pushes images to registries:
+      - Production → Amazon ECR
+      - Development → Docker Hub
+    - Dispatches the reusable "Redeploy" GitHub Actions workflow to generate runtime `.env.*` files on EC2 from GitHub Secrets and to (re)start containers.
+    - Provides a safe SSH-based fallback to upload env files and restart Docker Compose profiles directly on the instance if workflow dispatch is unavailable.
+  - Runtime on EC2:
+    - Nginx on the host forwards traffic to Docker Compose services.
+    - Four Debian-based Node containers (node:22-slim) managed by Compose profiles:
+      - prod: frontend-prod (3000), backend-prod (3001)
+      - dev:  frontend-dev (4000), backend-dev (4001)
+    - Typical DNS routing:
+      - bbinteractive.io → prod (3000/3001)
+      - dev.bbinteractive.io → dev (4000/4001)
+
+- **Why this approach:**
+  - Consistency: One entry point for infra + images + deploy, reducing drift and tribal knowledge.
+  - Security: Runtime env files are generated on EC2 from GitHub Secrets; no secrets leave GitHub/EC2.
+  - Resilience: SSH fallback ensures deploys aren’t blocked by GitHub workflow hiccups.
+  - First-time friendly: If no EC2 exists, Terraform apply bootstraps a new instance automatically.
+  - Zero/minimal downtime: Profiles allow prod/dev independence; targeted restarts minimize disruption.
+
+- **Operation & Flags (highly used):**
+  - `--profiles prod|dev|both` choose which environment(s) to deploy.
+  - `--build-images prod|dev|both` optionally rebuild/push images before deployment.
+  - `--no-destroy` keep the existing EC2 (no teardown), still plan/apply drift fixes.
+  - `--containers-only` skip Terraform entirely and only (re)start containers/workflows.
+  - `--refresh-env` ask the workflow to regenerate `.env.dev/.env.prod` on EC2.
+
+- **Alternatives considered:**
+  - Pure GitHub Actions (no local orchestrator): Less flexible locally, harder to provide rich fallback.
+  - Pure SSH scripting: Centralizes secrets on the developer machine; brittle compared to GH Secrets.
+  - ECS/EKS or App Runner: Heavier operational surface area and cost for a portfolio-scale app.
+
+- **Related improvements:**
+  - `infra/portfolio-management.sh` auto ECR login for prod flows and compose v1/v2 fallback on the host, to avoid image pull auth issues.
+
+- **Status:** ✅ Active
+
     [
       "CMD",
       "node",
