@@ -41,6 +41,7 @@
     "slugify": "^1.6.6"
   },
   "devDependencies": {
+    "@types/json5": "^0.0.29",
     "@playwright/test": "1.56.1",
     "@testing-library/react": "16.3.0",
     "@types/express": "^5.0.3",
