@@ -68,6 +68,11 @@ This section consolidates the feature list from `docs/main-features-list.md` and
 - Unified ESLint configurations
 - Playwright E2E and Vitest setup (backend)
 - Local dev proxy and hot-reload compose profile
+- JSON5 Package Sync Script (`sync:json5`)
+  - Synchronizes `package.json5` files with canonical `package.json` keys
+  - Preserves all comments from `.json5` for matching keys, regardless of order
+  - Removes comments for keys not present in `package.json`
+  - Usage: `npm run sync:json5` (see scripts/sync-json5-packages.ts)
 
 ### Data Ops & Backups
 
