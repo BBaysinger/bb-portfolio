@@ -2,78 +2,139 @@
 
 [Visit the Live Site](https://bbinteractive.io)
 
-## Features
+## Features (categorized)
 
-- **Native Swipe Parallax Carousel**: Previews for each portfolio project are presented through an infinite parallax carousel with seamless, native left/right user swiping. There are reasons you've probably never seen a carousel like this.
-  - **Device Overlays**: Screenshots are dynamically overlaid onto mobile and desktop device mockups for a professional presentation.
-  - **Dynamic Routing**: Each slide is linked through dynamic routing, ensuring a smooth and engaging user experience with deep linking available.
-  - **Actionable Links**: Includes buttons to access:
-    - Code repositories
-    - Video project walkthroughs
-    - Live or staging deployments
-- **Modern Design**: Responsive and visually appealing UI designed to showcase my work.
-- **Dynamic Components**: Includes reusable components.
-- **Scalability**: Built with a focus on maintainability and expansion.
+This section consolidates the feature list from `docs/main-features-list.md` and current implementation, grouped logically and deduplicated. Each item has its own heading for discoverability.
 
-## Roadmap
+### Frontend UX & Interaction
 
-- **Backend Integration**: Integrate a fully custom backend using Express, MongoDB, and Redux. I have functioning boilerplate started for this in another repo that's ready to repurpose.
-- **Project Enhancements**: I see defects in some of my portfolio projects as they age. Those are in separate repos, but this is on my radar. Some of them I'd love to upgrade to their current framework versions.
-- **Walkthrough Videos Play in Project Carousel** This would be a dream, but I'll need to come back to it after the previous items.
-- **Additional Features**: Many more ideas for future improvements and features are under consideration that I'll need to have a lot of free time for, lol.
+- Parallax Project Carousel (layered, native swipe, deep linking)
+- Device Mockup Overlays (tilt/stabilization states)
+- Simulated-Depth Magnetic “Fluxel” Grid
+- Custom Sprite Rendering
+- Magnetic/Sticky Road Sign
+- Custom Physics Kinetic Orb
+- Page Slide-Out Navigation
+- Transform-Positioned Footer
+- Logo/Info Swapper Animations tied to active slide
+- Scroll-Aware Project List Highlighting
+- Fluid Responsive System
+  - rem-based fluid scaling property mixin
+  - static fluid scaling property mixin
+
+### CMS, Data Modeling & Rendering
+
+- Payload CMS Backend (type-safe with generated types)
+- SSR portfolio projects list (Next.js)
+- SSG dynamic routing projects view (Next.js)
+- Automatic slug generation and sortable index
+- NDA-aware content filtering/sanitization
+- Rich project metadata (brand, tags, role, year, awards, urls)
+- Image collections for screenshots, thumbnails, brand logos
+- Sharp-backed image processing with 5MB limits
+- Sprite sheet image processing scripts
+
+### Storage & Media Pipeline
+
+- S3-backed media storage with per-collection prefixes
+- Instance-role support with optional static credentials
+- Media migration/verification scripts
+  - migrate media to S3, update media URLs, rebuild records
+- Local filesystem storage for local profile
+
+### API & Security
+
+- Env-profile guardrails (fail-fast config validation)
+- Locked-down CSRF/CORS allowlists per environment
+- Role-based access control for admin-only mutations
+- Health-check endpoint for uptime/deploy validation
+- Contact API via AWS SES (see `docs/aws-ses-setup.md`)
+
+### DevOps & Deployment
+
+- Automated (re)deployment orchestrator
+- Terraform IaC: one-command provision/teardown
+- Systemd-managed Docker services on EC2 (auto-restart)
+- Dual registry strategy (Docker Hub dev, ECR prod)
+- Secure Docker builds (BuildKit secret mounts, minimal args)
+- Generated env files on host via CI/CD (no secrets in repo)
+- Reverse proxy options: Caddy or Nginx (compose/configs provided)
+- Compose profiles for local/dev/prod and proxy-only
+
+### Developer Experience & Testing
+
+- Monorepo with strict TypeScript (frontend and backend)
+- Unified ESLint configurations
+- Playwright E2E and Vitest setup (backend)
+- Local dev proxy and hot-reload compose profile
+
+### Data Ops & Backups
+
+- JSON dumps for seed data and repeatable imports
+- Automated database backups with dated folders
 
 ## Technologies Used
 
-- **Front-End**: React, TypeScript, JSX, SCSS
-- **Back-End**: TypeScript, React Router, React Redux
-- **Tooling**: Vite, ESLint, Prettier
-- **Design**: Mobile-first approach, responsive breakpoints
+- Frontend: Next.js, React, TypeScript, SCSS Modules
+- Backend: Payload CMS (Next.js runtime), TypeScript
+- State: Redux Toolkit (frontend auth/session), React hooks
+- Testing: Playwright, Vitest
+- Tooling: ESLint, Prettier, Docker, Node.js
+- Cloud/IaC: AWS (EC2, S3, ECR, IAM, SES), Terraform
+
+## Roadmap
+
+- Walkthrough videos playable within the project carousel
+- Project upkeep: framework/library upgrades across showcased projects
+- Additional polish and performance passes as time allows
+
+Note: Earlier plans for “custom Express/Mongo backend” were superseded by the fully integrated Payload CMS backend present in this repo.
 
 ## Infrastructure & Deployment
 
-This portfolio is deployed using **enterprise-grade Infrastructure as Code** practices, demonstrating professional DevOps capabilities and cloud architecture knowledge.
+This portfolio is deployed using **Infrastructure as Code** with Terraform and a Docker-based runtime on AWS, demonstrating professional DevOps practices.
 
-### 🏗️ **Architecture Overview**
+### 🏗️ Architecture Overview
 
-- **Cloud Provider**: Amazon Web Services (AWS)
-- **Infrastructure as Code**: Terraform for complete automation
-- **Compute**: EC2 t3.medium with automated configuration
-- **Load Balancing**: Nginx reverse proxy for professional routing
-- **Containerization**: Docker with dual registry strategy (Docker Hub + ECR)
-- **Storage**: S3 buckets for media assets with environment isolation
-- **Networking**: Elastic IP (54.70.138.1), Security Groups, VPC integration
-- **Domain**: Custom domain (bbinteractive.io) with DNS management
+- Cloud Provider: Amazon Web Services (AWS)
+- Infrastructure as Code: Terraform (automated provisioning/teardown)
+- Compute: EC2 t3.medium (automated configuration via user_data)
+- Reverse Proxy: Caddy or Nginx (configs and compose profiles included)
+- Containerization: Docker with dual registry strategy (Docker Hub + ECR)
+- Storage: S3 buckets for media assets with environment isolation
+- Networking: Elastic IP (54.70.138.1), Security Groups, VPC integration
+- Domain: Custom domain (bbinteractive.io) with DNS management
 
-### 🚀 **Deployment Process**
+### 🚀 Deployment Process
 
-The entire infrastructure can be deployed or destroyed with single commands:
+Provision/destroy the infrastructure with Terraform:
 
 ```bash
 # Deploy complete infrastructure
 cd infra/
 terraform plan    # Review changes
-terraform apply   # Deploy infrastructure (creates 25+ AWS resources)
+terraform apply   # Deploy infrastructure (creates many AWS resources)
 
 # Destroy infrastructure
 terraform destroy # Clean teardown of all resources
 ```
 
-**What happens during deployment:**
+What happens during deployment:
 
-1. **AWS Resources Created**: EC2 instance, Elastic IP, Security Groups, IAM roles, S3 buckets, ECR repositories
-2. **Automated Configuration**: Docker, Nginx, and application services installed via user_data scripts
-3. **Container Deployment**: Development containers pulled from Docker Hub and started automatically
-4. **Service Management**: Systemd services configured for auto-restart and boot persistence
-5. **Domain Pointing**: DNS A records pointed to Elastic IP for live website access
+1. AWS resources are created (EC2, Elastic IP, Security Groups, IAM roles, S3, ECR)
+2. Automated configuration installs Docker and application services via user_data
+3. Containers are started (dev from Docker Hub, prod from ECR)
+4. Systemd services provide auto-restart and boot persistence
+5. DNS A records point the domain to the Elastic IP
 
-### 🔄 **Container Management**
+### 🔄 Container Management
 
-**Dual Registry Strategy:**
+Dual registry strategy:
 
-- **Development**: Images from Docker Hub (`bhbaysinger/portfolio-*:dev`)
-- **Production**: Images from Amazon ECR (`*.dkr.ecr.us-west-2.amazonaws.com/bb-portfolio-*:latest`)
+- Development: Docker Hub images (`bhbaysinger/portfolio-*:dev`)
+- Production: Amazon ECR images (`*.dkr.ecr.us-west-2.amazonaws.com/bb-portfolio-*:latest`)
 
-**Container Profiles:**
+Helper scripts (from `infra/portfolio-management.sh`):
 
 ```bash
 # Switch between environments
@@ -83,36 +144,39 @@ terraform destroy # Clean teardown of all resources
 ./portfolio-management.sh deploy       # Deploy from ECR
 ```
 
-### 🛡️ **Production Features**
+### 🛡️ Production Features
 
-- **Zero Manual Configuration**: Everything automated via Terraform and user_data scripts
-- **Auto-Healing**: Systemd services restart containers on failure
-- **Environment Isolation**: Separate S3 buckets and configurations for dev/staging/prod
-- **Security**: IAM roles with least-privilege access, encrypted storage, security groups
-- **Scalability Ready**: Architecture supports load balancers, auto-scaling, and CDN integration
-- **Cost Optimized**: Resources sized appropriately with lifecycle policies for cleanup
+- Zero manual configuration: Terraform + user_data configure hosts
+- Auto-healing: systemd restarts containers on failure
+- Environment isolation: S3 buckets and configs per env
+- Security: IAM least-privilege, encrypted storage, security groups
+- Scalability-ready: LB/ASG/CDN can be added when needed
+- Cost-optimized: right-sized resources and lifecycle policies
 
-### 📊 **Infrastructure Validation**
+### 📊 Infrastructure Validation
 
-This deployment demonstrates:
+Demonstrates:
 
-- **Infrastructure as Code** mastery with Terraform
-- **Container orchestration** with Docker and systemd
-- **Cloud architecture** design and implementation
-- **DevOps automation** and best practices
-- **Professional deployment** workflows and documentation
-- **System reliability** with auto-restart and monitoring capabilities
+- IaC mastery with Terraform
+- Container orchestration with Docker + systemd
+- Cloud architecture design and automation
+- Professional deployment workflows and documentation
+- System reliability through auto-restart and health checks
 
-The infrastructure successfully passed **complete recreation testing** - the entire environment was destroyed and recreated to verify automation works flawlessly.
+### 📚 Documentation
 
-### 📚 **Documentation**
+For deep dives and implementation details:
 
-For detailed technical documentation:
+- Architecture Decisions: [`/docs/architecture-decisions.md`](./docs/architecture-decisions.md)
+- Fluid Responsive System: [`/docs/fluid-responsive-system.md`](./docs/fluid-responsive-system.md)
+- Uploads & Migration: [`/docs/uploads-and-migration.md`](./docs/uploads-and-migration.md)
+- SES Email Setup: [`/docs/aws-ses-setup.md`](./docs/aws-ses-setup.md)
+- Ports & Services: [`/docs/ports.md`](./docs/ports.md)
+- Infrastructure Guide: [`/infra/README.md`](./infra/README.md)
+- Deployment Instructions: [`/deploy/DEPLOYMENT.md`](./deploy/DEPLOYMENT.md)
 
-- **Architecture Decisions**: [`/docs/architecture-decisions.md`](./docs/architecture-decisions.md)
-- **Infrastructure Guide**: [`/infra/README.md`](./infra/README.md)
-- **Deployment Instructions**: [`/DEPLOYMENT.md`](./DEPLOYMENT.md)
+---
 
-# Updated EC2 IP: 54.70.138.1
+Updated EC2 IP: 54.70.138.1
 
-# Updated Wed Oct 8 02:06:08 PDT 2025
+Last updated: Sun Oct 19, 2025
