@@ -27,6 +27,7 @@ interface ProjectThumbnailProps {
   thumbUrl?: string;
   thumbUrlMobile?: string;
   thumbAlt?: string;
+  isAuthenticated: boolean;
 }
 
 /**
@@ -48,6 +49,7 @@ const ProjectThumbnail = forwardRef<HTMLDivElement, ProjectThumbnailProps>(
       ndaIndex = 0,
       thumbUrl,
       thumbUrlMobile,
+      isAuthenticated,
     },
     ref,
   ) => {
@@ -86,7 +88,8 @@ const ProjectThumbnail = forwardRef<HTMLDivElement, ProjectThumbnailProps>(
       return `/images/home/confidential-thumbnail-${colors[colorIndex]}.webp`;
     };
 
-    const bgImage = nda
+    const showNdaConfidential = nda && !isAuthenticated;
+    const bgImage = showNdaConfidential
       ? getConfidentialThumbnail(ndaIndex)
       : responsiveThumbUrl;
     const style: React.CSSProperties = bgImage
@@ -101,19 +104,21 @@ const ProjectThumbnail = forwardRef<HTMLDivElement, ProjectThumbnailProps>(
         <div className={styles.vignette}></div>
         <div className={styles.thumbContent}>
           <div>
-            {(logoSrc || nda) && (
+            {(logoSrc || showNdaConfidential) && (
               <Image
                 src={logoSrc || "/images/home/confidential-word.svg"}
                 className={styles.brandLogo}
                 loading="eager"
-                alt={nda ? "Confidential Project" : `${title} logo`}
+                alt={
+                  showNdaConfidential ? "Confidential Project" : `${title} logo`
+                }
                 width={200}
                 height={100}
               />
             )}
           </div>
           <h4 className={styles.thumbTitle}>
-            {nda ? "Please log in to view this project" : title}
+            {showNdaConfidential ? "Please log in to view this project" : title}
           </h4>
         </div>
       </>
@@ -121,7 +126,7 @@ const ProjectThumbnail = forwardRef<HTMLDivElement, ProjectThumbnailProps>(
 
     return (
       <div className={`${styles.projectThumbnail} ${focusClass}`} ref={ref}>
-        {nda ? (
+        {showNdaConfidential ? (
           <Link
             href={`/login/`}
             className={styles.link}

@@ -23,6 +23,8 @@ const ProjectsList = async () => {
   // Mark this route as dynamic if auth can change NDA content.
   noStore();
   // Fetch fresh data per-request to honor auth and NDA differences
+  // Detect authentication from cookies
+  let isAuthenticated = false;
   try {
     // Forward cookies/headers for authenticated fetch to Payload
     const cookieStore = await cookies();
@@ -31,6 +33,9 @@ const ProjectsList = async () => {
       // Narrow to only what's needed; avoid leaking sensitive headers
       Cookie: cookieHeader,
     };
+    // Simple token check (customize as needed)
+    const token = cookieStore.get("authToken")?.value;
+    isAuthenticated = !!token;
     await ProjectData.initialize({
       headers: forwardedHeaders,
       disableCache: true,
@@ -43,7 +48,12 @@ const ProjectsList = async () => {
   // The client decides how to render NDA entries as placeholders.
   const allProjects = [...ProjectData.listedProjects];
   // Delegate rendering and interactivity to the client component.
-  return <ProjectsListClient allProjects={allProjects} />;
+  return (
+    <ProjectsListClient
+      allProjects={allProjects}
+      isAuthenticated={isAuthenticated}
+    />
+  );
 };
 
 export default ProjectsList;
