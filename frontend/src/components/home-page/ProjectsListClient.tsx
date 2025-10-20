@@ -21,6 +21,7 @@ interface ProjectsListClientProps {
    * with alternate messaging/links.
    */
   allProjects: ParsedPortfolioProject[];
+  isAuthenticated: boolean;
 }
 
 /**
@@ -42,6 +43,7 @@ interface ProjectsListClientProps {
  */
 const ProjectsListClient: React.FC<ProjectsListClientProps> = ({
   allProjects,
+  isAuthenticated,
 }) => {
   const [focusedThumbIndex, setFocusedThumbIndex] = useState(-1);
   const projectThumbRefs = useRef<Array<RefObject<HTMLDivElement | null>>>([]);
@@ -193,6 +195,7 @@ const ProjectsListClient: React.FC<ProjectsListClientProps> = ({
               thumbUrl={thumbUrl}
               thumbUrlMobile={thumbUrlMobile}
               thumbAlt={thumbAlt}
+              isAuthenticated={isAuthenticated}
               ref={(node) => setThumbRef(node, index)}
             />
           );
