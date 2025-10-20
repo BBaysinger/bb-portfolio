@@ -110,12 +110,11 @@ function buildCommentMap(
     { preceding: string[]; trailing?: string }
   > = {};
 
-  // State tracking for nested structure parsing
-  const pathStack: string[] = []; // Current JSON path (e.g., ["pnpm", "onlyBuiltDependencies"])
-  const indentStack: number[] = []; // Indentation levels for nesting detection
-  const arrayIndexStack: number[] = []; // Current index within arrays
-  let bufferedComments: string[] = []; // Accumulated preceding comments
-  let insideArray = false; // Flag to track array context
+  // State tracking for nested structure parsing (now using curly braces/brackets, not indentation)
+  const pathStack: string[] = [];
+  const arrayIndexStack: number[] = [];
+  let bufferedComments: string[] = [];
+  let insideArray = false;
 
   /**
    * Extracts trailing comments from a line while correctly handling URLs.
@@ -167,43 +166,22 @@ function buildCommentMap(
     }
 
     // Handle array start patterns: "key": [
-    const arrayStartMatch = line.match(/^(\s*)(["']?)([^"']+)\2\s*:\s*\[\s*$/);
+    const arrayStartMatch = line.match(/^\s*(["']?)([^"']+)\1\s*:\s*\[\s*$/);
     if (arrayStartMatch) {
-      const indent = arrayStartMatch[1].length;
-      const key = arrayStartMatch[3];
-
-      // Handle nesting by popping completed levels
-      while (
-        indentStack.length &&
-        indent <= indentStack[indentStack.length - 1]
-      ) {
-        pathStack.pop();
-        indentStack.pop();
-        if (arrayIndexStack.length > 0) {
-          arrayIndexStack.pop();
-        }
-      }
-
+      const key = arrayStartMatch[2];
       const fullPath = [...pathStack, key].join(".");
-
-      // Store comments for the array itself (both preceding and trailing)
       const commentInfo: { preceding: string[]; trailing?: string } = {
         preceding: [...bufferedComments],
       };
-
       const trailing = extractTrailingComment(line);
       if (trailing) {
         commentInfo.trailing = trailing;
       }
-
       if (commentInfo.preceding.length > 0 || commentInfo.trailing) {
         commentsMap[fullPath] = commentInfo;
       }
-
-      // Update state for array processing
       pathStack.push(key);
-      indentStack.push(indent);
-      arrayIndexStack.push(0); // Start array index at 0
+      arrayIndexStack.push(0);
       insideArray = true;
       bufferedComments = [];
       continue;
@@ -236,45 +214,24 @@ function buildCommentMap(
     }
 
     // Handle regular object keys - supports scoped packages with improved regex
-    const keyMatch = line.match(/^(\s*)(["']?)([^"']+)\2\s*:/);
+    const keyMatch = line.match(/^\s*(["']?)([^"']+)\1\s*:/);
     if (keyMatch) {
-      const indent = keyMatch[1].length;
-      const key = keyMatch[3];
-
-      // Handle nesting by checking indentation levels
-      while (
-        indentStack.length &&
-        indent <= indentStack[indentStack.length - 1]
-      ) {
-        pathStack.pop();
-        indentStack.pop();
-        if (arrayIndexStack.length > 0) {
-          arrayIndexStack.pop();
-        }
-      }
-
+      const key = keyMatch[2];
       const fullPath = [...pathStack, key].join(".");
-
-      // Collect both preceding and trailing comments for this key
       const commentInfo: { preceding: string[]; trailing?: string } = {
         preceding: [...bufferedComments],
       };
-
       const trailing = extractTrailingComment(line);
       if (trailing) {
         commentInfo.trailing = trailing;
       }
-
       if (commentInfo.preceding.length > 0 || commentInfo.trailing) {
         commentsMap[fullPath] = commentInfo;
       }
-
       bufferedComments = [];
-
       // If this is an object start, update the path stack
       if (trimmed.endsWith("{")) {
         pathStack.push(key);
-        indentStack.push(indent);
         insideArray = false;
       }
     } else if (bufferedComments.length > 0 && trimmed !== "") {
@@ -282,7 +239,7 @@ function buildCommentMap(
       bufferedComments = [];
     }
 
-    // Handle closing brackets to maintain proper nesting
+    // Handle closing brackets to maintain proper nesting (using curly braces/brackets)
     if (
       trimmed === "}" ||
       trimmed === "}," ||
@@ -296,7 +253,6 @@ function buildCommentMap(
         }
       }
       if (pathStack.length) pathStack.pop();
-      if (indentStack.length) indentStack.pop();
     }
   }
 
@@ -365,8 +321,8 @@ function syncJson5(raw: string, source: Record<string, unknown>): string {
 
       const commentInfo = comments[fullPath];
 
-      // Add any preceding comments above this key, or generate one if missing for scripts
-      if (commentInfo?.preceding) {
+      // Add any preceding comments above this key
+      if (commentInfo?.preceding && commentInfo.preceding.length > 0) {
         for (const c of commentInfo.preceding) {
           result.push(indent(c, level));
         }
@@ -375,9 +331,12 @@ function syncJson5(raw: string, source: Record<string, unknown>): string {
         path[0] === "scripts" &&
         typeof val === "string"
       ) {
-        // Auto-generate blank comment for uncommented script entries
-        const autoComment = generateScriptComment();
-        result.push(indent(autoComment, level));
+        // If this key is new (not present in previous comment map), add a blank comment
+        // Only add blank if not found in comment map
+        if (!comments.hasOwnProperty(fullPath)) {
+          const autoComment = generateScriptComment();
+          result.push(indent(autoComment, level));
+        }
       }
 
       if (typeof val === "object" && val !== null && !Array.isArray(val)) {

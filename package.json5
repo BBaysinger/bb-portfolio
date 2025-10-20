@@ -94,35 +94,35 @@
     // Uses scripts/publish-ecr-images.sh which reads build-time secrets from infra/terraform.tfvars
     "ecr:build-push": "bash deploy/scripts/publish-ecr-images.sh",
     // 🌐 PROXY MODE (SSR + URL consistency): Single port access like production
-  // Access everything at http://localhost:8080 — this mirrors prod’s “no explicit backend port in the URL” behavior.
-  // When you run with the proxy (npm run caddy:up), you get a single entrypoint at http://localhost:8080 and:
-  //   • /api and /admin are proxied to the backend
-  //   • everything else goes to the frontend
-  // The only “extra” is the Docker network (infrastructure), not an extra app.
-  // Uses compose profiles: local (frontend+backend dev) + proxy (Caddy)
-  "caddy:up": "AWS_ACCOUNT_ID=123456789012 COMPOSE_PROFILES=local,proxy docker compose -f deploy/compose/docker-compose.yml up --build -d",
-  // 🌐 Same as caddy:up but with React Strict Mode disabled (for legacy compatibility)
-  "caddy:up:no-strict": "REACT_STRICT_MODE=false AWS_ACCOUNT_ID=123456789012 COMPOSE_PROFILES=local,proxy docker compose -f deploy/compose/docker-compose.yml up --build -d",
-  // 🛑 Stop Caddy (and its dependencies) cleanly
-  "caddy:down": "AWS_ACCOUNT_ID=123456789012 COMPOSE_PROFILES=local,proxy docker compose -f deploy/compose/docker-compose.yml down",
-  // 🧹 Force-remove a stale caddy container if it was created outside the current compose project
-  "caddy:down:force": "docker rm -f portfolio-caddy-local || true",
-  // 📋 Follow Caddy reverse proxy logs in real-time
-  "caddy:logs": "docker compose -f deploy/compose/docker-compose.yml logs -f caddy-local",
-  // 🔄 Restart Caddy in-place (recreate only the proxy)
-  "caddy:restart": "COMPOSE_PROFILES=local,proxy docker compose -f deploy/compose/docker-compose.yml up -d --force-recreate caddy-local",
+    // Access everything at http://localhost:8080 — this mirrors prod’s “no explicit backend port in the URL” behavior.
+    // When you run with the proxy (npm run caddy:up), you get a single entrypoint at http://localhost:8080 and:
+    //   • /api and /admin are proxied to the backend
+    //   • everything else goes to the frontend
+    // The only “extra” is the Docker network (infrastructure), not an extra app.
+    // Uses compose profiles: local (frontend+backend dev) + proxy (Caddy)
+    "caddy:up": "AWS_ACCOUNT_ID=123456789012 COMPOSE_PROFILES=local,proxy docker compose -f deploy/compose/docker-compose.yml up --build -d",
+    // 🌐 Same as caddy:up but with React Strict Mode disabled (for legacy compatibility)
+    "caddy:up:no-strict": "REACT_STRICT_MODE=false AWS_ACCOUNT_ID=123456789012 COMPOSE_PROFILES=local,proxy docker compose -f deploy/compose/docker-compose.yml up --build -d",
+    // 🛑 Stop Caddy (and its dependencies) cleanly
+    "caddy:down": "AWS_ACCOUNT_ID=123456789012 COMPOSE_PROFILES=local,proxy docker compose -f deploy/compose/docker-compose.yml down --remove-orphans",
+    // 🧹 Force-remove a stale caddy container if it was created outside the current compose project
+    "caddy:down:force": "docker rm -f backend-local frontend-local portfolio-caddy-local || true",
+    // 📋 Follow Caddy reverse proxy logs in real-time
+    "caddy:logs": "docker compose -f deploy/compose/docker-compose.yml logs -f caddy-local",
+    // 🔄 Restart Caddy in-place (recreate only the proxy)
+    "caddy:restart": "COMPOSE_PROFILES=local,proxy docker compose -f deploy/compose/docker-compose.yml up -d --force-recreate caddy-local",
     // ⚡ Reload Caddy configuration without restarting containers
     "caddy:reload": "docker exec portfolio-caddy-local caddy reload --config /etc/caddy/Caddyfile",
     // � Check status of portfolio containers
     // 📊 Check status of portfolio containers
     "caddy:status": "docker ps --filter name=portfolio- --format 'table {{.Names}}\\t{{.Status}}\\t{{.Ports}}'",
-  // ℹ️ Note on routing through Caddy:
-  // - If your frontend uses relative paths like fetch('/api/...'), browser requests will always hit the proxy at 8080
-  //   (when using caddy:up) and be routed to the backend. This fully mirrors prod.
-  // - If any client code builds absolute URLs from NEXT_PUBLIC_BACKEND_URL (e.g., http://localhost:8081),
-  //   those requests will bypass the proxy and hit the backend directly. That still works, but it’s not “via Caddy”.
-  // - For perfect parity, prefer relative paths in the browser, or set NEXT_PUBLIC_BACKEND_URL=http://localhost:8080
-  //   when running with the proxy.
+    // ℹ️ Note on routing through Caddy:
+    // - If your frontend uses relative paths like fetch('/api/...'), browser requests will always hit the proxy at 8080
+    //   (when using caddy:up) and be routed to the backend. This fully mirrors prod.
+    // - If any client code builds absolute URLs from NEXT_PUBLIC_BACKEND_URL (e.g., http://localhost:8081),
+    //   those requests will bypass the proxy and hit the backend directly. That still works, but it’s not “via Caddy”.
+    // - For perfect parity, prefer relative paths in the browser, or set NEXT_PUBLIC_BACKEND_URL=http://localhost:8080
+    //   when running with the proxy.
     // =============================================================================
     // 🖥️  BARE METAL DEVELOPMENT (No Docker - runs directly on your machine)
     // =============================================================================
@@ -220,7 +220,7 @@
     // Run multiple commands concurrently in scripts
     "concurrently": "^9.2.1",
     // Main linter for JS/TS code
-    "eslint": "^9.37.0",
+    "eslint": "^9.38.0",
     // ESLint plugin for import/export syntax validation
     "eslint-plugin-import": "^2.32.0",
     // ESLint plugin for React hooks rules
@@ -245,5 +245,8 @@
     "tsx": "^4.20.6",
     // TypeScript language support
     "typescript": "^5.9.3",
+  },
+  "dependencies": {
+    "jsonwebtoken": "^9.0.2",
   },
 }
