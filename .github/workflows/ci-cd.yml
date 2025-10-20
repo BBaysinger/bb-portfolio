@@ -156,6 +156,7 @@ jobs:
           IMAGE_TAG: ${{ github.sha }}
         run: |
           docker build --no-cache --target runner \
+            --build-arg NODE_IMAGE=public.ecr.aws/docker/library/node:22-slim \
             --build-arg ENV_PROFILE=prod \
             --build-arg PROD_BACKEND_INTERNAL_URL="${{ secrets.PROD_BACKEND_INTERNAL_URL }}" \
             --build-arg PROD_NEXT_PUBLIC_BACKEND_URL="${{ secrets.PROD_NEXT_PUBLIC_BACKEND_URL }}" \
@@ -178,6 +179,7 @@ jobs:
           echo "${{ secrets.PROD_SES_FROM_EMAIL }}" > /tmp/prod_ses_from_email
           echo "${{ secrets.PROD_SES_TO_EMAIL }}" > /tmp/prod_ses_to_email
           DOCKER_BUILDKIT=1 docker build --no-cache --target runtime \
+            --build-arg NODE_IMAGE=public.ecr.aws/docker/library/node:22-slim \
             --build-arg ENV_PROFILE=prod \
             --build-arg PROD_FRONTEND_URL="${{ secrets.PROD_FRONTEND_URL }}" \
             --build-arg PROD_S3_BUCKET="${{ secrets.PROD_S3_BUCKET }}" \

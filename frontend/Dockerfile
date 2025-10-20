@@ -21,7 +21,9 @@
 # Base Stage - Common Foundation
 # ==========================================
 # This stage provides the foundation for all other stages with necessary system dependencies
-FROM node:22-slim AS base
+# Allow registry override per-environment; default to Docker Hub for dev/local
+ARG NODE_IMAGE=node:22-slim
+FROM ${NODE_IMAGE} AS base
 WORKDIR /app
 
 
@@ -135,7 +137,7 @@ RUN \
 # ==========================================
 # Minimal production image containing only the compiled application and runtime dependencies
 # Uses slim Node.js image for smaller footprint and better security
-FROM node:22-slim AS runner
+FROM ${NODE_IMAGE} AS runner
 
 WORKDIR /app
 

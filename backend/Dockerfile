@@ -28,8 +28,9 @@
 #######################
 # This stage compiles the Payload CMS application and prepares production dependencies
 
-# Using node:22-slim for consistency with frontend and better native module compatibility
-FROM node:22-slim AS builder
+# Allow registry to be overridden per-environment; default to Docker Hub for dev/local
+ARG NODE_IMAGE=node:22-slim
+FROM ${NODE_IMAGE} AS builder
 
 # IMPORTANT: Don't set NODE_ENV=production here because we need dev dependencies for the build process
 # TypeScript compilation, bundling tools, and other build-time dependencies require devDependencies
@@ -108,7 +109,7 @@ RUN npm prune --omit=dev
 #######################
 # Minimal production image containing only the compiled application and runtime dependencies
 # Implements security best practices with non-root user execution
-FROM node:22-slim AS runtime
+FROM ${NODE_IMAGE} AS runtime
 
 # Set production environment to optimize application performance and disable debug features
 ENV NODE_ENV=production
@@ -148,7 +149,7 @@ CMD ["npm", "start"]
 # Used only for local development with docker-compose
 
 # Use same Debian slim base for consistency across all stages and with frontend
-FROM node:22-slim AS dev
+FROM ${NODE_IMAGE} AS dev
 
 # Upgrade system packages to mitigate known vulnerabilities
 RUN apt-get update && apt-get upgrade -y && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
