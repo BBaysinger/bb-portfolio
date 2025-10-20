@@ -86,7 +86,7 @@ jobs:
       - name: Install backend dependencies (pnpm)
         working-directory: ./backend
         env:
-          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1' # Avoid heavy download during install
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1" # Avoid heavy download during install
         run: pnpm install --no-frozen-lockfile --prefer-offline
 
       - name: Build backend
