@@ -82,5 +82,3 @@ Env-Profile Guardrails (fail-fast config + csrf/cors strategy)
 S3 Media Architecture (prefixes, instance role, migration scripts)
 Dev/Prod Image Strategy (BuildKit secrets, dual registries, systemd on EC2)
 Contact via SES (secure flow, HTML/Text fallback, reply-to behavior)
-
-
