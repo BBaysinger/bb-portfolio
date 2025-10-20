@@ -83,7 +83,7 @@ export default buildConfig({
   // Security settings
   upload: {
     limits: {
-      fileSize: 5000000, // 5MB limit
+      fileSize: 2000000, // 2MB limit
     },
   },
   csrf: (() => {
