@@ -122,9 +122,13 @@ const ProjectThumbnail = forwardRef<HTMLDivElement, ProjectThumbnailProps>(
     return (
       <div className={`${styles.projectThumbnail} ${focusClass}`} ref={ref}>
         {nda ? (
-          <div className={styles.link} aria-label="Confidential Project">
+          <Link
+            href={`/login/`}
+            className={styles.link}
+            aria-label="Confidential Project"
+          >
             {inner}
-          </div>
+          </Link>
         ) : (
           <Link href={`/project-view/${projectId}/`} className={styles.link}>
             {inner}
