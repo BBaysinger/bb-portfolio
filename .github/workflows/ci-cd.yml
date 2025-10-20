@@ -66,6 +66,17 @@ jobs:
           version: 9
           run_install: false
 
+      # Fallback: ensure pnpm is on PATH even if action was skipped/restricted
+      - name: Ensure pnpm available
+        run: |
+          if ! command -v pnpm >/dev/null 2>&1; then
+            echo "pnpm not found on PATH; installing via npm..."
+            npm i -g pnpm@9
+            pnpm -v
+          else
+            echo "pnpm already available: $(pnpm -v)"
+          fi
+
       # =======================================================================
       # BACKEND BUILD AND TEST (Build backend first for frontend SSG)
       # =======================================================================
