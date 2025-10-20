@@ -10,14 +10,15 @@ This section consolidates the feature list from `docs/main-features-list.md` and
 
 - Parallax Project Carousel (layered, native swipe, deep linking)
 - Device Mockup Overlays (tilt/stabilization states)
-- Simulated-Depth Magnetic “Fluxel” Grid
-- Custom Sprite Rendering
+- Simulated-Depth Magnetic “Fluxel” Grid System
+- Custom Sprite Rendering w/ CSS, canvas, and WebGL rendering options
 - Magnetic/Sticky Road Sign
 - Custom Physics Kinetic Orb
-- Page Slide-Out Navigation
+- Page Slide-Out Mobile Navigation
 - Transform-Positioned Footer
 - Logo/Info Swapper Animations tied to active slide
 - Scroll-Aware Project List Highlighting
+- Teletype Paragraph Animation Effect
 - Fluid Responsive System
   - rem-based fluid scaling property mixin
   - static fluid scaling property mixin
