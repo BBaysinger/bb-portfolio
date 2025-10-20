@@ -57,13 +57,22 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20 # LTS version for stability
+          cache: 'pnpm'
+
+      # Enable Corepack and activate pnpm (matches engines in package.json)
+      - name: Enable Corepack
+        run: |
+          corepack enable
+          corepack prepare pnpm@9 --activate
 
       # =======================================================================
       # BACKEND BUILD AND TEST (Build backend first for frontend SSG)
       # =======================================================================
-      - name: Install backend dependencies
+      - name: Install backend dependencies (pnpm)
         working-directory: ./backend
-        run: npm install --legacy-peer-deps # Required for some peer dependency conflicts
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1' # Avoid heavy download during install
+        run: pnpm install --no-frozen-lockfile --prefer-offline
 
       - name: Build backend
         working-directory: ./backend
@@ -83,7 +92,12 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           DEV_SES_FROM_EMAIL: ${{ secrets.DEV_SES_FROM_EMAIL }}
           DEV_SES_TO_EMAIL: ${{ secrets.DEV_SES_TO_EMAIL }}
-        run: npm run build # Next.js production build (Payload CMS)
+        run: pnpm run build # Next.js production build (Payload CMS)
+
+      # Install Playwright browsers only when running tests
+      - name: Install Playwright browsers
+        working-directory: ./backend
+        run: pnpm exec playwright install --with-deps || true
 
       - name: Test backend
         working-directory: ./backend
@@ -100,14 +114,14 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           DEV_SES_FROM_EMAIL: ${{ secrets.DEV_SES_FROM_EMAIL }}
           DEV_SES_TO_EMAIL: ${{ secrets.DEV_SES_TO_EMAIL }}
-        run: npm test || echo "⚠️ No backend tests yet" # Graceful failure until tests are implemented
+        run: pnpm test || echo "⚠️ No backend tests yet" # Graceful failure until tests are implemented
 
       # =======================================================================
       # FRONTEND BUILD AND TEST (After backend is ready)
       # =======================================================================
-      - name: Install frontend dependencies
+      - name: Install frontend dependencies (pnpm)
         working-directory: ./frontend
-        run: npm install --legacy-peer-deps # Required for some peer dependency conflicts
+        run: pnpm install --no-frozen-lockfile --prefer-offline
 
       - name: Build frontend
         working-directory: ./frontend
@@ -116,7 +130,7 @@ jobs:
           DEV_BACKEND_INTERNAL_URL: ${{ secrets.DEV_BACKEND_INTERNAL_URL }}
           DEV_NEXT_PUBLIC_BACKEND_URL: ${{ secrets.DEV_NEXT_PUBLIC_BACKEND_URL }}
           NEXT_PUBLIC_BACKEND_URL: ${{ secrets.DEV_NEXT_PUBLIC_BACKEND_URL }}
-        run: npm run build
+        run: pnpm run build
 
   # Build and push production images to ECR (main branch)
   build-push-prod-images:
