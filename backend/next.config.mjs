@@ -8,6 +8,9 @@ const __dirname = path.dirname(__filename)
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // Your Next.js config here
+  // Normalize URLs to include a trailing slash so SSR and client generate identical HREFs
+  // This avoids hydration mismatches like "/admin/collections/users" vs "/admin/collections/users/"
+  trailingSlash: true,
   outputFileTracingRoot: path.join(__dirname, '../'),
   webpack: (webpackConfig) => {
     webpackConfig.resolve.extensionAlias = {
