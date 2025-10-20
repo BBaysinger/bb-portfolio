@@ -1,4 +1,6 @@
 // NOTE: This is a Server Component. Do NOT add 'use client'.
+
+import jwt from "jsonwebtoken";
 import { unstable_noStore as noStore } from "next/cache";
 import { cookies } from "next/headers";
 
@@ -29,17 +31,31 @@ const ProjectsList = async () => {
     // Forward cookies/headers for authenticated fetch to Payload
     const cookieStore = await cookies();
     const cookieHeader = cookieStore.toString();
+    // Attempt to extract and verify JWT token from cookies
+    let token = null;
+    // Example: look for 'payload-token' cookie (adjust name as needed)
+    const match = cookieHeader.match(/payload-token=([^;]+)/);
+    if (match) {
+      token = match[1];
+      try {
+        // Replace 'your-secret-key' with your actual JWT secret or public key
+        jwt.verify(token, process.env.PAYLOAD_JWT_SECRET || "your-secret-key");
+        isAuthenticated = true;
+      } catch (_jwtErr) {
+        // Token invalid or expired
+        isAuthenticated = false;
+      }
+    }
     const forwardedHeaders: HeadersInit = {
-      // Narrow to only what's needed; avoid leaking sensitive headers
       Cookie: cookieHeader,
     };
-    // Simple token check (customize as needed)
-    const token = cookieStore.get("authToken")?.value;
-    isAuthenticated = !!token;
     await ProjectData.initialize({
       headers: forwardedHeaders,
       disableCache: true,
     });
+    // Optionally, also check NDA project data for real details
+    // const ndaProjects = ProjectData.listedProjects.filter(p => p.nda);
+    // isAuthenticated = ndaProjects.some(p => p.title !== "Confidential Project");
   } catch (err) {
     console.error("ProjectsList: failed to initialize ProjectData", err);
     // Continue gracefully; client will render empty state if no items
