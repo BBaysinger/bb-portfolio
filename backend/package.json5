@@ -40,21 +40,21 @@
   },
   // Runtime dependencies for backend and CMS functionality
   "dependencies": {
-    "@aws-sdk/client-ses": "^3.908.0",
-    "@aws-sdk/types": "^3.901.0",
+    "@aws-sdk/client-ses": "^3.913.0",
+    "@aws-sdk/types": "^3.910.0",
     // MongoDB adapter for Payload CMS
-    "@payloadcms/db-mongodb": "3.58.0",
+    "@payloadcms/db-mongodb": "3.60.0",
     // Nodemailer email adapter for Payload CMS (handles SMTP email sending, password resets, notifications)
-    "@payloadcms/email-nodemailer": "3.58.0",
+    "@payloadcms/email-nodemailer": "3.60.0",
     // Enables Payload-Next.js integration (server-side rendering and routing)
-    "@payloadcms/next": "3.58.0",
+    "@payloadcms/next": "3.60.0",
     // Payload Cloud tools (optional if self-hosting)
-    "@payloadcms/payload-cloud": "3.58.0",
+    "@payloadcms/payload-cloud": "3.60.0",
     // Rich text editor using Lexical (modern alternative to Slate)
-    "@payloadcms/richtext-lexical": "3.58.0",
-    "@payloadcms/storage-s3": "3.58.0",
+    "@payloadcms/richtext-lexical": "3.60.0",
+    "@payloadcms/storage-s3": "3.60.0",
     // Payload's core UI components
-    "@payloadcms/ui": "3.58.0",
+    "@payloadcms/ui": "3.60.0",
     // Cross-platform environment variable setting (Windows/Unix compatibility)
     "cross-env": "^10.1.0",
     // Environment variable loader (reads .env files into process.env)
@@ -63,10 +63,11 @@
     "express": "^5.1.0",
     // GraphQL query language runtime (required by Payload's GraphQL API)
     "graphql": "^16.11.0",
+    "json5": "^2.2.3",
     // Next.js framework for frontend/backend integration
-    "next": "15.5.4",
+    "next": "15.5.6",
     // Payload CMS core package
-    "payload": "3.58.0",
+    "payload": "3.60.0",
     // React version to match Next.js 15
     "react": "19.2.0",
     // React DOM library for rendering React components (required by Next.js and Payload UI)
@@ -79,29 +80,30 @@
   // Development-only tools and type definitions
   "devDependencies": {
     // E2E test runner
-    "@playwright/test": "1.56.0",
+    "@playwright/test": "1.56.1",
     // Testing utilities for React components
     "@testing-library/react": "16.3.0",
     // Express.js TypeScript definitions
     "@types/express": "^5.0.3",
+    "@types/json5": "^0.0.29",
     // Node.js TypeScript definitions (latest for Node 18+)
-    "@types/node": "^24.7.0",
+    "@types/node": "^24.8.1",
     // React 19 types
-    "@types/react": "19.2.1",
+    "@types/react": "19.2.2",
     // React DOM 19 types
-    "@types/react-dom": "19.2.0",
+    "@types/react-dom": "19.2.2",
     // Vite React plugin (enables React support in Vitest)
     "@vitejs/plugin-react": "5.0.4",
     // ESLint JavaScript/TypeScript linter (v9 for latest rules)
-    "eslint": "^9.37.0",
+    "eslint": "^9.38.0",
     // Next.js ESLint configuration (includes React and accessibility rules)
-    "eslint-config-next": "15.5.4",
+    "eslint-config-next": "15.5.6",
     // Browser DOM simulation for Node.js testing environments
-    "jsdom": "27.0.0",
+    "jsdom": "27.0.1",
     // Standalone version of Playwright test runner
-    "playwright": "1.56.0",
+    "playwright": "1.56.1",
     // Playwright core library (used for browser automation)
-    "playwright-core": "1.56.0",
+    "playwright-core": "1.56.1",
     // Code formatter with opinionated defaults
     "prettier": "^3.6.2",
     // TypeScript compiler (v5.9 for latest language features)
