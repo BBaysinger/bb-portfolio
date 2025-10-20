@@ -85,5 +85,8 @@
     "ts-node": "^10.9.2",
     "tsx": "^4.20.6",
     "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "jsonwebtoken": "^9.0.2"
   }
 }
