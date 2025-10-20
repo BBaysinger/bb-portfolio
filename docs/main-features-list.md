@@ -42,7 +42,7 @@ automatic slug generation and sortable index for projects
 nda-aware content sanitization for anonymous users
 rich project metadata (brand, tags, role, year, awards, urls)
 image collections for screenshots/thumbnails/brand logos
-sharp-backed image processing and 5mb upload limits
+sharp-backed image processing and 2mb upload limits
 Storage/media pipeline
 
 s3-backed media storage with per-collection prefixes

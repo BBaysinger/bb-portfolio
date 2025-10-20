@@ -31,7 +31,7 @@ This section consolidates the feature list from `docs/main-features-list.md` and
 - NDA-aware content filtering/sanitization
 - Rich project metadata (brand, tags, role, year, awards, urls)
 - Image collections for screenshots, thumbnails, brand logos
-- Sharp-backed image processing with 5MB limits
+- Image processing via Sharp (server-side resizing) with 2 MB upload limit
 - Sprite sheet image processing scripts
 
 ### Storage & Media Pipeline
