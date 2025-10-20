@@ -114,7 +114,9 @@ terraform.rc
 # ─────────────────────────────────────────────
 # 🗄️ Database Backups & Migration Files
 # ─────────────────────────────────────────────
-database-backups/
+# Ignore backup artifacts under data/ but keep curated seed dumps tracked
+data/database-backups/**
+!data/database-backups/.gitkeep
 temp_dump_*
 *.bson
 *.metadata.json
