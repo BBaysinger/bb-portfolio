@@ -59,11 +59,12 @@ jobs:
           node-version: 20 # LTS version for stability
           cache: 'pnpm'
 
-      # Enable Corepack and activate pnpm (matches engines in package.json)
-      - name: Enable Corepack
-        run: |
-          corepack enable
-          corepack prepare pnpm@9 --activate
+      # Install pnpm explicitly to ensure availability on runner
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9
+          run_install: false
 
       # =======================================================================
       # BACKEND BUILD AND TEST (Build backend first for frontend SSG)
