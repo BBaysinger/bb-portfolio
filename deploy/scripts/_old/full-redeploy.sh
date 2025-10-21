@@ -626,7 +626,7 @@ show_deployment_summary() {
     ec2_ip=$(get_ec2_ip)
     
     echo -e "${GREEN}"
-    echo "🎉 Infrastructure deployment completed successfully!"
+    echo "🎈 Infrastructure deployment completed successfully!"
     echo ""
     echo "📋 Access Information:"
     echo "   • EC2 Instance: ${ec2_ip}"
@@ -784,7 +784,7 @@ main() {
     # Show summary
     show_deployment_summary
     
-    log_success "🎉 Complete infrastructure deployment finished successfully!"
+    log_success "🎈 Complete infrastructure deployment finished successfully!"
 }
 
 # Run main function

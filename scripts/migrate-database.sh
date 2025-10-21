@@ -212,7 +212,7 @@ main() {
   migrate_database "$source_env" "$target_env"
   
   echo
-  log_success "🎉 Migration completed successfully!"
+  log_success "🎈 Migration completed successfully!"
   log_info "Next steps:"
   echo "  1. Test the target environment to verify data integrity"
   echo "  2. Deploy/restart applications if needed"

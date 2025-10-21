@@ -1,7 +1,7 @@
 "use client";
 
 import clsx from "clsx";
-import React, { useRef } from "react";
+import React, { useRef, useEffect } from "react";
 import { useSelector } from "react-redux";
 
 import Footer from "@/components/layout/Footer";
@@ -19,6 +19,31 @@ import styles from "./AppShell.module.scss";
  * Client-side application shell component
  */
 export function AppShell({ children }: { children: React.ReactNode }) {
+  // Runtime backend health check: logs backend connectivity status on startup
+  useEffect(() => {
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "/api/health";
+    const healthUrl = backendUrl.endsWith("/api/health")
+      ? backendUrl
+      : backendUrl.replace(/\/$/, "") + "/api/health";
+    fetch(healthUrl)
+      .then((res) => {
+        if (res.ok) {
+          console.log(
+            `✅ [Runtime Health Check] Backend healthy at ${healthUrl} (status: ${res.status})`,
+          );
+        } else {
+          console.warn(
+            `⚠️ [Runtime Health Check] Backend responded but not healthy (status: ${res.status}) at ${healthUrl}`,
+          );
+        }
+      })
+      .catch((err) => {
+        console.error(
+          `❌ [Runtime Health Check] Failed to reach backend at ${healthUrl}:`,
+          err,
+        );
+      });
+  }, []);
   const isMenuOpen = useSelector(
     (state: RootState) => state.ui.isMobileNavExpanded,
   );
@@ -67,6 +92,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         isMenuOpen && styles.isMobileNavExpanded,
       )}
     >
+      {/* Runtime backend health check runs on mount and logs to console */}
       <NavVariant variant={NavVariants.SLIDE_OUT} />
       <div id="top" style={{ position: "absolute", top: "0px" }}></div>
       <div className={styles.underlay} />
