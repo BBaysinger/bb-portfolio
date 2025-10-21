@@ -546,7 +546,7 @@ EOF
 
 # Output the public IP and Elastic IP
 output "bb_portfolio_instance_ip" {
-  value = aws_instance.bb-portfolio.public_ip
+  value = aws_instance.bb_portfolio.public_ip
 }
 
 output "bb_portfolio_elastic_ip" {
@@ -567,7 +567,7 @@ output "bb_portfolio_website_url" {
 
 
 resource "aws_eip_association" "bb_portfolio_assoc" {
-  instance_id   = aws_instance.bb-portfolio.id
+  instance_id   = aws_instance.bb_portfolio.id
   allocation_id = aws_eip.bb_portfolio_ip.id
 }
 
@@ -805,7 +805,7 @@ resource "aws_iam_role_policy_attachment" "ecr_access_attach" {
 resource "null_resource" "iac_validation" {
   # Trigger this whenever the instance changes
   triggers = {
-    instance_id = aws_instance.bb-portfolio.id
+    instance_id = aws_instance.bb_portfolio.id
   }
 
   # Wait for user_data to complete and test the deployment
