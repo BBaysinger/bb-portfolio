@@ -58,7 +58,7 @@
   top: calc(100% + 1px);
   left: 100%;
   width: 6.5rem;
-  display: flex;
+  display: flex !important;
   align-items: center;
   justify-content: center;
   border: 1px solid #00ff00;

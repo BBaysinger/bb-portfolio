@@ -68,7 +68,10 @@ const FPSCounter: React.FC<{ updateInterval?: number; className?: string }> = ({
   const fpsDigits = fps.toString().padStart(2, "0").split("");
 
   return (
-    <div className={clsx(styles.fpsCounter, className)}>
+    <div
+      className={clsx(styles.fpsCounter, className)}
+      style={{ display: mounted ? "inline-block" : "none" }}
+    >
       <div>
         <div className={styles.label}>FPS:</div>
         <div className={styles.output}>
@@ -78,7 +81,6 @@ const FPSCounter: React.FC<{ updateInterval?: number; className?: string }> = ({
             </span>
           ))}
         </div>
-        {/* <span className={styles.note}>&nbsp;&larr; render performance</span> */}
       </div>
       <div>
         <div className={styles.label}>FPS:</div>
