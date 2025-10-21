@@ -106,7 +106,7 @@ while [[ $# -gt 0 ]]; do
     --no-watch) watch_logs=false; shift ;
     --no-secrets-sync) sync_secrets=false; shift ;
     -h|--help) usage; exit 0 ;
-    *) die "Unknown option: $1" ;
+    *) die "Unknown option: $1" ;;
   esac
 done
 
@@ -319,14 +319,14 @@ case "$profiles" in
       ok "Prod redeploy dispatched via GitHub Actions. EC2 IP: ${EC2_IP:-unknown}"
       popd >/dev/null; exit 0
     fi
-    ;
+    ;;
   dev)
     # Prefer current branch for dev, fallback to 'dev' then main
     if dispatch_redeploy dev "$BRANCH" dev main; then
       ok "Dev redeploy dispatched via GitHub Actions. EC2 IP: ${EC2_IP:-unknown}"
       popd >/dev/null; exit 0
     fi
-    ;
+    ;;
   both)
     # Always dispatch two separate runs: prod (main) then dev (current/dev)
     PROD_OK=false
@@ -337,7 +337,7 @@ case "$profiles" in
       ok "Prod and Dev redeploys dispatched via GitHub Actions. EC2 IP: ${EC2_IP:-unknown}"
       popd >/dev/null; exit 0
     fi
-    ;
+    ;;
 esac
 
 warn "All GitHub workflow dispatch attempts failed for requested profiles. Falling back to direct SSH restart from this script."
@@ -443,17 +443,17 @@ case '"$profiles"' in
   prod)
     COMPOSE_PROFILES=prod docker-compose pull || true
     COMPOSE_PROFILES=prod docker-compose up -d
-    ;
+    ;;
   dev)
     COMPOSE_PROFILES=dev docker-compose pull || true
     COMPOSE_PROFILES=dev docker-compose up -d
-    ;
+    ;;
   both)
     COMPOSE_PROFILES=prod docker-compose pull || true
     COMPOSE_PROFILES=prod docker-compose up -d || true
     COMPOSE_PROFILES=dev docker-compose pull || true
     COMPOSE_PROFILES=dev docker-compose up -d || true
-    ;
+    ;;
 esac
 '
 

@@ -41,7 +41,7 @@ while [ $# -gt 0 ]; do
     --workflow) WORKFLOW_FILE="${2:-}"; shift 2;
     -h|--help) usage; exit 0;
     --no-color) shift;
-    *) err "Unknown argument: $1"; usage; exit 1;
+    *) err "Unknown argument: $1"; usage; exit 1;;
   esac
 done
 
@@ -170,17 +170,17 @@ case '"$PROFILES"' in
   prod)
     COMPOSE_PROFILES=prod docker-compose pull || true
     COMPOSE_PROFILES=prod docker-compose up -d
-    ;
+    ;;
   dev)
     COMPOSE_PROFILES=dev docker-compose pull || true
     COMPOSE_PROFILES=dev docker-compose up -d
-    ;
+    ;;
   both)
     COMPOSE_PROFILES=prod docker-compose pull || true
     COMPOSE_PROFILES=prod docker-compose up -d || true
     COMPOSE_PROFILES=dev docker-compose pull || true
     COMPOSE_PROFILES=dev docker-compose up -d || true
-    ;
+    ;;
 esac
 '
 

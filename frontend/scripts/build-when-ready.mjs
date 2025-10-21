@@ -10,12 +10,12 @@ import { execSync } from "child_process";
 async function buildWhenReady() {
   // SUPER OBVIOUS LOG BLOCK: BUILD START
   console.log(
-    `\n${"/".repeat(250)}\nFrontend Next Build STARTED\n${"/".repeat(250)}\n`
+    `\n${"/".repeat(250)}\nFrontend Next Build STARTED\n${"/".repeat(250)}\n`,
   );
 
   // SUPER OBVIOUS LOG BLOCK: HEALTH/DATA CHECK REMOVED
   console.log(
-    `\n${"/".repeat(250)}\nBackend Health/Data Check REMOVED\n${"/".repeat(250)}\n`
+    `\n${"/".repeat(250)}\nBackend Health/Data Check REMOVED\n${"/".repeat(250)}\n`,
   );
 
   try {
