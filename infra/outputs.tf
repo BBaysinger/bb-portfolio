@@ -1,11 +1,11 @@
 output "instance_id" {
   description = "ID of the EC2 instance"
-  value       = aws_instance.bb-portfolio.id
+  value       = aws_instance.bb_portfolio.id
 }
 
 output "public_ip" {
   description = "Public IP of the instance"
-  value       = aws_instance.bb-portfolio.public_ip
+  value       = aws_instance.bb_portfolio.public_ip
 }
 
 output "elastic_ip" {
