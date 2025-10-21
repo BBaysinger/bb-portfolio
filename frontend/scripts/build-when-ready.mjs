@@ -43,7 +43,18 @@ async function waitForBackendHealth() {
 }
 
 async function buildWhenReady() {
+  // SUPER OBVIOUS LOG BLOCK: BUILD START
+  console.log(
+    `\n${"/".repeat(250)}\nFrontend Next Build STARTED\n${"/".repeat(250)}\n`
+  );
+
   await waitForBackendHealth();
+
+  // SUPER OBVIOUS LOG BLOCK: HEALTH/DATA CHECK SUCCESS
+  console.log(
+    `\n${"/".repeat(250)}\nBackend Health/Data Check SUCCEEDED\n${"/".repeat(250)}\n`
+  );
+
   try {
     console.info("🏗️  Running Next.js build...");
     execSync("npm run build", {
