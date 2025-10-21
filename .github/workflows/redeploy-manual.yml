@@ -95,13 +95,13 @@ jobs:
                 : "${PROD_PAYLOAD_SECRET}"
                 : "${PROD_S3_BUCKET}"
                 : "${PROD_AWS_REGION}"
-                ;;
+                ;
               dev)
                 : "${DEV_MONGODB_URI}"
                 : "${DEV_PAYLOAD_SECRET}"
                 : "${DEV_S3_BUCKET}"
                 : "${DEV_AWS_REGION}"
-                ;;
+                ;
               both)
                 : "${PROD_MONGODB_URI}"
                 : "${PROD_PAYLOAD_SECRET}"
@@ -111,7 +111,7 @@ jobs:
                 : "${DEV_PAYLOAD_SECRET}"
                 : "${DEV_S3_BUCKET}"
                 : "${DEV_AWS_REGION}"
-                ;;
+                ;
             esac
           fi
 
@@ -249,17 +249,17 @@ jobs:
             printf '%s\n' '  prod)'
             printf '%s\n' '    COMPOSE_PROFILES=prod docker-compose pull || true'
             printf '%s\n' '    COMPOSE_PROFILES=prod docker-compose up -d --force-recreate'
-            printf '%s\n' '    ;;'
+            printf '%s\n' '    ;'
             printf '%s\n' '  dev)'
             printf '%s\n' '    COMPOSE_PROFILES=dev docker-compose pull || true'
             printf '%s\n' '    COMPOSE_PROFILES=dev docker-compose up -d --force-recreate'
-            printf '%s\n' '    ;;'
+            printf '%s\n' '    ;'
             printf '%s\n' '  both)'
             printf '%s\n' '    COMPOSE_PROFILES=prod docker-compose pull || true'
             printf '%s\n' '    COMPOSE_PROFILES=prod docker-compose up -d || true'
             printf '%s\n' '    COMPOSE_PROFILES=dev docker-compose pull || true'
             printf '%s\n' '    COMPOSE_PROFILES=dev docker-compose up -d || true'
-            printf '%s\n' '    ;;'
+            printf '%s\n' '    ;'
             printf '%s\n' 'esac'
           } | ssh -i "${{ steps.ssh.outputs.key }}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" "ENVIRONMENT='${ENVIRONMENT}' bash -s"
 
