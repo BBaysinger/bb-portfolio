@@ -91,22 +91,22 @@ USAGE
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    --force) force_destroy=true; shift ;;
+    --force) force_destroy=true; shift ;
     --build-images)
-      build_images="${2:-}"; [[ -n "$build_images" ]] || die "--build-images requires prod|dev|both"; shift 2 ;;
-    --no-build) build_images=""; shift ;;
+      build_images="${2:-}"; [[ -n "$build_images" ]] || die "--build-images requires prod|dev|both"; shift 2 ;
+    --no-build) build_images=""; shift ;
     --profiles)
-      profiles="${2:-}"; [[ "$profiles" =~ ^(prod|dev|both)$ ]] || die "--profiles must be prod|dev|both"; shift 2 ;;
-    --no-destroy) do_destroy=false; shift ;;
-    --containers-only) do_infra=false; shift ;;
+      profiles="${2:-}"; [[ "$profiles" =~ ^(prod|dev|both)$ ]] || die "--profiles must be prod|dev|both"; shift 2 ;
+    --no-destroy) do_destroy=false; shift ;
+    --containers-only) do_infra=false; shift ;
     --gh-workflows)
-      workflows="${2:-}"; [[ -n "$workflows" ]] || die "--gh-workflows requires at least one name"; shift 2 ;;
-    --refresh-env) refresh_env=true; shift ;;
-    --no-restart) restart_containers=false; shift ;;
-    --no-watch) watch_logs=false; shift ;;
-    --no-secrets-sync) sync_secrets=false; shift ;;
-    -h|--help) usage; exit 0 ;;
-    *) die "Unknown option: $1" ;;
+      workflows="${2:-}"; [[ -n "$workflows" ]] || die "--gh-workflows requires at least one name"; shift 2 ;
+    --refresh-env) refresh_env=true; shift ;
+    --no-restart) restart_containers=false; shift ;
+    --no-watch) watch_logs=false; shift ;
+    --no-secrets-sync) sync_secrets=false; shift ;
+    -h|--help) usage; exit 0 ;
+    *) die "Unknown option: $1" ;
   esac
 done
 
@@ -319,14 +319,14 @@ case "$profiles" in
       ok "Prod redeploy dispatched via GitHub Actions. EC2 IP: ${EC2_IP:-unknown}"
       popd >/dev/null; exit 0
     fi
-    ;;
+    ;
   dev)
     # Prefer current branch for dev, fallback to 'dev' then main
     if dispatch_redeploy dev "$BRANCH" dev main; then
       ok "Dev redeploy dispatched via GitHub Actions. EC2 IP: ${EC2_IP:-unknown}"
       popd >/dev/null; exit 0
     fi
-    ;;
+    ;
   both)
     # Always dispatch two separate runs: prod (main) then dev (current/dev)
     PROD_OK=false
@@ -337,7 +337,7 @@ case "$profiles" in
       ok "Prod and Dev redeploys dispatched via GitHub Actions. EC2 IP: ${EC2_IP:-unknown}"
       popd >/dev/null; exit 0
     fi
-    ;;
+    ;
 esac
 
 warn "All GitHub workflow dispatch attempts failed for requested profiles. Falling back to direct SSH restart from this script."
@@ -443,17 +443,17 @@ case '"$profiles"' in
   prod)
     COMPOSE_PROFILES=prod docker-compose pull || true
     COMPOSE_PROFILES=prod docker-compose up -d
-    ;;
+    ;
   dev)
     COMPOSE_PROFILES=dev docker-compose pull || true
     COMPOSE_PROFILES=dev docker-compose up -d
-    ;;
+    ;
   both)
     COMPOSE_PROFILES=prod docker-compose pull || true
     COMPOSE_PROFILES=prod docker-compose up -d || true
     COMPOSE_PROFILES=dev docker-compose pull || true
     COMPOSE_PROFILES=dev docker-compose up -d || true
-    ;;
+    ;
 esac
 '
 

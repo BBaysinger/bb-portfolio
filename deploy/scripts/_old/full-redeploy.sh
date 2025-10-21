@@ -663,7 +663,7 @@ main() {
             --force)
                 force_destroy=true
                 shift
-                ;;
+                ;
             --build-images)
                 build_images="${2:-}"
                 if [[ -z "$build_images" ]]; then
@@ -671,14 +671,14 @@ main() {
                     exit 1
                 fi
                 case "$build_images" in
-                    prod|dev|both) ;;
+                    prod|dev|both) ;
                     *)
                         log_error "Invalid value for --build-images: '$build_images'. Use prod|dev|both."
                         exit 1
-                        ;;
+                        ;
                 esac
                 shift 2
-                ;;
+                ;
             -h|--help)
                 echo "Usage: $0 [--force] [--build-images prod|dev|both]"
                 echo ""
@@ -687,12 +687,12 @@ main() {
                 echo "  --build-images prod|dev|both  Rebuild and push images before deploy"
                 echo "  -h, --help Show this help message"
                 exit 0
-                ;;
+                ;
             *)
                 log_error "Unknown option: $1"
                 echo "Use -h or --help for usage information"
                 exit 1
-                ;;
+                ;
         esac
     done
 
@@ -705,11 +705,11 @@ main() {
     if [[ -z "$build_images" && -n "${npm_config_build_images:-}" ]]; then
         build_images="${npm_config_build_images}"
         case "$build_images" in
-            prod|dev|both) ;;
+            prod|dev|both) ;
             *)
                 log_error "Invalid value for npm --build-images: '$build_images'. Use prod|dev|both."
                 exit 1
-                ;;
+                ;
         esac
         log_info "Detected npm --build-images=$build_images"
     fi
