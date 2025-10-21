@@ -366,7 +366,7 @@ healthcheck:
   - Runtime on EC2:
     - Nginx on the host forwards traffic to Docker Compose services.
     - Four Debian-based Node containers (node:22-slim) managed by Compose profiles:
-      - prod: frontend-prod (3000), backend-prod (3001)
+      - prod: frontend-prod (3000), bb-portfolio-backend-prod (3001)
       - dev:  frontend-dev (4000), bb-portfolio-backend-dev (4001)
     - Typical DNS routing:
       - bbinteractive.io → prod (3000/3001)
@@ -602,7 +602,7 @@ healthcheck:
 **Validation:**
 
 - ✅ **September 20, 2025**: Production deployment completed successfully
-- ✅ Both containers running healthy: `portfolio-backend-prod`, `portfolio-frontend-prod`
+- ✅ Both containers running healthy: `bb-portfolio-backend-prod`, `portfolio-frontend-prod`
 - ✅ ECR image pulls completed without disk space errors
 - ✅ System resources now adequate: `/dev/nvme0n1p1     20G  2.0G   18G  10% /`
 
@@ -627,8 +627,8 @@ healthcheck:
 
 ```
 NAME                      STATUS                    PORTS
-portfolio-backend-prod    Up 20 seconds (healthy)   0.0.0.0:3000->3000/tcp
-portfolio-frontend-prod   Up 20 seconds (healthy)   0.0.0.0:3001->3000/tcp
+bb-portfolio-backend-prod    Up 20 seconds (healthy)   0.0.0.0:3000->3000/tcp
+bb-portfolio-frontend-prod   Up 20 seconds (healthy)   0.0.0.0:3001->3000/tcp
 ```
 
 **Key Metrics:**

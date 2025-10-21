@@ -10,7 +10,7 @@
  *   npm run migrate:media-to-s3 -- --env prod            # Apply changes
  *
  *   # Or run directly on production server:
- *   ssh user@server "cd /path/to/app && docker exec portfolio-backend-prod node scripts/migrate-media-to-s3.js --env prod --dry-run"
+ *   ssh user@server "cd /path/to/app && docker exec bb-portfolio-backend-prod node scripts/migrate-media-to-s3.js --env prod --dry-run"
  */
 
 import fs from "fs";

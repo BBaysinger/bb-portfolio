@@ -46,7 +46,7 @@ async function fetchPortfolioProjects(opts?: {
     normalizedProfile === "dev"
       ? "http://bb-portfolio-backend-dev:3000"
       : normalizedProfile === "prod"
-        ? "http://backend-prod:3000"
+        ? "http://bb-portfolio-backend-prod:3000"
         : normalizedProfile === "local"
           ? "http://backend-local:3001"
           : "";

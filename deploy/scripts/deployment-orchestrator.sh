@@ -16,11 +16,11 @@
 # - Containers: four Node.js containers based on Debian (node:22-slim) images
 #   managed by Docker Compose using two profiles:
 #   • prod:   frontend-prod (host:3000 → container:3000)
-#             backend-prod  (host:3001 → container:3000)
+#             bb-portfolio-backend-prod  (host:3001 → container:3000)
 #   • dev:    frontend-dev  (host:4000 → container:3000)
 #             bb-portfolio-backend-dev   (host:4001 → container:3000)
 # - DNS/routing (typical):
-#   • bbinteractive.io      → frontend-prod:3000 and backend-prod:3001
+#   • bbinteractive.io      → frontend-prod:3000 and bb-portfolio-backend-prod:3001
 #   • dev.bbinteractive.io  → frontend-dev:4000 and bb-portfolio-backend-dev:4001
 #
 # Secrets and env files:
@@ -384,7 +384,7 @@ if [[ "$refresh_env" == true ]]; then
         `S3_REGION=${sVal("S3_REGION", sVal("PROD_AWS_REGION", ""))}`,
         `PROD_FRONTEND_URL=${sVal("PROD_FRONTEND_URL")}`,
         `PROD_NEXT_PUBLIC_BACKEND_URL=${sVal("PROD_NEXT_PUBLIC_BACKEND_URL")}`,
-  `PROD_BACKEND_INTERNAL_URL=${sVal("PROD_BACKEND_INTERNAL_URL", "http://backend-prod:3000")}`,
+  `PROD_BACKEND_INTERNAL_URL=${sVal("PROD_BACKEND_INTERNAL_URL", "http://bb-portfolio-backend-prod:3000")}`,
         `PROD_SES_FROM_EMAIL=${sVal("PROD_SES_FROM_EMAIL")}`,
         `PROD_SES_TO_EMAIL=${sVal("PROD_SES_TO_EMAIL")}`,
       ].join("\n") + "\n";
@@ -407,7 +407,7 @@ if [[ "$refresh_env" == true ]]; then
         "NODE_ENV=production",
         "ENV_PROFILE=prod",
         // Internal URL used by Next.js SSR/server for rewrites/fetches
-        `PROD_BACKEND_INTERNAL_URL=${sVal("PROD_BACKEND_INTERNAL_URL", "http://backend-prod:3000")}`,
+        `PROD_BACKEND_INTERNAL_URL=${sVal("PROD_BACKEND_INTERNAL_URL", "http://bb-portfolio-backend-prod:3000")}`,
         // Public URL exposed to the browser
         `NEXT_PUBLIC_BACKEND_URL=${sVal("PROD_NEXT_PUBLIC_BACKEND_URL")}`,
       ].join("\n") + "\n";

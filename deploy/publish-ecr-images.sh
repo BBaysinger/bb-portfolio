@@ -46,7 +46,7 @@ cd "$ROOT_DIR/frontend"
 docker build \
 	--target runner \
 	--build-arg ENV_PROFILE=prod \
-	--build-arg PROD_BACKEND_INTERNAL_URL="http://backend-prod:3000" \
+	--build-arg PROD_BACKEND_INTERNAL_URL="http://bb-portfolio-backend-prod:3000" \
 	--build-arg PROD_NEXT_PUBLIC_BACKEND_URL="http://52.27.49.117:3001" \
 	-t "${FRONTEND_REPO}:latest" .
 
