@@ -94,8 +94,8 @@ terraform -chdir=infra init
 terraform -chdir=infra apply
 
 # If your repo path has spaces and you're not in the repo root, quote the absolute path:
-terraform -chdir="/Users/<you>/.../Portfolio Site/portfolio-2025/infra" init
-terraform -chdir="/Users/<you>/.../Portfolio Site/portfolio-2025/infra" apply
+terraform -chdir="/Users/<you>/.../Portfolio Site/bb-portfolio-2025/infra" init
+terraform -chdir="/Users/<you>/.../Portfolio Site/bb-portfolio-2025/infra" apply
 ```
 
 If you see an AWS credentials error, configure your AWS CLI or export `AWS_ACCESS_KEY_ID`/`AWS_SECRET_ACCESS_KEY` (and optional `AWS_SESSION_TOKEN`) or set `AWS_PROFILE` to an authenticated profile.

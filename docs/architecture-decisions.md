@@ -66,9 +66,9 @@ terraform apply   # Deploy infrastructure
 terraform destroy # Clean teardown
 
 # Container Management (via SSH)
-./portfolio-management.sh status     # Check containers
-./portfolio-management.sh switch prod # Switch to production profile
-./portfolio-management.sh deploy      # Deploy from ECR
+./bb-portfolio-management.sh status     # Check containers
+./bb-portfolio-management.sh switch prod # Switch to production profile
+./bb-portfolio-management.sh deploy      # Deploy from ECR
 ```
 
 **Verified Capabilities:**
@@ -107,7 +107,7 @@ terraform destroy # Clean teardown
 
 **Configuration:**
 
-- **Development environment**: Images built and pushed to Docker Hub (`bhbaysinger/portfolio-*:dev`)
+- **Development environment**: Images built and pushed to Docker Hub (`bhbaysinger/bb-portfolio-*:dev`)
 - **Production environment**: Images built and pushed to Amazon ECR (`*.dkr.ecr.us-west-2.amazonaws.com/bb-portfolio-*:latest`)
 - **CI/CD workflow**: Different registry authentication per environment
 - **Cost optimization**: Free Docker Hub public repositories for dev, ECR for production reliability
@@ -389,10 +389,10 @@ healthcheck:
 - **Alternatives considered:**
   - Pure GitHub Actions (no local orchestrator): Less flexible locally, harder to provide rich fallback.
   - Pure SSH scripting: Centralizes secrets on the developer machine; brittle compared to GH Secrets.
-  - ECS/EKS or App Runner: Heavier operational surface area and cost for a portfolio-scale app.
+  - ECS/EKS or App Runner: Heavier operational surface area and cost for a bb-portfolio-scale app.
 
 - **Related improvements:**
-  - `infra/portfolio-management.sh` auto ECR login for prod flows and compose v1/v2 fallback on the host, to avoid image pull auth issues.
+  - `infra/bb-portfolio-management.sh` auto ECR login for prod flows and compose v1/v2 fallback on the host, to avoid image pull auth issues.
 
 - **Status:** ✅ Active
 

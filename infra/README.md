@@ -49,27 +49,27 @@ Use the provided management script to control the Docker containers:
 
 ```bash
 # Show container status
-./portfolio-management.sh status
+./bb-portfolio-management.sh status
 
 # Start development containers (default)
-./portfolio-management.sh start dev
+./bb-portfolio-management.sh start dev
 
 # Deploy production containers from ECR
-./portfolio-management.sh deploy-prod
+./bb-portfolio-management.sh deploy-prod
 
 # Switch between environments
-./portfolio-management.sh switch-to-dev
-./portfolio-management.sh switch-to-prod
+./bb-portfolio-management.sh switch-to-dev
+./bb-portfolio-management.sh switch-to-prod
 
 # View logs
-./portfolio-management.sh logs bb-portfolio-frontend-dev
+./bb-portfolio-management.sh logs bb-portfolio-frontend-dev
 ```
 
 ## Container Profiles
 
 ### Development Profile (`dev`)
 
-- Uses Docker Hub images (`bhbaysinger/portfolio-*:dev`)
+- Uses Docker Hub images (`bhbaysinger/bb-portfolio-*:dev`)
 - Frontend runs on port 4000
 - Backend runs on port 4001
 - More reliable for immediate deployment
@@ -111,7 +111,7 @@ infra/
 ├── variables.tf               # Input variables
 ├── terraform.tfvars          # Variable values
 ├── outputs.tf                # Output definitions (if separate)
-├── portfolio-management.sh   # Container management script
+├── bb-portfolio-management.sh   # Container management script
 └── README.md                 # This file
 ```
 
@@ -149,14 +149,14 @@ infra/
 ### Check Container Status
 
 ```bash
-./portfolio-management.sh status
+./bb-portfolio-management.sh status
 ```
 
 ### View Container Logs
 
 ```bash
-./portfolio-management.sh logs bb-portfolio-frontend-dev
-./portfolio-management.sh logs bb-portfolio-backend-dev
+./bb-portfolio-management.sh logs bb-portfolio-frontend-dev
+./bb-portfolio-management.sh logs bb-portfolio-backend-dev
 ```
 
 ### SSH to Instance
@@ -173,7 +173,7 @@ $(terraform output -raw portfolio_ssh_command)
 
 ```bash
 # Restart containers
-./portfolio-management.sh restart dev
+./bb-portfolio-management.sh restart dev
 
 # Restart Nginx
 ssh -i ~/.ssh/bb-portfolio-site-key.pem ec2-user@<ip> 'sudo systemctl restart nginx'
@@ -183,10 +183,10 @@ ssh -i ~/.ssh/bb-portfolio-site-key.pem ec2-user@<ip> 'sudo systemctl restart ng
 
 ```bash
 # Switch to development (Docker Hub images)
-./portfolio-management.sh switch-to-dev
+./bb-portfolio-management.sh switch-to-dev
 
 # Switch to production (ECR images)
-./portfolio-management.sh switch-to-prod
+./bb-portfolio-management.sh switch-to-prod
 ```
 
 ## Cost Optimization
@@ -212,8 +212,8 @@ Production images are updated automatically via CI/CD pipeline. For development:
 
 ```bash
 # Pull latest development images
-./portfolio-management.sh stop dev
-./portfolio-management.sh start dev
+./bb-portfolio-management.sh stop dev
+./bb-portfolio-management.sh start dev
 ```
 
 ### Update Infrastructure

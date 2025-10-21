@@ -1,6 +1,6 @@
 #!/bin/bash
 # Portfolio Container Management Script
-# Usage: ./portfolio-management.sh [command] [profile]
+# Usage: ./bb-portfolio-management.sh [command] [profile]
 # Commands: start, stop, restart, logs, status
 # Profiles: dev, prod
 

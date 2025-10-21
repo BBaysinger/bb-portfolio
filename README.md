@@ -146,17 +146,17 @@ What happens during deployment:
 
 Dual registry strategy:
 
-- Development: Docker Hub images (`bhbaysinger/portfolio-*:dev`)
+- Development: Docker Hub images (`bhbaysinger/bb-portfolio-*:dev`)
 - Production: Amazon ECR images (`*.dkr.ecr.us-west-2.amazonaws.com/bb-portfolio-*:latest`)
 
-Helper scripts (from `infra/portfolio-management.sh`):
+Helper scripts (from `infra/bb-portfolio-management.sh`):
 
 ```bash
 # Switch between environments
-./portfolio-management.sh switch dev   # Use Docker Hub images
-./portfolio-management.sh switch prod  # Use ECR images
-./portfolio-management.sh status       # Check container health
-./portfolio-management.sh deploy       # Deploy from ECR
+./bb-portfolio-management.sh switch dev   # Use Docker Hub images
+./bb-portfolio-management.sh switch prod  # Use ECR images
+./bb-portfolio-management.sh status       # Check container health
+./bb-portfolio-management.sh deploy       # Deploy from ECR
 ```
 
 ### 🛡️ Production Features

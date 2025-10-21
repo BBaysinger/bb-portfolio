@@ -56,8 +56,8 @@ if [[ -z "${AWS_ACCESS_KEY_ID_VAL}" || -z "${AWS_SECRET_ACCESS_KEY_VAL}" ]]; the
   exit 1
 fi
 
-FRONTEND_IMAGE="bhbaysinger/portfolio-frontend:dev"
-BACKEND_IMAGE="bhbaysinger/portfolio-backend:dev"
+FRONTEND_IMAGE="bhbaysinger/bb-portfolio-frontend:dev"
+BACKEND_IMAGE="bhbaysinger/bb-portfolio-backend:dev"
 
 echo "Building frontend (dev runner stage, no hot reload)..."
 cd "$ROOT_DIR/frontend"
