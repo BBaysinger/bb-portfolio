@@ -41,7 +41,8 @@ const ProjectsList = async () => {
         // Replace 'your-secret-key' with your actual JWT secret or public key
         jwt.verify(token, process.env.PAYLOAD_JWT_SECRET || "your-secret-key");
         isAuthenticated = true;
-      } catch (_jwtErr) {
+      } catch {
+        //(_jwtErr) {
         // Token invalid or expired
         isAuthenticated = false;
       }
