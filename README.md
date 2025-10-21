@@ -8,9 +8,9 @@ This section consolidates the feature list from `docs/main-features-list.md` and
 
 ### Frontend UX & Interaction
 
-- Parallax Project Carousel (layered, native swipe, deep linking)
+- Parallax Project Carousel (layered/synced, expandable, native swipe, deep linking)
 - Device Mockup Overlays (tilt/stabilization states)
-- Simulated-Depth Magnetic “Fluxel” Grid System
+- Simulated-Depth Magnetic “Fluxel” (fluxing pixel) Grid System
 - Custom Sprite Rendering w/ CSS, canvas, and WebGL rendering options
 - Magnetic/Sticky Road Sign
 - Custom Physics Kinetic Orb
