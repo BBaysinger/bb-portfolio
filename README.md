@@ -53,12 +53,16 @@ This section consolidates the feature list from `docs/main-features-list.md` and
 
 ### DevOps & Deployment
 
-- Automated (re)deployment orchestrator
+- Automated (re)deployment orchestrator script
+  - Destroys and rebuilds/pushes the entire EC2 and containers
+  - Builtin Safety checks
+  - Avoids destroying items meant to persist
 - Terraform IaC: one-command provision/teardown
 - Systemd-managed Docker services on EC2 (auto-restart)
 - Dual registry strategy (Docker Hub dev, ECR prod)
 - Secure Docker builds (BuildKit secret mounts, minimal args)
 - Generated env files on host via CI/CD (no secrets in repo)
+- Github Secrets Synchronization from JSON5 via custom shell script
 - Reverse proxy options: Caddy or Nginx (compose/configs provided)
 - Compose profiles for local/dev/prod and proxy-only
 

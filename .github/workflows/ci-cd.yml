@@ -167,7 +167,7 @@ jobs:
       - name: Build and push bb-portfolio-frontend-prod to ECR
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: bb-portfolio-frontend
+          ECR_REPOSITORY: bb-portfolio-frontend-prod
           IMAGE_TAG: ${{ github.sha }}
         run: |
           docker build --no-cache --target runner \
@@ -182,7 +182,7 @@ jobs:
       - name: Build and push bb-portfolio-backend-prod to ECR
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: bb-portfolio-backend
+          ECR_REPOSITORY: bb-portfolio-backend-prod
           IMAGE_TAG: ${{ github.sha }}
         run: |
           echo "${{ secrets.PROD_MONGODB_URI }}" > /tmp/prod_mongodb_uri
