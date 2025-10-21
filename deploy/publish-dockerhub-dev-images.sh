@@ -64,7 +64,7 @@ cd "$ROOT_DIR/frontend"
 docker build \
   --target runner \
   --build-arg ENV_PROFILE=dev \
-  --build-arg DEV_BACKEND_INTERNAL_URL="http://backend-dev:3000" \
+  --build-arg DEV_BACKEND_INTERNAL_URL="http://bb-portfolio-backend-dev:3000" \
   -t "$FRONTEND_IMAGE" .
 
 echo "Building backend (dev runtime stage, no hot reload)..."

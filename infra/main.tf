@@ -453,8 +453,8 @@ nohup bash -c 'sleep 60 && /home/ec2-user/portfolio/generate-env-files.sh' &
                   - dev
                 restart: unless-stopped
 
-              backend-dev:
-                container_name: portfolio-backend-dev  
+              bb-portfolio-backend-dev:
+                container_name: bb-portfolio-backend-dev  
                 image: bhbaysinger/portfolio-backend:dev
                 ports:
                   - "4001:3000"

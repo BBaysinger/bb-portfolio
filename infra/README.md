@@ -156,7 +156,7 @@ infra/
 
 ```bash
 ./portfolio-management.sh logs frontend-dev
-./portfolio-management.sh logs backend-dev
+./portfolio-management.sh logs bb-portfolio-backend-dev
 ```
 
 ### SSH to Instance

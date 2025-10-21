@@ -119,10 +119,10 @@ services:
   # - Provides experience with dual-registry strategy (Docker Hub + ECR)
   # =============================================================================
 
-  backend-dev:
+  bb-portfolio-backend-dev:
     profiles: ["dev"] # Only runs with COMPOSE_PROFILES=dev
     image: bhbaysinger/portfolio-backend:dev # Pre-built image from Docker Hub
-    container_name: portfolio-backend-dev
+    container_name: bb-portfolio-backend-dev
     ports:
       - "4001:3000" # Backend gets xxx1
     env_file:
@@ -141,7 +141,7 @@ services:
       - ../../frontend/.env.dev
     restart: unless-stopped # Auto-restart on failure/reboot
     depends_on:
-      backend-dev:
+      bb-portfolio-backend-dev:
         condition: service_started # Wait for backend (no health check needed)
 
   # =============================================================================
