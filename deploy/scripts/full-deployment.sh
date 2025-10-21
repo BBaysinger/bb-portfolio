@@ -79,7 +79,7 @@ while [[ $# -gt 0 ]]; do
     --no-watch) watch_logs=false; shift ;
     --no-secrets-sync) sync_secrets=false; shift ;
     -h|--help) usage; exit 0 ;
-    *) die "Unknown option: $1" ;
+    *) die "Unknown option: $1" ;;
   esac
 done
 
@@ -384,7 +384,7 @@ case '"$profiles"' in
     COMPOSE_PROFILES=prod docker-compose up -d || true
     COMPOSE_PROFILES=dev docker-compose pull || true
     COMPOSE_PROFILES=dev docker-compose up -d || true
-    ;
+    ;;
 esac
 '
 

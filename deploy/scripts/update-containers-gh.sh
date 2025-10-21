@@ -46,12 +46,12 @@ while [[ $# -gt 0 ]]; do
     --refresh-env) refresh_env=true; shift ;
     --no-watch) watch_logs=false; shift ;
     -h|--help) usage; exit 0 ;
-    *) echo "Unknown option: $1" >&2; usage; exit 1 ;
+    *) echo "Unknown option: $1" >&2; usage; exit 1 ;;
   esac
 done
 
-case "$target" in prod|dev|both|none) ; * ) echo "--target must be prod|dev|both|none" >&2; exit 1 ; esac
-case "$build"  in prod|dev|both|none) ; * ) echo "--build must be prod|dev|both|none" >&2; exit 1 ; esac
+case "$target" in prod|dev|both|none) ;; *) echo "--target must be prod|dev|both|none" >&2; exit 1 ;; esac
+case "$build"  in prod|dev|both|none) ;; *) echo "--build must be prod|dev|both|none" >&2; exit 1 ;; esac
 
 need() { command -v "$1" >/dev/null 2>&1 || { echo "$1 is required" >&2; exit 1; }; }
 need gh

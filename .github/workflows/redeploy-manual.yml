@@ -111,7 +111,7 @@ jobs:
                 : "${DEV_PAYLOAD_SECRET}"
                 : "${DEV_S3_BUCKET}"
                 : "${DEV_AWS_REGION}"
-                ;
+                ;;
             esac
           fi
 

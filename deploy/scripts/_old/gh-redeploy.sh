@@ -22,8 +22,8 @@ ENVIRONMENT="${1:-both}"      # prod|dev|both
 START_DEV="${2:-true}"        # true|false
 
 case "$ENVIRONMENT" in
-  prod|dev|both) ;
-  *) echo "Invalid environment: $ENVIRONMENT (use prod|dev|both)" >&2; exit 1 ;
+  prod|dev|both) ;;
+  *) echo "Invalid environment: $ENVIRONMENT (use prod|dev|both)" >&2; exit 1 ;;
 esac
 
 if ! command -v gh >/dev/null 2>&1; then

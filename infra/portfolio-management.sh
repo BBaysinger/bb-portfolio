@@ -75,7 +75,7 @@ case "${1:-help}" in
         fi
         run_remote "cd portfolio && sudo bash -lc $(printf %q "$(remote_compose_cmd "$PROFILE" "up -d")")"
         echo "✅ $PROFILE containers started"
-        ;
+        ;;
     
     stop)
         PROFILE=${2:-"dev prod"}
@@ -84,7 +84,7 @@ case "${1:-help}" in
             run_remote "cd portfolio && sudo bash -lc $(printf %q "$(remote_compose_cmd "$p" "down")")" || true
         done
         echo "✅ Containers stopped"
-        ;
+        ;;
     
     restart)
         PROFILE=${2:-dev}
@@ -95,7 +95,7 @@ case "${1:-help}" in
         fi
         run_remote "cd portfolio && sudo bash -lc $(printf %q "$(remote_compose_cmd "$PROFILE" "up -d")")"
         echo "✅ $PROFILE containers restarted"
-        ;
+        ;;
     
     logs)
         SERVICE=${2:-""}
@@ -115,7 +115,7 @@ case "${1:-help}" in
         echo ""
         echo "Nginx status:"
         run_remote "sudo systemctl status nginx --no-pager -l" || true
-        ;
+        ;;
     
     deploy-prod)
         echo "🚀 Deploying production containers..."
@@ -133,7 +133,7 @@ case "${1:-help}" in
         run_remote "sudo sed -i 's/localhost:4000/localhost:3000/g' /etc/nginx/conf.d/portfolio.conf && sudo nginx -t && sudo systemctl reload nginx"
         
         echo "✅ Production deployment complete"
-        ;
+        ;;
     
     switch-to-dev)
         echo "🔄 Switching to development containers..."
@@ -147,7 +147,7 @@ case "${1:-help}" in
         run_remote "sudo sed -i 's/localhost:3000/localhost:4000/g' /etc/nginx/conf.d/portfolio.conf && sudo nginx -t && sudo systemctl reload nginx"
         
         echo "✅ Switched to development containers"
-        ;
+        ;;
     
     switch-to-prod)
         echo "🔄 Switching to production containers..."
@@ -166,12 +166,12 @@ case "${1:-help}" in
     
     help|--help|-h)
         show_usage
-        ;
+        ;;
     
     *)
         echo "❌ Unknown command: $1"
         echo ""
         show_usage
         exit 1
-        ;
+        ;;
 esac
