@@ -97,7 +97,7 @@ terraform apply   # Apply changes
 - ❌ No manual container startup
 - ❌ No manual service configuration
 
-Everything is now **Infrastructure as Code**! 🎉
+Everything is now **Infrastructure as Code**! 🎈
 
 ## Current Architecture
 
@@ -174,4 +174,4 @@ When you're ready to use production containers:
 
 ---
 
-**Your portfolio is now live and fully automated! 🎉**
+**Your portfolio is now live and fully automated! 🎈**

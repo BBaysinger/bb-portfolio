@@ -15,7 +15,7 @@
     // Build production-optimized static site
     "build": "next build",
     // 🏗️ Build the  when-ready component
-    "build:when-ready": "node ./scripts/build-when-ready.mjs",
+  "build:when-ready": "node ./scripts/pre-build.mjs",
     // Preview the built static site using serve
     "preview": "npx serve out",
     // Start Next.js production server
