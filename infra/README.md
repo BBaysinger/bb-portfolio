@@ -62,7 +62,7 @@ Use the provided management script to control the Docker containers:
 ./portfolio-management.sh switch-to-prod
 
 # View logs
-./portfolio-management.sh logs frontend-dev
+./portfolio-management.sh logs bb-portfolio-frontend-dev
 ```
 
 ## Container Profiles
@@ -155,7 +155,7 @@ infra/
 ### View Container Logs
 
 ```bash
-./portfolio-management.sh logs frontend-dev
+./portfolio-management.sh logs bb-portfolio-frontend-dev
 ./portfolio-management.sh logs bb-portfolio-backend-dev
 ```
 
