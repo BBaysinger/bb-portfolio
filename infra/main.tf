@@ -404,7 +404,7 @@ nohup bash -c 'sleep 60 && /home/ec2-user/portfolio/generate-env-files.sh' &
               # =============================================================================
               bb-portfolio-frontend-prod:
                 container_name: bb-portfolio-frontend-prod
-                image: 778230822028.dkr.ecr.us-west-2.amazonaws.com/bb-portfolio-frontend:latest
+                image: 778230822028.dkr.ecr.us-west-2.amazonaws.com/bb-portfolio-frontend-prod:latest
                 ports:
                   - "3000:3000"
                 env_file:
@@ -423,7 +423,7 @@ nohup bash -c 'sleep 60 && /home/ec2-user/portfolio/generate-env-files.sh' &
             
               bb-portfolio-backend-prod:
                 container_name: bb-portfolio-backend-prod
-                image: 778230822028.dkr.ecr.us-west-2.amazonaws.com/bb-portfolio-backend:latest
+                image: 778230822028.dkr.ecr.us-west-2.amazonaws.com/bb-portfolio-backend-prod:latest
                 ports:
                   - "3001:3000"
                 env_file:
@@ -497,8 +497,8 @@ chown -R ec2-user:ec2-user /home/ec2-user/portfolio
             aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 778230822028.dkr.ecr.us-west-2.amazonaws.com
             
             # Pull latest production images
-            docker pull 778230822028.dkr.ecr.us-west-2.amazonaws.com/bb-portfolio-frontend:latest
-            docker pull 778230822028.dkr.ecr.us-west-2.amazonaws.com/bb-portfolio-backend:latest
+            docker pull 778230822028.dkr.ecr.us-west-2.amazonaws.com/bb-portfolio-frontend-dev:latest
+            docker pull 778230822028.dkr.ecr.us-west-2.amazonaws.com/bb-portfolio-backend-dev:latest
             
             # Start production containers with environment file
             docker-compose --profile prod up -d
@@ -691,7 +691,7 @@ resource "aws_iam_role_policy_attachment" "media_access_attach" {
 # =============================================================================
 
 resource "aws_ecr_repository" "frontend" {
-  name                 = "bb-portfolio-frontend"
+  name                 = "bb-portfolio-frontend-dev"
   image_tag_mutability = "MUTABLE"
   force_delete        = true # Allow deletion even with images (for portfolio project)
 
@@ -711,7 +711,7 @@ resource "aws_ecr_repository" "frontend" {
 }
 
 resource "aws_ecr_repository" "backend" {
-  name                 = "bb-portfolio-backend"
+  name                 = "bb-portfolio-backend-prod"
   image_tag_mutability = "MUTABLE"
   force_delete        = true # Allow deletion even with images (for portfolio project)
 
