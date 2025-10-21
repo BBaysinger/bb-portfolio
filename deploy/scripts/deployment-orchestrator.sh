@@ -91,21 +91,21 @@ USAGE
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    --force) force_destroy=true; shift ;
+    --force) force_destroy=true; shift ;;
     --build-images)
-      build_images="${2:-}"; [[ -n "$build_images" ]] || die "--build-images requires prod|dev|both"; shift 2 ;
-    --no-build) build_images=""; shift ;
+      build_images="${2:-}"; [[ -n "$build_images" ]] || die "--build-images requires prod|dev|both"; shift 2 ;;
+    --no-build) build_images=""; shift ;;
     --profiles)
-      profiles="${2:-}"; [[ "$profiles" =~ ^(prod|dev|both)$ ]] || die "--profiles must be prod|dev|both"; shift 2 ;
-    --no-destroy) do_destroy=false; shift ;
-    --containers-only) do_infra=false; shift ;
+      profiles="${2:-}"; [[ "$profiles" =~ ^(prod|dev|both)$ ]] || die "--profiles must be prod|dev|both"; shift 2 ;;
+    --no-destroy) do_destroy=false; shift ;;
+    --containers-only) do_infra=false; shift ;;
     --gh-workflows)
-      workflows="${2:-}"; [[ -n "$workflows" ]] || die "--gh-workflows requires at least one name"; shift 2 ;
-    --refresh-env) refresh_env=true; shift ;
-    --no-restart) restart_containers=false; shift ;
-    --no-watch) watch_logs=false; shift ;
-    --no-secrets-sync) sync_secrets=false; shift ;
-    -h|--help) usage; exit 0 ;
+      workflows="${2:-}"; [[ -n "$workflows" ]] || die "--gh-workflows requires at least one name"; shift 2 ;;
+    --refresh-env) refresh_env=true; shift ;;
+    --no-restart) restart_containers=false; shift ;;
+    --no-watch) watch_logs=false; shift ;;
+    --no-secrets-sync) sync_secrets=false; shift ;;
+    -h|--help) usage; exit 0 ;;
     *) die "Unknown option: $1" ;;
   esac
 done
@@ -459,5 +459,6 @@ esac
 
 ok "Containers restarted via SSH fallback. EC2 IP: $EC2_HOST"
 ok "Full deploy completed (fallback path)."
+
 
 popd >/dev/null
