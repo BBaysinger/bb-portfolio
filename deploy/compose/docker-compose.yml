@@ -59,10 +59,10 @@ services:
   # - Atomic deployments via docker compose pull + up -d
   # =============================================================================
 
-  backend-prod:
+  bb-portfolio-backend-prod:
     profiles: ["prod"] # Only runs with COMPOSE_PROFILES=prod
     image: ${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/bb-portfolio-backend:latest
-    container_name: portfolio-backend-prod
+    container_name: bb-portfolio-backend-prod
     ports:
       - "3001:3000" # Backend gets xxx1 for production
     env_file:
@@ -93,7 +93,7 @@ services:
       - ../../frontend/.env.prod
     restart: unless-stopped # Auto-restart on failure/reboot
     depends_on:
-      backend-prod:
+      bb-portfolio-backend-prod:
         condition: service_started # Just wait for backend to start, not be healthy
     healthcheck: # Health monitoring for load balancers
       test:

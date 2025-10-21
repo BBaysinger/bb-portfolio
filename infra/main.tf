@@ -413,7 +413,7 @@ nohup bash -c 'sleep 60 && /home/ec2-user/portfolio/generate-env-files.sh' &
                   - prod
                 restart: unless-stopped
                 depends_on:
-                  - backend-prod
+                  - bb-portfolio-backend-prod
                 healthcheck:
                   test: ["CMD", "node", "-e", "require('net').connect(3000,'127.0.0.1',()=>process.exit(0)).on('error',()=>process.exit(1))"]
                   interval: 30s
@@ -421,8 +421,8 @@ nohup bash -c 'sleep 60 && /home/ec2-user/portfolio/generate-env-files.sh' &
                   retries: 3
                   start_period: 60s
             
-              backend-prod:
-                container_name: portfolio-backend-prod
+              bb-portfolio-backend-prod:
+                container_name: bb-portfolio-backend-prod
                 image: 778230822028.dkr.ecr.us-west-2.amazonaws.com/bb-portfolio-backend:latest
                 ports:
                   - "3001:3000"

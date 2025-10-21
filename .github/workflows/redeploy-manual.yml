@@ -164,7 +164,7 @@ jobs:
             "" \
             "PROD_FRONTEND_URL=$(s_val PROD_FRONTEND_URL)" \
             "PROD_NEXT_PUBLIC_BACKEND_URL=$(s_val PROD_NEXT_PUBLIC_BACKEND_URL)" \
-            "PROD_BACKEND_INTERNAL_URL=$(s_val PROD_BACKEND_INTERNAL_URL 'http://backend-prod:3000')" \
+            "PROD_BACKEND_INTERNAL_URL=$(s_val PROD_BACKEND_INTERNAL_URL 'http://bb-portfolio-backend-prod:3000')" \
             "" \
             "PROD_SES_FROM_EMAIL=$(s_val PROD_SES_FROM_EMAIL)" \
             "PROD_SES_TO_EMAIL=$(s_val PROD_SES_TO_EMAIL)" \

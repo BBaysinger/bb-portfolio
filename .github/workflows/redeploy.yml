@@ -179,7 +179,7 @@ jobs:
             "" \
             "PROD_FRONTEND_URL=$(s_val PROD_FRONTEND_URL)" \
             "PROD_NEXT_PUBLIC_BACKEND_URL=$(s_val PROD_NEXT_PUBLIC_BACKEND_URL)" \
-            "PROD_BACKEND_INTERNAL_URL=$(s_val PROD_BACKEND_INTERNAL_URL 'http://backend-prod:3000')" \
+            "PROD_BACKEND_INTERNAL_URL=$(s_val PROD_BACKEND_INTERNAL_URL 'http://bb-portfolio-backend-prod:3000')" \
             "" \
             "PROD_SES_FROM_EMAIL=$(s_val PROD_SES_FROM_EMAIL)" \
             "PROD_SES_TO_EMAIL=$(s_val PROD_SES_TO_EMAIL)" \
@@ -210,7 +210,7 @@ jobs:
             "NODE_ENV=production" \
             "ENV_PROFILE=prod" \
             "" \
-            "PROD_BACKEND_INTERNAL_URL=$(s_val PROD_BACKEND_INTERNAL_URL 'http://backend-prod:3000')" \
+            "PROD_BACKEND_INTERNAL_URL=$(s_val PROD_BACKEND_INTERNAL_URL 'http://bb-portfolio-backend-prod:3000')" \
             "NEXT_PUBLIC_BACKEND_URL=$(s_val PROD_NEXT_PUBLIC_BACKEND_URL)" \
             > "$OUT_DIR/frontend.env.prod"
 
@@ -274,7 +274,7 @@ jobs:
             printf '%s\n' 'df -h / || true'
             printf '%s\n' 'docker system df || true'
             printf '%s\n' 'echo "== Stop/remove any stale containers (ignore errors) =="'
-            printf '%s\n' 'docker rm -f bb-portfolio-backend-dev portfolio-frontend-dev portfolio-backend-prod portfolio-frontend-prod 2>/dev/null || true'
+            printf '%s\n' 'docker rm -f bb-portfolio-backend-dev portfolio-frontend-dev bb-portfolio-backend-prod portfolio-frontend-prod 2>/dev/null || true'
             printf '%s\n' 'echo "== Prune unused images/containers/networks (no volumes) =="'
             printf '%s\n' 'docker system prune -af || true'
             printf '%s\n' 'echo "== Prune builder cache =="'
