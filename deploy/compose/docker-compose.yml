@@ -83,7 +83,7 @@ services:
       retries: 25 # 25 failed checks = unhealthy (more retries)
       start_period: 30s # Wait 30s before first check (reduced)
 
-  frontend-prod:
+  bb-portfolio-frontend-prod:
     profiles: ["prod"] # Only runs with COMPOSE_PROFILES=prod
     image: ${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/bb-portfolio-frontend:latest
     container_name: portfolio-frontend-prod

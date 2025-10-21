@@ -15,12 +15,12 @@
 # - Reverse proxy: Nginx on the host forwards traffic to Compose services.
 # - Containers: four Node.js containers based on Debian (node:22-slim) images
 #   managed by Docker Compose using two profiles:
-#   • prod:   frontend-prod (host:3000 → container:3000)
+#   • prod:   bb-portfolio-frontend-prod (host:3000 → container:3000)
 #             bb-portfolio-backend-prod  (host:3001 → container:3000)
 #   • dev:    frontend-dev  (host:4000 → container:3000)
 #             bb-portfolio-backend-dev   (host:4001 → container:3000)
 # - DNS/routing (typical):
-#   • bbinteractive.io      → frontend-prod:3000 and bb-portfolio-backend-prod:3001
+#   • bbinteractive.io      → bb-portfolio-frontend-prod:3000 and bb-portfolio-backend-prod:3001
 #   • dev.bbinteractive.io  → frontend-dev:4000 and bb-portfolio-backend-dev:4001
 #
 # Secrets and env files:
