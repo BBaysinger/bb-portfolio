@@ -131,10 +131,10 @@ services:
     networks:
       default: {}
 
-  frontend-dev:
+  bb-portfolio-frontend-dev:
     profiles: ["dev"] # Only runs with COMPOSE_PROFILES=dev
     image: bhbaysinger/portfolio-frontend:dev # Pre-built image from Docker Hub
-    container_name: portfolio-frontend-dev
+    container_name: bb-portfolio-frontend-dev
     ports:
       - "4000:3000" # Frontend gets xxx0
     env_file:

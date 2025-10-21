@@ -17,11 +17,11 @@
 #   managed by Docker Compose using two profiles:
 #   • prod:   bb-portfolio-frontend-prod (host:3000 → container:3000)
 #             bb-portfolio-backend-prod  (host:3001 → container:3000)
-#   • dev:    frontend-dev  (host:4000 → container:3000)
+#   • dev:    bb-portfolio-frontend-dev  (host:4000 → container:3000)
 #             bb-portfolio-backend-dev   (host:4001 → container:3000)
 # - DNS/routing (typical):
 #   • bbinteractive.io      → bb-portfolio-frontend-prod:3000 and bb-portfolio-backend-prod:3001
-#   • dev.bbinteractive.io  → frontend-dev:4000 and bb-portfolio-backend-dev:4001
+#   • dev.bbinteractive.io  → bb-portfolio-frontend-dev:4000 and bb-portfolio-backend-dev:4001
 #
 # Secrets and env files:
 # - .env.dev / .env.prod are not committed; they are generated on EC2 by the

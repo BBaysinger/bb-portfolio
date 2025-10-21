@@ -441,8 +441,8 @@ nohup bash -c 'sleep 60 && /home/ec2-user/portfolio/generate-env-files.sh' &
               # =============================================================================
               # DEVELOPMENT CONTAINERS (Docker Hub images, for fallback/development)
               # =============================================================================
-              frontend-dev:
-                container_name: portfolio-frontend-dev
+              bb-portfolio-frontend-dev:
+                container_name: bb-portfolio-frontend-dev
                 image: bhbaysinger/portfolio-frontend:dev
                 ports:
                   - "4000:3000"

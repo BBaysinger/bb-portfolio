@@ -57,12 +57,12 @@ show_usage() {
     echo "  switch-to-prod    - Switch to production containers"
     echo ""
     echo "Profiles: dev, prod"
-    echo "Services: frontend-dev, bb-portfolio-backend-dev, bb-portfolio-frontend-prod, bb-portfolio-backend-prod"
+    echo "Services: bb-portfolio-frontend-dev, bb-portfolio-backend-dev, bb-portfolio-frontend-prod, bb-portfolio-backend-prod"
     echo ""
     echo "Examples:"
     echo "  $0 start dev                    # Start development containers"
     echo "  $0 deploy-prod                  # Deploy production containers"
-    echo "  $0 logs frontend-dev            # Show frontend dev logs"
+    echo "  $0 logs bb-portfolio-frontend-dev            # Show frontend dev logs"
     echo "  $0 status                       # Show all container status"
 }
 

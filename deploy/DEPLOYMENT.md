@@ -65,7 +65,7 @@ terraform apply   # Apply changes
 ./infra/portfolio-management.sh status
 
 # View logs
-./infra/portfolio-management.sh logs frontend-dev
+./infra/portfolio-management.sh logs bb-portfolio-frontend-dev
 
 # Deploy production images (when ready)
 ./infra/portfolio-management.sh deploy-prod
@@ -158,7 +158,7 @@ If anything goes wrong, you have complete control:
 ./infra/portfolio-management.sh restart dev
 
 # View detailed logs
-./infra/portfolio-management.sh logs frontend-dev
+./infra/portfolio-management.sh logs bb-portfolio-frontend-dev
 
 # SSH to server
 ssh -i ~/.ssh/bb-portfolio-site-key.pem ec2-user@54.70.138.1
