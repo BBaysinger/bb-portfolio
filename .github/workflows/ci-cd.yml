@@ -223,7 +223,7 @@ jobs:
     with:
       environment: prod
       start_dev: false
-      refresh_env: false
+      refresh_env: true
       restart_containers: true
 
   # Build and push dev images to Docker Hub (dev branch or manual)
