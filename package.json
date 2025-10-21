@@ -20,7 +20,7 @@
     "docker:ssg:down": "AWS_ACCOUNT_ID=123456789012 COMPOSE_PROFILES=local-ssg docker compose -f deploy/compose/docker-compose.yml down",
     "docker:ssg:logs": "AWS_ACCOUNT_ID=123456789012 COMPOSE_PROFILES=local-ssg docker compose -f deploy/compose/docker-compose.yml logs -f",
     "docker:build:backend": "docker build --target runtime --build-arg ENV_PROFILE=dev -t bhbaysinger/portfolio-backend:dev ./backend",
-    "docker:build:frontend": "docker build --target runner --build-arg ENV_PROFILE=dev --build-arg DEV_BACKEND_INTERNAL_URL=http://backend-dev:3000 -t bhbaysinger/portfolio-frontend:dev ./frontend",
+    "docker:build:frontend": "docker build --target runner --build-arg ENV_PROFILE=dev --build-arg DEV_BACKEND_INTERNAL_URL=http://bb-portfolio-backend-dev:3000 -t bhbaysinger/portfolio-frontend:dev ./frontend",
     "docker:push:backend": "docker push bhbaysinger/portfolio-backend:dev",
     "docker:push:frontend": "docker push bhbaysinger/portfolio-frontend:dev",
     "docker:build-push": "bash deploy/scripts/publish-dockerhub-dev-images.sh",

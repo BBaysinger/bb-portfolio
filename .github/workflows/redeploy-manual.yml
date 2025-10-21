@@ -184,7 +184,7 @@ jobs:
             "" \
             "DEV_FRONTEND_URL=$(s_val DEV_FRONTEND_URL)" \
             "DEV_NEXT_PUBLIC_BACKEND_URL=$(s_val DEV_NEXT_PUBLIC_BACKEND_URL)" \
-            "DEV_BACKEND_INTERNAL_URL=$(s_val DEV_BACKEND_INTERNAL_URL 'http://backend-dev:3000')" \
+            "DEV_BACKEND_INTERNAL_URL=$(s_val DEV_BACKEND_INTERNAL_URL 'http://bb-portfolio-backend-dev:3000')" \
             "" \
             "DEV_SES_FROM_EMAIL=$(s_val DEV_SES_FROM_EMAIL)" \
             "DEV_SES_TO_EMAIL=$(s_val DEV_SES_TO_EMAIL)" \

@@ -57,7 +57,7 @@ show_usage() {
     echo "  switch-to-prod    - Switch to production containers"
     echo ""
     echo "Profiles: dev, prod"
-    echo "Services: frontend-dev, backend-dev, frontend-prod, backend-prod"
+    echo "Services: frontend-dev, bb-portfolio-backend-dev, frontend-prod, backend-prod"
     echo ""
     echo "Examples:"
     echo "  $0 start dev                    # Start development containers"

@@ -417,7 +417,7 @@ update_env_files_on_ec2() {
         // URLs
         `DEV_FRONTEND_URL=${DEV_FRONTEND_URL}`,
         `DEV_NEXT_PUBLIC_BACKEND_URL=${DEV_BACKEND_URL}`,
-        `DEV_BACKEND_INTERNAL_URL=${ensure('DEV_BACKEND_INTERNAL_URL', 'http://portfolio-backend-dev:3000')}`,
+        `DEV_BACKEND_INTERNAL_URL=${ensure('DEV_BACKEND_INTERNAL_URL', 'http://bb-portfolio-backend-dev:3000')}`,
         '',
         // Email
         `DEV_SES_FROM_EMAIL=${ensure('DEV_SES_FROM_EMAIL')}`,
@@ -642,7 +642,7 @@ show_deployment_summary() {
     echo "   • frontend-prod (port 3000) - Production frontend"
     echo "   • backend-prod  (port 3001) - Production backend"
     echo "   • frontend-dev  (port 4000) - Development frontend"
-    echo "   • backend-dev   (port 4001) - Development backend"
+    echo "   • bb-portfolio-backend-dev   (port 4001) - Development backend"
     echo ""
     echo "💡 To start dev containers:"
     echo "   • COMPOSE_PROFILES=dev docker-compose up -d"

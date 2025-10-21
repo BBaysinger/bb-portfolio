@@ -44,7 +44,7 @@ async function fetchPortfolioProjects(opts?: {
   // Determine a service-DNS fallback usable inside the compose network
   const serviceDnsFallback =
     normalizedProfile === "dev"
-      ? "http://backend-dev:3000"
+      ? "http://bb-portfolio-backend-dev:3000"
       : normalizedProfile === "prod"
         ? "http://backend-prod:3000"
         : normalizedProfile === "local"
