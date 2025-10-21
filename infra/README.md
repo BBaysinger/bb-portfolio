@@ -34,13 +34,13 @@ After deployment, Terraform will output important connection details:
 
 ```bash
 # Get the public IP address
-terraform output portfolio_elastic_ip
+terraform output bb_portfolio_elastic_ip
 
 # Get SSH command
-terraform output portfolio_ssh_command
+terraform output bb_portfolio_ssh_command
 
 # Get website URL
-terraform output portfolio_website_url
+terraform output bb_portfolio_website_url
 ```
 
 ### 3. Manage Containers
@@ -98,7 +98,7 @@ The configuration automatically points to development containers (port 4000) by 
 
 After infrastructure deployment:
 
-1. Get the Elastic IP: `terraform output portfolio_elastic_ip`
+1. Get the Elastic IP: `terraform output bb_portfolio_elastic_ip`
 2. Configure DNS A records:
    - `bbinteractive.io` → `<elastic_ip>`
    - `www.bbinteractive.io` → `<elastic_ip>`
@@ -166,7 +166,7 @@ infra/
 ssh -i ~/.ssh/bb-portfolio-site-key.pem ec2-user@<elastic_ip>
 
 # Or use the provided command
-$(terraform output -raw portfolio_ssh_command)
+$(terraform output -raw bb_portfolio_ssh_command)
 ```
 
 ### Restart Services

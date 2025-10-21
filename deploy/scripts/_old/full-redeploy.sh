@@ -301,8 +301,8 @@ get_ec2_ip() {
     cd "${INFRA_DIR}"
     # Prefer the Elastic IP from Terraform outputs
     local eip="" pip="" cli_ip=""
-    eip=$(terraform output -raw portfolio_elastic_ip 2>/dev/null || true)
-    pip=$(terraform output -raw portfolio_instance_ip 2>/dev/null || true)
+    eip=$(terraform output -raw bb_portfolio_elastic_ip 2>/dev/null || true)
+    pip=$(terraform output -raw bb_portfolio_instance_ip 2>/dev/null || true)
 
     if [[ -n "$eip" && "$eip" != "null" ]]; then
         echo "$eip"

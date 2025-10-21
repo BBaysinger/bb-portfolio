@@ -7,7 +7,7 @@
 set -e
 
 # Configuration - Get IP from Terraform output or use default
-INSTANCE_IP=$(terraform output -raw portfolio_elastic_ip 2>/dev/null || echo "54.70.138.1")
+INSTANCE_IP=$(terraform output -raw bb_portfolio_elastic_ip 2>/dev/null || echo "54.70.138.1")
 SSH_KEY="$HOME/.ssh/bb-portfolio-site-key.pem"
 SSH_USER="ec2-user"
 AWS_ACCOUNT_ID="778230822028"

@@ -10,7 +10,7 @@ output "public_ip" {
 
 output "elastic_ip" {
   description = "Elastic IP address"
-  value       = aws_eip.bb-portfolio_ip.public_ip
+  value       = aws_eip.bb_portfolio_ip.public_ip
 }
 
 output "media_bucket_names" {
