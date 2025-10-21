@@ -79,6 +79,11 @@ This section consolidates the feature list from `docs/main-features-list.md` and
 - JSON dumps for seed data and repeatable imports
 - Automated database backups with dated folders
 
+### Image Processing
+
+- Custom Sprite Sheet Animation Processing Scripts
+  - In a separate repo: [github.com/BBaysinger/fluxel-animations](https://github.com/BBaysinger/fluxel-animations)
+
 ## Technologies Used
 
 - Frontend: Next.js, React, TypeScript, SCSS Modules
