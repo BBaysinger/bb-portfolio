@@ -4,7 +4,7 @@ provider "aws" {
 }
 
 # Security Group for SSH, HTTP, HTTPS
-resource "aws_security_group" "portfolio_sg" {
+resource "aws_security_group" "bb_portfolio_sg" {
   name        = "bb-portfolio-sg"
   description = "Allow SSH, HTTP, HTTPS"
 
@@ -99,7 +99,7 @@ resource "aws_iam_instance_profile" "ssm_profile" {
 }
 
 # Elastic IP
-resource "aws_eip" "portfolio_ip" {
+resource "aws_eip" "bb_portfolio_ip" {
   # Nothing else needed, defaults to VPC
   lifecycle {
     prevent_destroy = true
@@ -112,7 +112,7 @@ resource "aws_instance" "portfolio" {
   instance_type = "t3.medium"
   key_name      = "bb-portfolio-site-key" # must exist in AWS console
 
-  vpc_security_group_ids = [aws_security_group.bb-portfolio_sg.id]
+  vpc_security_group_ids = [aws_security_group.bb_portfolio_sg.id]
   iam_instance_profile   = aws_iam_instance_profile.ssm_profile.name
 
   associate_public_ip_address = true
@@ -545,30 +545,30 @@ EOF
 }
 
 # Output the public IP and Elastic IP
-output "portfolio_instance_ip" {
+output "bb_portfolio_instance_ip" {
   value = aws_instance.bb-portfolio.public_ip
 }
 
-output "portfolio_elastic_ip" {
-  value = aws_eip.bb-portfolio_ip.public_ip
+output "bb_portfolio_elastic_ip" {
+  value = aws_eip.bb_portfolio_ip.public_ip
   description = "The Elastic IP address assigned to the portfolio instance. Point your domain DNS A records to this IP."
 }
 
-output "portfolio_ssh_command" {
-  value = "ssh -i ~/.ssh/bb-portfolio-site-key.pem ec2-user@${aws_eip.bb-portfolio_ip.public_ip}"
+output "bb_portfolio_ssh_command" {
+  value = "ssh -i ~/.ssh/bb-portfolio-site-key.pem ec2-user@${aws_eip.bb_portfolio_ip.public_ip}"
   description = "SSH command to connect to the portfolio instance"
 }
 
-output "portfolio_website_url" {
-  value = "http://${aws_eip.bb-portfolio_ip.public_ip}"
+output "bb_portfolio_website_url" {
+  value = "http://${aws_eip.bb_portfolio_ip.public_ip}"
   description = "Direct URL to access the portfolio website"
 }
 
 
 
-resource "aws_eip_association" "portfolio_assoc" {
+resource "aws_eip_association" "bb_portfolio_assoc" {
   instance_id   = aws_instance.bb-portfolio.id
-  allocation_id = aws_eip.bb-portfolio_ip.id
+  allocation_id = aws_eip.bb_portfolio_ip.id
 }
 
 ########################################
@@ -816,7 +816,7 @@ resource "null_resource" "iac_validation" {
       sleep 180  # Give user_data time to complete
       
       echo "Testing SSH connection and deployment..."
-      ssh -i ~/.ssh/bb-portfolio-site-key.pem -o ConnectTimeout=10 -o StrictHostKeyChecking=no ec2-user@${aws_eip.bb-portfolio_ip.public_ip} '
+      ssh -i ~/.ssh/bb-portfolio-site-key.pem -o ConnectTimeout=10 -o StrictHostKeyChecking=no ec2-user@${aws_eip.bb_portfolio_ip.public_ip} '
         echo "=== Pure IaC Test Results ==="
         echo "Instance ID: $(curl -s http://169.254.169.254/latest/meta-data/instance-id)"
         echo "Uptime: $(uptime)"
@@ -862,8 +862,8 @@ resource "null_resource" "iac_validation" {
       '
       
       echo -e "\n=== External accessibility test ==="
-      if curl -s -I http://${aws_eip.bb-portfolio_ip.public_ip} | head -1 | grep -q "200 OK"; then
-        echo "✅ Site accessible externally at http://${aws_eip.bb-portfolio_ip.public_ip}"
+      if curl -s -I http://${aws_eip.bb_portfolio_ip.public_ip} | head -1 | grep -q "200 OK"; then
+        echo "✅ Site accessible externally at http://${aws_eip.bb_portfolio_ip.public_ip}"
       else
         echo "❌ Site not accessible externally"
       fi
@@ -872,5 +872,5 @@ resource "null_resource" "iac_validation" {
     EOT
   }
 
-  depends_on = [aws_eip_association.bb-portfolio_assoc]
+  depends_on = [aws_eip_association.bb_portfolio_assoc]
 }

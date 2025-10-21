@@ -169,7 +169,7 @@ if [[ "$do_infra" == true ]]; then
   rm -f tfplan
 
   # Detect EIP for info/logs (GH workflow uses EC2_HOST secret at runtime)
-  EC2_IP=$(terraform output -raw portfolio_elastic_ip 2>/dev/null || terraform output -raw portfolio_instance_ip 2>/dev/null || true)
+  EC2_IP=$(terraform output -raw bb_portfolio_elastic_ip 2>/dev/null || terraform output -raw bb_portfolio_instance_ip 2>/dev/null || true)
   popd >/dev/null
 
   # Regenerate tfvars in case IP-based URLs in secrets changed locally
@@ -282,7 +282,7 @@ SSH_KEY="$HOME/.ssh/bb-portfolio-site-key.pem"
 EC2_HOST="${EC2_IP:-}"
 if [[ -z "$EC2_HOST" ]] && command -v terraform >/dev/null 2>&1; then
   pushd "$INFRA_DIR" >/dev/null
-  EC2_HOST=$(terraform output -raw elastic_ip 2>/dev/null || terraform output -raw portfolio_elastic_ip 2>/dev/null || true)
+  EC2_HOST=$(terraform output -raw elastic_ip 2>/dev/null || terraform output -raw bb_portfolio_elastic_ip 2>/dev/null || true)
   popd >/dev/null
 fi
 if [[ -z "$EC2_HOST" ]] && command -v gh >/dev/null 2>&1; then
