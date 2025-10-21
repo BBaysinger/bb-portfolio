@@ -242,13 +242,13 @@ jobs:
       - name: Build and push dev images to Docker Hub
         run: |
           docker build --build-arg ENV_PROFILE=dev \
-            -t bhbaysinger/portfolio-backend:dev ./backend
+            -t bhbaysinger/bb-portfolio-backend:dev ./backend
           docker build --build-arg ENV_PROFILE=dev \
             --build-arg DEV_BACKEND_INTERNAL_URL=${{ secrets.DEV_BACKEND_INTERNAL_URL }} \
             --build-arg DEV_NEXT_PUBLIC_BACKEND_URL=${{ secrets.DEV_NEXT_PUBLIC_BACKEND_URL }} \
-            -t bhbaysinger/portfolio-frontend:dev ./frontend
-          docker push bhbaysinger/portfolio-backend:dev
-          docker push bhbaysinger/portfolio-frontend:dev
+            -t bhbaysinger/bb-portfolio-frontend:dev ./frontend
+          docker push bhbaysinger/bb-portfolio-backend:dev
+          docker push bhbaysinger/bb-portfolio-frontend:dev
 
   # Deploy dev via reusable workflow
   deploy-dev:

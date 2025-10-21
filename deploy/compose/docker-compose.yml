@@ -86,7 +86,7 @@ services:
   bb-portfolio-frontend-prod:
     profiles: ["prod"] # Only runs with COMPOSE_PROFILES=prod
     image: ${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/bb-portfolio-frontend-prod:latest
-    container_name: portfolio-frontend-prod
+    container_name: bb-portfolio-frontend-prod
     ports:
       - "3000:3000" # Frontend gets xxx0 for production
     env_file:
@@ -121,7 +121,7 @@ services:
 
   bb-portfolio-backend-dev:
     profiles: ["dev"] # Only runs with COMPOSE_PROFILES=dev
-    image: bhbaysinger/portfolio-backend:dev # Pre-built image from Docker Hub
+    image: bhbaysinger/bb-portfolio-backend:dev # Pre-built image from Docker Hub
     container_name: bb-portfolio-backend-dev
     ports:
       - "4001:3000" # Backend gets xxx1
@@ -133,7 +133,7 @@ services:
 
   bb-portfolio-frontend-dev:
     profiles: ["dev"] # Only runs with COMPOSE_PROFILES=dev
-    image: bhbaysinger/portfolio-frontend:dev # Pre-built image from Docker Hub
+    image: bhbaysinger/bb-portfolio-frontend:dev # Pre-built image from Docker Hub
     container_name: bb-portfolio-frontend-dev
     ports:
       - "4000:3000" # Frontend gets xxx0
@@ -157,7 +157,7 @@ services:
 
   backend-local:
     profiles: ["local"]
-    image: bhbaysinger/portfolio-backend:dev
+    image: bhbaysinger/bb-portfolio-backend:dev
     container_name: backend-local
     working_dir: /app
     # Install deps if missing, then run Next dev on the expected port
@@ -184,7 +184,7 @@ services:
 
   frontend-local:
     profiles: ["local"]
-    image: bhbaysinger/portfolio-frontend:dev
+    image: bhbaysinger/bb-portfolio-frontend:dev
     container_name: frontend-local
     working_dir: /app
     # Install deps if missing, then run Next dev
@@ -222,7 +222,7 @@ services:
   caddy-local:
     profiles: ["proxy"]
     image: caddy:alpine
-    container_name: portfolio-caddy-local
+    container_name: bb-portfolio-caddy-local
     ports:
       - "8080:80"
       - "8443:443"
@@ -242,7 +242,7 @@ services:
 
   backend-local-ssg-generate:
     profiles: ["local-ssg"]
-    image: bhbaysinger/portfolio-backend:dev
+    image: bhbaysinger/bb-portfolio-backend:dev
     container_name: backend-local-ssg-generate
     volumes:
       - ../../backend:/app
@@ -258,7 +258,7 @@ services:
 
   frontend-local-ssg-generate:
     profiles: ["local-ssg"]
-    image: bhbaysinger/portfolio-frontend:dev
+    image: bhbaysinger/bb-portfolio-frontend:dev
     container_name: frontend-local-ssg-generate
     command: sh -c "npm run build:when-ready && npm start"
     volumes:
@@ -286,7 +286,7 @@ services:
 # Custom network for service isolation and communication
 networks:
   default:
-    name: portfolio-network # Named network for better organization
+    name: bb-portfolio-network # Named network for better organization
 
 # Named volumes for persistent data
 volumes:

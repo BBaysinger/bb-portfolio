@@ -15,7 +15,7 @@ Your portfolio infrastructure is now **fully automated** with Terraform! Here's 
 
 ### Management Tools
 
-- ✅ **Management Script**: `./portfolio-management.sh` for easy container control
+- ✅ **Management Script**: `./bb-portfolio-management.sh` for easy container control
 - ✅ **Terraform Outputs**: Easy access to connection details
 - ✅ **Documentation**: Complete setup and troubleshooting guides
 
@@ -62,17 +62,17 @@ terraform apply   # Apply changes
 
 ```bash
 # Check status
-./infra/portfolio-management.sh status
+./infra/bb-portfolio-management.sh status
 
 # View logs
-./infra/portfolio-management.sh logs bb-portfolio-frontend-dev
+./infra/bb-portfolio-management.sh logs bb-portfolio-frontend-dev
 
 # Deploy production images (when ready)
-./infra/portfolio-management.sh deploy-prod
+./infra/bb-portfolio-management.sh deploy-prod
 
 # Switch between environments
-./infra/portfolio-management.sh switch-to-dev
-./infra/portfolio-management.sh switch-to-prod
+./infra/bb-portfolio-management.sh switch-to-dev
+./infra/bb-portfolio-management.sh switch-to-prod
 ```
 
 ## What's Automated Now
@@ -152,13 +152,13 @@ If anything goes wrong, you have complete control:
 
 ```bash
 # Check everything
-./infra/portfolio-management.sh status
+./infra/bb-portfolio-management.sh status
 
 # Restart containers
-./infra/portfolio-management.sh restart dev
+./infra/bb-portfolio-management.sh restart dev
 
 # View detailed logs
-./infra/portfolio-management.sh logs bb-portfolio-frontend-dev
+./infra/bb-portfolio-management.sh logs bb-portfolio-frontend-dev
 
 # SSH to server
 ssh -i ~/.ssh/bb-portfolio-site-key.pem ec2-user@54.70.138.1
@@ -169,7 +169,7 @@ ssh -i ~/.ssh/bb-portfolio-site-key.pem ec2-user@54.70.138.1
 When you're ready to use production containers:
 
 1. Fix the ECR build issues (Next.js standalone mode)
-2. Deploy production: `./infra/portfolio-management.sh deploy-prod`
+2. Deploy production: `./infra/bb-portfolio-management.sh deploy-prod`
 3. The infrastructure supports both seamlessly!
 
 ---

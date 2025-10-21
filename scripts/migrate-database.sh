@@ -35,9 +35,9 @@ MONGODB_BASE="${MONGODB_BASE_URI:-mongodb+srv://username:password@portfolio-2025
 # Function to get database name by environment
 get_db_name() {
   case $1 in
-    "local") echo "portfolio-local" ;;
-    "dev") echo "portfolio-dev" ;;
-    "prod") echo "portfolio-prod" ;;
+    "local") echo "bb-portfolio-local" ;;
+    "dev") echo "bb-portfolio-dev" ;;
+    "prod") echo "bb-portfolio-prod" ;;
     *) echo "unknown" ;;
   esac
 }

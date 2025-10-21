@@ -5,7 +5,7 @@ provider "aws" {
 
 # Security Group for SSH, HTTP, HTTPS
 resource "aws_security_group" "portfolio_sg" {
-  name        = "portfolio-sg"
+  name        = "bb-portfolio-sg"
   description = "Allow SSH, HTTP, HTTPS"
 
   ingress {
@@ -74,7 +74,7 @@ resource "aws_security_group" "portfolio_sg" {
 
 # IAM Role for SSM (Session Manager)
 resource "aws_iam_role" "ssm_role" {
-  name = "portfolio-ssm-role"
+  name = "bb-portfolio-ssm-role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -94,7 +94,7 @@ resource "aws_iam_role_policy_attachment" "ssm_attach" {
 }
 
 resource "aws_iam_instance_profile" "ssm_profile" {
-  name = "portfolio-ssm-profile"
+  name = "bb-portfolio-ssm-profile"
   role = aws_iam_role.ssm_role.name
 }
 
@@ -443,7 +443,7 @@ nohup bash -c 'sleep 60 && /home/ec2-user/portfolio/generate-env-files.sh' &
               # =============================================================================
               bb-portfolio-frontend-dev:
                 container_name: bb-portfolio-frontend-dev
-                image: bhbaysinger/portfolio-frontend:dev
+                image: bhbaysinger/bb-portfolio-frontend:dev
                 ports:
                   - "4000:3000"
                 environment:
@@ -455,7 +455,7 @@ nohup bash -c 'sleep 60 && /home/ec2-user/portfolio/generate-env-files.sh' &
 
               bb-portfolio-backend-dev:
                 container_name: bb-portfolio-backend-dev  
-                image: bhbaysinger/portfolio-backend:dev
+                image: bhbaysinger/bb-portfolio-backend:dev
                 ports:
                   - "4001:3000"
                 environment:
@@ -475,7 +475,7 @@ chown -R ec2-user:ec2-user /home/ec2-user/portfolio
             #!/bin/bash
             cd /home/ec2-user/portfolio
             
-            echo "\$(date): Starting portfolio container startup process" >> /var/log/portfolio-startup.log
+            echo "\$(date): Starting portfolio container startup process" >> /var/log/bb-portfolio-startup.log
             
             # Wait for environment files to be generated (max 10 minutes)
             echo "Waiting for environment files to be generated..."
@@ -489,7 +489,7 @@ chown -R ec2-user:ec2-user /home/ec2-user/portfolio
             done
             
             if [[ ! -f "/home/ec2-user/portfolio/backend/.env.prod" ]]; then
-                echo "ERROR: Backend environment file not found after 10 minutes" >> /var/log/portfolio-startup.log
+                echo "ERROR: Backend environment file not found after 10 minutes" >> /var/log/bb-portfolio-startup.log
                 exit 1
             fi
             
@@ -504,7 +504,7 @@ chown -R ec2-user:ec2-user /home/ec2-user/portfolio
             docker-compose --profile prod up -d
             
             # Log the successful startup
-            echo "\$(date): Portfolio production containers started successfully" >> /var/log/portfolio-startup.log
+            echo "\$(date): Portfolio production containers started successfully" >> /var/log/bb-portfolio-startup.log
 SCRIPT_EOF
             
             chmod +x /home/ec2-user/portfolio/start-containers.sh
@@ -535,7 +535,7 @@ systemctl daemon-reload
 systemctl enable portfolio.service
 
 # Note: Containers will be started by GitHub Actions deployment
-echo "Infrastructure ready. Containers will be deployed via GitHub Actions." >> /var/log/portfolio-startup.log
+echo "Infrastructure ready. Containers will be deployed via GitHub Actions." >> /var/log/bb-portfolio-startup.log
 
 EOF
 
