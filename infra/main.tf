@@ -402,8 +402,8 @@ nohup bash -c 'sleep 60 && /home/ec2-user/portfolio/generate-env-files.sh' &
               # =============================================================================
               # PRODUCTION CONTAINERS (ECR images, for production deployment)
               # =============================================================================
-              frontend-prod:
-                container_name: portfolio-frontend-prod
+              bb-portfolio-frontend-prod:
+                container_name: bb-portfolio-frontend-prod
                 image: 778230822028.dkr.ecr.us-west-2.amazonaws.com/bb-portfolio-frontend:latest
                 ports:
                   - "3000:3000"

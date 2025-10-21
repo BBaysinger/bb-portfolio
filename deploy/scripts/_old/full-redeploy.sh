@@ -639,7 +639,7 @@ show_deployment_summary() {
     echo "   • Logs: docker-compose logs [service-name]"
     echo ""
     echo "🔧 Available Services:"
-    echo "   • frontend-prod (port 3000) - Production frontend"
+    echo "   • bb-portfolio-frontend-prod (port 3000) - Production frontend"
     echo "   • bb-portfolio-backend-prod  (port 3001) - Production backend"
     echo "   • frontend-dev  (port 4000) - Development frontend"
     echo "   • bb-portfolio-backend-dev   (port 4001) - Development backend"

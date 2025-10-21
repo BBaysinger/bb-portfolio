@@ -366,7 +366,7 @@ healthcheck:
   - Runtime on EC2:
     - Nginx on the host forwards traffic to Docker Compose services.
     - Four Debian-based Node containers (node:22-slim) managed by Compose profiles:
-      - prod: frontend-prod (3000), bb-portfolio-backend-prod (3001)
+      - prod: bb-portfolio-frontend-prod (3000), bb-portfolio-backend-prod (3001)
       - dev:  frontend-dev (4000), bb-portfolio-backend-dev (4001)
     - Typical DNS routing:
       - bbinteractive.io → prod (3000/3001)

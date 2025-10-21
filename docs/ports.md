@@ -6,7 +6,7 @@ This document summarizes how ports are mapped across environments and how reques
 
 - Public ingress (Security Group): 80 (HTTP), 443 (HTTPS), 3000, 3001
 - Host Nginx on :80 routes:
-  - `/` → localhost:3000 → frontend-prod (3000:3000)
+  - `/` → localhost:3000 → bb-portfolio-frontend-prod (3000:3000)
   - `/api/*`, `/admin*` → localhost:3001 → bb-portfolio-backend-prod (3001:3000)
 - Internal container DNS: `bb-portfolio-frontend-prod:3000`, `bb-portfolio-backend-prod:3000`
 
