@@ -95,7 +95,7 @@ This section consolidates the feature list from `docs/main-features-list.md` and
 
 ## Roadmap
 
-- Quick tutorials for the kinetic orb and carousel
+- Quick tutorials for the kinetic orb (better than what's there already) and carousel
 - Walkthrough videos playable within the project carousel
 - Project upkeep: framework/library upgrades across showcased projects
 - Additional polish and performance passes as time allows
