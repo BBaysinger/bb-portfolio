@@ -103,6 +103,7 @@ This section consolidates the feature list from `docs/main-features-list.md` and
 - Project upkeep: framework/library upgrades across showcased projects
 - Additional polish and performance passes as time allows
 - Global light/dark mode preferences via Redux
+- Fluxels should be implemented in WebGl and/or Pixi shaders
 
 Note: Earlier plans for “custom Express/Mongo backend” were superseded by the fully integrated Payload CMS backend present in this repo.
 
@@ -173,7 +174,7 @@ Helper scripts (from `infra/bb-portfolio-management.sh`):
 
 Demonstrates:
 
-- IaC with Terraform
+- IaC (Infrastructure as Code) with Terraform
 - Container orchestration with Docker + systemd
 - Cloud architecture design and automation
 - Professional deployment workflows and documentation
