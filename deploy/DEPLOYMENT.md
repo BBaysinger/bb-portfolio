@@ -21,6 +21,8 @@ Your portfolio infrastructure is now **fully automated** with Terraform! Here's 
 
 ## Next Steps
 
+See also: "Deployment Orchestrator: Discovery and Fresh Create" in `docs/deployment-orchestrator.md` for how to run read-only discovery, plan-only previews, and first-time creation.
+
 ### 1. Point Your Domain (Immediate)
 
 Your site is ready! Point your domain DNS to the Elastic IP:

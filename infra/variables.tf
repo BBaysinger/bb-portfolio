@@ -4,6 +4,12 @@ variable "region" {
   default     = "us-west-2"
 }
 
+variable "aws_profile" {
+  description = "AWS CLI profile to use for the provider (leave empty to use environment credentials)"
+  type        = string
+  default     = "bb-portfolio-user"
+}
+
 variable "instance_type" {
   description = "EC2 instance type"
   type        = string
@@ -155,4 +161,30 @@ variable "dev_ses_from_email" {
 variable "dev_ses_to_email" {
   description = "SES to email for development"
   type        = string
+}
+
+# =============================================================================
+# IAM MANAGEMENT TOGGLES
+# =============================================================================
+
+variable "manage_iam_user_policies" {
+  description = "Whether this apply is allowed to create/modify IAM user inline policies (requires iam:PutUserPolicy)."
+  type        = bool
+  default     = false
+}
+
+variable "iam_user_name" {
+  description = "IAM user name that should receive inline policies (used when manage_iam_user_policies=true)."
+  type        = string
+  default     = "bb-portfolio-user"
+}
+
+# Whether to attach the EC2 instance profile/role to instances.
+# Set to false when the applying user lacks iam:PassRole; this allows
+# instance creation without the role (SSM disabled). You can re-enable later
+# after granting permissions.
+variable "attach_instance_profile" {
+  description = "Attach IAM instance profile to EC2 instances (requires iam:PassRole)"
+  type        = bool
+  default     = true
 }

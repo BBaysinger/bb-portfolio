@@ -235,8 +235,8 @@ jobs:
           OUT_DIR='${{ steps.genenv.outputs.dir }}'
           test -n "$OUT_DIR" && test -d "$OUT_DIR"
 
-          # Prepare remote directories
-          ssh -i "${{ steps.ssh.outputs.key }}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" "mkdir -p /home/ec2-user/portfolio/backend /home/ec2-user/portfolio/frontend"
+          # Prepare remote directories and ensure correct ownership (idempotent)
+          ssh -i "${{ steps.ssh.outputs.key }}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" "sudo mkdir -p /home/ec2-user/portfolio/backend /home/ec2-user/portfolio/frontend && sudo chown -R ec2-user:ec2-user /home/ec2-user/portfolio"
 
           scp -i "${{ steps.ssh.outputs.key }}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
             "$OUT_DIR/backend.env.prod"  ec2-user@"$EC2_HOST":/home/ec2-user/portfolio/backend/.env.prod
@@ -253,7 +253,7 @@ jobs:
         run: |
           set -euo pipefail
           # Ensure target directory exists on EC2
-          ssh -i "${{ steps.ssh.outputs.key }}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" "mkdir -p /home/ec2-user/portfolio/deploy/compose"
+          ssh -i "${{ steps.ssh.outputs.key }}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" "sudo mkdir -p /home/ec2-user/portfolio/deploy/compose && sudo chown -R ec2-user:ec2-user /home/ec2-user/portfolio"
           # Upload the compose file from repo to the expected remote path
           scp -i "${{ steps.ssh.outputs.key }}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
             "deploy/compose/docker-compose.yml" \
