@@ -113,10 +113,10 @@ media_envs = ["dev", "prod"]
 media_cors_allowed_origins = [
   "http://localhost:3000",
   "http://localhost:3001",
-  "http://54.70.138.1:3000",
-  "http://54.70.138.1:3001",
-  "http://54.70.138.1:4000",
-  "http://54.70.138.1:4001",
+  "http://44.246.43.116:3000",
+  "http://44.246.43.116:3001",
+  "http://44.246.43.116:4000",
+  "http://44.246.43.116:4001",
 ]
 
 `;
@@ -179,7 +179,7 @@ dev_ses_to_email   = "${strings.DEV_SES_TO_EMAIL}"
 function main() {
   try {
     console.log(
-      "🔄 Generating terraform.tfvars from github-secrets.private.json5...",
+      "🔄 Generating terraform.tfvars from github-secrets.private.json5..."
     );
     console.log("Project root:", projectRoot);
     console.log("Secrets file:", secretsFile);
@@ -230,13 +230,13 @@ function main() {
     if (missingVars.length > 0) {
       console.warn("⚠️  Missing required variables in secrets file:");
       missingVars.forEach((varName) =>
-        console.warn(`   - ${varName.toUpperCase()}`),
+        console.warn(`   - ${varName.toUpperCase()}`)
       );
     } else {
       console.log("✅ All required variables are present");
     }
 
-    console.log("🎉 terraform.tfvars generated successfully!");
+    console.log("🎈 terraform.tfvars generated successfully!");
     console.log(`📁 Location: ${terraformVarsFile}`);
   } catch (error) {
     console.error("❌ Error generating terraform.tfvars:", error);

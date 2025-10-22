@@ -118,7 +118,7 @@ This portfolio is deployed using **Infrastructure as Code** with Terraform and a
 - Reverse Proxy: Caddy or Nginx (configs and compose profiles included)
 - Containerization: Docker with dual registry strategy (Docker Hub + ECR)
 - Storage: S3 buckets for media assets with environment isolation
-- Networking: Elastic IP (54.70.138.1), Security Groups, VPC integration
+- Networking: Elastic IP (44.246.43.116), Security Groups, VPC integration
 - Domain: Custom domain (bbinteractive.io) with DNS management
 
 ### 🚀 Deployment Process
@@ -173,7 +173,7 @@ Helper scripts (from `infra/bb-portfolio-management.sh`):
 
 Demonstrates:
 
-- IaC mastery with Terraform
+- IaC with Terraform
 - Container orchestration with Docker + systemd
 - Cloud architecture design and automation
 - Professional deployment workflows and documentation
@@ -193,6 +193,6 @@ For deep dives and implementation details:
 
 ---
 
-Updated EC2 IP: 54.70.138.1
+Updated EC2 IP: 44.246.43.116
 
 Last updated: Tue Oct 21, 2025
