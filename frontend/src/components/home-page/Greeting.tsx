@@ -47,7 +47,7 @@ const Greeting: React.FC = () => {
                 explore—and if you&apos;d like to connect, let&apos;s talk!
               </p>
             </div>
-            <a ref={addToRefs} href="#list">
+            <a ref={addToRefs} href="#portfolio-list">
               <div>Take a look!</div>
             </a>
           </div>
