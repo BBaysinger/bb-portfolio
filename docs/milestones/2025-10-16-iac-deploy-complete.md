@@ -4,7 +4,7 @@ We have reached a stable, repeatable end-to-end deployment workflow driven by In
 
 ## Highlights
 
-- Terraform-managed EC2 stack with preserved Elastic IP (54.70.138.1)
+- Terraform-managed EC2 stack with preserved Elastic IP (44.246.43.116)
 - IAM-first runtime (no long-lived AWS creds on the instance)
 - S3 media buckets with versioning + SSE and CORS for both prod/dev
 - ECR for production images; Docker Hub for dev images
@@ -23,7 +23,7 @@ We have reached a stable, repeatable end-to-end deployment workflow driven by In
 ## Ops notes
 
 - DNS should point Cloudflare A records (root, www, dev) to the Elastic IP
-- MongoDB Atlas Network Access must allow 54.70.138.1/32
+- MongoDB Atlas Network Access must allow 44.246.43.116/32
 - Frontend/Backend health checks (local on EC2): 3000/3001 (prod) and 4000/4001 (dev)
 
 ## Known caveat
