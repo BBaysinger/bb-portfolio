@@ -51,43 +51,6 @@ resource "aws_security_group" "bb_portfolio_sg" {
 }
 
 # New EC2 instance for bb_portfolio to match references
-resource "aws_instance" "bb_portfolio" {
-  ami           = "ami-06a974f9b8a97ecf2" # Amazon Linux 2023 AMI ID for us-west-2
-  instance_type = "t3.medium"
-  key_name      = "bb-portfolio-site-key"
-
-  vpc_security_group_ids = [aws_security_group.bb_portfolio_sg.id]
-  iam_instance_profile   = var.attach_instance_profile ? aws_iam_instance_profile.ssm_profile.name : null
-  associate_public_ip_address = true
-
-  root_block_device {
-    volume_type = "gp3"
-    volume_size = 20
-    encrypted   = true
-    throughput  = 125
-    iops        = 3000
-    tags = {
-      Name = "bb-portfolio-root-volume"
-    }
-  }
-
-  user_data = <<-EOF
-#!/bin/bash
-yum update -y
-yum install -y docker git nginx
-systemctl enable docker
-systemctl start docker
-systemctl enable amazon-ssm-agent
-systemctl start amazon-ssm-agent
-usermod -aG docker ec2-user
-systemctl enable nginx
-nginx -t && systemctl start nginx
-EOF
-
-  tags = {
-    Name = "bb-portfolio"
-  }
-}
 
 # IAM Role for SSM (Session Manager)
 resource "aws_iam_role" "ssm_role" {
@@ -124,7 +87,7 @@ resource "aws_eip" "bb_portfolio_ip" {
 }
 
 # EC2 Instance
-resource "aws_instance" "portfolio" {
+resource "aws_instance" "bb_portfolio" {
   ami           = "ami-06a974f9b8a97ecf2" # Amazon Linux 2023 AMI ID for us-west-2 (2023.8.20250915.0)
   instance_type = "t3.medium"
   key_name      = "bb-portfolio-site-key" # must exist in AWS console
@@ -584,7 +547,7 @@ output "bb_portfolio_website_url" {
 
 
 resource "aws_eip_association" "bb_portfolio_assoc" {
-  instance_id   = aws_instance.portfolio.id
+  instance_id   = aws_instance.bb_portfolio.id
   allocation_id = aws_eip.bb_portfolio_ip.id
 }
 
@@ -822,7 +785,7 @@ resource "aws_iam_role_policy_attachment" "ecr_access_attach" {
 resource "null_resource" "iac_validation" {
   # Trigger this whenever the instance changes
   triggers = {
-    instance_id = aws_instance.portfolio.id
+    instance_id = aws_instance.bb_portfolio.id
   }
 
   # Wait for user_data to complete and test the deployment
