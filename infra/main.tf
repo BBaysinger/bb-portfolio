@@ -1,6 +1,7 @@
 # cSpell:disable
 provider "aws" {
   region = var.region
+  profile = var.aws_profile
 }
 
 # Security Group for SSH, HTTP, HTTPS
@@ -40,35 +41,51 @@ resource "aws_security_group" "bb_portfolio_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  ingress {
-    description = "Backend API (Production)"
-    from_port   = 3001
-    to_port     = 3001
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    description = "Frontend App (Development)"
-    from_port   = 4000
-    to_port     = 4000
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    description = "Backend API (Development)"
-    from_port   = 4001
-    to_port     = 4001
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
+  # Allow all outbound traffic for package installs, container pulls, etc.
   egress {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+# New EC2 instance for bb_portfolio to match references
+resource "aws_instance" "bb_portfolio" {
+  ami           = "ami-06a974f9b8a97ecf2" # Amazon Linux 2023 AMI ID for us-west-2
+  instance_type = "t3.medium"
+  key_name      = "bb-portfolio-site-key"
+
+  vpc_security_group_ids = [aws_security_group.bb_portfolio_sg.id]
+  iam_instance_profile   = var.attach_instance_profile ? aws_iam_instance_profile.ssm_profile.name : null
+  associate_public_ip_address = true
+
+  root_block_device {
+    volume_type = "gp3"
+    volume_size = 20
+    encrypted   = true
+    throughput  = 125
+    iops        = 3000
+    tags = {
+      Name = "bb-portfolio-root-volume"
+    }
+  }
+
+  user_data = <<-EOF
+#!/bin/bash
+yum update -y
+yum install -y docker git nginx
+systemctl enable docker
+systemctl start docker
+systemctl enable amazon-ssm-agent
+systemctl start amazon-ssm-agent
+usermod -aG docker ec2-user
+systemctl enable nginx
+nginx -t && systemctl start nginx
+EOF
+
+  tags = {
+    Name = "bb-portfolio"
   }
 }
 
@@ -113,7 +130,7 @@ resource "aws_instance" "portfolio" {
   key_name      = "bb-portfolio-site-key" # must exist in AWS console
 
   vpc_security_group_ids = [aws_security_group.bb_portfolio_sg.id]
-  iam_instance_profile   = aws_iam_instance_profile.ssm_profile.name
+  iam_instance_profile   = var.attach_instance_profile ? aws_iam_instance_profile.ssm_profile.name : null
 
   associate_public_ip_address = true
 
@@ -567,7 +584,7 @@ output "bb_portfolio_website_url" {
 
 
 resource "aws_eip_association" "bb_portfolio_assoc" {
-  instance_id   = aws_instance.bb_portfolio.id
+  instance_id   = aws_instance.portfolio.id
   allocation_id = aws_eip.bb_portfolio_ip.id
 }
 
@@ -805,7 +822,7 @@ resource "aws_iam_role_policy_attachment" "ecr_access_attach" {
 resource "null_resource" "iac_validation" {
   # Trigger this whenever the instance changes
   triggers = {
-    instance_id = aws_instance.bb_portfolio.id
+    instance_id = aws_instance.portfolio.id
   }
 
   # Wait for user_data to complete and test the deployment

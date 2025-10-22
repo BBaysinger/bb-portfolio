@@ -68,6 +68,8 @@ refresh_env=false   # whether GH workflow should regenerate/upload env files
 restart_containers=true # whether GH workflow should restart containers
 watch_logs=true     # whether to watch GH workflow logs
 sync_secrets=true   # whether to sync local secrets to GitHub
+discover_only=false # perform discovery and exit without changes
+plan_only=false     # run terraform plan (summary) and exit (no apply)
 
 usage() {
   cat <<USAGE
@@ -85,6 +87,8 @@ Options:
   --no-restart            Do not restart containers in GH workflow (default: restart)
   --no-watch              Do not watch GH workflow logs (default: watch)
   --no-secrets-sync       Do not sync local secrets to GitHub
+  --discover-only         Only print discovery summary of current infra and exit
+  --plan-only             Print terraform plan summary and exit (no apply)
   -h|--help               Show this help
 USAGE
 }
@@ -105,6 +109,8 @@ while [[ $# -gt 0 ]]; do
     --no-restart) restart_containers=false; shift ;;
     --no-watch) watch_logs=false; shift ;;
     --no-secrets-sync) sync_secrets=false; shift ;;
+    --discover-only) discover_only=true; shift ;;
+    --plan-only) plan_only=true; shift ;;
     -h|--help) usage; exit 0 ;;
     *) die "Unknown option: $1" ;;
   esac
@@ -127,6 +133,104 @@ pushd "$REPO_ROOT" >/dev/null
 
 log "Installing npm deps if needed"
 [[ -d node_modules ]] || npm install
+
+# ---------------------------
+# Discovery helpers
+# ---------------------------
+tf_discovery() {
+  if [[ "$do_infra" != true ]]; then
+    warn "Discovery: skipping Terraform (containers-only mode)"
+    return 0
+  fi
+  pushd "$INFRA_DIR" >/dev/null
+  log "Discovery: reading Terraform state and outputs"
+  set +e
+  terraform init -input=false >/dev/null 2>&1
+  STATE=$(terraform state list 2>/dev/null)
+  INIT_STATUS=$?
+  set -e
+  if [[ $INIT_STATUS -ne 0 ]]; then
+    warn "Discovery: terraform state not initialized yet"
+    STATE=""
+  fi
+  has_inst=false
+  if echo "$STATE" | grep -Eq '^(aws_instance\\.bb_portfolio|aws_instance\\.portfolio)$|^aws_instance\\.(bb_portfolio|portfolio)'; then
+    has_inst=true
+  fi
+  has_sg=$(echo "$STATE" | grep -Ec '^aws_security_group\\.bb_portfolio_sg$' || true)
+  has_eip=$(echo "$STATE" | grep -Ec '^aws_eip\\.bb_portfolio_ip$' || true)
+  has_eip_assoc=$(echo "$STATE" | grep -Ec '^aws_eip_association\\.' || true)
+  has_s3_dev=$(echo "$STATE" | grep -Ec '^aws_s3_bucket\\.media\["dev"\]$' || true)
+  has_s3_prod=$(echo "$STATE" | grep -Ec '^aws_s3_bucket\\.media\["prod"\]$' || true)
+  has_ecr_fe=$(echo "$STATE" | grep -Ec '^aws_ecr_repository\\.frontend$' || true)
+  has_ecr_be=$(echo "$STATE" | grep -Ec '^aws_ecr_repository\\.backend$' || true)
+
+  # Outputs (best-effort)
+  set +e
+  EIP=$(terraform output -raw bb_portfolio_elastic_ip 2>/dev/null)
+  PUB=$(terraform output -raw bb_portfolio_instance_ip 2>/dev/null)
+  set -e
+
+  echo ""
+  echo "===== Discovery Summary ====="
+  echo "Terraform state initialized: $([[ $INIT_STATUS -eq 0 ]] && echo yes || echo no)"
+  echo "EC2 instance present:       $([[ "$has_inst" == true ]] && echo yes || echo no)"
+  echo "Security group present:     $([[ $has_sg -gt 0 ]] && echo yes || echo no)"
+  echo "Elastic IP present:         $([[ $has_eip -gt 0 ]] && echo yes || echo no)"
+  echo "EIP association present:    $([[ $has_eip_assoc -gt 0 ]] && echo yes || echo no)"
+  echo "S3 buckets (dev/prod):      $([[ $has_s3_dev -gt 0 ]] && echo dev || echo - ) / $([[ $has_s3_prod -gt 0 ]] && echo prod || echo - )"
+  echo "ECR repos (fe/be):          $([[ $has_ecr_fe -gt 0 ]] && echo yes || echo no) / $([[ $has_ecr_be -gt 0 ]] && echo yes || echo no)"
+  [[ -n "$EIP" ]] && echo "Elastic IP output:          $EIP" || true
+  [[ -n "$PUB" ]] && echo "Instance public IP:         $PUB" || true
+  if [[ -n "$EIP" ]]; then
+    if nc -vz -G 2 "$EIP" 22 >/dev/null 2>&1; then
+      echo "SSH (22) reachable at EIP:  yes"
+    else
+      echo "SSH (22) reachable at EIP:  no"
+    fi
+    if curl -s -I "http://$EIP" | head -1 | grep -q "200"; then
+      echo "HTTP (80) responding at EIP: yes"
+    else
+      echo "HTTP (80) responding at EIP: no"
+    fi
+  fi
+  echo "=============================="
+  echo ""
+  popd >/dev/null
+}
+
+tf_plan_summary() {
+  pushd "$INFRA_DIR" >/dev/null
+  log "Running terraform plan (summary)"
+  # Run plan and extract the Plan: X to add, Y to change, Z to destroy line
+  local plan_out
+  set +e
+  plan_out=$(terraform plan -input=false -no-color 2>&1)
+  local status=$?
+  set -e
+  echo "$plan_out" | tail -n 40 | sed -n '/^Plan:/p'
+  if [[ $status -ne 0 ]]; then
+    err "terraform plan failed"
+    echo "$plan_out" | tail -n 80
+    popd >/dev/null
+    return $status
+  fi
+  popd >/dev/null
+}
+
+# Always do a discovery pass first so the operator knows what will happen
+tf_discovery
+if [[ "$discover_only" == true ]]; then
+  ok "Discovery completed (no changes requested)."
+  popd >/dev/null
+  exit 0
+fi
+if [[ "$plan_only" == true ]]; then
+  tf_plan_summary || die "Plan failed"
+  ok "Plan summary printed (no apply)."
+  popd >/dev/null
+  exit 0
+fi
 
 if [[ "$do_infra" == true ]]; then
   log "Generating terraform.tfvars from private secrets"
