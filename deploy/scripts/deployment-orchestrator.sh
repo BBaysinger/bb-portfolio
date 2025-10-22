@@ -340,6 +340,8 @@ if [[ "$do_infra" == true ]]; then
   else
     warn "EC2 IP not detected from Terraform outputs; skipping secrets IP update"
   fi
+  # Enforce single controller on the target host if we know the IP
+  enforce_single_controller "${EC2_IP:-}"
 else
   warn "Skipping Terraform/infra per --containers-only"
 fi
@@ -352,12 +354,58 @@ else
   warn "Skipping GitHub secrets sync per --no-secrets-sync"
 fi
 
+# If infra step was skipped and EC2_IP is unknown, try to resolve host now and enforce single controller once
+if [[ -z "${EC2_IP:-}" ]]; then
+  EC2_HOST_RESOLVE=""
+  if command -v terraform >/dev/null 2>&1; then
+    pushd "$INFRA_DIR" >/dev/null
+    EC2_HOST_RESOLVE=$(terraform output -raw bb_portfolio_elastic_ip 2>/dev/null || terraform output -raw bb_portfolio_instance_ip 2>/dev/null || true)
+    popd >/dev/null
+  fi
+  if [[ -z "$EC2_HOST_RESOLVE" ]] && command -v gh >/dev/null 2>&1; then
+    EC2_HOST_RESOLVE=$(gh secret view EC2_HOST -q .value 2>/dev/null || true)
+  fi
+  [[ -n "$EC2_HOST_RESOLVE" ]] && enforce_single_controller "$EC2_HOST_RESOLVE" || warn "Single-controller guard: no host resolved (containers-only), skipping"
+fi
+
 ok "Infra and images complete. Handing off container restart to GitHub Actions."
 
 need jq
 
 BRANCH=$(git rev-parse --abbrev-ref HEAD)
 WF_CANDIDATES=("$workflows" "Redeploy" ".github/workflows/redeploy.yml" "redeploy.yml" ".github/workflows/redeploy-manual.yml" "redeploy-manual.yml")
+
+# Ensure only a single controller manages containers on EC2.
+# - Disable/remove legacy systemd unit 'portfolio.service'
+# - Archive legacy compose file '/home/ec2-user/portfolio/docker-compose.yml'
+# This is idempotent and safe to run on every deploy.
+enforce_single_controller() {
+  local host="$1"
+  local key="$HOME/.ssh/bb-portfolio-site-key.pem"
+  if [[ -z "$host" ]]; then
+    warn "Single-controller guard: EC2 host unknown, skipping"
+    return 0
+  fi
+  if [[ ! -f "$key" ]]; then
+    warn "Single-controller guard: SSH key not found at $key, skipping"
+    return 0
+  fi
+  log "Enforcing single controller on $host (disable legacy service, archive legacy compose)"
+  ssh -i "$key" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$host" $'set -e
+    # Disable and remove legacy systemd unit if present
+    if systemctl list-unit-files | grep -q "^portfolio.service"; then
+      sudo systemctl disable --now portfolio.service || true
+      sudo rm -f /etc/systemd/system/portfolio.service || true
+      sudo systemctl daemon-reload || true
+    fi
+    # Archive legacy compose file in project root if present
+    if [ -f "/home/ec2-user/portfolio/docker-compose.yml" ]; then
+      mv -f /home/ec2-user/portfolio/docker-compose.yml /home/ec2-user/portfolio/docker-compose.legacy.yml
+    fi
+    # Neutralize bootstrap helper if it exists (kept for reference)
+    chmod -x /home/ec2-user/portfolio/generate-env-files.sh 2>/dev/null || true
+  '
+}
 
 # Helper to dispatch a single Redeploy run for a specific environment (prod|dev)
 dispatch_redeploy() {
