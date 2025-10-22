@@ -268,6 +268,12 @@ if [[ "$do_infra" == true ]]; then
   # Preserve Elastic IP resources under all names and modules
   [[ "$r" =~ ^aws_eip(\.|$) ]] && continue
   [[ "$r" =~ ^aws_eip_association(\.|$) ]] && continue
+  # Avoid IAM churn under least-priv users: do not attempt to detach/destroy IAM
+  [[ "$r" =~ ^aws_iam_role(\.|$) ]] && continue
+  [[ "$r" =~ ^aws_iam_instance_profile(\.|$) ]] && continue
+  [[ "$r" =~ ^aws_iam_role_policy_attachment(\.|$) ]] && continue
+  [[ "$r" =~ ^aws_iam_policy(\.|$) ]] && continue
+  [[ "$r" =~ ^aws_iam_user_policy(\.|$) ]] && continue
         to_destroy+=("$r")
       done < <(terraform state list)
     fi
