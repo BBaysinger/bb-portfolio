@@ -443,8 +443,14 @@ case "$profiles" in
     DEV_OK=false
     if dispatch_redeploy prod main "$BRANCH"; then PROD_OK=true; fi
     if dispatch_redeploy dev "$BRANCH" dev main; then DEV_OK=true; fi
-    if [[ "$PROD_OK" == true && "$DEV_OK" == true ]]; then
-      ok "Prod and Dev redeploys dispatched via GitHub Actions. EC2 IP: ${EC2_IP:-unknown}"
+    if [[ "$PROD_OK" == true || "$DEV_OK" == true ]]; then
+      if [[ "$PROD_OK" == true && "$DEV_OK" == true ]]; then
+        ok "Prod and Dev redeploys dispatched via GitHub Actions. EC2 IP: ${EC2_IP:-unknown}"
+      elif [[ "$PROD_OK" == true ]]; then
+        warn "Prod redeploy dispatched, but dev dispatch failed. You can re-run dev via: gh workflow run redeploy.yml -f environment=dev --ref ${BRANCH}"
+      else
+        warn "Dev redeploy dispatched, but prod dispatch failed. You can re-run prod via: gh workflow run redeploy.yml -f environment=prod --ref main"
+      fi
       popd >/dev/null; exit 0
     fi
     ;;
