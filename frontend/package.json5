@@ -5,6 +5,7 @@
   "version": "0.1.0",
   // Prevents accidental publishing to npm registry
   "private": true,
+  //
   "type": "module",
   // Frontend development and build scripts
   "scripts": {
