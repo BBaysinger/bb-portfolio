@@ -7,7 +7,7 @@ import { RawImg } from "@/components/common/RawImg";
 
 import styles from "./Footer.module.scss";
 import FootGreet from "./FootGreet";
-import Links from "./NavLinks";
+import NavLinks from "./NavLinks";
 
 type FooterProps = {
   mutationElemRef: React.RefObject<HTMLDivElement | null>;
@@ -227,7 +227,7 @@ const Footer: React.FC<FooterProps> = ({
             </div>
 
             <div className={`${styles.footerCell} ${styles.footerNav}`}>
-              <Links />
+              <NavLinks className={styles.footerNavLinks} />
             </div>
           </div>
         </div>

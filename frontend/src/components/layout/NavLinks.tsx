@@ -9,7 +9,7 @@ import { useNavHighlight } from "@/hooks/useNavHighlight";
 
 import styles from "./NavLinks.module.scss";
 
-interface LinksProps {
+interface NavLinksProps {
   onClick?: () => void;
   className?: string;
 }
@@ -18,7 +18,7 @@ interface LinksProps {
  * Navigation link list populated around the site, like nav variants and footer.
  *
  */
-const Links: React.FC<LinksProps> = ({ onClick, className }) => {
+const NavLinks: React.FC<NavLinksProps> = ({ onClick, className }) => {
   const { isLoggedIn } = useAuth();
   const active = useNavHighlight();
 
@@ -66,4 +66,4 @@ const Links: React.FC<LinksProps> = ({ onClick, className }) => {
   );
 };
 
-export default Links;
+export default NavLinks;
