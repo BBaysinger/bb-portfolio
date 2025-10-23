@@ -83,8 +83,8 @@ const LoginPage = () => {
         <h1>Login</h1>
         <p>
           Some of my work is protected under non-disclosure agreements (NDAs).
-          To respect these agreements and ensure confidentiality, access to my
-          portfolio requires authentication.
+          To respect these agreements and ensure confidentiality, access to
+          certain portfolio projects requires authentication.
         </p>
         <p>
           If you have been provided login credentials, please enter them below
