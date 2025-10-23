@@ -99,7 +99,7 @@ This section consolidates the feature list from `docs/main-features-list.md` and
 
 - Make the hero animation more game-like
   - Still exploring rendering capabilities to know just how much I can get out of it
-  - But it should become more than just a fidget spinner 
+  - But it should become more than just a fidget spinner
 - Most of the notable features will become their own portable repos
 - Interactive tutorials for the kinetic orb (vs current arrow/tooltips) and carousel
 - Walkthrough videos playable within the project carousel
