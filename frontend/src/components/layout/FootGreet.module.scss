@@ -1,6 +1,11 @@
 @use "@/styles/mixins" as *;
 @use "@/styles/variables" as *;
 
+
+.footerGreet {
+  font-size: 14px;
+}
+
 .footerPhoto {
   float: left;
   margin-right: 16px;

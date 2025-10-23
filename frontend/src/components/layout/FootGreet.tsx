@@ -1,5 +1,6 @@
 "use client";
 
+import { clsx } from "clsx";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 
@@ -21,8 +22,8 @@ const FootGreet: React.FC<{ className?: string }> = ({ className = "" }) => {
   }, []);
 
   return (
-    <>
-      <p className={className}>
+    <div className={clsx(styles.footerGreet)}>
+      <p className={clsx(className)}>
         <Image
           src="/images/footer/bb2.jpg"
           className={styles.footerPhoto}
@@ -42,7 +43,7 @@ const FootGreet: React.FC<{ className?: string }> = ({ className = "" }) => {
         and explore how my approach to interactive design and development can
         bring something distinctive to your organization.
       </p>
-    </>
+    </div>
   );
 };
 
