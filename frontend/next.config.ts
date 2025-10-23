@@ -1,5 +1,45 @@
 import type { NextConfig } from "next";
 
+// Determine React Strict Mode behavior by environment profile
+// Requirement:
+// - local: ON
+// - dev deployments: OFF
+// - prod deployments: OFF
+// Override with REACT_STRICT_MODE env var ("false" => force off, any other value => force on)
+const nodeEnv = (process.env.NODE_ENV || "").toLowerCase();
+const isDev = nodeEnv !== "production";
+const profile = (process.env.ENV_PROFILE || nodeEnv || "").toLowerCase();
+const strictEnv = process.env.REACT_STRICT_MODE;
+
+const defaultStrictForProfile = (p: string) => {
+  switch (p) {
+    case "local":
+      return true; // ON locally
+    case "dev":
+    case "development":
+      return false; // OFF in dev deployments
+    case "prod":
+    case "production":
+      return false; // OFF in production deployments
+    default:
+      return false; // safe default: OFF
+  }
+};
+
+const resolvedStrictMode =
+  typeof strictEnv === "string"
+    ? strictEnv !== "false"
+    : defaultStrictForProfile(profile);
+
+console.info("[next.config.ts] React StrictMode:", {
+  NODE_ENV: process.env.NODE_ENV,
+  ENV_PROFILE: process.env.ENV_PROFILE,
+  profile,
+  isDev,
+  REACT_STRICT_MODE: strictEnv,
+  resolvedStrictMode,
+});
+
 const nextConfig: NextConfig = {
   output: "standalone",
   // Removed outputFileTracingRoot to follow Next.js conventions -
@@ -8,9 +48,10 @@ const nextConfig: NextConfig = {
     unoptimized: true,
   },
   trailingSlash: true,
-  // React StrictMode control - can be disabled via REACT_STRICT_MODE=false
-  // Defaults to true unless explicitly set to "false"
-  reactStrictMode: process.env.REACT_STRICT_MODE !== "false",
+  // React StrictMode control
+  // - Default: disabled in development, enabled in production
+  // - Override: set REACT_STRICT_MODE="false" to force off, any other value to force on
+  reactStrictMode: resolvedStrictMode,
   async rewrites() {
     const profile = (
       process.env.ENV_PROFILE ||
