@@ -1,22 +1,21 @@
 @use "@/styles/mixins" as *;
 @use "@/styles/variables" as *;
 
+$height: 76px;
+
 .fpsCounter {
   position: relative;
   left: calc(-1 * var(--hero-padding));
   display: inline-block;
   margin-top: 10px;
+  margin-right: auto;
   font-family: "Digital-7", "Courier New", "Monaco", "Consolas", monospace;
   white-space: nowrap;
   z-index: 10000;
   color: #00ff00;
-  height: 6.5rem;
+  height: $height;
   opacity: 0.8;
   transform-origin: top left;
-  // keep overlay on top of hero content
-  // create a high stacking context for visibility in dev
-  // (was mistakenly overridden to 1)
-  // z-index remains 10000
   mix-blend-mode: exclusion;
   line-height: 1em;
   border: 1px solid #00ff00;
@@ -25,8 +24,7 @@
   padding-right: 0.1em;
   padding-top: 0;
   background-color: rgba(0, 255, 0, 0.06);
-
-  @include remRange(font-size, 48px, 68px);
+  font-size: 48px;
 
   & > div {
     &:nth-child(2) {
@@ -46,7 +44,7 @@
 }
 
 .label {
-  @include remRange(font-size, 16px, 36px);
+  font-size: 20px;
   display: block;
   margin: 0.1em;
   line-height: 1.45em;
@@ -57,7 +55,7 @@
   position: absolute;
   top: calc(100% + 1px);
   left: 100%;
-  width: 6.5rem;
+  width: $height;
   display: flex !important;
   align-items: center;
   justify-content: center;
@@ -67,9 +65,10 @@
   font-family: "Roboto", sans-serif;
   border-bottom-left-radius: 10px;
   border-bottom-right-radius: 10px;
-  @include remRange(font-size, 8px, 11px);
+  font-size: 7px;
   letter-spacing: -0.006em;
   line-height: normal !important;
+  padding-bottom: 1px;
   cursor: pointer;
   z-index: 10000;
 }
@@ -78,11 +77,10 @@
   display: inline-block;
   min-width: 0.6em;
   text-align: right;
-  // line-height: 0.1em;
   margin-top: -0.7em;
 }
 
 .output {
-  line-height: 0.4em;
+  margin-top: -0.2em;
   letter-spacing: 0.1em;
 }

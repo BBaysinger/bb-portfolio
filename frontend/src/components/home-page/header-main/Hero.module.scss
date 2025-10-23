@@ -170,9 +170,12 @@ a.scrollCta {
   left: 0;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
   height: 100%;
   padding: var(--hero-padding);
+}
+
+.titleBranding {
+  margin-top: auto;
 }
 
 .debug {
