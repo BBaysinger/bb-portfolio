@@ -12,6 +12,9 @@ $navSlideTime: 0.5s;
   position: relative;
   min-width: 320px;
   overflow: hidden;
+   // Vital to the dynamically-positioned footer, to avoid movement into
+   // content area between pages.
+  min-height: 100dvh;
 }
 
 .navRevelator {

@@ -11,7 +11,7 @@ import styles from "./FootGreet.module.scss";
  *
  */
 const FootGreet: React.FC<{ className?: string }> = ({ className = "" }) => {
-  const [currentTimeOfDay, setCurrentTimeOfDay] = useState<string | null>(null);
+  const [currentTimeOfDay, setCurrentTimeOfDay] = useState<string>("");
 
   useEffect(() => {
     const hour = new Date().getHours();
@@ -30,9 +30,11 @@ const FootGreet: React.FC<{ className?: string }> = ({ className = "" }) => {
           height={93}
           alt="Bradley's head"
         />
-        {currentTimeOfDay
-          ? `Good ${currentTimeOfDay}! This space is always evolving — a bit of an ongoing experiment. Some things might seem mysterious for now, but that's part of the process.`
-          : "Thanks for stopping by! This space is always evolving — a bit of an ongoing experiment. Some things might seem mysterious for now, but that's part of the process."}
+        {`Good ${currentTimeOfDay}! `}
+        Thanks for stopping by! This space is always evolving — a bit of an
+        ongoing experiment. As you can probably tell, I&apos;m passionate about
+        crafting engaging digital experiences that blend creativity with
+        functionality.
       </p>
       <p>
         I&apos;m always excited to collaborate with forward-thinking teams who
