@@ -40,7 +40,9 @@
   },
   // Runtime dependencies for backend and CMS functionality
   "dependencies": {
+    //
     "@aws-sdk/client-ses": "^3.913.0",
+    //
     "@aws-sdk/types": "^3.910.0",
     // MongoDB adapter for Payload CMS
     "@payloadcms/db-mongodb": "3.60.0",
@@ -52,6 +54,7 @@
     "@payloadcms/payload-cloud": "3.60.0",
     // Rich text editor using Lexical (modern alternative to Slate)
     "@payloadcms/richtext-lexical": "3.60.0",
+    //
     "@payloadcms/storage-s3": "3.60.0",
     // Payload's core UI components
     "@payloadcms/ui": "3.60.0",
@@ -63,6 +66,7 @@
     "express": "^5.1.0",
     // GraphQL query language runtime (required by Payload's GraphQL API)
     "graphql": "^16.11.0",
+    //
     "json5": "^2.2.3",
     // Next.js framework for frontend/backend integration
     "next": "15.5.6",
@@ -85,6 +89,7 @@
     "@testing-library/react": "16.3.0",
     // Express.js TypeScript definitions
     "@types/express": "^5.0.3",
+    //
     "@types/json5": "^0.0.29",
     // Node.js TypeScript definitions (latest for Node 18+)
     "@types/node": "^24.8.1",

@@ -26,6 +26,22 @@ import ignore from "ignore";
  *
  */
 
+type SyncOptions = {
+  /**
+   * When true, insert a blank comment line (`//`) before any key that has no
+   * preceding comment captured from the existing JSON5. This helps visually
+   * separate entries like:
+   *
+   *   "private": true,
+   *   //
+   *   "type": "module",
+   *
+   * Defaults to true. Can be disabled via CLI flag `--no-empty-comment` or the
+   * environment variable `SYNC_JSON5_ADD_EMPTY_COMMENT=false`.
+   */
+  addEmptyCommentIfMissing?: boolean;
+};
+
 /**
  * Quotes an object key for consistent JSON5 formatting.
  * Always returns a quoted key to maintain consistency across all properties.
@@ -284,9 +300,17 @@ function generateScriptComment(): string {
  * @param source - Parsed JSON object from the canonical package.json
  * @returns The updated JSON5 content as a formatted string
  */
-function syncJson5(raw: string, source: Record<string, unknown>): string {
+function syncJson5(
+  raw: string,
+  source: Record<string, unknown>,
+  options: SyncOptions = { addEmptyCommentIfMissing: true },
+): string {
   const lines = raw.split("\n");
   const comments = buildCommentMap(lines);
+  const addEmptyCommentIfMissing =
+    options.addEmptyCommentIfMissing !== undefined
+      ? options.addEmptyCommentIfMissing
+      : true;
 
   /**
    * Recursively writes a JSON object with proper formatting and preserved comments.
@@ -327,16 +351,13 @@ function syncJson5(raw: string, source: Record<string, unknown>): string {
           result.push(indent(c, level));
         }
       } else if (
-        path.length > 0 &&
-        path[0] === "scripts" &&
-        typeof val === "string"
+        addEmptyCommentIfMissing &&
+        !comments.hasOwnProperty(fullPath)
       ) {
-        // If this key is new (not present in previous comment map), add a blank comment
-        // Only add blank if not found in comment map
-        if (!comments.hasOwnProperty(fullPath)) {
-          const autoComment = generateScriptComment();
-          result.push(indent(autoComment, level));
-        }
+        // No preceding comment captured — optionally add a blank one for spacing
+        // Applies to any section, not just scripts
+        const autoComment = generateScriptComment();
+        result.push(indent(autoComment, level));
       }
 
       if (typeof val === "object" && val !== null && !Array.isArray(val)) {
@@ -420,6 +441,29 @@ const packageJsonPaths = globSync("**/package.json", {
   absolute: true,
 });
 
+// Parse simple CLI flags / env for options
+let addEmptyCommentIfMissing = true;
+
+// Env toggle: SYNC_JSON5_ADD_EMPTY_COMMENT=false
+if (
+  typeof process.env.SYNC_JSON5_ADD_EMPTY_COMMENT === "string" &&
+  process.env.SYNC_JSON5_ADD_EMPTY_COMMENT.toLowerCase() === "false"
+) {
+  addEmptyCommentIfMissing = false;
+}
+
+// CLI toggles: --no-empty-comment, --empty-comment=false
+for (const arg of process.argv.slice(2)) {
+  if (arg === "--no-empty-comment" || arg === "--no-empty-comments") {
+    addEmptyCommentIfMissing = false;
+  } else if (arg.startsWith("--empty-comment=")) {
+    const v = arg.split("=", 2)[1]?.toLowerCase();
+    if (v === "false" || v === "0" || v === "no") {
+      addEmptyCommentIfMissing = false;
+    }
+  }
+}
+
 // Process each package.json to sync with its package.json5 counterpart
 for (const packageJsonPath of packageJsonPaths) {
   const relPath = path.relative(rootDir, packageJsonPath);
@@ -438,7 +482,9 @@ for (const packageJsonPath of packageJsonPaths) {
   // Perform the synchronization
   const rawJson5 = fs.readFileSync(json5Path, "utf8");
   const sourceJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf8"));
-  const updated = syncJson5(rawJson5, sourceJson);
+  const updated = syncJson5(rawJson5, sourceJson, {
+    addEmptyCommentIfMissing,
+  });
 
   // Write the synchronized result
   fs.writeFileSync(json5Path, updated);
