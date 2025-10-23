@@ -11,14 +11,15 @@ This section consolidates the feature list from `docs/main-features-list.md` and
 - Parallax Project Carousel (layered/synced, expandable, native swipe, deep linking)
 - Device Mockup Overlays (tilt/stabilization states)
 - Simulated-Depth Magnetic “Fluxel” (fluxing pixel) Grid System
-- Custom Sprite Rendering w/ CSS, canvas, and WebGL rendering options
-- Magnetic/Sticky Road Sign
+- Custom Sprite Sheet Renderer w/ CSS, canvas, and WebGL rendering options
+- Weighted Random Animation Sequencer using the sprite sheet renderer
 - Custom Physics Kinetic Orb
 - Page Slide-Out Mobile Navigation
 - Transform-Positioned Footer
 - Logo/Info Swapper Animations tied to active slide
 - Scroll-Aware Project List Highlighting
 - Teletype Paragraph Animation Effect
+- Magnetic/Sticky Road Sign
 - Fluid Responsive System
   - rem-based fluid scaling property mixin
   - static fluid scaling property mixin
@@ -99,8 +100,9 @@ This section consolidates the feature list from `docs/main-features-list.md` and
 
 - Make the hero animation more game-like
   - Still exploring rendering capabilities to know just how much I can get out of it
-  - But it should become more than just a fidget spinner
+  - But it will become more than just a fidget spinner
 - Most of the notable features will become their own portable repos
+- Filterable Project Tags/Categories
 - Interactive tutorials for the kinetic orb (vs current arrow/tooltips) and carousel
 - Walkthrough videos playable within the project carousel
 - Project upkeep: framework/library upgrades across showcased projects
