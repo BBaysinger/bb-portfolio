@@ -16,7 +16,7 @@
     // The command is short for frequent use (I use it very frequently, and *every* time before commit)
     "precommit": "prettier --write . && tsc -b",
     // Production build with increased memory and deprecation warnings suppressed
-    "build": "cross-env NODE_OPTIONS=\"--no-deprecation --max-old-space-size=8000\" next build",
+    "build": "cross-env NODE_OPTIONS=\"--no-deprecation --max-old-space-size=8000\" npm run generate:importmap && next build",
     // Start development server with deprecation warnings suppressed
     "dev": "cross-env NODE_OPTIONS=--no-deprecation next dev -p ${PORT:-3001}",
     // Clean Next.js cache and run dev server (useful when build cache is corrupted)

@@ -11,6 +11,10 @@ const nextConfig = {
   // Normalize URLs to include a trailing slash so SSR and client generate identical HREFs
   // This avoids hydration mismatches like "/admin/collections/users" vs "/admin/collections/users/"
   trailingSlash: true,
+  // Ensure admin-static assets are requested from /admin/_next so we can
+  // route them cleanly at the reverse proxy without relying on Referer
+  // This does NOT change application routes, only the asset URLs
+  assetPrefix: '/admin',
   outputFileTracingRoot: path.join(__dirname, '../'),
   webpack: (webpackConfig) => {
     webpackConfig.resolve.extensionAlias = {

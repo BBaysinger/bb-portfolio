@@ -207,6 +207,8 @@
     "db:migrate:prod-to-dev": "bash scripts/migrate-database.sh prod dev",
     // 🛠️ Infrastructure as Code: Full redeployment
     "deploy:full": "bash deploy/scripts/deployment-orchestrator.sh --build-images both --profiles both --refresh-env",
+    //
+    "sync:nginx": "bash ./deploy/scripts/sync-nginx-config.sh --host ${NGINX_HOST:-ec2-user@44.246.43.116} --key ${NGINX_KEY:-$HOME/.ssh/bb-portfolio-site-key.pem}",
   },
   //
   "devDependencies": {
