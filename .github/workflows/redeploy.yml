@@ -59,9 +59,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     # Prevent overlapping prod/dev redeploys from stepping on each other.
-    # Use a single global group so only one redeploy runs at a time.
+    # Use per-environment concurrency so prod and dev can proceed independently.
+    # If environment == 'both', fall back to a single global group.
     concurrency:
-      group: redeploy-global
+      group: redeploy-${{ inputs.environment == 'both' && 'global' || inputs.environment }}
       cancel-in-progress: true
     steps:
       - name: Checkout
