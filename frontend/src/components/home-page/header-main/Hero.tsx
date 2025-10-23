@@ -9,7 +9,6 @@ import FPSCounter from "@/components/common/FPSCounter";
 import ChargedCircle from "@/components/home-page/header-main/ChargedCircle";
 import OrbArrowTooltip from "@/components/home-page/header-main/OrbArrowTooltip";
 import useClientDimensions from "@/hooks/useClientDimensions";
-// import useQueryParams from "@/hooks/useQueryParams";
 import useScrollPersistedClass from "@/hooks/useScrollPersistedClass";
 import useTimeOfDay from "@/hooks/useTimeOfDay";
 
@@ -224,28 +223,26 @@ const Hero: React.FC = () => {
       ref={heroRef}
       data-nav="hero"
       className={clsx(
-        `${styles.hero} hero`,
-        isSlingerIdle
-          ? `${styles.isSlingerIdle} isSlingerIdle`
-          : `${styles.notSlingerIdle} notSlingerIdle`,
-        hasScrolledOut
-          ? `${styles.hasScrolledOut} hasScrolledOut`
-          : `${styles.notScrolledOut} notScrolledOut`,
-        hasDragged
-          ? `${styles.hasDragged} hasDragged`
-          : `${styles.notDragged} notDragged`,
-        hasAfterCollidedDelay
-          ? `${styles.hasAfterCollidedDelay} hasAfterCollidedDelay`
-          : `${styles.notAfterCollidedDelay} notAfterCollidedDelay`,
-        hasCollided
-          ? `${styles.hasCollided} hasCollided`
-          : `${styles.notCollided} notCollided`,
-        mounted
-          ? `${styles.hasMounted} hasMounted`
-          : `${styles.notMounted} notMounted`,
-        isSlingerInFlight
-          ? `${styles.slingerInFlight} slingerInFlight`
-          : `${styles.slingerNotInFlight} slingerNotInFlight`,
+        // Scoped module class + global hook for easier debugging/targeting
+        styles.hero,
+        "hero",
+        // Only include global state flags (avoid referencing undefined CSS-module keys)
+        {
+          isSlingerIdle,
+          notSlingerIdle: !isSlingerIdle,
+          hasScrolledOut,
+          notScrolledOut: !hasScrolledOut,
+          hasDragged,
+          notDragged: !hasDragged,
+          hasAfterCollidedDelay,
+          notAfterCollidedDelay: !hasAfterCollidedDelay,
+          hasCollided,
+          notCollided: !hasCollided,
+          hasMounted: mounted,
+          notMounted: !mounted,
+          slingerInFlight: isSlingerInFlight,
+          slingerNotInFlight: !isSlingerInFlight,
+        },
       )}
     >
       <Suspense fallback={null}>
@@ -292,9 +289,8 @@ const Hero: React.FC = () => {
           paragraphs={quotes}
           className={styles.message}
           paused={!mounted || !isSlingerIdle}
-        >
-          <FPSCounter />
-        </ParagraphAnimator>
+        ></ParagraphAnimator>
+        <FPSCounter />
         <TitleBranding className={styles.titleBranding} ref={titleRef} />
       </div>
     </header>
