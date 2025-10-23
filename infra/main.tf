@@ -514,7 +514,7 @@ SCRIPT_EOF
 # Create systemd service for automatic container startup
 cat > /etc/systemd/system/portfolio.service << SERVICE_EOF
 [Unit]
-Description=Portfolio Docker Containers
+Description=BB-Portfolio Docker Containers
 After=docker.service nginx.service
 Requires=docker.service
 BindsTo=docker.service

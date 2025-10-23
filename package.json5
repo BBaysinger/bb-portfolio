@@ -115,7 +115,7 @@
     "caddy:reload": "docker exec bb-portfolio-caddy-local caddy reload --config /etc/caddy/Caddyfile",
     // � Check status of portfolio containers
     // 📊 Check status of portfolio containers
-    "caddy:status": "docker ps --filter name=portfolio- --format 'table {{.Names}}\\t{{.Status}}\\t{{.Ports}}'",
+    "caddy:status": "docker ps --filter name=bb-portfolio- --format 'table {{.Names}}\\t{{.Status}}\\t{{.Ports}}'",
     // ℹ️ Note on routing through Caddy:
     // - If your frontend uses relative paths like fetch('/api/...'), browser requests will always hit the proxy at 8080
     //   (when using caddy:up) and be routed to the backend. This fully mirrors prod.
