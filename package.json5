@@ -41,41 +41,41 @@
     // =============================================================================
     // 🐳 Build both frontend and backend Docker images using docker-compose local profile
     // Uses the local profile which includes development-optimized builds with hot reload
-    "docker:build": "AWS_ACCOUNT_ID=123456789012 COMPOSE_PROFILES=local docker compose -f deploy/compose/docker-compose.yml build",
+    "docker:build": "docker compose -f deploy/compose/docker-compose.yml --profile local build",
     // ⚡ DEVELOPMENT MODE (SSR): Start containers with hot reload for fast development
     // Frontend: http://localhost:8080, Backend: http://localhost:8081
     // Uses 'npm run dev' with volume mounts - pages render on-demand with fresh data from backend
-    "docker:up": "AWS_ACCOUNT_ID=123456789012 COMPOSE_PROFILES=local docker compose -f deploy/compose/docker-compose.yml up --build",
+    "docker:up": "docker compose -f deploy/compose/docker-compose.yml --profile local up --build",
     // ▶️ Same as docker:up but runs in background (doesn't block your terminal)
     // Use this if you want to continue using your terminal while containers run
-    "docker:up:detached": "AWS_ACCOUNT_ID=123456789012 COMPOSE_PROFILES=local docker compose -f deploy/compose/docker-compose.yml up --build -d",
+    "docker:up:detached": "docker compose -f deploy/compose/docker-compose.yml --profile local up --build -d",
     // ⚡ Same as docker:up but with React Strict Mode disabled (helps with legacy libraries)
     // Useful when React's strict mode causes issues with third-party components
-    "docker:up:no-strict": "AWS_ACCOUNT_ID=123456789012 COMPOSE_PROFILES=local REACT_STRICT_MODE=false docker compose -f deploy/compose/docker-compose.yml up --build",
+    "docker:up:no-strict": "REACT_STRICT_MODE=false docker compose -f deploy/compose/docker-compose.yml --profile local up --build",
     // ▶️ Same as docker:up:no-strict but runs in background (detached mode)
-    "docker:up:no-strict:detached": "AWS_ACCOUNT_ID=123456789012 COMPOSE_PROFILES=local REACT_STRICT_MODE=false docker compose -f deploy/compose/docker-compose.yml up --build -d",
+    "docker:up:no-strict:detached": "REACT_STRICT_MODE=false docker compose -f deploy/compose/docker-compose.yml --profile local up --build -d",
     // 🛑 Stop and remove all local development containers
     // Cleans up containers, networks, and anonymous volumes created by docker:up
-    "docker:down": "AWS_ACCOUNT_ID=123456789012 COMPOSE_PROFILES=local docker compose -f deploy/compose/docker-compose.yml down",
+    "docker:down": "docker compose -f deploy/compose/docker-compose.yml --profile local down",
     // 📋 Follow logs from both frontend and backend containers in real-time
     // Useful when running in detached mode to see what's happening
-    "docker:logs": "AWS_ACCOUNT_ID=123456789012 COMPOSE_PROFILES=local docker compose -f deploy/compose/docker-compose.yml logs -f",
+    "docker:logs": "docker compose -f deploy/compose/docker-compose.yml --profile local logs -f",
     // 🏗️ BUILD MODE: Build static site generation containers (local-ssg profile)
-    "docker:ssg:build": "AWS_ACCOUNT_ID=123456789012 COMPOSE_PROFILES=local-ssg docker compose -f deploy/compose/docker-compose.yml build",
+    "docker:ssg:build": "docker compose -f deploy/compose/docker-compose.yml --profile local-ssg build",
     // 🏗️ PRODUCTION MODE (SSG): Pre-builds all pages with data baked-in at build time
     // Frontend: Static HTML files generated, Backend: Hot reload for development
     // Slower startup but faster page loads - tests how production will behave
-    "docker:ssg:up": "AWS_ACCOUNT_ID=123456789012 COMPOSE_PROFILES=local-ssg docker compose -f deploy/compose/docker-compose.yml up --build",
+    "docker:ssg:up": "docker compose -f deploy/compose/docker-compose.yml --profile local-ssg up --build",
     // 🏗️ Same as docker:ssg:up but runs in background (detached mode)
-    "docker:ssg:up:detached": "AWS_ACCOUNT_ID=123456789012 COMPOSE_PROFILES=local-ssg docker compose -f deploy/compose/docker-compose.yml up --build -d",
+    "docker:ssg:up:detached": "docker compose -f deploy/compose/docker-compose.yml --profile local-ssg up --build -d",
     // 🏗️ Same as docker:ssg:up but with React Strict Mode disabled (for compatibility)
-    "docker:ssg:up:no-strict": "AWS_ACCOUNT_ID=123456789012 COMPOSE_PROFILES=local-ssg REACT_STRICT_MODE=false docker compose -f deploy/compose/docker-compose.yml up --build",
+    "docker:ssg:up:no-strict": "REACT_STRICT_MODE=false docker compose -f deploy/compose/docker-compose.yml --profile local-ssg up --build",
     // 🏗️ Same as docker:ssg:up:no-strict but runs in background (detached mode)
-    "docker:ssg:up:no-strict:detached": "AWS_ACCOUNT_ID=123456789012 COMPOSE_PROFILES=local-ssg REACT_STRICT_MODE=false docker compose -f deploy/compose/docker-compose.yml up --build -d",
+    "docker:ssg:up:no-strict:detached": "REACT_STRICT_MODE=false docker compose -f deploy/compose/docker-compose.yml --profile local-ssg up --build -d",
     // 🛑 Stop and remove static site generation containers (local-ssg profile)
-    "docker:ssg:down": "AWS_ACCOUNT_ID=123456789012 COMPOSE_PROFILES=local-ssg docker compose -f deploy/compose/docker-compose.yml down",
+    "docker:ssg:down": "docker compose -f deploy/compose/docker-compose.yml --profile local-ssg down",
     // 📋 Follow logs from static site generation containers in real-time (local-ssg profile)
-    "docker:ssg:logs": "AWS_ACCOUNT_ID=123456789012 COMPOSE_PROFILES=local-ssg docker compose -f deploy/compose/docker-compose.yml logs -f",
+    "docker:ssg:logs": "docker compose -f deploy/compose/docker-compose.yml --profile local-ssg logs -f",
     // 🐳 Build backend Docker image for Docker Hub (dev tag)
     // NOTE: Builds the production runtime stage with ENV_PROFILE=dev (no hot reload)
     // This ensures EC2 dev behaves like prod, just with dev config.
@@ -100,17 +100,17 @@
     //   • everything else goes to the frontend
     // The only “extra” is the Docker network (infrastructure), not an extra app.
     // Uses compose profiles: local (frontend+backend dev) + proxy (Caddy)
-    "caddy:up": "AWS_ACCOUNT_ID=123456789012 COMPOSE_PROFILES=local,proxy docker compose -f deploy/compose/docker-compose.yml up --build -d",
+    "caddy:up": "docker compose -f deploy/compose/docker-compose.yml --profile local --profile proxy up --build -d",
     // 🌐 Same as caddy:up but with React Strict Mode disabled (for legacy compatibility)
-    "caddy:up:no-strict": "REACT_STRICT_MODE=false AWS_ACCOUNT_ID=123456789012 COMPOSE_PROFILES=local,proxy docker compose -f deploy/compose/docker-compose.yml up --build -d",
+    "caddy:up:no-strict": "REACT_STRICT_MODE=false docker compose -f deploy/compose/docker-compose.yml --profile local --profile proxy up --build -d",
     // 🛑 Stop Caddy (and its dependencies) cleanly
-    "caddy:down": "AWS_ACCOUNT_ID=123456789012 COMPOSE_PROFILES=local,proxy docker compose -f deploy/compose/docker-compose.yml down --remove-orphans",
+    "caddy:down": "docker compose -f deploy/compose/docker-compose.yml --profile local --profile proxy down --remove-orphans",
     // 🧹 Force-remove a stale caddy container if it was created outside the current compose project
     "caddy:down:force": "docker rm -f backend-local frontend-local bb-portfolio-caddy-local || true",
     // 📋 Follow Caddy reverse proxy logs in real-time
     "caddy:logs": "docker compose -f deploy/compose/docker-compose.yml logs -f caddy-local",
     // 🔄 Restart Caddy in-place (recreate only the proxy)
-    "caddy:restart": "COMPOSE_PROFILES=local,proxy docker compose -f deploy/compose/docker-compose.yml up -d --force-recreate caddy-local",
+    "caddy:restart": "docker compose -f deploy/compose/docker-compose.yml --profile local --profile proxy up -d --force-recreate caddy-local",
     // ⚡ Reload Caddy configuration without restarting containers
     "caddy:reload": "docker exec bb-portfolio-caddy-local caddy reload --config /etc/caddy/Caddyfile",
     // � Check status of portfolio containers
