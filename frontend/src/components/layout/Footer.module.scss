@@ -19,11 +19,6 @@ footer.footer {
     transform 0.5s ease-in-out,
     right 0.5s ease-in-out;
 
-  // Target the footer when it has the mobile nav expanded class passed from AppShell
-  // &[class*="isMobileNavExpanded"] {
-  //   right: 50vw; // Match the main content shift
-  // }
-
   &::before {
     content: "";
     position: absolute;
@@ -247,4 +242,12 @@ footer.footer {
 
 .footerWrapper {
   position: static;
+}
+
+// footer nav links style override when used in footer
+.footerNavLinks li {
+  text-align: center;
+  @include breakpointUp($b576px) {
+    text-align: left;
+  }
 }
