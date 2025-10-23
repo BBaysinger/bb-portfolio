@@ -7,8 +7,8 @@ import ProjectData from "@/data/ProjectData";
 // import styles from "@/styles/ProjectPage.module.css";
 
 export const runtime = "nodejs";
-// We statically generate all public project routes; disallow dynamic params at runtime
-export const dynamicParams = false;
+// Prefer SSG for known routes, but allow on-demand generation for any valid projectId at runtime
+export const dynamicParams = true;
 
 /**
  * Renders the project view page using a suspense-wrapped client-side component.
@@ -83,7 +83,7 @@ export async function generateStaticParams() {
     const projectIds = Object.keys(ProjectData.activeProjectsRecord);
 
     console.info(
-      `📄 [generateStaticParams] Generated static params for ${projectIds.length} projects`,
+      `📄 [generateStaticParams] Generated static params for ${projectIds.length} projects`
     );
 
     return projectIds.map((projectId) => ({
@@ -94,7 +94,7 @@ export async function generateStaticParams() {
     const errorMessage =
       error instanceof Error ? error.message : "Unknown error";
     console.warn(
-      `⚠️  [generateStaticParams] Backend not accessible (${errorMessage}) - falling back to on-demand page generation`,
+      `⚠️  [generateStaticParams] Backend not accessible (${errorMessage}) - falling back to on-demand page generation`
     );
     return [];
   }
