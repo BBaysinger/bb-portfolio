@@ -5,12 +5,23 @@ export function middleware(request: NextRequest) {
   if (request.nextUrl.pathname.startsWith('/api/')) {
     const response = NextResponse.next()
 
-    // Get the frontend URL from environment variables
-    const frontendUrls = process.env.LOCAL_FRONTEND_URL?.split(',') || ['http://localhost:3000']
+    // Get the frontend URL(s) from environment variables based on ENV_PROFILE
+    const envProfile = process.env.ENV_PROFILE || 'local'
+    const originKey =
+      envProfile === 'prod'
+        ? 'PROD_FRONTEND_URL'
+        : envProfile === 'dev'
+          ? 'DEV_FRONTEND_URL'
+          : 'LOCAL_FRONTEND_URL'
+
+    const allowed = (process.env[originKey] || 'http://localhost:3000')
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean)
     const origin = request.headers.get('origin')
 
     // Allow requests from configured frontend URLs
-    if (origin && frontendUrls.includes(origin)) {
+    if (origin && allowed.includes(origin)) {
       response.headers.set('Access-Control-Allow-Origin', origin)
     }
 
