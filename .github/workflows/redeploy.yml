@@ -58,8 +58,10 @@ jobs:
     name: SSH redeploy on EC2
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    # Prevent overlapping prod/dev redeploys from stepping on each other.
+    # Use a single global group so only one redeploy runs at a time.
     concurrency:
-      group: redeploy-${{ inputs.environment }}
+      group: redeploy-global
       cancel-in-progress: true
     steps:
       - name: Checkout
@@ -273,8 +275,12 @@ jobs:
             printf '%s\n' 'echo "== Disk usage before =="'
             printf '%s\n' 'df -h / || true'
             printf '%s\n' 'docker system df || true'
-            printf '%s\n' 'echo "== Stop/remove any stale containers (ignore errors) =="'
-            printf '%s\n' 'docker rm -f bb-portfolio-backend-dev bb-portfolio-frontend-dev bb-portfolio-backend-prod bb-portfolio-frontend-prod 2>/dev/null || true'
+            printf '%s\n' 'echo "== Stop/remove stale containers for selected environment (ignore errors) =="'
+            printf '%s\n' 'case "${ENVIRONMENT}" in'
+            printf '%s\n' '  prod) docker rm -f bb-portfolio-backend-prod bb-portfolio-frontend-prod 2>/dev/null || true ;;'
+            printf '%s\n' '  dev)  docker rm -f bb-portfolio-backend-dev  bb-portfolio-frontend-dev  2>/dev/null || true ;;'
+            printf '%s\n' '  both) docker rm -f bb-portfolio-backend-dev  bb-portfolio-frontend-dev  bb-portfolio-backend-prod bb-portfolio-frontend-prod 2>/dev/null || true ;;'
+            printf '%s\n' 'esac'
             printf '%s\n' 'echo "== Prune unused images/containers/networks (no volumes) =="'
             printf '%s\n' 'docker system prune -af || true'
             printf '%s\n' 'echo "== Prune builder cache =="'

@@ -46,6 +46,9 @@ jobs:
     name: SSH redeploy on EC2 (manual)
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    concurrency:
+      group: redeploy-global
+      cancel-in-progress: true
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -95,13 +98,13 @@ jobs:
                 : "${PROD_PAYLOAD_SECRET}"
                 : "${PROD_S3_BUCKET}"
                 : "${PROD_AWS_REGION}"
-                ;
+                ;;
               dev)
                 : "${DEV_MONGODB_URI}"
                 : "${DEV_PAYLOAD_SECRET}"
                 : "${DEV_S3_BUCKET}"
                 : "${DEV_AWS_REGION}"
-                ;
+                ;;
               both)
                 : "${PROD_MONGODB_URI}"
                 : "${PROD_PAYLOAD_SECRET}"
@@ -242,24 +245,25 @@ jobs:
             printf '%s\n' 'cd /home/ec2-user/portfolio'
             printf '%s\n' 'aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 778230822028.dkr.ecr.us-west-2.amazonaws.com >/dev/null 2>&1 || true'
             printf '%s\n' 'export AWS_ACCOUNT_ID=778230822028'
+            printf '%s\n' 'COMPOSE_FILE="deploy/compose/docker-compose.yml"'
             # Avoid full down to reduce downtime; rely on up --force-recreate per profile
             printf '%s\n' '# docker-compose down || true'
             printf '%s\n' ''
             printf '%s\n' 'case "${ENVIRONMENT}" in'
             printf '%s\n' '  prod)'
-            printf '%s\n' '    COMPOSE_PROFILES=prod docker-compose pull || true'
-            printf '%s\n' '    COMPOSE_PROFILES=prod docker-compose up -d --force-recreate'
-            printf '%s\n' '    ;'
+            printf '%s\n' '    COMPOSE_PROFILES=prod docker-compose -f "$COMPOSE_FILE" pull || true'
+            printf '%s\n' '    COMPOSE_PROFILES=prod docker-compose -f "$COMPOSE_FILE" up -d --force-recreate'
+            printf '%s\n' '    ;;'
             printf '%s\n' '  dev)'
-            printf '%s\n' '    COMPOSE_PROFILES=dev docker-compose pull || true'
-            printf '%s\n' '    COMPOSE_PROFILES=dev docker-compose up -d --force-recreate'
-            printf '%s\n' '    ;'
+            printf '%s\n' '    COMPOSE_PROFILES=dev docker-compose -f "$COMPOSE_FILE" pull || true'
+            printf '%s\n' '    COMPOSE_PROFILES=dev docker-compose -f "$COMPOSE_FILE" up -d --force-recreate'
+            printf '%s\n' '    ;;'
             printf '%s\n' '  both)'
-            printf '%s\n' '    COMPOSE_PROFILES=prod docker-compose pull || true'
-            printf '%s\n' '    COMPOSE_PROFILES=prod docker-compose up -d || true'
-            printf '%s\n' '    COMPOSE_PROFILES=dev docker-compose pull || true'
-            printf '%s\n' '    COMPOSE_PROFILES=dev docker-compose up -d || true'
-            printf '%s\n' '    ;'
+            printf '%s\n' '    COMPOSE_PROFILES=prod docker-compose -f "$COMPOSE_FILE" pull || true'
+            printf '%s\n' '    COMPOSE_PROFILES=prod docker-compose -f "$COMPOSE_FILE" up -d || true'
+            printf '%s\n' '    COMPOSE_PROFILES=dev docker-compose -f "$COMPOSE_FILE" pull || true'
+            printf '%s\n' '    COMPOSE_PROFILES=dev docker-compose -f "$COMPOSE_FILE" up -d || true'
+            printf '%s\n' '    ;;'
             printf '%s\n' 'esac'
           } | ssh -i "${{ steps.ssh.outputs.key }}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" "ENVIRONMENT='${ENVIRONMENT}' bash -s"
 
