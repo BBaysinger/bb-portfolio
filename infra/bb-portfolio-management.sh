@@ -111,7 +111,7 @@ case "${1:-help}" in
     
     status)
         echo "Portfolio container status:"
-        run_remote "sudo docker ps --filter 'name=portfolio-' --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'"
+        run_remote "sudo docker ps --filter 'name=bb-portfolio-' --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'"
         echo ""
         echo "Nginx status:"
         run_remote "sudo systemctl status nginx --no-pager -l" || true

@@ -45,7 +45,7 @@ get_db_name() {
 # Function to get database URI by environment  
 get_db_uri() {
   local db_name=$(get_db_name $1)
-  echo "${MONGODB_BASE}/${db_name}?retryWrites=true&w=majority&appName=portfolio-2025"
+  echo "${MONGODB_BASE}/${db_name}?retryWrites=true&w=majority&appName=bb-portfolio-2025"
 }
 
 # Function to check if MongoDB tools are installed
