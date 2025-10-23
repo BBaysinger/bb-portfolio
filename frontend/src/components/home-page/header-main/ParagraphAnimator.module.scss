@@ -2,7 +2,6 @@
 @use "@/styles/variables" as *;
 
 .paragraphAnimator {
-  position: absolute;
   top: var(--hero-padding);
   left: var(--hero-padding);
   width: calc(100vw - var(--hero-padding) * 2 - $navBarHeight);
