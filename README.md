@@ -20,6 +20,7 @@ This section consolidates the feature list from `docs/main-features-list.md` and
 - Scroll-Aware Project List Highlighting
 - Teletype Paragraph Animation Effect
 - Magnetic/Sticky Road Sign
+- Scroll-Aware Page Anchors
 - Fluid Responsive System
   - rem-based fluid scaling property mixin
   - static fluid scaling property mixin
