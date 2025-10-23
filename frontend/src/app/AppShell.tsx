@@ -21,11 +21,14 @@ import styles from "./AppShell.module.scss";
 export function AppShell({ children }: { children: React.ReactNode }) {
   // Runtime backend health check: logs backend connectivity status on startup
   useEffect(() => {
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "/api/health";
-    const healthUrl = backendUrl.endsWith("/api/health")
-      ? backendUrl
-      : backendUrl.replace(/\/$/, "") + "/api/health";
-    fetch(healthUrl)
+    // Prefer same-origin relative path to leverage Next.js rewrites (/api -> backend)
+    // Absolute URLs (e.g., http://backend-local:3001) may not resolve in the browser.
+    const healthUrl = "/api/health";
+
+    const abort = new AbortController();
+    const timer = setTimeout(() => abort.abort("timeout"), 5000);
+
+    fetch(healthUrl, { signal: abort.signal })
       .then((res) => {
         if (res.ok) {
           console.log(
@@ -38,11 +41,27 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         }
       })
       .catch((err) => {
-        console.error(
-          `❌ [Runtime Health Check] Failed to reach backend at ${healthUrl}:`,
-          err,
-        );
-      });
+        // Network errors, CORS, DNS, or timeout will land here
+        const isAbort = (err as Error)?.name === "AbortError";
+        if (isAbort) {
+          // Be less noisy for intentional timeouts
+          console.warn(
+            `⏱️ [Runtime Health Check] Request timed out at ${healthUrl}`,
+          );
+        } else {
+          console.error(
+            `❌ [Runtime Health Check] Failed to reach backend at ${healthUrl}:`,
+            err,
+          );
+        }
+      })
+      .finally(() => clearTimeout(timer));
+
+    // Cleanup for React StrictMode re-runs and component unmount
+    return () => {
+      clearTimeout(timer);
+      if (!abort.signal.aborted) abort.abort("cleanup");
+    };
   }, []);
   const isMenuOpen = useSelector(
     (state: RootState) => state.ui.isMobileNavExpanded,

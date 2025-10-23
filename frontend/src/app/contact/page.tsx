@@ -54,10 +54,8 @@ const ContactPage = () => {
     }
 
     try {
-      // Use environment variable or default to localhost for development
-      const apiUrl =
-        process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3001";
-      const response = await fetch(`${apiUrl}/api/contact`, {
+      // Use relative path to leverage Next.js rewrites (/api -> backend)
+      const response = await fetch(`/api/contact`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
