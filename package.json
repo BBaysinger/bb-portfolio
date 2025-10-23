@@ -64,7 +64,8 @@
     "db:migrate:local-to-prod": "bash scripts/migrate-database.sh local prod",
     "db:migrate:local-to-dev": "bash scripts/migrate-database.sh local dev",
     "db:migrate:prod-to-dev": "bash scripts/migrate-database.sh prod dev",
-    "deploy:full": "bash deploy/scripts/deployment-orchestrator.sh --build-images both --profiles both --refresh-env"
+    "deploy:full": "bash deploy/scripts/deployment-orchestrator.sh --build-images both --profiles both --refresh-env",
+    "sync:nginx": "bash ./deploy/scripts/sync-nginx-config.sh --host ${NGINX_HOST:-ec2-user@44.246.43.116} --key ${NGINX_KEY:-$HOME/.ssh/bb-portfolio-site-key.pem}"
   },
   "devDependencies": {
     "@next/eslint-plugin-next": "^15.5.6",

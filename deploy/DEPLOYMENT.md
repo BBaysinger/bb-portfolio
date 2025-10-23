@@ -50,6 +50,23 @@ terraform apply   # Deploy the updated server configuration
 
 This will update the Nginx configuration on your server to handle the new subdomain.
 
+Note on Nginx config changes:
+
+- Nginx on the EC2 host is provisioned by Terraform’s user_data the first time the instance is created. Subsequent container deploys do NOT change Nginx automatically.
+- If you change reverse-proxy behavior in the repo (for example, we now emit admin assets under `/admin/_next` via backend assetPrefix), you have two ways to propagate the Nginx change:
+  1. Quick sync (recommended):
+     - Use the helper script to push the vhost config template in this repo to the server and reload Nginx.
+     - This is safe and idempotent; it backs up the old file.
+
+     ```bash
+     # from repo root
+     ./deploy/scripts/sync-nginx-config.sh --host ec2-user@44.246.43.116 --key ~/.ssh/bb-portfolio-site-key.pem
+     ```
+
+  2. Rebuild via Terraform (slower):
+     - Update Terraform to render the new config in user_data, then recreate or reprovision the instance so user_data runs again.
+     - Useful when you want a fully fresh instance.
+
 ### 3. Future Infrastructure Changes (Optional)
 
 For any additional infrastructure changes:

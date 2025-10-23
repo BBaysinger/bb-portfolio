@@ -140,8 +140,8 @@ server {
     listen 80;
     server_name bbinteractive.io www.bbinteractive.io;
     
-    # Admin interface proxy to production backend (port 3001)
-    location /admin {
+  # Admin interface proxy to production backend (port 3001)
+  location /admin {
         proxy_pass http://localhost:3001/admin;
         proxy_http_version 1.1;
         proxy_set_header Host \$host;
@@ -150,6 +150,17 @@ server {
         proxy_set_header X-Forwarded-Proto \$scheme;
         proxy_set_header X-Forwarded-Host \$host;
     }
+    
+  # Admin assets (assetPrefix) — always from backend
+  # Matches when backend Next.js emits /admin/_next/* assets
+  location ^~ /admin/_next/ {
+    proxy_pass http://localhost:3001;
+    proxy_http_version 1.1;
+    proxy_set_header Host \$host;
+    proxy_set_header X-Real-IP \$remote_addr;
+    proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto \$scheme;
+  }
     
     # API proxy to production backend (port 3001)
     location /api/ {
@@ -180,8 +191,8 @@ server {
     listen 80;
     server_name dev.bbinteractive.io *.dev.bbinteractive.io;
     
-    # Admin interface proxy to development backend (port 4001)
-    location /admin {
+  # Admin interface proxy to development backend (port 4001)
+  location /admin {
         proxy_pass http://localhost:4001/admin;
         proxy_http_version 1.1;
         proxy_set_header Host \$host;
@@ -190,6 +201,17 @@ server {
         proxy_set_header X-Forwarded-Proto \$scheme;
         proxy_set_header X-Forwarded-Host \$host;
     }
+    
+  # Admin assets (assetPrefix) — always from backend
+  # Matches when backend Next.js emits /admin/_next/* assets
+  location ^~ /admin/_next/ {
+    proxy_pass http://localhost:4001;
+    proxy_http_version 1.1;
+    proxy_set_header Host \$host;
+    proxy_set_header X-Real-IP \$remote_addr;
+    proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto \$scheme;
+  }
     
     # API proxy to development backend (port 4001)
     location /api/ {
