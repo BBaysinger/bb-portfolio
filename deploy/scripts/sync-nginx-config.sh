@@ -12,9 +12,9 @@ Options:
   --key     Path to SSH private key (default: ~/.ssh/bb-portfolio-site-key.pem)
 
 This will:
-  - Upload deploy/nginx/portfolio.conf.template to /tmp/portfolio.conf on the host
-  - Backup existing /etc/nginx/conf.d/portfolio.conf with a timestamp
-  - Replace it with the uploaded file
+  - Upload deploy/nginx/bb-portfolio.conf.template to /tmp/bb-portfolio.conf on the host
+  - Backup existing /etc/nginx/conf.d/bb-portfolio.conf (and legacy portfolio.conf) with a timestamp
+  - Replace it with the uploaded file (installs to /etc/nginx/conf.d/bb-portfolio.conf)
   - Test Nginx configuration and reload if successful
 USAGE
 }
@@ -42,7 +42,7 @@ if [[ -z "$HOST" ]]; then
 fi
 
 REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
-LOCAL_CONF="${REPO_ROOT}/deploy/nginx/portfolio.conf.template"
+LOCAL_CONF="${REPO_ROOT}/deploy/nginx/bb-portfolio.conf.template"
 
 if [[ ! -f "$LOCAL_CONF" ]]; then
   echo "Config template not found: $LOCAL_CONF" >&2
@@ -50,18 +50,26 @@ if [[ ! -f "$LOCAL_CONF" ]]; then
 fi
 
 echo "Uploading Nginx config to $HOST ..."
-scp -i "$KEY" -o StrictHostKeyChecking=accept-new "$LOCAL_CONF" "$HOST:/tmp/portfolio.conf"
+scp -i "$KEY" -o StrictHostKeyChecking=accept-new "$LOCAL_CONF" "$HOST:/tmp/bb-portfolio.conf"
 
 echo "Applying Nginx config on $HOST ..."
 # Use stdin heredoc to avoid complex quoting issues over SSH
 ssh -i "$KEY" -o StrictHostKeyChecking=accept-new "$HOST" 'sudo bash -s' <<'REMOTE_CMDS'
 set -euo pipefail
 ts=$(date +%Y%m%d_%H%M%S)
-if [[ -f /etc/nginx/conf.d/portfolio.conf ]]; then
-  cp /etc/nginx/conf.d/portfolio.conf "/etc/nginx/conf.d/portfolio.conf.bak.$ts"
-  echo "Backup created: /etc/nginx/conf.d/portfolio.conf.bak.$ts"
+TARGET="/etc/nginx/conf.d/bb-portfolio.conf"
+LEGACY="/etc/nginx/conf.d/portfolio.conf"
+
+if [[ -f "$TARGET" ]]; then
+  cp "$TARGET" "$TARGET.bak.$ts"
+  echo "Backup created: $TARGET.bak.$ts"
 fi
-mv /tmp/portfolio.conf /etc/nginx/conf.d/portfolio.conf
+if [[ -f "$LEGACY" ]]; then
+  cp "$LEGACY" "$LEGACY.bak.$ts"
+  echo "Legacy backup created: $LEGACY.bak.$ts"
+  rm -f "$LEGACY"
+fi
+mv /tmp/bb-portfolio.conf "$TARGET"
 nginx -t && systemctl reload nginx && echo "Nginx reloaded successfully."
 REMOTE_CMDS
 

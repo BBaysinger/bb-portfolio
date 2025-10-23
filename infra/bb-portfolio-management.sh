@@ -129,8 +129,8 @@ case "${1:-help}" in
         echo "3. Starting production containers..."
         run_remote "cd portfolio && sudo bash -lc $(printf %q "$(AWS_ACCOUNT_ID=778230822028 remote_compose_cmd "prod" "up -d")")"
         
-        echo "4. Updating Nginx to point to production (port 3000)..."
-        run_remote "sudo sed -i 's/localhost:4000/localhost:3000/g' /etc/nginx/conf.d/portfolio.conf && sudo nginx -t && sudo systemctl reload nginx"
+    echo "4. Updating Nginx to point to production (port 3000)..."
+    run_remote "if [ -f /etc/nginx/conf.d/bb-portfolio.conf ]; then sudo sed -i 's/localhost:4000/localhost:3000/g' /etc/nginx/conf.d/bb-portfolio.conf; else sudo sed -i 's/localhost:4000/localhost:3000/g' /etc/nginx/conf.d/portfolio.conf; fi && sudo nginx -t && sudo systemctl reload nginx"
         
         echo "✅ Production deployment complete"
         ;;
@@ -143,8 +143,8 @@ case "${1:-help}" in
         echo "2. Starting development containers..."
         run_remote "cd portfolio && sudo bash -lc $(printf %q "$(remote_compose_cmd "dev" "up -d")")"
         
-        echo "3. Updating Nginx to point to development (port 4000)..."
-        run_remote "sudo sed -i 's/localhost:3000/localhost:4000/g' /etc/nginx/conf.d/portfolio.conf && sudo nginx -t && sudo systemctl reload nginx"
+    echo "3. Updating Nginx to point to development (port 4000)..."
+    run_remote "if [ -f /etc/nginx/conf.d/bb-portfolio.conf ]; then sudo sed -i 's/localhost:3000/localhost:4000/g' /etc/nginx/conf.d/bb-portfolio.conf; else sudo sed -i 's/localhost:3000/localhost:4000/g' /etc/nginx/conf.d/portfolio.conf; fi && sudo nginx -t && sudo systemctl reload nginx"
         
         echo "✅ Switched to development containers"
         ;;
@@ -158,8 +158,8 @@ case "${1:-help}" in
         ecr_login
         run_remote "cd portfolio && sudo bash -lc $(printf %q "$(AWS_ACCOUNT_ID=778230822028 remote_compose_cmd "prod" "pull")") && sudo bash -lc $(printf %q "$(AWS_ACCOUNT_ID=778230822028 remote_compose_cmd "prod" "up -d")")"
         
-        echo "3. Updating Nginx to point to production (port 3000)..."
-        run_remote "sudo sed -i 's/localhost:4000/localhost:3000/g' /etc/nginx/conf.d/portfolio.conf && sudo nginx -t && sudo systemctl reload nginx"
+    echo "3. Updating Nginx to point to production (port 3000)..."
+    run_remote "if [ -f /etc/nginx/conf.d/bb-portfolio.conf ]; then sudo sed -i 's/localhost:4000/localhost:3000/g' /etc/nginx/conf.d/bb-portfolio.conf; else sudo sed -i 's/localhost:4000/localhost:3000/g' /etc/nginx/conf.d/portfolio.conf; fi && sudo nginx -t && sudo systemctl reload nginx"
         
         echo "✅ Switched to production containers"
         ;

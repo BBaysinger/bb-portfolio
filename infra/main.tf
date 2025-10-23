@@ -133,8 +133,8 @@ usermod -aG docker ec2-user
 # Configure Nginx
 systemctl enable nginx
 
-# Create Nginx configuration for portfolio
-cat > /etc/nginx/conf.d/portfolio.conf << NGINX_EOF
+# Create Nginx configuration for portfolio (bb-prefixed)
+cat > /etc/nginx/conf.d/bb-portfolio.conf << NGINX_EOF
 # Production/Main domain server block
 server {
     listen 80;
