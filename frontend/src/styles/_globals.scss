@@ -38,26 +38,25 @@
     flex-direction: row;
     flex-wrap: wrap;
     justify-content: space-between;
+    align-items: center;
     gap: 14px;
     margin-bottom: 10px;
     width: 100%;
 
-    // Mobile first: stacked full width
     > label {
       display: block;
-      min-width: 100%;
       margin-bottom: 0;
+      flex-basis: 100%;
 
       > input {
         width: 100%;
       }
     }
 
-    // Progressive enhancement: side-by-side above 576px
     @include breakpointUp($b576px) {
       > label {
         display: inline-block;
-        width: 48%;
+        flex-basis: 50%;
         min-width: unset;
       }
     }
