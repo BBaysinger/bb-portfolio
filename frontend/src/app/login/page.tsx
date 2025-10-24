@@ -1,5 +1,6 @@
 "use client";
 
+import clsx from "clsx";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 
@@ -22,7 +23,7 @@ const LoginPage = () => {
   } = useAuth();
   const [email, setEmail] = useState(""); // using email, not username
   const [password, setPassword] = useState("");
-  const [localError, setLocalError] = useState("");
+  const [_localError, setLocalError] = useState("");
   const { clientHeight } = useClientDimensions();
 
   // Clear any existing auth errors when component mounts
@@ -36,17 +37,6 @@ const LoginPage = () => {
   if (!isLoading && isLoggedIn) {
     window.location.href = "/";
     return null;
-  }
-
-  // Show loading state while checking authentication
-  if (isLoading) {
-    return (
-      <div className={styles.login} style={{ minHeight: `${clientHeight}px` }}>
-        <div>
-          <p>Checking authentication...</p>
-        </div>
-      </div>
-    );
   }
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -76,6 +66,12 @@ const LoginPage = () => {
       setLocalError(errorMessage);
     }
   };
+
+  // Single computed status message for display
+  const errorMessage = authError || _localError;
+  const statusText = isLoading
+    ? "Checking authentication..."
+    : errorMessage || "\u00A0"; // keep layout height with non-breaking space when idle
 
   return (
     <div className={styles.login} style={{ minHeight: `${clientHeight}px` }}>
@@ -121,23 +117,20 @@ const LoginPage = () => {
                 required
               />
             </label>
+            <button type="submit" className="btn" disabled={isLoading}>
+              {isLoading ? "Logging in..." : "Login"}
+            </button>
+            <span
+              className={clsx(
+                styles.message,
+                styles.statusMessage,
+                errorMessage && styles.errorMessage
+              )}
+            >
+              {statusText}
+            </span>
           </div>
-          <button type="submit" className="btn" disabled={isLoading}>
-            {isLoading ? "Logging in..." : "Login"}
-          </button>
         </form>
-
-        <div>
-          <p>
-            {authError || localError ? (
-              <span className={styles.errorMessage}>
-                {authError || localError}
-              </span>
-            ) : (
-              <>&nbsp;</>
-            )}
-          </p>
-        </div>
       </div>
     </div>
   );
