@@ -21,9 +21,10 @@ This section consolidates the feature list from `docs/main-features-list.md` and
 - Teletype Paragraph Animation Effect
 - Magnetic/Sticky Road Sign
 - Scroll-Aware Page Anchor Link Highlighting
+- Strict Mobile-First Methodology and Progressive Enhancement on every layer
 - Fluid Responsive System
-  - rem-based fluid scaling property mixin
-  - static fluid scaling property mixin
+  - rem-based fluid scaling property SASS mixin
+  - static fluid scaling property SASS mixin
 
 ### CMS, Data Modeling & Rendering
 
