@@ -1,5 +1,6 @@
 @use "@/styles/mixins" as *;
 @use "@/styles/variables" as *;
+@use "@/styles/graphitePages" as *;
 @use "@/styles/globals" as *;
 
 .login {
@@ -66,12 +67,19 @@
   }
 }
 
-.errorMessage {
-  color: #ff6b6b;
+.message {
   font-weight: 500;
+  height: 36px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-end;
+  line-height: 1.2;
+}
+
+.errorMessage {
+  color: #cc0000;
 }
 
 .statusMessage {
   color: #51cf66;
-  font-weight: 500;
 }
