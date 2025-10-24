@@ -1,4 +1,5 @@
 "use client";
+import clsx from "clsx";
 import React, { useState } from "react";
 
 import useClientDimensions from "@/hooks/useClientDimensions";
@@ -81,6 +82,10 @@ const ContactPage = () => {
     }
   };
 
+  // Single computed status message for display
+  const isError = Boolean(error);
+  const statusText = error || status || "\u00A0"; // keep layout height when idle
+
   return (
     <>
       <div
@@ -133,9 +138,9 @@ const ContactPage = () => {
               </label>
               <button type="submit">Send</button>
             </form>
-            {status && <p className={"successMessage"}>{status}</p>}
-            {error && <p className={"errorMessage"}>{error}</p>}
-            {!status && !error && <p className={styles.preventShift}>&nbsp;</p>}
+            <p className={clsx(styles.statusMessage, isError && styles.errorMessage)}>
+              {statusText}
+            </p>
           </div>
         </div>
       </div>
