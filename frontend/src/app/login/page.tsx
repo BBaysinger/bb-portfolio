@@ -124,7 +124,7 @@ const LoginPage = () => {
               className={clsx(
                 styles.message,
                 styles.statusMessage,
-                errorMessage && styles.errorMessage
+                errorMessage && styles.errorMessage,
               )}
             >
               {statusText}
