@@ -2,10 +2,6 @@
 
 [Visit the Live Site](https://bbinteractive.io)
 
-## Features (categorized)
-
-This section consolidates the feature list from `docs/main-features-list.md` and current implementation, grouped logically and deduplicated. Each item has its own heading for discoverability.
-
 ### Frontend UX & Interaction
 
 - Parallax Project Carousel (layered/synced, expandable, native swipe, deep linking)
