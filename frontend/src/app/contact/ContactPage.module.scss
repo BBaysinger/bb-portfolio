@@ -1,10 +1,10 @@
 @use "@/styles/mixins" as *;
 @use "@/styles/variables" as *;
-@use "@/styles/graphitePages" as *;
+@use "@/styles/graphitePages" as graphite;
 @use "@/styles/globals" as *;
 
 .contactPage {
-  @extend .graphitePage;
+  @include graphite.graphitePageScope();
   display: flex;
   justify-content: center;
   align-items: center;

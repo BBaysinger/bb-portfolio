@@ -1,11 +1,12 @@
 @use "@/styles/mixins" as *;
 @use "@/styles/variables" as *;
-@use "@/styles/graphitePages" as *;
+@use "@/styles/graphitePages" as graphite;
 @use "@/styles/globals" as *;
 
 .cvPage {
   color: #fff;
-  @extend .graphitePage;
+  // Include shared graphite page styles without using @extend to satisfy Turbopack's CSS Modules parser
+  @include graphite.graphitePageScope();
   h5 {
     .location {
       font-weight: 500;
