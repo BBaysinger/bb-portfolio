@@ -1,0 +1,13 @@
+@use "@/styles/variables" as *;
+@use "@/styles/mixins" as *;
+
+// This was tripping up Turbopack's CSS Modules parser
+// Probably remove?
+// .bbStabilizedSlide {
+//   .bbDevicePresentation {
+//     filter: none;
+//   }
+//   .bbLaptop {
+//     transform: translateX(-50%) scale(1);
+//   }
+// }
