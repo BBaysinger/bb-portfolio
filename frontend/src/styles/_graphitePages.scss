@@ -1,7 +1,9 @@
 @use "@/styles/variables" as *;
 @use "@/styles/mixins" as *;
 
-.graphitePage {
+// Shared graphite page styles as a mixin so CSS Modules can include without @extend,
+// which produces comma-separated selectors that Turbopack treats as ambiguous.
+@mixin graphitePageScope() {
   padding-top: $navBarHeight + 6px !important;
   overflow: hidden;
   background-color: black;
@@ -61,4 +63,9 @@
       }
     }
   }
+}
+
+// Keep the original global class for non-module usage
+.graphitePage {
+  @include graphitePageScope();
 }
