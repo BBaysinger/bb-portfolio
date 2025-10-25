@@ -53,17 +53,27 @@ const nextConfig: NextConfig = {
   // - Override: set REACT_STRICT_MODE="false" to force off, any other value to force on
   reactStrictMode: resolvedStrictMode,
   async rewrites() {
-    const profile = (
+    // Normalize profile so we look up PROD_ / DEV_ / LOCAL_ consistently
+    const rawProfile = (
       process.env.ENV_PROFILE ||
       process.env.NODE_ENV ||
       ""
     ).toLowerCase();
-    const prefix = profile ? `${profile.toUpperCase()}_` : "";
+    const normalizedProfile = rawProfile.startsWith("prod")
+      ? "prod"
+      : rawProfile === "development" || rawProfile.startsWith("dev")
+        ? "dev"
+        : rawProfile.startsWith("local")
+          ? "local"
+          : rawProfile; // fallback to raw (e.g., empty string)
+    const prefix = normalizedProfile
+      ? `${normalizedProfile.toUpperCase()}_`
+      : "";
 
     console.info("[next.config.ts] DEBUG - Environment info:", {
       ENV_PROFILE: process.env.ENV_PROFILE,
       NODE_ENV: process.env.NODE_ENV,
-      profile,
+      profile: normalizedProfile,
       prefix,
       availableEnvVars: Object.keys(process.env)
         .filter((key) => key.includes("BACKEND") || key.includes("API"))
@@ -82,10 +92,12 @@ const nextConfig: NextConfig = {
       return "";
     };
 
-    // Only use prefixed variables now - no backwards compatibility
+    // Prefer prefixed variables for the current profile; fall back to common public var
     const internalApi = pickValue(
       `${prefix}BACKEND_INTERNAL_URL`,
       `${prefix}NEXT_PUBLIC_BACKEND_URL`,
+      // Final fallback for environments where only NEXT_PUBLIC_BACKEND_URL is set
+      `NEXT_PUBLIC_BACKEND_URL`,
     );
 
     if (!internalApi) {
