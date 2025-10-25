@@ -95,11 +95,19 @@ export default async function ProjectPage({
   }
 
   // Ensure data is initialized before accessing records
-  await ProjectData.initialize({
-    headers: forwardedHeaders,
-    disableCache: true,
-    includeNdaInActive: isAuthenticated,
-  });
+  try {
+    await ProjectData.initialize({
+      headers: forwardedHeaders,
+      disableCache: true,
+      includeNdaInActive: isAuthenticated,
+    });
+  } catch (err) {
+    // Avoid a hard 500 from upstream flakiness; degrade gracefully
+    if (process.env.NODE_ENV !== "production") {
+      console.error("[project] initialize failed", err);
+    }
+    return notFound();
+  }
 
   // Try to get the project from the active (public) record first
   const publicProject = ProjectData.activeProjectsRecord[projectId];

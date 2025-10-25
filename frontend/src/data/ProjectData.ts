@@ -77,9 +77,47 @@ async function fetchPortfolioProjects(opts?: {
       return Object.keys(obj).some((k) => k.toLowerCase() === "cookie");
     })();
 
+  // Attempt to infer the public origin of the current request for server-side relative fetches
+  const inferRequestOrigin = (): string => {
+    if (!requestHeaders) return "";
+    const get = (name: string): string | undefined => {
+      if (Array.isArray(requestHeaders)) {
+        const entry = requestHeaders.find(
+          ([k]) => k.toLowerCase() === name.toLowerCase(),
+        );
+        return entry ? entry[1] : undefined;
+      }
+      if (requestHeaders instanceof Headers)
+        return requestHeaders.get(name) || undefined;
+      const obj = requestHeaders as Record<string, string>;
+      // Headers in Next can be normalized to lowercase keys
+      const lower = Object.fromEntries(
+        Object.entries(obj).map(([k, v]) => [k.toLowerCase(), v]),
+      ) as Record<string, string>;
+      return lower[name.toLowerCase()];
+    };
+
+    const host = get("x-forwarded-host") || get("host");
+    if (!host) return "";
+    const proto =
+      get("x-forwarded-proto") ||
+      (host.includes("localhost") ? "http" : "https");
+    return `${proto}://${host}`.replace(/\/$/, "");
+  };
+
   const primaryUrl = isServer
     ? hasRequestCookies
-      ? serverPath // use relative path to keep cookies flowing through Next's proxy
+      ? (() => {
+          // Node's fetch requires an absolute URL; build one against the current request origin
+          const origin =
+            inferRequestOrigin() ||
+            (
+              process.env.FRONTEND_PUBLIC_URL ||
+              process.env.NEXT_PUBLIC_SITE_URL ||
+              ""
+            ).replace(/\/$/, "");
+          return origin ? `${origin}${serverPath}` : serverPath;
+        })()
       : `${base.replace(/\/$/, "")}${serverPath}`
     : path;
   const fallbackUrl =
@@ -116,6 +154,23 @@ async function fetchPortfolioProjects(opts?: {
     }
   };
 
+  const debug = process.env.DEBUG_PROJECT_DATA === "1";
+  if (debug) {
+    try {
+      console.info("[ProjectData] profile/base/cookies", {
+        normalizedProfile,
+        base,
+        hasRequestCookies,
+        primaryUrlPreview: isServer
+          ? hasRequestCookies
+            ? "<same-origin>/api/projects"
+            : `${base.replace(/\/$/, "")}${serverPath}`
+          : path,
+        fallbackUrl,
+      });
+    } catch {}
+  }
+
   let res: Response;
   try {
     res = await withTimeout(primaryUrl, baseTimeoutMs);
@@ -130,6 +185,11 @@ async function fetchPortfolioProjects(opts?: {
         const alt = await withTimeout(fallbackUrl, baseTimeoutMs);
         if (alt.ok) {
           res = alt;
+          if (debug)
+            console.info("[ProjectData] primary failed, using fallback", {
+              primaryStatus: `${res.status} ${res.statusText}`,
+              fallbackUrl,
+            });
         }
       } catch {
         // ignore, will error on primary result below
@@ -153,9 +213,9 @@ async function fetchPortfolioProjects(opts?: {
         retryUrl === primaryUrl
           ? "(retried primary)"
           : `(fallback ${retryUrl})`;
-      throw new Error(
-        `Failed to fetch project data: ${primaryUrl} (${err?.message}) ${suffix} also failed (${(e2 as Error).message})`,
-      );
+      const msg = `Failed to fetch project data: ${primaryUrl} (${err?.message}) ${suffix} also failed (${(e2 as Error).message})`;
+      if (debug) console.error("[ProjectData] fetch error", msg);
+      throw new Error(msg);
     }
   }
   if (!res.ok) {
@@ -163,6 +223,11 @@ async function fetchPortfolioProjects(opts?: {
     try {
       detail = await res.text();
     } catch {}
+    if (debug)
+      console.error("[ProjectData] non-ok response", {
+        status: `${res.status} ${res.statusText}`,
+        sample: detail?.slice(0, 200),
+      });
     throw new Error(
       `Failed to fetch project data: ${res.status} ${res.statusText}${
         detail ? ` - ${detail.slice(0, 300)}` : ""
