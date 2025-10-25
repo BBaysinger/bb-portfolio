@@ -1,7 +1,7 @@
 @use "@/styles/mixins" as *;
 @use "@/styles/variables" as *;
 @use "@/styles/graphitePages" as graphite;
-@use "@/styles/globals" as *;
+@use "@/styles/globals.global" as *;
 
 .cvPage {
   color: #fff;
@@ -34,13 +34,12 @@
     }
   }
 
-  :global {
-    .container {
-      @include remRange(margin-bottom, 50px, 90px, $b360, $b1280);
-    }
-    h4 {
-      @include remRange(margin-bottom, 28px, 80px, $b360, $b1280);
-    }
+  :global(.container) {
+    @include remRange(margin-bottom, 50px, 90px, $b360, $b1280);
+  }
+
+  :global(h4) {
+    @include remRange(margin-bottom, 28px, 80px, $b360, $b1280);
   }
 }
 

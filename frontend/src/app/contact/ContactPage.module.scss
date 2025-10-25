@@ -1,7 +1,7 @@
 @use "@/styles/mixins" as *;
 @use "@/styles/variables" as *;
 @use "@/styles/graphitePages" as graphite;
-@use "@/styles/globals" as *;
+@use "@/styles/globals.global" as *;
 
 .contactPage {
   @include graphite.graphitePageScope();
