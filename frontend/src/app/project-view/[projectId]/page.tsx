@@ -30,15 +30,92 @@ export default async function ProjectPage({
 }) {
   const { projectId } = await params;
 
-  // Ensure data is initialized before accessing active/public records
-  await ProjectData.initialize();
+  // Forward cookies so SSR data fetching can return NDA content when authenticated
+  const cookieStore = await cookies();
+  const cookieHeader = cookieStore
+    .getAll()
+    .map((c) => `${c.name}=${c.value}`)
+    .join("; ");
+  const forwardedHeaders: HeadersInit = cookieHeader
+    ? { Cookie: cookieHeader }
+    : {};
+
+  // Determine SSR auth state first
+  let isAuthenticated = false;
+  try {
+    // Resolve backend URL similar to ProjectData logic
+    const env = (
+      process.env.ENV_PROFILE ||
+      process.env.NODE_ENV ||
+      ""
+    ).toLowerCase();
+    const prefix = env ? `${env.toUpperCase()}_` : "";
+    const pick = (...names: string[]) => {
+      for (const n of names) {
+        const v = process.env[n];
+        if (v) return v;
+      }
+      return "";
+    };
+    const base =
+      pick(
+        `${prefix}BACKEND_INTERNAL_URL`,
+        `${prefix}NEXT_PUBLIC_BACKEND_URL`
+      ) ||
+      process.env.NEXT_PUBLIC_BACKEND_URL ||
+      "http://localhost:8081";
+    const backend = base.replace(/\/$/, "");
+
+    const tryFetch = async (url: string) =>
+      fetch(url, {
+        method: "GET",
+        headers: {
+          ...(cookieHeader && { Cookie: cookieHeader }),
+          Accept: "application/json",
+        },
+        cache: "no-store",
+      });
+
+    let res = await tryFetch(`${backend}/api/users/me`);
+    if (!res.ok && res.status === 401) {
+      res = await tryFetch(`${backend}/api/users/me/`);
+    }
+    isAuthenticated = res.ok;
+  } catch {
+    isAuthenticated = false;
+  }
+
+  // Debug logging to help diagnose 404s in dev
+  if (process.env.NODE_ENV !== "production") {
+    console.info("[project-view] SSR auth:", {
+      projectId,
+      isAuthenticated,
+      cookiePresent: Boolean(cookieHeader),
+    });
+  }
+
+  // Ensure data is initialized before accessing records
+  await ProjectData.initialize({
+    headers: forwardedHeaders,
+    disableCache: true,
+    includeNdaInActive: isAuthenticated,
+  });
 
   // Try to get the project from the active (public) record first
   const publicProject = ProjectData.activeProjectsRecord[projectId];
   if (publicProject) {
+    if (process.env.NODE_ENV !== "production") {
+      console.info(
+        "[project-view] Project found in activeProjectsRecord:",
+        projectId
+      );
+    }
     return (
       <Suspense fallback={<div>Loading project...</div>}>
-        <ProjectViewWrapper params={{ projectId }} />
+        <ProjectViewWrapper
+          params={{ projectId }}
+          isAuthenticated={isAuthenticated}
+        />
       </Suspense>
     );
   }
@@ -47,18 +124,18 @@ export default async function ProjectPage({
   const allProjects = ProjectData["_projects"];
   const project = allProjects[projectId];
   if (project && project.nda) {
-    // Check authentication (SSR)
-    const cookieStore = await cookies();
-    const token = cookieStore.get("authToken")?.value;
-    let isAuthenticated = false;
-    if (token) {
-      const { verifyAuthToken } = await import("@/utils/authHelpers");
-      isAuthenticated = await verifyAuthToken(token);
+    if (process.env.NODE_ENV !== "production") {
+      console.info("[project-view] NDA project detected:", projectId, {
+        authed: isAuthenticated,
+      });
     }
     if (isAuthenticated) {
       return (
         <Suspense fallback={<div>Loading NDA project...</div>}>
-          <ProjectViewWrapper params={{ projectId }} />
+          <ProjectViewWrapper
+            params={{ projectId }}
+            isAuthenticated={isAuthenticated}
+          />
         </Suspense>
       );
     }
@@ -67,6 +144,12 @@ export default async function ProjectPage({
   }
 
   // Not found
+  if (process.env.NODE_ENV !== "production") {
+    console.warn("[project-view] Project not found in data:", projectId, {
+      keysSample: Object.keys(allProjects).slice(0, 5),
+      total: Object.keys(allProjects).length,
+    });
+  }
   return notFound();
 }
 
@@ -83,7 +166,7 @@ export async function generateStaticParams() {
     const projectIds = Object.keys(ProjectData.activeProjectsRecord);
 
     console.info(
-      `📄 [generateStaticParams] Generated static params for ${projectIds.length} projects`,
+      `📄 [generateStaticParams] Generated static params for ${projectIds.length} projects`
     );
 
     return projectIds.map((projectId) => ({
@@ -94,7 +177,7 @@ export async function generateStaticParams() {
     const errorMessage =
       error instanceof Error ? error.message : "Unknown error";
     console.warn(
-      `⚠️  [generateStaticParams] Backend not accessible (${errorMessage}) - falling back to on-demand page generation`,
+      `⚠️  [generateStaticParams] Backend not accessible (${errorMessage}) - falling back to on-demand page generation`
     );
     return [];
   }
