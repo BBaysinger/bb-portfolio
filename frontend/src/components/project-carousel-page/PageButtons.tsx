@@ -36,7 +36,7 @@ const PageButtons: React.FC = () => {
     const updateProjectId = () => {
       const segs = window.location.pathname.split("/").filter(Boolean);
       const last = segs.at(-1);
-      const maybeId = last && last !== "project-view" ? last : segs.at(-2);
+      const maybeId = last && last !== "project" ? last : segs.at(-2);
       if (maybeId && maybeId !== baseProjectId) {
         setClientProjectId(maybeId);
       }
@@ -50,7 +50,7 @@ const PageButtons: React.FC = () => {
   useRouteChange(() => {
     const segs = window.location.pathname.split("/").filter(Boolean);
     const last = segs.at(-1);
-    const maybeId = last && last !== "project-view" ? last : segs.at(-2);
+    const maybeId = last && last !== "project" ? last : segs.at(-2);
     const currentProjectId = clientProjectId || baseProjectId;
 
     // Update whenever the URL project ID differs from our current state
@@ -101,13 +101,13 @@ const PageButtons: React.FC = () => {
       )} */}
 
       <PushStateLink
-        href={`/project-view/${prevId}/`}
+        href={`/project/${prevId}/`}
         className={`${styles.navButton} ${styles.prev}`}
       >
         <div className={styles.inner}></div>
       </PushStateLink>
       <PushStateLink
-        href={`/project-view/${nextId}/`}
+        href={`/project/${nextId}/`}
         className={`${styles.navButton} ${styles.next}`}
       >
         <div className={styles.inner}></div>

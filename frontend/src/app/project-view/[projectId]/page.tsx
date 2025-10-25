@@ -87,7 +87,7 @@ export default async function ProjectPage({
 
   // Debug logging to help diagnose 404s in dev
   if (process.env.NODE_ENV !== "production") {
-    console.info("[project-view] SSR auth:", {
+    console.info("[project] SSR auth:", {
       projectId,
       isAuthenticated,
       cookiePresent: Boolean(cookieHeader),
@@ -106,7 +106,7 @@ export default async function ProjectPage({
   if (publicProject) {
     if (process.env.NODE_ENV !== "production") {
       console.info(
-        "[project-view] Project found in activeProjectsRecord:",
+        "[project] Project found in activeProjectsRecord:",
         projectId,
       );
     }
@@ -125,7 +125,7 @@ export default async function ProjectPage({
   const project = allProjects[projectId];
   if (project && project.nda) {
     if (process.env.NODE_ENV !== "production") {
-      console.info("[project-view] NDA project detected:", projectId, {
+      console.info("[project] NDA project detected:", projectId, {
         authed: isAuthenticated,
       });
     }
@@ -145,7 +145,7 @@ export default async function ProjectPage({
 
   // Not found
   if (process.env.NODE_ENV !== "production") {
-    console.warn("[project-view] Project not found in data:", projectId, {
+    console.warn("[project] Project not found in data:", projectId, {
       keysSample: Object.keys(allProjects).slice(0, 5),
       total: Object.keys(allProjects).length,
     });

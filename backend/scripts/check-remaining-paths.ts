@@ -23,9 +23,9 @@ async function checkRemainingPaths() {
 
       let foundIssues = false
       for (const doc of docs) {
-        // Check for any field containing '/media/' or '/project-view/' paths
+        // Check for any field containing '/media/' or '/project/' paths
         const jsonStr = JSON.stringify(doc)
-        if (jsonStr.includes('/media/') || jsonStr.includes('/project-view/')) {
+        if (jsonStr.includes('/media/') || jsonStr.includes('/project/')) {
           foundIssues = true
           console.info(`   ⚠️  ${doc.id}: Contains local paths`)
 
@@ -33,7 +33,7 @@ async function checkRemainingPaths() {
           Object.entries(doc).forEach(([key, value]) => {
             if (
               typeof value === 'string' &&
-              (value.includes('/media/') || value.includes('/project-view/'))
+              (value.includes('/media/') || value.includes('/project/'))
             ) {
               console.info(`      ${key}: ${value}`)
             }

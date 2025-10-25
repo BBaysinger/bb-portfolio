@@ -51,7 +51,7 @@ const ProjectThumbnail = forwardRef<HTMLDivElement, ProjectThumbnailProps>(
       thumbUrlMobile,
       isAuthenticated,
     },
-    ref,
+    ref
   ) => {
     // Get the appropriate image URL based on viewport size
     const responsiveThumbUrl = useResponsiveThumbnail(thumbUrl, thumbUrlMobile);
@@ -135,13 +135,13 @@ const ProjectThumbnail = forwardRef<HTMLDivElement, ProjectThumbnailProps>(
             {inner}
           </Link>
         ) : (
-          <Link href={`/project-view/${projectId}/`} className={styles.link}>
+          <Link href={`/project/${projectId}/`} className={styles.link}>
             {inner}
           </Link>
         )}
       </div>
     );
-  },
+  }
 );
 
 ProjectThumbnail.displayName = "ProjectThumbnail";
