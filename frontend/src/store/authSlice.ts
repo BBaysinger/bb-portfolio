@@ -118,7 +118,9 @@ const authSlice = createSlice({
       state.isLoggedIn = false;
       state.error = null;
       state.isLoading = false;
-      state.hasInitialized = false;
+      // Consider auth flow "initialized" after an explicit reset (e.g., manual logout)
+      // so the UI can immediately render the Login control without hiding it.
+      state.hasInitialized = true;
     },
   },
   extraReducers: (builder) => {
