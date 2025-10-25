@@ -239,6 +239,13 @@ async function fetchPortfolioProjects(opts?: {
     const slug: string | undefined = doc.slug || doc.id;
     if (!slug) continue;
 
+    // Frontend defense-in-depth: if this is an NDA project and the request
+    // clearly lacks auth cookies, skip it entirely so no NDA data propagates
+    // to client bundles or SSR output when a user is logged out.
+    if (doc.nda && !hasAuthCookie) {
+      continue;
+    }
+
     // Map relationship brandId → brand slug/id string and resolve logo URLs when available
     let brandId = "";
     let brandIsNda = false;
