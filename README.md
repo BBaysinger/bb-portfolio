@@ -111,6 +111,7 @@ This section consolidates the feature list from `docs/main-features-list.md` and
 - Additional polish and performance passes as time allows
 - Global light/dark mode preferences via Redux
 - Fluxels should be implemented in WebGl and/or Pixi shaders
+- Accessability should be improved with respect to ARIA, rem font scaling, etc...
 
 Note: Earlier plans for “custom Express/Mongo backend” were superseded by the fully integrated Payload CMS backend present in this repo.
 
