@@ -46,7 +46,7 @@ const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
   });
 
   const [stabilizedIndex, setStabilizedIndex] = useState<number | null>(
-    () => initialIndex
+    () => initialIndex,
   );
 
   const stabilizationTimer = useRef<NodeJS.Timeout | null>(null);
@@ -68,13 +68,13 @@ const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
     (
       newStabilizedIndex: number,
       source: SourceType,
-      direction: DirectionType
+      direction: DirectionType,
     ) => {
       if (stabilizedIndex !== newStabilizedIndex) {
         isCarouselSourceRef.current = true;
 
         const newProjectId = Object.keys(projects).find(
-          (key) => ProjectData.projectIndex(key) === newStabilizedIndex
+          (key) => ProjectData.projectIndex(key) === newStabilizedIndex,
         );
 
         if (
@@ -108,7 +108,7 @@ const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
         setStabilizedIndex(newStabilizedIndex);
       }
     },
-    [stabilizedIndex, projects]
+    [stabilizedIndex, projects],
   );
 
   useEffect(() => {

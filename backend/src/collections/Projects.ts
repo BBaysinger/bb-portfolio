@@ -1,4 +1,4 @@
-import type { CollectionConfig } from 'payload'
+import type { CollectionConfig, Where } from 'payload'
 import slugify from 'slugify'
 
 export const Projects: CollectionConfig = {
@@ -9,13 +9,24 @@ export const Projects: CollectionConfig = {
     defaultColumns: ['title', 'sortIndex', 'slug', 'active', 'brandId'],
   },
   access: {
-    // Public can read active projects (including NDA), but NDA fields are sanitized in afterRead.
+    // Public can read only active, non-NDA projects.
+    // Logged-in users can read active projects (including NDA).
     // Admins can read all fields unmodified.
     read: ({ req }) => {
+      // Admins: unrestricted
       if (req.user?.role === 'admin') return true
-      return {
-        active: { equals: true },
+
+      // Any authenticated user: restrict to active projects only
+      if (req.user) {
+        return {
+          and: [{ active: { equals: true } }],
+        } as unknown as Where
       }
+
+      // Unauthenticated: restrict to active AND non-NDA only
+      return {
+        and: [{ active: { equals: true } }, { nda: { not_equals: true } }],
+      } as unknown as Where
     },
     // Only admins can create/update/delete projects
     create: ({ req }) => req.user?.role === 'admin',
@@ -35,16 +46,18 @@ export const Projects: CollectionConfig = {
         return data
       },
     ],
+    // Defense-in-depth scrubbing retained, though access.read should already exclude NDA for public
     afterRead: [
       ({ doc, req }) => {
-        // For unauthenticated requests, scrub sensitive textual fields on NDA docs.
-        // Any logged-in user (including non-admin) can see full NDA details.
         const isAuthenticated = !!req.user
         if (doc?.nda && !isAuthenticated) {
           return {
             ...doc,
             title: 'Confidential Project',
             desc: [],
+            urls: [],
+            screenshots: [],
+            thumbnail: null,
           }
         }
         return doc
