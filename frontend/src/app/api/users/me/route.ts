@@ -63,7 +63,7 @@ export async function GET(request: NextRequest) {
       })();
       return NextResponse.json(
         { error: message || "Not authenticated" },
-        { status: res.status }
+        { status: res.status },
       );
     }
 
@@ -80,7 +80,7 @@ export async function GET(request: NextRequest) {
     console.error("User me API error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

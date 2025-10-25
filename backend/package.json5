@@ -40,24 +40,24 @@
   },
   // Runtime dependencies for backend and CMS functionality
   "dependencies": {
-    //
-    "@aws-sdk/client-ses": "^3.913.0",
-    //
-    "@aws-sdk/types": "^3.910.0",
+    // AWS SES client used for sending transactional emails
+    "@aws-sdk/client-ses": "^3.917.0",
+    // Shared AWS SDK types
+    "@aws-sdk/types": "^3.914.0",
     // MongoDB adapter for Payload CMS
-    "@payloadcms/db-mongodb": "3.60.0",
+    "@payloadcms/db-mongodb": "3.61.1",
     // Nodemailer email adapter for Payload CMS (handles SMTP email sending, password resets, notifications)
-    "@payloadcms/email-nodemailer": "3.60.0",
+    "@payloadcms/email-nodemailer": "3.61.1",
     // Enables Payload-Next.js integration (server-side rendering and routing)
-    "@payloadcms/next": "3.60.0",
+    "@payloadcms/next": "3.61.1",
     // Payload Cloud tools (optional if self-hosting)
-    "@payloadcms/payload-cloud": "3.60.0",
+    "@payloadcms/payload-cloud": "3.61.1",
     // Rich text editor using Lexical (modern alternative to Slate)
-    "@payloadcms/richtext-lexical": "3.60.0",
-    //
-    "@payloadcms/storage-s3": "3.60.0",
+    "@payloadcms/richtext-lexical": "3.61.1",
+    // S3-backed media storage for Payload uploads
+    "@payloadcms/storage-s3": "3.61.1",
     // Payload's core UI components
-    "@payloadcms/ui": "3.60.0",
+    "@payloadcms/ui": "3.61.1",
     // Cross-platform environment variable setting (Windows/Unix compatibility)
     "cross-env": "^10.1.0",
     // Environment variable loader (reads .env files into process.env)
@@ -66,12 +66,12 @@
     "express": "^5.1.0",
     // GraphQL query language runtime (required by Payload's GraphQL API)
     "graphql": "^16.11.0",
-    //
+    // JSON5 parser for annotated configuration files
     "json5": "^2.2.3",
     // Next.js framework for frontend/backend integration
     "next": "15.5.6",
     // Payload CMS core package
-    "payload": "3.60.0",
+    "payload": "3.61.1",
     // React version to match Next.js 15
     "react": "19.2.0",
     // React DOM library for rendering React components (required by Next.js and Payload UI)
@@ -88,17 +88,17 @@
     // Testing utilities for React components
     "@testing-library/react": "16.3.0",
     // Express.js TypeScript definitions
-    "@types/express": "^5.0.3",
-    //
-    "@types/json5": "^0.0.29",
+    "@types/express": "^5.0.4",
+    // Type definitions for JSON5
+    "@types/json5": "^2.2.0",
     // Node.js TypeScript definitions (latest for Node 18+)
-    "@types/node": "^24.8.1",
+    "@types/node": "^24.9.1",
     // React 19 types
     "@types/react": "19.2.2",
     // React DOM 19 types
     "@types/react-dom": "19.2.2",
     // Vite React plugin (enables React support in Vitest)
-    "@vitejs/plugin-react": "5.0.4",
+    "@vitejs/plugin-react": "5.1.0",
     // ESLint JavaScript/TypeScript linter (v9 for latest rules)
     "eslint": "^9.38.0",
     // Next.js ESLint configuration (includes React and accessibility rules)
@@ -134,7 +134,7 @@
       // JavaScript bundler (native compilation for performance)
       "esbuild", // Module resolution utility
       // Module resolution utility
-      "unrs-resolver", // Module resolution utility
+      "unrs-resolver",
     ],
   },
 }

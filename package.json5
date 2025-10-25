@@ -207,19 +207,19 @@
     "db:migrate:prod-to-dev": "bash scripts/migrate-database.sh prod dev",
     // 🛠️ Infrastructure as Code: Full redeployment
     "deploy:full": "bash deploy/scripts/deployment-orchestrator.sh --build-images both --profiles both --refresh-env",
-    //
+    // Sync NGINX configs to a remote host over SSH (override with NGINX_HOST/NGINX_KEY)
     "sync:nginx": "bash ./deploy/scripts/sync-nginx-config.sh --host ${NGINX_HOST:-ec2-user@44.246.43.116} --key ${NGINX_KEY:-$HOME/.ssh/bb-portfolio-site-key.pem}",
   },
-  //
+  // Development tooling for the monorepo root (formatting, linting, TS, runners)
   "devDependencies": {
     // Next.js-specific ESLint rules for best practices
     "@next/eslint-plugin-next": "^15.5.6",
     // TypeScript type definitions for glob
     "@types/glob": "^9.0.0",
     // ESLint plugin for TypeScript-specific linting rules
-    "@typescript-eslint/eslint-plugin": "^8.46.1",
+    "@typescript-eslint/eslint-plugin": "^8.46.2",
     // TypeScript parser for ESLint
-    "@typescript-eslint/parser": "^8.46.1",
+    "@typescript-eslint/parser": "^8.46.2",
     // Run multiple commands concurrently in scripts
     "concurrently": "^9.2.1",
     // Main linter for JS/TS code
@@ -249,9 +249,9 @@
     // TypeScript language support
     "typescript": "^5.9.3",
   },
-  //
+  // Root-level runtime deps used by maintenance scripts (prefer package-level deps when possible)
   "dependencies": {
-    //
+    // JWT utilities used by local maintenance scripts
     "jsonwebtoken": "^9.0.2",
   },
 }
