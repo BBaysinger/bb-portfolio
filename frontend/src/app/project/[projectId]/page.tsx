@@ -1,4 +1,4 @@
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
@@ -30,15 +30,23 @@ export default async function ProjectPage({
 }) {
   const { projectId } = await params;
 
-  // Forward cookies so SSR data fetching can return NDA content when authenticated
+  // Forward the incoming request headers (Host, X-Forwarded-*) so we can
+  // reliably construct absolute same-origin URLs for server-side fetches.
+  // This ensures Next.js rewrites handle cookie forwarding to the backend.
+  const incoming = await headers();
   const cookieStore = await cookies();
   const cookieHeader = cookieStore
     .getAll()
     .map((c) => `${c.name}=${c.value}`)
     .join("; ");
-  const forwardedHeaders: HeadersInit = cookieHeader
-    ? { Cookie: cookieHeader }
-    : {};
+  const forwardedHeaders: HeadersInit = (() => {
+    // Clone all request headers, then explicitly apply Cookie from cookieStore
+    // (headers() may redact or omit it depending on config).
+  // Convert ReadonlyHeaders to a plain Headers instance
+  const h = new Headers(Object.fromEntries(incoming.entries()));
+    if (cookieHeader) h.set("cookie", cookieHeader);
+    return h;
+  })();
 
   // Determine SSR auth state first
   let isAuthenticated = false;
