@@ -3,8 +3,7 @@
 import Link from "next/link";
 import React from "react";
 
-import LogoutButton from "@/components/common/LogoutButton";
-import { useAuth } from "@/hooks/useAuth";
+import AuthNavItem from "@/components/common/AuthNavItem";
 import { useNavHighlight } from "@/hooks/useNavHighlight";
 
 import styles from "./NavLinks.module.scss";
@@ -19,7 +18,6 @@ interface NavLinksProps {
  *
  */
 const NavLinks: React.FC<NavLinksProps> = ({ onClick, className }) => {
-  const { isLoggedIn } = useAuth();
   const active = useNavHighlight();
 
   const linkClass = (target: string) =>
@@ -53,15 +51,7 @@ const NavLinks: React.FC<NavLinksProps> = ({ onClick, className }) => {
         </Link>
       </li>
 
-      {isLoggedIn ? (
-        <LogoutButton className={styles.logout} />
-      ) : (
-        <li className={styles.login}>
-          <Link href="/login#top" className={linkClass("login")}>
-            Login
-          </Link>
-        </li>
-      )}
+      <AuthNavItem className={styles.login} />
     </ul>
   );
 };

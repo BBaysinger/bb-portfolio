@@ -1,7 +1,7 @@
 "use client";
 
 // import Image from "next/image";
-import Link from "next/link";
+// import Link from "next/link";
 // import { usePathname } from "next/navigation";
 import React from "react";
 
@@ -29,19 +29,10 @@ const LogoutButton: React.FC<LogoutButtonProps> = ({ className = "" }) => {
   };
 
   return (
-    <li
-      className={`${styles.logoutButton} ${className} logout`}
-      onClick={handleLogout}
-    >
-      <Link href="/login#top">
+    <li className={`${styles.logoutButton} ${className} logout`}>
+      <button type="button" onClick={handleLogout} className={styles.button}>
         Logout
-        {/* <img
-          src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
-          alt="Logout"
-          width={100}
-          height={100}
-        /> */}
-      </Link>
+      </button>
     </li>
   );
 };

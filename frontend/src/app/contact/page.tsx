@@ -138,7 +138,12 @@ const ContactPage = () => {
               </label>
               <button type="submit">Send</button>
             </form>
-            <p className={clsx(styles.statusMessage, isError && styles.errorMessage)}>
+            <p
+              className={clsx(
+                styles.statusMessage,
+                isError && styles.errorMessage,
+              )}
+            >
               {statusText}
             </p>
           </div>
