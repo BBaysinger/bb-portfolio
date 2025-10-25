@@ -52,9 +52,8 @@
   height: 2em;
   right: 0;
   bottom: -50%;
-  rotate: 45deg;
   transform-origin: bottom right;
-  transform: translate(10px, 52%);
+  transform: rotate(45deg) translate(10px, 52%);
   animation: bounceClip 2s infinite forwards;
 
   &::before {
