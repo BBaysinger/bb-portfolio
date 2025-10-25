@@ -1,6 +1,4 @@
 // NOTE: This is a Server Component. Do NOT add 'use client'.
-
-import jwt from "jsonwebtoken";
 import { unstable_noStore as noStore } from "next/cache";
 import { cookies } from "next/headers";
 
@@ -25,38 +23,36 @@ const ProjectsList = async () => {
   // Mark this route as dynamic if auth can change NDA content.
   noStore();
   // Fetch fresh data per-request to honor auth and NDA differences
-  // Detect authentication from cookies
+  // Detect authentication from cookies by calling our API route with forwarded cookies
   let isAuthenticated = false;
   try {
-    // Forward cookies/headers for authenticated fetch to Payload
     const cookieStore = await cookies();
     const cookieHeader = cookieStore.toString();
-    // Attempt to extract and verify JWT token from cookies
-    let token = null;
-    // Example: look for 'payload-token' cookie (adjust name as needed)
-    const match = cookieHeader.match(/payload-token=([^;]+)/);
-    if (match) {
-      token = match[1];
-      try {
-        // Replace 'your-secret-key' with your actual JWT secret or public key
-        jwt.verify(token, process.env.PAYLOAD_JWT_SECRET || "your-secret-key");
-        isAuthenticated = true;
-      } catch {
-        //(_jwtErr) {
-        // Token invalid or expired
-        isAuthenticated = false;
-      }
-    }
-    const forwardedHeaders: HeadersInit = {
-      Cookie: cookieHeader,
-    };
+
+    // Forward auth cookies to backend data fetch so NDA content resolves when allowed
+    const forwardedHeaders: HeadersInit = cookieHeader
+      ? { Cookie: cookieHeader }
+      : {};
     await ProjectData.initialize({
       headers: forwardedHeaders,
       disableCache: true,
     });
-    // Optionally, also check NDA project data for real details
-    // const ndaProjects = ProjectData.listedProjects.filter(p => p.nda);
-    // isAuthenticated = ndaProjects.some(p => p.title !== "Confidential Project");
+
+    // Server-side auth check via local API proxy
+    if (cookieHeader) {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_PATH || ""}/api/users/me`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            ...(cookieHeader && { Cookie: cookieHeader }),
+          },
+          cache: "no-store",
+        },
+      );
+      isAuthenticated = res.ok;
+    }
   } catch (err) {
     console.error("ProjectsList: failed to initialize ProjectData", err);
     // Continue gracefully; client will render empty state if no items

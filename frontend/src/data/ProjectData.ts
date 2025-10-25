@@ -62,8 +62,25 @@ async function fetchPortfolioProjects(opts?: {
   // Note: Using trailing slash for client-side to match Next.js trailingSlash: true config
   const path = "/api/projects/?depth=2&limit=1000&sort=sortIndex";
   const serverPath = "/api/projects?depth=2&limit=1000&sort=sortIndex";
+  // If we're on the server AND we have request cookies (SSR with potential auth),
+  // prefer using a relative URL so the Next.js proxy/rewrites can forward cookies
+  // to the backend correctly. Direct absolute calls to the backend may not see
+  // the session cookie due to domain scoping.
+  const hasRequestCookies =
+    !!requestHeaders &&
+    (() => {
+      if (Array.isArray(requestHeaders))
+        return requestHeaders.some(([k]) => k.toLowerCase() === "cookie");
+      if (requestHeaders instanceof Headers)
+        return !!requestHeaders.get("cookie");
+      const obj = requestHeaders as Record<string, string>;
+      return Object.keys(obj).some((k) => k.toLowerCase() === "cookie");
+    })();
+
   const primaryUrl = isServer
-    ? `${base.replace(/\/$/, "")}${serverPath}`
+    ? hasRequestCookies
+      ? serverPath // use relative path to keep cookies flowing through Next's proxy
+      : `${base.replace(/\/$/, "")}${serverPath}`
     : path;
   const fallbackUrl =
     isServer && serviceDnsFallback
@@ -78,6 +95,9 @@ async function fetchPortfolioProjects(opts?: {
   }
   if (requestHeaders) {
     fetchOptions.headers = requestHeaders;
+    fetchOptions.credentials = "include";
+  } else if (!isServer) {
+    // Ensure browser requests include auth cookies for NDA-aware responses
     fetchOptions.credentials = "include";
   }
 
@@ -182,6 +202,22 @@ async function fetchPortfolioProjects(opts?: {
     docs: PayloadProjectDoc[];
   }
   const json = (await res.json()) as PayloadProjectsRest | PortfolioProjectData;
+  // Determine if request is authenticated (server-side with cookies forwarded)
+  const hasAuthCookie = (() => {
+    const h = requestHeaders;
+    if (!h) return false;
+    if (Array.isArray(h)) {
+      return h.some(([k]) => k.toLowerCase() === "cookie");
+    }
+    if (h instanceof Headers) {
+      return !!h.get("cookie");
+    }
+    // Plain object
+    const lowerKeys = Object.keys(h as Record<string, string>).map((k) =>
+      k.toLowerCase(),
+    );
+    return lowerKeys.includes("cookie");
+  })();
 
   // Type guard to detect Payload REST shape
   const isPayloadRest = (val: unknown): val is PayloadProjectsRest => {
@@ -377,7 +413,8 @@ async function fetchPortfolioProjects(opts?: {
     }
 
     // If brand OR project is NDA on public requests, ensure we don't expose logos client-side
-    if (brandIsNda || !!doc.nda) {
+    // Allow logos when the request includes an auth cookie (SSR for logged-in users)
+    if ((brandIsNda || !!doc.nda) && !hasAuthCookie) {
       brandLogoLightUrl = undefined;
       brandLogoDarkUrl = undefined;
     }
@@ -549,6 +586,8 @@ export default class ProjectData {
   static async initialize(opts?: {
     headers?: HeadersInit;
     disableCache?: boolean;
+    /** When true, include NDA projects in active navigation/maps. */
+    includeNdaInActive?: boolean;
   }): Promise<void> {
     // Coalesce concurrent calls: later callers await the same run
     if (this._initInFlight) {
@@ -588,11 +627,26 @@ export default class ProjectData {
         return at.localeCompare(bt);
       });
 
+      // Determine if NDA projects should be included as active for this initialization
+      const includeNdaInActive = (() => {
+        if (typeof opts?.includeNdaInActive === "boolean") {
+          return opts.includeNdaInActive;
+        }
+        // Infer from headers: if a Cookie header exists, treat as authenticated SSR
+        const h = opts?.headers;
+        if (!h) return false;
+        if (Array.isArray(h))
+          return h.some(([k]) => k.toLowerCase() === "cookie");
+        if (h instanceof Headers) return !!h.get("cookie");
+        const obj = h as Record<string, string>;
+        return Object.keys(obj).some((k) => k.toLowerCase() === "cookie");
+      })();
+
       for (const key of this._keys) {
         const project = this._projects[key];
         if (!project.active) continue;
 
-        if (!project.nda) {
+        if (!project.nda || includeNdaInActive) {
           // Non-NDA: included in active navigation and list (unless omitted)
           this._activeKeys.push(key);
           this._activeProjects.push(project);

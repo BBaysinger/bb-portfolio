@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import ProjectView from "@/components/project-carousel-page/ProjectView";
 import ProjectData from "@/data/ProjectData";
 import { useRouteChange } from "@/hooks/useRouteChange";
+import { useAppSelector } from "@/store/hooks";
 import { getDynamicPathParam } from "@/utils/getDynamicPathParam";
 
 /**
@@ -15,6 +16,8 @@ interface ProjectPageProps {
   params: {
     projectId: string;
   };
+  /** SSR-computed auth state, used to include NDA projects on first client init. */
+  isAuthenticated?: boolean;
 }
 
 /**
@@ -28,10 +31,15 @@ interface ProjectPageProps {
  * @param params - Route parameters provided by Next.js, including the static `projectId`.
  * @returns A hydrated React component containing the project view.
  */
-export default function ProjectViewWrapper({ params }: ProjectPageProps) {
+export default function ProjectViewWrapper({
+  params,
+  isAuthenticated,
+}: ProjectPageProps) {
   // Ensure project data is available on the client after hydration.
   const [ready, setReady] = useState(false);
   const initOnce = useRef(false);
+  const { isLoggedIn, user } = useAppSelector((s) => s.auth);
+  const includeNdaInActive = Boolean(isAuthenticated) || isLoggedIn || !!user;
 
   useEffect(() => {
     let cancelled = false;
@@ -44,7 +52,10 @@ export default function ProjectViewWrapper({ params }: ProjectPageProps) {
         const haveProjects =
           Object.keys(ProjectData.activeProjectsRecord).length > 0;
         if (!haveProjects) {
-          await ProjectData.initialize({ disableCache: true });
+          await ProjectData.initialize({
+            disableCache: true,
+            includeNdaInActive,
+          });
         }
         initOnce.current = true;
       } finally {
@@ -69,6 +80,23 @@ function ProjectViewRouterBridge({
   initialProjectId: string;
 }) {
   const [projectId, setProjectId] = useState(initialProjectId);
+  const { isLoggedIn, user } = useAppSelector((s) => s.auth);
+  const includeNdaInActive = isLoggedIn || !!user;
+
+  // If we navigated in with an NDA project and the active map doesn't have it yet,
+  // re-initialize once when auth becomes available.
+  useEffect(() => {
+    const ensureNdaPresent = async () => {
+      const current = ProjectData.activeProjectsRecord[projectId];
+      if (!current && includeNdaInActive) {
+        await ProjectData.initialize({
+          disableCache: true,
+          includeNdaInActive: true,
+        });
+      }
+    };
+    ensureNdaPresent();
+  }, [includeNdaInActive, projectId]);
 
   useRouteChange(() => {
     const newId = getDynamicPathParam(-1, initialProjectId);

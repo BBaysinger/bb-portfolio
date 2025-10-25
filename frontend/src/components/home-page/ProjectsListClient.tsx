@@ -10,6 +10,7 @@ import React, {
 
 import ProjectThumbnail from "@/components/home-page/ProjectThumbnail";
 import { ParsedPortfolioProject } from "@/data/ProjectData";
+import { useAppSelector } from "@/store/hooks";
 
 import styles from "./ProjectsListClient.module.scss";
 
@@ -45,6 +46,9 @@ const ProjectsListClient: React.FC<ProjectsListClientProps> = ({
   allProjects,
   isAuthenticated,
 }) => {
+  // React to client-side auth state changes (after hydration/login)
+  const { isLoggedIn, user } = useAppSelector((s) => s.auth);
+  const authed = isAuthenticated || isLoggedIn || !!user;
   const [focusedThumbIndex, setFocusedThumbIndex] = useState(-1);
   const projectThumbRefs = useRef<Array<RefObject<HTMLDivElement | null>>>([]);
   const ticking = useRef(false);
@@ -195,7 +199,7 @@ const ProjectsListClient: React.FC<ProjectsListClientProps> = ({
               thumbUrl={thumbUrl}
               thumbUrlMobile={thumbUrlMobile}
               thumbAlt={thumbAlt}
-              isAuthenticated={isAuthenticated}
+              isAuthenticated={authed}
               ref={(node) => setThumbRef(node, index)}
             />
           );

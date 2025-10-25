@@ -245,9 +245,14 @@ footer.footer {
 }
 
 // footer nav links style override when used in footer
-.footerNavLinks li {
-  text-align: center;
-  @include breakpointUp($b576px) {
-    text-align: left;
+.footerNavLinks {
+  li,
+  button {
+    text-align: center;
+    text-transform: uppercase;
+
+    @include breakpointUp($b576px) {
+      text-align: left;
+    }
   }
 }
