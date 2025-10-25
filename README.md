@@ -15,7 +15,7 @@
 - Logo/Info Swapper Animations tied to active slide
 - Scroll-Aware Project List Highlighting
 - Teletype Paragraph Animation Effect
-- Magnetic/Sticky Road Sign
+- Magnetic/Sticky Animated DOM Elements
 - Scroll-Aware Page Anchor Link Highlighting
 - Strict Mobile-First Methodology and Progressive Enhancement on every layer
 - Fluid Responsive System
