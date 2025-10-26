@@ -61,7 +61,7 @@ const ProjectsList = async () => {
           const alt = await tryAuthFetch(`${basePath}/api/users/me/`);
           if (alt.ok) res = alt;
         }
-      } catch (_err) {
+      } catch {
         // Fallback to absolute origin if relative fetch fails (e.g., custom runtimes)
         try {
           const h = await nextHeaders();

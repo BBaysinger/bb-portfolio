@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
     const preferred = firstVal(
       `${prefix}BACKEND_INTERNAL_URL`,
       `${prefix}NEXT_PUBLIC_BACKEND_URL`,
-      "NEXT_PUBLIC_BACKEND_URL"
+      "NEXT_PUBLIC_BACKEND_URL",
     );
     const serviceDnsFallback =
       normalizedProfile === "dev"
@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
         : [];
       console.log(
         "🍪 Logout API - Incoming cookies (names only):",
-        cookieNames
+        cookieNames,
       );
     }
 
@@ -86,14 +86,14 @@ export async function POST(request: NextRequest) {
           "Content-Type": "application/json",
           ...(cookieHeader && { Cookie: cookieHeader }),
         },
-      }
+      },
     );
 
     if (!response.ok) {
       const data = await response.json();
       return NextResponse.json(
         { error: data.message || "Logout failed" },
-        { status: response.status }
+        { status: response.status },
       );
     }
 
@@ -108,7 +108,7 @@ export async function POST(request: NextRequest) {
       // Do not log raw Set-Cookie values in production
       console.log(
         "🧹 Backend set-cookie header present:",
-        Boolean(setCookieHeader)
+        Boolean(setCookieHeader),
       );
     }
 
@@ -122,11 +122,11 @@ export async function POST(request: NextRequest) {
         console.log("🔧 Backend didn't clear cookies, doing it manually");
       nextResponse.headers.append(
         "set-cookie",
-        "payload-token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; SameSite=Lax"
+        "payload-token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; SameSite=Lax",
       );
       nextResponse.headers.append(
         "set-cookie",
-        "authToken=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; SameSite=Lax"
+        "authToken=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; SameSite=Lax",
       );
     }
 
@@ -135,7 +135,7 @@ export async function POST(request: NextRequest) {
     console.error("Logout API error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
