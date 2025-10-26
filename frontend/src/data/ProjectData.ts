@@ -639,6 +639,86 @@ export default class ProjectData {
   // Prevent overlapping initialize() calls from interleaving state writes.
   private static _initInFlight: Promise<void> | null = null;
 
+  /**
+   * Hydrate caches from a parsed snapshot (SSR → CSR) and recompute active/listed sets.
+   * Use this on the client to avoid an immediate refetch that could drop NDA fields
+   * when the browser lacks a backend-auth cookie scoped to the frontend domain.
+   */
+  static hydrate(
+    parsed: ParsedPortfolioProjectData,
+    includeNdaInActive: boolean,
+  ) {
+    // Reset caches
+    this._projects = {} as ParsedPortfolioProjectData;
+    this._activeProjects = [];
+    this._activeKeys = [];
+    this._listedProjects = [];
+    this._listedKeys = [];
+    this._keys = [];
+    this._activeProjectsMap = {};
+
+    // Assign snapshot
+    this._projects = { ...parsed };
+    this._keys = Object.keys(this._projects);
+
+    // Preserve sort order by sortIndex then title
+    this._keys.sort((a, b) => {
+      const aa = this._projects[a]?.sortIndex;
+      const bb = this._projects[b]?.sortIndex;
+      const av = typeof aa === "number" ? aa : Number.MAX_SAFE_INTEGER;
+      const bv = typeof bb === "number" ? bb : Number.MAX_SAFE_INTEGER;
+      if (av !== bv) return av - bv;
+      const at = this._projects[a]?.title || "";
+      const bt = this._projects[b]?.title || "";
+      return at.localeCompare(bt);
+    });
+
+    for (const key of this._keys) {
+      const project = this._projects[key];
+      if (!project?.active) continue;
+      if (!project.nda || includeNdaInActive) {
+        this._activeKeys.push(key);
+        this._activeProjects.push(project);
+        this._activeProjectsMap[key] = project;
+        if (!project.omitFromList) {
+          this._listedKeys.push(key);
+          this._listedProjects.push(project);
+        }
+      } else {
+        if (!project.omitFromList) {
+          this._listedKeys.push(key);
+          this._listedProjects.push(project);
+        }
+      }
+    }
+
+    // Normalize duplicates in dev to avoid UI warnings
+    const dupes = (arr: string[]) =>
+      Array.from(new Set(arr.filter((k, i, a) => a.indexOf(k) !== i)));
+    const activeDupes = dupes(this._activeKeys);
+    const listedDupes = dupes(this._listedKeys);
+    if (activeDupes.length || listedDupes.length) {
+      if (process.env.NODE_ENV !== "production") {
+        this._activeKeys = Array.from(new Set(this._activeKeys));
+        this._listedKeys = Array.from(new Set(this._listedKeys));
+        this._activeProjects = this._activeKeys
+          .map((k) => this._projects[k])
+          .filter(Boolean);
+        this._listedProjects = this._listedKeys
+          .map((k) => this._projects[k])
+          .filter(Boolean);
+        this._activeProjectsMap = this._activeKeys.reduce(
+          (acc, k) => {
+            const p = this._projects[k];
+            if (p) acc[k] = p;
+            return acc;
+          },
+          {} as Record<string, ParsedPortfolioProject>,
+        );
+      }
+    }
+  }
+
   static get activeKeys(): string[] {
     return [...this._activeKeys]; // Shallow copy to prevent mutations
   }

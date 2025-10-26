@@ -20,6 +20,10 @@ interface ProjectPageProps {
   isAuthenticated?: boolean;
   /** Whether NDA projects are allowed to be included in the active dataset on this route. */
   allowNda?: boolean;
+  /** Optional parsed snapshot from SSR to hydrate client without refetch. */
+  ssrParsed?: import("@/data/ProjectData").ParsedPortfolioProjectData;
+  /** Whether SSR dataset included NDA in active set. */
+  ssrIncludeNdaInActive?: boolean;
 }
 
 /**
@@ -37,6 +41,8 @@ export default function ProjectViewWrapper({
   params,
   isAuthenticated,
   allowNda,
+  ssrParsed,
+  ssrIncludeNdaInActive,
 }: ProjectPageProps) {
   // Ensure project data is available on the client after hydration.
   const [ready, setReady] = useState(false);
@@ -53,13 +59,30 @@ export default function ProjectViewWrapper({
     }
     (async () => {
       try {
-        const haveProjects =
-          Object.keys(ProjectData.activeProjectsRecord).length > 0;
-        if (!haveProjects) {
-          await ProjectData.initialize({
-            disableCache: true,
-            includeNdaInActive,
-          });
+        // If SSR provided a parsed snapshot, hydrate it first to avoid
+        // a client refetch that could drop NDA fields due to cookie scoping.
+        if (ssrParsed) {
+          ProjectData.hydrate(
+            ssrParsed,
+            Boolean(ssrIncludeNdaInActive ?? includeNdaInActive),
+          );
+        } else {
+          if (!allowNda) {
+            // Public route: always enforce a clean non-NDA active set.
+            await ProjectData.initialize({
+              disableCache: true,
+              includeNdaInActive: false,
+            });
+          } else {
+            const haveProjects =
+              Object.keys(ProjectData.activeProjectsRecord).length > 0;
+            if (!haveProjects) {
+              await ProjectData.initialize({
+                disableCache: true,
+                includeNdaInActive,
+              });
+            }
+          }
         }
         initOnce.current = true;
       } finally {
