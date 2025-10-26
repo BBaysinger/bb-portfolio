@@ -56,9 +56,12 @@ async function fetchPortfolioProjects(opts?: {
     if (serviceDnsFallback) base = serviceDnsFallback;
   }
 
-  // Build URL: server uses absolute backend URL; client can use relative path
-  // We need depth=2 so that nested relations on brand (logoLight/logoDark uploads)
-  // are populated alongside the project -> brand -> upload chain.
+  // Build URL
+  // - Client: always use relative path so Next.js rewrites proxy to backend and forwards cookies
+  // - Server: if request cookies exist, prefer same-origin relative URL so auth is preserved;
+  //           otherwise fall back to absolute backend URL (with a service-DNS fallback in dev/local)
+  // We need depth=2 so that nested relations on brand (logoLight/logoDark uploads) are populated
+  // alongside the project -> brand -> upload chain.
   // Note: Using trailing slash for client-side to match Next.js trailingSlash: true config
   const path = "/api/projects/?depth=2&limit=1000&sort=sortIndex";
   const serverPath = "/api/projects?depth=2&limit=1000&sort=sortIndex";
@@ -105,11 +108,12 @@ async function fetchPortfolioProjects(opts?: {
     return `${proto}://${host}`.replace(/\/$/, "");
   };
 
-  // Always use absolute backend URL on the server to avoid any frontend /api
-  // redirect nuances (e.g., trailingSlash loops). We still forward Cookie headers
-  // so the backend can perform auth-aware responses.
+  // Prefer same-origin on the server when cookies are available so the Next.js proxy
+  // forwards them to the backend seamlessly. Otherwise, use absolute backend URL.
   const primaryUrl = isServer
-    ? `${base.replace(/\/$/, "")}${serverPath}`
+    ? hasRequestCookies
+      ? serverPath
+      : `${base.replace(/\/$/, "")}${serverPath}`
     : path;
   const fallbackUrl =
     isServer && serviceDnsFallback
