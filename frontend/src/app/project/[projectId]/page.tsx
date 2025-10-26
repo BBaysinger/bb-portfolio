@@ -7,6 +7,8 @@ import ProjectData from "@/data/ProjectData";
 // import styles from "@/styles/ProjectPage.module.css";
 
 export const runtime = "nodejs";
+// Using headers()/cookies() makes this page dynamic at request time
+export const dynamic = "force-dynamic";
 // Prefer SSG for known routes, but allow on-demand generation for any valid projectId at runtime
 export const dynamicParams = true;
 
@@ -42,8 +44,8 @@ export default async function ProjectPage({
   const forwardedHeaders: HeadersInit = (() => {
     // Clone all request headers, then explicitly apply Cookie from cookieStore
     // (headers() may redact or omit it depending on config).
-  // Convert ReadonlyHeaders to a plain Headers instance
-  const h = new Headers(Object.fromEntries(incoming.entries()));
+    // Convert ReadonlyHeaders to a plain Headers instance
+    const h = new Headers(Object.fromEntries(incoming.entries()));
     if (cookieHeader) h.set("cookie", cookieHeader);
     return h;
   })();

@@ -48,6 +48,8 @@ const nextConfig: NextConfig = {
     unoptimized: true,
   },
   trailingSlash: true,
+  // Keep default trailing slash redirects enabled to avoid build-time issues with API route resolution.
+  // Server-side data fetching no longer relies on /api, so redirects here should not impact SSR.
   // React StrictMode control
   // - Default: disabled in development, enabled in production
   // - Override: set REACT_STRICT_MODE="false" to force off, any other value to force on
