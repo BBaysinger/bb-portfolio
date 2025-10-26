@@ -67,7 +67,7 @@ const AnimationSequencer = forwardRef<
   const lastPlayedIndexRef = useRef<number | null>(null);
 
   const delay = 15000;
-  const initialDelay = 6000;
+  const initialDelay = 8000;
   const ratio = 40 / 33;
   const directory = "/spritesheets/fluxel-animations/";
   const extension = ".webp";
