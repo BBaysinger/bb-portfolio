@@ -1,14 +1,88 @@
 #!/usr/bin/env node
 /*
-  Prebuild guard for required env vars (plain JS).
+  Prebuild guard for required env vars (ESM-compatible JS).
 
-  Supports:
-  - REQUIRED_ENVIRONMENT_VARIABLES: comma-separated list of env var names that MUST be set.
-  - <PROFILE>_REQUIRED_ENVIRONMENT_VARIABLES: prefix-first per-environment override (e.g., PROD_REQUIRED_ENVIRONMENT_VARIABLES).
-  - Any-of groups: use pipe within an entry to require at least one (e.g., "BACKEND_URL|NEXT_PUBLIC_BACKEND_URL").
-  - Default behavior: in CI+prod, require at least one backend base URL var to avoid empty portfolio deploys.
+  Features:
+  - Loads .env files with Next.js-like precedence before validation:
+    1) .env
+    2) .env.[development|production] (based on NODE_ENV)
+    3) .env.local (overrides)
+  - REQUIRED_ENVIRONMENT_VARIABLES: comma-separated list; supports ANY-of groups with "|".
+  - <PROFILE>_REQUIRED_ENVIRONMENT_VARIABLES: per-environment override (e.g., PROD_REQUIRED_ENVIRONMENT_VARIABLES).
+  - Default safety: in CI+prod, require a backend base URL if no explicit requirements were provided.
 */
-(function () {
+(async function () {
+  // Load .env files using dotenv with proper precedence
+  try {
+    // Use ESM-compatible imports
+    const { dirname, resolve } = await import("node:path");
+    const { fileURLToPath } = await import("node:url");
+    const { existsSync } = await import("node:fs");
+    const dotenvMod = await import("dotenv");
+    const dotenv = dotenvMod && (dotenvMod.default || dotenvMod);
+
+    const __dirname = dirname(fileURLToPath(import.meta.url));
+    const root = resolve(__dirname, "..");
+
+    const nodeEnv = (process.env.NODE_ENV || "").toLowerCase();
+    const envFiles = [
+      resolve(root, ".env"),
+      nodeEnv === "production"
+        ? resolve(root, ".env.production")
+        : resolve(root, ".env.development"),
+      resolve(root, ".env.local"),
+    ];
+
+    for (const p of envFiles) {
+      if (existsSync(p)) {
+        dotenv.config({ path: p, override: true });
+      }
+    }
+  } catch (_) {
+    // If dotenv isn't available, fallback to a minimal .env loader.
+    try {
+      const { dirname, resolve } = await import("node:path");
+      const { fileURLToPath } = await import("node:url");
+      const { existsSync, readFileSync } = await import("node:fs");
+      const __dirname = dirname(fileURLToPath(import.meta.url));
+      const root = resolve(__dirname, "..");
+      const nodeEnv = (process.env.NODE_ENV || "").toLowerCase();
+      const envFiles = [
+        resolve(root, ".env"),
+        nodeEnv === "production"
+          ? resolve(root, ".env.production")
+          : resolve(root, ".env.development"),
+        resolve(root, ".env.local"),
+      ];
+      const apply = (line) => {
+        const idx = line.indexOf("=");
+        if (idx === -1) return;
+        const key = line.slice(0, idx).trim();
+        const val = line
+          .slice(idx + 1)
+          .trim()
+          .replace(/^"|^'|"$|'$/g, "");
+        if (!key) return;
+        process.env[key] = val; // override like dotenv override: true
+      };
+      for (const p of envFiles) {
+        if (!existsSync(p)) continue;
+        const content = readFileSync(p, "utf8");
+        for (const raw of content.split(/\r?\n/)) {
+          const line = raw.trim();
+          if (!line || line.startsWith("#")) continue;
+          apply(line);
+        }
+      }
+      console.info(
+        "[check-required-env] Loaded .env files via fallback parser",
+      );
+    } catch (__) {
+      console.warn(
+        "[check-required-env] Warning: dotenv not available; skipping .env preload",
+      );
+    }
+  }
   const {
     CI,
     GITHUB_ACTIONS,
