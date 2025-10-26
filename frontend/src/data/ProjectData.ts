@@ -83,7 +83,7 @@ async function fetchPortfolioProjects(opts?: {
     const get = (name: string): string | undefined => {
       if (Array.isArray(requestHeaders)) {
         const entry = requestHeaders.find(
-          ([k]) => k.toLowerCase() === name.toLowerCase(),
+          ([k]) => k.toLowerCase() === name.toLowerCase()
         );
         return entry ? entry[1] : undefined;
       }
@@ -92,7 +92,7 @@ async function fetchPortfolioProjects(opts?: {
       const obj = requestHeaders as Record<string, string>;
       // Headers in Next can be normalized to lowercase keys
       const lower = Object.fromEntries(
-        Object.entries(obj).map(([k, v]) => [k.toLowerCase(), v]),
+        Object.entries(obj).map(([k, v]) => [k.toLowerCase(), v])
       ) as Record<string, string>;
       return lower[name.toLowerCase()];
     };
@@ -222,7 +222,7 @@ async function fetchPortfolioProjects(opts?: {
     throw new Error(
       `Failed to fetch project data: ${res.status} ${res.statusText}${
         detail ? ` - ${detail.slice(0, 300)}` : ""
-      }`,
+      }`
     );
   }
   type BrandObj = {
@@ -270,7 +270,7 @@ async function fetchPortfolioProjects(opts?: {
     }
     // Plain object
     const lowerKeys = Object.keys(h as Record<string, string>).map((k) =>
-      k.toLowerCase(),
+      k.toLowerCase()
     );
     return lowerKeys.includes("cookie");
   })();
@@ -663,7 +663,7 @@ export default class ProjectData {
         record[project.id] = project;
         return record;
       },
-      {} as Record<string, ParsedPortfolioProject>,
+      {} as Record<string, ParsedPortfolioProject>
     );
   }
 
@@ -674,7 +674,7 @@ export default class ProjectData {
    * @returns Parsed portfolio data
    */
   private static parsePortfolioData(
-    data: PortfolioProjectData,
+    data: PortfolioProjectData
   ): ParsedPortfolioProjectData {
     const parsedData: ParsedPortfolioProjectData = {};
 
@@ -802,7 +802,7 @@ export default class ProjectData {
               if (p) acc[k] = p;
               return acc;
             },
-            {} as Record<string, ParsedPortfolioProject>,
+            {} as Record<string, ParsedPortfolioProject>
           );
         }
       }
