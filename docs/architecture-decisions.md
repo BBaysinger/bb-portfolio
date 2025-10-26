@@ -18,13 +18,13 @@ New decisions should be appended chronologically.
 ---
 
 ## 2025-09-14 – Database
+
 **Decision:** Use **MongoDB Atlas (cloud-managed MongoDB)**  
 **Reasoning:**
 
 - Avoid operational over- **Status:** ✅ Active (supersedes earlier "assets" bucket naming in 2025-09-20 entry; that entry remains for historical context)
 
 ---
-
 
 **Decision:** Implement **comprehensive Infrastructure as Code (IaC) with full automation** for zero-manual deployment and production-ready hosting.
 
@@ -34,7 +34,7 @@ New decisions should be appended chronologically.
 - **Docker Containerization**: Development and production container profiles with systemd management
 - **ECR Integration**: Private container registries with lifecycle policies and IAM authentication
 - **S3 Media Storage**: Environment-specific buckets with proper CORS and encryption
-**Automation Features:**
+  **Automation Features:**
 
 - **One-Command Deployment**: `terraform apply` creates entire infrastructure from scratch
 - **One-Command Teardown**: `terraform destroy` cleanly removes all 25+ AWS resources
@@ -76,7 +76,7 @@ New decisions should be appended chronologically.
 
 **Status:** ✅ Active - Production infrastructure deployed and verified working
 
-`````
+```
 
 ---
 
@@ -686,4 +686,4 @@ MONGODB_URI=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/bb-portfol
   - Serve NDA under `/project/*` when authenticated (simpler URLs but higher risk of leakage/accidental exposure).
   - Completely separate datasets without route-aware navigation (safer but worse UX when switching between public and NDA projects).
 - **Status:** ✅ Active
-`````
+````
