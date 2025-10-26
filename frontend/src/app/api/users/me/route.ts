@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 /**
  * User "me" API route that proxies to Payload CMS backend to get current user info
