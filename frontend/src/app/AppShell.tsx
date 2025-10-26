@@ -22,7 +22,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   // Runtime backend health check: logs backend connectivity status on startup
   useEffect(() => {
     // Prefer same-origin relative path to leverage Next.js rewrites (/api -> backend)
-    // Absolute URLs (e.g., http://backend-local:3001) may not resolve in the browser.
+    // Absolute URLs (e.g., http://bb-backend-local:3001) may not resolve in the browser.
     const healthUrl = "/api/health";
 
     const abort = new AbortController();
@@ -32,11 +32,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       .then((res) => {
         if (res.ok) {
           console.log(
-            `✅ [Runtime Health Check] Backend healthy at ${healthUrl} (status: ${res.status})`,
+            `✅ [Runtime Health Check] Backend healthy at ${healthUrl} (status: ${res.status})`
           );
         } else {
           console.warn(
-            `⚠️ [Runtime Health Check] Backend responded but not healthy (status: ${res.status}) at ${healthUrl}`,
+            `⚠️ [Runtime Health Check] Backend responded but not healthy (status: ${res.status}) at ${healthUrl}`
           );
         }
       })
@@ -46,12 +46,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         if (isAbort) {
           // Be less noisy for intentional timeouts
           console.warn(
-            `⏱️ [Runtime Health Check] Request timed out at ${healthUrl}`,
+            `⏱️ [Runtime Health Check] Request timed out at ${healthUrl}`
           );
         } else {
           console.error(
             `❌ [Runtime Health Check] Failed to reach backend at ${healthUrl}:`,
-            err,
+            err
           );
         }
       })
@@ -64,10 +64,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     };
   }, []);
   const isMenuOpen = useSelector(
-    (state: RootState) => state.ui.isMobileNavExpanded,
+    (state: RootState) => state.ui.isMobileNavExpanded
   );
   const percentHeroInView = useSelector(
-    (state: RootState) => state.ui.percentHeroInView,
+    (state: RootState) => state.ui.percentHeroInView
   );
 
   const mainContentRef = useRef<HTMLDivElement>(null);
@@ -108,7 +108,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         percentHeroInView >= 5 && "isHeroInView5Pct",
         percentHeroInView >= 100 && "isHeroInView100Pct",
         styles.appShell,
-        isMenuOpen && styles.isMobileNavExpanded,
+        isMenuOpen && styles.isMobileNavExpanded
       )}
     >
       {/* Runtime backend health check runs on mount and logs to console */}
