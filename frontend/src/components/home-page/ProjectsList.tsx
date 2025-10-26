@@ -40,12 +40,14 @@ const ProjectsList = async () => {
 
     // Server-side auth check via local API proxy (absolute URL required in server context)
     if (cookieHeader) {
-  const h = await nextHeaders();
+      const h = await nextHeaders();
       const host = h.get("x-forwarded-host") ?? h.get("host");
       const proto = h.get("x-forwarded-proto") ?? "http";
       const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
       // Fallbacks for local dev if headers are missing
-      const origin = host ? `${proto}://${host}` : process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+      const origin = host
+        ? `${proto}://${host}`
+        : process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
       const res = await fetch(`${origin}${basePath}/api/users/me`, {
         method: "GET",
@@ -64,6 +66,20 @@ const ProjectsList = async () => {
   // Use listedProjects (active & not omitted) for the main grid, which may include NDA items.
   // The client decides how to render NDA entries as placeholders.
   const allProjects = [...ProjectData.listedProjects];
+  if (
+    process.env.DEBUG_PROJECT_DATA === "1" ||
+    process.env.NODE_ENV !== "production"
+  ) {
+    try {
+      const ndaCount = allProjects.filter((p) => p.nda || p.brandIsNda).length;
+      console.info("[ProjectsList SSR] state", {
+        isAuthenticated,
+        cookiePresent: (await cookies()).getAll()?.length > 0,
+        listedCount: allProjects.length,
+        ndaEntries: ndaCount,
+      });
+    } catch {}
+  }
   // Delegate rendering and interactivity to the client component.
   return (
     <ProjectsListClient

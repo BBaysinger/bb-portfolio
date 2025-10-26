@@ -290,8 +290,13 @@ async function fetchPortfolioProjects(opts?: {
   }
 
   const out: PortfolioProjectData = {};
+  // Debug counters
+  let _debugTotalDocs = 0;
+  let _debugNdaDocs = 0;
+  let _debugPlaceholders = 0;
   const docs: PayloadProjectDoc[] = json.docs;
   for (const doc of docs) {
+    _debugTotalDocs++;
     const slug: string | undefined = doc.slug || doc.id;
     if (!slug) continue;
 
@@ -300,6 +305,7 @@ async function fetchPortfolioProjects(opts?: {
     // Instead, include a sanitized placeholder entry so the UI can render
     // a generic "Confidential Project" tile without leaking details.
     if (doc.nda && !hasAuthCookie) {
+      _debugNdaDocs++;
       out[slug] = {
         title: "Confidential Project",
         active: !!doc.active,
@@ -325,6 +331,7 @@ async function fetchPortfolioProjects(opts?: {
         brandLogoDarkUrl: undefined,
         screenshotUrls: {},
       };
+      _debugPlaceholders++;
       continue;
     }
 
@@ -537,6 +544,21 @@ async function fetchPortfolioProjects(opts?: {
     };
 
     out[slug] = item;
+  }
+
+  // Debug summary of fetch/transform results
+  if (
+    process.env.DEBUG_PROJECT_DATA === "1" ||
+    process.env.NODE_ENV !== "production"
+  ) {
+    try {
+      console.info("[ProjectData] summary", {
+        totalDocs: _debugTotalDocs,
+        ndaDocsSeen: _debugNdaDocs,
+        ndaPlaceholdersEmitted: _debugPlaceholders,
+        outCount: Object.keys(out).length,
+      });
+    } catch {}
   }
 
   return out;

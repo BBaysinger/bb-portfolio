@@ -9,8 +9,8 @@ export const Projects: CollectionConfig = {
     defaultColumns: ['title', 'sortIndex', 'slug', 'active', 'brandId'],
   },
   access: {
-    // Public can read only active, non-NDA projects.
-    // Logged-in users can read active projects (including NDA).
+    // Public can read active projects (including NDA), but NDA fields are scrubbed in `afterRead`.
+    // Logged-in users can read active projects (including NDA) with full fields.
     // Admins can read all fields unmodified.
     read: ({ req }) => {
       // Admins: unrestricted
@@ -23,9 +23,9 @@ export const Projects: CollectionConfig = {
         } as unknown as Where
       }
 
-      // Unauthenticated: restrict to active AND non-NDA only
+      // Unauthenticated: restrict to active only (NDA allowed), fields will be sanitized in `afterRead`
       return {
-        and: [{ active: { equals: true } }, { nda: { not_equals: true } }],
+        and: [{ active: { equals: true } }],
       } as unknown as Where
     },
     // Only admins can create/update/delete projects
