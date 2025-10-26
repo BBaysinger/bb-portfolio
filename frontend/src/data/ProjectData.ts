@@ -296,9 +296,35 @@ async function fetchPortfolioProjects(opts?: {
     if (!slug) continue;
 
     // Frontend defense-in-depth: if this is an NDA project and the request
-    // clearly lacks auth cookies, skip it entirely so no NDA data propagates
-    // to client bundles or SSR output when a user is logged out.
+    // clearly lacks auth cookies, do NOT expose any teaser data.
+    // Instead, include a sanitized placeholder entry so the UI can render
+    // a generic "Confidential Project" tile without leaking details.
     if (doc.nda && !hasAuthCookie) {
+      out[slug] = {
+        title: "Confidential Project",
+        active: !!doc.active,
+        omitFromList: !!doc.omitFromList,
+        brandId: "",
+        brandIsNda: true,
+        mobileOrientation: MobileOrientations.NONE,
+        tags: [],
+        role: "",
+        year: undefined,
+        awards: undefined,
+        type: undefined,
+        desc: [],
+        date: "",
+        urls: {},
+        nda: true,
+        sortIndex:
+          typeof doc.sortIndex === "number" ? doc.sortIndex : undefined,
+        thumbUrl: undefined,
+        thumbUrlMobile: undefined,
+        thumbAlt: undefined,
+        brandLogoLightUrl: undefined,
+        brandLogoDarkUrl: undefined,
+        screenshotUrls: {},
+      };
       continue;
     }
 
