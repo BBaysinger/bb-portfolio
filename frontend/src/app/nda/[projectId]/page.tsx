@@ -93,9 +93,9 @@ export default async function NdaProjectPage({
 
   const allProjects = (
     ProjectData as unknown as {
-      _projects: Record<string, { nda?: boolean }>;
+      _projects: import("@/data/ProjectData").ParsedPortfolioProjectData;
     }
-  )["_projects"] as Record<string, { nda?: boolean }>;
+  )["_projects"];
   const project = allProjects[projectId];
 
   // Only serve NDA projects here; public projects should use /project/[id]
@@ -114,6 +114,8 @@ export default async function NdaProjectPage({
         params={{ projectId }}
         isAuthenticated={true}
         allowNda={true}
+        ssrParsed={allProjects}
+        ssrIncludeNdaInActive={true}
       />
     </Suspense>
   );

@@ -37,7 +37,6 @@
 - Rich project metadata (brand, tags, role, year, awards, urls)
 - Image collections for screenshots, thumbnails, brand logos
 - Image processing via Sharp (server-side resizing) with 2 MB upload limit
-- Sprite sheet image processing scripts
 
 ### Storage & Media Pipeline
 
