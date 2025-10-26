@@ -5,22 +5,23 @@
 ### Frontend UX & Interaction
 
 - Parallax Project Carousel (layered/synced, expandable, native swipe, deep linking)
-- Device Mockup Overlays (tilt/stabilization states)
 - Simulated-Depth Magnetic “Fluxel” (fluxing pixel) Grid System
-- Custom Sprite Sheet Renderer w/ CSS, canvas, and WebGL rendering options
-- Weighted Random Animation Sequencer using the sprite sheet renderer
 - Custom Physics Kinetic Orb
+- Custom Sprite Sheet Renderer w/ CSS, canvas, and WebGL rendering options
+- Fluid Responsive System
+  - JavaScript CSS Global Scaling Variable insertion
+  - rem-based fluid scaling property SASS mixin
+  - static fluid scaling property SASS mixin
+- Weighted Random Animation Sequencer using the sprite sheet renderer
 - Page Slide-Out Mobile Navigation
 - Transform-Positioned Footer
-- Logo/Info Swapper Animations tied to active slide
 - Scroll-Aware Project List Highlighting
 - Teletype Paragraph Animation Effect
 - Magnetic/Sticky Animated DOM Elements
 - Scroll-Aware Page Anchor Link Highlighting
+- Device Mockup Overlays (tilt/stabilization states)
 - Strict Mobile-First Methodology and Progressive Enhancement on every layer
-- Fluid Responsive System
-  - rem-based fluid scaling property SASS mixin
-  - static fluid scaling property SASS mixin
+- Logo/Info Swapper Animations tied to active slide
 
 ### CMS, Data Modeling & Rendering
 
