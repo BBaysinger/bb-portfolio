@@ -28,7 +28,11 @@
 - SSR portfolio projects list (Next.js)
 - SSG dynamic routing projects view (Next.js)
 - Automatic slug generation and sortable index
-- NDA-aware content filtering/sanitization
+- NDA route segmentation and content safety
+  - Public route `/project/[projectId]` never includes NDA items in the active dataset (even when authenticated)
+  - NDA-only route `/nda/[projectId]` requires authentication and is rendered dynamically per request
+  - Authenticated requests to a public NDA slug redirect server-side to `/nda/[projectId]`; unauthenticated sees 404
+  - Client carousel and prev/next links are route-aware (public → `/project/*`, NDA → `/nda/*`) without leaking NDA data
 - Rich project metadata (brand, tags, role, year, awards, urls)
 - Image collections for screenshots, thumbnails, brand logos
 - Image processing via Sharp (server-side resizing) with 2 MB upload limit
