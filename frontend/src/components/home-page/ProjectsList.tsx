@@ -27,7 +27,10 @@ const ProjectsList = async () => {
   let isAuthenticated = false;
   try {
     const cookieStore = await cookies();
-    const cookieHeader = cookieStore.toString();
+    const cookieHeader = cookieStore
+      .getAll()
+      .map((c) => `${c.name}=${c.value}`)
+      .join("; ");
 
     // Forward auth cookies to backend data fetch so NDA content resolves when allowed
     const forwardedHeaders: HeadersInit = cookieHeader

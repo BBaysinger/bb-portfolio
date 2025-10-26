@@ -88,10 +88,15 @@ const ProjectThumbnail = forwardRef<HTMLDivElement, ProjectThumbnailProps>(
       return `/images/home/confidential-thumbnail-${colors[colorIndex]}.webp`;
     };
 
-    const showNdaConfidential = nda && !isAuthenticated;
+    // Treat a project as NDA-like when either the project or brand is NDA.
+    const isNdaLike = Boolean(nda || brandIsNda);
+    const showNdaConfidential = isNdaLike && !isAuthenticated;
+    // If NDA-like and unauthenticated, force confidential background.
+    // If NDA-like and authenticated but missing a thumbnail (edge), fall back to confidential bg.
     const bgImage = showNdaConfidential
       ? getConfidentialThumbnail(ndaIndex)
-      : responsiveThumbUrl;
+      : responsiveThumbUrl ||
+        (isNdaLike ? getConfidentialThumbnail(ndaIndex) : undefined);
     const style: React.CSSProperties = bgImage
       ? { backgroundImage: `url('${bgImage}')` }
       : {};
@@ -124,21 +129,25 @@ const ProjectThumbnail = forwardRef<HTMLDivElement, ProjectThumbnailProps>(
       </>
     );
 
+    // Link behavior:
+    // - NDA-like + unauthenticated → login
+    // - NDA-like + authenticated → /nda/[projectId]
+    // - Public → /project/[projectId]
+    const href = showNdaConfidential
+      ? "/login/"
+      : isNdaLike
+        ? `/nda/${projectId}/`
+        : `/project/${projectId}/`;
+
     return (
       <div className={`${styles.projectThumbnail} ${focusClass}`} ref={ref}>
-        {showNdaConfidential ? (
-          <Link
-            href={`/login/`}
-            className={styles.link}
-            aria-label="Confidential Project"
-          >
-            {inner}
-          </Link>
-        ) : (
-          <Link href={`/project/${projectId}/`} className={styles.link}>
-            {inner}
-          </Link>
-        )}
+        <Link
+          href={href}
+          className={styles.link}
+          aria-label={showNdaConfidential ? "Confidential Project" : title}
+        >
+          {inner}
+        </Link>
       </div>
     );
   },
