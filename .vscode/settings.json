@@ -93,6 +93,7 @@
         "fluxels",
         "foldables",
         "genenv",
+        "gsub",
         "healthcheck",
         "Highcharts",
         "importmap",

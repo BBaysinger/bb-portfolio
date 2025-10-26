@@ -169,7 +169,7 @@ services:
       [
         "/bin/sh",
         "-lc",
-        'mkdir -p "${NPM_CONFIG_CACHE:-/tmp/.npm}" && ( [ -x node_modules/.bin/next ] || npm ci || npm install ) && npm run dev',
+        "sh scripts/entrypoint.dev.sh",
       ]
     volumes:
       - ../../backend:/app
@@ -179,11 +179,15 @@ services:
     env_file:
       - ../../backend/.env
     environment:
-      - CHOKIDAR_USEPOLLING=true
-      - NODE_ENV=development
-      - PORT=3001
-      - ENV_PROFILE=local
-      - NPM_CONFIG_CACHE=/tmp/.npm
+      CHOKIDAR_USEPOLLING: "true"
+      NODE_ENV: development
+      PORT: "3001"
+      ENV_PROFILE: local
+      NPM_CONFIG_CACHE: /app/.npm-cache
+      # Disk usage guardrails (warn/fail thresholds in percent). Adjust as needed.
+      DISK_WARN_PCT: "85"
+      DISK_FAIL_PCT: "95"
+      DISK_CHECK_PATHS: "/tmp"
     restart: unless-stopped
 
   frontend-local:
@@ -196,7 +200,7 @@ services:
       [
         "/bin/sh",
         "-lc",
-        'mkdir -p "${NPM_CONFIG_CACHE:-/tmp/.npm}" && ( [ -x node_modules/.bin/next ] || npm ci || npm install ) && npm run dev',
+        "sh scripts/entrypoint.dev.sh",
       ]
     volumes:
       - ../../frontend:/app
@@ -206,13 +210,17 @@ services:
     env_file:
       - ../../frontend/.env
     environment:
-      - CHOKIDAR_USEPOLLING=true
-      - REACT_STRICT_MODE=${REACT_STRICT_MODE:-true}
-      - NODE_ENV=development
-      - ENV_PROFILE=local
-      - LOCAL_BACKEND_INTERNAL_URL=http://backend-local:3001
-      - NEXT_PUBLIC_BACKEND_URL=http://backend-local:3001
-      - NPM_CONFIG_CACHE=/tmp/.npm
+      CHOKIDAR_USEPOLLING: "true"
+      REACT_STRICT_MODE: "${REACT_STRICT_MODE:-true}"
+      NODE_ENV: development
+      ENV_PROFILE: local
+      LOCAL_BACKEND_INTERNAL_URL: http://backend-local:3001
+      NEXT_PUBLIC_BACKEND_URL: http://backend-local:3001
+      NPM_CONFIG_CACHE: /app/.npm-cache
+      # Disk usage guardrails (warn/fail thresholds in percent). Adjust as needed.
+      DISK_WARN_PCT: "85"
+      DISK_FAIL_PCT: "95"
+      DISK_CHECK_PATHS: "/tmp"
     restart: unless-stopped
     depends_on:
       backend-local:
