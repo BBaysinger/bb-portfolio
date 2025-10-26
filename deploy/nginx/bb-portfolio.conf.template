@@ -79,11 +79,14 @@ server {
     
     # Frontend proxy to production container (port 3000) - MUST be last
     location / {
+        # Upstream Host override ensures SSR fetches use the container host
+        proxy_set_header Host localhost:3000;
         proxy_pass http://localhost:3000;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-        proxy_set_header Host $host;
+        proxy_set_header Connection $connection_upgrade;
+        # Preserve original host for app logic and absolute URLs
+        proxy_set_header X-Forwarded-Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
@@ -171,11 +174,14 @@ server {
     
     # Frontend proxy to development container (port 4000) - MUST be last
     location / {
+        # Upstream Host override ensures SSR fetches use the container host
+        proxy_set_header Host localhost:4000;
         proxy_pass http://localhost:4000;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-        proxy_set_header Host $host;
+        proxy_set_header Connection $connection_upgrade;
+        # Preserve original host for app logic and absolute URLs
+        proxy_set_header X-Forwarded-Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
