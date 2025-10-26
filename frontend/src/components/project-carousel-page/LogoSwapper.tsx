@@ -79,6 +79,8 @@ const LogoSwapper: React.FC<LogoSwapperProps> = ({
     const map: Record<string, string | null> = {};
     // Use all active projects' brand metadata to derive logo availability
     const projects = ProjectData.activeProjects;
+    // If any active project is NDA, we're on an NDA-allowed route; permit NDA logos
+    const allowNdaLogo = projects.some((p) => !!p.nda);
     for (const p of projects) {
       const key = p.brandId;
       if (!key) continue;
@@ -86,6 +88,7 @@ const LogoSwapper: React.FC<LogoSwapperProps> = ({
       map[key] = getBrandLogoUrl({
         brandId: key,
         brandIsNda: p.brandIsNda,
+        allowNdaLogo,
         lightUrl: p.brandLogoLightUrl,
         darkUrl: p.brandLogoDarkUrl,
         preferDark: true,

@@ -7,12 +7,20 @@
 export function getBrandLogoUrl(opts: {
   brandId: string;
   brandIsNda?: boolean;
+  /** When true, allow NDA brand logos (e.g., on authenticated NDA routes). */
+  allowNdaLogo?: boolean;
   lightUrl?: string;
   darkUrl?: string;
   preferDark?: boolean; // default true for current dark-only site
 }): string | null {
-  const { brandIsNda, lightUrl, darkUrl, preferDark = true } = opts;
-  if (brandIsNda) return null;
+  const {
+    brandIsNda,
+    allowNdaLogo = false,
+    lightUrl,
+    darkUrl,
+    preferDark = true,
+  } = opts;
+  if (brandIsNda && !allowNdaLogo) return null;
   if (preferDark) return darkUrl || lightUrl || null;
   return lightUrl || darkUrl || null;
 }

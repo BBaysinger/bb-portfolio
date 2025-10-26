@@ -61,8 +61,9 @@ const ProjectThumbnail = forwardRef<HTMLDivElement, ProjectThumbnailProps>(
       const loadLogo = () => {
         const chosen = getBrandLogoUrl({
           brandId,
-          // Hide logos if brand or project is NDA
+          // Hide logos for NDA items unless authenticated (home page can show logo when authed)
           brandIsNda: brandIsNda || !!nda,
+          allowNdaLogo: isAuthenticated,
           lightUrl: brandLogoLightUrl,
           darkUrl: brandLogoDarkUrl,
           preferDark: true,
