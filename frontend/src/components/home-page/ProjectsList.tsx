@@ -1,6 +1,6 @@
 // NOTE: This is a Server Component. Do NOT add 'use client'.
 import { unstable_noStore as noStore } from "next/cache";
-import { cookies } from "next/headers";
+import { cookies, headers as nextHeaders } from "next/headers";
 
 import ProjectsListClient from "@/components/home-page/ProjectsListClient";
 import ProjectData from "@/data/ProjectData";
@@ -38,19 +38,23 @@ const ProjectsList = async () => {
       disableCache: true,
     });
 
-    // Server-side auth check via local API proxy
+    // Server-side auth check via local API proxy (absolute URL required in server context)
     if (cookieHeader) {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_PATH || ""}/api/users/me`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            ...(cookieHeader && { Cookie: cookieHeader }),
-          },
-          cache: "no-store",
+  const h = await nextHeaders();
+      const host = h.get("x-forwarded-host") ?? h.get("host");
+      const proto = h.get("x-forwarded-proto") ?? "http";
+      const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
+      // Fallbacks for local dev if headers are missing
+      const origin = host ? `${proto}://${host}` : process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+
+      const res = await fetch(`${origin}${basePath}/api/users/me`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          ...(cookieHeader && { Cookie: cookieHeader }),
         },
-      );
+        cache: "no-store",
+      });
       isAuthenticated = res.ok;
     }
   } catch (err) {
