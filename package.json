@@ -29,7 +29,7 @@
     "caddy:up": "docker compose -f deploy/compose/docker-compose.yml --profile local --profile proxy up --build -d",
     "caddy:up:no-strict": "REACT_STRICT_MODE=false docker compose -f deploy/compose/docker-compose.yml --profile local --profile proxy up --build -d",
     "caddy:down": "docker compose -f deploy/compose/docker-compose.yml --profile local --profile proxy down --remove-orphans",
-    "caddy:down:force": "docker rm -f backend-local frontend-local bb-portfolio-caddy-local || true",
+    "caddy:down:force": "docker rm -f bb-backend-local bb-frontend-local bb-portfolio-caddy-local || true",
     "caddy:logs": "docker compose -f deploy/compose/docker-compose.yml logs -f caddy-local",
     "caddy:restart": "docker compose -f deploy/compose/docker-compose.yml --profile local --profile proxy up -d --force-recreate caddy-local",
     "caddy:reload": "docker exec bb-portfolio-caddy-local caddy reload --config /etc/caddy/Caddyfile",

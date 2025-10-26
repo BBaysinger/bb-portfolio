@@ -22,17 +22,17 @@ This document summarizes how ports are mapped across environments and how reques
 ## Local (compose: deploy/compose/docker-compose.yml)
 
 - Profile: `local`
-  - frontend-local: 8080 → 3000 (DNS: `frontend-local:3000`)
-  - backend-local: 8081 → 3001 (DNS: `backend-local:3001`)
+  - bb-frontend-local: 8080 → 3000 (DNS: `bb-frontend-local:3000`)
+  - bb-backend-local: 8081 → 3001 (DNS: `bb-backend-local:3001`)
 - Profile: `local-ssg`
-  - frontend-local-ssg-generate: 8080 → 3000 (targets `backend-local-ssg-generate:3001`)
-  - backend-local-ssg-generate: 8081 → 3001 (PORT=3001)
+  - bb-frontend-local-ssg-generate: 8080 → 3000 (targets `bb-backend-local-ssg-generate:3001`)
+  - bb-backend-local-ssg-generate: 8081 → 3001 (PORT=3001)
 
 ## Local with Optional Proxy (profile=proxy)
 
 - Enable with: `COMPOSE_PROFILES=local,proxy docker compose up`
 - Caddy: 8080 → 80, 8443 → 443
-- Proxies to `frontend-local:3000` and `backend-local:3001`
+- Proxies to `bb-frontend-local:3000` and `bb-backend-local:3001`
 
 ## SSR internal targets
 
