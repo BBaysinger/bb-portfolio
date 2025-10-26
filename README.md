@@ -9,7 +9,7 @@
 - Custom Physics Kinetic Orb
 - Custom Sprite Sheet Renderer w/ CSS, canvas, and WebGL rendering options
 - Fluid Responsive System
-  - JavaScript CSS Global Scaling Variable insertion
+  - JavaScript Global CSS Scaling Variable insertion
   - rem-based fluid scaling property SASS mixin
   - static fluid scaling property SASS mixin
 - Weighted Random Animation Sequencer using the sprite sheet renderer

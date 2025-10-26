@@ -117,7 +117,7 @@ const Hero: React.FC = () => {
         gridControllerRef.current?.resumeShadows?.();
       }
     },
-    [circlePaused, hasDragged, updateHasDragged, useSlingerTracking],
+    [circlePaused, hasDragged, updateHasDragged, useSlingerTracking]
   );
 
   const onSlingerDragEnd = useCallback(
@@ -132,7 +132,7 @@ const Hero: React.FC = () => {
         gridControllerRef.current?.resetAllFluxels?.();
       }
     },
-    [useSlingerTracking],
+    [useSlingerTracking]
   );
 
   const onSlingerWallCollision = useCallback(
@@ -168,7 +168,7 @@ const Hero: React.FC = () => {
         gridControllerRef.current?.launchProjectile(x, y, direction);
       }
     },
-    [],
+    []
   );
 
   const startSlingerTracking = useCallback(() => {
@@ -242,7 +242,7 @@ const Hero: React.FC = () => {
           notMounted: !mounted,
           slingerInFlight: isSlingerInFlight,
           slingerNotInFlight: !isSlingerInFlight,
-        },
+        }
       )}
     >
       <Suspense fallback={null}>
@@ -285,7 +285,7 @@ const Hero: React.FC = () => {
 
       <div className={styles.foreground}>
         <ParagraphAnimator
-          introMessage={`Good ${timeOfDay}. This is an ongoing kinetic UI experiment. Grab the orb, drag it around, then give it a toss for fun surprises!`}
+          introMessage={`Good ${timeOfDay}. This is a kinetic UI sandbox where design, code, and curiosity converge. Grab the orb and toss it around — you're part of the experiment now.`}
           paragraphs={quotes}
           className={styles.message}
           paused={!mounted || !isSlingerIdle}
