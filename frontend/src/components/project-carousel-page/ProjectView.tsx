@@ -82,6 +82,9 @@ const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
           newProjectId !== lastKnownProjectId.current &&
           source === Source.SCROLL
         ) {
+          const target = projects[newProjectId];
+          const hrefBase = target?.nda ? "/nda" : "/project";
+          const targetHref = `${hrefBase}/${newProjectId}/`;
           // Mark this navigation as originating from the carousel so we can
           // suppress the subsequent route-driven programmatic scroll.
           try {
@@ -91,10 +94,10 @@ const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
               projectId: newProjectId,
               ts: Date.now(),
             };
-            navigateWithPushState(`/project/${newProjectId}/`, state);
+            navigateWithPushState(targetHref, state);
           } catch {
             // Fallback if history.state is not accessible for any reason
-            navigateWithPushState(`/project/${newProjectId}/`, {
+            navigateWithPushState(targetHref, {
               source: "carousel",
             });
           }

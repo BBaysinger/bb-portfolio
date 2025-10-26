@@ -18,6 +18,8 @@ interface ProjectPageProps {
   };
   /** SSR-computed auth state, used to include NDA projects on first client init. */
   isAuthenticated?: boolean;
+  /** Whether NDA projects are allowed to be included in the active dataset on this route. */
+  allowNda?: boolean;
 }
 
 /**
@@ -34,12 +36,14 @@ interface ProjectPageProps {
 export default function ProjectViewWrapper({
   params,
   isAuthenticated,
+  allowNda,
 }: ProjectPageProps) {
   // Ensure project data is available on the client after hydration.
   const [ready, setReady] = useState(false);
   const initOnce = useRef(false);
   const { isLoggedIn, user } = useAppSelector((s) => s.auth);
-  const includeNdaInActive = Boolean(isAuthenticated) || isLoggedIn || !!user;
+  const includeNdaInActive =
+    Boolean(allowNda) && (Boolean(isAuthenticated) || isLoggedIn || !!user);
 
   useEffect(() => {
     let cancelled = false;
@@ -71,21 +75,29 @@ export default function ProjectViewWrapper({
     return <div>Loading project...</div>;
   }
 
-  return <ProjectViewRouterBridge initialProjectId={params.projectId} />;
+  return (
+    <ProjectViewRouterBridge
+      initialProjectId={params.projectId}
+      allowNda={Boolean(allowNda)}
+    />
+  );
 }
 
 function ProjectViewRouterBridge({
   initialProjectId,
+  allowNda,
 }: {
   initialProjectId: string;
+  allowNda: boolean;
 }) {
   const [projectId, setProjectId] = useState(initialProjectId);
   const { isLoggedIn, user } = useAppSelector((s) => s.auth);
-  const includeNdaInActive = isLoggedIn || !!user;
+  const includeNdaInActive = Boolean(allowNda) && (isLoggedIn || !!user);
 
   // If we navigated in with an NDA project and the active map doesn't have it yet,
   // re-initialize once when auth becomes available.
   useEffect(() => {
+    if (!allowNda) return; // On public route, never pull NDA into active set.
     const ensureNdaPresent = async () => {
       const current = ProjectData.activeProjectsRecord[projectId];
       if (!current && includeNdaInActive) {
@@ -96,7 +108,7 @@ function ProjectViewRouterBridge({
       }
     };
     ensureNdaPresent();
-  }, [includeNdaInActive, projectId]);
+  }, [includeNdaInActive, projectId, allowNda]);
 
   useRouteChange(() => {
     const newId = getDynamicPathParam(-1, initialProjectId);

@@ -71,6 +71,10 @@ const PageButtons: React.FC = () => {
 
   const prevId = ProjectData.prevKey(projectId);
   const nextId = ProjectData.nextKey(projectId);
+  const prevIsNda = !!activeProjects[prevId]?.nda;
+  const nextIsNda = !!activeProjects[nextId]?.nda;
+  const prevHref = `${prevIsNda ? "/nda" : "/project"}/${prevId}/`;
+  const nextHref = `${nextIsNda ? "/nda" : "/project"}/${nextId}/`;
 
   return (
     <div className={styles.projectNav}>
@@ -101,13 +105,13 @@ const PageButtons: React.FC = () => {
       )} */}
 
       <PushStateLink
-        href={`/project/${prevId}/`}
+        href={prevHref}
         className={`${styles.navButton} ${styles.prev}`}
       >
         <div className={styles.inner}></div>
       </PushStateLink>
       <PushStateLink
-        href={`/project/${nextId}/`}
+        href={nextHref}
         className={`${styles.navButton} ${styles.next}`}
       >
         <div className={styles.inner}></div>

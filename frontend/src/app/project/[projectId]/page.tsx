@@ -1,5 +1,5 @@
 import { cookies, headers } from "next/headers";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { Suspense } from "react";
 
 import ProjectViewWrapper from "@/components/project-carousel-page/ProjectViewWrapper";
@@ -109,7 +109,8 @@ export default async function ProjectPage({
     await ProjectData.initialize({
       headers: forwardedHeaders,
       disableCache: true,
-      includeNdaInActive: isAuthenticated,
+      // Public route: never include NDA projects in the active set
+      includeNdaInActive: false,
     });
   } catch (err) {
     // Avoid a hard 500 from upstream flakiness; degrade gracefully
@@ -133,6 +134,7 @@ export default async function ProjectPage({
         <ProjectViewWrapper
           params={{ projectId }}
           isAuthenticated={isAuthenticated}
+          allowNda={false}
         />
       </Suspense>
     );
@@ -148,14 +150,8 @@ export default async function ProjectPage({
       });
     }
     if (isAuthenticated) {
-      return (
-        <Suspense fallback={<div>Loading NDA project...</div>}>
-          <ProjectViewWrapper
-            params={{ projectId }}
-            isAuthenticated={isAuthenticated}
-          />
-        </Suspense>
-      );
+      // Authenticated users should view NDA projects under the /nda route
+      redirect(`/nda/${projectId}`);
     }
     // Not authenticated, show 404 or access denied
     return notFound();

@@ -110,7 +110,11 @@ export default async function NdaProjectPage({
 
   return (
     <Suspense fallback={<div>Loading NDA project...</div>}>
-      <ProjectViewWrapper params={{ projectId }} isAuthenticated={true} />
+      <ProjectViewWrapper
+        params={{ projectId }}
+        isAuthenticated={true}
+        allowNda={true}
+      />
     </Suspense>
   );
 }

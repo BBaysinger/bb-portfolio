@@ -18,7 +18,6 @@ New decisions should be appended chronologically.
 ---
 
 ## 2025-09-14 – Database
-
 **Decision:** Use **MongoDB Atlas (cloud-managed MongoDB)**  
 **Reasoning:**
 
@@ -26,21 +25,15 @@ New decisions should be appended chronologically.
 
 ---
 
-## 2025-10-07 – Complete Infrastructure Automation & Production Deployment
 
 **Decision:** Implement **comprehensive Infrastructure as Code (IaC) with full automation** for zero-manual deployment and production-ready hosting.
-
-**Infrastructure Architecture:**
 
 - **Terraform IaC**: Complete AWS infrastructure defined as code with full automation
 - **EC2 Instance**: t3.medium with automated configuration via user_data scripts
 - **Elastic IP**: Static IP assignment for consistent domain pointing (44.246.43.116)
-- **Nginx Reverse Proxy**: Automated configuration for professional routing and load balancing
 - **Docker Containerization**: Development and production container profiles with systemd management
 - **ECR Integration**: Private container registries with lifecycle policies and IAM authentication
 - **S3 Media Storage**: Environment-specific buckets with proper CORS and encryption
-- **Security**: Comprehensive security groups, encrypted storage, and least-privilege IAM roles
-
 **Automation Features:**
 
 - **One-Command Deployment**: `terraform apply` creates entire infrastructure from scratch
@@ -60,35 +53,21 @@ New decisions should be appended chronologically.
 **Technical Implementation:**
 
 ```bash
-# Infrastructure Management
-terraform plan    # Review changes
-terraform apply   # Deploy infrastructure
-terraform destroy # Clean teardown
-
 # Container Management (via SSH)
 ./bb-portfolio-management.sh status     # Check containers
 ./bb-portfolio-management.sh switch prod # Switch to production profile
-./bb-portfolio-management.sh deploy      # Deploy from ECR
-```
-
 **Verified Capabilities:**
 
 - **Complete Infrastructure Recreation**: Successfully destroyed and recreated entire infrastructure
-- **Automatic Service Configuration**: Docker, Nginx, containers all start without manual intervention
 - **Production Reliability**: Website accessible at bbinteractive.io with professional architecture
 - **Development Workflow**: Easy switching between dev (Docker Hub) and prod (ECR) container sources
 - **Documentation**: Comprehensive README with troubleshooting and management procedures
 
-**Reasoning:**
-
 - **Professional Standards**: Demonstrates enterprise-level DevOps practices and infrastructure management
 - **Reliability**: Eliminates manual configuration errors and ensures consistent deployments
 - **Scalability**: Foundation supports growth from portfolio to production applications
-- **Cost Efficiency**: Infrastructure as Code prevents resource waste and enables easy environment management
-- **Learning Value**: Provides hands-on experience with modern cloud architecture patterns
 - **Portfolio Enhancement**: Shows advanced technical capabilities beyond basic web development
 
-**Alternatives considered:**
 
 - **Platform-as-a-Service (Heroku, Vercel)**: Simpler but less learning value and technical demonstration
 - **Manual EC2 Setup**: More prone to errors, not reproducible, unprofessional for portfolio demonstration
@@ -242,27 +221,19 @@ terraform destroy # Clean teardown
 
 - Manual SSH + docker-compose up (too manual, not professional).
 - Other CI/CD services (CircleCI, GitLab CI): possible, but GitHub Actions is simpler and free.
-
 **Status:** ✅ Active
 
 ---
 
 ## 2025-09-14 – Dev Environment Hosting
-
-**Decision:** Run **both dev and prod environments on the same EC2 instance** using separate Docker Compose projects.
-
-- Reverse proxy routes traffic:
   - `mysite.com` → prod containers
-  - `dev.mysite.com` → dev containers
 
 **Reasoning:**
 
 - Avoids cost of a second EC2 instance (~$7–8/mo).
 - Still provides a live dev environment accessible at a separate subdomain.
 - Keeps deployment consistent with production (same stack).
-- Sufficient for portfolio purposes even if dev impacts prod occasionally.
 
-**Alternatives considered:**
 
 - **Separate EC2 instance for dev**: Cleaner isolation, but doubles costs.
 - **Ephemeral dev envs (Fly.io, Railway, etc.)**: Cheaper, but less consistent with prod.
@@ -270,30 +241,12 @@ terraform destroy # Clean teardown
 
 **Status:** ✅ Active
 
----
-
-## 2025-09-15 – Instance Consolidation & Key Management
-
-**Decision:** Consolidate to a single EC2 instance named `portfolio` with one keypair.
-**Reasoning:**
-
-- Simplifies management (one server to update/patch).
 - Avoids confusion of juggling multiple `.pem` files.
 - Clearer mental model for deployment pipeline (prod + dev both on one host).
-
-**Alternatives considered:**
-
-- **Two separate EC2 instances (frontend + backend)**: Tested, but unnecessarily complex and doubled cost.
-- **Separate dev EC2**: Cleaner but unjustifiable cost.
-- **Reusing multiple keypairs**: Works, but adds complexity for no real gain.
 
 **Status:** ✅ Active
 
 ## 2025-09-16 – Base OS Migration
-
-**Decision:** Standardize on **Debian (Bookworm)** as the base OS for the EC2 instance.
-**Reasoning:**
-
 - More stable and lightweight than Ubuntu, with fewer default packages and less bloat.
 - Security updates are more conservative, reducing risk of sudden package breakage.
 - Long support cycles make it easier to “set and forget” for a low-maintenance portfolio server.
@@ -310,45 +263,37 @@ terraform destroy # Clean teardown
 
 ## 2025-09-18 – Dev Deployment Strategy
 
-**Decision:** Keep **dev environment rebuilds manual on EC2**, while keeping **prod automated via CI/CD**.
+**Decision:** Keep dev environment rebuilds manual on EC2, with prod automated via CI/CD.
 
-- **Prod (`main` branch)** → Auto build/test/push via GitHub Actions → push images to ECR → deploy with `docker compose --profile prod`.
-- **Dev (`dev` branch)** → Manual trigger: SSH into EC2 or run a GitHub Actions workflow button to pull latest code and run `docker compose --profile dev up -d --build`.
 **Reasoning:**
 
-- Keeps CI/CD simple: only `main` branch triggers full rebuilds and ECR pushes.
-- Reflects professional workflow separation: **prod is automated, dev is flexible/manual**.
+- Keeps CI/CD simple: only `main` triggers full rebuilds and ECR pushes
+- Reflects professional separation: prod is automated/stable, dev is flexible/manual
 
 **Alternatives considered:**
-- **Have `dev` auto-deploy like prod**: More consistent, but wastes builds on half-finished commits and requires managing separate ECR repos.
+
+- Auto-deploy dev like prod (more complexity/waste for half-finished commits)
 
 **Status:** ✅ Active
 
+---
+
 ## 2025-09-18 – Multi-Environment Docker Strategy
 
-**Decision:** Use **Docker Compose profiles** for environment separation with distinct deployment strategies.
-
-- **Local (`local` profile)**: Volume mounts + hot reload for development
-- **Development (`dev` profile)**: Build on EC2 for remote testing
-- **Production (`prod` profile)**: Pre-built ECR images for reliable deployments
+**Decision:** Use Docker Compose profiles for environment separation with distinct deployment strategies.
 
 **Reasoning:**
 
-- Single `docker-compose.yml` file reduces configuration drift between environments.
-- Local development gets fast iteration with volume mounts and file watching.
-- Production gets atomic deployments with pre-tested, immutable images.
-- Development environment provides middle ground for testing production builds remotely.
-- Profiles prevent accidental cross-environment interference.
+- Single `docker-compose.yml` reduces drift across environments
+- Local: volume mounts + hot reload
+- Dev (EC2): build on host for remote testing
+- Prod: pre-built ECR images for reliable deployments
+- Profiles prevent accidental cross-environment interference
 
-**Alternatives considered:**
+**Alternatives considered:** Separate files per env; ad-hoc flags
 
+**Status:** ✅ Active
 
----
-
-
-```yaml
-healthcheck:
-  test:
 ---
 
 ## 2025-10-19 – Deployment Orchestrator (Terraform + GitHub Actions + SSH Fallback)
@@ -395,30 +340,6 @@ healthcheck:
   - `infra/bb-portfolio-management.sh` auto ECR login for prod flows and compose v1/v2 fallback on the host, to avoid image pull auth issues.
 
 - **Status:** ✅ Active
-
-    [
-      "CMD",
-      "node",
-      "-e",
-      "const net = require('net'); const client = net.createConnection(3000, 'localhost', () => { console.info('connected'); client.end(); process.exit(0); }); client.on('error', () => process.exit(1));",
-    ]
-`````
-
-**Reasoning:**
-
-- More reliable during application startup phase when HTTP routes may not be ready.
-- Avoids dependency on specific endpoint implementations or authentication.
-- Works consistently across different application frameworks and configurations.
-- Faster response time than HTTP checks with complex routing logic.
-- Less prone to false negatives during deployment windows.
-
-**Alternatives considered:**
-
-- **HTTP GET requests**: More semantic but prone to startup timing issues and authentication complications.
-- **Simple port checks without Node.js**: Platform-dependent and less precise.
-- **No health checks**: Missing observability and automatic recovery capabilities.
-
-**Status:** ✅ Active
 
 ---
 
@@ -749,3 +670,20 @@ MONGODB_URI=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/bb-portfol
   - Clear isolation across environments; simple promotion via `aws s3 sync` per prefix or whole bucket.
   - Stable prefixes ensure DB keys remain portable across backends and CDNs.
 - **Status:** ✅ Active (supersedes earlier “assets” bucket naming in 2025-09-20 entry; that entry remains for historical context)
+
+---
+
+## 2025-10-25 – NDA Routing and Rendering Segmentation
+
+- **Decision:** Strictly segment NDA content under a dedicated route and keep public routes NDA-free.
+- **Context:**
+  - Public project route `/project/[projectId]` never includes NDA items in the active dataset (even when authenticated).
+  - NDA-only route `/nda/[projectId]` requires authentication and is rendered dynamically per request (no ISR), and is noindex.
+  - Server behavior: if an authenticated user requests a public NDA slug, redirect to `/nda/[projectId]`; unauthenticated users receive 404.
+  - Client behavior: carousel and prev/next links are route-aware (public → `/project/*`, NDA → `/nda/*`) and never leak NDA data.
+- **Reasoning:** Prevent accidental NDA exposure while supporting mixed navigation; clear separation improves safety and clarity of intent.
+- **Alternatives considered:**
+  - Serve NDA under `/project/*` when authenticated (simpler URLs but higher risk of leakage/accidental exposure).
+  - Completely separate datasets without route-aware navigation (safer but worse UX when switching between public and NDA projects).
+- **Status:** ✅ Active
+`````
