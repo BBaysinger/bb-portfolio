@@ -6,6 +6,8 @@ import {
   ReactNode,
 } from "react";
 
+import { LOGIN_FAILED_MESSAGE } from "../constants/messages";
+
 interface User {
   id: string;
   email: string;
@@ -74,7 +76,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       if (!res.ok) {
         const errorData = await res.json();
-        throw new Error(errorData.error || "Login failed");
+        throw new Error(errorData.error || LOGIN_FAILED_MESSAGE);
       }
 
       const data = await res.json();

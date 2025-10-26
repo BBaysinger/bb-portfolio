@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+
+import { LOGIN_FAILED_MESSAGE } from "@/constants/messages";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
@@ -82,7 +84,7 @@ export async function POST(request: NextRequest) {
 
     if (!response.ok) {
       return NextResponse.json(
-        { error: data.message || "Login failed" },
+        { error: data.message || LOGIN_FAILED_MESSAGE },
         { status: response.status },
       );
     }

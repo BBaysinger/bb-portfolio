@@ -1,5 +1,7 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 
+import { LOGIN_FAILED_MESSAGE } from "../constants/messages";
+
 export interface User {
   id: string;
   email: string;
@@ -63,7 +65,7 @@ export const loginUser = createAsyncThunk(
 
       if (!response.ok) {
         const errorData = await response.json();
-        return rejectWithValue(errorData.error || "Login failed");
+        return rejectWithValue(errorData.error || LOGIN_FAILED_MESSAGE);
       }
 
       const data = await response.json();
