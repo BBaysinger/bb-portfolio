@@ -38,26 +38,44 @@ const ProjectsList = async () => {
       disableCache: true,
     });
 
-    // Server-side auth check via local API proxy (absolute URL required in server context)
+    // Server-side auth check via local API route.
+    // Prefer a relative URL to avoid container networking issues when SSR runs behind proxies.
     if (cookieHeader) {
-      const h = await nextHeaders();
-      const host = h.get("x-forwarded-host") ?? h.get("host");
-      const proto = h.get("x-forwarded-proto") ?? "http";
       const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
-      // Fallbacks for local dev if headers are missing
-      const origin = host
-        ? `${proto}://${host}`
-        : process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+      const tryAuthFetch = async (url: string) =>
+        fetch(url, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            ...(cookieHeader && { Cookie: cookieHeader }),
+          },
+          cache: "no-store",
+        });
 
-      const res = await fetch(`${origin}${basePath}/api/users/me`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          ...(cookieHeader && { Cookie: cookieHeader }),
-        },
-        cache: "no-store",
-      });
-      isAuthenticated = res.ok;
+      let res: Response | null = null;
+      try {
+        // Try relative route first (works in Next.js server runtime)
+        res = await tryAuthFetch(`${basePath}/api/users/me`);
+        if (!res.ok) {
+          // Some setups enforce trailing slash for API routes
+          const alt = await tryAuthFetch(`${basePath}/api/users/me/`);
+          if (alt.ok) res = alt;
+        }
+      } catch (_err) {
+        // Fallback to absolute origin if relative fetch fails (e.g., custom runtimes)
+        try {
+          const h = await nextHeaders();
+          const host = h.get("x-forwarded-host") ?? h.get("host");
+          const proto = h.get("x-forwarded-proto") ?? "http";
+          const origin = host
+            ? `${proto}://${host}`
+            : process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+          res = await tryAuthFetch(`${origin}${basePath}/api/users/me`);
+        } catch {
+          // swallow; we'll treat as unauthenticated below
+        }
+      }
+      isAuthenticated = Boolean(res?.ok);
     }
   } catch (err) {
     console.error("ProjectsList: failed to initialize ProjectData", err);
