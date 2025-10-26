@@ -113,6 +113,7 @@
 - Global light/dark mode preferences via Redux
 - Fluxels should be implemented in WebGl and/or Pixi shaders
 - Implement Testing Frameworks implemented (once experiments have matured)
+- Capture and Store Data about user interactions
 - Accessability should be improved with respect to ARIA, rem font scaling, etc...
 
 Note: Earlier plans for “custom Express/Mongo backend” were superseded by the fully integrated Payload CMS backend present in this repo.

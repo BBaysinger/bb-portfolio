@@ -32,20 +32,18 @@ export default async function ProjectPage({
 }) {
   const { projectId } = await params;
 
-  // Forward the incoming request headers (Host, X-Forwarded-*) so we can
-  // reliably construct absolute same-origin URLs for server-side fetches.
-  // This ensures Next.js rewrites handle cookie forwarding to the backend.
-  const incoming = await headers();
+  // Only forward the Cookie header to the backend. Forwarding the full incoming
+  // header set (including Host/X-Forwarded-*) can confuse the upstream service
+  // when we call it via its internal DNS name, leading to 404s. Let fetch set
+  // the correct Host header for the absolute backend URL, and pass cookies only.
+  const _incoming = await headers();
   const cookieStore = await cookies();
   const cookieHeader = cookieStore
     .getAll()
     .map((c) => `${c.name}=${c.value}`)
     .join("; ");
-  const forwardedHeaders: HeadersInit = (() => {
-    // Clone all request headers, then explicitly apply Cookie from cookieStore
-    // (headers() may redact or omit it depending on config).
-    // Convert ReadonlyHeaders to a plain Headers instance
-    const h = new Headers(Object.fromEntries(incoming.entries()));
+  const cookieOnlyHeaders: HeadersInit = (() => {
+    const h = new Headers();
     if (cookieHeader) h.set("cookie", cookieHeader);
     return h;
   })();
@@ -107,7 +105,7 @@ export default async function ProjectPage({
   // Ensure data is initialized before accessing records
   try {
     await ProjectData.initialize({
-      headers: forwardedHeaders,
+      headers: cookieOnlyHeaders,
       disableCache: true,
       // Public route: never include NDA projects in the active set
       includeNdaInActive: false,

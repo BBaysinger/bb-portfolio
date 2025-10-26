@@ -117,7 +117,7 @@ const Hero: React.FC = () => {
         gridControllerRef.current?.resumeShadows?.();
       }
     },
-    [circlePaused, hasDragged, updateHasDragged, useSlingerTracking]
+    [circlePaused, hasDragged, updateHasDragged, useSlingerTracking],
   );
 
   const onSlingerDragEnd = useCallback(
@@ -132,7 +132,7 @@ const Hero: React.FC = () => {
         gridControllerRef.current?.resetAllFluxels?.();
       }
     },
-    [useSlingerTracking]
+    [useSlingerTracking],
   );
 
   const onSlingerWallCollision = useCallback(
@@ -168,7 +168,7 @@ const Hero: React.FC = () => {
         gridControllerRef.current?.launchProjectile(x, y, direction);
       }
     },
-    []
+    [],
   );
 
   const startSlingerTracking = useCallback(() => {
@@ -242,7 +242,7 @@ const Hero: React.FC = () => {
           notMounted: !mounted,
           slingerInFlight: isSlingerInFlight,
           slingerNotInFlight: !isSlingerInFlight,
-        }
+        },
       )}
     >
       <Suspense fallback={null}>
