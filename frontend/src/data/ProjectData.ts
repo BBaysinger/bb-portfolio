@@ -78,7 +78,7 @@ async function fetchPortfolioProjects(opts?: {
     })();
 
   // Attempt to infer the public origin of the current request for server-side relative fetches
-  const inferRequestOrigin = (): string => {
+  const _inferRequestOrigin = (): string => {
     if (!requestHeaders) return "";
     const get = (name: string): string | undefined => {
       if (Array.isArray(requestHeaders)) {
@@ -105,20 +105,11 @@ async function fetchPortfolioProjects(opts?: {
     return `${proto}://${host}`.replace(/\/$/, "");
   };
 
+  // Always use absolute backend URL on the server to avoid any frontend /api
+  // redirect nuances (e.g., trailingSlash loops). We still forward Cookie headers
+  // so the backend can perform auth-aware responses.
   const primaryUrl = isServer
-    ? hasRequestCookies
-      ? (() => {
-          // Node's fetch requires an absolute URL; build one against the current request origin
-          const origin =
-            inferRequestOrigin() ||
-            (
-              process.env.FRONTEND_PUBLIC_URL ||
-              process.env.NEXT_PUBLIC_SITE_URL ||
-              ""
-            ).replace(/\/$/, "");
-          return origin ? `${origin}${serverPath}` : serverPath;
-        })()
-      : `${base.replace(/\/$/, "")}${serverPath}`
+    ? `${base.replace(/\/$/, "")}${serverPath}`
     : path;
   const fallbackUrl =
     isServer && serviceDnsFallback
