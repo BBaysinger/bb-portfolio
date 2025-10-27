@@ -39,12 +39,13 @@ const Greeting: React.FC = () => {
             </div>
             <div ref={addToRefs}>
               <p>
-                This portfolio includes a range of work—from early projects
-                built with vanilla ES5, Flash, jQuery, and Haxe, to recent
-                builds in React and modern interactive frameworks. While some
-                legacy projects reflect the tools of their time, my direction
-                today is focused on modern, performant interfaces. Please
-                explore—and if you&apos;d like to connect, let&apos;s talk!
+                This portfolio spans projects from early interfaces in Flash,
+                jQuery, and Haxe to modern builds in React and contemporary
+                frameworks. I've kept some older pieces because I'm still proud
+                of what they accomplished with the tools of the time. They
+                represent a throughline I've carried into today's fluid, dynamic
+                interfaces. Please explore—and reach out if
+                something&nbsp;resonates.
               </p>
             </div>
             <a ref={addToRefs} href="#projects-list">
