@@ -53,6 +53,7 @@
   margin-bottom: -0.3em;
   margin-top: -0.1em;
   margin-right: 0;
+  white-space: nowrap;
   @include remRange(font-size, 14px, 24px);
   @include breakpointUp($b992px) {
     line-height: 0.69em;
