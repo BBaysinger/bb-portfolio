@@ -242,7 +242,7 @@ const Footer: React.FC<FooterProps> = ({
               Built with React
             </a>
           </div>
-          <Link className={styles.footerLink} href="/portfolio#top">
+          <Link className={styles.footerLink} href="https://bbinteractive.io">
             &copy; <span style={{ color: "#fff" }}>BBInteractive</span>.io
           </Link>
         </div>
