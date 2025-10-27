@@ -1,0 +1,20 @@
+@use "@/styles/variables" as *;
+@use "@/styles/mixins" as *;
+
+// Shared graphite page styles as a mixin so CSS Modules can include without @extend,
+// which produces comma-separated selectors that Turbopack treats as ambiguous.
+@mixin form-page-scope() {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  > div {
+    width: 560px;
+    max-width: 92%;
+    color: #aaa;
+  }
+
+  h1 {
+    color: white;
+  }
+}

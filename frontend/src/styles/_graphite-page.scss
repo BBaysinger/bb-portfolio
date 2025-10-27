@@ -3,7 +3,7 @@
 
 // Shared graphite page styles as a mixin so CSS Modules can include without @extend,
 // which produces comma-separated selectors that Turbopack treats as ambiguous.
-@mixin graphitePageScope() {
+@mixin graphite-page-scope() {
   // color: white;
   // display: flex;
   // justify-content: center;
