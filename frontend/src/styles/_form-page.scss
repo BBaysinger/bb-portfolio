@@ -17,4 +17,10 @@
   h1 {
     color: white;
   }
+
+  input, textarea {
+    &:-webkit-autofill { // KEEP: Styles after autofill by browser
+      -webkit-text-fill-color: #fff;
+    }
+  }
 }
