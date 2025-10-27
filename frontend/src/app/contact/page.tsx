@@ -93,60 +93,58 @@ const ContactPage = () => {
         className={`${styles.contactPage}`}
         style={{ minHeight: `${clientHeight}px` }}
       >
-        <div className={`container`}>
-          <div className={`${styles.form} row`}>
-            <h1>Let's Connect</h1>
-            <p>
-              Have a project in mind or just want to say hello? Drop me a
-              message, and I&apos;ll get back to you as soon as possible!
-            </p>
-            <form onSubmit={handleSubmit}>
-              <div className={styles.sameRow}>
-                <label className={styles.adjacent}>
-                  <div>Name:</div>
-                  <input
-                    type="text"
-                    name="name"
-                    placeholder="Your Name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    autoComplete="name"
-                    required
-                  />
-                </label>
-                <label className={styles.adjacent}>
-                  <div>Email:</div>
-                  <input
-                    type="email"
-                    name="email"
-                    placeholder="name@example.com"
-                    value={formData.email}
-                    onChange={handleChange}
-                    autoComplete="email"
-                    required
-                  />
-                </label>
-              </div>
-              <label>
-                <div>Message:</div>
-                <textarea
-                  name="message"
-                  value={formData.message}
+        <div>
+          <h1>Let's Connect</h1>
+          <p>
+            Have a project in mind or just want to say hello? Drop me a message,
+            and I&apos;ll get back to you as soon as possible!
+          </p>
+          <form onSubmit={handleSubmit}>
+            <div className={styles.sameRow}>
+              <label className={styles.adjacent}>
+                <div>Name:</div>
+                <input
+                  type="text"
+                  name="name"
+                  placeholder="Your Name"
+                  value={formData.name}
                   onChange={handleChange}
+                  autoComplete="name"
                   required
                 />
               </label>
-              <button type="submit">Send</button>
-            </form>
-            <p
-              className={clsx(
-                styles.statusMessage,
-                isError && styles.errorMessage,
-              )}
-            >
-              {statusText}
-            </p>
-          </div>
+              <label className={styles.adjacent}>
+                <div>Email:</div>
+                <input
+                  type="email"
+                  name="email"
+                  placeholder="name@example.com"
+                  value={formData.email}
+                  onChange={handleChange}
+                  autoComplete="email"
+                  required
+                />
+              </label>
+            </div>
+            <label>
+              <div>Message:</div>
+              <textarea
+                name="message"
+                value={formData.message}
+                onChange={handleChange}
+                required
+              />
+            </label>
+            <button type="submit">Send</button>
+          </form>
+          <p
+            className={clsx(
+              styles.statusMessage,
+              isError && styles.errorMessage,
+            )}
+          >
+            {statusText}
+          </p>
         </div>
       </div>
     </>

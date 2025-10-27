@@ -1,23 +1,10 @@
 @use "@/styles/mixins" as *;
 @use "@/styles/variables" as *;
-@use "@/styles/graphitePages" as graphite;
+@use "@/styles/graphite-page" as graphite-page;
+@use "@/styles/form-page" as form-page;
 @use "@/styles/globals.global" as *;
 
 .contactPage {
-  @include graphite.graphitePageScope();
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: #bbb;
-  padding: 16px;
-
-  // > div {
-  //   width: 500px;
-  //   max-width: 100%;
-  //   position: relative;
-  // }
-
-  // h1 {
-  //   color: white;
-  // }
+  @include graphite-page.graphite-page-scope();
+  @include form-page.form-page-scope();
 }
