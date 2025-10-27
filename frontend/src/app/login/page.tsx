@@ -96,7 +96,7 @@ const LoginPage = () => {
               <input
                 type="email"
                 id="email"
-                placeholder=""
+                placeholder="your@email.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={isLoading}
@@ -109,7 +109,7 @@ const LoginPage = () => {
               <input
                 type="password"
                 id="password"
-                placeholder=""
+                placeholder="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={isLoading}

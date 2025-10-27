@@ -4,6 +4,10 @@
 // Shared graphite page styles as a mixin so CSS Modules can include without @extend,
 // which produces comma-separated selectors that Turbopack treats as ambiguous.
 @mixin graphitePageScope() {
+  // color: white;
+  // display: flex;
+  // justify-content: center;
+  // align-items: center;
   padding-top: $navBarHeight + 6px !important;
   overflow: hidden;
   background-color: black;
@@ -11,6 +15,14 @@
   background-repeat: no-repeat;
   background-size: 100% 100%;
   background-position: 0 0;
+
+  // > div {
+  //   max-width: 560px;
+  // }
+
+  // h1 {
+  //   color: white;
+  // }
 
   a {
     color: white;
@@ -33,6 +45,11 @@
   select,
   textarea {
     margin-left: -2px;
+    outline: 0 !important;
+  }
+
+  :is(input, textarea)[placeholder]::placeholder {
+    opacity: 0.5;
   }
 
   .sameRow {
@@ -63,9 +80,12 @@
       }
     }
   }
-}
 
-// Keep the original global class for non-module usage
-// .graphitePage {
-//   @include graphitePageScope();
-// }
+  .statusMessage {
+    color: #51cf66;
+  }
+
+  .errorMessage {
+    color: #cc0000;
+  }
+}
