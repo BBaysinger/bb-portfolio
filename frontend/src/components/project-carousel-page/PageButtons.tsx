@@ -78,32 +78,6 @@ const PageButtons: React.FC = () => {
 
   return (
     <div className={styles.projectNav}>
-      {/* Debug info - remove after fixing */}
-      {/* {process.env.NODE_ENV === "development" && (
-        <div
-          style={{
-            position: "fixed",
-            top: "100px",
-            right: "10px",
-            background: "rgba(0,0,0,0.8)",
-            color: "white",
-            padding: "10px",
-            borderRadius: "5px",
-            fontSize: "12px",
-            fontFamily: "monospace",
-            zIndex: 9999,
-            maxWidth: "300px",
-          }}
-        >
-          <div>Current: {projectId}</div>
-          <div>Index: {ProjectData.projectIndex(projectId)}</div>
-          <div>Prev: {prevId}</div>
-          <div>Next: {nextId}</div>
-          <div>ActiveKeys: {ProjectData.activeKeys.length}</div>
-          <div>InRecord: {!!activeProjects[projectId] ? "YES" : "NO"}</div>
-        </div>
-      )} */}
-
       <PushStateLink
         href={prevHref}
         className={`${styles.navButton} ${styles.prev}`}

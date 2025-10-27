@@ -42,3 +42,15 @@
     }
   }
 }
+
+// Placeholder class for anchors/buttons used by NavLinks.tsx.
+// Keeping this defined avoids "undefined" class names in markup and
+// gives us a hook if we want to add per-link tweaks later.
+.link {
+  --navlinks-hook: 1;
+}
+
+// Optional hook for the Login/Logout list item (currently no extra styles).
+.login {
+  --navlinks-hook: 1;
+}

@@ -63,6 +63,7 @@ h4.fadeIn {
 
 /////////////////////////////////////////////////////////////
 // Forms
+// TODO: Move to form-page.scss or another dedicated forms file
 /////////////////////////////////////////////////////////////
 
 form {
@@ -94,7 +95,7 @@ form {
 
   label {
     width: 100%;
-    margin-bottom: 10px;
+    // margin-bottom: 10px;
     > *:first-child {
       margin-bottom: 3px;
     }
@@ -107,12 +108,12 @@ form {
     border: 0;
     padding-left: 10px;
     color: #fff;
-    -webkit-text-fill-color: #fff; /* Ensures correct color after autofill */
     border-radius: 4px;
     height: 36px;
     width: 200px;
     font-size: 16px; /* Prevents mobile zoom */
     transition: background-color 5000s ease-in-out 0s; /* Prevent autofill flash */
+    margin-bottom: 0 !important;
   }
 
   textarea {
@@ -126,13 +127,14 @@ form {
   }
 }
 
-// .error {
-//   height: 16px;
-//   color: #990000;
-// }
+.error {
+  height: 16px;
+  color: #990000;
+}
 
 /////////////////////////////////////////////////////////////
 // Standard textual page layout
+// TODO: Move to CV page or dedicated file
 /////////////////////////////////////////////////////////////
 
 .standardPage {

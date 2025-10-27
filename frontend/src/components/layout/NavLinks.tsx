@@ -51,7 +51,10 @@ const NavLinks: React.FC<NavLinksProps> = ({ onClick, className }) => {
         </Link>
       </li>
 
-      <AuthNavItem className={styles.login} />
+      <AuthNavItem
+        className={styles.login}
+        linkClassName={linkClass("login")}
+      />
     </ul>
   );
 };
