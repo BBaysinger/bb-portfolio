@@ -19,7 +19,6 @@ Deployments are orchestrated via a single script that provisions/updates AWS wit
 - Weighted Random Animation Sequencer using the sprite sheet renderer
 - Page Slide-Out Mobile Navigation
 - Transform-Positioned Footer
-- Scroll-Aware Project List Highlighting
 - Teletype Paragraph Animation Effect
 - Magnetic/Sticky Animated DOM Elements
 - Scroll-Aware Page Anchor Link Highlighting
