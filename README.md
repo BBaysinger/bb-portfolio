@@ -215,4 +215,4 @@ For deep dives and implementation details:
 
 Updated EC2 IP: 44.246.43.116
 
-Last updated: Tue Oct 21, 2025
+Last updated: Tue Oct 29, 2025
