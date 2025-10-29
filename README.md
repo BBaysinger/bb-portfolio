@@ -1,5 +1,7 @@
 # Portfolio Website
 
+This portfolio showcases a fully custom interactive environment—built entirely without any 3D or physics frameworks. Every animated and spatial element is hand-engineered in JavaScript, React, and CSS. The parallaxing carousel, kinetic orb, and sheet animator are all original systems, including a sprite sheet engine developed from scratch for CSS, Canvas, and WebGL rendering. The “Fluxel” grid—a field of independently animated React components—simulates 3D depth purely through math-driven shadow manipulation, turning flat 8-bit pixels into a living, responsive surface.
+
 [Visit the Live Site](https://bbinteractive.io)
 
 ### Frontend UX & Interaction
