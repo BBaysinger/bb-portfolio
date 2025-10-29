@@ -87,6 +87,15 @@ function loadSecrets(): SecretsConfig {
 function generateTerraformVars(secrets: SecretsConfig): string {
   const { strings } = secrets;
 
+  // Get EC2 instance IP from environment variable (required)
+  const ec2InstanceIp = process.env.EC2_INSTANCE_IP;
+
+  if (!ec2InstanceIp) {
+    console.error("❌ Error: EC2_INSTANCE_IP environment variable is required");
+    console.error("   Please set it in .env or .env.local");
+    process.exit(1);
+  }
+
   // Base configuration (non-secret values)
   const baseConfig = `# =============================================================================
 # Terraform Variables - Auto-generated from github-secrets.private.json5
@@ -113,10 +122,10 @@ media_envs = ["dev", "prod"]
 media_cors_allowed_origins = [
   "http://localhost:3000",
   "http://localhost:3001",
-  "http://44.246.43.116:3000",
-  "http://44.246.43.116:3001",
-  "http://44.246.43.116:4000",
-  "http://44.246.43.116:4001",
+  "http://${ec2InstanceIp}:3000",
+  "http://${ec2InstanceIp}:3001",
+  "http://${ec2InstanceIp}:4000",
+  "http://${ec2InstanceIp}:4001",
 ]
 
 `;

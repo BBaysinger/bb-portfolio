@@ -17,6 +17,8 @@
     "build": "next build",
     // 🏗️ Build the  when-ready component
     "build:when-ready": "node ./scripts/pre-build.mjs",
+    //
+    "turbopack": "NEXT_TELEMETRY_DISABLED=1 next build --turbopack",
     // Preview the built static site using serve
     "preview": "npx serve out",
     // Start Next.js production server
@@ -30,6 +32,10 @@
   },
   // Runtime dependencies for the frontend application
   "dependencies": {
+    //
+    "@aws-sdk/client-s3": "^3.679.0",
+    //
+    "@aws-sdk/s3-request-presigner": "^3.679.0",
     // Modern Redux state management with simplified API
     "@reduxjs/toolkit": "^2.9.2",
     // CSS framework for responsive design and components
@@ -69,14 +75,14 @@
     "@typescript-eslint/parser": "^8.46.2",
     // JavaScript/TypeScript linting engine (v9 for latest rules)
     "eslint": "^9",
+    // Next.js ESLint configuration with React and accessibility rules
+    "eslint-config-next": "15.5.6",
     // ESLint plugin for React Hooks rules and best practices
     "eslint-plugin-react-hooks": "^6.1.1",
     // ESLint plugin for React Refresh (fast refresh) compatibility
     "eslint-plugin-react-refresh": "^0.4.23",
     // Load environment variables during local builds and scripts
     "dotenv": "17.2.3",
-    // Next.js ESLint configuration with React and accessibility rules
-    "eslint-config-next": "15.5.6",
     // Opinionated code formatter for consistent style
     "prettier": "^3.6.2",
     // TypeScript compiler (v5 for latest language features)

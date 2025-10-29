@@ -6,12 +6,25 @@
 
 set -e
 
-# Configuration - Get IP from Terraform output or use default
-INSTANCE_IP=$(terraform output -raw bb_portfolio_elastic_ip 2>/dev/null || echo "44.246.43.116")
+# Configuration - Use environment variable as single source of truth
+INSTANCE_IP="${EC2_INSTANCE_IP}"
 SSH_KEY="$HOME/.ssh/bb-portfolio-site-key.pem"
 SSH_USER="ec2-user"
-AWS_ACCOUNT_ID="778230822028"
+AWS_ACCOUNT_ID="${AWS_ACCOUNT_ID}"
 ECR_REGION="us-west-2"
+
+# Validate required environment variables
+if [ -z "$INSTANCE_IP" ]; then
+    echo "❌ Error: EC2_INSTANCE_IP environment variable is required"
+    echo "   Please set it in .env or .env.local"
+    exit 1
+fi
+
+if [ -z "$AWS_ACCOUNT_ID" ]; then
+    echo "❌ Error: AWS_ACCOUNT_ID environment variable is required"
+    echo "   Please set it in .env or .env.local"
+    exit 1
+fi
 
 # Function to execute commands on the remote server
 run_remote() {

@@ -28,9 +28,23 @@ terraform plan
 terraform apply
 ```
 
-### 2. Get Connection Info
+### 2. Sync Environment Variables
 
-After deployment, Terraform will output important connection details:
+After deployment, sync the infrastructure state to your environment configuration:
+
+```bash
+# Sync .env file with current Terraform state
+./sync-env-from-terraform.sh
+
+# Or from repo root:
+npm run infra:sync-env
+```
+
+This ensures your `.env` file contains the actual deployed infrastructure values (like Elastic IP).
+
+### 3. Get Connection Info
+
+After deployment, Terraform outputs important connection details:
 
 ```bash
 # Get the public IP address

@@ -17,6 +17,8 @@
   //   "backend"
   // ],
   "scripts": {
+    // 🚀 Experimental build using Turbopack for faster frontend builds
+    "turbopack": "cd frontend && NEXT_TELEMETRY_DISABLED=1 npx next build --turbopack",
     // =============================================================================
     // 🚀 DEVELOPMENT MODES OVERVIEW (for junior developers)
     // =============================================================================
@@ -208,7 +210,19 @@
     // 🛠️ Infrastructure as Code: Full redeployment
     "deploy:full": "bash deploy/scripts/deployment-orchestrator.sh --build-images both --profiles both --refresh-env",
     // Sync NGINX configs to a remote host over SSH (override with NGINX_HOST/NGINX_KEY)
-    "sync:nginx": "bash ./deploy/scripts/sync-nginx-config.sh --host ${NGINX_HOST:-ec2-user@44.246.43.116} --key ${NGINX_KEY:-$HOME/.ssh/bb-portfolio-site-key.pem}",
+    "sync:nginx": "bash ./deploy/scripts/sync-nginx-config.sh --host ${NGINX_HOST:-ec2-user@$EC2_INSTANCE_IP} --key ${NGINX_KEY:-$HOME/.ssh/bb-portfolio-site-key.pem}",
+    // 📂 Publish project data to development environment
+    "projects:publish:dev": "bash scripts/publish-projects.sh --profile dev",
+    // 📂 Preview project publishing to development (dry run - shows what would be published)
+    "projects:publish:dev:dry-run": "bash scripts/publish-projects.sh --profile dev --dry-run",
+    // 📂 Publish project data to production environment
+    "projects:publish:prod": "bash scripts/publish-projects.sh --profile prod",
+    // 📂 Preview project publishing to production (dry run - shows what would be published)
+    "projects:publish:prod:dry-run": "bash scripts/publish-projects.sh --profile prod --dry-run",
+    // 🏗️ Infrastructure: Sync .env file with Terraform state (interactive)
+    "infra:sync-env": "cd infra && bash sync-env-from-terraform.sh",
+    // 🏗️ Infrastructure: Sync .env file with Terraform state (skip confirmation)
+    "infra:sync-env:force": "cd infra && bash sync-env-from-terraform.sh --force",
   },
   // Development tooling for the monorepo root (formatting, linting, TS, runners)
   "devDependencies": {
