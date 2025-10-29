@@ -14,13 +14,13 @@ output "elastic_ip" {
 }
 
 output "media_bucket_names" {
-  description = "Map of env => S3 bucket name for media"
-  value       = { for env, b in aws_s3_bucket.media : env => b.bucket }
+  description = "Map of access_level => S3 bucket name for media"
+  value       = { for access_level, b in aws_s3_bucket.media : access_level => b.bucket }
 }
 
 output "media_bucket_arns" {
-  description = "Map of env => S3 bucket ARN for media"
-  value       = { for env, b in aws_s3_bucket.media : env => b.arn }
+  description = "Map of access_level => S3 bucket ARN for media"
+  value       = { for access_level, b in aws_s3_bucket.media : access_level => b.arn }
 }
 
 output "ecr_frontend_repository_url" {

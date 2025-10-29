@@ -6,8 +6,10 @@
  *
  * Usage:
  *   # Run locally (automatically loads environment from .github-secrets.private.json5):
- *   npm run migrate:media-to-s3 -- --env prod --dry-run  # Preview changes
- *   npm run migrate:media-to-s3 -- --env prod            # Apply changes
+ *   npm run migrate:media-to-s3 -- --env dev --dry-run   # Preview changes to dev media bucket
+ *   npm run migrate:media-to-s3 -- --env prod --dry-run  # Preview changes to prod media bucket
+ *   npm run migrate:media-to-s3 -- --env dev             # Apply changes to dev media bucket
+ *   npm run migrate:media-to-s3 -- --env prod            # Apply changes to prod media bucket
  *
  *   # Or run directly on production server:
  *   ssh user@server "cd /path/to/app && docker exec bb-portfolio-backend-prod node scripts/migrate-media-to-s3.js --env prod --dry-run"
@@ -248,7 +250,9 @@ async function main() {
     console.info(`Errors: ${totalStats.errors}`)
 
     if (dryRunFlag) {
-      console.info('\n💡 This was a dry run. Add --env prod (without --dry-run) to apply changes.')
+      console.info(
+        `\n💡 This was a dry run. Remove --dry-run to apply changes to ${environment} media bucket.`,
+      )
     } else {
       console.info('\n✅ Migration complete!')
     }

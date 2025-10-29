@@ -1,9 +1,11 @@
 #!/usr/bin/env tsx
 /**
- * Upload local media files to S3 buckets
+ * Upload local media files to S3 media buckets
  *
- * This script syncs the local backend/media files to the appropriate S3 buckets.
+ * This script syncs the local backend/media files to the appropriate S3 media buckets.
  * It supports different environments (dev/prod) and excludes system/git files.
+ *
+ * Note: This is for Payload CMS media uploads. For project files, use a separate script.
  *
  * Usage:
  *   npm run media:upload -- --env dev
@@ -21,7 +23,7 @@ import { ensureAwsCredentials } from "./lib/aws-creds";
 const scriptDir = path.dirname(__filename);
 const repoRoot = path.resolve(scriptDir, "..");
 
-// S3 bucket configuration from Terraform outputs
+// S3 bucket configuration for media (Payload CMS)
 const S3_BUCKETS = {
   dev: "bb-portfolio-media-dev",
   prod: "bb-portfolio-media-prod",

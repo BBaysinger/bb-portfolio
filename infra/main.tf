@@ -324,11 +324,15 @@ PROD_MONGODB_URI=${var.prod_mongodb_uri}
 # Payload CMS Configuration
 PROD_PAYLOAD_SECRET=${var.prod_payload_secret}
 
-# S3 Media Configuration
+# S3 Media Configuration (Payload CMS)
 PROD_S3_BUCKET=${var.prod_s3_bucket}
 S3_AWS_ACCESS_KEY_ID=${var.aws_access_key_id}
 S3_AWS_SECRET_ACCESS_KEY=${var.aws_secret_access_key}
 S3_REGION=${var.prod_aws_region}
+
+# S3 Projects Configuration (static files)
+PUBLIC_PROJECTS_BUCKET=${var.public_projects_bucket}
+NDA_PROJECTS_BUCKET=${var.nda_projects_bucket}
 
 # Frontend Configuration (for SSR) - Using dynamic IP
 PROD_FRONTEND_URL=https://bbinteractive.io,http://$ELASTIC_IP:3000
@@ -349,7 +353,7 @@ ENV_PROFILE=prod
 NEXT_PUBLIC_BACKEND_URL=http://$ELASTIC_IP:3001
 FRONTEND_ENV_EOF
 
-# Create dev environment files too
+# Create dev environment files (uses same buckets as prod, but different databases/secrets)
 cat > /home/ec2-user/portfolio/backend/.env.dev << BACKEND_DEV_ENV_EOF
 NODE_ENV=development
 ENV_PROFILE=dev
@@ -365,11 +369,15 @@ DEV_MONGODB_URI=${var.dev_mongodb_uri}
 # Payload CMS Configuration
 DEV_PAYLOAD_SECRET=${var.dev_payload_secret}
 
-# S3 Media Configuration
+# S3 Media Configuration (Payload CMS)
 DEV_S3_BUCKET=${var.dev_s3_bucket}
 S3_AWS_ACCESS_KEY_ID=${var.aws_access_key_id}
 S3_AWS_SECRET_ACCESS_KEY=${var.aws_secret_access_key}
 S3_REGION=${var.dev_aws_region}
+
+# S3 Projects Configuration (static files)
+PUBLIC_PROJECTS_BUCKET=${var.public_projects_bucket}
+NDA_PROJECTS_BUCKET=${var.nda_projects_bucket}
 
 # Frontend Configuration (for SSR) - Using dynamic IP
 DEV_FRONTEND_URL=https://dev.bbinteractive.io,http://$ELASTIC_IP:4000
@@ -574,12 +582,12 @@ resource "aws_eip_association" "bb_portfolio_assoc" {
 }
 
 ########################################
-# S3 media buckets (one per environment)
+# S3 buckets - Media (dev/prod) and Projects (public/nda)
 ########################################
 
-# Create a versioned, private bucket for each env in var.media_envs
+# Media buckets for Payload CMS (environment-based: dev/prod)
 resource "aws_s3_bucket" "media" {
-  for_each = toset(var.media_envs)
+  for_each = toset(var.media_environments)
 
   # Bucket names must be globally unique across AWS
   bucket = lower(
@@ -588,7 +596,7 @@ resource "aws_s3_bucket" "media" {
         replace(var.project_name, "_", "-"),
         "media",
         each.value,
-        var.media_bucket_suffix
+        var.bucket_suffix
       ])),
       "-"
     )
@@ -597,11 +605,39 @@ resource "aws_s3_bucket" "media" {
   force_destroy = false
 
   tags = {
-    Project = var.project_name
-    Env     = each.value
+    Project     = var.project_name
+    BucketType  = "media"
+    Environment = each.value
   }
 }
 
+# Project buckets for static files (access-based: public/nda)
+resource "aws_s3_bucket" "projects" {
+  for_each = toset(var.project_access_levels)
+
+  # Bucket names must be globally unique across AWS
+  bucket = lower(
+    trim(
+      join("-", compact([
+        replace(var.project_name, "_", "-"),
+        "projects",
+        each.value,
+        var.bucket_suffix
+      ])),
+      "-"
+    )
+  )
+
+  force_destroy = false
+
+  tags = {
+    Project     = var.project_name
+    BucketType  = "projects"
+    AccessLevel = each.value
+  }
+}
+
+# Bucket versioning for both media and projects
 resource "aws_s3_bucket_versioning" "media" {
   for_each = aws_s3_bucket.media
   bucket   = each.value.id
@@ -611,6 +647,16 @@ resource "aws_s3_bucket_versioning" "media" {
   }
 }
 
+resource "aws_s3_bucket_versioning" "projects" {
+  for_each = aws_s3_bucket.projects
+  bucket   = each.value.id
+
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+# Public access block for both bucket types
 resource "aws_s3_bucket_public_access_block" "media" {
   for_each = aws_s3_bucket.media
   bucket   = each.value.id
@@ -621,7 +667,17 @@ resource "aws_s3_bucket_public_access_block" "media" {
   restrict_public_buckets = true
 }
 
-# Default to SSE-S3 (AES256). Swap to KMS if needed later.
+resource "aws_s3_bucket_public_access_block" "projects" {
+  for_each = aws_s3_bucket.projects
+  bucket   = each.value.id
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
+# Server-side encryption for both bucket types
 resource "aws_s3_bucket_server_side_encryption_configuration" "media" {
   for_each = aws_s3_bucket.media
   bucket   = each.value.id
@@ -633,38 +689,65 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "media" {
   }
 }
 
-# Simple CORS for GET/HEAD. Tighten allowed_origins in terraform.tfvars if needed.
+resource "aws_s3_bucket_server_side_encryption_configuration" "projects" {
+  for_each = aws_s3_bucket.projects
+  bucket   = each.value.id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
+    }
+  }
+}
+
+# CORS configuration for both bucket types
 resource "aws_s3_bucket_cors_configuration" "media" {
   for_each = aws_s3_bucket.media
   bucket   = each.value.id
 
   cors_rule {
     allowed_methods = ["GET", "HEAD"]
-    allowed_origins = var.media_cors_allowed_origins
+    allowed_origins = var.s3_cors_allowed_origins
     allowed_headers = ["*"]
     expose_headers  = []
     max_age_seconds = 300
   }
 }
 
-# IAM: Grant EC2 role access to read/write objects in media buckets
-resource "aws_iam_policy" "media_access" {
-  name        = "${var.project_name}-media-access"
-  description = "Allow EC2 backend to access media S3 buckets"
+resource "aws_s3_bucket_cors_configuration" "projects" {
+  for_each = aws_s3_bucket.projects
+  bucket   = each.value.id
+
+  cors_rule {
+    allowed_methods = ["GET", "HEAD"]
+    allowed_origins = var.s3_cors_allowed_origins
+    allowed_headers = ["*"]
+    expose_headers  = []
+    max_age_seconds = 300
+  }
+}
+
+# IAM: Grant EC2 role access to read/write objects in all S3 buckets
+resource "aws_iam_policy" "s3_access" {
+  name        = "${var.project_name}-s3-access"
+  description = "Allow EC2 backend to access media and project S3 buckets"
 
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
       {
-        Sid    = "ListMediaBuckets"
+        Sid    = "ListAllBuckets"
         Effect = "Allow"
         Action = [
           "s3:ListBucket"
         ]
-        Resource = [for b in aws_s3_bucket.media : b.arn]
+        Resource = concat(
+          [for b in aws_s3_bucket.media : b.arn],
+          [for b in aws_s3_bucket.projects : b.arn]
+        )
       },
       {
-        Sid    = "RWMediaObjects"
+        Sid    = "RWAllObjects"
         Effect = "Allow"
         Action = [
           "s3:GetObject",
@@ -674,15 +757,18 @@ resource "aws_iam_policy" "media_access" {
           "s3:ListBucketMultipartUploads",
           "s3:ListMultipartUploadParts"
         ]
-        Resource = [for b in aws_s3_bucket.media : "${b.arn}/*"]
+        Resource = concat(
+          [for b in aws_s3_bucket.media : "${b.arn}/*"],
+          [for b in aws_s3_bucket.projects : "${b.arn}/*"]
+        )
       }
     ]
   })
 }
 
-resource "aws_iam_role_policy_attachment" "media_access_attach" {
+resource "aws_iam_role_policy_attachment" "s3_access_attach" {
   role       = aws_iam_role.ssm_role.name
-  policy_arn = aws_iam_policy.media_access.arn
+  policy_arn = aws_iam_policy.s3_access.arn
 }
 
 # =============================================================================
