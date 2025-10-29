@@ -116,7 +116,7 @@ ami_id        = "ami-0cf2b4e024cdb6960" # Amazon Linux 2023 in us-west-2 (as of 
 project_name  = "bb-portfolio"
 
 # S3 Media Buckets Configuration
-media_envs = ["dev", "prod"]
+media_access_levels = ["public", "nda"]
 
 # CORS origins permitted to read from S3 directly (GET/HEAD)
 media_cors_allowed_origins = [
@@ -147,7 +147,8 @@ prod_mongodb_uri = "${strings.PROD_MONGODB_URI}"
 prod_payload_secret = "${strings.PROD_PAYLOAD_SECRET}"
 
 # S3 Media Configuration
-prod_s3_bucket = "${strings.PROD_S3_BUCKET}"
+public_s3_bucket = "${strings.PUBLIC_S3_BUCKET}"
+nda_s3_bucket = "${strings.NDA_S3_BUCKET}"
 
 # Frontend URLs
 prod_frontend_url              = "${strings.PROD_FRONTEND_URL}"
@@ -171,8 +172,7 @@ dev_mongodb_uri = "${strings.DEV_MONGODB_URI}"
 # Payload CMS Configuration
 dev_payload_secret = "${strings.DEV_PAYLOAD_SECRET}"
 
-# S3 Media Configuration
-dev_s3_bucket = "${strings.DEV_S3_BUCKET}"
+# S3 Media Configuration (consolidated to single deployment with access-based buckets)
 
 # Backend URLs
 dev_backend_internal_url = "${strings.DEV_BACKEND_INTERNAL_URL}"
@@ -216,7 +216,8 @@ function main() {
       "aws_secret_access_key",
       "prod_mongodb_uri",
       "prod_payload_secret",
-      "prod_s3_bucket",
+      "public_s3_bucket",
+      "nda_s3_bucket",
       "prod_frontend_url",
       "prod_next_public_backend_url",
       "prod_backend_internal_url",
@@ -225,7 +226,6 @@ function main() {
       "dev_aws_region",
       "dev_mongodb_uri",
       "dev_payload_secret",
-      "dev_s3_bucket",
       "dev_backend_internal_url",
       "dev_ses_from_email",
       "dev_ses_to_email",

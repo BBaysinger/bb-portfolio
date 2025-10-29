@@ -32,23 +32,30 @@ variable "project_name" {
   default     = "bb-portfolio"
 }
 
-# Environments to provision media buckets for
-variable "media_envs" {
-  description = "List of environment names to create S3 media buckets for (e.g., [\"dev\", \"stg\", \"prod\"])."
+# Media bucket environments (for Payload CMS)
+variable "media_environments" {
+  description = "List of environments to create S3 media buckets for (dev/prod for Payload CMS uploads)."
   type        = list(string)
   default     = ["dev", "prod"]
 }
 
+# Project access levels (for static project files)
+variable "project_access_levels" {
+  description = "List of access levels to create S3 project buckets for (public for unrestricted access, nda for authenticated content)."
+  type        = list(string)
+  default     = ["public", "nda"]
+}
+
 # Optional suffix to ensure global uniqueness (e.g., your initials or short hash)
-variable "media_bucket_suffix" {
+variable "bucket_suffix" {
   description = "Optional bucket name suffix to ensure global uniqueness (lowercase alphanumerics and hyphens)."
   type        = string
   default     = ""
 }
 
 # Allowed origins for S3 CORS (GET/HEAD)
-variable "media_cors_allowed_origins" {
-  description = "Allowed origins for S3 CORS on media buckets."
+variable "s3_cors_allowed_origins" {
+  description = "Allowed origins for S3 CORS on all buckets."
   type        = list(string)
   default = [
     "http://localhost:8080",
@@ -91,8 +98,23 @@ variable "prod_payload_secret" {
   sensitive   = true
 }
 
+variable "dev_s3_bucket" {
+  description = "S3 bucket name for dev media (Payload CMS)"
+  type        = string
+}
+
 variable "prod_s3_bucket" {
-  description = "S3 bucket name for production media"
+  description = "S3 bucket name for prod media (Payload CMS)"
+  type        = string
+}
+
+variable "public_projects_bucket" {
+  description = "S3 bucket name for public projects (static files)"
+  type        = string
+}
+
+variable "nda_projects_bucket" {
+  description = "S3 bucket name for NDA projects (static files)"
   type        = string
 }
 
@@ -143,10 +165,7 @@ variable "dev_payload_secret" {
   sensitive   = true
 }
 
-variable "dev_s3_bucket" {
-  description = "S3 bucket name for development media"
-  type        = string
-}
+# S3 bucket variables moved to public/protected access model above
 
 variable "dev_backend_internal_url" {
   description = "Backend URL for dev container-to-container communication"

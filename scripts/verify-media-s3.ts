@@ -20,8 +20,8 @@ const repoRoot = path.resolve(scriptDir, "..");
 
 // S3 bucket configuration
 const S3_BUCKETS = {
-  dev: "bb-portfolio-media-dev",
-  prod: "bb-portfolio-media-prod",
+  public: "bb-portfolio-media-public",
+  nda: "bb-portfolio-media-nda",
 } as const;
 
 const MEDIA_COLLECTIONS = [
@@ -30,7 +30,7 @@ const MEDIA_COLLECTIONS = [
   "project-thumbnails",
 ] as const;
 
-type Environment = "dev" | "prod";
+type Environment = "public" | "nda";
 
 interface Options {
   environments: Environment[];
@@ -52,12 +52,12 @@ function parseArgs(): Options {
       case "--env":
         const env = args[++i];
         if (env === "both") {
-          options.environments = ["dev", "prod"];
-        } else if (env === "dev" || env === "prod") {
+          options.environments = ["public", "nda"];
+        } else if (env === "public" || env === "nda") {
           options.environments = [env];
         } else {
           console.error(
-            `Invalid environment: ${env}. Use 'dev', 'prod', or 'both'`,
+            `Invalid environment: ${env}. Use 'public', 'nda', or 'both'`,
           );
           process.exit(1);
         }
@@ -74,7 +74,7 @@ function parseArgs(): Options {
 Usage: npm run media:verify -- [options]
 
 Options:
-  --env <env>     Environment to verify: dev, prod, or both
+  --env <bucket>  Bucket to verify: public, nda, or both
   --profile       AWS CLI profile to use (from ~/.aws/credentials)
   --region        AWS region (e.g., us-west-2)
   --help, -h      Show this help message
@@ -88,7 +88,7 @@ Examples:
   }
 
   if (options.environments.length === 0) {
-    console.error("Please specify an environment with --env <dev|prod|both>");
+    console.error("Please specify a bucket with --env <public|nda|both>");
     console.info("Use --help for more information");
     process.exit(1);
   }

@@ -139,6 +139,7 @@ export default buildConfig({
               projectThumbnails: { prefix: 'project-thumbnails' },
             } as Partial<Record<keyof Config['collections'], { prefix: string } | true>>,
             bucket: (() => {
+              // Use environment-specific bucket for Payload CMS media
               const key = envProfile === 'prod' ? 'PROD_S3_BUCKET' : 'DEV_S3_BUCKET'
               const val = process.env[key]
               if (!val) throw new Error(`Missing required ${key} for ENV_PROFILE=${envProfile}`)
@@ -147,8 +148,11 @@ export default buildConfig({
             config: {
               region: (() => {
                 const key = envProfile === 'prod' ? 'PROD_AWS_REGION' : 'DEV_AWS_REGION'
-                const val = process.env[key]
-                if (!val) throw new Error(`Missing required ${key} for ENV_PROFILE=${envProfile}`)
+                const val = process.env[key] || process.env.S3_REGION
+                if (!val)
+                  throw new Error(
+                    `Missing required ${key} or S3_REGION for ENV_PROFILE=${envProfile}`,
+                  )
                 return val
               })(),
               // Credentials are optional on EC2 when using instance role
@@ -161,7 +165,6 @@ export default buildConfig({
                   }
                 : {}),
             },
-            // Optionally set a CDN base URL in a future update if supported by the package version
           }),
         ]
       : []),
