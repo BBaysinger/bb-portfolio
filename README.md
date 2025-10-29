@@ -79,9 +79,13 @@ Deployments are orchestrated via a single script that provisions/updates AWS wit
 - Unified ESLint configurations
 - Playwright E2E and Vitest setup (backend)
 - Local dev proxy and hot-reload compose profile
-- JSON5 Package Sync Script (`sync:json5`)
-  - Serves to document packages via JSON5
-  - Automated: `npm run sync:json5` (see scripts/sync-json5-packages.ts)
+- **JSON5 Package Sync System** - Innovative dual-package approach
+  - `package.json` - Clean, standard JSON for tooling compatibility
+  - `package.json5` - Rich comments and documentation for developers
+  - Bidirectional sync: edit either file, run `npm run sync:json5` to synchronize
+  - Preserves comments, formatting, and emoji annotations in JSON5
+  - Eliminates the choice between "machine-readable" vs "human-readable" configs
+  - See `scripts/sync-json5-packages.ts` for implementation details
 
 ### Data Ops & Backups
 

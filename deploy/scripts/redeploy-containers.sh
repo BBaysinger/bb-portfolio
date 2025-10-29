@@ -9,7 +9,14 @@ PROFILES="both"       # prod|dev|both
 REFRESH_ENV="false"   # true|false
 WORKFLOW_FILE=".github/workflows/redeploy-manual.yml"
 AWS_REGION="us-west-2"
-AWS_ACCOUNT_ID="${AWS_ACCOUNT_ID:-778230822028}"
+AWS_ACCOUNT_ID="${AWS_ACCOUNT_ID}"
+
+# Validate required environment variables
+if [ -z "$AWS_ACCOUNT_ID" ]; then
+    echo "❌ Error: AWS_ACCOUNT_ID environment variable is required"
+    echo "   Please set it in .env or .env.local"
+    exit 1
+fi
 
 usage() {
   cat <<EOF
