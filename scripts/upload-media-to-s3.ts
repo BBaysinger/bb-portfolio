@@ -15,6 +15,8 @@ import { execSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import path from "node:path";
 
+import { ensureAwsCredentials } from "./lib/aws-creds";
+
 // Get script directory and repo root
 const scriptDir = path.dirname(__filename);
 const repoRoot = path.resolve(scriptDir, "..");
@@ -37,6 +39,8 @@ type Environment = "dev" | "prod";
 interface Options {
   environments: Environment[];
   dryRun: boolean;
+  profile?: string;
+  region?: string;
 }
 
 function parseArgs(): Options {
@@ -44,6 +48,8 @@ function parseArgs(): Options {
   const options: Options = {
     environments: [],
     dryRun: false,
+    profile: undefined,
+    region: undefined,
   };
 
   for (let i = 0; i < args.length; i++) {
@@ -65,6 +71,12 @@ function parseArgs(): Options {
       case "--dry-run":
         options.dryRun = true;
         break;
+      case "--profile":
+        options.profile = args[++i];
+        break;
+      case "--region":
+        options.region = args[++i];
+        break;
       case "--help":
       case "-h":
         console.info(`
@@ -73,6 +85,8 @@ Usage: npm run media:upload -- [options]
 Options:
   --env <env>     Environment to upload to: dev, prod, or both
   --dry-run       Show what would be uploaded without actually uploading
+  --profile       AWS CLI profile to use (from ~/.aws/credentials)
+  --region        AWS region (e.g., us-west-2)
   --help, -h      Show this help message
 
 Examples:
@@ -128,6 +142,7 @@ function syncCollection(
   collection: string,
   environment: Environment,
   dryRun: boolean,
+  opts: { profile?: string; region?: string },
 ) {
   const bucket = S3_BUCKETS[environment];
   const localPath = `backend/media/${collection}/`;
@@ -138,7 +153,10 @@ function syncCollection(
   const dryrunFlag = dryRun ? "--dryrun" : "";
 
   const cmdParts = [
-    "aws s3 sync",
+    "aws",
+    opts.profile ? `--profile ${opts.profile}` : "",
+    opts.region ? `--region ${opts.region}` : "",
+    "s3 sync",
     localPath,
     s3Path,
     ...excludes,
@@ -204,6 +222,14 @@ function main() {
   console.info(`\nTarget environments: ${options.environments.join(", ")}`);
   console.info(`Mode: ${options.dryRun ? "DRY RUN" : "UPLOAD"}`);
 
+  // Validate credentials before attempting any syncs
+  try {
+    ensureAwsCredentials({ profile: options.profile, region: options.region });
+  } catch (e) {
+    console.error(`\n❌ ${e instanceof Error ? e.message : String(e)}`);
+    process.exit(1);
+  }
+
   // Confirm before proceeding (unless dry run)
   if (!options.dryRun) {
     console.info("\n⚠️  This will upload files to AWS S3. Continue? (y/N)");
@@ -216,7 +242,10 @@ function main() {
     console.info(`\n📦 Uploading to ${env.toUpperCase()} environment...`);
 
     for (const collection of MEDIA_COLLECTIONS) {
-      syncCollection(collection, env, options.dryRun);
+      syncCollection(collection, env, options.dryRun, {
+        profile: options.profile,
+        region: options.region,
+      });
     }
   }
 

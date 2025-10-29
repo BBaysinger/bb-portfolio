@@ -10,6 +10,34 @@ This doc captures how uploads are set up today, recommended S3 patterns per envi
 - `@payloadcms/storage-s3` is wired in `backend/src/payload.config.ts` and enabled when `ENV_PROFILE` is `dev` or `prod`. For `ENV_PROFILE=local`, filesystem storage is used.
 - MongoDB uses env-prefixed URIs: `LOCAL_MONGODB_URI`, `DEV_MONGODB_URI`, `PROD_MONGODB_URI`.
 
+### CLI uploads and verification: authentication
+
+The media scripts (`scripts/upload-media-to-s3.ts` and `scripts/verify-media-s3.ts`) call the AWS CLI under the hood. They require credentials available to the CLI via one of these paths:
+
+- Preferred: an AWS profile in `~/.aws/credentials` and passing `--profile <name>` (or setting `AWS_PROFILE`).
+- Alternative: export static keys as env vars: `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` (and optional `AWS_SESSION_TOKEN`).
+- SSO: authenticate first (`aws sso login --profile <name>`) and set `AWS_PROFILE`.
+
+If a profile is provided (via `--profile` or `AWS_PROFILE`), the scripts will fail fast if `~/.aws/credentials` is missing or the profile section is not found. If no profile is provided and no credentials are detected, the scripts will exit with a clear error explaining how to configure credentials.
+
+Examples (zsh):
+
+```zsh
+# Using a profile stored in ~/.aws/credentials
+npm run migrate:media:dev -- --profile myprofile --region us-west-2
+
+# Verifying with a profile
+npm run media:verify -- --env both --profile myprofile --region us-west-2
+
+# Using static env keys instead of a profile
+export AWS_ACCESS_KEY_ID=AKIA...
+export AWS_SECRET_ACCESS_KEY=...
+export AWS_REGION=us-west-2
+npm run migrate:media:dev -- --region "$AWS_REGION"
+```
+
+Note on older scripts: previously some package scripts inlined environment variables like `AWS_ACCOUNT_ID=...` or `COMPOSE_PROFILES=local-ssg`. Those are no longer required for media uploads. Use the flags above to direct the scripts and keep credentials in your standard AWS CLI locations.
+
 ### Local folder conventions and fresh clones
 
 - Canonical upload root for local dev: `backend/media/`

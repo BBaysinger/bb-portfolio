@@ -12,6 +12,8 @@
 import { execSync } from "node:child_process";
 import path from "node:path";
 
+import { ensureAwsCredentials } from "./lib/aws-creds";
+
 // Get script directory and repo root
 const scriptDir = path.dirname(__filename);
 const repoRoot = path.resolve(scriptDir, "..");
@@ -32,12 +34,16 @@ type Environment = "dev" | "prod";
 
 interface Options {
   environments: Environment[];
+  profile?: string;
+  region?: string;
 }
 
 function parseArgs(): Options {
   const args = process.argv.slice(2);
   const options: Options = {
     environments: [],
+    profile: undefined,
+    region: undefined,
   };
 
   for (let i = 0; i < args.length; i++) {
@@ -56,6 +62,12 @@ function parseArgs(): Options {
           process.exit(1);
         }
         break;
+      case "--profile":
+        options.profile = args[++i];
+        break;
+      case "--region":
+        options.region = args[++i];
+        break;
       case "--help":
       case "-h":
         console.info(`
@@ -63,6 +75,8 @@ Usage: npm run media:verify -- [options]
 
 Options:
   --env <env>     Environment to verify: dev, prod, or both
+  --profile       AWS CLI profile to use (from ~/.aws/credentials)
+  --region        AWS region (e.g., us-west-2)
   --help, -h      Show this help message
 
 Examples:
@@ -85,13 +99,21 @@ Examples:
 function verifyCollection(
   collection: string,
   environment: Environment,
+  opts: { profile?: string; region?: string },
 ): { count: number; success: boolean } {
   const bucket = S3_BUCKETS[environment];
   const s3Path = `s3://${bucket}/${collection}/`;
 
   try {
+    const global = [
+      "aws",
+      opts.profile ? `--profile ${opts.profile}` : "",
+      opts.region ? `--region ${opts.region}` : "",
+    ]
+      .filter(Boolean)
+      .join(" ");
     const result = execSync(
-      `aws s3 ls "${s3Path}" --recursive | grep -E "\\.(svg|webp|png|jpg|jpeg)$" | wc -l`,
+      `${global} s3 ls "${s3Path}" --recursive | grep -E "\\.(svg|webp|png|jpg|jpeg)$" | wc -l`,
       { cwd: repoRoot, encoding: "utf8" },
     );
     const count = parseInt(result.trim());
@@ -141,6 +163,14 @@ function main() {
     process.exit(1);
   }
 
+  // Validate credentials before attempting any S3 calls
+  try {
+    ensureAwsCredentials({ profile: options.profile, region: options.region });
+  } catch (e) {
+    console.error(`\n❌ ${e instanceof Error ? e.message : String(e)}`);
+    process.exit(1);
+  }
+
   for (const env of options.environments) {
     console.info(`\n📦 Verifying ${env.toUpperCase()} environment...`);
 
@@ -148,7 +178,10 @@ function main() {
     let hasErrors = false;
 
     for (const collection of MEDIA_COLLECTIONS) {
-      const result = verifyCollection(collection, env);
+      const result = verifyCollection(collection, env, {
+        profile: options.profile,
+        region: options.region,
+      });
       console.info(`  ${collection}: ${result.count} files`);
 
       if (!result.success) {
