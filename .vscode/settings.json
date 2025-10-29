@@ -135,6 +135,8 @@
         "Platformer",
         "prebuild",
         "Prereqs",
+        "presign",
+        "presigner",
         "Pulumi",
         "Pushgraph",
         "referer",
