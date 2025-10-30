@@ -47,10 +47,15 @@ async function presignIfExists(
 
   try {
     // Ensure the object exists to avoid redirecting to a 404
-    await s3.send(new HeadObjectCommand({ Bucket: bucket, Key: key }));
-    console.log(`[DEBUG] HeadObject succeeded for ${key}`);
+    const headResult = await s3.send(new HeadObjectCommand({ Bucket: bucket, Key: key }));
+    console.log(`[DEBUG] HeadObject succeeded for ${key}, ContentType: ${headResult.ContentType}`);
   } catch (err: unknown) {
-    console.log(`[DEBUG] HeadObject failed:`, err);
+    console.log(`[DEBUG] HeadObject failed for ${key}:`, {
+      name: (err as any)?.constructor?.name,
+      message: (err as any)?.message,
+      code: (err as any)?.Code,
+      statusCode: (err as any)?.$metadata?.httpStatusCode
+    });
     const status = getHttpStatus(err);
     console.log(`[DEBUG] HTTP status: ${status}`);
     if (status === 404) return null;
@@ -91,12 +96,20 @@ export async function GET(
   }
 
   const { key: keyParts } = await context.params;
+  console.log(`[DEBUG] Raw keyParts:`, {
+    keyParts,
+    type: typeof keyParts,
+    isArray: Array.isArray(keyParts),
+    length: keyParts?.length
+  });
+  
   const key = sanitizeKey(keyParts || [], prefix);
-  console.log(
-    `[DEBUG] Sanitized key: ${key}, keyParts: ${JSON.stringify(keyParts)}`
-  );
+  console.log(`[DEBUG] Generated key: "${key}" from keyParts: ${JSON.stringify(keyParts)} and prefix: "${prefix}"`);
 
-  if (!key) return new Response("Bad path", { status: 400 });
+  if (!key) {
+    console.log(`[DEBUG] Key generation returned null, rejecting request`);
+    return new Response("Bad path", { status: 400 });
+  }
 
   const url = await presignIfExists(bucket, key);
   console.log(
