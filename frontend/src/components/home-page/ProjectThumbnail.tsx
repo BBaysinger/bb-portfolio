@@ -92,6 +92,7 @@ const ProjectThumbnail = forwardRef<HTMLDivElement, ProjectThumbnailProps>(
     // Treat a project as NDA-like when either the project or brand is NDA.
     const isNdaLike = Boolean(nda || brandIsNda);
     const showNdaConfidential = isNdaLike && !isAuthenticated;
+
     // If NDA-like and unauthenticated, force confidential background.
     // If NDA-like and authenticated but missing a thumbnail (edge), fall back to confidential bg.
     const bgImage = showNdaConfidential
