@@ -37,11 +37,10 @@ const FootGreet: React.FC<{ className?: string }> = ({ className = "" }) => {
         interactive innovation.
       </p>
       <p>
-        What you&apos;ve experienced—the parallax carousel with its master/slave
-        synchronization, the magnetic Fluxel grid simulating depth through pure
-        math, the custom sprite renderer—these aren&apos;t just features,
-        they&apos;re original systems built to push the boundaries of
-        what&apos;s possible in the browser.
+        What you&apos;ve experienced—the parallax carousel, the magnetic pixel
+        grid, the custom sprite renderer—these aren&apos;t just features,
+        they&apos;re original systems built to explore what&apos;s possible in
+        the browser.
       </p>
       <p>
         I&apos;m passionate about creating digital experiences that reward
