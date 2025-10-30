@@ -48,6 +48,8 @@ fi
 
 # Get current values from Terraform
 ELASTIC_IP=$(terraform output -raw bb_portfolio_elastic_ip 2>/dev/null || echo "")
+PUBLIC_PROJECTS_BUCKET=$(terraform output -json projects_bucket_names 2>/dev/null | jq -r '.public' || echo "")
+NDA_PROJECTS_BUCKET=$(terraform output -json projects_bucket_names 2>/dev/null | jq -r '.nda' || echo "")
 
 if [ -z "$ELASTIC_IP" ]; then
     echo "❌ Error: Could not get Elastic IP from Terraform output"
@@ -55,11 +57,17 @@ if [ -z "$ELASTIC_IP" ]; then
     exit 1
 fi
 
+if [ -z "$PUBLIC_PROJECTS_BUCKET" ] || [ -z "$NDA_PROJECTS_BUCKET" ]; then
+    echo "❌ Error: Could not get project bucket names from Terraform output"
+    echo "   Make sure Terraform has been applied and S3 buckets exist"
+    exit 1
+fi
+
 # Show what will be changed
 echo ""
 echo "📋 Current .env file:"
 if [ -f "$ENV_FILE" ]; then
-    grep -E "^(AWS_ACCOUNT_ID|EC2_INSTANCE_IP)=" "$ENV_FILE" || echo "   (No relevant variables found)"
+    grep -E "^(AWS_ACCOUNT_ID|EC2_INSTANCE_IP|PUBLIC_PROJECTS_BUCKET|NDA_PROJECTS_BUCKET)=" "$ENV_FILE" || echo "   (No relevant variables found)"
 else
     echo "   File does not exist"
 fi
@@ -67,6 +75,8 @@ fi
 echo ""
 echo "🔄 Proposed changes:"
 echo "   EC2_INSTANCE_IP will be set to: $ELASTIC_IP"
+echo "   PUBLIC_PROJECTS_BUCKET will be set to: $PUBLIC_PROJECTS_BUCKET"
+echo "   NDA_PROJECTS_BUCKET will be set to: $NDA_PROJECTS_BUCKET"
 
 echo ""
 if [ "$FORCE_MODE" = false ]; then
@@ -86,7 +96,7 @@ fi
 BACKUP_FILE="$ENV_FILE.backup.$(date +%Y%m%d_%H%M%S)"
 cp "$ENV_FILE" "$BACKUP_FILE"
 
-# Update EC2_INSTANCE_IP in .env file
+# Update environment variables in .env file
 if grep -q "^EC2_INSTANCE_IP=" "$ENV_FILE"; then
     # Replace existing line
     sed -i.tmp "s/^EC2_INSTANCE_IP=.*/EC2_INSTANCE_IP=$ELASTIC_IP/" "$ENV_FILE"
@@ -96,6 +106,28 @@ else
     # Add new line
     echo "EC2_INSTANCE_IP=$ELASTIC_IP" >> "$ENV_FILE"
     echo "✅ Added EC2_INSTANCE_IP=$ELASTIC_IP to $ENV_FILE"
+fi
+
+if grep -q "^PUBLIC_PROJECTS_BUCKET=" "$ENV_FILE"; then
+    # Replace existing line
+    sed -i.tmp "s/^PUBLIC_PROJECTS_BUCKET=.*/PUBLIC_PROJECTS_BUCKET=$PUBLIC_PROJECTS_BUCKET/" "$ENV_FILE"
+    rm "$ENV_FILE.tmp"
+    echo "✅ Updated PUBLIC_PROJECTS_BUCKET=$PUBLIC_PROJECTS_BUCKET in $ENV_FILE"
+else
+    # Add new line
+    echo "PUBLIC_PROJECTS_BUCKET=$PUBLIC_PROJECTS_BUCKET" >> "$ENV_FILE"
+    echo "✅ Added PUBLIC_PROJECTS_BUCKET=$PUBLIC_PROJECTS_BUCKET to $ENV_FILE"
+fi
+
+if grep -q "^NDA_PROJECTS_BUCKET=" "$ENV_FILE"; then
+    # Replace existing line
+    sed -i.tmp "s/^NDA_PROJECTS_BUCKET=.*/NDA_PROJECTS_BUCKET=$NDA_PROJECTS_BUCKET/" "$ENV_FILE"
+    rm "$ENV_FILE.tmp"
+    echo "✅ Updated NDA_PROJECTS_BUCKET=$NDA_PROJECTS_BUCKET in $ENV_FILE"
+else
+    # Add new line
+    echo "NDA_PROJECTS_BUCKET=$NDA_PROJECTS_BUCKET" >> "$ENV_FILE"
+    echo "✅ Added NDA_PROJECTS_BUCKET=$NDA_PROJECTS_BUCKET to $ENV_FILE"
 fi
 
 echo "📁 Backup saved to: $BACKUP_FILE"
