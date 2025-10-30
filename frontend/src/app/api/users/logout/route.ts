@@ -64,7 +64,7 @@ export async function POST(request: NextRequest) {
     const debug =
       process.env.DEBUG_API_AUTH === "1" ||
       process.env.NODE_ENV !== "production";
-    if (debug) console.log("🔗 Backend URL:", backendUrl);
+    if (debug) console.info("🔗 Backend URL:", backendUrl);
 
     // Forward cookies from the request to maintain session
     const cookieHeader = request.headers.get("cookie") || "";
@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
       const cookieNames = cookieHeader
         ? cookieHeader.split(/;\s*/).map((c) => c.split("=")[0])
         : [];
-      console.log(
+      console.info(
         "🍪 Logout API - Incoming cookies (names only):",
         cookieNames,
       );
@@ -106,7 +106,7 @@ export async function POST(request: NextRequest) {
     const setCookieHeader = response.headers.get("set-cookie");
     if (debug) {
       // Do not log raw Set-Cookie values in production
-      console.log(
+      console.info(
         "🧹 Backend set-cookie header present:",
         Boolean(setCookieHeader),
       );
@@ -114,12 +114,12 @@ export async function POST(request: NextRequest) {
 
     if (setCookieHeader) {
       nextResponse.headers.set("set-cookie", setCookieHeader);
-      if (debug) console.log("✅ Using backend cookie clearing headers");
+      if (debug) console.info("✅ Using backend cookie clearing headers");
     } else {
       // If backend didn't send cookie clearing headers, clear them manually
       // These are common Payload CMS cookie names
       if (debug)
-        console.log("🔧 Backend didn't clear cookies, doing it manually");
+        console.info("🔧 Backend didn't clear cookies, doing it manually");
       nextResponse.headers.append(
         "set-cookie",
         "payload-token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; SameSite=Lax",

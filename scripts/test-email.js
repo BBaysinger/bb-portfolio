@@ -17,10 +17,10 @@ const testData = {
 };
 
 async function testContactAPI() {
-  console.log("Testing contact form API...");
-  console.log("API URL:", API_URL);
-  console.log("Test data:", testData);
-  console.log("---");
+  console.info("Testing contact form API...");
+  console.info("API URL:", API_URL);
+  console.info("Test data:", testData);
+  console.info("---");
 
   try {
     const response = await fetch(API_URL, {
@@ -33,23 +33,23 @@ async function testContactAPI() {
 
     const result = await response.json();
 
-    console.log("Response status:", response.status);
-    console.log("Response body:", result);
+    console.info("Response status:", response.status);
+    console.info("Response body:", result);
 
     if (response.ok) {
-      console.log("✅ SUCCESS: Email sent successfully!");
+      console.info("✅ SUCCESS: Email sent successfully!");
     } else {
-      console.log("❌ FAILED: API returned an error");
+      console.info("❌ FAILED: API returned an error");
     }
   } catch (error) {
     console.error("❌ ERROR: Failed to call API");
     console.error("Error details:", error.message);
-    console.log("\nPossible issues:");
-    console.log(
+    console.info("\nPossible issues:");
+    console.info(
       "- Backend server not running (start with: cd backend && npm run dev)",
     );
-    console.log("- Environment variables not configured");
-    console.log("- AWS SES not properly set up");
+    console.info("- Environment variables not configured");
+    console.info("- AWS SES not properly set up");
   }
 }
 

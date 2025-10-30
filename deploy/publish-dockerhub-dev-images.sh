@@ -19,7 +19,7 @@ SECRETS_FILE="$ROOT_DIR/.github-secrets.private.json5"
 # Helper to read values from JSON5 via node + json5 package
 read_json5_key() {
   local keyPath="$1" # e.g., strings.DEV_AWS_REGION
-  node -e "const fs=require('fs');const JSON5=require('json5');const o=JSON5.parse(fs.readFileSync(process.argv[1],'utf8'));const p=process.argv[2].split('.');let v=o;for(const k of p){v=v?.[k]}console.log(v??'')" "$SECRETS_FILE" "$keyPath"
+  node -e "const fs=require('fs');const JSON5=require('json5');const o=JSON5.parse(fs.readFileSync(process.argv[1],'utf8'));const p=process.argv[2].split('.');let v=o;for(const k of p){v=v?.[k]}console.info(v??'')" "$SECRETS_FILE" "$keyPath"
 }
 
 DEV_AWS_REGION_VAL="$(read_json5_key strings.DEV_AWS_REGION)"

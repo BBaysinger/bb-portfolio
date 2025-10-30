@@ -2,6 +2,10 @@ import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 
 import { LOGIN_FAILED_MESSAGE } from "../constants/messages";
 
+// Debug flag for auth state logging
+const debug =
+  process.env.DEBUG_AUTH === "1" || process.env.NODE_ENV !== "production";
+
 export interface User {
   id: string;
   email: string;
@@ -80,20 +84,20 @@ export const logoutUser = createAsyncThunk(
   "auth/logout",
   async (_, { rejectWithValue: _rejectWithValue }) => {
     try {
-      console.log("🚀 Making logout request to /api/users/logout");
+      if (debug) console.info("🚀 Making logout request to /api/users/logout");
       const response = await fetch("/api/users/logout", {
         method: "POST",
         credentials: "include",
       });
 
-      console.log("📡 Logout response status:", response.status);
+      if (debug) console.info("📡 Logout response status:", response.status);
 
       if (!response.ok) {
         const errorText = await response.text();
         console.warn("Logout request failed:", response.status, errorText);
         console.warn("But continuing with local logout anyway...");
       } else {
-        console.log("✅ Backend logout successful");
+        if (debug) console.info("✅ Backend logout successful");
       }
 
       return null;
@@ -135,10 +139,11 @@ const authSlice = createSlice({
       .addCase(
         checkAuthStatus.fulfilled,
         (state, action: PayloadAction<User>) => {
-          console.log(
-            "✅ checkAuthStatus.fulfilled - User found:",
-            action.payload,
-          );
+          if (debug)
+            console.info(
+              "✅ checkAuthStatus.fulfilled - User found:",
+              action.payload,
+            );
           state.user = action.payload;
           state.isLoggedIn = true;
           state.isLoading = false;
@@ -147,7 +152,8 @@ const authSlice = createSlice({
         },
       )
       .addCase(checkAuthStatus.rejected, (state) => {
-        console.log("❌ checkAuthStatus.rejected - No valid session");
+        if (debug)
+          console.info("❌ checkAuthStatus.rejected - No valid session");
         state.user = null;
         state.isLoggedIn = false;
         state.isLoading = false;
@@ -178,7 +184,8 @@ const authSlice = createSlice({
         state.isLoading = true;
       })
       .addCase(logoutUser.fulfilled, (state) => {
-        console.log("🚪 logoutUser.fulfilled - Clearing auth state");
+        if (debug)
+          console.info("🚪 logoutUser.fulfilled - Clearing auth state");
         state.user = null;
         state.isLoggedIn = false;
         state.isLoading = false;

@@ -335,7 +335,7 @@ if [[ "$do_infra" == true ]]; then
       const banner = "// Private secrets file for syncing to GitHub Actions secrets\n// This file is ignored by git. Keep real values here.\n// Do NOT commit this file to version control!\n// cspell:disable\n";
       const out = banner + JSON5.stringify(cfg, null, 2);
       writeFileSync(file, out, "utf8");
-      console.log(`Updated EC2_HOST from ${before} to ${ip}`);
+      console.info(`Updated EC2_HOST from ${before} to ${ip}`);
     '
   else
     warn "EC2 IP not detected from Terraform outputs; skipping secrets IP update"
