@@ -32,16 +32,23 @@ const FootGreet: React.FC<{ className?: string }> = ({ className = "" }) => {
           alt="Bradley's head"
         />
         {`Good ${currentTimeOfDay}! `}
-        Thanks for stopping by! This space is always evolving — a bit of an
-        ongoing experiment. As you can probably tell, I&apos;m passionate about
-        crafting engaging digital experiences that blend creativity with
-        functionality.
+        Thanks for exploring this space—every element here is hand-crafted from
+        scratch, representing both a portfolio and a living laboratory for
+        interactive innovation.
       </p>
       <p>
-        I&apos;m always excited to collaborate with forward-thinking teams who
-        care about creating meaningful digital experiences. Let&apos;s connect
-        and explore how my approach to interactive design and development can
-        bring something distinctive to your organization.
+        What you&apos;ve experienced—the parallax carousel with its master/slave
+        synchronization, the magnetic Fluxel grid simulating depth through pure
+        math, the custom sprite renderer—these aren&apos;t just features,
+        they&apos;re original systems built to push the boundaries of
+        what&apos;s possible in the browser.
+      </p>
+      <p>
+        I&apos;m passionate about creating digital experiences that reward
+        curiosity and exploration. If you&apos;re looking for someone who brings
+        systematic innovation, architectural thinking, and an obsessive
+        attention to craft— let&apos;s connect and explore what we can build
+        together.
       </p>
     </div>
   );
