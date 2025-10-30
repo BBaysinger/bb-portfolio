@@ -93,11 +93,16 @@ export async function GET(
   const { key: keyParts } = await context.params;
   console.log(`[DEBUG] keyParts type: ${typeof keyParts}, value: ${JSON.stringify(keyParts)}, length: ${keyParts?.length}`);
   
-  // Debug route: return debug info if no key parts provided
-  if (!keyParts || keyParts.length === 0) {
+  // Debug route: return debug info if no key parts provided or if debug flag is present
+  const isDebugRequest = !keyParts || keyParts.length === 0 || (keyParts && keyParts[0] === 'debug');
+  
+  if (isDebugRequest) {
     const debugInfo = {
       timestamp: new Date().toISOString(),
       message: "Debug info for /projects route",
+      keyParts: keyParts,
+      keyPartsType: typeof keyParts,
+      keyPartsLength: keyParts?.length,
       environment: {
         PUBLIC_PROJECTS_BUCKET: process.env.PUBLIC_PROJECTS_BUCKET || "NOT_SET",
         NDA_PROJECTS_BUCKET: process.env.NDA_PROJECTS_BUCKET || "NOT_SET",
