@@ -9,7 +9,7 @@
 # - If the workflow dispatch fails, falls back to a safe SSH path to restart
 #   Compose profiles directly on the instance.
 # - First-time friendly: if no EC2 exists yet, Terraform apply will create it.
-#   To keep an existing instance, use --no-destroy; to skip infra entirely, use --containers-only.
+#   By default, existing instances are preserved; use --destroy to recreate; use --containers-only to skip infra entirely.
 #
 # Runtime architecture on EC2:
 # - Reverse proxy: Nginx on the host forwards traffic to Compose services.
@@ -59,7 +59,7 @@ err()  { echo -e "${RED}❌ $*${NC}"; }
 die() { err "$*"; exit 1; }
 
 force_destroy=false
-do_destroy=true
+do_destroy=false    # Changed: preserve EC2 by default
 do_infra=true       # allow containers-only mode
 build_images=""   # prod|dev|both|""
 profiles="both"   # prod|dev|both
@@ -80,7 +80,7 @@ Options:
   --build-images [val]    Rebuild/push images: prod|dev|both (default: none)
   --no-build              Disable image build/push
   --profiles [val]        Which profiles to start in GH: prod|dev|both (default: both)
-  --no-destroy            Do not destroy EC2 infra; only terraform apply
+  --destroy               Destroy and recreate EC2 infra (default: preserve existing)
   --containers-only       Skip all Terraform/infra steps (no destroy/apply)
   --gh-workflows [names]  Comma-separated workflow names to trigger (default: Redeploy)
   --refresh-env           Ask GH workflow to regenerate & upload .env files (default: false)
@@ -101,7 +101,7 @@ while [[ $# -gt 0 ]]; do
     --no-build) build_images=""; shift ;;
     --profiles)
       profiles="${2:-}"; [[ "$profiles" =~ ^(prod|dev|both)$ ]] || die "--profiles must be prod|dev|both"; shift 2 ;;
-    --no-destroy) do_destroy=false; shift ;;
+    --destroy) do_destroy=true; shift ;;
     --containers-only) do_infra=false; shift ;;
     --gh-workflows)
       workflows="${2:-}"; [[ -n "$workflows" ]] || die "--gh-workflows requires at least one name"; shift 2 ;;
@@ -293,7 +293,7 @@ if [[ "$do_infra" == true ]]; then
       warn "No destroyable resources (or state not present)"
     fi
   else
-    warn "Skipping destroy per --no-destroy"
+    warn "Skipping destroy (default behavior - use --destroy to recreate EC2)"
   fi
 
   log "Planning/applying fresh infrastructure"
