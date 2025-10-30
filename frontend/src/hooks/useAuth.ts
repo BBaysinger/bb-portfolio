@@ -52,7 +52,21 @@ export const useAuth = () => {
   };
 
   const logout = async () => {
-    // Skip backend logout since it's failing - just clear local state
+    try {
+      // Call the logout API to clear server-side cookies (especially payload-token for SSR)
+      const response = await fetch("/api/users/logout", {
+        method: "POST",
+        credentials: "include", // Include cookies in the request
+      });
+      
+      if (!response.ok) {
+        console.error("Logout API failed:", response.status, response.statusText);
+        // Continue with client-side cleanup even if API fails
+      }
+    } catch (error) {
+      console.error("Logout API error:", error);
+      // Continue with client-side cleanup even if API fails
+    }
 
     // Force clear Redux auth state
     dispatch(resetAuthState());
