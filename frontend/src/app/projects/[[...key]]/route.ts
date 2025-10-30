@@ -24,7 +24,9 @@ function getS3Client() {
   const region =
     process.env.AWS_REGION || process.env.AWS_DEFAULT_REGION || "us-west-2";
   console.log(`[DEBUG] Creating S3 client with region: ${region}`);
-  console.log(`[DEBUG] Environment: AWS_REGION=${process.env.AWS_REGION}, AWS_DEFAULT_REGION=${process.env.AWS_DEFAULT_REGION}`);
+  console.log(
+    `[DEBUG] Environment: AWS_REGION=${process.env.AWS_REGION}, AWS_DEFAULT_REGION=${process.env.AWS_DEFAULT_REGION}`
+  );
   return new S3Client({ region });
 }
 
@@ -42,7 +44,7 @@ async function presignIfExists(
 ): Promise<string | null> {
   const s3 = getS3Client();
   console.log(`[DEBUG] Checking S3 object: bucket=${bucket}, key=${key}`);
-  
+
   try {
     // Ensure the object exists to avoid redirecting to a 404
     await s3.send(new HeadObjectCommand({ Bucket: bucket, Key: key }));
@@ -55,7 +57,7 @@ async function presignIfExists(
     // For access denied or other transient errors, treat as not found to avoid leaking
     return null;
   }
-  
+
   try {
     const url = await getSignedUrl(
       s3,
@@ -80,7 +82,7 @@ export async function GET(
   const bucket = process.env.PUBLIC_PROJECTS_BUCKET || "";
   const prefix = process.env.PUBLIC_PROJECTS_PREFIX || "";
   console.log(`[DEBUG] GET /projects - bucket: ${bucket}, prefix: ${prefix}`);
-  
+
   if (!bucket) {
     console.log("[DEBUG] No bucket configured");
     return new Response("Public projects bucket not configured", {
@@ -89,14 +91,45 @@ export async function GET(
   }
 
   const { key: keyParts } = await context.params;
-  const key = sanitizeKey(keyParts || [], prefix);
-  console.log(`[DEBUG] Sanitized key: ${key}, keyParts: ${JSON.stringify(keyParts)}`);
   
+  // Debug route: return debug info if no key parts provided
+  if (!keyParts || keyParts.length === 0) {
+    const debugInfo = {
+      timestamp: new Date().toISOString(),
+      message: "Debug info for /projects route",
+      environment: {
+        PUBLIC_PROJECTS_BUCKET: process.env.PUBLIC_PROJECTS_BUCKET || "NOT_SET",
+        NDA_PROJECTS_BUCKET: process.env.NDA_PROJECTS_BUCKET || "NOT_SET",
+        AWS_REGION: process.env.AWS_REGION || "NOT_SET",
+        AWS_DEFAULT_REGION: process.env.AWS_DEFAULT_REGION || "NOT_SET",
+        AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID ? "SET" : "NOT_SET",
+        AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY ? "SET" : "NOT_SET",
+        NODE_ENV: process.env.NODE_ENV || "NOT_SET",
+        ENV_PROFILE: process.env.ENV_PROFILE || "NOT_SET",
+      },
+      bucket,
+      prefix,
+    };
+    
+    return Response.json(debugInfo, {
+      headers: {
+        "Content-Type": "application/json",
+        "Cache-Control": "no-store",
+      },
+    });
+  }
+  const key = sanitizeKey(keyParts || [], prefix);
+  console.log(
+    `[DEBUG] Sanitized key: ${key}, keyParts: ${JSON.stringify(keyParts)}`
+  );
+
   if (!key) return new Response("Bad path", { status: 400 });
 
   const url = await presignIfExists(bucket, key);
-  console.log(`[DEBUG] presignIfExists result: ${url ? 'URL generated' : 'null (not found)'}`);
-  
+  console.log(
+    `[DEBUG] presignIfExists result: ${url ? "URL generated" : "null (not found)"}`
+  );
+
   if (!url) return new Response("Not found", { status: 404 });
 
   // Short-lived redirect to the private object
