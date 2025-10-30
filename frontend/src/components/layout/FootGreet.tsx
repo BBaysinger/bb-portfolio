@@ -46,7 +46,7 @@ const FootGreet: React.FC<{ className?: string }> = ({ className = "" }) => {
         I&apos;m passionate about creating digital experiences that reward
         curiosity and exploration. If you&apos;re looking for someone who brings
         systematic innovation, architectural thinking, and an obsessive
-        attention to craft— let&apos;s connect and explore what we can build
+        attention to craft—let&apos;s connect and explore what we can build
         together.
       </p>
     </div>
