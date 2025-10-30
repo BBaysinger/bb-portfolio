@@ -50,6 +50,16 @@ export const Projects: CollectionConfig = {
     afterRead: [
       ({ doc, req }) => {
         const isAuthenticated = !!req.user
+
+        // Debug logging in development
+        if (process.env.NODE_ENV !== 'production' && doc?.nda) {
+          console.info(`[Projects afterRead] NDA project "${doc.slug}":`, {
+            hasUser: !!req.user,
+            userRole: req.user?.role,
+            willSanitize: !isAuthenticated,
+          })
+        }
+
         if (doc?.nda && !isAuthenticated) {
           return {
             ...doc,

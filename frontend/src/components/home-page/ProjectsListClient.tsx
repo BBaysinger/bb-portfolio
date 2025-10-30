@@ -48,7 +48,9 @@ const ProjectsListClient: React.FC<ProjectsListClientProps> = ({
 }) => {
   // React to client-side auth state changes (after hydration/login)
   const { isLoggedIn, user } = useAppSelector((s) => s.auth);
-  const authed = isAuthenticated || isLoggedIn || !!user;
+  // Use server-side auth state to avoid hydration mismatches with NDA content
+  const _clientAuth = isLoggedIn || !!user; // Available for future features
+
   const [focusedThumbIndex, setFocusedThumbIndex] = useState(-1);
   const projectThumbRefs = useRef<Array<RefObject<HTMLDivElement | null>>>([]);
   const ticking = useRef(false);
@@ -199,7 +201,7 @@ const ProjectsListClient: React.FC<ProjectsListClientProps> = ({
               thumbUrl={thumbUrl}
               thumbUrlMobile={thumbUrlMobile}
               thumbAlt={thumbAlt}
-              isAuthenticated={authed}
+              isAuthenticated={isAuthenticated}
               ref={(node) => setThumbRef(node, index)}
             />
           );

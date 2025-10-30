@@ -93,11 +93,20 @@ const ProjectsList = async () => {
   ) {
     try {
       const ndaCount = allProjects.filter((p) => p.nda || p.brandIsNda).length;
+      const ndaProjects = allProjects.filter((p) => p.nda || p.brandIsNda);
       console.info("[ProjectsList SSR] state", {
         isAuthenticated,
         cookiePresent: (await cookies()).getAll()?.length > 0,
         listedCount: allProjects.length,
         ndaEntries: ndaCount,
+        sampleNdaProject: ndaProjects[0]
+          ? {
+              id: ndaProjects[0].id,
+              title: ndaProjects[0].title,
+              nda: ndaProjects[0].nda,
+              brandIsNda: ndaProjects[0].brandIsNda,
+            }
+          : null,
       });
     } catch {}
   }
