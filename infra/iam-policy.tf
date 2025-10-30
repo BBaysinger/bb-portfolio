@@ -11,6 +11,15 @@ resource "aws_iam_user_policy" "bb_portfolio_passrole" {
         Effect = "Allow"
         Action = "iam:PassRole"
         Resource = "arn:aws:iam::778230822028:role/bb-portfolio-ssm-role"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "iam:AttachRolePolicy",
+          "iam:DetachRolePolicy",
+          "iam:ListAttachedRolePolicies"
+        ]
+        Resource = "arn:aws:iam::778230822028:role/bb-portfolio-ssm-role"
       }
     ]
   })
