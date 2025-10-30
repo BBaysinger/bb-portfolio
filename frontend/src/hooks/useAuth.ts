@@ -58,9 +58,13 @@ export const useAuth = () => {
         method: "POST",
         credentials: "include", // Include cookies in the request
       });
-      
+
       if (!response.ok) {
-        console.error("Logout API failed:", response.status, response.statusText);
+        console.error(
+          "Logout API failed:",
+          response.status,
+          response.statusText,
+        );
         // Continue with client-side cleanup even if API fails
       }
     } catch (error) {
