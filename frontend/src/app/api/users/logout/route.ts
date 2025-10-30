@@ -64,7 +64,7 @@ export async function POST(request: NextRequest) {
     const debug =
       process.env.DEBUG_API_AUTH === "1" ||
       process.env.NODE_ENV !== "production";
-    if (debug) console.log("🔗 Backend URL:", backendUrl);
+    if (debug) console.info("🔗 Backend URL:", backendUrl);
 
     // Forward cookies from the request to maintain session
     const cookieHeader = request.headers.get("cookie") || "";
@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
       const cookieNames = cookieHeader
         ? cookieHeader.split(/;\s*/).map((c) => c.split("=")[0])
         : [];
-      console.log(
+      console.info(
         "🍪 Logout API - Incoming cookies (names only):",
         cookieNames,
       );

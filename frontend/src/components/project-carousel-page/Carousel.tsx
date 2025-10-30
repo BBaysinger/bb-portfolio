@@ -444,16 +444,16 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
       const distanceToScroll = Math.abs(currentScrollLeft - targetScrollLeft);
       const duration = Math.min(2.0, 0.2 + distanceToScroll / 1500);
 
-      console.log("Scrolling to slide:", {
-        targetIndex,
-        targetDataIndex,
-        steps,
-        currentScrollLeft,
-        targetScrollLeft,
-        slideSpacing,
-        scrollIndexRef: scrollIndexRef.current,
-        targetScrollIndex,
-      });
+      // console.info("Scrolling to slide:", {
+      //   targetIndex,
+      //   targetDataIndex,
+      //   steps,
+      //   currentScrollLeft,
+      //   targetScrollLeft,
+      //   slideSpacing,
+      //   scrollIndexRef: scrollIndexRef.current,
+      //   targetScrollIndex,
+      // });
 
       // Use direct scrollLeft animation instead of ScrollToPlugin
       gsap.to(scrollerRef.current, {
