@@ -73,10 +73,6 @@
     "db:migrate:prod-to-dev": "bash scripts/migrate-database.sh prod dev",
     "deploy:full": "bash deploy/scripts/deployment-orchestrator.sh --build-images both --profiles both --refresh-env",
     "sync:nginx": "bash ./deploy/scripts/sync-nginx-config.sh --host ${NGINX_HOST:-ec2-user@$EC2_INSTANCE_IP} --key ${NGINX_KEY:-$HOME/.ssh/bb-portfolio-site-key.pem}",
-    "projects:publish:dev": "bash scripts/publish-projects.sh --profile dev",
-    "projects:publish:dev:dry-run": "bash scripts/publish-projects.sh --profile dev --dry-run",
-    "projects:publish:prod": "bash scripts/publish-projects.sh --profile prod",
-    "projects:publish:prod:dry-run": "bash scripts/publish-projects.sh --profile prod --dry-run",
     "infra:sync-env": "cd infra && bash sync-env-from-terraform.sh",
     "infra:sync-env:force": "cd infra && bash sync-env-from-terraform.sh --force"
   },

@@ -64,7 +64,7 @@ function parseArguments(): UploadOptions {
           options.accessLevels = [env];
         } else {
           console.error(
-            `Invalid access level: ${env}. Use 'public', 'nda', or 'both'`
+            `Invalid access level: ${env}. Use 'public', 'nda', or 'both'`,
           );
           process.exit(1);
         }
@@ -101,7 +101,7 @@ Examples:
 
   if (options.accessLevels.length === 0) {
     console.error(
-      "Please specify an access level with --env <public|nda|both>"
+      "Please specify an access level with --env <public|nda|both>",
     );
     console.info("Use --help for more information");
     process.exit(1);
@@ -115,7 +115,7 @@ function uploadToS3(accessLevel: AccessLevel, options: UploadOptions): void {
   const sourceDir = PROJECT_SOURCES[accessLevel];
 
   console.info(
-    `\n📁 Uploading to ${accessLevel.toUpperCase()} projects bucket`
+    `\n📁 Uploading to ${accessLevel.toUpperCase()} projects bucket`,
   );
   console.info(`Source: ${sourceDir}`);
   console.info(`Target: s3://${bucket}`);
@@ -124,7 +124,7 @@ function uploadToS3(accessLevel: AccessLevel, options: UploadOptions): void {
   if (!existsSync(sourceDir)) {
     console.warn(`⚠️  Source directory not found: ${sourceDir}`);
     console.info(
-      `   Create this directory and add your ${accessLevel} project files`
+      `   Create this directory and add your ${accessLevel} project files`,
     );
     return;
   }
@@ -178,7 +178,7 @@ function uploadToS3(accessLevel: AccessLevel, options: UploadOptions): void {
 
     if (!options.dryRun) {
       console.info(
-        `✅ Successfully uploaded to ${accessLevel} projects bucket`
+        `✅ Successfully uploaded to ${accessLevel} projects bucket`,
       );
     } else {
       console.info(`🔍 Dry run complete for ${accessLevel} projects bucket`);
@@ -186,7 +186,7 @@ function uploadToS3(accessLevel: AccessLevel, options: UploadOptions): void {
   } catch (error) {
     console.error(
       `❌ Failed to upload to ${accessLevel} projects bucket:`,
-      error
+      error,
     );
     process.exit(1);
   }
@@ -214,12 +214,12 @@ async function main(): Promise<void> {
   }
 
   console.info(
-    `\n🎉 Project upload ${options.dryRun ? "simulation" : "process"} complete!`
+    `\n🎉 Project upload ${options.dryRun ? "simulation" : "process"} complete!`,
   );
 
   if (options.dryRun) {
     console.info(
-      "💡 This was a dry run. Remove --dry-run to actually upload files."
+      "💡 This was a dry run. Remove --dry-run to actually upload files.",
     );
   }
 }
