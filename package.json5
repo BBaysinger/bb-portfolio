@@ -181,10 +181,6 @@
     "media:upload": "tsx scripts/upload-media-to-s3.ts",
     // 🪄 Verify uploaded media files on S3 to ensure integrity
     "media:verify": "tsx scripts/verify-media-s3.ts",
-    // 📁 Upload local project files to S3 buckets (public/nda)
-    "projects:upload": "tsx scripts/upload-projects-to-s3.ts",
-    // 📁 Verify uploaded project files on S3 to ensure integrity
-    "projects:verify": "tsx scripts/verify-projects-s3.ts",
     // 📤 Upload local media files to S3 development environment
     "migrate:media:dev": "tsx scripts/upload-media-to-s3.ts --env dev",
     // 📤 Upload local media files to S3 production environment
@@ -213,6 +209,8 @@
     "projects:upload:nda": "tsx scripts/upload-projects-to-s3.ts --env nda",
     // 📁 Upload project files to both public and NDA S3 buckets
     "projects:upload:both": "tsx scripts/upload-projects-to-s3.ts --env both",
+    // 📁 Verify uploaded project files on S3 to ensure integrity
+    "projects:verify": "tsx scripts/verify-projects-s3.ts",
     // ☢️💀 DANGER: NUCLEAR DATABASE REPLACEMENT - Completely overwrites production DB with local data
     "db:migrate:local-to-prod": "bash scripts/migrate-database.sh local prod",
     // ☢️🔥 DANGER: APOCALYPTIC DB REPLACEMENT - Completely overwrites dev DB with local data

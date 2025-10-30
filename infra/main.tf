@@ -574,7 +574,21 @@ output "bb_portfolio_website_url" {
   description = "Direct URL to access the portfolio website"
 }
 
+output "projects_bucket_website_urls" {
+  value = {
+    for access_level, bucket in aws_s3_bucket.projects :
+    access_level => "http://${bucket.bucket}.s3-website-${var.region}.amazonaws.com"
+  }
+  description = "S3 website URLs for project buckets"
+}
 
+output "projects_bucket_names" {
+  value = {
+    for access_level, bucket in aws_s3_bucket.projects :
+    access_level => bucket.bucket
+  }
+  description = "Names of the project S3 buckets"
+}
 
 resource "aws_eip_association" "bb_portfolio_assoc" {
   instance_id   = aws_instance.bb_portfolio.id
@@ -671,10 +685,11 @@ resource "aws_s3_bucket_public_access_block" "projects" {
   for_each = aws_s3_bucket.projects
   bucket   = each.value.id
 
+  # Allow public policies for website hosting
   block_public_acls       = true
-  block_public_policy     = true
+  block_public_policy     = false  # Changed to false for website hosting
   ignore_public_acls      = true
-  restrict_public_buckets = true
+  restrict_public_buckets = false  # Changed to false for website hosting
 }
 
 # Server-side encryption for both bucket types
@@ -725,6 +740,42 @@ resource "aws_s3_bucket_cors_configuration" "projects" {
     expose_headers  = []
     max_age_seconds = 300
   }
+}
+
+# Website hosting configuration for project buckets
+resource "aws_s3_bucket_website_configuration" "projects" {
+  for_each = aws_s3_bucket.projects
+  bucket   = each.value.id
+
+  index_document {
+    suffix = "index.html"
+  }
+
+  error_document {
+    key = "error.html"
+  }
+}
+
+# Bucket policies for public website access
+resource "aws_s3_bucket_policy" "projects_public_read" {
+  for_each = aws_s3_bucket.projects
+  bucket   = each.value.id
+
+  # Wait for public access block to be configured
+  depends_on = [aws_s3_bucket_public_access_block.projects]
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid       = "PublicReadGetObject"
+        Effect    = "Allow"
+        Principal = "*"
+        Action    = "s3:GetObject"
+        Resource  = "${each.value.arn}/*"
+      }
+    ]
+  })
 }
 
 # IAM: Grant EC2 role access to read/write objects in all S3 buckets
