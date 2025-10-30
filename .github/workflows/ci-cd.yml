@@ -102,6 +102,9 @@ jobs:
           # S3 and AWS configuration required by payload.config.ts during build
           DEV_S3_BUCKET: ${{ secrets.DEV_S3_BUCKET }}
           DEV_AWS_REGION: ${{ secrets.DEV_AWS_REGION }}
+          # S3 projects buckets for API routes
+          PUBLIC_PROJECTS_BUCKET: ${{ secrets.PUBLIC_PROJECTS_BUCKET }}
+          NDA_PROJECTS_BUCKET: ${{ secrets.NDA_PROJECTS_BUCKET }}
           # Unified AWS credentials for all services (S3, SES, deployment)
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -124,6 +127,9 @@ jobs:
           # S3 and AWS configuration required by payload.config.ts during testing
           DEV_S3_BUCKET: ${{ secrets.DEV_S3_BUCKET }}
           DEV_AWS_REGION: ${{ secrets.DEV_AWS_REGION }}
+          # S3 projects buckets for API routes
+          PUBLIC_PROJECTS_BUCKET: ${{ secrets.PUBLIC_PROJECTS_BUCKET }}
+          NDA_PROJECTS_BUCKET: ${{ secrets.NDA_PROJECTS_BUCKET }}
           # Unified AWS credentials for all services (S3, SES, deployment)
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -145,6 +151,8 @@ jobs:
           DEV_BACKEND_INTERNAL_URL: ${{ secrets.DEV_BACKEND_INTERNAL_URL }}
           DEV_NEXT_PUBLIC_BACKEND_URL: ${{ secrets.DEV_NEXT_PUBLIC_BACKEND_URL }}
           NEXT_PUBLIC_BACKEND_URL: ${{ secrets.DEV_NEXT_PUBLIC_BACKEND_URL }}
+          PUBLIC_PROJECTS_BUCKET: ${{ secrets.PUBLIC_PROJECTS_BUCKET }}
+          NDA_PROJECTS_BUCKET: ${{ secrets.NDA_PROJECTS_BUCKET }}
         run: pnpm run build
 
   # Build and push production images to ECR (main branch)
@@ -175,6 +183,8 @@ jobs:
             --build-arg ENV_PROFILE=prod \
             --build-arg PROD_BACKEND_INTERNAL_URL="${{ secrets.PROD_BACKEND_INTERNAL_URL }}" \
             --build-arg PROD_NEXT_PUBLIC_BACKEND_URL="${{ secrets.PROD_NEXT_PUBLIC_BACKEND_URL }}" \
+            --build-arg PUBLIC_PROJECTS_BUCKET="${{ secrets.PUBLIC_PROJECTS_BUCKET }}" \
+            --build-arg NDA_PROJECTS_BUCKET="${{ secrets.NDA_PROJECTS_BUCKET }}" \
             -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./frontend
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
@@ -200,6 +210,8 @@ jobs:
             --build-arg PROD_S3_BUCKET="${{ secrets.PROD_S3_BUCKET }}" \
             --build-arg PROD_AWS_REGION="${{ secrets.PROD_AWS_REGION }}" \
             --build-arg DEV_AWS_REGION="${{ secrets.DEV_AWS_REGION }}" \
+            --build-arg PUBLIC_PROJECTS_BUCKET="${{ secrets.PUBLIC_PROJECTS_BUCKET }}" \
+            --build-arg NDA_PROJECTS_BUCKET="${{ secrets.NDA_PROJECTS_BUCKET }}" \
             --secret id=prod_mongodb_uri,src=/tmp/prod_mongodb_uri \
             --secret id=dev_mongodb_uri,src=/tmp/dev_mongodb_uri \
             --secret id=local_mongodb_uri,src=/tmp/local_mongodb_uri \
@@ -245,10 +257,14 @@ jobs:
       - name: Build and push dev images to Docker Hub
         run: |
           docker build --build-arg ENV_PROFILE=dev \
+            --build-arg PUBLIC_PROJECTS_BUCKET="${{ secrets.PUBLIC_PROJECTS_BUCKET }}" \
+            --build-arg NDA_PROJECTS_BUCKET="${{ secrets.NDA_PROJECTS_BUCKET }}" \
             -t bhbaysinger/bb-portfolio-backend:dev ./backend
           docker build --build-arg ENV_PROFILE=dev \
             --build-arg DEV_BACKEND_INTERNAL_URL=${{ secrets.DEV_BACKEND_INTERNAL_URL }} \
             --build-arg DEV_NEXT_PUBLIC_BACKEND_URL=${{ secrets.DEV_NEXT_PUBLIC_BACKEND_URL }} \
+            --build-arg PUBLIC_PROJECTS_BUCKET="${{ secrets.PUBLIC_PROJECTS_BUCKET }}" \
+            --build-arg NDA_PROJECTS_BUCKET="${{ secrets.NDA_PROJECTS_BUCKET }}" \
             -t bhbaysinger/bb-portfolio-frontend:dev ./frontend
           docker push bhbaysinger/bb-portfolio-backend:dev
           docker push bhbaysinger/bb-portfolio-frontend:dev
