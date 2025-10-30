@@ -1,8 +1,5 @@
 // Test route logic directly
-import {
-  S3Client,
-  HeadObjectCommand,
-} from "@aws-sdk/client-s3";
+import { S3Client, HeadObjectCommand } from "@aws-sdk/client-s3";
 
 function sanitizeKey(parts: string[], prefix = ""): string | null {
   const joined = (parts || []).join("/");
@@ -22,31 +19,37 @@ function getS3Client() {
 async function testRouteLogic() {
   const bucket = "bb-portfolio-projects-public";
   const prefix = "";
-  
+
   // Test the exact logic from the route
   const testCases = [
     ["data-calculator"],
     ["data-calculator", "index.html"],
-    [],  // Empty - should add index.html
+    [], // Empty - should add index.html
   ];
-  
+
   for (const keyParts of testCases) {
     console.log(`\nTesting keyParts: [${keyParts.join(", ")}]`);
-    
+
     const key = sanitizeKey(keyParts, prefix);
     console.log(`Generated key: "${key}"`);
-    
+
     if (!key) {
       console.log("Key generation failed (null)");
       continue;
     }
-    
+
     try {
       const s3 = getS3Client();
-      const result = await s3.send(new HeadObjectCommand({ Bucket: bucket, Key: key }));
+      const result = await s3.send(
+        new HeadObjectCommand({ Bucket: bucket, Key: key }),
+      );
       console.log(`✅ SUCCESS: ${key} exists (${result.ContentType})`);
-    } catch (error: any) {
-      console.log(`❌ FAILED: ${key} - ${error.name}: ${error.message}`);
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error
+          ? `${error.name}: ${error.message}`
+          : String(error);
+      console.log(`❌ FAILED: ${key} - ${errorMessage}`);
     }
   }
 }
