@@ -93,7 +93,7 @@ Deployments are orchestrated via a single script that provisions/updates AWS wit
 
 ### Image Processing
 
-- Custom Sprite Sheet Animation Processing Scripts
+- Custom Sprite Sheet Processing Scripts
   - In a separate repo: [github.com/BBaysinger/fluxel-animations](https://github.com/BBaysinger/fluxel-animations)
 
 ## Technologies Used
