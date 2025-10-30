@@ -91,39 +91,6 @@ export async function GET(
   }
 
   const { key: keyParts } = await context.params;
-  console.log(`[DEBUG] keyParts type: ${typeof keyParts}, value: ${JSON.stringify(keyParts)}, length: ${keyParts?.length}`);
-  
-  // Debug route: return debug info if no key parts provided or if debug flag is present
-  const isDebugRequest = !keyParts || keyParts.length === 0 || (keyParts && keyParts[0] === 'debug');
-  
-  if (isDebugRequest) {
-    const debugInfo = {
-      timestamp: new Date().toISOString(),
-      message: "Debug info for /projects route",
-      keyParts: keyParts,
-      keyPartsType: typeof keyParts,
-      keyPartsLength: keyParts?.length,
-      environment: {
-        PUBLIC_PROJECTS_BUCKET: process.env.PUBLIC_PROJECTS_BUCKET || "NOT_SET",
-        NDA_PROJECTS_BUCKET: process.env.NDA_PROJECTS_BUCKET || "NOT_SET",
-        AWS_REGION: process.env.AWS_REGION || "NOT_SET",
-        AWS_DEFAULT_REGION: process.env.AWS_DEFAULT_REGION || "NOT_SET",
-        AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID ? "SET" : "NOT_SET",
-        AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY ? "SET" : "NOT_SET",
-        NODE_ENV: process.env.NODE_ENV || "NOT_SET",
-        ENV_PROFILE: process.env.ENV_PROFILE || "NOT_SET",
-      },
-      bucket,
-      prefix,
-    };
-    
-    return Response.json(debugInfo, {
-      headers: {
-        "Content-Type": "application/json",
-        "Cache-Control": "no-store",
-      },
-    });
-  }
   const key = sanitizeKey(keyParts || [], prefix);
   console.log(
     `[DEBUG] Sanitized key: ${key}, keyParts: ${JSON.stringify(keyParts)}`

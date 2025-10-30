@@ -72,6 +72,12 @@ services:
     restart: unless-stopped # Auto-restart on failure/reboot
     networks:
       default: {}
+    # Enable access to EC2 metadata service for IAM credentials
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      - AWS_REGION=us-west-2
+      - AWS_DEFAULT_REGION=us-west-2
     healthcheck: # Health monitoring for load balancers
       test:
         [
@@ -99,6 +105,12 @@ services:
     depends_on:
       bb-portfolio-backend-prod:
         condition: service_started # Just wait for backend to start, not be healthy
+    # Enable access to EC2 metadata service for IAM credentials
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      - AWS_REGION=us-west-2
+      - AWS_DEFAULT_REGION=us-west-2
     healthcheck: # Health monitoring for load balancers
       test:
         [
