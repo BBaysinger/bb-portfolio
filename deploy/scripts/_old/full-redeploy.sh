@@ -277,7 +277,7 @@ update_secrets_with_new_ip() {
     const oldIp = config.strings.EC2_HOST;
     const newIp = '${new_ip}';
     
-    console.log(\`Updating IP from \${oldIp} to \${newIp}\`);
+    console.info(\`Updating IP from \${oldIp} to \${newIp}\`);
     
     // Update all IP references
     config.strings.EC2_HOST = newIp;
@@ -291,7 +291,7 @@ update_secrets_with_new_ip() {
     const updatedContent = '// Private secrets file for syncing to GitHub Actions secrets\n// This file is ignored by git. Keep real values here.\n// Do NOT commit this file to version control!\n// cspell:disable\n' + JSON5.stringify(config, null, 2);
     writeFileSync(secretsFile, updatedContent, 'utf8');
     
-    console.log('Successfully updated secrets file with new IP address');
+    console.info('Successfully updated secrets file with new IP address');
     "
     
     log_success "Secrets file updated with new IP: ${new_ip}"
@@ -446,7 +446,7 @@ update_env_files_on_ec2() {
     writeFileSync(`${OUT_DIR}/backend.env.dev`, devBackend);
     writeFileSync(`${OUT_DIR}/frontend.env.prod`, prodFrontend);
     writeFileSync(`${OUT_DIR}/frontend.env.dev`, devFrontend);
-    console.log(`Local env files generated at: ${OUT_DIR}`);
+    console.info(`Local env files generated at: ${OUT_DIR}`);
     JS
             # Run the generator with environment variables
             OUT_DIR="${TMP_ENV_DIR}" EC2_IP="${ec2_ip}" npx tsx "${TMP_JS}"

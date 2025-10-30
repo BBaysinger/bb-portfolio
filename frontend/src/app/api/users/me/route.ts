@@ -97,7 +97,7 @@ export async function GET(request: NextRequest) {
 
     // First attempt (no trailing slash)
     if (debug)
-      console.log("🔗 Backend URL (me):", backendUrl, "reqHost:", reqHost);
+      console.info("🔗 Backend URL (me):", backendUrl, "reqHost:", reqHost);
     let { res, payload } = await tryFetch(
       `${backendUrl.replace(/\/$/, "")}/api/users/me`,
     );
