@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
     const debug =
       process.env.DEBUG_API_AUTH === "1" ||
       process.env.NODE_ENV !== "production";
-    if (debug) console.log("🔗 Backend URL (login):", backendUrl);
+    if (debug) console.info("🔗 Backend URL (login):", backendUrl);
     const response = await fetch(
       `${backendUrl.replace(/\/$/, "")}/api/users/login`,
       {

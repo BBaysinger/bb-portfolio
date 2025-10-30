@@ -31,7 +31,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     fetch(healthUrl, { signal: abort.signal })
       .then((res) => {
         if (res.ok) {
-          console.log(
+          console.info(
             `✅ [Runtime Health Check] Backend healthy at ${healthUrl} (status: ${res.status})`,
           );
         } else {
