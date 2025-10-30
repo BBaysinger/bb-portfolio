@@ -85,7 +85,8 @@ const Footer: React.FC<FooterProps> = ({
 
     const updateFooterHeight = () => {
       const height = footerTarget.offsetHeight || 0;
-      setFooterHeight(height);
+      const minHeight = window.innerHeight;
+      setFooterHeight(Math.max(height, minHeight));
     };
 
     requestAnimationFrame(() => {
@@ -105,9 +106,16 @@ const Footer: React.FC<FooterProps> = ({
 
     footerResizeObserver.observe(footerTarget);
 
+    const handleWindowResize = () => {
+      updateFooterHeight();
+    };
+
+    window.addEventListener("resize", handleWindowResize);
+
     return () => {
       mainContentResizeObserver.disconnect();
       footerResizeObserver.disconnect();
+      window.removeEventListener("resize", handleWindowResize);
     };
   }, [mutationElemRef]);
 
@@ -115,7 +123,7 @@ const Footer: React.FC<FooterProps> = ({
     <div
       className={clsx(styles.footerWrapper)}
       style={{
-        height: `${Math.round(footerHeight) - 1}px`,
+        minHeight: `${Math.round(footerHeight) - 1}px`,
       }}
     >
       <footer
