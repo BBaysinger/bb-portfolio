@@ -187,15 +187,15 @@ dev_ses_to_email   = "${strings.DEV_SES_TO_EMAIL}"
 
 function main() {
   try {
-    console.log(
+    console.info(
       "🔄 Generating terraform.tfvars from github-secrets.private.json5...",
     );
-    console.log("Project root:", projectRoot);
-    console.log("Secrets file:", secretsFile);
+    console.info("Project root:", projectRoot);
+    console.info("Secrets file:", secretsFile);
 
     // Load secrets
     const secrets = loadSecrets();
-    console.log("✅ Loaded secrets configuration");
+    console.info("✅ Loaded secrets configuration");
 
     // Generate terraform vars content
     const terraformVarsContent = generateTerraformVars(secrets);
@@ -208,7 +208,7 @@ function main() {
 
     // Write terraform.tfvars file
     fs.writeFileSync(terraformVarsFile, terraformVarsContent);
-    console.log("✅ Generated terraform.tfvars");
+    console.info("✅ Generated terraform.tfvars");
 
     // Verify required variables are present
     const requiredVars = [
@@ -242,11 +242,11 @@ function main() {
         console.warn(`   - ${varName.toUpperCase()}`),
       );
     } else {
-      console.log("✅ All required variables are present");
+      console.info("✅ All required variables are present");
     }
 
-    console.log("🎈 terraform.tfvars generated successfully!");
-    console.log(`📁 Location: ${terraformVarsFile}`);
+    console.info("🎈 terraform.tfvars generated successfully!");
+    console.info(`📁 Location: ${terraformVarsFile}`);
   } catch (error) {
     console.error("❌ Error generating terraform.tfvars:", error);
     process.exit(1);
