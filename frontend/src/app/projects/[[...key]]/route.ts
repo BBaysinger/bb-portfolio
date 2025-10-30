@@ -23,6 +23,8 @@ function sanitizeKey(parts: string[], prefix = ""): string | null {
 function getS3Client() {
   const region =
     process.env.AWS_REGION || process.env.AWS_DEFAULT_REGION || "us-west-2";
+  console.log(`[DEBUG] Creating S3 client with region: ${region}`);
+  console.log(`[DEBUG] Environment: AWS_REGION=${process.env.AWS_REGION}, AWS_DEFAULT_REGION=${process.env.AWS_DEFAULT_REGION}`);
   return new S3Client({ region });
 }
 
@@ -39,21 +41,33 @@ async function presignIfExists(
   key: string
 ): Promise<string | null> {
   const s3 = getS3Client();
+  console.log(`[DEBUG] Checking S3 object: bucket=${bucket}, key=${key}`);
+  
   try {
     // Ensure the object exists to avoid redirecting to a 404
     await s3.send(new HeadObjectCommand({ Bucket: bucket, Key: key }));
+    console.log(`[DEBUG] HeadObject succeeded for ${key}`);
   } catch (err: unknown) {
+    console.log(`[DEBUG] HeadObject failed:`, err);
     const status = getHttpStatus(err);
+    console.log(`[DEBUG] HTTP status: ${status}`);
     if (status === 404) return null;
     // For access denied or other transient errors, treat as not found to avoid leaking
     return null;
   }
-  const url = await getSignedUrl(
-    s3,
-    new GetObjectCommand({ Bucket: bucket, Key: key }),
-    { expiresIn: 60 }
-  );
-  return url;
+  
+  try {
+    const url = await getSignedUrl(
+      s3,
+      new GetObjectCommand({ Bucket: bucket, Key: key }),
+      { expiresIn: 60 }
+    );
+    console.log(`[DEBUG] Generated presigned URL for ${key}`);
+    return url;
+  } catch (err: unknown) {
+    console.log(`[DEBUG] Failed to generate presigned URL:`, err);
+    return null;
+  }
 }
 
 export async function GET(
@@ -65,7 +79,10 @@ export async function GET(
   // Use public projects bucket for /projects route (no auth required)
   const bucket = process.env.PUBLIC_PROJECTS_BUCKET || "";
   const prefix = process.env.PUBLIC_PROJECTS_PREFIX || "";
+  console.log(`[DEBUG] GET /projects - bucket: ${bucket}, prefix: ${prefix}`);
+  
   if (!bucket) {
+    console.log("[DEBUG] No bucket configured");
     return new Response("Public projects bucket not configured", {
       status: 500,
     });
@@ -73,9 +90,13 @@ export async function GET(
 
   const { key: keyParts } = await context.params;
   const key = sanitizeKey(keyParts || [], prefix);
+  console.log(`[DEBUG] Sanitized key: ${key}, keyParts: ${JSON.stringify(keyParts)}`);
+  
   if (!key) return new Response("Bad path", { status: 400 });
 
   const url = await presignIfExists(bucket, key);
+  console.log(`[DEBUG] presignIfExists result: ${url ? 'URL generated' : 'null (not found)'}`);
+  
   if (!url) return new Response("Not found", { status: 404 });
 
   // Short-lived redirect to the private object
