@@ -12,11 +12,24 @@ export const revalidate = 0;
 
 function sanitizeKey(parts: string[], prefix = ""): string | null {
   const joined = (parts || []).join("/");
+  console.log(`[DEBUG] sanitizeKey - parts: ${JSON.stringify(parts)}, joined: "${joined}"`);
+  
   if (joined.includes("..")) return null; // prevent path traversal
   let key =
     (prefix ? prefix.replace(/\/$/, "") + "/" : "") +
     joined.replace(/^\/+/, "");
-  if (!joined || joined.endsWith("/")) key += "index.html";
+  
+  console.log(`[DEBUG] sanitizeKey - initial key: "${key}"`);
+  console.log(`[DEBUG] sanitizeKey - conditions: joined="${joined}", endsWith/: ${joined.endsWith("/")}, includes.: ${joined.includes(".")}`);
+  
+  // Add index.html for directory paths (no file extension) or empty paths
+  if (!joined || joined.endsWith("/") || !joined.includes(".")) {
+    const oldKey = key;
+    key += (key && !key.endsWith("/") ? "/" : "") + "index.html";
+    console.log(`[DEBUG] sanitizeKey - appended index.html: "${oldKey}" -> "${key}"`);
+  }
+  
+  console.log(`[DEBUG] sanitizeKey - final key: "${key}"`);
   return key;
 }
 
@@ -110,6 +123,13 @@ export async function GET(
     console.log(`[DEBUG] Key generation returned null, rejecting request`);
     return new Response("Bad path", { status: 400 });
   }
+
+  // Validate our key generation with some test cases
+  console.log(`[DEBUG] Testing sanitizeKey function:`);
+  console.log(`[DEBUG] Test ['data-calculator'] -> "${sanitizeKey(['data-calculator'], '')}"`);
+  console.log(`[DEBUG] Test ['data-calculator', 'index.html'] -> "${sanitizeKey(['data-calculator', 'index.html'], '')}"`);
+  console.log(`[DEBUG] Test [] -> "${sanitizeKey([], '')}"`);
+  console.log(`[DEBUG] Current request key: "${key}"`);
 
   const url = await presignIfExists(bucket, key);
   console.log(
