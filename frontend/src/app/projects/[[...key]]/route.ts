@@ -91,6 +91,7 @@ export async function GET(
   }
 
   const { key: keyParts } = await context.params;
+  console.log(`[DEBUG] keyParts type: ${typeof keyParts}, value: ${JSON.stringify(keyParts)}, length: ${keyParts?.length}`);
   
   // Debug route: return debug info if no key parts provided
   if (!keyParts || keyParts.length === 0) {
