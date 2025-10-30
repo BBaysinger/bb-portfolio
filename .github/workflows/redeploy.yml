@@ -141,6 +141,8 @@ jobs:
           START_DEV: ${{ inputs.start_dev }}
           # Common
           S3_REGION: ${{ secrets.S3_REGION }}
+          PUBLIC_PROJECTS_BUCKET: ${{ secrets.PUBLIC_PROJECTS_BUCKET }}
+          NDA_PROJECTS_BUCKET: ${{ secrets.NDA_PROJECTS_BUCKET }}
           # Prod
           PROD_MONGODB_URI: ${{ secrets.PROD_MONGODB_URI }}
           PROD_PAYLOAD_SECRET: ${{ secrets.PROD_PAYLOAD_SECRET }}
@@ -178,6 +180,8 @@ jobs:
             "PROD_PAYLOAD_SECRET=$(s_val PROD_PAYLOAD_SECRET)" \
             "" \
             "PROD_S3_BUCKET=$(s_val PROD_S3_BUCKET)" \
+            "PUBLIC_PROJECTS_BUCKET=$(s_val PUBLIC_PROJECTS_BUCKET)" \
+            "NDA_PROJECTS_BUCKET=$(s_val NDA_PROJECTS_BUCKET)" \
             "S3_REGION=$(s_val S3_REGION \"$PROD_AWS_REGION\")" \
             "" \
             "PROD_FRONTEND_URL=$(s_val PROD_FRONTEND_URL)" \
@@ -199,6 +203,8 @@ jobs:
             "DEV_PAYLOAD_SECRET=$(s_val DEV_PAYLOAD_SECRET)" \
             "" \
             "DEV_S3_BUCKET=$(s_val DEV_S3_BUCKET)" \
+            "PUBLIC_PROJECTS_BUCKET=$(s_val PUBLIC_PROJECTS_BUCKET)" \
+            "NDA_PROJECTS_BUCKET=$(s_val NDA_PROJECTS_BUCKET)" \
             "S3_REGION=$(s_val S3_REGION \"$DEV_AWS_REGION\")" \
             "" \
             "DEV_FRONTEND_URL=$(s_val DEV_FRONTEND_URL)" \
@@ -215,6 +221,9 @@ jobs:
             "" \
             "PROD_BACKEND_INTERNAL_URL=$(s_val PROD_BACKEND_INTERNAL_URL 'http://bb-portfolio-backend-prod:3000')" \
             "NEXT_PUBLIC_BACKEND_URL=$(s_val PROD_NEXT_PUBLIC_BACKEND_URL)" \
+            "" \
+            "PUBLIC_PROJECTS_BUCKET=$(s_val PUBLIC_PROJECTS_BUCKET)" \
+            "NDA_PROJECTS_BUCKET=$(s_val NDA_PROJECTS_BUCKET)" \
             > "$OUT_DIR/frontend.env.prod"
 
           printf "%s\n" \
@@ -223,6 +232,9 @@ jobs:
             "" \
             "DEV_BACKEND_INTERNAL_URL=$(s_val DEV_BACKEND_INTERNAL_URL 'http://bb-portfolio-backend-dev:3000')" \
             "NEXT_PUBLIC_BACKEND_URL=$(s_val DEV_NEXT_PUBLIC_BACKEND_URL)" \
+            "" \
+            "PUBLIC_PROJECTS_BUCKET=$(s_val PUBLIC_PROJECTS_BUCKET)" \
+            "NDA_PROJECTS_BUCKET=$(s_val NDA_PROJECTS_BUCKET)" \
             > "$OUT_DIR/frontend.env.dev"
 
           echo "dir=$OUT_DIR" >> "$GITHUB_OUTPUT"
