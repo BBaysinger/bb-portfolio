@@ -113,6 +113,7 @@ The deployment pipeline uses Terraform for infrastructure provisioning, Docker f
 - Capture and Store Data about user interactions
 - Accessability should be improved with respect to ARIA, rem font scaling, etc...
 - Remove Bootstrap (Not relying on it much anyhow)
+- Header animations will be in response to user interactions vs just a timer
 
 Note: Earlier plans for “custom Express/Mongo backend” were superseded by the fully integrated Payload CMS backend present in this repo.
 

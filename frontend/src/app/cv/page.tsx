@@ -336,12 +336,11 @@ const CurriculumVitae: React.FC = () => {
                 animation, and interactive development. From game development to
                 scalable web UI solutions, I bridge creativity with technology
                 to craft engaging user experiences. After delivering
-                award-winning interactive projects in Flash, I transitioned
-                seamlessly to modern frameworks like Angular and React, building
-                reusable, high-performance components. With a results-driven
-                approach, I&apos;ve helped Fortune 500 companies, entertainment
-                giants, and startups create polished, impactful digital
-                experiences.
+                award-winning interactive projects in Flash, I transitioned to
+                modern frameworks like Angular and React, building reusable,
+                high-performance components. With a results-driven approach,
+                I&apos;ve helped Fortune 500 companies, entertainment giants,
+                and startups create polished, impactful digital experiences.
               </p>
             </div>
           </div>

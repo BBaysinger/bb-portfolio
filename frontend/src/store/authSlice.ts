@@ -30,6 +30,21 @@ const initialState: AuthState = {
   hasInitialized: false,
 };
 
+/**
+ * Redux authentication slice for managing user authentication state.
+ *
+ * Handles user login, logout, and authentication status checking with
+ * automatic session restoration on app initialization. Integrates with
+ * Payload CMS authentication endpoints.
+ *
+ * Features:
+ * - Automatic session restoration on page load
+ * - Login/logout state management
+ * - Error handling and loading states
+ * - NDA content access control
+ * - Secure HTTP-only cookie authentication
+ */
+
 // Async thunks for API calls
 export const checkAuthStatus = createAsyncThunk(
   "auth/checkStatus",

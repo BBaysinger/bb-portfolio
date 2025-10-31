@@ -9,6 +9,23 @@ import React, {
 import type { FluxelHandle, FluxelData } from "./FluxelAllTypes";
 import styles from "./FluxelSvg.module.scss";
 
+/**
+ * Individual SVG-rendered Fluxel component.
+ *
+ * Renders a single animated pixel (fluxel) using SVG graphics with color cycling,
+ * shadow effects, and transform-based positioning. Each fluxel responds to magnetic
+ * forces and maintains its own animation state.
+ *
+ * @component
+ * @param {Object} props - Component props
+ * @param {FluxelData} props.data - Fluxel animation and state data
+ * @param {number} props.x - X position in the grid
+ * @param {number} props.y - Y position in the grid
+ * @param {number} props.size - Size for scaling calculations
+ * @param {string} props.clipPathId - SVG clip path ID for masking
+ * @param {string} [props.className] - Optional CSS class names
+ * @param {FluxelHandle} ref - Forwarded ref for external control
+ */
 const FluxelSvg = forwardRef<
   FluxelHandle,
   {

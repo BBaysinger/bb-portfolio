@@ -26,6 +26,26 @@ export interface CarouselLayerConfig {
   type: "Slave" | "Master";
 }
 
+/**
+ * Layered carousel management system for synchronized parallax effects.
+ *
+ * Manages multiple carousel layers with master/slave architecture for creating
+ * complex parallax animations. The master carousel handles user interactions
+ * while slave carousels follow with configurable multipliers and spacing.
+ *
+ * Features:
+ * - Master/slave carousel synchronization
+ * - Configurable parallax multipliers per layer
+ * - Custom spacing and slide content per layer
+ * - Unified control interface for external components
+ * - Smooth scrolling and position tracking
+ *
+ * @component
+ * @param {Object} props - Component props
+ * @param {CarouselLayerConfig[]} [props.layers] - Configuration for each carousel layer
+ * @param {string} [props.prefix] - CSS class prefix for styling
+ * @param {React.Ref} ref - Forwarded ref for external control
+ */
 export interface LayeredCarouselManagerProps {
   layers?: CarouselLayerConfig[];
   prefix?: string;

@@ -7,6 +7,24 @@ import getBrandLogoUrl from "@/utils/getBrandLogoUrl";
 
 import styles from "./ProjectThumbnail.module.scss";
 
+/**
+ * Individual project thumbnail component for the portfolio grid.
+ *
+ * Renders project thumbnails with brand logos, hover effects, and NDA-aware styling.
+ * Supports responsive image loading, accessibility features, and both public and
+ * confidential project display modes.
+ *
+ * @component
+ * @param {Object} props - Component props
+ * @param {boolean} props.focused - Whether this thumbnail is currently focused
+ * @param {string} props.projectId - Unique project identifier
+ * @param {string} props.title - Project title for display and alt text
+ * @param {string} props.brandId - Associated brand identifier
+ * @param {boolean} [props.nda] - Whether this is an NDA/confidential project
+ * @param {boolean} [props.brandIsNda] - Whether to hide brand logos in public UI
+ * @param {number} [props.ndaIndex] - Index among NDA projects for color cycling
+ * @param {React.Ref} ref - Forwarded ref to the container element
+ */
 interface ProjectThumbnailProps {
   focused: boolean;
   key: string;
