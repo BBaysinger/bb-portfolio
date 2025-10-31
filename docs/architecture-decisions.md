@@ -19,10 +19,20 @@ New decisions should be appended chronologically.
 
 ## 2025-09-14 – Database
 
-**Decision:** Use **MongoDB Atlas (cloud-managed MongoDB)**  
+**Decision:** Use **MongoDB Atlas (cloud-managed MongoDB)**
+
 **Reasoning:**
 
-- Avoid operational over- **Status:** ✅ Active (supersedes earlier "assets" bucket naming in 2025-09-20 entry; that entry remains for historical context)
+- Avoid operational overhead of running a database on EC2
+- Free/low-tier Atlas is sufficient for project scale
+- Provides automatic backups and scaling without extra configuration
+
+**Alternatives considered:**
+
+- **Postgres in Docker on EC2**: Would require persistence management (EBS volumes), more setup, higher memory use
+- **Self-hosted Mongo in Docker**: More maintenance, less reliable
+
+**Status:** ✅ Active
 
 ---
 
@@ -45,7 +55,7 @@ New decisions should be appended chronologically.
 
 **Production Deployment:**
 
-- **Domain**: bbinteractive.io successfully pointed to infrastructure
+- **Domain Configuration**: DNS routing configured for bbinteractive.io
 - **SSL-Ready**: Architecture prepared for HTTPS certificate integration
 - **Scalable Foundation**: Ready for auto-scaling groups, load balancers, and CDN integration
 - **Monitoring Ready**: CloudWatch integration prepared for metrics and alerts
@@ -56,17 +66,13 @@ New decisions should be appended chronologically.
 # Container Management (via SSH)
 ./bb-portfolio-management.sh status     # Check containers
 ./bb-portfolio-management.sh switch prod # Switch to production profile
-**Verified Capabilities:**
+**Implementation Results:**
 
-- **Complete Infrastructure Recreation**: Successfully destroyed and recreated entire infrastructure
-- **Production Reliability**: Website accessible at bbinteractive.io with professional architecture
-- **Development Workflow**: Easy switching between dev (Docker Hub) and prod (ECR) container sources
-- **Documentation**: Comprehensive README with troubleshooting and management procedures
-
-- **Professional Standards**: Demonstrates enterprise-level DevOps practices and infrastructure management
+- **Infrastructure Recreation**: Entire infrastructure can be destroyed and recreated via Terraform
+- **Multi-Environment Support**: Switching between dev (Docker Hub) and prod (ECR) container sources
+- **Documentation**: Troubleshooting and management procedures documented
 - **Reliability**: Eliminates manual configuration errors and ensures consistent deployments
 - **Scalability**: Foundation supports growth from portfolio to production applications
-- **Portfolio Enhancement**: Shows advanced technical capabilities beyond basic web development
 
 
 - **Platform-as-a-Service (Heroku, Vercel)**: Simpler but less learning value and technical demonstration
@@ -170,16 +176,9 @@ New decisions should be appended chronologically.
 
 **Status:** ✅ Active
 
-````ead of running a database on EC2.
-- Free/low-tier Atlas is sufficient for project scale.
-- Provides automatic backups and scaling without extra config.
+---
 
-**Alternatives considered:**
-
-- **Postgres in Docker on EC2**: Would require persistence management (EBS volumes), more setup, higher memory use.
-- **Self-hosted Mongo in Docker**: More maintenance, less reliable.
-
-**Status:** ✅ Active
+## 2025-09-20 – Infrastructure Automation Strategy
 
 ---
 
@@ -226,32 +225,39 @@ New decisions should be appended chronologically.
 ---
 
 ## 2025-09-14 – Dev Environment Hosting
-  - `mysite.com` → prod containers
+
+**Decision:** Host dev and prod environments on the same EC2 instance with different subdomains.
+
+- `dev.bbinteractive.io` → dev containers  
+- `bbinteractive.io` → prod containers
 
 **Reasoning:**
 
-- Avoids cost of a second EC2 instance (~$7–8/mo).
-- Still provides a live dev environment accessible at a separate subdomain.
-- Keeps deployment consistent with production (same stack).
+- Avoids cost of a second EC2 instance (~$7–8/mo)
+- Still provides a live dev environment accessible at a separate subdomain
+- Keeps deployment consistent with production (same stack)
+- Avoids confusion of juggling multiple `.pem` files
+- Clearer mental model for deployment pipeline (prod + dev both on one host)
 
+**Alternatives considered:**
 
-- **Separate EC2 instance for dev**: Cleaner isolation, but doubles costs.
-- **Ephemeral dev envs (Fly.io, Railway, etc.)**: Cheaper, but less consistent with prod.
-- **Local-only dev**: Fine for personal use, but doesn't provide a shareable dev URL.
-
-**Status:** ✅ Active
-
-- Avoids confusion of juggling multiple `.pem` files.
-- Clearer mental model for deployment pipeline (prod + dev both on one host).
+- **Separate EC2 instance for dev**: Cleaner isolation, but doubles costs
+- **Ephemeral dev envs (Fly.io, Railway, etc.)**: Cheaper, but less consistent with prod
+- **Local-only dev**: Fine for personal use, but doesn't provide a shareable dev URL
 
 **Status:** ✅ Active
 
 ## 2025-09-16 – Base OS Migration
-- More stable and lightweight than Ubuntu, with fewer default packages and less bloat.
-- Security updates are more conservative, reducing risk of sudden package breakage.
-- Long support cycles make it easier to “set and forget” for a low-maintenance portfolio server.
-- Strong ecosystem and compatibility with Docker + CI/CD workflows.
-- Clean baseline for learning: demonstrates deliberate OS choice and shows knowledge of trade-offs.
+
+**Decision:** Use **Debian 12** as the base OS for EC2 instances instead of Ubuntu.
+
+**Reasoning:**
+
+- More stable and lightweight than Ubuntu, with fewer default packages and less bloat
+- Security updates are more conservative, reducing risk of sudden package breakage
+- Long support cycles make it easier to "set and forget" for a low-maintenance portfolio server
+- Strong ecosystem and compatibility with Docker + CI/CD workflows
+- Clean baseline that demonstrates deliberate OS choice and knowledge of trade-offs
 
 **Alternatives considered:**
 
@@ -522,27 +528,27 @@ New decisions should be appended chronologically.
 
 **Validation:**
 
-- ✅ **September 20, 2025**: Production deployment completed successfully
-- ✅ Both containers running healthy: `bb-portfolio-backend-prod`, `bb-portfolio-frontend-prod`
-- ✅ ECR image pulls completed without disk space errors
-- ✅ System resources now adequate: `/dev/nvme0n1p1     20G  2.0G   18G  10% /`
+- Production deployment completed successfully on September 20, 2025
+- Both containers running healthy: `bb-portfolio-backend-prod`, `bb-portfolio-frontend-prod`
+- ECR image pulls completed without disk space errors
+- System resources adequate: `/dev/nvme0n1p1     20G  2.0G   18G  10% /`
 
-**Status:** ✅ **RESOLVED** - Deployment pipeline fully operational
+**Status:** ✅ Resolved - Issue addressed and deployment pipeline restored
 
 ---
 
-## 2025-09-20 – 🚀 Production Deployment Pipeline Status: OPERATIONAL
+## 2025-09-20 – Production Deployment Pipeline Validation
 
-**Milestone:** Complete end-to-end deployment pipeline successfully validated and operational.
+**Decision:** Complete end-to-end deployment pipeline validated and documented.
 
-**Pipeline Components Verified:**
+**Pipeline Components:**
 
-- ✅ **GitHub Actions CI/CD**: Automated builds and deployments from main branch
-- ✅ **ECR Image Registry**: Production images building and pushing successfully
-- ✅ **Terraform Infrastructure**: EC2 instance with proper 20GB storage configuration
-- ✅ **Docker Compose Deployment**: Multi-container production environment running
-- ✅ **Health Checks**: Both frontend and backend containers reporting healthy status
-- ✅ **Port Configuration**: Backend (3000), Frontend (3001) properly exposed
+- **GitHub Actions CI/CD**: Automated builds and deployments from main branch
+- **ECR Image Registry**: Production images building and pushing successfully
+- **Terraform Infrastructure**: EC2 instance with 20GB storage configuration
+- **Docker Compose Deployment**: Multi-container production environment running
+- **Health Checks**: Both frontend and backend containers reporting healthy status
+- **Port Configuration**: Backend (3000), Frontend (3001) properly exposed
 
 **Final Deployment Validation (2025-09-20 09:50:45 UTC):**
 
@@ -559,7 +565,7 @@ bb-portfolio-frontend-prod   Up 20 seconds (healthy)   0.0.0.0:3001->3000/tcp
 - **Uptime**: Continuous operation with automatic restart policies
 - **Security**: Encrypted EBS volumes, proper container isolation
 
-**Status:** ✅ **FULLY OPERATIONAL** - Ready for production traffic
+**Status:** ✅ Active - Production pipeline operational
 
 ---
 
