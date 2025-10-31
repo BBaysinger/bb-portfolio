@@ -72,8 +72,8 @@ cp backend/.env.local.example backend/.env.local
 LOCAL_AWS_REGION=us-east-1                    # Your AWS region
 LOCAL_AWS_ACCESS_KEY_ID=AKIA...               # Your IAM user access key
 LOCAL_AWS_SECRET_ACCESS_KEY=xyz...            # Your IAM user secret key
-LOCAL_SES_FROM_EMAIL=noreply@bbinteractive.io   # Verified sender email
-LOCAL_SES_TO_EMAIL=your-email@bbinteractive.io  # Your email to receive messages
+LOCAL_SES_FROM_EMAIL=noreply@some-domain.com   # Verified sender email
+LOCAL_SES_TO_EMAIL=your-email@some-domain.com  # Your email to receive messages
 ```
 
 **Important Notes:**
@@ -91,8 +91,8 @@ For production, update your environment variables with `PROD_` prefix:
 PROD_AWS_REGION=us-east-1
 PROD_AWS_ACCESS_KEY_ID=your-prod-access-key
 PROD_AWS_SECRET_ACCESS_KEY=your-prod-secret-key
-PROD_SES_FROM_EMAIL=noreply@bbinteractive.io
-PROD_SES_TO_EMAIL=your-email@bbinteractive.io
+PROD_SES_FROM_EMAIL=noreply@some-domain.com
+PROD_SES_TO_EMAIL=your-email@some-domain.com
 ```
 
 ## Step 4: Test the Setup

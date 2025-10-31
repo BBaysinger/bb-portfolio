@@ -176,8 +176,16 @@ export default buildConfig({
       const user = process.env[`${prefix}SMTP_USER`]
       const pass = process.env[`${prefix}SMTP_PASS`]
       if (host && user && pass) {
+        const fromEmail =
+          process.env[`${prefix}SMTP_FROM_EMAIL`] || process.env[`${prefix}SES_FROM_EMAIL`]
+        if (!fromEmail) {
+          throw new Error(
+            `Missing required ${prefix}SMTP_FROM_EMAIL or ${prefix}SES_FROM_EMAIL for ENV_PROFILE=${envProfile}. ` +
+              `Set it to the email address you want to send emails from.`,
+          )
+        }
         return nodemailerAdapter({
-          defaultFromAddress: 'noreply@bbinteractive.io',
+          defaultFromAddress: fromEmail,
           defaultFromName: 'Your Portfolio',
           transport: {
             host,

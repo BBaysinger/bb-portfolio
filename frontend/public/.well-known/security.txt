@@ -1,8 +1,0 @@
-Contact: mailto:security@bbinteractive.io
-Contact: https://bbinteractive.io/contact
-Expires: 2026-12-31T23:59:59.000Z
-Encryption: https://bbinteractive.io/pgp-key.txt
-Acknowledgments: https://bbinteractive.io/security-acknowledgments
-Preferred-Languages: en
-Canonical: https://bbinteractive.io/.well-known/security.txt
-Policy: https://bbinteractive.io/security-policy
