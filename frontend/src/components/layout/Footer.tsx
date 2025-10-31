@@ -50,7 +50,7 @@ const Footer: React.FC<FooterProps> = ({
   // Obfuscated email setup
   useEffect(() => {
     const timeout = setTimeout(() => {
-      setEmailAddr("B" + "Baysinger" + "@" + "gmx.com");
+      setEmailAddr("BHBaysinger" + "@" + "gmail.com");
     }, 2000);
     return () => clearTimeout(timeout);
   }, []);
