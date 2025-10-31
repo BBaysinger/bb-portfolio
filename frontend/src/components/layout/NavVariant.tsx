@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { RawImg } from "@/components/common/RawImg";
 import Hamburger from "@/components/layout/Hamburger";
 import { RootState } from "@/store/store";
-import { expandMobileNav } from "@/store/uiSlice";
+import { closeMobileNav } from "@/store/uiSlice";
 
 import NavLinks from "./NavLinks";
 import styles from "./NavVariant.module.scss";
@@ -34,9 +34,9 @@ const NavVariant: React.FC<NavProps> = ({ variant }) => {
 
   const dispatch = useDispatch();
 
-  const expandMobileNavHandler = () => {
+  const closeMobileNavHandler = () => {
     if (variant === NavVariants.SLIDE_OUT) {
-      dispatch(expandMobileNav());
+      dispatch(closeMobileNav());
     }
   };
 
@@ -73,7 +73,7 @@ const NavVariant: React.FC<NavProps> = ({ variant }) => {
           </div>
         </div>
       </Link>
-      <NavLinks onClick={expandMobileNavHandler} className={styles.navLinks} />
+      <NavLinks onClick={closeMobileNavHandler} className={styles.navLinks} />
 
       {variant === NavVariants.TOP_BAR && (
         <Hamburger className={styles.hamburger} />

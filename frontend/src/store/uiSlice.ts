@@ -29,7 +29,7 @@ const uiSlice = createSlice({
     openMobileNav: (state) => {
       state.isMobileNavExpanded = true;
     },
-    expandMobileNav: (state) => {
+    closeMobileNav: (state) => {
       state.isMobileNavExpanded = false;
     },
     toggleMobileNav: (state) => {
@@ -38,11 +38,7 @@ const uiSlice = createSlice({
   },
 });
 
-export const {
-  setHeroInView,
-  openMobileNav,
-  expandMobileNav,
-  toggleMobileNav,
-} = uiSlice.actions;
+export const { setHeroInView, openMobileNav, closeMobileNav, toggleMobileNav } =
+  uiSlice.actions;
 
 export default uiSlice.reducer;
