@@ -25,7 +25,7 @@ const ContactPage = () => {
   const { clientHeight } = useClientDimensions();
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
     if (error) setError("");
@@ -141,7 +141,7 @@ const ContactPage = () => {
           <p
             className={clsx(
               styles.statusMessage,
-              isError && styles.errorMessage,
+              isError && styles.errorMessage
             )}
           >
             {statusText}

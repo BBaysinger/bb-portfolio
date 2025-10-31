@@ -25,7 +25,8 @@ class AWSEmailService implements EmailService {
       const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY
 
       if (!accessKeyId || !secretAccessKey) {
-        this.configError = 'Missing required AWS credentials: AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY'
+        this.configError =
+          'Missing required AWS credentials: AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY'
         return
       }
 
@@ -39,7 +40,7 @@ class AWSEmailService implements EmailService {
           secretAccessKey,
         },
       })
-      
+
       this.isConfigured = true
     } catch (error) {
       this.configError = error instanceof Error ? error.message : 'AWS SES configuration failed'
@@ -64,7 +65,7 @@ class AWSEmailService implements EmailService {
       if (!this.isConfigured || !this.sesClient || !this.fromEmail || !this.toEmail) {
         return {
           success: false,
-          error: this.configError || 'Email service not configured'
+          error: this.configError || 'Email service not configured',
         }
       }
 
@@ -153,6 +154,6 @@ const isLocal = envProfile === 'local' || process.env.NODE_ENV === 'development'
 
 // Use mock email service for local development if AWS credentials are not available
 const awsService = new AWSEmailService()
-export const emailService = (isLocal && !awsService['isConfigured']) ? mockEmailService : awsService
+export const emailService = isLocal && !awsService['isConfigured'] ? mockEmailService : awsService
 
 export type { ContactFormData }

@@ -14,16 +14,16 @@ class MockEmailService {
       console.log('Message:', {
         name: data.name,
         email: data.email,
-        message: data.message
+        message: data.message,
       })
       console.log('✅ Mock email "sent" successfully')
-      
+
       return { success: true }
     } catch (error) {
       console.error('❌ Mock email service error:', error)
       return {
         success: false,
-        error: 'Mock email service error'
+        error: 'Mock email service error',
       }
     }
   }
