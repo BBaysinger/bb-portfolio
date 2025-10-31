@@ -1,31 +1,31 @@
 # Portfolio Deployment Guide
 
-## Current Status ✅
+## Current Status
 
-Your portfolio infrastructure is now **fully automated** with Terraform! Here's what we've accomplished:
+The portfolio infrastructure is deployed using Infrastructure as Code with Terraform.
 
-### Infrastructure as Code
+### Infrastructure Components
 
-- ✅ **EC2 Instance**: t3.medium with Elastic IP (44.246.43.116)
-- ✅ **Nginx Reverse Proxy**: Automatically configured and running
-- ✅ **Docker Containers**: Development containers running reliably
-- ✅ **ECR Repositories**: Ready for production image deployments
-- ✅ **S3 Buckets**: Media storage with proper security
-- ✅ **IAM Roles**: Secure access policies configured
+- **EC2 Instance**: t3.medium with Elastic IP (44.246.43.116)
+- **Nginx Reverse Proxy**: Configured and running
+- **Docker Containers**: Development containers running
+- **ECR Repositories**: Available for production image deployments
+- **S3 Buckets**: Media storage with security policies
+- **IAM Roles**: Access policies configured
 
 ### Management Tools
 
-- ✅ **Management Script**: `./bb-portfolio-management.sh` for easy container control
-- ✅ **Terraform Outputs**: Easy access to connection details
-- ✅ **Documentation**: Complete setup and troubleshooting guides
+- **Management Script**: `./bb-portfolio-management.sh` for container control
+- **Terraform Outputs**: Connection details and configuration
+- **Documentation**: Setup and troubleshooting guides
 
 ## Next Steps
 
 See also: "Deployment Orchestrator: Discovery and Fresh Create" in `docs/deployment-orchestrator.md` for how to run read-only discovery, plan-only previews, and first-time creation.
 
-### 1. Point Your Domain (Immediate)
+### 1. Configure DNS
 
-Your site is ready! Point your domain DNS to the Elastic IP:
+Point your domain DNS to the Elastic IP:
 
 ```
 A Record: bbinteractive.io → 44.246.43.116
@@ -35,7 +35,7 @@ A Record: dev.bbinteractive.io → 44.246.43.116
 
 **Test URLs**:
 
-- Production: http://44.246.43.116 (already working!)
+- Production: http://44.246.43.116
 - Development subdomain: http://dev.bbinteractive.io (after DNS propagation)
 
 ### 2. Deploy .dev Subdomain Support (Required)
@@ -94,29 +94,27 @@ terraform apply   # Apply changes
 ./infra/bb-portfolio-management.sh switch-to-prod
 ```
 
-## What's Automated Now
+## Automated Components
 
-### On Instance Boot/Restart
+### Instance Boot/Restart
 
 1. Docker service starts automatically
-2. Nginx starts automatically
-3. Portfolio containers start automatically via systemd service
-4. All services are configured and ready
+2. Nginx starts automatically  
+3. Portfolio containers start via systemd service
+4. Services are configured and available
 
-### On Future Deployments
+### Deployment Process
 
 1. Run `terraform apply` to deploy infrastructure changes
 2. Use management script to control containers
-3. CI/CD pipeline updates production images in ECR automatically
+3. CI/CD pipeline updates production images in ECR
 
-### No More Manual Setup Required!
+### Infrastructure as Code
 
-- ❌ No manual Nginx configuration
-- ❌ No manual Docker installation
-- ❌ No manual container startup
-- ❌ No manual service configuration
-
-Everything is now **Infrastructure as Code**! 🎈
+- Nginx configuration managed by Terraform
+- Docker installation automated via user_data
+- Container startup handled by systemd
+- Service configuration defined in code
 
 ## Current Architecture
 
@@ -132,38 +130,38 @@ AWS EC2 t3.medium
     └── S3 Buckets (media storage)
 ```
 
-## Benefits of This Setup
+## Architecture Benefits
 
-### 🚀 **Reliability**
+### Reliability
 
-- Development containers are proven to work
 - Automatic service restart on failure
-- Health checks for production containers
+- Health checks for container monitoring
+- Systemd service management
 
-### 🔧 **Maintainability**
+### Maintainability  
 
-- All infrastructure defined in code
-- Easy to reproduce and modify
+- Infrastructure defined in code
+- Reproducible deployments
 - Clear documentation and management tools
 
-### 💰 **Cost Effective**
+### Cost Optimization
 
-- Single t3.medium instance handles everything
+- Single t3.medium instance for multiple services
 - ECR lifecycle policies limit storage costs
 - Elastic IP prevents reconnection charges
 
-### 🔒 **Secure**
+### Security
 
 - IAM roles with minimal permissions
 - Encrypted storage volumes
 - Private S3 buckets
 - Security groups restrict access
 
-### ⚡ **Easy Management**
+### Management
 
-- Single script for all container operations
+- Single script for container operations
 - Terraform for infrastructure changes
-- Clear status and logging
+- Centralized logging and status monitoring
 
 ## Troubleshooting
 
@@ -192,5 +190,3 @@ When you're ready to use production containers:
 3. The infrastructure supports both seamlessly!
 
 ---
-
-**Your portfolio is now live and fully automated! 🎈**
