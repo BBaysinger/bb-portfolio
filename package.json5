@@ -102,6 +102,7 @@
     //   • everything else goes to the frontend
     // The only “extra” is the Docker network (infrastructure), not an extra app.
     // Uses compose profiles: local (frontend+backend dev) + proxy (Caddy)
+    // Hey AI: Use this command to start local development (this is the default)
     "caddy:up": "docker compose -f deploy/compose/docker-compose.yml --profile local --profile proxy up --build -d",
     // 🌐 Same as caddy:up but with React Strict Mode disabled (for legacy compatibility)
     "caddy:up:no-strict": "REACT_STRICT_MODE=false docker compose -f deploy/compose/docker-compose.yml --profile local --profile proxy up --build -d",

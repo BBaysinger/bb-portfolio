@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import React, { useState, useEffect, useRef } from "react";
 
 import { RawImg } from "@/components/common/RawImg";
+import { useContactEmail } from "@/hooks/useContactEmail";
 
 import styles from "./Footer.module.scss";
 import FootGreet from "./FootGreet";
@@ -31,6 +32,12 @@ type FooterProps = {
  * The footer also responds to mobile navigation state via the `navRevelator` (from the
  * parent) class pattern, sliding horizontally alongside the main content when the mobile
  * menu is expanded.
+ *
+ * It should be pointed out here that this solution might not be ideal for pages where
+ * the dynamic content is followed by a lot of content before the footer, as that's a
+ * lot more content to shift around with CSS transforms. However, for this portfolio site,
+ * where the footer is directly below the dynamic content, this approach works (extremely)
+ * well.
  */
 const Footer: React.FC<FooterProps> = ({
   mutationElemRef,
@@ -38,22 +45,18 @@ const Footer: React.FC<FooterProps> = ({
   transitionSegment,
 }) => {
   const [mainContentHeight, setMainContentHeight] = useState(9999999999);
-  // const [footerHeight, setFooterHeight] = useState(0);
   const [shouldSnap, setShouldSnap] = useState(false);
 
   const footerRef = useRef<HTMLDivElement>(null);
-  const [emailAddr, setEmailAddr] = useState<string>("Waiting...");
-
   const pathname = usePathname();
   const prevPathRef = useRef<string>(pathname);
 
-  // Obfuscated email setup
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      setEmailAddr("BHBaysinger" + "@" + "gmail.com");
-    }, 2000);
-    return () => clearTimeout(timeout);
-  }, []);
+  // Enhanced obfuscated email setup - fetches from environment variables
+  const {
+    email: emailAddr,
+    isLoading: _emailLoading,
+    error: _emailError,
+  } = useContactEmail();
 
   useEffect(() => {
     const prevPath = prevPathRef.current;
