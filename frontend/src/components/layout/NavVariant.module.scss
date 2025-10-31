@@ -208,7 +208,8 @@
 
   &.slideOut {
     position: fixed;
-    width: 50%;
+    width: $navExpandWidth;
+    max-width: $maxNavExpandWidth;
     right: 0;
     padding-top: 160px;
     // Use dvh sparingly because it causes some janky layout shifts on some mobile browsers.
@@ -248,9 +249,7 @@
     right: 0;
     width: 100%;
     height: 100%;
-    // min-height: 1000px;
     opacity: 0.5;
-    // mix-blend-mode: multiply;
     background-image: url("/images/nav/paisley.webp");
     background-size: auto 50%;
     background-position: right top;
@@ -280,7 +279,7 @@
     position: absolute;
     pointer-events: none;
     top: 0;
-    width: 50vw;
+    width: 100%;
     height: 100%;
     z-index: 2;
     opacity: 1;
