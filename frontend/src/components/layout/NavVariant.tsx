@@ -21,9 +21,21 @@ interface NavProps {
 }
 
 /**
- * The nav that either gets revealed behind the page content (mobile),
- * or is populated as a bar at the top of the page (desktop). Styled uniquely
- * for either variant, but used twice, as switching between them dynamically
+ * Adaptive navigation component with multiple display variants.
+ *
+ * Renders navigation that adapts between desktop top bar and mobile slide-out
+ * menu configurations. Uses different styling variants rather than dynamic
+ * switching to maintain performance and avoid layout shifts.
+ *
+ * Features:
+ * - Top bar variant for desktop layouts
+ * - Slide-out variant for mobile navigation
+ * - Logo and navigation links integration
+ * - Redux-connected mobile navigation state
+ *
+ * @component
+ * @param {Object} props - Component props
+ * @param {string} props.variant - Navigation display variant (TOP_BAR or SLIDE_OUT)
  * at runtime causes a unbelievably massive frame drop.
  *
  */
