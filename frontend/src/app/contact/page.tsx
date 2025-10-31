@@ -2,8 +2,6 @@
 import clsx from "clsx";
 import React, { useState } from "react";
 
-import useClientDimensions from "@/hooks/useClientDimensions";
-
 import styles from "./ContactPage.module.scss";
 
 /**
@@ -22,10 +20,9 @@ const ContactPage = () => {
   });
   const [status, setStatus] = useState<string>("");
   const [error, setError] = useState<string>("");
-  const { clientHeight } = useClientDimensions();
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
     if (error) setError("");
@@ -89,11 +86,7 @@ const ContactPage = () => {
 
   return (
     <>
-      <div
-        id="mainContent"
-        className={`${styles.contactPage}`}
-        style={{ minHeight: `${clientHeight}px` }}
-      >
+      <div className={`${styles.contactPage}`}>
         <div>
           <h1>Let's Connect</h1>
           <p>
@@ -141,7 +134,7 @@ const ContactPage = () => {
           <p
             className={clsx(
               styles.statusMessage,
-              isError && styles.errorMessage
+              isError && styles.errorMessage,
             )}
           >
             {statusText}

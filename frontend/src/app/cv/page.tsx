@@ -316,10 +316,7 @@ const CurriculumVitae: React.FC = () => {
     <div>
       <HeaderSub head={"Curriculum Vitae"} />
 
-      <section
-        id="mainContent"
-        className={`cvPage ${styles.cvPage} standardPage`}
-      >
+      <section className={`cvPage ${styles.cvPage} standardPage`}>
         <div className={`container ${styles.summary}`}>
           <h4 ref={addToRefs}>Summary</h4>
 

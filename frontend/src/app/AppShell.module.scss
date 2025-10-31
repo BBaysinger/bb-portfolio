@@ -14,7 +14,13 @@ $navSlideTime: 0.5s;
   overflow: hidden;
   // Vital to the dynamically-positioned footer, to avoid movement into
   // content area between pages.
-  min-height: 100dvh;
+  min-height: 100vh;
+  overflow: hidden;
+  background-color: black;
+  background-image: url("/images/common/bg-grad.svg");
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  background-position: 0 0;
 }
 
 .navRevelator {

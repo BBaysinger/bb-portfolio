@@ -46,7 +46,7 @@
     }
   }
 
-  @include breakpointUp($b768px) {
+  @include breakpointUp($b992px) {
     display: none;
   }
 }

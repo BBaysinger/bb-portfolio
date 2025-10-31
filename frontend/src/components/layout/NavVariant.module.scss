@@ -170,7 +170,7 @@
       height: $navBarHeight;
       margin: 0;
       display: none;
-      @include breakpointUp($b768px) {
+      @include breakpointUp($b992px) {
         display: flex;
       }
     }
