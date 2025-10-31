@@ -1,32 +1,25 @@
 # Portfolio Website
 
-This portfolio showcases a fully custom interactive environment—built entirely without any 3D or physics frameworks. Every animated and spatial element is hand-engineered in JavaScript, React, and CSS. The parallaxing carousel, kinetic orb, and sheet animator are all original systems, including a sprite sheet engine developed from scratch for CSS, Canvas, and WebGL rendering. The “Fluxel” grid—a field of independently animated React components—simulates 3D depth purely through math-driven shadow manipulation, turning flat 8-bit pixels into a living, responsive surface. There's more that can be done with this, and the carousel.
+A modern portfolio website featuring custom interactive components built with React, TypeScript, and Next.js. The site includes a parallax project carousel, animated sprite system, and responsive design components. All animations and visual effects are implemented using native web technologies without external 3D or physics libraries.
 
-Deployments are orchestrated via a single script that provisions/updates AWS with Terraform (EC2, security group, Elastic IP, S3 media buckets, and ECR), optionally builds and pushes images (Docker Hub for dev, ECR for prod), syncs secrets to GitHub, and then triggers a “Redeploy” GitHub Actions workflow to generate .env files on the instance and restart the correct Docker Compose profiles (prod and/or dev). At runtime an Nginx reverse proxy on the host fronts four Node containers (frontend/backend for prod and dev), the app reads environment-scoped settings and uses per-environment S3 buckets (with instance role/credentials) for media.
+The deployment pipeline uses Terraform for infrastructure provisioning, Docker for containerization, and GitHub Actions for CI/CD. The system supports multiple environments (dev/prod) with separate container registries and S3 storage buckets.
 
 [Visit the Live Site](https://bbinteractive.io)
 
-### Frontend UX & Interaction
+### 🎨 Frontend UX & Interaction
 
-- Parallax Project Carousel (layered/synced, expandable, native swipe, deep linking)
-- Simulated-Depth Magnetic “Fluxel” (fluxing pixel) Grid System
-- Custom Physics Kinetic Orb
-- Custom Sprite Sheet Renderer w/ CSS, canvas, and WebGL rendering options
-- Fluid Responsive System
-  - JavaScript Global CSS Scaling Variable insertion
-  - rem-based fluid scaling property SASS mixin
-  - static fluid scaling property SASS mixin
-- Weighted Random Animation Sequencer using the sprite sheet renderer
-- Page Slide-Out Mobile Navigation
-- Transform-Positioned Footer
-- Teletype Paragraph Animation Effect
-- Magnetic/Sticky Animated DOM Elements
-- Scroll-Aware Page Anchor Link Highlighting
-- Device Mockup Overlays (tilt/stabilization states)
-- Strict Mobile-First Methodology and Progressive Enhancement on every layer
-- Logo/Info Swapper Animations tied to active slide
+- Parallax Project Carousel with swipe navigation and deep linking
+- Animated grid system with simulated 3D depth effects
+- Interactive kinetic orb with physics-based movement
+- Sprite sheet renderer supporting CSS, Canvas, and WebGL
+- Fluid responsive design system with CSS scaling variables
+- Animation sequencer for sprite-based effects
+- Mobile-optimized slide-out navigation
+- Interactive footer and scroll-aware navigation highlighting
+- Device mockup overlays with tilt effects
+- Mobile-first responsive design approach
 
-### CMS, Data Modeling & Rendering
+### 📝 CMS, Data Modeling & Rendering
 
 - Payload CMS Backend (type-safe with generated types)
 - SSR portfolio projects list (Next.js)
@@ -41,7 +34,7 @@ Deployments are orchestrated via a single script that provisions/updates AWS wit
 - Image collections for screenshots, thumbnails, brand logos
 - Image processing via Sharp (server-side resizing) with 2 MB upload limit
 
-### Storage & Media Pipeline
+### 💾 Storage & Media Pipeline
 
 - S3-backed media storage with per-collection prefixes
 - Instance-role support with optional static credentials
@@ -49,7 +42,7 @@ Deployments are orchestrated via a single script that provisions/updates AWS wit
   - migrate media to S3, update media URLs, rebuild records
 - Local filesystem storage for local profile
 
-### API & Security
+### 🔒 API & Security
 
 - Env-profile guardrails (fail-fast config validation)
 - Locked-down CSRF/CORS allowlists per environment
@@ -57,7 +50,7 @@ Deployments are orchestrated via a single script that provisions/updates AWS wit
 - Health-check endpoint for uptime/deploy validation
 - Contact API via AWS SES (see `docs/aws-ses-setup.md`)
 
-### DevOps & Deployment
+### ⚡ DevOps & Deployment
 
 - Automated (re)deployment orchestrator script
   - Destroys and rebuilds/pushes the entire EC2 and containers
@@ -72,26 +65,24 @@ Deployments are orchestrated via a single script that provisions/updates AWS wit
 - Reverse proxy options: Caddy or Nginx (compose/configs provided)
 - Compose profiles for local/dev/prod and proxy-only
 
-### Developer Experience & Testing
+### 🛠️ Developer Experience & Testing
 
 - Monorepo with strict TypeScript (frontend and backend)
 - Unified ESLint configurations
 - Playwright E2E and Vitest setup (backend)
 - Local dev proxy and hot-reload compose profile
-- **JSON5 Package Sync System** - Innovative dual-package approach
-  - `package.json` - Clean, standard JSON for tooling compatibility
-  - `package.json5` - Rich comments and documentation for developers
-  - Bidirectional sync: edit either file, run `npm run sync:json5` to synchronize
-  - Preserves comments, formatting, and emoji annotations in JSON5
-  - Eliminates the choice between "machine-readable" vs "human-readable" configs
-  - See `scripts/sync-json5-packages.ts` for implementation details
+- **JSON5 Package Sync System** - Dual package.json approach
+  - `package.json` - Standard JSON for tooling compatibility
+  - `package.json5` - Enhanced version with comments and documentation
+  - Bidirectional sync via `npm run sync:json5`
+  - Preserves comments and formatting in JSON5 files
 
-### Data Ops & Backups
+### 💿 Data Ops & Backups
 
 - JSON dumps for seed data and repeatable imports
 - Automated database backups with dated folders
 
-### Image Processing
+### 🖼️ Image Processing
 
 - Custom Sprite Sheet Processing Scripts
   - In a separate repo: [github.com/BBaysinger/fluxel-animations](https://github.com/BBaysinger/fluxel-animations)
@@ -107,6 +98,7 @@ Deployments are orchestrated via a single script that provisions/updates AWS wit
 
 ## Roadmap
 
+- Additional polish, accessibility, and performance passes as time allows
 - Make the hero animation more game-like
   - Still exploring rendering capabilities to know just how much I can get out of it
   - But it will become more than just a fidget spinner
@@ -115,10 +107,9 @@ Deployments are orchestrated via a single script that provisions/updates AWS wit
 - Interactive tutorials for the kinetic orb (vs current arrow/tooltips) and carousel
 - Walkthrough videos playable within the project carousel
 - Project upkeep: framework/library upgrades across showcased projects
-- Additional polish and performance passes as time allows
 - Global light/dark mode preferences via Redux
 - Fluxels should be implemented in WebGl and/or Pixi shaders
-- Implement Testing Frameworks implemented (once experiments have matured)
+- Implement Testing Frameworks (once experiments have matured)
 - Capture and Store Data about user interactions
 - Accessability should be improved with respect to ARIA, rem font scaling, etc...
 - Remove Bootstrap (Not relying on it much anyhow)
@@ -127,9 +118,9 @@ Note: Earlier plans for “custom Express/Mongo backend” were superseded by th
 
 ## Infrastructure & Deployment
 
-This portfolio is deployed using **Infrastructure as Code** with Terraform and a Docker-based runtime on AWS, demonstrating professional DevOps practices.
+This portfolio is deployed using Infrastructure as Code with Terraform and Docker on AWS.
 
-### 🏗️ Architecture Overview
+### ⚙️ Architecture Overview
 
 - Cloud Provider: Amazon Web Services (AWS)
 - Infrastructure as Code: Terraform (automated provisioning/teardown)
@@ -162,7 +153,7 @@ What happens during deployment:
 4. Systemd services provide auto-restart and boot persistence
 5. DNS A records point the domain to the Elastic IP
 
-### 🔄 Container Management
+### 🐳 Container Management
 
 Dual registry strategy:
 
@@ -181,22 +172,19 @@ Helper scripts (from `infra/bb-portfolio-management.sh`):
 
 ### 🛡️ Production Features
 
-- Zero manual configuration: Terraform + user_data configure hosts
-- Auto-healing: systemd restarts containers on failure
-- Environment isolation: S3 buckets and configs per env
-- Security: IAM least-privilege, encrypted storage, security groups
-- Scalability-ready: LB/ASG/CDN can be added when needed
-- Cost-optimized: right-sized resources and lifecycle policies
+- Automated configuration via Terraform and user_data scripts
+- Container auto-restart through systemd services
+- Environment isolation with separate S3 buckets and configurations
+- Security through IAM roles, encrypted storage, and security groups
+- Prepared for scaling with load balancers and auto-scaling groups
+- Cost optimization through appropriate resource sizing
 
-### 📊 Infrastructure Validation
+### 📊 Infrastructure Components
 
-Demonstrates:
-
-- IaC (Infrastructure as Code) with Terraform
-- Container orchestration with Docker + systemd
-- Cloud architecture design and automation
-- Professional deployment workflows and documentation
-- System reliability through auto-restart and health checks
+- Infrastructure as Code with Terraform
+- Container orchestration with Docker and systemd
+- Automated deployment workflows
+- System reliability with auto-restart and health monitoring
 
 ### 📚 Documentation
 
