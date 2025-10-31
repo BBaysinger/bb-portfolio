@@ -25,14 +25,15 @@ $navSlideTime: 0.5s;
 
 .navRevelator {
   right: 0;
-  transition: right $navSlideTime;
+  transition: transform $navSlideTime;
   box-shadow: 10px 5px 60px black;
 
   .isMobileNavExpanded & {
-    // 'right' (or left) property must be used in favor of transform,
-    // as transform causes the fixed nav to shift off screen.
-    // That might be a browser defect.
-    right: 50vw;
+    transform: translateX(-$navExpandWidth);
+
+    @include breakpointUp($maxNavExpandWidth * 2) {
+      transform: translateX(-$maxNavExpandWidth);
+    }
   }
 }
 
@@ -46,7 +47,13 @@ $navSlideTime: 0.5s;
   transition: right $navSlideTime;
   background-color: #000;
   right: 0;
+  transform: translateX(-$navExpandWidth);
+
   .isMobileNavExpanded & {
-    right: 50vw;
+    right: $navExpandWidth;
+    transform: translateX(-$navExpandWidth);
+    @include breakpointUp($maxNavExpandWidth * 2) {
+      transform: translateX(-$maxNavExpandWidth);
+    }
   }
 }
