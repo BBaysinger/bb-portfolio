@@ -56,7 +56,8 @@ const ContactPage = () => {
 
     try {
       // Use relative path to leverage Next.js rewrites (/api -> backend)
-      const response = await fetch(`/api/contact`, {
+      // Include trailing slash to avoid 308 redirect due to Next.js trailingSlash: true
+      const response = await fetch(`/api/contact/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
