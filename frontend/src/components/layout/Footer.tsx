@@ -38,7 +38,7 @@ const Footer: React.FC<FooterProps> = ({
   transitionSegment,
 }) => {
   const [mainContentHeight, setMainContentHeight] = useState(9999999999);
-  const [footerHeight, setFooterHeight] = useState(0);
+  // const [footerHeight, setFooterHeight] = useState(0);
   const [shouldSnap, setShouldSnap] = useState(false);
 
   const footerRef = useRef<HTMLDivElement>(null);
@@ -83,15 +83,15 @@ const Footer: React.FC<FooterProps> = ({
       }, 50);
     };
 
-    const updateFooterHeight = () => {
-      const height = footerTarget.offsetHeight || 0;
-      const minHeight = window.innerHeight;
-      setFooterHeight(Math.max(height, minHeight));
-    };
+    // const updateFooterHeight = () => {
+    //   const height = footerTarget.offsetHeight || 0;
+    //   const minHeight = window.innerHeight;
+    //   setFooterHeight(Math.max(height, minHeight));
+    // };
 
     requestAnimationFrame(() => {
       updateMainContentHeight();
-      updateFooterHeight();
+      // updateFooterHeight();
     });
 
     const mainContentResizeObserver = new ResizeObserver(() => {
@@ -101,13 +101,13 @@ const Footer: React.FC<FooterProps> = ({
     mainContentResizeObserver.observe(mainContentTarget);
 
     const footerResizeObserver = new ResizeObserver(() => {
-      updateFooterHeight();
+      //updateFooterHeight();
     });
 
     footerResizeObserver.observe(footerTarget);
 
     const handleWindowResize = () => {
-      updateFooterHeight();
+      // updateFooterHeight();
     };
 
     window.addEventListener("resize", handleWindowResize);
@@ -122,9 +122,9 @@ const Footer: React.FC<FooterProps> = ({
   return (
     <div
       className={clsx(styles.footerWrapper)}
-      style={{
-        minHeight: `${Math.round(footerHeight) - 1}px`,
-      }}
+      // style={{
+      //   minHeight: `${Math.round(footerHeight) - 1}px`,
+      // }}
     >
       <footer
         ref={footerRef}

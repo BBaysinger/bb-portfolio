@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 
 import { useAuth } from "@/hooks/useAuth";
-import useClientDimensions from "@/hooks/useClientDimensions";
 
 import styles from "./LoginPage.module.scss";
 
@@ -24,7 +23,6 @@ const LoginPage = () => {
   const [email, setEmail] = useState(""); // using email, not username
   const [password, setPassword] = useState("");
   const [_localError, setLocalError] = useState("");
-  const { clientHeight } = useClientDimensions();
 
   // Clear any existing auth errors when component mounts
   useEffect(() => {
@@ -74,7 +72,7 @@ const LoginPage = () => {
     : errorMessage || "\u00A0"; // keep layout height with non-breaking space when idle
 
   return (
-    <div className={styles.login} style={{ minHeight: `${clientHeight}px` }}>
+    <div className={styles.login}>
       <div>
         <h1>Login</h1>
         <p>

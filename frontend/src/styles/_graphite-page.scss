@@ -4,25 +4,7 @@
 // Shared graphite page styles as a mixin so CSS Modules can include without @extend,
 // which produces comma-separated selectors that Turbopack treats as ambiguous.
 @mixin graphite-page-scope() {
-  // color: white;
-  // display: flex;
-  // justify-content: center;
-  // align-items: center;
   padding-top: $navBarHeight + 6px !important;
-  overflow: hidden;
-  background-color: black;
-  background-image: url("/images/common/bg-grad.svg");
-  background-repeat: no-repeat;
-  background-size: 100% 100%;
-  background-position: 0 0;
-
-  // > div {
-  //   max-width: 560px;
-  // }
-
-  // h1 {
-  //   color: white;
-  // }
 
   a {
     color: white;
