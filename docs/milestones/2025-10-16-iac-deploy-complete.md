@@ -1,8 +1,8 @@
-# Milestone: IaC Deployment Workflow Substantially Complete (2025-10-16)
+# Infrastructure Deployment Workflow Complete (2025-10-16)
 
-We have reached a stable, repeatable end-to-end deployment workflow driven by Infrastructure as Code and a single local orchestrator.
+Stable, repeatable end-to-end deployment workflow implemented using Infrastructure as Code and local orchestration.
 
-## Highlights
+## Implementation Summary
 
 - Terraform-managed EC2 stack with preserved Elastic IP (44.246.43.116)
 - IAM-first runtime (no long-lived AWS creds on the instance)
@@ -12,7 +12,7 @@ We have reached a stable, repeatable end-to-end deployment workflow driven by In
 - One orchestrator: `deploy/scripts/deployment-orchestrator.sh` handles infra, secrets sync, image builds, and container restarts
 - Safe fallback: if GH dispatch is flaky, orchestrator uploads envs + restarts via SSH automatically
 
-## What’s in place
+## Components
 
 - `.github/workflows/redeploy.yml` with workflow_dispatch and workflow_call
 - `deploy/scripts/deployment-orchestrator.sh` (preferred entrypoint)
@@ -20,7 +20,7 @@ We have reached a stable, repeatable end-to-end deployment workflow driven by In
 - `deploy/scripts/generate-terraform-vars.ts` to derive `infra/terraform.tfvars` from private JSON5
 - `infra/` Terraform with lifecycle protection for EIP and targeted-destroy filters
 
-## Ops notes
+## Operations
 
 - DNS should point Cloudflare A records (root, www, dev) to the Elastic IP
 - MongoDB Atlas Network Access must allow 44.246.43.116/32
