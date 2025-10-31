@@ -37,8 +37,8 @@ interface Props {
  * This is intended to offload per-fluxel shadow rendering from the DOM/SVG layer,
  * reducing complexity and improving performance, especially at scale.
  *
- * This is an experimental thing that may or many not be in place by the time you read this, lol.
- * But it COULD enhance performance drastically over the original SVG version.
+ * This is an experimental renderer that may or may not be active by default.
+ * It could enhance performance significantly over the original SVG version.
  *
  * ## Features:
  * - Accepts a sprite sheet URL and canvas dimensions.

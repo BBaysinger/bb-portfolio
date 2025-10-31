@@ -99,7 +99,7 @@ terraform apply   # Apply changes
 ### Instance Boot/Restart
 
 1. Docker service starts automatically
-2. Nginx starts automatically  
+2. Nginx starts automatically
 3. Portfolio containers start via systemd service
 4. Services are configured and available
 
@@ -138,7 +138,7 @@ AWS EC2 t3.medium
 - Health checks for container monitoring
 - Systemd service management
 
-### Maintainability  
+### Maintainability
 
 - Infrastructure defined in code
 - Reproducible deployments

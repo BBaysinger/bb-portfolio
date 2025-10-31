@@ -45,7 +45,7 @@ export function useDragInertia(
       dragState.current.isThrowing = false;
     };
 
-    const offset = -79; // HACK: Hardcoded for now (from original)
+    const offset = -79; // TODO: Make this configurable (legacy value from original implementation)
 
     const draggable = Draggable.create(scroller, {
       type: "scrollLeft", // NOTE: Mutates the DOM by nesting the scroller
