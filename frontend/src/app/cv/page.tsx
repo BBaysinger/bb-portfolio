@@ -848,7 +848,7 @@ const CurriculumVitae: React.FC = () => {
                 <li ref={addToRefs}>
                   Worked 320+ hours in June 2014 to meet a critical deadline for
                   our WildBrain client, in addition to <i>many</i> other crunch
-                  times with <i>insane</i> deadlines.
+                  times with <i>aggressive</i> deadlines.
                 </li>
                 <li ref={addToRefs}>
                   Led development of a <b>Webby Award</b>-winning project (2008

@@ -9,7 +9,7 @@
  * build and prints log blocks for CI visibility. Our key health check is now
  * performed at runtime, in AppShell.tsx, not during build.
  *
- * Lesson learned, lol.
+ * Note: Health check logic moved to runtime for better environment detection.
  */
 
 import { execSync } from "child_process";

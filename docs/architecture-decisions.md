@@ -220,7 +220,7 @@ New decisions should be appended chronologically.
 
 - Manual SSH + docker-compose up (too manual, not professional).
 - Other CI/CD services (CircleCI, GitLab CI): possible, but GitHub Actions is simpler and free.
-**Status:** ✅ Active
+  **Status:** ✅ Active
 
 ---
 
@@ -228,7 +228,7 @@ New decisions should be appended chronologically.
 
 **Decision:** Host dev and prod environments on the same EC2 instance with different subdomains.
 
-- `dev.bbinteractive.io` → dev containers  
+- `dev.bbinteractive.io` → dev containers
 - `bbinteractive.io` → prod containers
 
 **Reasoning:**
@@ -318,7 +318,7 @@ New decisions should be appended chronologically.
     - Nginx on the host forwards traffic to Docker Compose services.
     - Four Debian-based Node containers (node:22-slim) managed by Compose profiles:
       - prod: bb-portfolio-frontend-prod (3000), bb-portfolio-backend-prod (3001)
-      - dev:  bb-portfolio-frontend-dev (4000), bb-portfolio-backend-dev (4001)
+      - dev: bb-portfolio-frontend-dev (4000), bb-portfolio-backend-dev (4001)
     - Typical DNS routing:
       - bbinteractive.io → prod (3000/3001)
       - dev.bbinteractive.io → dev (4000/4001)
@@ -692,4 +692,7 @@ MONGODB_URI=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/bb-portfol
   - Serve NDA under `/project/*` when authenticated (simpler URLs but higher risk of leakage/accidental exposure).
   - Completely separate datasets without route-aware navigation (safer but worse UX when switching between public and NDA projects).
 - **Status:** ✅ Active
-````
+
+```
+
+```

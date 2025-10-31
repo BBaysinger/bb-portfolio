@@ -20,6 +20,7 @@ The backend runs as part of the Docker Compose development environment. From the
 3. Access the admin panel at `http://localhost/admin`
 
 The Docker setup includes:
+
 - Backend service with hot reload
 - Frontend service
 - Caddy reverse proxy
@@ -31,23 +32,26 @@ For backend-only development:
 
 1. Copy environment variables: `cp .env.local.example .env`
 2. Configure MongoDB URI and AWS credentials in `.env`
-3. Install dependencies: `npm install` 
+3. Install dependencies: `npm install`
 4. Start development server: `npm run dev`
 5. Access admin panel at `http://localhost:3001`
 
 ## Collections
 
 ### Projects
+
 - Portfolio projects with rich metadata (brand, tags, role, year, awards)
 - NDA filtering for confidential content
 - Automatic slug generation and sorting
 
 ### Media Collections
+
 - **Project Screenshots**: Full-size project images
-- **Project Thumbnails**: Carousel thumbnail images  
+- **Project Thumbnails**: Carousel thumbnail images
 - **Brand Logos**: Client brand assets
 
 ### Users
+
 - Admin authentication and role-based access control
 
 ## Environment Configuration

@@ -34,16 +34,19 @@ Open [http://localhost:3000](http://localhost:3000) - note that backend features
 ## Key Components
 
 ### Interactive Systems
+
 - **Parallax Carousel**: Multi-layer synchronized scrolling with touch/swipe support
-- **Fluxel Grid**: Animated pixel grid with simulated 3D depth effects  
+- **Fluxel Grid**: Animated pixel grid with simulated 3D depth effects
 - **Kinetic Orb**: Physics-based interactive animation
 
 ### Responsive Design
+
 - **Fluid Variables**: JavaScript-powered CSS custom properties for smooth scaling
 - **SCSS Mixins**: `remRange`, `staticRange`, and `scaleRange` for different scaling needs
 - **Mobile-First**: Progressive enhancement approach
 
 ### Routing & Data
+
 - **SSR Projects List**: Server-side rendered project listings
 - **SSG Project Pages**: Static generation with ISR for performance
 - **NDA Segmentation**: Separate `/project/` and `/nda/` routes for content safety
