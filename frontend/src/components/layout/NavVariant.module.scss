@@ -211,7 +211,10 @@
     width: 50%;
     right: 0;
     padding-top: 160px;
-    height: 100dvh; // var(--client-height);
+    // Use dvh sparingly because it causes some janky layout shifts on some mobile browsers.
+    // But here it's necessary and intentional to cover the full viewport height,
+    // and doesn't shift layout.
+    height: 100dvh;
     z-index: 0;
 
     ul {
