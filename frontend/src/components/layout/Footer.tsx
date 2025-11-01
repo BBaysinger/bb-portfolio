@@ -3,8 +3,8 @@ import Link from "next/link";
 import React, { useRef } from "react";
 
 import { RawImg } from "@/components/common/RawImg";
-import { useContactEmail } from "@/hooks/useContactEmail";
 import { useFlipInFlow } from "@/hooks/useFlipInFlow";
+import { useContactEmail, useContactPhone } from "@/hooks/useObfuscatedContact";
 
 import styles from "./Footer.module.scss";
 import FootGreet from "./FootGreet";
@@ -49,6 +49,12 @@ const Footer: React.FC<FooterProps> = ({ className, mutationElemRef }) => {
     isLoading: _emailLoading,
     error: _emailError,
   } = useContactEmail();
+  const {
+    phoneE164,
+    phoneDisplay,
+    isLoading: _phoneLoading,
+    error: _phoneError,
+  } = useContactPhone();
 
   return (
     <footer ref={footerRef} className={clsx(className, styles.footer)}>
@@ -72,13 +78,13 @@ const Footer: React.FC<FooterProps> = ({ className, mutationElemRef }) => {
                   </a>
                 </li>
                 <li>
-                  <a href="tel:+15092798603">
+                  <a href={`tel:${phoneE164 || "+15092798603"}`}>
                     <div
                       style={{
                         backgroundImage: "url(/images/footer/icons/phone.png)",
                       }}
                     ></div>
-                    509-279-8603
+                    {phoneDisplay || "509-279-8603"}
                   </a>
                 </li>
                 <li>

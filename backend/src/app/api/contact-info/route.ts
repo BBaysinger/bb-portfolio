@@ -23,6 +23,23 @@ export async function GET() {
     const encodedLocal = Buffer.from(localPart).toString('base64')
     const encodedDomain = Buffer.from(domain).toString('base64')
 
+    // Phone (optional) — use ENV_PROFILE-based keys if available
+    const phoneE164Key = `${envProfile.toUpperCase()}_CONTACT_PHONE_E164`
+    const phoneDispKey = `${envProfile.toUpperCase()}_CONTACT_PHONE_DISPLAY`
+    const phoneE164 = process.env[phoneE164Key]
+    const phoneDisplay = process.env[phoneDispKey] || process.env[phoneE164Key]
+
+    let phonePayload: { e: string; d: string; checksum: string } | undefined
+    if (phoneE164) {
+      const encE164 = Buffer.from(phoneE164).toString('base64')
+      const encDisplay = Buffer.from(phoneDisplay || '').toString('base64')
+      phonePayload = {
+        e: encE164,
+        d: encDisplay,
+        checksum: (encE164.length + encDisplay.length).toString(16),
+      }
+    }
+
     // Return obfuscated data with metadata for client-side reconstruction
     return NextResponse.json({
       success: true,
@@ -32,6 +49,8 @@ export async function GET() {
         // Add some noise/decoy data
         timestamp: Date.now(),
         checksum: (encodedLocal.length + encodedDomain.length).toString(16),
+        // New structured payload for additional fields (e.g., phone)
+        phone: phonePayload,
       },
     })
   } catch (error) {
