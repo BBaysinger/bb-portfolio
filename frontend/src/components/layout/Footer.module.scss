@@ -8,44 +8,12 @@ $footerListItemHeight: 30px;
 
 footer.footer {
   position: relative;
-  // position: absolute;
-  // top: 0;
   display: inline-block;
   width: 100%;
   background: linear-gradient(#000000, #242424);
   color: #ccc;
   z-index: 10;
   padding-top: 60px;
-
-  // Use separate properties for different timing
-  // --translateX: 0;
-  // --translateY: 0;
-  // transform: translateX(var(--translateX)) translateY(var(--translateY));
-
-  // transition:
-  //   --translateX $navExpandTime ease-in-out,
-  //   --translateY 0.8s ease-in-out;
-
-  // Apply same mobile nav transform as navRevelator in AppShell
-  // :global(.isMobileNavExpanded) & {
-  //   --translateX: #{-$navExpandWidth};
-
-  //   @include breakpointUp($maxNavExpandWidth * 2) {
-  //     --translateX: #{-$maxNavExpandWidth};
-  //   }
-  // }
-
-  // &::before {
-  //   content: "";
-  //   position: absolute;
-  //   top: -$footerBarberPoleThickness;
-  //   height: $footerBarberPoleThickness;
-  //   width: 100vw;
-  //   background-image: url("/images/common/barber-pole-bottom.webp");
-  //   background-repeat: repeat-x;
-  //   background-size: 350px 40px;
-  //   background-position: 0 bottom;
-  // }
 
   .container {
     max-width: 1400px;
@@ -248,10 +216,6 @@ footer.footer {
 .notASuburb {
   font-size: 11px;
 }
-
-// .footerWrapper {
-//   position: static;
-// }
 
 // footer nav links style override when used in footer
 .footerNavLinks {
