@@ -39,17 +39,8 @@ type FooterProps = {
  * where the footer is directly below the dynamic content, this approach works (extremely)
  * well.
  */
-const Footer: React.FC<FooterProps> = ({
-  // mutationElemRef,
-  className,
-  // transitionSegment,
-}) => {
-  // const [mainContentHeight, setMainContentHeight] = useState(9999999999);
-  // const [shouldSnap, setShouldSnap] = useState(false);
-
+const Footer: React.FC<FooterProps> = ({ className }) => {
   const footerRef = useRef<HTMLDivElement>(null);
-  // const pathname = usePathname();
-  // const prevPathRef = useRef<string>(pathname);
 
   useFlipInFlow(footerRef);
 
@@ -60,83 +51,8 @@ const Footer: React.FC<FooterProps> = ({
     error: _emailError,
   } = useContactEmail();
 
-  // useEffect(() => {
-  //   const prevPath = prevPathRef.current;
-  //   const currentPath = location.pathname;
-
-  //   const wasPortfolioSlug = /^\/portfolio\/[^/]+$/.test(prevPath);
-  //   const isPortfolioSlug = /^\/portfolio\/[^/]+$/.test(currentPath);
-
-  //   const isSmooth = wasPortfolioSlug && isPortfolioSlug;
-  //   setShouldSnap(!isSmooth); // Only suppress snapping if both are slugs
-
-  //   prevPathRef.current = currentPath;
-  // }, []);
-
-  // useEffect(() => {
-  //   const mainContentTarget = mutationElemRef.current;
-  //   const footerTarget = footerRef.current;
-
-  //   if (!mainContentTarget || !footerTarget) {
-  //     throw new Error("Mutation element or footer element not found");
-  //   }
-
-  // const updateMainContentHeight = () => {
-  //   const height = mainContentTarget.offsetHeight || 0;
-  //   setTimeout(() => {
-  //     // setMainContentHeight(height);
-  //     console.log(`Updated main content height: ${height}`);
-  //   }, 50);
-  // };
-
-  // const updateFooterHeight = () => {
-  //   const height = footerTarget.offsetHeight || 0;
-  //   const minHeight = window.innerHeight;
-  //   setFooterHeight(Math.max(height, minHeight));
-  // };
-
-  // requestAnimationFrame(() => {
-  //   updateMainContentHeight();
-  //   // updateFooterHeight();
-  // });
-
-  // const mainContentResizeObserver = new ResizeObserver(() => {
-  //   updateMainContentHeight();
-  // });
-
-  // mainContentResizeObserver.observe(mainContentTarget);
-
-  // const footerResizeObserver = new ResizeObserver(() => {
-  //   //updateFooterHeight();
-  // });
-
-  // footerResizeObserver.observe(footerTarget);
-
-  // const handleWindowResize = () => {
-  //   // updateFooterHeight();
-  // };
-
-  // window.addEventListener("resize", handleWindowResize);
-
-  //   return () => {
-  //     mainContentResizeObserver.disconnect();
-  //     footerResizeObserver.disconnect();
-  //     window.removeEventListener("resize", handleWindowResize);
-  //   };
-  // }, [mutationElemRef]);
-
   return (
-    // <div className={clsx(styles.footerWrapper)}>
-    <footer
-      ref={footerRef}
-      // style={
-      //   {
-      //     // "--translateY": `${Math.round(mainContentHeight)}px`,
-      //     // transition: `${shouldSnap ? "none" : "transform 0.4s ease-in-out"}, ${transitionSegment}`,
-      //   } as // React.CSSProperties
-      // }
-      className={clsx(className, styles.footer)}
-    >
+    <footer ref={footerRef} className={clsx(className, styles.footer)}>
       <div className={styles.container}>
         <div className={styles.footerGrid}>
           <div className={`${styles.footerCell} ${styles.greetSection}`}>
