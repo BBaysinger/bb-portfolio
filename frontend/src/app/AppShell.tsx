@@ -114,9 +114,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     <div
       ref={fluidRef}
       className={clsx(
+        styles.appShell,
         percentHeroInView >= 5 && "isHeroInView5Pct",
         percentHeroInView >= 100 && "isHeroInView100Pct",
-        styles.appShell,
+        isMenuOpen && "isMobileNavExpanded",
         isMenuOpen && styles.isMobileNavExpanded,
       )}
     >
