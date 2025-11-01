@@ -15,6 +15,18 @@ footer.footer {
   z-index: 10;
   padding-top: 60px;
 
+  &::before {
+    content: "";
+    position: absolute;
+    top: -$footerBarberPoleThickness;
+    height: $footerBarberPoleThickness;
+    width: 100vw;
+    background-image: url("/images/common/barber-pole-bottom.webp");
+    background-repeat: repeat-x;
+    background-size: 350px 40px;
+    background-position: 0 bottom;
+  }
+
   .container {
     max-width: 1400px;
     margin: 0 auto;

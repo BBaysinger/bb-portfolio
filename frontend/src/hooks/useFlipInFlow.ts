@@ -3,22 +3,34 @@ import { useLayoutEffect } from "react";
 import { RefObject } from "react";
 
 /**
- * GSAP Flip-based animation hook for smooth layout transitions.
+ * GSAP transform-based animation hook for smooth in-flow height transitions.
  *
- * Monitors layout changes using ResizeObserver and applies GSAP Flip animations
- * to create smooth transitions when elements change position or size. This is
- * particularly useful for footer positioning that needs to adapt to dynamic
- * content height changes.
+ * Currently monitors layout changes via a requestAnimationFrame polling loop and
+ * animates the target element with a simple translateY to compensate for the
+ * watched element's height delta. Useful for in-flow UI (e.g., a footer) that
+ * needs to visually “stick” as nearby content grows/shrinks.
  *
- * @param footerRef - React ref to the element that should be animated during layout changes
- * @param deps - Optional dependency array to control when the effect should re-run
+ * NOTE:
+ * - This implementation does not yet use GSAP's Flip plugin; it's a lightweight
+ *   transform animation only. TODO: Consider GSAP Flip as an option.
+ * - It does not use ResizeObserver yet.
+ *   TODO: Replace RAF polling with ResizeObserver for efficiency and event-driven updates.
+ *   Optionally consider GSAP Flip for full FLIP semantics if position changes (not just height) must be animated.
+ *
+ * @param watchRef - Ref to the element whose height changes should be observed
+ * @param targetRef - Ref to the element that should be animated to smooth the transition
  *
  * @example
  * ```tsx
- * const footerRef = useRef<HTMLElement>(null);
- * useFlipInFlow(footerRef, [someState]);
+ * const watchRef = useRef<HTMLElement>(null);
+ * const targetRef = useRef<HTMLElement>(null);
+ * useFlipInFlow(watchRef, targetRef);
  *
- * return <footer ref={footerRef}>...</footer>
+ * return (
+ *   <div ref={watchRef}>
+ *     <footer ref={targetRef}>...</footer>
+ *   </div>
+ * );
  * ```
  */
 export function useFlipInFlow(
@@ -35,11 +47,15 @@ export function useFlipInFlow(
     let lastRect = w.getBoundingClientRect();
     let rafId: number;
 
+    // TODO: Replace RAF-driven checks with ResizeObserver to avoid continuous polling
+    // and trigger animations only when element size actually changes.
     const check = () => {
       const rect = w.getBoundingClientRect();
       const dh = rect.height - lastRect.height;
 
-      // Detect vertical motion OR height change
+      // Detect height change only (position/top deltas are not handled here)
+      // TODO: If vertical position changes should be animated too, compute delta of `rect.top`
+      // and incorporate it into the transform.
       if (Math.abs(dh) > 0.1) {
         // console.info("FLIP Invert", { dh }, t);
 
