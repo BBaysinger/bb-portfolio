@@ -133,11 +133,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <ScrollToHash />
         {children}
       </div>
-      <Footer
-        className={styles.navRevelator}
-        mutationElemRef={mainContentRef}
-        transitionSegment={"right 0.5s"}
-      />
+      <Footer mutationElemRef={mainContentRef} />
     </div>
   );
 }

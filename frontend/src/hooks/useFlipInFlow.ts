@@ -1,10 +1,6 @@
 import { gsap } from "gsap";
-import { Flip } from "gsap/Flip";
 import { useLayoutEffect } from "react";
-import { RefObject, DependencyList } from "react";
-
-// Register the Flip plugin
-gsap.registerPlugin(Flip);
+import { RefObject } from "react";
 
 /**
  * GSAP Flip-based animation hook for smooth layout transitions.
@@ -24,34 +20,49 @@ gsap.registerPlugin(Flip);
  *
  * return <footer ref={footerRef}>...</footer>
  * ```
+ * useFlipInFlow
+ * Tracks visual movement (position and height changes) of `watchRef`
+ * and animates `targetRef` smoothly via a FLIP transform.
  */
 export function useFlipInFlow(
-  footerRef: RefObject<HTMLElement | null>,
-  deps: DependencyList = [],
+  watchRef: RefObject<HTMLElement | null>,
+  targetRef: RefObject<HTMLElement | null>,
 ) {
   useLayoutEffect(() => {
-    if (!footerRef.current) return;
+    if (typeof window === "undefined") return;
 
-    // Check if GSAP is properly loaded
-    if (typeof Flip === "undefined" || !Flip.getState) {
-      console.warn("GSAP Flip plugin not properly loaded");
-      return;
-    }
+    const w = watchRef.current;
+    const t = targetRef.current;
+    if (!w || !t) return;
 
-    const observer = new ResizeObserver(() => {
-      try {
-        if (!footerRef.current) return;
+    let lastRect = w.getBoundingClientRect();
+    let rafId: number;
 
-        const state = Flip.getState(footerRef.current);
-        requestAnimationFrame(() => {
-          Flip.from(state, { duration: 0.4, ease: "power1.out" });
+    const check = () => {
+      const rect = w.getBoundingClientRect();
+      const dy = lastRect.top - rect.top;
+      const dh = lastRect.height - rect.height;
+
+      // Detect vertical motion OR height change
+      if (Math.abs(dy) > 0.1 || Math.abs(dh) > 0.1) {
+        console.log("FLIP Invert", { dy, dh });
+
+        gsap.set(t, { y: -dy, willChange: "transform" });
+        gsap.to(t, {
+          duration: 0.35,
+          y: 0,
+          ease: "power2.out",
+          clearProps: "transform,will-change",
         });
-      } catch (error) {
-        console.warn("Flip animation error:", error);
-      }
-    });
 
-    observer.observe(document.body);
-    return () => observer.disconnect();
-  }, deps);
+        lastRect = rect;
+      }
+
+      rafId = requestAnimationFrame(check);
+    };
+
+    rafId = requestAnimationFrame(check);
+
+    return () => cancelAnimationFrame(rafId);
+  }, []); // Run once per mount
 }
