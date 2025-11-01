@@ -132,8 +132,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       >
         <ScrollToHash />
         {children}
+        <Footer mutationElemRef={mainContentRef} />
       </div>
-      <Footer mutationElemRef={mainContentRef} />
     </div>
   );
 }
