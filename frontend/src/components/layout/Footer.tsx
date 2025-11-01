@@ -12,8 +12,7 @@ import NavLinks from "./NavLinks";
 
 type FooterProps = {
   mutationElemRef: React.RefObject<HTMLDivElement | null>;
-  className: string | undefined;
-  transitionSegment: string | undefined;
+  className?: string | undefined;
 };
 
 /**
@@ -39,10 +38,10 @@ type FooterProps = {
  * where the footer is directly below the dynamic content, this approach works (extremely)
  * well.
  */
-const Footer: React.FC<FooterProps> = ({ className }) => {
+const Footer: React.FC<FooterProps> = ({ className, mutationElemRef }) => {
   const footerRef = useRef<HTMLDivElement>(null);
 
-  useFlipInFlow(footerRef);
+  useFlipInFlow(mutationElemRef, footerRef);
 
   // Email obfuscation setup - fetches from environment variables
   const {

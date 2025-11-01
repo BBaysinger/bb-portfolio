@@ -12,7 +12,8 @@ interface ContactInfoResponse {
 }
 
 /**
- * Custom hook to fetch and deobfuscate contact email
+ * Custom hook to fetch and deobfuscate contact email to protect
+ * from web scrapers. Loads the email address from .env variables.
  * Implements multiple layers of obfuscation to deter crawlers
  */
 export const useContactEmail = () => {
