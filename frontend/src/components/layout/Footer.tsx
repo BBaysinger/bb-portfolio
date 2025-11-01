@@ -1,7 +1,6 @@
 import { clsx } from "clsx";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useRef } from "react";
 
 import { RawImg } from "@/components/common/RawImg";
 import { useContactEmail } from "@/hooks/useContactEmail";
@@ -43,36 +42,36 @@ type FooterProps = {
 const Footer: React.FC<FooterProps> = ({
   // mutationElemRef,
   className,
-  transitionSegment,
+  // transitionSegment,
 }) => {
   // const [mainContentHeight, setMainContentHeight] = useState(9999999999);
-  const [shouldSnap, setShouldSnap] = useState(false);
+  // const [shouldSnap, setShouldSnap] = useState(false);
 
   const footerRef = useRef<HTMLDivElement>(null);
-  const pathname = usePathname();
-  const prevPathRef = useRef<string>(pathname);
+  // const pathname = usePathname();
+  // const prevPathRef = useRef<string>(pathname);
 
   useFlipInFlow(footerRef);
 
-  // Enhanced obfuscated email setup - fetches from environment variables
+  // Email obfuscation setup - fetches from environment variables
   const {
     email: emailAddr,
     isLoading: _emailLoading,
     error: _emailError,
   } = useContactEmail();
 
-  useEffect(() => {
-    const prevPath = prevPathRef.current;
-    const currentPath = location.pathname;
+  // useEffect(() => {
+  //   const prevPath = prevPathRef.current;
+  //   const currentPath = location.pathname;
 
-    const wasPortfolioSlug = /^\/portfolio\/[^/]+$/.test(prevPath);
-    const isPortfolioSlug = /^\/portfolio\/[^/]+$/.test(currentPath);
+  //   const wasPortfolioSlug = /^\/portfolio\/[^/]+$/.test(prevPath);
+  //   const isPortfolioSlug = /^\/portfolio\/[^/]+$/.test(currentPath);
 
-    const isSmooth = wasPortfolioSlug && isPortfolioSlug;
-    setShouldSnap(!isSmooth); // Only suppress snapping if both are slugs
+  //   const isSmooth = wasPortfolioSlug && isPortfolioSlug;
+  //   setShouldSnap(!isSmooth); // Only suppress snapping if both are slugs
 
-    prevPathRef.current = currentPath;
-  }, []);
+  //   prevPathRef.current = currentPath;
+  // }, []);
 
   // useEffect(() => {
   //   const mainContentTarget = mutationElemRef.current;
