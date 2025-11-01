@@ -20,13 +20,10 @@ import { RefObject } from "react";
  *
  * return <footer ref={footerRef}>...</footer>
  * ```
- * useFlipInFlow
- * Tracks visual movement (position and height changes) of `watchRef`
- * and animates `targetRef` smoothly via a FLIP transform.
  */
 export function useFlipInFlow(
   watchRef: RefObject<HTMLElement | null>,
-  targetRef: RefObject<HTMLElement | null>,
+  targetRef: RefObject<HTMLElement | null>
 ) {
   useLayoutEffect(() => {
     if (typeof window === "undefined") return;
@@ -40,20 +37,20 @@ export function useFlipInFlow(
 
     const check = () => {
       const rect = w.getBoundingClientRect();
-      const dy = lastRect.top - rect.top;
-      const dh = lastRect.height - rect.height;
+      const dh = rect.height - lastRect.height;
 
       // Detect vertical motion OR height change
-      if (Math.abs(dy) > 0.1 || Math.abs(dh) > 0.1) {
-        console.log("FLIP Invert", { dy, dh });
+      if (Math.abs(dh) > 0.1) {
+        console.log("FLIP Invert", { dh });
 
-        gsap.set(t, { y: -dy, willChange: "transform" });
-        gsap.to(t, {
-          duration: 0.35,
-          y: 0,
-          ease: "power2.out",
-          clearProps: "transform,will-change",
-        });
+        gsap.set(t, { y: -dh, willChange: "transform" });
+
+        // gsap.to(t, {
+        //   duration: 0.35,
+        //   y: 0,
+        //   ease: "power2.out",
+        //   clearProps: "transform,will-change",
+        // });
 
         lastRect = rect;
       }
