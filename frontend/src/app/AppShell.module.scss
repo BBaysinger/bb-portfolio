@@ -12,8 +12,6 @@ $navSlideTime: 0.5s;
   position: relative;
   min-width: 320px;
   overflow: hidden;
-  // Vital to the dynamically-positioned footer, to avoid movement into
-  // content area between pages.
   min-height: 100vh;
   overflow: hidden;
   background-color: black;
@@ -24,7 +22,7 @@ $navSlideTime: 0.5s;
 }
 
 .navRevelator {
-  right: 0;
+  // right: 0;
   transition: transform $navSlideTime;
   box-shadow: 10px 5px 60px black;
 
@@ -38,15 +36,14 @@ $navSlideTime: 0.5s;
 }
 
 // Prevents the underlying nav from showing during recoil from
-// inertial scroll.
+// inertial scroll, and whenever repaint lags occur.
 .underlay {
   position: fixed;
-  z-index: 5;
+  z-index: 1;
   height: 100dvh;
   width: 100vw;
   transition: right $navSlideTime;
   background-color: #000;
-  right: 0;
   transform: translateX(-$navExpandWidth);
 
   .isMobileNavExpanded & {

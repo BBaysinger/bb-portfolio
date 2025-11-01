@@ -128,13 +128,14 @@
 }
 
 /// Resumes nav animations when the mobile nav is expanded
-@mixin pauseUnlessMobileNavExpanded {
-  animation-play-state: paused;
+/// KEEP: This will pause animations in the nav.
+// @mixin pauseUnlessMobileNavExpanded {
+//   animation-play-state: paused;
 
-  :global(.isMobileNavExpanded) & {
-    animation-play-state: running !important;
-  }
-}
+//   :global(.isMobileNavExpanded) & {
+//     animation-play-state: running !important;
+//   }
+// }
 
 //////////////////////////////////////////////////////////////////////////
 // Fluid Scaling with Custom Properties
