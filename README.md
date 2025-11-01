@@ -94,7 +94,7 @@ The deployment pipeline uses Terraform for infrastructure provisioning, Docker f
 - State: Redux Toolkit (frontend auth/session), React hooks
 - Testing: Playwright, Vitest
 - Tooling: ESLint, Prettier, Docker, Node.js
-- Cloud/IaC: AWS (EC2, S3, ECR, IAM, SES), Terraform
+- Cloud/IaC: AWS (EC2, S3, ECR, IAM, SES, Route 53, ACM), Terraform
 
 ## Roadmap
 
@@ -130,7 +130,8 @@ This portfolio is deployed using Infrastructure as Code with Terraform and Docke
 - Containerization: Docker with dual registry strategy (Docker Hub + ECR)
 - Storage: S3 buckets for media assets with environment isolation
 - Networking: Elastic IP (44.246.43.116), Security Groups, VPC integration
-- Domain: Custom domain (bbinteractive.io) with DNS management
+- Domain & DNS: Custom domain (bbinteractive.io) with Route 53 hosted zone
+- TLS: AWS Certificate Manager (ACM) with DNS validation via Route 53
 
 ### 🚀 Deployment Process
 
@@ -152,7 +153,7 @@ What happens during deployment:
 2. Automated configuration installs Docker and application services via user_data
 3. Containers are started (dev from Docker Hub, prod from ECR)
 4. Systemd services provide auto-restart and boot persistence
-5. DNS A records point the domain to the Elastic IP
+5. Route 53 A/ALIAS records point the domain to the Elastic IP (or load balancer in future scaling)
 
 ### 🐳 Container Management
 
