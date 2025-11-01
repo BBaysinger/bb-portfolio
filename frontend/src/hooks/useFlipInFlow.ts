@@ -23,7 +23,7 @@ import { RefObject } from "react";
  */
 export function useFlipInFlow(
   watchRef: RefObject<HTMLElement | null>,
-  targetRef: RefObject<HTMLElement | null>
+  targetRef: RefObject<HTMLElement | null>,
 ) {
   useLayoutEffect(() => {
     if (typeof window === "undefined") return;
@@ -41,16 +41,16 @@ export function useFlipInFlow(
 
       // Detect vertical motion OR height change
       if (Math.abs(dh) > 0.1) {
-        console.log("FLIP Invert", { dh });
+        // console.info("FLIP Invert", { dh }, t);
 
         gsap.set(t, { y: -dh, willChange: "transform" });
 
-        // gsap.to(t, {
-        //   duration: 0.35,
-        //   y: 0,
-        //   ease: "power2.out",
-        //   clearProps: "transform,will-change",
-        // });
+        gsap.to(t, {
+          duration: 0.35,
+          y: 0,
+          ease: "power2.out",
+          clearProps: "transform,will-change",
+        });
 
         lastRect = rect;
       }
