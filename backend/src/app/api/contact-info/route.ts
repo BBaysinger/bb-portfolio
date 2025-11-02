@@ -8,11 +8,28 @@ export async function GET() {
   try {
     // Get email from environment variables using the same pattern as email service
     const envProfile = process.env.ENV_PROFILE || 'local'
-    const prefixedKey = `${envProfile.toUpperCase()}_SES_TO_EMAIL`
-    const email = process.env[prefixedKey]
+    const upper = envProfile.toUpperCase()
+    // Preferred order:
+    // 1) <PROFILE>_CONTACT_EMAIL (explicit override if provided)
+    // 2) SECURITY_CONTACT_EMAIL (site-wide security.txt contact address)
+    // 3) <PROFILE>_SES_TO_EMAIL (default: same destination as contact form)
+    const preferredKeys = [
+      `${upper}_CONTACT_EMAIL`,
+      'SECURITY_CONTACT_EMAIL',
+      `${upper}_SES_TO_EMAIL`,
+    ] as const
+    let email: string | undefined
+    for (const key of preferredKeys) {
+      if (process.env[key]) {
+        email = process.env[key]
+        break
+      }
+    }
 
     if (!email) {
-      console.error(`Missing environment variable: ${prefixedKey}`)
+      console.error(
+        `Missing environment variable for contact email. Tried: ${preferredKeys.join(', ')}`,
+      )
       return NextResponse.json({ error: 'Contact information not available' }, { status: 500 })
     }
 

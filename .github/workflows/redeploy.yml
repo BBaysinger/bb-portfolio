@@ -143,6 +143,7 @@ jobs:
           S3_REGION: ${{ secrets.S3_REGION }}
           PUBLIC_PROJECTS_BUCKET: ${{ secrets.PUBLIC_PROJECTS_BUCKET }}
           NDA_PROJECTS_BUCKET: ${{ secrets.NDA_PROJECTS_BUCKET }}
+          SECURITY_CONTACT_EMAIL: ${{ secrets.SECURITY_CONTACT_EMAIL }}
           # Prod
           PROD_MONGODB_URI: ${{ secrets.PROD_MONGODB_URI }}
           PROD_PAYLOAD_SECRET: ${{ secrets.PROD_PAYLOAD_SECRET }}
@@ -188,6 +189,8 @@ jobs:
             "PROD_NEXT_PUBLIC_BACKEND_URL=$(s_val PROD_NEXT_PUBLIC_BACKEND_URL)" \
             "PROD_BACKEND_INTERNAL_URL=$(s_val PROD_BACKEND_INTERNAL_URL 'http://bb-portfolio-backend-prod:3000')" \
             "" \
+            "SECURITY_CONTACT_EMAIL=$(s_val SECURITY_CONTACT_EMAIL)" \
+            "" \
             "PROD_SES_FROM_EMAIL=$(s_val PROD_SES_FROM_EMAIL)" \
             "PROD_SES_TO_EMAIL=$(s_val PROD_SES_TO_EMAIL)" \
             > "$OUT_DIR/backend.env.prod"
@@ -210,6 +213,8 @@ jobs:
             "DEV_FRONTEND_URL=$(s_val DEV_FRONTEND_URL)" \
             "DEV_NEXT_PUBLIC_BACKEND_URL=$(s_val DEV_NEXT_PUBLIC_BACKEND_URL)" \
             "DEV_BACKEND_INTERNAL_URL=$(s_val DEV_BACKEND_INTERNAL_URL 'http://bb-portfolio-backend-dev:3000')" \
+            "" \
+            "SECURITY_CONTACT_EMAIL=$(s_val SECURITY_CONTACT_EMAIL)" \
             "" \
             "DEV_SES_FROM_EMAIL=$(s_val DEV_SES_FROM_EMAIL)" \
             "DEV_SES_TO_EMAIL=$(s_val DEV_SES_TO_EMAIL)" \
