@@ -133,6 +133,7 @@ const ContactPage = () => {
           </form>
           <p
             className={clsx(
+              styles.message,
               styles.statusMessage,
               isError && styles.errorMessage,
             )}
