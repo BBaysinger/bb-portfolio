@@ -1,4 +1,4 @@
-# Interactive UI Developer Portfolio Website
+# Interactive UI/Frontend Developer Portfolio Website
 
 A modern portfolio website featuring custom interactive components built with React, TypeScript, and Next.js. The site includes a parallax project carousel, animated sprite system, and responsive design components. All animations and visual effects are implemented using native web technologies without external 3D or physics libraries.
 
