@@ -81,8 +81,36 @@
   const { CI, GITHUB_ACTIONS, NODE_ENV, ENV_PROFILE, REQUIRED_ENVIRONMENT_VARIABLES } = process.env
 
   const inCI = CI === 'true' || GITHUB_ACTIONS === 'true'
+  const lifecycle = (process.env.npm_lifecycle_event || '').toLowerCase()
+  const isBuildLifecycle = lifecycle.includes('build') || lifecycle === 'prebuild'
   const isProdEnv = NODE_ENV === 'production' || ENV_PROFILE === 'prod'
-  const profile = (ENV_PROFILE || (isProdEnv ? 'prod' : NODE_ENV || '')).toLowerCase().trim()
+
+  // Derive effective profile
+  let profile = (ENV_PROFILE || (isProdEnv ? 'prod' : NODE_ENV || '')).toLowerCase().trim()
+  if (!profile) {
+    // Heuristic: infer from present prefixed keys first
+    if (
+      process.env.PROD_AWS_REGION ||
+      process.env.PROD_FRONTEND_URL ||
+      process.env.PROD_SES_FROM_EMAIL ||
+      process.env.PROD_SES_TO_EMAIL
+    ) {
+      profile = 'prod'
+    } else if (
+      process.env.DEV_AWS_REGION ||
+      process.env.DEV_FRONTEND_URL ||
+      process.env.DEV_SES_FROM_EMAIL ||
+      process.env.DEV_SES_TO_EMAIL
+    ) {
+      profile = 'dev'
+    } else if (isBuildLifecycle) {
+      // Treat builds without explicit profile as production-hardening
+      profile = 'prod'
+    } else {
+      profile = 'local'
+    }
+  }
+
   const profileUpper = (profile || '').toUpperCase()
   const pref = profileUpper ? `${profileUpper}_` : ''
 
@@ -134,7 +162,7 @@
   const effectiveRequirements =
     requirements.length > 0
       ? requirements
-      : inCI && isProdEnv
+      : inCI || profile === 'prod' || isBuildLifecycle
         ? defaultCritical
         : profile === 'local'
           ? defaultLocal
@@ -164,7 +192,7 @@
       ? effectiveRequirements.map((g) => `[${g.join('|')}]`).join(', ')
       : '<none> (no requirements enforced)'
     console.info(
-      `[backend:check-required-env] All required envs satisfied. Profile=${profile} Requirements=${summary}\nCI=${CI} NODE_ENV=${NODE_ENV} ENV_PROFILE=${ENV_PROFILE}`,
+      `[backend:check-required-env] All required envs satisfied. Profile=${profile} Requirements=${summary}\nCI=${CI} NODE_ENV=${NODE_ENV} ENV_PROFILE=${ENV_PROFILE} LIFECYCLE=${lifecycle}`,
     )
   }
 })()

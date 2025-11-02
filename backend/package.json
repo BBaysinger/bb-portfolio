@@ -7,6 +7,7 @@
   "scripts": {
     "precommit": "prettier --write . && tsc -b",
     "prebuild": "node ./scripts/check-required-env.js",
+    "predev": "node ./scripts/check-required-env.js",
     "build": "cross-env NODE_OPTIONS=\"--no-deprecation --max-old-space-size=8000\" npm run generate:importmap && next build",
     "dev": "cross-env NODE_OPTIONS=--no-deprecation next dev -p ${PORT:-3001}",
     "devsafe": "rm -rf .next && cross-env NODE_OPTIONS=--no-deprecation next dev",
@@ -14,6 +15,7 @@
     "generate:types": "cross-env NODE_OPTIONS=--no-deprecation payload generate:types",
     "lint": "cross-env NODE_OPTIONS=--no-deprecation next lint",
     "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
+    "prestart": "node ./scripts/check-required-env.js",
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start",
     "test": "pnpm run test:int && pnpm run test:e2e",
     "test:e2e": "cross-env NODE_OPTIONS=\"--no-deprecation --no-experimental-strip-types\" pnpm exec playwright test",
