@@ -1,7 +1,7 @@
 # Production/Main domain server block
 server {
     listen 80;
-    server_name bbinteractive.io www.bbinteractive.io;
+    server_name bbinteractive.io www.bbinteractive.io bbaysinger.com www.bbaysinger.com;
     
     # Admin interface proxy to production backend (port 3001)
     location /admin {
@@ -97,7 +97,7 @@ server {
 # Development subdomain server block
 server {
     listen 80;
-    server_name dev.bbinteractive.io *.dev.bbinteractive.io;
+    server_name dev.bbinteractive.io *.dev.bbinteractive.io dev.bbaysinger.com *.dev.bbaysinger.com;
     
     # Admin interface proxy to development backend (port 4001)
     location /admin {
