@@ -83,24 +83,40 @@
       );
     }
   }
-  const {
-    CI,
-    GITHUB_ACTIONS,
-    NODE_ENV,
-    ENV_PROFILE,
-    REQUIRED_ENVIRONMENT_VARIABLES,
-  } = process.env;
+  const { CI, GITHUB_ACTIONS, NODE_ENV, ENV_PROFILE, REQUIRED_ENVIRONMENT_VARIABLES } = process.env;
 
   const inCI = CI === "true" || GITHUB_ACTIONS === "true";
+  const lifecycle = (process.env.npm_lifecycle_event || "").toLowerCase();
+  const isBuildLifecycle = lifecycle.includes("build") || lifecycle === "prebuild";
   const isProdEnv = NODE_ENV === "production" || ENV_PROFILE === "prod";
-  const profile = (ENV_PROFILE || (isProdEnv ? "prod" : NODE_ENV || ""))
+
+  // Derive effective profile
+  let profile = (ENV_PROFILE || (isProdEnv ? "prod" : NODE_ENV || ""))
     .toLowerCase()
     .trim();
+  if (!profile) {
+    // Heuristic: infer from present prefixed keys first
+    if (
+      process.env.PROD_NEXT_PUBLIC_BACKEND_URL ||
+      process.env.PROD_BACKEND_INTERNAL_URL ||
+      process.env.PROD_FRONTEND_URL
+    ) {
+      profile = "prod";
+    } else if (
+      process.env.DEV_NEXT_PUBLIC_BACKEND_URL ||
+      process.env.DEV_BACKEND_INTERNAL_URL ||
+      process.env.DEV_FRONTEND_URL
+    ) {
+      profile = "dev";
+    } else if (isBuildLifecycle) {
+      profile = "prod"; // builds default to prod-hardening
+    } else {
+      profile = "local";
+    }
+  }
 
   const profileUpper = (profile || "").toUpperCase();
-  const newProfileKey = profileUpper
-    ? `${profileUpper}_REQUIRED_ENVIRONMENT_VARIABLES`
-    : "";
+  const newProfileKey = profileUpper ? `${profileUpper}_REQUIRED_ENVIRONMENT_VARIABLES` : "";
   const rawList = (
     (process.env[newProfileKey] || REQUIRED_ENVIRONMENT_VARIABLES || "") + ""
   ).trim();
@@ -126,10 +142,28 @@
     `${profile.toUpperCase()}_BACKEND_INTERNAL_URL`,
   ].filter(Boolean);
 
+  // Enforce presence of definition var in CI/build/prod to avoid drift
+  const hasDefinitionVar = !!(process.env[newProfileKey] || REQUIRED_ENVIRONMENT_VARIABLES);
+  if ((inCI || isBuildLifecycle || profile === "prod") && !hasDefinitionVar) {
+    const hint = newProfileKey || "<PROFILE>_REQUIRED_ENVIRONMENT_VARIABLES";
+    const msg = [
+      "[check-required-env] Missing definition of required env list.",
+      `Profile: ${profile || "<none>"}`,
+      "Please set one of:",
+      `  - ${hint}`,
+      "  - REQUIRED_ENVIRONMENT_VARIABLES",
+      "Define a comma-separated list of groups; use '|' for ANY-of within a group.",
+      "Example:",
+      "  PROD_REQUIRED_ENVIRONMENT_VARIABLES=PROD_BACKEND_INTERNAL_URL",
+    ].join("\n");
+    console.error(msg);
+    process.exit(1);
+  }
+
   const effectiveRequirements =
     requirements.length > 0
       ? requirements
-      : inCI && isProdEnv
+      : inCI || isBuildLifecycle || profile === "prod"
         ? [defaultBackendGroup]
         : [];
 
@@ -158,7 +192,7 @@
       ? effectiveRequirements.map((g) => `[${g.join("|")}]`).join(", ")
       : "<none> (no requirements enforced)";
     console.info(
-      `[check-required-env] All required envs satisfied. Profile=${profile} Requirements=${summary}\nCI=${CI} NODE_ENV=${NODE_ENV} ENV_PROFILE=${ENV_PROFILE}`,
+      `[check-required-env] All required envs satisfied. Profile=${profile} Requirements=${summary}\nCI=${CI} NODE_ENV=${NODE_ENV} ENV_PROFILE=${ENV_PROFILE} LIFECYCLE=${lifecycle}`,
     );
   }
 })();

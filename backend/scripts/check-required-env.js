@@ -159,6 +159,24 @@
     ['NEXT_SERVER_ACTIONS_ENCRYPTION_KEY'],
   ]
 
+  // Require presence of explicit definition variable in CI/build/prod
+  const hasDefinitionVar = !!(process.env[newProfileKey] || REQUIRED_ENVIRONMENT_VARIABLES)
+  if ((inCI || isBuildLifecycle || profile === 'prod') && !hasDefinitionVar) {
+    const hint = newProfileKey || '<PROFILE>_REQUIRED_ENVIRONMENT_VARIABLES'
+    const msg = [
+      '[backend:check-required-env] Missing definition of required env list.',
+      `Profile: ${profile || '<none>'}`,
+      'Please set one of:',
+      `  - ${hint}`,
+      '  - REQUIRED_ENVIRONMENT_VARIABLES',
+      'Define a comma-separated list of groups; use "|" for ANY-of within a group.',
+      'Example:',
+      '  PROD_REQUIRED_ENVIRONMENT_VARIABLES=PROD_MONGODB_URI,PROD_AWS_REGION,PROD_SES_FROM_EMAIL|PROD_SMTP_FROM_EMAIL,PROD_SES_TO_EMAIL,PROD_FRONTEND_URL,PROD_PAYLOAD_SECRET',
+    ].join('\n')
+    console.error(msg)
+    process.exit(1)
+  }
+
   const effectiveRequirements =
     requirements.length > 0
       ? requirements
