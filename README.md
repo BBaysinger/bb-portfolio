@@ -1,6 +1,6 @@
 # Interactive UI/Frontend Developer Portfolio Website
 
-A modern portfolio website featuring custom interactive components built with React, TypeScript, and Next.js. The site includes a parallax project carousel, animated sprite system, and responsive design components. All animations and visual effects are implemented using native web technologies without external 3D or physics libraries.
+A modern portfolio website featuring custom interactive components built with React, TypeScript, Next.js, and Payload CMS. The site includes a parallax project carousel, animated sprite system, and responsive design components. All animations and visual effects are implemented using native web technologies without external 3D, physics, or sprite sheet animation libraries.
 
 The deployment pipeline uses Terraform for infrastructure provisioning, Docker for containerization, and GitHub Actions for CI/CD. The system supports multiple environments (dev/prod) with separate container registries and S3 storage buckets.
 
