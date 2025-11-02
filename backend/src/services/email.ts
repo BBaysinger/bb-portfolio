@@ -19,15 +19,24 @@ class AWSEmailService implements EmailService {
 
   constructor() {
     try {
-      const region = this.getEnvVar('AWS_REGION')
+      const { value: region, usedKey: regionKey } = this.getEnvVarWithKey('AWS_REGION')
 
-      this.fromEmail = this.getEnvVar('SES_FROM_EMAIL')
-      this.toEmail = this.getEnvVar('SES_TO_EMAIL')
+      const { value: fromEmail, usedKey: fromKey } = this.getEnvVarWithKey('SES_FROM_EMAIL')
+      const { value: toEmail, usedKey: toKey } = this.getEnvVarWithKey('SES_TO_EMAIL')
+      this.fromEmail = fromEmail
+      this.toEmail = toEmail
 
       // Prefer the default AWS credential provider chain.
       // If AWS_ACCESS_KEY_ID/SECRET are present, SDK will pick them up automatically.
       // If running on EC2/ECS with an IAM role, the SDK will use role credentials.
       this.sesClient = new SESClient({ region })
+
+      // Minimal, non-secret debug to help diagnose prod config (no values printed)
+      console.info(
+        `[email] SES configured using keys: region=${regionKey}, from=${fromKey}, to=${toKey}; ENV_PROFILE=${
+          process.env.ENV_PROFILE || ''
+        }`,
+      )
 
       this.isConfigured = true
     } catch (error) {
@@ -35,18 +44,19 @@ class AWSEmailService implements EmailService {
     }
   }
 
-  private getEnvVar(key: string): string {
+  private getEnvVarWithKey(key: string): { value: string; usedKey: string } {
     const envProfile = process.env.ENV_PROFILE || 'local'
     const prefixedKey = `${envProfile.toUpperCase()}_${key}`
     // Prefer profile-prefixed, but gracefully fall back to unprefixed for runtime environments
     // where only AWS_REGION/SES_* may be provided.
     const value = process.env[prefixedKey] || process.env[key]
+    const usedKey = process.env[prefixedKey] ? prefixedKey : process.env[key] ? key : ''
 
     if (!value) {
       throw new Error(`Missing required environment variable: ${prefixedKey} (or ${key})`)
     }
 
-    return value
+    return { value, usedKey }
   }
 
   async sendContactEmail(data: ContactFormData): Promise<{ success: boolean; error?: string }> {
