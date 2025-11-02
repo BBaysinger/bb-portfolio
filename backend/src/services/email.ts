@@ -124,11 +124,29 @@ This message was sent via your portfolio contact form.
       await this.sesClient!.send(command)
 
       return { success: true }
-    } catch (error) {
-      console.error('AWS SES Error:', error)
+    } catch (error: unknown) {
+      // Log structured, non-secret SES diagnostics for faster triage in prod
+      const err = (error || {}) as {
+        name?: string
+        message?: string
+        Code?: string
+        code?: string
+        $metadata?: { requestId?: string; httpStatusCode?: number }
+      }
+      const meta = err.$metadata || {}
+      console.error('AWS SES Error:', {
+        name: err.name,
+        code: err.Code || err.code,
+        message: err.message,
+        requestId: meta?.requestId,
+        statusCode: meta?.httpStatusCode,
+      })
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error occurred',
+        error:
+          typeof err.message === 'string' && err.message.length > 0
+            ? err.message
+            : 'Unknown error occurred',
       }
     }
   }
