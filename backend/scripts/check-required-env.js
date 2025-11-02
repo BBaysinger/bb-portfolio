@@ -12,34 +12,20 @@
   - Default safety (CI+prod only): require critical backend vars if no explicit list was given.
 */
 ;(async function () {
-  // Load .env files with precedence similar to Next.js
-  try {
-    const { dirname, resolve } = await import('node:path')
-    const { fileURLToPath } = await import('node:url')
-    const { existsSync } = await import('node:fs')
-    const dotenvMod = await import('dotenv')
-    const dotenv = dotenvMod && (dotenvMod.default || dotenvMod)
+  // Decide whether to load .env files BEFORE loading them to avoid prod picking up local defaults.
+  const preNodeEnv = (process.env.NODE_ENV || '').toLowerCase()
+  let preProfile = (process.env.ENV_PROFILE || (preNodeEnv === 'production' ? 'prod' : preNodeEnv || '')).toLowerCase().trim()
+  const shouldLoadDotenv = preProfile !== 'prod'
 
-    const __dirname = dirname(fileURLToPath(import.meta.url))
-    const root = resolve(__dirname, '..')
-    const nodeEnv = (process.env.NODE_ENV || '').toLowerCase()
-    const envFiles = [
-      resolve(root, '.env'),
-      nodeEnv === 'production'
-        ? resolve(root, '.env.production')
-        : resolve(root, '.env.development'),
-      resolve(root, '.env.local'),
-    ]
-
-    for (const p of envFiles) {
-      if (existsSync(p)) dotenv.config({ path: p, override: false })
-    }
-  } catch (_) {
-    // Best-effort fallback loader (no external deps required)
+  if (shouldLoadDotenv) {
+    // Load .env files with precedence similar to Next.js, but do not override explicit env
     try {
       const { dirname, resolve } = await import('node:path')
       const { fileURLToPath } = await import('node:url')
-      const { existsSync, readFileSync } = await import('node:fs')
+      const { existsSync } = await import('node:fs')
+      const dotenvMod = await import('dotenv')
+      const dotenv = dotenvMod && (dotenvMod.default || dotenvMod)
+
       const __dirname = dirname(fileURLToPath(import.meta.url))
       const root = resolve(__dirname, '..')
       const nodeEnv = (process.env.NODE_ENV || '').toLowerCase()
@@ -50,33 +36,54 @@
           : resolve(root, '.env.development'),
         resolve(root, '.env.local'),
       ]
-      const apply = (line) => {
-        const idx = line.indexOf('=')
-        if (idx === -1) return
-        const key = line.slice(0, idx).trim()
-        const val = line
-          .slice(idx + 1)
-          .trim()
-          .replace(/^"|^'|"$|'$/g, '')
-        if (!key) return
-        if (process.env[key] === undefined) {
-          process.env[key] = val
-        }
-      }
+
       for (const p of envFiles) {
-        if (!existsSync(p)) continue
-        const content = readFileSync(p, 'utf8')
-        for (const raw of content.split(/\r?\n/)) {
-          const line = raw.trim()
-          if (!line || line.startsWith('#')) continue
-          apply(line)
-        }
+        if (existsSync(p)) dotenv.config({ path: p, override: false })
       }
-      console.info('[backend:check-required-env] Loaded .env via fallback parser')
-    } catch (__) {
-      console.warn(
-        '[backend:check-required-env] Warning: dotenv not available; skipping .env preload',
-      )
+    } catch (_) {
+      // Best-effort fallback loader (no external deps required)
+      try {
+        const { dirname, resolve } = await import('node:path')
+        const { fileURLToPath } = await import('node:url')
+        const { existsSync, readFileSync } = await import('node:fs')
+        const __dirname = dirname(fileURLToPath(import.meta.url))
+        const root = resolve(__dirname, '..')
+        const nodeEnv = (process.env.NODE_ENV || '').toLowerCase()
+        const envFiles = [
+          resolve(root, '.env'),
+          nodeEnv === 'production'
+            ? resolve(root, '.env.production')
+            : resolve(root, '.env.development'),
+          resolve(root, '.env.local'),
+        ]
+        const apply = (line) => {
+          const idx = line.indexOf('=')
+          if (idx === -1) return
+          const key = line.slice(0, idx).trim()
+          const val = line
+            .slice(idx + 1)
+            .trim()
+            .replace(/^"|^'|"$|'$/g, '')
+          if (!key) return
+          if (process.env[key] === undefined) {
+            process.env[key] = val
+          }
+        }
+        for (const p of envFiles) {
+          if (!existsSync(p)) continue
+          const content = readFileSync(p, 'utf8')
+          for (const raw of content.split(/\r?\n/)) {
+            const line = raw.trim()
+            if (!line || line.startsWith('#')) continue
+            apply(line)
+          }
+        }
+        console.info('[backend:check-required-env] Loaded .env via fallback parser')
+      } catch (__) {
+        console.warn(
+          '[backend:check-required-env] Warning: dotenv not available; skipping .env preload',
+        )
+      }
     }
   }
 
