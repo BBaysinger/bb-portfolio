@@ -94,6 +94,8 @@ jobs:
         env:
           # Use dev profile with a dummy connection string just to satisfy build-time checks
           ENV_PROFILE: dev
+          # Env-guard definition list (unified FE/BE list, dev-scoped)
+          DEV_REQUIRED_ENVIRONMENT_VARIABLES: ${{ secrets.DEV_REQUIRED_ENVIRONMENT_VARIABLES }}
           DEV_MONGODB_URI: mongodb://localhost:27017/dummy-db
           # Required by strict env checks in payload.config.ts for dev profile
           DEV_PAYLOAD_SECRET: ${{ secrets.DEV_PAYLOAD_SECRET }}
@@ -148,6 +150,8 @@ jobs:
         working-directory: ./frontend
         env:
           ENV_PROFILE: dev
+          # Env-guard definition list (unified FE/BE list, dev-scoped)
+          DEV_REQUIRED_ENVIRONMENT_VARIABLES: ${{ secrets.DEV_REQUIRED_ENVIRONMENT_VARIABLES }}
           DEV_BACKEND_INTERNAL_URL: ${{ secrets.DEV_BACKEND_INTERNAL_URL }}
           DEV_NEXT_PUBLIC_BACKEND_URL: ${{ secrets.DEV_NEXT_PUBLIC_BACKEND_URL }}
           NEXT_PUBLIC_BACKEND_URL: ${{ secrets.DEV_NEXT_PUBLIC_BACKEND_URL }}
