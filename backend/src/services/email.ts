@@ -20,26 +20,14 @@ class AWSEmailService implements EmailService {
   constructor() {
     try {
       const region = this.getEnvVar('AWS_REGION')
-      // Use unified AWS credentials (no environment prefix needed)
-      const accessKeyId = process.env.AWS_ACCESS_KEY_ID
-      const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY
-
-      if (!accessKeyId || !secretAccessKey) {
-        this.configError =
-          'Missing required AWS credentials: AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY'
-        return
-      }
 
       this.fromEmail = this.getEnvVar('SES_FROM_EMAIL')
       this.toEmail = this.getEnvVar('SES_TO_EMAIL')
 
-      this.sesClient = new SESClient({
-        region,
-        credentials: {
-          accessKeyId,
-          secretAccessKey,
-        },
-      })
+      // Prefer the default AWS credential provider chain.
+      // If AWS_ACCESS_KEY_ID/SECRET are present, SDK will pick them up automatically.
+      // If running on EC2/ECS with an IAM role, the SDK will use role credentials.
+      this.sesClient = new SESClient({ region })
 
       this.isConfigured = true
     } catch (error) {
@@ -50,10 +38,12 @@ class AWSEmailService implements EmailService {
   private getEnvVar(key: string): string {
     const envProfile = process.env.ENV_PROFILE || 'local'
     const prefixedKey = `${envProfile.toUpperCase()}_${key}`
-    const value = process.env[prefixedKey]
+    // Prefer profile-prefixed, but gracefully fall back to unprefixed for runtime environments
+    // where only AWS_REGION/SES_* may be provided.
+    const value = process.env[prefixedKey] || process.env[key]
 
     if (!value) {
-      throw new Error(`Missing required environment variable: ${prefixedKey}`)
+      throw new Error(`Missing required environment variable: ${prefixedKey} (or ${key})`)
     }
 
     return value
