@@ -158,6 +158,9 @@ COPY --from=builder --chown=appuser:appuser /app/node_modules ./node_modules
 # Includes compiled JavaScript, configuration files, and assets
 COPY --from=builder --chown=appuser:appuser /app/. ./
 
+# Remove development env files to prevent local defaults from leaking into production
+RUN rm -f .env .env.local .env.development .env.production || true
+
 # Expose port 3000 for the Payload CMS server
 EXPOSE 3000
 
