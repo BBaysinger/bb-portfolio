@@ -14,7 +14,11 @@
 ;(async function () {
   // Decide whether to load .env files BEFORE loading them to avoid prod picking up local defaults.
   const preNodeEnv = (process.env.NODE_ENV || '').toLowerCase()
-  let preProfile = (process.env.ENV_PROFILE || (preNodeEnv === 'production' ? 'prod' : preNodeEnv || '')).toLowerCase().trim()
+  let preProfile = (
+    process.env.ENV_PROFILE || (preNodeEnv === 'production' ? 'prod' : preNodeEnv || '')
+  )
+    .toLowerCase()
+    .trim()
   const shouldLoadDotenv = preProfile !== 'prod'
 
   if (shouldLoadDotenv) {
@@ -154,6 +158,8 @@
     [`${pref}FRONTEND_URL`],
     // Region for SES / AWS SDK
     [`${pref}AWS_REGION`],
+    // Contact email must be explicitly provided for obfuscation and security.txt
+    ['SECURITY_CONTACT_EMAIL'],
     // One of SES_FROM_EMAIL or SMTP_FROM_EMAIL must be present
     [`${pref}SES_FROM_EMAIL`, `${pref}SMTP_FROM_EMAIL`],
     // Where contact form emails are delivered
