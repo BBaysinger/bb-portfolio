@@ -83,11 +83,12 @@
       );
     }
   }
-  const { CI, GITHUB_ACTIONS, NODE_ENV, ENV_PROFILE, REQUIRED_ENVIRONMENT_VARIABLES } = process.env;
+  const { CI, GITHUB_ACTIONS, NODE_ENV, ENV_PROFILE } = process.env;
 
   const inCI = CI === "true" || GITHUB_ACTIONS === "true";
   const lifecycle = (process.env.npm_lifecycle_event || "").toLowerCase();
-  const isBuildLifecycle = lifecycle.includes("build") || lifecycle === "prebuild";
+  const isBuildLifecycle =
+    lifecycle.includes("build") || lifecycle === "prebuild";
   const isProdEnv = NODE_ENV === "production" || ENV_PROFILE === "prod";
 
   // Derive effective profile
@@ -116,9 +117,15 @@
   }
 
   const profileUpper = (profile || "").toUpperCase();
-  const newProfileKey = profileUpper ? `${profileUpper}_REQUIRED_ENVIRONMENT_VARIABLES` : "";
+  // Use unified definition variables (no renaming). Frontend will filter to its own needs.
+  const unifiedProfileKey = profileUpper
+    ? `${profileUpper}_REQUIRED_ENVIRONMENT_VARIABLES`
+    : "";
+  const unifiedGlobalKey = `REQUIRED_ENVIRONMENT_VARIABLES`;
   const rawList = (
-    (process.env[newProfileKey] || REQUIRED_ENVIRONMENT_VARIABLES || "") + ""
+    process.env[unifiedProfileKey] ||
+    process.env[unifiedGlobalKey] ||
+    ""
   ).trim();
 
   const parseRequirements = (s) => {
@@ -142,10 +149,13 @@
     `${profile.toUpperCase()}_BACKEND_INTERNAL_URL`,
   ].filter(Boolean);
 
-  // Enforce presence of definition var in CI/build/prod to avoid drift
-  const hasDefinitionVar = !!(process.env[newProfileKey] || REQUIRED_ENVIRONMENT_VARIABLES);
+  // Enforce presence of unified definition var in CI/build/prod to avoid drift
+  const hasDefinitionVar = !!(
+    process.env[unifiedProfileKey] || process.env[unifiedGlobalKey]
+  );
   if ((inCI || isBuildLifecycle || profile === "prod") && !hasDefinitionVar) {
-    const hint = newProfileKey || "<PROFILE>_REQUIRED_ENVIRONMENT_VARIABLES";
+    const hint =
+      unifiedProfileKey || "<PROFILE>_REQUIRED_ENVIRONMENT_VARIABLES";
     const msg = [
       "[check-required-env] Missing definition of required env list.",
       `Profile: ${profile || "<none>"}`,
@@ -160,9 +170,21 @@
     process.exit(1);
   }
 
+  // FRONTEND-SCOPED ENFORCEMENT: filter unified list to only frontend-relevant names
+  const frontendAllowed = new Set([
+    `${profileUpper}_BACKEND_INTERNAL_URL`,
+    `${profileUpper}_NEXT_PUBLIC_BACKEND_URL`,
+    "PUBLIC_PROJECTS_BUCKET",
+    "NDA_PROJECTS_BUCKET",
+  ]);
+
+  const filtered = requirements
+    .map((group) => group.filter((name) => frontendAllowed.has(name)))
+    .filter((group) => group.length > 0);
+
   const effectiveRequirements =
-    requirements.length > 0
-      ? requirements
+    filtered.length > 0
+      ? filtered
       : inCI || isBuildLifecycle || profile === "prod"
         ? [defaultBackendGroup]
         : [];
@@ -181,8 +203,8 @@
       ...missingGroups.map((g) => `  - ${g}`),
       "\nConfigure REQUIRED_ENVIRONMENT_VARIABLES or <PROFILE>_REQUIRED_ENVIRONMENT_VARIABLES.",
       "Examples:",
-      "  REQUIRED_ENVIRONMENT_VARIABLES=PROD_BACKEND_INTERNAL_URL",
-      "  PROD_REQUIRED_ENVIRONMENT_VARIABLES=PROD_BACKEND_INTERNAL_URL",
+      "  REQUIRED_ENVIRONMENT_VARIABLES=DEV_BACKEND_INTERNAL_URL|DEV_NEXT_PUBLIC_BACKEND_URL",
+      "  PROD_REQUIRED_ENVIRONMENT_VARIABLES=PROD_BACKEND_INTERNAL_URL|PROD_NEXT_PUBLIC_BACKEND_URL",
       "\nNote: In CI+prod, a default requirement enforces at least one backend base URL variable to avoid empty portfolio deploys.",
     ].join("\n");
     console.error(msg);

@@ -32,7 +32,7 @@
     ]
 
     for (const p of envFiles) {
-      if (existsSync(p)) dotenv.config({ path: p, override: true })
+      if (existsSync(p)) dotenv.config({ path: p, override: false })
     }
   } catch (_) {
     // Best-effort fallback loader (no external deps required)
@@ -59,7 +59,9 @@
           .trim()
           .replace(/^"|^'|"$|'$/g, '')
         if (!key) return
-        process.env[key] = val
+        if (process.env[key] === undefined) {
+          process.env[key] = val
+        }
       }
       for (const p of envFiles) {
         if (!existsSync(p)) continue
@@ -78,7 +80,7 @@
     }
   }
 
-  const { CI, GITHUB_ACTIONS, NODE_ENV, ENV_PROFILE, REQUIRED_ENVIRONMENT_VARIABLES } = process.env
+  const { CI, GITHUB_ACTIONS, NODE_ENV, ENV_PROFILE } = process.env
 
   const inCI = CI === 'true' || GITHUB_ACTIONS === 'true'
   const lifecycle = (process.env.npm_lifecycle_event || '').toLowerCase()
@@ -114,8 +116,12 @@
   const profileUpper = (profile || '').toUpperCase()
   const pref = profileUpper ? `${profileUpper}_` : ''
 
-  const newProfileKey = profileUpper ? `${profileUpper}_REQUIRED_ENVIRONMENT_VARIABLES` : ''
-  const rawList = ((process.env[newProfileKey] || REQUIRED_ENVIRONMENT_VARIABLES || '') + '').trim()
+  // Use unified definition variables (no renaming)
+  const unifiedProfileKey = profileUpper ? `${profileUpper}_REQUIRED_ENVIRONMENT_VARIABLES` : ''
+  const unifiedGlobalKey = `REQUIRED_ENVIRONMENT_VARIABLES`
+  const rawList = (
+    (process.env[unifiedProfileKey] || process.env[unifiedGlobalKey] || '') + ''
+  ).trim()
 
   const parseRequirements = (s) => {
     if (!s) return []
@@ -160,9 +166,9 @@
   ]
 
   // Require presence of explicit definition variable in CI/build/prod
-  const hasDefinitionVar = !!(process.env[newProfileKey] || REQUIRED_ENVIRONMENT_VARIABLES)
+  const hasDefinitionVar = !!(process.env[unifiedProfileKey] || process.env[unifiedGlobalKey])
   if ((inCI || isBuildLifecycle || profile === 'prod') && !hasDefinitionVar) {
-    const hint = newProfileKey || '<PROFILE>_REQUIRED_ENVIRONMENT_VARIABLES'
+    const hint = unifiedProfileKey || '<PROFILE>_REQUIRED_ENVIRONMENT_VARIABLES'
     const msg = [
       '[backend:check-required-env] Missing definition of required env list.',
       `Profile: ${profile || '<none>'}`,
@@ -171,7 +177,7 @@
       '  - REQUIRED_ENVIRONMENT_VARIABLES',
       'Define a comma-separated list of groups; use "|" for ANY-of within a group.',
       'Example:',
-      '  PROD_REQUIRED_ENVIRONMENT_VARIABLES=PROD_MONGODB_URI,PROD_AWS_REGION,PROD_SES_FROM_EMAIL|PROD_SMTP_FROM_EMAIL,PROD_SES_TO_EMAIL,PROD_FRONTEND_URL,PROD_PAYLOAD_SECRET',
+      '  PROD_REQUIRED_ENVIRONMENT_VARIABLES=GROUP_A|GROUP_B,GROUP_C',
     ].join('\n')
     console.error(msg)
     process.exit(1)
@@ -200,8 +206,8 @@
       ...missingGroups.map((g) => `  - ${g}`),
       '\nConfigure REQUIRED_ENVIRONMENT_VARIABLES or <PROFILE>_REQUIRED_ENVIRONMENT_VARIABLES.',
       'Examples:',
-      '  REQUIRED_ENVIRONMENT_VARIABLES=PROD_MONGODB_URI,PROD_AWS_REGION,PROD_SES_FROM_EMAIL|PROD_SMTP_FROM_EMAIL,PROD_SES_TO_EMAIL,PROD_FRONTEND_URL,PROD_PAYLOAD_SECRET',
-      '  PROD_REQUIRED_ENVIRONMENT_VARIABLES=PROD_MONGODB_URI,PROD_AWS_REGION,PROD_SES_FROM_EMAIL|PROD_SMTP_FROM_EMAIL,PROD_SES_TO_EMAIL,PROD_FRONTEND_URL,PROD_PAYLOAD_SECRET',
+      '  REQUIRED_ENVIRONMENT_VARIABLES=GROUP_A|GROUP_B,GROUP_C',
+      '  PROD_REQUIRED_ENVIRONMENT_VARIABLES=GROUP_A|GROUP_B,GROUP_C',
     ].join('\n')
     console.error(msg)
     process.exit(1)
