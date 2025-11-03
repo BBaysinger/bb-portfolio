@@ -242,6 +242,8 @@
     "images:cleanup:ecr:dry-run": "bash ./scripts/image-cleanup-ecr.sh --retain 3 --include-untagged --dry-run",
     // Verify image tags and counts in Docker Hub and ECR
     "images:verify": "bash ./scripts/images-verify.sh",
+    // 🔁 Sync dev and main branches (fast-forward only, always returns to dev)
+    "sync:branches": "bash ./scripts/sync-branches.sh",
   },
   // Development tooling for the monorepo root (formatting, linting, TS, runners)
   "devDependencies": {
