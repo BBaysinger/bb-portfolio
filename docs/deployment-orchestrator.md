@@ -12,6 +12,7 @@ Responsibilities:
 - Optionally plan/apply infrastructure (EC2 instance, security group, EIP association)
 - Optionally build and push images (ECR/Docker Hub)
 - Hand off container (re)starts to GitHub Actions (with SSH fallback)
+- Generate runtime env files on EC2 (via GH workflow or SSH fallback) including required env-guard lists and security.txt settings
 
 ## Prerequisites
 
@@ -77,6 +78,15 @@ deploy/scripts/deployment-orchestrator.sh --plan-only
 deploy/scripts/deployment-orchestrator.sh --no-build --profiles both --refresh-env
 ```
 
+When --refresh-env is set, the workflow regenerates these files on EC2:
+
+- backend/.env.prod and backend/.env.dev
+  - Include: PROD_/DEV_REQUIRED_ENVIRONMENT_VARIABLES (env-guard lists), SECURITY_CONTACT_EMAIL, SECURITY_TXT_EXPIRES, S3 bucket names, Mongo URIs, Payload secret, SES emails, internal backend URL.
+- frontend/.env.prod and frontend/.env.dev
+  - Include: internal backend URL for SSR/server use only.
+
+SSH fallback mirrors this behavior using values from .github-secrets.private.json5.
+
 - Full redeploy including image builds for dev/prod:
 
 ```
@@ -97,3 +107,4 @@ npm run deploy:full
 - GH dispatch fails:
   - The orchestrator auto-falls back to SSH to restart containers
   - Confirm EC2 is reachable; then re-run
+  - If backend restart-loops with "Missing required environment variables", re-run with --refresh-env to regenerate env files (ensuring SECURITY_TXT_EXPIRES and required lists are present).
