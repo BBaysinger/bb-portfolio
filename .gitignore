@@ -92,6 +92,9 @@ backend/media/**
 *.tfstate.*
 .terraform/
 .terraform.lock.hcl
+*.tfplan
+**/*.tfplan
+infra/tfplan
 
 # Local overrides
 terraform.tfvars
