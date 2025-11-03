@@ -9,7 +9,8 @@ Dockerfile
 .next
 dist
 coverage
-*.env
+.env
+.env.*
 .DS_Store
 .vscode
 README.md
