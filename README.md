@@ -220,6 +220,27 @@ terraform apply   # Deploy infrastructure (creates many AWS resources)
 terraform destroy # Clean teardown of all resources
 ```
 
+Orchestrated deploys (recommended):
+
+```bash
+# Read-only discovery / plan
+deploy/scripts/deployment-orchestrator.sh --discover-only
+deploy/scripts/deployment-orchestrator.sh --plan-only
+
+# Redeploy prod (uses GitHub Actions, regenerates env files on EC2)
+deploy/scripts/deployment-orchestrator.sh --profiles prod --refresh-env
+
+# Redeploy both prod and dev, no image rebuilds
+deploy/scripts/deployment-orchestrator.sh --no-build --profiles both --refresh-env
+```
+
+What the orchestrator does:
+
+- Triggers the reusable Redeploy workflow to generate runtime `.env.*` files on EC2 from GitHub Secrets and restart containers
+- Ensures backend env files include SECURITY_TXT_EXPIRES and the per-profile required lists so the env-guard passes
+- Falls back to a safe SSH path if the workflow dispatch fails (mirrors env generation behavior)
+- Never stores secrets in the repo or bakes them into Docker images
+
 What happens during deployment:
 
 1. AWS resources are created (EC2, Elastic IP, Security Groups, IAM roles, S3, ECR)
@@ -227,6 +248,15 @@ What happens during deployment:
 3. Containers are started (dev from Docker Hub, prod from ECR)
 4. Systemd services provide auto-restart and boot persistence
 5. Route 53 A/ALIAS records point the domain to the Elastic IP (or load balancer in future scaling)
+
+Post-deploy smoke checks (via SSH on EC2):
+
+```bash
+curl -fsSL http://localhost:3001/api/health/   # backend 200
+curl -fsSL 'http://localhost:3000/api/projects/?limit=3&depth=0' | jq '.docs | length'
+```
+
+If backend logs show "Missing required environment variables", rerun a redeploy with `--refresh-env` to regenerate `.env.prod`/`.env.dev` on EC2.
 
 ### 🐳 Container Management
 
@@ -273,6 +303,7 @@ For deep dives and implementation details:
 - Ports & Services: [`/docs/ports.md`](./docs/ports.md)
 - Infrastructure Guide: [`/infra/README.md`](./infra/README.md)
 - Deployment Instructions: [`/deploy/DEPLOYMENT.md`](./deploy/DEPLOYMENT.md)
+- Deployment Orchestrator: [`/docs/deployment-orchestrator.md`](./docs/deployment-orchestrator.md)
 
 ---
 
