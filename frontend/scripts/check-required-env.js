@@ -75,11 +75,11 @@
         }
       }
       console.info(
-        "[check-required-env] Loaded .env files via fallback parser"
+        "[check-required-env] Loaded .env files via fallback parser",
       );
     } catch (__) {
       console.warn(
-        "[check-required-env] Warning: dotenv not available; skipping .env preload"
+        "[check-required-env] Warning: dotenv not available; skipping .env preload",
       );
     }
   }
@@ -136,7 +136,7 @@
         entry
           .split("|")
           .map((v) => v.trim())
-          .filter(Boolean)
+          .filter(Boolean),
       );
   };
 
@@ -211,7 +211,7 @@
       ? effectiveRequirements.map((g) => `[${g.join("|")}]`).join(", ")
       : "<none> (no requirements enforced)";
     console.info(
-      `[check-required-env] All required envs satisfied. Profile=${profile} Requirements=${summary}\nCI=${CI} NODE_ENV=${NODE_ENV} ENV_PROFILE=${ENV_PROFILE} LIFECYCLE=${lifecycle}`
+      `[check-required-env] All required envs satisfied. Profile=${profile} Requirements=${summary}\nCI=${CI} NODE_ENV=${NODE_ENV} ENV_PROFILE=${ENV_PROFILE} LIFECYCLE=${lifecycle}`,
     );
   }
 })();

@@ -135,7 +135,7 @@ export default async function ProjectPage({
     if (process.env.NODE_ENV !== "production") {
       console.info(
         "[project] Project found in activeProjectsRecord:",
-        projectId
+        projectId,
       );
     }
     return (
@@ -189,7 +189,7 @@ export async function generateStaticParams() {
     const projectIds = Object.keys(ProjectData.activeProjectsRecord);
 
     console.info(
-      `📄 [generateStaticParams] Generated static params for ${projectIds.length} projects`
+      `📄 [generateStaticParams] Generated static params for ${projectIds.length} projects`,
     );
 
     return projectIds.map((projectId) => ({
@@ -200,7 +200,7 @@ export async function generateStaticParams() {
     const errorMessage =
       error instanceof Error ? error.message : "Unknown error";
     console.warn(
-      `⚠️  [generateStaticParams] Backend not accessible (${errorMessage}) - falling back to on-demand page generation`
+      `⚠️  [generateStaticParams] Backend not accessible (${errorMessage}) - falling back to on-demand page generation`,
     );
     return [];
   }

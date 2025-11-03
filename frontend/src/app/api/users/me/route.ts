@@ -95,13 +95,13 @@ export async function GET(request: NextRequest) {
     if (debug)
       console.info("🔗 Backend URL (me):", backendUrl, "reqHost:", reqHost);
     let { res, payload } = await tryFetch(
-      `${backendUrl.replace(/\/$/, "")}/api/users/me`
+      `${backendUrl.replace(/\/$/, "")}/api/users/me`,
     );
 
     // If unauthorized, try a trailing slash variant (some proxies normalize differently)
     if (!res.ok && res.status === 401) {
       const alt = await tryFetch(
-        `${backendUrl.replace(/\/$/, "")}/api/users/me/`
+        `${backendUrl.replace(/\/$/, "")}/api/users/me/`,
       );
       res = alt.res;
       payload = alt.payload;
@@ -128,7 +128,7 @@ export async function GET(request: NextRequest) {
       })();
       return NextResponse.json(
         { error: message || "Not authenticated" },
-        { status: res.status }
+        { status: res.status },
       );
     }
 
@@ -145,7 +145,7 @@ export async function GET(request: NextRequest) {
     console.error("User me API error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
