@@ -137,8 +137,9 @@ systemctl enable nginx
 cat > /etc/nginx/conf.d/bb-portfolio.conf << NGINX_EOF
 # Production/Main domain server block
 server {
-    listen 80;
-    server_name bbinteractive.io www.bbinteractive.io;
+  listen 80;
+  # Serve both current and new domains during cutover
+  server_name bbinteractive.io www.bbinteractive.io bbaysinger.com www.bbaysinger.com;
     
   # Admin interface proxy to production backend (port 3001)
   location /admin {
@@ -188,8 +189,9 @@ server {
 
 # Development subdomain server block
 server {
-    listen 80;
-    server_name dev.bbinteractive.io *.dev.bbinteractive.io;
+  listen 80;
+  # Serve both current and new dev subdomains during cutover
+  server_name dev.bbinteractive.io *.dev.bbinteractive.io dev.bbaysinger.com *.dev.bbaysinger.com;
     
   # Admin interface proxy to development backend (port 4001)
   location /admin {
@@ -335,7 +337,7 @@ PUBLIC_PROJECTS_BUCKET=${var.public_projects_bucket}
 NDA_PROJECTS_BUCKET=${var.nda_projects_bucket}
 
 # Frontend Configuration (for SSR) - Using dynamic IP
-PROD_FRONTEND_URL=https://bbinteractive.io,http://$ELASTIC_IP:3000
+PROD_FRONTEND_URL=https://bbinteractive.io,https://bbaysinger.com,http://$ELASTIC_IP:3000
 PROD_BACKEND_INTERNAL_URL=${var.prod_backend_internal_url}
 
 # Email Configuration
@@ -376,7 +378,7 @@ PUBLIC_PROJECTS_BUCKET=${var.public_projects_bucket}
 NDA_PROJECTS_BUCKET=${var.nda_projects_bucket}
 
 # Frontend Configuration (for SSR) - Using dynamic IP
-DEV_FRONTEND_URL=https://dev.bbinteractive.io,http://$ELASTIC_IP:4000
+DEV_FRONTEND_URL=https://dev.bbinteractive.io,https://dev.bbaysinger.com,http://$ELASTIC_IP:4000
 DEV_BACKEND_INTERNAL_URL=${var.dev_backend_internal_url}
 
 # Email Configuration
