@@ -192,6 +192,7 @@ Use this checklist when opening any PR:
 Use per-profile lists in CI/prod (strictly prefixed), and a single global list for local/dev if you prefer. The global list should still reference prefixed variables using ANY-of groups (|) so it works across profiles.
 
 - Global (works across profiles via ANY-of groups):
+
   ```bash
   REQUIRED_ENVIRONMENT_VARIABLES=\
   LOCAL_MONGODB_URI|DEV_MONGODB_URI|PROD_MONGODB_URI,\
