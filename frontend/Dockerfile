@@ -59,77 +59,7 @@ COPY --from=deps /app/node_modules ./node_modules
 # Copy all source code
 COPY . .
 
-# Accept build-time configuration for environment profile and prefixed backend URLs
-# so Next.js can bake correct rewrites and server-side fetch base.
-ARG ENV_PROFILE
-ARG DEV_BACKEND_INTERNAL_URL
-ARG PROD_BACKEND_INTERNAL_URL
-ARG DEV_NEXT_PUBLIC_BACKEND_URL
-ARG PROD_NEXT_PUBLIC_BACKEND_URL
-ARG PUBLIC_PROJECTS_BUCKET
-ARG NDA_PROJECTS_BUCKET
-ARG DEV_REQUIRED_ENVIRONMENT_VARIABLES
-ARG PROD_REQUIRED_ENVIRONMENT_VARIABLES
-
-# Set environment variables with prefixes (these are available for your app logic)
-ENV ENV_PROFILE=${ENV_PROFILE}
-ENV DEV_BACKEND_INTERNAL_URL=${DEV_BACKEND_INTERNAL_URL}
-ENV PROD_BACKEND_INTERNAL_URL=${PROD_BACKEND_INTERNAL_URL}
-ENV DEV_NEXT_PUBLIC_BACKEND_URL=${DEV_NEXT_PUBLIC_BACKEND_URL}
-ENV PROD_NEXT_PUBLIC_BACKEND_URL=${PROD_NEXT_PUBLIC_BACKEND_URL}
-ENV PUBLIC_PROJECTS_BUCKET=${PUBLIC_PROJECTS_BUCKET}
-ENV NDA_PROJECTS_BUCKET=${NDA_PROJECTS_BUCKET}
-ENV DEV_REQUIRED_ENVIRONMENT_VARIABLES=${DEV_REQUIRED_ENVIRONMENT_VARIABLES}
-ENV PROD_REQUIRED_ENVIRONMENT_VARIABLES=${PROD_REQUIRED_ENVIRONMENT_VARIABLES}
-
-# STRICT PREFIXED ENVIRONMENT VARIABLES - NO FALLBACKS
-# This project uses explicit environment-specific prefixed variables only.
-# Fail fast if the correct prefixed variables aren't provided for the target environment.
-# 
-# For ENV_PROFILE=prod: Requires PROD_BACKEND_INTERNAL_URL and PROD_NEXT_PUBLIC_BACKEND_URL
-# For ENV_PROFILE=dev:  Requires DEV_BACKEND_INTERNAL_URL and DEV_NEXT_PUBLIC_BACKEND_URL
-#
-# The prefixed versions are already set above from ARG -> ENV, but we ensure they're explicit:
-ENV PROD_BACKEND_INTERNAL_URL=${PROD_BACKEND_INTERNAL_URL}
-ENV PROD_NEXT_PUBLIC_BACKEND_URL=${PROD_NEXT_PUBLIC_BACKEND_URL}
-ENV DEV_BACKEND_INTERNAL_URL=${DEV_BACKEND_INTERNAL_URL}
-ENV DEV_NEXT_PUBLIC_BACKEND_URL=${DEV_NEXT_PUBLIC_BACKEND_URL}
-
-# Validate that required variables are set for the target environment profile
-# Note: NEXT_PUBLIC_BACKEND_URL can be empty (client uses relative URLs with Next.js rewrites)
-RUN if [ "$ENV_PROFILE" = "prod" ]; then \
-        if [ -z "$PROD_BACKEND_INTERNAL_URL" ]; then \
-            echo "❌ ERROR: ENV_PROFILE=prod requires PROD_BACKEND_INTERNAL_URL for Next.js rewrites"; \
-            echo "   PROD_BACKEND_INTERNAL_URL: '$PROD_BACKEND_INTERNAL_URL'"; \
-            echo "   PROD_NEXT_PUBLIC_BACKEND_URL: '$PROD_NEXT_PUBLIC_BACKEND_URL' (can be empty for relative URLs)"; \
-            exit 1; \
-        fi; \
-    elif [ "$ENV_PROFILE" = "dev" ]; then \
-        if [ -z "$DEV_BACKEND_INTERNAL_URL" ]; then \
-            echo "❌ ERROR: ENV_PROFILE=dev requires DEV_BACKEND_INTERNAL_URL for Next.js rewrites"; \
-            echo "   DEV_BACKEND_INTERNAL_URL: '$DEV_BACKEND_INTERNAL_URL'"; \
-            echo "   DEV_NEXT_PUBLIC_BACKEND_URL: '$DEV_NEXT_PUBLIC_BACKEND_URL' (can be empty for relative URLs)"; \
-            exit 1; \
-        fi; \
-    else \
-        echo "❌ ERROR: ENV_PROFILE must be 'prod' or 'dev', got: '$ENV_PROFILE'"; \
-        exit 1; \
-    fi && \
-    echo "✅ Environment validation passed for ENV_PROFILE=$ENV_PROFILE"
-
-# Debug: Show strict prefixed environment variables before build
-RUN echo "=== DOCKER BUILD DEBUG (STRICT PREFIXED VARS) ===" && \
-    echo "ENV_PROFILE: $ENV_PROFILE" && \
-    echo "🎯 PRODUCTION VARIABLES:" && \
-    echo "  PROD_BACKEND_INTERNAL_URL: $PROD_BACKEND_INTERNAL_URL" && \
-    echo "  PROD_NEXT_PUBLIC_BACKEND_URL: $PROD_NEXT_PUBLIC_BACKEND_URL" && \
-    echo "🎯 DEVELOPMENT VARIABLES:" && \
-    echo "  DEV_BACKEND_INTERNAL_URL: $DEV_BACKEND_INTERNAL_URL" && \
-    echo "  DEV_NEXT_PUBLIC_BACKEND_URL: $DEV_NEXT_PUBLIC_BACKEND_URL" && \
-    echo "🚫 NO FALLBACK VARIABLES - Prefixed vars only!" && \
-    echo "Available env vars:" && \
-    env | grep -E "(BACKEND|NEXT_PUBLIC|ENV_PROFILE)" | sort && \
-    echo "=== END DEBUG ==="
+## No build-time config baked into the image. Build is environment-agnostic.
 
 # Build the Next.js application with the detected package manager
 # Creates optimized production bundle in .next directory
@@ -170,38 +100,7 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 # Copy static assets generated during build (CSS, JS, images)
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-# Runtime environment variables for production
-# These must be available at runtime for the Next.js server
-ARG ENV_PROFILE
-ARG DEV_BACKEND_INTERNAL_URL
-ARG PROD_BACKEND_INTERNAL_URL
-ARG DEV_NEXT_PUBLIC_BACKEND_URL
-ARG PROD_NEXT_PUBLIC_BACKEND_URL
-ARG PUBLIC_PROJECTS_BUCKET
-ARG NDA_PROJECTS_BUCKET
-ENV ENV_PROFILE=${ENV_PROFILE}
-ENV DEV_BACKEND_INTERNAL_URL=${DEV_BACKEND_INTERNAL_URL}
-ENV PROD_BACKEND_INTERNAL_URL=${PROD_BACKEND_INTERNAL_URL}
-ENV DEV_NEXT_PUBLIC_BACKEND_URL=${DEV_NEXT_PUBLIC_BACKEND_URL}
-ENV PROD_NEXT_PUBLIC_BACKEND_URL=${PROD_NEXT_PUBLIC_BACKEND_URL}
-ENV PUBLIC_PROJECTS_BUCKET=${PUBLIC_PROJECTS_BUCKET}
-ENV NDA_PROJECTS_BUCKET=${NDA_PROJECTS_BUCKET}
-
-# Write env file so Next.js server has runtime access to environment variables
-# This ensures process.env can access these variables during SSR execution
-# Must be done as root before switching to nextjs user
-RUN echo "ENV_PROFILE=${ENV_PROFILE}" > /app/.env.production.local && \
-    echo "PROD_BACKEND_INTERNAL_URL=${PROD_BACKEND_INTERNAL_URL}" >> /app/.env.production.local && \
-    echo "PROD_NEXT_PUBLIC_BACKEND_URL=${PROD_NEXT_PUBLIC_BACKEND_URL}" >> /app/.env.production.local && \
-    echo "DEV_BACKEND_INTERNAL_URL=${DEV_BACKEND_INTERNAL_URL}" >> /app/.env.production.local && \
-    echo "DEV_NEXT_PUBLIC_BACKEND_URL=${DEV_NEXT_PUBLIC_BACKEND_URL}" >> /app/.env.production.local && \
-    echo "PUBLIC_PROJECTS_BUCKET=${PUBLIC_PROJECTS_BUCKET}" >> /app/.env.production.local && \
-    echo "NDA_PROJECTS_BUCKET=${NDA_PROJECTS_BUCKET}" >> /app/.env.production.local && \
-    chown nextjs:nodejs /app/.env.production.local && \
-    echo "Runtime .env.production.local created with:" && \
-    cat /app/.env.production.local
-
-ENV NEXT_PUBLIC_BACKEND_URL=${PROD_NEXT_PUBLIC_BACKEND_URL}
+## No runtime .env written in image; env comes from deployment (Compose/EC2)
 
 # Switch to non-root user for security
 USER nextjs
