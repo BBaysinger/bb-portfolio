@@ -81,7 +81,8 @@
     "images:cleanup:dry-run": "bash ./scripts/image-cleanup.sh --retain 3 --include-untagged --dry-run",
     "images:cleanup:ecr": "bash ./scripts/image-cleanup-ecr.sh --retain 3 --include-untagged",
     "images:cleanup:ecr:dry-run": "bash ./scripts/image-cleanup-ecr.sh --retain 3 --include-untagged --dry-run",
-    "images:verify": "bash ./scripts/images-verify.sh"
+    "images:verify": "bash ./scripts/images-verify.sh",
+    "sync:branches": "bash ./scripts/sync-branches.sh"
   },
   "devDependencies": {
     "@next/eslint-plugin-next": "^15.5.6",
