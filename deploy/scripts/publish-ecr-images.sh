@@ -36,7 +36,6 @@ export PROD_SES_TO_EMAIL="$(get_tf_var prod_ses_to_email)"
 PROD_AWS_REGION_VAL="$(get_tf_var prod_aws_region)"
 PROD_S3_BUCKET_VAL="$(get_tf_var prod_s3_bucket)"
 PROD_FRONTEND_URL_VAL="$(get_tf_var prod_frontend_url)"
-PROD_NEXT_PUBLIC_BACKEND_URL_VAL="$(get_tf_var prod_next_public_backend_url)"
 
 echo "Logging into ECR..."
 aws ecr get-login-password --region "$REGION" | docker login --username AWS --password-stdin "${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com"
@@ -48,7 +47,6 @@ docker build \
 	--target runner \
 	--build-arg ENV_PROFILE=prod \
 	--build-arg PROD_BACKEND_INTERNAL_URL="http://bb-portfolio-backend-prod:3000" \
-	--build-arg PROD_NEXT_PUBLIC_BACKEND_URL="$PROD_NEXT_PUBLIC_BACKEND_URL_VAL" \
 	-t "${FRONTEND_REPO}:latest" .
 
 echo "Building backend (production runtime)..."

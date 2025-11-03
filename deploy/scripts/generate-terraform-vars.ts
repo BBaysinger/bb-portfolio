@@ -151,9 +151,8 @@ public_s3_bucket = "${strings.PUBLIC_S3_BUCKET}"
 nda_s3_bucket = "${strings.NDA_S3_BUCKET}"
 
 # Frontend URLs
-prod_frontend_url              = "${strings.PROD_FRONTEND_URL}"
-prod_next_public_backend_url   = "${strings.PROD_NEXT_PUBLIC_BACKEND_URL}"
-prod_backend_internal_url      = "${strings.PROD_BACKEND_INTERNAL_URL}"
+prod_frontend_url         = "${strings.PROD_FRONTEND_URL}"
+prod_backend_internal_url = "${strings.PROD_BACKEND_INTERNAL_URL}"
 
 # Email Configuration
 prod_ses_from_email = "${strings.PROD_SES_FROM_EMAIL}"
@@ -219,7 +218,6 @@ function main() {
       "public_s3_bucket",
       "nda_s3_bucket",
       "prod_frontend_url",
-      "prod_next_public_backend_url",
       "prod_backend_internal_url",
       "prod_ses_from_email",
       "prod_ses_to_email",

@@ -33,12 +33,14 @@ export async function POST(request: NextRequest) {
     );
     const serviceDnsFallback =
       normalizedProfile === "dev"
-        ? "http://backend-dev:3001"
+        ? "http://bb-portfolio-backend-dev:3000"
         : normalizedProfile === "prod"
-          ? "http://backend-prod:3001"
-          : "";
+          ? "http://bb-portfolio-backend-prod:3000"
+          : normalizedProfile === "local"
+            ? "http://bb-backend-local:3001"
+            : "";
     const backendUrl =
-      preferred || serviceDnsFallback || "http://localhost:3001";
+      preferred || serviceDnsFallback || "http://localhost:8081";
 
     // Forward request body to backend
     const body = await request.text();

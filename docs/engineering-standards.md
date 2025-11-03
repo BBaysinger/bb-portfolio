@@ -36,10 +36,10 @@ These standards keep this repo predictable, secure, and easy to operate across l
 ## Environment variables & governance
 
 - Naming
-  - Avoid FE*/BE* prefixes. Use unified names with optional profile prefix: `PROD_`, `DEV_`, `LOCAL_`.
+  - Use unified names with optional profile prefix: `PROD_`, `DEV_`, `LOCAL_`.
   - Frontend-only variables that must reach the browser must be prefixed with `NEXT_PUBLIC_`.
 - Profiles
-  - Profiles in use: `local`, `dev`, `prod`.
+  - Profiles in use: `local`, `dev`, `prod`. `stage` may be added later. Implementation would mirror dev
   - Profile inference follows the backend guard heuristics (see `scripts/check-required-env.js`).
 - Required lists (ANY-of groups supported)
   - Use one of:

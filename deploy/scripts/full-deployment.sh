@@ -195,9 +195,7 @@ if [[ "$do_infra" == true ]]; then
       // Update common URL fields if present
       s.DEV_FRONTEND_URL = replaceHost(s.DEV_FRONTEND_URL);
       s.PROD_FRONTEND_URL = replaceHost(s.PROD_FRONTEND_URL);
-      s.DEV_NEXT_PUBLIC_BACKEND_URL = replaceHost(s.DEV_NEXT_PUBLIC_BACKEND_URL);
-      s.PROD_NEXT_PUBLIC_BACKEND_URL = replaceHost(s.PROD_NEXT_PUBLIC_BACKEND_URL);
-      s.NEXT_PUBLIC_BACKEND_URL = replaceHost(s.NEXT_PUBLIC_BACKEND_URL);
+  # NEXT_PUBLIC_BACKEND_URL values are deprecated; proxy-relative /api is used now.
       const banner = "// Private secrets file for syncing to GitHub Actions secrets\n// This file is ignored by git. Keep real values here.\n// Do NOT commit this file to version control!\n// cspell:disable\n";
       const out = banner + JSON5.stringify(cfg, null, 2);
       writeFileSync(file, out, "utf8");
@@ -316,7 +314,7 @@ if [[ "$refresh_env" == true ]]; then
         `NDA_S3_BUCKET=${sVal("NDA_S3_BUCKET")}`,
         `S3_REGION=${sVal("S3_REGION", sVal("PROD_AWS_REGION", ""))}`,
         `PROD_FRONTEND_URL=${sVal("PROD_FRONTEND_URL")}`,
-        `PROD_NEXT_PUBLIC_BACKEND_URL=${sVal("PROD_NEXT_PUBLIC_BACKEND_URL")}`,
+        
   `PROD_BACKEND_INTERNAL_URL=${sVal("PROD_BACKEND_INTERNAL_URL", "http://bb-portfolio-backend-prod:3000")}`,
         `PROD_SES_FROM_EMAIL=${sVal("PROD_SES_FROM_EMAIL")}`,
         `PROD_SES_TO_EMAIL=${sVal("PROD_SES_TO_EMAIL")}`,
@@ -330,7 +328,7 @@ if [[ "$refresh_env" == true ]]; then
         `DEV_S3_BUCKET=${sVal("DEV_S3_BUCKET")}`,
         `S3_REGION=${sVal("S3_REGION", sVal("DEV_AWS_REGION", ""))}`,
         `DEV_FRONTEND_URL=${sVal("DEV_FRONTEND_URL")}`,
-        `DEV_NEXT_PUBLIC_BACKEND_URL=${sVal("DEV_NEXT_PUBLIC_BACKEND_URL")}`,
+        
   `DEV_BACKEND_INTERNAL_URL=${sVal("DEV_BACKEND_INTERNAL_URL", "http://bb-portfolio-backend-dev:3000")}`,
         `DEV_SES_FROM_EMAIL=${sVal("DEV_SES_FROM_EMAIL")}`,
         `DEV_SES_TO_EMAIL=${sVal("DEV_SES_TO_EMAIL")}`,
@@ -341,7 +339,7 @@ if [[ "$refresh_env" == true ]]; then
         // Internal URL used by Next.js SSR/server for rewrites/fetches
         `PROD_BACKEND_INTERNAL_URL=${sVal("PROD_BACKEND_INTERNAL_URL", "http://bb-portfolio-backend-prod:3000")}`,
         // Public URL exposed to the browser
-        `NEXT_PUBLIC_BACKEND_URL=${sVal("PROD_NEXT_PUBLIC_BACKEND_URL")}`,
+        
       ].join("\n") + "\n";
       const feDev = [
         "NODE_ENV=development",
@@ -349,7 +347,7 @@ if [[ "$refresh_env" == true ]]; then
         // Internal URL used by Next.js SSR/server inside the compose network
         `DEV_BACKEND_INTERNAL_URL=${sVal("DEV_BACKEND_INTERNAL_URL", "http://bb-portfolio-backend-dev:3000")}`,
         // Public URL for the browser to reach the dev backend via host port
-        `NEXT_PUBLIC_BACKEND_URL=${sVal("DEV_NEXT_PUBLIC_BACKEND_URL")}`,
+        
       ].join("\n") + "\n";
       mkdirSync(outDir, { recursive: true });
       writeFileSync(`${outDir}/backend.env.prod`, beProd, "utf8");

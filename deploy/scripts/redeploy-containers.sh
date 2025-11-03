@@ -122,8 +122,7 @@ if [ "$REFRESH_ENV" = "true" ]; then
         `PUBLIC_S3_BUCKET=${sVal("PUBLIC_S3_BUCKET")}`,
         `NDA_S3_BUCKET=${sVal("NDA_S3_BUCKET")}`,
         `S3_REGION=${sVal("S3_REGION", sVal("PROD_AWS_REGION", ""))}`,
-        `PROD_FRONTEND_URL=${sVal("PROD_FRONTEND_URL")}`,
-        `PROD_NEXT_PUBLIC_BACKEND_URL=${sVal("PROD_NEXT_PUBLIC_BACKEND_URL")}`,
+  `PROD_FRONTEND_URL=${sVal("PROD_FRONTEND_URL")}`,
   `PROD_BACKEND_INTERNAL_URL=${sVal("PROD_BACKEND_INTERNAL_URL", "http://bb-portfolio-backend-prod:3000")}`,
         `PROD_SES_FROM_EMAIL=${sVal("PROD_SES_FROM_EMAIL")}`,
         `PROD_SES_TO_EMAIL=${sVal("PROD_SES_TO_EMAIL")}`,
@@ -137,8 +136,7 @@ if [ "$REFRESH_ENV" = "true" ]; then
         `DEV_PAYLOAD_SECRET=${sVal("DEV_PAYLOAD_SECRET")}`,
         `DEV_S3_BUCKET=${sVal("DEV_S3_BUCKET")}`,
         `S3_REGION=${sVal("S3_REGION", sVal("DEV_AWS_REGION", ""))}`,
-        `DEV_FRONTEND_URL=${sVal("DEV_FRONTEND_URL")}`,
-        `DEV_NEXT_PUBLIC_BACKEND_URL=${sVal("DEV_NEXT_PUBLIC_BACKEND_URL")}`,
+  `DEV_FRONTEND_URL=${sVal("DEV_FRONTEND_URL")}`,
   `DEV_BACKEND_INTERNAL_URL=${sVal("DEV_BACKEND_INTERNAL_URL", "http://bb-portfolio-backend-dev:3000")}`,
         `DEV_SES_FROM_EMAIL=${sVal("DEV_SES_FROM_EMAIL")}`,
         `DEV_SES_TO_EMAIL=${sVal("DEV_SES_TO_EMAIL")}`,
@@ -148,14 +146,12 @@ if [ "$REFRESH_ENV" = "true" ]; then
         "NODE_ENV=production",
         "ENV_PROFILE=prod",
         `PROD_BACKEND_INTERNAL_URL=${sVal("PROD_BACKEND_INTERNAL_URL", "http://bb-portfolio-backend-prod:3000")}`,
-        `NEXT_PUBLIC_BACKEND_URL=${sVal("PROD_NEXT_PUBLIC_BACKEND_URL")}`,
       ].join("\n") + "\n";
       // Frontend dev
       const feDev = [
         "NODE_ENV=development",
         "ENV_PROFILE=dev",
         `DEV_BACKEND_INTERNAL_URL=${sVal("DEV_BACKEND_INTERNAL_URL", "http://bb-portfolio-backend-dev:3000")}`,
-        `NEXT_PUBLIC_BACKEND_URL=${sVal("DEV_NEXT_PUBLIC_BACKEND_URL")}`,
       ].join("\n") + "\n";
       mkdirSync(outDir, { recursive: true });
       writeFileSync(`${outDir}/backend.env.prod`, beProd, "utf8");
