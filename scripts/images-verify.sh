@@ -34,15 +34,17 @@ if have_curl && have_node; then
   if [[ -z "$DH_TOKEN" && -n "$DH_USER" && -n "$DH_PASS" ]]; then
     DH_TOKEN=$(curl -sS -X POST https://hub.docker.com/v2/users/login/ -H 'Content-Type: application/json' -d "{\"username\":\"$DH_USER\",\"password\":\"$DH_PASS\"}" | node -e "const fs=require('fs');const o=JSON.parse(fs.readFileSync(0,'utf8'));console.log(o.token||'')") || true
   fi
-  if [[ -n "$DH_TOKEN" ]]; then
-    for repo in "${DH_REPOS[@]}"; do
-      echo -e "\n🧾 Docker Hub: $repo (top 5 by last_updated)"
+  for repo in "${DH_REPOS[@]}"; do
+    echo -e "\n🧾 Docker Hub: $repo (top 5 by last_updated)"
+    if [[ -n "$DH_TOKEN" ]]; then
       curl -sS -H "Authorization: JWT $DH_TOKEN" "https://hub.docker.com/v2/repositories/${repo}/tags?page_size=100" | \
         node -e "const fs=require('fs');const o=JSON.parse(fs.readFileSync(0,'utf8'));const rows=(o.results||[]).map(r=>[r.last_updated,r.name]);rows.sort((a,b)=>a[0]<b[0]?1:-1);for(const [ts,name] of rows.slice(0,5)){console.log(ts+'\t'+name)};console.log('TOTAL:',rows.length)"
-    done
-  else
-    echo "(skip) Docker Hub verification: no credentials/token available"
-  fi
+    else
+      # Attempt unauthenticated listing for public repositories
+      curl -sS "https://hub.docker.com/v2/repositories/${repo}/tags?page_size=100" | \
+        node -e "const fs=require('fs');const o=JSON.parse(fs.readFileSync(0,'utf8'));const rows=(o.results||[]).map(r=>[r.last_updated,r.name]);rows.sort((a,b)=>a[0]<b[0]?1:-1);for(const [ts,name] of rows.slice(0,5)){console.log(ts+'\t'+name)};console.log('TOTAL:',rows.length)"
+    fi
+  done
 else
   echo "(skip) Docker Hub verification: curl/node not available"
 fi

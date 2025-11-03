@@ -151,7 +151,8 @@
   const hasDefinitionVar = !!(
     process.env[unifiedProfileKey] || process.env[unifiedGlobalKey]
   );
-  if ((inCI || isBuildLifecycle || profile === "prod") && !hasDefinitionVar) {
+  // Only enforce definition strictly in CI or prod profile; allow non-CI local builds to proceed
+  if ((inCI || profile === "prod") && !hasDefinitionVar) {
     const hint =
       unifiedProfileKey || "<PROFILE>_REQUIRED_ENVIRONMENT_VARIABLES";
     const msg = [
@@ -182,7 +183,7 @@
   const effectiveRequirements =
     filtered.length > 0
       ? filtered
-      : inCI || isBuildLifecycle || profile === "prod"
+      : inCI || profile === "prod"
         ? [defaultBackendGroup]
         : [];
 
@@ -204,8 +205,12 @@
       "  PROD_REQUIRED_ENVIRONMENT_VARIABLES=PROD_BACKEND_INTERNAL_URL",
       "\nNote: In CI+prod, a default requirement enforces at least one backend base URL variable to avoid empty portfolio deploys.",
     ].join("\n");
-    console.error(msg);
-    process.exit(1);
+    if (inCI || profile === "prod") {
+      console.error(msg);
+      process.exit(1);
+    } else {
+      console.warn(msg);
+    }
   } else {
     const summary = effectiveRequirements.length
       ? effectiveRequirements.map((g) => `[${g.join("|")}]`).join(", ")

@@ -2,6 +2,9 @@
   "name": "bb-portfolio-monorepo-root",
   "private": true,
   "scripts": {
+    "dev": "npm run bareMetalDev:all",
+    "dev:backend": "npm run bareMetalDev:backend",
+    "dev:frontend": "npm run bareMetalDev:frontend",
     "turbopack": "cd frontend && NEXT_TELEMETRY_DISABLED=1 npx next build --turbopack",
     "build:all": "npm run format && concurrently \"npm run build:backend\" \"npm run build:frontend\" --names \"backend,frontend\" --prefix-colors \"blue,green\"",
     "build:backend": "cd backend && npm run build",

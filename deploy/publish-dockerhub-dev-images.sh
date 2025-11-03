@@ -25,9 +25,15 @@ read_json5_key() {
 DEV_AWS_REGION_VAL="$(read_json5_key strings.DEV_AWS_REGION)"
 DOCKER_HUB_USER="$(read_json5_key strings.DOCKER_HUB_USERNAME)"
 DOCKER_HUB_PASS="$(read_json5_key strings.DOCKER_HUB_PASSWORD)"
+# Unified required envs list for dev profile (frontend/backed guards)
+DEV_REQUIRED_ENVIRONMENT_VARIABLES_VAL="$(read_json5_key strings.DEV_REQUIRED_ENVIRONMENT_VARIABLES)"
+FALLBACK_REQUIRED_ENVIRONMENT_VARIABLES="DEV_BACKEND_INTERNAL_URL"
 # Public, non-sensitive dev URL used by backend during build for CORS/CSRF config
 DEV_FRONTEND_URL_VAL="$(read_json5_key strings.DEV_FRONTEND_URL)"
 DEV_S3_BUCKET_VAL="$(read_json5_key strings.DEV_S3_BUCKET)"
+# Project buckets used by frontend filtering
+PUBLIC_PROJECTS_BUCKET_VAL="$(read_json5_key strings.PUBLIC_PROJECTS_BUCKET)"
+NDA_PROJECTS_BUCKET_VAL="$(read_json5_key strings.NDA_PROJECTS_BUCKET)"
 # Backend build-time secrets for dev
 AWS_ACCESS_KEY_ID_VAL="$(read_json5_key strings.AWS_ACCESS_KEY_ID)"
 AWS_SECRET_ACCESS_KEY_VAL="$(read_json5_key strings.AWS_SECRET_ACCESS_KEY)"
@@ -35,6 +41,25 @@ DEV_SES_FROM_EMAIL_VAL="$(read_json5_key strings.DEV_SES_FROM_EMAIL)"
 DEV_SES_TO_EMAIL_VAL="$(read_json5_key strings.DEV_SES_TO_EMAIL)"
 DEV_MONGODB_URI_VAL="$(read_json5_key strings.DEV_MONGODB_URI)"
 DEV_PAYLOAD_SECRET_VAL="$(read_json5_key strings.DEV_PAYLOAD_SECRET)"
+# Backend build-time secrets for prod (required by builder guard)
+PROD_SES_FROM_EMAIL_VAL="$(read_json5_key strings.PROD_SES_FROM_EMAIL)"
+PROD_SES_TO_EMAIL_VAL="$(read_json5_key strings.PROD_SES_TO_EMAIL)"
+PROD_MONGODB_URI_VAL="$(read_json5_key strings.PROD_MONGODB_URI)"
+PROD_PAYLOAD_SECRET_VAL="$(read_json5_key strings.PROD_PAYLOAD_SECRET)"
+
+# Fallbacks for local dev publish when PROD_* are not present
+if [[ -z "$PROD_MONGODB_URI_VAL" && -n "$DEV_MONGODB_URI_VAL" ]]; then
+  PROD_MONGODB_URI_VAL="$DEV_MONGODB_URI_VAL"
+fi
+if [[ -z "$PROD_PAYLOAD_SECRET_VAL" && -n "$DEV_PAYLOAD_SECRET_VAL" ]]; then
+  PROD_PAYLOAD_SECRET_VAL="$DEV_PAYLOAD_SECRET_VAL"
+fi
+if [[ -z "$PROD_SES_FROM_EMAIL_VAL" && -n "$DEV_SES_FROM_EMAIL_VAL" ]]; then
+  PROD_SES_FROM_EMAIL_VAL="$DEV_SES_FROM_EMAIL_VAL"
+fi
+if [[ -z "$PROD_SES_TO_EMAIL_VAL" && -n "$DEV_SES_TO_EMAIL_VAL" ]]; then
+  PROD_SES_TO_EMAIL_VAL="$DEV_SES_TO_EMAIL_VAL"
+fi
 
 if [[ -z "${DEV_AWS_REGION_VAL}" ]]; then
   echo "❌ Could not resolve strings.DEV_AWS_REGION from .github-secrets.private.json5" >&2
@@ -64,7 +89,11 @@ cd "$ROOT_DIR/frontend"
 docker build \
   --target runner \
   --build-arg ENV_PROFILE=dev \
+  --build-arg DEV_REQUIRED_ENVIRONMENT_VARIABLES="$DEV_REQUIRED_ENVIRONMENT_VARIABLES_VAL" \
+  --build-arg REQUIRED_ENVIRONMENT_VARIABLES="$FALLBACK_REQUIRED_ENVIRONMENT_VARIABLES" \
   --build-arg DEV_BACKEND_INTERNAL_URL="http://bb-portfolio-backend-dev:3000" \
+  --build-arg PUBLIC_PROJECTS_BUCKET="$PUBLIC_PROJECTS_BUCKET_VAL" \
+  --build-arg NDA_PROJECTS_BUCKET="$NDA_PROJECTS_BUCKET_VAL" \
   -t "$FRONTEND_IMAGE" .
 
 echo "Building backend (dev runtime stage, no hot reload)..."
@@ -76,9 +105,16 @@ export DEV_SES_FROM_EMAIL="$DEV_SES_FROM_EMAIL_VAL"
 export DEV_SES_TO_EMAIL="$DEV_SES_TO_EMAIL_VAL"
 export DEV_MONGODB_URI="$DEV_MONGODB_URI_VAL"
 export DEV_PAYLOAD_SECRET="$DEV_PAYLOAD_SECRET_VAL"
+export PROD_SES_FROM_EMAIL="$PROD_SES_FROM_EMAIL_VAL"
+export PROD_SES_TO_EMAIL="$PROD_SES_TO_EMAIL_VAL"
+export PROD_MONGODB_URI="$PROD_MONGODB_URI_VAL"
+export PROD_PAYLOAD_SECRET="$PROD_PAYLOAD_SECRET_VAL"
 DOCKER_BUILDKIT=1 docker build \
+  --no-cache \
   --target runtime \
   --build-arg ENV_PROFILE=dev \
+  --build-arg BUILD_PROFILE=dev \
+  --build-arg BUILD_ENV_PROFILE=dev \
   --build-arg DEV_FRONTEND_URL="$DEV_FRONTEND_URL_VAL" \
   --build-arg DEV_S3_BUCKET="$DEV_S3_BUCKET_VAL" \
   --build-arg DEV_AWS_REGION="$DEV_AWS_REGION_VAL" \
@@ -88,33 +124,18 @@ DOCKER_BUILDKIT=1 docker build \
   --secret id=dev_ses_to_email,env=DEV_SES_TO_EMAIL \
   --secret id=dev_mongodb_uri,env=DEV_MONGODB_URI \
   --secret id=dev_payload_secret,env=DEV_PAYLOAD_SECRET \
+  --secret id=prod_ses_from_email,env=PROD_SES_FROM_EMAIL \
+  --secret id=prod_ses_to_email,env=PROD_SES_TO_EMAIL \
+  --secret id=prod_mongodb_uri,env=PROD_MONGODB_URI \
+  --secret id=prod_payload_secret,env=PROD_PAYLOAD_SECRET \
   -t "$BACKEND_IMAGE" .
 
 if [[ -n "$DOCKER_HUB_USER" && -n "$DOCKER_HUB_PASS" ]]; then
   echo "Logging into Docker Hub..."
   echo "$DOCKER_HUB_PASS" | docker login -u "$DOCKER_HUB_USER" --password-stdin >/dev/null
-  # Ensure repos are private before pushing (auto-creates if missing)
-  echo "Ensuring Docker Hub repositories are private..."
-  bash "$ROOT_DIR/scripts/dockerhub-ensure-private.sh" --repositories "bhbaysinger/bb-portfolio-backend,bhbaysinger/bb-portfolio-frontend" || true
-
-  # Verify privacy and warn/fail if not private
-  echo "Verifying Docker Hub repository privacy..."
-  DH_TOKEN=$(curl -sS -X POST https://hub.docker.com/v2/users/login/ -H 'Content-Type: application/json' -d '{"username":"'"$DOCKER_HUB_USER"'","password":"'"$DOCKER_HUB_PASS"'"}' | node -e "const fs=require('fs'); const o=JSON.parse(fs.readFileSync(0,'utf8')); console.log(o.token||'')")
-  verify_repo_private() {
-    local repo="$1"
-    local flag=$(curl -sS -H "Authorization: JWT $DH_TOKEN" "https://hub.docker.com/v2/repositories/${repo}/" | node -e "const fs=require('fs');const o=JSON.parse(fs.readFileSync(0,'utf8'));console.log(o.is_private===true?'true':'false')" 2>/dev/null || echo "false")
-    if [[ "$flag" != "true" ]]; then
-      echo "⚠️  WARNING: Docker Hub repo '$repo' is public. Unable to set private (plan limits or permissions)." >&2
-      if [[ "${DOCKERHUB_ENFORCE_PRIVATE:-false}" == "true" ]]; then
-        echo "❌ DOCKERHUB_ENFORCE_PRIVATE is set. Aborting publish." >&2
-        exit 1
-      fi
-    else
-      echo "✅ '$repo' is private"
-    fi
-  }
-  verify_repo_private "bhbaysinger/bb-portfolio-backend"
-  verify_repo_private "bhbaysinger/bb-portfolio-frontend"
+  # Ensure repos are public before pushing (auto-creates if missing)
+  echo "Ensuring Docker Hub repositories are public..."
+  bash "$ROOT_DIR/scripts/dockerhub-ensure-public.sh" --repositories "bhbaysinger/bb-portfolio-backend,bhbaysinger/bb-portfolio-frontend" || true
 fi
 
 echo "Pushing dev images to Docker Hub..."

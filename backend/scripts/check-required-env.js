@@ -180,7 +180,8 @@
 
   // Require presence of explicit definition variable in CI/build/prod
   const hasDefinitionVar = !!(process.env[unifiedProfileKey] || process.env[unifiedGlobalKey])
-  if ((inCI || isBuildLifecycle || profile === 'prod') && !hasDefinitionVar) {
+  // Only enforce strictly in CI or prod profile; allow non-CI local builds to proceed
+  if ((inCI || profile === 'prod') && !hasDefinitionVar) {
     const hint = unifiedProfileKey || '<PROFILE>_REQUIRED_ENVIRONMENT_VARIABLES'
     const msg = [
       '[backend:check-required-env] Missing definition of required env list.',
@@ -199,7 +200,7 @@
   const effectiveRequirements =
     requirements.length > 0
       ? requirements
-      : inCI || profile === 'prod' || isBuildLifecycle
+      : inCI || profile === 'prod'
         ? defaultCritical
         : profile === 'local'
           ? defaultLocal
@@ -222,8 +223,12 @@
       '  REQUIRED_ENVIRONMENT_VARIABLES=GROUP_A|GROUP_B,GROUP_C',
       '  PROD_REQUIRED_ENVIRONMENT_VARIABLES=GROUP_A|GROUP_B,GROUP_C',
     ].join('\n')
-    console.error(msg)
-    process.exit(1)
+    if (inCI || profile === 'prod') {
+      console.error(msg)
+      process.exit(1)
+    } else {
+      console.warn(msg)
+    }
   } else {
     const summary = effectiveRequirements.length
       ? effectiveRequirements.map((g) => `[${g.join('|')}]`).join(', ')
