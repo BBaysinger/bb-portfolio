@@ -106,8 +106,11 @@ terraform apply   # Apply changes
 ### Deployment Process
 
 1. Run `terraform apply` to deploy infrastructure changes
-2. Use management script to control containers
-3. CI/CD pipeline updates production images in ECR
+2. Use the orchestrator or management script to control containers
+3. Regenerate runtime env files on EC2 when needed (GitHub workflow or orchestrator `--refresh-env`)
+    - Backend envs include: `PROD_/DEV_REQUIRED_ENVIRONMENT_VARIABLES`, `SECURITY_CONTACT_EMAIL`, `SECURITY_TXT_EXPIRES`, S3 buckets, Mongo URIs, Payload secret, SES emails, internal backend URL.
+    - Frontend envs include: internal backend URL for SSR/server code only (browser uses relative `/api`).
+4. CI/CD pipeline updates production images in ECR
 
 ### Infrastructure as Code
 
@@ -166,6 +169,26 @@ AWS EC2 t3.medium
 ## Troubleshooting
 
 If anything goes wrong, you have complete control:
+# Quick smoke checks
+
+After a redeploy, especially when env files were changed, verify:
+
+```bash
+# From EC2 host (ssh in first):
+curl -fsSL http://localhost:3001/api/health/   # backend should return 200
+curl -fsSL http://localhost:3000/api/projects/?limit=3&depth=0 | jq '.docs | length'
+```
+
+If backend logs show "Missing required environment variables":
+
+- Re-run the redeploy with env refresh enabled so the workflow regenerates `.env.prod`/`.env.dev` on EC2:
+
+```bash
+deploy/scripts/deployment-orchestrator.sh --profiles prod --refresh-env
+```
+
+This ensures `SECURITY_TXT_EXPIRES` and the required-lists are present for the env-guard.
+
 
 ```bash
 # Check everything
