@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+
 import { getContactEmailDiagnostics } from '@/services/email'
 
 function getAdminToken(): string | null {

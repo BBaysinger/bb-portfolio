@@ -29,13 +29,13 @@ class AWSEmailService implements EmailService {
 
   constructor() {
     try {
-  const { value: region, usedKey: regionKey } = this.getEnvVarWithKey('AWS_REGION')
+      const { value: region, usedKey: regionKey } = this.getEnvVarWithKey('AWS_REGION')
 
-  const { value: fromEmail, usedKey: fromKey } = this.getEnvVarWithKey('SES_FROM_EMAIL')
-  const { value: toEmail, usedKey: toKey } = this.getEnvVarWithKey('SES_TO_EMAIL')
+      const { value: fromEmail, usedKey: fromKey } = this.getEnvVarWithKey('SES_FROM_EMAIL')
+      const { value: toEmail, usedKey: toKey } = this.getEnvVarWithKey('SES_TO_EMAIL')
       this.fromEmail = fromEmail
       this.toEmail = toEmail
-  this.usedKeys = { region: regionKey, from: fromKey, to: toKey }
+      this.usedKeys = { region: regionKey, from: fromKey, to: toKey }
 
       // Prefer the default AWS credential provider chain.
       // If AWS_ACCESS_KEY_ID/SECRET are present, SDK will pick them up automatically.
@@ -187,8 +187,15 @@ This message was sent via your portfolio contact form.
         updatedAt: Date.now(),
         ok: false,
         reasonCode,
-        error: typeof err.message === 'string' && err.message.length > 0 ? err.message : 'Unknown error occurred',
-        ses: { code: code || undefined, requestId: meta?.requestId, statusCode: meta?.httpStatusCode },
+        error:
+          typeof err.message === 'string' && err.message.length > 0
+            ? err.message
+            : 'Unknown error occurred',
+        ses: {
+          code: code || undefined,
+          requestId: meta?.requestId,
+          statusCode: meta?.httpStatusCode,
+        },
       }
       return {
         success: false,
@@ -252,7 +259,7 @@ export function getContactEmailDiagnostics() {
 
   if (emailService instanceof AWSEmailService) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const impl = (emailService as unknown) as Record<string, any>
+    const impl = emailService as unknown as Record<string, any>
     configured = Boolean(impl['isConfigured'] && impl['fromEmail'] && impl['toEmail'])
     usedKeys = (impl['usedKeys'] as typeof usedKeys) || {}
     last = (impl['lastStatus'] as typeof last) || null
