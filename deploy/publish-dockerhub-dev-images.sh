@@ -93,6 +93,28 @@ DOCKER_BUILDKIT=1 docker build \
 if [[ -n "$DOCKER_HUB_USER" && -n "$DOCKER_HUB_PASS" ]]; then
   echo "Logging into Docker Hub..."
   echo "$DOCKER_HUB_PASS" | docker login -u "$DOCKER_HUB_USER" --password-stdin >/dev/null
+  # Ensure repos are private before pushing (auto-creates if missing)
+  echo "Ensuring Docker Hub repositories are private..."
+  bash "$ROOT_DIR/scripts/dockerhub-ensure-private.sh" --repositories "bhbaysinger/bb-portfolio-backend,bhbaysinger/bb-portfolio-frontend" || true
+
+  # Verify privacy and warn/fail if not private
+  echo "Verifying Docker Hub repository privacy..."
+  DH_TOKEN=$(curl -sS -X POST https://hub.docker.com/v2/users/login/ -H 'Content-Type: application/json' -d '{"username":"'"$DOCKER_HUB_USER"'","password":"'"$DOCKER_HUB_PASS"'"}' | node -e "const fs=require('fs'); const o=JSON.parse(fs.readFileSync(0,'utf8')); console.log(o.token||'')")
+  verify_repo_private() {
+    local repo="$1"
+    local flag=$(curl -sS -H "Authorization: JWT $DH_TOKEN" "https://hub.docker.com/v2/repositories/${repo}/" | node -e "const fs=require('fs');const o=JSON.parse(fs.readFileSync(0,'utf8'));console.log(o.is_private===true?'true':'false')" 2>/dev/null || echo "false")
+    if [[ "$flag" != "true" ]]; then
+      echo "⚠️  WARNING: Docker Hub repo '$repo' is public. Unable to set private (plan limits or permissions)." >&2
+      if [[ "${DOCKERHUB_ENFORCE_PRIVATE:-false}" == "true" ]]; then
+        echo "❌ DOCKERHUB_ENFORCE_PRIVATE is set. Aborting publish." >&2
+        exit 1
+      fi
+    else
+      echo "✅ '$repo' is private"
+    fi
+  }
+  verify_repo_private "bhbaysinger/bb-portfolio-backend"
+  verify_repo_private "bhbaysinger/bb-portfolio-frontend"
 fi
 
 echo "Pushing dev images to Docker Hub..."
