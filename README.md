@@ -285,6 +285,7 @@ Helper scripts (from `infra/bb-portfolio-management.sh`):
 
 For deep dives and implementation details:
 
+- Engineering Standards: [`/docs/engineering-standards.md`](./docs/engineering-standards.md)
 - Architecture Decisions: [`/docs/architecture-decisions.md`](./docs/architecture-decisions.md)
 - S3 Project Buckets Guide: [`/docs/s3-bucket-migration.md`](./docs/s3-bucket-migration.md)
 - Fluid Responsive System: [`/docs/fluid-responsive-system.md`](./docs/fluid-responsive-system.md)

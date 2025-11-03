@@ -1,5 +1,7 @@
 # Environment Variables Configuration
 
+> See also: [Engineering Standards](./engineering-standards.md) for naming, required-list grammar, and enforcement stages used across environments.
+
 ## Overview
 
 This project follows the standard environment variable conventions:

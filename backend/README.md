@@ -2,6 +2,8 @@
 
 This is the backend service for the BB Portfolio website, built with Payload CMS and Next.js.
 
+> See also: [Engineering Standards](../docs/engineering-standards.md) for conventions on env vars, Docker images, and operational guardrails used across this repo.
+
 ## Features
 
 - Type-safe CMS with generated TypeScript types
