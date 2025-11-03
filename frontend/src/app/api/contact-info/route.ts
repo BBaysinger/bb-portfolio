@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
         : normalizedProfile === "prod"
           ? "http://bb-portfolio-backend-prod:3000"
           : normalizedProfile === "local"
-            ? "http://bb-backend-local:3001"
+            ? "http://bb-portfolio-backend-local:3001"
             : "";
     const backendUrl =
       preferred || serviceDnsFallback || "http://localhost:8081";

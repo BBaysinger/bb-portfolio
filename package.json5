@@ -115,7 +115,7 @@
     // 🛑 Stop Caddy (and its dependencies) cleanly
     "caddy:down": "docker compose -f deploy/compose/docker-compose.yml --profile local --profile proxy down --remove-orphans",
     // 🧹 Force-remove a stale caddy container if it was created outside the current compose project
-    "caddy:down:force": "docker rm -f bb-backend-local bb-frontend-local bb-portfolio-caddy-local || true",
+  "caddy:down:force": "docker rm -f bb-portfolio-backend-local bb-portfolio-frontend-local bb-portfolio-caddy-local || true",
     // 📋 Follow Caddy reverse proxy logs in real-time
     "caddy:logs": "docker compose -f deploy/compose/docker-compose.yml logs -f caddy-local",
     // 🔄 Restart Caddy in-place (recreate only the proxy)

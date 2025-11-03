@@ -306,7 +306,7 @@ New decisions should be appended chronologically.
 
 - Request routing
   - Browser: always uses relative `/api/*` routed by the reverse proxy to the backend service (no public backend URL is needed or exposed).
-  - Server-side (SSR/route handlers/build tasks): uses internal service DNS or `BACKEND_INTERNAL_URL` (e.g., `http://bb-backend-local:3001` in local/compose), avoiding cross-origin browser paths.
+  - Server-side (SSR/route handlers/build tasks): uses internal service DNS or `BACKEND_INTERNAL_URL` (e.g., `http://bb-portfolio-backend-local:3001` in local/compose), avoiding cross-origin browser paths.
 
 - Environment variables
   - Removed: `NEXT_PUBLIC_BACKEND_URL` (NPBU) from all code paths and `.env*` files.
