@@ -65,13 +65,24 @@ export default async function ProjectPage({
       }
       return "";
     };
+    const normalizedProfile = env.startsWith("prod")
+      ? "prod"
+      : env === "development" || env.startsWith("dev")
+        ? "dev"
+        : env.startsWith("local")
+          ? "local"
+          : env;
     const base =
-      pick(
-        `${prefix}BACKEND_INTERNAL_URL`,
-        `${prefix}NEXT_PUBLIC_BACKEND_URL`,
-      ) ||
-      process.env.NEXT_PUBLIC_BACKEND_URL ||
-      "http://localhost:8081";
+      pick(`${prefix}BACKEND_INTERNAL_URL`) ||
+      (() => {
+        if (normalizedProfile === "dev")
+          return "http://bb-portfolio-backend-dev:3000";
+        if (normalizedProfile === "prod")
+          return "http://bb-portfolio-backend-prod:3000";
+        if (normalizedProfile === "local")
+          return "http://bb-backend-local:3001";
+        return "http://localhost:8081";
+      })();
     const backend = base.replace(/\/$/, "");
 
     const tryFetch = async (url: string) =>
@@ -124,7 +135,7 @@ export default async function ProjectPage({
     if (process.env.NODE_ENV !== "production") {
       console.info(
         "[project] Project found in activeProjectsRecord:",
-        projectId,
+        projectId
       );
     }
     return (
@@ -178,7 +189,7 @@ export async function generateStaticParams() {
     const projectIds = Object.keys(ProjectData.activeProjectsRecord);
 
     console.info(
-      `📄 [generateStaticParams] Generated static params for ${projectIds.length} projects`,
+      `📄 [generateStaticParams] Generated static params for ${projectIds.length} projects`
     );
 
     return projectIds.map((projectId) => ({
@@ -189,7 +200,7 @@ export async function generateStaticParams() {
     const errorMessage =
       error instanceof Error ? error.message : "Unknown error";
     console.warn(
-      `⚠️  [generateStaticParams] Backend not accessible (${errorMessage}) - falling back to on-demand page generation`,
+      `⚠️  [generateStaticParams] Backend not accessible (${errorMessage}) - falling back to on-demand page generation`
     );
     return [];
   }

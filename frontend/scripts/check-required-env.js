@@ -75,11 +75,11 @@
         }
       }
       console.info(
-        "[check-required-env] Loaded .env files via fallback parser",
+        "[check-required-env] Loaded .env files via fallback parser"
       );
     } catch (__) {
       console.warn(
-        "[check-required-env] Warning: dotenv not available; skipping .env preload",
+        "[check-required-env] Warning: dotenv not available; skipping .env preload"
       );
     }
   }
@@ -98,13 +98,11 @@
   if (!profile) {
     // Heuristic: infer from present prefixed keys first
     if (
-      process.env.PROD_NEXT_PUBLIC_BACKEND_URL ||
       process.env.PROD_BACKEND_INTERNAL_URL ||
       process.env.PROD_FRONTEND_URL
     ) {
       profile = "prod";
     } else if (
-      process.env.DEV_NEXT_PUBLIC_BACKEND_URL ||
       process.env.DEV_BACKEND_INTERNAL_URL ||
       process.env.DEV_FRONTEND_URL
     ) {
@@ -138,7 +136,7 @@
         entry
           .split("|")
           .map((v) => v.trim())
-          .filter(Boolean),
+          .filter(Boolean)
       );
   };
 
@@ -173,7 +171,6 @@
   // FRONTEND-SCOPED ENFORCEMENT: filter unified list to only frontend-relevant names
   const frontendAllowed = new Set([
     `${profileUpper}_BACKEND_INTERNAL_URL`,
-    `${profileUpper}_NEXT_PUBLIC_BACKEND_URL`,
     "PUBLIC_PROJECTS_BUCKET",
     "NDA_PROJECTS_BUCKET",
   ]);
@@ -203,8 +200,8 @@
       ...missingGroups.map((g) => `  - ${g}`),
       "\nConfigure REQUIRED_ENVIRONMENT_VARIABLES or <PROFILE>_REQUIRED_ENVIRONMENT_VARIABLES.",
       "Examples:",
-      "  REQUIRED_ENVIRONMENT_VARIABLES=DEV_BACKEND_INTERNAL_URL|DEV_NEXT_PUBLIC_BACKEND_URL",
-      "  PROD_REQUIRED_ENVIRONMENT_VARIABLES=PROD_BACKEND_INTERNAL_URL|PROD_NEXT_PUBLIC_BACKEND_URL",
+      "  REQUIRED_ENVIRONMENT_VARIABLES=DEV_BACKEND_INTERNAL_URL",
+      "  PROD_REQUIRED_ENVIRONMENT_VARIABLES=PROD_BACKEND_INTERNAL_URL",
       "\nNote: In CI+prod, a default requirement enforces at least one backend base URL variable to avoid empty portfolio deploys.",
     ].join("\n");
     console.error(msg);
@@ -214,7 +211,7 @@
       ? effectiveRequirements.map((g) => `[${g.join("|")}]`).join(", ")
       : "<none> (no requirements enforced)";
     console.info(
-      `[check-required-env] All required envs satisfied. Profile=${profile} Requirements=${summary}\nCI=${CI} NODE_ENV=${NODE_ENV} ENV_PROFILE=${ENV_PROFILE} LIFECYCLE=${lifecycle}`,
+      `[check-required-env] All required envs satisfied. Profile=${profile} Requirements=${summary}\nCI=${CI} NODE_ENV=${NODE_ENV} ENV_PROFILE=${ENV_PROFILE} LIFECYCLE=${lifecycle}`
     );
   }
 })();

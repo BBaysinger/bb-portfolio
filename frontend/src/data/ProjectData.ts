@@ -8,7 +8,7 @@ async function fetchPortfolioProjects(opts?: {
 }): Promise<PortfolioProjectData> {
   const { requestHeaders, disableCache } = opts || {};
   const isServer = typeof window === "undefined";
-  // Support ENV-profile prefixed variables like DEV_BACKEND_INTERNAL_URL, PROD_BACKEND_URL, LOCAL_NEXT_PUBLIC_BACKEND_URL, etc.
+  // Support ENV-profile prefixed variables like DEV_BACKEND_INTERNAL_URL, PROD_BACKEND_INTERNAL_URL, LOCAL_BACKEND_INTERNAL_URL, etc.
   const rawProfile = (
     process.env.ENV_PROFILE ||
     process.env.NODE_ENV ||
@@ -31,12 +31,7 @@ async function fetchPortfolioProjects(opts?: {
     }
     return "";
   };
-  let base = firstVal([
-    `${prefix}BACKEND_INTERNAL_URL`,
-    `${prefix}NEXT_PUBLIC_BACKEND_URL`,
-    // Fallback to non-prefixed for browser (Next.js only exposes NEXT_PUBLIC_ variables)
-    "NEXT_PUBLIC_BACKEND_URL",
-  ]);
+  let base = firstVal([`${prefix}BACKEND_INTERNAL_URL`]);
 
   // Conventional: rely on Next.js rewrites for /api/* on the server.
   // Fail fast if .env is incomplete so misconfigurations are obvious.
@@ -86,7 +81,7 @@ async function fetchPortfolioProjects(opts?: {
     const get = (name: string): string | undefined => {
       if (Array.isArray(requestHeaders)) {
         const entry = requestHeaders.find(
-          ([k]) => k.toLowerCase() === name.toLowerCase(),
+          ([k]) => k.toLowerCase() === name.toLowerCase()
         );
         return entry ? entry[1] : undefined;
       }
@@ -95,7 +90,7 @@ async function fetchPortfolioProjects(opts?: {
       const obj = requestHeaders as Record<string, string>;
       // Headers in Next can be normalized to lowercase keys
       const lower = Object.fromEntries(
-        Object.entries(obj).map(([k, v]) => [k.toLowerCase(), v]),
+        Object.entries(obj).map(([k, v]) => [k.toLowerCase(), v])
       ) as Record<string, string>;
       return lower[name.toLowerCase()];
     };
@@ -226,7 +221,7 @@ async function fetchPortfolioProjects(opts?: {
     throw new Error(
       `Failed to fetch project data: ${res.status} ${res.statusText}${
         detail ? ` - ${detail.slice(0, 300)}` : ""
-      }`,
+      }`
     );
   }
   type BrandObj = {
@@ -274,7 +269,7 @@ async function fetchPortfolioProjects(opts?: {
     }
     // Plain object
     const lowerKeys = Object.keys(h as Record<string, string>).map((k) =>
-      k.toLowerCase(),
+      k.toLowerCase()
     );
     return lowerKeys.includes("cookie");
   })();
@@ -646,7 +641,7 @@ export default class ProjectData {
    */
   static hydrate(
     parsed: ParsedPortfolioProjectData,
-    includeNdaInActive: boolean,
+    includeNdaInActive: boolean
   ) {
     // Reset caches
     this._projects = {} as ParsedPortfolioProjectData;
@@ -713,7 +708,7 @@ export default class ProjectData {
             if (p) acc[k] = p;
             return acc;
           },
-          {} as Record<string, ParsedPortfolioProject>,
+          {} as Record<string, ParsedPortfolioProject>
         );
       }
     }
@@ -747,7 +742,7 @@ export default class ProjectData {
         record[project.id] = project;
         return record;
       },
-      {} as Record<string, ParsedPortfolioProject>,
+      {} as Record<string, ParsedPortfolioProject>
     );
   }
 
@@ -758,7 +753,7 @@ export default class ProjectData {
    * @returns Parsed portfolio data
    */
   private static parsePortfolioData(
-    data: PortfolioProjectData,
+    data: PortfolioProjectData
   ): ParsedPortfolioProjectData {
     const parsedData: ParsedPortfolioProjectData = {};
 
@@ -886,7 +881,7 @@ export default class ProjectData {
               if (p) acc[k] = p;
               return acc;
             },
-            {} as Record<string, ParsedPortfolioProject>,
+            {} as Record<string, ParsedPortfolioProject>
           );
         }
       }
