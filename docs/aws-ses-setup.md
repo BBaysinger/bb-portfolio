@@ -220,7 +220,7 @@ Optional: Configure custom MAIL FROM for SPF alignment
 2. Complete the form. Example answers for this project:
 
 - Mail type: Transactional
-- Website URL: https://bbaysinger.com (and/or https://bbinteractive.io)
+- Website URL: http://bbaysinger.com (and/or https://bbinteractive.io)
 - Use case: Low-volume contact form notifications from portfolio site; no marketing; user-initiated only.
 - Expected sending volume: 50–200/month
 - Additional info: Bounces/complaints handled by SES; DMARC aligned sender (noreply@bbinteractive.io) with DKIM; SPF/MAIL FROM configured; no third-party lists.
