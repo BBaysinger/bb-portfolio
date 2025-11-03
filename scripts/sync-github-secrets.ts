@@ -54,7 +54,7 @@ interface SecretsFile extends SecretGroup {
 
 if (process.argv.length < 4 || process.argv.length > 5) {
   console.error(
-    "Usage: sync-github-secrets.ts <owner/repo> <secrets.json5> [--dry-run]"
+    "Usage: sync-github-secrets.ts <owner/repo> <secrets.json5> [--dry-run]",
   );
   process.exit(1);
 }
@@ -81,7 +81,7 @@ baseData.environments = baseData.environments ?? {};
 // Attempt to overlay private values from sibling ".private" file
 const privatePath = path.join(
   path.dirname(JSON_FILE),
-  path.basename(JSON_FILE).replace(/\.json5$/, ".private.json5")
+  path.basename(JSON_FILE).replace(/\.json5$/, ".private.json5"),
 );
 
 let data: SecretsFile = baseData;
@@ -103,7 +103,7 @@ if (
     // Helper to overlay by schema keys only
     const overlayBySchema = (
       schema: SecretGroup,
-      overlay: SecretGroup | undefined
+      overlay: SecretGroup | undefined,
     ): SecretGroup => {
       const result: SecretGroup = {
         strings: { ...(schema.strings ?? {}) },
@@ -134,22 +134,22 @@ if (
     // Environment-scoped overlay
     merged.environments = {};
     for (const [envName, envSchema] of Object.entries(
-      baseData.environments ?? {}
+      baseData.environments ?? {},
     )) {
       const envOverlay = overlayBySchema(
         envSchema,
-        privateData.environments?.[envName]
+        privateData.environments?.[envName],
       );
       merged.environments![envName] = envOverlay;
     }
 
     data = merged;
     console.info(
-      `🔒 Using private overrides from ${privatePath} (restricted to template schema)`
+      `🔒 Using private overrides from ${privatePath} (restricted to template schema)`,
     );
   } catch {
     console.warn(
-      `⚠️ Failed to parse private overrides at ${privatePath}; proceeding without overlays.`
+      `⚠️ Failed to parse private overrides at ${privatePath}; proceeding without overlays.`,
     );
   }
 }
@@ -168,7 +168,7 @@ function parseRequirements(list: string | undefined): string[][] {
       group
         .split("|")
         .map((x) => x.trim())
-        .filter(Boolean)
+        .filter(Boolean),
     );
 }
 
@@ -202,7 +202,7 @@ function validateRequiredLists() {
     }
     if (missing.length) {
       problems.push(
-        `- ${check.name}: missing groups (ANY-of within each group):\n  ${missing.map((g) => `• ${g}`).join("\n  ")}`
+        `- ${check.name}: missing groups (ANY-of within each group):\n  ${missing.map((g) => `• ${g}`).join("\n  ")}`,
       );
     }
   }
@@ -232,7 +232,7 @@ function validateRequiredLists() {
         .map((g) => `[${g.join("|")}]`)
         .join(", ") || "<none>";
     console.info(
-      `✅ Required variables satisfied.\nDEV_REQUIRED_ENVIRONMENT_VARIABLES=${devSummary}\nPROD_REQUIRED_ENVIRONMENT_VARIABLES=${prodSummary}`
+      `✅ Required variables satisfied.\nDEV_REQUIRED_ENVIRONMENT_VARIABLES=${devSummary}\nPROD_REQUIRED_ENVIRONMENT_VARIABLES=${prodSummary}`,
     );
   }
 }
@@ -252,13 +252,13 @@ function listSecrets(scope: "repo" | "env", env?: string): string[] {
     const scopeFlag = scope === "env" && env ? `--env ${env}` : "";
     const output = execSync(
       `gh secret list --repo ${REPO} ${scopeFlag} --json name -q '.[].name'`,
-      { encoding: "utf8" }
+      { encoding: "utf8" },
     );
     return output.split(/\r?\n/).filter(Boolean);
   } catch {
     const suffix = scope === "env" && env ? ` for environment '${env}'` : "";
     console.error(
-      `Error: failed to fetch current GitHub secrets${suffix}. Is gh authenticated? Does the environment exist?`
+      `Error: failed to fetch current GitHub secrets${suffix}. Is gh authenticated? Does the environment exist?`,
     );
     return [];
   }
@@ -268,14 +268,14 @@ function removeExtras(
   scope: "repo" | "env",
   env: string | undefined,
   current: string[],
-  desired: string[]
+  desired: string[],
 ) {
   for (const key of current) {
     if (!desired.includes(key)) {
       const scopeFlag = scope === "env" && env ? `--env ${env}` : "";
       if (DRY_RUN) {
         console.info(
-          `🗑 (dry run) Would remove old secret${env ? ` (${env})` : ""}: ${key}`
+          `🗑 (dry run) Would remove old secret${env ? ` (${env})` : ""}: ${key}`,
         );
       } else {
         console.info(`🗑 Removing old secret${env ? ` (${env})` : ""}: ${key}`);
@@ -290,13 +290,13 @@ function removeExtras(
 function setStrings(
   scope: "repo" | "env",
   env: string | undefined,
-  strings: Record<string, string>
+  strings: Record<string, string>,
 ) {
   for (const [key, value] of Object.entries(strings)) {
     const scopeFlag = scope === "env" && env ? `--env ${env}` : "";
     if (DRY_RUN) {
       console.info(
-        `🔑 (dry run) Would set string${env ? ` (${env})` : ""} ${key} (length: ${value.length})`
+        `🔑 (dry run) Would set string${env ? ` (${env})` : ""} ${key} (length: ${value.length})`,
       );
     } else {
       console.info(`🔑 Setting string${env ? ` (${env})` : ""} ${key} ...`);
@@ -311,12 +311,12 @@ function setStrings(
 function setFiles(
   scope: "repo" | "env",
   env: string | undefined,
-  files: Record<string, string>
+  files: Record<string, string>,
 ) {
   for (const [key, filepath] of Object.entries(files)) {
     if (!fs.existsSync(filepath)) {
       console.warn(
-        `⚠️ Skipping ${key}${env ? ` (${env})` : ""}, file not found: ${filepath}`
+        `⚠️ Skipping ${key}${env ? ` (${env})` : ""}, file not found: ${filepath}`,
       );
       continue;
     }
@@ -324,11 +324,11 @@ function setFiles(
     const scopeFlag = scope === "env" && env ? `--env ${env}` : "";
     if (DRY_RUN) {
       console.info(
-        `📄 (dry run) Would set file${env ? ` (${env})` : ""} ${key} from ${filepath} (${size} bytes)`
+        `📄 (dry run) Would set file${env ? ` (${env})` : ""} ${key} from ${filepath} (${size} bytes)`,
       );
     } else {
       console.info(
-        `📄 Setting file${env ? ` (${env})` : ""} ${key} from ${filepath} ...`
+        `📄 Setting file${env ? ` (${env})` : ""} ${key} from ${filepath} ...`,
       );
       const content = fs.readFileSync(filepath, "utf8");
       execSync(`gh secret set ${key} --repo ${REPO} ${scopeFlag}`.trim(), {
@@ -366,6 +366,6 @@ if (DRY_RUN) {
   console.info("✅ Dry run complete! No secrets were changed.");
 } else {
   console.info(
-    `✅ Sync complete! Repo ${REPO} (repo-level and environments) now matches ${JSON_FILE}.`
+    `✅ Sync complete! Repo ${REPO} (repo-level and environments) now matches ${JSON_FILE}.`,
   );
 }

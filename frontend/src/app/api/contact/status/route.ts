@@ -51,13 +51,13 @@ export async function GET(_request: NextRequest) {
     const text = await upstream.text();
     return Response.json(
       { error: text || `Upstream returned ${upstream.status}` },
-      { status: upstream.status }
+      { status: upstream.status },
     );
   } catch (error) {
     console.error("Frontend contact status proxy error:", error);
     return Response.json(
       { error: "Failed to retrieve contact status." },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

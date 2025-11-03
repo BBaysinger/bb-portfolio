@@ -92,7 +92,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Send email using AWS SES
-  const result = (await emailService.sendContactEmail(contactData)) as EmailSendResult
+    const result = (await emailService.sendContactEmail(contactData)) as EmailSendResult
 
     if (result.success) {
       return NextResponse.json({ message: 'Message sent successfully!' }, { status: 200 })
