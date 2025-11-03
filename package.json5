@@ -17,11 +17,11 @@
   //   "backend"
   // ],
   "scripts": {
-  // Shortcut to start backend and frontend locally (bare metal, no Docker)
+    // Shortcut to start backend and frontend locally (bare metal, no Docker)
     "dev": "npm run bareMetalDev:all",
-  // Start only the backend locally (bare metal)
+    // Start only the backend locally (bare metal)
     "dev:backend": "npm run bareMetalDev:backend",
-  // Start only the frontend locally (bare metal)
+    // Start only the frontend locally (bare metal)
     "dev:frontend": "npm run bareMetalDev:frontend",
     // 🚀 Experimental build using Turbopack for faster frontend builds
     "turbopack": "cd frontend && NEXT_TELEMETRY_DISABLED=1 npx next build --turbopack",
@@ -232,15 +232,15 @@
     "infra:sync-env": "cd infra && bash sync-env-from-terraform.sh",
     // 🏗️ Infrastructure: Sync .env file with Terraform state (skip confirmation)
     "infra:sync-env:force": "cd infra && bash sync-env-from-terraform.sh --force",
-  // Housekeeping: prune old images across Docker Hub and ECR (retain 3)
+    // Housekeeping: prune old images across Docker Hub and ECR (retain 3)
     "images:cleanup": "bash ./scripts/image-cleanup.sh --retain 3 --include-untagged",
-  // Dry-run cleanup: show what would be removed without deleting
+    // Dry-run cleanup: show what would be removed without deleting
     "images:cleanup:dry-run": "bash ./scripts/image-cleanup.sh --retain 3 --include-untagged --dry-run",
-  // ECR-only cleanup: prune old images (retain 3)
+    // ECR-only cleanup: prune old images (retain 3)
     "images:cleanup:ecr": "bash ./scripts/image-cleanup-ecr.sh --retain 3 --include-untagged",
-  // ECR-only cleanup (dry run)
+    // ECR-only cleanup (dry run)
     "images:cleanup:ecr:dry-run": "bash ./scripts/image-cleanup-ecr.sh --retain 3 --include-untagged --dry-run",
-  // Verify image tags and counts in Docker Hub and ECR
+    // Verify image tags and counts in Docker Hub and ECR
     "images:verify": "bash ./scripts/images-verify.sh",
   },
   // Development tooling for the monorepo root (formatting, linting, TS, runners)

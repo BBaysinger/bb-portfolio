@@ -36,6 +36,39 @@ New decisions should be appended chronologically.
 
 ---
 
+## 2025-11-02 – Project Files on S3 and NDA Gated Delivery
+
+**Decision:** Store static project files in dedicated S3 buckets and deliver them via API routes that enforce access level (public vs NDA), separate from Payload CMS media.
+
+**Architecture:**
+
+- Four-bucket model (see “S3 Bucket Structure Guide” for full details):
+  - Media (managed by Payload uploads): `bb-portfolio-media-dev`, `bb-portfolio-media-prod`
+  - Project files (static): `bb-portfolio-projects-public`, `bb-portfolio-projects-nda`
+- Access control boundary is at the application layer:
+  - Public files served under `/api/projects/public/*` → maps to public bucket
+  - NDA files served under `/api/projects/private/*` → maps to NDA bucket and requires authenticated session
+  - Next.js page routes remain separate: public project pages under `/project/*`, NDA pages under `/nda/*` (noindex, dynamic), avoiding path collisions with the API
+- Environment variables (shared across envs for project buckets, env-specific for media buckets):
+  - Media: `DEV_S3_BUCKET`, `PROD_S3_BUCKET`, `*_AWS_REGION`
+  - Projects: `PUBLIC_PROJECTS_BUCKET`, `NDA_PROJECTS_BUCKET`
+
+**Reasoning:**
+
+- Clean separation of concerns (CMS media vs static project artifacts)
+- Simpler IAM and clearer security posture for NDA artifacts
+- Stable URLs and promotion flows independent of Payload media storage
+
+**Implementation references:**
+
+- Scripts: `npm run projects:upload:*`, `npm run projects:verify`
+- CI/Deploy: GitHub workflow passes `PUBLIC_PROJECTS_BUCKET`/`NDA_PROJECTS_BUCKET`
+- Documentation: `docs/s3-bucket-migration.md` and `docs/uploads-and-migration.md`
+
+**Status:** ✅ Active
+
+---
+
 **Decision:** Implement **comprehensive Infrastructure as Code (IaC) with full automation** for zero-manual deployment and production-ready hosting.
 
 - **Terraform IaC**: Complete AWS infrastructure defined as code with full automation

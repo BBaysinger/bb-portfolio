@@ -140,6 +140,7 @@
         "pipefail",
         "Platformer",
         "prebuild",
+        "predev",
         "Prereqs",
         "presign",
         "presigner",

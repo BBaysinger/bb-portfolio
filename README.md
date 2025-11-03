@@ -42,6 +42,21 @@ The deployment pipeline uses Terraform for infrastructure provisioning, Docker f
   - migrate media to S3, update media URLs, rebuild records
 - Local filesystem storage for local profile
 
+#### Project files (S3 + gated delivery)
+
+- Separate from Payload media, static project files are stored in two dedicated S3 buckets:
+  - Public: `bb-portfolio-projects-public`
+  - NDA-protected: `bb-portfolio-projects-nda`
+- Delivery is via application API routes:
+  - Public files: `/api/projects/public/*` → public bucket
+  - Private/NDA files: `/api/projects/private/*` → NDA bucket (requires authenticated session)
+- Upload/verify helpers:
+  - `npm run projects:upload:public | :nda | :both`
+  - `npm run projects:verify`
+- See also:
+  - ADR: Project Files on S3 and NDA Gated Delivery (in `docs/architecture-decisions.md`)
+  - Guide: `docs/s3-bucket-migration.md`
+
 ### 🔒 API & Security
 
 - Env-profile guardrails (fail-fast config validation)
@@ -218,6 +233,7 @@ Helper scripts (from `infra/bb-portfolio-management.sh`):
 For deep dives and implementation details:
 
 - Architecture Decisions: [`/docs/architecture-decisions.md`](./docs/architecture-decisions.md)
+- S3 Project Buckets Guide: [`/docs/s3-bucket-migration.md`](./docs/s3-bucket-migration.md)
 - Fluid Responsive System: [`/docs/fluid-responsive-system.md`](./docs/fluid-responsive-system.md)
 - Uploads & Migration: [`/docs/uploads-and-migration.md`](./docs/uploads-and-migration.md)
 - SES Email Setup: [`/docs/aws-ses-setup.md`](./docs/aws-ses-setup.md)

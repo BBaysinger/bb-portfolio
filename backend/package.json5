@@ -15,9 +15,9 @@
     // This approach helps to ensure that formatting doesn't break the build, because that does happen sometimes
     // The command is short for frequent use (I use it very frequently, and *every* time before commit)
     "precommit": "prettier --write . && tsc -b",
-  // Validate required environment variables before building
+    // Validate required environment variables before building
     "prebuild": "node ./scripts/check-required-env.js",
-  // Validate required environment variables before starting dev server
+    // Validate required environment variables before starting dev server
     "predev": "cross-env ENV_PROFILE=dev node ./scripts/check-required-env.js",
     // Production build with increased memory and deprecation warnings suppressed
     "build": "cross-env NODE_OPTIONS=\"--no-deprecation --max-old-space-size=8000\" npm run generate:importmap && next build",
@@ -33,7 +33,7 @@
     "lint": "cross-env NODE_OPTIONS=--no-deprecation next lint",
     // Start Payload-only CLI (e.g., to seed or run utilities)
     "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
-  // Validate required environment variables before starting production server
+    // Validate required environment variables before starting production server
     "prestart": "node ./scripts/check-required-env.js",
     // Start production server
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start",
