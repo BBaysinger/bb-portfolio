@@ -59,7 +59,26 @@ COPY --from=deps /app/node_modules ./node_modules
 # Copy all source code
 COPY . .
 
-## No build-time config baked into the image. Build is environment-agnostic.
+## Build-time configuration (builder-only): accept build args and expose as env for prebuild checks
+# Profile and required envs definition
+ARG ENV_PROFILE=""
+ARG REQUIRED_ENVIRONMENT_VARIABLES=""
+ARG PROD_REQUIRED_ENVIRONMENT_VARIABLES=""
+# Frontend-required variables (filtered by prebuild guard)
+ARG PROD_BACKEND_INTERNAL_URL=""
+ARG PUBLIC_PROJECTS_BUCKET=""
+ARG NDA_PROJECTS_BUCKET=""
+
+# Make them available to the build step (builder-only; not persisted to runtime image)
+ENV ENV_PROFILE=${ENV_PROFILE} \
+  REQUIRED_ENVIRONMENT_VARIABLES=${REQUIRED_ENVIRONMENT_VARIABLES} \
+  PROD_REQUIRED_ENVIRONMENT_VARIABLES=${PROD_REQUIRED_ENVIRONMENT_VARIABLES} \
+  PROD_BACKEND_INTERNAL_URL=${PROD_BACKEND_INTERNAL_URL} \
+  PUBLIC_PROJECTS_BUCKET=${PUBLIC_PROJECTS_BUCKET} \
+  NDA_PROJECTS_BUCKET=${NDA_PROJECTS_BUCKET}
+
+# Ensure repo .env files don't override CI-provided variables during production builds
+RUN rm -f .env .env.local .env.development .env.production || true
 
 # Build the Next.js application with the detected package manager
 # Creates optimized production bundle in .next directory
