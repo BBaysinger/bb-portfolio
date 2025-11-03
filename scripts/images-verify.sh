@@ -12,6 +12,29 @@ SECRETS_FILE="$ROOT_DIR/.github-secrets.private.json5"
 DH_REPOS=("bhbaysinger/bb-portfolio-backend" "bhbaysinger/bb-portfolio-frontend")
 ECR_REPOS=("bb-portfolio-backend-prod" "bb-portfolio-frontend-prod")
 AWS_REGION="us-west-2"
+AWS_PROFILE_ARG="" # optional, derive from --profile or env
+SKIP_ECR=false
+
+# Args: --profile <name> | --region <region> | --skip-ecr
+while [[ ${1:-} ]]; do
+  case "${1}" in
+    --profile)
+      [[ $# -lt 2 ]] && { echo "--profile requires a value" >&2; exit 1; }
+      AWS_PROFILE_ARG="$2"; shift 2 ;;
+    --region)
+      [[ $# -lt 2 ]] && { echo "--region requires a value" >&2; exit 1; }
+      AWS_REGION="$2"; shift 2 ;;
+    --skip-ecr)
+      SKIP_ECR=true; shift ;;
+    *)
+      echo "Unknown argument: $1" >&2; exit 1 ;;
+  esac
+done
+
+# Respect profile from flag if provided
+if [[ -n "${AWS_PROFILE_ARG}" ]]; then
+  export AWS_PROFILE="${AWS_PROFILE_ARG}"
+fi
 
 have_node() { command -v node >/dev/null 2>&1; }
 have_curl() { command -v curl >/dev/null 2>&1; }
@@ -50,13 +73,22 @@ else
 fi
 
 # ECR
-if have_aws; then
-  for repo in "${ECR_REPOS[@]}"; do
-    echo -e "\n🧾 ECR: $repo"
-    if ! aws ecr describe-images --repository-name "$repo" --region "$AWS_REGION" --query "length(imageDetails[?imageTags!=\`null\`])"; then
-      echo "  (error) unable to query repository (check AWS credentials/profile)"
-    fi
-  done
+if [[ "${SKIP_ECR}" == "true" ]]; then
+  echo "(skip) ECR verification: --skip-ecr provided"
+elif have_aws; then
+  # Credential sanity check: skip ECR gracefully if not logged in/configured
+  if aws sts get-caller-identity --region "$AWS_REGION" >/dev/null 2>&1; then
+    PROFILE_MSG="${AWS_PROFILE:-default}"
+    echo -e "\nUsing AWS profile: ${PROFILE_MSG} | region: ${AWS_REGION}"
+    for repo in "${ECR_REPOS[@]}"; do
+      echo -e "\n🧾 ECR: $repo"
+      if ! aws ecr describe-images --repository-name "$repo" --region "$AWS_REGION" --query "length(imageDetails[?imageTags!=\`null\`])"; then
+        echo "  (error) unable to query repository (verify permissions for profile '${PROFILE_MSG}')"
+      fi
+    done
+  else
+    echo "(skip) ECR verification: AWS credentials/profile not configured (set AWS_PROFILE, use --profile, or run 'aws configure')"
+  fi
 else
   echo "(skip) ECR verification: aws CLI not available"
 fi
