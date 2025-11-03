@@ -16,9 +16,10 @@
 set -euo pipefail
 
 RETAIN_COUNT=5
-# region/profile are accepted for interface parity but ignored
+# region/profile/login are accepted for interface parity but ignored
 REGION=""
 PROFILE=""
+AUTO_LOGIN=false
 REPOS_CSV="bhbaysinger/bb-portfolio-backend,bhbaysinger/bb-portfolio-frontend"
 INCLUDE_UNTAGGED=false
 DRY_RUN=false
@@ -58,6 +59,8 @@ while [[ $# -gt 0 ]]; do
       REGION=${2:-}; shift 2 ;;
     --profile)
       PROFILE=${2:-}; shift 2 ;;
+    --login|--auto-login)
+      AUTO_LOGIN=true; shift ;;
     --include-untagged)
       INCLUDE_UNTAGGED=true; shift ;;
     --dry-run)
