@@ -63,7 +63,7 @@ variable "s3_cors_allowed_origins" {
     "http://localhost:3000",
     "https://bbinteractive.io",
     "https://www.bbinteractive.io",
-    "https://bbaysinger.com",
+    "http://bbaysinger.com",
     "https://www.bbaysinger.com",
     "https://dev.bbinteractive.io",
     "https://dev.bbaysinger.com",

@@ -337,7 +337,7 @@ PUBLIC_PROJECTS_BUCKET=${var.public_projects_bucket}
 NDA_PROJECTS_BUCKET=${var.nda_projects_bucket}
 
 # Frontend Configuration (for SSR) - Using dynamic IP
-PROD_FRONTEND_URL=https://bbinteractive.io,https://bbaysinger.com,http://$ELASTIC_IP:3000
+PROD_FRONTEND_URL=https://bbinteractive.io,http://bbaysinger.com,http://$ELASTIC_IP:3000
 PROD_BACKEND_INTERNAL_URL=${var.prod_backend_internal_url}
 
 # Email Configuration
