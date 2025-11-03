@@ -98,11 +98,12 @@ merge_push() {
     err "Fast-forward pull failed on $TO. Resolve manually then rerun."
     exit 1
   }
-  if git merge --no-ff "$FROM" -m "chore(sync-branches): merge $FROM into $TO"; then
+  # Fast-forward only to keep linear history (no merge commits)
+  if git merge --ff-only "$FROM"; then
     log "Pushing $TO to origin"
     git push origin "$TO"
   else
-    err "Merge conflict merging $FROM into $TO. Fix conflicts, commit, and push manually."
+    err "Non fast-forward merge required merging $FROM into $TO. To keep a single-line history, resolve by rebasing or aligning branches (e.g., reset) and rerun."
     exit 1
   fi
 }
