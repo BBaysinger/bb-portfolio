@@ -169,26 +169,7 @@ Runtime .env generation (deploy):
 - Tooling: ESLint, Prettier, Docker, Node.js
 - Cloud/IaC: AWS (EC2, S3, ECR, IAM, SES, Route 53, ACM), Terraform
 
-## Roadmap
-
-- Additional polish, accessibility, and performance passes as time allows
-- Make the hero animation more game-like
-  - Still exploring rendering capabilities to know just how much I can get out of it
-  - But it will become more than just a fidget spinner
-- Most of the notable features will become their own portable repos
-- Filterable Project Tags/Categories
-- Interactive tutorials for the kinetic orb (vs current arrow/tooltips) and carousel
-- Walkthrough videos playable within the project carousel
-- Project upkeep: framework/library upgrades across showcased projects
-- Global light/dark mode preferences via Redux
-- Fluxels should be implemented in WebGl and/or Pixi shaders
-- Implement Testing Frameworks (once experiments have matured)
-- Capture and Store Data about user interactions
-- Accessability should be improved with respect to ARIA, rem font scaling, etc...
-- Remove Bootstrap (Not relying on it much anyhow)
-- Header animations will be in response to user interactions vs just a timer
-
-Note: Earlier plans for “custom Express/Mongo backend” were superseded by the fully integrated Payload CMS backend present in this repo.
+<!-- Roadmap moved toward the end for better flow -->
 
 ## Infrastructure & Deployment
 
@@ -304,6 +285,27 @@ For deep dives and implementation details:
 - Infrastructure Guide: [`/infra/README.md`](./infra/README.md)
 - Deployment Instructions: [`/deploy/DEPLOYMENT.md`](./deploy/DEPLOYMENT.md)
 - Deployment Orchestrator: [`/docs/deployment-orchestrator.md`](./docs/deployment-orchestrator.md)
+
+## Roadmap
+
+- Additional polish, accessibility, and performance passes as time allows
+- Make the hero animation more game-like
+  - Still exploring rendering capabilities to know just how much I can get out of it
+  - But it will become more than just a fidget spinner
+- Most of the notable features will become their own portable repos
+- Filterable Project Tags/Categories
+- Interactive tutorials for the kinetic orb (vs current arrow/tooltips) and carousel
+- Walkthrough videos playable within the project carousel
+- Project upkeep: framework/library upgrades across showcased projects
+- Global light/dark mode preferences via Redux
+- Fluxels should be implemented in WebGl and/or Pixi shaders
+- Implement Testing Frameworks (once experiments have matured)
+- Capture and Store Data about user interactions
+- Accessability should be improved with respect to ARIA, rem font scaling, etc...
+- Remove Bootstrap (Not relying on it much anyhow)
+- Header animations will be in response to user interactions vs just a timer
+
+Note: Earlier plans for “custom Express/Mongo backend” were superseded by the fully integrated Payload CMS backend present in this repo.
 
 ---
 
