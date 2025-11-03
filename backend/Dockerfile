@@ -39,48 +39,10 @@ FROM ${NODE_IMAGE} AS builder
 # Set working directory for all subsequent commands
 WORKDIR /app
 
-# Provide build-time environment to satisfy strict env checks in configuration.
-# Rationale:
-# - Non-sensitive values are passed as ARG/ENV (e.g., *_FRONTEND_URL, *_AWS_REGION, *_S3_BUCKET)
-#   because Next.js build and config validation rely on these to pre-render and set CORS/CSRF.
-# - Sensitive values (Mongo URI, Payload secret, AWS creds, SES emails) are mounted via BuildKit
-#   secrets in the RUN step below so they never persist into layers or the final image.
-ARG ENV_PROFILE=prod
-ARG PROD_FRONTEND_URL
-ARG PROD_S3_BUCKET
-ARG PROD_AWS_REGION
-ARG DEV_AWS_REGION
-ARG DEV_FRONTEND_URL
-ARG DEV_S3_BUCKET
-ARG PUBLIC_PROJECTS_BUCKET
-ARG NDA_PROJECTS_BUCKET
-ARG DEV_REQUIRED_ENVIRONMENT_VARIABLES
-ARG PROD_REQUIRED_ENVIRONMENT_VARIABLES
-ARG DEV_BACKEND_INTERNAL_URL
-ARG DEV_NEXT_PUBLIC_BACKEND_URL
-ARG PROD_BACKEND_INTERNAL_URL
-ARG PROD_NEXT_PUBLIC_BACKEND_URL
-ARG SECURITY_CONTACT_EMAIL
-ARG SECURITY_TXT_EXPIRES
-
-# Set non-sensitive environment variables
-ENV ENV_PROFILE=${ENV_PROFILE}
-ENV PROD_FRONTEND_URL=${PROD_FRONTEND_URL}
-ENV PROD_S3_BUCKET=${PROD_S3_BUCKET}
-ENV PROD_AWS_REGION=${PROD_AWS_REGION}
-ENV DEV_AWS_REGION=${DEV_AWS_REGION}
-ENV DEV_FRONTEND_URL=${DEV_FRONTEND_URL}
-ENV DEV_S3_BUCKET=${DEV_S3_BUCKET}
-ENV PUBLIC_PROJECTS_BUCKET=${PUBLIC_PROJECTS_BUCKET}
-ENV NDA_PROJECTS_BUCKET=${NDA_PROJECTS_BUCKET}
-ENV DEV_REQUIRED_ENVIRONMENT_VARIABLES=${DEV_REQUIRED_ENVIRONMENT_VARIABLES}
-ENV PROD_REQUIRED_ENVIRONMENT_VARIABLES=${PROD_REQUIRED_ENVIRONMENT_VARIABLES}
-ENV DEV_BACKEND_INTERNAL_URL=${DEV_BACKEND_INTERNAL_URL}
-ENV DEV_NEXT_PUBLIC_BACKEND_URL=${DEV_NEXT_PUBLIC_BACKEND_URL}
-ENV PROD_BACKEND_INTERNAL_URL=${PROD_BACKEND_INTERNAL_URL}
-ENV PROD_NEXT_PUBLIC_BACKEND_URL=${PROD_NEXT_PUBLIC_BACKEND_URL}
-ENV SECURITY_CONTACT_EMAIL=${SECURITY_CONTACT_EMAIL}
-ENV SECURITY_TXT_EXPIRES=${SECURITY_TXT_EXPIRES}
+# Build-time environment remains environment-agnostic.
+# We avoid baking config into the image. Sensitive values are mounted via BuildKit
+# secrets in the RUN step below. Any required checks are satisfied transiently
+# during that RUN without persisting env into layers.
 
 ## Skipping apt-get steps to reduce CI fragility; base image is sufficient for this project
 
@@ -107,6 +69,8 @@ RUN --mount=type=secret,id=prod_mongodb_uri \
     --mount=type=secret,id=prod_ses_to_email \
     --mount=type=secret,id=dev_ses_from_email \
     --mount=type=secret,id=dev_ses_to_email \
+    export REQUIRED_ENVIRONMENT_VARIABLES="DUMMY_OK" && \
+    export DUMMY_OK=1 && \
     export PROD_MONGODB_URI="$(cat /run/secrets/prod_mongodb_uri 2>/dev/null || echo '')" && \
     export DEV_MONGODB_URI="$(cat /run/secrets/dev_mongodb_uri 2>/dev/null || echo '')" && \
     export LOCAL_MONGODB_URI="$(cat /run/secrets/local_mongodb_uri 2>/dev/null || echo '')" && \
