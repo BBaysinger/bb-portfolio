@@ -84,7 +84,7 @@ services:
           "CMD",
           "node",
           "-e",
-          "const http=require('http'); const req=http.get('http://localhost:3000/api/health',res=>{process.exit(res.statusCode===200?0:1)}); req.on('error',()=>process.exit(1));",
+          "const http=require('http'); const req=http.get('http://localhost:3000/api/health/',res=>{process.exit(res.statusCode===200?0:1)}); req.on('error',()=>process.exit(1));",
         ]
       interval: 15s
       timeout: 5s
@@ -152,7 +152,7 @@ services:
           "CMD",
           "node",
           "-e",
-          "const http=require('http'); const req=http.get('http://localhost:3000/api/health',res=>{process.exit(res.statusCode===200?0:1)}); req.on('error',()=>process.exit(1));",
+          "const http=require('http'); const req=http.get('http://localhost:3000/api/health/',res=>{process.exit(res.statusCode===200?0:1)}); req.on('error',()=>process.exit(1));",
         ]
       interval: 15s
       timeout: 5s
@@ -167,6 +167,8 @@ services:
       - "4000:3000" # Frontend gets xxx0
     env_file:
       - ../../frontend/.env.dev
+    environment:
+      - PORT=3000
     restart: unless-stopped # Auto-restart on failure/reboot
     depends_on:
       bb-portfolio-backend-dev:
