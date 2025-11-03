@@ -138,8 +138,8 @@ CMD ["npm", "start"]
 # Use same Debian slim base for consistency across all stages and with frontend
 FROM ${NODE_IMAGE} AS dev
 
-# Upgrade system packages to mitigate known vulnerabilities
-RUN apt-get update && apt-get upgrade -y && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+# Install basic tooling needed only for development
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 
 # Set working directory for development
 WORKDIR /app

@@ -54,77 +54,7 @@ const nextConfig: NextConfig = {
   // - Default: disabled in development, enabled in production
   // - Override: set REACT_STRICT_MODE="false" to force off, any other value to force on
   reactStrictMode: resolvedStrictMode,
-  async rewrites() {
-    // Normalize profile so we look up PROD_ / DEV_ / LOCAL_ consistently
-    const rawProfile = (
-      process.env.ENV_PROFILE ||
-      process.env.NODE_ENV ||
-      ""
-    ).toLowerCase();
-    const normalizedProfile = rawProfile.startsWith("prod")
-      ? "prod"
-      : rawProfile === "development" || rawProfile.startsWith("dev")
-        ? "dev"
-        : rawProfile.startsWith("local")
-          ? "local"
-          : rawProfile; // fallback to raw (e.g., empty string)
-    const prefix = normalizedProfile
-      ? `${normalizedProfile.toUpperCase()}_`
-      : "";
-
-    console.info("[next.config.ts] DEBUG - Environment info:", {
-      ENV_PROFILE: process.env.ENV_PROFILE,
-      NODE_ENV: process.env.NODE_ENV,
-      profile: normalizedProfile,
-      prefix,
-      availableEnvVars: Object.keys(process.env)
-        .filter((key) => key.includes("BACKEND") || key.includes("API"))
-        .sort(),
-    });
-
-    const pickValue = (...names: string[]) => {
-      for (const n of names) {
-        const v = process.env[n];
-        console.info(
-          `[next.config.ts] Checking ${n}:`,
-          v ? "✓ found" : "✗ not found",
-        );
-        if (v) return v;
-      }
-      return "";
-    };
-
-    // Prefer prefixed variables for the current profile; fall back to common public var
-    const internalApi = pickValue(
-      `${prefix}BACKEND_INTERNAL_URL`,
-      `${prefix}NEXT_PUBLIC_BACKEND_URL`,
-      // Final fallback for environments where only NEXT_PUBLIC_BACKEND_URL is set
-      `NEXT_PUBLIC_BACKEND_URL`,
-    );
-
-    if (!internalApi) {
-      console.error(
-        `[next.config.ts] No backend URL found. Expected: ${prefix}BACKEND_INTERNAL_URL or ${prefix}NEXT_PUBLIC_BACKEND_URL`,
-      );
-      return [];
-    }
-
-    const base = internalApi.replace(/\/$/, "");
-    // Ensure destination is a valid absolute URL for external rewrite
-    if (!/^https?:\/\//i.test(base)) {
-      throw new Error(
-        `[next.config.ts] Invalid backend URL for rewrites: ${base}. ` +
-          `Set ${prefix}BACKEND_INTERNAL_URL to a valid http(s) URL. ` +
-          `Profile: ${profile}, Prefix: ${prefix}`,
-      );
-    }
-    return [
-      {
-        source: "/api/:path*",
-        destination: `${base}/api/:path*`,
-      },
-    ];
-  },
+  // No build-time dependent rewrites. Use relative /api and handle routing at ingress/Compose.
   // Security headers for frontend
   async headers() {
     return [
