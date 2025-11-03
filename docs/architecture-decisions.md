@@ -178,6 +178,50 @@ New decisions should be appended chronologically.
 
 ---
 
+## 2025-11-02 – Image Cleanup and Retention (Docker Hub + ECR)
+
+**Decision:** Adopt an automated image cleanup strategy to retain only the most recent N images per repository and prune the rest.
+
+**Scope:** Applies to both registries used in this project:
+
+- Docker Hub (dev images)
+- Amazon ECR (prod images)
+
+**Implementation:**
+
+- Unified orchestrator script: `scripts/image-cleanup.sh` (runs both providers)
+- Provider-specific scripts:
+  - `scripts/image-cleanup-dockerhub.sh`
+  - `scripts/image-cleanup-ecr.sh`
+- Verification helper: `scripts/images-verify.sh`
+- NPM shortcuts (retain last 3 by default):
+  - `npm run images:cleanup:dry-run` – preview deletes, no changes
+  - `npm run images:cleanup` – delete older images, keep 3
+  - `npm run images:verify` – show Docker Hub tag totals and ECR tagged counts
+  - ECR-only variants available: `images:cleanup:ecr[:dry-run]`
+
+**Notes:**
+
+- ECR: `--include-untagged` deletes dangling images; supported and enabled by default in our npm scripts
+- Docker Hub: `--include-untagged` is ignored (Docker Hub doesn’t expose untagged images in the same way)
+- Default repositories are pre-wired; override via `--repositories` if needed
+- Publish step includes a Docker Hub privacy guard; if your plan doesn’t allow private repos, set `DOCKERHUB_ENFORCE_PRIVATE=true` to fail the publish instead of silently pushing public
+
+**Reasoning:**
+
+- Cost and clutter control for registries
+- Faster listing and pulls by keeping only the latest artifacts
+- Aligns with portfolio scale needs while remaining production-friendly
+
+**Alternatives considered:**
+
+- Manual cleanup in registries (error-prone, easy to forget)
+- Registry lifecycle policies only (good for ECR, but we wanted consistent CLI-based control across both providers)
+
+**Status:** ✅ Active
+
+---
+
 ## 2025-09-20 – Infrastructure Automation Strategy
 
 ---

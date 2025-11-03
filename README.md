@@ -65,6 +65,31 @@ The deployment pipeline uses Terraform for infrastructure provisioning, Docker f
 - Reverse proxy options: Caddy or Nginx (compose/configs provided)
 - Compose profiles for local/dev/prod and proxy-only
 
+#### 🧹 Image cleanup & retention
+
+- Goal: keep registries lean by retaining only the most recent images
+- Orchestrated cleanup for both Docker Hub and ECR
+- Defaults keep last 3 images and remove older (ECR also removes untagged)
+
+Common tasks:
+
+```bash
+# Preview (no deletions)
+npm run images:cleanup:dry-run
+
+# Apply (keeps last 3; prunes older and untagged where applicable)
+npm run images:cleanup
+
+# Verify counts (Docker Hub tag totals + ECR tagged counts)
+npm run images:verify
+```
+
+Notes:
+
+- ECR supports deleting untagged images; Docker Hub ignores that flag
+- ECR-only variants: `npm run images:cleanup:ecr[:dry-run]`
+- See ADR: [Image Cleanup and Retention](./docs/architecture-decisions.md)
+
 ### 🛠️ Developer Experience & Testing
 
 - Monorepo with strict TypeScript (frontend and backend)
