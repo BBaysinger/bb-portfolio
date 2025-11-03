@@ -222,6 +222,42 @@ New decisions should be appended chronologically.
 
 ---
 
+## 2025-11-02 – Dockerfile Strategy Hardening & Public Backend URL Removal
+
+**Decision:** Standardize on environment-agnostic Docker images and remove the public backend URL (`NEXT_PUBLIC_BACKEND_URL`) from the codebase and environment configuration. Browser traffic uses a single-origin proxy (`/api`), and server-side calls use internal service DNS or `BACKEND_INTERNAL_URL`.
+
+**Implementation:**
+
+- Dockerfiles
+  - Multi-stage builds (builder → runner/runtime) for both frontend and backend.
+  - Strict separation of secret handling using Docker BuildKit `--secret` mounts—no secrets are baked into layers or image history.
+  - Only non-sensitive configuration is passed via `--build-arg` (e.g., `ENV_PROFILE`, dev-only non-secret flags). Sensitive settings (Mongo, Payload secret, AWS creds, SES emails) are provided at build time via secret mounts for the backend and never persisted in layers.
+  - Health checks standardized to app endpoints (HTTP `/api/health`) in compose/deploy tooling.
+
+- Request routing
+  - Browser: always uses relative `/api/*` routed by the reverse proxy to the backend service (no public backend URL is needed or exposed).
+  - Server-side (SSR/route handlers/build tasks): uses internal service DNS or `BACKEND_INTERNAL_URL` (e.g., `http://bb-backend-local:3001` in local/compose), avoiding cross-origin browser paths.
+
+- Environment variables
+  - Removed: `NEXT_PUBLIC_BACKEND_URL` (NPBU) from all code paths and `.env*` files.
+  - Kept: `BACKEND_INTERNAL_URL` (or profile-specific variants) for server-side use only.
+
+**Reasoning:**
+
+- Security: avoids leaking server addresses to the browser and prevents misconfiguration.
+- Simplicity: single-origin app with `/api` proxy removes CORS/CSRF complexity for browser clients.
+- Portability: images do not embed secrets and are agnostic to environment; runtime supplies configuration.
+- Reliability: internal DNS for server-to-server calls works consistently across local/dev/prod and compose profiles.
+
+**Alternatives considered:**
+
+- Keep `NEXT_PUBLIC_BACKEND_URL` for browser use—rejected due to security risk and duplicative configuration.
+- Pass secrets as `--build-arg`—rejected because secrets could leak into layers and image history.
+
+**Status:** ✅ Active
+
+---
+
 ## 2025-09-20 – Infrastructure Automation Strategy
 
 ---
