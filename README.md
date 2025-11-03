@@ -6,6 +6,7 @@
 > - Primary domain: https://bbaysinger.com
 > - Legacy domain (temporary): https://bbinteractive.io
 > - Both domains will work during the transition. Please update bookmarks. DNS propagation may take up to 24–48 hours.
+> - Note: Some functionality will be temporarily limited during the initial cutover (e.g., certain admin tools and NDA-protected content). Full parity will roll out over the week.
 
 A modern portfolio website featuring custom interactive components built with React, TypeScript, Next.js, and Payload CMS. The site includes a parallax project carousel, animated sprite system, and responsive design components. All animations and visual effects are implemented using native web technologies without external 3D, physics, or sprite sheet animation libraries.
 
