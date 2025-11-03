@@ -32,6 +32,14 @@
 ARG NODE_IMAGE=node:22-slim
 FROM ${NODE_IMAGE} AS builder
 
+# Allow selecting build-time profile (prod|dev); default prod for CI hardening
+ARG BUILD_PROFILE=prod
+# Explicitly set build-time ENV_PROFILE via separate ARG to avoid ARG expansion pitfalls
+ARG BUILD_ENV_PROFILE=prod
+# Propagate into shell environment for RUN steps
+ENV BUILD_PROFILE=${BUILD_PROFILE}
+ENV ENV_PROFILE=${BUILD_ENV_PROFILE}
+
 # IMPORTANT: Don't set NODE_ENV=production here because we need dev dependencies for the build process
 # TypeScript compilation, bundling tools, and other build-time dependencies require devDependencies
 # ENV NODE_ENV=production
@@ -72,25 +80,40 @@ RUN --mount=type=secret,id=prod_mongodb_uri \
     --mount=type=secret,id=prod_ses_to_email \
     --mount=type=secret,id=dev_ses_from_email \
     --mount=type=secret,id=dev_ses_to_email \
-    export REQUIRED_ENVIRONMENT_VARIABLES="DUMMY_OK" && \
+        export REQUIRED_ENVIRONMENT_VARIABLES="DUMMY_OK" && \
     export DUMMY_OK=1 && \
-    # Force production profile for build-time config evaluation
-    export ENV_PROFILE=prod && \
-    export PROD_MONGODB_URI="$(cat /run/secrets/prod_mongodb_uri 2>/dev/null || echo '')" && \
+        # Select build-time profile for config evaluation
+        export ENV_PROFILE="$ENV_PROFILE" && \
+        if [ "$ENV_PROFILE" = "dev" ]; then \
+            export PROD_MONGODB_URI="mongodb://localhost/dev-dummy"; \
+            export PROD_PAYLOAD_SECRET="dev-dummy-secret"; \
+            export PROD_SES_FROM_EMAIL="dummy@example.com"; \
+            export PROD_SES_TO_EMAIL="dummy@example.com"; \
+        else \
+            export PROD_MONGODB_URI="$(cat /run/secrets/prod_mongodb_uri 2>/dev/null || echo '')"; \
+            export PROD_PAYLOAD_SECRET="$(cat /run/secrets/prod_payload_secret 2>/dev/null || echo '')"; \
+            export PROD_SES_FROM_EMAIL="$(cat /run/secrets/prod_ses_from_email 2>/dev/null || echo '')"; \
+            export PROD_SES_TO_EMAIL="$(cat /run/secrets/prod_ses_to_email 2>/dev/null || echo '')"; \
+        fi && \
     export DEV_MONGODB_URI="$(cat /run/secrets/dev_mongodb_uri 2>/dev/null || echo '')" && \
     export LOCAL_MONGODB_URI="$(cat /run/secrets/local_mongodb_uri 2>/dev/null || echo '')" && \
-    export PROD_PAYLOAD_SECRET="$(cat /run/secrets/prod_payload_secret 2>/dev/null || echo '')" && \
     export DEV_PAYLOAD_SECRET="$(cat /run/secrets/dev_payload_secret 2>/dev/null || echo '')" && \
     export AWS_ACCESS_KEY_ID="$(cat /run/secrets/aws_access_key_id 2>/dev/null || echo '')" && \
     export AWS_SECRET_ACCESS_KEY="$(cat /run/secrets/aws_secret_access_key 2>/dev/null || echo '')" && \
     # Provide required non-secret config placeholders for build-time checks
     export PROD_FRONTEND_URL="http://localhost:8080" && \
+    export DEV_FRONTEND_URL="http://localhost:3000" && \
     export PROD_S3_BUCKET="dummy-bucket" && \
     export PROD_AWS_REGION="us-east-1" && \
-    export PROD_SES_FROM_EMAIL="$(cat /run/secrets/prod_ses_from_email 2>/dev/null || echo '')" && \
-    export PROD_SES_TO_EMAIL="$(cat /run/secrets/prod_ses_to_email 2>/dev/null || echo '')" && \
+    export DEV_S3_BUCKET="dummy-bucket" && \
+    export DEV_AWS_REGION="us-east-1" && \
     export DEV_SES_FROM_EMAIL="$(cat /run/secrets/dev_ses_from_email 2>/dev/null || echo '')" && \
     export DEV_SES_TO_EMAIL="$(cat /run/secrets/dev_ses_to_email 2>/dev/null || echo '')" && \
+    # Final fallbacks so build never fails on missing values (no secrets baked into image)
+    : "${PROD_MONGODB_URI:=mongodb://example/dummy}" && \
+    : "${PROD_PAYLOAD_SECRET:=dummy-secret}" && \
+    : "${PROD_SES_FROM_EMAIL:=dummy@example.com}" && \
+    : "${PROD_SES_TO_EMAIL:=dummy@example.com}" && \
     npm run build
 
 # Remove development dependencies to reduce final image size
