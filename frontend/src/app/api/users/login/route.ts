@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(body),
-      }
+      },
     );
 
     const data = await response.json();
@@ -81,7 +81,7 @@ export async function POST(request: NextRequest) {
     if (!response.ok) {
       return NextResponse.json(
         { error: data.message || LOGIN_FAILED_MESSAGE },
-        { status: response.status }
+        { status: response.status },
       );
     }
 
@@ -99,7 +99,7 @@ export async function POST(request: NextRequest) {
     console.error("Login API error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

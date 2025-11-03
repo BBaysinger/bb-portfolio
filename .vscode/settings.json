@@ -97,6 +97,7 @@
         "fluxels",
         "foldables",
         "genenv",
+        "gitsha",
         "gsub",
         "healthcheck",
         "Highcharts",
