@@ -1,10 +1,16 @@
 # Interactive UI/Frontend Developer Portfolio Website
+> [!IMPORTANT]
+> Now serving at https://bbaysinger.com; full migration completes later this week.
+>
+> - Primary domain: https://bbaysinger.com
+> - Legacy domain (temporary): https://bbinteractive.io
+> - Both domains will work during the transition. Please update bookmarks. DNS propagation may take up to 24–48 hours.
 
 A modern portfolio website featuring custom interactive components built with React, TypeScript, Next.js, and Payload CMS. The site includes a parallax project carousel, animated sprite system, and responsive design components. All animations and visual effects are implemented using native web technologies without external 3D, physics, or sprite sheet animation libraries.
 
 The deployment pipeline uses Terraform for infrastructure provisioning, Docker for containerization, and GitHub Actions for CI/CD. The system supports multiple environments (dev/prod) with separate container registries and S3 storage buckets.
 
-[Visit the Live Site](https://bbinteractive.io)
+[Visit the Live Site (primary)](https://bbaysinger.com) — also available at https://bbinteractive.io during migration.
 
 ### 🎨 Frontend UX & Interaction
 
@@ -184,7 +190,7 @@ This portfolio is deployed using Infrastructure as Code with Terraform and Docke
 - Containerization: Docker with dual registry strategy (Docker Hub + ECR)
 - Storage: S3 buckets for media assets with environment isolation
 - Networking: Elastic IP (44.246.43.116), Security Groups, VPC integration
-- Domain & DNS: Custom domain (bbinteractive.io) with Route 53 hosted zone
+- Domain & DNS: Custom domains (bbaysinger.com primary, bbinteractive.io legacy) with Route 53 hosted zones
 - TLS: AWS Certificate Manager (ACM) with DNS validation via Route 53
 
 ### 🚀 Deployment Process
@@ -311,4 +317,4 @@ Note: Earlier plans for “custom Express/Mongo backend” were superseded by th
 
 Updated EC2 IP: 44.246.43.116
 
-Last updated: Sun Nov 2, 2025
+Last updated: Mon Nov 3, 2025
