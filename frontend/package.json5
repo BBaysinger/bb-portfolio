@@ -9,7 +9,7 @@
   "type": "module",
   // Frontend development and build scripts
   "scripts": {
-  // Validate required environment variables before starting dev
+    // Validate required environment variables before starting dev
     "predev": "node ./scripts/check-required-env.js",
     // Start Next.js development server with hot reload
     "dev": "next dev -p ${PORT:-3002}",
@@ -19,11 +19,11 @@
     "build": "next build",
     // 🏗️ Build the  when-ready component
     "build:when-ready": "node ./scripts/pre-build.mjs",
-  // Experimental build with Turbopack (faster bundling)
+    // Experimental build with Turbopack (faster bundling)
     "turbopack": "NEXT_TELEMETRY_DISABLED=1 next build --turbopack",
     // Preview the built static site using serve
     "preview": "npx serve out",
-  // Validate required environment variables before starting production server
+    // Validate required environment variables before starting production server
     "prestart": "node ./scripts/check-required-env.js",
     // Start Next.js production server
     "start": "next start",
@@ -36,9 +36,9 @@
   },
   // Runtime dependencies for the frontend application
   "dependencies": {
-  // AWS SDK v3 S3 client (used for signed-URL uploads)
+    // AWS SDK v3 S3 client (used for signed-URL uploads)
     "@aws-sdk/client-s3": "^3.679.0",
-  // AWS SDK v3 presigner for generating pre-signed S3 requests
+    // AWS SDK v3 presigner for generating pre-signed S3 requests
     "@aws-sdk/s3-request-presigner": "^3.679.0",
     // Modern Redux state management with simplified API
     "@reduxjs/toolkit": "^2.9.2",
