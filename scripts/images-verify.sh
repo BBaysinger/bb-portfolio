@@ -14,8 +14,29 @@ ECR_REPOS=("bb-portfolio-backend-prod" "bb-portfolio-frontend-prod")
 AWS_REGION="us-west-2"
 AWS_PROFILE_ARG="" # optional, derive from --profile or env
 SKIP_ECR=false
+AUTO_LOGIN=false
 
-# Args: --profile <name> | --region <region> | --skip-ecr
+print_help() {
+  cat <<EOF
+Usage: $(basename "$0") [--profile <name>] [--region <region>] [--skip-ecr] [--login] [--help]
+
+Verifies image/tag counts for Docker Hub and ECR.
+
+Options:
+  --profile <name>   Use the specified AWS profile (also honors AWS_PROFILE env)
+  --region <region>  AWS region to use for ECR (default: ${AWS_REGION})
+  --skip-ecr         Skip ECR checks (Docker Hub only)
+  --login            Attempt to log in to AWS SSO (if needed) and Docker/ECR automatically
+  --help             Show this help and exit
+
+Notes:
+  - --login will run 'aws sso login' for the selected profile when STS is not authenticated,
+    which may open your browser. It then performs a Docker login to ECR for the account/region.
+  - Default behavior does not auto-login; ECR is skipped gracefully if not authenticated.
+EOF
+}
+
+# Args: --profile <name> | --region <region> | --skip-ecr | --login | --help
 while [[ ${1:-} ]]; do
   case "${1}" in
     --profile)
@@ -26,8 +47,12 @@ while [[ ${1:-} ]]; do
       AWS_REGION="$2"; shift 2 ;;
     --skip-ecr)
       SKIP_ECR=true; shift ;;
+    --login|--auto-login)
+      AUTO_LOGIN=true; shift ;;
+    --help|-h)
+      print_help; exit 0 ;;
     *)
-      echo "Unknown argument: $1" >&2; exit 1 ;;
+      echo "Unknown argument: $1" >&2; echo; print_help; exit 1 ;;
   esac
 done
 
@@ -39,6 +64,55 @@ fi
 have_node() { command -v node >/dev/null 2>&1; }
 have_curl() { command -v curl >/dev/null 2>&1; }
 have_aws()  { command -v aws  >/dev/null 2>&1; }
+have_docker() { command -v docker >/dev/null 2>&1; }
+
+ensure_aws_login() {
+  # Attempts AWS SSO login (if needed) and ECR Docker login. Never exits the script.
+  # Returns 0 if authenticated to STS after attempts (Docker login may still fail) else 1.
+  local ok=1
+  local profile_msg="${AWS_PROFILE:-default}"
+
+  # Already authenticated?
+  if aws sts get-caller-identity --region "$AWS_REGION" >/dev/null 2>&1; then
+    echo "(auth) AWS already authenticated for profile: ${profile_msg}"
+    ok=0
+  else
+    echo "(auth) AWS not authenticated. Attempting 'aws sso login' for profile: ${profile_msg}"
+    if [[ -n "${AWS_PROFILE:-}" ]]; then
+      if aws sso login --profile "$AWS_PROFILE"; then ok=0; else ok=1; fi
+    else
+      # Try default profile (may still be configured for SSO)
+      if aws sso login; then ok=0; else ok=1; fi
+    fi
+
+    # Re-check after SSO
+    if [[ $ok -ne 0 ]] || ! aws sts get-caller-identity --region "$AWS_REGION" >/dev/null 2>&1; then
+      echo "(warn) Unable to authenticate with AWS STS after SSO attempt; ECR will be skipped."
+      return 1
+    fi
+  fi
+
+  # If we have STS creds now, attempt Docker login to ECR registry
+  if have_docker; then
+    local account
+    account=$(aws sts get-caller-identity --query Account --output text --region "$AWS_REGION" 2>/dev/null || true)
+    if [[ -n "$account" ]]; then
+      local registry="${account}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+      echo "(auth) Logging Docker into ECR: ${registry}"
+      if aws ecr get-login-password --region "$AWS_REGION" | docker login --username AWS --password-stdin "$registry" >/dev/null 2>&1; then
+        echo "(auth) Docker login to ECR succeeded"
+      else
+        echo "(warn) Docker login to ECR failed; continuing"
+      fi
+    else
+      echo "(warn) Could not resolve AWS account ID for ECR login"
+    fi
+  else
+    echo "(skip) Docker CLI not available; skipping ECR docker login"
+  fi
+
+  return 0
+}
 
 read_secret() {
   local key="$1"
@@ -76,6 +150,9 @@ fi
 if [[ "${SKIP_ECR}" == "true" ]]; then
   echo "(skip) ECR verification: --skip-ecr provided"
 elif have_aws; then
+  if [[ "${AUTO_LOGIN}" == "true" ]]; then
+    ensure_aws_login || true
+  fi
   # Credential sanity check: skip ECR gracefully if not logged in/configured
   if aws sts get-caller-identity --region "$AWS_REGION" >/dev/null 2>&1; then
     PROFILE_MSG="${AWS_PROFILE:-default}"
@@ -87,7 +164,7 @@ elif have_aws; then
       fi
     done
   else
-    echo "(skip) ECR verification: AWS credentials/profile not configured (set AWS_PROFILE, use --profile, or run 'aws configure')"
+    echo "(skip) ECR verification: AWS credentials/profile not configured (set AWS_PROFILE, use --profile, pass --login, or run 'aws sso login')"
   fi
 else
   echo "(skip) ECR verification: aws CLI not available"
