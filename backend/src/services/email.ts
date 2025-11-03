@@ -18,15 +18,24 @@ class AWSEmailService implements EmailService {
   private toEmail: string | null = null
   private isConfigured: boolean = false
   private configError: string | null = null
+  private usedKeys: { region?: string; from?: string; to?: string } = {}
+  private lastStatus: {
+    updatedAt: number
+    ok: boolean
+    reasonCode?: string
+    error?: string
+    ses?: { code?: string; requestId?: string; statusCode?: number }
+  } | null = null
 
   constructor() {
     try {
-      const { value: region, usedKey: regionKey } = this.getEnvVarWithKey('AWS_REGION')
+  const { value: region, usedKey: regionKey } = this.getEnvVarWithKey('AWS_REGION')
 
-      const { value: fromEmail, usedKey: fromKey } = this.getEnvVarWithKey('SES_FROM_EMAIL')
-      const { value: toEmail, usedKey: toKey } = this.getEnvVarWithKey('SES_TO_EMAIL')
+  const { value: fromEmail, usedKey: fromKey } = this.getEnvVarWithKey('SES_FROM_EMAIL')
+  const { value: toEmail, usedKey: toKey } = this.getEnvVarWithKey('SES_TO_EMAIL')
       this.fromEmail = fromEmail
       this.toEmail = toEmail
+  this.usedKeys = { region: regionKey, from: fromKey, to: toKey }
 
       // Prefer the default AWS credential provider chain.
       // If AWS_ACCESS_KEY_ID/SECRET are present, SDK will pick them up automatically.
@@ -67,11 +76,18 @@ class AWSEmailService implements EmailService {
     try {
       // Check if AWS is properly configured
       if (!this.isConfigured || !this.sesClient || !this.fromEmail || !this.toEmail) {
-        return {
+        const res = {
           success: false,
           error: this.configError || 'Email service not configured',
           reasonCode: 'CONTACT_EMAIL_NOT_CONFIGURED',
+        } as const
+        this.lastStatus = {
+          updatedAt: Date.now(),
+          ok: false,
+          reasonCode: res.reasonCode,
+          error: res.error,
         }
+        return { ...res }
       }
 
       const { name, email, message } = data
@@ -128,6 +144,7 @@ This message was sent via your portfolio contact form.
       const command = new SendEmailCommand(emailParams)
       await this.sesClient!.send(command)
 
+      this.lastStatus = { updatedAt: Date.now(), ok: true }
       return { success: true }
     } catch (error: unknown) {
       // Log structured, non-secret SES diagnostics for faster triage in prod
@@ -139,13 +156,14 @@ This message was sent via your portfolio contact form.
         $metadata?: { requestId?: string; httpStatusCode?: number }
       }
       const meta = err.$metadata || {}
-      console.error('AWS SES Error:', {
+      const logPayload = {
         name: err.name,
         code: err.Code || err.code,
         message: err.message,
         requestId: meta?.requestId,
         statusCode: meta?.httpStatusCode,
-      })
+      }
+      console.error('AWS SES Error:', logPayload)
       // Map common SES/AWS error patterns to stable, non-sensitive reason codes
       const code = (err.Code || err.code || '').toString()
       const msg = (err.message || '').toString()
@@ -164,6 +182,13 @@ This message was sent via your portfolio contact form.
         reasonCode = 'SES_IDENTITY_NOT_VERIFIED'
       } else {
         reasonCode = 'SES_UNKNOWN'
+      }
+      this.lastStatus = {
+        updatedAt: Date.now(),
+        ok: false,
+        reasonCode,
+        error: typeof err.message === 'string' && err.message.length > 0 ? err.message : 'Unknown error occurred',
+        ses: { code: code || undefined, requestId: meta?.requestId, statusCode: meta?.httpStatusCode },
       }
       return {
         success: false,
@@ -200,3 +225,57 @@ const awsService = new AWSEmailService()
 export const emailService = isLocal && !awsService['isConfigured'] ? mockEmailService : awsService
 
 export type { ContactFormData }
+
+// Expose safe diagnostics without secrets/values
+export function getContactEmailDiagnostics() {
+  const profile = (process.env.ENV_PROFILE || process.env.NODE_ENV || '').toLowerCase()
+  const normalized = profile.startsWith('prod')
+    ? 'prod'
+    : profile === 'development' || profile.startsWith('dev')
+      ? 'dev'
+      : profile.startsWith('local')
+        ? 'local'
+        : profile || 'unknown'
+
+  const pick = (keys: string[]) => keys.find((k) => !!process.env[k]) || ''
+  const prefix = normalized ? `${normalized.toUpperCase()}_` : ''
+
+  let configured = false
+  let usedKeys: { region?: string | null; from?: string | null; to?: string | null } = {}
+  let last: {
+    updatedAt: number
+    ok: boolean
+    reasonCode?: string
+    ses?: { code?: string; requestId?: string; statusCode?: number }
+    error?: string
+  } | null = null
+
+  if (emailService instanceof AWSEmailService) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const impl = (emailService as unknown) as Record<string, any>
+    configured = Boolean(impl['isConfigured'] && impl['fromEmail'] && impl['toEmail'])
+    usedKeys = (impl['usedKeys'] as typeof usedKeys) || {}
+    last = (impl['lastStatus'] as typeof last) || null
+  } else {
+    // Fallback for mock
+    usedKeys = {
+      region: pick([`${prefix}AWS_REGION`, 'AWS_REGION']) || null,
+      from: pick([`${prefix}SES_FROM_EMAIL`, 'SES_FROM_EMAIL']) || null,
+      to: pick([`${prefix}SES_TO_EMAIL`, 'SES_TO_EMAIL']) || null,
+    }
+    configured = false
+    last = null
+  }
+
+  return {
+    profile: normalized,
+    configured,
+    keys: {
+      region: usedKeys.region || null,
+      from: usedKeys.from || null,
+      to: usedKeys.to || null,
+    },
+    last,
+    now: Date.now(),
+  }
+}
