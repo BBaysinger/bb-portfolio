@@ -115,7 +115,7 @@
     // 🛑 Stop Caddy (and its dependencies) cleanly
     "caddy:down": "docker compose -f deploy/compose/docker-compose.yml --profile local --profile proxy down --remove-orphans",
     // 🧹 Force-remove a stale caddy container if it was created outside the current compose project
-  "caddy:down:force": "docker rm -f bb-portfolio-backend-local bb-portfolio-frontend-local bb-portfolio-caddy-local || true",
+    "caddy:down:force": "docker rm -f bb-portfolio-backend-local bb-portfolio-frontend-local bb-portfolio-caddy-local || true",
     // 📋 Follow Caddy reverse proxy logs in real-time
     "caddy:logs": "docker compose -f deploy/compose/docker-compose.yml logs -f caddy-local",
     // 🔄 Restart Caddy in-place (recreate only the proxy)
@@ -240,8 +240,12 @@
     "images:cleanup:ecr": "bash ./scripts/image-cleanup-ecr.sh --retain 3 --include-untagged",
     // ECR-only cleanup (dry run)
     "images:cleanup:ecr:dry-run": "bash ./scripts/image-cleanup-ecr.sh --retain 3 --include-untagged --dry-run",
+    //
+    "images:cleanup:login": "bash ./scripts/image-cleanup.sh --retain 3 --include-untagged --login --profile bb-portfolio-user --region us-west-2",
     // Verify image tags and counts in Docker Hub and ECR
     "images:verify": "bash ./scripts/images-verify.sh",
+    //
+    "images:verify:login": "bash ./scripts/images-verify.sh --login --profile bb-portfolio-user --region us-west-2",
     // 🔁 Sync dev and main branches (fast-forward only, always returns to dev)
     "sync:branches": "bash ./scripts/sync-branches.sh",
   },

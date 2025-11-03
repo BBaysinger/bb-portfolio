@@ -1,5 +1,7 @@
 # Architecture Decisions Log
 
+> See also: [Engineering Standards](./engineering-standards.md) for the conventions and guardrails referenced by these decisions.
+
 This file records major technical decisions for the portfolio project.  
 Each entry includes the date, decision, reasoning, alternatives, and current status.  
 New decisions should be appended chronologically.
