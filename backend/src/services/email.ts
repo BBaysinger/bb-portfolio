@@ -55,6 +55,14 @@ class AWSEmailService implements EmailService {
     }
   }
 
+  private getOptionalEnvVarWithKey(key: string): { value?: string; usedKey?: string } {
+    const envProfile = process.env.ENV_PROFILE || 'local'
+    const prefixedKey = `${envProfile.toUpperCase()}_${key}`
+    const value = process.env[prefixedKey] || process.env[key]
+    const usedKey = process.env[prefixedKey] ? prefixedKey : process.env[key] ? key : undefined
+    return { value, usedKey }
+  }
+
   private getEnvVarWithKey(key: string): { value: string; usedKey: string } {
     const envProfile = process.env.ENV_PROFILE || 'local'
     const prefixedKey = `${envProfile.toUpperCase()}_${key}`
@@ -92,6 +100,13 @@ class AWSEmailService implements EmailService {
 
       const { name, email, message } = data
 
+      // Subject/heading customization via env (profile-aware). Fallback to default.
+      const subjectPrefix =
+        this.getOptionalEnvVarWithKey('CONTACT_EMAIL_SUBJECT_PREFIX').value ||
+        'New Contact Form Submission'
+      const headingText =
+        this.getOptionalEnvVarWithKey('CONTACT_EMAIL_HEADING').value || subjectPrefix
+
       const emailParams: SendEmailCommandInput = {
         Source: this.fromEmail,
         Destination: {
@@ -99,7 +114,7 @@ class AWSEmailService implements EmailService {
         },
         Message: {
           Subject: {
-            Data: `New Contact Form Submission from ${name}`,
+            Data: `${subjectPrefix} from ${name}`,
             Charset: 'UTF-8',
           },
           Body: {
@@ -107,7 +122,7 @@ class AWSEmailService implements EmailService {
               Data: `
                 <html>
                   <body>
-                    <h2>New Contact Form Submission</h2>
+                    <h2>${this.escapeHtml(headingText)}</h2>
                     <p><strong>Name:</strong> ${this.escapeHtml(name)}</p>
                     <p><strong>Email:</strong> ${this.escapeHtml(email)}</p>
                     <p><strong>Message:</strong></p>
@@ -123,7 +138,7 @@ class AWSEmailService implements EmailService {
             },
             Text: {
               Data: `
-New Contact Form Submission
+${headingText}
 
 Name: ${name}
 Email: ${email}

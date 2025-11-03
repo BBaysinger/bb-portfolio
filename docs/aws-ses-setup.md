@@ -182,3 +182,87 @@ The backend surfaces SES failures as stable reason codes to help triage quickly:
   - The configured AWS credentials are invalid or signed for the wrong region. Ensure the region matches your SES setup.
 
 Tip: The non-sensitive status endpoint `/api/contact/status/` returns which env keys are present and current profile; the admin diagnostics endpoint returns the last SES result (requires a bearer token).
+
+## Quick path: Verify domain DKIM and request production access (now)
+
+Use this checklist to finish setup for `bbinteractive.io` in region `us-west-2` and lift sandbox limits.
+
+### A) Verify domain with DKIM (Cloudflare DNS)
+
+1. Open AWS Console → SES v2 → Region selector: choose `US West (Oregon) us-west-2`.
+2. Identities → Create identity → Domain → enter `bbinteractive.io`.
+3. Leave “Easy DKIM” enabled (recommended) and create. SES will show 3 CNAME records:
+
+- Names look like `<random>._domainkey.bbinteractive.io.`
+- Values point to `dkim.amazonses.com.` targets.
+
+4. In Cloudflare → DNS for `bbinteractive.io`:
+
+- Add the 3 CNAMEs exactly as shown by SES.
+- Set Proxy status to DNS only (gray cloud), not proxied.
+- TTL Auto is fine.
+
+5. Back in SES, keep the identity page open; verification typically completes within minutes but may take up to an hour. Status should change to “Verified”.
+
+Optional: Configure custom MAIL FROM for SPF alignment
+
+6. In the identity → “Set MAIL FROM domain” → e.g., `mail.bbinteractive.io`.
+7. Add the required DNS records Cloudflare prompts for:
+
+- MX for `mail.bbinteractive.io` pointing to the MAIL FROM hosts Amazon provides (priority 10).
+- TXT for SPF: `v=spf1 include:amazonses.com -all` on `mail.bbinteractive.io` (not the root).
+
+8. Wait for MAIL FROM to show as “Verified” (optional but recommended for DMARC alignment).
+
+### B) Request SES production access (lift sandbox)
+
+1. SES → Account dashboard → Sending options → “Edit your account details” (or “Request production access”). Make sure region is `us-west-2`.
+2. Complete the form. Example answers for this project:
+
+- Mail type: Transactional
+- Website URL: https://bbaysinger.com (and/or https://bbinteractive.io)
+- Use case: Low-volume contact form notifications from portfolio site; no marketing; user-initiated only.
+- Expected sending volume: 50–200/month
+- Additional info: Bounces/complaints handled by SES; DMARC aligned sender (noreply@bbinteractive.io) with DKIM; SPF/MAIL FROM configured; no third-party lists.
+
+3. Submit. Typical turnaround is from minutes to 24–48 hours. You’ll receive an email with the decision.
+
+### C) Update app config and test
+
+1. On the server, set the backend env to use the verified sender:
+
+- `PROD_AWS_REGION=us-west-2`
+- `PROD_SES_FROM_EMAIL=noreply@bbinteractive.io`
+- `PROD_SES_TO_EMAIL=<your recipient>` (can be unverified after production access)
+
+2. Restart the backend container so the env is reloaded.
+3. Test the contact form. If it fails, check `/api/contact/status/` and the admin diagnostics endpoint for a reason code (e.g., `SES_IDENTITY_NOT_VERIFIED`, `SES_MESSAGE_REJECTED`).
+
+Notes
+
+- Identities are regional: verify and request production access in `us-west-2` to match production.
+- In Cloudflare, DKIM CNAMEs must be DNS only; orange proxy breaks DKIM.
+- If still in sandbox, you must verify the recipient address or the domain until production access is granted.
+
+### Optional: Customize email subject/heading
+
+You can change the subject line and the heading shown in the email body via environment variables (profile-aware):
+
+- `PROD_CONTACT_EMAIL_SUBJECT_PREFIX` — default: `"New Contact Form Submission"`
+- `PROD_CONTACT_EMAIL_HEADING` — default: falls back to the subject prefix
+
+Examples:
+
+```bash
+# Production (on the server)
+PROD_CONTACT_EMAIL_SUBJECT_PREFIX="New Portfolio Message"
+PROD_CONTACT_EMAIL_HEADING="New Portfolio Message"
+
+# Local/dev (if needed for testing)
+LOCAL_CONTACT_EMAIL_SUBJECT_PREFIX="Local Contact"
+LOCAL_CONTACT_EMAIL_HEADING="Local Contact"
+DEV_CONTACT_EMAIL_SUBJECT_PREFIX="Dev Contact"
+DEV_CONTACT_EMAIL_HEADING="Dev Contact"
+```
+
+The final subject will append the sender name automatically, e.g., `New Portfolio Message from Jane Doe`.
