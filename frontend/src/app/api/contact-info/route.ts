@@ -29,11 +29,7 @@ export async function GET(request: NextRequest) {
       }
       return "";
     };
-    const preferred = firstVal(
-      `${prefix}BACKEND_INTERNAL_URL`,
-      `${prefix}NEXT_PUBLIC_BACKEND_URL`,
-      "NEXT_PUBLIC_BACKEND_URL",
-    );
+    const preferred = firstVal(`${prefix}BACKEND_INTERNAL_URL`);
     const serviceDnsFallback =
       normalizedProfile === "dev"
         ? "http://bb-portfolio-backend-dev:3000"
@@ -67,7 +63,7 @@ export async function GET(request: NextRequest) {
         success: false,
         error: "Failed to fetch contact information",
       },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

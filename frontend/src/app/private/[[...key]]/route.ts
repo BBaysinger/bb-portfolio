@@ -24,10 +24,7 @@ function getBackendBase(): string {
     }
     return "";
   };
-  const base =
-    pick(`${prefix}BACKEND_INTERNAL_URL`, `${prefix}NEXT_PUBLIC_BACKEND_URL`) ||
-    process.env.NEXT_PUBLIC_BACKEND_URL ||
-    "http://localhost:8081";
+  const base = pick(`${prefix}BACKEND_INTERNAL_URL`) || "http://localhost:8081";
   return base.replace(/\/$/, "");
 }
 
@@ -82,7 +79,7 @@ function getHttpStatus(err: unknown): number | undefined {
 
 async function presignIfExists(
   bucket: string,
-  key: string,
+  key: string
 ): Promise<string | null> {
   const s3 = getS3Client();
   try {
@@ -97,14 +94,14 @@ async function presignIfExists(
   const url = await getSignedUrl(
     s3,
     new GetObjectCommand({ Bucket: bucket, Key: key }),
-    { expiresIn: 60 },
+    { expiresIn: 60 }
   );
   return url;
 }
 
 export async function GET(
   req: NextRequest,
-  context: { params: Promise<{ key?: string[] }> },
+  context: { params: Promise<{ key?: string[] }> }
 ) {
   // Gate by the same login used for NDA pages
   const authed = await isAuthenticated(req);
@@ -139,7 +136,7 @@ export async function GET(
 
 export async function HEAD(
   req: NextRequest,
-  context: { params: Promise<{ key?: string[] }> },
+  context: { params: Promise<{ key?: string[] }> }
 ) {
   // Align HEAD with GET behavior (useful for media players)
   const authed = await isAuthenticated(req);

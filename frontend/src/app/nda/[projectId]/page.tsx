@@ -51,13 +51,24 @@ export default async function NdaProjectPage({
       }
       return "";
     };
+    const normalizedProfile = env.startsWith("prod")
+      ? "prod"
+      : env === "development" || env.startsWith("dev")
+        ? "dev"
+        : env.startsWith("local")
+          ? "local"
+          : env;
     const base =
-      pick(
-        `${prefix}BACKEND_INTERNAL_URL`,
-        `${prefix}NEXT_PUBLIC_BACKEND_URL`,
-      ) ||
-      process.env.NEXT_PUBLIC_BACKEND_URL ||
-      "http://localhost:8081";
+      pick(`${prefix}BACKEND_INTERNAL_URL`) ||
+      (() => {
+        if (normalizedProfile === "dev")
+          return "http://bb-portfolio-backend-dev:3000";
+        if (normalizedProfile === "prod")
+          return "http://bb-portfolio-backend-prod:3000";
+        if (normalizedProfile === "local")
+          return "http://bb-backend-local:3001";
+        return "http://localhost:8081";
+      })();
     const backend = base.replace(/\/$/, "");
 
     const tryFetch = async (url: string) =>

@@ -2,6 +2,10 @@
 
 These standards keep this repo predictable, secure, and easy to operate across local, dev, and prod. They reflect the current implementation in this repository (Next.js + Payload, Docker multi-stage builds, GitHub Actions, EC2 + Docker Compose).
 
+## Global objective
+
+Our global objective is to maintain standards and follow established conventions consistently across the codebase. Code must be authored professionally with code review in mind: clear naming, small focused changes, strong typing, tests where appropriate, and documentation for non-obvious decisions. Any deviation from standards, conventions, or best practices must be explicitly called out in code comments and/or PR descriptions with rationale and a plan for alignment.
+
 ## Goals
 
 - Environment-agnostic images: no baked config, secrets, or per-env assumptions.
