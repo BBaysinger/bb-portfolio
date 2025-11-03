@@ -112,6 +112,7 @@ Notes:
 - ECR supports deleting untagged images; Docker Hub ignores that flag
 - ECR-only variants: `npm run images:cleanup:ecr[:dry-run]`
 - See ADR: [Image Cleanup and Retention](./docs/architecture-decisions.md)
+ - Tip: If ECR is skipped due to missing auth, you can pass `-- --login --profile <your-profile>` to have the tool run `aws sso login` and perform an ECR Docker login automatically (default region `us-west-2`, override with `--region`).
 
 #### 🔐 Secrets & Environment Management
 
