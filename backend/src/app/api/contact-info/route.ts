@@ -11,10 +11,12 @@ export async function GET() {
     const upper = envProfile.toUpperCase()
     // Preferred order:
     // 1) <PROFILE>_CONTACT_EMAIL (explicit override if provided)
-    // 2) SECURITY_CONTACT_EMAIL (site-wide security.txt contact address)
-    // 3) <PROFILE>_SES_TO_EMAIL (default: same destination as contact form)
+    // 2) OBFUSCATED_CONTACT_EMAIL (site-wide security.txt/contact address)
+    // 3) SECURITY_CONTACT_EMAIL (legacy name; fallback for compatibility)
+    // 4) <PROFILE>_SES_TO_EMAIL (default: same destination as contact form)
     const preferredKeys = [
       `${upper}_CONTACT_EMAIL`,
+      'OBFUSCATED_CONTACT_EMAIL',
       'SECURITY_CONTACT_EMAIL',
       `${upper}_SES_TO_EMAIL`,
     ] as const

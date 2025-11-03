@@ -87,7 +87,7 @@ If a new pattern, dependency, or architectural choice requires an adjustment, up
 
 - **Default criticals (CI/build/prod)** include:
   - Mongo URI, Frontend URL, AWS region, SES from/to email (or SMTP from), Payload secret.
-  - `SECURITY_CONTACT_EMAIL` is explicitly required (used by contact-info and `security.txt`).
+  - `OBFUSCATED_CONTACT_EMAIL` is explicitly required (used by contact-info and `security.txt`). Legacy: `SECURITY_CONTACT_EMAIL` still accepted as fallback.
 
 - **Enforcement stages (in order)**
   1. Secrets-sync preflight (preferred earliest failure point).
@@ -119,7 +119,7 @@ If a new pattern, dependency, or architectural choice requires an adjustment, up
   - In CI/build, provide a definition list or rely on defaults; in prod, a definition list is strongly encouraged.
 - Email/SES configuration:
   - Prefer profile-prefixed `*_SES_FROM_EMAIL` and `*_SES_TO_EMAIL` for routing email per environment.
-  - `SECURITY_CONTACT_EMAIL` must be set for obfuscation and `/.well-known/security.txt`.
+  - `OBFUSCATED_CONTACT_EMAIL` must be set for obfuscation and `/.well-known/security.txt`.
 - API responses:
   - Return consistent JSON for internal and proxied routes; avoid raw HTML in error paths.
 - Logging:
@@ -201,15 +201,15 @@ Use per-profile lists in CI/prod (strictly prefixed), and a single global list f
   LOCAL_SES_FROM_EMAIL|DEV_SES_FROM_EMAIL|PROD_SES_FROM_EMAIL|LOCAL_SMTP_FROM_EMAIL|DEV_SMTP_FROM_EMAIL|PROD_SMTP_FROM_EMAIL,\
   LOCAL_SES_TO_EMAIL|DEV_SES_TO_EMAIL|PROD_SES_TO_EMAIL,\
   LOCAL_PAYLOAD_SECRET|DEV_PAYLOAD_SECRET|PROD_PAYLOAD_SECRET,\
-  SECURITY_CONTACT_EMAIL
+  OBFUSCATED_CONTACT_EMAIL
   ```
 
 - Prod (preferred in CI/prod):
-  `PROD_REQUIRED_ENVIRONMENT_VARIABLES=PROD_MONGODB_URI,PROD_FRONTEND_URL,PROD_AWS_REGION,PROD_SES_FROM_EMAIL|PROD_SMTP_FROM_EMAIL,PROD_SES_TO_EMAIL,PROD_PAYLOAD_SECRET,SECURITY_CONTACT_EMAIL`
+  `PROD_REQUIRED_ENVIRONMENT_VARIABLES=PROD_MONGODB_URI,PROD_FRONTEND_URL,PROD_AWS_REGION,PROD_SES_FROM_EMAIL|PROD_SMTP_FROM_EMAIL,PROD_SES_TO_EMAIL,PROD_PAYLOAD_SECRET,OBFUSCATED_CONTACT_EMAIL`
 
 ### Naming examples
 
 - `PROD_FRONTEND_URL`, `DEV_FRONTEND_URL`
 - `PROD_AWS_REGION`, `DEV_AWS_REGION`
 - `PROD_SES_FROM_EMAIL`, `DEV_SES_FROM_EMAIL`
-- `SECURITY_CONTACT_EMAIL`
+- `OBFUSCATED_CONTACT_EMAIL`

@@ -7,10 +7,16 @@ import type { ContactFormData } from './email'
 class MockEmailService {
   async sendContactEmail(data: ContactFormData): Promise<{ success: boolean; error?: string }> {
     try {
+      const profile = (process.env.ENV_PROFILE || 'local').toUpperCase()
+      const subjectPrefix =
+        process.env[`${profile}_CONTACT_EMAIL_SUBJECT_PREFIX`] ||
+        process.env.CONTACT_EMAIL_SUBJECT_PREFIX ||
+        'New Contact Form Submission'
+
       console.log('📧 Mock Email Service - Would send email:')
       console.log('From:', process.env.LOCAL_SES_FROM_EMAIL || 'noreply@example.com')
       console.log('To:', process.env.LOCAL_SES_TO_EMAIL || 'admin@example.com')
-      console.log('Subject:', `New Contact Form Submission from ${data.name}`)
+      console.log('Subject:', `${subjectPrefix} from ${data.name}`)
       console.log('Message:', {
         name: data.name,
         email: data.email,

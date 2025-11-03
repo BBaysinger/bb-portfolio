@@ -2,7 +2,9 @@ import { NextResponse } from "next/server";
 
 export async function GET() {
   // Get required environment values (no fallbacks - these are required)
-  const contactEmail = process.env.SECURITY_CONTACT_EMAIL!;
+  // Prefer new var OBFUSCATED_CONTACT_EMAIL, fallback to legacy SECURITY_CONTACT_EMAIL for compatibility
+  const contactEmail = (process.env.OBFUSCATED_CONTACT_EMAIL ||
+    process.env.SECURITY_CONTACT_EMAIL)!;
   const baseUrl = process.env.NEXT_PUBLIC_FRONTEND_URL!;
   const expires = process.env.SECURITY_TXT_EXPIRES!;
 

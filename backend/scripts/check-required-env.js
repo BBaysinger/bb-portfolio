@@ -159,7 +159,7 @@
     // Region for SES / AWS SDK
     [`${pref}AWS_REGION`],
     // Contact email must be explicitly provided for obfuscation and security.txt
-    ['SECURITY_CONTACT_EMAIL'],
+    ['OBFUSCATED_CONTACT_EMAIL', 'SECURITY_CONTACT_EMAIL'],
     // One of SES_FROM_EMAIL or SMTP_FROM_EMAIL must be present
     [`${pref}SES_FROM_EMAIL`, `${pref}SMTP_FROM_EMAIL`],
     // Where contact form emails are delivered
