@@ -76,7 +76,7 @@ The deployment pipeline uses Terraform for infrastructure provisioning, Docker f
 - Dual registry strategy (Docker Hub dev, ECR prod)
 - Secure Docker builds (BuildKit secret mounts, minimal args)
 - Generated env files on host via CI/CD (no secrets in repo)
-- Github Secrets Synchronization from JSON5 via custom shell script
+- GitHub Secrets synchronization from JSON5 via a TypeScript sync script
 - Reverse proxy options: Caddy or Nginx (compose/configs provided)
 - Compose profiles for local/dev/prod and proxy-only
 
@@ -104,6 +104,39 @@ Notes:
 - ECR supports deleting untagged images; Docker Hub ignores that flag
 - ECR-only variants: `npm run images:cleanup:ecr[:dry-run]`
 - See ADR: [Image Cleanup and Retention](./docs/architecture-decisions.md)
+
+#### 🔐 Secrets & Environment Management
+
+- Source of truth for GitHub Actions secrets lives in JSON5 files at the repo root:
+  - `.github-secrets.private.json5` (ignored by git; real values)
+  - `.github-secrets.example.json5` (template with docs; safe to commit)
+- Sync script: `scripts/sync-github-secrets.ts`
+  - Reads JSON5, overlays matching keys from the sibling `.private` file onto the template schema (extras ignored)
+  - Validates required env lists before syncing secrets:
+    - `DEV_REQUIRED_ENVIRONMENT_VARIABLES`
+    - `PROD_REQUIRED_ENVIRONMENT_VARIABLES`
+    - Grammar: comma-separated groups; use `|` within a group for ANY-of
+    - Example: `PROD_REQUIRED_ENVIRONMENT_VARIABLES=PROD_SES_FROM_EMAIL|PROD_SMTP_FROM_EMAIL,PROD_MONGODB_URI,PROD_AWS_REGION,PROD_PAYLOAD_SECRET`
+  - Fails fast with an actionable message if any group lacks a key in the JSON5; override temporarily with `ALLOW_MISSING_REQUIRED_GROUPS=true` (not recommended)
+  - Dry run does not modify GitHub; it only shows planned changes and validation summary
+
+Common usage:
+
+```bash
+# Dry run (safe): validate required lists and show planned secret updates
+npx ts-node ./scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./.github-secrets.private.json5 --dry-run
+
+# Apply: sync repo secrets to match JSON5 (destructive for extras)
+npx ts-node ./scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./.github-secrets.private.json5
+```
+
+Runtime .env generation (deploy):
+
+- CI deploy workflows generate `.env.dev` and `.env.prod` on EC2 from GitHub Secrets
+- These files include the profile-specific required lists so runtime env-guard checks pass:
+  - `DEV_REQUIRED_ENVIRONMENT_VARIABLES`
+  - `PROD_REQUIRED_ENVIRONMENT_VARIABLES`
+- No secrets are stored in the repo; Docker images don’t bake secrets (BuildKit secret mounts are used during builds)
 
 ### 🛠️ Developer Experience & Testing
 
