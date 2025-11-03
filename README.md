@@ -30,7 +30,7 @@ The deployment pipeline uses Terraform for infrastructure provisioning, Docker f
   - NDA-only route `/nda/[projectId]` requires authentication and is rendered dynamically per request
   - Authenticated requests to a public NDA slug redirect server-side to `/nda/[projectId]`; unauthenticated sees 404
   - Client carousel and prev/next links are route-aware (public → `/project/*`, NDA → `/nda/*`) without leaking NDA data
-- Rich project metadata (brand, tags, role, year, awards, urls)
+- Rich project metadata (brand, tags, role, year, awards, URLs)
 - Image collections for screenshots, thumbnails, brand logos
 - Image processing via Sharp (server-side resizing) with 2 MB upload limit
 
@@ -67,15 +67,15 @@ The deployment pipeline uses Terraform for infrastructure provisioning, Docker f
 
 ### ⚡ DevOps & Deployment
 
-- Automated (re)deployment orchestrator script
-  - Destroys and rebuilds/pushes the entire EC2 and containers
-  - Builtin Safety checks
-  - Avoids destroying items meant to persist
+- Orchestrated deploys script
+  - Provisions/updates infra and restarts containers via GH workflow handoff
+  - Optionally rebuilds/pushes images; no destroy by default (safety-first)
+  - Built-in safety checks; avoids destroying items meant to persist
 - Terraform IaC: one-command provision/teardown
 - Systemd-managed Docker services on EC2 (auto-restart)
 - Dual registry strategy (Docker Hub dev, ECR prod)
 - Secure Docker builds (BuildKit secret mounts, minimal args)
-- Generated env files on host via CI/CD (no secrets in repo)
+- Generated env files on host via CI/CD (no secrets in repo; see "Secrets & Environment Management")
 - GitHub Secrets synchronization from JSON5 via a TypeScript sync script
 - Reverse proxy options: Caddy or Nginx (compose/configs provided)
 - Compose profiles for local/dev/prod and proxy-only
@@ -298,10 +298,10 @@ For deep dives and implementation details:
 - Walkthrough videos playable within the project carousel
 - Project upkeep: framework/library upgrades across showcased projects
 - Global light/dark mode preferences via Redux
-- Fluxels should be implemented in WebGl and/or Pixi shaders
-- Implement Testing Frameworks (once experiments have matured)
-- Capture and Store Data about user interactions
-- Accessability should be improved with respect to ARIA, rem font scaling, etc...
+- Fluxels should be implemented in WebGL and/or PixiJS shaders
+- Implement testing frameworks (once experiments have matured)
+- Capture and store data about user interactions
+- Accessibility should be improved with respect to ARIA, rem font scaling, etc.
 - Remove Bootstrap (Not relying on it much anyhow)
 - Header animations will be in response to user interactions vs just a timer
 
@@ -311,4 +311,4 @@ Note: Earlier plans for “custom Express/Mongo backend” were superseded by th
 
 Updated EC2 IP: 44.246.43.116
 
-Last updated: Tue Oct 29, 2025
+Last updated: Sun Nov 2, 2025
