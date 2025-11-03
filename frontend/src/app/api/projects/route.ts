@@ -6,7 +6,9 @@ export const revalidate = 0;
 
 function resolveBackendBase(): string {
   const rawProfile = (
-    process.env.ENV_PROFILE || process.env.NODE_ENV || ""
+    process.env.ENV_PROFILE ||
+    process.env.NODE_ENV ||
+    ""
   ).toLowerCase();
   const profile = rawProfile.startsWith("prod")
     ? "prod"
