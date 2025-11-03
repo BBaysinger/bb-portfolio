@@ -21,6 +21,7 @@ PROFILE=""
 REPOS_CSV="bb-portfolio-backend-prod,bb-portfolio-frontend-prod"
 INCLUDE_UNTAGGED=false
 DRY_RUN=false
+AUTO_LOGIN=false
 
 usage() {
   cat <<USAGE
@@ -31,6 +32,7 @@ Options:
   --repositories <csv>    Comma-separated ECR repository names (default: ${REPOS_CSV})
   --region <region>       AWS region (default: ${REGION})
   --profile <name>        AWS CLI profile to use
+  --login                 Attempt AWS SSO login (if needed) and Docker login to ECR automatically
   --include-untagged      Also delete all UNTAGGED images
   --dry-run               Show what would be deleted without deleting
   --help, -h              Show this help message
@@ -53,6 +55,8 @@ while [[ $# -gt 0 ]]; do
       REGION=${2:-}; shift 2 ;;
     --profile)
       PROFILE=${2:-}; shift 2 ;;
+    --login|--auto-login)
+      AUTO_LOGIN=true; shift ;;
     --include-untagged)
       INCLUDE_UNTAGGED=true; shift ;;
     --dry-run)
@@ -82,6 +86,50 @@ if ! command -v aws >/dev/null 2>&1; then
   exit 1
 fi
 
+have_docker() { command -v docker >/dev/null 2>&1; }
+
+ensure_aws_login() {
+  # Attempts AWS SSO login (if needed) and ECR Docker login. Never exits the script.
+  # Returns 0 if authenticated to STS after attempts else 1.
+  local ok=1
+  local profile_msg="${PROFILE:-default}"
+
+  if aws sts get-caller-identity "${AWS_ARGS[@]}" >/dev/null 2>&1; then
+    echo "(auth) AWS already authenticated for profile: ${profile_msg}"
+    ok=0
+  else
+    echo "(auth) AWS not authenticated. Attempting 'aws sso login' for profile: ${profile_msg}"
+    if [[ -n "$PROFILE" ]]; then
+      if aws sso login --profile "$PROFILE"; then ok=0; else ok=1; fi
+    else
+      if aws sso login; then ok=0; else ok=1; fi
+    fi
+    if [[ $ok -ne 0 ]] || ! aws sts get-caller-identity "${AWS_ARGS[@]}" >/dev/null 2>&1; then
+      echo "(warn) Unable to authenticate with AWS STS after SSO attempt; continuing without Docker login"
+      return 1
+    fi
+  fi
+
+  if have_docker; then
+    local account
+    account=$(aws sts get-caller-identity --query Account --output text "${AWS_ARGS[@]}" 2>/dev/null || true)
+    if [[ -n "$account" ]]; then
+      local registry="${account}.dkr.ecr.${REGION}.amazonaws.com"
+      echo "(auth) Logging Docker into ECR: ${registry}"
+      if aws ecr get-login-password "${AWS_ARGS[@]}" | docker login --username AWS --password-stdin "$registry" >/dev/null 2>&1; then
+        echo "(auth) Docker login to ECR succeeded"
+      else
+        echo "(warn) Docker login to ECR failed; continuing"
+      fi
+    else
+      echo "(warn) Could not resolve AWS account ID for ECR login"
+    fi
+  else
+    echo "(skip) Docker CLI not available; skipping ECR docker login"
+  fi
+  return 0
+}
+
 IFS=',' read -r -a REPOS <<<"$REPOS_CSV"
 
 echo "🔧 ECR cleanup starting"
@@ -91,6 +139,11 @@ echo "Repositories: ${REPOS[*]}"
 echo "Retain      : $RETAIN_COUNT tagged images per repo"
 $INCLUDE_UNTAGGED && echo "Include     : UNTAGGED images (will be deleted)" || true
 $DRY_RUN && echo "Mode        : DRY RUN (no deletions)" || echo "Mode        : APPLY (deletions will be executed)"
+
+# Ensure login if requested
+if [[ "$AUTO_LOGIN" == "true" ]]; then
+  ensure_aws_login || true
+fi
 
 # Helper: delete images by digests
 _delete_digests() {
