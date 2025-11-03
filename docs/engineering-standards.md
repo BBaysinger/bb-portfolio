@@ -98,6 +98,9 @@ Our global objective is to maintain standards and follow established conventions
 - Dev images to Docker Hub, prod images to ECR.
 - Redeploy workflow (EC2) composes env files for each service; runtime `prestart` enforces required vars again.
 - Keep Compose profiles explicit (e.g., `local`, `proxy`) and document exposed ports in `docs/ports.md`.
+- Local testing uses the Caddy reverse proxy for single-origin behavior and HTTPS locally.
+  - Start the full local stack (frontend, backend, proxy) with: `npm run caddy:up`
+  - Stop the proxy stack with: `npm run caddy:down` and view proxy logs with: `npm run caddy:logs`
 
 ---
 
