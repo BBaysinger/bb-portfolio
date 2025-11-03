@@ -95,10 +95,22 @@ export async function POST(request: NextRequest) {
     if (result.success) {
       return NextResponse.json({ message: 'Message sent successfully!' }, { status: 200 })
     } else {
+      // Improve diagnostics and client-facing status code without leaking secrets
+      const errMsg = (result.error || '').toLowerCase()
+      const isConfigError =
+        errMsg.includes('not configured') || errMsg.includes('missing required environment')
+
       console.error('Email service error:', result.error)
+
       return NextResponse.json(
-        { error: 'Failed to send message. Please try again later.' },
-        { status: 500 },
+        {
+          error: isConfigError
+            ? 'Email service is temporarily unavailable. Please try again later.'
+            : 'Failed to send message. Please try again later.',
+          // Provide a minimal, non-sensitive error code to aid debugging in logs/monitoring
+          code: isConfigError ? 'CONTACT_EMAIL_NOT_CONFIGURED' : 'CONTACT_EMAIL_SEND_FAILED',
+        },
+        { status: isConfigError ? 503 : 500 },
       )
     }
   } catch (error) {
