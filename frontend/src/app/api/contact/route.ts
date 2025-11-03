@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
     const preferred = firstVal(
       `${prefix}BACKEND_INTERNAL_URL`,
       `${prefix}NEXT_PUBLIC_BACKEND_URL`,
-      "NEXT_PUBLIC_BACKEND_URL"
+      "NEXT_PUBLIC_BACKEND_URL",
     );
     const serviceDnsFallback =
       normalizedProfile === "dev"
@@ -64,13 +64,13 @@ export async function POST(request: NextRequest) {
     const text = await upstream.text();
     return Response.json(
       { error: text || `Upstream returned ${upstream.status}` },
-      { status: upstream.status }
+      { status: upstream.status },
     );
   } catch (error) {
     console.error("Frontend contact proxy error:", error);
     return Response.json(
       { error: "Failed to send message. Please try again later." },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
