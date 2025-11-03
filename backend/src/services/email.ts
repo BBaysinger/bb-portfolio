@@ -129,7 +129,7 @@ This message was sent via your portfolio contact form.
       await this.sesClient!.send(command)
 
       return { success: true }
-  } catch (error: unknown) {
+    } catch (error: unknown) {
       // Log structured, non-secret SES diagnostics for faster triage in prod
       const err = (error || {}) as {
         name?: string
