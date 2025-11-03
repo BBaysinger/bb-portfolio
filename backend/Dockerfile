@@ -58,6 +58,9 @@ COPY . .
 
 # Build the application with secrets available for TypeScript compilation
 # Secrets are mounted only during this step and not persisted to image layers
+## Ensure repo .env files don't override CI-provided transient env during build
+RUN rm -f .env .env.local .env.development .env.production || true
+
 RUN --mount=type=secret,id=prod_mongodb_uri \
     --mount=type=secret,id=dev_mongodb_uri \
     --mount=type=secret,id=local_mongodb_uri \
@@ -71,6 +74,8 @@ RUN --mount=type=secret,id=prod_mongodb_uri \
     --mount=type=secret,id=dev_ses_to_email \
     export REQUIRED_ENVIRONMENT_VARIABLES="DUMMY_OK" && \
     export DUMMY_OK=1 && \
+    # Force production profile for build-time config evaluation
+    export ENV_PROFILE=prod && \
     export PROD_MONGODB_URI="$(cat /run/secrets/prod_mongodb_uri 2>/dev/null || echo '')" && \
     export DEV_MONGODB_URI="$(cat /run/secrets/dev_mongodb_uri 2>/dev/null || echo '')" && \
     export LOCAL_MONGODB_URI="$(cat /run/secrets/local_mongodb_uri 2>/dev/null || echo '')" && \
@@ -78,6 +83,10 @@ RUN --mount=type=secret,id=prod_mongodb_uri \
     export DEV_PAYLOAD_SECRET="$(cat /run/secrets/dev_payload_secret 2>/dev/null || echo '')" && \
     export AWS_ACCESS_KEY_ID="$(cat /run/secrets/aws_access_key_id 2>/dev/null || echo '')" && \
     export AWS_SECRET_ACCESS_KEY="$(cat /run/secrets/aws_secret_access_key 2>/dev/null || echo '')" && \
+    # Provide required non-secret config placeholders for build-time checks
+    export PROD_FRONTEND_URL="http://localhost:8080" && \
+    export PROD_S3_BUCKET="dummy-bucket" && \
+    export PROD_AWS_REGION="us-east-1" && \
     export PROD_SES_FROM_EMAIL="$(cat /run/secrets/prod_ses_from_email 2>/dev/null || echo '')" && \
     export PROD_SES_TO_EMAIL="$(cat /run/secrets/prod_ses_to_email 2>/dev/null || echo '')" && \
     export DEV_SES_FROM_EMAIL="$(cat /run/secrets/dev_ses_from_email 2>/dev/null || echo '')" && \
