@@ -66,7 +66,7 @@ export default async function NdaProjectPage({
         if (normalizedProfile === "prod")
           return "http://bb-portfolio-backend-prod:3000";
         if (normalizedProfile === "local")
-          return "http://bb-backend-local:3001";
+          return "http://bb-portfolio-backend-local:3001";
         return "http://localhost:8081";
       })();
     const backend = base.replace(/\/$/, "");

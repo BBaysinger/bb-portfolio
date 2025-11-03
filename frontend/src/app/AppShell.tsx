@@ -21,8 +21,8 @@ import styles from "./AppShell.module.scss";
 export function AppShell({ children }: { children: React.ReactNode }) {
   // Runtime backend health check: logs backend connectivity status on startup
   useEffect(() => {
-    // Prefer same-origin relative path to leverage Next.js rewrites (/api -> backend)
-    // Absolute URLs (e.g., http://bb-backend-local:3001) may not resolve in the browser.
+  // Prefer same-origin relative path to leverage Next.js rewrites (/api -> backend)
+  // Absolute URLs (e.g., http://bb-portfolio-backend-local:3001) may not resolve in the browser.
     const healthUrl = "/api/health";
 
     const abort = new AbortController();

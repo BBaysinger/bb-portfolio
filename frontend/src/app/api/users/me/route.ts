@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
         : normalizedProfile === "prod"
           ? "http://bb-portfolio-backend-prod:3000"
           : normalizedProfile === "local"
-            ? "http://bb-backend-local:3001"
+            ? "http://bb-portfolio-backend-local:3001"
             : "";
 
     // Avoid recursion: if preferred points to the same host as this request, use service DNS if available

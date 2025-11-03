@@ -24,7 +24,7 @@ function resolveBackendBase(): string {
   // Compose service DNS fallbacks by profile
   if (profile === "prod") return "http://bb-portfolio-backend-prod:3000";
   if (profile === "dev") return "http://bb-portfolio-backend-dev:3000";
-  if (profile === "local") return "http://bb-backend-local:3001";
+  if (profile === "local") return "http://bb-portfolio-backend-local:3001";
   return "http://bb-portfolio-backend-prod:3000"; // safe default
 }
 

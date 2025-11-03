@@ -185,10 +185,10 @@ services:
   # - Named volumes to preserve node_modules across container restarts
   # =============================================================================
 
-  bb-backend-local:
+  bb-portfolio-backend-local:
     profiles: ["local"]
     image: bhbaysinger/bb-portfolio-backend:dev
-    container_name: bb-backend-local
+    container_name: bb-portfolio-backend-local
     working_dir: /app
     # Install deps if missing, then run Next dev on the expected port
     command: ["/bin/sh", "-lc", "sh scripts/entrypoint.dev.sh"]
@@ -211,10 +211,10 @@ services:
       DISK_CHECK_PATHS: "/tmp"
     restart: unless-stopped
 
-  bb-frontend-local:
+  bb-portfolio-frontend-local:
     profiles: ["local"]
     image: bhbaysinger/bb-portfolio-frontend:dev
-    container_name: bb-frontend-local
+    container_name: bb-portfolio-frontend-local
     working_dir: /app
     # Install deps if missing, then run Next dev
     command: ["/bin/sh", "-lc", "sh scripts/entrypoint.dev.sh"]
@@ -238,7 +238,7 @@ services:
       DISK_CHECK_PATHS: "/tmp"
     restart: unless-stopped
     depends_on:
-      bb-backend-local:
+      bb-portfolio-backend-local:
         condition: service_started
 
   # =============================================================================
@@ -256,9 +256,9 @@ services:
     volumes:
       - ../caddy/Caddyfile:/etc/caddy/Caddyfile:ro
     depends_on:
-      bb-frontend-local:
+      bb-portfolio-frontend-local:
         condition: service_started
-      bb-backend-local:
+      bb-portfolio-backend-local:
         condition: service_started
     networks:
       default: {}
@@ -267,10 +267,10 @@ services:
   # LOCAL (MacBook) DEVELOPMENT SERVICES WITH SGG GENERATION
   # =============================================================================
 
-  bb-backend-local-ssg-generate:
+  bb-portfolio-backend-local-ssg-generate:
     profiles: ["local-ssg"]
     image: bhbaysinger/bb-portfolio-backend:dev
-    container_name: bb-backend-local-ssg-generate
+    container_name: bb-portfolio-backend-local-ssg-generate
     volumes:
       - ../../backend:/app
       - /app/node_modules
@@ -283,10 +283,10 @@ services:
       - PORT=3001
     restart: unless-stopped
 
-  bb-frontend-local-ssg-generate:
+  bb-portfolio-frontend-local-ssg-generate:
     profiles: ["local-ssg"]
     image: bhbaysinger/bb-portfolio-frontend:dev
-    container_name: bb-frontend-local-ssg-generate
+    container_name: bb-portfolio-frontend-local-ssg-generate
     command: sh -c "npm run build:when-ready && npm start"
     volumes:
       - ../../frontend:/app
@@ -301,7 +301,7 @@ services:
       # API calls are relative; proxy routes /api to backend
     restart: unless-stopped
     depends_on:
-      bb-backend-local-ssg-generate:
+      bb-portfolio-backend-local-ssg-generate:
         condition: service_started
 
 # =============================================================================
@@ -317,5 +317,5 @@ networks:
 volumes:
   # Preserves frontend node_modules in local development
   # Prevents host directory from overriding container's installed dependencies
-  frontend_node_modules: # Used by bb-frontend-local service
+  frontend_node_modules: # Used by bb-portfolio-frontend-local service
 
