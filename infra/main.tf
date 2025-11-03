@@ -927,6 +927,32 @@ resource "aws_iam_role_policy_attachment" "ecr_access_attach" {
   policy_arn = aws_iam_policy.ecr_access.arn
 }
 
+# IAM Policy for SES send access (least privilege)
+resource "aws_iam_policy" "ses_send" {
+  name        = "bb-portfolio-ses-send"
+  description = "Allow sending emails via Amazon SES"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "ses:SendEmail",
+          "ses:SendRawEmail"
+        ]
+        Resource = "*" # Optionally scope to verified identity ARNs
+      }
+    ]
+  })
+}
+
+# Attach SES policy to EC2 instance role so backend containers can send email without static keys
+resource "aws_iam_role_policy_attachment" "ses_send_attach" {
+  role       = aws_iam_role.ssm_role.name
+  policy_arn = aws_iam_policy.ses_send.arn
+}
+
 # SSH connection helper - use standard automation practices
 # Each instance gets fresh host keys (security best practice)
 # Automation disables host key checking (standard for IaC)

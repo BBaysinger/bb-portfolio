@@ -24,3 +24,10 @@ resource "aws_iam_user_policy" "bb_portfolio_passrole" {
     ]
   })
 }
+
+# When allowed, attach the SES send policy to the IAM user used for env-injected credentials
+resource "aws_iam_user_policy_attachment" "bb_portfolio_ses_send_attach" {
+  count      = var.manage_iam_user_policies ? 1 : 0
+  user       = var.iam_user_name
+  policy_arn = aws_iam_policy.ses_send.arn
+}
