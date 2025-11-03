@@ -17,6 +17,43 @@ New decisions should be appended chronologically.
 
 ---
 
+## 2025-11-02 – GitHub Secrets Sync Strategy & Env-Guard Enforcement
+
+**Decision:** Manage GitHub Actions secrets from JSON5 with a TypeScript sync tool that validates required environment variable lists before syncing. Generate runtime `.env` files on EC2 during deploy, including the per-profile required lists to satisfy startup guards.
+
+**Components:**
+
+- JSON5 secrets files at repo root:
+  - `.github-secrets.example.json5` (schema and documentation; committed)
+  - `.github-secrets.private.json5` (real values; gitignored)
+- Sync tool: `scripts/sync-github-secrets.ts`
+  - Overlays matching keys from the `.private` file onto the template schema (extras in private are ignored to keep the schema authoritative)
+  - Validates required lists prior to any writes:
+    - `DEV_REQUIRED_ENVIRONMENT_VARIABLES`
+    - `PROD_REQUIRED_ENVIRONMENT_VARIABLES`
+    - Grammar: comma-separated groups; use `|` within a group to indicate ANY-of
+  - Fails fast with a clear error if any group lacks at least one key present in the JSON5. Escape hatch: `ALLOW_MISSING_REQUIRED_GROUPS=true` (warns, does not fail) for exceptional cases.
+- Deploy workflows (`.github/workflows/redeploy*.yml`)
+  - Generate backend/frontend `.env.dev` and `.env.prod` files on EC2 from GitHub Secrets
+  - Include the profile-specific required lists so the runtime env-guard never boots without a definition
+
+**Reasoning:**
+
+- Centralize secrets management with a human-readable, commented format (JSON5)
+- Eliminate repo-stored secrets while keeping a documented template under version control
+- Prevent “works on my machine” and prod boot issues by enforcing required-lists integrity before syncing
+- Ensure deploys are reproducible and safe: runtime envs are generated on the host, not committed; images never bake secrets
+
+**Alternatives considered:**
+
+- Manual GH Secrets management (error-prone; no validation)
+- Store `.env` files in repo or AMI (security risk; not portable)
+- CI-only validation (too late; we want to stop bad inputs before secrets are mutated)
+
+**Status:** ✅ Active
+
+---
+
 ## 2025-09-14 – Database
 
 **Decision:** Use **MongoDB Atlas (cloud-managed MongoDB)**
