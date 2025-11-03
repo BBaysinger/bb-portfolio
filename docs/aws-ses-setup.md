@@ -116,7 +116,9 @@ PROD_SES_TO_EMAIL=your-email@some-domain.com
 ### Common Issues:
 
 1. **"Email address not verified"**
-   - Ensure your `SES_FROM_EMAIL` is verified in SES Console
+   - Ensure your `SES_FROM_EMAIL` identity is verified in SES Console
+   - Verify in the SAME REGION your app uses (identities are regional). For this project, production uses `us-west-2`.
+   - You can verify either a single email address (you'll receive a verification email to click) or verify your domain and enable DKIM.
 
 2. **"AccessDenied" errors**
    - Check IAM permissions for your user
@@ -158,3 +160,25 @@ AWS SES pricing (as of 2024):
 - Data transfer costs may apply
 
 For a portfolio contact form, you'll likely stay within the free tier.
+
+## Reason codes from the app and how to fix them
+
+The backend surfaces SES failures as stable reason codes to help triage quickly:
+
+- `SES_IDENTITY_NOT_VERIFIED`
+   - The "from" identity is not verified in SES. Verify the email address (or entire domain) in the correct region used by the app (prod: `us-west-2`).
+   - If your SES account is still in sandbox, you must also verify the recipient address or request production access.
+
+- `SES_ACCESS_DENIED`
+   - The principal (instance role or configured access keys) lacks `ses:SendEmail` permissions. Attach a policy allowing `ses:SendEmail` (and optionally `ses:SendRawEmail`) to the role/user.
+
+- `SES_MESSAGE_REJECTED`
+   - SES rejected the message content or recipient. Check that the from domain has proper authentication (SPF/DKIM), and that the account is out of sandbox if sending to unverified recipients.
+
+- `SES_THROTTLED`
+   - You've hit SES sending limits. Check sending statistics and request higher limits if needed.
+
+- `SES_BAD_CREDENTIALS` / `SES_BAD_SIGNATURE`
+   - The configured AWS credentials are invalid or signed for the wrong region. Ensure the region matches your SES setup.
+
+Tip: The non-sensitive status endpoint `/api/contact/status/` returns which env keys are present and current profile; the admin diagnostics endpoint returns the last SES result (requires a bearer token).
