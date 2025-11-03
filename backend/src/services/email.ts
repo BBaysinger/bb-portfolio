@@ -7,7 +7,9 @@ interface ContactFormData {
 }
 
 interface EmailService {
-  sendContactEmail(data: ContactFormData): Promise<{ success: boolean; error?: string }>
+  sendContactEmail(
+    data: ContactFormData,
+  ): Promise<{ success: boolean; error?: string; reasonCode?: string }>
 }
 
 class AWSEmailService implements EmailService {
@@ -59,13 +61,16 @@ class AWSEmailService implements EmailService {
     return { value, usedKey }
   }
 
-  async sendContactEmail(data: ContactFormData): Promise<{ success: boolean; error?: string }> {
+  async sendContactEmail(
+    data: ContactFormData,
+  ): Promise<{ success: boolean; error?: string; reasonCode?: string }> {
     try {
       // Check if AWS is properly configured
       if (!this.isConfigured || !this.sesClient || !this.fromEmail || !this.toEmail) {
         return {
           success: false,
           error: this.configError || 'Email service not configured',
+          reasonCode: 'CONTACT_EMAIL_NOT_CONFIGURED',
         }
       }
 
@@ -124,7 +129,7 @@ This message was sent via your portfolio contact form.
       await this.sesClient!.send(command)
 
       return { success: true }
-    } catch (error: unknown) {
+  } catch (error: unknown) {
       // Log structured, non-secret SES diagnostics for faster triage in prod
       const err = (error || {}) as {
         name?: string
@@ -141,12 +146,32 @@ This message was sent via your portfolio contact form.
         requestId: meta?.requestId,
         statusCode: meta?.httpStatusCode,
       })
+      // Map common SES/AWS error patterns to stable, non-sensitive reason codes
+      const code = (err.Code || err.code || '').toString()
+      const msg = (err.message || '').toString()
+      let reasonCode: string | undefined
+      if (/MessageRejected/i.test(code) || /MessageRejected/i.test(msg)) {
+        reasonCode = 'SES_MESSAGE_REJECTED'
+      } else if (/AccessDenied/i.test(code) || /AccessDenied/i.test(msg)) {
+        reasonCode = 'SES_ACCESS_DENIED'
+      } else if (/InvalidClientTokenId|UnrecognizedClientException/i.test(code + msg)) {
+        reasonCode = 'SES_BAD_CREDENTIALS'
+      } else if (/SignatureDoesNotMatch/i.test(code + msg)) {
+        reasonCode = 'SES_BAD_SIGNATURE'
+      } else if (/Throttling|ThrottlingException/i.test(code)) {
+        reasonCode = 'SES_THROTTLED'
+      } else if (/not verified|is not verified|Email address not verified/i.test(msg)) {
+        reasonCode = 'SES_IDENTITY_NOT_VERIFIED'
+      } else {
+        reasonCode = 'SES_UNKNOWN'
+      }
       return {
         success: false,
         error:
           typeof err.message === 'string' && err.message.length > 0
             ? err.message
             : 'Unknown error occurred',
+        reasonCode,
       }
     }
   }
