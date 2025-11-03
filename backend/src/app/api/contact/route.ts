@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 
 import { emailService, type ContactFormData } from '@/services/email'
 
+type EmailSendResult = { success: boolean; error?: string; reasonCode?: string }
+
 // Rate limiting - simple in-memory store (in production, use Redis or similar)
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>()
 const RATE_LIMIT_WINDOW = 15 * 60 * 1000 // 15 minutes
@@ -90,7 +92,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Send email using AWS SES
-    const result = await emailService.sendContactEmail(contactData)
+  const result = (await emailService.sendContactEmail(contactData)) as EmailSendResult
 
     if (result.success) {
       return NextResponse.json({ message: 'Message sent successfully!' }, { status: 200 })
@@ -98,17 +100,20 @@ export async function POST(request: NextRequest) {
       // Improve diagnostics and client-facing status code without leaking secrets
       const errMsg = (result.error || '').toLowerCase()
       const isConfigError =
-        errMsg.includes('not configured') || errMsg.includes('missing required environment')
+        result.reasonCode === 'CONTACT_EMAIL_NOT_CONFIGURED' ||
+        errMsg.includes('not configured') ||
+        errMsg.includes('missing required environment')
 
-      console.error('Email service error:', result.error)
+      console.error('Email service error:', { error: result.error, reasonCode: result.reasonCode })
 
       return NextResponse.json(
         {
           error: isConfigError
             ? 'Email service is temporarily unavailable. Please try again later.'
             : 'Failed to send message. Please try again later.',
-          // Provide a minimal, non-sensitive error code to aid debugging in logs/monitoring
+          // Provide minimal, non-sensitive codes for observability
           code: isConfigError ? 'CONTACT_EMAIL_NOT_CONFIGURED' : 'CONTACT_EMAIL_SEND_FAILED',
+          reason: isConfigError ? undefined : result.reasonCode || 'SES_UNKNOWN',
         },
         { status: isConfigError ? 503 : 500 },
       )
