@@ -336,7 +336,6 @@ NDA_PROJECTS_BUCKET=${var.nda_projects_bucket}
 
 # Frontend Configuration (for SSR) - Using dynamic IP
 PROD_FRONTEND_URL=https://bbinteractive.io,http://$ELASTIC_IP:3000
-PROD_NEXT_PUBLIC_BACKEND_URL=http://$ELASTIC_IP:3001
 PROD_BACKEND_INTERNAL_URL=${var.prod_backend_internal_url}
 
 # Email Configuration
@@ -348,9 +347,6 @@ BACKEND_ENV_EOF
 cat > /home/ec2-user/portfolio/frontend/.env.prod << FRONTEND_ENV_EOF
 NODE_ENV=production
 ENV_PROFILE=prod
-
-# Frontend Configuration - Using dynamic IP
-NEXT_PUBLIC_BACKEND_URL=http://$ELASTIC_IP:3001
 FRONTEND_ENV_EOF
 
 # Create dev environment files (uses same buckets as prod, but different databases/secrets)
@@ -381,7 +377,6 @@ NDA_PROJECTS_BUCKET=${var.nda_projects_bucket}
 
 # Frontend Configuration (for SSR) - Using dynamic IP
 DEV_FRONTEND_URL=https://dev.bbinteractive.io,http://$ELASTIC_IP:4000
-DEV_NEXT_PUBLIC_BACKEND_URL=http://$ELASTIC_IP:4001
 DEV_BACKEND_INTERNAL_URL=${var.dev_backend_internal_url}
 
 # Email Configuration
@@ -392,9 +387,6 @@ BACKEND_DEV_ENV_EOF
 cat > /home/ec2-user/portfolio/frontend/.env.dev << FRONTEND_DEV_ENV_EOF
 NODE_ENV=development
 ENV_PROFILE=dev
-
-# Frontend Configuration - Using dynamic IP
-NEXT_PUBLIC_BACKEND_URL=http://$ELASTIC_IP:4001
 FRONTEND_DEV_ENV_EOF
 
 echo "Environment files generated successfully with IP: $ELASTIC_IP"

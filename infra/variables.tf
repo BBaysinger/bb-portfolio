@@ -123,10 +123,6 @@ variable "prod_frontend_url" {
   type        = string
 }
 
-variable "prod_next_public_backend_url" {
-  description = "Backend URL for frontend client-side requests"
-  type        = string
-}
 
 variable "prod_backend_internal_url" {
   description = "Backend URL for container-to-container communication"

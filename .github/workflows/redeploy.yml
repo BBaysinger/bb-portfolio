@@ -150,7 +150,6 @@ jobs:
           PROD_S3_BUCKET: ${{ secrets.PROD_S3_BUCKET }}
           PROD_AWS_REGION: ${{ secrets.PROD_AWS_REGION }}
           PROD_FRONTEND_URL: ${{ secrets.PROD_FRONTEND_URL }}
-          PROD_NEXT_PUBLIC_BACKEND_URL: ${{ secrets.PROD_NEXT_PUBLIC_BACKEND_URL }}
           PROD_BACKEND_INTERNAL_URL: ${{ secrets.PROD_BACKEND_INTERNAL_URL }}
           PROD_SES_FROM_EMAIL: ${{ secrets.PROD_SES_FROM_EMAIL }}
           PROD_SES_TO_EMAIL: ${{ secrets.PROD_SES_TO_EMAIL }}
@@ -160,7 +159,6 @@ jobs:
           DEV_S3_BUCKET: ${{ secrets.DEV_S3_BUCKET }}
           DEV_AWS_REGION: ${{ secrets.DEV_AWS_REGION }}
           DEV_FRONTEND_URL: ${{ secrets.DEV_FRONTEND_URL }}
-          DEV_NEXT_PUBLIC_BACKEND_URL: ${{ secrets.DEV_NEXT_PUBLIC_BACKEND_URL }}
           DEV_BACKEND_INTERNAL_URL: ${{ secrets.DEV_BACKEND_INTERNAL_URL }}
           DEV_SES_FROM_EMAIL: ${{ secrets.DEV_SES_FROM_EMAIL }}
           DEV_SES_TO_EMAIL: ${{ secrets.DEV_SES_TO_EMAIL }}
@@ -186,7 +184,6 @@ jobs:
             "S3_REGION=$(s_val S3_REGION \"$PROD_AWS_REGION\")" \
             "" \
             "PROD_FRONTEND_URL=$(s_val PROD_FRONTEND_URL)" \
-            "PROD_NEXT_PUBLIC_BACKEND_URL=$(s_val PROD_NEXT_PUBLIC_BACKEND_URL)" \
             "PROD_BACKEND_INTERNAL_URL=$(s_val PROD_BACKEND_INTERNAL_URL 'http://bb-portfolio-backend-prod:3000')" \
             "" \
             "SECURITY_CONTACT_EMAIL=$(s_val SECURITY_CONTACT_EMAIL)" \
@@ -211,7 +208,6 @@ jobs:
             "S3_REGION=$(s_val S3_REGION \"$DEV_AWS_REGION\")" \
             "" \
             "DEV_FRONTEND_URL=$(s_val DEV_FRONTEND_URL)" \
-            "DEV_NEXT_PUBLIC_BACKEND_URL=$(s_val DEV_NEXT_PUBLIC_BACKEND_URL)" \
             "DEV_BACKEND_INTERNAL_URL=$(s_val DEV_BACKEND_INTERNAL_URL 'http://bb-portfolio-backend-dev:3000')" \
             "" \
             "SECURITY_CONTACT_EMAIL=$(s_val SECURITY_CONTACT_EMAIL)" \
@@ -225,7 +221,6 @@ jobs:
             "ENV_PROFILE=prod" \
             "" \
             "PROD_BACKEND_INTERNAL_URL=$(s_val PROD_BACKEND_INTERNAL_URL 'http://bb-portfolio-backend-prod:3000')" \
-            "NEXT_PUBLIC_BACKEND_URL=$(s_val PROD_NEXT_PUBLIC_BACKEND_URL)" \
             "" \
             "PUBLIC_PROJECTS_BUCKET=$(s_val PUBLIC_PROJECTS_BUCKET)" \
             "NDA_PROJECTS_BUCKET=$(s_val NDA_PROJECTS_BUCKET)" \
@@ -236,7 +231,6 @@ jobs:
             "ENV_PROFILE=dev" \
             "" \
             "DEV_BACKEND_INTERNAL_URL=$(s_val DEV_BACKEND_INTERNAL_URL 'http://bb-portfolio-backend-dev:3000')" \
-            "NEXT_PUBLIC_BACKEND_URL=$(s_val DEV_NEXT_PUBLIC_BACKEND_URL)" \
             "" \
             "PUBLIC_PROJECTS_BUCKET=$(s_val PUBLIC_PROJECTS_BUCKET)" \
             "NDA_PROJECTS_BUCKET=$(s_val NDA_PROJECTS_BUCKET)" \

@@ -78,18 +78,18 @@ services:
     environment:
       - AWS_REGION=us-west-2
       - AWS_DEFAULT_REGION=us-west-2
-    healthcheck: # Health monitoring for load balancers
+    healthcheck: # HTTP health check against backend endpoint
       test:
         [
           "CMD",
           "node",
           "-e",
-          "const net = require('net'); const client = net.createConnection(3000, 'localhost', () => { console.info('connected'); client.end(); process.exit(0); }); client.on('error', () => process.exit(1));",
+          "const http=require('http'); const req=http.get('http://localhost:3000/api/health',res=>{process.exit(res.statusCode===200?0:1)}); req.on('error',()=>process.exit(1));",
         ]
-      interval: 15s # Check every 15 seconds (faster)
-      timeout: 5s # 5 second timeout per check
-      retries: 25 # 25 failed checks = unhealthy (more retries)
-      start_period: 30s # Wait 30s before first check (reduced)
+      interval: 15s
+      timeout: 5s
+      retries: 25
+      start_period: 30s
 
   bb-portfolio-frontend-prod:
     profiles: ["prod"] # Only runs with COMPOSE_PROFILES=prod
@@ -111,7 +111,7 @@ services:
     depends_on:
       bb-portfolio-backend-prod:
         condition: service_started # Just wait for backend to start, not be healthy
-    healthcheck: # Health monitoring for load balancers
+    healthcheck: # Simple TCP/HTTP readiness for frontend server
       test:
         [
           "CMD",
@@ -146,6 +146,18 @@ services:
     restart: unless-stopped # Auto-restart on failure/reboot
     networks:
       default: {}
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "const http=require('http'); const req=http.get('http://localhost:3000/api/health',res=>{process.exit(res.statusCode===200?0:1)}); req.on('error',()=>process.exit(1));",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
 
   bb-portfolio-frontend-dev:
     profiles: ["dev"] # Only runs with COMPOSE_PROFILES=dev
@@ -216,8 +228,7 @@ services:
       REACT_STRICT_MODE: "${REACT_STRICT_MODE:-true}"
       NODE_ENV: development
       ENV_PROFILE: local
-      LOCAL_BACKEND_INTERNAL_URL: http://bb-backend-local:3001
-      NEXT_PUBLIC_BACKEND_URL: http://bb-backend-local:3001
+      # API calls are relative; proxy routes /api to backend
       NPM_CONFIG_CACHE: /app/.npm-cache
       # Disk usage guardrails (warn/fail thresholds in percent). Adjust as needed.
       DISK_WARN_PCT: "85"
@@ -285,9 +296,7 @@ services:
     environment:
       - CHOKIDAR_USEPOLLING=true
       - REACT_STRICT_MODE=${REACT_STRICT_MODE:-true}
-      - LOCAL_BACKEND_INTERNAL_URL=http://bb-backend-local-ssg-generate:3001
-      - LOCAL_NEXT_PUBLIC_BACKEND_URL=http://bb-backend-local-ssg-generate:3001
-      - NEXT_PUBLIC_BACKEND_URL=http://localhost:8081
+      # API calls are relative; proxy routes /api to backend
     restart: unless-stopped
     depends_on:
       bb-backend-local-ssg-generate:
