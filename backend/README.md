@@ -67,9 +67,10 @@ The backend supports multiple environment profiles:
 Set `ENV_PROFILE` in your `.env` file to switch between configurations.
 
 Note for local Docker Compose:
+
 - The compose service `bb-portfolio-backend-local` sets `ENV_PROFILE=local` via environment.
-- Dev scripts should not hardcode a different profile. The `package.json` dev scripts are configured to respect the environment so that LOCAL_* variables (e.g., `LOCAL_MONGODB_URI`, `LOCAL_PAYLOAD_SECRET`, `LOCAL_FRONTEND_URL`) are used correctly.
-- If you see 500 errors like "Missing required DEV_MONGODB_URI for ENV_PROFILE=dev" while running local, double-check that no script is forcing `ENV_PROFILE=dev` and that your `backend/.env` contains the LOCAL_* variables listed above.
+- Dev scripts should not hardcode a different profile. The `package.json` dev scripts are configured to respect the environment so that LOCAL\_\* variables (e.g., `LOCAL_MONGODB_URI`, `LOCAL_PAYLOAD_SECRET`, `LOCAL_FRONTEND_URL`) are used correctly.
+- If you see 500 errors like "Missing required DEV*MONGODB_URI for ENV_PROFILE=dev" while running local, double-check that no script is forcing `ENV_PROFILE=dev` and that your `backend/.env` contains the LOCAL*\* variables listed above.
 
 ## API Endpoints
 
