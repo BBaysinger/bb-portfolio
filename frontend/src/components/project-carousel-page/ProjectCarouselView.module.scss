@@ -6,8 +6,8 @@
   height: 470px;
   width: 992px;
   box-sizing: border-box;
-  z-index: 0;
   left: 50%;
+  transform: translateX(-50%);
 
   /* Use staticRange for carousel spacing - viewport-based, not text-size-based */
   @include staticRange("margin-top", -115px, 0px, $b320, 680px);
@@ -24,12 +24,6 @@
 .carousel {
   width: 100%;
   height: 100%;
-}
-
-.carousel {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
 }
 
 .carouselLaptops {
