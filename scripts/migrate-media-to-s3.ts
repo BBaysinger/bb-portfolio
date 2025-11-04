@@ -5,21 +5,26 @@
  * Run this after uploading media files to S3 to make them accessible in production.
  *
  * Usage:
- *   # Run locally (automatically loads environment from .github-secrets.private.json5):
- *   npm run migrate:media-to-s3 -- --env dev --dry-run   # Preview changes to dev media bucket
- *   npm run migrate:media-to-s3 -- --env prod --dry-run  # Preview changes to prod media bucket
- *   npm run migrate:media-to-s3 -- --env dev             # Apply changes to dev media bucket
- *   npm run migrate:media-to-s3 -- --env prod            # Apply changes to prod media bucket
+ *   # Run locally (env is required; script prefers process.env and can load from .env files)
+ *   # 1) Using backend/.env.<env> auto-detection
+ *   tsx scripts/migrate-media-to-s3.ts --env dev --dry-run
+ *   tsx scripts/migrate-media-to-s3.ts --env prod --dry-run
+ *   # 2) Explicit --env-file
+ *   tsx scripts/migrate-media-to-s3.ts --env prod --env-file ./backend/.env.prod --dry-run
+ *   # 3) With env exported in your shell
+ *   ENV_PROFILE=prod PROD_MONGODB_URI=... PROD_PAYLOAD_SECRET=... tsx scripts/migrate-media-to-s3.ts --env prod --dry-run
  *
- *   # Or run directly on production server:
+ *   # Apply changes (remove --dry-run)
+ *   tsx scripts/migrate-media-to-s3.ts --env dev
+ *   tsx scripts/migrate-media-to-s3.ts --env prod
+ *
+ *   # Or run directly on production server (recommended for prod):
  *   ssh user@server "cd /path/to/app && docker exec bb-portfolio-backend-prod node scripts/migrate-media-to-s3.js --env prod --dry-run"
  */
 
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
-
-import JSON5 from "json5";
 
 import {
   getPayload,
@@ -30,62 +35,67 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 /**
- * Load environment variables from GitHub secrets file
+ * Minimal .env loader: KEY=VALUE pairs, ignores comments and blanks.
+ * Only sets process.env[KEY] if it's not already set.
  */
-function loadEnvironmentFromSecrets(environment: "dev" | "prod") {
-  const secretsPath = path.resolve(
-    __dirname,
-    "../.github-secrets.private.json5",
-  );
+function loadDotEnvFile(filePath: string) {
+  if (!fs.existsSync(filePath)) return;
+  const content = fs.readFileSync(filePath, "utf-8");
+  content.split(/\r?\n/).forEach((line) => {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith("#")) return;
+    const eq = trimmed.indexOf("=");
+    if (eq === -1) return;
+    const key = trimmed.slice(0, eq).trim();
+    let val = trimmed.slice(eq + 1).trim();
+    if (
+      (val.startsWith('"') && val.endsWith('"')) ||
+      (val.startsWith("'") && val.endsWith("'"))
+    ) {
+      val = val.slice(1, -1);
+    }
+    if (!process.env[key]) process.env[key] = val;
+  });
+}
 
-  if (!fs.existsSync(secretsPath)) {
-    throw new Error(
-      `GitHub secrets file not found: ${secretsPath}\n` +
-        `This script requires .github-secrets.private.json5 to load environment variables.`,
-    );
+/**
+ * Ensure required environment variables are present.
+ * Prefers existing process.env. Optionally loads backend/.env.<env> or --env-file path.
+ * S3 static credentials remain OPTIONAL (AWS default chain or instance roles may be used).
+ */
+function ensureEnvironment(
+  environment: "dev" | "prod",
+  opts?: { envFile?: string },
+) {
+  process.env.ENV_PROFILE = environment;
+
+  const envPrefix = environment.toUpperCase();
+  const requiredVars = [
+    `${envPrefix}_MONGODB_URI`,
+    `${envPrefix}_PAYLOAD_SECRET`,
+    `${envPrefix}_FRONTEND_URL`,
+    `${envPrefix}_S3_BUCKET`,
+    `${envPrefix}_AWS_REGION`,
+  ] as const;
+
+  const hasAll = () =>
+    requiredVars.every((k) => process.env[k] && process.env[k]!.length > 0);
+
+  if (!hasAll()) {
+    if (opts?.envFile) loadDotEnvFile(opts.envFile);
   }
 
-  try {
-    const secretsContent = fs.readFileSync(secretsPath, "utf-8");
-    const secrets = JSON5.parse(secretsContent);
+  if (!hasAll()) {
+    // Try backend/.env.<env> relative to repo root
+    const candidate = path.resolve(__dirname, `../backend/.env.${environment}`);
+    loadDotEnvFile(candidate);
+  }
 
-    if (!secrets.strings) {
-      throw new Error('Invalid secrets file format: missing "strings" section');
-    }
-
-    // Set ENV_PROFILE first
-    process.env.ENV_PROFILE = environment;
-
-    // Map environment-specific variables
-    const envPrefix = environment.toUpperCase();
-    const requiredVars = [
-      `${envPrefix}_MONGODB_URI`,
-      `${envPrefix}_PAYLOAD_SECRET`,
-      `${envPrefix}_FRONTEND_URL`,
-      `${envPrefix}_S3_BUCKET`,
-      `${envPrefix}_AWS_REGION`,
-      "S3_AWS_ACCESS_KEY_ID",
-      "S3_AWS_SECRET_ACCESS_KEY",
-    ];
-
-    for (const varName of requiredVars) {
-      const value = secrets.strings[varName];
-      if (!value) {
-        throw new Error(
-          `Missing required variable "${varName}" in GitHub secrets file.\n` +
-            `Please add it to .github-secrets.private.json5`,
-        );
-      }
-      process.env[varName] = value;
-    }
-
-    console.info(
-      `✅ Loaded ${requiredVars.length} environment variables from GitHub secrets`,
-    );
-  } catch (error) {
+  if (!hasAll()) {
+    const missing = requiredVars.filter((k) => !process.env[k]);
     throw new Error(
-      `Failed to load GitHub secrets: ${error instanceof Error ? error.message : String(error)}\n` +
-        `Check that .github-secrets.private.json5 exists and contains valid JSON5.`,
+      `Missing required environment variables for ${environment}: ${missing.join(", ")}.\n` +
+        `Provide them via your shell, an --env-file, or backend/.env.${environment}.`,
     );
   }
 }
@@ -203,6 +213,7 @@ async function main() {
   const args = process.argv.slice(2);
   const envFlag = args.indexOf("--env");
   const dryRunFlag = args.includes("--dry-run");
+  const envFileFlag = args.indexOf("--env-file");
 
   if (envFlag === -1 || !args[envFlag + 1]) {
     console.error("❌ Please specify environment: --env <dev|prod>");
@@ -216,9 +227,10 @@ async function main() {
     process.exit(1);
   }
 
-  // Load environment variables from GitHub secrets
+  // Ensure environment (prefer process.env; optional .env file)
   try {
-    loadEnvironmentFromSecrets(environment);
+    const envFile = envFileFlag !== -1 ? args[envFileFlag + 1] : undefined;
+    ensureEnvironment(environment, { envFile });
   } catch (error) {
     console.error(
       "❌ Failed to load environment:",
