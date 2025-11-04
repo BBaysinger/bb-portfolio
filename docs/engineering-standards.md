@@ -23,6 +23,29 @@ If a new pattern, dependency, or architectural choice requires an adjustment, up
 
 ---
 
+## Backwards compatibility policy
+
+This project intentionally does not maintain backwards compatibility guarantees.
+
+Rationale:
+
+- Scope: small, personal portfolio project maintained by a single owner.
+- Impact: no broad external consumer base and no public API commitments.
+- Velocity: prioritizing clarity and simplicity over deprecation cycles.
+
+Implications:
+
+- Script names, CLI flags, environment variable names, and internal module paths may be renamed or removed without deprecation shims.
+- Breaking changes may land directly on the active development branch when they simplify maintenance.
+- When behavior changes, prefer updating docs and commit messages over compatibility layers.
+
+Operator guidance:
+
+- Always refer to the current README and scripts in `package.json` for supported commands.
+- If a command fails because it no longer exists, search the repo for the new alias or see recent commits/PRs.
+
+---
+
 ## Goals
 
 - Environment-agnostic images: no baked config, secrets, or per-env assumptions.
