@@ -104,7 +104,11 @@ async function readCredentials(request: Request): Promise<LoginBody> {
               for (const container of ['data', 'user', 'payload']) {
                 const inner = obj?.[container]
                 if (inner && typeof inner === 'object') {
-                  const ne = pickString(inner as Record<string, unknown>, ['email', 'username', 'identifier']).trim()
+                  const ne = pickString(inner as Record<string, unknown>, [
+                    'email',
+                    'username',
+                    'identifier',
+                  ]).trim()
                   const np = pickString(inner as Record<string, unknown>, ['password', 'pass'])
                   if (ne || np) return { email: ne || undefined, password: np || undefined }
                 }
