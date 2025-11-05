@@ -164,14 +164,32 @@ export const POST = async (request: Request) => {
   const { email, password } = await readCredentials(request)
 
   if (!email || !password) {
+    // Provide safe diagnostics (no secrets) to help identify parsing mismatches in prod
+    let jsonKeys: string[] | undefined
+    let formKeys: string[] | undefined
+    try {
+      const txt = await request.clone().text()
+      try {
+        const parsed = JSON.parse(txt)
+        jsonKeys = parsed && typeof parsed === 'object' ? Object.keys(parsed as Record<string, unknown>).slice(0, 10) : undefined
+      } catch {
+        // Not JSON; attempt to list form keys without values
+        const form = await request.clone().formData()
+        formKeys = Array.from(form.keys()).slice(0, 10)
+      }
+    } catch {
+      // ignore
+    }
+
     return Response.json(
       {
         error: 'Missing email or password',
-        // Minimal hinting to aid debugging without leaking secrets
         received: {
           emailPresent: Boolean(email),
           passwordPresent: Boolean(password),
           contentType: request.headers.get('content-type') || undefined,
+          jsonKeys,
+          formKeys,
         },
       },
       { status: 400 },
