@@ -32,9 +32,9 @@
 
   a {
     color: $heavierThemeColor;
-    text-decoration: underline;
+    text-decoration: none;
     &:hover {
-      text-decoration: none;
+      text-decoration: underline;
     }
     &:hover {
       color: $heavierThemeColor;
@@ -89,7 +89,8 @@
 .btnGroupLabel,
 .btn {
   background-color: #333;
-  color: #fff;
+  color: #fff !important;
+  text-decoration: none !important;
   height: 30px;
   min-width: 100px;
   line-height: 17px;
@@ -101,6 +102,7 @@
   &:hover {
     color: #fff;
     background-color: #444;
+    text-decoration: none !important;
   }
 }
 
