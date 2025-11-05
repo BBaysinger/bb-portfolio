@@ -204,8 +204,12 @@ for repo in "${REPOS[@]}"; do
   # 2) Optionally delete all UNTAGGED images
   if $INCLUDE_UNTAGGED; then
     untagged=()
+    # AWS CLI --output text may print multiple digests on a single line separated by whitespace.
+    # Split each line into individual digests to ensure proper deletion.
     while IFS= read -r l; do
-      [[ -n "$l" ]] && untagged+=("$l")
+      for d in $l; do
+        [[ -n "$d" ]] && untagged+=("$d")
+      done
     done < <(aws ecr list-images \
       --repository-name "$repo" \
       --filter tagStatus=UNTAGGED \
