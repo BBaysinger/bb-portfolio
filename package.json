@@ -71,6 +71,7 @@
     "projects:upload:both": "tsx scripts/upload-projects-to-s3.ts --env both",
     "projects:verify": "tsx scripts/verify-projects-s3.ts",
     "db:migrate:local-to-prod": "bash scripts/migrate-database.sh local prod",
+    "db:migrate:local-to-prod-dry": "bash scripts/migrate-database.sh local prod --dry-run",
     "db:migrate:local-to-dev": "bash scripts/migrate-database.sh local dev",
     "db:migrate:prod-to-dev": "bash scripts/migrate-database.sh prod dev",
     "deploy:full": "bash deploy/scripts/deployment-orchestrator.sh --build-images both --profiles both --refresh-env",
