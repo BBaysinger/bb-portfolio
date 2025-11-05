@@ -29,6 +29,23 @@
       margin-bottom: 0;
     }
   }
+
+  a {
+    color: $heavierThemeColor;
+    text-decoration: underline;
+    &:hover {
+      text-decoration: none;
+    }
+    &:hover {
+      color: $heavierThemeColorHover;
+    }
+    &:visited {
+      color: $heavierThemeColorVisited;
+    }
+    &:active {
+      color: $heavierThemeColorActive;
+    }
+  }
 }
 
 :global(.bbSlideLeft) {
