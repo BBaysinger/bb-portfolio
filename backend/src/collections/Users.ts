@@ -15,20 +15,24 @@ export const Users: CollectionConfig = {
   access: {
     create: ({ req }) => req.user?.role === 'admin',
     read: ({ req }) => {
+      // Block unauthenticated reads to avoid building a query with an undefined ID
+      if (!req.user) return false
       // Users can read their own data, admins can read all
-      if (req.user?.role === 'admin') return true
+      if (req.user.role === 'admin') return true
       return {
         id: {
-          equals: req.user?.id,
+          equals: req.user.id,
         },
       }
     },
     update: ({ req }) => {
+      // Block unauthenticated updates to avoid building a query with an undefined ID
+      if (!req.user) return false
       // Users can update their own data, admins can update all
-      if (req.user?.role === 'admin') return true
+      if (req.user.role === 'admin') return true
       return {
         id: {
-          equals: req.user?.id,
+          equals: req.user.id,
         },
       }
     },
