@@ -874,7 +874,7 @@ resource "aws_ecr_lifecycle_policy" "frontend_policy" {
       selection = {
         tagStatus   = "any"
         countType   = "imageCountMoreThan"
-        countNumber = 10
+        countNumber = 6
       }
       action = {
         type = "expire"
@@ -893,7 +893,7 @@ resource "aws_ecr_lifecycle_policy" "backend_policy" {
       selection = {
         tagStatus   = "any"
         countType   = "imageCountMoreThan"
-        countNumber = 10
+        countNumber = 6
       }
       action = {
         type = "expire"

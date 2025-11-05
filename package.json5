@@ -10,12 +10,8 @@
   // Prevents accidental publishing to npm registry
   // Prevent publishing to npm registry
   "private": true,
-  // Keep: Add the following lines (in package.json) to enable workspaces
-  // Useful if you ever convert this monorepo into a Yarn/NPM workspace
-  // "workspaces": [
-  //   "frontend",
-  //   "backend"
-  // ],
+  // Optional: Enable npm workspaces by uncommenting the line below
+  // "workspaces": ["frontend", "backend"],
   "scripts": {
     // Shortcut to start backend and frontend locally (bare metal, no Docker)
     "dev": "npm run bareMetalDev:all",
@@ -122,7 +118,6 @@
     "caddy:restart": "docker compose -f deploy/compose/docker-compose.yml --profile local --profile proxy up -d --force-recreate caddy-local",
     // ⚡ Reload Caddy configuration without restarting containers
     "caddy:reload": "docker exec bb-portfolio-caddy-local caddy reload --config /etc/caddy/Caddyfile",
-    // � Check status of portfolio containers
     // 📊 Check status of portfolio containers
     "caddy:status": "docker ps --filter name=bb-portfolio- --format 'table {{.Names}}\\t{{.Status}}\\t{{.Ports}}'",
     // ℹ️ Note on routing through Caddy:
@@ -232,19 +227,19 @@
     "infra:sync-env": "cd infra && bash sync-env-from-terraform.sh",
     // 🏗️ Infrastructure: Sync .env file with Terraform state (skip confirmation)
     "infra:sync-env:force": "cd infra && bash sync-env-from-terraform.sh --force",
-    // Housekeeping: prune old images across Docker Hub and ECR (retain 3)
-    "images:cleanup": "bash ./scripts/image-cleanup.sh --retain 3 --include-untagged",
+    // Housekeeping: prune old images across Docker Hub and ECR (retain 6) (Terraform expires them past counts anyway)
+    "images:cleanup": "bash ./scripts/image-cleanup.sh --retain 3 --include-untagged --login --profile bb-portfolio-user --region us-west-2",
     // Dry-run cleanup: show what would be removed without deleting
-    "images:cleanup:dry-run": "bash ./scripts/image-cleanup.sh --retain 3 --include-untagged --dry-run",
-    // ECR-only cleanup: prune old images (retain 3)
+    "images:cleanup:dry-run": "bash ./scripts/image-cleanup.sh --retain 3 --include-untagged --login --profile bb-portfolio-user --region us-west-2 --dry-run",
+    // ECR-only cleanup: prune old images (retain 6)
     "images:cleanup:ecr": "bash ./scripts/image-cleanup-ecr.sh --retain 3 --include-untagged",
     // ECR-only cleanup (dry run)
     "images:cleanup:ecr:dry-run": "bash ./scripts/image-cleanup-ecr.sh --retain 3 --include-untagged --dry-run",
-    //
+    // Same as images:cleanup, but performs AWS/ECR login explicitly first
     "images:cleanup:login": "bash ./scripts/image-cleanup.sh --retain 3 --include-untagged --login --profile bb-portfolio-user --region us-west-2",
     // Verify image tags and counts in Docker Hub and ECR
     "images:verify": "bash ./scripts/images-verify.sh",
-    //
+    // Verify counts after logging into AWS/ECR (useful on fresh shells)
     "images:verify:login": "bash ./scripts/images-verify.sh --login --profile bb-portfolio-user --region us-west-2",
     // 🔁 Sync dev and main branches (fast-forward only, always returns to dev)
     "sync:branches": "bash ./scripts/sync-branches.sh",
