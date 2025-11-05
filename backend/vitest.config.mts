@@ -5,12 +5,13 @@ import tsconfigPaths from 'vite-tsconfig-paths'
 export default defineConfig({
   plugins: [tsconfigPaths(), react()],
   test: {
-    environment: 'jsdom',
-    // Run unit tests in a Node environment to avoid jsdom/parse5 ESM interop issues
-    environmentMatchGlobs: [
-      ['tests/unit/**', 'node'],
-    ],
+    // Use Node environment by default; backend tests don't require a DOM.
+    // This also avoids jsdom/parse5 ESM interop issues in CI.
+    environment: 'node',
     setupFiles: ['./vitest.setup.ts'],
     include: ['tests/int/**/*.int.spec.ts', 'tests/unit/**/*.spec.ts'],
+    // Increase timeouts slightly for occasional cold starts when RUN_INT_TESTS is enabled locally
+    hookTimeout: 30000,
+    testTimeout: 30000,
   },
 })
