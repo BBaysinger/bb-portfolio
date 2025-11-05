@@ -83,7 +83,40 @@ async function readCredentials(request: Request): Promise<LoginBody> {
       }
       const email = findVal(['email', 'username', 'identifier']).trim()
       const password = findVal(['password', 'pass'])
-      return { email: email || undefined, password: password || undefined }
+      if (email || password) return { email: email || undefined, password: password || undefined }
+
+      // New: Some clients send a single JSON blob field (e.g., _payload, payload, data)
+      // Try to parse any string field that looks like JSON and extract the same keys.
+      const jsonLikeKeys = ['_payload', 'payload', 'data', 'body']
+      for (const name of keys) {
+        const v = form.get(name)
+        if (v != null) {
+          const s = v.toString().trim()
+          if (s.startsWith('{') || s.startsWith('[') || jsonLikeKeys.includes(name)) {
+            try {
+              const obj = JSON.parse(s) as Record<string, unknown>
+              const nestedEmail = pickString(obj, ['email', 'username', 'identifier']).trim()
+              const nestedPass = pickString(obj, ['password', 'pass'])
+              if (nestedEmail || nestedPass) {
+                return { email: nestedEmail || undefined, password: nestedPass || undefined }
+              }
+              // Try common nested containers
+              for (const container of ['data', 'user', 'payload']) {
+                const inner = obj?.[container]
+                if (inner && typeof inner === 'object') {
+                  const ne = pickString(inner as Record<string, unknown>, ['email', 'username', 'identifier']).trim()
+                  const np = pickString(inner as Record<string, unknown>, ['password', 'pass'])
+                  if (ne || np) return { email: ne || undefined, password: np || undefined }
+                }
+              }
+            } catch {
+              // not JSON; continue
+            }
+          }
+        }
+      }
+
+      return { email: undefined, password: undefined }
     } catch {
       return {}
     }
