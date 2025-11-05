@@ -1,3 +1,29 @@
+/**
+ * Login route wrapper — content-type normalization and resilience
+ *
+ * Why this file exists
+ * - Historical context (2025-11-05): A production 500 during admin login was ultimately fixed by
+ *   correcting Nginx routing so /api/users/* points to the backend (Payload), not the frontend.
+ *   This route remains as a light hardening layer: it normalizes JSON, multipart/form-data,
+ *   and x-www-form-urlencoded bodies and authenticates via Payload's local API, returning
+ *   consistent 401/500 semantics and setting the auth cookie explicitly.
+ *
+ * Pros (reason to keep)
+ * - Defense in depth: tolerant to client variability (e.g., HTML forms using multipart or urlencoded).
+ * - Consistent responses across content-types and a single place to add logging/guardrails later.
+ * - Small, low-maintenance surface area that delegates to Payload's local API.
+ *
+ * Cons (reason to remove)
+ * - Potential drift if Payload changes the login contract; this wrapper could require updates.
+ * - Duplicates capability already provided by Payload's built-in /api/users/login endpoint.
+ *
+ * Guidance
+ * - Keep this file if any clients may submit non-JSON bodies or if you want a stable place for
+ *   auth telemetry, throttling, or custom error handling.
+ * - If you prefer minimalism and are confident all clients send JSON: you can remove this file and
+ *   rely on Payload's built-in endpoint. Ensure Nginx continues routing /api/users/* to the backend
+ *   and add an E2E check that multipart/urlencoded login attempts return 401 (not 500).
+ */
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
