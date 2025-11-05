@@ -369,8 +369,8 @@ const CurriculumVitae: React.FC = () => {
 
               <ul ref={addToRefs}>
                 <li>
-                  React (current focus): Reusable components, state management,
-                  Redux, hooks, dynamic routing, and JSX
+                  React (2 years/current focus): Reusable components, state
+                  management, Redux, hooks, dynamic routing, and JSX
                 </li>
                 <li>
                   Angular (2+ years): Advanced component architecture, RxJS, and
