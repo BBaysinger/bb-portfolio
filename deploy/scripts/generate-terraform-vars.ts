@@ -146,9 +146,12 @@ prod_mongodb_uri = "${strings.PROD_MONGODB_URI}"
 # Payload CMS Configuration
 prod_payload_secret = "${strings.PROD_PAYLOAD_SECRET}"
 
-# S3 Media Configuration
-public_s3_bucket = "${strings.PUBLIC_S3_BUCKET}"
-nda_s3_bucket = "${strings.NDA_S3_BUCKET}"
+    # S3/Projects & Media Configuration
+    public_projects_bucket = "${strings.PUBLIC_PROJECTS_BUCKET}"
+    nda_projects_bucket = "${strings.NDA_PROJECTS_BUCKET}"
+
+    # Media buckets for Payload CMS uploads (per environment)
+    prod_s3_bucket = "${strings.PROD_S3_BUCKET}"
 
 # Frontend URLs
 prod_frontend_url         = "${strings.PROD_FRONTEND_URL}"
@@ -171,7 +174,8 @@ dev_mongodb_uri = "${strings.DEV_MONGODB_URI}"
 # Payload CMS Configuration
 dev_payload_secret = "${strings.DEV_PAYLOAD_SECRET}"
 
-# S3 Media Configuration (consolidated to single deployment with access-based buckets)
+  # Media bucket for Payload CMS uploads (dev environment)
+  dev_s3_bucket = "${strings.DEV_S3_BUCKET}"
 
 # Backend URLs
 dev_backend_internal_url = "${strings.DEV_BACKEND_INTERNAL_URL}"
@@ -215,8 +219,10 @@ function main() {
       "aws_secret_access_key",
       "prod_mongodb_uri",
       "prod_payload_secret",
-      "public_s3_bucket",
-      "nda_s3_bucket",
+      "public_projects_bucket",
+      "nda_projects_bucket",
+      "prod_s3_bucket",
+      "dev_s3_bucket",
       "prod_frontend_url",
       "prod_backend_internal_url",
       "prod_ses_from_email",
