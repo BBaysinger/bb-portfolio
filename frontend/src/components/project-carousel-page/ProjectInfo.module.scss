@@ -37,13 +37,13 @@
       text-decoration: none;
     }
     &:hover {
-      color: $heavierThemeColorHover;
+      color: $heavierThemeColor;
     }
     &:visited {
-      color: $heavierThemeColorVisited;
+      color: $heavierThemeColor;
     }
     &:active {
-      color: $heavierThemeColorActive;
+      color: $heavierThemeColor;
     }
   }
 }
