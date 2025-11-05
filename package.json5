@@ -213,10 +213,6 @@
     "projects:upload:both": "tsx scripts/upload-projects-to-s3.ts --env both",
     // 📁 Verify uploaded project files on S3 to ensure integrity
     "projects:verify": "tsx scripts/verify-projects-s3.ts",
-    // ☢️💀 DANGER: NUCLEAR DATABASE REPLACEMENT - Completely overwrites production DB with local data
-    "db:migrate:local-to-prod": "bash scripts/migrate-database.sh local prod",
-    // 🧪 Dry run only: print the exact mongodump/mongorestore plan for local → prod without making changes
-    "db:migrate:local-to-prod:dry": "bash scripts/migrate-database.sh local prod --dry-run",
     // 🔤 In-place rename in Local: portfolio-local → bb-portfolio-local (backup + restore, safe)
     "db:rename:local:portfolio-to-bb": "bash scripts/migrate-database.sh local local --source-db portfolio-local --target-db bb-portfolio-local",
     // 🧪 Dry run only: show the plan for renaming local DB from portfolio-local → bb-portfolio-local
@@ -241,10 +237,12 @@
     "db:delete:prod-portfolio:dry": "bash scripts/delete-database.sh --env prod --db portfolio-prod --dry-run",
     // 🗑️ Prod cleanup (apply): backup then drop portfolio-prod
     "db:delete:prod-portfolio": "bash scripts/delete-database.sh --env prod --db portfolio-prod",
+    // ☢️💀 DANGER: NUCLEAR DATABASE REPLACEMENT - Completely overwrites production DB with local data
+    "db:migrate:local-to-prod": "bash scripts/migrate-database.sh local prod",
+    // 🧪 Dry run only: print the exact mongodump/mongorestore plan for local → prod without making changes
+    "db:migrate:local-to-prod:dry": "bash scripts/migrate-database.sh local prod --dry-run",
     // ☢️ DANGER: Overwrite production database with dev data (use with extreme caution)
     "db:migrate:dev-to-prod": "bash scripts/migrate-database.sh dev prod",
-    // 🧪 Dry run only: print the exact plan for dev → prod migration
-    "db:migrate:dev-to-prod:dry": "bash scripts/migrate-database.sh dev prod --dry-run",
     // ☢️🔥 DANGER: APOCALYPTIC DB REPLACEMENT - Completely overwrites dev DB with local data
     "db:migrate:local-to-dev": "bash scripts/migrate-database.sh local dev",
     // ☢️⚰️ DANGER: ARMAGEDDON DB REPLACEMENT - Completely overwrites dev DB with production data
