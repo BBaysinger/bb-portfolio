@@ -171,7 +171,10 @@ export const POST = async (request: Request) => {
       const txt = await request.clone().text()
       try {
         const parsed = JSON.parse(txt)
-        jsonKeys = parsed && typeof parsed === 'object' ? Object.keys(parsed as Record<string, unknown>).slice(0, 10) : undefined
+        jsonKeys =
+          parsed && typeof parsed === 'object'
+            ? Object.keys(parsed as Record<string, unknown>).slice(0, 10)
+            : undefined
       } catch {
         // Not JSON; attempt to list form keys without values
         const form = await request.clone().formData()
