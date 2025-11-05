@@ -36,50 +36,125 @@ type LoginBody = {
 
 async function readCredentials(request: Request): Promise<LoginBody> {
   const contentType = request.headers.get('content-type') || ''
+  const tried = { json: false, form: false }
 
-  try {
-    if (contentType.includes('application/json')) {
-      const json = (await request.json()) as Record<string, unknown>
-      const pickString = (obj: Record<string, unknown>, keys: string[]): string => {
-        for (const k of keys) {
-          const v = obj[k]
-          if (typeof v === 'string') return v
-        }
-        return ''
-      }
-      const email = pickString(json, ['email', 'username', 'identifier']).trim()
-      const password = pickString(json, ['password', 'pass'])
-      return { email: email || undefined, password: password || undefined }
+  const pickString = (obj: Record<string, unknown>, keys: string[]): string => {
+    for (const k of keys) {
+      const v = obj[k]
+      if (typeof v === 'string') return v
     }
+    // case-insensitive scan for near matches (e.g., Email, USERNAME)
+    const lowerMap: Record<string, string> = {}
+    for (const [k, v] of Object.entries(obj)) {
+      if (typeof v === 'string') lowerMap[k.toLowerCase()] = v
+    }
+    for (const k of keys) {
+      const v = lowerMap[k.toLowerCase()]
+      if (typeof v === 'string') return v
+    }
+    return ''
+  }
 
-    if (
-      contentType.includes('multipart/form-data') ||
-      contentType.includes('application/x-www-form-urlencoded')
-    ) {
-      // Next.js can parse form bodies via request.formData()
-      const form = await request.formData()
-      // Be resilient to alternate keys sometimes used by clients
-      const getFirst = (...keys: string[]) => {
-        for (const k of keys) {
+  const pickFromForm = async (req: Request): Promise<LoginBody> => {
+    try {
+      const form = await req.formData()
+      const keys = Array.from(form.keys())
+      const findVal = (candidates: string[]): string => {
+        // exact
+        for (const k of candidates) {
           const v = form.get(k)
           if (v != null) return v.toString()
         }
-        // try case-insensitive scan
-        const entries = Array.from(form.keys())
-        for (const k of entries) {
-          if (keys.some((kk) => kk.toLowerCase() === k.toLowerCase())) {
-            const v = form.get(k)
+        // case-insensitive
+        for (const name of keys) {
+          if (candidates.some((k) => k.toLowerCase() === name.toLowerCase())) {
+            const v = form.get(name)
+            if (v != null) return v.toString()
+          }
+        }
+        // fuzzy: substring like user[email]
+        for (const name of keys) {
+          if (candidates.some((k) => name.toLowerCase().includes(k.toLowerCase()))) {
+            const v = form.get(name)
             if (v != null) return v.toString()
           }
         }
         return ''
       }
-      const email = getFirst('email', 'username', 'identifier').trim()
-      const password = getFirst('password', 'pass')
+      const email = findVal(['email', 'username', 'identifier']).trim()
+      const password = findVal(['password', 'pass'])
       return { email: email || undefined, password: password || undefined }
+    } catch {
+      return {}
+    }
+  }
+
+  // First pass based on content-type
+  try {
+    if (contentType.includes('application/json')) {
+      tried.json = true
+      const json = (await request.clone().json()) as Record<string, unknown>
+      const email = pickString(json, ['email', 'username', 'identifier']).trim()
+      const password = pickString(json, ['password', 'pass'])
+      if (email || password) return { email: email || undefined, password: password || undefined }
+    }
+    if (
+      contentType.includes('multipart/form-data') ||
+      contentType.includes('application/x-www-form-urlencoded')
+    ) {
+      tried.form = true
+      const fromForm = await pickFromForm(request.clone())
+      if (fromForm.email || fromForm.password) return fromForm
     }
   } catch {
-    // Fall through to return empty
+    // ignore and try fallbacks
+  }
+
+  // Fallbacks: try the other parsers if not tried, then text sniffing
+  if (!tried.form) {
+    const fromForm = await pickFromForm(request.clone())
+    if (fromForm.email || fromForm.password) return fromForm
+  }
+  if (!tried.json) {
+    try {
+      const json = (await request.clone().json()) as Record<string, unknown>
+      const email = pickString(json, ['email', 'username', 'identifier']).trim()
+      const password = pickString(json, ['password', 'pass'])
+      if (email || password) return { email: email || undefined, password: password || undefined }
+    } catch {
+      // ignore
+    }
+  }
+  try {
+    const txt = await request.clone().text()
+    if (txt) {
+      // Try JSON text
+      try {
+        const json = JSON.parse(txt) as Record<string, unknown>
+        const email = pickString(json, ['email', 'username', 'identifier']).trim()
+        const password = pickString(json, ['password', 'pass'])
+        if (email || password) return { email: email || undefined, password: password || undefined }
+      } catch {
+        // Try urlencoded
+        const params = new URLSearchParams(txt)
+        const getParam = (names: string[]) => {
+          for (const n of names) {
+            const v = params.get(n)
+            if (v) return v
+          }
+          // fuzzy
+          for (const [k, v] of params.entries()) {
+            if (names.some((n) => k.toLowerCase().includes(n.toLowerCase()))) return v
+          }
+          return ''
+        }
+        const email = getParam(['email', 'username', 'identifier']).trim()
+        const password = getParam(['password', 'pass'])
+        if (email || password) return { email: email || undefined, password: password || undefined }
+      }
+    }
+  } catch {
+    // ignore
   }
 
   return {}
