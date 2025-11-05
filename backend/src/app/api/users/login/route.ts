@@ -39,8 +39,17 @@ async function readCredentials(request: Request): Promise<LoginBody> {
 
   try {
     if (contentType.includes('application/json')) {
-      const json = (await request.json()) as LoginBody
-      return { email: json?.email || undefined, password: json?.password || undefined }
+      const json = (await request.json()) as Record<string, unknown>
+      const pickString = (obj: Record<string, unknown>, keys: string[]): string => {
+        for (const k of keys) {
+          const v = obj[k]
+          if (typeof v === 'string') return v
+        }
+        return ''
+      }
+      const email = pickString(json, ['email', 'username', 'identifier']).trim()
+      const password = pickString(json, ['password', 'pass'])
+      return { email: email || undefined, password: password || undefined }
     }
 
     if (
@@ -49,8 +58,24 @@ async function readCredentials(request: Request): Promise<LoginBody> {
     ) {
       // Next.js can parse form bodies via request.formData()
       const form = await request.formData()
-      const email = form.get('email')?.toString()
-      const password = form.get('password')?.toString()
+      // Be resilient to alternate keys sometimes used by clients
+      const getFirst = (...keys: string[]) => {
+        for (const k of keys) {
+          const v = form.get(k)
+          if (v != null) return v.toString()
+        }
+        // try case-insensitive scan
+        const entries = Array.from(form.keys())
+        for (const k of entries) {
+          if (keys.some((kk) => kk.toLowerCase() === k.toLowerCase())) {
+            const v = form.get(k)
+            if (v != null) return v.toString()
+          }
+        }
+        return ''
+      }
+      const email = getFirst('email', 'username', 'identifier').trim()
+      const password = getFirst('password', 'pass')
       return { email: email || undefined, password: password || undefined }
     }
   } catch {
@@ -64,7 +89,18 @@ export const POST = async (request: Request) => {
   const { email, password } = await readCredentials(request)
 
   if (!email || !password) {
-    return Response.json({ error: 'Missing email or password' }, { status: 400 })
+    return Response.json(
+      {
+        error: 'Missing email or password',
+        // Minimal hinting to aid debugging without leaking secrets
+        received: {
+          emailPresent: Boolean(email),
+          passwordPresent: Boolean(password),
+          contentType: request.headers.get('content-type') || undefined,
+        },
+      },
+      { status: 400 },
+    )
   }
 
   try {
