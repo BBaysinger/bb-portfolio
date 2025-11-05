@@ -5,9 +5,14 @@
 # This script uses mongodump/mongorestore to copy data between environments
 # 
 # Usage:
-#   ./migrate-database.sh local prod    # Copy local → production
-#   ./migrate-database.sh local dev     # Copy local → development  
-#   ./migrate-database.sh prod dev      # Copy production → development
+#   ./migrate-database.sh <source> <target> [--dry-run] [--no-backup]
+#
+# Examples:
+#   ./migrate-database.sh local prod            # Copy local → production
+#   ./migrate-database.sh local dev             # Copy local → development  
+#   ./migrate-database.sh prod dev              # Copy production → development
+#   ./migrate-database.sh local dev --dry-run   # Plan only (no backup/restore)
+#   ./migrate-database.sh prod dev --no-backup  # Skip target backup (not recommended)
 #
 # Prerequisites:
 #   - MongoDB tools (mongodump, mongorestore) installed
@@ -15,6 +20,37 @@
 # =============================================================================
 
 set -e  # Exit on error
+# Flags (default values)
+DRY_RUN=false
+NO_BACKUP=false
+
+# Mask credentials in a MongoDB URI for display
+mask_uri() {
+  local uri="$1"
+  # Replace credentials between '://' and '@' with ****:**** if present
+  echo "$uri" | sed -E 's#(://)[^/@:]+(:[^/@]+)?(@)#\1****:****\3#'
+}
+
+# Parse optional flags after source and target
+parse_flags() {
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --dry-run)
+        DRY_RUN=true
+        shift
+        ;;
+      --no-backup)
+        NO_BACKUP=true
+        shift
+        ;;
+      *)
+        log_warning "Unknown option: $1"
+        shift
+        ;;
+    esac
+  done
+}
+
 
 # Color codes for output
 RED='\033[0;31m'
@@ -120,7 +156,12 @@ confirm_migration() {
     log_error "⚠️  PRODUCTION DATABASE WILL BE OVERWRITTEN ⚠️"
     echo
   fi
-  
+
+  if [[ "$DRY_RUN" == "true" ]]; then
+    log_info "Dry run mode enabled: no backup or restore will be executed."
+    return
+  fi
+
   read -p "Are you sure you want to continue? (type 'yes' to confirm): " confirmation
   if [[ "$confirmation" != "yes" ]]; then
     log_info "Migration cancelled."
@@ -135,6 +176,11 @@ create_backup() {
   local target_db_uri=$(get_db_uri $target_env)
   local backup_dir="./database-backups/$(date +%Y%m%d_%H%M%S)_${target_env}_backup"
   
+  if [[ "$DRY_RUN" == "true" || "$NO_BACKUP" == "true" ]]; then
+    log_warning "Skipping target backup (${target_db_name}) due to ${DRY_RUN:+--dry-run }${NO_BACKUP:+--no-backup}."
+    return
+  fi
+
   log_info "Creating backup of target database: $target_db_name"
   
   mkdir -p "$backup_dir"
@@ -161,6 +207,16 @@ migrate_database() {
   local temp_dump_dir="./temp_dump_$$"
   
   log_info "Starting database migration: $source_db_name → $target_db_name"
+  if [[ "$DRY_RUN" == "true" ]]; then
+    echo
+    log_info "Plan (no actions will be performed):"
+    echo "  Source URI: $(mask_uri "$source_db_uri")"
+    echo "  Target URI: $(mask_uri "$target_db_uri")"
+    echo "  Will run: mongodump --uri \"$source_db_uri\" --out \"$temp_dump_dir\" --quiet"
+    echo "  Then:     mongorestore --uri \"$target_db_uri\" --drop \"$temp_dump_dir/$source_db_name\" --quiet"
+    echo
+    return
+  fi
   
   # Step 1: Dump source database
   log_info "Step 1: Dumping source database ($source_db_name)"
@@ -193,6 +249,8 @@ migrate_database() {
 main() {
   local source_env=$1
   local target_env=$2
+  shift 2
+  parse_flags "$@"
   
   echo "🔄 MongoDB Database Migration Tool"
   echo "=================================="
@@ -202,10 +260,10 @@ main() {
   check_mongodb_tools
   validate_environments "$source_env" "$target_env"
   
-  # Confirmation
+  # Confirmation (handles dry-run printout)
   confirm_migration "$source_env" "$target_env"
   
-  # Create backup of target
+  # Create backup of target (skipped in dry-run / when --no-backup)
   create_backup "$target_env"
   
   # Perform migration
