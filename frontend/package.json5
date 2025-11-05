@@ -17,7 +17,7 @@
     "prebuild": "node ./scripts/check-required-env.js",
     // Build production-optimized static site
     "build": "next build",
-    // 🏗️ Build the  when-ready component
+    // 🏗️ Build the "when-ready" component (pre-build step to prepare assets used to gate rendering until env is ready)
     "build:when-ready": "node ./scripts/pre-build.mjs",
     // Experimental build with Turbopack (faster bundling)
     "turbopack": "NEXT_TELEMETRY_DISABLED=1 next build --turbopack",

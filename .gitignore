@@ -122,6 +122,8 @@ terraform.rc
 # Ignore backup artifacts under data/ but keep curated seed dumps tracked
 data/database-backups/**
 !data/database-backups/.gitkeep
+# Legacy backup folder (pre-fix): ignore if present at repo root
+/database-backups/**
 temp_dump_*
 *.bson
 *.metadata.json
