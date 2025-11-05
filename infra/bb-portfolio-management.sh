@@ -119,8 +119,8 @@ case "${1:-help}" in
             echo "Showing logs for all containers..."
             # Use docker compose if available, otherwise fallback to docker-compose with explicit file
             run_remote "cd portfolio && if docker compose version >/dev/null 2>&1; then sudo docker compose logs --tail 50; else sudo docker-compose -f deploy/compose/docker-compose.yml logs --tail 50; fi"
-        fi
-        ;
+    fi
+    ;;
     
     status)
         echo "Portfolio container status:"
@@ -174,8 +174,8 @@ case "${1:-help}" in
     echo "3. Updating Nginx to point to production (port 3000)..."
     run_remote "if [ -f /etc/nginx/conf.d/bb-portfolio.conf ]; then sudo sed -i 's/localhost:4000/localhost:3000/g' /etc/nginx/conf.d/bb-portfolio.conf; else sudo sed -i 's/localhost:4000/localhost:3000/g' /etc/nginx/conf.d/portfolio.conf; fi && sudo nginx -t && sudo systemctl reload nginx"
         
-        echo "✅ Switched to production containers"
-        ;
+    echo "✅ Switched to production containers"
+    ;;
     
     help|--help|-h)
         show_usage
