@@ -28,16 +28,18 @@ const ProjectsList = async () => {
   try {
     const cookieStore = await cookies();
     const allCookies = cookieStore.getAll();
-    const cookieHeader = allCookies.map((c) => `${c.name}=${c.value}`).join("; ");
+    const cookieHeader = allCookies
+      .map((c) => `${c.name}=${c.value}`)
+      .join("; ");
     const hasPayloadToken = allCookies.some((c) => c.name === "payload-token");
 
     // Forward auth cookies to backend data fetch so NDA content resolves when allowed
-    const forwardedHeaders: HeadersInit = cookieHeader ? { Cookie: cookieHeader } : {};
+    const forwardedHeaders: HeadersInit = cookieHeader
+      ? { Cookie: cookieHeader }
+      : {};
     await ProjectData.initialize({
       headers: forwardedHeaders,
       disableCache: true,
-      // Heuristic: if payload-token cookie present, treat as authenticated even if /api/users/me check fails
-      assumeAuthenticated: hasPayloadToken,
     });
 
     // Perform explicit auth check via /api/users/me for user presence (may still fail if token expired)
@@ -62,12 +64,12 @@ const ProjectsList = async () => {
       } catch {
         try {
           const h = await nextHeaders();
-            const host = h.get("x-forwarded-host") ?? h.get("host");
-            const proto = h.get("x-forwarded-proto") ?? "http";
-            const origin = host
-              ? `${proto}://${host}`
-              : process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
-            res = await tryAuthFetch(`${origin}${basePath}/api/users/me`);
+          const host = h.get("x-forwarded-host") ?? h.get("host");
+          const proto = h.get("x-forwarded-proto") ?? "http";
+          const origin = host
+            ? `${proto}://${host}`
+            : process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+          res = await tryAuthFetch(`${origin}${basePath}/api/users/me`);
         } catch {}
       }
       isAuthenticated = Boolean(res?.ok);

@@ -165,15 +165,9 @@ Goal: Server-only gating for protected/NDA fields. Client code should not need t
 
 Note: For local development behind a single origin (e.g., Caddy reverse proxy), ensure both admin and site share the same cookie scope.
 
-### Authentication — pragmatic deviation (documented)
+### Authentication — note on historical deviation
 
-In this repository we currently include a pragmatic, optional client-side fallback:
-
-- `assumeAuthenticated` flag in the data layer avoids client-side NDA scrubbing immediately after login, addressing UX flicker when HttpOnly cookies are not visible to JavaScript but sent by the browser.
-- This is safe because the backend still enforces access; the flag only bypasses client scrubbing logic.
-- Removal path for boilerplate: prefer the conventional track above (server-only gating + redirect/refresh) and delete the `assumeAuthenticated` code paths.
-
-When copying this repo as boilerplate, prefer the conventional track and omit the deviation unless you have a specific reason.
+Earlier iterations used a small client-side fallback to reduce UX flicker (an `assumeAuthenticated` code path). This has been removed in favor of the conventional model above (server-only gating + redirect/refresh). Boilerplate consumers should follow the conventional track.
 
 ---
 

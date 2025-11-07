@@ -64,7 +64,7 @@ export default function ProjectViewWrapper({
         if (ssrParsed) {
           ProjectData.hydrate(
             ssrParsed,
-            Boolean(ssrIncludeNdaInActive ?? includeNdaInActive),
+            Boolean(ssrIncludeNdaInActive ?? includeNdaInActive)
           );
         } else {
           if (!allowNda) {
@@ -127,7 +127,6 @@ function ProjectViewRouterBridge({
         await ProjectData.initialize({
           disableCache: true,
           includeNdaInActive: true,
-          assumeAuthenticated: true,
         });
       }
     };

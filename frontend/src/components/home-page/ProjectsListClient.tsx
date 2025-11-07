@@ -71,11 +71,6 @@ const ProjectsListClient: React.FC<ProjectsListClientProps> = ({
           await mod.default.initialize({
             disableCache: true,
             includeNdaInActive: true,
-            // We rely on browser fetch with credentials=include and our
-            // frontend /api/projects proxy forwarding Cookie to backend.
-            // Since HttpOnly cookie isn't readable here, assert auth based
-            // on Redux state to bypass NDA scrubbing in the transform layer.
-            assumeAuthenticated: true,
           });
           const refreshed = [...mod.default.listedProjects];
           // Only update if we actually received NDA expansions (heuristic: any title !== 'Confidential Project' while nda flag true)
@@ -84,7 +79,7 @@ const ProjectsListClient: React.FC<ProjectsListClientProps> = ({
           if (process.env.NODE_ENV !== "production") {
             const ndaRealCount = refreshed.filter(
               (p) =>
-                (p.nda || p.brandIsNda) && p.title !== "Confidential Project",
+                (p.nda || p.brandIsNda) && p.title !== "Confidential Project"
             ).length;
 
             console.info("[ProjectsListClient] NDA refresh complete", {
@@ -115,11 +110,11 @@ const ProjectsListClient: React.FC<ProjectsListClientProps> = ({
       }
       projectThumbRefs.current[index].current = node;
     },
-    [],
+    []
   );
 
   const getThumbnailIndex = (
-    thumbRef: RefObject<HTMLDivElement | null>,
+    thumbRef: RefObject<HTMLDivElement | null>
   ): number => {
     return projectThumbRefs.current.findIndex((ref) => ref === thumbRef);
   };
@@ -169,7 +164,7 @@ const ProjectsListClient: React.FC<ProjectsListClientProps> = ({
         }
       });
     },
-    [focusedThumbIndex],
+    [focusedThumbIndex]
   );
 
   /** Get the index of a given thumbnail ref from `projectThumbRefs`. */
@@ -183,7 +178,7 @@ const ProjectsListClient: React.FC<ProjectsListClientProps> = ({
         ticking.current = true;
       }
     },
-    [update],
+    [update]
   );
 
   /** Bind/unbind scroll and resize listeners for focus updates. */

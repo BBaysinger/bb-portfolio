@@ -42,8 +42,10 @@ export const useAuth = () => {
       // Clear manual logout flag on successful login
       localStorage.removeItem("manualLogout");
 
-      // Redirect on successful login
-      router.push("/");
+      // Conventional SSR refresh after login: navigate and re-run server components
+      router.replace("/");
+      // Ensure SSR is re-evaluated with the HttpOnly cookie
+      router.refresh();
       return result;
     } catch (error) {
       // Error is already in Redux state, just re-throw for form handling
