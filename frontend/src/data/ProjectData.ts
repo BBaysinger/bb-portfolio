@@ -81,7 +81,7 @@ async function fetchPortfolioProjects(opts?: {
     const get = (name: string): string | undefined => {
       if (Array.isArray(requestHeaders)) {
         const entry = requestHeaders.find(
-          ([k]) => k.toLowerCase() === name.toLowerCase(),
+          ([k]) => k.toLowerCase() === name.toLowerCase()
         );
         return entry ? entry[1] : undefined;
       }
@@ -90,7 +90,7 @@ async function fetchPortfolioProjects(opts?: {
       const obj = requestHeaders as Record<string, string>;
       // Headers in Next can be normalized to lowercase keys
       const lower = Object.fromEntries(
-        Object.entries(obj).map(([k, v]) => [k.toLowerCase(), v]),
+        Object.entries(obj).map(([k, v]) => [k.toLowerCase(), v])
       ) as Record<string, string>;
       return lower[name.toLowerCase()];
     };
@@ -103,12 +103,16 @@ async function fetchPortfolioProjects(opts?: {
     return `${proto}://${host}`.replace(/\/$/, "");
   };
 
-  // Prefer same-origin on the server when cookies are available so the Next.js proxy
-  // forwards them to the backend seamlessly. Otherwise, use absolute backend URL.
+  // IMPORTANT: For server-side data fetching, always call the backend directly using
+  // the internal/base URL. Forward the Cookie header explicitly so Payload can
+  // authenticate the request and include NDA content when permitted.
+  // Rationale: Relative fetches (e.g. "/api/projects") from within the Next.js
+  // server may not traverse the edge/ingress proxy where /api is routed to the
+  // backend, leading to 404s or public responses. Using the backend URL here is
+  // reliable in all environments (local/dev/prod) and still honors auth because
+  // we forward the Cookie header below.
   const primaryUrl = isServer
-    ? hasRequestCookies
-      ? serverPath
-      : `${base.replace(/\/$/, "")}${serverPath}`
+    ? `${base.replace(/\/$/, "")}${serverPath}`
     : path;
   const fallbackUrl =
     isServer && serviceDnsFallback
@@ -122,7 +126,42 @@ async function fetchPortfolioProjects(opts?: {
     fetchOptions.next = { revalidate: 3600 };
   }
   if (requestHeaders) {
-    fetchOptions.headers = requestHeaders;
+    // Clone headers and also add Authorization: JWT <token> if a payload-token cookie is present.
+    const cloneHeaders: Record<string, string> = (() => {
+      if (Array.isArray(requestHeaders)) {
+        return Object.fromEntries(
+          requestHeaders.map(([k, v]) => [k, v] as [string, string])
+        );
+      }
+      if (requestHeaders instanceof Headers) {
+        const obj: Record<string, string> = {};
+        requestHeaders.forEach((v, k) => {
+          obj[k] = v;
+        });
+        return obj;
+      }
+      return { ...(requestHeaders as Record<string, string>) };
+    })();
+
+    const cookieHeaderRaw = Object.entries(cloneHeaders).find(
+      ([k]) => k.toLowerCase() === "cookie"
+    )?.[1];
+    const token = (() => {
+      if (!cookieHeaderRaw) return "";
+      // Simple parse for 'payload-token'
+      const parts = cookieHeaderRaw.split(/;\s*/);
+      for (const p of parts) {
+        const [name, ...rest] = p.split("=");
+        if (name && name.trim() === "payload-token") {
+          return rest.join("=");
+        }
+      }
+      return "";
+    })();
+    if (token) {
+      cloneHeaders["Authorization"] = `JWT ${token}`;
+    }
+    fetchOptions.headers = cloneHeaders;
     fetchOptions.credentials = "include";
   } else if (!isServer) {
     // Ensure browser requests include auth cookies for NDA-aware responses
@@ -221,7 +260,7 @@ async function fetchPortfolioProjects(opts?: {
     throw new Error(
       `Failed to fetch project data: ${res.status} ${res.statusText}${
         detail ? ` - ${detail.slice(0, 300)}` : ""
-      }`,
+      }`
     );
   }
   type BrandObj = {
@@ -269,10 +308,36 @@ async function fetchPortfolioProjects(opts?: {
     }
     // Plain object
     const lowerKeys = Object.keys(h as Record<string, string>).map((k) =>
-      k.toLowerCase(),
+      k.toLowerCase()
     );
     return lowerKeys.includes("cookie");
   })();
+
+  if (debug) {
+    try {
+      const cookieVal = (() => {
+        if (!requestHeaders) return "<none>";
+        if (Array.isArray(requestHeaders)) {
+          const entry = requestHeaders.find(
+            ([k]) => k.toLowerCase() === "cookie"
+          );
+          return entry ? entry[1] : "<none-array>";
+        }
+        if (requestHeaders instanceof Headers)
+          return requestHeaders.get("cookie") || "<none-headers>";
+        const obj = requestHeaders as Record<string, string>;
+        const foundKey = Object.keys(obj).find(
+          (k) => k.toLowerCase() === "cookie"
+        );
+        return foundKey ? obj[foundKey] : "<none-object>";
+      })();
+      console.info("[ProjectData] post-fetch auth context", {
+        responseStatus: res.status,
+        hasAuthCookie,
+        cookieHeaderSnippet: cookieVal?.slice(0, 200),
+      });
+    } catch {}
+  }
 
   // Type guard to detect Payload REST shape
   const isPayloadRest = (val: unknown): val is PayloadProjectsRest => {
@@ -331,6 +396,14 @@ async function fetchPortfolioProjects(opts?: {
         screenshotUrls: {},
       };
       _debugPlaceholders++;
+      if (debug) {
+        try {
+          console.info("[ProjectData] NDA placeholder emitted", {
+            slug,
+            sortIndex: typeof doc.sortIndex === "number" ? doc.sortIndex : null,
+          });
+        } catch {}
+      }
       continue;
     }
 
@@ -641,7 +714,7 @@ export default class ProjectData {
    */
   static hydrate(
     parsed: ParsedPortfolioProjectData,
-    includeNdaInActive: boolean,
+    includeNdaInActive: boolean
   ) {
     // Reset caches
     this._projects = {} as ParsedPortfolioProjectData;
@@ -708,7 +781,7 @@ export default class ProjectData {
             if (p) acc[k] = p;
             return acc;
           },
-          {} as Record<string, ParsedPortfolioProject>,
+          {} as Record<string, ParsedPortfolioProject>
         );
       }
     }
@@ -742,7 +815,7 @@ export default class ProjectData {
         record[project.id] = project;
         return record;
       },
-      {} as Record<string, ParsedPortfolioProject>,
+      {} as Record<string, ParsedPortfolioProject>
     );
   }
 
@@ -753,7 +826,7 @@ export default class ProjectData {
    * @returns Parsed portfolio data
    */
   private static parsePortfolioData(
-    data: PortfolioProjectData,
+    data: PortfolioProjectData
   ): ParsedPortfolioProjectData {
     const parsedData: ParsedPortfolioProjectData = {};
 
@@ -881,7 +954,7 @@ export default class ProjectData {
               if (p) acc[k] = p;
               return acc;
             },
-            {} as Record<string, ParsedPortfolioProject>,
+            {} as Record<string, ParsedPortfolioProject>
           );
         }
       }

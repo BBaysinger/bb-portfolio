@@ -54,46 +54,11 @@ const ProjectsListClient: React.FC<ProjectsListClientProps> = ({
   // Local state that can be refreshed post-login to replace NDA placeholders
   const [projects, setProjects] =
     useState<ParsedPortfolioProject[]>(allProjects);
-  const hasRefreshedAfterLogin = useRef(false);
-
-  // When a user logs in client-side (e.g., via /admin without full page reload),
-  // we need to refetch project data so NDA placeholders are replaced with real data.
-  // Server-rendered data cannot be “unscrubbed” in-place because the fields were
-  // removed during SSR for unauthenticated requests.
+  // Stay purely SSR-driven: if the server props change (e.g., after router.refresh),
+  // sync the local list to avoid stale data while avoiding client-only re-fetches.
   useEffect(() => {
-    if (_clientAuth && !hasRefreshedAfterLogin.current) {
-      // Trigger a client-side refresh of ProjectData; it will include auth cookie
-      // and return full NDA data (titles, logos, screenshots) where permitted.
-      const run = async () => {
-        try {
-          // Dynamic import to avoid bloat if never needed during unauthenticated sessions
-          const mod = await import("@/data/ProjectData");
-          await mod.default.initialize({
-            disableCache: true,
-            includeNdaInActive: true,
-          });
-          const refreshed = [...mod.default.listedProjects];
-          // Only update if we actually received NDA expansions (heuristic: any title !== 'Confidential Project' while nda flag true)
-          setProjects(refreshed);
-          hasRefreshedAfterLogin.current = true;
-          if (process.env.NODE_ENV !== "production") {
-            const ndaRealCount = refreshed.filter(
-              (p) =>
-                (p.nda || p.brandIsNda) && p.title !== "Confidential Project",
-            ).length;
-
-            console.info("[ProjectsListClient] NDA refresh complete", {
-              total: refreshed.length,
-              ndaRealCount,
-            });
-          }
-        } catch (e) {
-          console.warn("[ProjectsListClient] NDA refresh failed", e);
-        }
-      };
-      run();
-    }
-  }, [_clientAuth]);
+    setProjects(allProjects);
+  }, [allProjects]);
 
   const [focusedThumbIndex, setFocusedThumbIndex] = useState(-1);
   const projectThumbRefs = useRef<Array<RefObject<HTMLDivElement | null>>>([]);
@@ -110,11 +75,11 @@ const ProjectsListClient: React.FC<ProjectsListClientProps> = ({
       }
       projectThumbRefs.current[index].current = node;
     },
-    [],
+    []
   );
 
   const getThumbnailIndex = (
-    thumbRef: RefObject<HTMLDivElement | null>,
+    thumbRef: RefObject<HTMLDivElement | null>
   ): number => {
     return projectThumbRefs.current.findIndex((ref) => ref === thumbRef);
   };
@@ -164,7 +129,7 @@ const ProjectsListClient: React.FC<ProjectsListClientProps> = ({
         }
       });
     },
-    [focusedThumbIndex],
+    [focusedThumbIndex]
   );
 
   /** Get the index of a given thumbnail ref from `projectThumbRefs`. */
@@ -178,7 +143,7 @@ const ProjectsListClient: React.FC<ProjectsListClientProps> = ({
         ticking.current = true;
       }
     },
-    [update],
+    [update]
   );
 
   /** Bind/unbind scroll and resize listeners for focus updates. */
