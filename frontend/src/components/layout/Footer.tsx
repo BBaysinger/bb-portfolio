@@ -171,8 +171,8 @@ const Footer: React.FC<FooterProps> = ({ className, mutationElemRef }) => {
             Built with React
           </a>
         </div>
-        <Link className={styles.footerLink} href="https://bbinteractive.io">
-          &copy; <span style={{ color: "#fff" }}>BBInteractive</span>.io
+        <Link className={styles.footerLink} href="https://bbaysinger.com">
+          &copy; <span style={{ color: "#fff" }}>BBaysinger</span>.com
         </Link>
       </div>
     </footer>
