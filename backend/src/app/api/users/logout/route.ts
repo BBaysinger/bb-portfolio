@@ -41,7 +41,10 @@ export async function POST(request: Request) {
   headers.set('Expires', '0')
 
   return new Response(
-    JSON.stringify({ message: 'Logged out', cleared: { host, cookieNames: ['payload-token', 'authToken'] } }),
+    JSON.stringify({
+      message: 'Logged out',
+      cleared: { host, cookieNames: ['payload-token', 'authToken'] },
+    }),
     { status: 200, headers },
   )
 }
