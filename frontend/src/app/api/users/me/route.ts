@@ -2,6 +2,20 @@ import { NextRequest, NextResponse } from "next/server";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
+// Type guards to avoid use of `any` when validating the user payload
+const isRecord = (v: unknown): v is Record<string, unknown> =>
+  typeof v === "object" && v !== null;
+
+const hasIdentity = (u: unknown): u is { id?: string; email?: string } => {
+  if (!isRecord(u)) return false;
+  const id = u["id"];
+  const email = u["email"];
+  return (
+    (typeof id === "string" && id.length > 0) ||
+    (typeof email === "string" && email.length > 0)
+  );
+};
+
 /**
  * User "me" API route that proxies to Payload CMS backend to get current user info
  */
@@ -148,7 +162,7 @@ export async function GET(request: NextRequest) {
       }
       return payload;
     })();
-    const success = NextResponse.json({ user });
+  const success = NextResponse.json({ user });
     // Explicitly disable caching at every layer
     success.headers.set(
       "Cache-Control",
@@ -157,12 +171,7 @@ export async function GET(request: NextRequest) {
     success.headers.set("Pragma", "no-cache");
     success.headers.set("Expires", "0");
     // Harden: if user is null/undefined or lacks basic identity fields, treat as unauthenticated
-    if (
-      !user ||
-      (typeof user === "object" &&
-        !("id" in (user as any)) &&
-        !("email" in (user as any)))
-    ) {
+    if (!hasIdentity(user)) {
       const unauth = NextResponse.json(
         { error: "Not authenticated" },
         { status: 401 },
