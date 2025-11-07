@@ -11,6 +11,8 @@ import { useAutoCloseMobileNavOnScroll } from "@/hooks/useAutoCloseMobileNavOnSc
 import useClientDimensions from "@/hooks/useClientDimensions";
 import { useFluidVariables } from "@/hooks/useFluidVariables";
 import { useTrackHeroInView } from "@/hooks/useTrackHeroInView";
+import { resetAuthState, checkAuthStatus } from "@/store/authSlice";
+import { useAppDispatch } from "@/store/hooks";
 import { RootState } from "@/store/store";
 import ScrollToHash from "@/utils/ScrollToHash";
 
@@ -21,6 +23,7 @@ import styles from "./AppShell.module.scss";
  */
 export function AppShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
+  const dispatch = useAppDispatch();
   // Runtime backend health check: logs backend connectivity status on startup
   useEffect(() => {
     // Prefer same-origin relative path to leverage Next.js rewrites (/api -> backend)
@@ -98,17 +101,22 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           cache: "no-store",
         });
         if (res.ok) {
+          // Session exists server-side: refresh SSR (may reveal protected content)
           router.refresh();
+        } else if (res.status === 401) {
+          // Session no longer valid (e.g., logged out in another tab): clear stale client auth
+          dispatch(resetAuthState());
+        } else if (res.status >= 500) {
+          // Optionally re-check later; do nothing now
         }
       } catch {
-        // ignore network errors here; user can refresh manually
+        // Network error: silent
       }
     };
     const onVisible = () => {
       if (document.visibilityState !== "visible") return;
       if (ticking) return;
       ticking = true;
-      // small microtask to batch multiple events
       Promise.resolve().then(() => {
         checkAndRefresh().finally(() => (ticking = false));
       });
@@ -119,7 +127,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       window.removeEventListener("focus", onVisible);
       document.removeEventListener("visibilitychange", onVisible);
     };
-  }, [router]);
+  }, [router, dispatch]);
+
+  // Periodic soft auth validation (clears stale user if cookie disappears without a tab visibility event)
+  useEffect(() => {
+    const id = setInterval(() => {
+      // Lightweight head request could be used; reuse existing thunk for clarity
+      dispatch(checkAuthStatus());
+    }, 60_000); // every 60s
+    return () => clearInterval(id);
+  }, [dispatch]);
 
   /**
    * Fluid Responsive System - CSS Variables Provider

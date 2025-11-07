@@ -126,10 +126,18 @@ export async function GET(request: NextRequest) {
         }
         return undefined;
       })();
-      return NextResponse.json(
+      const resp = NextResponse.json(
         { error: message || "Not authenticated" },
         { status: res.status },
       );
+      // Explicitly disable caching at every layer
+      resp.headers.set(
+        "Cache-Control",
+        "no-store, no-cache, must-revalidate, private",
+      );
+      resp.headers.set("Pragma", "no-cache");
+      resp.headers.set("Expires", "0");
+      return resp;
     }
 
     // Return user data (Payload returns either { user } or the user directly)
@@ -140,12 +148,28 @@ export async function GET(request: NextRequest) {
       }
       return payload;
     })();
-    return NextResponse.json({ user });
+    const success = NextResponse.json({ user });
+    // Explicitly disable caching at every layer
+    success.headers.set(
+      "Cache-Control",
+      "no-store, no-cache, must-revalidate, private",
+    );
+    success.headers.set("Pragma", "no-cache");
+    success.headers.set("Expires", "0");
+    return success;
   } catch (error) {
     console.error("User me API error:", error);
-    return NextResponse.json(
+    const resp = NextResponse.json(
       { error: "Internal server error" },
       { status: 500 },
     );
+    // Explicitly disable caching at every layer
+    resp.headers.set(
+      "Cache-Control",
+      "no-store, no-cache, must-revalidate, private",
+    );
+    resp.headers.set("Pragma", "no-cache");
+    resp.headers.set("Expires", "0");
+    return resp;
   }
 }
