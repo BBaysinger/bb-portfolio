@@ -156,6 +156,25 @@ export async function GET(request: NextRequest) {
     );
     success.headers.set("Pragma", "no-cache");
     success.headers.set("Expires", "0");
+    // Harden: if user is null/undefined or lacks basic identity fields, treat as unauthenticated
+    if (
+      !user ||
+      (typeof user === "object" &&
+        !("id" in (user as any)) &&
+        !("email" in (user as any)))
+    ) {
+      const unauth = NextResponse.json(
+        { error: "Not authenticated" },
+        { status: 401 },
+      );
+      unauth.headers.set(
+        "Cache-Control",
+        "no-store, no-cache, must-revalidate, private",
+      );
+      unauth.headers.set("Pragma", "no-cache");
+      unauth.headers.set("Expires", "0");
+      return unauth;
+    }
     return success;
   } catch (error) {
     console.error("User me API error:", error);
