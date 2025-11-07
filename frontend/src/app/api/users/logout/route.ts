@@ -97,6 +97,13 @@ export async function POST(request: NextRequest) {
     const nextResponse = NextResponse.json({
       message: "Logged out successfully",
     });
+    // Explicitly disable caching
+    nextResponse.headers.set(
+      "Cache-Control",
+      "no-store, no-cache, must-revalidate, private",
+    );
+    nextResponse.headers.set("Pragma", "no-cache");
+    nextResponse.headers.set("Expires", "0");
 
     // Forward any set-cookie headers from backend (these should clear cookies)
     const setCookieHeader = response.headers.get("set-cookie");
@@ -116,22 +123,62 @@ export async function POST(request: NextRequest) {
       // These are common Payload CMS cookie names
       if (debug)
         console.info("🔧 Backend didn't clear cookies, doing it manually");
-      nextResponse.headers.append(
-        "set-cookie",
-        "payload-token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; SameSite=Lax",
-      );
-      nextResponse.headers.append(
-        "set-cookie",
-        "authToken=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; SameSite=Lax",
-      );
+
+      const hostHeader =
+        request.headers.get("x-forwarded-host") ||
+        request.headers.get("host") ||
+        "";
+      const xfp = request.headers.get("x-forwarded-proto") || "";
+      const isSecure = xfp === "https" || hostHeader.endsWith(":443");
+
+      // Best-effort derive apex domain (e.g., dev.bbinteractive.io -> bbinteractive.io)
+      const deriveApex = (host: string) => {
+        // strip port
+        const base = host.replace(/:\d+$/, "");
+        const parts = base.split(".");
+        if (parts.length < 2) return "";
+        // naive: last two labels
+        return parts.slice(-2).join(".");
+      };
+      const apex = deriveApex(hostHeader);
+      const cookieAttrs = (domain?: string) =>
+        [
+          domain ? `Domain=.${domain}` : undefined,
+          "Path=/",
+          "Expires=Thu, 01 Jan 1970 00:00:00 GMT",
+          "HttpOnly",
+          "SameSite=Lax",
+          isSecure ? "Secure" : undefined,
+        ]
+          .filter(Boolean)
+          .join("; ");
+
+      const expire = (name: string, domain?: string) =>
+        `${name}=; ${cookieAttrs(domain)}`;
+
+      // Clear host-only and apex-scoped variants for common names
+      const names = ["payload-token", "authToken"];
+      for (const n of names) {
+        nextResponse.headers.append("set-cookie", expire(n));
+        if (apex) {
+          nextResponse.headers.append("set-cookie", expire(n, apex));
+        }
+      }
     }
 
     return nextResponse;
   } catch (error) {
     console.error("Logout API error:", error);
-    return NextResponse.json(
+    const resp = NextResponse.json(
       { error: "Internal server error" },
       { status: 500 },
     );
+    resp.headers.set(
+      "Cache-Control",
+      "no-store, no-cache, must-revalidate, private",
+    );
+    resp.headers.set("Pragma", "no-cache");
+    resp.headers.set("Expires", "0");
+    return resp;
   }
 }
