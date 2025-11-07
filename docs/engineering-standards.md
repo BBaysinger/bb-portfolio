@@ -16,6 +16,24 @@ Any deviation from standards, conventions, or best practices must be explicitly 
 
 ---
 
+## Boilerplate and reuse
+
+Parts of this repository may become a learning reference or future boilerplate. Favor conventional, broadly adopted patterns over cleverness. Where pragmatism requires a deviation, document it in code and in this file, and provide a straightforward “conventional path” alternative.
+
+Guidelines for boilerplate readiness:
+
+- Prefer framework defaults and common patterns (Next.js App Router, server/route handlers, HttpOnly cookies) over bespoke abstractions.
+- Keep cross-cutting concerns (auth, logging, errors) minimal and well-documented; avoid app-specific shortcuts in shared layers.
+- Provide short comments where a choice differs from the norm and link back to this document for rationale and a removal path.
+- When in doubt, choose the simpler, more conventional implementation that is easier to remember and explain.
+
+Scope of reuse:
+
+- This codebase (Next.js + Payload + Docker + Compose) may be repurposed as a starter. Aim to keep key modules (API routes, auth, data fetching, rendering) boilerplate-friendly.
+- Treat this document as the source of truth for “standard vs. pragmatic” choices so future projects can copy the conventional track without surprises.
+
+---
+
 ## Evolving standards
 
 These standards evolve with the codebase.
@@ -133,6 +151,30 @@ Operator guidance:
 - Do not import server-only secrets into client components; use server actions or API routes.
 - Prefer server actions where possible for backend interactions; use API routes when isolation or custom response handling is required.
 
+### Authentication (Next.js + Payload) — conventional track
+
+Goal: Server-only gating for protected/NDA fields. Client code should not need to “scrub” sensitive data.
+
+- Session model: single HttpOnly session cookie (Payload’s `payload-token`).
+- Server enforcement: Payload access rules and collection hooks must prevent NDA data exposure to unauthenticated requests.
+- SSR behavior: after login, perform a navigation that re-runs server components so the cookie is included and protected data renders. Two common options:
+  - Server-side 302 redirect to `/` after login; or
+  - Client: `router.replace("/")` then `router.refresh()`.
+- Cross-tab login (e.g., login in admin tab): on the site tab, listen for `visibilitychange`/`focus`, call `/api/users/me`, and if authenticated call `router.refresh()` to synchronize SSR state.
+- Client fetches: use `credentials: 'include'`. Avoid client-side “NDA scrubbing” logic—let the server decide.
+
+Note: For local development behind a single origin (e.g., Caddy reverse proxy), ensure both admin and site share the same cookie scope.
+
+### Authentication — pragmatic deviation (documented)
+
+In this repository we currently include a pragmatic, optional client-side fallback:
+
+- `assumeAuthenticated` flag in the data layer avoids client-side NDA scrubbing immediately after login, addressing UX flicker when HttpOnly cookies are not visible to JavaScript but sent by the browser.
+- This is safe because the backend still enforces access; the flag only bypasses client scrubbing logic.
+- Removal path for boilerplate: prefer the conventional track above (server-only gating + redirect/refresh) and delete the `assumeAuthenticated` code paths.
+
+When copying this repo as boilerplate, prefer the conventional track and omit the deviation unless you have a specific reason.
+
 ---
 
 ## Backend conventions
@@ -198,6 +240,7 @@ Use this checklist when opening any PR:
 - [ ] Docs updated when behavior or configuration changes (this file, `docs/environment-variables.md`, etc.).
 - [ ] ADRs updated if new technical decisions were introduced.
 - [ ] Build passes `scripts/check-required-env.js` locally before commit.
+- [ ] Boilerplate readiness: non-standard deviations (if any) are documented with a clear removal path; conventional alternatives are noted.
 
 ---
 
