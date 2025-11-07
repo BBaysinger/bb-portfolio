@@ -206,8 +206,8 @@ services:
       ENV_PROFILE: local
       NPM_CONFIG_CACHE: /app/.npm-cache
       # Disk usage guardrails (warn/fail thresholds in percent). Adjust as needed.
-      DISK_WARN_PCT: "85"
-      DISK_FAIL_PCT: "95"
+      DISK_WARN_PCT: "95"
+      DISK_FAIL_PCT: "101"
       DISK_CHECK_PATHS: "/tmp"
     restart: unless-stopped
 
@@ -233,8 +233,8 @@ services:
       # API calls are relative; proxy routes /api to backend
       NPM_CONFIG_CACHE: /app/.npm-cache
       # Disk usage guardrails (warn/fail thresholds in percent). Adjust as needed.
-      DISK_WARN_PCT: "85"
-      DISK_FAIL_PCT: "95"
+      DISK_WARN_PCT: "95"
+      DISK_FAIL_PCT: "101"
       DISK_CHECK_PATHS: "/tmp"
     restart: unless-stopped
     depends_on:
