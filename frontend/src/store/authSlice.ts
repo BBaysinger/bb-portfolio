@@ -59,7 +59,16 @@ export const checkAuthStatus = createAsyncThunk(
       }
 
       const data = await response.json();
-      return data.user;
+      // Defensive: ensure user object looks valid (has an id/email)
+      const user = data?.user;
+      if (
+        !user ||
+        typeof user !== "object" ||
+        (!("id" in user) && !("email" in user))
+      ) {
+        return rejectWithValue("Not authenticated");
+      }
+      return user;
     } catch {
       return rejectWithValue("Failed to check auth status");
     }
@@ -160,7 +169,7 @@ const authSlice = createSlice({
               action.payload,
             );
           state.user = action.payload;
-          state.isLoggedIn = true;
+          state.isLoggedIn = Boolean(action.payload?.id || action.payload?.email);
           state.isLoading = false;
           state.error = null;
           state.hasInitialized = true;
