@@ -6,6 +6,77 @@ This file records major technical decisions for the portfolio project.
 Each entry includes the date, decision, reasoning, alternatives, and current status.  
 New decisions should be appended chronologically.
 
+
+## 2025-11-07 – Production HTTPS Enablement (Certbot) and Domain Hygiene
+
+- **Decision:** Enable HTTPS on EC2 using Certbot (nginx plugin) and wire ACME contact email via orchestrator. Clean up domain list used for certificate issuance (remove invalid/non-existent hosts).
+- **Reasoning:** Provide TLS for bbaysinger.com with automated issuance/renewal; avoid broken SANs caused by stale domains (e.g., `www.dev.bbaysinger.com`).
+- **Implementation:**
+  - Certbot installed on EC2; certificates issued for apex + www where applicable.
+  - Orchestrator and docs updated to include ACME email and the authoritative list of domains.
+  - Redirects validated and renewal scheduled.
+- **Alternatives considered:** ACM/ALB or CloudFront-managed certs (heavier AWS footprint); Caddy-only termination (local use retained, production standardized on nginx).
+- **Status:** ✅ Active
+
+---
+
+## 2025-11-07 – Single-Host per Environment and Canonicalization
+
+- **Decision:** Each environment is served from exactly one host on `bbaysinger.com` (no concurrent multi-domain serving). Logout/auth logic is simplified accordingly; future enforcement via nginx canonical redirect (e.g., `www → apex`) and HSTS.
+- **Reasoning:** Multi-domain cookies were the root cause of “logout didn’t actually log me out” behavior. A single canonical host eliminates cross-domain cookie seams and simplifies session handling.
+- **Implementation:**
+  - Backend logout route emits a single Set-Cookie expiration per auth cookie (Path=/, HttpOnly, SameSite=Lax, Secure in prod, Expires + Max-Age=0).
+  - Frontend logout proxy now simply forwards backend Set-Cookie; manual multi-domain fallbacks removed.
+  - Plan: add nginx 301 canonical host redirects and enable HSTS once traffic is fully stable.
+- **Alternatives considered:** Keep multi-variant cookie expiration for apex + host (kept temporarily during transition; now removed for clarity and lowest risk).
+- **Status:** ✅ Active
+
+---
+
+## 2025-11-07 – Auth State and Logout Hardening
+
+- **Decision:** Make authentication state deterministic and cache-proof on both client and server.
+- **Reasoning:** UI showed “Logout” when logged out; admin/NDA content occasionally remained visible post-logout due to stale checks and cookies not being cleared in all scopes.
+- **Implementation:**
+  - `/frontend/src/app/api/users/me` returns 401 unless the user object includes a clear identity (id/email). Added explicit `Cache-Control: no-store`/`Pragma`/`Expires`.
+  - Redux only sets logged-in when identity is present. AppShell triggers auth re-check on window focus/visibility and runs a periodic lightweight validation.
+  - Logout: server route in the backend issues proper cookie clearing; frontend proxy forwards Set-Cookie and disables caching. Router refresh invoked post-logout.
+- **Alternatives considered:** Heuristics that infer auth from ambiguous backend responses (rejected); client-only polling for all privileged visibility (too brittle).
+- **Status:** ✅ Active
+
+---
+
+## 2025-11-07 – Server-Driven NDA Gating (Flicker-Free)
+
+- **Decision:** Enforce NDA visibility on the server and remove client-side re-fetch heuristics that caused flicker or stale exposure.
+- **Reasoning:** Client re-init after login/logout could briefly show incorrect NDA states; SSR is the source of truth and can honor HttpOnly cookies.
+- **Implementation:**
+  - ProjectData server fetches forced `no-store` to avoid leaking NDA content from cached responses.
+  - SSR uses backend base URL; forwards `Cookie` and `Authorization` JWT when present.
+  - Login uses `router.replace('/')` + `router.refresh()`; logout triggers `router.refresh()` to re-evaluate gated content.
+- **Alternatives considered:** Continue mixed client/server gating (led to flicker and complex race handling).
+- **Status:** ✅ Active (supersedes prior temporary client heuristics)
+
+---
+
+## 2025-11-07 – Local Dev Reliability (Caddy + Disk Guard)
+
+- **Decision:** Relax local container disk guard thresholds and limit checks to `/tmp` for dev images to prevent crash loops that blocked Caddy on port 8080.
+- **Reasoning:** Containers were restart-looping (exit 70) due to aggressive disk usage checks; this prevented `caddy:up` from serving locally.
+- **Implementation:** Adjusted compose env to raise warn/fail thresholds and scope checks to `/tmp` for the local profile.
+- **Alternatives considered:** Disable disk guard entirely (too risky); increase host disk space (unnecessary for local).
+- **Status:** ✅ Active
+
+---
+
+## 2025-11-07 – CI/CD Redeploy Workflow: docker compose v2 Migration
+
+- **Decision:** Migrate redeploy workflows to `docker compose v2`, set `COMPOSE_PROJECT_NAME`, and replace brittle container removal with per-profile `down --remove-orphans` before `up`.
+- **Reasoning:** Stabilizes CI/CD redeploys, avoids hard-coded container names, and aligns with modern Docker tooling.
+- **Implementation:** Updated workflows; added diagnostics and ensured profiles are isolated.
+- **Alternatives considered:** Keep legacy `docker-compose` CLI (deprecated path); manual container removal (fragile).
+- **Status:** ✅ Active
+
 ---
 
 ## 📌 Template for new entries
