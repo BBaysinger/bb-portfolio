@@ -27,22 +27,20 @@ const ProjectsList = async () => {
   let isAuthenticated = false;
   try {
     const cookieStore = await cookies();
-    const cookieHeader = cookieStore
-      .getAll()
-      .map((c) => `${c.name}=${c.value}`)
-      .join("; ");
+    const allCookies = cookieStore.getAll();
+    const cookieHeader = allCookies.map((c) => `${c.name}=${c.value}`).join("; ");
+    const hasPayloadToken = allCookies.some((c) => c.name === "payload-token");
 
     // Forward auth cookies to backend data fetch so NDA content resolves when allowed
-    const forwardedHeaders: HeadersInit = cookieHeader
-      ? { Cookie: cookieHeader }
-      : {};
+    const forwardedHeaders: HeadersInit = cookieHeader ? { Cookie: cookieHeader } : {};
     await ProjectData.initialize({
       headers: forwardedHeaders,
       disableCache: true,
+      // Heuristic: if payload-token cookie present, treat as authenticated even if /api/users/me check fails
+      assumeAuthenticated: hasPayloadToken,
     });
 
-    // Server-side auth check via local API route.
-    // Prefer a relative URL to avoid container networking issues when SSR runs behind proxies.
+    // Perform explicit auth check via /api/users/me for user presence (may still fail if token expired)
     if (cookieHeader) {
       const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
       const tryAuthFetch = async (url: string) =>
@@ -54,35 +52,36 @@ const ProjectsList = async () => {
           },
           cache: "no-store",
         });
-
       let res: Response | null = null;
       try {
-        // Try relative route first (works in Next.js server runtime)
         res = await tryAuthFetch(`${basePath}/api/users/me`);
         if (!res.ok) {
-          // Some setups enforce trailing slash for API routes
           const alt = await tryAuthFetch(`${basePath}/api/users/me/`);
           if (alt.ok) res = alt;
         }
       } catch {
-        // Fallback to absolute origin if relative fetch fails (e.g., custom runtimes)
         try {
           const h = await nextHeaders();
-          const host = h.get("x-forwarded-host") ?? h.get("host");
-          const proto = h.get("x-forwarded-proto") ?? "http";
-          const origin = host
-            ? `${proto}://${host}`
-            : process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
-          res = await tryAuthFetch(`${origin}${basePath}/api/users/me`);
-        } catch {
-          // swallow; we'll treat as unauthenticated below
-        }
+            const host = h.get("x-forwarded-host") ?? h.get("host");
+            const proto = h.get("x-forwarded-proto") ?? "http";
+            const origin = host
+              ? `${proto}://${host}`
+              : process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+            res = await tryAuthFetch(`${origin}${basePath}/api/users/me`);
+        } catch {}
       }
       isAuthenticated = Boolean(res?.ok);
     }
+
+    if (process.env.NODE_ENV !== "production") {
+      console.info("[ProjectsList SSR] cookies", {
+        cookieNames: allCookies.map((c) => c.name),
+        hasPayloadToken,
+        isAuthenticatedViaMe: isAuthenticated,
+      });
+    }
   } catch (err) {
     console.error("ProjectsList: failed to initialize ProjectData", err);
-    // Continue gracefully; client will render empty state if no items
   }
   // Use listedProjects (active & not omitted) for the main grid, which may include NDA items.
   // The client decides how to render NDA entries as placeholders.
