@@ -2,18 +2,17 @@
 @use "@/styles/variables" as *;
 
 .logoutButton {
-  background: none;
-  padding-left: 0;
-  height: $navBarHeight;
-  width: $navBarHeight;
-  mask-image: url("/images/icons/logout.svg");
-  mask-size: 20px 20px;
-  background-color: currentColor;
-  border: 1px solid red;
-  background-repeat: no-repeat;
-  mask-repeat: no-repeat;
-  mask-position: center center;
   button {
+    background: none;
+    padding-left: 0;
+    width: $navBarHeight !important;
+    height: $navBarHeight !important;
+    background-color: currentColor !important;
+    background-repeat: no-repeat;
+    mask-image: url("/images/icons/logout.svg");
+    mask-size: 20px 20px;
+    mask-repeat: no-repeat;
+    mask-position: left center;
     font-size: 0 !important;
   }
 }
