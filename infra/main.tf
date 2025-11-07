@@ -115,6 +115,12 @@ resource "aws_instance" "bb_portfolio" {
 yum update -y
 yum install -y docker git nginx
 
+# ------------------------------------------------------------
+# Install certbot for automatic HTTPS (Let's Encrypt)
+# Amazon Linux 2023 provides certbot & python3-certbot-nginx via dnf/yum.
+# ------------------------------------------------------------
+yum install -y certbot python3-certbot-nginx || echo "Certbot install failed (continuing without HTTPS)"
+
 # Install Docker Compose manually (Amazon Linux 2023 doesn't have docker-compose-plugin in standard repos)
 curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64" -o /usr/local/bin/docker-compose
 chmod +x /usr/local/bin/docker-compose
@@ -252,6 +258,29 @@ sed -i '/^    server {/,/^    }/s/^/#/' /etc/nginx/nginx.conf
 
 # Test and start Nginx
 nginx -t && systemctl start nginx
+
+# ------------------------------------------------------------
+# Acquire/renew TLS certificates (idempotent)
+# Uses nginx plugin for seamless config updates & HTTP->HTTPS redirects.
+# Domains include legacy (bbinteractive.io) and new (bbaysinger.com) plus dev.
+# ------------------------------------------------------------
+if [ -x /usr/bin/certbot ]; then
+  if [ ! -d /etc/letsencrypt/live/bbaysinger.com ]; then
+    /usr/bin/certbot --nginx -n --agree-tos --email ${var.acme_registration_email} \
+      -d bbaysinger.com -d www.bbaysinger.com \
+      -d bbinteractive.io -d www.bbinteractive.io \
+      -d dev.bbaysinger.com -d www.dev.bbaysinger.com \
+      --redirect || echo "Initial certbot issuance failed; site will serve HTTP only until retried."
+  else
+    echo "Certificates already exist; attempting quiet renewal"
+    /usr/bin/certbot renew --quiet || echo "Certbot renewal failed (will retry via systemd timer)."
+  fi
+else
+  echo "Certbot not installed; HTTPS will not be enabled."
+fi
+
+# Ensure nginx is reloaded if certbot modified configuration
+systemctl reload nginx || true
 
 # Setup Docker deployment directory and files
 mkdir -p /home/ec2-user/portfolio

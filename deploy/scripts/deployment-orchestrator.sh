@@ -134,6 +134,14 @@ pushd "$REPO_ROOT" >/dev/null
 log "Installing npm deps if needed"
 [[ -d node_modules ]] || npm install
 
+# Extract ACME / Let's Encrypt registration email (best-effort)
+ACME_EMAIL="$(node -e "try{const JSON5=require('json5');const fs=require('fs');const raw=fs.readFileSync('.github-secrets.private.json5','utf8');const cfg=JSON5.parse(raw);const s=cfg.strings||cfg;process.stdout.write((s.ACME_REGISTRATION_EMAIL||s.ACME_EMAIL||'').trim());}catch(e){process.stdout.write('');}")"
+if [[ -n "$ACME_EMAIL" ]]; then
+  log "ACME email detected: $ACME_EMAIL"
+else
+  warn "No ACME_REGISTRATION_EMAIL / ACME_EMAIL found in secrets (HTTPS auto-issue may be skipped)"
+fi
+
 # ---------------------------
 # Discovery helpers
 # ---------------------------
@@ -340,6 +348,7 @@ if [[ "$do_infra" == true ]]; then
   fi
   # Enforce single controller on the target host if we know the IP
   enforce_single_controller "${EC2_IP:-}"
+  ensure_https_certs "${EC2_IP:-}" "${ACME_EMAIL:-}"
 else
   warn "Skipping Terraform/infra per --containers-only"
 fi
@@ -364,6 +373,7 @@ if [[ -z "${EC2_IP:-}" ]]; then
     EC2_HOST_RESOLVE=$(gh secret view EC2_HOST -q .value 2>/dev/null || true)
   fi
   [[ -n "$EC2_HOST_RESOLVE" ]] && enforce_single_controller "$EC2_HOST_RESOLVE" || warn "Single-controller guard: no host resolved (containers-only), skipping"
+  [[ -n "$EC2_HOST_RESOLVE" ]] && ensure_https_certs "$EC2_HOST_RESOLVE" "${ACME_EMAIL:-}" || true
 fi
 
 ok "Infra and images complete. Handing off container restart to GitHub Actions."
@@ -403,6 +413,40 @@ enforce_single_controller() {
     # Neutralize bootstrap helper if it exists (kept for reference)
     chmod -x /home/ec2-user/portfolio/generate-env-files.sh 2>/dev/null || true
   '
+}
+
+# Ensure HTTPS certificates exist (idempotent). Requires certbot on host.
+ensure_https_certs() {
+  local host="$1"; shift || true
+  local email="$1"; shift || true
+  [[ -n "$host" && -n "$email" ]] || return 0
+  local key="$HOME/.ssh/bb-portfolio-site-key.pem"
+  if [[ ! -f "$key" ]]; then
+    warn "HTTPS cert ensure skipped: SSH key not found at $key"
+    return 0
+  fi
+  log "Ensuring HTTPS certificates present on $host"
+  ssh -i "$key" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$host" $'set -e
+    # Install certbot if missing
+    if ! command -v certbot >/dev/null 2>&1; then
+      echo "Installing certbot on host..."
+      sudo yum install -y certbot python3-certbot-nginx || true
+    fi
+    if command -v certbot >/dev/null 2>&1; then
+      if [ ! -d /etc/letsencrypt/live/bbaysinger.com ]; then
+        echo "Issuing initial certificates via certbot";
+        sudo certbot --nginx -n --agree-tos --email '"$email"' \
+          -d bbaysinger.com -d www.bbaysinger.com \
+          -d bbinteractive.io -d www.bbinteractive.io \
+          -d dev.bbaysinger.com -d www.dev.bbaysinger.com --redirect || echo "Certbot issuance failed";
+        sudo systemctl reload nginx || true
+      else
+        echo "Certificates already present; attempting quiet renewal";
+        sudo certbot renew --quiet || echo "Renewal run failed (will retry on timer)";
+      fi
+    else
+      echo "certbot not installed on host; skipping HTTPS ensure";
+    fi'
 }
 
 # Helper to dispatch a single Redeploy run for a specific environment (prod|dev)
