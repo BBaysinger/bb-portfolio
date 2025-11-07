@@ -127,6 +127,7 @@ function ProjectViewRouterBridge({
         await ProjectData.initialize({
           disableCache: true,
           includeNdaInActive: true,
+          assumeAuthenticated: true,
         });
       }
     };
