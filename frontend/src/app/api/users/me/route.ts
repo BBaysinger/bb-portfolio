@@ -162,7 +162,7 @@ export async function GET(request: NextRequest) {
       }
       return payload;
     })();
-  const success = NextResponse.json({ user });
+    const success = NextResponse.json({ user });
     // Explicitly disable caching at every layer
     success.headers.set(
       "Cache-Control",

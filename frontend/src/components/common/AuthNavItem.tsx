@@ -6,6 +6,8 @@ import React from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useAppSelector } from "@/store/hooks";
 
+import styles from "./AuthNavItem.module.scss";
+
 interface Props {
   className?: string;
   /** Optional class to apply to the clickable control (<Link> or <button>) */
@@ -36,7 +38,7 @@ export default function AuthNavItem({
 
   if (authed) {
     return (
-      <li className={`${className} logout`}>
+      <li className={`${className} ${styles.logoutButton} logoutButton`}>
         <button type="button" onClick={logout} className={linkClassName}>
           Logout
         </button>
