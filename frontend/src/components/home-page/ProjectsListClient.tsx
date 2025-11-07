@@ -51,6 +51,51 @@ const ProjectsListClient: React.FC<ProjectsListClientProps> = ({
   // Use server-side auth state to avoid hydration mismatches with NDA content
   const _clientAuth = isLoggedIn || !!user; // Available for future features
 
+  // Local state that can be refreshed post-login to replace NDA placeholders
+  const [projects, setProjects] = useState<ParsedPortfolioProject[]>(
+    allProjects,
+  );
+  const hasRefreshedAfterLogin = useRef(false);
+
+  // When a user logs in client-side (e.g., via /admin without full page reload),
+  // we need to refetch project data so NDA placeholders are replaced with real data.
+  // Server-rendered data cannot be “unscrubbed” in-place because the fields were
+  // removed during SSR for unauthenticated requests.
+  useEffect(() => {
+    if (_clientAuth && !hasRefreshedAfterLogin.current) {
+      // Trigger a client-side refresh of ProjectData; it will include auth cookie
+      // and return full NDA data (titles, logos, screenshots) where permitted.
+      const run = async () => {
+        try {
+          // Dynamic import to avoid bloat if never needed during unauthenticated sessions
+          const mod = await import("@/data/ProjectData");
+          await mod.default.initialize({
+            disableCache: true,
+            includeNdaInActive: true,
+          });
+          const refreshed = [...mod.default.listedProjects];
+          // Only update if we actually received NDA expansions (heuristic: any title !== 'Confidential Project' while nda flag true)
+          setProjects(refreshed);
+          hasRefreshedAfterLogin.current = true;
+          if (process.env.NODE_ENV !== "production") {
+            const ndaRealCount = refreshed.filter(
+              (p) => (p.nda || p.brandIsNda) && p.title !== "Confidential Project",
+            ).length;
+            // eslint-disable-next-line no-console
+            console.info("[ProjectsListClient] NDA refresh complete", {
+              total: refreshed.length,
+              ndaRealCount,
+            });
+          }
+        } catch (e) {
+          // eslint-disable-next-line no-console
+          console.warn("[ProjectsListClient] NDA refresh failed", e);
+        }
+      };
+      run();
+    }
+  }, [_clientAuth]);
+
   const [focusedThumbIndex, setFocusedThumbIndex] = useState(-1);
   const projectThumbRefs = useRef<Array<RefObject<HTMLDivElement | null>>>([]);
   const ticking = useRef(false);
@@ -154,14 +199,14 @@ const ProjectsListClient: React.FC<ProjectsListClientProps> = ({
       className={styles.projectsList}
       data-nav="projects-list"
     >
-      {allProjects.length === 0 && (
+      {projects.length === 0 && (
         <div aria-live="polite" style={{ opacity: 0.7 }}>
           No projects to display yet.
         </div>
       )}
       {(() => {
         let ndaCount = 0;
-        return allProjects.map((projectData, index) => {
+        return projects.map((projectData, index) => {
           const id = projectData.id;
           const {
             title,
@@ -201,7 +246,8 @@ const ProjectsListClient: React.FC<ProjectsListClientProps> = ({
               thumbUrl={thumbUrl}
               thumbUrlMobile={thumbUrlMobile}
               thumbAlt={thumbAlt}
-              isAuthenticated={isAuthenticated}
+              // Use merged auth state: server auth (for initial SSR) or client post-login
+              isAuthenticated={isAuthenticated || _clientAuth}
               ref={(node) => setThumbRef(node, index)}
             />
           );
