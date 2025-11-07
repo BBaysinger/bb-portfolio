@@ -70,7 +70,7 @@ export async function POST(request: NextRequest) {
         : [];
       console.info(
         "🍪 Logout API - Incoming cookies (names only):",
-        cookieNames,
+        cookieNames
       );
     }
 
@@ -82,14 +82,14 @@ export async function POST(request: NextRequest) {
           "Content-Type": "application/json",
           ...(cookieHeader && { Cookie: cookieHeader }),
         },
-      },
+      }
     );
 
     if (!response.ok) {
       const data = await response.json();
       return NextResponse.json(
         { error: data.message || "Logout failed" },
-        { status: response.status },
+        { status: response.status }
       );
     }
 
@@ -100,7 +100,7 @@ export async function POST(request: NextRequest) {
     // Explicitly disable caching
     nextResponse.headers.set(
       "Cache-Control",
-      "no-store, no-cache, must-revalidate, private",
+      "no-store, no-cache, must-revalidate, private"
     );
     nextResponse.headers.set("Pragma", "no-cache");
     nextResponse.headers.set("Expires", "0");
@@ -111,7 +111,7 @@ export async function POST(request: NextRequest) {
       // Do not log raw Set-Cookie values in production
       console.info(
         "🧹 Backend set-cookie header present:",
-        Boolean(setCookieHeader),
+        Boolean(setCookieHeader)
       );
     }
 
@@ -145,7 +145,9 @@ export async function POST(request: NextRequest) {
         [
           domain ? `Domain=.${domain}` : undefined,
           "Path=/",
+          // Expire immediately; include both Expires and Max-Age for broad browser compatibility
           "Expires=Thu, 01 Jan 1970 00:00:00 GMT",
+          "Max-Age=0",
           "HttpOnly",
           "SameSite=Lax",
           isSecure ? "Secure" : undefined,
@@ -171,11 +173,11 @@ export async function POST(request: NextRequest) {
     console.error("Logout API error:", error);
     const resp = NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 },
+      { status: 500 }
     );
     resp.headers.set(
       "Cache-Control",
-      "no-store, no-cache, must-revalidate, private",
+      "no-store, no-cache, must-revalidate, private"
     );
     resp.headers.set("Pragma", "no-cache");
     resp.headers.set("Expires", "0");
