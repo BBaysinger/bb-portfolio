@@ -120,7 +120,12 @@ async function fetchPortfolioProjects(opts?: {
       : undefined;
 
   const fetchOptions: RequestInit & { next?: { revalidate?: number } } = {};
-  if (disableCache) {
+  // Avoid leaking authenticated NDA content via Next.js fetch cache on the server.
+  // Rule: On the server, always use no-store. On the client, allow a short revalidate window
+  // unless explicitly disabled by caller.
+  if (typeof window === "undefined") {
+    fetchOptions.cache = "no-store";
+  } else if (disableCache) {
     fetchOptions.cache = "no-store";
   } else {
     fetchOptions.next = { revalidate: 3600 };
