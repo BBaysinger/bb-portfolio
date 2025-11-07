@@ -52,9 +52,8 @@ const ProjectsListClient: React.FC<ProjectsListClientProps> = ({
   const _clientAuth = isLoggedIn || !!user; // Available for future features
 
   // Local state that can be refreshed post-login to replace NDA placeholders
-  const [projects, setProjects] = useState<ParsedPortfolioProject[]>(
-    allProjects,
-  );
+  const [projects, setProjects] =
+    useState<ParsedPortfolioProject[]>(allProjects);
   const hasRefreshedAfterLogin = useRef(false);
 
   // When a user logs in client-side (e.g., via /admin without full page reload),
@@ -72,6 +71,11 @@ const ProjectsListClient: React.FC<ProjectsListClientProps> = ({
           await mod.default.initialize({
             disableCache: true,
             includeNdaInActive: true,
+            // We rely on browser fetch with credentials=include and our
+            // frontend /api/projects proxy forwarding Cookie to backend.
+            // Since HttpOnly cookie isn't readable here, assert auth based
+            // on Redux state to bypass NDA scrubbing in the transform layer.
+            assumeAuthenticated: true,
           });
           const refreshed = [...mod.default.listedProjects];
           // Only update if we actually received NDA expansions (heuristic: any title !== 'Confidential Project' while nda flag true)
@@ -79,16 +83,16 @@ const ProjectsListClient: React.FC<ProjectsListClientProps> = ({
           hasRefreshedAfterLogin.current = true;
           if (process.env.NODE_ENV !== "production") {
             const ndaRealCount = refreshed.filter(
-              (p) => (p.nda || p.brandIsNda) && p.title !== "Confidential Project",
+              (p) =>
+                (p.nda || p.brandIsNda) && p.title !== "Confidential Project",
             ).length;
-            // eslint-disable-next-line no-console
+
             console.info("[ProjectsListClient] NDA refresh complete", {
               total: refreshed.length,
               ndaRealCount,
             });
           }
         } catch (e) {
-          // eslint-disable-next-line no-console
           console.warn("[ProjectsListClient] NDA refresh failed", e);
         }
       };
