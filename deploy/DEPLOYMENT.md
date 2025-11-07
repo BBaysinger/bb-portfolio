@@ -227,7 +227,7 @@ www.bbaysinger.com
 bbinteractive.io
 www.bbinteractive.io
 dev.bbaysinger.com
-www.dev.bbaysinger.com
+dev.bbinteractive.io
 ```
 
 ### 1. Provide ACME Email
@@ -308,7 +308,7 @@ ssh -i ~/.ssh/bb-portfolio-site-key.pem ec2-user@$(terraform -chdir=infra output
 sudo certbot --nginx -n --agree-tos --email you@bbaysinger.com \
    -d bbaysinger.com -d www.bbaysinger.com \
    -d bbinteractive.io -d www.bbinteractive.io \
-   -d dev.bbaysinger.com -d www.dev.bbaysinger.com --redirect
+   -d dev.bbaysinger.com -d dev.bbinteractive.io --redirect
 ```
 
 ### 6. Renewal

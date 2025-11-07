@@ -438,7 +438,7 @@ ensure_https_certs() {
         sudo certbot --nginx -n --agree-tos --email '"$email"' \
           -d bbaysinger.com -d www.bbaysinger.com \
           -d bbinteractive.io -d www.bbinteractive.io \
-          -d dev.bbaysinger.com -d www.dev.bbaysinger.com --redirect || echo "Certbot issuance failed";
+          -d dev.bbaysinger.com -d dev.bbinteractive.io --redirect || echo "Certbot issuance failed";
         sudo systemctl reload nginx || true
       else
         echo "Certificates already present; attempting quiet renewal";
