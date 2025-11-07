@@ -1,6 +1,7 @@
 "use client";
 
 import clsx from "clsx";
+import { useRouter } from "next/navigation";
 import React, { useRef, useEffect } from "react";
 import { useSelector } from "react-redux";
 
@@ -19,6 +20,7 @@ import styles from "./AppShell.module.scss";
  * Client-side application shell component
  */
 export function AppShell({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
   // Runtime backend health check: logs backend connectivity status on startup
   useEffect(() => {
     // Prefer same-origin relative path to leverage Next.js rewrites (/api -> backend)
@@ -84,6 +86,37 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   useClientDimensions();
   useTrackHeroInView();
   useAutoCloseMobileNavOnScroll();
+
+  // Conventional cross-tab/session sync: when the tab becomes visible or regains focus,
+  // check if the user is authenticated server-side; if so, refresh SSR to reveal protected data.
+  useEffect(() => {
+    let ticking = false;
+    const checkAndRefresh = async () => {
+      try {
+        const res = await fetch("/api/users/me", { credentials: "include", cache: "no-store" });
+        if (res.ok) {
+          router.refresh();
+        }
+      } catch {
+        // ignore network errors here; user can refresh manually
+      }
+    };
+    const onVisible = () => {
+      if (document.visibilityState !== "visible") return;
+      if (ticking) return;
+      ticking = true;
+      // small microtask to batch multiple events
+      Promise.resolve().then(() => {
+        checkAndRefresh().finally(() => (ticking = false));
+      });
+    };
+    window.addEventListener("focus", onVisible);
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      window.removeEventListener("focus", onVisible);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
+  }, [router]);
 
   /**
    * Fluid Responsive System - CSS Variables Provider

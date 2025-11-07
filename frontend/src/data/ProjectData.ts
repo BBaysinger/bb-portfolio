@@ -5,17 +5,8 @@ async function fetchPortfolioProjects(opts?: {
   requestHeaders?: HeadersInit;
   /** Disable cache for per-request SSR. */
   disableCache?: boolean;
-  /**
-   * Force treating the fetch as authenticated even if a Cookie header is
-   * unavailable (e.g., client-side post-login where the auth cookie is
-   * HttpOnly and therefore not inspectable by JS, but subsequent proxied
-   * fetches will include it automatically). USE WITH CAUTION – callers must
-   * guarantee the user is actually authenticated (e.g. verified user state
-   * from a trusted /api/users/me endpoint) before enabling.
-   */
-  assumeAuthenticated?: boolean;
 }): Promise<PortfolioProjectData> {
-  const { requestHeaders, disableCache, assumeAuthenticated } = opts || {};
+  const { requestHeaders, disableCache } = opts || {};
   const isServer = typeof window === "undefined";
   // Support ENV-profile prefixed variables like DEV_BACKEND_INTERNAL_URL, PROD_BACKEND_INTERNAL_URL, LOCAL_BACKEND_INTERNAL_URL, etc.
   const rawProfile = (
@@ -90,7 +81,7 @@ async function fetchPortfolioProjects(opts?: {
     const get = (name: string): string | undefined => {
       if (Array.isArray(requestHeaders)) {
         const entry = requestHeaders.find(
-          ([k]) => k.toLowerCase() === name.toLowerCase(),
+          ([k]) => k.toLowerCase() === name.toLowerCase()
         );
         return entry ? entry[1] : undefined;
       }
@@ -99,7 +90,7 @@ async function fetchPortfolioProjects(opts?: {
       const obj = requestHeaders as Record<string, string>;
       // Headers in Next can be normalized to lowercase keys
       const lower = Object.fromEntries(
-        Object.entries(obj).map(([k, v]) => [k.toLowerCase(), v]),
+        Object.entries(obj).map(([k, v]) => [k.toLowerCase(), v])
       ) as Record<string, string>;
       return lower[name.toLowerCase()];
     };
@@ -230,7 +221,7 @@ async function fetchPortfolioProjects(opts?: {
     throw new Error(
       `Failed to fetch project data: ${res.status} ${res.statusText}${
         detail ? ` - ${detail.slice(0, 300)}` : ""
-      }`,
+      }`
     );
   }
   type BrandObj = {
@@ -267,7 +258,7 @@ async function fetchPortfolioProjects(opts?: {
   }
   const json = (await res.json()) as PayloadProjectsRest | PortfolioProjectData;
   // Determine if request is authenticated (server-side with cookies forwarded)
-  let hasAuthCookie = (() => {
+  const hasAuthCookie = (() => {
     const h = requestHeaders;
     if (!h) return false;
     if (Array.isArray(h)) {
@@ -278,21 +269,10 @@ async function fetchPortfolioProjects(opts?: {
     }
     // Plain object
     const lowerKeys = Object.keys(h as Record<string, string>).map((k) =>
-      k.toLowerCase(),
+      k.toLowerCase()
     );
     return lowerKeys.includes("cookie");
   })();
-  if (!hasAuthCookie && assumeAuthenticated) {
-    // Trust caller assertion (client-side post-login refresh). We still don't expose
-    // cookie contents; merely bypass NDA scrubbing since the real network request
-    // was sent with credentials=include and backend will have enforced auth.
-    hasAuthCookie = true;
-    if (process.env.NODE_ENV !== "production") {
-      try {
-        console.info("[ProjectData] assumeAuthenticated override applied");
-      } catch {}
-    }
-  }
 
   // Type guard to detect Payload REST shape
   const isPayloadRest = (val: unknown): val is PayloadProjectsRest => {
@@ -661,7 +641,7 @@ export default class ProjectData {
    */
   static hydrate(
     parsed: ParsedPortfolioProjectData,
-    includeNdaInActive: boolean,
+    includeNdaInActive: boolean
   ) {
     // Reset caches
     this._projects = {} as ParsedPortfolioProjectData;
@@ -728,7 +708,7 @@ export default class ProjectData {
             if (p) acc[k] = p;
             return acc;
           },
-          {} as Record<string, ParsedPortfolioProject>,
+          {} as Record<string, ParsedPortfolioProject>
         );
       }
     }
@@ -762,7 +742,7 @@ export default class ProjectData {
         record[project.id] = project;
         return record;
       },
-      {} as Record<string, ParsedPortfolioProject>,
+      {} as Record<string, ParsedPortfolioProject>
     );
   }
 
@@ -773,7 +753,7 @@ export default class ProjectData {
    * @returns Parsed portfolio data
    */
   private static parsePortfolioData(
-    data: PortfolioProjectData,
+    data: PortfolioProjectData
   ): ParsedPortfolioProjectData {
     const parsedData: ParsedPortfolioProjectData = {};
 
@@ -798,8 +778,6 @@ export default class ProjectData {
     disableCache?: boolean;
     /** When true, include NDA projects in active navigation/maps. */
     includeNdaInActive?: boolean;
-    /** Force treating request as authenticated (client post-login NDA reveal). */
-    assumeAuthenticated?: boolean;
   }): Promise<void> {
     // Coalesce concurrent calls: later callers await the same run
     if (this._initInFlight) {
@@ -811,7 +789,6 @@ export default class ProjectData {
       const typedUnprocessedProjects = await fetchPortfolioProjects({
         requestHeaders: opts?.headers,
         disableCache: opts?.disableCache,
-        assumeAuthenticated: opts?.assumeAuthenticated,
       });
 
       // Reset caches AFTER awaiting network to avoid race conditions where
@@ -846,7 +823,6 @@ export default class ProjectData {
           return opts.includeNdaInActive;
         }
         // Infer from headers: if a Cookie header exists, treat as authenticated SSR
-        if (opts?.assumeAuthenticated) return true;
         const h = opts?.headers;
         if (!h) return false;
         if (Array.isArray(h))
@@ -905,7 +881,7 @@ export default class ProjectData {
               if (p) acc[k] = p;
               return acc;
             },
-            {} as Record<string, ParsedPortfolioProject>,
+            {} as Record<string, ParsedPortfolioProject>
           );
         }
       }
