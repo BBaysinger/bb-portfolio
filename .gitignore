@@ -16,7 +16,12 @@
 # ─────────────────────────────────────────────
 **/.npm/
 **/.npm-cache/
+# Explicit service-level caches (backend & frontend) in case patterns above miss
 backend/.npm-cache/**
+frontend/.npm-cache/**
+# Safety: ignore yarn/pnpm cache directories if ever added
+**/.yarn-cache/
+**/.pnpm-store/
 
 # ─────────────────────────────────────────────
 # 🧾 Logs
