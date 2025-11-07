@@ -79,7 +79,7 @@ const ProjectsListClient: React.FC<ProjectsListClientProps> = ({
           if (process.env.NODE_ENV !== "production") {
             const ndaRealCount = refreshed.filter(
               (p) =>
-                (p.nda || p.brandIsNda) && p.title !== "Confidential Project"
+                (p.nda || p.brandIsNda) && p.title !== "Confidential Project",
             ).length;
 
             console.info("[ProjectsListClient] NDA refresh complete", {
@@ -110,11 +110,11 @@ const ProjectsListClient: React.FC<ProjectsListClientProps> = ({
       }
       projectThumbRefs.current[index].current = node;
     },
-    []
+    [],
   );
 
   const getThumbnailIndex = (
-    thumbRef: RefObject<HTMLDivElement | null>
+    thumbRef: RefObject<HTMLDivElement | null>,
   ): number => {
     return projectThumbRefs.current.findIndex((ref) => ref === thumbRef);
   };
@@ -164,7 +164,7 @@ const ProjectsListClient: React.FC<ProjectsListClientProps> = ({
         }
       });
     },
-    [focusedThumbIndex]
+    [focusedThumbIndex],
   );
 
   /** Get the index of a given thumbnail ref from `projectThumbRefs`. */
@@ -178,7 +178,7 @@ const ProjectsListClient: React.FC<ProjectsListClientProps> = ({
         ticking.current = true;
       }
     },
-    [update]
+    [update],
   );
 
   /** Bind/unbind scroll and resize listeners for focus updates. */

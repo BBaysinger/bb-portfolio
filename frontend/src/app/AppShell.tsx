@@ -93,7 +93,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     let ticking = false;
     const checkAndRefresh = async () => {
       try {
-        const res = await fetch("/api/users/me", { credentials: "include", cache: "no-store" });
+        const res = await fetch("/api/users/me", {
+          credentials: "include",
+          cache: "no-store",
+        });
         if (res.ok) {
           router.refresh();
         }
