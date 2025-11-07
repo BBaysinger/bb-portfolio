@@ -267,9 +267,9 @@ nginx -t && systemctl start nginx
 if [ -x /usr/bin/certbot ]; then
   if [ ! -d /etc/letsencrypt/live/bbaysinger.com ]; then
     /usr/bin/certbot --nginx -n --agree-tos --email ${var.acme_registration_email} \
-      -d bbaysinger.com -d www.bbaysinger.com \
-      -d bbinteractive.io -d www.bbinteractive.io \
-      -d dev.bbaysinger.com -d www.dev.bbaysinger.com \
+  -d bbaysinger.com -d www.bbaysinger.com \
+  -d bbinteractive.io -d www.bbinteractive.io \
+  -d dev.bbaysinger.com -d dev.bbinteractive.io \
       --redirect || echo "Initial certbot issuance failed; site will serve HTTP only until retried."
   else
     echo "Certificates already exist; attempting quiet renewal"
