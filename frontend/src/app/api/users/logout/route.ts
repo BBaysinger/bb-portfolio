@@ -116,56 +116,9 @@ export async function POST(request: NextRequest) {
     }
 
     if (setCookieHeader) {
+      // Pass through backend cookie clearing (single-domain setup)
       nextResponse.headers.set("set-cookie", setCookieHeader);
       if (debug) console.info("✅ Using backend cookie clearing headers");
-    } else {
-      // If backend didn't send cookie clearing headers, clear them manually
-      // These are common Payload CMS cookie names
-      if (debug)
-        console.info("🔧 Backend didn't clear cookies, doing it manually");
-
-      const hostHeader =
-        request.headers.get("x-forwarded-host") ||
-        request.headers.get("host") ||
-        "";
-      const xfp = request.headers.get("x-forwarded-proto") || "";
-      const isSecure = xfp === "https" || hostHeader.endsWith(":443");
-
-      // Best-effort derive apex domain (e.g., dev.bbinteractive.io -> bbinteractive.io)
-      const deriveApex = (host: string) => {
-        // strip port
-        const base = host.replace(/:\d+$/, "");
-        const parts = base.split(".");
-        if (parts.length < 2) return "";
-        // naive: last two labels
-        return parts.slice(-2).join(".");
-      };
-      const apex = deriveApex(hostHeader);
-      const cookieAttrs = (domain?: string) =>
-        [
-          domain ? `Domain=.${domain}` : undefined,
-          "Path=/",
-          // Expire immediately; include both Expires and Max-Age for broad browser compatibility
-          "Expires=Thu, 01 Jan 1970 00:00:00 GMT",
-          "Max-Age=0",
-          "HttpOnly",
-          "SameSite=Lax",
-          isSecure ? "Secure" : undefined,
-        ]
-          .filter(Boolean)
-          .join("; ");
-
-      const expire = (name: string, domain?: string) =>
-        `${name}=; ${cookieAttrs(domain)}`;
-
-      // Clear host-only and apex-scoped variants for common names
-      const names = ["payload-token", "authToken"];
-      for (const n of names) {
-        nextResponse.headers.append("set-cookie", expire(n));
-        if (apex) {
-          nextResponse.headers.append("set-cookie", expire(n, apex));
-        }
-      }
     }
 
     return nextResponse;
