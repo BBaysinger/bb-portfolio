@@ -196,7 +196,7 @@ acme_registration_email = "${strings.ACME_REGISTRATION_EMAIL || strings.ACME_EMA
 function main() {
   try {
     console.info(
-      "🔄 Generating terraform.tfvars from github-secrets.private.json5...",
+      "🔄 Generating terraform.tfvars from github-secrets.private.json5..."
     );
     console.info("Project root:", projectRoot);
     console.info("Secrets file:", secretsFile);
@@ -254,7 +254,7 @@ function main() {
     if (missingVars.length > 0) {
       console.warn("⚠️  Missing required variables in secrets file:");
       missingVars.forEach((varName) =>
-        console.warn(`   - ${varName.toUpperCase()}`),
+        console.warn(`   - ${varName.toUpperCase()}`)
       );
     } else {
       console.info("✅ All required variables are present");
