@@ -5,8 +5,17 @@ async function fetchPortfolioProjects(opts?: {
   requestHeaders?: HeadersInit;
   /** Disable cache for per-request SSR. */
   disableCache?: boolean;
+  /**
+   * Force treating the fetch as authenticated even if a Cookie header is
+   * unavailable (e.g., client-side post-login where the auth cookie is
+   * HttpOnly and therefore not inspectable by JS, but subsequent proxied
+   * fetches will include it automatically). USE WITH CAUTION – callers must
+   * guarantee the user is actually authenticated (e.g. verified user state
+   * from a trusted /api/users/me endpoint) before enabling.
+   */
+  assumeAuthenticated?: boolean;
 }): Promise<PortfolioProjectData> {
-  const { requestHeaders, disableCache } = opts || {};
+  const { requestHeaders, disableCache, assumeAuthenticated } = opts || {};
   const isServer = typeof window === "undefined";
   // Support ENV-profile prefixed variables like DEV_BACKEND_INTERNAL_URL, PROD_BACKEND_INTERNAL_URL, LOCAL_BACKEND_INTERNAL_URL, etc.
   const rawProfile = (
@@ -258,7 +267,7 @@ async function fetchPortfolioProjects(opts?: {
   }
   const json = (await res.json()) as PayloadProjectsRest | PortfolioProjectData;
   // Determine if request is authenticated (server-side with cookies forwarded)
-  const hasAuthCookie = (() => {
+  let hasAuthCookie = (() => {
     const h = requestHeaders;
     if (!h) return false;
     if (Array.isArray(h)) {
@@ -273,6 +282,17 @@ async function fetchPortfolioProjects(opts?: {
     );
     return lowerKeys.includes("cookie");
   })();
+  if (!hasAuthCookie && assumeAuthenticated) {
+    // Trust caller assertion (client-side post-login refresh). We still don't expose
+    // cookie contents; merely bypass NDA scrubbing since the real network request
+    // was sent with credentials=include and backend will have enforced auth.
+    hasAuthCookie = true;
+    if (process.env.NODE_ENV !== "production") {
+      try {
+        console.info("[ProjectData] assumeAuthenticated override applied");
+      } catch {}
+    }
+  }
 
   // Type guard to detect Payload REST shape
   const isPayloadRest = (val: unknown): val is PayloadProjectsRest => {
@@ -778,6 +798,8 @@ export default class ProjectData {
     disableCache?: boolean;
     /** When true, include NDA projects in active navigation/maps. */
     includeNdaInActive?: boolean;
+    /** Force treating request as authenticated (client post-login NDA reveal). */
+    assumeAuthenticated?: boolean;
   }): Promise<void> {
     // Coalesce concurrent calls: later callers await the same run
     if (this._initInFlight) {
@@ -789,6 +811,7 @@ export default class ProjectData {
       const typedUnprocessedProjects = await fetchPortfolioProjects({
         requestHeaders: opts?.headers,
         disableCache: opts?.disableCache,
+        assumeAuthenticated: opts?.assumeAuthenticated,
       });
 
       // Reset caches AFTER awaiting network to avoid race conditions where
@@ -823,6 +846,7 @@ export default class ProjectData {
           return opts.includeNdaInActive;
         }
         // Infer from headers: if a Cookie header exists, treat as authenticated SSR
+        if (opts?.assumeAuthenticated) return true;
         const h = opts?.headers;
         if (!h) return false;
         if (Array.isArray(h))
