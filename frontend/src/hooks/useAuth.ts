@@ -84,8 +84,10 @@ export const useAuth = () => {
     // Set a flag to prevent automatic re-authentication
     localStorage.setItem("manualLogout", "true");
 
-    // Redirect to login page after logout
-    // router.push("/login");
+    // After clearing session, refresh to re-evaluate Server Components so NDA content/admin guard updates
+    try {
+      router.refresh();
+    } catch {}
   };
 
   const resetExperience = () => {
