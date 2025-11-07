@@ -11,33 +11,27 @@ on:
         options: [prod, dev, both]
         # TODO(staging): when ready, extend options to include 'staging' and wire staging secrets below.
       start_dev:
-        description: Ensure dev containers are up in addition to prod
-        type: choice
-        required: true
-        default: "true"
-        options: ["true", "false"]
-      refresh_env:
-        description: Regenerate and upload .env files to EC2 (requires secrets)
-        type: choice
-        required: true
-        default: "false"
-        options: ["true", "false"]
-      restart_containers:
-        description: Restart containers on EC2 (docker-compose pull/up)
-        type: choice
-        required: true
-        default: "true"
-        options: ["true", "false"]
-
-  workflow_call:
-    inputs:
-      environment:
-        description: Which profiles to (re)start
-        type: string
-        required: true
-        default: both
-        # TODO(staging): accept 'staging' here and treat as prod-like with staging-scoped secrets.
-      start_dev:
+          # Pre-clean on EC2 to prevent disk-full and name conflicts (no hard deletes of specific names)
+          {
+            printf '%s\n' 'set -e'
+            printf '%s\n' 'echo "== Disk usage before =="'
+            printf '%s\n' 'df -h / || true'
+            printf '%s\n' 'docker system df || true'
+            printf '%s\n' 'echo "== Prune unused images/containers/networks (no volumes) =="'
+            printf '%s\n' 'docker system prune -af || true'
+            printf '%s\n' 'echo "== Prune builder cache =="'
+            printf '%s\n' 'docker builder prune -af || true'
+            printf '%s\n' 'echo "== Check free space and prune volumes only if critically low =="'
+            printf '%s\n' 'FREE_KB=$(df -Pk / | awk "NR==2{print $4}")'
+            printf '%s\n' 'THRESHOLD_KB=$((3 * 1024 * 1024)) # 3GB'
+            printf '%s\n' 'if [ "$FREE_KB" -lt "$THRESHOLD_KB" ]; then'
+            printf '%s\n' '  echo "Low disk space detected ($(df -h / | awk \"NR==2{print \\$$4}\")) — pruning unused volumes..."'
+            printf '%s\n' '  docker volume prune -f || true'
+            printf '%s\n' 'fi'
+            printf '%s\n' 'echo "== Disk usage after prune =="'
+            printf '%s\n' 'df -h / || true'
+            printf '%s\n' 'docker system df || true'
+          } | ssh -i "${{ steps.ssh.outputs.key }}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" "bash -s"
         description: Ensure dev containers are up in addition to prod
         type: string
         required: true
@@ -45,27 +39,31 @@ on:
       refresh_env:
         description: Regenerate and upload .env files to EC2 (requires secrets)
         type: string
+            printf '%s\n' 'export COMPOSE_PROJECT_NAME=portfolio'
         required: true
-        default: "false"
-      restart_containers:
+            # Perform a targeted down per profile to clear stale state, then up with recreate
         description: Restart containers on EC2 (docker-compose pull/up)
         type: string
         required: true
-        default: "true"
-
+            printf '%s\n' '    COMPOSE_PROFILES=prod docker compose -f "$COMPOSE_FILE" pull || true'
+            printf '%s\n' '    COMPOSE_PROFILES=prod docker compose -f "$COMPOSE_FILE" down --remove-orphans || true'
+            printf '%s\n' '    COMPOSE_PROFILES=prod docker compose -f "$COMPOSE_FILE" up -d --force-recreate'
 jobs:
   deploy:
-    name: SSH redeploy on EC2
-    runs-on: ubuntu-latest
+            printf '%s\n' '    COMPOSE_PROFILES=dev docker compose -f "$COMPOSE_FILE" pull || true'
+            printf '%s\n' '    COMPOSE_PROFILES=dev docker compose -f "$COMPOSE_FILE" down --remove-orphans || true'
+            printf '%s\n' '    COMPOSE_PROFILES=dev docker compose -f "$COMPOSE_FILE" up -d --force-recreate'
     timeout-minutes: 30
     # Prevent overlapping prod/dev redeploys from stepping on each other.
-    # Use per-environment concurrency so prod and dev can proceed independently.
-    # If environment == 'both', fall back to a single global group.
-    concurrency:
-      group: redeploy-${{ inputs.environment == 'both' && 'global' || inputs.environment }}
+            printf '%s\n' '    COMPOSE_PROFILES=prod docker compose -f "$COMPOSE_FILE" pull || true'
+            printf '%s\n' '    COMPOSE_PROFILES=prod docker compose -f "$COMPOSE_FILE" down --remove-orphans || true'
+            printf '%s\n' '    COMPOSE_PROFILES=prod docker compose -f "$COMPOSE_FILE" up -d --force-recreate || true'
+            printf '%s\n' '    COMPOSE_PROFILES=dev docker compose -f "$COMPOSE_FILE" pull || true'
+            printf '%s\n' '    COMPOSE_PROFILES=dev docker compose -f "$COMPOSE_FILE" down --remove-orphans || true'
+            printf '%s\n' '    COMPOSE_PROFILES=dev docker compose -f "$COMPOSE_FILE" up -d --force-recreate || true'
       cancel-in-progress: true
     steps:
-      - name: Checkout
+          } | ssh -i "${{ steps.ssh.outputs.key }}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" "ENVIRONMENT='${ENVIRONMENT}' bash -s"
         uses: actions/checkout@v4
 
       - name: Prepare SSH key
@@ -362,11 +360,14 @@ jobs:
             echo "== Docker ps =="
             docker ps --format "table {{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}"
             echo
+            echo "== Docker compose version =="
+            docker compose version || true
+            echo
             echo "== Listening ports (ss) =="
             ss -lntp || true
             echo
             echo "== Compose ps (prod) =="
-            COMPOSE_PROFILES=prod docker-compose -f /home/ec2-user/portfolio/deploy/compose/docker-compose.yml ps || true
+            COMPOSE_PROFILES=prod docker compose -f /home/ec2-user/portfolio/deploy/compose/docker-compose.yml ps || true
             echo
             echo "== Nginx status =="
             systemctl is-active nginx || true
