@@ -169,7 +169,9 @@ const authSlice = createSlice({
               action.payload,
             );
           state.user = action.payload;
-          state.isLoggedIn = Boolean(action.payload?.id || action.payload?.email);
+          state.isLoggedIn = Boolean(
+            action.payload?.id || action.payload?.email,
+          );
           state.isLoading = false;
           state.error = null;
           state.hasInitialized = true;
