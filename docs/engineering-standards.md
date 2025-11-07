@@ -27,6 +27,13 @@ Guidelines for boilerplate readiness:
 - Provide short comments where a choice differs from the norm and link back to this document for rationale and a removal path.
 - When in doubt, choose the simpler, more conventional implementation that is easier to remember and explain.
 
+Why this matters operationally:
+
+- Conventional patterns are easier to inspect and reason about; fewer bespoke layers reduce the number of places a bug can hide.
+- Failures tend to be familiar and well-documented, which speeds up diagnosis and recovery (search results and community knowledge match what we do).
+- Onboarding and handoffs go faster because engineers can apply prior experience rather than learning custom abstractions.
+- Platform upgrades and tooling (linters, APM, frameworks) generally “just work” when we stay close to the happy path.
+
 Scope of reuse:
 
 - This codebase (Next.js + Payload + Docker + Compose) may be repurposed as a starter. Aim to keep key modules (API routes, auth, data fetching, rendering) boilerplate-friendly.
