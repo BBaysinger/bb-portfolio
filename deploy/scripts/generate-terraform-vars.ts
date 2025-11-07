@@ -183,6 +183,11 @@ dev_backend_internal_url = "${strings.DEV_BACKEND_INTERNAL_URL}"
 # Email Configuration
 dev_ses_from_email = "${strings.DEV_SES_FROM_EMAIL}"
 dev_ses_to_email   = "${strings.DEV_SES_TO_EMAIL}"
+
+# =============================================================================
+# HTTPS / ACME
+# =============================================================================
+acme_registration_email = "${strings.ACME_REGISTRATION_EMAIL || strings.ACME_EMAIL || ""}"
 `;
 
   return baseConfig + envVars;
@@ -233,10 +238,16 @@ function main() {
       "dev_backend_internal_url",
       "dev_ses_from_email",
       "dev_ses_to_email",
+      "acme_registration_email",
     ];
 
     const missingVars = requiredVars.filter((varName) => {
       const secretKey = varName.toUpperCase();
+      if (varName === "acme_registration_email") {
+        return !(
+          secrets.strings.ACME_REGISTRATION_EMAIL || secrets.strings.ACME_EMAIL
+        );
+      }
       return !secrets.strings[secretKey];
     });
 

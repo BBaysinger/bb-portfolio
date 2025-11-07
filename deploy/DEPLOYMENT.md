@@ -31,6 +31,9 @@ Point your domain DNS to the Elastic IP:
 A Record: bbinteractive.io → 44.246.43.116
 A Record: www.bbinteractive.io → 44.246.43.116
 A Record: dev.bbinteractive.io → 44.246.43.116
+A Record: bbaysinger.com → 44.246.43.116
+A Record: www.bbaysinger.com → 44.246.43.116
+A Record: dev.bbaysinger.com → 44.246.43.116
 ```
 
 **Test URLs**:
@@ -213,3 +216,126 @@ When you're ready to use production containers:
 3. The infrastructure supports both seamlessly!
 
 ---
+
+## Enabling & Maintaining HTTPS
+
+TLS termination is handled directly on the EC2 host by Nginx with certificates provisioned via Let's Encrypt (certbot). The Terraform `user_data` now installs certbot and automatically issues certificates on first boot (or renewal attempts on subsequent applies) for these domains:
+
+```
+bbaysinger.com
+www.bbaysinger.com
+bbinteractive.io
+www.bbinteractive.io
+dev.bbaysinger.com
+www.dev.bbaysinger.com
+```
+
+### 1. Provide ACME Email
+
+Add `ACME_REGISTRATION_EMAIL` (or `ACME_EMAIL`) to `.github-secrets.private.json5`. Example:
+
+```json5
+{
+  strings: {
+    // ... existing secrets ...
+    ACME_REGISTRATION_EMAIL: "you@bbaysinger.com",
+  },
+}
+```
+
+Run the terraform var generator so `acme_registration_email` is written to `terraform.tfvars`:
+
+```bash
+npx tsx deploy/scripts/generate-terraform-vars.ts
+```
+
+Confirm it appears in `infra/terraform.tfvars` as:
+
+```
+acme_registration_email = "you@bbaysinger.com"
+```
+
+### 2. Ensure DNS A Records Resolve
+
+All listed domains must point to the Elastic IP before certbot can issue. Test each with:
+
+```bash
+dig +short bbaysinger.com
+dig +short www.bbaysinger.com
+dig +short dev.bbaysinger.com
+```
+
+They should all return the Elastic IP (e.g., `44.246.43.116`). If any do not, wait for propagation or fix DNS before proceeding.
+
+### 3. Apply Terraform (First-Time or Rebuild)
+
+On initial creation or when recreating the instance:
+
+```bash
+cd infra
+terraform apply
+```
+
+The `user_data` will:
+
+- Install `certbot` and `python3-certbot-nginx`
+- Issue certificates non-interactively
+- Enable HTTP→HTTPS redirects (`--redirect` flag)
+- Reload Nginx
+
+### 4. Verifying HTTPS
+
+After deploy (can be minutes for DNS + issuance), verify:
+
+```bash
+curl -I https://bbaysinger.com | head -1      # Expect: HTTP/1.1 200 / 301
+curl -I https://www.bbaysinger.com | head -1  # Expect a 301 → apex or 200
+curl -I https://dev.bbaysinger.com | head -1  # Dev site
+```
+
+Or remotely via orchestrator after infra step:
+
+```bash
+deploy/scripts/deployment-orchestrator.sh --discover-only
+```
+
+### 5. Manual Re-Issue / Add Domains
+
+If you add or remove domains later, SSH into the instance and re-run certbot:
+
+```bash
+ssh -i ~/.ssh/bb-portfolio-site-key.pem ec2-user@$(terraform -chdir=infra output -raw bb_portfolio_elastic_ip)
+sudo certbot --nginx -n --agree-tos --email you@bbaysinger.com \
+   -d bbaysinger.com -d www.bbaysinger.com \
+   -d bbinteractive.io -d www.bbinteractive.io \
+   -d dev.bbaysinger.com -d www.dev.bbaysinger.com --redirect
+```
+
+### 6. Renewal
+
+Certbot installs a systemd timer (`certbot-renew.timer`) which runs twice daily. You can confirm:
+
+```bash
+systemctl list-timers | grep certbot
+sudo certbot renew --dry-run
+```
+
+If renewal succeeds, no action needed. Certificates are typically valid for 90 days; certbot renews at ~30 day threshold.
+
+### 7. Fallback / Troubleshooting
+
+- If issuance fails, check DNS propagation or open port 80 reachability.
+- View logs: `sudo tail -n 200 /var/log/letsencrypt/letsencrypt.log`
+- Re-run with verbose: add `-vv --debug-challenges` flags.
+- Ensure security group still allows ports 80/443 (Terraform manages this in `infra/main.tf`).
+
+### 8. Moving to Caddy (Optional Alternative)
+
+If you later switch to Caddy for simpler config + automatic certificate management, you'll:
+
+1. Add production `Caddyfile` similar to local dev.
+2. Add a `caddy` service to EC2 docker-compose with ports 80/443.
+3. Remove certbot + SSL blocks from Nginx or disable Nginx entirely.
+4. Update orchestrator to sync `Caddyfile` and restart `caddy` container.
+
+Current implementation keeps Nginx (host-level) for stability; consider Caddy if you want dynamic routing or easier header/security management.

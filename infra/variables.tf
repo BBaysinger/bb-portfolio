@@ -63,6 +63,7 @@ variable "s3_cors_allowed_origins" {
     "http://localhost:3000",
     "https://bbinteractive.io",
     "https://www.bbinteractive.io",
+    "https://bbaysinger.com",
     "http://bbaysinger.com",
     "https://www.bbaysinger.com",
     "https://dev.bbinteractive.io",
@@ -208,4 +209,14 @@ variable "attach_instance_profile" {
   description = "Attach IAM instance profile to EC2 instances (requires iam:PassRole)"
   type        = bool
   default     = true
+}
+
+# =============================================================================
+# HTTPS / ACME Configuration
+# =============================================================================
+# Email used for ACME (Let's Encrypt) registration and renewal notices.
+# This is consumed by the EC2 user_data script to acquire certificates via certbot.
+variable "acme_registration_email" {
+  description = "Email address for Let's Encrypt/ACME certificate registration"
+  type        = string
 }
