@@ -46,7 +46,7 @@
     "lint": "eslint .",
     "precommit": "prettier --write . && eslint . --fix && tsc --noEmit",
     "prepush": "npm run precommit && npm test",
-    "sync:json5": "tsx scripts/sync-json5-packages.ts",
+    "sync:packages": "tsx scripts/sync-json5-packages.ts",
     "sync:secrets:dry": "tsx scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./.github-secrets.private.json5 --dry-run",
     "sync:secrets": "tsx scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./.github-secrets.private.json5",
     "update:deps": "concurrently \"ncu -u\" \"cd backend && ncu -u\" \"cd frontend && ncu -u\" --names \"root,backend,frontend\" --prefix-colors \"yellow,blue,green\"",
