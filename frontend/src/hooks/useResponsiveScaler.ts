@@ -38,9 +38,12 @@ export default function useResponsiveScaler(
         scale: 1,
       };
     }
-
-    const containerWidth = document.documentElement.clientWidth;
-    const containerHeight = document.documentElement.clientHeight;
+    // Prefer "visual viewport" (svw/svh equivalents) over layout viewport client sizes
+    // to account for mobile browser chrome and dynamic UI.
+    const containerWidth =
+      (window.visualViewport?.width ?? document.documentElement.clientWidth) || 0;
+    const containerHeight =
+      (window.visualViewport?.height ?? document.documentElement.clientHeight) || 0;
     const screenAspect = containerWidth / containerHeight;
 
     let width: number, height: number;
@@ -86,11 +89,20 @@ export default function useResponsiveScaler(
 
     window.addEventListener("resize", onResize);
     window.addEventListener("orientationchange", onResize);
+    // Track visual viewport changes (address bar show/hide, insets, etc.)
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener("resize", onResize);
+      window.visualViewport.addEventListener("scroll", onResize);
+    }
     onResize();
 
     return () => {
       window.removeEventListener("resize", onResize);
       window.removeEventListener("orientationchange", onResize);
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener("resize", onResize);
+        window.visualViewport.removeEventListener("scroll", onResize);
+      }
     };
   }, [calculate, elementRef]);
 
