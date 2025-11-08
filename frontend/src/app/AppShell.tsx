@@ -84,7 +84,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     (state: RootState) => state.ui.percentHeroInView,
   );
 
-  const mainContentRef = useRef<HTMLDivElement>(null);
+  const childContentRef = useRef<HTMLDivElement>(null);
 
   useClientDimensions();
   useTrackHeroInView();
@@ -181,11 +181,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <NavVariant variant={NavVariants.TOP_BAR} />
       <div
         className={clsx(styles.main, styles.navRevelator)}
-        ref={mainContentRef}
+        // ref={mainContentRef}
       >
-        <ScrollToHash />
-        {children}
-        <Footer mutationElemRef={mainContentRef} />
+        <div ref={childContentRef} className={styles.childContent}>
+          <ScrollToHash />
+          {children}
+        </div>
+        <Footer mutationElemRef={childContentRef} />
       </div>
     </div>
   );

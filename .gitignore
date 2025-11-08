@@ -132,3 +132,10 @@ data/database-backups/**
 temp_dump_*
 *.bson
 *.metadata.json
+
+# ─────────────────────────────────────────────
+# 🗃 Local Data Dumps (never commit)
+# ─────────────────────────────────────────────
+# Ignore ad-hoc or exported JSON dumps used for local testing only
+data/dump/**
+!data/dump/.gitkeep

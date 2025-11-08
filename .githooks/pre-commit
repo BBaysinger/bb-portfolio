@@ -1,0 +1,43 @@
+#!/bin/sh
+# Pre-commit guard: block committing the string "nintendo" (case-insensitive)
+# Skips ignored/build/cache paths; scans only staged, added/changed files.
+set -eu
+
+# Return 0 if path should be ignored; 1 otherwise
+should_ignore() {
+  case "$1" in 
+    *node_modules/*|*.next/*|*/.next/*|*out/*|*dist/*|*build/*|*coverage/*|*.turbo/*|*.vercel/*|*.vscode/*|database-backups/*|data/dump/*)
+      return 0 ;;
+  esac
+  return 1
+}
+
+found=0
+
+# Iterate staged files (added, copied, modified)
+git diff --cached --name-only --diff-filter=ACM | while IFS= read -r f; do
+  [ -n "$f" ] || continue
+  if should_ignore "$f"; then
+    continue
+  fi
+  # Skip deleted or missing
+  if [ ! -f "$f" ]; then
+    continue
+  fi
+  if grep -I -n -i -E "\\bnintendo\\b" -- "$f" >/dev/null 2>&1; then
+    if [ "$found" -eq 0 ] 2>/dev/null; then
+      echo "✖ Commit blocked: found forbidden term in the following files:" >&2
+    fi
+    found=1
+    grep -I -n -i -E "\\bnintendo\\b" -- "$f" | sed "s#^#$f:#" >&2
+  fi
+done
+
+if [ "${found:-0}" -ne 0 ] 2>/dev/null; then
+  echo >&2
+  echo "Policy: The term 'nintendo' must not appear in committed code/content." >&2
+  echo "Action: Redact or generalize the reference (e.g., 'NDA brand')." >&2
+  exit 1
+fi
+
+exit 0

@@ -1,5 +1,7 @@
 # Portfolio Deployment Guide
 
+> For rationale behind major technical choices (hosting strategy, HTTPS, auth hardening, single canonical domain, SSR gating, etc.) see the Architecture Decisions Log: [`docs/architecture-decisions.md`](../docs/architecture-decisions.md). Always consult it before introducing platform changes so new work aligns with or intentionally supersedes documented decisions.
+
 ## Current Status
 
 The portfolio infrastructure is deployed using Infrastructure as Code with Terraform.
@@ -23,25 +25,31 @@ The portfolio infrastructure is deployed using Infrastructure as Code with Terra
 
 See also: "Deployment Orchestrator: Discovery and Fresh Create" in `docs/deployment-orchestrator.md` for how to run read-only discovery, plan-only previews, and first-time creation.
 
-### 1. Configure DNS
+### 1. Configure DNS (Canonical Host Strategy)
 
 Point your domain DNS to the Elastic IP:
 
 ```
-A Record: bbinteractive.io → 44.246.43.116
-A Record: www.bbinteractive.io → 44.246.43.116
-A Record: dev.bbinteractive.io → 44.246.43.116
-A Record: bbaysinger.com → 44.246.43.116
-A Record: www.bbaysinger.com → 44.246.43.116
-A Record: dev.bbaysinger.com → 44.246.43.116
+Historically multiple domains pointed to the instance. We now standardize on a single canonical host per environment and redirect `www` → apex. Keep only what you actually use:
+
 ```
 
-**Test URLs**:
+A Record: bbaysinger.com → 44.246.43.116 (prod canonical)
+A Record: www.bbaysinger.com → 44.246.43.116 (redirects to apex)
+A Record: dev.bbaysinger.com → 44.246.43.116 (dev environment)
 
-- Production: http://44.246.43.116
-- Development subdomain: http://dev.bbinteractive.io (after DNS propagation)
+```
 
-### 2. Deploy .dev Subdomain Support (Required)
+Remove or let expire legacy entries (`bbinteractive.io`, `www.bbinteractive.io`, `dev.bbinteractive.io`) unless you have a migration need documented in the ADR log.
+```
+
+**Test URLs (direct IP is for smoke only)**:
+
+- Production canonical: https://bbaysinger.com
+- Dev canonical: https://dev.bbaysinger.com
+- Raw IP (smoke/debug only): http://44.246.43.116
+
+### 2. Deploy Dev Subdomain Support (If Adding/Changing)
 
 The infrastructure has been updated to support `dev.bbinteractive.io`. To deploy this change:
 
@@ -80,7 +88,7 @@ terraform plan    # Review changes
 terraform apply   # Apply changes
 ```
 
-### 3. Container Management (As Needed)
+### 4. Container Management (As Needed)
 
 ```bash
 # Check status
@@ -219,16 +227,15 @@ When you're ready to use production containers:
 
 ## Enabling & Maintaining HTTPS
 
-TLS termination is handled directly on the EC2 host by Nginx with certificates provisioned via Let's Encrypt (certbot). The Terraform `user_data` now installs certbot and automatically issues certificates on first boot (or renewal attempts on subsequent applies) for these domains:
+TLS termination is handled directly on the EC2 host by Nginx with certificates provisioned via Let's Encrypt (certbot). Terraform `user_data` installs certbot and issues certificates for the canonical set (apex + www + dev). Legacy domains are no longer required:
 
 ```
 bbaysinger.com
 www.bbaysinger.com
-bbinteractive.io
-www.bbinteractive.io
 dev.bbaysinger.com
-dev.bbinteractive.io
 ```
+
+If you still need a legacy domain for transition, temporarily include it, then remove once traffic has fully migrated (document the deprecation in the ADR log).
 
 ### 1. Provide ACME Email
 
@@ -299,16 +306,14 @@ Or remotely via orchestrator after infra step:
 deploy/scripts/deployment-orchestrator.sh --discover-only
 ```
 
-### 5. Manual Re-Issue / Add Domains
+### 5. Manual Re-Issue / Adjust Domains
 
 If you add or remove domains later, SSH into the instance and re-run certbot:
 
 ```bash
 ssh -i ~/.ssh/bb-portfolio-site-key.pem ec2-user@$(terraform -chdir=infra output -raw bb_portfolio_elastic_ip)
 sudo certbot --nginx -n --agree-tos --email you@bbaysinger.com \
-   -d bbaysinger.com -d www.bbaysinger.com \
-   -d bbinteractive.io -d www.bbinteractive.io \
-   -d dev.bbaysinger.com -d dev.bbinteractive.io --redirect
+   -d bbaysinger.com -d www.bbaysinger.com -d dev.bbaysinger.com --redirect
 ```
 
 ### 6. Renewal
@@ -338,4 +343,8 @@ If you later switch to Caddy for simpler config + automatic certificate manageme
 3. Remove certbot + SSL blocks from Nginx or disable Nginx entirely.
 4. Update orchestrator to sync `Caddyfile` and restart `caddy` container.
 
-Current implementation keeps Nginx (host-level) for stability; consider Caddy if you want dynamic routing or easier header/security management.
+Current implementation keeps Nginx (host-level) for stability and explicit control. Consider Caddy ONLY if you need dynamic routing or simplified header management; update ADR log with the rationale before switching.
+
+### 9. Dependency Footprint for HTTPS
+
+No new Node.js dependencies were added to enable HTTPS. All TLS functionality lives at the host layer (Nginx + certbot). Application packages remained unchanged. This minimizes surface area and avoids per-container certificate renewal complexity.

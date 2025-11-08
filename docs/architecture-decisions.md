@@ -6,7 +6,6 @@ This file records major technical decisions for the portfolio project.
 Each entry includes the date, decision, reasoning, alternatives, and current status.  
 New decisions should be appended chronologically.
 
-
 ## 2025-11-07 – Production HTTPS Enablement (Certbot) and Domain Hygiene
 
 - **Decision:** Enable HTTPS on EC2 using Certbot (nginx plugin) and wire ACME contact email via orchestrator. Clean up domain list used for certificate issuance (remove invalid/non-existent hosts).
