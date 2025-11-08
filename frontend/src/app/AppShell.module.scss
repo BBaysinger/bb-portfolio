@@ -20,7 +20,6 @@ $navSlideTime: 0.5s;
 }
 
 .navRevelator {
-  // right: 0;
   transition: transform $navSlideTime;
   box-shadow: 10px 5px 60px black;
 
@@ -52,5 +51,5 @@ $navSlideTime: 0.5s;
 }
 
 .childContent {
-  min-height: 100vh;
+  min-height: 100svh;
 }
