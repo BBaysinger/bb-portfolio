@@ -15,8 +15,10 @@ should_ignore() {
 found=0
 
 # Iterate staged files (added, copied, modified)
-git diff --cached --name-only --diff-filter=ACM | while IFS= read -r f; do
+files=$(git diff --cached --name-only --diff-filter=ACM)
+for f in $files; do
   [ -n "$f" ] || continue
+  case "$f" in .githooks/*) continue ;; esac
   if should_ignore "$f"; then
     continue
   fi
@@ -25,7 +27,7 @@ git diff --cached --name-only --diff-filter=ACM | while IFS= read -r f; do
     continue
   fi
   if grep -I -n -i -E "\\bnintendo\\b" -- "$f" >/dev/null 2>&1; then
-    if [ "$found" -eq 0 ] 2>/dev/null; then
+    if [ "${found:-0}" -eq 0 ] 2>/dev/null; then
       echo "✖ Commit blocked: found forbidden term in the following files:" >&2
     fi
     found=1
