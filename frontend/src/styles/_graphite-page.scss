@@ -5,7 +5,7 @@
 // which produces comma-separated selectors that Turbopack treats as ambiguous.
 @mixin graphite-page-scope() {
   padding-top: $navBarHeight + 6px !important;
-  min-height: 100vh;
+  min-height: 100svh;
 
   a {
     color: white;
