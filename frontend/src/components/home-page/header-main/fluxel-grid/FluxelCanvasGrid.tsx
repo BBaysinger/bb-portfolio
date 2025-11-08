@@ -8,6 +8,8 @@ import {
   useCallback,
 } from "react";
 
+import useResponsiveScaler from "@/hooks/useResponsiveScaler";
+
 import type { FluxelGridHandle, FluxelGridProps } from "./FluxelAllTypes";
 import styles from "./FluxelCanvasGrid.module.scss";
 
@@ -22,20 +24,13 @@ import styles from "./FluxelCanvasGrid.module.scss";
  *
  */
 const FluxelCanvasGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
-  (
-    {
-      gridData,
-      viewableWidth,
-      viewableHeight,
-      onLayoutUpdateRequest,
-      className,
-      imperativeMode,
-    },
-    ref,
-  ) => {
+  ({ gridData, onLayoutUpdateRequest, className, imperativeMode }, ref) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const fluxelSizeRef = useRef<number>(0);
     const gridDataRef = useRef(gridData);
+
+    // Internal viewport scaler (4:3) - currently only used if we later adapt dynamic sizing.
+    const scaler = useResponsiveScaler(4 / 3, 1280, "cover");
 
     const rows = gridData.length;
     const cols = gridData[0]?.length || 0;
@@ -52,16 +47,16 @@ const FluxelCanvasGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
       if (!ctx) return;
 
       const dpr = window.devicePixelRatio || 1;
-      const width = viewableWidth * dpr;
-      const height = viewableHeight * dpr;
+      const width = (scaler.width || canvas.clientWidth) * dpr;
+      const height = (scaler.height || canvas.clientHeight) * dpr;
 
       canvas.width = width;
       canvas.height = height;
 
-      canvas.style.width = `${viewableWidth}px`;
-      canvas.style.height = `${viewableHeight}px`;
+      canvas.style.width = `${Math.round(width / dpr)}px`;
+      canvas.style.height = `${Math.round(height / dpr)}px`;
 
-      const fluxelSize = Math.floor(Math.min(width / cols, height / rows));
+      const fluxelSize = Math.floor(Math.min(width / cols, height / rows)) || 1;
       fluxelSizeRef.current = fluxelSize;
 
       ctx.clearRect(0, 0, width, height);
@@ -76,11 +71,11 @@ const FluxelCanvasGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
           ctx.fillRect(c * fluxelSize, r * fluxelSize, fluxelSize, fluxelSize);
         }
       }
-    }, [viewableWidth, viewableHeight, rows, cols]);
+    }, [rows, cols, scaler.width, scaler.height]);
 
     useEffect(() => {
       drawGrid();
-    }, [gridData, viewableWidth, viewableHeight, drawGrid]);
+    }, [gridData, drawGrid]);
 
     useEffect(() => {
       if (!canvasRef.current || !onLayoutUpdateRequest) return;
