@@ -7,8 +7,26 @@ const getWidth = () =>
   typeof document !== "undefined" ? document.documentElement.clientWidth : 0;
 
 /**
+ * useClientDimensions
  *
+ * Snapshots documentElement client width/height and exposes them via JS and
+ * CSS custom properties:
+ * - --client-width
+ * - --client-height
  *
+ * When to use:
+ * - Useful for JS-driven behaviors that need numeric client dimensions and for
+ *   mirroring those values into CSS when newer viewport units are not viable.
+ *
+ * Prefer CSS viewport units when possible:
+ * - 100svh / 100svw → stable (small) viewport
+ * - 100dvh / 100dvw → dynamic viewport (changes with browser UI)
+ * - 100lvh / 100lvw → large (max) viewport for current orientation
+ * These units are often a better fit for layout sizing than custom properties.
+ *
+ * For fixed-aspect responsive layouts (centering + cover/contain), prefer
+ * `useResponsiveScaler`, which also writes CSS vars:
+ *   --responsive-scaler-width/height/offset-x/offset-y/scale
  */
 const useClientDimensions = () => {
   // Start with 0 to avoid SSR crash and mismatch
