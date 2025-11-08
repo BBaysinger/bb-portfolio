@@ -32,9 +32,9 @@ const ContactPage = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-  setStatus("Sending...");
-  setErrorMessage("");
-  setIsLoading(true);
+    setStatus("Sending...");
+    setErrorMessage("");
+    setIsLoading(true);
 
     // Client-side validation
     if (
@@ -160,7 +160,6 @@ const ContactPage = () => {
           >
             {statusText}
           </p> */}
-
         </div>
       </div>
     </>
