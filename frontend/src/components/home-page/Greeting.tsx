@@ -32,11 +32,12 @@ const Greeting: React.FC = () => {
               <p>
                 Hi, I&apos;m Bradley—an interactive developer with a background
                 in design, specializing in high-quality, animated web
-                experiences. My recent expertise lies in TypeScript, JavaScript,
-                and modern front-end development, with a focus on performance,
-                scalability, and usability.
+                experiences. I specialize in TypeScript, JavaScript, and modern
+                front-end development, with a focus on performance, scalability,
+                and usability.
               </p>
             </div>
+
             <div ref={addToRefs}>
               <p>
                 This portfolio spans projects from early interfaces in Flash,
