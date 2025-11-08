@@ -20,7 +20,7 @@ This guide will help you set up AWS Simple Email Service (SES) for your portfoli
 1. In SES Console, go to **Verified identities**
 2. Click **Create identity**
 3. Choose **Domain** (recommended) or **Email address**
-4. For domain: Enter your domain (e.g., `bbinteractive.io`)
+4. For domain: Enter your domain (e.g., `bbaysinger.com`) — legacy `bbinteractive.io` references are deprecated; use only if migrating existing SES identity.
 5. For email: Enter your email address
 6. Follow the verification process
 
@@ -185,18 +185,18 @@ Tip: The non-sensitive status endpoint `/api/contact/status/` returns which env 
 
 ## Quick path: Verify domain DKIM and request production access (now)
 
-Use this checklist to finish setup for `bbinteractive.io` in region `us-west-2` and lift sandbox limits.
+Use this checklist to finish setup for `bbaysinger.com` in region `us-west-2` and lift sandbox limits. (If you previously verified `bbinteractive.io`, you may retire it after DNS & sending fully migrate.)
 
 ### A) Verify domain with DKIM (Cloudflare DNS)
 
 1. Open AWS Console → SES v2 → Region selector: choose `US West (Oregon) us-west-2`.
-2. Identities → Create identity → Domain → enter `bbinteractive.io`.
+2. Identities → Create identity → Domain → enter `bbaysinger.com`.
 3. Leave “Easy DKIM” enabled (recommended) and create. SES will show 3 CNAME records:
 
-- Names look like `<random>._domainkey.bbinteractive.io.`
+- Names look like `<random>._domainkey.bbaysinger.com.`
 - Values point to `dkim.amazonses.com.` targets.
 
-4. In Cloudflare → DNS for `bbinteractive.io`:
+4. In Cloudflare → DNS for `bbaysinger.com`:
 
 - Add the 3 CNAMEs exactly as shown by SES.
 - Set Proxy status to DNS only (gray cloud), not proxied.
@@ -206,11 +206,11 @@ Use this checklist to finish setup for `bbinteractive.io` in region `us-west-2` 
 
 Optional: Configure custom MAIL FROM for SPF alignment
 
-6. In the identity → “Set MAIL FROM domain” → e.g., `mail.bbinteractive.io`.
+6. In the identity → “Set MAIL FROM domain” → e.g., `mail.bbaysinger.com`.
 7. Add the required DNS records Cloudflare prompts for:
 
-- MX for `mail.bbinteractive.io` pointing to the MAIL FROM hosts Amazon provides (priority 10).
-- TXT for SPF: `v=spf1 include:amazonses.com -all` on `mail.bbinteractive.io` (not the root).
+- MX for `mail.bbaysinger.com` pointing to the MAIL FROM hosts Amazon provides (priority 10).
+- TXT for SPF: `v=spf1 include:amazonses.com -all` on `mail.bbaysinger.com` (not the root).
 
 8. Wait for MAIL FROM to show as “Verified” (optional but recommended for DMARC alignment).
 
@@ -220,10 +220,10 @@ Optional: Configure custom MAIL FROM for SPF alignment
 2. Complete the form. Example answers for this project:
 
 - Mail type: Transactional
-- Website URL: https://bbaysinger.com (historical: https://bbinteractive.io)
+- Website URL: https://bbaysinger.com (historical: https://bbinteractive.io — remove once all SES identities migrated)
 - Use case: Low-volume contact form notifications from portfolio site; no marketing; user-initiated only.
 - Expected sending volume: 50–200/month
-- Additional info: Bounces/complaints handled by SES; DMARC aligned sender (noreply@bbinteractive.io) with DKIM; SPF/MAIL FROM configured; no third-party lists.
+- Additional info: Bounces/complaints handled by SES; DMARC aligned sender (noreply@bbaysinger.com) with DKIM; SPF/MAIL FROM configured; no third-party lists. (If still sending from noreply@bbinteractive.io, plan migration to noreply@bbaysinger.com.)
 
 3. Submit. Typical turnaround is from minutes to 24–48 hours. You’ll receive an email with the decision.
 
@@ -232,7 +232,7 @@ Optional: Configure custom MAIL FROM for SPF alignment
 1. On the server, set the backend env to use the verified sender:
 
 - `PROD_AWS_REGION=us-west-2`
-- `PROD_SES_FROM_EMAIL=noreply@bbinteractive.io`
+- `PROD_SES_FROM_EMAIL=noreply@bbaysinger.com` # legacy identity `noreply@bbinteractive.io` may be removed after migration
 - `PROD_SES_TO_EMAIL=<your recipient>` (can be unverified after production access)
 
 2. Restart the backend container so the env is reloaded.

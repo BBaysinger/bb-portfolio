@@ -197,7 +197,7 @@ New decisions should be appended chronologically.
 
 **Production Deployment:**
 
-- **Domain Configuration**: DNS routing configured for bbinteractive.io
+- **Domain Configuration**: DNS routing configured for bbaysinger.com (legacy bbinteractive.io deprecated)
 - **SSL-Ready**: Architecture prepared for HTTPS certificate integration
 - **Scalable Foundation**: Ready for auto-scaling groups, load balancers, and CDN integration
 - **Monitoring Ready**: CloudWatch integration prepared for metrics and alerts
@@ -450,8 +450,8 @@ New decisions should be appended chronologically.
 
 **Decision:** Host dev and prod environments on the same EC2 instance with different subdomains.
 
-- `dev.bbinteractive.io` → dev containers
-- `bbinteractive.io` → prod containers
+- `dev.bbaysinger.com` → dev containers
+- `bbaysinger.com` → prod containers
 
 **Reasoning:**
 
@@ -542,8 +542,8 @@ New decisions should be appended chronologically.
       - prod: bb-portfolio-frontend-prod (3000), bb-portfolio-backend-prod (3001)
       - dev: bb-portfolio-frontend-dev (4000), bb-portfolio-backend-dev (4001)
     - Typical DNS routing:
-      - bbinteractive.io → prod (3000/3001)
-      - dev.bbinteractive.io → dev (4000/4001)
+  - bbaysinger.com → prod (3000/3001)
+  - dev.bbaysinger.com → dev (4000/4001)
 
 - **Why this approach:**
   - Consistency: One entry point for infra + images + deploy, reducing drift and tribal knowledge.
