@@ -14,14 +14,53 @@ interface ScalerOutput {
 /**
  * useResponsiveScaler
  *
- * Calculates the dimensions and position of a fixed-aspect-ratio
- * element, scaled responsively to the viewport.
- * Automatically applies CSS variables to a given DOM element.
+ * A viewport-accurate, fixed-aspect responsive scaler that returns the pixel
+ * dimensions and offsets for a layout while preserving a caller-specified aspect ratio
+ * (e.g., 4:3). The ratio is "fixed" only in the sense that the hook maintains the
+ * value you pass in across viewport changes; supplying a different `aspectRatio`
+ * on re-render will recompute using that new ratio.
+ * and optionally writes those values as CSS variables on a target element.
  *
+ * Accuracy and stability:
+ * - Primarily measures CSS viewport units directly (svw/svh, dvw/dvh, lvw/lvh)
+ *   via offscreen elements for pixel-accurate dimensions that match CSS.
+ * - When CSS unit measurement isn’t available, falls back to visualViewport
+ *   (or documentElement client size) and tracks min/max per orientation to emulate
+ *   the CSS “small” and “large” viewport semantics.
+ *
+ * Viewport modes (maps to CSS viewport unit families):
+ * - "small"   → stable viewport (svw/svh): minimum across address bar show/hide.
+ * - "dynamic" → dynamic viewport (dvw/dvh): reflects real-time changes.
+ * - "large"   → large viewport (lvw/lvh): maximum across current orientation.
+ *
+ * Returned values and CSS variables:
+ * - width, height: scaled content box in pixels that preserves the requested
+ *   aspectRatio using either cover or contain behavior.
+ * - offsetX, offsetY: remaining horizontal/vertical free space divided by two
+ *   (useful for centering or translating content inside the viewport box).
+ * - scale: width / baseWidth; convenient for scaling child measurements.
+ * - If `elementRef` is provided and resolves to an HTMLElement, the hook sets:
+ *   --responsive-scaler-width, --responsive-scaler-height,
+ *   --responsive-scaler-offset-x, --responsive-scaler-offset-y,
+ *   --responsive-scaler-scale.
+ *
+ * Inputs:
  * @param aspectRatio width / height (default 4 / 3)
- * @param baseWidth logical width of unscaled layout (default 1280)
- * @param mode 'cover' (default) or 'contain'
- * @param elementRef optional ref to apply CSS variables
+ * @param baseWidth   logical width of unscaled layout (default 1280)
+ * @param mode        'cover' (default) or 'contain'
+ * @param elementRef  optional ref; when provided, CSS variables are written
+ * @param viewportMode "small" | "dynamic" | "large" (default "small"). See above.
+ *
+ * Events and perf:
+ * - Subscribes to window resize, orientationchange, and visualViewport resize/scroll.
+ * - Work is light and throttling is typically unnecessary; debounce externally if needed.
+ *
+ * Example (apply CSS vars on a wrapper):
+ * const wrapperRef = useRef<HTMLDivElement>(null);
+ * const scaler = useResponsiveScaler(4/3, 1280, 'cover', wrapperRef, 'small');
+ *
+ * Example (values only, no elementRef):
+ * const { width, height, offsetX, offsetY, scale } = useResponsiveScaler(16/9, 1920);
  */
 export default function useResponsiveScaler(
   aspectRatio = 4 / 3,
