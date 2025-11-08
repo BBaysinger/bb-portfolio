@@ -30,6 +30,60 @@ export default function useResponsiveScaler(
   elementRef?: React.RefObject<HTMLElement | null>,
   viewportMode: ViewportMode = "small",
 ): ScalerOutput {
+  // --- CSS viewport unit measurers (sv*, dv*, lv*) -------------------------
+  let measurerEl = typeof document !== "undefined" ? document.getElementById("__vp-measure") as HTMLDivElement | null : null;
+  let measurerEl2 = typeof document !== "undefined" ? document.getElementById("__vp-measure-2") as HTMLDivElement | null : null;
+
+  const ensureMeasurers = () => {
+    if (typeof document === "undefined") return { el1: null as HTMLDivElement | null, el2: null as HTMLDivElement | null };
+    if (!measurerEl) {
+      measurerEl = document.createElement("div");
+      measurerEl.id = "__vp-measure";
+      Object.assign(measurerEl.style, {
+        position: "fixed",
+        left: "-9999px",
+        top: "-9999px",
+        visibility: "hidden",
+        pointerEvents: "none",
+        overflow: "hidden",
+        zIndex: "-1",
+      } as CSSStyleDeclaration);
+      document.body.appendChild(measurerEl);
+    }
+    if (!measurerEl2) {
+      measurerEl2 = document.createElement("div");
+      measurerEl2.id = "__vp-measure-2";
+      Object.assign(measurerEl2.style, {
+        position: "fixed",
+        left: "-9999px",
+        top: "-9999px",
+        visibility: "hidden",
+        pointerEvents: "none",
+        overflow: "hidden",
+        zIndex: "-1",
+      } as CSSStyleDeclaration);
+      document.body.appendChild(measurerEl2);
+    }
+    return { el1: measurerEl, el2: measurerEl2 };
+  };
+
+  const measureViewportUnits = (mode: ViewportMode) => {
+    if (typeof window === "undefined" || typeof document === "undefined") return { w: 0, h: 0 };
+    const { el1, el2 } = ensureMeasurers();
+    if (!el1 || !el2) return { w: 0, h: 0 };
+    // Choose unit set by mode
+    const vwUnit = mode === "dynamic" ? "dvw" : mode === "large" ? "lvw" : "svw";
+    const vhUnit = mode === "dynamic" ? "dvh" : mode === "large" ? "lvh" : "svh";
+    el1.style.width = `100${vwUnit}`;
+    el1.style.height = `1px`;
+    el2.style.height = `100${vhUnit}`;
+    el2.style.width = `1px`;
+    // Read as floating pixels
+    const w = el1.getBoundingClientRect().width;
+    const h = el2.getBoundingClientRect().height;
+    return { w, h };
+  };
+
   // Track min/max visual viewport across the current orientation to emulate CSS svh/svh and lvh/lvw.
   const minMaxRef = useRef({
     minW: Number.POSITIVE_INFINITY,
@@ -50,11 +104,14 @@ export default function useResponsiveScaler(
         scale: 1,
       };
     }
-    // Read current visual viewport (dynamic by nature)
-    const currW =
-      (window.visualViewport?.width ?? document.documentElement.clientWidth) || 0;
-    const currH =
-      (window.visualViewport?.height ?? document.documentElement.clientHeight) || 0;
+    // Preferred: use CSS viewport units if supported to get exact sv*/dv*/lv* pixels
+    const cssDims = measureViewportUnits(viewportMode);
+    const cssW = cssDims.w;
+    const cssH = cssDims.h;
+
+    // Fallback: current visual viewport (dynamic by nature)
+    const currW = cssW || (window.visualViewport?.width ?? document.documentElement.clientWidth) || 0;
+    const currH = cssH || (window.visualViewport?.height ?? document.documentElement.clientHeight) || 0;
 
     // Reset min/max if orientation bucket flips
     const isPortrait = currH >= currW;
@@ -76,19 +133,21 @@ export default function useResponsiveScaler(
     minMaxRef.current.maxW = Math.max(minMaxRef.current.maxW, currW);
     minMaxRef.current.maxH = Math.max(minMaxRef.current.maxH, currH);
 
-    // Choose effective viewport per requested mode
-    const containerWidth =
-      viewportMode === "dynamic"
-        ? currW
-        : viewportMode === "large"
-        ? minMaxRef.current.maxW
-        : minMaxRef.current.minW; // "small" default
-    const containerHeight =
-      viewportMode === "dynamic"
-        ? currH
-        : viewportMode === "large"
-        ? minMaxRef.current.maxH
-        : minMaxRef.current.minH; // "small" default
+    // Choose effective viewport per requested mode; prefer CSS-unit measurement, otherwise fall back to tracked min/max
+    const containerWidth = cssW
+      ? cssW
+      : viewportMode === "dynamic"
+      ? currW
+      : viewportMode === "large"
+      ? minMaxRef.current.maxW
+      : minMaxRef.current.minW; // "small" default
+    const containerHeight = cssH
+      ? cssH
+      : viewportMode === "dynamic"
+      ? currH
+      : viewportMode === "large"
+      ? minMaxRef.current.maxH
+      : minMaxRef.current.minH; // "small" default
 
     const screenAspect = containerWidth / Math.max(1, containerHeight);
 
