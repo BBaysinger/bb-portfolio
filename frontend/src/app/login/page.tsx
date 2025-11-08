@@ -115,18 +115,22 @@ const LoginPage = () => {
                 required
               />
             </label>
-            <button type="submit" className="btn" disabled={isLoading}>
-              {isLoading ? "Logging in..." : "Login"}
-            </button>
-            <span
-              className={clsx(
-                styles.message,
-                styles.statusMessage,
-                errorMessage && styles.errorMessage,
-              )}
-            >
-              {statusText}
-            </span>
+            <div className={styles.buttonRow}>
+              <button type="submit" className="btn" disabled={isLoading}>
+                {/* {isLoading ? "Logging in..." : "Login"} */}
+                Login
+              </button>
+              <span
+                className={clsx(
+                  styles.message,
+                  styles.statusMessage,
+                  errorMessage && styles.errorMessage,
+                )}
+              >
+                {statusText}
+                Testing test test...
+              </span>
+            </div>
           </div>
         </form>
       </div>
