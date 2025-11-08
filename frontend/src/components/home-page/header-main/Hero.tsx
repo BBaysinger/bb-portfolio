@@ -88,7 +88,9 @@ const Hero: React.FC = () => {
   const slingerIsIdle = useRef(false);
   const gridControllerRef = useRef<GridControllerHandle>(null);
   const heroRef = useRef<HTMLDivElement>(null);
-  const { clientHeight, clientWidth } = useClientDimensions();
+  // Still measuring client dimensions (may be useful for future responsive heuristics),
+  // but currently not required by GridController since it handles viewport internally.
+  const { clientHeight: _clientHeight, clientWidth: _clientWidth } = useClientDimensions();
   const [isSlingerInFlight, setIsSlingerInFlight] = useState(false);
   const slingerLoopId = useRef<number | null>(null);
   // const useSlingerTracking = useQueryParams<boolean>("useSlingerTracking");
@@ -255,8 +257,6 @@ const Hero: React.FC = () => {
           ref={gridControllerRef}
           rows={initialRows}
           cols={initialCols}
-          viewableWidth={clientWidth}
-          viewableHeight={clientHeight}
         />
         <BorderBlinker
           className={styles.borderBlinker}
