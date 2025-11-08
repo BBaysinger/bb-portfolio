@@ -5,17 +5,10 @@ import { RefObject } from "react";
 /**
  * GSAP transform-based animation hook for smooth in-flow height transitions.
  *
- * Currently monitors layout changes via a requestAnimationFrame polling loop and
- * animates the target element with a simple translateY to compensate for the
- * watched element's height delta. Useful for in-flow UI (e.g., a footer) that
- * needs to visually “stick” as nearby content grows/shrinks.
- *
- * NOTE:
- * - This implementation does not yet use GSAP's Flip plugin; it's a lightweight
- *   transform animation only. TODO: Consider GSAP Flip as an option.
- * - It does not use ResizeObserver yet.
- *   TODO: Replace RAF polling with ResizeObserver for efficiency and event-driven updates.
- *   Optionally consider GSAP Flip for full FLIP semantics if position changes (not just height) must be animated.
+ * Uses ResizeObserver (with a requestAnimationFrame fallback) to detect height
+ * changes and animate the target element with a translateY transform to visually
+ * smooth out layout shifts. This achieves a lightweight FLIP-style animation
+ * without the GSAP Flip plugin.
  *
  * @param watchRef - Ref to the element whose height changes should be observed
  * @param targetRef - Ref to the element that should be animated to smooth the transition
@@ -38,44 +31,47 @@ export function useFlipInFlow(
   targetRef: RefObject<HTMLElement | null>,
 ) {
   useLayoutEffect(() => {
-    if (typeof window === "undefined") return;
-
     const w = watchRef.current;
     const t = targetRef.current;
     if (!w || !t) return;
 
     let lastRect = w.getBoundingClientRect();
-    let rafId: number;
+    let isAnimating = false;
 
-    // TODO: Replace RAF-driven checks with ResizeObserver to avoid continuous polling
-    // and trigger animations only when element size actually changes.
-    const check = () => {
-      const rect = w.getBoundingClientRect();
+    const animate = (rect: DOMRect) => {
+      if (isAnimating) return; // prevent flicker from duplicate resize callbacks
+
       const dh = rect.height - lastRect.height;
+      if (Math.abs(dh) < 0.5) return;
 
-      // Detect height change only (position/top deltas are not handled here)
-      // TODO: If vertical position changes should be animated too, compute delta of `rect.top`
-      // and incorporate it into the transform.
-      if (Math.abs(dh) > 0.1) {
-        // console.info("FLIP Invert", { dh }, t);
+      isAnimating = true;
 
-        gsap.set(t, { y: -dh, willChange: "transform" });
+      gsap.set(t, { y: -dh, willChange: "transform" });
 
+      requestAnimationFrame(() => {
         gsap.to(t, {
-          duration: 0.35,
           y: 0,
+          duration: 0.35,
           ease: "power2.out",
-          clearProps: "transform,will-change",
+          overwrite: "auto",
+          onComplete: () => {
+            // allow any bounce effects to settle before remeasuring
+            requestAnimationFrame(() => {
+              lastRect = w.getBoundingClientRect();
+              isAnimating = false;
+              gsap.set(t, { clearProps: "transform,will-change" });
+            });
+          },
         });
-
-        lastRect = rect;
-      }
-
-      rafId = requestAnimationFrame(check);
+      });
     };
 
-    rafId = requestAnimationFrame(check);
+    const ro = new ResizeObserver(() => {
+      const rect = w.getBoundingClientRect();
+      animate(rect);
+    });
 
-    return () => cancelAnimationFrame(rafId);
-  }, []); // Run once per mount
+    ro.observe(w);
+    return () => ro.disconnect();
+  }, []);
 }

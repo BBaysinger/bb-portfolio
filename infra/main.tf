@@ -139,13 +139,15 @@ usermod -aG docker ec2-user
 # Configure Nginx
 systemctl enable nginx
 
-# Create Nginx configuration for portfolio (bb-prefixed)
+# Create Nginx configuration for portfolio (single canonical host per env)
 cat > /etc/nginx/conf.d/bb-portfolio.conf << NGINX_EOF
 # Production/Main domain server block
 server {
   listen 80;
-  # Serve both current and new domains during cutover
-  server_name bbinteractive.io www.bbinteractive.io bbaysinger.com www.bbaysinger.com;
+  # Canonical production host only (apex + www)
+  server_name bbaysinger.com www.bbaysinger.com;
+  # HSTS: start conservative (1 day); can be increased after validation
+  add_header Strict-Transport-Security "max-age=86400; includeSubDomains" always;
     
   # Admin interface proxy to production backend (port 3001)
   location /admin {
@@ -196,8 +198,10 @@ server {
 # Development subdomain server block
 server {
   listen 80;
-  # Serve both current and new dev subdomains during cutover
-  server_name dev.bbinteractive.io *.dev.bbinteractive.io dev.bbaysinger.com *.dev.bbaysinger.com;
+  # Canonical dev host only
+  server_name dev.bbaysinger.com;
+  # HSTS: start conservative (1 day); can be increased after validation
+  add_header Strict-Transport-Security "max-age=86400; includeSubDomains" always;
     
   # Admin interface proxy to development backend (port 4001)
   location /admin {
@@ -251,6 +255,13 @@ server {
     server_name _;
     return 444; # Close connection without response for unknown domains
 }
+
+# Explicit canonical redirect for www -> apex on HTTP
+server {
+  listen 80;
+  server_name www.bbaysinger.com;
+  return 301 https://bbaysinger.com$request_uri;
+}
 NGINX_EOF
 
 # Disable default Nginx server block by commenting it out
@@ -262,14 +273,13 @@ nginx -t && systemctl start nginx
 # ------------------------------------------------------------
 # Acquire/renew TLS certificates (idempotent)
 # Uses nginx plugin for seamless config updates & HTTP->HTTPS redirects.
-# Domains include legacy (bbinteractive.io) and new (bbaysinger.com) plus dev.
+# Domains include production (bbaysinger.com) and dev (dev.bbaysinger.com).
 # ------------------------------------------------------------
 if [ -x /usr/bin/certbot ]; then
   if [ ! -d /etc/letsencrypt/live/bbaysinger.com ]; then
     /usr/bin/certbot --nginx -n --agree-tos --email ${var.acme_registration_email} \
   -d bbaysinger.com -d www.bbaysinger.com \
-  -d bbinteractive.io -d www.bbinteractive.io \
-  -d dev.bbaysinger.com -d dev.bbinteractive.io \
+  -d dev.bbaysinger.com \
       --redirect || echo "Initial certbot issuance failed; site will serve HTTP only until retried."
   else
     echo "Certificates already exist; attempting quiet renewal"
@@ -365,8 +375,8 @@ S3_REGION=${var.prod_aws_region}
 PUBLIC_PROJECTS_BUCKET=${var.public_projects_bucket}
 NDA_PROJECTS_BUCKET=${var.nda_projects_bucket}
 
-# Frontend Configuration (for SSR) - Using dynamic IP
-PROD_FRONTEND_URL=https://bbinteractive.io,http://bbaysinger.com,http://$ELASTIC_IP:3000
+# Frontend Configuration (for SSR) - canonical host only
+PROD_FRONTEND_URL=https://bbaysinger.com
 PROD_BACKEND_INTERNAL_URL=${var.prod_backend_internal_url}
 
 # Email Configuration
@@ -406,8 +416,8 @@ S3_REGION=${var.dev_aws_region}
 PUBLIC_PROJECTS_BUCKET=${var.public_projects_bucket}
 NDA_PROJECTS_BUCKET=${var.nda_projects_bucket}
 
-# Frontend Configuration (for SSR) - Using dynamic IP
-DEV_FRONTEND_URL=https://dev.bbinteractive.io,https://dev.bbaysinger.com,http://$ELASTIC_IP:4000
+# Frontend Configuration (for SSR) - canonical host only
+DEV_FRONTEND_URL=https://dev.bbaysinger.com
 DEV_BACKEND_INTERNAL_URL=${var.dev_backend_internal_url}
 
 # Email Configuration

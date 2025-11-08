@@ -261,7 +261,7 @@ const CurriculumVitae: React.FC = () => {
   const brands = [
     "Nickelodeon",
     "Nick Jr.",
-    "Nintendo",
+    "NDA brand",
     "Disney",
     "Mattel",
     "AT&T",
@@ -625,7 +625,8 @@ const CurriculumVitae: React.FC = () => {
                 <li ref={addToRefs}>
                   Designed and implemented logic for interactive activities like
                   site-wide scavenger hunts and wallpaper creators for
-                  responsive websites supporting Nintendo game launches.
+                  responsive websites supporting a major game publisher&apos;s
+                  launches.
                 </li>
                 <li ref={addToRefs}>
                   Optimized UI elements for accessibility by applying{" "}
@@ -655,7 +656,7 @@ const CurriculumVitae: React.FC = () => {
                   content challenges across regions.
                 </li>
                 <li ref={addToRefs}>
-                  Integrated with Nintendo&apos;s Nclood API for managing user
+                  Integrated with a proprietary (NDA) API for managing user
                   statuses and rewards systems.
                 </li>
                 <li ref={addToRefs}>

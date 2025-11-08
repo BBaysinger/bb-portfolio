@@ -11,25 +11,7 @@ interface LogoSwapperProps {
   /** Back-compat: brand key (slug) to focus on if index not provided. */
   projectId?: string;
 }
-
-const brandNames: Record<string, string> = {
-  nick: "Nickelodeon",
-  addicting: "Addicting Games",
-  att: "AT&T",
-  cfc: "Committee for Children",
-  nickjr: "Nick Jr",
-  seven2: "Seven2 Interactive",
-  teennick: "Teen Nick",
-  nintendo: "Nintendo",
-  premera: "Premera",
-  usda: "USDA",
-  citibank: "Citibank",
-  abbvie: "AbbVie",
-  exas: "Exact Sciences",
-  golden1: "Golden 1 Credit Union",
-  bbi: "BBInteractive",
-};
-
+// Brand labels are now fetched from the brands collection at runtime.
 // No static filename fallbacks — URLs come from CMS brand relations only.
 
 /**
@@ -54,6 +36,7 @@ const LogoSwapper: React.FC<LogoSwapperProps> = ({
   const [currentLogoId, setCurrentLogoId] = useState(resolvedBrandId);
   const [isBlurred, setIsBlurred] = useState(true);
   const [isMounted, setIsMounted] = useState(false); // Track mount state
+  const [brandLabels, setBrandLabels] = useState<Record<string, string>>({});
 
   useEffect(() => {
     // Set component as mounted to trigger fadeIn
@@ -73,6 +56,40 @@ const LogoSwapper: React.FC<LogoSwapperProps> = ({
       clearTimeout(timeout2);
     };
   }, [resolvedBrandId]);
+
+  // Fetch brand labels (slug -> title) from the brands collection.
+  useEffect(() => {
+    let isCancelled = false;
+    const fetchBrands = async () => {
+      try {
+        // Use a conservative selection to keep payload small; fall back seamlessly if fields differ
+        const res = await fetch("/api/brands?limit=1000", {
+          credentials: "include",
+          cache: "force-cache",
+        });
+        if (!res.ok) return;
+        const json = await res.json();
+        const docs: Array<Record<string, unknown>> = Array.isArray(json?.docs)
+          ? json.docs
+          : Array.isArray(json)
+            ? (json as Array<Record<string, unknown>>)
+            : [];
+        const map: Record<string, string> = {};
+        for (const d of docs) {
+          const slug = (d.slug as string) || (d.id as string) || "";
+          const title = (d.title as string) || (d.name as string) || slug;
+          if (slug) map[slug] = title;
+        }
+        if (!isCancelled) setBrandLabels(map);
+      } catch {
+        // Swallow errors; labels will fall back to key
+      }
+    };
+    fetchBrands();
+    return () => {
+      isCancelled = true;
+    };
+  }, []);
 
   // Build a mapping of brandKey -> background-image URL (or none for NDA)
   const brandLogoMap = useMemo(() => {
@@ -124,7 +141,7 @@ const LogoSwapper: React.FC<LogoSwapperProps> = ({
                 currentLogoId === key ? styles.visible : ""
               }`}
               role="img"
-              aria-label={`${brandNames[key] ?? key} logo`}
+              aria-label={`${brandLabels[key] ?? key} logo`}
             />
           ))}
         </div>

@@ -14,34 +14,36 @@
     ],
     "npm.packageManager": "pnpm",
     "editor.defaultFormatter": "esbenp.prettier-vscode",
+    // Global toggle: disable auto format on save (was recently enabled per-language)
+    "editor.formatOnSave": false,
     "[typescript]": {
         "editor.defaultFormatter": "esbenp.prettier-vscode",
-        "editor.formatOnSave": true,
+        "editor.formatOnSave": false,
         "editor.codeActionsOnSave": {
             "source.fixAll.eslint": "explicit"
         }
     },
     "[typescriptreact]": {
         "editor.defaultFormatter": "esbenp.prettier-vscode",
-        "editor.formatOnSave": true,
+        "editor.formatOnSave": false,
         "editor.codeActionsOnSave": {
             "source.fixAll.eslint": "explicit"
         }
     },
     "[javascript]": {
         "editor.defaultFormatter": "esbenp.prettier-vscode",
-        "editor.formatOnSave": true,
+        "editor.formatOnSave": false,
         "editor.codeActionsOnSave": {
             "source.fixAll.eslint": "explicit"
         }
     },
     "[json]": {
         "editor.defaultFormatter": "esbenp.prettier-vscode",
-        "editor.formatOnSave": true
+        "editor.formatOnSave": false
     },
     "[jsonc]": {
         "editor.defaultFormatter": "esbenp.prettier-vscode",
-        "editor.formatOnSave": true
+        "editor.formatOnSave": false
     },
     "editor.formatOnSaveMode": "file",
     "typescript.tsdk": "./backend/node_modules/typescript/lib",
@@ -163,6 +165,7 @@
         "sendfile",
         "Stoli",
         "SUBDIRS",
+        "subpaths",
         "Takeda",
         "Tanteo",
         "teennick",

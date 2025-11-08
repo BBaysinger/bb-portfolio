@@ -1,5 +1,5 @@
 import { clsx } from "clsx";
-import Link from "next/link";
+// import Link from "next/link"; // no longer needed: external footer link uses <a>
 import React, { useRef } from "react";
 
 import { RawImg } from "@/components/common/RawImg";
@@ -61,7 +61,7 @@ const Footer: React.FC<FooterProps> = ({ className, mutationElemRef }) => {
       <div className={styles.container}>
         <div className={styles.footerGrid}>
           <div className={`${styles.footerCell} ${styles.greetSection}`}>
-            <FootGreet className={""} />
+            <FootGreet />
           </div>
 
           <div className={`${styles.footerCell} ${styles.contact}`}>
@@ -89,7 +89,7 @@ const Footer: React.FC<FooterProps> = ({ className, mutationElemRef }) => {
                 </li>
                 <li>
                   <a
-                    href="http://www.linkedin.com/in/BBaysinger"
+                    href="https://www.linkedin.com/in/BBaysinger"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -171,9 +171,14 @@ const Footer: React.FC<FooterProps> = ({ className, mutationElemRef }) => {
             Built with React
           </a>
         </div>
-        <Link className={styles.footerLink} href="https://bbaysinger.com">
+        <a
+          className={styles.footerLink}
+          href="https://bbaysinger.com"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
           &copy; <span style={{ color: "#fff" }}>BBaysinger</span>.com
-        </Link>
+        </a>
       </div>
     </footer>
     // </div>
