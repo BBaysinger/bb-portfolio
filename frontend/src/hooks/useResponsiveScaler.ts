@@ -1,6 +1,7 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 
 type FitMode = "cover" | "contain";
+type ViewportMode = "dynamic" | "small" | "large";
 
 interface ScalerOutput {
   width: number;
@@ -27,7 +28,18 @@ export default function useResponsiveScaler(
   baseWidth = 1280,
   mode: FitMode = "cover",
   elementRef?: React.RefObject<HTMLElement | null>,
+  viewportMode: ViewportMode = "small",
 ): ScalerOutput {
+  // Track min/max visual viewport across the current orientation to emulate CSS svh/svh and lvh/lvw.
+  const minMaxRef = useRef({
+    minW: Number.POSITIVE_INFINITY,
+    minH: Number.POSITIVE_INFINITY,
+    maxW: 0,
+    maxH: 0,
+    // crude orientation bucket: portrait vs landscape
+    isPortrait: undefined as undefined | boolean,
+  });
+
   const calculate = useCallback((): ScalerOutput => {
     if (typeof window === "undefined" || typeof document === "undefined") {
       return {
@@ -38,13 +50,47 @@ export default function useResponsiveScaler(
         scale: 1,
       };
     }
-    // Prefer "visual viewport" (svw/svh equivalents) over layout viewport client sizes
-    // to account for mobile browser chrome and dynamic UI.
-    const containerWidth =
+    // Read current visual viewport (dynamic by nature)
+    const currW =
       (window.visualViewport?.width ?? document.documentElement.clientWidth) || 0;
-    const containerHeight =
+    const currH =
       (window.visualViewport?.height ?? document.documentElement.clientHeight) || 0;
-    const screenAspect = containerWidth / containerHeight;
+
+    // Reset min/max if orientation bucket flips
+    const isPortrait = currH >= currW;
+    if (minMaxRef.current.isPortrait === undefined) {
+      minMaxRef.current.isPortrait = isPortrait;
+    } else if (minMaxRef.current.isPortrait !== isPortrait) {
+      minMaxRef.current = {
+        minW: currW,
+        minH: currH,
+        maxW: currW,
+        maxH: currH,
+        isPortrait,
+      };
+    }
+
+    // Update min/max trackers
+    minMaxRef.current.minW = Math.min(minMaxRef.current.minW, currW);
+    minMaxRef.current.minH = Math.min(minMaxRef.current.minH, currH);
+    minMaxRef.current.maxW = Math.max(minMaxRef.current.maxW, currW);
+    minMaxRef.current.maxH = Math.max(minMaxRef.current.maxH, currH);
+
+    // Choose effective viewport per requested mode
+    const containerWidth =
+      viewportMode === "dynamic"
+        ? currW
+        : viewportMode === "large"
+        ? minMaxRef.current.maxW
+        : minMaxRef.current.minW; // "small" default
+    const containerHeight =
+      viewportMode === "dynamic"
+        ? currH
+        : viewportMode === "large"
+        ? minMaxRef.current.maxH
+        : minMaxRef.current.minH; // "small" default
+
+    const screenAspect = containerWidth / Math.max(1, containerHeight);
 
     let width: number, height: number;
 
