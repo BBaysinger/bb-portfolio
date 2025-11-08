@@ -10,6 +10,8 @@ import React, {
   useCallback,
 } from "react";
 
+import useResponsiveScaler from "@/hooks/useResponsiveScaler";
+
 import type { FluxelHandle, FluxelData } from "./FluxelAllTypes";
 import type { FluxelGridHandle, FluxelGridProps } from "./FluxelAllTypes";
 import FluxelSvg from "./FluxelSvg";
@@ -27,8 +29,6 @@ const FluxelSvgGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
     {
       gridData,
       gridRef,
-      viewableHeight,
-      viewableWidth,
       onGridChange,
       imperativeMode = true,
       className = "",
@@ -60,6 +60,9 @@ const FluxelSvgGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
       }
     }, [gridData, imperativeMode]);
 
+    // Stable viewport-driven scaler (svw/svh) for cropping math; no elementRef needed here.
+    const scaler = useResponsiveScaler(4 / 3, 1280, "cover");
+
     const updateSize = useCallback(() => {
       const el = containerRef.current;
       if (!el || colCount === 0 || rowCount === 0) return;
@@ -73,18 +76,19 @@ const FluxelSvgGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
           onGridChange({ rows: rowCount, cols: colCount, fluxelSize: newSize });
         }
       }
-
-      const vh = newSize;
-      const vw = newSize;
-      viewableRowsRef.current = Math.ceil(viewableHeight / vh);
-      viewableColsRef.current = Math.ceil(viewableWidth / vw);
+      // Number of visible rows/cols is based on scaler's effective width/height
+      const effW = scaler.width || width;
+      const effH = scaler.height || el.clientHeight || width;
+      const cell = newSize || 1;
+      viewableRowsRef.current = Math.ceil(effH / cell);
+      viewableColsRef.current = Math.ceil(effW / cell);
     }, [
       colCount,
       rowCount,
       fluxelSize,
       onGridChange,
-      viewableHeight,
-      viewableWidth,
+      scaler.width,
+      scaler.height,
     ]);
 
     useLayoutEffect(() => {
@@ -142,8 +146,14 @@ const FluxelSvgGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
       [fluxelSize, imperativeMode, rowCount, colCount],
     );
 
-    const rowOverlap = Math.floor((rowCount - viewableRowsRef.current) / 2);
-    const colOverlap = Math.floor((colCount - viewableColsRef.current) / 2);
+    const rowOverlap = Math.max(
+      0,
+      Math.floor((rowCount - viewableRowsRef.current) / 2),
+    );
+    const colOverlap = Math.max(
+      0,
+      Math.floor((colCount - viewableColsRef.current) / 2),
+    );
 
     return (
       <>

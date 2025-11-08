@@ -28,8 +28,6 @@ export interface GridControllerHandle {
 interface GridControllerProps {
   rows: number;
   cols: number;
-  viewableHeight: number;
-  viewableWidth: number;
   className?: string;
   useSlingerTracking?: boolean;
 }
@@ -62,8 +60,7 @@ interface GridControllerProps {
  *     ref={gridRef}
  *     rows={10}
  *     cols={10}
- *     viewableHeight={720}
- *     viewableWidth={1280}
+ *     // No need to pass viewport dims; grids measure viewport internally.
  *   />
  * );
  *
@@ -72,17 +69,7 @@ interface GridControllerProps {
  * ```
  */
 const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
-  (
-    {
-      rows,
-      cols,
-      viewableHeight,
-      viewableWidth,
-      className,
-      useSlingerTracking = false,
-    },
-    ref,
-  ) => {
+  ({ rows, cols, className, useSlingerTracking = false }, ref) => {
     const getGridTypeFromUrl = (): "svg" | "canvas" => {
       if (typeof window === "undefined") return "svg";
 
@@ -230,8 +217,6 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
             className={styles.fluxelGridSvg}
             ref={gridInstanceRef}
             gridData={gridData}
-            viewableWidth={viewableWidth}
-            viewableHeight={viewableHeight}
             onLayoutUpdateRequest={onLayoutUpdateRequest}
           />
         ) : gridType === "canvas" ? (
@@ -239,8 +224,6 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
             className={styles.fluxelGridCanvas}
             ref={gridInstanceRef}
             gridData={gridData}
-            viewableWidth={viewableWidth}
-            viewableHeight={viewableHeight}
             onLayoutUpdateRequest={onLayoutUpdateRequest}
           />
         ) : (
