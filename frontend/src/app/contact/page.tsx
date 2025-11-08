@@ -135,7 +135,6 @@ const ContactPage = () => {
                 required
               />
             </label>
-            {/* <button type="submit">Send</button> */}
             <div className={styles.buttonRow}>
               <button type="submit" className="btn" disabled={isLoading}>
                 {isLoading ? "Sending…" : "Send"}
@@ -151,15 +150,6 @@ const ContactPage = () => {
               </span>
             </div>
           </form>
-          {/* <p
-            className={clsx(
-              styles.message,
-              styles.statusMessage,
-              isError && styles.errorMessage,
-            )}
-          >
-            {statusText}
-          </p> */}
         </div>
       </div>
     </>
