@@ -19,20 +19,22 @@ const ContactPage = () => {
     message: "",
   });
   const [status, setStatus] = useState<string>("");
-  const [error, setError] = useState<string>("");
+  const [errorMessage, setErrorMessage] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-    if (error) setError("");
+    if (errorMessage) setErrorMessage("");
     if (status) setStatus("");
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setStatus("Sending...");
-    setError("");
+  setStatus("Sending...");
+  setErrorMessage("");
+  setIsLoading(true);
 
     // Client-side validation
     if (
@@ -40,14 +42,16 @@ const ContactPage = () => {
       !formData.email.trim() ||
       !formData.message.trim()
     ) {
-      setError("Please fill in all fields.");
+      setErrorMessage("Please fill in all fields.");
       setStatus("");
+      setIsLoading(false);
       return;
     }
 
     if (!formData.email.includes("@")) {
-      setError("Please enter a valid email address.");
+      setErrorMessage("Please enter a valid email address.");
       setStatus("");
+      setIsLoading(false);
       return;
     }
 
@@ -75,14 +79,16 @@ const ContactPage = () => {
         err instanceof Error
           ? err.message
           : "Failed to send message. Please try again later.";
-      setError(errorMessage);
+      setErrorMessage(errorMessage);
       setStatus("");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   // Single computed status message for display
-  const isError = Boolean(error);
-  const statusText = error || status || "\u00A0"; // keep layout height when idle
+  const isError = Boolean(errorMessage);
+  const statusText = errorMessage || status || "\u00A0"; // keep layout height when idle
 
   return (
     <>
@@ -129,9 +135,23 @@ const ContactPage = () => {
                 required
               />
             </label>
-            <button type="submit">Send</button>
+            {/* <button type="submit">Send</button> */}
+            <div className={styles.buttonRow}>
+              <button type="submit" className="btn" disabled={isLoading}>
+                {isLoading ? "Sending…" : "Send"}
+              </button>
+              <span
+                className={clsx(
+                  styles.message,
+                  styles.statusMessage,
+                  isError && styles.errorMessage,
+                )}
+              >
+                {statusText}
+              </span>
+            </div>
           </form>
-          <p
+          {/* <p
             className={clsx(
               styles.message,
               styles.statusMessage,
@@ -139,7 +159,8 @@ const ContactPage = () => {
             )}
           >
             {statusText}
-          </p>
+          </p> */}
+
         </div>
       </div>
     </>
