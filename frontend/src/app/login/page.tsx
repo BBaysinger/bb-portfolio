@@ -128,7 +128,6 @@ const LoginPage = () => {
                 )}
               >
                 {statusText}
-                Testing test test...
               </span>
             </div>
           </div>
