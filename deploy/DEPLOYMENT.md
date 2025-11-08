@@ -137,8 +137,8 @@ Internet → CloudFlare DNS → Elastic IP (44.246.43.116)
     ↓
 AWS EC2 t3.medium
     ├── Nginx (:80)
-    │   ├── bbinteractive.io & www.bbinteractive.io → Production Containers (:3000/:3001)
-    │   ├── dev.bbinteractive.io → Development Containers (:4000/:4001)
+   │   ├── bbaysinger.com & www.bbaysinger.com → Production Containers (:3000/:3001)
+   │   ├── dev.bbaysinger.com → Development Containers (:4000/:4001)
     │   └── API requests (/api/) routed per domain
     ├── ECR Images (for production deployment)
     └── S3 Buckets (media storage)
