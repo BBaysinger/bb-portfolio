@@ -3,16 +3,15 @@
 
 .logoutButton {
   button {
-    background: none;
     padding-left: 0;
-    width: $navBarHeight !important;
+    width: 21px !important;
     height: $navBarHeight !important;
     background-color: currentColor !important;
     background-repeat: no-repeat;
     mask-image: url("/images/icons/logout.svg");
     mask-size: 20px 20px;
     mask-repeat: no-repeat;
-    mask-position: left center;
+    mask-position: center center;
     font-size: 0 !important;
   }
 }
