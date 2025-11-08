@@ -51,7 +51,7 @@ Remove or let expire legacy entries (`bbinteractive.io`, `www.bbinteractive.io`,
 
 ### 2. Deploy Dev Subdomain Support (If Adding/Changing)
 
-The infrastructure has been updated to support `dev.bbinteractive.io`. To deploy this change:
+The infrastructure has been updated to support `dev.bbaysinger.com`. To deploy this change:
 
 ```bash
 cd infra/
