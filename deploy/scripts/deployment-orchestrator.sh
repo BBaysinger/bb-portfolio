@@ -20,8 +20,8 @@
 #   • dev:    bb-portfolio-frontend-dev  (host:4000 → container:3000)
 #             bb-portfolio-backend-dev   (host:4001 → container:3000)
 # - DNS/routing (typical):
-#   • bbinteractive.io      → bb-portfolio-frontend-prod:3000 and bb-portfolio-backend-prod:3001
-#   • dev.bbinteractive.io  → bb-portfolio-frontend-dev:4000 and bb-portfolio-backend-dev:4001
+#   • bbaysinger.com        → bb-portfolio-frontend-prod:3000 and bb-portfolio-backend-prod:3001
+#   • dev.bbaysinger.com    → bb-portfolio-frontend-dev:4000 and bb-portfolio-backend-dev:4001
 #
 # Secrets and env files:
 # - .env.dev / .env.prod are not committed; they are generated on EC2 by the
@@ -437,8 +437,7 @@ ensure_https_certs() {
         echo "Issuing initial certificates via certbot";
         sudo certbot --nginx -n --agree-tos --email '"$email"' \
           -d bbaysinger.com -d www.bbaysinger.com \
-          -d bbinteractive.io -d www.bbinteractive.io \
-          -d dev.bbaysinger.com -d dev.bbinteractive.io --redirect || echo "Certbot issuance failed";
+          -d dev.bbaysinger.com --redirect || echo "Certbot issuance failed";
         sudo systemctl reload nginx || true
       else
         echo "Certificates already present; attempting quiet renewal";

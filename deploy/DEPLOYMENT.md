@@ -40,7 +40,7 @@ A Record: dev.bbaysinger.com → 44.246.43.116 (dev environment)
 
 ```
 
-Remove or let expire legacy entries (`bbinteractive.io`, `www.bbinteractive.io`, `dev.bbinteractive.io`) unless you have a migration need documented in the ADR log.
+Remove or let expire legacy entries for the old domain unless you have a migration need documented in the ADR log.
 ```
 
 **Test URLs (direct IP is for smoke only)**:
