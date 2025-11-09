@@ -49,14 +49,25 @@ function getHttpStatus(err: unknown): number | undefined {
   return undefined;
 }
 
-function toWebStream(body: unknown): ReadableStream | null {
-  if (!body) return null;
-  if (typeof (body as any).getReader === "function") return body as any;
-  try {
-    return Readable.toWeb(body as any) as unknown as ReadableStream;
-  } catch {
-    return null;
+function isWebReadableStream(x: unknown): x is ReadableStream<Uint8Array> {
+  return (
+    typeof x === "object" &&
+    x !== null &&
+    typeof (x as { getReader?: unknown }).getReader === "function"
+  );
+}
+
+function toWebStream(body: unknown): ReadableStream<Uint8Array> | null {
+  if (body == null) return null;
+  if (isWebReadableStream(body)) return body;
+  if (body instanceof Readable) {
+    try {
+      return Readable.toWeb(body) as ReadableStream<Uint8Array>;
+    } catch {
+      return null;
+    }
   }
+  return null;
 }
 
 async function headObject(bucket: string, key: string) {
@@ -97,7 +108,7 @@ async function streamObject(
         ...(range ? { Range: range } : {}),
       }),
     );
-    const bodyStream = toWebStream(res.Body as any);
+    const bodyStream = toWebStream(res.Body);
     if (!bodyStream) return new Response("Not found", { status: 404 });
     const headers = new Headers();
     const etag = meta.ETag || res.ETag;
