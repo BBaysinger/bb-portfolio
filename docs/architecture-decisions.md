@@ -915,6 +915,40 @@ MONGODB_URI=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/bb-portfol
   - Completely separate datasets without route-aware navigation (safer but worse UX when switching between public and NDA projects).
 - **Status:** ✅ Active
 
+---
+
+## 2025-11-09 – Canonical Project File Delivery (Direct S3 Streaming)
+
+- **Decision:** Replace prior presigned-URL 302 redirect pattern for project/NDA files with server-side direct S3 streaming under stable, canonical application paths: `/projects/<slug>/[index.html]` and `/private/<slug>/[index.html]`.
+- **Context:** Previously, requests to project assets under clean app routes were internally converted to short‑lived presigned S3 URLs via a 302 redirect. This leaked bucket hostnames + signatures into browser history / analytics, complicated caching, and prevented conventional conditional + range requests at the application edge. Private (NDA) assets also returned 404 for unauthenticated access, diverging from a more reusable boilerplate that would signal `401 Unauthorized`.
+- **Implementation:**
+  - Next.js Route Handlers (`/frontend/src/app/projects/[[...key]]/route.ts` and `/frontend/src/app/private/[[...key]]/route.ts`) stream S3 objects directly using AWS SDK v3 `HeadObject` + `GetObject`.
+  - Key normalization (`sanitizeKey`) resolves extensionless or directory paths to `index.html` and blocks traversal attempts (`..`).
+  - Conditional requests: Evaluate `If-None-Match` / `If-Modified-Since` against S3 `ETag` / `LastModified`; return `304` with caching headers when unmodified.
+  - Partial content: Honor `Range` headers; return `206` with `Content-Range` + `Accept-Ranges: bytes`.
+  - Distinct cache policies:
+    - Public: `Cache-Control: public, max-age=300, must-revalidate`
+    - Private (NDA): `Cache-Control: private, max-age=0, must-revalidate`
+  - Security hardening: `X-Content-Type-Options: nosniff`, path traversal guard, no exposure of raw S3 URLs or signatures.
+  - Auth gating (private): Server-side session check via backend `/api/users/me`; unauthenticated returns conventional `401 Unauthorized` (explicit, easier to reuse) instead of obscured 404.
+  - HEAD parity: Implements `HEAD` handlers that mirror auth + object existence semantics without fetching bodies.
+  - Error behavior: Missing keys → `404 Not Found`; malformed traversal → `400 Bad path`; misconfiguration (missing bucket env) → `500`.
+  - Environment variables: `PUBLIC_PROJECTS_BUCKET`, `PUBLIC_PROJECTS_PREFIX` (optional), `NDA_PROJECTS_BUCKET`, `NDA_PROJECTS_PREFIX` (optional), `AWS_REGION`/`AWS_DEFAULT_REGION`.
+- **Reasoning:**
+  - Preserves clean, stable URLs for bookmarking, analytics, and SEO (public side) without leaking presigned query parameters.
+  - Enables proper HTTP cache negotiation (304) and efficient media seeking (Range) at the application layer.
+  - Simplifies client code: No redirect follow, no need to distinguish S3 hostnames, consistent headers.
+  - Improves security posture by eliminating exposure of signed URLs and reducing surface for misuse/log leakage.
+  - Boilerplate‑friendly: Conventional `401` for protected assets is clearer for future reuse than silent 404 concealment (which can still be reinstated if desired).
+  - Provides future flexibility (e.g., adding transform layers, access logs, rate limiting) before S3 without altering canonical links.
+- **Alternatives considered:**
+  - Continue 302 to presigned URL (leaks signed URLs, poor cache control).
+  - Nginx reverse proxy to S3 (adds infra complexity; still needs app auth logic for NDA gating).
+  - CloudFront distribution with signed cookies/URLs (powerful but heavier than needed now; harder to express per-object auth quickly).
+  - Bundling project files into Payload CMS/media buckets (mixes concerns; larger DB/object lifecycle coupling).
+  - Full static import / build-time embedding (bloats frontend bundle; loses on-demand updates without redeploy).
+- **Status:** ✅ Active (supersedes earlier “Project Files on S3 and NDA Gated Delivery” redirect mechanics; path structure unchanged, delivery mechanism upgraded)
+
 ```
 
 ```

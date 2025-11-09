@@ -65,4 +65,3 @@ const Greeting: React.FC = () => {
 };
 
 export default Greeting;
-
