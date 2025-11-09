@@ -138,7 +138,7 @@ async function streamObject(
         ...(range ? { Range: range } : {}),
       }),
     );
-  const bodyStream = toWebStream(res.Body);
+    const bodyStream = toWebStream(res.Body);
     if (!bodyStream) return new Response("Not found", { status: 404 });
     const headers = new Headers();
     const etag = meta.ETag || res.ETag;
