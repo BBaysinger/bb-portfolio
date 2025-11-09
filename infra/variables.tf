@@ -61,10 +61,8 @@ variable "s3_cors_allowed_origins" {
     "http://localhost:8080",
     "http://localhost:8081",
     "http://localhost:3000",
-  // legacy bbinteractive.io removed
     "https://bbaysinger.com",
     "https://www.bbaysinger.com",
-  // legacy dev.bbinteractive.io removed
     "https://dev.bbaysinger.com",
   ]
 }
