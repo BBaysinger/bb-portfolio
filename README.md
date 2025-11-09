@@ -6,7 +6,7 @@ A modern portfolio website featuring custom interactive components built with Re
 
 The deployment pipeline uses Terraform for infrastructure provisioning, Docker for containerization, and GitHub Actions for CI/CD. The system supports multiple environments (dev/prod) with separate container registries and S3 storage buckets.
 
-[Visit the Live Site (primary)](http://bbaysinger.com) — also available at https://bbinteractive.io during migration.
+[Visit the Live Site (primary)](http://bbaysinger.com).
 
 ---
 
@@ -227,7 +227,7 @@ This portfolio is deployed using Infrastructure as Code with Terraform and Docke
 - Containerization: Docker with dual registry strategy (Docker Hub + ECR)
 - Storage: S3 buckets for media assets with environment isolation
 - Networking: Elastic IP (44.246.43.116), Security Groups, VPC integration
-- Domain & DNS: Custom domains (bbaysinger.com primary, bbinteractive.io legacy) with Route 53 hosted zones
+- Domain & DNS: Custom domains (bbaysinger.com primary) with Route 53 hosted zones
 - TLS: AWS Certificate Manager (ACM) with DNS validation via Route 53
 
 ### 🚀 Deployment Process

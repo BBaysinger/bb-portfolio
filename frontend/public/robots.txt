@@ -10,4 +10,4 @@ Disallow: /config/
 Disallow: /tmp/
 Disallow: /logs/
 
-Sitemap: https://bbinteractive.io/sitemap.xml
+Sitemap: https://bbaysinger.com/sitemap.xml
