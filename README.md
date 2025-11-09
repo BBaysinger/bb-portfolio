@@ -2,11 +2,53 @@
 
 A modern portfolio website featuring custom interactive components built with React, TypeScript, Next.js, and Payload CMS. The site includes a parallax project carousel, animated sprite system, and responsive design components. All animations and visual effects are implemented using native web technologies without external 3D, physics, or sprite sheet animation libraries.
 
+> **Note:** This project goes far beyond a typical personal portfolio. It’s a fully orchestrated, production-grade web system — complete with its own AWS infrastructure, CI/CD pipeline, secret management framework, and automated deployment orchestrator.
+
 The deployment pipeline uses Terraform for infrastructure provisioning, Docker for containerization, and GitHub Actions for CI/CD. The system supports multiple environments (dev/prod) with separate container registries and S3 storage buckets.
 
 [Visit the Live Site (primary)](http://bbaysinger.com) — also available at https://bbinteractive.io during migration.
 
-### 🎨 Frontend UX & Interaction
+---
+
+## 🧠 Deployment Orchestrator & Infrastructure Automation
+
+This project features a **custom deployment orchestrator** designed to unify AWS provisioning, Docker-based container management, and CI/CD workflows into a single command-line experience. The orchestrator bridges the gap between Terraform infrastructure management, GitHub Actions automation, and runtime configuration on EC2.
+
+### Core Capabilities
+
+- **Orchestrated Deploys:** Automates end-to-end redeploys via GitHub Actions, regenerates `.env` files on EC2, and safely restarts containers.
+- **Hybrid Workflow Integration:** Seamlessly coordinates between local CLI invocations, GitHub Actions dispatches, and direct SSH fallbacks.
+- **Zero Secret Exposure:** All credentials and API keys are pulled from GitHub Secrets during deployment—never baked into images or committed to the repo.
+- **Profile-Aware Deployments:** Supports `dev`, `prod`, or `both` profiles with independent registries, S3 buckets, and SES configs.
+- **Fail-Safe Logic:** Prevents destructive operations on persistent AWS resources and validates infrastructure state before modification.
+
+### Typical Flow
+
+```bash
+# Discover the current infra and deployment configuration
+deploy/scripts/deployment-orchestrator.sh --discover-only
+
+# Plan and preview deployment changes
+deploy/scripts/deployment-orchestrator.sh --plan-only
+
+# Redeploy production (GitHub Actions workflow + env regeneration)
+deploy/scripts/deployment-orchestrator.sh --profiles prod --refresh-env
+
+# Redeploy both environments without rebuilding images
+deploy/scripts/deployment-orchestrator.sh --no-build --profiles both --refresh-env
+```
+
+### Behind the Scenes
+
+1. **Terraform Initialization:** Provisions or updates AWS resources (EC2, IAM, S3, ECR, Route 53, SES).
+2. **User Data Bootstrapping:** Installs Docker, Caddy/Nginx, and system services automatically on EC2.
+3. **GitHub Workflow Dispatch:** Uses reusable workflows to regenerate environment files and trigger container restarts.
+4. **Systemd Management:** Provides persistent auto-restart, health checks, and graceful recovery across deploys.
+5. **Safe Rollback:** Detects failed redeploys and reverts to the previous stable configuration.
+
+---
+
+## 🎨 Frontend UX & Interaction
 
 - Parallax Project Carousel with swipe navigation and deep linking
 - Animated grid system with simulated 3D depth effects
@@ -313,4 +355,4 @@ Note: Earlier plans for “custom Express/Mongo backend” were superseded by th
 
 Updated EC2 IP: 44.246.43.116
 
-Last updated: Mon Nov 3, 2025
+Last major: Mon Nov 8, 2025
