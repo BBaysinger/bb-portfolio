@@ -84,14 +84,25 @@ deploy/scripts/deployment-orchestrator.sh --no-build --profiles both --refresh-e
   - migrate media to S3, update media URLs, rebuild records
 - Local filesystem storage for local profile
 
-#### Project files (S3 + gated delivery)
+#### Project files (S3 + app-routed delivery)
 
-- Separate from Payload media, static project files are stored in two dedicated S3 buckets:
+- Static project files live in two S3 buckets (separate from Payload media):
   - Public: `bb-portfolio-projects-public`
   - NDA-protected: `bb-portfolio-projects-nda`
-- Delivery is via application API routes:
-  - Public files: `/api/projects/public/*` → public bucket
-  - Private/NDA files: `/api/projects/private/*` → NDA bucket (requires authenticated session)
+- Delivery is handled by Next.js App Router with clean, canonical URLs:
+  - Public files: `/projects/{folder}/...` → streams from public bucket
+  - Private/NDA files: `/private/{folder}/...` → streams from NDA bucket; requires auth
+- Key behavior (boilerplate-friendly):
+  - No presigned URLs are exposed; the server streams content directly from S3
+  - Directory and extensionless paths resolve to `index.html`
+  - Range requests supported (for large assets)
+  - Conditional requests supported (ETag/Last-Modified → 304)
+  - Public caching: `Cache-Control: public, max-age=300, must-revalidate`
+  - Private caching: `Cache-Control: private, max-age=0, must-revalidate`
+  - Security header: `X-Content-Type-Options: nosniff`
+- Unauthorized style for `/private/*`:
+  - Returns `401 Unauthorized` when not logged in (conventional, explicit)
+  - If you need to conceal existence (e.g., stricter NDA), flip to `404 Not Found` in the route
 - Upload/verify helpers:
   - `npm run projects:upload:public | :nda | :both`
   - `npm run projects:verify`
