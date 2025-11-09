@@ -7,7 +7,7 @@
   align-items: center;
   position: relative;
   background: black;
-  color: #fff;
+  // color: #fff;
   z-index: 10;
   overflow: hidden;
   font-size: 15px;
@@ -163,7 +163,8 @@
       border-right-width: 47px;
       border-bottom-width: 60px;
       border-left-width: 54px;
-      border-image: url("/images/home/highway-sign.webp") 90 104 136 116 stretch;
+      border-image: url("/images/home/highway-sign-1.webp") 90 104 136 116
+        stretch;
       line-height: 1.3em;
       max-width: 600px;
       margin: 20px 0;
@@ -176,7 +177,7 @@
         font-size: 20px;
       }
       @include breakpointUp($b1280px) {
-        font-size: 24px;
+        font-size: 28px;
         margin-bottom: -23px;
         margin-left: 20px;
         margin-right: -29px;
@@ -251,6 +252,27 @@
       }
       &:last-of-type {
         margin-bottom: 0;
+        border-image: url("/images/home/highway-sign-2.webp") 90 104 136 116
+          stretch;
+        p {
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          gap: 30px;
+          background-color: #f36700;
+          margin-left: -27px;
+          margin-right: -27px;
+          padding: 40px;
+          padding-top: 26px;
+          font-weight: bold;
+          font-size: 1.6em;
+          > span {
+            text-transform: uppercase;
+            font-size: 1.8em;
+            display: block;
+          }
+        }
       }
 
       p {
