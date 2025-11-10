@@ -19,7 +19,7 @@ const Greeting: React.FC = () => {
         <div className={styles.helloSignWrapper}>
           <MagneticThingy className={styles.helloSign}>
             <RawImg
-              src="/images/hello/hello.webp"
+              src="/images/home/hello.webp"
               alt="hello"
               className={styles.helloImage}
             />
@@ -30,28 +30,22 @@ const Greeting: React.FC = () => {
           <div className={styles.text}>
             <div ref={addToRefs}>
               <p>
-                {/* Hi, I&apos;m Bradley—an interactive developer with a background
+                Hi, I&apos;m Bradley—an interactive developer with a background
                 in design, specializing in high-quality, animated web
-                experiences. I specialize in TypeScript, JavaScript, and modern
-                front-end development, with a focus on performance, scalability,
-                and usability. */}
-                Hi, I'm Bradley — an interactive developer who builds fast,
-                animated, design-driven web experiences with TypeScript and
-                modern front-end tech. I sure hope you like dark mode. At least
-                for the time being!
+                experiences. My recent expertise lies in TypeScript, JavaScript,
+                and modern front-end development, with a focus on performance,
+                scalability, and usability.
               </p>
             </div>
-
             <div ref={addToRefs}>
               <p>
-                This site is always under <span>construction</span>
-                {/* This portfolio spans projects from early interfaces in Flash,
+                This portfolio spans projects from early interfaces in Flash,
                 jQuery, and Haxe to modern builds in React and contemporary
                 frameworks. I've kept some older pieces because I'm still proud
                 of what they accomplished with the tools of the time. They
                 represent a throughline I've carried into today's fluid, dynamic
                 interfaces. Please explore—and reach out if
-                something&nbsp;resonates. */}
+                something&nbsp;resonates.
               </p>
             </div>
             <a ref={addToRefs} href="#projects-list">

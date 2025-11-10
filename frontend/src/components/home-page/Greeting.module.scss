@@ -7,7 +7,7 @@
   align-items: center;
   position: relative;
   background: black;
-  // color: #fff;
+  color: #fff;
   z-index: 10;
   overflow: hidden;
   font-size: 15px;
@@ -115,14 +115,14 @@
     background-size: contain, cover;
     background-repeat: no-repeat;
     background-position: top center;
-    background-image: url("/images/hello/road-sign.webp");
+    background-image: url("/images/home/road-sign.webp");
     transform-origin: 50% 300%;
 
     @include breakpointUp($b768px) {
       transform-origin: 50% 150%;
       aspect-ratio: 1 / 2.038;
       background-image:
-        url("/images/hello/road-sign.webp"), url("/images/hello/signpost.webp");
+        url("/images/home/road-sign.webp"), url("/images/home/signpost.webp");
     }
 
     @include breakpointUp($b1280px) {
@@ -163,8 +163,7 @@
       border-right-width: 47px;
       border-bottom-width: 60px;
       border-left-width: 54px;
-      border-image: url("/images/hello/highway-sign-1.webp") 90 104 136 116
-        stretch;
+      border-image: url("/images/home/highway-sign.webp") 90 104 136 116 stretch;
       line-height: 1.3em;
       max-width: 600px;
       margin: 20px 0;
@@ -177,7 +176,7 @@
         font-size: 20px;
       }
       @include breakpointUp($b1280px) {
-        font-size: 28px;
+        font-size: 24px;
         margin-bottom: -23px;
         margin-left: 20px;
         margin-right: -29px;
@@ -188,7 +187,7 @@
           display: block;
           width: 50px;
           height: 50px;
-          background-image: url("/images/hello/barricade-flasher.webp");
+          background-image: url("/images/home/barricade-flasher.webp");
           background-size: cover;
           background-repeat: no-repeat;
           position: absolute;
@@ -200,7 +199,7 @@
           display: block;
           width: 50px;
           height: 50px;
-          background-image: url("/images/hello/barricade-flasher.webp");
+          background-image: url("/images/home/barricade-flasher.webp");
           background-size: cover;
           background-repeat: no-repeat;
           position: absolute;
@@ -214,7 +213,7 @@
             display: block;
             width: 500px;
             height: 500px;
-            background-image: url("/images/hello/flash.webp");
+            background-image: url("/images/home/flash.webp");
             background-size: cover;
             background-repeat: no-repeat;
             position: absolute;
@@ -252,28 +251,6 @@
       }
       &:last-of-type {
         margin-bottom: 0;
-        border-image: url("/images/hello/highway-sign-2.webp") 90 104 136 116
-          stretch;
-        p {
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
-          gap: 30px;
-          // background-color: #f36700;
-          background-color: #e7eaec;
-          margin-left: -27px;
-          margin-right: -27px;
-          padding: 40px;
-          padding-top: 26px;
-          font-weight: bold;
-          font-size: 1.6em;
-          > span {
-            text-transform: uppercase;
-            font-size: 1.8em;
-            display: block;
-          }
-        }
       }
 
       p {
@@ -299,7 +276,7 @@
       margin-bottom: 0px;
       width: 100%;
       max-width: 500px;
-      background-image: url("/images/hello/wide-arrow.webp");
+      background-image: url("/images/home/wide-arrow.webp");
       background-repeat: no-repeat;
       background-size: 100% 100%;
       @include breakpointUp($b360px) {
