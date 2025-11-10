@@ -66,7 +66,12 @@ export function PushStateLink({
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
 
-    navigateWithPushState(href);
+    navigateWithPushState(href, null, {
+      useHashHistory: process.env.NEXT_PUBLIC_FORCE_HASH_HISTORY === "1",
+      hashParam: "ts",
+      hashValue: Date.now().toString(),
+      useDoublePushFallback: process.env.NEXT_PUBLIC_DOUBLE_PUSH === "1",
+    });
 
     if (scrollToTop) {
       window.scrollTo({ top: 0, behavior: "smooth" });

@@ -133,17 +133,26 @@ function ProjectViewRouterBridge({
     ensureNdaPresent();
   }, [includeNdaInActive, projectId, allowNda]);
 
-  useRouteChange(() => {
-    const newId = getDynamicPathParam(-1, initialProjectId);
-    if (newId && newId !== projectId) {
-      console.info("Route bridge updating projectId:", projectId, "→", newId);
-      setProjectId(newId);
-    }
-  });
+  useRouteChange(
+    (_pathname, search) => {
+      // Prefer query param `p` when present; fall back to last path segment
+      const p = new URLSearchParams(search).get("p");
+      const newId = p || getDynamicPathParam(-1, initialProjectId);
+      if (newId && newId !== projectId) {
+        console.info("Route bridge updating projectId:", projectId, "→", newId);
+        setProjectId(newId);
+      }
+    },
+    { mode: "external-only" },
+  );
 
   // Also sync projectId on mount/remount to handle edge cases
   useEffect(() => {
-    const currentId = getDynamicPathParam(-1, initialProjectId);
+    const p =
+      typeof window !== "undefined"
+        ? new URLSearchParams(window.location.search).get("p")
+        : null;
+    const currentId = p || getDynamicPathParam(-1, initialProjectId);
     if (currentId && currentId !== projectId) {
       setProjectId(currentId);
     }

@@ -20,6 +20,7 @@ import { LayeredCarouselManagerRef } from "@/components/project-carousel-page/La
 import LogoSwapper from "@/components/project-carousel-page/LogoSwapper";
 import PageButtons from "@/components/project-carousel-page/PageButtons";
 import ProjectData from "@/data/ProjectData";
+import { useRouteChange } from "@/hooks/useRouteChange";
 import { navigateWithPushState } from "@/utils/navigation";
 
 import ProjectCarouselView from "./ProjectCarouselView";
@@ -40,6 +41,9 @@ import styles from "./ProjectView.module.scss";
  */
 const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
   const projects = ProjectData.activeProjectsRecord;
+  const debug =
+    process.env.NEXT_PUBLIC_DEBUG_CAROUSEL === "1" ||
+    process.env.NODE_ENV !== "production";
 
   const [initialIndex] = useState(() => {
     return projectId ? (ProjectData.projectIndex(projectId) ?? null) : null;
@@ -55,6 +59,27 @@ const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
   const lastKnownProjectId = useRef(projectId);
   const carouselRef = useRef<LayeredCarouselManagerRef>(null);
   const isCarouselSourceRef = useRef(false);
+  // Tracks the most recent timestamp we wrote into history.state for a carousel-originated push.
+  // Used to distinguish immediate same-tick route updates from older history entries navigated via Back/Forward.
+  const lastCarouselPushTsRef = useRef<number | null>(null);
+  // Capture the exact ordered key list used to build the slides at mount time.
+  // This prevents index→slug mismatches if the active project set changes later
+  // (e.g., NDA projects added post-auth) without rebuilding the carousel layers.
+  const slideKeysRef = useRef<string[]>(
+    ProjectData.activeProjects.map((p) => p.id),
+  );
+
+  // Debug: dump the index→slug mapping used by the carousel slides at mount
+  useEffect(() => {
+    if (debug) {
+      try {
+        console.info(
+          "[Carousel] slideKeysRef (index→slug):",
+          slideKeysRef.current,
+        );
+      } catch {}
+    }
+  }, [debug]);
 
   const infoSwapperIndex = useMemo(() => stabilizedIndex, [stabilizedIndex]);
 
@@ -64,18 +89,55 @@ const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
       : "bbSlideRight";
   }, []); // Static based on current pattern
 
+  // Listen only for external route changes (popstate or custom) to update internal projectId
+  useRouteChange(
+    (_pathname, search) => {
+      const p = new URLSearchParams(search).get("p") || "";
+      if (p && p !== lastKnownProjectId.current) {
+        // Update ref so stabilization mapping uses the latest id
+        lastKnownProjectId.current = p;
+      }
+    },
+    { mode: "external-only" },
+  );
+
   const handleStabilizationUpdate = useCallback(
     (
       newStabilizedIndex: number,
       source: SourceType,
       direction: DirectionType,
     ) => {
+      if (debug) {
+        try {
+          console.info("[Carousel] onStabilizationUpdate", {
+            newStabilizedIndex,
+            source,
+            direction,
+            lastKnown: lastKnownProjectId.current,
+          });
+        } catch {}
+      }
       if (stabilizedIndex !== newStabilizedIndex) {
         isCarouselSourceRef.current = true;
 
-        const newProjectId = Object.keys(projects).find(
-          (key) => ProjectData.projectIndex(key) === newStabilizedIndex,
-        );
+        // Map stabilized slide index directly to the active key list.
+        // Previous implementation iterated over Object.keys(projects) + projectIndex,
+        // which is order-unsafe because object key enumeration doesn't guarantee
+        // the same sequencing as the activeProjects array. Use activeKeys instead.
+        const keys = slideKeysRef.current;
+        const newProjectId =
+          newStabilizedIndex >= 0 && newStabilizedIndex < keys.length
+            ? keys[newStabilizedIndex]
+            : undefined;
+        if (debug) {
+          try {
+            console.info("[Carousel] index→slug", {
+              newStabilizedIndex,
+              resolvedSlug: newProjectId,
+              keysSample: keys.slice(0, 6),
+            });
+          } catch {}
+        }
 
         if (
           newProjectId &&
@@ -83,8 +145,8 @@ const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
           source === Source.SCROLL
         ) {
           const target = projects[newProjectId];
-          const hrefBase = target?.nda ? "/nda" : "/project";
-          const targetHref = `${hrefBase}/${newProjectId}/`;
+          const hrefBase = target?.nda ? "/nda/" : "/project/";
+          const targetHref = `${hrefBase}?p=${encodeURIComponent(newProjectId)}`;
           // Mark this navigation as originating from the carousel so we can
           // suppress the subsequent route-driven programmatic scroll.
           try {
@@ -94,12 +156,43 @@ const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
               projectId: newProjectId,
               ts: Date.now(),
             };
-            navigateWithPushState(targetHref, state);
+            lastCarouselPushTsRef.current = state.ts as number;
+            if (debug) {
+              try {
+                console.info("[Carousel] navigateWithPushState", {
+                  targetHref,
+                  state,
+                });
+              } catch {}
+            }
+            navigateWithPushState(targetHref, state, {
+              // Force unique history entries using a timestamp hash token (proven to work with buttons)
+              useHashHistory:
+                process.env.NEXT_PUBLIC_FORCE_HASH_HISTORY === "1",
+              hashParam: "ts",
+              hashValue: Date.now(),
+              // Enable double-push fallback for gesture reliability if env flag is set
+              useDoublePushFallback:
+                process.env.NEXT_PUBLIC_DOUBLE_PUSH === "1",
+            });
           } catch {
             // Fallback if history.state is not accessible for any reason
-            navigateWithPushState(targetHref, {
-              source: "carousel",
-            });
+            navigateWithPushState(
+              targetHref,
+              {
+                source: "carousel",
+              },
+              {
+                useHashHistory:
+                  process.env.NEXT_PUBLIC_FORCE_HASH_HISTORY === "1",
+                hashParam: "ts",
+                hashValue: Date.now(),
+                useDoublePushFallback:
+                  process.env.NEXT_PUBLIC_DOUBLE_PUSH === "1",
+              },
+            );
+            lastCarouselPushTsRef.current =
+              typeof Date.now === "function" ? Date.now() : null;
           }
           lastKnownProjectId.current = newProjectId;
         }
@@ -120,13 +213,73 @@ const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
 
   useEffect(() => {
     if (carouselRef.current && projects[projectId]) {
+      // If the current stabilized slide already corresponds to the projectId from the URL,
+      // do nothing. This prevents a bounce-back when a carousel-originated navigation
+      // updates the URL and React cycles before `projectId` settles.
+      const currentSlugFromIndex =
+        stabilizedIndex != null && stabilizedIndex >= 0
+          ? (slideKeysRef.current[stabilizedIndex] as string | undefined)
+          : undefined;
+      if (debug) {
+        try {
+          console.info("[Carousel] route→scroll check", {
+            projectId,
+            stabilizedIndex,
+            currentSlugFromIndex,
+          });
+        } catch {}
+      }
+      if (currentSlugFromIndex && currentSlugFromIndex === projectId) {
+        // Clear one-shot flags and consume marker if present, then bail.
+        isCarouselSourceRef.current = false;
+        // Only consume marker if it refers to our most recent carousel push; keep older entries intact for Back/Forward behavior.
+        if (
+          typeof window !== "undefined" &&
+          window.history?.state?.source === "carousel" &&
+          (lastCarouselPushTsRef.current == null ||
+            window.history.state?.ts === lastCarouselPushTsRef.current)
+        ) {
+          try {
+            const { source: _s, ...rest } = window.history.state || {};
+            const currentUrl =
+              window.location.pathname +
+              window.location.search +
+              window.location.hash; // preserve hash tokens used for history separation
+            window.history.replaceState(rest, "", currentUrl);
+            window.dispatchEvent(new CustomEvent("bb:routechange"));
+          } catch {}
+        }
+        return;
+      }
       const targetIndex = ProjectData.projectIndex(projectId);
+      if (debug) {
+        try {
+          console.info("[Carousel] route→scroll action", {
+            projectId,
+            targetIndex,
+            stabilizedIndex,
+            isCarouselSource: isCarouselSourceRef.current,
+            routeFromCarousel:
+              typeof window !== "undefined" &&
+              !!(
+                window.history?.state &&
+                window.history.state.source === "carousel"
+              ),
+          });
+        } catch {}
+      }
 
       // If the route change was initiated by the carousel (gesture), skip
       // programmatic scrolling to avoid a duplicate slide and wrong index.
       const routeFromCarousel =
         typeof window !== "undefined" &&
-        !!(window.history?.state && window.history.state.source === "carousel");
+        !!(
+          window.history?.state &&
+          window.history.state.source === "carousel" &&
+          // Treat as "from carousel" only if this entry matches the most recent push we created.
+          (lastCarouselPushTsRef.current == null ||
+            window.history.state.ts === lastCarouselPushTsRef.current)
+        );
 
       if (
         stabilizedIndex !== targetIndex &&
@@ -142,14 +295,21 @@ const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
 
     // Consume and clear the route-from-carousel marker so future route
     // changes behave normally.
+    // Consume marker only if it matches the most recent carousel push; otherwise,
+    // leave older entries as-is so Back/Forward stays meaningful.
     if (
       typeof window !== "undefined" &&
-      window.history?.state?.source === "carousel"
+      window.history?.state?.source === "carousel" &&
+      (lastCarouselPushTsRef.current == null ||
+        window.history.state?.ts === lastCarouselPushTsRef.current)
     ) {
       try {
         const { source: _source, ...rest } = window.history.state || {};
-        // Use our central utility, but pass current URL to avoid normalization issues
-        const currentUrl = window.location.pathname + window.location.search;
+        // Preserve full current URL including hash used for history entry uniqueness
+        const currentUrl =
+          window.location.pathname +
+          window.location.search +
+          window.location.hash;
         window.history.replaceState(rest, "", currentUrl);
         // Emit event for consistency
         window.dispatchEvent(new CustomEvent("bb:routechange"));
