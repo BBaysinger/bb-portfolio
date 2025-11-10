@@ -26,7 +26,24 @@ const ScrollToHash = () => {
     }
 
     if (hash) {
-      const element = document.querySelector(hash) as HTMLElement | null;
+      // Ignore hash parameters used for history separation (e.g., #ts=12345)
+      const raw = hash.slice(1);
+      if (raw.includes("=")) {
+        return; // not an element anchor; skip scrolling and do not attempt to strip it
+      }
+
+      // Attempt to find an element by ID. Escape if CSS.escape is available.
+      let element: HTMLElement | null = null;
+      try {
+        // Safely access global CSS.escape without using any.
+        const cssGlobal: { escape?: (s: string) => string } =
+          (globalThis as unknown as { CSS?: { escape?: (s: string) => string } })?.CSS || {};
+        const selector = cssGlobal.escape ? `#${cssGlobal.escape(raw)}` : hash;
+        const queried = document.querySelector(selector);
+        element = queried instanceof HTMLElement ? queried : null;
+      } catch {
+        element = null; // malformed selector; safely ignore
+      }
 
       if (element) {
         const initialScrollY = window.scrollY;

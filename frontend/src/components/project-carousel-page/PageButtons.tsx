@@ -1,7 +1,7 @@
 "use client";
 
-import { useParams } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import React, { useState } from "react";
 
 import { PushStateLink } from "@/components/common/PushStateLink";
 import ProjectData from "@/data/ProjectData";
@@ -23,41 +23,19 @@ import styles from "./PageButtons.module.scss";
  *
  */
 const PageButtons: React.FC = () => {
-  const params = useParams();
-  const [clientProjectId, setClientProjectId] = useState<string>("");
+  const searchParams = useSearchParams();
+  const [projectId, setProjectId] = useState<string>(
+    searchParams.get("p") || "",
+  );
 
-  // SSR-safe: Start with params.projectId, update with window.location on client
-  const baseProjectId =
-    typeof params?.projectId === "string" ? params.projectId : "";
-  const projectId = clientProjectId || baseProjectId;
-
-  // Update projectId from URL on client side only, and listen for route changes
-  useEffect(() => {
-    const updateProjectId = () => {
-      const segs = window.location.pathname.split("/").filter(Boolean);
-      const last = segs.at(-1);
-      const maybeId = last && last !== "project" ? last : segs.at(-2);
-      if (maybeId && maybeId !== baseProjectId) {
-        setClientProjectId(maybeId);
-      }
-    };
-
-    // Initial update
-    updateProjectId();
-  }, [baseProjectId]);
-
-  // Listen for route changes (pushState navigation, back/forward buttons)
-  useRouteChange(() => {
-    const segs = window.location.pathname.split("/").filter(Boolean);
-    const last = segs.at(-1);
-    const maybeId = last && last !== "project" ? last : segs.at(-2);
-    const currentProjectId = clientProjectId || baseProjectId;
-
-    // Update whenever the URL project ID differs from our current state
-    if (maybeId && maybeId !== currentProjectId) {
-      setClientProjectId(maybeId);
-    }
-  });
+  // Sync state when query string changes
+  useRouteChange(
+    (_pathname, search) => {
+      const p = new URLSearchParams(search).get("p") || "";
+      setProjectId(p);
+    },
+    { mode: "external-only" },
+  );
 
   // Ensure ProjectData is available and project exists
   const activeProjects = ProjectData.activeProjectsRecord;
@@ -73,8 +51,8 @@ const PageButtons: React.FC = () => {
   const nextId = ProjectData.nextKey(projectId);
   const prevIsNda = !!activeProjects[prevId]?.nda;
   const nextIsNda = !!activeProjects[nextId]?.nda;
-  const prevHref = `${prevIsNda ? "/nda" : "/project"}/${prevId}/`;
-  const nextHref = `${nextIsNda ? "/nda" : "/project"}/${nextId}/`;
+  const prevHref = `${prevIsNda ? "/nda/" : "/project/"}?p=${encodeURIComponent(prevId)}`;
+  const nextHref = `${nextIsNda ? "/nda/" : "/project/"}?p=${encodeURIComponent(nextId)}`;
 
   return (
     <div className={styles.projectNav}>

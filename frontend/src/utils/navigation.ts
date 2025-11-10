@@ -14,18 +14,104 @@
 export function navigateWithPushState(
   url: string,
   state?: Record<string, unknown> | null,
+  opts?: {
+    /** When true, append/update a hash param to create distinct history entries reliably */
+    useHashHistory?: boolean;
+    /** Hash key to use when useHashHistory is enabled (default: "ts") */
+    hashParam?: string;
+    /** Hash value to use when useHashHistory is enabled (default: Date.now()) */
+    hashValue?: string | number;
+    /** When true, use a double-push fallback (push dummy, then replace real) to avoid coalescing on gesture back/forward */
+    useDoublePushFallback?: boolean;
+    /** Hash key to use for the dummy entry when double-push is enabled (default: "dp") */
+    dummyHashParam?: string;
+  },
 ): void {
   if (typeof window === "undefined") return;
 
-  // Normalize to trailing slash to match Next.js `trailingSlash: true`
-  const normalizedUrl = url.endsWith("/") ? url : `${url}/`;
+  // If the navigation is triggered without transient user activation, some browsers may
+  // treat history changes as lower-priority for Back/Forward traversal. While we cannot
+  // synthesize activation, we can optionally warn so callers can choose to only invoke
+  // this inside trusted event handlers.
+  try {
+    // Heuristic: if a helper tracked a recent user activation timestamp on window, use it.
+    const lastTs = (window as unknown as { __lastUserActivationTs?: number })
+      .__lastUserActivationTs;
+    const hasActivation =
+      typeof lastTs === "number" && Date.now() - lastTs < 750;
+    if (!hasActivation && process.env.NODE_ENV !== "production") {
+      console.warn(
+        "[navigateWithPushState] Possibly non-user-initiated navigation; Back/Forward may coalesce. Trigger inside a click/keydown if issues persist.",
+      );
+    }
+  } catch {
+    /* noop */
+  }
 
-  // Only navigate if URL is different
-  if (window.location.pathname !== normalizedUrl) {
-    console.info(`Navigating to ${normalizedUrl}`);
-    window.history.pushState(state || null, "", normalizedUrl);
-    // Emit custom event so listeners (e.g., useRouteChange) react to this change
-    window.dispatchEvent(new CustomEvent("bb:routechange"));
+  // Build a normalized target URL that preserves search and hash while enforcing
+  // a trailing slash on the pathname (to match Next.js `trailingSlash: true`).
+  const target = new URL(url, window.location.origin);
+
+  // Optionally append a hash param to force unique history entries per change.
+  // This is useful in some browsers/environments where back/forward may coalesce
+  // rapid query-only pushState transitions. Controlled via opts or env flag.
+  const forceHash =
+    opts?.useHashHistory || process.env.NEXT_PUBLIC_FORCE_HASH_HISTORY === "1";
+  if (forceHash) {
+    const key = (opts?.hashParam || "ts").toString();
+    const val = (opts?.hashValue ?? Date.now()).toString();
+    // Merge with any existing hash params
+    const hash = target.hash?.replace(/^#/, "") || "";
+    const hashParams = new URLSearchParams(hash);
+    hashParams.set(key, val);
+    const newHash = hashParams.toString();
+    target.hash = newHash ? `#${newHash}` : "";
+  }
+  const normalizedPathname = target.pathname.endsWith("/")
+    ? target.pathname
+    : `${target.pathname}/`;
+  const normalizedUrl = `${normalizedPathname}${target.search}${target.hash}`;
+
+  // Current URL composed of pathname + search + hash
+  const currentUrl = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+
+  // Only navigate if the full URL (path + search + hash) is different
+  if (currentUrl !== normalizedUrl) {
+    const useDoublePush =
+      opts?.useDoublePushFallback ||
+      process.env.NEXT_PUBLIC_DOUBLE_PUSH === "1";
+
+    if (useDoublePush) {
+      // Craft a dummy URL by adding a benign hash param (e.g., #dp=timestamp),
+      // then replace it with the final URL on the next macrotask/frame. This yields
+      // a single net new entry that browsers are less likely to coalesce.
+      const dummyKey = (opts?.dummyHashParam || "dp").toString();
+      const dummyTarget = new URL(normalizedUrl, window.location.origin);
+      const dummyHash = (dummyTarget.hash || "").replace(/^#/, "");
+      const dummyParams = new URLSearchParams(dummyHash);
+      dummyParams.set(dummyKey, Date.now().toString());
+      const dummyUrl = `${dummyTarget.pathname}${dummyTarget.search}#${dummyParams.toString()}`;
+
+      console.info(`Navigating (double-push) to ${normalizedUrl}`);
+      window.history.pushState(state || null, "", dummyUrl);
+      // Defer replace to allow the history entry to settle
+      setTimeout(() => {
+        if (typeof window.requestAnimationFrame === "function") {
+          window.requestAnimationFrame(() => {
+            window.history.replaceState(state || null, "", normalizedUrl);
+            window.dispatchEvent(new CustomEvent("bb:routechange"));
+          });
+        } else {
+          window.history.replaceState(state || null, "", normalizedUrl);
+          window.dispatchEvent(new CustomEvent("bb:routechange"));
+        }
+      }, 0);
+    } else {
+      console.info(`Navigating to ${normalizedUrl}`);
+      window.history.pushState(state || null, "", normalizedUrl);
+      // Emit custom event so listeners (e.g., useRouteChange) react to this change
+      window.dispatchEvent(new CustomEvent("bb:routechange"));
+    }
   }
 }
 
@@ -41,7 +127,11 @@ export function replaceWithReplaceState(
 ): void {
   if (typeof window === "undefined") return;
 
-  const normalizedUrl = url.endsWith("/") ? url : `${url}/`;
+  const target = new URL(url, window.location.origin);
+  const normalizedPathname = target.pathname.endsWith("/")
+    ? target.pathname
+    : `${target.pathname}/`;
+  const normalizedUrl = `${normalizedPathname}${target.search}${target.hash}`;
 
   console.info(`Replacing URL with ${normalizedUrl}`);
   window.history.replaceState(state || null, "", normalizedUrl);
