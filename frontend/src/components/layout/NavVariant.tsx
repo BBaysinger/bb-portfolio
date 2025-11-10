@@ -70,7 +70,7 @@ const NavVariant: React.FC<NavProps> = ({ variant }) => {
 
       <Link href="/#top" className={styles.title}>
         <RawImg
-          src={"/images/home/bb-logo.svg"}
+          src={"/images/hero/bb-logo.svg"}
           className={styles.navLogo}
           alt="BB Logo"
         />

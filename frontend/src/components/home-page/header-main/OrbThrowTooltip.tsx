@@ -1,6 +1,7 @@
+import { clsx } from "clsx";
 import React from "react";
 
-import styles from "./OrbArrowTooltip.module.scss";
+import styles from "./OrbThrowTooltip.module.scss";
 
 type Props = {
   className?: string;
@@ -12,7 +13,7 @@ type Props = {
  * Hides permanently after the first wall collision to avoid clutter for experienced users.
  *
  */
-const OrbArrowTooltip: React.FC<Props> = ({
+const OrbThrowTooltip: React.FC<Props> = ({
   className = "",
   hidden = false,
 }) => {
@@ -22,13 +23,13 @@ const OrbArrowTooltip: React.FC<Props> = ({
 
   return (
     <div
-      className={[`${styles.orbArrowTooltip} orbArrowTooltip`, className].join(
-        " ",
+      className={clsx(
+        `${styles.orbThrowTooltip}`,
+        `orbThrowTooltip`,
+        className,
       )}
-    >
-      <div className={styles.tooltipText} />
-    </div>
+    ></div>
   );
 };
 
-export default OrbArrowTooltip;
+export default OrbThrowTooltip;
