@@ -37,7 +37,11 @@ const ScrollToHash = () => {
       try {
         // Safely access global CSS.escape without using any.
         const cssGlobal: { escape?: (s: string) => string } =
-          (globalThis as unknown as { CSS?: { escape?: (s: string) => string } })?.CSS || {};
+          (
+            globalThis as unknown as {
+              CSS?: { escape?: (s: string) => string };
+            }
+          )?.CSS || {};
         const selector = cssGlobal.escape ? `#${cssGlobal.escape(raw)}` : hash;
         const queried = document.querySelector(selector);
         element = queried instanceof HTMLElement ? queried : null;
