@@ -104,7 +104,7 @@ const ProjectThumbnail = forwardRef<HTMLDivElement, ProjectThumbnailProps>(
     const getConfidentialThumbnail = (index: number) => {
       const colors = ["green", "purple", "yellow"];
       const colorIndex = index % colors.length;
-      return `/images/home/confidential-thumbnail-${colors[colorIndex]}.webp`;
+      return `/images/projects-list/confidential-thumbnail-${colors[colorIndex]}.webp`;
     };
 
     // Treat a project as NDA-like when either the project or brand is NDA.
@@ -131,7 +131,7 @@ const ProjectThumbnail = forwardRef<HTMLDivElement, ProjectThumbnailProps>(
           <div>
             {(logoSrc || showNdaConfidential) && (
               <Image
-                src={logoSrc || "/images/home/confidential-word.svg"}
+                src={logoSrc || "/images/projects-list/confidential-word.svg"}
                 className={styles.brandLogo}
                 loading="eager"
                 alt={
@@ -149,15 +149,13 @@ const ProjectThumbnail = forwardRef<HTMLDivElement, ProjectThumbnailProps>(
       </>
     );
 
-    // Link behavior:
+    // Link behavior with single-route query param model:
     // - NDA-like + unauthenticated → login
-    // - NDA-like + authenticated → /nda/[projectId]
-    // - Public → /project/[projectId]
+    // - NDA-like + authenticated → /project?p=<id> (SSR wrapper includes NDA data)
+    // - Public → /project?p=<id>
     const href = showNdaConfidential
       ? "/login/"
-      : isNdaLike
-        ? `/nda/${projectId}/`
-        : `/project/${projectId}/`;
+      : `/project?p=${encodeURIComponent(projectId)}`;
 
     return (
       <div className={`${styles.projectThumbnail} ${focusClass}`} ref={ref}>

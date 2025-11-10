@@ -1,6 +1,6 @@
 @use "@/styles/variables" as *;
 
-.orbArrowTooltip {
+.orbGrabTooltip {
   position: absolute;
   z-index: 1000;
   display: block;
@@ -19,7 +19,7 @@
     top: -114px;
     pointer-events: none;
     background-repeat: no-repeat;
-    mask-image: url("/images/home/orb-arrow-tooltip.svg");
+    mask-image: url("/images/hero/orb-grab-tooltip.svg");
     mask-repeat: no-repeat;
     mask-size: cover;
     animation: bounceMask 2s infinite forwards;

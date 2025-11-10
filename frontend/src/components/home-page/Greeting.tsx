@@ -19,7 +19,7 @@ const Greeting: React.FC = () => {
         <div className={styles.helloSignWrapper}>
           <MagneticThingy className={styles.helloSign}>
             <RawImg
-              src="/images/home/hello.webp"
+              src="/images/hello/hello.webp"
               alt="hello"
               className={styles.helloImage}
             />

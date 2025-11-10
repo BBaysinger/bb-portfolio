@@ -79,7 +79,7 @@ const FluxelSvg = forwardRef<
 
       <image
         opacity="0.5"
-        href="/images/home/corner-shadow.webp"
+        href="/images/hero/corner-shadow.webp"
         x={-34 * SCALE}
         y={-110 * SCALE}
         width={216 * SCALE}
@@ -89,7 +89,7 @@ const FluxelSvg = forwardRef<
 
       <image
         opacity="0.25"
-        href="/images/home/corner-shadow.webp"
+        href="/images/hero/corner-shadow.webp"
         x={-100 * SCALE}
         y={-185 * SCALE}
         width={216 * SCALE}
