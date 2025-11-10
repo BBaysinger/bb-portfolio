@@ -116,8 +116,29 @@
     "caddy:logs": "docker compose -f deploy/compose/docker-compose.yml logs -f caddy-local",
     // 🔄 Restart Caddy in-place (recreate only the proxy)
     "caddy:restart": "docker compose -f deploy/compose/docker-compose.yml --profile local --profile proxy up -d --force-recreate caddy-local",
-    // ⚡ Reload Caddy configuration without restarting containers
+    // ⚡ Reload Caddy configuration without restarting containers.
+    // Use this when you changed only the Caddyfile (routes/headers/upstreams). It does NOT rebuild frontend JS.
+    // For fresh JS or assets, rebuild/recreate the frontend container (e.g., `docker:up` or `caddy:up`) so Next.js serves the new build.
     "caddy:reload": "docker exec bb-portfolio-caddy-local caddy reload --config /etc/caddy/Caddyfile",
+    // ✅ Check only: validate Caddyfile syntax inside the running container (no changes applied).
+    // Safe to run before reload. Use when editing the Caddyfile and you want to verify it parses.
+    "caddy:config:validate": "COMPOSE_PROFILES=local,proxy docker compose -f deploy/compose/docker-compose.yml exec -T caddy-local caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile",
+    // 🚀 Apply the validated configuration with zero downtime via admin API.
+    // Again, this only affects proxy config. It won’t refresh JS bundles.
+    "caddy:config:reload": "COMPOSE_PROFILES=local,proxy docker compose -f deploy/compose/docker-compose.yml exec -T caddy-local caddy reload --config /etc/caddy/Caddyfile --adapter caddyfile",
+    // 🔁 One-shot: validate then reload Caddy if validation succeeds.
+    "caddy:config:apply": "npm run caddy:config:validate && npm run caddy:config:reload",
+    // ℹ️ To ensure JS is fresh:
+    //   - In dev SSR mode, the frontend dev server handles HMR; use `docker:up` or `caddy:up` to start it. No Caddy reload needed for code changes.
+    //   - For production-like builds, rebuild the frontend image (e.g., `docker:build:frontend`) and recreate the container via `caddy:restart` or `caddy:up`.
+    // 🔧 Frontend container helpers (local dev):
+    // Restart only the frontend dev container (use if HMR looks stuck)
+    "frontend:restart": "docker restart bb-portfolio-frontend-local",
+    // Purge .next inside the running frontend dev container (forces clean rebuild on next request)
+    "frontend:purge": "docker exec -t bb-portfolio-frontend-local sh -lc 'rm -rf .next && echo Purged .next'",
+    // Rebuild images for the SSG profile (frontend gets a fresh production-style build)
+    // Note: This rebuilds the profile’s images; to start them, run `docker:ssg:up` or `docker:ssg:up:detached`.
+    "frontend:rebuild:ssg": "npm run docker:ssg:build",
     // 📊 Check status of portfolio containers
     "caddy:status": "docker ps --filter name=bb-portfolio- --format 'table {{.Names}}\\t{{.Status}}\\t{{.Ports}}'",
     // ℹ️ Note on routing through Caddy:
