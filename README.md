@@ -1,8 +1,28 @@
-# Interactive UI/Frontend Developer Portfolio Website
+# Interactive UI / Frontend Systems Portfolio
 
-A modern portfolio website featuring custom interactive components built with React, TypeScript, Next.js, and Payload CMS. The site includes a parallax project carousel, animated sprite system, and responsive design components. All animations and visual effects are implemented using native web technologies without external 3D, physics, or sprite sheet animation libraries.
+Highly interactive, renderer‑aware frontend systems (carousel, layered parallax, multi‑strategy sprite engine, kinetic physics, experimental pixel/fluxel grid) built with **React + TypeScript (Next.js App Router)**. Everything animated here is handcrafted—no external physics, 3D, or sprite sheet libs. DevOps/IaC pieces exist to prove production rigor, but the emphasis is the interaction architecture.
 
-> **Note:** This project goes far beyond a typical personal portfolio. It’s a fully orchestrated, production-grade web system — complete with its own AWS infrastructure, CI/CD pipeline, secret management framework, and automated deployment orchestrator.
+> Hiring reviewer? Start with the 30‑second tour below. The deployment/orchestration stack is intentionally secondary—supportive infrastructure, not the pitch.
+
+## 🔎 30‑Second Tour (Frontend Focus)
+
+| What to Look At                                | Why It Matters                                                              | Code Entry                                                                                      |
+| ---------------------------------------------- | --------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| Layered Parallax Project Carousel              | Infinite bi‑directional wrap, inertial sync, master/slave parallax layers   | `frontend/src/components/project-carousel-page/` (`Carousel.tsx`, `LayeredCarouselManager.tsx`) |
+| Fluxel Grid (Canvas + experimental strategies) | Pluggable grid render, pointer + projectile influence, shadow system        | `frontend/src/components/home-page/header-main/fluxel-grid/`                                    |
+| Sprite Sheet Player (CSS/Canvas/WebGL)         | Auto metadata parsing, per‑frame FPS arrays, strategy hot‑swap              | `frontend/src/components/common/sprite-rendering/`                                              |
+| Kinetic Slinger Physics Box                    | Throwables with pointer gravity & orbital damping, idle detection hooks     | `frontend/src/components/home-page/header-main/SlingerBox.tsx`                                  |
+| Fluid Responsive System (mixins + hook)        | Pixel‑precise CSS interpolation + viewport‑accurate JS scaler with CSS vars | `frontend/src/styles/_mixins.scss`, `frontend/src/hooks/useResponsiveScaler.ts`                 |
+| Route‑Synced Carousel + Deep Linking           | Scroll inertia stabilization gates route updates                            | `ProjectView.tsx`, `LayeredCarouselManager.tsx`                                                 |
+| Device Mockup Layer Coordination               | Independent layer scroll multipliers + content swapping                     | `ProjectCarouselView.*`                                                                         |
+
+Live site reference moments:
+
+1. Project carousel: throw a fast swipe—note parallax & stable index snapping after inertia.
+2. Homepage hero: drag the orb → fluxel shadows & subtle projectile effects (if enabled).
+3. Sprite sequences (lightning / energy bars): watch frame pacing consistency across strategies.
+
+---
 
 The deployment pipeline uses Terraform for infrastructure provisioning, Docker for containerization, and GitHub Actions for CI/CD. The system supports multiple environments (dev/prod) with separate container registries and S3 storage buckets.
 
@@ -25,7 +45,7 @@ This repo is an end‑to‑end system, not just a site. Beyond the UI work, it s
 
 Jump to the complete list of conveniences: Deployment conveniences catalog.
 
-## 🧠 Deployment Orchestrator & Infrastructure Automation
+## 🧠 Deployment Orchestrator & Infrastructure Automation (Support Layer)
 
 This project features a **custom deployment orchestrator** designed to unify AWS provisioning, Docker-based container management, and CI/CD workflows into a single command-line experience. The orchestrator bridges the gap between Terraform infrastructure management, GitHub Actions automation, and runtime configuration on EC2.
 
@@ -155,16 +175,64 @@ Notes:
 
 ## 🎨 Frontend UX & Interaction
 
-- Parallax Project Carousel with swipe navigation and deep linking
-- Animated grid system with simulated 3D depth effects
-- Interactive kinetic orb with physics-based movement
-- Sprite sheet renderer supporting CSS, Canvas, and WebGL
-- Fluid responsive design system with CSS scaling variables
-- Animation sequencer for sprite-based effects
-- Mobile-optimized slide-out navigation
-- Interactive footer and scroll-aware navigation highlighting
-- Device mockup overlays with tilt effects
-- Mobile-first responsive design approach
+Rather than a handful of flashy widgets, the UI layer is a set of small, renderer‑aware systems built for smoothness, frame accuracy, and portability. Key subsystems:
+
+### Fluxel Grid System
+
+An experimental, dynamic pixel grid ("fluxels") rendered via a pluggable strategy (current: Canvas; exploratory: SVG & shader/WebGL). Each fluxel cell stores lightweight `FluxelData` including color variation; the grid computes a pixel‑precise cell size at runtime (`FluxelCanvasGrid`) and exposes an imperative handle (`FluxelGridHandle`) for:
+
+- Lookup by pixel (`getFluxelAt(x,y)`), grid dimension introspection, and size retrieval.
+- Shadow rendering offloaded to a shared canvas (`FluxelShadowCanvasRenderer`) to avoid per‑cell DOM overhead.
+- Projectile & positional effects triggered from external actors (e.g. the Slinger orb) and reset utilities for demo/game behaviors.
+  The system is tuned for: minimal allocations, device‑pixel ratio scaling, and future migration to shader pipelines (see roadmap: WebGL/PixiJS).
+
+### Layered Parallax Carousel
+
+Custom infinite carousel with master/slave layering for synchronized parallax. Distinct traits:
+
+- Large positive `BASE_OFFSET` hack enabling effective bi‑directional wrap without negative `scrollLeft`.
+- Master carousel captures inertial gesture scroll; slave carousels mirror via computed offsets for multi‑depth visuals (phones vs laptops layer, etc.).
+- Precise indexing decoupled from DOM scroll; stabilization events fire only after inertial motion settles (route updates wait for “stable” index).
+- Programmatic navigation uses GSAP tweening today; architecture is prepared for a custom physics tween engine (lower GC pressure, unified gesture/mouse feel).
+- Debug mode surfaces multipliers & positional math for tuning parallax ratios.
+
+### Multi‑Strategy Sprite Sheet Player
+
+`SpriteSheetPlayer` auto‑parses dimensions & frame counts from filenames (`_w{width}h{height}f{frames}`) and supports three render strategies: CSS background shifting, Canvas blitting, and WebGL textured quads. Features:
+
+- Per‑frame FPS arrays (variable timing) or single FPS value.
+- Manual frame injection (`frameControl`), random frame selection modes, loop limits & end callbacks.
+- Strategy hot‑swap with resource disposal; Canvas currently preferred (balance of clarity & perf), WebGL exploratory for larger sheets (observed higher cost at large viewport sizes).
+- Future enhancement: single‑visual sheet translation mode (pan vs frame index advances).
+
+### Kinetic Slinger Physics Box
+
+`SlingerBox` hosts draggable, throwable “slinger” orbs with simple velocity integration, wall collision callbacks, damped rebounds, and a timed gravity attraction toward pointer position (delayed briefly post‑throw). Implementation details:
+
+- Velocity sampling via short movement history window (≤100ms) to approximate flick speed.
+- Pointer gravity strength attenuated with a smoothstep curve inside a radius; tangential velocity selectively damped for subtle orbital motion.
+- Idle detection after low‑speed threshold; emits `onIdle` for choreography (e.g. triggering Fluxel shadow fades).
+- Future: deeper coupling with Fluxel grid (projectile launches, shader disturbances) and gamified achievements.
+
+### Fluid Responsive System (SCSS mixins + React hook)
+
+Two complementary pieces ensure predictable, accessible scaling across devices:
+
+- SCSS mixins for CSS‑only fluidity
+  - `staticRange(property, min, max, minVW, maxVW)`: pixel‑precise linear interpolation via media queries; ideal for layout dimensions, gaps, and visual components that should track viewport, not font size.
+  - `remRange(property, min, max, minVW, maxVW)`: accessibility‑safe scaling with rems + CSS custom properties; aligns with user font preferences for text and UI elements.
+  - `scaleRange(minScale, maxScale, minVW, maxVW, preserveTransform?)`: transform scaling with clamp() for perfectly smooth transitions; preserves existing transforms when needed.
+  - Helpers: `breakpointUp()`, unit enforcement (`ensureUnit`, `stripUnit`), `to-rems`, `rnd`, SVG data‑URL builder.
+
+- React hook for viewport‑accurate measurement
+  - `useResponsiveScaler(aspectRatio=4/3, baseWidth=1280, mode='cover'|'contain', elementRef?, viewportMode='small'|'dynamic'|'large')`
+  - Measures CSS viewport units (svw/svh, dvw/dvh, lvw/lvh) via hidden measurers for exact pixel parity with CSS; falls back to visualViewport with min/max tracking to emulate CSS small/large semantics.
+  - Returns `{ width, height, offsetX, offsetY, scale }` and can write CSS vars to the provided element: `--responsive-scaler-*`.
+  - Use cases: exact aspect‑locked surfaces (carousel stage, device frames, sprite canvases) with pixel‑correct centering and scale.
+
+Together, these ensure consistent composition density, accurate aspect locks, and accessible text scaling without clamp() surprises.
+
+Other UI details: scroll‑aware navigation, mobile slide‑out menu, dynamic device mockup overlays, animated footer grid, and controlled pointer‑magnet elements—all built without heavyweight external animation/physics libraries.
 
 ### 📝 CMS, Data Modeling & Rendering
 
@@ -332,7 +400,7 @@ Runtime .env generation (deploy):
 
 ## Infrastructure & Deployment
 
-This portfolio is deployed using Infrastructure as Code with Terraform and Docker on AWS.
+High‑level AWS/IaC overview. For orchestrated deploy internals, command flows, and safety guarantees, see the earlier **Deployment Orchestrator & Infrastructure Automation** section plus the **Deployment conveniences catalog**.
 
 ### ⚙️ Architecture Overview
 
@@ -346,57 +414,33 @@ This portfolio is deployed using Infrastructure as Code with Terraform and Docke
 - Domain & DNS: Custom domains (bbaysinger.com primary) with Route 53 hosted zones
 - TLS: AWS Certificate Manager (ACM) with DNS validation via Route 53
 
-### 🚀 Deployment Process
+### 🚀 Deployment Process (Terraform Core)
 
-Provision/destroy the infrastructure with Terraform:
+Provision / destroy core infrastructure using Terraform:
 
 ```bash
-# Deploy complete infrastructure
 cd infra/
-terraform plan    # Review changes
-terraform apply   # Deploy infrastructure (creates many AWS resources)
-
-# Destroy infrastructure
-terraform destroy # Clean teardown of all resources
+terraform plan    # Preview changes
+terraform apply   # Create/update AWS resources
+terraform destroy # Full teardown (guarded)
 ```
 
-Orchestrated deploys (recommended):
+Runtime & orchestration lifecycle (summary):
+
+1. Terraform ensures EC2, IAM, S3, ECR, Route 53, SES, etc. exist & are current.
+2. EC2 user_data bootstraps Docker + proxy services.
+3. GitHub workflow (invoked by orchestrator) regenerates `.env.dev` / `.env.prod` from secrets → containers restart.
+4. Systemd maintains uptime & restarts; image sources differ by profile (Docker Hub dev vs ECR prod).
+5. Post‑deploy health checks validate backend/API and media routing.
+
+Smoke check examples:
 
 ```bash
-# Read-only discovery / plan
-deploy/scripts/deployment-orchestrator.sh --discover-only
-deploy/scripts/deployment-orchestrator.sh --plan-only
-
-# Redeploy prod (uses GitHub Actions, regenerates env files on EC2)
-deploy/scripts/deployment-orchestrator.sh --profiles prod --refresh-env
-
-# Redeploy both prod and dev, no image rebuilds
-deploy/scripts/deployment-orchestrator.sh --no-build --profiles both --refresh-env
-```
-
-What the orchestrator does:
-
-- Triggers the reusable Redeploy workflow to generate runtime `.env.*` files on EC2 from GitHub Secrets and restart containers
-- Ensures backend env files include SECURITY_TXT_EXPIRES and the per-profile required lists so the env-guard passes
-- Falls back to a safe SSH path if the workflow dispatch fails (mirrors env generation behavior)
-- Never stores secrets in the repo or bakes them into Docker images
-
-What happens during deployment:
-
-1. AWS resources are created (EC2, Elastic IP, Security Groups, IAM roles, S3, ECR)
-2. Automated configuration installs Docker and application services via user_data
-3. Containers are started (dev from Docker Hub, prod from ECR)
-4. Systemd services provide auto-restart and boot persistence
-5. Route 53 A/ALIAS records point the domain to the Elastic IP (or load balancer in future scaling)
-
-Post-deploy smoke checks (via SSH on EC2):
-
-```bash
-curl -fsSL http://localhost:3001/api/health/   # backend 200
+curl -fsSL http://localhost:3001/api/health/   # expect 200
 curl -fsSL 'http://localhost:3000/api/projects/?limit=3&depth=0' | jq '.docs | length'
 ```
 
-If backend logs show "Missing required environment variables", rerun a redeploy with `--refresh-env` to regenerate `.env.prod`/`.env.dev` on EC2.
+If env guards fail (missing required variables) re‑run orchestrator with `--refresh-env` (see section above) to regenerate host env files.
 
 ### 🐳 Container Management
 
