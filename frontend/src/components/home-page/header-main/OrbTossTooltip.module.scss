@@ -1,13 +1,12 @@
 @use "@/styles/variables" as *;
 
-.orbThrowTooltip {
+.orbTossTooltip {
   position: absolute;
   z-index: 1000;
   top: 0;
   left: 0;
   pointer-events: none;
   display: none; // hidden by default; shown only on grab (isDragging) after first drag
-  // Positioned relative to the slingerCenter parent (already at orb center)
 
   // Hide permanently after wall collision
   :global(.hasCollided) & {
@@ -31,18 +30,28 @@
 // Generic arrow styling
 .arrow {
   --distance: 58px; // how far outward each arrow radiates
-  --size: 46px;
+  --width: 46px;
+  --height: 46px;
   position: absolute;
-  top: calc(var(--size) * -0.5);
-  left: calc(var(--size) * -0.5);
-  width: var(--size);
-  height: var(--size);
-  background: url("/images/hero/orange-arrow.webp") center/contain no-repeat;
+  top: calc(var(--height) * -0.5);
+  left: calc(var(--width) * -0.5);
+  width: var(--width);
+  height: var(--height);
+  color: $orangeThemeColor; // drives the color via currentColor
+  /* Inline SVG stroke uses currentColor; no mask so drop-shadow outlines the stroke */
   opacity: 0;
   animation: radiate 2.8s ease-in-out infinite;
   transform-origin: center center;
   filter: drop-shadow(0 0 4px rgba(255, 140, 0, 0.65));
   z-index: 1;
+}
+
+.arrowSvg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  vector-effect: non-scaling-stroke;
 }
 
 // Individual arrow orientation + stagger
