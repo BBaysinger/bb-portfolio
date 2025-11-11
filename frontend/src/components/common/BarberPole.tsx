@@ -7,12 +7,18 @@ import styles from "./BarberPole.module.scss";
  * Using CSS in parent module is preferred.
  *
  */
-const BarberPole: React.FC<{ className: string; paused?: boolean }> = ({
-  className,
+type BarberPoleProps = React.HTMLAttributes<HTMLDivElement> & {
+  className?: string;
+  paused?: boolean;
+};
+
+const BarberPole: React.FC<BarberPoleProps> = ({
+  className = "",
   paused,
+  ...rest
 }) => {
   return (
-    <div className={`${styles.barberPole} ${className}`}>
+    <div className={`${styles.barberPole} ${className}`} {...rest}>
       <div
         className={`${styles.stripes} stripes`}
         style={
