@@ -73,7 +73,8 @@ export default function ProjectQueryWrapper({
       const p = new URLSearchParams(search).get("p") || "";
       if (p && p !== projectId) setProjectId(p);
     },
-    { mode: "external-only" },
+    // Use external-first so Next.js internal navigations via <Link> also update state
+    { mode: "external-first", delayInternalMs: 40 },
   );
 
   // Also sync on mount in case initial state differs; prefer live window.location.search
