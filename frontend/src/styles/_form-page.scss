@@ -29,6 +29,7 @@
   textarea {
     overflow: auto; // ensure scrollbars appear when at max-height
     resize: vertical;
+    min-height: 60px;
     height: calc(22vw + 80px);
 
     @include breakpointUp($b768px) {
