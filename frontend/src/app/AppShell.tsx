@@ -1,7 +1,7 @@
 "use client";
 
 import clsx from "clsx";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import React, { useRef, useEffect } from "react";
 import { useSelector } from "react-redux";
 
@@ -23,6 +23,7 @@ import styles from "./AppShell.module.scss";
  */
 export function AppShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
+  const pathname = usePathname();
   const dispatch = useAppDispatch();
   // Runtime backend health check: logs backend connectivity status on startup
   useEffect(() => {
@@ -162,6 +163,66 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     [360, 1440], // Mobile+ to large desktop
     [320, 1600], // Full mobile to XL desktop
   ]);
+
+  // ---------------------------------------------------------------------------
+  // Cross-browser (iOS Safari focused) scroll-to-top normalization on route change
+  // ---------------------------------------------------------------------------
+  // Context:
+  // - Navigating from the long projects list (scrolled to bottom)
+  //   to an individual project page leaves user "stuck" at the bottom on Mobile Safari.
+  // - Desktop behaves as expected (scroll resets near top).
+  // - App makes heavy use of history.pushState and custom route bridging; combined
+  //   with containers that use overflow:hidden, Mobile Safari sometimes preserves
+  //   the previous scroll offset even after DOM/content shrink.
+  // Strategy:
+  // - On pathname changes (excluding hash-only changes), perform a resilient series
+  //   of scroll reset attempts. Multiple passes account for layout shifts and
+  //   delayed painting on iOS.
+  // - Skip when a hash is present (hash scrolling handled by ScrollToHash) to avoid
+  //   fighting anchor navigation.
+  // - Use direct assignments (documentElement/body.scrollTop) plus window.scrollTo;
+  //   some Safari versions ignore one or the other transiently during transitions.
+  // - Guard against interfering with carousel-originated in-page query updates by
+  //   only acting on pathname segment changes (e.g., /project/slug, /nda/slug, /cv, etc.).
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    // If only hash changed, let ScrollToHash manage it.
+    if (window.location.hash) return;
+
+    // Defer if the project carousel just pushed a query-only change.
+    // We only care about segment/leaf page transitions.
+    const path = pathname || "";
+    const shouldForceTop =
+      /\/project\//.test(path) ||
+      /\/nda\//.test(path) ||
+      /\/projects\/?$/.test(path) ||
+      /\/cv\/?$/.test(path);
+    if (!shouldForceTop) return;
+
+    let cancelled = false;
+    const reset = () => {
+      if (cancelled) return;
+      // Use all three mechanisms for maximum reliability.
+      try {
+        window.scrollTo(0, 0);
+      } catch {}
+      try {
+        document.documentElement.scrollTop = 0;
+        document.body.scrollTop = 0;
+      } catch {}
+    };
+
+    // Immediate + staged attempts – accounts for async layout / fonts.
+    reset();
+    requestAnimationFrame(reset); // next frame
+    setTimeout(reset, 50); // early paint stabilization
+    setTimeout(reset, 120); // late paint / image decode
+    setTimeout(reset, 250); // Safari occasional second reflow
+
+    return () => {
+      cancelled = true;
+    };
+  }, [pathname]);
 
   return (
     <div
