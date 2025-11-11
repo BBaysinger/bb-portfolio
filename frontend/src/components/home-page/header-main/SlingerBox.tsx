@@ -441,7 +441,7 @@ const SlingerBox = React.forwardRef<SlingerBoxHandle, SlingerBoxProps>(
               }}
               style={{ transform: `translate(${x}px, ${y}px)` }}
             >
-              {child}
+              <div className={styles.slingerCenter}>{child}</div>
             </div>
           );
         })}

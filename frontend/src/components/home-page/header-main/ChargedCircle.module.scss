@@ -1,10 +1,6 @@
 @use "@/styles/mixins" as *;
 @use "@/styles/variables" as *;
 
-// Orb size currently 50px (from .slinger::after). We center by anchoring bottom/right then translating -orbRadius.
-$orb-size: 50px; // spinner pseudo-element size from .slinger::after
-$orb-radius: calc($orb-size / 2);
-
 .chargedCircle {
   position: absolute;
   top: 0;
@@ -24,8 +20,6 @@ $orb-radius: calc($orb-size / 2);
 // Center shim wrapper so all internal visuals share orb center
 .chargedCircleCenter {
   position: absolute;
-  top: $orb-radius;
-  left: $orb-radius;
   transform-origin: center center;
 }
 
