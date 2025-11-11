@@ -30,7 +30,7 @@
     // Run Next.js ESLint configuration
     "lint": "eslint .",
     // "Pretty Build" - format code with Prettier then run TypeScript build for validation
-    "precommit": "prettier --write . && tsc -b",
+    "precommit": "prettier --write \"src/**/*.{ts,tsx,js,jsx,scss,css,md}\" && tsc -b",
     // Come back to this when there's time to write some tests.
     "test": "echo 'TODO: Add test scripts'",
   },

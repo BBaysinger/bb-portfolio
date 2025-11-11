@@ -39,7 +39,7 @@ const Greeting: React.FC = () => {
             </div>
             <div ref={addToRefs}>
               <p>
-                This portfolio spans projects from early interfaces in Flash,
+                My portfolio spans projects from early interfaces in Flash,
                 jQuery, and Haxe to modern builds in React and contemporary
                 frameworks. I've kept some older pieces because I'm still proud
                 of what they accomplished with the tools of the time. They

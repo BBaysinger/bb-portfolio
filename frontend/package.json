@@ -14,7 +14,7 @@
     "prestart": "node ./scripts/check-required-env.js",
     "start": "next start",
     "lint": "eslint .",
-    "precommit": "prettier --write . && tsc -b",
+    "precommit": "prettier --write \"src/**/*.{ts,tsx,js,jsx,scss,css,md}\" && tsc -b",
     "test": "echo 'TODO: Add test scripts'"
   },
   "dependencies": {

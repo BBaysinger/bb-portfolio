@@ -91,6 +91,7 @@
     "db:delete:dev-portfolio": "bash scripts/delete-database.sh --env dev --db portfolio-dev",
     "db:delete:prod-portfolio:dry": "bash scripts/delete-database.sh --env prod --db portfolio-prod --dry-run",
     "db:delete:prod-portfolio": "bash scripts/delete-database.sh --env prod --db portfolio-prod",
+    "db:migrate:both": "npm run db:migrate:local-to-prod && npm run db:migrate:local-to-dev",
     "db:migrate:local-to-prod": "bash scripts/migrate-database.sh local prod",
     "db:migrate:local-to-prod:dry": "bash scripts/migrate-database.sh local prod --dry-run",
     "db:migrate:dev-to-prod": "bash scripts/migrate-database.sh dev prod",
