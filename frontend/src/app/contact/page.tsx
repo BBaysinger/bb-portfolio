@@ -92,7 +92,7 @@ const ContactPage = () => {
 
   return (
     <>
-      <div className={`${styles.contactPage}`}>
+      <div className={styles.contactPage}>
         <div>
           <h1>Let's Connect</h1>
           <p>
