@@ -10,6 +10,21 @@ The deployment pipeline uses Terraform for infrastructure provisioning, Docker f
 
 ---
 
+## 🚩 Not merely a portfolio: headline features
+
+This repo is an end‑to‑end system, not just a site. Beyond the UI work, it ships with batteries‑included DevOps and data tooling. Highlights:
+
+- Multi‑environment infrastructure with Terraform (dev/prod), EC2 bootstrap, and Caddy/Nginx reverse proxy options
+- A deployment orchestrator that coordinates image builds, GitHub Actions env generation, and safe restarts
+- One‑command local dev modes: bare metal, Docker SSR, Docker SSG, and Caddy proxy for prod‑like URLs
+- Dual registries (Docker Hub for dev, ECR for prod) with automated image cleanup and verification
+- Secrets and environment sync pipeline driven by JSON5 source files and validation lists
+- Media and project file pipelines to S3 with verify tools and server‑streamed delivery routes (no presigned URLs)
+- Database migration, rename, and safety‑first destructive helpers with dry‑run support
+- Scripted conveniences for day‑to‑day work: dependency upgrades, multi‑package installs, branch sync, and more
+
+Jump to the complete list of conveniences: Deployment conveniences catalog.
+
 ## 🧠 Deployment Orchestrator & Infrastructure Automation
 
 This project features a **custom deployment orchestrator** designed to unify AWS provisioning, Docker-based container management, and CI/CD workflows into a single command-line experience. The orchestrator bridges the gap between Terraform infrastructure management, GitHub Actions automation, and runtime configuration on EC2.
@@ -45,6 +60,96 @@ deploy/scripts/deployment-orchestrator.sh --no-build --profiles both --refresh-e
 3. **GitHub Workflow Dispatch:** Uses reusable workflows to regenerate environment files and trigger container restarts.
 4. **Systemd Management:** Provides persistent auto-restart, health checks, and graceful recovery across deploys.
 5. **Safe Rollback:** Detects failed redeploys and reverts to the previous stable configuration.
+
+## 🧰 Deployment conveniences catalog
+
+All root `npm` scripts are grouped below by intent. Most have dry‑run or detached variants; destructive operations are guarded or require explicit flags.
+
+### Local development modes
+
+- `dev` / `bareMetalDev` / `bareMetalDev:all` — Run backend + frontend (bare metal)
+- `bareMetalDev:backend` / `bareMetalDev:frontend` — Single service bare metal
+- `bareMetalDev:tabs` — macOS: separate Terminal tabs
+- `docker:build` — Build dev images (compose local profile)
+- `docker:up` / `docker:up:detached` — Start SSR dev stack
+- `docker:up:no-strict` / `docker:up:no-strict:detached` — SSR stack w/o React Strict Mode
+- `docker:down` / `docker:logs` — Stop / tail stack
+
+### Production‑style local (SSG)
+
+- `docker:ssg:build` — Build SSG profile images
+- `docker:ssg:up` / `docker:ssg:up:detached` — Run SSG profile
+- `docker:ssg:up:no-strict` / `docker:ssg:up:no-strict:detached` — SSG without Strict Mode
+- `docker:ssg:down` / `docker:ssg:logs` — Stop / tail SSG profile
+
+### Reverse proxy & single URL
+
+- `caddy:up` / `caddy:up:no-strict` — Proxy + dev stack at http://localhost:8080
+- `caddy:down` / `caddy:down:force` — Stop / force remove containers
+- `caddy:logs` / `caddy:restart` — Tail / recreate proxy
+- `caddy:config:validate` / `caddy:config:reload` / `caddy:config:apply` — Safe config workflow
+- `caddy:status` — Table of running containers
+- `frontend:purge` — Remove `.next` inside running container
+- `frontend:rebuild:ssg` — Rebuild SSG images
+- `frontend:restart` — Restart only frontend container
+
+### Image build & publishing
+
+- `docker:build:backend` / `docker:build:frontend` — Build dev images
+- `docker:push:backend` / `docker:push:frontend` — Push to Docker Hub
+- `docker:build-push` — Scripted build + push both dev images
+- `ecr:build-push` — Build + push prod images to ECR
+
+### Registry hygiene & verification
+
+- `images:cleanup` / `images:cleanup:dry-run` — Prune old images (retain 3)
+- `images:cleanup:ecr` / `images:cleanup:ecr:dry-run` — ECR only
+- `images:cleanup:login` — Cleanup with AWS auth
+- `images:verify` / `images:verify:login` — Show tag counts
+
+### Secrets & environment sync
+
+- `sync:secrets:dry` / `sync:secrets` — Sync GitHub secrets from JSON5 source
+- `infra:sync-env` / `infra:sync-env:force` — Populate local `.env` from Terraform state
+- `sync:packages` — Maintain package.json ↔ package.json5 parity
+- `sync:branches` — Fast‑forward branch sync (returns to `dev`)
+
+### Media pipeline
+
+- `media:export` — Generate portfolio images externally
+- `seed:media` — Import seed images for local dev
+- `media:upload:dev|prod|both` — Upload media to S3 buckets
+- `media:verify` — Validate media on S3
+- `migrate:media:dev|prod|both` — Upload (alias)
+- `migrate:media-urls:dev:dry|dev|prod:dry|prod` — Rewrite DB URLs to S3
+- `migrate:all:dev:dry|dev|prod:dry|prod` — Combined upload + URL sync
+
+### Project files (public & NDA)
+
+- `projects:upload:public|nda|both` — Upload project bundles
+- `projects:verify` — Validate project files on S3
+
+### Database operations
+
+- `db:rename:*` — Safe rename with backup (local/dev/prod) + dry runs
+- `db:delete:*` — Backup then drop legacy DBs (local/dev/prod) + dry runs
+- `db:migrate:*` — Replace target DB with another environment’s data; dry‑run variants
+
+### Deployment & config
+
+- `deploy:full` — Full orchestrated redeploy (images + both profiles + env refresh)
+- `sync:nginx` — Push Nginx config to remote host
+
+### Quality & DX
+
+- `format` / `lint` / `precommit` / `prepush` — Code style, static analysis, type + tests
+- `update:deps` / `install:all` — Upgrade & install across packages
+
+Notes:
+
+- Dry runs prevent unintended destructive actions.
+- Secrets never enter the repo or images; all pulled at deploy time.
+- Use proxy mode for production‑parity URLs and relative API paths.
 
 ---
 
