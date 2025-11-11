@@ -8,9 +8,10 @@ $projectsListGap: 30px;
   display: flex;
   flex-wrap: wrap;
   z-index: 10;
+  scroll-margin-top: $navBarHeight;
   gap: $projectsListGap;
-  background: linear-gradient(to bottom, #1c1c1c, black);
   padding-bottom: $footerBarberPoleThickness;
+  background: linear-gradient(to bottom, #1c1c1c, black);
 
   @include breakpointUp($b1280px) {
     background: linear-gradient(to bottom, #1a1a1a, black);
