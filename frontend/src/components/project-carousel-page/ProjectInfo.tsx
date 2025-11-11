@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { forwardRef } from "react";
+import { forwardRef, useCallback, useMemo, useState } from "react";
 
 import { ParsedPortfolioProject } from "@/data/ProjectData";
 
@@ -20,7 +20,48 @@ interface ProjectInfoProps {
 const ProjectInfo = forwardRef<HTMLDivElement, ProjectInfoProps>(
   ({ dataNode, isActive, direction }, ref) => {
     const { desc, urls, role } = dataNode;
+    const [copied, setCopied] = useState(false);
     let globalIndex = 0;
+
+    const canonicalPath = useMemo(() => {
+      const base = dataNode.nda ? "/nda/" : "/project/";
+      return `${base}${encodeURIComponent(dataNode.id)}`;
+    }, [dataNode.id, dataNode.nda]);
+
+    const canonicalUrl = useMemo(() => {
+      if (typeof window === "undefined") return canonicalPath;
+      try {
+        const origin = window.location.origin.replace(/\/$/, "");
+        return `${origin}${canonicalPath}`;
+      } catch {
+        return canonicalPath;
+      }
+    }, [canonicalPath]);
+
+    const handleCopyLink = useCallback(async () => {
+      const text = canonicalUrl;
+      try {
+        if (navigator?.clipboard?.writeText) {
+          await navigator.clipboard.writeText(text);
+        } else {
+          const ta = document.createElement("textarea");
+          ta.value = text;
+          ta.setAttribute("readonly", "");
+          ta.style.position = "absolute";
+          ta.style.left = "-9999px";
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand("copy");
+          document.body.removeChild(ta);
+        }
+        setCopied(true);
+        if (typeof window !== "undefined") {
+          window.setTimeout(() => setCopied(false), 2000);
+        }
+      } catch {
+        // ignore copy failure
+      }
+    }, [canonicalUrl]);
 
     return (
       <div
@@ -90,6 +131,16 @@ const ProjectInfo = forwardRef<HTMLDivElement, ProjectInfoProps>(
           }
           return null;
         })}
+        {/* Copy Link button inline with other buttons */}
+        <button
+          type="button"
+          onClick={handleCopyLink}
+          className={`${styles.btn} ${styles.copyLinkBtn} btn`}
+          aria-label="Copy canonical link to this project"
+          style={{ "--index": globalIndex++ } as React.CSSProperties}
+        >
+          {copied ? "Link copied" : "Copy link"}
+        </button>
       </div>
     );
   },

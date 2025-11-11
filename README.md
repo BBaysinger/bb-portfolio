@@ -1,8 +1,16 @@
 # Interactive UI / Frontend Systems Portfolio
 
-Highly interactive, renderer‑aware frontend systems (carousel, layered parallax, multi‑strategy sprite engine, kinetic physics, experimental pixel/fluxel grid) built with **React + TypeScript (Next.js App Router)**. Everything animated here is handcrafted—no external physics, 3D, or sprite sheet libs. DevOps/IaC pieces exist to prove production rigor, but the emphasis is the interaction architecture.
+A production-grade exploration of interactive front-end architecture — combining handcrafted animation systems, experimental render strategies, and fully automated DevOps infrastructure.  
+Built with **React**, **TypeScript**, and the **Next.js App Router**, powered by a **Payload CMS backend** and **Terraform-provisioned AWS stack**.  
+The project merges design experimentation with the discipline of scalable, cloud-ready software engineering.
 
-> Hiring reviewer? Start with the 30‑second tour below. The deployment/orchestration stack is intentionally secondary—supportive infrastructure, not the pitch.
+Core interface systems include a **parallax-layered carousel**, a **multi-renderer sprite engine**, and an **experimental Fluxel grid** that reacts to cursor physics and projectiles.  
+Every motion and frame transition is built natively — no external 3D, physics, or sprite libraries.  
+The surrounding infrastructure (Terraform, Docker, AWS, GitHub Actions) exists not as ornamentation, but as proof of production-level rigor: CI/CD, secrets pipelines, multi-environment orchestration, and cloud resource hygiene.
+
+The goal is to show **breadth across the full front-end lifecycle** — from rendering pipelines and animation timing, to infrastructure automation, data modeling, and deployment reproducibility — all authored by a single developer.
+
+> **Hiring reviewer?** Start with the 30-second tour below. The infrastructure is real and battle-tested, but the focus is the architecture of interaction — how performance, animation, and DevOps discipline intersect in one cohesive system.
 
 ## 🔎 30‑Second Tour (Frontend Focus)
 

@@ -67,14 +67,14 @@ export default function ProjectQueryWrapper({
     };
   }, [includeNda, ssrParsed, ssrIncludeNdaInActive]);
 
-  // React to query-string changes, but only for external/popstate/custom events
+  // React to query-string changes from external sources (popstate/custom);
+  // ignore internal Next.js Router "replaceState" updates which can occur on refocus.
   useRouteChange(
     (_pathname, search) => {
       const p = new URLSearchParams(search).get("p") || "";
       if (p && p !== projectId) setProjectId(p);
     },
-    // Use external-first so Next.js internal navigations via <Link> also update state
-    { mode: "external-first", delayInternalMs: 40 },
+    { mode: "external-only" },
   );
 
   // Also sync on mount in case initial state differs; prefer live window.location.search
@@ -87,6 +87,41 @@ export default function ProjectQueryWrapper({
       if (p && p !== projectId) setProjectId(p);
     }
   }, []);
+
+  // Guard against Next.js refocus/visibility-driven history normalization by reasserting
+  // the current projectId into the URL if it diverges. Use replaceState to avoid
+  // creating new history entries and emit a lightweight custom event for listeners.
+  useEffect(() => {
+    if (!ready) return;
+
+    const enforceUrl = () => {
+      try {
+        const current =
+          new URLSearchParams(window.location.search).get("p") || "";
+        if (projectId && current !== projectId) {
+          const url = `${window.location.pathname}?p=${encodeURIComponent(projectId)}${window.location.hash || ""}`;
+          // Preserve existing history.state; do not create a new entry
+          window.history.replaceState(window.history.state, "", url);
+          // Notify any external listeners that depend on bb:routechange
+          window.dispatchEvent(new CustomEvent("bb:routechange"));
+        }
+      } catch {
+        // no-op if window is unavailable
+      }
+    };
+
+    const onFocus = () => setTimeout(enforceUrl, 0);
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") setTimeout(enforceUrl, 0);
+    };
+
+    window.addEventListener("focus", onFocus);
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => {
+      window.removeEventListener("focus", onFocus);
+      document.removeEventListener("visibilitychange", onVisibility);
+    };
+  }, [ready, projectId]);
 
   if (!ready) return <div>Loading project...</div>;
   if (!projectId) return <div>Oops! No project selected.</div>;

@@ -1,17 +1,16 @@
 import { cookies, headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
-import { Suspense } from "react";
+// import { Suspense } from "react";
 
-import ProjectQueryWrapper from "@/components/project-carousel-page/ProjectQueryWrapper";
 import ProjectData from "@/data/ProjectData";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 /**
- * Query-param based project page: `/project?p=slug`.
- * Validates `p` on the server, initializes data, and renders a client wrapper
- * that keeps the UI in sync with the `?p` parameter.
+ * Legacy query-param entry point: `/project?p=slug`.
+ * Now used only to canonicalize direct hits to the segment route or return 404.
+ * In-session navigation still manipulates `?p=` client-side without hitting this.
  */
 export default async function ProjectQueryPage({
   searchParams,
@@ -112,11 +111,10 @@ export default async function ProjectQueryPage({
     ProjectData.activeProjectsRecord[projectId] ||
     ProjectData.activeProjectsRecord[projectId.replace(/\/+$/u, "")];
   if (publicProject) {
-    return (
-      <Suspense fallback={<div>Loading project...</div>}>
-        <ProjectQueryWrapper allowNda={false} />
-      </Suspense>
-    );
+    // Canonicalize direct entries on the query route to the segment route.
+    // In-session client-side navigation will still use ?p= via history.pushState
+    // without triggering a server redirect.
+    return redirect(`/project/${encodeURIComponent(projectId)}`);
   }
 
   // Else, check if NDA and user is authenticated

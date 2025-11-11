@@ -149,13 +149,13 @@ const ProjectThumbnail = forwardRef<HTMLDivElement, ProjectThumbnailProps>(
       </>
     );
 
-    // Link behavior with single-route query param model:
-    // - NDA-like + unauthenticated → login
-    // - NDA-like + authenticated → /project?p=<id> (SSR wrapper includes NDA data)
-    // - Public → /project?p=<id>
+    // Link behavior (canonical, segment-based):
+    // - NDA-like + unauthenticated → /login
+    // - NDA-like + authenticated → /nda/<id>
+    // - Public → /project/<id>
     const href = showNdaConfidential
       ? "/login/"
-      : `/project?p=${encodeURIComponent(projectId)}`;
+      : `${isNdaLike ? "/nda/" : "/project/"}${encodeURIComponent(projectId)}`;
 
     return (
       <div className={`${styles.projectThumbnail} ${focusClass}`} ref={ref}>

@@ -19,3 +19,10 @@ out/
 # 🧠 Config / Misc
 package.json5
 *.tsbuildinfo
+
+# 🧳 Caches (avoid formatting caches created in dev containers)
+.npm-cache/
+.npm/
+.cache/
+.pnpm-store/
+.yarn/

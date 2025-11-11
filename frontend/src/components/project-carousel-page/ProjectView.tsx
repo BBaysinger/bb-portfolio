@@ -98,8 +98,8 @@ const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
         lastKnownProjectId.current = p;
       }
     },
-    // Track both external and internal changes so carousel stays aligned even on Next <Link>
-    { mode: "external-first", delayInternalMs: 40 },
+    // Ignore internal Next.js Router "replaceState" updates which may happen on refocus
+    { mode: "external-only" },
   );
 
   const handleStabilizationUpdate = useCallback(
