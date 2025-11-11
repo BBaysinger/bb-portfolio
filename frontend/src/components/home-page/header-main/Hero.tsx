@@ -107,7 +107,7 @@ const Hero: React.FC = () => {
   // Derived interaction instruction fragment (kept small & focused for reuse and potential localization)
   const orbInstruction = isTouchDevice
     ? "Touch and drag to grab the orb — release to toss it around."
-    : "Click, hold, and drag to grab the orb — release to toss it around.";
+    : "Click and drag to grab the orb — release to toss it around.";
 
   const onSlingerDragStart = useCallback(
     (x: number, y: number, e: MouseEvent | TouchEvent) => {
