@@ -71,7 +71,11 @@ export function useRouteChange(
         if (signature === lastSigRef.current) return; // already processed
         lastSigRef.current = signature;
         externalFiredRef.current = signature;
-        // Defer across a macrotask + a frame for gesture-driven URL settling
+        // Defer across a macrotask + a frame for gesture-driven URL settling.
+        // Note: Transient user activation (click/keydown) improves reliability
+        // of Back/Forward stepping for entries. When navigation happens
+        // outside that window, this deferral helps, but invoking navigation
+        // within the actual user gesture remains the most robust approach.
         setTimeout(() => {
           if (typeof window.requestAnimationFrame === "function") {
             window.requestAnimationFrame(() => callback(pathname, cleanSearch));

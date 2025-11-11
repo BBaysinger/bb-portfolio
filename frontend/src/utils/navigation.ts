@@ -1,6 +1,18 @@
 /**
  * Central navigation utility that combines history.pushState with custom event dispatch
  * to ensure all components stay in sync during programmatic navigation.
+ *
+ * Important: Browser “transient user activation” matters
+ * -----------------------------------------------
+ * Browsers give special treatment to history entries pushed during a trusted
+ * user gesture (e.g., click, keyup). Back/Forward tends to step through those
+ * entries reliably. The same pushState executed outside a user gesture can be
+ * coalesced by some UAs, especially during gesture-driven navigation.
+ *
+ * In practice for this app: a user click into the carousel establishes the
+ * activation window, so pushes that follow behave like user-initiated steps.
+ * If you ever see Back skipping some entries, invoke navigation from inside
+ * the actual gesture commit (e.g., pointerup) rather than after async work.
  */
 
 /**
@@ -33,6 +45,8 @@ export function navigateWithPushState(
   // treat history changes as lower-priority for Back/Forward traversal. While we cannot
   // synthesize activation, we can optionally warn so callers can choose to only invoke
   // this inside trusted event handlers.
+  // Tip specific to this project: Clicking into the carousel counts as a fresh
+  // activation, which made Back/Forward behave perfectly in manual testing.
   try {
     // Heuristic: if a helper tracked a recent user activation timestamp on window, use it.
     const lastTs = (window as unknown as { __lastUserActivationTs?: number })
