@@ -146,7 +146,9 @@
   $min-stripped: stripUnit($min);
   $max-stripped: stripUnit($max);
   @return string.unquote(
-    "var(--fluid-percent-#{$min-stripped}-#{$max-stripped})"
+    // Provide a 0 fallback so before JS initializes variables,
+    // the percent resolves to 0 and components render at their min size.
+    "var(--fluid-percent-#{$min-stripped}-#{$max-stripped}, 0)"
   );
 }
 
