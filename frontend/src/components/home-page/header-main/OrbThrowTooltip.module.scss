@@ -1,5 +1,137 @@
 @use "@/styles/variables" as *;
 
 .orbThrowTooltip {
-  display: block;
+  position: absolute;
+  z-index: 1000;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  display: none; // hidden by default; shown only on grab (isDragging) after first drag
+  // Outer container sits at slinger origin; inner .center anchors at orb center
+
+  // Hide permanently after wall collision
+  :global(.hasCollided) & {
+    display: none !important;
+  }
+
+  // Show only after user has dragged at least once and while currently grabbing (isDragging)
+  // Also only before first collision (notCollided)
+  :global(.hasDragged.notCollided) :global(.slinger.isDragging) & {
+    display: block;
+  }
+
+  // Hide during slinger flight
+  :global(.slingerInFlight.notCollided) & {
+    opacity: 0;
+  }
+}
+
+// Center anchor positioned at the orb center (25px radius from top-left of slinger)
+.center {
+  position: absolute;
+  top: 25px;
+  left: 25px;
+  transform-origin: center center;
+  animation: orbit 12s linear infinite;
+}
+
+// Generic arrow styling
+.arrow {
+  --distance: 58px; // how far outward each arrow radiates
+  --size: 46px;
+  position: absolute;
+  top: calc(var(--size) * -0.5);
+  left: calc(var(--size) * -0.5);
+  width: var(--size);
+  height: var(--size);
+  background: url("/images/hero/orange-arrow.webp") center/contain no-repeat;
+  opacity: 0;
+  animation: radiate 2.8s ease-in-out infinite;
+  transform-origin: center center;
+  filter: drop-shadow(0 0 4px rgba(255, 140, 0, 0.65));
+  z-index: 1;
+}
+
+// Individual arrow orientation + stagger
+.arrowA {
+  --angle: 0deg;
+  animation-delay: 0s;
+}
+.arrowB {
+  --angle: 90deg;
+  animation-delay: 0.35s;
+}
+.arrowC {
+  --angle: 180deg;
+  animation-delay: 0.7s;
+}
+.arrowD {
+  --angle: 270deg;
+  animation-delay: 1.05s;
+}
+
+@keyframes radiate {
+  0% {
+    transform: rotate(var(--angle)) translateY(0) scale(0.4);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  55% {
+    transform: rotate(var(--angle)) translateY(calc(var(--distance) * -1))
+      scale(1);
+    opacity: 1;
+  }
+  85% {
+    transform: rotate(var(--angle)) translateY(calc(var(--distance) * -1))
+      scale(0.9);
+    opacity: 0.4;
+  }
+  100% {
+    transform: rotate(var(--angle)) translateY(0) scale(0.4);
+    opacity: 0;
+  }
+}
+
+@keyframes orbit {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+// Circular text ring styles
+.textRing {
+  --ring-size: 140px;
+  position: absolute;
+  top: calc(var(--ring-size) * -0.5);
+  left: calc(var(--ring-size) * -0.5);
+  width: var(--ring-size);
+  height: var(--ring-size);
+  transform: none;
+  transform-origin: center center;
+  animation: spinText 18s linear infinite;
+  z-index: 0;
+  opacity: 0.9;
+  svg,
+  & {
+    display: block;
+  }
+  text {
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    fill: #fff;
+    text-transform: uppercase;
+  }
+}
+@keyframes spinText {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
