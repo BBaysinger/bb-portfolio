@@ -30,6 +30,24 @@ type TitleBrandingProps = {
  */
 const TitleBranding = forwardRef<HTMLDivElement, TitleBrandingProps>(
   ({ className = "" }, ref) => {
+    const handleHeroReset = () => {
+      // Minimal reset: clear session-scoped flags so the next interaction behaves like first visit
+      try {
+        sessionStorage.removeItem("hasDragged");
+        sessionStorage.removeItem("hasCollided");
+        sessionStorage.removeItem("hasAfterCollidedDelay");
+      } catch {
+        // ignore storage errors
+      }
+    };
+
+    const handleKeyDown: React.KeyboardEventHandler<HTMLDivElement> = (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        handleHeroReset();
+      }
+    };
+
     return (
       <div ref={ref} className={`${styles.titleBranding} ${className}`}>
         <span className={styles.logoWrapper}>
@@ -45,6 +63,12 @@ const TitleBranding = forwardRef<HTMLDivElement, TitleBrandingProps>(
           <h1>
             <BarberPole
               className={clsx(styles.barberPole, styles.barberPole1)}
+              role="button"
+              tabIndex={0}
+              aria-label="Reset hero"
+              title="Reset hero"
+              onClick={handleHeroReset}
+              onKeyDown={handleKeyDown}
             />
             <div className={clsx(styles.name, styles.firstName)}>Bradley</div>{" "}
             <div className={clsx(styles.name, styles.lastName)}>Baysinger</div>
