@@ -43,45 +43,9 @@ This repo is an end‑to‑end system, not just a site. Beyond the UI work, it s
 
 Jump to the complete list of conveniences: [Deployment conveniences catalog](#-deployment-conveniences-catalog).
 
-## 🧠 Deployment Orchestrator & Infrastructure Automation (Support Layer)
-
-This project features a **custom deployment orchestrator** designed to unify AWS provisioning, Docker-based container management, and CI/CD workflows into a single command-line experience. The orchestrator bridges the gap between Terraform infrastructure management, GitHub Actions automation, and runtime configuration on EC2.
-
-### Core Capabilities
-
-- **Orchestrated Deploys:** Automates end-to-end redeploys via GitHub Actions, regenerates `.env` files on EC2, and safely restarts containers.
-- **Hybrid Workflow Integration:** Seamlessly coordinates between local CLI invocations, GitHub Actions dispatches, and direct SSH fallbacks.
-- **Zero Secret Exposure:** All credentials and API keys are pulled from GitHub Secrets during deployment—never baked into images or committed to the repo.
-- **Profile-Aware Deployments:** Supports `dev`, `prod`, or `both` profiles with independent registries, S3 buckets, and SES configs.
-- **Fail-Safe Logic:** Prevents destructive operations on persistent AWS resources and validates infrastructure state before modification.
-
-### Typical Flow
-
-```bash
-# Discover the current infra and deployment configuration
-deploy/scripts/deployment-orchestrator.sh --discover-only
-
-# Plan and preview deployment changes
-deploy/scripts/deployment-orchestrator.sh --plan-only
-
-# Redeploy production (GitHub Actions workflow + env regeneration)
-deploy/scripts/deployment-orchestrator.sh --profiles prod --refresh-env
-
-# Redeploy both environments without rebuilding images
-deploy/scripts/deployment-orchestrator.sh --no-build --profiles both --refresh-env
-```
-
-### Behind the Scenes
-
-1. **Terraform Initialization:** Provisions or updates AWS resources (EC2, IAM, S3, ECR, Route 53, SES).
-2. **User Data Bootstrapping:** Installs Docker, Caddy/Nginx, and system services automatically on EC2.
-3. **GitHub Workflow Dispatch:** Uses reusable workflows to regenerate environment files and trigger container restarts.
-4. **Systemd Management:** Provides persistent auto-restart, health checks, and graceful recovery across deploys.
-5. **Safe Rollback:** Detects failed redeploys and reverts to the previous stable configuration.
-
 ## 🧰 Deployment conveniences catalog
 
-All root `npm` scripts are grouped below by intent. Most have dry‑run or detached variants; destructive operations are guarded or require explicit flags.
+All root `npm` scripts are grouped below by intent. Most have dry‑run or detached variants; destructive operations are guarded. For full details and edge‑case flags see [`deploy/DEPLOYMENT.md`](./deploy/DEPLOYMENT.md).
 
 ### Local development modes
 
@@ -132,26 +96,36 @@ All root `npm` scripts are grouped below by intent. Most have dry‑run or detac
 - `sync:packages` — Maintain package.json ↔ package.json5 parity
 - `sync:branches` — Fast‑forward branch sync (returns to `dev`)
 
-### Media pipeline
+### Media pipeline (patterns)
 
-- `media:export` — Generate portfolio images externally
-- `seed:media` — Import seed images for local dev
-- `media:upload:dev|prod|both` — Upload media to S3 buckets
-- `media:verify` — Validate media on S3
-- `migrate:media:dev|prod|both` — Upload (alias)
-- `migrate:media-urls:dev:dry|dev|prod:dry|prod` — Rewrite DB URLs to S3
-- `migrate:all:dev:dry|dev|prod:dry|prod` — Combined upload + URL sync
+| Pattern                          | Example                      | Purpose                                             |
+| -------------------------------- | ---------------------------- | --------------------------------------------------- |
+| `media:upload:<env>`             | `media:upload:prod`          | Upload processed media assets to the profile bucket |
+| `media:verify`                   | `media:verify`               | Validate expected objects exist (counts, prefixes)  |
+| `migrate:media-urls:<env>[:dry]` | `migrate:media-urls:dev:dry` | Rewrite DB media URLs → S3 public paths             |
+| `migrate:all:<env>[:dry]`        | `migrate:all:prod`           | Upload then rewrite URLs in one step                |
+| `seed:media` / `media:export`    | `seed:media`                 | Local import / external generation helpers          |
 
-### Project files (public & NDA)
+Envs: `dev`, `prod`, `both`. Use `:dry` to preview URL rewrites.
 
-- `projects:upload:public|nda|both` — Upload project bundles
-- `projects:verify` — Validate project files on S3
+### Project files (public & NDA) patterns
 
-### Database operations
+| Pattern                   | Example                  | Purpose                                               |
+| ------------------------- | ------------------------ | ----------------------------------------------------- |
+| `projects:upload:<scope>` | `projects:upload:public` | Upload project site bundles (public or nda)           |
+| `projects:verify`         | `projects:verify`        | Check existence & basic integrity of uploaded bundles |
 
-- `db:rename:*` — Safe rename with backup (local/dev/prod) + dry runs
-- `db:delete:*` — Backup then drop legacy DBs (local/dev/prod) + dry runs
-- `db:migrate:*` — Replace target DB with another environment’s data; dry‑run variants
+Scopes: `public`, `nda`, `both`.
+
+### Database operations (families)
+
+| Family                                  | Example                          | Notes                                                       |
+| --------------------------------------- | -------------------------------- | ----------------------------------------------------------- |
+| `db:rename:<env>:portfolio-to-bb[:dry]` | `db:rename:prod:portfolio-to-bb` | Renames DB after backing up; `:dry` shows plan              |
+| `db:delete:<env>-portfolio[:dry]`       | `db:delete:dev-portfolio:dry`    | Backup then delete legacy DB safely                         |
+| `db:migrate:<source>-to-<target>[:dry]` | `db:migrate:local-to-prod`       | Replace target with source data; confirm with dry run first |
+
+Envs: `local`, `dev`, `prod`.
 
 ### Deployment & config
 
@@ -165,9 +139,9 @@ All root `npm` scripts are grouped below by intent. Most have dry‑run or detac
 
 Notes:
 
-- Dry runs prevent unintended destructive actions.
-- Secrets never enter the repo or images; all pulled at deploy time.
-- Use proxy mode for production‑parity URLs and relative API paths.
+- Dry runs prevent unintended destructive actions (`:dry` suffix or dedicated script variant).
+- Secrets never enter the repo or images; all injected at deploy time via orchestrated env regeneration.
+- Use proxy mode for production‑parity hostnames and relative API paths.
 
 ---
 
@@ -229,6 +203,43 @@ Two complementary pieces ensure predictable, accessible scaling across devices:
   - Use cases: exact aspect‑locked surfaces (carousel stage, device frames, sprite canvases) with pixel‑correct centering and scale.
 
 Together, these ensure consistent composition density, accurate aspect locks, and accessible text scaling without clamp() surprises.
+
+#### Usage examples
+
+SCSS (layout scaling vs accessible text):
+
+```scss
+.cardGrid {
+  // Pixel-precise gap from 16px → 48px between 360px and 1440px viewport
+  @include staticRange(gap, 16px, 48px, 360, 1440);
+  // Title font size fluid from 18px → 24px respecting user font scaling
+  @include remRange(font-size, 18px, 24px, 360, 1440);
+}
+
+.heroLogo {
+  // Smooth transform scaling without MQ jumps
+  @include scaleRange(0.9, 1.15, 360, 1280, translateX(-50%) translateY(-50%));
+}
+```
+
+React hook (aspect-locked stage with CSS vars):
+
+```tsx
+const stageRef = useRef<HTMLDivElement>(null);
+const { width, height, scale } = useResponsiveScaler(
+  4 / 3,
+  1280,
+  "cover",
+  stageRef,
+  "small",
+);
+
+return (
+  <div ref={stageRef} style={{ width, height }}>
+    {/* Children can read CSS vars: --responsive-scaler-width/height/scale */}
+  </div>
+);
+```
 
 Other UI details: scroll‑aware navigation, mobile slide‑out menu, dynamic device mockup overlays, animated footer grid, and controlled pointer‑magnet elements—all built without heavyweight external animation/physics libraries.
 
@@ -398,7 +409,25 @@ Runtime .env generation (deploy):
 
 ## Infrastructure & Deployment
 
-High‑level AWS/IaC overview. For orchestrated deploy internals, command flows, and safety guarantees, see the earlier **Deployment Orchestrator & Infrastructure Automation** section plus the **Deployment conveniences catalog**.
+High‑level AWS/IaC overview plus orchestrator summary.
+
+### 🧠 Deployment Orchestrator (Summary)
+
+Unifies Terraform state, Docker image workflows, and GitHub Actions env regeneration into one CLI script (`deploy/scripts/deployment-orchestrator.sh`). Key points:
+
+- Regenerates host `.env.dev` / `.env.prod` from GitHub Secrets, then restarts containers.
+- Profile aware (`dev` / `prod` / `both`) with distinct registries & buckets.
+- Safety: avoids destructive infra ops; supports discovery/plan-only modes.
+- Falls back to SSH path if workflow dispatch fails.
+
+Typical commands:
+
+```bash
+deploy/scripts/deployment-orchestrator.sh --discover-only
+deploy/scripts/deployment-orchestrator.sh --plan-only
+deploy/scripts/deployment-orchestrator.sh --profiles prod --refresh-env
+deploy/scripts/deployment-orchestrator.sh --no-build --profiles both --refresh-env
+```
 
 ### ⚙️ Architecture Overview
 
@@ -513,4 +542,4 @@ Note: Earlier plans for “custom Express/Mongo backend” were superseded by th
 
 Updated EC2 IP: 44.246.43.116
 
-Last major: Mon Nov 8, 2025
+Last major: Mon Nov 11, 2025
