@@ -31,19 +31,19 @@
   }
 
   a {
-    color: $heavierThemeColor;
+    color: $lighterThemeColor; // 'heavier' theme color looked too dark on bold text.
     text-decoration: none;
     &:hover {
       text-decoration: underline;
     }
     &:hover {
-      color: $heavierThemeColor;
+      color: $lighterThemeColor;
     }
     &:visited {
-      color: $heavierThemeColor;
+      color: $lighterThemeColor;
     }
     &:active {
-      color: $heavierThemeColor;
+      color: $lighterThemeColor;
     }
   }
 }
