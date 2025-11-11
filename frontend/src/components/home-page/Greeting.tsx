@@ -27,7 +27,7 @@ const Greeting: React.FC = () => {
         </div>
 
         <div>
-          <div className={styles.text}>
+          <div className={styles.infoSection}>
             <div ref={addToRefs}>
               <p>
                 Hi, I&apos;m Bradley—an interactive developer with a background
