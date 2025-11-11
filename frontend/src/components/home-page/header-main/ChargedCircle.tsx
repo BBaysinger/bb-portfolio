@@ -24,19 +24,23 @@ const ChargedCircle: React.FC<ChargedCircleProps> = ({ isActive = false }) => {
       className={styles.chargedCircle}
       style={{ display: isActive ? "unset" : "none" }}
     >
-      <div className={styles.scaler}>
-        <SlingerRay
-          className={clsx(styles.bolt, styles.bolt1)}
-          isActive={isActive}
-        />
-        <SlingerRay
-          className={clsx(styles.bolt, styles.bolt2)}
-          isActive={isActive}
-        />
-        <SlingerRay
-          className={clsx(styles.bolt, styles.bolt3)}
-          isActive={isActive}
-        />
+      <div className={styles.chargedCircleCenter}>
+        <div className={styles.chargedCircleRotator}>
+          <div className={styles.scaler}>
+            <SlingerRay
+              className={clsx(styles.bolt, styles.bolt1)}
+              isActive={isActive}
+            />
+            <SlingerRay
+              className={clsx(styles.bolt, styles.bolt2)}
+              isActive={isActive}
+            />
+            <SlingerRay
+              className={clsx(styles.bolt, styles.bolt3)}
+              isActive={isActive}
+            />
+          </div>
+        </div>
       </div>
     </div>
   );

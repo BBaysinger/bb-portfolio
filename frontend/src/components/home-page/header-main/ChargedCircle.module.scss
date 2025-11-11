@@ -1,25 +1,40 @@
 @use "@/styles/mixins" as *;
 @use "@/styles/variables" as *;
 
+// Orb size currently 50px (from .slinger::after). We center by anchoring bottom/right then translating -orbRadius.
+$orb-size: 50px; // spinner pseudo-element size from .slinger::after
+$orb-radius: calc($orb-size / 2);
+
 .chargedCircle {
   position: absolute;
-  top: 25px;
-  left: 25px;
+  top: 0;
+  left: 0;
   pointer-events: none;
   z-index: -1;
-  transition: animation 1s ease-in-out;
-  animation: spin 2s linear infinite;
   * {
     pointer-events: none;
     image-rendering: pixelated;
     image-rendering: crisp-edges;
   }
-
-  :global(.isDragging) & {
-    animation: spin 6s linear infinite;
-  }
   :global(.isSlingerIdle) & {
     display: none !important;
+  }
+}
+
+// Center shim wrapper so all internal visuals share orb center
+.chargedCircleCenter {
+  position: absolute;
+  top: $orb-radius;
+  left: $orb-radius;
+  transform-origin: center center;
+}
+
+// Rotator applies spin; animation speed varies with drag state
+.chargedCircleRotator {
+  animation: spin 2s linear infinite;
+  transition: animation-duration 0.3s ease;
+  :global(.isDragging) & {
+    animation: spin 6s linear infinite;
   }
 }
 
