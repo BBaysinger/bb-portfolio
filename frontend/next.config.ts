@@ -92,16 +92,19 @@ const nextConfig: NextConfig = {
               const allowHttpImages =
                 env && env !== "prod" && env !== "production";
               const imgSrc = allowHttpImages
-                ? "img-src 'self' data: https: http:;"
-                : "img-src 'self' data: https:;";
+                // Allow blob: for Haxe/Flambe project assets that are loaded via object URLs
+                // Still restrict to https/data (and http in non-prod) while disallowing other schemes.
+                ? "img-src 'self' blob: data: https: http:;"
+                : "img-src 'self' blob: data: https:;";
               return [
                 "default-src 'self';",
                 "script-src 'self' 'unsafe-inline' 'unsafe-eval' data:;",
                 "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com data:;",
                 imgSrc,
                 "font-src 'self' https://fonts.gstatic.com data:;",
+                // Allow blob: for potential project runtime asset fetching (e.g. audio/video blobs) and keep data:
                 "connect-src 'self' https: http: ws: wss:;",
-                "media-src 'self';",
+                "media-src 'self' blob: data:;",
                 "object-src 'none';",
                 "frame-src 'none';",
               ].join(" ");
