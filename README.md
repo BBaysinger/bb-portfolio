@@ -18,13 +18,11 @@ Highly interactive, renderer‑aware frontend systems (carousel, layered paralla
 
 Live site reference moments:
 
-1. Project carousel: throw a fast swipe—note parallax & stable index snapping after inertia.
+1. Project carousel: swipe quickly—note parallax & stable index snapping after inertia.
 2. Homepage hero: drag the orb → fluxel shadows & subtle projectile effects (if enabled).
 3. Sprite sequences (lightning / energy bars): watch frame pacing consistency across strategies.
 
 ---
-
-The deployment pipeline uses Terraform for infrastructure provisioning, Docker for containerization, and GitHub Actions for CI/CD. The system supports multiple environments (dev/prod) with separate container registries and S3 storage buckets.
 
 [Visit the Live Site (primary)](http://bbaysinger.com).
 
@@ -32,7 +30,7 @@ The deployment pipeline uses Terraform for infrastructure provisioning, Docker f
 
 ## 🚩 Not merely a portfolio: headline features
 
-This repo is an end‑to‑end system, not just a site. Beyond the UI work, it ships with batteries‑included DevOps and data tooling. Highlights:
+This repo is an end‑to‑end system, not just a site. Beyond the UI work, it ships with comprehensive DevOps and data tooling. Highlights:
 
 - Multi‑environment infrastructure with Terraform (dev/prod), EC2 bootstrap, and Caddy/Nginx reverse proxy options
 - A deployment orchestrator that coordinates image builds, GitHub Actions env generation, and safe restarts
@@ -43,7 +41,7 @@ This repo is an end‑to‑end system, not just a site. Beyond the UI work, it s
 - Database migration, rename, and safety‑first destructive helpers with dry‑run support
 - Scripted conveniences for day‑to‑day work: dependency upgrades, multi‑package installs, branch sync, and more
 
-Jump to the complete list of conveniences: Deployment conveniences catalog.
+Jump to the complete list of conveniences: [Deployment conveniences catalog](#-deployment-conveniences-catalog).
 
 ## 🧠 Deployment Orchestrator & Infrastructure Automation (Support Layer)
 
@@ -202,7 +200,7 @@ Custom infinite carousel with master/slave layering for synchronized parallax. D
 
 - Per‑frame FPS arrays (variable timing) or single FPS value.
 - Manual frame injection (`frameControl`), random frame selection modes, loop limits & end callbacks.
-- Strategy hot‑swap with resource disposal; Canvas currently preferred (balance of clarity & perf), WebGL exploratory for larger sheets (observed higher cost at large viewport sizes).
+- Strategy hot‑swap with resource disposal; Canvas currently preferred (balance of clarity & performance), WebGL exploratory for larger sheets (observed higher cost at large viewport sizes).
 - Future enhancement: single‑visual sheet translation mode (pan vs frame index advances).
 
 ### Kinetic Slinger Physics Box
