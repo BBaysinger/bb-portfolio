@@ -4,33 +4,30 @@
   position: absolute;
   z-index: 1000;
   display: block;
-  color: #fff;
-  bottom: 0;
-  right: 0;
+  color: $lighterThemeColor;
+  top: 0;
+  left: 0;
   pointer-events: none;
-  transform-origin: bottom right;
-
+  transform-origin: center center;
+  color: $lighterThemeColor;
   :global(.hasDragged) & {
     display: none;
   }
+}
 
-  &::after {
-    content: " ";
-    position: absolute;
-    width: 120px;
-    height: 120px;
-    left: -114px;
-    top: -114px;
-    pointer-events: none;
-    background-repeat: no-repeat;
-    mask-image: url("/images/hero/orb-grab-tooltip.svg");
-    mask-repeat: no-repeat;
-    mask-size: cover;
-    animation: bounceMask 2s infinite forwards;
-
-    :global(.notDragged) & {
-      background-color: $lighterThemeColor;
-    }
+.grabImage {
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  bottom: 25px;
+  right: 25px;
+  pointer-events: none;
+  filter: drop-shadow(0 0 4px $lighterThemeColor);
+  animation: bounceMask 2s infinite forwards;
+  user-select: none;
+  -webkit-user-drag: none;
+  :global(.hasDragged) & {
+    display: none;
   }
 
   // Hide permanently after wall collision
@@ -47,21 +44,24 @@
 }
 
 .tooltipText {
+  --offset: 31px;
+
   position: absolute;
   width: 200px;
   height: 2em;
-  right: 0;
-  bottom: -50%;
+  right: var(--offset);
+  bottom: calc(-50% + var(--offset));
   transform-origin: bottom right;
   transform: rotate(45deg) translate(10px, 52%);
   animation: bounceClip 2s infinite forwards;
 
   &::before {
     content: "Grab the orb! Grab the orb! Grab the orb!\00a0";
+    color: white;
     // content: "Grab the orb! Click and hold! Grab the orb! Click and hold!\00a0";
     position: absolute;
     top: 50%;
-    left: 0;
+    left: -50px;
     margin-top: 0;
     white-space: nowrap;
     text-align: right;

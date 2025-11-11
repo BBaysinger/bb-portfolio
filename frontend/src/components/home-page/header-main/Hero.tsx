@@ -8,7 +8,7 @@ import { Suspense } from "react";
 import FPSCounter from "@/components/common/FPSCounter";
 import ChargedCircle from "@/components/home-page/header-main/ChargedCircle";
 import OrbGrabTooltip from "@/components/home-page/header-main/OrbGrabTooltip";
-import OrbThrowTooltip from "@/components/home-page/header-main/OrbThrowTooltip";
+import OrbTossTooltip from "@/components/home-page/header-main/OrbTossTooltip";
 import useClientDimensions from "@/hooks/useClientDimensions";
 import useScrollPersistedClass from "@/hooks/useScrollPersistedClass";
 import useTimeOfDay from "@/hooks/useTimeOfDay";
@@ -275,7 +275,7 @@ const Hero: React.FC = () => {
             <>
               <ChargedCircle isActive={!circlePaused && !isSlingerInFlight} />
               <OrbGrabTooltip hidden={hasCollided} />
-              <OrbThrowTooltip hidden={hasCollided} />
+              <OrbTossTooltip hidden={hasCollided} />
             </>
           </SlingerBox>
         </div>
