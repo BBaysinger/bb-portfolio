@@ -200,8 +200,12 @@
     "media:export": "bash scripts/export-media.sh",
     // 🪄 Import images from ../cms-seedings into backend/media/* for local dev
     "seed:media": "tsx scripts/import-media-from-seedings.ts",
-    // 🪄 Upload local media files to S3 for production use
-    "media:upload": "tsx scripts/upload-media-to-s3.ts",
+    // 🪄 Upload media only to the development S3 bucket
+    "media:upload:dev": "tsx scripts/upload-media-to-s3.ts --env dev",
+    // 🪄 Upload media only to the production S3 bucket
+    "media:upload:prod": "tsx scripts/upload-media-to-s3.ts --env prod",
+    // 🪄 Upload media to BOTH dev and prod buckets in one run
+    "media:upload:both": "tsx scripts/upload-media-to-s3.ts --env both",
     // 🪄 Verify uploaded media files on S3 to ensure integrity
     "media:verify": "tsx scripts/verify-media-s3.ts",
     // 📤 Upload local media files to S3 development environment
