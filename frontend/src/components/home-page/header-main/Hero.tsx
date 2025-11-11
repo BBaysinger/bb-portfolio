@@ -81,6 +81,7 @@ const Hero: React.FC = () => {
   const [hasDragged, setHasDragged] = useState<boolean>(false);
   const [hasCollided, setHasCollided] = useState<boolean>(false);
   const [hasAfterCollidedDelay, setHasAfterCollidedDelay] = useState(false);
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
 
   const timeOfDay = useTimeOfDay();
   const hasScrolledOut = useScrollPersistedClass(id);
@@ -102,6 +103,11 @@ const Hero: React.FC = () => {
     sessionStorage.setItem("hasDragged", value ? "true" : "false");
     setHasDragged(value);
   }, []);
+
+  // Derived interaction instruction fragment (kept small & focused for reuse and potential localization)
+  const orbInstruction = isTouchDevice
+    ? "Touch and drag to grab the orb — release to toss it around."
+    : "Click, hold, and drag to grab the orb — release to toss it around.";
 
   const onSlingerDragStart = useCallback(
     (x: number, y: number, e: MouseEvent | TouchEvent) => {
@@ -221,6 +227,16 @@ const Hero: React.FC = () => {
       if (afterDelay) {
         setHasAfterCollidedDelay(true);
       }
+      // Detect coarse pointer / touch-capable devices for tailored interaction instructions
+      try {
+        const isTouch =
+          "ontouchstart" in window ||
+          navigator.maxTouchPoints > 0 ||
+          window.matchMedia("(pointer: coarse)").matches;
+        setIsTouchDevice(isTouch);
+      } catch {
+        setIsTouchDevice(false);
+      }
     }
 
     // Only start the tracking loop if enabled
@@ -301,7 +317,7 @@ const Hero: React.FC = () => {
 
       <div className={styles.foreground}>
         <ParagraphAnimator
-          introMessage={`Good ${timeOfDay}. This is a kinetic UI exploration where design, code, and physics collide. Grab the orb and toss it around — you're part of the experiment now.`}
+          introMessage={`Good ${timeOfDay}. This is a kinetic UI exploration where design, code, and physics collide. ${orbInstruction} You're part of the experiment now.`}
           paragraphs={quotes}
           className={styles.message}
           paused={!mounted || !isSlingerIdle}
