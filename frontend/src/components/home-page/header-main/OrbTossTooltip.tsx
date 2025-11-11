@@ -2,6 +2,7 @@ import clsx from "clsx";
 import React from "react";
 
 import styles from "./OrbTossTooltip.module.scss";
+import OrbTossTooltipArrow from "./OrbTossTooltipArrow";
 
 type Props = {
   className?: string;
@@ -23,75 +24,21 @@ const OrbTossTooltip: React.FC<Props> = ({
 
   return (
     <div className={clsx(styles.orbTossTooltip, "orbTossTooltip", className)}>
-      {/* Four inline SVG arrowheads using currentColor */}
-      <span className={clsx(styles.arrow, styles.arrowA)}>
-        <svg
-          className={styles.arrowSvg}
-          viewBox="0 0 61.71 41.89"
-          aria-hidden="true"
-          focusable="false"
-        >
-          <polygon
-            points="43.07 12.2 43.09 1.26 18.61 1.26 18.63 12.2 3.03 12.2 30.84 40.1 58.67 12.2 43.07 12.2"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={2}
-            strokeMiterlimit={9.91}
-            vectorEffect="non-scaling-stroke"
-          />
-        </svg>
-      </span>
-      <span className={clsx(styles.arrow, styles.arrowB)}>
-        <svg
-          className={styles.arrowSvg}
-          viewBox="0 0 61.71 41.89"
-          aria-hidden="true"
-          focusable="false"
-        >
-          <polygon
-            points="43.07 12.2 43.09 1.26 18.61 1.26 18.63 12.2 3.03 12.2 30.84 40.1 58.67 12.2 43.07 12.2"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={2}
-            strokeMiterlimit={9.91}
-            vectorEffect="non-scaling-stroke"
-          />
-        </svg>
-      </span>
-      <span className={clsx(styles.arrow, styles.arrowC)}>
-        <svg
-          className={styles.arrowSvg}
-          viewBox="0 0 61.71 41.89"
-          aria-hidden="true"
-          focusable="false"
-        >
-          <polygon
-            points="43.07 12.2 43.09 1.26 18.61 1.26 18.63 12.2 3.03 12.2 30.84 40.1 58.67 12.2 43.07 12.2"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={2}
-            strokeMiterlimit={9.91}
-            vectorEffect="non-scaling-stroke"
-          />
-        </svg>
-      </span>
-      <span className={clsx(styles.arrow, styles.arrowD)}>
-        <svg
-          className={styles.arrowSvg}
-          viewBox="0 0 61.71 41.89"
-          aria-hidden="true"
-          focusable="false"
-        >
-          <polygon
-            points="43.07 12.2 43.09 1.26 18.61 1.26 18.63 12.2 3.03 12.2 30.84 40.1 58.67 12.2 43.07 12.2"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={2}
-            strokeMiterlimit={9.91}
-            vectorEffect="non-scaling-stroke"
-          />
-        </svg>
-      </span>
+      {/* Arrow orbit group (independent rotation so we can reverse only arrows) */}
+      <div className={styles.arrowOrbit}>
+        <span className={clsx(styles.arrow, styles.arrowA)}>
+          <OrbTossTooltipArrow />
+        </span>
+        <span className={clsx(styles.arrow, styles.arrowB)}>
+          <OrbTossTooltipArrow />
+        </span>
+        <span className={clsx(styles.arrow, styles.arrowC)}>
+          <OrbTossTooltipArrow />
+        </span>
+        <span className={clsx(styles.arrow, styles.arrowD)}>
+          <OrbTossTooltipArrow />
+        </span>
+      </div>
 
       {/* Rotating circular text ring */}
       <svg

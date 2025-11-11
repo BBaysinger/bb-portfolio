@@ -2,7 +2,7 @@
 
 .orbTossTooltip {
   position: absolute;
-  z-index: 1000;
+  z-index: 1;
   top: 0;
   left: 0;
   pointer-events: none;
@@ -23,15 +23,14 @@
   :global(.slingerInFlight.notCollided) & {
     opacity: 0;
   }
-  // Apply orbit to the whole group
-  animation: orbit 12s linear infinite;
+  // Text ring continues its own spin; arrows now rotate in separate .arrowOrbit
 }
 
 // Generic arrow styling
 .arrow {
-  --distance: 58px; // how far outward each arrow radiates
-  --width: 46px;
-  --height: 46px;
+  --distance: 100px; // how far outward each arrow radiates
+  --width: 56px;
+  --height: 56px;
   position: absolute;
   top: calc(var(--height) * -0.5);
   left: calc(var(--width) * -0.5);
@@ -51,7 +50,18 @@
   width: 100%;
   height: 100%;
   pointer-events: none;
-  vector-effect: non-scaling-stroke;
+  transform: rotate(180deg);
+  // vector-effect: non-scaling-stroke;
+  // Inline SVG: control stroke width via CSS var, color via currentColor
+  polygon {
+    stroke-width: var(--arrow-stroke-width, 4);
+  }
+}
+
+// Independent orbit for arrow group (reversed direction)
+.arrowOrbit {
+  animation: orbit 12s linear infinite reverse;
+  position: relative;
 }
 
 // Individual arrow orientation + stagger
@@ -116,7 +126,7 @@
   transform: none;
   transform-origin: center center;
   animation: spinText 18s linear infinite;
-  z-index: 0;
+  z-index: 2;
   opacity: 0.9;
   svg,
   & {
@@ -124,7 +134,7 @@
   }
   text {
     font-size: 12px;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.05em;
     fill: #fff;
     text-transform: uppercase;
   }

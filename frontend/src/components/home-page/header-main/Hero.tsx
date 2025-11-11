@@ -273,6 +273,7 @@ const Hero: React.FC = () => {
             onIdle={onSlingerIdle}
           >
             <>
+              {/* These get nested for offset/position once projected */}
               <ChargedCircle isActive={!circlePaused && !isSlingerInFlight} />
               <OrbGrabTooltip hidden={hasCollided} />
               <OrbTossTooltip hidden={hasCollided} />

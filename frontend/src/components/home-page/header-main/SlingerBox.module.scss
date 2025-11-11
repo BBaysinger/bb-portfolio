@@ -58,7 +58,8 @@
 // Center anchor inside each slinger; all orb-bound visuals should be children of this
 .slingerCenter {
   position: absolute;
-  top: var(--orb-radius);
+  // Don't know why -2px shim is needed to center TODO: investigate
+  top: calc(var(--orb-radius) - 2px);
   left: var(--orb-radius);
   pointer-events: none;
   transform-origin: center center;
