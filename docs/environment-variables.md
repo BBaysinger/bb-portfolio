@@ -12,6 +12,18 @@ This project follows the standard environment variable conventions:
 
 ## Key Variables
 
+### NEXT_PUBLIC_FORCE_HASH_HISTORY
+
+- **Purpose**: When set to `1`, navigation utilities append a timestamp hash token (e.g., `#ts=...`) to ensure distinct history entries during rapid client‑side route changes. This improves Back/Forward behavior in some browsers.
+- **Default**: `0` (disabled)
+- **Usage**: `frontend/src/utils/navigation.ts`, `frontend/src/components/common/PushStateLink.tsx`, and carousel navigation.
+
+### NEXT_PUBLIC_DOUBLE_PUSH
+
+- **Purpose**: When set to `1`, enables a “double‑push” fallback for programmatic navigation: push a dummy entry, then replace with the final URL on the next frame. This mitigates coalescing of entries during gesture navigation on some UAs.
+- **Default**: `0` (disabled)
+- **Usage**: `frontend/src/utils/navigation.ts`, `frontend/src/components/common/PushStateLink.tsx`, and carousel navigation.
+
 ### AWS_ACCOUNT_ID
 
 - **Purpose**: AWS Account ID for ECR image URIs
@@ -84,6 +96,7 @@ The following files now use the `EC2_INSTANCE_IP` environment variable:
 - `package.json5` - SSH sync command (mirror)
 - `infra/bb-portfolio-management.sh` - Infrastructure management script
 - `deploy/scripts/generate-terraform-vars.ts` - CORS origins for S3
+- `frontend/.env.local` - defaults for `NEXT_PUBLIC_FORCE_HASH_HISTORY` and `NEXT_PUBLIC_DOUBLE_PUSH`
 
 ### Fallback Behavior
 

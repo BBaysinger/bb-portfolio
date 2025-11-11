@@ -51,6 +51,7 @@ const PageButtons: React.FC = () => {
   const nextId = ProjectData.nextKey(projectId);
   const prevIsNda = !!activeProjects[prevId]?.nda;
   const nextIsNda = !!activeProjects[nextId]?.nda;
+  // Carousel navigation uses query routes on the base path to avoid segment churn
   const prevHref = `${prevIsNda ? "/nda/" : "/project/"}?p=${encodeURIComponent(prevId)}`;
   const nextHref = `${nextIsNda ? "/nda/" : "/project/"}?p=${encodeURIComponent(nextId)}`;
 
