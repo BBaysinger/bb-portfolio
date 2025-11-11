@@ -92,9 +92,9 @@ const nextConfig: NextConfig = {
               const allowHttpImages =
                 env && env !== "prod" && env !== "production";
               const imgSrc = allowHttpImages
-                // Allow blob: for Haxe/Flambe project assets that are loaded via object URLs
-                // Still restrict to https/data (and http in non-prod) while disallowing other schemes.
-                ? "img-src 'self' blob: data: https: http:;"
+                ? // Allow blob: for Haxe/Flambe project assets that are loaded via object URLs
+                  // Still restrict to https/data (and http in non-prod) while disallowing other schemes.
+                  "img-src 'self' blob: data: https: http:;"
                 : "img-src 'self' blob: data: https:;";
               return [
                 "default-src 'self';",
