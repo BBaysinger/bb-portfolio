@@ -16,6 +16,9 @@
   position: absolute;
   contain: layout size style;
   pointer-events: none;
+  // Establish orb sizing so children can reference the radius
+  --orb-size: 50px;
+  --orb-radius: calc(var(--orb-size) / 2);
   * {
     pointer-events: none;
     contain: layout size style;
@@ -50,4 +53,13 @@
       cursor: grabbing;
     }
   }
+}
+
+// Center anchor inside each slinger; all orb-bound visuals should be children of this
+.slingerCenter {
+  position: absolute;
+  top: var(--orb-radius);
+  left: var(--orb-radius);
+  pointer-events: none;
+  transform-origin: center center;
 }

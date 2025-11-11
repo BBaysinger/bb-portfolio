@@ -7,7 +7,7 @@
   left: 0;
   pointer-events: none;
   display: none; // hidden by default; shown only on grab (isDragging) after first drag
-  // Outer container sits at slinger origin; inner .center anchors at orb center
+  // Positioned relative to the slingerCenter parent (already at orb center)
 
   // Hide permanently after wall collision
   :global(.hasCollided) & {
@@ -24,14 +24,7 @@
   :global(.slingerInFlight.notCollided) & {
     opacity: 0;
   }
-}
-
-// Center anchor positioned at the orb center (25px radius from top-left of slinger)
-.center {
-  position: absolute;
-  top: 25px;
-  left: 25px;
-  transform-origin: center center;
+  // Apply orbit to the whole group
   animation: orbit 12s linear infinite;
 }
 
