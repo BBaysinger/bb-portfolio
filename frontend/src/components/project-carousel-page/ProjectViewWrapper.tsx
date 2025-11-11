@@ -143,7 +143,7 @@ function ProjectViewRouterBridge({
         setProjectId(newId);
       }
     },
-    { mode: "external-only" },
+    { mode: "both" },
   );
 
   // Also sync projectId on mount/remount to handle edge cases
