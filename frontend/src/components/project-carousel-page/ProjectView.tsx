@@ -145,6 +145,11 @@ const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
           newProjectId !== lastKnownProjectId.current &&
           source === Source.SCROLL
         ) {
+          // Why push here (plain English):
+          // - When we call pushState during the user's actual click/gesture,
+          //   browsers record it as a normal navigation step, so Back/Forward stops on it.
+          // - If we wait and push later (after timers/async), some browsers may merge/skip it.
+          // Clicking into the carousel is a real click, so pushing now yields predictable history.
           const target = projects[newProjectId];
           const hrefBase = target?.nda ? "/nda/" : "/project/";
           const targetHref = `${hrefBase}?p=${encodeURIComponent(newProjectId)}`;
