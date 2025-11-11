@@ -166,7 +166,14 @@ const Hero: React.FC = () => {
         setHasCollided(true);
         // Scheduling this repeatedly is harmless; state is idempotent once true
         setTimeout(() => {
+          // After a short post-collision delay, mark the milestone that allows the scroll CTA to appear
           setHasAfterCollidedDelay(true);
+          // Persist within the current browser session so a reload (but not a full new session) retains the CTA state
+          try {
+            sessionStorage.setItem("hasAfterCollidedDelay", "true");
+          } catch {
+            // Ignore (e.g., storage disabled)
+          }
         }, 2000);
 
         gridControllerRef.current?.launchProjectile(x, y, direction);
@@ -209,6 +216,11 @@ const Hero: React.FC = () => {
     if (typeof window !== "undefined") {
       setHasDragged(sessionStorage.getItem("hasDragged") === "true");
       setHasCollided(sessionStorage.getItem("hasCollided") === "true");
+      const afterDelay =
+        sessionStorage.getItem("hasAfterCollidedDelay") === "true";
+      if (afterDelay) {
+        setHasAfterCollidedDelay(true);
+      }
     }
 
     // Only start the tracking loop if enabled
