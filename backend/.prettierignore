@@ -15,6 +15,8 @@ package.json5
 payload-types.ts
 *.tsbuildinfo
 importMap.js
+tsconfig.json
+tsconfig.*.json
 
 # 🧪 Editor/IDE files
 .vscode/

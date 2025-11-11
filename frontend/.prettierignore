@@ -19,6 +19,8 @@ out/
 # 🧠 Config / Misc
 package.json5
 *.tsbuildinfo
+tsconfig.json
+tsconfig.*.json
 
 # 🧳 Caches (avoid formatting caches created in dev containers)
 .npm-cache/
