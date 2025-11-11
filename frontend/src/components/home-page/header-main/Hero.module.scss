@@ -82,6 +82,11 @@ header.hero {
     border: 0 !important;
     transform: translateX(0);
   }
+  // Fallback: if collision happened previously and delay flag didn't hydrate yet (e.g. fast reload), still show.
+  :global(.hasCollided.notScrolledOut) & {
+    border: 0 !important;
+    transform: translateX(0);
+  }
   @include remRange(font-size, 18px, 25px);
 
   a {
@@ -157,7 +162,7 @@ a.scrollCta {
   pointer-events: none;
   background-repeat: no-repeat;
   background-size: 100% 100%;
-  background-image: url("/images/home/orange-arrow.webp");
+  background-image: url("/images/hero/orange-arrow.webp");
 }
 
 .message {
