@@ -1,11 +1,9 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
-import React, { useState } from "react";
+import React from "react";
 
 import { PushStateLink } from "@/components/common/PushStateLink";
 import ProjectData from "@/data/ProjectData";
-import { useRouteChange } from "@/hooks/useRouteChange";
 
 import styles from "./PageButtons.module.scss";
 
@@ -22,21 +20,16 @@ import styles from "./PageButtons.module.scss";
  * @returns {JSX.Element} Prev/Next navigation buttons.
  *
  */
-const PageButtons: React.FC = () => {
-  const searchParams = useSearchParams();
-  const [projectId, setProjectId] = useState<string>(
-    searchParams.get("p") || "",
-  );
-
-  // Sync state when query string changes
-  useRouteChange(
-    (_pathname, search) => {
-      const p = new URLSearchParams(search).get("p") || "";
-      setProjectId(p);
-    },
-    { mode: "external-only" },
-  );
-
+/**
+ * Routing model notes (do not remove):
+ * - Canonical entry from the list uses segment URLs: /project/{slug} or /nda/{slug}.
+ * - In-session navigation (carousel gestures and these prev/next buttons) MUST use
+ *   query-string routes: /project/?p={slug} or /nda/?p={slug}.
+ *   This keeps SPA behavior stable and avoids segment churn while interacting.
+ * - The ProjectView will canonicalize an initial segment entry to ?p= on first stabilization
+ *   and dispatch a bb:routechange so listeners update consistently.
+ */
+const PageButtons: React.FC<{ projectId: string }> = ({ projectId }) => {
   // Ensure ProjectData is available and project exists
   const activeProjects = ProjectData.activeProjectsRecord;
   const hasValidProject =
@@ -51,7 +44,7 @@ const PageButtons: React.FC = () => {
   const nextId = ProjectData.nextKey(projectId);
   const prevIsNda = !!activeProjects[prevId]?.nda;
   const nextIsNda = !!activeProjects[nextId]?.nda;
-  // Carousel navigation uses query routes on the base path to avoid segment churn
+  // In-session carousel navigation must use query-string model (see routing notes above)
   const prevHref = `${prevIsNda ? "/nda/" : "/project/"}?p=${encodeURIComponent(prevId)}`;
   const nextHref = `${nextIsNda ? "/nda/" : "/project/"}?p=${encodeURIComponent(nextId)}`;
 

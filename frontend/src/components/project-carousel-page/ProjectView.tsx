@@ -89,16 +89,39 @@ const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
       : "bbSlideRight";
   }, []); // Static based on current pattern
 
-  // Listen only for external route changes (popstate or custom) to update internal projectId
+  // Routing model notes (do not remove):
+  // - Canonical entry from the list: segment URLs (/project/{slug} or /nda/{slug}).
+  // - In-session navigation (carousel gestures + prev/next): query-string ?p={slug}.
+  //   We normalize on first stabilization by converting any segment entry into ?p=
+  //   and dispatch bb:routechange so all listeners stay consistent.
+  // - This hook listens external-only (bb:routechange, popstate, hashchange) to avoid
+  //   Next's internal noise; it also falls back to parsing the last path segment when
+  //   ?p is absent so both URL styles are handled.
+  // Listen for route changes (external/custom) and keep lastKnownProjectId in sync
   useRouteChange(
     (_pathname, search) => {
       const p = new URLSearchParams(search).get("p") || "";
-      if (p && p !== lastKnownProjectId.current) {
-        // Update ref so stabilization mapping uses the latest id
-        lastKnownProjectId.current = p;
+      // Fallback to segment when ?p is absent
+      const seg = (() => {
+        try {
+          const segs = (window.location.pathname || "")
+            .split("/")
+            .filter(Boolean);
+          return segs.length >= 2 &&
+            (segs[0] === "project" || segs[0] === "nda")
+            ? segs[1]
+            : "";
+        } catch {
+          return "";
+        }
+      })();
+      const next = p || seg;
+      if (next && next !== lastKnownProjectId.current) {
+        lastKnownProjectId.current = next;
       }
     },
-    // Ignore internal Next.js Router "replaceState" updates which may happen on refocus
+    // Prefer external-only: our PushState and ReplaceState dispatch bb:routechange
+    // which this listener will receive, and we avoid internal Next noise.
     { mode: "external-only" },
   );
 
@@ -117,6 +140,32 @@ const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
             lastKnown: lastKnownProjectId.current,
           });
         } catch {}
+      }
+      // Canonicalize segment entry to query once per mount for in-session navigation
+      if (!canonicalizedRef.current) {
+        try {
+          const searchNow =
+            typeof window !== "undefined" ? window.location.search : "";
+          const hasQuery = new URLSearchParams(searchNow).has("p");
+          if (!hasQuery && typeof window !== "undefined") {
+            const path = window.location.pathname || "";
+            const segs = path.split("/").filter(Boolean);
+            const seg0 = segs[0];
+            const seg1 = segs[1];
+            const currentId = lastKnownProjectId.current;
+            if ((seg0 === "project" || seg0 === "nda") && seg1 && currentId) {
+              const base = `/${seg0}/`;
+              const hash = window.location.hash || "";
+              const url = `${base}?p=${encodeURIComponent(currentId)}${hash}`;
+              window.history.replaceState(window.history.state, "", url);
+              window.dispatchEvent(new CustomEvent("bb:routechange"));
+            }
+          }
+        } catch {
+          // ignore if not in browser
+        } finally {
+          canonicalizedRef.current = true;
+        }
       }
       if (stabilizedIndex !== newStabilizedIndex) {
         isCarouselSourceRef.current = true;
@@ -145,6 +194,7 @@ const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
           newProjectId !== lastKnownProjectId.current &&
           source === Source.SCROLL
         ) {
+          // In-session navigation MUST use query-string routes; do not change segments here.
           // Why push here (plain English):
           // - When we call pushState during the user's actual click/gesture,
           //   browsers record it as a normal navigation step, so Back/Forward stops on it.
@@ -152,6 +202,7 @@ const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
           // Clicking into the carousel is a real click, so pushing now yields predictable history.
           const target = projects[newProjectId];
           const hrefBase = target?.nda ? "/nda/" : "/project/";
+          // Carousel-initiated routes should use query-string model
           const targetHref = `${hrefBase}?p=${encodeURIComponent(newProjectId)}`;
           // Mark this navigation as originating from the carousel so we can
           // suppress the subsequent route-driven programmatic scroll.
@@ -212,6 +263,9 @@ const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
     },
     [stabilizedIndex, projects],
   );
+
+  // On first stabilization after mount, canonicalize segment entry to query ?p=
+  const canonicalizedRef = useRef(false);
 
   useEffect(() => {
     lastKnownProjectId.current = projectId;
@@ -349,7 +403,7 @@ const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
               onStabilizationUpdate={handleStabilizationUpdate}
             />
           )}
-          <PageButtons />
+          <PageButtons projectId={projectId} />
         </div>
         <InfoSwapper index={infoSwapperIndex} />
       </div>
