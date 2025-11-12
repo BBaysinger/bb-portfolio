@@ -12,7 +12,10 @@ header.hero {
   user-select: none;
   -webkit-touch-callout: none; // Disable iOS long-press callout
   -webkit-user-select: none; // Safari iOS fallback
-  touch-action: manipulation; // Optimize tap/drag gestures
+  // Allow vertical scroll and pinch-zoom, discourage horizontal panning (helps reduce back-swipe within the hero)
+  touch-action: pan-y pinch-zoom;
+  // Prevent horizontal overscroll chaining which can trigger browser-level swipe navigation on some platforms
+  overscroll-behavior-x: none;
   z-index: 10;
   overflow: hidden;
   background-repeat: no-repeat;
