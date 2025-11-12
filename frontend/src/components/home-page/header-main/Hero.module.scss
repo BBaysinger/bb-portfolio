@@ -10,6 +10,9 @@ header.hero {
   justify-content: space-between;
   letter-spacing: 1px;
   user-select: none;
+  -webkit-touch-callout: none; // Disable iOS long-press callout
+  -webkit-user-select: none; // Safari iOS fallback
+  touch-action: manipulation; // Optimize tap/drag gestures
   z-index: 10;
   overflow: hidden;
   background-repeat: no-repeat;

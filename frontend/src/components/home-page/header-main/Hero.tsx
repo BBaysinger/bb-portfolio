@@ -249,11 +249,17 @@ const Hero: React.FC = () => {
     };
   }, [useSlingerTracking, startSlingerTracking]);
 
+  const handleSuppressContextMenu: React.MouseEventHandler<HTMLElement> = (e) => {
+    // Prevent default context menu on long-press/right-click to keep immersive interaction
+    e.preventDefault();
+  };
+
   return (
     <header
       id={id}
       ref={heroRef}
       data-nav="hero"
+      onContextMenu={handleSuppressContextMenu}
       className={clsx(
         // Scoped module class + global hook for easier debugging/targeting
         styles.hero,
