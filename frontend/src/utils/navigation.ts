@@ -134,7 +134,6 @@ export function navigateWithPushState(
   }
 }
 
-
 /**
  * Replace the current URL using replaceState and notify all listeners.
  *
