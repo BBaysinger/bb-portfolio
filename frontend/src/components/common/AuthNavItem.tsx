@@ -15,9 +15,36 @@ interface Props {
 }
 
 /**
- * Auth-aware nav item that renders Login (Link) when logged out,
- * and Logout (Button) when logged in. Hides until auth is initialized
- * to avoid flicker.
+ * Authentication-aware navigation item
+ * 
+ * Dynamically renders either a "Login" link or "Logout" button based on
+ * the user's current authentication state. Prevents layout shift by
+ * maintaining consistent spacing during auth state initialization.
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {string} [props.className=""] - CSS class for the wrapper <li> element
+ * @param {string} [props.linkClassName=""] - CSS class for the inner Link/button element
+ * 
+ * @example
+ * ```tsx
+ * <AuthNavItem className="nav-item" linkClassName="nav-link" />
+ * ```
+ * 
+ * Features:
+ * - Seamless login/logout state transitions
+ * - Prevents authentication flicker with hidden placeholder
+ * - Accessible button/link semantics
+ * - Integration with Redux auth state and useAuth hook
+ * - Consistent layout during hydration and auth checks
+ * 
+ * States:
+ * - Loading: Shows invisible "Login" text to preserve layout
+ * - Authenticated: Shows logout button with click handler
+ * - Unauthenticated: Shows login link to /login#top
+ * 
+ * @see {@link useAuth} for logout functionality
+ * @see {@link useAppSelector} for auth state access
  */
 export default function AuthNavItem({
   className = "",

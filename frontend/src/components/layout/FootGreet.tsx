@@ -7,9 +7,31 @@ import { useEffect, useState } from "react";
 import styles from "./FootGreet.module.scss";
 
 /**
- * The greeting in the footer.
- * Time of day included for an unexpected dynamic.
- *
+ * Footer greeting component with dynamic time-based messaging
+ * 
+ * Displays a personalized footer message that includes time-of-day awareness
+ * (morning/afternoon/evening) along with Bradley's photo and portfolio philosophy.
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {string} [props.className=""] - Additional CSS classes to apply
+ * 
+ * @example
+ * ```tsx
+ * <FootGreet className="custom-footer-styling" />
+ * ```
+ * 
+ * Features:
+ * - Dynamic greeting based on current time of day
+ * - Personal photo and introduction
+ * - Portfolio philosophy and call-to-action
+ * - Hydration-safe time calculation (runs in useEffect)
+ * - Responsive text layout
+ * 
+ * Time Logic:
+ * - Morning: 0-11 hours
+ * - Afternoon: 12-17 hours  
+ * - Evening: 18-23 hours
  */
 const FootGreet: React.FC<{ className?: string }> = ({ className = "" }) => {
   const [currentTimeOfDay, setCurrentTimeOfDay] = useState<string>("");
