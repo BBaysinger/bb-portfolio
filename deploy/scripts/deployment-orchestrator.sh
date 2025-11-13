@@ -579,8 +579,7 @@ if [[ "$refresh_env" == true ]]; then
       const s = (cfg.strings || cfg);
       const sVal = (k: string, def?: string) => (s[k] ?? def ?? "");
       const S3_REGION = sVal("S3_REGION", "");
-      // Security & env-guard inputs
-  const OBFUSCATED_CONTACT_EMAIL = sVal("OBFUSCATED_CONTACT_EMAIL", sVal("SECURITY_CONTACT_EMAIL", ""));
+    // Security & env-guard inputs
       const SECURITY_TXT_EXPIRES = sVal("SECURITY_TXT_EXPIRES", "");
       const PROD_REQUIRED_ENVIRONMENT_VARIABLES = sVal("PROD_REQUIRED_ENVIRONMENT_VARIABLES", "");
       const DEV_REQUIRED_ENVIRONMENT_VARIABLES = sVal("DEV_REQUIRED_ENVIRONMENT_VARIABLES", "");
@@ -596,8 +595,7 @@ if [[ "$refresh_env" == true ]]; then
         `S3_REGION=${sVal("S3_REGION", sVal("PROD_AWS_REGION", ""))}`,
   `PROD_FRONTEND_URL=${sVal("PROD_FRONTEND_URL")}`,
   `PROD_BACKEND_INTERNAL_URL=${sVal("PROD_BACKEND_INTERNAL_URL", "http://bb-portfolio-backend-prod:3000")}`,
-        // Security & env guard
-  `OBFUSCATED_CONTACT_EMAIL=${OBFUSCATED_CONTACT_EMAIL}`,
+    // Security & env guard
         `SECURITY_TXT_EXPIRES=${SECURITY_TXT_EXPIRES}`,
         `PROD_REQUIRED_ENVIRONMENT_VARIABLES=${PROD_REQUIRED_ENVIRONMENT_VARIABLES}`,
         `PROD_SES_FROM_EMAIL=${sVal("PROD_SES_FROM_EMAIL")}`,
@@ -616,8 +614,7 @@ if [[ "$refresh_env" == true ]]; then
         `S3_REGION=${sVal("S3_REGION", sVal("DEV_AWS_REGION", ""))}`,
   `DEV_FRONTEND_URL=${sVal("DEV_FRONTEND_URL")}`,
   `DEV_BACKEND_INTERNAL_URL=${sVal("DEV_BACKEND_INTERNAL_URL", "http://bb-portfolio-backend-dev:3000")}`,
-        // Security & env guard
-  `OBFUSCATED_CONTACT_EMAIL=${OBFUSCATED_CONTACT_EMAIL}`,
+    // Security & env guard
         `SECURITY_TXT_EXPIRES=${SECURITY_TXT_EXPIRES}`,
         `DEV_REQUIRED_ENVIRONMENT_VARIABLES=${DEV_REQUIRED_ENVIRONMENT_VARIABLES}`,
         `DEV_SES_FROM_EMAIL=${sVal("DEV_SES_FROM_EMAIL")}`,

@@ -1,16 +1,39 @@
 import { NextResponse } from "next/server";
 
 export async function GET() {
-  // Get required environment values (no fallbacks - these are required)
-  // Prefer new var OBFUSCATED_CONTACT_EMAIL, fallback to legacy SECURITY_CONTACT_EMAIL for compatibility
-  const contactEmail = (process.env.OBFUSCATED_CONTACT_EMAIL ||
-    process.env.SECURITY_CONTACT_EMAIL)!;
+  // Get required environment values (no email from env; email is sourced from CMS via backend)
   const baseUrl = process.env.NEXT_PUBLIC_FRONTEND_URL!;
   const expires = process.env.SECURITY_TXT_EXPIRES!;
 
+  // Fetch obfuscated contact email through the frontend proxy -> backend API
+  let contactEmail: string | undefined;
+  try {
+    const res = await fetch(`${baseUrl}/api/contact-info/`, {
+      cache: "no-store",
+    });
+    if (res.ok) {
+      const data = await res.json();
+      const l = data?.data?.l as string | undefined;
+      const d = data?.data?.d as string | undefined;
+      if (l && d) {
+        const local = Buffer.from(l, "base64").toString("utf8");
+        const domain = Buffer.from(d, "base64").toString("utf8");
+        contactEmail = `${local}@${domain}`;
+      }
+    }
+  } catch {
+    // Ignore; fall back to URL-only Contact line
+  }
+
+  const contactLines = [
+    contactEmail ? `Contact: mailto:${contactEmail}` : undefined,
+    `Contact: ${baseUrl}/contact`,
+  ]
+    .filter(Boolean)
+    .join("\n");
+
   const securityTxt = `
-Contact: mailto:${contactEmail}
-Contact: ${baseUrl}/contact
+${contactLines}
 Expires: ${expires}
 Encryption: ${baseUrl}/pgp-key.txt
 Acknowledgments: ${baseUrl}/security-acknowledgments

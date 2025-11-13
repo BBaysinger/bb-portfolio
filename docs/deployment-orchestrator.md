@@ -81,7 +81,7 @@ deploy/scripts/deployment-orchestrator.sh --no-build --profiles both --refresh-e
 When --refresh-env is set, the workflow regenerates these files on EC2:
 
 - backend/.env.prod and backend/.env.dev
-  - Include: PROD\_/DEV_REQUIRED_ENVIRONMENT_VARIABLES (env-guard lists), OBFUSCATED_CONTACT_EMAIL, SECURITY_TXT_EXPIRES, S3 bucket names, Mongo URIs, Payload secret, SES emails, internal backend URL.
+  - Include: PROD\_/DEV_REQUIRED_ENVIRONMENT_VARIABLES (env-guard lists), SECURITY_TXT_EXPIRES, S3 bucket names, Mongo URIs, Payload secret, SES emails, internal backend URL.
 - frontend/.env.prod and frontend/.env.dev
   - Include: internal backend URL for SSR/server use only.
 

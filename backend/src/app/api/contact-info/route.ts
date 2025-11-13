@@ -1,5 +1,5 @@
-import { NextResponse } from 'next/server'
 import configPromise from '@payload-config'
+import { NextResponse } from 'next/server'
 import { getPayload } from 'payload'
 
 /**
@@ -8,44 +8,21 @@ import { getPayload } from 'payload'
  */
 export async function GET() {
   try {
-    // Get email from environment variables using the same pattern as email service
-    // Normalize profile (prod/dev/local) for consistent key lookup, but also keep raw fallback
-    const rawProfile = process.env.ENV_PROFILE || process.env.NODE_ENV || 'local'
-    const lower = rawProfile.toLowerCase()
-    const normalized = lower.startsWith('prod')
-      ? 'prod'
-      : lower.startsWith('dev')
-        ? 'dev'
-        : lower.startsWith('local')
-          ? 'local'
-          : lower
-    const upper = normalized.toUpperCase()
-    const rawUpper = (process.env.ENV_PROFILE || '').toUpperCase()
-    // Preferred order:
-    // 1) <PROFILE>_CONTACT_EMAIL (explicit override if provided)
-    // 2) OBFUSCATED_CONTACT_EMAIL (site-wide security.txt/contact address)
-    // 3) SECURITY_CONTACT_EMAIL (legacy name; fallback for compatibility)
-    // 4) <PROFILE>_SES_TO_EMAIL (default: same destination as contact form)
-    const preferredKeys = [
-      `${upper}_CONTACT_EMAIL`,
-      'OBFUSCATED_CONTACT_EMAIL',
-      'SECURITY_CONTACT_EMAIL',
-      `${upper}_SES_TO_EMAIL`,
-      // raw ENV_PROFILE fallbacks (e.g., PRODUCTION_CONTACT_EMAIL)
-      ...(rawUpper ? [`${rawUpper}_CONTACT_EMAIL`, `${rawUpper}_SES_TO_EMAIL`] : []),
-    ] as const
-    let email: string | undefined
-    for (const key of preferredKeys) {
-      if (process.env[key]) {
-        email = process.env[key]
-        break
-      }
-    }
+    // Read public contact info exclusively from CMS Global. No env fallbacks.
+    const payload = await getPayload({ config: configPromise })
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const contact = await (payload as any).findGlobal({
+      slug: 'contactInfo',
+      depth: 0,
+      overrideAccess: true,
+    })
+
+    const email: string | undefined = contact?.contactEmail || undefined
+    const phoneE164: string | undefined = contact?.phoneE164 || undefined
+    const phoneDisplay: string | undefined = contact?.phoneDisplay || undefined
 
     if (!email) {
-      console.error(
-        `Missing environment variable for contact email. Tried: ${preferredKeys.join(', ')}`,
-      )
+      console.error('[contact-info] Missing contactEmail in CMS Global contactInfo')
       return NextResponse.json({ error: 'Contact information not available' }, { status: 500 })
     }
 
@@ -56,38 +33,7 @@ export async function GET() {
     const encodedLocal = Buffer.from(localPart).toString('base64')
     const encodedDomain = Buffer.from(domain).toString('base64')
 
-    // Phone (optional) — source from CMS Global first, then fall back to env vars during transition
-    let phoneE164: string | undefined
-    let phoneDisplay: string | undefined
-
-    try {
-      const payload = await getPayload({ config: configPromise })
-      // Publicly readable, but read via server to avoid exposing raw values outside of the obfuscation format
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const contact = await (payload as any).findGlobal({
-        slug: 'contactInfo',
-        depth: 0,
-        overrideAccess: true,
-      })
-      phoneE164 = contact?.phoneE164 || undefined
-      phoneDisplay = contact?.phoneDisplay || undefined
-    } catch (e) {
-      console.warn('[contact-info] CMS read failed, falling back to env:', e)
-    }
-
-    if (!phoneE164) {
-      const phoneE164Key = `${upper}_CONTACT_PHONE_E164`
-      const phoneDispKey = `${upper}_CONTACT_PHONE_DISPLAY`
-      const phoneE164RawKey = rawUpper ? `${rawUpper}_CONTACT_PHONE_E164` : ''
-      const phoneDispRawKey = rawUpper ? `${rawUpper}_CONTACT_PHONE_DISPLAY` : ''
-      phoneE164 =
-        process.env[phoneE164Key] || (phoneE164RawKey ? process.env[phoneE164RawKey] : undefined)
-      phoneDisplay =
-        process.env[phoneDispKey] ||
-        (phoneDispRawKey ? process.env[phoneDispRawKey] : undefined) ||
-        process.env[phoneE164Key] ||
-        (phoneE164RawKey ? process.env[phoneE164RawKey] : undefined)
-    }
+    // Phone (optional) — read from CMS Global only; no env fallback
 
     let phonePayload: { e: string; d: string; checksum: string } | undefined
     if (phoneE164) {

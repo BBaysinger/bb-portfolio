@@ -16,6 +16,21 @@ export const ContactInfo: GlobalConfig = {
       type: 'row',
       fields: [
         {
+          name: 'contactEmail',
+          label: 'Contact Email',
+          type: 'email',
+          admin: {
+            description:
+              'Public contact email to display on site and use for security.txt. This should be safe to publish.',
+            width: '50%',
+          },
+        },
+      ],
+    },
+    {
+      type: 'row',
+      fields: [
+        {
           name: 'phoneE164',
           label: 'Phone (E.164)',
           type: 'text',
