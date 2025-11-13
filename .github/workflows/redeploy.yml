@@ -143,7 +143,6 @@ jobs:
           S3_REGION: ${{ secrets.S3_REGION }}
           PUBLIC_PROJECTS_BUCKET: ${{ secrets.PUBLIC_PROJECTS_BUCKET }}
           NDA_PROJECTS_BUCKET: ${{ secrets.NDA_PROJECTS_BUCKET }}
-          OBFUSCATED_CONTACT_EMAIL: ${{ secrets.OBFUSCATED_CONTACT_EMAIL }}
           SECURITY_TXT_EXPIRES: ${{ secrets.SECURITY_TXT_EXPIRES }}
           # Unified env-guard definition lists (per-profile)
           PROD_REQUIRED_ENVIRONMENT_VARIABLES: ${{ secrets.PROD_REQUIRED_ENVIRONMENT_VARIABLES }}
@@ -193,7 +192,6 @@ jobs:
             "PROD_FRONTEND_URL=$(s_val PROD_FRONTEND_URL)" \
             "PROD_BACKEND_INTERNAL_URL=$(s_val PROD_BACKEND_INTERNAL_URL 'http://bb-portfolio-backend-prod:3000')" \
             "" \
-            "OBFUSCATED_CONTACT_EMAIL=$(s_val OBFUSCATED_CONTACT_EMAIL)" \
             "SECURITY_TXT_EXPIRES=$(s_val SECURITY_TXT_EXPIRES)" \
             "" \
             "PROD_SES_FROM_EMAIL=$(s_val PROD_SES_FROM_EMAIL)" \
@@ -221,7 +219,6 @@ jobs:
             "DEV_FRONTEND_URL=$(s_val DEV_FRONTEND_URL)" \
             "DEV_BACKEND_INTERNAL_URL=$(s_val DEV_BACKEND_INTERNAL_URL 'http://bb-portfolio-backend-dev:3000')" \
             "" \
-            "OBFUSCATED_CONTACT_EMAIL=$(s_val OBFUSCATED_CONTACT_EMAIL)" \
             "SECURITY_TXT_EXPIRES=$(s_val SECURITY_TXT_EXPIRES)" \
             "" \
             "DEV_SES_FROM_EMAIL=$(s_val DEV_SES_FROM_EMAIL)" \

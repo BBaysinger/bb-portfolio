@@ -92,8 +92,12 @@ export interface Config {
   db: {
     defaultIDType: string;
   };
-  globals: {};
-  globalsSelect: {};
+  globals: {
+    contactInfo: ContactInfo;
+  };
+  globalsSelect: {
+    contactInfo: ContactInfoSelect<false> | ContactInfoSelect<true>;
+  };
   locale: null;
   user: User & {
     collection: 'users';
@@ -647,6 +651,34 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   batch?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "contactInfo".
+ */
+export interface ContactInfo {
+  id: string;
+  /**
+   * Canonical phone number in E.164 format, e.g., +12065551234
+   */
+  phoneE164?: string | null;
+  /**
+   * Optional formatted display version, e.g., (206) 555-1234
+   */
+  phoneDisplay?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "contactInfo_select".
+ */
+export interface ContactInfoSelect<T extends boolean = true> {
+  phoneE164?: T;
+  phoneDisplay?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

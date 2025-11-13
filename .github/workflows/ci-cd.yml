@@ -80,6 +80,17 @@ jobs:
       - name: pnpm version
         run: pnpm -v
 
+      # Sanitize required env list: remove deprecated phone vars moved to CMS
+      - name: Sanitize DEV_REQUIRED_ENVIRONMENT_VARIABLES
+        id: sanitize-dev-req
+        run: |
+          RAW="${{ secrets.DEV_REQUIRED_ENVIRONMENT_VARIABLES }}"
+          # Remove DEV_CONTACT_PHONE_E164 and DEV_CONTACT_PHONE_DISPLAY tokens from comma list
+          SANITIZED=$(printf "%s" "$RAW" \
+            | sed -E 's/(^|,)(DEV_CONTACT_PHONE_E164|DEV_CONTACT_PHONE_DISPLAY)(,|$)/\1\3/g' \
+            | sed -E 's/,\s*,+/,/g; s/^,|,$//g')
+          echo "dev_req=$SANITIZED" >> "$GITHUB_OUTPUT"
+
       # =======================================================================
       # BACKEND BUILD AND TEST (Build backend first for frontend SSG)
       # =======================================================================
@@ -95,7 +106,7 @@ jobs:
           # Use dev profile with a dummy connection string just to satisfy build-time checks
           ENV_PROFILE: dev
           # Env-guard definition list (unified list, dev-scoped)
-          DEV_REQUIRED_ENVIRONMENT_VARIABLES: "${{ secrets.DEV_REQUIRED_ENVIRONMENT_VARIABLES }},OBFUSCATED_CONTACT_EMAIL"
+          DEV_REQUIRED_ENVIRONMENT_VARIABLES: "${{ steps.sanitize-dev-req.outputs.dev_req }}"
           # Backend URL group (ANY-of) to satisfy unified list if it includes FE groups
           DEV_BACKEND_INTERNAL_URL: ${{ secrets.DEV_BACKEND_INTERNAL_URL }}
           DEV_MONGODB_URI: mongodb://localhost:27017/dummy-db
@@ -114,9 +125,6 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           DEV_SES_FROM_EMAIL: ${{ secrets.DEV_SES_FROM_EMAIL }}
           DEV_SES_TO_EMAIL: ${{ secrets.DEV_SES_TO_EMAIL }}
-          # Security.txt metadata required by env-guard
-          OBFUSCATED_CONTACT_EMAIL: ${{ secrets.OBFUSCATED_CONTACT_EMAIL }}
-          SECURITY_TXT_EXPIRES: ${{ secrets.SECURITY_TXT_EXPIRES }}
         run: pnpm run build # Next.js production build (Payload CMS)
 
       # Install Playwright browsers only when running tests
@@ -144,10 +152,8 @@ jobs:
           DEV_SES_TO_EMAIL: ${{ secrets.DEV_SES_TO_EMAIL }}
           # Backend URL group (ANY-of) and security metadata to satisfy env-guard when invoked
           DEV_BACKEND_INTERNAL_URL: ${{ secrets.DEV_BACKEND_INTERNAL_URL }}
-          OBFUSCATED_CONTACT_EMAIL: ${{ secrets.OBFUSCATED_CONTACT_EMAIL }}
-          SECURITY_TXT_EXPIRES: ${{ secrets.SECURITY_TXT_EXPIRES }}
-          # Ensure tests use a definition list that requires OBFUSCATED_CONTACT_EMAIL too
-          DEV_REQUIRED_ENVIRONMENT_VARIABLES: "${{ secrets.DEV_REQUIRED_ENVIRONMENT_VARIABLES }},OBFUSCATED_CONTACT_EMAIL"
+          # Ensure tests use a definition list
+          DEV_REQUIRED_ENVIRONMENT_VARIABLES: "${{ steps.sanitize-dev-req.outputs.dev_req }}"
         run: pnpm test || echo "⚠️ No backend tests yet" # Graceful failure until tests are implemented
 
       # =======================================================================
@@ -162,7 +168,7 @@ jobs:
         env:
           ENV_PROFILE: dev
           # Env-guard definition list (unified list, dev-scoped)
-          DEV_REQUIRED_ENVIRONMENT_VARIABLES: "${{ secrets.DEV_REQUIRED_ENVIRONMENT_VARIABLES }},OBFUSCATED_CONTACT_EMAIL"
+          DEV_REQUIRED_ENVIRONMENT_VARIABLES: "${{ steps.sanitize-dev-req.outputs.dev_req }}"
           DEV_BACKEND_INTERNAL_URL: ${{ secrets.DEV_BACKEND_INTERNAL_URL }}
           PUBLIC_PROJECTS_BUCKET: ${{ secrets.PUBLIC_PROJECTS_BUCKET }}
           NDA_PROJECTS_BUCKET: ${{ secrets.NDA_PROJECTS_BUCKET }}
@@ -176,6 +182,14 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+      - name: Sanitize PROD_REQUIRED_ENVIRONMENT_VARIABLES
+        id: sanitize-prod-req
+        run: |
+          RAW="${{ secrets.PROD_REQUIRED_ENVIRONMENT_VARIABLES }}"
+          SANITIZED=$(printf "%s" "$RAW" \
+            | sed -E 's/(^|,)(PROD_CONTACT_PHONE_E164|PROD_CONTACT_PHONE_DISPLAY|DEV_CONTACT_PHONE_E164|DEV_CONTACT_PHONE_DISPLAY)(,|$)/\1\3/g' \
+            | sed -E 's/,\s*,+/,/g; s/^,|,$//g')
+          echo "prod_req=$SANITIZED" >> "$GITHUB_OUTPUT"
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -194,7 +208,7 @@ jobs:
           docker build --no-cache --target runner \
             --build-arg NODE_IMAGE=public.ecr.aws/docker/library/node:22-slim \
             --build-arg ENV_PROFILE=prod \
-            --build-arg PROD_REQUIRED_ENVIRONMENT_VARIABLES="${{ secrets.PROD_REQUIRED_ENVIRONMENT_VARIABLES }},OBFUSCATED_CONTACT_EMAIL" \
+            --build-arg PROD_REQUIRED_ENVIRONMENT_VARIABLES="${{ steps.sanitize-prod-req.outputs.prod_req }}" \
             --build-arg PROD_BACKEND_INTERNAL_URL="${{ secrets.PROD_BACKEND_INTERNAL_URL }}" \
             --build-arg PUBLIC_PROJECTS_BUCKET="${{ secrets.PUBLIC_PROJECTS_BUCKET }}" \
             --build-arg NDA_PROJECTS_BUCKET="${{ secrets.NDA_PROJECTS_BUCKET }}" \
@@ -219,14 +233,12 @@ jobs:
           DOCKER_BUILDKIT=1 docker build --no-cache --target runtime \
             --build-arg NODE_IMAGE=public.ecr.aws/docker/library/node:22-slim \
             --build-arg ENV_PROFILE=prod \
-            --build-arg PROD_REQUIRED_ENVIRONMENT_VARIABLES="${{ secrets.PROD_REQUIRED_ENVIRONMENT_VARIABLES }},OBFUSCATED_CONTACT_EMAIL" \
+            --build-arg PROD_REQUIRED_ENVIRONMENT_VARIABLES="${{ steps.sanitize-prod-req.outputs.prod_req }}" \
             --build-arg PROD_BACKEND_INTERNAL_URL="${{ secrets.PROD_BACKEND_INTERNAL_URL }}" \
             --build-arg PROD_FRONTEND_URL="${{ secrets.PROD_FRONTEND_URL }}" \
             --build-arg PROD_S3_BUCKET="${{ secrets.PROD_S3_BUCKET }}" \
             --build-arg PROD_AWS_REGION="${{ secrets.PROD_AWS_REGION }}" \
             --build-arg DEV_AWS_REGION="${{ secrets.DEV_AWS_REGION }}" \
-            --build-arg OBFUSCATED_CONTACT_EMAIL="${{ secrets.OBFUSCATED_CONTACT_EMAIL }}" \
-            --build-arg SECURITY_TXT_EXPIRES="${{ secrets.SECURITY_TXT_EXPIRES }}" \
             --build-arg PUBLIC_PROJECTS_BUCKET="${{ secrets.PUBLIC_PROJECTS_BUCKET }}" \
             --build-arg NDA_PROJECTS_BUCKET="${{ secrets.NDA_PROJECTS_BUCKET }}" \
             --secret id=prod_mongodb_uri,src=/tmp/prod_mongodb_uri \
@@ -272,12 +284,12 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_PASSWORD }}
       - name: Build and push dev images to Docker Hub
+        env:
+          DEV_REQ_SANITIZED: ${{ steps.sanitize-dev-req.outputs.dev_req }}
         run: |
           docker build --build-arg ENV_PROFILE=dev \
-            --build-arg DEV_REQUIRED_ENVIRONMENT_VARIABLES="${{ secrets.DEV_REQUIRED_ENVIRONMENT_VARIABLES }}" \
+            --build-arg DEV_REQUIRED_ENVIRONMENT_VARIABLES="${DEV_REQ_SANITIZED}" \
             --build-arg DEV_BACKEND_INTERNAL_URL="${{ secrets.DEV_BACKEND_INTERNAL_URL }}" \
-            --build-arg OBFUSCATED_CONTACT_EMAIL="${{ secrets.OBFUSCATED_CONTACT_EMAIL }}" \
-            --build-arg SECURITY_TXT_EXPIRES="${{ secrets.SECURITY_TXT_EXPIRES }}" \
             --build-arg DEV_MONGODB_URI="mongodb://localhost:27017/dummy-db" \
             --build-arg DEV_PAYLOAD_SECRET="${{ secrets.DEV_PAYLOAD_SECRET }}" \
             --build-arg DEV_FRONTEND_URL="${{ secrets.DEV_FRONTEND_URL }}" \
@@ -291,7 +303,7 @@ jobs:
             --build-arg NDA_PROJECTS_BUCKET="${{ secrets.NDA_PROJECTS_BUCKET }}" \
             -t bhbaysinger/bb-portfolio-backend:dev ./backend
           docker build --build-arg ENV_PROFILE=dev \
-            --build-arg DEV_REQUIRED_ENVIRONMENT_VARIABLES="${{ secrets.DEV_REQUIRED_ENVIRONMENT_VARIABLES }}" \
+            --build-arg DEV_REQUIRED_ENVIRONMENT_VARIABLES="${DEV_REQ_SANITIZED}" \
             --build-arg DEV_BACKEND_INTERNAL_URL="${{ secrets.DEV_BACKEND_INTERNAL_URL }}" \
             --build-arg PUBLIC_PROJECTS_BUCKET="${{ secrets.PUBLIC_PROJECTS_BUCKET }}" \
             --build-arg NDA_PROJECTS_BUCKET="${{ secrets.NDA_PROJECTS_BUCKET }}" \
