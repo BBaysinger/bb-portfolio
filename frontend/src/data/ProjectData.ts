@@ -301,8 +301,17 @@ async function fetchPortfolioProjects(opts?: {
     docs: PayloadProjectDoc[];
   }
   const json = (await res.json()) as PayloadProjectsRest | PortfolioProjectData;
-  // Determine if request is authenticated (server-side with cookies forwarded)
+  // Determine if request is authenticated.
+  // - Server-side: true when a Cookie header is present (SSR with auth forwarded)
+  // - Client-side: true when a 'payload-token' cookie exists in document.cookie
   const hasAuthCookie = (() => {
+    // Browser path: trust the backend to enforce auth using HttpOnly cookies included via fetch credentials.
+    // HttpOnly cookies are not readable from document.cookie, so client-side checks are unreliable.
+    // Therefore, treat client as "auth unknown" but do NOT mask; let backend decide what to return.
+    if (typeof window !== "undefined") {
+      return true;
+    }
+    // Server path: infer from incoming request headers
     const h = requestHeaders;
     if (!h) return false;
     if (Array.isArray(h)) {
