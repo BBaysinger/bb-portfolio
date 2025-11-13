@@ -68,8 +68,8 @@
       .screen,
       img {
         position: absolute;
-        top: 23px; // 69 (img) - 46 (frame)
-        left: 28px; // 493 (img) - 465 (frame)
+        top: 23px;
+        left: 28px;
         height: 354px;
         width: 162px;
       }
@@ -84,8 +84,8 @@
         // Rotate the entire frame; counter-rotate the screen to keep content upright
         transform: translateY(5px) rotate(90deg);
         // Preserve pivot for landscape orientation
-        transform-origin: 50% 70%;
-        top: 135px;
+        transform-origin: 70% 50%;
+        top: 170px;
         left: 337px;
 
         .screen,
@@ -93,8 +93,8 @@
           transform: rotate(-90deg);
           height: 162px; // landscape dimensions
           width: 354px;
-          top: 123px; // 258 - 135
-          left: -61px; // 276 - 337
+          top: 117px;
+          left: -68px;
         }
       }
     }
