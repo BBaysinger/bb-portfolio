@@ -43,7 +43,7 @@ const Footer: React.FC<FooterProps> = ({ className, mutationElemRef }) => {
 
   useFlipInFlow(mutationElemRef, footerRef);
 
-  // Email obfuscation setup - fetches from environment variables
+  // Contact info (email/phone) loaded via obfuscated contact endpoint
   const {
     email: emailAddr,
     isLoading: _emailLoading,
@@ -78,13 +78,13 @@ const Footer: React.FC<FooterProps> = ({ className, mutationElemRef }) => {
                   </a>
                 </li>
                 <li>
-                  <a href={`tel:${phoneE164 || "+15092798603"}`}>
+                  <a href={`tel:${phoneE164 || ""}`}>
                     <div
                       style={{
                         backgroundImage: "url(/images/footer/icons/phone.png)",
                       }}
                     ></div>
-                    {phoneDisplay || "509-279-8603"}
+                    {phoneDisplay || phoneE164 || "Loading..."}
                   </a>
                 </li>
                 <li>
@@ -181,7 +181,6 @@ const Footer: React.FC<FooterProps> = ({ className, mutationElemRef }) => {
         </a>
       </div>
     </footer>
-    // </div>
   );
 };
 
