@@ -474,8 +474,13 @@ ensure_https_certs() {
 # If infra step was skipped and EC2_IP is unknown, try to resolve host now and enforce single controller once
 if [[ -z "${EC2_IP:-}" ]]; then
   EC2_HOST_RESOLVE=$(resolve_ec2_host || true)
-  [[ -n "$EC2_HOST_RESOLVE" ]] && enforce_single_controller "$EC2_HOST_RESOLVE" || warn "Single-controller guard: no host resolved (containers-only), skipping"
-  [[ -n "$EC2_HOST_RESOLVE" ]] && ensure_https_certs "$EC2_HOST_RESOLVE" "${ACME_EMAIL:-}" || true
+  if [[ -n "$EC2_HOST_RESOLVE" ]]; then
+    log "Resolved EC2 host: $EC2_HOST_RESOLVE"
+    enforce_single_controller "$EC2_HOST_RESOLVE"
+    ensure_https_certs "$EC2_HOST_RESOLVE" "${ACME_EMAIL:-}"
+  else
+    warn "Single-controller guard: no host resolved (containers-only), skipping"
+  fi
 fi
 
 # Helper to dispatch a single Redeploy run for a specific environment (prod|dev)
@@ -586,7 +591,11 @@ EC2_HOST="${EC2_IP:-}"
 if [[ -z "$EC2_HOST" ]]; then
   EC2_HOST=$(resolve_ec2_host || true)
 fi
-[[ -n "$EC2_HOST" ]] || die "EC2 host unknown for SSH fallback"
+if [[ -n "$EC2_HOST" ]]; then
+  log "Using EC2 host: $EC2_HOST"
+else
+  die "EC2 host unknown for SSH fallback"
+fi
 
 if [[ "$refresh_env" == true ]]; then
   log "Generating env files locally from .github-secrets.private.json5 for upload"
