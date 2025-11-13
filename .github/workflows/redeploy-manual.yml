@@ -142,6 +142,8 @@ jobs:
           PROD_BACKEND_INTERNAL_URL: ${{ secrets.PROD_BACKEND_INTERNAL_URL }}
           PROD_SES_FROM_EMAIL: ${{ secrets.PROD_SES_FROM_EMAIL }}
           PROD_SES_TO_EMAIL: ${{ secrets.PROD_SES_TO_EMAIL }}
+          PROD_CONTACT_PHONE_E164: ${{ secrets.PROD_CONTACT_PHONE_E164 }}
+          PROD_CONTACT_PHONE_DISPLAY: ${{ secrets.PROD_CONTACT_PHONE_DISPLAY }}
           # Dev
           DEV_MONGODB_URI: ${{ secrets.DEV_MONGODB_URI }}
           DEV_PAYLOAD_SECRET: ${{ secrets.DEV_PAYLOAD_SECRET }}
@@ -151,6 +153,8 @@ jobs:
           DEV_BACKEND_INTERNAL_URL: ${{ secrets.DEV_BACKEND_INTERNAL_URL }}
           DEV_SES_FROM_EMAIL: ${{ secrets.DEV_SES_FROM_EMAIL }}
           DEV_SES_TO_EMAIL: ${{ secrets.DEV_SES_TO_EMAIL }}
+          DEV_CONTACT_PHONE_E164: ${{ secrets.DEV_CONTACT_PHONE_E164 }}
+          DEV_CONTACT_PHONE_DISPLAY: ${{ secrets.DEV_CONTACT_PHONE_DISPLAY }}
         run: |
           set -euo pipefail
           OUT_DIR="$(mktemp -d)"
@@ -183,6 +187,8 @@ jobs:
             "" \
             "PROD_SES_FROM_EMAIL=$(s_val PROD_SES_FROM_EMAIL)" \
             "PROD_SES_TO_EMAIL=$(s_val PROD_SES_TO_EMAIL)" \
+            "PROD_CONTACT_PHONE_E164=$(s_val PROD_CONTACT_PHONE_E164)" \
+            "PROD_CONTACT_PHONE_DISPLAY=$(s_val PROD_CONTACT_PHONE_DISPLAY)" \
             > "$OUT_DIR/backend.env.prod"
 
           printf "%s\n" \
@@ -210,6 +216,8 @@ jobs:
             "" \
             "DEV_SES_FROM_EMAIL=$(s_val DEV_SES_FROM_EMAIL)" \
             "DEV_SES_TO_EMAIL=$(s_val DEV_SES_TO_EMAIL)" \
+            "DEV_CONTACT_PHONE_E164=$(s_val DEV_CONTACT_PHONE_E164)" \
+            "DEV_CONTACT_PHONE_DISPLAY=$(s_val DEV_CONTACT_PHONE_DISPLAY)" \
             > "$OUT_DIR/backend.env.dev"
 
           printf "%s\n" \
