@@ -15,6 +15,7 @@ import { Projects } from './collections/Projects'
 import { ProjectScreenshots } from './collections/ProjectScreenshots'
 import { ProjectThumbnails } from './collections/ProjectThumbnails'
 import { Users } from './collections/Users'
+import { ContactInfo } from './globals/ContactInfo'
 import type { Config } from './payload-types'
 
 // ===============================================================
@@ -55,6 +56,7 @@ export default buildConfig({
     },
   },
   collections: [Users, Projects, Clients, BrandLogos, ProjectScreenshots, ProjectThumbnails],
+  globals: [ContactInfo],
   editor: lexicalEditor(),
   // Enforce prefixed payload secret by environment profile
   secret: (() => {
