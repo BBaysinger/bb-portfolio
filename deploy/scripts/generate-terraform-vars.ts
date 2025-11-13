@@ -238,16 +238,10 @@ function main() {
       "dev_backend_internal_url",
       "dev_ses_from_email",
       "dev_ses_to_email",
-      "acme_registration_email",
     ];
 
     const missingVars = requiredVars.filter((varName) => {
       const secretKey = varName.toUpperCase();
-      if (varName === "acme_registration_email") {
-        return !(
-          secrets.strings.ACME_REGISTRATION_EMAIL || secrets.strings.ACME_EMAIL
-        );
-      }
       return !secrets.strings[secretKey];
     });
 
