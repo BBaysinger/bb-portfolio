@@ -73,6 +73,7 @@ const ProjectInfo = forwardRef<HTMLDivElement, ProjectInfoProps>(
         )}
         style={{ display: isActive ? "block" : "none" }}
       >
+        {direction && <div className={styles.direction}>{direction}</div>}
         {desc.map((htmlContent) => (
           <div
             key={globalIndex}

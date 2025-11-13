@@ -17,7 +17,7 @@ import { resolveClass } from "@/utils/resolveClass";
 import styles from "./Carousel.module.scss";
 import {
   CarouselProps,
-  Direction,
+  SlideDirection,
   Source,
   type SourceType,
   type DirectionType,
@@ -106,7 +106,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
   const slideWidthRef = useRef<number>(0);
   const scrollTriggerSource = useRef<SourceType>(Source.SCROLL);
   const scrollLeftTo = useRef<((value: number) => void) | null>(null);
-  const scrollDirectionRef = useRef<DirectionType>(Direction.LEFT);
+  const scrollDirectionRef = useRef<DirectionType>(SlideDirection.LEFT);
   const stableIndex = useRef<number | null>(initialIndex);
   const scrollIndexRef = useRef<number>(initialIndex);
 
@@ -173,11 +173,11 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
     memoizedSlides.forEach((_, index) => {
       let multiplier: number | null = null;
       const threshold = 2;
-      if (scrollDirectionRef.current === Direction.LEFT) {
+      if (scrollDirectionRef.current === SlideDirection.LEFT) {
         multiplier = -Math.floor(
           (index - scrollIndex + threshold) / memoizedSlides.length,
         );
-      } else if (scrollDirectionRef.current === Direction.RIGHT) {
+      } else if (scrollDirectionRef.current === SlideDirection.RIGHT) {
         multiplier = Math.floor(
           (scrollIndex - index + threshold) / memoizedSlides.length,
         );
@@ -221,7 +221,9 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
 
       if (scrollIndex !== newScrollIndex) {
         const newDirection =
-          newScrollIndex > scrollIndex ? Direction.LEFT : Direction.RIGHT;
+          newScrollIndex > scrollIndex
+            ? SlideDirection.LEFT
+            : SlideDirection.RIGHT;
         if (newDirection !== scrollDirectionRef.current) {
           scrollDirectionRef.current = newDirection;
         }
@@ -415,7 +417,8 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
       setSnap("none");
       scrollTriggerSource.current = Source.PROGRAMMATIC;
       const offsetToTarget = currentOffsets[targetIndex];
-      const direction = offsetToTarget > 0 ? Direction.RIGHT : Direction.LEFT;
+      const direction =
+        offsetToTarget > 0 ? SlideDirection.RIGHT : SlideDirection.LEFT;
       scrollDirectionRef.current = direction;
 
       // Calculate the target scroll position to center the slide

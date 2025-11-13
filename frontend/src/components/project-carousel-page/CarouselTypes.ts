@@ -1,7 +1,7 @@
 // Directions are defined from the user's perspective, e.g., swiping right means the carousel shifts left.
-const Direction = {
-  LEFT: "Left",
-  RIGHT: "Right",
+const SlideDirection = {
+  LEFT: "SlideLeft",
+  RIGHT: "SlideRight",
 } as const;
 
 // Indicates what triggered a carousel index change:
@@ -10,7 +10,7 @@ const Source = {
   PROGRAMMATIC: "Programmatic", // user navigated externally (e.g. route change)
 } as const;
 
-type DirectionType = (typeof Direction)[keyof typeof Direction];
+type DirectionType = (typeof SlideDirection)[keyof typeof SlideDirection];
 type SourceType = (typeof Source)[keyof typeof Source];
 
 // CarouselProps defines the component's expected props, supporting features like callbacks, dynamic scroll positions, and debugging.
@@ -44,5 +44,5 @@ interface CarouselRef {
   setExternalScrollPosition: (scrollLeft: number) => void; // Manually adjust the scroll position in slave mode.
 }
 
-export { Direction, Source };
+export { SlideDirection, Source };
 export type { DirectionType, SourceType, CarouselProps, CarouselRef };

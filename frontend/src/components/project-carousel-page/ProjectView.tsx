@@ -11,7 +11,7 @@ import React, {
 import HeaderSub from "@/components/layout/HeaderSub";
 import {
   DirectionType,
-  Direction,
+  SlideDirection,
   SourceType,
   Source,
 } from "@/components/project-carousel-page/CarouselTypes";
@@ -55,7 +55,7 @@ const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
 
   const stabilizationTimer = useRef<NodeJS.Timeout | null>(null);
   const sourceRef = useRef<SourceType>(Source.SCROLL);
-  const directionRef = useRef<DirectionType>(Direction.LEFT);
+  const directionRef = useRef<DirectionType>(SlideDirection.LEFT);
   const lastKnownProjectId = useRef(projectId);
   const carouselRef = useRef<LayeredCarouselManagerRef>(null);
   const isCarouselSourceRef = useRef(false);
@@ -83,11 +83,12 @@ const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
 
   const infoSwapperIndex = useMemo(() => stabilizedIndex, [stabilizedIndex]);
 
-  const slideDirectionClass = useMemo(() => {
-    return directionRef.current === Direction.LEFT
-      ? "bbSlideLeft"
-      : "bbSlideRight";
-  }, []); // Static based on current pattern
+  // React state to propagate the most recent slide direction to children and CSS
+  const [uiDirection, setUiDirection] = useState<DirectionType>(
+    SlideDirection.LEFT,
+  );
+
+  // No need to memoize a tiny string; we'll inline `bb${uiDirection}` where used.
 
   // Routing model notes (do not remove):
   // - Canonical entry from the list: segment URLs (/project/{slug} or /nda/{slug}).
@@ -258,6 +259,7 @@ const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
 
         sourceRef.current = source;
         directionRef.current = direction;
+        setUiDirection(direction);
         setStabilizedIndex(newStabilizedIndex);
       }
     },
@@ -391,7 +393,7 @@ const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
       />
       <div
         id="project"
-        className={`${styles.projectsPresentationBody} ${slideDirectionClass}`}
+        className={`${styles.projectsPresentationBody} bb${uiDirection}`}
       >
         <LogoSwapper index={infoSwapperIndex ?? undefined} />
         <div className={styles.carouselControlsWrapper}>
@@ -405,7 +407,7 @@ const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
           )}
           <PageButtons projectId={projectId} />
         </div>
-        <InfoSwapper index={infoSwapperIndex} />
+        <InfoSwapper index={infoSwapperIndex} direction={uiDirection} />
       </div>
     </div>
   );
