@@ -272,7 +272,11 @@ const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
   // If we mounted before the dataset was ready, initialIndex could be null.
   // Once the dataset is available, populate it exactly once.
   useEffect(() => {
-    if (initialIndex === null && projectId && ProjectData.projectIndex(projectId) != null) {
+    if (
+      initialIndex === null &&
+      projectId &&
+      ProjectData.projectIndex(projectId) != null
+    ) {
       setInitialIndex(ProjectData.projectIndex(projectId) as number);
     }
   }, [initialIndex, projectId]);
