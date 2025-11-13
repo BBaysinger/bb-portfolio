@@ -346,9 +346,8 @@ if [[ "$do_infra" == true ]]; then
   else
     warn "EC2 IP not detected from Terraform outputs; skipping secrets IP update"
   fi
-  # Enforce single controller on the target host if we know the IP
-  enforce_single_controller "${EC2_IP:-}"
-  ensure_https_certs "${EC2_IP:-}" "${ACME_EMAIL:-}"
+  # Defer enforcement/HTTPS until functions are defined below
+  POST_ENFORCE_HOST="${EC2_IP:-}"
 else
   warn "Skipping Terraform/infra per --containers-only"
 fi
@@ -481,6 +480,12 @@ if [[ -z "${EC2_IP:-}" ]]; then
   else
     warn "Single-controller guard: no host resolved (containers-only), skipping"
   fi
+fi
+
+# If infra ran earlier and provided EC2_IP, enforce controller and ensure HTTPS now
+if [[ -n "${POST_ENFORCE_HOST:-}" ]]; then
+  enforce_single_controller "${POST_ENFORCE_HOST}"
+  ensure_https_certs "${POST_ENFORCE_HOST}" "${ACME_EMAIL:-}"
 fi
 
 # Helper to dispatch a single Redeploy run for a specific environment (prod|dev)
