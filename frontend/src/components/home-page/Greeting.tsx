@@ -7,8 +7,29 @@ import useInViewAnimation from "@/hooks/useInViewAnimation";
 import styles from "./Greeting.module.scss";
 
 /**
- * The "Hello" section on the home page.
- *
+ * Hello section component for the home page
+ * 
+ * Displays the main greeting section with personal introduction, hello sign,
+ * and call-to-action. Features magnetic interaction on the hello sign and
+ * progressive animation as elements come into view.
+ * 
+ * @component
+ * 
+ * @example
+ * ```tsx
+ * <Greeting />
+ * ```
+ * 
+ * Features:
+ * - Magnetic hello sign with interactive hover effects
+ * - Progressive reveal animations using intersection observer
+ * - Accessible navigation anchor (id="hello")
+ * - Responsive layout adapting to different screen sizes
+ * - Personal introduction and portfolio navigation link
+ * 
+ * Navigation:
+ * - Links to #projects-list for portfolio exploration
+ * - Provides data-nav="hello" for scroll-based navigation
  */
 const Greeting: React.FC = () => {
   const addToRefs = useInViewAnimation("in-view");

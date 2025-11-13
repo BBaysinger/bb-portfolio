@@ -8,17 +8,36 @@ import ProjectData from "@/data/ProjectData";
 import styles from "./PageButtons.module.scss";
 
 /**
- * Navigation buttons to switch between projects in the portfolio view.
- * Uses manual pushState routing to avoid full rerenders or scroll resets.
- *
- * This component reads the current `projectId` from the route segment using `useParams()`,
- * and uses `ProjectData` helpers to determine the next and previous project IDs.
- *
- * Replaces traditional <Link> with <PushStateLink> to maintain animation and scroll state.
- *
+ * Project navigation buttons for carousel-style browsing
+ * 
+ * Provides prev/next navigation between projects in the portfolio carousel.
+ * Uses custom PushStateLink components to maintain smooth transitions and
+ * avoid full page reloads during navigation.
+ * 
  * @component
- * @returns {JSX.Element} Prev/Next navigation buttons.
- *
+ * @param {Object} props - Component props
+ * @param {string} props.projectId - Current project ID for context
+ * 
+ * @example
+ * ```tsx
+ * <PageButtons projectId="my-awesome-project" />
+ * ```
+ * 
+ * Features:
+ * - Seamless SPA navigation using pushState routing
+ * - NDA-aware routing (switches between /project/ and /nda/ routes)
+ * - Accessible navigation with ARIA labels and role grouping  
+ * - Graceful handling of missing/invalid projects
+ * - Maintains scroll position and animation state during navigation
+ * 
+ * Architecture:
+ * - Integrates with ProjectData for next/prev project resolution
+ * - Uses query-string routing (?p=slug) for in-session navigation
+ * - Supports both public and NDA project collections
+ * - Emits custom bb:routechange events for state synchronization
+ * 
+ * @see {@link PushStateLink} for the underlying navigation mechanism
+ * @see {@link ProjectData} for project data and navigation helpers
  */
 /**
  * Routing model notes (do not remove):

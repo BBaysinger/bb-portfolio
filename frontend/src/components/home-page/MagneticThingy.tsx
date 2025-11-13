@@ -9,10 +9,46 @@ type MagneticThingyProps = {
 };
 
 /**
- * Thingy that magnetically sticks to your pointer. Waves gently to attract attention
- * until the user interacts with it via mouse or touch, then sticks to the pointer
- * to tease the user as an attention getter.
- *
+ * Interactive magnetic element that follows pointer movement
+ * 
+ * A sophisticated interactive component that creates a magnetic attraction effect
+ * between the user's pointer and the wrapped content. Features gentle waving
+ * animations to attract attention, then smoothly follows mouse/touch movement
+ * with physics-based easing and rotation effects.
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {React.ReactNode} props.children - Content to wrap with magnetic behavior
+ * @param {string} [props.className=""] - Additional CSS classes to apply
+ * 
+ * @example
+ * ```tsx
+ * <MagneticThingy className="hello-sign">
+ *   <img src="/hello.png" alt="Hello" />
+ * </MagneticThingy>
+ * ```
+ * 
+ * Features:
+ * - Gentle CSS waving animation when idle to attract attention
+ * - Smooth GSAP-powered magnetic following on hover/touch
+ * - Physics-based movement with elastic return animations
+ * - Optimized with requestAnimationFrame and debouncing
+ * - Touch and mouse support with proper event handling
+ * - Automatic return to neutral position when interaction ends
+ * 
+ * Technical Details:
+ * - Uses invisible SVG hit area for precise interaction boundaries
+ * - Magnetism strength decreases with distance from center
+ * - Includes subtle rotation based on horizontal offset
+ * - Projection wrapper creates depth illusion with offset movement
+ * - Interaction state managed to pause idle animations
+ * 
+ * Performance:
+ * - RAF-throttled movement calculations
+ * - GSAP overwrite protection prevents animation conflicts
+ * - Lazy evaluation for smooth 60fps interactions
+ * 
+ * @requires gsap GSAP animation library for smooth transitions
  */
 const MagneticThingy: React.FC<MagneticThingyProps> = ({
   children,
