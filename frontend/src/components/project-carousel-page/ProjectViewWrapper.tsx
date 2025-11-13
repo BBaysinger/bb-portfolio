@@ -181,6 +181,18 @@ export default function ProjectViewWrapper({
     };
   }, [ready, allowNda]);
 
+  // Privacy redirect fallback: if we're on an NDA route and auth has dropped, navigate to home.
+  // This supplements AppShell's global check in case logout flow doesn't trigger a 401 probe immediately.
+  useEffect(() => {
+    if (!ready) return;
+    if (!allowNda) return;
+    if (!isAuthed) {
+      try {
+        router.replace("/");
+      } catch {}
+    }
+  }, [ready, allowNda, isAuthed, router]);
+
   if (!ready) {
     return <div>Loading project...</div>;
   }
