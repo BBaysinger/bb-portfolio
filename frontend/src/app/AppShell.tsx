@@ -91,6 +91,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   useTrackHeroInView();
   useAutoCloseMobileNavOnScroll();
 
+  // Kick off an initial auth status check on mount to establish session state early
+  useEffect(() => {
+    dispatch(checkAuthStatus());
+  }, [dispatch]);
+
   // Conventional cross-tab/session sync: when the tab becomes visible or regains focus,
   // check if the user is authenticated server-side; if so, refresh SSR to reveal protected data.
   useEffect(() => {
@@ -159,19 +164,23 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   // If the user is on an NDA page and becomes unauthenticated, immediately navigate away
   // to reassure privacy (avoid leaving an NDA view open client-side).
-  const { isLoggedIn, user } = useSelector((state: RootState) => state.auth);
+  const { isLoggedIn, user, hasInitialized, isLoading } = useSelector(
+    (state: RootState) => state.auth,
+  );
   useEffect(() => {
     try {
       const path = pathname || "";
       const onNdaPage = /\/nda\//.test(path);
       const authed = Boolean(isLoggedIn) || Boolean(user);
-      if (onNdaPage && !authed) {
+      // Avoid redirecting away from NDA pages until we've established auth state;
+      // otherwise reloads may send logged-in users back to home briefly.
+      if (onNdaPage && hasInitialized && !isLoading && !authed) {
         router.replace("/");
       }
     } catch {
       // no-op
     }
-  }, [pathname, isLoggedIn, user, router]);
+  }, [pathname, isLoggedIn, user, hasInitialized, isLoading, router]);
 
   /**
    * Fluid Responsive System - CSS Variables Provider

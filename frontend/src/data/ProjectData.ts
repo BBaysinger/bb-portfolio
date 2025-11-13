@@ -633,10 +633,7 @@ async function fetchPortfolioProjects(opts?: {
   }
 
   // Debug summary of fetch/transform results
-  if (
-    process.env.DEBUG_PROJECT_DATA === "1" ||
-    process.env.NODE_ENV !== "production"
-  ) {
+  if (process.env.DEBUG_PROJECT_DATA === "1") {
     try {
       console.info("[ProjectData] summary", {
         totalDocs: _debugTotalDocs,
@@ -834,6 +831,14 @@ export default class ProjectData {
   }
 
   /**
+   * Returns the parsed project by id from the full dataset (including NDA),
+   * regardless of whether it is currently included in the active set.
+   */
+  static getProject(id: string): ParsedPortfolioProject | undefined {
+    return this._projects[id];
+  }
+
+  /**
    * Parses raw portfolio data into strongly typed ParsedPortfolioProjectData.
    *
    * @param data Raw JSON data
@@ -948,10 +953,11 @@ export default class ProjectData {
       const activeDupes = dupes(this._activeKeys);
       const listedDupes = dupes(this._listedKeys);
       if (activeDupes.length || listedDupes.length) {
-        console.warn("[ProjectData.initialize] Duplicate keys detected", {
-          activeDupes,
-          listedDupes,
-        });
+        if (process.env.DEBUG_PROJECT_DATA === "1")
+          console.warn("[ProjectData.initialize] Duplicate keys detected", {
+            activeDupes,
+            listedDupes,
+          });
         if (process.env.NODE_ENV !== "production") {
           // Normalize to unique to avoid UI warnings during dev only
           this._activeKeys = Array.from(new Set(this._activeKeys));

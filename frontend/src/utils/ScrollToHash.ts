@@ -3,6 +3,8 @@
 import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
 
+import { replaceWithReplaceState } from "@/utils/navigation";
+
 /**
  * Component: ScrollToHash
  *
@@ -82,7 +84,7 @@ const ScrollToHash = () => {
           // for all scrolling to complete.
           cleanupTimeoutRef.current = window.setTimeout(() => {
             const cleanUrl = pathname + window.location.search;
-            window.history.replaceState(null, "", cleanUrl);
+            replaceWithReplaceState(cleanUrl);
             cleanupTimeoutRef.current = null;
           }, 1000);
         }, 100);
