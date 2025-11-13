@@ -231,11 +231,6 @@ const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
               } catch {}
             }
             navigateWithPushState(targetHref, state, {
-              // Force unique history entries using a timestamp hash token (proven to work with buttons)
-              useHashHistory:
-                process.env.NEXT_PUBLIC_FORCE_HASH_HISTORY === "1",
-              hashParam: "ts",
-              hashValue: Date.now(),
               // Enable double-push fallback for gesture reliability if env flag is set
               useDoublePushFallback:
                 process.env.NEXT_PUBLIC_DOUBLE_PUSH === "1",
@@ -248,10 +243,6 @@ const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
                 source: "carousel",
               },
               {
-                useHashHistory:
-                  process.env.NEXT_PUBLIC_FORCE_HASH_HISTORY === "1",
-                hashParam: "ts",
-                hashValue: Date.now(),
                 useDoublePushFallback:
                   process.env.NEXT_PUBLIC_DOUBLE_PUSH === "1",
               },

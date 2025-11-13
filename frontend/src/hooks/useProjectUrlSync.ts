@@ -28,17 +28,11 @@ export function useProjectUrlSync(
   opts?: {
     /** When true, if `?p` is absent we fallback to the last path segment */
     fallbackFromPathSegment?: boolean;
-    /** Enable hash uniquing for history entries (default controlled by NEXT_PUBLIC_FORCE_HASH_HISTORY=1) */
-    useHashHistory?: boolean;
-    /** Hash key to use when useHashHistory is enabled (default: "pid") */
-    hashParam?: string;
   },
 ): [string, React.Dispatch<React.SetStateAction<string>>] {
   const DEBUG = process.env.NEXT_PUBLIC_DEBUG_NAVIGATION === "1";
   const fallbackFromPathSegment = opts?.fallbackFromPathSegment ?? true;
-  const envForceHash = process.env.NEXT_PUBLIC_FORCE_HASH_HISTORY === "1";
-  const useHashHistory = opts?.useHashHistory ?? envForceHash;
-  const hashParam = opts?.hashParam || "pid";
+  // Hash uniquing removed for simplicity; Back/Forward is stable without it in supported browsers.
 
   const [projectId, setProjectId] = useState<string>(initialProjectId);
   const firstUrlSyncRef = useRef(true);
@@ -106,17 +100,9 @@ export function useProjectUrlSync(
           to: nextHref,
           projectId,
         });
-      navigateWithPushState(
-        nextHref,
-        { projectId },
-        {
-          useHashHistory,
-          hashParam,
-          hashValue: projectId,
-        },
-      );
+      navigateWithPushState(nextHref, { projectId });
     }
-  }, [projectId, DEBUG, useHashHistory, hashParam]);
+  }, [projectId, DEBUG]);
 
   // Explicit popstate fallback to ensure Back/Forward restores projectId
   useEffect(() => {

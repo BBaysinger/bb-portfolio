@@ -153,7 +153,7 @@ function ProjectViewRouterBridge({
 }) {
   const [projectId] = useProjectUrlSync(initialProjectId, {
     fallbackFromPathSegment: true,
-    // Hash uniquing is controlled by NEXT_PUBLIC_FORCE_HASH_HISTORY; leave default here
+    // Hash uniquing removed; Back/Forward is stable without it in supported browsers.
   });
   const base = allowNda ? "/nda/" : "/project/";
   // On NDA routes, include NDA items in active set even if not logged in (placeholders allowed).
