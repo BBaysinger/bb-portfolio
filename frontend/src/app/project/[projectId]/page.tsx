@@ -20,12 +20,12 @@ export const dynamicParams = true;
  * @returns A React suspense boundary that wraps ProjectViewWrapper,
  *          or a 404 if the project ID is invalid.
  */
-export default function ProjectPage({
+export default async function ProjectPage({
   params,
 }: {
-  params: { projectId: string };
+  params: Promise<{ projectId: string }>;
 }) {
-  const { projectId } = params;
+  const { projectId } = await params;
   return (
     <Suspense fallback={<div>Loading project...</div>}>
       <ProjectViewWrapper params={{ projectId }} allowNda={false} />
