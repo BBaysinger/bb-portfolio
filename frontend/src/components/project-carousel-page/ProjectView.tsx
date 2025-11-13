@@ -60,6 +60,10 @@ const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
   const lastKnownProjectId = useRef(projectId);
   const carouselRef = useRef<LayeredCarouselManagerRef>(null);
   const isCarouselSourceRef = useRef(false);
+  // Prevent any route-driven programmatic scrolls until the carousel reports its first stabilization.
+  // This avoids an initial jerk where the carousel is correctly positioned by its own logic,
+  // but a subsequent effect scrolls away and then back once state settles.
+  const didFirstStabilizeRef = useRef(false);
   // Tracks the most recent timestamp we wrote into history.state for a carousel-originated push.
   // Used to distinguish immediate same-tick route updates from older history entries navigated via Back/Forward.
   const lastCarouselPushTsRef = useRef<number | null>(null);
@@ -133,6 +137,9 @@ const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
       source: SourceType,
       direction: DirectionType,
     ) => {
+      // Mark that the carousel has performed its first stabilization. After this point,
+      // route-driven programmatic scrolls are allowed if needed.
+      didFirstStabilizeRef.current = true;
       if (debug) {
         try {
           console.info("[Carousel] onStabilizationUpdate", {
@@ -325,6 +332,11 @@ const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
             );
           } catch {}
         }
+        return;
+      }
+      // If the carousel hasn't reported its first stabilization yet, avoid any
+      // programmatic scrolls to prevent an initial visual jerk.
+      if (!didFirstStabilizeRef.current) {
         return;
       }
       const targetIndex = ProjectData.projectIndex(projectId);
