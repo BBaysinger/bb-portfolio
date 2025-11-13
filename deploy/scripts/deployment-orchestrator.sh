@@ -361,20 +361,43 @@ else
   warn "Skipping GitHub secrets sync per --no-secrets-sync"
 fi
 
-# If infra step was skipped and EC2_IP is unknown, try to resolve host now and enforce single controller once
-if [[ -z "${EC2_IP:-}" ]]; then
-  EC2_HOST_RESOLVE=""
-  if command -v terraform >/dev/null 2>&1; then
-    pushd "$INFRA_DIR" >/dev/null
-    EC2_HOST_RESOLVE=$(terraform output -raw bb_portfolio_elastic_ip 2>/dev/null || terraform output -raw bb_portfolio_instance_ip 2>/dev/null || true)
-    popd >/dev/null
+# Resolve EC2 host without relying on viewing GitHub Secrets values
+resolve_ec2_host() {
+  local host=""
+  # 1) Terraform outputs (prefer Elastic IP)
+  if command -v terraform >/dev/null 2>&1 && [ -d "$INFRA_DIR" ]; then
+    pushd "$INFRA_DIR" >/dev/null || true
+    set +e
+    host=$(terraform output -raw bb_portfolio_elastic_ip 2>/dev/null)
+    if [[ -z "$host" ]]; then
+      host=$(terraform output -raw bb_portfolio_instance_ip 2>/dev/null)
+    fi
+    set -e
+    popd >/dev/null || true
+    if [[ -n "$host" ]]; then
+      echo "$host"; return 0
+    fi
   fi
-  if [[ -z "$EC2_HOST_RESOLVE" ]] && command -v gh >/dev/null 2>&1; then
-    EC2_HOST_RESOLVE=$(gh secret view EC2_HOST -q .value 2>/dev/null || true)
+  # 2) Local private secrets
+  if [ -f "$REPO_ROOT/.github-secrets.private.json5" ]; then
+    host=$(node -e "try{const JSON5=require('json5');const fs=require('fs');const raw=fs.readFileSync('.github-secrets.private.json5','utf8');const cfg=JSON5.parse(raw);const s=cfg.strings||cfg;process.stdout.write((s.EC2_HOST||'').trim());}catch(e){process.stdout.write('');}")
+    if [[ -n "$host" ]]; then
+      echo "$host"; return 0
+    fi
   fi
-  [[ -n "$EC2_HOST_RESOLVE" ]] && enforce_single_controller "$EC2_HOST_RESOLVE" || warn "Single-controller guard: no host resolved (containers-only), skipping"
-  [[ -n "$EC2_HOST_RESOLVE" ]] && ensure_https_certs "$EC2_HOST_RESOLVE" "${ACME_EMAIL:-}" || true
-fi
+  # 3) DNS fallback (best-effort): derive apex from URLs in secrets and resolve A record
+  local apex=""
+  if [ -f "$REPO_ROOT/.github-secrets.private.json5" ]; then
+    apex=$(node -e "try{const JSON5=require('json5');const fs=require('fs');const raw=fs.readFileSync('.github-secrets.private.json5','utf8');const cfg=JSON5.parse(raw);const s=cfg.strings||cfg;const u=(s.PROD_FRONTEND_URL||s.DEV_FRONTEND_URL||'').trim();if(u){try{const h=new URL(u).hostname;process.stdout.write(h);}catch(e){}}}catch(e){}");
+  fi
+  if [[ -n "$apex" ]] && command -v dig >/dev/null 2>&1; then
+    host=$(dig +short A "$apex" | head -n1)
+    if [[ -n "$host" ]]; then
+      echo "$host"; return 0
+    fi
+  fi
+  echo ""; return 1
+}
 
 ok "Infra and images complete. Handing off container restart to GitHub Actions."
 
@@ -447,6 +470,13 @@ ensure_https_certs() {
       echo "certbot not installed on host; skipping HTTPS ensure";
     fi'
 }
+
+# If infra step was skipped and EC2_IP is unknown, try to resolve host now and enforce single controller once
+if [[ -z "${EC2_IP:-}" ]]; then
+  EC2_HOST_RESOLVE=$(resolve_ec2_host || true)
+  [[ -n "$EC2_HOST_RESOLVE" ]] && enforce_single_controller "$EC2_HOST_RESOLVE" || warn "Single-controller guard: no host resolved (containers-only), skipping"
+  [[ -n "$EC2_HOST_RESOLVE" ]] && ensure_https_certs "$EC2_HOST_RESOLVE" "${ACME_EMAIL:-}" || true
+fi
 
 # Helper to dispatch a single Redeploy run for a specific environment (prod|dev)
 dispatch_redeploy() {
@@ -551,15 +581,10 @@ warn "All GitHub workflow dispatch attempts failed for requested profiles. Falli
 SSH_KEY="$HOME/.ssh/bb-portfolio-site-key.pem"
 [[ -f "$SSH_KEY" ]] || die "SSH key not found at $SSH_KEY"
 
-# Determine EC2_HOST (prefer Terraform outputs; fallback to GH secret)
+# Determine EC2_HOST (prefer Terraform outputs; fallback to local private secrets)
 EC2_HOST="${EC2_IP:-}"
-if [[ -z "$EC2_HOST" ]] && command -v terraform >/dev/null 2>&1; then
-  pushd "$INFRA_DIR" >/dev/null
-  EC2_HOST=$(terraform output -raw elastic_ip 2>/dev/null || terraform output -raw bb_portfolio_elastic_ip 2>/dev/null || true)
-  popd >/dev/null
-fi
-if [[ -z "$EC2_HOST" ]] && command -v gh >/dev/null 2>&1; then
-  EC2_HOST=$(gh secret view EC2_HOST -q .value 2>/dev/null || true)
+if [[ -z "$EC2_HOST" ]]; then
+  EC2_HOST=$(resolve_ec2_host || true)
 fi
 [[ -n "$EC2_HOST" ]] || die "EC2 host unknown for SSH fallback"
 
