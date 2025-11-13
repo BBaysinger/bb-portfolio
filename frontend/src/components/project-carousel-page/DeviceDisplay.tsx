@@ -51,17 +51,21 @@ const DeviceDisplay: React.FC<DeviceDisplayProps> = React.memo(
           </div>
         ) : deviceType === DeviceTypes.PHONE ? (
           <div
-            className={
-              `bbPhone ${styles.backgroundWrapper} ${mobileOrientation ? styles[mobileOrientation] : ""}` +
-              ` bb${mobileOrientation ? mobileOrientation : ""} ${styles[deviceType]}`
-            }
+            className={`bbPhone ${styles.backgroundWrapper} ${styles[deviceType]}`}
           >
-            <RawImg
-              src={src}
-              alt={id}
-              loading="eager"
-              className={styles.screenshot}
-            />
+            <div
+              className={
+                `${styles.phoneFrame} ${mobileOrientation ? styles[mobileOrientation] : ""}` +
+                ` bb${mobileOrientation ? mobileOrientation : ""}`
+              }
+            >
+              <RawImg
+                src={src}
+                alt={id}
+                loading="eager"
+                className={styles.screen}
+              />
+            </div>
           </div>
         ) : null}
       </div>
