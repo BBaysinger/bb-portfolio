@@ -52,6 +52,9 @@
       background-repeat: no-repeat;
       transition: transform 0.4s ease-in-out;
       transform: translateY(3%) rotate(1deg);
+      // Rotate from a point near the bottom (but not fully bottom) for a more natural hinge effect
+      // Using 50% 85% keeps horizontal center while shifting vertical pivot upward slightly from bottom edge
+      transform-origin: 50% 85%;
       will-change: transform;
     }
 
@@ -61,6 +64,8 @@
       width: 162px;
       transition: transform 0.4s ease-in-out;
       transform: translateY(3%) rotate(1deg);
+      // Match pseudo-element pivot so phone screen rotates around same hinge
+      transform-origin: 50% 85%;
       will-change: transform;
     }
 
@@ -80,6 +85,8 @@
         transform: translateY(5px) rotate(91deg);
         top: 135px;
         left: 337px;
+        // Preserve pivot for landscape orientation
+        transform-origin: 50% 85%;
       }
       img {
         top: 258px;
@@ -87,6 +94,7 @@
         height: 162px;
         width: 354px;
         transform: translateY(5px) rotate(1deg);
+        transform-origin: 50% 85%;
       }
     }
   }
