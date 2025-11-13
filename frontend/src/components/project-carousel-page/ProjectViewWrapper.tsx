@@ -20,8 +20,6 @@ interface ProjectPageProps {
   params: {
     projectId: string;
   };
-  /** SSR-computed auth state, used to include NDA projects on first client init. */
-  isAuthenticated?: boolean;
   /** Whether NDA projects are allowed to be included in the active dataset on this route. */
   allowNda?: boolean;
   /** Optional parsed snapshot from SSR to hydrate client without refetch. */
@@ -43,17 +41,22 @@ interface ProjectPageProps {
  */
 export default function ProjectViewWrapper({
   params,
-  isAuthenticated,
   allowNda,
   ssrParsed,
   ssrIncludeNdaInActive,
 }: ProjectPageProps) {
   // Ensure project data is available on the client after hydration.
   const [ready, setReady] = useState(false);
+  // Increment this when the underlying ProjectData active set fundamentally changes
+  // (e.g., NDA entries added after an includeNda initialization) so the carousel remounts.
+  const [datasetEpoch, setDatasetEpoch] = useState(0);
   const initOnce = useRef(false);
-  const { isLoggedIn, user } = useAppSelector((s) => s.auth);
-  const includeNdaInActive =
-    Boolean(allowNda) && (Boolean(isAuthenticated) || isLoggedIn || !!user);
+  const {
+    /* isLoggedIn, user */
+  } = useAppSelector((s) => s.auth);
+  // On NDA routes, include NDA items in the active carousel set even if unauthenticated.
+  // The fetch layer already redacts sensitive fields and will emit placeholders when not logged in.
+  const includeNdaInActive = Boolean(allowNda);
 
   useEffect(() => {
     let cancelled = false;
@@ -70,6 +73,7 @@ export default function ProjectViewWrapper({
             ssrParsed,
             Boolean(ssrIncludeNdaInActive ?? includeNdaInActive),
           );
+          setDatasetEpoch((e) => e + 1);
         } else {
           if (!allowNda) {
             // Public route: always enforce a clean non-NDA active set.
@@ -77,15 +81,15 @@ export default function ProjectViewWrapper({
               disableCache: true,
               includeNdaInActive: false,
             });
+            setDatasetEpoch((e) => e + 1);
           } else {
-            const haveProjects =
-              Object.keys(ProjectData.activeProjectsRecord).length > 0;
-            if (!haveProjects) {
-              await ProjectData.initialize({
-                disableCache: true,
-                includeNdaInActive,
-              });
-            }
+            // NDA route: always ensure dataset is initialized according to current auth
+            // state so NDA items are included when allowed.
+            await ProjectData.initialize({
+              disableCache: true,
+              includeNdaInActive,
+            });
+            setDatasetEpoch((e) => e + 1);
           }
         }
         initOnce.current = true;
@@ -106,6 +110,7 @@ export default function ProjectViewWrapper({
     <ProjectViewRouterBridge
       initialProjectId={params.projectId}
       allowNda={Boolean(allowNda)}
+      datasetEpoch={datasetEpoch}
     />
   );
 }
@@ -113,26 +118,32 @@ export default function ProjectViewWrapper({
 function ProjectViewRouterBridge({
   initialProjectId,
   allowNda,
+  datasetEpoch,
 }: {
   initialProjectId: string;
   allowNda: boolean;
+  datasetEpoch: number;
 }) {
   const [projectId, setProjectId] = useState(initialProjectId);
   const firstUrlSyncRef = useRef(true);
-  const { isLoggedIn, user } = useAppSelector((s) => s.auth);
-  const includeNdaInActive = Boolean(allowNda) && (isLoggedIn || !!user);
+  // On NDA routes, include NDA items in active set even if not logged in (placeholders allowed).
+  const includeNdaInActive = Boolean(allowNda);
+  const [epoch, setEpoch] = useState(0);
 
   // If we navigated in with an NDA project and the active map doesn't have it yet,
   // re-initialize once when auth becomes available.
   useEffect(() => {
     if (!allowNda) return; // On public route, never pull NDA into active set.
     const ensureNdaPresent = async () => {
-      const current = ProjectData.activeProjectsRecord[projectId];
-      if (!current && includeNdaInActive) {
+      // If NDA is allowed and current active set lacks NDA items,
+      // reinitialize to include them and bump epoch to remount the carousel.
+      const hasNdaInActive = ProjectData.activeProjects.some((p) => !!p.nda);
+      if (!hasNdaInActive) {
         await ProjectData.initialize({
           disableCache: true,
           includeNdaInActive: true,
         });
+        setEpoch((e) => e + 1);
       }
     };
     ensureNdaPresent();
@@ -251,5 +262,11 @@ function ProjectViewRouterBridge({
     );
   }
 
-  return <ProjectView projectId={projectId} />;
+  // Use datasetEpoch from parent and local epoch to force remounts when data shape changes
+  return (
+    <ProjectView
+      key={`dataset-${datasetEpoch}-${epoch}`}
+      projectId={projectId}
+    />
+  );
 }
