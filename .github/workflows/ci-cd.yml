@@ -85,11 +85,15 @@ jobs:
         id: sanitize-dev-req
         run: |
           RAW="${{ secrets.DEV_REQUIRED_ENVIRONMENT_VARIABLES }}"
-          # Remove DEV_CONTACT_PHONE_E164 and DEV_CONTACT_PHONE_DISPLAY tokens from comma list
-          SANITIZED=$(printf "%s" "$RAW" \
-            | sed -E 's/(^|,)(DEV_CONTACT_PHONE_E164|DEV_CONTACT_PHONE_DISPLAY)(,|$)/\1\3/g' \
+          # Remove deprecated/legacy tokens moved to CMS or no longer required by backend
+          BASE=$(printf "%s" "$RAW" \
+            | sed -E 's/(^|,)(DEV_CONTACT_PHONE_E164|DEV_CONTACT_PHONE_DISPLAY|OBFUSCATED_CONTACT_EMAIL)(,|$)/\1\3/g' \
             | sed -E 's/,\s*,+/,/g; s/^,|,$//g')
-          echo "dev_req=$SANITIZED" >> "$GITHUB_OUTPUT"
+          # Frontend keeps SECURITY_TXT_EXPIRES; Backend drops it
+          FRONTEND_REQ="$BASE"
+          BACKEND_REQ=$(printf "%s" "$BASE" | sed -E 's/(^|,)(SECURITY_TXT_EXPIRES)(,|$)/\1\3/g' | sed -E 's/,\s*,+/,/g; s/^,|,$//g')
+          echo "dev_req_frontend=$FRONTEND_REQ" >> "$GITHUB_OUTPUT"
+          echo "dev_req_backend=$BACKEND_REQ" >> "$GITHUB_OUTPUT"
 
       # =======================================================================
       # BACKEND BUILD AND TEST (Build backend first for frontend SSG)
@@ -106,7 +110,7 @@ jobs:
           # Use dev profile with a dummy connection string just to satisfy build-time checks
           ENV_PROFILE: dev
           # Env-guard definition list (unified list, dev-scoped)
-          DEV_REQUIRED_ENVIRONMENT_VARIABLES: "${{ steps.sanitize-dev-req.outputs.dev_req }}"
+          DEV_REQUIRED_ENVIRONMENT_VARIABLES: "${{ steps.sanitize-dev-req.outputs.dev_req_backend }}"
           # Backend URL group (ANY-of) to satisfy unified list if it includes FE groups
           DEV_BACKEND_INTERNAL_URL: ${{ secrets.DEV_BACKEND_INTERNAL_URL }}
           DEV_MONGODB_URI: mongodb://localhost:27017/dummy-db
@@ -152,8 +156,8 @@ jobs:
           DEV_SES_TO_EMAIL: ${{ secrets.DEV_SES_TO_EMAIL }}
           # Backend URL group (ANY-of) and security metadata to satisfy env-guard when invoked
           DEV_BACKEND_INTERNAL_URL: ${{ secrets.DEV_BACKEND_INTERNAL_URL }}
-          # Ensure tests use a definition list
-          DEV_REQUIRED_ENVIRONMENT_VARIABLES: "${{ steps.sanitize-dev-req.outputs.dev_req }}"
+          # Ensure tests use a definition list (backend-safe)
+          DEV_REQUIRED_ENVIRONMENT_VARIABLES: "${{ steps.sanitize-dev-req.outputs.dev_req_backend }}"
         run: pnpm test || echo "⚠️ No backend tests yet" # Graceful failure until tests are implemented
 
       # =======================================================================
@@ -168,7 +172,7 @@ jobs:
         env:
           ENV_PROFILE: dev
           # Env-guard definition list (unified list, dev-scoped)
-          DEV_REQUIRED_ENVIRONMENT_VARIABLES: "${{ steps.sanitize-dev-req.outputs.dev_req }}"
+          DEV_REQUIRED_ENVIRONMENT_VARIABLES: "${{ steps.sanitize-dev-req.outputs.dev_req_frontend }}"
           DEV_BACKEND_INTERNAL_URL: ${{ secrets.DEV_BACKEND_INTERNAL_URL }}
           PUBLIC_PROJECTS_BUCKET: ${{ secrets.PUBLIC_PROJECTS_BUCKET }}
           NDA_PROJECTS_BUCKET: ${{ secrets.NDA_PROJECTS_BUCKET }}
@@ -186,10 +190,13 @@ jobs:
         id: sanitize-prod-req
         run: |
           RAW="${{ secrets.PROD_REQUIRED_ENVIRONMENT_VARIABLES }}"
-          SANITIZED=$(printf "%s" "$RAW" \
-            | sed -E 's/(^|,)(PROD_CONTACT_PHONE_E164|PROD_CONTACT_PHONE_DISPLAY|DEV_CONTACT_PHONE_E164|DEV_CONTACT_PHONE_DISPLAY)(,|$)/\1\3/g' \
+          BASE=$(printf "%s" "$RAW" \
+            | sed -E 's/(^|,)(PROD_CONTACT_PHONE_E164|PROD_CONTACT_PHONE_DISPLAY|DEV_CONTACT_PHONE_E164|DEV_CONTACT_PHONE_DISPLAY|OBFUSCATED_CONTACT_EMAIL)(,|$)/\1\3/g' \
             | sed -E 's/,\s*,+/,/g; s/^,|,$//g')
-          echo "prod_req=$SANITIZED" >> "$GITHUB_OUTPUT"
+          FRONTEND_REQ="$BASE"
+          BACKEND_REQ=$(printf "%s" "$BASE" | sed -E 's/(^|,)(SECURITY_TXT_EXPIRES)(,|$)/\1\3/g' | sed -E 's/,\s*,+/,/g; s/^,|,$//g')
+          echo "prod_req_frontend=$FRONTEND_REQ" >> "$GITHUB_OUTPUT"
+          echo "prod_req_backend=$BACKEND_REQ" >> "$GITHUB_OUTPUT"
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -208,7 +215,7 @@ jobs:
           docker build --no-cache --target runner \
             --build-arg NODE_IMAGE=public.ecr.aws/docker/library/node:22-slim \
             --build-arg ENV_PROFILE=prod \
-            --build-arg PROD_REQUIRED_ENVIRONMENT_VARIABLES="${{ steps.sanitize-prod-req.outputs.prod_req }}" \
+            --build-arg PROD_REQUIRED_ENVIRONMENT_VARIABLES="${{ steps.sanitize-prod-req.outputs.prod_req_frontend }}" \
             --build-arg PROD_BACKEND_INTERNAL_URL="${{ secrets.PROD_BACKEND_INTERNAL_URL }}" \
             --build-arg PUBLIC_PROJECTS_BUCKET="${{ secrets.PUBLIC_PROJECTS_BUCKET }}" \
             --build-arg NDA_PROJECTS_BUCKET="${{ secrets.NDA_PROJECTS_BUCKET }}" \
@@ -233,7 +240,7 @@ jobs:
           DOCKER_BUILDKIT=1 docker build --no-cache --target runtime \
             --build-arg NODE_IMAGE=public.ecr.aws/docker/library/node:22-slim \
             --build-arg ENV_PROFILE=prod \
-            --build-arg PROD_REQUIRED_ENVIRONMENT_VARIABLES="${{ steps.sanitize-prod-req.outputs.prod_req }}" \
+            --build-arg PROD_REQUIRED_ENVIRONMENT_VARIABLES="${{ steps.sanitize-prod-req.outputs.prod_req_backend }}" \
             --build-arg PROD_BACKEND_INTERNAL_URL="${{ secrets.PROD_BACKEND_INTERNAL_URL }}" \
             --build-arg PROD_FRONTEND_URL="${{ secrets.PROD_FRONTEND_URL }}" \
             --build-arg PROD_S3_BUCKET="${{ secrets.PROD_S3_BUCKET }}" \
@@ -285,10 +292,11 @@ jobs:
           password: ${{ secrets.DOCKER_HUB_PASSWORD }}
       - name: Build and push dev images to Docker Hub
         env:
-          DEV_REQ_SANITIZED: ${{ steps.sanitize-dev-req.outputs.dev_req }}
+          DEV_REQ_SANITIZED_FE: ${{ steps.sanitize-dev-req.outputs.dev_req_frontend }}
+          DEV_REQ_SANITIZED_BE: ${{ steps.sanitize-dev-req.outputs.dev_req_backend }}
         run: |
           docker build --build-arg ENV_PROFILE=dev \
-            --build-arg DEV_REQUIRED_ENVIRONMENT_VARIABLES="${DEV_REQ_SANITIZED}" \
+            --build-arg DEV_REQUIRED_ENVIRONMENT_VARIABLES="${DEV_REQ_SANITIZED_BE}" \
             --build-arg DEV_BACKEND_INTERNAL_URL="${{ secrets.DEV_BACKEND_INTERNAL_URL }}" \
             --build-arg DEV_MONGODB_URI="mongodb://localhost:27017/dummy-db" \
             --build-arg DEV_PAYLOAD_SECRET="${{ secrets.DEV_PAYLOAD_SECRET }}" \
@@ -303,7 +311,7 @@ jobs:
             --build-arg NDA_PROJECTS_BUCKET="${{ secrets.NDA_PROJECTS_BUCKET }}" \
             -t bhbaysinger/bb-portfolio-backend:dev ./backend
           docker build --build-arg ENV_PROFILE=dev \
-            --build-arg DEV_REQUIRED_ENVIRONMENT_VARIABLES="${DEV_REQ_SANITIZED}" \
+            --build-arg DEV_REQUIRED_ENVIRONMENT_VARIABLES="${DEV_REQ_SANITIZED_FE}" \
             --build-arg DEV_BACKEND_INTERNAL_URL="${{ secrets.DEV_BACKEND_INTERNAL_URL }}" \
             --build-arg PUBLIC_PROJECTS_BUCKET="${{ secrets.PUBLIC_PROJECTS_BUCKET }}" \
             --build-arg NDA_PROJECTS_BUCKET="${{ secrets.NDA_PROJECTS_BUCKET }}" \
