@@ -7,8 +7,18 @@ import { NextResponse } from 'next/server'
 export async function GET() {
   try {
     // Get email from environment variables using the same pattern as email service
-    const envProfile = process.env.ENV_PROFILE || 'local'
-    const upper = envProfile.toUpperCase()
+    // Normalize profile (prod/dev/local) for consistent key lookup, but also keep raw fallback
+    const rawProfile = process.env.ENV_PROFILE || process.env.NODE_ENV || 'local'
+    const lower = rawProfile.toLowerCase()
+    const normalized = lower.startsWith('prod')
+      ? 'prod'
+      : lower.startsWith('dev')
+        ? 'dev'
+        : lower.startsWith('local')
+          ? 'local'
+          : lower
+    const upper = normalized.toUpperCase()
+    const rawUpper = (process.env.ENV_PROFILE || '').toUpperCase()
     // Preferred order:
     // 1) <PROFILE>_CONTACT_EMAIL (explicit override if provided)
     // 2) OBFUSCATED_CONTACT_EMAIL (site-wide security.txt/contact address)
@@ -19,6 +29,8 @@ export async function GET() {
       'OBFUSCATED_CONTACT_EMAIL',
       'SECURITY_CONTACT_EMAIL',
       `${upper}_SES_TO_EMAIL`,
+      // raw ENV_PROFILE fallbacks (e.g., PRODUCTION_CONTACT_EMAIL)
+      ...(rawUpper ? [`${rawUpper}_CONTACT_EMAIL`, `${rawUpper}_SES_TO_EMAIL`] : []),
     ] as const
     let email: string | undefined
     for (const key of preferredKeys) {
@@ -43,10 +55,17 @@ export async function GET() {
     const encodedDomain = Buffer.from(domain).toString('base64')
 
     // Phone (optional) — use ENV_PROFILE-based keys if available
-    const phoneE164Key = `${envProfile.toUpperCase()}_CONTACT_PHONE_E164`
-    const phoneDispKey = `${envProfile.toUpperCase()}_CONTACT_PHONE_DISPLAY`
-    const phoneE164 = process.env[phoneE164Key]
-    const phoneDisplay = process.env[phoneDispKey] || process.env[phoneE164Key]
+    const phoneE164Key = `${upper}_CONTACT_PHONE_E164`
+    const phoneDispKey = `${upper}_CONTACT_PHONE_DISPLAY`
+    const phoneE164RawKey = rawUpper ? `${rawUpper}_CONTACT_PHONE_E164` : ''
+    const phoneDispRawKey = rawUpper ? `${rawUpper}_CONTACT_PHONE_DISPLAY` : ''
+    const phoneE164 =
+      process.env[phoneE164Key] || (phoneE164RawKey ? process.env[phoneE164RawKey] : undefined)
+    const phoneDisplay =
+      process.env[phoneDispKey] ||
+      (phoneDispRawKey ? process.env[phoneDispRawKey] : undefined) ||
+      process.env[phoneE164Key] ||
+      (phoneE164RawKey ? process.env[phoneE164RawKey] : undefined)
 
     let phonePayload: { e: string; d: string; checksum: string } | undefined
     if (phoneE164) {
