@@ -129,6 +129,58 @@ export default function ProjectViewWrapper({
     }
   }, [ready, allowNda, params.projectId, router]);
 
+  // NDA edge handling: probe auth status on entry/visibility/focus to refresh dataset
+  // so confidential fields are sanitized immediately if auth flips during the session.
+  useEffect(() => {
+    if (!ready) return;
+    if (!allowNda) return; // Only probe on NDA routes
+    let cancelled = false;
+    let probing = false;
+
+    const probeAuthAndRefresh = async () => {
+      if (probing) return;
+      probing = true;
+      try {
+        const resp = await fetch("/api/users/me", {
+          method: "GET",
+          credentials: "include",
+          headers: { "Accept": "application/json" },
+        });
+  const _authed = resp.ok;
+        // Regardless of auth outcome, reinitialize NDA dataset to ensure fields are
+        // properly sanitized or expanded to match current auth state.
+        await ProjectData.initialize({
+          disableCache: true,
+          includeNdaInActive: true,
+        });
+        if (!cancelled) {
+          setDatasetEpoch((e) => e + 1);
+        }
+        // AppShell handles redirect on 401; this refresh keeps UI consistent while that happens.
+      } catch {
+        // Silently ignore network errors; dataset remains as-is.
+      } finally {
+        probing = false;
+      }
+    };
+
+    // Initial probe on mount
+    probeAuthAndRefresh();
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") {
+        probeAuthAndRefresh();
+      }
+    };
+    const onFocus = () => probeAuthAndRefresh();
+    window.addEventListener("visibilitychange", onVisibility);
+    window.addEventListener("focus", onFocus);
+    return () => {
+      cancelled = true;
+      window.removeEventListener("visibilitychange", onVisibility);
+      window.removeEventListener("focus", onFocus);
+    };
+  }, [ready, allowNda]);
+
   if (!ready) {
     return <div>Loading project...</div>;
   }
