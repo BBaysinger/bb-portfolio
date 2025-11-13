@@ -144,9 +144,9 @@ export default function ProjectViewWrapper({
         const resp = await fetch("/api/users/me", {
           method: "GET",
           credentials: "include",
-          headers: { "Accept": "application/json" },
+          headers: { Accept: "application/json" },
         });
-  const _authed = resp.ok;
+        const _authed = resp.ok;
         // Regardless of auth outcome, reinitialize NDA dataset to ensure fields are
         // properly sanitized or expanded to match current auth state.
         await ProjectData.initialize({
