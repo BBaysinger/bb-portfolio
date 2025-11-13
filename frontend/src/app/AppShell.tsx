@@ -157,6 +157,22 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     return () => clearInterval(id);
   }, [dispatch]);
 
+  // If the user is on an NDA page and becomes unauthenticated, immediately navigate away
+  // to reassure privacy (avoid leaving an NDA view open client-side).
+  const { isLoggedIn, user } = useSelector((state: RootState) => state.auth);
+  useEffect(() => {
+    try {
+      const path = pathname || "";
+      const onNdaPage = /\/nda\//.test(path);
+      const authed = Boolean(isLoggedIn) || Boolean(user);
+      if (onNdaPage && !authed) {
+        router.replace("/");
+      }
+    } catch {
+      // no-op
+    }
+  }, [pathname, isLoggedIn, user, router]);
+
   /**
    * Fluid Responsive System - CSS Variables Provider
    *
