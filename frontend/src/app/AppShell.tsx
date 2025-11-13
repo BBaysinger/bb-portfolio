@@ -137,6 +137,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         } else if (res.status === 401) {
           // Session no longer valid (e.g., logged out in another tab): clear stale client auth
           dispatch(resetAuthState());
+          // If currently on an NDA route, immediately navigate away for privacy.
+          try {
+            const path = pathname || "";
+            if (/\/nda\//.test(path)) {
+              router.replace("/");
+            }
+          } catch {}
         } else if (res.status >= 500) {
           // Optionally re-check later; do nothing now
         }
@@ -158,7 +165,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       window.removeEventListener("focus", onVisible);
       document.removeEventListener("visibilitychange", onVisible);
     };
-  }, [router, dispatch]);
+  }, [router, dispatch, pathname]);
 
   // Periodic soft auth validation (clears stale user if cookie disappears without a tab visibility event)
   useEffect(() => {
