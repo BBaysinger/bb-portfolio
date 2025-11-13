@@ -91,6 +91,9 @@ export function navigateWithPushState(
   const currentUrl = `${window.location.pathname}${window.location.search}${window.location.hash}`;
 
   // Only navigate if the full URL (path + search + hash) is different
+  // Note: Do NOT debounce in this helper. The Project carousel is responsible for
+  // stabilizing state and only calling this when a committed navigation should be
+  // recorded. Debouncing here can re-order or drop intended entries.
   if (currentUrl !== normalizedUrl) {
     const useDoublePush =
       opts?.useDoublePushFallback ||
@@ -130,6 +133,7 @@ export function navigateWithPushState(
     }
   }
 }
+
 
 /**
  * Replace the current URL using replaceState and notify all listeners.
