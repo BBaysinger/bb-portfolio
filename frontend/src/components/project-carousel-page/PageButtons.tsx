@@ -49,18 +49,24 @@ const PageButtons: React.FC<{ projectId: string }> = ({ projectId }) => {
   const nextHref = `${nextIsNda ? "/nda/" : "/project/"}?p=${encodeURIComponent(nextId)}`;
 
   return (
-    <div className={styles.projectNav}>
+    <div
+      className={styles.projectNav}
+      role="group"
+      aria-label="Project navigation"
+    >
       <PushStateLink
         href={prevHref}
         className={`${styles.navButton} ${styles.prev}`}
+        aria-label={`Previous project: ${activeProjects[prevId]?.title || prevId}`}
       >
-        <div className={styles.inner}></div>
+        <div className={styles.inner} aria-hidden="true"></div>
       </PushStateLink>
       <PushStateLink
         href={nextHref}
         className={`${styles.navButton} ${styles.next}`}
+        aria-label={`Next project: ${activeProjects[nextId]?.title || nextId}`}
       >
-        <div className={styles.inner}></div>
+        <div className={styles.inner} aria-hidden="true"></div>
       </PushStateLink>
     </div>
   );
