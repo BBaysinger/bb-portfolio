@@ -143,7 +143,10 @@ function ProjectViewRouterBridge({
         setProjectId(newId);
       }
     },
-    { mode: "both" },
+    // Important: ignore internal Next.js router noise (e.g., refocus-triggered refreshes)
+    // and only react to true external navigation (popstate/custom bb:routechange).
+    // This prevents the carousel from snapping back to the original segment slug on refocus.
+    { mode: "external-only" },
   );
 
   // Also sync projectId on mount/remount to handle edge cases
