@@ -95,6 +95,21 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   // check if the user is authenticated server-side; if so, refresh SSR to reveal protected data.
   useEffect(() => {
     let ticking = false;
+    const shouldSkipRefreshForCarousel = () => {
+      try {
+        if (typeof window === "undefined") return false;
+        const path = pathname || "";
+        const isCarouselPage = /\/(project|nda)\//.test(path);
+        if (!isCarouselPage) return false;
+        const hasP = new URL(window.location.href).searchParams.has("p");
+        // When the project carousel manages the active item via ?p, avoid
+        // router.refresh on focus/visibility which can cause Next to rewrite
+        // the dynamic segment and fight the carousel's state.
+        return hasP;
+      } catch {
+        return false;
+      }
+    };
     const checkAndRefresh = async () => {
       try {
         const res = await fetch("/api/users/me", {
@@ -103,7 +118,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         });
         if (res.ok) {
           // Session exists server-side: refresh SSR (may reveal protected content)
-          router.refresh();
+          // but avoid refreshing on project carousel pages where URL is client-managed.
+          if (!shouldSkipRefreshForCarousel()) {
+            router.refresh();
+          }
         } else if (res.status === 401) {
           // Session no longer valid (e.g., logged out in another tab): clear stale client auth
           dispatch(resetAuthState());
