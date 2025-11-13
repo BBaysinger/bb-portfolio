@@ -14,7 +14,7 @@ import {
   CarouselRef,
   DirectionType,
   SourceType,
-  Direction,
+  SlideDirection,
 } from "./CarouselTypes";
 import styles from "./LayeredCarouselManager.module.scss";
 
@@ -152,9 +152,9 @@ const LayeredCarouselManager = forwardRef<
     const handleScrollUpdate = (scrollLeft: number) => {
       // Determine direction based on scroll movement
       if (scrollLeft > lastScrollLeftRef.current) {
-        setCurrentDirection(Direction.LEFT);
+        setCurrentDirection(SlideDirection.LEFT);
       } else if (scrollLeft < lastScrollLeftRef.current) {
-        setCurrentDirection(Direction.RIGHT);
+        setCurrentDirection(SlideDirection.RIGHT);
       }
       lastScrollLeftRef.current = scrollLeft;
 
@@ -206,10 +206,10 @@ const LayeredCarouselManager = forwardRef<
                 const appliedClasses = clsx(
                   isStabilized && "bbStabilizedSlide",
                   shouldApplyTilt &&
-                    currentDirection === Direction.LEFT &&
+                    currentDirection === SlideDirection.LEFT &&
                     "bbTiltLeft",
                   shouldApplyTilt &&
-                    currentDirection === Direction.RIGHT &&
+                    currentDirection === SlideDirection.RIGHT &&
                     "bbTiltRight",
                 );
 
