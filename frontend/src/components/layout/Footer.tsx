@@ -82,12 +82,13 @@ const Footer: React.FC<FooterProps> = ({ className, mutationElemRef }) => {
                     <a href={`tel:${phoneE164 || ""}`}>
                       <div
                         style={{
-                          backgroundImage: "url(/images/footer/icons/phone.png)",
+                          backgroundImage:
+                            "url(/images/footer/icons/phone.png)",
                         }}
                       ></div>
                       {_phoneLoading
                         ? "Loading..."
-                        : (phoneDisplay || phoneE164 || "")}
+                        : phoneDisplay || phoneE164 || ""}
                     </a>
                   </li>
                 )}

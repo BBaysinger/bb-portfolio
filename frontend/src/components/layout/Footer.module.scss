@@ -19,13 +19,13 @@ footer.footer {
     content: "";
     position: absolute;
     top: -$footerBarberPoleThickness;
-    // Add 0.1px to fix Webkit background rendering defect in project page
-    height: calc($footerBarberPoleThickness + 0.1px);
+    height: $footerBarberPoleThickness;
     width: 100vw;
     background-image: url("/images/common/barber-pole-bottom.webp");
     background-repeat: repeat-x;
     background-size: 350px 40px;
-    background-position: 0 bottom;
+    // 99% to fix Webkit/iOS background rendering defect that only occurs on the project page
+    background-position: 0 99%;
   }
 
   .container {
