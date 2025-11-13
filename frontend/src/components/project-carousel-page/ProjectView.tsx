@@ -401,7 +401,16 @@ const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
   }
 
   return (
-    <div className={styles.projectsPresentation}>
+    <div
+      className={styles.projectsPresentation}
+      role="region"
+      aria-label={
+        projects[projectId]?.title
+          ? `Project carousel: ${projects[projectId].title}`
+          : "Project carousel"
+      }
+      tabIndex={0}
+    >
       <HeaderSub
         head={projects[projectId]?.title || "Unknown Project"}
         subhead={projects[projectId]?.tags?.join(", ") || ""}
