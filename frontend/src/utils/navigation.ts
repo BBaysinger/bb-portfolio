@@ -27,12 +27,6 @@ export function navigateWithPushState(
   url: string,
   state?: Record<string, unknown> | null,
   opts?: {
-    /** When true, append/update a hash param to create distinct history entries reliably */
-    useHashHistory?: boolean;
-    /** Hash key to use when useHashHistory is enabled (default: "ts") */
-    hashParam?: string;
-    /** Hash value to use when useHashHistory is enabled (default: Date.now()) */
-    hashValue?: string | number;
     /** When true, use a double-push fallback (push dummy, then replace real) to avoid coalescing on gesture back/forward */
     useDoublePushFallback?: boolean;
     /** Hash key to use for the dummy entry when double-push is enabled (default: "dp") */
@@ -67,21 +61,6 @@ export function navigateWithPushState(
   // a trailing slash on the pathname (to match Next.js `trailingSlash: true`).
   const target = new URL(url, window.location.origin);
 
-  // Optionally append a hash param to force unique history entries per change.
-  // This is useful in some browsers/environments where back/forward may coalesce
-  // rapid query-only pushState transitions. Controlled via opts or env flag.
-  const forceHash =
-    opts?.useHashHistory || process.env.NEXT_PUBLIC_FORCE_HASH_HISTORY === "1";
-  if (forceHash) {
-    const key = (opts?.hashParam || "ts").toString();
-    const val = (opts?.hashValue ?? Date.now()).toString();
-    // Merge with any existing hash params
-    const hash = target.hash?.replace(/^#/, "") || "";
-    const hashParams = new URLSearchParams(hash);
-    hashParams.set(key, val);
-    const newHash = hashParams.toString();
-    target.hash = newHash ? `#${newHash}` : "";
-  }
   const normalizedPathname = target.pathname.endsWith("/")
     ? target.pathname
     : `${target.pathname}/`;

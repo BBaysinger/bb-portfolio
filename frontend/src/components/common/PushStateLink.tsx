@@ -67,9 +67,6 @@ export function PushStateLink({
     e.preventDefault();
 
     navigateWithPushState(href, null, {
-      useHashHistory: process.env.NEXT_PUBLIC_FORCE_HASH_HISTORY === "1",
-      hashParam: "ts",
-      hashValue: Date.now().toString(),
       useDoublePushFallback: process.env.NEXT_PUBLIC_DOUBLE_PUSH === "1",
     });
 
