@@ -115,19 +115,6 @@ key_name      = "bb-portfolio-site-key"
 ami_id        = "ami-0cf2b4e024cdb6960" # Amazon Linux 2023 in us-west-2 (as of Sept 2025)
 project_name  = "bb-portfolio"
 
-# S3 Media Buckets Configuration
-media_access_levels = ["public", "nda"]
-
-# CORS origins permitted to read from S3 directly (GET/HEAD)
-media_cors_allowed_origins = [
-  "http://localhost:3000",
-  "http://localhost:3001",
-  "http://${ec2InstanceIp}:3000",
-  "http://${ec2InstanceIp}:3001",
-  "http://${ec2InstanceIp}:4000",
-  "http://${ec2InstanceIp}:4001",
-]
-
 `;
 
   // Environment variables from secrets
