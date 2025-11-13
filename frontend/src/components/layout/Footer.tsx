@@ -77,16 +77,20 @@ const Footer: React.FC<FooterProps> = ({ className, mutationElemRef }) => {
                     {emailAddr}
                   </a>
                 </li>
-                <li>
-                  <a href={`tel:${phoneE164 || ""}`}>
-                    <div
-                      style={{
-                        backgroundImage: "url(/images/footer/icons/phone.png)",
-                      }}
-                    ></div>
-                    {phoneDisplay || phoneE164 || "Loading..."}
-                  </a>
-                </li>
+                {(_phoneLoading || phoneE164 || phoneDisplay) && (
+                  <li>
+                    <a href={`tel:${phoneE164 || ""}`}>
+                      <div
+                        style={{
+                          backgroundImage: "url(/images/footer/icons/phone.png)",
+                        }}
+                      ></div>
+                      {_phoneLoading
+                        ? "Loading..."
+                        : (phoneDisplay || phoneE164 || "")}
+                    </a>
+                  </li>
+                )}
                 <li>
                   <a
                     href="https://www.linkedin.com/in/BBaysinger"
