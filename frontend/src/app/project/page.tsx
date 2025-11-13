@@ -1,6 +1,9 @@
 import { notFound, redirect } from "next/navigation";
 
 export const revalidate = 0;
+// This page relies on runtime searchParams to canonicalize /project?p=slug
+// so it must be dynamic. Otherwise, a static prerender would 404.
+export const dynamic = "force-dynamic";
 
 /**
  * Legacy query-param entry point: `/project?p=slug`.
