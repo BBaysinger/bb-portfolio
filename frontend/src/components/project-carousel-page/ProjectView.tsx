@@ -46,7 +46,7 @@ const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
   const projects = ProjectData.activeProjectsRecord;
   const debug = process.env.NEXT_PUBLIC_DEBUG_CAROUSEL === "1";
 
-  const [initialIndex] = useState(() => {
+  const [initialIndex, setInitialIndex] = useState<number | null>(() => {
     return projectId ? (ProjectData.projectIndex(projectId) ?? null) : null;
   });
 
@@ -268,6 +268,14 @@ const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
 
   // On first stabilization after mount, canonicalize segment entry to query ?p=
   const canonicalizedRef = useRef(false);
+
+  // If we mounted before the dataset was ready, initialIndex could be null.
+  // Once the dataset is available, populate it exactly once.
+  useEffect(() => {
+    if (initialIndex === null && projectId && ProjectData.projectIndex(projectId) != null) {
+      setInitialIndex(ProjectData.projectIndex(projectId) as number);
+    }
+  }, [initialIndex, projectId]);
 
   useEffect(() => {
     lastKnownProjectId.current = projectId;
