@@ -1,15 +1,10 @@
-import { cookies, headers } from "next/headers";
-import { notFound, redirect } from "next/navigation";
 import { Suspense } from "react";
 
 import ProjectViewWrapper from "@/components/project-carousel-page/ProjectViewWrapper";
-import ProjectData from "@/data/ProjectData";
-// import styles from "@/styles/ProjectPage.module.css";
 
-export const runtime = "nodejs";
-// Using headers()/cookies() makes this page dynamic at request time
-export const dynamic = "force-dynamic";
-// Prefer SSG for known routes, but allow on-demand generation for any valid projectId at runtime
+// Static, no ISR and no segment normalization refreshes.
+export const revalidate = 0;
+// Allow on-demand generation for unknown params if desired; disable if you want strict static.
 export const dynamicParams = true;
 
 /**
@@ -25,155 +20,17 @@ export const dynamicParams = true;
  * @returns A React suspense boundary that wraps ProjectViewWrapper,
  *          or a 404 if the project ID is invalid.
  */
-export default async function ProjectPage({
+export default function ProjectPage({
   params,
 }: {
-  params: Promise<{ projectId: string }>;
+  params: { projectId: string };
 }) {
-  const { projectId } = await params;
-
-  // Only forward the Cookie header to the backend. Forwarding the full incoming
-  // header set (including Host/X-Forwarded-*) can confuse the upstream service
-  // when we call it via its internal DNS name, leading to 404s. Let fetch set
-  // the correct Host header for the absolute backend URL, and pass cookies only.
-  const _incoming = await headers();
-  const cookieStore = await cookies();
-  const cookieHeader = cookieStore
-    .getAll()
-    .map((c) => `${c.name}=${c.value}`)
-    .join("; ");
-  const cookieOnlyHeaders: HeadersInit = (() => {
-    const h = new Headers();
-    if (cookieHeader) h.set("cookie", cookieHeader);
-    return h;
-  })();
-
-  // Determine SSR auth state first
-  let isAuthenticated = false;
-  try {
-    // Resolve backend URL similar to ProjectData logic
-    const env = (
-      process.env.ENV_PROFILE ||
-      process.env.NODE_ENV ||
-      ""
-    ).toLowerCase();
-    const prefix = env ? `${env.toUpperCase()}_` : "";
-    const pick = (...names: string[]) => {
-      for (const n of names) {
-        const v = process.env[n];
-        if (v) return v;
-      }
-      return "";
-    };
-    const normalizedProfile = env.startsWith("prod")
-      ? "prod"
-      : env === "development" || env.startsWith("dev")
-        ? "dev"
-        : env.startsWith("local")
-          ? "local"
-          : env;
-    const base =
-      pick(`${prefix}BACKEND_INTERNAL_URL`) ||
-      (() => {
-        if (normalizedProfile === "dev")
-          return "http://bb-portfolio-backend-dev:3000";
-        if (normalizedProfile === "prod")
-          return "http://bb-portfolio-backend-prod:3000";
-        if (normalizedProfile === "local")
-          return "http://bb-portfolio-backend-local:3001";
-        return "http://localhost:8081";
-      })();
-    const backend = base.replace(/\/$/, "");
-
-    const tryFetch = async (url: string) =>
-      fetch(url, {
-        method: "GET",
-        headers: {
-          ...(cookieHeader && { Cookie: cookieHeader }),
-          Accept: "application/json",
-        },
-        cache: "no-store",
-      });
-
-    let res = await tryFetch(`${backend}/api/users/me`);
-    if (!res.ok && res.status === 401) {
-      res = await tryFetch(`${backend}/api/users/me/`);
-    }
-    isAuthenticated = res.ok;
-  } catch {
-    isAuthenticated = false;
-  }
-
-  // Debug logging to help diagnose 404s in dev
-  if (process.env.NODE_ENV !== "production") {
-    console.info("[project] SSR auth:", {
-      projectId,
-      isAuthenticated,
-      cookiePresent: Boolean(cookieHeader),
-    });
-  }
-
-  // Ensure data is initialized before accessing records
-  try {
-    await ProjectData.initialize({
-      headers: cookieOnlyHeaders,
-      disableCache: true,
-      // Public route: never include NDA projects in the active set
-      includeNdaInActive: false,
-    });
-  } catch (err) {
-    // Avoid a hard 500 from upstream flakiness; degrade gracefully
-    if (process.env.NODE_ENV !== "production") {
-      console.error("[project] initialize failed", err);
-    }
-    return notFound();
-  }
-
-  // Try to get the project from the active (public) record first
-  const publicProject = ProjectData.activeProjectsRecord[projectId];
-  if (publicProject) {
-    if (process.env.NODE_ENV !== "production") {
-      console.info(
-        "[project] Project found in activeProjectsRecord:",
-        projectId,
-      );
-    }
-    return (
-      <Suspense fallback={<div>Loading project...</div>}>
-        <ProjectViewWrapper
-          params={{ projectId }}
-          isAuthenticated={isAuthenticated}
-          allowNda={false}
-        />
-      </Suspense>
-    );
-  }
-
-  // If not public, check if it's NDA and SSR is allowed for logged-in users
-  const allProjects = ProjectData["_projects"];
-  const project = allProjects[projectId];
-  if (project && project.nda) {
-    if (process.env.NODE_ENV !== "production") {
-      console.info("[project] NDA project detected:", projectId, {
-        authed: isAuthenticated,
-      });
-    }
-    if (isAuthenticated) {
-      // Authenticated users should view NDA projects under the /nda route
-      redirect(`/nda/${projectId}`);
-    }
-    // Not authenticated, show 404 or access denied
-    return notFound();
-  }
-
-  // Not found
-  if (process.env.NODE_ENV !== "production") {
-    console.warn("[project] Project not found in data:", projectId, {
-      keysSample: Object.keys(allProjects).slice(0, 5),
-      total: Object.keys(allProjects).length,
-    });
-  }
-  return notFound();
+  const { projectId } = params;
+  return (
+    <Suspense fallback={<div>Loading project...</div>}>
+      <ProjectViewWrapper params={{ projectId }} allowNda={false} />
+    </Suspense>
+  );
 }
 
 /**
@@ -182,26 +39,8 @@ export default async function ProjectPage({
  *
  * @returns An array of projectId param objects.
  */
+// Optional: pre-render known public project IDs at build time.
+// If you prefer purely on-demand rendering, you can remove this.
 export async function generateStaticParams() {
-  try {
-    // Initialize project data from backend API
-    await ProjectData.initialize();
-    const projectIds = Object.keys(ProjectData.activeProjectsRecord);
-
-    console.info(
-      `📄 [generateStaticParams] Generated static params for ${projectIds.length} projects`,
-    );
-
-    return projectIds.map((projectId) => ({
-      projectId,
-    }));
-  } catch (error) {
-    // Backend not accessible - fall back to on-demand page generation
-    const errorMessage =
-      error instanceof Error ? error.message : "Unknown error";
-    console.warn(
-      `⚠️  [generateStaticParams] Backend not accessible (${errorMessage}) - falling back to on-demand page generation`,
-    );
-    return [];
-  }
+  return [];
 }

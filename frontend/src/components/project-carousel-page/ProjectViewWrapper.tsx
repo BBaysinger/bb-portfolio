@@ -7,6 +7,10 @@ import ProjectData from "@/data/ProjectData";
 import { useRouteChange } from "@/hooks/useRouteChange";
 import { useAppSelector } from "@/store/hooks";
 import { getDynamicPathParam } from "@/utils/getDynamicPathParam";
+import {
+  navigateWithPushState,
+  replaceWithReplaceState,
+} from "@/utils/navigation";
 
 /**
  * Renders the ProjectView statically with a given projectId.
@@ -114,6 +118,7 @@ function ProjectViewRouterBridge({
   allowNda: boolean;
 }) {
   const [projectId, setProjectId] = useState(initialProjectId);
+  const firstUrlSyncRef = useRef(true);
   const { isLoggedIn, user } = useAppSelector((s) => s.auth);
   const includeNdaInActive = Boolean(allowNda) && (isLoggedIn || !!user);
 
@@ -160,6 +165,74 @@ function ProjectViewRouterBridge({
       setProjectId(currentId);
     }
   }, [initialProjectId, projectId]);
+
+  // Sync URL query with active project. Use pushState for user-driven changes so Back/Forward works.
+  // Use replaceState only for the initial hydrate or corrective normalization.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (!projectId) return;
+    const url = new URL(window.location.href);
+    const currentP = url.searchParams.get("p");
+    if (currentP === projectId) return;
+    url.searchParams.set("p", projectId);
+    const nextHref = url.toString();
+    const isInitial = firstUrlSyncRef.current;
+    if (isInitial) {
+      if (process.env.NODE_ENV !== "production") {
+        console.info("[ProjectViewRouterBridge] initial URL sync (replace)", {
+          from: window.location.href,
+          to: nextHref,
+          projectId,
+        });
+      }
+      replaceWithReplaceState(nextHref);
+      firstUrlSyncRef.current = false;
+    } else {
+      // Force unique history entries even if some browsers coalesce rapid query-only changes.
+      if (process.env.NODE_ENV !== "production") {
+        console.info("[ProjectViewRouterBridge] push projectId", {
+          from: window.location.href,
+          to: nextHref,
+          projectId,
+        });
+      }
+      navigateWithPushState(
+        nextHref,
+        { projectId },
+        { useHashHistory: true, hashParam: "pid", hashValue: projectId },
+      );
+    }
+  }, [projectId]);
+
+  // Removed path segment normalization: path slug stays stable; only ?p changes create history entries.
+
+  // Explicit popstate listener (belt & suspenders) to ensure Back/Forward restores projectId
+  // even if a race suppresses custom bb:routechange or useRouteChange misses a signature.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const handler = () => {
+      try {
+        const qs = new URLSearchParams(window.location.search);
+        const p = qs.get("p") || getDynamicPathParam(-1, initialProjectId);
+        if (process.env.NODE_ENV !== "production") {
+          console.info("[ProjectViewRouterBridge] popstate detected", {
+            url: window.location.href,
+            p,
+            currentProjectId: projectId,
+          });
+        }
+        if (p && p !== projectId) {
+          setProjectId(p);
+        }
+      } catch (err) {
+        if (process.env.NODE_ENV !== "production") {
+          console.warn("[ProjectViewRouterBridge] popstate handler error", err);
+        }
+      }
+    };
+    window.addEventListener("popstate", handler);
+    return () => window.removeEventListener("popstate", handler);
+  }, [projectId, initialProjectId]);
 
   if (!projectId) {
     return (
