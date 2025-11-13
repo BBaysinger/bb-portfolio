@@ -47,6 +47,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         }
       })
       .catch((err: unknown) => {
+        const DEBUG_HEALTH = process.env.NEXT_PUBLIC_DEBUG_HEALTH === "1";
         // Network errors, CORS, DNS, or timeout will land here
         let aborted = false;
         if (typeof err === "object" && err !== null) {
@@ -64,10 +65,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             `⏱️ [Runtime Health Check] Request timed out at ${healthUrl}`,
           );
         } else {
-          console.error(
-            `❌ [Runtime Health Check] Failed to reach backend at ${healthUrl}:`,
-            err,
-          );
+          if (DEBUG_HEALTH) {
+            console.error(
+              `❌ [Runtime Health Check] Failed to reach backend at ${healthUrl}:`,
+              err,
+            );
+          } else {
+            console.warn(
+              `❌ [Runtime Health Check] Failed to reach backend at ${healthUrl} (suppressing details; set NEXT_PUBLIC_DEBUG_HEALTH=1 for stack)`,
+            );
+          }
         }
       })
       .finally(() => clearTimeout(timer));

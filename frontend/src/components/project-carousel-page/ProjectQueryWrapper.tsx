@@ -29,8 +29,7 @@ export default function ProjectQueryWrapper({
   const initialP = searchParams.get("p") || "";
   const [projectId] = useProjectUrlSync(initialP, {
     fallbackFromPathSegment: true,
-    useHashHistory: true,
-    hashParam: "pid",
+    // Hash uniquing is controlled by NEXT_PUBLIC_FORCE_HASH_HISTORY; leave default here
   });
   const initOnce = useRef(false);
   const { isLoggedIn, user } = useAppSelector((s) => s.auth);
