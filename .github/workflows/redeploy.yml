@@ -308,11 +308,11 @@ jobs:
             printf '%s\n' 'echo "== Prune builder cache =="'
             printf '%s\n' 'docker builder prune -af || true'
             printf '%s\n' 'echo "== Check free space and prune volumes only if critically low =="'
-            # Use POSIX df -Pk and robust numeric capture
-            printf '%s\n' "FREE_KB=\$(df -Pk / | awk 'NR==2{print $4+0}')"
+            # Use POSIX df -Pk, sed + cut to avoid any $ expansion in shells
+            printf '%s\n' "FREE_KB=\$(df -Pk / | sed -n '2p' | tr -s ' ' | cut -d' ' -f4)"
             printf '%s\n' 'THRESHOLD_KB=$((3 * 1024 * 1024)) # 3GB'
             printf '%s\n' 'if [ "$FREE_KB" -lt "$THRESHOLD_KB" ]; then'
-            printf '%s\n' '  echo "Low disk space detected ($(df -h / | awk \"NR==2{print \$4}\")) — pruning unused volumes..."'
+            printf '%s\n' "  echo \"Low disk space detected (\$(df -h / | sed -n '2p' | tr -s ' ' | cut -d' ' -f4)) — pruning unused volumes...\""
             printf '%s\n' '  docker volume prune -f || true'
             printf '%s\n' 'fi'
             printf '%s\n' 'echo "== Disk usage after prune =="'
