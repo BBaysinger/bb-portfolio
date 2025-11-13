@@ -2,7 +2,7 @@
 
 import clsx from "clsx";
 import { useRouter, usePathname } from "next/navigation";
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 
 import Footer from "@/components/layout/Footer";
@@ -25,6 +25,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const dispatch = useAppDispatch();
+  const [reduceMotion, setReduceMotion] = useState(false);
   // Runtime backend health check: logs backend connectivity status on startup
   useEffect(() => {
     // Prefer same-origin relative path to leverage Next.js rewrites (/api -> backend)
@@ -141,6 +142,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           try {
             const path = pathname || "";
             if (/\/nda\//.test(path)) {
+              const announcer = document.getElementById("privacyAnnouncement");
+              if (announcer) {
+                announcer.textContent =
+                  "Session ended. Redirecting to public view for privacy.";
+              }
               router.replace("/");
             }
           } catch {}
@@ -189,12 +195,27 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       // Avoid redirecting away from NDA pages until we've established auth state;
       // otherwise reloads may send logged-in users back to home briefly.
       if (onNdaPage && hasInitialized && !isLoading && !authed) {
+        const announcer = document.getElementById("privacyAnnouncement");
+        if (announcer) {
+          announcer.textContent =
+            "Logged out. Redirecting to public view for privacy.";
+        }
         router.replace("/");
       }
     } catch {
       // no-op
     }
   }, [pathname, isLoggedIn, user, hasInitialized, isLoading, router]);
+
+  // Detect prefers-reduced-motion and toggle a class that downstream components can observe
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const apply = () => setReduceMotion(mq.matches);
+    apply();
+    mq.addEventListener("change", apply);
+    return () => mq.removeEventListener("change", apply);
+  }, []);
 
   /**
    * Fluid Responsive System - CSS Variables Provider
@@ -290,6 +311,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         percentHeroInView >= 100 && "isHeroInView100Pct",
         isMenuOpen && "isMobileNavExpanded",
         isMenuOpen && styles.isMobileNavExpanded,
+        reduceMotion && "reduce-motion",
       )}
     >
       {/* Runtime backend health check runs on mount and logs to console */}
@@ -303,6 +325,21 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       >
         <div ref={childContentRef} className={styles.childContent}>
           <ScrollToHash />
+          {/* Screen reader-only aria-live region for privacy/logout announcements */}
+          <div
+            id="privacyAnnouncement"
+            aria-live="polite"
+            aria-atomic="true"
+            style={{
+              position: "absolute",
+              width: 1,
+              height: 1,
+              overflow: "hidden",
+              clip: "rect(0 0 0 0)",
+              clipPath: "inset(50%)",
+              whiteSpace: "nowrap",
+            }}
+          />
           {children}
         </div>
         <Footer mutationElemRef={childContentRef} />
