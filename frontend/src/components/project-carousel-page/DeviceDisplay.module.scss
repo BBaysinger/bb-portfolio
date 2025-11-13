@@ -40,61 +40,62 @@
   }
 
   &.phone {
-    &::before {
-      content: "";
+    // New inner frame so bezel and screen rotate together
+    .phoneFrame {
       position: absolute;
-      top: 46px;
+      top: 46px; // portrait baseline
       left: 465px;
       width: 220px;
       height: 409px;
-      background-image: url("/images/project-carousel/phone.webp");
-      background-size: cover;
-      background-repeat: no-repeat;
       transition: transform 0.4s ease-in-out;
       transform: translateY(3%) rotate(1deg);
       // Rotate from a point near the bottom (but not fully bottom) for a more natural hinge effect
-      // Using 50% 85% keeps horizontal center while shifting vertical pivot upward slightly from bottom edge
-      transform-origin: 50% 85%;
+      // Using 50% 70% keeps horizontal center while shifting vertical pivot upward slightly from bottom edge
+      transform-origin: 50% 70%;
       will-change: transform;
-    }
 
-    img {
-      position: absolute;
-      height: 354px;
-      width: 162px;
-      transition: transform 0.4s ease-in-out;
-      transform: translateY(3%) rotate(1deg);
-      // Match pseudo-element pivot so phone screen rotates around same hinge
-      transform-origin: 50% 85%;
-      will-change: transform;
-    }
-
-    &.none {
-      display: none;
-    }
-
-    &.Portrait {
-      img {
-        left: 493px;
-        top: 69px;
-      }
-    }
-
-    &.Landscape {
       &::before {
-        transform: translateY(5px) rotate(91deg);
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image: url("/images/project-carousel/phone.webp");
+        background-size: cover;
+        background-repeat: no-repeat;
+        pointer-events: none;
+      }
+
+      // Phone screen image within the frame
+      .screen,
+      img {
+        position: absolute;
+        top: 23px; // 69 (img) - 46 (frame)
+        left: 28px; // 493 (img) - 465 (frame)
+        height: 354px;
+        width: 162px;
+      }
+
+      &.none {
+        display: none;
+      }
+
+      // Portrait uses defaults above
+
+      &.Landscape {
+        // Rotate the entire frame; counter-rotate the screen to keep content upright
+        transform: translateY(5px) rotate(90deg);
+        // Preserve pivot for landscape orientation
+        transform-origin: 50% 70%;
         top: 135px;
         left: 337px;
-        // Preserve pivot for landscape orientation
-        transform-origin: 50% 85%;
-      }
-      img {
-        top: 258px;
-        left: 276px;
-        height: 162px;
-        width: 354px;
-        transform: translateY(5px) rotate(1deg);
-        transform-origin: 50% 85%;
+
+        .screen,
+        img {
+          transform: rotate(-90deg);
+          height: 162px; // landscape dimensions
+          width: 354px;
+          top: 123px; // 258 - 135
+          left: -61px; // 276 - 337
+        }
       }
     }
   }
@@ -109,8 +110,10 @@
     transition: none !important;
   }
   .backgroundWrapper.phone {
-    &::before,
-    img {
+    .phoneFrame,
+    .phoneFrame::before,
+    .phoneFrame .screen,
+    .phoneFrame img {
       transition: none !important;
     }
   }
@@ -119,63 +122,33 @@
 // Stabilized and tilt overrides with higher specificity
 :global(.bbStabilizedSlide) {
   .backgroundWrapper.phone {
-    &.Portrait {
-      &::before {
-        transform: translateY(3%) rotate(0deg) !important;
-      }
-      img {
-        transform: translateY(3%) rotate(0deg) !important;
-      }
+    .phoneFrame.Portrait {
+      transform: translateY(3%) rotate(0deg) !important;
     }
-    &.Landscape {
-      &::before {
-        transform: translateY(5px) rotate(90deg) !important;
-      }
-      img {
-        transform: translateY(5px) rotate(0deg) !important;
-      }
+    .phoneFrame.Landscape {
+      transform: translateY(5px) rotate(90deg) !important;
     }
   }
 }
 
 :global(.bbTiltLeft) {
   .backgroundWrapper.phone {
-    &.Portrait {
-      &::before {
-        transform: translateY(3%) rotate(2deg) !important;
-      }
-      img {
-        transform: translateY(3%) rotate(2deg) !important;
-      }
+    .phoneFrame.Portrait {
+      transform: translateY(3%) rotate(2deg) !important;
     }
-    &.Landscape {
-      &::before {
-        transform: translateY(5px) rotate(92deg) !important;
-      }
-      img {
-        transform: translateY(5px) rotate(2deg) !important;
-      }
+    .phoneFrame.Landscape {
+      transform: translateY(5px) rotate(92deg) !important;
     }
   }
 }
 
 :global(.bbTiltRight) {
   .backgroundWrapper.phone {
-    &.Portrait {
-      &::before {
-        transform: translateY(3%) rotate(-4deg) !important;
-      }
-      img {
-        transform: translateY(3%) rotate(-4deg) !important;
-      }
+    .phoneFrame.Portrait {
+      transform: translateY(3%) rotate(-4deg) !important;
     }
-    &.Landscape {
-      &::before {
-        transform: translateY(5px) rotate(87deg) !important;
-      }
-      img {
-        transform: translateY(5px) rotate(-3deg) !important;
-      }
+    .phoneFrame.Landscape {
+      transform: translateY(5px) rotate(87deg) !important;
     }
   }
 }
