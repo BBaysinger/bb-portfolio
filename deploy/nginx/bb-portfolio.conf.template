@@ -74,7 +74,9 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_set_header X-Forwarded-Host $host;
     }
-    location = /api/contact-info {
+    # Contact info proxy should be handled by the frontend API route, with or without trailing slash
+    # Use a prefix match so both "/api/contact-info" and "/api/contact-info/" are routed to the frontend.
+    location ^~ /api/contact-info {
         proxy_pass http://localhost:3000;
         proxy_http_version 1.1;
         proxy_set_header Host $host;
@@ -210,7 +212,9 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_set_header X-Forwarded-Host $host;
     }
-    location = /api/contact-info {
+    # Contact info proxy should be handled by the frontend API route, with or without trailing slash (dev)
+    # Use a prefix match so both "/api/contact-info" and "/api/contact-info/" are routed to the frontend.
+    location ^~ /api/contact-info {
         proxy_pass http://localhost:4000;
         proxy_http_version 1.1;
         proxy_set_header Host $host;

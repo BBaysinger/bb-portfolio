@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server'
+import configPromise from '@payload-config'
+import { getPayload } from 'payload'
 
 /**
  * Contact Info API - Returns obfuscated contact email
@@ -54,18 +56,38 @@ export async function GET() {
     const encodedLocal = Buffer.from(localPart).toString('base64')
     const encodedDomain = Buffer.from(domain).toString('base64')
 
-    // Phone (optional) — use ENV_PROFILE-based keys if available
-    const phoneE164Key = `${upper}_CONTACT_PHONE_E164`
-    const phoneDispKey = `${upper}_CONTACT_PHONE_DISPLAY`
-    const phoneE164RawKey = rawUpper ? `${rawUpper}_CONTACT_PHONE_E164` : ''
-    const phoneDispRawKey = rawUpper ? `${rawUpper}_CONTACT_PHONE_DISPLAY` : ''
-    const phoneE164 =
-      process.env[phoneE164Key] || (phoneE164RawKey ? process.env[phoneE164RawKey] : undefined)
-    const phoneDisplay =
-      process.env[phoneDispKey] ||
-      (phoneDispRawKey ? process.env[phoneDispRawKey] : undefined) ||
-      process.env[phoneE164Key] ||
-      (phoneE164RawKey ? process.env[phoneE164RawKey] : undefined)
+    // Phone (optional) — source from CMS Global first, then fall back to env vars during transition
+    let phoneE164: string | undefined
+    let phoneDisplay: string | undefined
+
+    try {
+      const payload = await getPayload({ config: configPromise })
+      // Publicly readable, but read via server to avoid exposing raw values outside of the obfuscation format
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const contact = await (payload as any).findGlobal({
+        slug: 'contactInfo',
+        depth: 0,
+        overrideAccess: true,
+      })
+      phoneE164 = contact?.phoneE164 || undefined
+      phoneDisplay = contact?.phoneDisplay || undefined
+    } catch (e) {
+      console.warn('[contact-info] CMS read failed, falling back to env:', e)
+    }
+
+    if (!phoneE164) {
+      const phoneE164Key = `${upper}_CONTACT_PHONE_E164`
+      const phoneDispKey = `${upper}_CONTACT_PHONE_DISPLAY`
+      const phoneE164RawKey = rawUpper ? `${rawUpper}_CONTACT_PHONE_E164` : ''
+      const phoneDispRawKey = rawUpper ? `${rawUpper}_CONTACT_PHONE_DISPLAY` : ''
+      phoneE164 =
+        process.env[phoneE164Key] || (phoneE164RawKey ? process.env[phoneE164RawKey] : undefined)
+      phoneDisplay =
+        process.env[phoneDispKey] ||
+        (phoneDispRawKey ? process.env[phoneDispRawKey] : undefined) ||
+        process.env[phoneE164Key] ||
+        (phoneE164RawKey ? process.env[phoneE164RawKey] : undefined)
+    }
 
     let phonePayload: { e: string; d: string; checksum: string } | undefined
     if (phoneE164) {
