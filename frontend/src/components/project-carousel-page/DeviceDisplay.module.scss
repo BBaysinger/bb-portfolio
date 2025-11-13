@@ -100,6 +100,22 @@
   }
 }
 
+// Reduced motion overrides – remove transitions/animations when user prefers reduced motion
+:global(.reduce-motion) {
+  .devicePresentation {
+    transition: none !important;
+  }
+  .backgroundWrapper.laptop {
+    transition: none !important;
+  }
+  .backgroundWrapper.phone {
+    &::before,
+    img {
+      transition: none !important;
+    }
+  }
+}
+
 // Stabilized and tilt overrides with higher specificity
 :global(.bbStabilizedSlide) {
   .backgroundWrapper.phone {
