@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
+import CanonicalLink from "@/components/common/CanonicalLink";
 import ProjectView from "@/components/project-carousel-page/ProjectView";
 import ProjectData from "@/data/ProjectData";
 import { useProjectUrlSync } from "@/hooks/useProjectUrlSync";
@@ -154,6 +155,7 @@ function ProjectViewRouterBridge({
     fallbackFromPathSegment: true,
     // Hash uniquing is controlled by NEXT_PUBLIC_FORCE_HASH_HISTORY; leave default here
   });
+  const base = allowNda ? "/nda/" : "/project/";
   // On NDA routes, include NDA items in active set even if not logged in (placeholders allowed).
   const includeNdaInActive = Boolean(allowNda);
   const [epoch, setEpoch] = useState(0);
@@ -236,9 +238,13 @@ function ProjectViewRouterBridge({
 
   // Use datasetEpoch from parent and local epoch to force remounts when data shape changes
   return (
-    <ProjectView
-      key={`dataset-${datasetEpoch}-${epoch}`}
-      projectId={projectId}
-    />
+    <>
+      {/* Emit a canonical link that always points to the segment route for the current project */}
+      <CanonicalLink href={`${base}${encodeURIComponent(projectId)}/`} />
+      <ProjectView
+        key={`dataset-${datasetEpoch}-${epoch}`}
+        projectId={projectId}
+      />
+    </>
   );
 }
