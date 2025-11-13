@@ -21,7 +21,10 @@ import LogoSwapper from "@/components/project-carousel-page/LogoSwapper";
 import PageButtons from "@/components/project-carousel-page/PageButtons";
 import ProjectData from "@/data/ProjectData";
 import { useRouteChange } from "@/hooks/useRouteChange";
-import { navigateWithPushState } from "@/utils/navigation";
+import {
+  navigateWithPushState,
+  replaceWithReplaceState,
+} from "@/utils/navigation";
 
 import ProjectCarouselView from "./ProjectCarouselView";
 import styles from "./ProjectView.module.scss";
@@ -41,9 +44,7 @@ import styles from "./ProjectView.module.scss";
  */
 const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
   const projects = ProjectData.activeProjectsRecord;
-  const debug =
-    process.env.NEXT_PUBLIC_DEBUG_CAROUSEL === "1" ||
-    process.env.NODE_ENV !== "production";
+  const debug = process.env.NEXT_PUBLIC_DEBUG_CAROUSEL === "1";
 
   const [initialIndex] = useState(() => {
     return projectId ? (ProjectData.projectIndex(projectId) ?? null) : null;
@@ -158,8 +159,7 @@ const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
               const base = `/${seg0}/`;
               const hash = window.location.hash || "";
               const url = `${base}?p=${encodeURIComponent(currentId)}${hash}`;
-              window.history.replaceState(window.history.state, "", url);
-              window.dispatchEvent(new CustomEvent("bb:routechange"));
+              replaceWithReplaceState(url, window.history.state || null);
             }
           }
         } catch {
@@ -307,8 +307,10 @@ const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
               window.location.pathname +
               window.location.search +
               window.location.hash; // preserve hash tokens used for history separation
-            window.history.replaceState(rest, "", currentUrl);
-            window.dispatchEvent(new CustomEvent("bb:routechange"));
+            replaceWithReplaceState(
+              currentUrl,
+              rest as Record<string, unknown>,
+            );
           } catch {}
         }
         return;
@@ -372,9 +374,7 @@ const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
           window.location.pathname +
           window.location.search +
           window.location.hash;
-        window.history.replaceState(rest, "", currentUrl);
-        // Emit event for consistency
-        window.dispatchEvent(new CustomEvent("bb:routechange"));
+        replaceWithReplaceState(currentUrl, rest as Record<string, unknown>);
       } catch {
         // noop if replaceState fails
       }

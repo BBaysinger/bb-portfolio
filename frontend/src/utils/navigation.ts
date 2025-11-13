@@ -40,6 +40,7 @@ export function navigateWithPushState(
   },
 ): void {
   if (typeof window === "undefined") return;
+  const DEBUG_NAV = process.env.NEXT_PUBLIC_DEBUG_NAVIGATION === "1";
 
   // If the navigation is triggered without transient user activation, some browsers may
   // treat history changes as lower-priority for Back/Forward traversal. While we cannot
@@ -53,7 +54,7 @@ export function navigateWithPushState(
       .__lastUserActivationTs;
     const hasActivation =
       typeof lastTs === "number" && Date.now() - lastTs < 750;
-    if (!hasActivation && process.env.NODE_ENV !== "production") {
+    if (!hasActivation && DEBUG_NAV) {
       console.warn(
         "[navigateWithPushState] Possibly non-user-initiated navigation; Back/Forward may coalesce. Trigger inside a click/keydown if issues persist.",
       );
@@ -106,7 +107,8 @@ export function navigateWithPushState(
       dummyParams.set(dummyKey, Date.now().toString());
       const dummyUrl = `${dummyTarget.pathname}${dummyTarget.search}#${dummyParams.toString()}`;
 
-      console.info(`Navigating (double-push) to ${normalizedUrl}`);
+      if (DEBUG_NAV)
+        console.info(`Navigating (double-push) to ${normalizedUrl}`);
       window.history.pushState(state || null, "", dummyUrl);
       // Defer replace to allow the history entry to settle
       setTimeout(() => {
@@ -121,7 +123,7 @@ export function navigateWithPushState(
         }
       }, 0);
     } else {
-      console.info(`Navigating to ${normalizedUrl}`);
+      if (DEBUG_NAV) console.info(`Navigating to ${normalizedUrl}`);
       window.history.pushState(state || null, "", normalizedUrl);
       // Emit custom event so listeners (e.g., useRouteChange) react to this change
       window.dispatchEvent(new CustomEvent("bb:routechange"));
@@ -140,6 +142,7 @@ export function replaceWithReplaceState(
   state?: Record<string, unknown> | null,
 ): void {
   if (typeof window === "undefined") return;
+  const DEBUG_NAV = process.env.NEXT_PUBLIC_DEBUG_NAVIGATION === "1";
 
   const target = new URL(url, window.location.origin);
   const normalizedPathname = target.pathname.endsWith("/")
@@ -147,7 +150,7 @@ export function replaceWithReplaceState(
     : `${target.pathname}/`;
   const normalizedUrl = `${normalizedPathname}${target.search}${target.hash}`;
 
-  console.info(`Replacing URL with ${normalizedUrl}`);
+  if (DEBUG_NAV) console.info(`Replacing URL with ${normalizedUrl}`);
   window.history.replaceState(state || null, "", normalizedUrl);
   // Emit custom event so listeners are notified of the change
   window.dispatchEvent(new CustomEvent("bb:routechange"));

@@ -1,16 +1,12 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 import ProjectView from "@/components/project-carousel-page/ProjectView";
 import ProjectData from "@/data/ProjectData";
-import { useRouteChange } from "@/hooks/useRouteChange";
+import { useProjectUrlSync } from "@/hooks/useProjectUrlSync";
 import { useAppSelector } from "@/store/hooks";
-import { getDynamicPathParam } from "@/utils/getDynamicPathParam";
-import {
-  navigateWithPushState,
-  replaceWithReplaceState,
-} from "@/utils/navigation";
 
 /**
  * Renders the ProjectView statically with a given projectId.
@@ -45,18 +41,20 @@ export default function ProjectViewWrapper({
   ssrParsed,
   ssrIncludeNdaInActive,
 }: ProjectPageProps) {
+  const router = useRouter();
   // Ensure project data is available on the client after hydration.
   const [ready, setReady] = useState(false);
   // Increment this when the underlying ProjectData active set fundamentally changes
   // (e.g., NDA entries added after an includeNda initialization) so the carousel remounts.
   const [datasetEpoch, setDatasetEpoch] = useState(0);
   const initOnce = useRef(false);
-  const {
-    /* isLoggedIn, user */
-  } = useAppSelector((s) => s.auth);
-  // On NDA routes, include NDA items in the active carousel set even if unauthenticated.
-  // The fetch layer already redacts sensitive fields and will emit placeholders when not logged in.
-  const includeNdaInActive = Boolean(allowNda);
+  const { isLoggedIn, user } = useAppSelector((s) => s.auth);
+  // Determine whether NDA items should be included in the active carousel set for this route.
+  // - On NDA routes, always allow NDA entries (placeholders will be used if unauthenticated).
+  // - On public routes, include NDA entries only when authenticated so the carousel is consistent
+  //   even if the user landed on a non-NDA slug first.
+  const isAuthed = Boolean(isLoggedIn) || Boolean(user);
+  const includeNdaInActive = allowNda ? true : isAuthed;
 
   useEffect(() => {
     let cancelled = false;
@@ -75,22 +73,12 @@ export default function ProjectViewWrapper({
           );
           setDatasetEpoch((e) => e + 1);
         } else {
-          if (!allowNda) {
-            // Public route: always enforce a clean non-NDA active set.
-            await ProjectData.initialize({
-              disableCache: true,
-              includeNdaInActive: false,
-            });
-            setDatasetEpoch((e) => e + 1);
-          } else {
-            // NDA route: always ensure dataset is initialized according to current auth
-            // state so NDA items are included when allowed.
-            await ProjectData.initialize({
-              disableCache: true,
-              includeNdaInActive,
-            });
-            setDatasetEpoch((e) => e + 1);
-          }
+          // Initialize dataset based on computed includeNdaInActive for this route/auth state.
+          await ProjectData.initialize({
+            disableCache: true,
+            includeNdaInActive,
+          });
+          setDatasetEpoch((e) => e + 1);
         }
         initOnce.current = true;
       } finally {
@@ -101,6 +89,44 @@ export default function ProjectViewWrapper({
       cancelled = true;
     };
   }, []);
+
+  // If we are on the public route and the user transitions to authenticated,
+  // reinitialize the dataset to include NDA entries and bump the epoch so the
+  // carousel remounts with the expanded set.
+  useEffect(() => {
+    if (!ready) return;
+    if (allowNda) return; // NDA route already includes NDA
+    const authed = isAuthed;
+    if (authed) {
+      const hasNdaInActive = ProjectData.activeProjects.some((p) => !!p.nda);
+      if (!hasNdaInActive) {
+        (async () => {
+          await ProjectData.initialize({
+            disableCache: true,
+            includeNdaInActive: true,
+          });
+          setDatasetEpoch((e) => e + 1);
+        })();
+      }
+    }
+  }, [ready, allowNda, isAuthed]);
+
+  // If we're on the public route but the slug actually refers to an NDA project,
+  // redirect to the NDA route to ensure the dataset includes the project in the active set
+  // and to avoid inconsistent rendering.
+  useEffect(() => {
+    if (!ready) return;
+    if (allowNda) return;
+    try {
+      const p = ProjectData.getProject(params.projectId);
+      if (p && p.nda) {
+        // Navigate to NDA route for this slug
+        router.replace(`/nda/${encodeURIComponent(params.projectId)}/`);
+      }
+    } catch {
+      // no-op
+    }
+  }, [ready, allowNda, params.projectId, router]);
 
   if (!ready) {
     return <div>Loading project...</div>;
@@ -124,8 +150,11 @@ function ProjectViewRouterBridge({
   allowNda: boolean;
   datasetEpoch: number;
 }) {
-  const [projectId, setProjectId] = useState(initialProjectId);
-  const firstUrlSyncRef = useRef(true);
+  const [projectId] = useProjectUrlSync(initialProjectId, {
+    fallbackFromPathSegment: true,
+    useHashHistory: true,
+    hashParam: "pid",
+  });
   // On NDA routes, include NDA items in active set even if not logged in (placeholders allowed).
   const includeNdaInActive = Boolean(allowNda);
   const [epoch, setEpoch] = useState(0);
@@ -149,101 +178,24 @@ function ProjectViewRouterBridge({
     ensureNdaPresent();
   }, [includeNdaInActive, projectId, allowNda]);
 
-  useRouteChange(
-    (_pathname, search) => {
-      // Prefer query param `p` when present; fall back to last path segment
-      const p = new URLSearchParams(search).get("p");
-      const newId = p || getDynamicPathParam(-1, initialProjectId);
-      if (newId && newId !== projectId) {
-        console.info("Route bridge updating projectId:", projectId, "→", newId);
-        setProjectId(newId);
-      }
-    },
-    // Important: ignore internal Next.js router noise (e.g., refocus-triggered refreshes)
-    // and only react to true external navigation (popstate/custom bb:routechange).
-    // This prevents the carousel from snapping back to the original segment slug on refocus.
-    { mode: "external-only" },
-  );
+  // URL sync is now handled entirely by useProjectUrlSync
 
-  // Also sync projectId on mount/remount to handle edge cases
+  // If NDA is allowed but the current project isn't in the active map yet,
+  // attempt a one-shot re-init including NDA and show a lightweight placeholder.
   useEffect(() => {
-    const p =
-      typeof window !== "undefined"
-        ? new URLSearchParams(window.location.search).get("p")
-        : null;
-    const currentId = p || getDynamicPathParam(-1, initialProjectId);
-    if (currentId && currentId !== projectId) {
-      setProjectId(currentId);
-    }
-  }, [initialProjectId, projectId]);
-
-  // Sync URL query with active project. Use pushState for user-driven changes so Back/Forward works.
-  // Use replaceState only for the initial hydrate or corrective normalization.
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    if (!projectId) return;
-    const url = new URL(window.location.href);
-    const currentP = url.searchParams.get("p");
-    if (currentP === projectId) return;
-    url.searchParams.set("p", projectId);
-    const nextHref = url.toString();
-    const isInitial = firstUrlSyncRef.current;
-    if (isInitial) {
-      if (process.env.NODE_ENV !== "production") {
-        console.info("[ProjectViewRouterBridge] initial URL sync (replace)", {
-          from: window.location.href,
-          to: nextHref,
-          projectId,
+    const ensureCurrentPresent = async () => {
+      if (!allowNda || !projectId) return;
+      const record = ProjectData.activeProjectsRecord || {};
+      if (!record[projectId]) {
+        await ProjectData.initialize({
+          disableCache: true,
+          includeNdaInActive: true,
         });
-      }
-      replaceWithReplaceState(nextHref);
-      firstUrlSyncRef.current = false;
-    } else {
-      // Force unique history entries even if some browsers coalesce rapid query-only changes.
-      if (process.env.NODE_ENV !== "production") {
-        console.info("[ProjectViewRouterBridge] push projectId", {
-          from: window.location.href,
-          to: nextHref,
-          projectId,
-        });
-      }
-      navigateWithPushState(
-        nextHref,
-        { projectId },
-        { useHashHistory: true, hashParam: "pid", hashValue: projectId },
-      );
-    }
-  }, [projectId]);
-
-  // Removed path segment normalization: path slug stays stable; only ?p changes create history entries.
-
-  // Explicit popstate listener (belt & suspenders) to ensure Back/Forward restores projectId
-  // even if a race suppresses custom bb:routechange or useRouteChange misses a signature.
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const handler = () => {
-      try {
-        const qs = new URLSearchParams(window.location.search);
-        const p = qs.get("p") || getDynamicPathParam(-1, initialProjectId);
-        if (process.env.NODE_ENV !== "production") {
-          console.info("[ProjectViewRouterBridge] popstate detected", {
-            url: window.location.href,
-            p,
-            currentProjectId: projectId,
-          });
-        }
-        if (p && p !== projectId) {
-          setProjectId(p);
-        }
-      } catch (err) {
-        if (process.env.NODE_ENV !== "production") {
-          console.warn("[ProjectViewRouterBridge] popstate handler error", err);
-        }
+        setEpoch((e) => e + 1);
       }
     };
-    window.addEventListener("popstate", handler);
-    return () => window.removeEventListener("popstate", handler);
-  }, [projectId, initialProjectId]);
+    ensureCurrentPresent();
+  }, [allowNda, projectId]);
 
   if (!projectId) {
     return (
@@ -258,6 +210,27 @@ function ProjectViewRouterBridge({
       >
         <h2>Oops! No project ID was provided!</h2>
         <p>This page expects a valid projectId parameter.</p>
+      </div>
+    );
+  }
+
+  // While we’re ensuring NDA dataset, avoid rendering a confusing "Project not found".
+  if (
+    allowNda &&
+    projectId &&
+    !(ProjectData.activeProjectsRecord || {})[projectId]
+  ) {
+    return (
+      <div
+        style={{
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          flexDirection: "column",
+          justifyContent: "center",
+        }}
+      >
+        <h2>Loading confidential project…</h2>
       </div>
     );
   }
