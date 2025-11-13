@@ -9,33 +9,33 @@ import styles from "./PageButtons.module.scss";
 
 /**
  * Project navigation buttons for carousel-style browsing
- * 
+ *
  * Provides prev/next navigation between projects in the portfolio carousel.
  * Uses custom PushStateLink components to maintain smooth transitions and
  * avoid full page reloads during navigation.
- * 
+ *
  * @component
  * @param {Object} props - Component props
  * @param {string} props.projectId - Current project ID for context
- * 
+ *
  * @example
  * ```tsx
  * <PageButtons projectId="my-awesome-project" />
  * ```
- * 
+ *
  * Features:
  * - Seamless SPA navigation using pushState routing
  * - NDA-aware routing (switches between /project/ and /nda/ routes)
- * - Accessible navigation with ARIA labels and role grouping  
+ * - Accessible navigation with ARIA labels and role grouping
  * - Graceful handling of missing/invalid projects
  * - Maintains scroll position and animation state during navigation
- * 
+ *
  * Architecture:
  * - Integrates with ProjectData for next/prev project resolution
  * - Uses query-string routing (?p=slug) for in-session navigation
  * - Supports both public and NDA project collections
  * - Emits custom bb:routechange events for state synchronization
- * 
+ *
  * @see {@link PushStateLink} for the underlying navigation mechanism
  * @see {@link ProjectData} for project data and navigation helpers
  */

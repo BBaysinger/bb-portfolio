@@ -8,19 +8,19 @@ import styles from "./Hamburger.module.scss";
 
 /**
  * Mobile hamburger menu toggle button
- * 
+ *
  * A three-bar animated button that toggles the mobile navigation menu.
  * Connected to Redux state to show open/closed state and dispatch toggle actions.
- * 
+ *
  * @component
  * @param {Object} props - Component props
  * @param {string} props.className - Additional CSS classes to apply
- * 
+ *
  * @example
  * ```tsx
  * <Hamburger className="custom-positioning" />
  * ```
- * 
+ *
  * Features:
  * - Animated three-bar icon that transforms when menu is open
  * - Screen reader accessible with descriptive text
