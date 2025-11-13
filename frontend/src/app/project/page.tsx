@@ -20,6 +20,6 @@ export default function ProjectQueryPage({
   const projectIdRaw = typeof p === "string" ? p : "";
   const projectId = projectIdRaw.replace(/\/+$/u, "");
   if (!projectId) return notFound();
-  // Always canonicalize to segment route; client-side code manages carousel state.
-  return redirect(`/project/${encodeURIComponent(projectId)}`);
+  // Always canonicalize to segment route with trailing slash; client-side code manages carousel state.
+  return redirect(`/project/${encodeURIComponent(projectId)}/`);
 }
