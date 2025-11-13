@@ -63,8 +63,8 @@ This will update the Nginx configuration on your server to handle the new subdom
 
 Note on Nginx config changes:
 
-- Nginx on the EC2 host is provisioned by Terraform’s user_data the first time the instance is created. Subsequent container deploys do NOT change Nginx automatically.
-- If you change reverse-proxy behavior in the repo (for example, we now emit admin assets under `/admin/_next` via backend assetPrefix), you have two ways to propagate the Nginx change:
+- Nginx on the EC2 host is now managed outside of user_data to avoid drift and size limits. The deploy orchestrator (or the helper script below) is responsible for syncing `/etc/nginx/conf.d/bb-portfolio.conf`.
+- To propagate reverse-proxy updates from this repo (e.g., admin assets under `/admin/_next`):
   1. Quick sync (recommended):
      - Use the helper script to push the vhost config template in this repo to the server and reload Nginx.
      - This is safe and idempotent; it backs up the old file.
@@ -75,8 +75,7 @@ Note on Nginx config changes:
      ```
 
   2. Rebuild via Terraform (slower):
-     - Update Terraform to render the new config in user_data, then recreate or reprovision the instance so user_data runs again.
-     - Useful when you want a fully fresh instance.
+     - Not required for Nginx anymore. user_data is intentionally minimal and does not write the site config.
 
 ### 3. Future Infrastructure Changes (Optional)
 
@@ -110,9 +109,9 @@ terraform apply   # Apply changes
 ### Instance Boot/Restart
 
 1. Docker service starts automatically
-2. Nginx starts automatically
-3. Portfolio containers start via systemd service
-4. Services are configured and available
+2. Nginx starts automatically (default config only)
+3. Site config, env files, and containers are managed by the deploy orchestrator or GitHub Actions
+4. Services are configured and available after orchestrator runs
 
 ### Deployment Process
 
@@ -227,7 +226,7 @@ When you're ready to use production containers:
 
 ## Enabling & Maintaining HTTPS
 
-TLS termination is handled directly on the EC2 host by Nginx with certificates provisioned via Let's Encrypt (certbot). Terraform `user_data` installs certbot and issues certificates for the canonical set (apex + www + dev). Legacy domains are no longer required:
+TLS termination is handled directly on the EC2 host by Nginx with certificates provisioned via Let's Encrypt (certbot). The deploy orchestrator installs certbot on the host if missing and issues certificates over SSH for the canonical set (apex + www + dev). Legacy domains are no longer required:
 
 ```
 bbaysinger.com
@@ -250,17 +249,7 @@ Add `ACME_REGISTRATION_EMAIL` (or `ACME_EMAIL`) to `.github-secrets.private.json
 }
 ```
 
-Run the terraform var generator so `acme_registration_email` is written to `terraform.tfvars`:
-
-```bash
-npx tsx deploy/scripts/generate-terraform-vars.ts
-```
-
-Confirm it appears in `infra/terraform.tfvars` as:
-
-```
-acme_registration_email = "you@bbaysinger.com"
-```
+The orchestrator reads this value directly to run certbot over SSH; Terraform does not need it in user_data anymore.
 
 ### 2. Ensure DNS A Records Resolve
 
@@ -274,21 +263,15 @@ dig +short dev.bbaysinger.com
 
 They should all return the Elastic IP (e.g., `44.246.43.116`). If any do not, wait for propagation or fix DNS before proceeding.
 
-### 3. Apply Terraform (First-Time or Rebuild)
+### 3. Issue Certificates (Orchestrator)
 
-On initial creation or when recreating the instance:
+With DNS pointed to the Elastic IP and your ACME email set, run the deploy orchestrator (containers-only is fine):
 
 ```bash
-cd infra
-terraform apply
+deploy/scripts/deployment-orchestrator.sh --profiles prod --no-build --no-secrets-sync
 ```
 
-The `user_data` will:
-
-- Install `certbot` and `python3-certbot-nginx`
-- Issue certificates non-interactively
-- Enable HTTP→HTTPS redirects (`--redirect` flag)
-- Reload Nginx
+It will detect the EC2 host, ensure certbot is installed, and issue certs via the nginx plugin with `--redirect`.
 
 ### 4. Verifying HTTPS
 
