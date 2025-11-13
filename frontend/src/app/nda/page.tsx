@@ -16,9 +16,11 @@ export default function NdaQueryPage({
 }) {
   const param = searchParams?.p;
   const p = Array.isArray(param) ? param[0] : param;
-  const projectIdRaw = typeof p === "string" ? p : "";
+  const projectIdRaw = typeof p === "string" ? p.trim() : "";
   const projectId = projectIdRaw.replace(/\/+$/u, "");
-  if (!projectId) return notFound();
+  // Basic slug validation: allow alphanumerics and hyphens only
+  const isValid = /^[a-z0-9-]+$/i.test(projectId);
+  if (!projectId || !isValid) return notFound();
   // Canonicalize to segment route with trailing slash
   return redirect(`/nda/${encodeURIComponent(projectId)}/`);
 }
