@@ -259,16 +259,16 @@ jobs:
           test -n "$OUT_DIR" && test -d "$OUT_DIR"
 
           # Prepare remote directories and ensure correct ownership (idempotent)
-          ssh -i "${{ steps.ssh.outputs.key }}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" "sudo mkdir -p /home/ec2-user/portfolio/backend /home/ec2-user/portfolio/frontend && sudo chown -R ec2-user:ec2-user /home/ec2-user/portfolio"
+          ssh -i "${{ steps.ssh.outputs.key }}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" "sudo mkdir -p /home/ec2-user/bb-portfolio/backend /home/ec2-user/bb-portfolio/frontend && sudo chown -R ec2-user:ec2-user /home/ec2-user/bb-portfolio"
 
           scp -i "${{ steps.ssh.outputs.key }}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
-            "$OUT_DIR/backend.env.prod"  ec2-user@"$EC2_HOST":/home/ec2-user/portfolio/backend/.env.prod
+            "$OUT_DIR/backend.env.prod"  ec2-user@"$EC2_HOST":/home/ec2-user/bb-portfolio/backend/.env.prod
           scp -i "${{ steps.ssh.outputs.key }}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
-            "$OUT_DIR/backend.env.dev"   ec2-user@"$EC2_HOST":/home/ec2-user/portfolio/backend/.env.dev
+            "$OUT_DIR/backend.env.dev"   ec2-user@"$EC2_HOST":/home/ec2-user/bb-portfolio/backend/.env.dev
           scp -i "${{ steps.ssh.outputs.key }}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
-            "$OUT_DIR/frontend.env.prod" ec2-user@"$EC2_HOST":/home/ec2-user/portfolio/frontend/.env.prod
+            "$OUT_DIR/frontend.env.prod" ec2-user@"$EC2_HOST":/home/ec2-user/bb-portfolio/frontend/.env.prod
           scp -i "${{ steps.ssh.outputs.key }}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
-            "$OUT_DIR/frontend.env.dev"  ec2-user@"$EC2_HOST":/home/ec2-user/portfolio/frontend/.env.dev
+            "$OUT_DIR/frontend.env.dev"  ec2-user@"$EC2_HOST":/home/ec2-user/bb-portfolio/frontend/.env.dev
 
       - name: Upload compose file to EC2
         env:
@@ -276,11 +276,11 @@ jobs:
         run: |
           set -euo pipefail
           # Ensure target directory exists on EC2
-          ssh -i "${{ steps.ssh.outputs.key }}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" "sudo mkdir -p /home/ec2-user/portfolio/deploy/compose && sudo chown -R ec2-user:ec2-user /home/ec2-user/portfolio"
+          ssh -i "${{ steps.ssh.outputs.key }}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" "sudo mkdir -p /home/ec2-user/bb-portfolio/deploy/compose && sudo chown -R ec2-user:ec2-user /home/ec2-user/bb-portfolio"
           # Upload the compose file from repo to the expected remote path
           scp -i "${{ steps.ssh.outputs.key }}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
             "deploy/compose/docker-compose.yml" \
-            ec2-user@"$EC2_HOST":/home/ec2-user/portfolio/deploy/compose/docker-compose.yml
+            ec2-user@"$EC2_HOST":/home/ec2-user/bb-portfolio/deploy/compose/docker-compose.yml
 
       - name: Restart containers
         if: ${{ inputs.restart_containers == 'true' || inputs.restart_containers == true }}
@@ -323,7 +323,7 @@ jobs:
           # Now perform the actual restart using docker-compose
           {
             printf '%s\n' 'set -e'
-            printf '%s\n' 'cd /home/ec2-user/portfolio'
+            printf '%s\n' 'cd /home/ec2-user/bb-portfolio'
             printf '%s\n' 'aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 778230822028.dkr.ecr.us-west-2.amazonaws.com >/dev/null 2>&1 || true'
             printf '%s\n' 'export AWS_ACCOUNT_ID=778230822028'
             printf '%s\n' 'COMPOSE_FILE="deploy/compose/docker-compose.yml"'
@@ -381,7 +381,7 @@ jobs:
             ss -lntp || true
             echo
             echo "== Compose ps (prod) =="
-            COMPOSE_PROFILES=prod docker compose -f /home/ec2-user/portfolio/deploy/compose/docker-compose.yml ps || true
+            COMPOSE_PROFILES=prod docker compose -f /home/ec2-user/bb-portfolio/deploy/compose/docker-compose.yml ps || true
             echo
             echo "== Nginx status =="
             systemctl is-active nginx || true

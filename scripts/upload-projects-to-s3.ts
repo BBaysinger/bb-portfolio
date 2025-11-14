@@ -193,7 +193,7 @@ function uploadToS3(accessLevel: AccessLevel, options: UploadOptions): void {
 }
 
 async function main(): Promise<void> {
-  console.info("🚀 BB Portfolio - Project Files Upload");
+  console.info("🚀 BB-Portfolio - Project Files Upload");
   console.info("=====================================");
 
   const options = parseArguments();

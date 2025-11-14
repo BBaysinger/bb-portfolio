@@ -227,7 +227,7 @@ If you see errors about missing bucket variables, ensure your secrets are update
 If you find references to old bucket names, check:
 
 - Terraform outputs: `terraform output -json`
-- Environment files on EC2: `/home/ec2-user/portfolio/backend/.env.*`
+- Environment files on EC2: `/home/ec2-user/bb-portfolio/backend/.env.*`
 - Database records with hardcoded URLs
 
 ### Access Issues

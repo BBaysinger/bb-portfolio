@@ -1,6 +1,6 @@
 # Portfolio Frontend (Next.js)
 
-This is the frontend service for the BB Portfolio website, built with Next.js, React, and TypeScript.
+This is the frontend service for the BB-Portfolio website, built with Next.js, React, and TypeScript.
 
 > See also: [Engineering Standards](../docs/engineering-standards.md) for shared conventions (naming, env exposure via `NEXT_PUBLIC_*`, and CI/CD expectations).
 

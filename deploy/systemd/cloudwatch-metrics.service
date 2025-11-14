@@ -1,0 +1,18 @@
+[Unit]
+Description=Publish BB-Portfolio custom CloudWatch metrics (nginx + sshd + fail2ban)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/publish-cloudwatch-metrics.sh
+Nice=10
+ProtectSystem=strict
+ProtectHome=true
+NoNewPrivileges=true
+PrivateTmp=true
+# Optional: set environment variables if needed
+# Environment=AWS_REGION=us-west-2 METRIC_WINDOW_MINUTES=5
+
+[Install]
+WantedBy=multi-user.target

@@ -143,7 +143,7 @@ function verifyBucket(
 }
 
 async function main(): Promise<void> {
-  console.info("🔍 BB Portfolio - Project Buckets Verification");
+  console.info("🔍 BB-Portfolio - Project Buckets Verification");
   console.info("==============================================");
 
   const options = parseArguments();
