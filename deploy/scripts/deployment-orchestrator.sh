@@ -76,6 +76,9 @@ target_role="active" # target instance role for container operations: active|can
 prune_after_promotion=false # if true, invoke retention pruning for old instances (Role=previous)
 retention_count=2            # how many previous instances to keep when pruning
 retention_days=""           # if set, only prune those older than this many days
+promote=false                # if true and target_role=candidate, run Elastic IP handover before optional pruning
+handover_rollback=true       # attempt rollback on post-swap failure
+handover_snapshot=false      # snapshot active root volume before swap
 
 usage() {
   cat <<USAGE
@@ -93,6 +96,9 @@ Options:
   --prune-after-promotion Prune old previous instances after successful deploy (blue-green retention)
   --retention-count [n]   Retention: keep newest N previous instances (default: 2)
   --retention-days [n]    Retention: only prune if demoted age >= N days (optional)
+  --promote               After deploying to candidate, perform EIP handover (promote candidate → active)
+  --handover-no-rollback  Disable rollback on failed post-swap health
+  --handover-snapshot     Snapshot current active root volume before handover
   --gh-workflows [names]  Comma-separated workflow names to trigger (default: Redeploy)
   --refresh-env           Ask GH workflow to regenerate & upload .env files (default: false)
   --no-restart            Do not restart containers in GH workflow (default: restart)
@@ -130,6 +136,9 @@ while [[ $# -gt 0 ]]; do
       retention_count="${2:-}"; [[ "$retention_count" =~ ^[0-9]+$ ]] || die "--retention-count must be integer"; shift 2 ;;
     --retention-days)
       retention_days="${2:-}"; [[ "$retention_days" =~ ^[0-9]+$ ]] || die "--retention-days must be integer"; shift 2 ;;
+    --promote) promote=true; shift ;;
+    --handover-no-rollback) handover_rollback=false; shift ;;
+    --handover-snapshot) handover_snapshot=true; shift ;;
     -h|--help) usage; exit 0 ;;
     *) die "Unknown option: $1" ;;
   esac
@@ -782,6 +791,41 @@ esac
 '
 
 ok "Containers restarted via SSH fallback. EC2 IP: $EC2_HOST"
+
+# Optional promotion (Elastic IP handover) before pruning
+if [[ "$promote" == true ]]; then
+  if [[ "$target_role" != "candidate" ]]; then
+    warn "--promote ignored: target_role=$target_role (promotion only valid after deploying to candidate)."
+  else
+    HANDOVER_SCRIPT="${REPO_ROOT}/scripts/eip-handover.sh"
+    if [[ -f "$HANDOVER_SCRIPT" ]]; then
+      log "Initiating Elastic IP handover (--promote)"
+      set +e
+      HANDOVER_CMD=("$HANDOVER_SCRIPT" --region us-west-2 --promote)
+      [[ "$handover_rollback" == true ]] && HANDOVER_CMD+=(--rollback-on-fail) || true
+      [[ "$handover_snapshot" == true ]] && HANDOVER_CMD+=(--snapshot-before) || true
+      HANDOVER_CMD+=(--max-retries 10 --interval 6)
+      echo "Running: ${HANDOVER_CMD[*]}"
+      "${HANDOVER_CMD[@]}"
+      HS=$?
+      set -e
+      if [[ $HS -ne 0 ]]; then
+        err "Elastic IP handover failed (exit $HS)."
+        if [[ "$handover_rollback" == true ]]; then
+          warn "Rollback attempted or performed by handover script; continuing." 
+        else
+          die "Promotion aborted; not proceeding to pruning."
+        fi
+      else
+        ok "Elastic IP handover completed successfully."
+      fi
+    else
+      warn "eip-handover.sh not found at $HANDOVER_SCRIPT; cannot promote."
+    fi
+  fi
+fi
+
+# Retention pruning block (after optional promotion)
 if [[ "$prune_after_promotion" == true ]]; then
   log "Retention pruning requested (--prune-after-promotion). Invoking instance-retention.sh"
   RETENTION_SCRIPT="${REPO_ROOT}/scripts/instance-retention.sh"
@@ -797,7 +841,7 @@ if [[ "$prune_after_promotion" == true ]]; then
     warn "Retention script not found at $RETENTION_SCRIPT; skipping prune"
   fi
 fi
-ok "Full deploy completed (fallback path; target_role=$target_role; prune_after_promotion=$prune_after_promotion)."
+ok "Full deploy completed (fallback path; target_role=$target_role; promote=$promote; prune_after_promotion=$prune_after_promotion)."
 
 
 popd >/dev/null
