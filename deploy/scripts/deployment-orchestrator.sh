@@ -72,6 +72,7 @@ watch_logs=true     # whether to watch GH workflow logs
 sync_secrets=true   # whether to sync local secrets to GitHub
 discover_only=false # perform discovery and exit without changes
 plan_only=false     # run terraform plan (summary) and exit (no apply)
+target_role="active" # target instance role for container operations: active|candidate
 
 usage() {
   cat <<USAGE
@@ -85,6 +86,7 @@ Options:
   --destroy               Destroy and recreate EC2 infra (default: preserve existing)
   --containers-only       Skip all Terraform/infra steps (no destroy/apply)
   --baseline-reset        Snapshot root volume then targeted destroy (requires CONFIRM_BASELINE=YES)
+  --target [role]         Target instance role for container deploy: active|candidate (default: active)
   --gh-workflows [names]  Comma-separated workflow names to trigger (default: Redeploy)
   --refresh-env           Ask GH workflow to regenerate & upload .env files (default: false)
   --no-restart            Do not restart containers in GH workflow (default: restart)
@@ -115,6 +117,8 @@ while [[ $# -gt 0 ]]; do
     --no-secrets-sync) sync_secrets=false; shift ;;
     --discover-only) discover_only=true; shift ;;
     --plan-only) plan_only=true; shift ;;
+    --target)
+      target_role="${2:-}"; [[ "$target_role" =~ ^(active|candidate)$ ]] || die "--target must be active|candidate"; shift 2 ;;
     -h|--help) usage; exit 0 ;;
     *) die "Unknown option: $1" ;;
   esac
@@ -350,29 +354,32 @@ if [[ "$do_infra" == true ]]; then
   
   # Update local private secrets with the new EC2 IP so GitHub Secrets get the latest EC2_HOST
   if [[ -n "${EC2_IP:-}" && "${EC2_IP}" != "null" ]]; then
-    log "Updating .github-secrets.private.json5 with new EC2 IP: ${EC2_IP}"
-    export EC2_IP
-    npx tsx -e '
-      import { readFileSync, writeFileSync } from "fs";
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const JSON5 = require("json5");
-      const file = ".github-secrets.private.json5";
-      const ip = process.env.EC2_IP || "";
-      const raw = readFileSync(file, "utf8");
-      const cfg = JSON5.parse(raw);
-      const s = (cfg.strings || cfg);
-      const before = s.EC2_HOST;
-      s.EC2_HOST = ip;
-      const replaceHost = (val: any) => typeof val === "string" ? val.replace(/http:\/\/[0-9.]+:/g, "http://" + ip + ":") : val;
-      // Update common URL fields if present
-      s.DEV_FRONTEND_URL = replaceHost(s.DEV_FRONTEND_URL);
-      s.PROD_FRONTEND_URL = replaceHost(s.PROD_FRONTEND_URL);
-      // NEXT_PUBLIC_BACKEND_URL values are deprecated; proxy-relative /api is used now.
-      const banner = "// Private secrets file for syncing to GitHub Actions secrets\n// This file is ignored by git. Keep real values here.\n// Do NOT commit this file to version control!\n// cspell:disable\n";
-      const out = banner + JSON5.stringify(cfg, null, 2);
-      writeFileSync(file, out, "utf8");
-      console.info(`Updated EC2_HOST from ${before} to ${ip}`);
-    '
+    if [[ "$target_role" == "active" ]]; then
+      log "Updating .github-secrets.private.json5 with new EC2 IP: ${EC2_IP} (target=active)"
+      export EC2_IP
+      npx tsx -e '
+        import { readFileSync, writeFileSync } from "fs";
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        const JSON5 = require("json5");
+        const file = ".github-secrets.private.json5";
+        const ip = process.env.EC2_IP || "";
+        const raw = readFileSync(file, "utf8");
+        const cfg = JSON5.parse(raw);
+        const s = (cfg.strings || cfg);
+        const before = s.EC2_HOST;
+        s.EC2_HOST = ip;
+        const replaceHost = (val: any) => typeof val === "string" ? val.replace(/http:\/\/[0-9.]+:/g, "http://" + ip + ":") : val;
+        // Update common URL fields if present
+        s.DEV_FRONTEND_URL = replaceHost(s.DEV_FRONTEND_URL);
+        s.PROD_FRONTEND_URL = replaceHost(s.PROD_FRONTEND_URL);
+        const banner = "// Private secrets file for syncing to GitHub Actions secrets\n// This file is ignored by git. Keep real values here.\n// Do NOT commit this file to version control!\n// cspell:disable\n";
+        const out = banner + JSON5.stringify(cfg, null, 2);
+        writeFileSync(file, out, "utf8");
+        console.info(`Updated EC2_HOST from ${before} to ${ip}`);
+      '
+    else
+      warn "Skipping secrets EC2_HOST update (target_role=$target_role) to avoid overriding production host"
+    fi
   else
     warn "EC2 IP not detected from Terraform outputs; skipping secrets IP update"
   fi
@@ -388,6 +395,26 @@ if [[ "$sync_secrets" == true ]]; then
   npx tsx ./scripts/sync-github-secrets.ts BBaysinger/bb-portfolio .github-secrets.private.json5
 else
   warn "Skipping GitHub secrets sync per --no-secrets-sync"
+fi
+
+# ---------------------------
+# Target instance resolution (active|candidate)
+# ---------------------------
+discover_instance_public_ip_by_role() {
+  local role="$1"
+  aws ec2 describe-instances \
+    --filters "Name=tag:Project,Values=bb-portfolio" "Name=tag:Role,Values=$role" "Name=instance-state-name,Values=running" \
+    --query 'Reservations[].Instances[].PublicIpAddress' --output text 2>/dev/null | awk 'NF'
+}
+
+if [[ "$target_role" == "candidate" ]]; then
+  CANDIDATE_IP=$(discover_instance_public_ip_by_role candidate || true)
+  if [[ -z "$CANDIDATE_IP" ]]; then
+    die "--target=candidate specified but no running candidate instance (Role=candidate) found."
+  fi
+  warn "Targeting candidate instance at $CANDIDATE_IP (no Elastic IP swap yet)"
+  # Override POST_ENFORCE_HOST for controller enforcement if infra ran; else fall through to fallback resolution code
+  POST_ENFORCE_HOST="$CANDIDATE_IP"
 fi
 
 # Resolve EC2 host without relying on viewing GitHub Secrets values
@@ -626,6 +653,10 @@ EC2_HOST="${EC2_IP:-}"
 if [[ -z "$EC2_HOST" ]]; then
   EC2_HOST=$(resolve_ec2_host || true)
 fi
+# Override host if targeting candidate role explicitly
+if [[ "$target_role" == "candidate" ]]; then
+  EC2_HOST="${CANDIDATE_IP}"
+fi
 if [[ -n "$EC2_HOST" ]]; then
   log "Using EC2 host: $EC2_HOST"
 else
@@ -740,7 +771,7 @@ esac
 '
 
 ok "Containers restarted via SSH fallback. EC2 IP: $EC2_HOST"
-ok "Full deploy completed (fallback path)."
+ok "Full deploy completed (fallback path; target_role=$target_role)."
 
 
 popd >/dev/null
