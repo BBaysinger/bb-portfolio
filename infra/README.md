@@ -1,6 +1,6 @@
 # Portfolio Infrastructure
 
-This directory contains the Terraform configuration and management scripts for the BB Portfolio AWS infrastructure.
+This directory contains the Terraform configuration and management scripts for the BB-Portfolio AWS infrastructure.
 
 ## Infrastructure Overview
 

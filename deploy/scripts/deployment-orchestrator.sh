@@ -61,6 +61,8 @@ die() { err "$*"; exit 1; }
 force_destroy=false
 do_destroy=false    # Changed: preserve EC2 by default
 do_infra=true       # allow containers-only mode
+baseline_reset=false  # When true, perform snapshot & stricter confirmation before destroy
+baseline_snapshot_id=""
 build_images=""   # prod|dev|both|""
 profiles="both"   # prod|dev|both
 workflows="redeploy.yml" # comma-separated list of workflow names or filenames to trigger (e.g., 'Redeploy' or 'redeploy.yml')
@@ -82,6 +84,7 @@ Options:
   --profiles [val]        Which profiles to start in GH: prod|dev|both (default: both)
   --destroy               Destroy and recreate EC2 infra (default: preserve existing)
   --containers-only       Skip all Terraform/infra steps (no destroy/apply)
+  --baseline-reset        Snapshot root volume then targeted destroy (requires CONFIRM_BASELINE=YES)
   --gh-workflows [names]  Comma-separated workflow names to trigger (default: Redeploy)
   --refresh-env           Ask GH workflow to regenerate & upload .env files (default: false)
   --no-restart            Do not restart containers in GH workflow (default: restart)
@@ -103,6 +106,7 @@ while [[ $# -gt 0 ]]; do
       profiles="${2:-}"; [[ "$profiles" =~ ^(prod|dev|both)$ ]] || die "--profiles must be prod|dev|both"; shift 2 ;;
     --destroy) do_destroy=true; shift ;;
     --containers-only) do_infra=false; shift ;;
+  --baseline-reset) baseline_reset=true; do_destroy=true; shift ;;
     --gh-workflows)
       workflows="${2:-}"; [[ -n "$workflows" ]] || die "--gh-workflows requires at least one name"; shift 2 ;;
     --refresh-env) refresh_env=true; shift ;;
@@ -266,6 +270,31 @@ if [[ "$do_infra" == true ]]; then
   log "Initializing Terraform"
   terraform init -input=false
 
+  # Baseline reset safeguard & snapshot
+  if [[ "$baseline_reset" == true ]]; then
+    if [[ "${CONFIRM_BASELINE:-}" != "YES" ]]; then
+      die "Baseline reset requested; export CONFIRM_BASELINE=YES to proceed"
+    fi
+    log "Baseline reset enabled: attempting pre-destroy snapshot of root volume"
+    instance_id=$(terraform output -raw bb_portfolio_instance_id 2>/dev/null || true)
+    if [[ -n "$instance_id" && "$instance_id" != "null" ]]; then
+      root_vol=$(aws ec2 describe-instances --instance-ids "$instance_id" --query "Reservations[0].Instances[0].BlockDeviceMappings[?DeviceName=='/dev/xvda'].Ebs.VolumeId" --output text 2>/dev/null || true)
+      if [[ -n "$root_vol" && "$root_vol" != "None" ]]; then
+        desc="bb-portfolio baseline pre-destroy $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+        baseline_snapshot_id=$(aws ec2 create-snapshot --volume-id "$root_vol" --description "$desc" --tag-specifications 'ResourceType=snapshot,Tags=[{Key=Name,Value=bb-portfolio-baseline}]' --query 'SnapshotId' --output text 2>/dev/null || true)
+        if [[ -n "$baseline_snapshot_id" ]]; then
+          ok "Created snapshot $baseline_snapshot_id for volume $root_vol"
+        else
+          warn "Snapshot creation failed; continuing without snapshot"
+        fi
+      else
+        warn "Root volume not found for instance $instance_id"
+      fi
+    else
+      warn "Instance ID output missing; cannot snapshot"
+    fi
+  fi
+
   if [[ "$do_destroy" == true ]]; then
   # Determine resources to destroy (skip S3/ECR/EIP)
     to_destroy=()
@@ -290,7 +319,8 @@ if [[ "$do_infra" == true ]]; then
       warn "Planned destroy targets (preserving S3/ECR/EIP):"
       printf '  - %s\n' "${to_destroy[@]}"
       if [[ "$force_destroy" != true ]]; then
-        echo "Type 'yes' to confirm destroy:"; read -r ans; [[ "$ans" == yes ]] || die "Cancelled"
+        prompt="Type 'yes' to confirm destroy"; [[ "$baseline_reset" == true ]] && prompt="Type 'yes' to confirm baseline reset destroy (snapshot: ${baseline_snapshot_id:-none})"
+        echo "$prompt:"; read -r ans; [[ "$ans" == yes ]] || die "Cancelled"
       else
         warn "Force mode enabled - skipping confirmation"
       fi
@@ -407,7 +437,7 @@ WF_CANDIDATES=("$workflows" "Redeploy" ".github/workflows/redeploy.yml" "redeplo
 
 # Ensure only a single controller manages containers on EC2.
 # - Disable/remove legacy systemd unit 'portfolio.service'
-# - Archive legacy compose file '/home/ec2-user/portfolio/docker-compose.yml'
+# - Archive legacy compose file '/home/ec2-user/bb-portfolio/docker-compose.yml'
 # This is idempotent and safe to run on every deploy.
 enforce_single_controller() {
   local host="$1"
@@ -429,11 +459,11 @@ enforce_single_controller() {
       sudo systemctl daemon-reload || true
     fi
     # Archive legacy compose file in project root if present
-    if [ -f "/home/ec2-user/portfolio/docker-compose.yml" ]; then
-      mv -f /home/ec2-user/portfolio/docker-compose.yml /home/ec2-user/portfolio/docker-compose.legacy.yml
+    if [ -f "/home/ec2-user/bb-portfolio/docker-compose.yml" ]; then
+      mv -f /home/ec2-user/bb-portfolio/docker-compose.yml /home/ec2-user/bb-portfolio/docker-compose.legacy.yml
     fi
     # Neutralize bootstrap helper if it exists (kept for reference)
-    chmod -x /home/ec2-user/portfolio/generate-env-files.sh 2>/dev/null || true
+  chmod -x /home/ec2-user/bb-portfolio/generate-env-files.sh 2>/dev/null || true
   '
 }
 
@@ -679,17 +709,17 @@ if [[ "$refresh_env" == true ]]; then
     '
   )
   log "Uploading env files to EC2 ($EC2_HOST)"
-  ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" "mkdir -p /home/ec2-user/portfolio/backend /home/ec2-user/portfolio/frontend"
-  scp -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$TMP_DIR/backend.env.prod"  ec2-user@"$EC2_HOST":/home/ec2-user/portfolio/backend/.env.prod
-  scp -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$TMP_DIR/backend.env.dev"   ec2-user@"$EC2_HOST":/home/ec2-user/portfolio/backend/.env.dev
-  scp -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$TMP_DIR/frontend.env.prod" ec2-user@"$EC2_HOST":/home/ec2-user/portfolio/frontend/.env.prod
-  scp -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$TMP_DIR/frontend.env.dev"  ec2-user@"$EC2_HOST":/home/ec2-user/portfolio/frontend/.env.dev
+  ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" "mkdir -p /home/ec2-user/bb-portfolio/backend /home/ec2-user/bb-portfolio/frontend"
+  scp -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$TMP_DIR/backend.env.prod"  ec2-user@"$EC2_HOST":/home/ec2-user/bb-portfolio/backend/.env.prod
+  scp -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$TMP_DIR/backend.env.dev"   ec2-user@"$EC2_HOST":/home/ec2-user/bb-portfolio/backend/.env.dev
+  scp -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$TMP_DIR/frontend.env.prod" ec2-user@"$EC2_HOST":/home/ec2-user/bb-portfolio/frontend/.env.prod
+  scp -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$TMP_DIR/frontend.env.dev"  ec2-user@"$EC2_HOST":/home/ec2-user/bb-portfolio/frontend/.env.dev
 fi
 
 log "Logging into ECR and restarting compose profiles via SSH"
 ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" "aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 778230822028.dkr.ecr.us-west-2.amazonaws.com >/dev/null 2>&1 || true"
 ssh -i "$SSH_KEY" -tt -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" bash -lc $'set -e
-cd /home/ec2-user/portfolio
+cd /home/ec2-user/bb-portfolio
 docker-compose down || true
 case '"$profiles"' in
   prod)

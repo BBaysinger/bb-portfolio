@@ -146,9 +146,11 @@ nginx -t && systemctl start nginx
 
 
 # Prepare application directories (orchestrator will populate)
-mkdir -p /home/ec2-user/portfolio/backend
-mkdir -p /home/ec2-user/portfolio/frontend
-chown -R ec2-user:ec2-user /home/ec2-user/portfolio
+# Updated to use consistent bb- prefix for root directory
+APP_ROOT="/home/ec2-user/bb-portfolio"
+mkdir -p "$APP_ROOT/backend"
+mkdir -p "$APP_ROOT/frontend"
+chown -R ec2-user:ec2-user "$APP_ROOT"
 
 # Note: Containers and Nginx config will be managed by the deployment orchestrator.
 echo "Infrastructure baseline ready. Containers will be deployed via GitHub Actions." >> /var/log/bb-portfolio-startup.log
@@ -156,13 +158,21 @@ echo "Infrastructure baseline ready. Containers will be deployed via GitHub Acti
 EOF
 
   tags = {
-    Name = "bb-portfolio"
+    Name    = "bb-portfolio"
+    Project = var.project_name
+    Role    = "active"
+    Version = var.deployment_version
   }
 }
 
 # Output the public IP and Elastic IP
 output "bb_portfolio_instance_ip" {
   value = aws_instance.bb_portfolio.public_ip
+}
+
+output "bb_portfolio_instance_id" {
+  value       = aws_instance.bb_portfolio.id
+  description = "EC2 instance ID for bb-portfolio (used for snapshotting before destroy)."
 }
 
 output "bb_portfolio_elastic_ip" {
@@ -199,6 +209,83 @@ output "projects_bucket_names" {
 resource "aws_eip_association" "bb_portfolio_assoc" {
   instance_id   = aws_instance.bb_portfolio.id
   allocation_id = aws_eip.bb_portfolio_ip.id
+}
+
+########################################
+# Optional Secondary (Blue/Canary) EC2 Instance
+########################################
+# This instance is provisioned only when var.create_secondary_instance=true.
+# It enables blue-green style validation without replacing the primary.
+# A distinct Elastic IP is allocated to allow DNS testing before cutover.
+
+resource "aws_eip" "bb_portfolio_blue_ip" {
+  count = var.create_secondary_instance ? 1 : 0
+  lifecycle {
+    prevent_destroy = true
+  }
+  tags = {
+    Name    = "${var.secondary_instance_name}-eip"
+    Project = var.project_name
+    Role    = "blue-canary"
+  }
+}
+
+resource "aws_instance" "bb_portfolio_blue" {
+  count         = var.create_secondary_instance ? 1 : 0
+  ami           = var.ami_id != "" ? var.ami_id : "ami-06a974f9b8a97ecf2" # fallback to current AMI if not passed
+  instance_type = var.instance_type
+  key_name      = var.key_name
+
+  vpc_security_group_ids = [aws_security_group.bb_portfolio_sg.id]
+  iam_instance_profile   = var.attach_instance_profile ? aws_iam_instance_profile.ssm_profile.name : null
+  associate_public_ip_address = true
+
+  root_block_device {
+    volume_type = "gp3"
+    volume_size = 20
+    encrypted   = true
+    throughput  = 125
+    iops        = 3000
+    tags = {
+      Name = "${var.secondary_instance_name}-root-volume"
+    }
+  }
+
+  user_data = <<-EOF
+#!/bin/bash
+yum update -y
+yum install -y docker git nginx
+
+curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64" -o /usr/local/bin/docker-compose
+chmod +x /usr/local/bin/docker-compose
+
+systemctl enable docker
+systemctl start docker
+systemctl enable amazon-ssm-agent
+systemctl start amazon-ssm-agent
+usermod -aG docker ec2-user
+systemctl enable nginx
+sed -i '/^    server {/,/^    }/s/^/#/' /etc/nginx/nginx.conf
+nginx -t && systemctl start nginx
+
+APP_ROOT="${var.secondary_root_dir}"
+mkdir -p "$APP_ROOT/backend" "$APP_ROOT/frontend"
+chown -R ec2-user:ec2-user "$APP_ROOT"
+echo "Secondary (blue) infrastructure baseline ready: $APP_ROOT" >> /var/log/bb-portfolio-startup.log
+EOF
+
+  tags = {
+    Name    = var.secondary_instance_name
+    Project = var.project_name
+    Role    = "candidate"
+    Version = var.deployment_version
+  }
+}
+
+resource "aws_eip_association" "bb_portfolio_blue_assoc" {
+  count         = var.create_secondary_instance ? 1 : 0
+  instance_id   = aws_instance.bb_portfolio_blue[count.index].id
+  allocation_id = aws_eip.bb_portfolio_blue_ip[count.index].id
 }
 
 ########################################
@@ -449,7 +536,7 @@ resource "aws_ecr_repository" "frontend" {
   }
 
   tags = {
-    Name        = "BB Portfolio Frontend"
+  Name        = "BB-Portfolio Frontend"
     Environment = "production"
     Project     = "bb-portfolio"
   }
@@ -469,7 +556,7 @@ resource "aws_ecr_repository" "backend" {
   }
 
   tags = {
-    Name        = "BB Portfolio Backend"
+  Name        = "BB-Portfolio Backend"
     Environment = "production"
     Project     = "bb-portfolio"
   }
@@ -593,19 +680,19 @@ resource "null_resource" "iac_validation" {
         echo "Uptime: $(uptime)"
         
         echo -e "\n=== Files created by Terraform user_data ==="
-        ls -la /home/ec2-user/portfolio/ 2>/dev/null || echo "Portfolio directory not ready yet"
+  ls -la /home/ec2-user/bb-portfolio/ 2>/dev/null || echo "bb-portfolio directory not ready yet"
         
         echo -e "\n=== Environment file check ==="
-        if [ -f /home/ec2-user/portfolio/backend/.env.prod ] && [ -f /home/ec2-user/portfolio/frontend/.env.prod ]; then
+  if [ -f /home/ec2-user/bb-portfolio/backend/.env.prod ] && [ -f /home/ec2-user/bb-portfolio/frontend/.env.prod ]; then
           echo "✅ backend/.env.prod and frontend/.env.prod created by Terraform"
-          echo "Backend env vars: $(grep -c "=" /home/ec2-user/portfolio/backend/.env.prod)"
-          echo "Frontend env vars: $(grep -c "=" /home/ec2-user/portfolio/frontend/.env.prod)"
+          echo "Backend env vars: $(grep -c "=" /home/ec2-user/bb-portfolio/backend/.env.prod)"
+          echo "Frontend env vars: $(grep -c "=" /home/ec2-user/bb-portfolio/frontend/.env.prod)"
         else
           echo "❌ One or both env files not found (backend/frontend)"
         fi
         
         echo -e "\n=== Docker Compose check ==="
-        if grep -q "env_file:" /home/ec2-user/portfolio/docker-compose.yml 2>/dev/null; then
+  if grep -q "env_file:" /home/ec2-user/bb-portfolio/docker-compose.yml 2>/dev/null; then
           echo "✅ docker-compose.yml uses env_file (proper IaC config)"
         else
           echo "❌ docker-compose.yml does not use env_file"

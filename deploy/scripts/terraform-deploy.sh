@@ -224,7 +224,7 @@ show_deployment_summary() {
 main() {
     log_info "Starting Infrastructure as Code deployment..."
     log_info "Timestamp: $(date)"
-    log_info "Project: BB Portfolio"
+    log_info "Project: BB-Portfolio"
     log_info ""
     
     check_prerequisites
