@@ -73,6 +73,9 @@ sync_secrets=true   # whether to sync local secrets to GitHub
 discover_only=false # perform discovery and exit without changes
 plan_only=false     # run terraform plan (summary) and exit (no apply)
 target_role="active" # target instance role for container operations: active|candidate
+prune_after_promotion=false # if true, invoke retention pruning for old instances (Role=previous)
+retention_count=2            # how many previous instances to keep when pruning
+retention_days=""           # if set, only prune those older than this many days
 
 usage() {
   cat <<USAGE
@@ -87,6 +90,9 @@ Options:
   --containers-only       Skip all Terraform/infra steps (no destroy/apply)
   --baseline-reset        Snapshot root volume then targeted destroy (requires CONFIRM_BASELINE=YES)
   --target [role]         Target instance role for container deploy: active|candidate (default: active)
+  --prune-after-promotion Prune old previous instances after successful deploy (blue-green retention)
+  --retention-count [n]   Retention: keep newest N previous instances (default: 2)
+  --retention-days [n]    Retention: only prune if demoted age >= N days (optional)
   --gh-workflows [names]  Comma-separated workflow names to trigger (default: Redeploy)
   --refresh-env           Ask GH workflow to regenerate & upload .env files (default: false)
   --no-restart            Do not restart containers in GH workflow (default: restart)
@@ -119,6 +125,11 @@ while [[ $# -gt 0 ]]; do
     --plan-only) plan_only=true; shift ;;
     --target)
       target_role="${2:-}"; [[ "$target_role" =~ ^(active|candidate)$ ]] || die "--target must be active|candidate"; shift 2 ;;
+    --prune-after-promotion) prune_after_promotion=true; shift ;;
+    --retention-count)
+      retention_count="${2:-}"; [[ "$retention_count" =~ ^[0-9]+$ ]] || die "--retention-count must be integer"; shift 2 ;;
+    --retention-days)
+      retention_days="${2:-}"; [[ "$retention_days" =~ ^[0-9]+$ ]] || die "--retention-days must be integer"; shift 2 ;;
     -h|--help) usage; exit 0 ;;
     *) die "Unknown option: $1" ;;
   esac
@@ -771,7 +782,22 @@ esac
 '
 
 ok "Containers restarted via SSH fallback. EC2 IP: $EC2_HOST"
-ok "Full deploy completed (fallback path; target_role=$target_role)."
+if [[ "$prune_after_promotion" == true ]]; then
+  log "Retention pruning requested (--prune-after-promotion). Invoking instance-retention.sh"
+  RETENTION_SCRIPT="${REPO_ROOT}/scripts/instance-retention.sh"
+  if [[ -f "$RETENTION_SCRIPT" ]]; then
+    set +e
+    if [[ -n "$retention_days" ]]; then
+      "$RETENTION_SCRIPT" --retain-count "$retention_count" --retain-days "$retention_days" --force || warn "Retention script encountered errors"
+    else
+      "$RETENTION_SCRIPT" --retain-count "$retention_count" --force || warn "Retention script encountered errors"
+    fi
+    set -e
+  else
+    warn "Retention script not found at $RETENTION_SCRIPT; skipping prune"
+  fi
+fi
+ok "Full deploy completed (fallback path; target_role=$target_role; prune_after_promotion=$prune_after_promotion)."
 
 
 popd >/dev/null
