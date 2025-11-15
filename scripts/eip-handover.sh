@@ -232,6 +232,21 @@ update_tags() {
   fi
 }
 
+swap_security_groups() {
+  # Get security groups from both instances
+  local active_sg=$(aws ec2 describe-instances --instance-ids "$ACTIVE_ID" --region "$REGION" --query 'Reservations[0].Instances[0].SecurityGroups[0].GroupId' --output text)
+  local candidate_sg=$(aws ec2 describe-instances --instance-ids "$CANDIDATE_ID" --region "$REGION" --query 'Reservations[0].Instances[0].SecurityGroups[0].GroupId' --output text)
+  
+  if [[ "$DRY_RUN" == true ]]; then
+    log "[dry-run] Would swap security groups: $CANDIDATE_ID -> $active_sg, $ACTIVE_ID -> $candidate_sg"
+  else
+    # Swap security groups - new active gets production SG, old active gets candidate SG
+    aws ec2 modify-instance-attribute --instance-id "$CANDIDATE_ID" --region "$REGION" --groups "$active_sg" >/dev/null || warn "Failed to update candidate security group"
+    aws ec2 modify-instance-attribute --instance-id "$ACTIVE_ID" --region "$REGION" --groups "$candidate_sg" >/dev/null || warn "Failed to update active security group"
+    log "Security groups swapped: new active has production SG"
+  fi
+}
+
 rollback_swap() {
   if [[ "$DRY_RUN" == true ]]; then
     log "[dry-run] Would rollback EIP to $ACTIVE_ID"
@@ -245,6 +260,7 @@ rollback_swap() {
 
 log "Associating Elastic IP to candidate instance (promotion)"
 perform_swap
+swap_security_groups
 update_tags
 
 log "Post-swap health verification via Elastic IP (timeout ${TIMEOUT_SECS}s)"
