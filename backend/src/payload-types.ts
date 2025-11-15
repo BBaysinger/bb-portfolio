@@ -659,6 +659,10 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
 export interface ContactInfo {
   id: string;
   /**
+   * Public contact email to display on site and use for security.txt. This should be safe to publish.
+   */
+  contactEmail?: string | null;
+  /**
    * Canonical phone number in E.164 format, e.g., +12065551234
    */
   phoneE164?: string | null;
@@ -674,6 +678,7 @@ export interface ContactInfo {
  * via the `definition` "contactInfo_select".
  */
 export interface ContactInfoSelect<T extends boolean = true> {
+  contactEmail?: T;
   phoneE164?: T;
   phoneDisplay?: T;
   updatedAt?: T;
