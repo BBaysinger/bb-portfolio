@@ -14,7 +14,8 @@ resource "aws_security_group" "bb_portfolio_sg" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    # Temporarily restrict SSH to operator IP during validation
+    cidr_blocks = ["73.109.180.212/32"]
   }
 
   ingress {
@@ -37,6 +38,14 @@ resource "aws_security_group" "bb_portfolio_sg" {
     description = "Frontend App (Production)"
     from_port   = 3000
     to_port     = 3000
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description = "Backend App (Production)"
+    from_port   = 3001
+    to_port     = 3001
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -114,6 +123,8 @@ resource "aws_instance" "bb_portfolio" {
 #!/bin/bash
 yum update -y
 yum install -y docker git nginx
+# Ensure SSM Agent is installed (AL2023 usually has it, but install explicitly for safety)
+dnf install -y amazon-ssm-agent || yum install -y amazon-ssm-agent || true
 
 # Install Docker Compose (static binary)
 curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64" -o /usr/local/bin/docker-compose
@@ -209,6 +220,13 @@ output "projects_bucket_names" {
 resource "aws_eip_association" "bb_portfolio_assoc" {
   instance_id   = aws_instance.bb_portfolio.id
   allocation_id = aws_eip.bb_portfolio_ip.id
+
+  # Guardrail: never let routine terraform applys disturb the active EIP association.
+  # Promotion will be handled by a separate handover script or targeted apply.
+  lifecycle {
+    prevent_destroy = true
+    ignore_changes  = [allocation_id, instance_id]
+  }
 }
 
 ########################################
@@ -230,13 +248,57 @@ resource "aws_eip" "bb_portfolio_blue_ip" {
   }
 }
 
+# Separate security group for candidate to prevent SG rule changes from impacting active
+resource "aws_security_group" "bb_portfolio_blue_sg" {
+  count       = var.create_secondary_instance ? 1 : 0
+  name        = "bb-portfolio-blue-sg"
+  description = "Allow SSH and app ports for candidate instance"
+
+  ingress {
+    description = "SSH"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    # Temporarily restrict SSH to operator IP during validation
+    cidr_blocks = ["73.109.180.212/32"]
+  }
+
+  ingress {
+    description = "Frontend App (Candidate)"
+    from_port   = 3000
+    to_port     = 3000
+    protocol    = "tcp"
+    # Temporarily restricted to operator IP to reduce external noise during validation
+    cidr_blocks = ["73.109.180.212/32"]
+  }
+
+  ingress {
+    description = "Backend App (Candidate)"
+    from_port   = 3001
+    to_port     = 3001
+    protocol    = "tcp"
+    # Temporarily restricted to operator IP to reduce external noise during validation
+    cidr_blocks = ["73.109.180.212/32"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
 resource "aws_instance" "bb_portfolio_blue" {
   count         = var.create_secondary_instance ? 1 : 0
   ami           = var.ami_id != "" ? var.ami_id : "ami-06a974f9b8a97ecf2" # fallback to current AMI if not passed
   instance_type = var.instance_type
   key_name      = var.key_name
 
-  vpc_security_group_ids = [aws_security_group.bb_portfolio_sg.id]
+  # Use distinct SG for candidate to isolate SG rule changes from active
+  vpc_security_group_ids = [
+    (var.create_secondary_instance ? aws_security_group.bb_portfolio_blue_sg[0].id : aws_security_group.bb_portfolio_sg.id)
+  ]
   iam_instance_profile   = var.attach_instance_profile ? aws_iam_instance_profile.ssm_profile.name : null
   associate_public_ip_address = true
 
@@ -255,6 +317,8 @@ resource "aws_instance" "bb_portfolio_blue" {
 #!/bin/bash
 yum update -y
 yum install -y docker git nginx
+# Ensure SSM Agent is installed explicitly
+dnf install -y amazon-ssm-agent || yum install -y amazon-ssm-agent || true
 
 curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64" -o /usr/local/bin/docker-compose
 chmod +x /usr/local/bin/docker-compose
@@ -652,6 +716,33 @@ resource "aws_iam_policy" "ses_send" {
 resource "aws_iam_role_policy_attachment" "ses_send_attach" {
   role       = aws_iam_role.ssm_role.name
   policy_arn = aws_iam_policy.ses_send.arn
+}
+
+# Minimal read-only EC2 permissions for health-only EIP handover checks
+resource "aws_iam_policy" "handover_read" {
+  name        = "bb-portfolio-handover-read"
+  description = "Allow describing instances and addresses for health-only handover script"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect   = "Allow"
+        Action   = [
+          "ec2:DescribeInstances",
+          "ec2:DescribeAddresses",
+          "ec2:DescribeTags",
+          "ec2:DescribeInstanceStatus"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "handover_read_attach" {
+  role       = aws_iam_role.ssm_role.name
+  policy_arn = aws_iam_policy.handover_read.arn
 }
 
 # SSH connection helper - use standard automation practices

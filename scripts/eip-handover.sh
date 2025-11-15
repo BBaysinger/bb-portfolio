@@ -62,8 +62,8 @@ Options:
   -h|--help                  Show help
 
 Health targets (candidate pre-swap & active post-swap):
-  Frontend: http://<public-ip>:3000/           expecting 200
-  Backend:  http://<public-ip>:3001/api/health expecting 200
+  Frontend: http://<public-ip>:3000/            expecting 200
+  Backend:  http://<public-ip>:3001/api/health/ expecting 200
 
 Environment overrides:
   AWS_PROFILE, AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY
@@ -136,16 +136,38 @@ status_checks_pass() {
 
 http_ok() {
   local url="$1" code
-  code=$(curl -s -o /dev/null -w '%{http_code}' --connect-timeout 2 --max-time 5 "$url" || echo "000")
+  code=$(curl -s -o /dev/null -w '%{http_code}' --connect-timeout 3 --max-time 20 "$url" || echo "000")
   [[ "$code" == "200" ]]
 }
 
 health_probe_candidate() {
   local attempt=1
+  # Detect if we're running on the candidate itself (using IMDSv2)
+  local probe_ip="$CANDIDATE_IP"
+  local token=$(curl -s -X PUT --connect-timeout 1 --max-time 2 "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600" 2>/dev/null || echo "")
+  local current_ip=""
+  if [[ -n "$token" ]]; then
+    current_ip=$(curl -s -H "X-aws-ec2-metadata-token: $token" --connect-timeout 1 --max-time 2 http://169.254.169.254/latest/meta-data/public-ipv4 2>/dev/null || echo "")
+  fi
+  echo "[handover] Current instance IP from metadata: $current_ip"
+  if [[ -n "$current_ip" ]] && [[ "$current_ip" == "$CANDIDATE_IP" ]]; then
+    probe_ip="localhost"
+    echo "[handover] Running on candidate itself, using localhost for health checks"
+  else
+    echo "[handover] Running remotely, probing public IP $probe_ip"
+  fi
+  
   while (( attempt <= MAX_RETRIES )); do
-    if status_checks_pass "$CANDIDATE_ID" && \
-       http_ok "http://$CANDIDATE_IP:3000/" && \
-       http_ok "http://$CANDIDATE_IP:3001/api/health"; then
+    echo "[handover] Health check attempt $attempt/$MAX_RETRIES"
+    echo "[handover]   Checking EC2 instance status..."
+    if ! status_checks_pass "$CANDIDATE_ID"; then
+      echo "[handover]   ✗ Instance status check failed"
+    elif ! http_ok "http://${probe_ip}:3000/"; then
+      echo "[handover]   ✗ Frontend http://${probe_ip}:3000/ failed or timed out"
+    elif ! http_ok "http://${probe_ip}:3001/api/health/"; then
+      echo "[handover]   ✗ Backend http://${probe_ip}:3001/api/health/ failed or timed out"
+    else
+      echo "[handover]   ✓ All health checks passed"
       ok_pre=true; return 0
     fi
     sleep "$INTERVAL"; ((attempt++))
@@ -158,7 +180,7 @@ health_probe_active_post_swap() {
   while (( attempt <= MAX_RETRIES )); do
     if status_checks_pass "$CANDIDATE_ID" && \
        http_ok "http://$EIP_PUBLIC_IP/" && \
-       http_ok "http://$EIP_PUBLIC_IP/api/health"; then
+       http_ok "http://$EIP_PUBLIC_IP/api/health/"; then
       return 0
     fi
     sleep "$INTERVAL"; ((attempt++))

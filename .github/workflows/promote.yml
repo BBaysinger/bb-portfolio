@@ -1,0 +1,159 @@
+name: Promote (Blue/Green)
+
+on:
+  workflow_dispatch:
+    inputs:
+      region:
+        description: AWS region
+        type: string
+        required: true
+        default: us-west-2
+      rollback_on_fail:
+        description: Rollback if post-swap health fails
+        type: choice
+        required: true
+        default: "true"
+        options: ["true", "false"]
+      snapshot_before:
+        description: Snapshot active root volume before swap
+        type: choice
+        required: true
+        default: "true"
+        options: ["true", "false"]
+      max_retries:
+        description: Health retries (pre/post)
+        type: number
+        required: true
+        default: 12
+      interval:
+        description: Seconds between retries
+        type: number
+        required: true
+        default: 10
+      dry_run:
+        description: Check health only (no swap/tagging)
+        type: choice
+        required: true
+        default: "false"
+        options: ["true", "false"]
+      destroy_previous:
+        description: Immediately terminate previous active (cost optimization)
+        type: choice
+        required: true
+        default: "true"
+        options: ["true", "false"]
+      prune_after_policy:
+        description: After successful promotion, run retention policy (conditional prune of older previous instances)
+        type: choice
+        required: true
+        default: "false"
+        options: ["true", "false"]
+      retain_count:
+        description: Retain N previous instances (when pruning)
+        type: number
+        required: true
+        default: 3
+      retain_days:
+        description: Minimum age in days before termination (when pruning)
+        type: number
+        required: false
+
+jobs:
+  promote:
+    name: Promote candidate via EIP handover
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Prepare SSH key
+        id: ssh
+        env:
+          SSH_KEY_PEM: ${{ secrets.EC2_SSH_KEY_PEM }}
+          SSH_KEY_ALT: ${{ secrets.EC2_SSH_KEY }}
+        run: |
+          set -euo pipefail
+          CONTENT="${SSH_KEY_PEM:-}"
+          if [ -z "$CONTENT" ] && [ -n "${SSH_KEY_ALT:-}" ]; then
+            CONTENT="$SSH_KEY_ALT"
+          fi
+          if [ -z "$CONTENT" ]; then
+            echo "Missing SSH key secret: provide EC2_SSH_KEY_PEM or EC2_SSH_KEY" >&2
+            exit 1
+          fi
+          umask 177
+          printf "%s" "$CONTENT" > key.pem
+          echo "key=key.pem" >> "$GITHUB_OUTPUT"
+
+      - name: Validate inputs/secrets
+        env:
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+        run: |
+          set -euo pipefail
+          : "${EC2_HOST}"
+
+      - name: Upload promotion scripts to EC2
+        env:
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+        run: |
+          set -euo pipefail
+          ssh -i "${{ steps.ssh.outputs.key }}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" "mkdir -p /home/ec2-user/bb-portfolio/scripts"
+          scp -i "${{ steps.ssh.outputs.key }}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+            scripts/eip-handover.sh scripts/instance-retention.sh \
+            ec2-user@"$EC2_HOST":/home/ec2-user/bb-portfolio/scripts/
+          ssh -i "${{ steps.ssh.outputs.key }}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" "chmod +x /home/ec2-user/bb-portfolio/scripts/*.sh"
+
+      - name: Run eip-handover (health-only or promote)
+        env:
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+          REGION: ${{ inputs.region }}
+          ROLLBACK: ${{ inputs.rollback_on_fail }}
+          SNAPSHOT: ${{ inputs.snapshot_before }}
+          MAX_RETRIES: ${{ inputs.max_retries }}
+          INTERVAL: ${{ inputs.interval }}
+          DRY_RUN: ${{ inputs.dry_run }}
+        run: |
+          set -euo pipefail
+          flags=("--region" "$REGION" "--max-retries" "$MAX_RETRIES" "--interval" "$INTERVAL")
+          if [ "$DRY_RUN" = "true" ]; then : ; else flags+=("--promote"); fi
+          if [ "$ROLLBACK" = "true" ]; then flags+=("--rollback-on-fail"); fi
+          if [ "$SNAPSHOT" = "true" ]; then flags+=("--snapshot-before"); fi
+          printf 'Running: eip-handover.sh %q\n' "${flags[@]}"
+          ssh -i "${{ steps.ssh.outputs.key }}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" \
+            "cd /home/ec2-user/bb-portfolio && ./scripts/eip-handover.sh ${flags[*]}"
+
+      - name: Retention prune (conditional policy)
+        if: ${{ (inputs.prune_after_policy == 'true' || inputs.prune_after_policy == true) && (inputs.destroy_previous != 'true') }}
+        env:
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+          REGION: ${{ inputs.region }}
+          RETAIN_COUNT: ${{ inputs.retain_count }}
+          RETAIN_DAYS: ${{ inputs.retain_days }}
+        run: |
+          set -euo pipefail
+          flags=("--region" "$REGION" "--retain-count" "$RETAIN_COUNT" "--force")
+          if [ -n "${RETAIN_DAYS}" ]; then flags+=("--retain-days" "$RETAIN_DAYS"); fi
+          flags+=("--snapshot-before")
+          printf 'Running: instance-retention.sh %q\n' "${flags[@]}"
+          ssh -i "${{ steps.ssh.outputs.key }}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" \
+            "cd /home/ec2-user/bb-portfolio && ./scripts/instance-retention.sh ${flags[*]}"
+
+  - name: Destroy previous instance immediately (override; skips policy)
+        if: ${{ inputs.destroy_previous == 'true' || inputs.destroy_previous == true }}
+        env:
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+          REGION: ${{ inputs.region }}
+          SNAPSHOT: ${{ inputs.snapshot_before }}
+        run: |
+          set -euo pipefail
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            echo "Dry-run: would invoke retention with retain-count=0"
+            exit 0
+          fi
+          flags=("--region" "$REGION" "--retain-count" "0" "--force")
+          # Use snapshot-before if snapshot flag set for parity with promotion
+          if [ "$SNAPSHOT" = "true" ]; then flags+=("--snapshot-before"); fi
+          echo "Running immediate previous destroy via instance-retention: ${flags[*]}"
+          ssh -i "${{ steps.ssh.outputs.key }}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" \
+            "cd /home/ec2-user/bb-portfolio && ./scripts/instance-retention.sh ${flags[*]}"
