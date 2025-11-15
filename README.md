@@ -10,7 +10,7 @@ The surrounding infrastructure (Terraform, Docker, AWS, GitHub Actions) exists n
 
 The goal is to show **breadth across the full front-end lifecycle** — from rendering pipelines and animation timing, to infrastructure automation, data modeling, and deployment reproducibility — all authored by a single developer.
 
-> **Hiring reviewer?** Start with the 30-second tour below. The infrastructure is real and battle-tested, but the focus is the architecture of interaction — how performance, animation, and DevOps discipline intersect in one cohesive system.
+> **Hiring reviewer?** Start with the 30-second tour below. The infrastructure is real, but the focus is the architecture of interaction — how performance, animation, and DevOps discipline intersect in one cohesive system.
 
 ## 🔎 30‑Second Tour (Frontend Focus)
 
@@ -314,6 +314,14 @@ Other UI details: scroll‑aware navigation, mobile slide‑out menu, dynamic de
   - Provisions/updates infra and restarts containers via GH workflow handoff
   - Optionally rebuilds/pushes images; no destroy by default (safety-first)
   - Built-in safety checks; avoids destroying items meant to persist
+  - Blue-green deployment with health checks and EIP handover
+- Blue-green promotion workflow
+  - Separate candidate/active instances with distinct security groups
+  - Automated health checks (frontend/backend endpoints + AWS instance status)
+  - EIP handover script with confirmation prompt (bypass via `--auto-approve` for CI/CD)
+  - Automatic security group swapping during promotion
+  - Rollback support on post-swap health failures
+  - GitHub Actions workflow for manual promotion triggers
 - Terraform IaC: one-command provision/teardown
 - Systemd-managed Docker services on EC2 (auto-restart)
 - Dual registry strategy (Docker Hub dev, ECR prod)
@@ -427,6 +435,9 @@ Unifies Terraform state, Docker image workflows, and GitHub Actions env regenera
 - Profile aware (`dev` / `prod` / `both`) with distinct registries & buckets.
 - Safety: avoids destructive infra ops; supports discovery/plan-only modes.
 - Falls back to SSH path if workflow dispatch fails.
+- **Blue-green deployment support**: `--target candidate` deploys to candidate instance; `--promote` triggers EIP handover after health checks.
+
+**Note:** The orchestrator is functional but requires additional testing for edge cases and failure scenarios. Production deployments should be monitored closely until further validation is complete.
 
 Typical commands:
 
@@ -435,6 +446,9 @@ deploy/scripts/deployment-orchestrator.sh --discover-only
 deploy/scripts/deployment-orchestrator.sh --plan-only
 deploy/scripts/deployment-orchestrator.sh --profiles prod --refresh-env
 deploy/scripts/deployment-orchestrator.sh --no-build --profiles both --refresh-env
+# Blue-green deployment
+deploy/scripts/deployment-orchestrator.sh --target candidate --profiles prod
+deploy/scripts/deployment-orchestrator.sh --target candidate --promote --auto-approve
 ```
 
 ### ⚙️ Architecture Overview

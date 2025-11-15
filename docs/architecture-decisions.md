@@ -524,6 +524,65 @@ New decisions should be appended chronologically.
 
 ---
 
+## 2025-11-15 – Blue-Green EIP Handover and Promotion Workflow
+
+- **Decision:** Implement blue-green deployment pattern with automated EIP handover, health checks, and safety confirmations for zero-downtime promotions.
+
+- **Components:**
+  - **Candidate/Active instances**: Terraform provisions optional secondary instance (`bb_portfolio_blue`) with separate security group and EIP.
+  - **Health check script** (`scripts/eip-handover.sh`):
+    - Pre-promotion validation: AWS instance status (2/2 checks), frontend HTTP 200 on :3000, backend HTTP 200 on :3001/api/health
+    - Configurable retries (`--max-retries`, `--interval`) with exponential backoff support
+    - Promotion defaults to enabled with confirmation prompt (override via `--auto-approve` for CI/CD)
+    - `--health-only` flag skips promotion, runs health checks only
+    - Post-swap validation with optional rollback (`--rollback-on-fail`)
+    - Optional snapshot before swap (`--snapshot-before`)
+  - **Security group swapping**: Promoted candidate receives production SG; demoted active receives candidate SG
+  - **Role tagging**: Automatic EC2 tag updates (Role=active/previous/candidate)
+  - **Orchestrator integration**: `--target candidate` + `--promote` flags trigger full deployment with promotion
+  - **GitHub Actions workflow** (`.github/workflows/promote.yml`):
+    - Manual trigger with configurable health check parameters
+    - Optional immediate previous instance destruction or retention policy pruning
+    - Snapshot support and dry-run mode
+
+- **Workflow:**
+  1. Deploy to candidate: `deploy/scripts/deployment-orchestrator.sh --target candidate --profiles prod`
+  2. Validate candidate health (automatic or manual via `--health-only`)
+  3. Promote with confirmation: `scripts/eip-handover.sh --region us-west-2` (prompts "yes/no")
+  4. Automated CI/CD: Add `--auto-approve` to skip prompt
+  5. Post-promotion: Previous active instance can be retained, pruned via policy, or immediately destroyed
+
+- **Safety features:**
+  - Default confirmation prompt prevents accidental promotions
+  - Pre-swap health gate prevents promoting unhealthy candidates
+  - Post-swap validation with automatic rollback option
+  - Dry-run mode shows actions without executing
+  - Separate security groups isolate candidate from production traffic during validation
+
+- **Reasoning:**
+  - Zero-downtime deployments: Validate candidate fully before promotion
+  - Risk mitigation: Rollback capability if post-swap health fails
+  - Operator safety: Confirmation prompt prevents mistakes; CI/CD can bypass with explicit flag
+  - Audit trail: EC2 tags track promotion history and timestamps
+  - Cost optimization: Retention policy allows keeping N previous instances for quick rollback
+
+- **Testing status:** ⚠️ Functional but requires additional validation
+  - Core handover mechanics verified in initial testing
+  - Edge cases and failure scenarios need comprehensive testing
+  - Rollback logic validated in happy path; stress testing pending
+  - Security group swapping verified manually; automation needs production validation
+  - Recommendation: Monitor promotions closely until further testing establishes reliability
+
+- **Alternatives considered:**
+  - Rolling updates on single instance: No pre-validation; higher risk of downtime
+  - DNS-based blue-green: Slower cutover; cache/TTL complications
+  - Load balancer with weighted routing: More complex; higher AWS costs
+  - Manual promotion via AWS Console: No automation; error-prone
+
+- **Status:** ✅ Active (requires further testing for production confidence)
+
+---
+
 ## 2025-10-19 – Deployment Orchestrator (Terraform + GitHub Actions + SSH Fallback)
 
 - **Decision:** Adopt a single orchestrator script `deploy/scripts/deployment-orchestrator.sh` as the source of truth for provisioning/updating EC2 infrastructure, optionally building/publishing images, and triggering container (re)starts via GitHub Actions with a robust SSH fallback.
@@ -536,6 +595,7 @@ New decisions should be appended chronologically.
       - Development → Docker Hub
     - Dispatches the reusable "Redeploy" GitHub Actions workflow to generate runtime `.env.*` files on EC2 from GitHub Secrets and to (re)start containers.
     - Provides a safe SSH-based fallback to upload env files and restart Docker Compose profiles directly on the instance if workflow dispatch is unavailable.
+    - Supports blue-green deployments via `--target candidate` and `--promote` flags
   - Runtime on EC2:
     - Nginx on the host forwards traffic to Docker Compose services.
     - Four Debian-based Node containers (node:22-slim) managed by Compose profiles:
@@ -550,7 +610,7 @@ New decisions should be appended chronologically.
   - Security: Runtime env files are generated on EC2 from GitHub Secrets; no secrets leave GitHub/EC2.
   - Resilience: SSH fallback ensures deploys aren’t blocked by GitHub workflow hiccups.
   - First-time friendly: If no EC2 exists, Terraform apply bootstraps a new instance automatically.
-  - Zero/minimal downtime: Profiles allow prod/dev independence; targeted restarts minimize disruption.
+  - Zero/minimal downtime: Profiles allow prod/dev independence; targeted restarts minimize disruption; blue-green promotion enables validation before cutover.
 
 - **Operation & Flags (highly used):**
   - `--profiles prod|dev|both` choose which environment(s) to deploy.
@@ -558,6 +618,14 @@ New decisions should be appended chronologically.
   - `--no-destroy` keep the existing EC2 (no teardown), still plan/apply drift fixes.
   - `--containers-only` skip Terraform entirely and only (re)start containers/workflows.
   - `--refresh-env` ask the workflow to regenerate `.env.dev/.env.prod` on EC2.
+  - `--target candidate` deploy to candidate instance for blue-green validation.
+  - `--promote` trigger EIP handover after successful candidate deployment.
+  - `--auto-approve` skip handover confirmation prompt (for CI/CD automation).
+
+- **Testing status:** ⚠️ Core functionality validated; comprehensive edge case testing pending
+  - Basic deployment flows tested and working
+  - Blue-green mechanics verified in initial scenarios
+  - Recommendation: Monitor deployments and validate thoroughly before relying on automation for critical updates
 
 - **Alternatives considered:**
   - Pure GitHub Actions (no local orchestrator): Less flexible locally, harder to provide rich fallback.
@@ -566,8 +634,10 @@ New decisions should be appended chronologically.
 
 - **Related improvements:**
   - `infra/bb-portfolio-management.sh` auto ECR login for prod flows and compose v1/v2 fallback on the host, to avoid image pull auth issues.
+  - `scripts/eip-handover.sh` handles promotion workflow with health checks and rollback support.
+  - WebSocket upgrade map now automatically created by orchestrator for nginx compatibility.
 
-- **Status:** ✅ Active
+- **Status:** ✅ Active (requires additional testing for full production confidence)
 
 ---
 
