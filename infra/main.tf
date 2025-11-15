@@ -350,6 +350,12 @@ resource "aws_eip_association" "bb_portfolio_blue_assoc" {
   count         = var.create_secondary_instance ? 1 : 0
   instance_id   = aws_instance.bb_portfolio_blue[count.index].id
   allocation_id = aws_eip.bb_portfolio_blue_ip[count.index].id
+  
+  # Protect candidate EIP association from Terraform disruption
+  lifecycle {
+    prevent_destroy = true
+    ignore_changes  = [allocation_id, instance_id]
+  }
 }
 
 ########################################
@@ -718,10 +724,10 @@ resource "aws_iam_role_policy_attachment" "ses_send_attach" {
   policy_arn = aws_iam_policy.ses_send.arn
 }
 
-# Minimal read-only EC2 permissions for health-only EIP handover checks
+# EC2 permissions for EIP handover (health checks + promotion)
 resource "aws_iam_policy" "handover_read" {
   name        = "bb-portfolio-handover-read"
-  description = "Allow describing instances and addresses for health-only handover script"
+  description = "Allow EIP handover operations (describe + associate/disassociate)"
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -732,7 +738,10 @@ resource "aws_iam_policy" "handover_read" {
           "ec2:DescribeInstances",
           "ec2:DescribeAddresses",
           "ec2:DescribeTags",
-          "ec2:DescribeInstanceStatus"
+          "ec2:DescribeInstanceStatus",
+          "ec2:AssociateAddress",
+          "ec2:DisassociateAddress",
+          "ec2:CreateTags"
         ]
         Resource = "*"
       }
