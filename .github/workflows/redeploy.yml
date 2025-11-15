@@ -1,3 +1,65 @@
+# Redeploy Workflow
+# GitHub Actions workflow for container restarts with runtime environment file generation
+# -----------------------------------------------------------------------------------------
+# Regenerates .env files on EC2 from GitHub Secrets and restarts Docker Compose services.
+# This is the primary mechanism for injecting secrets into containers without storing them
+# in git or passing them through local machines.
+#
+# Role in deployment architecture:
+# - Called by deployment-orchestrator.sh after Terraform provisions/updates instances
+# - Called by update-containers-gh.sh for container-only updates
+# - Can be triggered manually for emergency restarts or env refresh
+# - Invoked via workflow_call from other workflows for reusable orchestration
+# - Supports both active and candidate instances via dynamic IP targeting
+#
+# Security model (why this workflow exists):
+# - Secrets stored encrypted in GitHub (Settings → Secrets and variables → Actions)
+# - This workflow has access to secrets; local machines and scripts do NOT
+# - Generates .env.prod/.env.dev on EC2 by SSHing in and templating secrets
+# - Containers started with these env files; secrets never committed to git
+# - Alternative SSH fallback exists but requires .github-secrets.private.json5 locally
+#
+# Runtime architecture on EC2:
+# - Nginx reverse proxy on host forwards to Docker Compose services
+# - Four Node.js containers (node:22-slim) in two Docker Compose profiles:
+#   • prod: bb-portfolio-frontend-prod:3000, bb-portfolio-backend-prod:3001
+#   • dev: bb-portfolio-frontend-dev:4000, bb-portfolio-backend-dev:4001
+# - Typical DNS routing:
+#   • bbaysinger.com → prod frontend:3000 + backend:3001
+#   • dev.bbaysinger.com → dev frontend:4000 + backend:4001
+#
+# Workflow steps:
+# 1. Authenticate with AWS (assume GitHub OIDC role for ECR access)
+# 2. Prepare SSH key from GitHub Secrets for EC2 access
+# 3. Optional: Generate and upload .env.prod/.env.dev from GitHub Secrets
+# 4. Optional: docker compose pull latest images from ECR/Docker Hub
+# 5. Optional: docker compose up -d to restart specified profiles
+# 6. Verify container health and capture logs for debugging
+#
+# Environment profiles:
+# - prod: Production services using ECR images, production secrets
+# - dev: Development services using Docker Hub images, dev secrets
+# - both: Start/restart both profiles simultaneously
+# - (staging: planned for future, would use prod-like secrets with staging prefix)
+#
+# Invocation methods:
+# 1. Via deployment-orchestrator.sh (normal flow after Terraform apply)
+# 2. Via update-containers-gh.sh (container-only updates)
+# 3. Manual trigger (GitHub Actions UI) for emergency operations
+# 4. Via gh CLI: gh workflow run redeploy.yml -f environment=prod -f refresh_env=true
+#
+# Common use cases:
+# - Initial deployment: orchestrator provisions infra, calls this to start containers
+# - Code updates: rebuild images, push to registry, call this to pull/restart
+# - Secret rotation: trigger with refresh_env=true to regenerate .env files
+# - Emergency restart: trigger manually with restart_containers=true
+# - Blue-green: orchestrator deploys candidate, calls this to start containers there
+#
+# Related scripts:
+# - deploy/scripts/deployment-orchestrator.sh: Calls this via gh workflow run
+# - deploy/scripts/update-containers-gh.sh: Container-only caller
+# - infra/bb-portfolio-management.sh: On-instance helper for ECR auth
+#
 name: Redeploy
 
 on:

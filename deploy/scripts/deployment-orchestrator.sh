@@ -1,18 +1,27 @@
 #!/usr/bin/env bash
 # Deployment Orchestrator — EC2 + Docker Compose (4 Debian-based containers)
 # -------------------------------------------------------------------------
+# Unified deployment script for bb-portfolio infrastructure, images, and containers.
+# Supports both single-instance and blue-green deployment patterns with automated promotion.
+#
 # What this does (high level):
-# - Provisions/updates an AWS EC2 instance via Terraform.
-# - Builds and publishes images (optional) to ECR (prod) and Docker Hub (dev).
-# - Hands off container (re)starts to the GitHub Actions "Redeploy" workflow
-#   so runtime env files are generated on EC2 from GitHub Secrets.
-# - If the workflow dispatch fails, falls back to a safe SSH path to restart
-#   Compose profiles directly on the instance.
-# - First-time friendly: if no EC2 exists yet, Terraform apply will create it.
-#   By default, existing instances are preserved; use --destroy to recreate; use --containers-only to skip infra entirely.
+# - Provisions/updates AWS EC2 instance(s) via Terraform (active or candidate)
+# - Builds and publishes images (optional) to ECR (prod) and Docker Hub (dev)
+# - Hands off container (re)starts to GitHub Actions "Redeploy" workflow
+#   so runtime env files are generated on EC2 from GitHub Secrets
+# - Falls back to SSH-based deployment if GitHub workflow dispatch fails
+# - First-time friendly: if no EC2 exists yet, Terraform apply bootstraps it
+# - By default, existing instances preserved; use --destroy to recreate from scratch
+#
+# Blue-green deployment support:
+# - Deploy candidate instance: --target candidate --profiles prod
+# - Validate candidate manually or via health checks
+# - Promote to active: --promote (triggers EIP handover with health checks)
+# - Auto-approve for CI/CD: --auto-approve (skips confirmation prompt)
+# - Retention management: --prune-after-promotion (cleanup old previous instances)
 #
 # Runtime architecture on EC2:
-# - Reverse proxy: Nginx on the host forwards traffic to Compose services.
+# - Reverse proxy: Nginx on host forwards traffic to Docker Compose services
 # - Containers: four Node.js containers based on Debian (node:22-slim) images
 #   managed by Docker Compose using two profiles:
 #   • prod:   bb-portfolio-frontend-prod (host:3000 → container:3000)
@@ -20,23 +29,39 @@
 #   • dev:    bb-portfolio-frontend-dev  (host:4000 → container:3000)
 #             bb-portfolio-backend-dev   (host:4001 → container:3000)
 # - DNS/routing (typical):
-#   • bbaysinger.com        → bb-portfolio-frontend-prod:3000 and bb-portfolio-backend-prod:3001
-#   • dev.bbaysinger.com    → bb-portfolio-frontend-dev:4000 and bb-portfolio-backend-dev:4001
+#   • bbaysinger.com        → prod frontend:3000 + backend:3001 (via production EIP)
+#   • dev.bbaysinger.com    → dev frontend:4000 + backend:4001
+# - Blue-green: candidate instance has separate EIP until promoted
 #
-# Secrets and env files:
-# - .env.dev / .env.prod are not committed; they are generated on EC2 by the
-#   GitHub workflow from repository secrets. Local dev only uses .env.
-# - This script can also generate env files from .github-secrets.private.json5
-#   for the SSH fallback path when requested.
+# Security model — Secrets and env files:
+# - .env.dev/.env.prod NOT committed; generated on EC2 by GitHub workflow from Secrets
+# - Local development uses .env only (not .env.prod/.env.dev)
+# - This script can generate env files from .github-secrets.private.json5 for SSH fallback
+# - Production secrets stored in GitHub (encrypted at rest) and AWS (SSM Parameter Store)
 #
 # Usage examples:
-#   deploy/scripts/deployment-orchestrator.sh --force --build-images both --profiles both
+#   # Standard production deployment
 #   deploy/scripts/deployment-orchestrator.sh --build-images prod --profiles prod
-#   deploy/scripts/deployment-orchestrator.sh --no-build --profiles dev
+#
+#   # Blue-green candidate deployment
+#   deploy/scripts/deployment-orchestrator.sh --target candidate --profiles prod
+#
+#   # Blue-green promotion with automated handover
+#   deploy/scripts/deployment-orchestrator.sh --target candidate --promote --auto-approve
+#
+#   # Container-only update (skip Terraform)
+#   deploy/scripts/deployment-orchestrator.sh --containers-only --profiles both
+#
+#   # Development environment update
+#   deploy/scripts/deployment-orchestrator.sh --build-images dev --profiles dev
 #
 # Requirements:
-# - aws, terraform, node/npm, docker (if building images), gh CLI (auth'd)
-# - .github-secrets.private.json5 present locally for terraform var generation
+# - aws CLI configured with EC2/ECR/IAM permissions
+# - terraform >= 1.x for infrastructure provisioning
+# - node/npm for secrets sync utilities
+# - docker with BuildKit support (if building images)
+# - gh CLI authenticated with repo workflow permissions
+# - .github-secrets.private.json5 present locally for Terraform var generation
 
 # Ensure we're running under bash even if invoked via sh
 if [ -z "${BASH_VERSION:-}" ]; then
