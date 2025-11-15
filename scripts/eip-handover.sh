@@ -12,10 +12,11 @@ set -euo pipefail
 # - AWS CLI is configured; permissions: ec2:Describe*, ec2:AssociateAddress, ec2:CreateSnapshot (optional), ec2:CreateTags
 #
 # Usage examples:
-#   scripts/eip-handover.sh --region us-west-2 --promote
-#   scripts/eip-handover.sh --region us-west-2 --promote --rollback-on-fail --max-retries 12 --interval 10
-#   scripts/eip-handover.sh --region us-west-2 --dry-run
-#   scripts/eip-handover.sh --region us-west-2 --snapshot-before --promote
+#   scripts/eip-handover.sh --region us-west-2                    # Promote with confirmation
+#   scripts/eip-handover.sh --region us-west-2 --auto-approve     # Promote without confirmation
+#   scripts/eip-handover.sh --region us-west-2 --health-only      # Health checks only, no promotion
+#   scripts/eip-handover.sh --region us-west-2 --dry-run          # Show what would happen
+#   scripts/eip-handover.sh --region us-west-2 --rollback-on-fail --max-retries 12 --interval 10
 #
 # Health Checks (pre & post):
 #   1. Instance status: both system & instance checks pass (AWS 2/2)
@@ -32,10 +33,11 @@ set -euo pipefail
 #   4 swap attempted but post-swap health failed (rollback maybe executed)
 
 REGION="us-west-2"
-PROMOTE=false
+PROMOTE=true
 DRY_RUN=false
 ROLLBACK_ON_FAIL=false
 SNAPSHOT_BEFORE=false
+AUTO_APPROVE=false
 MAX_RETRIES=8
 INTERVAL=8
 TIMEOUT_SECS=$((MAX_RETRIES*INTERVAL))
@@ -53,7 +55,8 @@ Blue/Green Elastic IP Handover for bb-portfolio
 
 Options:
   --region <aws-region>      AWS region (default: us-west-2)
-  --promote                  Perform the handover (without this flag script only checks health & prints status)
+  --health-only              Only check health without promoting (default: perform promotion after health checks)
+  --auto-approve             Auto-approve promotion after health checks (skips confirmation prompt)
   --dry-run                  Show actions without executing state changes (no swap, no tagging)
   --rollback-on-fail         If post-swap health fails, attempt rollback to previous active
   --snapshot-before          Create snapshot of active root volume before swap (Name=bb-portfolio-pre-handover)
@@ -73,7 +76,8 @@ USAGE
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --region) REGION="$2"; shift 2;;
-    --promote) PROMOTE=true; shift;;
+    --health-only) PROMOTE=false; shift;;
+    --auto-approve) AUTO_APPROVE=true; shift;;
     --dry-run) DRY_RUN=true; shift;;
     --rollback-on-fail) ROLLBACK_ON_FAIL=true; shift;;
     --snapshot-before) SNAPSHOT_BEFORE=true; shift;;
@@ -196,7 +200,7 @@ fi
 log "Candidate passes pre-swap health checks."
 
 if [[ "$PROMOTE" != true ]]; then
-  log "--promote not specified; exiting after successful health verification."
+  log "--health-only specified; exiting after successful health verification."
   exit 0
 fi
 
@@ -257,6 +261,18 @@ rollback_swap() {
     aws ec2 create-tags --resources "$CANDIDATE_ID" --region "$REGION" --tags Key=$TAG_KEY_ROLE,Value=candidate >/dev/null || true
   fi
 }
+
+# Confirmation prompt unless auto-approved or dry-run
+if [[ "$AUTO_APPROVE" != true && "$DRY_RUN" != true ]]; then
+  log "Ready to promote candidate $CANDIDATE_ID to active (will receive production EIP $EIP_PUBLIC_IP)"
+  log "Current active instance $ACTIVE_ID will become previous"
+  printf "\033[1;33mProceed with promotion? (yes/no): \033[0m"
+  read -r response
+  if [[ "$response" != "yes" ]]; then
+    log "Promotion cancelled by user"
+    exit 0
+  fi
+fi
 
 log "Associating Elastic IP to candidate instance (promotion)"
 perform_swap

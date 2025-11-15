@@ -77,6 +77,7 @@ prune_after_promotion=false # if true, invoke retention pruning for old instance
 retention_count=2            # how many previous instances to keep when pruning
 retention_days=""           # if set, only prune those older than this many days
 promote=false                # if true and target_role=candidate, run Elastic IP handover before optional pruning
+auto_approve_handover=false  # if true, skip confirmation prompt for handover
 handover_rollback=true       # attempt rollback on post-swap failure
 handover_snapshot=false      # snapshot active root volume before swap
 REMOTE_USER="ec2-user"      # SSH login user (supports Ubuntu images); override via --remote-user
@@ -100,6 +101,7 @@ Options:
   --retention-count [n]   Retention: keep newest N previous instances (default: 2)
   --retention-days [n]    Retention: only prune if demoted age >= N days (optional)
   --promote               After deploying to candidate, perform EIP handover (promote candidate → active)
+  --auto-approve          Auto-approve handover after health checks (skips confirmation prompt)
   --handover-no-rollback  Disable rollback on failed post-swap health
   --handover-snapshot     Snapshot current active root volume before handover
   --gh-workflows [names]  Comma-separated workflow names to trigger (default: Redeploy)
@@ -140,6 +142,7 @@ while [[ $# -gt 0 ]]; do
     --retention-days)
       retention_days="${2:-}"; [[ "$retention_days" =~ ^[0-9]+$ ]] || die "--retention-days must be integer"; shift 2 ;;
     --promote) promote=true; shift ;;
+    --auto-approve) auto_approve_handover=true; shift ;;
     --handover-no-rollback) handover_rollback=false; shift ;;
     --handover-snapshot) handover_snapshot=true; shift ;;
     --remote-user)
@@ -538,6 +541,19 @@ ensure_https_certs() {
   fi
   log "Ensuring HTTPS certificates present on $host (user=${REMOTE_USER})"
   ssh -i "$key" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${REMOTE_USER}"@"$host" bash -lc $'set -e
+    # Ensure WebSocket upgrade map exists (required by bb-portfolio nginx config)
+    if [ ! -f /etc/nginx/conf.d/00-websocket-upgrade.conf ]; then
+      echo "Creating WebSocket upgrade map for nginx"
+      sudo tee /etc/nginx/conf.d/00-websocket-upgrade.conf >/dev/null <<EOF
+# WebSocket upgrade map
+map \$http_upgrade \$connection_upgrade {
+    default upgrade;
+    \\047\\047 close;
+}
+EOF
+      sudo nginx -t && sudo systemctl reload nginx || echo "Nginx reload failed after WebSocket map creation"
+    fi
+    
     # Install certbot if missing
     if ! command -v certbot >/dev/null 2>&1; then
       echo "Installing certbot on host..."
@@ -813,7 +829,8 @@ if [[ "$promote" == true ]]; then
     if [[ -f "$HANDOVER_SCRIPT" ]]; then
       log "Initiating Elastic IP handover (--promote)"
       set +e
-      HANDOVER_CMD=("$HANDOVER_SCRIPT" --region us-west-2 --promote)
+      HANDOVER_CMD=("$HANDOVER_SCRIPT" --region us-west-2)
+      [[ "$auto_approve_handover" == true ]] && HANDOVER_CMD+=(--auto-approve) || true
       [[ "$handover_rollback" == true ]] && HANDOVER_CMD+=(--rollback-on-fail) || true
       [[ "$handover_snapshot" == true ]] && HANDOVER_CMD+=(--snapshot-before) || true
       HANDOVER_CMD+=(--max-retries 10 --interval 6)
