@@ -375,16 +375,22 @@ jobs:
             docker ps --format "table {{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}"
             echo
             echo "== Docker compose version =="
-            docker compose version || true
+            if docker compose version >/dev/null 2>&1; then
+              COMPOSE_BIN="docker compose"
+            else
+              COMPOSE_BIN="docker-compose"
+            fi
+            $COMPOSE_BIN version || true
             echo
             echo "== Listening ports (ss) =="
             ss -lntp || true
             echo
             echo "== Compose ps (prod) =="
-            COMPOSE_PROFILES=prod docker compose -f /home/ec2-user/bb-portfolio/deploy/compose/docker-compose.yml ps || true
+            COMPOSE_PROFILES=prod $COMPOSE_BIN -f /home/ec2-user/bb-portfolio/deploy/compose/docker-compose.yml ps || true
             echo
             echo "== Nginx status =="
             systemctl is-active nginx || true
+            # nginx -t will often fail for non-root due to cert perms; tolerate but still show output
             nginx -t || true
             echo
             echo "== HTTP probes =="

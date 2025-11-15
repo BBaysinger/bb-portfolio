@@ -79,6 +79,9 @@ retention_days=""           # if set, only prune those older than this many days
 promote=false                # if true and target_role=candidate, run Elastic IP handover before optional pruning
 handover_rollback=true       # attempt rollback on post-swap failure
 handover_snapshot=false      # snapshot active root volume before swap
+REMOTE_USER="ec2-user"      # SSH login user (supports Ubuntu images); override via --remote-user
+REMOTE_HOME="/home/${REMOTE_USER}"  # recomputed after arg parsing if REMOTE_USER changes
+REMOTE_REPO="${REMOTE_HOME}/bb-portfolio"
 
 usage() {
   cat <<USAGE
@@ -139,10 +142,16 @@ while [[ $# -gt 0 ]]; do
     --promote) promote=true; shift ;;
     --handover-no-rollback) handover_rollback=false; shift ;;
     --handover-snapshot) handover_snapshot=true; shift ;;
+    --remote-user)
+      REMOTE_USER="${2:-}"; [[ -n "$REMOTE_USER" ]] || die "--remote-user requires a username"; shift 2 ;;
     -h|--help) usage; exit 0 ;;
     *) die "Unknown option: $1" ;;
   esac
 done
+
+# Recompute derived remote paths after potential --remote-user override
+REMOTE_HOME="/home/${REMOTE_USER}"
+REMOTE_REPO="${REMOTE_HOME}/bb-portfolio"
 
 # Prereqs
 need() { command -v "$1" >/dev/null 2>&1 || die "$1 is required"; }
@@ -497,20 +506,23 @@ enforce_single_controller() {
     warn "Single-controller guard: SSH key not found at $key, skipping"
     return 0
   fi
-  log "Enforcing single controller on $host (disable legacy service, archive legacy compose)"
-  ssh -i "$key" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$host" $'set -e
+  log "Enforcing single controller on $host (disable legacy service, archive legacy compose) as $REMOTE_USER"
+  ssh -i "$key" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${REMOTE_USER}"@"$host" bash -lc $'set -e
     # Disable and remove legacy systemd unit if present
     if systemctl list-unit-files | grep -q "^portfolio.service"; then
       sudo systemctl disable --now portfolio.service || true
       sudo rm -f /etc/systemd/system/portfolio.service || true
       sudo systemctl daemon-reload || true
     fi
-    # Archive legacy compose file in project root if present
+    # Archive legacy compose file in project root if present (ec2-user historical path)
     if [ -f "/home/ec2-user/bb-portfolio/docker-compose.yml" ]; then
-      mv -f /home/ec2-user/bb-portfolio/docker-compose.yml /home/ec2-user/bb-portfolio/docker-compose.legacy.yml
+      mv -f /home/ec2-user/bb-portfolio/docker-compose.yml /home/ec2-user/bb-portfolio/docker-compose.legacy.yml || true
     fi
-    # Neutralize bootstrap helper if it exists (kept for reference)
-  chmod -x /home/ec2-user/bb-portfolio/generate-env-files.sh 2>/dev/null || true
+    # Archive legacy compose file in REMOTE_REPO if present
+    if [ -f "${REMOTE_REPO}/docker-compose.yml" ]; then
+      mv -f "${REMOTE_REPO}/docker-compose.yml" "${REMOTE_REPO}/docker-compose.legacy.yml" || true
+    fi
+    chmod -x "${REMOTE_REPO}/generate-env-files.sh" 2>/dev/null || true
   '
 }
 
@@ -524,8 +536,8 @@ ensure_https_certs() {
     warn "HTTPS cert ensure skipped: SSH key not found at $key"
     return 0
   fi
-  log "Ensuring HTTPS certificates present on $host"
-  ssh -i "$key" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$host" $'set -e
+  log "Ensuring HTTPS certificates present on $host (user=${REMOTE_USER})"
+  ssh -i "$key" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${REMOTE_USER}"@"$host" bash -lc $'set -e
     # Install certbot if missing
     if ! command -v certbot >/dev/null 2>&1; then
       echo "Installing certbot on host..."
@@ -760,17 +772,17 @@ if [[ "$refresh_env" == true ]]; then
     '
   )
   log "Uploading env files to EC2 ($EC2_HOST)"
-  ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" "mkdir -p /home/ec2-user/bb-portfolio/backend /home/ec2-user/bb-portfolio/frontend"
-  scp -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$TMP_DIR/backend.env.prod"  ec2-user@"$EC2_HOST":/home/ec2-user/bb-portfolio/backend/.env.prod
-  scp -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$TMP_DIR/backend.env.dev"   ec2-user@"$EC2_HOST":/home/ec2-user/bb-portfolio/backend/.env.dev
-  scp -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$TMP_DIR/frontend.env.prod" ec2-user@"$EC2_HOST":/home/ec2-user/bb-portfolio/frontend/.env.prod
-  scp -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$TMP_DIR/frontend.env.dev"  ec2-user@"$EC2_HOST":/home/ec2-user/bb-portfolio/frontend/.env.dev
+  ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${REMOTE_USER}"@"$EC2_HOST" "mkdir -p ${REMOTE_REPO}/backend ${REMOTE_REPO}/frontend"
+  scp -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$TMP_DIR/backend.env.prod"  "${REMOTE_USER}"@"$EC2_HOST":"${REMOTE_REPO}/backend/.env.prod"
+  scp -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$TMP_DIR/backend.env.dev"   "${REMOTE_USER}"@"$EC2_HOST":"${REMOTE_REPO}/backend/.env.dev"
+  scp -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$TMP_DIR/frontend.env.prod" "${REMOTE_USER}"@"$EC2_HOST":"${REMOTE_REPO}/frontend/.env.prod"
+  scp -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$TMP_DIR/frontend.env.dev"  "${REMOTE_USER}"@"$EC2_HOST":"${REMOTE_REPO}/frontend/.env.dev"
 fi
 
 log "Logging into ECR and restarting compose profiles via SSH"
-ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" "aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 778230822028.dkr.ecr.us-west-2.amazonaws.com >/dev/null 2>&1 || true"
-ssh -i "$SSH_KEY" -tt -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" bash -lc $'set -e
-cd /home/ec2-user/bb-portfolio
+ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${REMOTE_USER}"@"$EC2_HOST" "aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 778230822028.dkr.ecr.us-west-2.amazonaws.com >/dev/null 2>&1 || true"
+ssh -i "$SSH_KEY" -tt -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${REMOTE_USER}"@"$EC2_HOST" bash -lc $'set -e
+cd "'"${REMOTE_REPO}"'"
 docker-compose down || true
 case '"$profiles"' in
   prod)
