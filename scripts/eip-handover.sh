@@ -179,8 +179,8 @@ health_probe_active_post_swap() {
   local attempt=1
   while (( attempt <= MAX_RETRIES )); do
     if status_checks_pass "$CANDIDATE_ID" && \
-       http_ok "http://$EIP_PUBLIC_IP/" && \
-       http_ok "http://$EIP_PUBLIC_IP/api/health/"; then
+       http_ok "http://$EIP_PUBLIC_IP:3000/" && \
+       http_ok "http://$EIP_PUBLIC_IP:3001/api/health/"; then
       return 0
     fi
     sleep "$INTERVAL"; ((attempt++))
