@@ -1,3 +1,55 @@
+# Promote (Blue/Green) Workflow
+# GitHub Actions workflow for promoting a candidate EC2 instance to active via EIP handover
+# -----------------------------------------------------------------------------------------
+# This workflow executes the blue-green deployment promotion process with comprehensive
+# health checks, optional rollback, and instance retention management.
+#
+# Role in blue-green deployment:
+# - Validates candidate instance health (AWS status + frontend/backend HTTP checks)
+# - Re-associates production Elastic IP from active to candidate instance
+# - Swaps security groups (candidate gets prod SG, demoted active gets candidate SG)
+# - Updates EC2 tags (Role: candidate→active, active→previous)
+# - Post-swap health validation with optional automatic rollback
+# - Optional: snapshot previous active instance root volume before demotion
+# - Optional: immediately terminate previous active instance (cost optimization)
+# - Optional: run retention policy to prune old previous instances
+#
+# Typical promotion workflow:
+# 1. Candidate deployed via: deployment-orchestrator.sh --target candidate --profiles prod
+# 2. Manual validation: ssh to candidate, test endpoints, verify functionality
+# 3. Trigger this workflow manually (Actions tab) with desired health check parameters
+# 4. Script performs pre-swap health checks on candidate (fail-fast if unhealthy)
+# 5. Confirmation prompt (bypassed via --auto-approve in orchestrator automation)
+# 6. EIP handover: production traffic cutover to candidate (typically <1 second)
+# 7. Security group swap: new active gets prod SG, demoted gets candidate SG
+# 8. Post-swap health validation on new active instance
+# 9. Optional rollback if post-swap health fails (re-associate EIP to previous active)
+# 10. Optional cleanup: terminate or retain previous active instance per policy
+#
+# Safety features:
+# - Pre-swap health gate prevents promoting unhealthy candidates
+# - Configurable retry/interval for transient health check failures
+# - Dry-run mode shows planned actions without executing
+# - Rollback capability if post-swap health fails
+# - Separate security groups isolate candidate during validation
+# - Retention policy prevents accidental termination of recent instances
+#
+# Health checks performed:
+# - AWS instance status: both system & instance checks passing (2/2)
+# - Frontend: HTTP 200 on :3000 (root path)
+# - Backend: HTTP 200 on :3001/api/health
+#
+# Invocation methods:
+# 1. Manual trigger (GitHub Actions UI) - interactive parameter selection
+# 2. Via orchestrator: deployment-orchestrator.sh --target candidate --promote --auto-approve
+# 3. Via script: scripts/eip-handover.sh --region us-west-2 --auto-approve
+# 4. Via gh CLI: gh workflow run promote.yml -f region=us-west-2 -f rollback_on_fail=true
+#
+# Related scripts:
+# - scripts/eip-handover.sh: Core promotion logic with health checks
+# - scripts/instance-retention.sh: Retention policy for previous instances
+# - deploy/scripts/deployment-orchestrator.sh: Full deployment + optional promotion
+#
 name: Promote (Blue/Green)
 
 on:

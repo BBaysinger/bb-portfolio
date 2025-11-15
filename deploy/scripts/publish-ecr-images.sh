@@ -1,17 +1,38 @@
 #!/bin/bash
 set -euo pipefail
 
-# Publishes frontend and backend images to ECR with :latest tag
+# publish-ecr-images.sh
+# Builds and publishes frontend and backend production images to Amazon ECR with :latest tag
+# -----------------------------------------------------------------------------------------
+# Part of the deployment orchestrator flow for production deployments.
+# Called by deployment-orchestrator.sh when --build-images prod or --build-images both is specified.
 #
-# Security & rationale:
-# - Non-sensitive config required at build-time (PROD_FRONTEND_URL, PROD_AWS_REGION, PROD_S3_BUCKET)
-#   is provided via --build-arg so Next.js build and runtime config validation can succeed.
-# - Sensitive values (Mongo URI, Payload secret, AWS creds, SES emails) are injected via Docker
-#   BuildKit --secret mounts so they are ephemeral during RUN and not persisted in layers/history.
-# - Source of truth for prod values is infra/terraform.tfvars, which is generated from your
-#   .github-secrets.private.json5 during the deploy flow.
+# Role in blue-green deployments:
+# - Images built here are pulled by both active and candidate instances during deployment
+# - ECR images are immutable once pushed; new deployments pull latest images
+# - Used for both initial deployments and blue-green candidate instance provisioning
 #
-# Usage: ./deploy/publish-ecr-images.sh
+# Security & Build Strategy:
+# - Non-sensitive config (PROD_FRONTEND_URL, PROD_AWS_REGION, PROD_S3_BUCKET) provided via
+#   --build-arg for Next.js build-time validation and runtime config
+# - Sensitive values (MongoDB URI, Payload secret, AWS credentials, SES emails) injected via
+#   Docker BuildKit --secret mounts (ephemeral during RUN, not persisted in layers/history)
+# - Source of truth: infra/terraform.tfvars (generated from .github-secrets.private.json5)
+# - Images tagged as :latest for simplicity; git commit SHA tracked in CI/CD logs
+#
+# Architecture on EC2:
+# - Nginx reverse proxy forwards to Docker Compose services
+# - Production profile: bb-portfolio-frontend-prod:3000, bb-portfolio-backend-prod:3001
+# - Images are Debian-based Node.js containers (node:22-slim)
+#
+# Requirements:
+# - AWS CLI configured with ECR permissions (ecr:GetAuthorizationToken, ecr:BatchCheckLayerAvailability, etc.)
+# - Docker with BuildKit support enabled
+# - infra/terraform.tfvars present with production secrets
+#
+# Usage:
+#   deploy/scripts/publish-ecr-images.sh                    # Direct invocation (rare)
+#   deployment-orchestrator.sh --build-images prod          # Typical usage via orchestrator
 
 REGION="us-west-2"
 ACCOUNT_ID="778230822028"
