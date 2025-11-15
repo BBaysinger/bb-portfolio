@@ -139,7 +139,7 @@ jobs:
           ssh -i "${{ steps.ssh.outputs.key }}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" \
             "cd /home/ec2-user/bb-portfolio && ./scripts/instance-retention.sh ${flags[*]}"
 
-  - name: Destroy previous instance immediately (override; skips policy)
+      - name: Destroy previous instance immediately (override; skips policy)
         if: ${{ inputs.destroy_previous == 'true' || inputs.destroy_previous == true }}
         env:
           EC2_HOST: ${{ secrets.EC2_HOST }}
