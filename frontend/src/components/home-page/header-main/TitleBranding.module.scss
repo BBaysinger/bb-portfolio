@@ -3,8 +3,8 @@
 
 .titleBranding {
   display: flex;
-  align-items: bottom;
-  justify-content: bottom;
+  gap: 17px !important;
+  justify-content: flex-start;
   left: var(--hero-padding);
   bottom: var(--hero-padding);
   width: 100vw;
@@ -111,7 +111,3 @@
     display: inline-block;
   }
 }
-
-// .barberPole2 {
-//   margin-right: calc(var(--hero-padding) - 0.2em);
-// }
