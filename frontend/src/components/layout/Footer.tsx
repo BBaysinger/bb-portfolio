@@ -140,7 +140,7 @@ const Footer: React.FC<FooterProps> = ({ className, mutationElemRef }) => {
                 </li>
                 <li>
                   <a
-                    href="https://www.google.com/maps/place/Spokane,+WA/@47.6727552,-117.552233,11z/"
+                    href="geo:47.6605791,-117.4292277?q=Spokane,WA"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
