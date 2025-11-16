@@ -283,24 +283,23 @@
     //   orchestrate-xxx  = calls separate script (different script)
     // =============================================================================
     // WORKFLOW:
-    //   1. Run `orchestrate` to deploy to blue (candidate) instance
+    //   1. Run `orchestrate` to deploy to blue/candidate instance
     //   2. Test blue at http://<blue-ip> (IP shown in orchestrator output)
-    //   3. Run `orchestrate-promote` to swap blue → production (manual validation)
+    //   3. Run `candidate-promote` to swap blue/candidate → production/green/active (manual validation)
     //      OR use `orchestrate:auto-promote` to deploy + promote in one step (risky)
     // =============================================================================
-    // Deploy to blue (candidate) instance for testing before production promotion
+    // Deploy to blue/candidate instance for testing before production promotion
     // Runs: terraform, docker builds, GitHub Actions deployment, nginx sync
     // Blue instance is accessible by IP for validation (nginx config includes IP server block)
     "orchestrate": "bash deploy/scripts/deployment-orchestrator.sh --profiles both --refresh-env",
     // Deploy to blue AND auto-promote to production without manual validation
-    // Runs full orchestration THEN calls orchestrator-promote.sh with --auto-promote
-    // ⚠️ Use with caution: skips manual testing of blue candidate
+    // Runs full orchestration THEN internally invokes promotion logic with --auto-promote
+    // ⚠️ Use with caution: skips manual testing of blue/candidate
     "orchestrate:auto-promote": "bash deploy/scripts/deployment-orchestrator.sh --profiles both --auto-promote --refresh-env",
-    // Promote existing blue candidate to production (SEPARATE SCRIPT, no deployment)
+    // Promote existing blue/candidate to production (SEPARATE SCRIPT, no deployment)
     // Runs health checks, swaps Elastic IPs (blue↔green), updates instance Role tags
     // Prompts "Type 'yes' to confirm" before promotion (old active becomes previous)
-    "orchestrate-promote": "bash scripts/orchestrator-promote.sh --region us-west-2",
-    //
+    "candidate-promote": "bash deploy/scripts/orchestrator-promote.sh --region us-west-2",
     // 🏗️ Infrastructure: Sync .env file with Terraform state (interactive)
     "infra:sync-env": "cd infra && bash sync-env-from-terraform.sh",
     // 🏗️ Infrastructure: Sync .env file with Terraform state (skip confirmation)

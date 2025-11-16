@@ -33,7 +33,7 @@
 # Usage:
 #   npm run orchestrate                # Deploy to blue candidate only
 #   npm run orchestrate:auto-promote   # Deploy + auto-promote (no manual test)
-#   npm run orchestrate-promote        # Promote existing blue (separate script)
+#   npm run candidate-promote          # Promote existing blue (separate script)
 #
 # Automation note:
 # - Prefer invoking via npm scripts (above) instead of calling this file
@@ -43,7 +43,7 @@
 # Workflow:
 #   1. orchestrate                     → Blue deployed at http://52.37.142.50
 #   2. Test blue manually              → Validate application works
-#   3. orchestrate-promote             → Swap IPs, blue becomes production
+#   3. candidate-promote               → Swap IPs, blue becomes production
 ################################################################################
 # - Falls back to SSH-based deployment if GitHub workflow dispatch fails
 # - First-time friendly: if no EC2 exists yet, Terraform apply bootstraps it
@@ -713,7 +713,7 @@ ok "Infra and images complete. Handing off container restart to GitHub Actions."
 echo ""
 warn "Blue candidate deployed at $CANDIDATE_IP (EIP: ${BLUE_INSTANCE_IP:-$CANDIDATE_IP})"
 warn "Promotion to production is MANUAL. After validating the candidate:"
-warn "  Run: npm run orchestrate-promote"
+warn "  Run: npm run candidate-promote"
 echo ""
 
 need jq
