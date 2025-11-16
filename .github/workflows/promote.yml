@@ -19,7 +19,7 @@
 # 2. Manual validation: ssh to candidate, test endpoints, verify functionality
 # 3. Trigger this workflow manually (Actions tab) with desired health check parameters
 # 4. Script performs pre-swap health checks on candidate (fail-fast if unhealthy)
-# 5. Confirmation prompt (bypassed via --auto-approve in orchestrator automation)
+# 5. Confirmation prompt (bypassed via --auto-promote in orchestrator automation)
 # 6. EIP handover: production traffic cutover to candidate (typically <1 second)
 # 7. Security group swap: new active gets prod SG, demoted gets candidate SG
 # 8. Post-swap health validation on new active instance
@@ -41,8 +41,8 @@
 #
 # Invocation methods:
 # 1. Manual trigger (GitHub Actions UI) - interactive parameter selection
-# 2. Via orchestrator: deployment-orchestrator.sh --target candidate --promote --auto-approve
-# 3. Via script: scripts/eip-handover.sh --region us-west-2 --auto-approve
+# 2. Via orchestrator: deployment-orchestrator.sh --target candidate --auto-promote
+# 3. Via script: scripts/eip-handover.sh --region us-west-2 --auto-promote
 # 4. Via gh CLI: gh workflow run promote.yml -f region=us-west-2 -f rollback_on_fail=true
 #
 # Related scripts:

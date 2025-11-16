@@ -63,19 +63,8 @@ This will update the Nginx configuration on your server to handle the new subdom
 
 Note on Nginx config changes:
 
-- Nginx on the EC2 host is now managed outside of user_data to avoid drift and size limits. The deploy orchestrator (or the helper script below) is responsible for syncing `/etc/nginx/conf.d/bb-portfolio.conf`.
-- To propagate reverse-proxy updates from this repo (e.g., admin assets under `/admin/_next`):
-  1. Quick sync (recommended):
-     - Use the helper script to push the vhost config template in this repo to the server and reload Nginx.
-     - This is safe and idempotent; it backs up the old file.
-
-     ```bash
-     # from repo root
-     ./deploy/scripts/sync-nginx-config.sh --host ec2-user@44.246.43.116 --key ~/.ssh/bb-portfolio-site-key.pem
-     ```
-
-  2. Rebuild via Terraform (slower):
-     - Not required for Nginx anymore. user_data is intentionally minimal and does not write the site config.
+- Nginx on the EC2 host is managed outside of user_data to avoid drift and size limits. The deploy orchestrator is responsible for syncing `/etc/nginx/conf.d/bb-portfolio.conf` automatically as part of every run.
+- To propagate reverse-proxy updates from this repo (e.g., admin assets under `/admin/_next`), re-run the orchestrator. No manual Nginx sync is required.
 
 ### 3. Future Infrastructure Changes (Optional)
 
@@ -121,6 +110,23 @@ terraform apply   # Apply changes
    - Backend envs include: `PROD_/DEV_REQUIRED_ENVIRONMENT_VARIABLES`, `SECURITY_TXT_EXPIRES`, S3 buckets, Mongo URIs, Payload secret, SES emails, internal backend URL.
    - Frontend envs include: internal backend URL for SSR/server code only (browser uses relative `/api`).
 4. CI/CD pipeline updates production images in ECR
+
+### Orchestration Shortcuts
+
+Use npm scripts for end-to-end orchestration:
+
+```
+# Full redeploy to blue (candidate) for both profiles
+npm run orchestrate
+
+# Deploy + automatic promotion after health checks (includes null-green initial activation if no previous active exists)
+npm run orchestrate:auto-promote
+
+# Manual promotion only (when blue is ready)
+npm run orchestrate-promote
+
+> Initial Activation (null-green mode): If no instance is tagged `Role=active` yet (first time standing up production), the promotion path will tag the healthy candidate directly as active without performing a swap.
+```
 
 ### Infrastructure as Code
 

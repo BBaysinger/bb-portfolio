@@ -5,7 +5,7 @@ set -euo pipefail
 # Builds and publishes frontend and backend production images to Amazon ECR with :latest tag
 # -----------------------------------------------------------------------------------------
 # Part of the deployment orchestrator flow for production deployments.
-# Called by deployment-orchestrator.sh when --build-images prod or --build-images both is specified.
+# Called by deployment-orchestrator.sh to build and push production images to ECR.
 #
 # Role in blue-green deployments:
 # - Images built here are pulled by both active and candidate instances during deployment
@@ -32,7 +32,10 @@ set -euo pipefail
 #
 # Usage:
 #   deploy/scripts/publish-ecr-images.sh                    # Direct invocation (rare)
-#   deployment-orchestrator.sh --build-images prod          # Typical usage via orchestrator
+#   deployment-orchestrator.sh --profiles prod             # Typical usage via orchestrator
+
+# Set AWS profile for ECR access
+export AWS_PROFILE="${AWS_PROFILE:-bb-portfolio-user}"
 
 REGION="us-west-2"
 ACCOUNT_ID="778230822028"
@@ -44,8 +47,8 @@ TFVARS="$ROOT_DIR/infra/terraform.tfvars"
 
 get_tf_var() {
 	local key="$1"
-	# Extract quoted value for key from terraform.tfvars
-	grep -E "^${key}[[:space:]]*=" "$TFVARS" | sed -E 's/^[^=]+=[[:space:]]*"(.*)".*/\1/'
+	# Extract quoted value for key from terraform.tfvars (handles indentation)
+	grep -E "^[[:space:]]*${key}[[:space:]]*=" "$TFVARS" | sed -E 's/^[^=]+=[[:space:]]*"(.*)".*/\1/'
 }
 
 export PROD_MONGODB_URI="$(get_tf_var prod_mongodb_uri)"

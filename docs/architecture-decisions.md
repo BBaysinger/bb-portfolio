@@ -533,7 +533,7 @@ New decisions should be appended chronologically.
   - **Health check script** (`scripts/eip-handover.sh`):
     - Pre-promotion validation: AWS instance status (2/2 checks), frontend HTTP 200 on :3000, backend HTTP 200 on :3001/api/health
     - Configurable retries (`--max-retries`, `--interval`) with exponential backoff support
-    - Promotion defaults to enabled with confirmation prompt (override via `--auto-approve` for CI/CD)
+    - Promotion defaults to enabled with confirmation prompt (override via `--auto-promote` for CI/CD)
     - `--health-only` flag skips promotion, runs health checks only
     - Post-swap validation with optional rollback (`--rollback-on-fail`)
     - Optional snapshot before swap (`--snapshot-before`)
@@ -549,7 +549,7 @@ New decisions should be appended chronologically.
   1. Deploy to candidate: `deploy/scripts/deployment-orchestrator.sh --target candidate --profiles prod`
   2. Validate candidate health (automatic or manual via `--health-only`)
   3. Promote with confirmation: `scripts/eip-handover.sh --region us-west-2` (prompts "yes/no")
-  4. Automated CI/CD: Add `--auto-approve` to skip prompt
+  4. Automated CI/CD: Use `--auto-promote` (implies promote and skips prompt)
   5. Post-promotion: Previous active instance can be retained, pruned via policy, or immediately destroyed
 
 - **Safety features:**
@@ -590,8 +590,8 @@ New decisions should be appended chronologically.
 - **Context / Architecture:**
   - Orchestrator responsibilities:
     - Runs Terraform (init/plan/apply) to create/update the EC2 instance and supporting resources.
-    - Optionally builds and pushes images to registries:
-      - Production → Amazon ECR
+    - Automatically builds and pushes images to registries (always executed to ensure consistency):
+      - Production → Amazon ECR (with AWS_PROFILE=bb-portfolio-user)
       - Development → Docker Hub
     - Dispatches the reusable "Redeploy" GitHub Actions workflow to generate runtime `.env.*` files on EC2 from GitHub Secrets and to (re)start containers.
     - Provides a safe SSH-based fallback to upload env files and restart Docker Compose profiles directly on the instance if workflow dispatch is unavailable.
@@ -614,13 +614,12 @@ New decisions should be appended chronologically.
 
 - **Operation & Flags (highly used):**
   - `--profiles prod|dev|both` choose which environment(s) to deploy.
-  - `--build-images prod|dev|both` optionally rebuild/push images before deployment.
-  - `--no-destroy` keep the existing EC2 (no teardown), still plan/apply drift fixes.
+  - Images are always rebuilt and pushed automatically (both frontend and backend) to ensure consistency.
+  - `--reuse-blue` skip blue instance recreation (faster but may have stale state; default is to recreate).
   - `--containers-only` skip Terraform entirely and only (re)start containers/workflows.
   - `--refresh-env` ask the workflow to regenerate `.env.dev/.env.prod` on EC2.
-  - `--target candidate` deploy to candidate instance for blue-green validation.
   - `--promote` trigger EIP handover after successful candidate deployment.
-  - `--auto-approve` skip handover confirmation prompt (for CI/CD automation).
+  - `--auto-promote` skip handover confirmation prompt (for CI/CD automation).
 
 - **Testing status:** ⚠️ Core functionality validated; comprehensive edge case testing pending
   - Basic deployment flows tested and working

@@ -218,33 +218,21 @@ variable "acme_registration_email" {
 }
 
 # =============================================================================
-# BLUE-GREEN / SECONDARY INSTANCE CONFIGURATION
+# BLUE-GREEN DEPLOYMENT CONFIGURATION
 # =============================================================================
-# Set create_secondary_instance to true to provision an additional EC2 instance
-# ("blue" / canary) alongside the existing primary instance without destroying
-# or replacing it. This supports manual or orchestrated blue-green testing.
+# Blue instance (candidate) is ALWAYS created for blue-green deployment.
+# Green instance (active) is only created when explicitly requested or during initial setup.
 #
-# The secondary instance receives its own Elastic IP and user_data bootstrap,
-# isolated root directory, and identical IAM profile (unless disabled via
-# attach_instance_profile). You can point a test DNS record at the secondary
-# Elastic IP to validate before cutover.
+# Deployment flow:
+# 1. Blue (candidate) created with temporary public IP
+# 2. Test blue instance
+# 3. On promotion: Green → Red (demoted), Blue → Green (promoted with Elastic IP)
+# 4. Red instance terminated after validation
 
-variable "create_secondary_instance" {
-  description = "Create a second (blue/canary) EC2 instance for blue-green without replacing the primary."
+variable "create_green_instance" {
+  description = "Create the green (active) instance. Set to false when deploying only blue candidate."
   type        = bool
   default     = false
-}
-
-variable "secondary_instance_name" {
-  description = "Name tag for the secondary EC2 instance when create_secondary_instance=true."
-  type        = string
-  default     = "bb-portfolio-blue"
-}
-
-variable "secondary_root_dir" {
-  description = "Application root directory on the secondary instance (distinct from primary to avoid confusion)."
-  type        = string
-  default     = "/home/ec2-user/bb-portfolio-blue"
 }
 
 # Version identifier applied as a tag to instances and root volumes.
