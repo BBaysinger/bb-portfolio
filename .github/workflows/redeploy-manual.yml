@@ -322,3 +322,29 @@ jobs:
             test "$(check 4000 /)" = "200" || echo "WARN: frontend dev not 200" >&2
             test "$(check 4001 /api/health)" = "200" || echo "WARN: backend dev health not 200" >&2
           fi
+
+      - name: Diagnostics (on failure)
+        if: ${{ failure() }}
+        env:
+          ENVIRONMENT: ${{ inputs.environment }}
+          EC2_HOST: ${{ inputs.ec2_host || secrets.EC2_HOST }}
+        run: |
+          set -euo pipefail
+          {
+            printf '%s\n' 'set -euo pipefail'
+            printf '%s\n' 'cd /home/ec2-user/bb-portfolio'
+            printf '%s\n' 'COMPOSE_FILE="deploy/compose/docker-compose.yml"'
+            printf '%s\n' 'echo "=== docker compose ps (all) ==="'
+            printf '%s\n' 'docker-compose -f "$COMPOSE_FILE" ps || true'
+            printf '%s\n' 'echo "=== docker ps (table) ==="'
+            printf '%s\n' 'docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" || true'
+            printf '%s\n' 'echo "=== listeners on :80 and :443 ==="'
+            printf '%s\n' "sudo ss -ltnp | egrep ':80|:443' || true"
+            printf '%s\n' 'echo "=== curl http://127.0.0.1/ (Host: bbaysinger.com) ==="'
+            printf '%s\n' 'curl -I --max-time 8 -H "Host: bbaysinger.com" http://127.0.0.1/ || true'
+            printf '%s\n' 'echo "=== curl https://127.0.0.1/ (-k) ==="'
+            printf '%s\n' 'curl -kI --max-time 8 https://127.0.0.1/ || true'
+            printf '%s\n' 'echo "=== recent logs for likely proxy containers (caddy/nginx) ==="'
+            printf '%s\n' "for n in $(docker ps --format '{{.Names}}' | egrep 'caddy|nginx' || true); do echo '--- '"
+            printf '%s\n' "echo "'"\$n"'"; docker logs --tail=200 "'"\$n"'" || true; done"
+          } | ssh -i "${{ steps.ssh.outputs.key }}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" "bash -s"
