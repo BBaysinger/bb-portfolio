@@ -826,16 +826,24 @@ REMOTE_CMDS
 
 # Verify port 80 responds with 2xx/3xx; return nonzero if not
 verify_http80() {
-  local ip="$1"
-  local code
-  code=$(curl -s -o /dev/null -w '%{http_code}' --connect-timeout 5 --max-time 10 "http://$ip/" || echo "000")
-  if [[ "$code" =~ ^2|3 ]]; then
-    ok "HTTP :80 on $ip responded ($code)"
-    return 0
-  else
-    err "HTTP :80 on $ip did not respond successfully (code=$code)"
-    return 1
-  fi
+  local ip="$1"; local attempts=${HEALTH_RETRY_ATTEMPTS:-6}; local delay=${HEALTH_RETRY_DELAY:-5}
+  local i=0 code=""
+  while [ $i -lt $attempts ]; do
+    code=$(curl -s -o /dev/null -w '%{http_code}' --connect-timeout 5 --max-time 10 "http://$ip/" -L || echo "000")
+    if [[ "$code" == 2* || "$code" == 3* ]]; then
+      ok "HTTP :80 on $ip responded ($code, attempt $((i+1)))"
+      return 0
+    fi
+    i=$((i+1))
+    if [[ "$code" == "000" && $i -lt $attempts ]]; then
+      warn "Transient HTTP 000 on $ip (attempt $i/$attempts)"
+      sleep "$delay"; continue
+    fi
+    warn "Attempt $i/$attempts :80 on $ip code=$code"
+    sleep "$delay"
+  done
+  err "HTTP :80 on $ip unhealthy after $attempts attempts (last code=$code)"
+  return 1
 }
 
 # Ensure HTTPS certificates exist (idempotent). Requires certbot on host.
@@ -977,6 +985,45 @@ dispatch_redeploy() {
   return 1
 }
 
+# Promotion health gate (production only). Ensures backend/container readiness & HTTP success before EIP handover.
+gate_promotion_health() {
+  local host="$1"; local attempts=${HEALTH_RETRY_ATTEMPTS:-6}; local delay=${HEALTH_RETRY_DELAY:-5}
+  [[ -n "$host" ]] || die "Promotion gate: host required"
+  log "Running promotion health gate on $host (attempts=$attempts delay=${delay}s)"
+  local be_name="bb-portfolio-backend-prod" fe_name="bb-portfolio-frontend-prod"
+  local tries=0 be_status="" fe_status="" be_ready=false fe_ready=false
+  while [ $tries -lt $attempts ]; do
+    be_status=$(ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${REMOTE_USER}"@"$host" "docker ps --filter name=$be_name --format '{{.Status}}'" || true)
+    fe_status=$(ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${REMOTE_USER}"@"$host" "docker ps --filter name=$fe_name --format '{{.Status}}'" || true)
+    [[ $be_status =~ healthy ]] && be_ready=true || true
+    [[ $fe_status =~ ^Up ]] && fe_ready=true || true
+    if [[ $be_ready == true && $fe_ready == true ]]; then
+      ok "Containers healthy pre-promotion (backend='$be_status' frontend='$fe_status')"
+      break
+    fi
+    tries=$((tries+1))
+    warn "Pre-promotion not ready attempt $tries/$attempts (backend='$be_status' frontend='$fe_status')"
+    sleep "$delay"
+  done
+  if [[ $be_ready != true ]]; then die "Promotion gate failed: backend container not healthy"; fi
+  # HTTP endpoint checks with retry (simplified)
+  local http_retry
+  http_retry() {
+    local url="$1"; local label="$2"; local i=0 code
+    while [ $i -lt $attempts ]; do
+      code=$(ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${REMOTE_USER}"@"$host" "curl -s -o /dev/null -w '%{http_code}' -L '$url'" || echo 000)
+      if [[ $code == 2* || $code == 3* ]]; then ok "$label responded $code (attempt $((i+1)))"; return 0; fi
+      i=$((i+1))
+      if [[ $code == 000 && $i -lt $attempts ]]; then warn "Transient 000 $label (attempt $i/$attempts)"; sleep "$delay"; continue; fi
+      warn "$label code=$code attempt $i/$attempts"; sleep "$delay"
+    done
+    die "Promotion gate failed: $label unhealthy (last code=$code)"
+  }
+  http_retry "http://localhost:3001/api/health" "backend prod health"
+  http_retry "http://localhost:3000/" "frontend prod"
+  ok "Promotion health gate passed"
+}
+
 # Decide how to dispatch based on --profiles
 case "$profiles" in
   prod)
@@ -985,7 +1032,11 @@ case "$profiles" in
       ok "Prod redeploy dispatched via GitHub Actions. Candidate IP: ${CANDIDATE_IP:-unknown}"
       # If promotion was requested (implied by --auto-promote), run handover now (GA logs not watched here).
       if [[ "$promote" == true ]]; then
+        log "Running promotion health gate before handover (prod profile)"
+        gate_promotion_health "$CANDIDATE_IP"
         HANDOVER_SCRIPT="${REPO_ROOT}/scripts/orchestrator-promote.sh"
+        # Capture current active IP before handover (may be empty in null-green scenario)
+        PRE_ACTIVE_IP=$(discover_instance_public_ip_by_role active | head -n1 || echo "")
         if [[ -f "$HANDOVER_SCRIPT" ]]; then
           log "Initiating Elastic IP handover (--promote)"
           set +e
@@ -1006,7 +1057,22 @@ case "$profiles" in
               die "Promotion aborted; not proceeding to pruning."
             fi
           else
-            ok "Elastic IP handover completed successfully."
+            ACTIVE_AFTER=$(discover_instance_public_ip_by_role active | head -n1 || echo "")
+            [[ -z "$PRE_ACTIVE_IP" ]] && PRE_ACTIVE_IP="none (null-green activation)" || true
+            if [[ -n "$ACTIVE_AFTER" ]]; then
+              ok "Elastic IP handover completed successfully (previous: $PRE_ACTIVE_IP, new: $ACTIVE_AFTER)."
+              # Post-handover reachability check; set flag for pruning safety
+              if verify_http80 "$ACTIVE_AFTER"; then
+                PROMOTION_POST_HTTP_HEALTH=true
+              else
+                PROMOTION_POST_HTTP_HEALTH=false
+                err "Post-handover active IP $ACTIVE_AFTER unreachable on :80 (previous: $PRE_ACTIVE_IP). Previous active instance will be retained (skip pruning)."
+              fi
+            else
+              ok "Elastic IP handover completed successfully (active IP: unknown)."
+              err "Could not resolve new active IP after handover (previous: $PRE_ACTIVE_IP)."
+              PROMOTION_POST_HTTP_HEALTH=false
+            fi
           fi
         else
           warn "orchestrator-promote.sh not found at $HANDOVER_SCRIPT; cannot promote."
@@ -1038,7 +1104,10 @@ case "$profiles" in
       fi
       # If promotion was requested (implied by --auto-promote), run handover now after dispatch
       if [[ "$promote" == true ]]; then
+        log "Running promotion health gate before handover (both profiles)"
+        gate_promotion_health "$CANDIDATE_IP"
         HANDOVER_SCRIPT="${REPO_ROOT}/scripts/orchestrator-promote.sh"
+        PRE_ACTIVE_IP=$(discover_instance_public_ip_by_role active | head -n1 || echo "")
         if [[ -f "$HANDOVER_SCRIPT" ]]; then
           log "Initiating Elastic IP handover (--promote)"
           set +e
@@ -1059,7 +1128,21 @@ case "$profiles" in
               die "Promotion aborted; not proceeding to pruning."
             fi
           else
-            ok "Elastic IP handover completed successfully."
+            ACTIVE_AFTER=$(discover_instance_public_ip_by_role active | head -n1 || echo "")
+            [[ -z "$PRE_ACTIVE_IP" ]] && PRE_ACTIVE_IP="none (null-green activation)" || true
+            if [[ -n "$ACTIVE_AFTER" ]]; then
+              ok "Elastic IP handover completed successfully (previous: $PRE_ACTIVE_IP, new: $ACTIVE_AFTER)."
+              if verify_http80 "$ACTIVE_AFTER"; then
+                PROMOTION_POST_HTTP_HEALTH=true
+              else
+                PROMOTION_POST_HTTP_HEALTH=false
+                err "Post-handover active IP $ACTIVE_AFTER unreachable on :80 (previous: $PRE_ACTIVE_IP). Previous active instance will be retained (skip pruning)."
+              fi
+            else
+              ok "Elastic IP handover completed successfully (active IP: unknown)."
+              err "Could not resolve new active IP after handover (previous: $PRE_ACTIVE_IP)."
+              PROMOTION_POST_HTTP_HEALTH=false
+            fi
           fi
         else
           warn "orchestrator-promote.sh not found at $HANDOVER_SCRIPT; cannot promote."
@@ -1194,10 +1277,48 @@ esac
 
 ok "Containers restarted via SSH fallback. EC2 IP: $EC2_HOST"
 
+# Poll container health before proceeding with summary/HTTP verification (SSH fallback path)
+poll_containers_health() {
+  local env="$1"; local attempts=${HEALTH_RETRY_ATTEMPTS:-6}; local delay=${HEALTH_RETRY_DELAY:-5}; local tries=0
+  local be_name fe_name
+  case "$env" in
+    prod) be_name="bb-portfolio-backend-prod"; fe_name="bb-portfolio-frontend-prod";;
+    dev)  be_name="bb-portfolio-backend-dev";  fe_name="bb-portfolio-frontend-dev";;
+  esac
+  log "Polling container health ($env) attempts=$attempts delay=${delay}s"
+  local be_status fe_status
+  while [ $tries -lt $attempts ]; do
+    be_status=$(ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${REMOTE_USER}"@"$EC2_HOST" "docker ps --filter name=$be_name --format '{{.Status}}'" || true)
+    fe_status=$(ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${REMOTE_USER}"@"$EC2_HOST" "docker ps --filter name=$fe_name --format '{{.Status}}'" || true)
+    be_ready=false; fe_ready=false
+    if echo "$be_status" | grep -qi 'healthy'; then be_ready=true; fi
+    if echo "$fe_status" | grep -qi '^Up '; then fe_ready=true; fi
+    if [[ "$be_ready" == true && "$fe_ready" == true ]]; then
+      ok "Containers healthy ($env) backend='$be_status' frontend='$fe_status'"
+      return 0
+    fi
+    tries=$((tries+1))
+    warn "Not ready yet ($env) attempt $tries/$attempts (backend='$be_status' frontend='$fe_status')"
+    sleep "$delay"
+  done
+  warn "Containers not healthy after $attempts attempts ($env) (backend='$be_status' frontend='$fe_status')"
+  return 1
+}
+
+# Poll for each profile requested
+case "$profiles" in
+  prod) poll_containers_health prod || true ;;
+  dev)  poll_containers_health dev  || true ;;
+  both) poll_containers_health prod || true; poll_containers_health dev || true ;;
+esac
+
 # Optional promotion (Elastic IP handover blue → green)
 if [[ "$promote" == true ]]; then
   HANDOVER_SCRIPT="${REPO_ROOT}/scripts/orchestrator-promote.sh"
-  if [[ -f "$HANDOVER_SCRIPT" ]]; then
+    if [[ -f "$HANDOVER_SCRIPT" ]]; then
+      PRE_ACTIVE_IP=$(discover_instance_public_ip_by_role active | head -n1 || echo "")
+      log "Running promotion health gate before handover (SSH fallback)"
+      gate_promotion_health "$EC2_HOST"
       log "Initiating Elastic IP handover (--promote)"
       set +e
       HANDOVER_CMD=("$HANDOVER_SCRIPT" --region us-west-2)
@@ -1217,28 +1338,45 @@ if [[ "$promote" == true ]]; then
           die "Promotion aborted; not proceeding to pruning."
         fi
       else
-        ok "Elastic IP handover completed successfully."
+        ACTIVE_AFTER=$(discover_instance_public_ip_by_role active | head -n1 || echo "")
+        [[ -z "$PRE_ACTIVE_IP" ]] && PRE_ACTIVE_IP="none (null-green activation)" || true
+        if [[ -n "$ACTIVE_AFTER" ]]; then
+          ok "Elastic IP handover completed successfully (previous: $PRE_ACTIVE_IP, new: $ACTIVE_AFTER)."
+          if verify_http80 "$ACTIVE_AFTER"; then
+            PROMOTION_POST_HTTP_HEALTH=true
+          else
+            PROMOTION_POST_HTTP_HEALTH=false
+            err "Post-handover active IP $ACTIVE_AFTER unreachable on :80 (previous: $PRE_ACTIVE_IP). Previous active instance will be retained (skip pruning)."
+          fi
+        else
+          ok "Elastic IP handover completed successfully (active IP: unknown)."
+          err "Could not resolve new active IP after handover (previous: $PRE_ACTIVE_IP)."
+          PROMOTION_POST_HTTP_HEALTH=false
+        fi
       fi
     else
       warn "orchestrator-promote.sh not found at $HANDOVER_SCRIPT; cannot promote."
     fi
-  fi
 fi
 
 # Retention pruning block (after optional promotion)
 if [[ "$prune_after_promotion" == true ]]; then
-  log "Retention pruning requested (--prune-after-promotion). Invoking instance-retention.sh"
-  RETENTION_SCRIPT="${REPO_ROOT}/scripts/instance-retention.sh"
-  if [[ -f "$RETENTION_SCRIPT" ]]; then
-    set +e
-    if [[ -n "$retention_days" ]]; then
-      "$RETENTION_SCRIPT" --retain-count "$retention_count" --retain-days "$retention_days" --force || warn "Retention script encountered errors"
+  if [[ "${PROMOTION_POST_HTTP_HEALTH:-true}" == true ]]; then
+    log "Retention pruning requested (--prune-after-promotion) and post-handover health OK. Invoking instance-retention.sh"
+    RETENTION_SCRIPT="${REPO_ROOT}/scripts/instance-retention.sh"
+    if [[ -f "$RETENTION_SCRIPT" ]]; then
+      set +e
+      if [[ -n "$retention_days" ]]; then
+        "$RETENTION_SCRIPT" --retain-count "$retention_count" --retain-days "$retention_days" --force || warn "Retention script encountered errors"
+      else
+        "$RETENTION_SCRIPT" --retain-count "$retention_count" --force || warn "Retention script encountered errors"
+      fi
+      set -e
     else
-      "$RETENTION_SCRIPT" --retain-count "$retention_count" --force || warn "Retention script encountered errors"
+      warn "Retention script not found at $RETENTION_SCRIPT; skipping prune"
     fi
-    set -e
   else
-    warn "Retention script not found at $RETENTION_SCRIPT; skipping prune"
+    warn "Skipping retention pruning: post-handover active IP failed health. Previous active instance retained for investigation."
   fi
 fi
 # Friendly summary with safe fallbacks

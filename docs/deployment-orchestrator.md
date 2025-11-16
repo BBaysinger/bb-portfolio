@@ -132,15 +132,44 @@ This avoids confusing error output during the very first promotion and makes the
 \n+This is ideal for rapid iteration when infra is already stable and only container images / env regeneration are needed. If you need nginx template or cert changes, omit `--containers-only` so host sync runs.
 \n+### Mandatory Candidate SSH Connectivity
 \n+Early in every run (full or containers-only) the script resolves the candidate (blue) IP and performs an SSH connectivity test. If SSH fails the run aborts immediately. This prevents false-success scenarios where containers would appear to deploy but host configuration (nginx, certs, env files) could not actually be applied.
-\n+### WebSocket Upgrade Simplification
-\n+Legacy deployments used a dynamic `$connection_upgrade` map to normalize the `Connection` header. This has been removed for simplicity and reliability after encountering `unknown "connection_upgrade" variable` errors when the map file was missing. All nginx server blocks now set:
-\n+```
+### Containers-Only Mode
+Use `--containers-only` to skip all Terraform and host-level configuration steps. In this mode the orchestrator:
+- Does NOT plan/apply infrastructure
 proxy_set_header Upgrade $http_upgrade;
 proxy_set_header Connection "Upgrade";
 ```
+
 \n+During sync the orchestrator automatically deletes any leftover `00-websocket-upgrade.conf` map file. If you later need conditional behavior, reintroduce a map in a dedicated conf fragment, but keep container and template changes in sync.
+
 ```
 
+
+### Health Check Strategy (Retry & Poll)
+
+The redeploy workflow and SSH fallback implement a resilient multi-phase health approach:
+
+1. Container health polling:
+  - Backend ready only when `docker ps` status contains `healthy`.
+  - Frontend ready when status begins with `Up` (no explicit health check).
+  - Poll defaults: 6 attempts × 5s (configurable) with status logged each try.
+2. HTTP probes with backoff:
+  - Endpoints: `/` (frontend) and `/api/health` (backend) for both prod and dev profiles.
+  - 5 curl attempts × 3s delay (configurable) follow redirects (`-L`).
+  - Success: any 2xx/3xx (redirects like 308 accepted). Transient `000` ignored until final attempt.
+3. Port 80 verification (orchestrator): same retry semantics applied after deployment and optional promotion.
+
+Configuration knobs:
+| Context | Vars | Defaults |
+|---------|------|----------|
+| Workflow | `HEALTH_ATTEMPTS`, `HEALTH_DELAY_SECONDS`, `CURL_ATTEMPTS`, `CURL_DELAY_SECONDS` | 6 / 5 / 5 / 3 |
+| SSH fallback | `HEALTH_RETRY_ATTEMPTS`, `HEALTH_RETRY_DELAY` | 6 / 5 |
+
+Rationale:
+- Eliminates flakiness from cold starts & slow health checks.
+- Treats redirect (308) and transient network unavailability as normal start-up conditions.
+- Surfaces persistent failures via WARN without blocking blue-green promotion flows.
+
+To tighten enforcement (e.g., fail on WARN), adjust attempt counts downward and treat final non-2xx/3xx as fatal in custom automation.
 ## Exit Codes
 
 - `0` Success
@@ -156,3 +185,4 @@ proxy_set_header Connection "Upgrade";
   - The orchestrator auto-falls back to SSH to restart containers
   - Confirm EC2 is reachable; then re-run
   - If backend restart-loops with "Missing required environment variables", re-run with --refresh-env to regenerate env files (ensuring SECURITY_TXT_EXPIRES and required lists are present).
+```
