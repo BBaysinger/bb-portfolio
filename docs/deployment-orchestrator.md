@@ -72,11 +72,13 @@ deploy/scripts/deployment-orchestrator.sh --discover-only
 deploy/scripts/deployment-orchestrator.sh --plan-only
 ```
 
-- Create/update infra without rebuilding images, then redeploy via GH:
+- Create/update infra and deploy (images are always built and pushed):
 
 ```
-deploy/scripts/deployment-orchestrator.sh --no-build --profiles both --refresh-env
+deploy/scripts/deployment-orchestrator.sh --profiles both --refresh-env
 ```
+
+Note: The orchestrator automatically builds and pushes both frontend and backend images (prod to ECR, dev to Docker Hub) to ensure consistency. The `--build-images` flag has been removed as images should always be fresh.
 
 When --refresh-env is set, the workflow regenerates these files on EC2:
 
@@ -87,10 +89,38 @@ When --refresh-env is set, the workflow regenerates these files on EC2:
 
 SSH fallback mirrors this behavior using values from .github-secrets.private.json5.
 
-- Full redeploy including image builds for dev/prod:
+- Full redeploy including image builds for dev/prod (npm shortcuts):
 
 ```
-npm run deploy:full
+# Deploy to blue (candidate) and restart containers for both profiles
+npm run orchestrate
+
+# Deploy + auto-promote (blue → green) without manual prompt (includes null-green initial activation when no active exists)
+npm run orchestrate:auto-promote
+
+# Only perform promotion (when blue is already healthy)
+npm run orchestrate-promote
+
+### Blue Replacement Prompt
+
+When a blue (candidate) instance already exists and hasn’t been promoted, re-running the orchestrator will prompt you to either:
+
+- replace: destroy + recreate blue (fresh candidate), or
+- reuse: keep the current blue and deploy onto it, or
+- cancel: abort the run.
+
+Use `--reuse-blue` to skip the prompt and reuse automatically.
+
+### Null-Green Mode (Initial Activation)
+
+If there is no previously promoted instance (i.e. no EC2 tagged `Role=active`), the promotion script enters **null-green mode**. In this mode:
+
+1. The lone candidate instance is health-checked.
+2. If healthy, it is directly tagged `Role=active` (initial activation).
+3. No Elastic IP or security-group swap occurs (there is nothing to swap).
+4. If an Elastic IP is already attached to the candidate, it is retained as production.
+
+This avoids confusing error output during the very first promotion and makes the first `orchestrate:auto-promote` seamless.
 ```
 
 ## Exit Codes

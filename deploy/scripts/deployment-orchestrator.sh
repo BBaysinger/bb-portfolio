@@ -1,14 +1,50 @@
 #!/usr/bin/env bash
-# Deployment Orchestrator — EC2 + Docker Compose (4 Debian-based containers)
-# -------------------------------------------------------------------------
-# Unified deployment script for bb-portfolio infrastructure, images, and containers.
-# Supports both single-instance and blue-green deployment patterns with automated promotion.
+################################################################################
+# BB Portfolio Deployment Orchestrator
+################################################################################
+# Blue-Green deployment pipeline that orchestrates the full deployment lifecycle:
 #
-# What this does (high level):
-# - Provisions/updates AWS EC2 instance(s) via Terraform (active or candidate)
-# - Builds and publishes images (optional) to ECR (prod) and Docker Hub (dev)
-# - Hands off container (re)starts to GitHub Actions "Redeploy" workflow
-#   so runtime env files are generated on EC2 from GitHub Secrets
+# 1. Infrastructure Provisioning (Terraform)
+#    - Always creates/taints blue (candidate) instance for fresh deployments
+#    - Green (production) serves live traffic via production Elastic IP
+#    - Blue gets separate Elastic IP for validation before promotion
+#
+# 2. Container Image Builds (Docker/ECR/Docker Hub)
+#    - Builds prod images (ECR: bb-portfolio-backend-prod, frontend-dev)
+#    - Builds dev images (Docker Hub: backend:dev, frontend:dev)
+#    - Both profiles built together by default
+#
+# 3. Application Deployment (GitHub Actions)
+#    - Triggers redeploy.yml workflow for container deployment
+#    - Generates runtime .env files on EC2 from GitHub Secrets
+#    - Falls back to SSH if GitHub Actions unavailable
+#
+# 4. Configuration Sync
+#    - Deploys nginx reverse proxy config to blue instance
+#    - Blue instance accessible via IP (nginx server_name includes BLUE_IP)
+#    - SSL cert provisioning (if configured)
+#
+# 5. Optional Promotion (--promote flag)
+#    - Calls scripts/orchestrator-promote.sh for blue → green handover
+#    - Performs health checks before and after EIP swap
+#    - Updates instance Role tags (active/candidate)
+#    - Supports --auto-promote to skip confirmation prompt
+#
+# Usage:
+#   npm run orchestrate                # Deploy to blue candidate only
+#   npm run orchestrate:auto-promote   # Deploy + auto-promote (no manual test)
+#   npm run orchestrate-promote        # Promote existing blue (separate script)
+#
+# Automation note:
+# - Prefer invoking via npm scripts (above) instead of calling this file
+#   directly so flags like --promote/--auto-promote/--refresh-env remain
+#   consistent across operators and AI tools.
+#
+# Workflow:
+#   1. orchestrate                     → Blue deployed at http://52.37.142.50
+#   2. Test blue manually              → Validate application works
+#   3. orchestrate-promote             → Swap IPs, blue becomes production
+################################################################################
 # - Falls back to SSH-based deployment if GitHub workflow dispatch fails
 # - First-time friendly: if no EC2 exists yet, Terraform apply bootstraps it
 # - By default, existing instances preserved; use --destroy to recreate from scratch
@@ -17,7 +53,7 @@
 # - Deploy candidate instance: --target candidate --profiles prod
 # - Validate candidate manually or via health checks
 # - Promote to active: --promote (triggers EIP handover with health checks)
-# - Auto-approve for CI/CD: --auto-approve (skips confirmation prompt)
+# - Auto-promote for CI/CD: --auto-promote (skips confirmation prompt)
 # - Retention management: --prune-after-promotion (cleanup old previous instances)
 #
 # Runtime architecture on EC2:
@@ -41,19 +77,20 @@
 #
 # Usage examples:
 #   # Standard production deployment
-#   deploy/scripts/deployment-orchestrator.sh --build-images prod --profiles prod
+#   deploy/scripts/deployment-orchestrator.sh --profiles prod
 #
 #   # Blue-green candidate deployment
 #   deploy/scripts/deployment-orchestrator.sh --target candidate --profiles prod
 #
 #   # Blue-green promotion with automated handover
-#   deploy/scripts/deployment-orchestrator.sh --target candidate --promote --auto-approve
+#   # --auto-promote implies --promote
+#   deploy/scripts/deployment-orchestrator.sh --target candidate --auto-promote
 #
 #   # Container-only update (skip Terraform)
 #   deploy/scripts/deployment-orchestrator.sh --containers-only --profiles both
 #
 #   # Development environment update
-#   deploy/scripts/deployment-orchestrator.sh --build-images dev --profiles dev
+#   deploy/scripts/deployment-orchestrator.sh --profiles dev
 #
 # Requirements:
 # - aws CLI configured with EC2/ECR/IAM permissions
@@ -88,7 +125,7 @@ do_destroy=false    # Changed: preserve EC2 by default
 do_infra=true       # allow containers-only mode
 baseline_reset=false  # When true, perform snapshot & stricter confirmation before destroy
 baseline_snapshot_id=""
-build_images=""   # prod|dev|both|""
+taint_blue=true     # Default: recreate blue instance for fresh state; use --reuse-blue to skip
 profiles="both"   # prod|dev|both
 workflows="redeploy.yml" # comma-separated list of workflow names or filenames to trigger (e.g., 'Redeploy' or 'redeploy.yml')
 refresh_env=false   # whether GH workflow should regenerate/upload env files
@@ -97,11 +134,10 @@ watch_logs=true     # whether to watch GH workflow logs
 sync_secrets=true   # whether to sync local secrets to GitHub
 discover_only=false # perform discovery and exit without changes
 plan_only=false     # run terraform plan (summary) and exit (no apply)
-target_role="active" # target instance role for container operations: active|candidate
-prune_after_promotion=false # if true, invoke retention pruning for old instances (Role=previous)
+prune_after_promotion=false # if true, invoke retention pruning for old instances (Role=red/previous)
 retention_count=2            # how many previous instances to keep when pruning
 retention_days=""           # if set, only prune those older than this many days
-promote=false                # if true and target_role=candidate, run Elastic IP handover before optional pruning
+promote=false                # if true, run Elastic IP handover (blue → green) before optional pruning
 auto_approve_handover=false  # if true, skip confirmation prompt for handover
 handover_rollback=true       # attempt rollback on post-swap failure
 handover_snapshot=false      # snapshot active root volume before swap
@@ -115,10 +151,9 @@ Full deploy via GitHub (infra/images local; containers via GH Actions)
 
 Options:
   --force                 Skip confirmation for Terraform destroy
-  --build-images [val]    Rebuild/push images: prod|dev|both (default: none)
-  --no-build              Disable image build/push
   --profiles [val]        Which profiles to start in GH: prod|dev|both (default: both)
   --destroy               Destroy and recreate EC2 infra (default: preserve existing)
+  --reuse-blue            Reuse existing blue instance instead of recreating (faster, but may have stale state)
   --containers-only       Skip all Terraform/infra steps (no destroy/apply)
   --baseline-reset        Snapshot root volume then targeted destroy (requires CONFIRM_BASELINE=YES)
   --target [role]         Target instance role for container deploy: active|candidate (default: active)
@@ -126,7 +161,8 @@ Options:
   --retention-count [n]   Retention: keep newest N previous instances (default: 2)
   --retention-days [n]    Retention: only prune if demoted age >= N days (optional)
   --promote               After deploying to candidate, perform EIP handover (promote candidate → active)
-  --auto-approve          Auto-approve handover after health checks (skips confirmation prompt)
+  --auto-promote          Imply --promote and auto-approve handover after health checks (no prompt)
+  --auto-approve          Deprecated alias for --auto-promote
   --handover-no-rollback  Disable rollback on failed post-swap health
   --handover-snapshot     Snapshot current active root volume before handover
   --gh-workflows [names]  Comma-separated workflow names to trigger (default: Redeploy)
@@ -143,12 +179,10 @@ USAGE
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --force) force_destroy=true; shift ;;
-    --build-images)
-      build_images="${2:-}"; [[ -n "$build_images" ]] || die "--build-images requires prod|dev|both"; shift 2 ;;
-    --no-build) build_images=""; shift ;;
     --profiles)
       profiles="${2:-}"; [[ "$profiles" =~ ^(prod|dev|both)$ ]] || die "--profiles must be prod|dev|both"; shift 2 ;;
     --destroy) do_destroy=true; shift ;;
+    --reuse-blue) taint_blue=false; shift ;;
     --containers-only) do_infra=false; shift ;;
   --baseline-reset) baseline_reset=true; do_destroy=true; shift ;;
     --gh-workflows)
@@ -159,15 +193,14 @@ while [[ $# -gt 0 ]]; do
     --no-secrets-sync) sync_secrets=false; shift ;;
     --discover-only) discover_only=true; shift ;;
     --plan-only) plan_only=true; shift ;;
-    --target)
-      target_role="${2:-}"; [[ "$target_role" =~ ^(active|candidate)$ ]] || die "--target must be active|candidate"; shift 2 ;;
     --prune-after-promotion) prune_after_promotion=true; shift ;;
     --retention-count)
       retention_count="${2:-}"; [[ "$retention_count" =~ ^[0-9]+$ ]] || die "--retention-count must be integer"; shift 2 ;;
     --retention-days)
       retention_days="${2:-}"; [[ "$retention_days" =~ ^[0-9]+$ ]] || die "--retention-days must be integer"; shift 2 ;;
     --promote) promote=true; shift ;;
-    --auto-approve) auto_approve_handover=true; shift ;;
+    --auto-promote) auto_approve_handover=true; promote=true; shift ;;
+    --auto-approve) warn "--auto-approve is deprecated; use --auto-promote"; auto_approve_handover=true; shift ;;
     --handover-no-rollback) handover_rollback=false; shift ;;
     --handover-snapshot) handover_snapshot=true; shift ;;
     --remote-user)
@@ -184,7 +217,55 @@ REMOTE_REPO="${REMOTE_HOME}/bb-portfolio"
 # Prereqs
 need() { command -v "$1" >/dev/null 2>&1 || die "$1 is required"; }
 need aws; need terraform; need node; need npm; need gh
-if [[ -n "$build_images" ]]; then need docker; fi
+need docker
+ensure_blue_ip() {
+  if [[ -n "${BLUE_INSTANCE_IP:-}" ]]; then return 0; fi
+  # Try terraform outputs first (best-effort)
+  if command -v terraform >/dev/null 2>&1 && [ -d "$INFRA_DIR" ]; then
+    pushd "$INFRA_DIR" >/dev/null || true
+    set +e
+    BLUE_INSTANCE_IP=$(terraform output -raw blue_elastic_ip 2>/dev/null)
+    [[ -z "$BLUE_INSTANCE_IP" ]] && BLUE_INSTANCE_IP=$(terraform output -raw blue_instance_public_ip 2>/dev/null)
+    set -e
+    popd >/dev/null || true
+    if [[ -n "$BLUE_INSTANCE_IP" ]]; then export BLUE_INSTANCE_IP; return 0; fi
+  fi
+  # Fallback to AWS CLI by tag Role=candidate
+  if command -v aws >/dev/null 2>&1; then
+    set +e
+    BLUE_INSTANCE_IP=$(aws ec2 describe-instances \
+      --filters "Name=tag:Project,Values=bb-portfolio" "Name=tag:Role,Values=candidate" "Name=instance-state-name,Values=running" \
+      --query 'Reservations[].Instances[].PublicIpAddress' --output text 2>/dev/null | awk 'NF' | head -n1)
+    set -e
+    if [[ -n "$BLUE_INSTANCE_IP" ]]; then export BLUE_INSTANCE_IP; return 0; fi
+  fi
+  # Last resort: use resolved host if it looks like an IP
+  if [[ -n "${EC2_HOST_RESOLVE:-}" && "$EC2_HOST_RESOLVE" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]]; then
+    BLUE_INSTANCE_IP="$EC2_HOST_RESOLVE"; export BLUE_INSTANCE_IP; return 0;
+  fi
+  return 1
+}
+
+# Early confirmation if promotion requested (always prompt here).
+if [[ "$promote" == true ]]; then
+  if [[ "$auto_approve_handover" == true ]]; then
+    warn "Auto-promote enabled: if health checks pass, handover will proceed without an additional prompt."
+  else
+    warn "Promotion requested (--promote): handover will prompt again just before EIP swap."
+  fi
+  echo "This run will:"
+  echo "  1) Deploy to blue (candidate)"
+  echo "  2) Run health checks on the candidate"
+  if [[ "$auto_approve_handover" == true ]]; then
+    echo "  3) Perform EIP handover automatically (no prompt)"
+  else
+    echo "  3) Ask for confirmation before performing EIP handover"
+  fi
+  echo ""
+  printf "Type 'yes' to proceed with deploy + promotion plan: "
+  read -r ans
+  [[ "$ans" == yes ]] || die "Cancelled before deployment"
+fi
 
 # Ensure gh is authenticated and repo is set
 if ! gh auth status >/dev/null 2>&1; then
@@ -217,8 +298,10 @@ tf_discovery() {
   fi
   pushd "$INFRA_DIR" >/dev/null
   log "Discovery: reading Terraform state and outputs"
+  log "Initializing Terraform..."
   set +e
   terraform init -input=false >/dev/null 2>&1
+  log "Reading Terraform state..."
   STATE=$(terraform state list 2>/dev/null)
   INIT_STATUS=$?
   set -e
@@ -226,47 +309,98 @@ tf_discovery() {
     warn "Discovery: terraform state not initialized yet"
     STATE=""
   fi
-  has_inst=false
-  if echo "$STATE" | grep -Eq '^(aws_instance\\.bb_portfolio|aws_instance\\.portfolio)$|^aws_instance\\.(bb_portfolio|portfolio)'; then
-    has_inst=true
+  log "Checking for instances and resources..."
+  # Check for specific blue/green instances
+  has_green_inst=false
+  if echo "$STATE" | grep -Eq '^aws_instance\\.bb_portfolio_green'; then
+    has_green_inst=true
   fi
+  has_blue_inst=false
+  if echo "$STATE" | grep -Eq '^aws_instance\\.bb_portfolio_blue'; then
+    has_blue_inst=true
+  fi
+  
   has_sg=$(echo "$STATE" | grep -Ec '^aws_security_group\\.bb_portfolio_sg$' || true)
   has_eip=$(echo "$STATE" | grep -Ec '^aws_eip\\.bb_portfolio_ip$' || true)
   has_eip_assoc=$(echo "$STATE" | grep -Ec '^aws_eip_association\\.' || true)
   has_s3_dev=$(echo "$STATE" | grep -Ec '^aws_s3_bucket\\.media\["dev"\]$' || true)
   has_s3_prod=$(echo "$STATE" | grep -Ec '^aws_s3_bucket\\.media\["prod"\]$' || true)
   has_ecr_fe=$(echo "$STATE" | grep -Ec '^aws_ecr_repository\\.frontend$' || true)
-  has_ecr_be=$(echo "$STATE" | grep -Ec '^aws_ecr_repository\\.backend$' || true)
+  has_ecr_be=$(echo "$STATE" | grep -Ec '^aws_ecr_repository\.backend$' || true)
 
-  # Outputs (best-effort)
+  log "Retrieving instance IPs from Terraform outputs..."
+  # Outputs (best-effort) - get both green and blue IPs
   set +e
-  EIP=$(terraform output -raw bb_portfolio_elastic_ip 2>/dev/null)
-  PUB=$(terraform output -raw bb_portfolio_instance_ip 2>/dev/null)
+  GREEN_EIP=$(terraform output -raw green_elastic_ip 2>/dev/null)
+  GREEN_PUB=$(terraform output -raw green_instance_public_ip 2>/dev/null)
+  BLUE_EIP=$(terraform output -raw blue_elastic_ip 2>/dev/null)
+  BLUE_PUB=$(terraform output -raw blue_instance_public_ip 2>/dev/null)
+  # Legacy fallback for old output names
+  [[ -z "$GREEN_EIP" ]] && GREEN_EIP=$(terraform output -raw bb_portfolio_elastic_ip 2>/dev/null)
+  [[ -z "$GREEN_PUB" ]] && GREEN_PUB=$(terraform output -raw bb_portfolio_instance_ip 2>/dev/null)
   set -e
 
   echo ""
   echo "===== Discovery Summary ====="
-  echo "Terraform state initialized: $([[ $INIT_STATUS -eq 0 ]] && echo yes || echo no)"
-  echo "EC2 instance present:       $([[ "$has_inst" == true ]] && echo yes || echo no)"
-  echo "Security group present:     $([[ $has_sg -gt 0 ]] && echo yes || echo no)"
-  echo "Elastic IP present:         $([[ $has_eip -gt 0 ]] && echo yes || echo no)"
-  echo "EIP association present:    $([[ $has_eip_assoc -gt 0 ]] && echo yes || echo no)"
-  echo "S3 buckets (dev/prod):      $([[ $has_s3_dev -gt 0 ]] && echo dev || echo - ) / $([[ $has_s3_prod -gt 0 ]] && echo prod || echo - )"
-  echo "ECR repos (fe/be):          $([[ $has_ecr_fe -gt 0 ]] && echo yes || echo no) / $([[ $has_ecr_be -gt 0 ]] && echo yes || echo no)"
-  [[ -n "$EIP" ]] && echo "Elastic IP output:          $EIP" || true
-  [[ -n "$PUB" ]] && echo "Instance public IP:         $PUB" || true
-  if [[ -n "$EIP" ]]; then
-    if nc -vz -G 2 "$EIP" 22 >/dev/null 2>&1; then
-      echo "SSH (22) reachable at EIP:  yes"
+  echo "Terraform state initialized:    $([[ $INIT_STATUS -eq 0 ]] && echo yes || echo no)"
+  echo ""
+  echo "--- Green (Active) Instance ---"
+  echo "Green instance present:         $([[ "$has_green_inst" == true ]] && echo yes || echo no)"
+  [[ -n "$GREEN_EIP" ]] && echo "Green elastic IP:               $GREEN_EIP" || true
+  [[ -n "$GREEN_PUB" ]] && echo "Green public IP:                $GREEN_PUB" || true
+  echo ""
+  echo "--- Blue (Candidate) Instance ---"
+  echo "Blue instance present:          $([[ "$has_blue_inst" == true ]] && echo yes || echo no)"
+  [[ -n "$BLUE_EIP" ]] && echo "Blue elastic IP:                $BLUE_EIP" || true
+  [[ -n "$BLUE_PUB" ]] && echo "Blue public IP:                 $BLUE_PUB" || true
+  echo ""
+  echo "--- Shared Resources ---"
+  echo "Security group present:         $([[ $has_sg -gt 0 ]] && echo yes || echo no)"
+  echo "Elastic IP present:             $([[ $has_eip -gt 0 ]] && echo yes || echo no)"
+  echo "EIP association present:        $([[ $has_eip_assoc -gt 0 ]] && echo yes || echo no)"
+  echo "S3 buckets (dev/prod):          $([[ $has_s3_dev -gt 0 ]] && echo dev || echo - ) / $([[ $has_s3_prod -gt 0 ]] && echo prod || echo - )"
+  echo "ECR repos (fe/be):              $([[ $has_ecr_fe -gt 0 ]] && echo yes || echo no) / $([[ $has_ecr_be -gt 0 ]] && echo yes || echo no)"
+  echo ""
+  log "Running connectivity checks..."
+  echo "--- Connectivity Checks ---"
+  if [[ -n "$GREEN_EIP" ]]; then
+    if nc -vz -G 2 "$GREEN_EIP" 22 >/dev/null 2>&1; then
+      echo "Green SSH (22) reachable:       yes"
     else
-      echo "SSH (22) reachable at EIP:  no"
+      echo "Green SSH (22) reachable:       no"
     fi
-    if curl -s -I "http://$EIP" | head -1 | grep -q "200"; then
-      echo "HTTP (80) responding at EIP: yes"
+    if curl -s -I --connect-timeout 3 --max-time 5 "http://$GREEN_EIP" 2>/dev/null | head -1 | grep -q "200"; then
+      echo "Green HTTP (80) responding:     yes"
     else
-      echo "HTTP (80) responding at EIP: no"
+      echo "Green HTTP (80) responding:     no"
     fi
   fi
+  if [[ -n "$BLUE_EIP" ]]; then
+    if nc -vz -G 2 "$BLUE_EIP" 22 >/dev/null 2>&1; then
+      echo "Blue SSH (22) reachable:        yes"
+    else
+      echo "Blue SSH (22) reachable:        no"
+    fi
+    if curl -s -I --connect-timeout 3 --max-time 5 "http://$BLUE_EIP" 2>/dev/null | head -1 | grep -q "200"; then
+      echo "Blue HTTP (80) responding:      yes"
+    else
+      echo "Blue HTTP (80) responding:      no"
+    fi
+  fi
+  echo "=============================="
+  echo ""
+  echo "--- Next Steps ---"
+  if [[ "$do_infra" == true ]]; then
+    echo "1. Run Terraform plan/apply       (~2-3 min for new infrastructure)"
+  else
+    echo "1. Skip Terraform                 (containers-only mode)"
+  fi
+  echo "2. Build Docker images            (~5-10 min depending on cache)"
+  echo "3. Deploy containers to instance  (~2-3 min for pull + startup)"
+  echo "4. Health checks and validation   (~30 sec)"
+  echo ""
+  echo "⏱️  Expected total time: 10-20 minutes"
+  echo "💡 You can monitor progress by tailing: tail -f /tmp/orchestrator-output.log"
   echo "=============================="
   echo ""
   popd >/dev/null
@@ -275,6 +409,8 @@ tf_discovery() {
 tf_plan_summary() {
   pushd "$INFRA_DIR" >/dev/null
   log "Running terraform plan (summary)"
+  
+  # Blue (candidate) is always created
   # Run plan and extract the Plan: X to add, Y to change, Z to destroy line
   local plan_out
   set +e
@@ -307,29 +443,69 @@ fi
 
 if [[ "$do_infra" == true ]]; then
   log "Generating terraform.tfvars from private secrets"
+  # Get blue instance IP from Terraform outputs (source of truth)
+  pushd "$INFRA_DIR" >/dev/null
+  BLUE_INSTANCE_IP=$(terraform output -raw blue_elastic_ip 2>/dev/null || echo "52.37.142.50")
+  GREEN_INSTANCE_IP=$(terraform output -raw green_elastic_ip 2>/dev/null || echo "44.246.43.116")
+  popd >/dev/null
+  # Export for legacy scripts that still use EC2_INSTANCE_IP (TODO: refactor those)
+  export EC2_INSTANCE_IP="$BLUE_INSTANCE_IP"
+  export BLUE_INSTANCE_IP
+  export GREEN_INSTANCE_IP
+  log "Blue instance IP: $BLUE_INSTANCE_IP"
+  log "Green instance IP: $GREEN_INSTANCE_IP"
   npx tsx ./deploy/scripts/generate-terraform-vars.ts
 fi
 
+# Set AWS profile for image push operations
+export AWS_PROFILE="${AWS_PROFILE:-bb-portfolio-user}"
+
 # Optional image build/push (delegates to existing npm scripts)
-if [[ -n "$build_images" ]]; then
-  log "Rebuilding container images: $build_images"
-  if [[ "$build_images" == "prod" || "$build_images" == "both" ]]; then
-    log "Building & pushing production images to ECR"
-    npm run ecr:build-push
-    ok "Pushed prod images"
-  fi
-  if [[ "$build_images" == "dev" || "$build_images" == "both" ]]; then
-    log "Building & pushing development images to Docker Hub"
-    npm run docker:build-push
-    ok "Pushed dev images"
-  fi
-fi
+log "Building & pushing container images (frontend + backend)"
+log "Building & pushing production images to ECR"
+npm run ecr:build-push
+ok "Pushed prod images"
+log "Building & pushing development images to Docker Hub"
+npm run docker:build-push
+ok "Pushed dev images"
 
 # Terraform: optional targeted destroy preserving S3/ECR/EIP, then apply
 if [[ "$do_infra" == true ]]; then
   pushd "$INFRA_DIR" >/dev/null
   log "Initializing Terraform"
   terraform init -input=false
+
+  # If a blue (candidate) instance already exists and we are about to recreate it,
+  # prompt the operator to confirm replacement or choose reuse.
+  if [[ "$taint_blue" == true ]]; then
+    set +e
+    EXISTING_CANDIDATE_ID=$(aws ec2 describe-instances \
+      --filters "Name=tag:Project,Values=bb-portfolio" "Name=tag:Role,Values=candidate" "Name=instance-state-name,Values=running" \
+      --query 'Reservations[].Instances[].InstanceId' --output text 2>/dev/null | awk 'NF' | head -n1)
+    set -e
+    if [[ -n "$EXISTING_CANDIDATE_ID" ]]; then
+      warn "An existing blue (candidate) instance is running: $EXISTING_CANDIDATE_ID"
+      echo "You are about to replace it with a fresh blue instance (Terraform taint)."
+      echo "Options:"
+      echo "  - Type 'replace' to destroy+recreate blue (default)"
+      echo "  - Type 'reuse'   to keep current blue and deploy onto it"
+      echo "  - Type 'cancel'  to abort this run"
+      printf "Your choice [replace/reuse/cancel]: "
+      read -r CHOICE
+      case "$CHOICE" in
+        reuse|REUSE)
+          taint_blue=false
+          ok "Reusing existing blue (candidate); skipping taint/recreate"
+          ;;
+        cancel|CANCEL)
+          die "Cancelled before Terraform apply"
+          ;;
+        * )
+          warn "Proceeding with replacement of blue (candidate)"
+          ;;
+      esac
+    fi
+  fi
 
   # Baseline reset safeguard & snapshot
   if [[ "$baseline_reset" == true ]]; then
@@ -357,7 +533,7 @@ if [[ "$do_infra" == true ]]; then
   fi
 
   if [[ "$do_destroy" == true ]]; then
-  # Determine resources to destroy (skip S3/ECR/EIP)
+    # Determine resources to destroy (skip S3/ECR/EIP)
     to_destroy=()
     if terraform state list >/dev/null 2>&1; then
       while IFS= read -r r; do
@@ -397,9 +573,24 @@ if [[ "$do_infra" == true ]]; then
 
   log "Planning/applying fresh infrastructure"
   terraform validate
+  
+  # Taint blue instance by default for fresh state (skip with --reuse-blue)
+  if [[ "$taint_blue" == true ]]; then
+    log "Tainting blue instance for recreation (use --reuse-blue to skip)"
+    terraform taint aws_instance.bb_portfolio_blue 2>/dev/null || warn "Blue instance not in state or already tainted"
+  else
+    warn "Reusing existing blue instance (faster but may have stale state)"
+  fi
+  
+  # Blue (candidate) is always created
+  log "Creating blue (candidate) instance"
+  
   terraform plan -out=tfplan
   terraform apply -input=false tfplan
   rm -f tfplan
+  
+  # Mark that Terraform ran so we can wait for new instances to launch
+  RAN_TERRAFORM="true"
 
   # Detect EIP for info/logs (GH workflow uses EC2_HOST secret at runtime)
   EC2_IP=$(terraform output -raw bb_portfolio_elastic_ip 2>/dev/null || terraform output -raw bb_portfolio_instance_ip 2>/dev/null || true)
@@ -409,37 +600,9 @@ if [[ "$do_infra" == true ]]; then
   log "Regenerating terraform vars after apply"
   npx tsx ./deploy/scripts/generate-terraform-vars.ts
   
-  # Update local private secrets with the new EC2 IP so GitHub Secrets get the latest EC2_HOST
-  if [[ -n "${EC2_IP:-}" && "${EC2_IP}" != "null" ]]; then
-    if [[ "$target_role" == "active" ]]; then
-      log "Updating .github-secrets.private.json5 with new EC2 IP: ${EC2_IP} (target=active)"
-      export EC2_IP
-      npx tsx -e '
-        import { readFileSync, writeFileSync } from "fs";
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
-        const JSON5 = require("json5");
-        const file = ".github-secrets.private.json5";
-        const ip = process.env.EC2_IP || "";
-        const raw = readFileSync(file, "utf8");
-        const cfg = JSON5.parse(raw);
-        const s = (cfg.strings || cfg);
-        const before = s.EC2_HOST;
-        s.EC2_HOST = ip;
-        const replaceHost = (val: any) => typeof val === "string" ? val.replace(/http:\/\/[0-9.]+:/g, "http://" + ip + ":") : val;
-        // Update common URL fields if present
-        s.DEV_FRONTEND_URL = replaceHost(s.DEV_FRONTEND_URL);
-        s.PROD_FRONTEND_URL = replaceHost(s.PROD_FRONTEND_URL);
-        const banner = "// Private secrets file for syncing to GitHub Actions secrets\n// This file is ignored by git. Keep real values here.\n// Do NOT commit this file to version control!\n// cspell:disable\n";
-        const out = banner + JSON5.stringify(cfg, null, 2);
-        writeFileSync(file, out, "utf8");
-        console.info(`Updated EC2_HOST from ${before} to ${ip}`);
-      '
-    else
-      warn "Skipping secrets EC2_HOST update (target_role=$target_role) to avoid overriding production host"
-    fi
-  else
-    warn "EC2 IP not detected from Terraform outputs; skipping secrets IP update"
-  fi
+  # Note: IP update happens AFTER promotion when blue becomes green
+  # For now, skip updating EC2_HOST since we're deploying to blue candidate
+  warn "Deploying to blue candidate - EC2_HOST will be updated after promotion"
   # Defer enforcement/HTTPS until functions are defined below
   POST_ENFORCE_HOST="${EC2_IP:-}"
 else
@@ -449,6 +612,8 @@ fi
 # Optionally sync secrets to GitHub (keeps GH secrets aligned with local private json5)
 if [[ "$sync_secrets" == true ]]; then
   log "Syncing GitHub secrets from private json5"
+  # Note: sync-github-secrets reads EC2_HOST from .github-secrets.private.json5
+  # We'll override it below after determining the candidate IP
   npx tsx ./scripts/sync-github-secrets.ts BBaysinger/bb-portfolio .github-secrets.private.json5
 else
   warn "Skipping GitHub secrets sync per --no-secrets-sync"
@@ -464,15 +629,47 @@ discover_instance_public_ip_by_role() {
     --query 'Reservations[].Instances[].PublicIpAddress' --output text 2>/dev/null | awk 'NF'
 }
 
-if [[ "$target_role" == "candidate" ]]; then
-  CANDIDATE_IP=$(discover_instance_public_ip_by_role candidate || true)
-  if [[ -z "$CANDIDATE_IP" ]]; then
-    die "--target=candidate specified but no running candidate instance (Role=candidate) found."
-  fi
-  warn "Targeting candidate instance at $CANDIDATE_IP (no Elastic IP swap yet)"
-  # Override POST_ENFORCE_HOST for controller enforcement if infra ran; else fall through to fallback resolution code
-  POST_ENFORCE_HOST="$CANDIDATE_IP"
+# Resolve blue (candidate) IP for containers-only or when Terraform outputs are unavailable
+ensure_blue_ip || true
+# Fallback via AWS if still empty
+if [[ -z "${BLUE_INSTANCE_IP:-}" ]]; then
+  BLUE_INSTANCE_IP=$(discover_instance_public_ip_by_role candidate | head -n1 || true)
+  [[ -n "$BLUE_INSTANCE_IP" ]] && export BLUE_INSTANCE_IP || true
 fi
+# Last resort: try resolved host
+if [[ -z "${BLUE_INSTANCE_IP:-}" && -n "${EC2_HOST_RESOLVE:-}" ]]; then
+  BLUE_INSTANCE_IP="$EC2_HOST_RESOLVE"; export BLUE_INSTANCE_IP || true
+fi
+
+CANDIDATE_IP="${BLUE_INSTANCE_IP:-}"
+
+if [[ -z "$CANDIDATE_IP" ]]; then
+  die "No blue (candidate) instance IP could be determined."
+fi
+warn "Deploying to candidate instance at $CANDIDATE_IP"
+
+# Update EC2_HOST secret to point to blue candidate before dispatching GitHub Actions
+log "Updating EC2_HOST secret to blue candidate IP: $CANDIDATE_IP"
+gh secret set EC2_HOST --body "$CANDIDATE_IP" --repo BBaysinger/bb-portfolio || warn "Failed to update EC2_HOST secret"
+
+# Mandatory SSH connectivity check to candidate before proceeding
+log "Verifying SSH connectivity to candidate ($CANDIDATE_IP)"
+SSH_KEY="${HOME}/.ssh/bb-portfolio-site-key.pem"
+if [[ ! -f "$SSH_KEY" ]]; then
+  die "SSH key not found at $SSH_KEY; cannot validate candidate connectivity."
+fi
+set +e
+ssh -i "$SSH_KEY" -o ConnectTimeout=12 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$CANDIDATE_IP" "echo CANDIDATE_SSH_OK" 2>/dev/null | grep -q CANDIDATE_SSH_OK
+SSH_STATUS=$?
+set -e
+if [[ $SSH_STATUS -ne 0 ]]; then
+  die "SSH connectivity to candidate $CANDIDATE_IP failed. Aborting before container/nginx steps. Verify instance security group, key, and public IP." 
+else
+  ok "SSH connectivity to candidate confirmed."
+fi
+
+# Override POST_ENFORCE_HOST for controller enforcement
+POST_ENFORCE_HOST="$CANDIDATE_IP"
 
 # Resolve EC2 host without relying on viewing GitHub Secrets values
 resolve_ec2_host() {
@@ -513,6 +710,11 @@ resolve_ec2_host() {
 }
 
 ok "Infra and images complete. Handing off container restart to GitHub Actions."
+echo ""
+warn "Blue candidate deployed at $CANDIDATE_IP (EIP: ${BLUE_INSTANCE_IP:-$CANDIDATE_IP})"
+warn "Promotion to production is MANUAL. After validating the candidate:"
+warn "  Run: npm run orchestrate-promote"
+echo ""
 
 need jq
 
@@ -552,6 +754,95 @@ enforce_single_controller() {
     fi
     chmod -x "${REMOTE_REPO}/generate-env-files.sh" 2>/dev/null || true
   '
+}
+
+# Sync nginx configuration to EC2 instance with blue IP substitution
+# Args: $1=host (ec2-user@ip), $2=blue_ip (optional)
+sync_nginx_config() {
+  local host="$1"
+  local blue_ip="${2:-}"
+  local key="${HOME}/.ssh/bb-portfolio-site-key.pem"
+  
+  if [[ -z "$host" ]]; then
+    warn "sync_nginx_config: host required"
+    return 1
+  fi
+  
+  local nginx_template="${REPO_ROOT}/deploy/nginx/bb-portfolio.conf.template"
+  if [[ ! -f "$nginx_template" ]]; then
+    warn "Nginx template not found: $nginx_template"
+    return 1
+  fi
+  
+  # Prepare config with IP substitution if needed
+  local temp_conf="/tmp/bb-portfolio-nginx-$$.conf"
+  if [[ -n "$blue_ip" ]]; then
+    log "Substituting BLUE_IP_PLACEHOLDER with $blue_ip in nginx config"
+    sed "s/BLUE_IP_PLACEHOLDER/$blue_ip/g" "$nginx_template" > "$temp_conf"
+  else
+    cp "$nginx_template" "$temp_conf"
+  fi
+  
+  # Clear known_hosts entry to tolerate EC2 host key changes on recreate
+  local host_only
+  host_only="${host##*@}"
+  ssh-keygen -R "$host_only" >/dev/null 2>&1 || true
+
+  log "Uploading nginx config to $host"
+  scp -i "$key" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$temp_conf" "$host:/tmp/bb-portfolio.conf" || { rm -f "$temp_conf"; return 1; }
+  rm -f "$temp_conf"
+  
+  log "Applying nginx config on $host"
+  ssh -i "$key" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$host" 'sudo bash -s' <<'REMOTE_CMDS'
+set -euo pipefail
+ts=$(date +%Y%m%d_%H%M%S)
+TARGET="/etc/nginx/conf.d/bb-portfolio.conf"
+LEGACY="/etc/nginx/conf.d/portfolio.conf"
+
+if [[ -f "$TARGET" ]]; then
+  cp "$TARGET" "$TARGET.bak.$ts"
+  echo "Backup created: $TARGET.bak.$ts"
+fi
+if [[ -f "$LEGACY" ]]; then
+  cp "$LEGACY" "$LEGACY.bak.$ts"
+  echo "Legacy backup created: $LEGACY.bak.$ts"
+  rm -f "$LEGACY"
+fi
+mv /tmp/bb-portfolio.conf "$TARGET"
+# Ensure WebSocket upgrade map exists before test (variable $connection_upgrade)
+if [ ! -f /etc/nginx/conf.d/00-websocket-upgrade.conf ]; then
+cat >/etc/nginx/conf.d/00-websocket-upgrade.conf <<'EOF'
+  # WebSocket upgrade map
+map $http_upgrade $connection_upgrade {
+  default upgrade;
+  ''      close;
+}
+EOF
+fi
+# (WebSocket upgrade handled with static Connection header; map no longer required)
+if nginx -t; then
+  systemctl reload nginx && echo "Nginx reloaded successfully."
+else
+  echo "Nginx config test FAILED" >&2
+  exit 1
+fi
+REMOTE_CMDS
+  
+  log "Nginx config sync complete"
+}
+
+# Verify port 80 responds with 2xx/3xx; return nonzero if not
+verify_http80() {
+  local ip="$1"
+  local code
+  code=$(curl -s -o /dev/null -w '%{http_code}' --connect-timeout 5 --max-time 10 "http://$ip/" || echo "000")
+  if [[ "$code" =~ ^2|3 ]]; then
+    ok "HTTP :80 on $ip responded ($code)"
+    return 0
+  else
+    err "HTTP :80 on $ip did not respond successfully (code=$code)"
+    return 1
+  fi
 }
 
 # Ensure HTTPS certificates exist (idempotent). Requires certbot on host.
@@ -600,22 +891,43 @@ EOF
     fi'
 }
 
-# If infra step was skipped and EC2_IP is unknown, try to resolve host now and enforce single controller once
+# If infra step was skipped and EC2_IP is unknown, optionally resolve host for nginx/certs.
+# In --containers-only mode we deliberately skip host enforcement and nginx sync to avoid
+# unintended SSH attempts to the production EIP. This keeps a pure "images + GH Actions" flow.
 if [[ -z "${EC2_IP:-}" ]]; then
-  EC2_HOST_RESOLVE=$(resolve_ec2_host || true)
-  if [[ -n "$EC2_HOST_RESOLVE" ]]; then
-    log "Resolved EC2 host: $EC2_HOST_RESOLVE"
-    enforce_single_controller "$EC2_HOST_RESOLVE"
-    ensure_https_certs "$EC2_HOST_RESOLVE" "${ACME_EMAIL:-}"
+  if [[ "$do_infra" == true ]]; then
+    EC2_HOST_RESOLVE=$(resolve_ec2_host || true)
+    if [[ -n "$EC2_HOST_RESOLVE" ]]; then
+      log "Resolved EC2 host: $EC2_HOST_RESOLVE"
+      enforce_single_controller "$EC2_HOST_RESOLVE"
+      # Deploy nginx configuration
+      ensure_blue_ip || warn "Could not determine BLUE_INSTANCE_IP; proceeding without substitution"
+      log "Syncing nginx configuration to $EC2_HOST_RESOLVE"
+      if ! sync_nginx_config "ec2-user@$EC2_HOST_RESOLVE" "${BLUE_INSTANCE_IP:-}"; then
+        die "Nginx config sync failed (host $EC2_HOST_RESOLVE). Check SSH connectivity and try again."
+      fi
+      ensure_https_certs "$EC2_HOST_RESOLVE" "${ACME_EMAIL:-}"
+      POST_HTTP_VERIFY_HOST="$EC2_HOST_RESOLVE"
+    else
+      warn "Single-controller guard: no host resolved (infra flow), skipping"
+    fi
   else
-    warn "Single-controller guard: no host resolved (containers-only), skipping"
+    warn "Containers-only mode: skipping host enforcement, nginx sync, and cert ensure"
   fi
 fi
 
 # If infra ran earlier and provided EC2_IP, enforce controller and ensure HTTPS now
 if [[ -n "${POST_ENFORCE_HOST:-}" ]]; then
   enforce_single_controller "${POST_ENFORCE_HOST}"
+  
+  # Deploy nginx configuration
+  ensure_blue_ip || warn "Could not determine BLUE_INSTANCE_IP; proceeding without substitution"
+  log "Syncing nginx configuration to $POST_ENFORCE_HOST"
+  if ! sync_nginx_config "ec2-user@$POST_ENFORCE_HOST" "${BLUE_INSTANCE_IP:-}"; then
+    die "Nginx config sync failed (host $POST_ENFORCE_HOST). Check SSH connectivity and try again."
+  fi
   ensure_https_certs "${POST_ENFORCE_HOST}" "${ACME_EMAIL:-}"
+  POST_HTTP_VERIFY_HOST="${POST_ENFORCE_HOST}"
 fi
 
 # Helper to dispatch a single Redeploy run for a specific environment (prod|dev)
@@ -685,14 +997,43 @@ case "$profiles" in
   prod)
     # Prefer main for prod, fallback to current branch
     if dispatch_redeploy prod main "$BRANCH"; then
-      ok "Prod redeploy dispatched via GitHub Actions. EC2 IP: ${EC2_IP:-unknown}"
+      ok "Prod redeploy dispatched via GitHub Actions. Candidate IP: ${CANDIDATE_IP:-unknown}"
+      # If promotion was requested (implied by --auto-promote), run handover now (GA logs not watched here).
+      if [[ "$promote" == true ]]; then
+        HANDOVER_SCRIPT="${REPO_ROOT}/scripts/orchestrator-promote.sh"
+        if [[ -f "$HANDOVER_SCRIPT" ]]; then
+          log "Initiating Elastic IP handover (--promote)"
+          set +e
+          HANDOVER_CMD=("$HANDOVER_SCRIPT" --region us-west-2)
+          [[ "$auto_approve_handover" == true ]] && HANDOVER_CMD+=(--auto-promote) || true
+          [[ "$handover_rollback" == true ]] && HANDOVER_CMD+=(--rollback-on-fail) || true
+          [[ "$handover_snapshot" == true ]] && HANDOVER_CMD+=(--snapshot-before) || true
+          HANDOVER_CMD+=(--max-retries 10 --interval 6)
+          echo "Running: ${HANDOVER_CMD[*]}"
+          "${HANDOVER_CMD[@]}"
+          HS=$?
+          set -e
+          if [[ $HS -ne 0 ]]; then
+            err "Elastic IP handover failed (exit $HS)."
+            if [[ "$handover_rollback" == true ]]; then
+              warn "Rollback attempted or performed by handover script; continuing."
+            else
+              die "Promotion aborted; not proceeding to pruning."
+            fi
+          else
+            ok "Elastic IP handover completed successfully."
+          fi
+        else
+          warn "orchestrator-promote.sh not found at $HANDOVER_SCRIPT; cannot promote."
+        fi
+      fi
       popd >/dev/null; exit 0
     fi
     ;;
   dev)
     # Prefer current branch for dev, fallback to 'dev' then main
     if dispatch_redeploy dev "$BRANCH" dev main; then
-      ok "Dev redeploy dispatched via GitHub Actions. EC2 IP: ${EC2_IP:-unknown}"
+      ok "Dev redeploy dispatched via GitHub Actions. Candidate IP: ${CANDIDATE_IP:-unknown}"
       popd >/dev/null; exit 0
     fi
     ;;
@@ -704,11 +1045,40 @@ case "$profiles" in
     if dispatch_redeploy dev "$BRANCH" dev main; then DEV_OK=true; fi
     if [[ "$PROD_OK" == true || "$DEV_OK" == true ]]; then
       if [[ "$PROD_OK" == true && "$DEV_OK" == true ]]; then
-        ok "Prod and Dev redeploys dispatched via GitHub Actions. EC2 IP: ${EC2_IP:-unknown}"
+        ok "Prod and Dev redeploys dispatched via GitHub Actions. Candidate IP: ${CANDIDATE_IP:-unknown}"
       elif [[ "$PROD_OK" == true ]]; then
         warn "Prod redeploy dispatched, but dev dispatch failed. You can re-run dev via: gh workflow run redeploy.yml -f environment=dev --ref ${BRANCH}"
       else
         warn "Dev redeploy dispatched, but prod dispatch failed. You can re-run prod via: gh workflow run redeploy.yml -f environment=prod --ref main"
+      fi
+      # If promotion was requested (implied by --auto-promote), run handover now after dispatch
+      if [[ "$promote" == true ]]; then
+        HANDOVER_SCRIPT="${REPO_ROOT}/scripts/orchestrator-promote.sh"
+        if [[ -f "$HANDOVER_SCRIPT" ]]; then
+          log "Initiating Elastic IP handover (--promote)"
+          set +e
+          HANDOVER_CMD=("$HANDOVER_SCRIPT" --region us-west-2)
+          [[ "$auto_approve_handover" == true ]] && HANDOVER_CMD+=(--auto-promote) || true
+          [[ "$handover_rollback" == true ]] && HANDOVER_CMD+=(--rollback-on-fail) || true
+          [[ "$handover_snapshot" == true ]] && HANDOVER_CMD+=(--snapshot-before) || true
+          HANDOVER_CMD+=(--max-retries 10 --interval 6)
+          echo "Running: ${HANDOVER_CMD[*]}"
+          "${HANDOVER_CMD[@]}"
+          HS=$?
+          set -e
+          if [[ $HS -ne 0 ]]; then
+            err "Elastic IP handover failed (exit $HS)."
+            if [[ "$handover_rollback" == true ]]; then
+              warn "Rollback attempted or performed by handover script; continuing."
+            else
+              die "Promotion aborted; not proceeding to pruning."
+            fi
+          else
+            ok "Elastic IP handover completed successfully."
+          fi
+        else
+          warn "orchestrator-promote.sh not found at $HANDOVER_SCRIPT; cannot promote."
+        fi
       fi
       popd >/dev/null; exit 0
     fi
@@ -722,18 +1092,12 @@ SSH_KEY="$HOME/.ssh/bb-portfolio-site-key.pem"
 [[ -f "$SSH_KEY" ]] || die "SSH key not found at $SSH_KEY"
 
 # Determine EC2_HOST (prefer Terraform outputs; fallback to local private secrets)
-EC2_HOST="${EC2_IP:-}"
-if [[ -z "$EC2_HOST" ]]; then
-  EC2_HOST=$(resolve_ec2_host || true)
-fi
-# Override host if targeting candidate role explicitly
-if [[ "$target_role" == "candidate" ]]; then
-  EC2_HOST="${CANDIDATE_IP}"
-fi
+# Always deploy to candidate (blue) instance
+EC2_HOST="${CANDIDATE_IP}"
 if [[ -n "$EC2_HOST" ]]; then
-  log "Using EC2 host: $EC2_HOST"
+  log "Deploying to blue candidate instance: $EC2_HOST"
 else
-  die "EC2 host unknown for SSH fallback"
+  die "Candidate (blue) instance IP unknown"
 fi
 
 if [[ "$refresh_env" == true ]]; then
@@ -845,17 +1209,14 @@ esac
 
 ok "Containers restarted via SSH fallback. EC2 IP: $EC2_HOST"
 
-# Optional promotion (Elastic IP handover) before pruning
+# Optional promotion (Elastic IP handover blue → green)
 if [[ "$promote" == true ]]; then
-  if [[ "$target_role" != "candidate" ]]; then
-    warn "--promote ignored: target_role=$target_role (promotion only valid after deploying to candidate)."
-  else
-    HANDOVER_SCRIPT="${REPO_ROOT}/scripts/eip-handover.sh"
-    if [[ -f "$HANDOVER_SCRIPT" ]]; then
+  HANDOVER_SCRIPT="${REPO_ROOT}/scripts/orchestrator-promote.sh"
+  if [[ -f "$HANDOVER_SCRIPT" ]]; then
       log "Initiating Elastic IP handover (--promote)"
       set +e
       HANDOVER_CMD=("$HANDOVER_SCRIPT" --region us-west-2)
-      [[ "$auto_approve_handover" == true ]] && HANDOVER_CMD+=(--auto-approve) || true
+      [[ "$auto_approve_handover" == true ]] && HANDOVER_CMD+=(--auto-promote) || true
       [[ "$handover_rollback" == true ]] && HANDOVER_CMD+=(--rollback-on-fail) || true
       [[ "$handover_snapshot" == true ]] && HANDOVER_CMD+=(--snapshot-before) || true
       HANDOVER_CMD+=(--max-retries 10 --interval 6)
@@ -874,7 +1235,7 @@ if [[ "$promote" == true ]]; then
         ok "Elastic IP handover completed successfully."
       fi
     else
-      warn "eip-handover.sh not found at $HANDOVER_SCRIPT; cannot promote."
+      warn "orchestrator-promote.sh not found at $HANDOVER_SCRIPT; cannot promote."
     fi
   fi
 fi
@@ -895,7 +1256,23 @@ if [[ "$prune_after_promotion" == true ]]; then
     warn "Retention script not found at $RETENTION_SCRIPT; skipping prune"
   fi
 fi
-ok "Full deploy completed (fallback path; target_role=$target_role; promote=$promote; prune_after_promotion=$prune_after_promotion)."
+# Friendly summary with safe fallbacks
+ACTIVE_IP="${GREEN_INSTANCE_IP:-}"
+if [[ -z "$ACTIVE_IP" ]]; then
+  ACTIVE_IP=$(discover_instance_public_ip_by_role active | head -n1 || true)
+fi
+ok "Blue candidate deployment completed. Test at $CANDIDATE_IP (http://$CANDIDATE_IP) then run with --promote to make it live at ${ACTIVE_IP:-the active address}."
+
+# Deferred HTTP:80 verification (after workflows & potential container start)
+if [[ -n "${POST_HTTP_VERIFY_HOST:-}" ]]; then
+  log "Verifying HTTP :80 after container workflow dispatch (host=${POST_HTTP_VERIFY_HOST})"
+  if ! verify_http80 "${POST_HTTP_VERIFY_HOST}"; then
+    warn "HTTP :80 still not healthy (host=${POST_HTTP_VERIFY_HOST}). Containers may still be starting or upstream config invalid."
+    warn "You can tail logs or rerun verification later."
+  else
+    ok "HTTP :80 healthy on ${POST_HTTP_VERIFY_HOST} after deployment."
+  fi
+fi
 
 
 popd >/dev/null

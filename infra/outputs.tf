@@ -1,11 +1,11 @@
 output "instance_id" {
-  description = "ID of the EC2 instance"
-  value       = aws_instance.bb_portfolio.id
+  description = "ID of the green (active) EC2 instance"
+  value       = var.create_green_instance ? aws_instance.bb_portfolio_green[0].id : null
 }
 
 output "public_ip" {
-  description = "Public IP of the instance"
-  value       = aws_instance.bb_portfolio.public_ip
+  description = "Public IP of the green (active) instance"
+  value       = var.create_green_instance ? aws_instance.bb_portfolio_green[0].public_ip : null
 }
 
 output "elastic_ip" {
@@ -14,31 +14,31 @@ output "elastic_ip" {
 }
 
 # ===============================
-# Secondary (Blue/Canary) Outputs
+# Blue (Candidate) Outputs
 # ===============================
-output "secondary_instance_id" {
-  description = "ID of secondary EC2 instance (null if not created)"
-  value       = var.create_secondary_instance ? aws_instance.bb_portfolio_blue[0].id : null
+output "blue_instance_id" {
+  description = "ID of blue (candidate) EC2 instance"
+  value       = aws_instance.bb_portfolio_blue.id
 }
 
-output "secondary_instance_public_ip" {
-  description = "Public IP of secondary instance (ephemeral ENI address; may differ from Elastic IP)"
-  value       = var.create_secondary_instance ? aws_instance.bb_portfolio_blue[0].public_ip : null
+output "blue_instance_public_ip" {
+  description = "Public IP of blue (candidate) instance"
+  value       = aws_instance.bb_portfolio_blue.public_ip
 }
 
-output "secondary_elastic_ip" {
-  description = "Elastic IP attached to secondary instance (null if disabled)"
-  value       = var.create_secondary_instance ? aws_eip.bb_portfolio_blue_ip[0].public_ip : null
+output "blue_elastic_ip" {
+  description = "Elastic IP attached to blue (candidate) instance"
+  value       = aws_eip.bb_portfolio_blue_ip.public_ip
 }
 
-output "secondary_ssh_command" {
-  description = "SSH command for secondary instance (null if disabled)"
-  value       = var.create_secondary_instance ? "ssh -i ~/.ssh/${var.key_name}.pem ec2-user@${aws_eip.bb_portfolio_blue_ip[0].public_ip}" : null
+output "blue_ssh_command" {
+  description = "SSH command for blue (candidate) instance"
+  value       = "ssh -i ~/.ssh/${var.key_name}.pem ec2-user@${aws_eip.bb_portfolio_blue_ip.public_ip}"
 }
 
-output "secondary_website_url" {
-  description = "HTTP URL for secondary instance for test/canary access (null if disabled)"
-  value       = var.create_secondary_instance ? "http://${aws_eip.bb_portfolio_blue_ip[0].public_ip}" : null
+output "blue_website_url" {
+  description = "HTTP URL for blue (candidate) instance for testing"
+  value       = "http://${aws_eip.bb_portfolio_blue_ip.public_ip}"
 }
 
 output "deployment_version" {

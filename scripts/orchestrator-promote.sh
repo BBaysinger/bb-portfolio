@@ -1,36 +1,52 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# eip-handover.sh
-# Safely promote a blue/"candidate" EC2 instance to active by re-associating the production Elastic IP.
-# Performs health checks before and after swap, supports rollback, tagging, and optional snapshot.
+################################################################################
+# BB Portfolio Orchestrator-Promote
+################################################################################
+# Promotes blue (candidate) EC2 instance to active (production) by swapping
+# the production Elastic IP. This is a STANDALONE script - does NOT deploy.
+# Called by deployment-orchestrator.sh when --promote flag is used, or run
+# manually via `npm run orchestrate-promote` after validating blue candidate.
 #
-# Assumptions / Conventions:
-# - Instances are tagged: Project=bb-portfolio, Role=active|candidate (Version optional)
-# - Active instance currently owns the production Elastic IP (EIP)
-# - Candidate instance has passed provisioning but may not yet have containers deployed
-# - AWS CLI is configured; permissions: ec2:Describe*, ec2:AssociateAddress, ec2:CreateSnapshot (optional), ec2:CreateTags
+# How It Works:
+# 1. Discovers instances by Role tag (active=production, candidate=blue)
+# 2. Runs health checks on candidate (AWS status + HTTP endpoints)
+# 3. Prompts for confirmation: "Type 'yes' to confirm" (unless --auto-promote)
+# 4. Swaps Elastic IP from active → candidate
+# 5. Swaps security groups between instances
+# 6. Updates Role tags (candidate becomes active, active becomes candidate)
+# 7. Runs post-swap health checks on new active instance
+# 8. Optional rollback if health checks fail (with --rollback-on-fail)
 #
-# Usage examples:
-#   scripts/eip-handover.sh --region us-west-2                    # Promote with confirmation
-#   scripts/eip-handover.sh --region us-west-2 --auto-approve     # Promote without confirmation
-#   scripts/eip-handover.sh --region us-west-2 --health-only      # Health checks only, no promotion
-#   scripts/eip-handover.sh --region us-west-2 --dry-run          # Show what would happen
-#   scripts/eip-handover.sh --region us-west-2 --rollback-on-fail --max-retries 12 --interval 10
+# Prerequisites:
+# - Instances tagged: Project=bb-portfolio, Role=active|candidate
+# - Active instance owns production Elastic IP
+# - Candidate instance has containers deployed and healthy
+# - AWS CLI configured with permissions: ec2:Describe*, ec2:AssociateAddress, ec2:CreateTags
 #
-# Health Checks (pre & post):
-#   1. Instance status: both system & instance checks pass (AWS 2/2)
-#   2. HTTP 200 from candidate frontend (port 3000) root path
-#   3. HTTP 200 from candidate backend /api/health (port 3001)
+# Usage:
+#   npm run orchestrate-promote                      # Manual promotion with confirmation
+#   scripts/orchestrator-promote.sh --auto-promote   # Auto-approve (CI/CD use)
+#   scripts/orchestrator-promote.sh --health-only    # Health checks only, no swap
+#   scripts/orchestrator-promote.sh --dry-run        # Show actions without executing
 #
-# Rollback logic triggers if post-swap health fails and --rollback-on-fail specified.
+# Automation note:
+# - Prefer invoking via the npm script above so operators and tools get a
+#   consistent confirmation prompt (or explicit --auto-promote in CI/CD).
 #
-# Exit codes:
-#   0 success
-#   1 usage / argument errors
-#   2 discovery errors (missing active/candidate/EIP)
-#   3 health check failed pre-swap (no changes made)
-#   4 swap attempted but post-swap health failed (rollback maybe executed)
+# Health Checks (pre & post swap):
+#   1. AWS instance status checks (2/2 must pass)
+#   2. Frontend HTTP 200: http://<ip>:3000/
+#   3. Backend HTTP 200: http://<ip>:3001/api/health/
+#
+# Exit Codes:
+#   0 = success
+#   1 = usage/argument errors
+#   2 = discovery errors (missing active/candidate/EIP)
+#   3 = health check failed pre-swap (no changes made)
+#   4 = post-swap health failed (rollback maybe executed)
+################################################################################
 
 REGION="us-west-2"
 PROMOTE=true
@@ -56,7 +72,8 @@ Blue/Green Elastic IP Handover for bb-portfolio
 Options:
   --region <aws-region>      AWS region (default: us-west-2)
   --health-only              Only check health without promoting (default: perform promotion after health checks)
-  --auto-approve             Auto-approve promotion after health checks (skips confirmation prompt)
+  --auto-promote             Auto-approve promotion after health checks (skips confirmation prompt)
+  --auto-approve             Deprecated alias for --auto-promote
   --dry-run                  Show actions without executing state changes (no swap, no tagging)
   --rollback-on-fail         If post-swap health fails, attempt rollback to previous active
   --snapshot-before          Create snapshot of active root volume before swap (Name=bb-portfolio-pre-handover)
@@ -77,7 +94,8 @@ while [[ $# -gt 0 ]]; do
   case "$1" in
     --region) REGION="$2"; shift 2;;
     --health-only) PROMOTE=false; shift;;
-    --auto-approve) AUTO_APPROVE=true; shift;;
+    --auto-promote) AUTO_APPROVE=true; shift;;
+    --auto-approve) warn "--auto-approve is deprecated; use --auto-promote"; AUTO_APPROVE=true; shift;;
     --dry-run) DRY_RUN=true; shift;;
     --rollback-on-fail) ROLLBACK_ON_FAIL=true; shift;;
     --snapshot-before) SNAPSHOT_BEFORE=true; shift;;
@@ -93,6 +111,21 @@ TIMEOUT_SECS=$((MAX_RETRIES*INTERVAL))
 need() { command -v "$1" >/dev/null 2>&1 || { err "Missing required command: $1"; exit 1; }; }
 need aws; need jq; need curl
 
+# Early confirmation: if we're going to promote (not --health-only) and not auto-promote,
+# confirm intent before running discovery/health checks.
+if [[ "$PROMOTE" == true && "$AUTO_APPROVE" != true ]]; then
+  log "Promotion requested. This script will:"
+  log "  1) Discover active and candidate instances"
+  log "  2) Run candidate health checks"
+  log "  3) Swap production EIP to candidate (on confirmation)"
+  printf "Type 'yes' to proceed with promotion flow: "
+  read -r response
+  if [[ "$response" != "yes" ]]; then
+    log "Promotion cancelled by user (pre-check)."
+    exit 0
+  fi
+fi
+
 discover_instance_id() {
   local role="$1"
   aws ec2 describe-instances \
@@ -104,10 +137,24 @@ discover_instance_id() {
 ACTIVE_ID=$(discover_instance_id active || true)
 CANDIDATE_ID=$(discover_instance_id candidate || true)
 
-if [[ -z "$ACTIVE_ID" ]]; then err "Active instance not found (Role=active)."; exit 2; fi
-if [[ -z "$CANDIDATE_ID" ]]; then err "Candidate instance not found (Role=candidate)."; exit 2; fi
+# NULL_GREEN_MODE: triggered when there is no previously promoted (active/green) instance.
+# In this mode we perform an initial activation: health-check the candidate and tag it active
+# without performing any swap operations (no previous EIP handover / SG swap needed).
+NULL_GREEN_MODE=false
+if [[ -z "$CANDIDATE_ID" ]]; then
+  err "Candidate instance not found (Role=candidate)."
+  exit 2
+fi
+if [[ -z "$ACTIVE_ID" ]]; then
+  warn "Active absent; entering null-green mode (initial activation)."
+  NULL_GREEN_MODE=true
+fi
 
-log "Active instance: $ACTIVE_ID"
+if [[ "$NULL_GREEN_MODE" == false ]]; then
+  log "Active instance: $ACTIVE_ID"
+else
+  log "Null-green mode detected (no previous active; only candidate present)."
+fi
 log "Candidate instance: $CANDIDATE_ID"
 
 get_public_ip() {
@@ -116,18 +163,33 @@ get_public_ip() {
     --query 'Reservations[0].Instances[0].PublicIpAddress' --output text
 }
 
-ACTIVE_IP=$(get_public_ip "$ACTIVE_ID")
+ACTIVE_IP=""
 CANDIDATE_IP=$(get_public_ip "$CANDIDATE_ID")
 if [[ -z "$CANDIDATE_IP" || "$CANDIDATE_IP" == "None" ]]; then err "Candidate public IP not found."; exit 2; fi
 log "Candidate public IP: $CANDIDATE_IP"
-log "Active public IP:    $ACTIVE_IP"
 
-# Find production Elastic IP allocation id (attached to active instance)
-EIP_INFO=$(aws ec2 describe-addresses --region "$REGION" --filters "Name=instance-id,Values=$ACTIVE_ID" --query 'Addresses[0]' --output json || echo '{}')
-EIP_ALLOC_ID=$(jq -r '.AllocationId // empty' <<<"$EIP_INFO")
-EIP_PUBLIC_IP=$(jq -r '.PublicIp // empty' <<<"$EIP_INFO")
-if [[ -z "$EIP_ALLOC_ID" || -z "$EIP_PUBLIC_IP" ]]; then err "Elastic IP associated with active instance not found."; exit 2; fi
-log "Production Elastic IP: $EIP_PUBLIC_IP (AllocationId: $EIP_ALLOC_ID)"
+EIP_ALLOC_ID=""
+EIP_PUBLIC_IP=""
+if [[ "$NULL_GREEN_MODE" == false ]]; then
+  ACTIVE_IP=$(get_public_ip "$ACTIVE_ID")
+  log "Active public IP:    $ACTIVE_IP"
+  # Find production Elastic IP allocation id (attached to active instance)
+  EIP_INFO=$(aws ec2 describe-addresses --region "$REGION" --filters "Name=instance-id,Values=$ACTIVE_ID" --query 'Addresses[0]' --output json || echo '{}')
+  EIP_ALLOC_ID=$(jq -r '.AllocationId // empty' <<<"$EIP_INFO")
+  EIP_PUBLIC_IP=$(jq -r '.PublicIp // empty' <<<"$EIP_INFO")
+  if [[ -z "$EIP_ALLOC_ID" || -z "$EIP_PUBLIC_IP" ]]; then err "Elastic IP associated with active instance not found."; exit 2; fi
+  log "Production Elastic IP: $EIP_PUBLIC_IP (AllocationId: $EIP_ALLOC_ID)"
+else
+  # Null-green: check whether an Elastic IP is already bound to candidate
+  EIP_INFO=$(aws ec2 describe-addresses --region "$REGION" --filters "Name=instance-id,Values=$CANDIDATE_ID" --query 'Addresses[0]' --output json || echo '{}')
+  EIP_ALLOC_ID=$(jq -r '.AllocationId // empty' <<<"$EIP_INFO")
+  EIP_PUBLIC_IP=$(jq -r '.PublicIp // empty' <<<"$EIP_INFO")
+  if [[ -n "$EIP_PUBLIC_IP" ]]; then
+    log "Elastic IP present for null-green activation: $EIP_PUBLIC_IP (AllocationId: $EIP_ALLOC_ID)"
+  else
+    warn "No Elastic IP associated; null-green activation proceeds using public IP $CANDIDATE_IP."
+  fi
+fi
 
 status_checks_pass() {
   local iid="$1"
@@ -204,6 +266,21 @@ if [[ "$PROMOTE" != true ]]; then
   exit 0
 fi
 
+# Null-green initial activation shortcut
+if [[ "$NULL_GREEN_MODE" == true ]]; then
+  if [[ "$DRY_RUN" == true ]]; then
+    log "[dry-run] Would tag $CANDIDATE_ID Role=active (null-green initial activation)"
+  else
+    aws ec2 create-tags --resources "$CANDIDATE_ID" --region "$REGION" --tags Key=$TAG_KEY_ROLE,Value=active Key=PromotionTimestamp,Value=$TIMESTAMP >/dev/null || warn "Failed to tag candidate as active"
+  fi
+  if [[ "$EIP_PUBLIC_IP" == "" ]]; then
+    log "Null-green activation complete. No Elastic IP present; reachable at $CANDIDATE_IP."
+  else
+    log "Null-green activation complete. Elastic IP $EIP_PUBLIC_IP bound to active instance."
+  fi
+  exit 0
+fi
+
 if [[ "$SNAPSHOT_BEFORE" == true ]]; then
   warn "Snapshot before promotion requested."
   ROOT_VOL=$(aws ec2 describe-instances --instance-ids "$ACTIVE_ID" --region "$REGION" --query "Reservations[0].Instances[0].BlockDeviceMappings[?DeviceName=='/dev/xvda'].Ebs.VolumeId" --output text || true)
@@ -231,8 +308,8 @@ update_tags() {
   if [[ "$DRY_RUN" == true ]]; then
     log "[dry-run] Would tag $ACTIVE_ID Role=previous, $CANDIDATE_ID Role=active"
   else
-    aws ec2 create-tags --resources "$ACTIVE_ID" --region "$REGION" --tags Key=$TAG_KEY_ROLE,Value=previous Key=LastDemoted,Value=$TIMESTAMP >/dev/null
-    aws ec2 create-tags --resources "$CANDIDATE_ID" --region "$REGION" --tags Key=$TAG_KEY_ROLE,Value=active Key=PromotionTimestamp,Value=$TIMESTAMP >/dev/null
+    aws ec2 create-tags --resources "$ACTIVE_ID" --region "$REGION" --tags Key=$TAG_KEY_ROLE,Value=previous Key=LastDemoted,Value=$TIMESTAMP >/dev/null || warn "Failed tagging previous instance"
+    aws ec2 create-tags --resources "$CANDIDATE_ID" --region "$REGION" --tags Key=$TAG_KEY_ROLE,Value=active Key=PromotionTimestamp,Value=$TIMESTAMP >/dev/null || warn "Failed tagging new active instance"
   fi
 }
 
@@ -265,8 +342,9 @@ rollback_swap() {
 # Confirmation prompt unless auto-approved or dry-run
 if [[ "$AUTO_APPROVE" != true && "$DRY_RUN" != true ]]; then
   log "Ready to promote candidate $CANDIDATE_ID to active (will receive production EIP $EIP_PUBLIC_IP)"
-  log "Current active instance $ACTIVE_ID will become previous"
-  printf "\033[1;33mProceed with promotion? (yes/no): \033[0m"
+  log "Current active instance $ACTIVE_ID will become the previous instance"
+  warn "The old active instance will be replaced if health checks succeed"
+  printf "\033[1;33mType 'yes' to confirm: \033[0m"
   read -r response
   if [[ "$response" != "yes" ]]; then
     log "Promotion cancelled by user"

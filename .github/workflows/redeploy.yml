@@ -85,7 +85,7 @@ on:
         default: "false"
         options: ["true", "false"]
       restart_containers:
-        description: Restart containers on EC2 (docker compose pull/up)
+        description: (Re)start containers on EC2 (docker compose pull/up)
         type: choice
         required: true
         default: "true"
@@ -110,7 +110,7 @@ on:
         required: true
         default: "false"
       restart_containers:
-        description: Restart containers on EC2 (docker compose pull/up)
+        description: (Re)start containers on EC2 (docker compose pull/up)
         type: string
         required: true
         default: "true"
@@ -344,7 +344,7 @@ jobs:
             "deploy/compose/docker-compose.yml" \
             ec2-user@"$EC2_HOST":/home/ec2-user/bb-portfolio/deploy/compose/docker-compose.yml
 
-      - name: Restart containers
+      - name: (Re)start containers
         if: ${{ inputs.restart_containers == 'true' || inputs.restart_containers == true }}
         env:
           ENVIRONMENT: ${{ inputs.environment }}

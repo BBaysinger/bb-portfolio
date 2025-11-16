@@ -90,6 +90,8 @@ All root `npm` scripts are grouped below by intent. Most have dry‑run or detac
 - `docker:build-push` — Scripted build + push both dev images
 - `ecr:build-push` — Build + push prod images to ECR
 
+Note: The deployment orchestrator always builds and pushes both frontend and backend images (prod to ECR, dev to Docker Hub) to ensure consistency.
+
 ### Registry hygiene & verification
 
 - `images:cleanup` / `images:cleanup:dry-run` — Prune old images (retain 3)
@@ -137,8 +139,12 @@ Envs: `local`, `dev`, `prod`.
 
 ### Deployment & config
 
-- `deploy:full` — Full orchestrated redeploy (images + both profiles + env refresh)
-- `sync:nginx` — Push Nginx config to remote host
+- `orchestrate` — Full orchestrated redeploy (builds images, deploys both profiles, refreshes env files)
+- `orchestrate:auto-promote` — Deploy + automatic EIP handover after health checks
+- `orchestrate-promote` — Manual promotion only (handover with confirmation)
+- Nginx config sync is automated during orchestration; no manual step required
+
+Note: `orchestrate` runs `bash deploy/scripts/deployment-orchestrator.sh --profiles both --refresh-env`
 
 ### Quality & DX
 
@@ -318,7 +324,7 @@ Other UI details: scroll‑aware navigation, mobile slide‑out menu, dynamic de
 - Blue-green promotion workflow
   - Separate candidate/active instances with distinct security groups
   - Automated health checks (frontend/backend endpoints + AWS instance status)
-  - EIP handover script with confirmation prompt (bypass via `--auto-approve` for CI/CD)
+  - EIP handover script with confirmation prompt (bypass via `--auto-promote` for CI/CD)
   - Automatic security group swapping during promotion
   - Rollback support on post-swap health failures
   - GitHub Actions workflow for manual promotion triggers
@@ -445,11 +451,13 @@ Typical commands:
 deploy/scripts/deployment-orchestrator.sh --discover-only
 deploy/scripts/deployment-orchestrator.sh --plan-only
 deploy/scripts/deployment-orchestrator.sh --profiles prod --refresh-env
-deploy/scripts/deployment-orchestrator.sh --no-build --profiles both --refresh-env
+deploy/scripts/deployment-orchestrator.sh --profiles both --refresh-env
 # Blue-green deployment
-deploy/scripts/deployment-orchestrator.sh --target candidate --profiles prod
-deploy/scripts/deployment-orchestrator.sh --target candidate --promote --auto-approve
+deploy/scripts/deployment-orchestrator.sh --profiles prod
+deploy/scripts/deployment-orchestrator.sh --auto-promote
 ```
+
+Note: Images are always built and pushed automatically. The orchestrator sets `AWS_PROFILE=bb-portfolio-user` for ECR access.
 
 ### ⚙️ Architecture Overview
 
