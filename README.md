@@ -90,7 +90,7 @@ All root `npm` scripts are grouped below by intent. Most have dry‑run or detac
 - `docker:build-push` — Scripted build + push both dev images
 - `ecr:build-push` — Build + push prod images to ECR
 
-Note: The deployment orchestrator always builds and pushes both frontend and backend images (prod to ECR, dev to Docker Hub) to ensure consistency.
+Note: By default, the deployment orchestrator builds and pushes both frontend and backend images (prod → ECR, dev → Docker Hub) to ensure consistency. Add `--no-build` to skip rebuilding and pull the latest tags instead.
 
 ### Registry hygiene & verification
 
@@ -441,7 +441,7 @@ Unifies Terraform state, Docker image workflows, and GitHub Actions env regenera
 - Profile aware (`dev` / `prod` / `both`) with distinct registries & buckets.
 - Safety: avoids destructive infra ops; supports discovery/plan-only modes.
 - Falls back to SSH path if workflow dispatch fails.
-- **Blue-green deployment support**: `--target candidate` deploys to candidate instance; `--promote` triggers EIP handover after health checks.
+- **Blue-green deployment support**: Deploy to the candidate instance; promotion is performed by the dedicated script `deploy/scripts/orchestrator-promote.sh`. Use `--auto-promote` to run it automatically after health checks.
 
 **Note:** The orchestrator is functional but requires additional testing for edge cases and failure scenarios. Production deployments should be monitored closely until further validation is complete.
 
@@ -455,9 +455,13 @@ deploy/scripts/deployment-orchestrator.sh --profiles both --refresh-env
 # Blue-green deployment
 deploy/scripts/deployment-orchestrator.sh --profiles prod
 deploy/scripts/deployment-orchestrator.sh --auto-promote
+# Manual promotion (dedicated script)
+deploy/scripts/orchestrator-promote.sh --auto-approve
 ```
 
-Note: Images are always built and pushed automatically. The orchestrator sets `AWS_PROFILE=bb-portfolio-user` for ECR access.
+Tip: Add `--no-build` to any orchestrator command to skip rebuilding images and pull the latest tags.
+
+Note: By default, images are built and pushed automatically. The orchestrator sets `AWS_PROFILE=bb-portfolio-user` for ECR access.
 
 ### ⚙️ Architecture Overview
 

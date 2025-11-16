@@ -9,6 +9,11 @@ on:
         required: true
         default: both
         options: [prod, dev, both]
+      ec2_host:
+        description: Optional override EC2 host/IP for SSH
+        type: string
+        required: false
+        default: ""
       start_dev:
         description: Ensure dev containers are up in addition to prod
         type: choice
@@ -75,7 +80,7 @@ jobs:
       - name: Validate required inputs and secrets
         env:
           ENVIRONMENT: ${{ inputs.environment }}
-          EC2_HOST: ${{ secrets.EC2_HOST }}
+          EC2_HOST: ${{ inputs.ec2_host || secrets.EC2_HOST }}
           REFRESH_ENV: ${{ inputs.refresh_env }}
           PROD_MONGODB_URI: ${{ secrets.PROD_MONGODB_URI }}
           PROD_PAYLOAD_SECRET: ${{ secrets.PROD_PAYLOAD_SECRET }}
@@ -232,7 +237,7 @@ jobs:
         env:
           ENVIRONMENT: ${{ inputs.environment }}
           START_DEV: ${{ inputs.start_dev }}
-          EC2_HOST: ${{ secrets.EC2_HOST }}
+          EC2_HOST: ${{ inputs.ec2_host || secrets.EC2_HOST }}
         run: |
           set -euo pipefail
           OUT_DIR='${{ steps.genenv.outputs.dir }}'
@@ -255,7 +260,7 @@ jobs:
         env:
           ENVIRONMENT: ${{ inputs.environment }}
           START_DEV: ${{ inputs.start_dev }}
-          EC2_HOST: ${{ secrets.EC2_HOST }}
+          EC2_HOST: ${{ inputs.ec2_host || secrets.EC2_HOST }}
         run: |
           set -euo pipefail
           {
@@ -301,11 +306,11 @@ jobs:
           } | ssh -i "${{ steps.ssh.outputs.key }}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" "ENVIRONMENT='${ENVIRONMENT}' bash -s"
 
       - name: Health checks
-        if: always()
+        if: ${{ success() }}
         env:
           ENVIRONMENT: ${{ inputs.environment }}
           START_DEV: ${{ inputs.start_dev }}
-          EC2_HOST: ${{ secrets.EC2_HOST }}
+          EC2_HOST: ${{ inputs.ec2_host || secrets.EC2_HOST }}
         run: |
           set -euo pipefail
           check() { ssh -i "${{ steps.ssh.outputs.key }}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" "curl -s -o /dev/null -w '%{http_code}' http://localhost:$1$2"; }
