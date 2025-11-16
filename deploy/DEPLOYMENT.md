@@ -111,6 +111,68 @@ terraform apply   # Apply changes
    - Frontend envs include: internal backend URL for SSR/server code only (browser uses relative `/api`).
 4. CI/CD pipeline updates production images in ECR
 
+### Promotion Health Gate (Blue → Green)
+
+Production promotion (Elastic IP handover of the candidate “blue” instance to become the new “active” green) is now strictly gated to prevent swapping in an unhealthy release. The orchestrator enforces this automatically when `--promote` or `--auto-promote` is used.
+
+Gate criteria (all must pass):
+
+1. Backend prod container (`bb-portfolio-backend-prod`) reports a `healthy` status (Docker healthcheck).
+2. Frontend prod container (`bb-portfolio-frontend-prod`) is `Up`.
+3. Backend health endpoint: `curl http://localhost:3001/api/health` returns HTTP 2xx or 3xx after retry/backoff.
+4. Frontend root: `curl http://localhost:3000/` returns HTTP 2xx or 3xx after retry/backoff.
+5. Transient `000` (connection/init) responses are tolerated and retried; persistent `000` or 5xx fails the gate.
+
+Retry/backoff defaults:
+
+```
+HEALTH_RETRY_ATTEMPTS=6
+HEALTH_RETRY_DELAY=5   # seconds between attempts
+```
+
+You can override these by exporting env vars before invoking the orchestrator (e.g. `HEALTH_RETRY_ATTEMPTS=10`).
+
+Failure behavior:
+
+- The orchestrator aborts the promotion with a clear error (no IP swap occurs).
+- If `--auto-promote` was supplied, the run still halts safely—there is no silent partial promotion.
+- Logs show each attempt and container status snapshots for fast triage.
+
+Workflow-level hard fail:
+
+- The GitHub Actions `redeploy.yml` job independently performs health polling and will exit non‑zero on production backend/container failure (backend unhealthy or persistent 5xx / 000) even before you attempt promotion.
+- This ensures CI/CD signals breakage early; the orchestrator’s gate is the final safety net at handover time.
+
+Null-Green Initial Activation:
+
+- On the very first production stand‑up (no instance tagged `Role=active`), a healthy candidate is tagged active directly (no swap). The same gate applies so the initial active instance is verified.
+
+Manual vs Auto Promote:
+
+- `npm run orchestrate` (no promote) lets you manually inspect the candidate.
+- `npm run orchestrate:auto-promote` deploys and, if the gate passes, performs the handover without an extra prompt.
+- For manual promotion after validation use `npm run orchestrate-promote` (orchestrator script; gate enforced before swap).
+
+Quick verification commands (post-deploy, before promoting):
+
+```bash
+ssh -i ~/.ssh/bb-portfolio-site-key.pem ec2-user@<BLUE_IP> \
+  "docker ps --filter name=bb-portfolio-backend-prod --format '{{.Status}}'"
+ssh -i ~/.ssh/bb-portfolio-site-key.pem ec2-user@<BLUE_IP> \
+  "curl -fsSL -o /dev/null -w '%{http_code}' http://localhost:3001/api/health"
+ssh -i ~/.ssh/bb-portfolio-site-key.pem ec2-user@<BLUE_IP> \
+  "curl -fsSL -o /dev/null -w '%{http_code}' http://localhost:3000/"
+```
+
+If any gate check fails:
+
+1. Inspect container logs (`docker logs <name>`).
+2. Confirm env files presence (`ls backend/.env.prod frontend/.env.prod`).
+3. Re-run orchestration with `--refresh-env` if env variance is suspected.
+4. Fix root cause, redeploy, then retry promotion.
+
+All logic lives in `deploy/scripts/deployment-orchestrator.sh` (`gate_promotion_health`). Update this doc if criteria or thresholds change.
+
 ### Orchestration Shortcuts
 
 Use npm scripts for end-to-end orchestration:

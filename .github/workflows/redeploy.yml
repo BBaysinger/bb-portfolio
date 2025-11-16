@@ -472,23 +472,71 @@ jobs:
           ENVIRONMENT: ${{ inputs.environment }}
           START_DEV: ${{ inputs.start_dev }}
           EC2_HOST: ${{ secrets.EC2_HOST }}
+          HEALTH_ATTEMPTS: 6
+          HEALTH_DELAY_SECONDS: 5
+          CURL_ATTEMPTS: 5
+          CURL_DELAY_SECONDS: 3
         run: |
           set -euo pipefail
-          check() {
-            ssh -i "${{ steps.ssh.outputs.key }}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" \
-              "curl -s -o /dev/null -w '%{http_code}' http://localhost:$1$2"
-          }
-          ok_code() {
-            case "$1" in
-              2*|3*) return 0;;
-              *) return 1;;
+          KEY="${{ steps.ssh.outputs.key }}"
+          ATTEMPTS="${HEALTH_ATTEMPTS}"; DELAY="${HEALTH_DELAY_SECONDS}"
+          CURL_ATTEMPTS="${CURL_ATTEMPTS}"; CURL_DELAY="${CURL_DELAY_SECONDS}"
+          ssh_cmd() { ssh -i "$KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" "$@"; }
+          poll_containers() {
+            local env="$1"; local tries=0
+            local be_name fe_name
+            case "$env" in
+              prod) be_name="bb-portfolio-backend-prod"; fe_name="bb-portfolio-frontend-prod";;
+              dev)  be_name="bb-portfolio-backend-dev";  fe_name="bb-portfolio-frontend-dev";;
             esac
+            echo "Polling container health for $env (max $ATTEMPTS attempts, $DELAY s delay)" >&2
+            while [ $tries -lt $ATTEMPTS ]; do
+              # Status lines: backend has (healthy|health: starting), frontend usually just Up ...
+              local be_status fe_status
+              be_status=$(ssh_cmd "docker ps --filter name=$be_name --format '{{.Status}}'" || true)
+              fe_status=$(ssh_cmd "docker ps --filter name=$fe_name --format '{{.Status}}'" || true)
+              # Ready conditions
+              be_ready=false; fe_ready=false
+              if echo "$be_status" | grep -qi 'healthy'; then be_ready=true; fi
+              # frontends often have no health check – treat any Up as ready
+              if echo "$fe_status" | grep -qi '^Up '; then fe_ready=true; fi
+              if [[ "$be_ready" == true && "$fe_ready" == true ]]; then
+                echo "Containers ready for $env (backend: $be_status, frontend: $fe_status)" >&2
+                return 0
+              fi
+              tries=$((tries+1))
+              echo "Attempt $tries/$ATTEMPTS ($env) not ready yet (be='$be_status' fe='$fe_status')" >&2
+              sleep "$DELAY"
+            done
+            echo "WARN: Containers not healthy after $ATTEMPTS attempts ($env) (be='$be_status' fe='$fe_status')" >&2
+            return 1
           }
+          curl_with_retry() {
+            local port="$1"; local path="$2"; local label="$3"; local attempt=0; local code=""
+            while [ $attempt -lt "$CURL_ATTEMPTS" ]; do
+              code=$(ssh_cmd "curl -s -o /dev/null -w '%{http_code}' http://localhost:${port}${path} -L" || echo '000')
+              # Success on 2xx/3xx; treat 000 as transient unless final attempt
+              if [[ "$code" == 2* || "$code" == 3* ]]; then
+                echo "OK $label HTTP $code" >&2; return 0
+              fi
+              attempt=$((attempt+1))
+              if [[ "$code" == "000" && $attempt -lt "$CURL_ATTEMPTS" ]]; then
+                echo "Transient $label code 000 (attempt $attempt/$CURL_ATTEMPTS)" >&2; sleep "$CURL_DELAY"; continue
+              fi
+              echo "Attempt $attempt/$CURL_ATTEMPTS $label code=$code" >&2
+              sleep "$CURL_DELAY"
+            done
+            echo "WARN: $label unhealthy after $CURL_ATTEMPTS attempts (last code=$code)" >&2
+            return 1
+          }
+          # Environments to check
+          if [ "$ENVIRONMENT" = "prod" ] || [ "$ENVIRONMENT" = "both" ]; then poll_containers prod || true; fi
+          if [ "$ENVIRONMENT" = "dev" ] || [ "$ENVIRONMENT" = "both" ]; then poll_containers dev  || true; fi
           if [ "$ENVIRONMENT" = "prod" ] || [ "$ENVIRONMENT" = "both" ]; then
-            code=$(check 3000 /) && ok_code "$code" || echo "WARN: frontend prod HTTP $code" >&2
-            code=$(check 3001 /api/health) && ok_code "$code" || echo "WARN: backend prod health HTTP $code" >&2
+            curl_with_retry 3000 / "frontend prod"
+            curl_with_retry 3001 /api/health "backend prod health"
           fi
           if [ "$ENVIRONMENT" = "dev" ] || [ "$ENVIRONMENT" = "both" ]; then
-            code=$(check 4000 /) && ok_code "$code" || echo "WARN: frontend dev HTTP $code" >&2
-            code=$(check 4001 /api/health) && ok_code "$code" || echo "WARN: backend dev health HTTP $code" >&2
+            curl_with_retry 4000 / "frontend dev"
+            curl_with_retry 4001 /api/health "backend dev health"
           fi
