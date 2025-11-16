@@ -111,6 +111,36 @@ terraform apply   # Apply changes
    - Frontend envs include: internal backend URL for SSR/server code only (browser uses relative `/api`).
 4. CI/CD pipeline updates production images in ECR
 
+### Mandatory AWS Account ID (ECR Image Resolution)
+
+Production container image references now require `AWS_ACCOUNT_ID` with **no fallback** (removed `${AWS_ACCOUNT_ID:-000000000000}` default). If this variable is missing, ECR pulls will silently fail because the registry host becomes empty/invalid.
+
+How it is supplied:
+
+- The deploy orchestrator (`deploy/scripts/deployment-orchestrator.sh`) auto‑resolves the account ID via `aws sts get-caller-identity` if not already exported.
+- On successful resolution it exports `AWS_ACCOUNT_ID`, sets the corresponding GitHub secret, and (in SSH fallback mode) writes a `./bb-portfolio/.env` file on EC2 containing `AWS_ACCOUNT_ID=...` for docker‑compose.
+- GitHub Actions workflows read the secret to perform `docker compose pull` for prod profile.
+
+Operator override:
+
+- You may explicitly export `AWS_ACCOUNT_ID` before running the orchestrator to force a specific value (useful in multi‑account testing).
+
+Verification checklist after a prod deploy attempt:
+
+```bash
+ssh -i ~/.ssh/bb-portfolio-site-key.pem ec2-user@<BLUE_IP> 'grep AWS_ACCOUNT_ID bb-portfolio/.env || echo "missing AWS_ACCOUNT_ID in compose .env"'
+ssh -i ~/.ssh/bb-portfolio-site-key.pem ec2-user@<BLUE_IP> 'docker images | grep bb-portfolio-backend-prod || echo "prod backend image not pulled"'
+ssh -i ~/.ssh/bb-portfolio-site-key.pem ec2-user@<BLUE_IP> 'docker ps --filter name=bb-portfolio-backend-prod'
+```
+
+If images were not pulled:
+
+1. Confirm AWS credentials (`aws sts get-caller-identity`).
+2. Re-run orchestrator with `--refresh-env`.
+3. Manually set and retry: `export AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)` then run orchestrator.
+
+Document update rationale: Removing the fallback prevents accidental deployments pointing at a non‑existent registry `000000000000.dkr.ecr...` which previously resulted in missing prod containers and upstream 502 errors.
+
 ### Promotion Health Gate (Blue → Green)
 
 Production promotion (Elastic IP handover of the candidate “blue” instance to become the new “active” green) is now strictly gated to prevent swapping in an unhealthy release. The orchestrator enforces this automatically when `--promote` or `--auto-promote` is used.

@@ -69,6 +69,13 @@
 #   • dev.bbaysinger.com    → dev frontend:4000 + backend:4001
 # - Blue-green: candidate instance has separate EIP until promoted
 #
+# Non-Standard Dual Hosting NOTE:
+# Both prod and dev profiles run CONCURRENTLY on each instance (active AND candidate) as a
+# deliberate cost optimization. This is NOT a best practice for larger/regulated systems.
+# Trade-offs: shared resource contention, larger blast radius, harder performance attribution.
+# Mitigations: distinct ports, blue-green health gating, per-profile env/secrets, registry separation.
+# Revisit when: sustained resource pressure, need independent scaling, or stronger isolation goals.
+#
 # Security model — Secrets and env files:
 # - .env.dev/.env.prod NOT committed; generated on EC2 by GitHub workflow from Secrets
 # - Local development uses .env only (not .env.prod/.env.dev)
@@ -651,6 +658,42 @@ warn "Deploying to candidate instance at $CANDIDATE_IP"
 # Update EC2_HOST secret to point to blue candidate before dispatching GitHub Actions
 log "Updating EC2_HOST secret to blue candidate IP: $CANDIDATE_IP"
 gh secret set EC2_HOST --body "$CANDIDATE_IP" --repo BBaysinger/bb-portfolio || warn "Failed to update EC2_HOST secret"
+
+# ---------------------------------------------------------------------------
+# AWS Account ID Resolution & Propagation (non-secret identifier)
+# ---------------------------------------------------------------------------
+# We require AWS_ACCOUNT_ID so docker-compose can resolve ECR image names:
+#   ${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/...
+# If absent, pulls fall back to an invalid placeholder leading to missing prod containers.
+# Strategy:
+#   1. Respect existing AWS_ACCOUNT_ID in environment (operator override)
+#   2. Try AWS STS get-caller-identity
+#   3. Optional static fallback (only logs warning, does not export placeholder)
+# Result exported + pushed as GitHub secret for workflow usage. Also uploaded
+# as compose .env file during SSH fallback (later section) ensuring runtime availability.
+
+if [[ -z "${AWS_ACCOUNT_ID:-}" ]]; then
+  set +e
+  AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query 'Account' --output text 2>/dev/null | awk 'NF')
+  STS_STATUS=$?
+  set -e
+  if [[ $STS_STATUS -ne 0 || -z "$AWS_ACCOUNT_ID" || "$AWS_ACCOUNT_ID" == "None" ]]; then
+    warn "Could not resolve AWS account ID via STS; prod image pulls may fail until set."
+    AWS_ACCOUNT_ID=""
+  else
+    ok "Resolved AWS account ID via STS: $AWS_ACCOUNT_ID"
+  fi
+else
+  log "Using pre-set AWS_ACCOUNT_ID from environment: $AWS_ACCOUNT_ID"
+fi
+
+if [[ -n "$AWS_ACCOUNT_ID" ]]; then
+  export AWS_ACCOUNT_ID
+  # Best-effort: set/overwrite GitHub secret so workflows have it
+  gh secret set AWS_ACCOUNT_ID --body "$AWS_ACCOUNT_ID" --repo BBaysinger/bb-portfolio >/dev/null 2>&1 || warn "Failed to set AWS_ACCOUNT_ID GitHub secret"
+else
+  warn "AWS_ACCOUNT_ID remains unset; ECR image references will be invalid. Set manually or ensure workflows inject it."
+fi
 
 # Mandatory SSH connectivity check to candidate before proceeding
 log "Verifying SSH connectivity to candidate ($CANDIDATE_IP)"
@@ -1244,16 +1287,30 @@ if [[ "$refresh_env" == true ]]; then
       writeFileSync(`${outDir}/frontend.env.dev`, feDev, "utf8");
     '
   )
+  # Compose .env file ensuring AWS_ACCOUNT_ID is present for docker-compose image references
+  if [[ -n "${AWS_ACCOUNT_ID:-}" ]]; then
+    echo "AWS_ACCOUNT_ID=${AWS_ACCOUNT_ID}" > "${TMP_DIR}/compose.env"
+  else
+    # Leave file empty rather than inserting invalid placeholder
+    touch "${TMP_DIR}/compose.env"
+  fi
   log "Uploading env files to EC2 ($EC2_HOST)"
   ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${REMOTE_USER}"@"$EC2_HOST" "mkdir -p ${REMOTE_REPO}/backend ${REMOTE_REPO}/frontend"
   scp -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$TMP_DIR/backend.env.prod"  "${REMOTE_USER}"@"$EC2_HOST":"${REMOTE_REPO}/backend/.env.prod"
   scp -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$TMP_DIR/backend.env.dev"   "${REMOTE_USER}"@"$EC2_HOST":"${REMOTE_REPO}/backend/.env.dev"
   scp -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$TMP_DIR/frontend.env.prod" "${REMOTE_USER}"@"$EC2_HOST":"${REMOTE_REPO}/frontend/.env.prod"
   scp -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$TMP_DIR/frontend.env.dev"  "${REMOTE_USER}"@"$EC2_HOST":"${REMOTE_REPO}/frontend/.env.dev"
+  scp -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$TMP_DIR/compose.env"        "${REMOTE_USER}"@"$EC2_HOST":"${REMOTE_REPO}/.env"
 fi
 
 log "Logging into ECR and restarting compose profiles via SSH"
 ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${REMOTE_USER}"@"$EC2_HOST" "aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 778230822028.dkr.ecr.us-west-2.amazonaws.com >/dev/null 2>&1 || true"
+if [[ -n "${AWS_ACCOUNT_ID:-}" ]]; then
+  log "Logging into ECR with resolved AWS_ACCOUNT_ID=$AWS_ACCOUNT_ID"
+  ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${REMOTE_USER}"@"$EC2_HOST" "aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com >/dev/null 2>&1 || true"
+else
+  warn "Skipping dynamic ECR login: AWS_ACCOUNT_ID unset (fallback login above may be incorrect)."
+fi
 ssh -i "$SSH_KEY" -tt -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${REMOTE_USER}"@"$EC2_HOST" bash -lc $'set -e
 cd "'"${REMOTE_REPO}"'"
 docker-compose down || true

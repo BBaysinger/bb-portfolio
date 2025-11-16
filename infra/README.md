@@ -108,6 +108,46 @@ Nginx is automatically configured to:
 
 The configuration automatically points to development containers (port 4000) by default, but can be switched to production containers (port 3000) using the management script.
 
+## Dual Environment Co-Hosting (Non-Standard Design)
+
+Both the `dev` and `prod` profiles are intentionally run concurrently on the SAME EC2 instance (and during blue‑green cycles, on both active and candidate instances). This is a deliberate cost optimization for a portfolio project and deviates from conventional isolation where each environment would have its own host (or autoscaling group).
+
+### Why Co-Host?
+
+- Reduce monthly spend (one t3.medium instead of two instances)
+- Demonstrate full stack (SSR + API) for both environments without doubling infra
+- Keep operational complexity low (single host to patch, monitor, snapshot)
+
+### Trade-Offs / Risks
+
+- Shared resource contention: CPU, memory, and disk spikes in one profile can impact the other.
+- Larger blast radius: Host failure or misconfiguration affects both environments simultaneously.
+- Security blast surface: Although containers are separate, kernel/host layer compromise impacts both.
+- Performance tuning complexity: Harder to attribute bottlenecks when workloads overlap.
+
+### Mitigations Implemented
+
+- Distinct ports (prod: 3000/3001, dev: 4000/4001) with explicit nginx routing.
+- Blue‑green candidate deployments allow validation of BOTH profiles before promotion.
+- Retention policy preserves last healthy instance for rollback (`--prune-after-promotion` optional).
+- Secrets and env files generated per profile; no cross-pollution of runtime configuration.
+- Registry separation: ECR for prod, Docker Hub for dev to reduce accidental image mix-ups.
+
+### When to Revisit
+
+Move to isolated hosts (or autoscaling groups) if any of these become priorities:
+
+1. Sustained CPU > 60% or memory pressure leading to swap.
+2. Need for independent scaling (e.g., prod traffic grows but dev remains light).
+3. Stricter security/compliance boundaries.
+4. Desire for zero shared blast radius during experimentation.
+
+### Monitoring Suggestions
+
+Add lightweight host dashboards (CloudWatch or Node Exporter + Grafana) if contention becomes frequent. Until then, manual inspection via `docker stats` + `top` is sufficient.
+
+> NOTE: Documentation in other folders (deployment scripts, architecture decisions) mirrors this non-standard co-hosting choice. Treat this as an intentional, reversible optimization rather than a best practice.
+
 ## DNS Setup
 
 After infrastructure deployment:
