@@ -121,6 +121,24 @@ If there is no previously promoted instance (i.e. no EC2 tagged `Role=active`), 
 4. If an Elastic IP is already attached to the candidate, it is retained as production.
 
 This avoids confusing error output during the very first promotion and makes the first `orchestrate:auto-promote` seamless.
+\n+### Containers-Only Mode
+\n+Use `--containers-only` to skip all Terraform and host-level configuration steps. In this mode the orchestrator:
+\n+- Does NOT plan/apply infrastructure
+- Skips single-controller host enforcement and nginx config sync
+- Skips HTTPS certificate ensure
+- Still builds & pushes images (prod ECR + dev Docker Hub)
+- Updates GitHub Actions secrets (including `EC2_HOST` to candidate IP)
+- Dispatches redeploy workflows which restart containers via SSH on the existing host
+\n+This is ideal for rapid iteration when infra is already stable and only container images / env regeneration are needed. If you need nginx template or cert changes, omit `--containers-only` so host sync runs.
+\n+### Mandatory Candidate SSH Connectivity
+\n+Early in every run (full or containers-only) the script resolves the candidate (blue) IP and performs an SSH connectivity test. If SSH fails the run aborts immediately. This prevents false-success scenarios where containers would appear to deploy but host configuration (nginx, certs, env files) could not actually be applied.
+\n+### WebSocket Upgrade Simplification
+\n+Legacy deployments used a dynamic `$connection_upgrade` map to normalize the `Connection` header. This has been removed for simplicity and reliability after encountering `unknown "connection_upgrade" variable` errors when the map file was missing. All nginx server blocks now set:
+\n+```
+proxy_set_header Upgrade $http_upgrade;
+proxy_set_header Connection "Upgrade";
+```
+\n+During sync the orchestrator automatically deletes any leftover `00-websocket-upgrade.conf` map file. If you later need conditional behavior, reintroduce a map in a dedicated conf fragment, but keep container and template changes in sync.
 ```
 
 ## Exit Codes

@@ -809,17 +809,10 @@ if [[ -f "$LEGACY" ]]; then
   rm -f "$LEGACY"
 fi
 mv /tmp/bb-portfolio.conf "$TARGET"
-# Ensure WebSocket upgrade map exists before test (variable $connection_upgrade)
-if [ ! -f /etc/nginx/conf.d/00-websocket-upgrade.conf ]; then
-cat >/etc/nginx/conf.d/00-websocket-upgrade.conf <<'EOF'
-  # WebSocket upgrade map
-map $http_upgrade $connection_upgrade {
-  default upgrade;
-  ''      close;
-}
-EOF
+# WebSocket upgrade now handled with static Connection header; legacy map removed if present
+if [ -f /etc/nginx/conf.d/00-websocket-upgrade.conf ]; then
+  rm -f /etc/nginx/conf.d/00-websocket-upgrade.conf || true
 fi
-# (WebSocket upgrade handled with static Connection header; map no longer required)
 if nginx -t; then
   systemctl reload nginx && echo "Nginx reloaded successfully."
 else
@@ -857,17 +850,9 @@ ensure_https_certs() {
   fi
   log "Ensuring HTTPS certificates present on $host (user=${REMOTE_USER})"
   ssh -i "$key" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${REMOTE_USER}"@"$host" bash -lc $'set -e
-    # Ensure WebSocket upgrade map exists (required by bb-portfolio nginx config)
-    if [ ! -f /etc/nginx/conf.d/00-websocket-upgrade.conf ]; then
-      echo "Creating WebSocket upgrade map for nginx"
-      sudo tee /etc/nginx/conf.d/00-websocket-upgrade.conf >/dev/null <<EOF
-# WebSocket upgrade map
-map \$http_upgrade \$connection_upgrade {
-    default upgrade;
-    \\047\\047 close;
-}
-EOF
-      sudo nginx -t && sudo systemctl reload nginx || echo "Nginx reload failed after WebSocket map creation"
+    # Legacy websocket map cleanup (no longer needed)
+    if [ -f /etc/nginx/conf.d/00-websocket-upgrade.conf ]; then
+      sudo rm -f /etc/nginx/conf.d/00-websocket-upgrade.conf || true
     fi
     
     # Install certbot if missing
