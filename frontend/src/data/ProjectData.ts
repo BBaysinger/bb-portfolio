@@ -59,7 +59,7 @@ async function fetchPortfolioProjects(opts?: {
   // alongside the project -> brand -> upload chain.
   // Note: Using trailing slash for client-side to match Next.js trailingSlash: true config
   const path = "/api/projects/?depth=2&limit=1000&sort=sortIndex";
-  const serverPath = "/api/projects?depth=2&limit=1000&sort=sortIndex";
+  const serverPath = "/api/projects/?depth=2&limit=1000&sort=sortIndex";
   // If we're on the server AND we have request cookies (SSR with potential auth),
   // prefer using a relative URL so the Next.js proxy/rewrites can forward cookies
   // to the backend correctly. Direct absolute calls to the backend may not see
@@ -174,8 +174,11 @@ async function fetchPortfolioProjects(opts?: {
   }
 
   // Timeout policy: give dev/local a bit more time, prod moderate.
+  // Timeout policy: initial cold starts for Payload + Next.js in dev/local can exceed 8s
+  // due to on-demand route compilation and deep population (depth=2). Increase to 20s
+  // for dev/local to avoid premature aborts causing SSR fallback failures.
   const baseTimeoutMs =
-    normalizedProfile === "dev" || normalizedProfile === "local" ? 8000 : 5000;
+    normalizedProfile === "dev" || normalizedProfile === "local" ? 20000 : 5000;
   const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
   // Helper to add a timeout so we can fail fast and try a retry/fallback
   const withTimeout = async (url: string, ms: number = baseTimeoutMs) => {
