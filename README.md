@@ -574,6 +574,6 @@ Note: Earlier plans for “custom Express/Mongo backend” were superseded by th
 
 ---
 
-Updated EC2 IP: 44.246.43.116
+Updated EC2 IP: 44.246.43.116 (green/active) 52.37.142.50 (blue/candidate)
 
-Last major: Mon Nov 11, 2025
+Last major: Mon Nov 16, 2025
