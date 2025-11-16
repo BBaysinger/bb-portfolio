@@ -164,17 +164,64 @@ jobs:
             esac
           fi
 
-      - name: SSH preflight
+      - name: SSH preflight (enhanced diagnostics)
+        id: ssh_preflight
         env:
           EC2_HOST: ${{ inputs.ec2_host || secrets.EC2_HOST }}
         run: |
           set -euo pipefail
-          echo "Attempting SSH preflight to $EC2_HOST (uptime)..."
-          if ! ssh -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i "${{ steps.ssh.outputs.key }}" ec2-user@"$EC2_HOST" "uptime"; then
-            echo "SSH preflight failed (host unreachable or auth issue). Exiting early." >&2
+          echo "=== Enhanced SSH Preflight Diagnostics ==="
+          echo "Target: $EC2_HOST"
+          echo ""
+          
+          # 1. Network connectivity (port 22)
+          echo "1. Testing port 22 connectivity with netcat..."
+          if timeout 5 bash -c "echo > /dev/tcp/$EC2_HOST/22" 2>/dev/null; then
+            echo "✓ Port 22 is open and accepting connections"
+          else
+            echo "✗ Port 22 appears closed or unreachable"
+            echo "This suggests either:"
+            echo "  - Security group blocking port 22"
+            echo "  - Instance not running"
+            echo "  - Wrong IP address"
             exit 1
           fi
-          echo "SSH preflight success. Proceeding with env generation/deploy."
+          echo ""
+          
+          # 2. Attempt SSH with multiple common usernames
+          echo "2. Attempting SSH with common usernames..."
+          SSH_OPTS="-o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ${{ steps.ssh.outputs.key }}"
+          USERS="ec2-user ubuntu admin"
+          SSH_SUCCESS=false
+          WORKING_USER=""
+          
+          for user in $USERS; do
+            echo "  Trying: $user@$EC2_HOST"
+            if ssh $SSH_OPTS ${user}@"$EC2_HOST" "echo 'SSH_TEST_SUCCESS' && uptime" 2>/dev/null | grep -q "SSH_TEST_SUCCESS"; then
+              echo "  ✓ Success with user: $user"
+              SSH_SUCCESS=true
+              WORKING_USER="$user"
+              break
+            else
+              echo "  ✗ Failed with user: $user"
+            fi
+          done
+          echo ""
+          
+          if [ "$SSH_SUCCESS" = "false" ]; then
+            echo "=== SSH Preflight FAILED ==="
+            echo "Port 22 is open but SSH authentication failed for all users: $USERS"
+            echo "Possible causes:"
+            echo "  - Wrong SSH key (key in GitHub secret doesn't match instance authorized_keys)"
+            echo "  - Instance was replaced/rebuilt and key not re-added"
+            echo "  - Permissions issue with authorized_keys on instance"
+            echo "  - Different AMI with non-standard username"
+            exit 1
+          fi
+          
+          echo "=== SSH Preflight SUCCESS ==="
+          echo "Working user: $WORKING_USER"
+          echo "ssh_user=$WORKING_USER" >> "$GITHUB_OUTPUT"
 
       - name: Generate env files (in runner temp)
         id: genenv
@@ -291,22 +338,24 @@ jobs:
           ENVIRONMENT: ${{ inputs.environment }}
           START_DEV: ${{ inputs.start_dev }}
           EC2_HOST: ${{ inputs.ec2_host || secrets.EC2_HOST }}
+          SSH_USER: ${{ steps.ssh_preflight.outputs.ssh_user }}
         run: |
           set -euo pipefail
           OUT_DIR='${{ steps.genenv.outputs.dir }}'
           test -n "$OUT_DIR" && test -d "$OUT_DIR"
+          USER="${SSH_USER:-ec2-user}"
 
           # Prepare remote directories
-          ssh -i "${{ steps.ssh.outputs.key }}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" "mkdir -p /home/ec2-user/bb-portfolio/backend /home/ec2-user/bb-portfolio/frontend"
+          ssh -i "${{ steps.ssh.outputs.key }}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${USER}@$EC2_HOST" "mkdir -p /home/${USER}/bb-portfolio/backend /home/${USER}/bb-portfolio/frontend"
 
           scp -i "${{ steps.ssh.outputs.key }}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
-            "$OUT_DIR/backend.env.prod"  ec2-user@"$EC2_HOST":/home/ec2-user/bb-portfolio/backend/.env.prod
+            "$OUT_DIR/backend.env.prod"  "${USER}@$EC2_HOST:/home/${USER}/bb-portfolio/backend/.env.prod"
           scp -i "${{ steps.ssh.outputs.key }}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
-            "$OUT_DIR/backend.env.dev"   ec2-user@"$EC2_HOST":/home/ec2-user/bb-portfolio/backend/.env.dev
+            "$OUT_DIR/backend.env.dev"   "${USER}@$EC2_HOST:/home/${USER}/bb-portfolio/backend/.env.dev"
           scp -i "${{ steps.ssh.outputs.key }}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
-            "$OUT_DIR/frontend.env.prod" ec2-user@"$EC2_HOST":/home/ec2-user/bb-portfolio/frontend/.env.prod
+            "$OUT_DIR/frontend.env.prod" "${USER}@$EC2_HOST:/home/${USER}/bb-portfolio/frontend/.env.prod"
           scp -i "${{ steps.ssh.outputs.key }}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
-            "$OUT_DIR/frontend.env.dev"  ec2-user@"$EC2_HOST":/home/ec2-user/bb-portfolio/frontend/.env.dev
+            "$OUT_DIR/frontend.env.dev"  "${USER}@$EC2_HOST:/home/${USER}/bb-portfolio/frontend/.env.dev"
 
       - name: Restart containers
         if: ${{ inputs.restart_containers == 'true' || inputs.restart_containers == true }}
@@ -314,11 +363,13 @@ jobs:
           ENVIRONMENT: ${{ inputs.environment }}
           START_DEV: ${{ inputs.start_dev }}
           EC2_HOST: ${{ inputs.ec2_host || secrets.EC2_HOST }}
+          SSH_USER: ${{ steps.ssh_preflight.outputs.ssh_user }}
         run: |
           set -euo pipefail
+          USER="${SSH_USER:-ec2-user}"
           {
             printf '%s\n' 'set -e'
-            printf '%s\n' 'cd /home/ec2-user/bb-portfolio'
+            printf '%s\n' "cd /home/${USER}/bb-portfolio"
             printf '%s\n' 'aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 778230822028.dkr.ecr.us-west-2.amazonaws.com >/dev/null 2>&1 || true'
             printf '%s\n' 'export AWS_ACCOUNT_ID=778230822028'
             printf '%s\n' 'COMPOSE_FILE="deploy/compose/docker-compose.yml"'
@@ -356,7 +407,7 @@ jobs:
             printf '%s\n' '    try_up dev || true'
             printf '%s\n' '    ;;'
             printf '%s\n' 'esac'
-          } | ssh -i "${{ steps.ssh.outputs.key }}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" "ENVIRONMENT='${ENVIRONMENT}' bash -s"
+          } | ssh -i "${{ steps.ssh.outputs.key }}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${USER}@$EC2_HOST" "ENVIRONMENT='${ENVIRONMENT}' bash -s"
 
       - name: Health checks
         if: ${{ success() }}
@@ -364,9 +415,11 @@ jobs:
           ENVIRONMENT: ${{ inputs.environment }}
           START_DEV: ${{ inputs.start_dev }}
           EC2_HOST: ${{ inputs.ec2_host || secrets.EC2_HOST }}
+          SSH_USER: ${{ steps.ssh_preflight.outputs.ssh_user }}
         run: |
           set -euo pipefail
-          check() { ssh -i "${{ steps.ssh.outputs.key }}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" "curl -s -o /dev/null -w '%{http_code}' http://localhost:$1$2"; }
+          USER="${SSH_USER:-ec2-user}"
+          check() { ssh -i "${{ steps.ssh.outputs.key }}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${USER}@$EC2_HOST" "curl -s -o /dev/null -w '%{http_code}' http://localhost:$1$2"; }
           if [ "$ENVIRONMENT" = "prod" ] || [ "$ENVIRONMENT" = "both" ]; then
             test "$(check 3000 /)" = "200" || echo "WARN: frontend prod not 200" >&2
             test "$(check 3001 /api/health)" = "200" || echo "WARN: backend prod health not 200" >&2
@@ -381,11 +434,13 @@ jobs:
         env:
           ENVIRONMENT: ${{ inputs.environment }}
           EC2_HOST: ${{ inputs.ec2_host || secrets.EC2_HOST }}
+          SSH_USER: ${{ steps.ssh_preflight.outputs.ssh_user }}
         run: |
           set -euo pipefail
+          USER="${SSH_USER:-ec2-user}"
           {
             printf '%s\n' 'set -euo pipefail'
-            printf '%s\n' 'cd /home/ec2-user/bb-portfolio'
+            printf '%s\n' "cd /home/${USER}/bb-portfolio"
             printf '%s\n' 'COMPOSE_FILE="deploy/compose/docker-compose.yml"'
             printf '%s\n' 'echo "=== docker compose ps (all) ==="'
             printf '%s\n' 'docker-compose -f "$COMPOSE_FILE" ps || true'
@@ -400,4 +455,4 @@ jobs:
             printf '%s\n' 'echo "=== recent logs for likely proxy containers (caddy/nginx) ==="'
             printf '%s\n' "for n in $(docker ps --format '{{.Names}}' | egrep 'caddy|nginx' || true); do echo '--- '"
             printf '%s\n' "echo "'"\$n"'"; docker logs --tail=200 "'"\$n"'" || true; done"
-          } | ssh -i "${{ steps.ssh.outputs.key }}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" "bash -s"
+          } | ssh -i "${{ steps.ssh.outputs.key }}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${USER}@$EC2_HOST" "bash -s"
