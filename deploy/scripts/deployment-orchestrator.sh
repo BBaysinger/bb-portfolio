@@ -141,6 +141,7 @@ watch_logs=true     # whether to watch GH workflow logs
 sync_secrets=true   # whether to sync local secrets to GitHub
 discover_only=false # perform discovery and exit without changes
 plan_only=false     # run terraform plan (summary) and exit (no apply)
+build_images=true   # build & push images locally before deploy; --no-build to skip
 prune_after_promotion=false # if true, invoke retention pruning for old instances (Role=red/previous)
 retention_count=2            # how many previous instances to keep when pruning
 retention_days=""           # if set, only prune those older than this many days
@@ -174,6 +175,7 @@ Options:
   --handover-snapshot     Snapshot current active root volume before handover
   --gh-workflows [names]  Comma-separated workflow names to trigger (default: Redeploy)
   --refresh-env           Ask GH workflow to regenerate & upload .env files (default: false)
+  --no-build              Do not build/push images locally; just pull latest tags on host
   --no-restart            Do not restart containers in GH workflow (default: restart)
   --no-watch              Do not watch GH workflow logs (default: watch)
   --no-secrets-sync       Do not sync local secrets to GitHub
@@ -195,6 +197,7 @@ while [[ $# -gt 0 ]]; do
     --gh-workflows)
       workflows="${2:-}"; [[ -n "$workflows" ]] || die "--gh-workflows requires at least one name"; shift 2 ;;
     --refresh-env) refresh_env=true; shift ;;
+    --no-build) build_images=false; shift ;;
     --no-restart) restart_containers=false; shift ;;
     --no-watch) watch_logs=false; shift ;;
     --no-secrets-sync) sync_secrets=false; shift ;;
@@ -468,13 +471,17 @@ fi
 export AWS_PROFILE="${AWS_PROFILE:-bb-portfolio-user}"
 
 # Optional image build/push (delegates to existing npm scripts)
-log "Building & pushing container images (frontend + backend)"
-log "Building & pushing production images to ECR"
-npm run ecr:build-push
-ok "Pushed prod images"
-log "Building & pushing development images to Docker Hub"
-npm run docker:build-push
-ok "Pushed dev images"
+if [[ "$build_images" == true ]]; then
+  log "Building & pushing container images (frontend + backend)"
+  log "Building & pushing production images to ECR"
+  npm run ecr:build-push
+  ok "Pushed prod images"
+  log "Building & pushing development images to Docker Hub"
+  npm run docker:build-push
+  ok "Pushed dev images"
+else
+  log "Skipping image build/push (--no-build). Will pull latest tags on host during deploy."
+fi
 
 # Terraform: optional targeted destroy preserving S3/ECR/EIP, then apply
 if [[ "$do_infra" == true ]]; then
