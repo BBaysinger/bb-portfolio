@@ -55,6 +55,29 @@ jobs:
       group: redeploy-${{ inputs.environment == 'both' && 'global' || inputs.environment }}
       cancel-in-progress: true
     steps:
+      - name: Early conflict guard
+        uses: actions/github-script@v7
+        env:
+          ENVIRONMENT: ${{ inputs.environment }}
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            // Check for in-progress or queued runs of the auto redeploy workflow (redeploy.yml)
+            async function list(status){
+              try {
+                return (await github.rest.actions.listWorkflowRuns({ owner, repo, workflow_id: 'redeploy.yml', status })).data.workflow_runs;
+              } catch (e) { return []; }
+            }
+            const inProgress = await list('in_progress');
+            const queued = await list('queued');
+            const conflicting = [...inProgress, ...queued].filter(r => r.id !== context.runId);
+            if(conflicting.length){
+              core.warning(`Auto redeploy workflow active (run id ${conflicting[0].id}); exiting early to avoid delayed cancellation.`);
+              core.setFailed('Conflict: auto redeploy already in progress. Retry after it finishes.');
+            } else {
+              core.info('No conflicting auto redeploy workflow detected. Proceeding.');
+            }
       - name: Checkout
         uses: actions/checkout@v4
 
