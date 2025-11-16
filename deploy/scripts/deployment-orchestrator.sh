@@ -24,11 +24,11 @@
 #    - Blue instance accessible via IP (nginx server_name includes BLUE_IP)
 #    - SSL cert provisioning (if configured)
 #
-# 5. Optional Promotion (--promote flag)
+# 5. Optional Promotion (--auto-promote only)
 #    - Calls scripts/orchestrator-promote.sh for blue → green handover
 #    - Performs health checks before and after EIP swap
 #    - Updates instance Role tags (active/candidate)
-#    - Supports --auto-promote to skip confirmation prompt
+#    - Use --auto-promote to perform handover at the end
 #
 # Usage:
 #   npm run orchestrate                # Deploy to blue candidate only
@@ -37,7 +37,7 @@
 #
 # Automation note:
 # - Prefer invoking via npm scripts (above) instead of calling this file
-#   directly so flags like --promote/--auto-promote/--refresh-env remain
+#   directly so flags like --auto-promote/--refresh-env remain
 #   consistent across operators and AI tools.
 #
 # Workflow:
@@ -52,8 +52,7 @@
 # Blue-green deployment support:
 # - Deploy candidate instance: --target candidate --profiles prod
 # - Validate candidate manually or via health checks
-# - Promote to active: --promote (triggers EIP handover with health checks)
-# - Auto-promote for CI/CD: --auto-promote (skips confirmation prompt)
+# - Auto-promote for CI/CD: --auto-promote (triggers EIP handover at the end)
 # - Retention management: --prune-after-promotion (cleanup old previous instances)
 #
 # Runtime architecture on EC2:
@@ -89,8 +88,7 @@
 #   # Blue-green candidate deployment
 #   deploy/scripts/deployment-orchestrator.sh --target candidate --profiles prod
 #
-#   # Blue-green promotion with automated handover
-#   # --auto-promote implies --promote
+#   # Blue-green promotion with automated handover (run at end)
 #   deploy/scripts/deployment-orchestrator.sh --target candidate --auto-promote
 #
 #   # Container-only update (skip Terraform)
@@ -145,7 +143,7 @@ build_images=true   # build & push images locally before deploy; --no-build to s
 prune_after_promotion=false # if true, invoke retention pruning for old instances (Role=red/previous)
 retention_count=2            # how many previous instances to keep when pruning
 retention_days=""           # if set, only prune those older than this many days
-promote=false                # if true, run Elastic IP handover (blue → green) before optional pruning
+auto_promote=false           # if true, perform EIP handover at the end via separate script
 auto_approve_handover=false  # if true, skip confirmation prompt for handover
 handover_rollback=true       # attempt rollback on post-swap failure
 handover_snapshot=false      # snapshot active root volume before swap
@@ -168,8 +166,7 @@ Options:
   --prune-after-promotion Prune old previous instances after successful deploy (blue-green retention)
   --retention-count [n]   Retention: keep newest N previous instances (default: 2)
   --retention-days [n]    Retention: only prune if demoted age >= N days (optional)
-  --promote               After deploying to candidate, perform EIP handover (promote candidate → active)
-  --auto-promote          Imply --promote and auto-approve handover after health checks (no prompt)
+  --auto-promote          After deploy, perform EIP handover via scripts/orchestrator-promote.sh (no manual confirm)
   --auto-approve          Deprecated alias for --auto-promote
   --handover-no-rollback  Disable rollback on failed post-swap health
   --handover-snapshot     Snapshot current active root volume before handover
@@ -208,8 +205,7 @@ while [[ $# -gt 0 ]]; do
       retention_count="${2:-}"; [[ "$retention_count" =~ ^[0-9]+$ ]] || die "--retention-count must be integer"; shift 2 ;;
     --retention-days)
       retention_days="${2:-}"; [[ "$retention_days" =~ ^[0-9]+$ ]] || die "--retention-days must be integer"; shift 2 ;;
-    --promote) promote=true; shift ;;
-    --auto-promote) auto_approve_handover=true; promote=true; shift ;;
+    --auto-promote) auto_approve_handover=true; auto_promote=true; shift ;;
     --auto-approve) warn "--auto-approve is deprecated; use --auto-promote"; auto_approve_handover=true; shift ;;
     --handover-no-rollback) handover_rollback=false; shift ;;
     --handover-snapshot) handover_snapshot=true; shift ;;
@@ -256,12 +252,12 @@ ensure_blue_ip() {
   return 1
 }
 
-# Early confirmation if promotion requested (always prompt here).
-if [[ "$promote" == true ]]; then
+# Early confirmation if auto-promotion requested (always prompt here unless auto-approved).
+if [[ "$auto_promote" == true ]]; then
   if [[ "$auto_approve_handover" == true ]]; then
     warn "Auto-promote enabled: if health checks pass, handover will proceed without an additional prompt."
   else
-    warn "Promotion requested (--promote): handover will prompt again just before EIP swap."
+    warn "Auto-promotion requested (--auto-promote): handover will prompt again just before EIP swap."
   fi
   echo "This run will:"
   echo "  1) Deploy to blue (candidate)"
@@ -1080,15 +1076,15 @@ case "$profiles" in
     # Prefer main for prod, fallback to current branch
     if dispatch_redeploy prod main "$BRANCH"; then
       ok "Prod redeploy dispatched via GitHub Actions. Candidate IP: ${CANDIDATE_IP:-unknown}"
-      # If promotion was requested (implied by --auto-promote), run handover now (GA logs not watched here).
-      if [[ "$promote" == true ]]; then
+      # If auto-promotion requested, run handover now (GA logs not watched here).
+      if [[ "$auto_promote" == true ]]; then
         log "Running promotion health gate before handover (prod profile)"
         gate_promotion_health "$CANDIDATE_IP"
         HANDOVER_SCRIPT="${REPO_ROOT}/scripts/orchestrator-promote.sh"
         # Capture current active IP before handover (may be empty in null-green scenario)
         PRE_ACTIVE_IP=$(discover_instance_public_ip_by_role active | head -n1 || echo "")
         if [[ -f "$HANDOVER_SCRIPT" ]]; then
-          log "Initiating Elastic IP handover (--promote)"
+          log "Initiating Elastic IP handover (--auto-promote)"
           set +e
           HANDOVER_CMD=("$HANDOVER_SCRIPT" --region us-west-2)
           [[ "$auto_approve_handover" == true ]] && HANDOVER_CMD+=(--auto-promote) || true
@@ -1152,14 +1148,14 @@ case "$profiles" in
       else
         warn "Dev redeploy dispatched, but prod dispatch failed. You can re-run prod via: gh workflow run redeploy.yml -f environment=prod --ref main"
       fi
-      # If promotion was requested (implied by --auto-promote), run handover now after dispatch
-      if [[ "$promote" == true ]]; then
+      # If auto-promotion requested, run handover now after dispatch
+      if [[ "$auto_promote" == true ]]; then
         log "Running promotion health gate before handover (both profiles)"
         gate_promotion_health "$CANDIDATE_IP"
         HANDOVER_SCRIPT="${REPO_ROOT}/scripts/orchestrator-promote.sh"
         PRE_ACTIVE_IP=$(discover_instance_public_ip_by_role active | head -n1 || echo "")
         if [[ -f "$HANDOVER_SCRIPT" ]]; then
-          log "Initiating Elastic IP handover (--promote)"
+          log "Initiating Elastic IP handover (--auto-promote)"
           set +e
           HANDOVER_CMD=("$HANDOVER_SCRIPT" --region us-west-2)
           [[ "$auto_approve_handover" == true ]] && HANDOVER_CMD+=(--auto-promote) || true
@@ -1376,14 +1372,14 @@ case "$profiles" in
   both) poll_containers_health prod || true; poll_containers_health dev || true ;;
 esac
 
-# Optional promotion (Elastic IP handover blue → green)
-if [[ "$promote" == true ]]; then
+# Optional auto-promotion (Elastic IP handover blue → green)
+if [[ "$auto_promote" == true ]]; then
   HANDOVER_SCRIPT="${REPO_ROOT}/scripts/orchestrator-promote.sh"
     if [[ -f "$HANDOVER_SCRIPT" ]]; then
       PRE_ACTIVE_IP=$(discover_instance_public_ip_by_role active | head -n1 || echo "")
       log "Running promotion health gate before handover (SSH fallback)"
       gate_promotion_health "$EC2_HOST"
-      log "Initiating Elastic IP handover (--promote)"
+      log "Initiating Elastic IP handover (--auto-promote)"
       set +e
       HANDOVER_CMD=("$HANDOVER_SCRIPT" --region us-west-2)
       [[ "$auto_approve_handover" == true ]] && HANDOVER_CMD+=(--auto-promote) || true
@@ -1448,7 +1444,7 @@ ACTIVE_IP="${GREEN_INSTANCE_IP:-}"
 if [[ -z "$ACTIVE_IP" ]]; then
   ACTIVE_IP=$(discover_instance_public_ip_by_role active | head -n1 || true)
 fi
-ok "Blue candidate deployment completed. Test at $CANDIDATE_IP (http://$CANDIDATE_IP) then run with --promote to make it live at ${ACTIVE_IP:-the active address}."
+ok "Blue candidate deployment completed. Test at $CANDIDATE_IP (http://$CANDIDATE_IP); to promote, run scripts/orchestrator-promote.sh or npm run candidate-promote to make it live at ${ACTIVE_IP:-the active address}."
 
 # Deferred HTTP:80 verification (after workflows & potential container start)
 if [[ -n "${POST_HTTP_VERIFY_HOST:-}" ]]; then
