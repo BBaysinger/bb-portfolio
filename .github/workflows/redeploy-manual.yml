@@ -173,7 +173,7 @@ jobs:
           echo "=== Enhanced SSH Preflight Diagnostics ==="
           echo "Target: $EC2_HOST"
           echo ""
-          
+
           # 1. Network connectivity (port 22)
           echo "1. Testing port 22 connectivity with netcat..."
           if timeout 5 bash -c "echo > /dev/tcp/$EC2_HOST/22" 2>/dev/null; then
@@ -187,14 +187,14 @@ jobs:
             exit 1
           fi
           echo ""
-          
+
           # 2. Attempt SSH with multiple common usernames
           echo "2. Attempting SSH with common usernames..."
           SSH_OPTS="-o BatchMode=yes -o ConnectTimeout=5 -o ServerAliveInterval=2 -o ServerAliveCountMax=2 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ${{ steps.ssh.outputs.key }}"
           USERS="ec2-user ubuntu admin"
           SSH_SUCCESS=false
           WORKING_USER=""
-          
+
           for user in $USERS; do
             echo "  Trying: $user@$EC2_HOST"
             if timeout 8 ssh $SSH_OPTS ${user}@"$EC2_HOST" "echo 'SSH_TEST_SUCCESS' && uptime" 2>/dev/null | grep -q "SSH_TEST_SUCCESS"; then
@@ -207,7 +207,7 @@ jobs:
             fi
           done
           echo ""
-          
+
           if [ "$SSH_SUCCESS" = "false" ]; then
             echo "=== SSH Preflight FAILED ==="
             echo "Port 22 is open but SSH authentication failed for all users: $USERS"
@@ -218,7 +218,7 @@ jobs:
             echo "  - Different AMI with non-standard username"
             exit 1
           fi
-          
+
           echo "=== SSH Preflight SUCCESS ==="
           echo "Working user: $WORKING_USER"
           echo "ssh_user=$WORKING_USER" >> "$GITHUB_OUTPUT"
