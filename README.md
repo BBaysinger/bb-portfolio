@@ -141,7 +141,7 @@ Envs: `local`, `dev`, `prod`.
 
 - `orchestrate` — Full orchestrated redeploy (builds images, deploys both profiles, refreshes env files)
 - `orchestrate:auto-promote` — Deploy + automatic EIP handover after health checks
-- `orchestrate-promote` — Manual promotion only (handover with confirmation)
+- `candidate-promote` — Manual promotion only (blue → production EIP handover)
 - Nginx config sync is automated during orchestration; no manual step required
 
 Note: `orchestrate` runs `bash deploy/scripts/deployment-orchestrator.sh --profiles both --refresh-env`

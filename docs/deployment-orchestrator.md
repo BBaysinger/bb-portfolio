@@ -99,7 +99,7 @@ npm run orchestrate
 npm run orchestrate:auto-promote
 
 # Only perform promotion (when blue is already healthy)
-npm run orchestrate-promote
+npm run candidate-promote
 
 ### Blue Replacement Prompt
 

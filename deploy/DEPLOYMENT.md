@@ -151,7 +151,7 @@ Manual vs Auto Promote:
 
 - `npm run orchestrate` (no promote) lets you manually inspect the candidate.
 - `npm run orchestrate:auto-promote` deploys and, if the gate passes, performs the handover without an extra prompt.
-- For manual promotion after validation use `npm run orchestrate-promote` (orchestrator script; gate enforced before swap).
+- For manual promotion after validation use `npm run candidate-promote` (standalone promotion script under `deploy/scripts/`; gate enforced before swap).
 
 Quick verification commands (post-deploy, before promoting):
 
@@ -185,7 +185,7 @@ npm run orchestrate
 npm run orchestrate:auto-promote
 
 # Manual promotion only (when blue is ready)
-npm run orchestrate-promote
+npm run candidate-promote
 
 > Initial Activation (null-green mode): If no instance is tagged `Role=active` yet (first time standing up production), the promotion path will tag the healthy candidate directly as active without performing a swap.
 ```
@@ -264,6 +264,14 @@ If backend logs show "Missing required environment variables":
 
 ```bash
 deploy/scripts/deployment-orchestrator.sh --profiles prod --refresh-env
+
+### Focused Promotion Script Location
+
+The standalone Elastic IP handover utility is now located at `deploy/scripts/orchestrator-promote.sh` (previously `scripts/orchestrator-promote.sh`). Update any external automation or personal aliases referencing the old path.
+
+### Instance Retention Script Location
+
+The previous‑instance pruning logic has been relocated from `scripts/instance-retention.sh` to `deploy/scripts/instance-retention.sh` to centralize blue/green lifecycle concerns.
 ```
 
 This ensures `SECURITY_TXT_EXPIRES` and the required-lists are present for the env-guard.
