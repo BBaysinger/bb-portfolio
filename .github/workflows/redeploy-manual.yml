@@ -64,19 +64,37 @@ jobs:
             const owner = context.repo.owner;
             const repo = context.repo.repo;
             // Check for in-progress or queued runs of the auto redeploy workflow (redeploy.yml)
-            async function list(status){
+            async function list(workflow, status){
               try {
-                return (await github.rest.actions.listWorkflowRuns({ owner, repo, workflow_id: 'redeploy.yml', status })).data.workflow_runs;
+                return (await github.rest.actions.listWorkflowRuns({ owner, repo, workflow_id: workflow, status })).data.workflow_runs;
               } catch (e) { return []; }
             }
-            const inProgress = await list('in_progress');
-            const queued = await list('queued');
-            const conflicting = [...inProgress, ...queued].filter(r => r.id !== context.runId);
-            if(conflicting.length){
-              core.warning(`Auto redeploy workflow active (run id ${conflicting[0].id}); exiting early to avoid delayed cancellation.`);
-              core.setFailed('Conflict: auto redeploy already in progress. Retry after it finishes.');
+            const statuses = ['in_progress','queued'];
+            const workflows = [
+              'redeploy.yml',              // auto deploy
+              'promote.yml',               // promotion (may restart containers/EIP)
+              'redeploy-manual.yml'        // other manual runs
+            ];
+            const envFilter = process.env.ENVIRONMENT;
+            let conflictingRun = null;
+            for (const wf of workflows){
+              for (const st of statuses){
+                const runs = await list(wf, st);
+                for (const r of runs){
+                  if (r.id === context.runId) continue; // skip self
+                  // Optional: narrow to same environment by parsing inputs (if available in name)
+                  // GitHub API does not directly expose dispatch inputs in list; rely on concurrency cancellation
+                  conflictingRun = r; break;
+                }
+                if (conflictingRun) break;
+              }
+              if (conflictingRun) break;
+            }
+            if(conflictingRun){
+              core.warning(`Conflicting workflow active (${conflictingRun.workflow_url || conflictingRun.id}); failing fast.`);
+              core.setFailed('Conflict: another deploy/promotion workflow is active. Retry after completion.');
             } else {
-              core.info('No conflicting auto redeploy workflow detected. Proceeding.');
+              core.info('No conflicting deploy/promotion workflows detected. Proceeding.');
             }
       - name: Checkout
         uses: actions/checkout@v4
@@ -145,6 +163,18 @@ jobs:
                 ;;
             esac
           fi
+
+      - name: SSH preflight
+        env:
+          EC2_HOST: ${{ inputs.ec2_host || secrets.EC2_HOST }}
+        run: |
+          set -euo pipefail
+          echo "Attempting SSH preflight to $EC2_HOST (uptime)..."
+          if ! ssh -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i "${{ steps.ssh.outputs.key }}" ec2-user@"$EC2_HOST" "uptime"; then
+            echo "SSH preflight failed (host unreachable or auth issue). Exiting early." >&2
+            exit 1
+          fi
+          echo "SSH preflight success. Proceeding with env generation/deploy."
 
       - name: Generate env files (in runner temp)
         id: genenv
