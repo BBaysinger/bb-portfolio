@@ -131,11 +131,37 @@ const ProjectThumbnail = forwardRef<HTMLDivElement, ProjectThumbnailProps>(
       backgroundImage: `url('/images/projects-list/stripes-${stripeColor}.webp')`,
     };
 
+    // HEIGHT MEASUREMENT
+    const [thumbHeight, setThumbHeight] = useState(0);
+    const thumbRef = React.useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+      const el = thumbRef.current;
+      if (!el) return;
+
+      const update = () => {
+        const h = el.offsetHeight;
+        setThumbHeight(h);
+      };
+
+      const ro = new ResizeObserver(update);
+      ro.observe(el);
+
+      update();
+
+      return () => {
+        ro.disconnect();
+      };
+    }, []);
+
     const inner = (
       <>
         <div className={styles.thumbBg} style={style}></div>
         <div className={styles.vignette}></div>
         <div className={styles.thumbContent}>
+          <h4 className={styles.thumbTitle}>
+            {showNdaConfidential ? "Please log in to view this project" : title}
+          </h4>
           <div>
             {(logoSrc || showNdaConfidential) && (
               <Image
@@ -150,9 +176,9 @@ const ProjectThumbnail = forwardRef<HTMLDivElement, ProjectThumbnailProps>(
               />
             )}
           </div>
-          <h4 className={styles.thumbTitle}>
+          {/* <h4 className={styles.thumbTitle}>
             {showNdaConfidential ? "Please log in to view this project" : title}
-          </h4>
+          </h4> */}
         </div>
       </>
     );
@@ -167,8 +193,13 @@ const ProjectThumbnail = forwardRef<HTMLDivElement, ProjectThumbnailProps>(
 
     return (
       <div
+        ref={thumbRef}
         className={`${styles.projectThumbnail} ${focusClass}`}
-        ref={ref}
+        style={
+          {
+            "--thumb-height": `${thumbHeight}px`,
+          } as React.CSSProperties
+        }
       >
         <Link
           href={href}
@@ -177,8 +208,14 @@ const ProjectThumbnail = forwardRef<HTMLDivElement, ProjectThumbnailProps>(
         >
           {inner}
         </Link>
-        <div className={`${styles.stripes} ${styles.stripesBottom}`} style={stripeVars}></div>
-        <div className={`${styles.stripes} ${styles.stripesTop}`}></div>
+        <div
+          ref={ref}
+          className={`${styles.stripes} ${styles.stripesTop}`}
+        ></div>
+        <div
+          className={`${styles.stripes} ${styles.stripesBottom}`}
+          style={stripeVars}
+        ></div>
       </div>
     );
   },

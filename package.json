@@ -58,7 +58,7 @@
     "update:deps": "concurrently \"ncu -u\" \"cd backend && ncu -u\" \"cd frontend && ncu -u\" --names \"root,backend,frontend\" --prefix-colors \"yellow,blue,green\"",
     "install:all": "concurrently \"npm install\" \"cd backend && npm install\" \"cd frontend && npm install\" --names \"root,backend,frontend\" --prefix-colors \"yellow,blue,green\"",
     "media:export": "bash scripts/export-media.sh",
-    "seed:media": "tsx scripts/import-media-from-seedings.ts",
+    "media:seed": "tsx scripts/import-media-from-seedings.ts",
     "media:upload": "tsx scripts/upload-media-to-s3.ts --env prod",
     "media:upload:dev": "tsx scripts/upload-media-to-s3.ts --env dev",
     "media:upload:prod": "tsx scripts/upload-media-to-s3.ts --env prod",
