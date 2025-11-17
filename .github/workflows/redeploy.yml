@@ -426,7 +426,7 @@ jobs:
           } | ssh -i "${{ steps.ssh.outputs.key }}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" "ENVIRONMENT='${ENVIRONMENT}' bash -s"
 
       - name: Diagnose services (containers and nginx)
-        if: always()
+        if: failure()
         env:
           ENVIRONMENT: ${{ inputs.environment }}
           EC2_HOST: ${{ secrets.EC2_HOST }}
@@ -472,15 +472,18 @@ jobs:
           ENVIRONMENT: ${{ inputs.environment }}
           START_DEV: ${{ inputs.start_dev }}
           EC2_HOST: ${{ secrets.EC2_HOST }}
-          HEALTH_ATTEMPTS: 6
-          HEALTH_DELAY_SECONDS: 5
-          CURL_ATTEMPTS: 5
-          CURL_DELAY_SECONDS: 3
+          HEALTH_ATTEMPTS: 4
+          HEALTH_DELAY_SECONDS: 3
+          CURL_ATTEMPTS: 3
+          CURL_DELAY_SECONDS: 2
+          CURL_MAX_TIME_SECONDS: 3
+          CURL_CONNECT_TIMEOUT: 1
         run: |
           set -euo pipefail
           KEY="${{ steps.ssh.outputs.key }}"
           ATTEMPTS="${HEALTH_ATTEMPTS}"; DELAY="${HEALTH_DELAY_SECONDS}"
           CURL_ATTEMPTS="${CURL_ATTEMPTS}"; CURL_DELAY="${CURL_DELAY_SECONDS}"
+          CURL_MAX_TIME="${CURL_MAX_TIME_SECONDS}"; CURL_CONNECT_TIMEOUT_SEC="${CURL_CONNECT_TIMEOUT}"
           ssh_cmd() { ssh -i "$KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" "$@"; }
           poll_containers() {
             local env="$1"; local tries=0
@@ -514,7 +517,7 @@ jobs:
           curl_with_retry() {
             local port="$1"; local path="$2"; local label="$3"; local attempt=0; local code=""
             while [ $attempt -lt "$CURL_ATTEMPTS" ]; do
-              code=$(ssh_cmd "curl -s -o /dev/null -w '%{http_code}' http://localhost:${port}${path} -L" || echo '000')
+              code=$(ssh_cmd "curl --max-time ${CURL_MAX_TIME} --connect-timeout ${CURL_CONNECT_TIMEOUT_SEC} -s -o /dev/null -w '%{http_code}' http://localhost:${port}${path} -L" || echo '000')
               # Success on 2xx/3xx; treat 000 as transient unless final attempt
               if [[ "$code" == 2* || "$code" == 3* ]]; then
                 echo "OK $label HTTP $code" >&2; return 0
@@ -531,12 +534,12 @@ jobs:
           }
           # Environments to check
           if [ "$ENVIRONMENT" = "prod" ] || [ "$ENVIRONMENT" = "both" ]; then poll_containers prod || true; fi
-          if [ "$ENVIRONMENT" = "dev" ] || [ "$ENVIRONMENT" = "both" ]; then poll_containers dev  || true; fi
+          if { [ "$ENVIRONMENT" = "dev" ] || [ "$ENVIRONMENT" = "both" ]; } && { [ "${START_DEV}" = "true" ] || [ "${START_DEV}" = true ]; }; then poll_containers dev || true; fi
           if [ "$ENVIRONMENT" = "prod" ] || [ "$ENVIRONMENT" = "both" ]; then
             curl_with_retry 3000 / "frontend prod"
             curl_with_retry 3001 /api/health "backend prod health"
           fi
-          if [ "$ENVIRONMENT" = "dev" ] || [ "$ENVIRONMENT" = "both" ]; then
+          if { [ "$ENVIRONMENT" = "dev" ] || [ "$ENVIRONMENT" = "both" ]; } && { [ "${START_DEV}" = "true" ] || [ "${START_DEV}" = true ]; }; then
             curl_with_retry 4000 / "frontend dev"
             curl_with_retry 4001 /api/health "backend dev health"
           fi
