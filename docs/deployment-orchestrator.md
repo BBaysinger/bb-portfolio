@@ -21,6 +21,7 @@ The EC2 "candidate" (blue) instance is intentionally a dual-profile host running
 Default profiles: `--profiles both`
 
 Port mapping summary:
+
 - Production frontend: host port 3000 → container 3000
 - Production backend: host port 3001 → container 3000
 - Development frontend: host port 4000 → container 3000
@@ -33,6 +34,7 @@ If ONLY dev containers are up (4000/4001) and prod is missing, the site proxy (n
 To ensure prod containers can start, the orchestrator resolves and (if absent) sets `AWS_ACCOUNT_ID` so prod images can pull from ECR. Dev images pull from Docker Hub.
 
 Typical dual-profile prep before promotion:
+
 ```bash
 # Redeploy both profiles (build/pull images, restart containers, auto health gate)
 bash deploy/scripts/deployment-orchestrator.sh --profiles both
@@ -42,19 +44,23 @@ bash deploy/scripts/orchestrator-promote.sh --region us-west-2 --auto-promote
 ```
 
 Skip health gate only if you are performing low-level debugging:
+
 ```bash
 bash deploy/scripts/deployment-orchestrator.sh --profiles both --no-health
 ```
 
 You can still run only prod:
+
 ```bash
 bash deploy/scripts/deployment-orchestrator.sh --profiles prod
 ```
+
 But dev will remain absent unless you choose `both`. Keeping dev always on is recommended for fast iteration—use `prod` alone only if you deliberately want a minimal footprint.
 
 ## Automatic Health Gate
 
 After successful dispatch for `prod` or `both` (when not using `--auto-promote`), the orchestrator automatically runs a promotion-style health gate:
+
 1. Verifies production containers are present (and aborts with explanation if only dev exists).
 2. Polls backend container health status (`healthy`).
 3. Confirms frontend container is running (`Up`).

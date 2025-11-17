@@ -228,7 +228,7 @@ jobs:
           echo "Working user: $WORKING_USER"
           echo "ssh_user=$WORKING_USER" >> "$GITHUB_OUTPUT"
 
-      - name: Guard: env files present when refresh_env=false
+      - name: 'Guard: env files present when refresh_env=false'
         if: ${{ inputs.refresh_env == 'false' || inputs.refresh_env == false }}
         env:
           ENVIRONMENT: ${{ inputs.environment }}

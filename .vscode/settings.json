@@ -114,6 +114,7 @@
         "gsub",
         "guardrailed",
         "healthcheck",
+        "healthz",
         "Highcharts",
         "hostnames",
         "HSTS",

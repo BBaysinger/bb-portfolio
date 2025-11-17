@@ -11,13 +11,13 @@ The portfolio infrastructure is deployed using Infrastructure as Code with Terra
 Two orchestrators are available depending on your rollout strategy:
 
 - Legacy (single-instance): `deploy/scripts/deployment-orchestrator-legacy.sh`
-   - Use for straightforward, in-place deploys on the active EC2 host.
-   - Quick run: `npm run orchestrate:legacy:containers-only` (regenerates env and restarts containers).
+  - Use for straightforward, in-place deploys on the active EC2 host.
+  - Quick run: `npm run orchestrate:legacy:containers-only` (regenerates env and restarts containers).
 - Lagoon (blue/green): `deploy/scripts/deployment-orchestrator.sh` (wrapper available at `deploy-lagoon/scripts/lagoon-orchestrator.sh`)
-   - Stages a candidate alongside the active instance and supports promotion.
-   - Quick runs:
-      - Containers-only: `npm run orchestrate:containers-only`
-      - Promote candidate: `npm run candidate-promote`
+  - Stages a candidate alongside the active instance and supports promotion.
+  - Quick runs:
+    - Containers-only: `npm run orchestrate:containers-only`
+    - Promote candidate: `npm run candidate-promote`
 
 When debugging container startup or env issues, prefer a containers‑only run with `--refresh-env` so the EC2 host’s `.env.dev`/`.env.prod` files are regenerated before restarts.
 
