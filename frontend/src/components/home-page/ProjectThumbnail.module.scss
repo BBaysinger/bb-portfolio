@@ -70,6 +70,46 @@
   }
 }
 
+.stripes {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  background-position: center center;
+  background-size: cover;
+  left: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+// Expose variant classes so the component can toggle them.
+.stripesPurple { --stripe-variant: purple; }
+.stripesGreen { --stripe-variant: green; }
+.stripesYellow { --stripe-variant: yellow; }
+
+.stripesTop {
+  .stripesPurple & {
+    background-image: url("/images/projects-list/stripes-purple.webp");
+  }
+  .stripesGreen & {
+    background-image: url("/images/projects-list/stripes-blue.webp");
+  }
+  .stripesYellow & {
+    background-image: url("/images/projects-list/stripes-orange.webp");
+  }
+}
+
+.stripesBot {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 50px;
+  background-image: url("/images/projects-list/stripes-bot.svg");
+  background-repeat: no-repeat;
+  background-size: cover;
+  z-index: 2;
+}
+
 .brandLogo {
   max-height: 32px;
   max-width: 60%;

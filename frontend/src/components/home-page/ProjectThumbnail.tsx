@@ -57,6 +57,7 @@ const ProjectThumbnail = forwardRef<HTMLDivElement, ProjectThumbnailProps>(
   (
     {
       focused,
+      index,
       projectId,
       title,
       brandId,
@@ -123,6 +124,13 @@ const ProjectThumbnail = forwardRef<HTMLDivElement, ProjectThumbnailProps>(
 
     const focusClass = focused ? styles.projectThumbnailFocus : "";
 
+    // Deterministic variant so SSR and client match (no flash)
+    const stripeVariantClass = [
+      styles.stripesPurple,
+      styles.stripesGreen,
+      styles.stripesYellow,
+    ][index % 3];
+
     const inner = (
       <>
         <div className={styles.thumbBg} style={style}></div>
@@ -158,7 +166,10 @@ const ProjectThumbnail = forwardRef<HTMLDivElement, ProjectThumbnailProps>(
       : `${isNdaLike ? "/nda/" : "/project/"}${encodeURIComponent(projectId)}`;
 
     return (
-      <div className={`${styles.projectThumbnail} ${focusClass}`} ref={ref}>
+      <div
+        className={`${styles.projectThumbnail} ${focusClass} ${stripeVariantClass}`}
+        ref={ref}
+      >
         <Link
           href={href}
           className={styles.link}
@@ -166,6 +177,8 @@ const ProjectThumbnail = forwardRef<HTMLDivElement, ProjectThumbnailProps>(
         >
           {inner}
         </Link>
+        <div className={`${styles.stripes} ${styles.stripesTop}`}></div>
+        <div className={styles.stripesBot}></div>
       </div>
     );
   },
