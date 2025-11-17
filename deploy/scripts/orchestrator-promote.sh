@@ -268,6 +268,47 @@ network_preflight() {
   fi
 }
 
+  # Resolve Security Group IDs by tag Name
+  get_sg_id_by_tag() {
+    local name_tag="$1"
+    local sg
+    sg=$(aws ec2 describe-security-groups --region "$REGION" \
+          --filters "Name=tag:Name,Values=${name_tag}" \
+          --query 'SecurityGroups[0].GroupId' --output text 2>/dev/null || echo "")
+    [[ "$sg" == "None" ]] && sg=""
+    echo "$sg"
+  }
+
+  # Ensure an instance has a required SG attached while preserving existing SGs
+  ensure_sg_present() {
+    local instance_id="$1"; shift
+    local required_sg="$1"; shift
+    [[ -z "$required_sg" ]] && return 0
+    # Fetch current SGs (flatten to array)
+    local current
+    current=$(aws ec2 describe-instances --instance-ids "$instance_id" --region "$REGION" \
+                --query 'Reservations[0].Instances[0].SecurityGroups[*].GroupId' --output text 2>/dev/null | awk 'NF')
+    # Build new list (unique)
+    local new_list=()
+    local has_required=false
+    for sg in $current; do
+      if [[ "$sg" == "$required_sg" ]]; then has_required=true; fi
+      new_list+=("$sg")
+    done
+    if [[ "$has_required" != true ]]; then
+      new_list+=("$required_sg")
+    else
+      # Nothing to do
+      return 0
+    fi
+    if [[ "$DRY_RUN" == true ]]; then
+      log "[dry-run] Would attach SG $required_sg to $instance_id (preserving: $current)"
+    else
+      aws ec2 modify-instance-attribute --instance-id "$instance_id" --region "$REGION" \
+        --groups ${new_list[*]} >/dev/null || warn "Failed to update SGs for $instance_id"
+    fi
+  }
+
 # Attempt to fix SSH hang via SSM (if allowed). No-op on access denied.
 attempt_ssm_repair() {
   local instance_id="$1"
@@ -719,8 +760,8 @@ if [[ "$NULL_GREEN_MODE" == true ]]; then
   else
     # EIP attachment/re-association handled above; proceed with SG and tags
     if [[ -n "$PROD_SG" && "$PROD_SG" != "$CANDIDATE_CURRENT_SG" ]]; then
-      log "Updating security group to production ($PROD_SG)"
-      aws ec2 modify-instance-attribute --instance-id "$CANDIDATE_ID" --region "$REGION" --groups "$PROD_SG" >/dev/null || warn "SG update failed"
+        log "Ensuring production SG ($PROD_SG) is attached to candidate"
+        ensure_sg_present "$CANDIDATE_ID" "$PROD_SG"
     fi
 
     aws ec2 create-tags --resources "$CANDIDATE_ID" --region "$REGION" --tags Key=$TAG_KEY_ROLE,Value=active Key=PromotionTimestamp,Value=$TIMESTAMP >/dev/null || warn "Failed to tag candidate as active"
@@ -763,15 +804,24 @@ update_tags() {
     aws ec2 create-tags --resources "$CANDIDATE_ID" --region "$REGION" --tags Key=$TAG_KEY_ROLE,Value=active Key=PromotionTimestamp,Value=$TIMESTAMP >/dev/null || warn "Tag active failed"
   fi
 }
-swap_security_groups() {
-  local active_sg candidate_sg
-  active_sg=$(aws ec2 describe-instances --instance-ids "$ACTIVE_ID" --region "$REGION" --query 'Reservations[0].Instances[0].SecurityGroups[0].GroupId' --output text)
-  candidate_sg=$(aws ec2 describe-instances --instance-ids "$CANDIDATE_ID" --region "$REGION" --query 'Reservations[0].Instances[0].SecurityGroups[0].GroupId' --output text)
-  if [[ "$DRY_RUN" == true ]]; then
-    log "[dry-run] Would swap SGs: $CANDIDATE_ID->$active_sg, $ACTIVE_ID->$candidate_sg"
+
+# Enforce intended SGs (no swapping): attach production SG to new active,
+# and attach blue SG to previous active; preserve any existing SGs.
+enforce_sg_assignments() {
+  local prod_sg blue_sg
+  prod_sg=$(get_sg_id_by_tag bb-portfolio-sg)
+  blue_sg=$(get_sg_id_by_tag bb-portfolio-blue-sg)
+  if [[ -n "$prod_sg" ]]; then
+    log "Ensuring PROD SG ($prod_sg) attached to promoted instance $CANDIDATE_ID"
+    ensure_sg_present "$CANDIDATE_ID" "$prod_sg"
   else
-    aws ec2 modify-instance-attribute --instance-id "$CANDIDATE_ID" --region "$REGION" --groups "$active_sg" >/dev/null || warn "SG update failed (candidate)"
-    aws ec2 modify-instance-attribute --instance-id "$ACTIVE_ID" --region "$REGION" --groups "$candidate_sg" >/dev/null || warn "SG update failed (active)"
+    warn "Production SG (tag Name=bb-portfolio-sg) not found; skipping attach on candidate"
+  fi
+  if [[ -n "$ACTIVE_ID" && -n "$blue_sg" ]]; then
+    log "Ensuring BLUE SG ($blue_sg) attached to previous active $ACTIVE_ID"
+    ensure_sg_present "$ACTIVE_ID" "$blue_sg"
+  else
+    [[ -z "$blue_sg" ]] && warn "Blue SG (tag Name=bb-portfolio-blue-sg) not found; skipping attach on previous active"
   fi
 }
 rollback_swap() {
@@ -789,8 +839,8 @@ if [[ "$AUTO_APPROVE" != true && "$DRY_RUN" != true ]]; then
   printf "Type 'yes' to confirm: "; read -r response; [[ "$response" == yes ]] || { log "Promotion cancelled"; exit 0; }
 fi
 
-log "Associating Elastic IP & swapping security groups"
-perform_swap; swap_security_groups; update_tags
+log "Associating Elastic IP and enforcing security groups"
+perform_swap; enforce_sg_assignments; update_tags
 log "Post-swap health verification (timeout ${TIMEOUT_SECS}s)"
 if ! health_probe_active_post_swap; then
   [[ "$COLLECT_DIAG" == true ]] && collect_certbot_diagnostics "${EIP_PUBLIC_IP:-$CANDIDATE_IP}" "post-swap-health-failed"
