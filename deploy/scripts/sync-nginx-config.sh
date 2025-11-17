@@ -1,39 +1,18 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-################################################################################
-# Nginx Configuration Sync
-################################################################################
-# Deploys nginx reverse proxy configuration to EC2 instances with dynamic
-# IP substitution for blue candidate instance accessibility.
-#
-# Why This Exists:
-# Blue (candidate) instance needs to be accessible by IP for validation before
-# DNS cutover. This script injects the blue IP into nginx config so requests to
-# http://<blue-ip> are routed correctly (not rejected by default_server block).
-#
-# Template Substitution:
-# - deploy/nginx/bb-portfolio.conf.template contains BLUE_IP_PLACEHOLDER
-# - This script replaces it with actual blue instance IP (from terraform output)
-# - Result: nginx responds to domain names AND blue IP address
-#
-# Called By:
-# - deployment-orchestrator.sh (after terraform apply, passes --blue-ip flag)
-# - Manually via `npm run sync:nginx` (for config updates only)
-################################################################################
+# Sync the Nginx vhost config from repo to the EC2 host and reload Nginx.
 
 usage() {
   cat <<USAGE
-Usage: $0 --host ec2-user@<ip-or-host> [--key ~/.ssh/key.pem] [--blue-ip <ip>]
+Usage: $0 --host ec2-user@<ip-or-host> [--key ~/.ssh/key.pem]
 
 Options:
-  --host      SSH host in the form user@host (required)
-  --key       Path to SSH private key (default: ~/.ssh/bb-portfolio-site-key.pem)
-  --blue-ip   Blue instance IP address to substitute in template (optional)
+  --host    SSH host in the form user@host (required)
+  --key     Path to SSH private key (default: ~/.ssh/bb-portfolio-site-key.pem)
 
 This will:
   - Upload deploy/nginx/bb-portfolio.conf.template to /tmp/bb-portfolio.conf on the host
-  - Substitute BLUE_IP_PLACEHOLDER with actual blue IP if --blue-ip is provided
   - Backup existing /etc/nginx/conf.d/bb-portfolio.conf (and legacy portfolio.conf) with a timestamp
   - Replace it with the uploaded file (installs to /etc/nginx/conf.d/bb-portfolio.conf)
   - Test Nginx configuration and reload if successful
@@ -42,7 +21,6 @@ USAGE
 
 HOST=""
 KEY="${HOME}/.ssh/bb-portfolio-site-key.pem"
-BLUE_IP=""
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -50,8 +28,6 @@ while [[ $# -gt 0 ]]; do
       HOST="$2"; shift 2;;
     --key)
       KEY="$2"; shift 2;;
-    --blue-ip)
-      BLUE_IP="$2"; shift 2;;
     -h|--help)
       usage; exit 0;;
     *)
@@ -73,18 +49,8 @@ if [[ ! -f "$LOCAL_CONF" ]]; then
   exit 1
 fi
 
-# Prepare config file with IP substitution if needed
-TEMP_CONF="/tmp/bb-portfolio-nginx-$$.conf"
-if [[ -n "$BLUE_IP" ]]; then
-  echo "Substituting BLUE_IP_PLACEHOLDER with $BLUE_IP ..."
-  sed "s/BLUE_IP_PLACEHOLDER/$BLUE_IP/g" "$LOCAL_CONF" > "$TEMP_CONF"
-else
-  cp "$LOCAL_CONF" "$TEMP_CONF"
-fi
-
 echo "Uploading Nginx config to $HOST ..."
-scp -i "$KEY" -o StrictHostKeyChecking=accept-new "$TEMP_CONF" "$HOST:/tmp/bb-portfolio.conf"
-rm -f "$TEMP_CONF"
+scp -i "$KEY" -o StrictHostKeyChecking=accept-new "$LOCAL_CONF" "$HOST:/tmp/bb-portfolio.conf"
 
 echo "Applying Nginx config on $HOST ..."
 # Use stdin heredoc to avoid complex quoting issues over SSH

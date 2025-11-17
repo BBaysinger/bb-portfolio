@@ -1,19 +1,47 @@
 #!/bin/bash
-# Build/push and optionally (re)start selected containers via GitHub Actions
-# - Does NOT touch Terraform/EC2 instance
-# - Uses local build/push (current setup) and hands off restart to GH workflow
+# update-containers-gh.sh
+# Build/push container images and restart services via GitHub Actions workflow dispatch
+# -----------------------------------------------------------------------------------------
+# Container-only deployment script that does NOT modify Terraform/EC2 infrastructure.
+# Builds/pushes images locally, then dispatches the "Redeploy" GitHub Actions workflow
+# to regenerate env files on EC2 from GitHub Secrets and restart Docker Compose profiles.
+#
+# Role in deployment flow:
+# - Alternative to full deployment-orchestrator.sh when only containers need updating
+# - Used for rapid application updates without infrastructure changes
+# - Called by deployment-orchestrator.sh when --containers-only flag is specified
+# - Supports both single-environment and multi-environment updates
+#
+# Architecture & workflow:
+# - Builds images locally using Docker/BuildKit
+# - Pushes to ECR (prod) or Docker Hub (dev) registries
+# - Dispatches .github/workflows/redeploy.yml via GitHub CLI
+# - Workflow generates .env.prod/.env.dev on EC2 from GitHub Secrets
+# - Workflow runs docker compose pull && docker compose up for specified profiles
+# - Optional: watch workflow run logs in real-time via gh run watch
+#
+# Security model:
+# - Secrets never leave GitHub or EC2; not present in local builds
+# - .env files generated on EC2 from encrypted GitHub Secrets during workflow
+# - Local script only builds images with non-sensitive build-time config
+#
+# Requirements:
+# - GitHub CLI (gh) authenticated with repo workflow permissions
+# - Docker with BuildKit enabled for building images
+# - AWS CLI configured for ECR authentication (prod builds only)
 #
 # Usage examples:
 #   deploy/scripts/update-containers-gh.sh --target prod --build prod
 #   deploy/scripts/update-containers-gh.sh --target dev --build dev --refresh-env
 #   deploy/scripts/update-containers-gh.sh --target both --build both
-#   deploy/scripts/update-containers-gh.sh --target none                 # build none, restart none
+#   deploy/scripts/update-containers-gh.sh --target prod --build none --refresh-env  # env only
+#   deployment-orchestrator.sh --containers-only --profiles prod                      # via orchestrator
 #
 # Flags:
 #   --target [prod|dev|both|none]   Which compose profiles to restart (default: both)
 #   --build  [prod|dev|both|none]   Which images to build/push locally (default: none)
 #   --refresh-env                   Ask GH workflow to regenerate & upload env files
-#   --no-watch                      Don't tail GH run output
+#   --no-watch                      Don't watch GH run logs
 #   -h|--help                       Show help
 
 set -euo pipefail

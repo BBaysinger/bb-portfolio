@@ -63,19 +63,8 @@ This will update the Nginx configuration on your server to handle the new subdom
 
 Note on Nginx config changes:
 
-- Nginx on the EC2 host is now managed outside of user_data to avoid drift and size limits. The deploy orchestrator (or the helper script below) is responsible for syncing `/etc/nginx/conf.d/bb-portfolio.conf`.
-- To propagate reverse-proxy updates from this repo (e.g., admin assets under `/admin/_next`):
-  1. Quick sync (recommended):
-     - Use the helper script to push the vhost config template in this repo to the server and reload Nginx.
-     - This is safe and idempotent; it backs up the old file.
-
-     ```bash
-     # from repo root
-     ./deploy/scripts/sync-nginx-config.sh --host ec2-user@44.246.43.116 --key ~/.ssh/bb-portfolio-site-key.pem
-     ```
-
-  2. Rebuild via Terraform (slower):
-     - Not required for Nginx anymore. user_data is intentionally minimal and does not write the site config.
+- Nginx on the EC2 host is managed outside of user_data to avoid drift and size limits. The deploy orchestrator is responsible for syncing `/etc/nginx/conf.d/bb-portfolio.conf` automatically as part of every run.
+- To propagate reverse-proxy updates from this repo (e.g., admin assets under `/admin/_next`), re-run the orchestrator. No manual Nginx sync is required.
 
 ### 3. Future Infrastructure Changes (Optional)
 
@@ -122,6 +111,146 @@ terraform apply   # Apply changes
    - Frontend envs include: internal backend URL for SSR/server code only (browser uses relative `/api`).
 4. CI/CD pipeline updates production images in ECR
 
+### Mandatory AWS Account ID (ECR Image Resolution)
+
+Production container image references now require `AWS_ACCOUNT_ID` with **no fallback** (removed `${AWS_ACCOUNT_ID:-000000000000}` default). If this variable is missing, ECR pulls will silently fail because the registry host becomes empty/invalid.
+
+How it is supplied:
+
+- The deploy orchestrator (`deploy/scripts/deployment-orchestrator.sh`) auto‑resolves the account ID via `aws sts get-caller-identity` if not already exported.
+- On successful resolution it exports `AWS_ACCOUNT_ID`, sets the corresponding GitHub secret, and (in SSH fallback mode) writes a `./bb-portfolio/.env` file on EC2 containing `AWS_ACCOUNT_ID=...` for docker‑compose.
+- GitHub Actions workflows read the secret to perform `docker compose pull` for prod profile.
+
+Operator override:
+
+- You may explicitly export `AWS_ACCOUNT_ID` before running the orchestrator to force a specific value (useful in multi‑account testing).
+
+Verification checklist after a prod deploy attempt:
+
+```bash
+ssh -i ~/.ssh/bb-portfolio-site-key.pem ec2-user@<BLUE_IP> 'grep AWS_ACCOUNT_ID bb-portfolio/.env || echo "missing AWS_ACCOUNT_ID in compose .env"'
+ssh -i ~/.ssh/bb-portfolio-site-key.pem ec2-user@<BLUE_IP> 'docker images | grep bb-portfolio-backend-prod || echo "prod backend image not pulled"'
+ssh -i ~/.ssh/bb-portfolio-site-key.pem ec2-user@<BLUE_IP> 'docker ps --filter name=bb-portfolio-backend-prod'
+```
+
+If images were not pulled:
+
+1. Confirm AWS credentials (`aws sts get-caller-identity`).
+2. Re-run orchestrator with `--refresh-env`.
+3. Manually set and retry: `export AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)` then run orchestrator.
+
+Document update rationale: Removing the fallback prevents accidental deployments pointing at a non‑existent registry `000000000000.dkr.ecr...` which previously resulted in missing prod containers and upstream 502 errors.
+
+### Promotion Health Gate (Blue → Green)
+
+Production promotion (Elastic IP handover of the candidate “blue” instance to become the new “active” green) is now strictly gated to prevent swapping in an unhealthy release. The orchestrator enforces this automatically when `--promote` or `--auto-promote` is used.
+
+Gate criteria (all must pass):
+
+1. Backend prod container (`bb-portfolio-backend-prod`) reports a `healthy` status (Docker healthcheck).
+2. Frontend prod container (`bb-portfolio-frontend-prod`) is `Up`.
+3. Backend health endpoint: `curl http://localhost:3001/api/health` returns HTTP 2xx or 3xx after retry/backoff.
+4. Frontend root: `curl http://localhost:3000/` returns HTTP 2xx or 3xx after retry/backoff.
+5. Transient `000` (connection/init) responses are tolerated and retried; persistent `000` or 5xx fails the gate.
+
+Retry/backoff defaults:
+
+```
+HEALTH_RETRY_ATTEMPTS=6
+HEALTH_RETRY_DELAY=5   # seconds between attempts
+```
+
+You can override these by exporting env vars before invoking the orchestrator (e.g. `HEALTH_RETRY_ATTEMPTS=10`).
+
+Failure behavior:
+
+- The orchestrator aborts the promotion with a clear error (no IP swap occurs).
+- If `--auto-promote` was supplied, the run still halts safely—there is no silent partial promotion.
+- Logs show each attempt and container status snapshots for fast triage.
+
+Workflow-level hard fail:
+
+- The GitHub Actions `redeploy.yml` job independently performs health polling and will exit non‑zero on production backend/container failure (backend unhealthy or persistent 5xx / 000) even before you attempt promotion.
+- This ensures CI/CD signals breakage early; the orchestrator’s gate is the final safety net at handover time.
+
+Null-Green Initial Activation:
+
+- On the very first production stand‑up (no instance tagged `Role=active`), a healthy candidate is tagged active directly (no swap). The same gate applies so the initial active instance is verified.
+
+Manual vs Auto Promote:
+
+- `npm run orchestrate` (no promote) lets you manually inspect the candidate.
+- `npm run orchestrate:auto-promote` deploys and, if the gate passes, performs the handover without an extra prompt.
+- For manual promotion after validation use `npm run candidate-promote` (standalone promotion script under `deploy/scripts/`; gate enforced before swap).
+
+Quick verification commands (post-deploy, before promoting):
+
+```bash
+ssh -i ~/.ssh/bb-portfolio-site-key.pem ec2-user@<BLUE_IP> \
+  "docker ps --filter name=bb-portfolio-backend-prod --format '{{.Status}}'"
+ssh -i ~/.ssh/bb-portfolio-site-key.pem ec2-user@<BLUE_IP> \
+  "curl -fsSL -o /dev/null -w '%{http_code}' http://localhost:3001/api/health"
+ssh -i ~/.ssh/bb-portfolio-site-key.pem ec2-user@<BLUE_IP> \
+  "curl -fsSL -o /dev/null -w '%{http_code}' http://localhost:3000/"
+```
+
+If any gate check fails:
+
+1. Inspect container logs (`docker logs <name>`).
+2. Confirm env files presence (`ls backend/.env.prod frontend/.env.prod`).
+3. Re-run orchestration with `--refresh-env` if env variance is suspected.
+4. Fix root cause, redeploy, then retry promotion.
+
+All logic lives in `deploy/scripts/deployment-orchestrator.sh` (`gate_promotion_health`). Update this doc if criteria or thresholds change.
+
+### Orchestration Shortcuts
+
+Use npm scripts for end-to-end orchestration:
+
+````
+# Full redeploy to blue (candidate) for both profiles
+npm run orchestrate
+
+# Deploy + automatic promotion after health checks (includes null-green initial activation if no previous active exists)
+npm run orchestrate:auto-promote
+
+# Manual promotion only (when blue is ready)
+npm run candidate-promote
+
+> Initial Activation (null-green mode): If no instance is tagged `Role=active` yet (first time standing up production), the promotion path will tag the healthy candidate directly as active without performing a swap.
+
+### Quick Candidate Simulation (Single-Instance Demotion Test)
+
+For fast testing of the promotion script without provisioning a fresh candidate, you can temporarily retag the current active instance as a candidate (blue) using the helper script:
+
+```bash
+# Demote the current active to candidate (blue)
+AWS_PROFILE=bb-portfolio-user bash deploy/scripts/demote-active-to-candidate.sh
+
+# Run a promotion (null-green path will re-associate PROD_EIP and retag back to active)
+AWS_PROFILE=bb-portfolio-user bash deploy/scripts/orchestrator-promote.sh --auto-promote --collect-diagnostics
+
+# Revert back to active manually if needed
+AWS_PROFILE=bb-portfolio-user bash deploy/scripts/demote-active-to-candidate.sh --revert
+````
+
+Optional dangerous flag (causes temporary downtime until promotion completes):
+
+```bash
+AWS_PROFILE=bb-portfolio-user bash deploy/scripts/demote-active-to-candidate.sh --detach-prod-eip
+```
+
+Safety notes:
+
+- This does not spin up a second instance; traffic still points at the same host.
+- Do not leave the system with no `Role=active` tag longer than necessary.
+- Use only for logic validation (tag transitions, EIP reassociation, diagnostics collection).
+- Diagnostics produced by the promotion script will land under `deploy/logs/promote-<TIMESTAMP>/`.
+
+If the PROD EIP was detached, the promotion script will re-associate it during null-green activation.
+
+```
+
 ### Infrastructure as Code
 
 - Nginx configuration managed by Terraform
@@ -132,16 +261,18 @@ terraform apply   # Apply changes
 ## Current Architecture
 
 ```
+
 Internet → CloudFlare DNS → Elastic IP (44.246.43.116)
-    ↓
+↓
 AWS EC2 t3.medium
-    ├── Nginx (:80)
-   │   ├── bbaysinger.com & www.bbaysinger.com → Production Containers (:3000/:3001)
-   │   ├── dev.bbaysinger.com → Development Containers (:4000/:4001)
-    │   └── API requests (/api/) routed per domain
-    ├── ECR Images (for production deployment)
-    └── S3 Buckets (media storage)
-```
+├── Nginx (:80)
+│ ├── bbaysinger.com & www.bbaysinger.com → Production Containers (:3000/:3001)
+│ ├── dev.bbaysinger.com → Development Containers (:4000/:4001)
+│ └── API requests (/api/) routed per domain
+├── ECR Images (for production deployment)
+└── S3 Buckets (media storage)
+
+````
 
 ## Architecture Benefits
 
@@ -188,7 +319,7 @@ After a redeploy, especially when env files were changed, verify:
 # From EC2 host (ssh in first):
 curl -fsSL http://localhost:3001/api/health/   # backend should return 200
 curl -fsSL http://localhost:3000/api/projects/?limit=3&depth=0 | jq '.docs | length'
-```
+````
 
 If backend logs show "Missing required environment variables":
 
@@ -196,6 +327,14 @@ If backend logs show "Missing required environment variables":
 
 ```bash
 deploy/scripts/deployment-orchestrator.sh --profiles prod --refresh-env
+
+### Focused Promotion Script Location
+
+The standalone Elastic IP handover utility is now located at `deploy/scripts/orchestrator-promote.sh` (previously `scripts/orchestrator-promote.sh`). Update any external automation or personal aliases referencing the old path.
+
+### Instance Retention Script Location
+
+The previous‑instance pruning logic has been relocated from `scripts/instance-retention.sh` to `deploy/scripts/instance-retention.sh` to centralize blue/green lifecycle concerns.
 ```
 
 This ensures `SECURITY_TXT_EXPIRES` and the required-lists are present for the env-guard.

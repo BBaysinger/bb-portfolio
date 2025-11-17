@@ -1,62 +1,18 @@
 #!/usr/bin/env bash
-################################################################################
-# BB Portfolio Deployment Orchestrator
-################################################################################
-# Blue-Green deployment pipeline that orchestrates the full deployment lifecycle:
-#
-# 1. Infrastructure Provisioning (Terraform)
-#    - Always creates/taints blue (candidate) instance for fresh deployments
-#    - Green (production) serves live traffic via production Elastic IP
-#    - Blue gets separate Elastic IP for validation before promotion
-#
-# 2. Container Image Builds (Docker/ECR/Docker Hub)
-#    - Builds prod images (ECR: bb-portfolio-backend-prod, frontend-dev)
-#    - Builds dev images (Docker Hub: backend:dev, frontend:dev)
-#    - Both profiles built together by default
-#
-# 3. Application Deployment (GitHub Actions)
-#    - Triggers redeploy.yml workflow for container deployment
-#    - Generates runtime .env files on EC2 from GitHub Secrets
-#    - Falls back to SSH if GitHub Actions unavailable
-#
-# 4. Configuration Sync
-#    - Deploys nginx reverse proxy config to blue instance
-#    - Blue instance accessible via IP (nginx server_name includes BLUE_IP)
-#    - SSL cert provisioning (if configured)
-#
-# 5. Optional Promotion (--auto-promote only)
-#    - Calls scripts/orchestrator-promote.sh for blue → green handover
-#    - Performs health checks before and after EIP swap
-#    - Updates instance Role tags (active/candidate)
-#    - Use --auto-promote to perform handover at the end
-#
-# Usage:
-#   npm run orchestrate                # Deploy to blue candidate only
-#   npm run orchestrate:auto-promote   # Deploy + auto-promote (no manual test)
-#   npm run candidate-promote          # Promote existing blue (separate script)
-#
-# Automation note:
-# - Prefer invoking via npm scripts (above) instead of calling this file
-#   directly so flags like --auto-promote/--refresh-env remain
-#   consistent across operators and AI tools.
-#
-# Workflow:
-#   1. orchestrate                     → Blue deployed at http://52.37.142.50
-#   2. Test blue manually              → Validate application works
-#   3. candidate-promote               → Swap IPs, blue becomes production
-################################################################################
-# - Falls back to SSH-based deployment if GitHub workflow dispatch fails
-# - First-time friendly: if no EC2 exists yet, Terraform apply bootstraps it
-# - By default, existing instances preserved; use --destroy to recreate from scratch
-#
-# Blue-green deployment support:
-# - Deploy candidate instance: --target candidate --profiles prod
-# - Validate candidate manually or via health checks
-# - Auto-promote for CI/CD: --auto-promote (triggers EIP handover at the end)
-# - Retention management: --prune-after-promotion (cleanup old previous instances)
+# Deployment Orchestrator — EC2 + Docker Compose (4 Debian-based containers)
+# -------------------------------------------------------------------------
+# What this does (high level):
+# - Provisions/updates an AWS EC2 instance via Terraform.
+# - Builds and publishes images (optional) to ECR (prod) and Docker Hub (dev).
+# - Hands off container (re)starts to the GitHub Actions "Redeploy" workflow
+#   so runtime env files are generated on EC2 from GitHub Secrets.
+# - If the workflow dispatch fails, falls back to a safe SSH path to restart
+#   Compose profiles directly on the instance.
+# - First-time friendly: if no EC2 exists yet, Terraform apply will create it.
+#   By default, existing instances are preserved; use --destroy to recreate; use --containers-only to skip infra entirely.
 #
 # Runtime architecture on EC2:
-# - Reverse proxy: Nginx on host forwards traffic to Docker Compose services
+# - Reverse proxy: Nginx on the host forwards traffic to Compose services.
 # - Containers: four Node.js containers based on Debian (node:22-slim) images
 #   managed by Docker Compose using two profiles:
 #   • prod:   bb-portfolio-frontend-prod (host:3000 → container:3000)
@@ -64,46 +20,23 @@
 #   • dev:    bb-portfolio-frontend-dev  (host:4000 → container:3000)
 #             bb-portfolio-backend-dev   (host:4001 → container:3000)
 # - DNS/routing (typical):
-#   • bbaysinger.com        → prod frontend:3000 + backend:3001 (via production EIP)
-#   • dev.bbaysinger.com    → dev frontend:4000 + backend:4001
-# - Blue-green: candidate instance has separate EIP until promoted
+#   • bbaysinger.com        → bb-portfolio-frontend-prod:3000 and bb-portfolio-backend-prod:3001
+#   • dev.bbaysinger.com    → bb-portfolio-frontend-dev:4000 and bb-portfolio-backend-dev:4001
 #
-# Non-Standard Dual Hosting NOTE:
-# Both prod and dev profiles run CONCURRENTLY on each instance (active AND candidate) as a
-# deliberate cost optimization. This is NOT a best practice for larger/regulated systems.
-# Trade-offs: shared resource contention, larger blast radius, harder performance attribution.
-# Mitigations: distinct ports, blue-green health gating, per-profile env/secrets, registry separation.
-# Revisit when: sustained resource pressure, need independent scaling, or stronger isolation goals.
-#
-# Security model — Secrets and env files:
-# - .env.dev/.env.prod NOT committed; generated on EC2 by GitHub workflow from Secrets
-# - Local development uses .env only (not .env.prod/.env.dev)
-# - This script can generate env files from .github-secrets.private.json5 for SSH fallback
-# - Production secrets stored in GitHub (encrypted at rest) and AWS (SSM Parameter Store)
+# Secrets and env files:
+# - .env.dev / .env.prod are not committed; they are generated on EC2 by the
+#   GitHub workflow from repository secrets. Local dev only uses .env.
+# - This script can also generate env files from .github-secrets.private.json5
+#   for the SSH fallback path when requested.
 #
 # Usage examples:
-#   # Standard production deployment
-#   deploy/scripts/deployment-orchestrator.sh --profiles prod
-#
-#   # Blue-green candidate deployment
-#   deploy/scripts/deployment-orchestrator.sh --target candidate --profiles prod
-#
-#   # Blue-green promotion with automated handover (run at end)
-#   deploy/scripts/deployment-orchestrator.sh --target candidate --auto-promote
-#
-#   # Container-only update (skip Terraform)
-#   deploy/scripts/deployment-orchestrator.sh --containers-only --profiles both
-#
-#   # Development environment update
-#   deploy/scripts/deployment-orchestrator.sh --profiles dev
+#   deploy/scripts/deployment-orchestrator.sh --force --build-images both --profiles both
+#   deploy/scripts/deployment-orchestrator.sh --build-images prod --profiles prod
+#   deploy/scripts/deployment-orchestrator.sh --no-build --profiles dev
 #
 # Requirements:
-# - aws CLI configured with EC2/ECR/IAM permissions
-# - terraform >= 1.x for infrastructure provisioning
-# - node/npm for secrets sync utilities
-# - docker with BuildKit support (if building images)
-# - gh CLI authenticated with repo workflow permissions
-# - .github-secrets.private.json5 present locally for Terraform var generation
+# - aws, terraform, node/npm, docker (if building images), gh CLI (auth'd)
+# - .github-secrets.private.json5 present locally for terraform var generation
 
 # Ensure we're running under bash even if invoked via sh
 if [ -z "${BASH_VERSION:-}" ]; then
@@ -128,9 +61,7 @@ die() { err "$*"; exit 1; }
 force_destroy=false
 do_destroy=false    # Changed: preserve EC2 by default
 do_infra=true       # allow containers-only mode
-baseline_reset=false  # When true, perform snapshot & stricter confirmation before destroy
-baseline_snapshot_id=""
-taint_blue=true     # Default: recreate blue instance for fresh state; use --reuse-blue to skip
+build_images=""   # prod|dev|both|""
 profiles="both"   # prod|dev|both
 workflows="redeploy.yml" # comma-separated list of workflow names or filenames to trigger (e.g., 'Redeploy' or 'redeploy.yml')
 refresh_env=false   # whether GH workflow should regenerate/upload env files
@@ -139,18 +70,6 @@ watch_logs=true     # whether to watch GH workflow logs
 sync_secrets=true   # whether to sync local secrets to GitHub
 discover_only=false # perform discovery and exit without changes
 plan_only=false     # run terraform plan (summary) and exit (no apply)
-build_images=true   # build & push images locally before deploy; --no-build to skip
-skip_health=false   # skip post-deploy health gate (default: run for prod-containing profiles)
-prune_after_promotion=false # if true, invoke retention pruning for old instances (Role=red/previous)
-retention_count=2            # how many previous instances to keep when pruning
-retention_days=""           # if set, only prune those older than this many days
-auto_promote=false           # if true, perform EIP handover at the end via separate script
-auto_approve_handover=false  # if true, skip confirmation prompt for handover
-handover_rollback=true       # attempt rollback on post-swap failure
-handover_snapshot=false      # snapshot active root volume before swap
-REMOTE_USER="ec2-user"      # SSH login user (supports Ubuntu images); override via --remote-user
-REMOTE_HOME="/home/${REMOTE_USER}"  # recomputed after arg parsing if REMOTE_USER changes
-REMOTE_REPO="${REMOTE_HOME}/bb-portfolio"
 
 usage() {
   cat <<USAGE
@@ -158,28 +77,18 @@ Full deploy via GitHub (infra/images local; containers via GH Actions)
 
 Options:
   --force                 Skip confirmation for Terraform destroy
+  --build-images [val]    Rebuild/push images: prod|dev|both (default: none)
+  --no-build              Disable image build/push
   --profiles [val]        Which profiles to start in GH: prod|dev|both (default: both)
   --destroy               Destroy and recreate EC2 infra (default: preserve existing)
-  --reuse-blue            Reuse existing blue instance instead of recreating (faster, but may have stale state)
   --containers-only       Skip all Terraform/infra steps (no destroy/apply)
-  --baseline-reset        Snapshot root volume then targeted destroy (requires CONFIRM_BASELINE=YES)
-  --target [role]         Target instance role for container deploy: active|candidate (default: active)
-  --prune-after-promotion Prune old previous instances after successful deploy (blue-green retention)
-  --retention-count [n]   Retention: keep newest N previous instances (default: 2)
-  --retention-days [n]    Retention: only prune if demoted age >= N days (optional)
-  --auto-promote          After deploy, perform EIP handover via scripts/orchestrator-promote.sh (no manual confirm)
-  --auto-approve          Deprecated alias for --auto-promote
-  --handover-no-rollback  Disable rollback on failed post-swap health
-  --handover-snapshot     Snapshot current active root volume before handover
   --gh-workflows [names]  Comma-separated workflow names to trigger (default: Redeploy)
   --refresh-env           Ask GH workflow to regenerate & upload .env files (default: false)
-  --no-build              Do not build/push images locally; just pull latest tags on host
   --no-restart            Do not restart containers in GH workflow (default: restart)
   --no-watch              Do not watch GH workflow logs (default: watch)
   --no-secrets-sync       Do not sync local secrets to GitHub
   --discover-only         Only print discovery summary of current infra and exit
   --plan-only             Print terraform plan summary and exit (no apply)
-  --no-health             Skip health gate after redeploy (prod/both profiles)
   -h|--help               Show this help
 USAGE
 }
@@ -187,94 +96,30 @@ USAGE
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --force) force_destroy=true; shift ;;
+    --build-images)
+      build_images="${2:-}"; [[ -n "$build_images" ]] || die "--build-images requires prod|dev|both"; shift 2 ;;
+    --no-build) build_images=""; shift ;;
     --profiles)
       profiles="${2:-}"; [[ "$profiles" =~ ^(prod|dev|both)$ ]] || die "--profiles must be prod|dev|both"; shift 2 ;;
     --destroy) do_destroy=true; shift ;;
-    --reuse-blue) taint_blue=false; shift ;;
     --containers-only) do_infra=false; shift ;;
-  --baseline-reset) baseline_reset=true; do_destroy=true; shift ;;
     --gh-workflows)
       workflows="${2:-}"; [[ -n "$workflows" ]] || die "--gh-workflows requires at least one name"; shift 2 ;;
     --refresh-env) refresh_env=true; shift ;;
-    --no-build) build_images=false; shift ;;
     --no-restart) restart_containers=false; shift ;;
     --no-watch) watch_logs=false; shift ;;
     --no-secrets-sync) sync_secrets=false; shift ;;
     --discover-only) discover_only=true; shift ;;
     --plan-only) plan_only=true; shift ;;
-    --no-health) skip_health=true; shift ;;
-    --prune-after-promotion) prune_after_promotion=true; shift ;;
-    --retention-count)
-      retention_count="${2:-}"; [[ "$retention_count" =~ ^[0-9]+$ ]] || die "--retention-count must be integer"; shift 2 ;;
-    --retention-days)
-      retention_days="${2:-}"; [[ "$retention_days" =~ ^[0-9]+$ ]] || die "--retention-days must be integer"; shift 2 ;;
-    --auto-promote) auto_approve_handover=true; auto_promote=true; shift ;;
-    --auto-approve) warn "--auto-approve is deprecated; use --auto-promote"; auto_approve_handover=true; shift ;;
-    --handover-no-rollback) handover_rollback=false; shift ;;
-    --handover-snapshot) handover_snapshot=true; shift ;;
-    --remote-user)
-      REMOTE_USER="${2:-}"; [[ -n "$REMOTE_USER" ]] || die "--remote-user requires a username"; shift 2 ;;
     -h|--help) usage; exit 0 ;;
     *) die "Unknown option: $1" ;;
   esac
 done
 
-# Recompute derived remote paths after potential --remote-user override
-REMOTE_HOME="/home/${REMOTE_USER}"
-REMOTE_REPO="${REMOTE_HOME}/bb-portfolio"
-
 # Prereqs
 need() { command -v "$1" >/dev/null 2>&1 || die "$1 is required"; }
 need aws; need terraform; need node; need npm; need gh
-need docker
-ensure_blue_ip() {
-  if [[ -n "${BLUE_INSTANCE_IP:-}" ]]; then return 0; fi
-  # Try terraform outputs first (best-effort)
-  if command -v terraform >/dev/null 2>&1 && [ -d "$INFRA_DIR" ]; then
-    pushd "$INFRA_DIR" >/dev/null || true
-    set +e
-    BLUE_INSTANCE_IP=$(terraform output -raw blue_elastic_ip 2>/dev/null)
-    [[ -z "$BLUE_INSTANCE_IP" ]] && BLUE_INSTANCE_IP=$(terraform output -raw blue_instance_public_ip 2>/dev/null)
-    set -e
-    popd >/dev/null || true
-    if [[ -n "$BLUE_INSTANCE_IP" ]]; then export BLUE_INSTANCE_IP; return 0; fi
-  fi
-  # Fallback to AWS CLI by tag Role=candidate
-  if command -v aws >/dev/null 2>&1; then
-    set +e
-    BLUE_INSTANCE_IP=$(aws ec2 describe-instances \
-      --filters "Name=tag:Project,Values=bb-portfolio" "Name=tag:Role,Values=candidate" "Name=instance-state-name,Values=running" \
-      --query 'Reservations[].Instances[].PublicIpAddress' --output text 2>/dev/null | awk 'NF' | head -n1)
-    set -e
-    if [[ -n "$BLUE_INSTANCE_IP" ]]; then export BLUE_INSTANCE_IP; return 0; fi
-  fi
-  # Last resort: use resolved host if it looks like an IP
-  if [[ -n "${EC2_HOST_RESOLVE:-}" && "$EC2_HOST_RESOLVE" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]]; then
-    BLUE_INSTANCE_IP="$EC2_HOST_RESOLVE"; export BLUE_INSTANCE_IP; return 0;
-  fi
-  return 1
-}
-
-# Early confirmation if auto-promotion requested (always prompt here unless auto-approved).
-if [[ "$auto_promote" == true ]]; then
-  if [[ "$auto_approve_handover" == true ]]; then
-    warn "Auto-promote enabled: if health checks pass, handover will proceed without an additional prompt."
-  else
-    warn "Auto-promotion requested (--auto-promote): handover will prompt again just before EIP swap."
-  fi
-  echo "This run will:"
-  echo "  1) Deploy to blue (candidate)"
-  echo "  2) Run health checks on the candidate"
-  if [[ "$auto_approve_handover" == true ]]; then
-    echo "  3) Perform EIP handover automatically (no prompt)"
-  else
-    echo "  3) Ask for confirmation before performing EIP handover"
-  fi
-  echo ""
-  printf "Type 'yes' to proceed with deploy + promotion plan: "
-  read -r ans
-  [[ "$ans" == yes ]] || die "Cancelled before deployment"
-fi
+if [[ -n "$build_images" ]]; then need docker; fi
 
 # Ensure gh is authenticated and repo is set
 if ! gh auth status >/dev/null 2>&1; then
@@ -307,10 +152,8 @@ tf_discovery() {
   fi
   pushd "$INFRA_DIR" >/dev/null
   log "Discovery: reading Terraform state and outputs"
-  log "Initializing Terraform..."
   set +e
   terraform init -input=false >/dev/null 2>&1
-  log "Reading Terraform state..."
   STATE=$(terraform state list 2>/dev/null)
   INIT_STATUS=$?
   set -e
@@ -318,98 +161,47 @@ tf_discovery() {
     warn "Discovery: terraform state not initialized yet"
     STATE=""
   fi
-  log "Checking for instances and resources..."
-  # Check for specific blue/green instances
-  has_green_inst=false
-  if echo "$STATE" | grep -Eq '^aws_instance\\.bb_portfolio_green'; then
-    has_green_inst=true
+  has_inst=false
+  if echo "$STATE" | grep -Eq '^(aws_instance\\.bb_portfolio|aws_instance\\.portfolio)$|^aws_instance\\.(bb_portfolio|portfolio)'; then
+    has_inst=true
   fi
-  has_blue_inst=false
-  if echo "$STATE" | grep -Eq '^aws_instance\\.bb_portfolio_blue'; then
-    has_blue_inst=true
-  fi
-  
   has_sg=$(echo "$STATE" | grep -Ec '^aws_security_group\\.bb_portfolio_sg$' || true)
   has_eip=$(echo "$STATE" | grep -Ec '^aws_eip\\.bb_portfolio_ip$' || true)
   has_eip_assoc=$(echo "$STATE" | grep -Ec '^aws_eip_association\\.' || true)
   has_s3_dev=$(echo "$STATE" | grep -Ec '^aws_s3_bucket\\.media\["dev"\]$' || true)
   has_s3_prod=$(echo "$STATE" | grep -Ec '^aws_s3_bucket\\.media\["prod"\]$' || true)
   has_ecr_fe=$(echo "$STATE" | grep -Ec '^aws_ecr_repository\\.frontend$' || true)
-  has_ecr_be=$(echo "$STATE" | grep -Ec '^aws_ecr_repository\.backend$' || true)
+  has_ecr_be=$(echo "$STATE" | grep -Ec '^aws_ecr_repository\\.backend$' || true)
 
-  log "Retrieving instance IPs from Terraform outputs..."
-  # Outputs (best-effort) - get both green and blue IPs
+  # Outputs (best-effort)
   set +e
-  GREEN_EIP=$(terraform output -raw green_elastic_ip 2>/dev/null)
-  GREEN_PUB=$(terraform output -raw green_instance_public_ip 2>/dev/null)
-  BLUE_EIP=$(terraform output -raw blue_elastic_ip 2>/dev/null)
-  BLUE_PUB=$(terraform output -raw blue_instance_public_ip 2>/dev/null)
-  # Legacy fallback for old output names
-  [[ -z "$GREEN_EIP" ]] && GREEN_EIP=$(terraform output -raw bb_portfolio_elastic_ip 2>/dev/null)
-  [[ -z "$GREEN_PUB" ]] && GREEN_PUB=$(terraform output -raw bb_portfolio_instance_ip 2>/dev/null)
+  EIP=$(terraform output -raw bb_portfolio_elastic_ip 2>/dev/null)
+  PUB=$(terraform output -raw bb_portfolio_instance_ip 2>/dev/null)
   set -e
 
   echo ""
   echo "===== Discovery Summary ====="
-  echo "Terraform state initialized:    $([[ $INIT_STATUS -eq 0 ]] && echo yes || echo no)"
-  echo ""
-  echo "--- Green (Active) Instance ---"
-  echo "Green instance present:         $([[ "$has_green_inst" == true ]] && echo yes || echo no)"
-  [[ -n "$GREEN_EIP" ]] && echo "Green elastic IP:               $GREEN_EIP" || true
-  [[ -n "$GREEN_PUB" ]] && echo "Green public IP:                $GREEN_PUB" || true
-  echo ""
-  echo "--- Blue (Candidate) Instance ---"
-  echo "Blue instance present:          $([[ "$has_blue_inst" == true ]] && echo yes || echo no)"
-  [[ -n "$BLUE_EIP" ]] && echo "Blue elastic IP:                $BLUE_EIP" || true
-  [[ -n "$BLUE_PUB" ]] && echo "Blue public IP:                 $BLUE_PUB" || true
-  echo ""
-  echo "--- Shared Resources ---"
-  echo "Security group present:         $([[ $has_sg -gt 0 ]] && echo yes || echo no)"
-  echo "Elastic IP present:             $([[ $has_eip -gt 0 ]] && echo yes || echo no)"
-  echo "EIP association present:        $([[ $has_eip_assoc -gt 0 ]] && echo yes || echo no)"
-  echo "S3 buckets (dev/prod):          $([[ $has_s3_dev -gt 0 ]] && echo dev || echo - ) / $([[ $has_s3_prod -gt 0 ]] && echo prod || echo - )"
-  echo "ECR repos (fe/be):              $([[ $has_ecr_fe -gt 0 ]] && echo yes || echo no) / $([[ $has_ecr_be -gt 0 ]] && echo yes || echo no)"
-  echo ""
-  log "Running connectivity checks..."
-  echo "--- Connectivity Checks ---"
-  if [[ -n "$GREEN_EIP" ]]; then
-    if nc -vz -G 2 "$GREEN_EIP" 22 >/dev/null 2>&1; then
-      echo "Green SSH (22) reachable:       yes"
+  echo "Terraform state initialized: $([[ $INIT_STATUS -eq 0 ]] && echo yes || echo no)"
+  echo "EC2 instance present:       $([[ "$has_inst" == true ]] && echo yes || echo no)"
+  echo "Security group present:     $([[ $has_sg -gt 0 ]] && echo yes || echo no)"
+  echo "Elastic IP present:         $([[ $has_eip -gt 0 ]] && echo yes || echo no)"
+  echo "EIP association present:    $([[ $has_eip_assoc -gt 0 ]] && echo yes || echo no)"
+  echo "S3 buckets (dev/prod):      $([[ $has_s3_dev -gt 0 ]] && echo dev || echo - ) / $([[ $has_s3_prod -gt 0 ]] && echo prod || echo - )"
+  echo "ECR repos (fe/be):          $([[ $has_ecr_fe -gt 0 ]] && echo yes || echo no) / $([[ $has_ecr_be -gt 0 ]] && echo yes || echo no)"
+  [[ -n "$EIP" ]] && echo "Elastic IP output:          $EIP" || true
+  [[ -n "$PUB" ]] && echo "Instance public IP:         $PUB" || true
+  if [[ -n "$EIP" ]]; then
+    if nc -vz -G 2 "$EIP" 22 >/dev/null 2>&1; then
+      echo "SSH (22) reachable at EIP:  yes"
     else
-      echo "Green SSH (22) reachable:       no"
+      echo "SSH (22) reachable at EIP:  no"
     fi
-    if curl -s -I --connect-timeout 3 --max-time 5 "http://$GREEN_EIP" 2>/dev/null | head -1 | grep -q "200"; then
-      echo "Green HTTP (80) responding:     yes"
+    if curl -s -I "http://$EIP" | head -1 | grep -q "200"; then
+      echo "HTTP (80) responding at EIP: yes"
     else
-      echo "Green HTTP (80) responding:     no"
+      echo "HTTP (80) responding at EIP: no"
     fi
   fi
-  if [[ -n "$BLUE_EIP" ]]; then
-    if nc -vz -G 2 "$BLUE_EIP" 22 >/dev/null 2>&1; then
-      echo "Blue SSH (22) reachable:        yes"
-    else
-      echo "Blue SSH (22) reachable:        no"
-    fi
-    if curl -s -I --connect-timeout 3 --max-time 5 "http://$BLUE_EIP" 2>/dev/null | head -1 | grep -q "200"; then
-      echo "Blue HTTP (80) responding:      yes"
-    else
-      echo "Blue HTTP (80) responding:      no"
-    fi
-  fi
-  echo "=============================="
-  echo ""
-  echo "--- Next Steps ---"
-  if [[ "$do_infra" == true ]]; then
-    echo "1. Run Terraform plan/apply       (~2-3 min for new infrastructure)"
-  else
-    echo "1. Skip Terraform                 (containers-only mode)"
-  fi
-  echo "2. Build Docker images            (~5-10 min depending on cache)"
-  echo "3. Deploy containers to instance  (~2-3 min for pull + startup)"
-  echo "4. Health checks and validation   (~30 sec)"
-  echo ""
-  echo "⏱️  Expected total time: 10-20 minutes"
-  echo "💡 You can monitor progress by tailing: tail -f /tmp/orchestrator-output.log"
   echo "=============================="
   echo ""
   popd >/dev/null
@@ -418,8 +210,6 @@ tf_discovery() {
 tf_plan_summary() {
   pushd "$INFRA_DIR" >/dev/null
   log "Running terraform plan (summary)"
-  
-  # Blue (candidate) is always created
   # Run plan and extract the Plan: X to add, Y to change, Z to destroy line
   local plan_out
   set +e
@@ -452,34 +242,22 @@ fi
 
 if [[ "$do_infra" == true ]]; then
   log "Generating terraform.tfvars from private secrets"
-  # Get blue instance IP from Terraform outputs (source of truth)
-  pushd "$INFRA_DIR" >/dev/null
-  BLUE_INSTANCE_IP=$(terraform output -raw blue_elastic_ip 2>/dev/null || echo "52.37.142.50")
-  GREEN_INSTANCE_IP=$(terraform output -raw green_elastic_ip 2>/dev/null || echo "44.246.43.116")
-  popd >/dev/null
-  # Export for legacy scripts that still use EC2_INSTANCE_IP (TODO: refactor those)
-  export EC2_INSTANCE_IP="$BLUE_INSTANCE_IP"
-  export BLUE_INSTANCE_IP
-  export GREEN_INSTANCE_IP
-  log "Blue instance IP: $BLUE_INSTANCE_IP"
-  log "Green instance IP: $GREEN_INSTANCE_IP"
   npx tsx ./deploy/scripts/generate-terraform-vars.ts
 fi
 
-# Set AWS profile for image push operations
-export AWS_PROFILE="${AWS_PROFILE:-bb-portfolio-user}"
-
 # Optional image build/push (delegates to existing npm scripts)
-if [[ "$build_images" == true ]]; then
-  log "Building & pushing container images (frontend + backend)"
-  log "Building & pushing production images to ECR"
-  npm run ecr:build-push
-  ok "Pushed prod images"
-  log "Building & pushing development images to Docker Hub"
-  npm run docker:build-push
-  ok "Pushed dev images"
-else
-  log "Skipping image build/push (--no-build). Will pull latest tags on host during deploy."
+if [[ -n "$build_images" ]]; then
+  log "Rebuilding container images: $build_images"
+  if [[ "$build_images" == "prod" || "$build_images" == "both" ]]; then
+    log "Building & pushing production images to ECR"
+    npm run ecr:build-push
+    ok "Pushed prod images"
+  fi
+  if [[ "$build_images" == "dev" || "$build_images" == "both" ]]; then
+    log "Building & pushing development images to Docker Hub"
+    npm run docker:build-push
+    ok "Pushed dev images"
+  fi
 fi
 
 # Terraform: optional targeted destroy preserving S3/ECR/EIP, then apply
@@ -488,65 +266,8 @@ if [[ "$do_infra" == true ]]; then
   log "Initializing Terraform"
   terraform init -input=false
 
-  # If a blue (candidate) instance already exists and we are about to recreate it,
-  # prompt the operator to confirm replacement or choose reuse.
-  if [[ "$taint_blue" == true ]]; then
-    set +e
-    EXISTING_CANDIDATE_ID=$(aws ec2 describe-instances \
-      --filters "Name=tag:Project,Values=bb-portfolio" "Name=tag:Role,Values=candidate" "Name=instance-state-name,Values=running" \
-      --query 'Reservations[].Instances[].InstanceId' --output text 2>/dev/null | awk 'NF' | head -n1)
-    set -e
-    if [[ -n "$EXISTING_CANDIDATE_ID" ]]; then
-      warn "An existing blue (candidate) instance is running: $EXISTING_CANDIDATE_ID"
-      echo "You are about to replace it with a fresh blue instance (Terraform taint)."
-      echo "Options:"
-      echo "  - Type 'replace' to destroy+recreate blue (default)"
-      echo "  - Type 'reuse'   to keep current blue and deploy onto it"
-      echo "  - Type 'cancel'  to abort this run"
-      printf "Your choice [replace/reuse/cancel]: "
-      read -r CHOICE
-      case "$CHOICE" in
-        reuse|REUSE)
-          taint_blue=false
-          ok "Reusing existing blue (candidate); skipping taint/recreate"
-          ;;
-        cancel|CANCEL)
-          die "Cancelled before Terraform apply"
-          ;;
-        * )
-          warn "Proceeding with replacement of blue (candidate)"
-          ;;
-      esac
-    fi
-  fi
-
-  # Baseline reset safeguard & snapshot
-  if [[ "$baseline_reset" == true ]]; then
-    if [[ "${CONFIRM_BASELINE:-}" != "YES" ]]; then
-      die "Baseline reset requested; export CONFIRM_BASELINE=YES to proceed"
-    fi
-    log "Baseline reset enabled: attempting pre-destroy snapshot of root volume"
-    instance_id=$(terraform output -raw bb_portfolio_instance_id 2>/dev/null || true)
-    if [[ -n "$instance_id" && "$instance_id" != "null" ]]; then
-      root_vol=$(aws ec2 describe-instances --instance-ids "$instance_id" --query "Reservations[0].Instances[0].BlockDeviceMappings[?DeviceName=='/dev/xvda'].Ebs.VolumeId" --output text 2>/dev/null || true)
-      if [[ -n "$root_vol" && "$root_vol" != "None" ]]; then
-        desc="bb-portfolio baseline pre-destroy $(date -u +%Y-%m-%dT%H:%M:%SZ)"
-        baseline_snapshot_id=$(aws ec2 create-snapshot --volume-id "$root_vol" --description "$desc" --tag-specifications 'ResourceType=snapshot,Tags=[{Key=Name,Value=bb-portfolio-baseline}]' --query 'SnapshotId' --output text 2>/dev/null || true)
-        if [[ -n "$baseline_snapshot_id" ]]; then
-          ok "Created snapshot $baseline_snapshot_id for volume $root_vol"
-        else
-          warn "Snapshot creation failed; continuing without snapshot"
-        fi
-      else
-        warn "Root volume not found for instance $instance_id"
-      fi
-    else
-      warn "Instance ID output missing; cannot snapshot"
-    fi
-  fi
-
   if [[ "$do_destroy" == true ]]; then
-    # Determine resources to destroy (skip S3/ECR/EIP)
+  # Determine resources to destroy (skip S3/ECR/EIP)
     to_destroy=()
     if terraform state list >/dev/null 2>&1; then
       while IFS= read -r r; do
@@ -569,8 +290,7 @@ if [[ "$do_infra" == true ]]; then
       warn "Planned destroy targets (preserving S3/ECR/EIP):"
       printf '  - %s\n' "${to_destroy[@]}"
       if [[ "$force_destroy" != true ]]; then
-        prompt="Type 'yes' to confirm destroy"; [[ "$baseline_reset" == true ]] && prompt="Type 'yes' to confirm baseline reset destroy (snapshot: ${baseline_snapshot_id:-none})"
-        echo "$prompt:"; read -r ans; [[ "$ans" == yes ]] || die "Cancelled"
+        echo "Type 'yes' to confirm destroy:"; read -r ans; [[ "$ans" == yes ]] || die "Cancelled"
       else
         warn "Force mode enabled - skipping confirmation"
       fi
@@ -586,24 +306,9 @@ if [[ "$do_infra" == true ]]; then
 
   log "Planning/applying fresh infrastructure"
   terraform validate
-  
-  # Taint blue instance by default for fresh state (skip with --reuse-blue)
-  if [[ "$taint_blue" == true ]]; then
-    log "Tainting blue instance for recreation (use --reuse-blue to skip)"
-    terraform taint aws_instance.bb_portfolio_blue 2>/dev/null || warn "Blue instance not in state or already tainted"
-  else
-    warn "Reusing existing blue instance (faster but may have stale state)"
-  fi
-  
-  # Blue (candidate) is always created
-  log "Creating blue (candidate) instance"
-  
   terraform plan -out=tfplan
   terraform apply -input=false tfplan
   rm -f tfplan
-  
-  # Mark that Terraform ran so we can wait for new instances to launch
-  RAN_TERRAFORM="true"
 
   # Detect EIP for info/logs (GH workflow uses EC2_HOST secret at runtime)
   EC2_IP=$(terraform output -raw bb_portfolio_elastic_ip 2>/dev/null || terraform output -raw bb_portfolio_instance_ip 2>/dev/null || true)
@@ -613,9 +318,34 @@ if [[ "$do_infra" == true ]]; then
   log "Regenerating terraform vars after apply"
   npx tsx ./deploy/scripts/generate-terraform-vars.ts
   
-  # Note: IP update happens AFTER promotion when blue becomes green
-  # For now, skip updating EC2_HOST since we're deploying to blue candidate
-  warn "Deploying to blue candidate - EC2_HOST will be updated after promotion"
+  # Update local private secrets with the new EC2 IP so GitHub Secrets get the latest EC2_HOST
+  if [[ -n "${EC2_IP:-}" && "${EC2_IP}" != "null" ]]; then
+    log "Updating .github-secrets.private.json5 with new EC2 IP: ${EC2_IP}"
+    export EC2_IP
+    npx tsx -e '
+      import { readFileSync, writeFileSync } from "fs";
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const JSON5 = require("json5");
+      const file = ".github-secrets.private.json5";
+      const ip = process.env.EC2_IP || "";
+      const raw = readFileSync(file, "utf8");
+      const cfg = JSON5.parse(raw);
+      const s = (cfg.strings || cfg);
+      const before = s.EC2_HOST;
+      s.EC2_HOST = ip;
+      const replaceHost = (val: any) => typeof val === "string" ? val.replace(/http:\/\/[0-9.]+:/g, "http://" + ip + ":") : val;
+      // Update common URL fields if present
+      s.DEV_FRONTEND_URL = replaceHost(s.DEV_FRONTEND_URL);
+      s.PROD_FRONTEND_URL = replaceHost(s.PROD_FRONTEND_URL);
+      // NEXT_PUBLIC_BACKEND_URL values are deprecated; proxy-relative /api is used now.
+      const banner = "// Private secrets file for syncing to GitHub Actions secrets\n// This file is ignored by git. Keep real values here.\n// Do NOT commit this file to version control!\n// cspell:disable\n";
+      const out = banner + JSON5.stringify(cfg, null, 2);
+      writeFileSync(file, out, "utf8");
+      console.info(`Updated EC2_HOST from ${before} to ${ip}`);
+    '
+  else
+    warn "EC2 IP not detected from Terraform outputs; skipping secrets IP update"
+  fi
   # Defer enforcement/HTTPS until functions are defined below
   POST_ENFORCE_HOST="${EC2_IP:-}"
 else
@@ -625,138 +355,10 @@ fi
 # Optionally sync secrets to GitHub (keeps GH secrets aligned with local private json5)
 if [[ "$sync_secrets" == true ]]; then
   log "Syncing GitHub secrets from private json5"
-  # Note: sync-github-secrets reads EC2_HOST from .github-secrets.private.json5
-  # We'll override it below after determining the candidate IP
   npx tsx ./scripts/sync-github-secrets.ts BBaysinger/bb-portfolio .github-secrets.private.json5
 else
   warn "Skipping GitHub secrets sync per --no-secrets-sync"
 fi
-
-# ---------------------------
-# Target instance resolution (active|candidate)
-# ---------------------------
-discover_instance_public_ip_by_role() {
-  local role="$1"
-  aws ec2 describe-instances \
-    --filters "Name=tag:Project,Values=bb-portfolio" "Name=tag:Role,Values=$role" "Name=instance-state-name,Values=running" \
-    --query 'Reservations[].Instances[].PublicIpAddress' --output text 2>/dev/null | awk 'NF'
-}
-
-# Resolve blue (candidate) IP for containers-only or when Terraform outputs are unavailable
-ensure_blue_ip || true
-# Fallback via AWS if still empty
-if [[ -z "${BLUE_INSTANCE_IP:-}" ]]; then
-  BLUE_INSTANCE_IP=$(discover_instance_public_ip_by_role candidate | head -n1 || true)
-  [[ -n "$BLUE_INSTANCE_IP" ]] && export BLUE_INSTANCE_IP || true
-fi
-# Last resort: try resolved host
-if [[ -z "${BLUE_INSTANCE_IP:-}" && -n "${EC2_HOST_RESOLVE:-}" ]]; then
-  BLUE_INSTANCE_IP="$EC2_HOST_RESOLVE"; export BLUE_INSTANCE_IP || true
-fi
-
-CANDIDATE_IP="${BLUE_INSTANCE_IP:-}"
-
-if [[ -z "$CANDIDATE_IP" ]]; then
-  die "No blue (candidate) instance IP could be determined."
-fi
-warn "Deploying to candidate instance at $CANDIDATE_IP"
-
-# Update EC2_HOST secret to point to blue candidate before dispatching GitHub Actions
-log "Updating EC2_HOST secret to blue candidate IP: $CANDIDATE_IP"
-gh secret set EC2_HOST --body "$CANDIDATE_IP" --repo BBaysinger/bb-portfolio || warn "Failed to update EC2_HOST secret"
-
-# ---------------------------------------------------------------------------
-# AWS Account ID Resolution & Propagation (non-secret identifier)
-# ---------------------------------------------------------------------------
-# We require AWS_ACCOUNT_ID so docker-compose can resolve ECR image names:
-#   ${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/...
-# If absent, pulls fall back to an invalid placeholder leading to missing prod containers.
-# Strategy:
-#   1. Respect existing AWS_ACCOUNT_ID in environment (operator override)
-#   2. Try AWS STS get-caller-identity
-#   3. Optional static fallback (only logs warning, does not export placeholder)
-# Result exported + pushed as GitHub secret for workflow usage. Also uploaded
-# as compose .env file during SSH fallback (later section) ensuring runtime availability.
-
-if [[ -z "${AWS_ACCOUNT_ID:-}" ]]; then
-  set +e
-  AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query 'Account' --output text 2>/dev/null | awk 'NF')
-  STS_STATUS=$?
-  set -e
-  if [[ $STS_STATUS -ne 0 || -z "$AWS_ACCOUNT_ID" || "$AWS_ACCOUNT_ID" == "None" ]]; then
-    warn "Could not resolve AWS account ID via STS; prod image pulls may fail until set."
-    AWS_ACCOUNT_ID=""
-  else
-    ok "Resolved AWS account ID via STS: $AWS_ACCOUNT_ID"
-  fi
-else
-  log "Using pre-set AWS_ACCOUNT_ID from environment: $AWS_ACCOUNT_ID"
-fi
-
-if [[ -n "$AWS_ACCOUNT_ID" ]]; then
-  export AWS_ACCOUNT_ID
-  # Best-effort: set/overwrite GitHub secret so workflows have it
-  gh secret set AWS_ACCOUNT_ID --body "$AWS_ACCOUNT_ID" --repo BBaysinger/bb-portfolio >/dev/null 2>&1 || warn "Failed to set AWS_ACCOUNT_ID GitHub secret"
-else
-  warn "AWS_ACCOUNT_ID remains unset; ECR image references will be invalid. Set manually or ensure workflows inject it."
-fi
-
-# Mandatory SSH connectivity check to candidate before proceeding
-log "Verifying SSH connectivity to candidate ($CANDIDATE_IP)"
-SSH_KEY="${HOME}/.ssh/bb-portfolio-site-key.pem"
-if [[ ! -f "$SSH_KEY" ]]; then
-  die "SSH key not found at $SSH_KEY; cannot validate candidate connectivity."
-fi
-set +e
-ssh -i "$SSH_KEY" -o ConnectTimeout=12 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$CANDIDATE_IP" "echo CANDIDATE_SSH_OK" 2>/dev/null | grep -q CANDIDATE_SSH_OK
-SSH_STATUS=$?
-set -e
-if [[ $SSH_STATUS -ne 0 ]]; then
-  die "SSH connectivity to candidate $CANDIDATE_IP failed. Aborting before container/nginx steps. Verify instance security group, key, and public IP." 
-else
-  ok "SSH connectivity to candidate confirmed."
-fi
-
-# If we just ran Terraform (fresh/possibly reprovisioned host) or required env files are missing,
-# auto-enable refresh_env to ensure .env files are present before compose up via GH workflow.
-if [[ "$refresh_env" != true ]]; then
-  AUTO_REFRESH=false
-  # Heuristic 1: Terraform ran in this session (likely new blue instance)
-  if [[ "${RAN_TERRAFORM:-false}" == "true" ]]; then
-    warn "Auto-enabling refresh_env: Terraform applied (fresh candidate host)."
-    AUTO_REFRESH=true
-  else
-    # Heuristic 2: Probe for required env files on host for selected profiles
-    REQ_FILES=()
-    case "$profiles" in
-      prod)
-        REQ_FILES+=("${REMOTE_REPO}/backend/.env.prod" "${REMOTE_REPO}/frontend/.env.prod")
-        ;;
-      dev)
-        REQ_FILES+=("${REMOTE_REPO}/backend/.env.dev"  "${REMOTE_REPO}/frontend/.env.dev")
-        ;;
-      both)
-        REQ_FILES+=("${REMOTE_REPO}/backend/.env.prod" "${REMOTE_REPO}/frontend/.env.prod" "${REMOTE_REPO}/backend/.env.dev"  "${REMOTE_REPO}/frontend/.env.dev")
-        ;;
-    esac
-    missing=0
-    for f in "${REQ_FILES[@]}"; do
-      if ! ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${REMOTE_USER}"@"$CANDIDATE_IP" "test -f '$f'"; then
-        missing=$((missing+1))
-      fi
-    done
-    if (( missing > 0 )); then
-      warn "Auto-enabling refresh_env: $missing required env file(s) missing on host."
-      AUTO_REFRESH=true
-    fi
-  fi
-  if [[ "$AUTO_REFRESH" == true ]]; then
-    refresh_env=true
-  fi
-fi
-
-# Override POST_ENFORCE_HOST for controller enforcement
-POST_ENFORCE_HOST="$CANDIDATE_IP"
 
 # Resolve EC2 host without relying on viewing GitHub Secrets values
 resolve_ec2_host() {
@@ -797,11 +399,6 @@ resolve_ec2_host() {
 }
 
 ok "Infra and images complete. Handing off container restart to GitHub Actions."
-echo ""
-warn "Blue candidate deployed at $CANDIDATE_IP (EIP: ${BLUE_INSTANCE_IP:-$CANDIDATE_IP})"
-warn "Promotion to production is MANUAL. After validating the candidate:"
-warn "  Run: npm run candidate-promote"
-echo ""
 
 need jq
 
@@ -810,7 +407,7 @@ WF_CANDIDATES=("$workflows" "Redeploy" ".github/workflows/redeploy.yml" "redeplo
 
 # Ensure only a single controller manages containers on EC2.
 # - Disable/remove legacy systemd unit 'portfolio.service'
-# - Archive legacy compose file '/home/ec2-user/bb-portfolio/docker-compose.yml'
+# - Archive legacy compose file '/home/ec2-user/portfolio/docker-compose.yml'
 # This is idempotent and safe to run on every deploy.
 enforce_single_controller() {
   local host="$1"
@@ -823,114 +420,21 @@ enforce_single_controller() {
     warn "Single-controller guard: SSH key not found at $key, skipping"
     return 0
   fi
-  log "Enforcing single controller on $host (disable legacy service, archive legacy compose) as $REMOTE_USER"
-  ssh -i "$key" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${REMOTE_USER}"@"$host" bash -lc $'set -e
+  log "Enforcing single controller on $host (disable legacy service, archive legacy compose)"
+  ssh -i "$key" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$host" $'set -e
     # Disable and remove legacy systemd unit if present
     if systemctl list-unit-files | grep -q "^portfolio.service"; then
       sudo systemctl disable --now portfolio.service || true
       sudo rm -f /etc/systemd/system/portfolio.service || true
       sudo systemctl daemon-reload || true
     fi
-    # Archive legacy compose file in project root if present (ec2-user historical path)
-    if [ -f "/home/ec2-user/bb-portfolio/docker-compose.yml" ]; then
-      mv -f /home/ec2-user/bb-portfolio/docker-compose.yml /home/ec2-user/bb-portfolio/docker-compose.legacy.yml || true
+    # Archive legacy compose file in project root if present
+    if [ -f "/home/ec2-user/portfolio/docker-compose.yml" ]; then
+      mv -f /home/ec2-user/portfolio/docker-compose.yml /home/ec2-user/portfolio/docker-compose.legacy.yml
     fi
-    # Archive legacy compose file in REMOTE_REPO if present
-    if [ -f "${REMOTE_REPO}/docker-compose.yml" ]; then
-      mv -f "${REMOTE_REPO}/docker-compose.yml" "${REMOTE_REPO}/docker-compose.legacy.yml" || true
-    fi
-    chmod -x "${REMOTE_REPO}/generate-env-files.sh" 2>/dev/null || true
+    # Neutralize bootstrap helper if it exists (kept for reference)
+    chmod -x /home/ec2-user/portfolio/generate-env-files.sh 2>/dev/null || true
   '
-}
-
-# Sync nginx configuration to EC2 instance with blue IP substitution
-# Args: $1=host (ec2-user@ip), $2=blue_ip (optional)
-sync_nginx_config() {
-  local host="$1"
-  local blue_ip="${2:-}"
-  local key="${HOME}/.ssh/bb-portfolio-site-key.pem"
-  
-  if [[ -z "$host" ]]; then
-    warn "sync_nginx_config: host required"
-    return 1
-  fi
-  
-  local nginx_template="${REPO_ROOT}/deploy/nginx/bb-portfolio.conf.template"
-  if [[ ! -f "$nginx_template" ]]; then
-    warn "Nginx template not found: $nginx_template"
-    return 1
-  fi
-  
-  # Prepare config with IP substitution if needed
-  local temp_conf="/tmp/bb-portfolio-nginx-$$.conf"
-  if [[ -n "$blue_ip" ]]; then
-    log "Substituting BLUE_IP_PLACEHOLDER with $blue_ip in nginx config"
-    sed "s/BLUE_IP_PLACEHOLDER/$blue_ip/g" "$nginx_template" > "$temp_conf"
-  else
-    cp "$nginx_template" "$temp_conf"
-  fi
-  
-  # Clear known_hosts entry to tolerate EC2 host key changes on recreate
-  local host_only
-  host_only="${host##*@}"
-  ssh-keygen -R "$host_only" >/dev/null 2>&1 || true
-
-  log "Uploading nginx config to $host"
-  scp -i "$key" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$temp_conf" "$host:/tmp/bb-portfolio.conf" || { rm -f "$temp_conf"; return 1; }
-  rm -f "$temp_conf"
-  
-  log "Applying nginx config on $host"
-  ssh -i "$key" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$host" 'sudo bash -s' <<'REMOTE_CMDS'
-set -euo pipefail
-ts=$(date +%Y%m%d_%H%M%S)
-TARGET="/etc/nginx/conf.d/bb-portfolio.conf"
-LEGACY="/etc/nginx/conf.d/portfolio.conf"
-
-if [[ -f "$TARGET" ]]; then
-  cp "$TARGET" "$TARGET.bak.$ts"
-  echo "Backup created: $TARGET.bak.$ts"
-fi
-if [[ -f "$LEGACY" ]]; then
-  cp "$LEGACY" "$LEGACY.bak.$ts"
-  echo "Legacy backup created: $LEGACY.bak.$ts"
-  rm -f "$LEGACY"
-fi
-mv /tmp/bb-portfolio.conf "$TARGET"
-# WebSocket upgrade now handled with static Connection header; legacy map removed if present
-if [ -f /etc/nginx/conf.d/00-websocket-upgrade.conf ]; then
-  rm -f /etc/nginx/conf.d/00-websocket-upgrade.conf || true
-fi
-if nginx -t; then
-  systemctl reload nginx && echo "Nginx reloaded successfully."
-else
-  echo "Nginx config test FAILED" >&2
-  exit 1
-fi
-REMOTE_CMDS
-  
-  log "Nginx config sync complete"
-}
-
-# Verify port 80 responds with 2xx/3xx; return nonzero if not
-verify_http80() {
-  local ip="$1"; local attempts=${HEALTH_RETRY_ATTEMPTS:-6}; local delay=${HEALTH_RETRY_DELAY:-5}
-  local i=0 code=""
-  while [ $i -lt $attempts ]; do
-    code=$(curl -s -o /dev/null -w '%{http_code}' --connect-timeout 5 --max-time 10 "http://$ip/" -L || echo "000")
-    if [[ "$code" == 2* || "$code" == 3* ]]; then
-      ok "HTTP :80 on $ip responded ($code, attempt $((i+1)))"
-      return 0
-    fi
-    i=$((i+1))
-    if [[ "$code" == "000" && $i -lt $attempts ]]; then
-      warn "Transient HTTP 000 on $ip (attempt $i/$attempts)"
-      sleep "$delay"; continue
-    fi
-    warn "Attempt $i/$attempts :80 on $ip code=$code"
-    sleep "$delay"
-  done
-  err "HTTP :80 on $ip unhealthy after $attempts attempts (last code=$code)"
-  return 1
 }
 
 # Ensure HTTPS certificates exist (idempotent). Requires certbot on host.
@@ -943,13 +447,8 @@ ensure_https_certs() {
     warn "HTTPS cert ensure skipped: SSH key not found at $key"
     return 0
   fi
-  log "Ensuring HTTPS certificates present on $host (user=${REMOTE_USER})"
-  ssh -i "$key" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${REMOTE_USER}"@"$host" bash -lc $'set -e
-    # Legacy websocket map cleanup (no longer needed)
-    if [ -f /etc/nginx/conf.d/00-websocket-upgrade.conf ]; then
-      sudo rm -f /etc/nginx/conf.d/00-websocket-upgrade.conf || true
-    fi
-    
+  log "Ensuring HTTPS certificates present on $host"
+  ssh -i "$key" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$host" $'set -e
     # Install certbot if missing
     if ! command -v certbot >/dev/null 2>&1; then
       echo "Installing certbot on host..."
@@ -957,75 +456,36 @@ ensure_https_certs() {
     fi
     if command -v certbot >/dev/null 2>&1; then
       if [ ! -d /etc/letsencrypt/live/bbaysinger.com ]; then
-        echo "Verifying DNS resolution before certificate issuance...";
-        # Wait for DNS to propagate (max 60 seconds)
-        for i in {1..12}; do
-          if host bbaysinger.com >/dev/null 2>&1 && host www.bbaysinger.com >/dev/null 2>&1; then
-            echo "DNS resolution confirmed";
-            break;
-          fi
-          echo "Waiting for DNS propagation (attempt $i/12)...";
-          sleep 5;
-        done
-        
         echo "Issuing initial certificates via certbot";
-        if ! sudo certbot --nginx -n --agree-tos --email '"$email"' \
+        sudo certbot --nginx -n --agree-tos --email '"$email"' \
           -d bbaysinger.com -d www.bbaysinger.com \
-          -d dev.bbaysinger.com --redirect; then
-          echo "ERROR: Certbot certificate issuance failed";
-          echo "This is expected on first deployment if DNS has not propagated yet.";
-          echo "Run the orchestrator again after DNS propagates, or manually run:";
-          echo "  sudo certbot --nginx -n --agree-tos --email your@email.com -d bbaysinger.com -d www.bbaysinger.com -d dev.bbaysinger.com --redirect";
-          exit 1;
-        fi
+          -d dev.bbaysinger.com --redirect || echo "Certbot issuance failed";
         sudo systemctl reload nginx || true
       else
         echo "Certificates already present; attempting quiet renewal";
         sudo certbot renew --quiet || echo "Renewal run failed (will retry on timer)";
       fi
     else
-      echo "ERROR: certbot not installed on host";
-      exit 1;
+      echo "certbot not installed on host; skipping HTTPS ensure";
     fi'
 }
 
-# If infra step was skipped and EC2_IP is unknown, optionally resolve host for nginx/certs.
-# In --containers-only mode we deliberately skip host enforcement and nginx sync to avoid
-# unintended SSH attempts to the production EIP. This keeps a pure "images + GH Actions" flow.
+# If infra step was skipped and EC2_IP is unknown, try to resolve host now and enforce single controller once
 if [[ -z "${EC2_IP:-}" ]]; then
-  if [[ "$do_infra" == true ]]; then
-    EC2_HOST_RESOLVE=$(resolve_ec2_host || true)
-    if [[ -n "$EC2_HOST_RESOLVE" ]]; then
-      log "Resolved EC2 host: $EC2_HOST_RESOLVE"
-      enforce_single_controller "$EC2_HOST_RESOLVE"
-      # Deploy nginx configuration
-      ensure_blue_ip || warn "Could not determine BLUE_INSTANCE_IP; proceeding without substitution"
-      log "Syncing nginx configuration to $EC2_HOST_RESOLVE"
-      if ! sync_nginx_config "ec2-user@$EC2_HOST_RESOLVE" "${BLUE_INSTANCE_IP:-}"; then
-        die "Nginx config sync failed (host $EC2_HOST_RESOLVE). Check SSH connectivity and try again."
-      fi
-      log "Skipping HTTPS cert installation on candidate (will be handled post-promotion)"
-      POST_HTTP_VERIFY_HOST="$EC2_HOST_RESOLVE"
-    else
-      warn "Single-controller guard: no host resolved (infra flow), skipping"
-    fi
+  EC2_HOST_RESOLVE=$(resolve_ec2_host || true)
+  if [[ -n "$EC2_HOST_RESOLVE" ]]; then
+    log "Resolved EC2 host: $EC2_HOST_RESOLVE"
+    enforce_single_controller "$EC2_HOST_RESOLVE"
+    ensure_https_certs "$EC2_HOST_RESOLVE" "${ACME_EMAIL:-}"
   else
-    warn "Containers-only mode: skipping host enforcement, nginx sync, and cert ensure"
+    warn "Single-controller guard: no host resolved (containers-only), skipping"
   fi
 fi
 
 # If infra ran earlier and provided EC2_IP, enforce controller and ensure HTTPS now
 if [[ -n "${POST_ENFORCE_HOST:-}" ]]; then
   enforce_single_controller "${POST_ENFORCE_HOST}"
-  
-  # Deploy nginx configuration
-  ensure_blue_ip || warn "Could not determine BLUE_INSTANCE_IP; proceeding without substitution"
-  log "Syncing nginx configuration to $POST_ENFORCE_HOST"
-  if ! sync_nginx_config "ec2-user@$POST_ENFORCE_HOST" "${BLUE_INSTANCE_IP:-}"; then
-    die "Nginx config sync failed (host $POST_ENFORCE_HOST). Check SSH connectivity and try again."
-  fi
-  log "Skipping HTTPS cert installation on candidate (will be handled post-promotion)"
-  POST_HTTP_VERIFY_HOST="${POST_ENFORCE_HOST}"
+  ensure_https_certs "${POST_ENFORCE_HOST}" "${ACME_EMAIL:-}"
 fi
 
 # Helper to dispatch a single Redeploy run for a specific environment (prod|dev)
@@ -1090,127 +550,19 @@ dispatch_redeploy() {
   return 1
 }
 
-# Promotion health gate (production only). Ensures backend/container readiness & HTTP success before EIP handover.
-gate_promotion_health() {
-  local host="$1"; local attempts=${HEALTH_RETRY_ATTEMPTS:-6}; local delay=${HEALTH_RETRY_DELAY:-5}
-  [[ -n "$host" ]] || die "Promotion gate: host required"
-  log "Running promotion health gate on $host (attempts=$attempts delay=${delay}s)"
-  # Detect presence of production containers; if absent but dev present, explain 502 cause and abort.
-  local prod_be="bb-portfolio-backend-prod" prod_fe="bb-portfolio-frontend-prod"
-  local dev_be="bb-portfolio-backend-dev" dev_fe="bb-portfolio-frontend-dev"
-  local have_prod have_dev
-  have_prod=$(ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${REMOTE_USER}"@"$host" "docker ps --filter name=$prod_be --filter name=$prod_fe --format '{{.Names}}'" 2>/dev/null | awk 'NF' | wc -l | tr -d ' ')
-  if [[ ${have_prod:-0} -lt 2 ]]; then
-    have_dev=$(ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${REMOTE_USER}"@"$host" "docker ps --filter name=$dev_be --filter name=$dev_fe --format '{{.Names}}'" 2>/dev/null | awk 'NF' | wc -l | tr -d ' ')
-    if [[ ${have_dev:-0} -ge 2 ]]; then
-      die "Production containers not running (dev containers detected). 502 upstream errors expected: host proxy expects ports 3000/3001 but dev containers expose 4000/4001. Redeploy with --profiles prod or both before promotion."
-    else
-      die "No production containers detected and dev containers missing; candidate not ready."
-    fi
-  fi
-  local be_name="bb-portfolio-backend-prod" fe_name="bb-portfolio-frontend-prod"
-  local tries=0 be_status="" fe_status="" be_ready=false fe_ready=false
-  while [ $tries -lt $attempts ]; do
-    be_status=$(ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${REMOTE_USER}"@"$host" "docker ps --filter name=$be_name --format '{{.Status}}'" || true)
-    fe_status=$(ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${REMOTE_USER}"@"$host" "docker ps --filter name=$fe_name --format '{{.Status}}'" || true)
-    [[ $be_status =~ healthy ]] && be_ready=true || true
-    [[ $fe_status =~ ^Up ]] && fe_ready=true || true
-    if [[ $be_ready == true && $fe_ready == true ]]; then
-      ok "Containers healthy pre-promotion (backend='$be_status' frontend='$fe_status')"
-      break
-    fi
-    tries=$((tries+1))
-    warn "Pre-promotion not ready attempt $tries/$attempts (backend='$be_status' frontend='$fe_status')"
-    sleep "$delay"
-  done
-  if [[ $be_ready != true ]]; then die "Promotion gate failed: backend container not healthy"; fi
-  # HTTP endpoint checks with retry (simplified)
-  local http_retry
-  http_retry() {
-    local url="$1"; local label="$2"; local i=0 code
-    while [ $i -lt $attempts ]; do
-      code=$(ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${REMOTE_USER}"@"$host" "curl -s -o /dev/null -w '%{http_code}' -L '$url'" || echo 000)
-      if [[ $code == 2* || $code == 3* ]]; then ok "$label responded $code (attempt $((i+1)))"; return 0; fi
-      i=$((i+1))
-      if [[ $code == 000 && $i -lt $attempts ]]; then warn "Transient 000 $label (attempt $i/$attempts)"; sleep "$delay"; continue; fi
-      warn "$label code=$code attempt $i/$attempts"; sleep "$delay"
-    done
-    die "Promotion gate failed: $label unhealthy (last code=$code)"
-  }
-  http_retry "http://localhost:3001/api/health" "backend prod health"
-  http_retry "http://localhost:3000/" "frontend prod"
-  ok "Promotion health gate passed"
-}
-
-# (Standalone health-check mode removed; health gate now runs automatically unless --no-health specified.)
-
 # Decide how to dispatch based on --profiles
 case "$profiles" in
   prod)
     # Prefer main for prod, fallback to current branch
     if dispatch_redeploy prod main "$BRANCH"; then
-      ok "Prod redeploy dispatched via GitHub Actions. Candidate IP: ${CANDIDATE_IP:-unknown}"
-      # Run health gate unless skipped or auto-promotion already handles it.
-      if [[ "$auto_promote" != true && "$skip_health" != true ]]; then
-        log "Running automatic health gate post-dispatch (prod profile)"
-        gate_promotion_health "$CANDIDATE_IP"
-        ok "Health gate passed (prod candidate ready; safe to promote manually)."
-      fi
-      # If auto-promotion requested, run handover now (GA logs not watched here).
-      if [[ "$auto_promote" == true ]]; then
-        log "Running promotion health gate before handover (prod profile)"
-        gate_promotion_health "$CANDIDATE_IP"
-        HANDOVER_SCRIPT="${REPO_ROOT}/deploy/scripts/orchestrator-promote.sh"
-        # Capture current active IP before handover (may be empty in null-green scenario)
-        PRE_ACTIVE_IP=$(discover_instance_public_ip_by_role active | head -n1 || echo "")
-        if [[ -f "$HANDOVER_SCRIPT" ]]; then
-          log "Initiating Elastic IP handover (--auto-promote)"
-          set +e
-          HANDOVER_CMD=("$HANDOVER_SCRIPT" --region us-west-2 --collect-diagnostics --certbot-timeout 300)
-          [[ "$auto_approve_handover" == true ]] && HANDOVER_CMD+=(--auto-promote) || true
-          [[ "$handover_rollback" == true ]] && HANDOVER_CMD+=(--rollback-on-fail) || true
-          [[ "$handover_snapshot" == true ]] && HANDOVER_CMD+=(--snapshot-before) || true
-          HANDOVER_CMD+=(--max-retries 10 --interval 6)
-          echo "Running: ${HANDOVER_CMD[*]}"
-          "${HANDOVER_CMD[@]}"
-          HS=$?
-          set -e
-          if [[ $HS -ne 0 ]]; then
-            err "Elastic IP handover failed (exit $HS)."
-            if [[ "$handover_rollback" == true ]]; then
-              warn "Rollback attempted or performed by handover script; continuing."
-            else
-              die "Promotion aborted; not proceeding to pruning."
-            fi
-          else
-            ACTIVE_AFTER=$(discover_instance_public_ip_by_role active | head -n1 || echo "")
-            [[ -z "$PRE_ACTIVE_IP" ]] && PRE_ACTIVE_IP="none (null-green activation)" || true
-            if [[ -n "$ACTIVE_AFTER" ]]; then
-              ok "Elastic IP handover completed successfully (previous: $PRE_ACTIVE_IP, new: $ACTIVE_AFTER)."
-              # Post-handover reachability check; set flag for pruning safety
-              if verify_http80 "$ACTIVE_AFTER"; then
-                PROMOTION_POST_HTTP_HEALTH=true
-              else
-                PROMOTION_POST_HTTP_HEALTH=false
-                err "Post-handover active IP $ACTIVE_AFTER unreachable on :80 (previous: $PRE_ACTIVE_IP). Previous active instance will be retained (skip pruning)."
-              fi
-            else
-              ok "Elastic IP handover completed successfully (active IP: unknown)."
-              err "Could not resolve new active IP after handover (previous: $PRE_ACTIVE_IP)."
-              PROMOTION_POST_HTTP_HEALTH=false
-            fi
-          fi
-        else
-          warn "orchestrator-promote.sh not found at $HANDOVER_SCRIPT; cannot promote."
-        fi
-      fi
+      ok "Prod redeploy dispatched via GitHub Actions. EC2 IP: ${EC2_IP:-unknown}"
       popd >/dev/null; exit 0
     fi
     ;;
   dev)
     # Prefer current branch for dev, fallback to 'dev' then main
     if dispatch_redeploy dev "$BRANCH" dev main; then
-      ok "Dev redeploy dispatched via GitHub Actions. Candidate IP: ${CANDIDATE_IP:-unknown}"
+      ok "Dev redeploy dispatched via GitHub Actions. EC2 IP: ${EC2_IP:-unknown}"
       popd >/dev/null; exit 0
     fi
     ;;
@@ -1222,63 +574,11 @@ case "$profiles" in
     if dispatch_redeploy dev "$BRANCH" dev main; then DEV_OK=true; fi
     if [[ "$PROD_OK" == true || "$DEV_OK" == true ]]; then
       if [[ "$PROD_OK" == true && "$DEV_OK" == true ]]; then
-        ok "Prod and Dev redeploys dispatched via GitHub Actions. Candidate IP: ${CANDIDATE_IP:-unknown}"
+        ok "Prod and Dev redeploys dispatched via GitHub Actions. EC2 IP: ${EC2_IP:-unknown}"
       elif [[ "$PROD_OK" == true ]]; then
         warn "Prod redeploy dispatched, but dev dispatch failed. You can re-run dev via: gh workflow run redeploy.yml -f environment=dev --ref ${BRANCH}"
       else
         warn "Dev redeploy dispatched, but prod dispatch failed. You can re-run prod via: gh workflow run redeploy.yml -f environment=prod --ref main"
-      fi
-      # Automatic health gate for prod side when not auto-promoting
-      if [[ "$PROD_OK" == true && "$auto_promote" != true && "$skip_health" != true ]]; then
-        log "Running automatic health gate post-dispatch (both profiles / prod side)"
-        gate_promotion_health "$CANDIDATE_IP"
-        ok "Health gate passed (prod candidate ready; safe to promote manually)."
-      fi
-      # If auto-promotion requested, run handover now after dispatch
-      if [[ "$auto_promote" == true ]]; then
-        log "Running promotion health gate before handover (both profiles)"
-        gate_promotion_health "$CANDIDATE_IP"
-        HANDOVER_SCRIPT="${REPO_ROOT}/deploy/scripts/orchestrator-promote.sh"
-        PRE_ACTIVE_IP=$(discover_instance_public_ip_by_role active | head -n1 || echo "")
-        if [[ -f "$HANDOVER_SCRIPT" ]]; then
-          log "Initiating Elastic IP handover (--auto-promote)"
-          set +e
-          HANDOVER_CMD=("$HANDOVER_SCRIPT" --region us-west-2 --collect-diagnostics --certbot-timeout 300)
-          [[ "$auto_approve_handover" == true ]] && HANDOVER_CMD+=(--auto-promote) || true
-          [[ "$handover_rollback" == true ]] && HANDOVER_CMD+=(--rollback-on-fail) || true
-          [[ "$handover_snapshot" == true ]] && HANDOVER_CMD+=(--snapshot-before) || true
-          HANDOVER_CMD+=(--max-retries 10 --interval 6)
-          echo "Running: ${HANDOVER_CMD[*]}"
-          "${HANDOVER_CMD[@]}"
-          HS=$?
-          set -e
-          if [[ $HS -ne 0 ]]; then
-            err "Elastic IP handover failed (exit $HS)."
-            if [[ "$handover_rollback" == true ]]; then
-              warn "Rollback attempted or performed by handover script; continuing."
-            else
-              die "Promotion aborted; not proceeding to pruning."
-            fi
-          else
-            ACTIVE_AFTER=$(discover_instance_public_ip_by_role active | head -n1 || echo "")
-            [[ -z "$PRE_ACTIVE_IP" ]] && PRE_ACTIVE_IP="none (null-green activation)" || true
-            if [[ -n "$ACTIVE_AFTER" ]]; then
-              ok "Elastic IP handover completed successfully (previous: $PRE_ACTIVE_IP, new: $ACTIVE_AFTER)."
-              if verify_http80 "$ACTIVE_AFTER"; then
-                PROMOTION_POST_HTTP_HEALTH=true
-              else
-                PROMOTION_POST_HTTP_HEALTH=false
-                err "Post-handover active IP $ACTIVE_AFTER unreachable on :80 (previous: $PRE_ACTIVE_IP). Previous active instance will be retained (skip pruning)."
-              fi
-            else
-              ok "Elastic IP handover completed successfully (active IP: unknown)."
-              err "Could not resolve new active IP after handover (previous: $PRE_ACTIVE_IP)."
-              PROMOTION_POST_HTTP_HEALTH=false
-            fi
-          fi
-        else
-          warn "orchestrator-promote.sh not found at $HANDOVER_SCRIPT; cannot promote."
-        fi
       fi
       popd >/dev/null; exit 0
     fi
@@ -1292,12 +592,14 @@ SSH_KEY="$HOME/.ssh/bb-portfolio-site-key.pem"
 [[ -f "$SSH_KEY" ]] || die "SSH key not found at $SSH_KEY"
 
 # Determine EC2_HOST (prefer Terraform outputs; fallback to local private secrets)
-# Always deploy to candidate (blue) instance
-EC2_HOST="${CANDIDATE_IP}"
+EC2_HOST="${EC2_IP:-}"
+if [[ -z "$EC2_HOST" ]]; then
+  EC2_HOST=$(resolve_ec2_host || true)
+fi
 if [[ -n "$EC2_HOST" ]]; then
-  log "Deploying to blue candidate instance: $EC2_HOST"
+  log "Using EC2 host: $EC2_HOST"
 else
-  die "Candidate (blue) instance IP unknown"
+  die "EC2 host unknown for SSH fallback"
 fi
 
 if [[ "$refresh_env" == true ]]; then
@@ -1376,32 +678,18 @@ if [[ "$refresh_env" == true ]]; then
       writeFileSync(`${outDir}/frontend.env.dev`, feDev, "utf8");
     '
   )
-  # Compose .env file ensuring AWS_ACCOUNT_ID is present for docker-compose image references
-  if [[ -n "${AWS_ACCOUNT_ID:-}" ]]; then
-    echo "AWS_ACCOUNT_ID=${AWS_ACCOUNT_ID}" > "${TMP_DIR}/compose.env"
-  else
-    # Leave file empty rather than inserting invalid placeholder
-    touch "${TMP_DIR}/compose.env"
-  fi
   log "Uploading env files to EC2 ($EC2_HOST)"
-  ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${REMOTE_USER}"@"$EC2_HOST" "mkdir -p ${REMOTE_REPO}/backend ${REMOTE_REPO}/frontend"
-  scp -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$TMP_DIR/backend.env.prod"  "${REMOTE_USER}"@"$EC2_HOST":"${REMOTE_REPO}/backend/.env.prod"
-  scp -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$TMP_DIR/backend.env.dev"   "${REMOTE_USER}"@"$EC2_HOST":"${REMOTE_REPO}/backend/.env.dev"
-  scp -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$TMP_DIR/frontend.env.prod" "${REMOTE_USER}"@"$EC2_HOST":"${REMOTE_REPO}/frontend/.env.prod"
-  scp -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$TMP_DIR/frontend.env.dev"  "${REMOTE_USER}"@"$EC2_HOST":"${REMOTE_REPO}/frontend/.env.dev"
-  scp -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$TMP_DIR/compose.env"        "${REMOTE_USER}"@"$EC2_HOST":"${REMOTE_REPO}/.env"
+  ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" "mkdir -p /home/ec2-user/portfolio/backend /home/ec2-user/portfolio/frontend"
+  scp -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$TMP_DIR/backend.env.prod"  ec2-user@"$EC2_HOST":/home/ec2-user/portfolio/backend/.env.prod
+  scp -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$TMP_DIR/backend.env.dev"   ec2-user@"$EC2_HOST":/home/ec2-user/portfolio/backend/.env.dev
+  scp -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$TMP_DIR/frontend.env.prod" ec2-user@"$EC2_HOST":/home/ec2-user/portfolio/frontend/.env.prod
+  scp -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$TMP_DIR/frontend.env.dev"  ec2-user@"$EC2_HOST":/home/ec2-user/portfolio/frontend/.env.dev
 fi
 
 log "Logging into ECR and restarting compose profiles via SSH"
-ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${REMOTE_USER}"@"$EC2_HOST" "aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 778230822028.dkr.ecr.us-west-2.amazonaws.com >/dev/null 2>&1 || true"
-if [[ -n "${AWS_ACCOUNT_ID:-}" ]]; then
-  log "Logging into ECR with resolved AWS_ACCOUNT_ID=$AWS_ACCOUNT_ID"
-  ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${REMOTE_USER}"@"$EC2_HOST" "aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com >/dev/null 2>&1 || true"
-else
-  warn "Skipping dynamic ECR login: AWS_ACCOUNT_ID unset (fallback login above may be incorrect)."
-fi
-ssh -i "$SSH_KEY" -tt -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${REMOTE_USER}"@"$EC2_HOST" bash -lc $'set -e
-cd "'"${REMOTE_REPO}"'"
+ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" "aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 778230822028.dkr.ecr.us-west-2.amazonaws.com >/dev/null 2>&1 || true"
+ssh -i "$SSH_KEY" -tt -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" bash -lc $'set -e
+cd /home/ec2-user/portfolio
 docker-compose down || true
 case '"$profiles"' in
   prod)
@@ -1422,126 +710,7 @@ esac
 '
 
 ok "Containers restarted via SSH fallback. EC2 IP: $EC2_HOST"
-
-# Poll container health before proceeding with summary/HTTP verification (SSH fallback path)
-poll_containers_health() {
-  local env="$1"; local attempts=${HEALTH_RETRY_ATTEMPTS:-6}; local delay=${HEALTH_RETRY_DELAY:-5}; local tries=0
-  local be_name fe_name
-  case "$env" in
-    prod) be_name="bb-portfolio-backend-prod"; fe_name="bb-portfolio-frontend-prod";;
-    dev)  be_name="bb-portfolio-backend-dev";  fe_name="bb-portfolio-frontend-dev";;
-  esac
-  log "Polling container health ($env) attempts=$attempts delay=${delay}s"
-  local be_status fe_status
-  while [ $tries -lt $attempts ]; do
-    be_status=$(ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${REMOTE_USER}"@"$EC2_HOST" "docker ps --filter name=$be_name --format '{{.Status}}'" || true)
-    fe_status=$(ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${REMOTE_USER}"@"$EC2_HOST" "docker ps --filter name=$fe_name --format '{{.Status}}'" || true)
-    be_ready=false; fe_ready=false
-    if echo "$be_status" | grep -qi 'healthy'; then be_ready=true; fi
-    if echo "$fe_status" | grep -qi '^Up '; then fe_ready=true; fi
-    if [[ "$be_ready" == true && "$fe_ready" == true ]]; then
-      ok "Containers healthy ($env) backend='$be_status' frontend='$fe_status'"
-      return 0
-    fi
-    tries=$((tries+1))
-    warn "Not ready yet ($env) attempt $tries/$attempts (backend='$be_status' frontend='$fe_status')"
-    sleep "$delay"
-  done
-  warn "Containers not healthy after $attempts attempts ($env) (backend='$be_status' frontend='$fe_status')"
-  return 1
-}
-
-# Poll for each profile requested
-case "$profiles" in
-  prod) poll_containers_health prod || true ;;
-  dev)  poll_containers_health dev  || true ;;
-  both) poll_containers_health prod || true; poll_containers_health dev || true ;;
-esac
-
-# Optional auto-promotion (Elastic IP handover blue → green)
-if [[ "$auto_promote" == true ]]; then
-  HANDOVER_SCRIPT="${REPO_ROOT}/deploy/scripts/orchestrator-promote.sh"
-    if [[ -f "$HANDOVER_SCRIPT" ]]; then
-      PRE_ACTIVE_IP=$(discover_instance_public_ip_by_role active | head -n1 || echo "")
-      log "Running promotion health gate before handover (SSH fallback)"
-      gate_promotion_health "$EC2_HOST"
-      log "Initiating Elastic IP handover (--auto-promote)"
-      set +e
-      HANDOVER_CMD=("$HANDOVER_SCRIPT" --region us-west-2 --collect-diagnostics --certbot-timeout 300)
-      [[ "$auto_approve_handover" == true ]] && HANDOVER_CMD+=(--auto-promote) || true
-      [[ "$handover_rollback" == true ]] && HANDOVER_CMD+=(--rollback-on-fail) || true
-      [[ "$handover_snapshot" == true ]] && HANDOVER_CMD+=(--snapshot-before) || true
-      HANDOVER_CMD+=(--max-retries 10 --interval 6)
-      echo "Running: ${HANDOVER_CMD[*]}"
-      "${HANDOVER_CMD[@]}"
-      HS=$?
-      set -e
-      if [[ $HS -ne 0 ]]; then
-        err "Elastic IP handover failed (exit $HS)."
-        if [[ "$handover_rollback" == true ]]; then
-          warn "Rollback attempted or performed by handover script; continuing." 
-        else
-          die "Promotion aborted; not proceeding to pruning."
-        fi
-      else
-        ACTIVE_AFTER=$(discover_instance_public_ip_by_role active | head -n1 || echo "")
-        [[ -z "$PRE_ACTIVE_IP" ]] && PRE_ACTIVE_IP="none (null-green activation)" || true
-        if [[ -n "$ACTIVE_AFTER" ]]; then
-          ok "Elastic IP handover completed successfully (previous: $PRE_ACTIVE_IP, new: $ACTIVE_AFTER)."
-          if verify_http80 "$ACTIVE_AFTER"; then
-            PROMOTION_POST_HTTP_HEALTH=true
-          else
-            PROMOTION_POST_HTTP_HEALTH=false
-            err "Post-handover active IP $ACTIVE_AFTER unreachable on :80 (previous: $PRE_ACTIVE_IP). Previous active instance will be retained (skip pruning)."
-          fi
-        else
-          ok "Elastic IP handover completed successfully (active IP: unknown)."
-          err "Could not resolve new active IP after handover (previous: $PRE_ACTIVE_IP)."
-          PROMOTION_POST_HTTP_HEALTH=false
-        fi
-      fi
-    else
-      warn "orchestrator-promote.sh not found at $HANDOVER_SCRIPT; cannot promote."
-    fi
-fi
-
-# Retention pruning block (after optional promotion)
-if [[ "$prune_after_promotion" == true ]]; then
-  if [[ "${PROMOTION_POST_HTTP_HEALTH:-true}" == true ]]; then
-    log "Retention pruning requested (--prune-after-promotion) and post-handover health OK. Invoking instance-retention.sh"
-    RETENTION_SCRIPT="${REPO_ROOT}/scripts/instance-retention.sh"
-    if [[ -f "$RETENTION_SCRIPT" ]]; then
-      set +e
-      if [[ -n "$retention_days" ]]; then
-        "$RETENTION_SCRIPT" --retain-count "$retention_count" --retain-days "$retention_days" --force || warn "Retention script encountered errors"
-      else
-        "$RETENTION_SCRIPT" --retain-count "$retention_count" --force || warn "Retention script encountered errors"
-      fi
-      set -e
-    else
-      warn "Retention script not found at $RETENTION_SCRIPT; skipping prune"
-    fi
-  else
-    warn "Skipping retention pruning: post-handover active IP failed health. Previous active instance retained for investigation."
-  fi
-fi
-# Friendly summary with safe fallbacks
-ACTIVE_IP="${GREEN_INSTANCE_IP:-}"
-if [[ -z "$ACTIVE_IP" ]]; then
-  ACTIVE_IP=$(discover_instance_public_ip_by_role active | head -n1 || true)
-fi
-ok "Blue candidate deployment completed. Test at $CANDIDATE_IP (http://$CANDIDATE_IP); to promote, run scripts/orchestrator-promote.sh or npm run candidate-promote to make it live at ${ACTIVE_IP:-the active address}."
-
-# Deferred HTTP:80 verification (after workflows & potential container start)
-if [[ -n "${POST_HTTP_VERIFY_HOST:-}" ]]; then
-  log "Verifying HTTP :80 after container workflow dispatch (host=${POST_HTTP_VERIFY_HOST})"
-  if ! verify_http80 "${POST_HTTP_VERIFY_HOST}"; then
-    warn "HTTP :80 still not healthy (host=${POST_HTTP_VERIFY_HOST}). Containers may still be starting or upstream config invalid."
-    warn "You can tail logs or rerun verification later."
-  else
-    ok "HTTP :80 healthy on ${POST_HTTP_VERIFY_HOST} after deployment."
-  fi
-fi
+ok "Full deploy completed (fallback path)."
 
 
 popd >/dev/null
