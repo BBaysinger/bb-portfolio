@@ -92,7 +92,7 @@
 .stripes {
   position: absolute;
   height: 125%;
-  width: 200%;
+  width: 250%;
   left: 50%;
   background-position: center;
   background-size: cover;
@@ -151,15 +151,15 @@ h4.thumbTitle {
   flex-direction: column;
   left: 0;
   bottom: 0;
-  z-index: 1000;
+  z-index: 100;
   padding-left: 20px;
-  padding-top: 16px;
+  padding-top: 12px;
   width: 100%;
   height: 50px;
   opacity: 0.01; // Too small a decimal causes a frame drop.
   will-change: opacity, filter;
   background-color: rgba(0, 0, 0, 0.5);
-  transition: opacity 0.3s linear;
+  // transition: opacity 0.3s linear;
   overflow: hidden;
 
   // Name and logo

@@ -1,4 +1,4 @@
-import Image from "next/image";
+// import Image from "next/image";
 import Link from "next/link";
 import React, { forwardRef, useEffect, useState } from "react";
 
@@ -74,7 +74,7 @@ const ProjectThumbnail = forwardRef<HTMLDivElement, ProjectThumbnailProps>(
   ) => {
     // Get the appropriate image URL based on viewport size
     const responsiveThumbUrl = useResponsiveThumbnail(thumbUrl, thumbUrlMobile);
-    const [logoSrc, setLogoSrc] = useState<string | null>(null);
+    const [_logoSrc, setLogoSrc] = useState<string | null>(null);
 
     useEffect(() => {
       const loadLogo = () => {
@@ -162,7 +162,7 @@ const ProjectThumbnail = forwardRef<HTMLDivElement, ProjectThumbnailProps>(
           <h4 className={styles.thumbTitle}>
             {showNdaConfidential ? "Please log in to view this project" : title}
           </h4>
-          <div>
+          {/* <div>
             {(logoSrc || showNdaConfidential) && (
               <Image
                 src={logoSrc || "/images/projects-list/confidential-word.svg"}
@@ -175,7 +175,7 @@ const ProjectThumbnail = forwardRef<HTMLDivElement, ProjectThumbnailProps>(
                 height={100}
               />
             )}
-          </div>
+          </div> */}
           {/* <h4 className={styles.thumbTitle}>
             {showNdaConfidential ? "Please log in to view this project" : title}
           </h4> */}
