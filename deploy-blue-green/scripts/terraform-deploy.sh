@@ -1,6 +1,39 @@
 #!/bin/bash
+# terraform-deploy.sh
 # Infrastructure as Code Deployment Script
-# Handles complete infrastructure deployment with automated SSH key management
+# -----------------------------------------------------------------------------------------
+# Provisions or updates AWS EC2 infrastructure via Terraform for bb-portfolio.
+# Handles SSH key generation, Terraform init/plan/apply, and output capture.
+#
+# Role in deployment flow:
+# - Called by deployment-orchestrator.sh to provision/update EC2 instances
+# - Supports both single-instance and blue-green (candidate/active) deployments
+# - Automatically generates SSH keys if missing (stored in ~/.ssh/bb-portfolio-site-key.pem)
+# - Captures Terraform outputs (instance IPs, DNS) for downstream orchestrator use
+#
+# Blue-green deployment support:
+# - Target instance controlled via TF_VAR_target_instance environment variable
+# - Provisions separate security groups and EIPs for candidate instances
+# - Creates instances tagged with Project=bb-portfolio, Role=active|candidate
+# - Candidate instances isolated from production traffic until promoted
+#
+# Infrastructure provisioned:
+# - EC2 t3.medium instance(s) running Ubuntu 22.04
+# - Security groups (SSH 22, HTTP 80, HTTPS 443, dev ports 4000-4001)
+# - Elastic IP associations for stable DNS targeting
+# - IAM instance profile with ECR/S3/SES permissions
+# - Automated Nginx + Docker + Compose installation via user-data
+#
+# Requirements:
+# - Terraform >= 1.x installed
+# - AWS CLI configured with EC2/VPC/IAM permissions
+# - infra/terraform.tfvars present (generated from .github-secrets.private.json5)
+# - Write access to ~/.ssh for key generation
+#
+# Usage:
+#   deploy/scripts/terraform-deploy.sh                      # Direct invocation (rare)
+#   deployment-orchestrator.sh --no-destroy                 # Typical via orchestrator
+#   TF_VAR_target_instance=candidate terraform-deploy.sh    # Provision candidate
 
 set -euo pipefail  # Exit on error, undefined vars, pipe failures
 
@@ -224,7 +257,7 @@ show_deployment_summary() {
 main() {
     log_info "Starting Infrastructure as Code deployment..."
     log_info "Timestamp: $(date)"
-    log_info "Project: BB Portfolio"
+    log_info "Project: BB-Portfolio"
     log_info ""
     
     check_prerequisites

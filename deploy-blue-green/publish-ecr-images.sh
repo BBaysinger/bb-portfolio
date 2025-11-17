@@ -18,7 +18,7 @@ ACCOUNT_ID="778230822028"
 FRONTEND_REPO="${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com/bb-portfolio-frontend-prod"
 BACKEND_REPO="${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com/bb-portfolio-backend-prod"
 
-ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
+ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 TFVARS="$ROOT_DIR/infra/terraform.tfvars"
 
 get_tf_var() {
