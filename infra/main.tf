@@ -327,6 +327,11 @@ resource "aws_instance" "bb_portfolio_blue" {
 
   user_data = <<-EOF
 #!/bin/bash
+# Ensure sshd is enabled and started first
+systemctl enable sshd
+systemctl start sshd
+systemctl status sshd >> /var/log/bb-portfolio-startup.log
+
 yum update -y
 yum install -y docker git nginx
 # Ensure SSM Agent is installed explicitly
@@ -348,6 +353,10 @@ APP_ROOT="/home/ec2-user/bb-portfolio-blue"
 mkdir -p "$APP_ROOT/backend" "$APP_ROOT/frontend"
 chown -R ec2-user:ec2-user "$APP_ROOT"
 echo "Blue (candidate) infrastructure baseline ready: $APP_ROOT" >> /var/log/bb-portfolio-startup.log
+
+# Verify SSH is running
+systemctl status sshd >> /var/log/bb-portfolio-startup.log
+echo "SSH daemon status logged" >> /var/log/bb-portfolio-startup.log
 EOF
 
   tags = {
