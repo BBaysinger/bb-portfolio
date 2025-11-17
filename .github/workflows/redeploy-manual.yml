@@ -466,12 +466,12 @@ jobs:
         run: |
           set -euo pipefail
           USER="${SSH_USER:-ec2-user}"
-          check() { ssh -i "${{ steps.ssh.outputs.key }}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${USER}@$EC2_HOST" "curl -s -o /dev/null -w '%{http_code}' http://localhost:$1$2"; }
+          check() { ssh -i "${{ steps.ssh.outputs.key }}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${USER}@$EC2_HOST" "curl --max-time 3 --connect-timeout 1 -s -o /dev/null -w '%{http_code}' http://localhost:$1$2"; }
           if [ "$ENVIRONMENT" = "prod" ] || [ "$ENVIRONMENT" = "both" ]; then
             test "$(check 3000 /)" = "200" || echo "WARN: frontend prod not 200" >&2
             test "$(check 3001 /api/health)" = "200" || echo "WARN: backend prod health not 200" >&2
           fi
-          if [ "$ENVIRONMENT" = "dev" ] || [ "$ENVIRONMENT" = "both" ]; then
+          if { [ "$ENVIRONMENT" = "dev" ] || [ "$ENVIRONMENT" = "both" ]; } && { [ "${START_DEV}" = "true" ] || [ "${START_DEV}" = true ]; }; then
             test "$(check 4000 /)" = "200" || echo "WARN: frontend dev not 200" >&2
             test "$(check 4001 /api/health)" = "200" || echo "WARN: backend dev health not 200" >&2
           fi
