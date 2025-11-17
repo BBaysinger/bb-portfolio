@@ -124,12 +124,12 @@ const ProjectThumbnail = forwardRef<HTMLDivElement, ProjectThumbnailProps>(
 
     const focusClass = focused ? styles.projectThumbnailFocus : "";
 
-    // Deterministic variant so SSR and client match (no flash)
-    const stripeVariantClass = [
-      styles.stripesPurple,
-      styles.stripesGreen,
-      styles.stripesYellow,
-    ][index % 3];
+    // Deterministic stripe color via CSS variable (no class variants needed)
+    const stripeColors = ["green", "yellow", "purple"];
+    const stripeColor = stripeColors[index % stripeColors.length];
+    const stripeVars: React.CSSProperties = {
+      backgroundImage: `url('/images/projects-list/stripes-${stripeColor}.webp')`,
+    };
 
     const inner = (
       <>
@@ -167,7 +167,7 @@ const ProjectThumbnail = forwardRef<HTMLDivElement, ProjectThumbnailProps>(
 
     return (
       <div
-        className={`${styles.projectThumbnail} ${focusClass} ${stripeVariantClass}`}
+        className={`${styles.projectThumbnail} ${focusClass}`}
         ref={ref}
       >
         <Link
@@ -177,8 +177,8 @@ const ProjectThumbnail = forwardRef<HTMLDivElement, ProjectThumbnailProps>(
         >
           {inner}
         </Link>
+        <div className={`${styles.stripes} ${styles.stripesBottom}`} style={stripeVars}></div>
         <div className={`${styles.stripes} ${styles.stripesTop}`}></div>
-        <div className={styles.stripesBot}></div>
       </div>
     );
   },
