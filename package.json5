@@ -199,8 +199,8 @@
     // 🪄 Generate the portfolio images from PSDs from *outside* of the repo. Run before seed:media.
     "media:export": "bash scripts/export-media.sh",
     // 🪄 Import images from ../cms-seedings into backend/media/* for local dev
-    "seed:media": "tsx scripts/import-media-from-seedings.ts",
-    //
+    "media:seed": "tsx scripts/import-media-from-seedings.ts",
+    // 🪄 Upload media assets to target S3 bucket(s) (env defaults to prod unless --env passed)
     "media:upload": "tsx scripts/upload-media-to-s3.ts --env prod",
     // 🪄 Upload media only to the development S3 bucket
     "media:upload:dev": "tsx scripts/upload-media-to-s3.ts --env dev",
@@ -264,7 +264,7 @@
     "db:delete:prod-portfolio:dry": "bash scripts/delete-database.sh --env prod --db portfolio-prod --dry-run",
     // 🗑️ Prod cleanup (apply): backup then drop portfolio-prod
     "db:delete:prod-portfolio": "bash scripts/delete-database.sh --env prod --db portfolio-prod",
-    //
+    // ☢️ Convenience: run both local→prod and local→dev migrations sequentially (ensure backups exist first)
     "db:migrate:both": "npm run db:migrate:local-to-prod && npm run db:migrate:local-to-dev",
     // ☢️💀 DANGER: NUCLEAR DATABASE REPLACEMENT - Completely overwrites production DB with local data
     "db:migrate:local-to-prod": "bash scripts/migrate-database.sh local prod",
