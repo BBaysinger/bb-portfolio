@@ -82,20 +82,12 @@
 }
 
 // Expose variant classes so the component can toggle them.
-.stripesPurple { --stripe-variant: purple; }
-.stripesGreen { --stripe-variant: green; }
-.stripesYellow { --stripe-variant: yellow; }
+.stripesPurple { --stripes-top-url: url("/images/projects-list/stripes-purple.webp"); }
+.stripesGreen { --stripes-top-url: url("/images/projects-list/stripes-blue.webp"); }
+.stripesYellow { --stripes-top-url: url("/images/projects-list/stripes-orange.webp"); }
 
 .stripesTop {
-  .stripesPurple & {
-    background-image: url("/images/projects-list/stripes-purple.webp");
-  }
-  .stripesGreen & {
-    background-image: url("/images/projects-list/stripes-blue.webp");
-  }
-  .stripesYellow & {
-    background-image: url("/images/projects-list/stripes-orange.webp");
-  }
+  background-image: var(--stripes-top-url);
 }
 
 .stripesBot {
