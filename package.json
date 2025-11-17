@@ -103,6 +103,8 @@
     "orchestrate:no-build:auto-promote": "bash deploy/scripts/deployment-orchestrator.sh --profiles both --no-build --auto-promote --refresh-env",
     "orchestrate:containers-only": "bash deploy/scripts/deployment-orchestrator.sh --profiles both --containers-only --refresh-env",
     "orchestrate:containers-only:auto-promote": "bash deploy/scripts/deployment-orchestrator.sh --profiles both --containers-only --auto-promote --refresh-env",
+    "orchestrate:legacy": "bash deploy/scripts/deployment-orchestrator-legacy.sh --refresh-env",
+    "orchestrate:legacy:containers-only": "bash deploy/scripts/deployment-orchestrator-legacy.sh --containers-only --refresh-env",
     "candidate-promote": "bash deploy/scripts/orchestrator-promote.sh --region us-west-2",
     "infra:sync-env": "cd infra && bash sync-env-from-terraform.sh",
     "infra:sync-env:force": "cd infra && bash sync-env-from-terraform.sh --force",

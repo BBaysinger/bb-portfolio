@@ -540,3 +540,35 @@ jobs:
             curl_with_retry 4000 / "frontend dev"
             curl_with_retry 4001 /api/health "backend dev health"
           fi
+
+      - name: Dump container logs on failure
+        if: failure()
+        env:
+          ENVIRONMENT: ${{ inputs.environment }}
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+        run: |
+          set -euo pipefail
+          KEY="${{ steps.ssh.outputs.key }}"
+          dump_logs() {
+            local name="$1"
+            echo "==== logs: $name (last 200 lines) ===="
+            ssh -i "$KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" \
+              "docker logs --tail 200 --timestamps $name 2>&1 || true"
+            echo
+          }
+          case "$ENVIRONMENT" in
+            prod)
+              dump_logs bb-portfolio-frontend-prod
+              dump_logs bb-portfolio-backend-prod
+              ;;
+            dev)
+              dump_logs bb-portfolio-frontend-dev
+              dump_logs bb-portfolio-backend-dev
+              ;;
+            both)
+              dump_logs bb-portfolio-frontend-prod
+              dump_logs bb-portfolio-backend-prod
+              dump_logs bb-portfolio-frontend-dev
+              dump_logs bb-portfolio-backend-dev
+              ;;
+          esac
