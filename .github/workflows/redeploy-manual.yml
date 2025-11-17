@@ -1,5 +1,10 @@
 name: Redeploy (Manual)
 
+# IP Address Constants for Blue-Green-Red Deployment
+# GREEN (Production/Active): 44.246.43.116
+# BLUE (Candidate/Staging): 52.37.142.50
+# RED (Tainted/Recreation): 35.167.120.233
+
 on:
   workflow_dispatch:
     inputs:
@@ -222,6 +227,48 @@ jobs:
           echo "=== SSH Preflight SUCCESS ==="
           echo "Working user: $WORKING_USER"
           echo "ssh_user=$WORKING_USER" >> "$GITHUB_OUTPUT"
+
+      - name: Guard: env files present when refresh_env=false
+        if: ${{ inputs.refresh_env == 'false' || inputs.refresh_env == false }}
+        env:
+          ENVIRONMENT: ${{ inputs.environment }}
+          EC2_HOST: ${{ inputs.ec2_host || secrets.EC2_HOST }}
+          SSH_USER: ${{ steps.ssh_preflight.outputs.ssh_user }}
+        run: |
+          set -euo pipefail
+          USER="${SSH_USER:-ec2-user}"
+          KEY="${{ steps.ssh.outputs.key }}"
+          missing=0
+          check() {
+            local f="$1"
+            if ! ssh -i "$KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${USER}@$EC2_HOST" "test -f '$f'"; then
+              echo "✗ Missing $f"
+              missing=1
+            else
+              echo "✓ Found  $f"
+            fi
+          }
+          case "$ENVIRONMENT" in
+            prod)
+              check "/home/${USER}/bb-portfolio/backend/.env.prod"
+              check "/home/${USER}/bb-portfolio/frontend/.env.prod"
+              ;;
+            dev)
+              check "/home/${USER}/bb-portfolio/backend/.env.dev"
+              check "/home/${USER}/bb-portfolio/frontend/.env.dev"
+              ;;
+            both)
+              check "/home/${USER}/bb-portfolio/backend/.env.prod"
+              check "/home/${USER}/bb-portfolio/frontend/.env.prod"
+              check "/home/${USER}/bb-portfolio/backend/.env.dev"
+              check "/home/${USER}/bb-portfolio/frontend/.env.dev"
+              ;;
+          esac
+          if [ "$missing" -ne 0 ]; then
+            echo "One or more required env files are missing on the host."
+            echo "Re-run this workflow with input refresh_env=true to generate and upload them."
+            exit 1
+          fi
 
       - name: Generate env files (in runner temp)
         id: genenv

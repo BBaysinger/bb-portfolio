@@ -207,7 +207,7 @@ All logic lives in `deploy/scripts/deployment-orchestrator.sh` (`gate_promotion_
 
 Use npm scripts for end-to-end orchestration:
 
-```
+````
 # Full redeploy to blue (candidate) for both profiles
 npm run orchestrate
 
@@ -218,6 +218,37 @@ npm run orchestrate:auto-promote
 npm run candidate-promote
 
 > Initial Activation (null-green mode): If no instance is tagged `Role=active` yet (first time standing up production), the promotion path will tag the healthy candidate directly as active without performing a swap.
+
+### Quick Candidate Simulation (Single-Instance Demotion Test)
+
+For fast testing of the promotion script without provisioning a fresh candidate, you can temporarily retag the current active instance as a candidate (blue) using the helper script:
+
+```bash
+# Demote the current active to candidate (blue)
+AWS_PROFILE=bb-portfolio-user bash deploy/scripts/demote-active-to-candidate.sh
+
+# Run a promotion (null-green path will re-associate PROD_EIP and retag back to active)
+AWS_PROFILE=bb-portfolio-user bash deploy/scripts/orchestrator-promote.sh --auto-promote --collect-diagnostics
+
+# Revert back to active manually if needed
+AWS_PROFILE=bb-portfolio-user bash deploy/scripts/demote-active-to-candidate.sh --revert
+````
+
+Optional dangerous flag (causes temporary downtime until promotion completes):
+
+```bash
+AWS_PROFILE=bb-portfolio-user bash deploy/scripts/demote-active-to-candidate.sh --detach-prod-eip
+```
+
+Safety notes:
+
+- This does not spin up a second instance; traffic still points at the same host.
+- Do not leave the system with no `Role=active` tag longer than necessary.
+- Use only for logic validation (tag transitions, EIP reassociation, diagnostics collection).
+- Diagnostics produced by the promotion script will land under `deploy/logs/promote-<TIMESTAMP>/`.
+
+If the PROD EIP was detached, the promotion script will re-associate it during null-green activation.
+
 ```
 
 ### Infrastructure as Code
@@ -230,16 +261,18 @@ npm run candidate-promote
 ## Current Architecture
 
 ```
+
 Internet → CloudFlare DNS → Elastic IP (44.246.43.116)
-    ↓
+↓
 AWS EC2 t3.medium
-    ├── Nginx (:80)
-   │   ├── bbaysinger.com & www.bbaysinger.com → Production Containers (:3000/:3001)
-   │   ├── dev.bbaysinger.com → Development Containers (:4000/:4001)
-    │   └── API requests (/api/) routed per domain
-    ├── ECR Images (for production deployment)
-    └── S3 Buckets (media storage)
-```
+├── Nginx (:80)
+│ ├── bbaysinger.com & www.bbaysinger.com → Production Containers (:3000/:3001)
+│ ├── dev.bbaysinger.com → Development Containers (:4000/:4001)
+│ └── API requests (/api/) routed per domain
+├── ECR Images (for production deployment)
+└── S3 Buckets (media storage)
+
+````
 
 ## Architecture Benefits
 
@@ -286,7 +319,7 @@ After a redeploy, especially when env files were changed, verify:
 # From EC2 host (ssh in first):
 curl -fsSL http://localhost:3001/api/health/   # backend should return 200
 curl -fsSL http://localhost:3000/api/projects/?limit=3&depth=0 | jq '.docs | length'
-```
+````
 
 If backend logs show "Missing required environment variables":
 

@@ -140,6 +140,7 @@ sync_secrets=true   # whether to sync local secrets to GitHub
 discover_only=false # perform discovery and exit without changes
 plan_only=false     # run terraform plan (summary) and exit (no apply)
 build_images=true   # build & push images locally before deploy; --no-build to skip
+skip_health=false   # skip post-deploy health gate (default: run for prod-containing profiles)
 prune_after_promotion=false # if true, invoke retention pruning for old instances (Role=red/previous)
 retention_count=2            # how many previous instances to keep when pruning
 retention_days=""           # if set, only prune those older than this many days
@@ -178,6 +179,7 @@ Options:
   --no-secrets-sync       Do not sync local secrets to GitHub
   --discover-only         Only print discovery summary of current infra and exit
   --plan-only             Print terraform plan summary and exit (no apply)
+  --no-health             Skip health gate after redeploy (prod/both profiles)
   -h|--help               Show this help
 USAGE
 }
@@ -200,6 +202,7 @@ while [[ $# -gt 0 ]]; do
     --no-secrets-sync) sync_secrets=false; shift ;;
     --discover-only) discover_only=true; shift ;;
     --plan-only) plan_only=true; shift ;;
+    --no-health) skip_health=true; shift ;;
     --prune-after-promotion) prune_after_promotion=true; shift ;;
     --retention-count)
       retention_count="${2:-}"; [[ "$retention_count" =~ ^[0-9]+$ ]] || die "--retention-count must be integer"; shift 2 ;;
@@ -714,6 +717,44 @@ else
   ok "SSH connectivity to candidate confirmed."
 fi
 
+# If we just ran Terraform (fresh/possibly reprovisioned host) or required env files are missing,
+# auto-enable refresh_env to ensure .env files are present before compose up via GH workflow.
+if [[ "$refresh_env" != true ]]; then
+  AUTO_REFRESH=false
+  # Heuristic 1: Terraform ran in this session (likely new blue instance)
+  if [[ "${RAN_TERRAFORM:-false}" == "true" ]]; then
+    warn "Auto-enabling refresh_env: Terraform applied (fresh candidate host)."
+    AUTO_REFRESH=true
+  else
+    # Heuristic 2: Probe for required env files on host for selected profiles
+    REQ_FILES=()
+    case "$profiles" in
+      prod)
+        REQ_FILES+=("${REMOTE_REPO}/backend/.env.prod" "${REMOTE_REPO}/frontend/.env.prod")
+        ;;
+      dev)
+        REQ_FILES+=("${REMOTE_REPO}/backend/.env.dev"  "${REMOTE_REPO}/frontend/.env.dev")
+        ;;
+      both)
+        REQ_FILES+=("${REMOTE_REPO}/backend/.env.prod" "${REMOTE_REPO}/frontend/.env.prod" "${REMOTE_REPO}/backend/.env.dev"  "${REMOTE_REPO}/frontend/.env.dev")
+        ;;
+    esac
+    missing=0
+    for f in "${REQ_FILES[@]}"; do
+      if ! ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${REMOTE_USER}"@"$CANDIDATE_IP" "test -f '$f'"; then
+        missing=$((missing+1))
+      fi
+    done
+    if (( missing > 0 )); then
+      warn "Auto-enabling refresh_env: $missing required env file(s) missing on host."
+      AUTO_REFRESH=true
+    fi
+  fi
+  if [[ "$AUTO_REFRESH" == true ]]; then
+    refresh_env=true
+  fi
+fi
+
 # Override POST_ENFORCE_HOST for controller enforcement
 POST_ENFORCE_HOST="$CANDIDATE_IP"
 
@@ -916,17 +957,35 @@ ensure_https_certs() {
     fi
     if command -v certbot >/dev/null 2>&1; then
       if [ ! -d /etc/letsencrypt/live/bbaysinger.com ]; then
+        echo "Verifying DNS resolution before certificate issuance...";
+        # Wait for DNS to propagate (max 60 seconds)
+        for i in {1..12}; do
+          if host bbaysinger.com >/dev/null 2>&1 && host www.bbaysinger.com >/dev/null 2>&1; then
+            echo "DNS resolution confirmed";
+            break;
+          fi
+          echo "Waiting for DNS propagation (attempt $i/12)...";
+          sleep 5;
+        done
+        
         echo "Issuing initial certificates via certbot";
-        sudo certbot --nginx -n --agree-tos --email '"$email"' \
+        if ! sudo certbot --nginx -n --agree-tos --email '"$email"' \
           -d bbaysinger.com -d www.bbaysinger.com \
-          -d dev.bbaysinger.com --redirect || echo "Certbot issuance failed";
+          -d dev.bbaysinger.com --redirect; then
+          echo "ERROR: Certbot certificate issuance failed";
+          echo "This is expected on first deployment if DNS has not propagated yet.";
+          echo "Run the orchestrator again after DNS propagates, or manually run:";
+          echo "  sudo certbot --nginx -n --agree-tos --email your@email.com -d bbaysinger.com -d www.bbaysinger.com -d dev.bbaysinger.com --redirect";
+          exit 1;
+        fi
         sudo systemctl reload nginx || true
       else
         echo "Certificates already present; attempting quiet renewal";
         sudo certbot renew --quiet || echo "Renewal run failed (will retry on timer)";
       fi
     else
-      echo "certbot not installed on host; skipping HTTPS ensure";
+      echo "ERROR: certbot not installed on host";
+      exit 1;
     fi'
 }
 
@@ -945,7 +1004,7 @@ if [[ -z "${EC2_IP:-}" ]]; then
       if ! sync_nginx_config "ec2-user@$EC2_HOST_RESOLVE" "${BLUE_INSTANCE_IP:-}"; then
         die "Nginx config sync failed (host $EC2_HOST_RESOLVE). Check SSH connectivity and try again."
       fi
-      ensure_https_certs "$EC2_HOST_RESOLVE" "${ACME_EMAIL:-}"
+      log "Skipping HTTPS cert installation on candidate (will be handled post-promotion)"
       POST_HTTP_VERIFY_HOST="$EC2_HOST_RESOLVE"
     else
       warn "Single-controller guard: no host resolved (infra flow), skipping"
@@ -965,7 +1024,7 @@ if [[ -n "${POST_ENFORCE_HOST:-}" ]]; then
   if ! sync_nginx_config "ec2-user@$POST_ENFORCE_HOST" "${BLUE_INSTANCE_IP:-}"; then
     die "Nginx config sync failed (host $POST_ENFORCE_HOST). Check SSH connectivity and try again."
   fi
-  ensure_https_certs "${POST_ENFORCE_HOST}" "${ACME_EMAIL:-}"
+  log "Skipping HTTPS cert installation on candidate (will be handled post-promotion)"
   POST_HTTP_VERIFY_HOST="${POST_ENFORCE_HOST}"
 fi
 
@@ -1036,6 +1095,19 @@ gate_promotion_health() {
   local host="$1"; local attempts=${HEALTH_RETRY_ATTEMPTS:-6}; local delay=${HEALTH_RETRY_DELAY:-5}
   [[ -n "$host" ]] || die "Promotion gate: host required"
   log "Running promotion health gate on $host (attempts=$attempts delay=${delay}s)"
+  # Detect presence of production containers; if absent but dev present, explain 502 cause and abort.
+  local prod_be="bb-portfolio-backend-prod" prod_fe="bb-portfolio-frontend-prod"
+  local dev_be="bb-portfolio-backend-dev" dev_fe="bb-portfolio-frontend-dev"
+  local have_prod have_dev
+  have_prod=$(ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${REMOTE_USER}"@"$host" "docker ps --filter name=$prod_be --filter name=$prod_fe --format '{{.Names}}'" 2>/dev/null | awk 'NF' | wc -l | tr -d ' ')
+  if [[ ${have_prod:-0} -lt 2 ]]; then
+    have_dev=$(ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${REMOTE_USER}"@"$host" "docker ps --filter name=$dev_be --filter name=$dev_fe --format '{{.Names}}'" 2>/dev/null | awk 'NF' | wc -l | tr -d ' ')
+    if [[ ${have_dev:-0} -ge 2 ]]; then
+      die "Production containers not running (dev containers detected). 502 upstream errors expected: host proxy expects ports 3000/3001 but dev containers expose 4000/4001. Redeploy with --profiles prod or both before promotion."
+    else
+      die "No production containers detected and dev containers missing; candidate not ready."
+    fi
+  fi
   local be_name="bb-portfolio-backend-prod" fe_name="bb-portfolio-frontend-prod"
   local tries=0 be_status="" fe_status="" be_ready=false fe_ready=false
   while [ $tries -lt $attempts ]; do
@@ -1070,23 +1142,31 @@ gate_promotion_health() {
   ok "Promotion health gate passed"
 }
 
+# (Standalone health-check mode removed; health gate now runs automatically unless --no-health specified.)
+
 # Decide how to dispatch based on --profiles
 case "$profiles" in
   prod)
     # Prefer main for prod, fallback to current branch
     if dispatch_redeploy prod main "$BRANCH"; then
       ok "Prod redeploy dispatched via GitHub Actions. Candidate IP: ${CANDIDATE_IP:-unknown}"
+      # Run health gate unless skipped or auto-promotion already handles it.
+      if [[ "$auto_promote" != true && "$skip_health" != true ]]; then
+        log "Running automatic health gate post-dispatch (prod profile)"
+        gate_promotion_health "$CANDIDATE_IP"
+        ok "Health gate passed (prod candidate ready; safe to promote manually)."
+      fi
       # If auto-promotion requested, run handover now (GA logs not watched here).
       if [[ "$auto_promote" == true ]]; then
         log "Running promotion health gate before handover (prod profile)"
         gate_promotion_health "$CANDIDATE_IP"
-        HANDOVER_SCRIPT="${REPO_ROOT}/scripts/orchestrator-promote.sh"
+        HANDOVER_SCRIPT="${REPO_ROOT}/deploy/scripts/orchestrator-promote.sh"
         # Capture current active IP before handover (may be empty in null-green scenario)
         PRE_ACTIVE_IP=$(discover_instance_public_ip_by_role active | head -n1 || echo "")
         if [[ -f "$HANDOVER_SCRIPT" ]]; then
           log "Initiating Elastic IP handover (--auto-promote)"
           set +e
-          HANDOVER_CMD=("$HANDOVER_SCRIPT" --region us-west-2)
+          HANDOVER_CMD=("$HANDOVER_SCRIPT" --region us-west-2 --collect-diagnostics --certbot-timeout 300)
           [[ "$auto_approve_handover" == true ]] && HANDOVER_CMD+=(--auto-promote) || true
           [[ "$handover_rollback" == true ]] && HANDOVER_CMD+=(--rollback-on-fail) || true
           [[ "$handover_snapshot" == true ]] && HANDOVER_CMD+=(--snapshot-before) || true
@@ -1148,16 +1228,22 @@ case "$profiles" in
       else
         warn "Dev redeploy dispatched, but prod dispatch failed. You can re-run prod via: gh workflow run redeploy.yml -f environment=prod --ref main"
       fi
+      # Automatic health gate for prod side when not auto-promoting
+      if [[ "$PROD_OK" == true && "$auto_promote" != true && "$skip_health" != true ]]; then
+        log "Running automatic health gate post-dispatch (both profiles / prod side)"
+        gate_promotion_health "$CANDIDATE_IP"
+        ok "Health gate passed (prod candidate ready; safe to promote manually)."
+      fi
       # If auto-promotion requested, run handover now after dispatch
       if [[ "$auto_promote" == true ]]; then
         log "Running promotion health gate before handover (both profiles)"
         gate_promotion_health "$CANDIDATE_IP"
-        HANDOVER_SCRIPT="${REPO_ROOT}/scripts/orchestrator-promote.sh"
+        HANDOVER_SCRIPT="${REPO_ROOT}/deploy/scripts/orchestrator-promote.sh"
         PRE_ACTIVE_IP=$(discover_instance_public_ip_by_role active | head -n1 || echo "")
         if [[ -f "$HANDOVER_SCRIPT" ]]; then
           log "Initiating Elastic IP handover (--auto-promote)"
           set +e
-          HANDOVER_CMD=("$HANDOVER_SCRIPT" --region us-west-2)
+          HANDOVER_CMD=("$HANDOVER_SCRIPT" --region us-west-2 --collect-diagnostics --certbot-timeout 300)
           [[ "$auto_approve_handover" == true ]] && HANDOVER_CMD+=(--auto-promote) || true
           [[ "$handover_rollback" == true ]] && HANDOVER_CMD+=(--rollback-on-fail) || true
           [[ "$handover_snapshot" == true ]] && HANDOVER_CMD+=(--snapshot-before) || true
@@ -1374,14 +1460,14 @@ esac
 
 # Optional auto-promotion (Elastic IP handover blue → green)
 if [[ "$auto_promote" == true ]]; then
-  HANDOVER_SCRIPT="${REPO_ROOT}/scripts/orchestrator-promote.sh"
+  HANDOVER_SCRIPT="${REPO_ROOT}/deploy/scripts/orchestrator-promote.sh"
     if [[ -f "$HANDOVER_SCRIPT" ]]; then
       PRE_ACTIVE_IP=$(discover_instance_public_ip_by_role active | head -n1 || echo "")
       log "Running promotion health gate before handover (SSH fallback)"
       gate_promotion_health "$EC2_HOST"
       log "Initiating Elastic IP handover (--auto-promote)"
       set +e
-      HANDOVER_CMD=("$HANDOVER_SCRIPT" --region us-west-2)
+      HANDOVER_CMD=("$HANDOVER_SCRIPT" --region us-west-2 --collect-diagnostics --certbot-timeout 300)
       [[ "$auto_approve_handover" == true ]] && HANDOVER_CMD+=(--auto-promote) || true
       [[ "$handover_rollback" == true ]] && HANDOVER_CMD+=(--rollback-on-fail) || true
       [[ "$handover_snapshot" == true ]] && HANDOVER_CMD+=(--snapshot-before) || true
