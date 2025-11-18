@@ -92,7 +92,9 @@ function generateTerraformVars(secrets: SecretsConfig): string {
   // We keep it for potential future interpolation, but do not hard-fail if missing.
   const ec2InstanceIp = process.env.EC2_INSTANCE_IP || "";
   if (!ec2InstanceIp) {
-    console.warn("⚠️  EC2_INSTANCE_IP not set; proceeding without it (not required for tfvars generation)");
+    console.warn(
+      "⚠️  EC2_INSTANCE_IP not set; proceeding without it (not required for tfvars generation)",
+    );
   }
 
   // Base configuration (non-secret values)
