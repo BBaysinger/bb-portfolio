@@ -6,6 +6,59 @@
 
 The portfolio infrastructure is deployed using Infrastructure as Code with Terraform.
 
+## Deployment Orchestrators
+
+Two orchestrators are available depending on your rollout strategy:
+
+- Legacy (single-instance): `deploy/scripts/deployment-orchestrator-legacy.sh`
+  - Use for straightforward, in-place deploys on the active EC2 host.
+  - Quick run: `npm run orchestrate:legacy:containers-only` (regenerates env and restarts containers).
+- Lagoon (blue/green): `deploy/scripts/deployment-orchestrator.sh` (wrapper available at `deploy-lagoon/scripts/lagoon-orchestrator.sh`)
+  - Stages a candidate alongside the active instance and supports promotion.
+  - Quick runs:
+    - Containers-only: `npm run orchestrate:containers-only`
+    - Promote candidate: `npm run candidate-promote`
+
+When debugging container startup or env issues, prefer a containers‑only run with `--refresh-env` so the EC2 host’s `.env.dev`/`.env.prod` files are regenerated before restarts.
+
+### Reverse Proxy (Nginx) Configuration
+
+The EC2 host Nginx default install does NOT include our site server blocks by default. If you see `curl: (52) Empty reply from server` or HTTP 444 on `localhost` it means no matching server block handled the request.
+
+Canonical split configuration (prod + dev) is versioned in this repo under `deploy/nginx/bb-portfolio.conf`. To activate or update:
+
+```bash
+# On EC2 host
+sudo cp /home/ec2-user/bb-portfolio/deploy/nginx/bb-portfolio.conf /etc/nginx/conf.d/bb-portfolio.conf
+sudo nginx -t && sudo systemctl reload nginx
+```
+
+Smoke test afterward:
+
+```bash
+curl -I http://localhost/
+curl -I http://localhost/api/health/
+curl -I http://localhost/healthz
+```
+
+If any upstream returns 502/444/connection refused, confirm container ports with:
+
+```bash
+docker ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'
+```
+
+You can regenerate a health-only static response for emergency maintenance using:
+
+```bash
+echo "ok" | sudo tee /usr/share/nginx/html/healthz.txt
+cat <<'EOF' | sudo tee /etc/nginx/conf.d/maintenance.conf
+server { listen 80 default_server; server_name _; location / { return 503 'Service temporarily down'; add_header Retry-After 300; } location = /healthz { alias /usr/share/nginx/html/healthz.txt; } }
+EOF
+sudo nginx -t && sudo systemctl reload nginx
+```
+
+Remove `maintenance.conf` once normal routing is restored.
+
 ### Infrastructure Components
 
 - **EC2 Instance**: t3.medium with Elastic IP (44.246.43.116)

@@ -14,7 +14,8 @@ resource "aws_security_group" "bb_portfolio_sg" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    # Temporarily restrict SSH to operator IP during validation
+    cidr_blocks = ["73.109.180.212/32"]
   }
 
   ingress {
@@ -37,6 +38,14 @@ resource "aws_security_group" "bb_portfolio_sg" {
     description = "Frontend App (Production)"
     from_port   = 3000
     to_port     = 3000
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description = "Backend App (Production)"
+    from_port   = 3001
+    to_port     = 3001
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -86,11 +95,12 @@ resource "aws_eip" "bb_portfolio_ip" {
   }
 }
 
-# EC2 Instance
-resource "aws_instance" "bb_portfolio" {
-  ami           = "ami-06a974f9b8a97ecf2" # Amazon Linux 2023 AMI ID for us-west-2 (2023.8.20250915.0)
-  instance_type = "t3.medium"
-  key_name      = "bb-portfolio-site-key" # must exist in AWS console
+# EC2 Instance (Green - Active) - managed by import/lifecycle
+resource "aws_instance" "bb_portfolio_green" {
+  count         = var.create_green_instance ? 1 : 0
+  ami           = var.ami_id != "" ? var.ami_id : "ami-06a974f9b8a97ecf2" # Amazon Linux 2023 AMI ID for us-west-2
+  instance_type = var.instance_type
+  key_name      = var.key_name
 
   vpc_security_group_ids = [aws_security_group.bb_portfolio_sg.id]
   iam_instance_profile   = var.attach_instance_profile ? aws_iam_instance_profile.ssm_profile.name : null
@@ -99,14 +109,14 @@ resource "aws_instance" "bb_portfolio" {
 
   # EBS Root Volume Configuration
   root_block_device {
-    volume_type = "gp3" # General Purpose SSD v3 (latest generation)
-    volume_size = 20    # 20GB storage
-    encrypted   = true  # Encrypt the volume for security
-    throughput  = 125   # MB/s (default for gp3)
-    iops        = 3000  # IOPS (default for gp3)
+    volume_type = "gp3"
+    volume_size = 20
+    encrypted   = true
+    throughput  = 125
+    iops        = 3000
 
     tags = {
-      Name = "bb-portfolio-root-volume"
+      Name = "bb-portfolio-green-root-volume"
     }
   }
 
@@ -114,6 +124,8 @@ resource "aws_instance" "bb_portfolio" {
 #!/bin/bash
 yum update -y
 yum install -y docker git nginx
+# Ensure SSM Agent is installed (AL2023 usually has it, but install explicitly for safety)
+dnf install -y amazon-ssm-agent || yum install -y amazon-ssm-agent || true
 
 # Install Docker Compose (static binary)
 curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64" -o /usr/local/bin/docker-compose
@@ -134,7 +146,7 @@ usermod -aG docker ec2-user
 systemctl enable nginx
 
 # NOTE: We intentionally do NOT write a site-specific Nginx config here.
-# The deploy orchestrator (or manual sync:nginx) manages /etc/nginx/conf.d/bb-portfolio.conf
+# The deploy orchestrator manages /etc/nginx/conf.d/bb-portfolio.conf automatically
 
 # Disable default Nginx server block by commenting it out
 sed -i '/^    server {/,/^    }/s/^/#/' /etc/nginx/nginx.conf
@@ -146,9 +158,10 @@ nginx -t && systemctl start nginx
 
 
 # Prepare application directories (orchestrator will populate)
-mkdir -p /home/ec2-user/portfolio/backend
-mkdir -p /home/ec2-user/portfolio/frontend
-chown -R ec2-user:ec2-user /home/ec2-user/portfolio
+APP_ROOT="/home/ec2-user/bb-portfolio-green"
+mkdir -p "$APP_ROOT/backend"
+mkdir -p "$APP_ROOT/frontend"
+chown -R ec2-user:ec2-user "$APP_ROOT"
 
 # Note: Containers and Nginx config will be managed by the deployment orchestrator.
 echo "Infrastructure baseline ready. Containers will be deployed via GitHub Actions." >> /var/log/bb-portfolio-startup.log
@@ -156,13 +169,21 @@ echo "Infrastructure baseline ready. Containers will be deployed via GitHub Acti
 EOF
 
   tags = {
-    Name = "bb-portfolio"
+    Name    = "bb-portfolio-green"
+    Project = var.project_name
+    Role    = "active"
+    Version = var.deployment_version
   }
 }
 
 # Output the public IP and Elastic IP
-output "bb_portfolio_instance_ip" {
-  value = aws_instance.bb_portfolio.public_ip
+output "bb_portfolio_green_instance_ip" {
+  value = var.create_green_instance ? aws_instance.bb_portfolio_green[0].public_ip : null
+}
+
+output "bb_portfolio_green_instance_id" {
+  value       = var.create_green_instance ? aws_instance.bb_portfolio_green[0].id : null
+  description = "EC2 instance ID for bb-portfolio-green (used for snapshotting before destroy)."
 }
 
 output "bb_portfolio_elastic_ip" {
@@ -196,9 +217,165 @@ output "projects_bucket_names" {
   description = "Names of the project S3 buckets"
 }
 
-resource "aws_eip_association" "bb_portfolio_assoc" {
-  instance_id   = aws_instance.bb_portfolio.id
+resource "aws_eip_association" "bb_portfolio_green_assoc" {
+  count         = var.create_green_instance ? 1 : 0
+  instance_id   = aws_instance.bb_portfolio_green[0].id
   allocation_id = aws_eip.bb_portfolio_ip.id
+
+  # Guardrail: never let routine terraform applys disturb the active EIP association.
+  # Promotion will be handled by orchestrator reassociating EIP from green to blue.
+  lifecycle {
+    prevent_destroy = true
+    ignore_changes  = [allocation_id, instance_id]
+  }
+}
+
+########################################
+# Blue (Candidate) EC2 Instance
+########################################
+# This instance is always created as the candidate for blue-green deployment.
+# Gets its own temporary public IP for testing before promotion.
+# On promotion: blue → green, old green → red (terminated)
+
+resource "aws_eip" "bb_portfolio_blue_ip" {
+  lifecycle {
+    prevent_destroy = true
+  }
+  tags = {
+    Name    = "bb-portfolio-blue-eip"
+    Project = var.project_name
+    Role    = "candidate"
+  }
+}
+
+# Separate security group for candidate to prevent SG rule changes from impacting active
+resource "aws_security_group" "bb_portfolio_blue_sg" {
+  name        = "bb-portfolio-blue-sg"
+  description = "Allow SSH and app ports for candidate instance"
+
+  ingress {
+    description = "SSH"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    # Allow SSH from GitHub Actions and operator IP
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description = "HTTP"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description = "HTTPS"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description = "Frontend App (Candidate)"
+    from_port   = 3000
+    to_port     = 3000
+    protocol    = "tcp"
+    # Temporarily restricted to operator IP to reduce external noise during validation
+    cidr_blocks = ["73.109.180.212/32"]
+  }
+
+  ingress {
+    description = "Backend App (Candidate)"
+    from_port   = 3001
+    to_port     = 3001
+    protocol    = "tcp"
+    # Temporarily restricted to operator IP to reduce external noise during validation
+    cidr_blocks = ["73.109.180.212/32"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+resource "aws_instance" "bb_portfolio_blue" {
+  ami           = var.ami_id != "" ? var.ami_id : "ami-06a974f9b8a97ecf2"
+  instance_type = var.instance_type
+  key_name      = var.key_name
+
+  # Use distinct SG for candidate to isolate SG rule changes from active
+  vpc_security_group_ids = [aws_security_group.bb_portfolio_blue_sg.id]
+  iam_instance_profile   = var.attach_instance_profile ? aws_iam_instance_profile.ssm_profile.name : null
+  associate_public_ip_address = true
+
+  root_block_device {
+    volume_type = "gp3"
+    volume_size = 20
+    encrypted   = true
+    throughput  = 125
+    iops        = 3000
+    tags = {
+      Name = "bb-portfolio-blue-root-volume"
+    }
+  }
+
+  user_data = <<-EOF
+#!/bin/bash
+# Ensure sshd is enabled and started first
+systemctl enable sshd
+systemctl start sshd
+systemctl status sshd >> /var/log/bb-portfolio-startup.log
+
+yum update -y
+yum install -y docker git nginx
+# Ensure SSM Agent is installed explicitly
+dnf install -y amazon-ssm-agent || yum install -y amazon-ssm-agent || true
+
+curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64" -o /usr/local/bin/docker-compose
+chmod +x /usr/local/bin/docker-compose
+
+systemctl enable docker
+systemctl start docker
+systemctl enable amazon-ssm-agent
+systemctl start amazon-ssm-agent
+usermod -aG docker ec2-user
+systemctl enable nginx
+sed -i '/^    server {/,/^    }/s/^/#/' /etc/nginx/nginx.conf
+nginx -t && systemctl start nginx
+
+APP_ROOT="/home/ec2-user/bb-portfolio-blue"
+mkdir -p "$APP_ROOT/backend" "$APP_ROOT/frontend"
+chown -R ec2-user:ec2-user "$APP_ROOT"
+echo "Blue (candidate) infrastructure baseline ready: $APP_ROOT" >> /var/log/bb-portfolio-startup.log
+
+# Verify SSH is running
+systemctl status sshd >> /var/log/bb-portfolio-startup.log
+echo "SSH daemon status logged" >> /var/log/bb-portfolio-startup.log
+EOF
+
+  tags = {
+    Name    = "bb-portfolio-blue"
+    Project = var.project_name
+    Role    = "candidate"
+    Version = var.deployment_version
+  }
+}
+
+resource "aws_eip_association" "bb_portfolio_blue_assoc" {
+  instance_id   = aws_instance.bb_portfolio_blue.id
+  allocation_id = aws_eip.bb_portfolio_blue_ip.id
+  
+  # Allow association to be replaced when instance is tainted
+  lifecycle {
+    create_before_destroy = true
+    ignore_changes        = [allocation_id]
+  }
 }
 
 ########################################
@@ -449,7 +626,7 @@ resource "aws_ecr_repository" "frontend" {
   }
 
   tags = {
-    Name        = "BB Portfolio Frontend"
+  Name        = "BB-Portfolio Frontend"
     Environment = "production"
     Project     = "bb-portfolio"
   }
@@ -469,7 +646,7 @@ resource "aws_ecr_repository" "backend" {
   }
 
   tags = {
-    Name        = "BB Portfolio Backend"
+  Name        = "BB-Portfolio Backend"
     Environment = "production"
     Project     = "bb-portfolio"
   }
@@ -567,6 +744,36 @@ resource "aws_iam_role_policy_attachment" "ses_send_attach" {
   policy_arn = aws_iam_policy.ses_send.arn
 }
 
+# EC2 permissions for EIP handover (health checks + promotion)
+resource "aws_iam_policy" "handover_read" {
+  name        = "bb-portfolio-handover-read"
+  description = "Allow EIP handover operations (describe + associate/disassociate)"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect   = "Allow"
+        Action   = [
+          "ec2:DescribeInstances",
+          "ec2:DescribeAddresses",
+          "ec2:DescribeTags",
+          "ec2:DescribeInstanceStatus",
+          "ec2:AssociateAddress",
+          "ec2:DisassociateAddress",
+          "ec2:CreateTags"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "handover_read_attach" {
+  role       = aws_iam_role.ssm_role.name
+  policy_arn = aws_iam_policy.handover_read.arn
+}
+
 # SSH connection helper - use standard automation practices
 # Each instance gets fresh host keys (security best practice)
 # Automation disables host key checking (standard for IaC)
@@ -574,9 +781,9 @@ resource "aws_iam_role_policy_attachment" "ses_send_attach" {
 # Infrastructure as Code Validation
 # Test the complete deployment after everything is set up
 resource "null_resource" "iac_validation" {
-  # Trigger this whenever the instance changes
+  # Trigger this whenever the green instance changes (if it exists)
   triggers = {
-    instance_id = aws_instance.bb_portfolio.id
+    instance_id = var.create_green_instance ? aws_instance.bb_portfolio_green[0].id : "none"
   }
 
   # Wait for user_data to complete and test the deployment
@@ -593,19 +800,19 @@ resource "null_resource" "iac_validation" {
         echo "Uptime: $(uptime)"
         
         echo -e "\n=== Files created by Terraform user_data ==="
-        ls -la /home/ec2-user/portfolio/ 2>/dev/null || echo "Portfolio directory not ready yet"
+  ls -la /home/ec2-user/bb-portfolio/ 2>/dev/null || echo "bb-portfolio directory not ready yet"
         
         echo -e "\n=== Environment file check ==="
-        if [ -f /home/ec2-user/portfolio/backend/.env.prod ] && [ -f /home/ec2-user/portfolio/frontend/.env.prod ]; then
+  if [ -f /home/ec2-user/bb-portfolio/backend/.env.prod ] && [ -f /home/ec2-user/bb-portfolio/frontend/.env.prod ]; then
           echo "✅ backend/.env.prod and frontend/.env.prod created by Terraform"
-          echo "Backend env vars: $(grep -c "=" /home/ec2-user/portfolio/backend/.env.prod)"
-          echo "Frontend env vars: $(grep -c "=" /home/ec2-user/portfolio/frontend/.env.prod)"
+          echo "Backend env vars: $(grep -c "=" /home/ec2-user/bb-portfolio/backend/.env.prod)"
+          echo "Frontend env vars: $(grep -c "=" /home/ec2-user/bb-portfolio/frontend/.env.prod)"
         else
           echo "❌ One or both env files not found (backend/frontend)"
         fi
         
         echo -e "\n=== Docker Compose check ==="
-        if grep -q "env_file:" /home/ec2-user/portfolio/docker-compose.yml 2>/dev/null; then
+  if grep -q "env_file:" /home/ec2-user/bb-portfolio/docker-compose.yml 2>/dev/null; then
           echo "✅ docker-compose.yml uses env_file (proper IaC config)"
         else
           echo "❌ docker-compose.yml does not use env_file"
@@ -643,7 +850,7 @@ resource "null_resource" "iac_validation" {
     EOT
   }
 
-  depends_on = [aws_eip_association.bb_portfolio_assoc]
+  depends_on = [aws_eip_association.bb_portfolio_green_assoc]
 }
 
 ########################################
