@@ -1,8 +1,4 @@
----
-# Redeploy Workflow
-# Primary GitHub Actions workflow for regenerating runtime env files on EC2 and restarting
-# Docker Compose services for prod and dev profiles. Comments kept concise for YAML parser stability.
-
+# Redeploy Workflow (prod + dev restart & env injection)
 name: Redeploy
 
 on:
@@ -74,7 +70,7 @@ jobs:
     # Use per-environment concurrency so prod and dev can proceed independently.
     # If environment == 'both', fall back to a single global group.
     concurrency:
-      group: redeploy-${{ inputs.environment == 'both' && 'global' || inputs.environment }}
+      group: "redeploy-${{ inputs.environment == 'both' && 'global' || inputs.environment }}"
       cancel-in-progress: true
     steps:
       - name: Checkout
@@ -177,87 +173,7 @@ jobs:
           DEV_BACKEND_INTERNAL_URL: ${{ secrets.DEV_BACKEND_INTERNAL_URL }}
           DEV_SES_FROM_EMAIL: ${{ secrets.DEV_SES_FROM_EMAIL }}
           DEV_SES_TO_EMAIL: ${{ secrets.DEV_SES_TO_EMAIL }}
-        run: |
-          set -euo pipefail
-          OUT_DIR="$(mktemp -d)"
-
-          s_val() { [ -n "${!1:-}" ] && echo "${!1}" || echo "${2:-}"; }
-
-          # Write files using printf to avoid heredoc/YAML indentation pitfalls
-          printf "%s\n" \
-            "NODE_ENV=production" \
-            "ENV_PROFILE=prod" \
-            "" \
-            "# Env-guard definition list for prod profile" \
-            "PROD_REQUIRED_ENVIRONMENT_VARIABLES=$(s_val PROD_REQUIRED_ENVIRONMENT_VARIABLES)" \
-            "" \
-            "PROD_AWS_REGION=$(s_val PROD_AWS_REGION \"$S3_REGION\")" \
-            "" \
-            "PROD_MONGODB_URI=$(s_val PROD_MONGODB_URI)" \
-            "PROD_PAYLOAD_SECRET=$(s_val PROD_PAYLOAD_SECRET)" \
-            "" \
-            "PROD_S3_BUCKET=$(s_val PROD_S3_BUCKET)" \
-            "PUBLIC_PROJECTS_BUCKET=$(s_val PUBLIC_PROJECTS_BUCKET)" \
-            "NDA_PROJECTS_BUCKET=$(s_val NDA_PROJECTS_BUCKET)" \
-            "S3_REGION=$(s_val S3_REGION \"$PROD_AWS_REGION\")" \
-            "" \
-            "PROD_FRONTEND_URL=$(s_val PROD_FRONTEND_URL)" \
-            "PROD_BACKEND_INTERNAL_URL=$(s_val PROD_BACKEND_INTERNAL_URL 'http://bb-portfolio-backend-prod:3000')" \
-            "" \
-            "SECURITY_TXT_EXPIRES=$(s_val SECURITY_TXT_EXPIRES)" \
-            "" \
-            "PROD_SES_FROM_EMAIL=$(s_val PROD_SES_FROM_EMAIL)" \
-            "PROD_SES_TO_EMAIL=$(s_val PROD_SES_TO_EMAIL)" \
-            > "$OUT_DIR/backend.env.prod"
-
-          printf "%s\n" \
-            "NODE_ENV=development" \
-            "ENV_PROFILE=dev" \
-            "PORT=3000" \
-            "" \
-            "# Env-guard definition list for dev profile" \
-            "DEV_REQUIRED_ENVIRONMENT_VARIABLES=$(s_val DEV_REQUIRED_ENVIRONMENT_VARIABLES)" \
-            "" \
-            "DEV_AWS_REGION=$(s_val DEV_AWS_REGION \"$S3_REGION\")" \
-            "" \
-            "DEV_MONGODB_URI=$(s_val DEV_MONGODB_URI)" \
-            "DEV_PAYLOAD_SECRET=$(s_val DEV_PAYLOAD_SECRET)" \
-            "" \
-            "DEV_S3_BUCKET=$(s_val DEV_S3_BUCKET)" \
-            "PUBLIC_PROJECTS_BUCKET=$(s_val PUBLIC_PROJECTS_BUCKET)" \
-            "NDA_PROJECTS_BUCKET=$(s_val NDA_PROJECTS_BUCKET)" \
-            "S3_REGION=$(s_val S3_REGION \"$DEV_AWS_REGION\")" \
-            "" \
-            "DEV_FRONTEND_URL=$(s_val DEV_FRONTEND_URL)" \
-            "DEV_BACKEND_INTERNAL_URL=$(s_val DEV_BACKEND_INTERNAL_URL 'http://bb-portfolio-backend-dev:3000')" \
-            "" \
-            "SECURITY_TXT_EXPIRES=$(s_val SECURITY_TXT_EXPIRES)" \
-            "" \
-            "DEV_SES_FROM_EMAIL=$(s_val DEV_SES_FROM_EMAIL)" \
-            "DEV_SES_TO_EMAIL=$(s_val DEV_SES_TO_EMAIL)" \
-            > "$OUT_DIR/backend.env.dev"
-
-          printf "%s\n" \
-            "NODE_ENV=production" \
-            "ENV_PROFILE=prod" \
-            "" \
-            "PROD_BACKEND_INTERNAL_URL=$(s_val PROD_BACKEND_INTERNAL_URL 'http://bb-portfolio-backend-prod:3000')" \
-            "" \
-            "PUBLIC_PROJECTS_BUCKET=$(s_val PUBLIC_PROJECTS_BUCKET)" \
-            "NDA_PROJECTS_BUCKET=$(s_val NDA_PROJECTS_BUCKET)" \
-            > "$OUT_DIR/frontend.env.prod"
-
-          printf "%s\n" \
-            "NODE_ENV=development" \
-            "ENV_PROFILE=dev" \
-            "" \
-            "DEV_BACKEND_INTERNAL_URL=$(s_val DEV_BACKEND_INTERNAL_URL 'http://bb-portfolio-backend-dev:3000')" \
-            "" \
-            "PUBLIC_PROJECTS_BUCKET=$(s_val PUBLIC_PROJECTS_BUCKET)" \
-            "NDA_PROJECTS_BUCKET=$(s_val NDA_PROJECTS_BUCKET)" \
-            > "$OUT_DIR/frontend.env.dev"
-
-          echo "dir=$OUT_DIR" >> "$GITHUB_OUTPUT"
+        run: bash deploy/scripts/actions/generate-env-files.sh
 
       - name: Upload env files to EC2
         if: ${{ inputs.refresh_env == 'true' || inputs.refresh_env == true }}
@@ -265,51 +181,20 @@ jobs:
           ENVIRONMENT: ${{ inputs.environment }}
           START_DEV: ${{ inputs.start_dev }}
           EC2_HOST: ${{ secrets.EC2_HOST }}
+          OUT_DIR: ${{ steps.genenv.outputs.dir }}
           SSH_OPTS: -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=10 -o ServerAliveInterval=5 -o ServerAliveCountMax=2 -o PreferredAuthentications=publickey -o PubkeyAuthentication=yes -o TCPKeepAlive=yes -o Compression=yes
-        run: |
-          set -euo pipefail
-          OUT_DIR='${{ steps.genenv.outputs.dir }}'
-          test -n "$OUT_DIR" && test -d "$OUT_DIR"
-          echo "== Packaging env files for single transfer =="
-          tar -C "$OUT_DIR" -czf env-bundle.tgz backend.env.prod backend.env.dev frontend.env.prod frontend.env.dev
-          echo "Bundle size:" $(du -h env-bundle.tgz | cut -f1)
-          # Prepare remote directories and ensure correct ownership (idempotent)
-          ssh -i "${{ steps.ssh.outputs.key }}" $SSH_OPTS ec2-user@"$EC2_HOST" "sudo mkdir -p /home/ec2-user/bb-portfolio/{backend,frontend} && sudo chown -R ec2-user:ec2-user /home/ec2-user/bb-portfolio"
-          # Single compressed upload with retry (handles transient kex resets)
-          upload_attempts=0
-          until scp -i "${{ steps.ssh.outputs.key }}" $SSH_OPTS env-bundle.tgz ec2-user@"$EC2_HOST":/home/ec2-user/bb-portfolio/env-bundle.tgz; do
-            upload_attempts=$((upload_attempts+1))
-            if [ $upload_attempts -ge 3 ]; then
-              echo "Env bundle upload failed after $upload_attempts attempts" >&2
-              exit 1
-            fi
-            echo "Upload attempt $upload_attempts failed; retrying in 4s..." >&2
-            sleep 4
-          done
-          # Remote extract atomically then cleanup temp
-          ssh -i "${{ steps.ssh.outputs.key }}" $SSH_OPTS ec2-user@"$EC2_HOST" $'set -e
-            cd /home/ec2-user/bb-portfolio
-            tar -xzf env-bundle.tgz || { echo "Failed to extract env bundle" >&2; exit 1; }
-            mv -f backend.env.prod backend/.env.prod
-            mv -f backend.env.dev backend/.env.dev
-            mv -f frontend.env.prod frontend/.env.prod
-            mv -f frontend.env.dev frontend/.env.dev
-            rm -f env-bundle.tgz
-            echo "Env files deployed:"; ls -l backend/.env.* frontend/.env.*
-          '
-          echo "== Env upload complete =="
+        run: bash deploy/scripts/actions/upload-env-files.sh "${{ steps.ssh.outputs.key }}"
 
       - name: Upload compose file to EC2
         env:
           EC2_HOST: ${{ secrets.EC2_HOST }}
-        run: |
-          set -euo pipefail
-          # Ensure target directory exists on EC2
-          ssh -i "${{ steps.ssh.outputs.key }}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=30 ec2-user@"$EC2_HOST" "sudo mkdir -p /home/ec2-user/bb-portfolio/deploy/compose && sudo chown -R ec2-user:ec2-user /home/ec2-user/bb-portfolio"
-          # Upload the compose file from repo to the expected remote path with timeout and compression
-          scp -i "${{ steps.ssh.outputs.key }}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=30 -o ServerAliveInterval=10 -o ServerAliveCountMax=3 -C \
-            "deploy/compose/docker-compose.yml" \
-            ec2-user@"$EC2_HOST":/home/ec2-user/bb-portfolio/deploy/compose/docker-compose.yml
+        run: bash deploy/scripts/actions/upload-compose.sh "${{ steps.ssh.outputs.key }}"
+
+      - name: Sync Nginx config and reload
+        env:
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+          ENVIRONMENT: ${{ inputs.environment }}
+        run: bash deploy/scripts/actions/sync-nginx.sh "${{ steps.ssh.outputs.key }}"
 
       - name: (Re)start containers
         if: ${{ inputs.restart_containers == 'true' || inputs.restart_containers == true }}
@@ -317,169 +202,14 @@ jobs:
           ENVIRONMENT: ${{ inputs.environment }}
           START_DEV: ${{ inputs.start_dev }}
           EC2_HOST: ${{ secrets.EC2_HOST }}
-        run: |
-          set -euo pipefail
-          # Pre-clean on EC2 to prevent disk-full and name conflicts
-          {
-            # Do not use -u here because ENVIRONMENT may be undefined if not exported; we pass it via SSH env instead
-            printf '%s\n' 'set -e'
-            printf '%s\n' 'echo "== Disk usage before =="'
-            printf '%s\n' 'df -h / || true'
-            printf '%s\n' 'docker system df || true'
-            printf '%s\n' 'echo "== Stop/remove stale containers for selected environment (ignore errors) =="'
-            printf '%s\n' 'case "${ENVIRONMENT}" in'
-            printf '%s\n' '  prod) docker rm -f bb-portfolio-backend-prod bb-portfolio-frontend-prod 2>/dev/null || true ;;'
-            printf '%s\n' '  dev)  docker rm -f bb-portfolio-backend-dev  bb-portfolio-frontend-dev  2>/dev/null || true ;;'
-            printf '%s\n' '  both) docker rm -f bb-portfolio-backend-dev  bb-portfolio-frontend-dev  bb-portfolio-backend-prod bb-portfolio-frontend-prod 2>/dev/null || true ;;'
-            printf '%s\n' 'esac'
-            printf '%s\n' 'echo "== Prune unused images/containers/networks (no volumes) =="'
-            printf '%s\n' 'docker system prune -af || true'
-            printf '%s\n' 'echo "== Prune builder cache =="'
-            printf '%s\n' 'docker builder prune -af || true'
-            printf '%s\n' 'echo "== Check free space and prune volumes only if critically low =="'
-            # Use POSIX df -Pk, sed + cut to avoid any $ expansion in shells
-            printf '%s\n' "FREE_KB=\$(df -Pk / | sed -n '2p' | tr -s ' ' | cut -d' ' -f4)"
-            printf '%s\n' 'THRESHOLD_KB=$((3 * 1024 * 1024)) # 3GB'
-            printf '%s\n' 'if [ "$FREE_KB" -lt "$THRESHOLD_KB" ]; then'
-            printf '%s\n' "  echo \"Low disk space detected (\$(df -h / | sed -n '2p' | tr -s ' ' | cut -d' ' -f4)) — pruning unused volumes...\""
-            printf '%s\n' '  docker volume prune -f || true'
-            printf '%s\n' 'fi'
-            printf '%s\n' 'echo "== Disk usage after prune =="'
-            printf '%s\n' 'df -h / || true'
-            printf '%s\n' 'docker system df || true'
-          } | ssh -i "${{ steps.ssh.outputs.key }}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" "ENVIRONMENT='${ENVIRONMENT}' bash -s"
-
-      - name: Sync Nginx config and reload
-        env:
-          EC2_HOST: ${{ secrets.EC2_HOST }}
-          ENVIRONMENT: ${{ inputs.environment }}
-        run: |
-          set -euo pipefail
-          echo "== Uploading Nginx vhost config =="
-          scp -i "${{ steps.ssh.outputs.key }}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -C \
-            deploy/nginx/bb-portfolio.conf ec2-user@"$EC2_HOST":/home/ec2-user/bb-portfolio/bb-portfolio.conf
-          echo "== Installing to /etc/nginx/conf.d and reloading =="
-          ssh -i "${{ steps.ssh.outputs.key }}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" $'set -e
-            sudo mkdir -p /etc/nginx/conf.d
-            sudo mv -f /home/ec2-user/bb-portfolio/bb-portfolio.conf /etc/nginx/conf.d/bb-portfolio.conf
-            sudo chown root:root /etc/nginx/conf.d/bb-portfolio.conf
-            # Auto-append SSL blocks if missing and certs exist (idempotent)
-            if ! grep -q "listen 443" /etc/nginx/conf.d/bb-portfolio.conf && [ -d /etc/letsencrypt/live/bbaysinger.com ]; then
-              echo "Appending SSL blocks to nginx config (auto)";
-              sudo tee -a /etc/nginx/conf.d/bb-portfolio.conf >/dev/null <<'CONF'
-server {
-  listen 443 ssl;
-  server_name bbaysinger.com www.bbaysinger.com;
-  ssl_certificate     /etc/letsencrypt/live/bbaysinger.com/fullchain.pem;
-  ssl_certificate_key /etc/letsencrypt/live/bbaysinger.com/privkey.pem;
-  include /etc/letsencrypt/options-ssl-nginx.conf;
-  location = /healthz { return 200 'ok'; add_header Content-Type text/plain; }
-  location /api/ { proxy_pass http://127.0.0.1:3001/; }
-  location / { proxy_pass http://127.0.0.1:3000/; }
-}
-server {
-  listen 443 ssl;
-  server_name dev.bbaysinger.com;
-  ssl_certificate     /etc/letsencrypt/live/bbaysinger.com/fullchain.pem;
-  ssl_certificate_key /etc/letsencrypt/live/bbaysinger.com/privkey.pem;
-  include /etc/letsencrypt/options-ssl-nginx.conf;
-  location = /healthz { return 200 'ok'; add_header Content-Type text/plain; }
-  location /api/ { proxy_pass http://127.0.0.1:4001/; }
-  location / { proxy_pass http://127.0.0.1:4000/; }
-}
-CONF
-            fi
-            sudo nginx -t
-            sudo systemctl reload nginx
-            echo "Nginx active: $(systemctl is-active nginx)"
-            echo "Listeners:"; sudo ss -ltnp | egrep ":80|:443" || true
-            echo "HTTP /healthz:"; curl -s -I --max-time 4 http://127.0.0.1/healthz || true
-          '
-
-          # Now perform the actual restart using docker-compose
-          {
-            printf '%s\n' 'set -e'
-            printf '%s\n' 'cd /home/ec2-user/bb-portfolio'
-            printf '%s\n' 'aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 778230822028.dkr.ecr.us-west-2.amazonaws.com >/dev/null 2>&1 || true'
-            printf '%s\n' 'export AWS_ACCOUNT_ID=778230822028'
-            printf '%s\n' 'COMPOSE_FILE="deploy/compose/docker-compose.yml"'
-            # Avoid full down to reduce downtime; rely on up --force-recreate per profile
-            printf '%s\n' '# docker-compose -f "$COMPOSE_FILE" down --remove-orphans || true'
-            printf '%s\n' ''
-            # Retry helper to tolerate transient "removal in progress" errors from Docker
-            printf '%s\n' 'try_up() {'
-            printf '%s\n' '  local profile="$1"'
-            printf '%s\n' '  local attempts=0'
-            printf '%s\n' '  until [ $attempts -ge 3 ]; do'
-            printf '%s\n' '    if COMPOSE_PROFILES="$profile" docker-compose -f "$COMPOSE_FILE" up -d --force-recreate; then'
-            printf '%s\n' '      return 0'
-            printf '%s\n' '    fi'
-            printf '%s\n' '    attempts=$((attempts+1))'
-            printf '%s\n' '    echo "compose up failed for $profile (attempt $attempts), retrying in 5s..."'
-            printf '%s\n' '    sleep 5'
-            printf '%s\n' '  done'
-            printf '%s\n' '  echo "compose up failed for $profile after retries" >&2'
-            printf '%s\n' '  return 1'
-            printf '%s\n' '}'
-            printf '%s\n' 'case "${ENVIRONMENT}" in'
-            printf '%s\n' '  prod)'
-            printf '%s\n' 'ENVIRONMENT="${ENVIRONMENT:-both}"'
-            printf '%s\n' '    COMPOSE_PROFILES=prod docker-compose -f "$COMPOSE_FILE" pull || true'
-            printf '%s\n' '    try_up prod'
-            printf '%s\n' '    ;;'
-            printf '%s\n' '  dev)'
-            printf '%s\n' '    COMPOSE_PROFILES=dev docker-compose -f "$COMPOSE_FILE" pull || true'
-            printf '%s\n' '    try_up dev'
-            printf '%s\n' '    ;;'
-            printf '%s\n' '  both)'
-            printf '%s\n' '    COMPOSE_PROFILES=prod docker-compose -f "$COMPOSE_FILE" pull || true'
-            printf '%s\n' '    try_up prod || true'
-            printf '%s\n' '    COMPOSE_PROFILES=dev docker-compose -f "$COMPOSE_FILE" pull || true'
-            printf '%s\n' '    try_up dev || true'
-            printf '%s\n' '    ;;'
-            printf '%s\n' 'esac'
-          } | ssh -i "${{ steps.ssh.outputs.key }}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" "ENVIRONMENT='${ENVIRONMENT}' bash -s"
+        run: bash deploy/scripts/actions/restart-containers.sh "${{ steps.ssh.outputs.key }}"
 
       - name: Diagnose services (containers and nginx)
         if: failure()
         env:
           ENVIRONMENT: ${{ inputs.environment }}
           EC2_HOST: ${{ secrets.EC2_HOST }}
-        run: |
-          set -euo pipefail
-          ssh -i "${{ steps.ssh.outputs.key }}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" $'set -e
-            echo "== Docker ps =="
-            docker ps --format "table {{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}"
-            echo
-            echo "== Docker compose version =="
-            if docker compose version >/dev/null 2>&1; then
-              COMPOSE_BIN="docker compose"
-            else
-              COMPOSE_BIN="docker-compose"
-            fi
-            $COMPOSE_BIN version || true
-            echo
-            echo "== Listening ports (ss) =="
-            ss -lntp || true
-            echo
-            echo "== Compose ps (prod) =="
-            COMPOSE_PROFILES=prod $COMPOSE_BIN -f /home/ec2-user/bb-portfolio/deploy/compose/docker-compose.yml ps || true
-            echo
-            echo "== Nginx status =="
-            systemctl is-active nginx || true
-            # nginx -t will often fail for non-root due to cert perms; tolerate but still show output
-            nginx -t || true
-            echo
-            echo "== HTTP probes =="
-            for url in \
-              "http://localhost:3000/" \
-              "http://localhost:3001/api/health" \
-              "http://localhost:4000/" \
-              "http://localhost:4001/api/health"; do
-              code=$(curl -s -o /dev/null -w "%{http_code}" "$url" || true)
-              echo "$code $url"
-            done
-          '
+        run: bash deploy/scripts/actions/diagnose-services.sh "${{ steps.ssh.outputs.key }}"
 
       - name: Health checks
         if: always()
@@ -493,108 +223,11 @@ CONF
           CURL_DELAY_SECONDS: 2
           CURL_MAX_TIME_SECONDS: 3
           CURL_CONNECT_TIMEOUT: 1
-        run: |
-          set -euo pipefail
-          KEY="${{ steps.ssh.outputs.key }}"
-          ATTEMPTS="${HEALTH_ATTEMPTS}"; DELAY="${HEALTH_DELAY_SECONDS}"
-          CURL_ATTEMPTS="${CURL_ATTEMPTS}"; CURL_DELAY="${CURL_DELAY_SECONDS}"
-          CURL_MAX_TIME="${CURL_MAX_TIME_SECONDS}"; CURL_CONNECT_TIMEOUT_SEC="${CURL_CONNECT_TIMEOUT}"
-          ssh_cmd() { ssh -i "$KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" "$@"; }
-          poll_containers() {
-            local env="$1"; local tries=0
-            local be_name fe_name
-            case "$env" in
-              prod) be_name="bb-portfolio-backend-prod"; fe_name="bb-portfolio-frontend-prod";;
-              dev)  be_name="bb-portfolio-backend-dev";  fe_name="bb-portfolio-frontend-dev";;
-            esac
-            echo "Polling container health for $env (max $ATTEMPTS attempts, $DELAY s delay)" >&2
-            while [ $tries -lt $ATTEMPTS ]; do
-              # Status lines: backend has (healthy|health: starting), frontend usually just Up ...
-              local be_status fe_status
-              be_status=$(ssh_cmd "docker ps --filter name=$be_name --format '{{.Status}}'" || true)
-              fe_status=$(ssh_cmd "docker ps --filter name=$fe_name --format '{{.Status}}'" || true)
-              # Ready conditions
-              be_ready=false; fe_ready=false
-              if echo "$be_status" | grep -qi 'healthy'; then be_ready=true; fi
-              # frontends often have no health check – treat any Up as ready
-              if echo "$fe_status" | grep -qi '^Up '; then fe_ready=true; fi
-              if [[ "$be_ready" == true && "$fe_ready" == true ]]; then
-                echo "Containers ready for $env (backend: $be_status, frontend: $fe_status)" >&2
-                return 0
-              fi
-              tries=$((tries+1))
-              echo "Attempt $tries/$ATTEMPTS ($env) not ready yet (be='$be_status' fe='$fe_status')" >&2
-              sleep "$DELAY"
-            done
-            echo "WARN: Containers not healthy after $ATTEMPTS attempts ($env) (be='$be_status' fe='$fe_status')" >&2
-            return 1
-          }
-          curl_with_retry() {
-            local port="$1"; local path="$2"; local label="$3"; local attempt=0; local code=""
-            while [ $attempt -lt "$CURL_ATTEMPTS" ]; do
-              code=$(ssh_cmd "curl --max-time ${CURL_MAX_TIME} --connect-timeout ${CURL_CONNECT_TIMEOUT_SEC} -s -o /dev/null -w '%{http_code}' http://localhost:${port}${path} -L" || echo '000')
-              # Success on 2xx/3xx; treat 000 as transient unless final attempt
-              if [[ "$code" == 2* || "$code" == 3* ]]; then
-                echo "OK $label HTTP $code" >&2; return 0
-              fi
-              attempt=$((attempt+1))
-              if [[ "$code" == "000" && $attempt -lt "$CURL_ATTEMPTS" ]]; then
-                echo "Transient $label code 000 (attempt $attempt/$CURL_ATTEMPTS)" >&2; sleep "$CURL_DELAY"; continue
-              fi
-              echo "Attempt $attempt/$CURL_ATTEMPTS $label code=$code" >&2
-              sleep "$CURL_DELAY"
-            done
-            echo "WARN: $label unhealthy after $CURL_ATTEMPTS attempts (last code=$code)" >&2
-            return 1
-          }
-          # Environments to check
-          if [ "$ENVIRONMENT" = "prod" ] || [ "$ENVIRONMENT" = "both" ]; then poll_containers prod || true; fi
-          # Always check dev when environment=dev. When environment=both, honor START_DEV to optionally include dev.
-          if [ "$ENVIRONMENT" = "dev" ]; then
-            poll_containers dev || true
-          elif [ "$ENVIRONMENT" = "both" ] && { [ "${START_DEV}" = "true" ] || [ "${START_DEV}" = true ]; }; then
-            poll_containers dev || true
-          fi
-          if [ "$ENVIRONMENT" = "prod" ] || [ "$ENVIRONMENT" = "both" ]; then
-            curl_with_retry 3000 / "frontend prod"
-            curl_with_retry 3001 /api/health "backend prod health"
-          fi
-          if [ "$ENVIRONMENT" = "dev" ]; then
-            curl_with_retry 4000 / "frontend dev"
-            curl_with_retry 4001 /api/health "backend dev health"
-          elif [ "$ENVIRONMENT" = "both" ] && { [ "${START_DEV}" = "true" ] || [ "${START_DEV}" = true ]; }; then
-            curl_with_retry 4000 / "frontend dev"
-            curl_with_retry 4001 /api/health "backend dev health"
-          fi
+        run: bash deploy/scripts/actions/health-checks.sh "${{ steps.ssh.outputs.key }}"
 
       - name: Dump container logs on failure
         if: failure()
         env:
           ENVIRONMENT: ${{ inputs.environment }}
           EC2_HOST: ${{ secrets.EC2_HOST }}
-        run: |
-          set -euo pipefail
-          KEY="${{ steps.ssh.outputs.key }}"
-          dump_logs() {
-            local name="$1"
-            echo "==== logs: $name (last 200 lines) ===="
-            ssh -i "$KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" \
-              "docker logs --tail 200 --timestamps $name 2>&1 || true"
-            echo
-          }
-          case "$ENVIRONMENT" in
-            prod)
-              dump_logs bb-portfolio-frontend-prod
-              dump_logs bb-portfolio-backend-prod
-              ;;
-            dev)
-              dump_logs bb-portfolio-frontend-dev
-              dump_logs bb-portfolio-backend-dev
-              ;;
-            both)
-              dump_logs bb-portfolio-frontend-prod
-              dump_logs bb-portfolio-backend-prod
-              dump_logs bb-portfolio-frontend-dev
-              dump_logs bb-portfolio-backend-dev
-              ;;
-          esac
+        run: bash deploy/scripts/actions/dump-logs.sh "${{ steps.ssh.outputs.key }}"
