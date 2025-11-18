@@ -200,6 +200,7 @@ jobs:
           ENVIRONMENT: ${{ inputs.environment }}
           EC2_HOST: ${{ inputs.ec2_host || secrets.EC2_HOST }}
           SSH_USER: ${{ steps.ssh_preflight.outputs.ssh_user }}
+          ENVIRONMENT: ${{ inputs.environment }}
         run: |
           set -euo pipefail
           USER="${SSH_USER:-ec2-user}"
@@ -419,6 +420,7 @@ jobs:
             printf '%s\n' '  echo "compose up failed for $profile after retries" >&2'
             printf '%s\n' '  return 1'
             printf '%s\n' '}'
+            printf '%s\n' 'ENVIRONMENT="${ENVIRONMENT:-both}"'
             printf '%s\n' 'case "${ENVIRONMENT}" in'
             printf '%s\n' '  prod)'
             printf '%s\n' '    COMPOSE_PROFILES=prod docker-compose -f "$COMPOSE_FILE" pull || true'
