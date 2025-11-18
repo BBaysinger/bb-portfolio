@@ -354,4 +354,33 @@ Action to Resume Later:
 
 Until then, treat this legacy model as authoritative.
 
+## Temporary Legacy Recovery Mode (Documentation Note)
+
+We are operating in a "legacy recovery" configuration whose sole goal is site availability and rapid operational stability after pausing Lagoon (blue/green) promotion logic. Differences from the prior Lagoon pattern:
+
+- Single EC2 instance (no active/candidate swap, no promotion step)
+- Compose executed from `deploy/compose/docker-compose.yml` (canonical path); any root-level compose files on the host should be removed to avoid drift
+- Required environment variables now re-derived directly from `.github-secrets.private.json5` and written into `backend/.env.prod` and `frontend/.env.prod` before container start
+- Health validation limited to container healthchecks plus manual curl; no candidate pre-promotion gating
+- Orchestrator blue/green branches and scripts are preserved under `deploy-lagoon/` but not invoked
+
+When returning to Lagoon, schedule a restoration task list:
+
+1. Re-enable dual-instance Terraform modules (in `infra-lagoon/`) and run a plan/apply.
+2. Reintroduce orchestrator promotion workflow (candidate start → health verification → EIP swap / promotion markers).
+3. Reinstate enhanced health path validation and rollback logic.
+4. Audit environment variable propagation to ensure candidate and active share identical `.env.prod` payloads before promotion.
+5. Remove any legacy-only operational shortcuts documented here (e.g., direct root compose use if it reappears, manual container recreation outside orchestrator).
+
+Until these steps are completed, treat this file as the authoritative guide for production operations. Mark a ticket in your backlog (e.g., `restore-lagoon-strategy`) so the deferred work is tracked explicitly.
+
+
 No new Node.js dependencies were added to enable HTTPS. All TLS functionality lives at the host layer (Nginx + certbot). Application packages remained unchanged. This minimizes surface area and avoids per-container certificate renewal complexity.
+
+## Environment File Lifecycle
+
+- Local development: use `.env` / `.env.local` inside `backend/` and `frontend/` as usual.
+- Production on EC2: runtime files are generated on-host as `backend/.env.prod` and `frontend/.env.prod` from `.github-secrets.private.json5` and are not committed.
+- Required lists: the backend enforces required envs via `backend/scripts/check-required-env.js`; ensure `*_REQUIRED_ENVIRONMENT_VARIABLES` and values exist in the secrets file.
+- Orchestrator: regenerates `.env.prod` when `--refresh-env` is provided; containers restart to pick up changes.
+- Compose canonical path: containers are managed from `deploy/compose/docker-compose.yml` on the host to avoid drift; the orchestrator syncs this file before starting.

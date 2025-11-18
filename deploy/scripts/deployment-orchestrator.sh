@@ -48,6 +48,8 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 INFRA_DIR="${REPO_ROOT}/infra"
+COMPOSE_FILE_LOCAL="${REPO_ROOT}/deploy/compose/docker-compose.yml"
+
 
 RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'; BLUE='\033[0;34m'; NC='\033[0m'
 
@@ -469,6 +471,50 @@ ensure_https_certs() {
       echo "certbot not installed on host; skipping HTTPS ensure";
     fi'
 }
+# Ensure the canonical compose file exists on the host under deploy/compose/
+ensure_remote_compose() {
+  local host="$1"
+  local key="$HOME/.ssh/bb-portfolio-site-key.pem"
+  [[ -n "$host" ]] || return 0
+  if [[ ! -f "$key" ]]; then
+    warn "Compose sync skipped: SSH key not found at $key"
+    return 0
+  fi
+  if [[ ! -f "$COMPOSE_FILE_LOCAL" ]]; then
+    warn "Compose sync skipped: local file missing at $COMPOSE_FILE_LOCAL"
+    return 0
+  fi
+  log "Syncing canonical compose to $host:~/portfolio/deploy/compose/docker-compose.yml"
+  ssh -i "$key" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$host" "mkdir -p /home/ec2-user/portfolio/deploy/compose"
+  scp -i "$key" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$COMPOSE_FILE_LOCAL" ec2-user@"$host":/home/ec2-user/portfolio/deploy/compose/docker-compose.yml
+}
+
+# Sync nginx vhost config from repo and reload (idempotent). Certbot may later augment it with SSL blocks.
+sync_nginx_config() {
+  local host="$1"
+  local key="$HOME/.ssh/bb-portfolio-site-key.pem"
+  [[ -n "$host" ]] || return 0
+  if [[ ! -f "$key" ]]; then
+    warn "Nginx sync skipped: SSH key not found at $key"
+    return 0
+  fi
+  local SRC_CFG="${REPO_ROOT}/deploy/nginx/bb-portfolio.conf"
+  if [[ ! -f "$SRC_CFG" ]]; then
+    warn "Nginx sync skipped: local config missing at $SRC_CFG"
+    return 0
+  fi
+  log "Syncing nginx config to $host and reloading"
+  scp -i "$key" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$SRC_CFG" ec2-user@"$host":/home/ec2-user/bb-portfolio.conf.tmp
+  ssh -i "$key" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$host" $'set -e
+    sudo mv /home/ec2-user/bb-portfolio.conf.tmp /etc/nginx/conf.d/bb-portfolio.conf
+    sudo nginx -t
+    sudo systemctl reload nginx
+  '
+}
+
+# Extract AWS_ACCOUNT_ID for ECR image pulls used in compose. Fallback to known prod account.
+AWS_ACCOUNT_ID_LOCAL="$(node -e "try{const JSON5=require('json5');const fs=require('fs');const raw=fs.readFileSync('.github-secrets.private.json5','utf8');const cfg=JSON5.parse(raw);const s=cfg.strings||cfg;process.stdout.write((s.AWS_ACCOUNT_ID||'778230822028')+'');}catch(e){process.stdout.write('778230822028');}")"
+
 
 # If infra step was skipped and EC2_IP is unknown, try to resolve host now and enforce single controller once
 if [[ -z "${EC2_IP:-}" ]]; then
@@ -476,6 +522,8 @@ if [[ -z "${EC2_IP:-}" ]]; then
   if [[ -n "$EC2_HOST_RESOLVE" ]]; then
     log "Resolved EC2 host: $EC2_HOST_RESOLVE"
     enforce_single_controller "$EC2_HOST_RESOLVE"
+    ensure_remote_compose "$EC2_HOST_RESOLVE"
+    sync_nginx_config "$EC2_HOST_RESOLVE"
     ensure_https_certs "$EC2_HOST_RESOLVE" "${ACME_EMAIL:-}"
   else
     warn "Single-controller guard: no host resolved (containers-only), skipping"
@@ -485,6 +533,8 @@ fi
 # If infra ran earlier and provided EC2_IP, enforce controller and ensure HTTPS now
 if [[ -n "${POST_ENFORCE_HOST:-}" ]]; then
   enforce_single_controller "${POST_ENFORCE_HOST}"
+  ensure_remote_compose "${POST_ENFORCE_HOST}"
+  sync_nginx_config "${POST_ENFORCE_HOST}"
   ensure_https_certs "${POST_ENFORCE_HOST}" "${ACME_EMAIL:-}"
 fi
 
@@ -689,22 +739,22 @@ fi
 log "Logging into ECR and restarting compose profiles via SSH"
 ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" "aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 778230822028.dkr.ecr.us-west-2.amazonaws.com >/dev/null 2>&1 || true"
 ssh -i "$SSH_KEY" -tt -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" bash -lc $'set -e
-cd /home/ec2-user/portfolio
-docker-compose down || true
+cd /home/ec2-user/portfolio/deploy/compose
+AWS_ACCOUNT_ID='"$AWS_ACCOUNT_ID_LOCAL"' docker-compose -f docker-compose.yml down || true
 case '"$profiles"' in
   prod)
-    COMPOSE_PROFILES=prod docker-compose pull || true
-    COMPOSE_PROFILES=prod docker-compose up -d
+    AWS_ACCOUNT_ID='"$AWS_ACCOUNT_ID_LOCAL"' COMPOSE_PROFILES=prod docker-compose -f docker-compose.yml pull || true
+    AWS_ACCOUNT_ID='"$AWS_ACCOUNT_ID_LOCAL"' COMPOSE_PROFILES=prod docker-compose -f docker-compose.yml up -d
     ;;
   dev)
-    COMPOSE_PROFILES=dev docker-compose pull || true
-    COMPOSE_PROFILES=dev docker-compose up -d
+    AWS_ACCOUNT_ID='"$AWS_ACCOUNT_ID_LOCAL"' COMPOSE_PROFILES=dev docker-compose -f docker-compose.yml pull || true
+    AWS_ACCOUNT_ID='"$AWS_ACCOUNT_ID_LOCAL"' COMPOSE_PROFILES=dev docker-compose -f docker-compose.yml up -d
     ;;
   both)
-    COMPOSE_PROFILES=prod docker-compose pull || true
-    COMPOSE_PROFILES=prod docker-compose up -d || true
-    COMPOSE_PROFILES=dev docker-compose pull || true
-    COMPOSE_PROFILES=dev docker-compose up -d || true
+    AWS_ACCOUNT_ID='"$AWS_ACCOUNT_ID_LOCAL"' COMPOSE_PROFILES=prod docker-compose -f docker-compose.yml pull || true
+    AWS_ACCOUNT_ID='"$AWS_ACCOUNT_ID_LOCAL"' COMPOSE_PROFILES=prod docker-compose -f docker-compose.yml up -d || true
+    AWS_ACCOUNT_ID='"$AWS_ACCOUNT_ID_LOCAL"' COMPOSE_PROFILES=dev docker-compose -f docker-compose.yml pull || true
+    AWS_ACCOUNT_ID='"$AWS_ACCOUNT_ID_LOCAL"' COMPOSE_PROFILES=dev docker-compose -f docker-compose.yml up -d || true
     ;;
 esac
 '
