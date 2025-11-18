@@ -68,21 +68,29 @@ jobs:
           script: |
             const owner = context.repo.owner;
             const repo = context.repo.repo;
-            // Check for in-progress or queued runs of the auto redeploy workflow (redeploy.yml)
+            const envFilter = process.env.ENVIRONMENT; // prod | dev | both
             async function list(workflow, status){
               try {
                 return (await github.rest.actions.listWorkflowRuns({ owner, repo, workflow_id: workflow, status })).data.workflow_runs;
               } catch (e) { return []; }
             }
             const statuses = ['in_progress','queued'];
-            const workflows = [
-              'redeploy.yml',              // auto deploy
-            echo "Nginx active: $(systemctl is-active nginx)"
-            echo "Listeners:"; sudo ss -ltnp | egrep ":80|:443" || true
-            echo "HTTP /healthz (no Host header → fallback server):"; curl -s -I --max-time 4 http://127.0.0.1/healthz || true
-            echo "HTTP /healthz (prod Host header):"; curl -s -I -H 'Host: bbaysinger.com' --max-time 4 http://127.0.0.1/healthz || true
-            echo "HTTP /healthz (dev Host header):"; curl -s -I -H 'Host: dev.bbaysinger.com' --max-time 4 http://127.0.0.1/healthz || true
-            const envFilter = process.env.ENVIRONMENT;
+            const workflows = ['redeploy.yml']; // auto deploy workflow file name
+            let conflicts = [];
+            for (const wf of workflows) {
+              for (const st of statuses) {
+                const runs = await list(wf, st);
+                // If environment == both we treat any run as a conflict; otherwise allow filtering logic if future metadata added
+                conflicts.push(...runs);
+              }
+            }
+            if (conflicts.length) {
+              core.setFailed(`Conflicting in-progress or queued auto redeploy(s) detected: ${conflicts.map(r => r.id).join(', ')}`);
+            } else {
+              core.info('No conflicting auto redeploy runs detected');
+            }
+
+      - name: Environment secrets guard
         env:
           ENVIRONMENT: ${{ inputs.environment }}
           EC2_HOST: ${{ inputs.ec2_host || secrets.EC2_HOST }}
@@ -100,30 +108,29 @@ jobs:
           : "${ENVIRONMENT}"
           : "${EC2_HOST}"
           : "${REFRESH_ENV}"
-          # Only enforce env-specific secrets for the selected environment(s)
           if [ "$REFRESH_ENV" = "true" ]; then
             case "$ENVIRONMENT" in
               prod)
-                : "${PROD_MONGODB_URI}"
-                : "${PROD_PAYLOAD_SECRET}"
-                : "${PROD_S3_BUCKET}"
-                : "${PROD_AWS_REGION}"
+                : "${PROD_MONGODB_URI}" "PROD_MONGODB_URI missing"
+                : "${PROD_PAYLOAD_SECRET}" "PROD_PAYLOAD_SECRET missing"
+                : "${PROD_S3_BUCKET}" "PROD_S3_BUCKET missing"
+                : "${PROD_AWS_REGION}" "PROD_AWS_REGION missing"
                 ;;
               dev)
-                : "${DEV_MONGODB_URI}"
-                : "${DEV_PAYLOAD_SECRET}"
-                : "${DEV_S3_BUCKET}"
-                : "${DEV_AWS_REGION}"
+                : "${DEV_MONGODB_URI}" "DEV_MONGODB_URI missing"
+                : "${DEV_PAYLOAD_SECRET}" "DEV_PAYLOAD_SECRET missing"
+                : "${DEV_S3_BUCKET}" "DEV_S3_BUCKET missing"
+                : "${DEV_AWS_REGION}" "DEV_AWS_REGION missing"
                 ;;
               both)
-                : "${PROD_MONGODB_URI}"
-                : "${PROD_PAYLOAD_SECRET}"
-                : "${PROD_S3_BUCKET}"
-                : "${PROD_AWS_REGION}"
-                : "${DEV_MONGODB_URI}"
-                : "${DEV_PAYLOAD_SECRET}"
-                : "${DEV_S3_BUCKET}"
-                : "${DEV_AWS_REGION}"
+                : "${PROD_MONGODB_URI}" "PROD_MONGODB_URI missing"
+                : "${PROD_PAYLOAD_SECRET}" "PROD_PAYLOAD_SECRET missing"
+                : "${PROD_S3_BUCKET}" "PROD_S3_BUCKET missing"
+                : "${PROD_AWS_REGION}" "PROD_AWS_REGION missing"
+                : "${DEV_MONGODB_URI}" "DEV_MONGODB_URI missing"
+                : "${DEV_PAYLOAD_SECRET}" "DEV_PAYLOAD_SECRET missing"
+                : "${DEV_S3_BUCKET}" "DEV_S3_BUCKET missing"
+                : "${DEV_AWS_REGION}" "DEV_AWS_REGION missing"
                 ;;
             esac
           fi

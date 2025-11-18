@@ -1,12 +1,16 @@
-# Portfolio Deployment Guide
+# Portfolio Deployment Guide (Legacy Single-Instance Path)
 
 > For rationale behind major technical choices (hosting strategy, HTTPS, auth hardening, single canonical domain, SSR gating, etc.) see the Architecture Decisions Log: [`docs/architecture-decisions.md`](../docs/architecture-decisions.md). Always consult it before introducing platform changes so new work aligns with or intentionally supersedes documented decisions.
 
-## Current Status
+## Scope
 
-The portfolio infrastructure is deployed using Infrastructure as Code with Terraform.
+This document now describes the legacy, single EC2 instance deployment model (canonical prod + optional dev profile) after pausing the Lagoon (blue/green) strategy. Lagoon artifacts were preserved under `infra-lagoon/` and `deploy-lagoon/` and documented separately. Day‑to‑day operations should rely on the simplified approach below for faster recovery and reduced complexity.
 
-### Infrastructure Components
+## Current Status (Legacy Model)
+
+Infrastructure is managed with Terraform (`infra/`) and a single host runs both production and (optionally) development containers via Docker Compose profiles.
+
+### Infrastructure Components (Legacy)
 
 - **EC2 Instance**: t3.medium with Elastic IP (44.246.43.116)
 - **Nginx Reverse Proxy**: Configured and running
@@ -15,13 +19,13 @@ The portfolio infrastructure is deployed using Infrastructure as Code with Terra
 - **S3 Buckets**: Media storage with security policies
 - **IAM Roles**: Access policies configured
 
-### Management Tools
+### Management Tools (Legacy)
 
 - **Management Script**: `./bb-portfolio-management.sh` for container control
 - **Terraform Outputs**: Connection details and configuration
 - **Documentation**: Setup and troubleshooting guides
 
-## Next Steps
+## Next Steps (Typical Flow)
 
 See also: "Deployment Orchestrator: Discovery and Fresh Create" in `docs/deployment-orchestrator.md` for how to run read-only discovery, plan-only previews, and first-time creation.
 
@@ -104,7 +108,7 @@ terraform apply   # Apply changes
 ./infra/bb-portfolio-management.sh switch-to-prod
 ```
 
-## Automated Components
+## Automated Components (Host Lifecycle)
 
 ### Instance Boot/Restart
 
@@ -113,7 +117,7 @@ terraform apply   # Apply changes
 3. Site config, env files, and containers are managed by the deploy orchestrator or GitHub Actions
 4. Services are configured and available after orchestrator runs
 
-### Deployment Process
+### Deployment Process (Legacy)
 
 1. Run `terraform apply` to deploy infrastructure changes
 2. Use the orchestrator or management script to control containers
@@ -129,7 +133,7 @@ terraform apply   # Apply changes
 - Container startup handled by systemd
 - Service configuration defined in code
 
-## Current Architecture
+## Current Architecture (Legacy)
 
 ```
 Internet → CloudFlare DNS → Elastic IP (44.246.43.116)
@@ -143,7 +147,7 @@ AWS EC2 t3.medium
     └── S3 Buckets (media storage)
 ```
 
-## Architecture Benefits
+## Architecture Benefits (Legacy)
 
 ### Reliability
 
@@ -176,7 +180,7 @@ AWS EC2 t3.medium
 - Terraform for infrastructure changes
 - Centralized logging and status monitoring
 
-## Troubleshooting
+## Troubleshooting (Legacy)
 
 If anything goes wrong, you have complete control:
 
@@ -214,7 +218,7 @@ This ensures `SECURITY_TXT_EXPIRES` and the required-lists are present for the e
 ssh -i ~/.ssh/bb-portfolio-site-key.pem ec2-user@44.246.43.116
 ```
 
-## Production Readiness
+## Production Readiness (Switching to Production Images)
 
 When you're ready to use production containers:
 
@@ -329,5 +333,25 @@ If you later switch to Caddy for simpler config + automatic certificate manageme
 Current implementation keeps Nginx (host-level) for stability and explicit control. Consider Caddy ONLY if you need dynamic routing or simplified header management; update ADR log with the rationale before switching.
 
 ### 9. Dependency Footprint for HTTPS
+
+---
+
+## Lagoon (Blue/Green) Strategy – Deferred
+
+The Lagoon strategy (parallel candidate instance, EIP promotion, enhanced health checks, versioned Nginx with fallback `/healthz`) is currently paused to simplify recovery operations. Its full design, scripts, and Terraform modules were snapshotted under:
+
+- `infra-lagoon/` (blue/green infrastructure definitions)
+- `deploy-lagoon/` (orchestrators, Nginx config, diagnostics, promotion helpers)
+
+Refer to `deploy-lagoon/README.md` for comprehensive details, rationale, and the steps to resume. We will revisit Lagoon when time permits and operational stability goals are met.
+
+Brief Advantages (when active): safer cutover, rollback path, validation before promotion. Temporary drawback: added cognitive overhead during outage recovery.
+
+Action to Resume Later:
+1. Run a Terraform plan in `infra-lagoon/`.
+2. Rebuild candidate instance and run containers only.
+3. Validate health paths → perform promotion.
+
+Until then, treat this legacy model as authoritative.
 
 No new Node.js dependencies were added to enable HTTPS. All TLS functionality lives at the host layer (Nginx + certbot). Application packages remained unchanged. This minimizes surface area and avoids per-container certificate renewal complexity.
