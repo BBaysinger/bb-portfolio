@@ -402,6 +402,7 @@ jobs:
       - name: Sync Nginx config and reload
         env:
           EC2_HOST: ${{ secrets.EC2_HOST }}
+          ENVIRONMENT: ${{ inputs.environment }}
         run: |
           set -euo pipefail
           echo "== Uploading Nginx vhost config =="
@@ -446,6 +447,7 @@ jobs:
             printf '%s\n' '}'
             printf '%s\n' 'case "${ENVIRONMENT}" in'
             printf '%s\n' '  prod)'
+            printf '%s\n' 'ENVIRONMENT="${ENVIRONMENT:-both}"'
             printf '%s\n' '    COMPOSE_PROFILES=prod docker-compose -f "$COMPOSE_FILE" pull || true'
             printf '%s\n' '    try_up prod'
             printf '%s\n' '    ;;'
