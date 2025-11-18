@@ -348,6 +348,7 @@ Refer to `deploy-lagoon/README.md` for comprehensive details, rationale, and the
 Brief Advantages (when active): safer cutover, rollback path, validation before promotion. Temporary drawback: added cognitive overhead during outage recovery.
 
 Action to Resume Later:
+
 1. Run a Terraform plan in `infra-lagoon/`.
 2. Rebuild candidate instance and run containers only.
 3. Validate health paths → perform promotion.
@@ -373,7 +374,6 @@ When returning to Lagoon, schedule a restoration task list:
 5. Remove any legacy-only operational shortcuts documented here (e.g., direct root compose use if it reappears, manual container recreation outside orchestrator).
 
 Until these steps are completed, treat this file as the authoritative guide for production operations. Mark a ticket in your backlog (e.g., `restore-lagoon-strategy`) so the deferred work is tracked explicitly.
-
 
 No new Node.js dependencies were added to enable HTTPS. All TLS functionality lives at the host layer (Nginx + certbot). Application packages remained unchanged. This minimizes surface area and avoids per-container certificate renewal complexity.
 
