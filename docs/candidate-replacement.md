@@ -1,6 +1,6 @@
-# Candidate Instance Replacement Procedure
+# Lagoon Candidate Instance Replacement Procedure
 
-This document describes the recommended process to replace a failing _candidate_ (blue / canary) EC2 instance in the blue‑green deployment model without disrupting the _active_ instance.
+This document describes the recommended process to replace a failing Lagoon _candidate_ EC2 instance (formerly "blue") without disrupting the _active_ instance.
 
 ## When to Replace
 
@@ -114,4 +114,4 @@ If `attach_instance_profile` must be false due to permission restrictions, SSM w
 - [ ] Retention prune
 - [ ] Revoke temporary policies
 
-This procedure keeps blue‑green flow reliable and minimizes downtime.
+This procedure keeps the Lagoon flow reliable and minimizes downtime.

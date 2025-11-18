@@ -276,25 +276,25 @@
     "db:migrate:local-to-dev": "bash scripts/migrate-database.sh local dev",
     // ☢️⚰️ DANGER: ARMAGEDDON DB REPLACEMENT - Completely overwrites dev DB with production data
     "db:migrate:prod-to-dev": "bash scripts/migrate-database.sh prod dev",
-    // 🎭 ORCHESTRATION: Blue-Green Deployment Pipeline
+    // 🎭 ORCHESTRATION: Lagoon Deployment Strategy (formerly Blue-Green)
     // =============================================================================
     // NAMING CONVENTION:
     //   orchestrate:xxx  = calls deployment-orchestrator.sh with flags (same script)
     //   orchestrate-xxx  = calls separate script (different script)
     // =============================================================================
     // WORKFLOW:
-    //   1. Run `orchestrate` to deploy to blue/candidate instance
-    //   2. Test blue at http://<blue-ip> (IP shown in orchestrator output)
-    //   3. Run `candidate-promote` to swap blue/candidate → production/green/active (manual validation)
+    //   1. Run `orchestrate` to deploy to the Lagoon candidate instance
+    //   2. Test candidate at http://<candidate-ip> (shown in orchestrator output)
+    //   3. Run `candidate-promote` to cut over candidate → active (manual validation)
     //      OR use `orchestrate:auto-promote` to deploy + promote in one step (risky)
     // =============================================================================
-    // Deploy to blue/candidate instance for testing before production promotion
+    // Deploy to Lagoon candidate instance for testing before production promotion
     // Runs: terraform, docker builds, GitHub Actions deployment, nginx sync
-    // Blue instance is accessible by IP for validation (nginx config includes IP server block)
+    // Candidate instance is accessible by IP for validation (nginx config includes IP server block)
     "orchestrate": "bash deploy/scripts/deployment-orchestrator.sh --profiles both --refresh-env",
-    // Deploy to blue AND auto-promote to production without manual validation
+    // Deploy to candidate AND auto-promote to production without manual validation
     // Runs full orchestration THEN internally invokes promotion logic with --auto-promote
-    // ⚠️ Use with caution: skips manual testing of blue/candidate
+    // ⚠️ Use with caution: skips manual testing of candidate
     "orchestrate:auto-promote": "bash deploy/scripts/deployment-orchestrator.sh --profiles both --auto-promote --refresh-env",
     // Deploy using existing images (skip Docker build/push to registries)
     // Useful for config-only changes or when images are already built and pushed
@@ -312,8 +312,8 @@
     // Updates containers on existing instances AND promotes automatically
     // Fastest deployment option for container updates only
     "orchestrate:containers-only:auto-promote": "bash deploy/scripts/deployment-orchestrator.sh --profiles both --containers-only --auto-promote --refresh-env",
-    // Promote existing blue/candidate to production (SEPARATE SCRIPT, no deployment)
-    // Runs health checks, swaps Elastic IPs (blue↔green), updates instance Role tags
+    // Promote existing candidate to production (SEPARATE SCRIPT, no deployment)
+    // Runs health checks, swaps Elastic IPs (active↔candidate), updates instance Role tags
     // Prompts "Type 'yes' to confirm" before promotion (old active becomes previous)
     "candidate-promote": "bash deploy/scripts/orchestrator-promote.sh --region us-west-2",
     // 🏗️ Infrastructure: Sync .env file with Terraform state (interactive)
