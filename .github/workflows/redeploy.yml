@@ -573,12 +573,20 @@ jobs:
           }
           # Environments to check
           if [ "$ENVIRONMENT" = "prod" ] || [ "$ENVIRONMENT" = "both" ]; then poll_containers prod || true; fi
-          if { [ "$ENVIRONMENT" = "dev" ] || [ "$ENVIRONMENT" = "both" ]; } && { [ "${START_DEV}" = "true" ] || [ "${START_DEV}" = true ]; }; then poll_containers dev || true; fi
+          # Always check dev when environment=dev. When environment=both, honor START_DEV to optionally include dev.
+          if [ "$ENVIRONMENT" = "dev" ]; then
+            poll_containers dev || true
+          elif [ "$ENVIRONMENT" = "both" ] && { [ "${START_DEV}" = "true" ] || [ "${START_DEV}" = true ]; }; then
+            poll_containers dev || true
+          fi
           if [ "$ENVIRONMENT" = "prod" ] || [ "$ENVIRONMENT" = "both" ]; then
             curl_with_retry 3000 / "frontend prod"
             curl_with_retry 3001 /api/health "backend prod health"
           fi
-          if { [ "$ENVIRONMENT" = "dev" ] || [ "$ENVIRONMENT" = "both" ]; } && { [ "${START_DEV}" = "true" ] || [ "${START_DEV}" = true ]; }; then
+          if [ "$ENVIRONMENT" = "dev" ]; then
+            curl_with_retry 4000 / "frontend dev"
+            curl_with_retry 4001 /api/health "backend dev health"
+          elif [ "$ENVIRONMENT" = "both" ] && { [ "${START_DEV}" = "true" ] || [ "${START_DEV}" = true ]; }; then
             curl_with_retry 4000 / "frontend dev"
             curl_with_retry 4001 /api/health "backend dev health"
           fi
