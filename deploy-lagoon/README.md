@@ -13,13 +13,13 @@ Lagoon is the deployment strategy introduced on 2025‑11‑14 (commit `9dc62eef
 
 ## Core Components
 
-| Aspect | Green (Active) | Blue (Candidate) |
-| ------ | -------------- | ---------------- |
-| EC2 Tag `Role` | `active` | `candidate` |
-| EIP | Stable Elastic IP (public DNS points here) | Temporary EIP for validation |
-| Security Group | Production ingress (80/443 + app ports) | Candidate SG (can be operator‑IP restricted) |
+| Aspect              | Green (Active)                                      | Blue (Candidate)                                               |
+| ------------------- | --------------------------------------------------- | -------------------------------------------------------------- |
+| EC2 Tag `Role`      | `active`                                            | `candidate`                                                    |
+| EIP                 | Stable Elastic IP (public DNS points here)          | Temporary EIP for validation                                   |
+| Security Group      | Production ingress (80/443 + app ports)             | Candidate SG (can be operator‑IP restricted)                   |
 | Terraform Resources | `aws_instance.bb_portfolio_green` + EIP association | `aws_instance.bb_portfolio_blue` + candidate EIP + association |
-| Promotion | N/A (already active) | Acquire production EIP; previous green tainted/demoted |
+| Promotion           | N/A (already active)                                | Acquire production EIP; previous green tainted/demoted         |
 
 ## Orchestrators
 
