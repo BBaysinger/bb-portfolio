@@ -399,6 +399,26 @@ jobs:
             printf '%s\n' 'docker system df || true'
           } | ssh -i "${{ steps.ssh.outputs.key }}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" "ENVIRONMENT='${ENVIRONMENT}' bash -s"
 
+      - name: Sync Nginx config and reload
+        env:
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+        run: |
+          set -euo pipefail
+          echo "== Uploading Nginx vhost config =="
+          scp -i "${{ steps.ssh.outputs.key }}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -C \
+            deploy/nginx/bb-portfolio.conf ec2-user@"$EC2_HOST":/home/ec2-user/bb-portfolio/bb-portfolio.conf
+          echo "== Installing to /etc/nginx/conf.d and reloading =="
+          ssh -i "${{ steps.ssh.outputs.key }}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" $'set -e
+            sudo mkdir -p /etc/nginx/conf.d
+            sudo mv -f /home/ec2-user/bb-portfolio/bb-portfolio.conf /etc/nginx/conf.d/bb-portfolio.conf
+            sudo chown root:root /etc/nginx/conf.d/bb-portfolio.conf
+            sudo nginx -t
+            sudo systemctl reload nginx
+            echo "Nginx active: $(systemctl is-active nginx)"
+            echo "Listeners:"; sudo ss -ltnp | egrep ":80|:443" || true
+            echo "HTTP /healthz:"; curl -s -I --max-time 4 http://127.0.0.1/healthz || true
+          '
+
           # Now perform the actual restart using docker-compose
           {
             printf '%s\n' 'set -e'

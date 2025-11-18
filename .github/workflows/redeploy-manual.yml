@@ -228,7 +228,7 @@ jobs:
           echo "Working user: $WORKING_USER"
           echo "ssh_user=$WORKING_USER" >> "$GITHUB_OUTPUT"
 
-      - name: 'Guard: env files present when refresh_env=false'
+      - name: "Guard: env files present when refresh_env=false"
         if: ${{ inputs.refresh_env == 'false' || inputs.refresh_env == false }}
         env:
           ENVIRONMENT: ${{ inputs.environment }}
@@ -470,6 +470,28 @@ jobs:
             printf '%s\n' '    ;;'
             printf '%s\n' 'esac'
           } | ssh -i "${{ steps.ssh.outputs.key }}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${USER}@$EC2_HOST" "ENVIRONMENT='${ENVIRONMENT}' bash -s"
+
+      - name: Sync Nginx config and reload
+        env:
+          EC2_HOST: ${{ inputs.ec2_host || secrets.EC2_HOST }}
+          SSH_USER: ${{ steps.ssh_preflight.outputs.ssh_user }}
+        run: |
+          set -euo pipefail
+          USER="${SSH_USER:-ec2-user}"
+          echo "== Uploading Nginx vhost config =="
+          scp -i "${{ steps.ssh.outputs.key }}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -C \
+            deploy/nginx/bb-portfolio.conf "${USER}@$EC2_HOST:/home/${USER}/bb-portfolio/bb-portfolio.conf"
+          echo "== Installing to /etc/nginx/conf.d and reloading =="
+          ssh -i "${{ steps.ssh.outputs.key }}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${USER}@$EC2_HOST" $'set -e
+            sudo mkdir -p /etc/nginx/conf.d
+            sudo mv -f /home/'"${USER}"'/bb-portfolio/bb-portfolio.conf /etc/nginx/conf.d/bb-portfolio.conf
+            sudo chown root:root /etc/nginx/conf.d/bb-portfolio.conf
+            sudo nginx -t
+            sudo systemctl reload nginx
+            echo "Nginx active: $(systemctl is-active nginx)"
+            echo "Listeners:"; sudo ss -ltnp | egrep ":80|:443" || true
+            echo "HTTP /healthz:"; curl -s -I --max-time 4 http://127.0.0.1/healthz || true
+          '
 
       - name: Health checks
         if: ${{ success() }}
