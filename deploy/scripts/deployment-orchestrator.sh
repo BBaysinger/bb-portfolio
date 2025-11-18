@@ -101,7 +101,7 @@ while [[ $# -gt 0 ]]; do
     --build-images)
       build_images="${2:-}"; [[ -n "$build_images" ]] || die "--build-images requires prod|dev|both"; shift 2 ;;
     --no-build) build_images=""; shift ;;
-    --profiles)
+    --profiles|--profile)
       profiles="${2:-}"; [[ "$profiles" =~ ^(prod|dev|both)$ ]] || die "--profiles must be prod|dev|both"; shift 2 ;;
     --destroy) do_destroy=true; shift ;;
     --containers-only) do_infra=false; shift ;;
@@ -544,6 +544,10 @@ dispatch_redeploy() {
   local -a REFS=("$@")
   local DISPATCHED=false
   local RUN_ID="" RUN_URL=""
+  # start_dev controls only whether the workflow also manages/validates dev when env=both,
+  # and whether to perform dev health checks. For env=dev, set true so health checks run.
+  local START_DEV_FLAG="false"
+  if [[ "$ENV_IN" == "dev" ]]; then START_DEV_FLAG="true"; fi
   for WF in "${WF_CANDIDATES[@]}"; do
     [[ -n "$WF" ]] || continue
     for REF in "${REFS[@]}"; do
@@ -554,7 +558,7 @@ dispatch_redeploy() {
         --repo "$GH_REPO" \
         --ref "$REF" \
         -f environment="$ENV_IN" \
-        -f start_dev=false \
+        -f start_dev="$START_DEV_FLAG" \
         -f refresh_env="$refresh_env" \
         -f restart_containers="$restart_containers" 2>&1)
       STATUS=$?
