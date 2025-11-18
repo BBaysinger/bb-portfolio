@@ -87,13 +87,14 @@ function loadSecrets(): SecretsConfig {
 function generateTerraformVars(secrets: SecretsConfig): string {
   const { strings } = secrets;
 
-  // Get EC2 instance IP from environment variable (required)
-  const ec2InstanceIp = process.env.EC2_INSTANCE_IP;
-
+  // Get EC2 instance IP from environment variable (optional)
+  // Note: This value is not currently used by terraform.tfvars generation.
+  // We keep it for potential future interpolation, but do not hard-fail if missing.
+  const ec2InstanceIp = process.env.EC2_INSTANCE_IP || "";
   if (!ec2InstanceIp) {
-    console.error("❌ Error: EC2_INSTANCE_IP environment variable is required");
-    console.error("   Please set it in .env or .env.local");
-    process.exit(1);
+    console.warn(
+      "⚠️  EC2_INSTANCE_IP not set; proceeding without it (not required for tfvars generation)",
+    );
   }
 
   // Base configuration (non-secret values)

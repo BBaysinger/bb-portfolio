@@ -101,7 +101,7 @@ while [[ $# -gt 0 ]]; do
     --build-images)
       build_images="${2:-}"; [[ -n "$build_images" ]] || die "--build-images requires prod|dev|both"; shift 2 ;;
     --no-build) build_images=""; shift ;;
-    --profiles)
+    --profiles|--profile)
       profiles="${2:-}"; [[ "$profiles" =~ ^(prod|dev|both)$ ]] || die "--profiles must be prod|dev|both"; shift 2 ;;
     --destroy) do_destroy=true; shift ;;
     --containers-only) do_infra=false; shift ;;
@@ -512,6 +512,53 @@ sync_nginx_config() {
   '
 }
 
+# Ensure SSL server blocks exist; append if missing and certificates present.
+ensure_ssl_blocks() {
+  local host="$1"
+  local key="$HOME/.ssh/bb-portfolio-site-key.pem"
+  [[ -n "$host" ]] || return 0
+  if [[ ! -f "$key" ]]; then
+    warn "SSL ensure skipped: SSH key not found at $key"
+    return 0
+  fi
+  log "Ensuring SSL server blocks present on $host"
+  ssh -i "$key" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$host" $'set -e
+    CFG=/etc/nginx/conf.d/bb-portfolio.conf
+    if grep -q "listen 443" "$CFG"; then
+      echo "SSL blocks already present"
+      exit 0
+    fi
+    if [ ! -d /etc/letsencrypt/live/bbaysinger.com ]; then
+      echo "Certificates not present; skipping SSL block append"
+      exit 0
+    fi
+    echo "Appending SSL blocks to $CFG"
+    sudo tee -a "$CFG" >/dev/null <<'CONF'
+server {
+  listen 443 ssl;
+  server_name bbaysinger.com www.bbaysinger.com;
+  ssl_certificate     /etc/letsencrypt/live/bbaysinger.com/fullchain.pem;
+  ssl_certificate_key /etc/letsencrypt/live/bbaysinger.com/privkey.pem;
+  include /etc/letsencrypt/options-ssl-nginx.conf;
+  location = /healthz { return 200 'ok'; add_header Content-Type text/plain; }
+  location /api/ { proxy_pass http://127.0.0.1:3001/; }
+  location / { proxy_pass http://127.0.0.1:3000/; }
+}
+server {
+  listen 443 ssl;
+  server_name dev.bbaysinger.com;
+  ssl_certificate     /etc/letsencrypt/live/bbaysinger.com/fullchain.pem;
+  ssl_certificate_key /etc/letsencrypt/live/bbaysinger.com/privkey.pem;
+  include /etc/letsencrypt/options-ssl-nginx.conf;
+  location = /healthz { return 200 'ok'; add_header Content-Type text/plain; }
+  location /api/ { proxy_pass http://127.0.0.1:4001/; }
+  location / { proxy_pass http://127.0.0.1:4000/; }
+}
+CONF
+    sudo nginx -t && sudo systemctl reload nginx
+  '
+}
+
 # Extract AWS_ACCOUNT_ID for ECR image pulls used in compose. Fallback to known prod account.
 AWS_ACCOUNT_ID_LOCAL="$(node -e "try{const JSON5=require('json5');const fs=require('fs');const raw=fs.readFileSync('.github-secrets.private.json5','utf8');const cfg=JSON5.parse(raw);const s=cfg.strings||cfg;process.stdout.write((s.AWS_ACCOUNT_ID||'778230822028')+'');}catch(e){process.stdout.write('778230822028');}")"
 
@@ -525,6 +572,7 @@ if [[ -z "${EC2_IP:-}" ]]; then
     ensure_remote_compose "$EC2_HOST_RESOLVE"
     sync_nginx_config "$EC2_HOST_RESOLVE"
     ensure_https_certs "$EC2_HOST_RESOLVE" "${ACME_EMAIL:-}"
+    ensure_ssl_blocks "$EC2_HOST_RESOLVE"
   else
     warn "Single-controller guard: no host resolved (containers-only), skipping"
   fi
@@ -536,6 +584,7 @@ if [[ -n "${POST_ENFORCE_HOST:-}" ]]; then
   ensure_remote_compose "${POST_ENFORCE_HOST}"
   sync_nginx_config "${POST_ENFORCE_HOST}"
   ensure_https_certs "${POST_ENFORCE_HOST}" "${ACME_EMAIL:-}"
+  ensure_ssl_blocks "${POST_ENFORCE_HOST}"
 fi
 
 # Helper to dispatch a single Redeploy run for a specific environment (prod|dev)
@@ -544,6 +593,10 @@ dispatch_redeploy() {
   local -a REFS=("$@")
   local DISPATCHED=false
   local RUN_ID="" RUN_URL=""
+  # start_dev controls only whether the workflow also manages/validates dev when env=both,
+  # and whether to perform dev health checks. For env=dev, set true so health checks run.
+  local START_DEV_FLAG="false"
+  if [[ "$ENV_IN" == "dev" ]]; then START_DEV_FLAG="true"; fi
   for WF in "${WF_CANDIDATES[@]}"; do
     [[ -n "$WF" ]] || continue
     for REF in "${REFS[@]}"; do
@@ -554,7 +607,7 @@ dispatch_redeploy() {
         --repo "$GH_REPO" \
         --ref "$REF" \
         -f environment="$ENV_IN" \
-        -f start_dev=false \
+        -f start_dev="$START_DEV_FLAG" \
         -f refresh_env="$refresh_env" \
         -f restart_containers="$restart_containers" 2>&1)
       STATUS=$?
