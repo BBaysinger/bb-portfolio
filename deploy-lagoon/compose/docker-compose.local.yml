@@ -1,0 +1,5 @@
+version: "3.9"
+# This file has been deprecated. Use the main compose with profiles instead:
+#   COMPOSE_PROFILES=local docker compose up
+#   COMPOSE_PROFILES=local,proxy docker compose up
+

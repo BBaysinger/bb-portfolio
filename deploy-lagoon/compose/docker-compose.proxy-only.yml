@@ -1,0 +1,5 @@
+version: "3.9"
+# This file has been deprecated. To run a proxy only against host apps, use:
+#   COMPOSE_PROFILES=proxy docker compose up
+# And adjust the Caddyfile to reverse_proxy host.docker.internal:3000/3001
+

@@ -216,3 +216,30 @@ variable "acme_registration_email" {
   description = "Email address for Let's Encrypt/ACME certificate registration"
   type        = string
 }
+
+# =============================================================================
+# BLUE-GREEN DEPLOYMENT CONFIGURATION
+# =============================================================================
+# Blue instance (candidate) is ALWAYS created for blue-green deployment.
+# Green instance (active) is only created when explicitly requested or during initial setup.
+#
+# Deployment flow:
+# 1. Blue (candidate) created with temporary public IP
+# 2. Test blue instance
+# 3. On promotion: Green → Red (demoted), Blue → Green (promoted with Elastic IP)
+# 4. Red instance terminated after validation
+
+variable "create_green_instance" {
+  description = "Create the green (active) instance. Set to false when deploying only blue candidate."
+  type        = bool
+  default     = false
+}
+
+# Version identifier applied as a tag to instances and root volumes.
+# Provide a value at apply time (e.g. 2025-11-14T04-55-12Z or a semantic build number).
+# Empty default keeps plans stable when not using versioned blue-green rollout.
+variable "deployment_version" {
+  description = "Version/tag string applied to EC2 instances (active/candidate) for lineage tracking."
+  type        = string
+  default     = ""
+}

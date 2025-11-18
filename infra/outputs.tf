@@ -1,49 +1,16 @@
 output "instance_id" {
-  description = "ID of the green (active) EC2 instance"
-  value       = var.create_green_instance ? aws_instance.bb_portfolio_green[0].id : null
+  description = "ID of the EC2 instance"
+  value       = aws_instance.bb_portfolio.id
 }
 
 output "public_ip" {
-  description = "Public IP of the green (active) instance"
-  value       = var.create_green_instance ? aws_instance.bb_portfolio_green[0].public_ip : null
+  description = "Public IP of the instance"
+  value       = aws_instance.bb_portfolio.public_ip
 }
 
 output "elastic_ip" {
   description = "Elastic IP address"
   value       = aws_eip.bb_portfolio_ip.public_ip
-}
-
-# ===============================
-# Blue (Candidate) Outputs
-# ===============================
-output "blue_instance_id" {
-  description = "ID of blue (candidate) EC2 instance"
-  value       = aws_instance.bb_portfolio_blue.id
-}
-
-output "blue_instance_public_ip" {
-  description = "Public IP of blue (candidate) instance"
-  value       = aws_instance.bb_portfolio_blue.public_ip
-}
-
-output "blue_elastic_ip" {
-  description = "Elastic IP attached to blue (candidate) instance"
-  value       = aws_eip.bb_portfolio_blue_ip.public_ip
-}
-
-output "blue_ssh_command" {
-  description = "SSH command for blue (candidate) instance"
-  value       = "ssh -i ~/.ssh/${var.key_name}.pem ec2-user@${aws_eip.bb_portfolio_blue_ip.public_ip}"
-}
-
-output "blue_website_url" {
-  description = "HTTP URL for blue (candidate) instance for testing"
-  value       = "http://${aws_eip.bb_portfolio_blue_ip.public_ip}"
-}
-
-output "deployment_version" {
-  description = "Version string applied to instances for rollout lineage"
-  value       = var.deployment_version
 }
 
 output "media_bucket_names" {
