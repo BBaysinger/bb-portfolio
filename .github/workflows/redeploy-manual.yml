@@ -77,53 +77,12 @@ jobs:
             const statuses = ['in_progress','queued'];
             const workflows = [
               'redeploy.yml',              // auto deploy
-              'promote.yml',               // promotion (may restart containers/EIP)
-              'redeploy-manual.yml'        // other manual runs
-            ];
+            echo "Nginx active: $(systemctl is-active nginx)"
+            echo "Listeners:"; sudo ss -ltnp | egrep ":80|:443" || true
+            echo "HTTP /healthz (no Host header → fallback server):"; curl -s -I --max-time 4 http://127.0.0.1/healthz || true
+            echo "HTTP /healthz (prod Host header):"; curl -s -I -H 'Host: bbaysinger.com' --max-time 4 http://127.0.0.1/healthz || true
+            echo "HTTP /healthz (dev Host header):"; curl -s -I -H 'Host: dev.bbaysinger.com' --max-time 4 http://127.0.0.1/healthz || true
             const envFilter = process.env.ENVIRONMENT;
-            let conflictingRun = null;
-            for (const wf of workflows){
-              for (const st of statuses){
-                const runs = await list(wf, st);
-                for (const r of runs){
-                  if (r.id === context.runId) continue; // skip self
-                  // Optional: narrow to same environment by parsing inputs (if available in name)
-                  // GitHub API does not directly expose dispatch inputs in list; rely on concurrency cancellation
-                  conflictingRun = r; break;
-                }
-                if (conflictingRun) break;
-              }
-              if (conflictingRun) break;
-            }
-            if(conflictingRun){
-              core.warning(`Conflicting workflow active (${conflictingRun.workflow_url || conflictingRun.id}); failing fast.`);
-              core.setFailed('Conflict: another deploy/promotion workflow is active. Retry after completion.');
-            } else {
-              core.info('No conflicting deploy/promotion workflows detected. Proceeding.');
-            }
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Prepare SSH key
-        id: ssh
-        env:
-          SSH_KEY_PEM: ${{ secrets.EC2_SSH_KEY_PEM }}
-          SSH_KEY_ALT: ${{ secrets.EC2_SSH_KEY }}
-        run: |
-          set -euo pipefail
-          CONTENT="${SSH_KEY_PEM:-}"
-          if [ -z "$CONTENT" ] && [ -n "${SSH_KEY_ALT:-}" ]; then
-            CONTENT="$SSH_KEY_ALT"
-          fi
-          if [ -z "$CONTENT" ]; then
-            echo "Missing SSH key secret: provide EC2_SSH_KEY_PEM or EC2_SSH_KEY" >&2
-            exit 1
-          fi
-          umask 177
-          printf "%s" "$CONTENT" > key.pem
-          echo "key=key.pem" >> "$GITHUB_OUTPUT"
-
-      - name: Validate required inputs and secrets
         env:
           ENVIRONMENT: ${{ inputs.environment }}
           EC2_HOST: ${{ inputs.ec2_host || secrets.EC2_HOST }}
