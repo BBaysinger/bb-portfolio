@@ -200,7 +200,6 @@ jobs:
           ENVIRONMENT: ${{ inputs.environment }}
           EC2_HOST: ${{ inputs.ec2_host || secrets.EC2_HOST }}
           SSH_USER: ${{ steps.ssh_preflight.outputs.ssh_user }}
-          ENVIRONMENT: ${{ inputs.environment }}
         run: |
           set -euo pipefail
           USER="${SSH_USER:-ec2-user}"
