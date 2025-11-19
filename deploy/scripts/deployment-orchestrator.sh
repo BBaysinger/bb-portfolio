@@ -541,7 +541,7 @@ server {
   ssl_certificate_key /etc/letsencrypt/live/bbaysinger.com/privkey.pem;
   include /etc/letsencrypt/options-ssl-nginx.conf;
   location = /healthz { return 200 'ok'; add_header Content-Type text/plain; }
-  location /api/ { proxy_pass http://127.0.0.1:3001/; }
+  location /api/ { proxy_pass http://127.0.0.1:3001; }
   location / { proxy_pass http://127.0.0.1:3000/; }
 }
 server {
@@ -551,7 +551,7 @@ server {
   ssl_certificate_key /etc/letsencrypt/live/bbaysinger.com/privkey.pem;
   include /etc/letsencrypt/options-ssl-nginx.conf;
   location = /healthz { return 200 'ok'; add_header Content-Type text/plain; }
-  location /api/ { proxy_pass http://127.0.0.1:4001/; }
+  location /api/ { proxy_pass http://127.0.0.1:4001; }
   location / { proxy_pass http://127.0.0.1:4000/; }
 }
 CONF
