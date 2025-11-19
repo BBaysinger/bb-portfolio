@@ -3,6 +3,7 @@ import { clsx } from "clsx";
 import React, { useRef } from "react";
 
 import { RawImg } from "@/components/common/RawImg";
+import useDeviceCapabilities from "@/hooks/useDeviceCapabilities";
 import { useFlipInFlow } from "@/hooks/useFlipInFlow";
 import { useContactEmail, useContactPhone } from "@/hooks/useObfuscatedContact";
 
@@ -55,6 +56,9 @@ const Footer: React.FC<FooterProps> = ({ className, mutationElemRef }) => {
     isLoading: _phoneLoading,
     error: _phoneError,
   } = useContactPhone();
+
+  // Capability-first detection (avoids UA sniffing)
+  const { isTouchPrimary } = useDeviceCapabilities();
 
   return (
     <footer ref={footerRef} className={clsx(className, styles.footer)}>
@@ -141,6 +145,17 @@ const Footer: React.FC<FooterProps> = ({ className, mutationElemRef }) => {
                 <li>
                   <a
                     href="geo:47.6605791,-117.4292277?q=Spokane,WA"
+                    onClick={(e) => {
+                      // For desktop-like environments, prefer opening Google Maps in a new tab.
+                      if (!isTouchPrimary) {
+                        e.preventDefault();
+                        window.open(
+                          "https://maps.google.com/?q=Spokane,WA",
+                          "_blank",
+                          "noopener,noreferrer",
+                        );
+                      }
+                    }}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
