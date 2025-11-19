@@ -64,7 +64,11 @@ RUN npm install
 # Copy all source code and configuration files
 COPY . .
 
-# Build the application with secrets available for TypeScript compilation
+# Build-time configuration
+ARG NODE_ENV="production"
+ENV NODE_ENV=${NODE_ENV}
+
+# Build the application with secrets available for TypeScript compilation and build
 # Secrets are mounted only during this step and not persisted to image layers
 ## Ensure repo .env files don't override CI-provided transient env during build
 RUN rm -f .env .env.local .env.development .env.production || true
