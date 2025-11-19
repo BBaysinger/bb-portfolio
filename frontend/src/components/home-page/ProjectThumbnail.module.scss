@@ -16,6 +16,17 @@
     flex: 0 1 calc(33.333% - projectsList.$projectsListGap * (2 / 3));
   }
 
+  &:nth-child(odd) {
+    .stripesContainer {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      transform: scaleX(-1);
+    }
+  }
+
   .thumbBg {
     filter: blur(0);
     opacity: 1;
