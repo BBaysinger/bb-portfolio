@@ -232,6 +232,8 @@ services:
       ENV_PROFILE: local
       # API calls are relative; proxy routes /api to backend
       NPM_CONFIG_CACHE: /app/.npm-cache
+      # Ensure Next dev listens on expected container port for Caddy (matches Caddyfile reverse_proxy target)
+      PORT: "3000"
       # Disk usage guardrails (warn/fail thresholds in percent). Adjust as needed.
       DISK_WARN_PCT: "95"
       DISK_FAIL_PCT: "101"
