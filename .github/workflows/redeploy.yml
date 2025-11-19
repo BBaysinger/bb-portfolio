@@ -217,12 +217,14 @@ jobs:
           ENVIRONMENT: ${{ inputs.environment }}
           START_DEV: ${{ inputs.start_dev }}
           EC2_HOST: ${{ secrets.EC2_HOST }}
-          HEALTH_ATTEMPTS: 4
-          HEALTH_DELAY_SECONDS: 3
-          CURL_ATTEMPTS: 3
-          CURL_DELAY_SECONDS: 2
-          CURL_MAX_TIME_SECONDS: 3
-          CURL_CONNECT_TIMEOUT: 1
+          # Use extended defaults aligned with container start_period and grace logic
+          HEALTH_ATTEMPTS: 12
+          HEALTH_DELAY_SECONDS: 5
+          CURL_ATTEMPTS: 6
+          CURL_DELAY_SECONDS: 5
+          CURL_MAX_TIME_SECONDS: 5
+          CURL_CONNECT_TIMEOUT: 2
+          HEALTH_STARTING_GRACE_SECONDS: 40
         run: bash deploy/scripts/actions/health-checks.sh "${{ steps.ssh.outputs.key }}"
 
       - name: Dump container logs on failure
