@@ -76,6 +76,7 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     environment:
+      - NODE_ENV=production
       - AWS_REGION=us-west-2
       - AWS_DEFAULT_REGION=us-west-2
     healthcheck: # HTTP health check against backend endpoint
@@ -105,6 +106,7 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     environment:
+      - NODE_ENV=production
       - AWS_REGION=us-west-2
       - AWS_DEFAULT_REGION=us-west-2
     restart: unless-stopped # Auto-restart on failure/reboot
