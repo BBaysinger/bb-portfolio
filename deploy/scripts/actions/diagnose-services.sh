@@ -33,4 +33,20 @@ ssh -i "$KEY_PATH" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null e
     code=$(curl -s -o /dev/null -w "%{http_code}" "$url" || true)
     echo "$code $url"
   done
+  echo
+  echo "== Nginx vhost probes =="
+  # Probe HTTP vhost routing via Host header to ensure /api goes to backend
+  http_code=$(curl -s -o /dev/null -w "%{http_code}" -H 'Host: bbaysinger.com' http://127.0.0.1/api/health/ || true)
+  echo "HTTP  $http_code Host:bbaysinger.com http://127.0.0.1/api/health/"
+  dev_http_code=$(curl -s -o /dev/null -w "%{http_code}" -H 'Host: dev.bbaysinger.com' http://127.0.0.1/api/health/ || true)
+  echo "HTTP  $dev_http_code Host:dev.bbaysinger.com http://127.0.0.1/api/health/"
+  # Probe HTTPS via local resolve (bypass DNS); ignore cert mismatch if any
+  https_code=$(curl -s -k -o /dev/null -w "%{http_code}" --resolve bbaysinger.com:443:127.0.0.1 https://bbaysinger.com/api/health/ || true)
+  echo "HTTPS $https_code bbaysinger.com /api/health/"
+  dev_https_code=$(curl -s -k -o /dev/null -w "%{http_code}" --resolve dev.bbaysinger.com:443:127.0.0.1 https://dev.bbaysinger.com/api/health/ || true)
+  echo "HTTPS $dev_https_code dev.bbaysinger.com /api/health/"
+  echo
+  echo "== Nginx logs (last 50 lines with /api/health) =="
+  sudo sh -lc "grep -E '/api/health' /var/log/nginx/access.log | tail -n 50" || true
+  sudo sh -lc "tail -n 50 /var/log/nginx/error.log" || true
 '
