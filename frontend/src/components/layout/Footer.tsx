@@ -145,12 +145,13 @@ const Footer: React.FC<FooterProps> = ({ className, mutationElemRef }) => {
                 <li>
                   <a
                     href="geo:47.6605791,-117.4292277?q=Spokane,WA"
+                    title="Spokane, WA (47.6605791,-117.4292277)"
                     onClick={(e) => {
                       // For desktop-like environments, prefer opening Google Maps in a new tab.
                       if (!isTouchPrimary) {
                         e.preventDefault();
                         window.open(
-                          "https://maps.google.com/?q=Spokane,WA",
+                          "https://www.google.com/maps/search/?api=1&query=47.6605791,-117.4292277",
                           "_blank",
                           "noopener,noreferrer",
                         );
