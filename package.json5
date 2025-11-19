@@ -265,7 +265,8 @@
     // 🗑️ Prod cleanup (apply): backup then drop portfolio-prod
     "db:delete:prod-portfolio": "bash scripts/delete-database.sh --env prod --db portfolio-prod",
     // ☢️ Convenience: run both local→prod and local→dev migrations sequentially (ensure backups exist first)
-    "db:migrate:both": "npm run db:migrate:local-to-prod && npm run db:migrate:local-to-dev",
+    // This is the default flow. Only use this, since I'm the only admin
+    "db:migrate:local-to-both": "npm run db:migrate:local-to-prod && npm run db:migrate:local-to-dev",
     // ☢️💀 DANGER: NUCLEAR DATABASE REPLACEMENT - Completely overwrites production DB with local data
     "db:migrate:local-to-prod": "bash scripts/migrate-database.sh local prod",
     // 🧪 Dry run only: print the exact mongodump/mongorestore plan for local → prod without making changes
@@ -312,6 +313,10 @@
     // Updates containers on existing instances AND promotes automatically
     // Fastest deployment option for container updates only
     "orchestrate:containers-only:auto-promote": "bash deploy/scripts/deployment-orchestrator.sh --profiles both --containers-only --auto-promote --refresh-env",
+    // 🧩 Legacy orchestration entrypoint (older script version kept for fallback / comparison)
+    "orchestrate:legacy": "bash deploy/scripts/deployment-orchestrator-legacy.sh --refresh-env",
+    // 🧩 Legacy containers-only deployment (skip infra) using the older script variant
+    "orchestrate:legacy:containers-only": "bash deploy/scripts/deployment-orchestrator-legacy.sh --containers-only --refresh-env",
     // Promote existing candidate to production (SEPARATE SCRIPT, no deployment)
     // Runs health checks, swaps Elastic IPs (active↔candidate), updates instance Role tags
     // Prompts "Type 'yes' to confirm" before promotion (old active becomes previous)
