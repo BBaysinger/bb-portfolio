@@ -16,8 +16,6 @@
     flex: 0 1 calc(33.333% - projectsList.$projectsListGap * (2 / 3));
   }
 
-  // @media screen and (hover: hover) {
-  // &:hover {
   .thumbBg {
     filter: blur(0);
     opacity: 1;
@@ -39,10 +37,7 @@
       }
     }
   }
-  // }
-  // }
 
-  // @media screen and (hover: none) {
   &.projectThumbnailFocus {
     .thumbBg {
       filter: blur(0);
@@ -67,9 +62,8 @@
       }
     }
   }
-  // }
 
-  &:hover {
+  &:not(.nda):hover {
     .stripesTop {
       transform: translateX(-50%)
         translate(
@@ -161,6 +155,12 @@ h4.thumbTitle {
   background-color: rgba(0, 0, 0, 0.5);
   // transition: opacity 0.3s linear;
   overflow: hidden;
+  a {
+    color: #bbb;
+    &:hover {
+      text-decoration: none;
+    }
+  }
 
   // Name and logo
   > * {
@@ -169,17 +169,6 @@ h4.thumbTitle {
       transform 0.4s ease-out,
       filter 0.3s linear;
     filter: blur(10px);
-
-    // &:first-child {
-    //   transform: translateX(-50%);
-    //   visibility: hidden;
-    //   height: 44px;
-    // }
-
-    // &:nth-child(2) {
-    // transition-delay: 0.03s;
-    // transform: translateX(20%);
-    // }
   }
 
   &.hoverFocusThumbContent {
@@ -215,4 +204,13 @@ h4.thumbTitle {
   transition:
     filter 0.5s linear,
     opacity 0.5s linear;
+}
+
+.lockedIcon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -52%);
+  z-index: 100;
+  pointer-events: none;
 }
