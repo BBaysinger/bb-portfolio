@@ -73,7 +73,7 @@ Operator guidance for removals:
 - Prefer deletion over deactivation (avoid accumulating `.old`, `.bak`, or `*-manual` files).
 - Consolidate to a single source of truth per operational concern (e.g., one redeploy workflow, one env guard script).
 - After removal, update references in docs and scripts; do not leave stale instructions pointing to deleted assets.
-Operator guidance:
+  Operator guidance:
 
 - Always refer to the current README and scripts in `package.json` for supported commands.
 - If a command fails because it no longer exists, search the repo for the new alias or see recent commits/PRs.
