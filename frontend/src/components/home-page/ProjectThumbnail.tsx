@@ -219,14 +219,13 @@ const ProjectThumbnail = forwardRef<HTMLDivElement, ProjectThumbnailProps>(
         >
           {inner}
         </Link>
-        <div
-          ref={ref}
-          className={`${styles.stripes} ${styles.stripesTop}`}
-        ></div>
-        <div
-          className={`${styles.stripes} ${styles.stripesBottom}`}
-          style={stripeVars}
-        ></div>
+        <div className={styles.stripesContainer}>
+          <div className={`${styles.stripes} ${styles.stripesTop}`}></div>
+          <div
+            className={`${styles.stripes} ${styles.stripesBottom}`}
+            style={stripeVars}
+          ></div>
+        </div>
         {showNdaConfidential && (
           <Image
             src="/images/projects-list/nda-locked.webp"
