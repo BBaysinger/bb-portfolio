@@ -1,4 +1,5 @@
-// import Image from "next/image";
+import clsx from "clsx";
+import Image from "next/image";
 import Link from "next/link";
 import React, { forwardRef, useEffect, useState } from "react";
 
@@ -160,7 +161,13 @@ const ProjectThumbnail = forwardRef<HTMLDivElement, ProjectThumbnailProps>(
         <div className={styles.vignette}></div>
         <div className={styles.thumbContent}>
           <h4 className={styles.thumbTitle}>
-            {showNdaConfidential ? "Please log in to view this project" : title}
+            {showNdaConfidential ? (
+              <span>
+                Please <Link href="/login">log in</Link> to view this project
+              </span>
+            ) : (
+              <span>{title}</span>
+            )}
           </h4>
           {/* <div>
             {(logoSrc || showNdaConfidential) && (
@@ -194,7 +201,11 @@ const ProjectThumbnail = forwardRef<HTMLDivElement, ProjectThumbnailProps>(
     return (
       <div
         ref={thumbRef}
-        className={`${styles.projectThumbnail} ${focusClass}`}
+        className={clsx(
+          styles.projectThumbnail,
+          focusClass,
+          showNdaConfidential ? styles.nda : "",
+        )}
         style={
           {
             "--thumb-height": `${thumbHeight}px`,
@@ -216,6 +227,15 @@ const ProjectThumbnail = forwardRef<HTMLDivElement, ProjectThumbnailProps>(
           className={`${styles.stripes} ${styles.stripesBottom}`}
           style={stripeVars}
         ></div>
+        {showNdaConfidential && (
+          <Image
+            src="/images/projects-list/nda-locked.webp"
+            alt="Locked"
+            width={294}
+            height={346}
+            className={styles.lockedIcon}
+          />
+        )}
       </div>
     );
   },
