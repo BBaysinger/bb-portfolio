@@ -425,7 +425,7 @@ Runtime .env generation (deploy):
 - State: Redux Toolkit (frontend auth/session), React hooks
 - Testing: Playwright, Vitest
 - Tooling: ESLint, Prettier, Docker, Node.js
-- Cloud/IaC: AWS (EC2, S3, ECR, IAM, SES, Route 53, ACM), Terraform
+- Cloud/IaC: AWS (EC2, S3, ECR, IAM, SES, Route 53, ACM, CloudWatch), Terraform
 
 <!-- Roadmap moved toward the end for better flow -->
 
