@@ -12,18 +12,19 @@ const __dirname = path.dirname(__filename)
 //   - ENV_PROFILE=dev (or NODE_ENV=development): reactStrictMode OFF
 //   - ENV_PROFILE=prod (or NODE_ENV=production): keep default (ON) unless overridden
 // Override: set REACT_STRICT_MODE explicitly ("false" => off, anything else => on)
-const envProfile = (process.env.ENV_PROFILE || process.env.NODE_ENV || '').toLowerCase();
-const strictOverride = process.env.REACT_STRICT_MODE;
-const resolvedStrict = typeof strictOverride === 'string'
-  ? strictOverride !== 'false'
-  : !['dev','development'].includes(envProfile); // disable only for dev
+const envProfile = (process.env.ENV_PROFILE || process.env.NODE_ENV || '').toLowerCase()
+const strictOverride = process.env.REACT_STRICT_MODE
+const resolvedStrict =
+  typeof strictOverride === 'string'
+    ? strictOverride !== 'false'
+    : !['dev', 'development'].includes(envProfile) // disable only for dev
 
 console.info('[backend next.config.mjs] React StrictMode resolved:', {
   ENV_PROFILE: process.env.ENV_PROFILE,
   NODE_ENV: process.env.NODE_ENV,
   REACT_STRICT_MODE: strictOverride,
   resolvedStrict,
-});
+})
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
