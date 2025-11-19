@@ -1,7 +1,12 @@
 import clsx from "clsx";
 import Image from "next/image";
 import Link from "next/link";
-import React, { forwardRef, useEffect, useState } from "react";
+import React, {
+  forwardRef,
+  useEffect,
+  useState,
+  useImperativeHandle,
+} from "react";
 
 import { useResponsiveThumbnail } from "@/hooks/useResponsiveThumbnail";
 import getBrandLogoUrl from "@/utils/getBrandLogoUrl";
@@ -9,22 +14,11 @@ import getBrandLogoUrl from "@/utils/getBrandLogoUrl";
 import styles from "./ProjectThumbnail.module.scss";
 
 /**
- * Individual project thumbnail component for the portfolio grid.
+ * Props for the `ProjectThumbnail` component.
  *
- * Renders project thumbnails with brand logos, hover effects, and NDA-aware styling.
- * Supports responsive image loading, accessibility features, and both public and
- * confidential project display modes.
- *
- * @component
- * @param {Object} props - Component props
- * @param {boolean} props.focused - Whether this thumbnail is currently focused
- * @param {string} props.projectId - Unique project identifier
- * @param {string} props.title - Project title for display and alt text
- * @param {string} props.brandId - Associated brand identifier
- * @param {boolean} [props.nda] - Whether this is an NDA/confidential project
- * @param {boolean} [props.brandIsNda] - Whether to hide brand logos in public UI
- * @param {number} [props.ndaIndex] - Index among NDA projects for color cycling
- * @param {React.Ref} ref - Forwarded ref to the container element
+ * Represents a single portfolio project tile with NDA-aware rendering state.
+ * Most props are derived from project/brand data; some (e.g. `focused`) are
+ * interaction state supplied by parent list logic.
  */
 interface ProjectThumbnailProps {
   focused: boolean;
@@ -50,9 +44,34 @@ interface ProjectThumbnailProps {
 }
 
 /**
- * The thumbnails in the home/portfolio page section that each link out to a specific
- * portfolio project via dynamic routing.
+ * ProjectThumbnail component
  *
+ * Renders a portfolio project or NDA (confidential) placeholder as a clickable
+ * tile. Handles:
+ * - Responsive thumbnail selection (desktop vs mobile)
+ * - NDA visibility rules (locks + alternate confidential artwork)
+ * - Deferred brand logo loading (idle callback or timeout fallback)
+ * - Deterministic decorative stripe background based on list index
+ * - Dynamic height CSS variable via ResizeObserver (for layout harmonization)
+ *
+ * Accessibility:
+ * - Uses an aria-label describing confidential state or the project title.
+ * - Locks NDA projects behind login, routing unauthenticated users to /login.
+ *
+ * Performance considerations:
+ * - Defers non-critical logo loading to idle time to avoid main content jank.
+ * - Uses lightweight background images & stripe cycling without extra DOM nodes.
+ *
+ * NDA logic overview:
+ * A project is considered "NDA-like" when either the project itself (`nda`) or
+ * its brand (`brandIsNda`) is confidential. Unauthenticated users see a locked
+ * thumbnail and are routed to `/login/`. Authenticated users see the real
+ * thumbnail; if missing, a confidential fallback is used.
+ *
+ * @component
+ * @param props ProjectThumbnailProps
+ * @param ref Forwarded ref to the outer container div
+ * @returns JSX.Element
  */
 const ProjectThumbnail = forwardRef<HTMLDivElement, ProjectThumbnailProps>(
   (
@@ -135,6 +154,10 @@ const ProjectThumbnail = forwardRef<HTMLDivElement, ProjectThumbnailProps>(
     // HEIGHT MEASUREMENT
     const [thumbHeight, setThumbHeight] = useState(0);
     const thumbRef = React.useRef<HTMLDivElement>(null);
+
+    // Expose the inner div to parent via forwarded ref
+    // Non-null assertion: parent should only access ref after mount
+    useImperativeHandle(ref, () => thumbRef.current!, [thumbRef.current]);
 
     useEffect(() => {
       const el = thumbRef.current;
