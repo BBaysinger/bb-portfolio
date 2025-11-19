@@ -53,8 +53,6 @@ const CurriculumVitae: React.FC = () => {
     "GraphQL",
     "XML",
     "XSL",
-    "PHP",
-    "Twig",
     "FreeMarker",
 
     // Infrastructure as Code
