@@ -1,7 +1,7 @@
 # Interactive UI / Frontend Systems Portfolio
 
 A production-grade exploration of interactive front-end architecture — combining handcrafted animation systems, experimental render strategies, and fully automated DevOps infrastructure.  
-Built with **React**, **TypeScript**, and the **Next.js App Router**, powered by a **Payload CMS backend** and **Terraform-provisioned AWS stack**.  
+ Built with **React**, **TypeScript**, and the **Next.js App Router**, powered by a **Payload CMS backend** and **Terraform-provisioned AWS stack** (now including **CloudWatch metrics & logs**).  
 The project merges design experimentation with the discipline of scalable, cloud-ready software engineering.
 
 Core interface systems include a **parallax-layered carousel**, a **multi-renderer sprite engine**, and an **experimental Fluxel grid** that reacts to cursor physics and projectiles.  
@@ -474,6 +474,61 @@ Note: By default, images are built and pushed automatically. The orchestrator se
 - Networking: Elastic IP (44.246.43.116), Security Groups, VPC integration
 - Domain & DNS: Custom domains (bbaysinger.com primary) with Route 53 hosted zones
 - TLS: AWS Certificate Manager (ACM) with DNS validation via Route 53
+
+### 📈 Monitoring & CloudWatch
+
+Runtime visibility and basic security counters are provided through two complementary paths:
+
+1. **CloudWatch Agent (host metrics + log ingestion)**
+   - Config file: `scripts/monitoring/cloudwatch-agent-config.json`
+   - Installed automatically by the deploy orchestrator (`ensure_cloudwatch_agent`) when absent.
+   - Collected metrics namespace: `BB-Portfolio/Host` (CPU idle/user/system, mem used %, disk used %, network bytes in/out).
+   - Log groups created on demand:
+     - `/bb-portfolio/nginx/access`
+     - `/bb-portfolio/nginx/error`
+     - `/bb-portfolio/system/secure` (auth / sshd)
+     - `/bb-portfolio/fail2ban`
+   - Each stream is suffixed with the instance id for isolation.
+
+2. **Custom security & performance counters (PutMetricData)**
+   - Script: `scripts/monitoring/publish-cloudwatch-metrics.sh` (counts upstream timeouts, rate limit triggers, SSH auth failures, fail2ban bans).
+   - Intended schedule: systemd timer or cron every 5 minutes (example unit can be added later).
+   - Namespace: `BB-Portfolio` (distinct from agent host metrics).
+
+**IAM:** Policy `bb-portfolio-cloudwatch-agent` (added via Terraform) grants `logs:CreateLogGroup`, `logs:CreateLogStream`, `logs:PutLogEvents`, and `cloudwatch:PutMetricData` to the EC2 instance role. No static AWS keys required.
+
+**Manual install (fallback):**
+
+```bash
+ssh -i ~/.ssh/bb-portfolio-site-key.pem ec2-user@<EIP>
+sudo yum install -y amazon-cloudwatch-agent
+sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl \
+  -a fetch-config -m ec2 \
+  -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json -s
+```
+
+Or re-run orchestrator: `deploy/scripts/deployment-orchestrator.sh --profiles prod` (auto ensures agent + config).
+
+**Query examples (Logs Insights):**
+
+```sql
+fields @timestamp, @message
+| filter @log like /nginx\/access/ and status >= 500
+| sort @timestamp desc
+| limit 25
+```
+
+Top referrers:
+
+```sql
+fields http_referer as ref
+| filter @log like /nginx\/access/ and ref != '-'
+| stats count() as hits by ref
+| sort hits desc
+| limit 20
+```
+
+**Next steps (optional):** Add CloudWatch Dashboards / Alarms for timeouts & SSH failures, integrate Real User Monitoring (CloudWatch RUM) for frontend UX metrics.
 
 ### 🚀 Deployment Process (Terraform Core)
 

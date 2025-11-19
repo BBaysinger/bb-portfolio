@@ -567,6 +567,40 @@ resource "aws_iam_role_policy_attachment" "ses_send_attach" {
   policy_arn = aws_iam_policy.ses_send.arn
 }
 
+# IAM Policy for CloudWatch Agent (logs + custom metrics)
+resource "aws_iam_policy" "cloudwatch_agent" {
+  name        = "${var.project_name}-cloudwatch-agent"
+  description = "Allow EC2 instance to publish logs and custom metrics to CloudWatch"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "logs:CreateLogGroup",
+          "logs:CreateLogStream",
+          "logs:DescribeLogStreams",
+          "logs:PutLogEvents"
+        ]
+        Resource = "*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "cloudwatch:PutMetricData"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "cloudwatch_agent_attach" {
+  role       = aws_iam_role.ssm_role.name
+  policy_arn = aws_iam_policy.cloudwatch_agent.arn
+}
+
 # SSH connection helper - use standard automation practices
 # Each instance gets fresh host keys (security best practice)
 # Automation disables host key checking (standard for IaC)

@@ -559,6 +559,38 @@ CONF
   '
 }
 
+# Ensure CloudWatch Agent (logs + metrics) is installed & configured.
+ensure_cloudwatch_agent() {
+  local host="$1"
+  local key="$HOME/.ssh/bb-portfolio-site-key.pem"
+  [[ -n "$host" ]] || return 0
+  if [[ ! -f "$key" ]]; then
+    warn "CloudWatch agent ensure skipped: SSH key not found at $key"
+    return 0
+  fi
+  local CFG_LOCAL="${REPO_ROOT}/scripts/monitoring/cloudwatch-agent-config.json"
+  if [[ ! -f "$CFG_LOCAL" ]]; then
+    warn "CloudWatch agent config missing at $CFG_LOCAL (skipping)"
+    return 0
+  fi
+  log "Ensuring CloudWatch Agent installed & configured on $host"
+  scp -i "$key" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$CFG_LOCAL" ec2-user@"$host":/home/ec2-user/cloudwatch-agent-config.json || {
+    warn "Failed to upload CloudWatch agent config to $host"; return 0;
+  }
+  ssh -i "$key" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$host" $'set -e
+    if ! systemctl is-active --quiet amazon-cloudwatch-agent; then
+      if ! command -v amazon-cloudwatch-agent >/dev/null 2>&1; then
+        echo "Installing amazon-cloudwatch-agent (yum/dnf)";
+        sudo yum install -y amazon-cloudwatch-agent || sudo dnf install -y amazon-cloudwatch-agent || true
+      fi
+    fi
+    CFG_DEST=/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
+    sudo mkdir -p /opt/aws/amazon-cloudwatch-agent/etc
+    sudo mv /home/ec2-user/cloudwatch-agent-config.json "$CFG_DEST"
+    sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:"$CFG_DEST" -s || echo "CloudWatch agent start failed (will retry later)"
+  '
+}
+
 # Extract AWS_ACCOUNT_ID for ECR image pulls used in compose. Fallback to known prod account.
 AWS_ACCOUNT_ID_LOCAL="$(node -e "try{const JSON5=require('json5');const fs=require('fs');const raw=fs.readFileSync('.github-secrets.private.json5','utf8');const cfg=JSON5.parse(raw);const s=cfg.strings||cfg;process.stdout.write((s.AWS_ACCOUNT_ID||'778230822028')+'');}catch(e){process.stdout.write('778230822028');}")"
 
@@ -573,6 +605,7 @@ if [[ -z "${EC2_IP:-}" ]]; then
     sync_nginx_config "$EC2_HOST_RESOLVE"
     ensure_https_certs "$EC2_HOST_RESOLVE" "${ACME_EMAIL:-}"
     ensure_ssl_blocks "$EC2_HOST_RESOLVE"
+    ensure_cloudwatch_agent "$EC2_HOST_RESOLVE"
   else
     warn "Single-controller guard: no host resolved (containers-only), skipping"
   fi
@@ -585,6 +618,7 @@ if [[ -n "${POST_ENFORCE_HOST:-}" ]]; then
   sync_nginx_config "${POST_ENFORCE_HOST}"
   ensure_https_certs "${POST_ENFORCE_HOST}" "${ACME_EMAIL:-}"
   ensure_ssl_blocks "${POST_ENFORCE_HOST}"
+  ensure_cloudwatch_agent "${POST_ENFORCE_HOST}"
 fi
 
 # Helper to dispatch a single Redeploy run for a specific environment (prod|dev)
