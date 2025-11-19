@@ -64,6 +64,15 @@ Implications:
 - Breaking changes may land directly on the active development branch when they simplify maintenance.
 - When behavior changes, prefer updating docs and commit messages over compatibility layers.
 
+### Legacy & duplication removal
+
+We do not retain legacy or duplicated implementations once a newer conventional or refactored version is active. Redundant files (old workflows, scripts, abstractions) should be deleted in the same PR that introduces the replacement unless a documented transition plan exists. If a temporary coexistence is required, add an explicit comment with a removal date and tracking issue. Absence of such documentation implies immediate removal is expected.
+
+Operator guidance for removals:
+
+- Prefer deletion over deactivation (avoid accumulating `.old`, `.bak`, or `*-manual` files).
+- Consolidate to a single source of truth per operational concern (e.g., one redeploy workflow, one env guard script).
+- After removal, update references in docs and scripts; do not leave stale instructions pointing to deleted assets.
 Operator guidance:
 
 - Always refer to the current README and scripts in `package.json` for supported commands.
