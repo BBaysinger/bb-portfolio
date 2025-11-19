@@ -96,22 +96,10 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
     }
 
-    # Next.js static chunks – serve from frontend by default, but if a file
-    # is missing there (404), fall back to backend (admin). This allows
-    # admin to work before the backend rebuild emits /admin/_next.
+    # Next.js static chunks – serve from frontend directly (no fallback)
+    # Avoid mixing builds between frontend and admin which can cause stale chunks.
     location /_next/ {
-        proxy_intercept_errors on;
-        error_page 404 = @next_backend_fallback_prod;
         proxy_pass http://localhost:3000;
-        proxy_http_version 1.1;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-
-    location @next_backend_fallback_prod {
-        proxy_pass http://localhost:3001;
         proxy_http_version 1.1;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
@@ -133,6 +121,8 @@ server {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_cache_bypass $http_upgrade;
+        # Do not cache HTML/document responses (let hashed assets cache via /_next/)
+        add_header Cache-Control "private, no-store, must-revalidate" always;
     }
 }
 
@@ -234,21 +224,9 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
     }
 
-    # Next.js static chunks – serve from frontend by default, but if a file
-    # is missing there (404), fall back to backend (admin) for dev domain
+    # Next.js static chunks – serve from frontend directly (no fallback) for dev domain
     location /_next/ {
-        proxy_intercept_errors on;
-        error_page 404 = @next_backend_fallback_dev;
         proxy_pass http://localhost:4000;
-        proxy_http_version 1.1;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-
-    location @next_backend_fallback_dev {
-        proxy_pass http://localhost:4001;
         proxy_http_version 1.1;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
@@ -270,6 +248,8 @@ server {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_cache_bypass $http_upgrade;
+        # Do not cache HTML/document responses (let hashed assets cache via /_next/)
+        add_header Cache-Control "private, no-store, must-revalidate" always;
     }
 }
 
