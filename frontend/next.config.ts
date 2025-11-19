@@ -42,6 +42,15 @@ console.info("[next.config.ts] React StrictMode:", {
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  // Force a unique build id per deployment to ensure HTML points to fresh chunk paths
+  // This helps mitigate perceived "stale" frontend when code changes don't modify chunk hashes.
+  // Prefer a commit SHA when available (CI), otherwise fall back to a timestamp.
+  generateBuildId: async () => {
+    const sha = process.env.CI_COMMIT_SHA || process.env.GITHUB_SHA || "";
+    if (sha) return `bb-${sha.slice(0, 12)}`;
+    // Timestamp build id – guarantees change per build even if code hashing is stable.
+    return `bb-${Date.now().toString(36)}`;
+  },
   // Removed outputFileTracingRoot to follow Next.js conventions -
   // server.js should be directly in .next/standalone/ root
   images: {
