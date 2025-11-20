@@ -164,7 +164,6 @@ h4.thumbTitle {
   opacity: 0.01; // Too small a decimal causes a frame drop.
   will-change: opacity, filter;
   background-color: rgba(0, 0, 0, 0.5);
-  // transition: opacity 0.3s linear;
   overflow: hidden;
   a {
     color: #bbb;
@@ -221,7 +220,7 @@ h4.thumbTitle {
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -52%);
+  transform: translate(-50%, -52%) scale(0.8);
   z-index: 100;
   pointer-events: none;
 }
