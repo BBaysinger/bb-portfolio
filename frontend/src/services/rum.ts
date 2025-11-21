@@ -213,6 +213,7 @@ export function recordPageView(pageName: string) {
   if (rumInstance) {
     try {
       rumInstance.recordPageView(pageName);
+      console.info("[RUM] Page view recorded:", pageName);
     } catch (error) {
       console.error("[RUM] Failed to record page view:", error);
     }
