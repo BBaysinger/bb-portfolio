@@ -32,10 +32,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       </head>
       <body className={clsx(roboto.className, styles.body)}>
         <SkipLink />
-        <Suspense fallback={null}>
-          <RUMInitializer />
-        </Suspense>
         <AppProviders>
+          <Suspense fallback={null}>
+            <RUMInitializer />
+          </Suspense>
           <AppShell>{children}</AppShell>
         </AppProviders>
       </body>
