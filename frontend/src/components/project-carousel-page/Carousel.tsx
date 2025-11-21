@@ -13,6 +13,7 @@ import React, {
 
 import { useDragInertia } from "@/hooks/useDragInertia";
 import { resolveClass } from "@/utils/resolveClass";
+import { recordEvent } from "@/services/rum";
 
 import styles from "./Carousel.module.scss";
 import {
@@ -109,6 +110,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
   const scrollDirectionRef = useRef<DirectionType>(SlideDirection.LEFT);
   const stableIndex = useRef<number | null>(initialIndex);
   const scrollIndexRef = useRef<number>(initialIndex);
+  const isMouseDragRef = useRef<boolean>(false);
 
   const getWrapperClass = (): string => {
     const retVal = clsx(
@@ -134,6 +136,10 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
 
   const memoizedSlides = useMemo(() => slides, [slides]);
 
+  const handleMouseDragComplete = useCallback(() => {
+    isMouseDragRef.current = true;
+  }, []);
+
   const draggable = useDragInertia(
     scrollerRef,
     setSnap,
@@ -141,6 +147,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
     isSlaveMode,
     wrapperWidth,
     slideWidthRef,
+    handleMouseDragComplete,
   );
 
   const patchedOffset = useCallback(() => {
@@ -242,6 +249,24 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
               scrollTriggerSource.current,
               newDirection,
             );
+            
+            // Track carousel interaction in RUM
+            // Only track user-initiated interactions (not programmatic scrolls)
+            if (scrollTriggerSource.current === Source.SCROLL && !isSlaveMode) {
+              // Determine interaction type: mouse drag vs native touch/scroll
+              const interactionType = isMouseDragRef.current 
+                ? 'carousel_mouse_drag' 
+                : 'carousel_touch_swipe';
+              
+              recordEvent(interactionType, {
+                slideIndex: newDataIndex,
+                direction: newDirection === SlideDirection.LEFT ? 'left' : 'right',
+                totalSlides: totalSlides,
+              });
+              
+              // Reset drag flag after tracking
+              isMouseDragRef.current = false;
+            }
           }, stabilizationDelay);
         }
       }
@@ -256,6 +281,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
       onStabilizationUpdate,
       stabilizationDelay,
       patchedOffset,
+      isSlaveMode,
     ],
   );
 
