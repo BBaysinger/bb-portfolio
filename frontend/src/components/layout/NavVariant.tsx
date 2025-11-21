@@ -27,17 +27,32 @@ interface NavProps {
  * menu configurations. Uses different styling variants rather than dynamic
  * switching to maintain performance and avoid layout shifts.
  *
- * Features:
- * - Top bar variant for desktop layouts
- * - Slide-out variant for mobile navigation
- * - Logo and navigation links integration
- * - Redux-connected mobile navigation state
- *
  * @component
  * @param {Object} props - Component props
  * @param {string} props.variant - Navigation display variant (TOP_BAR or SLIDE_OUT)
- * at runtime causes a unbelievably massive frame drop.
  *
+ * @example
+ * ```tsx
+ * // Desktop fixed top bar
+ * <NavVariant variant={NavVariants.TOP_BAR} />
+ *
+ * // Mobile slide-out drawer
+ * <NavVariant variant={NavVariants.SLIDE_OUT} />
+ * ```
+ *
+ * Features:
+ * - Top bar variant for desktop layouts with fixed positioning
+ * - Slide-out variant for mobile navigation with decorative shadow layers
+ * - Logo and navigation links integration
+ * - Redux-connected mobile navigation state
+ * - Accessible landmarks with unique labels per variant
+ * - Hamburger toggle for mobile menu control
+ *
+ * Accessibility:
+ * - Unique aria-label per variant ("Primary navigation" / "Mobile navigation")
+ * - Mobile nav uses id="mobile-nav" for hamburger aria-controls reference
+ * - NavLinks rendered as div to avoid nested nav landmarks
+ * - Conditional rendering based on variant prevents duplicate DOM elements
  */
 const NavVariant: React.FC<NavProps> = ({ variant }) => {
   const isMenuOpen = useSelector(
@@ -46,14 +61,23 @@ const NavVariant: React.FC<NavProps> = ({ variant }) => {
 
   const dispatch = useDispatch();
 
+  /**
+   * Closes mobile navigation when a link is clicked
+   * Only dispatches action for slide-out variant to avoid unnecessary Redux updates
+   */
   const closeMobileNavHandler = () => {
     if (variant === NavVariants.SLIDE_OUT) {
       dispatch(closeMobileNav());
     }
   };
 
+  const isSlideOut = variant === NavVariants.SLIDE_OUT;
+  /** Mobile nav ID for aria-controls reference from hamburger button */
+  const navId = isSlideOut ? "mobile-nav" : undefined;
   return (
     <nav
+      id={navId}
+      aria-label={isSlideOut ? "Mobile navigation" : "Primary navigation"}
       className={clsx(styles.navVariant, variant, {
         enabled: isMenuOpen,
         disabled: !isMenuOpen,
@@ -85,7 +109,15 @@ const NavVariant: React.FC<NavProps> = ({ variant }) => {
           </div>
         </div>
       </Link>
-      <NavLinks onClick={closeMobileNavHandler} className={styles.navLinks} />
+      <NavLinks
+        onClick={closeMobileNavHandler}
+        className={styles.navLinks}
+        variant={isSlideOut ? "mobile" : "primary"}
+        mobileOpen={isSlideOut ? isMenuOpen : undefined}
+        onCloseRequest={isSlideOut ? closeMobileNavHandler : undefined}
+        id={isSlideOut ? "mobile-nav-links" : undefined}
+        as="div"
+      />
 
       {variant === NavVariants.TOP_BAR && (
         <Hamburger className={styles.hamburger} />

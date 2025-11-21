@@ -319,10 +319,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <div id="top" style={{ position: "absolute", top: "0px" }}></div>
       <div className={styles.underlay} />
       <NavVariant variant={NavVariants.TOP_BAR} />
-      <div
-        className={clsx(styles.main, styles.navRevelator)}
-        // ref={mainContentRef}
-      >
+      <div id="main-content" className={clsx(styles.main, styles.navRevelator)}>
         <div ref={childContentRef} className={styles.childContent}>
           <ScrollToHash />
           {/* Screen reader-only aria-live region for privacy/logout announcements */}
