@@ -167,7 +167,7 @@ export function getRUM(): AwsRum | null {
 export function setRUMUser(userId: string) {
   if (rumInstance) {
     try {
-      rumInstance.setUserId(userId);
+      rumInstance.addSessionAttributes({ userId });
       console.info("[RUM] User ID set:", userId);
     } catch (error) {
       console.error("[RUM] Failed to set user ID:", error);
@@ -188,7 +188,7 @@ export function setRUMUser(userId: string) {
 export function clearRUMUser() {
   if (rumInstance) {
     try {
-      rumInstance.setUserId(undefined);
+      rumInstance.addSessionAttributes({ userId: "" });
       console.info("[RUM] User ID cleared");
     } catch (error) {
       console.error("[RUM] Failed to clear user ID:", error);
