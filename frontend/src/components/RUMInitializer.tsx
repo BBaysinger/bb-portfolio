@@ -40,16 +40,25 @@
 import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 
-import { initializeRUM, recordPageView } from "@/services/rum";
+import { initializeRUM, recordPageView, setRUMUser } from "@/services/rum";
+import { useAppSelector } from "@/store/hooks";
 
 export function RUMInitializer() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const { user, isLoggedIn } = useAppSelector((state) => state.auth);
 
   // Initialize RUM on mount
   useEffect(() => {
     initializeRUM();
   }, []);
+
+  // Set user ID when logged in
+  useEffect(() => {
+    if (isLoggedIn && user?.id) {
+      setRUMUser(user.id);
+    }
+  }, [isLoggedIn, user?.id]);
 
   // Track route changes for client-side navigation
   useEffect(() => {

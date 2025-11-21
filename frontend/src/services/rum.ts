@@ -149,6 +149,53 @@ export function getRUM(): AwsRum | null {
   return rumInstance;
 }
 
+/**
+ * Set user identity for RUM session tracking.
+ * Associates all events in the current session with the provided user ID.
+ * Call this after successful login to track authenticated user behavior.
+ *
+ * @param userId - Unique user identifier (e.g., Payload user ID)
+ *
+ * @example
+ * ```typescript
+ * // After successful login
+ * if (user?.id) {
+ *   setRUMUser(user.id);
+ * }
+ * ```
+ */
+export function setRUMUser(userId: string) {
+  if (rumInstance) {
+    try {
+      rumInstance.setUserId(userId);
+      console.info("[RUM] User ID set:", userId);
+    } catch (error) {
+      console.error("[RUM] Failed to set user ID:", error);
+    }
+  }
+}
+
+/**
+ * Clear user identity from RUM session.
+ * Call this after logout to stop associating events with the user.
+ *
+ * @example
+ * ```typescript
+ * // After logout
+ * clearRUMUser();
+ * ```
+ */
+export function clearRUMUser() {
+  if (rumInstance) {
+    try {
+      rumInstance.setUserId(undefined);
+      console.info("[RUM] User ID cleared");
+    } catch (error) {
+      console.error("[RUM] Failed to clear user ID:", error);
+    }
+  }
+}
+
 // Optional: Add custom metadata or attributes
 export function recordPageView(pageName: string) {
   if (rumInstance) {
