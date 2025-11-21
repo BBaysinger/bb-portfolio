@@ -193,6 +193,9 @@ Check browser console for: `[RUM] CloudWatch RUM not configured - skipping initi
 
 - Verify environment variables are set in deployed .env files
 - Check Terraform outputs match values in GitHub secrets
+- **Ensure RUM environment variables are passed as Docker build arguments** in `.github/workflows/ci-cd.yml`
+  - The `NEXT_PUBLIC_*` variables must be available during the Next.js build process
+  - Check that frontend Dockerfile accepts these build args
 
 ### CORS Errors
 
@@ -207,6 +210,7 @@ domain = var.domain_name  # Should match your actual domain
 - RUM requires HTTPS in production (HTTP only works for localhost)
 - Verify IAM role has `rum:PutRumEvents` permission
 - Check browser network tab for failed requests to RUM endpoint
+- Verify the RUM client is loading by checking the page source for RUM-related JavaScript
 
 ## Next Steps (Optional)
 
