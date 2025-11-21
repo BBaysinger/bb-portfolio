@@ -110,6 +110,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
   const scrollDirectionRef = useRef<DirectionType>(SlideDirection.LEFT);
   const stableIndex = useRef<number | null>(initialIndex);
   const scrollIndexRef = useRef<number>(initialIndex);
+  // Tracks whether current interaction is mouse drag (vs touch/scroll) for RUM analytics
   const isMouseDragRef = useRef<boolean>(false);
 
   const getWrapperClass = (): string => {
@@ -136,6 +137,10 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
 
   const memoizedSlides = useMemo(() => slides, [slides]);
 
+  /**
+   * Callback fired when GSAP drag-and-throw animation completes.
+   * Sets flag to distinguish mouse drag from native touch/scroll in RUM tracking.
+   */
   const handleMouseDragComplete = useCallback(() => {
     isMouseDragRef.current = true;
   }, []);
@@ -250,22 +255,25 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
               newDirection,
             );
 
-            // Track carousel interaction in RUM
-            // Only track user-initiated interactions (not programmatic scrolls)
+            // Track carousel interaction in CloudWatch RUM for visitor analytics
+            // Only records user-initiated interactions (excludes programmatic/route-driven scrolls)
+            // Master carousel only (slave carousels are decorative parallax layers)
             if (scrollTriggerSource.current === Source.SCROLL && !isSlaveMode) {
-              // Determine interaction type: mouse drag vs native touch/scroll
+              // Distinguish between interaction methods for UX insights:
+              // - carousel_mouse_drag: Desktop users dragging with mouse (GSAP Draggable)
+              // - carousel_touch_swipe: Mobile/tablet native touch scrolling or trackpad gestures
               const interactionType = isMouseDragRef.current
                 ? "carousel_mouse_drag"
                 : "carousel_touch_swipe";
 
               recordEvent(interactionType, {
-                slideIndex: newDataIndex,
+                slideIndex: newDataIndex, // Project index user navigated to
                 direction:
                   newDirection === SlideDirection.LEFT ? "left" : "right",
-                totalSlides: totalSlides,
+                totalSlides: totalSlides, // Context for understanding navigation patterns
               });
 
-              // Reset drag flag after tracking
+              // Reset drag flag after tracking to avoid misattributing next interaction
               isMouseDragRef.current = false;
             }
           }, stabilizationDelay);
