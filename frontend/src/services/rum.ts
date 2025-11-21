@@ -120,15 +120,29 @@ export async function initializeRUM() {
       sessionSampleRate: 1, // Sample 100% of sessions
       identityPoolId,
       endpoint: `https://dataplane.rum.${region}.amazonaws.com`,
-      telemetries: ["performance", "errors", "http"], // Track page load, JS errors, HTTP requests
+      telemetries: [], // Empty array means enable all default telemetries including page views
       allowCookies: true,
       enableXRay: false, // Set to true if you want X-Ray tracing
       guestRoleArn,
+      // Enable debug mode to see what's being sent
+      ...(typeof window !== "undefined" && {
+        eventPluginsToLoad: [],
+        enableRumClient: true,
+      }),
     };
     // Dynamically import the library only when needed (browser + configured)
     // This defers loading until initialization runs, avoiding build-time failures
     const { AwsRum } = await import("aws-rum-web");
     rumInstance = new AwsRum(appMonitorId, "1.0.0", region, config);
+
+    // Intercept dispatch to log what's being sent
+    const originalDispatch = (rumInstance as any).dispatch;
+    if (originalDispatch) {
+      (rumInstance as any).dispatch = function (...args: any[]) {
+        console.info("[RUM] Dispatching events:", args);
+        return originalDispatch.apply(this, args);
+      };
+    }
 
     console.info("[RUM] CloudWatch RUM initialized successfully");
     console.info("[RUM] Config:", {
