@@ -406,7 +406,6 @@ async function fetchPortfolioProjects(opts?: {
         sortIndex:
           typeof doc.sortIndex === "number" ? doc.sortIndex : undefined,
         thumbUrl: undefined,
-        thumbUrlMobile: undefined,
         thumbAlt: undefined,
         brandLogoLightUrl: undefined,
         brandLogoDarkUrl: undefined,
@@ -537,31 +536,11 @@ async function fetchPortfolioProjects(opts?: {
     let thumbUrl: string | undefined;
     let thumbAlt: string | undefined;
     const thumbDoc = firstUploadDoc(doc.thumbnail);
-    let thumbUrlMobile: string | undefined;
     if (thumbDoc) {
-      // Store multiple size URLs so components can choose responsively
-      const version = thumbDoc.updatedAt
-        ? Date.parse(thumbDoc.updatedAt)
-        : undefined;
-      const versionParam = version ? `v=${version}` : "v=1";
-
-      // Full resolution URL (for medium/large viewports)
-      const fullUrl =
+      // Use canonical URL directly; rely on standard cache headers instead of version query strings.
+      const baseUrl =
         thumbDoc.url || thumbDoc.sizes?.thumbnail?.url || undefined;
-      thumbUrl = fullUrl
-        ? `${fullUrl}${fullUrl.includes("?") ? "&" : "?"}${versionParam}`
-        : undefined;
-
-      // Mobile size URL (400x300, for small viewports)
-      const mobileUrl =
-        thumbDoc.sizes?.mobile?.url ||
-        thumbDoc.sizes?.thumbnail?.url ||
-        thumbDoc.url ||
-        undefined;
-      thumbUrlMobile = mobileUrl
-        ? `${mobileUrl}${mobileUrl.includes("?") ? "&" : "?"}${versionParam}`
-        : undefined;
-
+      thumbUrl = baseUrl || undefined;
       thumbAlt = thumbDoc.alt || undefined;
     }
 
@@ -579,9 +558,8 @@ async function fetchPortfolioProjects(opts?: {
       const base = entry.url;
       if (!base) continue;
 
-      const v = entry.updatedAt ? Date.parse(entry.updatedAt) : undefined;
-      // Cache-busting version param
-      const url = `${base}${base.includes("?") ? "&" : "?"}${v ? `v=${v}` : "v=1"}`;
+      // Use raw URL without version query params; file changes will naturally invalidate caches when URL changes.
+      const url = base;
       if (entry.screenType === "laptop" && !laptopUrl) {
         laptopUrl = url;
       } else if (entry.screenType === "phone" && !phoneUrl) {
@@ -622,7 +600,6 @@ async function fetchPortfolioProjects(opts?: {
       nda: !!doc.nda,
       sortIndex: typeof doc.sortIndex === "number" ? doc.sortIndex : undefined,
       thumbUrl,
-      thumbUrlMobile,
       thumbAlt,
       brandLogoLightUrl,
       brandLogoDarkUrl,
@@ -683,7 +660,6 @@ export interface PortfolioProjectBase {
   nda?: boolean;
   sortIndex?: number;
   thumbUrl?: string;
-  thumbUrlMobile?: string;
   thumbAlt?: string;
   /** Optional direct URLs for device screenshots resolved from Payload uploads. */
   screenshotUrls?: {

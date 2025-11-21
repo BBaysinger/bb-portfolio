@@ -91,6 +91,33 @@
         );
     }
   }
+
+  // Focus (scroll-centered) should mirror hover motion for progressive enhancement on touch.
+  &:not(.nda).projectThumbnailFocus {
+    .stripesTop {
+      transform: translateX(-50%)
+        translate(
+          calc(var(--thumb-height) * 1.06),
+          calc(var(--thumb-height) * -1.06)
+        );
+    }
+
+    .stripesBottom {
+      transform: translateX(-50%)
+        translate(
+          calc(var(--thumb-height) * -1.06),
+          calc(var(--thumb-height) * 1.06)
+        );
+    }
+  }
+}
+
+// Anchor wrapper for fill Image – must be positioning context
+.link {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
 // Shared base for stripe layers
@@ -202,13 +229,8 @@ h4.thumbTitle {
 }
 
 .thumbBg {
-  position: absolute;
-  height: 100%;
-  width: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  background-color: #000000;
-  background-position: center center;
-  background-size: cover;
+  // Next.js Image with fill will be positioned absolutely
+  // Apply filters and transitions to the image itself
   filter: saturate(0) contrast(1.3);
   opacity: 0.6;
   transition:
