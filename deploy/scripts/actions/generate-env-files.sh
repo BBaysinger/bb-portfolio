@@ -69,6 +69,12 @@ printf "%s\n" \
   "" \
   "PUBLIC_PROJECTS_BUCKET=$(s_val PUBLIC_PROJECTS_BUCKET)" \
   "NDA_PROJECTS_BUCKET=$(s_val NDA_PROJECTS_BUCKET)" \
+  "" \
+  "# CloudWatch RUM (Real User Monitoring)" \
+  "NEXT_PUBLIC_RUM_APP_MONITOR_ID=$(s_val NEXT_PUBLIC_RUM_APP_MONITOR_ID)" \
+  "NEXT_PUBLIC_RUM_IDENTITY_POOL_ID=$(s_val NEXT_PUBLIC_RUM_IDENTITY_POOL_ID)" \
+  "NEXT_PUBLIC_RUM_GUEST_ROLE_ARN=$(s_val NEXT_PUBLIC_RUM_GUEST_ROLE_ARN)" \
+  "NEXT_PUBLIC_RUM_REGION=$(s_val NEXT_PUBLIC_RUM_REGION 'us-west-2')" \
   > "$OUT_DIR/frontend.env.prod"
 
 # Frontend dev
@@ -80,6 +86,12 @@ printf "%s\n" \
   "" \
   "PUBLIC_PROJECTS_BUCKET=$(s_val PUBLIC_PROJECTS_BUCKET)" \
   "NDA_PROJECTS_BUCKET=$(s_val NDA_PROJECTS_BUCKET)" \
+  "" \
+  "# CloudWatch RUM (Real User Monitoring) - Optional for dev" \
+  "NEXT_PUBLIC_RUM_APP_MONITOR_ID=$(s_val NEXT_PUBLIC_RUM_APP_MONITOR_ID)" \
+  "NEXT_PUBLIC_RUM_IDENTITY_POOL_ID=$(s_val NEXT_PUBLIC_RUM_IDENTITY_POOL_ID)" \
+  "NEXT_PUBLIC_RUM_GUEST_ROLE_ARN=$(s_val NEXT_PUBLIC_RUM_GUEST_ROLE_ARN)" \
+  "NEXT_PUBLIC_RUM_REGION=$(s_val NEXT_PUBLIC_RUM_REGION 'us-west-2')" \
   > "$OUT_DIR/frontend.env.dev"
 
 echo "dir=$OUT_DIR" >> "$GITHUB_OUTPUT"

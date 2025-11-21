@@ -32,3 +32,24 @@ output "ecr_backend_repository_url" {
   description = "URL of the backend ECR repository"  
   value       = aws_ecr_repository.backend.repository_url
 }
+
+# CloudWatch RUM outputs
+output "rum_app_monitor_id" {
+  description = "CloudWatch RUM App Monitor ID"
+  value       = aws_rum_app_monitor.main.id
+}
+
+output "rum_identity_pool_id" {
+  description = "Cognito Identity Pool ID for RUM"
+  value       = aws_cognito_identity_pool.rum.id
+}
+
+output "rum_guest_role_arn" {
+  description = "IAM Role ARN for unauthenticated RUM access"
+  value       = aws_iam_role.rum_unauthenticated.arn
+}
+
+output "rum_region" {
+  description = "AWS region for RUM"
+  value       = var.region
+}

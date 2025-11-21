@@ -42,6 +42,8 @@
     "@aws-sdk/s3-request-presigner": "^3.679.0",
     // Modern Redux state management with simplified API
     "@reduxjs/toolkit": "^2.9.2",
+    // AWS CloudWatch RUM for real user monitoring and visitor traffic tracking
+    "aws-rum-web": "^1.25.0",
     // CSS framework for responsive design and components
     "bootstrap": "^5.3.8",
     // Utility for conditionally joining CSS class names
@@ -77,6 +79,8 @@
     "@typescript-eslint/eslint-plugin": "^8.46.2",
     // TypeScript parser for ESLint to understand TS syntax
     "@typescript-eslint/parser": "^8.46.2",
+    // Load environment variables during local builds and scripts
+    "dotenv": "17.2.3",
     // JavaScript/TypeScript linting engine (v9 for latest rules)
     "eslint": "^9",
     // Next.js ESLint configuration with React and accessibility rules
@@ -85,8 +89,6 @@
     "eslint-plugin-react-hooks": "^6.1.1",
     // ESLint plugin for React Refresh (fast refresh) compatibility
     "eslint-plugin-react-refresh": "^0.4.23",
-    // Load environment variables during local builds and scripts
-    "dotenv": "17.2.3",
     // Opinionated code formatter for consistent style
     "prettier": "^3.6.2",
     // TypeScript compiler (v5 for latest language features)
