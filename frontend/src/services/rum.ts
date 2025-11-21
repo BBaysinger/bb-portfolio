@@ -136,9 +136,11 @@ export async function initializeRUM() {
     rumInstance = new AwsRum(appMonitorId, "1.0.0", region, config);
 
     // Intercept dispatch to log what's being sent
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const originalDispatch = (rumInstance as any).dispatch;
     if (originalDispatch) {
-      (rumInstance as any).dispatch = function (...args: any[]) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (rumInstance as any).dispatch = function (...args: unknown[]) {
         console.info("[RUM] Dispatching events:", args);
         return originalDispatch.apply(this, args);
       };
