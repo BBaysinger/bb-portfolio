@@ -1,5 +1,31 @@
 # AWS CloudWatch RUM Usage Examples
 
+## User Identification
+
+When a user logs in, their user ID is automatically tracked in RUM to associate all their actions with their account:
+
+```tsx
+// This happens automatically in RUMInitializer when user logs in
+import { setRUMUser, clearRUMUser } from "@/services/rum";
+
+// Set user ID after login (done automatically)
+if (user?.id) {
+  setRUMUser(user.id);
+}
+
+// Clear user ID after logout (done automatically)
+clearRUMUser();
+```
+
+**What gets tracked:**
+
+- User ID from Payload CMS auth system
+- All events, page views, and errors are associated with the user
+- Session tracking across multiple visits
+- Performance metrics per user
+
+**Privacy Note:** Only the user ID is tracked, no PII (email, name, etc.)
+
 ## Recording Click Events
 
 ### Basic Button Click

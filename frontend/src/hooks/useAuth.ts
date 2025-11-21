@@ -1,6 +1,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
+import { clearRUMUser } from "@/services/rum";
 import {
   checkAuthStatus,
   loginUser,
@@ -76,6 +77,9 @@ export const useAuth = () => {
 
     // Force clear Redux auth state
     dispatch(resetAuthState());
+
+    // Clear RUM user tracking
+    clearRUMUser();
 
     // Clear all local storage
     localStorage.clear();
