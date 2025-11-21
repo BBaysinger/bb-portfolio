@@ -12,8 +12,8 @@ import React, {
 } from "react";
 
 import { useDragInertia } from "@/hooks/useDragInertia";
-import { resolveClass } from "@/utils/resolveClass";
 import { recordEvent } from "@/services/rum";
+import { resolveClass } from "@/utils/resolveClass";
 
 import styles from "./Carousel.module.scss";
 import {
@@ -249,21 +249,22 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
               scrollTriggerSource.current,
               newDirection,
             );
-            
+
             // Track carousel interaction in RUM
             // Only track user-initiated interactions (not programmatic scrolls)
             if (scrollTriggerSource.current === Source.SCROLL && !isSlaveMode) {
               // Determine interaction type: mouse drag vs native touch/scroll
-              const interactionType = isMouseDragRef.current 
-                ? 'carousel_mouse_drag' 
-                : 'carousel_touch_swipe';
-              
+              const interactionType = isMouseDragRef.current
+                ? "carousel_mouse_drag"
+                : "carousel_touch_swipe";
+
               recordEvent(interactionType, {
                 slideIndex: newDataIndex,
-                direction: newDirection === SlideDirection.LEFT ? 'left' : 'right',
+                direction:
+                  newDirection === SlideDirection.LEFT ? "left" : "right",
                 totalSlides: totalSlides,
               });
-              
+
               // Reset drag flag after tracking
               isMouseDragRef.current = false;
             }
