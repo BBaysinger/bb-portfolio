@@ -1,6 +1,7 @@
 import clsx from "clsx";
 import { ReactNode } from "react";
 
+import { RUMInitializer } from "@/components/RUMInitializer";
 import { roboto } from "@/fonts";
 
 import { AppShell } from "./AppShell";
@@ -29,6 +30,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         />
       </head>
       <body className={clsx(roboto.className, styles.body)}>
+        <RUMInitializer />
         <AppProviders>
           <AppShell>{children}</AppShell>
         </AppProviders>

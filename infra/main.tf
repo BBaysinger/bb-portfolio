@@ -601,6 +601,92 @@ resource "aws_iam_role_policy_attachment" "cloudwatch_agent_attach" {
   policy_arn = aws_iam_policy.cloudwatch_agent.arn
 }
 
+# =============================================================================
+# CloudWatch RUM (Real User Monitoring)
+# =============================================================================
+
+# Cognito Identity Pool for RUM (unauthenticated access)
+resource "aws_cognito_identity_pool" "rum" {
+  identity_pool_name               = "${var.project_name}-rum-identity-pool"
+  allow_unauthenticated_identities = true
+}
+
+# IAM role for unauthenticated RUM users
+resource "aws_iam_role" "rum_unauthenticated" {
+  name = "${var.project_name}-rum-unauth-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Principal = {
+          Federated = "cognito-identity.amazonaws.com"
+        }
+        Action = "sts:AssumeRoleWithWebIdentity"
+        Condition = {
+          StringEquals = {
+            "cognito-identity.amazonaws.com:aud" = aws_cognito_identity_pool.rum.id
+          }
+          "ForAnyValue:StringLike" = {
+            "cognito-identity.amazonaws.com:amr" = "unauthenticated"
+          }
+        }
+      }
+    ]
+  })
+}
+
+# Policy allowing RUM to send data
+resource "aws_iam_role_policy" "rum_put_events" {
+  name = "${var.project_name}-rum-put-events"
+  role = aws_iam_role.rum_unauthenticated.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "rum:PutRumEvents"
+        ]
+        Resource = "arn:aws:rum:${var.region}:${data.aws_caller_identity.current.account_id}:appmonitor/${var.project_name}"
+      }
+    ]
+  })
+}
+
+# Attach the unauthenticated role to the identity pool
+resource "aws_cognito_identity_pool_roles_attachment" "rum" {
+  identity_pool_id = aws_cognito_identity_pool.rum.id
+
+  roles = {
+    unauthenticated = aws_iam_role.rum_unauthenticated.arn
+  }
+}
+
+# CloudWatch RUM App Monitor
+resource "aws_rum_app_monitor" "main" {
+  name   = var.project_name
+  domain = "bbaysinger.com"
+
+  app_monitor_configuration {
+    allow_cookies        = true
+    enable_xray          = false
+    session_sample_rate  = 1.0
+    telemetries          = ["errors", "performance", "http"]
+
+    # Optional: Configure which URLs to track
+    # included_pages = ["https://bbaysinger.com/*"]
+    # excluded_pages = ["https://bbaysinger.com/admin/*"]
+  }
+
+  cw_log_enabled = true
+}
+
+# Data source to get current AWS account ID
+data "aws_caller_identity" "current" {}
+
 # SSH connection helper - use standard automation practices
 # Each instance gets fresh host keys (security best practice)
 # Automation disables host key checking (standard for IaC)
