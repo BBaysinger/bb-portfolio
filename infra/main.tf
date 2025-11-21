@@ -651,7 +651,10 @@ resource "aws_iam_role_policy" "rum_put_events" {
         Action = [
           "rum:PutRumEvents"
         ]
-        Resource = "arn:aws:rum:${var.region}:${data.aws_caller_identity.current.account_id}:appmonitor/${var.project_name}"
+        Resource = [
+          "arn:aws:rum:${var.region}:${data.aws_caller_identity.current.account_id}:appmonitor/${var.project_name}",
+          "arn:aws:rum:${var.region}:${data.aws_caller_identity.current.account_id}:appmonitor/${var.project_name}/*"
+        ]
       }
     ]
   })
