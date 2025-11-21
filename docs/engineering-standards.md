@@ -21,7 +21,8 @@ Any deviation from standards, conventions, or best practices must be explicitly 
 All files must include appropriate comments following industry best practices:
 
 - **File-level documentation**: Every source file should include a header comment describing its purpose, key exports, and any non-obvious usage patterns. Use JSDoc-style block comments for consistency:
-  ```typescript
+
+  ````typescript
   /**
    * Short description of the file's purpose.
    *
@@ -36,10 +37,11 @@ All files must include appropriate comments following industry best practices:
    * // Usage example if helpful
    * ```
    */
-  ```
+  ````
 
 - **Function/method documentation**: Public APIs and exported functions should include JSDoc comments with parameter types, return types, and descriptions:
-  ```typescript
+
+  ````typescript
   /**
    * Brief description of what the function does.
    *
@@ -53,9 +55,10 @@ All files must include appropriate comments following industry best practices:
    * const result = myFunction("input", { option: true });
    * ```
    */
-  ```
+  ````
 
 - **Inline comments**: Use sparingly for complex logic, non-obvious decisions, or workarounds. Comment the "why" rather than the "what":
+
   ```typescript
   // Using manual cookie parsing here because Next.js middleware
   // doesn't have access to Payload's session validation
@@ -63,6 +66,7 @@ All files must include appropriate comments following industry best practices:
   ```
 
 - **Configuration files**: Include comments explaining purpose, valid values, and relationships to other config:
+
   ```typescript
   // Payload CMS configuration for production environment.
   // Must align with frontend API routes in src/app/api/
@@ -78,6 +82,7 @@ All files must include appropriate comments following industry best practices:
   ```
 
 Enforcement:
+
 - Document deviations from these standards in code comments with justification
 - Prefer comprehensive documentation over minimal comments
 - Update documentation when refactoring or changing behavior
