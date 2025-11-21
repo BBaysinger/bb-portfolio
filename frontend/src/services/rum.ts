@@ -96,11 +96,14 @@ export async function initializeRUM() {
     rumInstance = new AwsRum(appMonitorId, "1.0.0", region, config);
 
     console.info("[RUM] CloudWatch RUM initialized successfully");
-    
+
     // Record initial page view
     if (typeof window !== "undefined") {
       rumInstance.recordPageView(window.location.pathname);
-      console.info("[RUM] Initial page view recorded:", window.location.pathname);
+      console.info(
+        "[RUM] Initial page view recorded:",
+        window.location.pathname,
+      );
     }
   } catch (error) {
     console.error("[RUM] Failed to initialize CloudWatch RUM:", error);
@@ -122,13 +125,56 @@ export function recordPageView(pageName: string) {
   }
 }
 
-// Optional: Record custom events
+/**
+ * Record custom events like button clicks, form submissions, etc.
+ *
+ * @param eventType - Event category (e.g., "click", "navigation", "interaction")
+ * @param data - Event metadata (element ID, label, page, etc.)
+ *
+ * @example
+ * ```typescript
+ * recordEvent("click", {
+ *   elementId: "cta-button",
+ *   label: "Get Started",
+ *   page: "/pricing"
+ * });
+ * ```
+ */
 export function recordEvent(eventType: string, data?: Record<string, unknown>) {
-  if (rumInstance && data) {
+  if (rumInstance) {
     try {
-      rumInstance.recordEvent(eventType, data);
+      rumInstance.recordEvent(eventType, data || {});
     } catch (error) {
       console.error("[RUM] Failed to record event:", error);
     }
   }
+}
+
+/**
+ * Convenience function to record click events
+ * Automatically captures common click metadata
+ *
+ * @param elementId - ID of the clicked element
+ * @param label - Human-readable label for the element
+ * @param additionalData - Any extra context about the click
+ *
+ * @example
+ * ```typescript
+ * <button onClick={() => recordClick("hero-cta", "Sign Up Now")}>
+ *   Sign Up
+ * </button>
+ * ```
+ */
+export function recordClick(
+  elementId: string,
+  label: string,
+  additionalData?: Record<string, unknown>,
+) {
+  recordEvent("click", {
+    elementId,
+    label,
+    page: typeof window !== "undefined" ? window.location.pathname : undefined,
+    timestamp: new Date().toISOString(),
+    ...additionalData,
+  });
 }

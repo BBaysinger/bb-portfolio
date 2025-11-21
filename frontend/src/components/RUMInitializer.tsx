@@ -8,7 +8,7 @@ import { initializeRUM, recordPageView } from "@/services/rum";
 /**
  * Initializes CloudWatch RUM for visitor tracking
  * Must be a client component to access browser APIs
- * 
+ *
  * Tracks both initial page loads and client-side navigation
  * in Next.js using the App Router
  */

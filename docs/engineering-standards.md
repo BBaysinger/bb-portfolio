@@ -16,6 +16,16 @@ Any deviation from standards, conventions, or best practices must be explicitly 
 
 ---
 
+## AI assistant workflow standards
+
+When working with AI coding assistants:
+
+- **Git operations**: AI _can_ stage files (`git add`) and prepare commits (`git commit`), but **must not execute `git push`**. The developer should review staged changes and push, merge, or PR manually after verification.
+- **Terraform/Infrastructure changes**: AI can prepare and suggest `terraform plan` but should not automatically execute `terraform apply` without explicit user confirmation for each resource change.
+- **Deployment operations**: AI should present deployment commands and wait for explicit approval rather than automatically triggering deployments.
+
+---
+
 ## Code documentation standards
 
 All files must include appropriate comments following industry best practices:
