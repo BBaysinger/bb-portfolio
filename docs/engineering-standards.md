@@ -16,6 +16,74 @@ Any deviation from standards, conventions, or best practices must be explicitly 
 
 ---
 
+## Code documentation standards
+
+All files must include appropriate comments following industry best practices:
+
+- **File-level documentation**: Every source file should include a header comment describing its purpose, key exports, and any non-obvious usage patterns. Use JSDoc-style block comments for consistency:
+  ```typescript
+  /**
+   * Short description of the file's purpose.
+   *
+   * Longer explanation if needed, including:
+   * - Key exports or components
+   * - Important usage patterns
+   * - Related files or dependencies
+   * - Any non-obvious implementation details
+   *
+   * @example
+   * ```typescript
+   * // Usage example if helpful
+   * ```
+   */
+  ```
+
+- **Function/method documentation**: Public APIs and exported functions should include JSDoc comments with parameter types, return types, and descriptions:
+  ```typescript
+  /**
+   * Brief description of what the function does.
+   *
+   * @param paramName - Description of parameter
+   * @param options - Configuration options
+   * @returns Description of return value
+   * @throws Description of any errors thrown
+   *
+   * @example
+   * ```typescript
+   * const result = myFunction("input", { option: true });
+   * ```
+   */
+  ```
+
+- **Inline comments**: Use sparingly for complex logic, non-obvious decisions, or workarounds. Comment the "why" rather than the "what":
+  ```typescript
+  // Using manual cookie parsing here because Next.js middleware
+  // doesn't have access to Payload's session validation
+  const token = cookies().get("payload-token");
+  ```
+
+- **Configuration files**: Include comments explaining purpose, valid values, and relationships to other config:
+  ```typescript
+  // Payload CMS configuration for production environment.
+  // Must align with frontend API routes in src/app/api/
+  ```
+
+- **Shell scripts**: Include shebang, description, usage examples, and document any environment variables or dependencies:
+  ```bash
+  #!/usr/bin/env bash
+  # generate-env-files.sh
+  # Generates environment files for Docker Compose deployments.
+  # Usage: bash deploy/scripts/actions/generate-env-files.sh
+  # Requires: GitHub secrets available via environment
+  ```
+
+Enforcement:
+- Document deviations from these standards in code comments with justification
+- Prefer comprehensive documentation over minimal comments
+- Update documentation when refactoring or changing behavior
+
+---
+
 ## Boilerplate and reuse
 
 Parts of this repository may become a learning reference or future boilerplate. Favor conventional, broadly adopted patterns over cleverness. Where pragmatism requires a deviation, document it in code and in this file, and provide a straightforward “conventional path” alternative.
