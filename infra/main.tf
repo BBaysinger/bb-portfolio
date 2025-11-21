@@ -609,6 +609,7 @@ resource "aws_iam_role_policy_attachment" "cloudwatch_agent_attach" {
 resource "aws_cognito_identity_pool" "rum" {
   identity_pool_name               = "${var.project_name}-rum-identity-pool"
   allow_unauthenticated_identities = true
+  allow_classic_flow               = true
 }
 
 # IAM role for unauthenticated RUM users
