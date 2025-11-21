@@ -177,7 +177,11 @@ const Footer: React.FC<FooterProps> = ({ className, mutationElemRef }) => {
           </div>
 
           <div className={`${styles.footerCell} ${styles.footerNav}`}>
-            <NavLinks className={styles.footerNavLinks} />
+            <NavLinks
+              className={styles.footerNavLinks}
+              variant="footer"
+              ariaLabel="Footer navigation"
+            />
           </div>
         </div>
       </div>

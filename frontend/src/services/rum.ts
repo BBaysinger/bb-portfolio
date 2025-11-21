@@ -1,10 +1,45 @@
 "use client";
 
-import { AwsRum, AwsRumConfig } from "aws-rum-web";
+// Use type-only import so the aws-rum-web package is loaded dynamically in the browser.
+import type { AwsRum, AwsRumConfig } from "aws-rum-web";
 
+/** Singleton instance of AWS CloudWatch RUM client */
 let rumInstance: AwsRum | null = null;
 
-export function initializeRUM() {
+/**
+ * Initializes AWS CloudWatch Real User Monitoring (RUM) for the application.
+ *
+ * Uses dynamic import to load aws-rum-web only when needed in the browser,
+ * reducing bundle size and avoiding build-time dependency coupling.
+ * Gracefully skips initialization if required environment variables are missing
+ * or if running in non-browser context (SSR).
+ *
+ * @async
+ * @returns {Promise<void>}
+ *
+ * @example
+ * ```tsx
+ * // In a client component
+ * useEffect(() => {
+ *   initializeRUM();
+ * }, []);
+ * ```
+ *
+ * Environment variables required:
+ * - NEXT_PUBLIC_RUM_APP_MONITOR_ID - CloudWatch RUM app monitor ID
+ * - NEXT_PUBLIC_RUM_IDENTITY_POOL_ID - Cognito identity pool ID
+ * - NEXT_PUBLIC_RUM_GUEST_ROLE_ARN - IAM role ARN for guest access
+ * - NEXT_PUBLIC_RUM_REGION (optional) - AWS region, defaults to us-west-2
+ *
+ * Features:
+ * - Singleton pattern prevents duplicate initialization
+ * - Browser-only execution (no SSR initialization)
+ * - Dynamic module loading for optimal bundle size
+ * - Graceful degradation when not configured
+ * - Samples 100% of sessions for comprehensive monitoring
+ * - Tracks performance, errors, and HTTP requests
+ */
+export async function initializeRUM() {
   // Only initialize in browser environment
   if (typeof window === "undefined") {
     return;
@@ -41,13 +76,10 @@ export function initializeRUM() {
       enableXRay: false, // Set to true if you want X-Ray tracing
       guestRoleArn,
     };
-
-    rumInstance = new AwsRum(
-      appMonitorId,
-      "1.0.0", // Application version
-      region,
-      config,
-    );
+    // Dynamically import the library only when needed (browser + configured)
+    // This defers loading until initialization runs, avoiding build-time failures
+    const { AwsRum } = await import("aws-rum-web");
+    rumInstance = new AwsRum(appMonitorId, "1.0.0", region, config);
 
     console.info("[RUM] CloudWatch RUM initialized successfully");
   } catch (error) {

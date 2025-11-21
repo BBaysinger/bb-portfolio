@@ -218,8 +218,14 @@
     height: 100dvh;
     z-index: 0;
 
+    & > div {
+      width: 100%;
+    }
+
     ul {
       flex-direction: column;
+      width: 100%;
+      position: relative;
       width: 100%;
     }
 

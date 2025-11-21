@@ -1,0 +1,23 @@
+.skipLink {
+  position: absolute;
+  top: -4rem;
+  left: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: #000;
+  color: #fff;
+  border-radius: 0.25rem;
+  text-decoration: none;
+  font-weight: 500;
+  z-index: 1000;
+  transition: top 0.2s ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  .skipLink {
+    transition: none;
+  }
+}
+.skipLink:focus,
+.skipLink:active {
+  top: 0.75rem;
+  outline: 2px solid #fff;
+}
