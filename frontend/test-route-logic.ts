@@ -28,13 +28,13 @@ async function testRouteLogic() {
   ];
 
   for (const keyParts of testCases) {
-    console.log(`\nTesting keyParts: [${keyParts.join(", ")}]`);
+    console.info(`\nTesting keyParts: [${keyParts.join(", ")}]`);
 
     const key = sanitizeKey(keyParts, prefix);
-    console.log(`Generated key: "${key}"`);
+    console.info(`Generated key: "${key}"`);
 
     if (!key) {
-      console.log("Key generation failed (null)");
+      console.info("Key generation failed (null)");
       continue;
     }
 
@@ -43,13 +43,13 @@ async function testRouteLogic() {
       const result = await s3.send(
         new HeadObjectCommand({ Bucket: bucket, Key: key }),
       );
-      console.log(`✅ SUCCESS: ${key} exists (${result.ContentType})`);
+      console.info(`✅ SUCCESS: ${key} exists (${result.ContentType})`);
     } catch (error: unknown) {
       const errorMessage =
         error instanceof Error
           ? `${error.name}: ${error.message}`
           : String(error);
-      console.log(`❌ FAILED: ${key} - ${errorMessage}`);
+      console.info(`❌ FAILED: ${key} - ${errorMessage}`);
     }
   }
 }

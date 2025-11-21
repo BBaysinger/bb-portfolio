@@ -98,8 +98,8 @@ if [[ -z "$DOCKERHUB_TOKEN" && ( -z "$DOCKERHUB_USERNAME" || -z "$DOCKERHUB_PASS
   SECRETS_FILE="$ROOT_DIR/.github-secrets.private.json5"
   if [[ -f "$SECRETS_FILE" ]]; then
     if command -v node >/dev/null 2>&1; then
-      DOCKERHUB_USERNAME=$(node -e "const fs=require('fs');const JSON5=require('json5');const o=JSON5.parse(fs.readFileSync(process.argv[1],'utf8'));console.log(o?.strings?.DOCKER_HUB_USERNAME||'')" "$SECRETS_FILE")
-      DOCKERHUB_PASSWORD=$(node -e "const fs=require('fs');const JSON5=require('json5');const o=JSON5.parse(fs.readFileSync(process.argv[1],'utf8'));console.log(o?.strings?.DOCKER_HUB_PASSWORD||'')" "$SECRETS_FILE")
+      DOCKERHUB_USERNAME=$(node -e "const fs=require('fs');const JSON5=require('json5');const o=JSON5.parse(fs.readFileSync(process.argv[1],'utf8'));console.info(o?.strings?.DOCKER_HUB_USERNAME||'')" "$SECRETS_FILE")
+      DOCKERHUB_PASSWORD=$(node -e "const fs=require('fs');const JSON5=require('json5');const o=JSON5.parse(fs.readFileSync(process.argv[1],'utf8'));console.info(o?.strings?.DOCKER_HUB_PASSWORD||'')" "$SECRETS_FILE")
     fi
   fi
 fi
@@ -115,7 +115,7 @@ if [[ -z "$DOCKERHUB_TOKEN" ]]; then
   login_resp=$(curl -sS -X POST https://hub.docker.com/v2/users/login/ \
     -H 'Content-Type: application/json' \
     -d "{\"username\":\"$DOCKERHUB_USERNAME\",\"password\":\"$DOCKERHUB_PASSWORD\"}")
-  DOCKERHUB_TOKEN=$(printf "%s" "$login_resp" | node -e "const fs=require('fs'); const o=JSON.parse(fs.readFileSync(0,'utf8')); console.log(o.token||'')")
+  DOCKERHUB_TOKEN=$(printf "%s" "$login_resp" | node -e "const fs=require('fs'); const o=JSON.parse(fs.readFileSync(0,'utf8')); console.info(o.token||'')")
   if [[ -z "$DOCKERHUB_TOKEN" ]]; then
     echo "Failed to obtain Docker Hub token" >&2
     exit 1
@@ -145,9 +145,9 @@ fetch_tags() {
       return 1
     fi
     # Print lines: last_updated\tname
-    node -e "const fs=require('fs'); const o=JSON.parse(fs.readFileSync(process.argv[1],'utf8')); for (const t of (o.results||[])) { console.log((t.last_updated||'')+'\t'+t.name) }" "$tmp"
+    node -e "const fs=require('fs'); const o=JSON.parse(fs.readFileSync(process.argv[1],'utf8')); for (const t of (o.results||[])) { console.info((t.last_updated||'')+'\t'+t.name) }" "$tmp"
     # next page
-    url=$(node -e "const fs=require('fs'); const o=JSON.parse(fs.readFileSync(process.argv[1],'utf8')); console.log(o.next||'')" "$tmp")
+    url=$(node -e "const fs=require('fs'); const o=JSON.parse(fs.readFileSync(process.argv[1],'utf8')); console.info(o.next||'')" "$tmp")
   done
   rm -f "$tmp"
 }
