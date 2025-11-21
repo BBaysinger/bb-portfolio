@@ -42,7 +42,7 @@ read_secret(){
   local key="$1"
   [[ ! -f "$SECRETS_FILE" ]] && return 0
   have_node || return 0
-  node -e "const fs=require('fs');const JSON5=require('json5');const o=JSON5.parse(fs.readFileSync(process.argv[1],'utf8'));const p=process.argv[2].split('.');let v=o;for(const k of p){v=v?.[k]}console.log(v??'')" "$SECRETS_FILE" "$key"
+  node -e "const fs=require('fs');const JSON5=require('json5');const o=JSON5.parse(fs.readFileSync(process.argv[1],'utf8'));const p=process.argv[2].split('.');let v=o;for(const k of p){v=v?.[k]}console.info(v??'')" "$SECRETS_FILE" "$key"
 }
 
 DOCKERHUB_USERNAME="${DOCKERHUB_USERNAME:-$(read_secret strings.DOCKER_HUB_USERNAME)}"
@@ -57,7 +57,7 @@ if [[ -z "$DOCKERHUB_TOKEN" ]]; then
   echo "🔐 Logging into Docker Hub..."
   DOCKERHUB_TOKEN=$(curl -sS -X POST https://hub.docker.com/v2/users/login/ -H 'Content-Type: application/json' \
     -d "{\"username\":\"$DOCKERHUB_USERNAME\",\"password\":\"$DOCKERHUB_PASSWORD\"}")
-  DOCKERHUB_TOKEN=$(printf "%s" "$DOCKERHUB_TOKEN" | node -e "const fs=require('fs');const o=JSON.parse(fs.readFileSync(0,'utf8'));console.log(o.token||'')")
+  DOCKERHUB_TOKEN=$(printf "%s" "$DOCKERHUB_TOKEN" | node -e "const fs=require('fs');const o=JSON.parse(fs.readFileSync(0,'utf8'));console.info(o.token||'')")
   if [[ -z "$DOCKERHUB_TOKEN" ]]; then
     echo "❌ Failed to obtain Docker Hub token" >&2
     exit 1
@@ -89,7 +89,7 @@ for repo in "${REPOS[@]}"; do
       continue
     fi
   elif [[ "$code" =~ ^20[0-9]$ ]]; then
-    is_private=$(node -e "const fs=require('fs');const o=JSON.parse(fs.readFileSync(process.argv[1],'utf8'));console.log(o.is_private===true?'true':'false')" "$body" 2>/dev/null || echo "unknown")
+    is_private=$(node -e "const fs=require('fs');const o=JSON.parse(fs.readFileSync(process.argv[1],'utf8'));console.info(o.is_private===true?'true':'false')" "$body" 2>/dev/null || echo "unknown")
     if [[ "$is_private" == "true" ]]; then
       echo "  ✅ Already private"
       rm -f "$body"

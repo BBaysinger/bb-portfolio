@@ -13,16 +13,16 @@ class MockEmailService {
         process.env.CONTACT_EMAIL_SUBJECT_PREFIX ||
         'New Contact Form Submission'
 
-      console.log('📧 Mock Email Service - Would send email:')
-      console.log('From:', process.env.LOCAL_SES_FROM_EMAIL || 'noreply@example.com')
-      console.log('To:', process.env.LOCAL_SES_TO_EMAIL || 'admin@example.com')
-      console.log('Subject:', `${subjectPrefix} from ${data.name}`)
-      console.log('Message:', {
+      console.info('📧 Mock Email Service - Would send email:')
+      console.info('From:', process.env.LOCAL_SES_FROM_EMAIL || 'noreply@example.com')
+      console.info('To:', process.env.LOCAL_SES_TO_EMAIL || 'admin@example.com')
+      console.info('Subject:', `${subjectPrefix} from ${data.name}`)
+      console.info('Message:', {
         name: data.name,
         email: data.email,
         message: data.message,
       })
-      console.log('✅ Mock email "sent" successfully')
+      console.info('✅ Mock email "sent" successfully')
 
       return { success: true }
     } catch (error) {
