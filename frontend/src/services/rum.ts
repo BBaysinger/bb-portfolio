@@ -131,6 +131,12 @@ export async function initializeRUM() {
     rumInstance = new AwsRum(appMonitorId, "1.0.0", region, config);
 
     console.info("[RUM] CloudWatch RUM initialized successfully");
+    console.info("[RUM] Config:", {
+      endpoint: config.endpoint,
+      identityPoolId: config.identityPoolId,
+      appMonitorId,
+      region,
+    });
 
     // Record initial page view
     if (typeof window !== "undefined") {
@@ -142,6 +148,12 @@ export async function initializeRUM() {
     }
   } catch (error) {
     console.error("[RUM] Failed to initialize CloudWatch RUM:", error);
+    if (error instanceof Error) {
+      console.error("[RUM] Error details:", {
+        message: error.message,
+        stack: error.stack,
+      });
+    }
   }
 }
 
