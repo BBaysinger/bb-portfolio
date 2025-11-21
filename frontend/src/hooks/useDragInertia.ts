@@ -19,6 +19,7 @@ export function useDragInertia(
   isSlaveMode: boolean,
   wrapperWidth: number,
   slideWidthRef: React.MutableRefObject<number>,
+  onDragComplete?: () => void,
 ) {
   const draggableRef = useRef<Draggable | null>(null);
   const containerOffsetRef = useRef<number>(0);
@@ -83,6 +84,7 @@ export function useDragInertia(
       onThrowComplete: () => {
         dragState.current.isThrowing = false;
         setSnap("x mandatory");
+        onDragComplete?.();
       },
     })[0];
 
