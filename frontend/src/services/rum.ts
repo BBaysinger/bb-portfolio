@@ -61,10 +61,16 @@ export async function initializeRUM() {
 
   // Debug logging to verify environment variables are present
   console.info("[RUM] Configuration check:", {
-    appMonitorId: appMonitorId ? `${appMonitorId.substring(0, 10)}...` : "NOT SET",
-    identityPoolId: identityPoolId ? `${identityPoolId.substring(0, 20)}...` : "NOT SET",
+    appMonitorId: appMonitorId
+      ? `${appMonitorId.substring(0, 10)}...`
+      : "NOT SET",
+    identityPoolId: identityPoolId
+      ? `${identityPoolId.substring(0, 20)}...`
+      : "NOT SET",
     region: region || "NOT SET",
-    guestRoleArn: guestRoleArn ? `${guestRoleArn.substring(0, 30)}...` : "NOT SET",
+    guestRoleArn: guestRoleArn
+      ? `${guestRoleArn.substring(0, 30)}...`
+      : "NOT SET",
   });
 
   if (!appMonitorId || !identityPoolId || !guestRoleArn) {
