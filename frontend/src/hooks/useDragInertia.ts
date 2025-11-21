@@ -59,6 +59,8 @@ interface DraggableState {
  * @param slideWidthRef - Reference to current slide width
  * @param onDragComplete - Optional callback fired when drag throw animation completes
  * @returns Drag state ref for coordination with scroll listeners
+ */
+export function useDragInertia(
   scrollerRef: React.RefObject<HTMLElement | null>,
   setSnap: React.Dispatch<React.SetStateAction<"none" | "x mandatory">>,
   slideSpacing: number,
