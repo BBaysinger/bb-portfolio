@@ -1,3 +1,38 @@
+/**
+ * AWS CloudWatch RUM Service
+ *
+ * Provides centralized Real User Monitoring (RUM) functionality for tracking visitor
+ * behavior, performance metrics, and errors in production. Automatically disabled
+ * in development/local environments when environment variables are not configured.
+ *
+ * Core Features:
+ * - Automatic page view tracking via RUMInitializer component
+ * - Custom event recording for user interactions (clicks, form submissions, etc.)
+ * - Performance monitoring (LCP, FID, CLS)
+ * - JavaScript error tracking
+ * - HTTP request monitoring
+ * - Dynamic module loading to minimize bundle size
+ * - Graceful degradation when not configured
+ *
+ * Environment Configuration:
+ * - NEXT_PUBLIC_RUM_APP_MONITOR_ID - CloudWatch app monitor identifier
+ * - NEXT_PUBLIC_RUM_IDENTITY_POOL_ID - Cognito identity pool for unauthenticated access
+ * - NEXT_PUBLIC_RUM_GUEST_ROLE_ARN - IAM role with PutRumEvents permission
+ * - NEXT_PUBLIC_RUM_REGION - AWS region (defaults to us-west-2)
+ *
+ * Usage:
+ * - Initialize via <RUMInitializer /> component in app layout
+ * - Record custom events with recordEvent() or recordClick()
+ * - See docs/rum-usage-examples.md for implementation patterns
+ *
+ * Related Files:
+ * - `src/components/RUMInitializer.tsx` - Initialization component
+ * - `docs/rum-usage-examples.md` - Usage patterns and examples
+ * - `infra/main.tf` - Infrastructure definitions (Cognito, IAM, RUM monitor)
+ *
+ * @module services/rum
+ */
+
 "use client";
 
 // Use type-only import so the aws-rum-web package is loaded dynamically in the browser.
