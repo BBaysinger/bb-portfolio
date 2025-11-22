@@ -1,7 +1,7 @@
 @use "@/styles/mixins" as *;
 @use "@/styles/variables" as *;
 
-$projectsListGap: 30px;
+$projectsListGap: 0px;
 
 .projectsList {
   position: relative;
