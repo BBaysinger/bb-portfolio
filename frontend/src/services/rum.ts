@@ -123,8 +123,9 @@ export async function initializeRUM() {
       telemetries: [], // Empty array means enable all default telemetries including page views
       allowCookies: true,
       enableXRay: false, // Set to true if you want X-Ray tracing
-      guestRoleArn,
-      // Enable debug mode to see what's being sent
+      // Note: Do NOT pass guestRoleArn - Cognito automatically uses the role attached to the identity pool
+      // Passing it explicitly can cause 403 errors
+      // See: https://github.com/aws-observability/aws-rum-web/issues/345
       ...(typeof window !== "undefined" && {
         eventPluginsToLoad: [],
         enableRumClient: true,
