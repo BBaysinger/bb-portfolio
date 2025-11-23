@@ -639,6 +639,8 @@ resource "aws_iam_role" "rum_unauthenticated" {
 }
 
 # Policy allowing RUM to send data
+# Note: AWS RUM requires wildcard resource and batch permissions
+# See: https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CloudWatch-RUM-permissions.html
 resource "aws_iam_role_policy" "rum_put_events" {
   name = "${var.project_name}-rum-put-events"
   role = aws_iam_role.rum_unauthenticated.id
@@ -649,12 +651,14 @@ resource "aws_iam_role_policy" "rum_put_events" {
       {
         Effect = "Allow"
         Action = [
-          "rum:PutRumEvents"
+          "rum:PutRumEvents",
+          "rum:BatchCreateRumMetricDefinitions",
+          "rum:BatchDeleteRumMetricDefinitions",
+          "rum:GetAppMonitor",
+          "rum:GetAppMonitorData",
+          "rum:ListAppMonitors"
         ]
-        Resource = [
-          "arn:aws:rum:${var.region}:${data.aws_caller_identity.current.account_id}:appmonitor/${var.project_name}",
-          "arn:aws:rum:${var.region}:${data.aws_caller_identity.current.account_id}:appmonitor/${var.project_name}/*"
-        ]
+        Resource = "*"
       }
     ]
   })
