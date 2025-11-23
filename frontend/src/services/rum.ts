@@ -133,11 +133,14 @@ export async function initializeRUM() {
     rumInstance = new AwsRum(appMonitorId, "1.0.0", region, config);
 
     // Intercept dispatch to log what's being sent
-     
-    const originalDispatch = (rumInstance as any).dispatch;
+
+    const originalDispatch = (
+      rumInstance as unknown as { dispatch: (...args: unknown[]) => unknown }
+    ).dispatch;
     if (originalDispatch) {
-       
-      (rumInstance as any).dispatch = function (...args: unknown[]) {
+      (
+        rumInstance as unknown as { dispatch: (...args: unknown[]) => unknown }
+      ).dispatch = function (...args: unknown[]) {
         console.info("[RUM] Dispatching events:", args);
         return originalDispatch.apply(this, args);
       };
