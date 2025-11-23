@@ -92,7 +92,6 @@ export async function initializeRUM() {
     process.env.NEXT_PUBLIC_RUM_REGION ||
     process.env.NEXT_PUBLIC_AWS_REGION ||
     "us-west-2";
-  const guestRoleArn = process.env.NEXT_PUBLIC_RUM_GUEST_ROLE_ARN;
 
   // Debug logging to verify environment variables are present
   console.info("[RUM] Configuration check:", {
@@ -103,12 +102,9 @@ export async function initializeRUM() {
       ? `${identityPoolId.substring(0, 20)}...`
       : "NOT SET",
     region: region || "NOT SET",
-    guestRoleArn: guestRoleArn
-      ? `${guestRoleArn.substring(0, 30)}...`
-      : "NOT SET",
   });
 
-  if (!appMonitorId || !identityPoolId || !guestRoleArn) {
+  if (!appMonitorId || !identityPoolId) {
     console.info(
       "[RUM] CloudWatch RUM not configured - skipping initialization",
     );
@@ -137,10 +133,10 @@ export async function initializeRUM() {
     rumInstance = new AwsRum(appMonitorId, "1.0.0", region, config);
 
     // Intercept dispatch to log what's being sent
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const originalDispatch = (rumInstance as any).dispatch;
     if (originalDispatch) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (rumInstance as any).dispatch = function (...args: unknown[]) {
         console.info("[RUM] Dispatching events:", args);
         return originalDispatch.apply(this, args);
