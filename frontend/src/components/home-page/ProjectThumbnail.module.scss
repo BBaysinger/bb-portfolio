@@ -120,20 +120,26 @@
   height: 100%;
 }
 
+$stripeWidth: 90px;
+
 // Shared base for stripe layers
 .stripes {
   position: absolute;
   height: 125%;
   width: 250%;
   left: 50%;
-  background-position: center;
-  background-size: cover;
-  background-repeat: no-repeat;
   transition: transform 0.3s ease-out;
   transform: translateX(-50%);
   z-index: 1;
   pointer-events: none;
-  background-image: url("/images/projects-list/stripes-black.webp");
+
+  background: repeating-linear-gradient(
+    135deg,
+    #000 0,
+    #000 $stripeWidth,
+    transparent $stripeWidth,
+    transparent calc($stripeWidth * 2)
+  );
 }
 
 $offsetFactor: 0.13;
@@ -146,6 +152,53 @@ $offsetFactor: 0.13;
 .stripesBottom {
   bottom: 0;
   background-position-x: calc(50% + var(--thumb-height) * $offsetFactor);
+}
+
+$green: #69871e;
+$yellow: #95971c;
+$purple: #63099e;
+$alternate: #8f8f8f;
+
+.stripesGreen {
+  background: repeating-linear-gradient(
+    135deg,
+    $green 0,
+    $green $stripeWidth,
+    transparent $stripeWidth,
+    transparent calc($stripeWidth * 2),
+    $alternate calc($stripeWidth * 2),
+    $alternate calc($stripeWidth * 3),
+    transparent calc($stripeWidth * 3),
+    transparent calc($stripeWidth * 4)
+  );
+}
+
+.stripesPurple {
+  background: repeating-linear-gradient(
+    135deg,
+    $purple 0,
+    $purple $stripeWidth,
+    transparent $stripeWidth,
+    transparent calc($stripeWidth * 2),
+    $alternate calc($stripeWidth * 2),
+    $alternate calc($stripeWidth * 3),
+    transparent calc($stripeWidth * 3),
+    transparent calc($stripeWidth * 4)
+  );
+}
+
+.stripesYellow {
+  background: repeating-linear-gradient(
+    135deg,
+    $yellow 0,
+    $yellow $stripeWidth,
+    transparent $stripeWidth,
+    transparent calc($stripeWidth * 2),
+    $alternate calc($stripeWidth * 2),
+    $alternate calc($stripeWidth * 3),
+    transparent calc($stripeWidth * 3),
+    transparent calc($stripeWidth * 4)
+  );
 }
 
 .brandLogo {
