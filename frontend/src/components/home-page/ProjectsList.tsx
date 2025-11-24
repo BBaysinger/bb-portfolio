@@ -1,123 +1,128 @@
-// NOTE: This is a Server Component. Do NOT add 'use client'.
-import { unstable_noStore as noStore } from "next/cache";
-import { cookies, headers as nextHeaders } from "next/headers";
+"use client";
 
-import ProjectsListClient from "@/components/home-page/ProjectsListClient";
-import ProjectData from "@/data/ProjectData";
+import React, { useState, useEffect } from "react";
+
+import ProjectThumbnail from "@/components/home-page/ProjectThumbnail";
+import { ParsedPortfolioProject } from "@/data/ProjectData";
+import { useSequentialRowScrollFocus } from "@/hooks/useSequentialRowScrollFocus";
+import { useAppSelector } from "@/store/hooks";
+
+import styles from "./ProjectsList.module.scss";
+
+interface ProjectsListProps {
+  /**
+   * Full set of projects to render in the grid. Includes both
+   * public (non-NDA) and NDA entries. Public items render as
+   * thumbnails; NDA items can be rendered as placeholders or
+   * with alternate messaging/links.
+   */
+  allProjects: ParsedPortfolioProject[];
+  isAuthenticated: boolean;
+  /**
+   * Optional render prop for custom thumbnail rendering.
+   */
+  renderThumbnail?: (
+    project: ParsedPortfolioProject,
+    index: number,
+    props: {
+      focused: boolean;
+      setRef: (el: HTMLDivElement | null) => void;
+      isAuthenticated: boolean;
+    },
+  ) => React.ReactNode;
+}
 
 /**
- * Server component: ProjectsList
+ * Client-side portfolio projects list component.
  *
- * Responsibilities
- * - Runs on the server during build (SSG) and at request time if revalidated.
- * - Loads all portfolio projects from `ProjectData`.
- * - Produces a combined `allProjects` array that includes:
- *   - Public (non-NDA) projects that appear in the main list
- *   - NDA projects as data entries (rendered as placeholders by the client)
- * - Delegates all rendering and interactivity to the client component
- *   (`ProjectsListClient`). This keeps the UI interactive while preserving
- *   static generation for data.
+ * Receives server-rendered project data and implements client-only interactivity:
+ * - Scroll-based focus highlighting (touch devices only) via `useSequentialRowScrollFocus`.
+ * - Post-login state synchronization with Redux auth store.
+ * - Responsive grid rendering with NDA-aware thumbnail display.
+ *
+ * Interaction model:
+ * - Scroll focus provides visual feedback on touch devices, highlighting the thumbnail
+ *   nearest the viewport center with left→right progression within rows.
+ * - Hover-capable devices rely on CSS :hover states; scroll logic is disabled.
+ * - NDA projects render with authentication-gated content and routing.
+ *
+ * @param props - Component properties.
+ * @returns JSX element containing the projects grid.
  */
+const ProjectsList: React.FC<ProjectsListProps> & {
+  ProjectThumbnail: typeof ProjectThumbnail;
+} = ({ allProjects, isAuthenticated, renderThumbnail }) => {
+  // Merge server and client auth states (server-side for SSR, client-side for post-login).
+  const { isLoggedIn, user } = useAppSelector((s) => s.auth);
+  const _clientAuth = isLoggedIn || !!user;
 
-const ProjectsList = async () => {
-  // Mark this route as dynamic if auth can change NDA content.
-  noStore();
-  // Fetch fresh data per-request to honor auth and NDA differences
-  // Detect authentication from cookies by calling our API route with forwarded cookies
-  let isAuthenticated = false;
-  try {
-    const cookieStore = await cookies();
-    const allCookies = cookieStore.getAll();
-    const cookieHeader = allCookies
-      .map((c) => `${c.name}=${c.value}`)
-      .join("; ");
-    const hasPayloadToken = allCookies.some((c) => c.name === "payload-token");
+  // Maintain local project list; sync with server props on change (e.g., after router.refresh).
+  const [projects, setProjects] =
+    useState<ParsedPortfolioProject[]>(allProjects);
+  useEffect(() => {
+    setProjects(allProjects);
+  }, [allProjects]);
 
-    // Forward auth cookies to backend data fetch so NDA content resolves when allowed
-    const forwardedHeaders: HeadersInit = cookieHeader
-      ? { Cookie: cookieHeader }
-      : {};
-    await ProjectData.initialize({
-      headers: forwardedHeaders,
-      disableCache: true,
-    });
+  // Centralized scroll focus logic for touch devices (hover-capable devices use CSS).
+  const { focusedIndex, setItemRef } = useSequentialRowScrollFocus(
+    projects.length,
+  );
 
-    // Perform explicit auth check via /api/users/me for user presence (may still fail if token expired)
-    if (cookieHeader) {
-      const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
-      const tryAuthFetch = async (url: string) =>
-        fetch(url, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            ...(cookieHeader && { Cookie: cookieHeader }),
-          },
-          cache: "no-store",
-        });
-      let res: Response | null = null;
-      try {
-        res = await tryAuthFetch(`${basePath}/api/users/me`);
-        if (!res.ok) {
-          const alt = await tryAuthFetch(`${basePath}/api/users/me/`);
-          if (alt.ok) res = alt;
-        }
-      } catch {
-        try {
-          const h = await nextHeaders();
-          const host = h.get("x-forwarded-host") ?? h.get("host");
-          const proto = h.get("x-forwarded-proto") ?? "http";
-          const origin = host
-            ? `${proto}://${host}`
-            : process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
-          res = await tryAuthFetch(`${origin}${basePath}/api/users/me`);
-        } catch {}
-      }
-      isAuthenticated = Boolean(res?.ok);
-    }
-
-    if (process.env.NODE_ENV !== "production") {
-      console.info("[ProjectsList SSR] cookies", {
-        cookieNames: allCookies.map((c) => c.name),
-        hasPayloadToken,
-        isAuthenticatedViaMe: isAuthenticated,
-      });
-    }
-  } catch (err) {
-    console.error("ProjectsList: failed to initialize ProjectData", err);
-  }
-  // Use listedProjects (active & not omitted) for the main grid, which may include NDA items.
-  // The client decides how to render NDA entries as placeholders.
-  const allProjects = [...ProjectData.listedProjects];
-  if (
-    process.env.DEBUG_PROJECT_DATA === "1" ||
-    process.env.NODE_ENV !== "production"
-  ) {
-    try {
-      const ndaCount = allProjects.filter((p) => p.nda || p.brandIsNda).length;
-      const ndaProjects = allProjects.filter((p) => p.nda || p.brandIsNda);
-      console.info("[ProjectsList SSR] state", {
-        isAuthenticated,
-        cookiePresent: (await cookies()).getAll()?.length > 0,
-        listedCount: allProjects.length,
-        ndaEntries: ndaCount,
-        sampleNdaProject: ndaProjects[0]
-          ? {
-              id: ndaProjects[0].id,
-              title: ndaProjects[0].title,
-              nda: ndaProjects[0].nda,
-              brandIsNda: ndaProjects[0].brandIsNda,
-            }
-          : null,
-      });
-    } catch {}
-  }
-  // Delegate rendering and interactivity to the client component.
   return (
-    <ProjectsListClient
-      allProjects={allProjects}
-      isAuthenticated={isAuthenticated}
-    />
+    <div
+      id="projects-list"
+      className={styles.projectsList}
+      data-nav="projects-list"
+    >
+      {projects.length === 0 && (
+        <div aria-live="polite" style={{ opacity: 0.7 }}>
+          No projects to display yet.
+        </div>
+      )}
+      {projects.map((projectData, index) => {
+        const id = projectData.id;
+        const focused = focusedIndex === index;
+        const setRef = (el: HTMLDivElement | null) => setItemRef(el, index);
+        const auth = isAuthenticated || _clientAuth;
+        if (renderThumbnail) {
+          return renderThumbnail(projectData, index, {
+            focused,
+            setRef,
+            isAuthenticated: auth,
+          });
+        }
+        const {
+          title,
+          omitFromList,
+          brandId,
+          brandLogoLightUrl,
+          brandLogoDarkUrl,
+          brandIsNda,
+          nda,
+          thumbUrl,
+        } = projectData;
+        return (
+          <ProjectThumbnail
+            key={id}
+            index={index}
+            omitFromList={omitFromList}
+            projectId={id}
+            title={title}
+            brandId={brandId}
+            brandLogoLightUrl={brandLogoLightUrl}
+            brandLogoDarkUrl={brandLogoDarkUrl}
+            brandIsNda={brandIsNda}
+            nda={nda}
+            thumbUrl={thumbUrl}
+            isAuthenticated={auth}
+            focused={focused}
+            setRef={setRef}
+          />
+        );
+      })}
+    </div>
   );
 };
 
+ProjectsList.ProjectThumbnail = ProjectThumbnail;
 export default ProjectsList;

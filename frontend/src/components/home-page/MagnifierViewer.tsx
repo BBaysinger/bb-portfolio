@@ -1,11 +1,9 @@
 "use client";
 
-import React, {
-  useEffect,
-  useRef,
-  useState,
-  type FC,
-} from "react";
+import clsx from "clsx";
+import React, { useEffect, useRef, useState, type FC } from "react";
+
+import styles from "./MagnifierViewer.module.scss";
 
 export interface ViewerItem {
   id: string;
@@ -86,7 +84,7 @@ export const MagnifierViewer: FC<{ items: ViewerItem[] }> = ({ items }) => {
   const activeItem = items[activeIndex];
 
   return (
-    <div className="zzmv-root">
+    <div className={clsx(styles.zzmvRoot)}>
       <div className="zzmv-inner">
         {/* Scrollable zig-zag mini list */}
         <div className="zzmv-scroll-container" ref={containerRef}>
