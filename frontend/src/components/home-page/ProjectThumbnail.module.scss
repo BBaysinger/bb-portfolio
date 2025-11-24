@@ -74,20 +74,23 @@
     }
   }
 
+  $distanceFactor: 1.2;
+  $negDistanceFactor: -$distanceFactor;
+
   &:not(.nda):hover {
     .stripesTop {
       transform: translateX(-50%)
         translate(
-          calc(var(--thumb-height) * 1.06),
-          calc(var(--thumb-height) * -1.06)
+          calc(var(--thumb-height) * $distanceFactor),
+          calc(var(--thumb-height) * $negDistanceFactor)
         );
     }
 
     .stripesBottom {
       transform: translateX(-50%)
         translate(
-          calc(var(--thumb-height) * -1.06),
-          calc(var(--thumb-height) * 1.06)
+          calc(var(--thumb-height) * $negDistanceFactor),
+          calc(var(--thumb-height) * $distanceFactor)
         );
     }
   }
@@ -120,7 +123,7 @@
   height: 100%;
 }
 
-$stripeWidth: 90px;
+$stripeWidth: 80px;
 
 // Shared base for stripe layers
 .stripes {
@@ -142,16 +145,16 @@ $stripeWidth: 90px;
   );
 }
 
-$offsetFactor: 0.13;
+$offsetFactor: 0.14;
 
 .stripesTop {
   top: 0;
-  background-position-x: calc(50% - var(--thumb-height) * $offsetFactor);
+  background-position-x: calc(50% + var(--thumb-height) * $offsetFactor);
 }
 
 .stripesBottom {
   bottom: 0;
-  background-position-x: calc(50% + var(--thumb-height) * $offsetFactor);
+  background-position-x: calc(50% - var(--thumb-height) * $offsetFactor);
 }
 
 $green: #69871e;
