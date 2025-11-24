@@ -4,7 +4,6 @@ import React, { useState, useEffect } from "react";
 
 import ProjectThumbnail from "@/components/home-page/ProjectThumbnail";
 import { ParsedPortfolioProject } from "@/data/ProjectData";
-import { useSequentialRowScrollFocus } from "@/hooks/useSequentialRowScrollFocus";
 import { useAppSelector } from "@/store/hooks";
 
 import styles from "./ProjectsList.module.scss";
@@ -25,8 +24,6 @@ interface ProjectsListProps {
     project: ParsedPortfolioProject,
     index: number,
     props: {
-      focused: boolean;
-      setRef: (el: HTMLDivElement | null) => void;
       isAuthenticated: boolean;
     },
   ) => React.ReactNode;
@@ -35,16 +32,14 @@ interface ProjectsListProps {
 /**
  * Client-side portfolio projects list component.
  *
- * Receives server-rendered project data and implements client-only interactivity:
- * - Scroll-based focus highlighting (touch devices only) via `useSequentialRowScrollFocus`.
+ * Renders a grid of portfolio project thumbnails with:
  * - Post-login state synchronization with Redux auth store.
  * - Responsive grid rendering with NDA-aware thumbnail display.
+ * - CSS :hover states for interactive feedback.
+ * - NDA projects with authentication-gated content and routing.
  *
- * Interaction model:
- * - Scroll focus provides visual feedback on touch devices, highlighting the thumbnail
- *   nearest the viewport center with left→right progression within rows.
- * - Hover-capable devices rely on CSS :hover states; scroll logic is disabled.
- * - NDA projects render with authentication-gated content and routing.
+ * Note: This component is only rendered on hover-capable devices.
+ * Touch devices use MagnifierViewer instead (handled by PortfolioListStyleSwapper).
  *
  * @param props - Component properties.
  * @returns JSX element containing the projects grid.
@@ -63,11 +58,6 @@ const ProjectsList: React.FC<ProjectsListProps> & {
     setProjects(allProjects);
   }, [allProjects]);
 
-  // Centralized scroll focus logic for touch devices (hover-capable devices use CSS).
-  const { focusedIndex, setItemRef } = useSequentialRowScrollFocus(
-    projects.length,
-  );
-
   return (
     <div
       id="projects-list"
@@ -81,13 +71,9 @@ const ProjectsList: React.FC<ProjectsListProps> & {
       )}
       {projects.map((projectData, index) => {
         const id = projectData.id;
-        const focused = focusedIndex === index;
-        const setRef = (el: HTMLDivElement | null) => setItemRef(el, index);
         const auth = isAuthenticated || _clientAuth;
         if (renderThumbnail) {
           return renderThumbnail(projectData, index, {
-            focused,
-            setRef,
             isAuthenticated: auth,
           });
         }
@@ -115,8 +101,6 @@ const ProjectsList: React.FC<ProjectsListProps> & {
             nda={nda}
             thumbUrl={thumbUrl}
             isAuthenticated={auth}
-            focused={focused}
-            setRef={setRef}
           />
         );
       })}

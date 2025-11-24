@@ -3,6 +3,20 @@
 @use "@/styles/mixins" as *;
 @use "@/styles/fonts" as *;
 
+/**
+ * Global scroll-snap configuration for MagnifierViewer component.
+ * Applied statically to html element since:
+ * - Only MagnifierViewer items use scroll-snap-align
+ * - Property is harmless when no snap-aligned elements exist
+ * - Simpler than dynamic JS manipulation of html element styles
+ * - Avoids component-level side effects on document root
+ */
+html {
+  // 'proximity' is omitted in the browser when 'y proximity' is set,
+  // but it's apparently the same behavior as just 'y'
+  scroll-snap-type: y;
+}
+
 body,
 html {
   font-family:
