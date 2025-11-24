@@ -1,6 +1,7 @@
 "use client";
 
 import clsx from "clsx";
+import Image from "next/image";
 import React, { useEffect, useRef, useState, type FC } from "react";
 
 import styles from "./MagnifierViewer.module.scss";
@@ -76,7 +77,7 @@ export const MagnifierViewer: FC<{ items: ViewerItem[] }> = ({ items }) => {
     };
   }, [items.length]);
 
-  const activeItem = items[activeIndex];
+  const _activeItem = items[activeIndex];
 
   return (
     <div className={styles.root}>
@@ -103,21 +104,13 @@ export const MagnifierViewer: FC<{ items: ViewerItem[] }> = ({ items }) => {
 
       {/* Magnifier overlay fixed to viewport */}
       <div className={styles.magnifierOverlay}>
-        <div className={styles.magnifierFrame}>
-          {activeItem && (
-            <div className={styles.fullCard}>
-              <div className={styles.fullTitle}>{activeItem.title}</div>
-              {activeItem.subtitle && (
-                <div className={styles.fullSubtitle}>{activeItem.subtitle}</div>
-              )}
-              {activeItem.description && (
-                <p className={styles.fullDescription}>
-                  {activeItem.description}
-                </p>
-              )}
-            </div>
-          )}
-        </div>
+        <Image
+          src="/images/projects-list/magnifier.webp"
+          alt="Magnifying glass"
+          width={603}
+          height={415.5}
+          className={styles.magnifierImage}
+        />
       </div>
     </div>
   );
