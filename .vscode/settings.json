@@ -173,6 +173,7 @@
         "osascript",
         "passwordauthentication",
         "permitrootlogin",
+        "phablets",
         "PIDS",
         "pipefail",
         "Platformer",
