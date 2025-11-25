@@ -75,7 +75,7 @@ const CurriculumVitae: React.FC = () => {
     "RxJS",
 
     // Backend & Runtime
-    "Node",
+    "Node.js",
     "Express",
     "JWT",
 
@@ -99,7 +99,6 @@ const CurriculumVitae: React.FC = () => {
     "Mapbox",
     "OneTrust",
     "Litmus",
-    "Nodemailer",
 
     // Template Engines
     "Mustache / Handlebars",

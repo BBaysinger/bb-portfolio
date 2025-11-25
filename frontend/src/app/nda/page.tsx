@@ -9,10 +9,11 @@ export const dynamic = "force-dynamic";
  * Legacy query-param entry point: `/nda?p=slug`.
  * Canonicalizes to `/nda/[slug]` (trailing slash) or returns 404 if missing.
  */
+type QuerySearchParams = { [key: string]: string | string[] };
 export default function NdaQueryPage({
   searchParams,
 }: {
-  searchParams?: { p?: string | string[] };
+  searchParams?: QuerySearchParams;
 }) {
   const param = searchParams?.p;
   const p = Array.isArray(param) ? param[0] : param;

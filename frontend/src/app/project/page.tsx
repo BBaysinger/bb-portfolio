@@ -10,10 +10,11 @@ export const dynamic = "force-dynamic";
  * Now used only to canonicalize direct hits to the segment route or return 404.
  * In-session navigation still manipulates `?p=` client-side without hitting this.
  */
+type QuerySearchParams = { [key: string]: string | string[] };
 export default function ProjectQueryPage({
   searchParams,
 }: {
-  searchParams?: { p?: string | string[] };
+  searchParams?: QuerySearchParams;
 }) {
   const param = searchParams?.p;
   const p = Array.isArray(param) ? param[0] : param;

@@ -41,6 +41,34 @@ console.info("[next.config.ts] React StrictMode:", {
 });
 
 const nextConfig: NextConfig = {
+  // Ensure aws-rum-web is transpiled and bundled (defensive for Turbopack / ESM resolution)
+  // This addresses intermittent module resolution failures for dynamic import at runtime.
+  transpilePackages: ["aws-rum-web"],
+  webpack: (config) => {
+    // Force explicit resolution of aws-rum-web to avoid 'module not found' under certain bundlers
+    try {
+      const resolved = require.resolve("aws-rum-web");
+      let resolvedCjs: string | undefined;
+      try {
+        resolvedCjs = require.resolve("aws-rum-web/dist/cjs/index.js");
+      } catch {}
+      config.resolve.alias = {
+        ...(config.resolve.alias || {}),
+        "aws-rum-web": resolved,
+      };
+      // Provide direct path to its ES build as an additional alias if needed
+      config.resolve.alias["aws-rum-web/dist"] = resolved;
+      if (resolvedCjs) {
+        config.resolve.alias["aws-rum-web/dist/cjs/index.js"] = resolvedCjs;
+      }
+    } catch (e) {
+      console.warn(
+        "[next.config] Failed to resolve aws-rum-web via require.resolve",
+        e,
+      );
+    }
+    return config;
+  },
   output: "standalone",
   // Force a unique build id per deployment to ensure HTML points to fresh chunk paths
   // This helps mitigate perceived "stale" frontend when code changes don't modify chunk hashes.

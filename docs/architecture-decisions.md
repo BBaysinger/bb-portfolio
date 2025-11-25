@@ -6,6 +6,20 @@ This file records major technical decisions for the portfolio project.
 Each entry includes the date, decision, reasoning, alternatives, and current status.  
 New decisions should be appended chronologically.
 
+## 2025-11-25 – Next.js Bundler Strategy: Opt-Out of Turbopack
+
+- **Decision:** Disable Turbopack for frontend builds and standardize on webpack by setting `NEXT_DISABLE_TURBOPACK=1` in `frontend/package.json` build scripts. Keep an explicit `turbopack` script for manual testing when needed.
+- **Reasoning:** Turbopack in Next.js 16 did not honor our webpack-specific `resolve.alias` for `aws-rum-web`, causing nondeterministic module resolution failures during builds. Webpack reliably applies the alias and stabilizes the dependency resolver, which is critical for RUM integration and CI/CD reproducibility.
+- **Implementation:**
+  - `frontend/package.json`: `build` and `build:webpack` run `NEXT_DISABLE_TURBOPACK=1 next build`.
+  - Root `package.json`: added `build:frontend:webpack` convenience script.
+  - Retained `turbopack` script for opt-in testing.
+- **Alternatives considered:**
+  - Provide a Turbopack configuration that mirrors webpack alias behavior (not viable short-term; alias parity was not functional for our package).
+  - Remove alias and rely on package default exports (proved flaky under Turbopack for `aws-rum-web`).
+- **Status:** ✅ Active (revisit Turbopack once alias parity and resolver stability are confirmed)
+  - **TODO:** Revisit Turbopack when resolver/alias parity with webpack is reliable for `aws-rum-web` and our build passes without custom webpack config. Track Next.js/Turbopack release notes and test periodically.
+
 ## 2025-11-07 – Production HTTPS Enablement (Certbot) and Domain Hygiene
 
 - **Decision:** Enable HTTPS on EC2 using Certbot (nginx plugin) and wire ACME contact email via orchestrator. Clean up domain list used for certificate issuance (remove invalid/non-existent hosts).
