@@ -10,6 +10,9 @@ import ProjectData from "@/data/ProjectData";
  *
  */
 
+// Force dynamic rendering since we fetch from backend API
+export const dynamic = 'force-dynamic';
+
 // Server component: fetch data and pass to swapper
 const HomePage = async () => {
   await ProjectData.initialize();
