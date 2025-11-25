@@ -14,8 +14,6 @@ interface PortfolioListStyleSwapperProps {
     project: ParsedPortfolioProject,
     index: number,
     props: {
-      focused: boolean;
-      setRef: (el: HTMLDivElement | null) => void;
       isAuthenticated: boolean;
     },
   ) => React.ReactNode;
