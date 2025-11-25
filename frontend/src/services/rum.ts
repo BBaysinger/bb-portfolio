@@ -35,11 +35,29 @@
 
 "use client";
 
-// Use type-only import so the aws-rum-web package is loaded dynamically in the browser.
-import type { AwsRum, AwsRumConfig } from "aws-rum-web";
+// Resolve at runtime via dynamic import to avoid build-time resolver
+// variability across bundlers. We target the CJS entry explicitly.
+type AwsRumConfig = {
+  sessionSampleRate?: number;
+  identityPoolId?: string;
+  endpoint?: string;
+  telemetries?: string[];
+  allowCookies?: boolean;
+  enableXRay?: boolean;
+  eventPluginsToLoad?: string[];
+  enableRumClient?: boolean;
+};
+
+type AwsRumLike = {
+  recordPageView: (pageName: string) => void;
+  recordEvent: (type: string, data?: Record<string, unknown>) => void;
+  addSessionAttributes: (attrs: Record<string, unknown>) => void;
+  // Optional dispatch hook present in implementation; use index signature to avoid any
+  [key: string]: unknown;
+};
 
 /** Singleton instance of AWS CloudWatch RUM client */
-let rumInstance: AwsRum | null = null;
+let rumInstance: AwsRumLike | null = null;
 
 /**
  * Initializes AWS CloudWatch Real User Monitoring (RUM) for the application.
@@ -112,6 +130,20 @@ export async function initializeRUM() {
   }
 
   try {
+    // Dynamically import aws-rum-web from its CJS build
+    const rumModule = await import("aws-rum-web");
+    const moduleRecord = rumModule as Record<string, unknown>;
+    const maybeAwsRum =
+      moduleRecord["AwsRum"] ?? moduleRecord["default"] ?? rumModule;
+    if (typeof maybeAwsRum !== "function") {
+      throw new Error("aws-rum-web did not export a constructor");
+    }
+    const AwsRumCtor = maybeAwsRum as new (
+      appMonitorId: string,
+      version: string,
+      region: string,
+      config: AwsRumConfig,
+    ) => AwsRumLike;
     const config: AwsRumConfig = {
       sessionSampleRate: 1, // Sample 100% of sessions
       identityPoolId,
@@ -127,82 +159,14 @@ export async function initializeRUM() {
         enableRumClient: true,
       }),
     };
-    // Dynamically import the library only when needed (browser + configured)
-    // This defers loading until initialization runs, avoiding build-time failures
-    let rumModule: unknown = null;
-    const importCandidates = [
-      "aws-rum-web",
-      "aws-rum-web/dist/es/index.js",
-      "aws-rum-web/dist/cjs/index.js",
-    ];
-
-    // Try multiple import specifiers to accommodate different bundler resolutions
-    let lastError: unknown = null;
-    for (const spec of importCandidates) {
-      try {
-        rumModule = await import(/* webpackIgnore: false */ spec);
-        console.info(`[RUM] Imported '${spec}' successfully`);
-        break;
-      } catch (impErr) {
-        lastError = impErr;
-        // continue to next candidate
-      }
-    }
-
-    if (!rumModule) {
-      const impMsg = (() => {
-        try {
-          return JSON.stringify(
-            lastError,
-            Object.getOwnPropertyNames(lastError as Error),
-          );
-        } catch {
-          return String(lastError);
-        }
-      })();
-      console.error(
-        "[RUM] Dynamic import of 'aws-rum-web' failed (all candidates):",
-        impMsg,
-      );
-      return;
-    }
-
-    // Module may export AwsRum as a named export or default; be resilient
-    const moduleRecord = rumModule as Record<string, unknown>;
-    const maybeAwsRum =
-      moduleRecord["AwsRum"] ?? moduleRecord["default"] ?? rumModule;
-    if (!maybeAwsRum) {
-      console.error(
-        "[RUM] 'aws-rum-web' imported but 'AwsRum' export not found",
-        Object.keys(moduleRecord || {}),
-      );
-      return;
-    }
-
-    // Ensure the export is a constructable function and create the instance
-    type AwsRumConstructor = new (
-      appMonitorId: string,
-      version: string,
-      region: string,
-      config: AwsRumConfig,
-    ) => AwsRum;
-
-    if (typeof maybeAwsRum !== "function") {
-      console.error(
-        "[RUM] 'AwsRum' export is not a constructor/function",
-        typeof maybeAwsRum,
-      );
-      return;
-    }
-
-    const AwsRumCtor = maybeAwsRum as unknown as AwsRumConstructor;
+    // Static import path bundling already ensured; construct directly
     rumInstance = new AwsRumCtor(appMonitorId, "1.0.0", region, config);
 
     // Intercept dispatch to log what's being sent
 
-    const originalDispatch = (
-      rumInstance as unknown as { dispatch: (...args: unknown[]) => unknown }
-    ).dispatch;
+    const originalDispatch = (rumInstance as { [k: string]: unknown })[
+      "dispatch"
+    ] as ((...args: unknown[]) => unknown) | undefined;
     if (originalDispatch) {
       (
         rumInstance as unknown as { dispatch: (...args: unknown[]) => unknown }
@@ -257,7 +221,7 @@ export async function initializeRUM() {
   }
 }
 
-export function getRUM(): AwsRum | null {
+export function getRUM(): AwsRumLike | null {
   return rumInstance;
 }
 
