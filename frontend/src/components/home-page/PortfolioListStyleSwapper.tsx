@@ -22,7 +22,9 @@ export default function PortfolioListStyleSwapper({
   isAuthenticated,
   renderThumbnail,
 }: PortfolioListStyleSwapperProps) {
-  const hasHover = useHasHover();
+  let hasHover = useHasHover();
+
+  hasHover = true; // Short circuit to force normal layout to test a better solution...
 
   if (hasHover) {
     return (
