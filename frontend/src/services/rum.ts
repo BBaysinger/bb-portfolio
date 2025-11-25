@@ -68,8 +68,8 @@ let rumInstance: AwsRum | null = null;
  *
  * Features:
  * - Singleton pattern prevents duplicate initialization
- * - Browser-only execution (no SSR initialization)
- * - Dynamic module loading for optimal bundle size
+    const moduleRecord = rumModule as Record<string, unknown>;
+    const maybeAwsRum = moduleRecord["AwsRum"] ?? moduleRecord["default"] ?? rumModule;
  * - Graceful degradation when not configured
  * - Samples 100% of sessions for comprehensive monitoring
  * - Tracks performance, errors, and HTTP requests
@@ -129,8 +129,74 @@ export async function initializeRUM() {
     };
     // Dynamically import the library only when needed (browser + configured)
     // This defers loading until initialization runs, avoiding build-time failures
-    const { AwsRum } = await import("aws-rum-web");
-    rumInstance = new AwsRum(appMonitorId, "1.0.0", region, config);
+    let rumModule: unknown = null;
+    const importCandidates = [
+      "aws-rum-web",
+      "aws-rum-web/dist/es/index.js",
+      "aws-rum-web/dist/cjs/index.js",
+    ];
+
+    // Try multiple import specifiers to accommodate different bundler resolutions
+    let lastError: unknown = null;
+    for (const spec of importCandidates) {
+      try {
+        rumModule = await import(/* webpackIgnore: false */ spec);
+        console.info(`[RUM] Imported '${spec}' successfully`);
+        break;
+      } catch (impErr) {
+        lastError = impErr;
+        // continue to next candidate
+      }
+    }
+
+    if (!rumModule) {
+      const impMsg = (() => {
+        try {
+          return JSON.stringify(
+            lastError,
+            Object.getOwnPropertyNames(lastError as Error),
+          );
+        } catch {
+          return String(lastError);
+        }
+      })();
+      console.error(
+        "[RUM] Dynamic import of 'aws-rum-web' failed (all candidates):",
+        impMsg,
+      );
+      return;
+    }
+
+    // Module may export AwsRum as a named export or default; be resilient
+    const moduleRecord = rumModule as Record<string, unknown>;
+    const maybeAwsRum =
+      moduleRecord["AwsRum"] ?? moduleRecord["default"] ?? rumModule;
+    if (!maybeAwsRum) {
+      console.error(
+        "[RUM] 'aws-rum-web' imported but 'AwsRum' export not found",
+        Object.keys(moduleRecord || {}),
+      );
+      return;
+    }
+
+    // Ensure the export is a constructable function and create the instance
+    type AwsRumConstructor = new (
+      appMonitorId: string,
+      version: string,
+      region: string,
+      config: AwsRumConfig,
+    ) => AwsRum;
+
+    if (typeof maybeAwsRum !== "function") {
+      console.error(
+        "[RUM] 'AwsRum' export is not a constructor/function",
+        typeof maybeAwsRum,
+      );
+      return;
+    }
+
+    const AwsRumCtor = maybeAwsRum as unknown as AwsRumConstructor;
+    rumInstance = new AwsRumCtor(appMonitorId, "1.0.0", region, config);
 
     // Intercept dispatch to log what's being sent
 
@@ -163,12 +229,30 @@ export async function initializeRUM() {
       );
     }
   } catch (error) {
-    console.error("[RUM] Failed to initialize CloudWatch RUM:", error);
-    if (error instanceof Error) {
-      console.error("[RUM] Error details:", {
-        message: error.message,
-        stack: error.stack,
-      });
+    // Safely stringify any thrown value (some bundlers/exports throw non-Error objects)
+    const details = (() => {
+      try {
+        return JSON.stringify(
+          error,
+          Object.getOwnPropertyNames(error as Error),
+        );
+      } catch {
+        try {
+          return String(error);
+        } catch {
+          return "[unserializable error]";
+        }
+      }
+    })();
+    console.error("[RUM] Failed to initialize CloudWatch RUM:", details);
+    if (error && typeof error === "object") {
+      const e = error as unknown as { message?: string; stack?: string };
+      if (e.message) {
+        console.error("[RUM] Error details:", {
+          message: e.message,
+          stack: e.stack,
+        });
+      }
     }
   }
 }
