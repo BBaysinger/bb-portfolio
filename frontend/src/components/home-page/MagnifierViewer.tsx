@@ -1,8 +1,7 @@
 "use client";
 
-import clsx from "clsx";
 import Image from "next/image";
-import React, { useEffect, useRef, useState, type FC } from "react";
+import type { FC } from "react";
 
 import styles from "./MagnifierViewer.module.scss";
 
@@ -13,97 +12,38 @@ export interface ViewerItem {
   description?: string;
 }
 
+export interface MagnifierContext {
+  isMagnified: boolean;
+}
+
+interface MagnifierViewerProps {
+  renderList: (context: MagnifierContext) => React.ReactNode;
+}
+
 /**
  * MagnifierViewer
  *
- * Next.js/React component:
- * - Vertical list of mini cards in a zig-zag path that flows with page scroll.
- * - A fixed magnifier overlay in the viewport center shows a full-size, readable card
- *   for whichever mini card is closest to the viewport center.
+ * Creative experimental UI solution (for now tablet only) where
+ * one item in a list gets focus at a time, this component does it by magnification
+ * of a list of thumbnails.
+ * It's a wrapper that renders a list component twice:
+ * - Once in the normal page flow, with scroll-snap behavior
+ * - Once inside a magnifier overlay (magnified, clipped, and panned around)
  *
- * Notes:
- * - Pure client component (`"use client";`).
- * - Items flow in normal document layout (no internal scroll container).
- * - Uses requestAnimationFrame to keep the active index in sync with window scroll.
- * - Magnifier overlay is fixed to viewport, tracking the nearest item.
- * - Styles are injected via a <style> tag for easy drop-in testing.
+ * The magnifier image provides the visual effect.
  */
-export const MagnifierViewer: FC<{ items: ViewerItem[] }> = ({ items }) => {
-  const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const [activeIndex, setActiveIndex] = useState(0);
-
-  // Ensure refs array matches item length
-  if (itemRefs.current.length !== items.length) {
-    itemRefs.current = Array(items.length)
-      .fill(null)
-      .map((_, i) => itemRefs.current[i] || null);
-  }
-
-  useEffect(() => {
-    let frameId: number | null = null;
-    let running = true;
-
-    const updateActiveIndex = () => {
-      if (!running) return;
-      // Use viewport center as reference point
-      const centerY = window.innerHeight / 2;
-
-      let closestIndex = 0;
-      let closestDistance = Number.POSITIVE_INFINITY;
-
-      for (let i = 0; i < itemRefs.current.length; i++) {
-        const el = itemRefs.current[i];
-        if (!el) continue;
-        const rect = el.getBoundingClientRect();
-        const itemCenterY = rect.top + rect.height / 2;
-        const distance = Math.abs(itemCenterY - centerY);
-        if (distance < closestDistance) {
-          closestDistance = distance;
-          closestIndex = i;
-        }
-      }
-
-      setActiveIndex((prev) => (prev === closestIndex ? prev : closestIndex));
-      frameId = window.requestAnimationFrame(updateActiveIndex);
-    };
-
-    frameId = window.requestAnimationFrame(updateActiveIndex);
-
-    return () => {
-      running = false;
-      if (frameId !== null) {
-        window.cancelAnimationFrame(frameId);
-      }
-    };
-  }, [items.length]);
-
-  const _activeItem = items[activeIndex];
-
+export const MagnifierViewer: FC<MagnifierViewerProps> = ({ renderList }) => {
   return (
     <div className={styles.root}>
-      {/* Zig-zag mini list flows in document */}
-      {items.map((item, index) => (
-        <div
-          key={item.id}
-          className={clsx(
-            styles.miniItem,
-            index % 2 === 0 ? styles.miniLeft : styles.miniRight,
-          )}
-          ref={(el) => {
-            itemRefs.current[index] = el;
-          }}
-        >
-          <div className={styles.miniCard}>
-            <div className={styles.miniTitle}>{item.title}</div>
-            {item.subtitle && (
-              <div className={styles.miniSubtitle}>{item.subtitle}</div>
-            )}
-          </div>
-        </div>
-      ))}
+      {/* List renders in normal page flow */}
+      {renderList({ isMagnified: false })}
 
-      {/* Magnifier overlay fixed to viewport */}
+      {/* Magnifier overlay with magnified list */}
       <div className={styles.magnifierOverlay}>
+        {/* Magnified list inside magnifier */}
+        <div className={styles.magnifiedContent}>
+          {renderList({ isMagnified: true })}
+        </div>
         <Image
           src="/images/projects-list/magnifier.webp"
           alt="Magnifying glass"
@@ -167,7 +107,18 @@ export const ZigZagMagnifierDemo: FC = () => {
 
   return (
     <div className={styles.demoShell}>
-      <MagnifierViewer items={demoItems} />
+      <MagnifierViewer
+        renderList={(context) => (
+          <div data-context={context}>
+            {demoItems.map((item) => (
+              <div key={item.id}>
+                <div>{item.title}</div>
+                {item.subtitle && <div>{item.subtitle}</div>}
+              </div>
+            ))}
+          </div>
+        )}
+      />
     </div>
   );
 };
