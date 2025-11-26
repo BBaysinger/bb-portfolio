@@ -1,11 +1,14 @@
 # Multi-stage Dockerfile for frontend (dev and prod)
 # Image choices:
-# - Build stages use Chainguard/Wolfi Node 22 for a minimal, frequently-patched base
-#   with full Node tooling (npm) to keep CVE noise low without sacrificing build speed.
-# - Final runtime uses Distroless Node 22 (Debian 12) to minimize attack surface,
-#   remove package managers/shell, and produce cleaner security scan results.
+# - Build stages default to Chainguard/Wolfi Node 22 for a minimal, frequently-patched base
+#   with full Node tooling (npm). Override via --build-arg NODE_IMAGE=<image>.
+# - Final runtime uses Distroless Node 22 (Debian 12) by default. Override via --build-arg RUNNER_IMAGE=<image>.
 
-FROM cgr.dev/chainguard/node:22 AS base
+# Allow overriding base and runner images via build args
+ARG NODE_IMAGE="cgr.dev/chainguard/node:22"
+ARG RUNNER_IMAGE="gcr.io/distroless/nodejs22-debian12"
+
+FROM ${NODE_IMAGE} AS base
 # Recommendation: pin by digest for reproducibility (set via CI)
 # e.g. FROM cgr.dev/chainguard/node:22@sha256:<digest> AS base
 WORKDIR /app
@@ -32,7 +35,7 @@ RUN npm run build:webpack
 
 # Distroless production runtime to reduce CVEs
 # Name the final stage `runner` to match CI build target
-FROM gcr.io/distroless/nodejs22-debian12 AS runner
+FROM ${RUNNER_IMAGE} AS runner
 # Recommendation: pin by digest for reproducibility (set via CI)
 # e.g. FROM gcr.io/distroless/nodejs22-debian12@sha256:<digest> AS runner
 WORKDIR /app
