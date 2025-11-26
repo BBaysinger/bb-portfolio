@@ -8,7 +8,7 @@
     "precommit": "prettier --write . && tsc -b",
     "prebuild": "node ./scripts/check-required-env.js",
     "predev": "node ./scripts/check-required-env.js",
-    "build": "cross-env NODE_OPTIONS=\"--no-deprecation --max-old-space-size=8000\" npm run generate:importmap && next build",
+    "build": "cross-env NODE_OPTIONS=\"--no-deprecation --max-old-space-size=8000\" npm run generate:importmap && next build --webpack",
     "dev": "cross-env NODE_OPTIONS=--no-deprecation next dev -p ${PORT:-3001}",
     "devsafe": "rm -rf .next && cross-env NODE_OPTIONS=--no-deprecation next dev",
     "generate:importmap": "cross-env NODE_OPTIONS=--no-deprecation payload generate:importmap",
