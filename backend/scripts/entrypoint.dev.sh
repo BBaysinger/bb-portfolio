@@ -35,9 +35,28 @@ mkdir -p "$CACHE_DIR" || true
 log "Using npm cache at $CACHE_DIR"
 
 # Install deps if missing, then start dev server
+NEED_INSTALL=0
 if [ -x node_modules/.bin/next ]; then
-  log "Dependencies present."
+  # Check installed Next.js version and ensure it matches package.json major >=16
+  if [ -f node_modules/next/package.json ]; then
+    installed_ver=$(node -e 'console.log(require("./node_modules/next/package.json").version || "")') || installed_ver=""
+    installed_major=$(echo "$installed_ver" | awk -F. '{print $1}')
+    if [ -z "$installed_major" ] || [ "$installed_major" -lt 16 ]; then
+      log "Detected Next.js $installed_ver (<16). Forcing clean install."
+      NEED_INSTALL=1
+    else
+      log "Dependencies present. Next.js $installed_ver."
+    fi
+  else
+    log "next/package.json missing; forcing install."
+    NEED_INSTALL=1
+  fi
 else
+  NEED_INSTALL=1
+fi
+
+if [ "$NEED_INSTALL" -eq 1 ]; then
+  rm -rf node_modules .next || true
   log "Installing dependencies (npm ci || npm install)..."
   npm ci || npm install
 fi

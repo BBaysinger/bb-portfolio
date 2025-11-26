@@ -10,12 +10,13 @@ export const dynamic = "force-dynamic";
  * Canonicalizes to `/nda/[slug]` (trailing slash) or returns 404 if missing.
  */
 type QuerySearchParams = { [key: string]: string | string[] };
-export default function NdaQueryPage({
+export default async function NdaQueryPage({
   searchParams,
 }: {
-  searchParams?: QuerySearchParams;
+  searchParams?: Promise<QuerySearchParams>;
 }) {
-  const param = searchParams?.p;
+  const resolved: QuerySearchParams = (await searchParams) || {};
+  const param = resolved.p;
   const p = Array.isArray(param) ? param[0] : param;
   const projectIdRaw = typeof p === "string" ? p.trim() : "";
   const projectId = projectIdRaw.replace(/\/+$/u, "");

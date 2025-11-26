@@ -1,3 +1,5 @@
+import path from "path";
+
 import type { NextConfig } from "next";
 
 // Determine React Strict Mode behavior by environment profile
@@ -41,34 +43,7 @@ console.info("[next.config.ts] React StrictMode:", {
 });
 
 const nextConfig: NextConfig = {
-  // Ensure aws-rum-web is transpiled and bundled (defensive for Turbopack / ESM resolution)
-  // This addresses intermittent module resolution failures for dynamic import at runtime.
-  transpilePackages: ["aws-rum-web"],
-  webpack: (config) => {
-    // Force explicit resolution of aws-rum-web to avoid 'module not found' under certain bundlers
-    try {
-      const resolved = require.resolve("aws-rum-web");
-      let resolvedCjs: string | undefined;
-      try {
-        resolvedCjs = require.resolve("aws-rum-web/dist/cjs/index.js");
-      } catch {}
-      config.resolve.alias = {
-        ...(config.resolve.alias || {}),
-        "aws-rum-web": resolved,
-      };
-      // Provide direct path to its ES build as an additional alias if needed
-      config.resolve.alias["aws-rum-web/dist"] = resolved;
-      if (resolvedCjs) {
-        config.resolve.alias["aws-rum-web/dist/cjs/index.js"] = resolvedCjs;
-      }
-    } catch (e) {
-      console.warn(
-        "[next.config] Failed to resolve aws-rum-web via require.resolve",
-        e,
-      );
-    }
-    return config;
-  },
+  // No custom transpile/alias for aws-rum-web; rely on standard resolution under webpack.
   output: "standalone",
   // Force a unique build id per deployment to ensure HTML points to fresh chunk paths
   // This helps mitigate perceived "stale" frontend when code changes don't modify chunk hashes.
@@ -179,6 +154,25 @@ const nextConfig: NextConfig = {
         permanent: false,
       },
     ];
+  },
+  // Strengthen module resolution in monorepo with multiple lockfiles:
+  // Ensure frontend-local node_modules is prioritized and provide explicit alias to aws-rum-web CJS entry.
+  webpack: (config) => {
+    // Prepend explicit frontend node_modules path for deterministic resolution
+    const localNodeModules = path.resolve(__dirname, "node_modules");
+    config.resolve.modules = [
+      localNodeModules,
+      ...(config.resolve.modules || []),
+    ];
+    // Alias aws-rum-web to its published CJS entry to bypass potential package.json field ambiguity.
+    config.resolve.alias = {
+      ...(config.resolve.alias || {}),
+      "aws-rum-web": path.join(
+        localNodeModules,
+        "aws-rum-web/dist/cjs/index.js",
+      ),
+    };
+    return config;
   },
 };
 

@@ -1,6 +1,31 @@
 #!/bin/sh
 set -eu
 
+log() { printf "[%s] %s\n" "frontend-entry" "$*"; }
+
+CACHE_DIR="${NPM_CONFIG_CACHE:-/app/.npm-cache}"
+mkdir -p "$CACHE_DIR" || true
+log "Using npm cache at $CACHE_DIR"
+
+NEED_INSTALL=0
+if [ -x node_modules/.bin/next ]; then
+  log "Dependencies present."
+else
+  NEED_INSTALL=1
+fi
+
+if [ "$NEED_INSTALL" -eq 1 ]; then
+  rm -rf node_modules .next || true
+  log "Installing dependencies (npm ci || npm install)..."
+  npm ci || npm install
+fi
+
+PORT="${PORT:-3000}"
+log "Starting frontend dev on port $PORT"
+exec npm run dev
+#!/bin/sh
+set -eu
+
 # Configurable thresholds (percent)
 WARN_PCT="${DISK_WARN_PCT:-85}"
 FAIL_PCT="${DISK_FAIL_PCT:-95}"

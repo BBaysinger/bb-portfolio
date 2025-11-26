@@ -35,8 +35,7 @@
 
 "use client";
 
-// Resolve at runtime via dynamic import to avoid build-time resolver
-// variability across bundlers. We target the CJS entry explicitly.
+// Use eager dynamic import (webpackMode: "eager") inside initializer to bundle without runtime resolution issues.
 type AwsRumConfig = {
   sessionSampleRate?: number;
   identityPoolId?: string;
@@ -130,8 +129,8 @@ export async function initializeRUM() {
   }
 
   try {
-    // Dynamically import aws-rum-web from its CJS build
-    const rumModule = await import("aws-rum-web");
+    // Eager dynamic import guarantees inclusion in main bundle under webpack
+    const rumModule = await import(/* webpackMode: "eager" */ "aws-rum-web");
     const moduleRecord = rumModule as Record<string, unknown>;
     const maybeAwsRum =
       moduleRecord["AwsRum"] ?? moduleRecord["default"] ?? rumModule;
