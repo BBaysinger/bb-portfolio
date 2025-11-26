@@ -1,9 +1,9 @@
 import React from "react";
+// headers() utility removed due to runtime incompatibility; client will fetch with cookies.
 
 import Greeting from "@/components/home-page/Greeting";
 import Hero from "@/components/home-page/header-main/Hero";
-import PortfolioListStyleSwapper from "@/components/home-page/PortfolioListStyleSwapper";
-import ProjectData from "@/data/ProjectData";
+import HomePageClient from "@/components/home-page/HomePageClient";
 
 /**
  * The home page of the website. Contains the header, greeting, and portfolio list.
@@ -13,19 +13,13 @@ import ProjectData from "@/data/ProjectData";
 // Force dynamic rendering since we fetch from backend API
 export const dynamic = "force-dynamic";
 
-// Server component: fetch data and pass to swapper
+// Server component: render client wrapper which handles auth-aware fetch on CSR
 const HomePage = async () => {
-  await ProjectData.initialize();
-  const allProjects = [...ProjectData.listedProjects];
-  // TODO: Add authentication logic if needed
   return (
     <>
       <Hero />
       <Greeting />
-      <PortfolioListStyleSwapper
-        allProjects={allProjects}
-        isAuthenticated={false}
-      />
+      <HomePageClient />
     </>
   );
 };

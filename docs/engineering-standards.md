@@ -14,6 +14,7 @@
 - Scanning:
   - Gate only final runtime images on CRITICAL/HIGH findings.
   - Rebuild weekly with refreshed base digests; scan with Trivy/Grype/Scout.
+
 # Engineering Standards
 
 These standards keep this repo predictable, secure, and easy to operate across local, dev, and prod.

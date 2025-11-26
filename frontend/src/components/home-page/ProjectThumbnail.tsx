@@ -110,7 +110,7 @@ const ProjectThumbnail: React.FC<ProjectThumbnailProps> = ({
 
   // Cycle stripe background deterministically by index.
   const stripeColors = ["Green", "Yellow", "Purple"];
-  const stripeColor = stripeColors[index % stripeColors.length];
+  const _stripeColor = stripeColors[index % stripeColors.length];
 
   // Measure and expose thumbnail height as CSS variable for grid layout.
   const [thumbHeight, setThumbHeight] = useState(0);
@@ -176,14 +176,14 @@ const ProjectThumbnail: React.FC<ProjectThumbnailProps> = ({
         {inner}
       </Link>
       <div className={styles.stripesContainer}>
-        <div className={clsx(styles.stripes, styles.stripesTop)}></div>
+        {/* <div className={clsx(styles.stripes, styles.stripesTop)}></div>
         <div
           className={clsx(
             styles.stripes,
             styles.stripesBottom,
             styles["stripes" + stripeColor],
           )}
-        ></div>
+        ></div> */}
       </div>
       {showNdaConfidential && (
         <Image
