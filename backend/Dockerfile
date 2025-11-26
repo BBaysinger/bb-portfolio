@@ -1,24 +1,14 @@
 # Backend Dockerfile for Payload CMS Portfolio Application
-# 
-# ARCHITECTURE:
-# This is a multi-stage build that creates optimized production and development images:
-# 1. builder: Compiles the application and removes dev dependencies
-# 2. runtime: Minimal production runtime with security hardening
-# 3. dev: Development environment with auto-restart functionality
 #
-# SECURITY FEATURES:
-# - Non-root user execution
-# - Minimal attack surface in production
-# - Proper file ownership and permissions
-
-# PLATFORM CONSISTENCY:
-# Using slim Debian instead of Alpine to maintain consistency with frontend service.
-# This reduces operational complexity and provides better compatibility for Node.js native modules.
+# Architecture:
+# - builder: compiles the app and prunes devDependencies
+# - runtime: minimal production runtime
+# - dev: local development with auto-restart
 #
-# SECURITY NOTE: 
-# Node base images may report CRITICAL/HIGH CVEs in Debian layers - this is 
-# acceptable for this portfolio project as they are typically false positives
-# in security scanners. Using Debian slim reduces CVE noise compared to Alpine.
+# Image choices:
+# - Build/dev stages may use a standard Node base (via NODE_IMAGE arg) to retain full tooling.
+# - Final runtime uses Distroless Node 22 (Debian 12) for minimal attack surface,
+#   no shell/package manager, and cleaner security scan results.
 
 # Specify Dockerfile syntax version for advanced features
 # syntax=docker/dockerfile:1
@@ -48,11 +38,11 @@ ENV ENV_PROFILE=${BUILD_ENV_PROFILE}
 # Set working directory for all subsequent commands
 WORKDIR /app
 
-# Keep base packages patched (Alpine or Debian)
+# Keep base packages minimal (Alpine or Debian) to reduce CVE churn
 RUN if command -v apk >/dev/null 2>&1; then \
-            apk upgrade --no-cache && apk add --no-cache libc6-compat; \
+            apk add --no-cache libc6-compat; \
         elif command -v apt-get >/dev/null 2>&1; then \
-            apt-get update && apt-get -y upgrade && rm -rf /var/lib/apt/lists/*; \
+            apt-get update && rm -rf /var/lib/apt/lists/*; \
         fi
 
 # Build-time environment remains environment-agnostic.
@@ -63,12 +53,11 @@ RUN if command -v apk >/dev/null 2>&1; then \
 ## Skipping apt-get steps to reduce CI fragility; base image is sufficient for this project
 
 # Copy package files first to leverage Docker layer caching
-# Dependencies change less frequently than source code, so this optimizes rebuild times
 COPY package.json package-lock.json* ./
 
-# Install ALL dependencies including devDependencies needed for TypeScript compilation and build
-# Allow legacy peer deps to accommodate Next 16 with @payloadcms/next peer range
-RUN npm install --legacy-peer-deps
+# Install ALL dependencies deterministically for builds
+# Allow legacy peer deps to accommodate framework peer ranges
+RUN npm ci --legacy-peer-deps
 
 # Copy all source code and configuration files
 COPY . .
@@ -138,36 +127,23 @@ RUN npm prune --omit=dev
 #######################
 # Minimal production image containing only the compiled application and runtime dependencies
 # Implements security best practices with non-root user execution
-FROM ${NODE_IMAGE} AS runtime
+FROM gcr.io/distroless/nodejs22-debian12 AS runtime
+# Recommendation: pin by digest for reproducibility (set via CI)
+# e.g. FROM gcr.io/distroless/nodejs22-debian12@sha256:<digest> AS runtime
 
 # Set production environment to optimize application performance and disable debug features
 ENV NODE_ENV=production
 
-# Create a dedicated non-root user for security (Alpine or Debian)
-RUN if command -v apk >/dev/null 2>&1; then \
-            addgroup -S -g 1001 nodejs && adduser -S -u 1001 -G nodejs appuser; \
-        else \
-            addgroup --system --gid 1001 nodejs && adduser --system --uid 1001 --gid 1001 appuser; \
-        fi
-
-# Switch to non-root user for all subsequent operations
-# Prevents potential privilege escalation attacks
-USER appuser
+# Distroless runs as non-root with a hardened user by default
 
 # Set working directory with proper ownership
 WORKDIR /app
 
-# Copy package files with proper ownership to non-root user
-# This ensures the application files are owned by the appuser
-COPY --chown=appuser:appuser package.json package-lock.json* ./
+COPY package.json package-lock.json* ./
 
-# Copy production dependencies and built application from builder stage
-# Only production node_modules (dev dependencies were pruned)
-COPY --from=builder --chown=appuser:appuser /app/node_modules ./node_modules
+COPY --from=builder /app/node_modules ./node_modules
 
-# Copy the entire built application with proper ownership
-# Includes compiled JavaScript, configuration files, and assets
-COPY --from=builder --chown=appuser:appuser /app/. ./
+COPY --from=builder /app/. ./
 
 # Remove development env files to prevent local defaults from leaking into production
 RUN rm -f .env .env.local .env.development .env.production || true

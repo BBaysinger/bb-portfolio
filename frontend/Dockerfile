@@ -1,9 +1,17 @@
 # Multi-stage Dockerfile for frontend (dev and prod)
+# Image choices:
+# - Build stages use Chainguard/Wolfi Node 22 for a minimal, frequently-patched base
+#   with full Node tooling (npm) to keep CVE noise low without sacrificing build speed.
+# - Final runtime uses Distroless Node 22 (Debian 12) to minimize attack surface,
+#   remove package managers/shell, and produce cleaner security scan results.
 
-FROM node:22-alpine3.20 AS base
+FROM cgr.dev/chainguard/node:22 AS base
+# Recommendation: pin by digest for reproducibility (set via CI)
+# e.g. FROM cgr.dev/chainguard/node:22@sha256:<digest> AS base
 WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1
-RUN apk upgrade --no-cache && apk add --no-cache libc6-compat
+# Keep base minimal; Debian slim avoids Alpine CVEs and libc6-compat not required
+# Chainguard/Wolfi base is minimal and routinely patched; no extra packages
 
 FROM base AS deps
 COPY package.json package-lock.json ./
@@ -25,6 +33,8 @@ RUN npm run build:webpack
 # Distroless production runtime to reduce CVEs
 # Name the final stage `runner` to match CI build target
 FROM gcr.io/distroless/nodejs22-debian12 AS runner
+# Recommendation: pin by digest for reproducibility (set via CI)
+# e.g. FROM gcr.io/distroless/nodejs22-debian12@sha256:<digest> AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
