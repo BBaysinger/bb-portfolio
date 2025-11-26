@@ -39,5 +39,5 @@ COPY --from=builder /app/public ./public
 
 EXPOSE 3000
 
-# Start the Next standalone server (must use absolute path in distroless)
-CMD ["/node", "server.js"]
+# Start the Next standalone server; distroless sets entrypoint to node
+CMD ["server.js"]
