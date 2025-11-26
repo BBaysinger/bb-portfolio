@@ -67,7 +67,8 @@ RUN if command -v apk >/dev/null 2>&1; then \
 COPY package.json package-lock.json* ./
 
 # Install ALL dependencies including devDependencies needed for TypeScript compilation and build
-RUN npm install
+# Allow legacy peer deps to accommodate Next 16 with @payloadcms/next peer range
+RUN npm install --legacy-peer-deps
 
 # Copy all source code and configuration files
 COPY . .
@@ -209,7 +210,8 @@ COPY package.json package-lock.json* ./
 
 # Install ALL dependencies including devDependencies
 # Development stage needs TypeScript, testing tools, linters, etc.
-RUN npm install
+# Allow legacy peer deps to accommodate Next 16 with @payloadcms/next peer range
+RUN npm install --legacy-peer-deps
 
 # Install nodemon globally for automatic server restarts on file changes
 # Essential for development workflow - automatically restarts server when code changes
