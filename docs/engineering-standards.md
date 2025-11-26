@@ -1,3 +1,19 @@
+## Base Images & Secrets Policy
+
+- Base images:
+  - Build stages use hardened Node images (Chainguard/Wolfi or standard Node via `NODE_IMAGE`) to retain full tooling while minimizing CVE noise.
+  - Production runtimes use Distroless Node 22 (Debian 12) to reduce attack surface and produce clean security scan results.
+  - Do not run full OS upgrades (`apk upgrade`, `apt upgrade`) in Docker layers; install only required packages to avoid transient CVEs.
+  - Pin images by digest in CI for reproducibility (e.g., `nodejs22-debian12@sha256:<digest>`).
+
+- Secrets:
+  - Never bake secrets into images via `ARG`/`ENV` or committed `.env` files.
+  - Inject secrets at build-time using Docker BuildKit secrets mounts (`--mount=type=secret,id=...`) and at runtime via orchestrator environment.
+  - Remove repo `.env*` files during build to prevent overrides; keep only `*.example` templates in VCS.
+
+- Scanning:
+  - Gate only final runtime images on CRITICAL/HIGH findings.
+  - Rebuild weekly with refreshed base digests; scan with Trivy/Grype/Scout.
 # Engineering Standards
 
 These standards keep this repo predictable, secure, and easy to operate across local, dev, and prod.
