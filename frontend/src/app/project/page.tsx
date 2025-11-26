@@ -11,12 +11,13 @@ export const dynamic = "force-dynamic";
  * In-session navigation still manipulates `?p=` client-side without hitting this.
  */
 type QuerySearchParams = { [key: string]: string | string[] };
-export default function ProjectQueryPage({
+export default async function ProjectQueryPage({
   searchParams,
 }: {
-  searchParams?: QuerySearchParams;
+  searchParams?: Promise<QuerySearchParams>;
 }) {
-  const param = searchParams?.p;
+  const resolved: QuerySearchParams = (await searchParams) || {};
+  const param = resolved.p;
   const p = Array.isArray(param) ? param[0] : param;
   const projectIdRaw = typeof p === "string" ? p.trim() : "";
   const projectId = projectIdRaw.replace(/\/+$/u, "");

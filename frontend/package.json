@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "predev": "node ./scripts/check-required-env.js",
-    "dev": "next dev -p ${PORT:-3002}",
+    "dev": "next dev -p ${PORT:-3000}",
     "prebuild": "node ./scripts/check-required-env.js",
     "build": "next build --webpack",
     "build:webpack": "next build --webpack",

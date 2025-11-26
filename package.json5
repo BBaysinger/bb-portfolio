@@ -105,17 +105,22 @@
     // The only “extra” is the Docker network (infrastructure), not an extra app.
     // Uses compose profiles: local (frontend+backend dev) + proxy (Caddy)
     // Hey AI: Use this command to start local development (this is the default)
-    "caddy:up": "docker compose -f deploy/compose/docker-compose.yml --profile local --profile proxy up --build -d",
+    // Starts proxy + frontend using helper (warns if prune is overdue)
+    "caddy:up": "zsh deploy/scripts/caddy-helper.sh up",
     // 🌐 Same as caddy:up but with React Strict Mode disabled (for legacy compatibility)
-    "caddy:up:no-strict": "REACT_STRICT_MODE=false docker compose -f deploy/compose/docker-compose.yml --profile local --profile proxy up --build -d",
+    // Same as caddy:up with React Strict Mode disabled
+    "caddy:up:no-strict": "REACT_STRICT_MODE=false zsh deploy/scripts/caddy-helper.sh up",
     // 🛑 Stop Caddy (and its dependencies) cleanly
-    "caddy:down": "docker compose -f deploy/compose/docker-compose.yml --profile local --profile proxy down --remove-orphans",
+    // Stop only Caddy via helper (no full reset)
+    "caddy:down": "zsh deploy/scripts/caddy-helper.sh down",
     // 🧹 Force-remove a stale caddy container if it was created outside the current compose project
     "caddy:down:force": "docker rm -f bb-portfolio-backend-local bb-portfolio-frontend-local bb-portfolio-caddy-local || true",
     // 📋 Follow Caddy reverse proxy logs in real-time
-    "caddy:logs": "docker compose -f deploy/compose/docker-compose.yml logs -f caddy-local",
+    // Tail Caddy logs via helper
+    "caddy:logs": "zsh deploy/scripts/caddy-helper.sh logs",
     // 🔄 Restart Caddy in-place (recreate only the proxy)
-    "caddy:restart": "docker compose -f deploy/compose/docker-compose.yml --profile local --profile proxy up -d --force-recreate caddy-local",
+    // Restart Caddy via helper
+    "caddy:restart": "zsh deploy/scripts/caddy-helper.sh restart",
     // ⚡ Reload Caddy configuration without restarting containers.
     // Use this when you changed only the Caddyfile (routes/headers/upstreams). It does NOT rebuild frontend JS.
     // For fresh JS or assets, rebuild/recreate the frontend container (e.g., `docker:up` or `caddy:up`) so Next.js serves the new build.

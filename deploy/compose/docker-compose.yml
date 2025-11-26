@@ -215,14 +215,17 @@ services:
 
   bb-portfolio-frontend-local:
     profiles: ["local"]
-    image: bhbaysinger/bb-portfolio-frontend:dev
+    build:
+      context: ../../frontend
+      dockerfile: Dockerfile
+      target: dev
     container_name: bb-portfolio-frontend-local
     working_dir: /app
     # Install deps if missing, then run Next dev
     command: ["/bin/sh", "-lc", "sh scripts/entrypoint.dev.sh"]
     volumes:
       - ../../frontend:/app
-      - frontend_node_modules:/app/node_modules
+      - /app/node_modules
     ports:
       - "3000:3000"
     env_file:
@@ -232,6 +235,7 @@ services:
       REACT_STRICT_MODE: "${REACT_STRICT_MODE:-true}"
       NODE_ENV: development
       ENV_PROFILE: local
+      NEXT_DISABLE_TURBOPACK: "1"
       # API calls are relative; proxy routes /api to backend
       NPM_CONFIG_CACHE: /app/.npm-cache
       # Ensure Next dev listens on expected container port for Caddy (matches Caddyfile reverse_proxy target)
@@ -318,8 +322,4 @@ networks:
     name: bb-portfolio-network # Named network for better organization
 
 # Named volumes for persistent data
-volumes:
-  # Preserves frontend node_modules in local development
-  # Prevents host directory from overriding container's installed dependencies
-  frontend_node_modules: # Used by bb-portfolio-frontend-local service
-
+volumes: {}

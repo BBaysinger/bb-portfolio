@@ -384,3 +384,42 @@ No new Node.js dependencies were added to enable HTTPS. All TLS functionality li
 - Required lists: the backend enforces required envs via `backend/scripts/check-required-env.js`; ensure `*_REQUIRED_ENVIRONMENT_VARIABLES` and values exist in the secrets file.
 - Orchestrator: regenerates `.env.prod` when `--refresh-env` is provided; containers restart to pick up changes.
 - Compose canonical path: containers are managed from `deploy/compose/docker-compose.yml` on the host to avoid drift; the orchestrator syncs this file before starting.
+
+## Local Docker Maintenance
+
+Local development can accumulate large Docker data (images, volumes, build caches). To keep disk usage healthy and avoid `ENOSPC` errors:
+
+```zsh
+# From repo root
+zsh deploy/scripts/docker-maintenance.sh
+```
+
+This script:
+
+- Runs `docker compose down -v` for `COMPOSE_PROFILES=local,proxy` to remove anonymous volumes (e.g., `/app/node_modules`).
+- Prunes containers, networks, and dangling images (`docker system prune -af`).
+- Prunes unused volumes (`docker volume prune -f`).
+- Prunes BuildKit/buildx caches older than 7 days (`docker buildx prune -af --filter until=168h`).
+
+Start services again:
+
+```zsh
+COMPOSE_PROFILES=local,proxy docker compose -f deploy/compose/docker-compose.yml up -d bb-portfolio-backend-local bb-portfolio-frontend-local caddy-local
+```
+
+### Caddy helper with prune reminders
+
+Use the helper to run Caddy commands and get a reminder if pruning is overdue (default >7 days):
+
+```zsh
+# Start caddy + frontend (local,proxy profiles)
+zsh deploy/scripts/caddy-helper.sh up
+
+# Stop only caddy
+zsh deploy/scripts/caddy-helper.sh down
+
+# Tail caddy logs
+zsh deploy/scripts/caddy-helper.sh logs
+```
+
+The helper reads the last prune timestamp written by `docker-maintenance.sh` (`~/.bb-portfolio/last-prune`). Override the threshold via `PRUNE_MAX_AGE_HOURS=72` to reduce to 3 days.

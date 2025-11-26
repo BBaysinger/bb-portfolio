@@ -29,7 +29,8 @@
 # This stage compiles the Payload CMS application and prepares production dependencies
 
 # Allow registry to be overridden per-environment; default to Docker Hub for dev/local
-ARG NODE_IMAGE=node:22-slim
+# Default to Alpine to reduce CVEs; can override with build arg NODE_IMAGE
+ARG NODE_IMAGE=node:22-alpine3.20
 FROM ${NODE_IMAGE} AS builder
 
 # Allow selecting build-time profile (prod|dev); default prod for CI hardening
@@ -46,6 +47,13 @@ ENV ENV_PROFILE=${BUILD_ENV_PROFILE}
 
 # Set working directory for all subsequent commands
 WORKDIR /app
+
+# Keep base packages patched (Alpine or Debian)
+RUN if command -v apk >/dev/null 2>&1; then \
+            apk upgrade --no-cache && apk add --no-cache libc6-compat; \
+        elif command -v apt-get >/dev/null 2>&1; then \
+            apt-get update && apt-get -y upgrade && rm -rf /var/lib/apt/lists/*; \
+        fi
 
 # Build-time environment remains environment-agnostic.
 # We avoid baking config into the image. Sensitive values are mounted via BuildKit
@@ -134,10 +142,12 @@ FROM ${NODE_IMAGE} AS runtime
 # Set production environment to optimize application performance and disable debug features
 ENV NODE_ENV=production
 
-# Create a dedicated non-root user for security
-# Debian uses 'adduser' with different syntax than Alpine
-RUN addgroup --system --gid 1001 nodejs \
- && adduser --system --uid 1001 --gid 1001 appuser
+# Create a dedicated non-root user for security (Alpine or Debian)
+RUN if command -v apk >/dev/null 2>&1; then \
+            addgroup -S -g 1001 nodejs && adduser -S -u 1001 -G nodejs appuser; \
+        else \
+            addgroup --system --gid 1001 nodejs && adduser --system --uid 1001 --gid 1001 appuser; \
+        fi
 
 # Switch to non-root user for all subsequent operations
 # Prevents potential privilege escalation attacks
@@ -175,17 +185,24 @@ CMD ["npm", "start"]
 FROM ${NODE_IMAGE} AS dev
 
 # Install basic tooling needed only for development
-RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+# Basic tooling for development (curl)
+RUN if command -v apk >/dev/null 2>&1; then \
+            apk add --no-cache curl; \
+        else \
+            apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*; \
+        fi
 
 # Set working directory for development
 WORKDIR /app
 
 # Install system dependencies for development (same as builder stage)
 # Required for native module compilation during development
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    python3 \
-    build-essential \
-    && rm -rf /var/lib/apt/lists/*
+# System deps for native modules in dev
+RUN if command -v apk >/dev/null 2>&1; then \
+            apk add --no-cache python3 make g++; \
+        else \
+            apt-get update && apt-get install -y --no-install-recommends python3 build-essential && rm -rf /var/lib/apt/lists/*; \
+        fi
 
 # Copy package files first to leverage Docker layer caching
 COPY package.json package-lock.json* ./
