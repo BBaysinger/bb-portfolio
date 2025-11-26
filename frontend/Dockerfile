@@ -23,14 +23,20 @@ COPY . .
 RUN npm run build:webpack
 
 # Distroless production runtime to reduce CVEs
-FROM gcr.io/distroless/nodejs:22 AS prod
+FROM gcr.io/distroless/nodejs22-debian12 AS prod
 WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
+
+# Include package.json metadata
+COPY package.json .
+
 # Copy Next standalone server output and static assets
-COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/standalone .
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/public ./public
+
 EXPOSE 3000
-# Start the Next standalone server
-CMD ["node","server.js"]
+
+# Start the Next standalone server (must use absolute path in distroless)
+CMD ["/node", "server.js"]
