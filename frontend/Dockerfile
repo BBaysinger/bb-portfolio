@@ -23,7 +23,8 @@ COPY . .
 RUN npm run build:webpack
 
 # Distroless production runtime to reduce CVEs
-FROM gcr.io/distroless/nodejs22-debian12 AS prod
+# Name the final stage `runner` to match CI build target
+FROM gcr.io/distroless/nodejs22-debian12 AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
