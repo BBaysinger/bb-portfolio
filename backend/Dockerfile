@@ -134,13 +134,7 @@ FROM gcr.io/distroless/nodejs22-debian12 AS runtime
 # Set production environment to optimize application performance and disable debug features
 ENV NODE_ENV=production
 
-# Run as non-root user explicitly to satisfy security scanners
-USER node
-
-# Apply security updates to base OS packages to reduce CVEs
-RUN if command -v apt-get >/dev/null 2>&1; then \
-            apt-get update && apt-get -y upgrade && rm -rf /var/lib/apt/lists/*; \
-        fi
+# Distroless already runs as a non-root user and has no package manager/shell.
 
 # Set working directory with proper ownership
 WORKDIR /app
