@@ -191,7 +191,10 @@ async function fetchPortfolioProjects(opts?: {
     }
   };
 
-  const debug = process.env.DEBUG_PROJECT_DATA === "1";
+  // Debug logging is enabled when DEBUG_PROJECT_DATA=1 and not in prod profile.
+  // Using normalizedProfile avoids accidental logging in production even if the env var is left set.
+  const debug =
+    process.env.DEBUG_PROJECT_DATA === "1" && normalizedProfile !== "prod";
   if (debug) {
     try {
       console.info("[ProjectData] profile/base/cookies", {
@@ -613,7 +616,7 @@ async function fetchPortfolioProjects(opts?: {
   }
 
   // Debug summary of fetch/transform results
-  if (process.env.DEBUG_PROJECT_DATA === "1") {
+  if (debug) {
     try {
       console.info("[ProjectData] summary", {
         totalDocs: _debugTotalDocs,
@@ -932,7 +935,7 @@ export default class ProjectData {
       const activeDupes = dupes(this._activeKeys);
       const listedDupes = dupes(this._listedKeys);
       if (activeDupes.length || listedDupes.length) {
-        if (process.env.DEBUG_PROJECT_DATA === "1")
+        if (process.env.DEBUG_PROJECT_DATA === "1" && process.env.NODE_ENV !== "production")
           console.warn("[ProjectData.initialize] Duplicate keys detected", {
             activeDupes,
             listedDupes,
