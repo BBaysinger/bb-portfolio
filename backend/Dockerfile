@@ -135,7 +135,10 @@ FROM gcr.io/distroless/nodejs22-debian12 AS runtime
 # e.g. FROM public.ecr.aws/docker/library/node:22-slim@sha256:<digest> AS runtime
 
 # Set production environment to optimize application performance and disable debug features
-ENV NODE_ENV=production
+ENV NODE_ENV=production \
+    PORT=3000 \
+    HOST=0.0.0.0 \
+    NEXT_TELEMETRY_DISABLED=1
 
 # Distroless already runs as a non-root user and has no package manager/shell.
 
