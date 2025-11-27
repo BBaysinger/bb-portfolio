@@ -5,7 +5,8 @@
 # - Final runtime uses Distroless Node 22 (Debian 12) by default. Override via --build-arg RUNNER_IMAGE=<image>.
 
 # Allow overriding base and runner images via build args
-ARG NODE_IMAGE="cgr.dev/chainguard/node:22"
+# Default to Docker Hub/ECR Node 22 slim to avoid registry availability issues
+ARG NODE_IMAGE="public.ecr.aws/docker/library/node:22-slim"
 ARG RUNNER_IMAGE="gcr.io/distroless/nodejs22-debian12"
 
 FROM ${NODE_IMAGE} AS base
