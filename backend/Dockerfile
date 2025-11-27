@@ -145,8 +145,7 @@ COPY --from=builder /app/node_modules ./node_modules
 
 COPY --from=builder /app/. ./
 
-# Remove development env files to prevent local defaults from leaking into production
-RUN rm -f .env .env.local .env.development .env.production || true
+# .env files are already deleted in builder stage; avoid RUN in distroless (no shell)
 
 # Expose port 3000 for the Payload CMS server
 EXPOSE 3000
