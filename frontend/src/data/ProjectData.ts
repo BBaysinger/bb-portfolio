@@ -935,7 +935,10 @@ export default class ProjectData {
       const activeDupes = dupes(this._activeKeys);
       const listedDupes = dupes(this._listedKeys);
       if (activeDupes.length || listedDupes.length) {
-        if (process.env.DEBUG_PROJECT_DATA === "1" && process.env.NODE_ENV !== "production")
+        if (
+          process.env.DEBUG_PROJECT_DATA === "1" &&
+          process.env.NODE_ENV !== "production"
+        )
           console.warn("[ProjectData.initialize] Duplicate keys detected", {
             activeDupes,
             listedDupes,
