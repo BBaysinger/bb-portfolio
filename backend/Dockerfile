@@ -150,8 +150,8 @@ COPY --from=builder /app/. ./
 # Expose port 3000 for the Payload CMS server
 EXPOSE 3000
 
-# Start the production application server
-CMD ["npm", "start"]
+# Start the production Next.js server without npm (distroless has no npm)
+CMD ["node", "node_modules/next/dist/bin/next", "start"]
 
 #######################
 # Development environment with auto-restart functionality and all development tools
