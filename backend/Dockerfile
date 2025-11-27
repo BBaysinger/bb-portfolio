@@ -127,31 +127,36 @@ RUN npm prune --omit=dev
 #######################
 # Minimal production image containing only the compiled application and runtime dependencies
 # Implements security best practices with non-root user execution
-FROM public.ecr.aws/docker/library/node:22-slim AS runtime
+FROM gcr.io/distroless/nodejs22-debian12 AS runtime
 # Recommendation: pin by digest for reproducibility (set via CI)
 # e.g. FROM public.ecr.aws/docker/library/node:22-slim@sha256:<digest> AS runtime
 
 # Set production environment to optimize application performance and disable debug features
 ENV NODE_ENV=production
 
-# Distroless runs as non-root with a hardened user by default
+# Run as non-root user explicitly to satisfy security scanners
+USER node
+
+# Apply security updates to base OS packages to reduce CVEs
+RUN if command -v apt-get >/dev/null 2>&1; then \
+            apt-get update && apt-get -y upgrade && rm -rf /var/lib/apt/lists/*; \
+        fi
 
 # Set working directory with proper ownership
 WORKDIR /app
 
-COPY package.json package-lock.json* ./
-
-COPY --from=builder /app/node_modules ./node_modules
-
-COPY --from=builder /app/. ./
+# Copy only the standalone server and static assets produced by Next.js
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/public ./public
 
 # .env files are already deleted in builder stage; avoid RUN in distroless (no shell)
 
 # Expose port 3000 for the Payload CMS server
 EXPOSE 3000
 
-# Start the production application server via npm
-CMD ["npm", "start"]
+# Start the standalone Next.js server without npm
+CMD ["node", "server.js"]
 
 #######################
 # Development environment with auto-restart functionality and all development tools
