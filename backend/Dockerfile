@@ -127,9 +127,9 @@ RUN npm prune --omit=dev
 #######################
 # Minimal production image containing only the compiled application and runtime dependencies
 # Implements security best practices with non-root user execution
-FROM gcr.io/distroless/nodejs22-debian12 AS runtime
+FROM public.ecr.aws/docker/library/node:22-slim AS runtime
 # Recommendation: pin by digest for reproducibility (set via CI)
-# e.g. FROM gcr.io/distroless/nodejs22-debian12@sha256:<digest> AS runtime
+# e.g. FROM public.ecr.aws/docker/library/node:22-slim@sha256:<digest> AS runtime
 
 # Set production environment to optimize application performance and disable debug features
 ENV NODE_ENV=production
@@ -150,8 +150,8 @@ COPY --from=builder /app/. ./
 # Expose port 3000 for the Payload CMS server
 EXPOSE 3000
 
-# Start the production Next.js server without npm (distroless has no npm)
-CMD ["node", "node_modules/next/dist/bin/next", "start"]
+# Start the production application server via npm
+CMD ["npm", "start"]
 
 #######################
 # Development environment with auto-restart functionality and all development tools
