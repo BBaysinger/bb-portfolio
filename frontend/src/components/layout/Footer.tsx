@@ -2,7 +2,7 @@ import { clsx } from "clsx";
 // import Link from "next/link"; // no longer needed: external footer link uses <a>
 import React, { useRef } from "react";
 
-import { RawImg } from "@/components/common/RawImg";
+// import { RawImg } from "@/components/common/RawImg";
 import useDeviceCapabilities from "@/hooks/useDeviceCapabilities";
 import { useFlipInFlow } from "@/hooks/useFlipInFlow";
 import { useContactEmail, useContactPhone } from "@/hooks/useObfuscatedContact";
@@ -186,14 +186,15 @@ const Footer: React.FC<FooterProps> = ({ className, mutationElemRef }) => {
         </div>
       </div>
       <div className={styles.copyright}>
-        <div className={styles.react}>
+        <div className={styles.builtIn}>
           <a
             href="https://github.com/BBaysinger/bb-portfolio"
             target="_blank"
             rel="noopener noreferrer"
           >
-            <RawImg src="/images/footer/react.svg" alt="React Logo" />
-            Built with React
+            {/* <RawImg src="/images/footer/react.svg" alt="React Logo" /> */}
+            Next.js <span>&bull;</span> Payload <span>&bull;</span> TypeScript{" "}
+            <span>&bull;</span> MongoDB <span>&bull;</span> AWS
           </a>
         </div>
         <a
