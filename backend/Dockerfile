@@ -62,6 +62,9 @@ RUN npm ci --legacy-peer-deps
 # Copy all source code and configuration files
 COPY . .
 
+# Ensure optional static directory exists so runtime COPY does not fail
+RUN mkdir -p public
+
 # Build-time configuration
 ARG NODE_ENV="production"
 ENV NODE_ENV=${NODE_ENV}
