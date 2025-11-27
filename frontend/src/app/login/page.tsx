@@ -74,7 +74,9 @@ const LoginPage = () => {
   return (
     <div className={styles.login}>
       <div>
-        <h1>Login</h1>
+        <h1>
+          <span>Secure</span> <span>Login</span>
+        </h1>
         <p>
           Some of my work is protected under non-disclosure agreements (NDAs).
           To respect these agreements and ensure confidentiality, access to

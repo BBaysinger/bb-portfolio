@@ -7,6 +7,26 @@
   padding-top: $navBarHeight;
   min-height: 100svh;
 
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: 'Exo 2' !important;
+
+    :first-child {
+      color: #999;
+    }
+    :nth-child(2) {
+      color: $lighterThemeColor;
+    }
+  }
+
+  h1 {
+    font-weight: 600;
+  }
+
   a {
     color: white;
     text-decoration: none;

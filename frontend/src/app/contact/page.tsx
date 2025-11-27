@@ -94,7 +94,9 @@ const ContactPage = () => {
     <>
       <div className={styles.contactPage}>
         <div>
-          <h1>Let's Connect</h1>
+          <h1>
+            <span>Let's</span> <span>Connect</span>
+          </h1>
           <p>
             Have a project in mind or just want to say hello? Drop me a message,
             and I&apos;ll get back to you as soon as possible!
