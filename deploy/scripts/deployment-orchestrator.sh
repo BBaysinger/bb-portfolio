@@ -692,14 +692,16 @@ case "$profiles" in
   prod)
     # Prefer main for prod, fallback to current branch
     if dispatch_redeploy prod main "$BRANCH"; then
-      ok "Prod redeploy dispatched via GitHub Actions. EC2 IP: ${EC2_IP:-unknown}"
+      RESOLVED_HOST=$(resolve_ec2_host || true)
+      ok "Prod redeploy dispatched via GitHub Actions. EC2 IP: ${RESOLVED_HOST:-${EC2_IP:-unknown}}"
       popd >/dev/null; exit 0
     fi
     ;;
   dev)
     # Prefer current branch for dev, fallback to 'dev' then main
     if dispatch_redeploy dev "$BRANCH" dev main; then
-      ok "Dev redeploy dispatched via GitHub Actions. EC2 IP: ${EC2_IP:-unknown}"
+      RESOLVED_HOST=$(resolve_ec2_host || true)
+      ok "Dev redeploy dispatched via GitHub Actions. EC2 IP: ${RESOLVED_HOST:-${EC2_IP:-unknown}}"
       popd >/dev/null; exit 0
     fi
     ;;
@@ -710,8 +712,9 @@ case "$profiles" in
     if dispatch_redeploy prod main "$BRANCH"; then PROD_OK=true; fi
     if dispatch_redeploy dev "$BRANCH" dev main; then DEV_OK=true; fi
     if [[ "$PROD_OK" == true || "$DEV_OK" == true ]]; then
+      RESOLVED_HOST=$(resolve_ec2_host || true)
       if [[ "$PROD_OK" == true && "$DEV_OK" == true ]]; then
-        ok "Prod and Dev redeploys dispatched via GitHub Actions. EC2 IP: ${EC2_IP:-unknown}"
+        ok "Prod and Dev redeploys dispatched via GitHub Actions. EC2 IP: ${RESOLVED_HOST:-${EC2_IP:-unknown}}"
       elif [[ "$PROD_OK" == true ]]; then
         warn "Prod redeploy dispatched, but dev dispatch failed. You can re-run dev via: gh workflow run redeploy.yml -f environment=dev --ref ${BRANCH}"
       else
@@ -801,12 +804,21 @@ if [[ "$refresh_env" == true ]]; then
         "ENV_PROFILE=prod",
         // Internal URL used by Next.js SSR/server for rewrites/fetches
         `PROD_BACKEND_INTERNAL_URL=${sVal("PROD_BACKEND_INTERNAL_URL", "http://bb-portfolio-backend-prod:3000")}`,
+        // Public projects S3 config used by frontend /projects route
+        `PUBLIC_PROJECTS_BUCKET=${sVal("PUBLIC_PROJECTS_BUCKET", "")}`,
+        `PUBLIC_PROJECTS_PREFIX=${sVal("PUBLIC_PROJECTS_PREFIX", "")}`,
+        // Prefer AWS_REGION; fallback to S3_REGION for SDK
+        `AWS_REGION=${sVal("AWS_REGION", sVal("S3_REGION", "us-west-2"))}`,
       ].join("\n") + "\n";
       const feDev = [
         "NODE_ENV=development",
         "ENV_PROFILE=dev",
         // Internal URL used by Next.js SSR/server inside the compose network
         `DEV_BACKEND_INTERNAL_URL=${sVal("DEV_BACKEND_INTERNAL_URL", "http://bb-portfolio-backend-dev:3000")}`,
+        // Public projects S3 config used by frontend /projects route
+        `PUBLIC_PROJECTS_BUCKET=${sVal("PUBLIC_PROJECTS_BUCKET", "")}`,
+        `PUBLIC_PROJECTS_PREFIX=${sVal("PUBLIC_PROJECTS_PREFIX", "")}`,
+        `AWS_REGION=${sVal("AWS_REGION", sVal("S3_REGION", "us-west-2"))}`,
       ].join("\n") + "\n";
       mkdirSync(outDir, { recursive: true });
       writeFileSync(`${outDir}/backend.env.prod`, beProd, "utf8");
