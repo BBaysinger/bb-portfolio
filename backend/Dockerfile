@@ -155,8 +155,9 @@ COPY --from=builder /app/public ./public
 # Expose port 3000 for the Payload CMS server
 EXPOSE 3000
 
-# Start the standalone Next.js server using explicit path
-CMD ["./.next/standalone/server.js"]
+# Change working directory to the Next standalone bundle and start server
+WORKDIR /app/.next/standalone
+CMD ["server.js"]
 
 #######################
 # Development environment with auto-restart functionality and all development tools
