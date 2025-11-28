@@ -6,6 +6,53 @@ This file records major technical decisions for the portfolio project.
 Each entry includes the date, decision, reasoning, alternatives, and current status.  
 New decisions should be appended chronologically.
 
+## 2025-11-27 – Backend Runtime Hardening (Distroless) + Next 16 Standalone Entrypoint
+
+- **Decision:**
+  - Run the backend on a hardened, non-root distroless image: `gcr.io/distroless/nodejs22-debian12`.
+  - Build the backend with Next.js 16 using webpack only (`next build --webpack`) and run the emitted standalone server directly via a tiny bootstrap (`bootstrap.cjs`).
+  - Avoid Turbopack entirely in production (Payload CMS does not support it).
+  - Use the exact entrypoint from the standalone output after copy: `require('/app/app/server.js')`.
+  - Keep healthcheck path consistent with trailing slashes: `/api/health/`.
+
+- **Reasoning:**
+  - Reduce critical/high vulnerability findings (CHV warnings) by eliminating package managers/shells and shrinking the attack surface.
+  - Distroless images materially lower CVE noise in scanners and align with least-privilege principles.
+  - Next 16 + Payload CMS requires webpack for production; programmatic `next()` at runtime risks invoking Turbopack or runtime compilation paths.
+  - Directly starting the built server from the standalone bundle is deterministic and works in shell-less environments.
+
+- **Implementation:**
+  - Dockerfile (backend):
+    - Builder stage (node:22-alpine) performs `npm ci`, `next build --webpack`, and prunes dev deps.
+    - Generates `bootstrap.cjs` via `printf` (no heredoc parse issues) and copies runtime assets:
+      - Copy `.next/standalone` → `/app` (so the server lives at `/app/app/server.js`).
+      - Copy `.next/static` and `.next/server` for completeness.
+      - Copy `public/`.
+    - Runtime stage: `FROM gcr.io/distroless/nodejs22-debian12` with `CMD ["./bootstrap.cjs"]` (Node is the entrypoint in distroless).
+  - Bootstrap behavior:
+    - Minimal CommonJS file that does `require('/app/app/server.js')` and exits with an explicit error if unavailable.
+  - Next config (backend `next.config.mjs`):
+    - `output: 'standalone'`, `trailingSlash: true`, `assetPrefix: '/admin'`.
+  - Health checks (Compose):
+    - HTTP probe on `http://localhost:3000/api/health/` (note the trailing slash to avoid 308 redirects).
+  - Secrets and envs:
+    - Build secrets mounted via BuildKit (never baked into layers).
+    - Runtime envs provided by Compose/orchestrator; no `.env` files are copied into images.
+
+- **Alternatives considered:**
+  - `node:22-slim` hardened with OS patching: still higher CVE surface and retains a shell/package manager.
+  - Programmatic `next()` HTTP server: can trigger Turbopack/runtime compilation in production, conflicts with Payload.
+  - Rely on `.next/standalone/server.js` at root: Next 16 App Router outputs server at `.next/standalone/app/server.js` (copied to `/app/app/server.js`), so hardcoding root `server.js` is brittle.
+  - Alpine-based runtime: not available for distroless; debugging ergonomics are worse without added benefits over Debian-based distroless for Node 22.
+
+- **Operational notes:**
+  - Distroless has no shell; debugging inside the runtime container is limited. Use the builder image for inspection:
+    - `docker run --rm -it bb-backend-builder:dev sh -lc "node ./bootstrap.cjs"` to verify the built server starts.
+  - Trailing slash: use `/api/health/` to avoid 308s due to `trailingSlash: true`.
+  - Ensure required runtime envs (MongoDB URI, Payload secret, etc.) are present; the app enforces required-env groups at startup.
+
+- **Status:** ✅ Active
+
 ## 2025-11-25 – Next.js Bundler Strategy: Webpack for Frontend; Webpack for Backend Prod
 
 - **Decision:**
