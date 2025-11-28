@@ -173,6 +173,7 @@ WORKDIR /app
 # Copy only the standalone server and static assets produced by Next.js
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/.next/server ./.next/server
 COPY --from=builder /app/public ./public
 
 # .env files are already deleted in builder stage; avoid RUN in distroless (no shell)
