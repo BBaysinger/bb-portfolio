@@ -337,6 +337,16 @@ Other UI details: scroll‑aware navigation, mobile slide‑out menu, dynamic de
 - Reverse proxy options: Caddy or Nginx (compose/configs provided)
 - Compose profiles for local/dev/prod and proxy-only
 
+#### Hardened Backend Runtime (Distroless)
+
+- Backend runs on `gcr.io/distroless/nodejs22-debian12` (no shell or package manager; non-root by default).
+- Production builds use webpack only (`next build --webpack`); Turbopack is not used (Payload CMS requirement).
+- Next standalone output is copied to `/app`, and the server starts via a tiny CommonJS bootstrap that requires `'/app/app/server.js'`.
+- Health checks target `/api/health/` (note trailing slash due to `trailingSlash: true`).
+- BuildKit secrets are used during builds; runtime configuration comes from Compose/env files — no secrets are baked into images.
+
+See ADR in `docs/architecture-decisions.md`: “Backend Runtime Hardening (Distroless) + Next 16 Standalone Entrypoint”.
+
 #### 🧹 Image cleanup & retention
 
 - Goal: keep registries lean by retaining only the most recent images
