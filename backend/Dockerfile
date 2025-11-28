@@ -130,21 +130,13 @@ RUN if [ ! -f .next/standalone/server.js ]; then \
     fi
 
 # Create a stable bootstrap that starts Next from the available build output
-RUN echo "\
-const path = require('path');\n\
-const standalone = path.join('/app/.next/standalone/server.js');\n\
-const legacy = path.join('/app/.next/server/server.js');\n\
-try {\n\
-    require(standalone);\n\
-} catch (e) {\n\
-    try {\n\
-        require(legacy);\n\
-    } catch (e2) {\n\
-        console.error('No Next server entrypoint found:', e2?.message || e2);\n\
-        process.exit(1);\n\
-    }\n\
-}\n\
-" > /app/bootstrap.js
+RUN /bin/sh -lc 'printf "%s\n" \
+    "try {" \
+    "  require(\"/app/app/server.js\");" \
+    "} catch (e) {" \
+    "  console.error(\"Failed to start Next.js from /app/app/server.js:\", e && e.message ? e.message : e);" \
+    "  process.exit(1);" \
+    "}" > /app/bootstrap.cjs'
 
 # Remove development dependencies to reduce final image size
 # Only production dependencies will remain for the runtime stage
@@ -183,8 +175,8 @@ EXPOSE 3000
 
 # Change working directory to the Next standalone bundle and start server
 WORKDIR /app
-COPY --from=builder /app/bootstrap.js ./bootstrap.js
-CMD ["./bootstrap.js"]
+COPY --from=builder /app/bootstrap.cjs ./bootstrap.cjs
+CMD ["./bootstrap.cjs"]
 
 #######################
 # Development environment with auto-restart functionality and all development tools
