@@ -18,6 +18,7 @@ ssh -i "$KEY_PATH" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null e
     sudo tee -a /etc/nginx/conf.d/bb-portfolio.conf >/dev/null <<'CONF'
 server {
   listen 443 ssl;
+  http2 on;
   server_name bbaysinger.com www.bbaysinger.com;
   ssl_certificate     /etc/letsencrypt/live/bbaysinger.com/fullchain.pem;
   ssl_certificate_key /etc/letsencrypt/live/bbaysinger.com/privkey.pem;
@@ -35,6 +36,7 @@ server {
 }
 server {
   listen 443 ssl;
+  http2 on;
   server_name dev.bbaysinger.com;
   ssl_certificate     /etc/letsencrypt/live/bbaysinger.com/fullchain.pem;
   ssl_certificate_key /etc/letsencrypt/live/bbaysinger.com/privkey.pem;
