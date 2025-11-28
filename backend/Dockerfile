@@ -121,6 +121,14 @@ RUN --mount=type=secret,id=prod_mongodb_uri \
     : "${PROD_SES_TO_EMAIL:=dummy@example.com}" && \
     npm run build
 
+# Normalize Next standalone entrypoint for distroless runtime
+# Some Next.js versions emit server at .next/server/server.js; create a stable path
+RUN if [ ! -f .next/standalone/server.js ]; then \
+        if [ -f .next/server/server.js ]; then \
+            mkdir -p .next/standalone && cp .next/server/server.js .next/standalone/server.js; \
+        fi; \
+    fi
+
 # Remove development dependencies to reduce final image size
 # Only production dependencies will remain for the runtime stage
 RUN npm prune --omit=dev
