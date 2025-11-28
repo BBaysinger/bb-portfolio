@@ -155,8 +155,8 @@ COPY --from=builder /app/public ./public
 # Expose port 3000 for the Payload CMS server
 EXPOSE 3000
 
-# Start the standalone Next.js server; distroless provides entrypoint "/node"
-CMD ["server.js"]
+# Start the standalone Next.js server using explicit path
+CMD ["./.next/standalone/server.js"]
 
 #######################
 # Development environment with auto-restart functionality and all development tools
