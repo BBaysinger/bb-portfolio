@@ -132,6 +132,7 @@ RUN if [ ! -f .next/standalone/server.js ]; then \
 # Create a stable bootstrap that starts Next from the available build output
 RUN /bin/sh -lc 'printf "%s\n" \
     "const { spawnSync } = require(\"node:child_process\");" \
+    "const fs = require(\"node:fs\");" \
     "function ensureImportMap() {" \
     "  try {" \
     "    const bin = require.resolve(\"payload/dist/bin.js\");" \
@@ -142,6 +143,11 @@ RUN /bin/sh -lc 'printf "%s\n" \
     "  }" \
     "}" \
     "ensureImportMap();" \
+    "try {" \
+    "  const p = \"/app/.payload/import-map.json\";" \
+    "  if (fs.existsSync(p)) { console.info(\"[bootstrap] import-map present:\", p); }" \
+    "  else { console.warn(\"[bootstrap] import-map missing at\", p); }" \
+    "} catch(_){}" \
     "try {" \
     "  require(\"/app/app/server.js\");" \
     "} catch (e) {" \
