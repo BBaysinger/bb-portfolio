@@ -131,6 +131,17 @@ RUN if [ ! -f .next/standalone/server.js ]; then \
 
 # Create a stable bootstrap that starts Next from the available build output
 RUN /bin/sh -lc 'printf "%s\n" \
+    "const { spawnSync } = require(\"node:child_process\");" \
+    "function ensureImportMap() {" \
+    "  try {" \
+    "    const bin = require.resolve(\"payload/dist/bin.js\");" \
+    "    const res = spawnSync(process.execPath, [bin, \"generate:importmap\"], { stdio: \"inherit\" });" \
+    "    if (res.error) console.error(\"importmap generation error:\", res.error);" \
+    "  } catch (e) {" \
+    "    console.warn(\"payload importmap generation skipped:\", e && e.message ? e.message : e);" \
+    "  }" \
+    "}" \
+    "ensureImportMap();" \
     "try {" \
     "  require(\"/app/app/server.js\");" \
     "} catch (e) {" \
