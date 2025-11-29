@@ -53,6 +53,9 @@ export default buildConfig({
     user: Users.slug,
     importMap: {
       baseDir: path.resolve(dirname),
+      // Ensure Payload can locate the built import map file in prod/runtime
+      importMapFile: path.resolve(dirname, 'app/(payload)/admin/importMap.js'),
+      autoGenerate: false,
     },
   },
   collections: [Users, Projects, Clients, BrandLogos, ProjectScreenshots, ProjectThumbnails],
