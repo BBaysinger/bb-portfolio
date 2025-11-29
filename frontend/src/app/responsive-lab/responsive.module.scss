@@ -1,3 +1,6 @@
+@use "@/styles/mixins" as *;
+@use "@/styles/variables" as *;
+
 // Layout tokens (SCSS variables)
 $max-width: 1200px;
 $gutter: clamp(0.75rem, 0.5rem + 1vw, 2rem);
@@ -5,13 +8,14 @@ $radius: 12px;
 $shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
 
 .page {
+  margin-top: $navBarHeight;
   display: grid;
   grid-template-rows: auto 1fr;
   gap: 0;
   padding: 0;
 }
 
-/* Flexbox wrapping grid: 1–4 columns depending on width */
+// Flexbox wrapping grid: 1–4 columns depending on width
 .grid {
   display: flex;
   flex-wrap: wrap;
@@ -24,9 +28,9 @@ $shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
   border-radius: $radius;
   box-shadow: $shadow;
   padding: 0;
-  /* Responsive column sizing: default to 4 columns when wide */
-  flex: 1 1 calc(($max-width - 3 * $gutter) / 4);
-  max-width: calc(($max-width - 3 * $gutter) / 4);
+  /* Responsive column sizing: default to 4 equal columns with no gap */
+  flex: 0 0 calc(100% / 4);
+  max-width: calc(100% / 4);
   /* Maintain 1.5 aspect ratio by default */
   aspect-ratio: 3 / 2;
 
@@ -36,19 +40,19 @@ $shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
   }
 }
 
-/* Down to 3 columns */
+// Down to 3 columns
 @media (max-width: 1200px) {
   .card {
-    flex-basis: calc((100% - 2 * $gutter) / 3);
-    max-width: calc((100% - 2 * $gutter) / 3);
+    flex-basis: calc(100% / 3);
+    max-width: calc(100% / 3);
   }
 }
 
 /* Down to 2 columns */
 @media (max-width: 900px) {
   .card {
-    flex-basis: calc((100% - $gutter) / 2);
-    max-width: calc((100% - $gutter) / 2);
+    flex-basis: calc(100% / 2);
+    max-width: calc(100% / 2);
   }
 }
 
