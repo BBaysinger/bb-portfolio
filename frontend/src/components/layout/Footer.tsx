@@ -98,7 +98,7 @@ const Footer: React.FC<FooterProps> = ({ className, mutationElemRef }) => {
                 )}
                 <li>
                   <a
-                    href="https://www.linkedin.com/in/BBaysinger"
+                    href="https://www.linkedin.com/in/bbaysinger"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -109,13 +109,13 @@ const Footer: React.FC<FooterProps> = ({ className, mutationElemRef }) => {
                             "url(/images/footer/icons/linkedin.png)",
                         }}
                       ></div>
-                      linkedin.com/in/BBaysinger
+                      linkedin.com/in/bbaysinger
                     </span>
                   </a>
                 </li>
                 <li>
                   <a
-                    href="https://github.com/BBaysinger"
+                    href="https://github.com/bbaysinger"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -124,7 +124,7 @@ const Footer: React.FC<FooterProps> = ({ className, mutationElemRef }) => {
                         backgroundImage: "url(/images/footer/icons/github.png)",
                       }}
                     ></div>
-                    github.com/BBaysinger
+                    github.com/bbaysinger
                   </a>
                 </li>
                 <li>
@@ -188,7 +188,7 @@ const Footer: React.FC<FooterProps> = ({ className, mutationElemRef }) => {
       <div className={styles.copyright}>
         <div className={styles.builtIn}>
           <a
-            href="https://github.com/BBaysinger/bb-portfolio"
+            href="https://github.com/bbaysinger/bb-portfolio"
             target="_blank"
             rel="noopener noreferrer"
           >
@@ -203,7 +203,7 @@ const Footer: React.FC<FooterProps> = ({ className, mutationElemRef }) => {
           target="_blank"
           rel="noopener noreferrer"
         >
-          &copy; <span style={{ color: "#fff" }}>BBaysinger</span>.com
+          &copy; <span style={{ color: "#fff" }}>bbaysinger</span>.com
         </a>
       </div>
     </footer>
