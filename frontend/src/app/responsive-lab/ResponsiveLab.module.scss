@@ -8,13 +8,14 @@ $shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
 
 .page {
   margin-top: $navBarHeight;
+  margin-bottom: $footerBarberPoleThickness;
   display: grid;
   grid-template-rows: auto 1fr;
   gap: 0;
   padding: 0;
 }
 
-// Flexbox wrapping grid: 1–4 columns depending on width
+/* Flexbox wrapping grid: 1–4 columns depending on width */
 .grid {
   display: flex;
   flex-wrap: wrap;
@@ -22,8 +23,8 @@ $shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
 }
 
 .card {
-  background: rgb(248 250 252);
-  border: 1px solid rgb(226 232 240);
+  background: #111;
+  border: 1px solid #000;
   padding: 0;
   // Mobile-first: start with single column
   flex: 0 0 100%;
@@ -38,7 +39,7 @@ $shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
 }
 
 // 2 columns
-@include breakpointUp(900px) {
+@include breakpointUp($b992px) {
   .card {
     flex-basis: 50%;
     max-width: 50%;
@@ -46,7 +47,7 @@ $shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
 }
 
 // 3 columns
-@include breakpointUp(1200px) {
+@include breakpointUp($b1440px) {
   .card {
     flex-basis: calc(100% / 3);
     max-width: calc(100% / 3);
@@ -54,7 +55,7 @@ $shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
 }
 
 // 4 columns
-@include breakpointUp(1440px) {
+@include breakpointUp($b1920px) {
   .card {
     flex-basis: calc(100% / 4);
     max-width: calc(100% / 4);

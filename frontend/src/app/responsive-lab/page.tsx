@@ -1,6 +1,6 @@
 import clsx from "clsx";
 
-import styles from "./responsive.module.scss";
+import styles from "./ResponsiveLab.module.scss";
 
 export const metadata = {
   title: "Responsive Lab",
