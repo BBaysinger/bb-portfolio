@@ -1,11 +1,6 @@
 @use "@/styles/mixins" as *;
 @use "@/styles/variables" as *;
 
-// Layout tokens (SCSS variables)
-$max-width: 1200px;
-$gutter: clamp(0.75rem, 0.5rem + 1vw, 2rem);
-$shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-
 .page {
   margin-top: $navBarHeight;
   margin-bottom: $footerBarberPoleThickness;
@@ -31,6 +26,8 @@ $shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
   max-width: 100%;
   /* Maintain 1.5 aspect ratio by default */
   aspect-ratio: 3 / 2;
+
+  background-image: url("/images/projects-list-distressed/bezel.webp");
 
   .cardBody {
     width: 100%;
