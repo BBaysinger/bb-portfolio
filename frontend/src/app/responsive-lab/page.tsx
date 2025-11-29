@@ -1,4 +1,4 @@
-import styles from './responsive.module.css'
+import styles from './responsive.module.scss'
 
 export const metadata = {
   title: 'Responsive Lab',
