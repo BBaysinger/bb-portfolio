@@ -1,6 +1,6 @@
-import { NextResponse } from 'next/server'
 import fs from 'node:fs'
-import path from 'node:path'
+
+import { NextResponse } from 'next/server'
 
 export async function GET() {
   try {
@@ -8,7 +8,8 @@ export async function GET() {
     const exists = fs.existsSync(p)
     const size = exists ? fs.statSync(p).size : 0
     return NextResponse.json({ exists, path: p, size })
-  } catch (e: any) {
-    return NextResponse.json({ error: e?.message ?? String(e) }, { status: 500 })
+  } catch (e: unknown) {
+    const message = e instanceof Error ? e.message : String(e)
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }
