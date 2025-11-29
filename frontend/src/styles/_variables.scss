@@ -59,18 +59,19 @@ $heavierThemeColor: #87ad26;
 // For heavy strokes and as a fill.
 $lighterThemeColor: rgba(141, 181, 40, 1); // #8DB528
 //
+// Primary accent (purple) used against green theme for contrast
 $complimentaryThemeColor: #660099;
-//
+// Lighter accent variant for hover states / subtle backgrounds
 $lighterComplimentaryThemeColor: #8834b1;
-//
+// Attention color for highlights, minor callouts (not destructive)
 $orangeThemeColor: #ff8800;
-//
+// Stripe thickness for decorative barber-pole footer border
 $footerBarberPoleThickness: 16px;
-// Mobile width of slide-out nav
+// Duration of slide-out nav open/close transition
 $navExpandTime: 0.5s;
-// Mobile width of slide-out nav
+// Target width of mobile slide-out nav (viewport-relative)
 $navExpandWidth: 50vw;
-// Maximum width of slide-out nav
+// Hard cap on slide-out nav width at larger breakpoints
 $maxNavExpandWidth: 360px;
 
 //////////////////////////////////////////////////////////////////////////
