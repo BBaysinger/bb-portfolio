@@ -1,0 +1,72 @@
+:root {
+  /* Fluid type scale */
+  --step-0: clamp(0.9rem, 0.85rem + 0.5vw, 1rem);
+  --step-1: clamp(1rem, 0.95rem + 0.7vw, 1.25rem);
+  --step-2: clamp(1.25rem, 1.1rem + 1vw, 1.6rem);
+  --step-3: clamp(1.5rem, 1.3rem + 1.4vw, 2.2rem);
+  --step-4: clamp(2rem, 1.7rem + 2vw, 3rem);
+
+  /* Layout tokens */
+  --max-width: 1200px;
+  --gutter: clamp(0.75rem, 0.5rem + 1vw, 2rem);
+  --radius: 12px;
+  --shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.page {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 0;
+  padding: 0;
+}
+
+/* Flexbox wrapping grid: 1–4 columns depending on width */
+.grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+}
+
+.card {
+  background: rgb(248 250 252);
+  border: 1px solid rgb(226 232 240);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 0;
+  /* Responsive column sizing: default to 4 columns when wide */
+  flex: 1 1 calc((var(--max-width) - 3 * var(--gutter)) / 4);
+  max-width: calc((var(--max-width) - 3 * var(--gutter)) / 4);
+  /* Maintain 1.5 aspect ratio by default */
+  aspect-ratio: 3 / 2;
+
+  .cardBody {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+/* Down to 3 columns */
+@media (max-width: 1200px) {
+  .card {
+    flex-basis: calc((100% - 2 * var(--gutter)) / 3);
+    max-width: calc((100% - 2 * var(--gutter)) / 3);
+  }
+}
+
+/* Down to 2 columns */
+@media (max-width: 900px) {
+  .card {
+    flex-basis: calc((100% - var(--gutter)) / 2);
+    max-width: calc((100% - var(--gutter)) / 2);
+  }
+}
+
+/* Single column ultra narrow: allow taller ratio */
+@media (max-width: 560px) {
+  .card {
+    flex-basis: 100%;
+    max-width: 100%;
+    /* Taller aspect for narrow single column */
+    aspect-ratio: 3 / 4;
+  }
+}
