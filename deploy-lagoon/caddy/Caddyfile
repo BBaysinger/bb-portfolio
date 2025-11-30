@@ -4,9 +4,11 @@
     reverse_proxy bb-portfolio-backend-local:3001
     }
     
-    # API routes go to backend container  
-    handle /api/* {
-    reverse_proxy bb-portfolio-backend-local:3001
+    # Public API should resolve at /api/*, but backend runs under Next basePath /admin
+    # Rewrite /api/* -> /admin/api/* before proxying to backend
+    handle_path /api/* {
+        rewrite * /admin/api{path}
+        reverse_proxy bb-portfolio-backend-local:3001
     }
     
     # PayloadCMS specific static assets (based on path patterns)
