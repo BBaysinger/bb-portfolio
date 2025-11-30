@@ -193,8 +193,8 @@ const Footer: React.FC<FooterProps> = ({ className, mutationElemRef }) => {
             rel="noopener noreferrer"
           >
             {/* <RawImg src="/images/footer/react.svg" alt="React Logo" /> */}
-            Next.js <span>&bull;</span> Payload <span>&bull;</span> TypeScript{" "}
-            <span>&bull;</span> MongoDB <span>&bull;</span> AWS
+            Next.js<span>&bull;</span>Payload<span>&bull;</span>TypeScript
+            <span>&bull;</span>MongoDB<span>&bull;</span>AWS
           </a>
         </div>
         <a
