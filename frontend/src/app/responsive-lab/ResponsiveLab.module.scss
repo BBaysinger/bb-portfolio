@@ -21,6 +21,7 @@
   background: #111;
   border: 1px solid #000;
   padding: 0;
+  position: relative;
   // Mobile-first: start with single column
   flex: 0 0 100%;
   max-width: 100%;
@@ -35,7 +36,26 @@
   }
   
   &:nth-child(3n + 1) {
-    background-image: url("/images/projects-list-distressed/nailed.webp");
+    // layered backgrounds: overlay + middle + base
+    background-image:
+      url("/images/projects-list-distressed/pink-stripes.webp"),
+      url("/images/projects-list-distressed/nailed.webp"),
+      url("/images/projects-list-distressed/bezel.webp");
+    background-repeat: no-repeat, no-repeat, no-repeat;
+    background-position: center, center, center;
+    background-size: cover, cover, cover;
+    background-blend-mode: screen, multiply, normal;
+
+    // subtle glow overlay
+    &::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      box-shadow:
+        0 0 36px 10px rgba(255, 210, 150, 0.26),
+        inset 0 0 28px rgba(255, 210, 150, 0.18);
+    }
   }
 
   .cardBody {
