@@ -40,7 +40,7 @@ const nextConfig = {
   output: 'standalone',
   // Limit dev-only experimental config to dev environments
   experimental:
-    (process.env.ENV_PROFILE === 'dev' || process.env.NODE_ENV === 'development')
+    process.env.ENV_PROFILE === 'dev' || process.env.NODE_ENV === 'development'
       ? {
           allowedDevOrigins: ['https://dev.bbaysinger.com'],
         }
