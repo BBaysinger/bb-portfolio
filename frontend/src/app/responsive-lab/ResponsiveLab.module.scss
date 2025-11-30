@@ -31,11 +31,11 @@
   background-image: url("/images/projects-list-distressed/bezel.webp");
   background-size: cover;
 
-  &:nth-child(4n) {
+  &:nth-child(5n) {
     background-image: url("/images/projects-list-distressed/pink-stripes.webp");
   }
 
-  &:nth-child(4n + 1) {
+  &:nth-child(5n + 1) {
     // layered backgrounds: overlay + middle + base
     background-image:
       url("/images/projects-list-distressed/triangle.svg"),
@@ -56,13 +56,27 @@
     // }
   }
 
-  &:nth-child(4n + 2) {
+  &:nth-child(5n + 2) {
     // layered backgrounds: overlay + middle + base
     background-image:
       url("/images/projects-list-distressed/arrow.webp"),
       url("/images/projects-list-distressed/orange.webp");
     background-repeat: no-repeat, no-repeat;
-    background-position: center 40%, center;
+    background-position:
+      center 40%,
+      center;
+    background-size: 60%, contain;
+  }
+
+  &:nth-child(5n + 3) {
+    // layered backgrounds: overlay + middle + base
+    background-image:
+      url("/images/projects-list-distressed/asdf.webp"),
+      url("/images/projects-list-distressed/slots.webp");
+    background-repeat: no-repeat, no-repeat;
+    background-position:
+      center 40%,
+      center;
     background-size: 60%, contain;
   }
 
