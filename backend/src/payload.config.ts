@@ -54,7 +54,7 @@ export default buildConfig({
     importMap: {
       baseDir: path.resolve(dirname),
       // Ensure Payload can locate the built import map file in prod/runtime
-      importMapFile: path.resolve(dirname, 'app/(payload)/admin/importMap.js'),
+      importMapFile: path.resolve(dirname, 'app/(payload)/importMap.js'),
       autoGenerate: false,
     },
   },
