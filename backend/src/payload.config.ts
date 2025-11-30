@@ -50,9 +50,6 @@ const dirname = path.dirname(filename)
 
 export default buildConfig({
   admin: {
-    // With Next basePath set to '/admin', expose Payload admin at the basePath root
-    // so the UI is available at '/admin/' instead of '/admin/admin'.
-    route: '/',
     user: Users.slug,
     importMap: {
       baseDir: path.resolve(dirname),
@@ -60,6 +57,12 @@ export default buildConfig({
       importMapFile: path.resolve(dirname, 'app/(payload)/admin/importMap.js'),
       autoGenerate: false,
     },
+  },
+  // Move the admin base route to the root of the Next basePath.
+  // With next.config basePath='/admin', this serves the admin at '/admin/'.
+  routes: {
+    admin: '/',
+    api: '/api',
   },
   collections: [Users, Projects, Clients, BrandLogos, ProjectScreenshots, ProjectThumbnails],
   globals: [ContactInfo],
