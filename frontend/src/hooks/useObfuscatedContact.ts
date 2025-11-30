@@ -34,7 +34,9 @@ const useObfuscatedContact = () => {
         const delay = Math.random() * 1000 + 500; // 500-1500ms
         await new Promise((resolve) => setTimeout(resolve, delay));
 
-        const basePath = (process.env.NEXT_PUBLIC_BACKEND_BASE_PATH || "/admin").replace(/\/$/, "");
+        const basePath = (
+          process.env.NEXT_PUBLIC_BACKEND_BASE_PATH || "/admin"
+        ).replace(/\/$/, "");
         const response = await fetch(`${basePath}/api/contact-info/`, {
           method: "GET",
           headers: { Accept: "application/json" },

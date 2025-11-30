@@ -59,7 +59,10 @@ async function fetchPortfolioProjects(opts?: {
   // alongside the project -> brand -> upload chain.
   // Note: Using trailing slash for client-side to match Next.js trailingSlash: true config
   // Next backend now serves under basePath (e.g., '/admin'): prefix API paths accordingly.
-  const backendBasePath = (process.env.BACKEND_BASE_PATH || "/admin").replace(/\/$/, "");
+  const backendBasePath = (process.env.BACKEND_BASE_PATH || "/admin").replace(
+    /\/$/,
+    "",
+  );
   const path = `${backendBasePath}/api/projects/?depth=2&limit=1000&sort=sortIndex`;
   const serverPath = `${backendBasePath}/api/projects/?depth=2&limit=1000&sort=sortIndex`;
   // If we're on the server AND we have request cookies (SSR with potential auth),
