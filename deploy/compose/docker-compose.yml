@@ -145,6 +145,9 @@ services:
       - "4001:3000" # Backend gets xxx1
     env_file:
       - ../../backend/.env.dev
+    environment:
+      - NEXT_DISABLE_TURBOPACK=1
+      - NEXT_TELEMETRY_DISABLED=1
     restart: unless-stopped # Auto-restart on failure/reboot
     networks:
       default: {}
