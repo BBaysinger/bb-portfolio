@@ -79,13 +79,13 @@ services:
       - NODE_ENV=production
       - AWS_REGION=us-west-2
       - AWS_DEFAULT_REGION=us-west-2
-    healthcheck: # HTTP health check against backend endpoint
+    healthcheck: # HTTP health check against backend endpoint (respect Next basePath '/admin')
       test:
         [
           "CMD",
           "node",
           "-e",
-          "const http=require('http'); const req=http.get('http://localhost:3000/api/health/',res=>{process.exit(res.statusCode===200?0:1)}); req.on('error',()=>process.exit(1));",
+          "const http=require('http'); const req=http.get('http://localhost:3000/admin/api/health/',res=>{process.exit(res.statusCode===200?0:1)}); req.on('error',()=>process.exit(1));",
         ]
       interval: 15s
       timeout: 5s
@@ -148,13 +148,13 @@ services:
     restart: unless-stopped # Auto-restart on failure/reboot
     networks:
       default: {}
-    healthcheck:
+    healthcheck: # Respect Next basePath '/admin' for dev backend
       test:
         [
           "CMD",
           "node",
           "-e",
-          "const http=require('http'); const req=http.get('http://localhost:3000/api/health/',res=>{process.exit(res.statusCode===200?0:1)}); req.on('error',()=>process.exit(1));",
+          "const http=require('http'); const req=http.get('http://localhost:3000/admin/api/health/',res=>{process.exit(res.statusCode===200?0:1)}); req.on('error',()=>process.exit(1));",
         ]
       interval: 15s
       timeout: 5s
