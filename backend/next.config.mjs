@@ -35,10 +35,9 @@ const nextConfig = {
   reactStrictMode: resolvedStrict,
   // Emit a self-contained server bundle suitable for minimal runtimes
   output: 'standalone',
-  // Ensure admin-static assets are requested from /admin/_next so we can
-  // route them cleanly at the reverse proxy without relying on Referer
-  // This does NOT change application routes, only the asset URLs
-  assetPrefix: '/admin',
+  // Serve the backend under "/admin" so both routes and assets live under that base path.
+  // This removes the need for proxy rewrites and ensures Next emits `/_next` under `/admin`.
+  basePath: '/admin',
   outputFileTracingRoot: path.join(__dirname, '../'),
   webpack: (webpackConfig) => {
     webpackConfig.resolve.extensionAlias = {
