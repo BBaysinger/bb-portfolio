@@ -93,12 +93,12 @@ elif [ "$ENVIRONMENT" = "both" ] && { [ "$START_DEV" = "true" ] || [ "$START_DEV
 fi
 if [ "$ENVIRONMENT" = "prod" ] || [ "$ENVIRONMENT" = "both" ]; then
   curl_with_retry 3000 / "frontend prod"
-  curl_with_retry 3001 /api/health "backend prod health"
+  curl_with_retry 3001 /admin/api/health "backend prod health"
 fi
 if [ "$ENVIRONMENT" = "dev" ]; then
   curl_with_retry 4000 / "frontend dev"
-  curl_with_retry 4001 /api/health "backend dev health"
+  curl_with_retry 4001 /admin/api/health "backend dev health"
 elif [ "$ENVIRONMENT" = "both" ] && { [ "$START_DEV" = "true" ] || [ "$START_DEV" = true ]; }; then
   curl_with_retry 4000 / "frontend dev"
-  curl_with_retry 4001 /api/health "backend dev health"
+  curl_with_retry 4001 /admin/api/health "backend dev health"
 fi
