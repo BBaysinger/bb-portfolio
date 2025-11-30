@@ -58,8 +58,10 @@ async function fetchPortfolioProjects(opts?: {
   // We need depth=2 so that nested relations on brand (logoLight/logoDark uploads) are populated
   // alongside the project -> brand -> upload chain.
   // Note: Using trailing slash for client-side to match Next.js trailingSlash: true config
-  const path = "/api/projects/?depth=2&limit=1000&sort=sortIndex";
-  const serverPath = "/api/projects/?depth=2&limit=1000&sort=sortIndex";
+  // Next backend now serves under basePath (e.g., '/admin'): prefix API paths accordingly.
+  const backendBasePath = (process.env.BACKEND_BASE_PATH || "/admin").replace(/\/$/, "");
+  const path = `${backendBasePath}/api/projects/?depth=2&limit=1000&sort=sortIndex`;
+  const serverPath = `${backendBasePath}/api/projects/?depth=2&limit=1000&sort=sortIndex`;
   // If we're on the server AND we have request cookies (SSR with potential auth),
   // prefer using a relative URL so the Next.js proxy/rewrites can forward cookies
   // to the backend correctly. Direct absolute calls to the backend may not see
