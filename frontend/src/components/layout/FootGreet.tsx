@@ -61,7 +61,7 @@ const FootGreet: React.FC<{ className?: string }> = ({ className = "" }) => {
       </p>
       <p>
         What you experience here—the parallax carousel, the magnetic pixel grid,
-        the custom sprite sheet renderer—these aren&apos;t just features,
+        the custom sprite sheet animator—these aren&apos;t just features,
         they&apos;re original systems built to explore what&apos;s possible in
         the browser.
       </p>
