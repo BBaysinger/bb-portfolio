@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-// Redirect legacy admin path `/admin/panel` to the conventional `/admin`.
-// Note: Next.js basePath is `/admin`, so requests will appear as `/admin/...`.
+// Temporary legacy redirect:
+// Redirect `/admin/panel` to the conventional `/admin`.
+// Remove after bookmarks/old links are updated (target removal: 2025-12-31).
+// Note: Next.js basePath is `/admin`, so requests appear as `/admin/...`.
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl
 

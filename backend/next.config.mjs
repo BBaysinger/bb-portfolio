@@ -19,12 +19,15 @@ const resolvedStrict =
     ? strictOverride !== 'false'
     : !['dev', 'development'].includes(envProfile) // disable only for dev
 
-console.info('[backend next.config.mjs] React StrictMode resolved:', {
-  ENV_PROFILE: process.env.ENV_PROFILE,
-  NODE_ENV: process.env.NODE_ENV,
-  REACT_STRICT_MODE: strictOverride,
-  resolvedStrict,
-})
+// Dev-only visibility for Strict Mode resolution
+if (process.env.NODE_ENV !== 'production') {
+  console.info('[backend next.config.mjs] React StrictMode resolved:', {
+    ENV_PROFILE: process.env.ENV_PROFILE,
+    NODE_ENV: process.env.NODE_ENV,
+    REACT_STRICT_MODE: strictOverride,
+    resolvedStrict,
+  })
+}
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -35,9 +38,13 @@ const nextConfig = {
   reactStrictMode: resolvedStrict,
   // Emit a self-contained server bundle suitable for minimal runtimes
   output: 'standalone',
-  experimental: {
-    allowedDevOrigins: ['https://dev.bbaysinger.com'],
-  },
+  // Limit dev-only experimental config to dev environments
+  experimental:
+    (process.env.ENV_PROFILE === 'dev' || process.env.NODE_ENV === 'development')
+      ? {
+          allowedDevOrigins: ['https://dev.bbaysinger.com'],
+        }
+      : undefined,
   // Serve the backend under "/admin" so both routes and assets live under that base path.
   // This removes the need for proxy rewrites and ensures Next emits `/_next` under `/admin`.
   basePath: '/admin',
