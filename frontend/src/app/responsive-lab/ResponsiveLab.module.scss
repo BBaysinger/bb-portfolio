@@ -31,11 +31,11 @@
   background-image: url("/images/projects-list-distressed/bezel.webp");
   background-size: cover;
 
-  &:nth-child(3n) {
+  &:nth-child(4n) {
     background-image: url("/images/projects-list-distressed/pink-stripes.webp");
   }
 
-  &:nth-child(3n + 1) {
+  &:nth-child(4n + 1) {
     // layered backgrounds: overlay + middle + base
     background-image:
       url("/images/projects-list-distressed/triangle.svg"),
@@ -54,6 +54,16 @@
     //     0 0 36px 10px rgba(255, 210, 150, 0.26),
     //     inset 0 0 28px rgba(255, 210, 150, 0.18);
     // }
+  }
+
+  &:nth-child(4n + 2) {
+    // layered backgrounds: overlay + middle + base
+    background-image:
+      url("/images/projects-list-distressed/asdf.svg"),
+      url("/images/projects-list-distressed/orange.webp");
+    background-repeat: no-repeat, no-repeat;
+    background-position: center, center;
+    background-size: 50%, contain;
   }
 
   .cardBody {
