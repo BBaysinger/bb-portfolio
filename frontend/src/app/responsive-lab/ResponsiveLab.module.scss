@@ -30,15 +30,15 @@
 
   background-size: cover;
 
-  &:nth-child(8n) {
+  &:nth-child(9n) {
     background-image: url("/images/projects-list-distressed/bezel.webp");
   }
 
-  &:nth-child(8n + 1) {
+  &:nth-child(9n + 1) {
     background-image: url("/images/projects-list-distressed/pink-stripes.webp");
   }
 
-  &:nth-child(8n + 2) {
+  &:nth-child(9n + 2) {
     // layered backgrounds: overlay + middle + base
     background-image:
       url("/images/projects-list-distressed/triangle.svg"),
@@ -59,7 +59,7 @@
     // }
   }
 
-  &:nth-child(8n + 3) {
+  &:nth-child(9n + 3) {
     background-image:
       url("/images/projects-list-distressed/arrow.webp"),
       url("/images/projects-list-distressed/orange.webp");
@@ -70,7 +70,7 @@
     background-size: 60%, contain;
   }
 
-  &:nth-child(8n + 4) {
+  &:nth-child(9n + 4) {
     background-image:
       url("/images/projects-list-distressed/asdf.webp"),
       url("/images/projects-list-distressed/slots.webp");
@@ -81,7 +81,7 @@
     background-size: 60%, contain;
   }
 
-  &:nth-child(8n + 5) {
+  &:nth-child(9n + 5) {
     background-image:
       url("/images/projects-list-distressed/asdf.webp"),
       url("/images/projects-list-distressed/holes.webp");
@@ -92,7 +92,7 @@
     background-size: 60%, contain;
   }
 
-  &:nth-child(8n + 6) {
+  &:nth-child(9n + 6) {
     background-image:
       url("/images/projects-list-distressed/asdf.webp"),
       url("/images/projects-list-distressed/no-holes.webp");
@@ -103,10 +103,21 @@
     background-size: 60%, contain;
   }
 
-  &:nth-child(8n + 7) {
+  &:nth-child(9n + 7) {
     background-image:
       url("/images/projects-list-distressed/asdf.webp"),
       url("/images/projects-list-distressed/screws.webp");
+    background-repeat: no-repeat, no-repeat;
+    background-position:
+      center 40%,
+      center;
+    background-size: 60%, contain;
+  }
+
+  &:nth-child(9n + 8) {
+    background-image:
+      url("/images/projects-list-distressed/asdf.webp"),
+      url("/images/projects-list-distressed/no-bezel.webp");
     background-repeat: no-repeat, no-repeat;
     background-position:
       center 40%,
