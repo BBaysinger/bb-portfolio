@@ -61,7 +61,9 @@ export default buildConfig({
   // Move the admin base route to the root of the Next basePath.
   // With next.config basePath='/admin', this serves the admin at '/admin/'.
   routes: {
-    admin: '/',
+    // Serve admin panel at /admin/panel (Next basePath '/admin' + this '/panel')
+    // to avoid collision with the frontend landing page at '/admin/'.
+    admin: '/panel',
     api: '/api',
   },
   collections: [Users, Projects, Clients, BrandLogos, ProjectScreenshots, ProjectThumbnails],
