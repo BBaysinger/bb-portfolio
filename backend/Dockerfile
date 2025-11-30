@@ -181,8 +181,9 @@ WORKDIR /app
 
 # Copy only the standalone server and static assets produced by Next.js
 COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/.next/static ./.next/static
-COPY --from=builder /app/.next/server ./.next/server
+# Place Next static assets inside the standalone app directory where server expects them
+COPY --from=builder /app/.next/static ./app/.next/static
+COPY --from=builder /app/.next/server ./app/.next/server
 COPY --from=builder /app/public ./public
 ## Payload admin import map is written during build into source tree;
 ## Payload runtime expects to fs.read it. Include minimal path with file.
