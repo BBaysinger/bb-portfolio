@@ -1,3 +1,6 @@
+// NOTE: This file is intentionally disabled.
+// Next.js 16 deprecates the "middleware" file convention in favor of "proxy".
+// Keep for reference; do not enable unless migrated to the new proxy API.
 import { NextRequest, NextResponse } from "next/server";
 
 export function middleware(request: NextRequest) {
