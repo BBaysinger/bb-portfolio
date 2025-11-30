@@ -35,6 +35,9 @@ const nextConfig = {
   reactStrictMode: resolvedStrict,
   // Emit a self-contained server bundle suitable for minimal runtimes
   output: 'standalone',
+  experimental: {
+    allowedDevOrigins: ['https://dev.bbaysinger.com'],
+  },
   // Serve the backend under "/admin" so both routes and assets live under that base path.
   // This removes the need for proxy rewrites and ensures Next emits `/_next` under `/admin`.
   basePath: '/admin',
