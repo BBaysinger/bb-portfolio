@@ -34,28 +34,26 @@
   &:nth-child(3n) {
     background-image: url("/images/projects-list-distressed/pink-stripes.webp");
   }
-  
+
   &:nth-child(3n + 1) {
     // layered backgrounds: overlay + middle + base
     background-image:
-      url("/images/projects-list-distressed/pink-stripes.webp"),
-      url("/images/projects-list-distressed/nailed.webp"),
-      url("/images/projects-list-distressed/bezel.webp");
-    background-repeat: no-repeat, no-repeat, no-repeat;
-    background-position: center, center, center;
-    background-size: cover, cover, cover;
-    background-blend-mode: screen, multiply, normal;
+      url("/images/projects-list-distressed/triangle.svg"),
+      url("/images/projects-list-distressed/nailed.webp");
+    background-repeat: no-repeat, no-repeat;
+    background-position: center, center;
+    background-size: 50%, contain;
 
     // subtle glow overlay
-    &::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      box-shadow:
-        0 0 36px 10px rgba(255, 210, 150, 0.26),
-        inset 0 0 28px rgba(255, 210, 150, 0.18);
-    }
+    // &::after {
+    //   content: "";
+    //   position: absolute;
+    //   inset: 0;
+    //   pointer-events: none;
+    //   box-shadow:
+    //     0 0 36px 10px rgba(255, 210, 150, 0.26),
+    //     inset 0 0 28px rgba(255, 210, 150, 0.18);
+    // }
   }
 
   .cardBody {
