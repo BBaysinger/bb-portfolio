@@ -59,11 +59,11 @@
   &:nth-child(4n + 2) {
     // layered backgrounds: overlay + middle + base
     background-image:
-      url("/images/projects-list-distressed/asdf.svg"),
+      url("/images/projects-list-distressed/arrow.webp"),
       url("/images/projects-list-distressed/orange.webp");
     background-repeat: no-repeat, no-repeat;
-    background-position: center, center;
-    background-size: 50%, contain;
+    background-position: center 40%, center;
+    background-size: 60%, contain;
   }
 
   .cardBody {
