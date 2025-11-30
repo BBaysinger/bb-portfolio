@@ -8,14 +8,16 @@ SSH_OPTS=${SSH_OPTS:-"-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/nul
 [ -d "$OUT_DIR" ] || { echo "OUT_DIR not a directory: $OUT_DIR" >&2; exit 1; }
 
 echo "== Packaging env files for single transfer =="
-tar -C "$OUT_DIR" -czf env-bundle.tgz backend.env.prod backend.env.dev frontend.env.prod frontend.env.dev
-echo "Bundle size: $(du -h env-bundle.tgz | cut -f1)"
+BUNDLE_PATH="$OUT_DIR/env-bundle.tgz"
+tar -C "$OUT_DIR" -czf "$BUNDLE_PATH" backend.env.prod backend.env.dev frontend.env.prod frontend.env.dev
+echo "Bundle path: $BUNDLE_PATH"
+echo "Bundle size: $(du -h "$BUNDLE_PATH" | cut -f1)"
 
 echo "== Ensuring remote directories =="
 ssh -i "$KEY_PATH" $SSH_OPTS ec2-user@"$EC2_HOST" "sudo mkdir -p /home/ec2-user/bb-portfolio/{backend,frontend} && sudo chown -R ec2-user:ec2-user /home/ec2-user/bb-portfolio"
 
 upload_attempts=0
-until scp -i "$KEY_PATH" $SSH_OPTS env-bundle.tgz ec2-user@"$EC2_HOST":/home/ec2-user/bb-portfolio/env-bundle.tgz; do
+until scp -i "$KEY_PATH" $SSH_OPTS "$BUNDLE_PATH" ec2-user@"$EC2_HOST":/home/ec2-user/bb-portfolio/env-bundle.tgz; do
   upload_attempts=$((upload_attempts+1))
   if [ $upload_attempts -ge 3 ]; then
     echo "Env bundle upload failed after $upload_attempts attempts" >&2
@@ -28,6 +30,8 @@ done
 echo "== Remote extract =="
 ssh -i "$KEY_PATH" $SSH_OPTS ec2-user@"$EC2_HOST" $'set -e
   cd /home/ec2-user/bb-portfolio
+  echo "Remote dir contents before extract:" && ls -l
+  [ -f env-bundle.tgz ] || { echo "env-bundle.tgz not found in /home/ec2-user/bb-portfolio" >&2; exit 1; }
   tar -xzf env-bundle.tgz || { echo "Failed to extract env bundle" >&2; exit 1; }
   mv -f backend.env.prod backend/.env.prod
   mv -f backend.env.dev backend/.env.dev
