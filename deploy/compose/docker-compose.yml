@@ -79,13 +79,13 @@ services:
       - NODE_ENV=production
       - AWS_REGION=us-west-2
       - AWS_DEFAULT_REGION=us-west-2
-    healthcheck: # HTTP health check against backend endpoint (respect Next basePath '/admin')
+    healthcheck: # HTTP health check against backend endpoint (/api lives at root)
       test:
         [
           "CMD",
           "node",
           "-e",
-          "const http=require('http'); const req=http.get('http://localhost:3000/admin/api/health/',res=>{process.exit(res.statusCode===200?0:1)}); req.on('error',()=>process.exit(1));",
+          "const http=require('http'); const req=http.get('http://localhost:3000/api/health/',res=>{process.exit(res.statusCode===200?0:1)}); req.on('error',()=>process.exit(1));",
         ]
       interval: 15s
       timeout: 5s
@@ -151,13 +151,13 @@ services:
     restart: unless-stopped # Auto-restart on failure/reboot
     networks:
       default: {}
-    healthcheck: # Respect Next basePath '/admin' for dev backend
+    healthcheck: # Backend health endpoint at /api/health/
       test:
         [
           "CMD",
           "node",
           "-e",
-          "const http=require('http'); const req=http.get('http://localhost:3000/admin/api/health/',res=>{process.exit(res.statusCode===200?0:1)}); req.on('error',()=>process.exit(1));",
+          "const http=require('http'); const req=http.get('http://localhost:3000/api/health/',res=>{process.exit(res.statusCode===200?0:1)}); req.on('error',()=>process.exit(1));",
         ]
       interval: 15s
       timeout: 5s
@@ -209,6 +209,7 @@ services:
       NODE_ENV: development
       PORT: "3001"
       ENV_PROFILE: local
+      NEXT_DISABLE_TURBOPACK: "1"
       NPM_CONFIG_CACHE: /app/.npm-cache
       # Disk usage guardrails (warn/fail thresholds in percent). Adjust as needed.
       DISK_WARN_PCT: "95"

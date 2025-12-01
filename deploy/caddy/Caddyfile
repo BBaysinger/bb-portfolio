@@ -1,27 +1,45 @@
 :80 {
     # Admin routes go to backend container
     handle /admin* {
-    reverse_proxy bb-portfolio-backend-local:3001
+        reverse_proxy bb-portfolio-backend-local:3001 {
+            header_up Host {host}
+            header_up X-Forwarded-Proto {scheme}
+            header_up X-Forwarded-Host {host}
+        }
     }
     
-    # Public API should resolve at /api/*, but backend runs under Next basePath /admin
-    # Rewrite /api/* -> /admin/api/* before proxying to backend
-    handle_path /api/* {
-        rewrite * /admin/api{path}
-        reverse_proxy bb-portfolio-backend-local:3001
+    # Public API resolves directly at /api/* (basePath removed)
+    handle /api* {
+        reverse_proxy bb-portfolio-backend-local:3001 {
+            header_up Host {host}
+            header_up X-Forwarded-Proto {scheme}
+            header_up X-Forwarded-Host {host}
+        }
     }
     
     # PayloadCMS specific static assets (based on path patterns)
     handle /_next/static/css/app/(payload)/* {
-    reverse_proxy bb-portfolio-backend-local:3001
+        reverse_proxy bb-portfolio-backend-local:3001 {
+            header_up Host {host}
+            header_up X-Forwarded-Proto {scheme}
+            header_up X-Forwarded-Host {host}
+        }
     }
     
     handle /_next/static/chunks/app/(payload)/* {
-    reverse_proxy bb-portfolio-backend-local:3001
+        reverse_proxy bb-portfolio-backend-local:3001 {
+            header_up Host {host}
+            header_up X-Forwarded-Proto {scheme}
+            header_up X-Forwarded-Host {host}
+        }
     }
     
     handle /_next/static/media/payload-* {
-    reverse_proxy bb-portfolio-backend-local:3001
+        reverse_proxy bb-portfolio-backend-local:3001 {
+            header_up Host {host}
+            header_up X-Forwarded-Proto {scheme}
+            header_up X-Forwarded-Host {host}
+        }
     }
 
     # Generic Next static assets requested from Admin pages
@@ -32,7 +50,11 @@
         header_regexp admin_ref Referer .*/admin(/|$|.*)
     }
     handle @admin_next_static {
-    reverse_proxy bb-portfolio-backend-local:3001
+        reverse_proxy bb-portfolio-backend-local:3001 {
+            header_up Host {host}
+            header_up X-Forwarded-Proto {scheme}
+            header_up X-Forwarded-Host {host}
+        }
     }
     
     # Everything else goes to frontend container

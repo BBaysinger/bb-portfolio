@@ -48,21 +48,25 @@ if (!mongoURL) {
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
+type PayloadWithExpress = {
+  express?: import('express').Express
+}
+
 export default buildConfig({
+  // If provided, use explicit public server URL so cookies and redirects match
+  serverURL: process.env.PAYLOAD_PUBLIC_SERVER_URL || process.env.PUBLIC_SERVER_URL,
   admin: {
     user: Users.slug,
     importMap: {
       baseDir: path.resolve(dirname),
-      // Ensure Payload can locate the built import map file in prod/runtime
       importMapFile: path.resolve(dirname, 'app/(payload)/importMap.js'),
       autoGenerate: false,
     },
   },
-  // Move the admin base route to the root of the Next basePath.
-  // With next.config basePath='/admin', this serves the admin at '/admin/'.
+  // Conventional pattern WITHOUT Next basePath: explicitly mount admin UI at /admin and API at /api.
+  // Public uploads will resolve from /media (Payload default) and no custom base prefixes are applied.
   routes: {
-    // Serve admin panel at /admin/ (Next basePath '/admin' + this '/')
-    admin: '/',
+    admin: '/admin',
     api: '/api',
   },
   collections: [Users, Projects, Clients, BrandLogos, ProjectScreenshots, ProjectThumbnails],
@@ -209,4 +213,8 @@ export default buildConfig({
     }
     return undefined
   })(),
+  onInit: async (payload) => {
+    const expressApp = (payload as typeof payload & PayloadWithExpress).express
+    expressApp?.set('trust proxy', true)
+  },
 })

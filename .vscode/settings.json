@@ -1,4 +1,8 @@
 {  
+    "files.associations": {
+        "Caddyfile": "caddyfile",
+        "**/Caddyfile": "caddyfile"
+    },
     "search.exclude": {
         "**/dist": true,
         "**/frontend-vite-old/**": true
@@ -142,6 +146,7 @@
         "ltnp",
         "macrotask",
         "marioparty",
+        "matthewpi",
         "maxauthtries",
         "maxstartups",
         "mediump",
@@ -255,5 +260,9 @@
     },
     "github-actions.workflows.diagnostics.disable": [
         "context-access"
-    ]
+    ],
+    "[caddyfile]": {
+        "editor.defaultFormatter": null,
+        "editor.formatOnSave": true
+    }
 }

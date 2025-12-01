@@ -4,10 +4,8 @@
     reverse_proxy bb-portfolio-backend-local:3001
     }
     
-    # Public API should resolve at /api/*, but backend runs under Next basePath /admin
-    # Rewrite /api/* -> /admin/api/* before proxying to backend
-    handle_path /api/* {
-        rewrite * /admin/api{path}
+    # Public API resolves directly at /api/*
+    handle /api* {
         reverse_proxy bb-portfolio-backend-local:3001
     }
     
