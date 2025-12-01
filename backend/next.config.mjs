@@ -32,22 +32,16 @@ if (process.env.NODE_ENV !== 'production') {
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // Your Next.js config here
-  // Normalize URLs to include a trailing slash so SSR and client generate identical HREFs
-  // This avoids hydration mismatches like "/admin/collections/users" vs "/admin/collections/users/"
+  // Admin routes now live under src/app/(payload)/admin so no Next.js basePath is required
+  // Normalize URLs to include trailing slash to match admin expectations and health checks
   trailingSlash: true,
   reactStrictMode: resolvedStrict,
   // Emit a self-contained server bundle suitable for minimal runtimes
   output: 'standalone',
   // Limit dev-only experimental config to dev environments
-  experimental:
-    process.env.ENV_PROFILE === 'dev' || process.env.NODE_ENV === 'development'
-      ? {
-          allowedDevOrigins: ['https://dev.bbaysinger.com'],
-        }
-      : undefined,
-  // Serve the backend under "/admin" so both routes and assets live under that base path.
-  // This removes the need for proxy rewrites and ensures Next emits `/_next` under `/admin`.
-  basePath: '/admin',
+  // Remove invalid experimental key (allowedDevOrigins) to prevent unnecessary restarts
+  experimental: undefined,
+  // Preserve monorepo boundary for standalone output tracing
   outputFileTracingRoot: path.join(__dirname, '../'),
   webpack: (webpackConfig) => {
     webpackConfig.resolve.extensionAlias = {
