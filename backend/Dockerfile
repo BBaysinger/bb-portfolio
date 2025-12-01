@@ -187,7 +187,7 @@ COPY --from=builder /app/.next/server ./app/.next/server
 COPY --from=builder /app/public ./public
 ## Payload admin import map is written during build into source tree;
 ## Payload runtime expects to fs.read it. Include minimal path with file.
-COPY --from=builder /app/src/app/(payload)/admin/importMap.js ./src/app/(payload)/admin/importMap.js
+COPY --from=builder /app/src/app/(payload)/importMap.js ./src/app/(payload)/importMap.js
 COPY --from=builder /app/src/payload.config.ts ./src/payload.config.ts
 
 

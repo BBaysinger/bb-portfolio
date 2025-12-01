@@ -4,7 +4,7 @@ import { NextResponse } from 'next/server'
 
 export async function GET() {
   try {
-    const paths = ['/app/.payload/import-map.json', '/app/src/app/(payload)/admin/importMap.js']
+    const paths = ['/app/.payload/import-map.json', '/app/src/app/(payload)/importMap.js']
     const results = paths.map((p) => {
       const exists = fs.existsSync(p)
       const size = exists ? fs.statSync(p).size : 0

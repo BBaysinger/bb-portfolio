@@ -1,11 +1,6 @@
-// Temporary redirect: forward basePath root (/admin/) to the generated
-// admin UI at /admin/admin/. This is a short-term hotfix so the admin
-// is reachable immediately while we resolve the generated-route layout.
-import { redirect } from 'next/navigation'
+// Legacy temporary redirect removed.
+// This file is intentionally left as a non-page module to avoid
+// route conflicts with the generated admin pages located under
+// `src/app/(payload)/[[...segments]]/page.tsx`.
 
-export const revalidate = 0
-
-export default function Page() {
-  // Absolute path: ensure the browser lands on the admin UI pages.
-  redirect('/admin/admin/')
-}
+export const legacy = true
