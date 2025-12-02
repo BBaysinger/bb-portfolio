@@ -189,10 +189,19 @@
     // 🔄 Syncs package.json5 with package.json values while preserving comments and formatting
     // Run this after editing package.json to push updates back into the annotated JSON5 version
     "sync:packages": "tsx scripts/sync-json5-packages.ts",
-    // 🔐 Preview GitHub Secrets from .github-secrets.private.json5 to your repo
-    "sync:secrets:dry": "tsx scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./.github-secrets.private.json5 --dry-run",
-    // 🔐 Sync GitHub Secrets from .github-secrets.private.json5 to your repo
-    "sync:secrets": "tsx scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./.github-secrets.private.json5",
+    "secrets:bundle": "tsx scripts/merge-github-secrets.ts",
+    // 🔐 Shared/base GitHub secrets
+    "sync:secrets:base:dry": "tsx scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./github-secrets.private.json5 --dry-run",
+    "sync:secrets:base": "tsx scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./github-secrets.private.json5",
+    // 🔐 Environment-scoped GitHub secrets
+    "sync:secrets:dev:dry": "tsx scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./github-secrets.private.dev.json5 --env dev --dry-run",
+    "sync:secrets:dev": "tsx scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./github-secrets.private.dev.json5 --env dev",
+    "sync:secrets:stage:dry": "tsx scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./github-secrets.private.stage.json5 --env stage --dry-run",
+    "sync:secrets:stage": "tsx scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./github-secrets.private.stage.json5 --env stage",
+    "sync:secrets:prod:dry": "tsx scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./github-secrets.private.prod.json5 --env prod --dry-run",
+    "sync:secrets:prod": "tsx scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./github-secrets.private.prod.json5 --env prod",
+    "sync:secrets:all": "npm run secrets:bundle && npm run sync:secrets:base && npm run sync:secrets:dev && npm run sync:secrets:prod",
+    "sync:secrets:all:dry": "npm run secrets:bundle && npm run sync:secrets:base:dry && npm run sync:secrets:dev:dry && npm run sync:secrets:prod:dry",
     // 📦 Update dependencies to latest versions across all packages
     // Runs npm-check-updates in root, backend, and frontend simultaneously
     // Review changes before running npm run install:all
@@ -346,6 +355,10 @@
     "images:verify:login": "bash ./scripts/images-verify.sh --login --profile bb-portfolio-user --region us-west-2",
     // 🔁 Sync dev and main branches (fast-forward only, always returns to dev)
     "sync:branches": "bash ./scripts/sync-branches.sh",
+    // ⚡ Fast repo search using ripgrep (pass pattern after `--`)
+    "search:repo": "rg --line-number --hidden --follow --glob '!.git' --glob '!node_modules' --glob '!frontend/.next' --glob '!backend/.next'",
+    // 📄 Quickly list files matching glob filters (shares ignore rules above)
+    "search:files": "rg --files --hidden --follow --glob '!.git' --glob '!node_modules' --glob '!frontend/.next' --glob '!backend/.next'",
   },
   // Development tooling for the monorepo root (formatting, linting, TS, runners)
   "devDependencies": {
