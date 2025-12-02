@@ -25,9 +25,9 @@ read_json5_key() {
 DEV_AWS_REGION_VAL="$(read_json5_key strings.DEV_AWS_REGION)"
 DOCKER_HUB_USER="$(read_json5_key strings.DOCKER_HUB_USERNAME)"
 DOCKER_HUB_PASS="$(read_json5_key strings.DOCKER_HUB_PASSWORD)"
-# Unified required envs list for dev profile (frontend/backed guards)
-DEV_REQUIRED_ENVIRONMENT_VARIABLES_VAL="$(read_json5_key strings.DEV_REQUIRED_ENVIRONMENT_VARIABLES)"
-FALLBACK_REQUIRED_ENVIRONMENT_VARIABLES="DEV_BACKEND_INTERNAL_URL"
+# Unified required env list for build-time guards
+REQUIRED_ENVIRONMENT_VARIABLES_VAL="$(read_json5_key strings.REQUIRED_ENVIRONMENT_VARIABLES)"
+FALLBACK_REQUIRED_ENVIRONMENT_VARIABLES="BACKEND_INTERNAL_URL"
 # Public, non-sensitive dev URL used by backend during build for CORS/CSRF config
 DEV_FRONTEND_URL_VAL="$(read_json5_key strings.DEV_FRONTEND_URL)"
 DEV_S3_BUCKET_VAL="$(read_json5_key strings.DEV_S3_BUCKET)"
@@ -89,8 +89,7 @@ cd "$ROOT_DIR/frontend"
 docker build \
   --target runner \
   --build-arg ENV_PROFILE=dev \
-  --build-arg DEV_REQUIRED_ENVIRONMENT_VARIABLES="$DEV_REQUIRED_ENVIRONMENT_VARIABLES_VAL" \
-  --build-arg REQUIRED_ENVIRONMENT_VARIABLES="$FALLBACK_REQUIRED_ENVIRONMENT_VARIABLES" \
+  --build-arg REQUIRED_ENVIRONMENT_VARIABLES="${REQUIRED_ENVIRONMENT_VARIABLES_VAL:-$FALLBACK_REQUIRED_ENVIRONMENT_VARIABLES}" \
   --build-arg DEV_BACKEND_INTERNAL_URL="http://bb-portfolio-backend-dev:3000" \
   --build-arg PUBLIC_PROJECTS_BUCKET="$PUBLIC_PROJECTS_BUCKET_VAL" \
   --build-arg NDA_PROJECTS_BUCKET="$NDA_PROJECTS_BUCKET_VAL" \

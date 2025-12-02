@@ -342,8 +342,10 @@ function ensureEnvironmentExists(env: string) {
     execSync(`gh api ${envPath} --silent`, { stdio: "ignore" });
     ensuredEnvironments.add(env);
     return;
-  } catch (error) {
-    console.info(`ℹ️  GitHub environment '${env}' not found. Creating it now...`);
+  } catch {
+    console.info(
+      `ℹ️  GitHub environment '${env}' not found. Creating it now...`,
+    );
   }
 
   try {
@@ -352,7 +354,7 @@ function ensureEnvironmentExists(env: string) {
     });
     ensuredEnvironments.add(env);
     console.info(`✅ Created GitHub environment '${env}'.`);
-  } catch (error) {
+  } catch {
     console.error(
       `❌ Failed to create GitHub environment '${env}'. Ensure you have admin access and the repo allows environment creation.`,
     );
