@@ -192,9 +192,13 @@ if [[ "$do_infra" == true ]]; then
       const before = s.EC2_HOST;
       s.EC2_HOST = ip;
       const replaceHost = (val: any) => typeof val === "string" ? val.replace(/http:\/\/[0-9.]+:/g, "http://" + ip + ":") : val;
-      // Update common URL fields if present
-      s.DEV_FRONTEND_URL = replaceHost(s.DEV_FRONTEND_URL);
-      s.PROD_FRONTEND_URL = replaceHost(s.PROD_FRONTEND_URL);
+      const updateUrl = (key: string) => {
+        if (typeof s[key] === "string") {
+          s[key] = replaceHost(s[key]);
+        }
+      };
+      updateUrl("FRONTEND_URL");
+      updateUrl("BACKEND_INTERNAL_URL");
   # NEXT_PUBLIC_BACKEND_URL values are deprecated; proxy-relative /api is used now.
       const banner = "// Private secrets file for syncing to GitHub Actions secrets\n// This file is ignored by git. Keep real values here.\n// Do NOT commit this file to version control!\n// cspell:disable\n";
       const out = banner + JSON5.stringify(cfg, null, 2);

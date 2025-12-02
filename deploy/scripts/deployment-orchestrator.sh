@@ -342,9 +342,13 @@ if [[ "$do_infra" == true ]]; then
       const before = s.EC2_HOST;
       s.EC2_HOST = ip;
       const replaceHost = (val: any) => typeof val === "string" ? val.replace(/http:\/\/[0-9.]+:/g, "http://" + ip + ":") : val;
-      // Update common URL fields if present
-      s.DEV_FRONTEND_URL = replaceHost(s.DEV_FRONTEND_URL);
-      s.PROD_FRONTEND_URL = replaceHost(s.PROD_FRONTEND_URL);
+      const updateUrl = (key: string) => {
+        if (typeof s[key] === "string") {
+          s[key] = replaceHost(s[key]);
+        }
+      };
+      updateUrl("FRONTEND_URL");
+      updateUrl("BACKEND_INTERNAL_URL");
       // NEXT_PUBLIC_BACKEND_URL values are deprecated; proxy-relative /api is used now.
       const banner = "// Private secrets file for syncing to GitHub Actions secrets\n// This file is ignored by git. Keep real values here.\n// Do NOT commit this file to version control!\n// cspell:disable\n";
       const out = banner + JSON5.stringify(cfg, null, 2);
@@ -395,7 +399,7 @@ resolve_ec2_host() {
   # 3) DNS fallback (best-effort): derive apex from URLs in secrets and resolve A record
   local apex=""
   if [ -f "$REPO_ROOT/.github-secrets.private.json5" ]; then
-    apex=$(node -e "try{const JSON5=require('json5');const fs=require('fs');const raw=fs.readFileSync('.github-secrets.private.json5','utf8');const cfg=JSON5.parse(raw);const s=cfg.strings||cfg;const u=(s.PROD_FRONTEND_URL||s.DEV_FRONTEND_URL||'').trim();if(u){try{const h=new URL(u).hostname;process.stdout.write(h);}catch(e){}}}catch(e){}");
+    apex=$(node -e "try{const JSON5=require('json5');const fs=require('fs');const pickHost=(file)=>{if(!fs.existsSync(file))return '';const raw=fs.readFileSync(file,'utf8');const cfg=JSON5.parse(raw);const s=cfg.strings||cfg;const url=(s.FRONTEND_URL||'').trim();if(!url)return '';try{return new URL(url).hostname||'';}catch{return '';}};const host=pickHost('.github-secrets.private.json5')||pickHost('.github-secrets.private.prod.json5')||pickHost('.github-secrets.private.dev.json5');process.stdout.write(host);}catch(e){}");
   fi
   if [[ -n "$apex" ]] && command -v dig >/dev/null 2>&1; then
     host=$(dig +short A "$apex" | head -n1)
