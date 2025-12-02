@@ -20,6 +20,7 @@
 /**
  * Sync secrets.json5 into GitHub secrets (destructive: removes extras)
  * - Supports repo-level scopes (default) or GitHub Environment scopes via --env <name>
+ * - Automatically creates GitHub Environments if they are referenced but missing
  * - Applies strings/files defined in the provided JSON5 manifest
  * - Optional overlay: if a sibling ".private" file exists next to the template, only
  *   schema keys present in the template are copied from the private file.
@@ -53,6 +54,7 @@ let REPO: string | undefined;
 let JSON_FILE: string | undefined;
 let ENV_SCOPE: string | undefined;
 let DRY_RUN = false;
+const ensuredEnvironments = new Set<string>();
 
 for (let i = 0; i < args.length; i += 1) {
   const arg = args[i];
@@ -333,6 +335,31 @@ function listSecrets(scope: "repo" | "env", env?: string): string[] {
   }
 }
 
+function ensureEnvironmentExists(env: string) {
+  if (ensuredEnvironments.has(env)) return;
+  const envPath = `repos/${REPO}/environments/${env}`;
+  try {
+    execSync(`gh api ${envPath} --silent`, { stdio: "ignore" });
+    ensuredEnvironments.add(env);
+    return;
+  } catch (error) {
+    console.info(`ℹ️  GitHub environment '${env}' not found. Creating it now...`);
+  }
+
+  try {
+    execSync(`gh api ${envPath} --method PUT`, {
+      stdio: "inherit",
+    });
+    ensuredEnvironments.add(env);
+    console.info(`✅ Created GitHub environment '${env}'.`);
+  } catch (error) {
+    console.error(
+      `❌ Failed to create GitHub environment '${env}'. Ensure you have admin access and the repo allows environment creation.`,
+    );
+    process.exit(1);
+  }
+}
+
 function removeExtras(
   scope: "repo" | "env",
   env: string | undefined,
@@ -424,10 +451,12 @@ const syncScope = (
 
 if (ENV_SCOPE) {
   const explicitEnvGroup = data.environments?.[ENV_SCOPE];
+  ensureEnvironmentExists(ENV_SCOPE);
   syncScope("env", ENV_SCOPE, explicitEnvGroup ?? data);
 } else {
   syncScope("repo", undefined, data);
   for (const [envName, group] of Object.entries(data.environments ?? {})) {
+    ensureEnvironmentExists(envName);
     syncScope("env", envName, group);
   }
 }
