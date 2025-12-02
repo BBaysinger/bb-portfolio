@@ -6,8 +6,8 @@
   "type": "module",
   "scripts": {
     "precommit": "prettier --write . && tsc -b",
-    "prebuild": "node ./scripts/check-required-env.mjs",
-    "predev": "node ./scripts/check-required-env.mjs && npm run generate:importmap",
+    "prebuild": "tsx ./scripts/check-required-env.ts",
+    "predev": "tsx ./scripts/check-required-env.ts && npm run generate:importmap",
     "build": "cross-env NODE_OPTIONS=\"--no-deprecation --max-old-space-size=8000\" npm run generate:importmap && next build --webpack",
     "dev": "cross-env NODE_OPTIONS=--no-deprecation npm run generate:importmap && next dev -p ${PORT:-3000}",
     "devsafe": "rm -rf .next && cross-env NODE_OPTIONS=--no-deprecation next dev",
@@ -15,7 +15,7 @@
     "generate:types": "cross-env NODE_OPTIONS=--no-deprecation payload generate:types",
     "lint": "cross-env NODE_OPTIONS=--no-deprecation next lint",
     "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
-    "prestart": "node ./scripts/check-required-env.js",
+    "prestart": "tsx ./scripts/check-required-env.ts",
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start",
     "test": "pnpm run test:int && pnpm run test:e2e",
     "test:e2e": "cross-env NODE_OPTIONS=\"--no-deprecation --no-experimental-strip-types\" pnpm exec playwright test",
@@ -58,6 +58,7 @@
     "playwright": "1.57.0",
     "playwright-core": "1.57.0",
     "prettier": "^3.7.3",
+    "tsx": "^4.19.2",
     "typescript": "5.9.3",
     "vite-tsconfig-paths": "5.1.4",
     "vitest": "4.0.14"
