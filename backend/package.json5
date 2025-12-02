@@ -16,13 +16,13 @@
     // The command is short for frequent use (I use it very frequently, and *every* time before commit)
     "precommit": "prettier --write . && tsc -b",
     // Validate required environment variables before building
-    "prebuild": "node ./scripts/check-required-env.js",
+    "prebuild": "tsx ./scripts/check-required-env.ts",
     // Validate required environment variables before starting dev server
-    "predev": "node ./scripts/check-required-env.js",
+    "predev": "tsx ./scripts/check-required-env.ts && npm run generate:importmap",
     // Production build with increased memory and deprecation warnings suppressed
-    "build": "cross-env NODE_OPTIONS=\"--no-deprecation --max-old-space-size=8000\" npm run generate:importmap && next build",
+    "build": "cross-env NODE_OPTIONS=\"--no-deprecation --max-old-space-size=8000\" npm run generate:importmap && next build --webpack",
     // Start development server with deprecation warnings suppressed
-    "dev": "cross-env NODE_OPTIONS=--no-deprecation next dev -p ${PORT:-3001}",
+    "dev": "cross-env NODE_OPTIONS=--no-deprecation npm run generate:importmap && next dev -p ${PORT:-3000}",
     // Clean Next.js cache and run dev server (useful when build cache is corrupted)
     "devsafe": "rm -rf .next && cross-env NODE_OPTIONS=--no-deprecation next dev",
     // Generates Payload importmap file (used when importing from plugins or dynamic code)
@@ -34,7 +34,7 @@
     // Start Payload-only CLI (e.g., to seed or run utilities)
     "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
     // Validate required environment variables before starting production server
-    "prestart": "node ./scripts/check-required-env.js",
+    "prestart": "tsx ./scripts/check-required-env.ts",
     // Start production server
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start",
     // Run both integration and E2E tests (sequential)
@@ -47,23 +47,23 @@
   // Runtime dependencies for backend and CMS functionality
   "dependencies": {
     // AWS SES client used for sending transactional emails
-    "@aws-sdk/client-ses": "^3.917.0",
+    "@aws-sdk/client-ses": "^3.940.0",
     // Shared AWS SDK types
-    "@aws-sdk/types": "^3.914.0",
+    "@aws-sdk/types": "^3.936.0",
     // MongoDB adapter for Payload CMS
-    "@payloadcms/db-mongodb": "3.61.1",
+    "@payloadcms/db-mongodb": "3.65.0",
     // Nodemailer email adapter for Payload CMS (handles SMTP email sending, password resets, notifications)
-    "@payloadcms/email-nodemailer": "3.61.1",
+    "@payloadcms/email-nodemailer": "3.65.0",
     // Enables Payload-Next.js integration (server-side rendering and routing)
-    "@payloadcms/next": "3.61.1",
+    "@payloadcms/next": "3.65.0",
     // Payload Cloud tools (optional if self-hosting)
-    "@payloadcms/payload-cloud": "3.61.1",
+    "@payloadcms/payload-cloud": "3.65.0",
     // Rich text editor using Lexical (modern alternative to Slate)
-    "@payloadcms/richtext-lexical": "3.61.1",
+    "@payloadcms/richtext-lexical": "3.65.0",
     // S3-backed media storage for Payload uploads
-    "@payloadcms/storage-s3": "3.61.1",
+    "@payloadcms/storage-s3": "3.65.0",
     // Payload's core UI components
-    "@payloadcms/ui": "3.61.1",
+    "@payloadcms/ui": "3.65.0",
     // Cross-platform environment variable setting (Windows/Unix compatibility)
     "cross-env": "^10.1.0",
     // Environment variable loader (reads .env files into process.env)
@@ -71,58 +71,60 @@
     // Express.js web server framework (v5 for latest features)
     "express": "^5.1.0",
     // GraphQL query language runtime (required by Payload's GraphQL API)
-    "graphql": "^16.11.0",
+    "graphql": "^16.12.0",
     // JSON5 parser for annotated configuration files
     "json5": "^2.2.3",
     // Next.js framework for frontend/backend integration
-    "next": "15.5.6",
+    "next": "16.0.6",
     // Payload CMS core package
-    "payload": "3.61.1",
+    "payload": "3.65.0",
     // React version to match Next.js 15
     "react": "19.2.0",
     // React DOM library for rendering React components (required by Next.js and Payload UI)
     "react-dom": "^19.2.0",
     // High-performance image processing (required for Payload image fields)
-    "sharp": "0.34.4",
+    "sharp": "0.34.5",
     // Converts strings into URL-friendly slugs (useful for dynamic routing)
     "slugify": "^1.6.6",
   },
   // Development-only tools and type definitions
   "devDependencies": {
     // E2E test runner
-    "@playwright/test": "1.56.1",
+    "@playwright/test": "1.57.0",
     // Testing utilities for React components
     "@testing-library/react": "16.3.0",
     // Express.js TypeScript definitions
-    "@types/express": "^5.0.4",
+    "@types/express": "^5.0.5",
     // Type definitions for JSON5
     "@types/json5": "^2.2.0",
     // Node.js TypeScript definitions (latest for Node 18+)
-    "@types/node": "^24.9.1",
+    "@types/node": "^24.10.1",
     // React 19 types
-    "@types/react": "19.2.2",
+    "@types/react": "19.2.7",
     // React DOM 19 types
-    "@types/react-dom": "19.2.2",
+    "@types/react-dom": "19.2.3",
     // Vite React plugin (enables React support in Vitest)
-    "@vitejs/plugin-react": "5.1.0",
+    "@vitejs/plugin-react": "5.1.1",
     // ESLint JavaScript/TypeScript linter (v9 for latest rules)
     "eslint": "^9.38.0",
     // Next.js ESLint configuration (includes React and accessibility rules)
-    "eslint-config-next": "15.5.6",
+    "eslint-config-next": "16.0.4",
     // Browser DOM simulation for Node.js testing environments
-    "jsdom": "27.0.1",
+    "jsdom": "27.2.0",
     // Standalone version of Playwright test runner
-    "playwright": "1.56.1",
+    "playwright": "1.57.0",
     // Playwright core library (used for browser automation)
-    "playwright-core": "1.56.1",
+    "playwright-core": "1.57.0",
     // Code formatter with opinionated defaults
-    "prettier": "^3.6.2",
+    "prettier": "^3.7.3",
+    // TSX lets us run TypeScript build/utility scripts without compiling first.
+    "tsx": "^4.19.2",
     // TypeScript compiler (v5.9 for latest language features)
     "typescript": "5.9.3",
     // Vite path mapping support (resolves TypeScript path aliases)
     "vite-tsconfig-paths": "5.1.4",
     // Fast unit test runner (modern Jest alternative)
-    "vitest": "3.2.4",
+    "vitest": "4.0.14",
   },
   // Minimum versions for runtime tools
   "engines": {
@@ -131,16 +133,10 @@
     // PNPM v9 or v10 (for workspace support and faster installs)
     "pnpm": "^9 || ^10",
   },
-  // Custom PNPM config to limit which dependencies are built from source
-  "pnpm": {
-    // Only build these dependencies from source (others use prebuilt binaries)
-    "onlyBuiltDependencies": [
-      // Image processing library (native compilation required)
-      "sharp", // Module resolution utility
-      // JavaScript bundler (native compilation for performance)
-      "esbuild", // Module resolution utility
-      // Module resolution utility
-      "unrs-resolver",
-    ],
-  },
+  // Only build native dependencies that need precompilation to make CI faster
+  "onlyBuiltDependencies": [
+    "sharp",
+    "esbuild",
+    "unrs-resolver",
+  ],
 }

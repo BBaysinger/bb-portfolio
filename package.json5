@@ -28,7 +28,7 @@
     // 2. 🐳 Docker SSR: Containerized with hot reload (pages render on-demand)
     // 3. 🏗️  Docker SSG: Pre-builds pages like production (slower, but tests real build)
     // 4. 🌐 Caddy Proxy: Same as SSR but with production-like URLs (single port)
-    //
+    // 👇 Pick the workflow that matches the validation you need so you don't mix modes.
     // Choose based on what you're testing:
     // - Daily dev: Use Bare Metal or Docker SSR
     // - Pre-commit: Use Docker SSG to test production builds
@@ -40,6 +40,8 @@
     "build:backend": "cd backend && npm run build",
     // 🖥️ Build frontend service locally (bare metal, laptop dev)
     "build:frontend": "cd frontend && npm run build",
+    // 🧰 Force a plain Webpack build to reproduce issues that only happen outside Turbopack.
+    "build:frontend:webpack": "cd frontend && npm run build:webpack",
     // =============================================================================
     // 🐳 DOCKER DEVELOPMENT (Containerized - consistent across machines)
     // =============================================================================
@@ -146,6 +148,8 @@
     "frontend:rebuild:ssg": "npm run docker:ssg:build",
     // 📊 Check status of portfolio containers
     "caddy:status": "docker ps --filter name=bb-portfolio- --format 'table {{.Names}}\\t{{.Status}}\\t{{.Ports}}'",
+    // 🧽 Run Docker cleanup + prune tasks to prevent stale containers, volumes, and caches.
+    "docker:maintenance": "zsh deploy/scripts/docker-maintenance.sh",
     // ℹ️ Note on routing through Caddy:
     // - If your frontend uses relative paths like fetch('/api/...'), browser requests will always hit the proxy at 8080
     //   (when using caddy:up) and be routed to the backend. This fully mirrors prod.
@@ -189,18 +193,27 @@
     // 🔄 Syncs package.json5 with package.json values while preserving comments and formatting
     // Run this after editing package.json to push updates back into the annotated JSON5 version
     "sync:packages": "tsx scripts/sync-json5-packages.ts",
+    // 🧩 Merge env-specific secret fragments into a single JSON5 before syncing.
     "secrets:bundle": "tsx scripts/merge-github-secrets.ts",
     // 🔐 Shared/base GitHub secrets
-    "sync:secrets:base:dry": "tsx scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./github-secrets.private.json5 --dry-run",
-    "sync:secrets:base": "tsx scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./github-secrets.private.json5",
+    "sync:secrets:base:dry": "tsx scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./.github-secrets.private.json5 --dry-run",
+    // ✅ Apply the shared/base secrets after validating the dry run above.
+    "sync:secrets:base": "tsx scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./.github-secrets.private.json5",
     // 🔐 Environment-scoped GitHub secrets
-    "sync:secrets:dev:dry": "tsx scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./github-secrets.private.dev.json5 --env dev --dry-run",
-    "sync:secrets:dev": "tsx scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./github-secrets.private.dev.json5 --env dev",
-    "sync:secrets:stage:dry": "tsx scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./github-secrets.private.stage.json5 --env stage --dry-run",
-    "sync:secrets:stage": "tsx scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./github-secrets.private.stage.json5 --env stage",
-    "sync:secrets:prod:dry": "tsx scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./github-secrets.private.prod.json5 --env prod --dry-run",
-    "sync:secrets:prod": "tsx scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./github-secrets.private.prod.json5 --env prod",
+    "sync:secrets:dev:dry": "tsx scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./.github-secrets.private.dev.json5 --env dev --dry-run",
+    // ✅ Push the dev secret changes once the dry run looks correct.
+    "sync:secrets:dev": "tsx scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./.github-secrets.private.dev.json5 --env dev",
+    // 🧪 Stage secrets dry run so you can verify diffs safely.
+    "sync:secrets:stage:dry": "tsx scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./.github-secrets.private.stage.json5 --env stage --dry-run",
+    // ✅ Apply the stage secrets after the dry run passes.
+    "sync:secrets:stage": "tsx scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./.github-secrets.private.stage.json5 --env stage",
+    // 🧪 Production secrets dry run for final verification.
+    "sync:secrets:prod:dry": "tsx scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./.github-secrets.private.prod.json5 --env prod --dry-run",
+    // ✅ Push production secret updates to GitHub.
+    "sync:secrets:prod": "tsx scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./.github-secrets.private.prod.json5 --env prod",
+    // 📦 Run bundle + sync for every environment in one go.
     "sync:secrets:all": "npm run secrets:bundle && npm run sync:secrets:base && npm run sync:secrets:dev && npm run sync:secrets:prod",
+    // 🧪 Same as above but performs only dry runs for each environment.
     "sync:secrets:all:dry": "npm run secrets:bundle && npm run sync:secrets:base:dry && npm run sync:secrets:dev:dry && npm run sync:secrets:prod:dry",
     // 📦 Update dependencies to latest versions across all packages
     // Runs npm-check-updates in root, backend, and frontend simultaneously
@@ -381,9 +394,9 @@
     // ESLint plugin for React Fast Refresh support
     "eslint-plugin-react-refresh": "^0.4.23",
     // File pattern matching utility
-    "glob": "^11.0.3",
+    "glob": "^13.0.0",
     // List of global variables for linting
-    "globals": "^16.4.0",
+    "globals": "^16.5.0",
     // Utility for .gitignore-style file filtering
     "ignore": "^7.0.5",
     // Runtime for dynamic JS/TS imports
