@@ -12,7 +12,7 @@
  *   # 2) Explicit --env-file
  *   tsx scripts/migrate-media-to-s3.ts --env prod --env-file ./backend/.env.prod --dry-run
  *   # 3) With env exported in your shell
- *   ENV_PROFILE=prod PROD_MONGODB_URI=... PROD_PAYLOAD_SECRET=... tsx scripts/migrate-media-to-s3.ts --env prod --dry-run
+ *   ENV_PROFILE=prod MONGODB_URI=... PAYLOAD_SECRET=... tsx scripts/migrate-media-to-s3.ts --env prod --dry-run
  *
  *   # Apply changes (remove --dry-run)
  *   tsx scripts/migrate-media-to-s3.ts --env dev
@@ -60,13 +60,12 @@ function loadDotEnvFile(filePath: string) {
 function ensureEnvironment(environment: 'dev' | 'prod', opts?: { envFile?: string }) {
   process.env.ENV_PROFILE = environment
 
-  const envPrefix = environment.toUpperCase()
   const requiredVars = [
-    `${envPrefix}_MONGODB_URI`,
-    `${envPrefix}_PAYLOAD_SECRET`,
-    `${envPrefix}_FRONTEND_URL`,
-    `${envPrefix}_S3_BUCKET`,
-    `${envPrefix}_AWS_REGION`,
+    'MONGODB_URI',
+    'PAYLOAD_SECRET',
+    'FRONTEND_URL',
+    'S3_BUCKET',
+    'AWS_REGION',
   ] as const
 
   const hasAll = () => requiredVars.every((k) => process.env[k] && process.env[k]!.length > 0)

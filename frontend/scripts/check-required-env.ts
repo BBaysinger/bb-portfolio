@@ -98,28 +98,15 @@ async function main() {
   const lifecycle = (process.env.npm_lifecycle_event || "").toLowerCase();
   const isBuildLifecycle =
     lifecycle.includes("build") || lifecycle === "prebuild";
-  const isProdEnv = NODE_ENV === "production" || ENV_PROFILE === "prod";
 
-  let profile = (ENV_PROFILE || (isProdEnv ? "prod" : NODE_ENV || ""))
-    .toLowerCase()
-    .trim();
-  if (!profile) {
-    if (
-      process.env.PROD_BACKEND_INTERNAL_URL ||
-      process.env.PROD_FRONTEND_URL
-    ) {
-      profile = "prod";
-    } else if (
-      process.env.DEV_BACKEND_INTERNAL_URL ||
-      process.env.DEV_FRONTEND_URL
-    ) {
-      profile = "dev";
-    } else if (isBuildLifecycle) {
-      profile = "prod";
-    } else {
-      profile = "local";
-    }
-  }
+  const deriveProfile = (): string => {
+    const raw = (ENV_PROFILE || NODE_ENV || "").toLowerCase().trim();
+    if (raw) return raw;
+    if (isBuildLifecycle) return "prod";
+    return "local";
+  };
+
+  const profile = deriveProfile();
 
   const rawList = `${process.env.REQUIRED_ENVIRONMENT_VARIABLES || ""}`.trim();
   const requirements = parseRequirements(rawList);

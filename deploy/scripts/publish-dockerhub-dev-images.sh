@@ -16,7 +16,6 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 SECRETS_FILE="$ROOT_DIR/.github-secrets.private.json5"
 PROFILE="dev"
-PROFILE_UPPER="${PROFILE^^}"
 
 cleanup() {
   [[ -d "$TMP_ENV_DIR" ]] && rm -rf "$TMP_ENV_DIR"
@@ -56,16 +55,6 @@ require_env() {
   fi
 }
 
-prefix_env_vars() {
-  local prefix="$1"
-  shift
-  for key in "$@"; do
-    local value="${!key:-}"
-    [[ -z "$value" ]] && continue
-    export "${prefix}_${key}=$value"
-  done
-}
-
 add_profile_secret() {
   local key="$1"
   local env_var="$2"
@@ -90,9 +79,6 @@ done
 if [[ -z "${SMTP_FROM_EMAIL:-}" ]]; then
   export SMTP_FROM_EMAIL="${SES_FROM_EMAIL:-}"
 fi
-
-# Backwards-compat: export DEV_* variants derived from neutral keys until the frontend finishes migrating
-prefix_env_vars "$PROFILE_UPPER" BACKEND_INTERNAL_URL FRONTEND_URL S3_BUCKET AWS_REGION MONGODB_URI PAYLOAD_SECRET SES_FROM_EMAIL SES_TO_EMAIL SMTP_FROM_EMAIL
 
 AWS_ACCESS_KEY_ID_VAL="$(read_json5_key strings.AWS_ACCESS_KEY_ID)"
 AWS_SECRET_ACCESS_KEY_VAL="$(read_json5_key strings.AWS_SECRET_ACCESS_KEY)"
@@ -122,8 +108,6 @@ docker build \
   --build-arg "ENV_PROFILE=$PROFILE" \
   --build-arg "BACKEND_INTERNAL_URL=$BACKEND_INTERNAL_URL" \
   --build-arg "FRONTEND_URL=$FRONTEND_URL" \
-  --build-arg "${PROFILE_UPPER}_BACKEND_INTERNAL_URL=$BACKEND_INTERNAL_URL" \
-  --build-arg "${PROFILE_UPPER}_FRONTEND_URL=$FRONTEND_URL" \
   -t "$FRONTEND_IMAGE" .
 
 echo "Building backend (${PROFILE} runtime stage)..."
