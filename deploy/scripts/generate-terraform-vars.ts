@@ -15,8 +15,7 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 
-import JSON5 from "json5";
-
+import { loadSecrets, SecretBundle } from "../../scripts/lib/secrets";
 import { mergeGithubSecrets } from "../../scripts/merge-github-secrets";
 
 // Resolve project root and CLI overrides
@@ -70,28 +69,14 @@ if (!secretsArg) {
   mergeGithubSecrets({ rootDir: projectRoot, quiet: true });
 }
 
-interface SecretsConfig {
-  strings: Record<string, string>;
-  files: Record<string, string>;
-}
-
-function loadSecrets(): SecretsConfig {
-  if (!fs.existsSync(secretsFile)) {
-    throw new Error(`Secrets file not found: ${secretsFile}`);
-  }
-
-  const content = fs.readFileSync(secretsFile, "utf-8");
-
-  // Use JSON5 package for proper parsing
-  try {
-    return JSON5.parse(content);
-  } catch (error) {
-    throw new Error(`Failed to parse secrets file: ${error}`);
-  }
-}
-
-function generateTerraformVars(secrets: SecretsConfig): string {
-  const { strings } = secrets;
+function generateTerraformVars(
+  shared: SecretBundle,
+  dev: SecretBundle,
+  prod: SecretBundle,
+): string {
+  const sharedStrings = shared.strings;
+  const devStrings = dev.strings;
+  const prodStrings = prod.strings;
 
   // Get EC2 instance IP from environment variable (optional)
   // Note: This value is not currently used by terraform.tfvars generation.
@@ -131,61 +116,168 @@ project_name  = "bb-portfolio"
 # =============================================================================
 
 # AWS Configuration
-aws_access_key_id     = "${strings.AWS_ACCESS_KEY_ID}"
-aws_secret_access_key = "${strings.AWS_SECRET_ACCESS_KEY}"
-prod_aws_region       = "${strings.PROD_AWS_REGION}"
+aws_access_key_id     = "${sharedStrings.AWS_ACCESS_KEY_ID}"
+aws_secret_access_key = "${sharedStrings.AWS_SECRET_ACCESS_KEY}"
+prod_aws_region       = "${prodStrings.AWS_REGION || sharedStrings.AWS_REGION || ""}"
 
 # Database Configuration
-prod_mongodb_uri = "${strings.PROD_MONGODB_URI}"
+prod_mongodb_uri = "${prodStrings.MONGODB_URI}"
 
 # Payload CMS Configuration
-prod_payload_secret = "${strings.PROD_PAYLOAD_SECRET}"
+prod_payload_secret = "${prodStrings.PAYLOAD_SECRET}"
 
     # S3/Projects & Media Configuration
-    public_projects_bucket = "${strings.PUBLIC_PROJECTS_BUCKET}"
-    nda_projects_bucket = "${strings.NDA_PROJECTS_BUCKET}"
+    public_projects_bucket = "${sharedStrings.PUBLIC_PROJECTS_BUCKET}"
+    nda_projects_bucket = "${sharedStrings.NDA_PROJECTS_BUCKET}"
 
     # Media buckets for Payload CMS uploads (per environment)
-    prod_s3_bucket = "${strings.PROD_S3_BUCKET}"
+    prod_s3_bucket = "${prodStrings.S3_BUCKET}"
 
 # Frontend URLs
-prod_frontend_url         = "${strings.PROD_FRONTEND_URL}"
-prod_backend_internal_url = "${strings.PROD_BACKEND_INTERNAL_URL}"
+prod_frontend_url         = "${prodStrings.FRONTEND_URL}"
+prod_backend_internal_url = "${prodStrings.BACKEND_INTERNAL_URL}"
 
 # Email Configuration
-prod_ses_from_email = "${strings.PROD_SES_FROM_EMAIL}"
-prod_ses_to_email   = "${strings.PROD_SES_TO_EMAIL}"
+prod_ses_from_email = "${prodStrings.SES_FROM_EMAIL}"
+prod_ses_to_email   = "${prodStrings.SES_TO_EMAIL}"
 
 # =============================================================================
 # Development Environment Variables
 # =============================================================================
 
 # AWS Configuration
-dev_aws_region = "${strings.DEV_AWS_REGION}"
+dev_aws_region = "${devStrings.AWS_REGION || sharedStrings.AWS_REGION || ""}"
 
 # Database Configuration
-dev_mongodb_uri = "${strings.DEV_MONGODB_URI}"
+dev_mongodb_uri = "${devStrings.MONGODB_URI}"
 
 # Payload CMS Configuration
-dev_payload_secret = "${strings.DEV_PAYLOAD_SECRET}"
+dev_payload_secret = "${devStrings.PAYLOAD_SECRET}"
 
   # Media bucket for Payload CMS uploads (dev environment)
-  dev_s3_bucket = "${strings.DEV_S3_BUCKET}"
+  dev_s3_bucket = "${devStrings.S3_BUCKET}"
 
 # Backend URLs
-dev_backend_internal_url = "${strings.DEV_BACKEND_INTERNAL_URL}"
+dev_backend_internal_url = "${devStrings.BACKEND_INTERNAL_URL}"
 
 # Email Configuration
-dev_ses_from_email = "${strings.DEV_SES_FROM_EMAIL}"
-dev_ses_to_email   = "${strings.DEV_SES_TO_EMAIL}"
+dev_ses_from_email = "${devStrings.SES_FROM_EMAIL}"
+dev_ses_to_email   = "${devStrings.SES_TO_EMAIL}"
 
 # =============================================================================
 # HTTPS / ACME
 # =============================================================================
-acme_registration_email = "${strings.ACME_REGISTRATION_EMAIL || strings.ACME_EMAIL || ""}"
+acme_registration_email = "${sharedStrings.ACME_REGISTRATION_EMAIL || sharedStrings.ACME_EMAIL || ""}"
 `;
 
   return baseConfig + envVars;
+}
+
+type SecretStrings = Record<string, string>;
+
+function findMissingVariables(bundles: {
+  shared: SecretStrings;
+  dev: SecretStrings;
+  prod: SecretStrings;
+}): string[] {
+  const { shared, dev, prod } = bundles;
+
+  const hasValue = (bundle: SecretStrings, key: string) =>
+    Boolean(bundle && bundle[key] && bundle[key].length > 0);
+
+  const requirements: Array<{
+    label: string;
+    sources: Array<{ bundle: SecretStrings; key: string }>;
+  }> = [
+    {
+      label: "aws_access_key_id",
+      sources: [{ bundle: shared, key: "AWS_ACCESS_KEY_ID" }],
+    },
+    {
+      label: "aws_secret_access_key",
+      sources: [{ bundle: shared, key: "AWS_SECRET_ACCESS_KEY" }],
+    },
+    {
+      label: "public_projects_bucket",
+      sources: [{ bundle: shared, key: "PUBLIC_PROJECTS_BUCKET" }],
+    },
+    {
+      label: "nda_projects_bucket",
+      sources: [{ bundle: shared, key: "NDA_PROJECTS_BUCKET" }],
+    },
+    {
+      label: "prod_aws_region",
+      sources: [
+        { bundle: prod, key: "AWS_REGION" },
+        { bundle: shared, key: "AWS_REGION" },
+      ],
+    },
+    {
+      label: "prod_mongodb_uri",
+      sources: [{ bundle: prod, key: "MONGODB_URI" }],
+    },
+    {
+      label: "prod_payload_secret",
+      sources: [{ bundle: prod, key: "PAYLOAD_SECRET" }],
+    },
+    {
+      label: "prod_s3_bucket",
+      sources: [{ bundle: prod, key: "S3_BUCKET" }],
+    },
+    {
+      label: "prod_frontend_url",
+      sources: [{ bundle: prod, key: "FRONTEND_URL" }],
+    },
+    {
+      label: "prod_backend_internal_url",
+      sources: [{ bundle: prod, key: "BACKEND_INTERNAL_URL" }],
+    },
+    {
+      label: "prod_ses_from_email",
+      sources: [{ bundle: prod, key: "SES_FROM_EMAIL" }],
+    },
+    {
+      label: "prod_ses_to_email",
+      sources: [{ bundle: prod, key: "SES_TO_EMAIL" }],
+    },
+    {
+      label: "dev_aws_region",
+      sources: [
+        { bundle: dev, key: "AWS_REGION" },
+        { bundle: shared, key: "AWS_REGION" },
+      ],
+    },
+    {
+      label: "dev_mongodb_uri",
+      sources: [{ bundle: dev, key: "MONGODB_URI" }],
+    },
+    {
+      label: "dev_payload_secret",
+      sources: [{ bundle: dev, key: "PAYLOAD_SECRET" }],
+    },
+    {
+      label: "dev_s3_bucket",
+      sources: [{ bundle: dev, key: "S3_BUCKET" }],
+    },
+    {
+      label: "dev_backend_internal_url",
+      sources: [{ bundle: dev, key: "BACKEND_INTERNAL_URL" }],
+    },
+    {
+      label: "dev_ses_from_email",
+      sources: [{ bundle: dev, key: "SES_FROM_EMAIL" }],
+    },
+    {
+      label: "dev_ses_to_email",
+      sources: [{ bundle: dev, key: "SES_TO_EMAIL" }],
+    },
+  ];
+
+  return requirements
+    .filter((req) =>
+      req.sources.every(({ bundle, key }) => !hasValue(bundle, key)),
+    )
+    .map((req) => req.label);
 }
 
 function main() {
@@ -196,12 +288,31 @@ function main() {
     console.info("Project root:", projectRoot);
     console.info("Secrets file:", secretsFile);
 
-    // Load secrets
-    const secrets = loadSecrets();
-    console.info("✅ Loaded secrets configuration");
+    const secretsRoot = path.dirname(secretsFile);
+    const sharedFileName = path.basename(secretsFile);
+
+    const sharedSecrets = loadSecrets({
+      rootDir: secretsRoot,
+      sharedFile: sharedFileName,
+    });
+    const devSecrets = loadSecrets({
+      profile: "dev",
+      rootDir: secretsRoot,
+      sharedFile: sharedFileName,
+    });
+    const prodSecrets = loadSecrets({
+      profile: "prod",
+      rootDir: secretsRoot,
+      sharedFile: sharedFileName,
+    });
+    console.info("✅ Loaded shared/dev/prod secret bundles");
 
     // Generate terraform vars content
-    const terraformVarsContent = generateTerraformVars(secrets);
+    const terraformVarsContent = generateTerraformVars(
+      sharedSecrets,
+      devSecrets,
+      prodSecrets,
+    );
 
     // Ensure infra directory exists
     const infraDir = path.dirname(terraformVarsFile);
@@ -213,31 +324,10 @@ function main() {
     fs.writeFileSync(terraformVarsFile, terraformVarsContent);
     console.info("✅ Generated terraform.tfvars");
 
-    // Verify required variables are present
-    const requiredVars = [
-      "aws_access_key_id",
-      "aws_secret_access_key",
-      "prod_mongodb_uri",
-      "prod_payload_secret",
-      "public_projects_bucket",
-      "nda_projects_bucket",
-      "prod_s3_bucket",
-      "dev_s3_bucket",
-      "prod_frontend_url",
-      "prod_backend_internal_url",
-      "prod_ses_from_email",
-      "prod_ses_to_email",
-      "dev_aws_region",
-      "dev_mongodb_uri",
-      "dev_payload_secret",
-      "dev_backend_internal_url",
-      "dev_ses_from_email",
-      "dev_ses_to_email",
-    ];
-
-    const missingVars = requiredVars.filter((varName) => {
-      const secretKey = varName.toUpperCase();
-      return !secrets.strings[secretKey];
+    const missingVars = findMissingVariables({
+      shared: sharedSecrets.strings,
+      dev: devSecrets.strings,
+      prod: prodSecrets.strings,
     });
 
     if (missingVars.length > 0) {

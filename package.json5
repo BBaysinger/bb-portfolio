@@ -89,7 +89,7 @@
     // 🐳 Build frontend Docker image for Docker Hub (dev tag)
     // NOTE: Builds the production runner stage with ENV_PROFILE=dev (no hot reload)
     // Dev internal URL points to the dev compose service name for server-to-server calls.
-    "docker:build:frontend": "docker build --target runner --build-arg ENV_PROFILE=dev --build-arg DEV_BACKEND_INTERNAL_URL=http://bb-portfolio-backend-dev:3000 -t bhbaysinger/bb-portfolio-frontend:dev ./frontend",
+    "docker:build:frontend": "docker build --target runner --build-arg ENV_PROFILE=dev --build-arg BACKEND_INTERNAL_URL=http://bb-portfolio-backend-dev:3000 -t bhbaysinger/bb-portfolio-frontend:dev ./frontend",
     // 🚀 Push backend Docker image to Docker Hub (dev tag)
     "docker:push:backend": "docker push bhbaysinger/bb-portfolio-backend:dev",
     // 🚀 Push frontend Docker image to Docker Hub (dev tag)

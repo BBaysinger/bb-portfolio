@@ -8,13 +8,11 @@ async function fetchPortfolioProjects(opts?: {
 }): Promise<PortfolioProjectData> {
   const { requestHeaders, disableCache } = opts || {};
   const isServer = typeof window === "undefined";
-  // Support ENV-profile prefixed variables like DEV_BACKEND_INTERNAL_URL, PROD_BACKEND_INTERNAL_URL, LOCAL_BACKEND_INTERNAL_URL, etc.
   const rawProfile = (
     process.env.ENV_PROFILE ||
     process.env.NODE_ENV ||
     ""
   ).toLowerCase();
-  // Normalize common synonyms so we look up DEV_ vars when NODE_ENV=development
   const normalizedProfile = rawProfile.startsWith("prod")
     ? "prod"
     : rawProfile === "development" || rawProfile.startsWith("dev")
@@ -22,16 +20,7 @@ async function fetchPortfolioProjects(opts?: {
       : rawProfile.startsWith("local")
         ? "local"
         : rawProfile;
-  const prefix = normalizedProfile ? `${normalizedProfile.toUpperCase()}_` : "";
-  // Return the VALUE of the first defined env var (not the name)
-  const firstVal = (names: string[]) => {
-    for (const n of names) {
-      const v = process.env[n];
-      if (v) return v;
-    }
-    return "";
-  };
-  let base = firstVal([`${prefix}BACKEND_INTERNAL_URL`]);
+  let base = process.env.BACKEND_INTERNAL_URL || "";
 
   // Conventional: rely on Next.js rewrites for /api/* on the server.
   // Fail fast if .env is incomplete so misconfigurations are obvious.
