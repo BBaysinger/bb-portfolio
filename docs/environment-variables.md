@@ -10,6 +10,13 @@ This project follows the standard environment variable conventions:
 - **`.env.local`** - Local overrides (not committed, in `.gitignore`)
 - **`.env.example`** - Template showing required variables
 
+### Naming paradigm
+
+- Local development should rely on unprefixed keys (e.g., `PUBLIC_SERVER_URL`, `MONGODB_URI`). These stay in `.env` / `.env.local` and never leave your machine.
+- Prefixed variants (`DEV_*`, `PROD_*`) exist only for environments that share a single secrets bundle (GitHub Actions, Terraform output, etc.). If an environment doesn’t need to co‑exist in that bundle, don’t create a duplicate key.
+- We intentionally avoid sprawling “compatibility” envs; when the backend needs a value, it fails fast with a helpful error instead of silently massaging inputs.
+- Legacy `LOCAL_*` keys are still read as a short-term fallback, but new configuration should stick to the simplified convention.
+
 ## Key Variables
 
 ### NEXT_PUBLIC_FORCE_HASH_HISTORY
@@ -35,6 +42,19 @@ This project follows the standard environment variable conventions:
 - **Purpose**: EC2 instance IP address for deployments and SSH access
 - **Default**: `44.246.43.116`
 - **Usage**: Used in deployment scripts and infrastructure management
+
+- **Purpose**: Defines the exact origin (scheme + host + port) that serves the Payload admin UI and `/api` routes for a given environment.
+- **Variants**:
+  - `PUBLIC_SERVER_URL` (local / unprefixed default)
+  - `DEV_PUBLIC_SERVER_URL`, `PROD_PUBLIC_SERVER_URL` (only when dev + prod secrets share a single file)
+  - `PAYLOAD_PUBLIC_SERVER_URL` (global override for CI or special hosts)
+- **Why it matters**: Payload’s admin shell builds API requests relative to this origin. When unset, requests fall back to `/admin/api/...` which no longer exists now that the backend isn’t mounted under a Next.js `basePath`.
+- **Typical values**:
+  - `http://localhost:3001` – bare-metal backend dev (`npm run dev` inside `backend/`)
+  - `http://localhost:8081` – Docker backend exposed via compose
+  - `http://localhost:8080` – Local Caddy proxy aggregating frontend + backend
+  - `https://bbaysinger.com` – Production
+- **Usage**: Validated in `backend/src/payload.config.ts` during boot. Missing values cause the backend to exit with a guidance message.
 
 ## Setup
 

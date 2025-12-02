@@ -101,38 +101,10 @@
   // Derive effective profile
   let profile = (ENV_PROFILE || (isProdEnv ? 'prod' : NODE_ENV || '')).toLowerCase().trim()
   if (!profile) {
-    // Heuristic: infer from present prefixed keys first
-    if (
-      process.env.PROD_AWS_REGION ||
-      process.env.PROD_FRONTEND_URL ||
-      process.env.PROD_SES_FROM_EMAIL ||
-      process.env.PROD_SES_TO_EMAIL
-    ) {
-      profile = 'prod'
-    } else if (
-      process.env.DEV_AWS_REGION ||
-      process.env.DEV_FRONTEND_URL ||
-      process.env.DEV_SES_FROM_EMAIL ||
-      process.env.DEV_SES_TO_EMAIL
-    ) {
-      profile = 'dev'
-    } else if (isBuildLifecycle) {
-      // Treat builds without explicit profile as production-hardening
-      profile = 'prod'
-    } else {
-      profile = 'local'
-    }
+    profile = isBuildLifecycle ? 'prod' : 'local'
   }
 
-  const profileUpper = (profile || '').toUpperCase()
-  const pref = profileUpper ? `${profileUpper}_` : ''
-
-  // Use unified definition variables (no renaming)
-  const unifiedProfileKey = profileUpper ? `${profileUpper}_REQUIRED_ENVIRONMENT_VARIABLES` : ''
-  const unifiedGlobalKey = `REQUIRED_ENVIRONMENT_VARIABLES`
-  const rawList = (
-    (process.env[unifiedProfileKey] || process.env[unifiedGlobalKey] || '') + ''
-  ).trim()
+  const rawList = ((process.env.REQUIRED_ENVIRONMENT_VARIABLES || '') + '').trim()
 
   const parseRequirements = (s) => {
     if (!s) return []
@@ -152,44 +124,36 @@
 
   // Defaults when no explicit list provided
   const defaultCritical = [
-    // Mongo URL
-    [`${pref}MONGODB_URI`],
-    // Frontend origin(s) for CORS/CSRF
-    [`${pref}FRONTEND_URL`],
-    // Region for SES / AWS SDK
-    [`${pref}AWS_REGION`],
-    // One of SES_FROM_EMAIL or SMTP_FROM_EMAIL must be present
-    [`${pref}SES_FROM_EMAIL`, `${pref}SMTP_FROM_EMAIL`],
-    // Where contact form emails are delivered
-    [`${pref}SES_TO_EMAIL`],
-    // Payload secret
-    [`${pref}PAYLOAD_SECRET`],
+    ['MONGODB_URI'],
+    ['FRONTEND_URL'],
+    ['AWS_REGION'],
+    ['SES_FROM_EMAIL', 'SMTP_FROM_EMAIL'],
+    ['SES_TO_EMAIL'],
+    ['PAYLOAD_SECRET'],
   ]
   const defaultLocal = [
-    [`${pref}MONGODB_URI`],
-    [`${pref}FRONTEND_URL`],
-    [`${pref}AWS_REGION`],
-    [`${pref}SES_FROM_EMAIL`, `${pref}SMTP_FROM_EMAIL`],
-    [`${pref}SES_TO_EMAIL`],
-    [`${pref}PAYLOAD_SECRET`],
+    ['MONGODB_URI'],
+    ['FRONTEND_URL'],
+    ['AWS_REGION'],
+    ['SES_FROM_EMAIL', 'SMTP_FROM_EMAIL'],
+    ['SES_TO_EMAIL'],
+    ['PAYLOAD_SECRET'],
     // Useful in local to ensure Server Actions crypto key is set
     ['NEXT_SERVER_ACTIONS_ENCRYPTION_KEY'],
   ]
 
   // Require presence of explicit definition variable in CI/build/prod
-  const hasDefinitionVar = !!(process.env[unifiedProfileKey] || process.env[unifiedGlobalKey])
+  const hasDefinitionVar = !!rawList
   // Only enforce strictly in CI or prod profile; allow non-CI local builds to proceed
   if ((inCI || profile === 'prod') && !hasDefinitionVar) {
-    const hint = unifiedProfileKey || '<PROFILE>_REQUIRED_ENVIRONMENT_VARIABLES'
     const msg = [
       '[backend:check-required-env] Missing definition of required env list.',
       `Profile: ${profile || '<none>'}`,
       'Please set one of:',
-      `  - ${hint}`,
       '  - REQUIRED_ENVIRONMENT_VARIABLES',
       'Define a comma-separated list of groups; use "|" for ANY-of within a group.',
       'Example:',
-      '  PROD_REQUIRED_ENVIRONMENT_VARIABLES=GROUP_A|GROUP_B,GROUP_C',
+      '  REQUIRED_ENVIRONMENT_VARIABLES=GROUP_A|GROUP_B,GROUP_C',
     ].join('\n')
     console.error(msg)
     process.exit(1)
@@ -216,10 +180,7 @@
       `Profile: ${profile || '<none>'}`,
       'The following requirements were not satisfied (ANY of within each group):',
       ...missingGroups.map((g) => `  - ${g}`),
-      '\nConfigure REQUIRED_ENVIRONMENT_VARIABLES or <PROFILE>_REQUIRED_ENVIRONMENT_VARIABLES.',
-      'Examples:',
-      '  REQUIRED_ENVIRONMENT_VARIABLES=GROUP_A|GROUP_B,GROUP_C',
-      '  PROD_REQUIRED_ENVIRONMENT_VARIABLES=GROUP_A|GROUP_B,GROUP_C',
+      '\nConfigure REQUIRED_ENVIRONMENT_VARIABLES for your build.',
     ].join('\n')
     if (inCI || profile === 'prod') {
       console.error(msg)

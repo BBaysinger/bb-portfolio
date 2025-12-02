@@ -8,8 +8,9 @@ set -euo pipefail
 #   is provided via --build-arg so Next.js build and runtime config validation can succeed.
 # - Sensitive values (Mongo URI, Payload secret, AWS creds, SES emails) are injected via Docker
 #   BuildKit --secret mounts so they are ephemeral during RUN and not persisted in layers/history.
-# - Source of truth for prod values is infra/terraform.tfvars, which is generated from your
-#   .github-secrets.private.json5 during the deploy flow.
+# - Source of truth for prod values comes from the per-env secrets files.
+#   This script bundles them (via scripts/merge-github-secrets.ts) and regenerates infra/terraform.tfvars
+#   so the build args mirror whatever is stored in GitHub Environment secrets.
 #
 # Usage: ./deploy/publish-ecr-images.sh
 
@@ -19,6 +20,12 @@ FRONTEND_REPO="${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com/bb-portfolio-fronte
 BACKEND_REPO="${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com/bb-portfolio-backend-prod"
 
 ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+bundle_secrets() {
+	(cd "$ROOT_DIR" && npx tsx scripts/merge-github-secrets.ts --quiet >/dev/null)
+}
+bundle_secrets
+echo "Ensuring terraform.tfvars matches latest secrets ..."
+(cd "$ROOT_DIR" && npx tsx deploy/scripts/generate-terraform-vars.ts >/dev/null)
 TFVARS="$ROOT_DIR/infra/terraform.tfvars"
 
 get_tf_var() {

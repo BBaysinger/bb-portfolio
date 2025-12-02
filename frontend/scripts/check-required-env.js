@@ -114,17 +114,7 @@
     }
   }
 
-  const profileUpper = (profile || "").toUpperCase();
-  // Use unified definition variables (no renaming). Frontend will filter to its own needs.
-  const unifiedProfileKey = profileUpper
-    ? `${profileUpper}_REQUIRED_ENVIRONMENT_VARIABLES`
-    : "";
-  const unifiedGlobalKey = `REQUIRED_ENVIRONMENT_VARIABLES`;
-  const rawList = (
-    process.env[unifiedProfileKey] ||
-    process.env[unifiedGlobalKey] ||
-    ""
-  ).trim();
+  const rawList = (process.env.REQUIRED_ENVIRONMENT_VARIABLES || "").trim();
 
   const parseRequirements = (s) => {
     if (!s) return [];
@@ -143,18 +133,13 @@
   const requirements = parseRequirements(rawList);
 
   // Strict requirement: accept only profile-prefixed backend origin (no backwards compatibility)
-  const defaultBackendGroup = [
-    `${profile.toUpperCase()}_BACKEND_INTERNAL_URL`,
-  ].filter(Boolean);
+  const defaultBackendGroup = ["BACKEND_INTERNAL_URL"];
 
   // Enforce presence of unified definition var in CI/build/prod to avoid drift
-  const hasDefinitionVar = !!(
-    process.env[unifiedProfileKey] || process.env[unifiedGlobalKey]
-  );
+  const hasDefinitionVar = !!rawList;
   // Only enforce definition strictly in CI or prod profile; allow non-CI local builds to proceed
   if ((inCI || profile === "prod") && !hasDefinitionVar) {
-    const hint =
-      unifiedProfileKey || "<PROFILE>_REQUIRED_ENVIRONMENT_VARIABLES";
+    const hint = "REQUIRED_ENVIRONMENT_VARIABLES";
     const msg = [
       "[check-required-env] Missing definition of required env list.",
       `Profile: ${profile || "<none>"}`,
@@ -163,7 +148,7 @@
       "  - REQUIRED_ENVIRONMENT_VARIABLES",
       "Define a comma-separated list of groups; use '|' for ANY-of within a group.",
       "Example:",
-      "  PROD_REQUIRED_ENVIRONMENT_VARIABLES=PROD_BACKEND_INTERNAL_URL",
+      "  REQUIRED_ENVIRONMENT_VARIABLES=BACKEND_INTERNAL_URL",
     ].join("\n");
     console.error(msg);
     process.exit(1);
@@ -171,7 +156,7 @@
 
   // FRONTEND-SCOPED ENFORCEMENT: filter unified list to only frontend-relevant names
   const frontendAllowed = new Set([
-    `${profileUpper}_BACKEND_INTERNAL_URL`,
+    "BACKEND_INTERNAL_URL",
     "PUBLIC_PROJECTS_BUCKET",
     "NDA_PROJECTS_BUCKET",
   ]);
@@ -201,8 +186,7 @@
       ...missingGroups.map((g) => `  - ${g}`),
       "\nConfigure REQUIRED_ENVIRONMENT_VARIABLES or <PROFILE>_REQUIRED_ENVIRONMENT_VARIABLES.",
       "Examples:",
-      "  REQUIRED_ENVIRONMENT_VARIABLES=DEV_BACKEND_INTERNAL_URL",
-      "  PROD_REQUIRED_ENVIRONMENT_VARIABLES=PROD_BACKEND_INTERNAL_URL",
+      "  REQUIRED_ENVIRONMENT_VARIABLES=BACKEND_INTERNAL_URL",
       "\nNote: In CI+prod, a default requirement enforces at least one backend base URL variable to avoid empty portfolio deploys.",
     ].join("\n");
     if (inCI || profile === "prod") {

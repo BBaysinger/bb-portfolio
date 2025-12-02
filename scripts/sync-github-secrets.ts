@@ -19,21 +19,17 @@
 
 /**
  * Sync secrets.json5 into GitHub secrets (destructive: removes extras)
- * - Supports repo-level secrets (strings/files)
- * - Supports environment-scoped secrets via `environments: { <env>: { strings, files } }`
- * - NEW: If a sibling ".private" file exists (e.g.,
- *        ./.github-secrets.private.json5 next to ./.github-secrets.private.json5),
- *        values from the private file are overlaid onto the provided
- *        template for keys defined in the template schema. Extra keys in
- *        the private file are ignored. This keeps JSON5 as the schema-of-record
- *        while allowing real values to remain untracked.
+ * - Supports repo-level scopes (default) or GitHub Environment scopes via --env <name>
+ * - Applies strings/files defined in the provided JSON5 manifest
+ * - Optional overlay: if a sibling ".private" file exists next to the template, only
+ *   schema keys present in the template are copied from the private file.
  *
  * Usage:
- *   ./sync-github-secrets.ts <owner/repo> <secrets.json5> [--dry-run]
+ *   ./sync-github-secrets.ts <owner/repo> <secrets.json5> [--env <name>] [--dry-run]
  *
  * Examples:
  * npx ts-node ./scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./.github-secrets.private.json5 --dry-run
- * npx ts-node ./scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./.github-secrets.private.json5
+ * npx ts-node ./scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./.github-secrets.private.dev.json5 --env dev
  */
 
 import { execSync } from "child_process";
@@ -52,25 +48,60 @@ interface SecretsFile extends SecretGroup {
   environments?: Record<string, SecretGroup>;
 }
 
-if (process.argv.length < 4 || process.argv.length > 5) {
+const args = process.argv.slice(2);
+let REPO: string | undefined;
+let JSON_FILE: string | undefined;
+let ENV_SCOPE: string | undefined;
+let DRY_RUN = false;
+
+for (let i = 0; i < args.length; i += 1) {
+  const arg = args[i];
+  if (arg === "--dry-run") {
+    DRY_RUN = true;
+    continue;
+  }
+  if (arg === "--env" || arg === "-e") {
+    ENV_SCOPE = args[i + 1];
+    if (!ENV_SCOPE) {
+      console.error("--env flag requires a value (e.g., dev, prod, stage)");
+      process.exit(1);
+    }
+    i += 1;
+    continue;
+  }
+  if (!REPO) {
+    REPO = arg;
+    continue;
+  }
+  if (!JSON_FILE) {
+    JSON_FILE = arg;
+    continue;
+  }
+  console.error(`Unexpected argument: ${arg}`);
+  process.exit(1);
+}
+
+if (!REPO || !JSON_FILE) {
   console.error(
-    "Usage: sync-github-secrets.ts <owner/repo> <secrets.json5> [--dry-run]",
+    "Usage: sync-github-secrets.ts <owner/repo> <secrets.json5> [--env <name>] [--dry-run]",
   );
   process.exit(1);
 }
 
-const REPO = process.argv[2];
-const JSON_FILE = process.argv[3];
-const DRY_RUN = process.argv[4] === "--dry-run";
+const manifestPath = JSON_FILE ? path.resolve(JSON_FILE) : undefined;
 
-if (!fs.existsSync(JSON_FILE)) {
-  console.error(`Error: File not found: ${JSON_FILE}`);
+if (!manifestPath || !fs.existsSync(manifestPath)) {
+  console.error(
+    `Error: File not found: ${JSON_FILE ?? "<unspecified secrets file>"}`,
+  );
   process.exit(1);
 }
 
-console.info(`📥 Reading secrets from ${JSON_FILE} ...`);
+console.info(
+  `📥 Reading secrets from ${manifestPath} ${ENV_SCOPE ? `(target env: ${ENV_SCOPE})` : "(repo scope)"}...`,
+);
 
-const raw = fs.readFileSync(JSON_FILE, "utf8");
+const raw = fs.readFileSync(manifestPath, "utf8");
 let baseData: SecretsFile = JSON5.parse(raw);
 
 // Normalize structure for base
@@ -80,14 +111,15 @@ baseData.environments = baseData.environments ?? {};
 
 // Attempt to overlay private values from sibling ".private" file
 const privatePath = path.join(
-  path.dirname(JSON_FILE),
-  path.basename(JSON_FILE).replace(/\.json5$/, ".private.json5"),
+  path.dirname(manifestPath),
+  path.basename(manifestPath).replace(/\.json5$/, ".private.json5"),
 );
 
 let data: SecretsFile = baseData;
 if (
   privatePath &&
-  path.resolve(privatePath) !== path.resolve(JSON_FILE) &&
+  manifestPath &&
+  path.resolve(privatePath) !== manifestPath &&
   fs.existsSync(privatePath)
 ) {
   try {
@@ -155,8 +187,8 @@ if (
 }
 
 // Validate required variables lists against provided secrets schema/values.
-// Enforces that each ANY-of group in the DEV/PROD_REQUIRED_ENVIRONMENT_VARIABLES
-// has at least one corresponding secret present in the repo-level strings.
+// Each ANY-of group in REQUIRED_ENVIRONMENT_VARIABLES must have at least one
+// corresponding secret present after merging base + environment manifests.
 // To bypass enforcement (not recommended), set ALLOW_MISSING_REQUIRED_GROUPS=true.
 function parseRequirements(list: string | undefined): string[][] {
   if (!list) return [];
@@ -172,23 +204,64 @@ function parseRequirements(list: string | undefined): string[][] {
     );
 }
 
-function validateRequiredLists() {
+const manifestDir = path.dirname(manifestPath);
+const baseSecretsPath = path.join(manifestDir, ".github-secrets.private.json5");
+const isBaseManifest =
+  path.basename(manifestPath) === ".github-secrets.private.json5";
+
+const readStrings = (input?: SecretGroup): Record<string, string> => {
+  if (!input) return {};
+  if (input.strings) return { ...input.strings };
+  return { ...(input as Record<string, string>) };
+};
+
+const baseStrings = (() => {
+  if (!fs.existsSync(baseSecretsPath)) return {};
+  try {
+    const parsed = JSON5.parse(
+      fs.readFileSync(baseSecretsPath, "utf8"),
+    ) as SecretsFile;
+    return readStrings(parsed);
+  } catch (err) {
+    console.warn(
+      `⚠️ Failed to parse base secrets at ${baseSecretsPath}: ${(err as Error).message}`,
+    );
+    return {};
+  }
+})();
+
+function validateRequiredLists(stringsOverride?: Record<string, string>) {
   const allowBypass =
     (process.env.ALLOW_MISSING_REQUIRED_GROUPS || "").toLowerCase() === "true";
-  const strings = data.strings ?? {};
-  const keys = new Set(Object.keys(strings));
+  const strings = stringsOverride ?? data.strings ?? {};
+  const requirementSource =
+    strings["REQUIRED_ENVIRONMENT_VARIABLES"] ||
+    (isBaseManifest
+      ? undefined
+      : baseStrings["REQUIRED_ENVIRONMENT_VARIABLES"]);
+  if (!requirementSource) {
+    if (!isBaseManifest) {
+      console.info(
+        "ℹ️ No REQUIRED_ENVIRONMENT_VARIABLES defined; skipping validation.",
+      );
+    }
+    return;
+  }
 
-  const devList = strings["DEV_REQUIRED_ENVIRONMENT_VARIABLES"];
-  const prodList = strings["PROD_REQUIRED_ENVIRONMENT_VARIABLES"];
+  if (isBaseManifest) {
+    console.info(
+      "ℹ️ REQUIRED_ENVIRONMENT_VARIABLES defined on base manifest; skipping enforcement for repo scope.",
+    );
+    return;
+  }
+
+  const mergedStrings = { ...baseStrings, ...strings };
+  const keys = new Set(Object.keys(mergedStrings));
 
   const checks: Array<{ name: string; groups: string[][] }> = [
     {
-      name: "DEV_REQUIRED_ENVIRONMENT_VARIABLES",
-      groups: parseRequirements(devList),
-    },
-    {
-      name: "PROD_REQUIRED_ENVIRONMENT_VARIABLES",
-      groups: parseRequirements(prodList),
+      name: "REQUIRED_ENVIRONMENT_VARIABLES",
+      groups: parseRequirements(requirementSource),
     },
   ];
 
@@ -223,22 +296,18 @@ function validateRequiredLists() {
       process.exit(1);
     }
   } else {
-    const devSummary =
-      parseRequirements(devList)
-        .map((g) => `[${g.join("|")}]`)
-        .join(", ") || "<none>";
-    const prodSummary =
-      parseRequirements(prodList)
+    const summary =
+      parseRequirements(requirementSource)
         .map((g) => `[${g.join("|")}]`)
         .join(", ") || "<none>";
     console.info(
-      `✅ Required variables satisfied.\nDEV_REQUIRED_ENVIRONMENT_VARIABLES=${devSummary}\nPROD_REQUIRED_ENVIRONMENT_VARIABLES=${prodSummary}`,
+      `✅ Required variables satisfied.\nREQUIRED_ENVIRONMENT_VARIABLES=${summary}`,
     );
   }
 }
 
 // Execute validation before attempting to set/delete GitHub secrets
-validateRequiredLists();
+validateRequiredLists(data.strings ?? {});
 
 // Expand ~ in file paths (after overlay)
 for (const [k, v] of Object.entries(data.files ?? {})) {
@@ -339,33 +408,34 @@ function setFiles(
   }
 }
 
-// Repo-level secrets
-{
-  const currentRepoKeys = listSecrets("repo");
-  const desiredRepoKeys = [
-    ...Object.keys(data.strings!),
-    ...Object.keys(data.files!),
-  ];
-  removeExtras("repo", undefined, currentRepoKeys, desiredRepoKeys);
-  setStrings("repo", undefined, data.strings!);
-  setFiles("repo", undefined, data.files!);
-}
+const syncScope = (
+  scope: "repo" | "env",
+  envName: string | undefined,
+  group: SecretGroup | undefined,
+) => {
+  const strings = group?.strings ?? {};
+  const files = group?.files ?? {};
+  const currentKeys = listSecrets(scope, envName);
+  const desiredKeys = [...Object.keys(strings), ...Object.keys(files)];
+  removeExtras(scope, envName, currentKeys, desiredKeys);
+  setStrings(scope, envName, strings);
+  setFiles(scope, envName, files);
+};
 
-// Environment-scoped secrets
-for (const [envName, group] of Object.entries(data.environments!)) {
-  const strings = group.strings ?? {};
-  const files = group.files ?? {};
-  const currentEnvKeys = listSecrets("env", envName);
-  const desiredEnvKeys = [...Object.keys(strings), ...Object.keys(files)];
-  removeExtras("env", envName, currentEnvKeys, desiredEnvKeys);
-  setStrings("env", envName, strings);
-  setFiles("env", envName, files);
+if (ENV_SCOPE) {
+  const explicitEnvGroup = data.environments?.[ENV_SCOPE];
+  syncScope("env", ENV_SCOPE, explicitEnvGroup ?? data);
+} else {
+  syncScope("repo", undefined, data);
+  for (const [envName, group] of Object.entries(data.environments ?? {})) {
+    syncScope("env", envName, group);
+  }
 }
 
 if (DRY_RUN) {
   console.info("✅ Dry run complete! No secrets were changed.");
 } else {
   console.info(
-    `✅ Sync complete! Repo ${REPO} (repo-level and environments) now matches ${JSON_FILE}.`,
+    `✅ Sync complete! Repo ${REPO} (repo-level and environments) now matches ${manifestPath}.`,
   );
 }
