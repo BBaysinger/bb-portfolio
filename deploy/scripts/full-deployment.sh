@@ -294,67 +294,7 @@ if [[ "$refresh_env" == true ]]; then
   TMP_DIR="$(mktemp -d)"
   (
     cd "$REPO_ROOT"
-    EC2_ENV_OUT_DIR="$TMP_DIR" npx tsx -e '
-      import { readFileSync, writeFileSync, mkdirSync } from "fs";
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const JSON5 = require("json5");
-      const outDir = process.env.EC2_ENV_OUT_DIR as string;
-      const raw = readFileSync(".github-secrets.private.json5", "utf8");
-      const cfg = JSON5.parse(raw);
-      const s = (cfg.strings || cfg);
-      const sVal = (k: string, def?: string) => (s[k] ?? def ?? "");
-      const S3_REGION = sVal("S3_REGION", "");
-      const beProd = [
-        "NODE_ENV=production",
-        "ENV_PROFILE=prod",
-        `PROD_AWS_REGION=${sVal("PROD_AWS_REGION", S3_REGION)}`,
-        `PROD_MONGODB_URI=${sVal("PROD_MONGODB_URI")}`,
-        `PROD_PAYLOAD_SECRET=${sVal("PROD_PAYLOAD_SECRET")}`,
-        `PUBLIC_S3_BUCKET=${sVal("PUBLIC_S3_BUCKET")}`,
-        `NDA_S3_BUCKET=${sVal("NDA_S3_BUCKET")}`,
-        `S3_REGION=${sVal("S3_REGION", sVal("PROD_AWS_REGION", ""))}`,
-        `PROD_FRONTEND_URL=${sVal("PROD_FRONTEND_URL")}`,
-        
-  `PROD_BACKEND_INTERNAL_URL=${sVal("PROD_BACKEND_INTERNAL_URL", "http://bb-portfolio-backend-prod:3000")}`,
-        `PROD_SES_FROM_EMAIL=${sVal("PROD_SES_FROM_EMAIL")}`,
-        `PROD_SES_TO_EMAIL=${sVal("PROD_SES_TO_EMAIL")}`,
-      ].join("\n") + "\n";
-      const beDev = [
-        "NODE_ENV=development",
-        "ENV_PROFILE=dev",
-        `DEV_AWS_REGION=${sVal("DEV_AWS_REGION", S3_REGION)}`,
-        `DEV_MONGODB_URI=${sVal("DEV_MONGODB_URI")}`,
-        `DEV_PAYLOAD_SECRET=${sVal("DEV_PAYLOAD_SECRET")}`,
-        `DEV_S3_BUCKET=${sVal("DEV_S3_BUCKET")}`,
-        `S3_REGION=${sVal("S3_REGION", sVal("DEV_AWS_REGION", ""))}`,
-        `DEV_FRONTEND_URL=${sVal("DEV_FRONTEND_URL")}`,
-        
-  `DEV_BACKEND_INTERNAL_URL=${sVal("DEV_BACKEND_INTERNAL_URL", "http://bb-portfolio-backend-dev:3000")}`,
-        `DEV_SES_FROM_EMAIL=${sVal("DEV_SES_FROM_EMAIL")}`,
-        `DEV_SES_TO_EMAIL=${sVal("DEV_SES_TO_EMAIL")}`,
-      ].join("\n") + "\n";
-      const feProd = [
-        "NODE_ENV=production",
-        "ENV_PROFILE=prod",
-        // Internal URL used by Next.js SSR/server for rewrites/fetches
-        `PROD_BACKEND_INTERNAL_URL=${sVal("PROD_BACKEND_INTERNAL_URL", "http://bb-portfolio-backend-prod:3000")}`,
-        // Public URL exposed to the browser
-        
-      ].join("\n") + "\n";
-      const feDev = [
-        "NODE_ENV=development",
-        "ENV_PROFILE=dev",
-        // Internal URL used by Next.js SSR/server inside the compose network
-        `DEV_BACKEND_INTERNAL_URL=${sVal("DEV_BACKEND_INTERNAL_URL", "http://bb-portfolio-backend-dev:3000")}`,
-        // Public URL for the browser to reach the dev backend via host port
-        
-      ].join("\n") + "\n";
-      mkdirSync(outDir, { recursive: true });
-      writeFileSync(`${outDir}/backend.env.prod`, beProd, "utf8");
-      writeFileSync(`${outDir}/backend.env.dev`, beDev, "utf8");
-      writeFileSync(`${outDir}/frontend.env.prod`, feProd, "utf8");
-      writeFileSync(`${outDir}/frontend.env.dev`, feDev, "utf8");
-    '
+    npx --yes tsx scripts/generate-env-files.ts --out "$TMP_DIR"
   )
   log "Uploading env files to EC2 ($EC2_HOST)"
   ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" "mkdir -p /home/ec2-user/portfolio/backend /home/ec2-user/portfolio/frontend"

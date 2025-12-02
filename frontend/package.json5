@@ -10,11 +10,11 @@
   // Frontend development and build scripts
   "scripts": {
     // Validate required environment variables before starting dev
-    "predev": "node ./scripts/check-required-env.js",
+    "predev": "tsx ./scripts/check-required-env.ts",
     // Start Next.js development server with hot reload
     "dev": "next dev --webpack -p ${PORT:-3000}",
     // Check required environment variables for current profile
-    "prebuild": "node ./scripts/check-required-env.js",
+    "prebuild": "tsx ./scripts/check-required-env.ts",
     // Build production-optimized static site
     "build": "next build --webpack",
     // 🧰 Explicit Webpack build target for comparing bundler output or debugging prod-only bugs.
@@ -26,7 +26,7 @@
     // Preview the built static site using serve
     "preview": "npx serve out",
     // Validate required environment variables before starting production server
-    "prestart": "node ./scripts/check-required-env.js",
+    "prestart": "tsx ./scripts/check-required-env.ts",
     // Start Next.js production server
     "start": "next start",
     // Run Next.js ESLint configuration
@@ -93,6 +93,8 @@
     "eslint-plugin-react-refresh": "^0.4.23",
     // Opinionated code formatter for consistent style
     "prettier": "^3.6.2",
+    // Lightweight TypeScript runtime for executing guard scripts
+    "tsx": "^4.20.6",
     // TypeScript compiler (v5 for latest language features)
     "typescript": "5.9.3",
   },

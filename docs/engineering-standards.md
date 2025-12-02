@@ -205,7 +205,7 @@ Operator guidance for removals:
     ```
     Include SES from/to secrets as required by the active profile.
 - Satisfy build-time guards transiently.
-  - The backend prebuild guard (`scripts/check-required-env.js`) runs strictly during Docker build.
+  - The backend prebuild guard (`scripts/check-required-env.ts`) runs strictly during Docker build.
   - Satisfy it with a short-lived export in the same RUN step (e.g., `REQUIRED_ENVIRONMENT_VARIABLES=DUMMY_OK` and `DUMMY_OK=1`).
   - Never bake configuration via Docker `ENV`; enforce real values at secrets-sync and runtime `prestart`.
 - Security & hygiene in runtime images:
@@ -230,12 +230,10 @@ Operator guidance for removals:
 
 - **Profiles**
   - Profiles in use: `local`, `dev`, `prod`. `stage` may be added later; its implementation should mirror `dev`.
-  - Profile inference follows the backend guard heuristics (`scripts/check-required-env.js`).
+  - Profile inference follows the backend guard heuristics (`scripts/check-required-env.ts`).
 
-- **Required lists (ANY-of groups supported)**
-  - Use one of:
-    - `<PROFILE>_REQUIRED_ENVIRONMENT_VARIABLES` (e.g., `PROD_REQUIRED_ENVIRONMENT_VARIABLES`)
-    - `REQUIRED_ENVIRONMENT_VARIABLES` (global)
+- **Required list (ANY-of groups supported)**
+  - Use the unified `REQUIRED_ENVIRONMENT_VARIABLES` definition.
   - Comma-separated groups; within a group, `|` means ANY-of is acceptable.
   - Example:
     ```bash
@@ -290,7 +288,7 @@ Earlier iterations used a small client-side fallback to reduce UX flicker (an `a
 ## Backend conventions
 
 - Use the env guard at build/start:
-  - `scripts/check-required-env.js` validates required vars with support for ANY-of groups and profile inference.
+  - `scripts/check-required-env.ts` validates required vars with support for ANY-of groups and profile inference.
   - In CI/build, provide a definition list or rely on defaults; in prod, a definition list is strongly encouraged.
 - Email/SES configuration:
   - Prefer profile-prefixed `*_SES_FROM_EMAIL` and `*_SES_TO_EMAIL` for routing email per environment.
@@ -349,7 +347,7 @@ Use this checklist when opening any PR:
 - [ ] Backend: guard passes locally and in CI; runtime `prestart` succeeds with generated env files.
 - [ ] Docs updated when behavior or configuration changes (this file, `docs/environment-variables.md`, etc.).
 - [ ] ADRs updated if new technical decisions were introduced.
-- [ ] Build passes `scripts/check-required-env.js` locally before commit.
+- [ ] Build passes `scripts/check-required-env.ts` locally before commit.
 - [ ] Boilerplate readiness: non-standard deviations (if any) are documented with a clear removal path; conventional alternatives are noted.
 
 ---
@@ -365,9 +363,9 @@ Use this checklist when opening any PR:
 
 ### Required list examples
 
-Use per-profile lists in CI/prod (strictly prefixed), and a single global list for local/dev if you prefer. The global list should still reference prefixed variables using ANY-of groups (|) so it works across profiles.
+Use a single global list for all profiles. Reference prefixed variables using ANY-of groups (`|`) so each profile satisfies at least one entry per group.
 
-- Global (works across profiles via ANY-of groups):
+- Example global list:
 
   ```bash
   REQUIRED_ENVIRONMENT_VARIABLES=\
@@ -379,9 +377,6 @@ Use per-profile lists in CI/prod (strictly prefixed), and a single global list f
   LOCAL_PAYLOAD_SECRET|DEV_PAYLOAD_SECRET|PROD_PAYLOAD_SECRET,\
   SECURITY_TXT_EXPIRES
   ```
-
-- Prod (preferred in CI/prod):
-  `PROD_REQUIRED_ENVIRONMENT_VARIABLES=PROD_MONGODB_URI,PROD_FRONTEND_URL,PROD_AWS_REGION,PROD_SES_FROM_EMAIL|PROD_SMTP_FROM_EMAIL,PROD_SES_TO_EMAIL,PROD_PAYLOAD_SECRET,SECURITY_TXT_EXPIRES`
 
 ### Naming examples
 

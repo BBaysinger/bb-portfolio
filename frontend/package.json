@@ -4,15 +4,15 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "predev": "node ./scripts/check-required-env.js",
+    "predev": "tsx ./scripts/check-required-env.ts",
     "dev": "next dev --webpack -p ${PORT:-3000}",
-    "prebuild": "node ./scripts/check-required-env.js",
+    "prebuild": "tsx ./scripts/check-required-env.ts",
     "build": "next build --webpack",
     "build:webpack": "next build --webpack",
     "build:when-ready": "node ./scripts/pre-build.mjs",
     "turbopack": "NEXT_TELEMETRY_DISABLED=1 next build --turbopack",
     "preview": "npx serve out",
-    "prestart": "node ./scripts/check-required-env.js",
+    "prestart": "tsx ./scripts/check-required-env.ts",
     "start": "next start",
     "lint": "eslint .",
     "precommit": "prettier --write \"src/**/*.{ts,tsx,js,jsx,scss,css,md}\" && tsc -b",
@@ -47,6 +47,7 @@
     "eslint-plugin-react-hooks": "^6.1.1",
     "eslint-plugin-react-refresh": "^0.4.23",
     "prettier": "^3.6.2",
+    "tsx": "^4.20.6",
     "typescript": "5.9.3"
   }
 }
