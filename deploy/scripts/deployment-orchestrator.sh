@@ -26,7 +26,8 @@
 # Secrets and env files:
 # - .env.dev / .env.prod are not committed; they are generated on EC2 by the
 #   GitHub workflow from repository secrets. Local dev only uses .env.
-# - This script can also generate env files from .github-secrets.private.json5
+# - This script can also generate env files from the bundled .github-secrets.private.json5
+#   (produced automatically from .github-secrets.<env>.private.json5).
 #   for the SSH fallback path when requested.
 #
 # Usage examples:
@@ -130,6 +131,11 @@ fi
 GH_REPO="BBaysinger/bb-portfolio"
 gh repo view "$GH_REPO" >/dev/null 2>&1 || die "Cannot access repo $GH_REPO via gh CLI"
 
+ensure_secrets_bundle() {
+  (cd "$REPO_ROOT" && npx tsx scripts/merge-github-secrets.ts --quiet >/dev/null)
+}
+
+ensure_secrets_bundle
 [[ -f "${REPO_ROOT}/.github-secrets.private.json5" ]] || die ".github-secrets.private.json5 missing at repo root"
 pushd "$REPO_ROOT" >/dev/null
 

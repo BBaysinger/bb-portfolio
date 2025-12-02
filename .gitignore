@@ -119,7 +119,14 @@ terraform.rc
 # Github secrets & Database backups
 # ===============================================================
 
+# Combined secrets bundle (generated from per-environment files)
 .github-secrets.private.json5
+# Environment-scoped secrets
+.github-secrets.private.*.json5
+# Legacy naming support (pre-dot convention)
+.github-secrets.*.private.json5
+github-secrets.private.json5
+github-secrets.private.*.json5
 
 # ─────────────────────────────────────────────
 # 🗄️ Database Backups & Migration Files

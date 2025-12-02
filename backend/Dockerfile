@@ -85,41 +85,96 @@ RUN --mount=type=secret,id=prod_mongodb_uri \
     --mount=type=secret,id=prod_ses_to_email \
     --mount=type=secret,id=dev_ses_from_email \
     --mount=type=secret,id=dev_ses_to_email \
-        export REQUIRED_ENVIRONMENT_VARIABLES="DUMMY_OK" && \
-    export DUMMY_OK=1 && \
-        # Select build-time profile for config evaluation
-        export ENV_PROFILE="$ENV_PROFILE" && \
-        if [ "$ENV_PROFILE" = "dev" ]; then \
-            export PROD_MONGODB_URI="mongodb://localhost/dev-dummy"; \
-            export PROD_PAYLOAD_SECRET="dev-dummy-secret"; \
-            export PROD_SES_FROM_EMAIL="dummy@example.com"; \
-            export PROD_SES_TO_EMAIL="dummy@example.com"; \
-        else \
-            export PROD_MONGODB_URI="$(cat /run/secrets/prod_mongodb_uri 2>/dev/null || echo '')"; \
-            export PROD_PAYLOAD_SECRET="$(cat /run/secrets/prod_payload_secret 2>/dev/null || echo '')"; \
-            export PROD_SES_FROM_EMAIL="$(cat /run/secrets/prod_ses_from_email 2>/dev/null || echo '')"; \
-            export PROD_SES_TO_EMAIL="$(cat /run/secrets/prod_ses_to_email 2>/dev/null || echo '')"; \
-        fi && \
-    export DEV_MONGODB_URI="$(cat /run/secrets/dev_mongodb_uri 2>/dev/null || echo '')" && \
-    export LOCAL_MONGODB_URI="$(cat /run/secrets/local_mongodb_uri 2>/dev/null || echo '')" && \
-    export DEV_PAYLOAD_SECRET="$(cat /run/secrets/dev_payload_secret 2>/dev/null || echo '')" && \
-    export AWS_ACCESS_KEY_ID="$(cat /run/secrets/aws_access_key_id 2>/dev/null || echo '')" && \
-    export AWS_SECRET_ACCESS_KEY="$(cat /run/secrets/aws_secret_access_key 2>/dev/null || echo '')" && \
-    # Provide required non-secret config placeholders for build-time checks
-    export PROD_FRONTEND_URL="http://localhost:8080" && \
-    export DEV_FRONTEND_URL="http://localhost:3000" && \
-    export PROD_S3_BUCKET="dummy-bucket" && \
-    export PROD_AWS_REGION="us-east-1" && \
-    export DEV_S3_BUCKET="dummy-bucket" && \
-    export DEV_AWS_REGION="us-east-1" && \
-    export DEV_SES_FROM_EMAIL="$(cat /run/secrets/dev_ses_from_email 2>/dev/null || echo '')" && \
-    export DEV_SES_TO_EMAIL="$(cat /run/secrets/dev_ses_to_email 2>/dev/null || echo '')" && \
-    # Final fallbacks so build never fails on missing values (no secrets baked into image)
-    : "${PROD_MONGODB_URI:=mongodb://example/dummy}" && \
-    : "${PROD_PAYLOAD_SECRET:=dummy-secret}" && \
-    : "${PROD_SES_FROM_EMAIL:=dummy@example.com}" && \
-    : "${PROD_SES_TO_EMAIL:=dummy@example.com}" && \
-    npm run build
+    <<'EOF'
+set -eu
+
+# Keep CI hardening: require at least one dummy group so scripts do not fail when
+# REQUIRED_ENVIRONMENT_VARIABLES is absent in the build context.
+export REQUIRED_ENVIRONMENT_VARIABLES="DUMMY_OK"
+export DUMMY_OK=1
+
+PROFILE="$(printf '%s' "${ENV_PROFILE:-prod}" | tr '[:upper:]' '[:lower:]')"
+
+to_secret_key() {
+    printf '%s' "$1" | tr '[:upper:]' '[:lower:]'
+}
+
+read_profile_secret() {
+    profile="$1"
+    var="$2"
+    key="$(to_secret_key "$var")"
+    secret_path="/run/secrets/${profile}_${key}"
+    if [ -f "$secret_path" ]; then
+        cat "$secret_path"
+    fi
+}
+
+read_shared_secret() {
+    name="$1"
+    secret_path="/run/secrets/$name"
+    if [ -f "$secret_path" ]; then
+        cat "$secret_path"
+    fi
+}
+
+assign_if_present() {
+    var="$1"
+    value="$2"
+    if [ -n "$value" ]; then
+        export "$var=$value"
+    fi
+}
+
+# Load profile-scoped secrets (MONGODB_URI, etc.) by iterating the variable list
+COMMON_VARS="MONGODB_URI PAYLOAD_SECRET FRONTEND_URL S3_BUCKET AWS_REGION SES_FROM_EMAIL SES_TO_EMAIL SMTP_FROM_EMAIL BACKEND_INTERNAL_URL"
+for var in $COMMON_VARS; do
+    assign_if_present "$var" "$(read_profile_secret "$PROFILE" "$var")"
+done
+
+# Load shared AWS credentials if present
+assign_if_present AWS_ACCESS_KEY_ID "$(read_shared_secret aws_access_key_id)"
+assign_if_present AWS_SECRET_ACCESS_KEY "$(read_shared_secret aws_secret_access_key)"
+
+# Provide safe defaults for non-prod builds so static analysis succeeds without real secrets
+if [ "$PROFILE" != "prod" ]; then
+    : "${MONGODB_URI:=mongodb://localhost/${PROFILE}-dummy}"
+    : "${PAYLOAD_SECRET:=dev-dummy-secret}"
+    : "${FRONTEND_URL:=http://localhost:3000}"
+    : "${S3_BUCKET:=dummy-bucket}"
+    : "${AWS_REGION:=us-east-1}"
+    : "${SES_FROM_EMAIL:=dummy@example.com}"
+    : "${SES_TO_EMAIL:=dummy@example.com}"
+    : "${SMTP_FROM_EMAIL:=$SES_FROM_EMAIL}"
+    : "${BACKEND_INTERNAL_URL:=http://localhost:3000}"
+fi
+
+require_var() {
+    var="$1"
+    eval "value=\${$var-}"
+    if [ -z "$value" ]; then
+        echo "Missing required $var for profile $PROFILE" >&2
+        exit 1
+    fi
+}
+
+if [ "$PROFILE" = "prod" ]; then
+    for var in $COMMON_VARS; do
+        if [ "$var" = "SES_FROM_EMAIL" ]; then
+            if [ -z "${SES_FROM_EMAIL:-}" ] && [ -z "${SMTP_FROM_EMAIL:-}" ]; then
+                echo "Missing required SES_FROM_EMAIL or SMTP_FROM_EMAIL for profile $PROFILE" >&2
+                exit 1
+            fi
+            continue
+        fi
+        if [ "$var" = "SMTP_FROM_EMAIL" ]; then
+            continue
+        fi
+        require_var "$var"
+    done
+fi
+
+npm run build
+EOF
 
 # Normalize Next standalone entrypoint for distroless runtime
 # Some Next.js versions emit server at .next/server/server.js; create a stable path

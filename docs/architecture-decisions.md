@@ -162,8 +162,9 @@ New decisions should be appended chronologically.
 **Components:**
 
 - JSON5 secrets files at repo root:
-  - `.github-secrets.example.json5` (schema and documentation; committed)
-  - `.github-secrets.private.json5` (real values; gitignored)
+  - `.github-secrets.example.json5` (shared/base schema; committed)
+  - `.github-secrets.private.json5` (shared/base real values; gitignored)
+  - `.github-secrets.private.<env>.json5` (per-environment overrides; gitignored)
 - Sync tool: `scripts/sync-github-secrets.ts`
   - Overlays matching keys from the `.private` file onto the template schema (extras in private are ignored to keep the schema authoritative)
   - Validates required lists prior to any writes:

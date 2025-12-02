@@ -9,6 +9,7 @@
     },
     "cSpell.ignorePaths": [
         "**/.github-secrets*.json5",
+        "**/github-secrets*.json5",
         "**/.env*",
         "**/terraform.tfstate*",
         "**/package-lock.json",

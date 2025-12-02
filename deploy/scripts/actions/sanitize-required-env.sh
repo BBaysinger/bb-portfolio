@@ -2,17 +2,7 @@
 set -euo pipefail
 PROFILE="${1:?profile (dev|prod) required}"; RAW="${2:-}"
 if [ -z "${RAW}" ]; then echo "RAW env list required as 2nd arg" >&2; exit 1; fi
-# Removal patterns differ per profile
-case "$PROFILE" in
-  dev)
-    REMOVE_REGEX='DEV_CONTACT_PHONE_E164|DEV_CONTACT_PHONE_DISPLAY|OBFUSCATED_CONTACT_EMAIL'
-    ;;
-  prod)
-    # Remove both prod & dev phone fields plus obfuscated email
-    REMOVE_REGEX='PROD_CONTACT_PHONE_E164|PROD_CONTACT_PHONE_DISPLAY|DEV_CONTACT_PHONE_E164|DEV_CONTACT_PHONE_DISPLAY|OBFUSCATED_CONTACT_EMAIL'
-    ;;
-  *) echo "Unsupported profile: $PROFILE" >&2; exit 1;;
-esac
+REMOVE_REGEX='CONTACT_PHONE_E164|CONTACT_PHONE_DISPLAY|OBFUSCATED_CONTACT_EMAIL'
 # Normalize commas, remove targeted tokens
 BASE=$(printf "%s" "$RAW" | sed -E "s/(^|,)((${REMOVE_REGEX}))(,|$)/\1\4/g" | sed -E 's/,\s*,+/,/g; s/^,|,$//g')
 FRONTEND_REQ="$BASE"
@@ -27,5 +17,12 @@ case "$PROFILE" in
   prod)
     echo "prod_req_frontend=$FRONTEND_REQ" >> "$GITHUB_OUTPUT"
     echo "prod_req_backend=$BACKEND_REQ" >> "$GITHUB_OUTPUT"
+    ;;
+  stage)
+    echo "stage_req_frontend=$FRONTEND_REQ" >> "$GITHUB_OUTPUT"
+    echo "stage_req_backend=$BACKEND_REQ" >> "$GITHUB_OUTPUT"
+    ;;
+  *)
+    echo "Unsupported profile: $PROFILE" >&2; exit 1;
     ;;
 esac

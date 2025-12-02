@@ -27,24 +27,44 @@ import type { Config } from './payload-types'
 // Local development uses .env only.
 // ===============================================================
 
-const envProfile = process.env.ENV_PROFILE || 'local'
-// Resolve MongoDB URI strictly from ENV_PROFILE-prefixed variables
-const mongoEnvKey =
-  envProfile === 'prod'
-    ? 'PROD_MONGODB_URI'
-    : envProfile === 'dev'
-      ? 'DEV_MONGODB_URI'
-      : 'LOCAL_MONGODB_URI'
-const mongoURL = process.env[mongoEnvKey]
-if (!mongoURL) {
-  // Enforce prefix-first convention with no unprefixed fallback
-  // Surfaces clear guidance for where to set the value
-  throw new Error(
-    `Missing required ${mongoEnvKey} for ENV_PROFILE=${envProfile}. ` +
-      `Set it in the appropriate backend .env file (e.g., backend/.env for local, or generated .env.<profile> on your host), ` +
-      `or define it in your deployment secrets.`,
-  )
+const envProfile = (process.env.ENV_PROFILE || 'local').toLowerCase()
+const isProd = envProfile === 'prod'
+const isDev = envProfile === 'dev'
+
+type ResolveOptions = {
+  description?: string
 }
+
+const findEnvVar = (base: string) => {
+  const key = base.toUpperCase()
+  const attempts = [key]
+  const direct = process.env[key]
+  if (direct) return { value: direct, attempts }
+  return { value: undefined, attempts }
+}
+
+const resolveEnvVar = (base: string, options?: ResolveOptions): string => {
+  const { description } = options || {}
+  const { value, attempts } = findEnvVar(base)
+  if (value) return value
+
+  const lines = [
+    `Missing required ${base.toUpperCase()} for ENV_PROFILE=${envProfile}.`,
+    'Set one of:',
+    ...attempts.map((candidate) => `  - ${candidate}`),
+  ]
+  if (description) lines.push(description)
+  throw new Error(lines.join('\n'))
+}
+
+const getOptionalEnvVar = (base: string) => {
+  return findEnvVar(base).value
+}
+
+const mongoURL = resolveEnvVar('MONGODB_URI', {
+  description:
+    'Add it to backend/.env for local dev or to the generated .env.<profile> file on your host.',
+})
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
@@ -52,9 +72,22 @@ type PayloadWithExpress = {
   express?: import('express').Express
 }
 
+const resolvedServerURL =
+  process.env.PAYLOAD_PUBLIC_SERVER_URL ||
+  resolveEnvVar('PUBLIC_SERVER_URL', {
+    description: [
+      'This should be the origin (scheme + host + optional port) serving /admin and /api.',
+      'Examples:',
+      '  http://localhost:3001  # bare-metal backend dev',
+      '  http://localhost:8081  # docker backend port-forward',
+      '  http://localhost:8080  # local Caddy proxy',
+      '  https://bbaysinger.com # production',
+    ].join('\n'),
+  })
+
 export default buildConfig({
-  // If provided, use explicit public server URL so cookies and redirects match
-  serverURL: process.env.PAYLOAD_PUBLIC_SERVER_URL || process.env.PUBLIC_SERVER_URL,
+  // Explicit public origin ensures Payload admin/API use the canonical host
+  serverURL: resolvedServerURL,
   admin: {
     user: Users.slug,
     importMap: {
@@ -74,12 +107,7 @@ export default buildConfig({
   editor: lexicalEditor(),
   // Enforce prefixed payload secret by environment profile
   secret: (() => {
-    const key =
-      envProfile === 'prod'
-        ? 'PROD_PAYLOAD_SECRET'
-        : envProfile === 'dev'
-          ? 'DEV_PAYLOAD_SECRET'
-          : 'LOCAL_PAYLOAD_SECRET'
+    const key = 'PAYLOAD_SECRET'
     const val = process.env[key]
     if (!val) {
       throw new Error(
@@ -103,19 +131,10 @@ export default buildConfig({
     },
   },
   csrf: (() => {
-    const originKey =
-      envProfile === 'prod'
-        ? 'PROD_FRONTEND_URL'
-        : envProfile === 'dev'
-          ? 'DEV_FRONTEND_URL'
-          : 'LOCAL_FRONTEND_URL'
-    const raw = process.env[originKey]
-    if (!raw) {
-      throw new Error(
-        `Missing required ${originKey} for ENV_PROFILE=${envProfile}. ` +
-          `Set it to your frontend's public URL (e.g., http://localhost:8080 or http://localhost:3000 for local, https://dev.example.com for dev).`,
-      )
-    }
+    const raw = resolveEnvVar('FRONTEND_URL', {
+      description:
+        'Provide the public frontend origin(s). Comma-separate multiple values (e.g., http://localhost:8080,http://localhost:3000).',
+    })
     // Support comma-separated list of allowed origins (e.g., "http://localhost:8080,http://localhost:3000")
     const origins = raw
       .split(',')
@@ -124,19 +143,10 @@ export default buildConfig({
     return origins
   })(),
   cors: (() => {
-    const originKey =
-      envProfile === 'prod'
-        ? 'PROD_FRONTEND_URL'
-        : envProfile === 'dev'
-          ? 'DEV_FRONTEND_URL'
-          : 'LOCAL_FRONTEND_URL'
-    const raw = process.env[originKey]
-    if (!raw) {
-      throw new Error(
-        `Missing required ${originKey} for ENV_PROFILE=${envProfile}. ` +
-          `Set it to your frontend's public URL (e.g., http://localhost:8080 or http://localhost:3000 for local, https://dev.example.com for dev).`,
-      )
-    }
+    const raw = resolveEnvVar('FRONTEND_URL', {
+      description:
+        'Provide the public frontend origin(s). Comma-separate multiple values (e.g., http://localhost:8080,http://localhost:3000).',
+    })
     const origins = raw
       .split(',')
       .map((s) => s.trim())
@@ -155,21 +165,19 @@ export default buildConfig({
               projectThumbnails: { prefix: 'project-thumbnails' },
             } as Partial<Record<keyof Config['collections'], { prefix: string } | true>>,
             bucket: (() => {
-              // Use environment-specific bucket for Payload CMS media
-              const key = envProfile === 'prod' ? 'PROD_S3_BUCKET' : 'DEV_S3_BUCKET'
-              const val = process.env[key]
-              if (!val) throw new Error(`Missing required ${key} for ENV_PROFILE=${envProfile}`)
-              return val
+              return resolveEnvVar('S3_BUCKET', {
+                description: 'Define the S3 bucket name used for Payload media uploads.',
+              })
             })(),
             config: {
               region: (() => {
-                const key = envProfile === 'prod' ? 'PROD_AWS_REGION' : 'DEV_AWS_REGION'
-                const val = process.env[key] || process.env.S3_REGION
-                if (!val)
+                const region = getOptionalEnvVar('AWS_REGION') || process.env.S3_REGION
+                if (!region) {
                   throw new Error(
-                    `Missing required ${key} or S3_REGION for ENV_PROFILE=${envProfile}`,
+                    `Missing required AWS_REGION or S3_REGION for ENV_PROFILE=${envProfile}`,
                   )
-                return val
+                }
+                return region
               })(),
               // Credentials are optional on EC2 when using instance role
               ...(process.env.S3_AWS_ACCESS_KEY_ID && process.env.S3_AWS_SECRET_ACCESS_KEY
@@ -186,17 +194,16 @@ export default buildConfig({
       : []),
   ],
   email: (() => {
-    if (envProfile === 'prod' || envProfile === 'dev') {
-      const prefix = envProfile === 'prod' ? 'PROD_' : 'DEV_'
-      const host = process.env[`${prefix}SMTP_HOST`]
-      const user = process.env[`${prefix}SMTP_USER`]
-      const pass = process.env[`${prefix}SMTP_PASS`]
+    if (isProd || isDev) {
+      const host = getOptionalEnvVar('SMTP_HOST')
+      const user = getOptionalEnvVar('SMTP_USER')
+      const pass = getOptionalEnvVar('SMTP_PASS')
       if (host && user && pass) {
         const fromEmail =
-          process.env[`${prefix}SMTP_FROM_EMAIL`] || process.env[`${prefix}SES_FROM_EMAIL`]
+          getOptionalEnvVar('SMTP_FROM_EMAIL') || getOptionalEnvVar('SES_FROM_EMAIL')
         if (!fromEmail) {
           throw new Error(
-            `Missing required ${prefix}SMTP_FROM_EMAIL or ${prefix}SES_FROM_EMAIL for ENV_PROFILE=${envProfile}. ` +
+            `Missing required SMTP_FROM_EMAIL or SES_FROM_EMAIL for ENV_PROFILE=${envProfile}. ` +
               `Set it to the email address you want to send emails from.`,
           )
         }

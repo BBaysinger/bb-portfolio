@@ -9,11 +9,17 @@ set -euo pipefail
 # - Sensitive values (Mongo URI, Payload secret, AWS creds, SES emails) are injected via Docker BuildKit secrets
 #   using --secret mounts. BuildKit secrets are ephemeral for the RUN instruction and are NOT baked into layers,
 #   NOT present in image history, and NOT pushed to the registry.
-# - Source of truth for values is .github-secrets.private.json5 to keep local build/dev consistent with CI.
+# - Source of truth lives in .github-secrets.<env>.private.json5 files.
+#   This script consumes the bundled .github-secrets.private.json5 (generated via scripts/merge-github-secrets.ts)
+#   to stay consistent with CI and other local tooling.
 #
 # Usage: ./deploy/publish-dockerhub-dev-images.sh
 
 ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+bundle_secrets() {
+  (cd "$ROOT_DIR" && npx tsx scripts/merge-github-secrets.ts --quiet >/dev/null)
+}
+bundle_secrets
 SECRETS_FILE="$ROOT_DIR/.github-secrets.private.json5"
 
 # Helper to read values from JSON5 via node + json5 package

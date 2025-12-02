@@ -268,6 +268,39 @@ Other UI details: scroll‑aware navigation, mobile slide‑out menu, dynamic de
   - NDA-only route `/nda/[projectId]` requires authentication and is rendered dynamically per request
   - Authenticated requests to a public NDA slug redirect server-side to `/nda/[projectId]`; unauthenticated sees 404
   - Client carousel and prev/next links are route-aware (public → `/project/*`, NDA → `/nda/*`) without leaking NDA data
+
+  #### 🔐 Secrets & Environment Management
+  - Secrets now follow the same convention as `.env`/`.env.prod`:
+    - Shared base: `.github-secrets.example.json5` ➜ `.github-secrets.private.json5`
+    - Dev: `.github-secrets.example.dev.json5` ➜ `.github-secrets.private.dev.json5`
+    - Stage (future): `.github-secrets.example.stage.json5` ➜ `.github-secrets.private.stage.json5`
+    - Prod: `.github-secrets.example.prod.json5` ➜ `.github-secrets.private.prod.json5`
+  - `scripts/merge-github-secrets.ts` bundles the above into `.github-secrets.private.json5` so existing tooling keeps working. Run `npm run secrets:bundle` after editing any `.github-secrets.private*.json5` file.
+  - Sync script: `scripts/sync-github-secrets.ts`
+    - `--env <name>` pushes to a GitHub **Environment** (`dev`, `stage`, `prod`). Omit `--env` to update repo-level secrets.
+    - Validates each `*_REQUIRED_ENVIRONMENT_VARIABLES` list (comma groups, `|` = ANY-of within a group) before writing.
+    - Dry run previews deletions/additions without touching GitHub.
+
+  Common usage:
+
+  ```bash
+  # Merge per-environment secret files into the compatibility bundle
+  npm run secrets:bundle
+
+  # Shared/base secrets (Docker Hub creds, ACME email, shared buckets)
+  npm run sync:secrets:base:dry
+  npm run sync:secrets:base
+
+  # Dev / Prod GitHub Environments
+  npm run sync:secrets:dev:dry
+  npm run sync:secrets:dev
+  npm run sync:secrets:prod:dry
+  npm run sync:secrets:prod
+
+  # Optional future stage environment (no-op until automation lands)
+  npm run sync:secrets:stage
+  ```
+
 - Rich project metadata (brand, tags, role, year, awards, URLs)
 - Image collections for screenshots, thumbnails, brand logos
 - Image processing via Sharp (server-side resizing) with 2 MB upload limit
@@ -373,31 +406,7 @@ Notes:
 - See ADR: [Image Cleanup and Retention](./docs/architecture-decisions.md)
 - Tip: If ECR is skipped due to missing auth, you can pass `-- --login --profile <your-profile>` to have the tool run `aws sso login` and perform an ECR Docker login automatically (default region `us-west-2`, override with `--region`).
 
-#### 🔐 Secrets & Environment Management
-
-- Source of truth for GitHub Actions secrets lives in JSON5 files at the repo root:
-  - `.github-secrets.private.json5` (ignored by git; real values)
-  - `.github-secrets.example.json5` (template with docs; safe to commit)
-- Sync script: `scripts/sync-github-secrets.ts`
-  - Reads JSON5, overlays matching keys from the sibling `.private` file onto the template schema (extras ignored)
-  - Validates required env lists before syncing secrets:
-    - `DEV_REQUIRED_ENVIRONMENT_VARIABLES`
-    - `PROD_REQUIRED_ENVIRONMENT_VARIABLES`
-    - Grammar: comma-separated groups; use `|` within a group for ANY-of
-    - Example: `PROD_REQUIRED_ENVIRONMENT_VARIABLES=PROD_SES_FROM_EMAIL|PROD_SMTP_FROM_EMAIL,PROD_MONGODB_URI,PROD_AWS_REGION,PROD_PAYLOAD_SECRET`
-  - Fails fast with an actionable message if any group lacks a key in the JSON5; override temporarily with `ALLOW_MISSING_REQUIRED_GROUPS=true` (not recommended)
-  - Dry run does not modify GitHub; it only shows planned changes and validation summary
-
-Common usage:
-
-```bash
-# Dry run (safe): validate required lists and show planned secret updates
-npx ts-node ./scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./.github-secrets.private.json5 --dry-run
-
-# Apply: sync repo secrets to match JSON5 (destructive for extras)
 npx ts-node ./scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./.github-secrets.private.json5
-```
-
 Runtime .env generation (deploy):
 
 - CI deploy workflows generate `.env.dev` and `.env.prod` on EC2 from GitHub Secrets

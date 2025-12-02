@@ -49,16 +49,7 @@ export function middleware(request: NextRequest) {
   if (request.nextUrl.pathname.startsWith('/api/')) {
     const response = NextResponse.next()
 
-    // Get the frontend URL(s) from environment variables based on ENV_PROFILE
-    const envProfile = process.env.ENV_PROFILE || 'local'
-    const originKey =
-      envProfile === 'prod'
-        ? 'PROD_FRONTEND_URL'
-        : envProfile === 'dev'
-          ? 'DEV_FRONTEND_URL'
-          : 'LOCAL_FRONTEND_URL'
-
-    const allowed = (process.env[originKey] || 'http://localhost:3000')
+    const allowed = (process.env.FRONTEND_URL || 'http://localhost:3000')
       .split(',')
       .map((s) => s.trim())
       .filter(Boolean)

@@ -1,7 +1,10 @@
 # Root-level Docker ignore
 # Prevent accidental inclusion of repo-level secrets files in any root-context Docker builds
 .github-secrets.private.json5
-*.private.json5
+.github-secrets.private.*.json5
+.github-secrets.*.private.json5
+github-secrets.private.json5
+github-secrets.private.*.json5
 
 # Common local files that should never be sent to Docker context if building from root
 .env
