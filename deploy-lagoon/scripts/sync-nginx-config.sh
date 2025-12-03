@@ -42,15 +42,15 @@ if [[ -z "$HOST" ]]; then
 fi
 
 REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
-LOCAL_CONF="${REPO_ROOT}/deploy/nginx/bb-portfolio.conf.template"
+NGINX_CONF_TEMPLATE="${REPO_ROOT}/deploy/nginx/bb-portfolio.conf.template"
 
-if [[ ! -f "$LOCAL_CONF" ]]; then
-  echo "Config template not found: $LOCAL_CONF" >&2
+if [[ ! -f "$NGINX_CONF_TEMPLATE" ]]; then
+  echo "Config template not found: $NGINX_CONF_TEMPLATE" >&2
   exit 1
 fi
 
 echo "Uploading Nginx config to $HOST ..."
-scp -i "$KEY" -o StrictHostKeyChecking=accept-new "$LOCAL_CONF" "$HOST:/tmp/bb-portfolio.conf"
+scp -i "$KEY" -o StrictHostKeyChecking=accept-new "$NGINX_CONF_TEMPLATE" "$HOST:/tmp/bb-portfolio.conf"
 
 echo "Applying Nginx config on $HOST ..."
 # Use stdin heredoc to avoid complex quoting issues over SSH
