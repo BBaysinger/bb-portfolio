@@ -388,19 +388,91 @@ resolve_ec2_host() {
   # 2) Local private secrets
   if [ -f "$REPO_ROOT/.github-secrets.private.json5" ]; then
     host=$(node -e "try{const JSON5=require('json5');const fs=require('fs');const raw=fs.readFileSync('.github-secrets.private.json5','utf8');const cfg=JSON5.parse(raw);const s=cfg.strings||cfg;process.stdout.write((s.EC2_HOST||'').trim());}catch(e){process.stdout.write('');}")
-          npx --yes tsx scripts/generate-env-files.ts --out "$TMP_DIR"
-        sudo certbot --nginx -n --agree-tos --email '"$email"' \
-          -d bbaysinger.com -d www.bbaysinger.com \
-          -d dev.bbaysinger.com --redirect || echo "Certbot issuance failed";
-        sudo systemctl reload nginx || true
-      else
-        echo "Certificates already present; attempting quiet renewal";
-        sudo certbot renew --quiet || echo "Renewal run failed (will retry on timer)";
-      fi
-    else
-      echo "certbot not installed on host; skipping HTTPS ensure";
-    fi'
+    if [[ -n "$host" ]]; then
+      echo "$host"; return 0
+    fi
+  fi
+  # 3) DNS fallback (best-effort): derive apex from URLs in secrets and resolve A record
+  local apex=""
+  if [ -f "$REPO_ROOT/.github-secrets.private.json5" ]; then
+    apex=$(node -e "try{const JSON5=require('json5');const fs=require('fs');const pickHost=(file)=>{if(!fs.existsSync(file))return '';const raw=fs.readFileSync(file,'utf8');const cfg=JSON5.parse(raw);const s=cfg.strings||cfg;const url=(s.FRONTEND_URL||'').trim();if(!url)return '';try{return new URL(url).hostname||'';}catch{return '';}};const host=pickHost('.github-secrets.private.json5')||pickHost('.github-secrets.private.prod.json5')||pickHost('.github-secrets.private.dev.json5');process.stdout.write(host);}catch(e){}")
+  fi
+  if [[ -n "$apex" ]] && command -v dig >/dev/null 2>&1; then
+    host=$(dig +short A "$apex" | head -n1)
+    if [[ -n "$host" ]]; then
+      echo "$host"; return 0
+    fi
+  fi
+  echo ""; return 1
 }
+
+  # Ensure only a single controller manages containers on EC2 by removing legacy services/compose
+  enforce_single_controller() {
+    local host="$1"
+    local key="$HOME/.ssh/bb-portfolio-site-key.pem"
+    if [[ -z "$host" ]]; then
+      warn "Single-controller guard: EC2 host unknown, skipping"
+      return 0
+    fi
+    if [[ ! -f "$key" ]]; then
+      warn "Single-controller guard: SSH key not found at $key, skipping"
+      return 0
+    fi
+    log "Enforcing single controller on $host (disable legacy service, archive legacy compose)"
+    ssh -i "$key" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$host" $'set -e
+      # Disable and remove legacy systemd unit if present
+      if systemctl list-unit-files | grep -q "^portfolio.service"; then
+        sudo systemctl disable --now portfolio.service || true
+        sudo rm -f /etc/systemd/system/portfolio.service || true
+      fi
+      # Archive legacy compose dir
+      if [ -d /home/ec2-user/portfolio ]; then
+        mkdir -p /home/ec2-user/portfolio-archived || true
+        tar -C /home/ec2-user -czf /home/ec2-user/portfolio-archived/docker-compose-$(date +%Y%m%d%H%M%S).tgz portfolio || true
+        rm -rf /home/ec2-user/portfolio || true
+      fi
+    '
+  }
+
+  ensure_https_certs() {
+    local host="$1"
+    local email="$2"
+    local key="$HOME/.ssh/bb-portfolio-site-key.pem"
+    if [[ -z "$host" ]]; then
+      warn "HTTPS ensure: host missing; skipping"
+      return 0
+    fi
+    if [[ -z "$email" ]]; then
+      warn "HTTPS ensure: email missing; skipping"
+      return 0
+    fi
+    if [[ ! -f "$key" ]]; then
+      warn "HTTPS ensure: SSH key not found at $key; skipping"
+      return 0
+    fi
+    log "Ensuring HTTPS certificates exist on $host"
+    ssh -i "$key" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$host" <<SSH
+  set -e
+  EMAIL="$email"
+  if command -v certbot >/dev/null 2>&1; then
+    if [ ! -d /etc/letsencrypt/live/bbaysinger.com ]; then
+      sudo certbot --nginx -n --agree-tos --email "$email" \
+        -d bbaysinger.com -d www.bbaysinger.com -d dev.bbaysinger.com --redirect || echo "Certbot issuance failed"
+      sudo systemctl reload nginx || true
+    else
+      sudo certbot renew --quiet || echo "Renewal run failed (will retry on timer)"
+    fi
+  else
+    echo "certbot not installed on host; skipping HTTPS ensure"
+  fi
+SSH
+  }
+
+# Transition to workflow dispatch section
+ok "Infra and images complete. Handing off container restart to GitHub Actions."
+
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
+WF_CANDIDATES=("$workflows" "Redeploy" ".github/workflows/redeploy.yml" "redeploy.yml" ".github/workflows/redeploy-manual.yml" "redeploy-manual.yml")
 
 # If infra step was skipped and EC2_IP is unknown, try to resolve host now and enforce single controller once
 if [[ -z "${EC2_IP:-}" ]]; then
