@@ -10,6 +10,7 @@ COMPOSE_PROFILES=${COMPOSE_PROFILES:-"local,proxy"}
 PRUNE_STATE_DIR=${PRUNE_STATE_DIR:-"$HOME/.bb-portfolio"}
 PRUNE_STATE_FILE=${PRUNE_STATE_FILE:-"$PRUNE_STATE_DIR/last-prune"}
 PRUNE_MAX_AGE_HOURS=${PRUNE_MAX_AGE_HOURS:-168} # default 7 days
+PAYLOAD_PROXY_SERVER_URL=${PAYLOAD_PROXY_SERVER_URL:-"http://localhost:8080"}
 
 usage() {
   cat <<EOF
@@ -48,18 +49,18 @@ cmd=${1:-}
 case "$cmd" in
   up)
     warn_if_prune_stale
-    COMPOSE_PROFILES=$COMPOSE_PROFILES docker compose -f "$COMPOSE_FILE" up -d bb-portfolio-frontend-local caddy-local ;;
+    PAYLOAD_PUBLIC_SERVER_URL=${PAYLOAD_PUBLIC_SERVER_URL:-$PAYLOAD_PROXY_SERVER_URL} COMPOSE_PROFILES=$COMPOSE_PROFILES docker compose -f "$COMPOSE_FILE" up -d bb-portfolio-frontend-local caddy-local ;;
   down)
     warn_if_prune_stale
-    COMPOSE_PROFILES=$COMPOSE_PROFILES docker compose -f "$COMPOSE_FILE" stop caddy-local ;;
+    PAYLOAD_PUBLIC_SERVER_URL=${PAYLOAD_PUBLIC_SERVER_URL:-$PAYLOAD_PROXY_SERVER_URL} COMPOSE_PROFILES=$COMPOSE_PROFILES docker compose -f "$COMPOSE_FILE" stop caddy-local ;;
   stop)
     warn_if_prune_stale
-    COMPOSE_PROFILES=$COMPOSE_PROFILES docker compose -f "$COMPOSE_FILE" stop caddy-local ;;
+    PAYLOAD_PUBLIC_SERVER_URL=${PAYLOAD_PUBLIC_SERVER_URL:-$PAYLOAD_PROXY_SERVER_URL} COMPOSE_PROFILES=$COMPOSE_PROFILES docker compose -f "$COMPOSE_FILE" stop caddy-local ;;
   restart)
     warn_if_prune_stale
-    COMPOSE_PROFILES=$COMPOSE_PROFILES docker compose -f "$COMPOSE_FILE" restart caddy-local ;;
+    PAYLOAD_PUBLIC_SERVER_URL=${PAYLOAD_PUBLIC_SERVER_URL:-$PAYLOAD_PROXY_SERVER_URL} COMPOSE_PROFILES=$COMPOSE_PROFILES docker compose -f "$COMPOSE_FILE" restart caddy-local ;;
   logs)
-    COMPOSE_PROFILES=$COMPOSE_PROFILES docker compose -f "$COMPOSE_FILE" logs -f caddy-local ;;
+    PAYLOAD_PUBLIC_SERVER_URL=${PAYLOAD_PUBLIC_SERVER_URL:-$PAYLOAD_PROXY_SERVER_URL} COMPOSE_PROFILES=$COMPOSE_PROFILES docker compose -f "$COMPOSE_FILE" logs -f caddy-local ;;
   *)
     usage; exit 2;;
 esac
