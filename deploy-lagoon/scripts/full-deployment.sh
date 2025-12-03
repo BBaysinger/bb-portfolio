@@ -40,7 +40,7 @@ workflows="redeploy.yml" # comma-separated list of workflow names or filenames t
 refresh_env=false   # whether GH workflow should regenerate/upload env files
 restart_containers=true # whether GH workflow should restart containers
 watch_logs=true     # whether to watch GH workflow logs
-sync_secrets=true   # whether to sync local secrets to GitHub
+secrets_sync_args=()
 
 usage() {
   cat <<USAGE
@@ -57,7 +57,9 @@ Options:
   --refresh-env           Ask GH workflow to regenerate & upload .env files (default: false)
   --no-restart            Do not restart containers in GH workflow (default: restart)
   --no-watch              Do not watch GH workflow logs (default: watch)
-  --no-secrets-sync       Do not sync local secrets to GitHub
+  --secrets-omit-env val  Pass --omit-env <val> to the secrets sync script (repeatable; use 'all' for repo-only)
+  --secrets-omit-envs csv Pass --omit-envs <csv> to the secrets sync script
+  --secrets-dry-run       Pass --dry-run to the secrets sync script
   -h|--help               Show this help
 USAGE
 }
@@ -77,7 +79,17 @@ while [[ $# -gt 0 ]]; do
     --refresh-env) refresh_env=true; shift ;;
     --no-restart) restart_containers=false; shift ;;
     --no-watch) watch_logs=false; shift ;;
-    --no-secrets-sync) sync_secrets=false; shift ;;
+    --secrets-omit-env)
+      [[ -n "${2:-}" ]] || die "--secrets-omit-env requires a value (e.g., dev, prod, stage, all)"
+      secrets_sync_args+=("--omit-env" "$2")
+      shift 2 ;;
+    --secrets-omit-envs)
+      [[ -n "${2:-}" ]] || die "--secrets-omit-envs requires a comma-separated list"
+      secrets_sync_args+=("--omit-envs" "$2")
+      shift 2 ;;
+    --secrets-dry-run)
+      secrets_sync_args+=("--dry-run")
+      shift ;;
     -h|--help) usage; exit 0 ;;
     *) die "Unknown option: $1" ;;
   esac
@@ -212,13 +224,9 @@ else
   warn "Skipping Terraform/infra per --containers-only"
 fi
 
-# Optionally sync secrets to GitHub (keeps GH secrets aligned with local private json5)
-if [[ "$sync_secrets" == true ]]; then
-  log "Syncing GitHub secrets from private json5"
-  npx tsx ./scripts/sync-github-secrets.ts BBaysinger/bb-portfolio .github-secrets.private.json5
-else
-  warn "Skipping GitHub secrets sync per --no-secrets-sync"
-fi
+# Sync secrets to GitHub (keeps GH secrets aligned with local private json5)
+log "Syncing GitHub secrets from private json5${secrets_sync_args[*]:+ (extra flags: ${secrets_sync_args[*]})}"
+npx tsx ./scripts/sync-github-secrets.ts BBaysinger/bb-portfolio .github-secrets.private.json5 "${secrets_sync_args[@]}"
 
 ok "Infra and images complete. Handing off container restart to GitHub Actions."
 

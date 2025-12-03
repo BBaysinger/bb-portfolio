@@ -272,7 +272,7 @@ They should all return the Elastic IP (e.g., `44.246.43.116`). If any do not, wa
 With DNS pointed to the Elastic IP and your ACME email set, run the deploy orchestrator (containers-only is fine):
 
 ```bash
-deploy/scripts/deployment-orchestrator.sh --profiles prod --no-build --no-secrets-sync
+deploy/scripts/deployment-orchestrator.sh --profiles prod --no-build --secrets-omit-env all
 ```
 
 It will detect the EC2 host, ensure certbot is installed, and issue certs via the nginx plugin with `--redirect`.

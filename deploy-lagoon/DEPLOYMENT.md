@@ -8,12 +8,9 @@ The portfolio infrastructure is deployed using Infrastructure as Code with Terra
 
 ## Deployment Orchestrators
 
-Two orchestrators are available depending on your rollout strategy:
+The Lagoon (blue/green) orchestrator is the only supported path:
 
-- Legacy (single-instance): `deploy/scripts/deployment-orchestrator-legacy.sh`
-  - Use for straightforward, in-place deploys on the active EC2 host.
-  - Quick run: `npm run orchestrate:legacy:containers-only` (regenerates env and restarts containers).
-- Lagoon (blue/green): `deploy/scripts/deployment-orchestrator.sh` (wrapper available at `deploy-lagoon/scripts/lagoon-orchestrator.sh`)
+- `deploy/scripts/deployment-orchestrator.sh` (wrapper available at `deploy-lagoon/scripts/lagoon-orchestrator.sh`)
   - Stages a candidate alongside the active instance and supports promotion.
   - Quick runs:
     - Containers-only: `npm run orchestrate:containers-only`
@@ -323,7 +320,7 @@ They should all return the Elastic IP (e.g., `44.246.43.116`). If any do not, wa
 With DNS pointed to the Elastic IP and your ACME email set, run the deploy orchestrator (containers-only is fine):
 
 ```bash
-deploy/scripts/deployment-orchestrator.sh --profiles prod --no-build --no-secrets-sync
+deploy/scripts/deployment-orchestrator.sh --profiles prod --no-build --secrets-omit-env all
 ```
 
 It will detect the EC2 host, ensure certbot is installed, and issue certs via the nginx plugin with `--redirect`.

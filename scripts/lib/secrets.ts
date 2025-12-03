@@ -2,6 +2,8 @@ import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { Script } from "node:vm";
 
+import JSON5 from "json5";
+
 type Json5Parser = { parse: (raw: string) => unknown };
 
 const fallbackJson5: Json5Parser = {
@@ -11,15 +13,7 @@ const fallbackJson5: Json5Parser = {
   },
 };
 
-const json5: Json5Parser = (() => {
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const mod = require("json5") as Json5Parser & { default?: Json5Parser };
-    return mod?.parse ? mod : mod.default || fallbackJson5;
-  } catch {
-    return fallbackJson5;
-  }
-})();
+const json5: Json5Parser = JSON5?.parse ? JSON5 : fallbackJson5;
 
 export type SecretProfile = string;
 
