@@ -1,7 +1,25 @@
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
+import { Script } from "node:vm";
 
-import JSON5 from "json5";
+type Json5Parser = { parse: (raw: string) => unknown };
+
+const fallbackJson5: Json5Parser = {
+  parse: (raw: string) => {
+    const script = new Script(`(${raw})`);
+    return script.runInNewContext({});
+  },
+};
+
+const json5: Json5Parser = (() => {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const mod = require("json5") as Json5Parser & { default?: Json5Parser };
+    return mod?.parse ? mod : mod.default || fallbackJson5;
+  } catch {
+    return fallbackJson5;
+  }
+})();
 
 export type SecretProfile = string;
 
@@ -64,7 +82,7 @@ const readSecretsFile = (filePath: string): SecretBundle => {
     return { strings: {}, files: {} };
   }
   const raw = readFileSync(filePath, "utf8");
-  const parsed = JSON5.parse(raw) as unknown;
+  const parsed = json5.parse(raw) as unknown;
   return normalizeBundle(parsed);
 };
 
