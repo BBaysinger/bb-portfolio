@@ -243,7 +243,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
   ]);
 
   const updateIndexPerPosition = useCallback(
-    (scrollLeft: number, updateStableIndex: boolean = true) => {
+    (scrollLeft: number, shouldUpdateStableIndex: boolean = true) => {
       const totalSlides = memoizedSlides.length;
       const offset = scrollLeft - patchedOffset();
       const newScrollIndex = Math.round(offset / slideSpacing);
@@ -263,7 +263,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
         if (stabilizationTimer.current)
           clearTimeout(stabilizationTimer.current);
         if (
-          updateStableIndex &&
+          shouldUpdateStableIndex &&
           scrollTriggerSource.current !== Source.PROGRAMMATIC
         ) {
           stabilizationTimer.current = setTimeout(() => {
