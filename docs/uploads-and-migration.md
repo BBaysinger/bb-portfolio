@@ -8,7 +8,7 @@ This doc captures how uploads are set up today, recommended S3 patterns per envi
   - `brand-logos/`, `project-screenshots/`, `project-thumbnails/`
 - S3 buckets are now defined and managed by Terraform under `infra/` (one bucket per env, e.g., `dev` and `prod`).
 - `@payloadcms/storage-s3` is wired in `backend/src/payload.config.ts` and enabled when `ENV_PROFILE` is `dev` or `prod`. For `ENV_PROFILE=local`, filesystem storage is used.
-- MongoDB now relies on the canonical `MONGODB_URI` key per profile (local uses the same key and no longer needs `LOCAL_` prefixes).
+- MongoDB now relies on the canonical `MONGODB_URI` key per profile (local uses the same key and prefixed variants are no longer supported).
 
 ### CLI uploads and verification: authentication
 

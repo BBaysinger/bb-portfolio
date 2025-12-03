@@ -226,7 +226,7 @@ Operator guidance for removals:
 
 - **Naming**
   - Use canonical key names (e.g., `FRONTEND_URL`, `BACKEND_INTERNAL_URL`, `AWS_REGION`) across every profile. Store per-profile values in `.github-secrets.private.<profile>.json5` instead of inventing prefixed variants.
-  - Local overrides now use the same canonical keys as every other profile. The `LOCAL_*` prefixes have been removed to keep configuration consistent everywhere.
+  - Local overrides use the same canonical keys as every other profile to keep configuration consistent everywhere.
   - Frontend-only variables that must reach the browser remain `NEXT_PUBLIC_*`.
 
 - **Profiles**

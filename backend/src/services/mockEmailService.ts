@@ -17,9 +17,8 @@ class MockEmailService {
       const fromEmail =
         process.env.SES_FROM_EMAIL ||
         process.env.SMTP_FROM_EMAIL ||
-        process.env.LOCAL_SES_FROM_EMAIL ||
         'noreply@example.com'
-      const toEmail = process.env.SES_TO_EMAIL || process.env.LOCAL_SES_TO_EMAIL || 'admin@example.com'
+      const toEmail = process.env.SES_TO_EMAIL || 'admin@example.com'
       console.info('From:', fromEmail)
       console.info('To:', toEmail)
       console.info('Subject:', `${subjectPrefix} from ${data.name}`)
