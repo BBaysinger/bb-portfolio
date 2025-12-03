@@ -258,7 +258,6 @@ jobs:
     needs: [build-and-test, build-push-prod-images]
     uses: ./.github/workflows/redeploy.yml
     secrets: inherit
-    environment: prod
     with:
       environment: prod
       start_dev: false
@@ -328,7 +327,6 @@ jobs:
     needs: build-push-dev-images
     uses: ./.github/workflows/redeploy.yml
     secrets: inherit
-    environment: dev
     with:
       environment: dev
       start_dev: true
