@@ -385,6 +385,15 @@ function removeExtras(
   }
 }
 
+function describeTarget(
+  scope: "repo" | "env",
+  env: string | undefined,
+  key: string,
+) {
+  if (scope === "env" && env) return `${key} (env=${env})`;
+  return `${key} (repo)`;
+}
+
 function setStrings(
   scope: "repo" | "env",
   env: string | undefined,
@@ -392,12 +401,13 @@ function setStrings(
 ) {
   for (const [key, value] of Object.entries(strings)) {
     const scopeFlag = scope === "env" && env ? `--env ${env}` : "";
+    const targetLabel = describeTarget(scope, env, key);
     if (DRY_RUN) {
       console.info(
-        `🔑 (dry run) Would set string${env ? ` (${env})` : ""} ${key} (length: ${value.length})`,
+        `🔑 (dry run) Would set string ${targetLabel} (length: ${value.length})`,
       );
     } else {
-      console.info(`🔑 Setting string${env ? ` (${env})` : ""} ${key} ...`);
+      console.info(`🔑 Setting string ${targetLabel} ...`);
       execSync(`gh secret set ${key} --repo ${REPO} ${scopeFlag}`.trim(), {
         input: value,
         stdio: ["pipe", "inherit", "inherit"],
@@ -420,14 +430,13 @@ function setFiles(
     }
     const size = fs.statSync(filepath).size;
     const scopeFlag = scope === "env" && env ? `--env ${env}` : "";
+    const targetLabel = describeTarget(scope, env, key);
     if (DRY_RUN) {
       console.info(
-        `📄 (dry run) Would set file${env ? ` (${env})` : ""} ${key} from ${filepath} (${size} bytes)`,
+        `📄 (dry run) Would set file ${targetLabel} from ${filepath} (${size} bytes)`,
       );
     } else {
-      console.info(
-        `📄 Setting file${env ? ` (${env})` : ""} ${key} from ${filepath} ...`,
-      );
+      console.info(`📄 Setting file ${targetLabel} from ${filepath} ...`);
       const content = fs.readFileSync(filepath, "utf8");
       execSync(`gh secret set ${key} --repo ${REPO} ${scopeFlag}`.trim(), {
         input: content,
