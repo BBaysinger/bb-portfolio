@@ -226,7 +226,7 @@ Operator guidance for removals:
 
 - **Naming**
   - Use canonical key names (e.g., `FRONTEND_URL`, `BACKEND_INTERNAL_URL`, `AWS_REGION`) across every profile. Store per-profile values in `.github-secrets.private.<profile>.json5` instead of inventing prefixed variants.
-  - Local overrides may still rely on `LOCAL_*` variables until the local stack is fully migrated, but shared secrets and CI inputs must stick to the neutral names.
+  - Local overrides now use the same canonical keys as every other profile. The `LOCAL_*` prefixes have been removed to keep configuration consistent everywhere.
   - Frontend-only variables that must reach the browser remain `NEXT_PUBLIC_*`.
 
 - **Profiles**
@@ -357,10 +357,18 @@ Use this checklist when opening any PR:
 
 ### BuildKit secret IDs currently used in backend build
 
-- `prod_mongodb_uri`, `dev_mongodb_uri`, `local_mongodb_uri`
-- `prod_payload_secret`, `dev_payload_secret`
-- `aws_access_key_id`, `aws_secret_access_key`
-- `prod_ses_from_email`, `prod_ses_to_email`, `dev_ses_from_email`, `dev_ses_to_email`
+- `mongodb_uri`
+- `payload_secret`
+- `frontend_url`
+- `s3_bucket`
+- `aws_region`
+- `ses_from_email`
+- `ses_to_email`
+- `smtp_from_email`
+- `backend_internal_url`
+- `public_server_url`
+- `aws_access_key_id`
+- `aws_secret_access_key`
 
 ### Required list examples
 
@@ -370,13 +378,13 @@ Use a single global list for all profiles. Each profile’s secrets overlay must
 
   ```bash
   REQUIRED_ENVIRONMENT_VARIABLES=\
-  MONGODB_URI|LOCAL_MONGODB_URI,\
-  BACKEND_INTERNAL_URL|LOCAL_BACKEND_INTERNAL_URL,\
+  MONGODB_URI,\
+  BACKEND_INTERNAL_URL,\
   FRONTEND_URL|PUBLIC_SERVER_URL,\
-  AWS_REGION|LOCAL_AWS_REGION,\
+  AWS_REGION,\
   SES_FROM_EMAIL|SMTP_FROM_EMAIL,\
   SES_TO_EMAIL,\
-  PAYLOAD_SECRET|LOCAL_PAYLOAD_SECRET,\
+  PAYLOAD_SECRET,\
   SECURITY_TXT_EXPIRES
   ```
 

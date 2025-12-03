@@ -79,9 +79,9 @@
     // Payload CMS core package
     "payload": "3.65.0",
     // React version to match Next.js 15
-    "react": "19.2.0",
+    "react": "19.2.1",
     // React DOM library for rendering React components (required by Next.js and Payload UI)
-    "react-dom": "^19.2.0",
+    "react-dom": "19.2.1",
     // High-performance image processing (required for Payload image fields)
     "sharp": "0.34.5",
     // Converts strings into URL-friendly slugs (useful for dynamic routing)
