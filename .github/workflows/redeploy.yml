@@ -110,8 +110,14 @@ jobs:
         id: genenv
         if: ${{ inputs.refresh_env == 'true' || inputs.refresh_env == true }}
         env:
-          PROFILES: "${{ inputs.environment == 'both' ? 'prod,dev' : inputs.environment }}"
-        run: bash deploy/scripts/actions/generate-env-files.sh
+          PROFILES: ${{ inputs.environment }}
+        run: |
+          set -euo pipefail
+          profiles="$PROFILES"
+          if [ "$profiles" = "both" ]; then
+            profiles="prod,dev"
+          fi
+          PROFILES="$profiles" bash deploy/scripts/actions/generate-env-files.sh
 
       - name: Upload env files to EC2
         if: ${{ inputs.refresh_env == 'true' || inputs.refresh_env == true }}
