@@ -47,6 +47,7 @@ jobs:
   # ==========================================================================
   build-and-test:
     runs-on: ubuntu-latest
+    environment: dev
     steps:
       # Checkout source code
       - name: Checkout code
@@ -104,23 +105,23 @@ jobs:
           # Env-guard definition list (sanitized for backend build)
           REQUIRED_ENVIRONMENT_VARIABLES: "${{ steps.sanitize-dev-req.outputs.dev_req_backend }}"
           # Backend URL group (ANY-of) to satisfy unified list if it includes FE groups
-          DEV_BACKEND_INTERNAL_URL: ${{ secrets.DEV_BACKEND_INTERNAL_URL }}
-          DEV_MONGODB_URI: mongodb://localhost:27017/dummy-db
+          BACKEND_INTERNAL_URL: ${{ secrets.BACKEND_INTERNAL_URL }}
+          MONGODB_URI: mongodb://localhost:27017/dummy-db
           # Required by strict env checks in payload.config.ts for dev profile
-          DEV_PAYLOAD_SECRET: ${{ secrets.DEV_PAYLOAD_SECRET }}
+          PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
           # Frontend origin for CORS/CSRF checks during build-time config resolution
-          DEV_FRONTEND_URL: ${{ secrets.DEV_FRONTEND_URL }}
+          FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
           # S3 and AWS configuration required by payload.config.ts during build
-          DEV_S3_BUCKET: ${{ secrets.DEV_S3_BUCKET }}
-          DEV_AWS_REGION: ${{ secrets.DEV_AWS_REGION }}
+          S3_BUCKET: ${{ secrets.S3_BUCKET }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
           # S3 projects buckets for API routes
           PUBLIC_PROJECTS_BUCKET: ${{ secrets.PUBLIC_PROJECTS_BUCKET }}
           NDA_PROJECTS_BUCKET: ${{ secrets.NDA_PROJECTS_BUCKET }}
           # Unified AWS credentials for all services (S3, SES, deployment)
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          DEV_SES_FROM_EMAIL: ${{ secrets.DEV_SES_FROM_EMAIL }}
-          DEV_SES_TO_EMAIL: ${{ secrets.DEV_SES_TO_EMAIL }}
+          SES_FROM_EMAIL: ${{ secrets.SES_FROM_EMAIL }}
+          SES_TO_EMAIL: ${{ secrets.SES_TO_EMAIL }}
         run: pnpm run build # Next.js production build (Payload CMS)
 
       # Install Playwright browsers only when running tests
@@ -132,22 +133,22 @@ jobs:
         working-directory: ./backend
         env:
           ENV_PROFILE: dev
-          DEV_MONGODB_URI: mongodb://localhost:27017/dummy-db
-          DEV_PAYLOAD_SECRET: ${{ secrets.DEV_PAYLOAD_SECRET }}
-          DEV_FRONTEND_URL: ${{ secrets.DEV_FRONTEND_URL }}
+          MONGODB_URI: mongodb://localhost:27017/dummy-db
+          PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
+          FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
           # S3 and AWS configuration required by payload.config.ts during testing
-          DEV_S3_BUCKET: ${{ secrets.DEV_S3_BUCKET }}
-          DEV_AWS_REGION: ${{ secrets.DEV_AWS_REGION }}
+          S3_BUCKET: ${{ secrets.S3_BUCKET }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
           # S3 projects buckets for API routes
           PUBLIC_PROJECTS_BUCKET: ${{ secrets.PUBLIC_PROJECTS_BUCKET }}
           NDA_PROJECTS_BUCKET: ${{ secrets.NDA_PROJECTS_BUCKET }}
           # Unified AWS credentials for all services (S3, SES, deployment)
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          DEV_SES_FROM_EMAIL: ${{ secrets.DEV_SES_FROM_EMAIL }}
-          DEV_SES_TO_EMAIL: ${{ secrets.DEV_SES_TO_EMAIL }}
+          SES_FROM_EMAIL: ${{ secrets.SES_FROM_EMAIL }}
+          SES_TO_EMAIL: ${{ secrets.SES_TO_EMAIL }}
           # Backend URL group (ANY-of) and security metadata to satisfy env-guard when invoked
-          DEV_BACKEND_INTERNAL_URL: ${{ secrets.DEV_BACKEND_INTERNAL_URL }}
+          BACKEND_INTERNAL_URL: ${{ secrets.BACKEND_INTERNAL_URL }}
           # Ensure tests use a definition list (backend-safe)
           REQUIRED_ENVIRONMENT_VARIABLES: "${{ steps.sanitize-dev-req.outputs.dev_req_backend }}"
         run: pnpm test || echo "⚠️ No backend tests yet" # Graceful failure until tests are implemented
@@ -165,7 +166,7 @@ jobs:
           ENV_PROFILE: dev
           # Env-guard definition list (sanitized for frontend build)
           REQUIRED_ENVIRONMENT_VARIABLES: "${{ steps.sanitize-dev-req.outputs.dev_req_frontend }}"
-          DEV_BACKEND_INTERNAL_URL: ${{ secrets.DEV_BACKEND_INTERNAL_URL }}
+          BACKEND_INTERNAL_URL: ${{ secrets.BACKEND_INTERNAL_URL }}
           PUBLIC_PROJECTS_BUCKET: ${{ secrets.PUBLIC_PROJECTS_BUCKET }}
           NDA_PROJECTS_BUCKET: ${{ secrets.NDA_PROJECTS_BUCKET }}
         run: pnpm run build
@@ -175,6 +176,7 @@ jobs:
     if: github.ref == 'refs/heads/main'
     needs: build-and-test
     runs-on: ubuntu-latest
+    environment: prod
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -204,7 +206,7 @@ jobs:
             --build-arg NODE_ENV=production \
             --build-arg GITHUB_SHA=${{ github.sha }} \
             --build-arg REQUIRED_ENVIRONMENT_VARIABLES="${{ steps.sanitize-prod-req.outputs.prod_req_frontend }}" \
-            --build-arg PROD_BACKEND_INTERNAL_URL="${{ secrets.PROD_BACKEND_INTERNAL_URL }}" \
+            --build-arg BACKEND_INTERNAL_URL="${{ secrets.BACKEND_INTERNAL_URL }}" \
             --build-arg PUBLIC_PROJECTS_BUCKET="${{ secrets.PUBLIC_PROJECTS_BUCKET }}" \
             --build-arg NDA_PROJECTS_BUCKET="${{ secrets.NDA_PROJECTS_BUCKET }}" \
             --build-arg NEXT_PUBLIC_RUM_APP_MONITOR_ID="${{ secrets.NEXT_PUBLIC_RUM_APP_MONITOR_ID }}" \
@@ -221,36 +223,31 @@ jobs:
           ECR_REPOSITORY: bb-portfolio-backend-prod
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          echo "${{ secrets.PROD_MONGODB_URI }}" > /tmp/prod_mongodb_uri
-          echo "${{ secrets.DEV_MONGODB_URI }}" > /tmp/dev_mongodb_uri
-          echo "${{ secrets.LOCAL_MONGODB_URI }}" > /tmp/local_mongodb_uri
-          echo "${{ secrets.PROD_PAYLOAD_SECRET }}" > /tmp/prod_payload_secret
+          echo "${{ secrets.MONGODB_URI }}" > /tmp/prod_mongodb_uri
+          echo "${{ secrets.PAYLOAD_SECRET }}" > /tmp/prod_payload_secret
           echo "${{ secrets.AWS_ACCESS_KEY_ID }}" > /tmp/aws_access_key_id
           echo "${{ secrets.AWS_SECRET_ACCESS_KEY }}" > /tmp/aws_secret_access_key
-          echo "${{ secrets.PROD_SES_FROM_EMAIL }}" > /tmp/prod_ses_from_email
-          echo "${{ secrets.PROD_SES_TO_EMAIL }}" > /tmp/prod_ses_to_email
+          echo "${{ secrets.SES_FROM_EMAIL }}" > /tmp/prod_ses_from_email
+          echo "${{ secrets.SES_TO_EMAIL }}" > /tmp/prod_ses_to_email
           DOCKER_BUILDKIT=1 docker build --no-cache --target runtime \
             --build-arg NODE_IMAGE=public.ecr.aws/docker/library/node:22-slim \
             --build-arg ENV_PROFILE=prod \
             --build-arg NODE_ENV=production \
             --build-arg REQUIRED_ENVIRONMENT_VARIABLES="${{ steps.sanitize-prod-req.outputs.prod_req_backend }}" \
-            --build-arg PROD_BACKEND_INTERNAL_URL="${{ secrets.PROD_BACKEND_INTERNAL_URL }}" \
-            --build-arg PROD_FRONTEND_URL="${{ secrets.PROD_FRONTEND_URL }}" \
-            --build-arg PROD_S3_BUCKET="${{ secrets.PROD_S3_BUCKET }}" \
-            --build-arg PROD_AWS_REGION="${{ secrets.PROD_AWS_REGION }}" \
-            --build-arg DEV_AWS_REGION="${{ secrets.DEV_AWS_REGION }}" \
+            --build-arg BACKEND_INTERNAL_URL="${{ secrets.BACKEND_INTERNAL_URL }}" \
+            --build-arg FRONTEND_URL="${{ secrets.FRONTEND_URL }}" \
+            --build-arg S3_BUCKET="${{ secrets.S3_BUCKET }}" \
+            --build-arg AWS_REGION="${{ secrets.AWS_REGION }}" \
             --build-arg PUBLIC_PROJECTS_BUCKET="${{ secrets.PUBLIC_PROJECTS_BUCKET }}" \
             --build-arg NDA_PROJECTS_BUCKET="${{ secrets.NDA_PROJECTS_BUCKET }}" \
             --secret id=prod_mongodb_uri,src=/tmp/prod_mongodb_uri \
-            --secret id=dev_mongodb_uri,src=/tmp/dev_mongodb_uri \
-            --secret id=local_mongodb_uri,src=/tmp/local_mongodb_uri \
             --secret id=prod_payload_secret,src=/tmp/prod_payload_secret \
             --secret id=aws_access_key_id,src=/tmp/aws_access_key_id \
             --secret id=aws_secret_access_key,src=/tmp/aws_secret_access_key \
             --secret id=prod_ses_from_email,src=/tmp/prod_ses_from_email \
             --secret id=prod_ses_to_email,src=/tmp/prod_ses_to_email \
             -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./backend
-          rm -f /tmp/prod_mongodb_uri /tmp/dev_mongodb_uri /tmp/local_mongodb_uri /tmp/prod_payload_secret /tmp/aws_access_key_id /tmp/aws_secret_access_key /tmp/prod_ses_from_email /tmp/prod_ses_to_email
+          rm -f /tmp/prod_mongodb_uri /tmp/prod_payload_secret /tmp/aws_access_key_id /tmp/aws_secret_access_key /tmp/prod_ses_from_email /tmp/prod_ses_to_email
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
@@ -261,6 +258,7 @@ jobs:
     needs: [build-and-test, build-push-prod-images]
     uses: ./.github/workflows/redeploy.yml
     secrets: inherit
+    environment: prod
     with:
       environment: prod
       start_dev: false
@@ -275,9 +273,15 @@ jobs:
     if: github.ref == 'refs/heads/dev' || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/dev')
     needs: build-and-test
     runs-on: ubuntu-latest
+    environment: dev
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+      - name: Sanitize REQUIRED_ENVIRONMENT_VARIABLES (dev images)
+        id: sanitize-dev-req
+        env:
+          RAW: ${{ secrets.REQUIRED_ENVIRONMENT_VARIABLES }}
+        run: bash deploy/scripts/actions/sanitize-required-env.sh dev "$RAW"
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
@@ -285,27 +289,27 @@ jobs:
           password: ${{ secrets.DOCKER_HUB_PASSWORD }}
       - name: Build and push dev images to Docker Hub
         env:
-          DEV_REQ_SANITIZED_FE: ${{ steps.sanitize-dev-req.outputs.dev_req_frontend }}
-          DEV_REQ_SANITIZED_BE: ${{ steps.sanitize-dev-req.outputs.dev_req_backend }}
+          SANITIZED_FE_REQ: ${{ steps.sanitize-dev-req.outputs.dev_req_frontend }}
+          SANITIZED_BE_REQ: ${{ steps.sanitize-dev-req.outputs.dev_req_backend }}
         run: |
           docker build --build-arg ENV_PROFILE=dev \
-            --build-arg REQUIRED_ENVIRONMENT_VARIABLES="${DEV_REQ_SANITIZED_BE}" \
-            --build-arg DEV_BACKEND_INTERNAL_URL="${{ secrets.DEV_BACKEND_INTERNAL_URL }}" \
-            --build-arg DEV_MONGODB_URI="mongodb://localhost:27017/dummy-db" \
-            --build-arg DEV_PAYLOAD_SECRET="${{ secrets.DEV_PAYLOAD_SECRET }}" \
-            --build-arg DEV_FRONTEND_URL="${{ secrets.DEV_FRONTEND_URL }}" \
-            --build-arg DEV_S3_BUCKET="${{ secrets.DEV_S3_BUCKET }}" \
-            --build-arg DEV_AWS_REGION="${{ secrets.DEV_AWS_REGION }}" \
+            --build-arg REQUIRED_ENVIRONMENT_VARIABLES="${SANITIZED_BE_REQ}" \
+            --build-arg BACKEND_INTERNAL_URL="${{ secrets.BACKEND_INTERNAL_URL }}" \
+            --build-arg MONGODB_URI="mongodb://localhost:27017/dummy-db" \
+            --build-arg PAYLOAD_SECRET="${{ secrets.PAYLOAD_SECRET }}" \
+            --build-arg FRONTEND_URL="${{ secrets.FRONTEND_URL }}" \
+            --build-arg S3_BUCKET="${{ secrets.S3_BUCKET }}" \
+            --build-arg AWS_REGION="${{ secrets.AWS_REGION }}" \
             --build-arg AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}" \
             --build-arg AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
-            --build-arg DEV_SES_FROM_EMAIL="${{ secrets.DEV_SES_FROM_EMAIL }}" \
-            --build-arg DEV_SES_TO_EMAIL="${{ secrets.DEV_SES_TO_EMAIL }}" \
+            --build-arg SES_FROM_EMAIL="${{ secrets.SES_FROM_EMAIL }}" \
+            --build-arg SES_TO_EMAIL="${{ secrets.SES_TO_EMAIL }}" \
             --build-arg PUBLIC_PROJECTS_BUCKET="${{ secrets.PUBLIC_PROJECTS_BUCKET }}" \
             --build-arg NDA_PROJECTS_BUCKET="${{ secrets.NDA_PROJECTS_BUCKET }}" \
             -t bhbaysinger/bb-portfolio-backend:dev ./backend
           docker build --build-arg ENV_PROFILE=dev \
-            --build-arg REQUIRED_ENVIRONMENT_VARIABLES="${DEV_REQ_SANITIZED_FE}" \
-            --build-arg DEV_BACKEND_INTERNAL_URL="${{ secrets.DEV_BACKEND_INTERNAL_URL }}" \
+            --build-arg REQUIRED_ENVIRONMENT_VARIABLES="${SANITIZED_FE_REQ}" \
+            --build-arg BACKEND_INTERNAL_URL="${{ secrets.BACKEND_INTERNAL_URL }}" \
             --build-arg PUBLIC_PROJECTS_BUCKET="${{ secrets.PUBLIC_PROJECTS_BUCKET }}" \
             --build-arg NDA_PROJECTS_BUCKET="${{ secrets.NDA_PROJECTS_BUCKET }}" \
             --build-arg NEXT_PUBLIC_RUM_APP_MONITOR_ID="${{ secrets.NEXT_PUBLIC_RUM_APP_MONITOR_ID }}" \
@@ -324,6 +328,7 @@ jobs:
     needs: build-push-dev-images
     uses: ./.github/workflows/redeploy.yml
     secrets: inherit
+    environment: dev
     with:
       environment: dev
       start_dev: true

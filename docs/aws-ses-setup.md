@@ -85,15 +85,21 @@ LOCAL_SES_TO_EMAIL=your-email@some-domain.com  # Your email to receive messages
 
 ## Step 3: Production Configuration
 
-For production, update your environment variables with `PROD_` prefix:
+For production, populate the canonical keys inside `.github-secrets.private.prod.json5` (or the matching secret store) so the env generator emits the right values:
 
-```bash
-PROD_AWS_REGION=us-east-1
-PROD_AWS_ACCESS_KEY_ID=your-prod-access-key
-PROD_AWS_SECRET_ACCESS_KEY=your-prod-secret-key
-PROD_SES_FROM_EMAIL=noreply@some-domain.com
-PROD_SES_TO_EMAIL=your-email@some-domain.com
+```json5
+{
+  strings: {
+    AWS_REGION: "us-west-2",
+    AWS_ACCESS_KEY_ID: "your-prod-access-key",
+    AWS_SECRET_ACCESS_KEY: "your-prod-secret-key",
+    SES_FROM_EMAIL: "noreply@some-domain.com",
+    SES_TO_EMAIL: "your-email@some-domain.com",
+  },
+}
 ```
+
+The same key names (`AWS_REGION`, `SES_FROM_EMAIL`, etc.) are used for dev/stage overlays; only the values differ.
 
 ## Step 4: Test the Setup
 
@@ -229,11 +235,11 @@ Optional: Configure custom MAIL FROM for SPF alignment
 
 ### C) Update app config and test
 
-1. On the server, set the backend env to use the verified sender:
+1. On the server, set the backend env (or secrets overlay) to use the verified sender:
 
-- `PROD_AWS_REGION=us-west-2`
-- `PROD_SES_FROM_EMAIL=noreply@bbaysinger.com`
-- `PROD_SES_TO_EMAIL=<your recipient>` (can be unverified after production access)
+- `AWS_REGION=us-west-2`
+- `SES_FROM_EMAIL=noreply@bbaysinger.com`
+- `SES_TO_EMAIL=<your recipient>` (can be unverified after production access)
 
 2. Restart the backend container so the env is reloaded.
 3. Test the contact form. If it fails, check `/api/contact/status/` and the admin diagnostics endpoint for a reason code (e.g., `SES_IDENTITY_NOT_VERIFIED`, `SES_MESSAGE_REJECTED`).
@@ -246,23 +252,21 @@ Notes
 
 ### Optional: Customize email subject/heading
 
-You can change the subject line and the heading shown in the email body via environment variables (profile-aware):
+You can change the subject line and the heading shown in the email body via environment variables (profile-aware through the overlays, but still using the canonical names):
 
-- `PROD_CONTACT_EMAIL_SUBJECT_PREFIX` — default: `"New Contact Form Submission"`
-- `PROD_CONTACT_EMAIL_HEADING` — default: falls back to the subject prefix
+- `CONTACT_EMAIL_SUBJECT_PREFIX` — default: `"New Contact Form Submission"`
+- `CONTACT_EMAIL_HEADING` — default: falls back to the subject prefix
 
 Examples:
 
 ```bash
-# Production (on the server)
-PROD_CONTACT_EMAIL_SUBJECT_PREFIX="New Portfolio Message"
-PROD_CONTACT_EMAIL_HEADING="New Portfolio Message"
+# Production (in the prod secrets overlay)
+CONTACT_EMAIL_SUBJECT_PREFIX="New Portfolio Message"
+CONTACT_EMAIL_HEADING="New Portfolio Message"
 
-# Local/dev (if needed for testing)
-LOCAL_CONTACT_EMAIL_SUBJECT_PREFIX="Local Contact"
-LOCAL_CONTACT_EMAIL_HEADING="Local Contact"
-DEV_CONTACT_EMAIL_SUBJECT_PREFIX="Dev Contact"
-DEV_CONTACT_EMAIL_HEADING="Dev Contact"
+# Local/dev overrides live in .env.local or the dev overlay without prefixes
+CONTACT_EMAIL_SUBJECT_PREFIX="Local Contact"
+CONTACT_EMAIL_HEADING="Local Contact"
 ```
 
 The final subject will append the sender name automatically, e.g., `New Portfolio Message from Jane Doe`.

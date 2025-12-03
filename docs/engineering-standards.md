@@ -225,8 +225,9 @@ Operator guidance for removals:
 ## Environment variables & governance
 
 - **Naming**
-  - Use unified names with optional profile prefix: `PROD_`, `DEV_`, `LOCAL_`.
-  - Frontend-only variables that must reach the browser must be prefixed with `NEXT_PUBLIC_`.
+  - Use canonical key names (e.g., `FRONTEND_URL`, `BACKEND_INTERNAL_URL`, `AWS_REGION`) across every profile. Store per-profile values in `.github-secrets.private.<profile>.json5` instead of inventing prefixed variants.
+  - Local overrides may still rely on `LOCAL_*` variables until the local stack is fully migrated, but shared secrets and CI inputs must stick to the neutral names.
+  - Frontend-only variables that must reach the browser remain `NEXT_PUBLIC_*`.
 
 - **Profiles**
   - Profiles in use: `local`, `dev`, `prod`. `stage` may be added later; its implementation should mirror `dev`.
@@ -291,7 +292,7 @@ Earlier iterations used a small client-side fallback to reduce UX flicker (an `a
   - `scripts/check-required-env.ts` validates required vars with support for ANY-of groups and profile inference.
   - In CI/build, provide a definition list or rely on defaults; in prod, a definition list is strongly encouraged.
 - Email/SES configuration:
-  - Prefer profile-prefixed `*_SES_FROM_EMAIL` and `*_SES_TO_EMAIL` for routing email per environment.
+  - Declare `SES_FROM_EMAIL`, `SES_TO_EMAIL`, and `SMTP_FROM_EMAIL` in each secrets overlay so the runtime always reads the same key name regardless of profile.
   - Contact email for obfuscation and `/.well-known/security.txt` is read from CMS (Global: ContactInfo); no env variable is used.
 - API responses:
   - Return consistent JSON for internal and proxied routes; avoid raw HTML in error paths.
@@ -363,24 +364,25 @@ Use this checklist when opening any PR:
 
 ### Required list examples
 
-Use a single global list for all profiles. Reference prefixed variables using ANY-of groups (`|`) so each profile satisfies at least one entry per group.
+Use a single global list for all profiles. Each profile’s secrets overlay must populate the canonical keys referenced in the list.
 
 - Example global list:
 
   ```bash
   REQUIRED_ENVIRONMENT_VARIABLES=\
-  LOCAL_MONGODB_URI|DEV_MONGODB_URI|PROD_MONGODB_URI,\
-  LOCAL_FRONTEND_URL|DEV_FRONTEND_URL|PROD_FRONTEND_URL,\
-  LOCAL_AWS_REGION|DEV_AWS_REGION|PROD_AWS_REGION,\
-  LOCAL_SES_FROM_EMAIL|DEV_SES_FROM_EMAIL|PROD_SES_FROM_EMAIL|LOCAL_SMTP_FROM_EMAIL|DEV_SMTP_FROM_EMAIL|PROD_SMTP_FROM_EMAIL,\
-  LOCAL_SES_TO_EMAIL|DEV_SES_TO_EMAIL|PROD_SES_TO_EMAIL,\
-  LOCAL_PAYLOAD_SECRET|DEV_PAYLOAD_SECRET|PROD_PAYLOAD_SECRET,\
+  MONGODB_URI|LOCAL_MONGODB_URI,\
+  BACKEND_INTERNAL_URL|LOCAL_BACKEND_INTERNAL_URL,\
+  FRONTEND_URL|PUBLIC_SERVER_URL,\
+  AWS_REGION|LOCAL_AWS_REGION,\
+  SES_FROM_EMAIL|SMTP_FROM_EMAIL,\
+  SES_TO_EMAIL,\
+  PAYLOAD_SECRET|LOCAL_PAYLOAD_SECRET,\
   SECURITY_TXT_EXPIRES
   ```
 
 ### Naming examples
 
-- `PROD_FRONTEND_URL`, `DEV_FRONTEND_URL`
-- `PROD_AWS_REGION`, `DEV_AWS_REGION`
-- `PROD_SES_FROM_EMAIL`, `DEV_SES_FROM_EMAIL`
+- `FRONTEND_URL`, `BACKEND_INTERNAL_URL`
+- `AWS_REGION`, `S3_BUCKET`
+- `SES_FROM_EMAIL`, `SES_TO_EMAIL`, `SMTP_FROM_EMAIL`
 <!-- Contact email now in CMS; no corresponding env variable required -->

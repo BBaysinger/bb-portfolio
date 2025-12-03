@@ -8,7 +8,7 @@ This doc captures how uploads are set up today, recommended S3 patterns per envi
   - `brand-logos/`, `project-screenshots/`, `project-thumbnails/`
 - S3 buckets are now defined and managed by Terraform under `infra/` (one bucket per env, e.g., `dev` and `prod`).
 - `@payloadcms/storage-s3` is wired in `backend/src/payload.config.ts` and enabled when `ENV_PROFILE` is `dev` or `prod`. For `ENV_PROFILE=local`, filesystem storage is used.
-- MongoDB uses env-prefixed URIs: `LOCAL_MONGODB_URI`, `DEV_MONGODB_URI`, `PROD_MONGODB_URI`.
+- MongoDB now relies on the canonical `MONGODB_URI` key per profile (local still reads `LOCAL_MONGODB_URI` as a convenience fallback).
 
 ### CLI uploads and verification: authentication
 
@@ -130,41 +130,51 @@ If you see an AWS credentials error, configure your AWS CLI or export `AWS_ACCES
 
 ### Backend env vars for S3
 
-The backend reads the bucket and region per environment. Set these based on Terraform outputs and your chosen region (default is `us-west-2` via `var.region`).
+Each profile’s env bundle exposes the same canonical keys, so you only need to set the values inside `.github-secrets.private.<profile>.json5` (or via Terraform outputs) once per profile.
 
-Required environment variables:
+Required environment variables (per profile):
 
-- `DEV_S3_BUCKET` and `PROD_S3_BUCKET` — names from Terraform `media_bucket_names` output
-- `DEV_AWS_REGION` and `PROD_AWS_REGION` — typically the same as `var.region` in Terraform (default `us-west-2`)
+- `S3_BUCKET` — bucket name from Terraform `media_bucket_names`
+- `AWS_REGION` — typically matches `var.region` in Terraform (`us-west-2` by default)
 
-Get outputs and set env vars (example):
+Populate the secrets overlay using Terraform outputs:
 
 ```zsh
 # Get outputs as JSON
 terraform -chdir=infra output -json > tf-outputs.json
 
 # Using jq to extract bucket names
-DEV_BUCKET=$(jq -r '.media_bucket_names.value.dev' tf-outputs.json)
-PROD_BUCKET=$(jq -r '.media_bucket_names.value.prod' tf-outputs.json)
+bucket_dev=$(jq -r '.media_bucket_names.value.dev' tf-outputs.json)
+bucket_prod=$(jq -r '.media_bucket_names.value.prod' tf-outputs.json)
 
 # Set regions to match your Terraform var.region
 REGION=$(jq -r '.region.value // empty' tf-outputs.json 2>/dev/null || echo "us-west-2")
 
-echo DEV_S3_BUCKET=$DEV_BUCKET
-echo PROD_S3_BUCKET=$PROD_BUCKET
-echo DEV_AWS_REGION=$REGION
-echo PROD_AWS_REGION=$REGION
+cat <<EOF > .github-secrets.private.prod.json5
+{
+  "strings": {
+    "S3_BUCKET": "$bucket_prod",
+    "AWS_REGION": "$REGION"
+  }
+}
+EOF
 
-# For local testing, you can export these (or add to your .env files)
-export DEV_S3_BUCKET=$DEV_BUCKET
-export DEV_AWS_REGION=$REGION
-# For prod deployments, set in your deployment environment/secrets
+cat <<EOF > .github-secrets.private.dev.json5
+{
+  "strings": {
+    "S3_BUCKET": "$bucket_dev",
+    "AWS_REGION": "$REGION"
+  }
+}
+EOF
+
+# Repeat for stage or other overlays, each using the same key names but different values.
 ```
 
 Notes:
 
 - The backend keeps using the local filesystem when `ENV_PROFILE=local`.
-- When `ENV_PROFILE` is `dev` or `prod`, the S3 storage plugin is enabled and uses the envs above. If the app runs on EC2 with the instance role created by Terraform, explicit AWS access keys are not required.
+- When `ENV_PROFILE` is `dev` or `prod`, the S3 storage plugin is enabled and reads `S3_BUCKET`/`AWS_REGION` from the generated env file. If the app runs on EC2 with the instance role created by Terraform, explicit AWS access keys are not required.
 - CORS for GET/HEAD is applied at the bucket level; tighten `var.media_cors_allowed_origins` as needed in `infra/variables.tf`.
 
 ## IAM, CORS, lifecycle
@@ -175,14 +185,14 @@ Notes:
 
 ## Wiring Payload to S3 (high level)
 
-You have the dependency installed. You'll need to add the S3 storage plugin and map each collection to a prefix in `payload.config.ts`. Use env-prefixed variables so each env is independent:
+You have the dependency installed. You'll need to add the S3 storage plugin and map each collection to a prefix in `payload.config.ts`. Stick to the canonical key names (`S3_BUCKET`, `AWS_REGION`, etc.) and let the env generator supply per-profile values.
 
-Environment variables (examples):
+Environment variables (per profile):
 
-- `DEV_S3_BUCKET`, `STG_S3_BUCKET`, `PROD_S3_BUCKET`
-- `DEV_AWS_REGION`, `STG_AWS_REGION`, `PROD_AWS_REGION`
-- `DEV_AWS_ACCESS_KEY_ID`, `DEV_AWS_SECRET_ACCESS_KEY` (or use an instance role)
-- `DEV_S3_BASE_URL` (optional, set to a CloudFront distribution in prod)
+- `S3_BUCKET`
+- `AWS_REGION`
+- `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` (optional when using instance roles)
+- `S3_BASE_URL` (optional CDN override)
 
 General approach in code:
 
@@ -246,12 +256,12 @@ Freeze writes during the snapshot (short maintenance window), then:
 ```zsh
 # Dump from source env
 mongodump \
-  --uri "$STG_MONGODB_URI" \
+  --uri "$SOURCE_MONGODB_URI" \
   --out dump/stg-$(date +%F-%H%M)
 
 # Restore into target env (drop to replace existing)
 mongorestore \
-  --uri "$PROD_MONGODB_URI" \
+  --uri "$TARGET_MONGODB_URI" \
   --drop \
   dump/stg-YYYY-MM-DD-HHMM
 ```
@@ -301,7 +311,7 @@ resource "aws_s3_bucket_public_access_block" "media" {
 - Can I “move everything together”?
   - Yes. The runbook above does exactly that: snapshot DB + sync media. For many teams, that's the standard content promotion process.
 - What about local?
-  - Stay on filesystem for `ENV_PROFILE=local`. When you're ready, you can also point local at a dev bucket using an IAM user and a `DEV_*` .env.
+  - Stay on filesystem for `ENV_PROFILE=local`. When you're ready, you can also point local at the dev bucket by sourcing the generated `backend.env.dev` file (which already uses canonical keys) or by exporting ad-hoc AWS credentials.
 
 ---
 

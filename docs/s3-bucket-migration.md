@@ -20,22 +20,32 @@ This guide covers the four-bucket S3 structure that separates media storage (Pay
 
 ### 1. Update GitHub Secrets
 
-Update your `.github-secrets.private.json5` file:
+Update the profile overlays so each one defines the same canonical key names:
 
 ```json5
+// .github-secrets.private.dev.json5
 {
   strings: {
-    // Media bucket variables (for Payload CMS)
-    DEV_S3_BUCKET: "bb-portfolio-media-dev",
-    PROD_S3_BUCKET: "bb-portfolio-media-prod",
+    S3_BUCKET: "bb-portfolio-media-dev",
+    AWS_REGION: "us-west-2"
+  }
+}
 
-    // Project bucket variables (for static files)
+// .github-secrets.private.prod.json5
+{
+  strings: {
+    S3_BUCKET: "bb-portfolio-media-prod",
+    AWS_REGION: "us-west-2"
+  }
+}
+
+// Shared buckets live in the base file
+{
+  strings: {
     PUBLIC_PROJECTS_BUCKET: "bb-portfolio-projects-public",
     NDA_PROJECTS_BUCKET: "bb-portfolio-projects-nda",
-
-    // Update validation list consumed by env-guard scripts
-    REQUIRED_ENVIRONMENT_VARIABLES: "AWS_ACCESS_KEY_ID|AWS_SECRET_ACCESS_KEY|AWS_REGION|S3_BUCKET|PUBLIC_PROJECTS_BUCKET|NDA_PROJECTS_BUCKET|FRONTEND_URL|SES_FROM_EMAIL|SES_TO_EMAIL",
-  },
+    REQUIRED_ENVIRONMENT_VARIABLES: "AWS_ACCESS_KEY_ID|AWS_SECRET_ACCESS_KEY|AWS_REGION|S3_BUCKET|PUBLIC_PROJECTS_BUCKET|NDA_PROJECTS_BUCKET|FRONTEND_URL|SES_FROM_EMAIL|SES_TO_EMAIL"
+  }
 }
 ```
 
@@ -151,32 +161,24 @@ aws s3 rb s3://bb-portfolio-media-prod
 
 Each environment uses its own media bucket, while project buckets are shared:
 
-**Production (.env.prod):**
+Generate env bundles with `scripts/generate-env-files.ts` and you’ll see the same key names across profiles:
 
 ```bash
-# Payload CMS media storage
-PROD_S3_BUCKET=bb-portfolio-media-prod
-
-# Static project files (shared across environments)
+# backend.env.prod
+S3_BUCKET=bb-portfolio-media-prod
 PUBLIC_PROJECTS_BUCKET=bb-portfolio-projects-public
 NDA_PROJECTS_BUCKET=bb-portfolio-projects-nda
-```
 
-**Development (.env.dev):**
-
-```bash
-# Payload CMS media storage
-DEV_S3_BUCKET=bb-portfolio-media-dev
-
-# Static project files (shared across environments)
+# backend.env.dev
+S3_BUCKET=bb-portfolio-media-dev
 PUBLIC_PROJECTS_BUCKET=bb-portfolio-projects-public
 NDA_PROJECTS_BUCKET=bb-portfolio-projects-nda
 ```
 
 ### Payload Configuration
 
-- Production uses `PROD_S3_BUCKET` for media storage
-- Development uses `DEV_S3_BUCKET` for media storage
+- Production uses the `S3_BUCKET` value from the prod overlay for media storage
+- Development uses the `S3_BUCKET` value from the dev overlay for media storage
 - Project files are managed separately from Payload CMS
 
 ### Script Usage
@@ -218,7 +220,7 @@ npm run projects:upload -- --env both    # Upload to both access levels
 
 If you see errors about missing bucket variables, ensure your secrets are updated and synced to GitHub:
 
-- `DEV_S3_BUCKET` and `PROD_S3_BUCKET` for media
+- `S3_BUCKET` for each profile’s overlay
 - `PUBLIC_PROJECTS_BUCKET` and `NDA_PROJECTS_BUCKET` for projects
 
 ### Old Bucket References
