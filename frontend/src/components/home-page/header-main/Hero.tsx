@@ -216,27 +216,34 @@ const Hero: React.FC = () => {
   }, [startSlingerTracking, useSlingerTracking]);
 
   useEffect(() => {
-    setMounted(true);
+    const mountRaf = requestAnimationFrame(() => setMounted(true));
+    let hydrationRaf: number | null = null;
 
     // Hydrate persisted flags regardless of tracking mode
     if (typeof window !== "undefined") {
-      setHasDragged(sessionStorage.getItem("hasDragged") === "true");
-      setHasCollided(sessionStorage.getItem("hasCollided") === "true");
+      const dragged = sessionStorage.getItem("hasDragged") === "true";
+      const collided = sessionStorage.getItem("hasCollided") === "true";
       const afterDelay =
         sessionStorage.getItem("hasAfterCollidedDelay") === "true";
-      if (afterDelay) {
-        setHasAfterCollidedDelay(true);
-      }
+      let touchDevice = false;
       // Detect coarse pointer / touch-capable devices for tailored interaction instructions
       try {
-        const isTouch =
+        touchDevice =
           "ontouchstart" in window ||
           navigator.maxTouchPoints > 0 ||
           window.matchMedia("(pointer: coarse)").matches;
-        setIsTouchDevice(isTouch);
       } catch {
-        setIsTouchDevice(false);
+        touchDevice = false;
       }
+
+      hydrationRaf = requestAnimationFrame(() => {
+        setHasDragged(dragged);
+        setHasCollided(collided);
+        if (afterDelay) {
+          setHasAfterCollidedDelay(true);
+        }
+        setIsTouchDevice(touchDevice);
+      });
     }
 
     // Only start the tracking loop if enabled
@@ -245,6 +252,8 @@ const Hero: React.FC = () => {
     }
 
     return () => {
+      cancelAnimationFrame(mountRaf);
+      if (hydrationRaf) cancelAnimationFrame(hydrationRaf);
       if (slingerLoopId.current) cancelAnimationFrame(slingerLoopId.current);
     };
   }, [useSlingerTracking, startSlingerTracking]);

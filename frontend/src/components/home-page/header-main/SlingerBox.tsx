@@ -12,6 +12,11 @@ import MiscUtils from "@/utils/MiscUtils";
 import { Side } from "./BorderBlinker";
 import styles from "./SlingerBox.module.scss";
 
+const getEventTime = (timeStamp?: number) =>
+  typeof timeStamp === "number" && !Number.isNaN(timeStamp)
+    ? timeStamp
+    : Date.now();
+
 type SlingerObject = {
   id: number;
   x: number;
@@ -74,7 +79,7 @@ const SlingerBox = React.forwardRef<SlingerBoxHandle, SlingerBoxProps>(
     // refs
     const animationFrameRef = useRef<number | null>(null);
     const containerRef = useRef<HTMLDivElement>(null);
-    const lastActivityTimeRef = useRef<number>(performance.now());
+    const lastActivityTimeRef = useRef<number>(0);
     const hasBecomeIdleRef = useRef<boolean>(false);
     const slingerRefs = useRef<Map<number, HTMLElement>>(new Map());
     const lastDragEndTime = useRef<number>(0);
@@ -83,7 +88,7 @@ const SlingerBox = React.forwardRef<SlingerBoxHandle, SlingerBoxProps>(
       [],
     );
     const pointerPosition = useRef<{ x: number; y: number } | null>(null);
-    const lastFrameTime = useRef<number>(performance.now());
+    const lastFrameTime = useRef<number>(0);
     const objectsRef = useRef<SlingerObject[]>([]);
     const lastKnownVelocity = useRef<{ vx: number; vy: number }>({
       vx: 0,
@@ -95,8 +100,12 @@ const SlingerBox = React.forwardRef<SlingerBoxHandle, SlingerBoxProps>(
     };
 
     const animate = useCallback(
-      (timestamp: number) => {
+      function step(timestamp: number) {
         if (!containerRef.current) return;
+
+        if (lastFrameTime.current === 0) {
+          lastFrameTime.current = timestamp;
+        }
 
         const bounds = containerRef.current.getBoundingClientRect();
         const elapsed = timestamp - lastFrameTime.current;
@@ -104,18 +113,18 @@ const SlingerBox = React.forwardRef<SlingerBoxHandle, SlingerBoxProps>(
         if (elapsed > frameInterval) {
           lastFrameTime.current = timestamp - (elapsed % frameInterval);
 
+          const frameTime = timestamp;
+
           objectsRef.current.forEach((obj) => {
             if (obj.isDragging) return;
 
             let { x, y, vx, vy } = obj;
 
             // Pointer gravity effect
-            const now = performance.now();
-
             const gravityEnabled =
               pointerGravity > 0 &&
               pointerPosition.current &&
-              now - lastDragEndTime.current > 500; // <-- skip gravity for 500ms
+              frameTime - lastDragEndTime.current > 500; // <-- skip gravity for 500ms
 
             if (gravityEnabled && pointerPosition.current) {
               const pointerX = pointerPosition.current.x;
@@ -204,7 +213,7 @@ const SlingerBox = React.forwardRef<SlingerBoxHandle, SlingerBoxProps>(
                 onIdle?.();
               }
             } else {
-              lastActivityTimeRef.current = now;
+              lastActivityTimeRef.current = frameTime;
               hasBecomeIdleRef.current = false;
             }
 
@@ -221,7 +230,7 @@ const SlingerBox = React.forwardRef<SlingerBoxHandle, SlingerBoxProps>(
           });
         }
 
-        animationFrameRef.current = requestAnimationFrame(animate);
+        animationFrameRef.current = requestAnimationFrame(step);
       },
       [onWallCollision, onIdle, pointerGravity, frameInterval, radius],
     );
@@ -261,10 +270,9 @@ const SlingerBox = React.forwardRef<SlingerBoxHandle, SlingerBoxProps>(
       )
         return;
 
+      const eventTime = getEventTime(e.nativeEvent.timeStamp);
       dragStartPosition.current = { x: clientX, y: clientY };
-      movementHistory.current = [
-        { x: clientX, y: clientY, time: performance.now() },
-      ];
+      movementHistory.current = [{ x: clientX, y: clientY, time: eventTime }];
       lastKnownVelocity.current = { vx: 0, vy: 0 };
 
       objectsRef.current.forEach((obj) => {
@@ -276,7 +284,7 @@ const SlingerBox = React.forwardRef<SlingerBoxHandle, SlingerBoxProps>(
       });
 
       hasBecomeIdleRef.current = false;
-      lastActivityTimeRef.current = performance.now();
+      lastActivityTimeRef.current = eventTime;
       forceUpdate();
       onDragStart?.(clientX, clientY, e.nativeEvent);
     };
@@ -310,10 +318,14 @@ const SlingerBox = React.forwardRef<SlingerBoxHandle, SlingerBoxProps>(
           }
         });
 
-        const now = performance.now();
-        movementHistory.current.push({ x: clientX, y: clientY, time: now });
+        const eventTime = getEventTime(e.timeStamp);
+        movementHistory.current.push({
+          x: clientX,
+          y: clientY,
+          time: eventTime,
+        });
         movementHistory.current = movementHistory.current.filter(
-          (entry) => now - entry.time <= 100,
+          (entry) => eventTime - entry.time <= 100,
         );
 
         if (movementHistory.current.length > 1) {
@@ -338,6 +350,7 @@ const SlingerBox = React.forwardRef<SlingerBoxHandle, SlingerBoxProps>(
       (e: MouseEvent | TouchEvent) => {
         if (!dragStartPosition.current) return;
 
+        const eventTime = getEventTime(e.timeStamp);
         objectsRef.current.forEach((obj) => {
           if (obj.isDragging) {
             obj.vx = lastKnownVelocity.current.vx;
@@ -347,11 +360,11 @@ const SlingerBox = React.forwardRef<SlingerBoxHandle, SlingerBoxProps>(
           }
         });
 
-        lastDragEndTime.current = performance.now();
+        lastDragEndTime.current = eventTime;
         dragStartPosition.current = null;
         movementHistory.current = [];
         hasBecomeIdleRef.current = false;
-        lastActivityTimeRef.current = performance.now();
+        lastActivityTimeRef.current = eventTime;
         forceUpdate();
       },
       [onDragEnd],

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import type { ReactNode } from "react";
 
 import { navigateWithPushState } from "@/utils/navigation";
 
@@ -9,7 +9,7 @@ interface PushStateLinkProps {
   /** The destination URL */
   href: string;
   /** Content inside the link */
-  children: React.ReactNode;
+  children: ReactNode;
   /** Optional CSS class for styling */
   className?: string;
   /** Optional callback to run after navigation */
@@ -49,11 +49,7 @@ export function PushStateLink({
   onNavigate,
   scrollToTop = false,
 }: PushStateLinkProps) {
-  const [isClient, setIsClient] = useState(false);
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
+  const isClient = typeof window !== "undefined";
 
   if (!isClient) {
     return (

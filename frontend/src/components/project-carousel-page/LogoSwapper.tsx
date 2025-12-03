@@ -39,8 +39,11 @@ const LogoSwapper: React.FC<LogoSwapperProps> = ({
   const [brandLabels, setBrandLabels] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    // Set component as mounted to trigger fadeIn
-    setIsMounted(true);
+    const rafId = requestAnimationFrame(() => setIsMounted(true));
+    return () => cancelAnimationFrame(rafId);
+  }, []);
+
+  useEffect(() => {
     let timeout2: NodeJS.Timeout;
     // Handle blur transition
     const timeout1 = setTimeout(() => {

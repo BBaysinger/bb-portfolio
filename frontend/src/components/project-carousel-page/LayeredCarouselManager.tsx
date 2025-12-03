@@ -117,6 +117,7 @@ const LayeredCarouselManager = forwardRef<
     ref,
   ) => {
     const stabilizedIndexRef = useRef<number | null>(initialIndex);
+    const [stabilizedIndex, setStabilizedIndex] = useState(initialIndex);
     const masterCarouselRef = useRef<CarouselRef | null>(null);
     const [currentDirection, setCurrentDirection] =
       useState<DirectionType | null>(null);
@@ -172,6 +173,7 @@ const LayeredCarouselManager = forwardRef<
       direction: DirectionType,
     ) => {
       stabilizedIndexRef.current = index;
+      setStabilizedIndex(index);
       // Clear direction when stabilized so phones return to neutral position
       setCurrentDirection(null);
       onStabilizationUpdate?.(index, source, direction);
@@ -200,7 +202,7 @@ const LayeredCarouselManager = forwardRef<
               key={layer.id}
               ref={layerRef as React.Ref<CarouselRef>}
               slides={layer.slides.map((slide, index) => {
-                const isStabilized = index === stabilizedIndexRef.current;
+                const isStabilized = index === stabilizedIndex;
                 const shouldApplyTilt =
                   layer.id === "Phones" && !isStabilized && currentDirection;
                 const appliedClasses = clsx(

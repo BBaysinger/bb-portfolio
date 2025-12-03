@@ -17,6 +17,15 @@ import type { FluxelGridHandle, FluxelGridProps } from "./FluxelAllTypes";
 import FluxelSvg from "./FluxelSvg";
 import styles from "./FluxelSvgGrid.module.scss";
 
+const assignRef = <T,>(ref: React.Ref<T> | undefined, value: T) => {
+  if (!ref) return;
+  if (typeof ref === "function") {
+    ref(value);
+  } else {
+    (ref as React.MutableRefObject<T>).current = value;
+  }
+};
+
 /**
  * Fluxing Pixel - SVG implementation. (Group elements arranged within a single SVG.)
  *
@@ -39,25 +48,38 @@ const FluxelSvgGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
     const [fluxelSize, setFluxelSize] = useState(0);
     const [rowCount, setRowCount] = useState(0);
     const [colCount, setColCount] = useState(0);
+    const [viewableRows, setViewableRows] = useState(0);
+    const [viewableCols, setViewableCols] = useState(0);
 
     const containerRef = useRef<HTMLDivElement | null>(null);
     const gridDataRef = useRef<FluxelData[][]>([]);
     const fluxelRefs = useRef<React.RefObject<FluxelHandle | null>[][]>([]);
+    const [fluxelRefGrid, setFluxelRefGrid] = useState<
+      React.RefObject<FluxelHandle | null>[][]
+    >([]);
     const viewableRowsRef = useRef(0);
     const viewableColsRef = useRef(0);
 
     useEffect(() => {
       const rows = gridData.length;
       const cols = gridData[0]?.length ?? 0;
-      setRowCount(rows);
-      setColCount(cols);
       gridDataRef.current = gridData;
 
+      let refMatrix: React.RefObject<FluxelHandle | null>[][] = [];
       if (imperativeMode) {
-        fluxelRefs.current = Array.from({ length: rows }, () =>
+        refMatrix = Array.from({ length: rows }, () =>
           Array.from({ length: cols }, () => createRef<FluxelHandle>()),
         );
       }
+      fluxelRefs.current = refMatrix;
+
+      const rafId = requestAnimationFrame(() => {
+        setRowCount(rows);
+        setColCount(cols);
+        setFluxelRefGrid(refMatrix);
+      });
+
+      return () => cancelAnimationFrame(rafId);
     }, [gridData, imperativeMode]);
 
     // Stable viewport-driven scaler (svw/svh) for cropping math; no elementRef needed here.
@@ -80,8 +102,16 @@ const FluxelSvgGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
       const effW = scaler.width || width;
       const effH = scaler.height || el.clientHeight || width;
       const cell = newSize || 1;
-      viewableRowsRef.current = Math.ceil(effH / cell);
-      viewableColsRef.current = Math.ceil(effW / cell);
+      const nextViewableRows = Math.ceil(effH / cell);
+      const nextViewableCols = Math.ceil(effW / cell);
+      viewableRowsRef.current = nextViewableRows;
+      viewableColsRef.current = nextViewableCols;
+      if (viewableRows !== nextViewableRows) {
+        setViewableRows(nextViewableRows);
+      }
+      if (viewableCols !== nextViewableCols) {
+        setViewableCols(nextViewableCols);
+      }
     }, [
       colCount,
       rowCount,
@@ -89,6 +119,8 @@ const FluxelSvgGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
       onGridChange,
       scaler.width,
       scaler.height,
+      viewableRows,
+      viewableCols,
     ]);
 
     useLayoutEffect(() => {
@@ -99,10 +131,7 @@ const FluxelSvgGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
 
     const handleRef = (el: HTMLDivElement | null) => {
       containerRef.current = el;
-      if (!gridRef) return;
-      if (typeof gridRef === "function") gridRef(el);
-      else
-        (gridRef as React.MutableRefObject<HTMLDivElement | null>).current = el;
+      assignRef(gridRef, el);
     };
 
     useEffect(() => {
@@ -146,14 +175,8 @@ const FluxelSvgGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
       [fluxelSize, imperativeMode, rowCount, colCount],
     );
 
-    const rowOverlap = Math.max(
-      0,
-      Math.floor((rowCount - viewableRowsRef.current) / 2),
-    );
-    const colOverlap = Math.max(
-      0,
-      Math.floor((colCount - viewableColsRef.current) / 2),
-    );
+    const rowOverlap = Math.max(0, Math.floor((rowCount - viewableRows) / 2));
+    const colOverlap = Math.max(0, Math.floor((colCount - viewableCols) / 2));
 
     return (
       <>
@@ -184,9 +207,7 @@ const FluxelSvgGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
 
                 if (!isVisible) return null;
 
-                const ref = imperativeMode
-                  ? fluxelRefs.current[r]?.[c]
-                  : undefined;
+                const ref = imperativeMode ? fluxelRefGrid[r]?.[c] : undefined;
 
                 return (
                   <FluxelSvg

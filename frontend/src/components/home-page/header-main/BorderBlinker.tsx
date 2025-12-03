@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 
 import styles from "./BorderBlinker.module.scss";
 
@@ -19,12 +19,7 @@ const BorderBlinker: React.FC<BorderBlinkerProps> = ({
   blinkSides,
   className,
 }) => {
-  const [activeSides, setActiveSides] = useState<Side[]>([]);
-
-  useEffect(() => {
-    if (!blinkSides) return;
-    setActiveSides(blinkSides);
-  }, [blinkSides]);
+  const activeSides = blinkSides ?? [];
 
   return (
     <div className={`${className} ${styles.borderBlinker}`}>

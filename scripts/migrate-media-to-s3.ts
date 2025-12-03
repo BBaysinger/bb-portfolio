@@ -259,9 +259,8 @@ async function main() {
 
   try {
     // Dynamically import payload config after environment is set
-    const { default: config } = await import(
-      "../backend/src/payload.config.js"
-    );
+    const { default: config } =
+      await import("../backend/src/payload.config.js");
 
     // Initialize Payload
     payload = await getPayload({ config });

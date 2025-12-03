@@ -56,14 +56,24 @@ const useClientDimensions = () => {
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    updateClientDimensions();
+    let resizeRaf: number | null = null;
+    const scheduleUpdate = () => {
+      if (resizeRaf !== null) cancelAnimationFrame(resizeRaf);
+      resizeRaf = requestAnimationFrame(() => {
+        resizeRaf = null;
+        updateClientDimensions();
+      });
+    };
 
-    const handleResize = () => requestAnimationFrame(updateClientDimensions);
+    scheduleUpdate();
+
+    const handleResize = () => scheduleUpdate();
 
     window.addEventListener("resize", handleResize);
     window.addEventListener("orientationchange", handleResize);
 
     return () => {
+      if (resizeRaf !== null) cancelAnimationFrame(resizeRaf);
       window.removeEventListener("resize", handleResize);
       window.removeEventListener("orientationchange", handleResize);
     };

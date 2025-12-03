@@ -261,7 +261,7 @@ const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
         setStabilizedIndex(newStabilizedIndex);
       }
     },
-    [stabilizedIndex, projects],
+    [stabilizedIndex, projects, debug],
   );
 
   // On first stabilization after mount, canonicalize segment entry to query ?p=
@@ -394,7 +394,7 @@ const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
         // noop if replaceState fails
       }
     }
-  }, [projectId, projects, stabilizedIndex]);
+  }, [projectId, projects, stabilizedIndex, debug]);
 
   if (!projectId || !projects[projectId]) {
     return <div>Project not found.</div>;

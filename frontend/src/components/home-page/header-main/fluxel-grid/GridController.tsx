@@ -88,7 +88,13 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
     const containerRef = useRef<HTMLElement | null>(null);
     const wrapperRef = useRef<HTMLDivElement | null>(null);
     const isShadowsPaused = useRef(false);
-    const pointerOverrideRef = useRef<{ x: number; y: number } | null>(null);
+    const [pointerOverride, setPointerOverride] = useState<
+      { x: number; y: number } | undefined
+    >(undefined);
+    const pendingPointerOverride = useRef<
+      { x: number; y: number } | undefined
+    >();
+    const overrideFrameId = useRef<number | null>(null);
 
     const onLayoutUpdateRequest = (fn: () => void) => {
       fn(); // optionally debounce or throttle here if needed
@@ -108,6 +114,9 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
         if (gridInstanceRef.current) {
           gridInstanceRef.current = null;
         }
+        if (overrideFrameId.current !== null) {
+          cancelAnimationFrame(overrideFrameId.current);
+        }
       };
     }, []);
 
@@ -122,9 +131,7 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
       visibilitychange: 200,
       fullscreenchange: 200,
       mutate: -1,
-      override: useSlingerTracking
-        ? (pointerOverrideRef.current ?? undefined)
-        : undefined,
+      override: useSlingerTracking ? pointerOverride : undefined,
     });
 
     const shouldNullifyPointer =
@@ -177,7 +184,14 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
       const localX = clientX - rect.left;
       const localY = clientY - rect.top;
 
-      pointerOverrideRef.current = { x: localX, y: localY };
+      pendingPointerOverride.current = { x: localX, y: localY };
+      if (overrideFrameId.current === null) {
+        overrideFrameId.current = requestAnimationFrame(() => {
+          overrideFrameId.current = null;
+          setPointerOverride(pendingPointerOverride.current);
+          pendingPointerOverride.current = undefined;
+        });
+      }
     };
 
     useImperativeHandle(

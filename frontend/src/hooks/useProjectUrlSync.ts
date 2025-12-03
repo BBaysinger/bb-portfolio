@@ -59,17 +59,20 @@ export function useProjectUrlSync(
 
   // Sync from live window location on mount (belt & suspenders)
   useEffect(() => {
-    const live = (() => {
-      try {
-        const qp = new URLSearchParams(window.location.search).get("p") || "";
-        if (qp) return qp;
-      } catch {}
-      return fallbackFromPathSegment
-        ? getDynamicPathParam(-1, initialProjectId)
-        : "";
-    })();
-    if (live && live !== projectId) setProjectId(live);
-  }, []);
+    const frame = requestAnimationFrame(() => {
+      const live = (() => {
+        try {
+          const qp = new URLSearchParams(window.location.search).get("p") || "";
+          if (qp) return qp;
+        } catch {}
+        return fallbackFromPathSegment
+          ? getDynamicPathParam(-1, initialProjectId)
+          : "";
+      })();
+      if (live && live !== projectId) setProjectId(live);
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [fallbackFromPathSegment, initialProjectId, projectId]);
 
   // Keep URL in sync with projectId: initial replace, then push
   useEffect(() => {

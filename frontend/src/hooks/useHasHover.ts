@@ -20,8 +20,9 @@ export function useHasHover(): boolean {
       setHasHover(event.matches);
     };
     mq.addEventListener("change", handler);
-    setHasHover(mq.matches);
+    const frame = requestAnimationFrame(() => setHasHover(mq.matches));
     return () => {
+      cancelAnimationFrame(frame);
       mq.removeEventListener("change", handler);
     };
   }, []);

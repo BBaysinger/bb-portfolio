@@ -89,7 +89,7 @@ export default function ProjectViewWrapper({
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [includeNdaInActive, ssrIncludeNdaInActive, ssrParsed]);
 
   // If we are on the public route and the user transitions to authenticated,
   // reinitialize the dataset to include NDA entries and bump the epoch so the
