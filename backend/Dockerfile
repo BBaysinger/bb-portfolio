@@ -67,6 +67,13 @@ RUN mkdir -p public
 
 # Build-time configuration
 ARG NODE_ENV="production"
+ARG FRONTEND_URL=""
+ARG BACKEND_INTERNAL_URL=""
+ARG S3_BUCKET=""
+ARG AWS_REGION=""
+ARG SES_FROM_EMAIL=""
+ARG SES_TO_EMAIL=""
+ARG SMTP_FROM_EMAIL=""
 ENV NODE_ENV=${NODE_ENV}
 
 # Build the application with secrets available for TypeScript compilation and build
@@ -74,17 +81,18 @@ ENV NODE_ENV=${NODE_ENV}
 ## Ensure repo .env files don't override CI-provided transient env during build
 RUN rm -f .env .env.local .env.development .env.production || true
 
-RUN --mount=type=secret,id=prod_mongodb_uri,required=false \
-    --mount=type=secret,id=dev_mongodb_uri,required=false \
-    --mount=type=secret,id=local_mongodb_uri,required=false \
-    --mount=type=secret,id=prod_payload_secret,required=false \
-    --mount=type=secret,id=dev_payload_secret,required=false \
+RUN --mount=type=secret,id=mongodb_uri,required=false \
+    --mount=type=secret,id=payload_secret,required=false \
+    --mount=type=secret,id=frontend_url,required=false \
+    --mount=type=secret,id=s3_bucket,required=false \
+    --mount=type=secret,id=aws_region,required=false \
+    --mount=type=secret,id=ses_from_email,required=false \
+    --mount=type=secret,id=ses_to_email,required=false \
+    --mount=type=secret,id=smtp_from_email,required=false \
+    --mount=type=secret,id=backend_internal_url,required=false \
+    --mount=type=secret,id=public_server_url,required=false \
     --mount=type=secret,id=aws_access_key_id,required=false \
     --mount=type=secret,id=aws_secret_access_key,required=false \
-    --mount=type=secret,id=prod_ses_from_email,required=false \
-    --mount=type=secret,id=prod_ses_to_email,required=false \
-    --mount=type=secret,id=dev_ses_from_email,required=false \
-    --mount=type=secret,id=dev_ses_to_email,required=false \
     <<'EOF'
 set -eu
 
@@ -103,7 +111,12 @@ read_profile_secret() {
     profile="$1"
     var="$2"
     key="$(to_secret_key "$var")"
+    canonical_path="/run/secrets/${key}"
     secret_path="/run/secrets/${profile}_${key}"
+    if [ -f "$canonical_path" ]; then
+        cat "$canonical_path"
+        return
+    fi
     if [ -f "$secret_path" ]; then
         cat "$secret_path"
     fi
@@ -126,7 +139,7 @@ assign_if_present() {
 }
 
 # Load profile-scoped secrets (MONGODB_URI, etc.) by iterating the variable list
-COMMON_VARS="MONGODB_URI PAYLOAD_SECRET FRONTEND_URL S3_BUCKET AWS_REGION SES_FROM_EMAIL SES_TO_EMAIL SMTP_FROM_EMAIL BACKEND_INTERNAL_URL"
+COMMON_VARS="MONGODB_URI PAYLOAD_SECRET FRONTEND_URL S3_BUCKET AWS_REGION SES_FROM_EMAIL SES_TO_EMAIL SMTP_FROM_EMAIL BACKEND_INTERNAL_URL PUBLIC_SERVER_URL"
 for var in $COMMON_VARS; do
     assign_if_present "$var" "$(read_profile_secret "$PROFILE" "$var")"
 done
@@ -146,6 +159,7 @@ if [ "$PROFILE" != "prod" ]; then
     : "${SES_TO_EMAIL:=dummy@example.com}"
     : "${SMTP_FROM_EMAIL:=$SES_FROM_EMAIL}"
     : "${BACKEND_INTERNAL_URL:=http://localhost:3000}"
+    : "${PUBLIC_SERVER_URL:=${FRONTEND_URL}}"
 fi
 
 require_var() {

@@ -13,7 +13,17 @@ const fallbackJson5: Json5Parser = {
   },
 };
 
-const json5: Json5Parser = JSON5?.parse ? JSON5 : fallbackJson5;
+const json5: Json5Parser = (() => {
+  try {
+    const candidate = JSON5 as Json5Parser | undefined;
+    if (candidate && typeof candidate.parse === "function") {
+      return candidate;
+    }
+  } catch {
+    // Ignore and fall back below.
+  }
+  return fallbackJson5;
+})();
 
 export type SecretProfile = string;
 
@@ -128,6 +138,7 @@ export const canonicalEnvKeys = [
   "MONGODB_URI",
   "PAYLOAD_SECRET",
   "FRONTEND_URL",
+  "PUBLIC_SERVER_URL",
   "BACKEND_INTERNAL_URL",
   "PUBLIC_PROJECTS_BUCKET",
   "PUBLIC_PROJECTS_PREFIX",

@@ -56,10 +56,10 @@ require_env() {
 	fi
 }
 
-add_profile_secret() {
+add_secret() {
 	local key="$1"
 	local env_var="$2"
-	BACKEND_SECRET_FLAGS+=(--secret "id=${PROFILE}_${key},env=${env_var}")
+	BACKEND_SECRET_FLAGS+=(--secret "id=${key},env=${env_var}")
 }
 
 TMP_ENV_DIR="$(mktemp -d)"
@@ -72,7 +72,7 @@ ENV_FILE="$TMP_ENV_DIR/backend.env.${PROFILE}"
 [[ -f "$ENV_FILE" ]] || { echo "❌ Env file missing: $ENV_FILE" >&2; exit 1; }
 load_env_file "$ENV_FILE"
 
-for var in BACKEND_INTERNAL_URL FRONTEND_URL S3_BUCKET AWS_REGION MONGODB_URI PAYLOAD_SECRET SES_FROM_EMAIL SES_TO_EMAIL; do
+for var in BACKEND_INTERNAL_URL FRONTEND_URL S3_BUCKET AWS_REGION MONGODB_URI PAYLOAD_SECRET SES_FROM_EMAIL SES_TO_EMAIL PUBLIC_SERVER_URL; do
 	require_env "$var"
 done
 
@@ -91,9 +91,9 @@ export AWS_ACCESS_KEY_ID="$AWS_ACCESS_KEY_ID_VAL"
 export AWS_SECRET_ACCESS_KEY="$AWS_SECRET_ACCESS_KEY_VAL"
 
 BACKEND_SECRET_FLAGS=()
-for key in mongodb_uri payload_secret frontend_url s3_bucket aws_region ses_from_email ses_to_email smtp_from_email backend_internal_url; do
+for key in mongodb_uri payload_secret frontend_url s3_bucket aws_region ses_from_email ses_to_email smtp_from_email backend_internal_url public_server_url; do
 	env_var="${key^^}"
-	add_profile_secret "$key" "$env_var"
+	add_secret "$key" "$env_var"
 done
 
 ECR_REGION="${AWS_REGION:-us-west-2}"

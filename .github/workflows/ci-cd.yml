@@ -226,12 +226,18 @@ jobs:
           ECR_REPOSITORY: bb-portfolio-backend-prod
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          echo "${{ secrets.MONGODB_URI }}" > /tmp/prod_mongodb_uri
-          echo "${{ secrets.PAYLOAD_SECRET }}" > /tmp/prod_payload_secret
+          echo "${{ secrets.MONGODB_URI }}" > /tmp/mongodb_uri
+          echo "${{ secrets.PAYLOAD_SECRET }}" > /tmp/payload_secret
           echo "${{ secrets.AWS_ACCESS_KEY_ID }}" > /tmp/aws_access_key_id
           echo "${{ secrets.AWS_SECRET_ACCESS_KEY }}" > /tmp/aws_secret_access_key
-          echo "${{ secrets.SES_FROM_EMAIL }}" > /tmp/prod_ses_from_email
-          echo "${{ secrets.SES_TO_EMAIL }}" > /tmp/prod_ses_to_email
+          echo "${{ secrets.SES_FROM_EMAIL }}" > /tmp/ses_from_email
+          echo "${{ secrets.SES_TO_EMAIL }}" > /tmp/ses_to_email
+          echo "${{ secrets.SMTP_FROM_EMAIL }}" > /tmp/smtp_from_email
+          echo "${{ secrets.FRONTEND_URL }}" > /tmp/frontend_url
+          echo "${{ secrets.PUBLIC_SERVER_URL || secrets.FRONTEND_URL }}" > /tmp/public_server_url
+          echo "${{ secrets.S3_BUCKET }}" > /tmp/s3_bucket
+          echo "${{ secrets.AWS_REGION }}" > /tmp/aws_region
+          echo "${{ secrets.BACKEND_INTERNAL_URL }}" > /tmp/backend_internal_url
           DOCKER_BUILDKIT=1 docker build --no-cache --target runtime \
             --build-arg NODE_IMAGE=public.ecr.aws/docker/library/node:22-slim \
             --build-arg ENV_PROFILE=prod \
@@ -243,14 +249,20 @@ jobs:
             --build-arg AWS_REGION="${{ secrets.AWS_REGION }}" \
             --build-arg PUBLIC_PROJECTS_BUCKET="${{ secrets.PUBLIC_PROJECTS_BUCKET }}" \
             --build-arg NDA_PROJECTS_BUCKET="${{ secrets.NDA_PROJECTS_BUCKET }}" \
-            --secret id=prod_mongodb_uri,src=/tmp/prod_mongodb_uri \
-            --secret id=prod_payload_secret,src=/tmp/prod_payload_secret \
+            --secret id=mongodb_uri,src=/tmp/mongodb_uri \
+            --secret id=payload_secret,src=/tmp/payload_secret \
             --secret id=aws_access_key_id,src=/tmp/aws_access_key_id \
             --secret id=aws_secret_access_key,src=/tmp/aws_secret_access_key \
-            --secret id=prod_ses_from_email,src=/tmp/prod_ses_from_email \
-            --secret id=prod_ses_to_email,src=/tmp/prod_ses_to_email \
+            --secret id=ses_from_email,src=/tmp/ses_from_email \
+            --secret id=ses_to_email,src=/tmp/ses_to_email \
+            --secret id=smtp_from_email,src=/tmp/smtp_from_email \
+            --secret id=public_server_url,src=/tmp/public_server_url \
+            --secret id=frontend_url,src=/tmp/frontend_url \
+            --secret id=s3_bucket,src=/tmp/s3_bucket \
+            --secret id=aws_region,src=/tmp/aws_region \
+            --secret id=backend_internal_url,src=/tmp/backend_internal_url \
             -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./backend
-          rm -f /tmp/prod_mongodb_uri /tmp/prod_payload_secret /tmp/aws_access_key_id /tmp/aws_secret_access_key /tmp/prod_ses_from_email /tmp/prod_ses_to_email
+          rm -f /tmp/mongodb_uri /tmp/payload_secret /tmp/aws_access_key_id /tmp/aws_secret_access_key /tmp/ses_from_email /tmp/ses_to_email /tmp/smtp_from_email /tmp/public_server_url /tmp/frontend_url /tmp/s3_bucket /tmp/aws_region /tmp/backend_internal_url
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
