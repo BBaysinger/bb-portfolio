@@ -195,26 +195,10 @@
     "sync:packages": "tsx scripts/sync-json5-packages.ts",
     // 🧩 Merge env-specific secret fragments into a single JSON5 before syncing.
     "secrets:bundle": "tsx scripts/merge-github-secrets.ts",
-    // 🔐 Shared/base GitHub secrets
-    "sync:secrets:base:dry": "tsx scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./.github-secrets.private.json5 --dry-run",
-    // ✅ Apply the shared/base secrets after validating the dry run above.
-    "sync:secrets:base": "tsx scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./.github-secrets.private.json5",
-    // 🔐 Environment-scoped GitHub secrets
-    "sync:secrets:dev:dry": "tsx scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./.github-secrets.private.dev.json5 --env dev --dry-run",
-    // ✅ Push the dev secret changes once the dry run looks correct.
-    "sync:secrets:dev": "tsx scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./.github-secrets.private.dev.json5 --env dev",
-    // 🧪 Stage secrets dry run so you can verify diffs safely.
-    "sync:secrets:stage:dry": "tsx scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./.github-secrets.private.stage.json5 --env stage --dry-run",
-    // ✅ Apply the stage secrets after the dry run passes.
-    "sync:secrets:stage": "tsx scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./.github-secrets.private.stage.json5 --env stage",
-    // 🧪 Production secrets dry run for final verification.
-    "sync:secrets:prod:dry": "tsx scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./.github-secrets.private.prod.json5 --env prod --dry-run",
-    // ✅ Push production secret updates to GitHub.
-    "sync:secrets:prod": "tsx scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./.github-secrets.private.prod.json5 --env prod",
-    // 📦 Run bundle + sync for every environment in one go.
-    "sync:secrets:all": "npm run secrets:bundle && npm run sync:secrets:base && npm run sync:secrets:dev && npm run sync:secrets:prod",
-    // 🧪 Same as above but performs only dry runs for each environment.
-    "sync:secrets:all:dry": "npm run secrets:bundle && npm run sync:secrets:base:dry && npm run sync:secrets:dev:dry && npm run sync:secrets:prod:dry",
+    // 📦 Run bundle + sync for every environment in one go (single command).
+    "sync:secrets:all": "npm run secrets:bundle && tsx scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./.github-secrets.private.json5",
+    // 🧪 Same as above but performs only a dry run.
+    "sync:secrets:all:dry": "npm run secrets:bundle && tsx scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./.github-secrets.private.json5 --dry-run",
     // 📦 Update dependencies to latest versions across all packages
     // Runs npm-check-updates in root, backend, and frontend simultaneously
     // Review changes before running npm run install:all
@@ -340,10 +324,6 @@
     // Updates containers on existing instances AND promotes automatically
     // Fastest deployment option for container updates only
     "orchestrate:containers-only:auto-promote": "bash deploy/scripts/deployment-orchestrator.sh --profiles both --containers-only --auto-promote --refresh-env",
-    // 🧩 Legacy orchestration entrypoint (older script version kept for fallback / comparison)
-    "orchestrate:legacy": "bash deploy/scripts/deployment-orchestrator-legacy.sh --refresh-env",
-    // 🧩 Legacy containers-only deployment (skip infra) using the older script variant
-    "orchestrate:legacy:containers-only": "bash deploy/scripts/deployment-orchestrator-legacy.sh --containers-only --refresh-env",
     // Promote existing candidate to production (SEPARATE SCRIPT, no deployment)
     // Runs health checks, swaps Elastic IPs (active↔candidate), updates instance Role tags
     // Prompts "Type 'yes' to confirm" before promotion (old active becomes previous)

@@ -28,7 +28,7 @@ Two scripts existed during Lagoon work:
 - `deploy-lagoon/scripts/deployment-orchestrator.sh` – Main Lagoon aware orchestrator (discovery, create, promote).
 - `deploy-lagoon/scripts/orchestrator-promote.sh` – Focused promotion / EIP handover.
 
-Legacy path retained a simpler script: `deploy-lagoon/scripts/deployment-orchestrator-legacy.sh` (mirrors `deploy/scripts/deployment-orchestrator-legacy.sh` now).
+The earlier single-host fallback script has been removed; always use the Lagoon-aware orchestrator when deploying.
 
 ### Typical Flow
 

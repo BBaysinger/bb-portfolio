@@ -19,18 +19,19 @@
 
 /**
  * Sync secrets.json5 into GitHub secrets (destructive: removes extras)
- * - Supports repo-level scopes (default) or GitHub Environment scopes via --env <name>
+ * - Repo-level secrets always sync first, followed by every detected GitHub Environment
+ * - Environment manifests are discovered automatically (e.g., .github-secrets.private.dev.json5)
+ * - Use --omit-env <name> to skip specific environments, or --omit-env all for repo-only runs
  * - Automatically creates GitHub Environments if they are referenced but missing
- * - Applies strings/files defined in the provided JSON5 manifest
  * - Optional overlay: if a sibling ".private" file exists next to the template, only
  *   schema keys present in the template are copied from the private file.
  *
  * Usage:
- *   ./sync-github-secrets.ts <owner/repo> <secrets.json5> [--env <name>] [--dry-run]
+ *   ./sync-github-secrets.ts <owner/repo> <secrets.json5> [--omit-env <name>] [--dry-run]
  *
  * Examples:
  * npx ts-node ./scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./.github-secrets.private.json5 --dry-run
- * npx ts-node ./scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./.github-secrets.private.dev.json5 --env dev
+ * npx ts-node ./scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./.github-secrets.private.json5 --omit-env dev --dry-run
  */
 
 import { execSync } from "child_process";
@@ -39,6 +40,9 @@ import os from "os";
 import path from "path";
 
 import JSON5 from "json5";
+
+const escapeRegExp = (value: string) =>
+  value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 interface SecretGroup {
   strings?: Record<string, string>;
@@ -52,9 +56,25 @@ interface SecretsFile extends SecretGroup {
 const args = process.argv.slice(2);
 let REPO: string | undefined;
 let JSON_FILE: string | undefined;
-let ENV_SCOPE: string | undefined;
 let DRY_RUN = false;
+const omitEnvs = new Set<string>();
 const ensuredEnvironments = new Set<string>();
+let omitAllEnvs = false;
+
+const markOmit = (value?: string) => {
+  const label = value?.trim();
+  if (!label) {
+    console.error(
+      "--omit-env flag requires a value (e.g., dev, prod, stage, all)",
+    );
+    process.exit(1);
+  }
+  if (label.toLowerCase() === "all") {
+    omitAllEnvs = true;
+    return;
+  }
+  omitEnvs.add(label);
+};
 
 for (let i = 0; i < args.length; i += 1) {
   const arg = args[i];
@@ -62,14 +82,32 @@ for (let i = 0; i < args.length; i += 1) {
     DRY_RUN = true;
     continue;
   }
-  if (arg === "--env" || arg === "-e") {
-    ENV_SCOPE = args[i + 1];
-    if (!ENV_SCOPE) {
-      console.error("--env flag requires a value (e.g., dev, prod, stage)");
-      process.exit(1);
-    }
+  if (arg === "--omit-env") {
+    markOmit(args[i + 1]);
     i += 1;
     continue;
+  }
+  if (arg === "--omit-envs") {
+    const list = args[i + 1];
+    if (!list) {
+      console.error(
+        "--omit-envs flag requires a comma-separated list (e.g., dev,stage)",
+      );
+      process.exit(1);
+    }
+    list
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean)
+      .forEach((env) => markOmit(env));
+    i += 1;
+    continue;
+  }
+  if (arg === "--env" || arg === "-e") {
+    console.error(
+      "❌ The --env flag is no longer supported. Secrets sync now targets all environments by default. Use --omit-env <name> to skip specific environments.",
+    );
+    process.exit(1);
   }
   if (!REPO) {
     REPO = arg;
@@ -85,7 +123,7 @@ for (let i = 0; i < args.length; i += 1) {
 
 if (!REPO || !JSON_FILE) {
   console.error(
-    "Usage: sync-github-secrets.ts <owner/repo> <secrets.json5> [--env <name>] [--dry-run]",
+    "Usage: sync-github-secrets.ts <owner/repo> <secrets.json5> [--omit-env <name|all>] [--dry-run]",
   );
   process.exit(1);
 }
@@ -99,9 +137,24 @@ if (!manifestPath || !fs.existsSync(manifestPath)) {
   process.exit(1);
 }
 
-console.info(
-  `📥 Reading secrets from ${manifestPath} ${ENV_SCOPE ? `(target env: ${ENV_SCOPE})` : "(repo scope)"}...`,
-);
+const manifestDir = path.dirname(manifestPath);
+const manifestBaseName = path.basename(manifestPath);
+const envSuffixMatch = manifestBaseName.match(/(.+)\.([^.]+)\.json5$/);
+if (envSuffixMatch) {
+  const candidateBaseName = `${envSuffixMatch[1]}.json5`;
+  const candidateBasePath = path.join(manifestDir, candidateBaseName);
+  if (
+    candidateBaseName !== manifestBaseName &&
+    fs.existsSync(candidateBasePath)
+  ) {
+    console.error(
+      "❌ Please run the sync script with the shared manifest (e.g., .github-secrets.private.json5). Use --omit-env to skip environments instead of supplying environment-specific files.",
+    );
+    process.exit(1);
+  }
+}
+
+console.info(`📥 Reading secrets from ${manifestPath} (repo scope)...`);
 
 const raw = fs.readFileSync(manifestPath, "utf8");
 let baseData: SecretsFile = JSON5.parse(raw);
@@ -206,10 +259,14 @@ function parseRequirements(list: string | undefined): string[][] {
     );
 }
 
-const manifestDir = path.dirname(manifestPath);
-const baseSecretsPath = path.join(manifestDir, ".github-secrets.private.json5");
-const isBaseManifest =
-  path.basename(manifestPath) === ".github-secrets.private.json5";
+const manifestStem = manifestBaseName.replace(/\.json5$/, "");
+const envManifestRegex = new RegExp(
+  `^${escapeRegExp(manifestStem)}\\.([A-Za-z0-9_-]+)\\.json5$`,
+);
+const defaultBaseCandidate = path.join(
+  manifestDir,
+  ".github-secrets.private.json5",
+);
 
 const readStrings = (input?: SecretGroup): Record<string, string> => {
   if (!input) return {};
@@ -217,105 +274,145 @@ const readStrings = (input?: SecretGroup): Record<string, string> => {
   return { ...(input as Record<string, string>) };
 };
 
-const baseStrings = (() => {
-  if (!fs.existsSync(baseSecretsPath)) return {};
-  try {
-    const parsed = JSON5.parse(
-      fs.readFileSync(baseSecretsPath, "utf8"),
-    ) as SecretsFile;
-    return readStrings(parsed);
-  } catch (err) {
-    console.warn(
-      `⚠️ Failed to parse base secrets at ${baseSecretsPath}: ${(err as Error).message}`,
-    );
-    return {};
-  }
-})();
+const uniqueCandidates = Array.from(
+  new Set<string>([manifestPath, defaultBaseCandidate]),
+);
 
-function validateRequiredLists(stringsOverride?: Record<string, string>) {
-  const allowBypass =
-    (process.env.ALLOW_MISSING_REQUIRED_GROUPS || "").toLowerCase() === "true";
-  const strings = stringsOverride ?? data.strings ?? {};
-  const requirementSource =
-    strings["REQUIRED_ENVIRONMENT_VARIABLES"] ||
-    (isBaseManifest
-      ? undefined
-      : baseStrings["REQUIRED_ENVIRONMENT_VARIABLES"]);
-  if (!requirementSource) {
-    if (!isBaseManifest) {
-      console.info(
-        "ℹ️ No REQUIRED_ENVIRONMENT_VARIABLES defined; skipping validation.",
+const baseStrings = (() => {
+  for (const candidate of uniqueCandidates) {
+    if (!fs.existsSync(candidate)) continue;
+    try {
+      const parsed = JSON5.parse(
+        fs.readFileSync(candidate, "utf8"),
+      ) as SecretsFile;
+      return readStrings(parsed);
+    } catch (err) {
+      console.warn(
+        `⚠️ Failed to parse base secrets at ${candidate}: ${(err as Error).message}`,
       );
     }
+  }
+  return readStrings(data);
+})();
+const allowMissingGroups =
+  (process.env.ALLOW_MISSING_REQUIRED_GROUPS || "").toLowerCase() === "true";
+
+validateRepoRequirements(data.strings ?? {});
+
+function validateRepoRequirements(strings: Record<string, string>) {
+  const requirementSource = strings["REQUIRED_ENVIRONMENT_VARIABLES"];
+  if (!requirementSource) {
+    console.info(
+      "ℹ️ Base manifest does not define REQUIRED_ENVIRONMENT_VARIABLES; skipping repo-level validation.",
+    );
     return;
   }
+  console.info(
+    "ℹ️ REQUIRED_ENVIRONMENT_VARIABLES defined on base manifest; each environment will be validated against this list.",
+  );
+}
 
-  if (isBaseManifest) {
+function validateEnvironmentRequirements(
+  envName: string,
+  stringsOverride?: Record<string, string>,
+) {
+  const strings = stringsOverride ?? {};
+  const requirementSource =
+    strings["REQUIRED_ENVIRONMENT_VARIABLES"] ||
+    baseStrings["REQUIRED_ENVIRONMENT_VARIABLES"];
+  if (!requirementSource) {
     console.info(
-      "ℹ️ REQUIRED_ENVIRONMENT_VARIABLES defined on base manifest; skipping enforcement for repo scope.",
+      `ℹ️ [${envName}] No REQUIRED_ENVIRONMENT_VARIABLES defined; skipping validation.`,
     );
     return;
   }
 
   const mergedStrings = { ...baseStrings, ...strings };
   const keys = new Set(Object.keys(mergedStrings));
+  const groups = parseRequirements(requirementSource);
 
-  const checks: Array<{ name: string; groups: string[][] }> = [
-    {
-      name: "REQUIRED_ENVIRONMENT_VARIABLES",
-      groups: parseRequirements(requirementSource),
-    },
-  ];
-
-  const problems: string[] = [];
-  for (const check of checks) {
-    if (!check.groups.length) continue; // nothing to validate for this profile
-    const missing: string[] = [];
-    for (const group of check.groups) {
-      const satisfied = group.some((k) => keys.has(k));
-      if (!satisfied) missing.push(group.join("|"));
-    }
-    if (missing.length) {
-      problems.push(
-        `- ${check.name}: missing groups (ANY-of within each group):\n  ${missing.map((g) => `• ${g}`).join("\n  ")}`,
-      );
-    }
+  const missing: string[] = [];
+  for (const group of groups) {
+    const satisfied = group.some((k) => keys.has(k));
+    if (!satisfied) missing.push(group.join("|"));
   }
 
-  if (problems.length) {
-    const header =
-      "❌ Required variables validation failed. Your secrets file is missing at least one key from the following groups:";
-    const body = problems.join("\n");
-    const footer = [
-      "Each group uses '|' to indicate ANY-of. Add one secret for each group.",
-      "To bypass temporarily set ALLOW_MISSING_REQUIRED_GROUPS=true (not recommended).",
-    ].join("\n");
-    const msg = [header, body, footer].join("\n\n");
-    if (allowBypass) {
-      console.warn(msg);
+  if (missing.length) {
+    const header = `❌ [${envName}] Missing required secret groups:`;
+    const body = missing.map((g) => `  • ${g}`).join("\n");
+    const footer =
+      "Each group uses '|' to indicate ANY-of. Add one secret for each group.";
+    const message = [header, body, footer].join("\n");
+    if (allowMissingGroups) {
+      console.warn(message);
     } else {
-      console.error(msg);
+      console.error(message);
       process.exit(1);
     }
-  } else {
-    const summary =
-      parseRequirements(requirementSource)
-        .map((g) => `[${g.join("|")}]`)
-        .join(", ") || "<none>";
+    return;
+  }
+
+  const summary = groups.map((g) => `[${g.join("|")}]`).join(", ") || "<none>";
+  console.info(
+    `✅ [${envName}] REQUIRED_ENVIRONMENT_VARIABLES satisfied: ${summary}`,
+  );
+}
+
+const expandFileShortcuts = (files?: Record<string, string>) => {
+  if (!files) return;
+  for (const [k, v] of Object.entries(files)) {
+    if (typeof v === "string" && v.startsWith("~")) {
+      files[k] = path.join(os.homedir(), v.slice(1));
+    }
+  }
+};
+
+expandFileShortcuts(data.files);
+
+const normalizeGroup = (group?: SecretGroup): SecretGroup => ({
+  strings: { ...(group?.strings ?? {}) },
+  files: { ...(group?.files ?? {}) },
+});
+
+type EnvTarget = { group: SecretGroup; source: string };
+const envTargets = new Map<string, EnvTarget>();
+
+for (const [envName, envGroup] of Object.entries(data.environments ?? {})) {
+  envTargets.set(envName, {
+    group: normalizeGroup(envGroup),
+    source: `${manifestPath}#environments.${envName}`,
+  });
+}
+
+const siblingEnvFiles = fs
+  .readdirSync(manifestDir)
+  .filter((file) => envManifestRegex.test(file));
+
+for (const fileName of siblingEnvFiles) {
+  const match = fileName.match(envManifestRegex);
+  if (!match) continue;
+  const envName = match[1];
+  const filePath = path.join(manifestDir, fileName);
+  try {
+    const rawEnv = fs.readFileSync(filePath, "utf8");
+    const parsedEnv = JSON5.parse(rawEnv) as SecretsFile;
+    envTargets.set(envName, {
+      group: normalizeGroup(parsedEnv),
+      source: filePath,
+    });
     console.info(
-      `✅ Required variables satisfied.\nREQUIRED_ENVIRONMENT_VARIABLES=${summary}`,
+      `🌱 Discovered environment secrets for '${envName}' at ${filePath}`,
     );
+  } catch (err) {
+    console.error(
+      `❌ Failed to parse environment secrets at ${filePath}: ${(err as Error).message}`,
+    );
+    process.exit(1);
   }
 }
 
-// Execute validation before attempting to set/delete GitHub secrets
-validateRequiredLists(data.strings ?? {});
-
-// Expand ~ in file paths (after overlay)
-for (const [k, v] of Object.entries(data.files ?? {})) {
-  if (typeof v === "string" && v.startsWith("~")) {
-    data.files![k] = path.join(os.homedir(), v.slice(1));
-  }
+for (const target of envTargets.values()) {
+  expandFileShortcuts(target.group.files);
 }
 
 function listSecrets(scope: "repo" | "env", env?: string): string[] {
@@ -460,15 +557,34 @@ const syncScope = (
   setFiles(scope, envName, files);
 };
 
-if (ENV_SCOPE) {
-  const explicitEnvGroup = data.environments?.[ENV_SCOPE];
-  ensureEnvironmentExists(ENV_SCOPE);
-  syncScope("env", ENV_SCOPE, explicitEnvGroup ?? data);
+syncScope("repo", undefined, data);
+
+const envEntries = Array.from(envTargets.entries());
+if (!envEntries.length) {
+  console.info(
+    "ℹ️ No environment-specific manifests detected; repo-level secrets only.",
+  );
+}
+
+if (omitAllEnvs) {
+  console.info("🚫 Skipping all environment secrets per --omit-env all.");
 } else {
-  syncScope("repo", undefined, data);
-  for (const [envName, group] of Object.entries(data.environments ?? {})) {
+  for (const envName of omitEnvs) {
+    if (!envTargets.has(envName)) {
+      console.warn(
+        `⚠️ Requested to omit unknown environment '${envName}'; ignoring.`,
+      );
+    }
+  }
+
+  for (const [envName, target] of envEntries) {
+    if (omitEnvs.has(envName)) {
+      console.info(`🚫 Skipping environment '${envName}' per --omit-env flag.`);
+      continue;
+    }
+    validateEnvironmentRequirements(envName, target.group.strings);
     ensureEnvironmentExists(envName);
-    syncScope("env", envName, group);
+    syncScope("env", envName, target.group);
   }
 }
 

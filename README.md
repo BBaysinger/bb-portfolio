@@ -277,7 +277,8 @@ Other UI details: scroll‑aware navigation, mobile slide‑out menu, dynamic de
     - Prod: `.github-secrets.example.prod.json5` ➜ `.github-secrets.private.prod.json5`
   - `scripts/merge-github-secrets.ts` bundles the above into `.github-secrets.private.json5` so existing tooling keeps working. Run `npm run secrets:bundle` after editing any `.github-secrets.private*.json5` file.
   - Sync script: `scripts/sync-github-secrets.ts`
-    - `--env <name>` pushes to a GitHub **Environment** (`dev`, `stage`, `prod`). Omit `--env` to update repo-level secrets.
+    - Auto-syncs repo secrets followed by every detected GitHub **Environment** manifest (e.g., `.github-secrets.private.dev.json5`).
+    - `--omit-env <name>` (repeatable) skips specific environments; pass `all` to push repo-level secrets only.
     - Validates each `*_REQUIRED_ENVIRONMENT_VARIABLES` list (comma groups, `|` = ANY-of within a group) before writing.
     - Dry run previews deletions/additions without touching GitHub.
 
@@ -297,7 +298,10 @@ Other UI details: scroll‑aware navigation, mobile slide‑out menu, dynamic de
   npm run sync:secrets:prod:dry
   npm run sync:secrets:prod
 
-  # Optional future stage environment (no-op until automation lands)
+  # Everything (repo + all envs) in one shot
+  npm run sync:secrets:all
+
+  # Optional future stage environment (skips dev/prod automatically)
   npm run sync:secrets:stage
   ```
 
