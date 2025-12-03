@@ -74,17 +74,17 @@ ENV NODE_ENV=${NODE_ENV}
 ## Ensure repo .env files don't override CI-provided transient env during build
 RUN rm -f .env .env.local .env.development .env.production || true
 
-RUN --mount=type=secret,id=prod_mongodb_uri \
-    --mount=type=secret,id=dev_mongodb_uri \
-    --mount=type=secret,id=local_mongodb_uri \
-    --mount=type=secret,id=prod_payload_secret \
-    --mount=type=secret,id=dev_payload_secret \
-    --mount=type=secret,id=aws_access_key_id \
-    --mount=type=secret,id=aws_secret_access_key \
-    --mount=type=secret,id=prod_ses_from_email \
-    --mount=type=secret,id=prod_ses_to_email \
-    --mount=type=secret,id=dev_ses_from_email \
-    --mount=type=secret,id=dev_ses_to_email \
+RUN --mount=type=secret,id=prod_mongodb_uri,required=false \
+    --mount=type=secret,id=dev_mongodb_uri,required=false \
+    --mount=type=secret,id=local_mongodb_uri,required=false \
+    --mount=type=secret,id=prod_payload_secret,required=false \
+    --mount=type=secret,id=dev_payload_secret,required=false \
+    --mount=type=secret,id=aws_access_key_id,required=false \
+    --mount=type=secret,id=aws_secret_access_key,required=false \
+    --mount=type=secret,id=prod_ses_from_email,required=false \
+    --mount=type=secret,id=prod_ses_to_email,required=false \
+    --mount=type=secret,id=dev_ses_from_email,required=false \
+    --mount=type=secret,id=dev_ses_to_email,required=false \
     <<'EOF'
 set -eu
 

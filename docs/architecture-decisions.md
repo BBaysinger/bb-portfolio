@@ -222,8 +222,8 @@ New decisions should be appended chronologically.
   - Public files served under `/api/projects/public/*` → maps to public bucket
   - NDA files served under `/api/projects/private/*` → maps to NDA bucket and requires authenticated session
   - Next.js page routes remain separate: public project pages under `/project/*`, NDA pages under `/nda/*` (noindex, dynamic), avoiding path collisions with the API
-- Environment variables (shared across envs for project buckets, env-specific for media buckets):
-  - Media: `DEV_S3_BUCKET`, `PROD_S3_BUCKET`, `*_AWS_REGION`
+- Environment variables (shared schema across profiles):
+  - Media: `S3_BUCKET`, `AWS_REGION` (values differ per profile via the secrets overlay)
   - Projects: `PUBLIC_PROJECTS_BUCKET`, `NDA_PROJECTS_BUCKET`
 
 **Reasoning:**
@@ -1020,10 +1020,9 @@ MONGODB_URI=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/bb-portfol
 - **Backend configuration:**
   - Enable `@payloadcms/storage-s3` when `ENV_PROFILE` is `dev` or `prod`; use filesystem when `ENV_PROFILE=local`.
   - Environment variables (examples):
-    - `DEV_S3_BUCKET=bb-portfolio-media-dev`
-    - `PROD_S3_BUCKET=bb-portfolio-media-prod`
-    - `DEV_AWS_REGION=us-west-2` / `PROD_AWS_REGION=us-west-2`
-    - Optional base URL envs if fronted by CDN (e.g., CloudFront): `DEV_S3_BASE_URL`, `PROD_S3_BASE_URL`.
+    - `S3_BUCKET=bb-portfolio-media-<profile>` (per overlay)
+    - `AWS_REGION=us-west-2`
+    - Optional base URL envs if fronted by CDN (e.g., CloudFront): `S3_BASE_URL` in each overlay.
 - **CORS & IAM:**
   - CORS allows GET/HEAD from frontend origins; tighten in Terraform as needed.
   - IAM policy (per env) grants backend role `s3:GetObject`, `s3:PutObject`, `s3:DeleteObject` on `arn:aws:s3:::<bucket>/*` and `s3:ListBucket` on the bucket.

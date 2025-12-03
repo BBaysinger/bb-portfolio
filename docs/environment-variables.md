@@ -13,7 +13,7 @@ This project follows the standard environment variable conventions:
 ### Naming paradigm
 
 - Local development should rely on unprefixed keys (e.g., `PUBLIC_SERVER_URL`, `MONGODB_URI`). These stay in `.env` / `.env.local` and never leave your machine.
-- Prefixed variants (`DEV_*`, `PROD_*`) exist only for environments that share a single secrets bundle (GitHub Actions, Terraform output, etc.). If an environment doesn’t need to co‑exist in that bundle, don’t create a duplicate key.
+- Per-profile overrides live in `.github-secrets.private.<profile>.json5`. Each profile reuses the same key names (no prefixes) so scripts can treat `FRONTEND_URL`, `MONGODB_URI`, etc., uniformly regardless of environment.
 - We intentionally avoid sprawling “compatibility” envs; when the backend needs a value, it fails fast with a helpful error instead of silently massaging inputs.
 - Legacy `LOCAL_*` keys are still read as a short-term fallback, but new configuration should stick to the simplified convention.
 
@@ -46,7 +46,7 @@ This project follows the standard environment variable conventions:
 - **Purpose**: Defines the exact origin (scheme + host + port) that serves the Payload admin UI and `/api` routes for a given environment.
 - **Variants**:
   - `PUBLIC_SERVER_URL` (local / unprefixed default)
-  - `DEV_PUBLIC_SERVER_URL`, `PROD_PUBLIC_SERVER_URL` (only when dev + prod secrets share a single file)
+  - Profile overlays in `.github-secrets.private.dev.json5`, `.github-secrets.private.prod.json5`, etc., provide the environment-specific values while keeping the canonical key name.
   - `PAYLOAD_PUBLIC_SERVER_URL` (global override for CI or special hosts)
 - **Why it matters**: Payload’s admin shell builds API requests relative to this origin. When unset, requests fall back to `/admin/api/...` which no longer exists now that the backend isn’t mounted under a Next.js `basePath`.
 - **Typical values**:
