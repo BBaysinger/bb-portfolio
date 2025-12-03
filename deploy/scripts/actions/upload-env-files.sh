@@ -9,7 +9,20 @@ SSH_OPTS=${SSH_OPTS:-"-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/nul
 
 echo "== Packaging env files for single transfer =="
 BUNDLE_PATH="$OUT_DIR/env-bundle.tgz"
-tar -C "$OUT_DIR" -czf "$BUNDLE_PATH" backend.env.prod backend.env.dev frontend.env.prod frontend.env.dev
+
+# Collect whichever env files exist (dev-only runs won't have prod files, etc.).
+pushd "$OUT_DIR" >/dev/null
+shopt -s nullglob
+bundle_files=(backend.env.* frontend.env.*)
+shopt -u nullglob
+popd >/dev/null
+
+if [ ${#bundle_files[@]} -eq 0 ]; then
+  echo "No env files found in $OUT_DIR" >&2
+  exit 1
+fi
+
+tar -C "$OUT_DIR" -czf "$BUNDLE_PATH" "${bundle_files[@]}"
 echo "Bundle path: $BUNDLE_PATH"
 echo "Bundle size: $(du -h "$BUNDLE_PATH" | cut -f1)"
 
@@ -33,10 +46,20 @@ ssh -i "$KEY_PATH" $SSH_OPTS ec2-user@"$EC2_HOST" $'set -e
   echo "Remote dir contents before extract:" && ls -l
   [ -f env-bundle.tgz ] || { echo "env-bundle.tgz not found in /home/ec2-user/bb-portfolio" >&2; exit 1; }
   tar -xzf env-bundle.tgz || { echo "Failed to extract env bundle" >&2; exit 1; }
-  mv -f backend.env.prod backend/.env.prod
-  mv -f backend.env.dev backend/.env.dev
-  mv -f frontend.env.prod frontend/.env.prod
-  mv -f frontend.env.dev frontend/.env.dev
+
+  move_env() {
+    local target="$1"
+    for src in ${target}.env.*; do
+      [ -e "$src" ] || continue
+      local suffix="${src##*.}"
+      local dest="${target}/.env.${suffix}"
+      mv -f "$src" "$dest"
+      echo "Placed $dest"
+    done
+  }
+
+  move_env backend
+  move_env frontend
   rm -f env-bundle.tgz
   echo "Env files deployed:"; ls -l backend/.env.* frontend/.env.*
 '
