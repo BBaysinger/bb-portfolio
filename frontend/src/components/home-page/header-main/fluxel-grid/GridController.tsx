@@ -91,9 +91,9 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
     const [pointerOverride, setPointerOverride] = useState<
       { x: number; y: number } | undefined
     >(undefined);
-    const pendingPointerOverride = useRef<
-      { x: number; y: number } | undefined
-    >(undefined);
+    const pendingPointerOverride = useRef<{ x: number; y: number } | undefined>(
+      undefined,
+    );
     const overrideFrameId = useRef<number | null>(null);
 
     const onLayoutUpdateRequest = (fn: () => void) => {

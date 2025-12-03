@@ -307,6 +307,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
       patchedOffset,
       isSlaveMode,
       updateScrollDirection,
+      updateStableIndex,
     ],
   );
 
