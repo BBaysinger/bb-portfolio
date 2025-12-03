@@ -356,23 +356,23 @@
   // Development tooling for the monorepo root (formatting, linting, TS, runners)
   "devDependencies": {
     // Next.js-specific ESLint rules for best practices
-    "@next/eslint-plugin-next": "^15.5.6",
+    "@next/eslint-plugin-next": "^16.0.7",
     // TypeScript type definitions for glob
     "@types/glob": "^9.0.0",
     // ESLint plugin for TypeScript-specific linting rules
-    "@typescript-eslint/eslint-plugin": "^8.46.2",
+    "@typescript-eslint/eslint-plugin": "^8.48.1",
     // TypeScript parser for ESLint
-    "@typescript-eslint/parser": "^8.46.2",
+    "@typescript-eslint/parser": "^8.48.1",
     // Run multiple commands concurrently in scripts
     "concurrently": "^9.2.1",
     // Main linter for JS/TS code
-    "eslint": "^9.38.0",
+    "eslint": "^9.39.1",
     // ESLint plugin for import/export syntax validation
     "eslint-plugin-import": "^2.32.0",
     // ESLint plugin for React hooks rules
-    "eslint-plugin-react-hooks": "^6.1.1",
+    "eslint-plugin-react-hooks": "^7.0.1",
     // ESLint plugin for React Fast Refresh support
-    "eslint-plugin-react-refresh": "^0.4.23",
+    "eslint-plugin-react-refresh": "^0.4.24",
     // File pattern matching utility
     "glob": "^13.0.0",
     // List of global variables for linting
@@ -384,11 +384,11 @@
     // JSON5 parser for annotated config files
     "json5": "^2.2.3",
     // Code formatter for consistent style
-    "prettier": "^3.6.2",
+    "prettier": "^3.7.4",
     // TypeScript execution environment for scripts
     "ts-node": "^10.9.2",
     // TypeScript/ESM runner for scripts
-    "tsx": "^4.20.6",
+    "tsx": "^4.21.0",
     // TypeScript language support
     "typescript": "^5.9.3",
   },

@@ -47,7 +47,7 @@
   // Runtime dependencies for backend and CMS functionality
   "dependencies": {
     // AWS SES client used for sending transactional emails
-    "@aws-sdk/client-ses": "^3.940.0",
+    "@aws-sdk/client-ses": "^3.943.0",
     // Shared AWS SDK types
     "@aws-sdk/types": "^3.936.0",
     // MongoDB adapter for Payload CMS
@@ -69,13 +69,13 @@
     // Environment variable loader (reads .env files into process.env)
     "dotenv": "17.2.3",
     // Express.js web server framework (v5 for latest features)
-    "express": "^5.1.0",
+    "express": "^5.2.1",
     // GraphQL query language runtime (required by Payload's GraphQL API)
     "graphql": "^16.12.0",
     // JSON5 parser for annotated configuration files
     "json5": "^2.2.3",
     // Next.js framework for frontend/backend integration
-    "next": "16.0.6",
+    "next": "16.0.7",
     // Payload CMS core package
     "payload": "3.65.0",
     // React version to match Next.js 15
@@ -94,7 +94,7 @@
     // Testing utilities for React components
     "@testing-library/react": "16.3.0",
     // Express.js TypeScript definitions
-    "@types/express": "^5.0.5",
+    "@types/express": "^5.0.6",
     // Type definitions for JSON5
     "@types/json5": "^2.2.0",
     // Node.js TypeScript definitions (latest for Node 18+)
@@ -106,9 +106,9 @@
     // Vite React plugin (enables React support in Vitest)
     "@vitejs/plugin-react": "5.1.1",
     // ESLint JavaScript/TypeScript linter (v9 for latest rules)
-    "eslint": "^9.38.0",
+    "eslint": "^9.39.1",
     // Next.js ESLint configuration (includes React and accessibility rules)
-    "eslint-config-next": "16.0.4",
+    "eslint-config-next": "16.0.7",
     // Browser DOM simulation for Node.js testing environments
     "jsdom": "27.2.0",
     // Standalone version of Playwright test runner
@@ -116,15 +116,15 @@
     // Playwright core library (used for browser automation)
     "playwright-core": "1.57.0",
     // Code formatter with opinionated defaults
-    "prettier": "^3.7.3",
+    "prettier": "^3.7.4",
     // TSX lets us run TypeScript build/utility scripts without compiling first.
-    "tsx": "^4.19.2",
+    "tsx": "^4.21.0",
     // TypeScript compiler (v5.9 for latest language features)
     "typescript": "5.9.3",
     // Vite path mapping support (resolves TypeScript path aliases)
     "vite-tsconfig-paths": "5.1.4",
     // Fast unit test runner (modern Jest alternative)
-    "vitest": "4.0.14",
+    "vitest": "4.0.15",
   },
   // Minimum versions for runtime tools
   "engines": {
