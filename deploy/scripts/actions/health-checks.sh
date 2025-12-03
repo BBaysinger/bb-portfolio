@@ -8,6 +8,10 @@ ATTEMPTS="${HEALTH_ATTEMPTS:-12}"; DELAY="${HEALTH_DELAY_SECONDS:-5}"
 CURL_ATTEMPTS="${CURL_ATTEMPTS:-3}"; CURL_DELAY="${CURL_DELAY_SECONDS:-2}"
 CURL_MAX_TIME="${CURL_MAX_TIME_SECONDS:-3}"; CURL_CONNECT_TIMEOUT_SEC="${CURL_CONNECT_TIMEOUT:-1}"
 GRACE="${HEALTH_STARTING_GRACE_SECONDS:-40}" # Allow backend health: starting state for this many seconds
+POST_GRACE_WAIT="${HEALTH_POST_GRACE_WAIT_SECONDS:-$GRACE}" # Additional wait before HTTP checks if we relied on grace
+
+DEV_GRACE_USED=false
+PROD_GRACE_USED=false
 
 ssh_cmd() { ssh -i "$KEY_PATH" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" "$@"; }
 
@@ -51,6 +55,11 @@ poll_containers() {
         uptime=$(parse_uptime_seconds "$be_status")
         if [ "$uptime" -ge "$GRACE" ]; then
           echo "Grace satisfied ($uptime s >= $GRACE s) treating backend as ready despite health: starting" >&2
+          if [ "$env" = "dev" ]; then
+            DEV_GRACE_USED=true
+          else
+            PROD_GRACE_USED=true
+          fi
           be_ready=true
         fi
       fi
@@ -65,6 +74,29 @@ poll_containers() {
   done
   echo "WARN: Containers not healthy after $ATTEMPTS attempts ($env) (be='$be_status' fe='$fe_status')" >&2
   return 1
+}
+
+maybe_wait_post_grace() {
+  local env="$1"
+  local used_flag=false
+  local wait_value="${POST_GRACE_WAIT:-0}"
+  if [ "$env" = "dev" ]; then
+    used_flag=$DEV_GRACE_USED
+  else
+    used_flag=$PROD_GRACE_USED
+  fi
+  if ! [[ "$wait_value" =~ ^[0-9]+$ ]]; then
+    wait_value=0
+  fi
+  if [ "$used_flag" = true ] && [ "$wait_value" -gt 0 ]; then
+    echo "Backend $env still reporting health: starting; sleeping ${wait_value}s before HTTP checks" >&2
+    sleep "$wait_value"
+    if [ "$env" = "dev" ]; then
+      DEV_GRACE_USED=false
+    else
+      PROD_GRACE_USED=false
+    fi
+  fi
 }
 
 curl_with_retry() {
@@ -92,13 +124,16 @@ elif [ "$ENVIRONMENT" = "both" ] && { [ "$START_DEV" = "true" ] || [ "$START_DEV
   poll_containers dev || true
 fi
 if [ "$ENVIRONMENT" = "prod" ] || [ "$ENVIRONMENT" = "both" ]; then
+  maybe_wait_post_grace prod
   curl_with_retry 3000 / "frontend prod"
   curl_with_retry 3001 /api/health/ "backend prod health"
 fi
 if [ "$ENVIRONMENT" = "dev" ]; then
+  maybe_wait_post_grace dev
   curl_with_retry 4000 / "frontend dev"
   curl_with_retry 4001 /api/health/ "backend dev health"
 elif [ "$ENVIRONMENT" = "both" ] && { [ "$START_DEV" = "true" ] || [ "$START_DEV" = true ]; }; then
+  maybe_wait_post_grace dev
   curl_with_retry 4000 / "frontend dev"
   curl_with_retry 4001 /api/health/ "backend dev health"
 fi
