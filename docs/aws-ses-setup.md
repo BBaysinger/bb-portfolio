@@ -69,11 +69,11 @@ cp backend/.env.local.example backend/.env.local
 
 ```bash
 # AWS SES Email Configuration (for contact form)
-LOCAL_AWS_REGION=us-east-1                    # Your AWS region
-LOCAL_AWS_ACCESS_KEY_ID=AKIA...               # Your IAM user access key
-LOCAL_AWS_SECRET_ACCESS_KEY=xyz...            # Your IAM user secret key
-LOCAL_SES_FROM_EMAIL=noreply@some-domain.com   # Verified sender email
-LOCAL_SES_TO_EMAIL=your-email@some-domain.com  # Your email to receive messages
+AWS_REGION=us-east-1                    # Your AWS region
+AWS_ACCESS_KEY_ID=AKIA...               # Your IAM user access key
+AWS_SECRET_ACCESS_KEY=xyz...            # Your IAM user secret key
+SES_FROM_EMAIL=noreply@some-domain.com   # Verified sender email
+SES_TO_EMAIL=your-email@some-domain.com  # Your email to receive messages
 ```
 
 **Important Notes:**

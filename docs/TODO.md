@@ -9,9 +9,9 @@ These are low-risk follow-ups to improve CI coverage and stability once the site
     - Sets backend env for local profile:
       - `RUN_INT_TESTS=1`
       - `ENV_PROFILE=local`
-      - `LOCAL_MONGODB_URI=mongodb://127.0.0.1:27017/ci`
-      - `LOCAL_PAYLOAD_SECRET=<random-long-string>`
-      - `LOCAL_FRONTEND_URL=http://localhost:3000`
+      - `MONGODB_URI=mongodb://127.0.0.1:27017/ci`
+      - `PAYLOAD_SECRET=<random-long-string>`
+      - `FRONTEND_URL=http://localhost:3000`
     - Runs integration tests: `npx vitest run tests/int/**/*.int.spec.ts`
   - Rationale: keep PR path fast (unit tests only) while retaining full integration coverage in a dedicated job.
 

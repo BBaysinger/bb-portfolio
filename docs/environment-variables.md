@@ -15,7 +15,7 @@ This project follows the standard environment variable conventions:
 - Local development should rely on unprefixed keys (e.g., `PUBLIC_SERVER_URL`, `MONGODB_URI`). These stay in `.env` / `.env.local` and never leave your machine.
 - Per-profile overrides live in `.github-secrets.private.<profile>.json5`. Each profile reuses the same key names (no prefixes) so scripts can treat `FRONTEND_URL`, `MONGODB_URI`, etc., uniformly regardless of environment.
 - We intentionally avoid sprawling “compatibility” envs; when the backend needs a value, it fails fast with a helpful error instead of silently massaging inputs.
-- Legacy `LOCAL_*` keys are still read as a short-term fallback, but new configuration should stick to the simplified convention.
+- The historical `LOCAL_*` prefixes have been removed; every profile (including local) now uses the same canonical key names.
 
 ## Key Variables
 
