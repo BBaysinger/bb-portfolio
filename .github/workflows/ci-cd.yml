@@ -104,6 +104,8 @@ jobs:
           ENV_PROFILE: dev
           # Env-guard definition list (sanitized for backend build)
           REQUIRED_ENVIRONMENT_VARIABLES: "${{ steps.sanitize-dev-req.outputs.dev_req_backend }}"
+          # Explicit public origin for Payload admin/API
+          PAYLOAD_PUBLIC_SERVER_URL: ${{ secrets.FRONTEND_URL }}
           # Backend URL group (ANY-of) to satisfy unified list if it includes FE groups
           BACKEND_INTERNAL_URL: ${{ secrets.BACKEND_INTERNAL_URL }}
           MONGODB_URI: mongodb://localhost:27017/dummy-db
@@ -133,6 +135,7 @@ jobs:
         working-directory: ./backend
         env:
           ENV_PROFILE: dev
+          PAYLOAD_PUBLIC_SERVER_URL: ${{ secrets.FRONTEND_URL }}
           MONGODB_URI: mongodb://localhost:27017/dummy-db
           PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
           FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
