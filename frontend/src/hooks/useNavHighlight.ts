@@ -46,11 +46,15 @@ export function useNavHighlight() {
         pathname.startsWith(prefix),
       );
 
-      if (match) {
-        setActiveId(match[1]);
-      } else {
-        setActiveId(null); // fallback or unknown route
-      }
+      const frame = requestAnimationFrame(() => {
+        if (match) {
+          setActiveId(match[1]);
+        } else {
+          setActiveId(null); // fallback or unknown route
+        }
+      });
+
+      return () => cancelAnimationFrame(frame);
     }
   }, [pathname]);
 

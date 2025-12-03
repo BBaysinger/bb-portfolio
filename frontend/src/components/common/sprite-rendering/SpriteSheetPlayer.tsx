@@ -1,4 +1,10 @@
-import React, { useEffect, useRef, useState, useMemo } from "react";
+import React, {
+  useEffect,
+  useRef,
+  useState,
+  useMemo,
+  useCallback,
+} from "react";
 
 import { CanvasRenderer } from "./CanvasRenderer";
 import { ISpriteRenderer } from "./RenderingAllTypes";
@@ -78,10 +84,30 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
   const rendererRef = useRef<ISpriteRenderer | null>(null);
 
   const animationFrameRef = useRef<number | null>(null);
-  const lastTimeRef = useRef<number>(performance.now());
+  const lastTimeRef = useRef<number>(0);
   const frameRef = useRef<number>(0);
   const completedLoopsRef = useRef<number>(0);
   const frameDurationsRef = useRef<number[]>([]);
+  const pendingFrameIndexRaf = useRef<number | null>(null);
+
+  const scheduleFrameIndexUpdate = useCallback((next: number | null) => {
+    if (pendingFrameIndexRaf.current !== null) {
+      cancelAnimationFrame(pendingFrameIndexRaf.current);
+    }
+    pendingFrameIndexRaf.current = requestAnimationFrame(() => {
+      setFrameIndex(next);
+      pendingFrameIndexRaf.current = null;
+    });
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (pendingFrameIndexRaf.current !== null) {
+        cancelAnimationFrame(pendingFrameIndexRaf.current);
+        pendingFrameIndexRaf.current = null;
+      }
+    };
+  }, []);
 
   const meta = useMemo(() => {
     const match = src.match(/_w(\d+)h(\d+)f(\d+)/);
@@ -117,19 +143,19 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
 
     if (typeof frameControl === "number") {
       frameRef.current = frameControl;
-      setFrameIndex(frameControl);
+      scheduleFrameIndexUpdate(frameControl);
       return;
     }
 
     if (randomFrame) {
       const random = Math.floor(Math.random() * meta.frameCount);
       frameRef.current = random;
-      setFrameIndex(random);
+      scheduleFrameIndexUpdate(random);
     } else {
       frameRef.current = 0;
-      setFrameIndex(0);
+      scheduleFrameIndexUpdate(0);
     }
-  }, [frameControl, src, randomFrame, meta]);
+  }, [frameControl, src, randomFrame, meta, scheduleFrameIndexUpdate]);
 
   useEffect(() => {
     if (!meta || frameControl === -1) return;
@@ -143,7 +169,7 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
     let isCancelled = false;
     completedLoopsRef.current = 0;
     frameRef.current = 0;
-    setFrameIndex(0);
+    scheduleFrameIndexUpdate(0);
     lastTimeRef.current = performance.now();
 
     const animate = (now: number) => {
@@ -202,7 +228,15 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
         animationFrameRef.current = null;
       }
     };
-  }, [meta, frameControl, autoPlay, loops, randomFrame, onEnd]);
+  }, [
+    meta,
+    frameControl,
+    autoPlay,
+    loops,
+    randomFrame,
+    onEnd,
+    scheduleFrameIndexUpdate,
+  ]);
 
   useEffect(() => {
     if (!canvasRef.current || !meta) return;

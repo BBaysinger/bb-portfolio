@@ -11,6 +11,81 @@ interface ScalerOutput {
   scale: number;
 }
 
+let viewportMeasureEl: HTMLDivElement | null = null;
+let viewportMeasureEl2: HTMLDivElement | null = null;
+
+const ensureViewportMeasurers = () => {
+  if (typeof document === "undefined") {
+    return {
+      el1: null as HTMLDivElement | null,
+      el2: null as HTMLDivElement | null,
+    };
+  }
+
+  if (!viewportMeasureEl) {
+    viewportMeasureEl = document.getElementById(
+      "__vp-measure",
+    ) as HTMLDivElement | null;
+  }
+  if (!viewportMeasureEl) {
+    viewportMeasureEl = document.createElement("div");
+    viewportMeasureEl.id = "__vp-measure";
+    Object.assign(viewportMeasureEl.style, {
+      position: "fixed",
+      left: "-9999px",
+      top: "-9999px",
+      visibility: "hidden",
+      pointerEvents: "none",
+      overflow: "hidden",
+      zIndex: "-1",
+    } as CSSStyleDeclaration);
+    document.body.appendChild(viewportMeasureEl);
+  }
+
+  if (!viewportMeasureEl2) {
+    viewportMeasureEl2 = document.getElementById(
+      "__vp-measure-2",
+    ) as HTMLDivElement | null;
+  }
+  if (!viewportMeasureEl2) {
+    viewportMeasureEl2 = document.createElement("div");
+    viewportMeasureEl2.id = "__vp-measure-2";
+    Object.assign(viewportMeasureEl2.style, {
+      position: "fixed",
+      left: "-9999px",
+      top: "-9999px",
+      visibility: "hidden",
+      pointerEvents: "none",
+      overflow: "hidden",
+      zIndex: "-1",
+    } as CSSStyleDeclaration);
+    document.body.appendChild(viewportMeasureEl2);
+  }
+
+  return { el1: viewportMeasureEl, el2: viewportMeasureEl2 };
+};
+
+const measureViewportUnits = (mode: ViewportMode) => {
+  if (typeof window === "undefined" || typeof document === "undefined") {
+    return { w: 0, h: 0 };
+  }
+
+  const { el1, el2 } = ensureViewportMeasurers();
+  if (!el1 || !el2) return { w: 0, h: 0 };
+
+  const vwUnit = mode === "dynamic" ? "dvw" : mode === "large" ? "lvw" : "svw";
+  const vhUnit = mode === "dynamic" ? "dvh" : mode === "large" ? "lvh" : "svh";
+
+  el1.style.width = `100${vwUnit}`;
+  el1.style.height = "1px";
+  el2.style.height = `100${vhUnit}`;
+  el2.style.width = "1px";
+
+  const w = el1.getBoundingClientRect().width;
+  const h = el2.getBoundingClientRect().height;
+  return { w, h };
+};
+
 /**
  * useResponsiveScaler
  *
@@ -69,73 +144,6 @@ export default function useResponsiveScaler(
   elementRef?: React.RefObject<HTMLElement | null>,
   viewportMode: ViewportMode = "small",
 ): ScalerOutput {
-  // --- CSS viewport unit measurers (sv*, dv*, lv*) -------------------------
-  let measurerEl =
-    typeof document !== "undefined"
-      ? (document.getElementById("__vp-measure") as HTMLDivElement | null)
-      : null;
-  let measurerEl2 =
-    typeof document !== "undefined"
-      ? (document.getElementById("__vp-measure-2") as HTMLDivElement | null)
-      : null;
-
-  const ensureMeasurers = () => {
-    if (typeof document === "undefined")
-      return {
-        el1: null as HTMLDivElement | null,
-        el2: null as HTMLDivElement | null,
-      };
-    if (!measurerEl) {
-      measurerEl = document.createElement("div");
-      measurerEl.id = "__vp-measure";
-      Object.assign(measurerEl.style, {
-        position: "fixed",
-        left: "-9999px",
-        top: "-9999px",
-        visibility: "hidden",
-        pointerEvents: "none",
-        overflow: "hidden",
-        zIndex: "-1",
-      } as CSSStyleDeclaration);
-      document.body.appendChild(measurerEl);
-    }
-    if (!measurerEl2) {
-      measurerEl2 = document.createElement("div");
-      measurerEl2.id = "__vp-measure-2";
-      Object.assign(measurerEl2.style, {
-        position: "fixed",
-        left: "-9999px",
-        top: "-9999px",
-        visibility: "hidden",
-        pointerEvents: "none",
-        overflow: "hidden",
-        zIndex: "-1",
-      } as CSSStyleDeclaration);
-      document.body.appendChild(measurerEl2);
-    }
-    return { el1: measurerEl, el2: measurerEl2 };
-  };
-
-  const measureViewportUnits = (mode: ViewportMode) => {
-    if (typeof window === "undefined" || typeof document === "undefined")
-      return { w: 0, h: 0 };
-    const { el1, el2 } = ensureMeasurers();
-    if (!el1 || !el2) return { w: 0, h: 0 };
-    // Choose unit set by mode
-    const vwUnit =
-      mode === "dynamic" ? "dvw" : mode === "large" ? "lvw" : "svw";
-    const vhUnit =
-      mode === "dynamic" ? "dvh" : mode === "large" ? "lvh" : "svh";
-    el1.style.width = `100${vwUnit}`;
-    el1.style.height = `1px`;
-    el2.style.height = `100${vhUnit}`;
-    el2.style.width = `1px`;
-    // Read as floating pixels
-    const w = el1.getBoundingClientRect().width;
-    const h = el2.getBoundingClientRect().height;
-    return { w, h };
-  };
-
   // Track min/max visual viewport across the current orientation to emulate CSS svh/svh and lvh/lvw.
   const minMaxRef = useRef({
     minW: Number.POSITIVE_INFINITY,
@@ -230,7 +238,7 @@ export default function useResponsiveScaler(
     const scale = width / baseWidth;
 
     return { width, height, offsetX, offsetY, scale };
-  }, [aspectRatio, baseWidth, mode]);
+  }, [aspectRatio, baseWidth, mode, viewportMode]);
 
   const [scaler, setScaler] = useState<ScalerOutput>(calculate);
 

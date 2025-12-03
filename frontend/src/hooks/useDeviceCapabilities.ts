@@ -92,13 +92,24 @@ export default function useDeviceCapabilities(): DeviceCapabilities {
   const [caps, setCaps] = useState<DeviceCapabilities>(initial);
 
   useEffect(() => {
+    let rafId: number | null = null;
+    const scheduleMeasure = () => {
+      if (rafId !== null) cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(() => {
+        rafId = null;
+        setCaps(measure());
+      });
+    };
+
     // Initial measure after mount (avoids SSR mismatch)
-    setCaps(measure());
+    scheduleMeasure();
+
     // Re-evaluate on resize and orientation change (pointer/hover rarely change, but viewport class may)
-    const onChange = () => setCaps(measure());
+    const onChange = () => scheduleMeasure();
     window.addEventListener("resize", onChange);
     window.addEventListener("orientationchange", onChange);
     return () => {
+      if (rafId !== null) cancelAnimationFrame(rafId);
       window.removeEventListener("resize", onChange);
       window.removeEventListener("orientationchange", onChange);
     };

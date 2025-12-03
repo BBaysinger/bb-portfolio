@@ -145,7 +145,14 @@ export function useDragInertia(
     return () => {
       draggable.kill(); // Clean up GSAP instance
     };
-  }, [scrollerRef, setSnap, slideSpacing, isSlaveMode, pointerType]);
+  }, [
+    scrollerRef,
+    setSnap,
+    slideSpacing,
+    isSlaveMode,
+    pointerType,
+    onDragComplete,
+  ]);
 
   return dragState;
 }

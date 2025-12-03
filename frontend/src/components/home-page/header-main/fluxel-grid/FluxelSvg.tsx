@@ -40,10 +40,6 @@ const FluxelSvg = forwardRef<
   const elRef = useRef<SVGGElement>(null);
   const SCALE = size / 72;
 
-  useEffect(() => {
-    updateInfluence(data.influence, data.colorVariation);
-  }, [data]);
-
   const updateInfluence = (influence: number, colorVariation?: string) => {
     const el = elRef.current;
     if (!el) return;
@@ -57,6 +53,10 @@ const FluxelSvg = forwardRef<
       el.style.setProperty("--overlay-color", colorVariation);
     }
   };
+
+  useEffect(() => {
+    updateInfluence(data.influence, data.colorVariation);
+  }, [data]);
 
   useImperativeHandle(ref, () => ({
     updateInfluence,

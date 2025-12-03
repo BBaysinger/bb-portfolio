@@ -5,6 +5,15 @@ import React, { useEffect, useRef, useState } from "react";
 
 import styles from "./FPSCounter.module.scss";
 
+const profile = (
+  process.env.NEXT_PUBLIC_ENV_PROFILE ||
+  process.env.ENV_PROFILE ||
+  process.env.NODE_ENV ||
+  ""
+).toLowerCase();
+const isDevLike =
+  profile === "dev" || profile === "development" || profile === "local";
+
 /**
  * Displays the current FPS using requestAnimationFrame.
  * Digits are rendered in separate divs to stabilize layout
@@ -15,25 +24,14 @@ const FPSCounter: React.FC<{ updateInterval?: number; className?: string }> = ({
   updateInterval = 500,
   className = "",
 }) => {
-  // Show only in dev/local profiles. Use build-time env when available on client.
-  const profile = (
-    process.env.NEXT_PUBLIC_ENV_PROFILE ||
-    process.env.ENV_PROFILE ||
-    process.env.NODE_ENV ||
-    ""
-  ).toLowerCase();
-  const isDevLike =
-    profile === "dev" || profile === "development" || profile === "local";
-
-  if (!isDevLike) return null;
-
   const [fps, setFps] = useState(0);
   const [mounted, setMounted] = useState(false);
   const frameCount = useRef(0);
   const lastTime = useRef<number | null>(null);
 
   useEffect(() => {
-    setMounted(true);
+    const mountRaf = requestAnimationFrame(() => setMounted(true));
+    return () => cancelAnimationFrame(mountRaf);
   }, []);
 
   useEffect(() => {
@@ -64,6 +62,8 @@ const FPSCounter: React.FC<{ updateInterval?: number; className?: string }> = ({
     animationFrameId = requestAnimationFrame(update);
     return () => cancelAnimationFrame(animationFrameId);
   }, [mounted, updateInterval]);
+
+  if (!isDevLike) return null;
 
   const fpsDigits = fps.toString().padStart(2, "0").split("");
 

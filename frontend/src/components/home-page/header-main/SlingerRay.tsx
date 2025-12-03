@@ -36,13 +36,17 @@ const SlingerRay: React.FC<SlingerRayProps> = ({
   };
 
   useEffect(() => {
-    if (isActive) {
-      setEnergyBarsFrame(null); // start/resume energy bars
-      setLightningFrame(-1); // make sure lightning is hidden until energy bars finish
-    } else {
-      setLightningFrame(-1); // hide lightning
-      setEnergyBarsFrame(-1); // hide energy bars
-    }
+    const frame = requestAnimationFrame(() => {
+      if (isActive) {
+        setEnergyBarsFrame(null); // start/resume energy bars
+        setLightningFrame(-1); // make sure lightning is hidden until energy bars finish
+      } else {
+        setLightningFrame(-1); // hide lightning
+        setEnergyBarsFrame(-1); // hide energy bars
+      }
+    });
+
+    return () => cancelAnimationFrame(frame);
   }, [isActive]);
 
   return (

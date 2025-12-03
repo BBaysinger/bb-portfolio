@@ -2,7 +2,8 @@
 
 import clsx from "clsx";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 import { useAuth } from "@/hooks/useAuth";
 
@@ -13,6 +14,7 @@ import styles from "./LoginPage.module.scss";
  *
  */
 const LoginPage = () => {
+  const router = useRouter();
   const {
     login,
     isLoggedIn,
@@ -32,8 +34,13 @@ const LoginPage = () => {
   }, [authError, clearAuthError]);
 
   // Redirect if already logged in (but wait for loading to finish)
+  useEffect(() => {
+    if (!isLoading && isLoggedIn) {
+      router.replace("/");
+    }
+  }, [isLoading, isLoggedIn, router]);
+
   if (!isLoading && isLoggedIn) {
-    window.location.href = "/";
     return null;
   }
 

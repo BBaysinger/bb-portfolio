@@ -37,10 +37,14 @@ const FootGreet: React.FC<{ className?: string }> = ({ className = "" }) => {
   const [currentTimeOfDay, setCurrentTimeOfDay] = useState<string>("");
 
   useEffect(() => {
-    const hour = new Date().getHours();
-    if (hour < 12) setCurrentTimeOfDay("morning");
-    else if (hour < 18) setCurrentTimeOfDay("afternoon");
-    else setCurrentTimeOfDay("evening");
+    const rafId = requestAnimationFrame(() => {
+      const hour = new Date().getHours();
+      if (hour < 12) setCurrentTimeOfDay("morning");
+      else if (hour < 18) setCurrentTimeOfDay("afternoon");
+      else setCurrentTimeOfDay("evening");
+    });
+
+    return () => cancelAnimationFrame(rafId);
   }, []);
 
   return (

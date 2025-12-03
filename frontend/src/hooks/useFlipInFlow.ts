@@ -73,5 +73,5 @@ export function useFlipInFlow(
 
     ro.observe(w);
     return () => ro.disconnect();
-  }, []);
+  }, [watchRef, targetRef]);
 }

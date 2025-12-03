@@ -70,7 +70,7 @@ Note for local Docker Compose:
 
 - The compose service `bb-portfolio-backend-local` sets `ENV_PROFILE=local` via environment.
 - Dev scripts should not hardcode a different profile. The `package.json` dev scripts are configured to respect the environment so that the canonical variables (`MONGODB_URI`, `PAYLOAD_SECRET`, `FRONTEND_URL`, etc.) are used correctly for whichever profile is active.
-- If you see 500 errors like "Missing required DEV*MONGODB_URI for ENV_PROFILE=dev" while running local, double-check that no script is forcing `ENV_PROFILE=dev` and that your `backend/.env` (or `.env.local`) contains the canonical variables listed above.
+- If you see 500 errors like "Missing required DEV\*MONGODB_URI for ENV_PROFILE=dev" while running local, double-check that no script is forcing `ENV_PROFILE=dev` and that your `backend/.env` (or `.env.local`) contains the canonical variables listed above.
 
 ## API Endpoints
 
