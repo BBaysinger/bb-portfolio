@@ -153,7 +153,7 @@ export const canonicalEnvKeys = [
   "NEXT_PUBLIC_RUM_IDENTITY_POOL_ID",
   "NEXT_PUBLIC_RUM_GUEST_ROLE_ARN",
   "NEXT_PUBLIC_RUM_REGION",
-    "PAYLOAD_PUBLIC_SERVER_URL",
+  "PAYLOAD_PUBLIC_SERVER_URL",
 ] as const;
 
 export type CanonicalEnvKey = (typeof canonicalEnvKeys)[number];

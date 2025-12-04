@@ -89,7 +89,10 @@ const writers: EnvWriters = {
     const awsRegion = get("AWS_REGION", get("S3_REGION", "us-west-2"));
 
     const resolvedPublicServer = get("PUBLIC_SERVER_URL", get("FRONTEND_URL"));
-    const payloadServerOverride = get("PAYLOAD_PUBLIC_SERVER_URL", resolvedPublicServer);
+    const payloadServerOverride = get(
+      "PAYLOAD_PUBLIC_SERVER_URL",
+      resolvedPublicServer,
+    );
 
     const lines = [
       `NODE_ENV=${isProd ? "production" : "development"}`,
