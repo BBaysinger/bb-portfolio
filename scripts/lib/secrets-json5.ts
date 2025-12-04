@@ -1,5 +1,4 @@
 import { existsSync, readFileSync } from "node:fs";
-import { createRequire } from "node:module";
 import path from "node:path";
 import { Script } from "node:vm";
 
@@ -14,30 +13,7 @@ const fallbackJson5: Json5Parser = {
   },
 };
 
-const hasDefaultExport = (value: unknown): value is { default?: Json5Parser } =>
-  typeof value === "object" && value !== null && "default" in value;
-
-const optionalJson5 = (() => {
-  try {
-    const require = createRequire(import.meta.url);
-    const candidate = require("json5") as
-      | Json5Parser
-      | { default?: Json5Parser }
-      | undefined;
-    if (!candidate) {
-      return undefined;
-    }
-    const parser = hasDefaultExport(candidate) ? candidate.default : candidate;
-    if (parser && typeof parser.parse === "function") {
-      return parser;
-    }
-  } catch {
-    // Ignore resolution errors and fall back below.
-  }
-  return undefined;
-})();
-
-const json5: Json5Parser = optionalJson5 ?? fallbackJson5;
+const json5: Json5Parser = fallbackJson5;
 
 const DEFAULT_SHARED_FILE = ".github-secrets.private.json5";
 
