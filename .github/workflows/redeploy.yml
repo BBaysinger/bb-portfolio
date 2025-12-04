@@ -153,6 +153,23 @@ jobs:
           NEXT_PUBLIC_RUM_REGION: ${{ secrets.NEXT_PUBLIC_RUM_REGION }}
         run: bash deploy/scripts/actions/generate-env-files.sh
 
+      - name: Archive env files artifact
+        if: ${{ inputs.refresh_env == 'true' || inputs.refresh_env == true }}
+        # Temporary helper so we can inspect generated .env bundles.
+        # This leaks secrets to Actions artifacts; remove when no longer needed.
+        run: |
+          set -euo pipefail
+          tar -czf env-files-${{ matrix.target }}.tar.gz -C "${{ steps.genenv.outputs.dir }}" .
+
+      - name: Upload env files artifact
+        if: ${{ inputs.refresh_env == 'true' || inputs.refresh_env == true }}
+        # See warning above: artifacts expose decrypted secrets to anyone with run access.
+        uses: actions/upload-artifact@v4
+        with:
+          name: env-files-${{ matrix.target }}
+          path: env-files-${{ matrix.target }}.tar.gz
+          if-no-files-found: error
+
       - name: Upload env files to EC2
         if: ${{ inputs.refresh_env == 'true' || inputs.refresh_env == true }}
         env:
