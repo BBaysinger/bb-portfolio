@@ -26,7 +26,7 @@
     "bootstrap": "^5.3.8",
     "clsx": "^2.1.1",
     "gsap": "^3.13.0",
-    "jsonwebtoken": "^9.0.2",
+    "jsonwebtoken": "^9.0.3",
     "next": "^16.0.7",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
