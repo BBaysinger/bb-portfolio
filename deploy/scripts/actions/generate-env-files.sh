@@ -24,7 +24,7 @@ if [[ ${#PROFILE_QUEUE[@]} -eq 0 ]]; then
 fi
 
 for profile in "${PROFILE_QUEUE[@]}"; do
-  npx --yes tsx scripts/generate-env-files.ts --out "$OUT_DIR" --profiles "$profile" --targets "$TARGETS"
+  npx --yes tsx scripts/generate-env-from-env.ts --out "$OUT_DIR" --profiles "$profile" --targets "$TARGETS"
 done
 
 if [[ -n "${GITHUB_OUTPUT:-}" ]]; then
