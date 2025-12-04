@@ -106,6 +106,8 @@ jobs:
           REQUIRED_ENVIRONMENT_VARIABLES: "${{ steps.sanitize-dev-req.outputs.dev_req_backend }}"
           # Explicit public origin for Payload admin/API
           PAYLOAD_PUBLIC_SERVER_URL: ${{ secrets.FRONTEND_URL }}
+          # PUBLIC_SERVER_URL is part of the REQUIRED_ENVIRONMENT_VARIABLES set
+          PUBLIC_SERVER_URL: ${{ secrets.PUBLIC_SERVER_URL || secrets.FRONTEND_URL }}
           # Backend URL group (ANY-of) to satisfy unified list if it includes FE groups
           BACKEND_INTERNAL_URL: ${{ secrets.BACKEND_INTERNAL_URL }}
           MONGODB_URI: mongodb://localhost:27017/dummy-db
@@ -139,6 +141,7 @@ jobs:
           MONGODB_URI: mongodb://localhost:27017/dummy-db
           PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
           FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
+          PUBLIC_SERVER_URL: ${{ secrets.PUBLIC_SERVER_URL || secrets.FRONTEND_URL }}
           # S3 and AWS configuration required by payload.config.ts during testing
           S3_BUCKET: ${{ secrets.S3_BUCKET }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
