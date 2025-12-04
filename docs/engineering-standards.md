@@ -22,6 +22,17 @@ They reflect the current implementation in this repository (Next.js + Payload, D
 
 ---
 
+## Quick reference (TL;DR)
+
+- **Source control**: no `git push`/`terraform apply`/production deploys without explicit human approval. Stage + commit is fine; pushing is not.
+- **Testing gate**: before every PR/merge run `npm run lint`, `npm test`, and service-specific builds (`npm run build:frontend`, `npm run build:backend`). Do not ship failing lint/tests.
+- **Documentation**: every file/function follows the JSDoc-style rules below; shell scripts include shebang + usage + env var docs.
+- **Environment config**: one canonical key per concept (e.g., `FRONTEND_URL`), no env baked in Docker images, env guards enforced via `scripts/check-required-env.ts`.
+- **AI instructions**: when requesting help, specify scope, success criteria, disallowed commands, required tests, and what to do on ambiguity (template below).
+- **Boilerplate mindset**: prefer conventional Next.js/Payload approaches; deviations require comments + removal plan.
+
+---
+
 ## Global objective
 
 Our global objective is to maintain standards and follow established conventions consistently across the codebase.
@@ -40,6 +51,17 @@ When working with AI coding assistants:
 - **Git operations**: AI _can_ stage files (`git add`) and prepare commits (`git commit`), but **must not execute `git push`**. The developer should review staged changes and push, merge, or PR manually after verification.
 - **Terraform/Infrastructure changes**: AI can prepare and suggest `terraform plan` but should not automatically execute `terraform apply` without explicit user confirmation for each resource change.
 - **Deployment operations**: AI should present deployment commands and wait for explicit approval rather than automatically triggering deployments.
+
+**Request template for AI work** (include this in issues/PRs or chat prompts):
+
+1. **Scope** – e.g., “Touch only `frontend/src/components/foo/**`.”
+2. **Goal** – “Eliminate React hook lint warnings; behavior must stay identical.”
+3. **Forbidden actions** – “Never run `terraform apply`, `ssh prod`, rotate secrets, or push commits.”
+4. **Required checks** – “Run `npm run lint` + `npm run test` and summarize output; stop on failure.”
+5. **Ambiguity rule** – “If requirements conflict or files are missing, stop and ask instead of guessing.”
+6. **Logging** – “Summarize long-running commands; don’t dump pages of logs unless requested.”
+
+Requests that omit any of the above should be considered incomplete; assistants must pause and ask for clarification.
 
 ---
 
@@ -107,6 +129,32 @@ All files must include appropriate comments following industry best practices:
   # Usage: bash deploy/scripts/actions/generate-env-files.sh
   # Requires: GitHub secrets available via environment
   ```
+
+Shell script checklist (required for every new/edited script):
+
+- `set -euo pipefail` (or defensive equivalent) at the top.
+- Commented description + usage + dependency/env var notes.
+- Input validation with clear error messages when required env vars/args are missing.
+- Idempotent behavior where possible; scripts should be safely re-runnable.
+- Prefer `bash` over `sh` when arrays/globs are required; document shell expectations.
+
+## Code style & tooling
+
+- **Formatting**: Prettier (`npm run format`) is the source of truth. Never hand-edit formatting to fight the formatter.
+- **Linting**: ESLint config lives at the repo root plus per-app overrides. All code must pass `npm run lint` with zero warnings; suppressions require inline rationale.
+- **TypeScript**: Strict mode is enabled. Do not ignore type errors with `any`/`@ts-ignore` unless there is a linked issue and a removal date.
+- **Naming**: CamelCase for variables/functions, PascalCase for components/classes, SCREAMING_SNAKE_CASE for env constants. Follow file naming conventions already in each package.
+- **Testing tools**: Vitest for unit/integration, Playwright for E2E, Next.js `app/` conventions for route handlers. Favor existing helpers before writing new ones.
+
+## Testing expectations
+
+Minimum bar before merging any change:
+
+1. `npm run lint`
+2. `npm test` (runs Vitest + Playwright smoke paths)
+3. `npm run build:backend` and `npm run build:frontend` when touching those areas
+
+If a command is intentionally skipped (e.g., Playwright on CI smoke jobs), document the reason in the PR and re-run locally as soon as feasible. New features should include or update tests; lack of coverage must be justified explicitly.
 
 Enforcement:
 
