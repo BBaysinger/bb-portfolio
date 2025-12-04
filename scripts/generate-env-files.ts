@@ -16,11 +16,8 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import {
-  loadSecrets,
-  type SecretBundle,
-  canonicalEnvKeys,
-} from "./lib/secrets";
+import { type SecretBundle, canonicalEnvKeys } from "./lib/secrets";
+import { loadSecretsFromJson5 } from "./lib/secrets-json5";
 
 type Profile = "prod" | "dev" | string;
 type Target = "backend" | "frontend";
@@ -78,7 +75,7 @@ const resolveSecrets = (profile: Profile): SecretBundle => {
   if (usingEnvSecrets) {
     return { strings: { ...sharedEnvSecrets }, files: {} };
   }
-  return loadSecrets({ profile });
+  return loadSecretsFromJson5({ profile });
 };
 
 const writers: EnvWriters = {

@@ -1,0 +1,140 @@
+import { existsSync, readFileSync } from "node:fs";
+import { createRequire } from "node:module";
+import path from "node:path";
+import { Script } from "node:vm";
+
+import { SecretBundle, SecretMap, SecretProfile } from "./secrets";
+
+type Json5Parser = { parse: (raw: string) => unknown };
+
+const fallbackJson5: Json5Parser = {
+  parse: (raw: string) => {
+    const script = new Script(`(${raw})`);
+    return script.runInNewContext({});
+  },
+};
+
+const hasDefaultExport = (value: unknown): value is { default?: Json5Parser } =>
+  typeof value === "object" && value !== null && "default" in value;
+
+const optionalJson5 = (() => {
+  try {
+    const require = createRequire(import.meta.url);
+    const candidate = require("json5") as
+      | Json5Parser
+      | { default?: Json5Parser }
+      | undefined;
+    if (!candidate) {
+      return undefined;
+    }
+    const parser = hasDefaultExport(candidate) ? candidate.default : candidate;
+    if (parser && typeof parser.parse === "function") {
+      return parser;
+    }
+  } catch {
+    // Ignore resolution errors and fall back below.
+  }
+  return undefined;
+})();
+
+const json5: Json5Parser = optionalJson5 ?? fallbackJson5;
+
+const DEFAULT_SHARED_FILE = ".github-secrets.private.json5";
+
+const profileFile = (profile: SecretProfile): string =>
+  `.github-secrets.private.${profile}.json5`;
+
+const normalizeBundle = (data: unknown): SecretBundle => {
+  if (!data || typeof data !== "object") {
+    return { strings: {}, files: {} };
+  }
+
+  if (
+    (data as { strings?: unknown }).strings ||
+    (data as { files?: unknown }).files
+  ) {
+    const { strings, files } = data as {
+      strings?: Record<string, unknown>;
+      files?: Record<string, unknown>;
+    };
+    const safeStrings: SecretMap = {};
+    const safeFiles: SecretMap = {};
+
+    if (strings) {
+      for (const [key, value] of Object.entries(strings)) {
+        if (value === undefined || value === null) continue;
+        safeStrings[key] = String(value);
+      }
+    }
+
+    if (files) {
+      for (const [key, value] of Object.entries(files)) {
+        if (value === undefined || value === null) continue;
+        safeFiles[key] = String(value);
+      }
+    }
+
+    return { strings: safeStrings, files: safeFiles };
+  }
+
+  const plain = data as Record<string, unknown>;
+  const safeStrings: SecretMap = {};
+  for (const [key, value] of Object.entries(plain)) {
+    if (value === undefined || value === null) continue;
+    safeStrings[key] = String(value);
+  }
+  return { strings: safeStrings, files: {} };
+};
+
+const readSecretsFile = (filePath: string): SecretBundle => {
+  if (!existsSync(filePath)) {
+    return { strings: {}, files: {} };
+  }
+  const raw = readFileSync(filePath, "utf8");
+  const parsed = json5.parse(raw) as unknown;
+  return normalizeBundle(parsed);
+};
+
+export interface LoadJson5SecretsOptions {
+  profile?: SecretProfile;
+  rootDir?: string;
+  sharedFile?: string;
+}
+
+export const loadSecretsFromJson5 = (
+  options: LoadJson5SecretsOptions = {},
+): SecretBundle => {
+  const { profile, rootDir, sharedFile = DEFAULT_SHARED_FILE } = options;
+  const baseDir = rootDir ? path.resolve(rootDir) : process.cwd();
+  const sharedPath = path.resolve(baseDir, sharedFile);
+  const shared = readSecretsFile(sharedPath);
+
+  if (!profile) {
+    return shared;
+  }
+
+  const profilePath = path.resolve(baseDir, profileFile(profile));
+  if (!existsSync(profilePath)) {
+    return shared;
+  }
+
+  const scoped = readSecretsFile(profilePath);
+  return {
+    strings: { ...shared.strings, ...scoped.strings },
+    files: { ...shared.files, ...scoped.files },
+  };
+};
+
+export const resolveSecretFromJson5 = (
+  key: string,
+  options: LoadJson5SecretsOptions = {},
+): string => {
+  const bundle = loadSecretsFromJson5(options);
+  if (key in bundle.strings) {
+    return bundle.strings[key];
+  }
+  if (key in bundle.files) {
+    return bundle.files[key];
+  }
+  return "";
+};

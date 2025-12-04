@@ -15,7 +15,8 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 
-import { loadSecrets, SecretBundle } from "../../scripts/lib/secrets";
+import { SecretBundle } from "../../scripts/lib/secrets";
+import { loadSecretsFromJson5 } from "../../scripts/lib/secrets-json5";
 import { mergeGithubSecrets } from "../../scripts/merge-github-secrets";
 
 // Resolve project root and CLI overrides
@@ -291,16 +292,16 @@ function main() {
     const secretsRoot = path.dirname(secretsFile);
     const sharedFileName = path.basename(secretsFile);
 
-    const sharedSecrets = loadSecrets({
+    const sharedSecrets = loadSecretsFromJson5({
       rootDir: secretsRoot,
       sharedFile: sharedFileName,
     });
-    const devSecrets = loadSecrets({
+    const devSecrets = loadSecretsFromJson5({
       profile: "dev",
       rootDir: secretsRoot,
       sharedFile: sharedFileName,
     });
-    const prodSecrets = loadSecrets({
+    const prodSecrets = loadSecretsFromJson5({
       profile: "prod",
       rootDir: secretsRoot,
       sharedFile: sharedFileName,
