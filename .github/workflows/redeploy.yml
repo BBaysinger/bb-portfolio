@@ -63,14 +63,23 @@ on:
 
 jobs:
   deploy:
-    name: SSH redeploy on EC2
+    name: SSH redeploy (${{ matrix.target }})
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    environment: ${{ matrix.target }}
+    if: >-
+      (inputs.environment == 'both' && matrix.target == 'prod') ||
+      (inputs.environment == 'both' && matrix.target == 'dev' && (inputs.start_dev == 'true' || inputs.start_dev == true)) ||
+      inputs.environment == matrix.target
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [prod, dev]
     # Prevent overlapping prod/dev redeploys from stepping on each other.
     # Use per-environment concurrency so prod and dev can proceed independently.
     # If environment == 'both', fall back to a single global group.
     concurrency:
-      group: "redeploy-${{ inputs.environment == 'both' && 'global' || inputs.environment }}"
+      group: ${{ inputs.environment == 'both' && 'redeploy-global' || format('redeploy-{0}', matrix.target) }}
       cancel-in-progress: true
     steps:
       - name: Checkout
@@ -106,7 +115,7 @@ jobs:
 
       - name: Validate required inputs
         env:
-          ENVIRONMENT: ${{ inputs.environment }}
+          ENVIRONMENT: ${{ matrix.target }}
           EC2_HOST: ${{ secrets.EC2_HOST }}
           REFRESH_ENV: ${{ inputs.refresh_env }}
         run: |
@@ -119,19 +128,35 @@ jobs:
         id: genenv
         if: ${{ inputs.refresh_env == 'true' || inputs.refresh_env == true }}
         env:
-          PROFILES: ${{ inputs.environment }}
-        run: |
-          set -euo pipefail
-          profiles="$PROFILES"
-          if [ "$profiles" = "both" ]; then
-            profiles="prod,dev"
-          fi
-          PROFILES="$profiles" bash deploy/scripts/actions/generate-env-files.sh
+          PROFILES: ${{ matrix.target }}
+          GENERATE_ENV_FROM_ENV: "true"
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          S3_REGION: ${{ secrets.S3_REGION }}
+          S3_BUCKET: ${{ secrets.S3_BUCKET }}
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+          PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
+          FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
+          PUBLIC_SERVER_URL: ${{ secrets.PUBLIC_SERVER_URL }}
+          BACKEND_INTERNAL_URL: ${{ secrets.BACKEND_INTERNAL_URL }}
+          PUBLIC_PROJECTS_BUCKET: ${{ secrets.PUBLIC_PROJECTS_BUCKET }}
+          PUBLIC_PROJECTS_PREFIX: ${{ secrets.PUBLIC_PROJECTS_PREFIX }}
+          NDA_PROJECTS_BUCKET: ${{ secrets.NDA_PROJECTS_BUCKET }}
+          NDA_PROJECTS_PREFIX: ${{ secrets.NDA_PROJECTS_PREFIX }}
+          SES_FROM_EMAIL: ${{ secrets.SES_FROM_EMAIL }}
+          SES_TO_EMAIL: ${{ secrets.SES_TO_EMAIL }}
+          SMTP_FROM_EMAIL: ${{ secrets.SMTP_FROM_EMAIL }}
+          SECURITY_TXT_EXPIRES: ${{ secrets.SECURITY_TXT_EXPIRES }}
+          REQUIRED_ENVIRONMENT_VARIABLES: ${{ secrets.REQUIRED_ENVIRONMENT_VARIABLES }}
+          NEXT_PUBLIC_RUM_APP_MONITOR_ID: ${{ secrets.NEXT_PUBLIC_RUM_APP_MONITOR_ID }}
+          NEXT_PUBLIC_RUM_IDENTITY_POOL_ID: ${{ secrets.NEXT_PUBLIC_RUM_IDENTITY_POOL_ID }}
+          NEXT_PUBLIC_RUM_GUEST_ROLE_ARN: ${{ secrets.NEXT_PUBLIC_RUM_GUEST_ROLE_ARN }}
+          NEXT_PUBLIC_RUM_REGION: ${{ secrets.NEXT_PUBLIC_RUM_REGION }}
+        run: bash deploy/scripts/actions/generate-env-files.sh
 
       - name: Upload env files to EC2
         if: ${{ inputs.refresh_env == 'true' || inputs.refresh_env == true }}
         env:
-          ENVIRONMENT: ${{ inputs.environment }}
+          ENVIRONMENT: ${{ matrix.target }}
           START_DEV: ${{ inputs.start_dev }}
           EC2_HOST: ${{ secrets.EC2_HOST }}
           OUT_DIR: ${{ steps.genenv.outputs.dir }}
@@ -146,13 +171,13 @@ jobs:
       - name: Sync Nginx config and reload
         env:
           EC2_HOST: ${{ secrets.EC2_HOST }}
-          ENVIRONMENT: ${{ inputs.environment }}
+          ENVIRONMENT: ${{ matrix.target }}
         run: bash deploy/scripts/actions/sync-nginx.sh "${{ steps.ssh.outputs.key }}"
 
       - name: (Re)start containers
         if: ${{ inputs.restart_containers == 'true' || inputs.restart_containers == true }}
         env:
-          ENVIRONMENT: ${{ inputs.environment }}
+          ENVIRONMENT: ${{ matrix.target }}
           START_DEV: ${{ inputs.start_dev }}
           EC2_HOST: ${{ secrets.EC2_HOST }}
         run: bash deploy/scripts/actions/restart-containers.sh "${{ steps.ssh.outputs.key }}"
@@ -160,14 +185,14 @@ jobs:
       - name: Diagnose services (containers and nginx)
         if: failure()
         env:
-          ENVIRONMENT: ${{ inputs.environment }}
+          ENVIRONMENT: ${{ matrix.target }}
           EC2_HOST: ${{ secrets.EC2_HOST }}
         run: bash deploy/scripts/actions/diagnose-services.sh "${{ steps.ssh.outputs.key }}"
 
       - name: Health checks
         if: always()
         env:
-          ENVIRONMENT: ${{ inputs.environment }}
+          ENVIRONMENT: ${{ matrix.target }}
           START_DEV: ${{ inputs.start_dev }}
           EC2_HOST: ${{ secrets.EC2_HOST }}
           # Use extended defaults aligned with container start_period and grace logic
@@ -183,6 +208,6 @@ jobs:
       - name: Dump container logs on failure
         if: failure()
         env:
-          ENVIRONMENT: ${{ inputs.environment }}
+          ENVIRONMENT: ${{ matrix.target }}
           EC2_HOST: ${{ secrets.EC2_HOST }}
         run: bash deploy/scripts/actions/dump-logs.sh "${{ steps.ssh.outputs.key }}"

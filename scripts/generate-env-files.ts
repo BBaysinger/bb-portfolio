@@ -16,7 +16,11 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { loadSecrets, SecretBundle } from "./lib/secrets";
+import {
+  loadSecrets,
+  type SecretBundle,
+  canonicalEnvKeys,
+} from "./lib/secrets";
 
 type Profile = "prod" | "dev" | string;
 type Target = "backend" | "frontend";
@@ -32,8 +36,50 @@ type EnvWriters = Record<
   (profile: Profile, secrets: SecretBundle) => string
 >;
 
+const ADDITIONAL_ENV_KEYS = ["S3_REGION"] as const;
+
+const preferEnvSource =
+  process.env.GENERATE_ENV_FROM_ENV === "true" ||
+  process.env.GITHUB_ACTIONS === "true";
+
+const collectEnvSecrets = () => {
+  const keys = new Set<string>([...canonicalEnvKeys, ...ADDITIONAL_ENV_KEYS]);
+  const entries: [string, string][] = [];
+  for (const key of keys) {
+    const value = process.env[key];
+    if (value !== undefined && value !== "") {
+      entries.push([key, value]);
+    }
+  }
+  return Object.fromEntries(entries);
+};
+
+const sharedEnvSecrets = collectEnvSecrets();
+const hasEnvSecrets = Object.keys(sharedEnvSecrets).length > 0;
+const usingEnvSecrets = preferEnvSource && hasEnvSecrets;
+
+const ensureProfileModeCompatibility = (profiles: Profile[]) => {
+  if (preferEnvSource && !hasEnvSecrets) {
+    throw new Error(
+      "Env-source mode requested but no matching environment variables were found. Ensure the workflow exports the canonical secrets before running this script.",
+    );
+  }
+  if (usingEnvSecrets && profiles.length > 1) {
+    throw new Error(
+      "Environment-sourced generation supports one profile per run. Invoke the script separately for each environment.",
+    );
+  }
+};
+
 const DEFAULT_PROFILES: Profile[] = ["prod", "dev"];
 const DEFAULT_TARGETS: Target[] = ["backend", "frontend"];
+
+const resolveSecrets = (profile: Profile): SecretBundle => {
+  if (usingEnvSecrets) {
+    return { strings: { ...sharedEnvSecrets }, files: {} };
+  }
+  return loadSecrets({ profile });
+};
 
 const writers: EnvWriters = {
   backend(profile, secrets) {
@@ -179,9 +225,10 @@ const parseCli = (): CliOptions => {
 const writeEnvFiles = (options: CliOptions) => {
   const { outDir, profiles, targets } = options;
   mkdirSync(outDir, { recursive: true });
+  ensureProfileModeCompatibility(profiles);
 
   for (const profile of profiles) {
-    const secrets = loadSecrets({ profile });
+    const secrets = resolveSecrets(profile);
     for (const target of targets) {
       const writer = writers[target];
       const content = writer(profile, secrets);
