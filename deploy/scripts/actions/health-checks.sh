@@ -107,8 +107,8 @@ curl_with_retry() {
       echo "OK $label HTTP $code" >&2; return 0
     fi
     attempt=$((attempt+1))
-    if [[ "$code" == "000" && $attempt -lt "$CURL_ATTEMPTS" ]]; then
-      echo "Transient $label code 000 (attempt $attempt/$CURL_ATTEMPTS)" >&2; sleep "$CURL_DELAY"; continue
+    if [[ "$code" == 0* && $attempt -lt "$CURL_ATTEMPTS" ]]; then
+      echo "Transient $label code $code (attempt $attempt/$CURL_ATTEMPTS)" >&2; sleep "$CURL_DELAY"; continue
     fi
     echo "Attempt $attempt/$CURL_ATTEMPTS $label code=$code" >&2
     sleep "$CURL_DELAY"
