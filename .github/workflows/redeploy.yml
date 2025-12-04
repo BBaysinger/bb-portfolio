@@ -67,14 +67,14 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     environment: ${{ matrix.target }}
-    if: >-
-      (inputs.environment == 'both' && matrix.target == 'prod') ||
-      (inputs.environment == 'both' && matrix.target == 'dev' && (inputs.start_dev == 'true' || inputs.start_dev == true)) ||
-      inputs.environment == matrix.target
     strategy:
       fail-fast: false
       matrix:
-        target: [prod, dev]
+        target: ${{ fromJson(
+          inputs.environment == 'both'
+            ? ((inputs.start_dev == 'true' || inputs.start_dev == true) ? '["prod","dev"]' : '["prod"]')
+            : format('["{0}"]', inputs.environment)
+        ) }}
     # Prevent overlapping prod/dev redeploys from stepping on each other.
     # Use per-environment concurrency so prod and dev can proceed independently.
     # If environment == 'both', fall back to a single global group.
