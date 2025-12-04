@@ -237,31 +237,23 @@ Operational notes:
 
 - If SSM permissions or agent are missing, the orchestrator will log a clear warning and proceed without SSM repair.
 - After SSM repair or reboot, the orchestrator re-probes ports and continues; SSH-dependent steps remain disabled for that run to keep promotion timely.
-  \n+### Containers-Only Mode
-  \n+Use `--containers-only` to skip all Terraform and host-level configuration steps. In this mode the orchestrator:
-  \n+- Does NOT plan/apply infrastructure
+
+### Skip-Infra Mode
+
+Use `--skip-infra` to skip all Terraform and host-level configuration steps. (`--pull-latest-tags-only` and `--containers-only` remain as temporary aliases.) In this mode the orchestrator:
+
+- Does **not** plan/apply infrastructure
 - Skips single-controller host enforcement and nginx config sync
 - Skips HTTPS certificate ensure
-- Still builds & pushes images (prod ECR + dev Docker Hub)
+- Still builds & pushes images (prod ECR + dev Docker Hub) unless `--no-build`
 - Updates GitHub Actions secrets (including `EC2_HOST` to candidate IP)
 - Dispatches redeploy workflows which restart containers via SSH on the existing host
-  \n+This is ideal for rapid iteration when infra is already stable and only container images / env regeneration are needed. If you need nginx template or cert changes, omit `--containers-only` so host sync runs.
-  \n+### Mandatory Candidate SSH Connectivity
-  \n+Early in every run (full or containers-only) the script resolves the candidate (blue) IP and performs an SSH connectivity test. If SSH fails the run aborts immediately. This prevents false-success scenarios where containers would appear to deploy but host configuration (nginx, certs, env files) could not actually be applied.
 
-### Containers-Only Mode
+This mode is ideal when infra is stable and you only need refreshed containers or regenerated env files. If you need nginx, cert, or host config changes, omit `--skip-infra` so host sync runs.
 
-Use `--containers-only` to skip all Terraform and host-level configuration steps. In this mode the orchestrator:
+### Mandatory Candidate SSH Connectivity
 
-- Does NOT plan/apply infrastructure
-  proxy_set_header Upgrade $http_upgrade;
-  proxy_set_header Connection "Upgrade";
-
-```
-
-\n+During sync the orchestrator automatically deletes any leftover `00-websocket-upgrade.conf` map file. If you later need conditional behavior, reintroduce a map in a dedicated conf fragment, but keep container and template changes in sync.
-
-```
+Early in every run (full or pull-only) the script resolves the candidate (blue) IP and performs an SSH connectivity test. If SSH fails the run aborts immediately to avoid false-success scenarios where containers appear updated but host config could not be applied.
 
 ### Health Check Strategy (Retry & Poll)
 

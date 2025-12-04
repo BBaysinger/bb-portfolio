@@ -33,7 +33,8 @@ die() { err "$*"; exit 1; }
 
 force_destroy=false
 do_destroy=true
-do_infra=true       # allow containers-only mode
+do_infra=true       # allow skip-infra mode
+skip_infra=false
 build_images=""   # prod|dev|both|""
 profiles="both"   # prod|dev|both
 workflows="redeploy.yml" # comma-separated list of workflow names or filenames to trigger (e.g., 'Redeploy' or 'redeploy.yml')
@@ -52,7 +53,9 @@ Options:
   --no-build              Disable image build/push
   --profiles [val]        Which profiles to start in GH: prod|dev|both (default: both)
   --no-destroy            Do not destroy EC2 infra; only terraform apply
-  --containers-only       Skip all Terraform/infra steps (no destroy/apply)
+  --skip-infra            Skip all Terraform/infra steps (no destroy/apply)
+  --pull-latest-tags-only Deprecated alias for --skip-infra
+  --containers-only       Deprecated alias for --skip-infra
   --gh-workflows [names]  Comma-separated workflow names to trigger (default: Redeploy)
   --refresh-env           Ask GH workflow to regenerate & upload .env files (default: false)
   --no-restart            Do not restart containers in GH workflow (default: restart)
@@ -73,7 +76,20 @@ while [[ $# -gt 0 ]]; do
     --profiles)
       profiles="${2:-}"; [[ "$profiles" =~ ^(prod|dev|both)$ ]] || die "--profiles must be prod|dev|both"; shift 2 ;;
     --no-destroy) do_destroy=false; shift ;;
-    --containers-only) do_infra=false; shift ;;
+    --skip-infra)
+      do_infra=false
+      skip_infra=true
+      shift ;;
+    --pull-latest-tags-only)
+      warn "--pull-latest-tags-only is deprecated; use --skip-infra"
+      do_infra=false
+      skip_infra=true
+      shift ;;
+    --containers-only)
+      warn "--containers-only is deprecated; use --skip-infra"
+      do_infra=false
+      skip_infra=true
+      shift ;;
     --gh-workflows)
       workflows="${2:-}"; [[ -n "$workflows" ]] || die "--gh-workflows requires at least one name"; shift 2 ;;
     --refresh-env) refresh_env=true; shift ;;
@@ -116,8 +132,12 @@ pushd "$REPO_ROOT" >/dev/null
 log "Installing npm deps if needed"
 [[ -d node_modules ]] || npm install
 
-if [[ "$do_infra" == true ]]; then
-  log "Generating terraform.tfvars from private secrets"
+if [[ "$do_infra" != true ]]; then
+  if [[ "$skip_infra" == true ]]; then
+    warn "Skipping Terraform/infra per --skip-infra"
+  else
+    warn "Skipping Terraform/infra per operator request"
+  fi
   npx tsx ./deploy/scripts/generate-terraform-vars.ts
 fi
 
@@ -137,9 +157,9 @@ if [[ -n "$build_images" ]]; then
 fi
 
 # Terraform: optional targeted destroy preserving S3/ECR/EIP, then apply
-if [[ "$do_infra" == true ]]; then
-  pushd "$INFRA_DIR" >/dev/null
-  log "Initializing Terraform"
+if [[ "$do_infra" != true ]]; then
+  if [[ "$skip_infra" == true ]]; then
+    warn "Discovery: skipping Terraform (skip-infra mode)"
   terraform init -input=false
 
   if [[ "$do_destroy" == true ]]; then
@@ -221,7 +241,11 @@ if [[ "$do_infra" == true ]]; then
     warn "EC2 IP not detected from Terraform outputs; skipping secrets IP update"
   fi
 else
-  warn "Skipping Terraform/infra per --containers-only"
+  if [[ "$skip_infra" == true ]]; then
+    warn "Skipping Terraform/infra per --skip-infra"
+  else
+    warn "Skipping Terraform/infra per operator request"
+  fi
 fi
 
 # Sync secrets to GitHub (keeps GH secrets aligned with local private json5)
