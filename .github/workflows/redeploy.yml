@@ -69,13 +69,15 @@ jobs:
     environment: ${{ matrix.target }}
     strategy:
       fail-fast: false
-      matrix:
-        target: >-
-          ${{ fromJson(
-            inputs.environment == 'both'
-              ? ((inputs.start_dev == 'true' || inputs.start_dev == true) ? '["prod","dev"]' : '["prod"]')
-              : format('["{0}"]', inputs.environment)
-          ) }}
+      matrix: ${{ fromJson(
+        inputs.environment == 'both'
+          ? (
+              (inputs.start_dev == 'true' || inputs.start_dev == true)
+                ? '{"target":["prod","dev"]}'
+                : '{"target":["prod"]}'
+            )
+          : format('{{"target":["{0}"]}}', inputs.environment)
+      ) }}
     # Prevent overlapping prod/dev redeploys from stepping on each other.
     # Use per-environment concurrency so prod and dev can proceed independently.
     # If environment == 'both', fall back to a single global group.
