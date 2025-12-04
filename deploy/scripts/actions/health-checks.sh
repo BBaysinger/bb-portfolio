@@ -7,6 +7,8 @@ START_DEV="${START_DEV:-true}"
 ATTEMPTS="${HEALTH_ATTEMPTS:-12}"; DELAY="${HEALTH_DELAY_SECONDS:-5}"
 CURL_ATTEMPTS="${CURL_ATTEMPTS:-3}"; CURL_DELAY="${CURL_DELAY_SECONDS:-2}"
 CURL_MAX_TIME="${CURL_MAX_TIME_SECONDS:-3}"; CURL_CONNECT_TIMEOUT_SEC="${CURL_CONNECT_TIMEOUT:-1}"
+CURL_ZERO_EXTRA_ATTEMPTS="${CURL_ZERO_EXTRA_ATTEMPTS:-6}"
+CURL_ZERO_DELAY="${CURL_ZERO_DELAY_SECONDS:-$CURL_DELAY}"
 GRACE="${HEALTH_STARTING_GRACE_SECONDS:-40}" # Allow backend health: starting state for this many seconds
 POST_GRACE_WAIT="${HEALTH_POST_GRACE_WAIT_SECONDS:-$GRACE}" # Additional wait before HTTP checks if we relied on grace
 
@@ -100,18 +102,25 @@ maybe_wait_post_grace() {
 }
 
 curl_with_retry() {
-  local port="$1"; local path="$2"; local label="$3"; local attempt=0; local code=""
+  local port="$1"; local path="$2"; local label="$3"
+  local attempt=0; local code=""; local zero_retry_count=0
+  local zero_limit="$CURL_ZERO_EXTRA_ATTEMPTS"
   while [ $attempt -lt "$CURL_ATTEMPTS" ]; do
-    code=$(ssh_cmd "curl --max-time ${CURL_MAX_TIME} --connect-timeout ${CURL_CONNECT_TIMEOUT_SEC} -s -o /dev/null -w '%{http_code}' http://localhost:${port}${path} -L" || echo '000')
+    code=$(ssh_cmd "curl --max-time ${CURL_MAX_TIME} --connect-timeout ${CURL_CONNECT_TIMEOUT_SEC} -s -o /dev/null -w '%{http_code}' http://localhost:${port}${path} -L" || echo '000000')
     if [[ "$code" == 2* || "$code" == 3* ]]; then
       echo "OK $label HTTP $code" >&2; return 0
     fi
-    attempt=$((attempt+1))
-    if [[ "$code" == 0* && $attempt -lt "$CURL_ATTEMPTS" ]]; then
-      echo "Transient $label code $code (attempt $attempt/$CURL_ATTEMPTS)" >&2; sleep "$CURL_DELAY"; continue
+
+    if [[ "$code" == 0* && "$zero_limit" -gt 0 && $zero_retry_count -lt "$zero_limit" ]]; then
+      zero_retry_count=$((zero_retry_count+1))
+      echo "Transient $label code $code (zero retry $zero_retry_count/$zero_limit)" >&2
+      sleep "$CURL_ZERO_DELAY"
+      continue
     fi
+
+    attempt=$((attempt+1))
     echo "Attempt $attempt/$CURL_ATTEMPTS $label code=$code" >&2
-    sleep "$CURL_DELAY"
+    if [ $attempt -lt "$CURL_ATTEMPTS" ]; then sleep "$CURL_DELAY"; fi
   done
   echo "WARN: $label unhealthy after $CURL_ATTEMPTS attempts (last code=$code)" >&2
   return 1
