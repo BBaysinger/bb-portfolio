@@ -680,7 +680,7 @@ New decisions should be appended chronologically.
   - `--profiles prod|dev|both` choose which environment(s) to deploy.
   - Images are always rebuilt and pushed automatically (both frontend and backend) to ensure consistency.
   - `--reuse-blue` skip blue instance recreation (faster but may have stale state; default is to recreate).
-  - `--containers-only` skip Terraform entirely and only (re)start containers/workflows.
+  - `--skip-infra` skips Terraform entirely and only (re)starts containers/workflows (legacy `--pull-latest-tags-only`/`--containers-only` aliases retained temporarily).
   - `--refresh-env` ask the workflow to regenerate `.env.dev/.env.prod` on EC2.
   - `--promote` trigger EIP handover after successful candidate deployment.
   - `--auto-promote` skip handover confirmation prompt (for CI/CD automation).

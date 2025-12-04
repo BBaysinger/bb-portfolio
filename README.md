@@ -299,7 +299,7 @@ Other UI details: scroll‑aware navigation, mobile slide‑out menu, dynamic de
   npm run sync:secrets:prod
 
   # Everything (repo + all envs) in one shot
-  npm run sync:secrets:all
+  npm run sync:secrets
 
   # Optional future stage environment (skips dev/prod automatically)
   npm run sync:secrets:stage

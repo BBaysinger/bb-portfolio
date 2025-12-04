@@ -92,7 +92,7 @@ export AWS_SECRET_ACCESS_KEY="$AWS_SECRET_ACCESS_KEY_VAL"
 
 BACKEND_SECRET_FLAGS=()
 for key in mongodb_uri payload_secret frontend_url s3_bucket aws_region ses_from_email ses_to_email smtp_from_email backend_internal_url public_server_url; do
-	env_var="${key^^}"
+	env_var="$(printf '%s' "$key" | tr '[:lower:]' '[:upper:]')"
 	add_secret "$key" "$env_var"
 done
 

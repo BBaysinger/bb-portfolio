@@ -9,7 +9,7 @@
 # - If the workflow dispatch fails, falls back to a safe SSH path to restart
 #   Compose profiles directly on the instance.
 # - First-time friendly: if no EC2 exists yet, Terraform apply will create it.
-#   By default, existing instances are preserved; use --destroy to recreate; use --containers-only to skip infra entirely.
+#   By default, existing instances are preserved; use --destroy to recreate; use --skip-infra to bypass Terraform/host maintenance.
 #
 # Runtime architecture on EC2:
 # - Reverse proxy: Nginx on the host forwards traffic to Compose services.
@@ -63,7 +63,8 @@ die() { err "$*"; exit 1; }
 
 force_destroy=false
 do_destroy=false    # Changed: preserve EC2 by default
-do_infra=true       # allow containers-only mode
+do_infra=true       # allow skip-infra mode
+skip_infra=false
 build_images=""   # prod|dev|both|""
 profiles="both"   # prod|dev|both
 workflows="redeploy.yml" # comma-separated list of workflow names or filenames to trigger (e.g., 'Redeploy' or 'redeploy.yml')
@@ -84,7 +85,10 @@ Options:
   --no-build              Disable image build/push
   --profiles [val]        Which profiles to start in GH: prod|dev|both (default: both)
   --destroy               Destroy and recreate EC2 infra (default: preserve existing)
-  --containers-only       Skip all Terraform/infra steps (no destroy/apply)
+  --skip-infra            Skip Terraform/infra; just rebuild/push (unless --no-build) and redeploy containers
+  --pull-latest-tags-only Deprecated alias for --skip-infra
+  --containers-only       Deprecated alias for --skip-infra
+  --rebuild-images        Convenience flag; same as --build-images both
   --gh-workflows [names]  Comma-separated workflow names to trigger (default: Redeploy)
   --refresh-env           Ask GH workflow to regenerate & upload .env files (default: false)
   --no-restart            Do not restart containers in GH workflow (default: restart)
@@ -107,7 +111,26 @@ while [[ $# -gt 0 ]]; do
     --profiles|--profile)
       profiles="${2:-}"; [[ "$profiles" =~ ^(prod|dev|both)$ ]] || die "--profiles must be prod|dev|both"; shift 2 ;;
     --destroy) do_destroy=true; shift ;;
-    --containers-only) do_infra=false; shift ;;
+    --skip-infra)
+      do_infra=false
+      skip_infra=true
+      shift ;;
+    --pull-latest-tags-only)
+      warn "--pull-latest-tags-only is deprecated; use --skip-infra"
+      do_infra=false
+      skip_infra=true
+      shift ;;
+    --containers-only)
+      warn "--containers-only is deprecated; use --skip-infra"
+      do_infra=false
+      skip_infra=true
+      shift ;;
+    --rebuild-images)
+      if [[ -n "$build_images" && "$build_images" != "both" ]]; then
+        warn "--rebuild-images overrides previous --build-images value '$build_images'"
+      fi
+      build_images="both"
+      shift ;;
     --gh-workflows)
       workflows="${2:-}"; [[ -n "$workflows" ]] || die "--gh-workflows requires at least one name"; shift 2 ;;
     --refresh-env) refresh_env=true; shift ;;
@@ -167,7 +190,11 @@ fi
 # ---------------------------
 tf_discovery() {
   if [[ "$do_infra" != true ]]; then
-    warn "Discovery: skipping Terraform (containers-only mode)"
+    if [[ "$skip_infra" == true ]]; then
+      warn "Discovery: skipping Terraform (skip-infra mode)"
+    else
+      warn "Discovery: skipping Terraform per operator flag"
+    fi
     return 0
   fi
   pushd "$INFRA_DIR" >/dev/null
@@ -373,12 +400,21 @@ if [[ "$do_infra" == true ]]; then
   # Defer enforcement/HTTPS until functions are defined below
   POST_ENFORCE_HOST="${EC2_IP:-}"
 else
-  warn "Skipping Terraform/infra per --containers-only"
+  if [[ "$skip_infra" == true ]]; then
+    warn "Skipping Terraform/infra per --skip-infra (container refresh only)"
+  else
+    warn "Skipping Terraform/infra per operator request"
+  fi
 fi
 
 # Always sync secrets to GitHub (keeps GH secrets aligned with local private json5)
-log "Syncing GitHub secrets from private json5${secrets_sync_args[*]:+ (extra flags: ${secrets_sync_args[*]})}"
-npx tsx ./scripts/sync-github-secrets.ts BBaysinger/bb-portfolio .github-secrets.private.json5 "${secrets_sync_args[@]}"
+if ((${#secrets_sync_args[@]} > 0)); then
+  log "Syncing GitHub secrets from private json5 (extra flags: ${secrets_sync_args[*]})"
+  npx tsx ./scripts/sync-github-secrets.ts BBaysinger/bb-portfolio .github-secrets.private.json5 "${secrets_sync_args[@]}"
+else
+  log "Syncing GitHub secrets from private json5"
+  npx tsx ./scripts/sync-github-secrets.ts BBaysinger/bb-portfolio .github-secrets.private.json5
+fi
 
 # Resolve EC2 host without relying on viewing GitHub Secrets values
 resolve_ec2_host() {
@@ -625,7 +661,7 @@ if [[ -z "${EC2_IP:-}" ]]; then
     ensure_ssl_blocks "$EC2_HOST_RESOLVE"
     ensure_cloudwatch_agent "$EC2_HOST_RESOLVE"
   else
-    warn "Single-controller guard: no host resolved (containers-only), skipping"
+    warn "Single-controller guard: no host resolved (skip-infra mode), skipping"
   fi
 fi
 
