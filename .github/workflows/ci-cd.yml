@@ -275,9 +275,9 @@ jobs:
     secrets: inherit
     with:
       environment: prod
-      start_dev: false
-      refresh_env: true
-      restart_containers: true
+      start_dev: ${{ 'false' }}
+      refresh_env: ${{ 'true' }}
+      restart_containers: ${{ 'true' }}
 
   # Build and push dev images to Docker Hub (dev branch or manual)
   build-push-dev-images:
@@ -344,6 +344,6 @@ jobs:
     secrets: inherit
     with:
       environment: dev
-      start_dev: true
-      refresh_env: true # Always regenerate .env files on dev for convenience while iterating
-      restart_containers: true
+      start_dev: ${{ 'true' }}
+      refresh_env: ${{ 'true' }} # Always regenerate .env files on dev for convenience while iterating
+      restart_containers: ${{ 'true' }}
