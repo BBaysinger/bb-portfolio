@@ -525,6 +525,72 @@ ensure_https_certs() {
       echo "certbot not installed on host; skipping HTTPS ensure";
     fi'
 }
+
+# Ensure nginx can read TLS assets and install a renewal hook to keep perms aligned.
+ensure_cert_permissions() {
+  local host="$1"
+  local key="$HOME/.ssh/bb-portfolio-site-key.pem"
+  [[ -n "$host" ]] || return 0
+  if [[ ! -f "$key" ]]; then
+    warn "Cert permission ensure skipped: SSH key not found at $key"
+    return 0
+  fi
+  log "Ensuring certificate permissions for nginx on $host"
+  ssh -i "$key" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$host" <<'SSH'
+set -e
+if [ ! -d /etc/letsencrypt ]; then
+  echo "/etc/letsencrypt absent; skipping cert permission enforcement"
+  exit 0
+fi
+HOOK=/etc/letsencrypt/renewal-hooks/deploy/ensure-nginx-cert-perms.sh
+sudo mkdir -p /etc/letsencrypt/renewal-hooks/deploy
+sudo tee "$HOOK" >/dev/null <<'HOOK'
+#!/bin/bash
+set -euo pipefail
+shopt -s nullglob
+export PATH="/usr/sbin:/usr/bin:/sbin:/bin:$PATH"
+
+DOMAIN="bbaysinger.com"
+GROUP="nginx"
+
+fix_dir() {
+  local dir="$1"
+  [[ -d "$dir" ]] || return 0
+  chgrp "$GROUP" "$dir" || true
+  chmod 750 "$dir" || true
+}
+
+fix_file() {
+  local file="$1"
+  [[ -e "$file" ]] || return 0
+  chgrp "$GROUP" "$file" || true
+  chmod 640 "$file" || true
+}
+
+DIRS=(
+  "/etc/letsencrypt"
+  "/etc/letsencrypt/live"
+  "/etc/letsencrypt/live/${DOMAIN}"
+  "/etc/letsencrypt/archive"
+  "/etc/letsencrypt/archive/${DOMAIN}"
+)
+
+for dir in "${DIRS[@]}"; do
+  fix_dir "$dir"
+done
+
+fix_file "/etc/letsencrypt/live/${DOMAIN}/privkey.pem"
+fix_file "/etc/letsencrypt/live/${DOMAIN}/fullchain.pem"
+
+for file in /etc/letsencrypt/archive/${DOMAIN}/privkey*.pem; do
+  fix_file "$file"
+done
+HOOK
+sudo chmod 750 "$HOOK"
+sudo chown root:root "$HOOK"
+sudo "$HOOK" || true
+SSH
+}
 # Ensure the canonical compose file exists on the host under deploy/compose/
 ensure_remote_compose() {
   local host="$1"
@@ -658,6 +724,7 @@ if [[ -z "${EC2_IP:-}" ]]; then
     ensure_remote_compose "$EC2_HOST_RESOLVE"
     sync_nginx_config "$EC2_HOST_RESOLVE"
     ensure_https_certs "$EC2_HOST_RESOLVE" "${ACME_EMAIL:-}"
+    ensure_cert_permissions "$EC2_HOST_RESOLVE"
     ensure_ssl_blocks "$EC2_HOST_RESOLVE"
     ensure_cloudwatch_agent "$EC2_HOST_RESOLVE"
   else
@@ -671,6 +738,7 @@ if [[ -n "${POST_ENFORCE_HOST:-}" ]]; then
   ensure_remote_compose "${POST_ENFORCE_HOST}"
   sync_nginx_config "${POST_ENFORCE_HOST}"
   ensure_https_certs "${POST_ENFORCE_HOST}" "${ACME_EMAIL:-}"
+  ensure_cert_permissions "${POST_ENFORCE_HOST}"
   ensure_ssl_blocks "${POST_ENFORCE_HOST}"
   ensure_cloudwatch_agent "${POST_ENFORCE_HOST}"
 fi
