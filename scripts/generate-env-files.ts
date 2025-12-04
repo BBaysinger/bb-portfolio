@@ -88,6 +88,9 @@ const writers: EnvWriters = {
       secrets.strings[key] ?? fallback;
     const awsRegion = get("AWS_REGION", get("S3_REGION", "us-west-2"));
 
+    const resolvedPublicServer = get("PUBLIC_SERVER_URL", get("FRONTEND_URL"));
+    const payloadServerOverride = get("PAYLOAD_PUBLIC_SERVER_URL", resolvedPublicServer);
+
     const lines = [
       `NODE_ENV=${isProd ? "production" : "development"}`,
       `ENV_PROFILE=${profile}`,
@@ -115,7 +118,8 @@ const writers: EnvWriters = {
       `NDA_PROJECTS_PREFIX=${get("NDA_PROJECTS_PREFIX")}`,
       "",
       `FRONTEND_URL=${get("FRONTEND_URL")}`,
-      `PUBLIC_SERVER_URL=${get("PUBLIC_SERVER_URL", get("FRONTEND_URL"))}`,
+      `PUBLIC_SERVER_URL=${resolvedPublicServer}`,
+      `PAYLOAD_PUBLIC_SERVER_URL=${payloadServerOverride}`,
       `BACKEND_INTERNAL_URL=${get(
         "BACKEND_INTERNAL_URL",
         isProd
