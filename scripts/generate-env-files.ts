@@ -69,6 +69,7 @@ const writers: EnvWriters = {
       `NDA_PROJECTS_PREFIX=${get("NDA_PROJECTS_PREFIX")}`,
       "",
       `FRONTEND_URL=${get("FRONTEND_URL")}`,
+      `PUBLIC_SERVER_URL=${get("PUBLIC_SERVER_URL", get("FRONTEND_URL"))}`,
       `BACKEND_INTERNAL_URL=${get(
         "BACKEND_INTERNAL_URL",
         isProd
