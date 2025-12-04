@@ -400,6 +400,6 @@
   // Root-level runtime deps used by maintenance scripts (prefer package-level deps when possible)
   "dependencies": {
     // JWT utilities used by local maintenance scripts
-    "jsonwebtoken": "^9.0.2",
+    "jsonwebtoken": "^9.0.3",
   },
 }

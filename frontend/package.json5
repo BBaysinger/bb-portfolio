@@ -53,7 +53,7 @@
     // Professional animation library for smooth UI transitions
     "gsap": "^3.13.0",
     // HTTP client for making API requests
-    "jsonwebtoken": "^9.0.2",
+    "jsonwebtoken": "^9.0.3",
     //
     "next": "^16.0.7",
     // React library for building user interfaces (v19 for latest features)

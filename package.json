@@ -143,6 +143,6 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
-    "jsonwebtoken": "^9.0.2"
+    "jsonwebtoken": "^9.0.3"
   }
 }
