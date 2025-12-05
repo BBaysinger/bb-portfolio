@@ -28,7 +28,7 @@ server {
 
     # Admin-specific Next static assets (path-based) — always from backend
     # Works even if the backend still emits assets under /_next/* before assetPrefix takes effect
-    location ~ ^/_next/static/(css|chunks)/app/(payload)/ {
+    location ~ ^/_next/static/(css|chunks)/app/\(payload\)/ {
         proxy_pass http://localhost:3001;
         proxy_http_version 1.1;
         proxy_set_header Host $host;
@@ -156,7 +156,7 @@ server {
 
     # Admin-specific Next static assets (path-based) — always from backend
     # Works even if the backend still emits assets under /_next/* before assetPrefix takes effect
-    location ~ ^/_next/static/(css|chunks)/app/(payload)/ {
+    location ~ ^/_next/static/(css|chunks)/app/\(payload\)/ {
         proxy_pass http://localhost:4001;
         proxy_http_version 1.1;
         proxy_set_header Host $host;
