@@ -1,3 +1,5 @@
+> **Monorepo Note:** This repo currently contains an interactive development portfolio _and_ a developer-oriented PaaS deployment orchestrator library; the orchestrator will spin out into its own repository soon.
+
 # Interactive UI / Frontend Systems Portfolio
 
 A production-grade exploration of interactive front-end architecture — combining handcrafted animation systems, experimental render strategies, and fully automated DevOps infrastructure.  
