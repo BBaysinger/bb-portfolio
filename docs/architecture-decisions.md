@@ -65,7 +65,7 @@ New decisions should be appended chronologically.
 - **Implementation:**
   - `frontend/package.json`: `dev` uses `next dev --webpack -p ${PORT:-3000}`; builds use `next build --webpack`.
   - `backend/package.json`: `build` updated to `next build --webpack` to satisfy Payload on Next 16.
-  - Local proxy (`caddy:up`) verified: frontend runs Next 16.0.4 (webpack) on port 3000; backend container healthy.
+  - Local proxy (`caddy:up`) verified: frontend runs Next 16.x.x (webpack) on port 3000; backend container healthy.
 - **Alternatives considered:**
   - Adopt Turbopack across dev/prod with custom config: deferred until Payload supports it in production and AWS RUM integration is validated.
   - Hybrid approach with per-route bundling: unnecessary complexity for current stack.
