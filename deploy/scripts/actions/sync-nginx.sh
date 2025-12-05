@@ -29,7 +29,7 @@ server {
   # Admin UI and assets → backend
   location ^~ /admin/ { proxy_pass http://127.0.0.1:3001; }
   location ^~ /admin/_next/ { proxy_pass http://127.0.0.1:3001; }
-  location ~ ^/_next/static/(css|chunks)/app/(payload)/ { proxy_pass http://127.0.0.1:3001; }
+  location ~ ^/_next/static/(css|chunks)/app/\(payload\)/ { proxy_pass http://127.0.0.1:3001; }
   location ~ ^/_next/static/media/payload- { proxy_pass http://127.0.0.1:3001; }
   location /api/ { proxy_pass http://127.0.0.1:3001; }
   location / { proxy_pass http://127.0.0.1:3000/; }
@@ -47,7 +47,7 @@ server {
   # Admin UI and assets → backend (dev)
   location ^~ /admin/ { proxy_pass http://127.0.0.1:4001; }
   location ^~ /admin/_next/ { proxy_pass http://127.0.0.1:4001; }
-  location ~ ^/_next/static/(css|chunks)/app/(payload)/ { proxy_pass http://127.0.0.1:4001; }
+  location ~ ^/_next/static/(css|chunks)/app/\(payload\)/ { proxy_pass http://127.0.0.1:4001; }
   location ~ ^/_next/static/media/payload- { proxy_pass http://127.0.0.1:4001; }
   location /api/ { proxy_pass http://127.0.0.1:4001; }
   location / { proxy_pass http://127.0.0.1:4000/; }
