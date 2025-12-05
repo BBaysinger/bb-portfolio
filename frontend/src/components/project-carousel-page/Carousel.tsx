@@ -97,15 +97,8 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
   } = props;
 
   const [scrollIndex, setScrollIndex] = useState(initialIndex);
-  const [wrapperWidth, setWrapperWidth] = useState(0);
+  const [wrapperWidth, setWrapperWidth] = useState<number>(0);
   const [snap, setSnap] = useState<"none" | "x mandatory">("none");
-  const [slideWidth, setSlideWidth] = useState(0);
-  const [scrollDirection, setScrollDirection] = useState<DirectionType>(
-    SlideDirection.LEFT,
-  );
-  const [stableIndexValue, setStableIndexValue] = useState(initialIndex);
-  const [debugScrollLeft, setDebugScrollLeft] = useState(0);
-
   const stabilizationTimer = useRef<NodeJS.Timeout | null>(null);
   const slideRefs = useRef<(HTMLDivElement | null)[]>([]);
   const scrollerRef = useRef<HTMLDivElement>(null);
@@ -117,20 +110,11 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
   const scrollDirectionRef = useRef<DirectionType>(SlideDirection.LEFT);
   const stableIndex = useRef<number | null>(initialIndex);
   const scrollIndexRef = useRef<number>(initialIndex);
-  const isMouseDragRef = useRef(false);
+  // Tracks whether current interaction is mouse drag (vs touch/scroll) for RUM analytics
+  const isMouseDragRef = useRef<boolean>(false);
 
-  const updateScrollDirection = useCallback((direction: DirectionType) => {
-    scrollDirectionRef.current = direction;
-    setScrollDirection(direction);
-  }, []);
-
-  const updateStableIndex = useCallback((nextIndex: number) => {
-    stableIndex.current = nextIndex;
-    setStableIndexValue(nextIndex);
-  }, []);
-
-  const getWrapperClass = (): string =>
-    clsx(
+  const getWrapperClass = (): string => {
+    const retVal = clsx(
       resolveClass("carousel", classNamePrefix, styles, styleMap),
       resolveClass(
         isSlaveMode ? "carouselSlave" : "carouselMaster",
@@ -140,12 +124,16 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
       ),
       resolveClass(`carousel${layerId}`, classNamePrefix, styles, styleMap),
     );
+    return retVal;
+  };
 
-  const getScrollerClass = (): string =>
-    resolveClass("carouselScroller", classNamePrefix, styles, styleMap);
+  const getScrollerClass = (): string => {
+    return resolveClass("carouselScroller", classNamePrefix, styles, styleMap);
+  };
 
-  const getSlideClass = (): string =>
-    resolveClass("carouselSlide", classNamePrefix, styles, styleMap);
+  const getSlideClass = (): string => {
+    return resolveClass("carouselSlide", classNamePrefix, styles, styleMap);
+  };
 
   const memoizedSlides = useMemo(() => slides, [slides]);
 
@@ -181,10 +169,10 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
       const index =
         typeof overrideScrollIndex === "number"
           ? overrideScrollIndex
-          : scrollIndex;
+          : scrollIndexRef.current;
       return ((index % slidesLength) + slidesLength) % slidesLength;
     },
-    [slides.length, scrollIndex],
+    [slides.length],
   );
 
   const dataIndex = useMemo(() => deriveDataIndex(), [deriveDataIndex]);
@@ -197,11 +185,11 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
     memoizedSlides.forEach((_, index) => {
       let multiplier: number | null = null;
       const threshold = 2;
-      if (scrollDirection === SlideDirection.LEFT) {
+      if (scrollDirectionRef.current === SlideDirection.LEFT) {
         multiplier = -Math.floor(
           (index - scrollIndex + threshold) / memoizedSlides.length,
         );
-      } else if (scrollDirection === SlideDirection.RIGHT) {
+      } else if (scrollDirectionRef.current === SlideDirection.RIGHT) {
         multiplier = Math.floor(
           (scrollIndex - index + threshold) / memoizedSlides.length,
         );
@@ -209,7 +197,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
         throw new Error("No scroll direction set.");
       }
       newMultipliers.push(multiplier);
-      const containerOffset = (wrapperWidth - slideWidth) / 2;
+      const containerOffset = (wrapperWidth - slideWidthRef.current) / 2;
       newPositions.push(
         Math.round(
           multiplier * slideSpacing * memoizedSlides.length +
@@ -233,17 +221,10 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
       multipliers: newMultipliers,
       offsets: newOffsets,
     };
-  }, [
-    scrollIndex,
-    wrapperWidth,
-    slideSpacing,
-    memoizedSlides,
-    scrollDirection,
-    slideWidth,
-  ]);
+  }, [scrollIndex, wrapperWidth, slideSpacing, memoizedSlides]);
 
   const updateIndexPerPosition = useCallback(
-    (scrollLeft: number, shouldUpdateStableIndex: boolean = true) => {
+    (scrollLeft: number, updateStableIndex: boolean = true) => {
       const totalSlides = memoizedSlides.length;
       const offset = scrollLeft - patchedOffset();
       const newScrollIndex = Math.round(offset / slideSpacing);
@@ -256,18 +237,18 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
             ? SlideDirection.LEFT
             : SlideDirection.RIGHT;
         if (newDirection !== scrollDirectionRef.current) {
-          updateScrollDirection(newDirection);
+          scrollDirectionRef.current = newDirection;
         }
         setScrollIndex(newScrollIndex);
         onIndexUpdate?.(newDataIndex);
         if (stabilizationTimer.current)
           clearTimeout(stabilizationTimer.current);
         if (
-          shouldUpdateStableIndex &&
+          updateStableIndex &&
           scrollTriggerSource.current !== Source.PROGRAMMATIC
         ) {
           stabilizationTimer.current = setTimeout(() => {
-            updateStableIndex(newDataIndex);
+            stableIndex.current = newDataIndex;
             onStabilizationUpdate?.(
               newDataIndex,
               scrollTriggerSource.current,
@@ -278,17 +259,21 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
             // Only records user-initiated interactions (excludes programmatic/route-driven scrolls)
             // Master carousel only (slave carousels are decorative parallax layers)
             if (scrollTriggerSource.current === Source.SCROLL && !isSlaveMode) {
+              // Distinguish between interaction methods for UX insights:
+              // - carousel_mouse_drag: Desktop users dragging with mouse (GSAP Draggable)
+              // - carousel_touch_swipe: Mobile/tablet native touch scrolling or trackpad gestures
               const interactionType = isMouseDragRef.current
                 ? "carousel_mouse_drag"
                 : "carousel_touch_swipe";
 
               recordEvent(interactionType, {
-                slideIndex: newDataIndex,
+                slideIndex: newDataIndex, // Project index user navigated to
                 direction:
                   newDirection === SlideDirection.LEFT ? "left" : "right",
-                totalSlides,
+                totalSlides: totalSlides, // Context for understanding navigation patterns
               });
 
+              // Reset drag flag after tracking to avoid misattributing next interaction
               isMouseDragRef.current = false;
             }
           }, stabilizationDelay);
@@ -306,8 +291,6 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
       stabilizationDelay,
       patchedOffset,
       isSlaveMode,
-      updateScrollDirection,
-      updateStableIndex,
     ],
   );
 
@@ -317,11 +300,8 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
   }, [updateIndexPerPosition]);
 
   const handleScroll = useCallback(() => {
-    const scroller = scrollerRef.current;
-    if (!scroller) return;
-    const currentLeft = scroller.scrollLeft;
-    updateIndexRef.current(currentLeft);
-    setDebugScrollLeft(currentLeft);
+    if (!scrollerRef.current) return;
+    updateIndexRef.current(scrollerRef.current.scrollLeft);
   }, []);
 
   const targetFPS = 40;
@@ -388,7 +368,10 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
     positions: currentPositions,
     multipliers: currentMultipliers,
     offsets: currentOffsets,
-  } = memoizedPositionsAndMultipliers;
+  } = useMemo(
+    () => memoizedPositionsAndMultipliers,
+    [memoizedPositionsAndMultipliers],
+  );
 
   useEffect(() => {
     if (!scrollerRef.current) return;
@@ -422,7 +405,6 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
       const newWrapperWidth = wrapperRef.current?.offsetWidth || 0;
       if (newSlideWidth + newWrapperWidth > 0) {
         slideWidthRef.current = newSlideWidth;
-        setSlideWidth(newSlideWidth);
         setWrapperWidth(newWrapperWidth);
       } else {
         requestAnimationFrame(measureWidths);
@@ -435,18 +417,13 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
     setSnap("x mandatory");
     scrollTriggerSource.current = Source.SCROLL;
     const freshDataIndex = deriveDataIndex(scrollIndexRef.current);
-    updateStableIndex(freshDataIndex);
+    stableIndex.current = freshDataIndex;
     onStabilizationUpdate?.(
       freshDataIndex,
       Source.PROGRAMMATIC,
-      scrollDirection,
+      scrollDirectionRef.current,
     );
-  }, [
-    onStabilizationUpdate,
-    deriveDataIndex,
-    updateStableIndex,
-    scrollDirection,
-  ]);
+  }, [onStabilizationUpdate, deriveDataIndex]);
 
   // Stable reference for onComplete callback
   const onTweenCompleteRef = useRef(onTweenComplete);
@@ -477,7 +454,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
       const offsetToTarget = currentOffsets[targetIndex];
       const direction =
         offsetToTarget > 0 ? SlideDirection.RIGHT : SlideDirection.LEFT;
-      updateScrollDirection(direction);
+      scrollDirectionRef.current = direction;
 
       // Calculate the target scroll position to center the slide
       // Use the same calculation as the snap points
@@ -546,7 +523,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
     <div ref={wrapperRef} className={getWrapperClass()}>
       {isDebug() && (
         <div className={styles.debug}>
-          {scrollIndex} {stableIndexValue} {debugScrollLeft}
+          {scrollIndex} {stableIndex.current} {scrollerRef.current?.scrollLeft}
         </div>
       )}
       <div
