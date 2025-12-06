@@ -20,17 +20,18 @@ export function useTrackHeroInView() {
   const lastBucketRef = useRef<number | null>(null);
 
   useEffect(() => {
-    const heroEl = document.getElementById("hero");
+    const onHome = pathname === "/" || pathname === "/portfolio";
+    let heroCheckRaf: number | null = null;
 
-    const handle = () => {
-      const onHome = pathname === "/" || pathname === "/portfolio";
+    const updateHeroVisibility = () => {
+      const heroEl = document.getElementById("hero");
 
       if (!onHome || !heroEl) {
         if (lastBucketRef.current !== -1) {
           lastBucketRef.current = -1;
           dispatch(setHeroInView(-1));
         }
-        return;
+        return Boolean(heroEl);
       }
 
       const rect = heroEl.getBoundingClientRect();
@@ -42,7 +43,9 @@ export function useTrackHeroInView() {
 
       const visibleHeight = Math.min(bottom, vh) - Math.max(top, 0);
       const clampedHeight = Math.max(0, Math.min(visibleHeight, heroHeight));
-      const percentVisible = (clampedHeight / heroHeight) * 100;
+      const percentVisible = heroHeight
+        ? (clampedHeight / heroHeight) * 100
+        : 0;
 
       let bucket: number;
       if (percentVisible >= 99.5) bucket = 100;
@@ -52,22 +55,50 @@ export function useTrackHeroInView() {
       if (bucket !== lastBucketRef.current) {
         lastBucketRef.current = bucket;
         dispatch(setHeroInView(bucket));
-        // console.info(
-        //   `Hero in view: ${bucket}% (actual: ${percentVisible.toFixed(2)}%)`,
-        // );
+      }
+
+      return true;
+    };
+
+    const ensureHeroPresence = () => {
+      const hasHero = updateHeroVisibility();
+      if (onHome && !hasHero) {
+        if (heroCheckRaf === null) {
+          heroCheckRaf = requestAnimationFrame(() => {
+            heroCheckRaf = null;
+            ensureHeroPresence();
+          });
+        }
       }
     };
 
-    handle();
+    ensureHeroPresence();
 
-    window.addEventListener("scroll", handle);
-    window.addEventListener("resize", handle);
-    window.addEventListener("orientationchange", handle);
+    const handleViewportChange = () => {
+      updateHeroVisibility();
+    };
+
+    const scrollListenerOptions: AddEventListenerOptions = { passive: true };
+
+    window.addEventListener(
+      "scroll",
+      handleViewportChange,
+      scrollListenerOptions,
+    );
+    window.addEventListener("resize", handleViewportChange);
+    window.addEventListener("orientationchange", handleViewportChange);
 
     return () => {
-      window.removeEventListener("scroll", handle);
-      window.removeEventListener("resize", handle);
-      window.removeEventListener("orientationchange", handle);
+      if (heroCheckRaf !== null) {
+        cancelAnimationFrame(heroCheckRaf);
+      }
+      window.removeEventListener(
+        "scroll",
+        handleViewportChange,
+        scrollListenerOptions,
+      );
+      window.removeEventListener("resize", handleViewportChange);
+      window.removeEventListener("orientationchange", handleViewportChange);
     };
   }, [dispatch, pathname]);
 }
