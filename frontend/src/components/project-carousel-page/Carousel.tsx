@@ -164,18 +164,12 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
   }, [scrollIndex]);
 
   const deriveDataIndex = useCallback(
-    (overrideScrollIndex?: number): number => {
+    (index: number): number => {
       const slidesLength = slides.length;
-      const index =
-        typeof overrideScrollIndex === "number"
-          ? overrideScrollIndex
-          : scrollIndexRef.current;
       return ((index % slidesLength) + slidesLength) % slidesLength;
     },
     [slides.length],
   );
-
-  const dataIndex = useMemo(() => deriveDataIndex(), [deriveDataIndex]);
 
   const memoizedPositionsAndMultipliers = useMemo(() => {
     const newPositions: number[] = [];
@@ -378,8 +372,9 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
     const totalSlides = memoizedSlides.length;
     const normalizedIndex =
       ((initialIndex % totalSlides) + totalSlides) % totalSlides;
+    const currentDataIndex = deriveDataIndex(scrollIndexRef.current);
     const newScrollIndex =
-      scrollIndexRef.current + (normalizedIndex - dataIndex);
+      scrollIndexRef.current + (normalizedIndex - currentDataIndex);
     const targetScrollLeft = Math.round(
       newScrollIndex * slideSpacing + patchedOffset(),
     );
@@ -390,12 +385,12 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
     }, 150);
     return () => clearTimeout(timer);
   }, [
-    dataIndex,
     initialIndex,
     isSlaveMode,
     memoizedSlides.length,
     slideSpacing,
     patchedOffset,
+    deriveDataIndex,
   ]);
 
   useEffect(() => {
@@ -463,7 +458,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
         memoizedSlides.length;
 
       // Calculate how many steps we need to move from current position
-      let steps = targetDataIndex - deriveDataIndex();
+      let steps = targetDataIndex - deriveDataIndex(scrollIndexRef.current);
 
       // Handle wrap-around for shortest path
       if (Math.abs(steps) > memoizedSlides.length / 2) {
