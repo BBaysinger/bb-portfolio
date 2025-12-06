@@ -61,14 +61,15 @@ const FootGreet: React.FC<{ className?: string }> = ({ className = "" }) => {
         Thanks for exploring this space—every element here is hand-crafted and
         home-baked from scratch, though not exactly from grandmother's recipes.
         It represents a portfolio and a living laboratory for interactive
-        innovation, as well as new ground broken in full-stack development.
+        innovation, as well as new ground broken in full-stack development. But
+        I'm just getting started.
       </p>
-      <p>
+      {/* <p>
         What you experience here—the parallax carousel, the magnetic pixel grid,
         the custom sprite sheet animator—these aren&apos;t just features,
         they&apos;re original systems built to explore what&apos;s possible in
         the browser.
-      </p>
+      </p> */}
       <p>
         I&apos;m passionate about creating digital experiences that reward
         exploration and create new efficiencies in helping people find what they
