@@ -53,6 +53,29 @@ This repo is an end‑to‑end system, not just a site. Beyond the UI work, it s
 
 Jump to the complete list of conveniences: [Deployment conveniences catalog](#-deployment-conveniences-catalog).
 
+## 🧭 Deployment Orchestrator:
+
+### Current version
+
+- `deploy/scripts/deployment-orchestrator.sh` is the production toolchain. It rebuilds/pushes images, refreshes env files, syncs Caddy/Nginx configs, and restarts the single EC2 host (prod + optional dev profile).
+- GitHub Actions workflows (`orchestrate`, `redeploy`, `candidate-promote`) drive the same script remotely and never store decrypted secrets; env files are generated per run and copied straight to EC2.
+- Safety features include:
+  - `--no-build`, `--skip-infra`, and other switches so infra can be left untouched when only app code changes.
+  - Health checks for frontend + backend endpoints before declaring success.
+  - Automatic EC2 diagnostics/log dumps when a restart step fails.
+- This is the path that keeps bbaysinger.com online today.
+
+### Lagoon (future blue/green/red orchestrator)
+
+- Codename **Lagoon** refers to the next version of the orchestrator: multi-instance blue/green (plus a “red” staging lane), traffic hand-offs, and richer observability hooks.
+- The Terraform modules, scripts, and documentation live under `infra-lagoon/` and `deploy-lagoon/`, but the feature is intentionally disabled while the single-host flow remains primary.
+- What Lagoon will bring once re-enabled:
+  - Dual (eventually tri) EC2 pools with automatic tagging, health checks, and Elastic IP rotation.
+  - Coordinated GitHub Actions workflows that build, validate, and promote candidates without manual SSH.
+  - Detailed cutover reports + rollback switch to fall back to the previous color instantly.
+  - A dedicated repository so infra-as-product can evolve independently of the portfolio UI.
+- Until that future cutover happens, treat any mention of Lagoon/blue-green as roadmap documentation rather than a feature you can run today.
+
 ## 🧰 Deployment conveniences catalog
 
 All root `npm` scripts are grouped below by intent. Most have dry‑run or detached variants; destructive operations are guarded. For full details and edge‑case flags see [`deploy/DEPLOYMENT.md`](./deploy/DEPLOYMENT.md).
@@ -456,7 +479,7 @@ Runtime .env generation (deploy):
 
 High‑level AWS/IaC overview plus orchestrator summary.
 
-### 🧠 Deployment Orchestrator (Summary)
+### 🧠 Deployment Orchestrator (Current State)
 
 Unifies Terraform state, Docker image workflows, and GitHub Actions env regeneration into one CLI script (`deploy/scripts/deployment-orchestrator.sh`). Key points:
 
@@ -464,9 +487,9 @@ Unifies Terraform state, Docker image workflows, and GitHub Actions env regenera
 - Profile aware (`dev` / `prod` / `both`) with distinct registries & buckets.
 - Safety: avoids destructive infra ops; supports discovery/plan-only modes.
 - Falls back to SSH path if workflow dispatch fails.
-- **Blue-green deployment support**: Deploy to the candidate instance; promotion is performed by the dedicated script `deploy/scripts/orchestrator-promote.sh`. Use `--auto-promote` to run it automatically after health checks.
+- Lagoon (future blue/green/red orchestrator) is tracked separately—see [Deployment Orchestrator: Today vs. Lagoon](#-deployment-orchestrator-today-vs-lagoon) for roadmap details. The scripts remain in this repo but are intentionally disabled until multi-host infra returns.
 
-**Note:** The orchestrator is functional but requires additional testing for edge cases and failure scenarios. Production deployments should be monitored closely until further validation is complete.
+**Note:** The current orchestrator is functional but requires additional testing for edge cases and failure scenarios. Production deployments should be monitored closely until further validation is complete.
 
 Typical commands:
 
@@ -475,11 +498,8 @@ deploy/scripts/deployment-orchestrator.sh --discover-only
 deploy/scripts/deployment-orchestrator.sh --plan-only
 deploy/scripts/deployment-orchestrator.sh --profiles prod --refresh-env
 deploy/scripts/deployment-orchestrator.sh --profiles both --refresh-env
-# Blue-green deployment
-deploy/scripts/deployment-orchestrator.sh --profiles prod
-deploy/scripts/deployment-orchestrator.sh --auto-promote
-# Manual promotion (dedicated script)
-deploy/scripts/orchestrator-promote.sh --auto-approve
+deploy/scripts/deployment-orchestrator.sh --profiles prod --no-build
+deploy/scripts/deployment-orchestrator.sh --profiles prod --refresh-env
 ```
 
 Tip: Add `--no-build` to any orchestrator command to skip rebuilding images and pull the latest tags.
