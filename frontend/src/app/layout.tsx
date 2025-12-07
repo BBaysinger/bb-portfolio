@@ -1,8 +1,7 @@
 import clsx from "clsx";
-import { ReactNode, Suspense } from "react";
+import { ReactNode } from "react";
 
 import SkipLink from "@/components/common/SkipLink";
-import { RUMInitializer } from "@/components/RUMInitializer";
 import { roboto } from "@/fonts";
 
 import { AppShell } from "./AppShell";
@@ -37,9 +36,6 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body className={clsx(roboto.className, styles.body)}>
         <SkipLink />
         <AppProviders>
-          <Suspense fallback={null}>
-            <RUMInitializer />
-          </Suspense>
           <AppShell>{children}</AppShell>
         </AppProviders>
       </body>
