@@ -47,7 +47,8 @@
 .item {
   font-size: clamp(2.75rem, 20vw, 10rem);
   font-family: "Digital-7", "Exo 2", sans-serif;
-  color: $lighterThemeColor;
+  color: green;
+  opacity: 0.85;
   font-weight: 500;
   letter-spacing: 0.12em;
   text-transform: uppercase;
