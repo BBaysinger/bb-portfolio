@@ -1,0 +1,76 @@
+@use "@/styles/mixins" as *;
+@use "@/styles/variables" as *;
+
+.marquee {
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+  isolation: isolate;
+  padding-block: clamp(0.75rem, 2.5vw, 2.75rem);
+  background:
+    radial-gradient(
+      circle at center,
+      rgba($lighterThemeColor, 0.22),
+      transparent 60%
+    ),
+    linear-gradient(135deg, #090909, #050505 65%, #000);
+
+  &::before,
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0 auto;
+    width: clamp(1.5rem, 8vw, 6rem);
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  &::before {
+    left: 0;
+    background: linear-gradient(90deg, #050505, rgba(5, 5, 5, 0));
+  }
+
+  &::after {
+    right: 0;
+    background: linear-gradient(270deg, #050505, rgba(5, 5, 5, 0));
+  }
+}
+
+.track {
+  display: flex;
+  width: max-content;
+  gap: clamp(2rem, 4vw, 5rem);
+  will-change: transform;
+  animation: projectsMarqueeScroll 32s linear infinite;
+}
+
+.item {
+  font-size: clamp(2.75rem, 12vw, 10rem);
+  font-family: "Digital-7", "Exo 2", sans-serif;
+  color: $lighterThemeColor;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: rgba(255, 255, 255, 0.92);
+  text-shadow:
+    0 0 40px rgba($lighterThemeColor, 0.35),
+    0 0 14px rgba(0, 0, 0, 0.65);
+  -webkit-text-stroke: 1px rgba(255, 255, 255, 0.12);
+}
+
+@keyframes projectsMarqueeScroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .track {
+    animation: none;
+    transform: translateX(0);
+  }
+}

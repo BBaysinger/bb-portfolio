@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 
+import Marquee from "@/components/home-page/Marquee";
 import ProjectThumbnail from "@/components/home-page/ProjectThumbnail";
 import { ParsedPortfolioProject } from "@/data/ProjectData";
 import { useAppSelector } from "@/store/hooks";
@@ -58,12 +59,25 @@ const ProjectsList: React.FC<ProjectsListProps> & {
     setProjects(allProjects);
   }, [allProjects]);
 
+  const marqueePhrases = React.useMemo(
+    () => [
+      "Selected Client Work",
+      "Product Strategy",
+      "UX Leadership",
+      "Systems Thinking",
+      "Research-Led Design",
+      "Creative Direction",
+    ],
+    [],
+  );
+
   return (
     <div
       id="projects-list"
       className={styles.projectsList}
       data-nav="projects-list"
     >
+      <Marquee phrases={marqueePhrases} />
       {projects.length === 0 && (
         <div aria-live="polite" style={{ opacity: 0.7 }}>
           No projects to display yet.
