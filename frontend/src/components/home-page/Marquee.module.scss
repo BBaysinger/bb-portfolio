@@ -45,14 +45,13 @@
 }
 
 .item {
-  font-size: clamp(2.75rem, 12vw, 10rem);
+  font-size: clamp(2.75rem, 20vw, 10rem);
   font-family: "Digital-7", "Exo 2", sans-serif;
   color: $lighterThemeColor;
-  font-weight: 700;
+  font-weight: 500;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   white-space: nowrap;
-  color: rgba(255, 255, 255, 0.92);
   text-shadow:
     0 0 40px rgba($lighterThemeColor, 0.35),
     0 0 14px rgba(0, 0, 0, 0.65);
@@ -61,10 +60,10 @@
 
 @keyframes projectsMarqueeScroll {
   0% {
-    transform: translateX(0);
+    transform: translateX(0) translateY(4%);
   }
   100% {
-    transform: translateX(-50%);
+    transform: translateX(-50%) translateY(4%);
   }
 }
 
