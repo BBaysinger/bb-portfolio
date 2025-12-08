@@ -123,7 +123,7 @@
     "search:files": "rg --files --hidden --follow --glob '!.git' --glob '!node_modules' --glob '!frontend/.next' --glob '!backend/.next'"
   },
   "devDependencies": {
-    "@next/eslint-plugin-next": "^16.0.7",
+    "@next/eslint-plugin-next": "^16.0.8",
     "@types/glob": "^9.0.0",
     "@typescript-eslint/eslint-plugin": "^8.49.0",
     "@typescript-eslint/parser": "^8.49.0",

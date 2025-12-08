@@ -22,7 +22,7 @@
     "test:int": "cross-env NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.config.mts"
   },
   "dependencies": {
-    "@aws-sdk/client-ses": "^3.946.0",
+    "@aws-sdk/client-ses": "^3.947.0",
     "@aws-sdk/types": "^3.936.0",
     "@payloadcms/db-mongodb": "3.67.0",
     "@payloadcms/email-nodemailer": "3.67.0",
@@ -36,7 +36,7 @@
     "express": "^5.2.1",
     "graphql": "^16.12.0",
     "json5": "^2.2.3",
-    "next": "16.0.7",
+    "next": "16.0.8",
     "payload": "3.67.0",
     "react": "19.2.1",
     "react-dom": "19.2.1",
@@ -54,7 +54,7 @@
     "@vitejs/plugin-react": "5.1.2",
     "baseline-browser-mapping": "^2.9.5",
     "eslint": "^9.39.1",
-    "eslint-config-next": "16.0.7",
+    "eslint-config-next": "16.0.8",
     "jsdom": "27.3.0",
     "playwright": "1.57.0",
     "playwright-core": "1.57.0",
