@@ -32,7 +32,7 @@
  */
 
 import gsap from "gsap";
-import { Draggable } from "gsap/Draggable";
+import { Draggable } from "gsap/draggable";
 import { InertiaPlugin } from "gsap/InertiaPlugin";
 import { useEffect, useRef } from "react";
 
@@ -106,7 +106,7 @@ export function useDragInertia(
       cursor: "grab",
       // Snap function determines final resting position after drag/throw
       // Considers both velocity (flick speed) and distance dragged
-      snap: function (endValue) {
+      snap: function (endValue: number) {
         const velocity = this.tween ? this.tween.getVelocity() : 0;
         const threshold = slideSpacing * 0.3; // 30% of slide width triggers next slide
         const remainder = Math.abs(endValue % slideSpacing);

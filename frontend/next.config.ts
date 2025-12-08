@@ -171,6 +171,7 @@ const nextConfig: NextConfig = {
         localNodeModules,
         "aws-rum-web/dist/cjs/index.js",
       ),
+      "gsap/draggable": path.join(localNodeModules, "gsap/Draggable.js"),
     };
     return config;
   },
