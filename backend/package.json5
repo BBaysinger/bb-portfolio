@@ -47,23 +47,23 @@
   // Runtime dependencies for backend and CMS functionality
   "dependencies": {
     // AWS SES client used for sending transactional emails
-    "@aws-sdk/client-ses": "^3.943.0",
+    "@aws-sdk/client-ses": "^3.947.0",
     // Shared AWS SDK types
     "@aws-sdk/types": "^3.936.0",
     // MongoDB adapter for Payload CMS
-    "@payloadcms/db-mongodb": "3.66.0",
+    "@payloadcms/db-mongodb": "3.67.0",
     // Nodemailer email adapter for Payload CMS (handles SMTP email sending, password resets, notifications)
-    "@payloadcms/email-nodemailer": "3.66.0",
+    "@payloadcms/email-nodemailer": "3.67.0",
     // Enables Payload-Next.js integration (server-side rendering and routing)
-    "@payloadcms/next": "3.66.0",
+    "@payloadcms/next": "3.67.0",
     // Payload Cloud tools (optional if self-hosting)
-    "@payloadcms/payload-cloud": "3.66.0",
+    "@payloadcms/payload-cloud": "3.67.0",
     // Rich text editor using Lexical (modern alternative to Slate)
-    "@payloadcms/richtext-lexical": "3.66.0",
+    "@payloadcms/richtext-lexical": "3.67.0",
     // S3-backed media storage for Payload uploads
-    "@payloadcms/storage-s3": "3.66.0",
+    "@payloadcms/storage-s3": "3.67.0",
     // Payload's core UI components
-    "@payloadcms/ui": "3.66.0",
+    "@payloadcms/ui": "3.67.0",
     // Cross-platform environment variable setting (Windows/Unix compatibility)
     "cross-env": "^10.1.0",
     // Environment variable loader (reads .env files into process.env)
@@ -75,9 +75,9 @@
     // JSON5 parser for annotated configuration files
     "json5": "^2.2.3",
     // Next.js framework for frontend/backend integration
-    "next": "16.0.7",
+    "next": "16.0.8",
     // Payload CMS core package
-    "payload": "3.66.0",
+    "payload": "3.67.0",
     // React version to match Next.js 15
     "react": "19.2.1",
     // React DOM library for rendering React components (required by Next.js and Payload UI)
@@ -104,15 +104,15 @@
     // React DOM 19 types
     "@types/react-dom": "19.2.3",
     // Vite React plugin (enables React support in Vitest)
-    "@vitejs/plugin-react": "5.1.1",
+    "@vitejs/plugin-react": "5.1.2",
     //
-    "baseline-browser-mapping": "^2.9.2",
+    "baseline-browser-mapping": "^2.9.5",
     // ESLint JavaScript/TypeScript linter (v9 for latest rules)
     "eslint": "^9.39.1",
     // Next.js ESLint configuration (includes React and accessibility rules)
-    "eslint-config-next": "16.0.7",
+    "eslint-config-next": "16.0.8",
     // Browser DOM simulation for Node.js testing environments
-    "jsdom": "27.2.0",
+    "jsdom": "27.3.0",
     // Standalone version of Playwright test runner
     "playwright": "1.57.0",
     // Playwright core library (used for browser automation)

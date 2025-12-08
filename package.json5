@@ -361,13 +361,13 @@
   // Development tooling for the monorepo root (formatting, linting, TS, runners)
   "devDependencies": {
     // Next.js-specific ESLint rules for best practices
-    "@next/eslint-plugin-next": "^16.0.7",
+    "@next/eslint-plugin-next": "^16.0.8",
     // TypeScript type definitions for glob
     "@types/glob": "^9.0.0",
     // ESLint plugin for TypeScript-specific linting rules
-    "@typescript-eslint/eslint-plugin": "^8.48.1",
+    "@typescript-eslint/eslint-plugin": "^8.49.0",
     // TypeScript parser for ESLint
-    "@typescript-eslint/parser": "^8.48.1",
+    "@typescript-eslint/parser": "^8.49.0",
     // Run multiple commands concurrently in scripts
     "concurrently": "^9.2.1",
     // Main linter for JS/TS code
