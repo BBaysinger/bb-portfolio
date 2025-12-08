@@ -115,6 +115,20 @@
   }
 }
 
+.nda {
+  cursor: not-allowed;
+
+  .thumbBg {
+    filter: saturate(0) contrast(1) brightness(0.4);
+    opacity: 0.35;
+  }
+
+  .thumbContent {
+    opacity: 1;
+    background-color: rgba(0, 0, 0, 0.7);
+  }
+}
+
 // Anchor wrapper for fill Image – must be positioning context
 .link {
   position: relative;

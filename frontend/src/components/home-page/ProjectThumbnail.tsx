@@ -29,6 +29,8 @@ interface ProjectThumbnailProps {
   brandIsNda?: boolean;
   /** If true, project is confidential (NDA). */
   nda?: boolean;
+  /** True when project data was sanitized due to missing auth. */
+  isSanitized?: boolean;
   /** Thumbnail image URL. */
   thumbUrl?: string;
   /** Current user authentication state. */
@@ -68,6 +70,7 @@ const ProjectThumbnail: React.FC<ProjectThumbnailProps> = ({
   brandLogoDarkUrl,
   brandIsNda,
   nda,
+  isSanitized,
   thumbUrl,
   isAuthenticated,
   focused,
@@ -105,7 +108,8 @@ const ProjectThumbnail: React.FC<ProjectThumbnailProps> = ({
 
   // Determine NDA state and apply scroll-focus class.
   const isNdaLike = Boolean(nda || brandIsNda);
-  const showNdaConfidential = isNdaLike && !isAuthenticated;
+  const effectiveAuth = isAuthenticated && !isSanitized;
+  const showNdaConfidential = isNdaLike && !effectiveAuth;
   const focusClass = focused ? styles.projectThumbnailFocus : "";
 
   // Cycle stripe background deterministically by index.
@@ -166,6 +170,8 @@ const ProjectThumbnail: React.FC<ProjectThumbnailProps> = ({
         focusClass,
         showNdaConfidential ? styles.nda : "",
       )}
+      data-nda={showNdaConfidential ? "locked" : undefined}
+      data-project-id={projectId}
       style={{ "--thumb-height": `${thumbHeight}px` } as React.CSSProperties}
     >
       <Link

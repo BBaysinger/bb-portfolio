@@ -403,6 +403,7 @@ async function fetchPortfolioProjects(opts?: {
         omitFromList: !!doc.omitFromList,
         brandId: "",
         brandIsNda: true,
+        isSanitized: true,
         mobileOrientation: MobileOrientations.NONE,
         tags: [],
         role: "",
@@ -671,6 +672,8 @@ export interface PortfolioProjectBase {
   sortIndex?: number;
   thumbUrl?: string;
   thumbAlt?: string;
+  /** True when the server redacted NDA details due to missing auth. */
+  isSanitized?: boolean;
   /** Optional direct URLs for device screenshots resolved from Payload uploads. */
   screenshotUrls?: {
     laptop?: string;
