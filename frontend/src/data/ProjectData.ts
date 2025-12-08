@@ -1,3 +1,39 @@
+const COOKIE_HEADER_NAME = "cookie";
+
+const getCookieHeaderValue = (headers?: HeadersInit): string => {
+  if (!headers) return "";
+  if (Array.isArray(headers)) {
+    const entry = headers.find(
+      ([key]) => key.toLowerCase() === COOKIE_HEADER_NAME,
+    );
+    return entry ? entry[1] : "";
+  }
+  if (headers instanceof Headers) {
+    return headers.get(COOKIE_HEADER_NAME) || "";
+  }
+  const obj = headers as Record<string, string>;
+  const matchKey = Object.keys(obj).find(
+    (key) => key.toLowerCase() === COOKIE_HEADER_NAME,
+  );
+  return matchKey ? obj[matchKey] : "";
+};
+
+const extractPayloadTokenFromCookie = (cookieHeader: string): string => {
+  if (!cookieHeader) return "";
+  const parts = cookieHeader.split(/;\s*/);
+  for (const part of parts) {
+    const [name, ...rest] = part.split("=");
+    if (name && name.trim() === "payload-token") {
+      return rest.join("=");
+    }
+  }
+  return "";
+};
+
+const headersContainPayloadSession = (headers?: HeadersInit): boolean => {
+  return !!extractPayloadTokenFromCookie(getCookieHeaderValue(headers));
+};
+
 // Fetch project data from the live API only (no JSON fallback)
 // Transforms Payload REST shape { docs: [...] } into a keyed record by slug.
 async function fetchPortfolioProjects(opts?: {
@@ -7,6 +43,8 @@ async function fetchPortfolioProjects(opts?: {
   disableCache?: boolean;
 }): Promise<PortfolioProjectData> {
   const { requestHeaders, disableCache } = opts || {};
+  const cookieHeaderRaw = getCookieHeaderValue(requestHeaders);
+  const payloadToken = extractPayloadTokenFromCookie(cookieHeaderRaw);
   const isServer = typeof window === "undefined";
   const rawProfile = (
     process.env.ENV_PROFILE ||
@@ -144,23 +182,8 @@ async function fetchPortfolioProjects(opts?: {
       return { ...(requestHeaders as Record<string, string>) };
     })();
 
-    const cookieHeaderRaw = Object.entries(cloneHeaders).find(
-      ([k]) => k.toLowerCase() === "cookie",
-    )?.[1];
-    const token = (() => {
-      if (!cookieHeaderRaw) return "";
-      // Simple parse for 'payload-token'
-      const parts = cookieHeaderRaw.split(/;\s*/);
-      for (const p of parts) {
-        const [name, ...rest] = p.split("=");
-        if (name && name.trim() === "payload-token") {
-          return rest.join("=");
-        }
-      }
-      return "";
-    })();
-    if (token) {
-      cloneHeaders["Authorization"] = `JWT ${token}`;
+    if (payloadToken) {
+      cloneHeaders["Authorization"] = `JWT ${payloadToken}`;
     }
     fetchOptions.headers = cloneHeaders;
     fetchOptions.credentials = "include";
@@ -304,7 +327,7 @@ async function fetchPortfolioProjects(opts?: {
   }
   const json = (await res.json()) as PayloadProjectsRest | PortfolioProjectData;
   // Determine if request is authenticated.
-  // - Server-side: true when a Cookie header is present (SSR with auth forwarded)
+  // - Server-side: true when a Payload session token is present in the Cookie header
   // - Client-side: true when a 'payload-token' cookie exists in document.cookie
   const hasAuthCookie = (() => {
     // Browser path: trust the backend to enforce auth using HttpOnly cookies included via fetch credentials.
@@ -313,20 +336,8 @@ async function fetchPortfolioProjects(opts?: {
     if (typeof window !== "undefined") {
       return true;
     }
-    // Server path: infer from incoming request headers
-    const h = requestHeaders;
-    if (!h) return false;
-    if (Array.isArray(h)) {
-      return h.some(([k]) => k.toLowerCase() === "cookie");
-    }
-    if (h instanceof Headers) {
-      return !!h.get("cookie");
-    }
-    // Plain object
-    const lowerKeys = Object.keys(h as Record<string, string>).map((k) =>
-      k.toLowerCase(),
-    );
-    return lowerKeys.includes("cookie");
+    // Server path: require a payload-token cookie specifically
+    return !!payloadToken;
   })();
 
   if (debug) {
@@ -693,6 +704,7 @@ export default class ProjectData {
   private static _keys: string[] = [];
   private static _activeProjectsMap: Record<string, ParsedPortfolioProject> =
     {};
+  private static _includeNdaInActive = false;
   // Prevent overlapping initialize() calls from interleaving state writes.
   private static _initInFlight: Promise<void> | null = null;
 
@@ -713,6 +725,7 @@ export default class ProjectData {
     this._listedKeys = [];
     this._keys = [];
     this._activeProjectsMap = {};
+    this._includeNdaInActive = includeNdaInActive;
 
     // Assign snapshot
     this._projects = { ...parsed };
@@ -808,6 +821,17 @@ export default class ProjectData {
     );
   }
 
+  static get projectsRecord(): ParsedPortfolioProjectData {
+    return Object.entries(this._projects).reduce((record, [key, project]) => {
+      if (project) record[key] = { ...project };
+      return record;
+    }, {} as ParsedPortfolioProjectData);
+  }
+
+  static get includeNdaInActive(): boolean {
+    return this._includeNdaInActive;
+  }
+
   /**
    * Returns the parsed project by id from the full dataset (including NDA),
    * regardless of whether it is currently included in the active set.
@@ -892,15 +916,9 @@ export default class ProjectData {
         if (typeof opts?.includeNdaInActive === "boolean") {
           return opts.includeNdaInActive;
         }
-        // Infer from headers: if a Cookie header exists, treat as authenticated SSR
-        const h = opts?.headers;
-        if (!h) return false;
-        if (Array.isArray(h))
-          return h.some(([k]) => k.toLowerCase() === "cookie");
-        if (h instanceof Headers) return !!h.get("cookie");
-        const obj = h as Record<string, string>;
-        return Object.keys(obj).some((k) => k.toLowerCase() === "cookie");
+        return headersContainPayloadSession(opts?.headers);
       })();
+      this._includeNdaInActive = includeNdaInActive;
 
       for (const key of this._keys) {
         const project = this._projects[key];

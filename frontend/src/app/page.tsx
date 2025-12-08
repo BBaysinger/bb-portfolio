@@ -1,9 +1,10 @@
+import { headers } from "next/headers";
 import React from "react";
-// headers() utility removed due to runtime incompatibility; client will fetch with cookies.
 
 import Greeting from "@/components/home-page/Greeting";
 import Hero from "@/components/home-page/header-main/Hero";
 import HomePageClient from "@/components/home-page/HomePageClient";
+import ProjectData from "@/data/ProjectData";
 
 /**
  * The home page of the website. Contains the header, greeting, and portfolio list.
@@ -13,13 +14,40 @@ import HomePageClient from "@/components/home-page/HomePageClient";
 // Force dynamic rendering since we fetch from backend API
 export const dynamic = "force-dynamic";
 
-// Server component: render client wrapper which handles auth-aware fetch on CSR
+const hasPayloadSession = (headerList: Headers) => {
+  const cookieHeader = headerList.get("cookie") || "";
+  return /(?:^|;\s*)payload-token=/.test(cookieHeader);
+};
+
+// Server component: fetch portfolio data with request context for SSR gating
 const HomePage = async () => {
+  const headerList = await headers();
+  const forwardedHeaders = new Headers();
+  headerList.forEach((value, key) => {
+    forwardedHeaders.append(key, value);
+  });
+  const ssrAuthenticated = hasPayloadSession(forwardedHeaders);
+
+  await ProjectData.initialize({
+    headers: forwardedHeaders,
+    disableCache: true,
+    includeNdaInActive: ssrAuthenticated,
+  });
+
+  const ssrProjects = ProjectData.listedProjects;
+  const ssrProjectRecord = ProjectData.projectsRecord;
+  const ssrIncludeNdaInActive = ProjectData.includeNdaInActive;
+
   return (
     <>
       <Hero />
       <Greeting />
-      <HomePageClient />
+      <HomePageClient
+        ssrProjects={ssrProjects}
+        ssrProjectRecord={ssrProjectRecord}
+        ssrIncludeNdaInActive={ssrIncludeNdaInActive}
+        ssrAuthenticated={ssrAuthenticated}
+      />
     </>
   );
 };
