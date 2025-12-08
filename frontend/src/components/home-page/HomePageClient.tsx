@@ -1,33 +1,62 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import PortfolioListStyleSwapper from "@/components/home-page/PortfolioListStyleSwapper";
-import ProjectData, { ParsedPortfolioProject } from "@/data/ProjectData";
+import ProjectData, {
+  ParsedPortfolioProject,
+  ParsedPortfolioProjectData,
+} from "@/data/ProjectData";
 import { useAppSelector } from "@/store/hooks";
 
-export default function HomePageClient() {
+interface HomePageClientProps {
+  ssrProjects: ParsedPortfolioProject[];
+  ssrProjectRecord: ParsedPortfolioProjectData;
+  ssrIncludeNdaInActive: boolean;
+  ssrAuthenticated: boolean;
+}
+
+export default function HomePageClient({
+  ssrProjects,
+  ssrProjectRecord,
+  ssrIncludeNdaInActive,
+  ssrAuthenticated,
+}: HomePageClientProps) {
   const { isLoggedIn, user } = useAppSelector((s) => s.auth);
   const clientAuth = isLoggedIn || !!user;
-  const [projects, setProjects] = useState<ParsedPortfolioProject[]>([]);
+  const [projects, setProjects] =
+    useState<ParsedPortfolioProject[]>(ssrProjects);
+  const hydratedRef = useRef(false);
 
   useEffect(() => {
-    let mounted = true;
+    ProjectData.hydrate(ssrProjectRecord, ssrIncludeNdaInActive);
+    hydratedRef.current = true;
+  }, [ssrProjectRecord, ssrIncludeNdaInActive, ssrProjects]);
+
+  useEffect(() => {
+    if (!hydratedRef.current) return;
+    if (!clientAuth) return;
+    if (ssrAuthenticated) return;
+
+    let cancelled = false;
     (async () => {
-      // Client-side fetch includes cookies automatically; disable cache to avoid NDA leakage
-      await ProjectData.initialize({ disableCache: true });
-      if (!mounted) return;
+      await ProjectData.initialize({
+        disableCache: true,
+        includeNdaInActive: true,
+      });
+      if (cancelled) return;
       setProjects([...ProjectData.listedProjects]);
     })();
+
     return () => {
-      mounted = false;
+      cancelled = true;
     };
-  }, []);
+  }, [clientAuth, ssrAuthenticated]);
 
   return (
     <PortfolioListStyleSwapper
       allProjects={projects}
-      isAuthenticated={clientAuth}
+      isAuthenticated={clientAuth || ssrAuthenticated}
     />
   );
 }
