@@ -92,6 +92,7 @@ const ProjectsList: React.FC<ProjectsListProps> & {
           brandLogoDarkUrl,
           brandIsNda,
           nda,
+          isSanitized,
           thumbUrl,
         } = projectData;
         return (
@@ -106,6 +107,7 @@ const ProjectsList: React.FC<ProjectsListProps> & {
             brandLogoDarkUrl={brandLogoDarkUrl}
             brandIsNda={brandIsNda}
             nda={nda}
+            isSanitized={isSanitized}
             thumbUrl={thumbUrl}
             isAuthenticated={auth}
           />

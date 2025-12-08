@@ -26,17 +26,23 @@ const HomePage = async () => {
   headerList.forEach((value, key) => {
     forwardedHeaders.append(key, value);
   });
-  const ssrAuthenticated = hasPayloadSession(forwardedHeaders);
+  const hasSessionCookie = hasPayloadSession(forwardedHeaders);
 
   await ProjectData.initialize({
     headers: forwardedHeaders,
     disableCache: true,
-    includeNdaInActive: ssrAuthenticated,
   });
 
   const ssrProjects = ProjectData.listedProjects;
   const ssrProjectRecord = ProjectData.projectsRecord;
-  const ssrIncludeNdaInActive = ProjectData.includeNdaInActive;
+  // Only trust the cookie when the response contains full NDA data (no sanitized placeholders).
+  const containsSanitizedPlaceholders = ssrProjects.some(
+    (project) => project?.isSanitized,
+  );
+  const ssrAuthenticated = hasSessionCookie && !containsSanitizedPlaceholders;
+  const ssrIncludeNdaInActive = ssrAuthenticated
+    ? ProjectData.includeNdaInActive
+    : false;
 
   return (
     <>
