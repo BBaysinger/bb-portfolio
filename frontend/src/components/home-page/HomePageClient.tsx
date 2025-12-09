@@ -14,6 +14,7 @@ interface HomePageClientProps {
   ssrProjectRecord: ParsedPortfolioProjectData;
   ssrIncludeNdaInActive: boolean;
   ssrAuthenticated: boolean;
+  ssrContainsSanitizedPlaceholders: boolean;
 }
 
 export default function HomePageClient({
@@ -21,6 +22,7 @@ export default function HomePageClient({
   ssrProjectRecord,
   ssrIncludeNdaInActive,
   ssrAuthenticated,
+  ssrContainsSanitizedPlaceholders,
 }: HomePageClientProps) {
   const { isLoggedIn, user } = useAppSelector((s) => s.auth);
   const clientAuth = isLoggedIn || !!user;
@@ -29,9 +31,17 @@ export default function HomePageClient({
   const hydratedRef = useRef(false);
 
   useEffect(() => {
-    ProjectData.hydrate(ssrProjectRecord, ssrIncludeNdaInActive);
+    // Hydrate with SSR metadata so client-side ProjectData matches server auth state.
+    ProjectData.hydrate(ssrProjectRecord, ssrIncludeNdaInActive, {
+      containsSanitizedPlaceholders: ssrContainsSanitizedPlaceholders,
+    });
     hydratedRef.current = true;
-  }, [ssrProjectRecord, ssrIncludeNdaInActive, ssrProjects]);
+  }, [
+    ssrProjectRecord,
+    ssrIncludeNdaInActive,
+    ssrProjects,
+    ssrContainsSanitizedPlaceholders,
+  ]);
 
   useEffect(() => {
     if (!hydratedRef.current) return;
@@ -40,6 +50,7 @@ export default function HomePageClient({
 
     let cancelled = false;
     (async () => {
+      // If the browser later authenticates, refetch so NDA entries become available client-side.
       await ProjectData.initialize({
         disableCache: true,
         includeNdaInActive: true,

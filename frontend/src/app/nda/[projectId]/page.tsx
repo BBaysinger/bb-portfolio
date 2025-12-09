@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
 import ProjectViewWrapper from "@/components/project-carousel-page/ProjectViewWrapper";
+import { ProjectDataStore } from "@/data/ProjectData";
 
 export const revalidate = 0;
 export const dynamicParams = true;
@@ -23,11 +24,10 @@ export default async function NdaProjectPage({
   // We can safely fetch without cookies just to inspect the NDA flag; the public
   // API response includes `nda: true` for NDA items (and redacts details if unauthenticated).
   const h = await headers();
-  // Importing ProjectData here ensures server-side initialization is scoped per request.
-  const { default: ProjectData } = await import("@/data/ProjectData");
-  const headerObj = Object.fromEntries(h.entries());
-  await ProjectData.initialize({ headers: headerObj, disableCache: true });
-  const rec = ProjectData.getProject(projectId);
+  const projectData = new ProjectDataStore();
+  // Instantiate per-request to avoid leaking NDA responses between visitors.
+  await projectData.initialize({ headers: h, disableCache: true });
+  const rec = projectData.getProject(projectId);
   if (!rec || !rec.nda) {
     return notFound();
   }
