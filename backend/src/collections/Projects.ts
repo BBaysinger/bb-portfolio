@@ -192,7 +192,7 @@ export const Projects: CollectionConfig = {
       relationTo: 'projectThumbnails',
       hasMany: true,
       access: {
-        read: canReadProtectedField,
+        read: canReadNdaField,
       },
       admin: {
         description: 'Associate a thumbnail with this project.',
