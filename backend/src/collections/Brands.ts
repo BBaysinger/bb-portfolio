@@ -1,15 +1,6 @@
 import type { CollectionConfig } from 'payload'
-import type { PayloadRequest } from 'payload'
 
-type AccessArgs = {
-  req: PayloadRequest
-  doc?: { nda?: boolean | null }
-}
-
-const canReadBrandAsset = ({ req, doc }: AccessArgs) => {
-  if (!doc?.nda) return true
-  return !!req.user
-}
+import { canReadNdaBrandAsset } from '../access/nda'
 
 export const Clients: CollectionConfig = {
   slug: 'brands',
@@ -48,7 +39,7 @@ export const Clients: CollectionConfig = {
       relationTo: 'brandLogos', // Ensure this collection exists for brand logos
       required: false,
       access: {
-        read: canReadBrandAsset,
+        read: canReadNdaBrandAsset,
       },
     },
     {
@@ -58,7 +49,7 @@ export const Clients: CollectionConfig = {
       relationTo: 'brandLogos',
       required: false,
       access: {
-        read: canReadBrandAsset,
+        read: canReadNdaBrandAsset,
       },
     },
     {

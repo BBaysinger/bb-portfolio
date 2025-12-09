@@ -1,16 +1,7 @@
 import type { CollectionConfig, Where } from 'payload'
-import type { PayloadRequest } from 'payload'
 import slugify from 'slugify'
 
-type AccessArgs = {
-  req: PayloadRequest
-  doc?: { nda?: boolean | null }
-}
-
-const canReadProtectedField = ({ req, doc }: AccessArgs) => {
-  if (!doc?.nda) return true
-  return !!req.user
-}
+import { canReadNdaField } from '../access/nda'
 
 export const Projects: CollectionConfig = {
   slug: 'projects',
@@ -73,7 +64,7 @@ export const Projects: CollectionConfig = {
       type: 'text',
       required: true,
       access: {
-        read: canReadProtectedField,
+        read: canReadNdaField,
       },
     },
     {
@@ -149,7 +140,7 @@ export const Projects: CollectionConfig = {
       label: 'Description HTML Blocks',
       type: 'array',
       access: {
-        read: canReadProtectedField,
+        read: canReadNdaField,
       },
       fields: [
         {
@@ -168,7 +159,7 @@ export const Projects: CollectionConfig = {
       type: 'array',
       label: 'External URLs',
       access: {
-        read: canReadProtectedField,
+        read: canReadNdaField,
       },
       fields: [
         {
@@ -189,7 +180,7 @@ export const Projects: CollectionConfig = {
       relationTo: 'projectScreenshots',
       hasMany: true,
       access: {
-        read: canReadProtectedField,
+        read: canReadNdaField,
       },
       admin: {
         description: 'Associate desktop and mobile screenshots with this project.',
