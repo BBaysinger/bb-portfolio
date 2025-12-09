@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 
 import CanonicalLink from "@/components/common/CanonicalLink";
 import ProjectView from "@/components/project-carousel-page/ProjectView";
-import ProjectData from "@/data/ProjectData";
+import ProjectData, { projectRequiresNda } from "@/data/ProjectData";
 import { useProjectUrlSync } from "@/hooks/useProjectUrlSync";
 import { useAppSelector } from "@/store/hooks";
 
@@ -99,7 +99,9 @@ export default function ProjectViewWrapper({
     if (allowNda) return; // NDA route already includes NDA
     const authed = isAuthed;
     if (authed) {
-      const hasNdaInActive = ProjectData.activeProjects.some((p) => !!p.nda);
+      const hasNdaInActive = ProjectData.activeProjects.some((p) =>
+        projectRequiresNda(p),
+      );
       if (!hasNdaInActive) {
         (async () => {
           await ProjectData.initialize({
@@ -120,7 +122,7 @@ export default function ProjectViewWrapper({
     if (allowNda) return;
     try {
       const p = ProjectData.getProject(params.projectId);
-      if (p && p.nda) {
+      if (projectRequiresNda(p)) {
         // Navigate to NDA route for this slug
         router.replace(`/nda/${encodeURIComponent(params.projectId)}/`);
       }
@@ -231,7 +233,9 @@ function ProjectViewRouterBridge({
     const ensureNdaPresent = async () => {
       // If NDA is allowed and current active set lacks NDA items,
       // reinitialize to include them and bump epoch to remount the carousel.
-      const hasNdaInActive = ProjectData.activeProjects.some((p) => !!p.nda);
+      const hasNdaInActive = ProjectData.activeProjects.some((p) =>
+        projectRequiresNda(p),
+      );
       if (!hasNdaInActive) {
         await ProjectData.initialize({
           disableCache: true,

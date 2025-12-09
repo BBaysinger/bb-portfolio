@@ -19,7 +19,7 @@ import InfoSwapper from "@/components/project-carousel-page/InfoSwapper";
 import { LayeredCarouselManagerRef } from "@/components/project-carousel-page/LayeredCarouselManager";
 import LogoSwapper from "@/components/project-carousel-page/LogoSwapper";
 import PageButtons from "@/components/project-carousel-page/PageButtons";
-import ProjectData from "@/data/ProjectData";
+import ProjectData, { projectRequiresNda } from "@/data/ProjectData";
 import { useRouteChange } from "@/hooks/useRouteChange";
 import {
   navigateWithPushState,
@@ -209,7 +209,7 @@ const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
           // - If we wait and push later (after timers/async), some browsers may merge/skip it.
           // Clicking into the carousel is a real click, so pushing now yields predictable history.
           const target = projects[newProjectId];
-          const hrefBase = target?.nda ? "/nda/" : "/project/";
+          const hrefBase = projectRequiresNda(target) ? "/nda/" : "/project/";
           // Carousel-initiated routes should use query-string model
           const targetHref = `${hrefBase}?p=${encodeURIComponent(newProjectId)}`;
           // Mark this navigation as originating from the carousel so we can

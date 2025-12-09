@@ -1,7 +1,7 @@
 import clsx from "clsx";
 import { forwardRef, useCallback, useMemo, useState } from "react";
 
-import { ParsedPortfolioProject } from "@/data/ProjectData";
+import { ParsedPortfolioProject, projectRequiresNda } from "@/data/ProjectData";
 
 import { DirectionType } from "./CarouselTypes";
 import styles from "./ProjectInfo.module.scss";
@@ -24,9 +24,9 @@ const ProjectInfo = forwardRef<HTMLDivElement, ProjectInfoProps>(
     let globalIndex = 0;
 
     const canonicalPath = useMemo(() => {
-      const base = dataNode.nda ? "/nda/" : "/project/";
+      const base = projectRequiresNda(dataNode) ? "/nda/" : "/project/";
       return `${base}${encodeURIComponent(dataNode.id)}`;
-    }, [dataNode.id, dataNode.nda]);
+    }, [dataNode]);
 
     const canonicalUrl = useMemo(() => {
       if (typeof window === "undefined") return canonicalPath;

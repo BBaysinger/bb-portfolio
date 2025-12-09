@@ -1,4 +1,4 @@
-import type { CollectionConfig } from 'payload'
+import type { CollectionConfig, Where } from 'payload'
 
 import { canReadNdaBrandAsset } from '../access/nda'
 
@@ -9,7 +9,15 @@ export const Clients: CollectionConfig = {
     defaultColumns: ['name', 'slug', 'nda'],
   },
   access: {
-    read: () => true,
+    read: ({ req }) => {
+      if (req.user?.role === 'admin') return true
+      if (req.user) return true
+      return {
+        nda: {
+          equals: false,
+        },
+      } as Where
+    },
     create: ({ req }) => req.user?.role === 'admin',
     update: ({ req }) => req.user?.role === 'admin',
     delete: ({ req }) => req.user?.role === 'admin',
