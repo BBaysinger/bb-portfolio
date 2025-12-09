@@ -1,5 +1,16 @@
 import type { CollectionConfig, Where } from 'payload'
+import type { PayloadRequest } from 'payload/types'
 import slugify from 'slugify'
+
+type AccessArgs = {
+  req: PayloadRequest
+  doc?: { nda?: boolean | null }
+}
+
+const canReadProtectedField = ({ req, doc }: AccessArgs) => {
+  if (!doc?.nda) return true
+  return !!req.user
+}
 
 export const Projects: CollectionConfig = {
   slug: 'projects',
@@ -9,7 +20,7 @@ export const Projects: CollectionConfig = {
     defaultColumns: ['title', 'sortIndex', 'slug', 'active', 'brandId'],
   },
   access: {
-    // Public can read active projects (including NDA), but NDA fields are scrubbed in `afterRead`.
+    // Public can read active projects; NDA fields rely on per-field access rules below.
     // Logged-in users can read active projects (including NDA) with full fields.
     // Admins can read all fields unmodified.
     read: ({ req }) => {
@@ -23,7 +34,7 @@ export const Projects: CollectionConfig = {
         } as unknown as Where
       }
 
-      // Unauthenticated: restrict to active only (NDA allowed), fields will be sanitized in `afterRead`
+      // Unauthenticated: restrict to active only (NDA allowed); field-level access redacts NDA data
       return {
         and: [{ active: { equals: true } }],
       } as unknown as Where
@@ -46,33 +57,6 @@ export const Projects: CollectionConfig = {
         return data
       },
     ],
-    // Defense-in-depth scrubbing retained, though access.read should already exclude NDA for public
-    afterRead: [
-      ({ doc, req }) => {
-        const isAuthenticated = !!req.user
-
-        // Debug logging in development
-        if (process.env.NODE_ENV !== 'production' && doc?.nda) {
-          console.info(`[Projects afterRead] NDA project "${doc.slug}":`, {
-            hasUser: !!req.user,
-            userRole: req.user?.role,
-            willSanitize: !isAuthenticated,
-          })
-        }
-
-        if (doc?.nda && !isAuthenticated) {
-          return {
-            ...doc,
-            title: 'Confidential Project',
-            desc: [],
-            urls: [],
-            screenshots: [],
-            thumbnail: null,
-          }
-        }
-        return doc
-      },
-    ],
   },
   fields: [
     {
@@ -88,6 +72,9 @@ export const Projects: CollectionConfig = {
       name: 'title',
       type: 'text',
       required: true,
+      access: {
+        read: canReadProtectedField,
+      },
     },
     {
       name: 'slug',
@@ -161,6 +148,9 @@ export const Projects: CollectionConfig = {
       name: 'desc',
       label: 'Description HTML Blocks',
       type: 'array',
+      access: {
+        read: canReadProtectedField,
+      },
       fields: [
         {
           name: 'block',
@@ -177,6 +167,9 @@ export const Projects: CollectionConfig = {
       name: 'urls',
       type: 'array',
       label: 'External URLs',
+      access: {
+        read: canReadProtectedField,
+      },
       fields: [
         {
           name: 'label',
@@ -195,6 +188,9 @@ export const Projects: CollectionConfig = {
       type: 'relationship',
       relationTo: 'projectScreenshots',
       hasMany: true,
+      access: {
+        read: canReadProtectedField,
+      },
       admin: {
         description: 'Associate desktop and mobile screenshots with this project.',
       },
@@ -204,6 +200,9 @@ export const Projects: CollectionConfig = {
       type: 'relationship',
       relationTo: 'projectThumbnails',
       hasMany: true,
+      access: {
+        read: canReadProtectedField,
+      },
       admin: {
         description: 'Associate a thumbnail with this project.',
       },
