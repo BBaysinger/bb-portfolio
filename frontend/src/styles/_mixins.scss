@@ -102,12 +102,14 @@
 /// mask-image: svg("M0,0v72h72V0H0Z");
 @function svg($d, $color: #fff) {
   $color-string: if(
-    sass(meta.type-of($color) == "string"): $color; else: "#{$color}",
+    sass(meta.type-of($color) == "string"),
+    $color,
+    "#{$color}"
   );
   $formatted-color: if(
-    sass(string.index($color-string, "#") == 1):
-      "%23#{string.slice($color-string, 2)}"
-      ; else: $color-string,
+    sass(string.index($color-string, "#") == 1),
+    "%23#{string.slice($color-string, 2)}",
+    $color-string
   );
 
   @return string.unquote(
