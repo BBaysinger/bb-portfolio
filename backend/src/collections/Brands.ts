@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload'
-import type { PayloadRequest } from 'payload/types'
+import type { PayloadRequest } from 'payload'
 
 type AccessArgs = {
   req: PayloadRequest

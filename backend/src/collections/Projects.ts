@@ -1,5 +1,5 @@
 import type { CollectionConfig, Where } from 'payload'
-import type { PayloadRequest } from 'payload/types'
+import type { PayloadRequest } from 'payload'
 import slugify from 'slugify'
 
 type AccessArgs = {
