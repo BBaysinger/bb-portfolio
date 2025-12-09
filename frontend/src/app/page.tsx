@@ -4,7 +4,7 @@ import React from "react";
 import Greeting from "@/components/home-page/Greeting";
 import Hero from "@/components/home-page/header-main/Hero";
 import HomePageClient from "@/components/home-page/HomePageClient";
-import ProjectData from "@/data/ProjectData";
+import { ProjectDataStore } from "@/data/ProjectData";
 
 /**
  * The home page of the website. Contains the header, greeting, and portfolio list.
@@ -28,20 +28,21 @@ const HomePage = async () => {
   });
   const hasSessionCookie = hasPayloadSession(forwardedHeaders);
 
-  await ProjectData.initialize({
+  // Build a fresh data store per request so NDA visibility stays request-scoped.
+  const projectData = new ProjectDataStore();
+  const initResult = await projectData.initialize({
     headers: forwardedHeaders,
     disableCache: true,
   });
 
-  const ssrProjects = ProjectData.listedProjects;
-  const ssrProjectRecord = ProjectData.projectsRecord;
-  // Only trust the cookie when the response contains full NDA data (no sanitized placeholders).
-  const containsSanitizedPlaceholders = ssrProjects.some(
-    (project) => project?.isSanitized,
-  );
+  const ssrProjects = projectData.listedProjects;
+  const ssrProjectRecord = projectData.projectsRecord;
+  // Rely on backend metadata instead of guessing auth purely via cookies.
+  const containsSanitizedPlaceholders =
+    initResult.containsSanitizedPlaceholders;
   const ssrAuthenticated = hasSessionCookie && !containsSanitizedPlaceholders;
   const ssrIncludeNdaInActive = ssrAuthenticated
-    ? ProjectData.includeNdaInActive
+    ? initResult.includeNdaInActive
     : false;
 
   return (
@@ -53,6 +54,7 @@ const HomePage = async () => {
         ssrProjectRecord={ssrProjectRecord}
         ssrIncludeNdaInActive={ssrIncludeNdaInActive}
         ssrAuthenticated={ssrAuthenticated}
+        ssrContainsSanitizedPlaceholders={containsSanitizedPlaceholders}
       />
     </>
   );

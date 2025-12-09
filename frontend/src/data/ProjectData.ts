@@ -36,12 +36,17 @@ const headersContainPayloadSession = (headers?: HeadersInit): boolean => {
 
 // Fetch project data from the live API only (no JSON fallback)
 // Transforms Payload REST shape { docs: [...] } into a keyed record by slug.
+interface FetchProjectsResult {
+  data: PortfolioProjectData;
+  containsSanitizedPlaceholders: boolean;
+}
+
 async function fetchPortfolioProjects(opts?: {
   /** Optional request headers to forward (e.g., Cookie for auth-aware results). */
   requestHeaders?: HeadersInit;
   /** Disable cache for per-request SSR. */
   disableCache?: boolean;
-}): Promise<PortfolioProjectData> {
+}): Promise<FetchProjectsResult> {
   const { requestHeaders, disableCache } = opts || {};
   const cookieHeaderRaw = getCookieHeaderValue(requestHeaders);
   const payloadToken = extractPayloadTokenFromCookie(cookieHeaderRaw);
@@ -326,19 +331,30 @@ async function fetchPortfolioProjects(opts?: {
     docs: PayloadProjectDoc[];
   }
   const json = (await res.json()) as PayloadProjectsRest | PortfolioProjectData;
-  // Determine if request is authenticated.
-  // - Server-side: true when a Payload session token is present in the Cookie header
-  // - Client-side: true when a 'payload-token' cookie exists in document.cookie
-  const hasAuthCookie = (() => {
-    // Browser path: trust the backend to enforce auth using HttpOnly cookies included via fetch credentials.
-    // HttpOnly cookies are not readable from document.cookie, so client-side checks are unreliable.
-    // Therefore, treat client as "auth unknown" but do NOT mask; let backend decide what to return.
-    if (typeof window !== "undefined") {
-      return true;
-    }
-    // Server path: require a payload-token cookie specifically
-    return !!payloadToken;
-  })();
+  const docs: PayloadProjectDoc[] = isPayloadRest(json) ? json.docs : [];
+  const ndaDocsCount = docs.reduce(
+    (total, doc) => (doc?.nda ? total + 1 : total),
+    0,
+  );
+  const backendProvidedNdaDetails = docs.some((doc) => {
+    if (!doc?.nda) return false;
+    // Payload scrubbing forces a generic title/empty fields; any richer data implies authenticated access.
+    const sanitizedTitle =
+      doc.title?.trim().toLowerCase() === "confidential project";
+    const hasRichFields = Boolean(
+      (doc.desc && doc.desc.length > 0) ||
+      (doc.urls && doc.urls.length > 0) ||
+      doc.thumbnail ||
+      doc.screenshots,
+    );
+    return !sanitizedTitle || hasRichFields;
+  });
+  const sessionCookiePresent =
+    typeof window !== "undefined"
+      ? true
+      : headersContainPayloadSession(requestHeaders);
+  const hasNdaAccess =
+    backendProvidedNdaDetails || (ndaDocsCount === 0 && sessionCookiePresent);
 
   if (debug) {
     try {
@@ -360,7 +376,9 @@ async function fetchPortfolioProjects(opts?: {
       })();
       console.info("[ProjectData] post-fetch auth context", {
         responseStatus: res.status,
-        hasAuthCookie,
+        ndaDocsCount,
+        backendProvidedNdaDetails,
+        hasNdaAccess,
         cookieHeaderSnippet: cookieVal?.slice(0, 200),
       });
     } catch {}
@@ -377,7 +395,10 @@ async function fetchPortfolioProjects(opts?: {
 
   if (!isPayloadRest(json)) {
     // Already in expected record form
-    return json as PortfolioProjectData;
+    return {
+      data: json as PortfolioProjectData,
+      containsSanitizedPlaceholders: false,
+    };
   }
 
   const out: PortfolioProjectData = {};
@@ -385,7 +406,6 @@ async function fetchPortfolioProjects(opts?: {
   let _debugTotalDocs = 0;
   let _debugNdaDocs = 0;
   let _debugPlaceholders = 0;
-  const docs: PayloadProjectDoc[] = json.docs;
   for (const doc of docs) {
     _debugTotalDocs++;
     const slug: string | undefined = doc.slug || doc.id;
@@ -395,7 +415,7 @@ async function fetchPortfolioProjects(opts?: {
     // clearly lacks auth cookies, do NOT expose any teaser data.
     // Instead, include a sanitized placeholder entry so the UI can render
     // a generic "Confidential Project" tile without leaking details.
-    if (doc.nda && !hasAuthCookie) {
+    if (doc.nda && !hasNdaAccess) {
       _debugNdaDocs++;
       out[slug] = {
         title: "Confidential Project",
@@ -588,7 +608,7 @@ async function fetchPortfolioProjects(opts?: {
 
     // If brand OR project is NDA on public requests, ensure we don't expose logos client-side
     // Allow logos when the request includes an auth cookie (SSR for logged-in users)
-    if ((brandIsNda || !!doc.nda) && !hasAuthCookie) {
+    if ((brandIsNda || !!doc.nda) && !hasNdaAccess) {
       brandLogoLightUrl = undefined;
       brandLogoDarkUrl = undefined;
     }
@@ -635,7 +655,10 @@ async function fetchPortfolioProjects(opts?: {
     } catch {}
   }
 
-  return out;
+  return {
+    data: out,
+    containsSanitizedPlaceholders: _debugPlaceholders > 0,
+  };
 }
 
 // Define constants for MobileOrientation
@@ -693,34 +716,39 @@ export interface ParsedPortfolioProject extends PortfolioProjectBase {
 export type PortfolioProjectData = Record<string, PortfolioProjectBase>;
 export type ParsedPortfolioProjectData = Record<string, ParsedPortfolioProject>;
 
+export interface ProjectDataHydrationOptions {
+  includeNdaInActive: boolean;
+  /** True when the backend redacted NDA rows, meaning the request was unauthenticated. */
+  containsSanitizedPlaceholders?: boolean;
+}
+
+export interface ProjectDataInitializeOptions {
+  headers?: HeadersInit;
+  disableCache?: boolean;
+  includeNdaInActive?: boolean;
+}
+
+export type ProjectDataInitializeResult = ProjectDataHydrationOptions;
+
 /**
  * A helper class for accessing and manipulating portfolio project data.
  * Handles data parsing, filtering, and navigation operations.
  *
  */
-export default class ProjectData {
-  private static _projects: ParsedPortfolioProjectData = {};
-  private static _activeProjects: ParsedPortfolioProject[] = [];
-  private static _activeKeys: string[] = [];
-  private static _listedProjects: ParsedPortfolioProject[] = [];
-  private static _listedKeys: string[] = [];
-  private static _keys: string[] = [];
-  private static _activeProjectsMap: Record<string, ParsedPortfolioProject> =
-    {};
-  private static _includeNdaInActive = false;
+export class ProjectDataStore {
+  private _projects: ParsedPortfolioProjectData = {};
+  private _activeProjects: ParsedPortfolioProject[] = [];
+  private _activeKeys: string[] = [];
+  private _listedProjects: ParsedPortfolioProject[] = [];
+  private _listedKeys: string[] = [];
+  private _keys: string[] = [];
+  private _activeProjectsMap: Record<string, ParsedPortfolioProject> = {};
+  private _includeNdaInActive = false;
+  private _containsSanitizedPlaceholders = false;
   // Prevent overlapping initialize() calls from interleaving state writes.
-  private static _initInFlight: Promise<void> | null = null;
+  private _initInFlight: Promise<ProjectDataInitializeResult> | null = null;
 
-  /**
-   * Hydrate caches from a parsed snapshot (SSR → CSR) and recompute active/listed sets.
-   * Use this on the client to avoid an immediate refetch that could drop NDA fields
-   * when the browser lacks a backend-auth cookie scoped to the frontend domain.
-   */
-  static hydrate(
-    parsed: ParsedPortfolioProjectData,
-    includeNdaInActive: boolean,
-  ) {
-    // Reset caches
+  private resetCaches() {
     this._projects = {} as ParsedPortfolioProjectData;
     this._activeProjects = [];
     this._activeKeys = [];
@@ -728,7 +756,28 @@ export default class ProjectData {
     this._listedKeys = [];
     this._keys = [];
     this._activeProjectsMap = {};
+  }
+
+  /**
+   * Hydrate caches from a parsed snapshot (SSR → CSR) and recompute active/listed sets.
+   * Use this on the client to avoid an immediate refetch that could drop NDA fields
+   * when the browser lacks a backend-auth cookie scoped to the frontend domain.
+   */
+  hydrate(
+    parsed: ParsedPortfolioProjectData,
+    includeNdaInActive: boolean,
+    metadata?: Pick<
+      ProjectDataHydrationOptions,
+      "containsSanitizedPlaceholders"
+    >,
+  ) {
+    // Reset caches
+    this.resetCaches();
     this._includeNdaInActive = includeNdaInActive;
+    // Preserve SSR metadata so client reads can align with server auth state.
+    this._containsSanitizedPlaceholders = Boolean(
+      metadata?.containsSanitizedPlaceholders,
+    );
 
     // Assign snapshot
     this._projects = { ...parsed };
@@ -792,23 +841,23 @@ export default class ProjectData {
     }
   }
 
-  static get activeKeys(): string[] {
+  get activeKeys(): string[] {
     return [...this._activeKeys]; // Shallow copy to prevent mutations
   }
 
-  static get listedKeys(): string[] {
+  get listedKeys(): string[] {
     return [...this._listedKeys];
   }
 
-  static get listedProjects(): ParsedPortfolioProject[] {
+  get listedProjects(): ParsedPortfolioProject[] {
     return [...this._listedProjects];
   }
 
-  static get activeProjects(): ParsedPortfolioProject[] {
+  get activeProjects(): ParsedPortfolioProject[] {
     return [...this._activeProjects];
   }
 
-  static get activeProjectsRecord(): Record<string, ParsedPortfolioProject> {
+  get activeProjectsRecord(): Record<string, ParsedPortfolioProject> {
     return this._activeProjects.reduce(
       (record, project) => {
         if (!project.id) {
@@ -824,22 +873,26 @@ export default class ProjectData {
     );
   }
 
-  static get projectsRecord(): ParsedPortfolioProjectData {
+  get projectsRecord(): ParsedPortfolioProjectData {
     return Object.entries(this._projects).reduce((record, [key, project]) => {
       if (project) record[key] = { ...project };
       return record;
     }, {} as ParsedPortfolioProjectData);
   }
 
-  static get includeNdaInActive(): boolean {
+  get includeNdaInActive(): boolean {
     return this._includeNdaInActive;
+  }
+
+  get containsSanitizedPlaceholders(): boolean {
+    return this._containsSanitizedPlaceholders;
   }
 
   /**
    * Returns the parsed project by id from the full dataset (including NDA),
    * regardless of whether it is currently included in the active set.
    */
-  static getProject(id: string): ParsedPortfolioProject | undefined {
+  getProject(id: string): ParsedPortfolioProject | undefined {
     return this._projects[id];
   }
 
@@ -849,7 +902,7 @@ export default class ProjectData {
    * @param data Raw JSON data
    * @returns Parsed portfolio data
    */
-  private static parsePortfolioData(
+  private parsePortfolioData(
     data: PortfolioProjectData,
   ): ParsedPortfolioProjectData {
     const parsedData: ParsedPortfolioProjectData = {};
@@ -870,33 +923,24 @@ export default class ProjectData {
   /**
    * Initializes the ProjectData class by parsing raw JSON and organizing projects.
    */
-  static async initialize(opts?: {
-    headers?: HeadersInit;
-    disableCache?: boolean;
-    /** When true, include NDA projects in active navigation/maps. */
-    includeNdaInActive?: boolean;
-  }): Promise<void> {
+  async initialize(
+    opts?: ProjectDataInitializeOptions,
+  ): Promise<ProjectDataInitializeResult> {
     // Coalesce concurrent calls: later callers await the same run
     if (this._initInFlight) {
-      await this._initInFlight;
-      return;
+      return this._initInFlight;
     }
 
     this._initInFlight = (async () => {
-      const typedUnprocessedProjects = await fetchPortfolioProjects({
-        requestHeaders: opts?.headers,
-        disableCache: opts?.disableCache,
-      });
+      const { data: typedUnprocessedProjects, metadata } =
+        await fetchPortfolioProjects({
+          requestHeaders: opts?.headers,
+          disableCache: opts?.disableCache,
+        });
 
       // Reset caches AFTER awaiting network to avoid race conditions where
       // overlapping calls each reset, then both push, causing duplicates.
-      this._projects = {} as ParsedPortfolioProjectData;
-      this._activeProjects = [];
-      this._activeKeys = [];
-      this._listedProjects = [];
-      this._listedKeys = [];
-      this._keys = [];
-      this._activeProjectsMap = {};
+      this.resetCaches();
 
       this._keys = Object.keys(typedUnprocessedProjects);
       this._projects = this.parsePortfolioData(typedUnprocessedProjects);
@@ -919,9 +963,16 @@ export default class ProjectData {
         if (typeof opts?.includeNdaInActive === "boolean") {
           return opts.includeNdaInActive;
         }
+        if (typeof metadata.hasNdaAccess === "boolean") {
+          return metadata.hasNdaAccess;
+        }
         return headersContainPayloadSession(opts?.headers);
       })();
       this._includeNdaInActive = includeNdaInActive;
+      // Mirror backend decision about whether this response contained placeholders.
+      this._containsSanitizedPlaceholders = Boolean(
+        metadata.containsSanitizedPlaceholders,
+      );
 
       for (const key of this._keys) {
         const project = this._projects[key];
@@ -980,10 +1031,16 @@ export default class ProjectData {
           );
         }
       }
+      return {
+        includeNdaInActive,
+        containsSanitizedPlaceholders: Boolean(
+          metadata.containsSanitizedPlaceholders,
+        ),
+      } satisfies ProjectDataInitializeResult;
     })();
 
     try {
-      await this._initInFlight;
+      return await this._initInFlight;
     } finally {
       this._initInFlight = null;
     }
@@ -995,7 +1052,7 @@ export default class ProjectData {
    * @param key Project key
    * @returns Index in the active project list
    */
-  static projectIndex(key: string): number {
+  projectIndex(key: string): number {
     return this._activeKeys.indexOf(key);
   }
 
@@ -1005,7 +1062,7 @@ export default class ProjectData {
    * @param key Current project key
    * @returns Previous project key
    */
-  static prevKey(key: string): string {
+  prevKey(key: string): string {
     const index = this.projectIndex(key);
     return this._activeKeys[
       (index - 1 + this._activeKeys.length) % this._activeKeys.length
@@ -1018,10 +1075,12 @@ export default class ProjectData {
    * @param key Current project key
    * @returns Next project key
    */
-  static nextKey(key: string): string {
+  nextKey(key: string): string {
     const index = this.projectIndex(key);
     return this._activeKeys[(index + 1) % this._activeKeys.length];
   }
 }
 
-// Usage: await ProjectData.initialize();
+const projectDataSingleton = new ProjectDataStore();
+
+export default projectDataSingleton;
