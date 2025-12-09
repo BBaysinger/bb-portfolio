@@ -36,9 +36,14 @@ const headersContainPayloadSession = (headers?: HeadersInit): boolean => {
 
 // Fetch project data from the live API only (no JSON fallback)
 // Transforms Payload REST shape { docs: [...] } into a keyed record by slug.
+interface FetchProjectsMetadata {
+  containsSanitizedPlaceholders: boolean;
+  hasNdaAccess?: boolean;
+}
+
 interface FetchProjectsResult {
   data: PortfolioProjectData;
-  containsSanitizedPlaceholders: boolean;
+  metadata: FetchProjectsMetadata;
 }
 
 async function fetchPortfolioProjects(opts?: {
@@ -330,6 +335,15 @@ async function fetchPortfolioProjects(opts?: {
   interface PayloadProjectsRest {
     docs: PayloadProjectDoc[];
   }
+  // Type guard to detect Payload REST shape
+  const isPayloadRest = (val: unknown): val is PayloadProjectsRest => {
+    return (
+      typeof val === "object" &&
+      val !== null &&
+      Array.isArray((val as Record<string, unknown>).docs)
+    );
+  };
+
   const json = (await res.json()) as PayloadProjectsRest | PortfolioProjectData;
   const docs: PayloadProjectDoc[] = isPayloadRest(json) ? json.docs : [];
   const ndaDocsCount = docs.reduce(
@@ -384,20 +398,14 @@ async function fetchPortfolioProjects(opts?: {
     } catch {}
   }
 
-  // Type guard to detect Payload REST shape
-  const isPayloadRest = (val: unknown): val is PayloadProjectsRest => {
-    return (
-      typeof val === "object" &&
-      val !== null &&
-      Array.isArray((val as Record<string, unknown>).docs)
-    );
-  };
-
   if (!isPayloadRest(json)) {
     // Already in expected record form
     return {
       data: json as PortfolioProjectData,
-      containsSanitizedPlaceholders: false,
+      metadata: {
+        containsSanitizedPlaceholders: false,
+        hasNdaAccess,
+      },
     };
   }
 
@@ -657,7 +665,10 @@ async function fetchPortfolioProjects(opts?: {
 
   return {
     data: out,
-    containsSanitizedPlaceholders: _debugPlaceholders > 0,
+    metadata: {
+      containsSanitizedPlaceholders: _debugPlaceholders > 0,
+      hasNdaAccess,
+    },
   };
 }
 
@@ -722,11 +733,11 @@ export interface ProjectDataHydrationOptions {
   containsSanitizedPlaceholders?: boolean;
 }
 
-export interface ProjectDataInitializeOptions {
+export type ProjectDataInitializeOptions = {
   headers?: HeadersInit;
   disableCache?: boolean;
   includeNdaInActive?: boolean;
-}
+};
 
 export type ProjectDataInitializeResult = ProjectDataHydrationOptions;
 
