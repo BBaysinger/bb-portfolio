@@ -38,8 +38,9 @@ const HomePage = async () => {
   const ssrProjects = projectData.listedProjects;
   const ssrProjectRecord = projectData.projectsRecord;
   // Rely on backend metadata instead of guessing auth purely via cookies.
-  const containsSanitizedPlaceholders =
-    initResult.containsSanitizedPlaceholders;
+  const containsSanitizedPlaceholders = Boolean(
+    initResult.containsSanitizedPlaceholders,
+  );
   const ssrAuthenticated = hasSessionCookie && !containsSanitizedPlaceholders;
   const ssrIncludeNdaInActive = ssrAuthenticated
     ? initResult.includeNdaInActive
