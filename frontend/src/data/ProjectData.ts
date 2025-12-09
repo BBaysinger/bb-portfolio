@@ -354,7 +354,7 @@ async function fetchPortfolioProjects(opts?: {
     if (!doc?.nda) return false;
     // Payload scrubbing forces a generic title/empty fields; any richer data implies authenticated access.
     const sanitizedTitle =
-      doc.title?.trim().toLowerCase() === "confidential project";
+      !doc.title || doc.title.trim().toLowerCase() === "confidential project";
     const hasRichFields = Boolean(
       (doc.desc && doc.desc.length > 0) ||
       (doc.urls && doc.urls.length > 0) ||

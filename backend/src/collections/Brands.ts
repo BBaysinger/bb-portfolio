@@ -1,4 +1,15 @@
 import type { CollectionConfig } from 'payload'
+import type { PayloadRequest } from 'payload/types'
+
+type AccessArgs = {
+  req: PayloadRequest
+  doc?: { nda?: boolean | null }
+}
+
+const canReadBrandAsset = ({ req, doc }: AccessArgs) => {
+  if (!doc?.nda) return true
+  return !!req.user
+}
 
 export const Clients: CollectionConfig = {
   slug: 'brands',
@@ -11,22 +22,6 @@ export const Clients: CollectionConfig = {
     create: ({ req }) => req.user?.role === 'admin',
     update: ({ req }) => req.user?.role === 'admin',
     delete: ({ req }) => req.user?.role === 'admin',
-  },
-  hooks: {
-    afterRead: [
-      ({ doc, req }) => {
-        // Hide logo relations from unauthenticated viewers for NDA brands
-        const isAuthenticated = !!req.user
-        if (doc?.nda && !isAuthenticated) {
-          return {
-            ...doc,
-            logoLight: null,
-            logoDark: null,
-          }
-        }
-        return doc
-      },
-    ],
   },
   fields: [
     {
@@ -52,6 +47,9 @@ export const Clients: CollectionConfig = {
       type: 'upload',
       relationTo: 'brandLogos', // Ensure this collection exists for brand logos
       required: false,
+      access: {
+        read: canReadBrandAsset,
+      },
     },
     {
       name: 'logoDark',
@@ -59,6 +57,9 @@ export const Clients: CollectionConfig = {
       type: 'upload',
       relationTo: 'brandLogos',
       required: false,
+      access: {
+        read: canReadBrandAsset,
+      },
     },
     {
       name: 'website',
