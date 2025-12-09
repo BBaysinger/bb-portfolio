@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
 import ProjectViewWrapper from "@/components/project-carousel-page/ProjectViewWrapper";
-import { ProjectDataStore } from "@/data/ProjectData";
+import { ProjectDataStore, projectRequiresNda } from "@/data/ProjectData";
 
 export const revalidate = 0;
 export const dynamicParams = true;
@@ -28,7 +28,7 @@ export default async function NdaProjectPage({
   // Instantiate per-request to avoid leaking NDA responses between visitors.
   await projectData.initialize({ headers: h, disableCache: true });
   const rec = projectData.getProject(projectId);
-  if (!rec || !rec.nda) {
+  if (!rec || !projectRequiresNda(rec)) {
     return notFound();
   }
   return (

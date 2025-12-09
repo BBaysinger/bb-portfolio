@@ -3,7 +3,7 @@
 import React from "react";
 
 import { PushStateLink } from "@/components/common/PushStateLink";
-import ProjectData from "@/data/ProjectData";
+import ProjectData, { projectRequiresNda } from "@/data/ProjectData";
 
 import styles from "./PageButtons.module.scss";
 
@@ -61,8 +61,8 @@ const PageButtons: React.FC<{ projectId: string }> = ({ projectId }) => {
 
   const prevId = ProjectData.prevKey(projectId);
   const nextId = ProjectData.nextKey(projectId);
-  const prevIsNda = !!activeProjects[prevId]?.nda;
-  const nextIsNda = !!activeProjects[nextId]?.nda;
+  const prevIsNda = projectRequiresNda(activeProjects[prevId]);
+  const nextIsNda = projectRequiresNda(activeProjects[nextId]);
   // In-session carousel navigation must use query-string model (see routing notes above)
   const prevHref = `${prevIsNda ? "/nda/" : "/project/"}?p=${encodeURIComponent(prevId)}`;
   const nextHref = `${nextIsNda ? "/nda/" : "/project/"}?p=${encodeURIComponent(nextId)}`;

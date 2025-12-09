@@ -311,6 +311,16 @@ async function fetchPortfolioProjects(opts?: {
     logoDark?: unknown;
   };
   type BrandRel = string | BrandObj | Array<BrandObj>;
+  const brandRelationIsNda = (rel: BrandRel | undefined): boolean => {
+    if (!rel) return false;
+    if (Array.isArray(rel)) {
+      return rel.some((entry) => Boolean(entry && (entry as BrandObj).nda));
+    }
+    if (typeof rel === "object") {
+      return Boolean((rel as BrandObj).nda);
+    }
+    return false;
+  };
   interface PayloadProjectDoc {
     slug?: string;
     id?: string;
@@ -347,11 +357,12 @@ async function fetchPortfolioProjects(opts?: {
   const json = (await res.json()) as PayloadProjectsRest | PortfolioProjectData;
   const docs: PayloadProjectDoc[] = isPayloadRest(json) ? json.docs : [];
   const ndaDocsCount = docs.reduce(
-    (total, doc) => (doc?.nda ? total + 1 : total),
+    (total, doc) =>
+      doc?.nda || brandRelationIsNda(doc?.brandId) ? total + 1 : total,
     0,
   );
   const backendProvidedNdaDetails = docs.some((doc) => {
-    if (!doc?.nda) return false;
+    if (!doc?.nda && !brandRelationIsNda(doc?.brandId)) return false;
     // Payload scrubbing forces a generic title/empty fields; any richer data implies authenticated access.
     const sanitizedTitle =
       !doc.title || doc.title.trim().toLowerCase() === "confidential project";
@@ -419,49 +430,6 @@ async function fetchPortfolioProjects(opts?: {
     const slug: string | undefined = doc.slug || doc.id;
     if (!slug) continue;
 
-    // Frontend defense-in-depth: if this is an NDA project and the request
-    // clearly lacks auth cookies, do NOT expose any teaser data.
-    // Instead, include a sanitized placeholder entry so the UI can render
-    // a generic "Confidential Project" tile without leaking details.
-    if (doc.nda && !hasNdaAccess) {
-      _debugNdaDocs++;
-      out[slug] = {
-        title: "Confidential Project",
-        active: !!doc.active,
-        omitFromList: !!doc.omitFromList,
-        brandId: "",
-        brandIsNda: true,
-        isSanitized: true,
-        mobileOrientation: MobileOrientations.NONE,
-        tags: [],
-        role: "",
-        year: undefined,
-        awards: undefined,
-        type: undefined,
-        desc: [],
-        date: "",
-        urls: {},
-        nda: true,
-        sortIndex:
-          typeof doc.sortIndex === "number" ? doc.sortIndex : undefined,
-        thumbUrl: undefined,
-        thumbAlt: undefined,
-        brandLogoLightUrl: undefined,
-        brandLogoDarkUrl: undefined,
-        screenshotUrls: {},
-      };
-      _debugPlaceholders++;
-      if (debug) {
-        try {
-          console.info("[ProjectData] NDA placeholder emitted", {
-            slug,
-            sortIndex: typeof doc.sortIndex === "number" ? doc.sortIndex : null,
-          });
-        } catch {}
-      }
-      continue;
-    }
-
     // Map relationship brandId → brand slug/id string and resolve logo URLs when available
     let brandId = "";
     let brandIsNda = false;
@@ -500,6 +468,49 @@ async function fetchPortfolioProjects(opts?: {
       brandIsNda = !!bo.nda;
       brandLogoLightUrl = extractUploadUrl(bo.logoLight);
       brandLogoDarkUrl = extractUploadUrl(bo.logoDark);
+    }
+
+    // Frontend defense-in-depth: if either the project itself or its brand
+    // is NDA and the caller lacks auth, emit a sanitized placeholder instead
+    // of leaking teaser metadata.
+    const projectIsNda = Boolean(doc.nda || brandIsNda);
+    if (projectIsNda && !hasNdaAccess) {
+      _debugNdaDocs++;
+      out[slug] = {
+        title: "Confidential Project",
+        active: !!doc.active,
+        omitFromList: !!doc.omitFromList,
+        brandId: "",
+        brandIsNda: Boolean(brandIsNda || doc.nda),
+        isSanitized: true,
+        mobileOrientation: MobileOrientations.NONE,
+        tags: [],
+        role: "",
+        year: undefined,
+        awards: undefined,
+        type: undefined,
+        desc: [],
+        date: "",
+        urls: {},
+        nda: true,
+        sortIndex:
+          typeof doc.sortIndex === "number" ? doc.sortIndex : undefined,
+        thumbUrl: undefined,
+        thumbAlt: undefined,
+        brandLogoLightUrl: undefined,
+        brandLogoDarkUrl: undefined,
+        screenshotUrls: {},
+      };
+      _debugPlaceholders++;
+      if (debug) {
+        try {
+          console.info("[ProjectData] NDA placeholder emitted", {
+            slug,
+            sortIndex: typeof doc.sortIndex === "number" ? doc.sortIndex : null,
+          });
+        } catch {}
+      }
+      continue;
     }
 
     const tags = Array.isArray(doc.tags)
@@ -727,6 +738,12 @@ export interface ParsedPortfolioProject extends PortfolioProjectBase {
 export type PortfolioProjectData = Record<string, PortfolioProjectBase>;
 export type ParsedPortfolioProjectData = Record<string, ParsedPortfolioProject>;
 
+export const projectRequiresNda = (
+  project?: Pick<ParsedPortfolioProject, "nda" | "brandIsNda">,
+): boolean => {
+  return Boolean(project?.nda || project?.brandIsNda);
+};
+
 export interface ProjectDataHydrationOptions {
   includeNdaInActive: boolean;
   /** True when the backend redacted NDA rows, meaning the request was unauthenticated. */
@@ -809,7 +826,8 @@ export class ProjectDataStore {
     for (const key of this._keys) {
       const project = this._projects[key];
       if (!project?.active) continue;
-      if (!project.nda || includeNdaInActive) {
+      const requiresNda = projectRequiresNda(project);
+      if (!requiresNda || includeNdaInActive) {
         this._activeKeys.push(key);
         this._activeProjects.push(project);
         this._activeProjectsMap[key] = project;
@@ -988,8 +1006,9 @@ export class ProjectDataStore {
       for (const key of this._keys) {
         const project = this._projects[key];
         if (!project.active) continue;
+        const requiresNda = projectRequiresNda(project);
 
-        if (!project.nda || includeNdaInActive) {
+        if (!requiresNda || includeNdaInActive) {
           // Non-NDA: included in active navigation and list (unless omitted)
           this._activeKeys.push(key);
           this._activeProjects.push(project);

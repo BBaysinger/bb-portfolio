@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 
-import ProjectData from "@/data/ProjectData";
+import ProjectData, { projectRequiresNda } from "@/data/ProjectData";
 import getBrandLogoUrl from "@/utils/getBrandLogoUrl";
 
 import styles from "./LogoSwapper.module.scss";
@@ -99,8 +99,8 @@ const LogoSwapper: React.FC<LogoSwapperProps> = ({
     const map: Record<string, string | null> = {};
     // Use all active projects' brand metadata to derive logo availability
     const projects = ProjectData.activeProjects;
-    // If any active project is NDA, we're on an NDA-allowed route; permit NDA logos
-    const allowNdaLogo = projects.some((p) => !!p.nda);
+    // If any active project is NDA (project or brand), we're on an NDA-allowed route
+    const allowNdaLogo = projects.some((p) => projectRequiresNda(p));
     for (const p of projects) {
       const key = p.brandId;
       if (!key) continue;

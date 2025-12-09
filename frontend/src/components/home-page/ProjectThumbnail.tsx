@@ -171,7 +171,9 @@ const ProjectThumbnail: React.FC<ProjectThumbnailProps> = ({
         showNdaConfidential ? styles.nda : "",
       )}
       data-nda={showNdaConfidential ? "locked" : undefined}
-      data-project-id={isSanitized ? undefined : projectId}
+      data-project-id={
+        !showNdaConfidential && !isSanitized ? projectId : undefined
+      }
       style={{ "--thumb-height": `${thumbHeight}px` } as React.CSSProperties}
     >
       <Link
