@@ -18,7 +18,7 @@ export type NdaAccessArgs = {
  */
 export const canReadNdaField = ({ req, doc }: NdaAccessArgs) => {
   if (!doc?.nda) return true
-  return !!req.user
+  return !!req?.user
 }
 
 /**
