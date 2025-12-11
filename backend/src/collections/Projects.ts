@@ -198,5 +198,21 @@ export const Projects: CollectionConfig = {
         description: 'Associate a thumbnail with this project.',
       },
     },
+    {
+      name: 'thumbnailTheme',
+      label: 'Thumbnail Theme',
+      type: 'select',
+      defaultValue: 'default',
+      options: [
+        { label: 'Default', value: 'default' },
+        { label: 'Muted Frame', value: 'muted-frame' },
+        { label: 'High Contrast', value: 'high-contrast' },
+        { label: 'Glass Panel', value: 'glass-panel' },
+        { label: 'Neon Grid', value: 'neon-grid' },
+      ],
+      admin: {
+        description: 'Adds a theme-specific CSS class to the thumbnail wrapper.',
+      },
+    },
   ],
 }
