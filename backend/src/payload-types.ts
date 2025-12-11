@@ -216,6 +216,14 @@ export interface Project {
    * Associate a thumbnail with this project.
    */
   thumbnail?: (string | ProjectThumbnail)[] | null;
+  /**
+   * Sets the base/background class for the thumbnail wrapper.
+   */
+  thumbnailBackgroundTheme?: ('default' | 'muted-frame' | 'dark-panel' | 'glass-panel' | 'neon-grid') | null;
+  /**
+   * Adds a detail/attribute class for overlays, borders, or effects.
+   */
+  thumbnailAttributeTheme?: ('default' | 'badge-pop' | 'border-strong' | 'glow' | 'grain') | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -512,6 +520,8 @@ export interface ProjectsSelect<T extends boolean = true> {
       };
   screenshots?: T;
   thumbnail?: T;
+  thumbnailBackgroundTheme?: T;
+  thumbnailAttributeTheme?: T;
   updatedAt?: T;
   createdAt?: T;
 }
