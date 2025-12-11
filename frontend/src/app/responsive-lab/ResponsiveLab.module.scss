@@ -31,18 +31,18 @@
   background-size: cover;
 
   &:nth-child(9n + 1) {
-    background-image: url("/images/projects-list-distressed/bezel.webp");
+    background-image: url("/images/projects-list-distressed/bez.webp");
   }
 
   &:nth-child(9n + 2) {
-    background-image: url("/images/projects-list-distressed/pink-stripes.webp");
+    background-image: url("/images/projects-list-distressed/maroon.webp");
   }
 
   &:nth-child(9n + 3) {
     // layered backgrounds: overlay + middle + base
     background-image:
       url("/images/projects-list-distressed/triangle.svg"),
-      url("/images/projects-list-distressed/nailed.webp");
+      url("/images/projects-list-distressed/splay.webp");
     background-repeat: no-repeat, no-repeat;
     background-position: center, center;
     background-size: 50%, contain;
@@ -95,7 +95,7 @@
   &:nth-child(9n + 7) {
     background-image:
       url("/images/projects-list-distressed/asdf.webp"),
-      url("/images/projects-list-distressed/no-holes.webp");
+      url("/images/projects-list-distressed/thin-bez.webp");
     background-repeat: no-repeat, no-repeat;
     background-position:
       center 40%,
@@ -117,7 +117,7 @@
   &:nth-child(9n + 9) {
     background-image:
       url("/images/projects-list-distressed/asdf.webp"),
-      url("/images/projects-list-distressed/no-bezel.webp");
+      url("/images/projects-list-distressed/no-bez.webp");
     background-repeat: no-repeat, no-repeat;
     background-position:
       center 40%,
