@@ -30,7 +30,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     // Prefer same-origin relative path to leverage Next.js rewrites (/api -> backend)
     // Absolute URLs (e.g., http://bb-portfolio-backend-local:3001) may not resolve in the browser.
-    const healthUrl = "/api/health";
+    // Allow override for host-run dev (frontend on host, backend on localhost:3001) via NEXT_PUBLIC_HEALTH_URL.
+    // Default keeps compose/caddy happy (relative same-origin proxy).
+    const healthUrl =
+      (process.env.NEXT_PUBLIC_HEALTH_URL || "").trim() || "/api/health/";
 
     const abort = new AbortController();
     const timer = setTimeout(() => abort.abort("timeout"), 5000);
