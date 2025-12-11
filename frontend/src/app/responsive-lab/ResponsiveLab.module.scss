@@ -31,7 +31,7 @@
   background-size: cover;
 
   &:nth-child(9n + 1) {
-    background-image: url("/images/projects-list-distressed/bez.webp");
+    background-image: url("/images/projects-list-distressed/default.webp");
   }
 
   &:nth-child(9n + 2) {
@@ -95,7 +95,7 @@
   &:nth-child(9n + 7) {
     background-image:
       url("/images/projects-list-distressed/asdf.webp"),
-      url("/images/projects-list-distressed/thin-bez.webp");
+      url("/images/projects-list-distressed/thin.webp");
     background-repeat: no-repeat, no-repeat;
     background-position:
       center 40%,
@@ -117,7 +117,7 @@
   &:nth-child(9n + 9) {
     background-image:
       url("/images/projects-list-distressed/asdf.webp"),
-      url("/images/projects-list-distressed/no-bez.webp");
+      url("/images/projects-list-distressed/raised.webp");
     background-repeat: no-repeat, no-repeat;
     background-position:
       center 40%,

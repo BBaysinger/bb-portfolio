@@ -219,7 +219,19 @@ export interface Project {
   /**
    * Sets the base/background class for the thumbnail wrapper.
    */
-  thumbnailBackgroundTheme?: ('default' | 'muted-frame' | 'dark-panel' | 'glass-panel' | 'neon-grid') | null;
+  thumbnailBackgroundTheme?:
+    | (
+        | 'default'
+        | 'maroon'
+        | 'splay'
+        | 'orange'
+        | 'slots'
+        | 'holes'
+        | 'thin'
+        | 'screws'
+        | 'raised'
+      )
+    | null;
   /**
    * Adds a detail/attribute class for overlays, borders, or effects.
    */
