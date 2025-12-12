@@ -275,6 +275,7 @@
     "db:delete:prod-portfolio:dry": "bash scripts/delete-database.sh --env prod --db portfolio-prod --dry-run",
     // 🗑️ Prod cleanup (apply): backup then drop portfolio-prod
     "db:delete:prod-portfolio": "bash scripts/delete-database.sh --env prod --db portfolio-prod",
+    // ☢️💀 DANGER: NUCLEAR DATABASE REPLACEMENT - Completely overwrites prod and dev DB with local data
     // ☢️ Convenience: run both local→prod and local→dev migrations sequentially (ensure backups exist first)
     // This is the default flow. Only use this, since I'm the only admin
     "db:migrate:local-to-both": "npm run db:migrate:local-to-prod && npm run db:migrate:local-to-dev",
