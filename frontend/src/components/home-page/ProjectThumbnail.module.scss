@@ -3,7 +3,8 @@
 @use "./ProjectsList.module.scss" as projectsList;
 
 .projectThumbnail {
-  height: 290px;
+  aspect-ratio: 3 / 2;
+  height: auto;
   position: relative;
   overflow: hidden; // Fix gap on left side of vignette.
   width: 100vw;
@@ -16,21 +17,11 @@
     flex: 0 1 calc(33.333% - projectsList.$projectsListGap * (2 / 3));
   }
 
-  &:nth-child(odd) {
-    .stripesContainer {
-      position: absolute;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      transform: scaleX(-1);
-    }
-  }
-
   .thumbBg {
     filter: blur(0);
     opacity: 1;
   }
+
   .vignette {
     opacity: 0.5;
     transition: opacity 0.3s linear;
@@ -73,46 +64,6 @@
       }
     }
   }
-
-  $distanceFactor: 1.2;
-  $negDistanceFactor: -$distanceFactor;
-
-  &:not(.nda):hover {
-    .stripesTop {
-      transform: translateX(-50%)
-        translate(
-          calc(var(--thumb-height) * $distanceFactor),
-          calc(var(--thumb-height) * $negDistanceFactor)
-        );
-    }
-
-    .stripesBottom {
-      transform: translateX(-50%)
-        translate(
-          calc(var(--thumb-height) * $negDistanceFactor),
-          calc(var(--thumb-height) * $distanceFactor)
-        );
-    }
-  }
-
-  // Focus (scroll-centered) should mirror hover motion for progressive enhancement on touch.
-  &:not(.nda).projectThumbnailFocus {
-    .stripesTop {
-      transform: translateX(-50%)
-        translate(
-          calc(var(--thumb-height) * 1.06),
-          calc(var(--thumb-height) * -1.06)
-        );
-    }
-
-    .stripesBottom {
-      transform: translateX(-50%)
-        translate(
-          calc(var(--thumb-height) * -1.06),
-          calc(var(--thumb-height) * 1.06)
-        );
-    }
-  }
 }
 
 .nda {
@@ -135,87 +86,6 @@
   display: block;
   width: 100%;
   height: 100%;
-}
-
-$stripeWidth: 80px;
-
-// Shared base for stripe layers
-.stripes {
-  position: absolute;
-  height: 125%;
-  width: 250%;
-  left: 50%;
-  transition: transform 0.3s ease-out;
-  transform: translateX(-50%);
-  z-index: 1;
-  pointer-events: none;
-
-  background: repeating-linear-gradient(
-    135deg,
-    #000 0,
-    #000 $stripeWidth,
-    transparent $stripeWidth,
-    transparent calc($stripeWidth * 2)
-  );
-}
-
-$offsetFactor: 0.14;
-
-.stripesTop {
-  top: 0;
-  background-position-x: calc(50% + var(--thumb-height) * $offsetFactor);
-}
-
-.stripesBottom {
-  bottom: 0;
-  background-position-x: calc(50% - var(--thumb-height) * $offsetFactor);
-}
-
-$green: #69871e;
-$yellow: #95971c;
-$purple: #63099e;
-$alternate: #8f8f8f;
-
-.stripesGreen {
-  background: repeating-linear-gradient(
-    135deg,
-    $green 0,
-    $green $stripeWidth,
-    transparent $stripeWidth,
-    transparent calc($stripeWidth * 2),
-    $alternate calc($stripeWidth * 2),
-    $alternate calc($stripeWidth * 3),
-    transparent calc($stripeWidth * 3),
-    transparent calc($stripeWidth * 4)
-  );
-}
-
-.stripesPurple {
-  background: repeating-linear-gradient(
-    135deg,
-    $purple 0,
-    $purple $stripeWidth,
-    transparent $stripeWidth,
-    transparent calc($stripeWidth * 2),
-    $alternate calc($stripeWidth * 2),
-    $alternate calc($stripeWidth * 3),
-    transparent calc($stripeWidth * 3),
-    transparent calc($stripeWidth * 4)
-  );
-}
-
-.stripesYellow {
-  background: repeating-linear-gradient(
-    135deg,
-    $yellow 0,
-    $yellow $stripeWidth,
-    transparent $stripeWidth,
-    transparent calc($stripeWidth * 2),
-    $alternate calc($stripeWidth * 2),
-    $alternate calc($stripeWidth * 3),
-    transparent calc($stripeWidth * 3),
-    transparent calc($stripeWidth * 4)
-  );
 }
 
 .brandLogo {
@@ -262,8 +132,10 @@ h4.thumbTitle {
   will-change: opacity, filter;
   background-color: rgba(0, 0, 0, 0.5);
   overflow: hidden;
+
   a {
     color: #bbb;
+
     &:hover {
       text-decoration: none;
     }
