@@ -112,22 +112,6 @@ const ProjectThumbnail: React.FC<ProjectThumbnailProps> = ({
   const showNdaConfidential = isNdaLike && !effectiveAuth;
   const focusClass = focused ? styles.projectThumbnailFocus : "";
 
-  // Cycle stripe background deterministically by index.
-  const stripeColors = ["Green", "Yellow", "Purple"];
-  const _stripeColor = stripeColors[index % stripeColors.length];
-
-  // Measure and expose thumbnail height as CSS variable for grid layout.
-  const [thumbHeight, setThumbHeight] = useState(0);
-  useEffect(() => {
-    const el = localRef.current;
-    if (!el) return;
-    const update = () => setThumbHeight(el.offsetHeight);
-    const ro = new ResizeObserver(update);
-    ro.observe(el);
-    update();
-    return () => ro.disconnect();
-  }, []);
-
   const inner = (
     <>
       {!showNdaConfidential && thumbUrl && (
@@ -141,7 +125,7 @@ const ProjectThumbnail: React.FC<ProjectThumbnailProps> = ({
           priority={index < 3}
         />
       )}
-      <div className={styles.vignette}></div>
+      {/* <div className={styles.vignette}></div>
       <div className={styles.thumbContent}>
         <h4 className={styles.thumbTitle}>
           {showNdaConfidential ? (
@@ -150,7 +134,7 @@ const ProjectThumbnail: React.FC<ProjectThumbnailProps> = ({
             <span>{title}</span>
           )}
         </h4>
-      </div>
+      </div> */}
     </>
   );
 
@@ -174,7 +158,6 @@ const ProjectThumbnail: React.FC<ProjectThumbnailProps> = ({
       data-project-id={
         !showNdaConfidential && !isSanitized ? projectId : undefined
       }
-      style={{ "--thumb-height": `${thumbHeight}px` } as React.CSSProperties}
     >
       <Link
         href={href}
@@ -183,16 +166,6 @@ const ProjectThumbnail: React.FC<ProjectThumbnailProps> = ({
       >
         {inner}
       </Link>
-      <div className={styles.stripesContainer}>
-        {/* <div className={clsx(styles.stripes, styles.stripesTop)}></div>
-        <div
-          className={clsx(
-            styles.stripes,
-            styles.stripesBottom,
-            styles["stripes" + stripeColor],
-          )}
-        ></div> */}
-      </div>
       {showNdaConfidential && (
         <Image
           src="/images/projects-list/nda-locked.webp"
