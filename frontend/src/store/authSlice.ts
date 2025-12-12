@@ -50,7 +50,7 @@ export const checkAuthStatus = createAsyncThunk(
   "auth/checkStatus",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await fetch("/api/users/me", {
+      const response = await fetch("/api/users/me/", {
         credentials: "include",
       });
 

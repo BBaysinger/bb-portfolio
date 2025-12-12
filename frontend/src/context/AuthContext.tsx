@@ -41,7 +41,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     // On mount, fetch the current user from our API proxy
     const fetchUser = async () => {
       try {
-        const res = await fetch("/api/users/me", {
+        const res = await fetch("/api/users/me/", {
           credentials: "include", // needed for session cookie-based auth
         });
 

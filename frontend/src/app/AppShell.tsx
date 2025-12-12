@@ -128,7 +128,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     };
     const checkAndRefresh = async () => {
       try {
-        const res = await fetch("/api/users/me", {
+        const res = await fetch("/api/users/me/", {
           credentials: "include",
           cache: "no-store",
         });
@@ -176,12 +176,17 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     };
   }, [router, dispatch, pathname]);
 
-  // Periodic soft auth validation (clears stale user if cookie disappears without a tab visibility event)
+  // Periodic soft auth validation (clears stale user if cookie disappears)
+  // Relaxed for portfolio: only when tab is visible, every 10 minutes.
   useEffect(() => {
     const id = setInterval(() => {
-      // Lightweight head request could be used; reuse existing thunk for clarity
-      dispatch(checkAuthStatus());
-    }, 60_000); // every 60s
+      if (
+        typeof document !== "undefined" &&
+        document.visibilityState === "visible"
+      ) {
+        dispatch(checkAuthStatus());
+      }
+    }, 600_000); // 10 minutes
     return () => clearInterval(id);
   }, [dispatch]);
 

@@ -143,7 +143,7 @@ export default function ProjectViewWrapper({
       if (probing) return;
       probing = true;
       try {
-        const resp = await fetch("/api/users/me", {
+        const resp = await fetch("/api/users/me/", {
           method: "GET",
           credentials: "include",
           headers: { Accept: "application/json" },
