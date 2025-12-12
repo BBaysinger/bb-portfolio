@@ -51,19 +51,19 @@
     // Shared AWS SDK types
     "@aws-sdk/types": "^3.936.0",
     // MongoDB adapter for Payload CMS
-    "@payloadcms/db-mongodb": "3.68.2",
+    "@payloadcms/db-mongodb": "3.68.3",
     // Nodemailer email adapter for Payload CMS (handles SMTP email sending, password resets, notifications)
-    "@payloadcms/email-nodemailer": "3.68.2",
+    "@payloadcms/email-nodemailer": "3.68.3",
     // Enables Payload-Next.js integration (server-side rendering and routing)
-    "@payloadcms/next": "3.68.2",
+    "@payloadcms/next": "3.68.3",
     // Payload Cloud tools (optional if self-hosting)
-    "@payloadcms/payload-cloud": "3.68.2",
+    "@payloadcms/payload-cloud": "3.68.3",
     // Rich text editor using Lexical (modern alternative to Slate)
-    "@payloadcms/richtext-lexical": "3.68.2",
+    "@payloadcms/richtext-lexical": "3.68.3",
     // S3-backed media storage for Payload uploads
-    "@payloadcms/storage-s3": "3.68.2",
+    "@payloadcms/storage-s3": "3.68.3",
     // Payload's core UI components
-    "@payloadcms/ui": "3.68.2",
+    "@payloadcms/ui": "3.68.3",
     // Cross-platform environment variable setting (Windows/Unix compatibility)
     "cross-env": "^10.1.0",
     // Environment variable loader (reads .env files into process.env)
@@ -75,13 +75,13 @@
     // JSON5 parser for annotated configuration files
     "json5": "^2.2.3",
     // Next.js framework for frontend/backend integration
-    "next": "16.0.8",
+    "next": "16.0.10",
     // Payload CMS core package
-    "payload": "3.68.2",
+    "payload": "3.68.3",
     // React version to match Next.js 15
-    "react": "19.2.1",
+    "react": "19.2.3",
     // React DOM library for rendering React components (required by Next.js and Payload UI)
-    "react-dom": "19.2.1",
+    "react-dom": "19.2.3",
     // High-performance image processing (required for Payload image fields)
     "sharp": "0.34.5",
     // Converts strings into URL-friendly slugs (useful for dynamic routing)
@@ -98,7 +98,7 @@
     // Type definitions for JSON5
     "@types/json5": "^2.2.0",
     // Node.js TypeScript definitions (latest for Node 18+)
-    "@types/node": "^25.0.0",
+    "@types/node": "^25.0.1",
     // React 19 types
     "@types/react": "19.2.7",
     // React DOM 19 types
@@ -106,11 +106,11 @@
     // Vite React plugin (enables React support in Vitest)
     "@vitejs/plugin-react": "5.1.2",
     //
-    "baseline-browser-mapping": "^2.9.6",
+    "baseline-browser-mapping": "^2.9.7",
     // ESLint JavaScript/TypeScript linter (v9 for latest rules)
-    "eslint": "^9.39.1",
+    "eslint": "^9.39.2",
     // Next.js ESLint configuration (includes React and accessibility rules)
-    "eslint-config-next": "16.0.8",
+    "eslint-config-next": "16.0.10",
     // Browser DOM simulation for Node.js testing environments
     "jsdom": "27.3.0",
     // Standalone version of Playwright test runner
