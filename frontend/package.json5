@@ -51,19 +51,19 @@
     // Utility for conditionally joining CSS class names
     "clsx": "^2.1.1",
     // Professional animation library for smooth UI transitions
-    "gsap": "^3.14.1",
+    "gsap": "^3.14.2",
     // HTTP client for making API requests
     "jsonwebtoken": "^9.0.3",
     //
-    "next": "^16.0.8",
+    "next": "^16.0.10",
     // React library for building user interfaces (v19 for latest features)
-    "react": "^19.2.1",
+    "react": "^19.2.3",
     // React DOM renderer for web applications (matches React 19)
-    "react-dom": "^19.2.1",
+    "react-dom": "^19.2.3",
     // Official React bindings for Redux state management
     "react-redux": "^9.2.0",
     // CSS preprocessor with variables, nesting, and mixins
-    "sass": "^1.95.0",
+    "sass": "^1.96.0",
   },
   // Development-only dependencies for tooling and type checking
   "devDependencies": {
@@ -72,7 +72,7 @@
     // TypeScript definitions for jsonwebtoken library
     "@types/jsonwebtoken": "^9.0.10",
     // Node.js TypeScript definitions (latest for Node 18+)
-    "@types/node": "^24",
+    "@types/node": "^25",
     // React TypeScript definitions (v19 for latest React features)
     "@types/react": "^19",
     // React DOM TypeScript definitions (v19 for latest React features)
@@ -86,7 +86,7 @@
     // JavaScript/TypeScript linting engine (v9 for latest rules)
     "eslint": "^9",
     // Next.js ESLint configuration with React and accessibility rules
-    "eslint-config-next": "16.0.8",
+    "eslint-config-next": "16.0.10",
     // ESLint plugin for React Hooks rules and best practices
     "eslint-plugin-react-hooks": "^7.0.1",
     // ESLint plugin for React Refresh (fast refresh) compatibility

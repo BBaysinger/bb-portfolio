@@ -123,13 +123,13 @@
     "search:files": "rg --files --hidden --follow --glob '!.git' --glob '!node_modules' --glob '!frontend/.next' --glob '!backend/.next'"
   },
   "devDependencies": {
-    "@next/eslint-plugin-next": "^16.0.8",
+    "@next/eslint-plugin-next": "^16.0.10",
     "@types/glob": "^9.0.0",
     "@typescript-eslint/eslint-plugin": "^8.49.0",
     "@typescript-eslint/parser": "^8.49.0",
-    "baseline-browser-mapping": "^2.9.6",
+    "baseline-browser-mapping": "^2.9.7",
     "concurrently": "^9.2.1",
-    "eslint": "^9.39.1",
+    "eslint": "^9.39.2",
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.24",
