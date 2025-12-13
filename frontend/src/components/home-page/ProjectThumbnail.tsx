@@ -33,6 +33,12 @@ interface ProjectThumbnailProps {
   isSanitized?: boolean;
   /** Thumbnail image URL. */
   thumbUrl?: string;
+  /** Optional thumbnail alt text. */
+  thumbAlt?: string;
+  /** Optional locked-state thumbnail URL. */
+  lockedThumbUrl?: string;
+  /** Optional locked-state thumbnail alt text. */
+  lockedThumbAlt?: string;
   /** Current user authentication state. */
   isAuthenticated: boolean;
   /** If true, applies scroll-focus styling (from parent hook). */
@@ -72,6 +78,9 @@ const ProjectThumbnail: React.FC<ProjectThumbnailProps> = ({
   nda,
   isSanitized,
   thumbUrl,
+  thumbAlt,
+  lockedThumbUrl,
+  lockedThumbAlt,
   isAuthenticated,
   focused,
   setRef,
@@ -111,13 +120,26 @@ const ProjectThumbnail: React.FC<ProjectThumbnailProps> = ({
   const effectiveAuth = isAuthenticated && !isSanitized;
   const showNdaConfidential = isNdaLike && !effectiveAuth;
   const focusClass = focused ? styles.projectThumbnailFocus : "";
+  const showLockedIcon = showNdaConfidential && !lockedThumbUrl;
+  const ndaClass = showNdaConfidential
+    ? lockedThumbUrl
+      ? styles.ndaNoDim
+      : styles.nda
+    : "";
+
+  const displayedThumbUrl = showNdaConfidential
+    ? lockedThumbUrl || undefined
+    : thumbUrl;
+  const displayedThumbAlt = showNdaConfidential
+    ? lockedThumbAlt || "Locked project thumbnail"
+    : thumbAlt || title;
 
   const inner = (
     <>
-      {!showNdaConfidential && thumbUrl && (
+      {displayedThumbUrl && (
         <Image
-          src={thumbUrl}
-          alt={title}
+          src={displayedThumbUrl}
+          alt={displayedThumbAlt}
           fill
           className={styles.thumbBg}
           style={{ objectFit: "cover" }}
@@ -149,11 +171,7 @@ const ProjectThumbnail: React.FC<ProjectThumbnailProps> = ({
         localRef.current = el;
         setRef?.(el);
       }}
-      className={clsx(
-        styles.projectThumbnail,
-        focusClass,
-        showNdaConfidential ? styles.nda : "",
-      )}
+      className={clsx(styles.projectThumbnail, focusClass, ndaClass)}
       data-nda={showNdaConfidential ? "locked" : undefined}
       data-project-id={
         !showNdaConfidential && !isSanitized ? projectId : undefined
@@ -166,7 +184,7 @@ const ProjectThumbnail: React.FC<ProjectThumbnailProps> = ({
       >
         {inner}
       </Link>
-      {showNdaConfidential && (
+      {showLockedIcon && (
         <Image
           src="/images/projects-list/nda-locked.webp"
           alt="Locked"

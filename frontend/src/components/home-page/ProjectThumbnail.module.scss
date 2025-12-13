@@ -9,11 +9,11 @@
   overflow: hidden; // Fix gap on left side of vignette.
   width: 100vw;
 
-  @include breakpointUp($b768px) {
+  @include breakpointUp($b992px) {
     flex: 0 1 calc(50% - projectsList.$projectsListGap * 0.5);
   }
 
-  @include breakpointUp($b1280px) {
+  @include breakpointUp($b1440px) {
     flex: 0 1 calc(33.333% - projectsList.$projectsListGap * (2 / 3));
   }
 
@@ -77,6 +77,21 @@
   .thumbContent {
     opacity: 1;
     background-color: rgba(0, 0, 0, 0.7);
+  }
+}
+
+// NDA state without dimming when a custom locked thumbnail is present.
+.ndaNoDim {
+  cursor: not-allowed;
+
+  .thumbBg {
+    filter: saturate(1) contrast(1);
+    opacity: 1;
+  }
+
+  .thumbContent {
+    opacity: 0;
+    background-color: transparent;
   }
 }
 
