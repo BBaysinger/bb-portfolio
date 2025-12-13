@@ -340,6 +340,7 @@ async function fetchPortfolioProjects(opts?: {
     urls?: Array<{ label?: string; url?: string }>;
     // Relationships (populated via depth=1)
     thumbnail?: unknown; // could be string | object | array of objects (upload docs)
+    lockedThumbnail?: unknown;
     screenshots?: unknown; // relationship to projectScreenshots (array)
   }
   interface PayloadProjectsRest {
@@ -470,6 +471,63 @@ async function fetchPortfolioProjects(opts?: {
       brandLogoDarkUrl = extractUploadUrl(bo.logoDark);
     }
 
+    // Shared helpers for upload documents (thumbnails/screenshots).
+    interface UploadSize {
+      url?: string;
+      width?: number;
+      height?: number;
+    }
+    interface UploadDocLike {
+      url?: string;
+      alt?: string;
+      updatedAt?: string; // used for cache-busting
+      sizes?: Record<string, UploadSize> & {
+        mobile?: UploadSize;
+        thumbnail?: UploadSize;
+      };
+    }
+    interface ScreenshotDocLike extends UploadDocLike {
+      screenType?: "laptop" | "phone";
+      orientation?: "portrait" | "landscape";
+      filename?: string;
+    }
+    const isUploadDocLike = (val: unknown): val is UploadDocLike => {
+      return (
+        !!val &&
+        typeof val === "object" &&
+        ("url" in (val as Record<string, unknown>) ||
+          "sizes" in (val as Record<string, unknown>) ||
+          "alt" in (val as Record<string, unknown>))
+      );
+    };
+    const firstUploadDoc = (val: unknown): UploadDocLike | undefined => {
+      if (!val) return undefined;
+      if (Array.isArray(val)) return val.find(isUploadDocLike);
+      return isUploadDocLike(val) ? val : undefined;
+    };
+    const isScreenshotDocLike = (val: unknown): val is ScreenshotDocLike => {
+      return (
+        !!val &&
+        typeof val === "object" &&
+        ("screenType" in (val as Record<string, unknown>) ||
+          "url" in (val as Record<string, unknown>))
+      );
+    };
+
+    // Resolve optional locked thumbnail early so NDA placeholders can render it.
+    let lockedThumbUrl: string | undefined;
+    let lockedThumbAlt: string | undefined;
+    const lockedThumbDoc = firstUploadDoc(doc.lockedThumbnail);
+    if (lockedThumbDoc) {
+      const baseLockedUrl =
+        lockedThumbDoc.url ||
+        lockedThumbDoc.sizes?.thumbnail?.url ||
+        lockedThumbDoc.sizes?.mobile?.url ||
+        undefined;
+      lockedThumbUrl = baseLockedUrl || undefined;
+      lockedThumbAlt = lockedThumbDoc.alt || undefined;
+    }
+
     // Frontend defense-in-depth: if either the project itself or its brand
     // is NDA and the caller lacks auth, emit a sanitized placeholder instead
     // of leaking teaser metadata.
@@ -497,6 +555,8 @@ async function fetchPortfolioProjects(opts?: {
           typeof doc.sortIndex === "number" ? doc.sortIndex : undefined,
         thumbUrl: undefined,
         thumbAlt: undefined,
+        lockedThumbUrl,
+        lockedThumbAlt,
         brandLogoLightUrl: undefined,
         brandLogoDarkUrl: undefined,
         screenshotUrls: {},
@@ -542,47 +602,6 @@ async function fetchPortfolioProjects(opts?: {
     }
 
     // Extract first thumbnail URL/alt if present without using `any`
-    interface UploadSize {
-      url?: string;
-      width?: number;
-      height?: number;
-    }
-    interface UploadDocLike {
-      url?: string;
-      alt?: string;
-      updatedAt?: string; // used for cache-busting
-      sizes?: Record<string, UploadSize> & {
-        mobile?: UploadSize;
-        thumbnail?: UploadSize;
-      };
-    }
-    interface ScreenshotDocLike extends UploadDocLike {
-      screenType?: "laptop" | "phone";
-      orientation?: "portrait" | "landscape";
-      filename?: string;
-    }
-    const isUploadDocLike = (val: unknown): val is UploadDocLike => {
-      return (
-        !!val &&
-        typeof val === "object" &&
-        ("url" in (val as Record<string, unknown>) ||
-          "sizes" in (val as Record<string, unknown>) ||
-          "alt" in (val as Record<string, unknown>))
-      );
-    };
-    const firstUploadDoc = (val: unknown): UploadDocLike | undefined => {
-      if (!val) return undefined;
-      if (Array.isArray(val)) return val.find(isUploadDocLike);
-      return isUploadDocLike(val) ? val : undefined;
-    };
-    const isScreenshotDocLike = (val: unknown): val is ScreenshotDocLike => {
-      return (
-        !!val &&
-        typeof val === "object" &&
-        ("screenType" in (val as Record<string, unknown>) ||
-          "url" in (val as Record<string, unknown>))
-      );
-    };
     let thumbUrl: string | undefined;
     let thumbAlt: string | undefined;
     const thumbDoc = firstUploadDoc(doc.thumbnail);
@@ -651,6 +670,8 @@ async function fetchPortfolioProjects(opts?: {
       sortIndex: typeof doc.sortIndex === "number" ? doc.sortIndex : undefined,
       thumbUrl,
       thumbAlt,
+      lockedThumbUrl,
+      lockedThumbAlt,
       brandLogoLightUrl,
       brandLogoDarkUrl,
       screenshotUrls: {
@@ -717,6 +738,8 @@ export interface PortfolioProjectBase {
   sortIndex?: number;
   thumbUrl?: string;
   thumbAlt?: string;
+  lockedThumbUrl?: string;
+  lockedThumbAlt?: string;
   /** True when the server redacted NDA details due to missing auth. */
   isSanitized?: boolean;
   /** Optional direct URLs for device screenshots resolved from Payload uploads. */

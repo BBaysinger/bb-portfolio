@@ -94,6 +94,9 @@ const ProjectsList: React.FC<ProjectsListProps> & {
           nda,
           isSanitized,
           thumbUrl,
+          thumbAlt,
+          lockedThumbUrl,
+          lockedThumbAlt,
         } = projectData;
         return (
           <ProjectThumbnail
@@ -109,6 +112,9 @@ const ProjectsList: React.FC<ProjectsListProps> & {
             nda={nda}
             isSanitized={isSanitized}
             thumbUrl={thumbUrl}
+            thumbAlt={thumbAlt}
+            lockedThumbUrl={lockedThumbUrl}
+            lockedThumbAlt={lockedThumbAlt}
             isAuthenticated={auth}
           />
         );

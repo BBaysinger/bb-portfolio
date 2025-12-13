@@ -217,19 +217,26 @@ export interface Project {
    */
   thumbnail?: (string | ProjectThumbnail)[] | null;
   /**
+   * Optional fallback shown when the project is locked to unauthenticated visitors.
+   */
+  lockedThumbnail?: (string | null) | ProjectThumbnail;
+  /**
    * Sets the base/background class for the thumbnail wrapper.
    */
   thumbnailBackgroundTheme?:
     | (
         | 'default'
+        | 'bez'
         | 'maroon'
         | 'splay'
+        | 'arrow'
         | 'orange'
+        | 'asdf'
         | 'slots'
         | 'holes'
-        | 'thin'
+        | 'thin-bez'
         | 'screws'
-        | 'raised'
+        | 'no-bez'
       )
     | null;
   /**
@@ -532,6 +539,7 @@ export interface ProjectsSelect<T extends boolean = true> {
       };
   screenshots?: T;
   thumbnail?: T;
+  lockedThumbnail?: T;
   thumbnailBackgroundTheme?: T;
   thumbnailAttributeTheme?: T;
   updatedAt?: T;

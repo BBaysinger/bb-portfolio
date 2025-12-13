@@ -199,6 +199,21 @@ export const Projects: CollectionConfig = {
       },
     },
     {
+      name: 'lockedThumbnail',
+      label: 'Locked/NDA Thumbnail',
+      type: 'relationship',
+      relationTo: 'projectThumbnails',
+      hasMany: false,
+      access: {
+        // Locked/placeholder art should always be safe to expose publicly.
+        read: () => true,
+      },
+      admin: {
+        description:
+          'Optional fallback shown when the project is locked to unauthenticated visitors.',
+      },
+    },
+    {
       name: 'thumbnailBackgroundTheme',
       label: 'Thumbnail Background Theme',
       type: 'select',
