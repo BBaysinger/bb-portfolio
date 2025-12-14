@@ -78,14 +78,12 @@ const FluxelPixiGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
             shadowTrOffsetY,
             shadowBlOffsetX,
             shadowBlOffsetY,
-            colorVariation,
           } = fluxel;
 
-          const baseTint = parseColor(colorVariation) ?? 0x6b7f3c;
-          const baseAlpha = Math.max(
-            0.25,
-            Math.min(0.9, influence * 0.9 + 0.2),
-          );
+          // Match SVG behavior:
+          // --base-color: rgba(20, 20, 20, influence * 1.0 - 0.1)
+          const baseTint = 0x141414;
+          const baseAlpha = Math.max(0, Math.min(1, influence * 1.0 - 0.1));
 
           spriteGroup.base.clear();
           spriteGroup.base.rect(0, 0, size - 0.5, size - 0.5);
@@ -104,7 +102,7 @@ const FluxelPixiGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
             );
           }
 
-          spriteGroup.base.tint = baseTint;
+          // (No tint needed; fill() sets the color)
         }
       }
 
@@ -177,9 +175,8 @@ const FluxelPixiGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
 
           const mask = new Graphics();
           mask.rect(0, 0, size, size);
-          // Debug-visible mask bounds; also used as the actual mask for shadow sprites.
+          // Used as the actual mask for shadow sprites; keep it invisible.
           mask.fill({ color: 0xffffff, alpha: 0.0 });
-          mask.stroke({ color: 0x00ff00, width: 1, alpha: 0.8 });
           mask.eventMode = "none";
 
           group.addChild(base);
