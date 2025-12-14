@@ -21,11 +21,14 @@ import type { FluxelGridHandle, FluxelGridProps } from "./FluxelAllTypes";
 import styles from "./FluxelPixiGrid.module.scss";
 
 const SHADOW_SRC = "/images/hero/corner-shadow.webp";
+const DEBUG_SINGLE_FLUXEL = false;
 
 type ShadowSprites = {
   base: Graphics;
   shadowTr: Sprite | null;
   shadowBl: Sprite | null;
+  shadowTrBase?: { x: number; y: number };
+  shadowBlBase?: { x: number; y: number };
 };
 
 const parseColor = (value?: string) => {
@@ -42,7 +45,7 @@ const FluxelPixiGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const appRef = useRef<Application | null>(null);
     const containerRef = useRef<Container | null>(null);
-    const fluxelSpritesRef = useRef<ShadowSprites[][]>([]);
+    const fluxelSpritesRef = useRef<(ShadowSprites | null)[][]>([]);
     const gridDataRef = useRef(gridData);
     const fluxelSizeRef = useRef(0);
     const resizeObserverRef = useRef<ResizeObserver | null>(null);
@@ -60,6 +63,8 @@ const FluxelPixiGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
       const sprites = fluxelSpritesRef.current;
       const size = fluxelSizeRef.current;
       if (!sprites.length || size <= 0) return;
+
+      const shadowScale = size / 72;
 
       for (let r = 0; r < sprites.length; r++) {
         for (let c = 0; c < sprites[r].length; c++) {
@@ -86,13 +91,16 @@ const FluxelPixiGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
           spriteGroup.base.rect(0, 0, size - 0.5, size - 0.5);
           spriteGroup.base.fill({ color: baseTint, alpha: baseAlpha });
 
-          if (spriteGroup.shadowTr) {
-            spriteGroup.shadowTr.position.set(shadowTrOffsetX, shadowTrOffsetY);
+          if (spriteGroup.shadowTr && spriteGroup.shadowTrBase) {
+            spriteGroup.shadowTr.position.set(
+              spriteGroup.shadowTrBase.x + shadowTrOffsetX * shadowScale,
+              spriteGroup.shadowTrBase.y + shadowTrOffsetY * shadowScale,
+            );
           }
-          if (spriteGroup.shadowBl) {
+          if (spriteGroup.shadowBl && spriteGroup.shadowBlBase) {
             spriteGroup.shadowBl.position.set(
-              size + shadowBlOffsetX,
-              size + shadowBlOffsetY,
+              spriteGroup.shadowBlBase.x + shadowBlOffsetX * shadowScale,
+              spriteGroup.shadowBlBase.y + shadowBlOffsetY * shadowScale,
             );
           }
 
@@ -125,11 +133,19 @@ const FluxelPixiGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
       const offsetY = (logicalHeight - rows * size) / 2;
 
       container.removeChildren();
-      const sprites: ShadowSprites[][] = [];
+      const sprites: (ShadowSprites | null)[][] = [];
+
+      const targetRow = Math.floor(rows / 2);
+      const targetCol = Math.floor(cols / 2);
 
       for (let r = 0; r < rows; r++) {
         sprites[r] = [];
         for (let c = 0; c < cols; c++) {
+          if (DEBUG_SINGLE_FLUXEL && (r !== targetRow || c !== targetCol)) {
+            sprites[r][c] = null;
+            continue;
+          }
+
           const group = new Container();
           group.position.set(
             Math.round(c * size + offsetX),
@@ -139,24 +155,31 @@ const FluxelPixiGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
           const base = new Graphics();
           base.position.set(0, 0);
 
+          const shadowScale = size / 72;
+
           const shadowTr = texture ? new Sprite({ texture }) : null;
           if (shadowTr) {
             shadowTr.anchor.set(0, 0);
+            shadowTr.scale.set(shadowScale);
             shadowTr.alpha = 0.5;
+            shadowTr.position.set(-34 * shadowScale, -110 * shadowScale);
           }
 
           const shadowBl = texture ? new Sprite({ texture }) : null;
           if (shadowBl) {
-            shadowBl.anchor.set(1, 1);
-            shadowBl.scale.set(-1, -1);
+            shadowBl.anchor.set(0, 0);
+            shadowBl.scale.set(-shadowScale, -shadowScale);
             shadowBl.alpha = 0.25;
-            shadowBl.position.set(size, size);
+            // Baseline matches SVG: x/y plus a local scale(-1,-1).
+            // This places the inner "L" corner (crotch) at the fluxel's bottom-left.
+            shadowBl.position.set(100 * shadowScale, 185 * shadowScale);
           }
 
           const mask = new Graphics();
           mask.rect(0, 0, size, size);
-          mask.fill({ color: 0xffffff, alpha: 1 });
-          mask.renderable = false; // keep mask from drawing while still clipping sprites
+          // Debug-visible mask bounds; also used as the actual mask for shadow sprites.
+          mask.fill({ color: 0xffffff, alpha: 0.0 });
+          mask.stroke({ color: 0x00ff00, width: 1, alpha: 0.8 });
           mask.eventMode = "none";
 
           group.addChild(base);
@@ -173,6 +196,12 @@ const FluxelPixiGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
             base,
             shadowTr: shadowTr as Sprite | null,
             shadowBl: shadowBl as Sprite | null,
+            shadowTrBase: shadowTr
+              ? { x: shadowTr.position.x, y: shadowTr.position.y }
+              : undefined,
+            shadowBlBase: shadowBl
+              ? { x: shadowBl.position.x, y: shadowBl.position.y }
+              : undefined,
           } as ShadowSprites;
         }
       }
