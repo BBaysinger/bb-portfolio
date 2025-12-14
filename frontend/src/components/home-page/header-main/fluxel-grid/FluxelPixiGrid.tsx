@@ -90,7 +90,10 @@ const FluxelPixiGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
             spriteGroup.shadowTr.position.set(shadowTrOffsetX, shadowTrOffsetY);
           }
           if (spriteGroup.shadowBl) {
-            spriteGroup.shadowBl.position.set(shadowBlOffsetX, shadowBlOffsetY);
+            spriteGroup.shadowBl.position.set(
+              size + shadowBlOffsetX,
+              size + shadowBlOffsetY,
+            );
           }
 
           spriteGroup.base.tint = baseTint;
@@ -104,7 +107,7 @@ const FluxelPixiGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
       const canvas = canvasRef.current;
       const container = containerRef.current;
       const app = appRef.current;
-      const texture = textureRef.current;
+      // const texture = textureRef.current;
       if (!canvas || !container || !app) return;
 
       const parent = canvas.parentElement;
@@ -122,51 +125,29 @@ const FluxelPixiGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
       const offsetY = (logicalHeight - rows * size) / 2;
 
       container.removeChildren();
-
-      // Debug backdrop to verify draw calls and sizing.
-      const debug = new Graphics();
-      debug.rect(0, 0, logicalWidth, logicalHeight);
-      debug.fill({ color: 0x3300ff, alpha: 0.08 });
-      container.addChild(debug);
       const sprites: ShadowSprites[][] = [];
 
       for (let r = 0; r < rows; r++) {
         sprites[r] = [];
         for (let c = 0; c < cols; c++) {
-          const g = new Graphics();
-          g.position.set(
+          const group = new Container();
+          group.position.set(
             Math.round(c * size + offsetX),
             Math.round(r * size + offsetY),
           );
 
-          const shadowTr = texture ? new Sprite({ texture }) : null;
-          if (shadowTr) {
-            shadowTr.anchor.set(0, 0);
-            shadowTr.alpha = 0.5;
-          }
+          const base = new Graphics();
+          base.position.set(0, 0);
 
-          const shadowBl = texture ? new Sprite({ texture }) : null;
-          if (shadowBl) {
-            shadowBl.anchor.set(1, 1);
-            shadowBl.scale.set(-1, -1);
-            shadowBl.alpha = 0.25;
-            shadowBl.position.set(size, size);
-          }
+          group.addChild(base);
 
-          const group = new Container();
-          group.addChild(g);
-          if (shadowTr) group.addChild(shadowTr);
-          if (shadowBl) group.addChild(shadowBl);
-
-          const mask = new Graphics();
-          mask.rect(0, 0, size, size);
-          mask.fill({ color: 0xffffff, alpha: 1 });
-          group.mask = mask;
-          group.addChild(mask);
+          // Temporarily omit corner-shadow sprites until the base grid is visible.
+          const shadowTr = null;
+          const shadowBl = null;
 
           container.addChild(group);
           sprites[r][c] = {
-            base: g,
+            base,
             shadowTr: shadowTr as Sprite | null,
             shadowBl: shadowBl as Sprite | null,
           } as ShadowSprites;
