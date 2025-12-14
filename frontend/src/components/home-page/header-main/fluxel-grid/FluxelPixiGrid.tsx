@@ -1,201 +1,300 @@
-// import clsx from "clsx";
-// import { useRef, useEffect, forwardRef, useImperativeHandle } from "react";
+import clsx from "clsx";
+import {
+  Application,
+  Assets,
+  Container,
+  Graphics,
+  Sprite,
+  Texture,
+} from "pixi.js";
+import {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+} from "react";
 
-// import { Application, Container } from "pixi.js";
+import useResponsiveScaler from "@/hooks/useResponsiveScaler";
 
-// import type { FluxelGridHandle, FluxelGridProps } from "./FluxelAllTypes";
-// import { FluxelPixiShadowMesh } from "./FluxelPixiShadowMesh";
-// import styles from "./FluxelPixiGrid.module.scss";
+import type { FluxelGridHandle, FluxelGridProps } from "./FluxelAllTypes";
+import styles from "./FluxelPixiGrid.module.scss";
 
-// /**
-//  * KEEP: Come back to this when there is more time to explore various
-//  * render methods. We left off trying to make a custom WebGL shader to work
-//  * in Pixi. The goal is to explore and continue optimizing every rendering strategy.
-//  * Catches with Pixi:
-//  * 1.To explicity control the render interval to sync and reduce render updates.
-//  * 2. Limit Pixi from rerendering the entire canvas on every update.
-//  *
-//  * FluxelPixiGrid - renders a dynamic, resizable PixiJS grid of FluxelPixiSprites
-//  *
-//  * This is a noop. It wasn't completed, and since we've decided rendering straight to canvas
-//  * will be more efficient anyhow. Don't know if it's worth keeping around...
-//  *
-//  */
-// const FluxelPixiGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
-//   ({ gridData, imperativeMode, className }, ref) => {
-//     const canvasRef = useRef<HTMLCanvasElement>(null);
-//     const appRef = useRef<Application | null>(null);
-//     const fluxelsRef = useRef<FluxelPixiShadowMesh[][]>([]);
-//     const fluxelSizeRef = useRef(0);
-//     const fluxelContainerRef = useRef<Container>(new Container());
-//     const gridDataRef = useRef(gridData);
-//     const resizeObserverRef = useRef<ResizeObserver | null>(null);
+const SHADOW_SRC = "/images/hero/corner-shadow.webp";
 
-//     const rows = gridData.length;
-//     const cols = gridData[0]?.length || 0;
+type ShadowSprites = {
+  base: Graphics;
+  shadowTr: Sprite | null;
+  shadowBl: Sprite | null;
+};
 
-//     useEffect(() => {
-//       gridDataRef.current = gridData;
-//     }, [gridData]);
+const parseColor = (value?: string) => {
+  if (!value || value === "transparent") return null;
+  if (value.startsWith("#")) {
+    const hex = Number.parseInt(value.slice(1), 16);
+    return Number.isFinite(hex) ? hex : null;
+  }
+  return null;
+};
 
-//     useEffect(() => {
-//       let destroyed = false;
-//       let frameId: number;
+const FluxelPixiGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
+  ({ gridData, className, onLayoutUpdateRequest }, ref) => {
+    const canvasRef = useRef<HTMLCanvasElement>(null);
+    const appRef = useRef<Application | null>(null);
+    const containerRef = useRef<Container | null>(null);
+    const fluxelSpritesRef = useRef<ShadowSprites[][]>([]);
+    const gridDataRef = useRef(gridData);
+    const fluxelSizeRef = useRef(0);
+    const resizeObserverRef = useRef<ResizeObserver | null>(null);
+    const textureRef = useRef<Texture | null>(null);
 
-//       frameId = requestAnimationFrame(() => {
-//         const canvas = canvasRef.current;
-//         if (!canvas || destroyed) return;
+    const rows = gridData.length;
+    const cols = gridData[0]?.length || 0;
 
-//         const rect = canvas.getBoundingClientRect();
-//         const dpr = window.devicePixelRatio || 1;
+    const scaler = useResponsiveScaler(4 / 3, 1280, "cover");
 
-//         const fallbackWidth = 800;
-//         const fallbackHeight = 600;
+    // Avoid Pixi's createImageBitmap worker to satisfy strict CSP (no blob workers).
+    Assets.setPreferences({ preferCreateImageBitmap: false });
 
-//         let width = rect.width;
-//         let height = rect.height;
+    const updateSprites = useCallback(() => {
+      const sprites = fluxelSpritesRef.current;
+      const size = fluxelSizeRef.current;
+      if (!sprites.length || size <= 0) return;
 
-//         if (width < 1 || height < 1 || !isFinite(width) || !isFinite(height)) {
-//           console.warn("⚠️ Invalid canvas size detected. Using fallback.");
-//           width = fallbackWidth;
-//           height = fallbackHeight;
-//         }
+      for (let r = 0; r < sprites.length; r++) {
+        for (let c = 0; c < sprites[r].length; c++) {
+          const fluxel = gridDataRef.current[r]?.[c];
+          const spriteGroup = sprites[r][c];
+          if (!fluxel || !spriteGroup) continue;
 
-//         const app = new Application();
-//         app
-//           .init({
-//             canvas,
-//             width: width,
-//             height: height,
-//             backgroundAlpha: 0,
-//             antialias: false,
-//             resolution: dpr,
-//             autoDensity: true,
-//           })
-//           .then(async () => {
-//             if (destroyed) return;
+          const {
+            influence,
+            shadowTrOffsetX,
+            shadowTrOffsetY,
+            shadowBlOffsetX,
+            shadowBlOffsetY,
+            colorVariation,
+          } = fluxel;
 
-//             appRef.current = app;
-//             app.ticker.maxFPS = 60;
+          const baseTint = parseColor(colorVariation) ?? 0x6b7f3c;
+          const baseAlpha = Math.max(0.25, Math.min(0.9, influence * 0.9 + 0.2));
 
-//             const fluxelContainer = fluxelContainerRef.current;
-//             app.stage.addChild(fluxelContainer);
+          spriteGroup.base.clear();
+          spriteGroup.base.rect(0, 0, size - 0.5, size - 0.5);
+          spriteGroup.base.fill({ color: baseTint, alpha: baseAlpha });
 
-//             const buildGrid = () => {
-//               const bounds = canvas.getBoundingClientRect();
-//               const logicalWidth = bounds.width;
-//               const logicalHeight = bounds.height;
+          if (spriteGroup.shadowTr) {
+            spriteGroup.shadowTr.position.set(shadowTrOffsetX, shadowTrOffsetY);
+          }
+          if (spriteGroup.shadowBl) {
+            spriteGroup.shadowBl.position.set(shadowBlOffsetX, shadowBlOffsetY);
+          }
 
-//               const sizeW = logicalWidth / cols;
-//               const sizeH = logicalHeight / rows;
-//               const newSize = Math.max(sizeW, sizeH);
-//               fluxelSizeRef.current = newSize;
+          spriteGroup.base.tint = baseTint;
+        }
+      }
 
-//               const offsetX = (logicalWidth - cols * newSize) / 2;
-//               const offsetY = (logicalHeight - rows * newSize) / 2;
+      appRef.current?.render();
+    }, []);
 
-//               fluxelContainer.removeChildren();
-//               const fluxels: FluxelPixiShadowMesh[][] = [];
+    const buildGrid = useCallback(() => {
+      const canvas = canvasRef.current;
+      const container = containerRef.current;
+      const app = appRef.current;
+      const texture = textureRef.current;
+      if (!canvas || !container || !app) return;
 
-//               for (let row = 0; row < rows; row++) {
-//                 fluxels[row] = [];
-//                 for (let col = 0; col < cols; col++) {
-//                   const data = gridDataRef.current[row][col];
-//                   const sprite = new FluxelPixiShadowMesh(data, newSize);
-//                   sprite.x = Math.round(col * newSize + offsetX);
-//                   sprite.y = Math.round(row * newSize + offsetY);
-//                   fluxelContainer.addChild(sprite);
-//                   fluxels[row][col] = sprite;
-//                 }
-//               }
+      const parent = canvas.parentElement;
+      if (!parent) return;
+      const bounds = parent.getBoundingClientRect();
+      const logicalWidth = Math.max(1, scaler.width || bounds.width);
+      const logicalHeight = Math.max(1, scaler.height || bounds.height);
 
-//               fluxelsRef.current = fluxels;
-//             };
+      app.renderer.resize(logicalWidth, logicalHeight);
 
-//             const resize = () => {
-//               const parent = canvas.parentElement;
-//               if (!parent) return;
+      const size = Math.max(logicalWidth / cols, logicalHeight / rows);
+      fluxelSizeRef.current = size;
 
-//               const bounds = parent.getBoundingClientRect();
-//               if (bounds.width < 1 || bounds.height < 1) return;
+      const offsetX = (logicalWidth - cols * size) / 2;
+      const offsetY = (logicalHeight - rows * size) / 2;
 
-//               app.renderer.resize(bounds.width, bounds.height);
-//               buildGrid();
-//             };
+      container.removeChildren();
 
-//             let resizeTimeout: number | null = null;
-//             const resizeObserver = new ResizeObserver(() => {
-//               if (resizeTimeout) cancelAnimationFrame(resizeTimeout);
-//               resizeTimeout = requestAnimationFrame(resize);
-//             });
+      // Debug backdrop to verify draw calls and sizing.
+      const debug = new Graphics();
+      debug.rect(0, 0, logicalWidth, logicalHeight);
+      debug.fill({ color: 0x3300ff, alpha: 0.08 });
+      debug.stroke({ color: 0xff4444, width: 2, alpha: 0.6 });
+      container.addChild(debug);
+      const sprites: ShadowSprites[][] = [];
 
-//             resizeObserver.observe(canvas.parentElement!);
-//             resizeObserverRef.current = resizeObserver;
+      for (let r = 0; r < rows; r++) {
+        sprites[r] = [];
+        for (let c = 0; c < cols; c++) {
+          const g = new Graphics();
+          g.position.set(
+            Math.round(c * size + offsetX),
+            Math.round(r * size + offsetY),
+          );
 
-//             resize();
-//           });
-//       });
+          const shadowTr = texture ? new Sprite({ texture }) : null;
+          if (shadowTr) {
+            shadowTr.anchor.set(0, 0);
+            shadowTr.alpha = 0.5;
+          }
 
-//       return () => {
-//         destroyed = true;
-//         cancelAnimationFrame(frameId);
+          const shadowBl = texture ? new Sprite({ texture }) : null;
+          if (shadowBl) {
+            shadowBl.anchor.set(1, 1);
+            shadowBl.scale.set(-1, -1);
+            shadowBl.alpha = 0.25;
+            shadowBl.position.set(size, size);
+          }
 
-//         if (resizeObserverRef.current) {
-//           resizeObserverRef.current.disconnect();
-//         }
+          const group = new Container();
+          group.addChild(g);
+          if (shadowTr) group.addChild(shadowTr);
+          if (shadowBl) group.addChild(shadowBl);
 
-//         if (appRef.current) {
-//           try {
-//             appRef.current.destroy(true, { children: true });
-//           } catch (err) {
-//             console.warn("Pixi destroy failed:", err);
-//           }
-//           appRef.current = null;
-//         }
-//       };
-//     }, [rows, cols]);
+          const mask = new Graphics();
+          mask.rect(0, 0, size, size);
+          mask.fill({ color: 0xffffff, alpha: 1 });
+          group.mask = mask;
+          group.addChild(mask);
 
-//     useImperativeHandle(
-//       ref,
-//       () => ({
-//         getFluxelAt(x, y) {
-//           const canvas = canvasRef.current;
-//           const size = fluxelSizeRef.current;
-//           if (!canvas || size === 0) return null;
+          container.addChild(group);
+          sprites[r][c] = {
+            base: g,
+            shadowTr: shadowTr as Sprite | null,
+            shadowBl: shadowBl as Sprite | null,
+          } as ShadowSprites;
+        }
+      }
 
-//           const { left, top } = canvas.getBoundingClientRect();
-//           const relativeX = x - left;
-//           const relativeY = y - top;
+      fluxelSpritesRef.current = sprites;
+      updateSprites();
+    }, [cols, rows, updateSprites, scaler.height, scaler.width]);
 
-//           const r = Math.min(Math.floor(relativeY / size), rows - 1);
-//           const c = Math.min(Math.floor(relativeX / size), cols - 1);
+    useEffect(() => {
+      buildGrid();
+      onLayoutUpdateRequest?.(() => buildGrid());
+      appRef.current?.render();
+    }, [buildGrid, onLayoutUpdateRequest]);
 
-//           return gridDataRef.current[r]?.[c] || null;
-//         },
-//         getContainerElement() {
-//           return canvasRef.current?.parentElement as HTMLDivElement | null;
-//         },
-//         getFluxelSize() {
-//           return fluxelSizeRef.current;
-//         },
-//         getGridData() {
-//           return gridDataRef.current;
-//         },
-//         trackPosition(row, col, influence, color) {
-//           if (!imperativeMode) return;
-//           fluxelsRef.current[row]?.[col]?.updateInfluence(influence, color);
-//         },
-//       }),
-//       [imperativeMode],
-//     );
+    useEffect(() => {
+      gridDataRef.current = gridData;
+      updateSprites();
+    }, [gridData, updateSprites]);
 
-//     return (
-//       <canvas
-//         ref={canvasRef}
-//         className={clsx(styles.fluxelGrid, className)}
-//       />
-//     );
-//   },
-// );
+    useEffect(() => {
+      if (appRef.current) return; // idempotent in StrictMode
 
-// export default FluxelPixiGrid;
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+
+      const app = new Application();
+      app
+        .init({
+          canvas,
+          backgroundAlpha: 0,
+          antialias: false,
+          resolution: window.devicePixelRatio || 1,
+          autoDensity: true,
+        })
+        .then(async () => {
+          appRef.current = app;
+          if (app.renderer.background) {
+            app.renderer.background.alpha = 0; // keep canvas transparent
+          }
+          app.ticker.stop(); // render on demand
+
+          const container = new Container();
+          containerRef.current = container;
+          app.stage.addChild(container);
+
+          const texture = (await Assets.load(SHADOW_SRC)) as Texture;
+          textureRef.current = texture;
+
+          buildGrid();
+          onLayoutUpdateRequest?.(() => buildGrid());
+          app.render();
+        })
+        .catch((err) => console.warn("Pixi init failed", err));
+
+      return () => {
+        resizeObserverRef.current?.disconnect();
+        if (appRef.current) {
+          try {
+            appRef.current.destroy(true, { children: true });
+          } catch (err) {
+            console.warn("Pixi destroy failed", err);
+          }
+          appRef.current = null;
+          containerRef.current = null;
+        }
+      };
+    }, [buildGrid]);
+
+    useEffect(() => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      const parent = canvas.parentElement;
+      if (!parent) return;
+
+      const resize = () => {
+        buildGrid();
+        onLayoutUpdateRequest?.(() => buildGrid());
+        appRef.current?.render();
+      };
+
+      const observer = new ResizeObserver(() => {
+        requestAnimationFrame(resize);
+      });
+      observer.observe(parent);
+      resizeObserverRef.current = observer;
+
+      return () => observer.disconnect();
+    }, [buildGrid]);
+
+    useImperativeHandle(
+      ref,
+      () => ({
+        getFluxelAt(x, y) {
+          const canvas = canvasRef.current;
+          const size = fluxelSizeRef.current;
+          if (!canvas || size === 0) return null;
+
+          const { left, top } = canvas.getBoundingClientRect();
+          const relativeX = x - left;
+          const relativeY = y - top;
+
+          const r = Math.min(Math.floor(relativeY / size), rows - 1);
+          const c = Math.min(Math.floor(relativeX / size), cols - 1);
+
+          return gridDataRef.current[r]?.[c] || null;
+        },
+        getContainerElement() {
+          return canvasRef.current?.parentElement as HTMLDivElement | null;
+        },
+        getFluxelSize() {
+          return fluxelSizeRef.current;
+        },
+        getGridData() {
+          return gridDataRef.current;
+        },
+        trackPosition() {
+          // no-op for Pixi path; updates come from gridData changes
+        },
+      }),
+      [rows, cols],
+    );
+
+    return (
+      <canvas ref={canvasRef} className={clsx(styles.fluxelGrid, className)} />
+    );
+  },
+);
+
+FluxelPixiGrid.displayName = "FluxelPixiGrid";
+
+export default FluxelPixiGrid;
