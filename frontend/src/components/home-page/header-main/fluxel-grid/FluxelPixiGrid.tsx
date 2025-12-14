@@ -77,7 +77,10 @@ const FluxelPixiGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
           } = fluxel;
 
           const baseTint = parseColor(colorVariation) ?? 0x6b7f3c;
-          const baseAlpha = Math.max(0.25, Math.min(0.9, influence * 0.9 + 0.2));
+          const baseAlpha = Math.max(
+            0.25,
+            Math.min(0.9, influence * 0.9 + 0.2),
+          );
 
           spriteGroup.base.clear();
           spriteGroup.base.rect(0, 0, size - 0.5, size - 0.5);
@@ -124,7 +127,6 @@ const FluxelPixiGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
       const debug = new Graphics();
       debug.rect(0, 0, logicalWidth, logicalHeight);
       debug.fill({ color: 0x3300ff, alpha: 0.08 });
-      debug.stroke({ color: 0xff4444, width: 2, alpha: 0.6 });
       container.addChild(debug);
       const sprites: ShadowSprites[][] = [];
 
@@ -175,11 +177,21 @@ const FluxelPixiGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
       updateSprites();
     }, [cols, rows, updateSprites, scaler.height, scaler.width]);
 
+    const layoutUpdateRef = useRef(onLayoutUpdateRequest);
+
+    useEffect(() => {
+      layoutUpdateRef.current = onLayoutUpdateRequest;
+    }, [onLayoutUpdateRequest]);
+
+    const notifyLayoutUpdate = useCallback(() => {
+      layoutUpdateRef.current?.(() => buildGrid());
+    }, [buildGrid]);
+
     useEffect(() => {
       buildGrid();
-      onLayoutUpdateRequest?.(() => buildGrid());
+      notifyLayoutUpdate();
       appRef.current?.render();
-    }, [buildGrid, onLayoutUpdateRequest]);
+    }, [buildGrid, notifyLayoutUpdate]);
 
     useEffect(() => {
       gridDataRef.current = gridData;
@@ -216,7 +228,7 @@ const FluxelPixiGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
           textureRef.current = texture;
 
           buildGrid();
-          onLayoutUpdateRequest?.(() => buildGrid());
+          notifyLayoutUpdate();
           app.render();
         })
         .catch((err) => console.warn("Pixi init failed", err));
@@ -233,7 +245,7 @@ const FluxelPixiGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
           containerRef.current = null;
         }
       };
-    }, [buildGrid]);
+    }, [buildGrid, notifyLayoutUpdate]);
 
     useEffect(() => {
       const canvas = canvasRef.current;
@@ -243,7 +255,7 @@ const FluxelPixiGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
 
       const resize = () => {
         buildGrid();
-        onLayoutUpdateRequest?.(() => buildGrid());
+        notifyLayoutUpdate();
         appRef.current?.render();
       };
 
@@ -254,7 +266,7 @@ const FluxelPixiGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
       resizeObserverRef.current = observer;
 
       return () => observer.disconnect();
-    }, [buildGrid]);
+    }, [buildGrid, notifyLayoutUpdate]);
 
     useImperativeHandle(
       ref,

@@ -1,10 +1,13 @@
 import clsx from "clsx";
+import { useSearchParams } from "next/navigation";
 import {
   useState,
   useRef,
   useImperativeHandle,
   forwardRef,
   useEffect,
+  useMemo,
+  useCallback,
 } from "react";
 
 import useElementRelativePointer from "@/hooks/useElementRelativePointer";
@@ -13,6 +16,7 @@ import useResponsiveScaler from "@/hooks/useResponsiveScaler";
 import AnimationSequencer from "./AnimationSequencer";
 import type { FluxelGridHandle, FluxelData } from "./FluxelAllTypes";
 import FluxelCanvasGrid from "./FluxelCanvasGrid";
+import FluxelPixiGrid from "./FluxelPixiGrid";
 import FluxelSvgGrid from "./FluxelSvgGrid";
 import styles from "./GridController.module.scss";
 import ProjectilesOverlay from "./ProjectilesOverlay";
@@ -71,24 +75,20 @@ interface GridControllerProps {
  */
 const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
   ({ rows, cols, className, useSlingerTracking = false }, ref) => {
-    const getGridTypeFromUrl = (): "svg" | "canvas" => {
-      if (typeof window === "undefined") return "svg";
-
-      const value = new URLSearchParams(window.location.search).get("gridType");
-
-      if (value === "svg" || value === "canvas") {
+    const searchParams = useSearchParams();
+    const gridType = useMemo(() => {
+      const value = searchParams?.get("gridType");
+      if (value === "svg" || value === "canvas" || value === "pixi") {
         return value;
       }
-
       return "svg";
-    };
-
-    const gridType = getGridTypeFromUrl();
+    }, [searchParams]);
 
     const gridInstanceRef = useRef<FluxelGridHandle | null>(null);
     const containerRef = useRef<HTMLElement | null>(null);
     const wrapperRef = useRef<HTMLDivElement | null>(null);
     const isShadowsPaused = useRef(false);
+    const [overlayFluxelSize, setOverlayFluxelSize] = useState(0);
     const [pointerOverride, setPointerOverride] = useState<
       { x: number; y: number } | undefined
     >(undefined);
@@ -97,13 +97,25 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
     );
     const overrideFrameId = useRef<number | null>(null);
 
-    const onLayoutUpdateRequest = (fn: () => void) => {
-      fn(); // optionally debounce or throttle here if needed
-    };
+    const syncContainerRef = useCallback(() => {
+      const el = gridInstanceRef.current?.getContainerElement?.() ?? null;
+      if (el) {
+        containerRef.current = el;
+      }
+    }, []);
+
+    const onLayoutUpdateRequest = useCallback(
+      (fn: () => void) => {
+        fn();
+        syncContainerRef();
+        const size = gridInstanceRef.current?.getFluxelSize?.() ?? 0;
+        setOverlayFluxelSize((prev) => (prev !== size ? size : prev));
+      },
+      [syncContainerRef],
+    );
 
     useEffect(() => {
-      const el = gridInstanceRef.current?.getContainerElement?.();
-      if (el) containerRef.current = el;
+      syncContainerRef();
       if (typeof window !== "undefined" && !containerRef.current) {
         containerRef.current = document.createElement("div");
       }
@@ -119,7 +131,7 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
           cancelAnimationFrame(overrideFrameId.current);
         }
       };
-    }, []);
+    }, [syncContainerRef]);
 
     const pointerMeta = useElementRelativePointer(containerRef, {
       pointerdown: 0,
@@ -240,6 +252,13 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
             gridData={gridData}
             onLayoutUpdateRequest={onLayoutUpdateRequest}
           />
+        ) : gridType === "pixi" ? (
+          <FluxelPixiGrid
+            className={styles.fluxelGridCanvas}
+            ref={gridInstanceRef}
+            gridData={gridData}
+            onLayoutUpdateRequest={onLayoutUpdateRequest}
+          />
         ) : (
           <>No grid matches: {gridType} </>
         )}
@@ -247,7 +266,7 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
         <ProjectilesOverlay
           className={styles.projectilesOverlay}
           projectiles={projectiles}
-          fluxelSize={gridInstanceRef.current?.getFluxelSize?.() ?? 0}
+          fluxelSize={overlayFluxelSize}
           rows={rows}
           cols={cols}
         />
