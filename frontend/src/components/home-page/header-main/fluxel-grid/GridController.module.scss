@@ -27,3 +27,30 @@
 .projectilesOverlay {
   z-index: 2;
 }
+
+.gridLinesOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+
+  --grid-line-thickness: 2px;
+
+  // One-element grid line overlay: two repeating gradients (vertical + horizontal).
+  // Variables are set inline from GridController based on fluxel size and centering offsets.
+  background-image:
+    linear-gradient(
+      to right,
+      rgba(0, 0, 0, 0.75) var(--grid-line-thickness),
+      transparent var(--grid-line-thickness)
+    ),
+    linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.75) var(--grid-line-thickness),
+      transparent var(--grid-line-thickness)
+    );
+  background-repeat: repeat;
+  background-size: var(--grid-cell-size) var(--grid-cell-size);
+  background-position: var(--grid-offset-x) var(--grid-offset-y);
+}

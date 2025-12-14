@@ -81,7 +81,7 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
       if (value === "svg" || value === "canvas" || value === "pixi") {
         return value;
       }
-      return "svg";
+      return "pixi";
     }, [searchParams]);
 
     const gridInstanceRef = useRef<FluxelGridHandle | null>(null);
@@ -89,6 +89,11 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
     const wrapperRef = useRef<HTMLDivElement | null>(null);
     const isShadowsPaused = useRef(false);
     const [overlayFluxelSize, setOverlayFluxelSize] = useState(0);
+    const [gridLinesLayout, setGridLinesLayout] = useState(() => ({
+      cellSize: 0,
+      offsetX: 0,
+      offsetY: 0,
+    }));
     const [pointerOverride, setPointerOverride] = useState<
       { x: number; y: number } | undefined
     >(undefined);
@@ -110,8 +115,26 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
         syncContainerRef();
         const size = gridInstanceRef.current?.getFluxelSize?.() ?? 0;
         setOverlayFluxelSize((prev) => (prev !== size ? size : prev));
+
+        const wrapper = wrapperRef.current;
+        if (!wrapper || size <= 0) return;
+        const w = wrapper.clientWidth;
+        const h = wrapper.clientHeight;
+        if (w <= 0 || h <= 0) return;
+
+        // Match Pixi/SVG centering math: grid is centered even when the cell size
+        // causes overflow (cover behavior), so offsets can be negative.
+        const offsetX = Math.round((w - cols * size) / 2);
+        const offsetY = Math.round((h - rows * size) / 2);
+        setGridLinesLayout((prev) =>
+          prev.cellSize !== size ||
+          prev.offsetX !== offsetX ||
+          prev.offsetY !== offsetY
+            ? { cellSize: size, offsetX, offsetY }
+            : prev,
+        );
       },
-      [syncContainerRef],
+      [syncContainerRef, cols, rows],
     );
 
     useEffect(() => {
@@ -262,6 +285,19 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
         ) : (
           <>No grid matches: {gridType} </>
         )}
+
+        {gridLinesLayout.cellSize > 0 ? (
+          <div
+            className={styles.gridLinesOverlay}
+            style={
+              {
+                "--grid-cell-size": `${gridLinesLayout.cellSize}px`,
+                "--grid-offset-x": `${gridLinesLayout.offsetX}px`,
+                "--grid-offset-y": `${gridLinesLayout.offsetY}px`,
+              } as React.CSSProperties
+            }
+          />
+        ) : null}
 
         <ProjectilesOverlay
           className={styles.projectilesOverlay}
