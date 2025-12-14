@@ -31,15 +31,6 @@ type ShadowSprites = {
   shadowBlBase?: { x: number; y: number };
 };
 
-const parseColor = (value?: string) => {
-  if (!value || value === "transparent") return null;
-  if (value.startsWith("#")) {
-    const hex = Number.parseInt(value.slice(1), 16);
-    return Number.isFinite(hex) ? hex : null;
-  }
-  return null;
-};
-
 const FluxelPixiGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
   ({ gridData, className, onLayoutUpdateRequest }, ref) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
