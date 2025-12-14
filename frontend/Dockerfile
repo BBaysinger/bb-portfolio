@@ -30,6 +30,10 @@ CMD ["npm", "run", "dev"]
 
 FROM base AS builder
 ENV NODE_ENV=production
+# Deployment profile (e.g. local/dev/prod). Used at build-time so client bundles can gate dev-only UI.
+ARG ENV_PROFILE
+ENV ENV_PROFILE=$ENV_PROFILE \
+	NEXT_PUBLIC_ENV_PROFILE=$ENV_PROFILE
 # RUM build-time configuration (NEXT_PUBLIC_* vars must be present during `npm run build:webpack`)
 ARG NEXT_PUBLIC_RUM_APP_MONITOR_ID
 ARG NEXT_PUBLIC_RUM_IDENTITY_POOL_ID
