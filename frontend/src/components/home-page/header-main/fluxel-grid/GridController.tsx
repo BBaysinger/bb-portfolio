@@ -15,6 +15,7 @@ import type { FluxelGridHandle, FluxelData } from "./FluxelAllTypes";
 import FluxelCanvasGrid from "./FluxelCanvasGrid";
 import FluxelSvgGrid from "./FluxelSvgGrid";
 import styles from "./GridController.module.scss";
+import ProjectilesOverlay from "./ProjectilesOverlay";
 import useFluxelProjectiles, { Direction } from "./useFluxelProjectiles";
 import { useFluxelShadows } from "./useFluxelShadows";
 
@@ -171,9 +172,8 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
       fps: 20,
     });
 
-    const launchProjectile = useFluxelProjectiles({
+    const [projectiles, launchProjectile] = useFluxelProjectiles({
       gridRef: gridInstanceRef,
-      setGridData,
     });
 
     const applyFluxPosition = (clientX: number, clientY: number) => {
@@ -243,6 +243,14 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
         ) : (
           <>No grid matches: {gridType} </>
         )}
+
+        <ProjectilesOverlay
+          className={styles.projectilesOverlay}
+          projectiles={projectiles}
+          fluxelSize={gridInstanceRef.current?.getFluxelSize?.() ?? 0}
+          rows={rows}
+          cols={cols}
+        />
       </div>
     );
   },
