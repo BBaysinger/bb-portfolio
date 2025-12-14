@@ -107,7 +107,7 @@ const FluxelPixiGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
       const canvas = canvasRef.current;
       const container = containerRef.current;
       const app = appRef.current;
-      // const texture = textureRef.current;
+      const texture = textureRef.current;
       if (!canvas || !container || !app) return;
 
       const parent = canvas.parentElement;
@@ -139,11 +139,34 @@ const FluxelPixiGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
           const base = new Graphics();
           base.position.set(0, 0);
 
+          const shadowTr = texture ? new Sprite({ texture }) : null;
+          if (shadowTr) {
+            shadowTr.anchor.set(0, 0);
+            shadowTr.alpha = 0.5;
+          }
+
+          const shadowBl = texture ? new Sprite({ texture }) : null;
+          if (shadowBl) {
+            shadowBl.anchor.set(1, 1);
+            shadowBl.scale.set(-1, -1);
+            shadowBl.alpha = 0.25;
+            shadowBl.position.set(size, size);
+          }
+
+          const mask = new Graphics();
+          mask.rect(0, 0, size, size);
+          mask.fill({ color: 0xffffff, alpha: 1 });
+          mask.renderable = false; // keep mask from drawing while still clipping sprites
+          mask.eventMode = "none";
+
           group.addChild(base);
 
-          // Temporarily omit corner-shadow sprites until the base grid is visible.
-          const shadowTr = null;
-          const shadowBl = null;
+          const shadowLayer = new Container();
+          shadowLayer.mask = mask;
+          if (shadowTr) shadowLayer.addChild(shadowTr);
+          if (shadowBl) shadowLayer.addChild(shadowBl);
+          group.addChild(shadowLayer);
+          group.addChild(mask);
 
           container.addChild(group);
           sprites[r][c] = {
