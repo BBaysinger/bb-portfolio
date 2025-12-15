@@ -683,6 +683,8 @@ resource "aws_rum_app_monitor" "main" {
     enable_xray          = false
     session_sample_rate  = 1.0
     telemetries          = ["errors", "performance", "http"]
+    guest_role_arn       = aws_iam_role.rum_unauthenticated.arn
+    identity_pool_id     = aws_cognito_identity_pool.rum.id
 
     # Optional: Configure which URLs to track
     # included_pages = ["https://bbaysinger.com/*"]

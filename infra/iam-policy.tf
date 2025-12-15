@@ -68,7 +68,8 @@ resource "aws_iam_user_policy" "bb_portfolio_rum_cognito" {
           "iam:GetRolePolicy",
           "iam:ListRolePolicies",
           "iam:TagRole",
-          "iam:UntagRole"
+          "iam:UntagRole",
+          "iam:PassRole"
         ]
         Resource = "arn:aws:iam::778230822028:role/bb-portfolio-rum-*"
       }

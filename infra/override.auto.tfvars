@@ -5,3 +5,4 @@ secondary_instance_name   = "bb-portfolio-blue"
 ami_id                    = "ami-06a974f9b8a97ecf2"
 # Optional version tag for traceability; update as desired
 deployment_version        = "candidate-2025-11-14"
+manage_iam_user_policies  = true
