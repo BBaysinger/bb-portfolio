@@ -7,7 +7,6 @@ import ProjectData from "@/data/ProjectData";
 import { DeviceTypes, DeviceType } from "./DeviceDisplay.constants";
 import styles from "./DeviceDisplay.module.scss";
 
-
 interface DeviceDisplayProps {
   deviceType: DeviceType;
   id: string;

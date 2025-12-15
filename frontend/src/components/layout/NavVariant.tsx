@@ -12,7 +12,6 @@ import NavLinks from "./NavLinks";
 import { NavVariants, NavVariantClass } from "./NavVariant.constants";
 import styles from "./NavVariant.module.scss";
 
-
 interface NavProps {
   variant: NavVariantClass;
 }
