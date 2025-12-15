@@ -211,8 +211,6 @@
     "media:export": "bash scripts/export-media.sh",
     // 🪄 Import images from ../cms-seedings into backend/media/* for local dev
     "media:seed": "tsx scripts/import-media-from-seedings.ts",
-    // 🪄 Upload media assets to target S3 bucket(s) (env defaults to prod unless --env passed)
-    "media:upload": "tsx scripts/upload-media-to-s3.ts --env prod",
     // 🪄 Upload media only to the development S3 bucket
     "media:upload:dev": "tsx scripts/upload-media-to-s3.ts --env dev",
     // 🪄 Upload media only to the production S3 bucket
