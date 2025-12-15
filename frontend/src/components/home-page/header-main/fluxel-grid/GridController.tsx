@@ -23,6 +23,10 @@ import ProjectilesOverlay from "./ProjectilesOverlay";
 import useFluxelProjectiles, { Direction } from "./useFluxelProjectiles";
 import { useFluxelShadows } from "./useFluxelShadows";
 
+// Workarounds for iOS Safari rendering offsets
+const IOS_SAFARI_GRIDLINE_OFFSET_Y = 1; // Safari paints background gradients high on iOS
+const IOS_SAFARI_GRIDLINE_OFFSET_X = 1; // Safari paints background gradients left on iOS
+
 export interface GridControllerHandle {
   launchProjectile: (x: number, y: number, direction: Direction) => void;
   applyFluxPosition: (clientX: number, clientY: number) => void;
@@ -96,6 +100,28 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
       offsetX: 0,
       offsetY: 0,
     }));
+    const browserGridOffsets = useMemo(() => {
+      if (typeof window === "undefined" || typeof navigator === "undefined") {
+        return { x: 0, y: 0 };
+      }
+
+      const ua = navigator.userAgent;
+      const isIOSDevice =
+        /iP(ad|hone|od)/.test(ua) ||
+        (ua.includes("Mac") && "ontouchend" in window);
+      const isSafariEngine =
+        /Safari/.test(ua) &&
+        !/(Chrome|CriOS|FxiOS|OPiOS|EdgiOS|Brave)/.test(ua);
+
+      if (isIOSDevice && isSafariEngine) {
+        return {
+          x: IOS_SAFARI_GRIDLINE_OFFSET_X,
+          y: IOS_SAFARI_GRIDLINE_OFFSET_Y,
+        };
+      }
+
+      return { x: 0, y: 0 };
+    }, []);
     const [pointerOverride, setPointerOverride] = useState<
       { x: number; y: number } | undefined
     >(undefined);
@@ -319,6 +345,8 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
                 "--grid-cell-size": `${gridLinesLayout.cellSize}px`,
                 "--grid-offset-x": `${gridLinesLayout.offsetX}px`,
                 "--grid-offset-y": `${gridLinesLayout.offsetY}px`,
+                "--grid-browser-offset-x": `${browserGridOffsets.x}px`,
+                "--grid-browser-offset-y": `${browserGridOffsets.y}px`,
               } as React.CSSProperties
             }
           />
