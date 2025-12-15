@@ -20,7 +20,7 @@
     content: "";
     position: absolute;
     inset: 0 auto;
-    width: clamp(1.5rem, 8vw, 6rem);
+    width: clamp(1.5rem, 12vw, 6rem);
     pointer-events: none;
     z-index: 2;
   }
@@ -37,7 +37,8 @@
 }
 
 .track {
-  display: flex;
+  display: inline-flex;
+  align-items: center;
   width: max-content;
   gap: clamp(2rem, 4vw, 5rem);
   will-change: transform;
@@ -61,10 +62,10 @@
 
 @keyframes projectsMarqueeScroll {
   0% {
-    transform: translateX(0) translateY(4%);
+    transform: translate3d(0, 0, 0);
   }
   100% {
-    transform: translateX(-50%) translateY(4%);
+    transform: translate3d(-50%, 0, 0);
   }
 }
 
