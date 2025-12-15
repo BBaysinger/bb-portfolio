@@ -9,15 +9,12 @@ import { RootState } from "@/store/store";
 import { closeMobileNav } from "@/store/uiSlice";
 
 import NavLinks from "./NavLinks";
+import { NavVariants, NavVariantClass } from "./NavVariant.constants";
 import styles from "./NavVariant.module.scss";
 
-export const NavVariants = {
-  TOP_BAR: styles.topBar,
-  SLIDE_OUT: styles.slideOut,
-} as const;
 
 interface NavProps {
-  variant: (typeof NavVariant)[keyof typeof NavVariant];
+  variant: NavVariantClass;
 }
 
 /**

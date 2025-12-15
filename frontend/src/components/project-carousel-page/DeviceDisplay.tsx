@@ -4,15 +4,9 @@ import { RawImg } from "@/components/common/RawImg";
 import { MobileOrientation } from "@/data/ProjectData";
 import ProjectData from "@/data/ProjectData";
 
+import { DeviceTypes, DeviceType } from "./DeviceDisplay.constants";
 import styles from "./DeviceDisplay.module.scss";
 
-// Define constants for DeviceTypes (not used in the data)
-export const DeviceTypes = {
-  LAPTOP: "laptop",
-  PHONE: "phone",
-} as const;
-
-export type DeviceType = (typeof DeviceTypes)[keyof typeof DeviceTypes];
 
 interface DeviceDisplayProps {
   deviceType: DeviceType;

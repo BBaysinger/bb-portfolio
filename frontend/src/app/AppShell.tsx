@@ -6,7 +6,8 @@ import React, { useRef, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 
 import Footer from "@/components/layout/Footer";
-import NavVariant, { NavVariants } from "@/components/layout/NavVariant";
+import NavVariant from "@/components/layout/NavVariant";
+import { NavVariants } from "@/components/layout/NavVariant.constants";
 import { useAutoCloseMobileNavOnScroll } from "@/hooks/useAutoCloseMobileNavOnScroll";
 import useClientDimensions from "@/hooks/useClientDimensions";
 import { useFluidVariables } from "@/hooks/useFluidVariables";
