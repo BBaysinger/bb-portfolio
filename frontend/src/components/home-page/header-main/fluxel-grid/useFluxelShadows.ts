@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 
 import MiscUtils from "@/utils/MiscUtils";
 
@@ -54,6 +54,7 @@ function getShadowInfluence(
  */
 export function useFluxelShadows({
   gridRef,
+  containerEl,
   setGridData,
   pointerPos,
   isPausedRef,
@@ -63,6 +64,7 @@ export function useFluxelShadows({
   smoothing = true,
 }: {
   gridRef: React.RefObject<FluxelGridHandle | null>;
+  containerEl?: HTMLElement | null;
   setGridData: React.Dispatch<React.SetStateAction<FluxelData[][]>>;
   pointerPos: { x: number; y: number } | null;
   isPausedRef?: React.RefObject<boolean>;
@@ -71,16 +73,18 @@ export function useFluxelShadows({
   smoothRangeMultiplier?: number;
   smoothing?: boolean;
 }) {
-  const containerRef = useRef<HTMLElement | null>(null);
   const animationFrameId = useRef<number | null>(null);
   const lastUpdateTime = useRef(0);
-  useEffect(() => {
-    containerRef.current = gridRef.current?.getContainerElement?.() ?? null;
-  }, [gridRef]);
+
+  const resolveContainer = useCallback(
+    () => containerEl ?? gridRef.current?.getContainerElement?.() ?? null,
+    [containerEl, gridRef],
+  );
 
   // Update grid on valid pointerPos
   useEffect(() => {
-    if (!pointerPos || !containerRef.current || isPausedRef?.current) return;
+    const container = resolveContainer();
+    if (!pointerPos || !container || isPausedRef?.current) return;
 
     const now = performance.now();
     const intervalMs = 1000 / fps;
@@ -92,13 +96,13 @@ export function useFluxelShadows({
     animationFrameId.current = requestAnimationFrame(() => {
       animationFrameId.current = null;
 
-      const gridHandle = gridRef.current;
-      const gridData = gridHandle?.getGridData?.();
-      const container = containerRef.current;
-      if (!gridData || !container) return;
+      const gridHandleLatest = gridRef.current;
+      const gridData = gridHandleLatest?.getGridData?.();
+      const activeContainer = container ?? resolveContainer();
+      if (!gridData || !activeContainer) return;
 
       const cols = gridData[0]?.length || 1;
-      const fluxelSize = container.clientWidth / cols;
+      const fluxelSize = activeContainer.clientWidth / cols;
       if (fluxelSize < 1) return;
 
       setGridData((prevGrid) => {
@@ -192,6 +196,8 @@ export function useFluxelShadows({
   }, [
     pointerPos,
     gridRef,
+    containerEl,
+    resolveContainer,
     setGridData,
     isPausedRef,
     fps,

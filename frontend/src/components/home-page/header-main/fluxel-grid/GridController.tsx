@@ -85,7 +85,9 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
     }, [searchParams]);
 
     const gridInstanceRef = useRef<FluxelGridHandle | null>(null);
-    const containerRef = useRef<HTMLElement | null>(null);
+    const [gridContainerEl, setGridContainerEl] = useState<HTMLElement | null>(
+      null,
+    );
     const wrapperRef = useRef<HTMLDivElement | null>(null);
     const isShadowsPaused = useRef(false);
     const [overlayFluxelSize, setOverlayFluxelSize] = useState(0);
@@ -104,49 +106,62 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
 
     const syncContainerRef = useCallback(() => {
       const el = gridInstanceRef.current?.getContainerElement?.() ?? null;
-      if (el) {
-        containerRef.current = el;
-      }
+      setGridContainerEl((prev) => (prev !== el ? el : prev));
     }, []);
+
+    const refreshLayoutMetrics = useCallback(() => {
+      syncContainerRef();
+      const size = gridInstanceRef.current?.getFluxelSize?.() ?? 0;
+      setOverlayFluxelSize((prev) => (prev !== size ? size : prev));
+
+      const wrapper = wrapperRef.current;
+      if (!wrapper || size <= 0) return;
+      const w = wrapper.clientWidth;
+      const h = wrapper.clientHeight;
+      if (w <= 0 || h <= 0) return;
+
+      const offsetX = Math.round((w - cols * size) / 2);
+      const offsetY = Math.round((h - rows * size) / 2);
+      setGridLinesLayout((prev) =>
+        prev.cellSize !== size ||
+        prev.offsetX !== offsetX ||
+        prev.offsetY !== offsetY
+          ? { cellSize: size, offsetX, offsetY }
+          : prev,
+      );
+    }, [cols, rows, syncContainerRef]);
 
     const onLayoutUpdateRequest = useCallback(
       (fn: () => void) => {
         fn();
-        syncContainerRef();
-        const size = gridInstanceRef.current?.getFluxelSize?.() ?? 0;
-        setOverlayFluxelSize((prev) => (prev !== size ? size : prev));
-
-        const wrapper = wrapperRef.current;
-        if (!wrapper || size <= 0) return;
-        const w = wrapper.clientWidth;
-        const h = wrapper.clientHeight;
-        if (w <= 0 || h <= 0) return;
-
-        // Match Pixi/SVG centering math: grid is centered even when the cell size
-        // causes overflow (cover behavior), so offsets can be negative.
-        const offsetX = Math.round((w - cols * size) / 2);
-        const offsetY = Math.round((h - rows * size) / 2);
-        setGridLinesLayout((prev) =>
-          prev.cellSize !== size ||
-          prev.offsetX !== offsetX ||
-          prev.offsetY !== offsetY
-            ? { cellSize: size, offsetX, offsetY }
-            : prev,
-        );
+        refreshLayoutMetrics();
       },
-      [syncContainerRef, cols, rows],
+      [refreshLayoutMetrics],
     );
 
     useEffect(() => {
-      syncContainerRef();
-      if (typeof window !== "undefined" && !containerRef.current) {
-        containerRef.current = document.createElement("div");
-      }
+      if (typeof window === "undefined") return;
+
+      const runSync = () => syncContainerRef();
+      const rafId = window.requestAnimationFrame(runSync);
+      const intervalId = window.setInterval(runSync, 750);
 
       return () => {
-        if (containerRef.current) {
-          containerRef.current = null;
-        }
+        window.cancelAnimationFrame(rafId);
+        window.clearInterval(intervalId);
+      };
+    }, [syncContainerRef]);
+
+    useEffect(() => {
+      if (!gridContainerEl) return;
+      const rafId = window.requestAnimationFrame(() => {
+        refreshLayoutMetrics();
+      });
+      return () => window.cancelAnimationFrame(rafId);
+    }, [gridContainerEl, refreshLayoutMetrics]);
+
+    useEffect(() => {
+      return () => {
         if (gridInstanceRef.current) {
           gridInstanceRef.current = null;
         }
@@ -154,9 +169,14 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
           cancelAnimationFrame(overrideFrameId.current);
         }
       };
-    }, [syncContainerRef]);
+    }, []);
 
-    const pointerMeta = useElementRelativePointer(containerRef, {
+    const pointerTargetRef = useRef<HTMLElement | null>(gridContainerEl);
+    useEffect(() => {
+      pointerTargetRef.current = gridContainerEl;
+    }, [gridContainerEl]);
+
+    const pointerMeta = useElementRelativePointer(pointerTargetRef, {
       pointerdown: 0,
       pointermove: 0,
       pointerleave: 0,
@@ -201,6 +221,7 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
 
     useFluxelShadows({
       gridRef: gridInstanceRef,
+      containerEl: gridContainerEl ?? undefined,
       setGridData,
       pointerPos: filteredPointerPos(),
       isPausedRef: isShadowsPaused,
@@ -211,23 +232,27 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
       gridRef: gridInstanceRef,
     });
 
-    const applyFluxPosition = (clientX: number, clientY: number) => {
-      const gridEl = gridInstanceRef.current?.getContainerElement?.();
-      if (!gridEl) return;
+    const applyFluxPosition = useCallback(
+      (clientX: number, clientY: number) => {
+        const gridEl =
+          gridContainerEl ?? gridInstanceRef.current?.getContainerElement?.();
+        if (!gridEl) return;
 
-      const rect = gridEl.getBoundingClientRect();
-      const localX = clientX - rect.left;
-      const localY = clientY - rect.top;
+        const rect = gridEl.getBoundingClientRect();
+        const localX = clientX - rect.left;
+        const localY = clientY - rect.top;
 
-      pendingPointerOverride.current = { x: localX, y: localY };
-      if (overrideFrameId.current === null) {
-        overrideFrameId.current = requestAnimationFrame(() => {
-          overrideFrameId.current = null;
-          setPointerOverride(pendingPointerOverride.current);
-          pendingPointerOverride.current = undefined;
-        });
-      }
-    };
+        pendingPointerOverride.current = { x: localX, y: localY };
+        if (overrideFrameId.current === null) {
+          overrideFrameId.current = requestAnimationFrame(() => {
+            overrideFrameId.current = null;
+            setPointerOverride(pendingPointerOverride.current);
+            pendingPointerOverride.current = undefined;
+          });
+        }
+      },
+      [gridContainerEl],
+    );
 
     useImperativeHandle(
       ref,
@@ -254,7 +279,7 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
           isShadowsPaused.current = false;
         },
       }),
-      [launchProjectile],
+      [launchProjectile, applyFluxPosition],
     );
 
     return (

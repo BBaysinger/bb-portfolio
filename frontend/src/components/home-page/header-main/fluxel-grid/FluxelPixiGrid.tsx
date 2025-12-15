@@ -233,7 +233,7 @@ const FluxelPixiGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
       layoutUpdateRef.current?.(() => {
         // no-op
       });
-    }, [buildGrid]);
+    }, []);
 
     useEffect(() => {
       buildGrid();
