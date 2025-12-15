@@ -1,35 +1,24 @@
 @use "@/styles/mixins" as *;
 @use "@/styles/variables" as *;
 
-$height: 76px;
-
 .fpsCounter {
   position: relative;
-  left: calc(-1 * var(--hero-padding));
-  display: inline-block;
   margin-top: 10px;
-  margin-right: auto;
-  font-family: "Digital-7", "Courier New", "Monaco", "Consolas", monospace;
+  font-family: "Digital-7", sans-serif;
   white-space: nowrap;
   z-index: 10000;
   color: #00ff00;
-  height: $height;
-  opacity: 0.8;
+  opacity: 0.6;
   transform-origin: top left;
+  z-index: 1;
   mix-blend-mode: exclusion;
   line-height: 1em;
-  border: 1px solid #00ff00;
-  border-left-width: 0;
-  padding-left: 0.15em;
-  padding-right: 0.1em;
-  padding-top: 0;
-  background-color: rgba(0, 255, 0, 0.06);
-  font-size: 50px;
+  @include remRange(font-size, 40px, 60px);
 
-  & > div {
+  div {
+    position: absolute;
+
     &:nth-child(2) {
-      position: absolute;
-      top: 0;
       // https://stackoverflow.com/a/28413382/1253298
       background-color: var(--gunmetal-gray);
       color: transparent;
@@ -44,43 +33,12 @@ $height: 76px;
 }
 
 .label {
-  font-size: 20px;
-  display: block;
-  margin: 0.1em;
-  line-height: 1.45em;
-  margin-bottom: 0.21em;
-}
-
-.tab {
-  position: absolute;
-  top: calc(100% + 1px);
-  left: 100%;
-  width: $height;
-  display: flex !important;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid #00ff00;
-  transform-origin: top left;
-  transform: rotate(-90deg);
-  font-family: "Roboto", sans-serif;
-  border-bottom-left-radius: 10px;
-  border-bottom-right-radius: 10px;
-  font-size: 7px;
-  letter-spacing: -0.006em;
-  line-height: normal !important;
-  padding-bottom: 1px;
-  cursor: pointer;
-  z-index: 10000;
+  @include remRange(font-size, 30px, 50px);
+  margin-right: 0.12em;
 }
 
 .digit {
   display: inline-block;
-  min-width: 0.6em;
+  min-width: 0.5em;
   text-align: right;
-  margin-top: -0.7em;
-}
-
-.output {
-  margin-top: -0.2em;
-  letter-spacing: 0.1em;
 }
