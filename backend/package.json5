@@ -92,7 +92,7 @@
     // E2E test runner
     "@playwright/test": "1.57.0",
     // Testing utilities for React components
-    "@testing-library/react": "16.3.0",
+    "@testing-library/react": "16.3.1",
     // Express.js TypeScript definitions
     "@types/express": "^5.0.6",
     // Type definitions for JSON5
