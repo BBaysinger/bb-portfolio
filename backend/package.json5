@@ -51,19 +51,19 @@
     // Shared AWS SDK types
     "@aws-sdk/types": "^3.936.0",
     // MongoDB adapter for Payload CMS
-    "@payloadcms/db-mongodb": "3.68.3",
+    "@payloadcms/db-mongodb": "3.68.4",
     // Nodemailer email adapter for Payload CMS (handles SMTP email sending, password resets, notifications)
-    "@payloadcms/email-nodemailer": "3.68.3",
+    "@payloadcms/email-nodemailer": "3.68.4",
     // Enables Payload-Next.js integration (server-side rendering and routing)
-    "@payloadcms/next": "3.68.3",
+    "@payloadcms/next": "3.68.4",
     // Payload Cloud tools (optional if self-hosting)
-    "@payloadcms/payload-cloud": "3.68.3",
+    "@payloadcms/payload-cloud": "3.68.4",
     // Rich text editor using Lexical (modern alternative to Slate)
-    "@payloadcms/richtext-lexical": "3.68.3",
+    "@payloadcms/richtext-lexical": "3.68.4",
     // S3-backed media storage for Payload uploads
-    "@payloadcms/storage-s3": "3.68.3",
+    "@payloadcms/storage-s3": "3.68.4",
     // Payload's core UI components
-    "@payloadcms/ui": "3.68.3",
+    "@payloadcms/ui": "3.68.4",
     // Cross-platform environment variable setting (Windows/Unix compatibility)
     "cross-env": "^10.1.0",
     // Environment variable loader (reads .env files into process.env)
@@ -77,7 +77,7 @@
     // Next.js framework for frontend/backend integration
     "next": "16.0.10",
     // Payload CMS core package
-    "payload": "3.68.3",
+    "payload": "3.68.4",
     // React version to match Next.js 15
     "react": "19.2.3",
     // React DOM library for rendering React components (required by Next.js and Payload UI)
@@ -98,7 +98,7 @@
     // Type definitions for JSON5
     "@types/json5": "^2.2.0",
     // Node.js TypeScript definitions (latest for Node 18+)
-    "@types/node": "^25.0.1",
+    "@types/node": "^25.0.2",
     // React 19 types
     "@types/react": "19.2.7",
     // React DOM 19 types
@@ -124,7 +124,7 @@
     // TypeScript compiler (v5.9 for latest language features)
     "typescript": "5.9.3",
     // Vite path mapping support (resolves TypeScript path aliases)
-    "vite-tsconfig-paths": "5.1.4",
+    "vite-tsconfig-paths": "6.0.1",
     // Fast unit test runner (modern Jest alternative)
     "vitest": "4.0.15",
   },

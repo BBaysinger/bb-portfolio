@@ -43,7 +43,7 @@
     // AWS SDK v3 presigner for generating pre-signed S3 requests
     "@aws-sdk/s3-request-presigner": "^3.948.0",
     // Modern Redux state management with simplified API
-    "@reduxjs/toolkit": "^2.11.1",
+    "@reduxjs/toolkit": "^2.11.2",
     // AWS CloudWatch RUM for real user monitoring and visitor traffic tracking
     "aws-rum-web": "^1.25.0",
     // CSS framework for responsive design and components
@@ -56,6 +56,8 @@
     "jsonwebtoken": "^9.0.3",
     //
     "next": "^16.0.10",
+    //
+    "pixi.js": "^8.14.3",
     // React library for building user interfaces (v19 for latest features)
     "react": "^19.2.3",
     // React DOM renderer for web applications (matches React 19)
@@ -90,7 +92,7 @@
     // ESLint plugin for React Hooks rules and best practices
     "eslint-plugin-react-hooks": "^7.0.1",
     // ESLint plugin for React Refresh (fast refresh) compatibility
-    "eslint-plugin-react-refresh": "^0.4.24",
+    "eslint-plugin-react-refresh": "^0.4.25",
     // Opinionated code formatter for consistent style
     "prettier": "^3.7.4",
     // Lightweight TypeScript runtime for executing guard scripts
