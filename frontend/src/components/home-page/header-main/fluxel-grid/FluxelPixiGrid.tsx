@@ -1,3 +1,36 @@
+/**
+ * Pixi.js-backed fluxel grid renderer used by the homepage header scene.
+ *
+ * Rebuilds a canvas scene composed of square "fluxels" whose shadows and
+ * colors are driven by the reactive `gridData` matrix. The component mirrors
+ * the SVG implementation's visual behavior while offering higher runtime
+ * performance on large grids.
+ *
+ * Key exports:
+ * - FluxelPixiGrid – React component exposing {@link FluxelGridHandle} for
+ *   external animation controllers.
+ *
+ * Implementation notes:
+ * - Creates a Pixi `Application` on mount and tears it down on unmount to
+ *   avoid GPU resource leaks.
+ * - Uses debounced resize handling to rebuild display objects after the user
+ *   stops resizing the viewport, preventing jank.
+ * - Applies strict CSP-friendly asset loading (no createImageBitmap workers)
+ *   so the scene functions in environments that disallow blob URLs.
+ *
+ * @example
+ * ```tsx
+ * const gridRef = useRef<FluxelGridHandle>(null);
+ * return (
+ *   <FluxelPixiGrid
+ *     ref={gridRef}
+ *     gridData={matrix}
+ *     className="myGrid"
+ *     onLayoutUpdateRequest={(cb) => cb()}
+ *   />
+ * );
+ * ```
+ */
 import clsx from "clsx";
 import {
   Application,
