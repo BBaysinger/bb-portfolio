@@ -48,6 +48,14 @@ const FluxelPixiGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
     const cols = gridData[0]?.length || 0;
 
     const scaler = useResponsiveScaler(4 / 3, 1280, "cover");
+    const scalerSizeRef = useRef<{ width?: number; height?: number }>({
+      width: scaler.width,
+      height: scaler.height,
+    });
+
+    useEffect(() => {
+      scalerSizeRef.current = { width: scaler.width, height: scaler.height };
+    }, [scaler.width, scaler.height]);
 
     // Avoid Pixi's createImageBitmap worker to satisfy strict CSP (no blob workers).
     Assets.setPreferences({ preferCreateImageBitmap: false });
@@ -80,7 +88,7 @@ const FluxelPixiGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
           const baseAlpha = Math.max(0, Math.min(1, influence * 1.0 - 0.1));
 
           spriteGroup.base.clear();
-          spriteGroup.base.rect(0, 0, size - 0.5, size - 0.5);
+          spriteGroup.base.rect(0, 0, size, size);
           spriteGroup.base.fill({ color: baseTint, alpha: baseAlpha });
 
           if (spriteGroup.shadowTr && spriteGroup.shadowTrBase) {
@@ -113,8 +121,10 @@ const FluxelPixiGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
       const parent = canvas.parentElement;
       if (!parent) return;
       const bounds = parent.getBoundingClientRect();
-      const logicalWidth = Math.max(1, scaler.width || bounds.width);
-      const logicalHeight = Math.max(1, scaler.height || bounds.height);
+      const { width: scalerWidth, height: scalerHeight } =
+        scalerSizeRef.current;
+      const logicalWidth = Math.max(1, scalerWidth || bounds.width);
+      const logicalHeight = Math.max(1, scalerHeight || bounds.height);
 
       app.renderer.resize(logicalWidth, logicalHeight);
 
@@ -124,7 +134,17 @@ const FluxelPixiGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
       const offsetX = (logicalWidth - cols * size) / 2;
       const offsetY = (logicalHeight - rows * size) / 2;
 
-      container.removeChildren();
+      // IMPORTANT: destroy previous display objects to avoid GPU/memory leaks.
+      // Rebuilding the full grid on each resize without destroying will balloon
+      // allocations and can hard-crash the browser tab.
+      const oldChildren = container.removeChildren();
+      for (const child of oldChildren) {
+        try {
+          child.destroy({ children: true });
+        } catch {
+          // best-effort cleanup
+        }
+      }
       const sprites: (ShadowSprites | null)[][] = [];
 
       const targetRow = Math.floor(rows / 2);
@@ -199,7 +219,7 @@ const FluxelPixiGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
 
       fluxelSpritesRef.current = sprites;
       updateSprites();
-    }, [cols, rows, updateSprites, scaler.height, scaler.width]);
+    }, [cols, rows, updateSprites]);
 
     const layoutUpdateRef = useRef(onLayoutUpdateRequest);
 
