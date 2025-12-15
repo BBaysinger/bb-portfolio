@@ -60,7 +60,7 @@ const ProjectsList: React.FC<ProjectsListProps> & {
   }, [allProjects]);
 
   const marqueePhrases = React.useMemo(
-    () => ["Selected Client Work 2013-Present"],
+    () => ["Selected Works 2013-Present"],
     [],
   );
 
