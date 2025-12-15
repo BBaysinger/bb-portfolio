@@ -41,6 +41,8 @@ const FluxelPixiGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
     const fluxelSizeRef = useRef(0);
     const resizeObserverRef = useRef<ResizeObserver | null>(null);
     const textureRef = useRef<Texture | null>(null);
+    const isResizingRef = useRef(false);
+    const resizeDebounceTimerRef = useRef<number | null>(null);
 
     const rows = gridData.length;
     const cols = gridData[0]?.length || 0;
@@ -51,6 +53,7 @@ const FluxelPixiGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
     Assets.setPreferences({ preferCreateImageBitmap: false });
 
     const updateSprites = useCallback(() => {
+      if (isResizingRef.current) return;
       const sprites = fluxelSpritesRef.current;
       const size = fluxelSizeRef.current;
       if (!sprites.length || size <= 0) return;
@@ -205,7 +208,11 @@ const FluxelPixiGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
     }, [onLayoutUpdateRequest]);
 
     const notifyLayoutUpdate = useCallback(() => {
-      layoutUpdateRef.current?.(() => buildGrid());
+      // GridController uses this callback to sync refs + measure fluxel size.
+      // `buildGrid()` already did the work; avoid rebuilding twice.
+      layoutUpdateRef.current?.(() => {
+        // no-op
+      });
     }, [buildGrid]);
 
     useEffect(() => {
@@ -274,19 +281,37 @@ const FluxelPixiGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
       const parent = canvas.parentElement;
       if (!parent) return;
 
-      const resize = () => {
+      const applyFinalResize = () => {
+        isResizingRef.current = false;
         buildGrid();
         notifyLayoutUpdate();
         appRef.current?.render();
       };
 
       const observer = new ResizeObserver(() => {
-        requestAnimationFrame(resize);
+        // During active window resizing, browsers can fire ResizeObserver callbacks
+        // at a very high frequency. Rebuilding the full Pixi scene each time can
+        // allocate heavily and lock up the main thread.
+        isResizingRef.current = true;
+        if (resizeDebounceTimerRef.current !== null) {
+          window.clearTimeout(resizeDebounceTimerRef.current);
+        }
+        resizeDebounceTimerRef.current = window.setTimeout(() => {
+          resizeDebounceTimerRef.current = null;
+          requestAnimationFrame(applyFinalResize);
+        }, 200);
       });
       observer.observe(parent);
       resizeObserverRef.current = observer;
 
-      return () => observer.disconnect();
+      return () => {
+        observer.disconnect();
+        if (resizeDebounceTimerRef.current !== null) {
+          window.clearTimeout(resizeDebounceTimerRef.current);
+          resizeDebounceTimerRef.current = null;
+        }
+        isResizingRef.current = false;
+      };
     }, [buildGrid, notifyLayoutUpdate]);
 
     useImperativeHandle(
