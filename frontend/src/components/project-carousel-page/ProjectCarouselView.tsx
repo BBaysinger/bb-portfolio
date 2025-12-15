@@ -3,7 +3,8 @@ import React, { useMemo } from "react";
 import ProjectData from "@/data/ProjectData";
 
 import { SourceType, DirectionType } from "./CarouselTypes";
-import DeviceDisplay, { DeviceTypes } from "./DeviceDisplay";
+import DeviceDisplay from "./DeviceDisplay";
+import { DeviceTypes } from "./DeviceDisplay.constants";
 import LayeredCarouselManager, {
   CarouselLayerConfig,
   LayeredCarouselManagerRef,
