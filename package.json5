@@ -380,7 +380,7 @@
     // ESLint plugin for React hooks rules
     "eslint-plugin-react-hooks": "^7.0.1",
     // ESLint plugin for React Fast Refresh support
-    "eslint-plugin-react-refresh": "^0.4.24",
+    "eslint-plugin-react-refresh": "^0.4.25",
     // File pattern matching utility
     "glob": "^13.0.0",
     // List of global variables for linting
