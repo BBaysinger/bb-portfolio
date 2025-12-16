@@ -43,6 +43,22 @@ const quotes = [
   "Interfaces should be designed with curiosity in mind. If the user wants to explore, let them — and reward them for doing so.",
 ];
 
+const parseEnvBooleanFlag = (value?: string | null) => {
+  if (!value) return null;
+  const normalized = value.trim().toLowerCase();
+  if (normalized === "1" || normalized === "true" || normalized === "on")
+    return true;
+  if (normalized === "0" || normalized === "false" || normalized === "off")
+    return false;
+  return null;
+};
+
+const envFpsFlag = parseEnvBooleanFlag(
+  process.env.NEXT_PUBLIC_ENABLE_FPS_COUNTER,
+);
+const defaultFpsCounterEnabled =
+  envFpsFlag ?? process.env.NODE_ENV !== "production";
+
 /**
  * Hero
  *
@@ -82,6 +98,7 @@ const Hero: React.FC = () => {
   const [hasCollided, setHasCollided] = useState<boolean>(false);
   const [hasAfterCollidedDelay, setHasAfterCollidedDelay] = useState(false);
   const [isTouchDevice, setIsTouchDevice] = useState(false);
+  const [fpsOverride, setFpsOverride] = useState<boolean | null>(null);
 
   const timeOfDay = useTimeOfDay();
   const hasScrolledOut = useScrollPersistedClass(id);
@@ -98,6 +115,8 @@ const Hero: React.FC = () => {
   const slingerLoopId = useRef<number | null>(null);
   // const useSlingerTracking = useQueryParams<boolean>("useSlingerTracking");
   const [useSlingerTracking, setUseSlingerTracking] = useState(false);
+  const showFpsCounter =
+    fpsOverride !== null ? fpsOverride : defaultFpsCounterEnabled;
 
   const updateHasDragged = useCallback((value: boolean) => {
     sessionStorage.setItem("hasDragged", value ? "true" : "false");
@@ -295,7 +314,10 @@ const Hero: React.FC = () => {
       )}
     >
       <Suspense fallback={null}>
-        <HeroQueryConfig onUpdate={setUseSlingerTracking} />
+        <HeroQueryConfig
+          onUpdate={setUseSlingerTracking}
+          onFpsOverride={setFpsOverride}
+        />
       </Suspense>
       <div>
         <GridController
@@ -339,7 +361,7 @@ const Hero: React.FC = () => {
           className={styles.message}
           paused={!mounted || !isSlingerIdle}
         ></ParagraphAnimator>
-        <FPSCounter />
+        {showFpsCounter && <FPSCounter />}
         <TitleBranding className={styles.titleBranding} ref={titleRef} />
       </div>
     </header>
