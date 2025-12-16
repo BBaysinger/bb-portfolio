@@ -1,5 +1,11 @@
 #!/usr/bin/env node
 
+/**
+ * NOTE: This stays plain CommonJS so `node scripts/dev-proxy.js` works without
+ * requiring ts-node/tsx. The proxy acts as a zero-dependency bootstrap for
+ * local development, so avoiding a TypeScript runtime keeps startup friction low.
+ */
+
 const http = require("http");
 const httpProxy = require("http-proxy");
 
