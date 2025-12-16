@@ -52,6 +52,7 @@ import useResponsiveScaler from "@/hooks/useResponsiveScaler";
 
 import type { FluxelGridHandle, FluxelGridProps } from "./FluxelAllTypes";
 import styles from "./FluxelPixiGrid.module.scss";
+import { useFluxelResizeWatcher } from "./useFluxelResizeWatcher";
 
 const SHADOW_SRC = "/images/hero/corner-shadow.webp";
 const DEBUG_SINGLE_FLUXEL = false;
@@ -72,10 +73,9 @@ const FluxelPixiGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
     const fluxelSpritesRef = useRef<(ShadowSprites | null)[][]>([]);
     const gridDataRef = useRef(gridData);
     const fluxelSizeRef = useRef(0);
-    const resizeObserverRef = useRef<ResizeObserver | null>(null);
     const textureRef = useRef<Texture | null>(null);
     const isResizingRef = useRef(false);
-    const resizeDebounceTimerRef = useRef<number | null>(null);
+    const gridParentRef = useRef<HTMLDivElement | null>(null);
 
     const rows = gridData.length;
     const cols = gridData[0]?.length || 0;
@@ -85,6 +85,11 @@ const FluxelPixiGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
       width: scaler.width,
       height: scaler.height,
     });
+
+    useEffect(() => {
+      gridParentRef.current = canvasRef.current
+        ?.parentElement as HTMLDivElement | null;
+    }, []);
 
     useEffect(() => {
       scalerSizeRef.current = { width: scaler.width, height: scaler.height };
@@ -315,7 +320,6 @@ const FluxelPixiGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
         .catch((err) => console.warn("Pixi init failed", err));
 
       return () => {
-        resizeObserverRef.current?.disconnect();
         if (appRef.current) {
           try {
             appRef.current.destroy(true, { children: true });
@@ -328,44 +332,25 @@ const FluxelPixiGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
       };
     }, [buildGrid, notifyLayoutUpdate]);
 
-    useEffect(() => {
-      const canvas = canvasRef.current;
-      if (!canvas) return;
-      const parent = canvas.parentElement;
-      if (!parent) return;
-
-      const applyFinalResize = () => {
-        isResizingRef.current = false;
-        buildGrid();
-        notifyLayoutUpdate();
-        appRef.current?.render();
-      };
-
-      const observer = new ResizeObserver(() => {
-        // During active window resizing, browsers can fire ResizeObserver callbacks
-        // at a very high frequency. Rebuilding the full Pixi scene each time can
-        // allocate heavily and lock up the main thread.
-        isResizingRef.current = true;
-        if (resizeDebounceTimerRef.current !== null) {
-          window.clearTimeout(resizeDebounceTimerRef.current);
-        }
-        resizeDebounceTimerRef.current = window.setTimeout(() => {
-          resizeDebounceTimerRef.current = null;
-          requestAnimationFrame(applyFinalResize);
-        }, 200);
-      });
-      observer.observe(parent);
-      resizeObserverRef.current = observer;
-
-      return () => {
-        observer.disconnect();
-        if (resizeDebounceTimerRef.current !== null) {
-          window.clearTimeout(resizeDebounceTimerRef.current);
-          resizeDebounceTimerRef.current = null;
-        }
-        isResizingRef.current = false;
-      };
+    const applyFinalResize = useCallback(() => {
+      isResizingRef.current = false;
+      buildGrid();
+      notifyLayoutUpdate();
+      appRef.current?.render();
     }, [buildGrid, notifyLayoutUpdate]);
+
+    useFluxelResizeWatcher(() => gridParentRef.current, applyFinalResize, {
+      debounceMs: 200,
+      onResizeStart: () => {
+        isResizingRef.current = true;
+      },
+    });
+
+    useEffect(() => {
+      return () => {
+        isResizingRef.current = false;
+      };
+    }, []);
 
     useImperativeHandle(
       ref,

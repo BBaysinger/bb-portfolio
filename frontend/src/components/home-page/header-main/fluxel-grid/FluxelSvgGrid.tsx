@@ -16,6 +16,7 @@ import type { FluxelHandle, FluxelData } from "./FluxelAllTypes";
 import type { FluxelGridHandle, FluxelGridProps } from "./FluxelAllTypes";
 import FluxelSvg from "./FluxelSvg";
 import styles from "./FluxelSvgGrid.module.scss";
+import { useFluxelResizeWatcher } from "./useFluxelResizeWatcher";
 
 const assignRef = <T,>(ref: React.Ref<T> | undefined, value: T) => {
   if (!ref) return;
@@ -52,6 +53,8 @@ const FluxelSvgGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
     const [viewableCols, setViewableCols] = useState(0);
 
     const containerRef = useRef<HTMLDivElement | null>(null);
+    const [containerElement, setContainerElement] =
+      useState<HTMLDivElement | null>(null);
     const gridDataRef = useRef<FluxelData[][]>([]);
     const fluxelRefs = useRef<React.RefObject<FluxelHandle | null>[][]>([]);
     const [fluxelRefGrid, setFluxelRefGrid] = useState<
@@ -131,6 +134,7 @@ const FluxelSvgGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
 
     const handleRef = (el: HTMLDivElement | null) => {
       containerRef.current = el;
+      setContainerElement(el);
       assignRef(gridRef, el);
     };
 
@@ -139,6 +143,16 @@ const FluxelSvgGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
         onLayoutUpdateRequest(updateSize);
       }
     }, [updateSize, onLayoutUpdateRequest]);
+
+    const handleResize = useCallback(() => {
+      if (typeof onLayoutUpdateRequest === "function") {
+        onLayoutUpdateRequest(updateSize);
+      } else {
+        updateSize();
+      }
+    }, [onLayoutUpdateRequest, updateSize]);
+
+    useFluxelResizeWatcher(containerElement, handleResize);
 
     useImperativeHandle(
       ref,
