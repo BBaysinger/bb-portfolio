@@ -17,10 +17,11 @@ const FPSCounter: React.FC<{ updateInterval?: number; className?: string }> = ({
 }) => {
   const [fps, setFps] = useState(0);
   const frameCount = useRef(0);
-  const lastTime = useRef(performance.now());
+  const lastTime = useRef(0);
 
   useEffect(() => {
     let animationFrameId: number;
+    lastTime.current = performance.now();
 
     const update = () => {
       frameCount.current++;

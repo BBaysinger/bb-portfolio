@@ -85,7 +85,8 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
       if (value === "svg" || value === "canvas" || value === "pixi") {
         return value;
       }
-      return "pixi";
+      // Default grid type returned if no valid param found
+      return "svg";
     }, [searchParams]);
 
     const gridInstanceRef = useRef<FluxelGridHandle | null>(null);
