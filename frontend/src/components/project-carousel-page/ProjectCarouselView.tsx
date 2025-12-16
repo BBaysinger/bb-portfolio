@@ -1,6 +1,9 @@
+"use client";
+
 import React, { useMemo } from "react";
 
 import ProjectData from "@/data/ProjectData";
+import { useTransformScaleFallback } from "@/hooks/useTransformScaleFallback";
 
 import { SourceType, DirectionType } from "./CarouselTypes";
 import DeviceDisplay from "./DeviceDisplay";
@@ -10,6 +13,12 @@ import LayeredCarouselManager, {
   LayeredCarouselManagerRef,
 } from "./LayeredCarouselManager";
 import styles from "./ProjectCarouselView.module.scss";
+
+const MIN_SCALE = 0.4755;
+const MAX_SCALE = 1;
+const MIN_VIEWPORT = 320;
+const MAX_VIEWPORT = 680;
+const SCALE_SUPPORT_TEST = "translateX(-50%) scale(clamp(0.5, 1vw, 1))";
 
 /**
  * ProjectCarouselView Component
@@ -56,6 +65,15 @@ const ProjectCarouselView: React.FC<{
     direction: DirectionType,
   ) => void;
 }> = ({ initialIndex, refObj, onStabilizationUpdate }) => {
+  const { transformStyle: fallbackTransformStyle } = useTransformScaleFallback({
+    minScale: MIN_SCALE,
+    maxScale: MAX_SCALE,
+    minViewport: MIN_VIEWPORT,
+    maxViewport: MAX_VIEWPORT,
+    preserveTransform: "translateX(-50%)",
+    testTransform: SCALE_SUPPORT_TEST,
+  });
+
   const laptopSlides = useMemo(
     () =>
       ProjectData.activeProjects.map((project) => (
@@ -105,7 +123,7 @@ const ProjectCarouselView: React.FC<{
   const prefix = "bb-carousel-";
 
   return (
-    <div className={styles.projectCarouselView}>
+    <div className={styles.projectCarouselView} style={fallbackTransformStyle}>
       <LayeredCarouselManager
         ref={refObj}
         prefix={prefix}
