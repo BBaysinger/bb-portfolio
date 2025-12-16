@@ -73,7 +73,7 @@ const FluxelSvg = forwardRef<
       <rect
         width={size - 0.5}
         height={size - 0.5}
-        className="border"
+        className="base"
         fill="var(--base-color)"
       />
 
