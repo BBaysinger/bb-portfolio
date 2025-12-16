@@ -315,6 +315,9 @@
   }
 
   // Build transform with clamp - generate the exact working syntax
+  // NOTE: Firefox still rejects calc()/clamp() inside scale(), so transforms generated here
+  // fall back to the previous valid declaration in Gecko. Components that rely on this mixin
+  // must provide a non-CSS fallback (e.g., JS-driven scaling) if they need responsive scale on Firefox.
   $base-transform: if($preserve-transform, "#{$preserve-transform} ", "");
   $range: $max-scale - $min-scale;
   $vw-range: stripUnit($max-vw - $min-vw);
