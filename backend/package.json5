@@ -106,7 +106,7 @@
     // Vite React plugin (enables React support in Vitest)
     "@vitejs/plugin-react": "5.1.2",
     //
-    "baseline-browser-mapping": "^2.9.8",
+    "baseline-browser-mapping": "^2.9.9",
     // ESLint JavaScript/TypeScript linter (v9 for latest rules)
     "eslint": "^9.39.2",
     // Next.js ESLint configuration (includes React and accessibility rules)

@@ -368,7 +368,7 @@
     // TypeScript parser for ESLint
     "@typescript-eslint/parser": "^8.50.0",
     //
-    "baseline-browser-mapping": "^2.9.8",
+    "baseline-browser-mapping": "^2.9.9",
     // Run multiple commands concurrently in scripts
     "concurrently": "^9.2.1",
     // Main linter for JS/TS code
