@@ -1,10 +1,11 @@
 import clsx from "clsx";
 import Link from "next/link";
-import React from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import { RawImg } from "@/components/common/RawImg";
 import Hamburger from "@/components/layout/Hamburger";
+import useElementObserver from "@/hooks/useElementObserver";
 import { RootState } from "@/store/store";
 import { closeMobileNav } from "@/store/uiSlice";
 
@@ -50,12 +51,163 @@ interface NavProps {
  * - NavLinks rendered as div to avoid nested nav landmarks
  * - Conditional rendering based on variant prevents duplicate DOM elements
  */
+const NAV_HAMBURGER_BREAKPOINT_VAR = "--nav-hamburger-breakpoint";
+
 const NavVariant: React.FC<NavProps> = ({ variant }) => {
   const isMenuOpen = useSelector(
     (state: RootState) => state.ui.isMobileNavExpanded,
   );
 
   const dispatch = useDispatch();
+  const navLinksRef = useRef<HTMLUListElement | null>(null);
+  const navRef = useRef<HTMLElement | null>(null);
+  const rafIdRef = useRef<number | null>(null);
+  const transitionRestoreTimeoutRef = useRef<number | null>(null);
+  const lastIsAboveHamburgerRef = useRef<boolean | null>(null);
+
+  const measureNavLinks = useCallback(() => {
+    if (variant !== NavVariants.TOP_BAR) return;
+    if (typeof window === "undefined") return;
+
+    const listEl = navLinksRef.current;
+    if (!listEl) return;
+
+    const inlineSize = listEl.scrollWidth;
+    if (inlineSize <= 0) return;
+
+    const compactWidth = `${Math.ceil(inlineSize)}px`;
+    listEl.style.setProperty("--nav-links-compact-width", compactWidth);
+    navRef.current?.style.setProperty(
+      "--nav-links-compact-width",
+      compactWidth,
+    );
+  }, [variant]);
+
+  const scheduleMeasure = useCallback(() => {
+    if (variant !== NavVariants.TOP_BAR) return;
+    if (typeof window === "undefined") return;
+
+    if (rafIdRef.current) {
+      window.cancelAnimationFrame(rafIdRef.current);
+    }
+
+    rafIdRef.current = window.requestAnimationFrame(() => {
+      rafIdRef.current = null;
+      measureNavLinks();
+    });
+  }, [measureNavLinks, variant]);
+
+  // Measure intrinsic nav width so CSS can animate between compact and full states.
+  useEffect(() => {
+    scheduleMeasure();
+
+    return () => {
+      if (rafIdRef.current) {
+        window.cancelAnimationFrame(rafIdRef.current);
+        rafIdRef.current = null;
+      }
+    };
+  }, [scheduleMeasure]);
+
+  useElementObserver(navLinksRef, () => {
+    scheduleMeasure();
+  });
+
+  const getHamburgerBreakpointValue = useCallback(() => {
+    if (typeof window === "undefined") return null;
+    const preferredTarget = navRef.current ?? document.documentElement;
+    const styles = window.getComputedStyle(preferredTarget);
+    let rawValue = styles.getPropertyValue(NAV_HAMBURGER_BREAKPOINT_VAR).trim();
+
+    if (!rawValue && preferredTarget !== document.documentElement) {
+      const rootStyles = window.getComputedStyle(document.documentElement);
+      rawValue = rootStyles
+        .getPropertyValue(NAV_HAMBURGER_BREAKPOINT_VAR)
+        .trim();
+    }
+
+    if (!rawValue) return null;
+
+    const numeric = Number.parseFloat(rawValue);
+    if (Number.isNaN(numeric)) return null;
+
+    if (rawValue.endsWith("rem")) {
+      const rootFontSize = Number.parseFloat(styles.fontSize || "16");
+      return numeric * (Number.isNaN(rootFontSize) ? 16 : rootFontSize);
+    }
+
+    if (rawValue.endsWith("vw")) {
+      return (numeric / 100) * window.innerWidth;
+    }
+
+    return numeric;
+  }, []);
+
+  const temporarilyDisableWidthTransition = useCallback(() => {
+    if (variant !== NavVariants.TOP_BAR) return;
+    if (typeof window === "undefined") return;
+
+    const navEl = navRef.current;
+    if (!navEl) return;
+
+    navEl.style.setProperty("transition", "none");
+
+    if (transitionRestoreTimeoutRef.current) {
+      window.clearTimeout(transitionRestoreTimeoutRef.current);
+    }
+
+    transitionRestoreTimeoutRef.current = window.setTimeout(() => {
+      if (!navRef.current) return;
+      navRef.current.style.removeProperty("transition");
+      transitionRestoreTimeoutRef.current = null;
+    }, 500);
+  }, [variant]);
+
+  useEffect(() => {
+    if (variant !== NavVariants.TOP_BAR) return;
+    if (typeof window === "undefined") return;
+
+    const evaluateBreakpoint = () => {
+      const breakpointPx = getHamburgerBreakpointValue();
+      if (breakpointPx === null) return;
+
+      const isAboveBreakpoint = window.innerWidth >= breakpointPx;
+
+      if (lastIsAboveHamburgerRef.current === null) {
+        lastIsAboveHamburgerRef.current = isAboveBreakpoint;
+        return;
+      }
+
+      if (isAboveBreakpoint !== lastIsAboveHamburgerRef.current) {
+        lastIsAboveHamburgerRef.current = isAboveBreakpoint;
+        temporarilyDisableWidthTransition();
+        scheduleMeasure();
+      }
+    };
+
+    evaluateBreakpoint();
+
+    window.addEventListener("resize", evaluateBreakpoint);
+
+    return () => {
+      window.removeEventListener("resize", evaluateBreakpoint);
+    };
+  }, [
+    getHamburgerBreakpointValue,
+    scheduleMeasure,
+    temporarilyDisableWidthTransition,
+    variant,
+  ]);
+
+  useEffect(() => {
+    return () => {
+      if (transitionRestoreTimeoutRef.current) {
+        window.clearTimeout(transitionRestoreTimeoutRef.current);
+        transitionRestoreTimeoutRef.current = null;
+      }
+      navRef.current?.style.removeProperty("transition");
+    };
+  }, []);
 
   /**
    * Closes mobile navigation when a link is clicked
@@ -72,6 +224,7 @@ const NavVariant: React.FC<NavProps> = ({ variant }) => {
   const navId = isSlideOut ? "mobile-nav" : undefined;
   return (
     <nav
+      ref={navRef}
       id={navId}
       aria-label={isSlideOut ? "Mobile navigation" : "Primary navigation"}
       className={clsx(styles.navVariant, variant, {
@@ -113,6 +266,7 @@ const NavVariant: React.FC<NavProps> = ({ variant }) => {
         onCloseRequest={isSlideOut ? closeMobileNavHandler : undefined}
         id={isSlideOut ? "mobile-nav-links" : undefined}
         as="div"
+        listRef={variant === NavVariants.TOP_BAR ? navLinksRef : undefined}
       />
 
       {variant === NavVariants.TOP_BAR && (

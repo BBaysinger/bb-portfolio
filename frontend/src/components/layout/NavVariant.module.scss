@@ -1,16 +1,36 @@
 @use "@/styles/mixins" as *;
 @use "@/styles/variables" as *;
 
+$navHamburgerBreakpoint: 992px;
+
 .navVariant {
+  --nav-hamburger-breakpoint: #{$navHamburgerBreakpoint};
   display: flex;
   color: #888;
   padding: 0;
   user-select: none;
+  width: 100vw;
+  transition: width 0.5s ease;
+  background: linear-gradient(
+    to left,
+    #222,
+    #222 var(--nav-links-compact-width),
+    rgba(0, 0, 0, 1) 60vw
+  );
+  :global(.isHeroInView5Pct) & {
+    width: 50px;
+  }
+  @include breakpointUp($navHamburgerBreakpoint) {
+    :global(.isHeroInView5Pct) & {
+      width: var(--nav-links-compact-width);
+    }
+  }
 
   ul {
     display: flex;
     list-style-type: none;
-    padding-left: 0;
+    margin-right: 0;
+    margin-left: auto;
   }
 
   li {
@@ -49,35 +69,20 @@
     margin-left: auto;
 
     z-index: 10000;
-    width: 100%; // vw or dvw here causes the scrollbar to overlap on Windows.
-    min-width: 320px;
     height: $navBarHeight;
     overflow: hidden;
     pointer-events: none;
-    transition: width 0.5s ease;
     > * {
       pointer-events: all;
     }
 
-    // When the hero is in view, shrink the fixed shell so the title block
-    // simply clips instead of animating independently.
-    :global(.isHeroInView5Pct) & {
-      width: clamp(320px, 60vw, 780px);
-    }
-
     .title {
-      width: 100%;
       display: flex;
       text-decoration: none;
-      // z-index: 0;
       position: absolute;
-      left: 0;
-      background: linear-gradient(
-        to left,
-        #222 40vw,
-        rgba(0, 0, 0, 1) 80vw,
-        rgba(0, 0, 0, 1)
-      );
+      left: auto;
+      width: 100vw;
+      z-index: 0;
       height: $navBarHeight;
 
       > * {
@@ -100,12 +105,18 @@
       right: 0;
       top: 0;
       z-index: 2;
-      background-color: #222;
       padding-left: 20px;
-      transition: background 0.5s;
-
-      :global(.isHeroInView5Pct) & {
-        background: #222;
+      padding-right: 20px;
+      left: auto;
+      margin-right: 0;
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      height: $navBarHeight;
+      background-color: #222;
+      visibility: hidden;
+      @include breakpointUp($navHamburgerBreakpoint) {
+        visibility: visible;
       }
     }
 
@@ -170,7 +181,7 @@
       height: $navBarHeight;
       margin: 0;
       display: none;
-      @include breakpointUp($b992px) {
+      @include breakpointUp($navHamburgerBreakpoint) {
         display: flex;
       }
     }
@@ -180,6 +191,9 @@
       list-style-type: none;
       margin-right: 20px;
       align-items: center;
+      &:last-of-type {
+        margin-right: 0 !important;
+      }
     }
 
     img.navLogo {

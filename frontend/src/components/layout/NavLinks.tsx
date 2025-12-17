@@ -25,6 +25,8 @@ interface NavLinksProps {
   id?: string;
   /** Element to render as wrapper to avoid nested nav landmarks */
   as?: "nav" | "div";
+  /** Optional ref forwarded to the internal <ul> for measurements */
+  listRef?: React.Ref<HTMLUListElement>;
 }
 
 /**
@@ -74,6 +76,7 @@ const NavLinks: React.FC<NavLinksProps> = ({
   onCloseRequest,
   id,
   as = "nav",
+  listRef,
 }) => {
   const active = useNavHighlight();
   const firstLinkRef = useRef<HTMLAnchorElement | null>(null);
@@ -143,7 +146,7 @@ const NavLinks: React.FC<NavLinksProps> = ({
       aria-hidden={isInactiveMobile ? true : undefined}
       data-variant={variant}
     >
-      <ul className={`${styles.navLinks} ${className ?? ""}`}>
+      <ul ref={listRef} className={`${styles.navLinks} ${className ?? ""}`}>
         <li>
           <Link
             href="/#hero"
