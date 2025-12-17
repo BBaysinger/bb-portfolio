@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 
-import PortfolioListStyleSwapper from "@/components/home-page/PortfolioListStyleSwapper";
+import ProjectsList from "@/components/home-page/ProjectsList";
 import ProjectData, {
   ParsedPortfolioProject,
   ParsedPortfolioProjectData,
@@ -92,7 +92,7 @@ export default function HomePageClient({
   }, [compositeAuth]);
 
   return (
-    <PortfolioListStyleSwapper
+    <ProjectsList
       allProjects={projects}
       isAuthenticated={clientAuth || ssrAuthenticated}
     />
