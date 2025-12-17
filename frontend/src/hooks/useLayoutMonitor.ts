@@ -36,6 +36,8 @@ type DebounceMap = Partial<Record<EventType, number>>;
  * 4. Inline `debounceMap` objects will churn the effect dependencies. Either
  *    document the expectation to memoize the map or explore internal guards if
  *    this becomes a common footgun.
+ * 5. Audit usage to ensure consumers aren't over-subscribing to both element and
+ *    window monitors when only one is needed.
  */
 
 const WINDOW_EVENTS: [WindowEventType, string][] = [
