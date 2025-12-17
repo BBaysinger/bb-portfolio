@@ -44,6 +44,9 @@
 
   &.topBar {
     position: fixed;
+    right: 0;
+    left: auto;
+    margin-left: auto;
 
     z-index: 10000;
     width: 100%; // vw or dvw here causes the scrollbar to overlap on Windows.
@@ -51,18 +54,24 @@
     height: $navBarHeight;
     overflow: hidden;
     pointer-events: none;
+    transition: width 0.5s ease;
     > * {
       pointer-events: all;
+    }
+
+    // When the hero is in view, shrink the fixed shell so the title block
+    // simply clips instead of animating independently.
+    :global(.isHeroInView5Pct) & {
+      width: clamp(320px, 60vw, 780px);
     }
 
     .title {
       width: 100%;
       display: flex;
       text-decoration: none;
-      z-index: 0;
+      // z-index: 0;
       position: absolute;
-      right: 0;
-      transition: right 0.5s;
+      left: 0;
       background: linear-gradient(
         to left,
         #222 40vw,
@@ -70,10 +79,6 @@
         rgba(0, 0, 0, 1)
       );
       height: $navBarHeight;
-
-      :global(.isHeroInView5Pct) & {
-        right: -100vw;
-      }
 
       > * {
         margin-left: 4px;
@@ -95,12 +100,7 @@
       right: 0;
       top: 0;
       z-index: 2;
-      background: linear-gradient(
-        to left,
-        #222 40vw,
-        rgba(0, 0, 0, 1) 80vw,
-        rgba(0, 0, 0, 1)
-      );
+      background-color: #222;
       padding-left: 20px;
       transition: background 0.5s;
 
