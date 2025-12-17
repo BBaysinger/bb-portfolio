@@ -92,7 +92,7 @@
     // ESLint plugin for React Hooks rules and best practices
     "eslint-plugin-react-hooks": "^7.0.1",
     // ESLint plugin for React Refresh (fast refresh) compatibility
-    "eslint-plugin-react-refresh": "^0.4.25",
+    "eslint-plugin-react-refresh": "^0.4.26",
     // Opinionated code formatter for consistent style
     "prettier": "^3.7.4",
     // Lightweight TypeScript runtime for executing guard scripts

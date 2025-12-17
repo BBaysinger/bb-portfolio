@@ -124,7 +124,7 @@
     // TypeScript compiler (v5.9 for latest language features)
     "typescript": "5.9.3",
     // Vite path mapping support (resolves TypeScript path aliases)
-    "vite-tsconfig-paths": "6.0.1",
+    "vite-tsconfig-paths": "6.0.2",
     // Fast unit test runner (modern Jest alternative)
     "vitest": "4.0.16",
   },
