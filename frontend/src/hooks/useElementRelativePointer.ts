@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 
-import { useElementObserver } from "./useElementObserver";
+import { useLayoutMonitor } from "./useLayoutMonitor";
 
 export type MouseEventType =
   | "pointerdown"
@@ -38,7 +38,7 @@ interface PointerMeta {
  * canceled, or leaves the window. Useful for drag-like interactions.
  *
  * Additionally, it recalculates the element's bounding rect on layout-affecting
- * changes using `useElementObserver`, supporting events such as:
+ * changes using `useLayoutMonitor`, supporting events such as:
  * - resize
  * - scroll
  * - orientationchange
@@ -168,7 +168,7 @@ export default function useElementRelativePointer<T extends HTMLElement>(
     [debounceMap, updatePointerMeta],
   );
 
-  useElementObserver(
+  useLayoutMonitor(
     targetRef,
     () => {
       const el = targetRef.current;
