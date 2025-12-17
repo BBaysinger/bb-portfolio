@@ -76,7 +76,6 @@ const NavVariant: React.FC<NavProps> = ({ variant }) => {
     if (inlineSize <= 0) return;
 
     const compactWidth = `${Math.ceil(inlineSize)}px`;
-    listEl.style.setProperty("--nav-links-compact-width", compactWidth);
     navRef.current?.style.setProperty(
       "--nav-links-compact-width",
       compactWidth,
@@ -200,12 +199,15 @@ const NavVariant: React.FC<NavProps> = ({ variant }) => {
   ]);
 
   useEffect(() => {
+    const navElement = navRef.current;
+
     return () => {
       if (transitionRestoreTimeoutRef.current) {
         window.clearTimeout(transitionRestoreTimeoutRef.current);
         transitionRestoreTimeoutRef.current = null;
       }
-      navRef.current?.style.removeProperty("transition");
+
+      navElement?.style.removeProperty("transition");
     };
   }, []);
 
@@ -231,7 +233,6 @@ const NavVariant: React.FC<NavProps> = ({ variant }) => {
         enabled: isMenuOpen,
         disabled: !isMenuOpen,
       })}
-      role="navigation"
     >
       {variant === NavVariants.SLIDE_OUT && (
         <>
