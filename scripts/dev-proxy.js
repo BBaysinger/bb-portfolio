@@ -1,6 +1,12 @@
 #!/usr/bin/env node
 
 /**
+ * Dev proxy entry point used to run the frontend and Payload backend behind a single
+ * origin for the standard Docker Compose workflow (not the Caddy stack), routing
+ * `/admin` + `/api` traffic to port 3001 and everything else to the Next.js dev server
+ * on port 3000. Caddy can be run in parallel for HTTPS and other proxying needs (but it
+ * does not execute this script).
+ *
  * NOTE: This stays plain CommonJS so `node scripts/dev-proxy.js` works without
  * requiring ts-node/tsx. The proxy acts as a zero-dependency bootstrap for
  * local development, so avoiding a TypeScript runtime keeps startup friction low.
