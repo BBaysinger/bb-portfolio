@@ -130,8 +130,6 @@ const FluxelSvgGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
       updateSize();
     }, [updateSize]);
 
-    // useElementObserver(containerRef, updateSize);
-
     const handleRef = (el: HTMLDivElement | null) => {
       containerRef.current = el;
       setContainerElement(el);

@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 
 import { RawImg } from "@/components/common/RawImg";
 import Hamburger from "@/components/layout/Hamburger";
-import useElementObserver from "@/hooks/useElementObserver";
+import useLayoutMonitor from "@/hooks/useLayoutMonitor";
 import { RootState } from "@/store/store";
 import { closeMobileNav } from "@/store/uiSlice";
 
@@ -108,7 +108,7 @@ const NavVariant: React.FC<NavProps> = ({ variant }) => {
     };
   }, [scheduleMeasure]);
 
-  useElementObserver(navLinksRef, () => {
+  useLayoutMonitor(navLinksRef, () => {
     scheduleMeasure();
   });
 
