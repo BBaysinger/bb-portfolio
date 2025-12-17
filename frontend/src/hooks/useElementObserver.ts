@@ -14,9 +14,20 @@ type EventType =
 type DebounceMap = Partial<Record<EventType, number>>;
 
 /**
- * A comprehensive debounced layout change observer that listens for
- * every way an element can change — with optional exclusions.
+ * Subscribes to a broad set of layout-affecting signals for a given element and
+ * funnels them through a single debounced callback. Each event type can be
+ * tuned (or disabled) via {@link debounceMap}, letting consumers decide how
+ * aggressively to react to changes such as `resize`, `scroll`, DOM mutations, or
+ * orientation flips.
  *
+ * @typeParam T - Concrete HTMLElement subtype stored in {@link targetRef}.
+ * @param targetRef - React ref for the element to observe. Hook is inert until
+ *   a truthy element exists.
+ * @param callback - Invoked with the originating {@link EventType} plus the
+ *   native event (when available) after the configured debounce delay.
+ * @param debounceMap - Optional per-event debounce overrides in milliseconds;
+ *   `0` triggers immediately, positive numbers debounce, and `-1` disables that
+ *   signal entirely. Missing keys fall back to sensible defaults.
  */
 export function useElementObserver<T extends Element>(
   targetRef: React.RefObject<T | null>,
