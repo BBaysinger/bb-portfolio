@@ -39,8 +39,9 @@ interface ProjectsListProps {
  * - CSS :hover states for interactive feedback.
  * - NDA projects with authentication-gated content and routing.
  *
- * Note: This component is only rendered on hover-capable devices.
- * Touch devices use MagnifierViewer instead (handled by PortfolioListStyleSwapper).
+ * Note: Previously this grid swapped to an experimental magnifier layout on
+ * touch devices. That experiment has been retired and the standard grid now
+ * renders universally.
  *
  * @param props - Component properties.
  * @returns JSX element containing the projects grid.
