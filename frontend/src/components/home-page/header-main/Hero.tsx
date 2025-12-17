@@ -341,7 +341,10 @@ const Hero: React.FC = () => {
           >
             <>
               {/* These get nested for offset/position once projected */}
-              <ChargedCircle isActive={!circlePaused && !isSlingerInFlight} />
+              <ChargedCircle
+                isActive={!circlePaused && !isSlingerInFlight}
+                isUnlocked={hasCollided}
+              />
               <OrbGrabTooltip hidden={hasCollided} />
               <OrbTossTooltip hidden={hasCollided} />
             </>
