@@ -20,6 +20,24 @@ type WindowEventType = Exclude<EventType, ElementEventType>;
  */
 type DebounceMap = Partial<Record<EventType, number>>;
 
+/*
+ * TODO: Future refinement:
+ * 1. Callback identity currently resides in the effect deps, so an
+ *    un-memoized callback forces observer teardown/recreation and resets all
+ *    timers. We should either document this clearly or capture callbacks via a
+ *    ref to shield consumers from misuse.
+ * 2. Event payload typing is intentionally broad (`Event`), even though
+ *    `ResizeObserver` and `MutationObserver` emit different shapes. Consider
+ *    renaming the parameter to `payload` or relaxing typing further to avoid
+ *    implying native `Event` semantics.
+ * 3. The RAF-driven position probe never yields; providing an escape hatch for
+ *    hidden tabs or `display:none` targets (e.g., pause on `visibilitychange`)
+ *    may be useful when this runs in resource-sensitive contexts.
+ * 4. Inline `debounceMap` objects will churn the effect dependencies. Either
+ *    document the expectation to memoize the map or explore internal guards if
+ *    this becomes a common footgun.
+ */
+
 const WINDOW_EVENTS: [WindowEventType, string][] = [
   ["scroll", "scroll"],
   ["orientationchange", "orientationchange"],
