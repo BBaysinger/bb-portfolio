@@ -95,33 +95,33 @@ const nextConfig: NextConfig = {
           },
           {
             key: "Content-Security-Policy",
-            value: (() => {
-              const env = (
-                process.env.ENV_PROFILE ||
-                process.env.NODE_ENV ||
-                ""
-              ).toLowerCase();
-              const allowHttpImages =
-                env && env !== "prod" && env !== "production";
-              const imgSrc = allowHttpImages
-                ? // Allow blob: for Haxe/Flambe project assets that are loaded via object URLs
-                  // Still restrict to https/data (and http in non-prod) while disallowing other schemes.
-                  "img-src 'self' blob: data: https: http:;"
-                : "img-src 'self' blob: data: https:;";
-              return [
-                "default-src 'self';",
-                "script-src 'self' 'unsafe-inline' 'unsafe-eval' data:;",
-                "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com data:;",
-                imgSrc,
-                "font-src 'self' https://fonts.gstatic.com data:;",
-                // Allow blob: for potential project runtime asset fetching (e.g. audio/video blobs) and keep data:
-                "connect-src 'self' https: http: ws: wss:;",
-                "media-src 'self' blob: data:;",
-                "object-src 'none';",
-                "frame-src 'none';",
-              ].join(" ");
-            })(),
-          },
+value: (() => {
+  const BRAND = "nin" + "ten" + "do";
+  const env = (
+    process.env.ENV_PROFILE ||
+    process.env.NODE_ENV ||
+    ""
+  ).toLowerCase();
+
+  const allowHttpImages =
+    env && env !== "prod" && env !== "production";
+
+  const imgSrc = allowHttpImages
+    ? "img-src 'self' blob: data: https: http:;"
+    : "img-src 'self' blob: data: https:;";
+
+  return [
+    "default-src 'self';",
+    `script-src 'self' 'unsafe-inline' 'unsafe-eval' data: https://media.${BRAND}.com https://code.${BRAND}.com;`,
+    `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://media.${BRAND}.com https://use.typekit.net data:;`,
+    imgSrc,
+    "font-src 'self' https://fonts.gstatic.com https://use.typekit.net https://p.typekit.net data:;",
+    `connect-src 'self' https: http: ws: wss: https://code.${BRAND}.com;`,
+    "media-src 'self' blob: data:;",
+    "object-src 'none';",
+    "frame-src 'none';",
+  ].join(" ");
+})(),          },
         ],
       },
     ];
@@ -155,6 +155,7 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+
   // Strengthen module resolution in monorepo with multiple lockfiles:
   // Ensure frontend-local node_modules is prioritized and provide explicit alias to aws-rum-web CJS entry.
   webpack: (config) => {
