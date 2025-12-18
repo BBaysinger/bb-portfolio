@@ -10,13 +10,13 @@
   // Prevents accidental publishing to npm registry
   // Prevent publishing to npm registry
   "private": true,
-  //
+  // Toolchain version constraints for dev machines/CI
   "engines": {
-    //
+    // Node.js runtime version range supported by this repo
     "node": ">=18.20.2 <26",
-    //
+    // npm major version range supported (kept below breaking changes)
     "npm": "<12",
-    //
+    // pnpm major versions supported (used by some scripts/workflows)
     "pnpm": "^9 || ^10",
   },
   // Optional: Enable npm workspaces by uncommenting the line below
@@ -380,7 +380,7 @@
     "@typescript-eslint/eslint-plugin": "^8.50.0",
     // TypeScript parser for ESLint
     "@typescript-eslint/parser": "^8.50.0",
-    //
+    // Maps baseline browser support targets for tooling that needs them
     "baseline-browser-mapping": "^2.9.10",
     // Run multiple commands concurrently in scripts
     "concurrently": "^9.2.1",
