@@ -27,12 +27,10 @@ function getBackendBase(): string {
   const preferred = process.env.BACKEND_INTERNAL_URL || "";
   if (preferred) return preferred.replace(/\/$/, "");
 
-  // Compose service DNS fallbacks by profile (works inside the docker network).
   if (profile === "prod") return "http://bb-portfolio-backend-prod:3000";
   if (profile === "dev") return "http://bb-portfolio-backend-dev:3000";
   if (profile === "local") return "http://bb-portfolio-backend-local:3001";
 
-  // Host fallback (works when running backend on host or exposed compose port).
   return "http://localhost:8081";
 }
 
@@ -75,25 +73,9 @@ async function isAuthenticated(req: NextRequest): Promise<boolean> {
         cache: "no-store",
       });
 
-    console.log("[private] auth attempt", {
-      hasCookie: Boolean(cookieHeader),
-      cookie: cookieHeader,
-      backend,
-    });
-
     let res = await tryFetch(`${backend}/api/users/me`);
-    console.log("[private] auth response", {
-      url: `${backend}/api/users/me`,
-      status: res.status,
-      ok: res.ok,
-    });
     if (!res.ok && res.status === 401) {
       res = await tryFetch(`${backend}/api/users/me/`);
-      console.log("[private] auth response", {
-        url: `${backend}/api/users/me/`,
-        status: res.status,
-        ok: res.ok,
-      });
     }
 
     if (!res.ok) return false;
@@ -106,7 +88,7 @@ async function isAuthenticated(req: NextRequest): Promise<boolean> {
 
 function sanitizeKey(parts: string[], prefix = ""): string | null {
   const joined = (parts || []).join("/");
-  if (joined.includes("..")) return null; // prevent path traversal
+  if (joined.includes("..")) return null;
   let key =
     (prefix ? prefix.replace(/\/$/, "") + "/" : "") +
     joined.replace(/^\/+/, "");
@@ -150,6 +132,28 @@ function toWebStream(body: unknown): ReadableStream<Uint8Array> | null {
   return null;
 }
 
+function guessContentType(key: string): string | null {
+  const k = key.toLowerCase();
+  if (k.endsWith(".html") || k.endsWith(".htm"))
+    return "text/html; charset=utf-8";
+  if (k.endsWith(".js") || k.endsWith(".mjs"))
+    return "text/javascript; charset=utf-8";
+  if (k.endsWith(".css")) return "text/css; charset=utf-8";
+  if (k.endsWith(".json")) return "application/json; charset=utf-8";
+  if (k.endsWith(".svg")) return "image/svg+xml";
+  if (k.endsWith(".png")) return "image/png";
+  if (k.endsWith(".jpg") || k.endsWith(".jpeg")) return "image/jpeg";
+  if (k.endsWith(".gif")) return "image/gif";
+  if (k.endsWith(".webp")) return "image/webp";
+  if (k.endsWith(".ico")) return "image/x-icon";
+  if (k.endsWith(".mp3")) return "audio/mpeg";
+  if (k.endsWith(".mp4")) return "video/mp4";
+  if (k.endsWith(".woff")) return "font/woff";
+  if (k.endsWith(".woff2")) return "font/woff2";
+  if (k.endsWith(".ttf")) return "font/ttf";
+  return null;
+}
+
 async function headObject(bucket: string, key: string) {
   const s3 = getS3Client();
   return s3.send(new HeadObjectCommand({ Bucket: bucket, Key: key }));
@@ -190,9 +194,18 @@ async function streamObject(
     );
     const bodyStream = toWebStream(res.Body);
     if (!bodyStream) return new Response("Not found", { status: 404 });
+
     const headers = new Headers();
     const etag = meta.ETag || res.ETag;
-    if (res.ContentType) headers.set("Content-Type", res.ContentType);
+
+    const contentType = res.ContentType || meta.ContentType;
+    const inferred = guessContentType(key);
+    if (contentType && contentType !== "application/octet-stream") {
+      headers.set("Content-Type", contentType);
+    } else if (inferred) {
+      headers.set("Content-Type", inferred);
+    }
+
     if (etag) headers.set("ETag", etag);
     if (meta.LastModified || res.LastModified)
       headers.set(
@@ -202,9 +215,11 @@ async function streamObject(
     if (res.ContentLength != null)
       headers.set("Content-Length", String(res.ContentLength));
     if (res.ContentRange) headers.set("Content-Range", res.ContentRange);
+
     headers.set("Accept-Ranges", "bytes");
     headers.set("Cache-Control", "private, max-age=0, must-revalidate");
     headers.set("X-Content-Type-Options", "nosniff");
+
     const status = res.ContentRange ? 206 : 200;
     return new Response(bodyStream, { status, headers });
   } catch (err: unknown) {
@@ -214,29 +229,32 @@ async function streamObject(
   }
 }
 
+function computeProjectsPrefix(): string {
+  const base = (process.env.NDA_PROJECTS_PREFIX || "").replace(/\/+$/, "");
+  if (!base) return "_projects";
+  const parts = base.split("/").filter(Boolean);
+  if (parts.at(-1) === "_projects") return base;
+  return `${base}/_projects`;
+}
+
 export async function GET(
   req: NextRequest,
   context: { params: Promise<{ key?: string[] }> },
 ) {
-  // Gate by the same login used for NDA pages
   const authed = await isAuthenticated(req);
   if (!authed) {
-    // Conventional: reveal need for auth without leaking object existence
     return new Response("Unauthorized", { status: 401 });
   }
 
-  // Use NDA projects bucket specifically for /private route
   const bucket = process.env.NDA_PROJECTS_BUCKET || "";
-  const prefix = process.env.NDA_PROJECTS_PREFIX || "";
   if (!bucket) {
     return new Response("NDA projects bucket not configured", { status: 500 });
   }
 
   const { key: keyParts } = await context.params;
-  const key = sanitizeKey(keyParts || [], prefix);
+  const key = sanitizeKey(keyParts || [], computeProjectsPrefix());
   if (!key) return new Response("Bad path", { status: 400 });
 
-  // Metadata first to support conditional requests
   let meta;
   try {
     meta = await headObject(bucket, key);
@@ -265,18 +283,15 @@ export async function HEAD(
   req: NextRequest,
   context: { params: Promise<{ key?: string[] }> },
 ) {
-  // Align HEAD with GET behavior (useful for media players)
   const authed = await isAuthenticated(req);
   if (!authed) return new Response("Unauthorized", { status: 401 });
 
-  // Use NDA projects bucket specifically for /private route
   const bucket = process.env.NDA_PROJECTS_BUCKET || "";
-  const prefix = process.env.NDA_PROJECTS_PREFIX || "";
   if (!bucket)
     return new Response("NDA projects bucket not configured", { status: 500 });
 
   const { key: keyParts } = await context.params;
-  const key = sanitizeKey(keyParts || [], prefix);
+  const key = sanitizeKey(keyParts || [], computeProjectsPrefix());
   if (!key) return new Response("Bad path", { status: 400 });
 
   try {
