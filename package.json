@@ -2,8 +2,8 @@
   "name": "bb-portfolio-monorepo-root",
   "private": true,
   "engines": {
-    "node": ">=18.20.2 <25",
-    "npm": "<11",
+    "node": ">=18.20.2 <26",
+    "npm": "<12",
     "pnpm": "^9 || ^10"
   },
   "scripts": {
@@ -59,6 +59,7 @@
     "lint": "eslint .",
     "precommit": "prettier --write . && eslint . --fix && tsc --noEmit",
     "prepush": "npm run precommit && npm test",
+    "audit:fix:all": "concurrently \"npm audit fix\" \"cd backend && npm audit fix\" \"cd frontend && npm audit fix\" --names \"root,backend,frontend\" --prefix-colors \"yellow,blue,green\"",
     "sync:packages": "tsx scripts/sync-json5-packages.ts",
     "secrets:bundle": "tsx scripts/merge-github-secrets.ts",
     "sync:secrets": "npm run secrets:bundle && tsx scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./.github-secrets.private.json5",

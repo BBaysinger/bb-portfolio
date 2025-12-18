@@ -13,9 +13,9 @@
   //
   "engines": {
     //
-    "node": ">=18.20.2 <25",
+    "node": ">=18.20.2 <26",
     //
-    "npm": "<11",
+    "npm": "<12",
     //
     "pnpm": "^9 || ^10",
   },
@@ -199,6 +199,10 @@
     // Run before pushing to ensure everything works (1-5 minutes)
     // Includes all precommit checks plus full test suite
     "prepush": "npm run precommit && npm test",
+
+    // 🔒 Runs `npm audit fix` across root, backend, and frontend
+    // NOTE: This may update package-lock.json files; review changes after running.
+    "audit:fix:all": "concurrently \"npm audit fix\" \"cd backend && npm audit fix\" \"cd frontend && npm audit fix\" --names \"root,backend,frontend\" --prefix-colors \"yellow,blue,green\"",
     // 🔄 Syncs package.json5 with package.json values while preserving comments and formatting
     // Run this after editing package.json to push updates back into the annotated JSON5 version
     "sync:packages": "tsx scripts/sync-json5-packages.ts",

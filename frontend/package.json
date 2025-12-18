@@ -40,8 +40,8 @@
     "@types/node": "^25",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@typescript-eslint/eslint-plugin": "^8.48.1",
-    "@typescript-eslint/parser": "^8.48.1",
+    "@typescript-eslint/eslint-plugin": "^8.50.0",
+    "@typescript-eslint/parser": "^8.50.0",
     "dotenv": "17.2.3",
     "eslint": "^9",
     "eslint-config-next": "16.1.0",
@@ -52,8 +52,8 @@
     "typescript": "5.9.3"
   },
   "engines": {
-    "node": ">=18.20.2 <25",
-    "npm": "<11",
+    "node": ">=18.20.2 <26",
+    "npm": "<12",
     "pnpm": "^9 || ^10"
   }
 }
