@@ -32,8 +32,8 @@ The Docker setup includes:
 
 For backend-only development:
 
-1. Copy environment variables: `cp .env.local.example .env`
-2. Configure MongoDB URI and AWS credentials in `.env`
+1. Copy environment variables: `cp .env.local.example .env.local`
+2. Configure MongoDB URI and any needed credentials in `.env.local`
 3. Install dependencies: `npm install`
 4. Start development server: `npm run dev`
 5. Access admin panel at `http://localhost:3001`

@@ -47,7 +47,10 @@ export async function GET(request: NextRequest) {
     };
 
     // Prefer INTERNAL_URL to avoid self-calling the frontend domain
-    const preferred = firstVal(`${prefix}BACKEND_INTERNAL_URL`);
+    const preferred = firstVal(
+      `${prefix}BACKEND_INTERNAL_URL`,
+      "BACKEND_INTERNAL_URL",
+    );
 
     // Fallback service DNS inside container networks
     const serviceDnsFallback =

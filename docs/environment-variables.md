@@ -4,18 +4,24 @@
 
 ## Overview
 
-This project follows the standard environment variable conventions:
+This project uses multiple "env roots" because it is a monorepo:
 
-- **`.env`** - Committed defaults/shared values across all environments
-- **`.env.local`** - Local overrides (not committed, in `.gitignore`)
-- **`.env.example`** - Template showing required variables
+- **Repo root (`./`)**: used by Docker Compose + infra/deploy scripts
+- **Frontend (`./frontend/`)**: used by Next.js when running the frontend directly
+- **Backend (`./backend/`)**: used by the Payload/Next backend when running the backend directly
+
+General conventions:
+
+- **`.env.example`** / **`.env.local.example`** are templates committed to git.
+- **`.env`** / **`.env.local`** are local-only files (gitignored in this repo).
 
 ### Naming paradigm
 
 - Local development should rely on unprefixed keys (e.g., `PUBLIC_SERVER_URL`, `MONGODB_URI`). These stay in `.env` / `.env.local` and never leave your machine.
 - Per-profile overrides live in `.github-secrets.private.<profile>.json5`. Each profile reuses the same key names (no prefixes) so scripts can treat `FRONTEND_URL`, `MONGODB_URI`, etc., uniformly regardless of environment.
 - We intentionally avoid sprawling “compatibility” envs; when the backend needs a value, it fails fast with a helpful error instead of silently massaging inputs.
-- Every profile (including local) uses the same canonical key names; per-profile prefixes are no longer supported.
+- Prefer canonical, unprefixed key names for local dev (`BACKEND_INTERNAL_URL`, `AWS_REGION`, etc.).
+- Some code paths may also accept prefixed variants like `LOCAL_BACKEND_INTERNAL_URL`; treat those as optional compatibility.
 
 ## Key Variables
 
@@ -43,6 +49,8 @@ This project follows the standard environment variable conventions:
 - **Default**: `44.246.43.116`
 - **Usage**: Used in deployment scripts and infrastructure management
 
+### PUBLIC_SERVER_URL
+
 - **Purpose**: Defines the exact origin (scheme + host + port) that serves the Payload admin UI and `/api` routes for a given environment.
 - **Variants**:
   - `PUBLIC_SERVER_URL` (local / unprefixed default)
@@ -58,16 +66,22 @@ This project follows the standard environment variable conventions:
 
 ## Setup
 
-1. The `.env` file contains production defaults (already committed)
-2. For local development, copy and customize:
+1. Start from the templates:
 
-   ```bash
-   cp .env .env.local
-   # Edit .env.local with your local values
-   ```
+  ```bash
+  # Repo root (compose + scripts)
+  cp .env.example .env
+  cp .env.local.example .env.local
 
-3. **Required**: Environment variables must be set - scripts will fail if missing
-4. **No fallbacks**: Scripts enforce proper `.env`/`.env.local` usage without hardcoded defaults
+  # Frontend (Next.js)
+  cp frontend/.env.local.example frontend/.env.local
+
+  # Backend (Payload)
+  cp backend/.env.local.example backend/.env.local
+  ```
+
+2. Put secrets and machine-specific values in the `.env.local` files.
+3. Env files do not automatically "cascade" between root/frontend/backend — each service reads env from its own folder.
 
 ## Terraform Integration
 

@@ -29,7 +29,10 @@ export async function GET(request: NextRequest) {
       }
       return "";
     };
-    const preferred = firstVal(`${prefix}BACKEND_INTERNAL_URL`);
+    const preferred = firstVal(
+      `${prefix}BACKEND_INTERNAL_URL`,
+      "BACKEND_INTERNAL_URL",
+    );
     const serviceDnsFallback =
       normalizedProfile === "dev"
         ? "http://bb-portfolio-backend-dev:3000"

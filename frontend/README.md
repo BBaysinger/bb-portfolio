@@ -55,6 +55,20 @@ Open [http://localhost:3000](http://localhost:3000) - note that backend features
 
 ## Environment Configuration
 
+The frontend reads environment variables from files in `frontend/` (it does not automatically use the monorepo root `.env`).
+
+For local development:
+
+```bash
+cp .env.local.example .env.local
+```
+
+Key variables commonly needed:
+
+- `BACKEND_INTERNAL_URL` (server-side requests to the backend)
+- `PUBLIC_PROJECTS_BUCKET` / `NDA_PROJECTS_BUCKET` (S3 project bundle streaming routes)
+- `AWS_REGION` (region for the S3 client)
+
 The frontend adapts to different environments:
 
 - Backend health check optimization for CI/CD vs runtime

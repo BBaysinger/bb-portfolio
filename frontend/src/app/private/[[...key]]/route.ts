@@ -12,12 +12,19 @@ export const dynamic = "force-dynamic"; // must evaluate auth per request
 export const revalidate = 0;
 
 function getBackendBase(): string {
-  const env = (
+  const rawProfile = (
     process.env.ENV_PROFILE ||
     process.env.NODE_ENV ||
     ""
   ).toLowerCase();
-  const prefix = env ? `${env.toUpperCase()}_` : "";
+  const profile = rawProfile.startsWith("prod")
+    ? "prod"
+    : rawProfile === "development" || rawProfile.startsWith("dev")
+      ? "dev"
+      : rawProfile.startsWith("local")
+        ? "local"
+        : rawProfile;
+  const prefix = profile ? `${profile.toUpperCase()}_` : "";
   const pick = (...names: string[]) => {
     for (const n of names) {
       const v = process.env[n];
@@ -25,14 +32,51 @@ function getBackendBase(): string {
     }
     return "";
   };
-  const base = pick(`${prefix}BACKEND_INTERNAL_URL`) || "http://localhost:8081";
-  return base.replace(/\/$/, "");
+
+  // Prefer profile-specific key when present, but fall back to canonical key.
+  const preferred = pick(
+    `${prefix}BACKEND_INTERNAL_URL`,
+    "BACKEND_INTERNAL_URL",
+  );
+  if (preferred) return preferred.replace(/\/$/, "");
+
+  // Compose service DNS fallbacks by profile (works inside the docker network).
+  if (profile === "prod") return "http://bb-portfolio-backend-prod:3000";
+  if (profile === "dev") return "http://bb-portfolio-backend-dev:3000";
+  if (profile === "local") return "http://bb-portfolio-backend-local:3001";
+
+  // Host fallback (works when running backend on host or exposed compose port).
+  return "http://localhost:8081";
 }
 
 async function isAuthenticated(req: NextRequest): Promise<boolean> {
   try {
     const cookieHeader = req.headers.get("cookie") || "";
     const backend = getBackendBase();
+
+    const isRecord = (v: unknown): v is Record<string, unknown> =>
+      typeof v === "object" && v !== null;
+    const hasIdentity = (u: unknown): boolean => {
+      if (!isRecord(u)) return false;
+      const id = u["id"];
+      const email = u["email"];
+      return (
+        (typeof id === "string" && id.length > 0) ||
+        (typeof email === "string" && email.length > 0)
+      );
+    };
+
+    const parseUser = async (res: Response): Promise<unknown> => {
+      const ct = res.headers.get("content-type") || "";
+      if (!ct.includes("application/json")) return null;
+      try {
+        const payload: unknown = await res.json();
+        if (isRecord(payload) && "user" in payload) return payload.user;
+        return payload;
+      } catch {
+        return null;
+      }
+    };
 
     const tryFetch = async (url: string) =>
       fetch(url, {
@@ -64,7 +108,10 @@ async function isAuthenticated(req: NextRequest): Promise<boolean> {
         ok: res.ok,
       });
     }
-    return res.ok;
+
+    if (!res.ok) return false;
+    const user = await parseUser(res);
+    return hasIdentity(user);
   } catch {
     return false;
   }
