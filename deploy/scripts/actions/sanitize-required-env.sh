@@ -2,9 +2,8 @@
 set -euo pipefail
 PROFILE="${1:?profile (dev|prod) required}"; RAW="${2:-}"
 if [ -z "${RAW}" ]; then echo "RAW env list required as 2nd arg" >&2; exit 1; fi
-REMOVE_REGEX='CONTACT_PHONE_E164|CONTACT_PHONE_DISPLAY|OBFUSCATED_CONTACT_EMAIL'
-# Normalize commas, remove targeted tokens
-BASE=$(printf "%s" "$RAW" | sed -E "s/(^|,)((${REMOVE_REGEX}))(,|$)/\1\4/g" | sed -E 's/,\s*,+/,/g; s/^,|,$//g')
+# Normalize commas
+BASE=$(printf "%s" "$RAW" | sed -E 's/,\s*,+/,/g; s/^,|,$//g')
 FRONTEND_REQ="$BASE"
 # Backend drops SECURITY_TXT_EXPIRES
 BACKEND_REQ=$(printf "%s" "$BASE" | sed -E 's/(^|,)(SECURITY_TXT_EXPIRES)(,|$)/\1\3/g' | sed -E 's/,\s*,+/,/g; s/^,|,$//g')
