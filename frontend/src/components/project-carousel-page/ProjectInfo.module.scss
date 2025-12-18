@@ -92,14 +92,12 @@
   color: #fff !important;
   text-decoration: none !important;
   height: 30px;
-  min-width: 100px;
   line-height: 17px;
 }
 
 // Ensures the Copy Link button does not resize when its label toggles
 .copyLinkBtn {
   // Width large enough for both "Copy link" and "Link copied"
-  min-width: 100px;
   display: inline-flex;
   align-items: center;
   justify-content: center;

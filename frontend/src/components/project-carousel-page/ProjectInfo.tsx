@@ -140,7 +140,7 @@ const ProjectInfo = forwardRef<HTMLDivElement, ProjectInfoProps>(
           aria-label="Copy canonical link to this project"
           style={{ "--index": globalIndex++ } as React.CSSProperties}
         >
-          {copied ? "Link copied" : "Copy link"}
+          {copied ? "Link copied" : "🔗"}
         </button>
       </div>
     );
