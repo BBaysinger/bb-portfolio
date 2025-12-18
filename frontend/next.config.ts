@@ -95,33 +95,34 @@ const nextConfig: NextConfig = {
           },
           {
             key: "Content-Security-Policy",
-value: (() => {
-  const BRAND = "nin" + "ten" + "do";
-  const env = (
-    process.env.ENV_PROFILE ||
-    process.env.NODE_ENV ||
-    ""
-  ).toLowerCase();
+            value: (() => {
+              const BRAND = "nin" + "ten" + "do";
+              const env = (
+                process.env.ENV_PROFILE ||
+                process.env.NODE_ENV ||
+                ""
+              ).toLowerCase();
 
-  const allowHttpImages =
-    env && env !== "prod" && env !== "production";
+              const allowHttpImages =
+                env && env !== "prod" && env !== "production";
 
-  const imgSrc = allowHttpImages
-    ? "img-src 'self' blob: data: https: http:;"
-    : "img-src 'self' blob: data: https:;";
+              const imgSrc = allowHttpImages
+                ? "img-src 'self' blob: data: https: http:;"
+                : "img-src 'self' blob: data: https:;";
 
-  return [
-    "default-src 'self';",
-    `script-src 'self' 'unsafe-inline' 'unsafe-eval' data: https://media.${BRAND}.com https://code.${BRAND}.com;`,
-    `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://media.${BRAND}.com https://use.typekit.net data:;`,
-    imgSrc,
-    "font-src 'self' https://fonts.gstatic.com https://use.typekit.net https://p.typekit.net data:;",
-    `connect-src 'self' https: http: ws: wss: https://code.${BRAND}.com;`,
-    "media-src 'self' blob: data:;",
-    "object-src 'none';",
-    "frame-src 'none';",
-  ].join(" ");
-})(),          },
+              return [
+                "default-src 'self';",
+                `script-src 'self' 'unsafe-inline' 'unsafe-eval' data: https://media.${BRAND}.com https://code.${BRAND}.com;`,
+                `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://media.${BRAND}.com https://use.typekit.net data:;`,
+                imgSrc,
+                "font-src 'self' https://fonts.gstatic.com https://use.typekit.net https://p.typekit.net data:;",
+                `connect-src 'self' https: http: ws: wss: https://code.${BRAND}.com;`,
+                "media-src 'self' blob: data:;",
+                "object-src 'none';",
+                "frame-src 'none';",
+              ].join(" ");
+            })(),
+          },
         ],
       },
     ];
