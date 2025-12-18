@@ -1,6 +1,11 @@
 {
   "name": "bb-portfolio-monorepo-root",
   "private": true,
+  "engines": {
+    "node": ">=18.20.2 <25",
+    "npm": "<11",
+    "pnpm": "^9 || ^10"
+  },
   "scripts": {
     "dev": "npm run bareMetalDev:all",
     "dev:backend": "npm run bareMetalDev:backend",

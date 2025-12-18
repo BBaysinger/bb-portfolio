@@ -81,7 +81,7 @@ jobs:
       - name: pnpm version
         run: pnpm -v
 
-      # Sanitize required env list: remove deprecated phone vars moved to CMS
+      # Sanitize required env list: split frontend/backend requirements
       - name: Sanitize REQUIRED_ENVIRONMENT_VARIABLES (dev build)
         id: sanitize-dev-req
         env:
