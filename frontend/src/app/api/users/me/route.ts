@@ -34,23 +34,8 @@ export async function GET(request: NextRequest) {
         : rawProfile.startsWith("local")
           ? "local"
           : rawProfile;
-    const prefix = normalizedProfile
-      ? `${normalizedProfile.toUpperCase()}_`
-      : "";
-
-    const firstVal = (...names: string[]) => {
-      for (const n of names) {
-        const v = process.env[n];
-        if (v) return v;
-      }
-      return "";
-    };
-
     // Prefer INTERNAL_URL to avoid self-calling the frontend domain
-    const preferred = firstVal(
-      `${prefix}BACKEND_INTERNAL_URL`,
-      "BACKEND_INTERNAL_URL",
-    );
+    const preferred = process.env.BACKEND_INTERNAL_URL || "";
 
     // Fallback service DNS inside container networks
     const serviceDnsFallback =

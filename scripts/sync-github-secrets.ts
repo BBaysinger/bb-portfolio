@@ -10,7 +10,7 @@
  *       - "dev"  <- .env.dev (+ .env.dev.local)
  *       - "prod" <- .env.prod (+ .env.prod.local)
  *   - Repo-level defaults may be derived from .env.prod unless overridden.
- *   - Keep current JSON5 mode as default for backward compatibility.
+ *   - Keep current JSON5 mode as default for consistency.
  *   - Add `--verify-json5` to report drift between JSON5 and env files.
  *   - Use dotenv (and optionally dotenv-expand) for parsing.
  *   - Preserve dry-run behavior; never print secret values (show lengths only).

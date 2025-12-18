@@ -21,7 +21,7 @@ General conventions:
 - Per-profile overrides live in `.github-secrets.private.<profile>.json5`. Each profile reuses the same key names (no prefixes) so scripts can treat `FRONTEND_URL`, `MONGODB_URI`, etc., uniformly regardless of environment.
 - We intentionally avoid sprawling “compatibility” envs; when the backend needs a value, it fails fast with a helpful error instead of silently massaging inputs.
 - Prefer canonical, unprefixed key names for local dev (`BACKEND_INTERNAL_URL`, `AWS_REGION`, etc.).
-- Some code paths may also accept prefixed variants like `LOCAL_BACKEND_INTERNAL_URL`; treat those as optional compatibility.
+- No backwards compatibility for env keys: do not add aliases like `LOCAL_*`, `DEV_*`, or `PROD_*`. Use the canonical key name only.
 
 ## Key Variables
 
@@ -46,8 +46,8 @@ General conventions:
 ### EC2_INSTANCE_IP
 
 - **Purpose**: EC2 instance IP address for deployments and SSH access
-- **Default**: `44.246.43.116`
-- **Usage**: Used in deployment scripts and infrastructure management
+- **Required**: Set explicitly (no implicit default)
+- **Usage**: Used in deployment scripts and infrastructure management. Prefer syncing into `.env` via `npm run infra:sync-env`.
 
 ### PUBLIC_SERVER_URL
 
@@ -68,17 +68,17 @@ General conventions:
 
 1. Start from the templates:
 
-  ```bash
-  # Repo root (compose + scripts)
-  cp .env.example .env
-  cp .env.local.example .env.local
+```bash
+# Repo root (compose + scripts)
+cp .env.example .env
+cp .env.local.example .env.local
 
-  # Frontend (Next.js)
-  cp frontend/.env.local.example frontend/.env.local
+# Frontend (Next.js)
+cp frontend/.env.local.example frontend/.env.local
 
-  # Backend (Payload)
-  cp backend/.env.local.example backend/.env.local
-  ```
+# Backend (Payload)
+cp backend/.env.local.example backend/.env.local
+```
 
 2. Put secrets and machine-specific values in the `.env.local` files.
 3. Env files do not automatically "cascade" between root/frontend/backend — each service reads env from its own folder.
@@ -124,25 +124,9 @@ All scripts validate required environment variables and will exit with clear err
 
 ### Files Updated
 
-The following files now use the `EC2_INSTANCE_IP` environment variable:
+### Notes
 
-- `package.json` - SSH sync command
-- `package.json5` - SSH sync command (mirror)
-- `infra/bb-portfolio-management.sh` - Infrastructure management script
-- `deploy/scripts/generate-terraform-vars.ts` - CORS origins for S3
-- `frontend/.env.local` - defaults for `NEXT_PUBLIC_FORCE_HASH_HISTORY` and `NEXT_PUBLIC_DOUBLE_PUSH`
+This repo is intentionally fail-fast:
 
-### Fallback Behavior
-
-All scripts maintain backward compatibility by falling back to the hardcoded IP address if the environment variable is not set:
-
-- npm scripts: `${NGINX_HOST:-ec2-user@${EC2_INSTANCE_IP}}`
-- Infrastructure script: `${EC2_INSTANCE_IP:-44.246.43.116}`
-- Terraform generator: `process.env.EC2_INSTANCE_IP || "44.246.43.116"`
-
-### Benefits
-
-- **Single Source of Truth**: IP address is centralized in environment configuration
-- **Environment Flexibility**: Easy to override for different environments or IP changes
-- **Backward Compatibility**: Scripts still work without the environment variable set
-- **Security**: Sensitive configuration can be managed through environment variables
+- No env var aliases (no `LOCAL_*`, `DEV_*`, `PROD_*` prefixes)
+- No hidden defaults for deployment-critical values — set them explicitly (ideally via Terraform sync)

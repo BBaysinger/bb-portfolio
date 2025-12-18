@@ -56,23 +56,17 @@ class AWSEmailService implements EmailService {
   }
 
   private getOptionalEnvVarWithKey(key: string): { value?: string; usedKey?: string } {
-    const envProfile = process.env.ENV_PROFILE || 'local'
-    const prefixedKey = `${envProfile.toUpperCase()}_${key}`
-    const value = process.env[prefixedKey] || process.env[key]
-    const usedKey = process.env[prefixedKey] ? prefixedKey : process.env[key] ? key : undefined
+    const value = process.env[key]
+    const usedKey = value ? key : undefined
     return { value, usedKey }
   }
 
   private getEnvVarWithKey(key: string): { value: string; usedKey: string } {
-    const envProfile = process.env.ENV_PROFILE || 'local'
-    const prefixedKey = `${envProfile.toUpperCase()}_${key}`
-    // Prefer profile-prefixed, but gracefully fall back to unprefixed for runtime environments
-    // where only AWS_REGION/SES_* may be provided.
-    const value = process.env[prefixedKey] || process.env[key]
-    const usedKey = process.env[prefixedKey] ? prefixedKey : process.env[key] ? key : ''
+    const value = process.env[key]
+    const usedKey = value ? key : ''
 
     if (!value) {
-      throw new Error(`Missing required environment variable: ${prefixedKey} (or ${key})`)
+      throw new Error(`Missing required environment variable: ${key}`)
     }
 
     return { value, usedKey }
@@ -260,7 +254,6 @@ export function getContactEmailDiagnostics() {
         : profile || 'unknown'
 
   const pick = (keys: string[]) => keys.find((k) => !!process.env[k]) || ''
-  const prefix = normalized ? `${normalized.toUpperCase()}_` : ''
 
   let configured = false
   let usedKeys: { region?: string | null; from?: string | null; to?: string | null } = {}
@@ -281,9 +274,9 @@ export function getContactEmailDiagnostics() {
   } else {
     // Fallback for mock
     usedKeys = {
-      region: pick([`${prefix}AWS_REGION`, 'AWS_REGION']) || null,
-      from: pick([`${prefix}SES_FROM_EMAIL`, 'SES_FROM_EMAIL']) || null,
-      to: pick([`${prefix}SES_TO_EMAIL`, 'SES_TO_EMAIL']) || null,
+      region: pick(['AWS_REGION']) || null,
+      from: pick(['SES_FROM_EMAIL']) || null,
+      to: pick(['SES_TO_EMAIL']) || null,
     }
     configured = false
     last = null

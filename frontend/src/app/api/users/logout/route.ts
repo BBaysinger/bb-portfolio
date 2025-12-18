@@ -20,20 +20,7 @@ export async function POST(request: NextRequest) {
         : rawProfile.startsWith("local")
           ? "local"
           : rawProfile;
-    const prefix = normalizedProfile
-      ? `${normalizedProfile.toUpperCase()}_`
-      : "";
-    const firstVal = (...names: string[]) => {
-      for (const n of names) {
-        const v = process.env[n];
-        if (v) return v;
-      }
-      return "";
-    };
-    const preferred = firstVal(
-      `${prefix}BACKEND_INTERNAL_URL`,
-      "BACKEND_INTERNAL_URL",
-    );
+    const preferred = process.env.BACKEND_INTERNAL_URL || "";
     const serviceDnsFallback =
       normalizedProfile === "dev"
         ? "http://bb-portfolio-backend-dev:3000"
