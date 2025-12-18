@@ -1,4 +1,4 @@
-> **Monorepo Note:** This repo currently contains an interactive development portfolio _and_ a developer-oriented PaaS-style deployment orchestrator library; the orchestrator will spin out into its own repository soon.
+> **Monorepo Note:** This repo currently contains an interactive development portfolio _and_ a developer-oriented deployment orchestrator library; the orchestrator will spin out into its own repository soon.
 
 # Interactive UI / Frontend Systems Portfolio
 
