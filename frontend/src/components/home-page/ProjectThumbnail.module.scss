@@ -6,8 +6,8 @@
   aspect-ratio: 3 / 2;
   height: auto;
   position: relative;
-  overflow: hidden; // Fix gap on left side of vignette.
-  width: 100vw;
+  // overflow: hidden; // Fix gap on left side of vignette. (But breaks thumbnail on phone/landscape)
+  width: 100%;
 
   @include breakpointUp($b992px) {
     flex: 0 1 calc(50% - projectsList.$projectsListGap * 0.5);
@@ -195,7 +195,7 @@ h4.thumbTitle {
     opacity 0.5s linear;
 }
 
-.lockedIcon {
+.lockedIcon { // Shows when there's no NDA thumbnail in CMS
   position: absolute;
   top: 50%;
   left: 50%;
