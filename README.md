@@ -672,14 +672,6 @@ Note: Earlier plans for "custom Express/Mongo backend" were superseded by the fu
 
 ---
 
-**EC2 Instance IPs (Blue-Green-Red Deployment):**
-
-_Note: This project uses a non-standard three-tier "Blue-Green-Red" naming convention. Standard blue-green deployment uses only two colors for production-ready instances. We extend this with "Red" for cost optimization—running single instances for dev/prod rather than dedicated staging infrastructure._
-
-- **Green/Active** (Role: `active`): **44.246.43.116** — Production instance serving live traffic
-- **Blue/Candidate** (Role: `candidate`): **52.37.142.50** — Staging instance for testing before promotion
-- **Red/Tainted** (Role: `tainted`): **35.167.120.233** — Instances marked for recreation due to issues
-
 **Instance-to-IP Mapping:**
 
 - Production green EIP (44.246.43.116) → Instance i-0c0bf3a824aee21fb (Role: `active`)
