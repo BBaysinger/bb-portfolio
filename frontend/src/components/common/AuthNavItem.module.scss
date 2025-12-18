@@ -4,7 +4,8 @@
 .logoutButton {
   button {
     padding-left: 0;
-    width: 21px !important;
+    min-width: 20px;
+    min-height: 17px;
     background-color: currentColor !important;
     background-repeat: no-repeat;
     mask-image: url("/images/icons/logout.svg");
