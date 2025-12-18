@@ -44,9 +44,25 @@ async function isAuthenticated(req: NextRequest): Promise<boolean> {
         cache: "no-store",
       });
 
+    console.log("[private] auth attempt", {
+      hasCookie: Boolean(cookieHeader),
+      cookie: cookieHeader,
+      backend,
+    });
+
     let res = await tryFetch(`${backend}/api/users/me`);
+    console.log("[private] auth response", {
+      url: `${backend}/api/users/me`,
+      status: res.status,
+      ok: res.ok,
+    });
     if (!res.ok && res.status === 401) {
       res = await tryFetch(`${backend}/api/users/me/`);
+      console.log("[private] auth response", {
+        url: `${backend}/api/users/me/`,
+        status: res.status,
+        ok: res.ok,
+      });
     }
     return res.ok;
   } catch {
