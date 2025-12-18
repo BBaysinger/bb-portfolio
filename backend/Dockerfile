@@ -303,7 +303,7 @@ COPY package.json package-lock.json* ./
 # Install ALL dependencies including devDependencies
 # Development stage needs TypeScript, testing tools, linters, etc.
 # Allow legacy peer deps to accommodate Next 16 with @payloadcms/next peer range
-RUN npm install --legacy-peer-deps
+RUN npm install --legacy-peer-deps --install-strategy=nested
 
 # Install nodemon globally for automatic server restarts on file changes
 # Essential for development workflow - automatically restarts server when code changes
