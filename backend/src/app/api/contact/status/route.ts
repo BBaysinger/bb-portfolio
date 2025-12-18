@@ -13,16 +13,14 @@ export async function GET() {
           ? 'local'
           : profileRaw || 'unknown'
 
-    const prefix = profile ? `${profile.toUpperCase()}_` : ''
-
     const pick = (keys: string[]) => {
       for (const k of keys) if (process.env[k]) return k
       return ''
     }
 
-    const regionKey = pick([`${prefix}AWS_REGION`, 'AWS_REGION'])
-    const fromKey = pick([`${prefix}SES_FROM_EMAIL`, 'SES_FROM_EMAIL'])
-    const toKey = pick([`${prefix}SES_TO_EMAIL`, 'SES_TO_EMAIL'])
+    const regionKey = pick(['AWS_REGION'])
+    const fromKey = pick(['SES_FROM_EMAIL'])
+    const toKey = pick(['SES_TO_EMAIL'])
 
     const configured = Boolean(regionKey && fromKey && toKey)
 

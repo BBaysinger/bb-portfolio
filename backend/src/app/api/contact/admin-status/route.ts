@@ -3,17 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getContactEmailDiagnostics } from '@/services/email'
 
 function getAdminToken(): string | null {
-  const profile = (process.env.ENV_PROFILE || process.env.NODE_ENV || '').toLowerCase()
-  const normalized = profile.startsWith('prod')
-    ? 'prod'
-    : profile === 'development' || profile.startsWith('dev')
-      ? 'dev'
-      : profile.startsWith('local')
-        ? 'local'
-        : profile || 'unknown'
-  const prefix = normalized ? `${normalized.toUpperCase()}_` : ''
-  const preferred = process.env[`${prefix}CONTACT_DIAGNOSTICS_TOKEN`] || ''
-  return preferred || process.env.CONTACT_DIAGNOSTICS_TOKEN || null
+  return process.env.CONTACT_DIAGNOSTICS_TOKEN || null
 }
 
 export async function GET(request: NextRequest) {

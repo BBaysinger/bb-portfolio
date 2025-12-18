@@ -17,9 +17,7 @@ function resolveBackendBase(): string {
       : rawProfile.startsWith("local")
         ? "local"
         : rawProfile;
-  const prefix = profile ? `${profile.toUpperCase()}_` : "";
-  const envName = `${prefix}BACKEND_INTERNAL_URL`;
-  const fromEnv = process.env[envName] || process.env.BACKEND_INTERNAL_URL;
+  const fromEnv = process.env.BACKEND_INTERNAL_URL;
   if (fromEnv) return fromEnv.replace(/\/$/, "");
   // Compose service DNS fallbacks by profile
   if (profile === "prod") return "http://bb-portfolio-backend-prod:3000";

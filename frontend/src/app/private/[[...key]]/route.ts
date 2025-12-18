@@ -24,20 +24,7 @@ function getBackendBase(): string {
       : rawProfile.startsWith("local")
         ? "local"
         : rawProfile;
-  const prefix = profile ? `${profile.toUpperCase()}_` : "";
-  const pick = (...names: string[]) => {
-    for (const n of names) {
-      const v = process.env[n];
-      if (v) return v;
-    }
-    return "";
-  };
-
-  // Prefer profile-specific key when present, but fall back to canonical key.
-  const preferred = pick(
-    `${prefix}BACKEND_INTERNAL_URL`,
-    "BACKEND_INTERNAL_URL",
-  );
+  const preferred = process.env.BACKEND_INTERNAL_URL || "";
   if (preferred) return preferred.replace(/\/$/, "");
 
   // Compose service DNS fallbacks by profile (works inside the docker network).
