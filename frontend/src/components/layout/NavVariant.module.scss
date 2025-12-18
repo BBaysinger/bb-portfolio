@@ -17,6 +17,7 @@ $navHamburgerBreakpoint: 992px;
     #222 var(--nav-links-compact-width),
     rgba(0, 0, 0, 1) 60vw
   );
+  background-size: 100vw $navBarHeight;
   :global(.isHeroInView5Pct) & {
     width: 50px;
   }

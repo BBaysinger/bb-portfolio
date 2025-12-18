@@ -195,7 +195,8 @@ h4.thumbTitle {
     opacity 0.5s linear;
 }
 
-.lockedIcon { // Shows when there's no NDA thumbnail in CMS
+.lockedIcon {
+  // Shows when there's no NDA thumbnail in CMS
   position: absolute;
   top: 50%;
   left: 50%;
