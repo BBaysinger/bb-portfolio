@@ -157,6 +157,7 @@ const frontendEnv = (profile: Profile, secrets: SecretBundle): string => {
     `NEXT_PUBLIC_RUM_IDENTITY_POOL_ID=${get("NEXT_PUBLIC_RUM_IDENTITY_POOL_ID")}`,
     `NEXT_PUBLIC_RUM_GUEST_ROLE_ARN=${get("NEXT_PUBLIC_RUM_GUEST_ROLE_ARN")}`,
     `NEXT_PUBLIC_RUM_REGION=${get("NEXT_PUBLIC_RUM_REGION", awsRegion)}`,
+    `NEXT_PUBLIC_RUM_DEBUG=${get("NEXT_PUBLIC_RUM_DEBUG", "false")}`,
   ];
 
   return `${lines.join("\n")}\n`;

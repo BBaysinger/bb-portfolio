@@ -19,6 +19,7 @@
  * - NEXT_PUBLIC_RUM_IDENTITY_POOL_ID - Cognito identity pool for unauthenticated access
  * - NEXT_PUBLIC_RUM_GUEST_ROLE_ARN - IAM role with PutRumEvents permission
  * - NEXT_PUBLIC_RUM_REGION - AWS region (defaults to us-west-2)
+ * - NEXT_PUBLIC_RUM_DEBUG - Optional: enable extra console logging (non-production only)
  *
  * Usage:
  * - Initialize via <RUMInitializer /> component in app layout
@@ -34,6 +35,10 @@
  */
 
 "use client";
+
+const RUM_DEBUG =
+  process.env.NEXT_PUBLIC_RUM_DEBUG === "true" &&
+  process.env.NODE_ENV !== "production";
 
 // Use eager dynamic import (webpackMode: "eager") inside initializer to bundle without runtime resolution issues.
 type AwsRumConfig = {
@@ -82,6 +87,7 @@ let rumInstance: AwsRumLike | null = null;
  * - NEXT_PUBLIC_RUM_IDENTITY_POOL_ID - Cognito identity pool ID
  * - NEXT_PUBLIC_RUM_GUEST_ROLE_ARN - IAM role ARN for guest access
  * - NEXT_PUBLIC_RUM_REGION (optional) - AWS region, defaults to us-west-2
+ * - NEXT_PUBLIC_RUM_DEBUG (optional) - Enable extra console logging (non-production only)
  *
  * Features:
  * - Singleton pattern prevents duplicate initialization
@@ -111,9 +117,11 @@ export async function initializeRUM() {
     "us-west-2";
 
   if (!appMonitorId || !identityPoolId) {
-    console.info(
-      "[RUM] CloudWatch RUM not configured - skipping initialization",
-    );
+    if (RUM_DEBUG) {
+      console.info(
+        "[RUM] CloudWatch RUM not configured - skipping initialization",
+      );
+    }
     return;
   }
 
@@ -155,7 +163,7 @@ export async function initializeRUM() {
     const originalDispatch = (rumInstance as { [k: string]: unknown })[
       "dispatch"
     ] as ((...args: unknown[]) => unknown) | undefined;
-    if (originalDispatch) {
+    if (RUM_DEBUG && originalDispatch) {
       (
         rumInstance as unknown as { dispatch: (...args: unknown[]) => unknown }
       ).dispatch = function (...args: unknown[]) {
@@ -164,21 +172,25 @@ export async function initializeRUM() {
       };
     }
 
-    console.info("[RUM] CloudWatch RUM initialized successfully");
-    console.info("[RUM] Config:", {
-      endpoint: config.endpoint,
-      identityPoolId: config.identityPoolId,
-      appMonitorId,
-      region,
-    });
+    if (RUM_DEBUG) {
+      console.info("[RUM] CloudWatch RUM initialized successfully");
+      console.info("[RUM] Config:", {
+        endpoint: config.endpoint,
+        identityPoolId: config.identityPoolId,
+        appMonitorId,
+        region,
+      });
+    }
 
     // Record initial page view
     if (typeof window !== "undefined") {
       rumInstance.recordPageView(window.location.pathname);
-      console.info(
-        "[RUM] Initial page view recorded:",
-        window.location.pathname,
-      );
+      if (RUM_DEBUG) {
+        console.info(
+          "[RUM] Initial page view recorded:",
+          window.location.pathname,
+        );
+      }
     }
   } catch (error) {
     // Safely stringify any thrown value (some bundlers/exports throw non-Error objects)
@@ -232,7 +244,9 @@ export function setRUMUser(userId: string) {
   if (rumInstance) {
     try {
       rumInstance.addSessionAttributes({ userId });
-      console.info("[RUM] User ID set:", userId);
+      if (RUM_DEBUG) {
+        console.info("[RUM] User ID set:", userId);
+      }
     } catch (error) {
       console.error("[RUM] Failed to set user ID:", error);
     }
@@ -253,7 +267,9 @@ export function clearRUMUser() {
   if (rumInstance) {
     try {
       rumInstance.addSessionAttributes({ userId: "" });
-      console.info("[RUM] User ID cleared");
+      if (RUM_DEBUG) {
+        console.info("[RUM] User ID cleared");
+      }
     } catch (error) {
       console.error("[RUM] Failed to clear user ID:", error);
     }
@@ -265,7 +281,9 @@ export function recordPageView(pageName: string) {
   if (rumInstance) {
     try {
       rumInstance.recordPageView(pageName);
-      console.info("[RUM] Page view recorded:", pageName);
+      if (RUM_DEBUG) {
+        console.info("[RUM] Page view recorded:", pageName);
+      }
     } catch (error) {
       console.error("[RUM] Failed to record page view:", error);
     }

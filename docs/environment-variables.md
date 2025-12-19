@@ -37,6 +37,13 @@ General conventions:
 - **Default**: `0` (disabled)
 - **Usage**: `frontend/src/utils/navigation.ts`, `frontend/src/components/common/PushStateLink.tsx`, and carousel navigation.
 
+### NEXT_PUBLIC_RUM_DEBUG
+
+- **Purpose**: Enables additional browser console logging for CloudWatch RUM initialization + event dispatch (useful for debugging).
+- **Default**: `false`
+- **Notes**: Only has effect in non-production builds; production ignores it.
+- **Usage**: `frontend/src/services/rum.ts` (see also `docs/cloudwatch-rum-setup.md`).
+
 ### AWS_ACCOUNT_ID
 
 - **Purpose**: AWS Account ID for ECR image URIs

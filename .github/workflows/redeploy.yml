@@ -142,6 +142,7 @@ jobs:
           NEXT_PUBLIC_RUM_IDENTITY_POOL_ID: ${{ secrets.NEXT_PUBLIC_RUM_IDENTITY_POOL_ID }}
           NEXT_PUBLIC_RUM_GUEST_ROLE_ARN: ${{ secrets.NEXT_PUBLIC_RUM_GUEST_ROLE_ARN }}
           NEXT_PUBLIC_RUM_REGION: ${{ secrets.NEXT_PUBLIC_RUM_REGION }}
+          NEXT_PUBLIC_RUM_DEBUG: ${{ secrets.NEXT_PUBLIC_RUM_DEBUG }}
         run: bash deploy/scripts/actions/generate-env-files.sh
 
       - name: Upload env files to EC2
