@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { useAuth } from "@/hooks/useAuth";
+import { getSafeNextPath } from "@/utils/getSafeNextPath";
 
 import styles from "./LoginPage.module.scss";
 
@@ -36,7 +37,15 @@ const LoginPage = () => {
   // Redirect if already logged in (but wait for loading to finish)
   useEffect(() => {
     if (!isLoading && isLoggedIn) {
-      router.replace("/");
+      const redirectTo = (() => {
+        try {
+          const url = new URL(window.location.href);
+          return getSafeNextPath(url.searchParams.get("next"));
+        } catch {
+          return null;
+        }
+      })();
+      router.replace(redirectTo ?? "/");
     }
   }, [isLoading, isLoggedIn, router]);
 
