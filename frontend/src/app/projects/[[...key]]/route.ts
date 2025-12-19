@@ -11,6 +11,8 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic"; // must evaluate auth per request
 export const revalidate = 0;
 
+const PUBLIC_CACHE_CONTROL = "public, max-age=0, s-maxage=0, must-revalidate";
+
 // Debug flag for S3 route logging
 const debug =
   process.env.DEBUG_S3_ROUTES === "1" || process.env.NODE_ENV !== "production";
@@ -123,7 +125,7 @@ async function streamObject(
       headers.set("Content-Length", String(res.ContentLength));
     if (res.ContentRange) headers.set("Content-Range", res.ContentRange);
     headers.set("Accept-Ranges", "bytes");
-    headers.set("Cache-Control", "public, max-age=300, must-revalidate");
+    headers.set("Cache-Control", PUBLIC_CACHE_CONTROL);
     headers.set("X-Content-Type-Options", "nosniff");
     const status = res.ContentRange ? 206 : 200;
     return new Response(bodyStream, { status, headers });
@@ -180,7 +182,7 @@ export async function GET(
     const headers = new Headers();
     if (etag) headers.set("ETag", etag);
     if (lastMod) headers.set("Last-Modified", lastMod.toUTCString());
-    headers.set("Cache-Control", "public, max-age=300, must-revalidate");
+    headers.set("Cache-Control", PUBLIC_CACHE_CONTROL);
     headers.set("X-Content-Type-Options", "nosniff");
     return new Response(null, { status: 304, headers });
   }
