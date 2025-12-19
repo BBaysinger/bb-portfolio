@@ -9,6 +9,7 @@ import {
   resetAuthState,
 } from "@/store/authSlice";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { getSafeNextPath } from "@/utils/getSafeNextPath";
 
 /**
  * Custom hook for authentication using Redux
@@ -43,8 +44,17 @@ export const useAuth = () => {
       // Clear manual logout flag on successful login
       localStorage.removeItem("manualLogout");
 
+      const redirectTo = (() => {
+        try {
+          const url = new URL(window.location.href);
+          return getSafeNextPath(url.searchParams.get("next"));
+        } catch {
+          return null;
+        }
+      })();
+
       // Conventional SSR refresh after login: navigate and re-run server components
-      router.replace("/");
+      router.replace(redirectTo ?? "/");
       // Ensure SSR is re-evaluated with the HttpOnly cookie
       router.refresh();
       return result;

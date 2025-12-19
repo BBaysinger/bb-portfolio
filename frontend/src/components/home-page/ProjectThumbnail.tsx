@@ -162,7 +162,7 @@ const ProjectThumbnail: React.FC<ProjectThumbnailProps> = ({
 
   // Determine link target based on authentication and NDA status.
   const href = showNdaConfidential
-    ? "/login/"
+    ? `/login/?next=${encodeURIComponent(`/nda/${projectId}`)}`
     : `${isNdaLike ? "/nda/" : "/project/"}${encodeURIComponent(projectId)}`;
 
   return (
