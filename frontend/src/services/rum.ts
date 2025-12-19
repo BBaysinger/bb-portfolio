@@ -110,17 +110,6 @@ export async function initializeRUM() {
     process.env.NEXT_PUBLIC_AWS_REGION ||
     "us-west-2";
 
-  // Debug logging to verify environment variables are present
-  console.info("[RUM] Configuration check:", {
-    appMonitorId: appMonitorId
-      ? `${appMonitorId.substring(0, 10)}...`
-      : "NOT SET",
-    identityPoolId: identityPoolId
-      ? `${identityPoolId.substring(0, 20)}...`
-      : "NOT SET",
-    region: region || "NOT SET",
-  });
-
   if (!appMonitorId || !identityPoolId) {
     console.info(
       "[RUM] CloudWatch RUM not configured - skipping initialization",
