@@ -230,11 +230,10 @@ async function streamObject(
 }
 
 function computeProjectsPrefix(): string {
-  const base = (process.env.NDA_PROJECTS_PREFIX || "").replace(/\/+$/, "");
-  if (!base) return "_projects";
-  const parts = base.split("/").filter(Boolean);
-  if (parts.at(-1) === "_projects") return base;
-  return `${base}/_projects`;
+  // Keep this identical to how upload scripts lay out keys in S3:
+  // - By default, project files are synced to the bucket root.
+  // - If an optional prefix is configured, it should be used verbatim.
+  return (process.env.NDA_PROJECTS_PREFIX || "").replace(/\/+$/, "");
 }
 
 export async function GET(
