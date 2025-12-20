@@ -34,8 +34,7 @@ function normalizeCanonicalTrailingSlash(path: string): string {
   // Preserve query/hash.
   const q = path.indexOf("?");
   const h = path.indexOf("#");
-  const cut =
-    q === -1 ? h : h === -1 ? q : Math.min(q, h);
+  const cut = q === -1 ? h : h === -1 ? q : Math.min(q, h);
   const base = cut === -1 ? path : path.slice(0, cut);
   const suffix = cut === -1 ? "" : path.slice(cut);
 

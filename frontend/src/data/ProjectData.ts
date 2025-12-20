@@ -324,6 +324,7 @@ async function fetchPortfolioProjects(opts?: {
   interface PayloadProjectDoc {
     slug?: string;
     id?: string;
+    uuid?: string;
     title?: string;
     sortIndex?: number;
     active?: boolean;
@@ -536,6 +537,7 @@ async function fetchPortfolioProjects(opts?: {
       _debugNdaDocs++;
       out[slug] = {
         title: "Confidential Project",
+        uuid: typeof doc.uuid === "string" ? doc.uuid : undefined,
         active: !!doc.active,
         omitFromList: !!doc.omitFromList,
         brandId: "",
@@ -653,6 +655,7 @@ async function fetchPortfolioProjects(opts?: {
 
     const item: PortfolioProjectBase = {
       title: doc.title || "Untitled",
+      uuid: typeof doc.uuid === "string" ? doc.uuid : undefined,
       active: !!doc.active,
       omitFromList: !!doc.omitFromList,
       brandId,
@@ -716,6 +719,8 @@ export type MobileOrientation =
 
 export interface PortfolioProjectBase {
   title: string;
+  /** Optional opaque identifier usable as an alternate route key (e.g., /nda/<uuid>/). */
+  uuid?: string;
   active: boolean;
   omitFromList: boolean;
   brandId: string;
@@ -794,6 +799,7 @@ export class ProjectDataStore {
   private _listedKeys: string[] = [];
   private _keys: string[] = [];
   private _activeProjectsMap: Record<string, ParsedPortfolioProject> = {};
+  private _uuidToKey: Record<string, string> = {};
   private _includeNdaInActive = false;
   private _containsSanitizedPlaceholders = false;
   // Prevent overlapping initialize() calls from interleaving state writes.
@@ -807,6 +813,7 @@ export class ProjectDataStore {
     this._listedKeys = [];
     this._keys = [];
     this._activeProjectsMap = {};
+    this._uuidToKey = {};
   }
 
   /**
@@ -833,6 +840,16 @@ export class ProjectDataStore {
     // Assign snapshot
     this._projects = { ...parsed };
     this._keys = Object.keys(this._projects);
+
+    // Build UUID lookup from snapshot
+    this._uuidToKey = {};
+    for (const key of this._keys) {
+      const u = this._projects[key]?.uuid;
+      if (typeof u === "string" && u.trim()) {
+        const uuid = u.trim();
+        if (!this._uuidToKey[uuid]) this._uuidToKey[uuid] = key;
+      }
+    }
 
     // Preserve sort order by sortIndex then title
     this._keys.sort((a, b) => {
@@ -919,6 +936,10 @@ export class ProjectDataStore {
           throw new Error(`Project ${project.id} index is missing.`);
         }
         record[project.id] = project;
+        if (typeof project.uuid === "string" && project.uuid.trim()) {
+          const u = project.uuid.trim();
+          if (!record[u]) record[u] = project;
+        }
         return record;
       },
       {} as Record<string, ParsedPortfolioProject>,
@@ -945,7 +966,10 @@ export class ProjectDataStore {
    * regardless of whether it is currently included in the active set.
    */
   getProject(id: string): ParsedPortfolioProject | undefined {
-    return this._projects[id];
+    const direct = this._projects[id];
+    if (direct) return direct;
+    const key = this._uuidToKey[id];
+    return key ? this._projects[key] : undefined;
   }
 
   /**
@@ -959,8 +983,17 @@ export class ProjectDataStore {
   ): ParsedPortfolioProjectData {
     const parsedData: ParsedPortfolioProjectData = {};
 
+    // Rebuild UUID lookup on every parse.
+    this._uuidToKey = {};
+
     for (const [index, key] of Object.keys(data).entries()) {
       const item = data[key];
+
+      if (item && typeof item.uuid === "string" && item.uuid.trim()) {
+        const u = item.uuid.trim();
+        // Prefer first-seen mapping to avoid collisions silently overriding.
+        if (!this._uuidToKey[u]) this._uuidToKey[u] = key;
+      }
 
       parsedData[key] = {
         ...item,
@@ -1106,7 +1139,8 @@ export class ProjectDataStore {
    * @returns Index in the active project list
    */
   projectIndex(key: string): number {
-    return this._activeKeys.indexOf(key);
+    const resolved = this._uuidToKey[key] || key;
+    return this._activeKeys.indexOf(resolved);
   }
 
   /**

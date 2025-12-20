@@ -17,6 +17,8 @@ interface ProjectThumbnailProps {
   omitFromList: boolean;
   /** Unique project identifier. */
   projectId: string;
+  /** Optional opaque UUID alias used for NDA login return flow. */
+  projectUuid?: string;
   /** Project display title. */
   title: string;
   /** Brand identifier for logo lookup. */
@@ -70,6 +72,7 @@ interface ProjectThumbnailProps {
 const ProjectThumbnail: React.FC<ProjectThumbnailProps> = ({
   index,
   projectId,
+  projectUuid,
   title,
   brandId,
   brandLogoLightUrl,
@@ -162,7 +165,7 @@ const ProjectThumbnail: React.FC<ProjectThumbnailProps> = ({
 
   // Determine link target based on authentication and NDA status.
   const href = showNdaConfidential
-    ? `/login/?next=${encodeURIComponent(`/nda/${projectId}/`)}`
+    ? "/login/"
     : `${isNdaLike ? "/nda/" : "/project/"}${encodeURIComponent(projectId)}`;
 
   return (
@@ -179,6 +182,14 @@ const ProjectThumbnail: React.FC<ProjectThumbnailProps> = ({
     >
       <Link
         href={href}
+        onClick={() => {
+          if (!showNdaConfidential) return;
+          try {
+            const uuid = (projectUuid || "").trim();
+            if (!uuid) return;
+            sessionStorage.setItem("postLoginProjectUuid", uuid);
+          } catch {}
+        }}
         className={styles.link}
         aria-label={showNdaConfidential ? "Confidential Project" : title}
       >
