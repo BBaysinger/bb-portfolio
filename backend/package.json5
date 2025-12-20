@@ -19,6 +19,8 @@
     "prebuild": "tsx ./scripts/check-required-env.ts",
     // Validate required environment variables before starting dev server
     "predev": "tsx ./scripts/check-required-env.ts && npm run generate:importmap",
+    // One-off maintenance: populate missing Project UUIDs (safe to re-run; updates only docs missing uuid)
+    "backfill:project-uuids": "tsx ./scripts/backfill-project-uuids.ts",
     // Production build with increased memory and deprecation warnings suppressed
     "build": "cross-env NODE_OPTIONS=\"--no-deprecation --max-old-space-size=8000\" npm run generate:importmap && next build --webpack",
     // Start development server with deprecation warnings suppressed
