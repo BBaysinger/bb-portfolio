@@ -56,8 +56,12 @@ const parseEnvBooleanFlag = (value?: string | null) => {
 const envFpsFlag = parseEnvBooleanFlag(
   process.env.NEXT_PUBLIC_ENABLE_FPS_COUNTER,
 );
+const envProfile = (process.env.NEXT_PUBLIC_ENV_PROFILE || "")
+  .trim()
+  .toLowerCase();
+const isDevLikeProfile = envProfile === "local" || envProfile === "dev";
 const defaultFpsCounterEnabled =
-  envFpsFlag ?? process.env.NODE_ENV !== "production";
+  envFpsFlag ?? (isDevLikeProfile || process.env.NODE_ENV !== "production");
 
 /**
  * Hero
