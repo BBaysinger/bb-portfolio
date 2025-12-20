@@ -94,6 +94,7 @@ const ProjectsList: React.FC<ProjectsListProps> & {
           brandIsNda,
           nda,
           isSanitized,
+          uuid,
           thumbUrl,
           thumbAlt,
           lockedThumbUrl,
@@ -105,6 +106,7 @@ const ProjectsList: React.FC<ProjectsListProps> & {
             index={index}
             omitFromList={omitFromList}
             projectId={id}
+            projectUuid={uuid}
             title={title}
             brandId={brandId}
             brandLogoLightUrl={brandLogoLightUrl}

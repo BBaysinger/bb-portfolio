@@ -1,3 +1,5 @@
+import { randomUUID } from 'node:crypto'
+
 import type { CollectionConfig, Where } from 'payload'
 import slugify from 'slugify'
 
@@ -38,6 +40,13 @@ export const Projects: CollectionConfig = {
   hooks: {
     beforeChange: [
       ({ data, operation }) => {
+        // Ensure every project has a stable, opaque identifier usable in URLs.
+        // - Stored as a plain text UUID (v4) so it is environment-agnostic.
+        // - Generated on create and backfilled on update if missing.
+        if ((operation === 'create' || operation === 'update') && !data?.uuid) {
+          data.uuid = randomUUID()
+        }
+
         if ((operation === 'create' || operation === 'update') && data?.title && !data?.slug) {
           data.slug = slugify(data.title, {
             lower: true,
@@ -72,6 +81,18 @@ export const Projects: CollectionConfig = {
       type: 'text',
       required: true,
       unique: true,
+    },
+    {
+      name: 'uuid',
+      label: 'UUID (URL Alias)',
+      type: 'text',
+      unique: true,
+      required: true,
+      admin: {
+        readOnly: true,
+        description:
+          'Opaque URL-safe identifier. This can be used as an alternate route key (e.g., /nda/<uuid>/) without exposing the human slug.',
+      },
     },
     {
       name: 'active',

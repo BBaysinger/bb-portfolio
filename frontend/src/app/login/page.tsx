@@ -6,7 +6,9 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { useAuth } from "@/hooks/useAuth";
-import { getSafeNextPath } from "@/utils/getSafeNextPath";
+
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 import styles from "./LoginPage.module.scss";
 
@@ -39,11 +41,15 @@ const LoginPage = () => {
     if (!isLoading && isLoggedIn) {
       const redirectTo = (() => {
         try {
-          const url = new URL(window.location.href);
-          return getSafeNextPath(url.searchParams.get("next"));
-        } catch {
-          return null;
-        }
+          const uuidRaw = sessionStorage.getItem("postLoginProjectUuid") || "";
+          const uuid = uuidRaw.trim();
+          sessionStorage.removeItem("postLoginProjectUuid");
+          if (uuid && UUID_RE.test(uuid)) {
+            return `/nda/${encodeURIComponent(uuid)}/`;
+          }
+        } catch {}
+
+        return null;
       })();
       router.replace(redirectTo ?? "/");
     }

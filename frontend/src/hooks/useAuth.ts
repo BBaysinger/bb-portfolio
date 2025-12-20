@@ -9,7 +9,9 @@ import {
   resetAuthState,
 } from "@/store/authSlice";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { getSafeNextPath } from "@/utils/getSafeNextPath";
+
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 /**
  * Custom hook for authentication using Redux
@@ -46,11 +48,15 @@ export const useAuth = () => {
 
       const redirectTo = (() => {
         try {
-          const url = new URL(window.location.href);
-          return getSafeNextPath(url.searchParams.get("next"));
-        } catch {
-          return null;
-        }
+          const uuidRaw = sessionStorage.getItem("postLoginProjectUuid") || "";
+          const uuid = uuidRaw.trim();
+          sessionStorage.removeItem("postLoginProjectUuid");
+          if (uuid && UUID_RE.test(uuid)) {
+            return `/nda/${encodeURIComponent(uuid)}/`;
+          }
+        } catch {}
+
+        return null;
       })();
 
       // Conventional SSR refresh after login: navigate and re-run server components
