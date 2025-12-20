@@ -26,5 +26,22 @@ export function getSafeNextPath(
     return null;
   }
 
-  return value;
+  // Normalize known dynamic routes to their canonical trailing-slash form.
+  return normalizeCanonicalTrailingSlash(value);
+}
+
+function normalizeCanonicalTrailingSlash(path: string): string {
+  // Preserve query/hash.
+  const q = path.indexOf("?");
+  const h = path.indexOf("#");
+  const cut =
+    q === -1 ? h : h === -1 ? q : Math.min(q, h);
+  const base = cut === -1 ? path : path.slice(0, cut);
+  const suffix = cut === -1 ? "" : path.slice(cut);
+
+  // Only normalize exact dynamic-detail routes.
+  if (/^\/nda\/[^/]+$/.test(base)) return `${base}/${suffix}`;
+  if (/^\/project\/[^/]+$/.test(base)) return `${base}/${suffix}`;
+
+  return path;
 }
