@@ -272,6 +272,10 @@ export interface Brand {
 export interface BrandLogo {
   id: string;
   /**
+   * Computed from the brand that references this logo. Used to prevent public access to NDA logos via direct collection reads.
+   */
+  nda?: boolean | null;
+  /**
    * Accessible description of the logo (used for alt text).
    */
   alt?: string | null;
@@ -307,6 +311,10 @@ export interface BrandLogo {
  */
 export interface ProjectScreenshot {
   id: string;
+  /**
+   * Computed from the linked project/brand. Used to prevent public access to NDA media via direct collection reads.
+   */
+  nda?: boolean | null;
   /**
    * Indicates whether the screenshot is for desktop or mobile view.
    */
@@ -345,6 +353,10 @@ export interface ProjectScreenshot {
  */
 export interface ProjectThumbnail {
   id: string;
+  /**
+   * Computed from the linked project/brand. Used to prevent public access to NDA media via direct collection reads.
+   */
+  nda?: boolean | null;
   project?: (string | null) | Project;
   /**
    * Accessible text for screen readers and SEO.
@@ -569,6 +581,7 @@ export interface BrandsSelect<T extends boolean = true> {
  * via the `definition` "brandLogos_select".
  */
 export interface BrandLogosSelect<T extends boolean = true> {
+  nda?: T;
   alt?: T;
   logoType?: T;
   updatedAt?: T;
@@ -602,6 +615,7 @@ export interface BrandLogosSelect<T extends boolean = true> {
  * via the `definition` "projectScreenshots_select".
  */
 export interface ProjectScreenshotsSelect<T extends boolean = true> {
+  nda?: T;
   screenType?: T;
   orientation?: T;
   project?: T;
@@ -637,6 +651,7 @@ export interface ProjectScreenshotsSelect<T extends boolean = true> {
  * via the `definition` "projectThumbnails_select".
  */
 export interface ProjectThumbnailsSelect<T extends boolean = true> {
+  nda?: T;
   project?: T;
   alt?: T;
   updatedAt?: T;
