@@ -86,10 +86,10 @@ Note for local Docker Compose:
 These scripts ensure upload collections have a correct computed `nda` flag so public reads can safely filter `nda=false`.
 
 - Preferred (no Payload boot / no `sharp`): `npm run backfill:nda-media:mongo`
-	- Implemented in `backend/scripts/backfill-nda-media.mongo.ts`.
-	- Connects directly to MongoDB and updates `brandLogos`, `projectScreenshots`, and `projectThumbnails`.
+  - Implemented in `backend/scripts/backfill-nda-media.mongo.ts`.
+  - Connects directly to MongoDB and updates `brandLogos`, `projectScreenshots`, and `projectThumbnails`.
 
 - Alternative (Payload API): `npm run backfill:nda-media`
-	- Implemented in `backend/scripts/backfill-nda-media.ts`.
-	- **What’s left to get it working locally:** this path boots the full Payload config, which can fail on macOS if `sharp`/`libvips` can’t load.
-		- If you hit a `sharp` / `libvips` load error, either run the Mongo script instead, or run the Payload script in a Linux container where `sharp` is known-good.
+  - Implemented in `backend/scripts/backfill-nda-media.ts`.
+  - **What’s left to get it working locally:** this path boots the full Payload config, which can fail on macOS if `sharp`/`libvips` can’t load.
+    - If you hit a `sharp` / `libvips` load error, either run the Mongo script instead, or run the Payload script in a Linux container where `sharp` is known-good.
