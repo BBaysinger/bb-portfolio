@@ -10,9 +10,6 @@ import {
 } from "@/store/authSlice";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 
-const UUID_RE =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-
 /**
  * Custom hook for authentication using Redux
  *
@@ -45,24 +42,6 @@ export const useAuth = () => {
 
       // Clear manual logout flag on successful login
       localStorage.removeItem("manualLogout");
-
-      const redirectTo = (() => {
-        try {
-          const uuidRaw = sessionStorage.getItem("postLoginProjectUuid") || "";
-          const uuid = uuidRaw.trim();
-          sessionStorage.removeItem("postLoginProjectUuid");
-          if (uuid && UUID_RE.test(uuid)) {
-            return `/nda/${encodeURIComponent(uuid)}/`;
-          }
-        } catch {}
-
-        return null;
-      })();
-
-      // Conventional SSR refresh after login: navigate and re-run server components
-      router.replace(redirectTo ?? "/");
-      // Ensure SSR is re-evaluated with the HttpOnly cookie
-      router.refresh();
       return result;
     } catch (error) {
       // Error is already in Redux state, just re-throw for form handling
