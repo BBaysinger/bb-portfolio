@@ -87,6 +87,20 @@ export async function POST(request: NextRequest) {
     const nextResponse = NextResponse.json({
       message: "Logged out successfully",
     });
+
+    // Safety net: ensure the auth cookie is expired on this host.
+    // This avoids cases where the backend's Set-Cookie domain/path doesn't match
+    // the public frontend host, leaving a stale cookie that can break SSR.
+    try {
+      nextResponse.cookies.set({
+        name: "payload-token",
+        value: "",
+        path: "/",
+        expires: new Date(0),
+      });
+    } catch {
+      // If cookies API isn't available for some runtime, continue.
+    }
     // Explicitly disable caching
     nextResponse.headers.set(
       "Cache-Control",

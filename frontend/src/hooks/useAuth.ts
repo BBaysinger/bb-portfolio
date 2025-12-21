@@ -51,21 +51,18 @@ export const useAuth = () => {
   };
 
   const logout = async () => {
-    try {
-      // Call the logout API to clear server-side cookies (especially payload-token for SSR)
-      const response = await fetch("/api/users/logout", {
-        method: "POST",
-        credentials: "include", // Include cookies in the request
-      });
+    const isNdaRoute = /^\/nda(\/|$)/.test(pathname || "");
 
-      if (!response.ok) {
-        console.error(
-          "Logout API failed:",
-          response.status,
-          response.statusText,
-        );
+    try {
+      // Fire-and-forget: don't block UX/redirect on a slow network/backend.
+      void fetch("/api/users/logout", {
+        method: "POST",
+        credentials: "include",
+        // Allow the request to complete during navigation in supporting browsers.
+        keepalive: true,
+      }).catch(() => {
         // Continue with client-side cleanup even if API fails
-      }
+      });
     } catch (error) {
       console.error("Logout API error:", error);
       // Continue with client-side cleanup even if API fails
@@ -81,16 +78,21 @@ export const useAuth = () => {
     localStorage.clear();
     sessionStorage.clear();
 
+    // Proactively clear the auth cookie on the client as a safety net.
+    // (The server-side logout should also expire it, but we don't want to depend on timing.)
+    try {
+      document.cookie =
+        "payload-token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT";
+    } catch {}
+
     // Set a flag to prevent automatic re-authentication
     localStorage.setItem("manualLogout", "true");
 
-    // After clearing session, ensure we don't remain on NDA routes.
-    // Staying on /nda/* while unauthenticated can trigger SSR fetch failures on refresh/reload.
-    const isNdaRoute = /^\/nda(\/|$)/.test(pathname || "");
     try {
       if (isNdaRoute) {
         // Hard navigation is the most reliable way to exit NDA routes.
-        window.location.assign("/");
+        window.location.replace("/");
+        return;
       } else {
         // Re-evaluate Server Components so NDA/admin guard updates.
         router.refresh();
