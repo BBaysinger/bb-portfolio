@@ -24,9 +24,13 @@ export default function HomePageClient({
   ssrAuthenticated,
   ssrContainsSanitizedPlaceholders,
 }: HomePageClientProps) {
-  const { isLoggedIn, user } = useAppSelector((s) => s.auth);
+  const { isLoggedIn, user, hasInitialized } = useAppSelector((s) => s.auth);
   const clientAuth = isLoggedIn || !!user;
-  const compositeAuth = clientAuth || ssrAuthenticated;
+  // Before the client has checked auth, allow SSR-auth to avoid flicker.
+  // After initialization (or explicit reset on logout), trust client state.
+  const compositeAuth = hasInitialized
+    ? clientAuth
+    : clientAuth || ssrAuthenticated;
   const [projects, setProjects] =
     useState<ParsedPortfolioProject[]>(ssrProjects);
   const hydratedRef = useRef(false);
@@ -94,7 +98,9 @@ export default function HomePageClient({
   return (
     <ProjectsList
       allProjects={projects}
-      isAuthenticated={clientAuth || ssrAuthenticated}
+      isAuthenticated={
+        hasInitialized ? clientAuth : clientAuth || ssrAuthenticated
+      }
     />
   );
 }
