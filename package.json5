@@ -199,7 +199,6 @@
     // Run before pushing to ensure everything works (1-5 minutes)
     // Includes all precommit checks plus full test suite
     "prepush": "npm run precommit && npm test",
-
     // 🔒 Runs `npm audit fix` across root, backend, and frontend
     // NOTE: This may update package-lock.json files; review changes after running.
     "audit:fix:all": "concurrently \"npm audit fix\" \"cd backend && npm audit fix\" \"cd frontend && npm audit fix\" --names \"root,backend,frontend\" --prefix-colors \"yellow,blue,green\"",
@@ -381,7 +380,7 @@
     // TypeScript parser for ESLint
     "@typescript-eslint/parser": "^8.50.0",
     // Maps baseline browser support targets for tooling that needs them
-    "baseline-browser-mapping": "^2.9.10",
+    "baseline-browser-mapping": "^2.9.11",
     // Run multiple commands concurrently in scripts
     "concurrently": "^9.2.1",
     // Main linter for JS/TS code

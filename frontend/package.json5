@@ -39,9 +39,9 @@
   // Runtime dependencies for the frontend application
   "dependencies": {
     // AWS SDK v3 S3 client (used for signed-URL uploads)
-    "@aws-sdk/client-s3": "^3.955.0",
+    "@aws-sdk/client-s3": "^3.956.0",
     // AWS SDK v3 presigner for generating pre-signed S3 requests
-    "@aws-sdk/s3-request-presigner": "^3.955.0",
+    "@aws-sdk/s3-request-presigner": "^3.956.0",
     // Modern Redux state management with simplified API
     "@reduxjs/toolkit": "^2.11.2",
     // AWS CloudWatch RUM for real user monitoring and visitor traffic tracking
@@ -65,7 +65,7 @@
     // Official React bindings for Redux state management
     "react-redux": "^9.2.0",
     // CSS preprocessor with variables, nesting, and mixins
-    "sass": "^1.97.0",
+    "sass": "^1.97.1",
   },
   // Development-only dependencies for tooling and type checking
   "devDependencies": {
