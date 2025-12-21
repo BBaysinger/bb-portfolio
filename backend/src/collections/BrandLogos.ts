@@ -1,7 +1,7 @@
 import { promises as fs } from 'fs'
 import path from 'path'
 
-import { CollectionConfig } from 'payload'
+import type { CollectionConfig, Where } from 'payload'
 
 type OverwriteMeta = { alt?: string | null; logoType?: string | null }
 
@@ -28,7 +28,15 @@ export const BrandLogos: CollectionConfig = {
     useAsTitle: 'filename',
   },
   access: {
-    read: () => true,
+    read: ({ req }) => {
+      if (req.user?.role === 'admin') return true
+      if (req.user) return true
+      return {
+        nda: {
+          equals: false,
+        },
+      } as unknown as Where
+    },
     create: ({ req }) => req.user?.role === 'admin',
     update: ({ req }) => req.user?.role === 'admin',
     delete: ({ req }) => req.user?.role === 'admin',
@@ -139,6 +147,18 @@ export const BrandLogos: CollectionConfig = {
     ],
   },
   fields: [
+    {
+      name: 'nda',
+      label: 'NDA (Computed)',
+      type: 'checkbox',
+      defaultValue: false,
+      admin: {
+        position: 'sidebar',
+        readOnly: true,
+        description:
+          'Computed from the brand that references this logo. Used to prevent public access to NDA logos via direct collection reads.',
+      },
+    },
     {
       name: 'alt',
       type: 'text',

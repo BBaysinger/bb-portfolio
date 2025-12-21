@@ -1,7 +1,48 @@
 import { promises as fs } from 'fs'
 import path from 'path'
 
-import type { CollectionConfig } from 'payload'
+import type { CollectionConfig, PayloadRequest, Where } from 'payload'
+
+type RelRecord = Record<string, unknown>
+
+const getRelValueString = (rel: unknown): string | undefined => {
+  if (!rel || typeof rel !== 'object') return undefined
+  const rec = rel as RelRecord
+  const value = rec.value
+  return typeof value === 'string' ? value : undefined
+}
+
+async function computeNdaForProject(
+  req: Pick<PayloadRequest, 'payload'>,
+  projectId: string | undefined,
+): Promise<boolean> {
+  if (!projectId) return false
+  try {
+    const existing = await req.payload.find({
+      collection: 'projects',
+      where: { id: { equals: projectId } },
+      limit: 1,
+      depth: 0,
+    })
+    const project = existing?.docs?.[0] as undefined | { nda?: boolean | null; brandId?: unknown }
+    const projectNda = Boolean(project?.nda)
+    const brandIdRaw = project?.brandId
+    const brandId = typeof brandIdRaw === 'string' ? brandIdRaw : getRelValueString(brandIdRaw)
+    if (!brandId) return projectNda
+
+    const brandRes = await req.payload.find({
+      collection: 'brands',
+      where: { id: { equals: brandId } },
+      limit: 1,
+      depth: 0,
+    })
+    const brand = brandRes?.docs?.[0] as undefined | { nda?: boolean | null }
+    const brandNda = Boolean(brand?.nda)
+    return projectNda || brandNda
+  } catch {
+    return false
+  }
+}
 
 type OverwriteMeta = {
   project?: string
@@ -37,7 +78,15 @@ export const ProjectThumbnails: CollectionConfig = {
     useAsTitle: 'filename',
   },
   access: {
-    read: () => true,
+    read: ({ req }) => {
+      if (req.user?.role === 'admin') return true
+      if (req.user) return true
+      return {
+        nda: {
+          equals: false,
+        },
+      } as unknown as Where
+    },
     create: ({ req }) => req.user?.role === 'admin',
     update: ({ req }) => req.user?.role === 'admin',
     delete: ({ req }) => req.user?.role === 'admin',
@@ -132,11 +181,31 @@ export const ProjectThumbnails: CollectionConfig = {
             ...data,
           }
         }
+
+        if (!data) return data
+
+        const projectRaw = (data as unknown as { project?: unknown })?.project
+        const projectId =
+          typeof projectRaw === 'string' ? projectRaw : getRelValueString(projectRaw)
+        ;(data as Record<string, unknown>).nda = await computeNdaForProject(req, projectId)
+
         return data
       },
     ],
   },
   fields: [
+    {
+      name: 'nda',
+      label: 'NDA (Computed)',
+      type: 'checkbox',
+      defaultValue: false,
+      admin: {
+        position: 'sidebar',
+        readOnly: true,
+        description:
+          'Computed from the linked project/brand. Used to prevent public access to NDA media via direct collection reads.',
+      },
+    },
     {
       name: 'project',
       type: 'relationship',

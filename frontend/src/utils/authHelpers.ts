@@ -1,6 +1,6 @@
 import "server-only";
 
-const SECRET = process.env.AUTH_SECRET || "your-secret-key";
+const SECRET = process.env.AUTH_SECRET;
 
 /**
  * Utility functions for auth helpers operations.
@@ -11,6 +11,7 @@ const SECRET = process.env.AUTH_SECRET || "your-secret-key";
  */
 export async function verifyAuthToken(token: string): Promise<boolean> {
   try {
+    if (!SECRET) return false;
     // Dynamically import jsonwebtoken only at runtime in Node
     const { default: jwt } = await import("jsonwebtoken");
     const decoded = jwt.verify(token, SECRET);

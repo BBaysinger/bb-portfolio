@@ -145,6 +145,7 @@
         "letsencrypt",
         "libc",
         "libstdc",
+        "libvips",
         "lntp",
         "lockfiles",
         "ltnp",
