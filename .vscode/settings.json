@@ -73,6 +73,7 @@
         "bson",
         "BUILDKIT",
         "Buildx",
+        "burstable",
         "Bystolic",
         "Caddyfile",
         "CCPA",

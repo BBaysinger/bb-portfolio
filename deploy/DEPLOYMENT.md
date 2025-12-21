@@ -4,7 +4,7 @@
 
 ## Scope
 
-This document now describes the legacy, single EC2 instance deployment model (canonical prod + optional dev profile) after pausing the Lagoon (blue/green) strategy. Lagoon artifacts were preserved under `infra-lagoon/` and `deploy-lagoon/` and documented separately. Day‑to‑day operations should rely on the simplified approach below for faster recovery and reduced complexity.
+This document describes the legacy, single EC2 instance deployment model (canonical prod + optional dev profile). Day‑to‑day operations should rely on the simplified approach below for faster recovery and reduced complexity.
 
 ## Current Status (Legacy Model)
 
@@ -334,48 +334,16 @@ Current implementation keeps Nginx (host-level) for stability and explicit contr
 
 ### 9. Dependency Footprint for HTTPS
 
----
-
-## Lagoon (Blue/Green) Strategy – Deferred
-
-The Lagoon strategy (parallel candidate instance, EIP promotion, enhanced health checks, versioned Nginx with fallback `/healthz`) is currently paused to simplify recovery operations. Its full design, scripts, and Terraform modules were snapshotted under:
-
-- `infra-lagoon/` (blue/green infrastructure definitions)
-- `deploy-lagoon/` (orchestrators, Nginx config, diagnostics, promotion helpers)
-
-Refer to `deploy-lagoon/README.md` for comprehensive details, rationale, and the steps to resume. We will revisit Lagoon when time permits and operational stability goals are met.
-
-Brief Advantages (when active): safer cutover, rollback path, validation before promotion. Temporary drawback: added cognitive overhead during outage recovery.
-
-Action to Resume Later:
-
-1. Run a Terraform plan in `infra-lagoon/`.
-2. Rebuild candidate instance and run containers only.
-3. Validate health paths → perform promotion.
-
-Until then, treat this legacy model as authoritative.
-
-## Temporary Legacy Recovery Mode (Documentation Note)
-
-We are operating in a "legacy recovery" configuration whose sole goal is site availability and rapid operational stability after pausing Lagoon (blue/green) promotion logic. Differences from the prior Lagoon pattern:
-
-- Single EC2 instance (no active/candidate swap, no promotion step)
-- Compose executed from `deploy/compose/docker-compose.yml` (canonical path); any root-level compose files on the host should be removed to avoid drift
-- Required environment variables now re-derived directly from `.github-secrets.private.json5` and written into `backend/.env.prod` and `frontend/.env.prod` before container start
-- Health validation limited to container healthchecks plus manual curl; no candidate pre-promotion gating
-- Orchestrator blue/green branches and scripts are preserved under `deploy-lagoon/` but not invoked
-
-When returning to Lagoon, schedule a restoration task list:
-
-1. Re-enable dual-instance Terraform modules (in `infra-lagoon/`) and run a plan/apply.
-2. Reintroduce orchestrator promotion workflow (candidate start → health verification → EIP swap / promotion markers).
-3. Reinstate enhanced health path validation and rollback logic.
-4. Audit environment variable propagation to ensure candidate and active share identical `.env.prod` payloads before promotion.
-5. Remove any legacy-only operational shortcuts documented here (e.g., direct root compose use if it reappears, manual container recreation outside orchestrator).
-
-Until these steps are completed, treat this file as the authoritative guide for production operations. Mark a ticket in your backlog (e.g., `restore-lagoon-strategy`) so the deferred work is tracked explicitly.
-
 No new Node.js dependencies were added to enable HTTPS. All TLS functionality lives at the host layer (Nginx + certbot). Application packages remained unchanged. This minimizes surface area and avoids per-container certificate renewal complexity.
+
+## Operational Notes (Current Model)
+
+We are operating in a simplified configuration whose sole goal is site availability and rapid operational stability:
+
+- Single EC2 instance (no cutover/promotion step)
+- Compose executed from `deploy/compose/docker-compose.yml` (canonical path); any root-level compose files on the host should be removed to avoid drift
+- Required environment variables re-derived directly from `.github-secrets.private.json5` and written into `backend/.env.prod` and `frontend/.env.prod` before container start
+- Health validation limited to container healthchecks plus manual curl
 
 ## Environment File Lifecycle
 
