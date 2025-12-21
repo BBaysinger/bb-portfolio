@@ -53,16 +53,25 @@ export const useAuth = () => {
   const logout = async () => {
     const isNdaRoute = /^\/nda(\/|$)/.test(pathname || "");
 
+    const tryServerLogout = async () => {
+      try {
+        // Prefer a short awaited logout to ensure the browser processes Set-Cookie
+        // before we refresh/navigate (prevents SSR from briefly rendering NDA data).
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 1500);
+        await fetch("/api/users/logout", {
+          method: "POST",
+          credentials: "include",
+          signal: controller.signal,
+        });
+        clearTimeout(timeout);
+      } catch {
+        // Continue with client-side cleanup even if API fails or times out
+      }
+    };
+
     try {
-      // Fire-and-forget: don't block UX/redirect on a slow network/backend.
-      void fetch("/api/users/logout", {
-        method: "POST",
-        credentials: "include",
-        // Allow the request to complete during navigation in supporting browsers.
-        keepalive: true,
-      }).catch(() => {
-        // Continue with client-side cleanup even if API fails
-      });
+      await tryServerLogout();
     } catch (error) {
       console.error("Logout API error:", error);
       // Continue with client-side cleanup even if API fails

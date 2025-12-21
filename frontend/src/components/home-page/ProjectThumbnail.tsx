@@ -90,6 +90,7 @@ const ProjectThumbnail: React.FC<ProjectThumbnailProps> = ({
 }) => {
   const localRef = useRef<HTMLDivElement>(null);
   const [_logoSrc, setLogoSrc] = useState<string | null>(null);
+  const [lockedThumbErrored, setLockedThumbErrored] = useState(false);
 
   // Defer brand logo loading to idle time to prioritize critical content.
   useEffect(() => {
@@ -123,15 +124,18 @@ const ProjectThumbnail: React.FC<ProjectThumbnailProps> = ({
   const effectiveAuth = isAuthenticated && !isSanitized;
   const showNdaConfidential = isNdaLike && !effectiveAuth;
   const focusClass = focused ? styles.projectThumbnailFocus : "";
-  const showLockedIcon = showNdaConfidential && !lockedThumbUrl;
+  const effectiveLockedThumbUrl = lockedThumbErrored
+    ? undefined
+    : lockedThumbUrl;
+  const showLockedIcon = showNdaConfidential && !effectiveLockedThumbUrl;
   const ndaClass = showNdaConfidential
-    ? lockedThumbUrl
+    ? effectiveLockedThumbUrl
       ? styles.ndaNoDim
       : styles.nda
     : "";
 
   const displayedThumbUrl = showNdaConfidential
-    ? lockedThumbUrl || undefined
+    ? effectiveLockedThumbUrl || undefined
     : thumbUrl;
   const displayedThumbAlt = showNdaConfidential
     ? lockedThumbAlt || "Locked project thumbnail"
@@ -148,6 +152,11 @@ const ProjectThumbnail: React.FC<ProjectThumbnailProps> = ({
           style={{ objectFit: "cover" }}
           sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
           priority={index < 3}
+          onError={() => {
+            if (showNdaConfidential) {
+              setLockedThumbErrored(true);
+            }
+          }}
         />
       )}
       {/* <div className={styles.vignette}></div>
