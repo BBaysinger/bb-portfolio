@@ -429,8 +429,14 @@ async function fetchPortfolioProjects(opts?: {
   let _debugPlaceholders = 0;
   for (const doc of docs) {
     _debugTotalDocs++;
-    const slug: string | undefined = doc.slug || doc.id;
-    if (!slug) continue;
+    const humanSlug: string | undefined =
+      typeof doc.slug === "string" && doc.slug.trim()
+        ? doc.slug.trim()
+        : undefined;
+    const uuid: string | undefined =
+      typeof doc.uuid === "string" && doc.uuid.trim()
+        ? doc.uuid.trim()
+        : undefined;
 
     // Map relationship brandId → brand slug/id string and resolve logo URLs when available
     let brandId = "";
@@ -533,11 +539,24 @@ async function fetchPortfolioProjects(opts?: {
     // is NDA and the caller lacks auth, emit a sanitized placeholder instead
     // of leaking teaser metadata.
     const projectIsNda = Boolean(doc.nda || brandIsNda);
+
+    // Route/data key rules:
+    // - Public projects: must use the human slug.
+    // - NDA-like projects:
+    //   - Authenticated: prefer human slug (canonical), fallback to UUID.
+    //   - Unauthenticated: MUST use UUID (slug may be redacted) to avoid slug exposure.
+    const routeKey: string | undefined = projectIsNda
+      ? hasNdaAccess
+        ? humanSlug || uuid
+        : uuid
+      : humanSlug;
+    if (!routeKey) continue;
+
     if (projectIsNda && !hasNdaAccess) {
       _debugNdaDocs++;
-      out[slug] = {
+      out[routeKey] = {
         title: "Confidential Project",
-        uuid: typeof doc.uuid === "string" ? doc.uuid : undefined,
+        uuid,
         active: !!doc.active,
         omitFromList: !!doc.omitFromList,
         brandId: "",
@@ -567,7 +586,7 @@ async function fetchPortfolioProjects(opts?: {
       if (debug) {
         try {
           console.info("[ProjectData] NDA placeholder emitted", {
-            slug,
+            routeKey,
             sortIndex: typeof doc.sortIndex === "number" ? doc.sortIndex : null,
           });
         } catch {}
@@ -655,7 +674,7 @@ async function fetchPortfolioProjects(opts?: {
 
     const item: PortfolioProjectBase = {
       title: doc.title || "Untitled",
-      uuid: typeof doc.uuid === "string" ? doc.uuid : undefined,
+      uuid,
       active: !!doc.active,
       omitFromList: !!doc.omitFromList,
       brandId,
@@ -683,7 +702,7 @@ async function fetchPortfolioProjects(opts?: {
       },
     };
 
-    out[slug] = item;
+    out[routeKey] = item;
   }
 
   // Debug summary of fetch/transform results

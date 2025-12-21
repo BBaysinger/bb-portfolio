@@ -81,6 +81,9 @@ export const Projects: CollectionConfig = {
       type: 'text',
       required: true,
       unique: true,
+      access: {
+        read: canReadNdaField,
+      },
     },
     {
       name: 'uuid',

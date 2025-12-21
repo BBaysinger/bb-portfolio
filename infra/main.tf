@@ -291,11 +291,14 @@ resource "aws_s3_bucket_public_access_block" "projects" {
   for_each = aws_s3_bucket.projects
   bucket   = each.value.id
 
-  # Allow public policies for website hosting
+  # Public site bundle bucket is intentionally public; NDA bucket must remain private.
   block_public_acls       = true
-  block_public_policy     = false  # Changed to false for website hosting
   ignore_public_acls      = true
-  restrict_public_buckets = false  # Changed to false for website hosting
+
+  # Only allow public bucket policies for the public projects bucket.
+  # For NDA buckets, block and restrict all public access at the S3 layer.
+  block_public_policy     = each.key == "public" ? false : true
+  restrict_public_buckets = each.key == "public" ? false : true
 }
 
 # Server-side encryption for both bucket types
@@ -350,7 +353,12 @@ resource "aws_s3_bucket_cors_configuration" "projects" {
 
 # Website hosting configuration for project buckets
 resource "aws_s3_bucket_website_configuration" "projects" {
-  for_each = aws_s3_bucket.projects
+  # Only public project bucket should be website-hosted.
+  for_each = {
+    for access_level, bucket in aws_s3_bucket.projects :
+    access_level => bucket
+    if access_level == "public"
+  }
   bucket   = each.value.id
 
   index_document {
@@ -364,7 +372,12 @@ resource "aws_s3_bucket_website_configuration" "projects" {
 
 # Bucket policies for public website access
 resource "aws_s3_bucket_policy" "projects_public_read" {
-  for_each = aws_s3_bucket.projects
+  # Only the public projects bucket should allow anonymous reads.
+  for_each = {
+    for access_level, bucket in aws_s3_bucket.projects :
+    access_level => bucket
+    if access_level == "public"
+  }
   bucket   = each.value.id
 
   # Wait for public access block to be configured
