@@ -44,6 +44,7 @@ const RUM_DEBUG =
 type AwsRumConfig = {
   sessionSampleRate?: number;
   identityPoolId?: string;
+  guestRoleArn?: string;
   endpoint?: string;
   telemetries?: string[];
   allowCookies?: boolean;
@@ -111,12 +112,13 @@ export async function initializeRUM() {
   // Skip if RUM is not configured (optional in local dev)
   const appMonitorId = process.env.NEXT_PUBLIC_RUM_APP_MONITOR_ID;
   const identityPoolId = process.env.NEXT_PUBLIC_RUM_IDENTITY_POOL_ID;
+  const guestRoleArn = process.env.NEXT_PUBLIC_RUM_GUEST_ROLE_ARN;
   const region =
     process.env.NEXT_PUBLIC_RUM_REGION ||
     process.env.NEXT_PUBLIC_AWS_REGION ||
     "us-west-2";
 
-  if (!appMonitorId || !identityPoolId) {
+  if (!appMonitorId || !identityPoolId || !guestRoleArn) {
     if (RUM_DEBUG) {
       console.info(
         "[RUM] CloudWatch RUM not configured - skipping initialization",
@@ -143,13 +145,11 @@ export async function initializeRUM() {
     const config: AwsRumConfig = {
       sessionSampleRate: 1, // Sample 100% of sessions
       identityPoolId,
+      guestRoleArn,
       endpoint: `https://dataplane.rum.${region}.amazonaws.com`,
-      telemetries: [], // Empty array means enable all default telemetries including page views
+      telemetries: ["errors", "performance", "http"],
       allowCookies: true,
       enableXRay: false, // Set to true if you want X-Ray tracing
-      // Note: Do NOT pass guestRoleArn - Cognito automatically uses the role attached to the identity pool
-      // Passing it explicitly can cause 403 errors
-      // See: https://github.com/aws-observability/aws-rum-web/issues/345
       ...(typeof window !== "undefined" && {
         eventPluginsToLoad: [],
         enableRumClient: true,
@@ -177,6 +177,7 @@ export async function initializeRUM() {
       console.info("[RUM] Config:", {
         endpoint: config.endpoint,
         identityPoolId: config.identityPoolId,
+        guestRoleArn: config.guestRoleArn,
         appMonitorId,
         region,
       });
