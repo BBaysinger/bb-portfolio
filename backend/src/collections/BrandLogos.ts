@@ -31,10 +31,10 @@ export const BrandLogos: CollectionConfig = {
     read: ({ req }) => {
       if (req.user?.role === 'admin') return true
       if (req.user) return true
+      // Back-compat: older uploads may have `nda` unset/null.
+      // Treat missing NDA flag as non-NDA for public reads.
       return {
-        nda: {
-          equals: false,
-        },
+        or: [{ nda: { equals: false } }, { nda: { exists: false } }, { nda: { equals: null } }],
       } as unknown as Where
     },
     create: ({ req }) => req.user?.role === 'admin',
@@ -42,6 +42,54 @@ export const BrandLogos: CollectionConfig = {
     delete: ({ req }) => req.user?.role === 'admin',
   },
   hooks: {
+    afterRead: [
+      // Self-heal legacy docs where `nda` is missing/null by recomputing it from the
+      // brand(s) that reference this logo (logoLight/logoDark).
+      //
+      // Why: Access control relies on `brandLogos.nda`. If it is absent (older docs
+      // before the field existed), unauthenticated requests can incorrectly lose access
+      // to non-NDA logos. Brands already propagate NDA on change, but legacy rows need
+      // a backfill; this hook makes the system converge automatically.
+      async ({ doc, req }) => {
+        try {
+          const rec = doc as unknown as { id?: string; nda?: boolean | null }
+          const id = typeof rec.id === 'string' ? rec.id : ''
+          if (!id) return doc
+
+          // Only repair when missing/null to avoid extra queries.
+          if (rec.nda !== null && rec.nda !== undefined) return doc
+
+          const res = await req.payload.find({
+            collection: 'brands',
+            where: {
+              or: [{ logoLight: { equals: id } }, { logoDark: { equals: id } }],
+            },
+            limit: 100,
+            depth: 0,
+            overrideAccess: true,
+            disableErrors: true,
+          })
+
+          const computed = Boolean(
+            res?.docs?.some((b) => (b as unknown as { nda?: boolean | null })?.nda === true),
+          )
+
+          // Persist the computed value so future access filters can rely on it.
+          await req.payload.update({
+            collection: 'brandLogos',
+            id,
+            data: { nda: computed },
+            depth: 0,
+            overrideAccess: true,
+          })
+          ;(rec as Record<string, unknown>).nda = computed
+          return rec as unknown as typeof doc
+        } catch {
+          // Best-effort: never break reads due to a repair attempt.
+          return doc
+        }
+      },
+    ],
     beforeOperation: [
       // Overwrite behavior:
       // - When creating an upload, if a document already exists with the exact same filename,
