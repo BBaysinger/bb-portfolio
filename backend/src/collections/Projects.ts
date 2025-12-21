@@ -38,6 +38,51 @@ export const Projects: CollectionConfig = {
     delete: ({ req }) => req.user?.role === 'admin',
   },
   hooks: {
+    afterRead: [
+      // Ensure NDA placeholders work even when the NDA state is derived from the related brand.
+      // - We intentionally keep `nda` readable publicly so the frontend can route to /nda/<uuid>/.
+      // - We do NOT expose brand identity; we only normalize the NDA boolean.
+      async ({ doc, req }) => {
+        try {
+          // Only needed for unauthenticated responses; authenticated users can see full data.
+          if (req.user) return doc
+
+          const record = doc as unknown as { nda?: boolean | null; brandId?: unknown }
+          if (record.nda === true) return doc
+
+          const brandRel = record.brandId
+          const brandId = (() => {
+            if (typeof brandRel === 'string' && brandRel.length > 0) return brandRel
+            if (!brandRel || typeof brandRel !== 'object') return undefined
+            const rel = brandRel as Record<string, unknown>
+            const id = rel.id
+            if (typeof id === 'string' && id.length > 0) return id
+            const value = rel.value
+            if (typeof value === 'string' && value.length > 0) return value
+            return undefined
+          })()
+
+          if (!brandId) return doc
+
+          const brand = await req.payload.findByID({
+            collection: 'brands',
+            id: brandId,
+            depth: 0,
+            disableErrors: true,
+            overrideAccess: true,
+          })
+
+          if (brand?.nda === true) {
+            ;(record as Record<string, unknown>).nda = true
+          }
+        } catch {
+          // Fail open here: this hook is only for UX consistency (placeholders).
+          // Field-level access still prevents data leakage.
+        }
+
+        return doc
+      },
+    ],
     beforeChange: [
       ({ data, operation }) => {
         // Ensure every project has a stable, opaque identifier usable in URLs.
@@ -260,6 +305,9 @@ export const Projects: CollectionConfig = {
       label: 'Thumbnail Background Theme',
       type: 'select',
       defaultValue: 'default',
+      access: {
+        read: canReadNdaField,
+      },
       options: [
         { label: 'Default', value: 'default' },
         { label: 'Bez', value: 'bez' },
@@ -283,6 +331,9 @@ export const Projects: CollectionConfig = {
       label: 'Thumbnail Attribute Theme',
       type: 'select',
       defaultValue: 'default',
+      access: {
+        read: canReadNdaField,
+      },
       options: [
         { label: 'Default', value: 'default' },
         { label: 'Badge Pop', value: 'badge-pop' },
