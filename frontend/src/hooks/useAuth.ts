@@ -1,4 +1,4 @@
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 import { clearRUMUser } from "@/services/rum";
@@ -17,6 +17,7 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks";
 export const useAuth = () => {
   const dispatch = useAppDispatch();
   const router = useRouter();
+  const pathname = usePathname();
   const { user, isLoggedIn, isLoading, error, hasInitialized } = useAppSelector(
     (state) => state.auth,
   );
@@ -83,10 +84,22 @@ export const useAuth = () => {
     // Set a flag to prevent automatic re-authentication
     localStorage.setItem("manualLogout", "true");
 
-    // After clearing session, refresh to re-evaluate Server Components so NDA content/admin guard updates
+    // After clearing session, ensure we don't remain on NDA routes.
+    // Staying on /nda/* while unauthenticated can trigger SSR fetch failures on refresh/reload.
+    const isNdaRoute = /^\/nda(\/|$)/.test(pathname || "");
     try {
-      router.refresh();
-    } catch {}
+      if (isNdaRoute) {
+        router.replace("/");
+      } else {
+        // Re-evaluate Server Components so NDA/admin guard updates.
+        router.refresh();
+      }
+    } catch {
+      // Fallback to a hard navigation if the router isn't available.
+      if (typeof window !== "undefined") {
+        window.location.assign(isNdaRoute ? "/" : window.location.href);
+      }
+    }
   };
 
   const resetExperience = () => {
