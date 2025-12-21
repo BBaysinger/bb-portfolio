@@ -20,10 +20,19 @@ export default async function NdaProjectPage({
   params: Promise<{ projectId: string }>;
 }) {
   const { projectId } = await params;
+
+  // If not authenticated, never attempt to SSR-render NDA routes.
+  // This avoids backend fetch failures that can surface as a Next.js application error.
+  const h = await headers();
+  const cookieHeader = h.get("cookie") || "";
+  const hasPayloadSession = /(?:^|;\s*)payload-token=/.test(cookieHeader);
+  if (!hasPayloadSession) {
+    return redirect("/");
+  }
+
   // SSR guard: ensure this slug is truly NDA; otherwise return 404 on /nda/*.
   // We can safely fetch without cookies just to inspect the NDA flag; the public
   // API response includes `nda: true` for NDA items (and redacts details if unauthenticated).
-  const h = await headers();
   const projectData = new ProjectDataStore();
   // Instantiate per-request to avoid leaking NDA responses between visitors.
   await projectData.initialize({ headers: h, disableCache: true });
