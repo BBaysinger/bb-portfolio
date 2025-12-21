@@ -33,24 +33,55 @@ export const canReadNdaField = async ({ req, doc }: NdaAccessArgs) => {
 
   // If brand is populated, honor its nda flag.
   if (typeof brandId === 'object') {
-    const maybeNda = (brandId as Record<string, unknown> | null)?.nda
+    const rec = brandId as Record<string, unknown> | null
+    const maybeNda = rec?.nda
     if (maybeNda === true) return false
-    return true
+    if (maybeNda === false) return true
+
+    // If we cannot confidently determine NDA state from the populated object,
+    // try to resolve by ID/value (Payload relationship shapes vary by depth).
+    const relId = (() => {
+      const id = rec?.id
+      if (typeof id === 'string' && id.length > 0) return id
+      const value = rec?.value
+      if (typeof value === 'string' && value.length > 0) return value
+      return undefined
+    })()
+
+    if (!relId) return false
+
+    try {
+      const brand = await req.payload.findByID({
+        collection: 'brands',
+        id: relId,
+        depth: 0,
+        disableErrors: true,
+        overrideAccess: true,
+      })
+      if (!brand) return false
+      return brand.nda !== true
+    } catch {
+      return false
+    }
   }
 
   // If brand is an ID, resolve it.
   if (typeof brandId === 'string') {
     try {
+      // IMPORTANT: Use overrideAccess so we can safely detect NDA brands even when
+      // unauthenticated requests cannot read brand documents.
       const brand = await req.payload.findByID({
         collection: 'brands',
         id: brandId,
         depth: 0,
         disableErrors: true,
+        overrideAccess: true,
       })
-      // If the brand can't be fetched, default to non-NDA (least disruptive).
-      return !brand?.nda
+      // Fail closed if the brand can't be fetched.
+      if (!brand) return false
+      return brand.nda !== true
     } catch {
-      return true
+      return false
     }
   }
 

@@ -119,11 +119,17 @@ export const Projects: CollectionConfig = {
       type: 'relationship',
       relationTo: 'brands', // optional: create a `brands` collection
       required: false,
+      access: {
+        read: canReadNdaField,
+      },
     },
     {
       name: 'tags',
       type: 'array',
       label: 'Tags',
+      access: {
+        read: canReadNdaField,
+      },
       fields: [
         {
           name: 'tag',
@@ -134,6 +140,9 @@ export const Projects: CollectionConfig = {
     {
       name: 'role',
       type: 'array',
+      access: {
+        read: canReadNdaField,
+      },
       fields: [
         {
           name: 'value',
@@ -144,10 +153,16 @@ export const Projects: CollectionConfig = {
     {
       name: 'year',
       type: 'text',
+      access: {
+        read: canReadNdaField,
+      },
     },
     {
       name: 'awards',
       type: 'array',
+      access: {
+        read: canReadNdaField,
+      },
       fields: [
         {
           name: 'award',
@@ -158,6 +173,9 @@ export const Projects: CollectionConfig = {
     {
       name: 'type',
       type: 'text',
+      access: {
+        read: canReadNdaField,
+      },
     },
     {
       name: 'desc',
