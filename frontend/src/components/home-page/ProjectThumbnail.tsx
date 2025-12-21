@@ -185,9 +185,15 @@ const ProjectThumbnail: React.FC<ProjectThumbnailProps> = ({
         onClick={() => {
           if (!showNdaConfidential) return;
           try {
+            // Store a stable post-login redirect key.
+            // Prefer UUID (opaque), but always fall back to projectId so prod
+            // still redirects correctly even if UUIDs are redacted.
+            sessionStorage.setItem(
+              "postLoginProjectId",
+              (projectId || "").trim(),
+            );
             const uuid = (projectUuid || "").trim();
-            if (!uuid) return;
-            sessionStorage.setItem("postLoginProjectUuid", uuid);
+            if (uuid) sessionStorage.setItem("postLoginProjectUuid", uuid);
           } catch {}
         }}
         className={styles.link}

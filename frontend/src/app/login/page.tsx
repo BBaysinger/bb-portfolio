@@ -29,6 +29,27 @@ const LoginPage = () => {
   const [password, setPassword] = useState("");
   const [_localError, setLocalError] = useState("");
 
+  const getPostLoginRedirectTo = (): string | null => {
+    try {
+      // Prefer a stable projectId redirect when available.
+      // UUID is an optional opaque alias; keep it as a fallback.
+      const projectIdRaw = sessionStorage.getItem("postLoginProjectId") || "";
+      const uuidRaw = sessionStorage.getItem("postLoginProjectUuid") || "";
+      const projectId = projectIdRaw.trim();
+      const uuid = uuidRaw.trim();
+
+      sessionStorage.removeItem("postLoginProjectId");
+      sessionStorage.removeItem("postLoginProjectUuid");
+
+      const chosen = projectId || uuid;
+      if (!chosen) return null;
+      if (UUID_RE.test(chosen)) return `/nda/${encodeURIComponent(chosen)}/`;
+      return `/nda/${encodeURIComponent(chosen)}/`;
+    } catch {
+      return null;
+    }
+  };
+
   // Clear any existing auth errors when component mounts
   useEffect(() => {
     if (authError) {
@@ -39,19 +60,10 @@ const LoginPage = () => {
   // Redirect if already logged in (but wait for loading to finish)
   useEffect(() => {
     if (!isLoading && isLoggedIn) {
-      const redirectTo = (() => {
-        try {
-          const uuidRaw = sessionStorage.getItem("postLoginProjectUuid") || "";
-          const uuid = uuidRaw.trim();
-          sessionStorage.removeItem("postLoginProjectUuid");
-          if (uuid && UUID_RE.test(uuid)) {
-            return `/nda/${encodeURIComponent(uuid)}/`;
-          }
-        } catch {}
-
-        return null;
-      })();
+      const redirectTo = getPostLoginRedirectTo();
       router.replace(redirectTo ?? "/");
+      // Ensure Server Components re-evaluate with the new HttpOnly cookie.
+      router.refresh();
     }
   }, [isLoading, isLoggedIn, router]);
 
