@@ -107,6 +107,37 @@ COMPOSE_PROFILES=prod docker compose -f deploy-lagoon/compose/docker-compose.yml
 ./deploy-lagoon/scripts/orchestrator-promote.sh --candidate-ip <ip> --elastic-ip <eip>
 ```
 
+## Runbooks
+
+- Instance lifecycle: `deploy-lagoon/docs/lagoon-lifecycle.md`
+- Candidate replacement procedure: `deploy-lagoon/docs/candidate-replacement.md`
+
+## Roadmap Notes (Archived)
+
+- Codename **Lagoon** refers to the next version of the orchestrator: multi-instance blue/green (plus a “red” staging lane), traffic hand-offs, and richer observability hooks.
+- The Terraform modules, scripts, and documentation live under `infra-lagoon/` and `deploy-lagoon/`, but the feature is intentionally disabled while the single-host flow remains primary.
+- What Lagoon will bring once re-enabled:
+  - Dual (eventually tri) EC2 pools with automatic tagging, health checks, and Elastic IP rotation.
+  - Coordinated GitHub Actions workflows that build, validate, and promote candidates without manual SSH.
+  - Detailed cutover reports + rollback switch to fall back to the previous color instantly.
+  - A dedicated repository so infra-as-product can evolve independently of the portfolio UI.
+- Until that future cutover happens, treat any mention of Lagoon/blue-green as roadmap documentation rather than a feature you can run today.
+
+## Notes From Legacy Deployment Guide (Archived)
+
+The Lagoon strategy (parallel candidate instance, EIP promotion, enhanced health checks, versioned Nginx with fallback `/healthz`) is currently paused to simplify recovery operations. Its full design, scripts, and Terraform modules were snapshotted under:
+
+- `infra-lagoon/` (blue/green infrastructure definitions)
+- `deploy-lagoon/` (orchestrators, Nginx config, diagnostics, promotion helpers)
+
+Brief Advantages (when active): safer cutover, rollback path, validation before promotion. Temporary drawback: added cognitive overhead during outage recovery.
+
+Action to Resume Later:
+
+1. Run a Terraform plan in `infra-lagoon/`.
+2. Rebuild candidate instance and run containers only.
+3. Validate health paths → perform promotion.
+
 ## Status
 
 Lagoon is currently dormant. Legacy deployment remains the authoritative path. This file captures the design for future iteration without impacting day‑to‑day ops.

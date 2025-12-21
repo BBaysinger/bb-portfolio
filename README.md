@@ -65,17 +65,6 @@ Jump to the complete list of conveniences: [Deployment conveniences catalog](#-d
   - Automatic EC2 diagnostics/log dumps when a restart step fails.
 - This is the path that keeps bbaysinger.com online today.
 
-### Lagoon (future blue/green/red orchestrator)
-
-- Codename **Lagoon** refers to the next version of the orchestrator: multi-instance blue/green (plus a “red” staging lane), traffic hand-offs, and richer observability hooks.
-- The Terraform modules, scripts, and documentation live under `infra-lagoon/` and `deploy-lagoon/`, but the feature is intentionally disabled while the single-host flow remains primary.
-- What Lagoon will bring once re-enabled:
-  - Dual (eventually tri) EC2 pools with automatic tagging, health checks, and Elastic IP rotation.
-  - Coordinated GitHub Actions workflows that build, validate, and promote candidates without manual SSH.
-  - Detailed cutover reports + rollback switch to fall back to the previous color instantly.
-  - A dedicated repository so infra-as-product can evolve independently of the portfolio UI.
-- Until that future cutover happens, treat any mention of Lagoon/blue-green as roadmap documentation rather than a feature you can run today.
-
 ## 🧰 Deployment conveniences catalog
 
 All root `npm` scripts are grouped below by intent. Most have dry‑run or detached variants; destructive operations are guarded. For full details and edge‑case flags see [`deploy/DEPLOYMENT.md`](./deploy/DEPLOYMENT.md).
@@ -487,7 +476,6 @@ Unifies Terraform state, Docker image workflows, and GitHub Actions env regenera
 - Profile aware (`dev` / `prod` / `both`) with distinct registries & buckets.
 - Safety: avoids destructive infra ops; supports discovery/plan-only modes.
 - Falls back to SSH path if workflow dispatch fails.
-- Lagoon (future blue/green/red orchestrator) is tracked separately—see [Deployment Orchestrator: Today vs. Lagoon](#-deployment-orchestrator-today-vs-lagoon) for roadmap details. The scripts remain in this repo but are intentionally disabled until multi-host infra returns.
 
 **Note:** The current orchestrator is functional but requires additional testing for edge cases and failure scenarios. Production deployments should be monitored closely until further validation is complete.
 
