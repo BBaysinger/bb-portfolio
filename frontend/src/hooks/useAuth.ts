@@ -89,7 +89,8 @@ export const useAuth = () => {
     const isNdaRoute = /^\/nda(\/|$)/.test(pathname || "");
     try {
       if (isNdaRoute) {
-        router.replace("/");
+        // Hard navigation is the most reliable way to exit NDA routes.
+        window.location.assign("/");
       } else {
         // Re-evaluate Server Components so NDA/admin guard updates.
         router.refresh();

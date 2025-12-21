@@ -35,7 +35,18 @@ export default async function NdaProjectPage({
   // API response includes `nda: true` for NDA items (and redacts details if unauthenticated).
   const projectData = new ProjectDataStore();
   // Instantiate per-request to avoid leaking NDA responses between visitors.
-  await projectData.initialize({ headers: h, disableCache: true });
+  // If upstream auth/cookie state is invalid (e.g., post-logout), never throw a 500 here.
+  try {
+    await projectData.initialize({ headers: h, disableCache: true });
+  } catch {
+    return redirect("/");
+  }
+
+  // Backend signaled the request lacked NDA access (placeholders were returned).
+  // Treat this as unauthenticated for NDA routes and redirect to home.
+  if (projectData.containsSanitizedPlaceholders) {
+    return redirect("/");
+  }
   const rec = projectData.getProject(projectId);
   if (!rec || !projectRequiresNda(rec)) {
     return notFound();
