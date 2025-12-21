@@ -14,6 +14,33 @@ export type NdaAccessArgs = {
   doc?: NdaAwareDoc
 }
 
+const OBJECT_ID_RE = /^[0-9a-f]{24}$/i
+
+const asRelId = (val: unknown): string | undefined => {
+  if (!val) return undefined
+  if (typeof val === 'string') return val
+
+  if (typeof val === 'object') {
+    const rec = val as Record<string, unknown>
+    const direct = rec?.id
+    if (typeof direct === 'string' && direct.length > 0) return direct
+    const value = rec?.value
+    if (typeof value === 'string' && value.length > 0) return value
+    const underscore = rec?._id
+    if (typeof underscore === 'string' && underscore.length > 0) return underscore
+
+    // Mongoose ObjectId (or similar) often appears as an object with a useful toString().
+    try {
+      const s = (val as { toString?: () => string }).toString?.()
+      if (typeof s === 'string' && OBJECT_ID_RE.test(s)) return s
+    } catch {
+      // ignore
+    }
+  }
+
+  return undefined
+}
+
 /**
  * Permit reads when the document is not NDA, otherwise require an authenticated user.
  */
@@ -31,6 +58,8 @@ export const canReadNdaField = async ({ req, doc }: NdaAccessArgs) => {
   const brandId = doc.brandId
   if (!brandId) return true
 
+  const relId = asRelId(brandId)
+
   // If brand is populated, honor its nda flag.
   if (typeof brandId === 'object') {
     const rec = brandId as Record<string, unknown> | null
@@ -39,15 +68,7 @@ export const canReadNdaField = async ({ req, doc }: NdaAccessArgs) => {
     if (maybeNda === false) return true
 
     // If we cannot confidently determine NDA state from the populated object,
-    // try to resolve by ID/value (Payload relationship shapes vary by depth).
-    const relId = (() => {
-      const id = rec?.id
-      if (typeof id === 'string' && id.length > 0) return id
-      const value = rec?.value
-      if (typeof value === 'string' && value.length > 0) return value
-      return undefined
-    })()
-
+    // resolve by ID/value/toString (Payload relationship shapes vary by depth).
     if (!relId) return false
 
     try {
@@ -72,7 +93,7 @@ export const canReadNdaField = async ({ req, doc }: NdaAccessArgs) => {
       // unauthenticated requests cannot read brand documents.
       const brand = await req.payload.findByID({
         collection: 'brands',
-        id: brandId,
+        id: relId || brandId,
         depth: 0,
         disableErrors: true,
         overrideAccess: true,
