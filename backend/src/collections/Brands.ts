@@ -15,11 +15,7 @@ export const Clients: CollectionConfig = {
       // Back-compat: older brand docs may have `nda` unset/null.
       // Treat missing NDA flag as non-NDA for public reads.
       return {
-        or: [
-          { nda: { equals: false } },
-          { nda: { exists: false } },
-          { nda: { equals: null } },
-        ],
+        or: [{ nda: { equals: false } }, { nda: { exists: false } }, { nda: { equals: null } }],
       } as Where
     },
     create: ({ req }) => req.user?.role === 'admin',
