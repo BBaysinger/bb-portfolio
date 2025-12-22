@@ -151,6 +151,20 @@ export async function initializeRUM() {
     return;
   }
 
+  // CloudWatch RUM PutRumEvents expects the UUID app monitor ID (AppMonitor.Id), not the monitor name.
+  // A common misconfiguration is passing the monitor name (e.g. "bb-portfolio"), which yields 403s.
+  const looksLikeUuid =
+    /^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$/.test(
+      appMonitorId,
+    );
+  if (!looksLikeUuid) {
+    console.error(
+      "[RUM] Invalid NEXT_PUBLIC_RUM_APP_MONITOR_ID; expected UUID app monitor ID (AppMonitor.Id).",
+      { appMonitorId },
+    );
+    return;
+  }
+
   try {
     // Eager dynamic import guarantees inclusion in main bundle under webpack
     const rumModule = await import(/* webpackMode: "eager" */ "aws-rum-web");

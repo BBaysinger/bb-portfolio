@@ -29,14 +29,21 @@ output "ecr_frontend_repository_url" {
 }
 
 output "ecr_backend_repository_url" {
-  description = "URL of the backend ECR repository"  
+  description = "URL of the backend ECR repository"
   value       = aws_ecr_repository.backend.repository_url
 }
 
 # CloudWatch RUM outputs
 output "rum_app_monitor_id" {
   description = "CloudWatch RUM App Monitor ID"
-  value       = aws_rum_app_monitor.main.id
+  # NOTE: RUM PutRumEvents requires the UUID app monitor ID (not the monitor name).
+  # Terraform exposes this as `app_monitor_id`. The resource `id` is the monitor name.
+  value = aws_rum_app_monitor.main.app_monitor_id
+}
+
+output "rum_app_monitor_name" {
+  description = "CloudWatch RUM App Monitor name"
+  value       = aws_rum_app_monitor.main.name
 }
 
 output "rum_identity_pool_id" {

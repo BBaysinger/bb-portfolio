@@ -21,6 +21,10 @@
     "predev": "tsx ./scripts/check-required-env.ts && npm run generate:importmap",
     // One-off maintenance: populate missing Project UUIDs (safe to re-run; updates only docs missing uuid)
     "backfill:project-uuids": "tsx ./scripts/backfill-project-uuids.ts",
+    // One-off maintenance: backfill `nda` flags via Payload APIs (boots full Payload config; slower, but authoritative)
+    "backfill:nda-media": "tsx ./scripts/backfill-nda-media.ts",
+    // Recommended local maintenance: backfill `nda` flags via direct MongoDB updates (fast; avoids Payload/sharp native deps)
+    "backfill:nda-media:mongo": "tsx ./scripts/backfill-nda-media.mongo.ts",
     // Production build with increased memory and deprecation warnings suppressed
     "build": "cross-env NODE_OPTIONS=\"--no-deprecation --max-old-space-size=8000\" npm run generate:importmap && next build --webpack",
     // Start development server with deprecation warnings suppressed
@@ -32,7 +36,7 @@
     // Generates TypeScript types from Payload collections and globals
     "generate:types": "cross-env NODE_OPTIONS=--no-deprecation payload generate:types",
     // Run Next.js linter with deprecation warnings suppressed
-    "lint": "cross-env NODE_OPTIONS=--no-deprecation next lint",
+    "lint": "cd .. && eslint backend",
     // Start Payload-only CLI (e.g., to seed or run utilities)
     "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
     // Validate required environment variables before starting production server

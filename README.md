@@ -283,12 +283,14 @@ Other UI details: scroll‑aware navigation, mobile slide‑out menu, dynamic de
   - Authenticated requests to a public NDA slug redirect server-side to `/nda/[projectId]`; unauthenticated sees 404
   - Client carousel and prev/next links are route-aware (public → `/project/*`, NDA → `/nda/*`) without leaking NDA data
 
-  #### 🔐 Secrets & Environment Management
+  ## 🔒 Secrets & Environment Management
   - Secrets now follow the same convention as `.env`/`.env.prod`:
     - Shared base: `.github-secrets.example.json5` ➜ `.github-secrets.private.json5`
-    - Dev: `.github-secrets.example.dev.json5` ➜ `.github-secrets.private.dev.json5`
-    - Stage (future): `.github-secrets.example.stage.json5` ➜ `.github-secrets.private.stage.json5`
-    - Prod: `.github-secrets.example.prod.json5` ➜ `.github-secrets.private.prod.json5`
+  - - `sync:secrets:dry` / `sync:secrets` — Sync GitHub secrets from local JSON5 files
+  - Dev: `.github-secrets.example.dev.json5` ➜ `.github-secrets.private.dev.json5`
+  - - `scripts/merge-github-secrets.ts` can bundle secrets, but it is optional. `sync:secrets` reads `.github-secrets.private.json5` plus any `.github-secrets.private.<env>.json5` files directly.
+  - Stage (future): `.github-secrets.example.stage.json5` ➜ `.github-secrets.private.stage.json5`
+  - Prod: `.github-secrets.example.prod.json5` ➜ `.github-secrets.private.prod.json5`
   - `scripts/merge-github-secrets.ts` bundles the above into `.github-secrets.private.json5` so existing tooling keeps working. Run `npm run secrets:bundle` after editing any `.github-secrets.private*.json5` file.
   - Sync script: `scripts/sync-github-secrets.ts`
     - Auto-syncs repo secrets followed by every detected GitHub **Environment** manifest (e.g., `.github-secrets.private.dev.json5`).

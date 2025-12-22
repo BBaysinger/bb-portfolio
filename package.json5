@@ -205,12 +205,13 @@
     // 🔄 Syncs package.json5 with package.json values while preserving comments and formatting
     // Run this after editing package.json to push updates back into the annotated JSON5 version
     "sync:packages": "tsx scripts/sync-json5-packages.ts",
-    // 🧩 Merge env-specific secret fragments into a single JSON5 before syncing.
+    // 🧩 Optional: Merge env-specific secret fragments into a single JSON5.
+    // Not required for sync:secrets — the sync script reads per-env manifests directly.
     "secrets:bundle": "tsx scripts/merge-github-secrets.ts",
-    // 📦 Run bundle + sync for every environment in one go (single command).
-    "sync:secrets": "npm run secrets:bundle && tsx scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./.github-secrets.private.json5",
+    // 📦 Sync GitHub secrets (repo + environments) from local JSON5 files.
+    "sync:secrets": "tsx scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./.github-secrets.private.json5",
     // 🧪 Same as above but performs only a dry run.
-    "sync:secrets:dry": "npm run secrets:bundle && tsx scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./.github-secrets.private.json5 --dry-run",
+    "sync:secrets:dry": "tsx scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./.github-secrets.private.json5 --dry-run",
     // 📦 Update dependencies to latest versions across all packages
     // Runs npm-check-updates in root, backend, and frontend simultaneously
     // Review changes before running npm run install:all
