@@ -169,9 +169,9 @@ export interface Project {
   title: string;
   slug: string;
   /**
-    * Opaque URL-safe identifier. This can be used as an alternate route key (e.g., /nda/<code>/) without exposing the human slug.
+   * Opaque URL-safe identifier. This can be used as an alternate route key (e.g., /nda/<code>/) without exposing the human slug.
    */
-    shortCode: string;
+  shortCode: string;
   active?: boolean | null;
   omitFromList?: boolean | null;
   nda?: boolean | null;
