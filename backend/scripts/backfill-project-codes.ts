@@ -9,6 +9,9 @@
  * - From backend/: `pnpm run backfill:project-codes`
  */
 
+import path from 'path'
+
+import dotenv from 'dotenv'
 import type { Payload, Where } from 'payload'
 import { getPayload } from 'payload'
 import slugify from 'slugify'
@@ -18,6 +21,13 @@ import { generateShortCode } from '../src/utils/shortCode'
 // Scripts should not keep the event loop alive. Payload's dev HMR websocket can
 // do that when NODE_ENV is not production/test. Disable it for this script.
 process.env.DISABLE_PAYLOAD_HMR ??= 'true'
+// This script does not touch uploads; allow running on hosts without sharp/libvips.
+process.env.PAYLOAD_DISABLE_SHARP ??= 'true'
+
+// Load env files for local execution (tsx does not automatically load Next.js-style .env files).
+// Precedence: .env.local overrides .env.
+dotenv.config({ path: path.resolve(process.cwd(), '.env'), override: false })
+dotenv.config({ path: path.resolve(process.cwd(), '.env.local'), override: true })
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 

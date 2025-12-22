@@ -1,3 +1,4 @@
+import { createRequire } from 'module'
 import path from 'path'
 import { fileURLToPath } from 'url'
 
@@ -7,7 +8,6 @@ import { payloadCloudPlugin } from '@payloadcms/payload-cloud'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { s3Storage } from '@payloadcms/storage-s3'
 import { buildConfig } from 'payload'
-import sharp from 'sharp'
 
 import { BrandLogos } from './collections/BrandLogos'
 import { Clients } from './collections/Brands'
@@ -30,6 +30,29 @@ import type { Config } from './payload-types'
 const envProfile = (process.env.ENV_PROFILE || 'local').toLowerCase()
 const isProd = envProfile === 'prod'
 const isDev = envProfile === 'dev'
+
+const disableSharp = (() => {
+  const raw = (process.env.PAYLOAD_DISABLE_SHARP || process.env.DISABLE_SHARP || '').toLowerCase()
+  return raw === '1' || raw === 'true' || raw === 'yes'
+})()
+
+const sharp = (() => {
+  if (disableSharp) return undefined
+  try {
+    const require = createRequire(import.meta.url)
+    return require('sharp') as unknown as typeof import('sharp')
+  } catch (err) {
+    // Fail fast with a clearer message. This is typically a local dev dependency issue.
+    throw new Error(
+      [
+        'Failed to load `sharp` (required for Payload image processing).',
+        'If you are running a maintenance script that does not require uploads, set PAYLOAD_DISABLE_SHARP=true.',
+        'Otherwise, fix your local sharp/libvips install or run in the Docker container.',
+        String(err),
+      ].join('\n'),
+    )
+  }
+})()
 
 type ResolveOptions = {
   description?: string
