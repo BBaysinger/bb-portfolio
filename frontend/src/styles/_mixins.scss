@@ -4,6 +4,10 @@
 @use "sass:meta";
 @use "@/styles/variables" as *;
 
+// Attribution: The responsive viewport lerp (linear interpolation) mixin system in this file
+// is an original system designed by Bradley Baysinger for this website.
+
+
 //////////////////////////////////////////////////////////////////////////
 // Responsive Breakpoints
 //////////////////////////////////////////////////////////////////////////
@@ -143,24 +147,44 @@
 // }
 
 //////////////////////////////////////////////////////////////////////////
-// Fluid Scaling with Custom Properties
+// Responsive Viewport Lerp (Linear Interpolation) with Custom Properties
 //////////////////////////////////////////////////////////////////////////
 
-/// Generates a CSS variable reference like var(--fluid-percent-360-1440)
+/// Returns a CSS custom-property reference for the viewport lerp factor $t$
+///
+/// This is the core primitive for the custom-property-based fluid system.
+/// The referenced CSS variable represents a normalized lerp (linear interpolation) factor $t$
+/// (typically 0 → 1) for a specific viewport range.
+///
+/// Note: This function only returns a `var(...)` reference. The underlying `--fluid-percent-*`
+/// variable is set by `useFluidLerpVars` (JavaScript) on an ancestor element. Until JS runs
+/// (or if the hook is not used), the fallback value is used.
+///
+/// Conceptually (viewport → $t$):
+/// - `t = 0` at the minimum viewport width
+/// - `t = 1` at the maximum viewport width
+/// - values between are a linear interpolation of the viewport position
+///
+/// The scaling formula used elsewhere is:
+/// `value = min + (max - min) * t`
+///
+/// @example
+/// percent-var(360, 1440) => var(--fluid-percent-360-1440, 0)
 @function percent-var($min, $max) {
   $min-stripped: stripUnit($min);
   $max-stripped: stripUnit($max);
   @return string.unquote(
-    // Provide a 0 fallback so before JS initializes variables,
-    // the percent resolves to 0 and components render at their min size.
+    // Provide a 0 fallback so before `useFluidLerpVars` initializes variables,
+    // the interpolation factor resolves to 0 and components render at their min size.
     "var(--fluid-percent-#{$min-stripped}-#{$max-stripped}, 0)"
   );
 }
 
-/// Applies accessibility-friendly fluid scaling using CSS custom properties
+/// Applies accessibility-friendly fluid scaling via a shared viewport lerp factor (custom properties)
 ///
-/// **Requires useFluidVariables hook** to provide CSS variables like `--fluid-percent-320-680`.
-/// Converts values to rem units for accessibility - scales with user font preferences.
+/// **Requires useFluidLerpVars hook** to provide CSS variables like `--fluid-percent-320-680`.
+/// Internally this is a lerp (linear interpolation): `min + (max - min) * t` where `t` comes from `percent-var()`.
+/// Values are converted to `rem` for accessibility so they respect user font-size preferences.
 ///
 /// Use for: Typography, UI elements, text-related spacing
 /// Don't use for: Fixed layouts, images, precise visual spacing (use staticRange instead)
@@ -168,11 +192,11 @@
 /// @param $property - The CSS property to scale
 /// @param $min-value - Value at minimum viewport width (px or rem)
 /// @param $max-value - Value at maximum viewport width (px or rem)
-/// @param $min-vw - Minimum viewport width (must match useFluidVariables range)
-/// @param $max-vw - Maximum viewport width (must match useFluidVariables range)
+/// @param $min-vw - Minimum viewport width (must match useFluidLerpVars range)
+/// @param $max-vw - Maximum viewport width (must match useFluidLerpVars range)
 ///
-/// @example Setup useFluidVariables hook first:
-/// const fluidRef = useFluidVariables([[360, 1440]]);
+/// @example Setup useFluidLerpVars hook first:
+/// const fluidRef = useFluidLerpVars([[360, 1440]]);
 ///
 /// @example SCSS usage:
 /// @include remRange(font-size, 16px, 24px, 360, 1440);
@@ -204,9 +228,12 @@
 
 /// Applies pixel-precise fluid scaling using media queries with linear interpolation
 ///
-/// **Independent of useFluidVariables** - generates pure CSS with media queries.
+/// **Independent of useFluidLerpVars** - generates pure CSS with media queries.
 /// Maintains exact unit precision without converting to rem. Ideal for layouts and visual elements
 /// that should scale with viewport, not user font preferences.
+///
+/// Internally this is the same lerp (linear interpolation) idea, but the interpolation factor is computed
+/// directly from `100vw` instead of coming from a shared custom property.
 ///
 /// Use for: Container dimensions, layout spacing, visual components, grid gaps
 /// Don't use for: Typography, UI elements that should respect font size (use remRange instead)
@@ -277,9 +304,21 @@
 // Transform Scaling
 //////////////////////////////////////////////////////////////////////////
 
-/// Applies smooth transform scaling using clamp() for linear interpolation without jumps
+/// Applies smooth transform scaling using a clamp-bounded lerp (linear interpolation)
 ///
-/// **Independent of useFluidVariables** - uses clamp() for truly smooth scaling.
+/// This mixin uses `clamp()` as a guard rail around a viewport-based lerp (linear interpolation)
+/// and injects the result into `transform: scale(...)`.
+///
+/// In other words: it’s a responsive, transform-specific lerp expression
+/// bounded by `clamp(min, preferred, max)` — not a simple `clamp()` between two fixed
+/// values like you’d commonly do for `font-size`.
+///
+/// IMPORTANT: Firefox still rejects `calc()`/`clamp()` inside `scale()`, so the `transform`
+/// declaration generated here may be ignored in Gecko and fall back to a previous valid
+/// `transform` declaration. Components that rely on this mixin should provide a non-CSS
+/// fallback (e.g., JS-driven scaling) if they need responsive scale on Firefox.
+///
+/// **Independent of useFluidLerpVars** - generates pure CSS and stays perfectly smooth.
 /// Combines with existing transforms and provides pixel-perfect responsive scaling.
 ///
 /// Use for: Component scaling, zoom effects, responsive animations
@@ -315,10 +354,8 @@
     @error "scaleRange(): Scale values must be unitless. Got: #{$max-scale}";
   }
 
-  // Build transform with clamp - generate the exact working syntax
-  // NOTE: Firefox still rejects calc()/clamp() inside scale(), so transforms generated here
-  // fall back to the previous valid declaration in Gecko. Components that rely on this mixin
-  // must provide a non-CSS fallback (e.g., JS-driven scaling) if they need responsive scale on Firefox.
+  // Build transform with clamp()-bounded lerp.
+  // IMPORTANT: See note about Firefox support above.
   $base-transform: "";
   @if $preserve-transform {
     $base-transform: "#{$preserve-transform} ";
@@ -330,3 +367,4 @@
     "#{$base-transform}scale(clamp(#{$min-scale}, #{$min-scale} + #{$range} * ((100vw - #{$min-vw}) / #{$vw-range}px), #{$max-scale}))"
   );
 }
+

@@ -143,6 +143,7 @@
         "keypair",
         "keypairs",
         "keyup",
+        "lerp",
         "letsencrypt",
         "libc",
         "libstdc",

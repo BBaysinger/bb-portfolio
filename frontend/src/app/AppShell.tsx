@@ -10,7 +10,7 @@ import NavVariant from "@/components/layout/NavVariant";
 import { NavVariants } from "@/components/layout/NavVariant.constants";
 import { useAutoCloseMobileNavOnScroll } from "@/hooks/useAutoCloseMobileNavOnScroll";
 import useClientDimensions from "@/hooks/useClientDimensions";
-import { useFluidVariables } from "@/hooks/useFluidVariables";
+import { useFluidLerpVars } from "@/hooks/useFluidLerpVars";
 import { useTrackHeroInView } from "@/hooks/useTrackHeroInView";
 import { resetAuthState, checkAuthStatus } from "@/store/authSlice";
 import { useAppDispatch } from "@/store/hooks";
@@ -242,7 +242,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
    * These variables power remRange and staticRange SCSS mixins throughout the app
    * for JavaScript-driven responsive design without media query jumps.
    */
-  const fluidRef = useFluidVariables([
+  const fluidRef = useFluidLerpVars([
     [320, 680], // Mobile to tablet
     [320, 768], // Mobile to tablet landscape
     [320, 992], // Mobile to small desktop
