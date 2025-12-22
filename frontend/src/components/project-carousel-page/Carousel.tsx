@@ -5,6 +5,7 @@ import React, {
   forwardRef,
   useImperativeHandle,
   useEffect,
+  useLayoutEffect,
   useCallback,
   useMemo,
   useRef,
@@ -98,7 +99,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
 
   const [scrollIndex, setScrollIndex] = useState(initialIndex);
   const [wrapperWidth, setWrapperWidth] = useState<number>(0);
-  const [snap, setSnap] = useState<"none" | "x mandatory">("none");
+  const [snap, setSnap] = useState<"none" | "x mandatory">("x mandatory");
   const stabilizationTimer = useRef<NodeJS.Timeout | null>(null);
   const slideRefs = useRef<(HTMLDivElement | null)[]>([]);
   const scrollerRef = useRef<HTMLDivElement>(null);
@@ -106,6 +107,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
   const externalScrollLeftRef = useRef<number | null>(null);
   const slideWidthRef = useRef<number>(0);
   const scrollTriggerSource = useRef<SourceType>(Source.SCROLL);
+  const isInitializingRef = useRef<boolean>(true);
   const scrollLeftTo = useRef<((value: number) => void) | null>(null);
   const scrollDirectionRef = useRef<DirectionType>(SlideDirection.LEFT);
   const stableIndex = useRef<number | null>(initialIndex);
@@ -120,6 +122,11 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
     initialIndex,
   );
   const [debugScrollLeft, setDebugScrollLeft] = useState(0);
+
+  const onScrollUpdateRef = useRef(onScrollUpdate);
+  useEffect(() => {
+    onScrollUpdateRef.current = onScrollUpdate;
+  }, [onScrollUpdate]);
 
   useEffect(() => {
     setStableIndexValue(initialIndex);
@@ -338,6 +345,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
     let lastFrameTime = 0;
 
     const scrollListener = (_: Event) => {
+      if (isInitializingRef.current) return;
       // If a route-driven tween is in progress but the user starts interacting,
       // hand control back to gesture-driven flow immediately.
       if (
@@ -399,7 +407,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
     [memoizedPositionsAndMultipliers],
   );
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!scrollerRef.current) return;
     const totalSlides = memoizedSlides.length;
     const normalizedIndex =
@@ -410,12 +418,28 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
     const targetScrollLeft = Math.round(
       newScrollIndex * slideSpacing + patchedOffset(),
     );
+
+    // Treat initial positioning as programmatic so we don't schedule a delayed
+    // stabilization update that can cause a one-time post-load page flicker.
+    isInitializingRef.current = true;
+    scrollTriggerSource.current = Source.PROGRAMMATIC;
+
     setScrollIndex(newScrollIndex);
     if (!isSlaveMode) scrollerRef.current.scrollLeft = targetScrollLeft;
-    const timer = setTimeout(() => {
-      setSnap("x mandatory");
-    }, 150);
-    return () => clearTimeout(timer);
+
+    // Prime slave layers immediately (LayeredCarouselManager mirrors this value)
+    // so the visual carousels render correctly before any user interaction.
+    onScrollUpdateRef.current?.(targetScrollLeft - patchedOffset());
+
+    stableIndex.current = normalizedIndex;
+    setStableIndexValue(normalizedIndex);
+    if (stabilizationTimer.current) clearTimeout(stabilizationTimer.current);
+
+    const rafId = requestAnimationFrame(() => {
+      isInitializingRef.current = false;
+      scrollTriggerSource.current = Source.SCROLL;
+    });
+    return () => cancelAnimationFrame(rafId);
   }, [
     initialIndex,
     isSlaveMode,
@@ -425,7 +449,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
     deriveDataIndex,
   ]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const measureWidths = () => {
       const widths = slideRefs.current.map((ref) => ref?.offsetWidth || 0);
       const newSlideWidth = Math.max(...widths);
