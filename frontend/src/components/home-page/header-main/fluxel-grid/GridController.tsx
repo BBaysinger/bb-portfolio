@@ -353,10 +353,7 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
         )}
 
         {gridLinesLayout.cellSize > 0 ? (
-          <div
-            className={styles.gridLinesOverlay}
-            aria-hidden="true"
-          >
+          <div className={styles.gridLinesOverlay} aria-hidden="true">
             <svg
               className={styles.gridLinesSvg}
               width={cols * gridLinesLayout.cellSize}

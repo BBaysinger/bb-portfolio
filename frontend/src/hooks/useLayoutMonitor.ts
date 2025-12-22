@@ -139,9 +139,9 @@ export function useElementMonitor<T extends Element>(
 /**
  * Element monitor variant that takes a concrete element instead of a ref.
  *
- * Useful when the observed element is discovered imperatively (e.g. via
- * `ref.current?.parentElement`) and you want the effect to re-bind when that
- * element reference changes.
+ * Useful when you already have an `Element` reference (instead of a React
+ * `ref`), e.g. when observing a parent/sibling like `ref.current?.parentElement`.
+ * The effect re-binds when the element reference changes.
  */
 export function useElementMonitorElement<T extends Element>(
   target: T | null,
