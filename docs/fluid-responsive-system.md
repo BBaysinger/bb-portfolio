@@ -3,6 +3,7 @@
 An original responsive viewport lerp (linear interpolation) mixin system spawned for this website.
 
 A hybrid approach:
+
 - JavaScript provides normalized viewport lerp (linear interpolation) factors (`--fluid-percent-*`) for `remRange` (accessibility-first scaling).
 - Pure-CSS mixins (`staticRange`, `scaleRange`) handle layout and transforms without JS.
 
@@ -75,6 +76,7 @@ element.style.setProperty('--fluid-percent-320-680', '0.5');
 ```
 
 Notes:
+
 - The hook clamps $t$ to `[0, 1]`.
 - Until JS runs (or if the hook is missing), mixins that reference `--fluid-percent-*` should provide a fallback.
 
