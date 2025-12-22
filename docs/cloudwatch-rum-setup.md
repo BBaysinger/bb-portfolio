@@ -45,12 +45,22 @@ This will create:
 
 After applying, get the RUM configuration values:
 
-```bash
+````bash
 terraform output rum_app_monitor_id
 terraform output rum_identity_pool_id
 terraform output rum_guest_role_arn
 terraform output rum_region
-```
+
+IMPORTANT: `rum_app_monitor_id` must be the UUID app monitor ID (AppMonitor.Id). Using the monitor name
+(for example `bb-portfolio`) will cause the browser `PutRumEvents` call to fail with 403.
+
+You can also fetch the UUID directly:
+
+```bash
+AWS_PAGER="" aws rum get-app-monitor --name bb-portfolio --query 'AppMonitor.Id' --output text
+````
+
+````
 
 ### Step 3: Add Values to GitHub Secrets
 
@@ -72,7 +82,7 @@ Add these values to your `.github-secrets.private.json5` file:
     NEXT_PUBLIC_RUM_DEBUG: "true",
   },
 }
-```
+````
 
 ### Step 4: Deploy
 
