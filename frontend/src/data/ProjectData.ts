@@ -164,11 +164,17 @@ async function fetchPortfolioProjects(opts?: {
       : undefined;
 
   const fetchOptions: RequestInit & { next?: { revalidate?: number } } = {};
-  // Avoid leaking authenticated NDA content via Next.js fetch cache on the server.
-  // Rule: On the server, always use no-store. On the client, allow a short revalidate window
-  // unless explicitly disabled by caller.
-  if (typeof window === "undefined") {
-    fetchOptions.cache = "no-store";
+  // Caching policy:
+  // - Auth-aware server requests (have request headers/cookies) MUST be no-store to avoid
+  //   leaking authenticated NDA content via Next.js data cache.
+  // - Public server requests (no requestHeaders) are safe to cache and enable SSG/ISR.
+  // - Client requests can use revalidate unless explicitly disabled.
+  if (isServer) {
+    if (disableCache || requestHeaders) {
+      fetchOptions.cache = "no-store";
+    } else {
+      fetchOptions.next = { revalidate: 3600 };
+    }
   } else if (disableCache) {
     fetchOptions.cache = "no-store";
   } else {

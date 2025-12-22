@@ -1,4 +1,3 @@
-import { headers } from "next/headers";
 import React from "react";
 
 import Greeting from "@/components/home-page/Greeting";
@@ -11,40 +10,24 @@ import { ProjectDataStore } from "@/data/ProjectData";
  *
  */
 
-// Force dynamic rendering since we fetch from backend API
-export const dynamic = "force-dynamic";
-
-const hasPayloadSession = (headerList: Headers) => {
-  const cookieHeader = headerList.get("cookie") || "";
-  return /(?:^|;\s*)payload-token=/.test(cookieHeader);
-};
-
-// Server component: fetch portfolio data with request context for SSR gating
+// Server component: fetch public (unauthenticated) portfolio data for SSG/ISR.
+// Authenticated NDA details are fetched client-side after mount when available.
 const HomePage = async () => {
-  const headerList = await headers();
-  const forwardedHeaders = new Headers();
-  headerList.forEach((value, key) => {
-    forwardedHeaders.append(key, value);
-  });
-  const hasSessionCookie = hasPayloadSession(forwardedHeaders);
-
-  // Build a fresh data store per request so NDA visibility stays request-scoped.
+  // Fetch without request headers so the response is always the public view.
+  // This is safe to cache and allows SSG/ISR without delaying per-request TTFB.
   const projectData = new ProjectDataStore();
   const initResult = await projectData.initialize({
-    headers: forwardedHeaders,
-    disableCache: true,
+    disableCache: false,
+    includeNdaInActive: false,
   });
 
   const ssrProjects = projectData.listedProjects;
   const ssrProjectRecord = projectData.projectsRecord;
-  // Rely on backend metadata instead of guessing auth purely via cookies.
   const containsSanitizedPlaceholders = Boolean(
     initResult.containsSanitizedPlaceholders,
   );
-  const ssrAuthenticated = hasSessionCookie && !containsSanitizedPlaceholders;
-  const ssrIncludeNdaInActive = ssrAuthenticated
-    ? initResult.includeNdaInActive
-    : false;
+  const ssrAuthenticated = false;
+  const ssrIncludeNdaInActive = false;
 
   return (
     <>
