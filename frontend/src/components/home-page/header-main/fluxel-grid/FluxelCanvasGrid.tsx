@@ -12,6 +12,7 @@ import useResponsiveScaler from "@/hooks/useResponsiveScaler";
 
 import type { FluxelGridHandle, FluxelGridProps } from "./FluxelAllTypes";
 import styles from "./FluxelCanvasGrid.module.scss";
+import { useFluxelResizeWatcher } from "./useFluxelResizeWatcher";
 
 /**
  * KEEP: Come back to this when there is more time to explore different
@@ -77,17 +78,18 @@ const FluxelCanvasGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
       drawGrid();
     }, [gridData, drawGrid]);
 
-    useEffect(() => {
-      if (!canvasRef.current || !onLayoutUpdateRequest) return;
-
-      const resizeObserver = new ResizeObserver(() => {
+    const handleResize = useCallback(() => {
+      if (typeof onLayoutUpdateRequest === "function") {
         onLayoutUpdateRequest(() => drawGrid());
-      });
-
-      resizeObserver.observe(canvasRef.current.parentElement!);
-
-      return () => resizeObserver.disconnect();
+      } else {
+        drawGrid();
+      }
     }, [onLayoutUpdateRequest, drawGrid]);
+
+    useFluxelResizeWatcher(
+      () => (canvasRef.current?.parentElement as HTMLDivElement | null) ?? null,
+      handleResize,
+    );
 
     useImperativeHandle(
       ref,

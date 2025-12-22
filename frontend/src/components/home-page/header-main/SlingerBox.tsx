@@ -5,8 +5,10 @@ import React, {
   useCallback,
   useReducer,
   useImperativeHandle,
+  useMemo,
 } from "react";
 
+import { useElementMonitor } from "@/hooks/useLayoutMonitor";
 import MiscUtils from "@/utils/MiscUtils";
 
 import { Side } from "./BorderBlinker";
@@ -94,6 +96,38 @@ const SlingerBox = React.forwardRef<SlingerBoxHandle, SlingerBoxProps>(
       vx: 0,
       vy: 0,
     });
+
+    const layoutDebounceMap = useMemo(
+      () => ({ resize: 50, position: -1, mutate: -1 }),
+      [],
+    );
+
+    const clampObjectsToBounds = useCallback(() => {
+      const container = containerRef.current;
+      if (!container) return;
+
+      const bounds = container.getBoundingClientRect();
+      const maxX = Math.max(radius, bounds.width - radius);
+      const maxY = Math.max(radius, bounds.height - radius);
+
+      objectsRef.current.forEach((obj) => {
+        obj.x = Math.min(Math.max(obj.x, radius), maxX);
+        obj.y = Math.min(Math.max(obj.y, radius), maxY);
+
+        const el = slingerRefs.current.get(obj.id);
+        if (el) {
+          el.style.transform = `translate(${Math.round(obj.x - radius)}px, ${Math.round(obj.y - radius)}px)`;
+        }
+      });
+    }, [radius]);
+
+    useElementMonitor(
+      containerRef,
+      (eventType) => {
+        if (eventType === "resize") clampObjectsToBounds();
+      },
+      layoutDebounceMap,
+    );
 
     const clearPointer = () => {
       pointerPosition.current = null;
@@ -248,6 +282,11 @@ const SlingerBox = React.forwardRef<SlingerBoxHandle, SlingerBoxProps>(
         setIsReady(true);
       }
     }, [childArray]);
+
+    useEffect(() => {
+      if (!isReady) return;
+      clampObjectsToBounds();
+    }, [isReady, clampObjectsToBounds]);
 
     useEffect(() => {
       animationFrameRef.current = requestAnimationFrame(animate);

@@ -137,6 +137,86 @@ export function useElementMonitor<T extends Element>(
 }
 
 /**
+ * Element monitor variant that takes a concrete element instead of a ref.
+ *
+ * Useful when the observed element is discovered imperatively (e.g. via
+ * `ref.current?.parentElement`) and you want the effect to re-bind when that
+ * element reference changes.
+ */
+export function useElementMonitorElement<T extends Element>(
+  target: T | null,
+  callback: (eventType: EventType, event?: Event) => void,
+  debounceMap: DebounceMap = {},
+) {
+  const debounceRefs = useRef<Partial<Record<ElementEventType, number>>>({});
+
+  useEffect(() => {
+    const el = target;
+    if (!el) return;
+
+    const localDebounceRefs = debounceRefs.current;
+
+    const trigger = (type: ElementEventType, event?: Event) => {
+      const debounce = debounceMap[type] ?? getDefaultDebounce(type);
+      if (debounce === -1) return;
+
+      if (debounce === 0) {
+        callback(type, event);
+      } else {
+        window.clearTimeout(localDebounceRefs[type]);
+        localDebounceRefs[type] = window.setTimeout(() => {
+          callback(type, event);
+        }, debounce);
+      }
+    };
+
+    const observers: (() => void)[] = [];
+
+    if ((debounceMap.resize ?? getDefaultDebounce("resize")) !== -1) {
+      const resizeObserver = new ResizeObserver(() => trigger("resize"));
+      resizeObserver.observe(el);
+      observers.push(() => resizeObserver.disconnect());
+    }
+
+    if ((debounceMap.mutate ?? getDefaultDebounce("mutate")) !== -1) {
+      const mutationObserver = new MutationObserver(() => trigger("mutate"));
+      mutationObserver.observe(el, {
+        attributes: true,
+        childList: true,
+        subtree: true,
+      });
+      observers.push(() => mutationObserver.disconnect());
+    }
+
+    const positionDebounce =
+      debounceMap.position ?? getDefaultDebounce("position");
+    if (positionDebounce !== -1) {
+      let lastX = 0;
+      let lastY = 0;
+      let frameId: number;
+
+      const checkPosition = () => {
+        const rect = el.getBoundingClientRect();
+        if (rect.left !== lastX || rect.top !== lastY) {
+          lastX = rect.left;
+          lastY = rect.top;
+          trigger("position");
+        }
+        frameId = requestAnimationFrame(checkPosition);
+      };
+
+      frameId = requestAnimationFrame(checkPosition);
+      observers.push(() => cancelAnimationFrame(frameId));
+    }
+
+    return () => {
+      observers.forEach((dispose) => dispose());
+      Object.values(localDebounceRefs).forEach((id) => window.clearTimeout(id));
+    };
+  }, [target, callback, debounceMap]);
+}
+
+/**
  * Listens for global window-level events (`scroll`, `orientationchange`,
  * `visibilitychange`, `fullscreenchange`) that may indirectly influence an
  * element's layout, and debounces them through the supplied callback.
