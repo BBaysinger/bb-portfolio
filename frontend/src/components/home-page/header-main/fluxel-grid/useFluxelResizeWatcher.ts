@@ -46,46 +46,76 @@ export function useFluxelResizeWatcher(
       return;
     }
 
-    const element =
-      typeof target === "function" ? target() : (target as HTMLElement | null);
-    if (!element) {
-      return;
-    }
-
-    let rafId: number | null = null;
+    let retryFrameId: number | null = null;
+    let handlerFrameId: number | null = null;
     let timeoutId: number | null = null;
+    let observer: ResizeObserver | null = null;
 
     const runHandler = () => {
-      rafId = null;
+      handlerFrameId = null;
       handlerRef.current();
     };
 
     const schedule = () => {
       resizeStartRef.current?.();
+
       if (debounceMs > 0) {
         if (timeoutId !== null) {
           window.clearTimeout(timeoutId);
         }
         timeoutId = window.setTimeout(() => {
           timeoutId = null;
-          rafId = window.requestAnimationFrame(runHandler);
+          handlerFrameId = window.requestAnimationFrame(runHandler);
         }, debounceMs);
-      } else if (rafId === null) {
-        rafId = window.requestAnimationFrame(runHandler);
+        return;
+      }
+
+      if (handlerFrameId === null) {
+        handlerFrameId = window.requestAnimationFrame(runHandler);
       }
     };
 
-    const observer = new ResizeObserver(schedule);
-    observer.observe(element);
+    const resolveTarget = () =>
+      typeof target === "function" ? target() : (target as HTMLElement | null);
+
+    const attach = (el: HTMLElement) => {
+      observer = new ResizeObserver(schedule);
+      observer.observe(el);
+    };
+
+    const initial = resolveTarget();
+    if (initial) {
+      attach(initial);
+    } else {
+      const tick = () => {
+        const resolved = resolveTarget();
+        if (resolved) {
+          attach(resolved);
+          retryFrameId = null;
+          return;
+        }
+        retryFrameId = window.requestAnimationFrame(tick);
+      };
+      retryFrameId = window.requestAnimationFrame(tick);
+    }
 
     return () => {
-      observer.disconnect();
+      if (retryFrameId !== null) {
+        window.cancelAnimationFrame(retryFrameId);
+      }
       if (timeoutId !== null) {
         window.clearTimeout(timeoutId);
       }
-      if (rafId !== null) {
-        window.cancelAnimationFrame(rafId);
+      if (handlerFrameId !== null) {
+        window.cancelAnimationFrame(handlerFrameId);
       }
+      if (observer) {
+        observer.disconnect();
+      }
+      observer = null;
+      retryFrameId = null;
+      timeoutId = null;
+      handlerFrameId = null;
     };
   }, [target, debounceMs]);
 }
