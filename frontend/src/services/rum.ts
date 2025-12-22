@@ -104,6 +104,30 @@ export async function initializeRUM() {
     return;
   }
 
+  // CloudWatch RUM ingestion is intended for production traffic.
+  // In local/dev (Next.js NODE_ENV=development) this frequently produces 403s
+  // due to App Monitor domain restrictions and/or HTTP origins.
+  if (process.env.NODE_ENV !== "production") {
+    if (RUM_DEBUG) {
+      console.info(
+        "[RUM] Skipping initialization (NODE_ENV is not production)",
+      );
+    }
+    return;
+  }
+
+  // RUM ingestion expects HTTPS origins (production). Avoid noisy console 403s
+  // when running the site over HTTP (local/proxy/test environments).
+  if (window.location.protocol !== "https:") {
+    if (RUM_DEBUG) {
+      console.info(
+        "[RUM] Skipping initialization (non-HTTPS origin):",
+        window.location.origin,
+      );
+    }
+    return;
+  }
+
   // Skip if already initialized
   if (rumInstance) {
     return;
