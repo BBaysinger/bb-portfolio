@@ -53,6 +53,31 @@ export const useAuth = () => {
   const logout = async () => {
     const isNdaRoute = /^\/nda(\/|$)/.test(pathname || "");
 
+    const fireAndForgetLogout = () => {
+      // When hard-navigating away (especially from NDA routes), do not block
+      // the redirect on a potentially-slow server round-trip.
+      try {
+        if (typeof navigator !== "undefined" && "sendBeacon" in navigator) {
+          // sendBeacon always uses POST and typically survives page unload.
+          const blob = new Blob([], { type: "application/json" });
+          navigator.sendBeacon("/api/users/logout", blob);
+          return;
+        }
+      } catch {
+        // Fall back to keepalive fetch
+      }
+
+      try {
+        void fetch("/api/users/logout", {
+          method: "POST",
+          credentials: "include",
+          keepalive: true,
+        });
+      } catch {
+        // Ignore
+      }
+    };
+
     const tryServerLogout = async () => {
       try {
         // Prefer a short awaited logout to ensure the browser processes Set-Cookie
@@ -70,11 +95,17 @@ export const useAuth = () => {
       }
     };
 
-    try {
-      await tryServerLogout();
-    } catch (error) {
-      console.error("Logout API error:", error);
-      // Continue with client-side cleanup even if API fails
+    if (isNdaRoute) {
+      // For NDA routes, prioritize leaving the page immediately.
+      // Cookie clearing can happen in the background.
+      fireAndForgetLogout();
+    } else {
+      try {
+        await tryServerLogout();
+      } catch (error) {
+        console.error("Logout API error:", error);
+        // Continue with client-side cleanup even if API fails
+      }
     }
 
     // Force clear Redux auth state
