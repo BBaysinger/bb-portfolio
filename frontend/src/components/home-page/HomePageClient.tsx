@@ -49,6 +49,28 @@ export default function HomePageClient({
     ssrContainsSanitizedPlaceholders,
   ]);
 
+  // If SSG/SSR failed to fetch (common in CI/static export), populate projects client-side.
+  useEffect(() => {
+    if (!hydratedRef.current) return;
+    if (ssrAuthenticated) return;
+    if (ssrProjects.length > 0) return;
+    if (Object.keys(ssrProjectRecord || {}).length > 0) return;
+
+    let cancelled = false;
+    (async () => {
+      await ProjectData.initialize({
+        disableCache: true,
+        includeNdaInActive: false,
+      });
+      if (cancelled) return;
+      setProjects([...ProjectData.listedProjects]);
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [ssrAuthenticated, ssrProjects.length, ssrProjectRecord]);
+
   useEffect(() => {
     if (!hydratedRef.current) return;
     if (!clientAuth) return;

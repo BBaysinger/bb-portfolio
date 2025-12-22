@@ -101,16 +101,17 @@
 /// @example
 /// mask-image: svg("M0,0v72h72V0H0Z");
 @function svg($d, $color: #fff) {
-  $color-string: if(
-    sass(meta.type-of($color) == "string"),
-    $color,
-    "#{$color}"
-  );
-  $formatted-color: if(
-    sass(string.index($color-string, "#") == 1),
-    "%23#{string.slice($color-string, 2)}",
-    $color-string
-  );
+  $color-string: "";
+  @if meta.type-of($color) == "string" {
+    $color-string: $color;
+  } @else {
+    $color-string: "#{$color}";
+  }
+
+  $formatted-color: $color-string;
+  @if string.index($color-string, "#") == 1 {
+    $formatted-color: "%23#{string.slice($color-string, 2)}";
+  }
 
   @return string.unquote(
     "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' " +
@@ -318,7 +319,10 @@
   // NOTE: Firefox still rejects calc()/clamp() inside scale(), so transforms generated here
   // fall back to the previous valid declaration in Gecko. Components that rely on this mixin
   // must provide a non-CSS fallback (e.g., JS-driven scaling) if they need responsive scale on Firefox.
-  $base-transform: if($preserve-transform, "#{$preserve-transform} ", "");
+  $base-transform: "";
+  @if $preserve-transform {
+    $base-transform: "#{$preserve-transform} ";
+  }
   $range: $max-scale - $min-scale;
   $vw-range: stripUnit($max-vw - $min-vw);
 
