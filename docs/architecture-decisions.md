@@ -1037,9 +1037,12 @@ MONGODB_URI=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/bb-portfol
 
 - **Decision:** Strictly segment NDA content under a dedicated route and keep public routes NDA-free.
 - **Context:**
-  - Public project route `/project/[projectId]` never includes NDA items in the active dataset (even when authenticated).
-  - NDA-only route `/nda/[projectId]` requires authentication and is rendered dynamically per request (no ISR), and is noindex.
-  - Server behavior: if an authenticated user requests a public NDA slug, redirect to `/nda/[projectId]`; unauthenticated users receive 404.
+  - Route keys are split into:
+    - a human slug (title-derived) for public/canonical URLs
+    - an opaque Base62 short code for alternate access (used for NDA-safe routing when slug may be redacted)
+  - Public project route `/project/[projectKey]` never includes NDA items in the active dataset (even when authenticated).
+  - NDA-only route `/nda/[projectKey]` requires authentication and is rendered dynamically per request (no ISR), and is noindex.
+  - Server behavior: if an authenticated user requests a public NDA slug, redirect to `/nda/[projectKey]`; unauthenticated users receive 404.
   - Client behavior: carousel and prev/next links are route-aware (public → `/project/*`, NDA → `/nda/*`) and never leak NDA data.
 - **Reasoning:** Prevent accidental NDA exposure while supporting mixed navigation; clear separation improves safety and clarity of intent.
 - **Alternatives considered:**
@@ -1051,7 +1054,7 @@ MONGODB_URI=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/bb-portfol
 
 ## 2025-11-09 – Canonical Project File Delivery (Direct S3 Streaming)
 
-- **Decision:** Replace prior presigned-URL 302 redirect pattern for project/NDA files with server-side direct S3 streaming under stable, canonical application paths: `/projects/<slug>/[index.html]` and `/private/<slug>/[index.html]`.
+- **Decision:** Replace prior presigned-URL 302 redirect pattern for project/NDA files with server-side direct S3 streaming under stable, canonical application paths: `/projects/<projectKey>/[index.html]` and `/private/<projectKey>/[index.html]`.
 - **Context:** Previously, requests to project assets under clean app routes were internally converted to short‑lived presigned S3 URLs via a 302 redirect. This leaked bucket hostnames + signatures into browser history / analytics, complicated caching, and prevented conventional conditional + range requests at the application edge. Private (NDA) assets also returned 404 for unauthenticated access, diverging from a more reusable boilerplate that would signal `401 Unauthorized`.
 - **Implementation:**
   - Next.js Route Handlers (`/frontend/src/app/projects/[[...key]]/route.ts` and `/frontend/src/app/private/[[...key]]/route.ts`) stream S3 objects directly using AWS SDK v3 `HeadObject` + `GetObject`.
