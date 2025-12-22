@@ -8,7 +8,7 @@
     "precommit": "prettier --write . && tsc -b",
     "prebuild": "tsx ./scripts/check-required-env.ts",
     "predev": "tsx ./scripts/check-required-env.ts && npm run generate:importmap",
-    "backfill:project-uuids": "tsx ./scripts/backfill-project-uuids.ts",
+    "backfill:project-codes": "tsx ./scripts/backfill-project-codes.ts",
     "backfill:nda-media": "tsx ./scripts/backfill-nda-media.ts",
     "backfill:nda-media:mongo": "tsx ./scripts/backfill-nda-media.mongo.ts",
     "build": "cross-env NODE_OPTIONS=\"--no-deprecation --max-old-space-size=8000\" npm run generate:importmap && next build --webpack",

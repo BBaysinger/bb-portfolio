@@ -20,7 +20,7 @@
     // Validate required environment variables before starting dev server
     "predev": "tsx ./scripts/check-required-env.ts && npm run generate:importmap",
     // One-off maintenance: populate missing Project UUIDs (safe to re-run; updates only docs missing uuid)
-    "backfill:project-uuids": "tsx ./scripts/backfill-project-uuids.ts",
+    "backfill:project-codes": "tsx ./scripts/backfill-project-codes.ts",
     // One-off maintenance: backfill `nda` flags via Payload APIs (boots full Payload config; slower, but authoritative)
     "backfill:nda-media": "tsx ./scripts/backfill-nda-media.ts",
     // Recommended local maintenance: backfill `nda` flags via direct MongoDB updates (fast; avoids Payload/sharp native deps)

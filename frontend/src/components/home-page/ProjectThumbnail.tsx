@@ -17,8 +17,8 @@ interface ProjectThumbnailProps {
   omitFromList: boolean;
   /** Unique project identifier. */
   projectId: string;
-  /** Optional opaque UUID alias used for NDA login return flow. */
-  projectUuid?: string;
+  /** Optional opaque short code used for NDA login return flow. */
+  projectShortCode?: string;
   /** Project display title. */
   title: string;
   /** Brand identifier for logo lookup. */
@@ -72,7 +72,7 @@ interface ProjectThumbnailProps {
 const ProjectThumbnail: React.FC<ProjectThumbnailProps> = ({
   index,
   projectId,
-  projectUuid,
+  projectShortCode,
   title,
   brandId,
   brandLogoLightUrl,
@@ -195,14 +195,13 @@ const ProjectThumbnail: React.FC<ProjectThumbnailProps> = ({
           if (!showNdaConfidential) return;
           try {
             // Store a stable post-login redirect key.
-            // Prefer UUID (opaque), but always fall back to projectId so prod
-            // still redirects correctly even if UUIDs are redacted.
+            // Prefer short code (opaque), but always fall back to projectId.
             sessionStorage.setItem(
               "postLoginProjectId",
               (projectId || "").trim(),
             );
-            const uuid = (projectUuid || "").trim();
-            if (uuid) sessionStorage.setItem("postLoginProjectUuid", uuid);
+            const code = (projectShortCode || "").trim();
+            if (code) sessionStorage.setItem("postLoginProjectCode", code);
           } catch {}
         }}
         className={styles.link}
