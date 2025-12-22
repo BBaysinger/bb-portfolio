@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Suspense } from "react";
 
 import Greeting from "@/components/home-page/Greeting";
 import Hero from "@/components/home-page/header-main/Hero";
@@ -16,10 +16,17 @@ const HomePage = async () => {
   // Fetch without request headers so the response is always the public view.
   // This is safe to cache and allows SSG/ISR without delaying per-request TTFB.
   const projectData = new ProjectDataStore();
-  const initResult = await projectData.initialize({
-    disableCache: false,
-    includeNdaInActive: false,
-  });
+  let initResult: { containsSanitizedPlaceholders?: boolean } = {};
+  try {
+    initResult = await projectData.initialize({
+      disableCache: false,
+      includeNdaInActive: false,
+    });
+  } catch {
+    // During static prerender/build, the backend may be unavailable (e.g., CI).
+    // Fall back to an empty SSR payload and let the client fetch after mount.
+    initResult = { containsSanitizedPlaceholders: false };
+  }
 
   const ssrProjects = projectData.listedProjects;
   const ssrProjectRecord = projectData.projectsRecord;
@@ -31,7 +38,9 @@ const HomePage = async () => {
 
   return (
     <>
-      <Hero />
+      <Suspense fallback={null}>
+        <Hero />
+      </Suspense>
       <Greeting />
       <HomePageClient
         ssrProjects={ssrProjects}
