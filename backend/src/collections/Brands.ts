@@ -12,10 +12,10 @@ export const Clients: CollectionConfig = {
     read: ({ req }) => {
       if (req.user?.role === 'admin') return true
       if (req.user) return true
-      // Back-compat: older brand docs may have `nda` unset/null.
-      // Treat missing NDA flag as non-NDA for public reads.
       return {
-        or: [{ nda: { equals: false } }, { nda: { exists: false } }, { nda: { equals: null } }],
+        nda: {
+          equals: false,
+        },
       } as Where
     },
     create: ({ req }) => req.user?.role === 'admin',
