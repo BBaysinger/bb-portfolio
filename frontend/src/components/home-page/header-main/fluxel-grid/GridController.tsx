@@ -101,6 +101,20 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
       offsetX: 0,
       offsetY: 0,
     }));
+
+    const gridLinesPathD = useMemo(() => {
+      // No frame: only interior separators.
+      const pathParts: string[] = [];
+
+      for (let x = 1; x < cols; x++) {
+        pathParts.push(`M${x} 0V${rows}`);
+      }
+      for (let y = 1; y < rows; y++) {
+        pathParts.push(`M0 ${y}H${cols}`);
+      }
+
+      return pathParts.join(" ");
+    }, [cols, rows]);
     const browserGridOffsets = useMemo(() => {
       if (typeof window === "undefined" || typeof navigator === "undefined") {
         return { x: 0, y: 0 };
@@ -341,16 +355,30 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
         {gridLinesLayout.cellSize > 0 ? (
           <div
             className={styles.gridLinesOverlay}
-            style={
-              {
-                "--grid-cell-size": `${gridLinesLayout.cellSize}px`,
-                "--grid-offset-x": `${gridLinesLayout.offsetX}px`,
-                "--grid-offset-y": `${gridLinesLayout.offsetY}px`,
-                "--grid-browser-offset-x": `${browserGridOffsets.x}px`,
-                "--grid-browser-offset-y": `${browserGridOffsets.y}px`,
-              } as React.CSSProperties
-            }
-          />
+            aria-hidden="true"
+          >
+            <svg
+              className={styles.gridLinesSvg}
+              width={cols * gridLinesLayout.cellSize}
+              height={rows * gridLinesLayout.cellSize}
+              viewBox={`0 0 ${cols} ${rows}`}
+              preserveAspectRatio="none"
+              style={
+                {
+                  left: `${gridLinesLayout.offsetX + browserGridOffsets.x}px`,
+                  top: `${gridLinesLayout.offsetY + browserGridOffsets.y}px`,
+                } as React.CSSProperties
+              }
+            >
+              <path
+                d={gridLinesPathD}
+                fill="none"
+                stroke="var(--grid-line-color)"
+                strokeWidth={0.04}
+                shapeRendering="crispEdges"
+              />
+            </svg>
+          </div>
         ) : null}
 
         <ProjectilesOverlay
