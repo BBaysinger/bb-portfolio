@@ -169,9 +169,9 @@ export interface Project {
   title: string;
   slug: string;
   /**
-   * Opaque URL-safe identifier. This can be used as an alternate route key (e.g., /nda/<uuid>/) without exposing the human slug.
+    * Opaque URL-safe identifier. This can be used as an alternate route key (e.g., /nda/<code>/) without exposing the human slug.
    */
-  uuid: string;
+    shortCode: string;
   active?: boolean | null;
   omitFromList?: boolean | null;
   nda?: boolean | null;
@@ -516,7 +516,7 @@ export interface ProjectsSelect<T extends boolean = true> {
   sortIndex?: T;
   title?: T;
   slug?: T;
-  uuid?: T;
+  shortCode?: T;
   active?: T;
   omitFromList?: T;
   nda?: T;

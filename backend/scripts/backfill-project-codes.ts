@@ -1,19 +1,19 @@
 #!/usr/bin/env tsx
 /**
- * Backfill Project UUIDs
+ * Backfill Project Short Codes + Slugs
  *
- * Populates the `uuid` field for any existing `projects` documents missing it.
+ * Populates the `shortCode` field for any existing `projects` documents missing it,
+ * and (optionally) normalizes slugs to `${slugify(title)}-${shortCode}`.
  *
  * Usage:
- * - From backend/: `pnpm run backfill:project-uuids`
- * - Optionally load local secrets first by setting ENVIRONMENT and using existing patterns.
+ * - From backend/: `pnpm run backfill:project-codes`
  */
 
-import { randomUUID } from 'node:crypto'
-
+import type { Payload, Where } from 'payload'
 import { getPayload } from 'payload'
-import type { Payload } from 'payload'
-import type { Where } from 'payload'
+import slugify from 'slugify'
+
+import { generateShortCode } from '../src/utils/shortCode'
 
 // Scripts should not keep the event loop alive. Payload's dev HMR websocket can
 // do that when NODE_ENV is not production/test. Disable it for this script.
@@ -61,8 +61,16 @@ async function withRetries<T>(fn: () => Promise<T>, label: string): Promise<T> {
   throw lastErr
 }
 
+const buildSlugFromTitle = (title: string): string => {
+  return slugify(title, {
+    lower: true,
+    strict: true,
+    trim: true,
+  })
+}
+
 async function main() {
-  console.info('🧩 Backfill project UUIDs')
+  console.info('🧩 Backfill project short codes + slugs')
 
   let payload: Payload | null = null
 
@@ -70,9 +78,6 @@ async function main() {
     // NOTE: Intentionally extensionless import so TypeScript doesn't require
     // `allowImportingTsExtensions`. This script is meant to be executed via `tsx`.
     const { default: configExport } = await import('../src/payload.config')
-    // In Payload v3, `buildConfig` is async and `payload.config.ts` commonly
-    // `export default buildConfig(...)`, which yields a Promise at runtime.
-    // `getPayload` needs the resolved config.
     const config = await Promise.resolve(configExport)
     const payloadInstance = await getPayload({ config })
     payload = payloadInstance
@@ -82,10 +87,16 @@ async function main() {
     let updated = 0
     let scanned = 0
 
-    // Fetch only docs missing uuid where possible; Payload supports `where`.
-    // Use a conservative OR so we also catch null/empty strings.
+    // Only backfill documents missing shortCode and/or slug.
     const where: Where = {
-      or: [{ uuid: { exists: false } }, { uuid: { equals: null } }, { uuid: { equals: '' } }],
+      or: [
+        { shortCode: { exists: false } },
+        { shortCode: { equals: null } },
+        { shortCode: { equals: '' } },
+        { slug: { exists: false } },
+        { slug: { equals: null } },
+        { slug: { equals: '' } },
+      ],
     }
 
     while (true) {
@@ -97,6 +108,7 @@ async function main() {
             page,
             limit,
             depth: 0,
+            overrideAccess: true,
           }),
         'payload.find(projects)',
       )
@@ -106,34 +118,86 @@ async function main() {
 
       for (const doc of docs) {
         scanned++
-        const docObj = doc as unknown as { id?: unknown; uuid?: unknown }
-        const id = typeof docObj.id === 'string' ? docObj.id : undefined
-        const uuid = typeof docObj.uuid === 'string' ? docObj.uuid : undefined
-        if (!id) continue
-        if (uuid && typeof uuid === 'string' && uuid.length > 0) continue
 
-        // payload-types.ts may not yet include the new `uuid` field until
-        // `payload generate:types` is run. Use an intentionally narrow
-        // signature to keep the script typecheckable without `any`.
+        const docObj = doc as unknown as {
+          id?: unknown
+          shortCode?: unknown
+          title?: unknown
+          slug?: unknown
+        }
+
+        const id = typeof docObj.id === 'string' ? docObj.id : undefined
+        if (!id) continue
+
+        const existingCode = typeof docObj.shortCode === 'string' ? docObj.shortCode.trim() : ''
+        const existingSlug = typeof docObj.slug === 'string' ? docObj.slug.trim() : ''
+
+        let shortCode = existingCode
+        if (!shortCode) {
+          // Ensure uniqueness (rare but worth handling).
+          const maxAttempts = 25
+          for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+            const candidate = generateShortCode(10)
+            const collision = await withRetries(
+              async () =>
+                payloadInstance.find({
+                  collection: 'projects',
+                  where: { shortCode: { equals: candidate } },
+                  depth: 0,
+                  limit: 1,
+                  overrideAccess: true,
+                }),
+              'payload.find(projects shortCode collision check)',
+            )
+            if (!collision.docs?.length) {
+              shortCode = candidate
+              break
+            }
+          }
+
+          if (!shortCode) {
+            throw new Error(`Failed to generate unique shortCode for project ${id}`)
+          }
+        }
+
+        let desiredSlug = existingSlug
+        if (!desiredSlug) {
+          const title = typeof docObj.title === 'string' ? docObj.title.trim() : ''
+          if (title) desiredSlug = buildSlugFromTitle(title)
+        }
+
+        // Never rewrite an existing slug; only fill when missing.
+        const shouldUpdateSlug = !existingSlug && Boolean(desiredSlug)
+
+        // payload-types.ts may not yet include the new field until `payload generate:types` is run.
         const updateUnsafe = (
           payloadInstance.update as unknown as (options: {
             collection: 'projects'
             id: string
-            data: { uuid: string }
+            data: { shortCode?: string; slug?: string }
             depth?: number
+            overrideAccess?: boolean
           }) => Promise<unknown>
         ).bind(payloadInstance)
+
+        const data: { shortCode?: string; slug?: string } = {}
+        if (!existingCode) data.shortCode = shortCode
+        if (shouldUpdateSlug) data.slug = desiredSlug
+
+        if (!Object.keys(data).length) continue
 
         await withRetries(
           async () =>
             updateUnsafe({
               collection: 'projects',
               id,
-              data: { uuid: randomUUID() },
+              data,
               depth: 0,
+              overrideAccess: true,
             }),
           'payload.update(projects)',
         )
+
         updated++
       }
 

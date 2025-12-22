@@ -1,9 +1,8 @@
-import { randomUUID } from 'node:crypto'
-
 import type { CollectionConfig, Where } from 'payload'
 import slugify from 'slugify'
 
 import { canReadNdaField } from '../access/nda'
+import { generateShortCode } from '../utils/shortCode'
 
 export const Projects: CollectionConfig = {
   slug: 'projects',
@@ -40,7 +39,7 @@ export const Projects: CollectionConfig = {
   hooks: {
     afterRead: [
       // Ensure NDA placeholders work even when the NDA state is derived from the related brand.
-      // - We intentionally keep `nda` readable publicly so the frontend can route to /nda/<uuid>/.
+      // - We intentionally keep `nda` readable publicly so the frontend can route to /nda/<code>/.
       // - We do NOT expose brand identity; we only normalize the NDA boolean.
       async ({ doc, req }) => {
         try {
@@ -84,14 +83,36 @@ export const Projects: CollectionConfig = {
       },
     ],
     beforeChange: [
-      ({ data, operation }) => {
+      async ({ data, operation, req }) => {
         // Ensure every project has a stable, opaque identifier usable in URLs.
-        // - Stored as a plain text UUID (v4) so it is environment-agnostic.
+        // - Base62 short code: compact, URL-safe, environment-agnostic.
         // - Generated on create and backfilled on update if missing.
-        if ((operation === 'create' || operation === 'update') && !data?.uuid) {
-          data.uuid = randomUUID()
+        if ((operation === 'create' || operation === 'update') && !data?.shortCode) {
+          // Avoid rare collisions by checking existing docs.
+          const maxAttempts = 10
+          for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+            const candidate = generateShortCode(10)
+            const res = await req.payload.find({
+              collection: 'projects',
+              where: { shortCode: { equals: candidate } },
+              depth: 0,
+              limit: 1,
+              overrideAccess: true,
+              disableErrors: true,
+            })
+            if (!res.docs?.length) {
+              data.shortCode = candidate
+              break
+            }
+          }
+
+          if (!data.shortCode) {
+            throw new Error('Failed to generate a unique short code for this project.')
+          }
         }
 
+        // Slug is the human-friendly route key derived from title.
+        // (The opaque shortCode is the alternate route key.)
         if ((operation === 'create' || operation === 'update') && data?.title && !data?.slug) {
           data.slug = slugify(data.title, {
             lower: true,
@@ -131,15 +152,15 @@ export const Projects: CollectionConfig = {
       },
     },
     {
-      name: 'uuid',
-      label: 'UUID (URL Alias)',
+      name: 'shortCode',
+      label: 'Short Code (URL Key)',
       type: 'text',
       unique: true,
       required: true,
       admin: {
         readOnly: true,
         description:
-          'Opaque URL-safe identifier. This can be used as an alternate route key (e.g., /nda/<uuid>/) without exposing the human slug.',
+          'Opaque URL-safe identifier. This can be used as an alternate route key (e.g., /nda/<code>/) without exposing the human slug.',
       },
     },
     {

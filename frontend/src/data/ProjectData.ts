@@ -330,7 +330,7 @@ async function fetchPortfolioProjects(opts?: {
   interface PayloadProjectDoc {
     slug?: string;
     id?: string;
-    uuid?: string;
+    shortCode?: string;
     title?: string;
     sortIndex?: number;
     active?: boolean;
@@ -439,9 +439,9 @@ async function fetchPortfolioProjects(opts?: {
       typeof doc.slug === "string" && doc.slug.trim()
         ? doc.slug.trim()
         : undefined;
-    const uuid: string | undefined =
-      typeof doc.uuid === "string" && doc.uuid.trim()
-        ? doc.uuid.trim()
+    const shortCode: string | undefined =
+      typeof doc.shortCode === "string" && doc.shortCode.trim()
+        ? doc.shortCode.trim()
         : undefined;
 
     // Map relationship brandId → brand slug/id string and resolve logo URLs when available
@@ -549,12 +549,12 @@ async function fetchPortfolioProjects(opts?: {
     // Route/data key rules:
     // - Public projects: must use the human slug.
     // - NDA-like projects:
-    //   - Authenticated: prefer human slug (canonical), fallback to UUID.
-    //   - Unauthenticated: MUST use UUID (slug may be redacted) to avoid slug exposure.
+    //   - Authenticated: prefer human slug (canonical), fallback to short code.
+    //   - Unauthenticated: MUST use short code (slug may be redacted) to avoid slug exposure.
     const routeKey: string | undefined = projectIsNda
       ? hasNdaAccess
-        ? humanSlug || uuid
-        : uuid
+        ? humanSlug || shortCode
+        : shortCode
       : humanSlug;
     if (!routeKey) continue;
 
@@ -562,7 +562,7 @@ async function fetchPortfolioProjects(opts?: {
       _debugNdaDocs++;
       out[routeKey] = {
         title: "Confidential Project",
-        uuid,
+        shortCode,
         active: !!doc.active,
         omitFromList: !!doc.omitFromList,
         brandId: "",
@@ -680,7 +680,7 @@ async function fetchPortfolioProjects(opts?: {
 
     const item: PortfolioProjectBase = {
       title: doc.title || "Untitled",
-      uuid,
+      shortCode,
       active: !!doc.active,
       omitFromList: !!doc.omitFromList,
       brandId,
@@ -744,8 +744,8 @@ export type MobileOrientation =
 
 export interface PortfolioProjectBase {
   title: string;
-  /** Optional opaque identifier usable as an alternate route key (e.g., /nda/<uuid>/). */
-  uuid?: string;
+  /** Optional opaque identifier usable as an alternate route key (e.g., /nda/<code>/). */
+  shortCode?: string;
   active: boolean;
   omitFromList: boolean;
   brandId: string;
@@ -824,7 +824,7 @@ export class ProjectDataStore {
   private _listedKeys: string[] = [];
   private _keys: string[] = [];
   private _activeProjectsMap: Record<string, ParsedPortfolioProject> = {};
-  private _uuidToKey: Record<string, string> = {};
+  private _shortCodeToKey: Record<string, string> = {};
   private _includeNdaInActive = false;
   private _containsSanitizedPlaceholders = false;
   // Prevent overlapping initialize() calls from interleaving state writes.
@@ -838,7 +838,7 @@ export class ProjectDataStore {
     this._listedKeys = [];
     this._keys = [];
     this._activeProjectsMap = {};
-    this._uuidToKey = {};
+    this._shortCodeToKey = {};
   }
 
   /**
@@ -866,13 +866,13 @@ export class ProjectDataStore {
     this._projects = { ...parsed };
     this._keys = Object.keys(this._projects);
 
-    // Build UUID lookup from snapshot
-    this._uuidToKey = {};
+    // Build short-code lookup from snapshot
+    this._shortCodeToKey = {};
     for (const key of this._keys) {
-      const u = this._projects[key]?.uuid;
+      const u = this._projects[key]?.shortCode;
       if (typeof u === "string" && u.trim()) {
-        const uuid = u.trim();
-        if (!this._uuidToKey[uuid]) this._uuidToKey[uuid] = key;
+        const code = u.trim();
+        if (!this._shortCodeToKey[code]) this._shortCodeToKey[code] = key;
       }
     }
 
@@ -961,8 +961,8 @@ export class ProjectDataStore {
           throw new Error(`Project ${project.id} index is missing.`);
         }
         record[project.id] = project;
-        if (typeof project.uuid === "string" && project.uuid.trim()) {
-          const u = project.uuid.trim();
+        if (typeof project.shortCode === "string" && project.shortCode.trim()) {
+          const u = project.shortCode.trim();
           if (!record[u]) record[u] = project;
         }
         return record;
@@ -993,7 +993,7 @@ export class ProjectDataStore {
   getProject(id: string): ParsedPortfolioProject | undefined {
     const direct = this._projects[id];
     if (direct) return direct;
-    const key = this._uuidToKey[id];
+    const key = this._shortCodeToKey[id];
     return key ? this._projects[key] : undefined;
   }
 
@@ -1008,16 +1008,16 @@ export class ProjectDataStore {
   ): ParsedPortfolioProjectData {
     const parsedData: ParsedPortfolioProjectData = {};
 
-    // Rebuild UUID lookup on every parse.
-    this._uuidToKey = {};
+    // Rebuild short-code lookup on every parse.
+    this._shortCodeToKey = {};
 
     for (const [index, key] of Object.keys(data).entries()) {
       const item = data[key];
 
-      if (item && typeof item.uuid === "string" && item.uuid.trim()) {
-        const u = item.uuid.trim();
+      if (item && typeof item.shortCode === "string" && item.shortCode.trim()) {
+        const u = item.shortCode.trim();
         // Prefer first-seen mapping to avoid collisions silently overriding.
-        if (!this._uuidToKey[u]) this._uuidToKey[u] = key;
+        if (!this._shortCodeToKey[u]) this._shortCodeToKey[u] = key;
       }
 
       parsedData[key] = {
@@ -1164,7 +1164,7 @@ export class ProjectDataStore {
    * @returns Index in the active project list
    */
   projectIndex(key: string): number {
-    const resolved = this._uuidToKey[key] || key;
+    const resolved = this._shortCodeToKey[key] || key;
     return this._activeKeys.indexOf(resolved);
   }
 

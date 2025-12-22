@@ -7,9 +7,6 @@ import { useEffect, useState } from "react";
 
 import { useAuth } from "@/hooks/useAuth";
 
-const UUID_RE =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-
 import styles from "./LoginPage.module.scss";
 
 /**
@@ -32,18 +29,17 @@ const LoginPage = () => {
   const getPostLoginRedirectTo = (): string | null => {
     try {
       // Prefer a stable projectId redirect when available.
-      // UUID is an optional opaque alias; keep it as a fallback.
+      // Short code is an optional opaque alias; keep it as a fallback.
       const projectIdRaw = sessionStorage.getItem("postLoginProjectId") || "";
-      const uuidRaw = sessionStorage.getItem("postLoginProjectUuid") || "";
+      const codeRaw = sessionStorage.getItem("postLoginProjectCode") || "";
       const projectId = projectIdRaw.trim();
-      const uuid = uuidRaw.trim();
+      const code = codeRaw.trim();
 
       sessionStorage.removeItem("postLoginProjectId");
-      sessionStorage.removeItem("postLoginProjectUuid");
+      sessionStorage.removeItem("postLoginProjectCode");
 
-      const chosen = projectId || uuid;
+      const chosen = projectId || code;
       if (!chosen) return null;
-      if (UUID_RE.test(chosen)) return `/nda/${encodeURIComponent(chosen)}/`;
       return `/nda/${encodeURIComponent(chosen)}/`;
     } catch {
       return null;
