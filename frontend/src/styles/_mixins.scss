@@ -7,7 +7,6 @@
 // Attribution: The responsive viewport lerp (linear interpolation) mixin system in this file
 // is an original system designed by Bradley Baysinger for this website.
 
-
 //////////////////////////////////////////////////////////////////////////
 // Responsive Breakpoints
 //////////////////////////////////////////////////////////////////////////
@@ -205,7 +204,7 @@
   $min-value,
   $max-value,
   $min-vw: $b320,
-  $max-vw: $b1600
+  $max-vw: $b1792
 ) {
   $min-rem: to-rems($min-value);
   $max-rem: to-rems($max-value);
@@ -242,7 +241,7 @@
 /// @param $min-value - Value at minimum viewport (any unit: px, em, %)
 /// @param $max-value - Value at maximum viewport (same unit as min-value)
 /// @param $min-vw - Minimum viewport width (px or unitless, default: $b320)
-/// @param $max-vw - Maximum viewport width (px or unitless, default: $b1600)
+/// @param $max-vw - Maximum viewport width (px or unitless, default: $b1792)
 ///
 /// @example Container scaling:
 /// @include staticRange(width, 300px, 1200px, 320, 1440);
@@ -254,7 +253,7 @@
   $min-value,
   $max-value,
   $min-vw: $b320,
-  $max-vw: $b1600
+  $max-vw: $b1792
 ) {
   // Normalize viewports first — allow unitless values like 320 → 320px
   $min-vw: ensureUnit($min-vw, "px");
@@ -327,7 +326,7 @@
 /// @param $min-scale - Scale value at minimum viewport (unitless number, e.g. 0.8)
 /// @param $max-scale - Scale value at maximum viewport (unitless number, e.g. 1.2)
 /// @param $min-vw - Minimum viewport width (px or unitless, default: $b320)
-/// @param $max-vw - Maximum viewport width (px or unitless, default: $b1600)
+/// @param $max-vw - Maximum viewport width (px or unitless, default: $b1792)
 /// @param $preserve-transform - Existing transform functions to preserve (default: null)
 ///
 /// @example Basic scaling:
@@ -339,7 +338,7 @@
   $min-scale,
   $max-scale,
   $min-vw: $b320,
-  $max-vw: $b1600,
+  $max-vw: $b1792,
   $preserve-transform: null
 ) {
   // Normalize viewports
@@ -367,4 +366,3 @@
     "#{$base-transform}scale(clamp(#{$min-scale}, #{$min-scale} + #{$range} * ((100vw - #{$min-vw}) / #{$vw-range}px), #{$max-scale}))"
   );
 }
-

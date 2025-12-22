@@ -13,6 +13,7 @@ $b1024: 1024; // Standard tablet landscape mode or compact laptops.
 $b1280: 1280; // Modern laptops or smaller desktop screens (common starting point for desktop layouts).
 $b1440: 1440; // High-resolution desktops or widescreen laptops.
 $b1600: 1600; // Larger desktop screens, mid-size monitors.
+$b1792: 1792; // Large monitors and small TV screens. 16" MacBook Pro
 $b1920: 1920; // Wide monitors or premium desktop setups (optimal for expansive layouts).
 $b2200: 2200; // Ultra-wide monitors and 4K setups.
 
@@ -28,6 +29,7 @@ $b1024px: $b1024 * 1px;
 $b1280px: $b1280 * 1px;
 $b1440px: $b1440 * 1px;
 $b1600px: $b1600 * 1px;
+$b1792px: $b1792 * 1px;
 $b1920px: $b1920 * 1px;
 $b2200px: $b2200 * 1px;
 
@@ -44,6 +46,7 @@ $breakpoints: (
   1280: $b1280,
   1440: $b1440,
   1600: $b1600,
+  1792: $b1792,
   1920: $b1920,
   2200: $b2200,
 );
