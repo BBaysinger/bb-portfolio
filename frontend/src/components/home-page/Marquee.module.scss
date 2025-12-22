@@ -46,7 +46,7 @@
 }
 
 .item {
-  @include staticRange(font-size, 6rem, 12rem);
+  @include staticRange(font-size, 8rem, 60rem);
   font-family: "Digital-7", sans-serif;
   color: green;
   opacity: 0.85;
