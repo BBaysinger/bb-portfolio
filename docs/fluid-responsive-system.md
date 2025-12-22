@@ -1,17 +1,21 @@
 # Fluid Responsive System
 
-A JavaScript-powered CSS system for smooth, accessible responsive design without media query jumps.
+An original responsive viewport lerp (linear interpolation) mixin system spawned for this website.
+
+A hybrid approach:
+- JavaScript provides normalized viewport lerp (linear interpolation) factors (`--fluid-percent-*`) for `remRange` (accessibility-first scaling).
+- Pure-CSS mixins (`staticRange`, `scaleRange`) handle layout and transforms without JS.
 
 ## Overview
 
-This system combines React hooks with SCSS mixins to create truly fluid responsive scaling that updates in real-time and respects user accessibility preferences.
+This system combines a React hook with SCSS mixins to create smooth responsive scaling and to keep typography/UI sizing aligned with user accessibility preferences.
 
 ### Architecture Components
 
-1. **`useFluidVariables` Hook** - Calculates and injects CSS custom properties
+1. **`useFluidLerpVars` Hook** - Calculates and injects CSS custom properties
 2. **`remRange` Mixin** - Text/UI scaling that respects user font size preferences
-3. **`staticRange` Mixin** - Layout/visual scaling with consistent pixel precision
-4. **`scaleRange` Mixin** - Transform scaling using clamp() for smooth animations
+3. **`staticRange` Mixin** - Layout/visual scaling with consistent pixel precision (pure CSS)
+4. **`scaleRange` Mixin** - Transform scaling via a clamp-bounded lerp (linear interpolation)
 
 ## Quick Start
 
@@ -20,10 +24,10 @@ This system combines React hooks with SCSS mixins to create truly fluid responsi
 Add the hook to your layout component:
 
 ```tsx
-import { useFluidVariables } from "@/hooks/useFluidVariables";
+import { useFluidLerpVars } from "@/hooks/useFluidLerpVars";
 
 function Layout({ children }) {
-  const fluidRef = useFluidVariables([
+  const fluidRef = useFluidLerpVars([
     [320, 680], // Mobile to tablet
     [680, 1280], // Tablet to desktop
     [320, 1440], // Mobile to large desktop
@@ -57,29 +61,33 @@ function Layout({ children }) {
 
 ## How It Works
 
-### JavaScript Layer (useFluidVariables)
+### JavaScript Layer (useFluidLerpVars)
 
-The hook calculates responsive progress for each viewport range:
+The hook calculates a normalized viewport lerp (linear interpolation) factor $t$ for each viewport range:
 
 ```javascript
 // For range [320, 680] at viewport 500px:
-const percent = (500 - 320) / (680 - 320) = 0.5
+// t = (viewport - min) / (max - min)
+const t = (500 - 320) / (680 - 320) = 0.5
 
 // Sets CSS variable:
 element.style.setProperty('--fluid-percent-320-680', '0.5');
 ```
 
+Notes:
+- The hook clamps $t$ to `[0, 1]`.
+- Until JS runs (or if the hook is missing), mixins that reference `--fluid-percent-*` should provide a fallback.
+
 ### SCSS Layer (Mixins)
 
-Mixins use these variables for smooth interpolation:
+`remRange` uses these variables for linear interpolation:
 
 ```scss
 // remRange generates (simplified):
 font-size: calc(1.5rem + 1.5rem * var(--fluid-percent-320-680));
-
-// staticRange generates:
-width: calc(300px + 900px * var(--fluid-percent-320-680));
 ```
+
+`staticRange` does not require JS variables; it computes the interpolation factor directly from `100vw`.
 
 ### Real-time Updates
 
@@ -136,7 +144,7 @@ width: calc(300px + 900px * var(--fluid-percent-320-680));
 
 @media screen and (min-width: 320px) {
   .layout {
-    width: calc(300px + 900px * var(--fluid-percent-320-1440));
+    width: calc(300px + 900px * ((100vw - 320px) / 1120));
   }
 }
 
@@ -193,7 +201,7 @@ width: calc(300px + 900px * var(--fluid-percent-320-680));
 Choose ranges that make sense for your design:
 
 ```tsx
-const fluidRef = useFluidVariables([
+const fluidRef = useFluidLerpVars([
   [320, 480], // Mobile portrait
   [480, 768], // Mobile landscape to tablet
   [768, 1024], // Tablet to small desktop
@@ -205,7 +213,7 @@ const fluidRef = useFluidVariables([
 
 - **Limit ranges**: Only include viewport ranges you actually use
 - **Consolidate**: Use common ranges across components when possible
-- **Cache variables**: The hook automatically handles efficient updates
+- **Update frequency**: The hook updates on `resize`/`orientationchange`; if you add many ranges and see perf issues, consider throttling.
 
 ## Migration Guide
 
@@ -257,15 +265,15 @@ const fluidRef = useFluidVariables([
 
 ### Variables Not Working
 
-1. **Check hook setup**: Ensure `useFluidVariables` is called in a parent component
+1. **Check hook setup**: Ensure `useFluidLerpVars` is called in a parent component
 2. **Verify ranges**: Make sure SCSS mixin ranges match hook ranges
 3. **Inspect CSS**: Check DevTools for `--fluid-percent-*` variables
 
 ### Performance Issues
 
 1. **Reduce ranges**: Limit to necessary viewport breakpoints only
-2. **Debounce**: Hook already debounces resize events efficiently
-3. **Profile**: Use React DevTools to check for unnecessary re-renders
+2. **Throttle**: Consider throttling if resize updates are too frequent
+3. **Profile**: Use DevTools to confirm resize/update cost
 
 ### Accessibility Concerns
 
