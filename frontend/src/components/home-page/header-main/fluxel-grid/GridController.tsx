@@ -24,8 +24,8 @@ import useFluxelProjectiles, { Direction } from "./useFluxelProjectiles";
 import { useFluxelShadows } from "./useFluxelShadows";
 
 // Workarounds for iOS Safari rendering offsets
-const IOS_SAFARI_GRIDLINE_OFFSET_Y = 1; // Safari paints background gradients high on iOS
-const IOS_SAFARI_GRIDLINE_OFFSET_X = 1; // Safari paints background gradients left on iOS
+const IOS_SAFARI_GRIDLINE_OFFSET_Y = 0; // Safari paints background gradients high on iOS
+const IOS_SAFARI_GRIDLINE_OFFSET_X = 0; // Safari paints background gradients left on iOS
 
 export interface GridControllerHandle {
   launchProjectile: (x: number, y: number, direction: Direction) => void;
@@ -59,6 +59,8 @@ interface GridControllerProps {
  * - Scales the component responsively using `useResponsiveScaler`.
  *
  * Designed as a flexible controller component for fluxel-based visual effects and user interactions.
+ *
+ * SVG grid lines used, as a CSS gradient-simulated lines proved inconsistent in alignment across mobile browsers.
  *
  * @example
  * ```tsx
