@@ -29,7 +29,6 @@ type LoadableSlideProps = {
   onScreenshotLoad?: () => void;
 };
 
-
 export interface CarouselLayerConfig {
   id: string;
   spacing: number;
