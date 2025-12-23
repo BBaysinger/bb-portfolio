@@ -8,7 +8,7 @@ This is the frontend service for the BB-Portfolio website, built with Next.js, R
 
 - Interactive parallax project carousel
 - Animated sprite system and kinetic orb
-- Fluid responsive design system
+- Clamped Linear Interpolation (Lerp) fluid responsive system
 - SSR/SSG portfolio rendering
 - NDA-aware content routing
 - Mobile-first responsive design
