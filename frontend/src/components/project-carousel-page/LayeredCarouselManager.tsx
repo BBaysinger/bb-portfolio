@@ -2,13 +2,16 @@ import clsx from "clsx";
 import React, {
   forwardRef,
   useCallback,
-  useEffect,
   useImperativeHandle,
   useRef,
   useMemo,
   useState,
 } from "react";
 
+import {
+  useStagedImageEligibility,
+  type StagedEligibilityLayer,
+} from "@/hooks/useStagedImageEligibility";
 import { resolveClass } from "@/utils/resolveClass";
 
 import Carousel from "./Carousel";
@@ -26,7 +29,6 @@ type LoadableSlideProps = {
   onScreenshotLoad?: () => void;
 };
 
-const makeKey = (layerId: string, index: number) => `${layerId}:${index}`;
 
 export interface CarouselLayerConfig {
   id: string;
@@ -141,87 +143,21 @@ const LayeredCarouselManager = forwardRef<
     // so we can prime the left/right neighbors ahead of time.
     const [activeIndex, setActiveIndex] = useState<number>(initialIndex);
 
-    // Load the active slide first, then (after first paint) prime neighbors.
-    const [shouldPrimeNeighbors, setShouldPrimeNeighbors] = useState(false);
+    const eligibilityLayers = useMemo(
+      () =>
+        layers.map(
+          (layer): StagedEligibilityLayer => ({
+            id: layer.id,
+            type: layer.type,
+            slides: layer.slides,
+          }),
+        ),
+      [layers],
+    );
 
-    // Deterministic loading latch:
-    // - `eligibleKeys` only grows (never shrinks)
-    // - `loadAllSlides` flips once initial trio has loaded
-    const [eligibleKeys, setEligibleKeys] = useState<Set<string>>(() => {
-      const next = new Set<string>();
-      layers.forEach((layer) => {
-        if (layer.type !== "Slave") return;
-        const len = layer.slides.length;
-        if (len <= 0) return;
-        const center = ((initialIndex % len) + len) % len;
-        next.add(makeKey(layer.id, center));
-      });
-      return next;
+    const stagedEligibility = useStagedImageEligibility(eligibilityLayers, {
+      initialIndex,
     });
-    const [loadAllSlides, setLoadAllSlides] = useState(false);
-    const [_initialLoadedKeys, setInitialLoadedKeys] = useState<Set<string>>(
-      () => new Set(),
-    );
-
-    const initialTargets = useMemo(() => {
-      const targets = new Set<string>();
-      layers.forEach((layer) => {
-        if (layer.type !== "Slave") return;
-        const len = layer.slides.length;
-        if (len <= 0) return;
-        const center = ((initialIndex % len) + len) % len;
-        const prev = (center - 1 + len) % len;
-        const next = (center + 1) % len;
-        targets.add(makeKey(layer.id, center));
-        targets.add(makeKey(layer.id, prev));
-        targets.add(makeKey(layer.id, next));
-      });
-      return targets;
-    }, [layers, initialIndex]);
-
-    // Prime neighbors right after first paint, using the latest activeIndex.
-    useEffect(() => {
-      if (shouldPrimeNeighbors) return;
-      const rafId = requestAnimationFrame(() => {
-        setShouldPrimeNeighbors(true);
-        setEligibleKeys((prev) => {
-          const next = new Set(prev);
-          layers.forEach((layer) => {
-            if (layer.type !== "Slave") return;
-            const len = layer.slides.length;
-            if (len <= 0) return;
-            const center = ((activeIndex % len) + len) % len;
-            const prevIdx = (center - 1 + len) % len;
-            const nextIdx = (center + 1) % len;
-            next.add(makeKey(layer.id, center));
-            next.add(makeKey(layer.id, prevIdx));
-            next.add(makeKey(layer.id, nextIdx));
-          });
-          return next;
-        });
-      });
-      return () => cancelAnimationFrame(rafId);
-    }, [shouldPrimeNeighbors, activeIndex, layers]);
-
-    const markInitialSlideLoaded = useCallback(
-      (layerId: string, index: number) => {
-        if (loadAllSlides) return;
-
-        const key = makeKey(layerId, index);
-        if (!initialTargets.has(key)) return;
-
-        setInitialLoadedKeys((prev) => {
-          if (prev.has(key)) return prev;
-          const next = new Set(prev);
-          next.add(key);
-          if (initialTargets.size > 0 && next.size >= initialTargets.size) {
-            setLoadAllSlides(true);
-          }
-          return next;
-        });
-      },
-      [initialTargets, loadAllSlides],
-    );
 
     const masterLayer = useMemo(
       () => layers.find((l) => l.type === "Master"),
@@ -276,26 +212,9 @@ const LayeredCarouselManager = forwardRef<
       (index: number) => {
         setActiveIndex(index);
 
-        // Latch eligibility so we never unload already-started images.
-        setEligibleKeys((prev) => {
-          const next = new Set(prev);
-          layers.forEach((layer) => {
-            if (layer.type !== "Slave") return;
-            const len = layer.slides.length;
-            if (len <= 0) return;
-            const center = ((index % len) + len) % len;
-            next.add(makeKey(layer.id, center));
-            if (shouldPrimeNeighbors) {
-              const prevIdx = (center - 1 + len) % len;
-              const nextIdx = (center + 1) % len;
-              next.add(makeKey(layer.id, prevIdx));
-              next.add(makeKey(layer.id, nextIdx));
-            }
-          });
-          return next;
-        });
+        stagedEligibility.noteActiveIndex(index);
       },
-      [layers, shouldPrimeNeighbors],
+      [stagedEligibility],
     );
 
     useImperativeHandle(ref, () => ({
@@ -365,22 +284,18 @@ const LayeredCarouselManager = forwardRef<
                 const isActive = index === activeIndex;
                 const isNeighbor = index === prevIndex || index === nextIndex;
 
-                // Deterministic load control:
-                // - Active slide: load immediately
-                // - Neighbors: load right after first paint
-                // - Remaining slides: load after initial trio finishes
-                const key = makeKey(layer.id, index);
-                const shouldLoad =
-                  loadAllSlides ||
-                  eligibleKeys.has(key) ||
-                  isActive ||
-                  (shouldPrimeNeighbors && isNeighbor);
+                const shouldLoad = stagedEligibility.getShouldLoad({
+                  layerId: layer.id,
+                  index,
+                  isActive,
+                  isNeighbor,
+                });
 
-                // Hint only (the real gating is `shouldLoad` in DeviceDisplay)
                 const loading: "eager" | "lazy" =
-                  isActive || (shouldPrimeNeighbors && isNeighbor)
-                    ? "eager"
-                    : "lazy";
+                  stagedEligibility.getLoadingHint({
+                    isActive,
+                    isNeighbor,
+                  });
 
                 const renderedSlide = React.isValidElement(slide)
                   ? React.cloneElement(
@@ -389,7 +304,10 @@ const LayeredCarouselManager = forwardRef<
                         loading,
                         shouldLoad,
                         onScreenshotLoad: () =>
-                          markInitialSlideLoaded(layer.id, index),
+                          stagedEligibility.markInitialSlideLoaded(
+                            layer.id,
+                            index,
+                          ),
                       },
                     )
                   : slide;
