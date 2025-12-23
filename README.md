@@ -16,15 +16,15 @@ The goal is to show **breadth across the full front-end lifecycle** — from ren
 
 ## 🔎 30‑Second Tour (Frontend Focus)
 
-| What to Look At                                | Why It Matters                                                              | Code Entry                                                                                      |
-| ---------------------------------------------- | --------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| Layered Parallax Project Carousel              | Infinite bi‑directional wrap, inertial sync, master/slave parallax layers   | `frontend/src/components/project-carousel-page/` (`Carousel.tsx`, `LayeredCarouselManager.tsx`) |
-| Fluxel Grid (Canvas + experimental strategies) | Pluggable grid render, pointer + projectile influence, shadow system        | `frontend/src/components/home-page/header-main/fluxel-grid/`                                    |
-| Sprite Sheet Player (CSS/Canvas/WebGL)         | Auto metadata parsing, per‑frame FPS arrays, strategy hot‑swap              | `frontend/src/components/common/sprite-rendering/`                                              |
-| Kinetic Slinger Physics Box                    | Throwables with pointer gravity & orbital damping, idle detection hooks     | `frontend/src/components/home-page/header-main/SlingerBox.tsx`                                  |
-| Fluid Responsive System (mixins + hook)        | Pixel‑precise CSS interpolation + viewport‑accurate JS scaler with CSS vars | `frontend/src/styles/_mixins.scss`, `frontend/src/hooks/useResponsiveScaler.ts`                 |
-| Route‑Synced Carousel + Deep Linking           | Scroll inertia stabilization gates route updates                            | `ProjectView.tsx`, `LayeredCarouselManager.tsx`                                                 |
-| Device Mockup Layer Coordination               | Independent layer scroll multipliers + content swapping                     | `ProjectCarouselView.*`                                                                         |
+| What to Look At                                                             | Why It Matters                                                              | Code Entry                                                                                      |
+| --------------------------------------------------------------------------- | --------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| Layered Parallax Project Carousel                                           | Infinite bi‑directional wrap, inertial sync, master/slave parallax layers   | `frontend/src/components/project-carousel-page/` (`Carousel.tsx`, `LayeredCarouselManager.tsx`) |
+| Fluxel Grid (Canvas + experimental strategies)                              | Pluggable grid render, pointer + projectile influence, shadow system        | `frontend/src/components/home-page/header-main/fluxel-grid/`                                    |
+| Sprite Sheet Player (CSS/Canvas/WebGL)                                      | Auto metadata parsing, per‑frame FPS arrays, strategy hot‑swap              | `frontend/src/components/common/sprite-rendering/`                                              |
+| Kinetic Slinger Physics Box                                                 | Throwables with pointer gravity & orbital damping, idle detection hooks     | `frontend/src/components/home-page/header-main/SlingerBox.tsx`                                  |
+| Clamped Linear Interpolation (Lerp) Fluid Responsive System (mixins + hook) | Pixel‑precise CSS interpolation + viewport‑accurate JS scaler with CSS vars | `frontend/src/styles/_mixins.scss`, `frontend/src/hooks/useResponsiveScaler.ts`                 |
+| Route‑Synced Carousel + Deep Linking                                        | Scroll inertia stabilization gates route updates                            | `ProjectView.tsx`, `LayeredCarouselManager.tsx`                                                 |
+| Device Mockup Layer Coordination                                            | Independent layer scroll multipliers + content swapping                     | `ProjectCarouselView.*`                                                                         |
 
 Live site reference moments:
 
@@ -214,7 +214,7 @@ Custom infinite carousel with master/slave layering for synchronized parallax. D
 - Idle detection after low‑speed threshold; emits `onIdle` for choreography (e.g. triggering Fluxel shadow fades).
 - Future: deeper coupling with Fluxel grid (projectile launches, shader disturbances) and gamified achievements.
 
-### Fluid Responsive System (SCSS mixins + React hook)
+### Clamped Linear Interpolation (Lerp) Fluid Responsive System (SCSS mixins + React hook)
 
 Two complementary pieces ensure predictable, accessible scaling across devices:
 
@@ -631,7 +631,7 @@ For deep dives and implementation details:
 - Engineering Standards: [`/docs/engineering-standards.md`](./docs/engineering-standards.md)
 - Architecture Decisions: [`/docs/architecture-decisions.md`](./docs/architecture-decisions.md)
 - S3 Project Buckets Guide: [`/docs/s3-bucket-migration.md`](./docs/s3-bucket-migration.md)
-- Fluid Responsive System: [`/docs/fluid-responsive-system.md`](./docs/fluid-responsive-system.md)
+- Clamped Linear Interpolation (Lerp) Fluid Responsive System: [`/docs/fluid-responsive-system.md`](./docs/fluid-responsive-system.md)
 - Uploads & Migration: [`/docs/uploads-and-migration.md`](./docs/uploads-and-migration.md)
 - SES Email Setup: [`/docs/aws-ses-setup.md`](./docs/aws-ses-setup.md)
 - Ports & Services: [`/docs/ports.md`](./docs/ports.md)

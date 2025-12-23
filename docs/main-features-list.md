@@ -34,7 +34,7 @@ device mockup overlays with tilt and stabilization states
 route-driven carousel navigation with deep linking
 logo/info swapper animations tied to active slide
 scroll-aware projects list with client-side highlighting
-fluid responsive type/spacing system (documented in fluid-responsive-system.md)
+Clamped Linear Interpolation (Lerp) fluid responsive type/spacing system (documented in fluid-responsive-system.md)
 CMS/data modeling
 
 type-safe payload cms with generated types

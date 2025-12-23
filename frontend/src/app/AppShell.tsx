@@ -226,29 +226,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     return () => mq.removeEventListener("change", apply);
   }, []);
 
-  /**
-   * Fluid Responsive System - CSS Variables Provider
-   *
-   * Original concept and implementation by Bradley Baysinger.
-   *
-   * Generates CSS custom properties for smooth viewport-based scaling:
-   * - [320, 680]: Mobile to tablet scaling (--fluid-percent-320-680)
-   * - [320, 768]: Mobile to tablet landscape (--fluid-percent-320-768)
-   * - [320, 992]: Mobile to small desktop (--fluid-percent-320-992)
-   * - [360, 1280]: Mobile+ to desktop (--fluid-percent-360-1280)
-   * - [360, 1440]: Mobile+ to large desktop (--fluid-percent-360-1440)
-   * - [320, 1600]: Full mobile to XL desktop range (--fluid-percent-320-1600)
-   *
-   * These variables power remRange and staticRange SCSS mixins throughout the app
-   * for JavaScript-driven responsive design without media query jumps.
-   */
+  // Provides `--fluid-percent-*` CSS vars used by `remRange`/`percent-var()`.
+  // Canonical documentation for this system lives in `useFluidLerpVars`.
   const fluidRef = useFluidLerpVars([
     [320, 680], // Mobile to tablet
     [320, 768], // Mobile to tablet landscape
     [320, 992], // Mobile to small desktop
     [360, 1280], // Mobile+ to desktop
     [360, 1440], // Mobile+ to large desktop
-    [320, 1600], // Full mobile to XL desktop
+    [320, 1600], // Mobile to XL desktop
+    [320, 1792], // Mobile to 16" MacBook Pro
   ]);
 
   // ---------------------------------------------------------------------------

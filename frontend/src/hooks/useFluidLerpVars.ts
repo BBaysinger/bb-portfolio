@@ -1,12 +1,12 @@
 import { useEffect, useRef, RefObject } from "react";
 
 /**
- * Fluid Responsive System - CSS Variables Provider
+ * Clamped Linear Interpolation (Lerp) Fluid Responsive System - CSS Variables Provider
  *
  * Original concept and implementation by Bradley Baysinger (spawned for this website).
  *
  * Calculates and injects CSS custom properties that act as a normalized viewport lerp (linear interpolation) factor $t$.
- * These variables primarily power the remRange SCSS mixin (and any direct CSS that references them).
+ * These variables primarily power the `remRange` SCSS mixin (and any direct CSS that references them).
  *
  * ## System Overview:
  * 1. **useFluidLerpVars** (this hook) - Provides CSS variables like `--fluid-percent-320-680`
@@ -22,14 +22,38 @@ import { useEffect, useRef, RefObject } from "react";
  * - Updates automatically on resize/orientation change
  *
  * Note: If you only use `staticRange`, you do not need this hook.
- *
  * ## Usage with SCSS Mixins:
  * ```tsx
- * // 1. Set up variables in layout component
- * const fluidRef = useFluidLerpVars([
- *   [320, 680],  // Creates --fluid-percent-320-680
- *   [360, 1440], // Creates --fluid-percent-360-1440
- * ]);
+ * // 1. Set up variables in a layout/root component (AppShell does this in this project)
+ * const fluidRanges = [
+ *   [320, 680],  // Mobile → tablet
+ *   [320, 768],  // Mobile → tablet landscape
+ *   [320, 992],  // Mobile → small desktop
+ *   [360, 1280], // Mobile+ → desktop
+ *   [360, 1440], // Mobile+ → large desktop
+ *   [320, 1600], // Mobile → XL desktop
+ *   [320, 1792], // Mobile → 16" MacBook Pro
+ * ] as const;
+ *
+ * const fluidRef = useFluidLerpVars(fluidRanges);
+ *
+ * // Generates (as CSS custom properties on the ref element):
+ * // - --fluid-percent-320-680
+ * // - --fluid-percent-320-768
+ * // - --fluid-percent-320-992
+ * // - --fluid-percent-360-1280
+ * // - --fluid-percent-360-1440
+ * // - --fluid-percent-320-1600
+ * // - --fluid-percent-320-1792
+ * //
+ * // Example values when `window.innerWidth ≈ 992` (clamped to [0,1] and rounded to 2 decimals):
+ * // - --fluid-percent-320-680: 1.00
+ * // - --fluid-percent-320-768: 1.00
+ * // - --fluid-percent-320-992: 1.00
+ * // - --fluid-percent-360-1280: 0.69
+ * // - --fluid-percent-360-1440: 0.59
+ * // - --fluid-percent-320-1600: 0.53
+ * // - --fluid-percent-320-1792: 0.46
  *
  * return <div ref={fluidRef}>{children}</div>;
  * ```

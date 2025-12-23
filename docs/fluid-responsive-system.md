@@ -1,6 +1,6 @@
-# Fluid Responsive System
+# Clamped Linear Interpolation (Lerp) Fluid Responsive System
 
-An original responsive viewport lerp (linear interpolation) mixin system spawned for this website.
+An original clamped viewport lerp (linear interpolation) responsive system spawned for this website.
 
 A hybrid approach:
 
