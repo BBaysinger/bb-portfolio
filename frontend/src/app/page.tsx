@@ -1,4 +1,4 @@
-import React, { Suspense } from "react";
+import React from "react";
 
 import Greeting from "@/components/home-page/Greeting";
 import Hero from "@/components/home-page/header-main/Hero";
@@ -38,9 +38,7 @@ const HomePage = async () => {
 
   return (
     <>
-      <Suspense fallback={null}>
-        <Hero />
-      </Suspense>
+      <Hero />
       <Greeting />
       <HomePageClient
         ssrProjects={ssrProjects}
