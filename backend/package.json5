@@ -138,6 +138,8 @@
   // Payload pulls in nodemailer via @payloadcms/email-nodemailer and @payloadcms/payload-cloud.
   // `npm audit` flags <= 7.0.10; override to the latest patch.
   "overrides": {
+    // Keep this pinned until Payload updates its nodemailer dependency.
+    // If `npm audit` stops flagging nodemailer (or Payload bumps it), remove this override.
     "nodemailer": "7.0.12",
   },
   // Minimum versions for runtime tools
