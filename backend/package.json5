@@ -53,9 +53,9 @@
   // Runtime dependencies for backend and CMS functionality
   "dependencies": {
     // AWS SES client used for sending transactional emails
-    "@aws-sdk/client-ses": "^3.956.0",
+    "@aws-sdk/client-ses": "^3.957.0",
     // Shared AWS SDK types
-    "@aws-sdk/types": "^3.956.0",
+    "@aws-sdk/types": "^3.957.0",
     // MongoDB adapter for Payload CMS
     "@payloadcms/db-mongodb": "3.69.0",
     // Nodemailer email adapter for Payload CMS (handles SMTP email sending, password resets, notifications)
@@ -81,7 +81,7 @@
     // JSON5 parser for annotated configuration files
     "json5": "^2.2.3",
     // Next.js framework for frontend/backend integration
-    "next": "16.1.0",
+    "next": "16.1.1",
     // Payload CMS core package
     "payload": "3.69.0",
     // React version to match Next.js 15
@@ -116,7 +116,7 @@
     // ESLint JavaScript/TypeScript linter (v9 for latest rules)
     "eslint": "^9.39.2",
     // Next.js ESLint configuration (includes React and accessibility rules)
-    "eslint-config-next": "16.1.0",
+    "eslint-config-next": "16.1.1",
     // Browser DOM simulation for Node.js testing environments
     "jsdom": "27.3.0",
     // Standalone version of Playwright test runner
@@ -133,6 +133,12 @@
     "vite-tsconfig-paths": "6.0.3",
     // Fast unit test runner (modern Jest alternative)
     "vitest": "4.0.16",
+  },
+  // Pin patched versions of transitive dependencies.
+  // Payload pulls in nodemailer via @payloadcms/email-nodemailer and @payloadcms/payload-cloud.
+  // `npm audit` flags <= 7.0.10; override to the latest patch.
+  "overrides": {
+    "nodemailer": "7.0.12",
   },
   // Minimum versions for runtime tools
   "engines": {
