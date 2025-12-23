@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React from "react";
 
 import Marquee from "@/components/home-page/Marquee";
 import ProjectThumbnail from "@/components/home-page/ProjectThumbnail";
@@ -53,13 +53,6 @@ const ProjectsList: React.FC<ProjectsListProps> & {
   const { isLoggedIn, user } = useAppSelector((s) => s.auth);
   const _clientAuth = isLoggedIn || !!user;
 
-  // Maintain local project list; sync with server props on change (e.g., after router.refresh).
-  const [projects, setProjects] =
-    useState<ParsedPortfolioProject[]>(allProjects);
-  useEffect(() => {
-    setProjects(allProjects);
-  }, [allProjects]);
-
   const marqueePhrases = React.useMemo(
     () => ["Selected Works 2013-Present"],
     [],
@@ -72,12 +65,12 @@ const ProjectsList: React.FC<ProjectsListProps> & {
       data-nav="projects-list"
     >
       <Marquee phrases={marqueePhrases} />
-      {projects.length === 0 && (
+      {allProjects.length === 0 && (
         <div aria-live="polite" style={{ opacity: 0.7 }}>
           No projects to display yet.
         </div>
       )}
-      {projects.map((projectData, index) => {
+      {allProjects.map((projectData, index) => {
         const id = projectData.id;
         const auth = isAuthenticated || _clientAuth;
         if (renderThumbnail) {

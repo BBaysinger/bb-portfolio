@@ -15,6 +15,10 @@ import { ProjectDataStore } from "@/data/ProjectData";
 const HomePage = async () => {
   // Fetch without request headers so the response is always the public view.
   // This is safe to cache and allows SSG/ISR without delaying per-request TTFB.
+  //
+  // Note: We intentionally do NOT try to render the authenticated/NDA dataset here.
+  // That dataset depends on per-request cookies; rendering it on the server would
+  // make the page dynamic/no-store (or risk leaking NDA content via caching).
   const projectData = new ProjectDataStore();
   let initResult: { containsSanitizedPlaceholders?: boolean } = {};
   try {
