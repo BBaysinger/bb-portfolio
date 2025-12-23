@@ -11,6 +11,15 @@ interface DeviceDisplayProps {
   deviceType: DeviceType;
   id: string;
   mobileOrientation?: MobileOrientation;
+  loading?: "eager" | "lazy";
+  /**
+   * If false, the real screenshot URL will not be assigned to <img src> yet.
+   * This gives deterministic control over when network requests start.
+   */
+  shouldLoad?: boolean;
+
+  /** Fires when the real screenshot (not placeholder) finishes loading. */
+  onScreenshotLoad?: () => void;
 }
 
 /**
@@ -21,11 +30,25 @@ interface DeviceDisplayProps {
  *
  */
 const DeviceDisplay: React.FC<DeviceDisplayProps> = React.memo(
-  ({ deviceType, id, mobileOrientation }) => {
+  ({
+    deviceType,
+    id,
+    mobileOrientation,
+    loading = "lazy",
+    shouldLoad = true,
+    onScreenshotLoad,
+  }) => {
     // Strictly use URLs from Payload uploads; if missing, render a transparent placeholder
     const payloadUrl =
       ProjectData.activeProjectsRecord[id]?.screenshotUrls?.[deviceType];
-    const src = payloadUrl || "/images/common/transparent-1x1.gif";
+    const placeholderSrc = "/images/common/transparent-1x1.gif";
+
+    const src = shouldLoad && payloadUrl ? payloadUrl : placeholderSrc;
+
+    const handleImgLoad = () => {
+      if (src === placeholderSrc) return;
+      onScreenshotLoad?.();
+    };
 
     return (
       <div
@@ -38,7 +61,8 @@ const DeviceDisplay: React.FC<DeviceDisplayProps> = React.memo(
             <RawImg
               src={src}
               alt={id}
-              loading="eager"
+              loading={loading}
+              onLoad={handleImgLoad}
               className={styles.screenshot}
             />
           </div>
@@ -55,7 +79,8 @@ const DeviceDisplay: React.FC<DeviceDisplayProps> = React.memo(
               <RawImg
                 src={src}
                 alt={id}
-                loading="eager"
+                loading={loading}
+                onLoad={handleImgLoad}
                 className={styles.screen}
               />
             </div>

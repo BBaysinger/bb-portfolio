@@ -1,6 +1,8 @@
 import clsx from "clsx";
 import React, {
   forwardRef,
+  useCallback,
+  useEffect,
   useImperativeHandle,
   useRef,
   useMemo,
@@ -17,6 +19,14 @@ import {
   SlideDirection,
 } from "./CarouselTypes";
 import styles from "./LayeredCarouselManager.module.scss";
+
+type LoadableSlideProps = {
+  loading?: "eager" | "lazy";
+  shouldLoad?: boolean;
+  onScreenshotLoad?: () => void;
+};
+
+const makeKey = (layerId: string, index: number) => `${layerId}:${index}`;
 
 export interface CarouselLayerConfig {
   id: string;
@@ -118,20 +128,100 @@ const LayeredCarouselManager = forwardRef<
   ) => {
     const stabilizedIndexRef = useRef<number | null>(initialIndex);
     const [stabilizedIndex, setStabilizedIndex] = useState(initialIndex);
+    // IMPORTANT: Do NOT store CarouselRef handles in React state.
+    // Carousel's imperative handle object can change identity on re-renders,
+    // which would cause ref callbacks to fire repeatedly and setState loops.
     const masterCarouselRef = useRef<CarouselRef | null>(null);
+    const slaveCarouselsRef = useRef<Record<string, CarouselRef | null>>({});
     const [currentDirection, setCurrentDirection] =
       useState<DirectionType | null>(null);
     const lastScrollLeftRef = useRef<number>(0);
 
-    const layerRefs = useMemo(() => {
-      const refs: Record<string, React.RefObject<CarouselRef | null>> = {};
+    // Tracks the "live" index while scrolling (not just the stabilized index)
+    // so we can prime the left/right neighbors ahead of time.
+    const [activeIndex, setActiveIndex] = useState<number>(initialIndex);
+
+    // Load the active slide first, then (after first paint) prime neighbors.
+    const [shouldPrimeNeighbors, setShouldPrimeNeighbors] = useState(false);
+
+    // Deterministic loading latch:
+    // - `eligibleKeys` only grows (never shrinks)
+    // - `loadAllSlides` flips once initial trio has loaded
+    const [eligibleKeys, setEligibleKeys] = useState<Set<string>>(() => {
+      const next = new Set<string>();
       layers.forEach((layer) => {
-        if (layer.type === "Slave") {
-          refs[layer.id] = React.createRef<CarouselRef>();
-        }
+        if (layer.type !== "Slave") return;
+        const len = layer.slides.length;
+        if (len <= 0) return;
+        const center = ((initialIndex % len) + len) % len;
+        next.add(makeKey(layer.id, center));
       });
-      return refs;
-    }, [layers]);
+      return next;
+    });
+    const [loadAllSlides, setLoadAllSlides] = useState(false);
+    const [_initialLoadedKeys, setInitialLoadedKeys] = useState<Set<string>>(
+      () => new Set(),
+    );
+
+    const initialTargets = useMemo(() => {
+      const targets = new Set<string>();
+      layers.forEach((layer) => {
+        if (layer.type !== "Slave") return;
+        const len = layer.slides.length;
+        if (len <= 0) return;
+        const center = ((initialIndex % len) + len) % len;
+        const prev = (center - 1 + len) % len;
+        const next = (center + 1) % len;
+        targets.add(makeKey(layer.id, center));
+        targets.add(makeKey(layer.id, prev));
+        targets.add(makeKey(layer.id, next));
+      });
+      return targets;
+    }, [layers, initialIndex]);
+
+    // Prime neighbors right after first paint, using the latest activeIndex.
+    useEffect(() => {
+      if (shouldPrimeNeighbors) return;
+      const rafId = requestAnimationFrame(() => {
+        setShouldPrimeNeighbors(true);
+        setEligibleKeys((prev) => {
+          const next = new Set(prev);
+          layers.forEach((layer) => {
+            if (layer.type !== "Slave") return;
+            const len = layer.slides.length;
+            if (len <= 0) return;
+            const center = ((activeIndex % len) + len) % len;
+            const prevIdx = (center - 1 + len) % len;
+            const nextIdx = (center + 1) % len;
+            next.add(makeKey(layer.id, center));
+            next.add(makeKey(layer.id, prevIdx));
+            next.add(makeKey(layer.id, nextIdx));
+          });
+          return next;
+        });
+      });
+      return () => cancelAnimationFrame(rafId);
+    }, [shouldPrimeNeighbors, activeIndex, layers]);
+
+    const markInitialSlideLoaded = useCallback(
+      (layerId: string, index: number) => {
+        if (loadAllSlides) return;
+
+        const key = makeKey(layerId, index);
+        if (!initialTargets.has(key)) return;
+
+        setInitialLoadedKeys((prev) => {
+          if (prev.has(key)) return prev;
+          const next = new Set(prev);
+          next.add(key);
+          if (initialTargets.size > 0 && next.size >= initialTargets.size) {
+            setLoadAllSlides(true);
+          }
+          return next;
+        });
+      },
+      [initialTargets, loadAllSlides],
+    );
 
     const masterLayer = useMemo(
       () => layers.find((l) => l.type === "Master"),
@@ -150,22 +240,25 @@ const LayeredCarouselManager = forwardRef<
       return map;
     }, [layers, masterLayer]);
 
-    const handleScrollUpdate = (scrollLeft: number) => {
-      // Determine direction based on scroll movement
-      if (scrollLeft > lastScrollLeftRef.current) {
-        setCurrentDirection(SlideDirection.LEFT);
-      } else if (scrollLeft < lastScrollLeftRef.current) {
-        setCurrentDirection(SlideDirection.RIGHT);
-      }
-      lastScrollLeftRef.current = scrollLeft;
+    const handleScrollUpdate = useCallback(
+      (scrollLeft: number) => {
+        // Determine direction based on scroll movement
+        if (scrollLeft > lastScrollLeftRef.current) {
+          setCurrentDirection(SlideDirection.LEFT);
+        } else if (scrollLeft < lastScrollLeftRef.current) {
+          setCurrentDirection(SlideDirection.RIGHT);
+        }
+        lastScrollLeftRef.current = scrollLeft;
 
-      Object.entries(multipliers).forEach(([id, factor]) => {
-        layerRefs[id]?.current?.setExternalScrollPosition?.(
-          scrollLeft * factor,
-        );
-      });
-      onScrollUpdate?.(scrollLeft);
-    };
+        Object.entries(multipliers).forEach(([id, factor]) => {
+          slaveCarouselsRef.current[id]?.setExternalScrollPosition?.(
+            scrollLeft * factor,
+          );
+        });
+        onScrollUpdate?.(scrollLeft);
+      },
+      [multipliers, onScrollUpdate],
+    );
 
     const handleStabilizationUpdate = (
       index: number,
@@ -179,12 +272,63 @@ const LayeredCarouselManager = forwardRef<
       onStabilizationUpdate?.(index, source, direction);
     };
 
+    const handleIndexUpdate = useCallback(
+      (index: number) => {
+        setActiveIndex(index);
+
+        // Latch eligibility so we never unload already-started images.
+        setEligibleKeys((prev) => {
+          const next = new Set(prev);
+          layers.forEach((layer) => {
+            if (layer.type !== "Slave") return;
+            const len = layer.slides.length;
+            if (len <= 0) return;
+            const center = ((index % len) + len) % len;
+            next.add(makeKey(layer.id, center));
+            if (shouldPrimeNeighbors) {
+              const prevIdx = (center - 1 + len) % len;
+              const nextIdx = (center + 1) % len;
+              next.add(makeKey(layer.id, prevIdx));
+              next.add(makeKey(layer.id, nextIdx));
+            }
+          });
+          return next;
+        });
+      },
+      [layers, shouldPrimeNeighbors],
+    );
+
     useImperativeHandle(ref, () => ({
       scrollToSlide: (targetIndex: number) => {
         console.info("LayeredCarouselManager: scrolling to", targetIndex);
         masterCarouselRef.current?.scrollToSlide(targetIndex);
       },
     }));
+
+    const attachCarouselRef = useCallback(
+      (layerId: string, isMaster: boolean) =>
+        (instance: CarouselRef | null) => {
+          if (isMaster) {
+            masterCarouselRef.current = instance;
+            return;
+          }
+
+          slaveCarouselsRef.current[layerId] = instance;
+        },
+      [],
+    );
+
+    // IMPORTANT: refs must be stable across renders.
+    // Calling attachCarouselRef(...) inline creates a new function each render,
+    // which makes React detach/attach refs repeatedly (can cause an update loop).
+    const layerRefCallbacks = useMemo(() => {
+      const callbacks: Record<string, React.RefCallback<CarouselRef>> = {};
+      layers.forEach((layer) => {
+        const isMaster = layer.type === "Master";
+        callbacks[layer.id] = attachCarouselRef(layer.id, isMaster);
+      });
+      return callbacks;
+    }, [layers, attachCarouselRef]);
 
     return (
       <div
@@ -195,12 +339,15 @@ const LayeredCarouselManager = forwardRef<
       >
         {layers.map((layer) => {
           const isMaster = layer.type === "Master";
-          const layerRef = isMaster ? masterCarouselRef : layerRefs[layer.id];
+
+          const slidesLength = layer.slides.length;
+          const prevIndex = (activeIndex - 1 + slidesLength) % slidesLength;
+          const nextIndex = (activeIndex + 1) % slidesLength;
 
           return (
             <Carousel
               key={layer.id}
-              ref={layerRef as React.Ref<CarouselRef>}
+              ref={layerRefCallbacks[layer.id] as React.Ref<CarouselRef>}
               slides={layer.slides.map((slide, index) => {
                 const isStabilized = index === stabilizedIndex;
                 const shouldApplyTilt =
@@ -215,9 +362,41 @@ const LayeredCarouselManager = forwardRef<
                     "bbTiltRight",
                 );
 
+                const isActive = index === activeIndex;
+                const isNeighbor = index === prevIndex || index === nextIndex;
+
+                // Deterministic load control:
+                // - Active slide: load immediately
+                // - Neighbors: load right after first paint
+                // - Remaining slides: load after initial trio finishes
+                const key = makeKey(layer.id, index);
+                const shouldLoad =
+                  loadAllSlides ||
+                  eligibleKeys.has(key) ||
+                  isActive ||
+                  (shouldPrimeNeighbors && isNeighbor);
+
+                // Hint only (the real gating is `shouldLoad` in DeviceDisplay)
+                const loading: "eager" | "lazy" =
+                  isActive || (shouldPrimeNeighbors && isNeighbor)
+                    ? "eager"
+                    : "lazy";
+
+                const renderedSlide = React.isValidElement(slide)
+                  ? React.cloneElement(
+                      slide as React.ReactElement<LoadableSlideProps>,
+                      {
+                        loading,
+                        shouldLoad,
+                        onScreenshotLoad: () =>
+                          markInitialSlideLoaded(layer.id, index),
+                      },
+                    )
+                  : slide;
+
                 return (
                   <div key={index} className={appliedClasses}>
-                    {slide}
+                    {renderedSlide}
                   </div>
                 );
               })}
@@ -228,6 +407,7 @@ const LayeredCarouselManager = forwardRef<
               layerId={layer.id}
               isSlaveMode={!isMaster}
               onScrollUpdate={isMaster ? handleScrollUpdate : undefined}
+              onIndexUpdate={isMaster ? handleIndexUpdate : undefined}
               onStabilizationUpdate={
                 isMaster ? handleStabilizationUpdate : undefined
               }
