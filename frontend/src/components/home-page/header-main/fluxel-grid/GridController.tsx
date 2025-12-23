@@ -1,5 +1,4 @@
 import clsx from "clsx";
-import { useSearchParams } from "next/navigation";
 import {
   useState,
   useRef,
@@ -41,6 +40,22 @@ interface GridControllerProps {
   useSlingerTracking?: boolean;
 }
 
+type GridType = "svg" | "canvas" | "pixi";
+
+const getGridTypeFromLocation = (): GridType => {
+  if (typeof window === "undefined") return "svg";
+
+  try {
+    const sp = new URLSearchParams(window.location.search);
+    const value = sp.get("gridType");
+    if (value === "svg" || value === "canvas" || value === "pixi") return value;
+  } catch {
+    // Ignore invalid URLSearchParams (should be rare)
+  }
+
+  return "svg";
+};
+
 /**
  * GridController dynamically selects between different rendering strategies (SVG, Canvas, Pixi)
  * based on the URL query parameter `gridType`, and provides a unified interface for external
@@ -81,15 +96,9 @@ interface GridControllerProps {
  */
 const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
   ({ rows, cols, className, useSlingerTracking = false }, ref) => {
-    const searchParams = useSearchParams();
-    const gridType = useMemo(() => {
-      const value = searchParams?.get("gridType");
-      if (value === "svg" || value === "canvas" || value === "pixi") {
-        return value;
-      }
-      // Default grid type returned if no valid param found
-      return "svg";
-    }, [searchParams]);
+    const [gridType, setGridType] = useState<GridType>(() =>
+      getGridTypeFromLocation(),
+    );
 
     const gridInstanceRef = useRef<FluxelGridHandle | null>(null);
     const [gridContainerEl, setGridContainerEl] = useState<HTMLElement | null>(
@@ -103,6 +112,13 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
       offsetX: 0,
       offsetY: 0,
     }));
+
+    useEffect(() => {
+      // Handle back/forward updates where search params may change.
+      const onPopState = () => setGridType(getGridTypeFromLocation());
+      window.addEventListener("popstate", onPopState);
+      return () => window.removeEventListener("popstate", onPopState);
+    }, []);
 
     const gridLinesPathD = useMemo(() => {
       // No frame: only interior separators.
