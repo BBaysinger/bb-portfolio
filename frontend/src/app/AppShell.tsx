@@ -97,6 +97,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     (state: RootState) => state.ui.percentHeroInView,
   );
 
+  const { isLoggedIn, user, hasInitialized, isLoading } = useSelector(
+    (state: RootState) => state.auth,
+  );
+
   const childContentRef = useRef<HTMLDivElement>(null);
 
   useClientDimensions();
@@ -129,15 +133,29 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     };
     const checkAndRefresh = async () => {
       try {
+        // This probe intentionally checks server truth (cookie-backed session) even if
+        // client Redux state says we're logged out. It enables cross-tab sync.
         const res = await fetch("/api/users/me/", {
           credentials: "include",
           cache: "no-store",
         });
         if (res.ok) {
-          // Session exists server-side: refresh SSR (may reveal protected content)
-          // but avoid refreshing on project carousel pages where URL is client-managed.
-          if (!shouldSkipRefreshForCarousel()) {
-            router.refresh();
+          // Session exists server-side.
+          // Only refresh SSR if the client is not yet authenticated/initialized.
+          // Otherwise we end up refreshing on every focus event.
+          //
+          // Why this matters:
+          // - router.refresh() can cause the home page to re-run its server fetch.
+          // - If that fetch transiently fails and returns an empty snapshot,
+          //   the projects list can momentarily render empty (a visible flicker).
+          // - When client auth is already consistent, there's no need to refresh.
+          const clientAuthed = Boolean(isLoggedIn) || Boolean(user);
+          if (!clientAuthed || !hasInitialized) {
+            dispatch(checkAuthStatus());
+            // Avoid refreshing on project carousel pages where URL is client-managed.
+            if (!shouldSkipRefreshForCarousel()) {
+              router.refresh();
+            }
           }
         } else if (res.status === 401) {
           // Session no longer valid (e.g., logged out in another tab): clear stale client auth
@@ -175,7 +193,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       window.removeEventListener("focus", onVisible);
       document.removeEventListener("visibilitychange", onVisible);
     };
-  }, [router, dispatch, pathname]);
+  }, [router, dispatch, pathname, isLoggedIn, user, hasInitialized]);
 
   // Periodic soft auth validation (clears stale user if cookie disappears)
   // Relaxed for portfolio: only when tab is visible, every 10 minutes.
@@ -193,9 +211,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   // If the user is on an NDA page and becomes unauthenticated, immediately navigate away
   // to reassure privacy (avoid leaving an NDA view open client-side).
-  const { isLoggedIn, user, hasInitialized, isLoading } = useSelector(
-    (state: RootState) => state.auth,
-  );
   useEffect(() => {
     try {
       const path = pathname || "";

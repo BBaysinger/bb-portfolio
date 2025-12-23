@@ -31,16 +31,41 @@ export default function HomePageClient({
   const compositeAuth = hasInitialized
     ? clientAuth
     : clientAuth || ssrAuthenticated;
-  const [projects, setProjects] =
-    useState<ParsedPortfolioProject[]>(ssrProjects);
+  const [projects, setProjects] = useState<ParsedPortfolioProject[]>(() => {
+    // Prefer server-provided projects for first paint.
+    // This does NOT imply the home page is always "SSR" per-request; in production
+    // this data is typically SSG/ISR-cached public data. The key idea is:
+    //   - if the server already gave us a projects list for this render, paint it
+    //     immediately and avoid a client-side fetch + layout jump.
+    if (ssrProjects.length > 0) return ssrProjects;
+    // If this component remounts (e.g., after router.refresh) and the server-side
+    // fetch transiently fails (empty snapshot), fall back to the previously
+    // hydrated singleton snapshot. This prevents a one-frame "empty list" flicker
+    // where the grid disappears and then repopulates.
+    const cached = ProjectData.listedProjects;
+    if (cached.length > 0) return cached;
+    return [];
+  });
   const hydratedRef = useRef(false);
   const prevAuthRef = useRef<boolean>(compositeAuth);
 
   useEffect(() => {
+    const hasSnapshot =
+      (ssrProjects?.length || 0) > 0 ||
+      Object.keys(ssrProjectRecord || {}).length > 0;
+
     // Hydrate with SSR metadata so client-side ProjectData matches server auth state.
-    ProjectData.hydrate(ssrProjectRecord, ssrIncludeNdaInActive, {
-      containsSanitizedPlaceholders: ssrContainsSanitizedPlaceholders,
-    });
+    // IMPORTANT: If the SSR fetch fails and returns an empty snapshot, do NOT
+    // hydrate with empty data. That would wipe a valid previously-cached singleton
+    // and can cause the projects list to briefly disappear on refresh.
+    //
+    // We only hydrate when we have a real snapshot because hydration is effectively
+    // a "replace" operation on the singleton cache.
+    if (hasSnapshot) {
+      ProjectData.hydrate(ssrProjectRecord, ssrIncludeNdaInActive, {
+        containsSanitizedPlaceholders: ssrContainsSanitizedPlaceholders,
+      });
+    }
     hydratedRef.current = true;
   }, [
     ssrProjectRecord,
