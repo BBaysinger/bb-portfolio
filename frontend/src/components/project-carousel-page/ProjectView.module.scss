@@ -10,6 +10,7 @@
   align-items: center;
   background-image: url("/images/common/bg-grad.svg");
   color: #fff;
+  @include staticRange(padding-top, 20px, 40px);
 
   :global(.max-w-container) {
     max-width: 1024px;

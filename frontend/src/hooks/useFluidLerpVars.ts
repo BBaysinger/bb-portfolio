@@ -9,7 +9,7 @@ import { useEffect, useRef, RefObject } from "react";
  * These variables primarily power the `remRange` SCSS mixin (and any direct CSS that references them).
  *
  * ## System Overview:
- * 1. **useFluidLerpVars** (this hook) - Provides CSS variables like `--fluid-percent-320-680`
+ * 1. **useFluidLerpVars** (this hook) - Provides CSS variables like `--fluid-percent-320-640`
  * 2. **remRange mixin** - Uses variables for accessibility-friendly text/UI scaling (rem-based)
  * 3. **staticRange mixin** - Pure CSS linear interpolation from `100vw` (does not require this hook)
  * 4. **scaleRange mixin** - Transform scaling via a clamp-bounded lerp (linear interpolation)
@@ -17,7 +17,7 @@ import { useEffect, useRef, RefObject } from "react";
  * ## How It Works:
  * - JavaScript calculates a normalized lerp (linear interpolation) factor: `(viewport - min) / (max - min)`
  * - Clamps to `[0, 1]` and rounds (currently to 2 decimals)
- * - Sets CSS variables like `--fluid-percent-320-680: 0.75`
+ * - Sets CSS variables like `--fluid-percent-320-640: 0.75`
  * - SCSS/CSS uses the factor in a lerp (linear interpolation): `value = min + (max - min) * t`
  * - Updates automatically on resize/orientation change
  *
@@ -26,7 +26,7 @@ import { useEffect, useRef, RefObject } from "react";
  * ```tsx
  * // 1. Set up variables in a layout/root component (AppShell does this in this project)
  * const fluidRanges = [
- *   [320, 680],  // Mobile → tablet
+ *   [320, 640],  // Mobile → tablet
  *   [320, 768],  // Mobile → tablet landscape
  *   [320, 992],  // Mobile → small desktop
  *   [360, 1280], // Mobile+ → desktop
@@ -38,7 +38,7 @@ import { useEffect, useRef, RefObject } from "react";
  * const fluidRef = useFluidLerpVars(fluidRanges);
  *
  * // Generates (as CSS custom properties on the ref element):
- * // - --fluid-percent-320-680
+ * // - --fluid-percent-320-640
  * // - --fluid-percent-320-768
  * // - --fluid-percent-320-992
  * // - --fluid-percent-360-1280
@@ -47,7 +47,7 @@ import { useEffect, useRef, RefObject } from "react";
  * // - --fluid-percent-320-1792
  * //
  * // Example values when `window.innerWidth ≈ 992` (clamped to [0,1] and rounded to 2 decimals):
- * // - --fluid-percent-320-680: 1.00
+ * // - --fluid-percent-320-640: 1.00
  * // - --fluid-percent-320-768: 1.00
  * // - --fluid-percent-320-992: 1.00
  * // - --fluid-percent-360-1280: 0.69
@@ -61,11 +61,11 @@ import { useEffect, useRef, RefObject } from "react";
  * ```scss
  * // 2. Use in SCSS with mixins
  * .text {
- *   @include remRange(font-size, 16px, 24px, 320, 680);
+ *   @include remRange(font-size, 16px, 24px, 320, 640);
  * }
  *
  * .container {
- *   @include staticRange(width, 300px, 800px, 320, 680);
+ *   @include staticRange(width, 300px, 800px, 320, 640);
  * }
  * ```
  *
@@ -87,8 +87,8 @@ import { useEffect, useRef, RefObject } from "react";
  * ```tsx
  * function App() {
  *   const fluidRef = useFluidLerpVars([
- *     [320, 680],   // Mobile to tablet
- *     [680, 1280],  // Tablet to desktop
+ *     [320, 640],   // Mobile to tablet
+ *     [640, 1280],  // Tablet to desktop
  *     [320, 1440]   // Mobile to large desktop
  *   ]);
  *

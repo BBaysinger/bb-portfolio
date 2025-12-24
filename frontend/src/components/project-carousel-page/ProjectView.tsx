@@ -17,7 +17,7 @@ import {
 } from "@/components/project-carousel-page/CarouselTypes";
 import InfoSwapper from "@/components/project-carousel-page/InfoSwapper";
 import { LayeredCarouselManagerRef } from "@/components/project-carousel-page/LayeredCarouselManager";
-import LogoSwapper from "@/components/project-carousel-page/LogoSwapper";
+// import LogoSwapper from "@/components/project-carousel-page/LogoSwapper";
 import PageButtons from "@/components/project-carousel-page/PageButtons";
 import ProjectData, { projectRequiresNda } from "@/data/ProjectData";
 import { useRouteChange } from "@/hooks/useRouteChange";
@@ -419,7 +419,7 @@ const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
         id="project"
         className={`${styles.projectsPresentationBody} bb${uiDirection}`}
       >
-        <LogoSwapper index={infoSwapperIndex ?? undefined} />
+        {/* <LogoSwapper index={infoSwapperIndex ?? undefined} /> */}
         <div className={styles.carouselControlsWrapper}>
           {initialIndex !== null && (
             <ProjectCarouselView
