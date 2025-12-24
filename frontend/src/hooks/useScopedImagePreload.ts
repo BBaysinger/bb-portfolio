@@ -79,7 +79,9 @@ export function useScopedImagePreload(
 
     if (preloadOnly) {
       return () => {
-        document.head.removeChild(link);
+        // Cleanup must be resilient to StrictMode double-invocation and
+        // to environments where head/body may temporarily be unavailable.
+        link.parentNode?.removeChild(link);
         log("🔴 Preload-only cleanup for", src);
       };
     }
@@ -116,8 +118,8 @@ export function useScopedImagePreload(
     }
 
     return () => {
-      document.head.removeChild(link);
-      if (ghost) document.body.removeChild(ghost);
+      link.parentNode?.removeChild(link);
+      ghost?.parentNode?.removeChild(ghost);
       log("🔴 Preload cleanup for", src);
     };
   }, [
