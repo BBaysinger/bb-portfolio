@@ -52,7 +52,8 @@ const ProjectInfo = forwardRef<HTMLDivElement, ProjectInfoProps>(
           document.body.appendChild(ta);
           ta.select();
           document.execCommand("copy");
-          document.body.removeChild(ta);
+          // Resilient cleanup (avoids errors if body/parent changes during rerenders).
+          ta.remove();
         }
         setCopied(true);
         if (typeof window !== "undefined") {
@@ -73,7 +74,7 @@ const ProjectInfo = forwardRef<HTMLDivElement, ProjectInfoProps>(
         )}
         style={{ display: isActive ? "block" : "none" }}
       >
-        {direction && <div className={styles.direction}>{direction}</div>}
+        {/* {direction && <div className={styles.direction}>{direction}</div>} */}
         {desc.map((htmlContent) => (
           <div
             key={globalIndex}

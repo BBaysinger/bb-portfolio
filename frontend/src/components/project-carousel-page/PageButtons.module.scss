@@ -2,7 +2,6 @@
 @use "@/styles/variables" as *;
 
 $mainBreak: $b992;
-$maxScaleBreak: 680; // Max vw limit of the carousel scaling
 
 .projectNav {
   display: flex;
@@ -10,7 +9,7 @@ $maxScaleBreak: 680; // Max vw limit of the carousel scaling
   justify-content: space-between;
   pointer-events: none;
   width: 100vw;
-  @include remRange(top, 80px, 155px, $b320, $maxScaleBreak);
+  @include remRange(top, 80px, 155px, $b320, $maxCarouselScaleVW);
 }
 
 .navButton {

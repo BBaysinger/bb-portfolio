@@ -181,7 +181,7 @@
 
 /// Applies accessibility-friendly fluid scaling via a shared viewport lerp factor (custom properties)
 ///
-/// **Requires useFluidLerpVars hook** to provide CSS variables like `--fluid-percent-320-680`.
+/// **Requires useFluidLerpVars hook** to provide CSS variables like `--fluid-percent-320-640`.
 /// Internally this is a lerp (linear interpolation): `min + (max - min) * t` where `t` comes from `percent-var()`.
 /// Values are converted to `rem` for accessibility so they respect user font-size preferences.
 ///
@@ -287,8 +287,8 @@
     #{$property}: calc(
       #{$min-value} +
         (
-          #{stripUnit($max-value - $min-value)} *
-            ((100vw - #{$min-vw}) / #{stripUnit($max-vw - $min-vw)})
+          (#{$max-value} - #{$min-value}) *
+            ((100vw - #{$min-vw}) / (#{$max-vw - $min-vw}))
         )
     );
   }

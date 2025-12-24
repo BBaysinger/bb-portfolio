@@ -244,7 +244,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   // Provides `--fluid-percent-*` CSS vars used by `remRange`/`percent-var()`.
   // Canonical documentation for this system lives in `useFluidLerpVars`.
   const fluidRef = useFluidLerpVars([
-    [320, 680], // Mobile to tablet
+    [320, 680], // Mobile to hardcoded carousel max scale width
     [320, 768], // Mobile to tablet landscape
     [320, 992], // Mobile to small desktop
     [360, 1280], // Mobile+ to desktop

@@ -29,8 +29,9 @@ import { useFluidLerpVars } from "@/hooks/useFluidLerpVars";
 
 function Layout({ children }) {
   const fluidRef = useFluidLerpVars([
-    [320, 680], // Mobile to tablet
-    [680, 1280], // Tablet to desktop
+    [320, 640], // Mobile to tablet
+    [640, 1280], // Tablet to desktop
+    [640, 1792], // Tablet to desktop
     [320, 1440], // Mobile to large desktop
   ]);
 
@@ -51,7 +52,7 @@ function Layout({ children }) {
 // Layouts that scale with viewport
 .container {
   @include staticRange(width, 300px, 1200px, 320, 1440);
-  @include staticRange(padding, 16px, 64px, 320, 680);
+  @include staticRange(padding, 16px, 64px, 320, 640);
 }
 
 // Smooth transform scaling
@@ -67,12 +68,12 @@ function Layout({ children }) {
 The hook calculates a normalized viewport lerp (linear interpolation) factor $t$ for each viewport range:
 
 ```javascript
-// For range [320, 680] at viewport 500px:
+// For range [320, 640] at viewport 500px:
 // t = (viewport - min) / (max - min)
-const t = (500 - 320) / (680 - 320) = 0.5
+const t = (500 - 320) / (640 - 320) = 0.5
 
 // Sets CSS variable:
-element.style.setProperty('--fluid-percent-320-680', '0.5');
+element.style.setProperty('--fluid-percent-320-640', '0.5');
 ```
 
 Notes:
@@ -86,7 +87,7 @@ Notes:
 
 ```scss
 // remRange generates (simplified):
-font-size: calc(1.5rem + 1.5rem * var(--fluid-percent-320-680));
+font-size: calc(1.5rem + 1.5rem * var(--fluid-percent-320-640));
 ```
 
 `staticRange` does not require JS variables; it computes the interpolation factor directly from `100vw`.
@@ -107,9 +108,9 @@ font-size: calc(1.5rem + 1.5rem * var(--fluid-percent-320-680));
 
 ```scss
 .text {
-  @include remRange(font-size, 16px, 24px, 320, 680);
-  @include remRange(line-height, 1.4, 1.6, 320, 680);
-  @include remRange(margin, 8px, 16px, 320, 680);
+  @include remRange(font-size, 16px, 24px, 320, 640);
+  @include remRange(line-height, 1.4, 1.6, 320, 640);
+  @include remRange(margin, 8px, 16px, 320, 640);
 }
 ```
 
@@ -117,9 +118,9 @@ font-size: calc(1.5rem + 1.5rem * var(--fluid-percent-320-680));
 
 ```css
 .text {
-  font-size: calc(1rem + 0.5rem * var(--fluid-percent-320-680));
-  line-height: calc(1.4 + 0.2 * var(--fluid-percent-320-680));
-  margin: calc(0.5rem + 0.5rem * var(--fluid-percent-320-680));
+  font-size: calc(1rem + 0.5rem * var(--fluid-percent-320-640));
+  line-height: calc(1.4 + 0.2 * var(--fluid-percent-320-640));
+  margin: calc(0.5rem + 0.5rem * var(--fluid-percent-320-640));
 }
 ```
 
@@ -133,7 +134,7 @@ font-size: calc(1.5rem + 1.5rem * var(--fluid-percent-320-680));
 .layout {
   @include staticRange(width, 300px, 1200px, 320, 1440);
   @include staticRange(gap, 16px, 48px, 320, 1280);
-  @include staticRange(border-radius, 4px, 12px, 320, 680);
+  @include staticRange(border-radius, 4px, 12px, 320, 640);
 }
 ```
 

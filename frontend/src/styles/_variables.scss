@@ -75,6 +75,8 @@ $navExpandTime: 0.5s;
 $navExpandWidth: 50vw;
 // Hard cap on slide-out nav width at larger breakpoints
 $maxNavExpandWidth: 360px;
+// Maximum viewport width for carousel scaling calculations
+$maxCarouselScaleVW: 680px;
 
 //////////////////////////////////////////////////////////////////////////
 // Layout
