@@ -74,28 +74,14 @@ const Footer: React.FC<FooterProps> = ({ className, mutationElemRef }) => {
                 <li>
                   <a href={`mailto:${emailAddr}`}>
                     <div
+                      className={styles.contactIcon}
                       style={{
-                        backgroundImage: "url(/images/footer/icons/email.png)",
+                        backgroundPositionY: "0px",
                       }}
                     ></div>
                     {emailAddr}
                   </a>
                 </li>
-                {(_phoneLoading || phoneE164 || phoneDisplay) && (
-                  <li>
-                    <a href={`tel:${phoneE164 || ""}`}>
-                      <div
-                        style={{
-                          backgroundImage:
-                            "url(/images/footer/icons/phone.png)",
-                        }}
-                      ></div>
-                      {_phoneLoading
-                        ? "Loading..."
-                        : phoneDisplay || phoneE164 || ""}
-                    </a>
-                  </li>
-                )}
                 <li>
                   <a
                     href="https://www.linkedin.com/in/bbaysinger"
@@ -104,9 +90,9 @@ const Footer: React.FC<FooterProps> = ({ className, mutationElemRef }) => {
                   >
                     <span className="nobr">
                       <div
+                        className={styles.contactIcon}
                         style={{
-                          backgroundImage:
-                            "url(/images/footer/icons/linkedin.png)",
+                          backgroundPositionY: "-52px",
                         }}
                       ></div>
                       linkedin.com/in/bbaysinger
@@ -120,8 +106,9 @@ const Footer: React.FC<FooterProps> = ({ className, mutationElemRef }) => {
                     rel="noopener noreferrer"
                   >
                     <div
+                      className={styles.contactIcon}
                       style={{
-                        backgroundImage: "url(/images/footer/icons/github.png)",
+                        backgroundPositionY: "-104px",
                       }}
                     ></div>
                     github.com/bbaysinger
@@ -134,14 +121,29 @@ const Footer: React.FC<FooterProps> = ({ className, mutationElemRef }) => {
                     rel="noopener noreferrer"
                   >
                     <div
+                      className={styles.contactIcon}
                       style={{
-                        backgroundImage:
-                          "url(/images/footer/icons/stackoverflow.png)",
+                        backgroundPositionY: "-156px",
                       }}
                     ></div>
                     stackoverflow.com/u/1253298
                   </a>
                 </li>
+                {(_phoneLoading || phoneE164 || phoneDisplay) && (
+                  <li>
+                    <a href={`tel:${phoneE164 || ""}`}>
+                      <div
+                        className={styles.contactIcon}
+                        style={{
+                          backgroundPositionY: "-208px",
+                        }}
+                      ></div>
+                      {_phoneLoading
+                        ? "Loading..."
+                        : phoneDisplay || phoneE164 || ""}
+                    </a>
+                  </li>
+                )}
                 <li>
                   <a
                     href="geo:47.6605791,-117.4292277?q=Spokane,WA"
@@ -161,9 +163,9 @@ const Footer: React.FC<FooterProps> = ({ className, mutationElemRef }) => {
                     rel="noopener noreferrer"
                   >
                     <div
+                      className={styles.contactIcon}
                       style={{
-                        backgroundImage:
-                          "url(/images/footer/icons/location.png)",
+                        backgroundPositionY: "-260px",
                       }}
                     ></div>
                     Spokane, WA{" "}
