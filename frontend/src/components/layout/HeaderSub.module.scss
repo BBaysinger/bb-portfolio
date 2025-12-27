@@ -5,15 +5,15 @@ header.headerSub {
   position: relative;
   overflow: visible;
   isolation: isolate;
-  padding: 26px;
-  padding-left: 29px;
+  color: #222;
+  @include staticRange(padding, 14px, 26px);
+  @include staticRange(padding-left, 16px, 29px);
   letter-spacing: 1px;
   margin-left: auto;
   margin-right: auto;
-  @include staticRange(margin-top, 50px, 100px);
-  @include staticRange(margin-bottom, 7px, 20px);
-  @include staticRange(height, 150px, 200px);
-  @include staticRange(width, 100%, 70%, $b640, $b1792);
+  @include staticRange(margin-top, $navBarHeight + 20px, 40px);
+  @include staticRange(margin-bottom, 20px, 30px);
+  @include staticRange(width, 96%, 70%, $b640, $b1792);
   transform: rotate(-1deg);
 
   &::before {
@@ -25,13 +25,14 @@ header.headerSub {
     box-sizing: border-box;
     border-style: solid;
     background-color: #f66213;
-    border-top-width: 40px;
-    border-right-width: 47px;
-    border-bottom-width: 60px;
-    border-left-width: 54px;
-    border-image: url("/images/common/embossed-sign-orange.webp") 90 104 136 116
+    @include staticRange(border-top-width, 40px, 60px);
+    @include staticRange(border-right-width, 40px, 60px);
+    @include staticRange(border-bottom-width, 40px, 60px);
+    @include staticRange(border-left-width, 40px, 60px);
+    border-image: url("/images/common/embossed-sign-orange.webp") 90 90 90 90
       stretch;
     border-radius: 40px;
+    @include staticRange(border-radius, 40px, 60px);
   }
 
   > * {
