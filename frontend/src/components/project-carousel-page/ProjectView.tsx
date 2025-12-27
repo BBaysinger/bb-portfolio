@@ -411,14 +411,14 @@ const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
       }
       tabIndex={0}
     >
-      <HeaderSub
-        head={projects[projectId]?.title || "Unknown Project"}
-        subhead={projects[projectId]?.tags?.join(", ") || ""}
-      />
       <div
         id="project"
         className={`${styles.projectsPresentationBody} bb${uiDirection}`}
       >
+        <HeaderSub
+          head={projects[projectId]?.title || "Unknown Project"}
+          subhead={projects[projectId]?.tags?.join(", ") || ""}
+        />
         {/* <LogoSwapper index={infoSwapperIndex ?? undefined} /> */}
         <div className={styles.carouselControlsWrapper}>
           {initialIndex !== null && (
