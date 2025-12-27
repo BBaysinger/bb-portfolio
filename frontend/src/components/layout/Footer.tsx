@@ -3,11 +3,10 @@ import { clsx } from "clsx";
 import React, { useRef } from "react";
 
 // import { RawImg } from "@/components/common/RawImg";
-import useDeviceCapabilities from "@/hooks/useDeviceCapabilities";
 import { useFlipInFlow } from "@/hooks/useFlipInFlow";
-import { useContactEmail, useContactPhone } from "@/hooks/useObfuscatedContact";
 
 import styles from "./Footer.module.scss";
+import FooterContactList from "./FooterContactList";
 import FootGreet from "./FootGreet";
 import NavLinks from "./NavLinks";
 
@@ -44,22 +43,6 @@ const Footer: React.FC<FooterProps> = ({ className, mutationElemRef }) => {
 
   useFlipInFlow(mutationElemRef, footerRef);
 
-  // Contact info (email/phone) loaded via obfuscated contact endpoint
-  const {
-    email: emailAddr,
-    isLoading: _emailLoading,
-    error: _emailError,
-  } = useContactEmail();
-  const {
-    phoneE164,
-    phoneDisplay,
-    isLoading: _phoneLoading,
-    error: _phoneError,
-  } = useContactPhone();
-
-  // Capability-first detection (avoids UA sniffing)
-  const { isTouchPrimary } = useDeviceCapabilities();
-
   return (
     <footer ref={footerRef} className={clsx(className, styles.footer)}>
       <div className={styles.container}>
@@ -69,113 +52,7 @@ const Footer: React.FC<FooterProps> = ({ className, mutationElemRef }) => {
           </div>
 
           <div className={`${styles.footerCell} ${styles.contact}`}>
-            <div>
-              <ul>
-                <li>
-                  <a href={`mailto:${emailAddr}`}>
-                    <div
-                      className={styles.contactIcon}
-                      style={{
-                        backgroundPositionY: "0px",
-                      }}
-                    ></div>
-                    {emailAddr}
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="https://www.linkedin.com/in/bbaysinger"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <span className="nobr">
-                      <div
-                        className={styles.contactIcon}
-                        style={{
-                          backgroundPositionY: "-52px",
-                        }}
-                      ></div>
-                      linkedin.com/in/bbaysinger
-                    </span>
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="https://github.com/bbaysinger"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <div
-                      className={styles.contactIcon}
-                      style={{
-                        backgroundPositionY: "-104px",
-                      }}
-                    ></div>
-                    github.com/bbaysinger
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="https://stackoverflow.com/u/1253298"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <div
-                      className={styles.contactIcon}
-                      style={{
-                        backgroundPositionY: "-156px",
-                      }}
-                    ></div>
-                    stackoverflow.com/u/1253298
-                  </a>
-                </li>
-                {(_phoneLoading || phoneE164 || phoneDisplay) && (
-                  <li>
-                    <a href={`tel:${phoneE164 || ""}`}>
-                      <div
-                        className={styles.contactIcon}
-                        style={{
-                          backgroundPositionY: "-208px",
-                        }}
-                      ></div>
-                      {_phoneLoading
-                        ? "Loading..."
-                        : phoneDisplay || phoneE164 || ""}
-                    </a>
-                  </li>
-                )}
-                <li>
-                  <a
-                    href="geo:47.6605791,-117.4292277?q=Spokane,WA"
-                    title="Spokane, WA (47.6605791,-117.4292277)"
-                    onClick={(e) => {
-                      // For desktop-like environments, prefer opening Google Maps in a new tab.
-                      if (!isTouchPrimary) {
-                        e.preventDefault();
-                        window.open(
-                          "https://www.google.com/maps/search/?api=1&query=47.6605791,-117.4292277",
-                          "_blank",
-                          "noopener,noreferrer",
-                        );
-                      }
-                    }}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <div
-                      className={styles.contactIcon}
-                      style={{
-                        backgroundPositionY: "-260px",
-                      }}
-                    ></div>
-                    Spokane, WA{" "}
-                    <span className={styles.notASuburb}>
-                      (<i>not</i> near Seattle)
-                    </span>
-                  </a>
-                </li>
-              </ul>
-            </div>
+            <FooterContactList />
           </div>
 
           <div className={`${styles.footerCell} ${styles.footerNav}`}>

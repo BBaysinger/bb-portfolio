@@ -189,53 +189,6 @@ footer.footer {
 
 .contact {
   text-align: left;
-
-  > div {
-    display: inline-block;
-  }
-
-  ul {
-    display: flex;
-    flex-direction: column;
-    align-items: left;
-    text-align: left;
-  }
-
-  li {
-    margin-bottom: $footerListItemSpacing;
-    height: $footerListItemHeight;
-    line-height: $footerListItemHeight;
-    &:last-of-type {
-      margin-bottom: 0;
-    }
-  }
-
-  img {
-    margin-right: 5px;
-  }
-
-  li div {
-    background-repeat: no-repeat;
-    background-position: center center;
-    background-size: contain;
-    margin-right: 10px;
-    height: 27px;
-    width: 25px;
-    overflow: hidden;
-    margin-bottom: 5px;
-    padding-top: 3px;
-    display: inline-block;
-    vertical-align: middle;
-  }
-}
-
-.contactIcon {
-  background-image: url("/images/footer/footer-icons.webp");
-}
-
-// For recruiters who tend to think Spokane is a suburb of Seattle, 😂.
-.notASuburb {
-  font-size: 11px;
 }
 
 // footer nav links style override when used in footer

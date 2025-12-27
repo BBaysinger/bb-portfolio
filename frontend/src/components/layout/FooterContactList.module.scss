@@ -1,0 +1,58 @@
+@use "@/styles/mixins" as *;
+@use "@/styles/variables" as *;
+
+// Keep these in sync with footer spacing
+$footerListItemSpacing: 12px;
+$footerListItemHeight: 30px;
+
+.root {
+  display: inline-block;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  padding-left: 0;
+  margin-left: 0;
+  list-style: none;
+  font-size: 15px;
+
+  &:last-of-type {
+    margin-bottom: 0;
+  }
+}
+
+.item {
+  white-space: nowrap;
+  margin-bottom: $footerListItemSpacing;
+  height: $footerListItemHeight;
+  line-height: $footerListItemHeight;
+
+  &:last-of-type {
+    margin-bottom: 0;
+  }
+}
+
+.contactIcon {
+  background-image: url("/images/footer/footer-icons.webp");
+  background-repeat: no-repeat;
+  background-position-x: 0;
+  // sprite sheet is 50px wide; icon box is 25px wide
+  background-size: 25px auto;
+
+  margin-right: 10px;
+  // scaled sprite cell height: 52px -> 26px
+  height: 26px;
+  width: 25px;
+  overflow: hidden;
+  margin-bottom: 5px;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+// For recruiters who tend to think Spokane is a suburb of Seattle, 😂.
+.notASuburb {
+  font-size: 11px;
+}
