@@ -8,7 +8,7 @@ header.headerSub {
   color: #222;
   @include lerpRange(--headerSubRadius, 32px, 50px);
   @include lerpRange(--headerSubBlackCropOffset, 15px, 30px);
-  @include lerpRange(padding, 14px, 26px);
+  @include lerpRange(padding, 20px, 36px);
   @include lerpRange(padding-left, 16px, 29px);
   letter-spacing: 1px;
   margin-left: auto;
