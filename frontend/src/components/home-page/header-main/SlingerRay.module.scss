@@ -11,7 +11,7 @@
   transform: translateX(-50%);
   animation: pulseScale 2s infinite ease-in-out;
   aspect-ratio: 480 / 1098;
-  @include staticRange(width, 100px, 200px);
+  @include lerpRange(width, 100px, 200px);
 }
 
 .energyBars {

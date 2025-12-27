@@ -44,7 +44,7 @@ Open [http://localhost:3000](http://localhost:3000) - note that backend features
 ### Responsive Design
 
 - **Fluid Variables**: JavaScript-powered CSS custom properties for smooth scaling
-- **SCSS Mixins**: `remRange`, `staticRange`, and `scaleRange` for different scaling needs
+- **SCSS Mixins**: `remRange`, `lerpRange`, and `scaleRange` for different scaling needs
 - **Mobile-First**: Progressive enhancement approach
 
 ### Routing & Data

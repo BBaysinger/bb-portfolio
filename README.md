@@ -219,7 +219,7 @@ Custom infinite carousel with master/slave layering for synchronized parallax. D
 Two complementary pieces ensure predictable, accessible scaling across devices:
 
 - SCSS mixins for CSS‑only fluidity
-  - `staticRange(property, min, max, minVW, maxVW)`: pixel‑precise linear interpolation via media queries; ideal for layout dimensions, gaps, and visual components that should track viewport, not font size.
+  - `lerpRange(property, min, max, minVW, maxVW)`: pixel‑precise linear interpolation via media queries; ideal for layout dimensions, gaps, and visual components that should track viewport, not font size.
   - `remRange(property, min, max, minVW, maxVW)`: accessibility‑safe scaling with rems + CSS custom properties; aligns with user font preferences for text and UI elements.
   - `scaleRange(minScale, maxScale, minVW, maxVW, preserveTransform?)`: transform scaling with clamp() for perfectly smooth transitions; preserves existing transforms when needed.
   - Helpers: `breakpointUp()`, unit enforcement (`ensureUnit`, `stripUnit`), `to-rems`, `rnd`, SVG data‑URL builder.
@@ -239,7 +239,7 @@ SCSS (layout scaling vs accessible text):
 ```scss
 .cardGrid {
   // Pixel-precise gap from 16px → 48px between 360px and 1440px viewport
-  @include staticRange(gap, 16px, 48px, 360, 1440);
+  @include lerpRange(gap, 16px, 48px, 360, 1440);
   // Title font size fluid from 18px → 24px respecting user font scaling
   @include remRange(font-size, 18px, 24px, 360, 1440);
 }

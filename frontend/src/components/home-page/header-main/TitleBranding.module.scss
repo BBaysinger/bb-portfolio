@@ -67,8 +67,8 @@
   display: inline-block;
   margin-bottom: -1px;
   height: auto;
-  @include staticRange(width, 40px, 60px, $b320px, $b768px);
-  @include staticRange(min-width, 40px, 60px, $b320px, $b768px);
+  @include lerpRange(width, 40px, 60px, $b320px, $b768px);
+  @include lerpRange(min-width, 40px, 60px, $b320px, $b768px);
   & > * {
     // Offset baked-in shadow
     margin-left: -31.5%;

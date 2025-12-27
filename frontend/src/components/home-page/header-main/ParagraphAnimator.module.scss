@@ -19,7 +19,7 @@
   p {
     line-height: 1.4em;
     margin-bottom: 0;
-    @include staticRange(margin-top, -0.18em, -0.25em);
+    @include lerpRange(margin-top, -0.18em, -0.25em);
   }
 }
 

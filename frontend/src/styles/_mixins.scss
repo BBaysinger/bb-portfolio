@@ -186,7 +186,7 @@
 /// Values are converted to `rem` for accessibility so they respect user font-size preferences.
 ///
 /// Use for: Typography, UI elements, text-related spacing
-/// Don't use for: Fixed layouts, images, precise visual spacing (use staticRange instead)
+/// Don't use for: Fixed layouts, images, precise visual spacing (use lerpRange instead)
 ///
 /// @param $property - The CSS property to scale
 /// @param $min-value - Value at minimum viewport width (px or rem)
@@ -244,11 +244,11 @@
 /// @param $max-vw - Maximum viewport width (px or unitless, default: $b1792)
 ///
 /// @example Container scaling:
-/// @include staticRange(width, 300px, 1200px, 320, 1440);
+/// @include lerpRange(width, 300px, 1200px, 320, 1440);
 ///
 /// @example Visual spacing:
-/// @include staticRange(gap, 16px, 48px, 320, 768);
-@mixin staticRange(
+/// @include lerpRange(gap, 16px, 48px, 320, 768);
+@mixin lerpRange(
   $property,
   $min-value,
   $max-value,
