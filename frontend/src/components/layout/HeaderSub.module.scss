@@ -6,6 +6,7 @@ header.headerSub {
   overflow: visible;
   isolation: isolate;
   color: #222;
+  @include staticRange(--headerSubRadius, 32px, 50px);
   @include staticRange(padding, 14px, 26px);
   @include staticRange(padding-left, 16px, 29px);
   letter-spacing: 1px;
@@ -25,14 +26,10 @@ header.headerSub {
     box-sizing: border-box;
     border-style: solid;
     background-color: #f66213;
-    @include staticRange(border-top-width, 40px, 60px);
-    @include staticRange(border-right-width, 40px, 60px);
-    @include staticRange(border-bottom-width, 40px, 60px);
-    @include staticRange(border-left-width, 40px, 60px);
+    border-width: var(--headerSubRadius);
     border-image: url("/images/common/embossed-sign-orange.webp") 90 90 90 90
       stretch;
-    border-radius: 40px;
-    @include staticRange(border-radius, 40px, 60px);
+    clip-path: inset(0 round calc(var(--headerSubRadius) - 3px));
   }
 
   > * {

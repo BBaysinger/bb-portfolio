@@ -9,8 +9,16 @@ type AutoFitTextOptions = {
   targetRef: React.RefObject<HTMLElement | null>;
   /** Element used as an anchor for subscribing to window events (lifecycle only). */
   anchorRef: React.RefObject<Element | null>;
-  /** Rerun auto-fit when these values change (e.g. the displayed text). */
-  deps: React.DependencyList;
+  /**
+   * Rerun auto-fit when this value changes (e.g. the displayed text).
+   * Prefer this over a dependency list so hooks linting can be statically verified.
+   */
+  watch?: unknown;
+  /**
+   * Optional additional watched values.
+   * This is treated as a single dependency by reference; memoize it if needed.
+   */
+  watchList?: readonly unknown[];
 
   /** Maximum number of text lines allowed before shrinking. */
   maxLines?: number;
@@ -37,7 +45,8 @@ function resolveLineHeightPx(el: HTMLElement, fontSizePx: number): number {
 export function useAutoFitText({
   targetRef,
   anchorRef,
-  deps,
+  watch,
+  watchList,
   maxLines = 2,
   minFontSizePx = 18,
   stepPx = 1,
@@ -99,7 +108,7 @@ export function useAutoFitText({
       }
       fitRafId.current = null;
     };
-  }, [runAutoFit, ...deps]);
+  }, [runAutoFit, watch, watchList]);
 
   useWindowMonitor(anchorRef, (eventType) => {
     if (eventType !== "resize") return;
