@@ -1,4 +1,6 @@
-import React from "react";
+import React, { useRef } from "react";
+
+import useAutoFitText from "@/hooks/useAutoFitText";
 
 interface HeaderSubProps {
   head: string;
@@ -11,17 +13,27 @@ import styles from "./HeaderSub.module.scss";
  * This is the header for every page other than the home page. It takes a parameter
  * for the page title it displays.
  *
- * TODO: Handle height changes in a better way. Currently, on mobile, a min-height could be
- * considered, but could also be smoothed out with CSS3 transitions to handle titles going to
- * multiple lines, so as to prevent content
- * from snapping around from page to page, consistent with the handling on info/features height.
- *
  */
 const HeaderSub: React.FC<HeaderSubProps> = ({ head, subhead }) => {
+  const headerRef = useRef<HTMLElement | null>(null);
+  const h1Ref = useRef<HTMLHeadingElement | null>(null);
+
+  useAutoFitText({
+    anchorRef: headerRef,
+    targetRef: h1Ref,
+    deps: [head],
+    maxLines: 2,
+    minFontSizePx: 18,
+  });
+
   return (
-    <header id="headerSub" className={`${styles.headerSub} ${styles.header}`}>
+    <header
+      ref={headerRef}
+      id="headerSub"
+      className={`${styles.headerSub} ${styles.header}`}
+    >
       <div className={styles.textWrapper}>
-        <h1>{head}</h1>
+        <h1 ref={h1Ref}>{head}</h1>
         {subhead && <h5 className={styles.subhead}>{subhead}</h5>}
       </div>
     </header>
