@@ -11,7 +11,7 @@ import { useEffect, useRef, RefObject } from "react";
  * ## System Overview:
  * 1. **useFluidLerpVars** (this hook) - Provides CSS variables like `--fluid-percent-320-640`
  * 2. **remRange mixin** - Uses variables for accessibility-friendly text/UI scaling (rem-based)
- * 3. **staticRange mixin** - Pure CSS linear interpolation from `100vw` (does not require this hook)
+ * 3. **lerpRange mixin** - Pure CSS linear interpolation from `100vw` (does not require this hook)
  * 4. **scaleRange mixin** - Transform scaling via a clamp-bounded lerp (linear interpolation)
  *
  * ## How It Works:
@@ -21,7 +21,7 @@ import { useEffect, useRef, RefObject } from "react";
  * - SCSS/CSS uses the factor in a lerp (linear interpolation): `value = min + (max - min) * t`
  * - Updates automatically on resize/orientation change
  *
- * Note: If you only use `staticRange`, you do not need this hook.
+ * Note: If you only use `lerpRange`, you do not need this hook.
  * ## Usage with SCSS Mixins:
  * ```tsx
  * // 1. Set up variables in a layout/root component (AppShell does this in this project)
@@ -65,7 +65,7 @@ import { useEffect, useRef, RefObject } from "react";
  * }
  *
  * .container {
- *   @include staticRange(width, 300px, 800px, 320, 640);
+ *   @include lerpRange(width, 300px, 800px, 320, 640);
  * }
  * ```
  *
@@ -94,7 +94,7 @@ import { useEffect, useRef, RefObject } from "react";
  *
  *   return (
  *     <div ref={fluidRef}>
- *       // Your responsive content using remRange/staticRange mixins
+ *       // Your responsive content using remRange/lerpRange mixins
  *     </div>
  *   );
  * }

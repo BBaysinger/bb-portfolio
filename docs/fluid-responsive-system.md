@@ -5,7 +5,7 @@ An original clamped viewport lerp (linear interpolation) responsive system spawn
 A hybrid approach:
 
 - JavaScript provides normalized viewport lerp (linear interpolation) factors (`--fluid-percent-*`) for `remRange` (accessibility-first scaling).
-- Pure-CSS mixins (`staticRange`, `scaleRange`) handle layout and transforms without JS.
+- Pure-CSS mixins (`lerpRange`, `scaleRange`) handle layout and transforms without JS.
 
 ## Overview
 
@@ -15,7 +15,7 @@ This system combines a React hook with SCSS mixins to create smooth responsive s
 
 1. **`useFluidLerpVars` Hook** - Calculates and injects CSS custom properties
 2. **`remRange` Mixin** - Text/UI scaling that respects user font size preferences
-3. **`staticRange` Mixin** - Layout/visual scaling with consistent pixel precision (pure CSS)
+3. **`lerpRange` Mixin** - Layout/visual scaling with consistent pixel precision (pure CSS)
 4. **`scaleRange` Mixin** - Transform scaling via a clamp-bounded lerp (linear interpolation)
 
 ## Quick Start
@@ -51,8 +51,8 @@ function Layout({ children }) {
 
 // Layouts that scale with viewport
 .container {
-  @include staticRange(width, 300px, 1200px, 320, 1440);
-  @include staticRange(padding, 16px, 64px, 320, 640);
+  @include lerpRange(width, 300px, 1200px, 320, 1440);
+  @include lerpRange(padding, 16px, 64px, 320, 640);
 }
 
 // Smooth transform scaling
@@ -90,7 +90,7 @@ Notes:
 font-size: calc(1.5rem + 1.5rem * var(--fluid-percent-320-640));
 ```
 
-`staticRange` does not require JS variables; it computes the interpolation factor directly from `100vw`.
+`lerpRange` does not require JS variables; it computes the interpolation factor directly from `100vw`.
 
 ### Real-time Updates
 
@@ -124,7 +124,7 @@ font-size: calc(1.5rem + 1.5rem * var(--fluid-percent-320-640));
 }
 ```
 
-### `staticRange(property, min, max, minVw, maxVw)`
+### `lerpRange(property, min, max, minVw, maxVw)`
 
 **Purpose**: Pixel-precise scaling for layouts and visual elements.
 
@@ -132,9 +132,9 @@ font-size: calc(1.5rem + 1.5rem * var(--fluid-percent-320-640));
 
 ```scss
 .layout {
-  @include staticRange(width, 300px, 1200px, 320, 1440);
-  @include staticRange(gap, 16px, 48px, 320, 1280);
-  @include staticRange(border-radius, 4px, 12px, 320, 640);
+  @include lerpRange(width, 300px, 1200px, 320, 1440);
+  @include lerpRange(gap, 16px, 48px, 320, 1280);
+  @include lerpRange(border-radius, 4px, 12px, 320, 640);
 }
 ```
 
@@ -191,13 +191,13 @@ font-size: calc(1.5rem + 1.5rem * var(--fluid-percent-320-640));
 
 ### Choosing the Right Mixin
 
-| Element Type                | Mixin         | Reason                         |
-| --------------------------- | ------------- | ------------------------------ |
-| Headings, body text, labels | `remRange`    | Respects user font preferences |
-| Buttons, form inputs, icons | `remRange`    | Should scale with text         |
-| Containers, grids, layouts  | `staticRange` | Consistent visual proportions  |
-| Images, videos, graphics    | `staticRange` | Pixel-precise dimensions       |
-| Animations, transforms      | `scaleRange`  | Smooth scaling effects         |
+| Element Type                | Mixin        | Reason                         |
+| --------------------------- | ------------ | ------------------------------ |
+| Headings, body text, labels | `remRange`   | Respects user font preferences |
+| Buttons, form inputs, icons | `remRange`   | Should scale with text         |
+| Containers, grids, layouts  | `lerpRange`  | Consistent visual proportions  |
+| Images, videos, graphics    | `lerpRange`  | Pixel-precise dimensions       |
+| Animations, transforms      | `scaleRange` | Smooth scaling effects         |
 
 ### Viewport Ranges
 
@@ -260,7 +260,7 @@ const fluidRef = useFluidLerpVars([
 
 ```scss
 .container {
-  @include staticRange(width, 300px, 800px, 320, 1280);
+  @include lerpRange(width, 300px, 800px, 320, 1280);
 }
 ```
 

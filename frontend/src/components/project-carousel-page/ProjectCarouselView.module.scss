@@ -9,21 +9,15 @@
   left: 50%;
   transform: translateX(-50%);
 
-  /* Use staticRange for carousel spacing - viewport-based, not text-size-based */
-  @include staticRange(
+  /* Use lerpRange for carousel spacing - viewport-based, not text-size-based */
+  @include lerpRange(
     "margin-top",
     -115px,
     0px,
     $b320,
     $maxCarouselScaleVW
   ); // 680
-  @include staticRange(
-    "margin-bottom",
-    -115px,
-    0px,
-    $b320,
-    $maxCarouselScaleVW
-  );
+  @include lerpRange("margin-bottom", -115px, 0px, $b320, $maxCarouselScaleVW);
 
   /* Apply centering and scaling transforms together */
   @include scaleRange(0.4755, 1, $b320, $maxCarouselScaleVW, translateX(-50%));

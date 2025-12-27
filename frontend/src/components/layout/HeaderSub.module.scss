@@ -6,16 +6,16 @@ header.headerSub {
   overflow: visible;
   isolation: isolate;
   color: #222;
-  @include staticRange(--headerSubRadius, 32px, 50px);
-  @include staticRange(--headerSubBlackCropOffset, 15px, 30px);
-  @include staticRange(padding, 14px, 26px);
-  @include staticRange(padding-left, 16px, 29px);
+  @include lerpRange(--headerSubRadius, 32px, 50px);
+  @include lerpRange(--headerSubBlackCropOffset, 15px, 30px);
+  @include lerpRange(padding, 14px, 26px);
+  @include lerpRange(padding-left, 16px, 29px);
   letter-spacing: 1px;
   margin-left: auto;
   margin-right: auto;
-  @include staticRange(margin-top, $navBarHeight + 20px, 40px);
-  @include staticRange(margin-bottom, 20px, 30px);
-  @include staticRange(width, 96%, 70%, $b640, $b1792);
+  @include lerpRange(margin-top, $navBarHeight + 20px, 40px);
+  @include lerpRange(margin-bottom, 20px, 30px);
+  @include lerpRange(width, 96%, 70%, $b640, $b1792);
   transform: rotate(-1deg);
 
   .frameClip {
@@ -39,7 +39,7 @@ header.headerSub {
     box-sizing: border-box;
     border-style: solid;
     background-color: #f66213;
-    @include staticRange(mask-size, 70%, 100%);
+    @include lerpRange(mask-size, 70%, 100%);
     border-width: var(--headerSubRadius);
     border-image: url("/images/common/embossed-sign-orange.webp") 90 90 90 90
       stretch;
@@ -47,7 +47,7 @@ header.headerSub {
     &:nth-of-type(2),
     &:nth-of-type(3) {
       mask-image: url(/images/common/barber-pole.webp);
-      @include staticRange(mask-size, 70%, 75%);
+      @include lerpRange(mask-size, 70%, 75%);
       mask-position: center top;
       border-image-source: url("/images/common/embossed-sign-black.webp");
     }
