@@ -21,7 +21,7 @@ const HeaderSub: React.FC<HeaderSubProps> = ({ head, subhead }) => {
   useAutoFitText({
     anchorRef: headerRef,
     targetRef: h1Ref,
-    deps: [head],
+    watch: head,
     maxLines: 2,
     minFontSizePx: 18,
   });
