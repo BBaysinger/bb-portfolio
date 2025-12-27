@@ -32,6 +32,11 @@ const HeaderSub: React.FC<HeaderSubProps> = ({ head, subhead }) => {
       id="headerSub"
       className={`${styles.headerSub} ${styles.header}`}
     >
+      <div aria-hidden className={styles.frameClip}>
+        <span className={`${styles.frameLayer} ${styles.frameLayerOrange}`} />
+        <span className={styles.frameLayer} />
+        <span className={styles.frameLayer} />
+      </div>
       <div className={styles.textWrapper}>
         <h1 ref={h1Ref}>{head}</h1>
         {subhead && <h5 className={styles.subhead}>{subhead}</h5>}
