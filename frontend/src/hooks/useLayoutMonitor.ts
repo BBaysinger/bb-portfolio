@@ -12,7 +12,14 @@ type EventType =
   | "mutate";
 
 type ElementEventType = Extract<EventType, "resize" | "position" | "mutate">;
-type WindowEventType = Exclude<EventType, ElementEventType>;
+type WindowEventType = Extract<
+  EventType,
+  | "resize"
+  | "scroll"
+  | "orientationchange"
+  | "visibilitychange"
+  | "fullscreenchange"
+>;
 
 /**
  * Optional per-event debounce overrides in milliseconds. Use `0` for immediate
@@ -41,6 +48,7 @@ type DebounceMap = Partial<Record<EventType, number>>;
  */
 
 const WINDOW_EVENTS: [WindowEventType, string][] = [
+  ["resize", "resize"],
   ["scroll", "scroll"],
   ["orientationchange", "orientationchange"],
   ["visibilitychange", "visibilitychange"],

@@ -48,7 +48,7 @@ header.headerSub {
     text-transform: italic;
     text-transform: uppercase;
 
-    @include remRange(font-size, 50px, 70px);
+    @include remRange(font-size, 40px, 70px);
   }
 
   h5,
