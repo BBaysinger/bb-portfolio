@@ -115,7 +115,10 @@ async function main() {
     profile = isBuildLifecycle ? 'prod' : 'local'
   }
 
-  const rawList = `${process.env.REQUIRED_ENVIRONMENT_VARIABLES || ''}`.trim()
+  const rawListBackend = `${process.env.REQUIRED_ENVIRONMENT_VARIABLES_BACKEND || ''}`.trim()
+  const rawListLegacy = `${process.env.REQUIRED_ENVIRONMENT_VARIABLES || ''}`.trim()
+  const usingBackendList = rawListBackend.length > 0
+  const rawList = usingBackendList ? rawListBackend : rawListLegacy
   const requirements = parseRequirements(rawList)
 
   const defaultCritical: RequirementList = [
@@ -129,16 +132,17 @@ async function main() {
 
   const defaultLocal: RequirementList = [...defaultCritical, ['NEXT_SERVER_ACTIONS_ENCRYPTION_KEY']]
 
-  const hasDefinitionVar = rawList.length > 0
+  const hasDefinitionVar = rawListBackend.length > 0 || rawListLegacy.length > 0
   if ((inCI || profile === 'prod') && !hasDefinitionVar) {
     const msg = [
       `${TAG} Missing definition of required env list.`,
       `Profile: ${profile || '<none>'}`,
       'Please set one of:',
-      '  - REQUIRED_ENVIRONMENT_VARIABLES',
+      '  - REQUIRED_ENVIRONMENT_VARIABLES_BACKEND (preferred)',
+      '  - REQUIRED_ENVIRONMENT_VARIABLES (legacy compatibility)',
       'Define a comma-separated list of groups; use "|" for ANY-of within a group.',
       'Example:',
-      '  REQUIRED_ENVIRONMENT_VARIABLES=GROUP_A|GROUP_B,GROUP_C',
+      '  REQUIRED_ENVIRONMENT_VARIABLES_BACKEND=GROUP_A|GROUP_B,GROUP_C',
     ].join('\n')
     console.error(msg)
     process.exit(1)
@@ -162,10 +166,11 @@ async function main() {
     const msg = [
       `${TAG} Missing required environment variables.`,
       `Profile: ${profile || '<none>'}`,
+      `Definition source: ${usingBackendList ? 'REQUIRED_ENVIRONMENT_VARIABLES_BACKEND' : 'REQUIRED_ENVIRONMENT_VARIABLES'}`,
       'The following requirements were not satisfied (ANY of within each group):',
       ...missingGroups.map((group) => `  - ${group}`),
       '',
-      'Configure REQUIRED_ENVIRONMENT_VARIABLES for your build.',
+      `Configure ${usingBackendList ? 'REQUIRED_ENVIRONMENT_VARIABLES_BACKEND' : 'REQUIRED_ENVIRONMENT_VARIABLES'} for your build.`,
     ].join('\n')
 
     if (inCI || profile === 'prod') {
@@ -177,7 +182,7 @@ async function main() {
   } else {
     const summary = summarizeRequirements(effectiveRequirements)
     console.info(
-      `${TAG} All required envs satisfied. Profile=${profile} Requirements=${summary}\nCI=${CI} NODE_ENV=${NODE_ENV} ENV_PROFILE=${ENV_PROFILE} LIFECYCLE=${lifecycle}`,
+      `${TAG} All required envs satisfied. Profile=${profile} Source=${usingBackendList ? 'REQUIRED_ENVIRONMENT_VARIABLES_BACKEND' : 'REQUIRED_ENVIRONMENT_VARIABLES'} Requirements=${summary}\nCI=${CI} NODE_ENV=${NODE_ENV} ENV_PROFILE=${ENV_PROFILE} LIFECYCLE=${lifecycle}`,
     )
   }
 }

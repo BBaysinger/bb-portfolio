@@ -75,11 +75,15 @@ export default function ProjectViewWrapper({
           setDatasetEpoch((e) => e + 1);
         } else {
           // Initialize dataset based on computed includeNdaInActive for this route/auth state.
-          await ProjectData.initialize({
-            disableCache: true,
-            includeNdaInActive,
-          });
-          setDatasetEpoch((e) => e + 1);
+          try {
+            await ProjectData.initialize({
+              disableCache: true,
+              includeNdaInActive,
+            });
+            setDatasetEpoch((e) => e + 1);
+          } catch {
+            return;
+          }
         }
         initOnce.current = true;
       } finally {
@@ -104,11 +108,15 @@ export default function ProjectViewWrapper({
       );
       if (!hasNdaInActive) {
         (async () => {
-          await ProjectData.initialize({
-            disableCache: true,
-            includeNdaInActive: true,
-          });
-          setDatasetEpoch((e) => e + 1);
+          try {
+            await ProjectData.initialize({
+              disableCache: true,
+              includeNdaInActive: true,
+            });
+            setDatasetEpoch((e) => e + 1);
+          } catch {
+            // ignore
+          }
         })();
       }
     }
@@ -237,11 +245,15 @@ function ProjectViewRouterBridge({
         projectRequiresNda(p),
       );
       if (!hasNdaInActive) {
-        await ProjectData.initialize({
-          disableCache: true,
-          includeNdaInActive: true,
-        });
-        setEpoch((e) => e + 1);
+        try {
+          await ProjectData.initialize({
+            disableCache: true,
+            includeNdaInActive: true,
+          });
+          setEpoch((e) => e + 1);
+        } catch {
+          // ignore
+        }
       }
     };
     ensureNdaPresent();
@@ -256,11 +268,15 @@ function ProjectViewRouterBridge({
       if (!allowNda || !projectId) return;
       const record = ProjectData.activeProjectsRecord || {};
       if (!record[projectId]) {
-        await ProjectData.initialize({
-          disableCache: true,
-          includeNdaInActive: true,
-        });
-        setEpoch((e) => e + 1);
+        try {
+          await ProjectData.initialize({
+            disableCache: true,
+            includeNdaInActive: true,
+          });
+          setEpoch((e) => e + 1);
+        } catch {
+          // ignore
+        }
       }
     };
     ensureCurrentPresent();

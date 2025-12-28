@@ -300,15 +300,32 @@ const allowMissingGroups =
 validateRepoRequirements(data.strings ?? {});
 
 function validateRepoRequirements(strings: Record<string, string>) {
-  const requirementSource = strings["REQUIRED_ENVIRONMENT_VARIABLES"];
-  if (!requirementSource) {
+  const front = strings["REQUIRED_ENVIRONMENT_VARIABLES_FRONTEND"];
+  const back = strings["REQUIRED_ENVIRONMENT_VARIABLES_BACKEND"];
+  const legacy = strings["REQUIRED_ENVIRONMENT_VARIABLES"];
+
+  if (!front && !back && !legacy) {
     console.info(
-      "ℹ️ Base manifest does not define REQUIRED_ENVIRONMENT_VARIABLES; skipping repo-level validation.",
+      "ℹ️ Base manifest does not define any required env lists; skipping repo-level validation.",
     );
     return;
   }
+
+  if (front || back) {
+    console.info(
+      "ℹ️ Split required env lists defined on base manifest; each environment will be validated against them.",
+    );
+    if (front) {
+      console.info("  - REQUIRED_ENVIRONMENT_VARIABLES_FRONTEND");
+    }
+    if (back) {
+      console.info("  - REQUIRED_ENVIRONMENT_VARIABLES_BACKEND");
+    }
+    return;
+  }
+
   console.info(
-    "ℹ️ REQUIRED_ENVIRONMENT_VARIABLES defined on base manifest; each environment will be validated against this list.",
+    "ℹ️ REQUIRED_ENVIRONMENT_VARIABLES defined on base manifest; each environment will be validated against this legacy list.",
   );
 }
 
@@ -317,45 +334,77 @@ function validateEnvironmentRequirements(
   stringsOverride?: Record<string, string>,
 ) {
   const strings = stringsOverride ?? {};
-  const requirementSource =
+  const frontSource =
+    strings["REQUIRED_ENVIRONMENT_VARIABLES_FRONTEND"] ||
+    baseStrings["REQUIRED_ENVIRONMENT_VARIABLES_FRONTEND"];
+  const backSource =
+    strings["REQUIRED_ENVIRONMENT_VARIABLES_BACKEND"] ||
+    baseStrings["REQUIRED_ENVIRONMENT_VARIABLES_BACKEND"];
+  const legacySource =
     strings["REQUIRED_ENVIRONMENT_VARIABLES"] ||
     baseStrings["REQUIRED_ENVIRONMENT_VARIABLES"];
-  if (!requirementSource) {
+
+  const splitMode = !!frontSource || !!backSource;
+  const toValidate: Array<{ label: string; source: string }> = [];
+
+  if (splitMode) {
+    if (frontSource) {
+      toValidate.push({
+        label: "REQUIRED_ENVIRONMENT_VARIABLES_FRONTEND",
+        source: frontSource,
+      });
+    }
+    if (backSource) {
+      toValidate.push({
+        label: "REQUIRED_ENVIRONMENT_VARIABLES_BACKEND",
+        source: backSource,
+      });
+    }
+  } else if (legacySource) {
+    toValidate.push({
+      label: "REQUIRED_ENVIRONMENT_VARIABLES",
+      source: legacySource,
+    });
+  }
+
+  if (toValidate.length === 0) {
     console.info(
-      `ℹ️ [${envName}] No REQUIRED_ENVIRONMENT_VARIABLES defined; skipping validation.`,
+      `ℹ️ [${envName}] No required env lists defined; skipping validation.`,
     );
     return;
   }
 
   const mergedStrings = { ...baseStrings, ...strings };
   const keys = new Set(Object.keys(mergedStrings));
-  const groups = parseRequirements(requirementSource);
 
-  const missing: string[] = [];
-  for (const group of groups) {
-    const satisfied = group.some((k) => keys.has(k));
-    if (!satisfied) missing.push(group.join("|"));
-  }
+  for (const item of toValidate) {
+    const groups = parseRequirements(item.source);
 
-  if (missing.length) {
-    const header = `❌ [${envName}] Missing required secret groups:`;
-    const body = missing.map((g) => `  • ${g}`).join("\n");
-    const footer =
-      "Each group uses '|' to indicate ANY-of. Add one secret for each group.";
-    const message = [header, body, footer].join("\n");
-    if (allowMissingGroups) {
-      console.warn(message);
-    } else {
-      console.error(message);
-      process.exit(1);
+    const missing: string[] = [];
+    for (const group of groups) {
+      const satisfied = group.some((k) => keys.has(k));
+      if (!satisfied) missing.push(group.join("|"));
     }
-    return;
-  }
 
-  const summary = groups.map((g) => `[${g.join("|")}]`).join(", ") || "<none>";
-  console.info(
-    `✅ [${envName}] REQUIRED_ENVIRONMENT_VARIABLES satisfied: ${summary}`,
-  );
+    if (missing.length) {
+      const header = `❌ [${envName}] Missing required secret groups for ${item.label}:`;
+      const body = missing.map((g) => `  • ${g}`).join("\n");
+      const footer =
+        "Each group uses '|' to indicate ANY-of. Add one secret for each group.";
+      const message = [header, body, footer].join("\n");
+      if (allowMissingGroups) {
+        console.warn(message);
+      } else {
+        console.error(message);
+        process.exit(1);
+      }
+      return;
+    }
+
+    const summary =
+      groups.map((g) => `[${g.join("|")}]`).join(", ") || "<none>";
+    console.info(`✅ [${envName}] ${item.label} satisfied: ${summary}`);
+  }
 }
 
 const expandFileShortcuts = (files?: Record<string, string>) => {

@@ -83,10 +83,14 @@ export default function HomePageClient({
 
     let cancelled = false;
     (async () => {
-      await ProjectData.initialize({
-        disableCache: true,
-        includeNdaInActive: false,
-      });
+      try {
+        await ProjectData.initialize({
+          disableCache: true,
+          includeNdaInActive: false,
+        });
+      } catch {
+        return;
+      }
       if (cancelled) return;
       setProjects([...ProjectData.listedProjects]);
     })();
@@ -104,10 +108,14 @@ export default function HomePageClient({
     let cancelled = false;
     (async () => {
       // If the browser later authenticates, refetch so NDA entries become available client-side.
-      await ProjectData.initialize({
-        disableCache: true,
-        includeNdaInActive: true,
-      });
+      try {
+        await ProjectData.initialize({
+          disableCache: true,
+          includeNdaInActive: true,
+        });
+      } catch {
+        return;
+      }
       if (cancelled) return;
       setProjects([...ProjectData.listedProjects]);
     })();
@@ -129,10 +137,14 @@ export default function HomePageClient({
 
     let cancelled = false;
     (async () => {
-      await ProjectData.initialize({
-        disableCache: true,
-        includeNdaInActive: false,
-      });
+      try {
+        await ProjectData.initialize({
+          disableCache: true,
+          includeNdaInActive: false,
+        });
+      } catch {
+        return;
+      }
       if (cancelled) return;
       setProjects([...ProjectData.listedProjects]);
     })();
