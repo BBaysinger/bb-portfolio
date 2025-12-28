@@ -238,7 +238,7 @@ function computeProjectsPrefix(): string {
 
 export async function GET(
   req: NextRequest,
-  context: { params: Promise<{ key?: string[] }> },
+  context: { params: { key?: string[] } },
 ) {
   const authed = await isAuthenticated(req);
   if (!authed) {
@@ -250,7 +250,7 @@ export async function GET(
     return new Response("NDA projects bucket not configured", { status: 500 });
   }
 
-  const { key: keyParts } = await context.params;
+  const { key: keyParts } = context.params;
   const key = sanitizeKey(keyParts || [], computeProjectsPrefix());
   if (!key) return new Response("Bad path", { status: 400 });
 
@@ -280,7 +280,7 @@ export async function GET(
 
 export async function HEAD(
   req: NextRequest,
-  context: { params: Promise<{ key?: string[] }> },
+  context: { params: { key?: string[] } },
 ) {
   const authed = await isAuthenticated(req);
   if (!authed) return new Response("Unauthorized", { status: 401 });
@@ -289,7 +289,7 @@ export async function HEAD(
   if (!bucket)
     return new Response("NDA projects bucket not configured", { status: 500 });
 
-  const { key: keyParts } = await context.params;
+  const { key: keyParts } = context.params;
   const key = sanitizeKey(keyParts || [], computeProjectsPrefix());
   if (!key) return new Response("Bad path", { status: 400 });
 

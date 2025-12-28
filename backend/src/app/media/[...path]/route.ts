@@ -34,7 +34,7 @@ function getContentType(filePath: string): string {
 
 export async function GET(_req: NextRequest, ctx: { params: Promise<{ path: string[] }> }) {
   try {
-    const { path: pathParts } = await ctx.params
+    const { path: pathParts } = ctx.params
     const [prefix, ...rest] = pathParts
     const dir = prefixToDir[prefix]
     if (!dir || rest.length === 0) return new Response('Not found', { status: 404 })

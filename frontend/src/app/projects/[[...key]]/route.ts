@@ -144,7 +144,7 @@ async function streamObject(
 
 export async function GET(
   req: NextRequest,
-  context: { params: Promise<{ key?: string[] }> },
+  context: { params: { key?: string[] } },
 ) {
   // Public projects - no authentication required
 
@@ -161,7 +161,7 @@ export async function GET(
     });
   }
 
-  const { key: keyParts } = await context.params;
+  const { key: keyParts } = context.params;
   const key = sanitizeKey(keyParts || [], prefix);
   if (debug)
     console.info(
@@ -198,7 +198,7 @@ export async function GET(
 
 export async function HEAD(
   req: NextRequest,
-  context: { params: Promise<{ key?: string[] }> },
+  context: { params: { key?: string[] } },
 ) {
   // Public projects - no authentication required
 
@@ -210,7 +210,7 @@ export async function HEAD(
       status: 500,
     });
 
-  const { key: keyParts } = await context.params;
+  const { key: keyParts } = context.params;
   const key = sanitizeKey(keyParts || [], prefix);
   if (!key) return new Response("Bad path", { status: 400 });
 
