@@ -1,10 +1,12 @@
 import { Suspense } from "react";
 
 import ProjectViewWrapper from "@/components/project-carousel-page/ProjectViewWrapper";
+import { ProjectDataStore } from "@/data/ProjectData";
 
-// Static, no ISR and no segment normalization refreshes.
-export const revalidate = 0;
-// Allow on-demand generation for unknown params if desired; disable if you want strict static.
+// Allow SSG/ISR for the project detail route.
+// NOTE: `revalidate = 0` would make this route dynamic/no-store.
+export const revalidate = 3600;
+// Allow on-demand generation for unknown params if needed.
 export const dynamicParams = true;
 
 /**
@@ -42,5 +44,17 @@ export default async function ProjectPage({
 // Optional: pre-render known public project IDs at build time.
 // If you prefer purely on-demand rendering, you can remove this.
 export async function generateStaticParams() {
-  return [];
+  const projectData = new ProjectDataStore();
+  try {
+    await projectData.initialize({
+      disableCache: false,
+      includeNdaInActive: false,
+    });
+  } catch {
+    // During some builds (e.g., CI), the backend may be unavailable.
+    // Returning an empty list preserves on-demand generation via `dynamicParams`.
+    return [];
+  }
+
+  return projectData.activeKeys.map((projectId) => ({ projectId }));
 }

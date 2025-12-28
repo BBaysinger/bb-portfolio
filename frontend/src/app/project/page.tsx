@@ -6,8 +6,9 @@ export const revalidate = 0;
 export const dynamic = "force-dynamic";
 
 /**
- * Legacy query-param entry point: `/project?p=slug`.
- * Now used only to canonicalize direct hits to the segment route or return 404.
+ * Query-param entry point: `/project?p=slug`.
+ * This exists to support direct hits/share links using `?p=`.
+ * In-session carousel navigation updates `?p=` client-side (pushState) without hitting this route.
  * In-session navigation still manipulates `?p=` client-side without hitting this.
  */
 type QuerySearchParams = { [key: string]: string | string[] };
