@@ -32,7 +32,7 @@ function getContentType(filePath: string): string {
   }
 }
 
-export async function GET(_req: NextRequest, ctx: { params: Promise<{ path: string[] }> }) {
+export async function GET(_req: NextRequest, ctx: { params: { path: string[] } }) {
   try {
     const { path: pathParts } = ctx.params
     const [prefix, ...rest] = pathParts
