@@ -50,6 +50,7 @@ When working with AI coding assistants:
 
 - **Git operations**: AI _can_ stage files (`git add`) and prepare commits (`git commit`), but **must not execute `git push`**. The developer should review staged changes and push, merge, or PR manually after verification.
 - **Command expectation**: when the user asks for a git action (e.g., “git commit”), that request implicitly means “provide the exact command(s) to run”. Only execute `git add`/`git commit` when explicitly instructed to run them.
+- **Builds**: do **not** run builds (e.g., `pnpm run build`, `npm run build:*`) by default. In most cases a build is already running; **ask the developer to run the build** and paste results unless the user explicitly asked you to run it or you need it to unblock a diagnosis.
 - **Running the project**: assume the project is already running locally with hot reload. Do **not** start/stop dev servers, Docker Compose stacks, or “run the app to verify” by default. Only run the project when you explicitly need runtime output (logs, HTTP responses, console errors) to confirm behavior or diagnose a problem, or when the user asks you to.
 - **Terraform/Infrastructure changes**: AI can prepare and suggest `terraform plan` but should not automatically execute `terraform apply` without explicit user confirmation for each resource change.
 - **Deployment operations**: AI should present deployment commands and wait for explicit approval rather than automatically triggering deployments.
