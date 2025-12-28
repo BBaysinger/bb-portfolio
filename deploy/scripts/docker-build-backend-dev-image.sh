@@ -40,7 +40,7 @@ printf %s "$NDA_PROJECTS_BUCKET" >"${_tmp_dir}/nda_projects_bucket"
 
 DOCKER_BUILDKIT=1 docker build \
   --target runtime \
-  --build-arg BUILD_ENV_PROFILE=dev \
+  --build-arg ENV_PROFILE=dev \
   --build-arg REQUIRED_ENVIRONMENT_VARIABLES_BACKEND="$REQUIRED_ENVIRONMENT_VARIABLES_BACKEND" \
   --secret id=mongodb_uri,src="${_tmp_dir}/mongodb_uri" \
   --secret id=payload_secret,src="${_tmp_dir}/payload_secret" \

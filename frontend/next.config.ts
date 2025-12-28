@@ -10,6 +10,12 @@ import type { NextConfig } from "next";
 // Override with REACT_STRICT_MODE env var ("false" => force off, any other value => force on)
 const nodeEnv = (process.env.NODE_ENV || "").toLowerCase();
 const isDev = nodeEnv !== "production";
+// Single profile knob:
+// - ENV_PROFILE is the canonical server/build profile.
+// - NEXT_PUBLIC_ENV_PROFILE is derived from ENV_PROFILE so client bundles can read it.
+if (process.env.ENV_PROFILE && !process.env.NEXT_PUBLIC_ENV_PROFILE) {
+  process.env.NEXT_PUBLIC_ENV_PROFILE = process.env.ENV_PROFILE;
+}
 const profile = (process.env.ENV_PROFILE || nodeEnv || "").toLowerCase();
 const strictEnv = process.env.REACT_STRICT_MODE;
 

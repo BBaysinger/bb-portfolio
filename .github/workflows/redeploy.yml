@@ -121,7 +121,6 @@ jobs:
         env:
           PROFILES: ${{ matrix.target }}
           GENERATE_ENV_FROM_ENV: "true"
-          NEXT_PUBLIC_ENV_PROFILE: ${{ secrets.NEXT_PUBLIC_ENV_PROFILE }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
           S3_REGION: ${{ secrets.S3_REGION }}
           S3_BUCKET: ${{ secrets.S3_BUCKET }}
