@@ -143,6 +143,19 @@ export const Projects: CollectionConfig = {
       },
     },
     {
+      name: 'shortTitle',
+      label: 'Short Title (H1)',
+      type: 'text',
+      required: false,
+      access: {
+        read: canReadNdaField,
+      },
+      admin: {
+        description:
+          'Optional display title for the H1. Slugs and canonical project naming should still be based on Title.',
+      },
+    },
+    {
       name: 'slug',
       type: 'text',
       required: true,

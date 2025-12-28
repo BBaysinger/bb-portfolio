@@ -416,7 +416,11 @@ const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
         className={`${styles.projectsPresentationBody} bb${uiDirection}`}
       >
         <HeaderSub
-          head={projects[projectId]?.title || "Unknown Project"}
+          head={
+            projects[projectId]?.shortTitle ||
+            projects[projectId]?.title ||
+            "Unknown Project"
+          }
           subhead={projects[projectId]?.tags?.join(", ") || ""}
         />
         {/* <LogoSwapper index={infoSwapperIndex ?? undefined} /> */}

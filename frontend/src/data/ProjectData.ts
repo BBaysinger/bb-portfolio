@@ -344,6 +344,7 @@ async function fetchPortfolioProjects(opts?: {
     id?: string;
     shortCode?: string;
     title?: string;
+    shortTitle?: string;
     sortIndex?: number;
     active?: boolean;
     omitFromList?: boolean;
@@ -692,6 +693,10 @@ async function fetchPortfolioProjects(opts?: {
 
     const item: PortfolioProjectBase = {
       title: doc.title || "Untitled",
+      shortTitle:
+        typeof doc.shortTitle === "string" && doc.shortTitle.trim()
+          ? doc.shortTitle.trim()
+          : undefined,
       shortCode,
       active: !!doc.active,
       omitFromList: !!doc.omitFromList,
@@ -756,6 +761,8 @@ export type MobileOrientation =
 
 export interface PortfolioProjectBase {
   title: string;
+  /** Optional display title for the H1; falls back to `title` when unset. */
+  shortTitle?: string;
   /** Optional opaque identifier usable as an alternate route key (e.g., /nda/<code>/). */
   shortCode?: string;
   active: boolean;

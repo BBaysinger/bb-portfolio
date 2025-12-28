@@ -25,9 +25,9 @@ export const dynamicParams = true;
 export default async function ProjectPage({
   params,
 }: {
-  params: { projectId: string };
+  params: Promise<{ projectId: string }>;
 }) {
-  const { projectId } = params;
+  const { projectId } = await params;
   return (
     <Suspense fallback={<div>Loading project...</div>}>
       <ProjectViewWrapper params={{ projectId }} allowNda={false} />
