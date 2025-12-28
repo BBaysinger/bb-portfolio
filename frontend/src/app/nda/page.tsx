@@ -6,10 +6,13 @@ export const revalidate = 0;
 export const dynamic = "force-dynamic";
 
 /**
- * Legacy query-param entry point: `/nda?p=slug`.
+ * Query-param entry point: `/nda?p=slug`.
+ * This exists to support direct hits/share links using `?p=`.
+ * In-session carousel navigation updates `?p=` client-side (pushState) without hitting this route.
  * Canonicalizes to `/nda/[slug]` (trailing slash) or returns 404 if missing.
  */
 type QuerySearchParams = { [key: string]: string | string[] };
+
 export default async function NdaQueryPage({
   searchParams,
 }: {
