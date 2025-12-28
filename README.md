@@ -295,7 +295,7 @@ Other UI details: scroll‑aware navigation, mobile slide‑out menu, dynamic de
   - Sync script: `scripts/sync-github-secrets.ts`
     - Auto-syncs repo secrets followed by every detected GitHub **Environment** manifest (e.g., `.github-secrets.private.dev.json5`).
     - `--omit-env <name>` (repeatable) skips specific environments; pass `all` to push repo-level secrets only.
-    - Validates each `*_REQUIRED_ENVIRONMENT_VARIABLES` list (comma groups, `|` = ANY-of within a group) before writing.
+    - Validates `REQUIRED_ENVIRONMENT_VARIABLES_FRONTEND` and `REQUIRED_ENVIRONMENT_VARIABLES_BACKEND` (comma groups, `|` = ANY-of within a group) before writing.
     - Dry run previews deletions/additions without touching GitHub.
 
   Common usage:

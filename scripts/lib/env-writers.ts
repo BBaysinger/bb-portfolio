@@ -94,7 +94,14 @@ const backendEnv = (profile: Profile, secrets: SecretBundle): string => {
   lines.push(
     "",
     "# Env-guard definition list",
-    `REQUIRED_ENVIRONMENT_VARIABLES=${get("REQUIRED_ENVIRONMENT_VARIABLES")}`,
+    `REQUIRED_ENVIRONMENT_VARIABLES_BACKEND=${get(
+      "REQUIRED_ENVIRONMENT_VARIABLES_BACKEND",
+      get("REQUIRED_ENVIRONMENT_VARIABLES"),
+    )}`,
+    `REQUIRED_ENVIRONMENT_VARIABLES=${get(
+      "REQUIRED_ENVIRONMENT_VARIABLES",
+      get("REQUIRED_ENVIRONMENT_VARIABLES_BACKEND"),
+    )}`,
     "",
     `AWS_REGION=${awsRegion}`,
     `S3_REGION=${get("S3_REGION", awsRegion)}`,
@@ -136,6 +143,16 @@ const frontendEnv = (profile: Profile, secrets: SecretBundle): string => {
   const lines = [
     `NODE_ENV=${isProd ? "production" : "development"}`,
     `ENV_PROFILE=${profile}`,
+    "",
+    "# Env-guard definition list",
+    `REQUIRED_ENVIRONMENT_VARIABLES_FRONTEND=${get(
+      "REQUIRED_ENVIRONMENT_VARIABLES_FRONTEND",
+      get("REQUIRED_ENVIRONMENT_VARIABLES"),
+    )}`,
+    `REQUIRED_ENVIRONMENT_VARIABLES=${get(
+      "REQUIRED_ENVIRONMENT_VARIABLES",
+      get("REQUIRED_ENVIRONMENT_VARIABLES_FRONTEND"),
+    )}`,
     "",
     `BACKEND_INTERNAL_URL=${get(
       "BACKEND_INTERNAL_URL",

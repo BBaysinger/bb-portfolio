@@ -349,7 +349,7 @@ We are operating in a simplified configuration whose sole goal is site availabil
 
 - Local development: use `.env` / `.env.local` inside `backend/` and `frontend/` as usual.
 - Production on EC2: runtime files are generated on-host as `backend/.env.prod` and `frontend/.env.prod` from `.github-secrets.private.json5` and are not committed.
-- Required lists: the backend enforces required envs via `backend/scripts/check-required-env.ts`; ensure `*_REQUIRED_ENVIRONMENT_VARIABLES` and values exist in the secrets file.
+- Required lists: env guards read `REQUIRED_ENVIRONMENT_VARIABLES_FRONTEND` and `REQUIRED_ENVIRONMENT_VARIABLES_BACKEND` (legacy `REQUIRED_ENVIRONMENT_VARIABLES` still supported); ensure the lists and their referenced values exist in the secrets file.
 - Orchestrator: regenerates `.env.prod` when `--refresh-env` is provided; containers restart to pick up changes.
 - Compose canonical path: containers are managed from `deploy/compose/docker-compose.yml` on the host to avoid drift; the orchestrator syncs this file before starting.
 

@@ -56,11 +56,17 @@ async function fetchPortfolioProjects(opts?: {
   const cookieHeaderRaw = getCookieHeaderValue(requestHeaders);
   const payloadToken = extractPayloadTokenFromCookie(cookieHeaderRaw);
   const isServer = typeof window === "undefined";
-  const rawProfile = (
-    process.env.ENV_PROFILE ||
-    process.env.NODE_ENV ||
-    ""
-  ).toLowerCase();
+  const rawProfile =
+    // Client bundles cannot reliably access non-NEXT_PUBLIC env vars at runtime.
+    // Prefer NEXT_PUBLIC_ENV_PROFILE in the browser to avoid falling back to
+    // NODE_ENV=production (which would incorrectly select prod timeouts).
+    (
+      (!isServer
+        ? process.env.NEXT_PUBLIC_ENV_PROFILE || process.env.ENV_PROFILE
+        : process.env.ENV_PROFILE) ||
+      process.env.NODE_ENV ||
+      ""
+    ).toLowerCase();
   const normalizedProfile = rawProfile.startsWith("prod")
     ? "prod"
     : rawProfile === "development" || rawProfile.startsWith("dev")
@@ -212,8 +218,14 @@ async function fetchPortfolioProjects(opts?: {
   // Timeout policy: initial cold starts for Payload + Next.js in dev/local can exceed 8s
   // due to on-demand route compilation and deep population (depth=2). Increase to 20s
   // for dev/local to avoid premature aborts causing SSR fallback failures.
-  const baseTimeoutMs =
-    normalizedProfile === "dev" || normalizedProfile === "local" ? 20000 : 5000;
+  // Timeout policy:
+  // - Browsers: allow more time for cold-starts / route compilation; don't abort too aggressively.
+  // - Server: keep prod moderate, dev/local longer.
+  const baseTimeoutMs = isServer
+    ? normalizedProfile === "dev" || normalizedProfile === "local"
+      ? 20000
+      : 5000
+    : 20000;
   const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
   // Helper to add a timeout so we can fail fast and try a retry/fallback
   const withTimeout = async (url: string, ms: number = baseTimeoutMs) => {

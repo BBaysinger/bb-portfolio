@@ -53,10 +53,14 @@ export default function ProjectQueryWrapper({
           const haveProjects =
             Object.keys(ProjectData.activeProjectsRecord).length > 0;
           if (!haveProjects) {
-            await ProjectData.initialize({
-              disableCache: true,
-              includeNdaInActive: includeNda,
-            });
+            try {
+              await ProjectData.initialize({
+                disableCache: true,
+                includeNdaInActive: includeNda,
+              });
+            } catch {
+              return;
+            }
           }
         }
         initOnce.current = true;
