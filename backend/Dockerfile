@@ -70,14 +70,8 @@ RUN mkdir -p public
 
 # Build-time configuration
 ARG NODE_ENV="production"
-ARG FRONTEND_URL=""
-ARG BACKEND_INTERNAL_URL=""
-ARG S3_BUCKET=""
-ARG AWS_REGION=""
-ARG SES_FROM_EMAIL=""
-ARG SES_TO_EMAIL=""
-ARG SMTP_FROM_EMAIL=""
 ENV NODE_ENV=${NODE_ENV}
+
 
 # Build the application with secrets available for TypeScript compilation and build
 # Secrets are mounted only during this step and not persisted to image layers
@@ -88,6 +82,8 @@ RUN --mount=type=secret,id=mongodb_uri,required=false \
     --mount=type=secret,id=payload_secret,required=false \
     --mount=type=secret,id=frontend_url,required=false \
     --mount=type=secret,id=s3_bucket,required=false \
+    --mount=type=secret,id=public_projects_bucket,required=false \
+    --mount=type=secret,id=nda_projects_bucket,required=false \
     --mount=type=secret,id=aws_region,required=false \
     --mount=type=secret,id=ses_from_email,required=false \
     --mount=type=secret,id=ses_to_email,required=false \
@@ -140,7 +136,7 @@ assign_if_present() {
 }
 
 # Load profile-scoped secrets (MONGODB_URI, etc.) by iterating the variable list
-COMMON_VARS="MONGODB_URI PAYLOAD_SECRET FRONTEND_URL S3_BUCKET AWS_REGION SES_FROM_EMAIL SES_TO_EMAIL SMTP_FROM_EMAIL BACKEND_INTERNAL_URL PUBLIC_SERVER_URL"
+COMMON_VARS="MONGODB_URI PAYLOAD_SECRET FRONTEND_URL S3_BUCKET AWS_REGION SES_FROM_EMAIL SES_TO_EMAIL SMTP_FROM_EMAIL BACKEND_INTERNAL_URL PUBLIC_SERVER_URL PUBLIC_PROJECTS_BUCKET NDA_PROJECTS_BUCKET"
 for var in $COMMON_VARS; do
     assign_if_present "$var" "$(read_profile_secret "$PROFILE" "$var")"
 done
@@ -161,6 +157,8 @@ if [ "$PROFILE" != "prod" ]; then
     : "${SMTP_FROM_EMAIL:=$SES_FROM_EMAIL}"
     : "${BACKEND_INTERNAL_URL:=http://localhost:3000}"
     : "${PUBLIC_SERVER_URL:=${FRONTEND_URL}}"
+    : "${PUBLIC_PROJECTS_BUCKET:=dummy-public-projects-bucket}"
+    : "${NDA_PROJECTS_BUCKET:=dummy-nda-projects-bucket}"
 fi
 
 require_var() {
