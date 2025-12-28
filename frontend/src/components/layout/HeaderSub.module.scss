@@ -18,57 +18,6 @@ header.headerSub {
   @include lerpRange(width, 96%, 70%, $b640, $b1792);
   transform: rotate(-1deg);
 
-  .frameClip {
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    pointer-events: none;
-    clip-path: inset(0 round calc(var(--headerSubRadius) - 3px));
-  }
-
-  .frameLayer {
-    position: absolute;
-
-    &.frameLayerOrange {
-      clip-path: inset(
-        0.5px round calc((var(--headerSubRadius) - 3px) - 0.5px)
-      );
-    }
-    inset: 0;
-    pointer-events: none;
-    box-sizing: border-box;
-    border-style: solid;
-    background-color: #f66213;
-    @include lerpRange(mask-size, 70%, 100%);
-    border-width: var(--headerSubRadius);
-    border-image: url("/images/common/embossed-sign-orange.webp") 90 90 90 90
-      stretch;
-
-    &:nth-of-type(2),
-    &:nth-of-type(3) {
-      mask-image: url(/images/common/barber-pole.webp);
-      @include lerpRange(mask-size, 70%, 75%);
-      mask-position: center top;
-      border-image-source: url("/images/common/embossed-sign-black.webp");
-    }
-
-    // Crop black layers
-    // 2nd layer: show top 15%
-    &:nth-of-type(2) {
-      clip-path: inset(0 0 calc(100% - var(--headerSubBlackCropOffset)) 0);
-    }
-
-    // 3rd layer: show bottom 20%
-    &:nth-of-type(3) {
-      clip-path: inset(calc(100% - var(--headerSubBlackCropOffset)) 0 0 0);
-    }
-  }
-
-  .textWrapper {
-    position: relative;
-    z-index: 1;
-  }
-
   h1 {
     font-weight: 700;
     margin-top: 0;
