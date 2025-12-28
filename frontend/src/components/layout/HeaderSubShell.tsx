@@ -10,9 +10,20 @@ const HeaderSubShell: React.FC<HeaderSubShellProps> = ({ children }) => {
   return (
     <>
       <div aria-hidden className={styles.frameClip}>
-        <span className={`${styles.frameLayer} ${styles.frameLayerOrange}`} />
-        <span className={styles.frameLayer} />
-        <span className={styles.frameLayer} />
+        <div
+          className={`${styles.frameLayerHolder} ${styles.frameLayerHolderOrange}`}
+        >
+          <span aria-hidden className={styles.frameLayerMasked} />
+          <div aria-hidden className={styles.frameLayerFront} />
+        </div>
+        <div className={styles.frameLayerHolder}>
+          <span aria-hidden className={styles.frameLayerMasked} />
+          <div aria-hidden className={styles.frameLayerFront} />
+        </div>
+        <div className={styles.frameLayerHolder}>
+          <span aria-hidden className={styles.frameLayerMasked} />
+          <div aria-hidden className={styles.frameLayerFront} />
+        </div>
       </div>
       <div className={styles.textWrapper}>{children}</div>
     </>
