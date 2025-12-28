@@ -27,9 +27,12 @@ FROM ${NODE_IMAGE} AS builder
 ARG BUILD_PROFILE=prod
 # Explicitly set build-time ENV_PROFILE via separate ARG to avoid ARG expansion pitfalls
 ARG BUILD_ENV_PROFILE=prod
+# Required env list for env-guard (no legacy unified list)
+ARG REQUIRED_ENVIRONMENT_VARIABLES_BACKEND
 # Propagate into shell environment for RUN steps
 ENV BUILD_PROFILE=${BUILD_PROFILE}
 ENV ENV_PROFILE=${BUILD_ENV_PROFILE}
+ENV REQUIRED_ENVIRONMENT_VARIABLES_BACKEND=${REQUIRED_ENVIRONMENT_VARIABLES_BACKEND}
 
 # IMPORTANT: Don't set NODE_ENV=production here because we need dev dependencies for the build process
 # TypeScript compilation, bundling tools, and other build-time dependencies require devDependencies
@@ -96,10 +99,8 @@ RUN --mount=type=secret,id=mongodb_uri,required=false \
     <<'EOF'
 set -eu
 
-# Keep CI hardening: require at least one dummy group so scripts do not fail when
-# REQUIRED_ENVIRONMENT_VARIABLES is absent in the build context.
-export REQUIRED_ENVIRONMENT_VARIABLES="DUMMY_OK"
-export DUMMY_OK=1
+# Ensure env-guard list is provided for prod builds; non-prod builds should still provide it
+# via build args for parity with CI.
 
 PROFILE="$(printf '%s' "${ENV_PROFILE:-prod}" | tr '[:upper:]' '[:lower:]')"
 

@@ -169,7 +169,7 @@ terraform apply   # Apply changes
 2. Use the orchestrator or management script to control containers
 3. Regenerate runtime env files on EC2 when needed (GitHub workflow or orchestrator `--refresh-env`)
 
-- Backend envs include: `REQUIRED_ENVIRONMENT_VARIABLES`, `SECURITY_TXT_EXPIRES`, S3 buckets, Mongo URIs, Payload secret, SES emails, internal backend URL.
+- Backend envs include: `REQUIRED_ENVIRONMENT_VARIABLES_BACKEND`, `SECURITY_TXT_EXPIRES`, S3 buckets, Mongo URIs, Payload secret, SES emails, internal backend URL.
 - Frontend envs include: internal backend URL for SSR/server code only (browser uses relative `/api`).
 
 4. CI/CD pipeline updates production images in ECR

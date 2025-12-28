@@ -7,7 +7,7 @@
     1) .env
     2) .env.[development|production] (based on NODE_ENV)
     3) .env.local (overrides)
-  - REQUIRED_ENVIRONMENT_VARIABLES: comma-separated list; supports ANY-of groups with "|".
+  - REQUIRED_ENVIRONMENT_VARIABLES_FRONTEND: comma-separated list; supports ANY-of groups with "|".
   - Default safety: in CI+prod, require a backend base URL if no explicit requirements were provided.
 */
 
@@ -110,22 +110,15 @@ async function main() {
 
   const rawListFrontend =
     `${process.env.REQUIRED_ENVIRONMENT_VARIABLES_FRONTEND || ""}`.trim();
-  const rawListLegacy =
-    `${process.env.REQUIRED_ENVIRONMENT_VARIABLES || ""}`.trim();
-  const usingFrontendList = rawListFrontend.length > 0;
-  const rawList = usingFrontendList ? rawListFrontend : rawListLegacy;
-  const requirements = parseRequirements(rawList);
+  const requirements = parseRequirements(rawListFrontend);
   const defaultBackendGroup: RequirementGroup = ["BACKEND_INTERNAL_URL"];
-  const hasDefinitionVar =
-    rawListFrontend.length > 0 || rawListLegacy.length > 0;
+  const hasDefinitionVar = rawListFrontend.length > 0;
 
   if ((inCI || profile === "prod") && !hasDefinitionVar) {
     const msg = [
       `${TAG} Missing definition of required env list.`,
       `Profile: ${profile || "<none>"}`,
-      "Please set one of:",
-      "  - REQUIRED_ENVIRONMENT_VARIABLES_FRONTEND (preferred)",
-      "  - REQUIRED_ENVIRONMENT_VARIABLES (legacy compatibility)",
+      "Please set REQUIRED_ENVIRONMENT_VARIABLES_FRONTEND.",
       'Define a comma-separated list of groups ("|" for ANY-of).',
       "Example:",
       "  REQUIRED_ENVIRONMENT_VARIABLES_FRONTEND=BACKEND_INTERNAL_URL",
@@ -134,24 +127,11 @@ async function main() {
     process.exit(1);
   }
 
-  const frontendAllowed = new Set([
-    "BACKEND_INTERNAL_URL",
-    "PUBLIC_PROJECTS_BUCKET",
-    "NDA_PROJECTS_BUCKET",
-    "NEXT_PUBLIC_ENV_PROFILE",
-  ]);
-
-  const filtered = requirements
-    .map((group) => group.filter((name) => frontendAllowed.has(name)))
-    .filter((group): group is RequirementGroup => group.length > 0);
-
-  const effectiveRequirements: RequirementList = usingFrontendList
+  const effectiveRequirements: RequirementList = requirements.length
     ? requirements
-    : filtered.length
-      ? filtered
-      : inCI || profile === "prod"
-        ? [defaultBackendGroup]
-        : [];
+    : inCI || profile === "prod"
+      ? [defaultBackendGroup]
+      : [];
 
   const missingGroups: string[] = [];
   for (const group of effectiveRequirements) {
@@ -163,13 +143,13 @@ async function main() {
     const msg = [
       `${TAG} Missing required environment variables.`,
       `Profile: ${profile || "<none>"}`,
-      `Definition source: ${usingFrontendList ? "REQUIRED_ENVIRONMENT_VARIABLES_FRONTEND" : "REQUIRED_ENVIRONMENT_VARIABLES"}${usingFrontendList ? "" : " (filtered for frontend safety)"}`,
+      "Definition source: REQUIRED_ENVIRONMENT_VARIABLES_FRONTEND",
       "The following requirements were not satisfied (ANY-of within each group):",
       ...missingGroups.map((group) => `  - ${group}`),
       "",
-      `Configure ${usingFrontendList ? "REQUIRED_ENVIRONMENT_VARIABLES_FRONTEND" : "REQUIRED_ENVIRONMENT_VARIABLES"} accordingly.`,
+      "Configure REQUIRED_ENVIRONMENT_VARIABLES_FRONTEND accordingly.",
       "Example:",
-      `  ${usingFrontendList ? "REQUIRED_ENVIRONMENT_VARIABLES_FRONTEND" : "REQUIRED_ENVIRONMENT_VARIABLES"}=BACKEND_INTERNAL_URL`,
+      "  REQUIRED_ENVIRONMENT_VARIABLES_FRONTEND=BACKEND_INTERNAL_URL",
       "",
       "Note: In CI+prod, a default requirement enforces at least one backend base URL variable to avoid empty deploys.",
     ].join("\n");
@@ -182,7 +162,7 @@ async function main() {
     }
   } else {
     console.info(
-      `${TAG} All required envs satisfied. Profile=${profile} Source=${usingFrontendList ? "REQUIRED_ENVIRONMENT_VARIABLES_FRONTEND" : "REQUIRED_ENVIRONMENT_VARIABLES"} Requirements=${summarize(effectiveRequirements)}\nCI=${CI} NODE_ENV=${NODE_ENV} ENV_PROFILE=${ENV_PROFILE} LIFECYCLE=${lifecycle}`,
+      `${TAG} All required envs satisfied. Profile=${profile} Source=REQUIRED_ENVIRONMENT_VARIABLES_FRONTEND Requirements=${summarize(effectiveRequirements)}\nCI=${CI} NODE_ENV=${NODE_ENV} ENV_PROFILE=${ENV_PROFILE} LIFECYCLE=${lifecycle}`,
     );
   }
 }

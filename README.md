@@ -430,7 +430,7 @@ npx ts-node ./scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./.github-s
 Runtime .env generation (deploy):
 
 - CI deploy workflows generate `.env.dev` and `.env.prod` on EC2 from GitHub Secrets
-- These files include the unified `REQUIRED_ENVIRONMENT_VARIABLES` definition so runtime env-guard checks pass across profiles.
+- These files include `REQUIRED_ENVIRONMENT_VARIABLES_FRONTEND` and `REQUIRED_ENVIRONMENT_VARIABLES_BACKEND` so runtime env-guard checks pass across profiles.
 - No secrets are stored in the repo; Docker images don’t bake secrets (BuildKit secret mounts are used during builds)
 
 ### 🛠️ Developer Experience & Testing

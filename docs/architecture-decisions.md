@@ -157,7 +157,7 @@ New decisions should be appended chronologically.
 
 ## 2025-11-02 – GitHub Secrets Sync Strategy & Env-Guard Enforcement
 
-**Decision:** Manage GitHub Actions secrets from JSON5 with a TypeScript sync tool that validates a single required environment variable list before syncing. Generate runtime `.env` files on EC2 during deploy, including the unified required list to satisfy startup guards.
+**Decision:** Manage GitHub Actions secrets from JSON5 with a TypeScript sync tool that validates required environment variable lists before syncing. Generate runtime `.env` files on EC2 during deploy, including the split required lists to satisfy startup guards.
 
 **Components:**
 
@@ -167,11 +167,11 @@ New decisions should be appended chronologically.
   - `.github-secrets.private.<env>.json5` (per-environment overrides; gitignored)
 - Sync tool: `scripts/sync-github-secrets.ts`
   - Overlays matching keys from the `.private` file onto the template schema (extras in private are ignored to keep the schema authoritative)
-  - Validates `REQUIRED_ENVIRONMENT_VARIABLES` prior to any writes (comma-separated groups; use `|` within a group to indicate ANY-of)
+  - Validates `REQUIRED_ENVIRONMENT_VARIABLES_FRONTEND` and `REQUIRED_ENVIRONMENT_VARIABLES_BACKEND` prior to any writes (comma-separated groups; use `|` within a group to indicate ANY-of)
   - Fails fast with a clear error if any group lacks at least one key present in the JSON5. Escape hatch: `ALLOW_MISSING_REQUIRED_GROUPS=true` (warns, does not fail) for exceptional cases.
 - Deploy workflows (`.github/workflows/redeploy*.yml`)
   - Generate backend/frontend `.env.dev` and `.env.prod` files on EC2 from GitHub Secrets
-  - Include the unified required list so the runtime env-guard never boots without a definition
+  - Include the split required lists so the runtime env-guard never boots without a definition
 
 **Reasoning:**
 

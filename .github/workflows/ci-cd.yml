@@ -82,11 +82,12 @@ jobs:
         run: pnpm -v
 
       # Sanitize required env list: split frontend/backend requirements
-      - name: Sanitize REQUIRED_ENVIRONMENT_VARIABLES (dev build)
+      - name: Sanitize required env lists (dev build)
         id: sanitize-dev-req
         env:
-          RAW: ${{ secrets.REQUIRED_ENVIRONMENT_VARIABLES }}
-        run: bash deploy/scripts/actions/sanitize-required-env.sh dev "$RAW"
+          RAW_FRONTEND: ${{ secrets.REQUIRED_ENVIRONMENT_VARIABLES_FRONTEND }}
+          RAW_BACKEND: ${{ secrets.REQUIRED_ENVIRONMENT_VARIABLES_BACKEND }}
+        run: bash deploy/scripts/actions/sanitize-required-env.sh dev "$RAW_FRONTEND" "$RAW_BACKEND"
 
       # =======================================================================
       # BACKEND BUILD AND TEST (Build backend first for frontend SSG)
@@ -103,10 +104,10 @@ jobs:
           # Use dev profile with a dummy connection string just to satisfy build-time checks
           ENV_PROFILE: dev
           # Env-guard definition list (sanitized for backend build)
-          REQUIRED_ENVIRONMENT_VARIABLES: "${{ steps.sanitize-dev-req.outputs.dev_req_backend }}"
+          REQUIRED_ENVIRONMENT_VARIABLES_BACKEND: "${{ steps.sanitize-dev-req.outputs.dev_req_backend }}"
           # Explicit public origin for Payload admin/API
           PAYLOAD_PUBLIC_SERVER_URL: ${{ secrets.FRONTEND_URL }}
-          # PUBLIC_SERVER_URL is part of the REQUIRED_ENVIRONMENT_VARIABLES set
+          # PUBLIC_SERVER_URL is part of the backend required env set
           PUBLIC_SERVER_URL: ${{ secrets.PUBLIC_SERVER_URL || secrets.FRONTEND_URL }}
           # Backend URL group (ANY-of) to satisfy unified list if it includes FE groups
           BACKEND_INTERNAL_URL: ${{ secrets.BACKEND_INTERNAL_URL }}
@@ -156,7 +157,7 @@ jobs:
           # Backend URL group (ANY-of) and security metadata to satisfy env-guard when invoked
           BACKEND_INTERNAL_URL: ${{ secrets.BACKEND_INTERNAL_URL }}
           # Ensure tests use a definition list (backend-safe)
-          REQUIRED_ENVIRONMENT_VARIABLES: "${{ steps.sanitize-dev-req.outputs.dev_req_backend }}"
+          REQUIRED_ENVIRONMENT_VARIABLES_BACKEND: "${{ steps.sanitize-dev-req.outputs.dev_req_backend }}"
         run: pnpm test || echo "⚠️ No backend tests yet" # Graceful failure until tests are implemented
 
       # =======================================================================
@@ -170,8 +171,9 @@ jobs:
         working-directory: ./frontend
         env:
           ENV_PROFILE: dev
+          NEXT_PUBLIC_ENV_PROFILE: ${{ secrets.NEXT_PUBLIC_ENV_PROFILE }}
           # Env-guard definition list (sanitized for frontend build)
-          REQUIRED_ENVIRONMENT_VARIABLES: "${{ steps.sanitize-dev-req.outputs.dev_req_frontend }}"
+          REQUIRED_ENVIRONMENT_VARIABLES_FRONTEND: "${{ steps.sanitize-dev-req.outputs.dev_req_frontend }}"
           BACKEND_INTERNAL_URL: ${{ secrets.BACKEND_INTERNAL_URL }}
           PUBLIC_PROJECTS_BUCKET: ${{ secrets.PUBLIC_PROJECTS_BUCKET }}
           NDA_PROJECTS_BUCKET: ${{ secrets.NDA_PROJECTS_BUCKET }}
@@ -186,11 +188,12 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Sanitize REQUIRED_ENVIRONMENT_VARIABLES (prod images)
+      - name: Sanitize required env lists (prod images)
         id: sanitize-prod-req
         env:
-          RAW: ${{ secrets.REQUIRED_ENVIRONMENT_VARIABLES }}
-        run: bash deploy/scripts/actions/sanitize-required-env.sh prod "$RAW"
+          RAW_FRONTEND: ${{ secrets.REQUIRED_ENVIRONMENT_VARIABLES_FRONTEND }}
+          RAW_BACKEND: ${{ secrets.REQUIRED_ENVIRONMENT_VARIABLES_BACKEND }}
+        run: bash deploy/scripts/actions/sanitize-required-env.sh prod "$RAW_FRONTEND" "$RAW_BACKEND"
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -211,7 +214,7 @@ jobs:
             --build-arg ENV_PROFILE=prod \
             --build-arg NODE_ENV=production \
             --build-arg GITHUB_SHA=${{ github.sha }} \
-            --build-arg REQUIRED_ENVIRONMENT_VARIABLES="${{ steps.sanitize-prod-req.outputs.prod_req_frontend }}" \
+            --build-arg REQUIRED_ENVIRONMENT_VARIABLES_FRONTEND="${{ steps.sanitize-prod-req.outputs.prod_req_frontend }}" \
             --build-arg BACKEND_INTERNAL_URL="${{ secrets.BACKEND_INTERNAL_URL }}" \
             --build-arg PUBLIC_PROJECTS_BUCKET="${{ secrets.PUBLIC_PROJECTS_BUCKET }}" \
             --build-arg NDA_PROJECTS_BUCKET="${{ secrets.NDA_PROJECTS_BUCKET }}" \
@@ -246,7 +249,7 @@ jobs:
             --build-arg NODE_IMAGE=public.ecr.aws/docker/library/node:22-slim \
             --build-arg ENV_PROFILE=prod \
             --build-arg NODE_ENV=production \
-            --build-arg REQUIRED_ENVIRONMENT_VARIABLES="${{ steps.sanitize-prod-req.outputs.prod_req_backend }}" \
+            --build-arg REQUIRED_ENVIRONMENT_VARIABLES_BACKEND="${{ steps.sanitize-prod-req.outputs.prod_req_backend }}" \
             --build-arg BACKEND_INTERNAL_URL="${{ secrets.BACKEND_INTERNAL_URL }}" \
             --build-arg FRONTEND_URL="${{ secrets.FRONTEND_URL }}" \
             --build-arg S3_BUCKET="${{ secrets.S3_BUCKET }}" \
@@ -295,11 +298,12 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Sanitize REQUIRED_ENVIRONMENT_VARIABLES (dev images)
+      - name: Sanitize required env lists (dev images)
         id: sanitize-dev-req
         env:
-          RAW: ${{ secrets.REQUIRED_ENVIRONMENT_VARIABLES }}
-        run: bash deploy/scripts/actions/sanitize-required-env.sh dev "$RAW"
+          RAW_FRONTEND: ${{ secrets.REQUIRED_ENVIRONMENT_VARIABLES_FRONTEND }}
+          RAW_BACKEND: ${{ secrets.REQUIRED_ENVIRONMENT_VARIABLES_BACKEND }}
+        run: bash deploy/scripts/actions/sanitize-required-env.sh dev "$RAW_FRONTEND" "$RAW_BACKEND"
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
@@ -311,7 +315,7 @@ jobs:
           SANITIZED_BE_REQ: ${{ steps.sanitize-dev-req.outputs.dev_req_backend }}
         run: |
           docker build --build-arg ENV_PROFILE=dev \
-            --build-arg REQUIRED_ENVIRONMENT_VARIABLES="${SANITIZED_BE_REQ}" \
+            --build-arg REQUIRED_ENVIRONMENT_VARIABLES_BACKEND="${SANITIZED_BE_REQ}" \
             --build-arg BACKEND_INTERNAL_URL="${{ secrets.BACKEND_INTERNAL_URL }}" \
             --build-arg MONGODB_URI="mongodb://localhost:27017/dummy-db" \
             --build-arg PAYLOAD_SECRET="${{ secrets.PAYLOAD_SECRET }}" \
@@ -326,7 +330,7 @@ jobs:
             --build-arg NDA_PROJECTS_BUCKET="${{ secrets.NDA_PROJECTS_BUCKET }}" \
             -t bhbaysinger/bb-portfolio-backend:dev ./backend
           docker build --build-arg ENV_PROFILE=dev \
-            --build-arg REQUIRED_ENVIRONMENT_VARIABLES="${SANITIZED_FE_REQ}" \
+            --build-arg REQUIRED_ENVIRONMENT_VARIABLES_FRONTEND="${SANITIZED_FE_REQ}" \
             --build-arg BACKEND_INTERNAL_URL="${{ secrets.BACKEND_INTERNAL_URL }}" \
             --build-arg PUBLIC_PROJECTS_BUCKET="${{ secrets.PUBLIC_PROJECTS_BUCKET }}" \
             --build-arg NDA_PROJECTS_BUCKET="${{ secrets.NDA_PROJECTS_BUCKET }}" \
