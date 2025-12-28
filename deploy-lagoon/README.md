@@ -66,7 +66,8 @@ The orchestrator supported regenerating env bundles on the host via a single tar
 
 Relevant env guard variables (examples):
 
-- `REQUIRED_ENVIRONMENT_VARIABLES`
+- `REQUIRED_ENVIRONMENT_VARIABLES_BACKEND`
+- `REQUIRED_ENVIRONMENT_VARIABLES_FRONTEND`
 - `SECURITY_TXT_EXPIRES`
 
 ## Health & Diagnostics Enhancements

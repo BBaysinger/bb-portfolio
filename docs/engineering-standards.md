@@ -257,7 +257,7 @@ Operator guidance for removals:
     Include SES from/to secrets as required by the active profile.
 - Satisfy build-time guards transiently.
   - The backend prebuild guard (`scripts/check-required-env.ts`) runs strictly during Docker build.
-  - Satisfy it with a short-lived export in the same RUN step (e.g., `REQUIRED_ENVIRONMENT_VARIABLES=DUMMY_OK` and `DUMMY_OK=1`).
+  - Satisfy it with a short-lived export in the same RUN step (e.g., `REQUIRED_ENVIRONMENT_VARIABLES_BACKEND=DUMMY_OK` and `DUMMY_OK=1`).
   - Never bake configuration via Docker `ENV`; enforce real values at secrets-sync and runtime `prestart`.
 - Security & hygiene in runtime images:
   - Run as a non-root user.
@@ -285,7 +285,9 @@ Operator guidance for removals:
   - Profile inference follows the backend guard heuristics (`scripts/check-required-env.ts`).
 
 - **Required list (ANY-of groups supported)**
-  - Use the unified `REQUIRED_ENVIRONMENT_VARIABLES` definition.
+  - Use split required lists:
+    - `REQUIRED_ENVIRONMENT_VARIABLES_FRONTEND`
+    - `REQUIRED_ENVIRONMENT_VARIABLES_BACKEND`
   - Comma-separated groups; within a group, `|` means ANY-of is acceptable.
   - Example:
     ```bash
@@ -423,12 +425,12 @@ Use this checklist when opening any PR:
 
 ### Required list examples
 
-Use a single global list for all profiles. Each profile’s secrets overlay must populate the canonical keys referenced in the list.
+Use split lists for all profiles. Each profile’s secrets overlay must populate the canonical keys referenced in each list.
 
-- Example global list:
+- Example backend list:
 
   ```bash
-  REQUIRED_ENVIRONMENT_VARIABLES=\
+  REQUIRED_ENVIRONMENT_VARIABLES_BACKEND=\
   MONGODB_URI,\
   BACKEND_INTERNAL_URL,\
   FRONTEND_URL|PUBLIC_SERVER_URL,\
@@ -437,6 +439,16 @@ Use a single global list for all profiles. Each profile’s secrets overlay must
   SES_TO_EMAIL,\
   PAYLOAD_SECRET,\
   SECURITY_TXT_EXPIRES
+  ```
+
+- Example frontend list:
+
+  ```bash
+  REQUIRED_ENVIRONMENT_VARIABLES_FRONTEND=\
+  BACKEND_INTERNAL_URL,\
+  PUBLIC_PROJECTS_BUCKET,\
+  NDA_PROJECTS_BUCKET,\
+  NEXT_PUBLIC_ENV_PROFILE
   ```
 
 ### Naming examples

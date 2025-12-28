@@ -242,7 +242,7 @@ if (
 }
 
 // Validate required variables lists against provided secrets schema/values.
-// Each ANY-of group in REQUIRED_ENVIRONMENT_VARIABLES must have at least one
+// Each ANY-of group in REQUIRED_ENVIRONMENT_VARIABLES_FRONTEND/BACKEND must have at least one
 // corresponding secret present after merging base + environment manifests.
 // To bypass enforcement (not recommended), set ALLOW_MISSING_REQUIRED_GROUPS=true.
 function parseRequirements(list: string | undefined): string[][] {
@@ -302,31 +302,19 @@ validateRepoRequirements(data.strings ?? {});
 function validateRepoRequirements(strings: Record<string, string>) {
   const front = strings["REQUIRED_ENVIRONMENT_VARIABLES_FRONTEND"];
   const back = strings["REQUIRED_ENVIRONMENT_VARIABLES_BACKEND"];
-  const legacy = strings["REQUIRED_ENVIRONMENT_VARIABLES"];
 
-  if (!front && !back && !legacy) {
-    console.info(
-      "ℹ️ Base manifest does not define any required env lists; skipping repo-level validation.",
+  if (!front || !back) {
+    console.error(
+      "❌ Base manifest must define BOTH REQUIRED_ENVIRONMENT_VARIABLES_FRONTEND and REQUIRED_ENVIRONMENT_VARIABLES_BACKEND.",
     );
-    return;
-  }
-
-  if (front || back) {
-    console.info(
-      "ℹ️ Split required env lists defined on base manifest; each environment will be validated against them.",
-    );
-    if (front) {
-      console.info("  - REQUIRED_ENVIRONMENT_VARIABLES_FRONTEND");
-    }
-    if (back) {
-      console.info("  - REQUIRED_ENVIRONMENT_VARIABLES_BACKEND");
-    }
-    return;
+    process.exit(1);
   }
 
   console.info(
-    "ℹ️ REQUIRED_ENVIRONMENT_VARIABLES defined on base manifest; each environment will be validated against this legacy list.",
+    "ℹ️ Split required env lists defined on base manifest; each environment will be validated against them:",
   );
+  console.info("  - REQUIRED_ENVIRONMENT_VARIABLES_FRONTEND");
+  console.info("  - REQUIRED_ENVIRONMENT_VARIABLES_BACKEND");
 }
 
 function validateEnvironmentRequirements(
@@ -340,39 +328,18 @@ function validateEnvironmentRequirements(
   const backSource =
     strings["REQUIRED_ENVIRONMENT_VARIABLES_BACKEND"] ||
     baseStrings["REQUIRED_ENVIRONMENT_VARIABLES_BACKEND"];
-  const legacySource =
-    strings["REQUIRED_ENVIRONMENT_VARIABLES"] ||
-    baseStrings["REQUIRED_ENVIRONMENT_VARIABLES"];
 
-  const splitMode = !!frontSource || !!backSource;
-  const toValidate: Array<{ label: string; source: string }> = [];
-
-  if (splitMode) {
-    if (frontSource) {
-      toValidate.push({
-        label: "REQUIRED_ENVIRONMENT_VARIABLES_FRONTEND",
-        source: frontSource,
-      });
-    }
-    if (backSource) {
-      toValidate.push({
-        label: "REQUIRED_ENVIRONMENT_VARIABLES_BACKEND",
-        source: backSource,
-      });
-    }
-  } else if (legacySource) {
-    toValidate.push({
-      label: "REQUIRED_ENVIRONMENT_VARIABLES",
-      source: legacySource,
-    });
-  }
-
-  if (toValidate.length === 0) {
-    console.info(
-      `ℹ️ [${envName}] No required env lists defined; skipping validation.`,
+  if (!frontSource || !backSource) {
+    console.error(
+      `❌ [${envName}] Missing REQUIRED_ENVIRONMENT_VARIABLES_FRONTEND and/or REQUIRED_ENVIRONMENT_VARIABLES_BACKEND.`,
     );
-    return;
+    process.exit(1);
   }
+
+  const toValidate: Array<{ label: string; source: string }> = [
+    { label: "REQUIRED_ENVIRONMENT_VARIABLES_FRONTEND", source: frontSource },
+    { label: "REQUIRED_ENVIRONMENT_VARIABLES_BACKEND", source: backSource },
+  ];
 
   const mergedStrings = { ...baseStrings, ...strings };
   const keys = new Set(Object.keys(mergedStrings));

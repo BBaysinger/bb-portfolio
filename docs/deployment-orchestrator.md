@@ -146,7 +146,7 @@ Note: The orchestrator automatically builds and pushes both frontend and backend
 When --refresh-env is set, the workflow regenerates these files on EC2:
 
 - backend/.env.prod and backend/.env.dev
-  - Include: `REQUIRED_ENVIRONMENT_VARIABLES` (env-guard list), `SECURITY_TXT_EXPIRES`, S3 bucket names, Mongo URIs, Payload secret, SES emails, internal backend URL.
+  - Include: `REQUIRED_ENVIRONMENT_VARIABLES_BACKEND` (env-guard list), `SECURITY_TXT_EXPIRES`, S3 bucket names, Mongo URIs, Payload secret, SES emails, internal backend URL.
 - frontend/.env.prod and frontend/.env.dev
   - Include: internal backend URL for SSR/server use only.
 
