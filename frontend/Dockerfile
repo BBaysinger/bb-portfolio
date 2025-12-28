@@ -32,22 +32,61 @@ FROM base AS builder
 ENV NODE_ENV=production
 # Deployment profile (e.g. local/dev/prod). Used at build-time so client bundles can gate dev-only UI.
 ARG ENV_PROFILE
-ARG REQUIRED_ENVIRONMENT_VARIABLES_FRONTEND
-ENV ENV_PROFILE=$ENV_PROFILE \
-	NEXT_PUBLIC_ENV_PROFILE=$ENV_PROFILE \
-	REQUIRED_ENVIRONMENT_VARIABLES_FRONTEND=$REQUIRED_ENVIRONMENT_VARIABLES_FRONTEND
-# RUM build-time configuration (NEXT_PUBLIC_* vars must be present during `npm run build:webpack`)
-ARG NEXT_PUBLIC_RUM_APP_MONITOR_ID
-ARG NEXT_PUBLIC_RUM_IDENTITY_POOL_ID
-ARG NEXT_PUBLIC_RUM_GUEST_ROLE_ARN
-ARG NEXT_PUBLIC_RUM_REGION
-ENV NEXT_PUBLIC_RUM_APP_MONITOR_ID=$NEXT_PUBLIC_RUM_APP_MONITOR_ID \
-	NEXT_PUBLIC_RUM_IDENTITY_POOL_ID=$NEXT_PUBLIC_RUM_IDENTITY_POOL_ID \
-	NEXT_PUBLIC_RUM_GUEST_ROLE_ARN=$NEXT_PUBLIC_RUM_GUEST_ROLE_ARN \
-	NEXT_PUBLIC_RUM_REGION=$NEXT_PUBLIC_RUM_REGION
+ENV ENV_PROFILE=$ENV_PROFILE
 COPY --from=deps /app/node_modules /app/node_modules
 COPY . .
-RUN npm run build:webpack
+
+# Build with BuildKit secrets mounted; values are exported only for this RUN.
+# This keeps build-time inputs out of layer history and enforces a single source.
+RUN --mount=type=secret,id=required_environment_variables_frontend,required=false \
+		--mount=type=secret,id=next_public_env_profile,required=false \
+		--mount=type=secret,id=backend_internal_url,required=false \
+		--mount=type=secret,id=public_projects_bucket,required=false \
+		--mount=type=secret,id=nda_projects_bucket,required=false \
+		--mount=type=secret,id=next_public_rum_app_monitor_id,required=false \
+		--mount=type=secret,id=next_public_rum_identity_pool_id,required=false \
+		--mount=type=secret,id=next_public_rum_guest_role_arn,required=false \
+		--mount=type=secret,id=next_public_rum_region,required=false \
+		--mount=type=secret,id=next_public_rum_debug,required=false \
+		<<'EOF'
+set -eu
+
+read_secret() {
+	name="$1"
+	p="/run/secrets/$name"
+	if [ -f "$p" ]; then
+		cat "$p"
+	fi
+}
+
+assign_if_present() {
+	var="$1"
+	value="$2"
+	if [ -n "$value" ]; then
+		export "$var=$value"
+	fi
+}
+
+# Required list definition for env-guard
+assign_if_present REQUIRED_ENVIRONMENT_VARIABLES_FRONTEND "$(read_secret required_environment_variables_frontend)"
+
+# Profile used by app code; NEXT_PUBLIC_ENV_PROFILE is explicitly mounted (not inferred)
+assign_if_present NEXT_PUBLIC_ENV_PROFILE "$(read_secret next_public_env_profile)"
+
+# App build-time config
+assign_if_present BACKEND_INTERNAL_URL "$(read_secret backend_internal_url)"
+assign_if_present PUBLIC_PROJECTS_BUCKET "$(read_secret public_projects_bucket)"
+assign_if_present NDA_PROJECTS_BUCKET "$(read_secret nda_projects_bucket)"
+
+# RUM build-time config
+assign_if_present NEXT_PUBLIC_RUM_APP_MONITOR_ID "$(read_secret next_public_rum_app_monitor_id)"
+assign_if_present NEXT_PUBLIC_RUM_IDENTITY_POOL_ID "$(read_secret next_public_rum_identity_pool_id)"
+assign_if_present NEXT_PUBLIC_RUM_GUEST_ROLE_ARN "$(read_secret next_public_rum_guest_role_arn)"
+assign_if_present NEXT_PUBLIC_RUM_REGION "$(read_secret next_public_rum_region)"
+assign_if_present NEXT_PUBLIC_RUM_DEBUG "$(read_secret next_public_rum_debug)"
+
+npm run build:webpack
+EOF
 
 # Distroless production runtime to reduce CVEs
 # Name the final stage `runner` to match CI build target
