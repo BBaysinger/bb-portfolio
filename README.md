@@ -104,6 +104,8 @@ All root `npm` scripts are grouped below by intent. Most have dry‑run or detac
 - `docker:build-push` — Scripted build + push both dev images
 - `ecr:build-push` — Build + push prod images to ECR
 
+Note: The dev image build scripts use Docker BuildKit secrets (not `--build-arg`) for build-time config. For local builds, you must have the required env vars present in your shell; the scripts will fail fast if anything is missing.
+
 Note: By default, the deployment orchestrator builds and pushes both frontend and backend images (prod → ECR, dev → Docker Hub) to ensure consistency. Add `--no-build` to skip rebuilding and pull the latest tags instead.
 
 ### Registry hygiene & verification
