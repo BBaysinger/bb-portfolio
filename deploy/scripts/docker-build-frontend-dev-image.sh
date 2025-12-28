@@ -2,7 +2,7 @@
 set -euo pipefail
 
 : "${REQUIRED_ENVIRONMENT_VARIABLES_FRONTEND:?}"
-: "${NEXT_PUBLIC_ENV_PROFILE:?}"
+: "${ENV_PROFILE:?}"
 : "${BACKEND_INTERNAL_URL:?}"
 : "${PUBLIC_PROJECTS_BUCKET:?}"
 : "${NDA_PROJECTS_BUCKET:?}"
@@ -19,7 +19,6 @@ cleanup() {
 trap cleanup EXIT
 
 printf %s "$REQUIRED_ENVIRONMENT_VARIABLES_FRONTEND" >"${_tmp_dir}/required_environment_variables_frontend"
-printf %s "$NEXT_PUBLIC_ENV_PROFILE" >"${_tmp_dir}/next_public_env_profile"
 printf %s "$BACKEND_INTERNAL_URL" >"${_tmp_dir}/backend_internal_url"
 printf %s "$PUBLIC_PROJECTS_BUCKET" >"${_tmp_dir}/public_projects_bucket"
 printf %s "$NDA_PROJECTS_BUCKET" >"${_tmp_dir}/nda_projects_bucket"
@@ -31,9 +30,8 @@ printf %s "$NEXT_PUBLIC_RUM_DEBUG" >"${_tmp_dir}/next_public_rum_debug"
 
 DOCKER_BUILDKIT=1 docker build \
   --target runner \
-  --build-arg ENV_PROFILE=dev \
+  --build-arg ENV_PROFILE="$ENV_PROFILE" \
   --secret id=required_environment_variables_frontend,src="${_tmp_dir}/required_environment_variables_frontend" \
-  --secret id=next_public_env_profile,src="${_tmp_dir}/next_public_env_profile" \
   --secret id=backend_internal_url,src="${_tmp_dir}/backend_internal_url" \
   --secret id=public_projects_bucket,src="${_tmp_dir}/public_projects_bucket" \
   --secret id=nda_projects_bucket,src="${_tmp_dir}/nda_projects_bucket" \

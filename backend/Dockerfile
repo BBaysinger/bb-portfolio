@@ -25,13 +25,13 @@ FROM ${NODE_IMAGE} AS builder
 
 # Allow selecting build-time profile (prod|dev); default prod for CI hardening
 ARG BUILD_PROFILE=prod
-# Explicitly set build-time ENV_PROFILE via separate ARG to avoid ARG expansion pitfalls
-ARG BUILD_ENV_PROFILE=prod
+# Explicitly set build-time ENV_PROFILE via ARG and propagate to ENV for build steps
+ARG ENV_PROFILE=prod
 # Required env list for env-guard (no legacy unified list)
 ARG REQUIRED_ENVIRONMENT_VARIABLES_BACKEND
 # Propagate into shell environment for RUN steps
 ENV BUILD_PROFILE=${BUILD_PROFILE}
-ENV ENV_PROFILE=${BUILD_ENV_PROFILE}
+ENV ENV_PROFILE=${ENV_PROFILE}
 ENV REQUIRED_ENVIRONMENT_VARIABLES_BACKEND=${REQUIRED_ENVIRONMENT_VARIABLES_BACKEND}
 
 # IMPORTANT: Don't set NODE_ENV=production here because we need dev dependencies for the build process

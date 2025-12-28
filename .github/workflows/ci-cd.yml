@@ -171,7 +171,6 @@ jobs:
         working-directory: ./frontend
         env:
           ENV_PROFILE: dev
-          NEXT_PUBLIC_ENV_PROFILE: ${{ secrets.NEXT_PUBLIC_ENV_PROFILE }}
           # Env-guard definition list (sanitized for frontend build)
           REQUIRED_ENVIRONMENT_VARIABLES_FRONTEND: "${{ steps.sanitize-dev-req.outputs.dev_req_frontend }}"
           BACKEND_INTERNAL_URL: ${{ secrets.BACKEND_INTERNAL_URL }}
@@ -210,7 +209,6 @@ jobs:
           IMAGE_TAG: ${{ github.sha }}
         run: |
           echo "${{ steps.sanitize-prod-req.outputs.prod_req_frontend }}" > /tmp/required_environment_variables_frontend
-          echo "${{ secrets.NEXT_PUBLIC_ENV_PROFILE }}" > /tmp/next_public_env_profile
           echo "${{ secrets.BACKEND_INTERNAL_URL }}" > /tmp/backend_internal_url
           echo "${{ secrets.PUBLIC_PROJECTS_BUCKET }}" > /tmp/public_projects_bucket
           echo "${{ secrets.NDA_PROJECTS_BUCKET }}" > /tmp/nda_projects_bucket
@@ -225,7 +223,6 @@ jobs:
             --build-arg NODE_ENV=production \
             --build-arg GITHUB_SHA=${{ github.sha }} \
             --secret id=required_environment_variables_frontend,src=/tmp/required_environment_variables_frontend \
-            --secret id=next_public_env_profile,src=/tmp/next_public_env_profile \
             --secret id=backend_internal_url,src=/tmp/backend_internal_url \
             --secret id=public_projects_bucket,src=/tmp/public_projects_bucket \
             --secret id=nda_projects_bucket,src=/tmp/nda_projects_bucket \
@@ -235,7 +232,7 @@ jobs:
             --secret id=next_public_rum_region,src=/tmp/next_public_rum_region \
             --secret id=next_public_rum_debug,src=/tmp/next_public_rum_debug \
             -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./frontend
-          rm -f /tmp/required_environment_variables_frontend /tmp/next_public_env_profile /tmp/backend_internal_url /tmp/public_projects_bucket /tmp/nda_projects_bucket /tmp/next_public_rum_app_monitor_id /tmp/next_public_rum_identity_pool_id /tmp/next_public_rum_guest_role_arn /tmp/next_public_rum_region /tmp/next_public_rum_debug
+          rm -f /tmp/required_environment_variables_frontend /tmp/backend_internal_url /tmp/public_projects_bucket /tmp/nda_projects_bucket /tmp/next_public_rum_app_monitor_id /tmp/next_public_rum_identity_pool_id /tmp/next_public_rum_guest_role_arn /tmp/next_public_rum_region /tmp/next_public_rum_debug
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
@@ -261,7 +258,7 @@ jobs:
           echo "${{ secrets.BACKEND_INTERNAL_URL }}" > /tmp/backend_internal_url
           DOCKER_BUILDKIT=1 docker build --no-cache --target runtime \
             --build-arg NODE_IMAGE=public.ecr.aws/docker/library/node:22-slim \
-            --build-arg BUILD_ENV_PROFILE=prod \
+            --build-arg ENV_PROFILE=prod \
             --build-arg NODE_ENV=production \
             --build-arg REQUIRED_ENVIRONMENT_VARIABLES_BACKEND="${{ steps.sanitize-prod-req.outputs.prod_req_backend }}" \
             --secret id=mongodb_uri,src=/tmp/mongodb_uri \
@@ -339,7 +336,7 @@ jobs:
           echo "${{ secrets.AWS_REGION }}" > /tmp/aws_region
           echo "${{ secrets.BACKEND_INTERNAL_URL }}" > /tmp/backend_internal_url
           DOCKER_BUILDKIT=1 docker build \
-            --build-arg BUILD_ENV_PROFILE=dev \
+            --build-arg ENV_PROFILE=dev \
             --build-arg REQUIRED_ENVIRONMENT_VARIABLES_BACKEND="${SANITIZED_BE_REQ}" \
             --secret id=mongodb_uri,src=/tmp/mongodb_uri \
             --secret id=payload_secret,src=/tmp/payload_secret \
@@ -358,7 +355,6 @@ jobs:
             -t bhbaysinger/bb-portfolio-backend:dev ./backend
           rm -f /tmp/mongodb_uri /tmp/payload_secret /tmp/aws_access_key_id /tmp/aws_secret_access_key /tmp/ses_from_email /tmp/ses_to_email /tmp/smtp_from_email /tmp/public_server_url /tmp/frontend_url /tmp/s3_bucket /tmp/public_projects_bucket /tmp/nda_projects_bucket /tmp/aws_region /tmp/backend_internal_url
           echo "${SANITIZED_FE_REQ}" > /tmp/required_environment_variables_frontend
-          echo "${{ secrets.NEXT_PUBLIC_ENV_PROFILE }}" > /tmp/next_public_env_profile
           echo "${{ secrets.BACKEND_INTERNAL_URL }}" > /tmp/backend_internal_url
           echo "${{ secrets.PUBLIC_PROJECTS_BUCKET }}" > /tmp/public_projects_bucket
           echo "${{ secrets.NDA_PROJECTS_BUCKET }}" > /tmp/nda_projects_bucket
@@ -369,7 +365,6 @@ jobs:
           echo "${{ secrets.NEXT_PUBLIC_RUM_DEBUG }}" > /tmp/next_public_rum_debug
           DOCKER_BUILDKIT=1 docker build --build-arg ENV_PROFILE=dev \
             --secret id=required_environment_variables_frontend,src=/tmp/required_environment_variables_frontend \
-            --secret id=next_public_env_profile,src=/tmp/next_public_env_profile \
             --secret id=backend_internal_url,src=/tmp/backend_internal_url \
             --secret id=public_projects_bucket,src=/tmp/public_projects_bucket \
             --secret id=nda_projects_bucket,src=/tmp/nda_projects_bucket \
@@ -379,7 +374,7 @@ jobs:
             --secret id=next_public_rum_region,src=/tmp/next_public_rum_region \
             --secret id=next_public_rum_debug,src=/tmp/next_public_rum_debug \
             -t bhbaysinger/bb-portfolio-frontend:dev ./frontend
-          rm -f /tmp/required_environment_variables_frontend /tmp/next_public_env_profile /tmp/backend_internal_url /tmp/public_projects_bucket /tmp/nda_projects_bucket /tmp/next_public_rum_app_monitor_id /tmp/next_public_rum_identity_pool_id /tmp/next_public_rum_guest_role_arn /tmp/next_public_rum_region /tmp/next_public_rum_debug
+          rm -f /tmp/required_environment_variables_frontend /tmp/backend_internal_url /tmp/public_projects_bucket /tmp/nda_projects_bucket /tmp/next_public_rum_app_monitor_id /tmp/next_public_rum_identity_pool_id /tmp/next_public_rum_guest_role_arn /tmp/next_public_rum_region /tmp/next_public_rum_debug
           docker push bhbaysinger/bb-portfolio-backend:dev
           docker push bhbaysinger/bb-portfolio-frontend:dev
 

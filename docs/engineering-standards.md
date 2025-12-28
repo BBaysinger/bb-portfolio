@@ -447,8 +447,7 @@ Use split lists for all profiles. Each profile’s secrets overlay must populate
   REQUIRED_ENVIRONMENT_VARIABLES_FRONTEND=\
   BACKEND_INTERNAL_URL,\
   PUBLIC_PROJECTS_BUCKET,\
-  NDA_PROJECTS_BUCKET,\
-  NEXT_PUBLIC_ENV_PROFILE
+  NDA_PROJECTS_BUCKET
   ```
 
 ### Naming examples

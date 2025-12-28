@@ -33,13 +33,14 @@ ENV NODE_ENV=production
 # Deployment profile (e.g. local/dev/prod). Used at build-time so client bundles can gate dev-only UI.
 ARG ENV_PROFILE
 ENV ENV_PROFILE=$ENV_PROFILE
+# Expose the same profile to client bundles (Next.js only exposes NEXT_PUBLIC_*).
+ENV NEXT_PUBLIC_ENV_PROFILE=$ENV_PROFILE
 COPY --from=deps /app/node_modules /app/node_modules
 COPY . .
 
 # Build with BuildKit secrets mounted; values are exported only for this RUN.
 # This keeps build-time inputs out of layer history and enforces a single source.
 RUN --mount=type=secret,id=required_environment_variables_frontend,required=false \
-		--mount=type=secret,id=next_public_env_profile,required=false \
 		--mount=type=secret,id=backend_internal_url,required=false \
 		--mount=type=secret,id=public_projects_bucket,required=false \
 		--mount=type=secret,id=nda_projects_bucket,required=false \
@@ -70,8 +71,7 @@ assign_if_present() {
 # Required list definition for env-guard
 assign_if_present REQUIRED_ENVIRONMENT_VARIABLES_FRONTEND "$(read_secret required_environment_variables_frontend)"
 
-# Profile used by app code; NEXT_PUBLIC_ENV_PROFILE is explicitly mounted (not inferred)
-assign_if_present NEXT_PUBLIC_ENV_PROFILE "$(read_secret next_public_env_profile)"
+# Profile used by app code: NEXT_PUBLIC_ENV_PROFILE is derived from ENV_PROFILE via Docker ENV above.
 
 # App build-time config
 assign_if_present BACKEND_INTERNAL_URL "$(read_secret backend_internal_url)"

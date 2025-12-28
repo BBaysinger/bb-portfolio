@@ -8,10 +8,15 @@ import {
 import type { NextRequest } from "next/server";
 
 export const runtime = "nodejs";
-export const dynamic = "force-dynamic"; // must evaluate auth per request
-export const revalidate = 0;
+// Public S3-backed content: safe to cache and does not require per-request auth.
+// Note: This is a Route Handler (not an App Router page), so it won't become
+// "SSG HTML" output, but we can still allow Next/CDNs to cache responses.
+export const dynamic = "force-static";
+export const revalidate = 3600;
 
-const PUBLIC_CACHE_CONTROL = "public, max-age=0, s-maxage=0, must-revalidate";
+// Cache at the CDN/edge, but keep browser caching conservative.
+const PUBLIC_CACHE_CONTROL =
+  "public, max-age=0, s-maxage=3600, stale-while-revalidate=86400";
 
 // Debug flag for S3 route logging
 const debug =
@@ -214,7 +219,7 @@ export async function HEAD(
     await s3.send(new HeadObjectCommand({ Bucket: bucket, Key: key }));
     return new Response(null, {
       status: 200,
-      headers: { "Cache-Control": "no-store, private" },
+      headers: { "Cache-Control": PUBLIC_CACHE_CONTROL },
     });
   } catch {
     return new Response("Not found", { status: 404 });
