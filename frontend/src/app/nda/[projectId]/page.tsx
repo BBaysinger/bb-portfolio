@@ -17,9 +17,9 @@ export const metadata: Metadata = {
 export default async function NdaProjectPage({
   params,
 }: {
-  params: Promise<{ projectId: string }>;
+  params: { projectId: string };
 }) {
-  const { projectId } = await params;
+  const { projectId } = params;
 
   // If not authenticated, never attempt to SSR-render NDA routes.
   // This avoids backend fetch failures that can surface as a Next.js application error.
