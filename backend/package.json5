@@ -53,7 +53,7 @@
   // Runtime dependencies for backend and CMS functionality
   "dependencies": {
     // AWS SES client used for sending transactional emails
-    "@aws-sdk/client-ses": "^3.957.0",
+    "@aws-sdk/client-ses": "^3.958.0",
     // Shared AWS SDK types
     "@aws-sdk/types": "^3.957.0",
     // MongoDB adapter for Payload CMS
@@ -118,7 +118,7 @@
     // Next.js ESLint configuration (includes React and accessibility rules)
     "eslint-config-next": "16.1.1",
     // Browser DOM simulation for Node.js testing environments
-    "jsdom": "27.3.0",
+    "jsdom": "27.4.0",
     // Standalone version of Playwright test runner
     "playwright": "1.57.0",
     // Playwright core library (used for browser automation)
