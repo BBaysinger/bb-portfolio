@@ -209,21 +209,33 @@ jobs:
           ECR_REPOSITORY: bb-portfolio-frontend-prod
           IMAGE_TAG: ${{ github.sha }}
         run: |
+          echo "${{ steps.sanitize-prod-req.outputs.prod_req_frontend }}" > /tmp/required_environment_variables_frontend
+          echo "${{ secrets.NEXT_PUBLIC_ENV_PROFILE }}" > /tmp/next_public_env_profile
+          echo "${{ secrets.BACKEND_INTERNAL_URL }}" > /tmp/backend_internal_url
+          echo "${{ secrets.PUBLIC_PROJECTS_BUCKET }}" > /tmp/public_projects_bucket
+          echo "${{ secrets.NDA_PROJECTS_BUCKET }}" > /tmp/nda_projects_bucket
+          echo "${{ secrets.NEXT_PUBLIC_RUM_APP_MONITOR_ID }}" > /tmp/next_public_rum_app_monitor_id
+          echo "${{ secrets.NEXT_PUBLIC_RUM_IDENTITY_POOL_ID }}" > /tmp/next_public_rum_identity_pool_id
+          echo "${{ secrets.NEXT_PUBLIC_RUM_GUEST_ROLE_ARN }}" > /tmp/next_public_rum_guest_role_arn
+          echo "${{ secrets.NEXT_PUBLIC_RUM_REGION }}" > /tmp/next_public_rum_region
+          echo "${{ secrets.NEXT_PUBLIC_RUM_DEBUG }}" > /tmp/next_public_rum_debug
           docker build --no-cache --target runner \
             --build-arg NODE_IMAGE=public.ecr.aws/docker/library/node:22-slim \
             --build-arg ENV_PROFILE=prod \
             --build-arg NODE_ENV=production \
             --build-arg GITHUB_SHA=${{ github.sha }} \
-            --build-arg REQUIRED_ENVIRONMENT_VARIABLES_FRONTEND="${{ steps.sanitize-prod-req.outputs.prod_req_frontend }}" \
-            --build-arg BACKEND_INTERNAL_URL="${{ secrets.BACKEND_INTERNAL_URL }}" \
-            --build-arg PUBLIC_PROJECTS_BUCKET="${{ secrets.PUBLIC_PROJECTS_BUCKET }}" \
-            --build-arg NDA_PROJECTS_BUCKET="${{ secrets.NDA_PROJECTS_BUCKET }}" \
-            --build-arg NEXT_PUBLIC_RUM_APP_MONITOR_ID="${{ secrets.NEXT_PUBLIC_RUM_APP_MONITOR_ID }}" \
-            --build-arg NEXT_PUBLIC_RUM_IDENTITY_POOL_ID="${{ secrets.NEXT_PUBLIC_RUM_IDENTITY_POOL_ID }}" \
-            --build-arg NEXT_PUBLIC_RUM_GUEST_ROLE_ARN="${{ secrets.NEXT_PUBLIC_RUM_GUEST_ROLE_ARN }}" \
-            --build-arg NEXT_PUBLIC_RUM_REGION="${{ secrets.NEXT_PUBLIC_RUM_REGION }}" \
-            --build-arg NEXT_PUBLIC_RUM_DEBUG="${{ secrets.NEXT_PUBLIC_RUM_DEBUG }}" \
+            --secret id=required_environment_variables_frontend,src=/tmp/required_environment_variables_frontend \
+            --secret id=next_public_env_profile,src=/tmp/next_public_env_profile \
+            --secret id=backend_internal_url,src=/tmp/backend_internal_url \
+            --secret id=public_projects_bucket,src=/tmp/public_projects_bucket \
+            --secret id=nda_projects_bucket,src=/tmp/nda_projects_bucket \
+            --secret id=next_public_rum_app_monitor_id,src=/tmp/next_public_rum_app_monitor_id \
+            --secret id=next_public_rum_identity_pool_id,src=/tmp/next_public_rum_identity_pool_id \
+            --secret id=next_public_rum_guest_role_arn,src=/tmp/next_public_rum_guest_role_arn \
+            --secret id=next_public_rum_region,src=/tmp/next_public_rum_region \
+            --secret id=next_public_rum_debug,src=/tmp/next_public_rum_debug \
             -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./frontend
+          rm -f /tmp/required_environment_variables_frontend /tmp/next_public_env_profile /tmp/backend_internal_url /tmp/public_projects_bucket /tmp/nda_projects_bucket /tmp/next_public_rum_app_monitor_id /tmp/next_public_rum_identity_pool_id /tmp/next_public_rum_guest_role_arn /tmp/next_public_rum_region /tmp/next_public_rum_debug
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
@@ -345,17 +357,29 @@ jobs:
             --secret id=backend_internal_url,src=/tmp/backend_internal_url \
             -t bhbaysinger/bb-portfolio-backend:dev ./backend
           rm -f /tmp/mongodb_uri /tmp/payload_secret /tmp/aws_access_key_id /tmp/aws_secret_access_key /tmp/ses_from_email /tmp/ses_to_email /tmp/smtp_from_email /tmp/public_server_url /tmp/frontend_url /tmp/s3_bucket /tmp/public_projects_bucket /tmp/nda_projects_bucket /tmp/aws_region /tmp/backend_internal_url
-          docker build --build-arg ENV_PROFILE=dev \
-            --build-arg REQUIRED_ENVIRONMENT_VARIABLES_FRONTEND="${SANITIZED_FE_REQ}" \
-            --build-arg BACKEND_INTERNAL_URL="${{ secrets.BACKEND_INTERNAL_URL }}" \
-            --build-arg PUBLIC_PROJECTS_BUCKET="${{ secrets.PUBLIC_PROJECTS_BUCKET }}" \
-            --build-arg NDA_PROJECTS_BUCKET="${{ secrets.NDA_PROJECTS_BUCKET }}" \
-            --build-arg NEXT_PUBLIC_RUM_APP_MONITOR_ID="${{ secrets.NEXT_PUBLIC_RUM_APP_MONITOR_ID }}" \
-            --build-arg NEXT_PUBLIC_RUM_IDENTITY_POOL_ID="${{ secrets.NEXT_PUBLIC_RUM_IDENTITY_POOL_ID }}" \
-            --build-arg NEXT_PUBLIC_RUM_GUEST_ROLE_ARN="${{ secrets.NEXT_PUBLIC_RUM_GUEST_ROLE_ARN }}" \
-            --build-arg NEXT_PUBLIC_RUM_REGION="${{ secrets.NEXT_PUBLIC_RUM_REGION }}" \
-            --build-arg NEXT_PUBLIC_RUM_DEBUG="${{ secrets.NEXT_PUBLIC_RUM_DEBUG }}" \
+          echo "${SANITIZED_FE_REQ}" > /tmp/required_environment_variables_frontend
+          echo "${{ secrets.NEXT_PUBLIC_ENV_PROFILE }}" > /tmp/next_public_env_profile
+          echo "${{ secrets.BACKEND_INTERNAL_URL }}" > /tmp/backend_internal_url
+          echo "${{ secrets.PUBLIC_PROJECTS_BUCKET }}" > /tmp/public_projects_bucket
+          echo "${{ secrets.NDA_PROJECTS_BUCKET }}" > /tmp/nda_projects_bucket
+          echo "${{ secrets.NEXT_PUBLIC_RUM_APP_MONITOR_ID }}" > /tmp/next_public_rum_app_monitor_id
+          echo "${{ secrets.NEXT_PUBLIC_RUM_IDENTITY_POOL_ID }}" > /tmp/next_public_rum_identity_pool_id
+          echo "${{ secrets.NEXT_PUBLIC_RUM_GUEST_ROLE_ARN }}" > /tmp/next_public_rum_guest_role_arn
+          echo "${{ secrets.NEXT_PUBLIC_RUM_REGION }}" > /tmp/next_public_rum_region
+          echo "${{ secrets.NEXT_PUBLIC_RUM_DEBUG }}" > /tmp/next_public_rum_debug
+          DOCKER_BUILDKIT=1 docker build --build-arg ENV_PROFILE=dev \
+            --secret id=required_environment_variables_frontend,src=/tmp/required_environment_variables_frontend \
+            --secret id=next_public_env_profile,src=/tmp/next_public_env_profile \
+            --secret id=backend_internal_url,src=/tmp/backend_internal_url \
+            --secret id=public_projects_bucket,src=/tmp/public_projects_bucket \
+            --secret id=nda_projects_bucket,src=/tmp/nda_projects_bucket \
+            --secret id=next_public_rum_app_monitor_id,src=/tmp/next_public_rum_app_monitor_id \
+            --secret id=next_public_rum_identity_pool_id,src=/tmp/next_public_rum_identity_pool_id \
+            --secret id=next_public_rum_guest_role_arn,src=/tmp/next_public_rum_guest_role_arn \
+            --secret id=next_public_rum_region,src=/tmp/next_public_rum_region \
+            --secret id=next_public_rum_debug,src=/tmp/next_public_rum_debug \
             -t bhbaysinger/bb-portfolio-frontend:dev ./frontend
+          rm -f /tmp/required_environment_variables_frontend /tmp/next_public_env_profile /tmp/backend_internal_url /tmp/public_projects_bucket /tmp/nda_projects_bucket /tmp/next_public_rum_app_monitor_id /tmp/next_public_rum_identity_pool_id /tmp/next_public_rum_guest_role_arn /tmp/next_public_rum_region /tmp/next_public_rum_debug
           docker push bhbaysinger/bb-portfolio-backend:dev
           docker push bhbaysinger/bb-portfolio-frontend:dev
 
