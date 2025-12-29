@@ -1,6 +1,6 @@
 @use "@/styles/mixins" as *;
 
-$boltInsetMin: 8px;
+$boltInsetMin: 6px;
 $boltInsetMax: 12px;
 
 .frameClip {
@@ -50,8 +50,8 @@ $boltInsetMax: 12px;
     position: absolute;
     pointer-events: none;
     display: none;
-    @include lerpRange(width, 40px, 60px);
-    @include lerpRange(height, 40px, 60px);
+    @include lerpRange(width, 35px, 56px);
+    @include lerpRange(height, 35px, 56px);
     background-image: url("/images/common/nut.webp");
     background-size: contain;
     z-index: 20;
@@ -104,5 +104,6 @@ $boltInsetMax: 12px;
 .textWrapper {
   position: relative;
   z-index: 1;
-  padding: 10px;
+  // padding: 10px;
+  @include lerpRange(padding, 6px, 10px);
 }
