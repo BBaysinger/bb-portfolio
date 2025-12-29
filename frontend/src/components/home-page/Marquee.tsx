@@ -9,7 +9,7 @@ interface MarqueeProps {
   repeat?: number;
 }
 
-const DEFAULT_PHRASES = ["Selected Client Work"];
+const DEFAULT_PHRASES = ["Default Phrase 1", "Default Phrase 2"];
 
 export default function Marquee({
   phrases = DEFAULT_PHRASES,

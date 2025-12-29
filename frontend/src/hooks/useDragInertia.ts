@@ -32,8 +32,7 @@
  */
 
 import gsap from "gsap";
-import { Draggable } from "gsap/Draggable";
-import { InertiaPlugin } from "gsap/InertiaPlugin";
+import { Draggable, InertiaPlugin } from "gsap/all";
 import { useEffect, useRef } from "react";
 
 import useActivePointerType from "./useActivePointerType";

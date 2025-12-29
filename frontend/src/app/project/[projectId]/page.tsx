@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
+import { notFound, redirect } from "next/navigation";
 import { Suspense } from "react";
 
-import ProjectViewWrapper from "@/components/project-carousel-page/ProjectViewWrapper";
-import { ProjectDataStore } from "@/data/ProjectData";
+import { ProjectDataStore, projectRequiresNda } from "@/data/ProjectData";
+
+import ProjectClientBoundary from "./ProjectClientBoundary";
 
 // Allow SSG/ISR for the project detail route.
 // NOTE: `revalidate = 0` would make this route dynamic/no-store.
@@ -24,6 +26,10 @@ export async function generateMetadata({
       includeNdaInActive: false,
     });
     const rec = projectData.getProject(projectId);
+    // Never expose NDA project titles on the public route.
+    if (rec && projectRequiresNda(rec)) {
+      return { title: "Project" };
+    }
     return {
       title: rec?.longTitle || rec?.title || "Project",
     };
@@ -53,9 +59,53 @@ export default async function ProjectPage({
   params: Promise<{ projectId: string }>;
 }) {
   const { projectId } = await params;
+
+  let ssrParsed:
+    | import("@/data/ProjectData").ParsedPortfolioProjectData
+    | undefined;
+  let ssrIncludeNdaInActive: boolean | undefined;
+
+  // Prefetch on the server so ISR output can hydrate the client carousel instantly.
+  // If the backend is unavailable (e.g. some CI builds), fall back to client fetch.
+  try {
+    const projectData = new ProjectDataStore();
+    await projectData.initialize({
+      disableCache: false,
+      includeNdaInActive: false,
+    });
+    const rec = projectData.getProject(projectId);
+    if (!rec) return notFound();
+
+    // NDA protection: never render/cache NDA projects on the public route.
+    // Always route NDA slugs through the /nda/* pages that evaluate auth.
+    if (projectRequiresNda(rec)) {
+      return redirect(`/nda/${encodeURIComponent(projectId)}/`);
+    }
+
+    // Only pass the public carousel dataset snapshot to the client.
+    // This avoids caching NDA rows in the ISR payload.
+    const record = projectData.projectsRecord;
+    ssrParsed = projectData.activeKeys.reduce(
+      (acc, key) => {
+        const p = record[key];
+        if (p) acc[key] = p;
+        return acc;
+      },
+      {} as import("@/data/ProjectData").ParsedPortfolioProjectData,
+    );
+    ssrIncludeNdaInActive = false;
+  } catch {
+    // no-op
+  }
+
   return (
     <Suspense fallback={<div>Loading project...</div>}>
-      <ProjectViewWrapper params={{ projectId }} allowNda={false} />
+      <ProjectClientBoundary
+        projectId={projectId}
+        allowNda={false}
+        ssrParsed={ssrParsed}
+        ssrIncludeNdaInActive={ssrIncludeNdaInActive}
+      />
     </Suspense>
   );
 }
