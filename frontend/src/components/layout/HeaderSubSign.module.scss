@@ -1,11 +1,21 @@
 @use "@/styles/mixins" as *;
 
+$boltInsetMin: 8px;
+$boltInsetMax: 12px;
+
 .frameClip {
   position: absolute;
   inset: 0;
   z-index: 0;
   pointer-events: none;
   clip-path: inset(0 round calc(var(--headerSubRadius) - 3px));
+}
+
+.nutsOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
 }
 
 .frameLayerHolder {
@@ -17,6 +27,7 @@
 .frameLayerMasked {
   position: absolute;
   inset: 0;
+  z-index: 0;
   pointer-events: none;
   box-sizing: border-box;
   border-style: solid;
@@ -29,9 +40,42 @@
 
 .frameLayerFront {
   position: absolute;
-  inset: 0;
-  z-index: 1;
   pointer-events: none;
+  width: 100%;
+  height: 100%;
+  z-index: 20;
+  &::before,
+  &::after {
+    content: "";
+    position: absolute;
+    pointer-events: none;
+    display: none;
+    @include lerpRange(width, 40px, 60px);
+    @include lerpRange(height, 40px, 60px);
+    background-image: url("/images/common/nut.webp");
+    background-size: contain;
+    z-index: 20;
+  }
+  &::before {
+    @include lerpRange(left, $boltInsetMin, $boltInsetMax);
+  }
+  &::after {
+    @include lerpRange(right, $boltInsetMin, $boltInsetMax);
+  }
+  .frameLayerHolder:first-of-type & {
+    &::before,
+    &::after {
+      display: block;
+      @include lerpRange(top, $boltInsetMin, $boltInsetMax);
+    }
+  }
+  .frameLayerHolder:last-of-type & {
+    &::before,
+    &::after {
+      display: block;
+      @include lerpRange(bottom, $boltInsetMin, $boltInsetMax);
+    }
+  }
 }
 
 .frameLayerHolder:nth-of-type(2) .frameLayerMasked,
@@ -60,4 +104,5 @@
 .textWrapper {
   position: relative;
   z-index: 1;
+  padding: 10px;
 }

@@ -3,7 +3,7 @@ import React, { useRef } from "react";
 import useAutoFitText from "@/hooks/useAutoFitText";
 
 import styles from "./HeaderSub.module.scss";
-import HeaderSubShell from "./HeaderSubShell";
+import HeaderSubSign from "./HeaderSubSign";
 
 interface HeaderSubProps {
   head: string;
@@ -33,10 +33,10 @@ const HeaderSub: React.FC<HeaderSubProps> = ({ head, subhead }) => {
       id="headerSub"
       className={`${styles.headerSub} ${styles.header}`}
     >
-      <HeaderSubShell>
+      <HeaderSubSign>
         <h1 ref={h1Ref}>{head}</h1>
         {subhead && <h5 className={styles.subhead}>{subhead}</h5>}
-      </HeaderSubShell>
+      </HeaderSubSign>
     </header>
   );
 };
