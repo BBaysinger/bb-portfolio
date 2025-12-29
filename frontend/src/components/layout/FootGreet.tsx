@@ -71,12 +71,11 @@ const FootGreet: React.FC<{ className?: string }> = ({ className = "" }) => {
         the browser.
       </p> */}
       <p>
-        I&apos;m passionate about creating digital experiences that reward
-        exploration and create new efficiencies in helping people find what they
-        came for. But my capabilities can go far beyond that. If you&apos;re
-        looking for someone who brings systematic innovation, architectural
-        thinking, and an obsessive attention to craft—let&apos;s connect and
-        explore what we can build together.
+        I&apos;m passionate about creating intuitive UI concepts, but my
+        capabilities can go beyond that. If you&apos;re looking for someone who
+        brings systematic innovation, architectural thinking, and an obsessive
+        attention to craft—let&apos;s connect and explore what we can build
+        together.
       </p>
     </div>
   );
