@@ -345,6 +345,7 @@ async function fetchPortfolioProjects(opts?: {
     shortCode?: string;
     title?: string;
     shortTitle?: string;
+    shortDesc?: string;
     sortIndex?: number;
     active?: boolean;
     omitFromList?: boolean;
@@ -697,6 +698,10 @@ async function fetchPortfolioProjects(opts?: {
         typeof doc.shortTitle === "string" && doc.shortTitle.trim()
           ? doc.shortTitle.trim()
           : undefined,
+      shortDesc:
+        typeof doc.shortDesc === "string" && doc.shortDesc.trim()
+          ? doc.shortDesc.trim()
+          : undefined,
       shortCode,
       active: !!doc.active,
       omitFromList: !!doc.omitFromList,
@@ -763,6 +768,8 @@ export interface PortfolioProjectBase {
   title: string;
   /** Optional display title for the H1; falls back to `title` when unset. */
   shortTitle?: string;
+  /** Optional brief blurb used in list/preview contexts. */
+  shortDesc?: string;
   /** Optional opaque identifier usable as an alternate route key (e.g., /nda/<code>/). */
   shortCode?: string;
   active: boolean;

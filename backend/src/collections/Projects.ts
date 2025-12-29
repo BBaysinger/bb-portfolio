@@ -156,6 +156,20 @@ export const Projects: CollectionConfig = {
       },
     },
     {
+      name: 'shortDesc',
+      label: 'Short Description',
+      type: 'textarea',
+      required: false,
+      access: {
+        read: canReadNdaField,
+      },
+      admin: {
+        rows: 3,
+        description:
+          'Optional brief blurb used for list cards/preview contexts. Keep this to 1–2 sentences.',
+      },
+    },
+    {
       name: 'slug',
       type: 'text',
       required: true,

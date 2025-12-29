@@ -171,6 +171,10 @@ export interface Project {
    * Optional display title for the H1. Slugs and canonical project naming should still be based on Title.
    */
   shortTitle?: string | null;
+  /**
+   * Optional brief blurb used for list cards/preview contexts. Keep this to 1–2 sentences.
+   */
+  shortDesc?: string | null;
   slug: string;
   /**
    * Opaque URL-safe identifier. This can be used as an alternate route key (e.g., /nda/<code>/) without exposing the human slug.
@@ -520,6 +524,7 @@ export interface ProjectsSelect<T extends boolean = true> {
   sortIndex?: T;
   title?: T;
   shortTitle?: T;
+  shortDesc?: T;
   slug?: T;
   shortCode?: T;
   active?: T;
