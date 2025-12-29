@@ -23,6 +23,8 @@ interface ProjectPageProps {
   ssrParsed?: import("@/data/ProjectData").ParsedPortfolioProjectData;
   /** Whether SSR dataset included NDA in active set. */
   ssrIncludeNdaInActive?: boolean;
+  /** Whether SSR dataset contained sanitized placeholders (no NDA access). */
+  ssrContainsSanitizedPlaceholders?: boolean;
 }
 
 /**
@@ -41,37 +43,32 @@ export default function ProjectViewWrapper({
   allowNda,
   ssrParsed,
   ssrIncludeNdaInActive,
+  ssrContainsSanitizedPlaceholders,
 }: ProjectPageProps) {
   const router = useRouter();
-  // If we were given an SSR snapshot, we can render immediately (client-only wrapper).
-  // The page uses dynamic(..., { ssr: false }) so this code only runs in the browser.
+  // If an SSR snapshot is provided, we can render immediately on the client.
   const [ready, setReady] = useState(Boolean(ssrParsed));
-  // Increment this when the underlying ProjectData active set fundamentally changes
-  // (e.g., NDA entries added after an includeNda initialization) so the carousel remounts.
-  const [datasetEpoch, setDatasetEpoch] = useState(ssrParsed ? 1 : 0);
   const initOnce = useRef(false);
   const hydratedFromSsr = useRef(false);
   const { isLoggedIn, user } = useAppSelector((s) => s.auth);
-  // Two-mode carousel:
-  // - Public routes always omit NDA slides.
-  // - NDA routes always include NDA in active set (placeholders when unauthenticated).
-  void isLoggedIn;
-  void user;
-  const includeNdaInActive = Boolean(allowNda);
+  const isAuthed = Boolean(isLoggedIn) || Boolean(user);
+  const includeNdaInActive = Boolean(allowNda) || isAuthed;
 
   // If SSR provided a parsed snapshot, hydrate synchronously once so the
-  // carousel can render with all slides immediately on first client render.
+  // carousel can render without waiting for an effect.
   if (ssrParsed && !hydratedFromSsr.current) {
     try {
       ProjectData.hydrate(
         ssrParsed,
         Boolean(ssrIncludeNdaInActive ?? includeNdaInActive),
+        {
+          containsSanitizedPlaceholders: ssrContainsSanitizedPlaceholders,
+        },
       );
       initOnce.current = true;
       hydratedFromSsr.current = true;
     } catch {
-      // If hydration fails for any reason, fall back to the async init path.
-      // Keep `ready` as-is; the effect below will fetch and then set ready.
+      // fall back to async init path
     }
   }
 
@@ -89,8 +86,10 @@ export default function ProjectViewWrapper({
           ProjectData.hydrate(
             ssrParsed,
             Boolean(ssrIncludeNdaInActive ?? includeNdaInActive),
+            {
+              containsSanitizedPlaceholders: ssrContainsSanitizedPlaceholders,
+            },
           );
-          setDatasetEpoch((e) => e + 1);
         } else {
           // Initialize dataset based on computed includeNdaInActive for this route/auth state.
           try {
@@ -98,7 +97,6 @@ export default function ProjectViewWrapper({
               disableCache: true,
               includeNdaInActive,
             });
-            setDatasetEpoch((e) => e + 1);
           } catch {
             return;
           }
@@ -111,13 +109,29 @@ export default function ProjectViewWrapper({
     return () => {
       cancelled = true;
     };
-  }, [includeNdaInActive, ssrIncludeNdaInActive, ssrParsed]);
+  }, [
+    includeNdaInActive,
+    ssrIncludeNdaInActive,
+    ssrParsed,
+    ssrContainsSanitizedPlaceholders,
+  ]);
 
-  // If we are on the public route and the user transitions to authenticated,
-  // reinitialize the dataset to include NDA entries and bump the epoch so the
-  // carousel remounts with the expanded set.
-  // NOTE: We intentionally do not expand the public route dataset after login.
-  // Public carousel should remain stable and omit NDA slides.
+  // On NDA routes, refresh the dataset when auth state changes so
+  // placeholders can upgrade (or re-sanitize) without remounting.
+  useEffect(() => {
+    if (!ready) return;
+    if (!allowNda) return;
+    (async () => {
+      try {
+        await ProjectData.initialize({
+          disableCache: true,
+          includeNdaInActive: true,
+        });
+      } catch {
+        // ignore
+      }
+    })();
+  }, [ready, allowNda, isAuthed]);
 
   // If we're on the public route but the slug actually refers to an NDA project,
   // redirect to the NDA route to ensure the dataset includes the project in the active set
@@ -148,22 +162,12 @@ export default function ProjectViewWrapper({
       if (probing) return;
       probing = true;
       try {
-        const resp = await fetch("/api/users/me/", {
-          method: "GET",
-          credentials: "include",
-          headers: { Accept: "application/json" },
-        });
-        const _authed = resp.ok;
-        // Regardless of auth outcome, reinitialize NDA dataset to ensure fields are
-        // properly sanitized or expanded to match current auth state.
+        // Reinitialize NDA dataset to ensure fields are properly sanitized
+        // or expanded to match current auth state.
         await ProjectData.initialize({
           disableCache: true,
           includeNdaInActive: true,
         });
-        if (!cancelled) {
-          setDatasetEpoch((e) => e + 1);
-        }
-        // AppShell handles redirect on 401; this refresh keeps UI consistent while that happens.
       } catch {
         // Silently ignore network errors; dataset remains as-is.
       } finally {
@@ -187,12 +191,6 @@ export default function ProjectViewWrapper({
       window.removeEventListener("focus", onFocus);
     };
   }, [ready, allowNda]);
-
-  // Privacy redirect fallback: if we're on an NDA route and auth has dropped, navigate to home.
-  // NOTE: We intentionally do NOT hard-redirect unauthenticated visitors away from NDA routes.
-  // The NDA carousel uses sanitized placeholder data when unauthenticated and upgrades
-  // after auth is confirmed client-side.
-
   if (!ready) {
     return <div>Loading project...</div>;
   }
@@ -201,7 +199,6 @@ export default function ProjectViewWrapper({
     <ProjectViewRouterBridge
       initialProjectId={params.projectId}
       allowNda={Boolean(allowNda)}
-      datasetEpoch={datasetEpoch}
     />
   );
 }
@@ -209,21 +206,30 @@ export default function ProjectViewWrapper({
 function ProjectViewRouterBridge({
   initialProjectId,
   allowNda,
-  datasetEpoch,
 }: {
   initialProjectId: string;
   allowNda: boolean;
-  datasetEpoch: number;
 }) {
   const router = useRouter();
   const [projectId] = useProjectUrlSync(initialProjectId, {
     fallbackFromPathSegment: true,
     // Hash uniquing removed; Back/Forward is stable without it in supported browsers.
   });
-  const base = allowNda ? "/nda/" : "/project/";
+  const rec = (() => {
+    try {
+      return projectId ? ProjectData.getProject(projectId) : undefined;
+    } catch {
+      return undefined;
+    }
+  })();
+
+  // Shareable/canonical URLs should reflect the project's NDA-ness, not which carousel you're in.
+  // - Public carousel (allowNda=false): always /project/
+  // - NDA carousel (allowNda=true): /nda/ for NDA projects, /project/ for public projects
+  const base =
+    allowNda && rec && projectRequiresNda(rec) ? "/nda/" : "/project/";
   // On NDA routes, include NDA items in active set even if not logged in (placeholders allowed).
   const includeNdaInActive = Boolean(allowNda);
-  const [epoch, setEpoch] = useState(0);
 
   // If we navigated in with an NDA project and the active map doesn't have it yet,
   // re-initialize once when auth becomes available.
@@ -241,7 +247,6 @@ function ProjectViewRouterBridge({
             disableCache: true,
             includeNdaInActive: true,
           });
-          setEpoch((e) => e + 1);
         } catch {
           // ignore
         }
@@ -279,7 +284,6 @@ function ProjectViewRouterBridge({
             disableCache: true,
             includeNdaInActive: true,
           });
-          setEpoch((e) => e + 1);
         } catch {
           // ignore
         }
@@ -331,10 +335,7 @@ function ProjectViewRouterBridge({
     <>
       {/* Emit a canonical link that always points to the segment route for the current project */}
       <CanonicalLink href={`${base}${encodeURIComponent(projectId)}/`} />
-      <ProjectView
-        key={`dataset-${datasetEpoch}-${epoch}`}
-        projectId={projectId}
-      />
+      <ProjectView projectId={projectId} />
     </>
   );
 }

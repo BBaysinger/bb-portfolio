@@ -5,7 +5,6 @@ import { Suspense } from "react";
 import { ProjectDataStore, projectRequiresNda } from "@/data/ProjectData";
 
 import NdaProjectClientBoundary from "./NdaProjectClientBoundary";
-
 export const revalidate = 3600;
 export const dynamicParams = true;
 export const dynamic = "force-static";
@@ -19,7 +18,7 @@ export async function generateMetadata({
   const robots = { index: false, follow: false };
 
   // Never render NDA metadata from a public/SSG context.
-  // The client will update document.title after auth is confirmed.
+  // Client updates document.title after auth load.
   void projectId;
   return { robots, title: "NDA Project" };
 }
@@ -34,9 +33,10 @@ export default async function NdaProjectPage({
   let ssrParsed:
     | import("@/data/ProjectData").ParsedPortfolioProjectData
     | undefined;
+  let ssrContainsSanitizedPlaceholders: boolean | undefined;
 
-  // Prefetch sanitized placeholder dataset without cookies.
-  // This is safe to cache/ISR and gives an instant carousel with locked placeholders.
+  // Prefetch an unauthenticated dataset that includes NDA placeholders in the active set.
+  // This is safe to cache (ISR) and gives a stable slide list immediately.
   try {
     const projectData = new ProjectDataStore();
     await projectData.initialize({
@@ -60,6 +60,7 @@ export default async function NdaProjectPage({
         projectId={projectId}
         ssrParsed={ssrParsed}
         ssrIncludeNdaInActive={true}
+        ssrContainsSanitizedPlaceholders={ssrContainsSanitizedPlaceholders}
       />
     </Suspense>
   );

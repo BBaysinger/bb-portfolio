@@ -3,6 +3,7 @@ import React from "react";
 import { RawImg } from "@/components/common/RawImg";
 import { MobileOrientation } from "@/data/ProjectData";
 import ProjectData from "@/data/ProjectData";
+import { useProjectDataVersion } from "@/hooks/useProjectDataVersion";
 
 import { DeviceTypes, DeviceType } from "./DeviceDisplay.constants";
 import styles from "./DeviceDisplay.module.scss";
@@ -38,6 +39,9 @@ const DeviceDisplay: React.FC<DeviceDisplayProps> = React.memo(
     shouldLoad = true,
     onScreenshotLoad,
   }) => {
+    // Re-render when ProjectData changes (e.g., NDA placeholder → real URLs)
+    useProjectDataVersion();
+
     // Strictly use URLs from Payload uploads; if missing, render a transparent placeholder
     const payloadUrl =
       ProjectData.activeProjectsRecord[id]?.screenshotUrls?.[deviceType];
