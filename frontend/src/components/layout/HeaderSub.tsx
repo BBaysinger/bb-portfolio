@@ -23,7 +23,7 @@ const HeaderSub: React.FC<HeaderSubProps> = ({ head, subhead }) => {
     anchorRef: headerRef,
     targetRef: h1Ref,
     watch: head,
-    maxLines: 2,
+    maxLines: 1,
     minFontSizePx: 18,
   });
 
