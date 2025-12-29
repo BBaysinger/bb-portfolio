@@ -165,10 +165,6 @@ export interface Project {
   title: string;
   slug: string;
   /**
-   * Optional expanded title (e.g., for SEO/page headers). If unset, the site can fall back to Title.
-   */
-  longTitle?: string | null;
-  /**
    * Opaque URL-safe identifier. This can be used as an alternate route key (e.g., /nda/<code>/) without exposing the human slug.
    */
   shortCode: string;
@@ -176,6 +172,10 @@ export interface Project {
    * Lower numbers appear first in the portfolio list.
    */
   sortIndex?: number | null;
+  /**
+   * Optional expanded title (e.g., for SEO/page headers). If unset, the site can fall back to Title.
+   */
+  longTitle?: string | null;
   /**
    * Optional display title for the H1. Slugs and canonical project naming should still be based on Title.
    */
@@ -527,9 +527,9 @@ export interface UsersSelect<T extends boolean = true> {
 export interface ProjectsSelect<T extends boolean = true> {
   title?: T;
   slug?: T;
-  longTitle?: T;
   shortCode?: T;
   sortIndex?: T;
+  longTitle?: T;
   shortTitle?: T;
   shortDesc?: T;
   active?: T;

@@ -143,19 +143,6 @@ export const Projects: CollectionConfig = {
       },
     },
     {
-      name: 'longTitle',
-      label: 'Long Title',
-      type: 'text',
-      required: false,
-      access: {
-        read: canReadNdaField,
-      },
-      admin: {
-        description:
-          'Optional expanded title (e.g., for SEO/page headers). If unset, the site can fall back to Title.',
-      },
-    },
-    {
       name: 'shortCode',
       label: 'Short Code (URL Key)',
       type: 'text',
@@ -174,6 +161,19 @@ export const Projects: CollectionConfig = {
       defaultValue: 0,
       admin: {
         description: 'Lower numbers appear first in the portfolio list.',
+      },
+    },
+    {
+      name: 'longTitle',
+      label: 'Long Title',
+      type: 'text',
+      required: false,
+      access: {
+        read: canReadNdaField,
+      },
+      admin: {
+        description:
+          'Optional expanded title (e.g., for SEO/page headers). If unset, the site can fall back to Title.',
       },
     },
     {
