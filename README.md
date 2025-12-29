@@ -395,7 +395,7 @@ Other UI details: scroll‑aware navigation, mobile slide‑out menu, dynamic de
 #### Hardened Backend Runtime (Distroless)
 
 - Backend runs on `gcr.io/distroless/nodejs22-debian12` (no shell or package manager; non-root by default).
-- Production builds use webpack only (`next build --webpack`); Turbopack is not used (Payload CMS requirement).
+- Backend production builds use webpack only (`next build --webpack`); Turbopack must not be used for backend production builds (Payload CMS requirement).
 - Next standalone output is copied to `/app`, and the server starts via a tiny CommonJS bootstrap that requires `'/app/app/server.js'`.
 - Health checks target `/api/health/` (note trailing slash due to `trailingSlash: true`).
 - BuildKit secrets are used during builds; runtime configuration comes from Compose/env files — no secrets are baked into images.

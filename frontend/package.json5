@@ -12,7 +12,7 @@
     // Validate required environment variables before starting dev
     "predev": "tsx ./scripts/check-required-env.ts",
     // Start Next.js development server with hot reload
-    "dev": "next dev --webpack -p ${PORT:-3000}",
+    "dev": "next dev -p ${PORT:-3000}",
     // Check required environment variables for current profile
     "prebuild": "tsx ./scripts/check-required-env.ts",
     // Build production-optimized static site

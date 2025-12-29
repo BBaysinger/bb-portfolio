@@ -6,6 +6,22 @@ This file records major technical decisions for the portfolio project.
 Each entry includes the date, decision, reasoning, alternatives, and current status.  
 New decisions should be appended chronologically.
 
+## 2025-12-28 – Turbopack Re-Enabled for Frontend Development
+
+- **Decision:**
+  - Frontend: Use the default `next dev` bundler behavior (Turbopack-enabled in Next 16.x) for local development.
+  - Frontend production builds remain webpack (`next build --webpack`).
+  - Backend production builds remain webpack (`next build --webpack`) due to Payload CMS.
+
+- **Reasoning:**
+  - Development performance benefits from Turbopack.
+  - Production constraints remain unchanged (webpack required for backend/Payload; frontend builds kept deterministic).
+
+- **Operational notes:**
+  - If you need to reproduce a webpack-only dev issue, run the frontend dev server with `next dev --webpack`.
+
+- **Status:** ✅ Active
+
 ## 2025-11-27 – Backend Runtime Hardening (Distroless) + Next 16 Standalone Entrypoint
 
 - **Decision:**
@@ -56,21 +72,21 @@ New decisions should be appended chronologically.
 ## 2025-11-25 – Next.js Bundler Strategy: Webpack for Frontend; Webpack for Backend Prod
 
 - **Decision:**
-  - Frontend: Use webpack in development and production (`next dev --webpack`, `next build --webpack`).
+  - Frontend (at the time): Use webpack in development and production (`next dev --webpack`, `next build --webpack`).
   - Backend: Use webpack for production builds (`next build --webpack`); dev remains default (`next dev`) which may use Turbopack depending on Next.js version.
 - **Reasoning:**
   - AWS RUM instrumentation depends on webpack’s mature plugin/loader ecosystem and predictable asset pipeline; Turbopack caused instrumentation issues in dev.
   - Payload CMS explicitly does not support Turbopack for production; Next 16 requires `next build --webpack` to build successfully.
   - Webpack provides deterministic builds and well-supported tooling (source maps, bundle analysis) aiding performance and RUM diagnostics.
 - **Implementation:**
-  - `frontend/package.json`: `dev` uses `next dev --webpack -p ${PORT:-3000}`; builds use `next build --webpack`.
+  - Frontend dev was forced to webpack via `next dev --webpack`.
   - `backend/package.json`: `build` updated to `next build --webpack` to satisfy Payload on Next 16.
   - Local proxy (`caddy:up`) verified: frontend runs Next 16.x.x (webpack) on port 3000; backend container healthy.
 - **Alternatives considered:**
   - Adopt Turbopack across dev/prod with custom config: deferred until Payload supports it in production and AWS RUM integration is validated.
   - Hybrid approach with per-route bundling: unnecessary complexity for current stack.
-- **Status:** ✅ Active
-  - **Revisit:** Evaluate Turbopack once Payload adds production support and RUM instrumentation is verified to work reliably.
+- **Status:** ⚠️ Superseded
+  - Superseded by: **2025-12-28 – Turbopack Re-Enabled for Frontend Development**.
 
 ## 2025-11-07 – Production HTTPS Enablement (Certbot) and Domain Hygiene
 
