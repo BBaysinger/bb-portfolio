@@ -20,6 +20,7 @@ import { LayeredCarouselManagerRef } from "@/components/project-carousel-page/La
 import LogoSwapper from "@/components/project-carousel-page/LogoSwapper";
 import PageButtons from "@/components/project-carousel-page/PageButtons";
 import ProjectData, { projectRequiresNda } from "@/data/ProjectData";
+import { useProjectDataVersion } from "@/hooks/useProjectDataVersion";
 import { useRouteChange } from "@/hooks/useRouteChange";
 import {
   navigateWithPushState,
@@ -43,6 +44,9 @@ import styles from "./ProjectView.module.scss";
  * @param {string} projectId - The current project ID from the wrapper component.
  */
 const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
+  // Re-render when ProjectData changes so placeholders can upgrade in-place.
+  useProjectDataVersion();
+
   const projects = ProjectData.activeProjectsRecord;
   const debug = process.env.NEXT_PUBLIC_DEBUG_CAROUSEL === "1";
 

@@ -850,6 +850,9 @@ export type ProjectDataInitializeResult = ProjectDataHydrationOptions;
  *
  */
 export class ProjectDataStore {
+  private _listeners = new Set<() => void>();
+  private _version = 0;
+
   private _projects: ParsedPortfolioProjectData = {};
   private _activeProjects: ParsedPortfolioProject[] = [];
   private _activeKeys: string[] = [];
@@ -862,6 +865,30 @@ export class ProjectDataStore {
   private _containsSanitizedPlaceholders = false;
   // Prevent overlapping initialize() calls from interleaving state writes.
   private _initInFlight: Promise<ProjectDataInitializeResult> | null = null;
+
+  /** Subscribe to store changes (client-side). Returns an unsubscribe function. */
+  subscribe(listener: () => void): () => void {
+    this._listeners.add(listener);
+    return () => {
+      this._listeners.delete(listener);
+    };
+  }
+
+  /** Monotonic version used by `useSyncExternalStore` to trigger updates. */
+  get version(): number {
+    return this._version;
+  }
+
+  private emitChange() {
+    this._version += 1;
+    for (const listener of this._listeners) {
+      try {
+        listener();
+      } catch {
+        // ignore subscriber errors
+      }
+    }
+  }
 
   private resetCaches() {
     this._projects = {} as ParsedPortfolioProjectData;
@@ -966,6 +993,8 @@ export class ProjectDataStore {
         );
       }
     }
+
+    this.emitChange();
   }
 
   get activeKeys(): string[] {
@@ -1175,6 +1204,9 @@ export class ProjectDataStore {
           );
         }
       }
+
+      // Notify subscribers once the store is fully consistent.
+      this.emitChange();
       return {
         includeNdaInActive,
         containsSanitizedPlaceholders: Boolean(

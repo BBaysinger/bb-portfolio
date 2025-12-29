@@ -59,14 +59,10 @@ export default async function ProjectPage({
   params: Promise<{ projectId: string }>;
 }) {
   const { projectId } = await params;
-
   let ssrParsed:
     | import("@/data/ProjectData").ParsedPortfolioProjectData
     | undefined;
   let ssrIncludeNdaInActive: boolean | undefined;
-
-  // Prefetch on the server so ISR output can hydrate the client carousel instantly.
-  // If the backend is unavailable (e.g. some CI builds), fall back to client fetch.
   try {
     const projectData = new ProjectDataStore();
     await projectData.initialize({
