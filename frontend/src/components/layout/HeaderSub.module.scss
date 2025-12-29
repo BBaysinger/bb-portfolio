@@ -6,17 +6,17 @@ header.headerSub {
   overflow: visible;
   isolation: isolate;
   color: #222;
+  transform: rotate(-1deg);
+  letter-spacing: 1px;
+  margin-left: auto;
+  margin-right: auto;
   @include lerpRange(--headerSubRadius, 32px, 50px);
   @include lerpRange(--headerSubBlackCropOffset, 15px, 30px);
   @include lerpRange(padding, 20px, 36px);
   @include lerpRange(padding-left, 16px, 29px);
-  letter-spacing: 1px;
-  margin-left: auto;
-  margin-right: auto;
-  @include lerpRange(margin-top, $navBarHeight + 20px, 40px);
-  @include lerpRange(margin-bottom, 20px, 30px);
+  @include lerpRange(margin-top, $navBarHeight + 30px, 50px);
+  @include lerpRange(margin-bottom, 30px, 40px);
   @include lerpRange(width, 96%, 70%, $b640, $b1792);
-  transform: rotate(-1deg);
 
   h1 {
     font-weight: 700;

@@ -164,19 +164,6 @@ export const Projects: CollectionConfig = {
       },
     },
     {
-      name: 'longTitle',
-      label: 'Long Title',
-      type: 'text',
-      required: false,
-      access: {
-        read: canReadNdaField,
-      },
-      admin: {
-        description:
-          'Optional expanded title (e.g., for SEO/page headers). If unset, the site can fall back to Title.',
-      },
-    },
-    {
       name: 'shortTitle',
       label: 'Short Title (H1)',
       type: 'text',
@@ -190,17 +177,16 @@ export const Projects: CollectionConfig = {
       },
     },
     {
-      name: 'shortDesc',
-      label: 'Short Description',
-      type: 'textarea',
+      name: 'longTitle',
+      label: 'Long Title',
+      type: 'text',
       required: false,
       access: {
         read: canReadNdaField,
       },
       admin: {
-        rows: 3,
         description:
-          'Optional brief blurb used for list cards/preview contexts. Keep this to 1–2 sentences.',
+          'Optional expanded title (e.g., for SEO/page headers). If unset, the site can fall back to Title.',
       },
     },
     {
@@ -281,6 +267,20 @@ export const Projects: CollectionConfig = {
       type: 'text',
       access: {
         read: canReadNdaField,
+      },
+    },
+    {
+      name: 'shortDesc',
+      label: 'Short Description',
+      type: 'textarea',
+      required: false,
+      access: {
+        read: canReadNdaField,
+      },
+      admin: {
+        rows: 3,
+        description:
+          'Optional brief blurb used for list cards/preview contexts. Keep this to 1–2 sentences.',
       },
     },
     {

@@ -57,10 +57,10 @@ $boltInsetMax: 12px;
     z-index: 20;
   }
   &::before {
-    @include lerpRange(left, $boltInsetMin, $boltInsetMax);
+    @include lerpRange(left, $boltInsetMin + 5px, $boltInsetMax);
   }
   &::after {
-    @include lerpRange(right, $boltInsetMin, $boltInsetMax);
+    @include lerpRange(right, $boltInsetMin + 2px, $boltInsetMax);
   }
   .frameLayerHolder:first-of-type & {
     &::before,
@@ -81,7 +81,7 @@ $boltInsetMax: 12px;
 .frameLayerHolder:nth-of-type(2) .frameLayerMasked,
 .frameLayerHolder:nth-of-type(3) .frameLayerMasked {
   mask-image: url(/images/common/stripe-mask.svg);
-  @include lerpRange(mask-size, 30%, 40%);
+  @include lerpRange(mask-size, 35%, 26%);
   mask-position: center center;
   border-image-source: url("/images/common/embossed-sign-black.webp");
 }
@@ -104,6 +104,6 @@ $boltInsetMax: 12px;
 .textWrapper {
   position: relative;
   z-index: 1;
-  // padding: 10px;
   @include lerpRange(padding, 6px, 10px);
+  @include lerpRange(padding-bottom, 2px, 6px);
 }

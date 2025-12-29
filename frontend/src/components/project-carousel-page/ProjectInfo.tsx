@@ -19,9 +19,14 @@ interface ProjectInfoProps {
  */
 const ProjectInfo = forwardRef<HTMLDivElement, ProjectInfoProps>(
   ({ dataNode, isActive, direction }, ref) => {
-    const { desc, urls, role } = dataNode;
+    const { desc, urls, role, longTitle, title } = dataNode;
     const [copied, setCopied] = useState(false);
     let globalIndex = 0;
+
+    const displayTitle =
+      typeof longTitle === "string" && longTitle.trim()
+        ? longTitle.trim()
+        : title;
 
     const canonicalPath = useMemo(() => {
       const base = projectRequiresNda(dataNode) ? "/nda/" : "/project/";
@@ -75,6 +80,12 @@ const ProjectInfo = forwardRef<HTMLDivElement, ProjectInfoProps>(
         style={{ display: isActive ? "block" : "none" }}
       >
         {/* {direction && <div className={styles.direction}>{direction}</div>} */}
+        <div
+          className={styles.projectTitle}
+          style={{ "--index": globalIndex++ } as React.CSSProperties}
+        >
+          <strong>Project Title</strong>: {displayTitle}
+        </div>
         {desc.map((htmlContent) => (
           <div
             key={globalIndex}

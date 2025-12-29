@@ -173,17 +173,13 @@ export interface Project {
    */
   sortIndex?: number | null;
   /**
-   * Optional expanded title (e.g., for SEO/page headers). If unset, the site can fall back to Title.
-   */
-  longTitle?: string | null;
-  /**
    * Optional display title for the H1. Slugs and canonical project naming should still be based on Title.
    */
   shortTitle?: string | null;
   /**
-   * Optional brief blurb used for list cards/preview contexts. Keep this to 1–2 sentences.
+   * Optional expanded title (e.g., for SEO/page headers). If unset, the site can fall back to Title.
    */
-  shortDesc?: string | null;
+  longTitle?: string | null;
   active?: boolean | null;
   omitFromList?: boolean | null;
   nda?: boolean | null;
@@ -208,6 +204,10 @@ export interface Project {
       }[]
     | null;
   type?: string | null;
+  /**
+   * Optional brief blurb used for list cards/preview contexts. Keep this to 1–2 sentences.
+   */
+  shortDesc?: string | null;
   desc?:
     | {
         /**
@@ -529,9 +529,8 @@ export interface ProjectsSelect<T extends boolean = true> {
   slug?: T;
   shortCode?: T;
   sortIndex?: T;
-  longTitle?: T;
   shortTitle?: T;
-  shortDesc?: T;
+  longTitle?: T;
   active?: T;
   omitFromList?: T;
   nda?: T;
@@ -556,6 +555,7 @@ export interface ProjectsSelect<T extends boolean = true> {
         id?: T;
       };
   type?: T;
+  shortDesc?: T;
   desc?:
     | T
     | {

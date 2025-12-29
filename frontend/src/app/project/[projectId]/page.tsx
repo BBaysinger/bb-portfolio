@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 
 import ProjectViewWrapper from "@/components/project-carousel-page/ProjectViewWrapper";
@@ -8,6 +9,30 @@ import { ProjectDataStore } from "@/data/ProjectData";
 export const revalidate = 3600;
 // Allow on-demand generation for unknown params if needed.
 export const dynamicParams = true;
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ projectId: string }>;
+}): Promise<Metadata> {
+  const { projectId } = await params;
+  const projectData = new ProjectDataStore();
+
+  try {
+    await projectData.initialize({
+      disableCache: false,
+      includeNdaInActive: false,
+    });
+    const rec = projectData.getProject(projectId);
+    return {
+      title: rec?.longTitle || rec?.title || "Project",
+    };
+  } catch {
+    return {
+      title: "Project",
+    };
+  }
+}
 
 /**
  * Renders the project view page using a suspense-wrapped client-side component.

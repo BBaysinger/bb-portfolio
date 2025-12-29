@@ -17,7 +17,7 @@ import {
 } from "@/components/project-carousel-page/CarouselTypes";
 import InfoSwapper from "@/components/project-carousel-page/InfoSwapper";
 import { LayeredCarouselManagerRef } from "@/components/project-carousel-page/LayeredCarouselManager";
-// import LogoSwapper from "@/components/project-carousel-page/LogoSwapper";
+import LogoSwapper from "@/components/project-carousel-page/LogoSwapper";
 import PageButtons from "@/components/project-carousel-page/PageButtons";
 import ProjectData, { projectRequiresNda } from "@/data/ProjectData";
 import { useRouteChange } from "@/hooks/useRouteChange";
@@ -45,6 +45,16 @@ import styles from "./ProjectView.module.scss";
 const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
   const projects = ProjectData.activeProjectsRecord;
   const debug = process.env.NEXT_PUBLIC_DEBUG_CAROUSEL === "1";
+
+  useEffect(() => {
+    try {
+      const rec = projects?.[projectId];
+      const title = rec?.longTitle || rec?.title || "Project";
+      document.title = title;
+    } catch {
+      // ignore
+    }
+  }, [projectId, projects]);
 
   const [initialIndex, setInitialIndex] = useState<number | null>(() => {
     return projectId ? (ProjectData.projectIndex(projectId) ?? null) : null;
@@ -423,7 +433,6 @@ const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
           }
           subhead={projects[projectId]?.tags?.join(", ") || ""}
         />
-        {/* <LogoSwapper index={infoSwapperIndex ?? undefined} /> */}
         <div className={styles.carouselControlsWrapper}>
           {initialIndex !== null && (
             <ProjectCarouselView
@@ -435,6 +444,7 @@ const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
           )}
           <PageButtons projectId={projectId} />
         </div>
+        <LogoSwapper index={infoSwapperIndex ?? undefined} />
         <InfoSwapper index={infoSwapperIndex} direction={uiDirection} />
       </div>
     </div>
