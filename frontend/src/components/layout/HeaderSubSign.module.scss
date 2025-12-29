@@ -80,9 +80,9 @@ $boltInsetMax: 12px;
 
 .frameLayerHolder:nth-of-type(2) .frameLayerMasked,
 .frameLayerHolder:nth-of-type(3) .frameLayerMasked {
-  mask-image: url(/images/common/barber-pole.webp);
-  @include lerpRange(mask-size, 70%, 75%);
-  mask-position: center top;
+  mask-image: url(/images/common/stripe-mask.svg);
+  @include lerpRange(mask-size, 30%, 40%);
+  mask-position: center center;
   border-image-source: url("/images/common/embossed-sign-black.webp");
 }
 
