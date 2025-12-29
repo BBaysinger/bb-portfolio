@@ -1,5 +1,3 @@
-import path from "path";
-
 import type { NextConfig } from "next";
 
 // Determine React Strict Mode behavior by environment profile
@@ -161,27 +159,6 @@ const nextConfig: NextConfig = {
         permanent: false,
       },
     ];
-  },
-
-  // Strengthen module resolution in monorepo with multiple lockfiles:
-  // Ensure frontend-local node_modules is prioritized and provide explicit alias to aws-rum-web CJS entry.
-  webpack: (config) => {
-    // Prepend explicit frontend node_modules path for deterministic resolution
-    const localNodeModules = path.resolve(__dirname, "node_modules");
-    config.resolve.modules = [
-      localNodeModules,
-      ...(config.resolve.modules || []),
-    ];
-    // Alias aws-rum-web to its published CJS entry to bypass potential package.json field ambiguity.
-    config.resolve.alias = {
-      ...(config.resolve.alias || {}),
-      "aws-rum-web": path.join(
-        localNodeModules,
-        "aws-rum-web/dist/cjs/index.js",
-      ),
-      "gsap/draggable": path.join(localNodeModules, "gsap/Draggable.js"),
-    };
-    return config;
   },
 };
 

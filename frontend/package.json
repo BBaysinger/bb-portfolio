@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "predev": "tsx ./scripts/check-required-env.ts",
-    "dev": "next dev --webpack -p ${PORT:-3000}",
+    "dev": "next dev -p ${PORT:-3000}",
     "prebuild": "tsx ./scripts/check-required-env.ts",
     "build": "next build --webpack",
     "build:webpack": "next build --webpack",
