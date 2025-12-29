@@ -126,20 +126,54 @@ export const Projects: CollectionConfig = {
   },
   fields: [
     {
+      name: 'title',
+      type: 'text',
+      required: true,
+      access: {
+        read: canReadNdaField,
+      },
+    },
+    {
+      name: 'slug',
+      type: 'text',
+      required: true,
+      unique: true,
+      access: {
+        read: canReadNdaField,
+      },
+    },
+    {
+      name: 'longTitle',
+      label: 'Long Title',
+      type: 'text',
+      required: false,
+      access: {
+        read: canReadNdaField,
+      },
+      admin: {
+        description:
+          'Optional expanded title (e.g., for SEO/page headers). If unset, the site can fall back to Title.',
+      },
+    },
+    {
+      name: 'shortCode',
+      label: 'Short Code (URL Key)',
+      type: 'text',
+      unique: true,
+      required: true,
+      admin: {
+        readOnly: true,
+        description:
+          'Opaque URL-safe identifier. This can be used as an alternate route key (e.g., /nda/<code>/) without exposing the human slug.',
+      },
+    },
+    {
       name: 'sortIndex',
       label: 'Sort Order',
       type: 'number',
       defaultValue: 0,
       admin: {
         description: 'Lower numbers appear first in the portfolio list.',
-      },
-    },
-    {
-      name: 'title',
-      type: 'text',
-      required: true,
-      access: {
-        read: canReadNdaField,
       },
     },
     {
@@ -167,27 +201,6 @@ export const Projects: CollectionConfig = {
         rows: 3,
         description:
           'Optional brief blurb used for list cards/preview contexts. Keep this to 1–2 sentences.',
-      },
-    },
-    {
-      name: 'slug',
-      type: 'text',
-      required: true,
-      unique: true,
-      access: {
-        read: canReadNdaField,
-      },
-    },
-    {
-      name: 'shortCode',
-      label: 'Short Code (URL Key)',
-      type: 'text',
-      unique: true,
-      required: true,
-      admin: {
-        readOnly: true,
-        description:
-          'Opaque URL-safe identifier. This can be used as an alternate route key (e.g., /nda/<code>/) without exposing the human slug.',
       },
     },
     {
