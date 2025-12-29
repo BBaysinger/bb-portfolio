@@ -48,6 +48,11 @@
   }
 }
 
+.projectTitle {
+  font-size: 1.2em;
+  margin-bottom: 20px !important;
+}
+
 :global(.bbSlideLeft) {
   .projectInfo.active > * {
     animation: slideLeftFadeIn 0.6s ease-out calc(var(--index) * 0.2s) forwards;

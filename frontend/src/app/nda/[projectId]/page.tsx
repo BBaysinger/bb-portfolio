@@ -10,9 +10,37 @@ export const revalidate = 0;
 export const dynamicParams = true;
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ projectId: string }>;
+}): Promise<Metadata> {
+  const { projectId } = await params;
+  const robots = { index: false, follow: false };
+
+  try {
+    const h = await headers();
+    const cookieHeader = h.get("cookie") || "";
+    const hasPayloadSession = /(?:^|;\s*)payload-token=/.test(cookieHeader);
+    if (!hasPayloadSession) return { robots, title: "NDA Project" };
+
+    const projectData = new ProjectDataStore();
+    await projectData.initialize({ headers: h, disableCache: true });
+    if (projectData.containsSanitizedPlaceholders)
+      return { robots, title: "NDA Project" };
+
+    const rec = projectData.getProject(projectId);
+    if (!rec || !projectRequiresNda(rec))
+      return { robots, title: "NDA Project" };
+
+    return {
+      robots,
+      title: rec.longTitle || rec.title || "NDA Project",
+    };
+  } catch {
+    return { robots, title: "NDA Project" };
+  }
+}
 
 export default async function NdaProjectPage({
   params,

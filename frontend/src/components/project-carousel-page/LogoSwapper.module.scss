@@ -4,8 +4,6 @@
 .logoSwapper {
   position: relative;
   display: flex;
-  margin-left: auto;
-  margin-right: auto;
   opacity: 0.0001;
   transition:
     opacity 0.5s,
@@ -13,8 +11,8 @@
   align-items: left;
   filter: blur(12px);
 
-  @include remRange(margin-top, 46px, 60px, $b320, $b768);
-  @include remRange(margin-bottom, 30px, 46px, $b320, $b768);
+  @include remRange(margin-top, 14px, -55px, $b320, $b768);
+  @include remRange(margin-bottom, 20px, 30px, $b320, $b768);
   @include remRange(width, 240px, 330px, $b320, $b768);
   @include remRange(height, 50px, 65px, $b320, $b768);
 
@@ -45,7 +43,7 @@
   object-fit: fill;
   background-size: contain;
   background-repeat: no-repeat;
-  background-position: center center;
+  background-position: left center;
 
   &.visible {
     opacity: 1;

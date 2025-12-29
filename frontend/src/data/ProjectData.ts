@@ -344,6 +344,7 @@ async function fetchPortfolioProjects(opts?: {
     id?: string;
     shortCode?: string;
     title?: string;
+    longTitle?: string;
     shortTitle?: string;
     shortDesc?: string;
     sortIndex?: number;
@@ -694,6 +695,10 @@ async function fetchPortfolioProjects(opts?: {
 
     const item: PortfolioProjectBase = {
       title: doc.title || "Untitled",
+      longTitle:
+        typeof doc.longTitle === "string" && doc.longTitle.trim()
+          ? doc.longTitle.trim()
+          : undefined,
       shortTitle:
         typeof doc.shortTitle === "string" && doc.shortTitle.trim()
           ? doc.shortTitle.trim()
@@ -766,6 +771,8 @@ export type MobileOrientation =
 
 export interface PortfolioProjectBase {
   title: string;
+  /** Optional expanded title (e.g., for SEO/page headers); falls back to `title` when unset. */
+  longTitle?: string;
   /** Optional display title for the H1; falls back to `title` when unset. */
   shortTitle?: string;
   /** Optional brief blurb used in list/preview contexts. */
