@@ -17,7 +17,7 @@ const makeKey = (layerId: string, index: number) => `${layerId}:${index}`;
  * Staged image eligibility for carousels:
  * - Eagerly load the active slide
  * - After first paint, also load left/right neighbors
- * - After the initial trio actually finishes loading, allow all remaining slides
+ * - After the initial trio finishes loading, allow all remaining slides
  * - Eligibility is monotonic: once eligible, stays eligible
  */
 export const useStagedImageEligibility = (
@@ -61,6 +61,29 @@ export const useStagedImageEligibility = (
     () => new Set(),
   );
 
+  // Requirement:
+  // - The initial visible + adjacent trio should load first.
+  // - The remaining slides should begin loading after the initial trio, once the browser is idle.
+  // - If the user starts scrolling, begin loading all slides immediately.
+  const [userHasInteracted, setUserHasInteracted] = useState(false);
+  const [initialTrioLoaded, setInitialTrioLoaded] = useState(false);
+
+  // Treat any explicit scroll/touch as "user started scrolling".
+  // (Relying on index changes alone is insufficient if the user nudges the page
+  // but the carousel doesn't stabilize to a new index.)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (userHasInteracted) return;
+
+    const onFirstInteraction = () => setUserHasInteracted(true);
+    window.addEventListener("wheel", onFirstInteraction, { passive: true });
+    window.addEventListener("touchmove", onFirstInteraction, { passive: true });
+    return () => {
+      window.removeEventListener("wheel", onFirstInteraction);
+      window.removeEventListener("touchmove", onFirstInteraction);
+    };
+  }, [userHasInteracted]);
+
   // Prime neighbors right after first paint, using the last active index we saw.
   // Avoid setState synchronously in effect body (lint rule).
   useEffect(() => {
@@ -91,6 +114,12 @@ export const useStagedImageEligibility = (
     (activeIndex: number) => {
       lastActiveIndexRef.current = activeIndex;
 
+      // If the user advances the active index away from the entry position,
+      // treat it as an interaction and start loading remaining slides.
+      if (!userHasInteracted && activeIndex !== initialIndex) {
+        setUserHasInteracted(true);
+      }
+
       // Latch eligibility so we never unload already-started images.
       setEligibleKeys((prev) => {
         const next = new Set(prev);
@@ -110,7 +139,7 @@ export const useStagedImageEligibility = (
         return next;
       });
     },
-    [layers, shouldPrimeNeighbors],
+    [layers, shouldPrimeNeighbors, userHasInteracted, initialIndex],
   );
 
   const markInitialSlideLoaded = useCallback(
@@ -125,13 +154,38 @@ export const useStagedImageEligibility = (
         const next = new Set(prev);
         next.add(key);
         if (initialTargets.size > 0 && next.size >= initialTargets.size) {
-          setLoadAllSlides(true);
+          setInitialTrioLoaded(true);
         }
         return next;
       });
     },
     [initialTargets, loadAllSlides],
   );
+
+  // Unlock background loading once:
+  // - user starts scrolling, OR
+  // - initial trio is loaded and the browser is idle (avoid competing with initial render)
+  useEffect(() => {
+    if (loadAllSlides) return;
+
+    if (userHasInteracted) {
+      const rafId = requestAnimationFrame(() => setLoadAllSlides(true));
+      return () => cancelAnimationFrame(rafId);
+    }
+
+    if (!initialTrioLoaded) return;
+
+    const unlock = () => setLoadAllSlides(true);
+
+    // Prefer idle time; fall back to a short timeout.
+    if (typeof window !== "undefined" && "requestIdleCallback" in window) {
+      const id = window.requestIdleCallback(unlock, { timeout: 2000 });
+      return () => window.cancelIdleCallback?.(id);
+    }
+
+    const t = window.setTimeout(unlock, 300);
+    return () => window.clearTimeout(t);
+  }, [loadAllSlides, initialTrioLoaded, userHasInteracted]);
 
   const getShouldLoad = useCallback(
     (params: {
