@@ -36,170 +36,148 @@ const CurriculumVitae: React.FC = () => {
     ));
   };
 
-  const lang = [
-    // Modern JavaScript/TypeScript
+  const frontEndUi = [
+    // Languages & Fundamentals
     "TypeScript",
     "ES6",
-    "JSX",
     "Vanilla JavaScript",
-
-    // Web Markup & Styling
+    "JSX",
     "HTML5",
     "CSS3",
     "SASS / SCSS",
-
-    // Data & Template Languages
-    "JSON",
-    "GraphQL",
-    "XML",
-    "XSL",
-    "FreeMarker",
-
-    // Infrastructure as Code
-    "Terraform",
-
-    // Legacy/Specialized
-    "Haxe",
-    "ActionScript 3",
-    "ActionScript 2",
-  ];
-
-  const tech = [
-    // Modern Frontend Frameworks
-    "React",
-    "Next.js",
-    "Vite",
-    "Redux Toolkit",
-    "Angular",
-    "Angular CLI",
-    "RxJS",
-
-    // Backend & Runtime
-    "Node.js",
-    "Express",
-    "JWT",
-
-    // CMS & Headless Platforms
-    "Payload CMS",
-    "Craft CMS",
-    "Salesforce",
-    "Sitecore",
-
-    // Database & Storage
-    "MongoDB",
-    "AWS S3",
-
-    // UI Libraries & Animation
-    "Bootstrap",
-    "GreenSock / GSAP",
-    "jQuery",
-
-    // Services & APIs
-    "Elasticsearch",
-    "Mapbox",
-    "OneTrust",
-    "Litmus",
-
-    // Template Engines
-    "Mustache / Handlebars",
-
-    // Game Development (Legacy)
-    "Flambé / 2DKit",
-  ];
-
-  const concepts = [
-    // Architecture & Patterns
-    "SPAs",
-    "MVC",
-    "OOP",
-    "Functional Programming",
-    "Design Patterns",
-    "REST APIs",
-    "Monorepo Architecture",
-    "Headless CMS",
-
-    // Web Standards & Layout
-    "Accessibility",
-    "SEO",
     "Flexbox",
     "Grid",
 
-    // DevOps & Infrastructure
-    "Infrastructure as Code",
-    "Container Orchestration",
-    "Cloud Computing",
+    // Frameworks & State
+    "React",
+    "Next.js",
+    "Angular",
+    "RxJS",
+    "Redux Toolkit",
 
-    // Graphics & Animation
+    // UI / Graphics / Motion
     "SVG",
     "Canvas",
-    "Tween Engines",
-    "Image Processing",
+    "PixiJS",
+    "GreenSock / GSAP",
+    "Bootstrap",
+    "Mapbox",
 
-    // Quality & Analytics
-    "Quality Assurance",
-    "Tracking / Analytics",
-    "E2E Testing",
-
-    // Legacy/Specialized
-    "DHTML",
-    "Game Frameworks",
+    // Legacy (kept for depth)
+    "jQuery (legacy)",
+    "Haxe (legacy)",
+    "ActionScript 3 (legacy)",
+    "ActionScript 2 (legacy)",
+    "Flambé / 2DKit (legacy)",
   ];
 
-  const software = [
-    // Code Editors & IDEs
-    "VSCode",
-    "Visual Studio",
-    "Sublime Text",
+  const architectureAndPractices = [
+    "SPAs",
+    "Monorepo Architecture",
+    "Design Patterns",
+    "Next.js App Router",
+    "SSR",
+    "SSG",
+    "OOP",
+    "Functional Programming",
+    "MVC",
+    "Accessibility",
+    "SEO",
+    "Quality Assurance",
+    "E2E Testing",
+    "Tracking / Analytics",
+    "Image Processing",
+    "Tween Engines",
+    "Headless CMS",
+    "DHTML (legacy)",
+    "Game Frameworks (legacy)",
+  ];
 
-    // Version Control
-    "Git",
-    "Git Tower",
-    "Sourcetree",
-
-    // Build Tools & Package Managers
+  const toolingAndWorkflow = [
+    // Build & Dev Tooling
+    "Node.js",
     "NPM",
     "Vite",
     "Webpack",
     "Babel",
-    "Grunt",
-    "Gulp",
-
-    // Adobe Creative Suite
-    "Illustrator",
-    "Photoshop",
-    "Animate (w/ scripting & HTML5 export)",
-
-    // Development Environment & DevOps
-    "Docker",
-    "Docker Compose",
-    "Terraform",
-    "AWS",
-    "Caddy",
-    "VirtualBox",
-
-    // Code Quality & Testing
     "ESLint",
     "Prettier",
     "Vitest",
 
-    // Testing & Browser Tools
+    "GitHub Actions",
+
+    // Editors & Version Control
+    "VSCode",
+    "Sublime Text",
+    "Visual Studio",
+    "Git",
+    "Git Tower",
+    "Sourcetree",
+
+    // QA / Cross-Browser
     "Sauce Labs",
     "BrowserStack",
 
-    // Project Management & Documentation
+    // Collaboration
     "Jira",
+    "Confluence",
     "Trello",
     "Smartsheet",
-    "Confluence",
     "Google Docs",
 
-    // AI Tools
+    // Design tools
+    "Illustrator",
+    "Photoshop",
+    "Animate (w/ scripting & HTML5 export)",
+
+    // AI tooling
     "ChatGPT",
     "Copilot AI",
     "Perplexity AI",
 
-    // Legacy/Specialized
-    "Create / Easel",
+    // Legacy
+    "Grunt (legacy)",
+    "Gulp (legacy)",
+    "Create / Easel (legacy)",
+  ];
+
+  const apisAndIntegration = [
+    "REST APIs",
+    "GraphQL",
+    "Express",
+    "JWT",
+    "JSON",
+    "XML",
+    "XSL",
+  ];
+
+  const cmsAndEnterprise = [
+    "Payload CMS",
+    "Craft CMS",
+    "Salesforce",
+    "OneTrust",
+    "Litmus",
+    "FreeMarker",
+    "Mustache / Handlebars",
+  ];
+
+  const cloudAndData = [
+    "AWS",
+    "AWS S3",
+    "AWS SES",
+    "AWS ECR",
+    "CloudWatch",
+    "CloudWatch RUM",
+    "MongoDB",
+    "Elasticsearch",
+    "Docker",
+    "Docker Compose",
+    "Terraform",
+    "Caddy",
+    "VirtualBox",
+    "Infrastructure as Code",
+    "Cloud Computing",
+    "Container Orchestration",
   ];
 
   const projectTypes = [
@@ -366,16 +344,16 @@ const CurriculumVitae: React.FC = () => {
 
               <ul ref={addToRefs}>
                 <li>
-                  React (2 years/current focus): Reusable components, state
-                  management, Redux, hooks, dynamic routing, and JSX
+                  React (2 years; current focus): Component-driven UI, hooks,
+                  routing, and state management with Redux
                 </li>
                 <li>
-                  Angular (2+ years): Advanced component architecture, RxJS, and
-                  SCSS integration
+                  Angular (2+ years): Enterprise component architecture, RxJS,
+                  and SCSS-based theming
                 </li>
                 <li>
-                  TypeScript (3+ years): Strong typing (with further history in
-                  strongly-typed ECMAScript)
+                  TypeScript (3+ years): Type-safe APIs and refactors, informed
+                  by earlier work in strongly-typed ECMAScript (Haxe/AS3)
                 </li>
               </ul>
 
@@ -388,12 +366,12 @@ const CurriculumVitae: React.FC = () => {
 
               <ul ref={addToRefs}>
                 <li>
-                  Animation & UI Design: Transitioned from award-winning
-                  Flash/AS3 projects to modern CSS/JS animations
+                  Animation & UI Design: Evolved award-winning Flash/AS3 motion
+                  work into modern CSS/JS animation systems
                 </li>
                 <li>
-                  Interactive Web Development: Built engaging tools like data
-                  explorers and Canvas and SVG UIs
+                  Interactive Web Development: Built rich tools including data
+                  explorers and Canvas/SVG-driven UI
                 </li>
               </ul>
 
@@ -406,13 +384,12 @@ const CurriculumVitae: React.FC = () => {
 
               <ul ref={addToRefs}>
                 <li>
-                  Strong foundation in design principles with deep experience in
-                  Adobe Creative Suite
+                  Strong foundation in visual design with extensive Adobe
+                  Creative Suite experience
                 </li>
                 <li>
-                  Extensive experience with technical UI animation techniques,
-                  including the development of physics-based custom tween
-                  solutions for interactive projects
+                  Deep experience in technical animation, including
+                  physics-based custom tweening systems for interactive work
                 </li>
               </ul>
             </div>
@@ -450,8 +427,8 @@ const CurriculumVitae: React.FC = () => {
               </div>
 
               <p ref={addToRefs} className={styles.desc}>
-                Developed interactive and responsive websites for Fortune 500
-                companies in banking, pharmaceuticals, and entertainment
+                Built interactive, responsive web experiences for Fortune 500
+                clients across banking, pharmaceuticals, and entertainment.
               </p>
 
               <p ref={addToRefs} className={styles.scope}>
@@ -461,23 +438,20 @@ const CurriculumVitae: React.FC = () => {
 
               <ul>
                 <li ref={addToRefs}>
-                  Implemented dynamic UI components, such as forms with
-                  validation, data-driven informational grids, global
-                  navigation, and collapsible menus for the Golden 1 Credit
-                  Union website, leveraging jQuery and <b>Sitecore</b> CMS
-                  integration.
+                  Implemented dynamic UI componentsvalidated forms, data-driven
+                  informational grids, global navigation, and collapsible
+                  menusfor the Golden 1 Credit Union website, integrating
+                  jQuery with <b>Sitecore</b>.
                 </li>
                 <li ref={addToRefs}>
-                  Built and maintained reusable, modular email components in{" "}
-                  <b>Salesforce</b> Marketing Cloud. Streamlined and
-                  standardized email production using preprocessing, ensuring
-                  brand consistency across campaigns.
+                  Built and maintained reusable email components in{" "}
+                  <b>Salesforce</b> Marketing Cloud; standardized production
+                  with preprocessing to improve consistency and throughput.
                 </li>
                 <li ref={addToRefs}>
-                  Optimized email campaigns with <b>Litmus</b> testing for
-                  multi-device compatibility, including dark mode and
-                  double-density graphics, achieving high deliverability and
-                  consistent rendering.
+                  Hardened email rendering via <b>Litmus</b> testing across
+                  clients/devices (including dark mode and @2x assets),
+                  improving deliverability and consistency.
                 </li>
                 <li ref={addToRefs}>
                   Created the Oncotype DX Breast Recurrence Score Report
@@ -534,10 +508,9 @@ const CurriculumVitae: React.FC = () => {
               </div>
 
               <p ref={addToRefs} className={styles.desc}>
-                Delivered specialized UI and interactive web development
-                services for diverse brands, including local businesses, a
-                national startup, an international charity, and a pharmaceutical
-                manufacturer.
+                Delivered specialized UI and interactive web development for
+                diverse clientslocal businesses, a national startup, an
+                international charity, and a pharmaceutical manufacturer.
               </p>
 
               <p ref={addToRefs} className={styles.scope}>
@@ -548,8 +521,8 @@ const CurriculumVitae: React.FC = () => {
               <ul>
                 <li ref={addToRefs}>
                   Developed an animated informational UI using <b>React Move</b>{" "}
-                  for the Committee for Children, a nonprofit supporting
-                  education of millions of children across 70 countries.
+                  for the Committee for Children, supporting education of
+                  millions of children across 70 countries.
                 </li>
                 <li ref={addToRefs}>
                   Built a law enforcement employment application tracking system
@@ -601,9 +574,8 @@ const CurriculumVitae: React.FC = () => {
               <p ref={addToRefs} className={styles.desc}>
                 Delivered interactive and responsive websites for Fortune 500
                 companies in the technology and entertainment industries.
-                Focused on high-performance animations, user interactivity,
-                accessibility, and streamlined development processes under tight
-                deadlines.
+                Focused on performance, interactivity, accessibility, and
+                repeatable delivery under tight deadlines.
               </p>
 
               <p ref={addToRefs} className={styles.scope}>
@@ -643,9 +615,8 @@ const CurriculumVitae: React.FC = () => {
                 </li>
                 <li ref={addToRefs}>
                   Provided technical oversight and contributed to concept
-                  development in collaboration with designers, developers, and
-                  animators, ensuring alignment through Trello-managed
-                  workflows.
+                  development with designers, developers, and animators, keeping
+                  delivery aligned through Trello-managed workflows.
                 </li>
                 <li ref={addToRefs}>
                   Implemented <b>localization</b> strategies to optimize
@@ -698,7 +669,7 @@ const CurriculumVitae: React.FC = () => {
                 Designed and developed user interfaces for web applications
                 aimed at helping government organizations process, analyze, and
                 visualize data. Contributed to mission-critical projects under
-                tight deadlines, showcasing rapid learning and adaptability.
+                tight deadlines with rapid learning and high execution quality.
               </p>
 
               <p ref={addToRefs} className={styles.scope}>
@@ -729,9 +700,9 @@ const CurriculumVitae: React.FC = () => {
                   visualization libraries.
                 </li>
                 <li ref={addToRefs}>
-                  Quickly learned Angular and TypeScript in the role,
-                  progressing from initial training to delivering
-                  production-ready solutions under heavy development demands.
+                  Quickly ramped up on Angular and TypeScript, progressing from
+                  initial training to production-ready delivery under heavy
+                  development demands.
                 </li>
                 <li ref={addToRefs}>
                   Scoped, time-lined, and estimated tasks for sprint management
@@ -780,7 +751,7 @@ const CurriculumVitae: React.FC = () => {
                 web advertising for nationally recognized corporations in
                 technology and entertainment. Delivered innovative solutions
                 under tight deadlines while mentoring junior developers and
-                shaping technical strategies.
+                shaping technical direction.
               </p>
 
               <p ref={addToRefs} className={styles.scope}>
@@ -791,10 +762,9 @@ const CurriculumVitae: React.FC = () => {
 
               <ul>
                 <li ref={addToRefs}>
-                  Mastered <b>AS2</b>, <b>AS3</b>, and <b>Haxe</b> (all very
-                  similar to JavaScript) on the job, applying their frameworks
-                  and design patterns to deliver hundreds of diverse
-                  cutting-edge interactive experiences.
+                  Ramped up on <b>AS2</b>, <b>AS3</b>, and <b>Haxe</b>, applying
+                  their patterns and frameworks to deliver hundreds of diverse
+                  interactive experiences.
                 </li>
                 <li ref={addToRefs}>
                   Engineered flexible templates and frameworks in AS3, used by
@@ -844,8 +814,8 @@ const CurriculumVitae: React.FC = () => {
                 </li>
                 <li ref={addToRefs}>
                   Worked 320+ hours in June 2014 to meet a critical deadline for
-                  our WildBrain client, in addition to <i>many</i> other crunch
-                  times with <i>aggressive</i> deadlines.
+                  our WildBrain client, in addition to many other high-intensity
+                  delivery cycles.
                 </li>
                 <li ref={addToRefs}>
                   Led development of a <b>Webby Award</b>-winning project (2008
@@ -882,7 +852,7 @@ const CurriculumVitae: React.FC = () => {
               <p ref={addToRefs} className={styles.desc}>
                 Designed and developed websites and applications for local
                 businesses with C#/.NET backends, establishing online presences
-                for clients while overcoming resource limitations.
+                for clients while working within resource constraints.
               </p>
 
               <p ref={addToRefs} className={styles.scope}>
@@ -911,9 +881,9 @@ const CurriculumVitae: React.FC = () => {
                   the team.
                 </li>
                 <li ref={addToRefs}>
-                  Overcame limited budgets by maximizing creativity and
-                  resourcefulness, producing impactful designs despite a lack of
-                  stock photography and professional fonts.
+                  Delivered strong design outcomes despite limited budgets and
+                  constraints (e.g., minimal stock photography and typography
+                  options).
                 </li>
               </ul>
             </div>
@@ -944,8 +914,8 @@ const CurriculumVitae: React.FC = () => {
               </div>
 
               <p ref={addToRefs} className={styles.desc}>
-                Design and development of interactive websites for businesses in
-                the Spokane area concurrently while in web design school at SFCC
+                Designed and developed interactive websites for Spokane-area
+                businesses while attending web design school at SFCC.
               </p>
 
               <p ref={addToRefs} className={styles.scope}>
@@ -955,20 +925,20 @@ const CurriculumVitae: React.FC = () => {
 
               <ul>
                 <li ref={addToRefs}>
-                  Conceptualizing creative UI and navigation concepts in
-                  websites for a variety of businesses in the Spokane area
+                  Conceptualized creative UI and navigation patterns for a range
+                  of Spokane-area business websites.
                 </li>
                 <li ref={addToRefs}>
-                  Dynamic, multi-level navigation redesign and development for
-                  The Heart Institute of Spokane
+                  Redesigned and implemented dynamic, multi-level navigation for
+                  The Heart Institute of Spokane.
                 </li>
                 <li ref={addToRefs}>
-                  Utilized XML and XSL in an simple and effective CMS-like
-                  approach for retailing fitness equipment
+                  Utilized XML and XSL in a simple, effective CMS-like approach
+                  for retailing fitness equipment.
                 </li>
                 <li ref={addToRefs}>
-                  Produced websites and other paying freelance projects that met
-                  criteria and so received credit for school curriculum
+                  Shipped client work that met program criteria and earned
+                  credit toward the school curriculum.
                 </li>
                 <li ref={addToRefs}>
                   In the program I started out ahead of all the other students,
@@ -1010,8 +980,8 @@ const CurriculumVitae: React.FC = () => {
               </div>
 
               <p ref={addToRefs} className={styles.desc}>
-                Recognized with multiple first-place awards; select works
-                published officially for the college.
+                Recognized with multiple first-place awards; select work was
+                published officially by the college.
               </p>
             </div>
           </div>
@@ -1081,23 +1051,33 @@ const CurriculumVitae: React.FC = () => {
           <div className={rowClass}>
             <div ref={addToRefs} className={divClassLt}></div>
             <div ref={addToRefs} className={divClassRt}>
-              <h5>Programming Languages & Markup</h5>
-              <p>{wrapPhrases(lang)}</p>
+              <h5>Front End UI</h5>
+              <p>{wrapPhrases(frontEndUi)}</p>
             </div>
             <div ref={addToRefs} className={divClassLt}></div>
             <div ref={addToRefs} className={divClassRt}>
-              <h5>Frameworks & Libraries</h5>
-              <p>{wrapPhrases(tech)}</p>
+              <h5>Architecture & Practices</h5>
+              <p>{wrapPhrases(architectureAndPractices)}</p>
             </div>
             <div ref={addToRefs} className={divClassLt}></div>
             <div ref={addToRefs} className={divClassRt}>
-              <h5>Development Concepts</h5>
-              <p>{wrapPhrases(concepts)}</p>
+              <h5>Tooling & Workflow</h5>
+              <p>{wrapPhrases(toolingAndWorkflow)}</p>
             </div>
             <div ref={addToRefs} className={divClassLt}></div>
             <div ref={addToRefs} className={divClassRt}>
-              <h5>Tools & Platforms</h5>
-              <p>{wrapPhrases(software)}</p>
+              <h5>APIs & Integration</h5>
+              <p>{wrapPhrases(apisAndIntegration)}</p>
+            </div>
+            <div ref={addToRefs} className={divClassLt}></div>
+            <div ref={addToRefs} className={divClassRt}>
+              <h5>CMS & Enterprise</h5>
+              <p>{wrapPhrases(cmsAndEnterprise)}</p>
+            </div>
+            <div ref={addToRefs} className={divClassLt}></div>
+            <div ref={addToRefs} className={divClassRt}>
+              <h5>Cloud & Data</h5>
+              <p>{wrapPhrases(cloudAndData)}</p>
             </div>
           </div>
         </div>
