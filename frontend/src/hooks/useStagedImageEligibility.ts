@@ -183,8 +183,8 @@ export const useStagedImageEligibility = (
       return () => window.cancelIdleCallback?.(id);
     }
 
-    const t = window.setTimeout(unlock, 300);
-    return () => window.clearTimeout(t);
+    const t = setTimeout(unlock, 300);
+    return () => clearTimeout(t);
   }, [loadAllSlides, initialTrioLoaded, userHasInteracted]);
 
   const getShouldLoad = useCallback(
