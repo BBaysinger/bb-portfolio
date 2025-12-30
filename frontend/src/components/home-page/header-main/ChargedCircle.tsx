@@ -21,7 +21,15 @@ const ChargedCircle: React.FC<ChargedCircleProps> = ({
   isUnlocked = false,
 }) => {
   // Fixes issue with image data not staying decoded on mobile.
-  useScopedImagePreload("/spritesheets/lightning_Layer-Comp-_w480h1098f7.webp");
+  useScopedImagePreload(
+    "/spritesheets/lightning_Layer-Comp-_w480h1098f7.webp",
+    {
+      loadPriority: "high",
+    },
+  );
+  useScopedImagePreload("/spritesheets/energy-bars_w92h300f110.webp", {
+    loadPriority: "high",
+  });
   const isVisible = isActive && isUnlocked;
 
   return (
