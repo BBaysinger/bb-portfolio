@@ -629,8 +629,8 @@ const CurriculumVitae: React.FC = () => {
                 </li>
                 <li ref={addToRefs}>
                   Built a zero-dependency, <b>vanilla JavaScript</b> carousel
-                  and other components for Comics Kingdom, enabling easy embedding by local
-                  newspaper websites.
+                  and other components for Comics Kingdom, enabling easy
+                  embedding by local newspaper websites.
                 </li>
                 <li ref={addToRefs}>
                   Delivered under extremely tight deadlines, often starting
@@ -682,7 +682,8 @@ const CurriculumVitae: React.FC = () => {
                   Consumed an HTTP search API utilizing a custom domain-specific
                   query language embedded in URL parameters, supporting logical
                   operators, field-based queries, and similarity matching for
-                  ChalkLabs&apos; flagship data visualization software, Pushgraph
+                  ChalkLabs&apos; flagship data visualization software,
+                  Pushgraph
                 </li>
                 <li ref={addToRefs}>
                   Independently developed the Pushgraph dashboard drag-and-drop
