@@ -83,22 +83,27 @@ $boltInsetMax: 12px;
 
 .frameLayerHolder:nth-of-type(2) .frameLayerMasked,
 .frameLayerHolder:nth-of-type(3) .frameLayerMasked {
+  @include lerpRange(--headerSubStripeTile, 150px, 400px);
   mask-image: url(/images/common/stripe-mask.svg);
-  @include lerpRange(mask-size, 35%, 26%);
-  mask-position: center center;
-  -webkit-mask-position: center center;
+  -webkit-mask-image: url(/images/common/stripe-mask.svg);
+  mask-repeat: repeat;
+  -webkit-mask-repeat: repeat;
+  mask-size: var(--headerSubStripeTile) var(--headerSubStripeTile);
+  -webkit-mask-size: var(--headerSubStripeTile) var(--headerSubStripeTile);
+  mask-position: 0 50%;
+  -webkit-mask-position: 0 50%;
   animation: headerSubStripeDrift 60s linear infinite;
   border-image-source: url("/images/common/embossed-sign-black.webp");
 }
 
 @keyframes headerSubStripeDrift {
   from {
-    mask-position: 100% 50%;
-    -webkit-mask-position: 100% 50%;
+    mask-position: 0 50%;
+    -webkit-mask-position: 0 50%;
   }
   to {
-    mask-position: 0% 50%;
-    -webkit-mask-position: 0% 50%;
+    mask-position: calc(-1 * var(--headerSubStripeTile)) 50%;
+    -webkit-mask-position: calc(-1 * var(--headerSubStripeTile)) 50%;
   }
 }
 
