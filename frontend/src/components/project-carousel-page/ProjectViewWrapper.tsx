@@ -282,7 +282,6 @@ function ProjectViewRouterBridge({
   initialProjectId: string;
   allowNda: boolean;
 }) {
-  const router = useRouter();
   const [projectId] = useProjectUrlSync(initialProjectId, {
     fallbackFromPathSegment: true,
     // Hash uniquing removed; Back/Forward is stable without it in supported browsers.
@@ -326,21 +325,6 @@ function ProjectViewRouterBridge({
     };
     ensureNdaPresent();
   }, [includeNdaInActive, projectId, allowNda]);
-
-  // Canonical per project: if we're in the NDA carousel but the active project is public,
-  // transition to the public route so the user isn't stuck under /nda/* for non-NDA projects.
-  useEffect(() => {
-    if (!allowNda) return;
-    if (!projectId) return;
-    try {
-      const p = ProjectData.getProject(projectId);
-      if (p && !projectRequiresNda(p)) {
-        router.replace(`/project/${encodeURIComponent(projectId)}/`);
-      }
-    } catch {
-      // ignore
-    }
-  }, [allowNda, projectId, router]);
 
   // URL sync is now handled entirely by useProjectUrlSync
 
