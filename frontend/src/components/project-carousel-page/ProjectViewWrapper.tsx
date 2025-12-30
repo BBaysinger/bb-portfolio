@@ -48,10 +48,11 @@ export default function ProjectViewWrapper({
   const router = useRouter();
   const { isLoggedIn, user } = useAppSelector((s) => s.auth);
   const isAuthed = Boolean(isLoggedIn) || Boolean(user);
-  // Dataset selection is route-driven:
-  // - /project/*: public-only dataset (never pulls NDA into active set)
-  // - /nda/*: includes NDA placeholders (and expands to full data when authed)
-  const includeNdaInActive = Boolean(allowNda);
+  // Dataset selection:
+  // - When authenticated, always allow the NDA-capable carousel dataset so NDA projects
+  //   remain in the slide list even if the user entered via a public /project/* route.
+  // - When unauthenticated, only include NDA placeholders on explicit /nda/* routes.
+  const includeNdaInActive = Boolean(allowNda) || isAuthed;
 
   // If the client store already has data in the correct mode, we can render
   // immediately without waiting for a network re-init.
