@@ -14,7 +14,7 @@ header.headerSub {
   @include lerpRange(--headerSubBlackCropOffset, 15px, 30px);
   @include lerpRange(padding, 20px, 36px);
   @include lerpRange(padding-left, 16px, 29px);
-  @include lerpRange(margin-top, $navBarHeight + 30px, 50px);
+  @include lerpRange(margin-top, $navBarHeight + 30px, $navBarHeight + 50px);
   @include lerpRange(margin-bottom, 30px, 40px);
   @include lerpRange(width, 96%, 70%, $b640, $b1792);
 
