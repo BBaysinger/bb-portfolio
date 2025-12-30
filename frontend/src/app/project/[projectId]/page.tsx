@@ -1,8 +1,5 @@
 import type { Metadata } from "next";
-import { notFound, redirect } from "next/navigation";
 import { Suspense } from "react";
-
-import { ProjectDataStore, projectRequiresNda } from "@/data/ProjectData";
 
 import ProjectClientBoundary from "./ProjectClientBoundary";
 
@@ -17,27 +14,10 @@ export async function generateMetadata({
 }: {
   params: Promise<{ projectId: string }>;
 }): Promise<Metadata> {
-  const { projectId } = await params;
-  const projectData = new ProjectDataStore();
-
-  try {
-    await projectData.initialize({
-      disableCache: false,
-      includeNdaInActive: false,
-    });
-    const rec = projectData.getProject(projectId);
-    // Never expose NDA project titles on the public route.
-    if (rec && projectRequiresNda(rec)) {
-      return { title: "Project" };
-    }
-    return {
-      title: rec?.longTitle || rec?.title || "Project",
-    };
-  } catch {
-    return {
-      title: "Project",
-    };
-  }
+  // Keep metadata fast and cache-safe: do not fetch from the backend here.
+  // The client sets document.title from the hydrated ProjectData store.
+  void (await params);
+  return { title: "Project" };
 }
 
 /**
@@ -59,49 +39,9 @@ export default async function ProjectPage({
   params: Promise<{ projectId: string }>;
 }) {
   const { projectId } = await params;
-  let ssrParsed:
-    | import("@/data/ProjectData").ParsedPortfolioProjectData
-    | undefined;
-  let ssrIncludeNdaInActive: boolean | undefined;
-  try {
-    const projectData = new ProjectDataStore();
-    await projectData.initialize({
-      disableCache: false,
-      includeNdaInActive: false,
-    });
-    const rec = projectData.getProject(projectId);
-    if (!rec) return notFound();
-
-    // NDA protection: never render/cache NDA projects on the public route.
-    // Always route NDA slugs through the /nda/* pages that evaluate auth.
-    if (projectRequiresNda(rec)) {
-      return redirect(`/nda/${encodeURIComponent(projectId)}/`);
-    }
-
-    // Only pass the public carousel dataset snapshot to the client.
-    // This avoids caching NDA rows in the ISR payload.
-    const record = projectData.projectsRecord;
-    ssrParsed = projectData.activeKeys.reduce(
-      (acc, key) => {
-        const p = record[key];
-        if (p) acc[key] = p;
-        return acc;
-      },
-      {} as import("@/data/ProjectData").ParsedPortfolioProjectData,
-    );
-    ssrIncludeNdaInActive = false;
-  } catch {
-    // no-op
-  }
-
   return (
     <Suspense fallback={<div>Loading project...</div>}>
-      <ProjectClientBoundary
-        projectId={projectId}
-        allowNda={false}
-        ssrParsed={ssrParsed}
-        ssrIncludeNdaInActive={ssrIncludeNdaInActive}
-      />
+      <ProjectClientBoundary projectId={projectId} allowNda={false} />
     </Suspense>
   );
 }
@@ -115,17 +55,6 @@ export default async function ProjectPage({
 // Optional: pre-render known public project IDs at build time.
 // If you prefer purely on-demand rendering, you can remove this.
 export async function generateStaticParams() {
-  const projectData = new ProjectDataStore();
-  try {
-    await projectData.initialize({
-      disableCache: false,
-      includeNdaInActive: false,
-    });
-  } catch {
-    // During some builds (e.g., CI), the backend may be unavailable.
-    // Returning an empty list preserves on-demand generation via `dynamicParams`.
-    return [];
-  }
-
-  return projectData.activeKeys.map((projectId) => ({ projectId }));
+  // Avoid build-time backend dependency; allow on-demand generation.
+  return [];
 }

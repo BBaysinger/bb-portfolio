@@ -46,27 +46,40 @@ export default function ProjectViewWrapper({
   ssrContainsSanitizedPlaceholders,
 }: ProjectPageProps) {
   const router = useRouter();
-  const { isLoggedIn, user, hasInitialized } = useAppSelector((s) => s.auth);
+  const { isLoggedIn, user } = useAppSelector((s) => s.auth);
   const isAuthed = Boolean(isLoggedIn) || Boolean(user);
-  // When allowNda is false, the correct dataset depends on auth.
-  // We MUST avoid mounting the carousel until auth initialization has completed,
-  // otherwise ProjectCarouselView will memoize a public-only slide list and cannot
-  // add NDA slides later.
-  const authKnown = Boolean(allowNda) || Boolean(hasInitialized) || isAuthed;
-  const includeNdaInActive = Boolean(allowNda) || isAuthed;
+  // Dataset selection is route-driven:
+  // - /project/*: public-only dataset (never pulls NDA into active set)
+  // - /nda/*: includes NDA placeholders (and expands to full data when authed)
+  const includeNdaInActive = Boolean(allowNda);
+
+  // If the client store already has data in the correct mode, we can render
+  // immediately without waiting for a network re-init.
+  const clientStoreReady = (() => {
+    try {
+      const hasActive =
+        Object.keys(ProjectData.activeProjectsRecord || {}).length > 0;
+      if (!hasActive) return false;
+      if (ProjectData.includeNdaInActive !== includeNdaInActive) return false;
+      // On NDA routes, if we're authenticated but the current dataset is still
+      // sanitized placeholders, we need to refresh to expand confidential fields.
+      if (
+        includeNdaInActive &&
+        isAuthed &&
+        ProjectData.containsSanitizedPlaceholders
+      )
+        return false;
+      return true;
+    } catch {
+      return false;
+    }
+  })();
 
   // If an SSR snapshot is provided and it matches the desired dataset shape,
   // we can render immediately on the client.
-  const [ready, setReady] = useState(() => {
-    if (!ssrParsed) return false;
-    if (!authKnown) return false;
-    const ssrIncluded = Boolean(ssrIncludeNdaInActive);
-    // If we're authenticated (or on /nda), but SSR didn't include NDA in active,
-    // we must initialize first; otherwise the carousel will mount with the wrong
-    // slide list (and ProjectCarouselView won't add slides later).
-    if (includeNdaInActive && !ssrIncluded) return false;
-    return true;
-  });
+  const [ready, setReady] = useState(
+    () => Boolean(ssrParsed) || clientStoreReady,
+  );
 
   const hydratedFromSsr = useRef(false);
   const lastConfiguredIncludeNdaRef = useRef<boolean | null>(null);
@@ -95,7 +108,6 @@ export default function ProjectViewWrapper({
     let cancelled = false;
     (async () => {
       try {
-        if (!authKnown) return;
         // Ensure SSR snapshot is applied (if provided) before deciding whether
         // we still need a client init.
         if (ssrParsed && !hydratedFromSsr.current) {
@@ -116,10 +128,32 @@ export default function ProjectViewWrapper({
           }
         }
 
-        const ssrIncluded = Boolean(ssrIncludeNdaInActive);
+        // If the global store already has the right dataset (e.g., user clicked
+        // into an NDA route from an already-authenticated home session), do not
+        // force a refetch.
+        let storeReadyNow = false;
+        try {
+          const hasActive =
+            Object.keys(ProjectData.activeProjectsRecord || {}).length > 0;
+          storeReadyNow =
+            hasActive && ProjectData.includeNdaInActive === includeNdaInActive;
+          if (
+            includeNdaInActive &&
+            isAuthed &&
+            ProjectData.containsSanitizedPlaceholders
+          )
+            storeReadyNow = false;
+        } catch {
+          storeReadyNow = false;
+        }
+
+        if (storeReadyNow) {
+          lastConfiguredIncludeNdaRef.current = includeNdaInActive;
+          return;
+        }
+
         const needsInit =
           !ssrParsed ||
-          (includeNdaInActive && !ssrIncluded) ||
           lastConfiguredIncludeNdaRef.current !== includeNdaInActive;
 
         if (needsInit) {
@@ -130,18 +164,18 @@ export default function ProjectViewWrapper({
           lastConfiguredIncludeNdaRef.current = includeNdaInActive;
         }
       } finally {
-        if (!cancelled && authKnown) setReady(true);
+        if (!cancelled) setReady(true);
       }
     })();
     return () => {
       cancelled = true;
     };
   }, [
-    authKnown,
     includeNdaInActive,
     ssrIncludeNdaInActive,
     ssrParsed,
     ssrContainsSanitizedPlaceholders,
+    isAuthed,
   ]);
 
   // On NDA routes, refresh the dataset when auth state changes so
@@ -151,6 +185,13 @@ export default function ProjectViewWrapper({
     if (!allowNda) return;
     (async () => {
       try {
+        // Only refresh when auth/data shape is mismatched.
+        // - Logged in but still seeing sanitized placeholders => expand.
+        // - Logged out but dataset isn't sanitized => re-sanitize.
+        const mismatch =
+          (isAuthed && ProjectData.containsSanitizedPlaceholders) ||
+          (!isAuthed && !ProjectData.containsSanitizedPlaceholders);
+        if (!mismatch) return;
         await ProjectData.initialize({
           disableCache: true,
           includeNdaInActive: true,
@@ -189,6 +230,11 @@ export default function ProjectViewWrapper({
       if (probing) return;
       probing = true;
       try {
+        // Only hit the network when auth/data shape is mismatched.
+        const mismatch =
+          (isAuthed && ProjectData.containsSanitizedPlaceholders) ||
+          (!isAuthed && !ProjectData.containsSanitizedPlaceholders);
+        if (!mismatch) return;
         // Reinitialize NDA dataset to ensure fields are properly sanitized
         // or expanded to match current auth state.
         await ProjectData.initialize({
@@ -216,7 +262,7 @@ export default function ProjectViewWrapper({
       window.removeEventListener("visibilitychange", onVisibility);
       window.removeEventListener("focus", onFocus);
     };
-  }, [ready, allowNda]);
+  }, [ready, allowNda, isAuthed]);
   if (!ready) {
     return <div>Loading project...</div>;
   }
