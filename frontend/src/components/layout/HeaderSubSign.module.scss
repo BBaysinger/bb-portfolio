@@ -92,7 +92,7 @@ $boltInsetMax: 12px;
   -webkit-mask-size: var(--headerSubStripeTile) var(--headerSubStripeTile);
   mask-position: 0 50%;
   -webkit-mask-position: 0 50%;
-  animation: headerSubStripeDrift 60s linear infinite;
+  animation: headerSubStripeDrift 50s linear infinite;
   border-image-source: url("/images/common/embossed-sign-black.webp");
 }
 
