@@ -278,24 +278,37 @@
   }
 
   // Set the base value
-  & {
-    #{$property}: $min-value;
-  }
+  #{$property}: $min-value;
 
-  // Interpolate between min and max across the viewport range
-  @media screen and (min-width: $min-vw) {
-    #{$property}: calc(
-      #{$min-value} +
-        (
-          (#{$max-value} - #{$min-value}) *
-            ((100vw - #{$min-vw}) / (#{$max-vw - $min-vw}))
-        )
-    );
-  }
+  // Firefox currently rejects `calc()` expressions that divide a length by a length
+  // (e.g. `(100vw - 320px) / 1472px`), which caused all lerped declarations to be dropped.
+  //
+  // Approach:
+  // - If the interpolation slope is unitless (e.g., px over px), precompute it in Sass and
+  //   use a CSS expression that only multiplies a number by a length.
+  // - Otherwise (e.g., % values), fall back to the JS-provided `--fluid-percent-*` vars.
+  $vw-range: $max-vw - $min-vw;
+  $value-range: $max-value - $min-value;
+  $slope: math.div($value-range, $vw-range);
 
-  // Set the maximum value explicitly
-  @media screen and (min-width: $max-vw) {
-    #{$property}: $max-value;
+  @if math.unit($slope) == "" {
+    // Pure CSS, smooth, and Firefox-safe.
+    @media screen and (min-width: $min-vw) {
+      #{$property}: calc(#{$min-value} + #{$slope} * (100vw - #{$min-vw}));
+    }
+    @media screen and (min-width: $max-vw) {
+      #{$property}: $max-value;
+    }
+  } @else {
+    // Cross-unit values (e.g., %) can't safely use the slope form in CSS.
+    // Use the clamped, unitless lerp factor set by `useFluidLerpVars`.
+    $t: percent-var($min-vw, $max-vw);
+    #{$property}: calc(#{$min-value} + (#{$value-range}) * #{$t});
+
+    // Even if the JS vars are missing, still snap to max at the upper breakpoint.
+    @media screen and (min-width: $max-vw) {
+      #{$property}: $max-value;
+    }
   }
 }
 

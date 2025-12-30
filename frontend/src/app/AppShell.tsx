@@ -250,6 +250,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     [360, 1280], // Mobile+ to desktop
     [360, 1440], // Mobile+ to large desktop
     [320, 1600], // Mobile to XL desktop
+    [640, 1792], // HeaderSub width lerp (percent values)
     [320, 1792], // Mobile to 16" MacBook Pro
   ]);
 
