@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 
 /**
  * useScopedImagePreload
@@ -15,6 +15,14 @@ import { useEffect } from "react";
  *
  */
 import { createDebugLogger } from "@/utils/Logging";
+
+type PreloadEntry = {
+  refCount: number;
+  link: HTMLLinkElement;
+  ghost: HTMLImageElement | null;
+};
+
+const preloadRegistry = new Map<string, PreloadEntry>();
 
 interface PreloadOptions {
   decode?: boolean;
@@ -47,12 +55,32 @@ export function useScopedImagePreload(
     debug = false,
   } = options;
 
-  const log = createDebugLogger(debug);
+  const log = useMemo(() => createDebugLogger(debug), [debug]);
 
   useEffect(() => {
     if (!src) {
       if (debug) console.warn("🟡 useScopedImagePreload: No `src` provided.");
       return;
+    }
+
+    // Ensure we only insert one <link rel="preload"> + ghost <img> per src, even if
+    // multiple components mount (or StrictMode re-renders) call this hook.
+    const existing = preloadRegistry.get(src);
+    if (existing) {
+      existing.refCount++;
+      log(`🟣 Preload already registered (${existing.refCount}): ${src}`);
+      return () => {
+        const current = preloadRegistry.get(src);
+        if (!current) return;
+        current.refCount = Math.max(0, current.refCount - 1);
+        log(`🟤 Preload refCount-- (${current.refCount}): ${src}`);
+        if (current.refCount === 0) {
+          current.link.parentNode?.removeChild(current.link);
+          current.ghost?.parentNode?.removeChild(current.ghost);
+          preloadRegistry.delete(src);
+          log("🔴 Preload cleanup for", src);
+        }
+      };
     }
 
     log(`🔵 Preloading: ${src}`);
@@ -78,11 +106,21 @@ export function useScopedImagePreload(
     log("🟢 Preload link inserted");
 
     if (preloadOnly) {
+      preloadRegistry.set(src, {
+        refCount: 1,
+        link,
+        ghost: null,
+      });
+
       return () => {
-        // Cleanup must be resilient to StrictMode double-invocation and
-        // to environments where head/body may temporarily be unavailable.
-        link.parentNode?.removeChild(link);
-        log("🔴 Preload-only cleanup for", src);
+        const current = preloadRegistry.get(src);
+        if (!current) return;
+        current.refCount = Math.max(0, current.refCount - 1);
+        if (current.refCount === 0) {
+          link.parentNode?.removeChild(link);
+          preloadRegistry.delete(src);
+          log("🔴 Preload-only cleanup for", src);
+        }
       };
     }
 
@@ -117,10 +155,23 @@ export function useScopedImagePreload(
       log("🟢 Ghost image inserted");
     }
 
+    preloadRegistry.set(src, {
+      refCount: 1,
+      link,
+      ghost,
+    });
+
     return () => {
-      link.parentNode?.removeChild(link);
-      ghost?.parentNode?.removeChild(ghost);
-      log("🔴 Preload cleanup for", src);
+      const current = preloadRegistry.get(src);
+      if (!current) return;
+      current.refCount = Math.max(0, current.refCount - 1);
+      log(`🟤 Preload refCount-- (${current.refCount}): ${src}`);
+      if (current.refCount === 0) {
+        current.link.parentNode?.removeChild(current.link);
+        current.ghost?.parentNode?.removeChild(current.ghost);
+        preloadRegistry.delete(src);
+        log("🔴 Preload cleanup for", src);
+      }
     };
   }, [
     src,
