@@ -8,7 +8,10 @@ $boltInsetMax: 12px;
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  clip-path: inset(0 round calc(var(--headerSubRadius) - 3px));
+  // Firefox can render `border-image` + `clip-path: inset(... round calc(...))` unreliably,
+  // resulting in broken corners/borders. A simple radius + overflow clip is more consistent.
+  border-radius: calc(var(--headerSubRadius) - 3px);
+  overflow: hidden;
 }
 
 .nutsOverlay {
