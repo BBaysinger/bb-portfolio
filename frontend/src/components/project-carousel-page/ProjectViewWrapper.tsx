@@ -46,13 +46,30 @@ export default function ProjectViewWrapper({
   ssrContainsSanitizedPlaceholders,
 }: ProjectPageProps) {
   const router = useRouter();
-  // If an SSR snapshot is provided, we can render immediately on the client.
-  const [ready, setReady] = useState(Boolean(ssrParsed));
-  const initOnce = useRef(false);
-  const hydratedFromSsr = useRef(false);
-  const { isLoggedIn, user } = useAppSelector((s) => s.auth);
+  const { isLoggedIn, user, hasInitialized } = useAppSelector((s) => s.auth);
   const isAuthed = Boolean(isLoggedIn) || Boolean(user);
+  // When allowNda is false, the correct dataset depends on auth.
+  // We MUST avoid mounting the carousel until auth initialization has completed,
+  // otherwise ProjectCarouselView will memoize a public-only slide list and cannot
+  // add NDA slides later.
+  const authKnown = Boolean(allowNda) || Boolean(hasInitialized) || isAuthed;
   const includeNdaInActive = Boolean(allowNda) || isAuthed;
+
+  // If an SSR snapshot is provided and it matches the desired dataset shape,
+  // we can render immediately on the client.
+  const [ready, setReady] = useState(() => {
+    if (!ssrParsed) return false;
+    if (!authKnown) return false;
+    const ssrIncluded = Boolean(ssrIncludeNdaInActive);
+    // If we're authenticated (or on /nda), but SSR didn't include NDA in active,
+    // we must initialize first; otherwise the carousel will mount with the wrong
+    // slide list (and ProjectCarouselView won't add slides later).
+    if (includeNdaInActive && !ssrIncluded) return false;
+    return true;
+  });
+
+  const hydratedFromSsr = useRef(false);
+  const lastConfiguredIncludeNdaRef = useRef<boolean | null>(null);
 
   // If SSR provided a parsed snapshot, hydrate synchronously once so the
   // carousel can render without waiting for an effect.
@@ -65,8 +82,10 @@ export default function ProjectViewWrapper({
           containsSanitizedPlaceholders: ssrContainsSanitizedPlaceholders,
         },
       );
-      initOnce.current = true;
       hydratedFromSsr.current = true;
+      lastConfiguredIncludeNdaRef.current = Boolean(
+        ssrIncludeNdaInActive ?? includeNdaInActive,
+      );
     } catch {
       // fall back to async init path
     }
@@ -74,42 +93,51 @@ export default function ProjectViewWrapper({
 
   useEffect(() => {
     let cancelled = false;
-    if (initOnce.current) {
-      setReady(true);
-      return;
-    }
     (async () => {
       try {
-        // If SSR provided a parsed snapshot, hydrate it first to avoid
-        // a client refetch that could drop NDA fields due to cookie scoping.
-        if (ssrParsed) {
-          ProjectData.hydrate(
-            ssrParsed,
-            Boolean(ssrIncludeNdaInActive ?? includeNdaInActive),
-            {
-              containsSanitizedPlaceholders: ssrContainsSanitizedPlaceholders,
-            },
-          );
-        } else {
-          // Initialize dataset based on computed includeNdaInActive for this route/auth state.
+        if (!authKnown) return;
+        // Ensure SSR snapshot is applied (if provided) before deciding whether
+        // we still need a client init.
+        if (ssrParsed && !hydratedFromSsr.current) {
           try {
-            await ProjectData.initialize({
-              disableCache: true,
-              includeNdaInActive,
-            });
+            ProjectData.hydrate(
+              ssrParsed,
+              Boolean(ssrIncludeNdaInActive ?? includeNdaInActive),
+              {
+                containsSanitizedPlaceholders: ssrContainsSanitizedPlaceholders,
+              },
+            );
+            hydratedFromSsr.current = true;
+            lastConfiguredIncludeNdaRef.current = Boolean(
+              ssrIncludeNdaInActive ?? includeNdaInActive,
+            );
           } catch {
-            return;
+            // ignore
           }
         }
-        initOnce.current = true;
+
+        const ssrIncluded = Boolean(ssrIncludeNdaInActive);
+        const needsInit =
+          !ssrParsed ||
+          (includeNdaInActive && !ssrIncluded) ||
+          lastConfiguredIncludeNdaRef.current !== includeNdaInActive;
+
+        if (needsInit) {
+          await ProjectData.initialize({
+            disableCache: true,
+            includeNdaInActive,
+          });
+          lastConfiguredIncludeNdaRef.current = includeNdaInActive;
+        }
       } finally {
-        if (!cancelled) setReady(true);
+        if (!cancelled && authKnown) setReady(true);
       }
     })();
     return () => {
       cancelled = true;
     };
   }, [
+    authKnown,
     includeNdaInActive,
     ssrIncludeNdaInActive,
     ssrParsed,
@@ -155,7 +183,6 @@ export default function ProjectViewWrapper({
   useEffect(() => {
     if (!ready) return;
     if (!allowNda) return; // Only probe on NDA routes
-    let cancelled = false;
     let probing = false;
 
     const probeAuthAndRefresh = async () => {
@@ -186,7 +213,6 @@ export default function ProjectViewWrapper({
     window.addEventListener("visibilitychange", onVisibility);
     window.addEventListener("focus", onFocus);
     return () => {
-      cancelled = true;
       window.removeEventListener("visibilitychange", onVisibility);
       window.removeEventListener("focus", onFocus);
     };
