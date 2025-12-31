@@ -10,7 +10,6 @@
   align-items: center;
   background-image: url("/images/common/bg-grad.svg");
   color: #fff;
-  // @include lerpRange(padding-top, 20px, 40px);
 
   :global(.max-w-container) {
     max-width: 1024px;
@@ -22,5 +21,4 @@
 .carouselControlsWrapper {
   position: relative;
   width: 100vw;
-  z-index: 2;
 }
