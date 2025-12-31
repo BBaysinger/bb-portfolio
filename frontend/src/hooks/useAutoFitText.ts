@@ -67,6 +67,14 @@ export function useAutoFitText({
     const computed = window.getComputedStyle(el);
     let fontSizePx = Number.parseFloat(computed.fontSize) || 16;
 
+    const isOverflowingX = () => {
+      const clientWidth = el.clientWidth;
+      if (clientWidth <= 0) return false;
+
+      // scrollWidth can be fractional in some browsers; allow small tolerance.
+      return el.scrollWidth - clientWidth > 1;
+    };
+
     const countLines = () => {
       const currentFontSizePx =
         Number.parseFloat(window.getComputedStyle(el).fontSize) || fontSizePx;
@@ -75,13 +83,15 @@ export function useAutoFitText({
       return Math.max(1, Math.round(heightPx / lineHeightPx));
     };
 
-    if (countLines() <= maxLines) return;
+    const needsShrink = () => isOverflowingX() || countLines() > maxLines;
+
+    if (!needsShrink()) return;
 
     for (let i = 0; i < maxIterations; i++) {
       fontSizePx = Math.max(minFontSizePx, fontSizePx - stepPx);
       el.style.fontSize = `${fontSizePx}px`;
 
-      if (countLines() <= maxLines || fontSizePx === minFontSizePx) break;
+      if (!needsShrink() || fontSizePx === minFontSizePx) break;
     }
   }, [targetRef, maxLines, minFontSizePx, stepPx, maxIterations]);
 

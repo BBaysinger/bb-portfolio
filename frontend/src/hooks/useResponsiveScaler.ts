@@ -1,4 +1,10 @@
-import { useEffect, useLayoutEffect, useState, useCallback, useRef } from "react";
+import {
+  useEffect,
+  useLayoutEffect,
+  useState,
+  useCallback,
+  useRef,
+} from "react";
 
 type FitMode = "cover" | "contain";
 type ViewportMode = "dynamic" | "small" | "large";
