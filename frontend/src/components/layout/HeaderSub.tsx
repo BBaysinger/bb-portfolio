@@ -17,11 +17,11 @@ interface HeaderSubProps {
  */
 const HeaderSub: React.FC<HeaderSubProps> = ({ head, subhead }) => {
   const headerRef = useRef<HTMLElement | null>(null);
-  const h1Ref = useRef<HTMLHeadingElement | null>(null);
+  const headTextRef = useRef<HTMLSpanElement | null>(null);
 
   useAutoFitText({
     anchorRef: headerRef,
-    targetRef: h1Ref,
+    targetRef: headTextRef,
     watch: head,
     maxLines: 1,
     minFontSizePx: 18,
@@ -34,7 +34,11 @@ const HeaderSub: React.FC<HeaderSubProps> = ({ head, subhead }) => {
       className={`${styles.headerSub} ${styles.header}`}
     >
       <HeaderSubSign>
-        <h1 ref={h1Ref}>{head}</h1>
+        <h1>
+          <span ref={headTextRef} className={styles.headText}>
+            {head}
+          </span>
+        </h1>
         {subhead && <h5 className={styles.subhead}>{subhead}</h5>}
       </HeaderSubSign>
     </header>

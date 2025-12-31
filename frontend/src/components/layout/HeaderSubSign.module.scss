@@ -53,8 +53,8 @@ $boltInsetMax: 12px;
     position: absolute;
     pointer-events: none;
     display: none;
-    @include lerpRange(width, 35px, 52px);
-    @include lerpRange(height, 35px, 52px);
+    @include lerpRange(width, 30px, 52px);
+    @include lerpRange(height, 30px, 52px);
     background-image: url("/images/common/nut.webp");
     background-size: contain;
     z-index: 20;
@@ -92,7 +92,10 @@ $boltInsetMax: 12px;
   -webkit-mask-size: var(--headerSubStripeTile) var(--headerSubStripeTile);
   mask-position: 0 50%;
   -webkit-mask-position: 0 50%;
-  animation: headerSubStripeDrift 50s linear infinite;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-name: headerSubStripeDrift;
+  @include lerpRange(animation-duration, 20s, 50s);
   border-image-source: url("/images/common/embossed-sign-black.webp");
 }
 
