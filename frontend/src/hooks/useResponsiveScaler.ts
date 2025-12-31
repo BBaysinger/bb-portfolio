@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useLayoutEffect, useState, useCallback, useRef } from "react";
 
 type FitMode = "cover" | "contain";
 type ViewportMode = "dynamic" | "small" | "large";
@@ -144,6 +144,9 @@ export default function useResponsiveScaler(
   elementRef?: React.RefObject<HTMLElement | null>,
   viewportMode: ViewportMode = "small",
 ): ScalerOutput {
+  const useIsomorphicLayoutEffect =
+    typeof window === "undefined" ? useEffect : useLayoutEffect;
+
   // Track min/max visual viewport across the current orientation to emulate CSS svh/svh and lvh/lvw.
   const minMaxRef = useRef({
     minW: Number.POSITIVE_INFINITY,
@@ -242,6 +245,34 @@ export default function useResponsiveScaler(
 
   const [scaler, setScaler] = useState<ScalerOutput>(calculate);
 
+  // Ensure CSS vars are present before first paint on mobile Safari.
+  // iOS Safari can sometimes render 0-sized fixed-aspect layers until a
+  // subsequent viewport event (rotation/scroll) forces a relayout.
+  useIsomorphicLayoutEffect(() => {
+    if (!elementRef?.current) return;
+
+    elementRef.current.style.setProperty(
+      "--responsive-scaler-width",
+      `${scaler.width}px`,
+    );
+    elementRef.current.style.setProperty(
+      "--responsive-scaler-height",
+      `${scaler.height}px`,
+    );
+    elementRef.current.style.setProperty(
+      "--responsive-scaler-offset-x",
+      `${scaler.offsetX}px`,
+    );
+    elementRef.current.style.setProperty(
+      "--responsive-scaler-offset-y",
+      `${scaler.offsetY}px`,
+    );
+    elementRef.current.style.setProperty(
+      "--responsive-scaler-scale",
+      `${scaler.scale}`,
+    );
+  }, [elementRef, scaler, useIsomorphicLayoutEffect]);
+
   useEffect(() => {
     const applyCssVars = (el: HTMLElement, data: ScalerOutput) => {
       el.style.setProperty("--responsive-scaler-width", `${data.width}px`);
@@ -261,6 +292,13 @@ export default function useResponsiveScaler(
 
     window.addEventListener("resize", onResize);
     window.addEventListener("orientationchange", onResize);
+    // BFCache restores and tab visibility changes can leave iOS Safari in a
+    // stale viewport state until the next interaction.
+    window.addEventListener("pageshow", onResize);
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") onResize();
+    };
+    document.addEventListener("visibilitychange", onVisibility);
     // Track visual viewport changes (address bar show/hide, insets, etc.)
     if (window.visualViewport) {
       window.visualViewport.addEventListener("resize", onResize);
@@ -271,6 +309,8 @@ export default function useResponsiveScaler(
     return () => {
       window.removeEventListener("resize", onResize);
       window.removeEventListener("orientationchange", onResize);
+      window.removeEventListener("pageshow", onResize);
+      document.removeEventListener("visibilitychange", onVisibility);
       if (window.visualViewport) {
         window.visualViewport.removeEventListener("resize", onResize);
         window.visualViewport.removeEventListener("scroll", onResize);

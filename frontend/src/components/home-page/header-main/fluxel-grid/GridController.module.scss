@@ -13,6 +13,7 @@
 
 .animationSequencer {
   position: absolute;
+  inset: 0;
   aspect-ratio: 4/3;
   width: 100%;
   height: 100%;
@@ -20,7 +21,10 @@
 
 .fluxelGridCanvas {
   position: absolute;
+  inset: 0;
   aspect-ratio: 4/3;
+  width: 100%;
+  height: 100%;
   mix-blend-mode: multiply;
 }
 
