@@ -12,6 +12,7 @@ import OrbTossTooltip from "@/components/home-page/header-main/OrbTossTooltip";
 import useClientDimensions from "@/hooks/useClientDimensions";
 import useScrollPersistedClass from "@/hooks/useScrollPersistedClass";
 import useTimeOfDay from "@/hooks/useTimeOfDay";
+import { recordEvent } from "@/services/rum";
 
 import BorderBlinker, { Side } from "./BorderBlinker";
 import GridController, {
@@ -154,9 +155,21 @@ const Hero: React.FC = () => {
   );
 
   const onSlingerDragEnd = useCallback(
-    (_x: number, _y: number, e: MouseEvent | TouchEvent) => {
+    (vx: number, vy: number, e: MouseEvent | TouchEvent) => {
       setCirclePaused(true); // ✅ pause only on drag end
       setIsSlingerInFlight(true);
+
+      // Track toss interactions in CloudWatch RUM (production only; no-op locally).
+      // Keep metadata small and non-identifying.
+      recordEvent("slinger_toss", {
+        inputType: e.type.startsWith("touch") ? "touch" : "mouse",
+        vx,
+        vy,
+        speed: Math.hypot(vx, vy),
+        hasCollided,
+        page:
+          typeof window !== "undefined" ? window.location.pathname : undefined,
+      });
 
       if (e.type === "touchend") {
         setSlingerPos(null);
@@ -165,7 +178,7 @@ const Hero: React.FC = () => {
         gridControllerRef.current?.resetAllFluxels?.();
       }
     },
-    [useSlingerTracking],
+    [hasCollided, useSlingerTracking],
   );
 
   const onSlingerWallCollision = useCallback(

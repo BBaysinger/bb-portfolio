@@ -144,6 +144,20 @@ export function VideoPlayer({ videoId, title }: Props) {
 }
 ```
 
+### Slinger Toss (Homepage Hero)
+
+```tsx
+import { recordEvent } from "@/services/rum";
+
+// Called when the orb is released (tossed) after a drag gesture
+recordEvent("slinger_toss", {
+  inputType: "mouse" | "touch",
+  vx: 1.23,
+  vy: -0.45,
+  speed: 1.31,
+});
+```
+
 ## What's Tracked Automatically
 
 CloudWatch RUM automatically tracks:
