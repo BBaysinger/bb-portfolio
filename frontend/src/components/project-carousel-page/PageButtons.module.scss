@@ -6,6 +6,7 @@ $mainBreak: $b992;
 .projectNav {
   display: flex;
   position: absolute;
+  z-index: 3;
   justify-content: space-between;
   pointer-events: none;
   width: 100vw;

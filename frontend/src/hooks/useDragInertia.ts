@@ -71,6 +71,7 @@ export function useDragInertia(
 ) {
   const draggableRef = useRef<Draggable | null>(null);
   const containerOffsetRef = useRef<number>(0);
+  const snapOffsetRef = useRef<number>(0);
   const pointerType = useActivePointerType();
 
   // Keep the drag state for compatibility with existing code
@@ -94,9 +95,15 @@ export function useDragInertia(
       dragState.current.isThrowing = false;
     };
 
-    // Legacy offset for snap point alignment
-    // TODO: Make this configurable (legacy value from original implementation)
-    const offset = -79;
+    // Derive a dynamic snap offset from the current scroll position so we
+    // snap back onto the exact same scroll grid the carousel is already using.
+    // This replaces the previous hard-coded offset (-79).
+    const computeSnapOffset = () => {
+      if (!slideSpacing) return 0;
+      const current = scroller.scrollLeft;
+      const k = Math.round(-current / slideSpacing);
+      return current + k * slideSpacing;
+    };
 
     const draggable = Draggable.create(scroller, {
       type: "scrollLeft", // NOTE: Mutates the DOM by nesting the scroller
@@ -109,21 +116,27 @@ export function useDragInertia(
       snap: function (endValue: number) {
         const velocity = this.tween ? this.tween.getVelocity() : 0;
         const threshold = slideSpacing * 0.3; // 30% of slide width triggers next slide
-        const remainder = Math.abs(endValue % slideSpacing);
+        const offset = snapOffsetRef.current;
+        const remainder = Math.abs((endValue - offset) % slideSpacing);
 
         let retVal;
         if (Math.abs(velocity) > 300 || remainder > threshold) {
           // High velocity flick or significant drag: advance to next slide
-          retVal = -Math.round(endValue / slideSpacing) * slideSpacing + offset;
+          retVal =
+            -Math.round((endValue - offset) / slideSpacing) * slideSpacing +
+            offset;
         } else {
           // Low velocity or minimal drag: return to current slide
-          retVal = -Math.floor(endValue / slideSpacing) * slideSpacing + offset;
+          retVal =
+            -Math.floor((endValue - offset) / slideSpacing) * slideSpacing +
+            offset;
         }
 
         return retVal;
       },
       onPress: () => {
         gsap.set(scroller, { cursor: "grabbing" });
+        snapOffsetRef.current = computeSnapOffset();
         handlePress();
       },
       onRelease: () => {
