@@ -307,15 +307,17 @@ const CurriculumVitae: React.FC = () => {
 
             <div ref={addToRefs} className={divClassRt}>
               <p>
-                A developer with a unique background in design, technical
-                animation, and interactive development. From game development to
-                scalable web UI solutions, I bridge creativity with technology
-                to craft engaging user experiences. After delivering
-                award-winning interactive projects in Flash, I transitioned to
-                modern frameworks like Angular and React, building reusable,
-                high-performance components. With a results-driven approach,
-                I&apos;ve helped Fortune 500 companies, entertainment giants,
-                and startups create polished, impactful digital experiences.
+                Front-end developer with a background spanning design, technical
+                animation, games, and interactive development. I&apos;ve built
+                everything from game-style experiences to scalable web UI
+                systems—bridging creativity and engineering to ship fast,
+                polished user experiences. After delivering award-winning work
+                in Flash, I refocused on JavaScript and transitioned to modern
+                frameworks like Angular and React, building reusable,
+                high-performance component architecture. I&apos;ve partnered
+                with Fortune 500 teams, entertainment brands, and startups to
+                deliver digital experiences that look great and perform
+                reliably.
               </p>
             </div>
           </div>
