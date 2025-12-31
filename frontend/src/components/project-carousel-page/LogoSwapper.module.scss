@@ -11,7 +11,7 @@
   align-items: left;
   filter: blur(12px);
 
-  @include remRange(margin-top, 14px, -55px, $b320, $b768);
+  @include remRange(margin-top, -4px, -55px, $b320, $b768);
   @include remRange(margin-bottom, 20px, 30px, $b320, $b768);
   @include remRange(width, 240px, 330px, $b320, $b768);
   @include remRange(height, 50px, 65px, $b320, $b768);
