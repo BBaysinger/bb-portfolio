@@ -1,11 +1,32 @@
 import clsx from "clsx";
 import Image from "next/image";
 import Link from "next/link";
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 
+import { useProjectThumbnailScrollFocus } from "@/hooks/useProjectThumbnailScrollFocus";
 import getBrandLogoUrl from "@/utils/getBrandLogoUrl";
 
 import styles from "./ProjectThumbnail.module.scss";
+
+const ThumbnailBg = React.memo(function ThumbnailBg(props: {
+  src: string;
+  alt: string;
+  priority: boolean;
+  onError?: () => void;
+}) {
+  return (
+    <Image
+      src={props.src}
+      alt={props.alt}
+      fill
+      className={styles.thumbBg}
+      style={{ objectFit: "cover" }}
+      sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
+      priority={props.priority}
+      onError={props.onError}
+    />
+  );
+});
 
 /**
  * Props for the ProjectThumbnail component.
@@ -43,10 +64,6 @@ interface ProjectThumbnailProps {
   lockedThumbAlt?: string;
   /** Current user authentication state. */
   isAuthenticated: boolean;
-  /** If true, applies scroll-focus styling (from parent hook). */
-  focused?: boolean;
-  /** Callback to register this thumbnail's DOM ref with parent. */
-  setRef?: (el: HTMLDivElement | null) => void;
 }
 
 /**
@@ -58,7 +75,7 @@ interface ProjectThumbnailProps {
  * - Deferred brand logo loading via idle callback.
  * - Deterministic decorative stripe backgrounds (cycling green/yellow/purple).
  * - Dynamic height CSS variable for layout harmonization.
- * - Scroll-focus styling integration (via `focused` prop).
+ * - Scroll-focus styling integration (via internal hook).
  *
  * Authentication & NDA logic:
  * - Projects marked as NDA or with NDA brands show a locked icon when user is not authenticated.
@@ -85,10 +102,8 @@ const ProjectThumbnail: React.FC<ProjectThumbnailProps> = ({
   lockedThumbUrl,
   lockedThumbAlt,
   isAuthenticated,
-  focused,
-  setRef,
 }) => {
-  const localRef = useRef<HTMLDivElement>(null);
+  const { ref: focusRef, focused } = useProjectThumbnailScrollFocus(projectId);
   const [_logoSrc, setLogoSrc] = useState<string | null>(null);
   const [lockedThumbErrored, setLockedThumbErrored] = useState(false);
 
@@ -123,7 +138,7 @@ const ProjectThumbnail: React.FC<ProjectThumbnailProps> = ({
   const isNdaLike = Boolean(nda || brandIsNda);
   const effectiveAuth = isAuthenticated && !isSanitized;
   const showNdaConfidential = isNdaLike && !effectiveAuth;
-  const focusClass = focused ? styles.projectThumbnailFocus : "";
+  const focusClass = focused ? styles.focused : "";
   const effectiveLockedThumbUrl = lockedThumbErrored
     ? undefined
     : lockedThumbUrl;
@@ -141,22 +156,20 @@ const ProjectThumbnail: React.FC<ProjectThumbnailProps> = ({
     ? lockedThumbAlt || "Locked project thumbnail"
     : thumbAlt || title;
 
+  const handleThumbError = React.useCallback(() => {
+    if (showNdaConfidential) {
+      setLockedThumbErrored(true);
+    }
+  }, [showNdaConfidential]);
+
   const inner = (
     <>
       {displayedThumbUrl && (
-        <Image
+        <ThumbnailBg
           src={displayedThumbUrl}
           alt={displayedThumbAlt}
-          fill
-          className={styles.thumbBg}
-          style={{ objectFit: "cover" }}
-          sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
           priority={index < 3}
-          onError={() => {
-            if (showNdaConfidential) {
-              setLockedThumbErrored(true);
-            }
-          }}
+          onError={showNdaConfidential ? handleThumbError : undefined}
         />
       )}
       {/* <div className={styles.vignette}></div>
@@ -179,10 +192,7 @@ const ProjectThumbnail: React.FC<ProjectThumbnailProps> = ({
 
   return (
     <div
-      ref={(el) => {
-        localRef.current = el;
-        setRef?.(el);
-      }}
+      ref={focusRef}
       className={clsx(styles.projectThumbnail, focusClass, ndaClass)}
       data-nda={showNdaConfidential ? "locked" : undefined}
       data-project-id={
