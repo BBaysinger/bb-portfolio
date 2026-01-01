@@ -86,6 +86,10 @@
     z-index: -1;
   }
 
+  .helloImage {
+    pointer-events: none;
+  }
+
   .helloSignWrapper {
     position: relative;
     display: flex;

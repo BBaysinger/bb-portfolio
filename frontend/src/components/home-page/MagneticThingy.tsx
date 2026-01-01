@@ -66,11 +66,13 @@ const MagneticThingy: React.FC<MagneticThingyProps> = ({
 
   useEffect(() => {
     let ticking = false;
+    let rafId: number | null = null;
     let latestX = 0;
     let latestY = 0;
 
     const loop = () => {
       ticking = false;
+      rafId = null;
       moveEvent(latestX, latestY);
     };
     const elem = elemRef.current;
@@ -144,12 +146,20 @@ const MagneticThingy: React.FC<MagneticThingyProps> = ({
     };
 
     const leaveEvent = () => {
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+        rafId = null;
+        ticking = false;
+      }
+
       gsap.to(elem, {
         x: 0,
         y: 0,
         rotation: 0,
         ease: "elastic.out(1, 0.5)",
         duration: 1,
+        overwrite: "auto",
+        lazy: false,
       });
 
       gsap.to(projectionWrapper, {
@@ -157,6 +167,8 @@ const MagneticThingy: React.FC<MagneticThingyProps> = ({
         y: 0,
         ease: "elastic.out(1, 0.5)",
         duration: 1,
+        overwrite: "auto",
+        lazy: false,
       });
 
       if (resetTimeoutRef.current) {
@@ -177,17 +189,18 @@ const MagneticThingy: React.FC<MagneticThingyProps> = ({
       latestY = e.pageY;
       if (!ticking) {
         ticking = true;
-        requestAnimationFrame(loop);
+        rafId = requestAnimationFrame(loop);
       }
     };
 
     const onTouchMove = (e: TouchEvent) => {
       if (e.touches.length > 0) {
+        e.preventDefault();
         latestX = e.touches[0].pageX;
         latestY = e.touches[0].pageY;
         if (!ticking) {
           ticking = true;
-          requestAnimationFrame(loop);
+          rafId = requestAnimationFrame(loop);
         }
       }
     };
