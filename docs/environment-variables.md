@@ -46,7 +46,7 @@ General conventions:
 
 ### NEXT_PUBLIC_RUM_PUBLIC_RESOURCE_POLICY
 
-- **Purpose**: Enables CloudWatch RUM ingestion via an App Monitor *public resource-based policy* (unsigned requests).
+- **Purpose**: Enables CloudWatch RUM ingestion via an App Monitor _public resource-based policy_ (unsigned requests).
 - **Default**: `false`
 - **Notes**:
   - When `true`, the frontend sets `signing=false` and does **not** require `NEXT_PUBLIC_RUM_IDENTITY_POOL_ID` / `NEXT_PUBLIC_RUM_GUEST_ROLE_ARN`.
