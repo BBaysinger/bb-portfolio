@@ -192,12 +192,38 @@ const MagneticThingy: React.FC<MagneticThingyProps> = ({
       }
     };
 
+    const onWindowTouchEnd = () => {
+      leaveEvent();
+    };
+
+    const onWindowTouchCancel = () => {
+      leaveEvent();
+    };
+
+    const onWindowPointerUp = (e: PointerEvent) => {
+      if (e.pointerType === "touch") {
+        leaveEvent();
+      }
+    };
+
+    const onWindowPointerCancel = (e: PointerEvent) => {
+      if (e.pointerType === "touch") {
+        leaveEvent();
+      }
+    };
+
     const addListeners = () => {
       path.addEventListener("mousemove", onMouseMove);
       path.addEventListener("mouseleave", leaveEvent);
       path.addEventListener("touchmove", onTouchMove, { passive: false });
       path.addEventListener("touchend", leaveEvent);
       path.addEventListener("touchcancel", leaveEvent);
+
+      // Ensure recoil on touch release even if the touch ends off-element.
+      window.addEventListener("touchend", onWindowTouchEnd);
+      window.addEventListener("touchcancel", onWindowTouchCancel);
+      window.addEventListener("pointerup", onWindowPointerUp);
+      window.addEventListener("pointercancel", onWindowPointerCancel);
     };
 
     const removeListeners = () => {
@@ -206,6 +232,11 @@ const MagneticThingy: React.FC<MagneticThingyProps> = ({
       path.removeEventListener("touchmove", onTouchMove);
       path.removeEventListener("touchend", leaveEvent);
       path.removeEventListener("touchcancel", leaveEvent);
+
+      window.removeEventListener("touchend", onWindowTouchEnd);
+      window.removeEventListener("touchcancel", onWindowTouchCancel);
+      window.removeEventListener("pointerup", onWindowPointerUp);
+      window.removeEventListener("pointercancel", onWindowPointerCancel);
     };
 
     addListeners();
