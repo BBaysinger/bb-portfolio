@@ -389,7 +389,8 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
                 d={gridLinesPathD}
                 fill="none"
                 stroke="var(--grid-line-color)"
-                strokeWidth={0.04}
+                strokeWidth="var(--stroke-width)"
+                vectorEffect="non-scaling-stroke"
                 shapeRendering="crispEdges"
               />
             </svg>
