@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 
-import { useProjectThumbnailScrollFocus } from "@/hooks/useProjectThumbnailScrollFocus";
+import { useScrollFocus } from "@/hooks/useScrollFocus";
 import getBrandLogoUrl from "@/utils/getBrandLogoUrl";
 
 import styles from "./ProjectThumbnail.module.scss";
@@ -103,7 +103,7 @@ const ProjectThumbnail: React.FC<ProjectThumbnailProps> = ({
   lockedThumbAlt,
   isAuthenticated,
 }) => {
-  const { ref: focusRef, focused } = useProjectThumbnailScrollFocus(projectId);
+  const { ref: focusRef, focused } = useScrollFocus(projectId);
   const [_logoSrc, setLogoSrc] = useState<string | null>(null);
   const [lockedThumbErrored, setLockedThumbErrored] = useState(false);
 
