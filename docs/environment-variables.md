@@ -44,6 +44,15 @@ General conventions:
 - **Notes**: Only has effect in non-production builds; production ignores it.
 - **Usage**: `frontend/src/services/rum.ts` (see also `docs/cloudwatch-rum-setup.md`).
 
+### NEXT_PUBLIC_RUM_PUBLIC_RESOURCE_POLICY
+
+- **Purpose**: Enables CloudWatch RUM ingestion via an App Monitor *public resource-based policy* (unsigned requests).
+- **Default**: `false`
+- **Notes**:
+  - When `true`, the frontend sets `signing=false` and does **not** require `NEXT_PUBLIC_RUM_IDENTITY_POOL_ID` / `NEXT_PUBLIC_RUM_GUEST_ROLE_ARN`.
+  - When `false`, the frontend uses Cognito identity pool + guest role signing.
+- **Usage**: `frontend/src/services/rum.ts`
+
 ### AWS_ACCOUNT_ID
 
 - **Purpose**: AWS Account ID for ECR image URIs
