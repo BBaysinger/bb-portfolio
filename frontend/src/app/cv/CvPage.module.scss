@@ -5,6 +5,7 @@
 
 .cvPage {
   color: #fff;
+  overflow-x: hidden;
   // Include shared graphite page styles without using @extend to satisfy Turbopack's CSS Modules parser
   @include graphite-page.graphite-page-scope();
   h5 {
