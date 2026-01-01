@@ -49,6 +49,7 @@ type AwsRumConfig = {
   telemetries?: string[];
   allowCookies?: boolean;
   enableXRay?: boolean;
+  signing?: boolean;
   eventPluginsToLoad?: string[];
   enableRumClient?: boolean;
 };
@@ -137,15 +138,29 @@ export async function initializeRUM() {
   const appMonitorId = process.env.NEXT_PUBLIC_RUM_APP_MONITOR_ID;
   const identityPoolId = process.env.NEXT_PUBLIC_RUM_IDENTITY_POOL_ID;
   const guestRoleArn = process.env.NEXT_PUBLIC_RUM_GUEST_ROLE_ARN;
+  const usePublicResourcePolicy =
+    process.env.NEXT_PUBLIC_RUM_PUBLIC_RESOURCE_POLICY === "true";
   const region =
     process.env.NEXT_PUBLIC_RUM_REGION ||
     process.env.NEXT_PUBLIC_AWS_REGION ||
     "us-west-2";
 
-  if (!appMonitorId || !identityPoolId || !guestRoleArn) {
+  if (!appMonitorId) {
     if (RUM_DEBUG) {
       console.info(
         "[RUM] CloudWatch RUM not configured - skipping initialization",
+      );
+    }
+    return;
+  }
+
+  // Default (safe) behavior is to require Cognito signing inputs.
+  // If you're using an App Monitor with a *public resource-based policy* (common for public sites),
+  // set NEXT_PUBLIC_RUM_PUBLIC_RESOURCE_POLICY=true to send unsigned requests.
+  if (!usePublicResourcePolicy && (!identityPoolId || !guestRoleArn)) {
+    if (RUM_DEBUG) {
+      console.info(
+        "[RUM] CloudWatch RUM missing identity pool / guest role; set NEXT_PUBLIC_RUM_PUBLIC_RESOURCE_POLICY=true for public-policy mode.",
       );
     }
     return;
@@ -182,8 +197,6 @@ export async function initializeRUM() {
     ) => AwsRumLike;
     const config: AwsRumConfig = {
       sessionSampleRate: 1, // Sample 100% of sessions
-      identityPoolId,
-      guestRoleArn,
       endpoint: `https://dataplane.rum.${region}.amazonaws.com`,
       telemetries: ["errors", "performance", "http"],
       allowCookies: true,
@@ -193,6 +206,14 @@ export async function initializeRUM() {
         enableRumClient: true,
       }),
     };
+
+    if (usePublicResourcePolicy) {
+      config.signing = false;
+    } else {
+      config.signing = true;
+      config.identityPoolId = identityPoolId;
+      config.guestRoleArn = guestRoleArn;
+    }
     // Static import path bundling already ensured; construct directly
     rumInstance = new AwsRumCtor(appMonitorId, "1.0.0", region, config);
 

@@ -77,6 +77,10 @@ Add these values to your `.github-secrets.private.json5` file:
     NEXT_PUBLIC_RUM_GUEST_ROLE_ARN: "arn:aws:iam::your-account:role/bb-portfolio-rum-unauth-role",
     NEXT_PUBLIC_RUM_REGION: "us-west-2",
 
+    // Optional: if your App Monitor has a public resource-based policy, enable unsigned requests.
+    // When true, the frontend does not require identity pool / guest role values.
+    NEXT_PUBLIC_RUM_PUBLIC_RESOURCE_POLICY: "false",
+
     // Optional: enable extra RUM console logging (non-production only)
     // Use for debugging in dev/staging; ignored in production builds.
     NEXT_PUBLIC_RUM_DEBUG: "true",
