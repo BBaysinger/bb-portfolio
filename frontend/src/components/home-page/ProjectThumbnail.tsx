@@ -3,6 +3,9 @@ import Image from "next/image";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 
+import useActivePointerType from "@/hooks/useActivePointerType";
+import { useHasHover } from "@/hooks/useHasHover";
+import { useHoverFocus } from "@/hooks/useHoverFocus";
 import { useScrollFocus } from "@/hooks/useScrollFocus";
 import getBrandLogoUrl from "@/utils/getBrandLogoUrl";
 
@@ -103,7 +106,16 @@ const ProjectThumbnail: React.FC<ProjectThumbnailProps> = ({
   lockedThumbAlt,
   isAuthenticated,
 }) => {
-  const { ref: focusRef, focused } = useScrollFocus(projectId);
+  const pointerType = useActivePointerType();
+  const hasHover = useHasHover();
+  const useHoverMode = hasHover && pointerType === "mouse";
+
+  const { ref: focusRef, focused: scrollFocused } = useScrollFocus(projectId, {
+    disabled: useHoverMode,
+    minPersistMs: 400,
+  });
+  const hover = useHoverFocus({ enabled: useHoverMode, minPersistMs: 400 });
+  const focused = useHoverMode ? hover.focused : scrollFocused;
   const [_logoSrc, setLogoSrc] = useState<string | null>(null);
   const [lockedThumbErrored, setLockedThumbErrored] = useState(false);
 
@@ -193,6 +205,7 @@ const ProjectThumbnail: React.FC<ProjectThumbnailProps> = ({
   return (
     <div
       ref={focusRef}
+      {...hover.bind}
       className={clsx(styles.projectThumbnail, focusClass, ndaClass)}
       data-nda={showNdaConfidential ? "locked" : undefined}
       data-project-id={

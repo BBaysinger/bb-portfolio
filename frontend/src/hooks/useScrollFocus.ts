@@ -219,6 +219,8 @@ class ProjectThumbnailFocusStore {
 const focusStore = new ProjectThumbnailFocusStore();
 
 export type ScrollFocusOptions = {
+  /** Disable scroll focus behavior (no registration, no subscriptions). */
+  disabled?: boolean;
   /**
    * Minimum time (ms) the returned `focused` flag remains true after this
    * thumbnail loses focus. The store's activeId still updates immediately.
@@ -237,6 +239,7 @@ export type ScrollFocusOptions = {
  * - Updates only occur when the (row, col) bucket changes.
  */
 export function useScrollFocus(id: string, options: ScrollFocusOptions = {}) {
+  const disabled = options.disabled ?? false;
   const minPersistMs = options.minPersistMs ?? 400;
 
   const computeActive = React.useCallback(() => {
@@ -261,6 +264,19 @@ export function useScrollFocus(id: string, options: ScrollFocusOptions = {}) {
   }, []);
 
   React.useEffect(() => {
+    if (disabled) {
+      clearHideTimer();
+      if (activeRef.current) {
+        activeRef.current = false;
+        setActive(false);
+      }
+      if (focusedRef.current) {
+        focusedRef.current = false;
+        setFocused(false);
+      }
+      return;
+    }
+
     // Keep refs in sync (refs may be read by timeouts/subscription callbacks).
     activeRef.current = active;
     focusedRef.current = focused;
@@ -313,10 +329,11 @@ export function useScrollFocus(id: string, options: ScrollFocusOptions = {}) {
       unsubscribe();
       clearHideTimer();
     };
-  }, [active, clearHideTimer, computeActive, focused, minPersistMs]);
+  }, [active, clearHideTimer, computeActive, disabled, focused, minPersistMs]);
 
   const ref = React.useCallback(
     (node: HTMLDivElement | null) => {
+      if (disabled) return;
       if (!id) return;
 
       if (node) {
@@ -326,7 +343,7 @@ export function useScrollFocus(id: string, options: ScrollFocusOptions = {}) {
 
       focusStore.unregister(id);
     },
-    [id],
+    [disabled, id],
   );
 
   return { ref, focused, active };
