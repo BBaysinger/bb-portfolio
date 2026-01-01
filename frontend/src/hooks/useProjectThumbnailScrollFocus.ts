@@ -218,6 +218,14 @@ class ProjectThumbnailFocusStore {
 
 const focusStore = new ProjectThumbnailFocusStore();
 
+export type ProjectThumbnailScrollFocusOptions = {
+  /**
+   * Minimum time (ms) the returned `focused` flag remains true after this
+   * thumbnail loses focus. The store's activeId still updates immediately.
+   */
+  minPersistMs?: number;
+};
+
 /**
  * Hook used by each ProjectThumbnail tile to self-register for scroll focus.
  *
@@ -228,21 +236,74 @@ const focusStore = new ProjectThumbnailFocusStore();
  *   and focus left-to-right as the viewport center progresses through the bucket.
  * - Updates only occur when the (row, col) bucket changes.
  */
-export function useProjectThumbnailScrollFocus(id: string) {
-  const [isFocused, setIsFocused] = React.useState(() => {
+export function useProjectThumbnailScrollFocus(
+  id: string,
+  options: ProjectThumbnailScrollFocusOptions = {},
+) {
+  const minPersistMs = options.minPersistMs ?? 250;
+
+  const computeActive = React.useCallback(() => {
     const activeId = focusStore.getSnapshot();
     return activeId != null && activeId === id;
-  });
+  }, [id]);
 
-  const isFocusedRef = React.useRef(isFocused);
-  isFocusedRef.current = isFocused;
+  const [active, setActive] = React.useState(() => computeActive());
+  // `focused` is what you use for styling: true while active, and lingers
+  // for at least `minPersistMs` after losing focus.
+  const [focused, setFocused] = React.useState(() => computeActive());
+
+  const activeRef = React.useRef<boolean>(active);
+  const focusedRef = React.useRef<boolean>(focused);
+
+  const hideTimerRef = React.useRef<number | null>(null);
+
+  const clearHideTimer = React.useCallback(() => {
+    if (hideTimerRef.current == null) return;
+    window.clearTimeout(hideTimerRef.current);
+    hideTimerRef.current = null;
+  }, []);
 
   React.useEffect(() => {
+    // Keep refs in sync (refs may be read by timeouts/subscription callbacks).
+    activeRef.current = active;
+    focusedRef.current = focused;
+
     const onStoreChange = () => {
-      const activeId = focusStore.getSnapshot();
-      const nextFocused = activeId != null && activeId === id;
-      if (nextFocused === isFocusedRef.current) return;
-      setIsFocused(nextFocused);
+      const nextActive = computeActive();
+
+      if (nextActive !== activeRef.current) {
+        activeRef.current = nextActive;
+        setActive(nextActive);
+      }
+
+      if (nextActive) {
+        clearHideTimer();
+        if (!focusedRef.current) {
+          focusedRef.current = true;
+          setFocused(true);
+        }
+        return;
+      }
+
+      // Lost focus: keep `focused` true for a minimum duration so it has
+      // time to fade in before fading out.
+      if (focusedRef.current && minPersistMs > 0) {
+        clearHideTimer();
+        hideTimerRef.current = window.setTimeout(() => {
+          hideTimerRef.current = null;
+          // Only clear if we didn't regain focus in the meantime.
+          if (!activeRef.current) {
+            focusedRef.current = false;
+            setFocused(false);
+          }
+        }, minPersistMs);
+        return;
+      }
+
+      if (focusedRef.current) {
+        focusedRef.current = false;
+        setFocused(false);
+      }
     };
 
     const unsubscribe = focusStore.subscribe(onStoreChange);
@@ -251,23 +312,25 @@ export function useProjectThumbnailScrollFocus(id: string) {
     // subscribed (e.g., during initial mount rAF). Sync once immediately so
     // the focused class applies on first paint.
     onStoreChange();
-    return unsubscribe;
-  }, [id]);
+    return () => {
+      unsubscribe();
+      clearHideTimer();
+    };
+  }, [active, clearHideTimer, computeActive, focused, minPersistMs]);
 
-  const currentIdRef = React.useRef(id);
-  currentIdRef.current = id;
+  const ref = React.useCallback(
+    (node: HTMLDivElement | null) => {
+      if (!id) return;
 
-  const ref = React.useCallback((node: HTMLDivElement | null) => {
-    const currentId = currentIdRef.current;
-    if (!currentId) return;
+      if (node) {
+        focusStore.register(id, node);
+        return;
+      }
 
-    if (node) {
-      focusStore.register(currentId, node);
-      return;
-    }
+      focusStore.unregister(id);
+    },
+    [id],
+  );
 
-    focusStore.unregister(currentId);
-  }, []);
-
-  return { ref, focused: isFocused };
+  return { ref, focused, active };
 }
