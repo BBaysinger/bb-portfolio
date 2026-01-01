@@ -173,21 +173,66 @@ export default function useResponsiveScaler(
         scale: 1,
       };
     }
-    // Preferred: use CSS viewport units if supported to get exact sv*/dv*/lv* pixels
-    const cssDims = measureViewportUnits(viewportMode);
-    const cssW = cssDims.w;
-    const cssH = cssDims.h;
+    const docW = document.documentElement.clientWidth || 0;
+    const docH = document.documentElement.clientHeight || 0;
 
-    // Fallback: current visual viewport (dynamic by nature)
-    const currW =
-      cssW ||
-      (window.visualViewport?.width ?? document.documentElement.clientWidth) ||
-      0;
-    const currH =
-      cssH ||
-      (window.visualViewport?.height ??
-        document.documentElement.clientHeight) ||
-      0;
+    // Use visualViewport as the source of truth for *dynamic* viewport size.
+    // On iOS Safari, CSS viewport units can occasionally report a stale value on
+    // initial load; visualViewport typically corrects sooner and emits events.
+    const vvW = window.visualViewport?.width ?? docW;
+    const vvH = window.visualViewport?.height ?? docH;
+
+    // Preferred: use CSS viewport units if supported to get exact sv*/dv*/lv* pixels.
+    // Validate against visualViewport/docElement to avoid iOS Safari transient mis-measure.
+    const cssDims = measureViewportUnits(viewportMode);
+    const cssWRaw = Number.isFinite(cssDims.w) ? cssDims.w : 0;
+    const cssHRaw = Number.isFinite(cssDims.h) ? cssDims.h : 0;
+
+    const pickCssAxis = (
+      css: number,
+      vv: number,
+      doc: number,
+      axisMode: ViewportMode,
+    ) => {
+      if (css <= 0) return 0;
+      const vvSafe = vv > 0 ? vv : doc;
+      const docSafe = doc > 0 ? doc : vv;
+      const upper = Math.min(
+        css,
+        vvSafe > 0 ? vvSafe : css,
+        docSafe > 0 ? docSafe : css,
+      );
+      const lower = Math.max(
+        css,
+        vvSafe > 0 ? vvSafe : css,
+        docSafe > 0 ? docSafe : css,
+      );
+
+      // Heuristics:
+      // - small: should never exceed the current dynamic viewport (vv/doc).
+      // - dynamic: should closely match vv/doc; if it doesn't, trust vv/doc.
+      // - large: should be >= current dynamic viewport.
+      if (axisMode === "small") {
+        return upper;
+      }
+      if (axisMode === "large") {
+        return lower;
+      }
+
+      // dynamic
+      if (vvSafe > 0) {
+        const delta = Math.abs(css - vvSafe) / Math.max(1, vvSafe);
+        if (delta > 0.03) return 0;
+      }
+      return css;
+    };
+
+    const cssW = pickCssAxis(cssWRaw, vvW, docW, viewportMode);
+    const cssH = pickCssAxis(cssHRaw, vvH, docH, viewportMode);
+
+    // Current dynamic viewport for min/max tracking and orientation bucketing.
+    const currW = vvW || docW || 0;
+    const currH = vvH || docH || 0;
 
     // Reset min/max if orientation bucket flips
     const isPortrait = currH >= currW;
@@ -209,7 +254,8 @@ export default function useResponsiveScaler(
     minMaxRef.current.maxW = Math.max(minMaxRef.current.maxW, currW);
     minMaxRef.current.maxH = Math.max(minMaxRef.current.maxH, currH);
 
-    // Choose effective viewport per requested mode; prefer CSS-unit measurement, otherwise fall back to tracked min/max
+    // Choose effective viewport per requested mode; prefer validated CSS-unit measurement,
+    // otherwise fall back to tracked min/max (or current dynamic viewport).
     const containerWidth = cssW
       ? cssW
       : viewportMode === "dynamic"
@@ -312,7 +358,31 @@ export default function useResponsiveScaler(
     }
     onResize();
 
+    // iOS Safari can occasionally start with a transient, incorrect viewport
+    // measurement that corrects itself shortly after initial paint. If that
+    // happens without emitting a resize/orientation event, the scaler can stay
+    // wrong until rotation. A small, bounded retry sequence mitigates this.
+    let canceled = false;
+    let raf1: number | null = null;
+    let raf2: number | null = null;
+    let timeoutId: number | null = null;
+
+    const safeResize = () => {
+      if (canceled) return;
+      onResize();
+    };
+
+    raf1 = window.requestAnimationFrame(safeResize);
+    raf2 = window.requestAnimationFrame(() => {
+      raf2 = window.requestAnimationFrame(safeResize);
+    });
+    timeoutId = window.setTimeout(safeResize, 250);
+
     return () => {
+      canceled = true;
+      if (raf1 !== null) window.cancelAnimationFrame(raf1);
+      if (raf2 !== null) window.cancelAnimationFrame(raf2);
+      if (timeoutId !== null) window.clearTimeout(timeoutId);
       window.removeEventListener("resize", onResize);
       window.removeEventListener("orientationchange", onResize);
       window.removeEventListener("pageshow", onResize);
