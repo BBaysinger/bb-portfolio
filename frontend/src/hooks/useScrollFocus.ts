@@ -218,7 +218,7 @@ class ProjectThumbnailFocusStore {
 
 const focusStore = new ProjectThumbnailFocusStore();
 
-export type ProjectThumbnailScrollFocusOptions = {
+export type ScrollFocusOptions = {
   /**
    * Minimum time (ms) the returned `focused` flag remains true after this
    * thumbnail loses focus. The store's activeId still updates immediately.
@@ -236,11 +236,8 @@ export type ProjectThumbnailScrollFocusOptions = {
  *   and focus left-to-right as the viewport center progresses through the bucket.
  * - Updates only occur when the (row, col) bucket changes.
  */
-export function useProjectThumbnailScrollFocus(
-  id: string,
-  options: ProjectThumbnailScrollFocusOptions = {},
-) {
-  const minPersistMs = options.minPersistMs ?? 250;
+export function useScrollFocus(id: string, options: ScrollFocusOptions = {}) {
+  const minPersistMs = options.minPersistMs ?? 400;
 
   const computeActive = React.useCallback(() => {
     const activeId = focusStore.getSnapshot();
