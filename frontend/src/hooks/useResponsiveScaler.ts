@@ -173,6 +173,23 @@ export default function useResponsiveScaler(
         scale: 1,
       };
     }
+
+    // If the app is already computing a stable viewport height (used by the hero),
+    // prefer that for "small" mode so we stay immune to Firefox UI chrome changes.
+    // This keeps the scaler's math/strategy the same; it only swaps the height input.
+    const rootStableClientHeightPx = (() => {
+      try {
+        const raw = window
+          .getComputedStyle(document.documentElement)
+          .getPropertyValue("--client-height")
+          .trim();
+        const parsed = Number.parseFloat(raw);
+        return Number.isFinite(parsed) && parsed > 0 ? parsed : 0;
+      } catch {
+        return 0;
+      }
+    })();
+
     const docW = document.documentElement.clientWidth || 0;
     const docH = document.documentElement.clientHeight || 0;
 
@@ -263,13 +280,18 @@ export default function useResponsiveScaler(
         : viewportMode === "large"
           ? minMaxRef.current.maxW
           : minMaxRef.current.minW; // "small" default
-    const containerHeight = cssH
+    const containerHeightRaw = cssH
       ? cssH
       : viewportMode === "dynamic"
         ? currH
         : viewportMode === "large"
           ? minMaxRef.current.maxH
           : minMaxRef.current.minH; // "small" default
+
+    const containerHeight =
+      viewportMode === "small" && rootStableClientHeightPx > 0
+        ? rootStableClientHeightPx
+        : containerHeightRaw;
 
     const screenAspect = containerWidth / Math.max(1, containerHeight);
 
