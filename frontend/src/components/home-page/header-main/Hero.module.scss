@@ -22,7 +22,10 @@ header.hero {
   background-image: url("/images/common/bg-grad.svg");
   background-color: black;
   background-size: 100% 100%;
-  min-height: var(--client-height, 100svh);
+  // Use stable viewport height so the hero doesn't resize when browser UI
+  // (address bar/toolbars) shows/hides during scroll (notably in Firefox).
+  min-height: 100vh;
+  min-height: 100svh;
   @include lerpRange(--hero-padding, 10px, 18px, $b320, $b576);
 
   @keyframes fadeInOut {
