@@ -1,15 +1,16 @@
 import clsx from "clsx";
 import Image from "next/image";
 import Link from "next/link";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 
 import useActivePointerType from "@/hooks/useActivePointerType";
 import { useHasHover } from "@/hooks/useHasHover";
 import { useHoverFocus } from "@/hooks/useHoverFocus";
 import { useScrollFocus } from "@/hooks/useScrollFocus";
-import getBrandLogoUrl from "@/utils/getBrandLogoUrl";
 
 import styles from "./ProjectThumbnail.module.scss";
+
+const HOVER_PERSISTS_MS = 600 as const;
 
 const ThumbnailBg = React.memo(function ThumbnailBg(props: {
   src: string;
@@ -94,9 +95,9 @@ const ProjectThumbnail: React.FC<ProjectThumbnailProps> = ({
   projectId,
   projectShortCode,
   title,
-  brandId,
-  brandLogoLightUrl,
-  brandLogoDarkUrl,
+  // brandId,
+  // brandLogoLightUrl,
+  // brandLogoDarkUrl,
   brandIsNda,
   nda,
   isSanitized,
@@ -112,39 +113,42 @@ const ProjectThumbnail: React.FC<ProjectThumbnailProps> = ({
 
   const { ref: focusRef, focused: scrollFocused } = useScrollFocus(projectId, {
     disabled: useHoverMode,
-    minPersistMs: 400,
+    minPersistMs: HOVER_PERSISTS_MS,
   });
-  const hover = useHoverFocus({ enabled: useHoverMode, minPersistMs: 400 });
+  const hover = useHoverFocus({
+    enabled: useHoverMode,
+    minPersistMs: HOVER_PERSISTS_MS,
+  });
   const focused = useHoverMode ? hover.focused : scrollFocused;
-  const [_logoSrc, setLogoSrc] = useState<string | null>(null);
+  // const [_logoSrc, setLogoSrc] = useState<string | null>(null);
   const [lockedThumbErrored, setLockedThumbErrored] = useState(false);
 
   // Defer brand logo loading to idle time to prioritize critical content.
-  useEffect(() => {
-    const loadLogo = () => {
-      const chosen = getBrandLogoUrl({
-        brandId,
-        brandIsNda: brandIsNda || !!nda,
-        allowNdaLogo: isAuthenticated,
-        lightUrl: brandLogoLightUrl,
-        darkUrl: brandLogoDarkUrl,
-        preferDark: true,
-      });
-      setLogoSrc(chosen);
-    };
-    if ("requestIdleCallback" in window) {
-      window.requestIdleCallback(loadLogo, { timeout: 2000 });
-    } else {
-      setTimeout(loadLogo, 500);
-    }
-  }, [
-    brandId,
-    brandLogoDarkUrl,
-    brandLogoLightUrl,
-    brandIsNda,
-    nda,
-    isAuthenticated,
-  ]);
+  // useEffect(() => {
+  //   const loadLogo = () => {
+  //     const chosen = getBrandLogoUrl({
+  //       brandId,
+  //       brandIsNda: brandIsNda || !!nda,
+  //       allowNdaLogo: isAuthenticated,
+  //       lightUrl: brandLogoLightUrl,
+  //       darkUrl: brandLogoDarkUrl,
+  //       preferDark: true,
+  //     });
+  //     setLogoSrc(chosen);
+  //   };
+  //   if ("requestIdleCallback" in window) {
+  //     window.requestIdleCallback(loadLogo, { timeout: 2000 });
+  //   } else {
+  //     setTimeout(loadLogo, 500);
+  //   }
+  // }, [
+  //   brandId,
+  //   brandLogoDarkUrl,
+  //   brandLogoLightUrl,
+  //   brandIsNda,
+  //   nda,
+  //   isAuthenticated,
+  // ]);
 
   // Determine NDA state and apply scroll-focus class.
   const isNdaLike = Boolean(nda || brandIsNda);
@@ -207,6 +211,11 @@ const ProjectThumbnail: React.FC<ProjectThumbnailProps> = ({
       ref={focusRef}
       {...hover.bind}
       className={clsx(styles.projectThumbnail, focusClass, ndaClass)}
+      style={
+        {
+          "--hover-persists": `${HOVER_PERSISTS_MS}ms`,
+        } as React.CSSProperties
+      }
       data-nda={showNdaConfidential ? "locked" : undefined}
       data-project-id={
         !showNdaConfidential && !isSanitized ? projectId : undefined
@@ -233,13 +242,14 @@ const ProjectThumbnail: React.FC<ProjectThumbnailProps> = ({
         {inner}
       </Link>
       {showLockedIcon && (
-        <Image
-          src="/images/projects-list/nda-locked.webp"
-          alt="Locked"
-          width={294}
-          height={346}
-          className={styles.lockedIcon}
-        />
+        // <Image
+        //   src="/images/projects-list/nda-locked.webp"
+        //   alt="Locked"
+        //   width={294}
+        //   height={346}
+        //   className={styles.lockedIcon}
+        // />
+        <div>locked</div>
       )}
     </div>
   );
