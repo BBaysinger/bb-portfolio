@@ -292,6 +292,6 @@ This system is designed to be extracted into a standalone library with:
 - Plugins for React, Vue, Svelte
 - PostCSS plugin for build-time optimization
 - TypeScript definitions
-- Comprehensive test suite
+- Test suite
 
 The current implementation serves as the reference architecture for the future open-source version.

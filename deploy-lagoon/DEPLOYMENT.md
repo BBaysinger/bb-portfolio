@@ -272,7 +272,7 @@ When you're ready to use production containers:
 
 1. Fix the ECR build issues (Next.js standalone mode)
 2. Deploy production: `./infra/bb-portfolio-management.sh deploy-prod`
-3. The infrastructure supports both seamlessly!
+3. Dev and prod are both supported (dev from Docker Hub, prod from ECR).
 
 ---
 

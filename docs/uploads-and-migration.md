@@ -270,7 +270,7 @@ Notes:
 
 - Ensure the user has dump/restore privileges.
 - If you keep only relative file keys in docs and compute URLs at runtime, you don't need to rewrite DB fields when buckets change.
-- If you've previously stored absolute URLs in upload docs, add a small one-off script to rewrite the `url` field. I can generate that if needed.
+- If you've previously stored absolute URLs in upload docs, add a small one-off script to rewrite the `url` field.
 
 ### Roll-forward/back
 
@@ -279,7 +279,7 @@ Notes:
 
 ## Terraform sketch (optional)
 
-Below is a minimal pattern if you want to add S3 via Terraform. This is a sketch; we can add the real code when you're ready.
+Below is a minimal pattern if you want to add S3 via Terraform. This is a sketch; expand as needed.
 
 ```hcl
 variable "env" { type = string }

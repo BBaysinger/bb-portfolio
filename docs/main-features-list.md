@@ -1,84 +1,88 @@
-This document contains a list of main features in the site so we can keep track of everything that deserves mentioning in the main readme and such.
+# Main Features List
 
-simulated depth magnetic 'fluxel' grid
-parallax project carousel
-custom sprite rendering
-ssr/next portfolio projects list
-ssg/next dynamic routing projects view
-payload cms backend
-sprite sheet image processing scripts
-magnetic/sticky road sign
-custom physics kinetic orb
-rem-based fluid scaling property mixin
-static fluid scaling property mixin
-scroll-aware highlighting project list
-confidential/NDA project filtering
-automated (re)deployment orchestrator
-page slide-out nav
-transform-positioned footer
+Working list of site features worth mentioning in the README.
 
-Here's what GTP suggested:
+## Frontend UX / Interaction
 
-I reviewed your current features list and scanned the repo (frontend carousel code, Payload config/collections, infra/deploy docs and scripts) to propose concrete additions you can highlight next.
+- Simulated depth magnetic “fluxel” grid
+- Parallax project carousel
+- Layered parallax carousel engine (master/slave synchronization)
+- Device mockup overlays with tilt + stabilization states
+- Route-driven carousel navigation with deep linking
+- Logo/info swapper animations tied to active slide
+- Scroll-aware highlighting project list
+- Magnetic/sticky road sign
+- Custom physics kinetic orb
+- Page slide-out nav
+- Transform-positioned footer
+- Custom sprite rendering
 
-What I looked at (quick pass)
-main-features-list.md and top-level README
-Backend Payload config, collections, and SES email service
-Frontend carousel/layered parallax components
-Deploy/IaC scripts and Terraform layout
-Suggested additions for the features list
-Frontend UX/interaction
+## Rendering / Routing
 
-layered parallax carousel engine (master/slave synchronization)
-device mockup overlays with tilt and stabilization states
-route-driven carousel navigation with deep linking
-logo/info swapper animations tied to active slide
-scroll-aware projects list with client-side highlighting
-Clamped Linear Interpolation (Lerp) fluid responsive type/spacing system (documented in fluid-responsive-system.md)
-CMS/data modeling
+- SSR/Next portfolio projects list
+- SSG/Next dynamic routing projects view
 
-type-safe payload cms with generated types
-automatic slug generation and sortable index for projects
-nda-aware content sanitization for anonymous users
-rich project metadata (brand, tags, role, year, awards, urls)
-image collections for screenshots/thumbnails/brand logos
-sharp-backed image processing and 2mb upload limits
-Storage/media pipeline
+## Fluid Responsive System
 
-s3-backed media storage with per-collection prefixes
-instance-role support with optional static credentials
-media migration/verification scripts (migrate-to-s3, update media urls, rebuild records)
-local filesystem storage for local profile
-Api/security
+- Rem-based fluid scaling property mixin
+- Static fluid scaling property mixin
+- Clamped Linear Interpolation (lerp) fluid responsive type/spacing system (see fluid-responsive-system.md)
 
-strict env_profile-based config validation (fail-fast on missing)
-locked-down csrf/cors allowlists per environment
-contact api via aws ses with html/text email and reply-to
-health-check endpoint for uptime/deploy validation
-role-based access control for admin-only mutations
-Devops/deployment
+## CMS / Data Modeling
 
-terraform iac: one-command provision/teardown of full stack
-systemd-managed docker services on ec2 with auto-restart
-dual-registry image strategy (docker hub dev, ecr prod) with switch script
-secure docker builds via buildkit secret mounts + minimal build args
-generated env files on host via ci/cd (no secrets in repo)
-reverse proxy options (caddy/nginx) and compose profiles (local/dev/prod)
-single-command redeploy scripts for dev/prod or both
-Developer experience/testing
+- Payload CMS backend
+- Type-safe Payload CMS with generated types
+- Automatic slug generation and sortable index for projects
+- Rich project metadata (brand, tags, role, year, awards, urls)
+- Confidential/NDA project filtering
+- NDA-aware content sanitization for anonymous users
+- Image collections for screenshots/thumbnails/brand logos
+- Role-based access control for admin-only mutations
 
-monorepo with strict typescript on frontend and backend
-unified eslint configs for frontend/backend
-playwright e2e and vitest setup for backend
-local dev proxy and hot-reload compose profile
-Data ops and backups
+## Media / Storage Pipeline
 
-json dumps for seed data and repeatable imports
-automated database backup exports (with dated folders)
-Optional: items to prioritize for README write-ups
-Layered Parallax Carousel (how master/slave sync works and why it’s unique)
-NDA-aware Content Model (sanitization logic and access control)
-Env-Profile Guardrails (fail-fast config + csrf/cors strategy)
-S3 Media Architecture (prefixes, instance role, migration scripts)
-Dev/Prod Image Strategy (BuildKit secrets, dual registries, systemd on EC2)
-Contact via SES (secure flow, HTML/Text fallback, reply-to behavior)
+- Sprite sheet image processing scripts
+- Sharp-backed image processing and upload size limits
+- Local filesystem storage for local profile
+- S3-backed media storage with per-collection prefixes
+- Instance-role support with optional static credentials
+- Media migration/verification scripts (migrate-to-s3, update media urls, rebuild records)
+
+## API / Security
+
+- Strict env_profile-based config validation (fail-fast on missing)
+- Locked-down CSRF/CORS allowlists per environment
+- Contact API via AWS SES with HTML/Text email and reply-to
+- Health-check endpoint(s) for uptime/deploy validation
+
+## Infra / Deployment
+
+- Automated (re)deployment orchestrator
+- Terraform IaC: one-command provision/teardown of full stack
+- Systemd-managed Docker services on EC2 with auto-restart
+- Dual-registry image strategy (Docker Hub dev, ECR prod) with switch script
+- Secure Docker builds via BuildKit secret mounts + minimal build args
+- Generated env files on host via CI/CD (no secrets in repo)
+- Reverse proxy options (Caddy/Nginx) and compose profiles (local/dev/prod)
+- Single-command redeploy scripts for dev/prod or both
+
+## Developer Experience / Testing
+
+- Monorepo with strict TypeScript on frontend and backend
+- Unified ESLint configs for frontend/backend
+- Playwright e2e and Vitest setup for backend
+- Local dev proxy and hot-reload compose profile
+
+## Data Ops / Backups
+
+- JSON dumps for seed data and repeatable imports
+- Automated database backup exports (with dated folders)
+
+## README Priorities
+
+- Layered Parallax Carousel (how master/slave sync works and why it’s unique)
+- NDA-aware Content Model (sanitization logic and access control)
+- Env-Profile Guardrails (fail-fast config + csrf/cors strategy)
+- S3 Media Architecture (prefixes, instance role, migration scripts)
+- Dev/Prod Image Strategy (BuildKit secrets, dual registries, systemd on EC2)
+- Contact via SES (secure flow, HTML/Text fallback, reply-to behavior)

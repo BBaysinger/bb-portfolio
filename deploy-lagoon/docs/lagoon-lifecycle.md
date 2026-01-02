@@ -4,7 +4,7 @@ _Renamed from prior Blue-Green lifecycle on 2025-11-18._
 
 > Status: prototype/paused. This document describes a prior Lagoon/blue-green design; referenced scripts/flags may not exist in the current repo.
 
-This document is the canonical runbook and reference for the instance lifecycle powering zero/near‑zero downtime deployments of BB-Portfolio using the Lagoon strategy. It describes roles, tagging, promotion, rollback, retention, and operational safety controls.
+Runbook for the (paused) Lagoon/blue-green instance lifecycle: roles, tagging, promotion, rollback, retention, and safety controls.
 
 ---
 

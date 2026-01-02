@@ -258,53 +258,45 @@ New decisions should be appended chronologically.
 
 ---
 
-**Decision:** Implement **comprehensive Infrastructure as Code (IaC) with full automation** for zero-manual deployment and production-ready hosting.
+**Decision:** Manage infrastructure with Terraform + scripted host configuration so environments can be provisioned and recreated predictably.
 
-- **Terraform IaC**: Complete AWS infrastructure defined as code with full automation
-- **EC2 Instance**: t3.medium with automated configuration via user_data scripts
-- **Elastic IP**: Static IP assignment for consistent domain pointing (44.246.43.116)
-- **Docker Containerization**: Development and production container profiles with systemd management
-- **ECR Integration**: Private container registries with lifecycle policies and IAM authentication
-- **S3 Media Storage**: Environment-specific buckets with proper CORS and encryption
-  **Automation Features:**
+**Scope:**
 
-- **One-Command Deployment**: `terraform apply` creates entire infrastructure from scratch
-- **One-Command Teardown**: `terraform destroy` cleanly removes all 25+ AWS resources
-- **Zero Manual Configuration**: All services configured automatically via user_data scripts
-- **Auto-Healing**: Systemd services ensure containers restart on failure
-- **Boot Persistence**: All services start automatically on server restart
-- **Container Management**: Custom management scripts for easy environment switching (dev/prod profiles)
+- **Terraform IaC**: AWS infrastructure defined as code.
+- **EC2 host**: t3.medium configured via `user_data` and host scripts.
+- **Elastic IP**: Stable IP for DNS (44.246.43.116).
+- **Container runtime**: Docker Compose profiles (dev/prod) managed by systemd.
+- **Registries**: Docker Hub for dev images; ECR for prod images.
+- **Storage**: Environment-specific S3 buckets (CORS/encryption as required).
 
-**Production Deployment:**
+**Automation:**
 
-- **Domain Configuration**: DNS routing configured for bbaysinger.com (deprecated domains fully removed)
-- **SSL-Ready**: Architecture prepared for HTTPS certificate integration
-- **Scalable Foundation**: Ready for auto-scaling groups, load balancers, and CDN integration
-- **Monitoring Ready**: CloudWatch integration prepared for metrics and alerts
+- Provision: `terraform apply`
+- Teardown: `terraform destroy`
+- Containers restart on failure and start on boot (systemd)
+- Management scripts support switching profiles/image sources
 
-**Technical Implementation:**
+**Ops notes:**
+
+- DNS points to the Elastic IP; HTTPS is terminated on-host via Nginx + certbot (see deployment docs).
+- Monitoring/alerts can be added incrementally as needed.
+
+**Technical snippet:**
 
 ```bash
-# Container Management (via SSH)
-./bb-portfolio-management.sh status     # Check containers
-./bb-portfolio-management.sh switch prod # Switch to production profile
-**Implementation Results:**
-
-- **Infrastructure Recreation**: Entire infrastructure can be destroyed and recreated via Terraform
-- **Multi-Environment Support**: Switching between dev (Docker Hub) and prod (ECR) container sources
-- **Documentation**: Troubleshooting and management procedures documented
-- **Reliability**: Eliminates manual configuration errors and ensures consistent deployments
-- **Scalability**: Foundation supports growth from portfolio to production applications
-
-
-- **Platform-as-a-Service (Heroku, Vercel)**: Simpler but less learning value and technical demonstration
-- **Manual EC2 Setup**: More prone to errors, not reproducible, unprofessional for portfolio demonstration
-- **Container Services (ECS/EKS)**: More complex, higher cost, overkill for portfolio scale
-- **Static Hosting (S3/CloudFront)**: Limited to frontend-only, doesn't demonstrate full-stack capabilities
-
-**Status:** ✅ Active - Production infrastructure deployed and verified working
-
+# Container management (via SSH)
+./bb-portfolio-management.sh status
+./bb-portfolio-management.sh switch prod
 ```
+
+**Alternatives considered:**
+
+- **Platform-as-a-Service (Heroku, Vercel)**: Faster setup, less control/infra learning.
+- **Manual EC2 setup**: More manual steps and harder to reproduce.
+- **Container services (ECS/EKS)**: Higher complexity/cost than needed here.
+- **Static hosting (S3/CloudFront)**: Frontend-only; doesn't cover the backend/CMS pieces.
+
+**Status:** ✅ Active
 
 ---
 
@@ -321,11 +313,9 @@ New decisions should be appended chronologically.
 
 **Reasoning:**
 
-- **Experience diversification**: Provides hands-on experience with both industry-standard registries
-- **Cost optimization**: Docker Hub free tier reduces operational costs for development environment
-- **Professional demonstration**: Shows understanding of multi-registry enterprise patterns
-- **Risk management**: Separate registries isolate development experiments from production deployments
-- **Performance**: ECR integration with AWS services provides better production performance
+- **Cost**: Docker Hub free tier works well for dev.
+- **Separation**: Keeps dev experiments isolated from prod deployments.
+- **AWS integration**: ECR fits the prod path and IAM auth.
 
 **Alternatives considered:**
 
@@ -379,7 +369,7 @@ New decisions should be appended chronologically.
 **Implementation:**
 
 - Added `DOCKER_HUB_USERNAME` and `DOCKER_HUB_ACCESS_TOKEN` to `.github-secrets.private.json5`
-- Leveraged existing `npm run sync:secrets` workflow for GitHub Actions integration
+- Used the existing `npm run sync:secrets` workflow for GitHub Actions integration
 - Used Docker Hub personal access tokens instead of passwords for enhanced security
 - Updated CI/CD workflows to authenticate with Docker Hub during dev builds
 
@@ -648,7 +638,7 @@ New decisions should be appended chronologically.
 
 - **Testing status:** ⚠️ Functional but requires additional validation
   - Core handover mechanics verified in initial testing
-  - Edge cases and failure scenarios need comprehensive testing
+  - Edge cases and failure scenarios need more testing
   - Rollback logic validated in happy path; stress testing pending
   - Security group swapping verified manually; automation needs production validation
   - Recommendation: Monitor promotions closely until further testing establishes reliability
@@ -665,7 +655,7 @@ New decisions should be appended chronologically.
 
 ## 2025-10-19 – Deployment Orchestrator (Terraform + GitHub Actions + SSH Fallback)
 
-- **Decision:** Adopt a single orchestrator script `deploy/scripts/deployment-orchestrator.sh` as the source of truth for provisioning/updating EC2 infrastructure, optionally building/publishing images, and triggering container (re)starts via GitHub Actions with a robust SSH fallback.
+- **Decision:** Adopt a single orchestrator script `deploy/scripts/deployment-orchestrator.sh` as the source of truth for provisioning/updating EC2 infrastructure, optionally building/publishing images, and triggering container (re)starts via GitHub Actions with an SSH fallback.
 
 - **Context / Architecture:**
   - Orchestrator responsibilities:
@@ -701,7 +691,7 @@ New decisions should be appended chronologically.
   - `--promote` trigger EIP handover after successful candidate deployment.
   - `--auto-promote` skip handover confirmation prompt (for CI/CD automation).
 
-- **Testing status:** ⚠️ Core functionality validated; comprehensive edge case testing pending
+- **Testing status:** ⚠️ Core functionality validated; edge-case testing pending
   - Basic deployment flows tested and working
   - Blue-green mechanics verified in initial scenarios
   - Recommendation: Monitor deployments and validate thoroughly before relying on automation for critical updates
@@ -774,7 +764,7 @@ New decisions should be appended chronologically.
 
 ## 2025-09-18 – Infrastructure Debugging Strategy
 
-**Decision:** Implement **comprehensive logging and status checks** in CI/CD deployments.
+**Decision:** Add detailed logging and status checks in CI/CD deployments.
 
 - Container logs capture (last 50 lines) for immediate visibility
 - System resource checks (disk space, memory) before deployment
@@ -787,7 +777,7 @@ New decisions should be appended chronologically.
 - Early visibility into failures reduces deployment iteration time.
 - Resource constraints (disk/memory) are common EC2 failure modes.
 - Container startup timing varies significantly between environments.
-- Comprehensive logging helps diagnose issues without SSH access.
+- Detailed logging helps diagnose issues without SSH access.
 
 **Alternatives considered:**
 
@@ -855,7 +845,7 @@ New decisions should be appended chronologically.
 **Solution implemented:**
 
 - Hard timeout on Docker builds (15 minutes with `timeout 900`)
-- Comprehensive resource cleanup before builds (containers, images, networks, volumes)
+- Full resource cleanup before builds (containers, images, networks, volumes)
 - Enable parallel builds and Docker BuildKit for faster builds
 - Extended GitHub Actions timeouts (job: 25min, SSH: 18min, build: 15min)
 - System resource monitoring (disk/memory) for debugging
@@ -1006,7 +996,7 @@ MONGODB_URI=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/bb-portfol
   - Script `cms-seedings/export-media.sh` converts PSDs → WebP and outputs to:
     - `cms-seedings/project-screenshots/*.webp`
     - `cms-seedings/project-thumbnails/*.webp`
-  - Script is location-independent and robust:
+  - Script is location-independent and reliable:
     - Reads from parent-level `_work` (relative to `cms-seedings`)
     - Writes into the `cms-seedings` folder
     - Supports ImageMagick v7 (`magick mogrify`) and v6 (`mogrify`)
