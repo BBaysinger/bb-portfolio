@@ -398,7 +398,7 @@
     // File pattern matching utility
     "glob": "^13.0.0",
     // List of global variables for linting
-    "globals": "^16.5.0",
+    "globals": "^17.0.0",
     // Utility for .gitignore-style file filtering
     "ignore": "^7.0.5",
     // Runtime for dynamic JS/TS imports
