@@ -1,7 +1,7 @@
 # Promote (Blue/Green) Workflow
 # GitHub Actions workflow for promoting a candidate EC2 instance to active via EIP handover
 # -----------------------------------------------------------------------------------------
-# This workflow executes the blue-green deployment promotion process with comprehensive
+# This workflow executes the blue-green deployment promotion process with pre/post
 # health checks, optional rollback, and instance retention management.
 #
 # Role in blue-green deployment:

@@ -1,4 +1,4 @@
-// Robust health check for Docker Compose and SSR/SSG readiness
+// Lightweight health check for Docker Compose and SSR/SSG readiness
 export const runtime = 'nodejs'
 
 // Lightweight health endpoint: avoids DB handshake to become ready faster

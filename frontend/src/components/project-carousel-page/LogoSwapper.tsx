@@ -65,7 +65,7 @@ const LogoSwapper: React.FC<LogoSwapperProps> = ({
     let isCancelled = false;
     const fetchBrands = async () => {
       try {
-        // Use a conservative selection to keep payload small; fall back seamlessly if fields differ
+        // Use a conservative selection to keep payload small; fall back if fields differ
         const res = await fetch("/api/brands/?limit=1000", {
           credentials: "include",
           cache: "force-cache",

@@ -29,7 +29,7 @@ import {
 /**
  * Carousel Component
  * - Bi-directional, infinite-scroll carousel with wrap-around behavior.
- * - Leverages browser-native HTML inertial touch/swipe trackpad/gesture scrolling for smooth interactions.
+ * - Uses browser-native inertial scrolling (touch/swipe/trackpad gestures).
  * - Infinite scroll supporting master-slave architecture for synchronizing parallax effects.
  * - Built for performance and smooth user interaction with inertial scrolling and precise position tracking.
  * - Designed to handle various use cases, including custom scroll synchronization and routing.

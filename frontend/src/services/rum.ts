@@ -93,8 +93,6 @@ let rumInstance: AwsRumLike | null = null;
  *
  * Features:
  * - Singleton pattern prevents duplicate initialization
-    const moduleRecord = rumModule as Record<string, unknown>;
-    const maybeAwsRum = moduleRecord["AwsRum"] ?? moduleRecord["default"] ?? rumModule;
  * - Graceful degradation when not configured
  * - Samples 100% of sessions for comprehensive monitoring
  * - Tracks performance, errors, and HTTP requests

@@ -75,7 +75,7 @@ export function useRouteChange(
         // Note: Transient user activation (click/keydown) improves reliability
         // of Back/Forward stepping for entries. When navigation happens
         // outside that window, this deferral helps, but invoking navigation
-        // within the actual user gesture remains the most robust approach.
+        // within the user gesture remains the most reliable approach.
         setTimeout(() => {
           if (typeof window.requestAnimationFrame === "function") {
             window.requestAnimationFrame(() => callback(pathname, cleanSearch));

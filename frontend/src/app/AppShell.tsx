@@ -29,7 +29,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [reduceMotion, setReduceMotion] = useState(false);
   // Runtime backend health check: logs backend connectivity status on startup
   useEffect(() => {
-    // Prefer same-origin relative path to leverage Next.js rewrites (/api -> backend)
+    // Prefer same-origin relative path to use Next.js rewrites (/api -> backend)
     // Absolute URLs (e.g., http://bb-portfolio-backend-local:3001) may not resolve in the browser.
     // Allow override for host-run dev (frontend on host, backend on localhost:3001) via NEXT_PUBLIC_HEALTH_URL.
     // Default keeps compose/caddy happy (relative same-origin proxy).
