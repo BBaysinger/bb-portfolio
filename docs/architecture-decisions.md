@@ -107,7 +107,7 @@ New decisions should be appended chronologically.
 - **Reasoning:** Multi-domain cookies were the root cause of “logout didn’t actually log me out” behavior. A single canonical host eliminates cross-domain cookie seams and simplifies session handling.
 - **Implementation:**
   - Backend logout route emits a single Set-Cookie expiration per auth cookie (Path=/, HttpOnly, SameSite=Lax, Secure in prod, Expires + Max-Age=0).
-  - Frontend logout proxy now simply forwards backend Set-Cookie; manual multi-domain fallbacks removed.
+  - Frontend logout proxy now forwards backend Set-Cookie; manual multi-domain fallbacks removed.
   - Plan: add nginx 301 canonical host redirects and enable HSTS once traffic is fully stable.
 - **Alternatives considered:** Keep multi-variant cookie expiration for apex + host (kept temporarily during transition; now removed for clarity and lowest risk).
 - **Status:** ✅ Active
@@ -155,7 +155,7 @@ New decisions should be appended chronologically.
 - **Decision:** Migrate redeploy workflows to `docker compose v2`, set `COMPOSE_PROJECT_NAME`, and replace brittle container removal with per-profile `down --remove-orphans` before `up`.
 - **Reasoning:** Stabilizes CI/CD redeploys, avoids hard-coded container names, and aligns with modern Docker tooling.
 - **Implementation:** Updated workflows; added diagnostics and ensured profiles are isolated.
-- **Alternatives considered:** Keep legacy `docker-compose` CLI (deprecated path); manual container removal (fragile).
+- **Alternatives considered:** Keep deprecated `docker-compose` CLI; manual container removal (fragile).
 - **Status:** ✅ Active
 
 ---
@@ -277,7 +277,7 @@ New decisions should be appended chronologically.
 
 **Production Deployment:**
 
-- **Domain Configuration**: DNS routing configured for bbaysinger.com (legacy domains fully removed)
+- **Domain Configuration**: DNS routing configured for bbaysinger.com (deprecated domains fully removed)
 - **SSL-Ready**: Architecture prepared for HTTPS certificate integration
 - **Scalable Foundation**: Ready for auto-scaling groups, load balancers, and CDN integration
 - **Monitoring Ready**: CloudWatch integration prepared for metrics and alerts
@@ -696,7 +696,7 @@ New decisions should be appended chronologically.
   - `--profiles prod|dev|both` choose which environment(s) to deploy.
   - Images are always rebuilt and pushed automatically (both frontend and backend) to ensure consistency.
   - `--reuse-blue` skip blue instance recreation (faster but may have stale state; default is to recreate).
-  - `--skip-infra` skips Terraform entirely and only (re)starts containers/workflows (legacy `--pull-latest-tags-only`/`--containers-only` aliases retained temporarily).
+  - `--skip-infra` skips Terraform entirely and only (re)starts containers/workflows (deprecated `--pull-latest-tags-only`/`--containers-only` aliases retained temporarily).
   - `--refresh-env` ask the workflow to regenerate `.env.dev/.env.prod` on EC2.
   - `--promote` trigger EIP handover after successful candidate deployment.
   - `--auto-promote` skip handover confirmation prompt (for CI/CD automation).

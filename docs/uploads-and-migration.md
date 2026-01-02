@@ -65,7 +65,7 @@ If you keep non-checked-in working assets outside the repo (recommended), place 
   brand-logos/
   project-screenshots/
   project-thumbnails/
-# legacy names also supported:
+# Deprecated names also supported:
 ../cms-seedings/brand-logos/            # → brand-logos
 ../cms-seedings/project-carousel/        # → project-screenshots
 ../cms-seedings/project-carousel/thumbs  # → project-thumbnails
@@ -275,7 +275,7 @@ Notes:
 ### Roll-forward/back
 
 - Always retain the source dump and a pre-restore dump of the target.
-- Rolling back is just a restore of the previous dump plus re-syncing media from the corresponding bucket snapshot (or versioned state).
+- Rolling back is a restore of the previous dump plus re-syncing media from the corresponding bucket snapshot (or versioned state).
 
 ## Terraform sketch (optional)
 

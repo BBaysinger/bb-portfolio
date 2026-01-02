@@ -184,7 +184,7 @@ Why this matters operationally:
 - Conventional patterns are easier to inspect and reason about; fewer bespoke layers reduce the number of places a bug can hide.
 - Failures tend to be familiar and well-documented, which speeds up diagnosis and recovery (search results and community knowledge match what we do).
 - Onboarding and handoffs go faster because engineers can apply prior experience rather than learning custom abstractions.
-- Platform upgrades and tooling (linters, APM, frameworks) generally “just work” when we stay close to the happy path.
+- Platform upgrades and tooling (linters, APM, frameworks) are more likely to work smoothly when we stay close to the happy path.
 
 Scope of reuse:
 
@@ -216,9 +216,9 @@ Implications:
 - Breaking changes may land directly on the active development branch when they simplify maintenance.
 - When behavior changes, prefer updating docs and commit messages over compatibility layers.
 
-### Legacy & duplication removal
+### Deprecation & duplication removal
 
-We do not retain legacy or duplicated implementations once a newer conventional or refactored version is active. Redundant files (old workflows, scripts, abstractions) should be deleted in the same PR that introduces the replacement unless a documented transition plan exists. If a temporary coexistence is required, add an explicit comment with a removal date and tracking issue. Absence of such documentation implies immediate removal is expected.
+We do not retain deprecated or duplicated implementations once a newer conventional or refactored version is active. Redundant files (old workflows, scripts, abstractions) should be deleted in the same PR that introduces the replacement unless a documented transition plan exists. If a temporary coexistence is required, add an explicit comment with a removal date and tracking issue. Absence of such documentation implies immediate removal is expected.
 
 Operator guidance for removals:
 

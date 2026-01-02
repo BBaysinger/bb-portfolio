@@ -2,6 +2,8 @@
 
 _Renamed from prior Blue-Green lifecycle on 2025-11-18._
 
+> Status: prototype/paused. This document describes a prior Lagoon/blue-green design; referenced scripts/flags may not exist in the current repo.
+
 This document is the canonical runbook and reference for the instance lifecycle powering zero/near‑zero downtime deployments of BB-Portfolio using the Lagoon strategy. It describes roles, tagging, promotion, rollback, retention, and operational safety controls.
 
 ---
@@ -303,7 +305,7 @@ Incremental cost of keeping a candidate running full time: `$~20` (small) to `$~
 
 | Toggle                                                | Effect                                                                                           |
 | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| `destroy_previous=true`                               | Immediately terminates the just-demoted previous instance (retain-count forced to 0).            |
+| `destroy_previous=true`                               | Immediately terminates the demoted previous instance (retain-count forced to 0).                 |
 | `prune_after_policy=true` & `destroy_previous=false`  | Executes retention policy: keeps newest retain-count, prunes only older/aged previous instances. |
 | `prune_after_policy=false` & `destroy_previous=false` | Leaves previous instance intact (manual or later scheduled prune).                               |
 
@@ -320,7 +322,7 @@ If both `destroy_previous=true` and `prune_after_policy=true` are supplied, the 
 
 ## 20. Ownership
 
-Lifecycle steward: Platform Engineering (contact: TODO insert).
+Lifecycle steward: Platform Engineering.
 
 ---
 

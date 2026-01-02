@@ -103,7 +103,7 @@ Nginx is automatically configured to:
 
 - Listen on port 80 for HTTP traffic
 - Proxy requests to the appropriate container ports
-- Serve the canonical hosts `bbaysinger.com` and `www.bbaysinger.com` (legacy domains removed)
+- Serve the canonical hosts `bbaysinger.com` and `www.bbaysinger.com` (deprecated domains removed)
 - Handle API routes separately (`/api/` → backend)
 
 The configuration automatically points to development containers (port 4000) by default, but can be switched to production containers (port 3000) using the management script.

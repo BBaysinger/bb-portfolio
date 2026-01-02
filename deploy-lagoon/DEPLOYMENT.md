@@ -8,13 +8,13 @@ The portfolio infrastructure is deployed using Infrastructure as Code with Terra
 
 ## Deployment Orchestrators
 
-The Lagoon (blue/green) orchestrator is the only supported path:
+Lagoon (blue/green) assets are preserved under `infra-lagoon/` and `deploy-lagoon/` as a paused prototype, but the single-instance path in `deploy/` remains the day-to-day supported deployment model.
+
+If/when Lagoon is resumed, this document will be updated to reflect the active promotion workflow.
 
 - `deploy/scripts/deployment-orchestrator.sh` (wrapper available at `deploy-lagoon/scripts/lagoon-orchestrator.sh`)
-  - Stages a candidate alongside the active instance and supports promotion.
-  - Quick runs:
-    - Containers-only: `npm run orchestrate:containers-only`
-    - Promote candidate: `npm run candidate-promote`
+  - Provisions/updates a single host and restarts Docker Compose profiles (prod/dev).
+  - For discovery/plan/fresh-create details, see `docs/deployment-orchestrator.md`.
 
 When debugging container startup or env issues, prefer a containers‑only run with `--refresh-env` so the EC2 host’s `.env.dev`/`.env.prod` files are regenerated before restarts.
 
@@ -90,7 +90,7 @@ A Record: dev.bbaysinger.com → 44.246.43.116 (dev environment)
 
 ```
 
-Remove or let expire legacy entries for the old domain unless you have a migration need documented in the ADR log.
+Remove or let expire deprecated entries for old domains unless you have a migration need documented in the ADR log.
 ```
 
 **Test URLs (direct IP is for smoke only)**:
@@ -278,7 +278,7 @@ When you're ready to use production containers:
 
 ## Enabling & Maintaining HTTPS
 
-TLS termination is handled directly on the EC2 host by Nginx with certificates provisioned via Let's Encrypt (certbot). The deploy orchestrator installs certbot on the host if missing and issues certificates over SSH for the canonical set (apex + www + dev). Legacy domains are no longer required:
+TLS termination is handled directly on the EC2 host by Nginx with certificates provisioned via Let's Encrypt (certbot). The deploy orchestrator installs certbot on the host if missing and issues certificates over SSH for the canonical set (apex + www + dev). Deprecated domains are no longer required:
 
 ```
 bbaysinger.com
@@ -286,7 +286,7 @@ www.bbaysinger.com
 dev.bbaysinger.com
 ```
 
-If you still need a legacy domain for transition, temporarily include it, then remove once traffic has fully migrated (document the deprecation in the ADR log).
+If you still need an old domain for transition, temporarily include it, then remove once traffic has fully migrated (document the deprecation in the ADR log).
 
 ### 1. Provide ACME Email
 

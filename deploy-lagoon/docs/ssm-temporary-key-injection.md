@@ -113,7 +113,7 @@ Immediately detach / delete the temporary policy once SSH works.
 ## 7. Next Steps After Access
 
 1. Deploy containers to candidate (mirror active).
-2. Run promotion script (`scripts/eip-handover.sh`).
+2. Run the promotion workflow (if/when blue/green promotion automation is enabled).
 3. Apply retention logic if configured.
 
 ## 8. Alternate Path (Recreate Instance)

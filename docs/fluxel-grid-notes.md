@@ -51,7 +51,7 @@ _Last updated: 2025-12-08_
 - **Core engine (WebGL/WebGPU)**: lean TS wrapper that owns instanced buffers, shader modules, pointer/projectile uniforms, and timing. Scene data lives in structured buffers so we can swap renderers later.
 - **Effect modules**: pluggable GLSL/WGSL snippets that implement behaviors (magnetic shadows, ripples, projectile hits). Each module defines its uniforms/textures so designers/devs can mix and match.
 - **Runtime controller**: handles input routing, animation clocks, scripting hooks, and exposes an imperative API (`applyForce`, `launchProjectile`, `setPalette`). Host frameworks never touch per-cell state.
-- **Host adapters**: React/Next, Vue, or plain JS layers that simply mount a canvas/WebGPU surface, pass config, and subscribe to engine events. No React components per fluxel—only a bridge.
+- **Host adapters**: React/Next, Vue, or plain JS layers that mount a canvas/WebGPU surface, pass config, and subscribe to engine events. No React components per fluxel—only a bridge.
 - **Tooling**: built-in perf instrumentation, shader hot reload, preset exporter so this can evolve into a reusable “fluxel effects” toolkit.
 
 ## Next Steps When We Resume
