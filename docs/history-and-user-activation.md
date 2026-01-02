@@ -8,7 +8,7 @@ Why sometimes Back/Forward skipped steps and why it’s good now.
 What we observed in this app
 
 - Clicking into the carousel counts as a fresh activation. After that, our route updates behave like user-initiated navigations and Back/Forward steps work great.
-- The combo we use for robustness:
+- The combo we use to reduce flakiness:
   - pushState plus a custom `bb:routechange` event
   - hash tokens (e.g., `#ts=…`) to ensure distinct history entries when needed
   - optional double-push fallback (dummy hash push then replace)
