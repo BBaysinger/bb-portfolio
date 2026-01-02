@@ -462,8 +462,8 @@ BRANCH=$(git rev-parse --abbrev-ref HEAD)
 WF_CANDIDATES=("$workflows" "Redeploy" ".github/workflows/redeploy.yml" "redeploy.yml" ".github/workflows/redeploy-manual.yml" "redeploy-manual.yml")
 
 # Ensure only a single controller manages containers on EC2.
-# - Disable/remove legacy systemd unit 'portfolio.service'
-# - Archive legacy compose file '/home/ec2-user/portfolio/docker-compose.yml'
+# - Disable/remove deprecated systemd unit 'portfolio.service'
+# - Archive deprecated compose file '/home/ec2-user/portfolio/docker-compose.yml'
 # This is idempotent and safe to run on every deploy.
 enforce_single_controller() {
   local host="$1"
@@ -476,15 +476,15 @@ enforce_single_controller() {
     warn "Single-controller guard: SSH key not found at $key, skipping"
     return 0
   fi
-  log "Enforcing single controller on $host (disable legacy service, archive legacy compose)"
+  log "Enforcing single controller on $host (disable deprecated service, archive deprecated compose)"
   ssh -i "$key" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$host" $'set -e
-    # Disable and remove legacy systemd unit if present
+    # Disable and remove deprecated systemd unit if present
     if systemctl list-unit-files | grep -q "^portfolio.service"; then
       sudo systemctl disable --now portfolio.service || true
       sudo rm -f /etc/systemd/system/portfolio.service || true
       sudo systemctl daemon-reload || true
     fi
-    # Archive legacy compose file in project root if present
+    # Archive deprecated compose file in project root if present
     if [ -f "/home/ec2-user/portfolio/docker-compose.yml" ]; then
       mv -f /home/ec2-user/portfolio/docker-compose.yml /home/ec2-user/portfolio/docker-compose.legacy.yml
     fi

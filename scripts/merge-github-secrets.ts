@@ -41,7 +41,7 @@ const DEFAULT_INPUTS: MergeInput[] = [
   },
   { label: "dev", relativePath: ".github-secrets.private.dev.json5" },
   {
-    label: "dev (legacy)",
+    label: "dev (deprecated filename)",
     relativePath: ".github-secrets.dev.private.json5",
     optional: true,
   },
@@ -51,13 +51,13 @@ const DEFAULT_INPUTS: MergeInput[] = [
     optional: true,
   },
   {
-    label: "stage (legacy)",
+    label: "stage (deprecated filename)",
     relativePath: ".github-secrets.stage.private.json5",
     optional: true,
   },
   { label: "prod", relativePath: ".github-secrets.private.prod.json5" },
   {
-    label: "prod (legacy)",
+    label: "prod (deprecated filename)",
     relativePath: ".github-secrets.prod.private.json5",
     optional: true,
   },
@@ -74,7 +74,7 @@ const normalizeSecrets = (
     };
   }
 
-  // Legacy schema where keys live at root level (no strings/files wrapper)
+  // Deprecated schema where keys live at root level (no strings/files wrapper)
   return {
     strings: { ...(raw as Record<string, string>) },
     files: {},

@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  // Normalize any accidental double admin segments (/admin/admin/...) that legacy cached assets
+  // Normalize any accidental double admin segments (/admin/admin/...) that stale cached assets
   // might emit. Short-circuit before hitting Payload so we avoid 404s or redirect loops entirely.
   if (pathname.startsWith('/admin/admin')) {
     const url = request.nextUrl.clone()

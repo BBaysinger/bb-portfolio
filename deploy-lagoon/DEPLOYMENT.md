@@ -14,7 +14,7 @@ If/when Lagoon is resumed, this document will be updated to reflect the active p
 
 - `deploy/scripts/deployment-orchestrator.sh` (wrapper available at `deploy-lagoon/scripts/lagoon-orchestrator.sh`)
   - Provisions/updates a single host and restarts Docker Compose profiles (prod/dev).
-  - For discovery/plan/fresh-create details, see `docs/deployment-orchestrator.md`.
+  - For read-only discovery, plan-only previews, and common commands, see `docs/deployment-orchestrator.md`.
 
 When debugging container startup or env issues, prefer a containers‑only run with `--refresh-env` so the EC2 host’s `.env.dev`/`.env.prod` files are regenerated before restarts.
 
@@ -73,7 +73,7 @@ Remove `maintenance.conf` once normal routing is restored.
 
 ## Next Steps
 
-See also: "Deployment Orchestrator: Discovery and Fresh Create" in `docs/deployment-orchestrator.md` for how to run read-only discovery, plan-only previews, and first-time creation.
+See also: `docs/deployment-orchestrator.md` for read-only discovery, plan-only previews, and common orchestrator commands.
 
 ### 1. Configure DNS (Canonical Host Strategy)
 
