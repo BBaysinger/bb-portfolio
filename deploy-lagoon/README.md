@@ -1,8 +1,8 @@
-# Lagoon Deployment Strategy (formerly Blue/Green)
+# Lagoon Deployment Strategy (Prototype / formerly Blue/Green)
 
 Lagoon is the deployment strategy introduced on 2025‑11‑14 (commit `9dc62eef`). It layers a candidate instance alongside the active instance to enable safer promotions, reduced downtime, and easier rollback. (Previously referred to as Blue/Green.)
 
-> This README isolates all Lagoon‑specific concepts so the legacy single‑instance deployment docs (`deploy/DEPLOYMENT.md`) can remain lean. When working only on the classic path you can ignore this file.
+> This README isolates all Lagoon‑specific concepts so the current single‑instance deployment docs (`deploy/DEPLOYMENT.md`) can remain lean. When working only on the single-instance path you can ignore this file.
 
 ## Goals
 
@@ -25,10 +25,10 @@ Lagoon is the deployment strategy introduced on 2025‑11‑14 (commit `9dc62eef
 
 Two scripts existed during Lagoon work:
 
-- `deploy-lagoon/scripts/deployment-orchestrator.sh` – Main Lagoon aware orchestrator (discovery, create, promote).
+- `deploy-lagoon/scripts/deployment-orchestrator.sh` – Main Lagoon-era orchestrator (discovery, provisioning helpers).
 - `deploy-lagoon/scripts/orchestrator-promote.sh` – Focused promotion / EIP handover.
 
-The earlier single-host fallback script has been removed; always use the Lagoon-aware orchestrator when deploying.
+These scripts were part of the Lagoon prototype and may be missing or outdated. For day-to-day deployment, use the single-instance orchestrator in `deploy/scripts/deployment-orchestrator.sh`.
 
 ### Typical Flow
 
@@ -80,7 +80,7 @@ Lagoon era improvements (retained where helpful):
 
 ## Why It Was Paused
 
-Operational complexity (dual instances + EIP handover) slowed recovery when the site was down. For rapid restoration, the project reverted to the legacy single‑instance model. Lagoon assets were preserved (`infra-lagoon/`, `deploy-lagoon/`) for future resumption when stability allows.
+Operational complexity (dual instances + EIP handover) slowed recovery when the site was down. For rapid restoration, the project returned to the single-instance model. Lagoon assets were preserved (`infra-lagoon/`, `deploy-lagoon/`) for future resumption when stability allows.
 
 ## Resuming Lagoon Later
 
@@ -124,7 +124,7 @@ COMPOSE_PROFILES=prod docker compose -f deploy-lagoon/compose/docker-compose.yml
   - A dedicated repository so infra-as-product can evolve independently of the portfolio UI.
 - Until that future cutover happens, treat any mention of Lagoon/blue-green as roadmap documentation rather than a feature you can run today.
 
-## Notes From Legacy Deployment Guide (Archived)
+## Notes From Single-Instance Deployment Guide (Archived Excerpt)
 
 The Lagoon strategy (parallel candidate instance, EIP promotion, enhanced health checks, versioned Nginx with fallback `/healthz`) is currently paused to simplify recovery operations. Its full design, scripts, and Terraform modules were snapshotted under:
 
@@ -141,4 +141,4 @@ Action to Resume Later:
 
 ## Status
 
-Lagoon is currently dormant. Legacy deployment remains the authoritative path. This file captures the design for future iteration without impacting day‑to‑day ops.
+Lagoon is currently paused (prototype). Single-instance deployment remains the authoritative path. This file captures the design for future iteration without impacting day‑to‑day ops.

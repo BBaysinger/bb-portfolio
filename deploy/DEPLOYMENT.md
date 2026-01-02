@@ -1,16 +1,16 @@
-# Portfolio Deployment Guide (Legacy Single-Instance Path)
+# Portfolio Deployment Guide (Single-Instance / Current)
 
 > For rationale behind major technical choices (hosting strategy, HTTPS, auth hardening, single canonical domain, SSR gating, etc.) see the Architecture Decisions Log: [`docs/architecture-decisions.md`](../docs/architecture-decisions.md). Always consult it before introducing platform changes so new work aligns with or intentionally supersedes documented decisions.
 
 ## Scope
 
-This document describes the legacy, single EC2 instance deployment model (canonical prod + optional dev profile). Day‑to‑day operations should rely on the simplified approach below for faster recovery and reduced complexity.
+This document describes the current, single EC2 instance deployment model (canonical prod + optional dev profile). Day‑to‑day operations rely on the simplified approach below for faster recovery and reduced complexity.
 
-## Current Status (Legacy Model)
+## Current Status (Single-Instance Model)
 
 Infrastructure is managed with Terraform (`infra/`) and a single host runs both production and (optionally) development containers via Docker Compose profiles.
 
-### Infrastructure Components (Legacy)
+### Infrastructure Components (Single-Instance)
 
 - **EC2 Instance**: t3.medium with Elastic IP (44.246.43.116)
 - **Nginx Reverse Proxy**: Configured and running
@@ -19,7 +19,7 @@ Infrastructure is managed with Terraform (`infra/`) and a single host runs both 
 - **S3 Buckets**: Media storage with security policies
 - **IAM Roles**: Access policies configured
 
-### Management Tools (Legacy)
+### Management Tools (Single-Instance)
 
 - **Management Script**: `./bb-portfolio-management.sh` for container control
 - **Terraform Outputs**: Connection details and configuration
@@ -44,7 +44,7 @@ A Record: dev.bbaysinger.com → 44.246.43.116 (dev environment)
 
 ```
 
-Remove or let expire legacy entries for the old domain unless you have a migration need documented in the ADR log.
+Remove or let expire deprecated entries for old domains unless you have a migration need documented in the ADR log.
 ```
 
 **Test URLs (direct IP is for smoke only)**:
@@ -117,7 +117,7 @@ terraform apply   # Apply changes
 3. Site config, env files, and containers are managed by the deploy orchestrator or GitHub Actions
 4. Services are configured and available after orchestrator runs
 
-### Deployment Process (Legacy)
+### Deployment Process (Single-Instance)
 
 1. Run `terraform apply` to deploy infrastructure changes
 2. Use the orchestrator or management script to control containers
@@ -133,7 +133,7 @@ terraform apply   # Apply changes
 - Container startup handled by systemd
 - Service configuration defined in code
 
-## Current Architecture (Legacy)
+## Current Architecture (Single-Instance)
 
 ```
 Internet → CloudFlare DNS → Elastic IP (44.246.43.116)
@@ -147,7 +147,7 @@ AWS EC2 t3.medium
     └── S3 Buckets (media storage)
 ```
 
-## Architecture Benefits (Legacy)
+## Architecture Benefits (Single-Instance)
 
 ### Reliability
 
@@ -180,7 +180,7 @@ AWS EC2 t3.medium
 - Terraform for infrastructure changes
 - Centralized logging and status monitoring
 
-## Troubleshooting (Legacy)
+## Troubleshooting (Single-Instance)
 
 If anything goes wrong, you have complete control:
 
@@ -230,7 +230,7 @@ When you're ready to use production containers:
 
 ## Enabling & Maintaining HTTPS
 
-TLS termination is handled directly on the EC2 host by Nginx with certificates provisioned via Let's Encrypt (certbot). The deploy orchestrator installs certbot on the host if missing and issues certificates over SSH for the canonical set (apex + www + dev). Legacy domains are no longer required:
+TLS termination is handled directly on the EC2 host by Nginx with certificates provisioned via Let's Encrypt (certbot). The deploy orchestrator installs certbot on the host if missing and issues certificates over SSH for the canonical set (apex + www + dev). Deprecated domains are no longer required:
 
 ```
 bbaysinger.com
@@ -238,7 +238,7 @@ www.bbaysinger.com
 dev.bbaysinger.com
 ```
 
-If you still need a legacy domain for transition, temporarily include it, then remove once traffic has fully migrated (document the deprecation in the ADR log).
+If you still need an old domain for transition, temporarily include it, then remove once traffic has fully migrated (document the deprecation in the ADR log).
 
 ### 1. Provide ACME Email
 

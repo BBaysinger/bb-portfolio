@@ -148,7 +148,7 @@ Scopes: `public`, `nda`, `both`.
 | Family                                  | Example                          | Notes                                                       |
 | --------------------------------------- | -------------------------------- | ----------------------------------------------------------- |
 | `db:rename:<env>:portfolio-to-bb[:dry]` | `db:rename:prod:portfolio-to-bb` | Renames DB after backing up; `:dry` shows plan              |
-| `db:delete:<env>-portfolio[:dry]`       | `db:delete:dev-portfolio:dry`    | Backup then delete legacy DB safely                         |
+| `db:delete:<env>-portfolio[:dry]`       | `db:delete:dev-portfolio:dry`    | Backup then delete old DB safely                            |
 | `db:migrate:<source>-to-<target>[:dry]` | `db:migrate:local-to-prod`       | Replace target with source data; confirm with dry run first |
 
 Envs: `local`, `dev`, `prod`.
