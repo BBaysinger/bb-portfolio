@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useLayoutEffect, useRef } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef } from "react";
 
 import { useWindowMonitor } from "@/hooks/useLayoutMonitor";
 
@@ -119,6 +119,75 @@ export function useAutoFitText({
       fitRafId.current = null;
     };
   }, [runAutoFit, watch, watchList]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const el = targetRef.current;
+    if (!el) return;
+
+    // Re-run after layout settles. On fast reloads, the first auto-fit pass can
+    // happen before the element reaches its final width (fonts/CSS/layout).
+    let canceled = false;
+    let raf1: number | null = null;
+    let raf2: number | null = null;
+    let timeoutId: number | null = null;
+
+    const safeSchedule = () => {
+      if (canceled) return;
+      scheduleAutoFit();
+    };
+
+    raf1 = window.requestAnimationFrame(safeSchedule);
+    raf2 = window.requestAnimationFrame(() => {
+      raf2 = window.requestAnimationFrame(safeSchedule);
+    });
+    timeoutId = window.setTimeout(safeSchedule, 200);
+
+    // Observe element size changes so we re-fit when final widths apply.
+    let ro: ResizeObserver | null = null;
+    if (typeof ResizeObserver !== "undefined") {
+      ro = new ResizeObserver(() => safeSchedule());
+      ro.observe(el);
+    }
+
+    // Font loading can change text metrics without a window resize.
+    const fonts = (document as Document & { fonts?: FontFaceSet }).fonts;
+    const onFontsDone = () => safeSchedule();
+    if (fonts) {
+      // `ready` resolves when all currently-loading fonts finish.
+      fonts.ready.then(onFontsDone).catch(() => {
+        // no-op
+      });
+      // Some browsers also emit events.
+      try {
+        fonts.addEventListener?.("loadingdone", onFontsDone);
+        fonts.addEventListener?.("loadingerror", onFontsDone);
+      } catch {
+        // no-op
+      }
+    }
+
+    // BFCache restores can resurrect stale inline styles.
+    window.addEventListener("pageshow", safeSchedule);
+
+    return () => {
+      canceled = true;
+      window.removeEventListener("pageshow", safeSchedule);
+      if (raf1 !== null) window.cancelAnimationFrame(raf1);
+      if (raf2 !== null) window.cancelAnimationFrame(raf2);
+      if (timeoutId !== null) window.clearTimeout(timeoutId);
+      if (ro) ro.disconnect();
+      if (fonts) {
+        try {
+          fonts.removeEventListener?.("loadingdone", onFontsDone);
+          fonts.removeEventListener?.("loadingerror", onFontsDone);
+        } catch {
+          // no-op
+        }
+      }
+    };
+  }, [targetRef, scheduleAutoFit]);
 
   useWindowMonitor(anchorRef, (eventType) => {
     if (eventType !== "resize") return;
