@@ -27,7 +27,7 @@ Infrastructure is managed with Terraform (`infra/`) and a single host runs both 
 
 ## Next Steps (Typical Flow)
 
-See also: "Deployment Orchestrator: Discovery and Fresh Create" in `docs/deployment-orchestrator.md` for how to run read-only discovery, plan-only previews, and first-time creation.
+See also: `docs/deployment-orchestrator.md` for read-only discovery, plan-only previews, and common orchestrator commands.
 
 ### 1. Configure DNS (Canonical Host Strategy)
 

@@ -278,15 +278,15 @@
     "db:rename:prod:portfolio-to-bb": "bash scripts/migrate-database.sh prod prod --source-db portfolio-prod --target-db bb-portfolio-prod",
     // 🧪 Dry run only: show the plan for renaming prod DB from portfolio-prod → bb-portfolio-prod
     "db:rename:prod:portfolio-to-bb:dry": "bash scripts/migrate-database.sh prod prod --source-db portfolio-prod --target-db bb-portfolio-prod --dry-run",
-    // 🗑️ Local cleanup: backup then drop the legacy portfolio-local database
+    // 🗑️ Local cleanup: backup then drop the old portfolio-local database
     "db:delete:local-portfolio:dry": "bash scripts/delete-database.sh --env local --db portfolio-local --dry-run",
     // 🗑️ Local cleanup (apply): backup then drop portfolio-local
     "db:delete:local-portfolio": "bash scripts/delete-database.sh --env local --db portfolio-local",
-    // 🗑️ Dev cleanup: backup then drop the legacy portfolio-dev database
+    // 🗑️ Dev cleanup: backup then drop the old portfolio-dev database
     "db:delete:dev-portfolio:dry": "bash scripts/delete-database.sh --env dev --db portfolio-dev --dry-run",
     // 🗑️ Dev cleanup (apply): backup then drop portfolio-dev
     "db:delete:dev-portfolio": "bash scripts/delete-database.sh --env dev --db portfolio-dev",
-    // 🗑️ Prod cleanup: backup then drop the legacy portfolio-prod database
+    // 🗑️ Prod cleanup: backup then drop the old portfolio-prod database
     "db:delete:prod-portfolio:dry": "bash scripts/delete-database.sh --env prod --db portfolio-prod --dry-run",
     // 🗑️ Prod cleanup (apply): backup then drop portfolio-prod
     "db:delete:prod-portfolio": "bash scripts/delete-database.sh --env prod --db portfolio-prod",
@@ -304,21 +304,20 @@
     "db:migrate:local-to-dev": "bash scripts/migrate-database.sh local dev",
     // ☢️⚰️ DANGER: ARMAGEDDON DB REPLACEMENT - Completely overwrites dev DB with production data
     "db:migrate:prod-to-dev": "bash scripts/migrate-database.sh prod dev",
-    // 🎭 ORCHESTRATION: Lagoon Deployment Strategy (formerly Blue-Green)
+    // 🎭 ORCHESTRATION: Deployment Orchestrator (Single-Instance / Current)
     // =============================================================================
     // NAMING CONVENTION:
     //   orchestrate:xxx  = calls deployment-orchestrator.sh with flags (same script)
     //   orchestrate-xxx  = calls separate script (different script)
     // =============================================================================
     // WORKFLOW:
-    //   1. Run `orchestrate` to deploy to the Lagoon candidate instance
-    //   2. Test candidate at http://<candidate-ip> (shown in orchestrator output)
-    //   3. Run `candidate-promote` to cut over candidate → active (manual validation)
-    //      OR use `orchestrate:auto-promote` to deploy + promote in one step (risky)
+    //   1. Run `orchestrate` to deploy the current single-instance stack
+    //   2. Validate health via the canonical hosts and/or localhost checks
+    //   3. Promotion/blue-green flags (if present) are part of the paused Lagoon prototype
+    //      and may not be applicable to day-to-day ops.
     // =============================================================================
-    // Deploy to Lagoon candidate instance for testing before production promotion
-    // Runs: terraform, docker builds, GitHub Actions deployment, nginx sync
-    // Candidate instance is accessible by IP for validation (nginx config includes IP server block)
+    // Deploy the current single-instance stack.
+    // Runs: terraform (unless skipped), image build/push (unless disabled), GitHub Actions deploy, nginx sync
     "orchestrate": "bash deploy/scripts/deployment-orchestrator.sh --profiles both --refresh-env",
     // Deploy to candidate AND auto-promote to production without manual validation
     // Runs full orchestration THEN internally invokes promotion logic with --auto-promote

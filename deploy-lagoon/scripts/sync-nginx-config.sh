@@ -13,7 +13,7 @@ Options:
 
 This will:
   - Upload deploy/nginx/bb-portfolio.conf.template to /tmp/bb-portfolio.conf on the host
-  - Backup existing /etc/nginx/conf.d/bb-portfolio.conf (and legacy portfolio.conf) with a timestamp
+  - Backup existing /etc/nginx/conf.d/bb-portfolio.conf (and deprecated portfolio.conf) with a timestamp
   - Replace it with the uploaded file (installs to /etc/nginx/conf.d/bb-portfolio.conf)
   - Test Nginx configuration and reload if successful
 USAGE
@@ -66,7 +66,7 @@ if [[ -f "$TARGET" ]]; then
 fi
 if [[ -f "$LEGACY" ]]; then
   cp "$LEGACY" "$LEGACY.bak.$ts"
-  echo "Legacy backup created: $LEGACY.bak.$ts"
+  echo "Deprecated backup created: $LEGACY.bak.$ts"
   rm -f "$LEGACY"
 fi
 mv /tmp/bb-portfolio.conf "$TARGET"
