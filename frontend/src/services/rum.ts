@@ -3,7 +3,8 @@
  *
  * Provides centralized Real User Monitoring (RUM) functionality for tracking visitor
  * behavior, performance metrics, and errors in production. Automatically disabled
- * in development/local environments when environment variables are not configured.
+ * outside production and on non-HTTPS origins, and also disabled when environment
+ * variables are not configured.
  *
  * Core Features:
  * - Automatic page view tracking via RUMInitializer component
@@ -11,14 +12,15 @@
  * - Performance monitoring (LCP, FID, CLS)
  * - JavaScript error tracking
  * - HTTP request monitoring
- * - Dynamic module loading to minimize bundle size
+ * - Dynamic module loading to avoid SSR/build-time coupling
  * - Graceful degradation when not configured
  *
  * Environment Configuration:
- * - NEXT_PUBLIC_RUM_APP_MONITOR_ID - CloudWatch app monitor identifier
- * - NEXT_PUBLIC_RUM_IDENTITY_POOL_ID - Cognito identity pool for unauthenticated access
- * - NEXT_PUBLIC_RUM_GUEST_ROLE_ARN - IAM role with PutRumEvents permission
- * - NEXT_PUBLIC_RUM_REGION - AWS region (defaults to us-west-2)
+ * - NEXT_PUBLIC_RUM_APP_MONITOR_ID - CloudWatch RUM App Monitor UUID (AppMonitor.Id)
+ * - NEXT_PUBLIC_RUM_PUBLIC_RESOURCE_POLICY - Optional: set to "true" to send unsigned PutRumEvents (public resource-based policy mode)
+ * - NEXT_PUBLIC_RUM_IDENTITY_POOL_ID - Cognito Identity Pool for unauthenticated access (required unless using public-policy mode)
+ * - NEXT_PUBLIC_RUM_GUEST_ROLE_ARN - IAM role with PutRumEvents permission (required unless using public-policy mode)
+ * - NEXT_PUBLIC_RUM_REGION - Optional: AWS region (falls back to NEXT_PUBLIC_AWS_REGION, then us-west-2)
  * - NEXT_PUBLIC_RUM_DEBUG - Optional: enable extra console logging (non-production only)
  *
  * Usage:
@@ -84,12 +86,11 @@ let rumInstance: AwsRumLike | null = null;
  * }, []);
  * ```
  *
- * Environment variables required:
- * - NEXT_PUBLIC_RUM_APP_MONITOR_ID - CloudWatch RUM app monitor ID
- * - NEXT_PUBLIC_RUM_IDENTITY_POOL_ID - Cognito identity pool ID
- * - NEXT_PUBLIC_RUM_GUEST_ROLE_ARN - IAM role ARN for guest access
- * - NEXT_PUBLIC_RUM_REGION (optional) - AWS region, defaults to us-west-2
- * - NEXT_PUBLIC_RUM_DEBUG (optional) - Enable extra console logging (non-production only)
+ * Configuration:
+ * See the "Environment Configuration" section at the top of this file.
+ * At minimum, you must set NEXT_PUBLIC_RUM_APP_MONITOR_ID plus either:
+ * - public-policy mode: NEXT_PUBLIC_RUM_PUBLIC_RESOURCE_POLICY=true, or
+ * - signed mode: NEXT_PUBLIC_RUM_IDENTITY_POOL_ID and NEXT_PUBLIC_RUM_GUEST_ROLE_ARN
  *
  * Features:
  * - Singleton pattern prevents duplicate initialization
