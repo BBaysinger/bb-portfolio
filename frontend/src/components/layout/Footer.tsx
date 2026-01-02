@@ -26,7 +26,7 @@ type FooterProps = {
  * - Uses CSS custom properties (--translateX, --translateY) with separate transition timing
  * - Detects main content height via ResizeObserver for responsive positioning
  * - Wraps footer in a statically positioned container that reserves natural footer height
- * - Leverages GPU-accelerated transforms for 60fps smooth animations
+ * - Uses GPU-accelerated transforms for smooth animations
  *
  * The footer responds to mobile navigation state via CSS global classes, sliding
  * horizontally alongside the main content when the mobile menu is expanded. The X and Y

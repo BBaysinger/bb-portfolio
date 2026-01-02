@@ -89,7 +89,7 @@ function _extractBlock(lines: string[], startIdx: number): { endIdx: number } {
 
 /**
  * Matches and extracts a JSON key from a line using simple regex.
- * Used in earlier iterations but replaced by more robust parsing logic.
+ * Used in earlier iterations but replaced by the current parsing logic.
  *
  * NOTE: This function is currently unused in the final implementation but
  * preserved for reference or alternative parsing approaches.
@@ -103,7 +103,7 @@ function _matchKey(line: string): string | null {
 }
 
 /**
- * Parses a JSON5 file and builds a comprehensive comment map with path-based indexing.
+ * Parses a JSON5 file and builds a comment map with path-based indexing.
  *
  * This is the core parsing function that:
  * - Tracks nested object/array structure using path stacks
