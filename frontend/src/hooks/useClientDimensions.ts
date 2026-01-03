@@ -65,6 +65,12 @@ const useClientDimensions = () => {
   const [clientHeight, setClientHeight] = useState(0);
   const [clientWidth, setClientWidth] = useState(0);
 
+  const lastWrittenRef = useRef({
+    stableHeight: 0,
+    dynamicHeight: 0,
+    width: 0,
+  });
+
   // Track a "stable" viewport height (similar to CSS 100svh semantics):
   // the minimum observed height for the current orientation.
   // This prevents layout shifts in browsers (notably Firefox) where UI chrome
@@ -112,18 +118,42 @@ const useClientDimensions = () => {
     }
 
     if (typeof document !== "undefined") {
+      const stableHeightPx = stable.stableHeight || layoutHeight;
+      const dynamicHeightPx = dynamicHeight || layoutHeight;
+
       document.documentElement.style.setProperty(
         "--client-height",
-        `${stable.stableHeight || layoutHeight}px`,
+        `${stableHeightPx}px`,
       );
       document.documentElement.style.setProperty(
         "--client-height-dynamic",
-        `${dynamicHeight || layoutHeight}px`,
+        `${dynamicHeightPx}px`,
       );
       document.documentElement.style.setProperty(
         "--client-width",
         `${layoutWidth}px`,
       );
+
+      // Some browsers (notably iOS Chrome) can settle viewport metrics without
+      // emitting a resize/visualViewport event. Let other hooks (e.g.
+      // useResponsiveScaler) re-measure when these vars become available.
+      const last = lastWrittenRef.current;
+      const didChange =
+        last.stableHeight !== stableHeightPx ||
+        last.dynamicHeight !== dynamicHeightPx ||
+        last.width !== layoutWidth;
+      if (didChange) {
+        lastWrittenRef.current = {
+          stableHeight: stableHeightPx,
+          dynamicHeight: dynamicHeightPx,
+          width: layoutWidth,
+        };
+        try {
+          window.dispatchEvent(new Event("clientdimensionschange"));
+        } catch {
+          // Ignore (older browsers / restricted environments)
+        }
+      }
     }
   }, []);
 
