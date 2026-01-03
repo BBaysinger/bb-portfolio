@@ -102,8 +102,13 @@ const FluxelSvgGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
         }
       }
       // Number of visible rows/cols is based on scaler's effective width/height
-      const effW = scaler.width || width;
-      const effH = scaler.height || el.clientHeight || width;
+      const rawEffW = scaler.width || width;
+      const rawEffH = scaler.height || el.clientHeight || width;
+      // Guard: cover-mode effective dims should never be smaller than the
+      // actual container. If the scaler transiently underestimates, we'd cull
+      // rows/cols (e.g., 12 → 10) until the next viewport event.
+      const effW = Math.max(width, rawEffW);
+      const effH = Math.max(el.clientHeight || 0, rawEffH);
       const cell = newSize || 1;
       const nextViewableRows = Math.ceil(effH / cell);
       const nextViewableCols = Math.ceil(effW / cell);

@@ -366,6 +366,9 @@ export default function useResponsiveScaler(
 
     window.addEventListener("resize", onResize);
     window.addEventListener("orientationchange", onResize);
+    // Fired when useClientDimensions writes --client-height/--client-width.
+    // This covers cases where viewport metrics settle without a resize event.
+    window.addEventListener("clientdimensionschange", onResize);
     // BFCache restores and tab visibility changes can leave iOS Safari in a
     // stale viewport state until the next interaction.
     window.addEventListener("pageshow", onResize);
@@ -407,6 +410,7 @@ export default function useResponsiveScaler(
       if (timeoutId !== null) window.clearTimeout(timeoutId);
       window.removeEventListener("resize", onResize);
       window.removeEventListener("orientationchange", onResize);
+      window.removeEventListener("clientdimensionschange", onResize);
       window.removeEventListener("pageshow", onResize);
       document.removeEventListener("visibilitychange", onVisibility);
       if (window.visualViewport) {
