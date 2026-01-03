@@ -8,8 +8,6 @@ import {
   useCallback,
 } from "react";
 
-import useResponsiveScaler from "@/hooks/useResponsiveScaler";
-
 import type { FluxelGridHandle, FluxelGridProps } from "./FluxelAllTypes";
 import styles from "./FluxelCanvasGrid.module.scss";
 import { useFluxelResizeWatcher } from "./useFluxelResizeWatcher";
@@ -30,9 +28,6 @@ const FluxelCanvasGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
     const fluxelSizeRef = useRef<number>(0);
     const gridDataRef = useRef(gridData);
 
-    // Internal viewport scaler (4:3) - currently only used if we later adapt dynamic sizing.
-    const scaler = useResponsiveScaler(4 / 3, 1280, "cover");
-
     const rows = gridData.length;
     const cols = gridData[0]?.length || 0;
 
@@ -48,8 +43,8 @@ const FluxelCanvasGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
       if (!ctx) return;
 
       const dpr = window.devicePixelRatio || 1;
-      const width = (scaler.width || canvas.clientWidth) * dpr;
-      const height = (scaler.height || canvas.clientHeight) * dpr;
+      const width = canvas.clientWidth * dpr;
+      const height = canvas.clientHeight * dpr;
 
       canvas.width = width;
       canvas.height = height;
@@ -72,7 +67,7 @@ const FluxelCanvasGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
           ctx.fillRect(c * fluxelSize, r * fluxelSize, fluxelSize, fluxelSize);
         }
       }
-    }, [rows, cols, scaler.width, scaler.height]);
+    }, [rows, cols]);
 
     useEffect(() => {
       drawGrid();

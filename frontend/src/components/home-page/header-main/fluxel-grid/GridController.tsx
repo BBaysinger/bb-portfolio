@@ -10,7 +10,6 @@ import {
 } from "react";
 
 import useElementRelativePointer from "@/hooks/useElementRelativePointer";
-import useResponsiveScaler from "@/hooks/useResponsiveScaler";
 
 import AnimationSequencer from "./AnimationSequencer";
 import type { FluxelGridHandle, FluxelData } from "./FluxelAllTypes";
@@ -255,12 +254,65 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
     const filteredPointerPos = () =>
       shouldNullifyPointer ? null : { x: pointerMeta.x, y: pointerMeta.y };
 
-    useResponsiveScaler(
-      4 / 3,
-      1280,
-      "cover",
-      wrapperRef as React.RefObject<HTMLDivElement>,
-    );
+    // Cover-scale a fixed-aspect (4:3) grid based on the actual hero element size.
+    // This avoids relying on viewport unit measurement timing, which can be
+    // transiently wrong on some iOS browsers until the first interaction.
+    useEffect(() => {
+      if (typeof window === "undefined" || typeof document === "undefined") {
+        return;
+      }
+
+      const targetEl =
+        (document.getElementById("hero") as HTMLElement | null) ??
+        (wrapperRef.current?.parentElement as HTMLElement | null);
+      const outEl = wrapperRef.current;
+      if (!targetEl || !outEl || typeof ResizeObserver === "undefined") {
+        return;
+      }
+
+      let rafId: number | null = null;
+      const aspectRatio = 4 / 3;
+      const baseWidth = 1280;
+
+      const apply = () => {
+        rafId = null;
+        const w = targetEl.clientWidth;
+        const h = targetEl.clientHeight;
+        if (w <= 0 || h <= 0) return;
+
+        const screenAspect = w / h;
+        const useWidth = screenAspect > aspectRatio; // cover
+        const width = useWidth ? w : h * aspectRatio;
+        const height = useWidth ? w / aspectRatio : h;
+        const offsetX = (w - width) / 2;
+        const offsetY = (h - height) / 2;
+        const scale = width / baseWidth;
+
+        outEl.style.setProperty("--responsive-scaler-width", `${width}px`);
+        outEl.style.setProperty("--responsive-scaler-height", `${height}px`);
+        outEl.style.setProperty("--responsive-scaler-offset-x", `${offsetX}px`);
+        outEl.style.setProperty("--responsive-scaler-offset-y", `${offsetY}px`);
+        outEl.style.setProperty("--responsive-scaler-scale", `${scale}`);
+      };
+
+      const schedule = () => {
+        if (rafId !== null) cancelAnimationFrame(rafId);
+        rafId = requestAnimationFrame(apply);
+      };
+
+      const ro = new ResizeObserver(schedule);
+      ro.observe(targetEl);
+
+      // Run immediately + a short delayed retry for iOS initial-settle cases.
+      schedule();
+      const t = window.setTimeout(schedule, 250);
+
+      return () => {
+        ro.disconnect();
+        window.clearTimeout(t);
+        if (rafId !== null) cancelAnimationFrame(rafId);
+      };
+    }, []);
 
     const [gridData, setGridData] = useState<FluxelData[][]>(() =>
       Array.from({ length: rows }, (_, row) =>

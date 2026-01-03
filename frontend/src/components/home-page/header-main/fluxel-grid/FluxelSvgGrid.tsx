@@ -10,8 +10,6 @@ import React, {
   useCallback,
 } from "react";
 
-import useResponsiveScaler from "@/hooks/useResponsiveScaler";
-
 import type { FluxelHandle, FluxelData } from "./FluxelAllTypes";
 import type { FluxelGridHandle, FluxelGridProps } from "./FluxelAllTypes";
 import FluxelSvg from "./FluxelSvg";
@@ -85,9 +83,6 @@ const FluxelSvgGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
       return () => cancelAnimationFrame(rafId);
     }, [gridData, imperativeMode]);
 
-    // Stable viewport-driven scaler (svw/svh) for cropping math; no elementRef needed here.
-    const scaler = useResponsiveScaler(4 / 3, 1280, "cover");
-
     const updateSize = useCallback(() => {
       const el = containerRef.current;
       if (!el || colCount === 0 || rowCount === 0) return;
@@ -102,13 +97,8 @@ const FluxelSvgGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
         }
       }
       // Number of visible rows/cols is based on scaler's effective width/height
-      const rawEffW = scaler.width || width;
-      const rawEffH = scaler.height || el.clientHeight || width;
-      // Guard: cover-mode effective dims should never be smaller than the
-      // actual container. If the scaler transiently underestimates, we'd cull
-      // rows/cols (e.g., 12 → 10) until the next viewport event.
-      const effW = Math.max(width, rawEffW);
-      const effH = Math.max(el.clientHeight || 0, rawEffH);
+      const effW = width;
+      const effH = el.clientHeight || 0;
       const cell = newSize || 1;
       const nextViewableRows = Math.ceil(effH / cell);
       const nextViewableCols = Math.ceil(effW / cell);
@@ -125,8 +115,6 @@ const FluxelSvgGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
       rowCount,
       fluxelSize,
       onGridChange,
-      scaler.width,
-      scaler.height,
       viewableRows,
       viewableCols,
     ]);
