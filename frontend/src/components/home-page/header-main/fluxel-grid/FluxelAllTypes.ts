@@ -17,7 +17,7 @@ export interface FluxelGridProps {
   gridData: FluxelData[][];
   gridRef?: React.Ref<HTMLDivElement>;
   /**
-   * Viewport sizing is inferred internally via useResponsiveScaler (svw/svh semantics).
+   * Sizing is inferred internally from the rendered container element.
    * No explicit viewable width/height props are required.
    */
   onGridChange?: (info: {
