@@ -16,15 +16,15 @@ The goal is to show **breadth across the full front-end lifecycle** — from ren
 
 ## 🔎 30‑Second Tour (Frontend Focus)
 
-| What to Look At                                                             | Why It Matters                                                              | Code Entry                                                                                      |
-| --------------------------------------------------------------------------- | --------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| Layered Parallax Project Carousel                                           | Infinite bi‑directional wrap, inertial sync, master/slave parallax layers   | `frontend/src/components/project-carousel-page/` (`Carousel.tsx`, `LayeredCarouselManager.tsx`) |
-| Fluxel Grid (Canvas + experimental strategies)                              | Pluggable grid render, pointer + projectile influence, shadow system        | `frontend/src/components/home-page/header-main/fluxel-grid/`                                    |
-| Sprite Sheet Player (CSS/Canvas/WebGL)                                      | Auto metadata parsing, per‑frame FPS arrays, strategy hot‑swap              | `frontend/src/components/common/sprite-rendering/`                                              |
-| Kinetic Slinger Physics Box                                                 | Throwables with pointer gravity & orbital damping, idle detection hooks     | `frontend/src/components/home-page/header-main/SlingerBox.tsx`                                  |
-| Clamped Linear Interpolation (Lerp) Fluid Responsive System (mixins + hook) | Pixel‑precise CSS interpolation + viewport‑accurate JS scaler with CSS vars | `frontend/src/styles/_mixins.scss`, `frontend/src/hooks/useResponsiveScaler.ts`                 |
-| Route‑Synced Carousel + Deep Linking                                        | Scroll inertia stabilization gates route updates                            | `ProjectView.tsx`, `LayeredCarouselManager.tsx`                                                 |
-| Device Mockup Layer Coordination                                            | Independent layer scroll multipliers + content swapping                     | `ProjectCarouselView.*`                                                                         |
+| What to Look At                                                      | Why It Matters                                                            | Code Entry                                                                                      |
+| -------------------------------------------------------------------- | ------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| Layered Parallax Project Carousel                                    | Infinite bi‑directional wrap, inertial sync, master/slave parallax layers | `frontend/src/components/project-carousel-page/` (`Carousel.tsx`, `LayeredCarouselManager.tsx`) |
+| Fluxel Grid (Canvas + experimental strategies)                       | Pluggable grid render, pointer + projectile influence, shadow system      | `frontend/src/components/home-page/header-main/fluxel-grid/`                                    |
+| Sprite Sheet Player (CSS/Canvas/WebGL)                               | Auto metadata parsing, per‑frame FPS arrays, strategy hot‑swap            | `frontend/src/components/common/sprite-rendering/`                                              |
+| Kinetic Slinger Physics Box                                          | Throwables with pointer gravity & orbital damping, idle detection hooks   | `frontend/src/components/home-page/header-main/SlingerBox.tsx`                                  |
+| Clamped Linear Interpolation (Lerp) Fluid Responsive System (mixins) | Pixel‑precise CSS interpolation utilities for fluid responsive layout     | `frontend/src/styles/_mixins.scss`                                                              |
+| Route‑Synced Carousel + Deep Linking                                 | Scroll inertia stabilization gates route updates                          | `ProjectView.tsx`, `LayeredCarouselManager.tsx`                                                 |
+| Device Mockup Layer Coordination                                     | Independent layer scroll multipliers + content swapping                   | `ProjectCarouselView.*`                                                                         |
 
 Live site reference moments:
 
@@ -216,23 +216,14 @@ Custom infinite carousel with master/slave layering for synchronized parallax. D
 - Idle detection after low‑speed threshold; emits `onIdle` for choreography (e.g. triggering Fluxel shadow fades).
 - Future: deeper coupling with Fluxel grid (projectile launches, shader disturbances) and gamified achievements.
 
-### Clamped Linear Interpolation (Lerp) Fluid Responsive System (SCSS mixins + React hook)
+### Clamped Linear Interpolation (Lerp) Fluid Responsive System (SCSS mixins)
 
-Two complementary pieces ensure predictable, accessible scaling across devices:
+These mixins ensure predictable, accessible scaling across devices:
 
-- SCSS mixins for CSS‑only fluidity
-  - `lerpRange(property, min, max, minVW, maxVW)`: pixel‑precise linear interpolation via media queries; ideal for layout dimensions, gaps, and visual components that should track viewport, not font size.
-  - `remRange(property, min, max, minVW, maxVW)`: accessibility‑safe scaling with rems + CSS custom properties; aligns with user font preferences for text and UI elements.
-  - `scaleRange(minScale, maxScale, minVW, maxVW, preserveTransform?)`: transform scaling with clamp() for perfectly smooth transitions; preserves existing transforms when needed.
-  - Helpers: `breakpointUp()`, unit enforcement (`ensureUnit`, `stripUnit`), `to-rems`, `rnd`, SVG data‑URL builder.
-
-- React hook for viewport‑accurate measurement
-  - `useResponsiveScaler(aspectRatio=4/3, baseWidth=1280, mode='cover'|'contain', elementRef?, viewportMode='small'|'dynamic'|'large')`
-  - Measures CSS viewport units (svw/svh, dvw/dvh, lvw/lvh) via hidden measurers for exact pixel parity with CSS; falls back to visualViewport with min/max tracking to emulate CSS small/large semantics.
-  - Returns `{ width, height, offsetX, offsetY, scale }` and can write CSS vars to the provided element: `--responsive-scaler-*`.
-  - Use cases: exact aspect‑locked surfaces (carousel stage, device frames, sprite canvases) with pixel‑correct centering and scale.
-
-Together, these ensure consistent composition density, accurate aspect locks, and accessible text scaling without clamp() surprises.
+- `lerpRange(property, min, max, minVW, maxVW)`: pixel‑precise linear interpolation via media queries; ideal for layout dimensions, gaps, and visual components that should track viewport, not font size.
+- `remRange(property, min, max, minVW, maxVW)`: accessibility‑safe scaling with rems + CSS custom properties; aligns with user font preferences for text and UI elements.
+- `scaleRange(minScale, maxScale, minVW, maxVW, preserveTransform?)`: transform scaling with clamp() for perfectly smooth transitions; preserves existing transforms when needed.
+- Helpers: `breakpointUp()`, unit enforcement (`ensureUnit`, `stripUnit`), `to-rems`, `rnd`, SVG data‑URL builder.
 
 #### Usage examples
 
@@ -250,25 +241,6 @@ SCSS (layout scaling vs accessible text):
   // Smooth transform scaling without MQ jumps
   @include scaleRange(0.9, 1.15, 360, 1280, translateX(-50%) translateY(-50%));
 }
-```
-
-React hook (aspect-locked stage with CSS vars):
-
-```tsx
-const stageRef = useRef<HTMLDivElement>(null);
-const { width, height, scale } = useResponsiveScaler(
-  4 / 3,
-  1280,
-  "cover",
-  stageRef,
-  "small",
-);
-
-return (
-  <div ref={stageRef} style={{ width, height }}>
-    {/* Children can read CSS vars: --responsive-scaler-width/height/scale */}
-  </div>
-);
 ```
 
 Other UI details: scroll‑aware navigation, mobile slide‑out menu, dynamic device mockup overlays, animated footer grid, and controlled pointer‑magnet elements—all built without heavyweight external animation/physics libraries.

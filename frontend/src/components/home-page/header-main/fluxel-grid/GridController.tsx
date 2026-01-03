@@ -70,7 +70,7 @@ const getGridTypeFromLocation = (): GridType => {
  * - Uses either `<FluxelSvgGrid />` or `<FluxelCanvasGrid />` depending on URL param.
  * - Tracks relative pointer position and exposes an override for programmatic interactions.
  * - Manages internal grid state (`gridData`) and hooks into shadow and projectile effect logic.
- * - Scales the component responsively using `useResponsiveScaler`.
+ * - Scales the component responsively using the rendered hero element size (ResizeObserver).
  *
  * Designed as a flexible controller component for fluxel-based visual effects and user interactions.
  *

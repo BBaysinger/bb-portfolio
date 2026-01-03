@@ -55,21 +55,11 @@ const getDynamicViewport = () => {
  * - 100lvh / 100lvw → large (max) viewport for current orientation
  * These units are often a better fit for layout sizing than custom properties,
  * as long as target client browsers support them.
- *
- * For fixed-aspect responsive layouts (centering + cover/contain), prefer
- * `useResponsiveScaler`, which also writes CSS vars:
- *   --responsive-scaler-width/height/offset-x/offset-y/scale
  */
 const useClientDimensions = () => {
   // Start with 0 to avoid SSR crash and mismatch
   const [clientHeight, setClientHeight] = useState(0);
   const [clientWidth, setClientWidth] = useState(0);
-
-  const lastWrittenRef = useRef({
-    stableHeight: 0,
-    dynamicHeight: 0,
-    width: 0,
-  });
 
   // Track a "stable" viewport height (similar to CSS 100svh semantics):
   // the minimum observed height for the current orientation.
@@ -133,27 +123,6 @@ const useClientDimensions = () => {
         "--client-width",
         `${layoutWidth}px`,
       );
-
-      // Some browsers (notably iOS Chrome) can settle viewport metrics without
-      // emitting a resize/visualViewport event. Let other hooks (e.g.
-      // useResponsiveScaler) re-measure when these vars become available.
-      const last = lastWrittenRef.current;
-      const didChange =
-        last.stableHeight !== stableHeightPx ||
-        last.dynamicHeight !== dynamicHeightPx ||
-        last.width !== layoutWidth;
-      if (didChange) {
-        lastWrittenRef.current = {
-          stableHeight: stableHeightPx,
-          dynamicHeight: dynamicHeightPx,
-          width: layoutWidth,
-        };
-        try {
-          window.dispatchEvent(new Event("clientdimensionschange"));
-        } catch {
-          // Ignore (older browsers / restricted environments)
-        }
-      }
     }
   }, []);
 
