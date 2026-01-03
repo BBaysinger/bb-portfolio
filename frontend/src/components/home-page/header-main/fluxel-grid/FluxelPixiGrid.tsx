@@ -48,8 +48,6 @@ import {
   useRef,
 } from "react";
 
-import useResponsiveScaler from "@/hooks/useResponsiveScaler";
-
 import type { FluxelGridHandle, FluxelGridProps } from "./FluxelAllTypes";
 import styles from "./FluxelPixiGrid.module.scss";
 import { useFluxelResizeWatcher } from "./useFluxelResizeWatcher";
@@ -80,20 +78,10 @@ const FluxelPixiGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
     const rows = gridData.length;
     const cols = gridData[0]?.length || 0;
 
-    const scaler = useResponsiveScaler(4 / 3, 1280, "cover");
-    const scalerSizeRef = useRef<{ width?: number; height?: number }>({
-      width: scaler.width,
-      height: scaler.height,
-    });
-
     useEffect(() => {
       gridParentRef.current = canvasRef.current
         ?.parentElement as HTMLDivElement | null;
     }, []);
-
-    useEffect(() => {
-      scalerSizeRef.current = { width: scaler.width, height: scaler.height };
-    }, [scaler.width, scaler.height]);
 
     // Avoid Pixi's createImageBitmap worker to satisfy strict CSP (no blob workers).
     Assets.setPreferences({ preferCreateImageBitmap: false });
@@ -159,10 +147,8 @@ const FluxelPixiGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
       const parent = canvas.parentElement;
       if (!parent) return;
       const bounds = parent.getBoundingClientRect();
-      const { width: scalerWidth, height: scalerHeight } =
-        scalerSizeRef.current;
-      const logicalWidth = Math.max(1, scalerWidth || bounds.width);
-      const logicalHeight = Math.max(1, scalerHeight || bounds.height);
+      const logicalWidth = Math.max(1, bounds.width);
+      const logicalHeight = Math.max(1, bounds.height);
 
       app.renderer.resize(logicalWidth, logicalHeight);
 
