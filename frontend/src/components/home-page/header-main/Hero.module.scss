@@ -22,7 +22,7 @@ header.hero {
   background-image: url("/images/common/bg-grad.svg");
   background-color: black;
   background-size: 100% 100%;
-  min-height: var(--client-height, 100svh);
+  min-height: 100svh;
   @include lerpRange(--hero-padding, 10px, 18px, $b320, $b576);
 
   @keyframes fadeInOut {
