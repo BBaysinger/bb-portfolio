@@ -46,6 +46,9 @@
 }
 
 .item {
+  // Note that effects/filters may cause clipping on mobile browsers.
+  // text-shadow was a problem. translate3d helped, but it was still
+  // broken in Chrome.
   @include lerpRange(font-size, 110px, 180px);
   font-family: "Digital-7", sans-serif;
   color: green;
@@ -54,9 +57,6 @@
   letter-spacing: 0.12em;
   text-transform: uppercase;
   white-space: nowrap;
-  text-shadow:
-    0 0 40px rgba($lighterThemeColor, 0.35),
-    0 0 14px rgba(0, 0, 0, 0.65);
   -webkit-text-stroke: 1px rgba(255, 255, 255, 0.12);
   transform: translate3d(0, 4%, 0); // Compensate for font offsets
 }
