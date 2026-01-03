@@ -9,7 +9,6 @@ import FPSCounter from "@/components/common/FPSCounter";
 import ChargedCircle from "@/components/home-page/header-main/ChargedCircle";
 import OrbGrabTooltip from "@/components/home-page/header-main/OrbGrabTooltip";
 import OrbTossTooltip from "@/components/home-page/header-main/OrbTossTooltip";
-import useClientDimensions from "@/hooks/useClientDimensions";
 import useScrollPersistedClass from "@/hooks/useScrollPersistedClass";
 import useTimeOfDay from "@/hooks/useTimeOfDay";
 import { recordEvent } from "@/services/rum";
@@ -112,10 +111,6 @@ const Hero: React.FC = () => {
   const slingerIsIdle = useRef(false);
   const gridControllerRef = useRef<GridControllerHandle>(null);
   const heroRef = useRef<HTMLDivElement>(null);
-  // Still measuring client dimensions (may be useful for future responsive heuristics),
-  // but currently not required by GridController since it handles viewport internally.
-  const { clientHeight: _clientHeight, clientWidth: _clientWidth } =
-    useClientDimensions();
   const [isSlingerInFlight, setIsSlingerInFlight] = useState(false);
   const slingerLoopId = useRef<number | null>(null);
   // const useSlingerTracking = useQueryParams<boolean>("useSlingerTracking");

@@ -9,7 +9,6 @@ import Footer from "@/components/layout/Footer";
 import NavVariant from "@/components/layout/NavVariant";
 import { NavVariants } from "@/components/layout/NavVariant.constants";
 import { useAutoCloseMobileNavOnScroll } from "@/hooks/useAutoCloseMobileNavOnScroll";
-import useClientDimensions from "@/hooks/useClientDimensions";
 import { useFluidLerpVars } from "@/hooks/useFluidLerpVars";
 import { useTrackHeroInView } from "@/hooks/useTrackHeroInView";
 import { resetAuthState, checkAuthStatus } from "@/store/authSlice";
@@ -103,7 +102,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   const childContentRef = useRef<HTMLDivElement>(null);
 
-  useClientDimensions();
   useTrackHeroInView();
   useAutoCloseMobileNavOnScroll();
 
