@@ -84,6 +84,7 @@ $boltInsetMax: 12px;
 .frameLayerHolder:nth-of-type(2) .frameLayerMasked,
 .frameLayerHolder:nth-of-type(3) .frameLayerMasked {
   @include lerpRange(--headerSubStripeTile, 150px, 400px);
+  background-color: #111;
   mask-image: url(/images/common/stripe-mask.svg);
   -webkit-mask-image: url(/images/common/stripe-mask.svg);
   mask-repeat: repeat;
