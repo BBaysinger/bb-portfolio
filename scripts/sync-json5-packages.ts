@@ -7,17 +7,29 @@ import ignore from "ignore";
 /**
  * JSON5 Package Synchronization Tool
  *
- * Synchronizes package.json5 files with their canonical package.json counterparts,
- * preserving all comments and formatting while applying the latest dependency versions
- * and configuration from the authoritative source.
+ * Synchronizes package.json5 files with their canonical package.json counterparts.
+ *
+ * Source of truth: package.json (parsed as strict JSON).
+ * Output: package.json5 rewritten with stable formatting and with *some* `//` comments
+ * preserved/migrated onto the corresponding keys/items.
+ *
+ * Important: this script does NOT attempt to preserve arbitrary formatting (blank
+ * lines, exact indentation, key ordering, etc.). It regenerates the JSON5 structure
+ * using a consistent 2-space indent and trailing commas.
  *
  * This tool handles:
- * - Preceding comments (above keys/array items)
- * - Trailing comments (on the same line as values)
- * - Nested objects and arrays with proper path tracking
- * - Array items with individual comments
- * - Scoped packages (@org/package) and URLs in comments
- * - Trailing commas for version control benefits
+ * - Preceding `//` comments immediately above object keys
+ * - Trailing `//` comments on the same line as a key/value
+ * - Nested objects/arrays via simple brace/bracket tracking
+ * - Arrays: preserves comments for string-literal items when each item is on its own line
+ * - Always emits trailing commas for cleaner diffs
+ *
+ * Limitations (by design / current implementation):
+ * - Only line comments (`//`) are recognized. Block comments (`/* ... *\/`) are ignored.
+ * - Trailing-comment detection is heuristic (quote counting) and is most reliable for
+ *   double-quoted strings; unusual quoting/escaping can confuse it.
+ * - Array item comment mapping is primarily intended for arrays of strings; arrays of
+ *   objects/numbers will serialize correctly but per-item comment preservation is limited.
  *
  * TODO: Expose syncJson5(raw, source) as the core API, and let users pass their own
  * file loaders if they want.
@@ -54,7 +66,7 @@ function quoteKey(key: string): string {
 }
 
 /**
- * Indents a line by the specified number of spaces and trims trailing whitespace.
+ * Indents a line by the specified number of spaces and trims surrounding whitespace.
  * Used to maintain consistent indentation throughout the generated JSON5.
  *
  * @param line - The line to indent
@@ -109,7 +121,7 @@ function _matchKey(line: string): string | null {
  * - Tracks nested object/array structure using path stacks
  * - Maps comments to their associated JSON paths (e.g., "pnpm.onlyBuiltDependencies.0")
  * - Handles both preceding comments (above lines) and trailing comments (same line)
- * - Correctly detects comments vs URLs containing "//" sequences
+ * - Heuristically detects comments vs URLs containing "//" sequences
  * - Supports array items with individual comments and numeric indices
  *
  * The comment map structure allows for precise reconstruction of the original
@@ -135,9 +147,13 @@ function buildCommentMap(
   /**
    * Extracts trailing comments from a line while correctly handling URLs.
    *
-   * This function solves the tricky problem of detecting actual comments vs
-   * "//" sequences that appear inside string values (like URLs). It uses
-   * quote counting to determine if a "//" is inside or outside a string.
+    * This function attempts to distinguish actual comments vs "//" sequences that
+    * appear inside string values (like URLs) using a lightweight heuristic.
+    *
+    * Notes:
+    * - It is designed for typical package.json(5) formatting (double-quoted strings).
+    * - It does not implement full JSON5 tokenization; unusual quoting/escaping may
+    *   lead to false positives/negatives.
    *
    * Examples:
    * - `"url": "https://github.com/user/repo", // This is a comment` ✅
@@ -276,7 +292,7 @@ function buildCommentMap(
 }
 
 /**
- * Generates a simple blank comment for script entries that don't have comments.
+ * Generates a simple blank comment used as a visual spacer when enabled.
  *
  * @returns A blank comment string
  */
@@ -422,7 +438,7 @@ function syncJson5(
 // This section handles the file discovery and processing logic:
 // - Finds all package.json files in the project (excluding node_modules)
 // - Checks for corresponding package.json5 files
-// - Applies gitignore rules to skip excluded files
+// - Applies root .gitignore rules to skip excluded files
 // - Performs synchronization for each valid pair
 
 const rootDir = process.cwd();
