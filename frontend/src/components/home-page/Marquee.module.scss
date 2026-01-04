@@ -50,6 +50,9 @@
   // text-shadow was a problem. translate3d helped, but it was still
   // broken in Chrome.
   @include lerpRange(font-size, 110px, 180px);
+  display: inline-block;
+  line-height: 1;
+  padding-block: 0.08em;
   font-family: "Digital-7", sans-serif;
   color: green;
   opacity: 0.85;
@@ -58,7 +61,7 @@
   text-transform: uppercase;
   white-space: nowrap;
   -webkit-text-stroke: 1px rgba(255, 255, 255, 0.12);
-  transform: translate3d(0, 4%, 0); // Compensate for font offsets
+  transform: translateZ(0);
 }
 
 @keyframes projectsMarqueeScroll {
