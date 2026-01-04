@@ -13,21 +13,30 @@ const DEFAULT_PHRASES = ["Default Phrase 1", "Default Phrase 2"];
 
 export default function Marquee({
   phrases = DEFAULT_PHRASES,
-  repeat = 2,
+  repeat = 1,
 }: MarqueeProps) {
   const marqueeItems = React.useMemo(() => {
-    const safeRepeat = Math.max(2, repeat);
+    const safeRepeat = Math.max(1, repeat);
     return Array.from({ length: safeRepeat }, () => phrases).flat();
   }, [phrases, repeat]);
 
   return (
     <section className={styles.marquee} aria-hidden="true">
-      <div className={styles.track}>
-        {marqueeItems.map((phrase, index) => (
-          <span className={styles.item} key={`${phrase}-${index}`}>
-            {phrase}
-          </span>
-        ))}
+      <div className={styles.viewport}>
+        <div className={styles.track}>
+          {marqueeItems.map((phrase, index) => (
+            <span className={styles.item} key={`${phrase}-${index}`}>
+              {phrase}
+            </span>
+          ))}
+        </div>
+        <div className={`${styles.track} ${styles.trackAlt}`}>
+          {marqueeItems.map((phrase, index) => (
+            <span className={styles.item} key={`${phrase}-${index}-alt`}>
+              {phrase}
+            </span>
+          ))}
+        </div>
       </div>
     </section>
   );

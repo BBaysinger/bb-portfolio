@@ -36,13 +36,25 @@
   }
 }
 
+.viewport {
+  --marquee-gap: clamp(2rem, 4vw, 5rem);
+  display: grid;
+  overflow: hidden;
+}
+
 .track {
+  grid-area: 1 / 1;
   display: inline-flex;
   align-items: center;
   width: max-content;
-  gap: clamp(2rem, 4vw, 5rem);
+  gap: var(--marquee-gap);
+  padding-inline-end: var(--marquee-gap);
   will-change: transform;
-  animation: projectsMarqueeScroll 32s linear infinite;
+  animation: projectsMarqueeScrollA 32s linear infinite;
+}
+
+.trackAlt {
+  animation-name: projectsMarqueeScrollB;
 }
 
 .item {
@@ -64,18 +76,31 @@
   transform: translateZ(0);
 }
 
-@keyframes projectsMarqueeScroll {
+@keyframes projectsMarqueeScrollA {
   0% {
     transform: translate3d(0, 0, 0);
   }
   100% {
-    transform: translate3d(-50%, 0, 0);
+    transform: translate3d(-100%, 0, 0);
+  }
+}
+
+@keyframes projectsMarqueeScrollB {
+  0% {
+    transform: translate3d(100%, 0, 0);
+  }
+  100% {
+    transform: translate3d(0, 0, 0);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .track {
     animation: none;
-    transform: translateX(0);
+    transform: translate3d(0, 0, 0);
+  }
+
+  .trackAlt {
+    display: none;
   }
 }
