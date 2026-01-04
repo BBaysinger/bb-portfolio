@@ -147,13 +147,13 @@ function buildCommentMap(
   /**
    * Extracts trailing comments from a line while correctly handling URLs.
    *
-    * This function attempts to distinguish actual comments vs "//" sequences that
-    * appear inside string values (like URLs) using a lightweight heuristic.
-    *
-    * Notes:
-    * - It is designed for typical package.json(5) formatting (double-quoted strings).
-    * - It does not implement full JSON5 tokenization; unusual quoting/escaping may
-    *   lead to false positives/negatives.
+   * This function attempts to distinguish actual comments vs "//" sequences that
+   * appear inside string values (like URLs) using a lightweight heuristic.
+   *
+   * Notes:
+   * - It is designed for typical package.json(5) formatting (double-quoted strings).
+   * - It does not implement full JSON5 tokenization; unusual quoting/escaping may
+   *   lead to false positives/negatives.
    *
    * Examples:
    * - `"url": "https://github.com/user/repo", // This is a comment` ✅
