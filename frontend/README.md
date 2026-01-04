@@ -43,7 +43,7 @@ Open [http://localhost:3000](http://localhost:3000) - note that backend features
 
 ### Responsive Design
 
-- **Fluid Variables**: JavaScript-powered CSS custom properties for smooth scaling
+- **Clamped Linear Interpolation (LERP) Fluid Scaling**: SCSS mixins that interpolate values across viewport ranges (layout with px precision; text/UI with rem-safe scaling) to avoid breakpoint jumps
 - **SCSS Mixins**: `remRange`, `lerpRange`, and `scaleRange` for different scaling needs
 - **Mobile-First**: Progressive enhancement approach
 
