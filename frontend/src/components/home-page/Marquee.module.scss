@@ -38,31 +38,51 @@
 
 .viewport {
   --marquee-gap: clamp(2rem, 4vw, 5rem);
-  display: grid;
-  overflow: hidden;
+  --marquee-phrase-gap: clamp(2.5rem, 6vw, 6rem);
+  overflow-x: scroll;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  pointer-events: none;
+  overscroll-behavior-x: none;
+  touch-action: pan-y;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 .track {
-  grid-area: 1 / 1;
+  display: inline-flex;
+  align-items: center;
+  width: max-content;
+}
+
+.loop {
+  display: inline-flex;
+  align-items: center;
+  width: max-content;
+}
+
+.phrase {
   display: inline-flex;
   align-items: center;
   width: max-content;
   gap: var(--marquee-gap);
-  padding-inline-end: var(--marquee-gap);
-  will-change: transform;
-  animation: projectsMarqueeScrollA 32s linear infinite;
+  padding-inline-end: var(--marquee-phrase-gap);
 }
 
-.trackAlt {
-  animation-name: projectsMarqueeScrollB;
+.word {
+  display: inline-block;
 }
 
-.item {
+.item,
+.phrase,
+.word {
   // Note that effects/filters may cause clipping on mobile browsers.
   // text-shadow was a problem. translate3d helped, but it was still
   // broken in Chrome.
   @include lerpRange(font-size, 110px, 180px);
-  display: inline-block;
   line-height: 1;
   padding-block: 0.08em;
   font-family: "Digital-7", sans-serif;
@@ -76,31 +96,8 @@
   transform: translateZ(0);
 }
 
-@keyframes projectsMarqueeScrollA {
-  0% {
-    transform: translate3d(0, 0, 0);
-  }
-  100% {
-    transform: translate3d(-100%, 0, 0);
-  }
-}
-
-@keyframes projectsMarqueeScrollB {
-  0% {
-    transform: translate3d(100%, 0, 0);
-  }
-  100% {
-    transform: translate3d(0, 0, 0);
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .track {
-    animation: none;
-    transform: translate3d(0, 0, 0);
-  }
-
-  .trackAlt {
-    display: none;
+  .viewport {
+    overflow-x: hidden;
   }
 }
