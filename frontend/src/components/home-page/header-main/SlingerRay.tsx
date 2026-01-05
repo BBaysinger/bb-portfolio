@@ -28,11 +28,9 @@ const SlingerRay: React.FC<SlingerRayProps> = ({
 
   const onBarsEnded = () => {
     setEnergyBarsFrame(-1); // hide energy bars
-    setLightningFrame(Math.random()); // trigger rerender with unique frameControl
-
-    setTimeout(() => {
-      setLightningFrame(null); // this will start the animation
-    }, 10); // 10ms seems to be the sweet spot, adjust if needed
+    // Start lightning immediately. Previously we used a timeout to force a distinct
+    // intermediate frameControl value, but that also introduced a visible gap.
+    setLightningFrame(null);
   };
 
   useEffect(() => {
