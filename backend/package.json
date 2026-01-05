@@ -25,7 +25,7 @@
     "test:int": "cross-env NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.config.mts"
   },
   "dependencies": {
-    "@aws-sdk/client-ses": "^3.958.0",
+    "@aws-sdk/client-ses": "^3.962.0",
     "@aws-sdk/types": "^3.957.0",
     "@payloadcms/db-mongodb": "3.69.0",
     "@payloadcms/email-nodemailer": "3.69.0",
