@@ -88,25 +88,12 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
   const frameRef = useRef<number>(0);
   const completedLoopsRef = useRef<number>(0);
   const frameDurationsRef = useRef<number[]>([]);
-  const pendingFrameIndexRaf = useRef<number | null>(null);
 
   const scheduleFrameIndexUpdate = useCallback((next: number | null) => {
-    if (pendingFrameIndexRaf.current !== null) {
-      cancelAnimationFrame(pendingFrameIndexRaf.current);
-    }
-    pendingFrameIndexRaf.current = requestAnimationFrame(() => {
-      setFrameIndex(next);
-      pendingFrameIndexRaf.current = null;
-    });
-  }, []);
-
-  useEffect(() => {
-    return () => {
-      if (pendingFrameIndexRaf.current !== null) {
-        cancelAnimationFrame(pendingFrameIndexRaf.current);
-        pendingFrameIndexRaf.current = null;
-      }
-    };
+    // This is intentionally immediate. Using RAF here adds a visible ~1 frame delay
+    // when swapping sprite sequences (e.g. energy bars ending → lightning starting),
+    // even when the spritesheet is already warm-loaded.
+    setFrameIndex(next);
   }, []);
 
   const meta = useMemo(() => {
