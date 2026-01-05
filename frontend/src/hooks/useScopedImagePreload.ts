@@ -8,6 +8,18 @@ import { useEffect, useMemo } from "react";
  * decoding the image using JavaScript, and inserting a hidden <img> in the DOM
  * to retain memory caching (helpful for performance-critical assets like sprite sheets).
  *
+ * IMPORTANT LIMITATION:
+ * This hook runs in a `useEffect`, so it is client-only and executes after hydration.
+ * That means it is NOT a guaranteed "early preload" and may not show up as an initial
+ * navigation preload in DevTools (the browser may have already moved on, or the resource
+ * may be discovered too late to matter).
+ *
+ * If you need true early preloading, prefer a server-rendered `<link rel="preload" as="image">`
+ * in the App Router `layout.tsx`/`head.tsx`.
+ *
+ * DEPRECATED: TODO: Evaluate if this has any merit, since I never saw it actually work. IDK if that
+ * had anything to do with how I was using it; in for sprite sheet animations.
+ *
  * Intended for use in cases where only one sprite sheet or visual asset needs to remain warm.
  * Automatically cleans up resources when the component unmounts.
  *
