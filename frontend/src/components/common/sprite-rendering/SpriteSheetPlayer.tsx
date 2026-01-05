@@ -1,10 +1,4 @@
-import React, {
-  useEffect,
-  useRef,
-  useState,
-  useMemo,
-  useCallback,
-} from "react";
+import React, { useEffect, useRef, useState, useMemo } from "react";
 
 import { CanvasRenderer } from "./CanvasRenderer";
 import { ISpriteRenderer } from "./RenderingAllTypes";
@@ -89,13 +83,6 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
   const completedLoopsRef = useRef<number>(0);
   const frameDurationsRef = useRef<number[]>([]);
 
-  const scheduleFrameIndexUpdate = useCallback((next: number | null) => {
-    // This is intentionally immediate. Using RAF here adds a visible ~1 frame delay
-    // when swapping sprite sequences (e.g. energy bars ending → lightning starting),
-    // even when the spritesheet is already warm-loaded.
-    setFrameIndex(next);
-  }, []);
-
   const meta = useMemo(() => {
     const match = src.match(/_w(\d+)h(\d+)f(\d+)/);
     if (!match) {
@@ -130,15 +117,15 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
 
     if (typeof frameControl === "number") {
       frameRef.current = frameControl;
-      scheduleFrameIndexUpdate(frameControl);
       return;
     }
 
     // When entering autoplay mode (frameControl === null), always default to the first frame
     // on initial display. `randomFrame` affects subsequent animation ticks, not the initial frame.
     frameRef.current = 0;
-    scheduleFrameIndexUpdate(0);
-  }, [frameControl, src, randomFrame, meta, scheduleFrameIndexUpdate]);
+    // Don't call setState here; the initial state already defaults to 0 and
+    // the render path uses frameControl when explicitly provided.
+  }, [frameControl, src, randomFrame, meta]);
 
   useEffect(() => {
     if (!meta || frameControl === -1) return;
@@ -152,7 +139,8 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
     let isCancelled = false;
     completedLoopsRef.current = 0;
     frameRef.current = 0;
-    scheduleFrameIndexUpdate(0);
+    // Don't call setState synchronously in the effect body; first frame (0) is already
+    // the default state, and subsequent frames will be driven by RAF.
     lastTimeRef.current = performance.now();
 
     const animate = (now: number) => {
@@ -215,15 +203,7 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
         animationFrameRef.current = null;
       }
     };
-  }, [
-    meta,
-    frameControl,
-    autoPlay,
-    loops,
-    randomFrame,
-    onEnd,
-    scheduleFrameIndexUpdate,
-  ]);
+  }, [meta, frameControl, autoPlay, loops, randomFrame, onEnd]);
 
   useEffect(() => {
     if (!canvasRef.current || !meta) return;
@@ -248,8 +228,11 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
       }
     }
 
-    if (frameIndex !== null && rendererRef.current) {
-      rendererRef.current.drawFrame(frameIndex);
+    const effectiveFrameIndex =
+      typeof frameControl === "number" ? frameControl : frameIndex;
+
+    if (effectiveFrameIndex !== null && rendererRef.current) {
+      rendererRef.current.drawFrame(effectiveFrameIndex);
     }
 
     function renderStrategyChanged() {
@@ -260,9 +243,12 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
           !(rendererRef.current instanceof CanvasRenderer))
       );
     }
-  }, [frameIndex, meta, src, renderStrategy]);
+  }, [frameControl, frameIndex, meta, src, renderStrategy]);
 
   if (!meta) return null;
+
+  const effectiveFrameIndex =
+    typeof frameControl === "number" ? frameControl : frameIndex;
 
   const { frameWidth, frameHeight, frameCount } = meta;
   const totalCols = Math.min(frameCount, Math.floor(4096 / frameWidth));
@@ -270,8 +256,12 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
   // Even when "hidden" via frameControl === -1, keep the URL referenced so the
   // browser/renderer can still fetch+decode the spritesheet ahead of time.
   const backgroundImage = `url(${src})`;
-  const col = frameIndex !== null ? frameIndex % totalCols : 0;
-  const row = frameIndex !== null ? Math.floor(frameIndex / totalCols) : 0;
+  const col =
+    effectiveFrameIndex !== null ? effectiveFrameIndex % totalCols : 0;
+  const row =
+    effectiveFrameIndex !== null
+      ? Math.floor(effectiveFrameIndex / totalCols)
+      : 0;
   const backgroundSize = `${totalCols * 100}% ${totalRows * 100}%`;
   const backgroundPosition = `${(col / (totalCols - 1 || 1)) * 100}% ${(row / (totalRows - 1 || 1)) * 100}%`;
 
@@ -298,12 +288,13 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
                   pointerEvents: "none" as const,
                 }
               : {
-                  display: frameIndex === null ? "none" : ("block" as const),
+                  display:
+                    effectiveFrameIndex === null ? "none" : ("block" as const),
                 }),
           }}
         />
       ) : (
-        frameIndex !== null && (
+        effectiveFrameIndex !== null && (
           <div
             className={styles.spriteSheet}
             style={{
