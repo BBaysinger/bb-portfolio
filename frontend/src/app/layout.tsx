@@ -22,6 +22,22 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           content="width=device-width, initial-scale=1, viewport-fit=cover"
         />
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        {/* 
+        <link
+          rel="preload"
+          as="image"
+          href="/spritesheets/lightning_Layer-Comp-_w480h1098f7.webp"
+          type="image/webp"
+          fetchPriority="high"
+        />
+        <link
+          rel="preload"
+          as="image"
+          href="/spritesheets/energy-bars_w92h300f110.webp"
+          type="image/webp"
+          fetchPriority="high"
+        />
+        */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
           rel="preconnect"

@@ -20,6 +20,9 @@ export class CanvasRenderer implements ISpriteRenderer {
     if (!ctx) throw new Error("Canvas not supported");
     this.ctx = ctx;
 
+    // Keep sprite frames crisp when the canvas is scaled.
+    this.ctx.imageSmoothingEnabled = false;
+
     this.columns = Math.min(
       meta.frameCount,
       Math.floor(4096 / meta.frameWidth),
@@ -44,6 +47,9 @@ export class CanvasRenderer implements ISpriteRenderer {
     ) {
       this.canvas.width = displayWidth;
       this.canvas.height = displayHeight;
+
+      // Resizing a canvas can reset context state in some browsers.
+      this.ctx.imageSmoothingEnabled = false;
     }
   }
 
@@ -51,6 +57,9 @@ export class CanvasRenderer implements ISpriteRenderer {
     if (!this.isLoaded) return;
 
     this.syncCanvasSizeToDisplay();
+
+    // Explicitly keep smoothing disabled before drawing.
+    this.ctx.imageSmoothingEnabled = false;
 
     const { frameWidth, frameHeight } = this.meta;
     const row = Math.floor(index / this.columns);

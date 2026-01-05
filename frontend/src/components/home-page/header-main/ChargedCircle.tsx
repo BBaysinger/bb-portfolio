@@ -1,8 +1,6 @@
 import clsx from "clsx";
 import React from "react";
 
-import useScopedImagePreload from "@/hooks/useScopedImagePreload";
-
 import styles from "./ChargedCircle.module.scss";
 import SlingerRay from "./SlingerRay";
 
@@ -14,22 +12,15 @@ interface ChargedCircleProps {
 /**
  * ChargedCircle Component
  *
+ * A circle of rays centered on the orb, to give a 'fidget spinner' effect when
+ * the orb is being dragged.
+ *
  * @component
  */
 const ChargedCircle: React.FC<ChargedCircleProps> = ({
   isActive = false,
   isUnlocked = false,
 }) => {
-  // Fixes issue with image data not staying decoded on mobile.
-  useScopedImagePreload(
-    "/spritesheets/lightning_Layer-Comp-_w480h1098f7.webp",
-    {
-      loadPriority: "high",
-    },
-  );
-  useScopedImagePreload("/spritesheets/energy-bars_w92h300f110.webp", {
-    loadPriority: "high",
-  });
   const isVisible = isActive && isUnlocked;
 
   return (

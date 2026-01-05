@@ -147,14 +147,10 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
       return;
     }
 
-    if (randomFrame) {
-      const random = Math.floor(Math.random() * meta.frameCount);
-      frameRef.current = random;
-      scheduleFrameIndexUpdate(random);
-    } else {
-      frameRef.current = 0;
-      scheduleFrameIndexUpdate(0);
-    }
+    // When entering autoplay mode (frameControl === null), always default to the first frame
+    // on initial display. `randomFrame` affects subsequent animation ticks, not the initial frame.
+    frameRef.current = 0;
+    scheduleFrameIndexUpdate(0);
   }, [frameControl, src, randomFrame, meta, scheduleFrameIndexUpdate]);
 
   useEffect(() => {
@@ -190,6 +186,9 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
 
           completedLoopsRef.current++;
           if (loops !== 0 && completedLoopsRef.current >= loops) {
+            // Always default back to the first frame when a finite animation completes.
+            frameRef.current = 0;
+            setFrameIndex(0);
             isCancelled = true;
             onEnd?.();
             return;
@@ -200,8 +199,9 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
           if (next >= meta.frameCount) {
             completedLoopsRef.current++;
             if (loops !== 0 && completedLoopsRef.current >= loops) {
-              frameRef.current = -1;
-              setFrameIndex(null);
+              // Always default back to the first frame when a finite animation completes.
+              frameRef.current = 0;
+              setFrameIndex(0);
               isCancelled = true;
               onEnd?.();
               return;
@@ -280,7 +280,9 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
   const { frameWidth, frameHeight, frameCount } = meta;
   const totalCols = Math.min(frameCount, Math.floor(4096 / frameWidth));
   const totalRows = Math.ceil(frameCount / totalCols);
-  const backgroundImage = frameControl !== -1 ? `url(${src})` : "none";
+  // Even when "hidden" via frameControl === -1, keep the URL referenced so the
+  // browser/renderer can still fetch+decode the spritesheet ahead of time.
+  const backgroundImage = `url(${src})`;
   const col = frameIndex !== null ? frameIndex % totalCols : 0;
   const row = frameIndex !== null ? Math.floor(frameIndex / totalCols) : 0;
   const backgroundSize = `${totalCols * 100}% ${totalRows * 100}%`;
@@ -288,19 +290,33 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
 
   return (
     <div ref={wrapperRef} className={className}>
-      {renderStrategy === "webgl" ? (
+      {renderStrategy === "webgl" || renderStrategy === "canvas" ? (
         <canvas
           className={styles.spriteSheet}
           ref={canvasRef}
           width={frameWidth}
           height={frameHeight}
           style={{
-            display: frameIndex === null ? "none" : "block",
+            // When "hidden" (frameControl === -1), keep the canvas mounted so the
+            // renderer can still fetch/decode the spritesheet, but make it non-visible
+            // and non-interactive.
+            ...(frameControl === -1
+              ? {
+                  position: "absolute" as const,
+                  left: "-99999px",
+                  top: "-99999px",
+                  width: "1px",
+                  height: "1px",
+                  opacity: 0,
+                  pointerEvents: "none" as const,
+                }
+              : {
+                  display: frameIndex === null ? "none" : ("block" as const),
+                }),
           }}
         />
       ) : (
-        frameIndex !== null &&
-        frameIndex !== -1 && (
+        frameIndex !== null && (
           <div
             className={styles.spriteSheet}
             style={{
@@ -308,9 +324,15 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
               height: "100%",
               aspectRatio: `${frameWidth} / ${frameHeight}`,
               backgroundImage,
-              backgroundPosition,
+              // When "hidden", position far outside the element so it draws nothing
+              // while still keeping the spritesheet URL warm.
+              backgroundPosition:
+                frameControl === -1 ? "-99999px -99999px" : backgroundPosition,
               backgroundSize,
+              backgroundRepeat: "no-repeat",
               imageRendering: "pixelated",
+              opacity: frameControl === -1 ? 0 : 1,
+              pointerEvents: frameControl === -1 ? "none" : undefined,
             }}
           />
         )
