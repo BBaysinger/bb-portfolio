@@ -63,8 +63,10 @@ const AnimationSequencer = forwardRef<
 >(({ className }, ref) => {
   const [activeAnim, setActiveAnim] = useState<AnimationMeta | null>(null);
   const [animKey, setAnimKey] = useState(0);
+  const [shouldPlay, setShouldPlay] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastPlayedIndexRef = useRef<number | null>(null);
+  const startRafRef = useRef<number | null>(null);
 
   const delay = 15000;
   const initialDelay = 8000;
@@ -82,6 +84,13 @@ const AnimationSequencer = forwardRef<
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
       timeoutRef.current = null;
+    }
+  };
+
+  const clearStartRafIfSet = () => {
+    if (startRafRef.current !== null) {
+      cancelAnimationFrame(startRafRef.current);
+      startRafRef.current = null;
     }
   };
 
@@ -210,8 +219,17 @@ const AnimationSequencer = forwardRef<
 
   const safeSetAnim = useCallback((anim: AnimationMeta) => {
     clearTimeoutIfSet();
+    clearStartRafIfSet();
+    // Mount hidden first to avoid flashing frame 0 before playback begins.
+    setShouldPlay(false);
     setActiveAnim(anim);
     setAnimKey((k) => k + 1);
+
+    // Start playback on the next frame.
+    startRafRef.current = requestAnimationFrame(() => {
+      setShouldPlay(true);
+      startRafRef.current = null;
+    });
   }, []);
 
   const updateAnimation = useCallback(() => {
@@ -250,7 +268,10 @@ const AnimationSequencer = forwardRef<
 
   useEffect(() => {
     timeoutRef.current = setTimeout(updateAnimation, initialDelay);
-    return clearTimeoutIfSet;
+    return () => {
+      clearTimeoutIfSet();
+      clearStartRafIfSet();
+    };
   }, [updateAnimation]);
 
   const handleEnd = () => {
@@ -272,6 +293,7 @@ const AnimationSequencer = forwardRef<
           fps={activeAnim.fps}
           loops={activeAnim.loops}
           onEnd={handleEnd}
+          frameControl={shouldPlay ? null : -1}
         />
       )}
     </div>
