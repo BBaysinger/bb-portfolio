@@ -56,7 +56,7 @@ interface SpriteSheetPlayerProps {
  * @param {number | null} [frameControl=null] - Manually control the frame index (null = autoplay).
  *                                             Use -1 to render blank.
  * @param {string} [className=""] - Additional class name(s) to apply to wrapper div.
- * @param {"css" | "canvas" | "webgl"} [renderStrategy="css"] - Strategy for rendering sprite frames.
+ * @param {"css" | "canvas" | "webgl"} [renderStrategy="canvas"] - Strategy for rendering sprite frames.
  *
  * @returns A responsive, frame-accurate sprite player that adapts to playback and rendering requirements.
  *
@@ -229,7 +229,11 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
     }
 
     const effectiveFrameIndex =
-      typeof frameControl === "number" ? frameControl : frameIndex;
+      frameControl === -1
+        ? 0
+        : typeof frameControl === "number"
+          ? frameControl
+          : frameIndex;
 
     if (effectiveFrameIndex !== null && rendererRef.current) {
       rendererRef.current.drawFrame(effectiveFrameIndex);
@@ -248,7 +252,11 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
   if (!meta) return null;
 
   const effectiveFrameIndex =
-    typeof frameControl === "number" ? frameControl : frameIndex;
+    frameControl === -1
+      ? 0
+      : typeof frameControl === "number"
+        ? frameControl
+        : frameIndex;
 
   const { frameWidth, frameHeight, frameCount } = meta;
   const totalCols = Math.min(frameCount, Math.floor(4096 / frameWidth));
