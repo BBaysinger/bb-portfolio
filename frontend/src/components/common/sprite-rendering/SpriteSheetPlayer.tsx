@@ -34,6 +34,9 @@ interface SpriteSheetPlayerProps {
  * - `css` can be convenient but is more susceptible to browser decode/paint timing.
  * - `webgl` can be fast once warm, but setup/texture uploads can be expensive depending on device.
  *
+ * TODO: Further optimize rendering strategies, particularly WebGL, which is *supposed* to be the most performant.
+ * TODO: Need a mode that animates by shifting an image containing a single visual (versus frame-by-frame).
+ *
  * ## Props
  * @param {string} src - Sprite sheet URL with encoded dimensions and frame count.
  * @param {boolean} [autoPlay=true] - Whether to automatically start playback on mount.
