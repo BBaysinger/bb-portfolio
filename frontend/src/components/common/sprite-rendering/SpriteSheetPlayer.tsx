@@ -23,30 +23,18 @@ interface SpriteSheetPlayerProps {
 /**
  * SpriteSheetPlayer
  *
- * A versatile sprite sheet animation component supporting CSS, Canvas, and WebGL rendering strategies.
- * Accepts sprite sheets with a specific filename format to auto-parse dimensions and frame count.
- * Capable of auto-playing, looping, or manually controlling playback, with optional per-frame FPS and random frame selection.
+ * Sprite sheet animation component supporting CSS, Canvas, and WebGL rendering strategies.
  *
- * NOTE that WebGL has substantial rendering cost (on my machine full screen @ 3584×2240),
- * and there are some defects observed in CSS, including delayed load time, even though
- * the decoded image data is retained in memory. Canvas seems the best for now.
- *
- * TODO: Revisit the other rendering strategies later, particularly WebGL, which is *supposed* to be the most performant.
- *
- * TODO: We need a mode that animates by shifting an image containing a single visual (versus frame-by-frame).
- *
- * Supported filename format: `name_w{width}h{height}f{frameCount}.ext`
+ * Sprite metadata (frame width/height/count) is parsed from the filename.
+ * Supported format: `name_w{width}h{height}f{frameCount}.ext`
  * Example: `explosion_w72h72f16.webp`
  *
- * ## Features:
- * - Auto-parses sprite metadata from filename.
- * - Supports multiple rendering strategies: `"css"`, `"canvas"`, or `"webgl"`.
- * - Flexible FPS control: single value or per-frame array.
- * - Handles looping and end callbacks.
- * - Supports external frame control (via prop).
- * - Optimized with requestAnimationFrame and useMemo.
+ * Rendering notes:
+ * - `canvas` is the default and generally the most predictable.
+ * - `css` can be convenient but is more susceptible to browser decode/paint timing.
+ * - `webgl` can be fast once warm, but setup/texture uploads can be expensive depending on device.
  *
- * ## Props:
+ * ## Props
  * @param {string} src - Sprite sheet URL with encoded dimensions and frame count.
  * @param {boolean} [autoPlay=true] - Whether to automatically start playback on mount.
  * @param {number | number[]} [fps=30] - Frames per second (single number or per-frame array).
@@ -54,7 +42,7 @@ interface SpriteSheetPlayerProps {
  * @param {boolean} [randomFrame=false] - Whether to show a random frame on init or each step.
  * @param {() => void} [onEnd] - Callback when animation completes all loops.
  * @param {number | null} [frameControl=null] - Manually control the frame index (null = autoplay).
- *                                             Use -1 to render blank.
+ *                                             Use -1 to hide the sprite while keeping the spritesheet warm (pre-fetched/decoded).
  * @param {string} [className=""] - Additional class name(s) to apply to wrapper div.
  * @param {"css" | "canvas" | "webgl"} [renderStrategy="canvas"] - Strategy for rendering sprite frames.
  *
@@ -123,8 +111,7 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
     // When entering autoplay mode (frameControl === null), always default to the first frame
     // on initial display. `randomFrame` affects subsequent animation ticks, not the initial frame.
     frameRef.current = 0;
-    // Don't call setState here; the initial state already defaults to 0 and
-    // the render path uses frameControl when explicitly provided.
+    // Intentionally avoid setState here (repo lint: no setState directly in effect bodies).
   }, [frameControl, src, randomFrame, meta]);
 
   useEffect(() => {
@@ -139,8 +126,7 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
     let isCancelled = false;
     completedLoopsRef.current = 0;
     frameRef.current = 0;
-    // Don't call setState synchronously in the effect body; first frame (0) is already
-    // the default state, and subsequent frames will be driven by RAF.
+    // Avoid setState in the effect body; RAF drives subsequent frames.
     lastTimeRef.current = performance.now();
 
     const animate = (now: number) => {
@@ -261,8 +247,8 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
   const { frameWidth, frameHeight, frameCount } = meta;
   const totalCols = Math.min(frameCount, Math.floor(4096 / frameWidth));
   const totalRows = Math.ceil(frameCount / totalCols);
-  // Even when "hidden" via frameControl === -1, keep the URL referenced so the
-  // browser/renderer can still fetch+decode the spritesheet ahead of time.
+  // Even when hidden via frameControl === -1, keep the URL referenced so the browser can
+  // fetch+decode ahead of time (and so the renderer can upload to GPU in webgl mode).
   const backgroundImage = `url(${src})`;
   const col =
     effectiveFrameIndex !== null ? effectiveFrameIndex % totalCols : 0;
@@ -282,9 +268,8 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
           width={frameWidth}
           height={frameHeight}
           style={{
-            // When "hidden" (frameControl === -1), keep the canvas mounted so the
-            // renderer can still fetch/decode the spritesheet, but make it non-visible
-            // and non-interactive.
+            // When hidden (frameControl === -1), keep the canvas mounted so the renderer can
+            // still warm-load resources, but move it offscreen and disable interaction.
             ...(frameControl === -1
               ? {
                   position: "absolute" as const,
@@ -310,8 +295,7 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
               height: "100%",
               aspectRatio: `${frameWidth} / ${frameHeight}`,
               backgroundImage,
-              // When "hidden", position far outside the element so it draws nothing
-              // while still keeping the spritesheet URL warm.
+              // When hidden, force the background off-element so nothing is drawn, while the URL stays warm.
               backgroundPosition:
                 frameControl === -1 ? "-99999px -99999px" : backgroundPosition,
               backgroundSize,
