@@ -23,10 +23,32 @@ const ProjectInfo = forwardRef<HTMLDivElement, ProjectInfoProps>(
     const [copied, setCopied] = useState(false);
     let globalIndex = 0;
 
-    const displayTitle =
-      typeof longTitle === "string" && longTitle.trim()
+    // Defense-in-depth: never render confidential NDA details unless the viewer
+    // is actually on an /nda/* route. This prevents accidental info leaks if an
+    // NDA record ends up in the active carousel dataset on a public route.
+    const shouldHideNdaDetails = useMemo(() => {
+      try {
+        if (!projectRequiresNda(dataNode)) return false;
+        if (typeof window === "undefined") return true;
+        const seg0 = (window.location.pathname || "")
+          .split("/")
+          .filter(Boolean)[0];
+        return seg0 !== "nda";
+      } catch {
+        return true;
+      }
+    }, [dataNode]);
+
+    const displayTitle = useMemo(() => {
+      if (shouldHideNdaDetails) return "Confidential project";
+      return typeof longTitle === "string" && longTitle.trim()
         ? longTitle.trim()
         : title;
+    }, [longTitle, title, shouldHideNdaDetails]);
+
+    const safeDesc = shouldHideNdaDetails ? [] : desc;
+    const safeUrls = shouldHideNdaDetails ? ({} as typeof urls) : urls;
+    const safeRole = shouldHideNdaDetails ? undefined : role;
 
     const canonicalPath = useMemo(() => {
       const base = projectRequiresNda(dataNode) ? "/nda/" : "/project/";
@@ -86,19 +108,19 @@ const ProjectInfo = forwardRef<HTMLDivElement, ProjectInfoProps>(
         >
           <strong>Project Title</strong>: {displayTitle}
         </div>
-        {desc.map((htmlContent) => (
+        {safeDesc.map((htmlContent) => (
           <div
             key={globalIndex}
             style={{ "--index": globalIndex++ } as React.CSSProperties}
             dangerouslySetInnerHTML={{ __html: htmlContent }}
           />
         ))}
-        {role && (
+        {safeRole && (
           <div style={{ "--index": globalIndex++ } as React.CSSProperties}>
-            <span style={{ fontWeight: "bold" }}>Role:</span> {role}
+            <span style={{ fontWeight: "bold" }}>Role:</span> {safeRole}
           </div>
         )}
-        {Object.entries(urls).map(([label, urls]) => {
+        {Object.entries(safeUrls).map(([label, urls]) => {
           if (Array.isArray(urls)) {
             return (
               <span
