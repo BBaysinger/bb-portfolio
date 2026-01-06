@@ -375,6 +375,44 @@ export function recordEvent(eventType: string, data?: Record<string, unknown>) {
 }
 
 /**
+ * Record the user's inbound referrer as a custom RUM event.
+ *
+ * Notes:
+ * - Many visits legitimately have no referrer (direct navigation, privacy tools, etc.)
+ * - We record origin/host only by default to avoid capturing full URLs.
+ * - This is best-effort and safe to call repeatedly; use a guard (e.g. sessionStorage)
+ *   at the call site if you only want it once per session.
+ */
+export function recordInitialReferrer() {
+  if (typeof window === "undefined") return;
+  if (!rumInstance) return;
+
+  try {
+    const raw = document.referrer || "";
+    let referrerOrigin: string | undefined;
+    let referrerHost: string | undefined;
+    if (raw) {
+      try {
+        const u = new URL(raw);
+        referrerOrigin = u.origin;
+        referrerHost = u.host;
+      } catch {
+        // Non-URL referrers are rare; ignore parsing failures.
+      }
+    }
+
+    rumInstance.recordEvent("referrer", {
+      hasReferrer: Boolean(raw),
+      referrerOrigin,
+      referrerHost,
+      landingPath: window.location.pathname,
+    });
+  } catch (error) {
+    console.error("[RUM] Failed to record referrer:", error);
+  }
+}
+
+/**
  * Convenience function to record click events
  * Automatically captures common click metadata
  *
