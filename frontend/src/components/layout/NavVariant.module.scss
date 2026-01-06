@@ -19,8 +19,7 @@ $navHamburgerBreakpoint: 992px;
   }
   @include breakpointUp($navHamburgerBreakpoint) {
     :global(.isHeroInView5Pct) & {
-      // width: var(--nav-links-compact-width);
-      width: 100vw;
+      width: var(--nav-links-compact-width);
     }
   }
 
