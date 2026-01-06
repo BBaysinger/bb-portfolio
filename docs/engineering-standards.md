@@ -25,6 +25,7 @@ They reflect the current implementation in this repository (Next.js + Payload, D
 ## Quick reference (TL;DR)
 
 - **Source control**: no `git push`/`terraform apply`/production deploys without explicit human approval. Stage + commit is fine; pushing is not. Commit messages must include a concise summary line _and_ a bulleted list detailing every task completed so a reviewer can map each change to an explicit entry.
+- **Pre-commit gate**: run `npm run precommit` before every commit. It runs formatting (`prettier --write`), linting + autofix (`eslint . --fix`), and a typecheck (`tsc --noEmit`).
 - **Testing gate**: before every PR/merge run `npm run lint`, `npm test`, and service-specific builds (`npm run build:frontend`, `npm run build:backend`). Do not ship failing lint/tests.
 - **Documentation**: every file/function follows the JSDoc-style rules below; shell scripts include shebang + usage + env var docs.
 - **Environment config**: one canonical key per concept (e.g., `FRONTEND_URL`), no env baked in Docker images, env guards enforced via `scripts/check-required-env.ts`.
@@ -155,6 +156,7 @@ Shell script checklist (required for every new/edited script):
 
 Minimum bar before merging any change:
 
+0. `npm run precommit` (format + lint + typecheck)
 1. `npm run lint`
 2. `npm test` (runs Vitest + Playwright smoke paths)
 3. `npm run build:backend` and `npm run build:frontend` when touching those areas
