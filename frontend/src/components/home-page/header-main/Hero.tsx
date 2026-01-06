@@ -10,6 +10,7 @@ import ChargedCircle from "@/components/home-page/header-main/ChargedCircle";
 import OrbGrabTooltip from "@/components/home-page/header-main/OrbGrabTooltip";
 import OrbTossTooltip from "@/components/home-page/header-main/OrbTossTooltip";
 import useScrollPersistedClass from "@/hooks/useScrollPersistedClass";
+import useStableViewportHeightVar from "@/hooks/useStableViewportHeightVar";
 import useTimeOfDay from "@/hooks/useTimeOfDay";
 import { recordEvent } from "@/services/rum";
 
@@ -111,6 +112,9 @@ const Hero: React.FC = () => {
   const slingerIsIdle = useRef(false);
   const gridControllerRef = useRef<GridControllerHandle>(null);
   const heroRef = useRef<HTMLDivElement>(null);
+
+  useStableViewportHeightVar(heroRef, { cssVarName: "--hero-stable-vh" });
+
   const [isSlingerInFlight, setIsSlingerInFlight] = useState(false);
   const slingerLoopId = useRef<number | null>(null);
   // const useSlingerTracking = useQueryParams<boolean>("useSlingerTracking");
