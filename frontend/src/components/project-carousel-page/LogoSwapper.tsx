@@ -8,6 +8,8 @@ import styles from "./LogoSwapper.module.scss";
 interface LogoSwapperProps {
   /** Preferred: stabilized carousel index to drive the active item. */
   index?: number | null;
+  /** Optional explicit key order to match the carousel slides. */
+  slideKeys?: string[];
   /** Back-compat: brand key (slug) to focus on if index not provided. */
   projectId?: string;
 }
@@ -20,11 +22,12 @@ interface LogoSwapperProps {
  */
 const LogoSwapper: React.FC<LogoSwapperProps> = ({
   index = null,
+  slideKeys,
   projectId,
 }) => {
   // Resolve the current brandId either from index (preferred) or projectId fallback
   const projectsRecord = ProjectData.activeProjectsRecord;
-  const keys = ProjectData.activeKeys;
+  const keys = slideKeys ?? ProjectData.activeKeys;
   const resolvedBrandId = useMemo(() => {
     if (typeof index === "number" && index >= 0 && index < keys.length) {
       const projKey = keys[index];

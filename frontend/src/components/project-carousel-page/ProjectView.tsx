@@ -448,8 +448,15 @@ const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
           )}
           <PageButtons projectId={projectId} />
         </div>
-        <LogoSwapper index={infoSwapperIndex ?? undefined} />
-        <InfoSwapper index={infoSwapperIndex} direction={uiDirection} />
+        <LogoSwapper
+          index={infoSwapperIndex ?? undefined}
+          slideKeys={slideKeysRef.current}
+        />
+        <InfoSwapper
+          index={infoSwapperIndex}
+          direction={uiDirection}
+          slideKeys={slideKeysRef.current}
+        />
       </div>
     </div>
   );

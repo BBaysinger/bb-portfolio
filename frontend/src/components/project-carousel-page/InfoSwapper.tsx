@@ -9,36 +9,44 @@ import ProjectInfo from "./ProjectInfo";
 interface InfoSwapperProps {
   index: number | null;
   direction?: DirectionType;
+  /** Optional explicit key order to match the carousel slides. */
+  slideKeys?: string[];
 }
 
 /**
  * Manages swapping between the project info components.
  *
  */
-const InfoSwapper = memo<InfoSwapperProps>(({ direction, index }) => {
-  const projects = ProjectData.activeProjectsRecord;
-  const keys = ProjectData.activeKeys;
-  const infoRefElems = useRef<(HTMLDivElement | null)[]>([]);
+const InfoSwapper = memo<InfoSwapperProps>(
+  ({ direction, index, slideKeys }) => {
+    const projects = ProjectData.activeProjectsRecord;
+    const keys = slideKeys ?? ProjectData.activeKeys;
+    const infoRefElems = useRef<(HTMLDivElement | null)[]>([]);
 
-  return (
-    <div className={`${styles.infoSwapper} max-w-container`}>
-      <div className={"container"}>
-        {keys.map((key, i) => (
-          <ProjectInfo
-            key={key}
-            isActive={i === index}
-            direction={direction}
-            transition={""}
-            ref={(el) => {
-              if (el) infoRefElems.current[i] = el;
-            }}
-            dataNode={projects[key]}
-          />
-        ))}
+    return (
+      <div className={`${styles.infoSwapper} max-w-container`}>
+        <div className={"container"}>
+          {(keys || []).map((key, i) => {
+            const dataNode = projects[key];
+            if (!dataNode) return null;
+            return (
+              <ProjectInfo
+                key={key}
+                isActive={i === index}
+                direction={direction}
+                transition={""}
+                ref={(el) => {
+                  if (el) infoRefElems.current[i] = el;
+                }}
+                dataNode={dataNode}
+              />
+            );
+          })}
+        </div>
       </div>
-    </div>
-  );
-});
+    );
+  },
+);
 
 InfoSwapper.displayName = "InfoSwapper";
 
