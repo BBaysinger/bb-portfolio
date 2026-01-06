@@ -11,12 +11,7 @@ $navHamburgerBreakpoint: 992px;
   user-select: none;
   width: 100vw;
   transition: width 0.5s ease;
-  background: linear-gradient(
-    to left,
-    #222,
-    #222 var(--nav-links-compact-width),
-    rgba(0, 0, 0, 1) 100%
-  );
+  background: linear-gradient(to left, #222, #222 50%, rgba(0, 0, 0, 1) 100%);
   background-size: 100% $navBarHeight;
   background-repeat: no-repeat;
   :global(.isHeroInView5Pct) & {
@@ -24,7 +19,8 @@ $navHamburgerBreakpoint: 992px;
   }
   @include breakpointUp($navHamburgerBreakpoint) {
     :global(.isHeroInView5Pct) & {
-      width: var(--nav-links-compact-width);
+      // width: var(--nav-links-compact-width);
+      width: 100vw;
     }
   }
 

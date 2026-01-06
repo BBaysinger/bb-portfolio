@@ -75,11 +75,11 @@ const NavVariant: React.FC<NavProps> = ({ variant }) => {
     const inlineSize = listEl.scrollWidth;
     if (inlineSize <= 0) return;
 
-    const compactWidth = `${Math.ceil(inlineSize)}px`;
-    navRef.current?.style.setProperty(
-      "--nav-links-compact-width",
-      compactWidth,
-    );
+    // const compactWidth = `${Math.ceil(inlineSize)}px`;
+    // navRef.current?.style.setProperty(
+    //   "--nav-links-compact-width",
+    //   compactWidth,
+    // );
   }, [variant]);
 
   const scheduleMeasure = useCallback(() => {
