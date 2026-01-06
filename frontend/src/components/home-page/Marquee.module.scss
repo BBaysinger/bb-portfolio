@@ -56,7 +56,12 @@
   display: inline-flex;
   align-items: center;
   width: max-content;
-  transform: translateY(6.5%);
+}
+
+:global(html.apple) {
+  .track {
+    transform: translateY(6.5%);
+  }
 }
 
 .loop {
@@ -85,7 +90,6 @@
   // broken in Chrome.
   @include lerpRange(font-size, 110px, 180px);
   line-height: 1;
-  // padding-block: 0.08em;
   font-family: "Digital-7", sans-serif;
   color: green;
   opacity: 0.85;
@@ -94,7 +98,7 @@
   text-transform: uppercase;
   white-space: nowrap;
   -webkit-text-stroke: 1px rgba(255, 255, 255, 0.12);
-  transform: translateZ(0);
+  // transform: translateZ(0);
 }
 
 @media (prefers-reduced-motion: reduce) {

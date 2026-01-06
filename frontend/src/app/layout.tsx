@@ -5,6 +5,7 @@ import SkipLink from "@/components/common/SkipLink";
 import { roboto } from "@/fonts";
 
 import { AppShell } from "./AppShell";
+import { EnvironmentClassInitializer } from "./EnvironmentClassInitializer";
 import styles from "./layout.module.scss";
 import { AppProviders } from "./providers/AppProviders";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -54,6 +55,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         /> */}
       </head>
       <body className={clsx(roboto.className, styles.body)}>
+        <EnvironmentClassInitializer />
         <SkipLink />
         <AppProviders>
           <AppShell>{children}</AppShell>
