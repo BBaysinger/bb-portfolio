@@ -19,8 +19,9 @@ footer.footer {
     content: "";
     position: absolute;
     top: -$footerBarberPoleThickness;
+    left: 0;
     height: $footerBarberPoleThickness;
-    width: 100vw;
+    width: 100%;
     background-image: url("/images/common/barber-pole-bottom.webp");
     background-repeat: repeat-x;
     background-size: 350px 40px;
