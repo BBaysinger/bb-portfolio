@@ -57,7 +57,7 @@
     // Next.js framework (App Router + build pipeline)
     "next": "^16.1.1",
     // PixiJS renderer for interactive canvas experiences
-    "pixi.js": "^8.14.3",
+    "pixi.js": "^8.15.0",
     // React library for building user interfaces (v19 for latest features)
     "react": "^19.2.3",
     // React DOM renderer for web applications (matches React 19)
@@ -65,7 +65,7 @@
     // Official React bindings for Redux state management
     "react-redux": "^9.2.0",
     // CSS preprocessor with variables, nesting, and mixins
-    "sass": "^1.97.1",
+    "sass": "^1.97.2",
   },
   // Development-only dependencies for tooling and type checking
   "devDependencies": {
