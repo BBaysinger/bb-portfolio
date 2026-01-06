@@ -22,7 +22,14 @@ header.hero {
   background-image: url("/images/common/bg-grad.svg");
   background-color: black;
   background-size: 100% 100%;
-  min-height: 100svh;
+  // Prefer a JS-set, stable pixel height (set once on mount; updated only on real resizes).
+  // This avoids Firefox mobile viewport-unit jitter during scroll-chrome show/hide.
+  min-height: var(--hero-stable-vh, 100vh);
+
+  // CSS-only fallback: prefer `svh` where reliable (avoid Firefox).
+  @supports (min-height: 100svh) and (not (-moz-appearance: none)) {
+    min-height: var(--hero-stable-vh, 100svh);
+  }
   @include lerpRange(--hero-padding, 10px, 18px, $b320, $b576);
 
   @keyframes fadeInOut {
