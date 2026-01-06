@@ -108,7 +108,7 @@ const AnimationSequencer = forwardRef<
         narrow: "burst1_Layer-Comp-_w16h12f30",
         fps: 10,
         loops: 1,
-        weight: 10,
+        weight: 1,
       },
       {
         wide: "interactive-web_w16h12f105",
