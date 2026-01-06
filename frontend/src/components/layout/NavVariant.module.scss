@@ -9,7 +9,7 @@ $navHamburgerBreakpoint: 992px;
   color: #888;
   padding: 0;
   user-select: none;
-  width: 100vw;
+  width: 100%;
   transition: width 0.5s ease;
   background: linear-gradient(to left, #222, #222 50%, rgba(0, 0, 0, 1) 100%);
   background-size: 100% $navBarHeight;
