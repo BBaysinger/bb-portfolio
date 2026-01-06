@@ -401,6 +401,19 @@ export function recordInitialReferrer() {
       }
     }
 
+    // Attach as session attributes so the values are present across the session
+    // even if the CloudWatch Logs schema doesn't surface custom event names.
+    try {
+      rumInstance.addSessionAttributes({
+        bb_hasReferrer: Boolean(raw),
+        bb_referrerOrigin: referrerOrigin || "",
+        bb_referrerHost: referrerHost || "",
+        bb_landingPath: window.location.pathname,
+      });
+    } catch {
+      // Best-effort only.
+    }
+
     rumInstance.recordEvent("referrer", {
       hasReferrer: Boolean(raw),
       referrerOrigin,

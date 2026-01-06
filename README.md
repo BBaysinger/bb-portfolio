@@ -540,15 +540,23 @@ fields http_referer as ref
 RUM referrers (optional):
 
 - Primary source of truth for inbound referrers is still nginx access logs (`http_referer`).
-- This repo also records a lightweight RUM custom event `referrer` (origin/host only) on the first page load per session.
+- This repo records a lightweight RUM referrer payload (origin/host only) on the first page load per session.
+  - It is sent both as a custom event and as session attributes (`bb_referrerHost`, `bb_referrerOrigin`) so you can query it even if the log schema doesn't surface custom event names.
 - Query in Logs Insights (log group: `/aws/vendedlogs/RUMService`):
 
 ```sql
-fields @timestamp, event_details.referrerOrigin, event_details.referrerHost, event_details.landingPath
-| filter event_type = "referrer"
-| stats count() as hits by event_details.referrerOrigin, event_details.referrerHost
-| sort hits desc
+-- Schema-safe: search the raw message for the session attribute keys
+fields @timestamp, @message
+| filter @message like /bb_referrerHost/
+| sort @timestamp desc
 | limit 50
+
+-- If the fields are indexed in your account/region, you can also try:
+-- fields @timestamp, metadata.sessionAttributes.bb_referrerOrigin, metadata.sessionAttributes.bb_referrerHost
+-- | filter metadata.sessionAttributes.bb_referrerHost != ""
+-- | stats count() as hits by metadata.sessionAttributes.bb_referrerOrigin, metadata.sessionAttributes.bb_referrerHost
+-- | sort hits desc
+-- | limit 50
 ```
 
 ### 🚀 Deployment Process (Terraform Core)
