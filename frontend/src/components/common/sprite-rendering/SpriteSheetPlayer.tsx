@@ -1,4 +1,10 @@
-import React, { useEffect, useRef, useState, useMemo } from "react";
+import React, {
+  useEffect,
+  useRef,
+  useState,
+  useMemo,
+  useCallback,
+} from "react";
 
 import { CanvasRenderer } from "./CanvasRenderer";
 import { ISpriteRenderer } from "./RenderingAllTypes";
@@ -6,7 +12,7 @@ import { RenderStrategyType } from "./RenderingAllTypes";
 import styles from "./SpriteSheetPlayer.module.scss";
 import { WebGlRenderer } from "./WebGlRenderer";
 
-const DEFAULT_RENDER_STRATEGY: RenderStrategyType = "canvas";
+const DEFAULT_RENDER_STRATEGY: RenderStrategyType = "css";
 
 interface SpriteSheetPlayerProps {
   src: string;
@@ -15,6 +21,7 @@ interface SpriteSheetPlayerProps {
   loops?: number;
   randomFrame?: boolean;
   onEnd?: () => void;
+  endFrame?: number | "last";
   frameControl?: number | null;
   className?: string;
   renderStrategy?: RenderStrategyType;
@@ -30,7 +37,7 @@ interface SpriteSheetPlayerProps {
  * Example: `explosion_w72h72f16.webp`
  *
  * Rendering notes:
- * - `canvas` is the default and generally the most predictable.
+ * - `canvas` generally the most predictable (but I'm seeing scaling issues intermittently).
  * - `css` can be convenient but is more susceptible to browser decode/paint timing.
  * - `webgl` can be fast once warm, but setup/texture uploads can be expensive depending on device.
  *
@@ -44,10 +51,14 @@ interface SpriteSheetPlayerProps {
  * @param {number} [loops=0] - Number of times to loop (0 = infinite).
  * @param {boolean} [randomFrame=false] - Whether to show a random frame on init or each step.
  * @param {() => void} [onEnd] - Callback when animation completes all loops.
+ * @param {number | "last"} [endFrame=0] - Frame to display after a finite animation ends (0-based).
+ *                                      - Use an integer frame index.
+ *                                      - Use "last" to display the final frame.
+ *                                      - Use -1 to hide the sprite while keeping resources warm (similar to `frameControl === -1`).
  * @param {number | null} [frameControl=null] - Manually control the frame index (null = autoplay).
  *                                             Use -1 to hide the sprite while keeping the spritesheet warm (pre-fetched/decoded).
  * @param {string} [className=""] - Additional class name(s) to apply to wrapper div.
- * @param {"css" | "canvas" | "webgl"} [renderStrategy="canvas"] - Strategy for rendering sprite frames.
+ * @param {"css" | "canvas" | "webgl"} [renderStrategy="css"] - Strategy for rendering sprite frames.
  *
  * @returns A responsive, frame-accurate sprite player that adapts to playback and rendering requirements.
  *
@@ -59,6 +70,7 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
   loops = 0,
   randomFrame = false,
   onEnd,
+  endFrame = 0,
   frameControl = null,
   className = "",
   renderStrategy = DEFAULT_RENDER_STRATEGY,
@@ -87,6 +99,22 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
       frameCount: f,
     };
   }, [src]);
+
+  const resolveEndFrameIndex = useCallback(
+    (frameCount: number): number | -1 => {
+      if (endFrame === "last") return Math.max(0, frameCount - 1);
+      if (typeof endFrame === "number") {
+        if (endFrame === -1) return -1;
+        if (Number.isNaN(endFrame) || !Number.isFinite(endFrame)) return 0;
+        return Math.min(
+          Math.max(Math.trunc(endFrame), 0),
+          Math.max(0, frameCount - 1),
+        );
+      }
+      return 0;
+    },
+    [endFrame],
+  );
 
   useEffect(() => {
     if (!meta) return;
@@ -150,9 +178,9 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
 
           completedLoopsRef.current++;
           if (loops !== 0 && completedLoopsRef.current >= loops) {
-            // Always default back to the first frame when a finite animation completes.
-            frameRef.current = 0;
-            setFrameIndex(0);
+            const resolved = resolveEndFrameIndex(meta.frameCount);
+            frameRef.current = resolved === -1 ? 0 : resolved;
+            setFrameIndex(resolved);
             isCancelled = true;
             onEnd?.();
             return;
@@ -163,9 +191,9 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
           if (next >= meta.frameCount) {
             completedLoopsRef.current++;
             if (loops !== 0 && completedLoopsRef.current >= loops) {
-              // Always default back to the first frame when a finite animation completes.
-              frameRef.current = 0;
-              setFrameIndex(0);
+              const resolved = resolveEndFrameIndex(meta.frameCount);
+              frameRef.current = resolved === -1 ? 0 : resolved;
+              setFrameIndex(resolved);
               isCancelled = true;
               onEnd?.();
               return;
@@ -192,7 +220,15 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
         animationFrameRef.current = null;
       }
     };
-  }, [meta, frameControl, autoPlay, loops, randomFrame, onEnd]);
+  }, [
+    meta,
+    frameControl,
+    autoPlay,
+    loops,
+    randomFrame,
+    onEnd,
+    resolveEndFrameIndex,
+  ]);
 
   useEffect(() => {
     if (!canvasRef.current || !meta) return;
@@ -217,11 +253,14 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
       }
     }
 
+    const isHidden =
+      frameControl === -1 || (frameControl === null && frameIndex === -1);
+
     const effectiveFrameIndex =
-      frameControl === -1
-        ? 0
-        : typeof frameControl === "number"
-          ? frameControl
+      typeof frameControl === "number" && frameControl !== -1
+        ? frameControl
+        : isHidden
+          ? 0
           : frameIndex;
 
     if (effectiveFrameIndex !== null && rendererRef.current) {
@@ -240,11 +279,14 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
 
   if (!meta) return null;
 
+  const isHidden =
+    frameControl === -1 || (frameControl === null && frameIndex === -1);
+
   const effectiveFrameIndex =
-    frameControl === -1
-      ? 0
-      : typeof frameControl === "number"
-        ? frameControl
+    typeof frameControl === "number" && frameControl !== -1
+      ? frameControl
+      : isHidden
+        ? 0
         : frameIndex;
 
   const { frameWidth, frameHeight, frameCount } = meta;
@@ -273,7 +315,7 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
           style={{
             // When hidden (frameControl === -1), keep the canvas mounted so the renderer can
             // still warm-load resources, but move it offscreen and disable interaction.
-            ...(frameControl === -1
+            ...(isHidden
               ? {
                   position: "absolute" as const,
                   left: "-99999px",
@@ -299,13 +341,14 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
               aspectRatio: `${frameWidth} / ${frameHeight}`,
               backgroundImage,
               // When hidden, force the background off-element so nothing is drawn, while the URL stays warm.
-              backgroundPosition:
-                frameControl === -1 ? "-99999px -99999px" : backgroundPosition,
+              backgroundPosition: isHidden
+                ? "-99999px -99999px"
+                : backgroundPosition,
               backgroundSize,
               backgroundRepeat: "no-repeat",
               imageRendering: "pixelated",
-              opacity: frameControl === -1 ? 0 : 1,
-              pointerEvents: frameControl === -1 ? "none" : undefined,
+              opacity: isHidden ? 0 : 1,
+              pointerEvents: isHidden ? "none" : undefined,
             }}
           />
         )
