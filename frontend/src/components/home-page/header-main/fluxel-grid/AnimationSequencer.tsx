@@ -25,7 +25,7 @@ interface AnimationMeta {
   narrow: string;
   fps?: number;
   loops?: number;
-  weight: number; // required for simplicity
+  weight: number;
 }
 
 /**
@@ -108,7 +108,7 @@ const AnimationSequencer = forwardRef<
         narrow: "burst1_Layer-Comp-_w16h12f30",
         fps: 10,
         loops: 1,
-        weight: 1,
+        weight: 10,
       },
       {
         wide: "interactive-web_w16h12f105",
@@ -293,6 +293,7 @@ const AnimationSequencer = forwardRef<
           fps={activeAnim.fps}
           loops={activeAnim.loops}
           onEnd={handleEnd}
+          endFrame={-1}
           frameControl={shouldPlay ? null : -1}
         />
       )}
