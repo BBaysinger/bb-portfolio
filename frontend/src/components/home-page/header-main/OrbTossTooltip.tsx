@@ -43,19 +43,19 @@ const OrbTossTooltip: React.FC<Props> = ({
       {/* Rotating circular text ring */}
       <svg
         className={styles.textRing}
-        viewBox="0 0 100 100"
+        viewBox="-8 -8 116 116"
         xmlns="http://www.w3.org/2000/svg"
         aria-hidden="true"
       >
         <defs>
           <path
             id="tossTextPath"
-            d="M50,50 m -40,0 a 40,40 0 1,1 80,0 a 40,40 0 1,1 -80,0"
+            d="M50,50 m -48,0 a 48,48 0 1,1 96,0 a 48,48 0 1,1 -96,0"
           />
         </defs>
         <text>
           <textPath xlinkHref="#tossTextPath" startOffset="0%">
-            {"Give a toss! Give a toss! Give a toss! Give a toss! "}
+            {"Give a toss! Give a toss! Give a toss! "}
           </textPath>
         </text>
       </svg>
