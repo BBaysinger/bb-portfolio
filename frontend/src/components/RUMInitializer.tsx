@@ -40,7 +40,12 @@
 import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 
-import { initializeRUM, recordPageView, setRUMUser } from "@/services/rum";
+import {
+  initializeRUM,
+  recordInitialReferrer,
+  recordPageView,
+  setRUMUser,
+} from "@/services/rum";
 import { useAppSelector } from "@/store/hooks";
 
 export function RUMInitializer() {
@@ -50,7 +55,22 @@ export function RUMInitializer() {
 
   // Initialize RUM on mount
   useEffect(() => {
-    initializeRUM();
+    (async () => {
+      await initializeRUM();
+
+      // Capture inbound referrer once per browser session.
+      // RUM is only enabled in production + HTTPS, so this stays quiet in dev/local.
+      try {
+        const key = "bb_rum_referrer_recorded";
+        if (typeof window !== "undefined" && !sessionStorage.getItem(key)) {
+          recordInitialReferrer();
+          sessionStorage.setItem(key, "1");
+        }
+      } catch {
+        // sessionStorage can fail in some privacy modes; still safe to proceed.
+        recordInitialReferrer();
+      }
+    })();
   }, []);
 
   // Set user ID when logged in

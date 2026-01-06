@@ -537,6 +537,20 @@ fields http_referer as ref
 
 **Next steps (optional):** Add CloudWatch Dashboards / Alarms for timeouts & SSH failures, integrate Real User Monitoring (CloudWatch RUM) for frontend UX metrics.
 
+RUM referrers (optional):
+
+- Primary source of truth for inbound referrers is still nginx access logs (`http_referer`).
+- This repo also records a lightweight RUM custom event `referrer` (origin/host only) on the first page load per session.
+- Query in Logs Insights (log group: `/aws/vendedlogs/RUMService`):
+
+```sql
+fields @timestamp, event_details.referrerOrigin, event_details.referrerHost, event_details.landingPath
+| filter event_type = "referrer"
+| stats count() as hits by event_details.referrerOrigin, event_details.referrerHost
+| sort hits desc
+| limit 50
+```
+
 ### 🚀 Deployment Process (Terraform Core)
 
 Provision / destroy core infrastructure using Terraform:
