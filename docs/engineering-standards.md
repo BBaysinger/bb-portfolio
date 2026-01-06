@@ -25,7 +25,6 @@ They reflect the current implementation in this repository (Next.js + Payload, D
 ## Quick reference (TL;DR)
 
 - **Source control**: no `git push`/`terraform apply`/production deploys without explicit human approval. Stage + commit is fine; pushing is not. Commit messages must include a concise summary line _and_ a bulleted list detailing every task completed so a reviewer can map each change to an explicit entry.
-- **Pre-commit gate**: run `npm run precommit` before every commit. It runs formatting (`prettier --write`), linting + autofix (`eslint . --fix`), and a typecheck (`tsc --noEmit`).
 - **Testing gate**: before every PR/merge run `npm run lint`, `npm test`, and service-specific builds (`npm run build:frontend`, `npm run build:backend`). Do not ship failing lint/tests.
 - **Documentation**: every file/function follows the JSDoc-style rules below; shell scripts include shebang + usage + env var docs.
 - **Environment config**: one canonical key per concept (e.g., `FRONTEND_URL`), no env baked in Docker images, env guards enforced via `scripts/check-required-env.ts`.
@@ -52,6 +51,8 @@ When working with AI coding assistants:
 - **Git operations**: AI _can_ stage files (`git add`) and prepare commits (`git commit`), but **must not execute `git push`**. The developer should review staged changes and push, merge, or PR manually after verification.
 - **Command expectation**: when the user asks for a git action (e.g., “git commit”), that request implicitly means “provide the exact command(s) to run”. Only execute `git add`/`git commit` when explicitly instructed to run them.
 - **Confirmation required**: when providing any git command (including `git add`/`git commit`), the assistant must present the exact command(s) and require an explicit human **Approve/Execute** confirmation step via **command preview card**, as opposed to providing it in plain text.
+- **Local checks are human-run**: the developer runs local checks like `npm run precommit`, `npm run lint`, and `npm test`. The assistant should not run them unless explicitly asked.
+- **No linting required by the assistant**: do not require the assistant to run `npm run lint` as part of a task; request it only when you explicitly want the assistant to execute a lint pass.
 - **Builds**: do **not** run builds (e.g., `pnpm run build`, `npm run build:*`) by default. In most cases a build is already running; **ask the developer to run the build** and paste results unless the user explicitly asked you to run it or you need it to unblock a diagnosis.
 - **Running the project**: assume the project is already running locally with hot reload. Do **not** start/stop dev servers, Docker Compose stacks, or “run the app to verify” by default. Only run the project when you explicitly need runtime output (logs, HTTP responses, console errors) to confirm behavior or diagnose a problem, or when the user asks you to.
 - **Terraform/Infrastructure changes**: AI can prepare and suggest `terraform plan` but should not automatically execute `terraform apply` without explicit user confirmation for each resource change.
@@ -63,7 +64,7 @@ When working with AI coding assistants:
 1. **Scope** – e.g., “Touch only `frontend/src/components/foo/**`.”
 2. **Goal** – “Eliminate React hook lint warnings; behavior must stay identical.”
 3. **Forbidden actions** – “Never run `terraform apply`, `ssh prod`, rotate secrets, or push commits.”
-4. **Required checks** – “Run `npm run lint` + `npm run test` and summarize output; stop on failure.”
+4. **Required checks** – “Run `npm test` and summarize output; stop on failure.” (If you want the assistant to execute local checks, list the exact commands here.)
 5. **Ambiguity rule** – “If requirements conflict or files are missing, stop and ask instead of guessing.”
 6. **Logging** – “Summarize long-running commands; don’t dump pages of logs unless requested.”
 
@@ -156,10 +157,9 @@ Shell script checklist (required for every new/edited script):
 
 Minimum bar before merging any change:
 
-0. `npm run precommit` (format + lint + typecheck)
-1. `npm run lint`
-2. `npm test` (runs Vitest + Playwright smoke paths)
-3. `npm run build:backend` and `npm run build:frontend` when touching those areas
+0. `npm run lint`
+1. `npm test` (runs Vitest + Playwright smoke paths)
+2. `npm run build:backend` and `npm run build:frontend` when touching those areas
 
 If a command is intentionally skipped (e.g., Playwright on CI smoke jobs), document the reason in the PR and re-run locally as soon as feasible. New features should include or update tests; lack of coverage must be justified explicitly.
 
