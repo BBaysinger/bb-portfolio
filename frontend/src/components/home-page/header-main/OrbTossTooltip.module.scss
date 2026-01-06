@@ -28,7 +28,7 @@
 
 // Generic arrow styling
 .arrow {
-  --distance: 100px; // how far outward each arrow radiates
+  --distance: 109px; // how far outward each arrow radiates
   --width: 56px;
   --height: 56px;
   position: absolute;
@@ -133,7 +133,7 @@
     display: block;
   }
   text {
-    font-size: 12px;
+    font-size: 14.5px;
     letter-spacing: 0.05em;
     fill: #fff;
     text-transform: uppercase;
