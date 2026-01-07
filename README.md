@@ -12,8 +12,6 @@ The surrounding infrastructure (Terraform, Docker, AWS, GitHub Actions) exists n
 
 The goal is to show **breadth across the full front-end lifecycle** — from rendering pipelines and animation timing, to infrastructure automation, data modeling, and deployment reproducibility — all authored by a single developer.
 
-> **Hiring reviewer?** Start with the 30-second tour below. The infrastructure is real, but the focus is the architecture of interaction — how performance, animation, and DevOps discipline intersect in one cohesive system.
-
 ## 🔎 30‑Second Tour (Frontend Focus)
 
 | What to Look At                                                      | Why It Matters                                                            | Code Entry                                                                                      |
