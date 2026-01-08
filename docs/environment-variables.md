@@ -53,6 +53,13 @@ General conventions:
   - When `false`, the frontend uses Cognito identity pool + guest role signing.
 - **Usage**: `frontend/src/services/rum.ts`
 
+### NEXT_PUBLIC_GA_MEASUREMENT_ID
+
+- **Purpose**: Enables Google Analytics 4 page view tracking on the frontend.
+- **Format**: `G-XXXXXXXXXX`
+- **Default**: unset (disabled)
+- **Usage**: `frontend/src/components/GoogleAnalytics.tsx`
+
 ### AWS_ACCOUNT_ID
 
 - **Purpose**: AWS Account ID for ECR image URIs

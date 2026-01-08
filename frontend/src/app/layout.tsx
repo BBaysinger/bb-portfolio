@@ -2,6 +2,7 @@ import clsx from "clsx";
 import { ReactNode } from "react";
 
 import SkipLink from "@/components/common/SkipLink";
+import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import { roboto } from "@/fonts";
 
 import { AppShell } from "./AppShell";
@@ -55,6 +56,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         /> */}
       </head>
       <body className={clsx(roboto.className, styles.body)}>
+        <GoogleAnalytics />
         <EnvironmentClassInitializer />
         <SkipLink />
         <AppProviders>
