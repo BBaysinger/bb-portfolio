@@ -53,9 +53,9 @@
   // Runtime dependencies for backend and CMS functionality
   "dependencies": {
     // AWS SES client used for sending transactional emails
-    "@aws-sdk/client-ses": "^3.962.0",
+    "@aws-sdk/client-ses": "^3.965.0",
     // Shared AWS SDK types
-    "@aws-sdk/types": "^3.957.0",
+    "@aws-sdk/types": "^3.965.0",
     // MongoDB adapter for Payload CMS
     "@payloadcms/db-mongodb": "3.70.0",
     // Nodemailer email adapter for Payload CMS (handles SMTP email sending, password resets, notifications)
@@ -112,7 +112,7 @@
     // Vite React plugin (enables React support in Vitest)
     "@vitejs/plugin-react": "5.1.2",
     // Maps baseline browser support targets for tooling that needs them
-    "baseline-browser-mapping": "^2.9.11",
+    "baseline-browser-mapping": "^2.9.12",
     // ESLint JavaScript/TypeScript linter (v9 for latest rules)
     "eslint": "^9.39.2",
     // Next.js ESLint configuration (includes React and accessibility rules)
