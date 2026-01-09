@@ -10,7 +10,7 @@ export const Users: CollectionConfig = {
   },
   admin: {
     useAsTitle: 'fullName',
-    defaultColumns: ['fullName', 'email', 'role'], // List view columns
+    defaultColumns: ['fullName', 'email', 'organization', 'role'], // List view columns
   },
   access: {
     create: ({ req }) => req.user?.role === 'admin',
@@ -65,6 +65,12 @@ export const Users: CollectionConfig = {
       name: 'lastName',
       type: 'text',
       required: true,
+    },
+    {
+      name: 'organization',
+      label: 'Organization / Company',
+      type: 'text',
+      required: false,
     },
     {
       name: 'fullName',
