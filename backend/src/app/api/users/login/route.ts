@@ -245,6 +245,44 @@ export const POST = async (request: Request) => {
       data: { email, password },
     })
 
+    // Best-effort audit log (do not block login on failures)
+    try {
+      type LoginResult = {
+        user?: {
+          id?: unknown
+        }
+        token?: unknown
+      }
+
+      const forwarded = request.headers.get('x-forwarded-for')
+      const ip = forwarded
+        ? forwarded.split(',')[0]?.trim()
+        : request.headers.get('x-real-ip') || undefined
+      const userAgent = request.headers.get('user-agent') || undefined
+
+      const loginResult = result as unknown as LoginResult
+      const userId =
+        typeof loginResult.user?.id === 'string' && loginResult.user.id.length > 0
+          ? loginResult.user.id
+          : undefined
+
+      if (typeof userId === 'string' && userId.length > 0) {
+        await payload.create({
+          collection: 'authEvents',
+          data: {
+            eventType: 'login',
+            method: 'password',
+            user: userId,
+            ip,
+            userAgent,
+          },
+          overrideAccess: true,
+        })
+      }
+    } catch {
+      // ignore
+    }
+
     // Set the auth cookie expected by Payload. By default this is `payload-token`.
     // Use secure cookies in production; admins access via HTTPS.
     const token =

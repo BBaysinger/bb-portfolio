@@ -9,6 +9,7 @@ import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { s3Storage } from '@payloadcms/storage-s3'
 import { buildConfig } from 'payload'
 
+import { AuthEvents } from './collections/AuthEvents'
 import { BrandLogos } from './collections/BrandLogos'
 import { Clients } from './collections/Brands'
 import { Projects } from './collections/Projects'
@@ -125,7 +126,15 @@ export default buildConfig({
     admin: '/admin',
     api: '/api',
   },
-  collections: [Users, Projects, Clients, BrandLogos, ProjectScreenshots, ProjectThumbnails],
+  collections: [
+    Users,
+    AuthEvents,
+    Projects,
+    Clients,
+    BrandLogos,
+    ProjectScreenshots,
+    ProjectThumbnails,
+  ],
   globals: [ContactInfo],
   editor: lexicalEditor(),
   // Enforce prefixed payload secret by environment profile
