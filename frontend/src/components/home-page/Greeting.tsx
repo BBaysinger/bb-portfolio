@@ -60,13 +60,14 @@ const Greeting: React.FC = () => {
             </div>
             <div ref={addToRefs}>
               <p>
-                My portfolio spans projects from early interfaces in AS3,
-                jQuery, and Haxe to modern builds in React and contemporary
-                frameworks. I've kept some older pieces because I'm still proud
-                of what they accomplished with the tools of the time. They
-                represent a throughline I've carried into today's fluid, dynamic
-                interfaces. Please explore—and reach out if
-                something&nbsp;resonates.
+                This portfolio includes work from different stages of my
+                career—from early interactive interfaces to modern, front-end
+                systems. Some older pieces remain because they still represent
+                strong craftsmanship within the constraints of their era. What
+                ties everything together is a consistent focus on interaction,
+                motion, and thoughtful user experience—principles I continue to
+                build on today. Please take a look around, and don't hesitate to
+                reach out if something resonates.
               </p>
             </div>
             <a ref={addToRefs} href="#projects-list">
