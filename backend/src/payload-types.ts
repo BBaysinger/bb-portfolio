@@ -139,6 +139,7 @@ export interface User {
   role: 'admin' | 'user';
   firstName: string;
   lastName: string;
+  organization?: string | null;
   fullName?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -522,6 +523,7 @@ export interface UsersSelect<T extends boolean = true> {
   role?: T;
   firstName?: T;
   lastName?: T;
+  organization?: T;
   fullName?: T;
   updatedAt?: T;
   createdAt?: T;
