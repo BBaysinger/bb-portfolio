@@ -12,6 +12,7 @@ import OrbTossTooltip from "@/components/home-page/header-main/OrbTossTooltip";
 import useScrollPersistedClass from "@/hooks/useScrollPersistedClass";
 import useStableViewportHeightVar from "@/hooks/useStableViewportHeightVar";
 import useTimeOfDay from "@/hooks/useTimeOfDay";
+import { recordGAEvent } from "@/services/ga";
 import { recordEvent } from "@/services/rum";
 
 import BorderBlinker, { Side } from "./BorderBlinker";
@@ -161,6 +162,18 @@ const Hero: React.FC = () => {
       // Track toss interactions in CloudWatch RUM (production only; no-op locally).
       // Keep metadata small and non-identifying.
       recordEvent("slinger_toss", {
+        inputType: e.type.startsWith("touch") ? "touch" : "mouse",
+        vx,
+        vy,
+        speed: Math.hypot(vx, vy),
+        hasCollided,
+        page:
+          typeof window !== "undefined" ? window.location.pathname : undefined,
+      });
+
+      // Track toss interactions in GA4 (enabled only when NEXT_PUBLIC_GA_MEASUREMENT_ID is set).
+      // Keep metadata small and non-identifying.
+      recordGAEvent("slinger_toss", {
         inputType: e.type.startsWith("touch") ? "touch" : "mouse",
         vx,
         vy,

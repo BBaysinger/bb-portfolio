@@ -17,8 +17,17 @@ function sendPageView(pagePath: string) {
   if (!GA_MEASUREMENT_ID) return;
   if (typeof window === "undefined") return;
 
-  window.gtag?.("config", GA_MEASUREMENT_ID, {
+  // Ensure events can be queued before gtag.js finishes loading.
+  window.dataLayer = window.dataLayer || [];
+  window.gtag =
+    window.gtag || ((...args: unknown[]) => window.dataLayer?.push(args));
+
+  // In GA4, when initial config sets send_page_view:false, you must emit
+  // explicit page_view events for SPA/app-router navigation.
+  window.gtag("event", "page_view", {
     page_path: pagePath,
+    page_location: window.location.href,
+    page_title: document.title,
   });
 }
 
