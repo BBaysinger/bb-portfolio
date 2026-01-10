@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 import { RawImg } from "@/components/common/RawImg";
 import MagneticThingy from "@/components/home-page/MagneticThingy";
 import useInViewAnimation from "@/hooks/useInViewAnimation";
@@ -51,26 +53,28 @@ const Greeting: React.FC = () => {
           <div className={styles.infoSection}>
             <div ref={addToRefs}>
               <p>
-                Hi, I&apos;m Bradley—an interactive developer with a background
-                in design, specializing in high-quality, animated web
-                experiences. My recent expertise lies in TypeScript, JavaScript,
-                and modern front-end development, with a focus on performance,
-                scalability, and usability.
+                Hi, I'm Bradley — a <strong>UI</strong> and{" "}
+                <strong>front-end developer</strong> in Spokane, WA. I've spent
+                many years building interaction-heavy front-end projects, and
+                this site reflects some of that work. It highlights how I think
+                about motion, behavior, and the details that make interfaces
+                feel intuitive and alive.
               </p>
             </div>
             <div ref={addToRefs}>
               <p>
-                This portfolio includes work from different stages of my
-                career—from early interactive interfaces to modern, front-end
-                systems. Some older pieces remain because they still represent
-                strong craftsmanship within the constraints of their era. What
-                ties everything together is a consistent focus on interaction,
-                motion, and thoughtful user experience—principles I continue to
-                build on today. Please take a look around, and don't hesitate to
-                reach out if something resonates.
+                My current focus is growing deeper in foundational front-end
+                work—shipping and maintaining reliable UI with strong HTML, CSS,
+                and JavaScript—while bringing the same level of care to everyday
+                product interfaces. Please take a look around, and if something
+                resonates, please <Link href="/contact">reach out!</Link>
               </p>
             </div>
-            <a ref={addToRefs} href="#projects-list">
+            <a
+              ref={addToRefs}
+              className={styles.lookLink}
+              href="#projects-list"
+            >
               <div>Take a look!</div>
             </a>
           </div>

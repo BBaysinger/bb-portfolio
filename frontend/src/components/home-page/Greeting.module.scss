@@ -265,6 +265,13 @@
     }
 
     a {
+      color: #000;
+      &:hover {
+        text-decoration: none;
+      }
+    }
+
+    a.lookLink {
       position: relative;
       display: flex;
       flex-direction: column;
