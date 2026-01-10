@@ -39,7 +39,9 @@ export const useAuth = () => {
 
   const login = async (identifier: string, password: string) => {
     try {
-      const result = await dispatch(loginUser({ identifier, password })).unwrap();
+      const result = await dispatch(
+        loginUser({ identifier, password }),
+      ).unwrap();
 
       // Clear manual logout flag on successful login
       localStorage.removeItem("manualLogout");
