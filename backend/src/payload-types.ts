@@ -137,6 +137,11 @@ export interface UserAuthOperations {
 export interface User {
   id: string;
   role: 'admin' | 'user';
+  /**
+   * Login identifier (alternative to email). Should be unique.
+   */
+  username?: string | null;
+  usernameNormalized?: string | null;
   firstName: string;
   lastName: string;
   organization?: string | null;
@@ -521,6 +526,8 @@ export interface PayloadMigration {
  */
 export interface UsersSelect<T extends boolean = true> {
   role?: T;
+  username?: T;
+  usernameNormalized?: T;
   firstName?: T;
   lastName?: T;
   organization?: T;
