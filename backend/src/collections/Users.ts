@@ -41,6 +41,12 @@ export const Users: CollectionConfig = {
   hooks: {
     beforeChange: [
       ({ data }) => {
+        if (typeof data?.username === 'string') {
+          const trimmed = data.username.trim()
+          data.username = trimmed.length > 0 ? trimmed : undefined
+          const normalized = trimmed.toLowerCase()
+          data.usernameNormalized = normalized.length > 0 ? normalized : undefined
+        }
         if (data?.firstName && data?.lastName && data?.email) {
           data.fullName = `${data.firstName} ${data.lastName} <${data.email}>`
         }
@@ -59,11 +65,20 @@ export const Users: CollectionConfig = {
     {
       name: 'username',
       type: 'text',
+      required: false,
+      admin: {
+        description: 'Login identifier (alternative to email). Should be unique.',
+      },
+    },
+    {
+      name: 'usernameNormalized',
+      type: 'text',
       unique: true,
       index: true,
       required: false,
       admin: {
-        description: 'Login identifier (alternative to email). Should be unique.',
+        hidden: true,
+        readOnly: true,
       },
     },
     {

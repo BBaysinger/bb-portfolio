@@ -250,11 +250,12 @@ export const POST = async (request: Request) => {
     let email = identifier
     if (!looksLikeEmail) {
       try {
+        const normalizedUsername = identifier.trim().toLowerCase()
         const users = await payload.find({
           collection: 'users',
           where: {
-            username: {
-              equals: identifier,
+            usernameNormalized: {
+              equals: normalizedUsername,
             },
           },
           limit: 1,
