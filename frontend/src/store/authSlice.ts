@@ -78,7 +78,7 @@ export const checkAuthStatus = createAsyncThunk(
 export const loginUser = createAsyncThunk(
   "auth/login",
   async (
-    { email, password }: { email: string; password: string },
+    { identifier, password }: { identifier: string; password: string },
     { rejectWithValue },
   ) => {
     try {
@@ -88,7 +88,7 @@ export const loginUser = createAsyncThunk(
           "Content-Type": "application/json",
         },
         credentials: "include",
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ identifier, password }),
       });
 
       if (!response.ok) {

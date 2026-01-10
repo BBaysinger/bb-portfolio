@@ -22,7 +22,7 @@ const LoginPage = () => {
     error: authError,
     clearAuthError,
   } = useAuth();
-  const [email, setEmail] = useState(""); // using email, not username
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [_localError, setLocalError] = useState("");
 
@@ -73,8 +73,8 @@ const LoginPage = () => {
     clearAuthError();
 
     // Client-side validation
-    if (!email || !email.includes("@")) {
-      setLocalError("Please enter a valid email address.");
+    if (!identifier.trim()) {
+      setLocalError("Please enter your email or username.");
       return;
     }
 
@@ -84,13 +84,13 @@ const LoginPage = () => {
     }
 
     try {
-      await login(email, password); // real API call
+      await login(identifier.trim(), password); // real API call
       // Login successful - the useAuth hook will handle redirect
     } catch (loginError) {
       const errorMessage =
         loginError instanceof Error
           ? loginError.message
-          : "Invalid email or password.";
+          : "Invalid email/username or password.";
       setLocalError(errorMessage);
     }
   };
@@ -121,14 +121,14 @@ const LoginPage = () => {
 
         <form className={styles.form} onSubmit={handleLogin}>
           <div className={styles.sameRow}>
-            <label htmlFor="email">
-              <div>Email:</div>
+            <label htmlFor="identifier">
+              <div>Email or username:</div>
               <input
-                type="email"
-                id="email"
-                placeholder="your@email.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                type="text"
+                id="identifier"
+                placeholder="email or username"
+                value={identifier}
+                onChange={(e) => setIdentifier(e.target.value)}
                 disabled={isLoading}
                 autoComplete="username"
                 required
