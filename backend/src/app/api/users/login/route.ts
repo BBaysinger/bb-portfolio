@@ -34,6 +34,10 @@ type LoginBody = {
   password?: string
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === 'object' && !Array.isArray(value)
+}
+
 async function readCredentials(request: Request): Promise<LoginBody> {
   const contentType = request.headers.get('content-type') || ''
   const tried = { json: false, form: false }
@@ -95,23 +99,25 @@ async function readCredentials(request: Request): Promise<LoginBody> {
           const s = v.toString().trim()
           if (s.startsWith('{') || s.startsWith('[') || jsonLikeKeys.includes(name)) {
             try {
-              const obj = JSON.parse(s) as Record<string, unknown>
-              const nestedEmail = pickString(obj, ['email', 'username', 'identifier']).trim()
-              const nestedPass = pickString(obj, ['password', 'pass'])
+              const parsed: unknown = JSON.parse(s)
+              const obj = isRecord(parsed) ? parsed : undefined
+
+              const nestedEmail = obj
+                ? pickString(obj, ['email', 'username', 'identifier']).trim()
+                : ''
+              const nestedPass = obj ? pickString(obj, ['password', 'pass']) : ''
               if (nestedEmail || nestedPass) {
                 return { identifier: nestedEmail || undefined, password: nestedPass || undefined }
               }
               // Try common nested containers
-              for (const container of ['data', 'user', 'payload']) {
-                const inner = obj?.[container]
-                if (inner && typeof inner === 'object') {
-                  const ne = pickString(inner as Record<string, unknown>, [
-                    'email',
-                    'username',
-                    'identifier',
-                  ]).trim()
-                  const np = pickString(inner as Record<string, unknown>, ['password', 'pass'])
-                  if (ne || np) return { identifier: ne || undefined, password: np || undefined }
+              if (obj) {
+                for (const container of ['data', 'user', 'payload']) {
+                  const inner = obj?.[container]
+                  if (isRecord(inner)) {
+                    const ne = pickString(inner, ['email', 'username', 'identifier']).trim()
+                    const np = pickString(inner, ['password', 'pass'])
+                    if (ne || np) return { identifier: ne || undefined, password: np || undefined }
+                  }
                 }
               }
             } catch {
@@ -121,7 +127,8 @@ async function readCredentials(request: Request): Promise<LoginBody> {
         }
       }
 
-      return { email: undefined, password: undefined }
+      const empty: LoginBody = {}
+      return empty
     } catch {
       return {}
     }
