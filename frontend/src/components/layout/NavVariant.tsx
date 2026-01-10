@@ -254,7 +254,7 @@ const NavVariant: React.FC<NavProps> = ({ variant }) => {
           </div>
           <div>
             <span className={clsx(styles.jobTitle, "nobr")}>
-              UI / Front-end Developer
+              Front-end / UI Developer
             </span>
           </div>
         </div>
