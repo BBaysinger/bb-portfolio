@@ -10,12 +10,16 @@ $hoverPersists: var(--hover-persists, 600ms);
   position: relative;
   width: 100%;
 
-  @include breakpointUp($b992px) {
+  @include breakpointUp($b768px) {
     flex: 0 1 calc(50% - projectsList.$projectsListGap * 0.5);
   }
 
-  @include breakpointUp($b1440px) {
+  @include breakpointUp($b1280px) {
     flex: 0 1 calc(33.333% - projectsList.$projectsListGap * (2 / 3));
+  }
+
+  @include breakpointUp($b1792px) {
+    flex: 0 1 calc(25% - projectsList.$projectsListGap * (3 / 4));
   }
 
   .thumbBg {
