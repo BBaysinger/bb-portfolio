@@ -1,8 +1,9 @@
 "use client";
 
-import { usePathname, useSearchParams } from "next/navigation";
 import Script from "next/script";
-import { useEffect } from "react";
+import { useCallback } from "react";
+
+import { useRouteChange } from "@/hooks/useRouteChange";
 
 const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
 
@@ -39,19 +40,18 @@ function sendPageView(pagePath: string) {
  * Enabled only when NEXT_PUBLIC_GA_MEASUREMENT_ID is set.
  */
 export function GoogleAnalytics() {
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-
-  useEffect(() => {
+  const handleRouteChange = useCallback((pathname: string, search: string) => {
     if (!GA_MEASUREMENT_ID) return;
     if (!pathname) return;
 
-    const url = searchParams?.toString()
-      ? `${pathname}?${searchParams.toString()}`
-      : pathname;
-
+    const url = search ? `${pathname}?${search}` : pathname;
     sendPageView(url);
-  }, [pathname, searchParams]);
+  }, []);
+
+  // Important for this app: carousel navigation updates `?p=` via history.pushState
+  // (not Next.js router), so we must also listen to external navigation signals
+  // like our custom bb:routechange.
+  useRouteChange(handleRouteChange, { mode: "both" });
 
   if (!GA_MEASUREMENT_ID) return null;
 
