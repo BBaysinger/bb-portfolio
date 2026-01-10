@@ -30,7 +30,7 @@ import { getPayload } from 'payload'
 export const runtime = 'nodejs'
 
 type LoginBody = {
-  email?: string
+  identifier?: string
   password?: string
 }
 
@@ -81,9 +81,10 @@ async function readCredentials(request: Request): Promise<LoginBody> {
         }
         return ''
       }
-      const email = findVal(['email', 'username', 'identifier']).trim()
+      const identifier = findVal(['email', 'username', 'identifier']).trim()
       const password = findVal(['password', 'pass'])
-      if (email || password) return { email: email || undefined, password: password || undefined }
+      if (identifier || password)
+        return { identifier: identifier || undefined, password: password || undefined }
 
       // New: Some clients send a single JSON blob field (e.g., _payload, payload, data)
       // Try to parse any string field that looks like JSON and extract the same keys.
@@ -98,7 +99,7 @@ async function readCredentials(request: Request): Promise<LoginBody> {
               const nestedEmail = pickString(obj, ['email', 'username', 'identifier']).trim()
               const nestedPass = pickString(obj, ['password', 'pass'])
               if (nestedEmail || nestedPass) {
-                return { email: nestedEmail || undefined, password: nestedPass || undefined }
+                return { identifier: nestedEmail || undefined, password: nestedPass || undefined }
               }
               // Try common nested containers
               for (const container of ['data', 'user', 'payload']) {
@@ -110,7 +111,7 @@ async function readCredentials(request: Request): Promise<LoginBody> {
                     'identifier',
                   ]).trim()
                   const np = pickString(inner as Record<string, unknown>, ['password', 'pass'])
-                  if (ne || np) return { email: ne || undefined, password: np || undefined }
+                  if (ne || np) return { identifier: ne || undefined, password: np || undefined }
                 }
               }
             } catch {
@@ -131,9 +132,10 @@ async function readCredentials(request: Request): Promise<LoginBody> {
     if (contentType.includes('application/json')) {
       tried.json = true
       const json = (await request.clone().json()) as Record<string, unknown>
-      const email = pickString(json, ['email', 'username', 'identifier']).trim()
+      const identifier = pickString(json, ['email', 'username', 'identifier']).trim()
       const password = pickString(json, ['password', 'pass'])
-      if (email || password) return { email: email || undefined, password: password || undefined }
+      if (identifier || password)
+        return { identifier: identifier || undefined, password: password || undefined }
     }
     if (
       contentType.includes('multipart/form-data') ||
@@ -141,7 +143,7 @@ async function readCredentials(request: Request): Promise<LoginBody> {
     ) {
       tried.form = true
       const fromForm = await pickFromForm(request.clone())
-      if (fromForm.email || fromForm.password) return fromForm
+      if (fromForm.identifier || fromForm.password) return fromForm
     }
   } catch {
     // ignore and try fallbacks
@@ -150,14 +152,15 @@ async function readCredentials(request: Request): Promise<LoginBody> {
   // Fallbacks: try the other parsers if not tried, then text sniffing
   if (!tried.form) {
     const fromForm = await pickFromForm(request.clone())
-    if (fromForm.email || fromForm.password) return fromForm
+    if (fromForm.identifier || fromForm.password) return fromForm
   }
   if (!tried.json) {
     try {
       const json = (await request.clone().json()) as Record<string, unknown>
-      const email = pickString(json, ['email', 'username', 'identifier']).trim()
+      const identifier = pickString(json, ['email', 'username', 'identifier']).trim()
       const password = pickString(json, ['password', 'pass'])
-      if (email || password) return { email: email || undefined, password: password || undefined }
+      if (identifier || password)
+        return { identifier: identifier || undefined, password: password || undefined }
     } catch {
       // ignore
     }
@@ -168,9 +171,10 @@ async function readCredentials(request: Request): Promise<LoginBody> {
       // Try JSON text
       try {
         const json = JSON.parse(txt) as Record<string, unknown>
-        const email = pickString(json, ['email', 'username', 'identifier']).trim()
+        const identifier = pickString(json, ['email', 'username', 'identifier']).trim()
         const password = pickString(json, ['password', 'pass'])
-        if (email || password) return { email: email || undefined, password: password || undefined }
+        if (identifier || password)
+          return { identifier: identifier || undefined, password: password || undefined }
       } catch {
         // Try urlencoded
         const params = new URLSearchParams(txt)
@@ -185,9 +189,10 @@ async function readCredentials(request: Request): Promise<LoginBody> {
           }
           return ''
         }
-        const email = getParam(['email', 'username', 'identifier']).trim()
+        const identifier = getParam(['email', 'username', 'identifier']).trim()
         const password = getParam(['password', 'pass'])
-        if (email || password) return { email: email || undefined, password: password || undefined }
+        if (identifier || password)
+          return { identifier: identifier || undefined, password: password || undefined }
       }
     }
   } catch {
@@ -198,9 +203,9 @@ async function readCredentials(request: Request): Promise<LoginBody> {
 }
 
 export const POST = async (request: Request) => {
-  const { email, password } = await readCredentials(request)
+  const { identifier, password } = await readCredentials(request)
 
-  if (!email || !password) {
+  if (!identifier || !password) {
     // Provide safe diagnostics (no secrets) to help identify parsing mismatches in prod
     let jsonKeys: string[] | undefined
     let formKeys: string[] | undefined
@@ -223,9 +228,9 @@ export const POST = async (request: Request) => {
 
     return Response.json(
       {
-        error: 'Missing email or password',
+        error: 'Missing identifier or password',
         received: {
-          emailPresent: Boolean(email),
+          identifierPresent: Boolean(identifier),
           passwordPresent: Boolean(password),
           contentType: request.headers.get('content-type') || undefined,
           jsonKeys,
@@ -238,6 +243,34 @@ export const POST = async (request: Request) => {
 
   try {
     const payload = await getPayload({ config: configPromise })
+
+    // Payload's built-in local auth strategy logs in by email+password.
+    // If the client provides a username, resolve it to an email first.
+    const looksLikeEmail = /^\S+@\S+\.[A-Za-z]{2,}$/.test(identifier)
+    let email = identifier
+    if (!looksLikeEmail) {
+      try {
+        const users = await payload.find({
+          collection: 'users',
+          where: {
+            username: {
+              equals: identifier,
+            },
+          },
+          limit: 1,
+          overrideAccess: true,
+        })
+
+        const user = users?.docs?.[0]
+        if (user && typeof (user as { email?: unknown }).email === 'string') {
+          email = (user as { email: string }).email
+        } else {
+          return Response.json({ error: 'Login failed' }, { status: 401 })
+        }
+      } catch {
+        return Response.json({ error: 'Login failed' }, { status: 401 })
+      }
+    }
 
     // Use Payload local API to authenticate
     const result = await payload.login({
