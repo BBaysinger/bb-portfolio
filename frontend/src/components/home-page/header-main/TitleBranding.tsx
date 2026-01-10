@@ -72,7 +72,7 @@ const TitleBranding = forwardRef<HTMLDivElement, TitleBrandingProps>(
             />
             <div className={clsx(styles.name, styles.firstName)}>Bradley</div>{" "}
             <div className={clsx(styles.name, styles.lastName)}>Baysinger</div>
-            <div className={styles.title}>UI / Front-end Developer</div>
+            <div className={styles.title}>Front-end / UI Developer</div>
           </h1>{" "}
         </span>
       </div>
