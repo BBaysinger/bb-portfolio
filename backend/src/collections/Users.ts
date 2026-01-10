@@ -10,7 +10,7 @@ export const Users: CollectionConfig = {
   },
   admin: {
     useAsTitle: 'fullName',
-    defaultColumns: ['fullName', 'email', 'organization', 'role'], // List view columns
+    defaultColumns: ['fullName', 'username', 'email', 'organization', 'role'], // List view columns
   },
   access: {
     create: ({ req }) => req.user?.role === 'admin',
@@ -55,6 +55,16 @@ export const Users: CollectionConfig = {
       options: ['admin', 'user'],
       defaultValue: 'user',
       required: true,
+    },
+    {
+      name: 'username',
+      type: 'text',
+      unique: true,
+      index: true,
+      required: false,
+      admin: {
+        description: 'Login identifier (alternative to email). Should be unique.',
+      },
     },
     {
       name: 'firstName',
