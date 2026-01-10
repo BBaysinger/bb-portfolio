@@ -6,7 +6,7 @@
   overflow: hidden;
   position: relative;
   isolation: isolate;
-  padding-block: clamp(0.75rem, 2.5vw, 2.75rem);
+  @include lerpRange(padding-block, 4vw, 2.5vw);
   background:
     radial-gradient(
       circle at center,
@@ -85,9 +85,6 @@
 .item,
 .phrase,
 .word {
-  // Note that effects/filters may cause clipping on mobile browsers.
-  // text-shadow was a problem. translate3d helped, but it was still
-  // broken in Chrome.
   @include lerpRange(font-size, 110px, 180px);
   line-height: 1;
   font-family: "Digital-7", sans-serif;
@@ -98,7 +95,6 @@
   text-transform: uppercase;
   white-space: nowrap;
   -webkit-text-stroke: 1px rgba(255, 255, 255, 0.12);
-  // transform: translateZ(0);
 }
 
 @media (prefers-reduced-motion: reduce) {
