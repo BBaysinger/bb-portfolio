@@ -1,5 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 
+import { getViewportHeightPx } from "@/utils/viewport";
+
+import { startViewportSettle } from "./viewportSettle";
+
 /**
  * Sets a persistent variable after scrolled (by a threshold) out of view.
  *
@@ -38,7 +42,7 @@ const useScrollPersistedClass = (
       if (!element) return;
 
       const rect = element.getBoundingClientRect();
-      const windowHeight = window.innerHeight;
+      const windowHeight = getViewportHeightPx();
 
       const scrolledPercentage = (rect.top + rect.height / 2) / windowHeight;
 
@@ -54,8 +58,13 @@ const useScrollPersistedClass = (
     window.addEventListener("scroll", handleScroll);
     handleScroll(); // Ensure it runs on mount
 
+    const stopViewportSettle = startViewportSettle(() => {
+      handleScroll();
+    });
+
     return () => {
       window.removeEventListener("scroll", handleScroll);
+      stopViewportSettle();
     };
   }, [id, threshold, storageKey]);
 

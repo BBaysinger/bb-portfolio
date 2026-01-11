@@ -5,6 +5,9 @@ import { useEffect, useRef } from "react";
 import { useDispatch } from "react-redux";
 
 import { setHeroInView } from "@/store/uiSlice";
+import { getViewportHeightPx } from "@/utils/viewport";
+
+import { startViewportSettle } from "./viewportSettle";
 
 /**
  * Tracks how much of the #hero element is in view and buckets it (100%, 5%, 0%).
@@ -35,7 +38,7 @@ export function useTrackHeroInView() {
       }
 
       const rect = heroEl.getBoundingClientRect();
-      const vh = window.innerHeight;
+      const vh = getViewportHeightPx();
       const heroHeight = rect.height;
 
       const top = rect.top;
@@ -78,6 +81,10 @@ export function useTrackHeroInView() {
       updateHeroVisibility();
     };
 
+    const stopViewportSettle = startViewportSettle(() => {
+      handleViewportChange();
+    });
+
     const scrollListenerOptions: AddEventListenerOptions = { passive: true };
 
     window.addEventListener(
@@ -92,6 +99,8 @@ export function useTrackHeroInView() {
       if (heroCheckRaf !== null) {
         cancelAnimationFrame(heroCheckRaf);
       }
+
+      stopViewportSettle();
       window.removeEventListener(
         "scroll",
         handleViewportChange,
