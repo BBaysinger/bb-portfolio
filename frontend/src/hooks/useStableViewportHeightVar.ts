@@ -3,7 +3,10 @@
 import { useCallback, useEffect, useRef } from "react";
 import type { RefObject } from "react";
 
+import { getViewportHeightPx } from "@/utils/viewport";
+
 import { useWindowMonitor } from "./useLayoutMonitor";
+import { useViewportSettle } from "./viewportSettle";
 
 export interface UseStableViewportHeightVarOptions {
   cssVarName?: string;
@@ -38,8 +41,7 @@ export default function useStableViewportHeightVar(
     const el = elementRef.current;
     if (!el) return;
 
-    const visual = window.visualViewport?.height;
-    const height = Math.round((visual ?? window.innerHeight) || 0);
+    const height = getViewportHeightPx();
     if (height > 0) {
       el.style.setProperty(cssVarName, `${height}px`);
     }
@@ -74,56 +76,19 @@ export default function useStableViewportHeightVar(
   useWindowMonitor(elementRef, (eventType) => onWindowEvent(eventType), {
     resize: 0,
     orientationchange: 0,
-    fullscreenchange: 0,
+    fullscreenchange: -1,
     scroll: -1,
     visibilitychange: -1,
   });
 
   useEffect(() => {
     lastWidthRef.current = window.innerWidth;
+  }, []);
 
-    // iOS WebKit (including Chrome iOS) can report an overly-tall viewport on
-    // the first frame, then settle shortly after initial paint as browser UI
-    // chrome/safe-area stabilizes.
-    let rafId1 = 0;
-    let rafId2 = 0;
-
-    rafId1 = requestAnimationFrame(() => {
-      measureStableHeightPx();
-      rafId2 = requestAnimationFrame(measureStableHeightPx);
-    });
-
-    const settleTimeoutId = window.setTimeout(measureStableHeightPx, 150);
-
-    const onPageShow = () => measureStableHeightPx();
-    window.addEventListener("pageshow", onPageShow);
-
-    const visualViewport = window.visualViewport;
-    let visualViewportActive = true;
-    const disableVisualViewportId = window.setTimeout(() => {
-      visualViewportActive = false;
-    }, 1000);
-
-    const onVisualViewportChange = () => {
-      if (!visualViewportActive) return;
-      measureStableHeightPx();
-    };
-
-    visualViewport?.addEventListener("resize", onVisualViewportChange, {
-      passive: true,
-    });
-    visualViewport?.addEventListener("scroll", onVisualViewportChange, {
-      passive: true,
-    });
-
-    return () => {
-      cancelAnimationFrame(rafId1);
-      cancelAnimationFrame(rafId2);
-      window.clearTimeout(settleTimeoutId);
-      window.clearTimeout(disableVisualViewportId);
-      window.removeEventListener("pageshow", onPageShow);
-      visualViewport?.removeEventListener("resize", onVisualViewportChange);
-      visualViewport?.removeEventListener("scroll", onVisualViewportChange);
-    };
+  const onViewportSettle = useCallback(() => {
+    lastWidthRef.current = window.innerWidth;
+    measureStableHeightPx();
   }, [measureStableHeightPx]);
+
+  useViewportSettle(onViewportSettle);
 }
