@@ -4,7 +4,7 @@ An original clamped viewport lerp (linear interpolation) responsive system spawn
 
 A hybrid approach:
 
-- JavaScript provides normalized viewport lerp (linear interpolation) factors (`--fluid-percent-*`) for `remRange` (accessibility-first scaling).
+- JavaScript provides normalized viewport lerp (linear interpolation) factors (`--lerp-percent-*`) for `remRange` (accessibility-first scaling).
 - Pure-CSS mixins (`lerpRange`, `scaleRange`) handle layout and transforms without JS.
 
 ## Overview
@@ -73,13 +73,13 @@ The hook calculates a normalized viewport lerp (linear interpolation) factor $t$
 const t = (500 - 320) / (640 - 320) = 0.5
 
 // Sets CSS variable:
-element.style.setProperty('--fluid-percent-320-640', '0.5');
+element.style.setProperty('--lerp-percent-320-640', '0.5');
 ```
 
 Notes:
 
 - The hook clamps $t$ to `[0, 1]`.
-- Until JS runs (or if the hook is missing), mixins that reference `--fluid-percent-*` should provide a fallback.
+- Until JS runs (or if the hook is missing), mixins that reference `--lerp-percent-*` should provide a fallback.
 
 ### SCSS Layer (Mixins)
 
@@ -87,7 +87,7 @@ Notes:
 
 ```scss
 // remRange generates (simplified):
-font-size: calc(1.5rem + 1.5rem * var(--fluid-percent-320-640));
+font-size: calc(1.5rem + 1.5rem * var(--lerp-percent-320-640));
 ```
 
 `lerpRange` does not require JS variables; it computes the interpolation factor directly from `100vw`.
@@ -118,9 +118,9 @@ font-size: calc(1.5rem + 1.5rem * var(--fluid-percent-320-640));
 
 ```css
 .text {
-  font-size: calc(1rem + 0.5rem * var(--fluid-percent-320-640));
-  line-height: calc(1.4 + 0.2 * var(--fluid-percent-320-640));
-  margin: calc(0.5rem + 0.5rem * var(--fluid-percent-320-640));
+  font-size: calc(1rem + 0.5rem * var(--lerp-percent-320-640));
+  line-height: calc(1.4 + 0.2 * var(--lerp-percent-320-640));
+  margin: calc(0.5rem + 0.5rem * var(--lerp-percent-320-640));
 }
 ```
 
@@ -270,7 +270,7 @@ const fluidRef = useFluidLerpVars([
 
 1. **Check hook setup**: Ensure `useFluidLerpVars` is called in a parent component
 2. **Verify ranges**: Make sure SCSS mixin ranges match hook ranges
-3. **Inspect CSS**: Check DevTools for `--fluid-percent-*` variables
+3. **Inspect CSS**: Check DevTools for `--lerp-percent-*` variables
 
 ### Performance Issues
 

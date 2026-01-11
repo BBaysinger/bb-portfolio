@@ -155,7 +155,7 @@
 /// The referenced CSS variable represents a normalized lerp (linear interpolation) factor $t$
 /// (typically 0 → 1) for a specific viewport range.
 ///
-/// Note: This function only returns a `var(...)` reference. The underlying `--fluid-percent-*`
+/// Note: This function only returns a `var(...)` reference. The underlying `--lerp-percent-*`
 /// variable is set by `useFluidLerpVars` (JavaScript) on an ancestor element. Until JS runs
 /// (or if the hook is not used), the fallback value is used.
 ///
@@ -168,20 +168,20 @@
 /// `value = min + (max - min) * t`
 ///
 /// @example
-/// percent-var(360, 1440) => var(--fluid-percent-360-1440, 0)
+/// percent-var(360, 1440) => var(--lerp-percent-360-1440, 0)
 @function percent-var($min, $max) {
   $min-stripped: stripUnit($min);
   $max-stripped: stripUnit($max);
   @return string.unquote(
     // Provide a 0 fallback so before `useFluidLerpVars` initializes variables,
     // the interpolation factor resolves to 0 and components render at their min size.
-    "var(--fluid-percent-#{$min-stripped}-#{$max-stripped}, 0)"
+    "var(--lerp-percent-#{$min-stripped}-#{$max-stripped}, 0)"
   );
 }
 
 /// Applies accessibility-friendly fluid scaling via a shared viewport lerp factor (custom properties)
 ///
-/// **Requires useFluidLerpVars hook** to provide CSS variables like `--fluid-percent-320-640`.
+/// **Requires useFluidLerpVars hook** to provide CSS variables like `--lerp-percent-320-640`.
 /// Internally this is a lerp (linear interpolation): `min + (max - min) * t` where `t` comes from `percent-var()`.
 /// Values are converted to `rem` for accessibility so they respect user font-size preferences.
 ///
@@ -286,7 +286,7 @@
   // Approach:
   // - If the interpolation slope is unitless (e.g., px over px), precompute it in Sass and
   //   use a CSS expression that only multiplies a number by a length.
-  // - Otherwise (e.g., % values), fall back to the JS-provided `--fluid-percent-*` vars.
+  // - Otherwise (e.g., % values), fall back to the JS-provided `--lerp-percent-*` vars.
   $vw-range: $max-vw - $min-vw;
   $value-range: $max-value - $min-value;
   $slope: math.div($value-range, $vw-range);
