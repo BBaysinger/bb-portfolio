@@ -5,8 +5,6 @@ This document covers the current, day-to-day deployment toolchain for the single
 - **Script:** `deploy/scripts/deployment-orchestrator.sh`
 - **Scope:** provisions/updates a single EC2 host via Terraform and (re)starts Docker Compose profiles (via GitHub Actions with SSH fallback).
 
-If you’re looking for the archived multi-instance (blue/green / “Lagoon”) design notes, see `deploy-lagoon/docs/`.
-
 ## What it does
 
 - Terraform discovery/plan/apply for the single-instance stack in `infra/`

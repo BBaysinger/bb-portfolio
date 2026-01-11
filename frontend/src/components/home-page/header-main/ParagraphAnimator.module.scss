@@ -4,7 +4,7 @@
 .paragraphAnimator {
   top: var(--hero-padding);
   left: var(--hero-padding);
-  width: calc(100vw - var(--hero-padding) * 2 - $navBarHeight);
+  width: calc(100% - $navBarHeight);
   max-width: 960px;
   white-space: pre-wrap;
   transform-origin: top left;
@@ -13,7 +13,7 @@
   box-sizing: border-box;
   @include remRange(font-size, 16px, 20px);
   @include breakpointUp($b992px) {
-    width: calc(100vw - var(--hero-padding) * 2 - 470px);
+    width: calc(100% - 470px);
   }
 
   p {
