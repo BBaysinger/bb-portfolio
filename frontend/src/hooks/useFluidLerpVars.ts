@@ -9,7 +9,7 @@ import { useEffect, useRef, RefObject } from "react";
  * These variables primarily power the `remRange` SCSS mixin (and any direct CSS that references them).
  *
  * ## System Overview:
- * 1. **useFluidLerpVars** (this hook) - Provides CSS variables like `--fluid-percent-320-640`
+ * 1. **useFluidLerpVars** (this hook) - Provides CSS variables like `--lerp-percent-320-640`
  * 2. **remRange mixin** - Uses variables for accessibility-friendly text/UI scaling (rem-based)
  * 3. **lerpRange mixin** - Pure CSS linear interpolation from `100vw` (does not require this hook)
  * 4. **scaleRange mixin** - Transform scaling via a clamp-bounded lerp (linear interpolation)
@@ -17,7 +17,7 @@ import { useEffect, useRef, RefObject } from "react";
  * ## How It Works:
  * - JavaScript calculates a normalized lerp (linear interpolation) factor: `(viewport - min) / (max - min)`
  * - Clamps to `[0, 1]` and rounds (currently to 2 decimals)
- * - Sets CSS variables like `--fluid-percent-320-640: 0.75`
+ * - Sets CSS variables like `--lerp-percent-320-640: 0.75`
  * - SCSS/CSS uses the factor in a lerp (linear interpolation): `value = min + (max - min) * t`
  * - Updates automatically on resize/orientation change
  *
@@ -38,22 +38,22 @@ import { useEffect, useRef, RefObject } from "react";
  * const fluidRef = useFluidLerpVars(fluidRanges);
  *
  * // Generates (as CSS custom properties on the ref element):
- * // - --fluid-percent-320-640
- * // - --fluid-percent-320-768
- * // - --fluid-percent-320-992
- * // - --fluid-percent-360-1280
- * // - --fluid-percent-360-1440
- * // - --fluid-percent-320-1600
- * // - --fluid-percent-320-1792
+ * // - --lerp-percent-320-640
+ * // - --lerp-percent-320-768
+ * // - --lerp-percent-320-992
+ * // - --lerp-percent-360-1280
+ * // - --lerp-percent-360-1440
+ * // - --lerp-percent-320-1600
+ * // - --lerp-percent-320-1792
  * //
  * // Example values when `window.innerWidth ≈ 992` (clamped to [0,1] and rounded to 2 decimals):
- * // - --fluid-percent-320-640: 1.00
- * // - --fluid-percent-320-768: 1.00
- * // - --fluid-percent-320-992: 1.00
- * // - --fluid-percent-360-1280: 0.69
- * // - --fluid-percent-360-1440: 0.59
- * // - --fluid-percent-320-1600: 0.53
- * // - --fluid-percent-320-1792: 0.46
+ * // - --lerp-percent-320-640: 1.00
+ * // - --lerp-percent-320-768: 1.00
+ * // - --lerp-percent-320-992: 1.00
+ * // - --lerp-percent-360-1280: 0.69
+ * // - --lerp-percent-360-1440: 0.59
+ * // - --lerp-percent-320-1600: 0.53
+ * // - --lerp-percent-320-1792: 0.46
  *
  * return <div ref={fluidRef}>{children}</div>;
  * ```
@@ -74,8 +74,8 @@ import { useEffect, useRef, RefObject } from "react";
  * <div
  *   ref={fluidRef}
  *   style={{
- *     width: "calc(100px + 200px * var(--fluid-percent-320-1280))",
- *     fontSize: "calc(1rem + 0.5rem * var(--fluid-percent-360-1440))"
+ *     width: "calc(100px + 200px * var(--lerp-percent-320-1280))",
+ *     fontSize: "calc(1rem + 0.5rem * var(--lerp-percent-360-1440))"
  *   }}
  * />
  * ```
@@ -106,7 +106,7 @@ export function useFluidLerpVars<T extends HTMLElement = HTMLDivElement>(
   const ref = useRef<T | null>(null);
 
   useEffect(() => {
-    // Calculates and updates all --fluid-percent-[min]-[max] variables
+    // Calculates and updates all --lerp-percent-[min]-[max] variables
     const update = () => {
       const el = ref.current;
       if (!el) return;
@@ -116,7 +116,7 @@ export function useFluidLerpVars<T extends HTMLElement = HTMLDivElement>(
         const clamped = Math.max(0, Math.min(1, percent));
         const rounded = Math.round(clamped * 100) / 100;
         el.style.setProperty(
-          `--fluid-percent-${min}-${max}`,
+          `--lerp-percent-${min}-${max}`,
           rounded.toString(),
         );
       }
