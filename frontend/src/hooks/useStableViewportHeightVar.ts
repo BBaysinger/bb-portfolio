@@ -81,9 +81,49 @@ export default function useStableViewportHeightVar(
 
   useEffect(() => {
     lastWidthRef.current = window.innerWidth;
-    const rafId = requestAnimationFrame(measureStableHeightPx);
+
+    // iOS WebKit (including Chrome iOS) can report an overly-tall viewport on
+    // the first frame, then settle shortly after initial paint as browser UI
+    // chrome/safe-area stabilizes.
+    let rafId1 = 0;
+    let rafId2 = 0;
+
+    rafId1 = requestAnimationFrame(() => {
+      measureStableHeightPx();
+      rafId2 = requestAnimationFrame(measureStableHeightPx);
+    });
+
+    const settleTimeoutId = window.setTimeout(measureStableHeightPx, 150);
+
+    const onPageShow = () => measureStableHeightPx();
+    window.addEventListener("pageshow", onPageShow);
+
+    const visualViewport = window.visualViewport;
+    let visualViewportActive = true;
+    const disableVisualViewportId = window.setTimeout(() => {
+      visualViewportActive = false;
+    }, 1000);
+
+    const onVisualViewportChange = () => {
+      if (!visualViewportActive) return;
+      measureStableHeightPx();
+    };
+
+    visualViewport?.addEventListener("resize", onVisualViewportChange, {
+      passive: true,
+    });
+    visualViewport?.addEventListener("scroll", onVisualViewportChange, {
+      passive: true,
+    });
+
     return () => {
-      cancelAnimationFrame(rafId);
+      cancelAnimationFrame(rafId1);
+      cancelAnimationFrame(rafId2);
+      window.clearTimeout(settleTimeoutId);
+      window.clearTimeout(disableVisualViewportId);
+      window.removeEventListener("pageshow", onPageShow);
+      visualViewport?.removeEventListener("resize", onVisualViewportChange);
+      visualViewport?.removeEventListener("scroll", onVisualViewportChange);
     };
   }, [measureStableHeightPx]);
 }
