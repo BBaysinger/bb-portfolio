@@ -401,33 +401,30 @@ async function fetchPortfolioProjects(opts?: {
     typeof window !== "undefined"
       ? true
       : headersContainPayloadSession(requestHeaders);
+  // NOTE (INTENTIONAL): "NDA existence" is not treated as sensitive in this app.
+  // We support SSG/ISR rendering of a stable project carousel by allowing the public dataset to include
+  // NDA projects, but with their confidential fields redacted by the backend (field-level access).
+  //
+  // hasNdaAccess is a *UI convenience hint* to decide whether to render placeholders or rich content.
+  // It MUST NOT be treated as a security boundary. The backend and NDA file routes enforce auth.
   const hasNdaAccess =
     backendProvidedNdaDetails || (ndaDocsCount === 0 && sessionCookiePresent);
 
   if (debug) {
     try {
-      const cookieVal = (() => {
-        if (!requestHeaders) return "<none>";
-        if (Array.isArray(requestHeaders)) {
-          const entry = requestHeaders.find(
-            ([k]) => k.toLowerCase() === "cookie",
-          );
-          return entry ? entry[1] : "<none-array>";
-        }
-        if (requestHeaders instanceof Headers)
-          return requestHeaders.get("cookie") || "<none-headers>";
-        const obj = requestHeaders as Record<string, string>;
-        const foundKey = Object.keys(obj).find(
-          (k) => k.toLowerCase() === "cookie",
-        );
-        return foundKey ? obj[foundKey] : "<none-object>";
-      })();
+      const cookieHeader = getCookieHeaderValue(requestHeaders);
+      const cookieNames = cookieHeader
+        ? cookieHeader.split(/;\s*/).map((c) => c.split("=")[0] || "")
+        : [];
       console.info("[ProjectData] post-fetch auth context", {
         responseStatus: res.status,
         ndaDocsCount,
         backendProvidedNdaDetails,
         hasNdaAccess,
-        cookieHeaderSnippet: cookieVal?.slice(0, 200),
+        cookiePresent: Boolean(cookieHeader),
+        cookieNames,
+        payloadSessionCookiePresent:
+          headersContainPayloadSession(requestHeaders),
       });
     } catch {}
   }
@@ -556,12 +553,12 @@ async function fetchPortfolioProjects(opts?: {
       lockedThumbAlt = lockedThumbDoc.alt || undefined;
     }
 
-    // Frontend defense-in-depth: if either the project itself or its brand
-    // is NDA and the caller lacks auth, emit a sanitized placeholder instead
-    // of leaking teaser metadata.
+    // Frontend defense-in-depth:
+    // If either the project itself or its brand is NDA and the caller lacks auth, emit a sanitized
+    // placeholder instead of leaking teaser metadata. Existence is allowed; details are not.
     const projectIsNda = Boolean(doc.nda || brandIsNda);
 
-    // Route/data key rules:
+    // Route/data key rules (INTENTIONAL):
     // - Public projects: must use the human slug.
     // - NDA-like projects:
     //   - Authenticated: prefer human slug (canonical), fallback to short code.

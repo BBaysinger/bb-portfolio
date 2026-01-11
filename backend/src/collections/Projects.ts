@@ -12,9 +12,17 @@ export const Projects: CollectionConfig = {
     defaultColumns: ['title', 'sortIndex', 'slug', 'active', 'brandId'],
   },
   access: {
-    // Public can read active projects; NDA fields rely on per-field access rules below.
-    // Logged-in users can read active projects (including NDA) with full fields.
-    // Admins can read all fields unmodified.
+    // ACCESS MODEL (INTENTIONAL):
+    // - We treat NDA "existence" as non-sensitive.
+    // - Unauthenticated users may read the ACTIVE project list so the frontend can SSG/ISR a stable
+    //   carousel and render NDA placeholders.
+    // - Confidential details (title/slug/brand identity/urls/desc/media/etc.) are protected by
+    //   per-field access rules (see canReadNdaField) and frontend sanitization.
+    // - Authenticated users can read active projects with full fields.
+    // - Admins are unrestricted.
+    //
+    // If you ever want NDA projects to be invisible to the public, this is the place to change it:
+    // exclude NDA docs (and brand-NDA docs) at the collection-level for unauthenticated requests.
     read: ({ req }) => {
       // Admins: unrestricted
       if (req.user?.role === 'admin') return true
@@ -41,6 +49,7 @@ export const Projects: CollectionConfig = {
       // Ensure NDA placeholders work even when the NDA state is derived from the related brand.
       // - We intentionally keep `nda` readable publicly so the frontend can route to /nda/<code>/.
       // - We do NOT expose brand identity; we only normalize the NDA boolean.
+      // - This is UX-only: it should never be used to decide whether confidential fields are readable.
       async ({ doc, req }) => {
         try {
           // Only needed for unauthenticated responses; authenticated users can see full data.

@@ -11,6 +11,12 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic"; // must evaluate auth per request
 export const revalidate = 0;
 
+// SECURITY NOTE:
+// This route serves NDA project files from a private S3 bucket.
+// - Auth is enforced server-side per request (via backend /api/users/me).
+// - Responses are marked as private/no shared caching to avoid CDN/proxy leakage.
+// - URL/key "existence" is not treated as sensitive in this app, but file contents are.
+
 function getBackendBase(): string {
   const rawProfile = (
     process.env.ENV_PROFILE ||
