@@ -222,7 +222,6 @@ $navHamburgerBreakpoint: 992px;
     width: $navExpandWidth;
     max-width: $maxNavExpandWidth;
     right: 0;
-    padding-top: 160px;
     // Use dvh sparingly because it causes some janky layout shifts on some mobile browsers.
     // But here it's necessary and intentional to cover the full viewport height,
     // and doesn't shift layout.
@@ -238,6 +237,11 @@ $navHamburgerBreakpoint: 992px;
       width: 100%;
       position: relative;
       width: 100%;
+      transform: translateY(-50%);
+      top: 40%;
+      @media screen and (orientation: landscape) and (max-height: 500px) {
+        top: calc(50% + 18px);
+      }
     }
 
     li {
