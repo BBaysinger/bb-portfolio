@@ -1,7 +1,9 @@
 "use client";
 
-import { useEffect } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import type { RefObject } from "react";
+
+import { useWindowMonitor } from "./useLayoutMonitor";
 
 export interface UseStableViewportHeightVarOptions {
   cssVarName?: string;
@@ -29,38 +31,58 @@ export default function useStableViewportHeightVar(
   const { cssVarName = "--hero-stable-vh", widthChangeThresholdPx = 60 } =
     options;
 
-  useEffect(() => {
+  const lastWidthRef = useRef<number | null>(null);
+
+  const measureStableHeightPx = useCallback(() => {
     const el = elementRef.current;
     if (!el) return;
 
-    const measureStableHeightPx = () => {
-      const visual = window.visualViewport?.height;
-      const height = Math.round((visual ?? window.innerHeight) || 0);
-      if (height > 0) {
-        el.style.setProperty(cssVarName, `${height}px`);
+    const visual = window.visualViewport?.height;
+    const height = Math.round((visual ?? window.innerHeight) || 0);
+    if (height > 0) {
+      el.style.setProperty(cssVarName, `${height}px`);
+    }
+  }, [cssVarName, elementRef]);
+
+  const onWindowEvent = useCallback(
+    (eventType: string) => {
+      if (eventType === "orientationchange") {
+        measureStableHeightPx();
+        return;
       }
-    };
 
-    const rafId = requestAnimationFrame(measureStableHeightPx);
+      if (eventType !== "resize") return;
 
-    let lastWidth = window.innerWidth;
-    const onResize = () => {
       const width = window.innerWidth;
+      const lastWidth = lastWidthRef.current;
+      if (lastWidth == null) {
+        lastWidthRef.current = width;
+        measureStableHeightPx();
+        return;
+      }
+
       const widthDelta = Math.abs(width - lastWidth);
       if (widthDelta < widthChangeThresholdPx) return;
-      lastWidth = width;
+
+      lastWidthRef.current = width;
       measureStableHeightPx();
-    };
+    },
+    [measureStableHeightPx, widthChangeThresholdPx],
+  );
 
-    window.addEventListener("resize", onResize, { passive: true });
-    window.addEventListener("orientationchange", measureStableHeightPx, {
-      passive: true,
-    });
+  useWindowMonitor(elementRef, (eventType) => onWindowEvent(eventType), {
+    resize: 0,
+    orientationchange: 0,
+    fullscreenchange: 0,
+    scroll: -1,
+    visibilitychange: -1,
+  });
 
+  useEffect(() => {
+    lastWidthRef.current = window.innerWidth;
+    const rafId = requestAnimationFrame(measureStableHeightPx);
     return () => {
       cancelAnimationFrame(rafId);
-      window.removeEventListener("resize", onResize);
-      window.removeEventListener("orientationchange", measureStableHeightPx);
     };
-  }, [cssVarName, elementRef, widthChangeThresholdPx]);
+  }, [measureStableHeightPx]);
 }
