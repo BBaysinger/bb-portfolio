@@ -10,6 +10,13 @@ import { useEffect } from "react";
 
 type DetectedOs = "windows" | "mac" | "linux" | "ios" | "android" | "unknown";
 
+function isFirefox(): boolean {
+  if (typeof navigator === "undefined") return false;
+  const ua = navigator.userAgent ?? "";
+  // Desktop: "Firefox"; iOS Firefox: "FxiOS".
+  return /Firefox|FxiOS/i.test(ua);
+}
+
 function detectOs(): DetectedOs {
   if (typeof navigator === "undefined") return "unknown";
 
@@ -64,6 +71,9 @@ export type EnvironmentClassHookOptions = {
    * Defaults to true.
    */
   addAppleClass?: boolean;
+
+  /** Adds a `html.firefox` class when the browser is Firefox (including iOS Firefox). Defaults to true. */
+  addFirefoxClass?: boolean;
 };
 
 /**
@@ -89,6 +99,7 @@ export function useEnvironmentClasses(
       } satisfies Partial<Record<DetectedOs, boolean>>);
     const osClassPrefix = options.osClassPrefix ?? "";
     const addAppleClass = options.addAppleClass ?? true;
+    const addFirefoxClass = options.addFirefoxClass ?? true;
 
     const enabledOs = (Object.keys(osClasses) as DetectedOs[]).filter(
       (k) => osClasses[k],
@@ -96,6 +107,7 @@ export function useEnvironmentClasses(
 
     const classesToRemove = enabledOs.map((k) => `${osClassPrefix}${k}`);
     if (addAppleClass) classesToRemove.push("apple");
+    if (addFirefoxClass) classesToRemove.push("firefox");
     for (const cls of classesToRemove) element.classList.remove(cls);
 
     if (os !== "unknown" && osClasses[os]) {
@@ -106,11 +118,16 @@ export function useEnvironmentClasses(
       element.classList.add("apple");
     }
 
+    if (addFirefoxClass && isFirefox()) {
+      element.classList.add("firefox");
+    }
+
     return () => {
       for (const cls of classesToRemove) element.classList.remove(cls);
     };
   }, [
     options.addAppleClass,
+    options.addFirefoxClass,
     options.element,
     options.osClassPrefix,
     options.osClasses,
