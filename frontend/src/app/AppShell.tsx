@@ -239,7 +239,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     return () => mq.removeEventListener("change", apply);
   }, []);
 
-  // Provides `--fluid-percent-*` CSS vars used by `remRange`/`percent-var()`.
+  // Provides `--lerp-percent-*` CSS vars used by `remRange`/`percent-var()`.
   // Canonical documentation for this system lives in `useFluidLerpVars`.
   const fluidRef = useFluidLerpVars([
     [320, 680], // Mobile to hardcoded carousel max scale width
