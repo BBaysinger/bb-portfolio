@@ -1,6 +1,16 @@
 /**
  * Shared helpers for NDA-aware field access in Payload collections.
  * Ensures any field decorated with these guards only resolves for authenticated requests.
+ *
+ * IMPORTANT DESIGN NOTE:
+ * This project intentionally treats NDA "existence" (that a project/brand is NDA) as non-sensitive.
+ * We allow unauthenticated reads of active projects so the frontend can SSG/ISR stable lists and
+ * render consistent carousels with NDA placeholders. Confidential details are protected via
+ * field-level access (this helper) and frontend sanitization.
+ *
+ * If you ever want "NDA projects are invisible unless logged in", do NOT tweak a single field.
+ * You must change collection-level read access to exclude NDA docs entirely for unauthenticated users
+ * and update frontend routing/SSG assumptions accordingly.
  */
 import type { PayloadRequest } from 'payload'
 

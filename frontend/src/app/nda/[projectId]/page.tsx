@@ -9,6 +9,10 @@ export const revalidate = 3600;
 export const dynamicParams = true;
 export const dynamic = "force-static";
 
+// NOTE (INTENTIONAL): this route is SSG/ISR so we can render a stable carousel + NDA placeholders
+// without requiring auth at build/request time. Confidential NDA fields are *not* rendered here;
+// authenticated details are fetched client-side after login.
+
 export async function generateMetadata({
   params,
 }: {

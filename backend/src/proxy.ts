@@ -37,7 +37,7 @@ export function proxy(request: NextRequest) {
         const res = NextResponse.rewrite(url)
         res.cookies.set('x-admin-login-sanitized', '1', {
           path: '/admin',
-          httpOnly: false,
+          httpOnly: true,
           maxAge: 5,
         })
         return res
