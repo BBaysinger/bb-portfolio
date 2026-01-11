@@ -16,7 +16,8 @@ export interface UseStableViewportHeightVarOptions {
  * Sets a CSS custom property on a target element to a *stable* pixel viewport height.
  *
  * This is primarily useful on mobile browsers where viewport units (`vh`/`svh`/`dvh`)
- * can jitter as the browser chrome shows/hides during scrolling (notably Firefox Android).
+ * can cause the whole layout to shift when reversing scroll direction, if an element in
+ * the flow is sized based on these (notably Firefox mobile).
  *
  * Behavior:
  * - Measures once after mount (via rAF)
