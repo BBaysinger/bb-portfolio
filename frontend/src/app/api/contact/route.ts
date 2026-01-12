@@ -1,6 +1,26 @@
+/**
+ * Frontend API proxy for `POST /api/contact`.
+ *
+ * Purpose:
+ * - Provides a stable frontend-origin URL for the contact form submission.
+ * - Resolves the backend base URL based on environment, then forwards the request.
+ *
+ * Notes:
+ * - Always returns JSON to callers (wraps non-JSON upstream responses).
+ * - Forwards `content-type` and `user-agent` when present.
+ *
+ * Environment:
+ * - `BACKEND_INTERNAL_URL` (preferred)
+ * - `ENV_PROFILE` / `NODE_ENV` (used to pick a Docker service DNS fallback)
+ */
 import { NextRequest } from "next/server";
 
-// Proxy POST /api/contact to the backend and always return JSON
+/**
+ * Proxies the backend contact submission endpoint and normalizes output as JSON.
+ *
+ * @param request - Incoming request containing the contact submission payload.
+ * @returns JSON from upstream, or `{ error: string }` on failure.
+ */
 export async function POST(request: NextRequest) {
   try {
     // Resolve backend URL (reuse logic consistent with other proxy routes)

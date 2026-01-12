@@ -1,8 +1,25 @@
+/**
+ * Frontend API proxy for `GET /api/contact-info`.
+ *
+ * Purpose:
+ * - Provides a stable frontend-origin URL for retrieving public contact info.
+ * - Resolves the backend base URL based on environment, then forwards the request.
+ *
+ * Notes:
+ * - This endpoint returns obfuscated contact fields (e.g., base64 parts) from the backend.
+ * - Always returns JSON to callers.
+ * - Forwards `user-agent` when present.
+ *
+ * Environment:
+ * - `BACKEND_INTERNAL_URL` (preferred)
+ * - `ENV_PROFILE` / `NODE_ENV` (used to pick a Docker service DNS fallback)
+ */
 import { NextRequest } from "next/server";
 
 /**
- * Frontend API route that proxies contact info requests to the backend
- * This route handles the frontend -> backend communication
+ * Proxies the backend contact-info endpoint and returns the JSON response.
+ *
+ * @returns JSON from upstream, or `{ success: false, error: string }` on failure.
  */
 export async function GET(request: NextRequest) {
   try {

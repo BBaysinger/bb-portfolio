@@ -1,9 +1,33 @@
+/**
+ * Frontend API proxy for `POST /api/users/logout`.
+ *
+ * Purpose:
+ * - Provides a stable frontend-origin logout endpoint.
+ * - Proxies the logout request to the backend Payload route.
+ * - Clears auth cookies on the frontend origin to avoid stale-session edge cases.
+ *
+ * Notes:
+ * - Forwards incoming cookies so the backend can invalidate the correct session.
+ * - Also applies a safety-net cookie expiration for `payload-token` on this host.
+ * - Disables caching explicitly.
+ *
+ * Rendering/caching:
+ * - Marked `force-dynamic` with `revalidate = 0` so requests are never cached.
+ *
+ * Environment:
+ * - `BACKEND_INTERNAL_URL` (preferred)
+ * - `ENV_PROFILE` / `NODE_ENV` (used to pick a Docker service DNS fallback)
+ * - `DEBUG_API_AUTH` (optional; enables verbose logging)
+ */
 import { NextRequest, NextResponse } from "next/server";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 /**
- * Logout API route that proxies to Payload CMS backend
+ * Proxies logout to the backend and clears auth cookies.
+ *
+ * @param request - Incoming request (cookies are forwarded when present).
+ * @returns A JSON response containing a success message, or `{ error }` on failure.
  */
 export async function POST(request: NextRequest) {
   try {
