@@ -1,5 +1,17 @@
 "use client";
 
+/**
+ * Next.js App Router login page for NDA-protected portfolio content.
+ *
+ * This page delegates authentication to the shared `useAuth()` hook (Payload CMS session),
+ * then handles post-login redirection back to the originally requested NDA project.
+ *
+ * Key behaviors:
+ * - Uses `sessionStorage` to preserve the intended `/nda/:id/` destination across the login step.
+ * - Uses `router.replace()` to avoid leaving a "back" history entry for the login page.
+ * - Calls `router.refresh()` after login so Server Components re-evaluate with the new HttpOnly cookie.
+ */
+
 import clsx from "clsx";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -10,8 +22,7 @@ import { useAuth } from "@/hooks/useAuth";
 import styles from "./LoginPage.module.scss";
 
 /**
- * LoginPage prompts user for credentials and attempts Payload CMS login.
- *
+ * LoginPage prompts for credentials and triggers a Payload CMS login via `useAuth()`.
  */
 const LoginPage = () => {
   const router = useRouter();
@@ -26,6 +37,12 @@ const LoginPage = () => {
   const [password, setPassword] = useState("");
   const [_localError, setLocalError] = useState("");
 
+  /**
+   * Reads (and clears) the intended post-login redirect destination.
+   *
+   * This is stored in `sessionStorage` by whichever route gated NDA content and
+   * sent the user here to authenticate.
+   */
   const getPostLoginRedirectTo = (): string | null => {
     try {
       // Prefer a stable projectId redirect when available.
@@ -46,14 +63,14 @@ const LoginPage = () => {
     }
   };
 
-  // Clear any existing auth errors when component mounts
+  // If the user navigates here after a failed login attempt, avoid showing stale errors.
   useEffect(() => {
     if (authError) {
       clearAuthError();
     }
   }, [authError, clearAuthError]);
 
-  // Redirect if already logged in (but wait for loading to finish)
+  // If already authenticated, bounce away (but wait for the initial auth check to complete).
   useEffect(() => {
     if (!isLoading && isLoggedIn) {
       const redirectTo = getPostLoginRedirectTo();
@@ -67,6 +84,11 @@ const LoginPage = () => {
     return null;
   }
 
+  /**
+   * Form submit handler for the login attempt.
+   *
+   * Performs minimal client-side validation, then delegates to `useAuth().login()`.
+   */
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLocalError("");
