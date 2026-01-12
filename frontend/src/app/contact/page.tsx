@@ -5,8 +5,18 @@ import React, { useState } from "react";
 import styles from "./ContactPage.module.scss";
 
 /**
- * Contact page with AWS SES email integration
+ * Contact page.
  *
+ * Provides a simple client-rendered contact form and POSTs submissions to
+ * `POST /api/contact/`.
+ *
+ * Notes:
+ * - The `/api` prefix is expected to be rewritten to the backend (see Next.js
+ *   rewrites / proxy config).
+ * - A trailing slash is intentionally included in the fetch URL to avoid a 308
+ *   redirect when `trailingSlash: true` is enabled.
+ * - Client-side validation is intentionally minimal; the backend remains the
+ *   source of truth for validation and sending (SES).
  */
 const ContactPage = () => {
   const [formData, setFormData] = useState<{
@@ -26,6 +36,7 @@ const ContactPage = () => {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    // Reset any prior UI state as soon as the user starts editing again.
     if (errorMessage) setErrorMessage("");
     if (status) setStatus("");
   };
@@ -56,8 +67,8 @@ const ContactPage = () => {
     }
 
     try {
-      // Use relative path to use Next.js rewrites (/api -> backend)
-      // Include trailing slash to avoid 308 redirect due to Next.js trailingSlash: true
+      // Use a relative path so Next.js rewrites can route `/api` to the backend.
+      // Include a trailing slash to avoid a 308 redirect when `trailingSlash: true`.
       const response = await fetch(`/api/contact/`, {
         method: "POST",
         headers: {
@@ -69,9 +80,11 @@ const ContactPage = () => {
       const result = await response.json();
 
       if (response.ok) {
+        // Backend returns a friendly status message on success.
         setStatus(result.message || "Message sent successfully!");
         setFormData({ name: "", email: "", message: "" });
       } else {
+        // Normalize backend error payloads into thrown errors for a single catch path.
         throw new Error(result.error || "Form submission failed");
       }
     } catch (err) {
