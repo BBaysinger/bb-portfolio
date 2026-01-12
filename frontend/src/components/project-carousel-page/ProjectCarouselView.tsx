@@ -3,6 +3,7 @@
 import React, { useMemo } from "react";
 
 import ProjectData from "@/data/ProjectData";
+import { useProjectDataVersion } from "@/hooks/useProjectDataVersion";
 import { useTransformScaleFallback } from "@/hooks/useTransformScaleFallback";
 
 import { SourceType, DirectionType } from "./CarouselTypes";
@@ -65,6 +66,9 @@ const ProjectCarouselView: React.FC<{
     direction: DirectionType,
   ) => void;
 }> = ({ initialIndex, refObj, onStabilizationUpdate }) => {
+  // Re-render when ProjectData changes (e.g., NDA placeholder -> authenticated data).
+  const projectDataVersion = useProjectDataVersion();
+
   const { transformStyle: fallbackTransformStyle } = useTransformScaleFallback({
     minScale: MIN_SCALE,
     maxScale: MAX_SCALE,
@@ -74,30 +78,32 @@ const ProjectCarouselView: React.FC<{
     testTransform: SCALE_SUPPORT_TEST,
   });
 
-  const laptopSlides = useMemo(
-    () =>
-      ProjectData.activeProjects.map((project) => (
-        <DeviceDisplay
-          deviceType={DeviceTypes.LAPTOP}
-          id={project.id}
-          key={project.id}
-        />
-      )),
-    [],
-  );
+  const laptopSlides = useMemo(() => {
+    // Intentionally depend on ProjectData version so slides rebuild when
+    // NDA placeholders upgrade to authenticated screenshot URLs.
+    void projectDataVersion;
+    return ProjectData.activeProjects.map((project) => (
+      <DeviceDisplay
+        deviceType={DeviceTypes.LAPTOP}
+        id={project.id}
+        key={project.id}
+      />
+    ));
+  }, [projectDataVersion]);
 
-  const phoneSlides = useMemo(
-    () =>
-      ProjectData.activeProjects.map((project) => (
-        <DeviceDisplay
-          deviceType={DeviceTypes.PHONE}
-          mobileOrientation={project.mobileOrientation}
-          id={project.id}
-          key={project.id}
-        />
-      )),
-    [],
-  );
+  const phoneSlides = useMemo(() => {
+    // Intentionally depend on ProjectData version so slides rebuild when
+    // NDA placeholders upgrade to authenticated screenshot URLs / orientation.
+    void projectDataVersion;
+    return ProjectData.activeProjects.map((project) => (
+      <DeviceDisplay
+        deviceType={DeviceTypes.PHONE}
+        mobileOrientation={project.mobileOrientation}
+        id={project.id}
+        key={project.id}
+      />
+    ));
+  }, [projectDataVersion]);
 
   const layers: CarouselLayerConfig[] = [
     {

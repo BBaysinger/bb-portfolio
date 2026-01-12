@@ -1,6 +1,7 @@
 import { useRef, memo } from "react";
 
 import ProjectData from "@/data/ProjectData";
+import { useProjectDataVersion } from "@/hooks/useProjectDataVersion";
 
 import { DirectionType } from "./CarouselTypes";
 import styles from "./InfoSwapper.module.scss";
@@ -19,6 +20,9 @@ interface InfoSwapperProps {
  */
 const InfoSwapper = memo<InfoSwapperProps>(
   ({ direction, index, slideKeys }) => {
+    // Subscribe to ProjectData updates so NDA placeholders can upgrade in-place.
+    useProjectDataVersion();
+
     const projects = ProjectData.activeProjectsRecord;
     const keys = slideKeys ?? ProjectData.activeKeys;
     const infoRefElems = useRef<(HTMLDivElement | null)[]>([]);

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 
 import ProjectData, { projectRequiresNda } from "@/data/ProjectData";
+import { useProjectDataVersion } from "@/hooks/useProjectDataVersion";
 import getBrandLogoUrl from "@/utils/getBrandLogoUrl";
 
 import styles from "./LogoSwapper.module.scss";
@@ -25,6 +26,9 @@ const LogoSwapper: React.FC<LogoSwapperProps> = ({
   slideKeys,
   projectId,
 }) => {
+  // Re-render when ProjectData changes (e.g., NDA placeholder -> authenticated brand logos).
+  const projectDataVersion = useProjectDataVersion();
+
   // Resolve the current brandId either from index (preferred) or projectId fallback
   const projectsRecord = ProjectData.activeProjectsRecord;
   const keys = slideKeys ?? ProjectData.activeKeys;
@@ -99,6 +103,9 @@ const LogoSwapper: React.FC<LogoSwapperProps> = ({
 
   // Build a mapping of brandKey -> background-image URL (or none for NDA)
   const brandLogoMap = useMemo(() => {
+    // Intentionally depend on ProjectData version so logo mapping refreshes
+    // when NDA placeholders upgrade to authenticated data.
+    void projectDataVersion;
     const map: Record<string, string | null> = {};
     // Use all active projects' brand metadata to derive logo availability
     const projects = ProjectData.activeProjects;
@@ -118,7 +125,7 @@ const LogoSwapper: React.FC<LogoSwapperProps> = ({
       });
     }
     return map;
-  }, []);
+  }, [projectDataVersion]);
 
   // Derive the list of brands to render from the available logo map so that
   // any active brand (even if not present in the static label map) is included.
