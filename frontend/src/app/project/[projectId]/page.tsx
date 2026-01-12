@@ -1,3 +1,15 @@
+/**
+ * Public project detail route: `/project/[projectId]`.
+ *
+ * This page is rendered as SSG/ISR and delegates data fetching + title updates to the client
+ * boundary, keeping server-side metadata generation cache-safe.
+ *
+ * Key exports:
+ * - `revalidate` / `dynamicParams` to control ISR behavior.
+ * - `generateMetadata` for a safe default title.
+ * - Default export `ProjectPage`.
+ */
+
 import type { Metadata } from "next";
 import { Suspense } from "react";
 
@@ -9,29 +21,28 @@ export const revalidate = 3600;
 // Allow on-demand generation for unknown params if needed.
 export const dynamicParams = true;
 
+/**
+ * Provides metadata for the public project route.
+ *
+ * Keep metadata cache-safe: do not fetch from the backend here.
+ * The client sets `document.title` from the hydrated project store.
+ */
 export async function generateMetadata({
   params,
 }: {
   params: Promise<{ projectId: string }>;
 }): Promise<Metadata> {
-  // Keep metadata fast and cache-safe: do not fetch from the backend here.
-  // The client sets document.title from the hydrated ProjectData store.
   void (await params);
   return { title: "Project" };
 }
 
 /**
- * Renders the project view page using a suspense-wrapped client-side component.
- * Validates the projectId param server-side on initial load.
+ * Server component wrapper for the project detail page.
  *
- * This page does not re-render on client-side route changes,
- * which are handled by ProjectViewWrapper via `window.history.pushState()`
- * and a custom useRouteChange hook.
+ * Renders a suspense boundary around `ProjectClientBoundary`, which handles client-side fetching
+ * and any in-app navigation behavior.
  *
- * @param {Object} params - The dynamic route params.
- * @param {string} params.projectId - The project identifier from the route.
- * @returns A React suspense boundary that wraps ProjectViewWrapper,
- *          or a 404 if the project ID is invalid.
+ * @param params - Next.js dynamic route params.
  */
 export default async function ProjectPage({
   params,
@@ -47,14 +58,11 @@ export default async function ProjectPage({
 }
 
 /**
- * Generates the list of projectId params for static generation.
- * Used by Next.js during pre-rendering to build all project pages.
+ * Static params for build-time pre-rendering.
  *
- * @returns An array of projectId param objects.
+ * Intentionally empty to avoid introducing a build-time backend dependency;
+ * `dynamicParams = true` allows ISR on-demand generation.
  */
-// Optional: pre-render known public project IDs at build time.
-// If you prefer purely on-demand rendering, you can remove this.
 export async function generateStaticParams() {
-  // Avoid build-time backend dependency; allow on-demand generation.
   return [];
 }

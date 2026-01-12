@@ -1,3 +1,22 @@
+/**
+ * Public projects file proxy route: `/projects/[[...key]]`.
+ *
+ * Serves static project assets from a public S3 bucket.
+ *
+ * Behavior:
+ * - Supports `GET` streaming (including `Range` requests when provided by the client).
+ * - Supports `HEAD` for metadata checks.
+ * - Supports conditional requests via `ETag` / `Last-Modified` (returns 304 when unmodified).
+ *
+ * Caching:
+ * - This content is public and safe to cache.
+ * - We set `Cache-Control` to enable CDN caching while keeping browser caching conservative.
+ *
+ * Runtime:
+ * - Uses Node.js runtime because the AWS SDK may return a Node `Readable` stream which we
+ *   convert to a Web `ReadableStream` for the Next.js response.
+ */
+
 import { Readable } from "stream";
 
 import {
@@ -22,6 +41,13 @@ const PUBLIC_CACHE_CONTROL =
 const debug =
   process.env.DEBUG_S3_ROUTES === "1" || process.env.NODE_ENV !== "production";
 
+/**
+ * Sanitizes and normalizes a catch-all route param into an S3 object key.
+ *
+ * - Rejects path traversal (`..`).
+ * - Applies an optional prefix.
+ * - If the path is empty/"directory-like" (no extension), defaults to `index.html`.
+ */
 function sanitizeKey(parts: string[], prefix = ""): string | null {
   const joined = (parts || []).join("/");
   if (joined.includes("..")) return null; // prevent path traversal
@@ -37,6 +63,9 @@ function sanitizeKey(parts: string[], prefix = ""): string | null {
   return key;
 }
 
+/**
+ * Builds an AWS S3 client using the configured region.
+ */
 function getS3Client() {
   const region =
     process.env.AWS_REGION || process.env.AWS_DEFAULT_REGION || "us-west-2";
@@ -48,6 +77,9 @@ function getS3Client() {
   return new S3Client({ region });
 }
 
+/**
+ * Extracts an AWS SDK HTTP status code (when present).
+ */
 function getHttpStatus(err: unknown): number | undefined {
   if (typeof err === "object" && err !== null) {
     const meta = (err as { $metadata?: { httpStatusCode?: number } }).$metadata;
@@ -77,11 +109,18 @@ function toWebStream(body: unknown): ReadableStream<Uint8Array> | null {
   return null;
 }
 
+/**
+ * Issues an S3 `HeadObject` request to fetch metadata.
+ */
 async function headObject(bucket: string, key: string) {
   const s3 = getS3Client();
   return s3.send(new HeadObjectCommand({ Bucket: bucket, Key: key }));
 }
 
+/**
+ * Evaluates conditional request headers (`If-None-Match`, `If-Modified-Since`) against the
+ * S3 object metadata.
+ */
 function isUnmodified(
   req: NextRequest,
   etag?: string | undefined,
@@ -99,6 +138,9 @@ function isUnmodified(
   return false;
 }
 
+/**
+ * Streams an S3 object body back to the caller, preserving relevant headers.
+ */
 async function streamObject(
   req: NextRequest,
   bucket: string,
@@ -142,6 +184,11 @@ async function streamObject(
   }
 }
 
+/**
+ * GET handler for public project assets.
+ *
+ * Uses `PUBLIC_PROJECTS_BUCKET` + optional `PUBLIC_PROJECTS_PREFIX` to resolve the object key.
+ */
 export async function GET(
   req: NextRequest,
   context: { params: Promise<{ key?: string[] }> },
@@ -196,6 +243,11 @@ export async function GET(
   return resp || new Response("Not found", { status: 404 });
 }
 
+/**
+ * HEAD handler for public project assets.
+ *
+ * Useful for client-side metadata checks without downloading the body.
+ */
 export async function HEAD(
   req: NextRequest,
   context: { params: Promise<{ key?: string[] }> },

@@ -1,3 +1,24 @@
+/**
+ * NDA projects file proxy route: `/nda-projects/[[...key]]`.
+ *
+ * Serves NDA project assets from a private S3 bucket, enforcing authentication per request.
+ *
+ * Security model:
+ * - Auth is checked server-side by calling the backend session endpoint (`/api/users/me`) with the
+ *   incoming request cookies.
+ * - Responses are marked `Cache-Control: private` to avoid CDN/proxy/shared cache leakage.
+ * - URL/key existence is not treated as sensitive in this app; file contents are.
+ *
+ * Behavior:
+ * - Supports `GET` streaming (including `Range` requests when provided by the client).
+ * - Supports `HEAD` for metadata checks.
+ * - Supports conditional requests via `ETag` / `Last-Modified` (returns 304 when unmodified).
+ *
+ * Runtime:
+ * - Uses Node.js runtime because we may receive an AWS SDK Node `Readable` stream and convert it to
+ *   a Web `ReadableStream` for the Next.js response.
+ */
+
 import { Readable } from "stream";
 
 import {
@@ -11,12 +32,12 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic"; // must evaluate auth per request
 export const revalidate = 0;
 
-// SECURITY NOTE:
-// This route serves NDA project files from a private S3 bucket.
-// - Auth is enforced server-side per request (via backend /api/users/me).
-// - Responses are marked as private/no shared caching to avoid CDN/proxy leakage.
-// - URL/key "existence" is not treated as sensitive in this app, but file contents are.
-
+/**
+ * Resolves the backend base URL for auth checks.
+ *
+ * Prefers `BACKEND_INTERNAL_URL` when provided, otherwise falls back to profile-based Docker
+ * service names (prod/dev/local) and finally localhost.
+ */
 function getBackendBase(): string {
   const rawProfile = (
     process.env.ENV_PROFILE ||
@@ -40,6 +61,13 @@ function getBackendBase(): string {
   return "http://localhost:8081";
 }
 
+/**
+ * Validates that the request is authenticated by forwarding cookies to the backend session endpoint.
+ *
+ * This is intentionally conservative:
+ * - Treats any fetch/parsing failure as unauthenticated.
+ * - Avoids caching (`no-store`) because auth is per-request.
+ */
 async function isAuthenticated(req: NextRequest): Promise<boolean> {
   try {
     const cookieHeader = req.headers.get("cookie") || "";
@@ -92,6 +120,13 @@ async function isAuthenticated(req: NextRequest): Promise<boolean> {
   }
 }
 
+/**
+ * Sanitizes and normalizes a catch-all route param into an S3 object key.
+ *
+ * - Rejects path traversal (`..`).
+ * - Applies an optional prefix.
+ * - If the path is empty/"directory-like" (no extension), defaults to `index.html`.
+ */
 function sanitizeKey(parts: string[], prefix = ""): string | null {
   const joined = (parts || []).join("/");
   if (joined.includes("..")) return null;
@@ -103,12 +138,18 @@ function sanitizeKey(parts: string[], prefix = ""): string | null {
   return key;
 }
 
+/**
+ * Builds an AWS S3 client using the configured region.
+ */
 function getS3Client() {
   const region =
     process.env.AWS_REGION || process.env.AWS_DEFAULT_REGION || "us-west-2";
   return new S3Client({ region });
 }
 
+/**
+ * Extracts an AWS SDK HTTP status code (when present).
+ */
 function getHttpStatus(err: unknown): number | undefined {
   if (typeof err === "object" && err !== null) {
     const meta = (err as { $metadata?: { httpStatusCode?: number } }).$metadata;
@@ -138,6 +179,12 @@ function toWebStream(body: unknown): ReadableStream<Uint8Array> | null {
   return null;
 }
 
+/**
+ * Best-effort content-type inference for common static asset extensions.
+ *
+ * S3 may return `application/octet-stream` depending on upload metadata; this keeps rendering sane
+ * for simple cases.
+ */
 function guessContentType(key: string): string | null {
   const k = key.toLowerCase();
   if (k.endsWith(".html") || k.endsWith(".htm"))
@@ -160,11 +207,17 @@ function guessContentType(key: string): string | null {
   return null;
 }
 
+/**
+ * Retrieves object metadata from S3 (ETag, LastModified, ContentType, etc.).
+ */
 async function headObject(bucket: string, key: string) {
   const s3 = getS3Client();
   return s3.send(new HeadObjectCommand({ Bucket: bucket, Key: key }));
 }
 
+/**
+ * Determines whether the client has a fresh cached copy based on request conditional headers.
+ */
 function isUnmodified(
   req: NextRequest,
   etag?: string | undefined,
@@ -182,6 +235,13 @@ function isUnmodified(
   return false;
 }
 
+/**
+ * Streams an S3 object to the caller.
+ *
+ * - Supports `Range` requests.
+ * - Sets private cache headers and basic hardening headers.
+ * - Returns `null` when the object is not found.
+ */
 async function streamObject(
   req: NextRequest,
   bucket: string,
@@ -235,6 +295,11 @@ async function streamObject(
   }
 }
 
+/**
+ * Computes an optional S3 prefix for NDA project assets.
+ *
+ * Keep this in sync with upload/sync scripts.
+ */
 function computeProjectsPrefix(): string {
   // Keep this identical to how upload scripts lay out keys in S3:
   // - By default, project files are synced to the bucket root.
@@ -242,6 +307,12 @@ function computeProjectsPrefix(): string {
   return (process.env.NDA_PROJECTS_PREFIX || "").replace(/\/+$/, "");
 }
 
+/**
+ * `GET` handler for NDA project assets.
+ *
+ * Authenticates per-request, normalizes the URL path into an S3 key, serves 304 on conditional
+ * hits, and otherwise streams the object with private cache headers.
+ */
 export async function GET(
   req: NextRequest,
   context: { params: Promise<{ key?: string[] }> },
@@ -284,6 +355,11 @@ export async function GET(
   return resp || new Response("Not found", { status: 404 });
 }
 
+/**
+ * `HEAD` handler for NDA project assets.
+ *
+ * Uses the same auth model as `GET` but returns only headers (ETag/Last-Modified) when available.
+ */
 export async function HEAD(
   req: NextRequest,
   context: { params: Promise<{ key?: string[] }> },
