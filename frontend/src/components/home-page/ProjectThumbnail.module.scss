@@ -10,6 +10,12 @@ $hoverPersists: var(--hover-persists, 600ms);
   position: relative;
   width: 100%;
 
+  .link {
+    display: block;
+    position: absolute;
+    inset: 0;
+  }
+
   @media (hover: hover) and (pointer: fine) {
     cursor: pointer;
   }
