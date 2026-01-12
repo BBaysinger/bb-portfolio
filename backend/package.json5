@@ -53,7 +53,7 @@
   // Runtime dependencies for backend and CMS functionality
   "dependencies": {
     // AWS SES client used for sending transactional emails
-    "@aws-sdk/client-ses": "^3.965.0",
+    "@aws-sdk/client-ses": "^3.966.0",
     // Shared AWS SDK types
     "@aws-sdk/types": "^3.965.0",
     // MongoDB adapter for Payload CMS
@@ -104,15 +104,15 @@
     // TypeScript definitions for JSON5 (used by annotated config files)
     "@types/json5": "^2.2.0",
     // Node.js TypeScript definitions (latest for Node 18+)
-    "@types/node": "^25.0.3",
+    "@types/node": "^25.0.6",
     // React 19 types
-    "@types/react": "19.2.7",
+    "@types/react": "19.2.8",
     // React DOM 19 types
     "@types/react-dom": "19.2.3",
     // Vite React plugin (enables React support in Vitest)
     "@vitejs/plugin-react": "5.1.2",
     // Maps baseline browser support targets for tooling that needs them
-    "baseline-browser-mapping": "^2.9.12",
+    "baseline-browser-mapping": "^2.9.14",
     // ESLint JavaScript/TypeScript linter (v9 for latest rules)
     "eslint": "^9.39.2",
     // Next.js ESLint configuration (includes React and accessibility rules)
@@ -130,7 +130,7 @@
     // TypeScript compiler (v5.9 for latest language features)
     "typescript": "5.9.3",
     // Vite path mapping support (resolves TypeScript path aliases)
-    "vite-tsconfig-paths": "6.0.3",
+    "vite-tsconfig-paths": "6.0.4",
     // Fast unit test runner (modern Jest alternative)
     "vitest": "4.0.16",
   },
