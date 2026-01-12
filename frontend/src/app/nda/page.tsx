@@ -1,23 +1,36 @@
+/**
+ * Query-param entry point for NDA pages: `/nda?p=slug`.
+ *
+ * This route intentionally stays static and fast:
+ * - It does not read `searchParams` on the server.
+ * - Canonicalization/redirect happens client-side via `NdaQueryRedirect`.
+ *
+ * Key exports:
+ * - `dynamic` / `revalidate` to enforce static behavior.
+ * - Default export `NdaQueryPage`.
+ */
+
 import NdaQueryRedirect from "./NdaQueryRedirect";
 
-// Query-param entry point should be fast and static.
-// Canonicalization happens on the client via NdaQueryRedirect.
 export const dynamic = "force-static";
 export const revalidate = 3600;
 
 /**
- * Query-param entry point: `/nda?p=slug`.
- * This exists to support direct hits/share links using `?p=`.
- * In-session carousel navigation updates `?p=` client-side (pushState) without hitting this route.
- * Canonicalizes to `/nda/[slug]` (trailing slash) or returns 404 if missing.
+ * Type for URL query parameters in Next.js App Router page props.
  */
-type QuerySearchParams = { [key: string]: string | string[] };
+type QuerySearchParams = Record<string, string | string[]>;
 
+/**
+ * Static query-param entry route.
+ *
+ * Note: we intentionally do not access `searchParams` on the server to preserve static rendering.
+ */
 export default async function NdaQueryPage({
   searchParams,
 }: {
   searchParams?: Promise<QuerySearchParams>;
 }) {
+  // Intentionally unused; canonicalization occurs on the client.
   void searchParams;
   return <NdaQueryRedirect />;
 }

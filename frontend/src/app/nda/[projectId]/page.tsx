@@ -19,10 +19,6 @@ export const revalidate = 3600;
 export const dynamicParams = true;
 export const dynamic = "force-static";
 
-// NOTE (INTENTIONAL): this route is SSG/ISR so we can render a stable carousel + NDA placeholders
-// without requiring auth at build/request time. Confidential NDA fields are *not* rendered here;
-// authenticated details are fetched client-side after login.
-
 /**
  * Provides metadata for the NDA project route.
  *
@@ -31,9 +27,9 @@ export const dynamic = "force-static";
 export async function generateMetadata({
   params,
 }: {
-  params: { projectId: string };
+  params: Promise<{ projectId: string }>;
 }): Promise<Metadata> {
-  const { projectId: _projectId } = params;
+  const { projectId: _projectId } = await params;
   const robots = { index: false, follow: false };
 
   // Never render NDA metadata from a public/SSG context.
@@ -51,9 +47,9 @@ export async function generateMetadata({
 export default async function NdaProjectPage({
   params,
 }: {
-  params: { projectId: string };
+  params: Promise<{ projectId: string }>;
 }) {
-  const { projectId } = params;
+  const { projectId } = await params;
 
   let ssrParsed:
     | import("@/data/ProjectData").ParsedPortfolioProjectData
