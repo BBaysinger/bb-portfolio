@@ -113,7 +113,7 @@ All files must include appropriate comments following industry best practices:
    */
   ````
 
-- **Inline comments**: Use sparingly for complex logic, non-obvious decisions, or workarounds. Comment the "why" rather than the "what":
+- **Inline comments**: Use for complex logic, non-obvious decisions, or workarounds. Comment the "why" rather than the "what":
 
   ```typescript
   // Using manual cookie parsing here because Next.js middleware
