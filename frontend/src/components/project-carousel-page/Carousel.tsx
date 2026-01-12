@@ -433,6 +433,15 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
 
     stableIndex.current = normalizedIndex;
     setStableIndexValue(normalizedIndex);
+    // IMPORTANT:
+    // Emit an initial stabilization update during first positioning.
+    // Without this, parents that gate route-driven programmatic scrolls on
+    // "first stabilization" won't unlock until the user manually scrolls.
+    onStabilizationUpdate?.(
+      normalizedIndex,
+      Source.PROGRAMMATIC,
+      scrollDirectionRef.current,
+    );
     if (stabilizationTimer.current) clearTimeout(stabilizationTimer.current);
 
     const rafId = requestAnimationFrame(() => {
