@@ -132,7 +132,7 @@
     // Vite path mapping support (resolves TypeScript path aliases)
     "vite-tsconfig-paths": "6.0.4",
     // Fast unit test runner (modern Jest alternative)
-    "vitest": "4.0.16",
+    "vitest": "4.0.17",
   },
   // Pin patched versions of transitive dependencies.
   // Payload pulls in nodemailer via @payloadcms/email-nodemailer and @payloadcms/payload-cloud.

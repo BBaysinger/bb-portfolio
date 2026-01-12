@@ -380,9 +380,9 @@
     // TypeScript type definitions for glob
     "@types/glob": "^9.0.0",
     // ESLint plugin for TypeScript-specific linting rules
-    "@typescript-eslint/eslint-plugin": "^8.52.0",
+    "@typescript-eslint/eslint-plugin": "^8.53.0",
     // TypeScript parser for ESLint
-    "@typescript-eslint/parser": "^8.52.0",
+    "@typescript-eslint/parser": "^8.53.0",
     // Maps baseline browser support targets for tooling that needs them
     "baseline-browser-mapping": "^2.9.14",
     // Run multiple commands concurrently in scripts
