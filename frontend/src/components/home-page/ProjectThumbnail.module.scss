@@ -10,6 +10,10 @@ $hoverPersists: var(--hover-persists, 600ms);
   position: relative;
   width: 100%;
 
+  @media (hover: hover) and (pointer: fine) {
+    cursor: pointer;
+  }
+
   @include breakpointUp($b768px) {
     flex: 0 1 calc(50% - projectsList.$projectsListGap * 0.5);
   }
@@ -23,11 +27,22 @@ $hoverPersists: var(--hover-persists, 600ms);
   }
 
   .thumbBg {
+    // Edge/Bing Visual Search + image toolbar overlays attach to hoverable <img>.
+    // Make the <img> non-interactive so the parent link handles hover/click.
+    // This removes the injected icons without changing layout semantics.
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-drag: none;
+    -webkit-touch-callout: none;
     filter: saturate(0) contrast(1) brightness(1);
     transition:
       filter $hoverPersists,
       opacity 1.2s;
     opacity: 0.5;
+
+    // Prevent Microsoft Edge from attaching image hover UI (e.g. Visual Search)
+    // by ensuring the <img> itself is never the hovered/click target.
+    // Hover styles are applied via the parent wrapper instead.
   }
 
   // Focus class applied by the scroll-focus hook (CSS module).

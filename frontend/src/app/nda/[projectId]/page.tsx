@@ -43,7 +43,7 @@ export default async function NdaProjectPage({
   // This is safe to cache (ISR) and gives a stable slide list immediately.
   try {
     const projectData = new ProjectDataStore();
-    await projectData.initialize({
+    const initResult = await projectData.initialize({
       disableCache: false,
       includeNdaInActive: true,
     });
@@ -54,6 +54,11 @@ export default async function NdaProjectPage({
       return redirect(`/project/${encodeURIComponent(projectId)}/`);
     }
     ssrParsed = projectData.projectsRecord;
+    // IMPORTANT: plumb placeholder/sanitization metadata through SSR -> CSR hydration.
+    // Without this, the client cannot reliably detect that it needs to refetch after login.
+    ssrContainsSanitizedPlaceholders = Boolean(
+      initResult?.containsSanitizedPlaceholders,
+    );
   } catch {
     // Fall back to client fetch if backend is unavailable
   }
