@@ -5,6 +5,16 @@ import { Suspense } from "react";
 import { ProjectDataStore, projectRequiresNda } from "@/data/ProjectData";
 
 import NdaProjectClientBoundary from "./NdaProjectClientBoundary";
+
+/**
+ * NDA project route.
+ *
+ * This page intentionally uses SSG/ISR so we can render a stable carousel and NDA placeholders
+ * without requiring auth at build/request time.
+ *
+ * Security invariant: confidential NDA fields are never rendered server-side in this route.
+ * Authenticated details are fetched client-side after login.
+ */
 export const revalidate = 3600;
 export const dynamicParams = true;
 export const dynamic = "force-static";
@@ -13,26 +23,37 @@ export const dynamic = "force-static";
 // without requiring auth at build/request time. Confidential NDA fields are *not* rendered here;
 // authenticated details are fetched client-side after login.
 
+/**
+ * Provides metadata for the NDA project route.
+ *
+ * IMPORTANT: Metadata must not reveal NDA details from a public/SSG context.
+ */
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ projectId: string }>;
+  params: { projectId: string };
 }): Promise<Metadata> {
-  const { projectId } = await params;
+  const { projectId: _projectId } = params;
   const robots = { index: false, follow: false };
 
   // Never render NDA metadata from a public/SSG context.
   // Client updates document.title after auth load.
-  void projectId;
+  void _projectId;
   return { robots, title: "NDA Project" };
 }
 
+/**
+ * Server component wrapper for NDA project pages.
+ *
+ * Prefetches an unauthenticated dataset that includes NDA placeholders so the carousel/slide list
+ * is stable on first render; the client boundary then refetches authenticated details after login.
+ */
 export default async function NdaProjectPage({
   params,
 }: {
-  params: Promise<{ projectId: string }>;
+  params: { projectId: string };
 }) {
-  const { projectId } = await params;
+  const { projectId } = params;
 
   let ssrParsed:
     | import("@/data/ProjectData").ParsedPortfolioProjectData
@@ -59,8 +80,12 @@ export default async function NdaProjectPage({
     ssrContainsSanitizedPlaceholders = Boolean(
       initResult?.containsSanitizedPlaceholders,
     );
-  } catch {
-    // Fall back to client fetch if backend is unavailable
+  } catch (error) {
+    // Fall back to client fetch if backend is unavailable.
+    // Log in non-production to avoid silent failures during local/dev.
+    if (process.env.NODE_ENV !== "production") {
+      console.error("Failed to SSR prefetch NDA placeholders", error);
+    }
   }
 
   return (
@@ -75,6 +100,11 @@ export default async function NdaProjectPage({
   );
 }
 
+/**
+ * This route is intentionally not statically enumerated.
+ *
+ * We allow on-demand generation (ISR) based on the URL param.
+ */
 export async function generateStaticParams() {
   return [];
 }
