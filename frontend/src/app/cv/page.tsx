@@ -9,19 +9,33 @@ import useInViewAnimation from "@/hooks/useInViewAnimation";
 import styles from "./CvPage.module.scss";
 
 /**
- * CV Page. Mostly static HTML, with some helper functions for formatting.
+ * CV page.
  *
- * TODO: Sections should be modularized into reusable components.
+ * Mostly static (for now) content rendered client-side. We can apply in-view animations
+ * via `useInViewAnimation`.
  *
+ * Key implementation notes:
+ * - `wrapPhrases` turns arrays of skill strings into a styled inline list.
+ * - Large lists (skills/brands/project types) are intentionally kept as plain
+ *   data arrays to keep JSX readable.
+ *
+ * TODO: Consider modularizing sections into reusable components.
+ * TODO: CMS-driving this content for easier updates.
  */
 const CurriculumVitae: React.FC = () => {
+  // Returns a callback ref. Attaching it to elements adds an "in-view" class
+  // when they enter the viewport (used for scroll-triggered animations).
   const addToRefs = useInViewAnimation("in-view");
 
   /**
-   * Wraps phrases into styled span elements for display.
+   * Wrap a list of phrases into styled inline list items.
    *
-   * @param {Array<string>} phrases - List of phrases to format.
-   * @returns {React.ReactNode[]} Wrapped JSX elements.
+   * Note: We intentionally keep this as a formatting helper (instead of a
+   * dedicated component) because it’s used in multiple places and the output is
+   * purely presentational.
+   *
+   * @param phrases - List of phrases to format.
+   * @returns Wrapped JSX elements.
    */
   const wrapPhrases = (phrases: string[]): React.ReactNode[] => {
     return phrases.map((data, i) => (
@@ -29,7 +43,10 @@ const CurriculumVitae: React.FC = () => {
         <span className={styles.phrase}>{data}</span>
         <span className={styles.bullet}>
           &nbsp;&bull;
-          {/* Allow wrap. */}
+          {/*
+            Keep a breaking space after the bullet so long lists can wrap
+            naturally without the bullet sticking to the next line.
+          */}
           <span>&#32;</span>
         </span>
       </span>
@@ -37,6 +54,7 @@ const CurriculumVitae: React.FC = () => {
   };
 
   const frontEndUi = [
+    // Categorized skills list used by `wrapPhrases`.
     // Languages & Fundamentals
     "TypeScript",
     "ES6",
@@ -307,17 +325,22 @@ const CurriculumVitae: React.FC = () => {
 
             <div ref={addToRefs} className={divClassRt}>
               <p>
-                Front-end developer with a background spanning design, technical
-                animation, games, and interactive development. I&apos;ve built
-                everything from game-style experiences to scalable web UI
-                systems—bridging creativity and engineering to ship fast,
-                polished user experiences. After delivering award-winning work
-                in Flash, I refocused on JavaScript and transitioned to modern
-                frameworks like Angular and React, building reusable,
-                high-performance component architecture. I&apos;ve partnered
-                with Fortune 500 teams, entertainment brands, and startups to
-                deliver digital experiences that look great and perform
-                reliably.
+                Front-end / UI developer with a long background in interactive
+                work spanning design, animation, games, and web UI. I've spent
+                years building interaction-heavy experiences—from game-like
+                interfaces to large, maintainable UI systems—where motion,
+                behavior, and visual detail matter as much as correctness and
+                performance.
+              </p>
+
+              <p>
+                After early award-winning work in Flash, I deliberately
+                refocused on JavaScript and modern front-end development,
+                transitioning into frameworks like Angular and React and
+                building reusable, performance-conscious component systems. I've
+                shipped production UI for Fortune 500 companies, entertainment
+                brands, and smaller teams, and I care deeply about reliability,
+                polish, and building interfaces that hold up over time.
               </p>
             </div>
           </div>
@@ -399,6 +422,77 @@ const CurriculumVitae: React.FC = () => {
         </div>
 
         {/*-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --*/}
+
+        <div className={"container"}>
+          <h4 ref={addToRefs}>Recent Independent Study &amp; R&amp;D</h4>
+
+          <div className={rowClass}>
+            <div className={divClassLt}>
+              <RawImg
+                ref={addToRefs}
+                src="/images/cv/bb.svg"
+                className={styles.cvLogo}
+                alt="BB Logo"
+              />
+            </div>
+
+            <div className={divClassRt}>
+              <div ref={addToRefs} className={styles.subContainer}>
+                <div className={styles.leftSub}>
+                  <h5>Self-Directed Front-End Engineer</h5>
+                </div>
+                <div className={styles.break}></div>
+                <div className={styles.rightSub}>[ 2024 - 2025 ]</div>
+              </div>
+
+              <ul>
+                <li ref={addToRefs}>
+                  Designed and built a production-grade portfolio platform as a
+                  proving ground for{" "}
+                  <b>
+                    advanced interaction patterns, animation systems, and UI
+                    performance work
+                  </b>
+                  .
+                </li>
+                <li ref={addToRefs}>
+                  Architected a modern stack using{" "}
+                  <b>Next.js, React, TypeScript, Payload CMS</b>, and AWS-based
+                  infrastructure.
+                </li>
+                <li ref={addToRefs}>
+                  Built reusable interaction systems (route-synced carousels
+                  with deep linking, layered/parallax coordination, responsive
+                  layout strategies).
+                </li>
+                <li ref={addToRefs}>
+                  Implemented production instrumentation and reliability hooks:
+                  <b> CloudWatch RUM</b>, SSR-safe initialization guards,
+                  lightweight health endpoints, and operational metric
+                  publishing.
+                </li>
+                <li ref={addToRefs}>
+                  Wrote and maintained unit and integration tests for React
+                  applications.
+                </li>
+                <li ref={addToRefs}>
+                  Automated delivery workflows including deployment
+                  orchestration, environment/secrets bundling, and hardened
+                  Docker builds.
+                </li>
+                <li ref={addToRefs}>
+                  Standardized code quality and DX with strict TypeScript,
+                  unified linting/formatting, and repeatable performance-tuned
+                  builds.
+                </li>
+                <li ref={addToRefs}>
+                  Built content and data workflows around Payload CMS (media
+                  handling, scripted exports, and repeatable imports).
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
 
         <div className={"container"}>
           <h4 ref={addToRefs}>Professional Experience</h4>
