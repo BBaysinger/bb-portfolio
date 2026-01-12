@@ -1,3 +1,19 @@
+/**
+ * Frontend API proxy for `POST /api/users/login`.
+ *
+ * Purpose:
+ * - Provides a stable frontend-origin login endpoint.
+ * - Proxies credentials to the backend Payload login route.
+ * - Forwards `set-cookie` back to the browser so the session is established on the frontend origin.
+ *
+ * Rendering/caching:
+ * - Marked `force-dynamic` with `revalidate = 0` so requests are never cached.
+ *
+ * Environment:
+ * - `BACKEND_INTERNAL_URL` (preferred)
+ * - `ENV_PROFILE` / `NODE_ENV` (used to pick a Docker service DNS fallback)
+ * - `DEBUG_API_AUTH` (optional; enables verbose logging)
+ */
 import { NextRequest, NextResponse } from "next/server";
 
 import { LOGIN_FAILED_MESSAGE } from "@/constants/messages";
@@ -5,7 +21,10 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 /**
- * Login API route that proxies to Payload CMS backend
+ * Proxies login requests to the backend and forwards auth cookies.
+ *
+ * @param request - Incoming request containing the login payload.
+ * @returns A JSON response containing `{ user }` on success, or `{ error }` on failure.
  */
 export async function POST(request: NextRequest) {
   try {

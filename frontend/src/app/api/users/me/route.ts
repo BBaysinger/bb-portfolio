@@ -1,8 +1,28 @@
+/**
+ * Frontend API proxy for `GET /api/users/me`.
+ *
+ * Purpose:
+ * - Provides a stable frontend-origin endpoint for determining current auth state.
+ * - Proxies to the backend Payload `users/me` route and forwards cookies.
+ * - Normalizes response shape to `{ user }` when successful.
+ *
+ * Notes:
+ * - Marked `force-dynamic` with `revalidate = 0` so auth is evaluated per request.
+ * - Uses `cache: "no-store"` and explicit cache-busting headers to avoid stale auth.
+ * - Includes a trailing-slash retry as a compatibility fallback for some proxies.
+ *
+ * Environment:
+ * - `BACKEND_INTERNAL_URL` (preferred)
+ * - `ENV_PROFILE` / `NODE_ENV` (used to pick a Docker service DNS fallback)
+ * - `DEBUG_API_AUTH` (optional; enables verbose logging)
+ */
 import { NextRequest, NextResponse } from "next/server";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-// Type guards to avoid use of `any` when validating the user payload
+/**
+ * Type guards to avoid use of `any` when validating the user payload.
+ */
 const isRecord = (v: unknown): v is Record<string, unknown> =>
   typeof v === "object" && v !== null;
 
@@ -17,7 +37,10 @@ const hasIdentity = (u: unknown): u is { id?: string; email?: string } => {
 };
 
 /**
- * User "me" API route that proxies to Payload CMS backend to get current user info
+ * Proxies the backend "me" endpoint and returns `{ user }` on success.
+ *
+ * @param request - Incoming request (cookies are forwarded when present).
+ * @returns A JSON response containing `{ user }` on success, or `{ error }` on failure.
  */
 export async function GET(request: NextRequest) {
   try {

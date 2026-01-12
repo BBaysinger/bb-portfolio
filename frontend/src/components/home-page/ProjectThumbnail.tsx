@@ -95,9 +95,6 @@ const ProjectThumbnail: React.FC<ProjectThumbnailProps> = ({
   projectId,
   projectShortCode,
   title,
-  // brandId,
-  // brandLogoLightUrl,
-  // brandLogoDarkUrl,
   brandIsNda,
   nda,
   isSanitized,
@@ -120,35 +117,7 @@ const ProjectThumbnail: React.FC<ProjectThumbnailProps> = ({
     minPersistMs: HOVER_PERSISTS_MS,
   });
   const focused = useHoverMode ? hover.focused : scrollFocused;
-  // const [_logoSrc, setLogoSrc] = useState<string | null>(null);
   const [lockedThumbErrored, setLockedThumbErrored] = useState(false);
-
-  // Defer brand logo loading to idle time to prioritize critical content.
-  // useEffect(() => {
-  //   const loadLogo = () => {
-  //     const chosen = getBrandLogoUrl({
-  //       brandId,
-  //       brandIsNda: brandIsNda || !!nda,
-  //       allowNdaLogo: isAuthenticated,
-  //       lightUrl: brandLogoLightUrl,
-  //       darkUrl: brandLogoDarkUrl,
-  //       preferDark: true,
-  //     });
-  //     setLogoSrc(chosen);
-  //   };
-  //   if ("requestIdleCallback" in window) {
-  //     window.requestIdleCallback(loadLogo, { timeout: 2000 });
-  //   } else {
-  //     setTimeout(loadLogo, 500);
-  //   }
-  // }, [
-  //   brandId,
-  //   brandLogoDarkUrl,
-  //   brandLogoLightUrl,
-  //   brandIsNda,
-  //   nda,
-  //   isAuthenticated,
-  // ]);
 
   // Determine NDA state and apply scroll-focus class.
   const isNdaLike = Boolean(nda || brandIsNda);
@@ -188,16 +157,6 @@ const ProjectThumbnail: React.FC<ProjectThumbnailProps> = ({
           onError={showNdaConfidential ? handleThumbError : undefined}
         />
       )}
-      {/* <div className={styles.vignette}></div>
-      <div className={styles.thumbContent}>
-        <h4 className={styles.thumbTitle}>
-          {showNdaConfidential ? (
-            <span>Please log in to view this project</span>
-          ) : (
-            <span>{title}</span>
-          )}
-        </h4>
-      </div> */}
     </>
   );
 
@@ -241,16 +200,7 @@ const ProjectThumbnail: React.FC<ProjectThumbnailProps> = ({
       >
         {inner}
       </Link>
-      {showLockedIcon && (
-        // <Image
-        //   src="/images/projects-list/nda-locked.webp"
-        //   alt="Locked"
-        //   width={294}
-        //   height={346}
-        //   className={styles.lockedIcon}
-        // />
-        <div>locked</div>
-      )}
+      {showLockedIcon && <div>locked</div>}
     </div>
   );
 };
