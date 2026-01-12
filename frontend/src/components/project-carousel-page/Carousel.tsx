@@ -128,6 +128,11 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
     onScrollUpdateRef.current = onScrollUpdate;
   }, [onScrollUpdate]);
 
+  const onStabilizationUpdateRef = useRef(onStabilizationUpdate);
+  useEffect(() => {
+    onStabilizationUpdateRef.current = onStabilizationUpdate;
+  }, [onStabilizationUpdate]);
+
   useEffect(() => {
     setStableIndexValue(initialIndex);
   }, [initialIndex]);
@@ -437,7 +442,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
     // Emit an initial stabilization update during first positioning.
     // Without this, parents that gate route-driven programmatic scrolls on
     // "first stabilization" won't unlock until the user manually scrolls.
-    onStabilizationUpdate?.(
+    onStabilizationUpdateRef.current?.(
       normalizedIndex,
       Source.PROGRAMMATIC,
       scrollDirectionRef.current,
