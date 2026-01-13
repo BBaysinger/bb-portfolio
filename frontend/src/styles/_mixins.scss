@@ -156,7 +156,7 @@
 /// (typically 0 → 1) for a specific viewport range.
 ///
 /// Note: This function only returns a `var(...)` reference. The underlying `--lerp-percent-*`
-/// variable is set by `useFluidLerpVars` (JavaScript) on an ancestor element. Until JS runs
+/// variable is set by `useLerpVars` (JavaScript) on an ancestor element. Until JS runs
 /// (or if the hook is not used), the fallback value is used.
 ///
 /// Conceptually (viewport → $t$):
@@ -173,7 +173,7 @@
   $min-stripped: stripUnit($min);
   $max-stripped: stripUnit($max);
   @return string.unquote(
-    // Provide a 0 fallback so before `useFluidLerpVars` initializes variables,
+    // Provide a 0 fallback so before `useLerpVars` initializes variables,
     // the interpolation factor resolves to 0 and components render at their min size.
     "var(--lerp-percent-#{$min-stripped}-#{$max-stripped}, 0)"
   );
@@ -181,7 +181,7 @@
 
 /// Applies accessibility-friendly fluid scaling via a shared viewport lerp factor (custom properties)
 ///
-/// **Requires useFluidLerpVars hook** to provide CSS variables like `--lerp-percent-320-640`.
+/// **Requires useLerpVars hook** to provide CSS variables like `--lerp-percent-320-640`.
 /// Internally this is a lerp (linear interpolation): `min + (max - min) * t` where `t` comes from `percent-var()`.
 /// Values are converted to `rem` for accessibility so they respect user font-size preferences.
 ///
@@ -191,11 +191,11 @@
 /// @param $property - The CSS property to scale
 /// @param $min-value - Value at minimum viewport width (px or rem)
 /// @param $max-value - Value at maximum viewport width (px or rem)
-/// @param $min-vw - Minimum viewport width (must match useFluidLerpVars range)
-/// @param $max-vw - Maximum viewport width (must match useFluidLerpVars range)
+/// @param $min-vw - Minimum viewport width (must match useLerpVars range)
+/// @param $max-vw - Maximum viewport width (must match useLerpVars range)
 ///
-/// @example Setup useFluidLerpVars hook first:
-/// const fluidRef = useFluidLerpVars([[360, 1440]]);
+/// @example Setup useLerpVars hook first:
+/// const fluidRef = useLerpVars([[360, 1440]]);
 ///
 /// @example SCSS usage:
 /// @include remRange(font-size, 16px, 24px, 360, 1440);
@@ -227,7 +227,7 @@
 
 /// Applies pixel-precise fluid scaling using media queries with linear interpolation
 ///
-/// **Independent of useFluidLerpVars** - generates pure CSS with media queries.
+/// **Independent of useLerpVars** - generates pure CSS with media queries.
 /// Maintains exact unit precision without converting to rem. Ideal for layouts and visual elements
 /// that should scale with viewport, not user font preferences.
 ///
@@ -301,7 +301,7 @@
     }
   } @else {
     // Cross-unit values (e.g., %) can't safely use the slope form in CSS.
-    // Use the clamped, unitless lerp factor set by `useFluidLerpVars`.
+    // Use the clamped, unitless lerp factor set by `useLerpVars`.
     $t: percent-var($min-vw, $max-vw);
     #{$property}: calc(#{$min-value} + (#{$value-range}) * #{$t});
 
@@ -330,7 +330,7 @@
 /// `transform` declaration. Components that rely on this mixin should provide a non-CSS
 /// fallback (e.g., JS-driven scaling) if they need responsive scale on Firefox.
 ///
-/// **Independent of useFluidLerpVars** - generates pure CSS and stays perfectly smooth.
+/// **Independent of useLerpVars** - generates pure CSS and stays perfectly smooth.
 /// Combines with existing transforms and provides pixel-perfect responsive scaling.
 ///
 /// Use for: Component scaling, zoom effects, responsive animations

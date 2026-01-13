@@ -1,5 +1,21 @@
 "use client";
 
+/**
+ * Client-side application shell.
+ *
+ * Responsibilities:
+ * - Hosts the global navigation variants and footer.
+ * - Establishes responsive CSS variables via `useLerpVars`.
+ * - Coordinates a few client-only behaviors that need to run near the root:
+ *   - Initial auth state establishment and periodic validation.
+ *   - Cross-tab/session sync on focus/visibility.
+ *   - iOS Safari scroll-to-top normalization on route changes.
+ *   - Optional backend health probe (dev/ops visibility).
+ *
+ * Key exports:
+ * - `AppShell` – wraps page content with app-wide layout and client behaviors.
+ */
+
 import clsx from "clsx";
 import { useRouter, usePathname } from "next/navigation";
 import React, { useRef, useEffect, useState } from "react";
@@ -9,7 +25,7 @@ import Footer from "@/components/layout/Footer";
 import NavVariant from "@/components/layout/NavVariant";
 import { NavVariants } from "@/components/layout/NavVariant.constants";
 import { useAutoCloseMobileNavOnScroll } from "@/hooks/useAutoCloseMobileNavOnScroll";
-import { useFluidLerpVars } from "@/hooks/useFluidLerpVars";
+import { useLerpVars } from "@/hooks/useLerpVars";
 import { useTrackHeroInView } from "@/hooks/useTrackHeroInView";
 import { resetAuthState, checkAuthStatus } from "@/store/authSlice";
 import { useAppDispatch } from "@/store/hooks";
@@ -19,14 +35,18 @@ import ScrollToHash from "@/utils/ScrollToHash";
 import styles from "./AppShell.module.scss";
 
 /**
- * Client-side application shell component
+ * App shell wrapper for all routed pages.
+ *
+ * @param children - Route content rendered within the shell.
  */
 export function AppShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const dispatch = useAppDispatch();
   const [reduceMotion, setReduceMotion] = useState(false);
-  // Runtime backend health check: logs backend connectivity status on startup
+
+  // Runtime backend health check: logs backend connectivity status on startup.
+  // Intentionally console-only (no UI) to avoid impacting UX.
   useEffect(() => {
     // Prefer same-origin relative path to use Next.js rewrites (/api -> backend)
     // Absolute URLs (e.g., http://bb-portfolio-backend-local:3001) may not resolve in the browser.
@@ -240,8 +260,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }, []);
 
   // Provides `--lerp-percent-*` CSS vars used by `remRange`/`percent-var()`.
-  // Canonical documentation for this system lives in `useFluidLerpVars`.
-  const fluidRef = useFluidLerpVars([
+  // Canonical documentation for this system lives in `useLerpVars`.
+  const fluidRef = useLerpVars([
     [320, 680], // Mobile to hardcoded carousel max scale width
     [320, 768], // Mobile to tablet landscape
     [320, 992], // Mobile to small desktop
@@ -324,9 +344,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         reduceMotion && "reduce-motion",
       )}
     >
-      {/* Runtime backend health check runs on mount and logs to console */}
       <NavVariant variant={NavVariants.SLIDE_OUT} />
-      <div id="top" style={{ position: "absolute", top: "0px" }}></div>
+      {/* Anchor target for in-page navigation / scroll-to-top behaviors. */}
+      <div id="top" style={{ position: "absolute", top: 0 }} />
       <div className={styles.underlay} />
       <NavVariant variant={NavVariants.TOP_BAR} />
       <div id="main-content" className={clsx(styles.main, styles.navRevelator)}>

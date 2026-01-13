@@ -9,7 +9,7 @@ import { useEffect, useRef, RefObject } from "react";
  * These variables primarily power the `remRange` SCSS mixin (and any direct CSS that references them).
  *
  * ## System Overview:
- * 1. **useFluidLerpVars** (this hook) - Provides CSS variables like `--lerp-percent-320-640`
+ * 1. **useLerpVars** (this hook) - Provides CSS variables like `--lerp-percent-320-640`
  * 2. **remRange mixin** - Uses variables for accessibility-friendly text/UI scaling (rem-based)
  * 3. **lerpRange mixin** - Pure CSS linear interpolation from `100vw` (does not require this hook)
  * 4. **scaleRange mixin** - Transform scaling via a clamp-bounded lerp (linear interpolation)
@@ -35,7 +35,7 @@ import { useEffect, useRef, RefObject } from "react";
  *   [320, 1792], // Mobile → 16" MacBook Pro
  * ] as const;
  *
- * const fluidRef = useFluidLerpVars(fluidRanges);
+ * const fluidRef = useLerpVars(fluidRanges);
  *
  * // Generates (as CSS custom properties on the ref element):
  * // - --lerp-percent-320-640
@@ -86,7 +86,7 @@ import { useEffect, useRef, RefObject } from "react";
  * @example
  * ```tsx
  * function App() {
- *   const fluidRef = useFluidLerpVars([
+ *   const fluidRef = useLerpVars([
  *     [320, 640],   // Mobile to tablet
  *     [640, 1280],  // Tablet to desktop
  *     [320, 1440]   // Mobile to large desktop
@@ -100,7 +100,7 @@ import { useEffect, useRef, RefObject } from "react";
  * }
  * ```
  */
-export function useFluidLerpVars<T extends HTMLElement = HTMLDivElement>(
+export function useLerpVars<T extends HTMLElement = HTMLDivElement>(
   ranges: [number, number][],
 ): RefObject<T | null> {
   const ref = useRef<T | null>(null);
