@@ -1,5 +1,14 @@
+/**
+ * Decorative “toss the orb” tooltip.
+ *
+ * Rendered inside the hero slinger/orb as an onboarding hint after first drag.
+ * The parent controls visibility (e.g., hides permanently after first collision).
+ *
+ * This component is intentionally non-interactive and should not be announced by
+ * assistive tech.
+ */
+
 import clsx from "clsx";
-import React from "react";
 
 import styles from "./OrbTossTooltip.module.scss";
 import OrbTossTooltipArrow from "./OrbTossTooltipArrow";
@@ -16,14 +25,17 @@ type Props = {
  * plus a circular rotating text ring. Visible only while dragging after first drag,
  * and before the first collision. Hidden permanently after wall collision.
  */
-const OrbTossTooltip: React.FC<Props> = ({
-  className = "",
-  hidden = false,
-}) => {
-  if (hidden) return null;
+function OrbTossTooltip({ className, hidden = false }: Props) {
+  if (hidden) {
+    // Avoid rendering any DOM when hidden to keep the orb subtree minimal.
+    return null;
+  }
 
   return (
-    <div className={clsx(styles.orbTossTooltip, "orbTossTooltip", className)}>
+    <div
+      aria-hidden="true"
+      className={clsx(styles.orbTossTooltip, "orbTossTooltip", className)}
+    >
       {/* Arrow orbit group (independent rotation so we can reverse only arrows) */}
       <div className={styles.arrowOrbit}>
         <span className={clsx(styles.arrow, styles.arrowA)}>
@@ -61,6 +73,6 @@ const OrbTossTooltip: React.FC<Props> = ({
       </svg>
     </div>
   );
-};
+}
 
 export default OrbTossTooltip;

@@ -1,4 +1,9 @@
-import React from "react";
+/**
+ * Decorative SVG arrowhead used by `OrbTossTooltip`.
+ *
+ * Kept inline so styling can be driven by CSS (`currentColor`, stroke width) and
+ * animations can be applied by the parent wrapper.
+ */
 
 import styles from "./OrbTossTooltip.module.scss";
 
@@ -9,7 +14,7 @@ import styles from "./OrbTossTooltip.module.scss";
  * Stroke color inherits from parent color; width can be controlled with
  * --arrow-stroke-width in CSS. Rotation/animation comes from wrapper/SCSS.
  */
-const OrbTossTooltipArrow: React.FC = () => {
+function OrbTossTooltipArrow() {
   return (
     <svg
       className={styles.arrowSvg}
@@ -26,6 +31,6 @@ const OrbTossTooltipArrow: React.FC = () => {
       />
     </svg>
   );
-};
+}
 
 export default OrbTossTooltipArrow;

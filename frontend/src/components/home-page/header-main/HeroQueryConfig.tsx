@@ -1,5 +1,16 @@
 "use client";
 
+/**
+ * Client-only query-param configuration for the home page hero.
+ *
+ * Key export:
+ * - `HeroQueryConfig`: reads URL query params (via `useQueryParams`) and reports
+ *   derived flags back to the parent hero component.
+ *
+ * This is intentionally renderless so it can live inside a `Suspense` boundary
+ * without affecting layout or SEO.
+ */
+
 import { useEffect } from "react";
 
 import useQueryParams from "@/hooks/useQueryParams";
@@ -19,7 +30,7 @@ const parseBooleanParam = (value?: QueryParamValue): boolean | null => {
     if (value === 0) return false;
     return null;
   }
-  const normalized = value.toLowerCase();
+  const normalized = String(value).trim().toLowerCase();
   if (["1", "true", "on", "yes"].includes(normalized)) return true;
   if (["0", "false", "off", "no"].includes(normalized)) return false;
   return null;

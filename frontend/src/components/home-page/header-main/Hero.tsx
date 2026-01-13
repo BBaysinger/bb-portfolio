@@ -1,9 +1,22 @@
 "use client";
 
+/**
+ * Home page hero: an interactive Fluxel grid + draggable “Slinger” orb.
+ *
+ * Responsibilities:
+ * - Renders the grid background and interactive orb container.
+ * - Tracks interaction milestones (dragged/collided) in `sessionStorage`.
+ * - Emits lightweight analytics events for toss interactions.
+ * - Applies global state class hooks for CSS-driven transitions.
+ *
+ * Notes:
+ * - Must render inside a `Suspense` boundary due to query-param hooks.
+ * - `sessionStorage` access is guarded because some browsers/modes can throw.
+ */
+
 import clsx from "clsx";
 import Link from "next/link";
-import React, { useState, useCallback, useRef, useEffect } from "react";
-import { Suspense } from "react";
+import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 
 import FPSCounter from "@/components/common/FPSCounter";
 import ChargedCircle from "@/components/home-page/header-main/ChargedCircle";
@@ -65,35 +78,13 @@ const isDevLikeProfile = envProfile === "local" || envProfile === "dev";
 const defaultFpsCounterEnabled =
   envFpsFlag ?? (isDevLikeProfile || process.env.NODE_ENV !== "production");
 
-/**
- * Hero
- *
- * The homepage hero section, featuring a dynamic Fluxel grid and physics-based "Slinger" interaction.
- * Includes branding, animated tooltips, project nav triggers, and a kinetic interactive environment
- * for engaging the user visually and experientially.
- *
- * This component overlays a logo and interactive text over a Fluxel grid background. Users can drag
- * the Slinger (a draggable orb), triggering shadow and projectile effects on the grid, with behavior
- * controlled by query string parameters (e.g., `?useSlingerTracking=true`).
- *
- * Additional elements include:
- * - FPS counter for performance awareness
- * - Time-aware greeting and quote rotation
- * - Scroll-to-next-section CTA
- *
- * ⚠️ Requires rendering inside a `<Suspense>` boundary due to `useQueryParams()` (which uses `useSearchParams()`).
- * This is essential for compatibility with `next export` and the App Router.
- *
- * @component
- * @returns {JSX.Element} Hero header with grid and interactive branding.
- */
-const Hero: React.FC = () => {
+function Hero() {
   const id = "hero";
   const initialRows = 12;
   const initialCols = 16;
   const slingerRef = useRef<SlingerBoxHandle>(null);
 
-  const [blinkSides, setHighlightSides] = useState<Side[]>([]);
+  const [blinkSides, setBlinkSides] = useState<Side[]>([]);
   const [isSlingerIdle, setIsSlingerIdle] = useState(true);
   const [mounted, setMounted] = useState(false);
   const [circlePaused, setCirclePaused] = useState(true);
@@ -124,7 +115,11 @@ const Hero: React.FC = () => {
     fpsOverride !== null ? fpsOverride : defaultFpsCounterEnabled;
 
   const updateHasDragged = useCallback((value: boolean) => {
-    sessionStorage.setItem("hasDragged", value ? "true" : "false");
+    try {
+      sessionStorage.setItem("hasDragged", value ? "true" : "false");
+    } catch {
+      // Ignore (e.g., storage disabled)
+    }
     setHasDragged(value);
   }, []);
 
@@ -196,7 +191,7 @@ const Hero: React.FC = () => {
   const onSlingerWallCollision = useCallback(
     (wall: Side, x: number, y: number) => {
       if (!slingerIsIdle.current) {
-        setHighlightSides((prev) => [...prev, wall]);
+        setBlinkSides((prev) => [...prev, wall]);
 
         let direction: Direction | null = null;
         switch (wall) {
@@ -216,7 +211,11 @@ const Hero: React.FC = () => {
 
         // Persist and reflect collision immediately so the tooltip is hidden right away
         // Do not gate the state update behind sessionStorage; it may already be true from a prior session
-        sessionStorage.setItem("hasCollided", "true");
+        try {
+          sessionStorage.setItem("hasCollided", "true");
+        } catch {
+          // Ignore (e.g., storage disabled)
+        }
         setHasCollided(true);
         // Scheduling this repeatedly is harmless; state is idempotent once true
         setTimeout(() => {
@@ -269,10 +268,16 @@ const Hero: React.FC = () => {
 
     // Hydrate persisted flags regardless of tracking mode
     if (typeof window !== "undefined") {
-      const dragged = sessionStorage.getItem("hasDragged") === "true";
-      const collided = sessionStorage.getItem("hasCollided") === "true";
-      const afterDelay =
-        sessionStorage.getItem("hasAfterCollidedDelay") === "true";
+      let dragged = false;
+      let collided = false;
+      let afterDelay = false;
+      try {
+        dragged = sessionStorage.getItem("hasDragged") === "true";
+        collided = sessionStorage.getItem("hasCollided") === "true";
+        afterDelay = sessionStorage.getItem("hasAfterCollidedDelay") === "true";
+      } catch {
+        // Ignore (e.g., storage disabled)
+      }
       let touchDevice = false;
       // Detect coarse pointer / touch-capable devices for tailored interaction instructions
       try {
@@ -392,12 +397,12 @@ const Hero: React.FC = () => {
           paragraphs={quotes}
           className={styles.message}
           paused={!mounted || !isSlingerIdle}
-        ></ParagraphAnimator>
+        />
         {showFpsCounter && <FPSCounter />}
         <TitleBranding className={styles.titleBranding} ref={titleRef} />
       </div>
     </header>
   );
-};
+}
 
 export default Hero;
