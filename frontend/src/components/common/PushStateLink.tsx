@@ -1,80 +1,79 @@
 "use client";
 
 import Link from "next/link";
-import type { ReactNode } from "react";
+import type { AnchorHTMLAttributes, MouseEvent, ReactNode } from "react";
 
 import { navigateWithPushState } from "@/utils/navigation";
 
-interface PushStateLinkProps {
-  /** The destination URL */
+/**
+ * PushStateLink
+ *
+ * Renders a Next.js `Link`, but optionally intercepts eligible clicks to perform
+ * `history.pushState()` navigation via `navigateWithPushState()`.
+ *
+ * This supports in-session UI navigation (e.g., carousel prev/next) without
+ * triggering a full route transition, while still keeping SSR-friendly markup
+ * and Link prefetch behavior.
+ */
+
+type PushStateLinkProps = {
+  /** Destination URL (typically same-origin, app-internal). */
   href: string;
-  /** Content inside the link */
+  /** Content inside the link. */
   children: ReactNode;
-  /** Optional CSS class for styling */
-  className?: string;
-  /** Optional callback to run after navigation */
+  /** Optional callback to run after navigation. */
   onNavigate?: () => void;
-  /** Whether to scroll to top after pushState (default: false) */
+  /** Whether to scroll to top after pushState (default: false). */
   scrollToTop?: boolean;
-}
+} & Omit<
+  AnchorHTMLAttributes<HTMLAnchorElement>,
+  "href" | "onClick" | "children"
+>;
 
 /**
- * PushStateLink is a hybrid link component that behaves differently
- * on the server vs. the client:
+ * Link component that uses `pushState` for UI-only navigation.
  *
- * - On the server, it renders a Next.js `<Link>` to support static rendering, SEO, and prefetching.
- * - On the client, it renders a plain `<a>` tag and uses `window.history.pushState`
- *   to update the URL without triggering a full page reload or rerender.
- *
- * This is useful for lightweight UI state transitions like carousels, filters, or tab-like views.
- * By default, it preserves the current scroll position — but you can opt into scroll-to-top behavior.
- *
- * @component
- * @example
- * ```tsx
- * <PushStateLink href="/projects?filter=featured" onNavigate={() => setFilter('featured')}>
- *   Featured Projects
- * </PushStateLink>
- *
- * <PushStateLink href="/page-top" scrollToTop>
- *   Back to top
- * </PushStateLink>
- * ```
- *
+ * Non-obvious behavior:
+ * - Always renders a Next.js `Link` to avoid hydration mismatches.
+ * - Only intercepts unmodified left-clicks to same-origin URLs.
+ * - Allows default browser behavior for external URLs, new-tab clicks, etc.
  */
 export function PushStateLink({
   href,
   children,
-  className,
   onNavigate,
   scrollToTop = false,
+  ...anchorProps
 }: PushStateLinkProps) {
-  const isClient = typeof window !== "undefined";
+  const handleClick = (e: MouseEvent<HTMLAnchorElement>) => {
+    if (e.defaultPrevented) return;
 
-  if (!isClient) {
-    return (
-      <Link href={href} className={className}>
-        {children}
-      </Link>
-    );
-  }
+    // Only intercept standard left-clicks; let the browser handle new tabs, context menus, etc.
+    if (e.button !== 0) return;
+    if (e.metaKey || e.altKey || e.ctrlKey || e.shiftKey) return;
+    if (anchorProps.target === "_blank") return;
 
-  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    // `pushState` cannot (and should not) emulate cross-origin navigations.
+    try {
+      const target = new URL(href, window.location.origin);
+      if (target.origin !== window.location.origin) return;
+    } catch {
+      return;
+    }
+
     e.preventDefault();
 
     navigateWithPushState(href, null, {
       useDoublePushFallback: process.env.NEXT_PUBLIC_DOUBLE_PUSH === "1",
     });
 
-    if (scrollToTop) {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
+    if (scrollToTop) window.scrollTo({ top: 0, behavior: "smooth" });
     onNavigate?.();
   };
 
   return (
-    <a href={href} onClick={handleClick} className={className}>
+    <Link href={href} onClick={handleClick} {...anchorProps}>
       {children}
-    </a>
+    </Link>
   );
 }

@@ -1,5 +1,18 @@
 "use client";
 
+/**
+ * Authentication-aware nav item.
+ *
+ * Responsibilities:
+ * - Shows a "Login" link when unauthenticated.
+ * - Shows a "Logout" button when authenticated.
+ * - Avoids layout shift during auth initialization by rendering an invisible placeholder.
+ *
+ * Key exports:
+ * - Default export `AuthNavItem`.
+ */
+
+import clsx from "clsx";
 import Link from "next/link";
 import React from "react";
 
@@ -15,36 +28,14 @@ interface Props {
 }
 
 /**
- * Authentication-aware navigation item
+ * Nav item that switches between Login and Logout.
  *
- * Dynamically renders either a "Login" link or "Logout" button based on
- * the user's current authentication state. Prevents layout shift by
- * maintaining consistent spacing during auth state initialization.
+ * The "loading" state uses `visibility: hidden` text (not `display: none`) so the
+ * header layout remains stable while auth state is being established client-side.
  *
- * @component
- * @param {Object} props - Component props
- * @param {string} [props.className=""] - CSS class for the wrapper <li> element
- * @param {string} [props.linkClassName=""] - CSS class for the inner Link/button element
- *
- * @example
- * ```tsx
- * <AuthNavItem className="nav-item" linkClassName="nav-link" />
- * ```
- *
- * Features:
- * - Seamless login/logout state transitions
- * - Prevents authentication flicker with hidden placeholder
- * - Accessible button/link semantics
- * - Integration with Redux auth state and useAuth hook
- * - Consistent layout during hydration and auth checks
- *
- * States:
- * - Loading: Shows invisible "Login" text to preserve layout
- * - Authenticated: Shows logout button with click handler
- * - Unauthenticated: Shows login link to /login#top
- *
- * @see {@link useAuth} for logout functionality
- * @see {@link useAppSelector} for auth state access
+ * @param props - Component props.
+ * @param props.className - Class applied to the wrapping `<li>`.
+ * @param props.linkClassName - Class applied to the inner `<Link>`/`<button>`.
  */
 export default function AuthNavItem({
   className = "",
@@ -57,7 +48,7 @@ export default function AuthNavItem({
   if (!hasInitialized) {
     // Preserve layout without announcing a misleading control
     return (
-      <li className={className}>
+      <li className={clsx(className)}>
         <span style={{ visibility: "hidden" }}>Login</span>
       </li>
     );
@@ -65,8 +56,8 @@ export default function AuthNavItem({
 
   if (authed) {
     return (
-      <li className={`${className} ${styles.logoutButton} logoutButton`}>
-        <button type="button" onClick={logout} className={linkClassName}>
+      <li className={clsx(className, styles.logoutButton, "logoutButton")}>
+        <button type="button" onClick={logout} className={clsx(linkClassName)}>
           Logout
         </button>
       </li>
@@ -74,8 +65,8 @@ export default function AuthNavItem({
   }
 
   return (
-    <li className={className}>
-      <Link href="/login#top" className={linkClassName}>
+    <li className={clsx(className)}>
+      <Link href="/login#top" className={clsx(linkClassName)}>
         Login
       </Link>
     </li>

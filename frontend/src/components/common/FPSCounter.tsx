@@ -1,21 +1,36 @@
+/**
+ * FPSCounter
+ *
+ * Displays the current frames-per-second (FPS) using `requestAnimationFrame`.
+ * Renders two identical layers of text; the second layer is styled via
+ * `FPSCounter.module.scss` (`:nth-child(2)`) to create a glow/clip effect.
+ */
+
+import clsx from "clsx";
 import React, { useEffect, useRef, useState } from "react";
 
 import styles from "./FPSCounter.module.scss";
 
 /**
- * Displays the current FPS using requestAnimationFrame.
- * Digits are rendered in separate divs to stabilize layout
- * even when using a non-monospaced 7-tile font.
+ * Props for `FPSCounter`.
  *
- * @author Bradley Baysinger
- * @since The beginning of time.
- * @version N/A
+ * @property updateInterval - Milliseconds between FPS recalculations.
+ * @property className - Optional class name applied to the root element.
  */
-const FPSCounter: React.FC<{ updateInterval?: number; className?: string }> = ({
+type FPSCounterProps = { updateInterval?: number; className?: string };
+
+/**
+ * Displays the current FPS using requestAnimationFrame.
+ * Digits are rendered in separate spans to stabilize layout even when using a
+ * non-monospaced 7-tile font.
+ */
+const FPSCounter: React.FC<FPSCounterProps> = ({
   updateInterval = 500,
   className = "",
 }) => {
   const [fps, setFps] = useState(0);
+
+  // Mutable values tracked outside React state to avoid forcing re-renders every frame.
   const frameCount = useRef(0);
   const lastTime = useRef(0);
 
@@ -39,13 +54,16 @@ const FPSCounter: React.FC<{ updateInterval?: number; className?: string }> = ({
     };
 
     animationFrameId = requestAnimationFrame(update);
+
+    // Ensure we always cancel the RAF loop when unmounting or changing interval.
     return () => cancelAnimationFrame(animationFrameId);
   }, [updateInterval]);
 
+  // Pad to a minimum of two digits to keep the layout stable (e.g., 09 vs 60).
   const fpsDigits = fps.toString().padStart(2, "0").split("");
 
   return (
-    <div className={[styles.fpsCounter, className].join(" ")}>
+    <div className={clsx(styles.fpsCounter, className)}>
       <div>
         <span className={styles.label}>FPS:</span>
         {fpsDigits.map((digit, index) => (
@@ -54,7 +72,11 @@ const FPSCounter: React.FC<{ updateInterval?: number; className?: string }> = ({
           </span>
         ))}
       </div>
-      <div>
+      {/*
+        Second layer is purely visual (glow/clip styling via :nth-child(2)).
+        Marked aria-hidden so screen readers don't announce the FPS twice.
+      */}
+      <div aria-hidden="true">
         <span className={styles.label}>FPS:</span>
         {fpsDigits.map((digit, index) => (
           <span key={index} className={styles.digit}>

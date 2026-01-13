@@ -1,8 +1,17 @@
-import React, { forwardRef } from "react";
+/**
+ * RawImg
+ *
+ * Small wrapper around the native `<img>` element.
+ * Use this when you explicitly want to bypass Next.js `<Image>` optimizations
+ * (e.g., for tiny static assets like icons/logos, or already-optimized files).
+ */
 
-interface RawImgProps extends React.ImgHTMLAttributes<HTMLImageElement> {
+import { forwardRef } from "react";
+import type { ImgHTMLAttributes } from "react";
+
+type RawImgProps = ImgHTMLAttributes<HTMLImageElement> & {
   alt: string;
-}
+};
 
 /**
  * A wrapper around the native <img> tag that bypasses Next.js's
@@ -18,6 +27,8 @@ interface RawImgProps extends React.ImgHTMLAttributes<HTMLImageElement> {
  */
 export const RawImg = forwardRef<HTMLImageElement, RawImgProps>(
   ({ alt, ...rest }, ref) => {
+    // Intentionally using a raw `<img>` here to bypass Next.js `<Image>` behavior.
+    // Keeping this in one wrapper makes it easy to audit/replace later if needed.
     return <img ref={ref} alt={alt} {...rest} />;
   },
 );
