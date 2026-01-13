@@ -1,11 +1,24 @@
 import { ISpriteRenderer } from "./RenderingAllTypes";
 
+/**
+ * WebGL sprite renderer (experimental).
+ *
+ * Responsibilities:
+ * - Uploads a sprite sheet image into a WebGL texture.
+ * - Renders a selected frame by sampling a sub-rectangle of that texture.
+ * - Keeps rendering crisp via nearest-neighbor filtering.
+ *
+ * Key exports:
+ * - `WebGlRenderer` – implements `ISpriteRenderer`.
+ */
+
 export class WebGlRenderer implements ISpriteRenderer {
   private gl!: WebGLRenderingContext;
   private program!: WebGLProgram;
   private texture!: WebGLTexture;
   private positionBuffer!: WebGLBuffer;
   private texcoordBuffer!: WebGLBuffer;
+  private isTextureReady = false;
   private frameCount: number;
   private frameWidth: number;
   private frameHeight: number;
@@ -13,6 +26,7 @@ export class WebGlRenderer implements ISpriteRenderer {
   private uFrameOffset: WebGLUniformLocation | null;
   private uSheetSize: WebGLUniformLocation | null;
   private uFrameSize: WebGLUniformLocation | null;
+  private uTexture: WebGLUniformLocation | null;
 
   constructor(
     private canvas: HTMLCanvasElement,
@@ -34,6 +48,7 @@ export class WebGlRenderer implements ISpriteRenderer {
     this.uFrameOffset = null;
     this.uSheetSize = null;
     this.uFrameSize = null;
+    this.uTexture = null;
 
     this.initGL();
     this.loadTexture(this.imageSrc);
@@ -80,6 +95,10 @@ export class WebGlRenderer implements ISpriteRenderer {
     this.uFrameOffset = gl.getUniformLocation(program, "u_frameOffset");
     this.uSheetSize = gl.getUniformLocation(program, "u_sheetSize");
     this.uFrameSize = gl.getUniformLocation(program, "u_frameSize");
+    this.uTexture = gl.getUniformLocation(program, "u_texture");
+
+    // Texture unit 0 is the conventional default; set explicitly for clarity.
+    if (this.uTexture) gl.uniform1i(this.uTexture, 0);
 
     const posBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, posBuffer);
@@ -128,6 +147,12 @@ export class WebGlRenderer implements ISpriteRenderer {
         "Program link failed: " + this.gl.getProgramInfoLog(program),
       );
     }
+
+    // Shaders are no longer needed after a successful link.
+    this.gl.detachShader(program, vs);
+    this.gl.detachShader(program, fs);
+    this.gl.deleteShader(vs);
+    this.gl.deleteShader(fs);
     return program;
   }
 
@@ -135,36 +160,74 @@ export class WebGlRenderer implements ISpriteRenderer {
     const gl = this.gl;
     const texture = gl.createTexture()!;
     const image = new Image();
+
+    // WebGL texture uploads require CORS-enabled images when cross-origin.
+    // For same-origin assets this stays unset to avoid altering request behavior.
+    try {
+      if (typeof window !== "undefined") {
+        const resolved = new URL(src, window.location.href);
+        if (resolved.origin !== window.location.origin) {
+          image.crossOrigin = "anonymous";
+        }
+      }
+    } catch {
+      // If URL parsing fails (e.g., unusual schemes), fall back to default behavior.
+    }
+
     image.src = src;
     image.onload = () => {
-      gl.bindTexture(gl.TEXTURE_2D, texture);
-      gl.texImage2D(
-        gl.TEXTURE_2D,
-        0,
-        gl.RGBA,
-        gl.RGBA,
-        gl.UNSIGNED_BYTE,
-        image,
-      );
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      try {
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.texImage2D(
+          gl.TEXTURE_2D,
+          0,
+          gl.RGBA,
+          gl.RGBA,
+          gl.UNSIGNED_BYTE,
+          image,
+        );
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
-      this.texture = texture;
+        this.texture = texture;
+        this.isTextureReady = true;
 
-      gl.useProgram(this.program);
-      gl.uniform2f(this.uSheetSize, image.width, image.height);
-      gl.uniform2f(this.uFrameSize, this.frameWidth, this.frameHeight);
+        gl.useProgram(this.program);
+        if (this.uSheetSize)
+          gl.uniform2f(this.uSheetSize, image.width, image.height);
+        if (this.uFrameSize)
+          gl.uniform2f(this.uFrameSize, this.frameWidth, this.frameHeight);
 
-      this.drawFrame(0);
+        this.drawFrame(0);
+      } catch (err) {
+        this.isTextureReady = false;
+        // Common cause: cross-origin image without proper CORS headers.
+        console.warn(
+          "[WebGlRenderer] Texture upload failed; WebGL rendering disabled for this sprite.",
+          err,
+        );
+      }
+    };
+
+    image.onerror = () => {
+      this.isTextureReady = false;
+      console.warn("[WebGlRenderer] Failed to load sprite image for WebGL.", {
+        src,
+      });
     };
   }
 
   private syncCanvasSizeToDisplay() {
+    if (typeof window === "undefined") return;
     const dpr = window.devicePixelRatio || 1;
-    const displayWidth = this.canvas.clientWidth * dpr;
-    const displayHeight = this.canvas.clientHeight * dpr;
+    const displayWidth = Math.max(1, Math.round(this.canvas.clientWidth * dpr));
+    const displayHeight = Math.max(
+      1,
+      Math.round(this.canvas.clientHeight * dpr),
+    );
 
     if (
       this.canvas.width !== displayWidth ||
@@ -175,14 +238,22 @@ export class WebGlRenderer implements ISpriteRenderer {
     }
   }
 
+  /**
+   * Draw a single frame by index.
+   *
+   * No-ops until the sprite texture is uploaded to the GPU.
+   */
   drawFrame(index: number) {
     this.syncCanvasSizeToDisplay();
 
     const gl = this.gl;
-    if (!this.texture || !this.uFrameOffset) return;
+    if (!this.isTextureReady || !this.texture || !this.uFrameOffset) return;
+    if (!Number.isFinite(index)) return;
+    const frameIndex = Math.floor(index);
+    if (frameIndex < 0 || frameIndex >= this.frameCount) return;
 
-    const col = index % this.columns;
-    const row = Math.floor(index / this.columns);
+    const col = frameIndex % this.columns;
+    const row = Math.floor(frameIndex / this.columns);
     const offsetX = col * this.frameWidth;
     const offsetY = row * this.frameHeight;
 
@@ -191,17 +262,21 @@ export class WebGlRenderer implements ISpriteRenderer {
     gl.clear(gl.COLOR_BUFFER_BIT);
 
     gl.useProgram(this.program);
+    gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, this.texture);
     gl.uniform2f(this.uFrameOffset, offsetX, offsetY);
 
     gl.drawArrays(gl.TRIANGLES, 0, 6);
   }
 
+  /**
+   * Best-effort cleanup for GPU resources.
+   */
   dispose() {
     const gl = this.gl;
-    gl.deleteTexture(this.texture);
-    gl.deleteProgram(this.program);
-    gl.deleteBuffer(this.positionBuffer);
-    gl.deleteBuffer(this.texcoordBuffer);
+    if (this.texture) gl.deleteTexture(this.texture);
+    if (this.program) gl.deleteProgram(this.program);
+    if (this.positionBuffer) gl.deleteBuffer(this.positionBuffer);
+    if (this.texcoordBuffer) gl.deleteBuffer(this.texcoordBuffer);
   }
 }

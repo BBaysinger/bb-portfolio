@@ -1,17 +1,30 @@
 import React from "react";
 
+/**
+ * Home page route (`/`).
+ *
+ * Responsibilities:
+ * - Renders the hero + greeting.
+ * - Performs a server-side fetch of the public (unauthenticated) portfolio dataset
+ *   so the page can benefit from SSG/ISR and predictable caching.
+ * - Defers authenticated/NDA data to the client to avoid dynamic server rendering
+ *   and to prevent any possibility of caching private content.
+ *
+ * Key exports:
+ * - Default export `HomePage` – async server component for the route.
+ */
+
 import Greeting from "@/components/home-page/Greeting";
 import Hero from "@/components/home-page/header-main/Hero";
 import HomePageClient from "@/components/home-page/HomePageClient";
 import { ProjectDataStore } from "@/data/ProjectData";
 
 /**
- * The home page of the website. Contains the header, greeting, and portfolio list.
+ * Server component for the home page.
  *
+ * Fetches only the public dataset server-side so the route remains cacheable.
+ * Authenticated/NDA details are fetched client-side after mount when available.
  */
-
-// Server component: fetch public (unauthenticated) portfolio data for SSG/ISR.
-// Authenticated NDA details are fetched client-side after mount when available.
 const HomePage = async () => {
   // Fetch without request headers so the response is always the public view.
   // This is safe to cache and allows SSG/ISR without delaying per-request TTFB.
