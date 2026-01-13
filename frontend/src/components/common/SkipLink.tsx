@@ -4,6 +4,11 @@ import React from "react";
 
 import styles from "./SkipLink.module.scss";
 
+type SkipLinkProps = {
+  /** ID of the main content element to link to. */
+  targetId?: string;
+};
+
 /**
  * Accessible skip link allowing keyboard users to bypass repeated navigation.
  *
@@ -34,11 +39,29 @@ import styles from "./SkipLink.module.scss";
  * - Target element must exist with matching ID
  * - Typically placed at start of <body> before any navigation
  */
-const SkipLink: React.FC<{ targetId?: string }> = ({
-  targetId = "main-content",
-}) => {
+const SkipLink: React.FC<SkipLinkProps> = ({ targetId = "main-content" }) => {
+  const handleClick = () => {
+    // Browsers will scroll to the hash target automatically, but they do not always
+    // move keyboard focus. Explicitly focusing the target improves screen reader
+    // and keyboard UX (common skip-link best practice).
+    requestAnimationFrame(() => {
+      const el = document.getElementById(targetId);
+      if (!el) return;
+
+      // If the target isn't normally focusable (e.g., a <div>), temporarily allow focus.
+      // AppShell sets tabIndex on the default target; this is a safe fallback for custom IDs.
+      if (!el.hasAttribute("tabindex")) el.setAttribute("tabindex", "-1");
+
+      try {
+        (el as HTMLElement).focus();
+      } catch {
+        // Ignore: focus can fail for non-HTMLElement targets.
+      }
+    });
+  };
+
   return (
-    <a href={`#${targetId}`} className={styles.skipLink}>
+    <a href={`#${targetId}`} className={styles.skipLink} onClick={handleClick}>
       Skip to main content
     </a>
   );

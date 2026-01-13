@@ -1,13 +1,27 @@
 "use client";
 
+/**
+ * Canonical link helper (client component).
+ *
+ * Responsibilities:
+ * - Injects a `<link rel="canonical">` tag into the document `<head>`.
+ * - Normalizes a potentially relative `href` into an absolute URL.
+ *
+ * This is useful when the visible URL includes transient query params (e.g. `?p=`)
+ * but the canonical shareable URL should be the stable segment route.
+ *
+ * Key exports:
+ * - Default export `CanonicalLink`.
+ */
+
 import Head from "next/head";
 import { useMemo } from "react";
 
 /**
- * CanonicalLink
- * Adds a <link rel="canonical"> to the document head using an absolute URL.
- * Useful when the visible URL uses a transient query param (?p=) but the
- * canonical shareable URL is the segment route (/project/slug/ or /nda/slug/).
+ * Adds a canonical link to the document head.
+ *
+ * @param props - Component props.
+ * @param props.href - Canonical URL (relative or absolute).
  */
 export default function CanonicalLink({ href }: { href: string }) {
   const absoluteHref = useMemo(() => {

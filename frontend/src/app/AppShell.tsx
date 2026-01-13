@@ -349,7 +349,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <div id="top" style={{ position: "absolute", top: 0 }} />
       <div className={styles.underlay} />
       <NavVariant variant={NavVariants.TOP_BAR} />
-      <div id="main-content" className={clsx(styles.main, styles.navRevelator)}>
+      {/*
+        SkipLink target. `tabIndex={-1}` allows programmatic focus after clicking
+        the skip link, without inserting it into the normal tab order.
+      */}
+      <div
+        id="main-content"
+        role="main"
+        tabIndex={-1}
+        className={clsx(styles.main, styles.navRevelator)}
+      >
         <div ref={childContentRef} className={styles.childContent}>
           <ScrollToHash />
           {/* Screen reader-only aria-live region for privacy/logout announcements */}
