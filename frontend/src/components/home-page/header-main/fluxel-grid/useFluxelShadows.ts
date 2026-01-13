@@ -1,9 +1,28 @@
+/**
+ * Shadow influence simulation for fluxel grids.
+ *
+ * Computes a per-cell influence value and two directional shadow offsets
+ * (top-right and bottom-left) driven by a pointer position.
+ *
+ * Performance notes:
+ * - Throttles updates to a target FPS.
+ * - Batches heavy grid mutations inside `requestAnimationFrame`.
+ * - Returns previous state when nothing meaningfully changed.
+ */
+
 import { useCallback, useEffect, useRef } from "react";
+import type { Dispatch, RefObject, SetStateAction } from "react";
 
 import MiscUtils from "@/utils/MiscUtils";
 
 import { FluxelData } from "./FluxelAllTypes";
 import type { FluxelGridHandle } from "./FluxelAllTypes";
+
+const SHADOW_TR_SCALE = 80;
+const SHADOW_BL_SCALE = 56;
+
+// Small threshold to avoid re-rendering for tiny float noise.
+const INFLUENCE_EPSILON = 0.009;
 
 function getShadowInfluence(
   { col, row }: { col: number; row: number },
@@ -12,7 +31,7 @@ function getShadowInfluence(
   radiusMultiplier: number,
   smoothRangeMultiplier: number,
   smoothing: boolean,
-) {
+): number {
   const gridX = col * fluxelSize + fluxelSize / 2;
   const gridY = row * fluxelSize + fluxelSize / 2;
 
@@ -63,11 +82,11 @@ export function useFluxelShadows({
   smoothRangeMultiplier = 4.25,
   smoothing = true,
 }: {
-  gridRef: React.RefObject<FluxelGridHandle | null>;
+  gridRef: RefObject<FluxelGridHandle | null>;
   containerEl?: HTMLElement | null;
-  setGridData: React.Dispatch<React.SetStateAction<FluxelData[][]>>;
+  setGridData: Dispatch<SetStateAction<FluxelData[][]>>;
   pointerPos: { x: number; y: number } | null;
-  isPausedRef?: React.RefObject<boolean>;
+  isPausedRef?: RefObject<boolean>;
   fps?: number;
   radiusMultiplier?: number;
   smoothRangeMultiplier?: number;
@@ -117,6 +136,8 @@ export function useFluxelShadows({
             let shadowBlOffsetY = 0;
 
             if (pointerPos.x >= 0 && pointerPos.y >= 0) {
+              // Influence is calculated at the fluxel center. Neighbor samples (top/right/bottom/left)
+              // are used as a cheap approximation of a directional gradient to bias shadow offsets.
               influence = getShadowInfluence(
                 { col: fluxel.col, row: fluxel.row },
                 pointerPos,
@@ -159,16 +180,22 @@ export function useFluxelShadows({
                 smoothing,
               );
 
-              shadowTrOffsetX = Math.round(Math.min(right - influence, 0) * 80);
-              shadowTrOffsetY = Math.round(Math.max(influence - top, 0) * 80);
-              shadowBlOffsetX = Math.round(Math.max(influence - left, 0) * 56);
+              shadowTrOffsetX = Math.round(
+                Math.min(right - influence, 0) * SHADOW_TR_SCALE,
+              );
+              shadowTrOffsetY = Math.round(
+                Math.max(influence - top, 0) * SHADOW_TR_SCALE,
+              );
+              shadowBlOffsetX = Math.round(
+                Math.max(influence - left, 0) * SHADOW_BL_SCALE,
+              );
               shadowBlOffsetY = Math.round(
-                Math.min(bottom - influence, 0) * 56,
+                Math.min(bottom - influence, 0) * SHADOW_BL_SCALE,
               );
             }
 
             const changed =
-              Math.abs(influence - fluxel.influence) > 0.009 ||
+              Math.abs(influence - fluxel.influence) > INFLUENCE_EPSILON ||
               shadowTrOffsetX !== fluxel.shadowTrOffsetX ||
               shadowTrOffsetY !== fluxel.shadowTrOffsetY ||
               shadowBlOffsetX !== fluxel.shadowBlOffsetX ||
@@ -193,6 +220,15 @@ export function useFluxelShadows({
         return hasChanged ? updatedGrid : prevGrid;
       });
     });
+
+    // If inputs change or the component unmounts, cancel any pending frame to avoid
+    // updating state from a stale closure.
+    return () => {
+      if (animationFrameId.current !== null) {
+        cancelAnimationFrame(animationFrameId.current);
+        animationFrameId.current = null;
+      }
+    };
   }, [
     pointerPos,
     gridRef,

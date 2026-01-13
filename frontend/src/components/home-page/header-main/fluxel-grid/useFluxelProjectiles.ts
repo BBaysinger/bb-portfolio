@@ -1,4 +1,13 @@
-import React, { useEffect, useRef, useState } from "react";
+/**
+ * Projectile simulation for fluxel grids.
+ *
+ * Maintains a small list of moving “projectiles” (grid-aligned squares) and
+ * advances them on a fixed interval. This is intentionally decoupled from the
+ * grid renderer (SVG/Canvas/Pixi) so visuals can be layered independently.
+ */
+
+import { useEffect, useRef, useState } from "react";
+import type { RefObject } from "react";
 
 import MiscUtils from "@/utils/MiscUtils";
 
@@ -20,28 +29,37 @@ type UseFluxelProjectilesReturn = [Projectile[], LaunchFn];
 /**
  * Animates squares (projectiles) moving in a given direction across the grid.
  *
- * They animate in double speed in dev mode due to strict mode. I tried to
- * prevent that, but I'll need to come back to it later.
+ * Note: React Strict Mode in development can make timing issues more noticeable.
+ * If you see “double speed” behavior, confirm the caller isn't launching twice
+ * (effects run twice in dev) before changing animation timing.
  *
- * @param param0
- * @returns
+ * @param options - Hook options.
+ * @param options.gridRef - Fluxel grid handle used to locate fluxels + read grid dimensions.
+ * @param options.intervalMs - Simulation step interval in ms.
+ * @returns A tuple of `[projectiles, launchProjectile]`.
  */
 export function useFluxelProjectiles({
   gridRef,
   intervalMs = 25,
 }: {
-  gridRef: React.RefObject<FluxelGridHandle | null>;
+  gridRef: RefObject<FluxelGridHandle | null>;
   intervalMs?: number;
 }): UseFluxelProjectilesReturn {
   const projectilesRef = useRef<Projectile[]>([]);
   const [projectiles, setProjectiles] = useState<Projectile[]>([]);
   const intervalRef = useRef<number | null>(null);
 
+  const stopInterval = () => {
+    if (intervalRef.current === null) return;
+    window.clearInterval(intervalRef.current);
+    intervalRef.current = null;
+  };
+
   const startInterval = () => {
-    if (intervalRef.current !== null) {
-      clearInterval(intervalRef.current); // kill any zombie interval
-      intervalRef.current = null;
-    }
+    if (typeof window === "undefined") return;
+
+    // Reset the timer so we only ever have one active tick loop.
+    stopInterval();
 
     const tickFunction = () => {
       const snapshot = gridRef.current?.getGridData();
@@ -54,8 +72,8 @@ export function useFluxelProjectiles({
         rowCount === 0 ||
         colCount === 0
       ) {
-        clearInterval(intervalRef.current!);
-        intervalRef.current = null;
+        // Nothing to simulate (grid not ready / unmounted / no projectiles).
+        stopInterval();
         projectilesRef.current = [];
         setProjectiles([]);
         return;
@@ -117,10 +135,7 @@ export function useFluxelProjectiles({
 
   useEffect(() => {
     return () => {
-      if (intervalRef.current !== null) {
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
-      }
+      stopInterval();
     };
   }, []);
 
