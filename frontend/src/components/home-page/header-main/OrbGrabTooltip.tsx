@@ -1,5 +1,14 @@
+/**
+ * Decorative “grab the orb” tooltip.
+ *
+ * Rendered inside the hero slinger/orb as an onboarding hint.
+ * The parent controls visibility (e.g., hides permanently after first collision).
+ *
+ * This component is intentionally non-interactive and should not be announced by
+ * assistive tech.
+ */
+
 import clsx from "clsx";
-import React from "react";
 
 import styles from "./OrbGrabTooltip.module.scss";
 
@@ -13,16 +22,14 @@ type Props = {
  * Hides permanently after the first wall collision to avoid clutter for experienced users.
  *
  */
-const OrbGrabTooltip: React.FC<Props> = ({
-  className = "",
-  hidden = false,
-}) => {
+function OrbGrabTooltip({ className, hidden = false }: Props) {
   if (hidden) {
+    // Avoid rendering any DOM when hidden to keep the orb subtree minimal.
     return null;
   }
 
   return (
-    <div className={clsx(`${styles.orbGrabTooltip} orbGrabTooltip`, className)}>
+    <div className={clsx(styles.orbGrabTooltip, "orbGrabTooltip", className)}>
       {/* Inline SVG so stroke follows currentColor and supports CSS drop-shadow */}
       <svg
         viewBox="0 0 71.96 72"
@@ -42,6 +49,6 @@ const OrbGrabTooltip: React.FC<Props> = ({
       <div className={styles.tooltipText} />
     </div>
   );
-};
+}
 
 export default OrbGrabTooltip;
