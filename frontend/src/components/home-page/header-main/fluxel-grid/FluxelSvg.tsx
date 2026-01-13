@@ -11,6 +11,7 @@ import clsx from "clsx";
 import {
   forwardRef,
   memo,
+  useCallback,
   useEffect,
   useImperativeHandle,
   useRef,
@@ -54,26 +55,27 @@ const FluxelSvg = forwardRef<FluxelHandle, FluxelSvgProps>(
     const SHADOW_REFERENCE_PX = 72;
     const SCALE = size / SHADOW_REFERENCE_PX;
 
-    const clamp01 = (value: number) => Math.min(1, Math.max(0, value));
+    const updateInfluence = useCallback(
+      (influence: number, colorVariation?: string) => {
+        const el = elRef.current;
+        if (!el) return;
 
-    const updateInfluence = (influence: number, colorVariation?: string) => {
-      const el = elRef.current;
-      if (!el) return;
+        const alpha = Math.min(1, Math.max(0, influence - 0.1));
+        el.style.setProperty("--base-color", `rgba(20, 20, 20, ${alpha})`);
 
-      const alpha = clamp01(influence - 0.1);
-      el.style.setProperty("--base-color", `rgba(20, 20, 20, ${alpha})`);
-
-      if (colorVariation) {
-        el.style.setProperty("--overlay-color", colorVariation);
-      } else {
-        // Prevent stale values if a cell transitions from having a variation to none.
-        el.style.removeProperty("--overlay-color");
-      }
-    };
+        if (colorVariation) {
+          el.style.setProperty("--overlay-color", colorVariation);
+        } else {
+          // Prevent stale values if a cell transitions from having a variation to none.
+          el.style.removeProperty("--overlay-color");
+        }
+      },
+      [],
+    );
 
     useEffect(() => {
       updateInfluence(data.influence, data.colorVariation);
-    }, [data.influence, data.colorVariation]);
+    }, [data.influence, data.colorVariation, updateInfluence]);
 
     useImperativeHandle(ref, () => ({
       updateInfluence,
