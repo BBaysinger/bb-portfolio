@@ -1,27 +1,43 @@
+/**
+ * SVG-based Fluxel grid renderer.
+ *
+ * Renders the full fluxel matrix into a single `<svg>` by positioning per-cell
+ * `<g>` elements (see `FluxelSvg`). An optional overlay layer is rendered above
+ * the SVG to apply per-cell color tinting using standard DOM elements.
+ *
+ * The renderer exposes an imperative surface via `FluxelGridHandle` so external
+ * systems can locate a cell under a pointer coordinate and apply influence.
+ */
+
 import clsx from "clsx";
-import React, {
+import {
+  createRef,
   forwardRef,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useLayoutEffect,
   useRef,
   useState,
-  useEffect,
-  useLayoutEffect,
-  useImperativeHandle,
-  createRef,
-  useCallback,
 } from "react";
+import type { MutableRefObject, Ref } from "react";
 
-import type { FluxelHandle, FluxelData } from "./FluxelAllTypes";
-import type { FluxelGridHandle, FluxelGridProps } from "./FluxelAllTypes";
+import type {
+  FluxelData,
+  FluxelGridHandle,
+  FluxelGridProps,
+  FluxelHandle,
+} from "./FluxelAllTypes";
 import FluxelSvg from "./FluxelSvg";
 import styles from "./FluxelSvgGrid.module.scss";
 import { useFluxelResizeWatcher } from "./useFluxelResizeWatcher";
 
-const assignRef = <T,>(ref: React.Ref<T> | undefined, value: T) => {
+const assignRef = <T,>(ref: Ref<T> | undefined, value: T | null) => {
   if (!ref) return;
   if (typeof ref === "function") {
     ref(value);
   } else {
-    (ref as React.MutableRefObject<T>).current = value;
+    (ref as MutableRefObject<T | null>).current = value;
   }
 };
 
@@ -69,11 +85,13 @@ const FluxelSvgGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
       let refMatrix: React.RefObject<FluxelHandle | null>[][] = [];
       if (imperativeMode) {
         refMatrix = Array.from({ length: rows }, () =>
-          Array.from({ length: cols }, () => createRef<FluxelHandle>()),
+          Array.from({ length: cols }, () => createRef<FluxelHandle | null>()),
         );
       }
       fluxelRefs.current = refMatrix;
 
+      // Defer the state update to the next frame to avoid layout thrash while
+      // upstream controllers are still mutating grid data.
       const rafId = requestAnimationFrame(() => {
         setRowCount(rows);
         setColCount(cols);
@@ -96,7 +114,8 @@ const FluxelSvgGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
           onGridChange({ rows: rowCount, cols: colCount, fluxelSize: newSize });
         }
       }
-      // Number of visible rows/cols is based on scaler's effective width/height
+      // Limit the rendered set to the visible window to avoid creating DOM/SVG
+      // nodes for off-screen cells when the data grid is intentionally oversized.
       const effW = width;
       const effH = el.clientHeight || 0;
       const cell = newSize || 1;
@@ -180,6 +199,7 @@ const FluxelSvgGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
       [fluxelSize, imperativeMode, rowCount, colCount],
     );
 
+    // Center-crop the oversized grid by dropping an equal amount on each edge.
     const rowOverlap = Math.max(0, Math.floor((rowCount - viewableRows) / 2));
     const colOverlap = Math.max(0, Math.floor((colCount - viewableCols) / 2));
 
@@ -231,6 +251,10 @@ const FluxelSvgGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
           </svg>
         </div>
         <div className={styles.overlayWrapper}>
+          {/*
+            Overlay layer: DOM elements are cheaper to recolor than SVG nodes,
+            and blend modes are more predictable across browsers.
+          */}
           {gridData.map((row, r) =>
             row.map((data, c) => {
               const isVisible =

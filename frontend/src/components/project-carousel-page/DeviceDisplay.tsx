@@ -1,7 +1,6 @@
 import clsx from "clsx";
 import React from "react";
 
-
 import { RawImg } from "@/components/common/RawImg";
 import { MobileOrientation } from "@/data/ProjectData";
 import ProjectData from "@/data/ProjectData";

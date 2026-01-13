@@ -1,13 +1,32 @@
+/**
+ * SVG renderer for a single Fluxel cell.
+ *
+ * This component is used by the SVG grid renderer to draw an individual “pixel”
+ * with depth-like corner shading. It exposes a small imperative surface
+ * (via `FluxelHandle`) so external systems (cursor influence, projectiles)
+ * can update visual intensity without needing to know which renderer is active.
+ */
+
 import clsx from "clsx";
-import React, {
+import {
+  forwardRef,
+  memo,
+  useEffect,
   useImperativeHandle,
   useRef,
-  forwardRef,
-  useEffect,
 } from "react";
 
 import type { FluxelHandle, FluxelData } from "./FluxelAllTypes";
 import styles from "./FluxelSvg.module.scss";
+
+type FluxelSvgProps = {
+  data: FluxelData;
+  x: number;
+  y: number;
+  size: number;
+  clipPathId: string;
+  className?: string;
+};
 
 /**
  * Individual SVG-rendered Fluxel component.
@@ -26,88 +45,86 @@ import styles from "./FluxelSvg.module.scss";
  * @param {string} [props.className] - Optional CSS class names
  * @param {FluxelHandle} ref - Forwarded ref for external control
  */
-const FluxelSvg = forwardRef<
-  FluxelHandle,
-  {
-    data: FluxelData;
-    x: number;
-    y: number;
-    size: number;
-    clipPathId: string;
-    className?: string;
-  }
->(({ data, x, y, size, clipPathId, className }, ref) => {
-  const elRef = useRef<SVGGElement>(null);
-  const SCALE = size / 72;
+const FluxelSvg = forwardRef<FluxelHandle, FluxelSvgProps>(
+  ({ data, x, y, size, clipPathId, className }, ref) => {
+    const elRef = useRef<SVGGElement>(null);
 
-  const updateInfluence = (influence: number, colorVariation?: string) => {
-    const el = elRef.current;
-    if (!el) return;
+    // The shadow texture positioning was authored against a 72px reference grid.
+    // Scale factors derive all offsets/sizes from the current fluxel size.
+    const SHADOW_REFERENCE_PX = 72;
+    const SCALE = size / SHADOW_REFERENCE_PX;
 
-    el.style.setProperty(
-      "--base-color",
-      `rgba(20, 20, 20, ${influence * 1.0 - 0.1})`,
+    const clamp01 = (value: number) => Math.min(1, Math.max(0, value));
+
+    const updateInfluence = (influence: number, colorVariation?: string) => {
+      const el = elRef.current;
+      if (!el) return;
+
+      const alpha = clamp01(influence - 0.1);
+      el.style.setProperty("--base-color", `rgba(20, 20, 20, ${alpha})`);
+
+      if (colorVariation) {
+        el.style.setProperty("--overlay-color", colorVariation);
+      } else {
+        // Prevent stale values if a cell transitions from having a variation to none.
+        el.style.removeProperty("--overlay-color");
+      }
+    };
+
+    useEffect(() => {
+      updateInfluence(data.influence, data.colorVariation);
+    }, [data.influence, data.colorVariation]);
+
+    useImperativeHandle(ref, () => ({
+      updateInfluence,
+      // `FluxelHandle` doesn't require shadow updates. Some renderers support
+      // extra imperative APIs (see `IFluxel`), but the SVG cell is driven solely
+      // by the `FluxelData` props passed down from the grid.
+      updateShadowOffsets: () => {},
+    }));
+
+    return (
+      <g
+        ref={elRef}
+        className={clsx(styles.fluxel, className)}
+        transform={`translate(${x}, ${y})`}
+        clipPath={`url(#${clipPathId})`}
+      >
+        <rect
+          width={size - 0.5}
+          height={size - 0.5}
+          className="base"
+          fill="var(--base-color)"
+        />
+
+        <image
+          opacity="0.5"
+          href="/images/hero/corner-shadow.webp"
+          x={-34 * SCALE}
+          y={-110 * SCALE}
+          width={216 * SCALE}
+          height={216 * SCALE}
+          transform={`translate(${data.shadowTrOffsetX * SCALE}, ${data.shadowTrOffsetY * SCALE})`}
+        />
+
+        <image
+          opacity="0.25"
+          href="/images/hero/corner-shadow.webp"
+          x={-100 * SCALE}
+          y={-185 * SCALE}
+          width={216 * SCALE}
+          height={216 * SCALE}
+          // Mirror the same texture to approximate bottom-left depth shading.
+          transform={`translate(${data.shadowBlOffsetX * SCALE}, ${data.shadowBlOffsetY * SCALE}) scale(-1, -1)`}
+        />
+      </g>
     );
-
-    if (colorVariation) {
-      el.style.setProperty("--overlay-color", colorVariation);
-    }
-  };
-
-  useEffect(() => {
-    updateInfluence(data.influence, data.colorVariation);
-  }, [data]);
-
-  useImperativeHandle(ref, () => ({
-    updateInfluence,
-    updateShadowOffsets: () => {}, // optional noop
-  }));
-
-  return (
-    <g
-      ref={elRef}
-      className={clsx(styles.fluxel, className)}
-      transform={`translate(${x}, ${y})`}
-      clipPath={`url(#${clipPathId})`}
-    >
-      <rect
-        width={size - 0.5}
-        height={size - 0.5}
-        className="base"
-        fill="var(--base-color)"
-      />
-
-      <image
-        opacity="0.5"
-        href="/images/hero/corner-shadow.webp"
-        x={-34 * SCALE}
-        y={-110 * SCALE}
-        width={216 * SCALE}
-        height={216 * SCALE}
-        transform={`translate(${data.shadowTrOffsetX * SCALE}, ${data.shadowTrOffsetY * SCALE})`}
-      />
-
-      <image
-        opacity="0.25"
-        href="/images/hero/corner-shadow.webp"
-        x={-100 * SCALE}
-        y={-185 * SCALE}
-        width={216 * SCALE}
-        height={216 * SCALE}
-        transform={`translate(${data.shadowBlOffsetX * SCALE}, ${data.shadowBlOffsetY * SCALE}) scale(-1, -1)`}
-      />
-
-      {/* <rect width={size} height={size} fill="var(--overlay-color)" /> */}
-    </g>
-  );
-});
+  },
+);
 
 const round = (n: number) => +n.toFixed(2);
 
-function areEqual(
-  prev: { data: FluxelData; x: number; y: number; size: number },
-  next: { data: FluxelData; x: number; y: number; size: number },
-) {
+function areEqual(prev: FluxelSvgProps, next: FluxelSvgProps) {
   const a = prev.data;
   const b = next.data;
   return (
@@ -119,10 +136,12 @@ function areEqual(
     a.colorVariation === b.colorVariation &&
     prev.x === next.x &&
     prev.y === next.y &&
-    prev.size === next.size
+    prev.size === next.size &&
+    prev.clipPathId === next.clipPathId &&
+    prev.className === next.className
   );
 }
 
 FluxelSvg.displayName = "FluxelSvg";
 
-export default React.memo(FluxelSvg, areEqual);
+export default memo(FluxelSvg, areEqual);
