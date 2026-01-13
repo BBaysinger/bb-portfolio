@@ -31,6 +31,8 @@
  * );
  * ```
  */
+"use client";
+
 import clsx from "clsx";
 import {
   Application,
@@ -83,8 +85,11 @@ const FluxelPixiGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
         ?.parentElement as HTMLDivElement | null;
     }, []);
 
-    // Avoid Pixi's createImageBitmap worker to satisfy strict CSP (no blob workers).
-    Assets.setPreferences({ preferCreateImageBitmap: false });
+    useEffect(() => {
+      // Avoid Pixi's createImageBitmap worker to satisfy strict CSP (no blob workers).
+      // This is a global Pixi setting; do it once per mount.
+      Assets.setPreferences({ preferCreateImageBitmap: false });
+    }, []);
 
     const updateSprites = useCallback(() => {
       if (isResizingRef.current) return;
@@ -106,12 +111,20 @@ const FluxelPixiGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
             shadowTrOffsetY,
             shadowBlOffsetX,
             shadowBlOffsetY,
+            colorVariation,
           } = fluxel;
 
           // Match SVG behavior:
           // --base-color: rgba(20, 20, 20, influence * 1.0 - 0.1)
           const baseTint = 0x141414;
-          const baseAlpha = Math.max(0, Math.min(1, influence * 1.0 - 0.1));
+
+          // In the SVG renderer we can apply `colorVariation` as an overlay CSS variable.
+          // Pixi would require parsing CSS color strings to numeric tints; we intentionally
+          // keep this implementation minimal and treat `transparent` as "hide this cell".
+          const isHidden = colorVariation === "transparent";
+          const baseAlpha = isHidden
+            ? 0
+            : Math.max(0, Math.min(1, influence * 1.0 - 0.1));
 
           spriteGroup.base.clear();
           spriteGroup.base.rect(0, 0, size, size);
@@ -144,6 +157,21 @@ const FluxelPixiGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
       const texture = textureRef.current;
       if (!canvas || !container || !app) return;
 
+      // Transient empty data can occur during hot reloads / initial boot.
+      // Guard here to avoid division-by-zero and building invalid matrices.
+      if (rows <= 0 || cols <= 0) {
+        fluxelSizeRef.current = 0;
+        const oldChildren = container.removeChildren();
+        for (const child of oldChildren) {
+          try {
+            child.destroy({ children: true });
+          } catch {
+            // best-effort cleanup
+          }
+        }
+        return;
+      }
+
       const parent = canvas.parentElement;
       if (!parent) return;
       const bounds = parent.getBoundingClientRect();
@@ -169,6 +197,7 @@ const FluxelPixiGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
           // best-effort cleanup
         }
       }
+
       const sprites: (ShadowSprites | null)[][] = [];
 
       const targetRow = Math.floor(rows / 2);
@@ -273,10 +302,15 @@ const FluxelPixiGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
     useEffect(() => {
       if (appRef.current) return; // idempotent in StrictMode
 
+      // Even in client components, Next can evaluate modules in non-browser contexts.
+      // Bail out early if `window` is unavailable.
+      if (typeof window === "undefined") return;
+
       const canvas = canvasRef.current;
       if (!canvas) return;
 
       const app = new Application();
+      let canceled = false;
       app
         .init({
           canvas,
@@ -286,6 +320,8 @@ const FluxelPixiGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
           autoDensity: true,
         })
         .then(async () => {
+          if (canceled) return;
+
           appRef.current = app;
           if (app.renderer.background) {
             app.renderer.background.alpha = 0; // keep canvas transparent
@@ -297,24 +333,28 @@ const FluxelPixiGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
           app.stage.addChild(container);
 
           const texture = (await Assets.load(SHADOW_SRC)) as Texture;
+          if (canceled) return;
           textureRef.current = texture;
 
           buildGrid();
           notifyLayoutUpdate();
           app.render();
         })
-        .catch((err) => console.warn("Pixi init failed", err));
+        .catch((err) => {
+          if (!canceled) console.warn("Pixi init failed", err);
+        });
 
       return () => {
-        if (appRef.current) {
-          try {
-            appRef.current.destroy(true, { children: true });
-          } catch (err) {
-            console.warn("Pixi destroy failed", err);
-          }
-          appRef.current = null;
-          containerRef.current = null;
+        canceled = true;
+        try {
+          app.destroy(true, { children: true });
+        } catch (err) {
+          console.warn("Pixi destroy failed", err);
         }
+        appRef.current = null;
+        containerRef.current = null;
+        textureRef.current = null;
+        fluxelSpritesRef.current = [];
       };
     }, [buildGrid, notifyLayoutUpdate]);
 
@@ -344,14 +384,14 @@ const FluxelPixiGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
         getFluxelAt(x, y) {
           const canvas = canvasRef.current;
           const size = fluxelSizeRef.current;
-          if (!canvas || size === 0) return null;
+          if (!canvas || size === 0 || rows <= 0 || cols <= 0) return null;
 
           const { left, top } = canvas.getBoundingClientRect();
           const relativeX = x - left;
           const relativeY = y - top;
 
-          const r = Math.min(Math.floor(relativeY / size), rows - 1);
-          const c = Math.min(Math.floor(relativeX / size), cols - 1);
+          const r = Math.min(Math.max(0, Math.floor(relativeY / size)), rows - 1);
+          const c = Math.min(Math.max(0, Math.floor(relativeX / size)), cols - 1);
 
           return gridDataRef.current[r]?.[c] || null;
         },
