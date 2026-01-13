@@ -1,11 +1,13 @@
+"use client";
+
 import clsx from "clsx";
 import {
-  useRef,
-  useEffect,
   forwardRef,
+  useCallback,
+  useEffect,
   useImperativeHandle,
   useLayoutEffect,
-  useCallback,
+  useRef,
 } from "react";
 
 import type { FluxelGridHandle, FluxelGridProps } from "./FluxelAllTypes";
@@ -13,14 +15,14 @@ import styles from "./FluxelCanvasGrid.module.scss";
 import { useFluxelResizeWatcher } from "./useFluxelResizeWatcher";
 
 /**
- * KEEP: Come back to this when there is more time to explore different
- * render methods. We left off where it seemed like SVG was more optimal.
- * The goal is to explore and continue optimizing every rendering strategy.
- * Catches with Canvas:
- * 1. Prevent rerendering the entire canvas on every update.
+ * Canvas-backed fluxel grid renderer.
  *
- * FluxelCanvasGrid - imperatively renders fluxels to a canvas.
+ * Alternate implementation used for performance experimentation. It consumes
+ * the same `FluxelData[][]` model as the SVG/Pixi renderers so the higher-level
+ * controller and effect hooks remain renderer-agnostic.
  *
+ * Known limitations:
+ * - Full-canvas redraw on updates (no dirty-rect optimization yet).
  */
 const FluxelCanvasGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
   ({ gridData, onLayoutUpdateRequest, className, imperativeMode }, ref) => {
@@ -42,7 +44,8 @@ const FluxelCanvasGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
       const ctx = canvas.getContext("2d");
       if (!ctx) return;
 
-      const dpr = window.devicePixelRatio || 1;
+      // Scale the backing buffer on high-DPI displays for crisp rendering.
+      const dpr = typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1;
       const width = canvas.clientWidth * dpr;
       const height = canvas.clientHeight * dpr;
 
@@ -52,6 +55,13 @@ const FluxelCanvasGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
       canvas.style.width = `${Math.round(width / dpr)}px`;
       canvas.style.height = `${Math.round(height / dpr)}px`;
 
+      // Guard against transient empty data to avoid division-by-zero and invalid indexing.
+      if (rows <= 0 || cols <= 0) {
+        fluxelSizeRef.current = 0;
+        ctx.clearRect(0, 0, width, height);
+        return;
+      }
+
       const fluxelSize = Math.floor(Math.min(width / cols, height / rows)) || 1;
       fluxelSizeRef.current = fluxelSize;
 
@@ -59,11 +69,21 @@ const FluxelCanvasGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
 
       for (let r = 0; r < rows; r++) {
         for (let c = 0; c < cols; c++) {
-          const { colorVariation } = gridDataRef.current[r][c];
+          const cell = gridDataRef.current[r]?.[c];
+          if (!cell) continue;
 
+          const { colorVariation, influence } = cell;
           if (colorVariation === "transparent") continue;
 
-          ctx.fillStyle = colorVariation ?? "red"; // 🔴 fallback for undefined colorVariation
+          // Match the SVG renderer: default to an influence-based base color when
+          // no explicit overlay color is provided.
+          if (colorVariation) {
+            ctx.fillStyle = colorVariation;
+          } else {
+            const alpha = Math.min(1, Math.max(0, influence * 1.0 - 0.1));
+            ctx.fillStyle = `rgba(20, 20, 20, ${alpha})`;
+          }
+
           ctx.fillRect(c * fluxelSize, r * fluxelSize, fluxelSize, fluxelSize);
         }
       }
@@ -92,14 +112,14 @@ const FluxelCanvasGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
         getFluxelAt(x, y) {
           const canvas = canvasRef.current;
           const size = fluxelSizeRef.current;
-          if (!canvas || size === 0) return null;
+          if (!canvas || size === 0 || rows <= 0 || cols <= 0) return null;
 
           const { left, top } = canvas.getBoundingClientRect();
           const relX = x - left;
           const relY = y - top;
 
-          const row = Math.min(Math.floor(relY / size), rows - 1);
-          const col = Math.min(Math.floor(relX / size), cols - 1);
+          const row = Math.min(Math.max(0, Math.floor(relY / size)), rows - 1);
+          const col = Math.min(Math.max(0, Math.floor(relX / size)), cols - 1);
 
           return gridDataRef.current[row]?.[col] ?? null;
         },

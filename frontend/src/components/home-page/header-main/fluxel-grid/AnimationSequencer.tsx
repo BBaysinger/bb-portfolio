@@ -1,11 +1,15 @@
-import React, {
-  useEffect,
-  useRef,
-  useState,
+"use client";
+
+import clsx from "clsx";
+import {
   forwardRef,
+  memo,
+  useCallback,
+  useEffect,
   useImperativeHandle,
   useMemo,
-  useCallback,
+  useRef,
+  useState,
 } from "react";
 
 import SpriteSheetPlayer from "@/components/common/sprite-rendering/SpriteSheetPlayer";
@@ -29,42 +33,26 @@ interface AnimationMeta {
 }
 
 /**
- * AnimationSequencer Component
+ * Fluxel grid animation sequencer.
  *
- * This component plays weighted, randomized sprite sheet animations after a delay
- * of user inactivity (i.e., no imperative triggers). Animations are rendered using
- * the `SpriteSheetPlayer` component, which supports frame control and playback options.
+ * Responsibilities:
+ * - Plays weighted, randomized sprite-sheet animations after user inactivity.
+ * - Allows imperative triggering via {@link AnimationSequencerHandle}.
  *
- * The sequencer:
- * - Loads `.webp` sprite sheets based on viewport ratio (wide vs. narrow).
- * - Randomly selects from a list of predefined animations with optional weighting.
- * - Waits a defined delay between animations to reduce visual clutter.
- * - Supports triggering specific animations imperatively via ref (e.g., on user interaction).
- * - Uses absolute file paths for sprite sheet lookup.
- * - Plays each animation once unless loop count is specified.
- *
- * Usage:
- * - Pass a `ref` to the component to gain access to the `playImperativeAnimation()` method.
- * - This method can be used to override the inactivity timer and play a specific animation.
- *
- * Note:
- * - This component assumes a sprite naming convention based on resolution (e.g., "wide" or "narrow").
- * - Animations are selected using a weighted random system, avoiding immediate repeats.
- *
- * Dependencies:
- * - React
- * - SpriteSheetPlayer (for sprite-based animation rendering)
- * - SCSS module styles (AnimationSequencer.module.scss)
- *
+ * Implementation notes:
+ * - Marked as a client component because it depends on viewport metrics (`window.innerWidth/innerHeight`).
+ * - Uses a hidden-first mount then a `requestAnimationFrame` tick to avoid flashing frame 0.
  */
 const AnimationSequencer = forwardRef<
   AnimationSequencerHandle,
   AnimationSequencerProps
->(({ className }, ref) => {
+>(({ className = "" }, ref) => {
   const [activeAnim, setActiveAnim] = useState<AnimationMeta | null>(null);
   const [animKey, setAnimKey] = useState(0);
   const [shouldPlay, setShouldPlay] = useState(false);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // `setTimeout` return type differs between DOM and Node typings; keep it portable.
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastPlayedIndexRef = useRef<number | null>(null);
   const startRafRef = useRef<number | null>(null);
 
@@ -75,16 +63,18 @@ const AnimationSequencer = forwardRef<
   const extension = ".webp";
 
   const isNarrow = useCallback(() => {
+    // Client components can still render on the server in Next.js.
+    // When `window` is unavailable, default to the wide variant.
+    if (typeof window === "undefined") return false;
     return window.innerWidth / window.innerHeight < ratio;
   }, [ratio]);
 
   const buildFullPath = (name: string) => `${directory}${name}${extension}`;
 
   const clearTimeoutIfSet = () => {
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-      timeoutRef.current = null;
-    }
+    if (timeoutRef.current == null) return;
+    clearTimeout(timeoutRef.current);
+    timeoutRef.current = null;
   };
 
   const clearStartRafIfSet = () => {
@@ -178,7 +168,10 @@ const AnimationSequencer = forwardRef<
   );
 
   const imperativeAnimations = useMemo<AnimationMeta[]>(
-    () => [{ wide: "", narrow: "", fps: 10, loops: 1, weight: 1 }],
+    // Reserved for future interaction-driven animations.
+    // Keeping this empty makes imperative calls a no-op instead of trying to
+    // load a bogus sprite path like `/spritesheets/.../.webp`.
+    () => [],
     [],
   );
 
@@ -246,6 +239,8 @@ const AnimationSequencer = forwardRef<
 
   const playImperativeAnimation = useCallback(
     (index = 0) => {
+      if (imperativeAnimations.length === 0) return;
+
       const anim = imperativeAnimations[index % imperativeAnimations.length];
       const filename = isNarrow() ? anim.narrow : anim.wide;
 
@@ -274,10 +269,10 @@ const AnimationSequencer = forwardRef<
     };
   }, [updateAnimation]);
 
-  const handleEnd = () => {
+  const handleEnd = useCallback(() => {
     clearTimeoutIfSet();
     timeoutRef.current = setTimeout(updateAnimation, delay);
-  };
+  }, [delay, updateAnimation]);
 
   const currentSrc = useMemo(() => {
     if (!activeAnim) return null;
@@ -285,7 +280,7 @@ const AnimationSequencer = forwardRef<
   }, [activeAnim, isNarrow]);
 
   return (
-    <div className={`${styles.animationSequencer} ${className}`}>
+    <div className={clsx(styles.animationSequencer, className)}>
       {activeAnim && currentSrc && (
         <SpriteSheetPlayer
           key={animKey}
@@ -303,4 +298,4 @@ const AnimationSequencer = forwardRef<
 
 AnimationSequencer.displayName = "AnimationSequencer";
 
-export default React.memo(AnimationSequencer);
+export default memo(AnimationSequencer);
