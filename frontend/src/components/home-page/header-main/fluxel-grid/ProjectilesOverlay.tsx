@@ -1,9 +1,18 @@
+/**
+ * Projectile rendering overlay.
+ *
+ * Renders animated projectiles as an SVG overlay without mutating the underlying
+ * fluxel grid. This keeps projectile visuals decoupled from the grid renderers
+ * (SVG/Canvas/Pixi) while staying aligned to the same cell sizing.
+ */
 import clsx from "clsx";
-import React from "react";
 
 import styles from "./ProjectilesOverlay.module.scss";
 import type { Projectile } from "./useFluxelProjectiles";
 
+// Intentionally high-contrast colors for quick direction recognition.
+// If/when this overlay needs to match a design system palette, migrate these
+// to CSS custom properties (or shared theme tokens) instead of hard-coded values.
 const directionColor: Record<Projectile["direction"], string> = {
   up: "yellow",
   down: "#87ad26",
@@ -30,13 +39,13 @@ export function ProjectilesOverlay({
   cols,
   className,
 }: ProjectilesOverlayProps) {
-  if (fluxelSize <= 0 || rows === 0 || cols === 0) return null;
+  if (fluxelSize <= 0 || rows <= 0 || cols <= 0) return null;
 
   const width = cols * fluxelSize;
   const height = rows * fluxelSize;
 
   return (
-    <div className={clsx(styles.overlay, className)} aria-hidden>
+    <div className={clsx(styles.overlay, className)} aria-hidden="true">
       <svg
         className={styles.svg}
         viewBox={`0 0 ${width} ${height}`}

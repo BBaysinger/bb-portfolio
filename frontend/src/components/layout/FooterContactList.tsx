@@ -1,5 +1,4 @@
-import { clsx } from "clsx";
-import React from "react";
+import clsx from "clsx";
 
 import useDeviceCapabilities from "@/hooks/useDeviceCapabilities";
 import { useContactEmail, useContactPhone } from "@/hooks/useObfuscatedContact";

@@ -60,6 +60,12 @@ export function useFluxelResizeWatcher(
       resizeStartRef.current?.();
 
       if (debounceMs > 0) {
+        // Debounced mode: cancel any already-scheduled handler run so we don't
+        // execute intermediate sizes while the user is still resizing.
+        if (handlerFrameId !== null) {
+          window.cancelAnimationFrame(handlerFrameId);
+          handlerFrameId = null;
+        }
         if (timeoutId !== null) {
           window.clearTimeout(timeoutId);
         }
@@ -70,13 +76,17 @@ export function useFluxelResizeWatcher(
         return;
       }
 
+      // Non-debounced mode: batch multiple ResizeObserver callbacks into a
+      // single handler run per animation frame.
       if (handlerFrameId === null) {
         handlerFrameId = window.requestAnimationFrame(runHandler);
       }
     };
 
+    // Allow passing a getter function so callers can reference elements that
+    // may not exist on the first render.
     const resolveTarget = () =>
-      typeof target === "function" ? target() : (target as HTMLElement | null);
+      typeof target === "function" ? target() : target;
 
     const attach = (el: HTMLElement) => {
       observer = new ResizeObserver(schedule);
@@ -87,6 +97,8 @@ export function useFluxelResizeWatcher(
     if (initial) {
       attach(initial);
     } else {
+      // Retry attachment until the target element exists (common when the DOM
+      // node is created by a child renderer and isn't available on first render).
       const tick = () => {
         const resolved = resolveTarget();
         if (resolved) {

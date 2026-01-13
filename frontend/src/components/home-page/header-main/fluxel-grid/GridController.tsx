@@ -1,3 +1,15 @@
+/**
+ * Fluxel grid renderer controller.
+ *
+ * This component:
+ * - Selects a rendering strategy (SVG/Canvas/Pixi) via the `gridType` URL query param.
+ * - Exposes an imperative API to coordinate pointer-driven “flux” + projectile effects.
+ * - Maintains shared `gridData` so each renderer can be evaluated interchangeably.
+ *
+ * Related:
+ * - Rendering implementations: `FluxelSvgGrid`, `FluxelCanvasGrid`, `FluxelPixiGrid`
+ * - Effects: `useFluxelShadows`, `useFluxelProjectiles`
+ */
 import clsx from "clsx";
 import {
   useState,
@@ -8,6 +20,7 @@ import {
   useMemo,
   useCallback,
 } from "react";
+import type { CSSProperties } from "react";
 
 import useElementRelativePointer from "@/hooks/useElementRelativePointer";
 
@@ -248,11 +261,19 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
       override: useSlingerTracking ? pointerOverride : undefined,
     });
 
-    const shouldNullifyPointer =
-      !pointerMeta.isPointerDown && pointerMeta.isTouchEvent;
-
-    const filteredPointerPos = () =>
-      shouldNullifyPointer ? null : { x: pointerMeta.x, y: pointerMeta.y };
+    // Memoize so effect hooks (e.g. shadows) don't re-run due to a new object
+    // identity every render.
+    const pointerPos = useMemo(() => {
+      // Touch end often leaves a stale pointer location; treat it as null when
+      // the user is no longer actively touching.
+      if (!pointerMeta.isPointerDown && pointerMeta.isTouchEvent) return null;
+      return { x: pointerMeta.x, y: pointerMeta.y };
+    }, [
+      pointerMeta.isPointerDown,
+      pointerMeta.isTouchEvent,
+      pointerMeta.x,
+      pointerMeta.y,
+    ]);
 
     // Cover-scale a fixed-aspect (4:3) grid based on the actual hero element size.
     // This avoids relying on viewport unit measurement timing, which can be
@@ -334,7 +355,7 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
       gridRef: gridInstanceRef,
       containerEl: gridContainerEl ?? undefined,
       setGridData,
-      pointerPos: filteredPointerPos(),
+      pointerPos,
       isPausedRef: isShadowsPaused,
       fps: 20,
     });
@@ -353,6 +374,7 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
         const localX = clientX - rect.left;
         const localY = clientY - rect.top;
 
+        // Coalesce rapid updates into a single state set per frame.
         pendingPointerOverride.current = { x: localX, y: localY };
         if (overrideFrameId.current === null) {
           overrideFrameId.current = requestAnimationFrame(() => {
@@ -434,7 +456,7 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
                 {
                   left: `${gridLinesLayout.offsetX + browserGridOffsets.x}px`,
                   top: `${gridLinesLayout.offsetY + browserGridOffsets.y}px`,
-                } as React.CSSProperties
+                } as CSSProperties
               }
             >
               <path
