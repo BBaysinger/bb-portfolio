@@ -82,8 +82,7 @@ const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
   // Used to distinguish immediate same-tick route updates from older history entries navigated via Back/Forward.
   const lastCarouselPushTsRef = useRef<number | null>(null);
   // Capture the exact ordered key list used to build the slides at mount time.
-  // This prevents index→slug mismatches if the active project set changes later
-  // (e.g., NDA projects added post-auth) without rebuilding the carousel layers.
+  // This prevents index→slug mismatches if the active project set changes later.
   const slideKeysRef = useRef<string[]>(
     ProjectData.activeProjects.map((p) => p.id),
   );
@@ -427,7 +426,7 @@ const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
     >
       <div
         id="project"
-        className={`${styles.projectsPresentationBody} bb${uiDirection}`}
+        className={clsx(styles.projectsPresentationBody, `bb${uiDirection}`)}
       >
         <HeaderSub
           head={

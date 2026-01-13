@@ -1,3 +1,4 @@
+import clsx from "clsx";
 import { useRef, memo } from "react";
 
 import ProjectData from "@/data/ProjectData";
@@ -28,7 +29,7 @@ const InfoSwapper = memo<InfoSwapperProps>(
     const infoRefElems = useRef<(HTMLDivElement | null)[]>([]);
 
     return (
-      <div className={`${styles.infoSwapper} max-w-container`}>
+      <div className={clsx(styles.infoSwapper, "max-w-container")}>
         <div className={"container"}>
           {(keys || []).map((key, i) => {
             const dataNode = projects[key];

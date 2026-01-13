@@ -1,3 +1,4 @@
+import clsx from "clsx";
 import gsap from "gsap";
 import { useEffect, useRef, useState, useCallback } from "react";
 
@@ -156,12 +157,12 @@ const ParagraphAnimator: React.FC<ParagraphAnimatorProps> = ({
   return (
     <div
       ref={containerRef}
-      className={`${styles.paragraphAnimator} ${className || ""}`}
+      className={clsx(styles.paragraphAnimator, className)}
     >
       <p className={styles.paragraphLine}>
         <span className={styles.visible}>{visibleText}</span>
         <span
-          className={`${styles.cursor} ${isAnimating ? styles.cursorSolid : ""}`}
+          className={clsx(styles.cursor, isAnimating && styles.cursorSolid)}
         />{" "}
         <span className={styles.invisible}>{invisibleText}</span>
       </p>

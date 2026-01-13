@@ -1,3 +1,4 @@
+import clsx from "clsx";
 import React, { useRef } from "react";
 
 import useAutoFitText from "@/hooks/useAutoFitText";
@@ -31,7 +32,7 @@ const HeaderSub: React.FC<HeaderSubProps> = ({ head, subhead }) => {
     <header
       ref={headerRef}
       id="headerSub"
-      className={`${styles.headerSub} ${styles.header}`}
+      className={clsx(styles.headerSub, styles.header)}
     >
       <HeaderSubSign>
         <h1>

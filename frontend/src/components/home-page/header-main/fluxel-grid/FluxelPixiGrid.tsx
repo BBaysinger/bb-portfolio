@@ -390,8 +390,14 @@ const FluxelPixiGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
           const relativeX = x - left;
           const relativeY = y - top;
 
-          const r = Math.min(Math.max(0, Math.floor(relativeY / size)), rows - 1);
-          const c = Math.min(Math.max(0, Math.floor(relativeX / size)), cols - 1);
+          const r = Math.min(
+            Math.max(0, Math.floor(relativeY / size)),
+            rows - 1,
+          );
+          const c = Math.min(
+            Math.max(0, Math.floor(relativeX / size)),
+            cols - 1,
+          );
 
           return gridDataRef.current[r]?.[c] || null;
         },

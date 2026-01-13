@@ -1,3 +1,4 @@
+import clsx from "clsx";
 import React from "react";
 
 import styles from "./HeaderSubSign.module.scss";
@@ -11,7 +12,10 @@ const HeaderSubSign: React.FC<HeaderSubSignProps> = ({ children }) => {
     <>
       <div aria-hidden className={styles.frameClip}>
         <div
-          className={`${styles.frameLayerHolder} ${styles.frameLayerHolderOrange}`}
+          className={clsx(
+            styles.frameLayerHolder,
+            styles.frameLayerHolderOrange,
+          )}
         >
           <span aria-hidden className={styles.frameLayerMasked} />
         </div>
@@ -25,7 +29,10 @@ const HeaderSubSign: React.FC<HeaderSubSignProps> = ({ children }) => {
       <div className={styles.textWrapper}>{children}</div>
       <div aria-hidden className={styles.nutsOverlay}>
         <div
-          className={`${styles.frameLayerHolder} ${styles.frameLayerHolderOrange}`}
+          className={clsx(
+            styles.frameLayerHolder,
+            styles.frameLayerHolderOrange,
+          )}
         >
           <div aria-hidden className={styles.frameLayerFront} />
         </div>

@@ -1,5 +1,6 @@
 "use client";
 
+import clsx from "clsx";
 import React from "react";
 
 import { RawImg } from "@/components/common/RawImg";
@@ -301,16 +302,28 @@ const CurriculumVitae: React.FC = () => {
     "Comics Kingdom",
   ];
 
-  const divClassLt = `col-xs-12 col-sm-12 col-md-3 col-lg-3 ${styles.cvLeft}`;
-  const divClassRt = `col-xs-12 col-sm-12 col-md-9 col-lg-9 ${styles.cvRight}`;
-  const rowClass = `row ${styles.row}`;
+  const divClassLt = clsx(
+    "col-xs-12",
+    "col-sm-12",
+    "col-md-3",
+    "col-lg-3",
+    styles.cvLeft,
+  );
+  const divClassRt = clsx(
+    "col-xs-12",
+    "col-sm-12",
+    "col-md-9",
+    "col-lg-9",
+    styles.cvRight,
+  );
+  const rowClass = clsx("row", styles.row);
 
   return (
     <div>
       <HeaderSub head={"Curriculum Vitae"} />
 
-      <section className={`cvPage ${styles.cvPage} standardPage`}>
-        <div className={`container ${styles.summary}`}>
+      <section className={clsx("cvPage", styles.cvPage, "standardPage")}>
+        <div className={clsx("container", styles.summary)}>
           <h4 ref={addToRefs}>Summary</h4>
 
           <div className={rowClass}>
@@ -346,7 +359,7 @@ const CurriculumVitae: React.FC = () => {
           </div>
         </div>
 
-        <div className={`container ${styles.strengths}`}>
+        <div className={clsx("container", styles.strengths)}>
           <h4 ref={addToRefs}>Core Strengths</h4>
 
           <div className={rowClass}>
@@ -1188,7 +1201,7 @@ const CurriculumVitae: React.FC = () => {
               <div className={styles.subContainer}>
                 <div className={styles.leftSub}>
                   <h5>14 gold badges on Stack Overflow</h5>
-                  <div className={`${styles.badges} col-xs-12`}>
+                  <div className={clsx(styles.badges, "col-xs-12")}>
                     {Array.from({ length: 14 }, (_, index) => (
                       <React.Fragment key={index}>
                         <RawImg src="/images/cv/gold-badge.svg" alt="" />
@@ -1197,7 +1210,7 @@ const CurriculumVitae: React.FC = () => {
                   </div>
                 </div>
               </div>
-              <div className={`${styles.desc} col-xs-12`}>
+              <div className={clsx(styles.desc, "col-xs-12")}>
                 Reputation: ~6,900
               </div>
             </div>
@@ -1212,7 +1225,7 @@ const CurriculumVitae: React.FC = () => {
                 <div className={styles.rightSub}>[ 2008 ]</div>
               </div>
 
-              <div className={`${styles.desc} col-xs-12`}>
+              <div className={clsx(styles.desc, "col-xs-12")}>
                 People&apos;s Choice — Art Website of the Year — Artocracy.org
               </div>
             </div>
@@ -1227,7 +1240,7 @@ const CurriculumVitae: React.FC = () => {
                 <div className={styles.rightSub}>[ 2009 - 2019 ]</div>
               </div>
 
-              <div className={`${styles.desc} col-xs-12`}>
+              <div className={clsx(styles.desc, "col-xs-12")}>
                 Contributed to over thirteen projects that received awards in
                 the annual Spokane Ad Fed (Addy) Awards, including five Silver,
                 four Gold, two Best of Division, one Best of Show, and one
