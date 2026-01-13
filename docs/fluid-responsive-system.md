@@ -13,7 +13,7 @@ This system combines a React hook with SCSS mixins to create smooth responsive s
 
 ### Architecture Components
 
-1. **`useFluidLerpVars` Hook** - Calculates and injects CSS custom properties
+1. **`useLerpVars` Hook** - Calculates and injects CSS custom properties
 2. **`remRange` Mixin** - Text/UI scaling that respects user font size preferences
 3. **`lerpRange` Mixin** - Layout/visual scaling with consistent pixel precision (pure CSS)
 4. **`scaleRange` Mixin** - Transform scaling via a clamp-bounded lerp (linear interpolation)
@@ -25,10 +25,10 @@ This system combines a React hook with SCSS mixins to create smooth responsive s
 Add the hook to your layout component:
 
 ```tsx
-import { useFluidLerpVars } from "@/hooks/useFluidLerpVars";
+import { useLerpVars } from "@/hooks/useLerpVars";
 
 function Layout({ children }) {
-  const fluidRef = useFluidLerpVars([
+  const fluidRef = useLerpVars([
     [320, 640], // Mobile to tablet
     [640, 1280], // Tablet to desktop
     [640, 1792], // Tablet to desktop
@@ -63,7 +63,7 @@ function Layout({ children }) {
 
 ## How It Works
 
-### JavaScript Layer (useFluidLerpVars)
+### JavaScript Layer (useLerpVars)
 
 The hook calculates a normalized viewport lerp (linear interpolation) factor $t$ for each viewport range:
 
@@ -204,7 +204,7 @@ font-size: calc(1.5rem + 1.5rem * var(--lerp-percent-320-640));
 Choose ranges that make sense for your design:
 
 ```tsx
-const fluidRef = useFluidLerpVars([
+const fluidRef = useLerpVars([
   [320, 480], // Mobile portrait
   [480, 768], // Mobile landscape to tablet
   [768, 1024], // Tablet to small desktop
@@ -268,7 +268,7 @@ const fluidRef = useFluidLerpVars([
 
 ### Variables Not Working
 
-1. **Check hook setup**: Ensure `useFluidLerpVars` is called in a parent component
+1. **Check hook setup**: Ensure `useLerpVars` is called in a parent component
 2. **Verify ranges**: Make sure SCSS mixin ranges match hook ranges
 3. **Inspect CSS**: Check DevTools for `--lerp-percent-*` variables
 

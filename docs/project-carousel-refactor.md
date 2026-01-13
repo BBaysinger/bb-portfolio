@@ -92,7 +92,7 @@ New hook (example name): `useProjectSelectionController()`
 Responsibilities:
 
 - Parse the committed selection from the URL.
-- Expose a stable API to *commit* a new selection:
+- Expose a stable API to _commit_ a new selection:
   - `commitProjectId(nextId, { reason, historyMode })`
 - Listen for carousel stabilization events and commit to URL.
 - Listen for URL changes (including `bb:routechange` and `popstate`) and instruct carousel to scroll.
@@ -207,16 +207,20 @@ At the end of this phase, all URL reads/writes go through one place.
 
 Minimum Playwright coverage (recommended):
 
-1) Deep link loads correct slide
+1. Deep link loads correct slide
+
 - Start at `/project/{slug}/` and confirm the correct project is visible.
 
-2) Prev/Next updates committed selection
+2. Prev/Next updates committed selection
+
 - Click next, confirm URL changes and carousel updates.
 
-3) Back/Forward stability
+3. Back/Forward stability
+
 - Click next twice, then Back twice; confirm carousel matches URL each time.
 
-4) NDA route boundary
+4. NDA route boundary
+
 - Ensure public route does not include NDA projects in active navigation.
 
 If adding Playwright is too heavy immediately, create a manual QA checklist and run it before merging.
