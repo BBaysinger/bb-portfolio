@@ -45,7 +45,8 @@ const FluxelCanvasGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
       if (!ctx) return;
 
       // Scale the backing buffer on high-DPI displays for crisp rendering.
-      const dpr = typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1;
+      const dpr =
+        typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1;
       const width = canvas.clientWidth * dpr;
       const height = canvas.clientHeight * dpr;
 

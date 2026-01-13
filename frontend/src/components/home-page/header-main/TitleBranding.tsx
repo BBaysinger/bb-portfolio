@@ -49,7 +49,7 @@ const TitleBranding = forwardRef<HTMLDivElement, TitleBrandingProps>(
     };
 
     return (
-      <div ref={ref} className={`${styles.titleBranding} ${className}`}>
+      <div ref={ref} className={clsx(styles.titleBranding, className)}>
         <span className={styles.logoWrapper}>
           <div>
             <RawImg

@@ -1,4 +1,4 @@
-import { clsx } from "clsx";
+import clsx from "clsx";
 // import Link from "next/link"; // no longer needed: external footer link uses <a>
 import React, { useRef } from "react";
 
@@ -47,15 +47,15 @@ const Footer: React.FC<FooterProps> = ({ className, mutationElemRef }) => {
     <footer ref={footerRef} className={clsx(className, styles.footer)}>
       <div className={styles.container}>
         <div className={styles.footerGrid}>
-          <div className={`${styles.footerCell} ${styles.greetSection}`}>
+          <div className={clsx(styles.footerCell, styles.greetSection)}>
             <FootGreet />
           </div>
 
-          <div className={`${styles.footerCell} ${styles.contact}`}>
+          <div className={clsx(styles.footerCell, styles.contact)}>
             <FooterContactList />
           </div>
 
-          <div className={`${styles.footerCell} ${styles.footerNav}`}>
+          <div className={clsx(styles.footerCell, styles.footerNav)}>
             <NavLinks
               className={styles.footerNavLinks}
               variant="footer"

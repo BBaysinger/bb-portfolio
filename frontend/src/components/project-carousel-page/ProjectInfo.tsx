@@ -124,15 +124,17 @@ const ProjectInfo = forwardRef<HTMLDivElement, ProjectInfoProps>(
           if (Array.isArray(urls)) {
             return (
               <span
-                className={`${styles.btnGroup} btnGroup`}
+                className={clsx(styles.btnGroup, "btnGroup")}
                 key={label}
                 style={{ "--index": globalIndex++ } as React.CSSProperties}
               >
                 <span
-                  className={
-                    `${styles.btn} ${styles.btnGroupLabel} ` +
-                    `btn btnGroupLabel`
-                  }
+                  className={clsx(
+                    styles.btn,
+                    styles.btnGroupLabel,
+                    "btn",
+                    "btnGroupLabel",
+                  )}
                 >
                   {label}
                 </span>
@@ -140,7 +142,7 @@ const ProjectInfo = forwardRef<HTMLDivElement, ProjectInfoProps>(
                   <a
                     key={item}
                     href={item}
-                    className={`${styles.btn} btn`}
+                    className={clsx(styles.btn, "btn")}
                     target="_blank"
                     rel="noopener noreferrer"
                     style={{ "--index": globalIndex++ } as React.CSSProperties}
@@ -153,7 +155,7 @@ const ProjectInfo = forwardRef<HTMLDivElement, ProjectInfoProps>(
           } else if (typeof urls === "string") {
             return (
               <a
-                className={`${styles.btn} btn`}
+                className={clsx(styles.btn, "btn")}
                 href={urls}
                 key={urls}
                 target="_blank"
@@ -170,7 +172,7 @@ const ProjectInfo = forwardRef<HTMLDivElement, ProjectInfoProps>(
         <button
           type="button"
           onClick={handleCopyLink}
-          className={`${styles.btn} ${styles.copyLinkBtn} btn`}
+          className={clsx(styles.btn, styles.copyLinkBtn, "btn")}
           aria-label="Copy canonical link to this project"
           style={{ "--index": globalIndex++ } as React.CSSProperties}
         >

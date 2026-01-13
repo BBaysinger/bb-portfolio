@@ -1,4 +1,6 @@
+import clsx from "clsx";
 import React from "react";
+
 
 import { RawImg } from "@/components/common/RawImg";
 import { MobileOrientation } from "@/data/ProjectData";
@@ -56,11 +58,19 @@ const DeviceDisplay: React.FC<DeviceDisplayProps> = React.memo(
 
     return (
       <div
-        className={`${styles.devicePresentation} ${styles[deviceType]} bbDevicePresentation`}
+        className={clsx(
+          styles.devicePresentation,
+          styles[deviceType],
+          "bbDevicePresentation",
+        )}
       >
         {deviceType === DeviceTypes.LAPTOP ? (
           <div
-            className={`bbLaptop ${styles.backgroundWrapper} ${styles[deviceType]}`}
+            className={clsx(
+              "bbLaptop",
+              styles.backgroundWrapper,
+              styles[deviceType],
+            )}
           >
             <RawImg
               src={src}
@@ -72,13 +82,20 @@ const DeviceDisplay: React.FC<DeviceDisplayProps> = React.memo(
           </div>
         ) : deviceType === DeviceTypes.PHONE ? (
           <div
-            className={`bbPhone ${styles.backgroundWrapper} ${styles[deviceType]}`}
+            className={clsx(
+              "bbPhone",
+              styles.backgroundWrapper,
+              styles[deviceType],
+            )}
           >
             <div
-              className={
-                `${styles.phoneFrame} ${mobileOrientation ? styles[mobileOrientation] : ""}` +
-                ` bb${mobileOrientation ? mobileOrientation : ""}`
-              }
+              className={clsx(
+                styles.phoneFrame,
+                mobileOrientation ? styles[mobileOrientation] : null,
+                // Preserve existing behavior: when orientation is unset, the old code still
+                // produced a bare "bb" class via `bb${""}`.
+                mobileOrientation ? `bb${mobileOrientation}` : "bb",
+              )}
             >
               <RawImg
                 src={src}

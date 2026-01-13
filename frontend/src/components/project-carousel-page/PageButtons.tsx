@@ -1,5 +1,6 @@
 "use client";
 
+import clsx from "clsx";
 import React from "react";
 
 import { PushStateLink } from "@/components/common/PushStateLink";
@@ -75,14 +76,14 @@ const PageButtons: React.FC<{ projectId: string }> = ({ projectId }) => {
     >
       <PushStateLink
         href={prevHref}
-        className={`${styles.navButton} ${styles.prev}`}
+        className={clsx(styles.navButton, styles.prev)}
         aria-label={`Previous project: ${activeProjects[prevId]?.title || prevId}`}
       >
         <div className={styles.inner} aria-hidden="true"></div>
       </PushStateLink>
       <PushStateLink
         href={nextHref}
-        className={`${styles.navButton} ${styles.next}`}
+        className={clsx(styles.navButton, styles.next)}
         aria-label={`Next project: ${activeProjects[nextId]?.title || nextId}`}
       >
         <div className={styles.inner} aria-hidden="true"></div>

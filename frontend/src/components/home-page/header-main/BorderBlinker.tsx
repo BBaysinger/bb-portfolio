@@ -1,3 +1,4 @@
+import clsx from "clsx";
 import React from "react";
 
 import styles from "./BorderBlinker.module.scss";
@@ -22,11 +23,15 @@ const BorderBlinker: React.FC<BorderBlinkerProps> = ({
   const activeSides = blinkSides ?? [];
 
   return (
-    <div className={`${className} ${styles.borderBlinker}`}>
+    <div className={clsx(className, styles.borderBlinker)}>
       {activeSides.map((side, index) => (
         <div
           key={`${side}-${index}`} // allow for repeated sides if necessary
-          className={`${styles.borderSide} ${styles[side]} ${styles[`blink-${side}`]}`}
+          className={clsx(
+            styles.borderSide,
+            styles[side],
+            styles[`blink-${side}`],
+          )}
           style={{ zIndex: index }}
         />
       ))}

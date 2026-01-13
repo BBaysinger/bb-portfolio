@@ -1,5 +1,6 @@
 "use client";
 
+import clsx from "clsx";
 import Link from "next/link";
 import React, { useEffect, useRef, useCallback } from "react";
 
@@ -146,7 +147,7 @@ const NavLinks: React.FC<NavLinksProps> = ({
       aria-hidden={isInactiveMobile ? true : undefined}
       data-variant={variant}
     >
-      <ul ref={listRef} className={`${styles.navLinks} ${className ?? ""}`}>
+      <ul ref={listRef} className={clsx(styles.navLinks, className)}>
         <li>
           <Link
             href="/#hero"
