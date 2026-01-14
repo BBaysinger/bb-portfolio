@@ -53,23 +53,23 @@
   // Runtime dependencies for backend and CMS functionality
   "dependencies": {
     // AWS SES client used for sending transactional emails
-    "@aws-sdk/client-ses": "^3.966.0",
+    "@aws-sdk/client-ses": "^3.968.0",
     // Shared AWS SDK types
-    "@aws-sdk/types": "^3.965.0",
+    "@aws-sdk/types": "^3.968.0",
     // MongoDB adapter for Payload CMS
-    "@payloadcms/db-mongodb": "3.70.0",
+    "@payloadcms/db-mongodb": "3.71.1",
     // Nodemailer email adapter for Payload CMS (handles SMTP email sending, password resets, notifications)
-    "@payloadcms/email-nodemailer": "3.70.0",
+    "@payloadcms/email-nodemailer": "3.71.1",
     // Enables Payload-Next.js integration (server-side rendering and routing)
-    "@payloadcms/next": "3.70.0",
+    "@payloadcms/next": "3.71.1",
     // Payload Cloud tools (optional if self-hosting)
-    "@payloadcms/payload-cloud": "3.70.0",
+    "@payloadcms/payload-cloud": "3.71.1",
     // Rich text editor using Lexical (modern alternative to Slate)
-    "@payloadcms/richtext-lexical": "3.70.0",
+    "@payloadcms/richtext-lexical": "3.71.1",
     // S3-backed media storage for Payload uploads
-    "@payloadcms/storage-s3": "3.70.0",
+    "@payloadcms/storage-s3": "3.71.1",
     // Payload's core UI components
-    "@payloadcms/ui": "3.70.0",
+    "@payloadcms/ui": "3.71.1",
     // Cross-platform environment variable setting (Windows/Unix compatibility)
     "cross-env": "^10.1.0",
     // Environment variable loader (reads .env files into process.env)
@@ -83,7 +83,7 @@
     // Next.js framework for frontend/backend integration
     "next": "16.1.1",
     // Payload CMS core package
-    "payload": "3.70.0",
+    "payload": "3.71.1",
     // React version to match Next.js 15
     "react": "19.2.3",
     // React DOM library for rendering React components (required by Next.js and Payload UI)
@@ -104,7 +104,7 @@
     // TypeScript definitions for JSON5 (used by annotated config files)
     "@types/json5": "^2.2.0",
     // Node.js TypeScript definitions (latest for Node 18+)
-    "@types/node": "^25.0.6",
+    "@types/node": "^25.0.8",
     // React 19 types
     "@types/react": "19.2.8",
     // React DOM 19 types
