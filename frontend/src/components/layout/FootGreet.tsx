@@ -2,6 +2,7 @@
 
 import clsx from "clsx";
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import styles from "./FootGreet.module.scss";
@@ -35,6 +36,7 @@ import styles from "./FootGreet.module.scss";
  */
 const FootGreet: React.FC<{ className?: string }> = ({ className = "" }) => {
   const [currentTimeOfDay, setCurrentTimeOfDay] = useState<string>("");
+  const timeOfDayText = currentTimeOfDay || "day";
 
   useEffect(() => {
     const rafId = requestAnimationFrame(() => {
@@ -57,25 +59,22 @@ const FootGreet: React.FC<{ className?: string }> = ({ className = "" }) => {
           height={93}
           alt="Bradley's head"
         />
-        {`Good ${currentTimeOfDay}! `}
-        Thanks for exploring this space—every element here is hand-crafted and
-        home-baked from scratch, though not exactly from grandmother's recipes.
-        It represents a portfolio and a living laboratory for interactive
-        innovation, as well as new ground broken in full-stack development. But
-        I'm just getting started.
+        Thanks for taking time out of your {timeOfDayText}! This site is my
+        active project—not just a portfolio, but a platform built from scratch
+        in <strong>Next.js</strong> and backed by <strong>Payload CMS</strong>.
+        It's fully <strong>headless</strong> and <strong>TypeScript</strong> end
+        -to-end, on the frontend and backend.
       </p>
-      {/* <p>
-        What you experience here—the parallax carousel, the magnetic pixel grid,
-        the custom sprite sheet animator—these aren&apos;t just features,
-        they&apos;re original systems built to explore what&apos;s possible in
-        the browser.
-      </p> */}
       <p>
-        I&apos;m passionate about creating intuitive UI concepts, but my
-        capabilities go beyond that. If you&apos;re looking for someone who
-        brings systematic innovation, architectural thinking, and an obsessive
-        attention to craft—let&apos;s connect and explore what we can build
-        together.
+        It's a new direction for me, and a testbed for work I've loved
+        for a long time: original UI concepts that push interaction design,
+        motion, and behavior past conventional patterns.
+      </p>
+      <p>
+        I deliver <strong>ultra-polished</strong> interfaces with the eye of a
+        designer, fearlessness, and few technical constraints. Do you have
+        something that has to be <i>just right</i>—or <i>go beyond</i>? Then{" "}
+        <Link href="/contact">let's&nbsp;talk</Link>.
       </p>
     </div>
   );
