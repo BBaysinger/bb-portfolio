@@ -3,6 +3,15 @@
 
 .footerGreet {
   font-size: 14px;
+
+  a {
+    color: #fff !important;
+    text-decoration: underline !important;
+    &:hover {
+      color: #fff !important;
+      text-decoration: none !important;
+    }
+  }
 }
 
 .footerPhoto {

@@ -55,10 +55,9 @@ const Greeting: React.FC = () => {
               <p>
                 Hi, I'm Bradley — a <strong>UI</strong> and{" "}
                 <strong>front-end developer</strong> in Spokane, WA. I've spent
-                many years building interaction-heavy front-end projects, and
-                this site reflects some of that work. It highlights how I think
-                about motion, behavior, and the details that make interfaces
-                feel intuitive and alive.
+                many years building interaction-heavy front-end projects. This
+                site focuses on the polish and sophistication I bring to my
+                work, and it includes some legacy projects for context.
               </p>
             </div>
             <div ref={addToRefs}>

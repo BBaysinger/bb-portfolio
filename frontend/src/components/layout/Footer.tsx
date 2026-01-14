@@ -1,8 +1,6 @@
 import clsx from "clsx";
-// import Link from "next/link"; // no longer needed: external footer link uses <a>
 import React, { useRef } from "react";
 
-// import { RawImg } from "@/components/common/RawImg";
 import { useFlipInFlow } from "@/hooks/useFlipInFlow";
 
 import styles from "./Footer.module.scss";
@@ -40,6 +38,7 @@ type FooterProps = {
  */
 const Footer: React.FC<FooterProps> = ({ className, mutationElemRef }) => {
   const footerRef = useRef<HTMLDivElement>(null);
+  const currentYear = new Date().getFullYear();
 
   useFlipInFlow(mutationElemRef, footerRef);
 
@@ -81,7 +80,8 @@ const Footer: React.FC<FooterProps> = ({ className, mutationElemRef }) => {
           target="_blank"
           rel="noopener noreferrer"
         >
-          &copy; <span style={{ color: "#fff" }}>bbaysinger</span>.com
+          &copy; {currentYear} <span style={{ color: "#fff" }}>bbaysinger</span>
+          .com
         </a>
       </div>
     </footer>
