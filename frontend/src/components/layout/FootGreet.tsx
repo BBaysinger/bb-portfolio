@@ -62,13 +62,13 @@ const FootGreet: React.FC<{ className?: string }> = ({ className = "" }) => {
         Thanks for taking time out of your {timeOfDayText}! This site is my
         active project—not just a portfolio, but a platform built from scratch
         in <strong>Next.js</strong> and backed by <strong>Payload CMS</strong>.
-        It's fully <strong>headless</strong> and <strong>TypeScript</strong> end
-        -to-end, on the frontend and backend.
+        It's fully <strong>headless</strong> and <strong>TypeScript</strong>{" "}
+        end-to-end, on the frontend and backend.
       </p>
       <p>
-        It's a new direction for me, and a testbed for work I've loved
-        for a long time: original UI concepts that push interaction design,
-        motion, and behavior past conventional patterns.
+        It's a new direction for me, and a testbed for work I've loved for a
+        long time: original UI concepts that push interaction design, motion,
+        and behavior past conventional patterns.
       </p>
       <p>
         I deliver <strong>ultra-polished</strong> interfaces with the eye of a
