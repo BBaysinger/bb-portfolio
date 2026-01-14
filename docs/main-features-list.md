@@ -1,6 +1,6 @@
 # Main Features List
 
-Working list of site features worth mentioning in the README.
+Working list of notable features
 
 ## Frontend UX / Interaction
 
