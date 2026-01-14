@@ -12,15 +12,19 @@ Working list of site features worth mentioning in the README.
 - Logo/info swapper animations tied to active slide
 - Scroll-aware highlighting project list
 - Magnetic/sticky road sign
-- Custom physics kinetic orb
+- Draggable + throwable “slinger” orb with simple physics (velocity, damping, wall collision callbacks)
 - Page slide-out nav
 - Transform-positioned footer
 - Custom sprite rendering
+- In-view slide-in animation system (IntersectionObserver)
+- FLIP-style transform animation for dynamic footer positioning (ResizeObserver + GSAP)
 
 ## Rendering / Routing
 
 - SSR/Next portfolio projects list
 - SSG/Next dynamic routing projects view
+- NDA routes with placeholders + auth-aware upgrade (SSR → CSR hydration)
+- Static `/nda?p=slug` query-param entry route (client canonicalization)
 
 ## Fluid Responsive System
 
@@ -54,6 +58,14 @@ Working list of site features worth mentioning in the README.
 - Locked-down CSRF/CORS allowlists per environment
 - Contact API via AWS SES with HTML/Text email and reply-to
 - Health-check endpoint(s) for uptime/deploy validation
+- NDA project asset route that requires auth and streams from S3 (supports 304 + private caching)
+
+## Observability / Analytics
+
+- AWS CloudWatch RUM integration (production-only + HTTPS-only guardrails)
+- Auto page-view tracking + route-change tracking (App Router)
+- Custom event helpers for interactions (clicks, carousel, slinger toss, etc.)
+- Minimal Google Analytics 4 integration (optional)
 
 ## Infra / Deployment
 
@@ -77,6 +89,7 @@ Working list of site features worth mentioning in the README.
 
 - JSON dumps for seed data and repeatable imports
 - Automated database backup exports (with dated folders)
+- NDA media backfill scripts for legacy uploads (Payload + Mongo variants)
 
 ## README Priorities
 

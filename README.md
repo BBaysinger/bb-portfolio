@@ -1,6 +1,4 @@
-> **Monorepo Note:** This repo currently contains an interactive development portfolio _and_ a developer-oriented deployment orchestrator library; the orchestrator will spin out into its own repository soon.
-
-# Interactive UI / Frontend Systems Portfolio
+# Interactive UI / Frontend Systems Portfolio Platform
 
 A production-grade exploration of interactive front-end architecture — combining handcrafted animation systems, experimental render strategies, and fully automated DevOps infrastructure.  
  Built with **React**, **TypeScript**, and the **Next.js App Router**, powered by a **Payload CMS backend** and **Terraform-provisioned AWS stack** (now including **CloudWatch metrics & logs**).  
@@ -10,7 +8,9 @@ Core interface systems include a **parallax-layered carousel**, a **multi-render
 Every motion and frame transition is built natively — no external 3D, physics, or sprite libraries.  
 The surrounding infrastructure (Terraform, Docker, AWS, GitHub Actions) exists not as ornamentation, but as proof of production-level rigor: CI/CD, secrets pipelines, multi-environment orchestration, and cloud resource hygiene.
 
-The goal is to show **breadth across the full front-end lifecycle** — from rendering pipelines and animation timing, to infrastructure automation, data modeling, and deployment reproducibility — all authored by a single developer.
+> **Monorepo Note:** This repo currently contains an interactive development portfolio _and_ a developer-oriented deployment orchestrator library; the orchestrator and repo root will spin out into its own repository soon.
+
+Note: this project is still evolving — features, UX, and infrastructure are actively iterated.
 
 ## 🔎 30‑Second Tour (Frontend Focus)
 
@@ -32,6 +32,8 @@ Live site reference moments:
 
 ---
 
+Shorter read: [Main features list (bullets)](./docs/main-features-list.md).
+
 [Visit the Live Site (primary)](http://bbaysinger.com).
 
 ---
@@ -46,8 +48,17 @@ This repo is an end‑to‑end system, not just a site. Beyond the UI work, it s
 - Dual registries (Docker Hub for dev, ECR for prod) with automated image cleanup and verification
 - Secrets and environment sync pipeline driven by JSON5 source files and validation lists
 - Media and project file pipelines to S3 with verify tools and server‑streamed delivery routes (no presigned URLs)
+- NDA system: placeholders + auth-aware upgrade (SSR → CSR hydration) and a static query-param entry route (`/nda?p=slug`)
+- Auth-gated NDA asset streaming from S3 (supports 304 + private cache headers)
 - Database migration, rename, and safety‑first destructive helpers with dry‑run support
+- NDA media backfill scripts for legacy uploads (Payload + Mongo variants)
 - Scripted conveniences for day‑to‑day work: dependency upgrades, multi‑package installs, branch sync, and more
+
+Frontend systems worth calling out:
+
+- In-view slide-in animation system (IntersectionObserver)
+- FLIP-style transform animation for dynamic footer positioning (ResizeObserver + GSAP)
+- Production observability: AWS CloudWatch RUM (auto page views + custom events) plus optional GA4
 
 Jump to the complete list of conveniences: [Deployment conveniences catalog](#-deployment-conveniences-catalog).
 
