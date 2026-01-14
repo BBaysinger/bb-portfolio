@@ -39,13 +39,13 @@
   // Runtime dependencies for the frontend application
   "dependencies": {
     // AWS SDK v3 S3 client (used for signed-URL uploads)
-    "@aws-sdk/client-s3": "^3.966.0",
+    "@aws-sdk/client-s3": "^3.968.0",
     // AWS SDK v3 presigner for generating pre-signed S3 requests
-    "@aws-sdk/s3-request-presigner": "^3.966.0",
+    "@aws-sdk/s3-request-presigner": "^3.968.0",
     // Modern Redux state management with simplified API
     "@reduxjs/toolkit": "^2.11.2",
     // AWS CloudWatch RUM for real user monitoring and visitor traffic tracking
-    "aws-rum-web": "^1.25.0",
+    "aws-rum-web": "^2.0.0",
     // CSS framework for responsive design and components
     "bootstrap": "^5.3.8",
     // Utility for conditionally joining CSS class names
