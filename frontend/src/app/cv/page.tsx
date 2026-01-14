@@ -324,7 +324,12 @@ const CurriculumVitae: React.FC = () => {
 
       <section className={clsx("cvPage", styles.cvPage, "standardPage")}>
         <div className={clsx("container", styles.summary)}>
-          <h4 ref={addToRefs}>Summary</h4>
+          <h4 ref={addToRefs}>
+            Summary -{" "}
+            <span className={styles.designMindedEngineer}>
+              Design-Minded Engineer
+            </span>
+          </h4>
 
           <div className={rowClass}>
             <div className={divClassLt}>
