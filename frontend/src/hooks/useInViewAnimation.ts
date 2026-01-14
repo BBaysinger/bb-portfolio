@@ -27,12 +27,42 @@ const useInViewArray = (
   };
 
   useEffect(() => {
+    const processedTargets = new WeakSet<Element>();
+    const scheduledRafs = new Set<number>();
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            entry.target.classList.add(animationClass);
+            // Elements that start in the viewport can otherwise skip the transition,
+            // because the "in-view" class can be applied before the first paint.
+            // Scheduling on the next task ensures a paint occurs with `baseClass` first.
+            if (processedTargets.has(entry.target)) return;
+            processedTargets.add(entry.target);
+
             observer.unobserve(entry.target);
+            const target = entry.target;
+
+            const rafId = window.requestAnimationFrame(() => {
+              const rafId2 = window.requestAnimationFrame(() => {
+                scheduledRafs.delete(rafId2);
+
+                if (
+                  !(
+                    target instanceof HTMLElement ||
+                    target instanceof SVGElement
+                  )
+                ) {
+                  return;
+                }
+                if (!target.isConnected) {
+                  return;
+                }
+                target.classList.add(animationClass);
+              });
+              scheduledRafs.add(rafId2);
+            });
+            scheduledRafs.add(rafId);
           }
         });
       },
@@ -52,6 +82,7 @@ const useInViewArray = (
 
     return () => {
       if (timeoutId) clearTimeout(timeoutId);
+      scheduledRafs.forEach((id) => cancelAnimationFrame(id));
       observer.disconnect();
     };
   }, [animationClass, threshold, delay, scrollThreshold]);
