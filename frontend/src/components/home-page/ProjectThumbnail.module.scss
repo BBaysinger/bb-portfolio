@@ -40,7 +40,7 @@ $hoverPersists: var(--hover-persists, 600ms);
     user-select: none;
     -webkit-user-drag: none;
     -webkit-touch-callout: none;
-    filter: saturate(0) contrast(1) brightness(1);
+    filter: saturate(0) contrast(1.2) brightness(1);
     transition:
       filter $hoverPersists,
       opacity 1.2s;
