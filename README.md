@@ -194,7 +194,6 @@ An experimental, dynamic pixel grid ("fluxels") rendered via a pluggable strateg
 
 - Lookup by pixel (`getFluxelAt(x,y)`), grid dimension introspection, and size retrieval.
 - Shadow rendering offloaded to a shared canvas (`FluxelShadowCanvasRenderer`) to avoid per‑cell DOM overhead.
-- Projectile & positional effects triggered from external actors (e.g. the Slinger orb) and reset utilities for demo/game behaviors.
   The system is tuned for: minimal allocations, device‑pixel ratio scaling, and future migration to shader pipelines (see roadmap: WebGL/PixiJS).
 
 ### Layered Parallax Carousel
