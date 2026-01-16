@@ -1,11 +1,10 @@
 'use client'
 
-import { EmailField, useField, useFormFields } from '@payloadcms/ui'
-import type { EmailFieldClientComponent } from 'payload'
+import { useField, useFormFields } from '@payloadcms/ui'
 import React, { useEffect } from 'react'
 
 /**
- * Payload Admin custom Email field for the Users collection.
+ * Payload Admin helper component for the Users collection.
  *
  * Goal
  * - Let admins create a user by typing Username first, without needing a real email yet.
@@ -16,6 +15,11 @@ import React, { useEffect } from 'react'
  * - If Email is empty OR ends with @placeholder.invalid: auto-populate + keep updating.
  * - If Email looks like a real address (not @placeholder.invalid): never overwrite it.
  * - If Username is cleared and Email is a placeholder: clear Email too.
+ *
+ * Implementation note
+ * - We attach this as `admin.components.afterInput` on the Username field.
+ * - We intentionally do NOT override the built-in auth `email` field, because Payload injects
+ *   auth fields automatically and overriding can lead to duplicate Email inputs in the UI.
  */
 
 const isPlaceholderEmail = (email: string) => {
@@ -38,14 +42,16 @@ const makePlaceholderEmail = (rawUsername: string) => {
   return `no-email+${safeLocalPart}@placeholder.invalid`
 }
 
-export const AutoEmailFromUsername: EmailFieldClientComponent = (props) => {
-  const { path } = props
+type Props = {
+  path: string
+}
 
-  // Current email field state
-  const { value: emailValue, setValue: setEmailValue } = useField<string>({ path })
+export const AutoEmailFromUsernameEffect: React.FC<Props> = ({ path }) => {
+  // Read/write the built-in auth email field.
+  const { value: emailValue, setValue: setEmailValue } = useField<string>({ path: 'email' })
 
-  // Watch the sibling Username field without re-rendering on every field change
-  const usernameField = useFormFields(([fields]) => fields.username)
+  // Read the username field value from form state. `path` is the runtime path of the username field.
+  const usernameField = useFormFields(([fields]) => fields[path])
   const usernameValue = typeof usernameField?.value === 'string' ? usernameField.value : ''
 
   useEffect(() => {
@@ -73,5 +79,6 @@ export const AutoEmailFromUsername: EmailFieldClientComponent = (props) => {
     }
   }, [emailValue, setEmailValue, usernameValue])
 
-  return <EmailField {...props} />
+  // Render nothing; this component only coordinates form state.
+  return null
 }
