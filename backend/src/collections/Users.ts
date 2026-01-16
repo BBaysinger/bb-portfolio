@@ -41,11 +41,29 @@ export const Users: CollectionConfig = {
   hooks: {
     beforeChange: [
       ({ data }) => {
+        const makePlaceholderEmail = (rawUsername: string) => {
+          const normalized = rawUsername.trim().toLowerCase()
+          const safeLocalPart = normalized
+            .replace(/[^a-z0-9._-]+/g, '-')
+            .replace(/-+/g, '-')
+            .replace(/^-|-$/g, '')
+          if (!safeLocalPart) return undefined
+          return `no-email+${safeLocalPart}@example.invalid`
+        }
+
         if (typeof data?.username === 'string') {
           const trimmed = data.username.trim()
           data.username = trimmed.length > 0 ? trimmed : undefined
           const normalized = trimmed.toLowerCase()
           data.usernameNormalized = normalized.length > 0 ? normalized : undefined
+
+          // Auto-populate placeholder email for auth if email is still blank.
+          // This enables username-first user creation in the admin UI.
+          const email = typeof data?.email === 'string' ? data.email.trim() : ''
+          if (!email) {
+            const placeholder = makePlaceholderEmail(trimmed)
+            if (placeholder) data.email = placeholder
+          }
         }
 
         const firstName = typeof data?.firstName === 'string' ? data.firstName.trim() : ''
@@ -65,6 +83,22 @@ export const Users: CollectionConfig = {
   },
   fields: [
     {
+      name: 'email',
+      type: 'email',
+      required: true,
+      unique: true,
+      admin: {
+        description: [
+          'Admin UI: if Email is empty OR currently an @example.invalid placeholder, it will auto-populate from Username as no-email+<username>@example.invalid and keep updating as Username changes.',
+          'If you enter a real email (not @example.invalid), it will not be overwritten.',
+          'Backend: if Email is missing on save and Username is set, a placeholder email is generated as a safety net for API/seed flows.',
+        ].join(' '),
+        components: {
+          Field: '/components/payload/AutoEmailFromUsername#AutoEmailFromUsername',
+        },
+      },
+    },
+    {
       name: 'role',
       type: 'select',
       options: ['admin', 'user'],
@@ -76,8 +110,11 @@ export const Users: CollectionConfig = {
       type: 'text',
       required: false,
       admin: {
-        description:
-          "Login identifier (alternative to email). Should be unique. If you don't know their email yet, set a username and use a placeholder email like no-email+<username>@example.invalid (then update it later).",
+        description: [
+          'Login identifier (alternative to email). Should be unique.',
+          'If Email is empty (or still an @example.invalid placeholder), the Admin UI will generate and keep Email synced as no-email+<username>@example.invalid.',
+          'The backend also generates this placeholder on save if Email is missing and Username is provided.',
+        ].join(' '),
       },
     },
     {
