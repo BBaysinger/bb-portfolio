@@ -48,7 +48,7 @@ export const Users: CollectionConfig = {
             .replace(/-+/g, '-')
             .replace(/^-|-$/g, '')
           if (!safeLocalPart) return undefined
-          return `no-email+${safeLocalPart}@example.invalid`
+          return `no-email+${safeLocalPart}@placeholder.invalid`
         }
 
         if (typeof data?.username === 'string') {
@@ -89,8 +89,8 @@ export const Users: CollectionConfig = {
       unique: true,
       admin: {
         description: [
-          'Admin UI: if Email is empty OR currently an @example.invalid placeholder, it will auto-populate from Username as no-email+<username>@example.invalid and keep updating as Username changes.',
-          'If you enter a real email (not @example.invalid), it will not be overwritten.',
+          'Admin UI: if Email is empty OR currently an @placeholder.invalid placeholder, it will auto-populate from Username as no-email+<username>@placeholder.invalid and keep updating as Username changes.',
+          'If you enter a real email (not @placeholder.invalid), it will not be overwritten.',
           'Backend: if Email is missing on save and Username is set, a placeholder email is generated as a safety net for API/seed flows.',
         ].join(' '),
         components: {
@@ -112,7 +112,7 @@ export const Users: CollectionConfig = {
       admin: {
         description: [
           'Login identifier (alternative to email). Should be unique.',
-          'If Email is empty (or still an @example.invalid placeholder), the Admin UI will generate and keep Email synced as no-email+<username>@example.invalid.',
+          'If Email is empty (or still an @placeholder.invalid placeholder), the Admin UI will generate and keep Email synced as no-email+<username>@placeholder.invalid.',
           'The backend also generates this placeholder on save if Email is missing and Username is provided.',
         ].join(' '),
       },
