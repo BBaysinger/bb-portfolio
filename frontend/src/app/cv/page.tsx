@@ -31,10 +31,6 @@ const CurriculumVitae: React.FC = () => {
   /**
    * Wrap a list of phrases into styled inline list items.
    *
-   * Note: We intentionally keep this as a formatting helper (instead of a
-   * dedicated component) because it’s used in multiple places and the output is
-   * purely presentational.
-   *
    * @param phrases - List of phrases to format.
    * @returns Wrapped JSX elements.
    */
@@ -325,10 +321,11 @@ const CurriculumVitae: React.FC = () => {
       <section className={clsx("cvPage", styles.cvPage, "standardPage")}>
         <div className={clsx("container", styles.summary)}>
           <h4 ref={addToRefs}>
-            Summary -{" "}
+            Summary
+            {/* Summary -{" "}
             <span className={styles.designMindedEngineer}>
               Design-Minded Engineer
-            </span>
+            </span> */}
           </h4>
 
           <div className={rowClass}>
@@ -343,22 +340,19 @@ const CurriculumVitae: React.FC = () => {
 
             <div ref={addToRefs} className={divClassRt}>
               <p>
-                Front-end / UI developer with a long background in interactive
-                work spanning design, animation, games, and web UI. I've spent
-                years building interaction-heavy experiences—from game-like
-                interfaces to large, maintainable UI systems—where motion,
-                behavior, and visual detail matter as much as correctness and
-                performance.
+                <strong>
+                  Front-end / UI developer focused on interaction, visual
+                  polish, and performance-sensitive web interfaces.
+                </strong>
               </p>
 
               <p>
-                After early award-winning work in Flash, I deliberately
-                refocused on JavaScript and modern front-end development,
-                transitioning into frameworks like Angular and React and
-                building reusable, performance-conscious component systems. I've
-                shipped production UI for Fortune 500 companies, entertainment
-                brands, and smaller teams, and I care deeply about reliability,
-                polish, and building interfaces that hold up over time.
+                Senior engineer with <strong>15+ years</strong> building
+                production UI for enterprise and consumer products. Strong in{" "}
+                <strong>HTML, CSS, and JavaScript</strong>, with experience
+                using modern frameworks including{" "}
+                <strong>React, TypeScript, Next.js, and Angular</strong> to ship
+                reliable, accessible interfaces.
               </p>
             </div>
           </div>

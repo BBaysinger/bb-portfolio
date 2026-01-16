@@ -62,8 +62,8 @@ const FootGreet: React.FC<{ className?: string }> = ({ className = "" }) => {
         Thanks for taking time out of your {timeOfDayText}. This site is my
         active project—not just a portfolio, but a platform built from scratch
         in <strong>Next.js</strong>, backed by <strong>Payload CMS</strong>,
-        fully headless, and written end-to-end in{" "}
-        <strong>TypeScript</strong> across the frontend and backend.
+        fully headless, and written end-to-end in <strong>TypeScript</strong>{" "}
+        across the frontend and backend.
       </p>
 
       <p>
