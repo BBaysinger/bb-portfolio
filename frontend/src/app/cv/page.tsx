@@ -16,9 +16,7 @@ import styles from "./CvPage.module.scss";
  * via `useInViewAnimation`.
  *
  * Key implementation notes:
- * - `wrapPhrases` turns arrays of skill strings into a styled inline list.
- * - Large lists (skills/brands/project types) are intentionally kept as plain
- *   data arrays to keep JSX readable.
+ * - Skills/brands/project types are authored inline as styled span lists.
  *
  * TODO: Consider modularizing sections into reusable components.
  * TODO: CMS-driving this content for easier updates.
@@ -28,275 +26,17 @@ const CurriculumVitae: React.FC = () => {
   // when they enter the viewport (used for scroll-triggered animations).
   const addToRefs = useInViewAnimation("in-view");
 
-  /**
-   * Wrap a list of phrases into styled inline list items.
-   *
-   * @param phrases - List of phrases to format.
-   * @returns Wrapped JSX elements.
-   */
-  const wrapPhrases = (phrases: string[]): React.ReactNode[] => {
-    return phrases.map((data, i) => (
-      <span className={styles.inlineListItem} key={i}>
-        <span className={styles.phrase}>{data}</span>
-        <span className={styles.bullet}>
-          &nbsp;&bull;
-          {/*
-            Keep a breaking space after the bullet so long lists can wrap
-            naturally without the bullet sticking to the next line.
-          */}
-          <span>&#32;</span>
-        </span>
+  const InlineListItem: React.FC<{ children: React.ReactNode }> = ({
+    children,
+  }) => (
+    <span className={styles.inlineListItem}>
+      <span className={styles.phrase}>{children}</span>
+      <span className={styles.bullet}>
+        &nbsp;&bull;
+        <span>&#32;</span>
       </span>
-    ));
-  };
-
-  const frontEndUi = [
-    // Categorized skills list used by `wrapPhrases`.
-    // Languages & Fundamentals
-    "TypeScript",
-    "ES6",
-    "Vanilla JavaScript",
-    "JSX",
-    "HTML5",
-    "CSS3",
-    "SASS / SCSS",
-    "Flexbox",
-    "Grid",
-
-    // Frameworks & State
-    "React",
-    "Next.js",
-    "Angular",
-    "RxJS",
-    "Redux Toolkit",
-
-    // UI / Graphics / Motion
-    "SVG",
-    "Canvas",
-    "PixiJS",
-    "GreenSock / GSAP",
-    "Bootstrap",
-    "Mapbox",
-
-    // Legacy (kept for depth)
-    "jQuery (legacy)",
-    "Haxe (legacy)",
-    "ActionScript 3 (legacy)",
-    "ActionScript 2 (legacy)",
-    "Flambé / 2DKit (legacy)",
-  ];
-
-  const architectureAndPractices = [
-    "SPAs",
-    "Monorepo Architecture",
-    "Design Patterns",
-    "Next.js App Router",
-    "SSR",
-    "SSG",
-    "OOP",
-    "Functional Programming",
-    "MVC",
-    "Accessibility",
-    "SEO",
-    "Quality Assurance",
-    "E2E Testing",
-    "Tracking / Analytics",
-    "Image Processing",
-    "Tween Engines",
-    "Headless CMS",
-    "DHTML (legacy)",
-    "Game UI Frameworks (legacy)",
-  ];
-
-  const toolingAndWorkflow = [
-    // Build & Dev Tooling
-    "Node.js",
-    "NPM",
-    "Vite",
-    "Webpack",
-    "Babel",
-    "ESLint",
-    "Prettier",
-    "Vitest",
-
-    "GitHub Actions",
-
-    // Editors & Version Control
-    "VSCode",
-    "Sublime Text",
-    "Visual Studio",
-    "Git",
-    "Git Tower",
-    "Sourcetree",
-
-    // QA / Cross-Browser
-    "Sauce Labs",
-    "BrowserStack",
-
-    // Collaboration
-    "Jira",
-    "Confluence",
-    "Trello",
-    "Smartsheet",
-    "Google Docs",
-
-    // Design tools
-    "Illustrator",
-    "Photoshop",
-    "Animate (w/ scripting & HTML5 export)",
-
-    // AI tooling
-    "ChatGPT",
-    "Copilot AI",
-    "Perplexity AI",
-
-    // Legacy
-    "Grunt (legacy)",
-    "Gulp (legacy)",
-    "Create / Easel (legacy)",
-  ];
-
-  const apisAndIntegration = [
-    "REST APIs",
-    "GraphQL",
-    "Express",
-    "JWT",
-    "JSON",
-    "XML",
-    "XSL",
-  ];
-
-  const cmsAndEnterprise = [
-    "Payload CMS",
-    "Craft CMS",
-    "Salesforce",
-    "OneTrust",
-    "Litmus",
-    "FreeMarker",
-    "Mustache / Handlebars",
-  ];
-
-  const cloudAndData = [
-    "AWS",
-    "AWS S3",
-    "AWS SES",
-    "AWS ECR",
-    "CloudWatch",
-    "CloudWatch RUM",
-    "MongoDB",
-    "Elasticsearch",
-    "Docker",
-    "Docker Compose",
-    "Terraform",
-    "Caddy",
-    "VirtualBox",
-    "Infrastructure as Code",
-    "Cloud Computing",
-    "Container Orchestration",
-  ];
-
-  const projectTypes = [
-    // Games & Interactive Entertainment
-    "Escape Games",
-    "Shooter Games",
-    "Platformer Games",
-    "Puzzle Games",
-    "Edutainment Games",
-    "Skill Games",
-    "Tactical Movement Games",
-    "Character Customization Games",
-    "Magnetic Poetry Games",
-    "Drawing Utilities",
-    "Wallpaper Generators",
-
-    // Media & Content Players
-    "Audio Players",
-    "Video Players",
-    "360° Video Players",
-    "Animated E-Cards",
-    "Screensavers",
-
-    // Interactive Web Experiences
-    "Quizzes",
-    "Surveys and Forms",
-    "Sweepstakes Activities",
-    "Photo Upload Personalization",
-    "Drag-and-Drop Builders",
-    "Interactive Tutorials",
-    "Virtual Tours",
-    "Call-a-Friend Message Builders",
-    "Movie/TV Show Tie-Ins",
-    "Site Release Reveals",
-    "Media/Timeline Sequencers",
-    "Interactive Slideshows",
-    "Configurable Sprite Sheet Player",
-
-    // Business, Marketing & Utility
-    "Synced Banner Advertising",
-    "Microsites",
-    "Product Demos",
-    "Product Catalogs",
-    "App Store",
-    "Custom Navigation Menus",
-    "Custom Scrollbars",
-    "Custom Tween Engine",
-    "Data Usage Calculators",
-    "Data Science Application",
-    "Interactive Portfolio",
-    "Informational Presentations",
-    "HTML Emails",
-    "Email Consent Workflows",
-  ];
-
-  const brands = [
-    "Nickelodeon",
-    "Nick Jr.",
-    "NDA brand",
-    "Disney",
-    "Mattel",
-    "AT&T",
-    "MTV",
-    "Netflix",
-    "National Geographic",
-    "USDA",
-    "EPA",
-    "NIFA",
-    "Expedia",
-    "New Line Cinema",
-    "The Weinstein Company",
-    "Addicting Games",
-    "The N",
-    "T-Mobile",
-    "Premera Blue Cross",
-    "Bravo",
-    "Earthbound Farms",
-    "Cingular",
-    "HTC",
-    "OnSet Productions",
-    "Ronix Wakeboards",
-    "RedHook Brewing",
-    "Stoli Vodka",
-    "Tanteo Tequila",
-    "Tobacco Smokes You",
-    "UBS Financial Services",
-    "XM Radio",
-    "Lincoln Mercury",
-    "Dannon",
-    "Yoplait",
-    "Post",
-    "WildBrain",
-    "Yesmail",
-    "Novo Nordisk",
-    "Takeda Pharmaceuticals",
-    "Citibank",
-    "Golden 1 Credit Union",
-    "Avista Utilities",
-    "Committee for Children",
-    "The Heart Institute of Spokane",
-    "AbbVie Pharmaceuticals",
-    "Exact Sciences",
-    "Comics Kingdom",
-  ];
+    </span>
+  );
 
   const divClassLt = clsx(
     "col-xs-12",
@@ -1161,32 +901,145 @@ const CurriculumVitae: React.FC = () => {
             <div ref={addToRefs} className={divClassLt}></div>
             <div ref={addToRefs} className={divClassRt}>
               <h5>Front End UI</h5>
-              <p>{wrapPhrases(frontEndUi)}</p>
+              <p>
+                <InlineListItem>TypeScript</InlineListItem>
+                <InlineListItem>ES6</InlineListItem>
+                <InlineListItem>Vanilla JavaScript</InlineListItem>
+                <InlineListItem>JSX</InlineListItem>
+                <InlineListItem>HTML5</InlineListItem>
+                <InlineListItem>CSS3</InlineListItem>
+                <InlineListItem>SASS / SCSS</InlineListItem>
+                <InlineListItem>Flexbox</InlineListItem>
+                <InlineListItem>Grid</InlineListItem>
+                <InlineListItem>React</InlineListItem>
+                <InlineListItem>Next.js</InlineListItem>
+                <InlineListItem>Angular</InlineListItem>
+                <InlineListItem>RxJS</InlineListItem>
+                <InlineListItem>Redux Toolkit</InlineListItem>
+                <InlineListItem>SVG</InlineListItem>
+                <InlineListItem>Canvas</InlineListItem>
+                <InlineListItem>PixiJS</InlineListItem>
+                <InlineListItem>GreenSock / GSAP</InlineListItem>
+                <InlineListItem>Bootstrap</InlineListItem>
+                <InlineListItem>Mapbox</InlineListItem>
+                <InlineListItem>jQuery (legacy)</InlineListItem>
+                <InlineListItem>Haxe (legacy)</InlineListItem>
+                <InlineListItem>ActionScript 3 (legacy)</InlineListItem>
+                <InlineListItem>ActionScript 2 (legacy)</InlineListItem>
+                <InlineListItem>Flambé / 2DKit (legacy)</InlineListItem>
+              </p>
             </div>
             <div ref={addToRefs} className={divClassLt}></div>
             <div ref={addToRefs} className={divClassRt}>
               <h5>Architecture & Practices</h5>
-              <p>{wrapPhrases(architectureAndPractices)}</p>
+              <p>
+                <InlineListItem>SPAs</InlineListItem>
+                <InlineListItem>Monorepo Architecture</InlineListItem>
+                <InlineListItem>Design Patterns</InlineListItem>
+                <InlineListItem>Next.js App Router</InlineListItem>
+                <InlineListItem>SSR</InlineListItem>
+                <InlineListItem>SSG</InlineListItem>
+                <InlineListItem>OOP</InlineListItem>
+                <InlineListItem>Functional Programming</InlineListItem>
+                <InlineListItem>MVC</InlineListItem>
+                <InlineListItem>Accessibility</InlineListItem>
+                <InlineListItem>SEO</InlineListItem>
+                <InlineListItem>Quality Assurance</InlineListItem>
+                <InlineListItem>E2E Testing</InlineListItem>
+                <InlineListItem>Tracking / Analytics</InlineListItem>
+                <InlineListItem>Image Processing</InlineListItem>
+                <InlineListItem>Tween Engines</InlineListItem>
+                <InlineListItem>Headless CMS</InlineListItem>
+                <InlineListItem>DHTML (legacy)</InlineListItem>
+                <InlineListItem>Game UI Frameworks (legacy)</InlineListItem>
+              </p>
             </div>
             <div ref={addToRefs} className={divClassLt}></div>
             <div ref={addToRefs} className={divClassRt}>
               <h5>Tooling & Workflow</h5>
-              <p>{wrapPhrases(toolingAndWorkflow)}</p>
+              <p>
+                <InlineListItem>Node.js</InlineListItem>
+                <InlineListItem>NPM</InlineListItem>
+                <InlineListItem>Vite</InlineListItem>
+                <InlineListItem>Webpack</InlineListItem>
+                <InlineListItem>Babel</InlineListItem>
+                <InlineListItem>ESLint</InlineListItem>
+                <InlineListItem>Prettier</InlineListItem>
+                <InlineListItem>Vitest</InlineListItem>
+                <InlineListItem>GitHub Actions</InlineListItem>
+                <InlineListItem>VSCode</InlineListItem>
+                <InlineListItem>Sublime Text</InlineListItem>
+                <InlineListItem>Visual Studio</InlineListItem>
+                <InlineListItem>Git</InlineListItem>
+                <InlineListItem>Git Tower</InlineListItem>
+                <InlineListItem>Sourcetree</InlineListItem>
+                <InlineListItem>Sauce Labs</InlineListItem>
+                <InlineListItem>BrowserStack</InlineListItem>
+                <InlineListItem>Jira</InlineListItem>
+                <InlineListItem>Confluence</InlineListItem>
+                <InlineListItem>Trello</InlineListItem>
+                <InlineListItem>Smartsheet</InlineListItem>
+                <InlineListItem>Google Docs</InlineListItem>
+                <InlineListItem>Illustrator</InlineListItem>
+                <InlineListItem>Photoshop</InlineListItem>
+                <InlineListItem>
+                  Animate (w/ scripting &amp; HTML5 export)
+                </InlineListItem>
+                <InlineListItem>ChatGPT</InlineListItem>
+                <InlineListItem>Copilot AI</InlineListItem>
+                <InlineListItem>Perplexity AI</InlineListItem>
+                <InlineListItem>Grunt (legacy)</InlineListItem>
+                <InlineListItem>Gulp (legacy)</InlineListItem>
+                <InlineListItem>Create / Easel (legacy)</InlineListItem>
+              </p>
             </div>
             <div ref={addToRefs} className={divClassLt}></div>
             <div ref={addToRefs} className={divClassRt}>
               <h5>APIs & Integration</h5>
-              <p>{wrapPhrases(apisAndIntegration)}</p>
+              <p>
+                <InlineListItem>REST APIs</InlineListItem>
+                <InlineListItem>GraphQL</InlineListItem>
+                <InlineListItem>Express</InlineListItem>
+                <InlineListItem>JWT</InlineListItem>
+                <InlineListItem>JSON</InlineListItem>
+                <InlineListItem>XML</InlineListItem>
+                <InlineListItem>XSL</InlineListItem>
+              </p>
             </div>
             <div ref={addToRefs} className={divClassLt}></div>
             <div ref={addToRefs} className={divClassRt}>
               <h5>CMS & Enterprise</h5>
-              <p>{wrapPhrases(cmsAndEnterprise)}</p>
+              <p>
+                <InlineListItem>Payload CMS</InlineListItem>
+                <InlineListItem>Craft CMS</InlineListItem>
+                <InlineListItem>Salesforce</InlineListItem>
+                <InlineListItem>OneTrust</InlineListItem>
+                <InlineListItem>Litmus</InlineListItem>
+                <InlineListItem>FreeMarker</InlineListItem>
+                <InlineListItem>Mustache / Handlebars</InlineListItem>
+              </p>
             </div>
             <div ref={addToRefs} className={divClassLt}></div>
             <div ref={addToRefs} className={divClassRt}>
               <h5>Cloud & Data</h5>
-              <p>{wrapPhrases(cloudAndData)}</p>
+              <p>
+                <InlineListItem>AWS</InlineListItem>
+                <InlineListItem>AWS S3</InlineListItem>
+                <InlineListItem>AWS SES</InlineListItem>
+                <InlineListItem>AWS ECR</InlineListItem>
+                <InlineListItem>CloudWatch</InlineListItem>
+                <InlineListItem>CloudWatch RUM</InlineListItem>
+                <InlineListItem>MongoDB</InlineListItem>
+                <InlineListItem>Elasticsearch</InlineListItem>
+                <InlineListItem>Docker</InlineListItem>
+                <InlineListItem>Docker Compose</InlineListItem>
+                <InlineListItem>Terraform</InlineListItem>
+                <InlineListItem>Caddy</InlineListItem>
+                <InlineListItem>VirtualBox</InlineListItem>
+                <InlineListItem>Infrastructure as Code</InlineListItem>
+                <InlineListItem>Cloud Computing</InlineListItem>
+                <InlineListItem>Container Orchestration</InlineListItem>
+              </p>
             </div>
           </div>
         </div>
@@ -1256,7 +1109,53 @@ const CurriculumVitae: React.FC = () => {
             <div className={divClassLt}></div>
 
             <div ref={addToRefs} className={divClassRt}>
-              <p>{wrapPhrases(projectTypes)}</p>
+              <p>
+                <InlineListItem>Escape Games</InlineListItem>
+                <InlineListItem>Shooter Games</InlineListItem>
+                <InlineListItem>Platformer Games</InlineListItem>
+                <InlineListItem>Puzzle Games</InlineListItem>
+                <InlineListItem>Edutainment Games</InlineListItem>
+                <InlineListItem>Skill Games</InlineListItem>
+                <InlineListItem>Tactical Movement Games</InlineListItem>
+                <InlineListItem>Character Customization Games</InlineListItem>
+                <InlineListItem>Magnetic Poetry Games</InlineListItem>
+                <InlineListItem>Drawing Utilities</InlineListItem>
+                <InlineListItem>Wallpaper Generators</InlineListItem>
+                <InlineListItem>Audio Players</InlineListItem>
+                <InlineListItem>Video Players</InlineListItem>
+                <InlineListItem>360° Video Players</InlineListItem>
+                <InlineListItem>Animated E-Cards</InlineListItem>
+                <InlineListItem>Screensavers</InlineListItem>
+                <InlineListItem>Quizzes</InlineListItem>
+                <InlineListItem>Surveys and Forms</InlineListItem>
+                <InlineListItem>Sweepstakes Activities</InlineListItem>
+                <InlineListItem>Photo Upload Personalization</InlineListItem>
+                <InlineListItem>Drag-and-Drop Builders</InlineListItem>
+                <InlineListItem>Interactive Tutorials</InlineListItem>
+                <InlineListItem>Virtual Tours</InlineListItem>
+                <InlineListItem>Call-a-Friend Message Builders</InlineListItem>
+                <InlineListItem>Movie/TV Show Tie-Ins</InlineListItem>
+                <InlineListItem>Site Release Reveals</InlineListItem>
+                <InlineListItem>Media/Timeline Sequencers</InlineListItem>
+                <InlineListItem>Interactive Slideshows</InlineListItem>
+                <InlineListItem>
+                  Configurable Sprite Sheet Player
+                </InlineListItem>
+                <InlineListItem>Synced Banner Advertising</InlineListItem>
+                <InlineListItem>Microsites</InlineListItem>
+                <InlineListItem>Product Demos</InlineListItem>
+                <InlineListItem>Product Catalogs</InlineListItem>
+                <InlineListItem>App Store</InlineListItem>
+                <InlineListItem>Custom Navigation Menus</InlineListItem>
+                <InlineListItem>Custom Scrollbars</InlineListItem>
+                <InlineListItem>Custom Tween Engine</InlineListItem>
+                <InlineListItem>Data Usage Calculators</InlineListItem>
+                <InlineListItem>Data Science Application</InlineListItem>
+                <InlineListItem>Interactive Portfolio</InlineListItem>
+                <InlineListItem>Informational Presentations</InlineListItem>
+                <InlineListItem>HTML Emails</InlineListItem>
+                <InlineListItem>Email Consent Workflows</InlineListItem>
+              </p>
             </div>
           </div>
         </div>
@@ -1268,7 +1167,55 @@ const CurriculumVitae: React.FC = () => {
             <div className={divClassLt}></div>
 
             <div ref={addToRefs} className={divClassRt}>
-              <p>{wrapPhrases(brands)}</p>
+              <p>
+                <InlineListItem>Nickelodeon</InlineListItem>
+                <InlineListItem>Nick Jr.</InlineListItem>
+                <InlineListItem>NDA brand</InlineListItem>
+                <InlineListItem>Disney</InlineListItem>
+                <InlineListItem>Mattel</InlineListItem>
+                <InlineListItem>AT&amp;T</InlineListItem>
+                <InlineListItem>MTV</InlineListItem>
+                <InlineListItem>Netflix</InlineListItem>
+                <InlineListItem>National Geographic</InlineListItem>
+                <InlineListItem>USDA</InlineListItem>
+                <InlineListItem>EPA</InlineListItem>
+                <InlineListItem>NIFA</InlineListItem>
+                <InlineListItem>Expedia</InlineListItem>
+                <InlineListItem>New Line Cinema</InlineListItem>
+                <InlineListItem>The Weinstein Company</InlineListItem>
+                <InlineListItem>Addicting Games</InlineListItem>
+                <InlineListItem>The N</InlineListItem>
+                <InlineListItem>T-Mobile</InlineListItem>
+                <InlineListItem>Premera Blue Cross</InlineListItem>
+                <InlineListItem>Bravo</InlineListItem>
+                <InlineListItem>Earthbound Farms</InlineListItem>
+                <InlineListItem>Cingular</InlineListItem>
+                <InlineListItem>HTC</InlineListItem>
+                <InlineListItem>OnSet Productions</InlineListItem>
+                <InlineListItem>Ronix Wakeboards</InlineListItem>
+                <InlineListItem>RedHook Brewing</InlineListItem>
+                <InlineListItem>Stoli Vodka</InlineListItem>
+                <InlineListItem>Tanteo Tequila</InlineListItem>
+                <InlineListItem>Tobacco Smokes You</InlineListItem>
+                <InlineListItem>UBS Financial Services</InlineListItem>
+                <InlineListItem>XM Radio</InlineListItem>
+                <InlineListItem>Lincoln Mercury</InlineListItem>
+                <InlineListItem>Dannon</InlineListItem>
+                <InlineListItem>Yoplait</InlineListItem>
+                <InlineListItem>Post</InlineListItem>
+                <InlineListItem>WildBrain</InlineListItem>
+                <InlineListItem>Yesmail</InlineListItem>
+                <InlineListItem>Novo Nordisk</InlineListItem>
+                <InlineListItem>Takeda Pharmaceuticals</InlineListItem>
+                <InlineListItem>Citibank</InlineListItem>
+                <InlineListItem>Golden 1 Credit Union</InlineListItem>
+                <InlineListItem>Avista Utilities</InlineListItem>
+                <InlineListItem>Committee for Children</InlineListItem>
+                <InlineListItem>The Heart Institute of Spokane</InlineListItem>
+                <InlineListItem>AbbVie Pharmaceuticals</InlineListItem>
+                <InlineListItem>Exact Sciences</InlineListItem>
+                <InlineListItem>Comics Kingdom</InlineListItem>
+              </p>
             </div>
           </div>
         </div>
