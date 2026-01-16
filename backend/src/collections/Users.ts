@@ -47,8 +47,17 @@ export const Users: CollectionConfig = {
           const normalized = trimmed.toLowerCase()
           data.usernameNormalized = normalized.length > 0 ? normalized : undefined
         }
-        if (data?.firstName && data?.lastName && data?.email) {
-          data.fullName = `${data.firstName} ${data.lastName} <${data.email}>`
+
+        const firstName = typeof data?.firstName === 'string' ? data.firstName.trim() : ''
+        const lastName = typeof data?.lastName === 'string' ? data.lastName.trim() : ''
+        const username = typeof data?.username === 'string' ? data.username.trim() : ''
+        const email = typeof data?.email === 'string' ? data.email.trim() : ''
+
+        const displayName = [firstName, lastName].filter(Boolean).join(' ').trim()
+        const base = displayName || username || email
+
+        if (base) {
+          data.fullName = displayName && email ? `${displayName} <${email}>` : base
         }
         return data
       },
@@ -67,7 +76,8 @@ export const Users: CollectionConfig = {
       type: 'text',
       required: false,
       admin: {
-        description: 'Login identifier (alternative to email). Should be unique.',
+        description:
+          "Login identifier (alternative to email). Should be unique. If you don't know their email yet, set a username and use a placeholder email like no-email+<username>@example.invalid (then update it later).",
       },
     },
     {
@@ -84,12 +94,18 @@ export const Users: CollectionConfig = {
     {
       name: 'firstName',
       type: 'text',
-      required: true,
+      required: false,
+      admin: {
+        description: 'Optional.',
+      },
     },
     {
       name: 'lastName',
       type: 'text',
-      required: true,
+      required: false,
+      admin: {
+        description: 'Optional.',
+      },
     },
     {
       name: 'organization',

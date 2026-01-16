@@ -142,8 +142,8 @@ export interface User {
    */
   username?: string | null;
   usernameNormalized?: string | null;
-  firstName: string;
-  lastName: string;
+  firstName?: string | null;
+  lastName?: string | null;
   organization?: string | null;
   fullName?: string | null;
   updatedAt: string;
