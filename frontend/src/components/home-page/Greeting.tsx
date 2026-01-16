@@ -62,11 +62,12 @@ const Greeting: React.FC = () => {
             </div>
             <div ref={addToRefs}>
               <p>
-                My current focus is growing deeper in foundational front-end
-                work—shipping and maintaining reliable UI with strong HTML, CSS,
-                and JavaScript—while bringing the same level of care to everyday
-                product interfaces. Please take a look around, and if something
-                resonates, please <Link href="/contact">reach out!</Link>
+                My current focus is working more deeply in foundational
+                front-end work&mdash;shipping and maintaining reliable UI with
+                strong HTML, CSS, and JavaScript&mdash;while bringing the same
+                level of care to everyday product interfaces. Please take a look
+                around, and if something resonates, please{" "}
+                <Link href="/contact">reach out!</Link>
               </p>
             </div>
             <a

@@ -31,8 +31,8 @@ import styles from "./FootGreet.module.scss";
  *
  * Time Logic:
  * - Morning: 0-11 hours
- * - Afternoon: 12-17 hours
- * - Evening: 18-23 hours
+ * - Afternoon: 12-16 hours
+ * - Evening: 17-23 hours
  */
 const FootGreet: React.FC<{ className?: string }> = ({ className = "" }) => {
   const [currentTimeOfDay, setCurrentTimeOfDay] = useState<string>("");
@@ -42,7 +42,7 @@ const FootGreet: React.FC<{ className?: string }> = ({ className = "" }) => {
     const rafId = requestAnimationFrame(() => {
       const hour = new Date().getHours();
       if (hour < 12) setCurrentTimeOfDay("morning");
-      else if (hour < 18) setCurrentTimeOfDay("afternoon");
+      else if (hour < 17) setCurrentTimeOfDay("afternoon");
       else setCurrentTimeOfDay("evening");
     });
 
@@ -59,22 +59,24 @@ const FootGreet: React.FC<{ className?: string }> = ({ className = "" }) => {
           height={93}
           alt="Bradley's head"
         />
-        Thanks for taking time out of your {timeOfDayText}! This site is my
+        Thanks for taking time out of your {timeOfDayText}. This site is my
         active project—not just a portfolio, but a platform built from scratch
-        in <strong>Next.js</strong> and backed by <strong>Payload CMS</strong>.
-        It's fully <strong>headless</strong> and <strong>TypeScript</strong>{" "}
-        end-to-end, on the frontend and backend.
+        in <strong>Next.js</strong>, backed by <strong>Payload CMS</strong>,
+        fully headless, and written end-to-end in{" "}
+        <strong>TypeScript</strong> across the frontend and backend.
       </p>
+
       <p>
-        It's a new direction for me, and a testbed for work I've loved for a
-        long time: original UI concepts that push interaction design, motion,
-        and behavior past conventional patterns.
+        It&apos;s a deliberate testbed for work I&apos;ve enjoyed for years:
+        original UI systems that push interaction, motion, and behavior past
+        conventional patterns.
       </p>
+
       <p>
-        I deliver <strong>ultra-polished</strong> interfaces with the eye of a
-        designer, fearlessness, and few technical constraints. Do you have
-        something that has to be <i>just right</i>—or <i>go beyond</i>? Then{" "}
-        <Link href="/contact">let's&nbsp;talk</Link>.
+        I build <strong>ultra-polished</strong> interfaces with a
+        designer&apos;s eye, technical fearlessness, and very few constraints.
+        If you&apos;re working on something that has to be <i>exact</i>—or to{" "}
+        <i>go beyond</i>—then <Link href="/contact">let&apos;s talk</Link>.
       </p>
     </div>
   );

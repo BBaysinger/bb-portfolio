@@ -109,7 +109,7 @@ const CurriculumVitae: React.FC = () => {
     "Tween Engines",
     "Headless CMS",
     "DHTML (legacy)",
-    "Game Frameworks (legacy)",
+    "Game UI Frameworks (legacy)",
   ];
 
   const toolingAndWorkflow = [
@@ -914,7 +914,7 @@ const CurriculumVitae: React.FC = () => {
                 <li ref={addToRefs}>
                   Contributed a cross-platform <b>mobile accelerometer</b>{" "}
                   solution to Flambé (now 2Dkit), a leading HTML5 and
-                  cross-platform game framework.
+                  cross-platform game UI framework.
                 </li>
                 <li ref={addToRefs}>
                   Built APIs for managing <b>JSON</b>, <b>XML</b>, and{" "}
