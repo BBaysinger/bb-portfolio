@@ -53,9 +53,9 @@
   // Runtime dependencies for backend and CMS functionality
   "dependencies": {
     // AWS SES client used for sending transactional emails
-    "@aws-sdk/client-ses": "^3.968.0",
+    "@aws-sdk/client-ses": "^3.970.0",
     // Shared AWS SDK types
-    "@aws-sdk/types": "^3.968.0",
+    "@aws-sdk/types": "^3.969.0",
     // MongoDB adapter for Payload CMS
     "@payloadcms/db-mongodb": "3.71.1",
     // Nodemailer email adapter for Payload CMS (handles SMTP email sending, password resets, notifications)
@@ -81,7 +81,7 @@
     // JSON5 parser for annotated configuration files
     "json5": "^2.2.3",
     // Next.js framework for frontend/backend integration
-    "next": "16.1.1",
+    "next": "16.1.2",
     // Payload CMS core package
     "payload": "3.71.1",
     // React version to match Next.js 15
@@ -104,7 +104,7 @@
     // TypeScript definitions for JSON5 (used by annotated config files)
     "@types/json5": "^2.2.0",
     // Node.js TypeScript definitions (latest for Node 18+)
-    "@types/node": "^25.0.8",
+    "@types/node": "^25.0.9",
     // React 19 types
     "@types/react": "19.2.8",
     // React DOM 19 types
@@ -116,7 +116,7 @@
     // ESLint JavaScript/TypeScript linter (v9 for latest rules)
     "eslint": "^9.39.2",
     // Next.js ESLint configuration (includes React and accessibility rules)
-    "eslint-config-next": "16.1.1",
+    "eslint-config-next": "16.1.2",
     // Browser DOM simulation for Node.js testing environments
     "jsdom": "27.4.0",
     // Standalone version of Playwright test runner
@@ -124,7 +124,7 @@
     // Playwright core library (used for browser automation)
     "playwright-core": "1.57.0",
     // Code formatter with opinionated defaults
-    "prettier": "^3.7.4",
+    "prettier": "^3.8.0",
     // TSX lets us run TypeScript build/utility scripts without compiling first.
     "tsx": "^4.21.0",
     // TypeScript compiler (v5.9 for latest language features)
