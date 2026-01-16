@@ -9,6 +9,20 @@ import useInViewAnimation from "@/hooks/useInViewAnimation";
 
 import styles from "./CvPage.module.scss";
 
+const InlineListItem = ({
+  children,
+}: {
+  children: React.ReactNode;
+}): React.ReactElement => (
+  <span className={styles.inlineListItem}>
+    <span className={styles.phrase}>{children}</span>
+    <span className={styles.bullet}>
+      &nbsp;&bull;
+      <span>&#32;</span>
+    </span>
+  </span>
+);
+
 /**
  * CV page.
  *
@@ -25,18 +39,6 @@ const CurriculumVitae: React.FC = () => {
   // Returns a callback ref. Attaching it to elements adds an "in-view" class
   // when they enter the viewport (used for scroll-triggered animations).
   const addToRefs = useInViewAnimation("in-view");
-
-  const InlineListItem: React.FC<{ children: React.ReactNode }> = ({
-    children,
-  }) => (
-    <span className={styles.inlineListItem}>
-      <span className={styles.phrase}>{children}</span>
-      <span className={styles.bullet}>
-        &nbsp;&bull;
-        <span>&#32;</span>
-      </span>
-    </span>
-  );
 
   const divClassLt = clsx(
     "col-xs-12",
@@ -286,10 +288,10 @@ const CurriculumVitae: React.FC = () => {
 
               <ul>
                 <li ref={addToRefs}>
-                  Implemented dynamic UI componentsvalidated forms, data-driven
-                  informational grids, global navigation, and collapsible
-                  menusfor the Golden 1 Credit Union website, integrating
-                  jQuery with <b>Sitecore</b>.
+                  Implemented dynamic UI components, validated forms,
+                  data-driven informational grids, global navigation, and
+                  collapsible menus for the Golden 1 Credit Union website,
+                  integrating jQuery with <b>Sitecore</b>.
                 </li>
                 <li ref={addToRefs}>
                   Built and maintained reusable email components in{" "}
@@ -357,7 +359,7 @@ const CurriculumVitae: React.FC = () => {
 
               <p ref={addToRefs} className={styles.desc}>
                 Delivered specialized UI and interactive web development for
-                diverse clientslocal businesses, a national startup, an
+                diverse clients: local businesses, a national startup, an
                 international charity, and a pharmaceutical manufacturer.
               </p>
 
