@@ -154,9 +154,6 @@ export interface User {
   fullName?: string | null;
   updatedAt: string;
   createdAt: string;
-  /**
-   * Admin UI: if Email is empty OR currently an @placeholder.invalid placeholder, it will auto-populate from Username as no-email+<username>@placeholder.invalid and keep updating as Username changes. If you enter a real email (not @placeholder.invalid), it will not be overwritten. Backend: if Email is missing on save and Username is set, a placeholder email is generated as a safety net for API/seed flows.
-   */
   email: string;
   resetPasswordToken?: string | null;
   resetPasswordExpiration?: string | null;
