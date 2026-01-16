@@ -154,11 +154,11 @@ Scopes: `public`, `nda`, `both`.
 
 ### Database operations (families)
 
-| Family                                  | Example                          | Notes                                                       |
-| --------------------------------------- | -------------------------------- | ----------------------------------------------------------- |
-| `db:rename:<env>:portfolio-to-bb[:dry]` | `db:rename:prod:portfolio-to-bb` | Renames DB after backing up; `:dry` shows plan              |
-| `db:delete:<env>-portfolio[:dry]`       | `db:delete:dev-portfolio:dry`    | Backup then delete old DB safely                            |
-| `db:migrate:<source>-to-<target>[:dry]` | `db:migrate:local-to-prod`       | Replace target with source data; confirm with dry run first |
+| Family                                  | Example                          | Notes                                             |
+| --------------------------------------- | -------------------------------- | ------------------------------------------------- |
+| `db:rename:<env>:portfolio-to-bb[:dry]` | `db:rename:prod:portfolio-to-bb` | Renames DB after backing up; `:dry` shows plan    |
+| `db:delete:<env>-portfolio[:dry]`       | `db:delete:dev-portfolio:dry`    | Backup then delete old DB safely                  |
+| `db:migrate:<source>-to-<target>`       | `db:migrate:prod-to-dev`         | Convenience scripts that target prod were removed |
 
 Envs: `local`, `dev`, `prod`.
 

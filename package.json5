@@ -290,19 +290,11 @@
     "db:delete:prod-portfolio:dry": "bash scripts/delete-database.sh --env prod --db portfolio-prod --dry-run",
     // 🗑️ Prod cleanup (apply): backup then drop portfolio-prod
     "db:delete:prod-portfolio": "bash scripts/delete-database.sh --env prod --db portfolio-prod",
-    //
-    "db:migrate:local-to-all": "npm run db:migrate:local-to-prod && npm run db:migrate:local-to-dev",
-    // ☢️💀 DANGER: NUCLEAR DATABASE REPLACEMENT - Completely overwrites production DB with local data
-    "db:migrate:local-to-prod": "bash scripts/migrate-database.sh local prod",
-    // 🧪 Dry run only: print the exact mongodump/mongorestore plan for local → prod without making changes
-    "db:migrate:local-to-prod:dry": "bash scripts/migrate-database.sh local prod --dry-run",
-    // ☢️ DANGER: Overwrite production database with dev data (use with extreme caution)
-    "db:migrate:dev-to-prod": "bash scripts/migrate-database.sh dev prod",
-    // ☢️🔥 DANGER: APOCALYPTIC DB REPLACEMENT - Completely overwrites dev DB with local data
+    // ☢️🔥 DANGER: Overwrites dev DB with local data
     "db:migrate:local-to-dev": "bash scripts/migrate-database.sh local dev",
-    // ☢️⚰️ DANGER: ARMAGEDDON DB REPLACEMENT - Completely overwrites dev DB with production data
+    // ☢️⚰️ DANGER: Overwrites dev DB with production data
     "db:migrate:prod-to-dev": "bash scripts/migrate-database.sh prod dev",
-    // ☢️⚠️ DANGER: Overwrite local DB with production data
+    // ☢️⚠️ DANGER: Overwrites local DB with production data
     "db:migrate:prod-to-local": "bash scripts/migrate-database.sh prod local",
     // ☢️ Convenience: run prod→dev then prod→local
     "db:migrate:prod-to-all": "npm run db:migrate:prod-to-dev && npm run db:migrate:prod-to-local",
