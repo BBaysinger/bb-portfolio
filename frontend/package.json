@@ -23,7 +23,6 @@
     "@aws-sdk/s3-request-presigner": "^3.970.0",
     "@reduxjs/toolkit": "^2.11.2",
     "aws-rum-web": "^2.0.0",
-    "bootstrap": "^5.3.8",
     "clsx": "^2.1.1",
     "gsap": "^3.14.2",
     "jsonwebtoken": "^9.0.3",

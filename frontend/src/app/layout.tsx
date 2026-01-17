@@ -21,7 +21,6 @@ import { AppShell } from "./AppShell";
 import { EnvironmentClassInitializer } from "./EnvironmentClassInitializer";
 import styles from "./layout.module.scss";
 import { AppProviders } from "./providers/AppProviders";
-import "bootstrap/dist/css/bootstrap.min.css";
 import "@/styles/styles.scss";
 
 /**
