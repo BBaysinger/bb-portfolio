@@ -1,5 +1,13 @@
-// Minimal Bootstrap-like utilities used in this repo.
-// Intentional scope: grid (container/row/columns) + a tiny .btn baseline.
+// Minimal Bootstrap-like utilities (experiment).
+//
+// TODO(bradley): Currently unused. We switched back to Bootstrap because CSS/layout
+// differences were time-consuming to chase down.
+//
+// IMPORTANT: Revisit this before getting serious about REM-based accessibility font
+// scaling. A small, owned layout/util layer (vs a global framework) is much easier
+// to reason about and keep consistent when changing root font-size / scaling rules.
+//
+// Intentional scope (when re-enabled): grid (container/row/columns) + a tiny .btn baseline.
 
 @use "sass:map";
 @use "sass:math";
