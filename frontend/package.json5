@@ -46,8 +46,6 @@
     "@reduxjs/toolkit": "^2.11.2",
     // AWS CloudWatch RUM for real user monitoring and visitor traffic tracking
     "aws-rum-web": "^2.0.0",
-    // CSS framework for responsive design and components
-    "bootstrap": "^5.3.8",
     // Utility for conditionally joining CSS class names
     "clsx": "^2.1.1",
     // Professional animation library for smooth UI transitions
