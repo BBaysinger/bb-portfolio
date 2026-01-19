@@ -68,12 +68,6 @@ const Greeting: React.FC = () => {
                 UI, strengthening core patterns around structure, styling, and
                 behavior, and applying the same level of care and polish to
                 everyday interfaces.
-                {/* My current focus is working more deeply in foundational
-                front-end work&mdash;shipping and maintaining reliable UI with
-                strong HTML, CSS, and JavaScript&mdash;while bringing the same
-                level of care to everyday product interfaces. Please take a look
-                around, and if something resonates, please{" "}
-                <Link href="/contact">reach out!</Link> */}
               </p>
             </div>
             <a
@@ -81,7 +75,7 @@ const Greeting: React.FC = () => {
               className={styles.lookLink}
               href="#projects-list"
             >
-              <div>View Portfolio!</div>
+              <div>Scope Projects!</div>
             </a>
           </div>
         </div>
