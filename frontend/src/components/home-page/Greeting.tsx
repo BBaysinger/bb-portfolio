@@ -81,7 +81,7 @@ const Greeting: React.FC = () => {
               className={styles.lookLink}
               href="#projects-list"
             >
-              <div>Take a look!</div>
+              <div>View Portfolio!</div>
             </a>
           </div>
         </div>
