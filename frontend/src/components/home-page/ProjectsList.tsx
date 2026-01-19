@@ -54,7 +54,7 @@ const ProjectsList: React.FC<ProjectsListProps> & {
   const _clientAuth = isLoggedIn || !!user;
 
   const marqueePhrases = React.useMemo(
-    () => ["Selected Work: Client Projects & Independent R&D"],
+    () => [" ::: Selected Work: Client Projects & Independent R&D"],
     [],
   );
 
