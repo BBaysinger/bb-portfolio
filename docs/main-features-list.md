@@ -75,7 +75,8 @@ Working list of notable features
 - Dual-registry image strategy (Docker Hub dev, ECR prod) with switch script
 - Secure Docker builds via BuildKit secret mounts + minimal build args
 - Generated env files on host via CI/CD (no secrets in repo)
-- Reverse proxy options (Caddy/Nginx) and compose profiles (local/dev/prod)
+- Reverse proxy options (Caddy or Nginx)
+- Profile-driven Docker Compose stacks (local / dev / prod)
 - Single-command redeploy scripts for dev/prod or both
 
 ## Developer Experience / Testing
