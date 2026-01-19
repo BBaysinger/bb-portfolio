@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+// import Link from "next/link";
 
 import { RawImg } from "@/components/common/RawImg";
 import MagneticThingy from "@/components/home-page/MagneticThingy";
@@ -62,12 +62,18 @@ const Greeting: React.FC = () => {
             </div>
             <div ref={addToRefs}>
               <p>
-                My current focus is working more deeply in foundational
+                While much of my background is in interaction-heavy front-end
+                work, my current focus is both broadening and deepening my
+                front-end foundation—shipping and maintaining reliable product
+                UI, strengthening core patterns around structure, styling, and
+                behavior, and applying the same level of care and polish to
+                everyday interfaces.
+                {/* My current focus is working more deeply in foundational
                 front-end work&mdash;shipping and maintaining reliable UI with
                 strong HTML, CSS, and JavaScript&mdash;while bringing the same
                 level of care to everyday product interfaces. Please take a look
                 around, and if something resonates, please{" "}
-                <Link href="/contact">reach out!</Link>
+                <Link href="/contact">reach out!</Link> */}
               </p>
             </div>
             <a
