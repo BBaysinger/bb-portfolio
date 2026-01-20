@@ -109,18 +109,17 @@ If your Payload CMS database has absolute URLs stored, update them:
 
 ```bash
 # Update media URLs for development environment
-cd backend
-npm run migrate:update-media-urls -- --env dev
+npm run migrate:media-urls:dev
 
 # Update media URLs for production environment
-npm run migrate:update-media-urls -- --env prod
+npm run migrate:media-urls:prod
 ```
 
 ### 5. Deploy Updated Application
 
 ```bash
 # Push secrets to GitHub
-npm run sync:github-secrets
+npm run sync:secrets
 
 # Deploy updated application
 ./deploy/scripts/deployment-orchestrator.sh
