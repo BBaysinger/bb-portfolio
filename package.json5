@@ -232,10 +232,6 @@
     "media:upload:both": "tsx scripts/upload-media-to-s3.ts --env both",
     // 🪄 Verify uploaded media files on S3 to ensure integrity
     "media:verify": "tsx scripts/verify-media-s3.ts",
-    // Backend maintenance wrappers (delegate to backend scripts)
-    "backfill:project-codes": "cd backend && npm run backfill:project-codes",
-    // Backfill NDA media flags via backend (Payload API)
-    "backfill:nda-media": "cd backend && npm run backfill:nda-media",
     // 📤 Upload local media files to S3 development environment
     "migrate:media:dev": "tsx scripts/upload-media-to-s3.ts --env dev",
     // 📤 Upload local media files to S3 production environment

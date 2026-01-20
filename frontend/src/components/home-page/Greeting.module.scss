@@ -1,5 +1,6 @@
 @use "@/styles/mixins" as *;
 @use "@/styles/variables" as *;
+@use "@/styles/globals.global" as globals;
 
 .greeting {
   display: flex;
@@ -95,16 +96,22 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    z-index: 2;
     max-width: 350px;
     width: 80%;
     user-select: none;
+
+    // `useInViewAnimation` adds `fadeIn` and later `in-view`.
+    // Apply the shared "from left" offset without requiring extra classes.
+    @include globals.inViewFromLeftModule(-100px);
+
     @include breakpointUp($b768px) {
       min-width: 300px;
       max-width: auto;
       width: auto;
     }
     &:hover {
-      z-index: 2;
+      z-index: 3;
     }
   }
 

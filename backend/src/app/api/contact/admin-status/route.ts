@@ -2,6 +2,19 @@ import { NextRequest, NextResponse } from 'next/server'
 
 import { getContactEmailDiagnostics } from '@/services/email'
 
+/**
+ * Admin-only diagnostics endpoint for contact email configuration.
+ *
+ * @remarks
+ * - `GET` requires an `Authorization: Bearer <token>` header matching
+ *   `process.env.CONTACT_DIAGNOSTICS_TOKEN`.
+ * - Returns a JSON payload from `getContactEmailDiagnostics()`.
+ * - `POST` is explicitly not allowed (405) to keep the route read-only.
+ */
+
+/**
+ * Reads the shared bearer token used to authorize admin diagnostics requests.
+ */
 function getAdminToken(): string | null {
   return process.env.CONTACT_DIAGNOSTICS_TOKEN || null
 }

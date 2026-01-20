@@ -1,4 +1,23 @@
 #!/bin/sh
+
+# Dev container entrypoint.
+#
+# Responsibilities:
+# - Fails fast if disk usage is critically high on key paths (to avoid crash loops).
+# - Ensures an npm cache directory exists.
+# - Ensures dependencies are installed and compatible, then starts the dev server.
+#
+# Usage:
+#   ./scripts/entrypoint.dev.sh
+#
+# Environment:
+# - DISK_WARN_PCT: warn when disk usage >= this percent (default: 85)
+# - DISK_FAIL_PCT: exit 70 when disk usage >= this percent (default: 95)
+# - DISK_CHECK_PATHS: space-separated list of paths to check (default: "/tmp /app")
+# - NPM_CONFIG_CACHE: npm cache dir (default: /app/.npm-cache)
+#
+# Exit codes:
+# - 70: disk usage over FAIL threshold
 set -eu
 
 # Configurable thresholds (percent)

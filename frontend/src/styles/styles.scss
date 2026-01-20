@@ -2,6 +2,7 @@
 @use "@/styles/variables" as *;
 @use "@/styles/mixins" as *;
 @use "@/styles/fonts" as *;
+@use "@/styles/globals.global" as globals;
 
 body,
 html {
@@ -53,13 +54,12 @@ html {
   }
 }
 
-img.fadeIn:not(.in-view) {
-  transform: translateX(-100px);
-}
+// Utility modifier: flips the pre-`in-view` X offset so elements slide in from the left.
+// Intended to be used in addition to `fadeIn` (which `useInViewAnimation` adds).
+@include globals.inViewFromLeft(".fadeIn.fadeInFromLeft", -100px);
 
-h4.fadeIn:not(.in-view) {
-  transform: translateX(-300px);
-}
+@include globals.inViewFromLeft("img.fadeIn", -100px);
+@include globals.inViewFromLeft("h4.fadeIn", -300px);
 
 /////////////////////////////////////////////////////////////
 // Forms

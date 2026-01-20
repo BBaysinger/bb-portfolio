@@ -1,4 +1,5 @@
 #!/usr/bin/env tsx
+
 /**
  * Rebuild Media Records from S3
  *
