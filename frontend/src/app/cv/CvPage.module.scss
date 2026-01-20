@@ -93,6 +93,10 @@
 }
 
 img.cvLogo {
+  // `useInViewAnimation` adds `fadeIn` and later `in-view` to elements using its ref.
+  // Ensure CV logos slide in from the left.
+  @include inViewFromLeftModule(-100px);
+
   margin-top: 40px;
   margin-bottom: 40px;
   margin-left: auto;

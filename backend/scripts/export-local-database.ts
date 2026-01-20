@@ -1,4 +1,5 @@
 #!/usr/bin/env tsx
+
 /**
  * Export Complete Database Collections
  *

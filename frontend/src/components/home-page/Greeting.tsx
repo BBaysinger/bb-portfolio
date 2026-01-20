@@ -39,7 +39,7 @@ const Greeting: React.FC = () => {
   return (
     <div id="hello" className={styles.greeting} data-nav="hello">
       <div className={styles.greetingWrapper}>
-        <div className={styles.helloSignWrapper}>
+        <div ref={addToRefs} className={styles.helloSignWrapper}>
           <MagneticThingy className={styles.helloSign}>
             <RawImg
               src="/images/hello/hello.webp"

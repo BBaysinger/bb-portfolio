@@ -72,8 +72,6 @@
     "media:upload:prod": "tsx scripts/upload-media-to-s3.ts --env prod",
     "media:upload:both": "tsx scripts/upload-media-to-s3.ts --env both",
     "media:verify": "tsx scripts/verify-media-s3.ts",
-    "backfill:project-codes": "cd backend && npm run backfill:project-codes",
-    "backfill:nda-media": "cd backend && npm run backfill:nda-media",
     "migrate:media:dev": "tsx scripts/upload-media-to-s3.ts --env dev",
     "migrate:media:prod": "tsx scripts/upload-media-to-s3.ts --env prod",
     "migrate:media:both": "tsx scripts/upload-media-to-s3.ts --env both",

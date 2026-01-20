@@ -1,2 +1,35 @@
 @use "@/styles/variables" as *;
 @use "@/styles/mixins" as *;
+
+// -----------------------------------------------------------------------------
+// In-view animation utilities
+// -----------------------------------------------------------------------------
+
+/**
+ * Emits a global selector rule that shifts elements left before the `in-view` class is applied.
+ *
+ * @example
+ *   @include inViewFromLeft('img.fadeIn', -100px);
+ *   @include inViewFromLeft('h4.fadeIn', -300px);
+ */
+@mixin inViewFromLeft($selector, $offset: -100px, $activeClass: "in-view") {
+  #{$selector}:not(.#{$activeClass}) {
+    transform: translateX($offset);
+  }
+}
+
+/**
+ * CSS Modules-friendly version of `inViewFromLeft`.
+ *
+ * Use inside a module class (e.g. `.helloSignWrapper { ... }`) when the element will also
+ * receive global classes like `fadeIn`/`in-view` from `useInViewAnimation`.
+ */
+@mixin inViewFromLeftModule(
+  $offset: -100px,
+  $baseClass: "fadeIn",
+  $activeClass: "in-view"
+) {
+  &:global(.#{$baseClass}):not(:global(.#{$activeClass})) {
+    transform: translateX($offset);
+  }
+}
