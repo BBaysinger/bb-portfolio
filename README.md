@@ -139,7 +139,7 @@ Note: By default, the deployment orchestrator builds and pushes both frontend an
 | `media:verify`                   | `media:verify`               | Validate expected objects exist (counts, prefixes)  |
 | `migrate:media-urls:<env>[:dry]` | `migrate:media-urls:dev:dry` | Rewrite DB media URLs → S3 public paths             |
 | `migrate:all:<env>[:dry]`        | `migrate:all:prod`           | Upload then rewrite URLs in one step                |
-| `seed:media` / `media:export`    | `seed:media`                 | Local import / external generation helpers          |
+| `media:seed` / `media:export`    | `media:seed`                 | Local import / external generation helpers          |
 
 Envs: `dev`, `prod`, `both`. Use `:dry` to preview URL rewrites.
 

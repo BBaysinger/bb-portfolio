@@ -220,7 +220,7 @@
     // Run after update:deps to install the newly updated dependencies
     // Handles root, backend, and frontend package installations simultaneously
     "install:all": "concurrently \"npm install\" \"cd backend && npm install\" \"cd frontend && npm install\" --names \"root,backend,frontend\" --prefix-colors \"yellow,blue,green\"",
-    // 🪄 Generate the portfolio images from PSDs from *outside* of the repo. Run before seed:media.
+    // 🪄 Generate the portfolio images from PSDs from *outside* of the repo. Run before media:seed.
     "media:export": "bash scripts/export-media.sh",
     // 🪄 Import images from ../cms-seedings into backend/media/* for local dev
     "media:seed": "tsx scripts/import-media-from-seedings.ts",
