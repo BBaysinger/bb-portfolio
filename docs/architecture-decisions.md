@@ -1001,7 +1001,7 @@ MONGODB_URI=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/bb-portfol
     - Writes into the `cms-seedings` folder
     - Supports ImageMagick v7 (`magick mogrify`) and v6 (`mogrify`)
     - Case-insensitive PSD matching (`*.psd` / `*.PSD`)
-  - Import for local dev via `npm run seed:media` (copies from `../cms-seedings` into `backend/media/*`).
+  - Import for local dev via `npm run media:seed` (copies from `../cms-seedings` into `backend/media/*`).
 - **Reasoning:** Keep heavy/layered source files (PSDs) out of the repo, enable reproducible hydration for local dev, and standardize on WebP outputs for performance.
 - **Alternatives considered:**
   - Commit images to repo → rejected due to repo bloat and history churn.

@@ -46,10 +46,40 @@ Note on older scripts: previously some package scripts inlined environment varia
 - To import assets from your external `../cms-seedings` folder (or `../cms-seedings/images/*`) into `backend/media/*`, use:
 
 ```
-npm run seed:media
+npm run media:seed
 ```
 
 This script copies files into `backend/media/*` for local dev only. It won't commit media to git.
+
+### Bootstrap vs migration vs recovery (what to run when)
+
+Most of the time you want one of these flows:
+
+- **Fresh local clone (filesystem uploads only)**
+  - Seed local media from your external seedings folder: `npm run media:seed`
+  - Start the stack (Docker or bare metal) and upload media through Payload as usual.
+
+- **First-time S3 setup for an environment (dev/prod)**
+  - Provision the bucket(s) via Terraform (see “S3 with Terraform”).
+  - Upload the current local `backend/media/*` contents into the target bucket:
+    - `npm run migrate:media:dev` (alias: `npm run media:upload:dev`)
+    - `npm run migrate:media:prod` (alias: `npm run media:upload:prod`)
+  - Verify S3 contains what you expect:
+    - `npm run media:verify -- --env dev` (or `--env prod`, `--env both`)
+
+- **Migration: rewrite existing DB media URLs to point at S3**
+  - Only needed if you already have Payload media records with filesystem URLs and you’re switching that environment to S3.
+  - Dry run first:
+    - `npm run migrate:media-urls:dev:dry` (or `:prod:dry`)
+  - Apply:
+    - `npm run migrate:media-urls:dev` (or `:prod`)
+
+Advanced / recovery scripts (manual, use with care):
+
+- `backend/scripts/export-local-database.ts`: dumps a subset of local collections to `dump/local-export/*` for manual import workflows.
+- `backend/scripts/rebuild-media-records.ts`: attempts to reconstruct Payload media documents from S3 object listings.
+  - This is intended for disaster recovery / reconstruction scenarios.
+  - It currently has some hard-coded assumptions (bucket name, secrets loading) and should be reviewed/updated before use.
 
 ### Importing from an external seedings folder
 
@@ -74,7 +104,7 @@ If you keep non-checked-in working assets outside the repo (recommended), place 
 Then run the same import:
 
 ```
-npm run seed:media
+npm run media:seed
 ```
 
 ## What you likely want

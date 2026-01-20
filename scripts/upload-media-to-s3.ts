@@ -127,7 +127,7 @@ function checkPrerequisites() {
   const mediaDir = path.join(repoRoot, "backend/media");
   if (!existsSync(mediaDir)) {
     console.error(`Media directory not found: ${mediaDir}`);
-    console.error('Run "npm run seed:media" first to import media files');
+    console.error('Run "npm run media:seed" first to import media files');
     process.exit(1);
   }
 
@@ -216,7 +216,7 @@ function main() {
 
   if (totalFiles === 0) {
     console.info(
-      '\nNo media files found. Run "npm run seed:media" first to import files.',
+      '\nNo media files found. Run "npm run media:seed" first to import files.',
     );
     process.exit(0);
   }

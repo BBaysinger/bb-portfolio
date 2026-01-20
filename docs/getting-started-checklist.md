@@ -81,6 +81,12 @@ Pick one:
   - [ ] Frontend: `http://localhost:3000`
   - [ ] Backend admin: `http://localhost:3001/admin`
 
+Optional (recommended if you want the site to have images immediately):
+
+- [ ] Seed local media into `backend/media/*` from your external seedings folder:
+  - [ ] `npm run media:seed`
+  - [ ] Details and expected folder layouts: [docs/uploads-and-migration.md](./uploads-and-migration.md)
+
 ## 7) (Optional) Push images / deploy
 
 Only do these once local dev works.
