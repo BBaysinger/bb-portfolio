@@ -32,7 +32,7 @@ Live site reference moments:
 
 ---
 
-Shorter read: [Main features list (bullets)](./docs/main-features-list.md).
+Shorter read: [Flat main features list](./docs/main-features-list.md).
 
 [Visit the Live Site (primary)](http://bbaysinger.com).
 
@@ -251,7 +251,16 @@ SCSS (layout scaling vs accessible text):
 }
 ```
 
-Other UI details: scroll‑aware navigation, mobile slide‑out menu, dynamic device mockup overlays, animated footer grid, and controlled pointer‑magnet elements—all built without heavyweight external animation/physics libraries.
+Other UI details (smaller interaction systems):
+
+- Scroll-aware highlighting (project list)
+- Mobile slide-out navigation
+- Pointer-magnet / sticky UI elements (e.g. “road sign”)
+- Active-slide logo/info swapper animations
+- Transform-positioned footer + animated footer grid
+- Dynamic device mockup overlays (tilt + stabilization states)
+
+See also: [Flat main features list](./docs/main-features-list.md).
 
 ### 📝 CMS, Data Modeling & Rendering
 
@@ -652,25 +661,12 @@ For deep dives and implementation details:
 - Most of the notable features will become their own portable repos
 - Filterable Project Tags/Categories
 - Interactive tutorials for the kinetic orb (vs current arrow/tooltips) and carousel
-- Walkthrough videos playable within the project carousel
-- Project upkeep: framework/library upgrades across showcased projects
 - Global light/dark mode preferences via Redux
-- Fluxels should be implemented in WebGL and/or PixiJS shaders
+- Fluxels further optimizations WebGL and/or PixiJS shaders
 - Implement testing frameworks (once experiments have matured)
 - Capture and store data about user interactions
 - Accessibility should be improved with respect to ARIA, rem font scaling, etc.
-- Remove Bootstrap (Not relying on it much anyhow)
+- Remove Bootstrap? (Not relying on it much anyhow)
 - Header animations will be in response to user interactions vs just a timer
-
-Note: Earlier plans for "custom Express/Mongo backend" were superseded by the fully integrated Payload CMS backend present in this repo.
-
----
-
-**Instance-to-IP Mapping:**
-
-- Production green EIP (44.246.43.116) → Instance i-0c0bf3a824aee21fb (Role: `active`)
-- Blue EIP (52.37.142.50) dynamically assigned to candidate instances
-- Red EIP (35.167.120.233) reserved for tainted/problematic instances
-  (See **\_\_** file for EIP global constants)
 
 Last major: Mon Nov 16, 2025
