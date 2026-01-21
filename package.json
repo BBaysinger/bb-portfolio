@@ -107,7 +107,6 @@
     "orchestrate:rebuild-images": "bash deploy/scripts/deployment-orchestrator.sh --profiles both --rebuild-images --refresh-env",
     "orchestrate:no-build": "bash deploy/scripts/deployment-orchestrator.sh --profiles both --no-build --refresh-env",
     "orchestrate:skip-infra": "bash deploy/scripts/deployment-orchestrator.sh --profiles both --skip-infra --refresh-env",
-    
     "infra:sync-env": "cd infra && bash sync-env-from-terraform.sh",
     "infra:sync-env:force": "cd infra && bash sync-env-from-terraform.sh --force",
     "images:cleanup": "bash ./scripts/image-cleanup.sh --retain 3 --include-untagged --login --profile bb-portfolio-user --region us-west-2",

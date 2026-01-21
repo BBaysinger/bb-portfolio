@@ -52,7 +52,7 @@ Working list of notable features
 - Instance-role support with optional static credentials
 - Media migration/verification scripts (migrate-to-s3, update media urls, rebuild records)
 - Static project file bundles stored in S3 (public + NDA) with app-routed streaming delivery (no presigned URLs)
-	- Supports range requests, conditional 304s (ETag/Last-Modified), and public/private cache headers
+  - Supports range requests, conditional 304s (ETag/Last-Modified), and public/private cache headers
 
 ## API / Security
 
