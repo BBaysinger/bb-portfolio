@@ -54,4 +54,3 @@ The host can run two Compose profiles:
 ## Notes
 
 - Use `--help` on the script for the authoritative option list.
-
