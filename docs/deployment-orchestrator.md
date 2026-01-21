@@ -54,4 +54,4 @@ The host can run two Compose profiles:
 ## Notes
 
 - Use `--help` on the script for the authoritative option list.
-- The orchestrator is intentionally separate from any archived blue/green promotion workflow.
+

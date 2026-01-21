@@ -51,10 +51,13 @@ Working list of notable features
 - S3-backed media storage with per-collection prefixes
 - Instance-role support with optional static credentials
 - Media migration/verification scripts (migrate-to-s3, update media urls, rebuild records)
+- Static project file bundles stored in S3 (public + NDA) with app-routed streaming delivery (no presigned URLs)
+	- Supports range requests, conditional 304s (ETag/Last-Modified), and public/private cache headers
 
 ## API / Security
 
 - Strict env_profile-based config validation (fail-fast on missing)
+- GitHub Secrets sync pipeline from JSON5 source files + required-env validation lists
 - Locked-down CSRF/CORS allowlists per environment
 - Contact API via AWS SES with HTML/Text email and reply-to
 - Health-check endpoint(s) for uptime/deploy validation
@@ -63,6 +66,7 @@ Working list of notable features
 ## Observability / Analytics
 
 - AWS CloudWatch RUM integration (production-only + HTTPS-only guardrails)
+- CloudWatch Agent for host metrics + log ingestion (nginx + system logs)
 - Auto page-view tracking + route-change tracking (App Router)
 - Custom event helpers for interactions (clicks, carousel, slinger toss, etc.)
 - Minimal Google Analytics 4 integration (optional)
@@ -78,6 +82,7 @@ Working list of notable features
 - Reverse proxy options (Caddy or Nginx)
 - Profile-driven Docker Compose stacks (local / dev / prod)
 - Single-command redeploy scripts for dev/prod or both
+- Hardened backend runtime (distroless container + Next.js standalone entrypoint)
 
 ## Developer Experience / Testing
 
@@ -85,6 +90,7 @@ Working list of notable features
 - Unified ESLint configs for frontend/backend
 - Playwright e2e and Vitest setup for backend
 - Local dev proxy and hot-reload compose profile
+- JSON5 package sync system (package.json ↔ package.json5 parity)
 
 ## Data Ops / Backups
 
