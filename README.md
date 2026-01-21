@@ -67,7 +67,7 @@ Jump to the complete list of conveniences: [Deployment conveniences catalog](#-d
 ### Current version
 
 - `deploy/scripts/deployment-orchestrator.sh` is the production toolchain. It rebuilds/pushes images, refreshes env files, syncs Caddy/Nginx configs, and restarts the single EC2 host (prod + optional dev profile).
-- GitHub Actions workflows (`orchestrate`, `redeploy`, `candidate-promote`) drive the same script remotely and never store decrypted secrets; env files are generated per run and copied straight to EC2.
+- GitHub Actions workflows (`orchestrate`, `redeploy`) drive the same script remotely and never store decrypted secrets; env files are generated per run and copied straight to EC2.
 - Safety features include:
   - `--no-build`, `--skip-infra`, and other switches so infra can be left untouched when only app code changes.
   - Health checks for frontend + backend endpoints before declaring success.
@@ -165,8 +165,6 @@ Envs: `local`, `dev`, `prod`.
 ### Deployment & config
 
 - `orchestrate` — Full orchestrated redeploy (builds images, deploys both profiles, refreshes env files)
-- `orchestrate:auto-promote` — Deploy + automatic EIP handover after health checks
-- `candidate-promote` — Manual promotion only (blue → production EIP handover)
 - Nginx config sync is automated during orchestration; no manual step required
 
 Note: `orchestrate` runs `bash deploy/scripts/deployment-orchestrator.sh --profiles both --refresh-env`
@@ -268,6 +266,8 @@ See also: [Flat main features list](./docs/main-features-list.md).
 - SSR portfolio projects list (Next.js)
 - SSG dynamic routing projects view (Next.js)
 - Automatic slug generation and sortable index
+- Confidential/NDA project filtering (public routes never hydrate NDA project data)
+- NDA-aware content sanitization for anonymous users
 - NDA route segmentation and content safety
   - Public route `/project/[projectId]` never includes NDA items in the active dataset (even when authenticated)
   - NDA-only route `/nda/[projectId]` requires authentication and is rendered dynamically per request
@@ -318,6 +318,7 @@ See also: [Flat main features list](./docs/main-features-list.md).
 
 ### 💾 Storage & Media Pipeline
 
+- Sprite sheet image processing scripts (source assets processed externally; see Image Processing section below)
 - S3-backed media storage with per-collection prefixes
 - Instance-role support with optional static credentials
 - Media migration/verification scripts
@@ -356,7 +357,7 @@ See also: [Flat main features list](./docs/main-features-list.md).
 - Locked-down CSRF/CORS allowlists per environment
 - Role-based access control for admin-only mutations
 - Health-check endpoint for uptime/deploy validation
-- Contact API via AWS SES (see `docs/aws-ses-setup.md`)
+- Contact API via AWS SES (HTML/Text email + Reply-To; see `docs/aws-ses-setup.md`)
 
 ### ⚡ DevOps & Deployment
 
@@ -364,14 +365,7 @@ See also: [Flat main features list](./docs/main-features-list.md).
   - Provisions/updates infra and restarts containers via GH workflow handoff
   - Optionally rebuilds/pushes images; no destroy by default (safety-first)
   - Built-in safety checks; avoids destroying items meant to persist
-  - Blue-green deployment with health checks and EIP handover
-- Blue-green promotion workflow
-  - Separate candidate/active instances with distinct security groups
-  - Automated health checks (frontend/backend endpoints + AWS instance status)
-  - EIP handover script with confirmation prompt (bypass via `--auto-promote` for CI/CD)
-  - Automatic security group swapping during promotion
-  - Rollback support on post-swap health failures
-  - GitHub Actions workflow for manual promotion triggers
+  - Health checks for frontend/backend endpoints before declaring success
 - Terraform IaC: one-command provision/teardown
 - Systemd-managed Docker services on EC2 (auto-restart)
 - Dual registry strategy (Docker Hub dev, ECR prod)

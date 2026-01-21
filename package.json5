@@ -303,41 +303,21 @@
     // WORKFLOW:
     //   1. Run `orchestrate` to deploy the current single-instance stack
     //   2. Validate health via the canonical hosts and/or localhost checks
-    //   3. Promotion/blue-green flags (if present) are part of the paused Lagoon prototype
-    //      and may not be applicable to day-to-day ops.
     // =============================================================================
     // Deploy the current single-instance stack.
     // Runs: terraform (unless skipped), image build/push (unless disabled), GitHub Actions deploy, nginx sync
     "orchestrate": "bash deploy/scripts/deployment-orchestrator.sh --profiles both --refresh-env",
-    // Deploy to candidate AND auto-promote to production without manual validation
-    // Runs full orchestration THEN internally invokes promotion logic with --auto-promote
-    // ⚠️ Use with caution: skips manual testing of candidate
-    "orchestrate:auto-promote": "bash deploy/scripts/deployment-orchestrator.sh --profiles both --auto-promote --refresh-env",
     // Rebuild+push both prod/dev images before dispatching redeploy workflows
     // Useful when backend/frontend code changed and new images must be published
     "orchestrate:rebuild-images": "bash deploy/scripts/deployment-orchestrator.sh --profiles both --rebuild-images --refresh-env",
-    // Same as above but auto-promotes after successful deploy
-    "orchestrate:rebuild-images:auto-promote": "bash deploy/scripts/deployment-orchestrator.sh --profiles both --rebuild-images --auto-promote --refresh-env",
     // Deploy using existing images (skip Docker build/push to registries)
     // Useful for config-only changes or when images are already built and pushed
     // Still provisions infrastructure and deploys containers from DockerHub/ECR
     "orchestrate:no-build": "bash deploy/scripts/deployment-orchestrator.sh --profiles both --no-build --refresh-env",
-    // Deploy using existing images AND auto-promote without manual validation
-    // Combines --no-build (skip image building) with --auto-promote (automatic promotion)
-    // Fast deployment option when images haven't changed
-    "orchestrate:no-build:auto-promote": "bash deploy/scripts/deployment-orchestrator.sh --profiles both --no-build --auto-promote --refresh-env",
     // Skip-infra deployment (no Terraform/host maintenance)
     // Rebuilds/pushes images (unless --no-build) then asks GH Actions to restart containers
     // Useful for application updates when infrastructure is stable
     "orchestrate:skip-infra": "bash deploy/scripts/deployment-orchestrator.sh --profiles both --skip-infra --refresh-env",
-    // Skip-infra deployment with auto-promotion
-    // Updates containers on existing instances AND promotes automatically
-    // Fastest deployment option for container updates only
-    "orchestrate:skip-infra:auto-promote": "bash deploy/scripts/deployment-orchestrator.sh --profiles both --skip-infra --auto-promote --refresh-env",
-    // Promote existing candidate to production (SEPARATE SCRIPT, no deployment)
-    // Runs health checks, swaps Elastic IPs (active↔candidate), updates instance Role tags
-    // Prompts "Type 'yes' to confirm" before promotion (old active becomes previous)
-    "candidate-promote": "bash deploy/scripts/orchestrator-promote.sh --region us-west-2",
     // 🏗️ Infrastructure: Sync .env file with Terraform state (interactive)
     "infra:sync-env": "cd infra && bash sync-env-from-terraform.sh",
     // 🏗️ Infrastructure: Sync .env file with Terraform state (skip confirmation)
