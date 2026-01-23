@@ -74,11 +74,9 @@ const Footer: React.FC<FooterProps> = ({ className, mutationElemRef }) => {
             Next.js<span>&bull;</span>Payload CMS<span>&bull;</span>TypeScript
           </a>
         </div>
-        <a
-          className={styles.footerLink}
-          href="/"
-        >
-          &copy; {currentYear} <span style={{ color: "#fff" }}>Bradley Baysinger</span>
+        <a className={styles.footerLink} href="/">
+          &copy; {currentYear}{" "}
+          <span style={{ color: "#fff" }}>Bradley Baysinger</span>
         </a>
       </div>
     </footer>
