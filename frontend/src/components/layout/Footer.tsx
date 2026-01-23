@@ -76,12 +76,9 @@ const Footer: React.FC<FooterProps> = ({ className, mutationElemRef }) => {
         </div>
         <a
           className={styles.footerLink}
-          href="https://bbaysinger.com"
-          target="_blank"
-          rel="noopener noreferrer"
+          href="/"
         >
-          &copy; {currentYear} <span style={{ color: "#fff" }}>bbaysinger</span>
-          .com
+          &copy; {currentYear} <span style={{ color: "#fff" }}>Bradley Baysinger</span>
         </a>
       </div>
     </footer>
