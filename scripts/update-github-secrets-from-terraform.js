@@ -13,7 +13,11 @@ const INFRA_DIR = path.join(REPO_ROOT, "infra");
 const AWS_PROFILE = process.env.AWS_PROFILE || "bb-portfolio-user";
 
 function execJson(cmd, options = {}) {
-  const raw = cp.execSync(cmd, { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"], ...options });
+  const raw = cp.execSync(cmd, {
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "pipe"],
+    ...options,
+  });
   return JSON.parse(raw);
 }
 
@@ -26,7 +30,8 @@ function readAwsCreds(profile) {
 
   for (const line of raw.split(/\r?\n/)) {
     const trimmed = line.trim();
-    if (!trimmed || trimmed.startsWith("#") || trimmed.startsWith(";")) continue;
+    if (!trimmed || trimmed.startsWith("#") || trimmed.startsWith(";"))
+      continue;
 
     const sectionMatch = trimmed.match(/^\[([^\]]+)\]$/);
     if (sectionMatch) {
@@ -68,7 +73,9 @@ function getTfOutputs() {
 
 function getOutputValue(outputs, key) {
   if (!outputs[key]) {
-    throw new Error(`Terraform output '${key}' not found. Re-run 'terraform apply' in ${INFRA_DIR}.`);
+    throw new Error(
+      `Terraform output '${key}' not found. Re-run 'terraform apply' in ${INFRA_DIR}.`,
+    );
   }
   return outputs[key].value;
 }
@@ -100,22 +107,28 @@ function main() {
   });
 
   // Dev overrides
-  updateJson5(path.join(REPO_ROOT, ".github-secrets.private.dev.json5"), (cfg) => {
-    const s = cfg.strings || cfg;
-    s.S3_BUCKET = mediaBucketNames.dev;
-  });
+  updateJson5(
+    path.join(REPO_ROOT, ".github-secrets.private.dev.json5"),
+    (cfg) => {
+      const s = cfg.strings || cfg;
+      s.S3_BUCKET = mediaBucketNames.dev;
+    },
+  );
 
   // Prod overrides
-  updateJson5(path.join(REPO_ROOT, ".github-secrets.private.prod.json5"), (cfg) => {
-    const s = cfg.strings || cfg;
-    s.S3_BUCKET = mediaBucketNames.prod;
+  updateJson5(
+    path.join(REPO_ROOT, ".github-secrets.private.prod.json5"),
+    (cfg) => {
+      const s = cfg.strings || cfg;
+      s.S3_BUCKET = mediaBucketNames.prod;
 
-    // CloudWatch RUM (prod only)
-    s.NEXT_PUBLIC_RUM_APP_MONITOR_ID = rumAppMonitorId;
-    s.NEXT_PUBLIC_RUM_IDENTITY_POOL_ID = rumIdentityPoolId;
-    s.NEXT_PUBLIC_RUM_GUEST_ROLE_ARN = rumGuestRoleArn;
-    s.NEXT_PUBLIC_RUM_REGION = rumRegion;
-  });
+      // CloudWatch RUM (prod only)
+      s.NEXT_PUBLIC_RUM_APP_MONITOR_ID = rumAppMonitorId;
+      s.NEXT_PUBLIC_RUM_IDENTITY_POOL_ID = rumIdentityPoolId;
+      s.NEXT_PUBLIC_RUM_GUEST_ROLE_ARN = rumGuestRoleArn;
+      s.NEXT_PUBLIC_RUM_REGION = rumRegion;
+    },
+  );
 
   // Re-bundle merged secrets file with standard header.
   cp.execSync("npm run secrets:bundle -- --quiet", {
