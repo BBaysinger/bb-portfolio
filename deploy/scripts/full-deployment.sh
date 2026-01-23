@@ -341,7 +341,7 @@ if [[ "$refresh_env" == true ]]; then
 fi
 
 log "Logging into ECR and restarting compose profiles via SSH"
-ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" "aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 778230822028.dkr.ecr.us-west-2.amazonaws.com >/dev/null 2>&1 || true"
+ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" "AWS_ACCOUNT_ID=\$(aws sts get-caller-identity --query Account --output text 2>/dev/null || true); if [ -n \"\$AWS_ACCOUNT_ID\" ] && [ \"\$AWS_ACCOUNT_ID\" != \"None\" ]; then aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin \"\${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com\" >/dev/null 2>&1 || true; fi"
 ssh -i "$SSH_KEY" -tt -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" bash -lc $'set -e
 cd /home/ec2-user/portfolio
 docker-compose down || true

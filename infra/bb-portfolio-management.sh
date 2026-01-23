@@ -10,7 +10,7 @@ set -e
 INSTANCE_IP="${EC2_INSTANCE_IP}"
 SSH_KEY="$HOME/.ssh/bb-portfolio-site-key.pem"
 SSH_USER="ec2-user"
-AWS_ACCOUNT_ID="${AWS_ACCOUNT_ID}"
+AWS_ACCOUNT_ID="${AWS_ACCOUNT_ID:-}"
 ECR_REGION="us-west-2"
 
 # Validate required environment variables
@@ -21,7 +21,11 @@ if [ -z "$INSTANCE_IP" ]; then
 fi
 
 if [ -z "$AWS_ACCOUNT_ID" ]; then
-    echo "❌ Error: AWS_ACCOUNT_ID environment variable is required"
+    AWS_ACCOUNT_ID="$(aws sts get-caller-identity --query Account --output text 2>/dev/null || true)"
+fi
+
+if [ -z "$AWS_ACCOUNT_ID" ]; then
+    echo "❌ Error: AWS_ACCOUNT_ID environment variable is required (or AWS CLI must be configured so it can be derived via STS)"
     echo "   Please set it in .env or .env.local"
     exit 1
 fi
@@ -134,13 +138,13 @@ case "${1:-help}" in
         echo "🚀 Deploying production containers..."
         echo "1. Pulling latest ECR images..."
         ecr_login
-        run_remote "cd portfolio && sudo bash -lc $(printf %q "$(AWS_ACCOUNT_ID=778230822028 remote_compose_cmd "prod" "pull")")"
+        run_remote "cd portfolio && sudo bash -lc $(printf %q "$(remote_compose_cmd "prod" "pull")")"
         
         echo "2. Stopping development containers..."
         run_remote "cd portfolio && sudo bash -lc $(printf %q "$(remote_compose_cmd "dev" "down")")" || true
         
         echo "3. Starting production containers..."
-        run_remote "cd portfolio && sudo bash -lc $(printf %q "$(AWS_ACCOUNT_ID=778230822028 remote_compose_cmd "prod" "up -d")")"
+        run_remote "cd portfolio && sudo bash -lc $(printf %q "$(remote_compose_cmd "prod" "up -d")")"
         
     echo "4. Updating Nginx to point to production (port 3000)..."
     run_remote "if [ -f /etc/nginx/conf.d/bb-portfolio.conf ]; then sudo sed -i 's/localhost:4000/localhost:3000/g' /etc/nginx/conf.d/bb-portfolio.conf; else sudo sed -i 's/localhost:4000/localhost:3000/g' /etc/nginx/conf.d/portfolio.conf; fi && sudo nginx -t && sudo systemctl reload nginx"
@@ -169,7 +173,7 @@ case "${1:-help}" in
         
         echo "2. Pulling and starting production containers..."
         ecr_login
-        run_remote "cd portfolio && sudo bash -lc $(printf %q "$(AWS_ACCOUNT_ID=778230822028 remote_compose_cmd "prod" "pull")") && sudo bash -lc $(printf %q "$(AWS_ACCOUNT_ID=778230822028 remote_compose_cmd "prod" "up -d")")"
+        run_remote "cd portfolio && sudo bash -lc $(printf %q "$(remote_compose_cmd "prod" "pull")") && sudo bash -lc $(printf %q "$(remote_compose_cmd "prod" "up -d")")"
         
     echo "3. Updating Nginx to point to production (port 3000)..."
     run_remote "if [ -f /etc/nginx/conf.d/bb-portfolio.conf ]; then sudo sed -i 's/localhost:4000/localhost:3000/g' /etc/nginx/conf.d/bb-portfolio.conf; else sudo sed -i 's/localhost:4000/localhost:3000/g' /etc/nginx/conf.d/portfolio.conf; fi && sudo nginx -t && sudo systemctl reload nginx"

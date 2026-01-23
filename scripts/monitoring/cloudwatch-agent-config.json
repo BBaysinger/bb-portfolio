@@ -22,9 +22,9 @@
         "resources": ["/", "/var"]
       },
       "net": {
-        "measurement": ["bytes_in", "bytes_out"],
+        "measurement": ["bytes_recv", "bytes_sent"],
         "metrics_collection_interval": 60,
-        "resources": ["eth0"]
+        "resources": ["*"]
       }
     }
   },

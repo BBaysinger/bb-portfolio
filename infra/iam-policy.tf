@@ -10,7 +10,7 @@ resource "aws_iam_user_policy" "bb_portfolio_passrole" {
       {
         Effect = "Allow"
         Action = "iam:PassRole"
-        Resource = "arn:aws:iam::778230822028:role/bb-portfolio-ssm-role"
+        Resource = aws_iam_role.ssm_role.arn
       },
       {
         Effect = "Allow"
@@ -19,7 +19,7 @@ resource "aws_iam_user_policy" "bb_portfolio_passrole" {
           "iam:DetachRolePolicy",
           "iam:ListAttachedRolePolicies"
         ]
-        Resource = "arn:aws:iam::778230822028:role/bb-portfolio-ssm-role"
+        Resource = aws_iam_role.ssm_role.arn
       }
     ]
   })
@@ -71,7 +71,7 @@ resource "aws_iam_user_policy" "bb_portfolio_rum_cognito" {
           "iam:UntagRole",
           "iam:PassRole"
         ]
-        Resource = "arn:aws:iam::778230822028:role/bb-portfolio-rum-*"
+        Resource = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/bb-portfolio-rum-*"
       }
     ]
   })
