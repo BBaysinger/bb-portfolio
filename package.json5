@@ -288,12 +288,26 @@
     "db:delete:prod-portfolio": "bash scripts/delete-database.sh --env prod --db portfolio-prod",
     // ☢️🔥 DANGER: Overwrites dev DB with local data
     "db:migrate:local-to-dev": "bash scripts/migrate-database.sh local dev",
+    // ☢️🔥☠️  DANGER: Overwrites prod DB with local data
+    "db:migrate:local-to-prod": "bash scripts/migrate-database.sh local prod",
+    // ☢️ Convenience: run local→dev then local→prod
+    "db:migrate:local-to-all": "npm run db:migrate:local-to-dev && npm run db:migrate:local-to-prod",
+    // 🧪 Dry run only: plan local→dev then local→prod
+    "db:migrate:local-to-all:dry": "bash scripts/migrate-database.sh local dev --dry-run && bash scripts/migrate-database.sh local prod --dry-run",
     // ☢️⚰️ DANGER: Overwrites dev DB with production data
     "db:migrate:prod-to-dev": "bash scripts/migrate-database.sh prod dev",
     // ☢️⚠️ DANGER: Overwrites local DB with production data
     "db:migrate:prod-to-local": "bash scripts/migrate-database.sh prod local",
     // ☢️ Convenience: run prod→dev then prod→local
     "db:migrate:prod-to-all": "npm run db:migrate:prod-to-dev && npm run db:migrate:prod-to-local",
+    // 🔐 Restore Payload auth collections (users + payload-preferences) from the most recent prod backup
+    "db:restore:auth:prod": "bash scripts/restore-collections-from-backup.sh prod",
+    // 🧪 Dry run only: show which backup would be used and the mongorestore command
+    "db:restore:auth:prod:dry": "bash scripts/restore-collections-from-backup.sh prod --dry-run",
+    // 🔐 Restore Payload auth collections (users + payload-preferences) from the most recent dev backup
+    "db:restore:auth:dev": "bash scripts/restore-collections-from-backup.sh dev",
+    // 🧪 Dry run only: show which backup would be used and the mongorestore command
+    "db:restore:auth:dev:dry": "bash scripts/restore-collections-from-backup.sh dev --dry-run",
     // 🎭 ORCHESTRATION: Deployment Orchestrator (Single-Instance / Current)
     // =============================================================================
     // NAMING CONVENTION:
