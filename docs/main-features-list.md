@@ -73,7 +73,7 @@ Working list of notable features
 
 ## Infra / Deployment
 
-- Automated (re)deployment orchestrator
+- Deployment tooling (scripts + optional orchestrator)
 - Terraform IaC: one-command provision/teardown of full stack
 - Systemd-managed Docker services on EC2 with auto-restart
 - Dual-registry image strategy (Docker Hub dev, ECR prod) with switch script

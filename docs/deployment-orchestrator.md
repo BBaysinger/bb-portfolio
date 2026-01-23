@@ -2,6 +2,11 @@
 
 This document covers the current, day-to-day deployment toolchain for the single-host model.
 
+The orchestrator is optional.
+
+- If the site is already up and you’re not shipping changes, you do not need to run it.
+- If you are shipping changes and want one repeatable command that ties together infra, images, env refresh, and restarts, it’s useful.
+
 - **Script:** `deploy/scripts/deployment-orchestrator.sh`
 - **Scope:** provisions/updates a single EC2 host via Terraform and (re)starts Docker Compose profiles (via GitHub Actions with SSH fallback).
 
@@ -11,6 +16,17 @@ This document covers the current, day-to-day deployment toolchain for the single
 - Optional image build/push to registries
 - Dispatches GitHub Actions workflow(s) to regenerate env files on the host and restart containers
 - Falls back to direct SSH/Compose control if workflow dispatch fails
+
+## When to use it
+
+- You changed code/config and want to roll it out with a single entrypoint.
+- You need `--refresh-env` to regenerate runtime env files from secrets.
+- You want a plan-only preview (`--plan-only`) before touching infra.
+
+## When not to use it
+
+- The stack is already healthy and you’re only debugging.
+- You only need to restart a container or tail logs (use the management script directly).
 
 ## Common commands
 
