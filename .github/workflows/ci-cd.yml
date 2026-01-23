@@ -259,6 +259,7 @@ jobs:
           echo "${{ secrets.PUBLIC_PROJECTS_BUCKET }}" > /tmp/public_projects_bucket
           echo "${{ secrets.NDA_PROJECTS_BUCKET }}" > /tmp/nda_projects_bucket
           echo "${{ secrets.AWS_REGION }}" > /tmp/aws_region
+          echo "${{ secrets.SECURITY_TXT_EXPIRES }}" > /tmp/security_txt_expires
           echo "${{ secrets.BACKEND_INTERNAL_URL }}" > /tmp/backend_internal_url
           DOCKER_BUILDKIT=1 docker build --no-cache --target runtime \
             --build-arg NODE_IMAGE=public.ecr.aws/docker/library/node:22-slim \
@@ -278,9 +279,10 @@ jobs:
             --secret id=public_projects_bucket,src=/tmp/public_projects_bucket \
             --secret id=nda_projects_bucket,src=/tmp/nda_projects_bucket \
             --secret id=aws_region,src=/tmp/aws_region \
+            --secret id=security_txt_expires,src=/tmp/security_txt_expires \
             --secret id=backend_internal_url,src=/tmp/backend_internal_url \
             -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./backend
-          rm -f /tmp/mongodb_uri /tmp/payload_secret /tmp/aws_access_key_id /tmp/aws_secret_access_key /tmp/ses_from_email /tmp/ses_to_email /tmp/smtp_from_email /tmp/public_server_url /tmp/frontend_url /tmp/s3_bucket /tmp/public_projects_bucket /tmp/nda_projects_bucket /tmp/aws_region /tmp/backend_internal_url
+          rm -f /tmp/mongodb_uri /tmp/payload_secret /tmp/aws_access_key_id /tmp/aws_secret_access_key /tmp/ses_from_email /tmp/ses_to_email /tmp/smtp_from_email /tmp/public_server_url /tmp/frontend_url /tmp/s3_bucket /tmp/public_projects_bucket /tmp/nda_projects_bucket /tmp/aws_region /tmp/security_txt_expires /tmp/backend_internal_url
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
@@ -338,6 +340,7 @@ jobs:
           echo "${{ secrets.PUBLIC_PROJECTS_BUCKET }}" > /tmp/public_projects_bucket
           echo "${{ secrets.NDA_PROJECTS_BUCKET }}" > /tmp/nda_projects_bucket
           echo "${{ secrets.AWS_REGION }}" > /tmp/aws_region
+          echo "${{ secrets.SECURITY_TXT_EXPIRES || '2099-01-01T00:00:00.000Z' }}" > /tmp/security_txt_expires
           echo "${{ secrets.BACKEND_INTERNAL_URL }}" > /tmp/backend_internal_url
           DOCKER_BUILDKIT=1 docker build \
             --build-arg ENV_PROFILE=dev \
@@ -355,9 +358,10 @@ jobs:
             --secret id=public_projects_bucket,src=/tmp/public_projects_bucket \
             --secret id=nda_projects_bucket,src=/tmp/nda_projects_bucket \
             --secret id=aws_region,src=/tmp/aws_region \
+            --secret id=security_txt_expires,src=/tmp/security_txt_expires \
             --secret id=backend_internal_url,src=/tmp/backend_internal_url \
             -t bhbaysinger/bb-portfolio-backend:dev ./backend
-          rm -f /tmp/mongodb_uri /tmp/payload_secret /tmp/aws_access_key_id /tmp/aws_secret_access_key /tmp/ses_from_email /tmp/ses_to_email /tmp/smtp_from_email /tmp/public_server_url /tmp/frontend_url /tmp/s3_bucket /tmp/public_projects_bucket /tmp/nda_projects_bucket /tmp/aws_region /tmp/backend_internal_url
+          rm -f /tmp/mongodb_uri /tmp/payload_secret /tmp/aws_access_key_id /tmp/aws_secret_access_key /tmp/ses_from_email /tmp/ses_to_email /tmp/smtp_from_email /tmp/public_server_url /tmp/frontend_url /tmp/s3_bucket /tmp/public_projects_bucket /tmp/nda_projects_bucket /tmp/aws_region /tmp/security_txt_expires /tmp/backend_internal_url
           echo "${SANITIZED_FE_REQ}" > /tmp/required_environment_variables_frontend
           echo "${{ secrets.BACKEND_INTERNAL_URL }}" > /tmp/backend_internal_url
           echo "${{ secrets.PUBLIC_PROJECTS_BUCKET }}" > /tmp/public_projects_bucket
