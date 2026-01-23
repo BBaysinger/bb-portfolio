@@ -27,7 +27,7 @@ Infrastructure is managed with Terraform (`infra/`) and a single host runs both 
 
 ## Next Steps (Typical Flow)
 
-See also: `docs/deployment-orchestrator.md` for read-only discovery, plan-only previews, and common orchestrator commands.
+See also: `docs/deployment-orchestrator.md` for read-only discovery, plan-only previews, and common orchestrator commands. (The orchestrator is optional—GitHub Actions + the management script can be used directly.)
 
 ### 1. Configure DNS (Canonical Host Strategy)
 
@@ -67,7 +67,7 @@ This will update the Nginx configuration on your server to handle the new subdom
 
 Note on Nginx config changes:
 
-- Nginx on the EC2 host is now managed outside of user_data to avoid drift and size limits. The deploy orchestrator (or the helper script below) is responsible for syncing `/etc/nginx/conf.d/bb-portfolio.conf`.
+- Nginx on the EC2 host is now managed outside of user_data to avoid drift and size limits. You can sync `/etc/nginx/conf.d/bb-portfolio.conf` either via the deploy orchestrator or via the helper script below.
 - To propagate reverse-proxy updates from this repo (e.g., admin assets under `/admin/_next`):
   1. Quick sync (recommended):
      - Use the helper script to push the vhost config template in this repo to the server and reload Nginx.
@@ -114,13 +114,13 @@ terraform apply   # Apply changes
 
 1. Docker service starts automatically
 2. Nginx starts automatically (default config only)
-3. Site config, env files, and containers are managed by the deploy orchestrator or GitHub Actions
-4. Services are configured and available after orchestrator runs
+3. Site config, env files, and containers are managed by GitHub Actions, the deploy orchestrator, or manual SSH + Docker Compose
+4. Services are configured and available after a successful deploy/restart (no orchestrator run required)
 
 ### Deployment Process (Single-Instance)
 
 1. Run `terraform apply` to deploy infrastructure changes
-2. Use the orchestrator or management script to control containers
+2. Use GitHub Actions, the orchestrator, or the management script to control containers
 3. Regenerate runtime env files on EC2 when needed (GitHub workflow or orchestrator `--refresh-env`)
    - Backend envs include: `REQUIRED_ENVIRONMENT_VARIABLES_BACKEND`, `SECURITY_TXT_EXPIRES`, S3 buckets, Mongo URIs, Payload secret, SES emails, internal backend URL.
    - Frontend envs include: internal backend URL for SSR/server code only (browser uses relative `/api`).
@@ -230,7 +230,11 @@ When you're ready to use production containers:
 
 ## Enabling & Maintaining HTTPS
 
-TLS termination is handled directly on the EC2 host by Nginx with certificates provisioned via Let's Encrypt (certbot). The deploy orchestrator installs certbot on the host if missing and issues certificates over SSH for the canonical set (apex + www + dev). Deprecated domains are no longer required:
+TLS termination is handled directly on the EC2 host by Nginx with certificates provisioned via Let's Encrypt (certbot).
+
+Note: HTTPS is optional. If you’re running IP-only / HTTP-only, you can skip this entire section.
+
+The deploy orchestrator can install certbot on the host (if missing) and issue certificates over SSH for a canonical set of domains. Alternatively, you can run certbot manually over SSH.
 
 ```
 bbaysinger.com

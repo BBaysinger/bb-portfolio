@@ -8,7 +8,7 @@ Core interface systems include a **parallax-layered carousel**, a **multi-render
 Every motion and frame transition is built natively — no external 3D, physics, or sprite libraries.  
 The surrounding infrastructure (Terraform, Docker, AWS, GitHub Actions) exists not as ornamentation, but as proof of production-level rigor: CI/CD, secrets pipelines, multi-environment orchestration, and cloud resource hygiene.
 
-> **Monorepo Note:** This repo currently contains an interactive development portfolio _and_ a developer-oriented deployment orchestrator library; the orchestrator and repo root will spin out into its own repository soon.
+> **Monorepo Note:** This repo contains the portfolio app plus internal deployment tooling (scripts, CI/CD helpers). That tooling supports operating the site but isn’t a user-facing feature.
 
 Note: this project is still evolving — features, UX, and infrastructure are actively iterated.
 
@@ -34,7 +34,7 @@ Live site reference moments:
 
 Shorter read: [Flat main features list](./docs/main-features-list.md).
 
-[Visit the Live Site (primary)](http://bbaysinger.com).
+[Visit the Live Site](#) (deployment-dependent; see `deploy/DEPLOYMENT.md`).
 
 ---
 
@@ -43,7 +43,7 @@ Shorter read: [Flat main features list](./docs/main-features-list.md).
 This repo is an end‑to‑end system, not just a site. Beyond the UI work, it ships with comprehensive DevOps and data tooling. Highlights:
 
 - Multi‑environment infrastructure with Terraform (dev/prod), EC2 bootstrap, and Caddy/Nginx reverse proxy options
-- A deployment orchestrator that coordinates image builds, GitHub Actions env generation, and safe restarts
+- Deployment tooling (scripts + optional orchestrator) for repeatable builds, env refresh, and safe restarts
 - One‑command local dev modes: bare metal, Docker SSR, Docker SSG, and Caddy proxy for prod‑like URLs
 - Dual registries (Docker Hub for dev, ECR for prod) with automated image cleanup and verification
 - Secrets and environment sync pipeline driven by JSON5 source files and validation lists
@@ -62,17 +62,7 @@ Frontend systems worth calling out:
 
 Jump to the complete list of conveniences: [Deployment conveniences catalog](#-deployment-conveniences-catalog).
 
-## 🧭 Deployment Orchestrator:
-
-### Current version
-
-- `deploy/scripts/deployment-orchestrator.sh` is the production toolchain. It rebuilds/pushes images, refreshes env files, syncs Caddy/Nginx configs, and restarts the single EC2 host (prod + optional dev profile).
-- GitHub Actions workflows (`orchestrate`, `redeploy`) drive the same script remotely and never store decrypted secrets; env files are generated per run and copied straight to EC2.
-- Safety features include:
-  - `--no-build`, `--skip-infra`, and other switches so infra can be left untouched when only app code changes.
-  - Health checks for frontend + backend endpoints before declaring success.
-  - Automatic EC2 diagnostics/log dumps when a restart step fails.
-- This is the path that keeps bbaysinger.com online today.
+Deployment tooling note: if you want a single entrypoint for deploy workflows (infra + images + env refresh + restarts), see [docs/deployment-orchestrator.md](./docs/deployment-orchestrator.md). It’s optional.
 
 ## 🧰 Deployment conveniences catalog
 
@@ -453,11 +443,11 @@ Runtime .env generation (deploy):
 
 ## Infrastructure & Deployment
 
-High‑level AWS/IaC overview plus orchestrator summary.
+High‑level AWS/IaC overview plus an (optional) orchestrator summary.
 
-### 🧠 Deployment Orchestrator (Current State)
+### 🧠 Deployment Orchestrator (Current State, optional)
 
-Unifies Terraform state, Docker image workflows, and GitHub Actions env regeneration into one CLI script (`deploy/scripts/deployment-orchestrator.sh`). Key points:
+Unifies Terraform state, Docker image workflows, and GitHub Actions env regeneration into one CLI script (`deploy/scripts/deployment-orchestrator.sh`). Useful when you’re shipping changes; unnecessary if the stack is already up and healthy.
 
 - Regenerates host `.env.dev` / `.env.prod` from GitHub Secrets, then restarts containers.
 - Profile aware (`dev` / `prod` / `both`) with distinct registries & buckets.
