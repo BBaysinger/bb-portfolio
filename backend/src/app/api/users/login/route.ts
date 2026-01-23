@@ -325,7 +325,7 @@ export const POST = async (request: Request) => {
     }
 
     // Set the auth cookie expected by Payload. By default this is `payload-token`.
-    // Use secure cookies in production; admins access via HTTPS.
+    // Only mark cookies Secure when the request is actually HTTPS.
     const token =
       result && typeof (result as { token?: unknown }).token === 'string'
         ? ((result as { token?: string }).token as string)
@@ -333,7 +333,15 @@ export const POST = async (request: Request) => {
 
     const headers = new Headers()
     if (token) {
-      const isProd = process.env.ENV_PROFILE === 'prod'
+      const forwardedProto = request.headers.get('x-forwarded-proto')
+      const envUrl =
+        process.env.PAYLOAD_PUBLIC_SERVER_URL ||
+        process.env.PAYLOAD_PUBLIC_FRONTEND_URL ||
+        process.env.PUBLIC_SERVER_URL
+
+      const isHttps =
+        forwardedProto === 'https' || (typeof envUrl === 'string' && envUrl.startsWith('https://'))
+
       const parts = [
         `payload-token=${token}`,
         'Path=/',
@@ -342,7 +350,7 @@ export const POST = async (request: Request) => {
         // 7 days
         `Max-Age=${60 * 60 * 24 * 7}`,
       ]
-      if (isProd) parts.push('Secure')
+      if (isHttps) parts.push('Secure')
       headers.append('Set-Cookie', parts.join('; '))
     }
 
