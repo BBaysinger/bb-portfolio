@@ -38,8 +38,13 @@ remote_restart() {
   ssh -i "$KEY_PATH" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" "ENVIRONMENT='$ENVIRONMENT' START_DEV='$START_DEV' bash -s" <<'BASH'
 set -e
 cd /home/ec2-user/bb-portfolio
-aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 778230822028.dkr.ecr.us-west-2.amazonaws.com >/dev/null 2>&1 || true
-export AWS_ACCOUNT_ID=778230822028
+AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text 2>/dev/null || true)
+if [ -n "$AWS_ACCOUNT_ID" ] && [ "$AWS_ACCOUNT_ID" != "None" ]; then
+  aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin "${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com" >/dev/null 2>&1 || true
+  export AWS_ACCOUNT_ID
+else
+  echo "WARN: Could not resolve AWS_ACCOUNT_ID via sts; skipping ECR login" >&2
+fi
 COMPOSE_FILE="deploy/compose/docker-compose.yml"
 try_up() {
   local profile="$1"; local attempts=0

@@ -632,7 +632,7 @@ sync_nginx_config() {
   '
 }
 
-# Ensure SSL server blocks exist; append if missing and certificates present.
+# Ensure SSL server blocks exist; install a separate SSL include file if certificates are present.
 ensure_ssl_blocks() {
   local host="$1"
   local key="$HOME/.ssh/bb-portfolio-site-key.pem"
@@ -643,22 +643,30 @@ ensure_ssl_blocks() {
   fi
   log "Ensuring SSL server blocks present on $host"
   ssh -i "$key" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$host" $'set -e
-    CFG=/etc/nginx/conf.d/bb-portfolio.conf
-    if grep -q "listen 443" "$CFG"; then
-      echo "SSL blocks already present"
+    SSL_DOMAIN="${SSL_DOMAIN:-}"
+    SSL_CONF=/etc/nginx/conf.d/bb-portfolio-ssl.conf
+    if [ -z "$SSL_DOMAIN" ]; then
+      echo "SSL_DOMAIN not set; disabling SSL include"
+      sudo rm -f "$SSL_CONF"
       exit 0
     fi
-    if [ ! -d /etc/letsencrypt/live/bbaysinger.com ]; then
-      echo "Certificates not present; skipping SSL block append"
+    # certbot can create /etc/letsencrypt/live/<domain>/ even when issuance fails,
+    # so require the actual files to exist to avoid breaking nginx.
+    if [ ! -s "/etc/letsencrypt/live/$SSL_DOMAIN/fullchain.pem" ] \
+      || [ ! -s "/etc/letsencrypt/live/$SSL_DOMAIN/privkey.pem" ] \
+      || [ ! -s /etc/letsencrypt/options-ssl-nginx.conf ]; then
+      echo "Certificates not present for $SSL_DOMAIN; removing SSL include"
+      sudo rm -f "$SSL_CONF"
       exit 0
     fi
-    echo "Appending SSL blocks to $CFG"
-    sudo tee -a "$CFG" >/dev/null <<'CONF'
+    echo "Installing SSL include for $SSL_DOMAIN"
+    sudo tee "$SSL_CONF" >/dev/null <<CONF
 server {
   listen 443 ssl;
-  server_name bbaysinger.com www.bbaysinger.com;
-  ssl_certificate     /etc/letsencrypt/live/bbaysinger.com/fullchain.pem;
-  ssl_certificate_key /etc/letsencrypt/live/bbaysinger.com/privkey.pem;
+  http2 on;
+  server_name $SSL_DOMAIN www.$SSL_DOMAIN;
+  ssl_certificate     /etc/letsencrypt/live/$SSL_DOMAIN/fullchain.pem;
+  ssl_certificate_key /etc/letsencrypt/live/$SSL_DOMAIN/privkey.pem;
   include /etc/letsencrypt/options-ssl-nginx.conf;
   location = /healthz { return 200 'ok'; add_header Content-Type text/plain; }
   location /api/ { proxy_pass http://127.0.0.1:3001; }
@@ -666,9 +674,10 @@ server {
 }
 server {
   listen 443 ssl;
-  server_name dev.bbaysinger.com;
-  ssl_certificate     /etc/letsencrypt/live/bbaysinger.com/fullchain.pem;
-  ssl_certificate_key /etc/letsencrypt/live/bbaysinger.com/privkey.pem;
+  http2 on;
+  server_name dev.$SSL_DOMAIN;
+  ssl_certificate     /etc/letsencrypt/live/$SSL_DOMAIN/fullchain.pem;
+  ssl_certificate_key /etc/letsencrypt/live/$SSL_DOMAIN/privkey.pem;
   include /etc/letsencrypt/options-ssl-nginx.conf;
   location = /healthz { return 200 'ok'; add_header Content-Type text/plain; }
   location /api/ { proxy_pass http://127.0.0.1:4001; }
@@ -711,8 +720,13 @@ ensure_cloudwatch_agent() {
   '
 }
 
-# Extract AWS_ACCOUNT_ID for ECR image pulls used in compose. Fallback to known prod account.
-AWS_ACCOUNT_ID_LOCAL="$(node -e "try{const JSON5=require('json5');const fs=require('fs');const raw=fs.readFileSync('.github-secrets.private.json5','utf8');const cfg=JSON5.parse(raw);const s=cfg.strings||cfg;process.stdout.write((s.AWS_ACCOUNT_ID||'778230822028')+'');}catch(e){process.stdout.write('778230822028');}")"
+# Extract AWS account ID for ECR image pulls used in compose.
+# Prefer STS (works with profiles, env creds, etc.). Fall back to secrets if provided.
+AWS_ACCOUNT_ID_LOCAL="$(aws sts get-caller-identity --query Account --output text 2>/dev/null || true)"
+if [[ -z "$AWS_ACCOUNT_ID_LOCAL" || "$AWS_ACCOUNT_ID_LOCAL" == "None" ]]; then
+  AWS_ACCOUNT_ID_LOCAL="$(node -e "try{const JSON5=require('json5');const fs=require('fs');const raw=fs.readFileSync('.github-secrets.private.json5','utf8');const cfg=JSON5.parse(raw);const s=cfg.strings||cfg;process.stdout.write((s.AWS_ACCOUNT_ID||'')+'');}catch(e){process.stdout.write('');}")"
+fi
+[[ -n "$AWS_ACCOUNT_ID_LOCAL" ]] || die "Unable to determine AWS account id for ECR (AWS_ACCOUNT_ID_LOCAL)"
 
 
 # If infra step was skipped and EC2_IP is unknown, try to resolve host now and enforce single controller once
@@ -881,7 +895,7 @@ if [[ "$refresh_env" == true ]]; then
 fi
 
 log "Logging into ECR and restarting compose profiles via SSH"
-ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" "aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 778230822028.dkr.ecr.us-west-2.amazonaws.com >/dev/null 2>&1 || true"
+ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" "AWS_ACCOUNT_ID=\$(aws sts get-caller-identity --query Account --output text 2>/dev/null || true); if [ -n \"\$AWS_ACCOUNT_ID\" ] && [ \"\$AWS_ACCOUNT_ID\" != \"None\" ]; then aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin \"\${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com\" >/dev/null 2>&1 || true; fi"
 ssh -i "$SSH_KEY" -tt -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$EC2_HOST" bash -lc $'set -e
 cd /home/ec2-user/portfolio/deploy/compose
 AWS_ACCOUNT_ID='"$AWS_ACCOUNT_ID_LOCAL"' docker-compose -f docker-compose.yml down || true

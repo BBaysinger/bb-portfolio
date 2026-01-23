@@ -63,7 +63,7 @@ General conventions:
 ### AWS_ACCOUNT_ID
 
 - **Purpose**: AWS Account ID for ECR image URIs
-- **Default**: `778230822028` (production account)
+- **Default**: none (set this to your AWS account ID; many scripts can also derive it via `aws sts get-caller-identity` when the AWS CLI is configured)
 - **Usage**: Required for production Docker image pulls from ECR
 
 ### EC2_INSTANCE_IP

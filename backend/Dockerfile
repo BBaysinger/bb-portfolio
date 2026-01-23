@@ -85,6 +85,7 @@ RUN --mount=type=secret,id=mongodb_uri,required=false \
     --mount=type=secret,id=public_projects_bucket,required=false \
     --mount=type=secret,id=nda_projects_bucket,required=false \
     --mount=type=secret,id=aws_region,required=false \
+    --mount=type=secret,id=security_txt_expires,required=false \
     --mount=type=secret,id=ses_from_email,required=false \
     --mount=type=secret,id=ses_to_email,required=false \
     --mount=type=secret,id=smtp_from_email,required=false \
@@ -136,7 +137,7 @@ assign_if_present() {
 }
 
 # Load profile-scoped secrets (MONGODB_URI, etc.) by iterating the variable list
-COMMON_VARS="MONGODB_URI PAYLOAD_SECRET FRONTEND_URL S3_BUCKET AWS_REGION SES_FROM_EMAIL SES_TO_EMAIL SMTP_FROM_EMAIL BACKEND_INTERNAL_URL PUBLIC_SERVER_URL PUBLIC_PROJECTS_BUCKET NDA_PROJECTS_BUCKET"
+COMMON_VARS="MONGODB_URI PAYLOAD_SECRET FRONTEND_URL S3_BUCKET PUBLIC_PROJECTS_BUCKET NDA_PROJECTS_BUCKET AWS_REGION SECURITY_TXT_EXPIRES SES_FROM_EMAIL SES_TO_EMAIL SMTP_FROM_EMAIL BACKEND_INTERNAL_URL PUBLIC_SERVER_URL"
 for var in $COMMON_VARS; do
     assign_if_present "$var" "$(read_profile_secret "$PROFILE" "$var")"
 done
@@ -159,6 +160,7 @@ if [ "$PROFILE" != "prod" ]; then
     : "${PUBLIC_SERVER_URL:=${FRONTEND_URL}}"
     : "${PUBLIC_PROJECTS_BUCKET:=dummy-public-projects-bucket}"
     : "${NDA_PROJECTS_BUCKET:=dummy-nda-projects-bucket}"
+    : "${SECURITY_TXT_EXPIRES:=2099-01-01T00:00:00.000Z}"
 fi
 
 require_var() {
