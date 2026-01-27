@@ -99,12 +99,18 @@ export async function POST(request: NextRequest) {
     } else {
       // Improve diagnostics and client-facing status code without leaking secrets
       const errMsg = (result.error || '').toLowerCase()
+      const reason = result.reasonCode || 'SES_UNKNOWN'
       const isConfigError =
-        result.reasonCode === 'CONTACT_EMAIL_NOT_CONFIGURED' ||
+        reason === 'CONTACT_EMAIL_NOT_CONFIGURED' ||
+        reason === 'SES_ACCESS_DENIED' ||
+        reason === 'SES_BAD_CREDENTIALS' ||
+        reason === 'SES_BAD_SIGNATURE' ||
+        reason === 'SES_IDENTITY_NOT_VERIFIED' ||
         errMsg.includes('not configured') ||
-        errMsg.includes('missing required environment')
+        errMsg.includes('missing required environment') ||
+        errMsg.includes('not verified')
 
-      console.error('Email service error:', { error: result.error, reasonCode: result.reasonCode })
+      console.error('Email service error:', { error: result.error, reasonCode: reason })
 
       return NextResponse.json(
         {
@@ -113,7 +119,7 @@ export async function POST(request: NextRequest) {
             : 'Failed to send message. Please try again later.',
           // Provide minimal, non-sensitive codes for observability
           code: isConfigError ? 'CONTACT_EMAIL_NOT_CONFIGURED' : 'CONTACT_EMAIL_SEND_FAILED',
-          reason: isConfigError ? undefined : result.reasonCode || 'SES_UNKNOWN',
+          reason,
         },
         { status: isConfigError ? 503 : 500 },
       )

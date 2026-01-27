@@ -177,8 +177,15 @@ This message was sent via your portfolio contact form.
       const code = (err.Code || err.code || '').toString()
       const msg = (err.message || '').toString()
       let reasonCode: string | undefined
-      if (/MessageRejected/i.test(code) || /MessageRejected/i.test(msg)) {
-        reasonCode = 'SES_MESSAGE_REJECTED'
+      // SES sometimes reports "identity not verified" as a generic MessageRejected.
+      // Detect the more specific cause first so it doesn't get masked.
+      if (
+        /not verified|is not verified|Email address not verified|identity.*not verified|domain.*not verified|MailFromDomainNotVerified/i.test(
+          msg,
+        ) ||
+        /MailFromDomainNotVerified/i.test(code)
+      ) {
+        reasonCode = 'SES_IDENTITY_NOT_VERIFIED'
       } else if (/AccessDenied/i.test(code) || /AccessDenied/i.test(msg)) {
         reasonCode = 'SES_ACCESS_DENIED'
       } else if (/InvalidClientTokenId|UnrecognizedClientException/i.test(code + msg)) {
@@ -187,8 +194,8 @@ This message was sent via your portfolio contact form.
         reasonCode = 'SES_BAD_SIGNATURE'
       } else if (/Throttling|ThrottlingException/i.test(code)) {
         reasonCode = 'SES_THROTTLED'
-      } else if (/not verified|is not verified|Email address not verified/i.test(msg)) {
-        reasonCode = 'SES_IDENTITY_NOT_VERIFIED'
+      } else if (/MessageRejected/i.test(code) || /MessageRejected/i.test(msg)) {
+        reasonCode = 'SES_MESSAGE_REJECTED'
       } else {
         reasonCode = 'SES_UNKNOWN'
       }

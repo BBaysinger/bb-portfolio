@@ -5,8 +5,6 @@
  * Run with: npx tsx scripts/test-email.ts
  */
 
-import fetch from "node-fetch";
-
 const API_URL =
   process.env.CONTACT_API_URL ?? "http://localhost:3001/api/contact";
 
