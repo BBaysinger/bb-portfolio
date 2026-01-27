@@ -38,9 +38,9 @@ Historically multiple domains pointed to the instance. We now standardize on a s
 
 ```
 
-A Record: bbaysinger.com → <EC2_INSTANCE_IP> (prod canonical)
-A Record: www.bbaysinger.com → <EC2_INSTANCE_IP> (redirects to apex)
-A Record: dev.bbaysinger.com → <EC2_INSTANCE_IP> (dev environment)
+A Record: example.com → <EC2_INSTANCE_IP> (prod canonical)
+A Record: www.example.com → <EC2_INSTANCE_IP> (redirects to apex)
+A Record: dev.example.com → <EC2_INSTANCE_IP> (dev environment)
 
 Use the value from your repo-root `.env` (`EC2_INSTANCE_IP`) for these records.
 
@@ -51,13 +51,13 @@ Remove or let expire deprecated entries for old domains unless you have a migrat
 
 **Test URLs (direct IP is for smoke only)**:
 
-- Production canonical: https://bbaysinger.com
-- Dev canonical: https://dev.bbaysinger.com
+- Production canonical: https://example.com
+- Dev canonical: https://dev.example.com
 - Raw IP (smoke/debug only): http://<EC2_INSTANCE_IP>
 
 ### 2. Deploy Dev Subdomain Support (If Adding/Changing)
 
-The infrastructure has been updated to support `dev.bbaysinger.com`. To deploy this change:
+The infrastructure has been updated to support `dev.example.com`. To deploy this change:
 
 ```bash
 cd infra/
@@ -143,8 +143,8 @@ Internet → CloudFlare DNS → Elastic IP (<EC2_INSTANCE_IP>)
     ↓
 AWS EC2 t3.medium
     ├── Nginx (:80)
-   │   ├── bbaysinger.com & www.bbaysinger.com → Production Containers (:3000/:3001)
-   │   ├── dev.bbaysinger.com → Development Containers (:4000/:4001)
+   │   ├── example.com & www.example.com → Production Containers (:3000/:3001)
+   │   ├── dev.example.com → Development Containers (:4000/:4001)
     │   └── API requests (/api/) routed per domain
     ├── ECR Images (for production deployment)
     └── S3 Buckets (media storage)
@@ -240,9 +240,9 @@ Note: HTTPS is optional. If you’re running IP-only / HTTP-only, you can skip t
 The deploy orchestrator can install certbot on the host (if missing) and issue certificates over SSH for a canonical set of domains. Alternatively, you can run certbot manually over SSH.
 
 ```
-bbaysinger.com
-www.bbaysinger.com
-dev.bbaysinger.com
+example.com
+www.example.com
+dev.example.com
 ```
 
 If you still need an old domain for transition, temporarily include it, then remove once traffic has fully migrated (document the deprecation in the ADR log).
@@ -255,7 +255,7 @@ Add `ACME_REGISTRATION_EMAIL` (or `ACME_EMAIL`) to `.github-secrets.private.json
 {
   strings: {
     // ... existing secrets ...
-    ACME_REGISTRATION_EMAIL: "you@bbaysinger.com",
+    ACME_REGISTRATION_EMAIL: "you@example.com",
   },
 }
 ```
@@ -267,9 +267,9 @@ The orchestrator reads this value directly to run certbot over SSH; Terraform do
 All listed domains must point to the Elastic IP before certbot can issue. Test each with:
 
 ```bash
-dig +short bbaysinger.com
-dig +short www.bbaysinger.com
-dig +short dev.bbaysinger.com
+dig +short example.com
+dig +short www.example.com
+dig +short dev.example.com
 ```
 
 They should all return the Elastic IP (the value of `EC2_INSTANCE_IP`). If any do not, wait for propagation or fix DNS before proceeding.
@@ -289,9 +289,9 @@ It will detect the EC2 host, ensure certbot is installed, and issue certs via th
 After deploy (can be minutes for DNS + issuance), verify:
 
 ```bash
-curl -I https://bbaysinger.com | head -1      # Expect: HTTP/1.1 200 / 301
-curl -I https://www.bbaysinger.com | head -1  # Expect a 301 → apex or 200
-curl -I https://dev.bbaysinger.com | head -1  # Dev site
+curl -I https://example.com | head -1      # Expect: HTTP/1.1 200 / 301
+curl -I https://www.example.com | head -1  # Expect a 301 → apex or 200
+curl -I https://dev.example.com | head -1  # Dev site
 ```
 
 Or remotely via orchestrator after infra step:
@@ -306,8 +306,8 @@ If you add or remove domains later, SSH into the instance and re-run certbot:
 
 ```bash
 ssh -i ~/.ssh/bb-portfolio-site-key.pem ec2-user@$(terraform -chdir=infra output -raw bb_portfolio_elastic_ip)
-sudo certbot --nginx -n --agree-tos --email you@bbaysinger.com \
-   -d bbaysinger.com -d www.bbaysinger.com -d dev.bbaysinger.com --redirect
+sudo certbot --nginx -n --agree-tos --email you@example.com \
+   -d example.com -d www.example.com -d dev.example.com --redirect
 ```
 
 ### 6. Renewal

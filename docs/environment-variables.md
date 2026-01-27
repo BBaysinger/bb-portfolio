@@ -84,7 +84,7 @@ General conventions:
   - `http://localhost:3001` – bare-metal backend dev (`npm run dev` inside `backend/`)
   - `http://localhost:8081` – Docker backend exposed via compose
   - `http://localhost:8080` – Local Caddy proxy aggregating frontend + backend
-  - `https://bbaysinger.com` – Production
+  - `https://example.com` – Production
 - **Usage**: Validated in `backend/src/payload.config.ts` during boot. Missing values cause the backend to exit with a guidance message.
 
 ## Setup
