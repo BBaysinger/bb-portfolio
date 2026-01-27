@@ -12,7 +12,7 @@ The surrounding infrastructure (Terraform, Docker, AWS, GitHub Actions) exists a
 
 Note: this project is still evolving — features, UX, and infrastructure are actively iterated.
 
-Please view the live deployment at [bbaysinger.io](https://bbaysinger.io).
+Please view the live deployment at [bbaysinger.io?r=gh2](https://bbaysinger.io).
 
 ## 🔎 30‑Second Tour (Frontend Focus)
 
@@ -482,7 +482,7 @@ Note: By default, images are built and pushed automatically. The orchestrator se
 - Containerization: Docker with dual registry strategy (Docker Hub + ECR)
 - Storage: S3 buckets for media assets with environment isolation
 - Networking: Elastic IP (set `EC2_INSTANCE_IP` in repo-root `.env`), Security Groups, VPC integration
-- Domain & DNS: Custom domains (bbaysinger.com primary) with Route 53 hosted zones
+- Domain & DNS: Custom domains (example.com primary) with Route 53 hosted zones
 - TLS: AWS Certificate Manager (ACM) with DNS validation via Route 53
 
 ### 📈 Monitoring & CloudWatch

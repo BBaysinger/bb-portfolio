@@ -91,7 +91,7 @@ New decisions should be appended chronologically.
 ## 2025-11-07 – Production HTTPS Enablement (Certbot) and Domain Hygiene
 
 - **Decision:** Enable HTTPS on EC2 using Certbot (nginx plugin) and wire ACME contact email via orchestrator. Clean up domain list used for certificate issuance (remove invalid/non-existent hosts).
-- **Reasoning:** Provide TLS for bbaysinger.com with automated issuance/renewal; avoid broken SANs caused by stale domains (e.g., `www.dev.bbaysinger.com`).
+- **Reasoning:** Provide TLS for example.com with automated issuance/renewal; avoid broken SANs caused by stale domains (e.g., `www.dev.example.com`).
 - **Implementation:**
   - Certbot installed on EC2; certificates issued for apex + www where applicable.
   - Orchestrator and docs updated to include ACME email and the authoritative list of domains.
@@ -103,7 +103,7 @@ New decisions should be appended chronologically.
 
 ## 2025-11-07 – Single-Host per Environment and Canonicalization
 
-- **Decision:** Each environment is served from exactly one host on `bbaysinger.com` (no concurrent multi-domain serving). Logout/auth logic is simplified accordingly; future enforcement via nginx canonical redirect (e.g., `www → apex`) and HSTS.
+- **Decision:** Each environment is served from exactly one host on `example.com` (no concurrent multi-domain serving). Logout/auth logic is simplified accordingly; future enforcement via nginx canonical redirect (e.g., `www → apex`) and HSTS.
 - **Reasoning:** Multi-domain cookies were the root cause of “logout didn’t actually log me out” behavior. A single canonical host eliminates cross-domain cookie seams and simplifies session handling.
 - **Implementation:**
   - Backend logout route emits a single Set-Cookie expiration per auth cookie (Path=/, HttpOnly, SameSite=Lax, Secure in prod, Expires + Max-Age=0).
@@ -520,8 +520,8 @@ New decisions should be appended chronologically.
 
 **Decision:** Host dev and prod environments on the same EC2 instance with different subdomains.
 
-- `dev.bbaysinger.com` → dev containers
-- `bbaysinger.com` → prod containers
+- `dev.example.com` → dev containers
+- `example.com` → prod containers
 
 **Reasoning:**
 
@@ -612,8 +612,8 @@ New decisions should be appended chronologically.
       - prod: bb-portfolio-frontend-prod (3000), bb-portfolio-backend-prod (3001)
       - dev: bb-portfolio-frontend-dev (4000), bb-portfolio-backend-dev (4001)
     - Typical DNS routing:
-  - bbaysinger.com → prod (3000/3001)
-  - dev.bbaysinger.com → dev (4000/4001)
+  - example.com → prod (3000/3001)
+  - dev.example.com → dev (4000/4001)
 
 - **Why this approach:**
   - Consistency: One entry point for infra + images + deploy, reducing drift and tribal knowledge.
