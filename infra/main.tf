@@ -282,9 +282,11 @@ resource "aws_s3_bucket_public_access_block" "media" {
   bucket   = each.value.id
 
   block_public_acls       = true
-  block_public_policy     = true
+  # Media is served directly from S3 URLs (images in the public website), so allow a public
+  # bucket policy while still blocking ACL-based public access.
+  block_public_policy     = false
   ignore_public_acls      = true
-  restrict_public_buckets = true
+  restrict_public_buckets = false
 }
 
 resource "aws_s3_bucket_public_access_block" "projects" {
@@ -382,6 +384,28 @@ resource "aws_s3_bucket_policy" "projects_public_read" {
 
   # Wait for public access block to be configured
   depends_on = [aws_s3_bucket_public_access_block.projects]
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid       = "PublicReadGetObject"
+        Effect    = "Allow"
+        Principal = "*"
+        Action    = "s3:GetObject"
+        Resource  = "${each.value.arn}/*"
+      }
+    ]
+  })
+}
+
+# Bucket policies for public media access
+# Payload media URLs point directly at S3; allow anonymous GETs so <img> tags can load.
+resource "aws_s3_bucket_policy" "media_public_read" {
+  for_each = aws_s3_bucket.media
+  bucket   = each.value.id
+
+  depends_on = [aws_s3_bucket_public_access_block.media]
 
   policy = jsonencode({
     Version = "2012-10-17"

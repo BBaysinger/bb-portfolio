@@ -226,18 +226,24 @@
     "media:seed": "tsx scripts/import-media-from-seedings.ts",
     // 🪄 Upload media only to the development S3 bucket
     "media:upload:dev": "tsx scripts/upload-media-to-s3.ts --env dev",
+    "media:upload:dev:dry": "tsx scripts/upload-media-to-s3.ts --env dev --dry-run",
     // 🪄 Upload media only to the production S3 bucket
     "media:upload:prod": "tsx scripts/upload-media-to-s3.ts --env prod",
+    "media:upload:prod:dry": "tsx scripts/upload-media-to-s3.ts --env prod --dry-run",
     // 🪄 Upload media to BOTH dev and prod buckets in one run
     "media:upload:both": "tsx scripts/upload-media-to-s3.ts --env both",
+    "media:upload:both:dry": "tsx scripts/upload-media-to-s3.ts --env both --dry-run",
     // 🪄 Verify uploaded media files on S3 to ensure integrity
     "media:verify": "tsx scripts/verify-media-s3.ts",
     // 📤 Upload local media files to S3 development environment
     "migrate:media:dev": "tsx scripts/upload-media-to-s3.ts --env dev",
+    "migrate:media:dev:dry": "tsx scripts/upload-media-to-s3.ts --env dev --dry-run",
     // 📤 Upload local media files to S3 production environment
     "migrate:media:prod": "tsx scripts/upload-media-to-s3.ts --env prod",
+    "migrate:media:prod:dry": "tsx scripts/upload-media-to-s3.ts --env prod --dry-run",
     // 📤 Upload local media files to both S3 environments (dev + prod)
     "migrate:media:both": "tsx scripts/upload-media-to-s3.ts --env both",
+    "migrate:media:both:dry": "tsx scripts/upload-media-to-s3.ts --env both --dry-run",
     // 🔗 PREVIEW: Update media URLs in development database to point to S3 (dry run)
     "migrate:media-urls:dev:dry": "cd backend && tsx scripts/migrate-media-to-s3.ts --env dev --dry-run",
     // 🔗 Update media URLs in development database to point to S3
@@ -247,11 +253,11 @@
     // 🔗 Update media URLs in production database to point to S3
     "migrate:media-urls:prod": "cd backend && tsx scripts/migrate-media-to-s3.ts --env prod",
     // 📦 PREVIEW: Complete media migration to development (upload + URL sync, dry run)
-    "migrate:all:dev:dry": "npm run migrate:media:dev && npm run migrate:media-urls:dev:dry",
+    "migrate:all:dev:dry": "npm run migrate:media:dev:dry && npm run migrate:media-urls:dev:dry",
     // 📦 Complete media migration to development environment (upload + URL sync)
     "migrate:all:dev": "npm run migrate:media:dev && npm run migrate:media-urls:dev",
     // 📦 PREVIEW: Complete media migration to production (upload + URL sync, dry run)
-    "migrate:all:prod:dry": "npm run migrate:media:prod && npm run migrate:media-urls:prod:dry",
+    "migrate:all:prod:dry": "npm run migrate:media:prod:dry && npm run migrate:media-urls:prod:dry",
     // 📦 Complete media migration to production environment (upload + URL sync)
     "migrate:all:prod": "npm run migrate:media:prod && npm run migrate:media-urls:prod",
     // 📁 Upload project files to public S3 bucket

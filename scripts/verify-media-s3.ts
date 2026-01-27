@@ -10,6 +10,7 @@
  *   npm run media:verify -- --env both
  */
 import { execSync } from "node:child_process";
+import { readFileSync } from "node:fs";
 import path from "node:path";
 
 import { ensureAwsCredentials } from "./lib/aws-creds";
@@ -18,11 +19,30 @@ import { ensureAwsCredentials } from "./lib/aws-creds";
 const scriptDir = path.dirname(__filename);
 const repoRoot = path.resolve(scriptDir, "..");
 
-// S3 bucket configuration
-const S3_BUCKETS = {
-  public: "bb-portfolio-media-public",
-  nda: "bb-portfolio-media-nda",
-} as const;
+function readTfvarsValue(tfvarsPath: string, key: string): string | undefined {
+  try {
+    const raw = readFileSync(tfvarsPath, "utf8");
+    const re = new RegExp(`^\\s*${key}\\s*=\\s*"([^"]+)"\\s*$`, "m");
+    const match = raw.match(re);
+    return match?.[1];
+  } catch {
+    return undefined;
+  }
+}
+
+function resolveBucket(
+  environment: Environment,
+  opts: { tfvarsPath?: string },
+): string {
+  const tfvarsPath =
+    opts.tfvarsPath || path.resolve(repoRoot, "infra/terraform.tfvars");
+  const tfvarsKey = environment === "dev" ? "dev_s3_bucket" : "prod_s3_bucket";
+  const fromTfvars = readTfvarsValue(tfvarsPath, tfvarsKey);
+  if (fromTfvars) return fromTfvars;
+  return environment === "dev"
+    ? "bb-portfolio-media-dev"
+    : "bb-portfolio-media-prod";
+}
 
 const MEDIA_COLLECTIONS = [
   "brand-logos",
@@ -30,12 +50,13 @@ const MEDIA_COLLECTIONS = [
   "project-thumbnails",
 ] as const;
 
-type Environment = "public" | "nda";
+type Environment = "dev" | "prod";
 
 interface Options {
   environments: Environment[];
   profile?: string;
   region?: string;
+  tfvarsPath?: string;
 }
 
 function parseArgs(): Options {
@@ -44,6 +65,7 @@ function parseArgs(): Options {
     environments: [],
     profile: undefined,
     region: undefined,
+    tfvarsPath: undefined,
   };
 
   for (let i = 0; i < args.length; i++) {
@@ -52,12 +74,12 @@ function parseArgs(): Options {
       case "--env":
         const env = args[++i];
         if (env === "both") {
-          options.environments = ["public", "nda"];
-        } else if (env === "public" || env === "nda") {
+          options.environments = ["dev", "prod"];
+        } else if (env === "dev" || env === "prod") {
           options.environments = [env];
         } else {
           console.error(
-            `Invalid environment: ${env}. Use 'public', 'nda', or 'both'`,
+            `Invalid environment: ${env}. Use 'dev', 'prod', or 'both'`,
           );
           process.exit(1);
         }
@@ -74,9 +96,10 @@ function parseArgs(): Options {
 Usage: npm run media:verify -- [options]
 
 Options:
-  --env <bucket>  Bucket to verify: public, nda, or both
+  --env <env>     Environment to verify: dev, prod, or both
   --profile       AWS CLI profile to use (from ~/.aws/credentials)
   --region        AWS region (e.g., us-west-2)
+  --tfvars        Path to Terraform tfvars file (defaults to infra/terraform.tfvars)
   --help, -h      Show this help message
 
 Examples:
@@ -84,11 +107,14 @@ Examples:
   npm run media:verify -- --env both
         `);
         process.exit(0);
+      case "--tfvars":
+        options.tfvarsPath = args[++i];
+        break;
     }
   }
 
   if (options.environments.length === 0) {
-    console.error("Please specify a bucket with --env <public|nda|both>");
+    console.error("Please specify an environment with --env <dev|prod|both>");
     console.info("Use --help for more information");
     process.exit(1);
   }
@@ -100,8 +126,9 @@ function verifyCollection(
   collection: string,
   environment: Environment,
   opts: { profile?: string; region?: string },
+  buckets: { tfvarsPath?: string },
 ): { count: number; success: boolean } {
-  const bucket = S3_BUCKETS[environment];
+  const bucket = resolveBucket(environment, { tfvarsPath: buckets.tfvarsPath });
   const s3Path = `s3://${bucket}/${collection}/`;
 
   try {
@@ -125,24 +152,33 @@ function verifyCollection(
 }
 
 function testSampleUrls(environment: Environment) {
-  const bucket = S3_BUCKETS[environment];
+  const bucket = resolveBucket(environment, {});
+
+  const region = process.env.AWS_REGION || "us-west-2";
 
   // Test a few sample URLs to see if they're accessible
   const sampleFiles = [
     "brand-logos/bbi.svg",
-    "project-thumbnails/bikini-bottom-phone.webp",
+    "project-thumbnails/bikini-bottom.webp",
   ];
 
   console.info(`\nTesting sample URLs for ${environment}...`);
 
   for (const file of sampleFiles) {
-    const url = `https://${bucket}.s3.amazonaws.com/${file}`;
     try {
-      execSync(`curl -I "${url}" 2>/dev/null | head -1`, {
-        stdio: "pipe",
-        encoding: "utf8",
-      });
-      console.info(`  ✅ ${file}`);
+      const url = `https://${bucket}.s3.${region}.amazonaws.com/${file}`;
+      const status = execSync(
+        `curl -s -o /dev/null -w "%{http_code}" -I "${url}"`,
+        {
+          stdio: "pipe",
+          encoding: "utf8",
+        },
+      ).trim();
+      if (status === "200") {
+        console.info(`  ✅ ${file}`);
+      } else {
+        console.info(`  ❌ ${file} - HTTP ${status}`);
+      }
     } catch {
       console.info(`  ❌ ${file} - Not accessible`);
     }
@@ -178,10 +214,17 @@ function main() {
     let hasErrors = false;
 
     for (const collection of MEDIA_COLLECTIONS) {
-      const result = verifyCollection(collection, env, {
-        profile: options.profile,
-        region: options.region,
-      });
+      const result = verifyCollection(
+        collection,
+        env,
+        {
+          profile: options.profile,
+          region: options.region,
+        },
+        {
+          tfvarsPath: options.tfvarsPath,
+        },
+      );
       console.info(`  ${collection}: ${result.count} files`);
 
       if (!result.success) {

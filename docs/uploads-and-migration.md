@@ -38,6 +38,8 @@ npm run migrate:media:dev -- --region "$AWS_REGION"
 
 Note on older scripts: previously some package scripts inlined environment variables like `AWS_ACCOUNT_ID=...` or `COMPOSE_PROFILES=local-ssg`. Those are no longer required for media uploads. Use the flags above to direct the scripts and keep credentials in your standard AWS CLI locations.
 
+Note on `:dry` scripts: `migrate:all:<env>:dry` and `migrate:media:<env>:dry` now run uploads in AWS CLI `--dryrun` mode (no writes). They may still fail if your AWS principal lacks permission to list the bucket.
+
 ### Local folder conventions and fresh clones
 
 - Canonical upload root for local dev: `backend/media/`
@@ -64,6 +66,7 @@ Most of the time you want one of these flows:
   - Upload the current local `backend/media/*` contents into the target bucket:
     - `npm run migrate:media:dev` (alias: `npm run media:upload:dev`)
     - `npm run migrate:media:prod` (alias: `npm run media:upload:prod`)
+    - Dry run (no writes): `npm run migrate:media:dev:dry` / `npm run migrate:media:prod:dry`
   - Verify S3 contains what you expect:
     - `npm run media:verify -- --env dev` (or `--env prod`, `--env both`)
 
@@ -73,6 +76,8 @@ Most of the time you want one of these flows:
     - `npm run migrate:media-urls:dev:dry` (or `:prod:dry`)
   - Apply:
     - `npm run migrate:media-urls:dev` (or `:prod`)
+
+If you're missing S3 permissions locally, you can run the upload step from the EC2 host using its instance role (Terraform grants the instance role S3 access), or attach the S3 policy to your local IAM user and re-auth.
 
 Advanced / recovery scripts (manual, use with care):
 
