@@ -209,6 +209,93 @@ async function readCredentials(request: Request): Promise<LoginBody> {
   return {}
 }
 
+function safeUrlOrigin(value: string | undefined | null): string | null {
+  if (typeof value !== 'string') return null
+  const trimmed = value.trim()
+  if (!trimmed) return null
+  try {
+    return new URL(trimmed).origin
+  } catch {
+    return null
+  }
+}
+
+function getInternalOrigins(): Set<string> {
+  const origins = new Set<string>()
+
+  const addCsvOrigins = (raw: string | undefined) => {
+    if (!raw) return
+    for (const part of raw
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean)) {
+      const origin = safeUrlOrigin(part)
+      if (origin) origins.add(origin)
+    }
+  }
+
+  // Canonical envs used by this repo.
+  addCsvOrigins(process.env.FRONTEND_URL)
+  addCsvOrigins(process.env.PUBLIC_SERVER_URL)
+
+  // Compatibility / tooling envs that may be present in CI or special hosts.
+  addCsvOrigins(process.env.PAYLOAD_PUBLIC_FRONTEND_URL)
+  addCsvOrigins(process.env.PAYLOAD_PUBLIC_SERVER_URL)
+  addCsvOrigins(process.env.NEXT_PUBLIC_FRONTEND_URL)
+
+  // Safe local fallback so we don't mark local traffic as "external" when env is missing.
+  if (origins.size === 0) origins.add('http://localhost:3000')
+
+  return origins
+}
+
+function extractExternalReferrerQuery(headers: Headers): {
+  referrer?: string
+  referrerIsExternal?: boolean
+  referrerQuery?: string
+} {
+  const referrer = headers.get('referer') || headers.get('referrer') || undefined
+  if (!referrer) return {}
+
+  try {
+    const refUrl = new URL(referrer)
+    const internal = getInternalOrigins()
+    const referrerIsExternal = !internal.has(refUrl.origin)
+    const referrerQuery =
+      referrerIsExternal && refUrl.search
+        ? refUrl.search.startsWith('?')
+          ? refUrl.search.slice(1)
+          : refUrl.search
+        : undefined
+
+    return { referrer, referrerIsExternal, referrerQuery }
+  } catch {
+    // Referrer can be stripped or malformed; keep best-effort raw string only.
+    return { referrer }
+  }
+}
+
+function getCookieValue(headers: Headers, name: string): string | undefined {
+  const raw = headers.get('cookie')
+  if (!raw) return undefined
+
+  for (const part of raw.split(';')) {
+    const trimmed = part.trim()
+    if (!trimmed) continue
+    const eq = trimmed.indexOf('=')
+    if (eq <= 0) continue
+    const k = trimmed.slice(0, eq)
+    if (k !== name) continue
+    const v = trimmed.slice(eq + 1)
+    try {
+      return decodeURIComponent(v)
+    } catch {
+      return v
+    }
+  }
+  return undefined
+}
+
 export const POST = async (request: Request) => {
   const { identifier, password } = await readCredentials(request)
 
@@ -300,6 +387,10 @@ export const POST = async (request: Request) => {
         ? forwarded.split(',')[0]?.trim()
         : request.headers.get('x-real-ip') || undefined
       const userAgent = request.headers.get('user-agent') || undefined
+      const { referrer, referrerIsExternal, referrerQuery } = extractExternalReferrerQuery(
+        request.headers,
+      )
+      const landingR = getCookieValue(request.headers, 'bb_landing_r') || undefined
 
       const loginResult = result as unknown as LoginResult
       const userId =
@@ -316,6 +407,10 @@ export const POST = async (request: Request) => {
             user: userId,
             ip,
             userAgent,
+            referrer,
+            referrerIsExternal,
+            referrerQuery,
+            landingR,
           },
           overrideAccess: true,
         })
@@ -352,6 +447,12 @@ export const POST = async (request: Request) => {
       ]
       if (isHttps) parts.push('Secure')
       headers.append('Set-Cookie', parts.join('; '))
+
+      // Clear landing attribution once we have a successful login.
+      // This keeps attribution scoped to the first login after a tagged entry.
+      const clearLanding = ['bb_landing_r=', 'Path=/', 'HttpOnly', 'SameSite=Lax', 'Max-Age=0']
+      if (isHttps) clearLanding.push('Secure')
+      headers.append('Set-Cookie', clearLanding.join('; '))
     }
 
     // Mirror Payload REST response shape succinctly
