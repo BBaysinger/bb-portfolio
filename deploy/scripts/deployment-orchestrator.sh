@@ -20,8 +20,8 @@
 #   • dev:    bb-portfolio-frontend-dev  (host:4000 → container:3000)
 #             bb-portfolio-backend-dev   (host:4001 → container:3000)
 # - DNS/routing (typical):
-#   • bbaysinger.com        → bb-portfolio-frontend-prod:3000 and bb-portfolio-backend-prod:3001
-#   • dev.bbaysinger.com    → bb-portfolio-frontend-dev:4000 and bb-portfolio-backend-dev:4001
+#   • <apex-domain>         → bb-portfolio-frontend-prod:3000 and bb-portfolio-backend-prod:3001
+#   • dev.<apex-domain>     → bb-portfolio-frontend-dev:4000 and bb-portfolio-backend-dev:4001
 #
 # Secrets and env files:
 # - .env.dev / .env.prod are not committed; they are generated on EC2 by the
@@ -462,6 +462,34 @@ resolve_ec2_host() {
   echo ""; return 1
 }
 
+# Resolve the apex domain used for TLS certificates and Host-based routing.
+# Preference order:
+# 1) SSL_DOMAIN env var (repo-root .env/.env.local)
+# 2) FRONTEND_URL env var (parse hostname)
+# 3) Local private secrets JSON5 (FRONTEND_URL)
+resolve_ssl_domain() {
+  local domain="${SSL_DOMAIN:-}"
+  if [[ -n "$domain" ]]; then
+    echo "${domain#www.}"; return 0
+  fi
+
+  if [[ -n "${FRONTEND_URL:-}" ]]; then
+    domain=$(node -e "try{process.stdout.write(new URL(process.env.FRONTEND_URL).hostname.replace(/^www\\./,''));}catch(e){process.stdout.write('');}")
+    if [[ -n "$domain" ]]; then
+      echo "$domain"; return 0
+    fi
+  fi
+
+  if [[ -f "$REPO_ROOT/.github-secrets.private.json5" ]]; then
+    domain=$(node -e "try{const JSON5=require('json5');const fs=require('fs');const raw=fs.readFileSync('.github-secrets.private.json5','utf8');const cfg=JSON5.parse(raw);const s=cfg.strings||cfg;const url=(s.FRONTEND_URL||'').trim();if(!url){process.stdout.write('');process.exit(0);}process.stdout.write((new URL(url).hostname||'').replace(/^www\\./,''));}catch(e){process.stdout.write('');}")
+    if [[ -n "$domain" ]]; then
+      echo "$domain"; return 0
+    fi
+  fi
+
+  echo ""; return 1
+}
+
 ok "Infra and images complete. Handing off container restart to GitHub Actions."
 
 need jq
@@ -504,34 +532,42 @@ enforce_single_controller() {
 # Ensure HTTPS certificates exist (idempotent). Requires certbot on host.
 ensure_https_certs() {
   local host="$1"; shift || true
+  local ssl_domain="$1"; shift || true
   local email="$1"; shift || true
-  [[ -n "$host" && -n "$email" ]] || return 0
+  [[ -n "$host" && -n "$ssl_domain" && -n "$email" ]] || return 0
   local key="$HOME/.ssh/bb-portfolio-site-key.pem"
   if [[ ! -f "$key" ]]; then
     warn "HTTPS cert ensure skipped: SSH key not found at $key"
     return 0
   fi
   log "Ensuring HTTPS certificates present on $host"
-  ssh -i "$key" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$host" $'set -e
-    # Install certbot if missing
-    if ! command -v certbot >/dev/null 2>&1; then
-      echo "Installing certbot on host..."
-      sudo yum install -y certbot python3-certbot-nginx || true
-    fi
-    if command -v certbot >/dev/null 2>&1; then
-      if [ ! -d /etc/letsencrypt/live/bbaysinger.com ]; then
-        echo "Issuing initial certificates via certbot";
-        sudo certbot --nginx -n --agree-tos --email '"$email"' \
-          -d bbaysinger.com -d www.bbaysinger.com \
-          -d dev.bbaysinger.com --redirect || echo "Certbot issuance failed";
-        sudo systemctl reload nginx || true
-      else
-        echo "Certificates already present; attempting quiet renewal";
-        sudo certbot renew --quiet || echo "Renewal run failed (will retry on timer)";
-      fi
-    else
-      echo "certbot not installed on host; skipping HTTPS ensure";
-    fi'
+  ssh -i "$key" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+    ec2-user@"$host" "SSL_DOMAIN='$ssl_domain' ACME_EMAIL='$email' bash -s" <<'SSH'
+set -e
+SSL_DOMAIN="${SSL_DOMAIN:?SSL_DOMAIN required}"
+ACME_EMAIL="${ACME_EMAIL:?ACME_EMAIL required}"
+
+# Install certbot if missing
+if ! command -v certbot >/dev/null 2>&1; then
+  echo "Installing certbot on host..."
+  sudo yum install -y certbot python3-certbot-nginx || true
+fi
+
+if command -v certbot >/dev/null 2>&1; then
+  if [ ! -d "/etc/letsencrypt/live/$SSL_DOMAIN" ]; then
+    echo "Issuing initial certificates via certbot for $SSL_DOMAIN";
+    sudo certbot --nginx -n --agree-tos --email "$ACME_EMAIL" \
+      -d "$SSL_DOMAIN" -d "www.$SSL_DOMAIN" \
+      -d "dev.$SSL_DOMAIN" --redirect || echo "Certbot issuance failed";
+    sudo systemctl reload nginx || true
+  else
+    echo "Certificates already present for $SSL_DOMAIN; attempting quiet renewal";
+    sudo certbot renew --quiet || echo "Renewal run failed (will retry on timer)";
+  fi
+else
+  echo "certbot not installed on host; skipping HTTPS ensure";
+fi
+SSH
 }
 
 # Ensure nginx can read TLS assets and install a renewal hook to keep perms aligned.
@@ -557,8 +593,6 @@ sudo tee "$HOOK" >/dev/null <<'HOOK'
 set -euo pipefail
 shopt -s nullglob
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin:$PATH"
-
-DOMAIN="bbaysinger.com"
 GROUP="nginx"
 
 fix_dir() {
@@ -575,23 +609,25 @@ fix_file() {
   chmod 640 "$file" || true
 }
 
-DIRS=(
-  "/etc/letsencrypt"
-  "/etc/letsencrypt/live"
-  "/etc/letsencrypt/live/${DOMAIN}"
-  "/etc/letsencrypt/archive"
-  "/etc/letsencrypt/archive/${DOMAIN}"
-)
+# Base dirs
+fix_dir "/etc/letsencrypt"
+fix_dir "/etc/letsencrypt/live"
+fix_dir "/etc/letsencrypt/archive"
 
-for dir in "${DIRS[@]}"; do
-  fix_dir "$dir"
-done
+# Per-domain dirs/files (works for any current/future domain)
+for live_dir in /etc/letsencrypt/live/*; do
+  domain="$(basename "$live_dir")"
+  [[ "$domain" == "README" ]] && continue
 
-fix_file "/etc/letsencrypt/live/${DOMAIN}/privkey.pem"
-fix_file "/etc/letsencrypt/live/${DOMAIN}/fullchain.pem"
+  fix_dir "/etc/letsencrypt/live/${domain}"
+  fix_dir "/etc/letsencrypt/archive/${domain}"
 
-for file in /etc/letsencrypt/archive/${DOMAIN}/privkey*.pem; do
-  fix_file "$file"
+  fix_file "/etc/letsencrypt/live/${domain}/privkey.pem"
+  fix_file "/etc/letsencrypt/live/${domain}/fullchain.pem"
+
+  for file in /etc/letsencrypt/archive/${domain}/privkey*.pem; do
+    fix_file "$file"
+  done
 done
 HOOK
 sudo chmod 750 "$HOOK"
@@ -644,20 +680,23 @@ sync_nginx_config() {
 ensure_ssl_blocks() {
   local host="$1"
   local key="$HOME/.ssh/bb-portfolio-site-key.pem"
+  local ssl_domain="${2:-}"
   [[ -n "$host" ]] || return 0
   if [[ ! -f "$key" ]]; then
     warn "SSL ensure skipped: SSH key not found at $key"
     return 0
   fi
   log "Ensuring SSL server blocks present on $host"
-  ssh -i "$key" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$host" $'set -e
-    SSL_DOMAIN="${SSL_DOMAIN:-}"
-    SSL_CONF=/etc/nginx/conf.d/bb-portfolio-ssl.conf
-    if [ -z "$SSL_DOMAIN" ]; then
-      echo "SSL_DOMAIN not set; disabling SSL include"
-      sudo rm -f "$SSL_CONF"
-      exit 0
-    fi
+  ssh -i "$key" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+    ec2-user@"$host" "SSL_DOMAIN='$ssl_domain' bash -s" <<'SSH'
+set -e
+SSL_DOMAIN="${SSL_DOMAIN:-}"
+SSL_CONF=/etc/nginx/conf.d/bb-portfolio-ssl.conf
+if [ -z "$SSL_DOMAIN" ]; then
+  echo "SSL_DOMAIN not set; disabling SSL include"
+  sudo rm -f "$SSL_CONF"
+  exit 0
+fi
     # certbot can create /etc/letsencrypt/live/<domain>/ even when issuance fails,
     # so require the actual files to exist to avoid breaking nginx.
     if [ ! -s "/etc/letsencrypt/live/$SSL_DOMAIN/fullchain.pem" ] \
@@ -692,8 +731,8 @@ server {
   location / { proxy_pass http://127.0.0.1:4000/; }
 }
 CONF
-    sudo nginx -t && sudo systemctl reload nginx
-  '
+sudo nginx -t && sudo systemctl reload nginx
+SSH
 }
 
 # Ensure CloudWatch Agent (logs + metrics) is installed & configured.
@@ -742,12 +781,13 @@ if [[ -z "${EC2_IP:-}" ]]; then
   EC2_HOST_RESOLVE=$(resolve_ec2_host || true)
   if [[ -n "$EC2_HOST_RESOLVE" ]]; then
     log "Resolved EC2 host: $EC2_HOST_RESOLVE"
+    SSL_DOMAIN_RESOLVE=$(resolve_ssl_domain || true)
     enforce_single_controller "$EC2_HOST_RESOLVE"
     ensure_remote_compose "$EC2_HOST_RESOLVE"
     sync_nginx_config "$EC2_HOST_RESOLVE"
-    ensure_https_certs "$EC2_HOST_RESOLVE" "${ACME_EMAIL:-}"
+    ensure_https_certs "$EC2_HOST_RESOLVE" "${SSL_DOMAIN_RESOLVE:-}" "${ACME_EMAIL:-}"
     ensure_cert_permissions "$EC2_HOST_RESOLVE"
-    ensure_ssl_blocks "$EC2_HOST_RESOLVE"
+    ensure_ssl_blocks "$EC2_HOST_RESOLVE" "${SSL_DOMAIN_RESOLVE:-}"
     ensure_cloudwatch_agent "$EC2_HOST_RESOLVE"
   else
     warn "Single-controller guard: no host resolved (skip-infra mode), skipping"
@@ -756,12 +796,13 @@ fi
 
 # If infra ran earlier and provided EC2_IP, enforce controller and ensure HTTPS now
 if [[ -n "${POST_ENFORCE_HOST:-}" ]]; then
+  SSL_DOMAIN_RESOLVE=$(resolve_ssl_domain || true)
   enforce_single_controller "${POST_ENFORCE_HOST}"
   ensure_remote_compose "${POST_ENFORCE_HOST}"
   sync_nginx_config "${POST_ENFORCE_HOST}"
-  ensure_https_certs "${POST_ENFORCE_HOST}" "${ACME_EMAIL:-}"
+  ensure_https_certs "${POST_ENFORCE_HOST}" "${SSL_DOMAIN_RESOLVE:-}" "${ACME_EMAIL:-}"
   ensure_cert_permissions "${POST_ENFORCE_HOST}"
-  ensure_ssl_blocks "${POST_ENFORCE_HOST}"
+  ensure_ssl_blocks "${POST_ENFORCE_HOST}" "${SSL_DOMAIN_RESOLVE:-}"
   ensure_cloudwatch_agent "${POST_ENFORCE_HOST}"
 fi
 

@@ -5,7 +5,13 @@
     },
     "search.exclude": {
         "**/dist": true,
-        "**/frontend-vite-old/**": true
+        "**/frontend-vite-old/**": true,
+        "**/frontend/out/**": true,
+        "**/frontend/.next/**": true,
+        "**/backend/.next/**": true,
+        "**/infra/.backup/**": true,
+        "**/database-backups/**": true,
+        "**/data/database-backups/**": true
     },
     "cSpell.ignorePaths": [
         "**/.github-secrets*.json5",
