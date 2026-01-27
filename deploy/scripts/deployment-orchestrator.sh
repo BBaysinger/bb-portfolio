@@ -699,9 +699,9 @@ if [ -z "$SSL_DOMAIN" ]; then
 fi
     # certbot can create /etc/letsencrypt/live/<domain>/ even when issuance fails,
     # so require the actual files to exist to avoid breaking nginx.
-    if [ ! -s "/etc/letsencrypt/live/$SSL_DOMAIN/fullchain.pem" ] \
-      || [ ! -s "/etc/letsencrypt/live/$SSL_DOMAIN/privkey.pem" ] \
-      || [ ! -s /etc/letsencrypt/options-ssl-nginx.conf ]; then
+      if ! sudo test -s "/etc/letsencrypt/live/$SSL_DOMAIN/fullchain.pem" \
+        || ! sudo test -s "/etc/letsencrypt/live/$SSL_DOMAIN/privkey.pem" \
+        || ! sudo test -s /etc/letsencrypt/options-ssl-nginx.conf; then
       echo "Certificates not present for $SSL_DOMAIN; removing SSL include"
       sudo rm -f "$SSL_CONF"
       exit 0

@@ -30,9 +30,9 @@ sudo chown root:root /etc/nginx/conf.d/bb-portfolio.conf
 SSL_DOMAIN="${SSL_DOMAIN:-}"
 SSL_CONF=/etc/nginx/conf.d/bb-portfolio-ssl.conf
 if [ -n "$SSL_DOMAIN" ] \
-  && [ -s "/etc/letsencrypt/live/$SSL_DOMAIN/fullchain.pem" ] \
-  && [ -s "/etc/letsencrypt/live/$SSL_DOMAIN/privkey.pem" ] \
-  && [ -s /etc/letsencrypt/options-ssl-nginx.conf ]; then
+  && sudo test -s "/etc/letsencrypt/live/$SSL_DOMAIN/fullchain.pem" \
+  && sudo test -s "/etc/letsencrypt/live/$SSL_DOMAIN/privkey.pem" \
+  && sudo test -s /etc/letsencrypt/options-ssl-nginx.conf; then
   echo "Installing SSL nginx config for $SSL_DOMAIN";
   sudo tee "$SSL_CONF" >/dev/null <<CONF
 server {
