@@ -57,14 +57,9 @@ variable "bucket_suffix" {
 variable "s3_cors_allowed_origins" {
   description = "Allowed origins for S3 CORS on all buckets."
   type        = list(string)
-  default = [
-    "http://localhost:8080",
-    "http://localhost:8081",
-    "http://localhost:3000",
-    "https://bbaysinger.com",
-    "https://www.bbaysinger.com",
-    "https://dev.bbaysinger.com",
-  ]
+  # Optional override. When null, origins are derived from prod_frontend_url in main.tf
+  # (and include localhost dev defaults).
+  default     = null
 }
 
 # =============================================================================

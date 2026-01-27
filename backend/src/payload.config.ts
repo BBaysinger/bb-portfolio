@@ -105,7 +105,7 @@ const resolvedServerURL =
       '  http://localhost:3001  # bare-metal backend dev',
       '  http://localhost:8081  # docker backend port-forward',
       '  http://localhost:8080  # local Caddy proxy',
-      '  https://bbaysinger.com # production',
+      '  https://example.com   # production',
     ].join('\n'),
   })
 

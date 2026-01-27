@@ -1,7 +1,7 @@
 # Production/Main domain server block
 server {
-    listen 80;
-    server_name bbaysinger.com www.bbaysinger.com;
+    listen 80 default_server;
+    server_name _;
 
     # Static emergency health (keep HTTP for probes)
     location = /healthz { return 200 'ok'; add_header Content-Type text/plain; }
@@ -16,7 +16,8 @@ server {
 # Development subdomain server block
 server {
     listen 80;
-    server_name dev.bbaysinger.com;
+    # Domain-agnostic: match any dev subdomain (e.g., dev.example.com, dev.example.io).
+    server_name dev.*;
 
     # Static emergency health (keep HTTP for probes)
     location = /healthz { return 200 'ok'; add_header Content-Type text/plain; }
@@ -26,11 +27,4 @@ server {
     location / {
         return 308 https://$host$request_uri;
     }
-}
-
-# Default server block for unknown domains
-server {
-    listen 80 default_server;
-    server_name _;
-    return 444; # Close connection without response for unknown domains
 }

@@ -4,6 +4,29 @@ provider "aws" {
   profile = var.aws_profile
 }
 
+locals {
+  # Default CORS origins: allow local dev + the configured production frontend origin.
+  # This keeps the module domain-agnostic: prod_frontend_url can be a domain or an IP.
+  localhost_origins = [
+    "http://localhost:8080",
+    "http://localhost:8081",
+    "http://localhost:3000",
+  ]
+
+  prod_frontend_origin = trimsuffix(var.prod_frontend_url, "/")
+  prod_frontend_host   = split("/", replace(replace(local.prod_frontend_origin, "https://", ""), "http://", ""))[0]
+  prod_frontend_apex   = replace(local.prod_frontend_host, "www.", "")
+
+  derived_prod_origins = distinct(compact([
+    local.prod_frontend_origin,
+    "https://${local.prod_frontend_apex}",
+    "https://www.${local.prod_frontend_apex}",
+    "https://dev.${local.prod_frontend_apex}",
+  ]))
+
+  effective_s3_cors_allowed_origins = var.s3_cors_allowed_origins != null ? var.s3_cors_allowed_origins : distinct(concat(local.localhost_origins, local.derived_prod_origins))
+}
+
 # Security Group for SSH, HTTP, HTTPS
 resource "aws_security_group" "bb_portfolio_sg" {
   name        = "bb-portfolio-sg"
@@ -333,7 +356,7 @@ resource "aws_s3_bucket_cors_configuration" "media" {
 
   cors_rule {
     allowed_methods = ["GET", "HEAD"]
-    allowed_origins = var.s3_cors_allowed_origins
+    allowed_origins = local.effective_s3_cors_allowed_origins
     allowed_headers = ["*"]
     expose_headers  = []
     max_age_seconds = 300
@@ -346,7 +369,7 @@ resource "aws_s3_bucket_cors_configuration" "projects" {
 
   cors_rule {
     allowed_methods = ["GET", "HEAD"]
-    allowed_origins = var.s3_cors_allowed_origins
+    allowed_origins = local.effective_s3_cors_allowed_origins
     allowed_headers = ["*"]
     expose_headers  = []
     max_age_seconds = 300
@@ -713,7 +736,8 @@ resource "aws_cognito_identity_pool_roles_attachment" "rum" {
 # CloudWatch RUM App Monitor
 resource "aws_rum_app_monitor" "main" {
   name   = var.project_name
-  domain = "bbaysinger.com"
+  # RUM expects a domain; derive it from the configured production frontend URL.
+  domain = trim(replace(replace(replace(var.prod_frontend_url, "https://", ""), "http://", ""), "www.", ""), "/")
 
   app_monitor_configuration {
     allow_cookies        = true
@@ -724,8 +748,8 @@ resource "aws_rum_app_monitor" "main" {
     identity_pool_id     = aws_cognito_identity_pool.rum.id
 
     # Optional: Configure which URLs to track
-    # included_pages = ["https://bbaysinger.com/*"]
-    # excluded_pages = ["https://bbaysinger.com/admin/*"]
+    # included_pages = ["${var.prod_frontend_url}/*"]
+    # excluded_pages = ["${var.prod_frontend_url}/admin/*"]
   }
 
   cw_log_enabled = true
