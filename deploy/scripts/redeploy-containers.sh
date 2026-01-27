@@ -8,8 +8,15 @@ set -euo pipefail
 PROFILES="both"       # prod|dev|both
 REFRESH_ENV="false"   # true|false
 WORKFLOW_FILE=".github/workflows/redeploy-manual.yml"
-AWS_REGION="us-west-2"
-AWS_ACCOUNT_ID="${AWS_ACCOUNT_ID}"
+AWS_REGION="${AWS_REGION:-us-west-2}"
+
+# Repo root
+REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+
+source "$REPO_ROOT/scripts/lib/repo-env.sh"
+bb_load_repo_env "$REPO_ROOT"
+
+AWS_ACCOUNT_ID="${AWS_ACCOUNT_ID:-}"
 
 # Validate required environment variables
 if [ -z "$AWS_ACCOUNT_ID" ]; then
@@ -61,21 +68,18 @@ if [ ! -f "$SSH_KEY" ]; then
   exit 1
 fi
 
-# Repo root (this script is scripts/iac/*)
-REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
-
-EC2_HOST=""
+EC2_HOST="${EC2_HOST:-${EC2_INSTANCE_IP:-${EC2_IP:-}}}"
 # Try terraform outputs
 if command -v terraform >/dev/null 2>&1 && [ -d "$(cd "$(dirname "$0")/../../infra" && pwd)" ]; then
   pushd "$(cd "$(dirname "$0")/../../infra" && pwd)" >/dev/null
-  if terraform output -json >/dev/null 2>&1; then EC2_HOST=$(terraform output -raw elastic_ip || true); fi
+  if [ -z "$EC2_HOST" ] && terraform output -json >/dev/null 2>&1; then EC2_HOST=$(terraform output -raw elastic_ip || true); fi
   popd >/dev/null
 fi
 # Try GH secret as fallback
 if [ -z "$EC2_HOST" ] && command -v gh >/dev/null 2>&1; then
   EC2_HOST=$(gh secret view EC2_HOST -q .value 2>/dev/null || true)
 fi
-[ -n "$EC2_HOST" ] || { err "EC2_HOST unknown. Ensure terraform outputs or GH secret EC2_HOST is available."; exit 1; }
+[ -n "$EC2_HOST" ] || { err "EC2 host unknown. Set EC2_INSTANCE_IP in repo-root .env, or ensure terraform outputs / GH secret EC2_HOST is available."; exit 1; }
 
 info "Attempting GitHub Actions dispatch…"
 DISPATCHED=false

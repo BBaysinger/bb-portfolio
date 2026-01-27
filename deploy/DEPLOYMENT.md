@@ -12,7 +12,7 @@ Infrastructure is managed with Terraform (`infra/`) and a single host runs both 
 
 ### Infrastructure Components (Single-Instance)
 
-- **EC2 Instance**: t3.medium with Elastic IP (44.246.43.116)
+- **EC2 Instance**: t3.medium with Elastic IP (set `EC2_INSTANCE_IP` in repo-root `.env`)
 - **Nginx Reverse Proxy**: Configured and running
 - **Docker Containers**: Development containers running
 - **ECR Repositories**: Available for production image deployments
@@ -38,9 +38,11 @@ Historically multiple domains pointed to the instance. We now standardize on a s
 
 ```
 
-A Record: bbaysinger.com → 44.246.43.116 (prod canonical)
-A Record: www.bbaysinger.com → 44.246.43.116 (redirects to apex)
-A Record: dev.bbaysinger.com → 44.246.43.116 (dev environment)
+A Record: bbaysinger.com → <EC2_INSTANCE_IP> (prod canonical)
+A Record: www.bbaysinger.com → <EC2_INSTANCE_IP> (redirects to apex)
+A Record: dev.bbaysinger.com → <EC2_INSTANCE_IP> (dev environment)
+
+Use the value from your repo-root `.env` (`EC2_INSTANCE_IP`) for these records.
 
 ```
 
@@ -51,7 +53,7 @@ Remove or let expire deprecated entries for old domains unless you have a migrat
 
 - Production canonical: https://bbaysinger.com
 - Dev canonical: https://dev.bbaysinger.com
-- Raw IP (smoke/debug only): http://44.246.43.116
+- Raw IP (smoke/debug only): http://<EC2_INSTANCE_IP>
 
 ### 2. Deploy Dev Subdomain Support (If Adding/Changing)
 
@@ -75,7 +77,8 @@ Note on Nginx config changes:
 
      ```bash
      # from repo root
-     ./deploy/scripts/sync-nginx-config.sh --host ec2-user@44.246.43.116 --key ~/.ssh/bb-portfolio-site-key.pem
+     # Defaults to ec2-user@EC2_INSTANCE_IP from repo-root .env
+     ./deploy/scripts/sync-nginx-config.sh --key ~/.ssh/bb-portfolio-site-key.pem
      ```
 
   2. Rebuild via Terraform (slower):
@@ -136,7 +139,7 @@ terraform apply   # Apply changes
 ## Current Architecture (Single-Instance)
 
 ```
-Internet → CloudFlare DNS → Elastic IP (44.246.43.116)
+Internet → CloudFlare DNS → Elastic IP (<EC2_INSTANCE_IP>)
     ↓
 AWS EC2 t3.medium
     ├── Nginx (:80)
@@ -215,7 +218,7 @@ This ensures `SECURITY_TXT_EXPIRES` and the required-lists are present for the e
 ./infra/bb-portfolio-management.sh logs bb-portfolio-frontend-dev
 
 # SSH to server
-ssh -i ~/.ssh/bb-portfolio-site-key.pem ec2-user@44.246.43.116
+ssh -i ~/.ssh/bb-portfolio-site-key.pem ec2-user@<EC2_INSTANCE_IP>
 ```
 
 ## Production Readiness (Switching to Production Images)
@@ -269,7 +272,7 @@ dig +short www.bbaysinger.com
 dig +short dev.bbaysinger.com
 ```
 
-They should all return the Elastic IP (e.g., `44.246.43.116`). If any do not, wait for propagation or fix DNS before proceeding.
+They should all return the Elastic IP (the value of `EC2_INSTANCE_IP`). If any do not, wait for propagation or fix DNS before proceeding.
 
 ### 3. Issue Certificates (Orchestrator)
 
