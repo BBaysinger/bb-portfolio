@@ -7,9 +7,23 @@ REPO_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 source "$REPO_ROOT/scripts/lib/repo-env.sh"
 bb_load_repo_env "$REPO_ROOT"
 
+resolve_ssl_domain() {
+  local domain="${SSL_DOMAIN:-}"
+  if [[ -n "$domain" ]]; then
+    echo "${domain#www.}"; return 0
+  fi
+  if [[ -n "${FRONTEND_URL:-}" ]]; then
+    domain=$(node -e "try{process.stdout.write(new URL(process.env.FRONTEND_URL).hostname.replace(/^www\\./,''));}catch(e){process.stdout.write('');}")
+    if [[ -n "$domain" ]]; then
+      echo "$domain"; return 0
+    fi
+  fi
+  echo ""; return 1
+}
+
 KEY_PATH="${1:?ssh key path arg required}" 
 EC2_HOST="$(bb_ec2_host_or_die)"
-SSL_DOMAIN_LOCAL="${SSL_DOMAIN:-}"
+SSL_DOMAIN_LOCAL="$(resolve_ssl_domain || true)"
 
 echo "== Uploading Nginx vhost config =="
 scp -i "$KEY_PATH" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -C \
