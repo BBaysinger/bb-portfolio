@@ -212,6 +212,8 @@
     "sync:secrets": "tsx scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./.github-secrets.private.json5",
     // 🧪 Same as above but performs only a dry run.
     "sync:secrets:dry": "tsx scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./.github-secrets.private.json5 --dry-run",
+    // 🔐 Populate local GitHub secrets JSON5 files from Terraform outputs + AWS profile creds.
+    "secrets:update-from-terraform": "tsx scripts/update-github-secrets-from-terraform.ts",
     // 📦 Update dependencies to latest versions across all packages
     // Runs npm-check-updates in root, backend, and frontend simultaneously
     // Review changes before running npm run install:all
@@ -226,23 +228,29 @@
     "media:seed": "tsx scripts/import-media-from-seedings.ts",
     // 🪄 Upload media only to the development S3 bucket
     "media:upload:dev": "tsx scripts/upload-media-to-s3.ts --env dev",
+    // 🧪 Dry run: show planned dev uploads (no S3 writes)
     "media:upload:dev:dry": "tsx scripts/upload-media-to-s3.ts --env dev --dry-run",
     // 🪄 Upload media only to the production S3 bucket
     "media:upload:prod": "tsx scripts/upload-media-to-s3.ts --env prod",
+    // 🧪 Dry run: show planned prod uploads (no S3 writes)
     "media:upload:prod:dry": "tsx scripts/upload-media-to-s3.ts --env prod --dry-run",
     // 🪄 Upload media to BOTH dev and prod buckets in one run
     "media:upload:both": "tsx scripts/upload-media-to-s3.ts --env both",
+    // 🧪 Dry run: show planned dev+prod uploads (no S3 writes)
     "media:upload:both:dry": "tsx scripts/upload-media-to-s3.ts --env both --dry-run",
     // 🪄 Verify uploaded media files on S3 to ensure integrity
     "media:verify": "tsx scripts/verify-media-s3.ts",
     // 📤 Upload local media files to S3 development environment
     "migrate:media:dev": "tsx scripts/upload-media-to-s3.ts --env dev",
+    // 🧪 Dry run: show planned dev media upload (no S3 writes)
     "migrate:media:dev:dry": "tsx scripts/upload-media-to-s3.ts --env dev --dry-run",
     // 📤 Upload local media files to S3 production environment
     "migrate:media:prod": "tsx scripts/upload-media-to-s3.ts --env prod",
+    // 🧪 Dry run: show planned prod media upload (no S3 writes)
     "migrate:media:prod:dry": "tsx scripts/upload-media-to-s3.ts --env prod --dry-run",
     // 📤 Upload local media files to both S3 environments (dev + prod)
     "migrate:media:both": "tsx scripts/upload-media-to-s3.ts --env both",
+    // 🧪 Dry run: show planned dev+prod media upload (no S3 writes)
     "migrate:media:both:dry": "tsx scripts/upload-media-to-s3.ts --env both --dry-run",
     // 🔗 PREVIEW: Update media URLs in development database to point to S3 (dry run)
     "migrate:media-urls:dev:dry": "cd backend && tsx scripts/migrate-media-to-s3.ts --env dev --dry-run",
