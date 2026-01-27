@@ -64,16 +64,15 @@ const Footer: React.FC<FooterProps> = ({ className, mutationElemRef }) => {
         </div>
       </div>
       <div className={styles.copyright}>
-        <div className={styles.builtIn}>
+        {/* <div className={styles.builtIn}>
           <a
             href="https://github.com/bbaysinger/bb-portfolio"
             target="_blank"
             rel="noopener noreferrer"
           >
-            {/* <RawImg src="/images/footer/react.svg" alt="React Logo" /> */}
-            Next.js<span>&bull;</span>Payload CMS<span>&bull;</span>TypeScript
+            Next.js<span>/</span>Payload CMS
           </a>
-        </div>
+        </div> */}
         <a className={styles.footerLink} href="/">
           &copy; {currentYear}{" "}
           <span style={{ color: "#fff" }}>Bradley Baysinger</span>
