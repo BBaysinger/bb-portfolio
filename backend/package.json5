@@ -47,23 +47,23 @@
   // Runtime dependencies for backend and CMS functionality
   "dependencies": {
     // AWS SES client used for sending transactional emails
-    "@aws-sdk/client-ses": "^3.971.0",
+    "@aws-sdk/client-ses": "^3.975.0",
     // Shared AWS SDK types
-    "@aws-sdk/types": "^3.969.0",
+    "@aws-sdk/types": "^3.973.1",
     // MongoDB adapter for Payload CMS
-    "@payloadcms/db-mongodb": "3.72.0",
+    "@payloadcms/db-mongodb": "3.73.0",
     // Nodemailer email adapter for Payload CMS (handles SMTP email sending, password resets, notifications)
-    "@payloadcms/email-nodemailer": "3.72.0",
+    "@payloadcms/email-nodemailer": "3.73.0",
     // Enables Payload-Next.js integration (server-side rendering and routing)
-    "@payloadcms/next": "3.72.0",
+    "@payloadcms/next": "3.73.0",
     // Payload Cloud tools (optional if self-hosting)
-    "@payloadcms/payload-cloud": "3.72.0",
+    "@payloadcms/payload-cloud": "3.73.0",
     // Rich text editor using Lexical (modern alternative to Slate)
-    "@payloadcms/richtext-lexical": "3.72.0",
+    "@payloadcms/richtext-lexical": "3.73.0",
     // S3-backed media storage for Payload uploads
-    "@payloadcms/storage-s3": "3.72.0",
+    "@payloadcms/storage-s3": "3.73.0",
     // Payload's core UI components
-    "@payloadcms/ui": "3.72.0",
+    "@payloadcms/ui": "3.73.0",
     // Cross-platform environment variable setting (Windows/Unix compatibility)
     "cross-env": "^10.1.0",
     // Environment variable loader (reads .env files into process.env)
@@ -75,13 +75,13 @@
     // JSON5 parser for annotated configuration files
     "json5": "^2.2.3",
     // Next.js framework for frontend/backend integration
-    "next": "16.1.3",
+    "next": "16.1.5",
     // Payload CMS core package
-    "payload": "3.72.0",
+    "payload": "3.73.0",
     // React version to match Next.js 15
-    "react": "19.2.3",
+    "react": "19.2.4",
     // React DOM library for rendering React components (required by Next.js and Payload UI)
-    "react-dom": "19.2.3",
+    "react-dom": "19.2.4",
     // High-performance image processing (required for Payload image fields)
     "sharp": "0.34.5",
     // Converts strings into URL-friendly slugs (useful for dynamic routing)
@@ -90,43 +90,43 @@
   // Development-only tools and type definitions
   "devDependencies": {
     // E2E test runner
-    "@playwright/test": "1.57.0",
+    "@playwright/test": "1.58.0",
     // Testing utilities for React components
-    "@testing-library/react": "16.3.1",
+    "@testing-library/react": "16.3.2",
     // Express.js TypeScript definitions
     "@types/express": "^5.0.6",
     // TypeScript definitions for JSON5 (used by annotated config files)
     "@types/json5": "^2.2.0",
     // Node.js TypeScript definitions (latest for Node 18+)
-    "@types/node": "^25.0.9",
+    "@types/node": "^25.0.10",
     // React 19 types
-    "@types/react": "19.2.8",
+    "@types/react": "19.2.9",
     // React DOM 19 types
     "@types/react-dom": "19.2.3",
     // Vite React plugin (enables React support in Vitest)
     "@vitejs/plugin-react": "5.1.2",
     // Maps baseline browser support targets for tooling that needs them
-    "baseline-browser-mapping": "^2.9.15",
+    "baseline-browser-mapping": "^2.9.18",
     // ESLint JavaScript/TypeScript linter (v9 for latest rules)
     "eslint": "^9.39.2",
     // Next.js ESLint configuration (includes React and accessibility rules)
-    "eslint-config-next": "16.1.3",
+    "eslint-config-next": "16.1.5",
     // Browser DOM simulation for Node.js testing environments
     "jsdom": "27.4.0",
     // Standalone version of Playwright test runner
-    "playwright": "1.57.0",
+    "playwright": "1.58.0",
     // Playwright core library (used for browser automation)
-    "playwright-core": "1.57.0",
+    "playwright-core": "1.58.0",
     // Code formatter with opinionated defaults
-    "prettier": "^3.8.0",
+    "prettier": "^3.8.1",
     // TSX lets us run TypeScript build/utility scripts without compiling first.
     "tsx": "^4.21.0",
     // TypeScript compiler (v5.9 for latest language features)
     "typescript": "5.9.3",
     // Vite path mapping support (resolves TypeScript path aliases)
-    "vite-tsconfig-paths": "6.0.4",
+    "vite-tsconfig-paths": "6.0.5",
     // Fast unit test runner (modern Jest alternative)
-    "vitest": "4.0.17",
+    "vitest": "4.0.18",
   },
   // Pin patched versions of transitive dependencies.
   // Payload pulls in nodemailer via @payloadcms/email-nodemailer and @payloadcms/payload-cloud.
