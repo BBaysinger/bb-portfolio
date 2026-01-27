@@ -6,6 +6,8 @@
 # Usage:
 #   ./scripts/migrate-ec2-directory.sh --host ec2-user@<IP_OR_DNS> --key ~/.ssh/bb-portfolio-site-key.pem [--symlink] [--dry-run]
 #
+# If --host is omitted, defaults to ec2-user@EC2_INSTANCE_IP from the repo-root .env.
+#
 # Steps:
 # 1. Verify connectivity & required commands.
 # 2. Stop running compose services (old path).
@@ -24,13 +26,18 @@ KEY=""
 DO_SYMLINK=false
 DRY_RUN=false
 
+REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+
+source "$REPO_ROOT/scripts/lib/repo-env.sh"
+bb_load_repo_env "$REPO_ROOT"
+
 log() { printf "[migrate-dir] %s\n" "$*"; }
 err() { printf "[migrate-dir][error] %s\n" "$*" >&2; }
 usage() {
   cat <<EOF
 Usage: $0 --host ec2-user@IP --key /path/to/key.pem [--symlink] [--dry-run]
 
---host       SSH target (ec2-user@1.2.3.4)
+--host       SSH target (defaults to ec2-user@EC2_INSTANCE_IP from repo-root .env)
 --key        Private key path
 --symlink    Leave backward-compatible symlink /home/ec2-user/portfolio
 --dry-run    Show planned remote commands without executing
@@ -48,7 +55,15 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-[[ -z "$HOST" || -z "$KEY" ]] && { err "--host and --key required"; usage; exit 1; }
+if [[ -z "$HOST" ]]; then
+  SSH_USER="${EC2_SSH_USER:-ec2-user}"
+  if [[ -n "${EC2_INSTANCE_IP:-}" ]]; then
+    HOST="$SSH_USER@$EC2_INSTANCE_IP"
+  else
+    err "--host is required (or set EC2_INSTANCE_IP in repo-root .env)"; usage; exit 1
+  fi
+fi
+[[ -z "$KEY" ]] && { err "--key required"; usage; exit 1; }
 
 REMOTE_CMDS='set -euo pipefail
 OLD=/home/ec2-user/portfolio

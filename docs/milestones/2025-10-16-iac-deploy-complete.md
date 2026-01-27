@@ -4,7 +4,7 @@ Stable, repeatable end-to-end deployment workflow implemented using Infrastructu
 
 ## Implementation Summary
 
-- Terraform-managed EC2 stack with preserved Elastic IP (44.246.43.116)
+- Terraform-managed EC2 stack with preserved Elastic IP (<EC2_INSTANCE_IP>)
 - IAM-first runtime (no long-lived AWS creds on the instance)
 - S3 media buckets with versioning + SSE and CORS for both prod/dev
 - ECR for production images; Docker Hub for dev images
@@ -23,7 +23,7 @@ Stable, repeatable end-to-end deployment workflow implemented using Infrastructu
 ## Operations
 
 - DNS should point Cloudflare A records (root, www, dev) to the Elastic IP
-- MongoDB Atlas Network Access must allow 44.246.43.116/32
+- MongoDB Atlas Network Access must allow <EC2_INSTANCE_IP>/32
 - Frontend/Backend health checks (local on EC2): 3000/3001 (prod) and 4000/4001 (dev)
 
 ## Known caveat

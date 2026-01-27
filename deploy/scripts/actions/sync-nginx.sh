@@ -1,7 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
+
+source "$REPO_ROOT/scripts/lib/repo-env.sh"
+bb_load_repo_env "$REPO_ROOT"
+
 KEY_PATH="${1:?ssh key path arg required}" 
-EC2_HOST="${EC2_HOST:?EC2_HOST env required}"
+EC2_HOST="$(bb_ec2_host_or_die)"
 
 echo "== Uploading Nginx vhost config =="
 scp -i "$KEY_PATH" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -C \

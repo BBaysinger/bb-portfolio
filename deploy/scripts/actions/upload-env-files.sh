@@ -1,8 +1,15 @@
 #!/usr/bin/env bash
 set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
+
+source "$REPO_ROOT/scripts/lib/repo-env.sh"
+bb_load_repo_env "$REPO_ROOT"
+
 KEY_PATH="${1:?ssh key path arg required}" 
 OUT_DIR="${OUT_DIR:?OUT_DIR env required}"
-EC2_HOST="${EC2_HOST:?EC2_HOST env required}"
+EC2_HOST="$(bb_ec2_host_or_die)"
 SSH_OPTS=${SSH_OPTS:-"-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=10 -o ServerAliveInterval=5 -o ServerAliveCountMax=2 -o PreferredAuthentications=publickey -o PubkeyAuthentication=yes -o TCPKeepAlive=yes -o Compression=yes"}
 
 [ -d "$OUT_DIR" ] || { echo "OUT_DIR not a directory: $OUT_DIR" >&2; exit 1; }

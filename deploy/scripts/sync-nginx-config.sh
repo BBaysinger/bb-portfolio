@@ -3,12 +3,17 @@ set -euo pipefail
 
 # Sync the Nginx vhost config from repo to the EC2 host and reload Nginx.
 
+REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+
+source "$REPO_ROOT/scripts/lib/repo-env.sh"
+bb_load_repo_env "$REPO_ROOT"
+
 usage() {
   cat <<USAGE
 Usage: $0 --host ec2-user@<ip-or-host> [--key ~/.ssh/key.pem]
 
 Options:
-  --host    SSH host in the form user@host (required)
+  --host    SSH host in the form user@host (defaults to ec2-user@EC2_INSTANCE_IP from repo-root .env)
   --key     Path to SSH private key (default: ~/.ssh/bb-portfolio-site-key.pem)
 
 This will:
@@ -36,12 +41,16 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [[ -z "$HOST" ]]; then
-  echo "--host is required" >&2
-  usage
-  exit 1
+  SSH_USER="${EC2_SSH_USER:-ec2-user}"
+  EC2_HOST="$(bb_ec2_host)"
+  if [[ -n "$EC2_HOST" ]]; then
+    HOST="$SSH_USER@$EC2_HOST"
+  else
+    echo "--host is required (or set EC2_INSTANCE_IP in repo-root .env)" >&2
+    usage
+    exit 1
+  fi
 fi
-
-REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 NGINX_CONF_TEMPLATE="${REPO_ROOT}/deploy/nginx/bb-portfolio.conf.template"
 
 if [[ ! -f "$NGINX_CONF_TEMPLATE" ]]; then

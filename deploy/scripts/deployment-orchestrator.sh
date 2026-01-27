@@ -51,6 +51,9 @@ REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 INFRA_DIR="${REPO_ROOT}/infra"
 COMPOSE_FILE_LOCAL="${REPO_ROOT}/deploy/compose/docker-compose.yml"
 
+source "$REPO_ROOT/scripts/lib/repo-env.sh"
+bb_load_repo_env "$REPO_ROOT"
+
 
 RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'; BLUE='\033[0;34m'; NC='\033[0m'
 
@@ -419,6 +422,11 @@ fi
 # Resolve EC2 host without relying on viewing GitHub Secrets values
 resolve_ec2_host() {
   local host=""
+  # 0) Explicit env vars (prefer repo-root .env)
+  host="${EC2_HOST:-${EC2_INSTANCE_IP:-${EC2_IP:-}}}"
+  if [[ -n "$host" ]]; then
+    echo "$host"; return 0
+  fi
   # 1) Terraform outputs (prefer Elastic IP)
   if command -v terraform >/dev/null 2>&1 && [ -d "$INFRA_DIR" ]; then
     pushd "$INFRA_DIR" >/dev/null || true

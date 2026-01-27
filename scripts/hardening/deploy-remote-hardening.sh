@@ -3,9 +3,11 @@
 # Push and apply nginx, SSH hardening, fail2ban, and metrics script to a remote EC2 host.
 # Usage:
 #   ./scripts/hardening/deploy-remote-hardening.sh \
-#       --host 44.246.43.116 \
+#       --host <ip-or-host> \
 #       --key ~/.ssh/bb-portfolio-site-key.pem \
 #       [--user ec2-user] [--dry-run]
+#
+# If --host is omitted, EC2_INSTANCE_IP will be read from the repo-root .env.
 #
 # Requires: ssh, scp, sudo rights on remote. Assumes target is Amazon Linux (dnf).
 set -euo pipefail
@@ -15,6 +17,9 @@ KEY=""
 USER="ec2-user"
 DRY_RUN=0
 REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+
+source "$REPO_ROOT/scripts/lib/repo-env.sh"
+bb_load_repo_env "$REPO_ROOT"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -26,8 +31,14 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-if [[ -z "$HOST" || -z "$KEY" ]]; then
-  echo "[!] --host and --key are required" >&2
+HOST="${HOST:-${EC2_INSTANCE_IP:-}}"
+
+if [[ -z "$KEY" ]]; then
+  echo "[!] --key is required" >&2
+  exit 1
+fi
+if [[ -z "$HOST" ]]; then
+  echo "[!] --host is required (or set EC2_INSTANCE_IP in repo-root .env)" >&2
   exit 1
 fi
 

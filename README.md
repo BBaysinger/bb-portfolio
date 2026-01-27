@@ -1,16 +1,18 @@
 # Interactive UI / Frontend Systems Portfolio Platform
 
 A production-grade exploration of interactive front-end architecture — combining handcrafted animation systems, experimental render strategies, and fully automated DevOps infrastructure.  
- Built with **React**, **TypeScript**, and the **Next.js App Router**, powered by a **Payload CMS backend** and **Terraform-provisioned AWS stack** (now including **CloudWatch metrics & logs**).  
+ Built with **React**, **TypeScript**, and the **Next.js App Router**, powered by a **Payload CMS backend** and **Terraform-provisioned AWS stack**.  
 The project merges design experimentation with the discipline of scalable, cloud-ready software engineering.
 
-Core interface systems include a **parallax-layered carousel**, a **multi-renderer sprite engine**, and an **experimental Fluxel grid** that reacts to cursor physics and projectiles.  
+Core interface systems include a **parallax-layered carousel**, a **multi-renderer sprite engine**, and an experimental **'Fluxel'** (fluxing pixel) grid that reacts to physics projectile collisions.  
 Every motion and frame transition is built natively — no external 3D, physics, or sprite libraries.  
-The surrounding infrastructure (Terraform, Docker, AWS, GitHub Actions) exists not as ornamentation, but as proof of production-level rigor: CI/CD, secrets pipelines, multi-environment orchestration, and cloud resource hygiene.
+The surrounding infrastructure (Terraform, Docker, AWS, GitHub Actions) exists as production-level rigor: CI/CD, secrets pipelines, multi-environment orchestration, and cloud resource hygiene.
 
-> **Monorepo Note:** This repo contains the portfolio app plus internal deployment tooling (scripts, CI/CD helpers). That tooling supports operating the site but isn’t a user-facing feature.
+> **Monorepo Note:** This repo contains the portfolio app plus internal deployment tooling (scripts, CI/CD helpers).
 
 Note: this project is still evolving — features, UX, and infrastructure are actively iterated.
+
+Please view the live deployment at [bbaysinger.io](https://bbaysinger.io).
 
 ## 🔎 30‑Second Tour (Frontend Focus)
 
@@ -479,7 +481,7 @@ Note: By default, images are built and pushed automatically. The orchestrator se
 - Reverse Proxy: Caddy or Nginx (configs and compose profiles included)
 - Containerization: Docker with dual registry strategy (Docker Hub + ECR)
 - Storage: S3 buckets for media assets with environment isolation
-- Networking: Elastic IP (44.246.43.116), Security Groups, VPC integration
+- Networking: Elastic IP (set `EC2_INSTANCE_IP` in repo-root `.env`), Security Groups, VPC integration
 - Domain & DNS: Custom domains (bbaysinger.com primary) with Route 53 hosted zones
 - TLS: AWS Certificate Manager (ACM) with DNS validation via Route 53
 

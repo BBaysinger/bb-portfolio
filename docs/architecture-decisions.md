@@ -264,7 +264,7 @@ New decisions should be appended chronologically.
 
 - **Terraform IaC**: AWS infrastructure defined as code.
 - **EC2 host**: t3.medium configured via `user_data` and host scripts.
-- **Elastic IP**: Stable IP for DNS (44.246.43.116).
+- **Elastic IP**: Stable IP for DNS (set `EC2_INSTANCE_IP` in repo-root `.env`).
 - **Container runtime**: Docker Compose profiles (dev/prod) managed by systemd.
 - **Registries**: Docker Hub for dev images; ECR for prod images.
 - **Storage**: Environment-specific S3 buckets (CORS/encryption as required).
