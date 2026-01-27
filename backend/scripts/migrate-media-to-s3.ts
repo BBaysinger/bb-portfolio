@@ -52,6 +52,38 @@ function loadDotEnvFile(filePath: string) {
   })
 }
 
+function readTfvarsValue(tfvarsPath: string, key: string): string | undefined {
+  if (!fs.existsSync(tfvarsPath)) return undefined
+  const raw = fs.readFileSync(tfvarsPath, 'utf8')
+  const re = new RegExp(`^\\s*${key}\\s*=\\s*"([^"]+)"\\s*$`, 'm')
+  const match = raw.match(re)
+  return match?.[1]
+}
+
+function loadFromTerraformTfvars(environment: 'dev' | 'prod', tfvarsPath: string) {
+  const prefix = environment === 'prod' ? 'prod' : 'dev'
+
+  const maybeSet = (envKey: string, tfKey: string) => {
+    if (process.env[envKey]) return
+    const v = readTfvarsValue(tfvarsPath, tfKey)
+    if (v) process.env[envKey] = v
+  }
+
+  // Map terraform.tfvars keys → canonical runtime keys
+  maybeSet('AWS_REGION', `${prefix}_aws_region`)
+  maybeSet('S3_BUCKET', `${prefix}_s3_bucket`)
+  maybeSet('MONGODB_URI', `${prefix}_mongodb_uri`)
+  maybeSet('PAYLOAD_SECRET', `${prefix}_payload_secret`)
+  // CORS guard expects FRONTEND_URL to be present
+  maybeSet('FRONTEND_URL', `${prefix}_frontend_url`)
+
+  // Public origin required by payload.config.ts; terraform.tfvars may not include it.
+  if (!process.env.PUBLIC_SERVER_URL) {
+    const fromFrontend = (process.env.FRONTEND_URL || '').split(',')[0]?.trim()
+    if (fromFrontend) process.env.PUBLIC_SERVER_URL = fromFrontend
+  }
+}
+
 /**
  * Ensure required environment variables are present.
  * Prefers existing process.env. Optionally loads backend/.env.<env> or --env-file path.
@@ -82,10 +114,22 @@ function ensureEnvironment(environment: 'dev' | 'prod', opts?: { envFile?: strin
   }
 
   if (!hasAll()) {
+    // Try repo-level infra/terraform.tfvars (useful for local maintenance runs)
+    const tfvarsPath = path.resolve(__dirname, '../../infra/terraform.tfvars')
+    loadFromTerraformTfvars(environment, tfvarsPath)
+  }
+
+  // Maintenance fallback: these values are needed to construct Payload config,
+  // but they are not semantically important for rewriting existing media URLs.
+  if (!process.env.FRONTEND_URL) process.env.FRONTEND_URL = 'http://localhost:3000'
+  if (!process.env.PUBLIC_SERVER_URL)
+    process.env.PUBLIC_SERVER_URL = process.env.FRONTEND_URL.split(',')[0]!.trim()
+
+  if (!hasAll()) {
     const missing = requiredVars.filter((k) => !process.env[k])
     throw new Error(
       `Missing required environment variables for ${environment}: ${missing.join(', ')}.\n` +
-        `Provide them via your shell, an --env-file, or backend/.env.${environment}.`,
+        `Provide them via your shell, an --env-file, backend/.env.${environment}, or infra/terraform.tfvars.`,
     )
   }
 }
@@ -103,9 +147,20 @@ interface MigrationStats {
   errors: number
 }
 
-const S3_BUCKET_URLS = {
-  dev: 'https://bb-portfolio-media-dev.s3.us-west-2.amazonaws.com',
-  prod: 'https://bb-portfolio-media-prod.s3.us-west-2.amazonaws.com',
+function getBucketBaseUrl(): string {
+  const bucket = process.env.S3_BUCKET
+  const region = process.env.AWS_REGION
+  if (!bucket || !region) {
+    throw new Error('Missing S3_BUCKET/AWS_REGION after environment loading.')
+  }
+  return `https://${bucket}.s3.${region}.amazonaws.com`
+}
+
+function isAlreadyS3Url(url: string | undefined): boolean {
+  if (!url) return false
+  const bucket = process.env.S3_BUCKET
+  if (!bucket) return false
+  return url.includes('amazonaws.com') && url.includes(bucket)
 }
 
 const MEDIA_COLLECTIONS = [
@@ -139,8 +194,8 @@ async function migrateMediaCollection(
       try {
         const { id, filename, url } = doc as MediaDocument
 
-        // Skip if already has S3 URL
-        if (url && url.includes('s3.amazonaws.com')) {
+        // Skip if already has an S3 URL
+        if (isAlreadyS3Url(url)) {
           stats.skipped++
           continue
         }
@@ -200,7 +255,7 @@ async function main() {
 
   const environment = args[envFlag + 1] as 'dev' | 'prod'
 
-  if (!S3_BUCKET_URLS[environment]) {
+  if (environment !== 'dev' && environment !== 'prod') {
     console.error('❌ Invalid environment. Use: dev or prod')
     process.exit(1)
   }
@@ -217,7 +272,16 @@ async function main() {
     process.exit(1)
   }
 
-  const bucketUrl = S3_BUCKET_URLS[environment]
+  let bucketUrl: string
+  try {
+    bucketUrl = getBucketBaseUrl()
+  } catch (error) {
+    console.error(
+      '❌ Failed to determine S3 bucket URL:',
+      error instanceof Error ? error.message : String(error),
+    )
+    process.exit(1)
+  }
 
   console.info('🔄 PayloadCMS Media Migration: Local → S3')
   console.info('==========================================')
@@ -236,7 +300,8 @@ async function main() {
 
   try {
     // Dynamically import payload config after environment is set
-    const { default: config } = await import('../src/payload.config.js')
+    // This repo's config is TypeScript and is executed via tsx.
+    const { default: config } = await import('../src/payload.config.ts')
 
     // Initialize Payload
     payload = await getPayload({ config })

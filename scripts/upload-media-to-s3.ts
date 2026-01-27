@@ -14,7 +14,7 @@
  *   npm run media:upload -- --dry-run --env dev
  */
 import { execSync } from "node:child_process";
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 
 import { ensureAwsCredentials } from "./lib/aws-creds";
@@ -23,11 +23,31 @@ import { ensureAwsCredentials } from "./lib/aws-creds";
 const scriptDir = path.dirname(__filename);
 const repoRoot = path.resolve(scriptDir, "..");
 
-// S3 bucket configuration for media (Payload CMS)
-const S3_BUCKETS = {
-  dev: "bb-portfolio-media-dev",
-  prod: "bb-portfolio-media-prod",
-} as const;
+function readTfvarsValue(tfvarsPath: string, key: string): string | undefined {
+  if (!existsSync(tfvarsPath)) return undefined;
+  const raw = readFileSync(tfvarsPath, "utf8");
+  const re = new RegExp(`^\\s*${key}\\s*=\\s*"([^"]+)"\\s*$`, "m");
+  const match = raw.match(re);
+  return match?.[1];
+}
+
+function resolveBucket(
+  environment: Environment,
+  opts: { tfvarsPath?: string },
+): string {
+  const tfvarsPath =
+    opts.tfvarsPath || path.resolve(repoRoot, "infra/terraform.tfvars");
+  const tfvarsKey = environment === "dev" ? "dev_s3_bucket" : "prod_s3_bucket";
+  const fromTfvars = readTfvarsValue(tfvarsPath, tfvarsKey);
+  if (fromTfvars) return fromTfvars;
+
+  // Legacy fallback (pre-suffix buckets). Keep for backward compatibility.
+  const legacy =
+    environment === "dev"
+      ? "bb-portfolio-media-dev"
+      : "bb-portfolio-media-prod";
+  return legacy;
+}
 
 // Media collections to sync
 const MEDIA_COLLECTIONS = [
@@ -43,6 +63,7 @@ interface Options {
   dryRun: boolean;
   profile?: string;
   region?: string;
+  tfvarsPath?: string;
 }
 
 function parseArgs(): Options {
@@ -52,6 +73,7 @@ function parseArgs(): Options {
     dryRun: false,
     profile: undefined,
     region: undefined,
+    tfvarsPath: undefined,
   };
 
   for (let i = 0; i < args.length; i++) {
@@ -89,6 +111,7 @@ Options:
   --dry-run       Show what would be uploaded without actually uploading
   --profile       AWS CLI profile to use (from ~/.aws/credentials)
   --region        AWS region (e.g., us-west-2)
+  --tfvars        Path to Terraform tfvars file (defaults to infra/terraform.tfvars)
   --help, -h      Show this help message
 
 Examples:
@@ -97,6 +120,9 @@ Examples:
   npm run media:upload -- --env both
         `);
         process.exit(0);
+      case "--tfvars":
+        options.tfvarsPath = args[++i];
+        break;
     }
   }
 
@@ -145,8 +171,9 @@ function syncCollection(
   environment: Environment,
   dryRun: boolean,
   opts: { profile?: string; region?: string },
+  buckets: { tfvarsPath?: string },
 ) {
-  const bucket = S3_BUCKETS[environment];
+  const bucket = resolveBucket(environment, { tfvarsPath: buckets.tfvarsPath });
   const localPath = `backend/media/${collection}/`;
   const s3Path = `s3://${bucket}/${collection}/`;
 
@@ -244,10 +271,18 @@ function main() {
     console.info(`\n📦 Uploading to ${env.toUpperCase()} environment...`);
 
     for (const collection of MEDIA_COLLECTIONS) {
-      syncCollection(collection, env, options.dryRun, {
-        profile: options.profile,
-        region: options.region,
-      });
+      syncCollection(
+        collection,
+        env,
+        options.dryRun,
+        {
+          profile: options.profile,
+          region: options.region,
+        },
+        {
+          tfvarsPath: options.tfvarsPath,
+        },
+      );
     }
   }
 

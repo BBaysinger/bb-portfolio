@@ -32,6 +32,14 @@ resource "aws_iam_user_policy_attachment" "bb_portfolio_ses_send_attach" {
   policy_arn = aws_iam_policy.ses_send.arn
 }
 
+# When allowed, attach the S3 media/projects access policy to the IAM user.
+# This enables local scripts (e.g., media upload/verify) to access the buckets.
+resource "aws_iam_user_policy_attachment" "bb_portfolio_s3_access_attach" {
+  count      = var.manage_iam_user_policies ? 1 : 0
+  user       = var.iam_user_name
+  policy_arn = aws_iam_policy.s3_access.arn
+}
+
 # IAM Policy for CloudWatch RUM and Cognito Identity Pool management
 resource "aws_iam_user_policy" "bb_portfolio_rum_cognito" {
   count = var.manage_iam_user_policies ? 1 : 0

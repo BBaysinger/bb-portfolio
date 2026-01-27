@@ -89,8 +89,8 @@ const CurriculumVitae: React.FC = () => {
               </p>
 
               <p>
-                Senior engineer with <strong>15+ years</strong> building
-                production UI for enterprise and consumer products. Strong in{" "}
+                UI engineer focused on building production interfaces for
+                enterprise and consumer products. Strong in{" "}
                 <strong>HTML, CSS, and JavaScript</strong>, with experience
                 using modern frameworks including{" "}
                 <strong>React, TypeScript, Next.js, and Angular</strong> to ship
