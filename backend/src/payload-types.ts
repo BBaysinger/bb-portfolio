@@ -181,6 +181,16 @@ export interface AuthEvent {
   user: string | User;
   ip?: string | null;
   userAgent?: string | null;
+  referrer?: string | null;
+  referrerIsExternal?: boolean | null;
+  /**
+   * Query string from the referrer URL when the referrer is external (e.g., utm_source=...).
+   */
+  referrerQuery?: string | null;
+  /**
+   * Attribution tag captured from the landing URL query param ?r=... and persisted until login.
+   */
+  landingR?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -565,6 +575,10 @@ export interface AuthEventsSelect<T extends boolean = true> {
   user?: T;
   ip?: T;
   userAgent?: T;
+  referrer?: T;
+  referrerIsExternal?: T;
+  referrerQuery?: T;
+  landingR?: T;
   updatedAt?: T;
   createdAt?: T;
 }
