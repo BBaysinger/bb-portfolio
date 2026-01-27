@@ -8,7 +8,7 @@ Core interface systems include a **parallax-layered carousel**, a **multi-render
 Every motion and frame transition is built natively — no external 3D, physics, or sprite libraries.  
 The surrounding infrastructure (Terraform, Docker, AWS, GitHub Actions) exists as production-level rigor: CI/CD, secrets pipelines, multi-environment orchestration, and cloud resource hygiene.
 
-> **Monorepo Note:** This repo contains the portfolio app plus internal deployment tooling (scripts, CI/CD helpers).
+> **Monorepo Note:** This repo contains the portfolio app plus (extensive) internal deployment tooling (scripts, CI/CD helpers). This will all migrate to a separate repo, as time allows.
 
 Note: this project is still evolving — features, UX, and infrastructure are actively iterated.
 
