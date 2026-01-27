@@ -83,18 +83,16 @@ const CurriculumVitae: React.FC = () => {
             <div ref={addToRefs} className={divClassRt}>
               <p>
                 <strong>
-                  Front-end / UI developer focused on interaction, visual
-                  polish, and performance-sensitive web interfaces.
+                  Front-end / UI developer specializing in interaction-driven,
+                  visually polished, performance-sensitive interfaces.
                 </strong>
               </p>
 
               <p>
-                UI engineer focused on building production interfaces for
-                enterprise and consumer products. Strong in{" "}
-                <strong>HTML, CSS, and JavaScript</strong>, with experience
-                using modern frameworks including{" "}
-                <strong>React, TypeScript, Next.js, and Angular</strong> to ship
-                reliable, accessible interfaces.
+                Experienced building production UI for enterprise and consumer
+                products. Strong in <strong>HTML, CSS, and JavaScript</strong>,
+                with modern framework experience including{" "}
+                <strong>React, TypeScript, Next.js, and Angular</strong>.
               </p>
             </div>
           </div>
