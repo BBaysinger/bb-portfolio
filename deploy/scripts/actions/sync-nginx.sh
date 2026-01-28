@@ -12,12 +12,19 @@ resolve_ssl_domain() {
   if [[ -n "$domain" ]]; then
     echo "${domain#www.}"; return 0
   fi
-  if [[ -n "${FRONTEND_URL:-}" ]]; then
-    domain=$(node -e "try{process.stdout.write(new URL(process.env.FRONTEND_URL).hostname.replace(/^www\\./,''));}catch(e){process.stdout.write('');}")
+
+  # Prefer the canonical origin (Payload admin/API), then fall back to frontend origins.
+  # Note: FRONTEND_URL is commonly comma-separated (CORS/CSRF allowlist), so only
+  # the first origin is parseable as a URL.
+  local origin="${PUBLIC_SERVER_URL:-${PAYLOAD_PUBLIC_SERVER_URL:-${FRONTEND_URL:-}}}"
+  if [[ -n "$origin" ]]; then
+    origin="${origin%%,*}"
+    domain=$(node -e "try{process.stdout.write(new URL(process.argv[1]).hostname.replace(/^www\\./,''));}catch(e){process.stdout.write('');}" "$origin")
     if [[ -n "$domain" ]]; then
       echo "$domain"; return 0
     fi
   fi
+
   echo ""; return 1
 }
 
@@ -39,10 +46,47 @@ sudo chown root:root /etc/nginx/conf.d/bb-portfolio.conf
 
 # Optional SSL config:
 # - Keep SSL blocks in a separate include file.
-# - Only create it when SSL_DOMAIN is provided AND real cert files exist.
-# - Otherwise remove it, so nginx -t never fails due to missing certs.
+# - Prefer explicit SSL_DOMAIN passed from the deploy runner.
+# - If SSL_DOMAIN is missing (common in CI unless explicitly passed), infer it
+#   from the existing SSL config or from /etc/letsencrypt/live.
+# - Do NOT delete an existing SSL config automatically; doing so can drop :443.
 SSL_DOMAIN="${SSL_DOMAIN:-}"
 SSL_CONF=/etc/nginx/conf.d/bb-portfolio-ssl.conf
+
+infer_ssl_domain() {
+  local inferred=""
+
+  # 1) Reuse existing nginx SSL config if present
+  if [ -z "$SSL_DOMAIN" ] && sudo test -s "$SSL_CONF"; then
+    inferred=$(sudo awk '
+      $1 == "server_name" {
+        for (i = 2; i <= NF; i++) {
+          gsub(";", "", $i)
+          if ($i != "_" && $i !~ /^www\./) { print $i; exit }
+        }
+      }
+    ' "$SSL_CONF" 2>/dev/null || true)
+  fi
+
+  # 2) Fall back to the first cert we find on disk
+  if [ -z "$inferred" ]; then
+    inferred=$(sudo sh -c '
+      for d in /etc/letsencrypt/live/*; do
+        base=$(basename "$d")
+        [ "$base" = "README" ] && continue
+        [ -s "$d/fullchain.pem" ] && [ -s "$d/privkey.pem" ] && { echo "$base"; exit 0; }
+      done
+      exit 1
+    ' 2>/dev/null || true)
+  fi
+
+  if [ -n "$inferred" ]; then
+    SSL_DOMAIN="$inferred"
+  fi
+}
+
+infer_ssl_domain
+
 if [ -n "$SSL_DOMAIN" ] \
   && sudo test -s "/etc/letsencrypt/live/$SSL_DOMAIN/fullchain.pem" \
   && sudo test -s "/etc/letsencrypt/live/$SSL_DOMAIN/privkey.pem" \
@@ -101,7 +145,11 @@ server {
 }
 CONF
 else
-  sudo rm -f "$SSL_CONF"
+  if [ -z "$SSL_DOMAIN" ]; then
+    echo "Skipping SSL nginx config (SSL_DOMAIN not provided and could not be inferred)."
+  else
+    echo "Skipping SSL nginx config for $SSL_DOMAIN (cert files missing)."
+  fi
 fi
 sudo nginx -t
 sudo systemctl reload nginx
