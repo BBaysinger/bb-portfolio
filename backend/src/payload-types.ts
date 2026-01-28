@@ -187,9 +187,6 @@ export interface AuthEvent {
    * Query string from the referrer URL when the referrer is external (e.g., utm_source=...).
    */
   referrerQuery?: string | null;
-  /**
-   * Attribution tag captured from the landing URL query param ?r=... and persisted until login.
-   */
   updatedAt: string;
   createdAt: string;
 }
