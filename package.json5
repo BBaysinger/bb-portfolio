@@ -374,7 +374,7 @@
   // Development tooling for the monorepo root (formatting, linting, TS, runners)
   "devDependencies": {
     // Next.js-specific ESLint rules for best practices
-    "@next/eslint-plugin-next": "^16.1.5",
+    "@next/eslint-plugin-next": "^16.1.6",
     // TypeScript type definitions for glob
     "@types/glob": "^9.0.0",
     // ESLint plugin for TypeScript-specific linting rules
@@ -396,7 +396,7 @@
     // File pattern matching utility
     "glob": "^13.0.0",
     // List of global variables for linting
-    "globals": "^17.1.0",
+    "globals": "^17.2.0",
     // Utility for .gitignore-style file filtering
     "ignore": "^7.0.5",
     // Runtime for dynamic JS/TS imports
