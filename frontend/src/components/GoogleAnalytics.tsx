@@ -14,6 +14,18 @@ declare global {
   }
 }
 
+function normalizeLandingR(value: string | null): string | undefined {
+  if (!value) return undefined;
+  const trimmed = value.trim();
+  if (!trimmed) return undefined;
+
+  // Keep it simple + safe: allow short slugs like "github", "hn", "newsletter-jan".
+  // Reject anything that looks like a URL or has weird characters.
+  if (!/^[a-z0-9][a-z0-9_-]{0,63}$/i.test(trimmed)) return undefined;
+
+  return trimmed;
+}
+
 function sendPageView(pagePath: string) {
   if (!GA_MEASUREMENT_ID) return;
   if (typeof window === "undefined") return;
@@ -25,10 +37,20 @@ function sendPageView(pagePath: string) {
 
   // In GA4, when initial config sets send_page_view:false, you must emit
   // explicit page_view events for SPA/app-router navigation.
+  const landingR = normalizeLandingR(
+    new URL(window.location.href).searchParams.get("r"),
+  );
+  if (landingR) {
+    // Useful for analysis across events; also register `landing_r` as a custom
+    // dimension (event parameter) in GA4 if you want it in reports.
+    window.gtag("set", "user_properties", { landing_r: landingR });
+  }
+
   window.gtag("event", "page_view", {
     page_path: pagePath,
     page_location: window.location.href,
     page_title: document.title,
+    ...(landingR ? { landing_r: landingR } : {}),
   });
 }
 
