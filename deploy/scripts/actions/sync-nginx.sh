@@ -46,46 +46,20 @@ sudo chown root:root /etc/nginx/conf.d/bb-portfolio.conf
 
 # Optional SSL config:
 # - Keep SSL blocks in a separate include file.
-# - Prefer explicit SSL_DOMAIN passed from the deploy runner.
-# - If SSL_DOMAIN is missing (common in CI unless explicitly passed), infer it
-#   from the existing SSL config or from /etc/letsencrypt/live.
+# - SSL_DOMAIN must be explicitly provided by the deploy runner (CI/Orchestrator).
 # - Do NOT delete an existing SSL config automatically; doing so can drop :443.
 SSL_DOMAIN="${SSL_DOMAIN:-}"
 SSL_CONF=/etc/nginx/conf.d/bb-portfolio-ssl.conf
 
-infer_ssl_domain() {
-  local inferred=""
-
-  # 1) Reuse existing nginx SSL config if present
-  if [ -z "$SSL_DOMAIN" ] && sudo test -s "$SSL_CONF"; then
-    inferred=$(sudo awk '
-      $1 == "server_name" {
-        for (i = 2; i <= NF; i++) {
-          gsub(";", "", $i)
-          if ($i != "_" && $i !~ /^www\./) { print $i; exit }
-        }
-      }
-    ' "$SSL_CONF" 2>/dev/null || true)
-  fi
-
-  # 2) Fall back to the first cert we find on disk
-  if [ -z "$inferred" ]; then
-    inferred=$(sudo sh -c '
-      for d in /etc/letsencrypt/live/*; do
-        base=$(basename "$d")
-        [ "$base" = "README" ] && continue
-        [ -s "$d/fullchain.pem" ] && [ -s "$d/privkey.pem" ] && { echo "$base"; exit 0; }
-      done
-      exit 1
-    ' 2>/dev/null || true)
-  fi
-
-  if [ -n "$inferred" ]; then
-    SSL_DOMAIN="$inferred"
-  fi
-}
-
-infer_ssl_domain
+if [ -z "$SSL_DOMAIN" ]; then
+  echo "Skipping SSL nginx config: SSL_DOMAIN not provided. Keeping any existing SSL config as-is."
+  sudo nginx -t
+  sudo systemctl reload nginx
+  echo "Nginx active: $(systemctl is-active nginx)"
+  echo "Listeners:"; sudo ss -ltnp | egrep ":80|:443" || true
+  echo "HTTP /healthz:"; curl -s -I --max-time 4 http://127.0.0.1/healthz || true
+  exit 0
+fi
 
 if [ -n "$SSL_DOMAIN" ] \
   && sudo test -s "/etc/letsencrypt/live/$SSL_DOMAIN/fullchain.pem" \
@@ -145,11 +119,7 @@ server {
 }
 CONF
 else
-  if [ -z "$SSL_DOMAIN" ]; then
-    echo "Skipping SSL nginx config (SSL_DOMAIN not provided and could not be inferred)."
-  else
-    echo "Skipping SSL nginx config for $SSL_DOMAIN (cert files missing)."
-  fi
+  echo "Skipping SSL nginx config for $SSL_DOMAIN (cert files missing). Keeping any existing SSL config as-is."
 fi
 sudo nginx -t
 sudo systemctl reload nginx
