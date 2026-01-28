@@ -109,6 +109,48 @@ const resolvedServerURL =
     ].join('\n'),
   })
 
+// Parse comma-separated origin allowlists used by Payload's CORS/CSRF guards.
+// We keep this intentionally strict: these should be full origins (scheme + host + optional port),
+// not patterns or paths (e.g., "https://bbaysinger.io", "http://localhost:3000").
+const parseOriginList = (raw: string): string[] => {
+  return raw
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .map((origin) => origin.replace(/\/$/, ''))
+}
+
+// Build the list of browser origins allowed to make state-changing requests.
+//
+// Why both FRONTEND_URL and serverURL?
+// - FRONTEND_URL is the conventional source of truth for the public site origin(s).
+// - serverURL is the canonical origin for Payload admin + API.
+//
+// In practice these are often the same, but during domain/HTTPS migrations it's easy for
+// FRONTEND_URL to drift (old domain, missing www, http vs https). Allowing the serverURL
+// origin avoids "You are not allowed to perform this action" errors in the admin UI
+// while still remaining an explicit allowlist (no wildcards).
+const getAllowedBrowserOrigins = (): string[] => {
+  const origins = new Set<string>()
+
+  // Primary browser origin(s) for the public site.
+  const frontendRaw = resolveEnvVar('FRONTEND_URL', {
+    description:
+      'Provide the public frontend origin(s). Comma-separate multiple values (e.g., http://localhost:8080,http://localhost:3000).',
+  })
+  for (const origin of parseOriginList(frontendRaw)) origins.add(origin)
+
+  // Also allow the Payload admin/API origin.
+  try {
+    const serverOrigin = new URL(resolvedServerURL).origin
+    origins.add(serverOrigin)
+  } catch {
+    // resolvedServerURL is already validated as required, but keep this defensive.
+  }
+
+  return Array.from(origins)
+}
+
 export default buildConfig({
   // Explicit public origin ensures Payload admin/API use the canonical host
   serverURL: resolvedServerURL,
@@ -163,27 +205,10 @@ export default buildConfig({
     },
   },
   csrf: (() => {
-    const raw = resolveEnvVar('FRONTEND_URL', {
-      description:
-        'Provide the public frontend origin(s). Comma-separate multiple values (e.g., http://localhost:8080,http://localhost:3000).',
-    })
-    // Support comma-separated list of allowed origins (e.g., "http://localhost:8080,http://localhost:3000")
-    const origins = raw
-      .split(',')
-      .map((s) => s.trim())
-      .filter(Boolean)
-    return origins
+    return getAllowedBrowserOrigins()
   })(),
   cors: (() => {
-    const raw = resolveEnvVar('FRONTEND_URL', {
-      description:
-        'Provide the public frontend origin(s). Comma-separate multiple values (e.g., http://localhost:8080,http://localhost:3000).',
-    })
-    const origins = raw
-      .split(',')
-      .map((s) => s.trim())
-      .filter(Boolean)
-    return origins
+    return getAllowedBrowserOrigins()
   })(),
   plugins: [
     payloadCloudPlugin(),
