@@ -12,7 +12,7 @@ The surrounding infrastructure (Terraform, Docker, AWS, GitHub Actions) exists a
 
 Note: this project is still evolving — features, UX, and infrastructure are actively iterated.
 
-Please view the live deployment at [bbaysinger.io](https://bbaysinger.io?utm_source=github).
+Please view the live deployment at [bbaysinger.io](https://bbaysinger.io?r=gh_readme).
 
 ## 🔎 30‑Second Tour (Frontend Focus)
 
