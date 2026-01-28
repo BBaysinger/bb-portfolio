@@ -37,9 +37,21 @@ function sendPageView(pagePath: string) {
 
   // In GA4, when initial config sets send_page_view:false, you must emit
   // explicit page_view events for SPA/app-router navigation.
-  const landingR = normalizeLandingR(
-    new URL(window.location.href).searchParams.get("r"),
-  );
+  const currentUrl = new URL(window.location.href);
+  const hasRParam = currentUrl.searchParams.has("r");
+  const landingR = normalizeLandingR(currentUrl.searchParams.get("r"));
+
+  // Prefer keeping `?r=` out of the canonical URL we send to GA (and the URL bar)
+  // while still capturing it as a dedicated event parameter.
+  const cleanedUrl = hasRParam ? new URL(currentUrl.toString()) : currentUrl;
+  if (hasRParam) cleanedUrl.searchParams.delete("r");
+
+  const cleanedPagePath = hasRParam
+    ? cleanedUrl.search
+      ? `${cleanedUrl.pathname}${cleanedUrl.search}`
+      : cleanedUrl.pathname
+    : pagePath;
+
   if (landingR) {
     // Useful for analysis across events; also register `landing_r` as a custom
     // dimension (event parameter) in GA4 if you want it in reports.
@@ -47,11 +59,22 @@ function sendPageView(pagePath: string) {
   }
 
   window.gtag("event", "page_view", {
-    page_path: pagePath,
-    page_location: window.location.href,
+    page_path: cleanedPagePath,
+    page_location: cleanedUrl.toString(),
     page_title: document.title,
     ...(landingR ? { landing_r: landingR } : {}),
   });
+
+  // Now that attribution has been captured, strip `r` from the visible URL
+  // to keep links clean and avoid polluting canonical page URLs.
+  if (hasRParam) {
+    try {
+      const relative = `${cleanedUrl.pathname}${cleanedUrl.search}${cleanedUrl.hash}`;
+      window.history.replaceState(window.history.state, "", relative);
+    } catch {
+      // ignore
+    }
+  }
 }
 
 /**
