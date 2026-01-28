@@ -275,27 +275,6 @@ function extractExternalReferrerQuery(headers: Headers): {
   }
 }
 
-function getCookieValue(headers: Headers, name: string): string | undefined {
-  const raw = headers.get('cookie')
-  if (!raw) return undefined
-
-  for (const part of raw.split(';')) {
-    const trimmed = part.trim()
-    if (!trimmed) continue
-    const eq = trimmed.indexOf('=')
-    if (eq <= 0) continue
-    const k = trimmed.slice(0, eq)
-    if (k !== name) continue
-    const v = trimmed.slice(eq + 1)
-    try {
-      return decodeURIComponent(v)
-    } catch {
-      return v
-    }
-  }
-  return undefined
-}
-
 export const POST = async (request: Request) => {
   const { identifier, password } = await readCredentials(request)
 
@@ -390,7 +369,6 @@ export const POST = async (request: Request) => {
       const { referrer, referrerIsExternal, referrerQuery } = extractExternalReferrerQuery(
         request.headers,
       )
-      const landingR = getCookieValue(request.headers, 'bb_landing_r') || undefined
 
       const loginResult = result as unknown as LoginResult
       const userId =
@@ -410,7 +388,6 @@ export const POST = async (request: Request) => {
             referrer,
             referrerIsExternal,
             referrerQuery,
-            landingR,
           },
           overrideAccess: true,
         })
@@ -447,12 +424,6 @@ export const POST = async (request: Request) => {
       ]
       if (isHttps) parts.push('Secure')
       headers.append('Set-Cookie', parts.join('; '))
-
-      // Clear landing attribution once we have a successful login.
-      // This keeps attribution scoped to the first login after a tagged entry.
-      const clearLanding = ['bb_landing_r=', 'Path=/', 'HttpOnly', 'SameSite=Lax', 'Max-Age=0']
-      if (isHttps) clearLanding.push('Secure')
-      headers.append('Set-Cookie', clearLanding.join('; '))
     }
 
     // Mirror Payload REST response shape succinctly

@@ -190,7 +190,6 @@ export interface AuthEvent {
   /**
    * Attribution tag captured from the landing URL query param ?r=... and persisted until login.
    */
-  landingR?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -578,7 +577,6 @@ export interface AuthEventsSelect<T extends boolean = true> {
   referrer?: T;
   referrerIsExternal?: T;
   referrerQuery?: T;
-  landingR?: T;
   updatedAt?: T;
   createdAt?: T;
 }

@@ -7,15 +7,7 @@ export const AuthEvents: CollectionConfig = {
     plural: 'Auth Events',
   },
   admin: {
-    defaultColumns: [
-      'createdAt',
-      'eventType',
-      'user',
-      'method',
-      'ip',
-      'landingR',
-      'referrerIsExternal',
-    ],
+    defaultColumns: ['createdAt', 'eventType', 'user', 'method', 'ip', 'referrerIsExternal'],
   },
   access: {
     // These are written server-side (overrideAccess) from API routes.
@@ -72,15 +64,6 @@ export const AuthEvents: CollectionConfig = {
       admin: {
         description:
           'Query string from the referrer URL when the referrer is external (e.g., utm_source=...).',
-      },
-    },
-    {
-      name: 'landingR',
-      type: 'text',
-      required: false,
-      admin: {
-        description:
-          'Attribution tag captured from the landing URL query param ?r=... and persisted until login.',
       },
     },
   ],
