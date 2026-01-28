@@ -75,7 +75,7 @@
     // JSON5 parser for annotated configuration files
     "json5": "^2.2.3",
     // Next.js framework for frontend/backend integration
-    "next": "16.1.5",
+    "next": "16.1.6",
     // Payload CMS core package
     "payload": "3.73.0",
     // React version to match Next.js 15
@@ -100,7 +100,7 @@
     // Node.js TypeScript definitions (latest for Node 18+)
     "@types/node": "^25.0.10",
     // React 19 types
-    "@types/react": "19.2.9",
+    "@types/react": "19.2.10",
     // React DOM 19 types
     "@types/react-dom": "19.2.3",
     // Vite React plugin (enables React support in Vitest)
@@ -110,7 +110,7 @@
     // ESLint JavaScript/TypeScript linter (v9 for latest rules)
     "eslint": "^9.39.2",
     // Next.js ESLint configuration (includes React and accessibility rules)
-    "eslint-config-next": "16.1.5",
+    "eslint-config-next": "16.1.6",
     // Browser DOM simulation for Node.js testing environments
     "jsdom": "27.4.0",
     // Standalone version of Playwright test runner
