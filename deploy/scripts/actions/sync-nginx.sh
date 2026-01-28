@@ -77,8 +77,8 @@ server {
 
   # Route Next.js assets based on referer.
   # Payload admin is served by the backend, but it references assets at /_next/*.
-  set $next_upstream_prod_local http://127.0.0.1:3000;
-  if ($http_referer ~* /admin/) { set $next_upstream_prod_local http://127.0.0.1:3001; }
+  set \$next_upstream_prod_local http://127.0.0.1:3000;
+  if (\$http_referer ~* /admin/) { set \$next_upstream_prod_local http://127.0.0.1:3001; }
 
   location = /healthz { return 200 'ok'; add_header Content-Type text/plain; }
   location = /admin { return 308 /admin/; }
@@ -90,7 +90,7 @@ server {
 
   # Generic Next.js assets: frontend by default, backend for admin pages.
   # (No ^~ here so the regex rules above can still match.)
-  location /_next/ { proxy_pass $next_upstream_prod_local; }
+  location /_next/ { proxy_pass \$next_upstream_prod_local; }
 
   location /api/ { proxy_pass http://127.0.0.1:3001; }
   location / { proxy_pass http://127.0.0.1:3000/; }
@@ -103,8 +103,8 @@ server {
   ssl_certificate_key /etc/letsencrypt/live/$SSL_DOMAIN/privkey.pem;
   include /etc/letsencrypt/options-ssl-nginx.conf;
 
-  set $next_upstream_dev_local http://127.0.0.1:4000;
-  if ($http_referer ~* /admin/) { set $next_upstream_dev_local http://127.0.0.1:4001; }
+  set \$next_upstream_dev_local http://127.0.0.1:4000;
+  if (\$http_referer ~* /admin/) { set \$next_upstream_dev_local http://127.0.0.1:4001; }
 
   location = /healthz { return 200 'ok'; add_header Content-Type text/plain; }
   location = /admin { return 308 /admin/; }
@@ -112,7 +112,7 @@ server {
 
   location ~ ^/_next/static/(css|chunks)/app/\(payload\)/ { proxy_pass http://127.0.0.1:4001; }
   location ~ ^/_next/static/media/payload- { proxy_pass http://127.0.0.1:4001; }
-  location /_next/ { proxy_pass $next_upstream_dev_local; }
+  location /_next/ { proxy_pass \$next_upstream_dev_local; }
 
   location /api/ { proxy_pass http://127.0.0.1:4001; }
   location / { proxy_pass http://127.0.0.1:4000/; }
