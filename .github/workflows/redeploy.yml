@@ -161,6 +161,27 @@ jobs:
           EC2_HOST: ${{ secrets.EC2_HOST }}
         run: bash deploy/scripts/actions/upload-compose.sh "${{ steps.ssh.outputs.key }}"
 
+      - name: Derive SSL domain
+        # Keep nginx SSL config deterministic: explicitly pass SSL_DOMAIN rather than
+        # letting the sync script guess (prevents accidental :443 drops).
+        env:
+          PUBLIC_SERVER_URL: ${{ secrets.PUBLIC_SERVER_URL }}
+          FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
+        run: |
+          set -euo pipefail
+          origin="${PUBLIC_SERVER_URL:-${FRONTEND_URL:-}}"
+          origin="${origin%%,*}"
+          if [ -z "$origin" ]; then
+            echo "No PUBLIC_SERVER_URL or FRONTEND_URL available to derive SSL_DOMAIN" >&2
+            exit 1
+          fi
+          ssl_domain=$(node -e "const u=new URL(process.argv[1]); process.stdout.write(u.hostname.replace(/^www\./,''));" "$origin")
+          if [ -z "$ssl_domain" ]; then
+            echo "Failed to derive SSL_DOMAIN from origin: $origin" >&2
+            exit 1
+          fi
+          echo "SSL_DOMAIN=$ssl_domain" >> "$GITHUB_ENV"
+
       - name: Sync Nginx config and reload
         env:
           EC2_HOST: ${{ secrets.EC2_HOST }}
