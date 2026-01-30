@@ -2,7 +2,7 @@
 
 import clsx from "clsx";
 import Image from "next/image";
-// import Link from "next/link";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import styles from "./FootGreet.module.scss";
@@ -63,14 +63,15 @@ const FootGreet: React.FC<{ _className?: string }> = ({ _className = "" }) => {
       <div className={styles.textColumn}>
         <p>
           Thanks for taking time out of your {timeOfDayText}. This site is still
-          in progress. As Edgy is my default (where appropriate), it's built
-          from scratch in <strong>Next.js</strong>, backed by{" "}
-          <strong>Payload CMS</strong>, fully headless, and written end-to-end
-          in <strong>TypeScript</strong>.
+          in progress. It's built from scratch in <strong>Next.js</strong>,
+          backed by <strong>Payload CMS</strong>, fully headless, and written
+          end-to-end in <strong>TypeScript</strong>.
         </p>
         <p>
-          But anyways, I hope you enjoy my work. I can't post all of it here,
-          but there's always more on the way. Stop in again sometime!
+          I hope you enjoy my work. I can't post all of it here,
+          but there's always more on the way. Stop in again sometime, and if
+          something resonates with you, please{" "}
+          <Link href="/contact">reach out</Link>!
         </p>
       </div>
     </div>
