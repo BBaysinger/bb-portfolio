@@ -144,8 +144,8 @@ const CurriculumVitae: React.FC = () => {
 
               <ul ref={addToRefs}>
                 <li>
-                  Animation & UI Design: Evolved from award-winning Flash/AS3 motion
-                  work into modern CSS/JS animation systems
+                  Animation & UI Design: Evolved from award-winning Flash/AS3
+                  motion work into modern CSS/JS animation systems
                 </li>
                 <li>
                   Interactive Web Development: Built rich tools including data
