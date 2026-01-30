@@ -55,8 +55,8 @@ const Greeting: React.FC = () => {
               <p>
                 Hi, I'm Bradley — a <strong>UI</strong> and{" "}
                 <strong>front-end developer</strong> in Spokane, WA. I
-                specialize in highly polished, custom interfaces with few
-                technical constraints.
+                specialize in building highly polished, custom interfaces with
+                few technical constraints.
               </p>
             </div>
             <div ref={addToRefs}>
