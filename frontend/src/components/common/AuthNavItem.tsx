@@ -45,30 +45,31 @@ export default function AuthNavItem({
   const authed = isLoggedIn || Boolean(user);
   const { logout } = useAuth();
 
-  if (!hasInitialized) {
-    // Preserve layout without announcing a misleading control
-    return (
-      <li className={clsx(className)}>
-        <span style={{ visibility: "hidden" }}>Login</span>
-      </li>
-    );
-  }
+  const isLoading = !hasInitialized;
 
-  if (authed) {
-    return (
-      <li className={clsx(className, styles.logoutButton, "logoutButton")}>
+  const loginAriaHidden = isLoading ? true : undefined;
+
+  return (
+    <li
+      className={clsx(
+        className,
+        authed && styles.logoutButton,
+        authed && "logoutButton",
+      )}
+    >
+      {authed ? (
         <button type="button" onClick={logout} className={clsx(linkClassName)}>
           Logout
         </button>
-      </li>
-    );
-  }
-
-  return (
-    <li className={clsx(className)}>
-      <Link href="/login#top" className={clsx(linkClassName)}>
-        Login
-      </Link>
+      ) : (
+        <Link
+          href="/login#top"
+          className={clsx(linkClassName, isLoading && styles.loadingLink)}
+          aria-hidden={loginAriaHidden}
+        >
+          Login
+        </Link>
+      )}
     </li>
   );
 }
