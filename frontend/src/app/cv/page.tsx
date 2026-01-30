@@ -92,7 +92,8 @@ const CurriculumVitae: React.FC = () => {
                 Experienced building production UI for enterprise and consumer
                 products. Strong in <strong>HTML, CSS, and JavaScript</strong>,
                 with modern framework experience including{" "}
-                <strong>React, TypeScript, Next.js, and Angular</strong>.
+                <strong>React, TypeScript, Next.js, and Angular</strong>, as
+                well as extensive experience with jQuery and vanilla JavaScript.
               </p>
             </div>
           </div>
@@ -173,10 +174,8 @@ const CurriculumVitae: React.FC = () => {
           </div>
         </div>
 
-        {/*-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --*/}
-
         <div className={"container"}>
-          <h4 ref={addToRefs}>Recent Independent Study &amp; R&amp;D</h4>
+          <h4 ref={addToRefs}>Professional Experience</h4>
 
           <div className={rowClass}>
             <div className={divClassLt}>
@@ -187,45 +186,57 @@ const CurriculumVitae: React.FC = () => {
                 alt="BB Logo"
               />
             </div>
-
             <div className={divClassRt}>
               <div ref={addToRefs} className={styles.subContainer}>
                 <div className={styles.leftSub}>
-                  <h5>Self-Directed Front-End Engineer</h5>
+                  <h5>
+                    BB Interactive
+                    <span className={styles.location}>
+                      {" "}
+                      — Spokane, WA | Remote
+                    </span>
+                  </h5>
+                  Front-end / UI Developer
+                  <div className={styles.parenthetical}>
+                    [Independent Contractor]
+                  </div>
                 </div>
                 <div className={styles.break}></div>
-                <div className={styles.rightSub}>[ 2024 - 2025 ]</div>
+                <div className={styles.rightSub}>[ 2025 - 2026 ]</div>
               </div>
+
+              <p ref={addToRefs} className={styles.desc}>
+                Built interactive, responsive web experiences for a
+                pharmaceutical startup and local businesses.
+              </p>
+
+              <p ref={addToRefs} className={styles.scope}>
+                <span>Technical Scope: </span>React, Next.js, Angular,
+                Wordpress, jQuery, AWS, Adobe Suite
+              </p>
 
               <ul>
                 <li ref={addToRefs}>
-                  Designed and built a production-grade portfolio platform as a
-                  proving ground for{" "}
-                  <b>
-                    advanced interaction patterns, animation systems, and UI
-                    performance work
-                  </b>
-                  .
+                  Built and maintained Angular features using a component-driven
+                  approach (reusable UI components, shared modules, and
+                  consistent SCSS theming).
                 </li>
                 <li ref={addToRefs}>
-                  Architected a modern stack using{" "}
-                  <b>Next.js, React, TypeScript, Payload CMS</b>, and AWS-based
-                  infrastructure.
+                  Implemented reactive forms with custom validators, error
+                  states, and accessible form patterns.
+                </li>
+                <li ref={addToRefs}>
+                  Authored Angular services and RxJS pipelines for API
+                  integration, caching, and resilient request handling.
+                </li>
+                <li ref={addToRefs}>
+                  Integrated routing patterns including route guards, resolvers,
+                  and URL-driven UI state for deep-linkable experiences.
                 </li>
                 <li ref={addToRefs}>
                   Built reusable interaction systems (route-synced carousels
                   with deep linking, layered/parallax coordination, responsive
                   layout strategies).
-                </li>
-                <li ref={addToRefs}>
-                  Implemented production instrumentation and reliability hooks:
-                  <b> CloudWatch RUM</b>, SSR-safe initialization guards,
-                  lightweight health endpoints, and operational metric
-                  publishing.
-                </li>
-                <li ref={addToRefs}>
-                  Wrote and maintained unit and integration tests for React
-                  applications.
                 </li>
                 <li ref={addToRefs}>
                   Automated delivery workflows including deployment
@@ -238,16 +249,28 @@ const CurriculumVitae: React.FC = () => {
                   builds.
                 </li>
                 <li ref={addToRefs}>
+                  Architected a modern stack using{" "}
+                  <b>Next.js, React, TypeScript, Payload CMS</b>, and AWS-based
+                  infrastructure.
+                </li>
+                <li ref={addToRefs}>
+                  Designed and built a production-grade portfolio platform as a
+                  proving ground for{" "}
+                  <b>
+                    advanced interaction patterns, animation systems, and UI
+                    performance work
+                  </b>
+                  .
+                </li>
+                <li ref={addToRefs}>
                   Built content and data workflows around Payload CMS (media
                   handling, scripted exports, and repeatable imports).
                 </li>
               </ul>
             </div>
           </div>
-        </div>
 
-        <div className={"container"}>
-          <h4 ref={addToRefs}>Professional Experience</h4>
+          {/*-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --*/}
 
           <div className={rowClass}>
             <div className={divClassLt}>
