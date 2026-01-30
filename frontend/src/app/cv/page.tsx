@@ -144,7 +144,7 @@ const CurriculumVitae: React.FC = () => {
 
               <ul ref={addToRefs}>
                 <li>
-                  Animation & UI Design: Evolved award-winning Flash/AS3 motion
+                  Animation & UI Design: Evolved from award-winning Flash/AS3 motion
                   work into modern CSS/JS animation systems
                 </li>
                 <li>
@@ -212,7 +212,7 @@ const CurriculumVitae: React.FC = () => {
 
               <p ref={addToRefs} className={styles.scope}>
                 <span>Technical Scope: </span>React, Next.js, Angular,
-                Wordpress, jQuery, AWS, Adobe Suite
+                Wordpress, jQuery, AWS, SVG, Canvas
               </p>
 
               <ul>
