@@ -54,20 +54,18 @@ const Greeting: React.FC = () => {
             <div ref={addToRefs}>
               <p>
                 Hi, I'm Bradley — a <strong>UI</strong> and{" "}
-                <strong>front-end developer</strong> in Spokane, WA. I've spent
-                years building interaction-heavy front-end projects. This site
-                focuses on the polish and sophistication I bring to my work, and
-                it includes some legacy projects for context.
+                <strong>front-end developer</strong> in Spokane, WA. I
+                specialize in highly polished, custom interfaces with few
+                technical constraints.
               </p>
             </div>
             <div ref={addToRefs}>
               <p>
-                While much of my background is in interaction-heavy front-end
-                work, my current focus is both broadening and deepening my
-                front-end foundation—shipping and maintaining reliable product
-                UI, strengthening core patterns around structure, styling, and
-                behavior, and applying the same level of care and polish to
-                everyday interfaces.
+                This portfolio includes some earlier, interaction-heavy work
+                that provides context for my background. Today, my focus is
+                front-end architecture—building reliable product UI and
+                reinforcing strong patterns around structure, styling, and
+                behavior.
               </p>
             </div>
             <a

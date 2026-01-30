@@ -2,7 +2,7 @@
 
 import clsx from "clsx";
 import Image from "next/image";
-import Link from "next/link";
+// import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import styles from "./FootGreet.module.scss";
@@ -34,7 +34,7 @@ import styles from "./FootGreet.module.scss";
  * - Afternoon: 12-16 hours
  * - Evening: 17-23 hours
  */
-const FootGreet: React.FC<{ className?: string }> = ({ className = "" }) => {
+const FootGreet: React.FC<{ _className?: string }> = ({ _className = "" }) => {
   const [currentTimeOfDay, setCurrentTimeOfDay] = useState<string>("");
   const timeOfDayText = currentTimeOfDay || "day";
 
@@ -50,8 +50,8 @@ const FootGreet: React.FC<{ className?: string }> = ({ className = "" }) => {
   }, []);
 
   return (
-    <div className={clsx(styles.footerGreet)}>
-      <p className={clsx(className)}>
+    <div className={clsx(styles.footerGreet, _className)}>
+      <div className={styles.photoColumn}>
         <Image
           src="/images/footer/bb2.jpg"
           className={styles.footerPhoto}
@@ -59,25 +59,20 @@ const FootGreet: React.FC<{ className?: string }> = ({ className = "" }) => {
           height={93}
           alt="Bradley's head"
         />
-        Thanks for taking time out of your {timeOfDayText}. This site is my
-        active project—not just a portfolio, but a platform built from scratch
-        in <strong>Next.js</strong>, backed by <strong>Payload CMS</strong>,
-        fully headless, and written end-to-end in <strong>TypeScript</strong>{" "}
-        across the frontend and backend.
-      </p>
-
-      <p>
-        It&apos;s a deliberate testbed for work I&apos;ve enjoyed for years:
-        original UI systems that push interaction, motion, and behavior past
-        conventional patterns.
-      </p>
-
-      <p>
-        I build <strong>ultra-polished</strong> interfaces with a
-        designer&apos;s eye, technical fearlessness, and very few constraints.
-        If you&apos;re working on something that has to be <i>exact</i>—or to{" "}
-        <i>go beyond</i>—then <Link href="/contact">let&apos;s talk</Link>.
-      </p>
+      </div>
+      <div className={styles.textColumn}>
+        <p>
+          Thanks for taking time out of your {timeOfDayText}. This site is still
+          in progress. As Edgy is my default (where appropriate), it's built
+          from scratch in <strong>Next.js</strong>, backed by{" "}
+          <strong>Payload CMS</strong>, fully headless, and written end-to-end
+          in <strong>TypeScript</strong>.
+        </p>
+        <p>
+          But anyways, I hope you enjoy my work. I can't post all of it here,
+          but there's always more on the way. Stop in again sometime!
+        </p>
+      </div>
     </div>
   );
 };
