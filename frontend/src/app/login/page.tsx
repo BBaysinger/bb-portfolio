@@ -7,7 +7,7 @@
  * then handles post-login redirection back to the originally requested NDA project.
  *
  * Key behaviors:
- * - Uses `sessionStorage` to preserve the intended `/nda/:id/` destination across the login step.
+ * - Uses `sessionStorage` to preserve the intended `/nda-included/:id/` destination across the login step.
  * - Uses `router.replace()` to avoid leaving a "back" history entry for the login page.
  * - Calls `router.refresh()` after login so Server Components re-evaluate with the new HttpOnly cookie.
  */
@@ -57,7 +57,7 @@ const LoginPage = () => {
 
       const chosen = projectId || code;
       if (!chosen) return null;
-      return `/nda/${encodeURIComponent(chosen)}/`;
+      return `/nda-included/${encodeURIComponent(chosen)}/`;
     } catch {
       return null;
     }

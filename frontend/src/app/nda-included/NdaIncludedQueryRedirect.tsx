@@ -4,14 +4,12 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 
 /**
- * Client-only redirect helper for NDA deep links.
+ * Client-only redirect helper for NDA-included deep links.
  *
- * Supports URLs like `/nda?p=<projectId>` by normalizing and redirecting to the canonical
- * App Router dynamic route `/nda/[projectId]`.
- *
- * Security note: `p` is validated to a conservative slug format before redirecting.
+ * Supports URLs like `/nda-included?p=<projectId>` by normalizing and redirecting to the
+ * App Router dynamic route `/nda-included/[projectId]`.
  */
-export default function NdaQueryRedirect() {
+export default function NdaIncludedQueryRedirect() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -20,7 +18,7 @@ export default function NdaQueryRedirect() {
     const isValid = /^[a-z0-9-]+$/i.test(p);
     if (!p || !isValid) return;
 
-    router.replace(`/nda/${encodeURIComponent(p)}/`);
+    router.replace(`/nda-included/${encodeURIComponent(p)}/`);
   }, [router, searchParams]);
 
   return null;

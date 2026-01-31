@@ -20,7 +20,7 @@ import InfoSwapper from "@/components/project-carousel-page/InfoSwapper";
 import { LayeredCarouselManagerRef } from "@/components/project-carousel-page/LayeredCarouselManager";
 import LogoSwapper from "@/components/project-carousel-page/LogoSwapper";
 import PageButtons from "@/components/project-carousel-page/PageButtons";
-import ProjectData, { projectRequiresNda } from "@/data/ProjectData";
+import ProjectData from "@/data/ProjectData";
 import { useProjectDataVersion } from "@/hooks/useProjectDataVersion";
 import { useRouteChange } from "@/hooks/useRouteChange";
 import {
@@ -44,9 +44,12 @@ import styles from "./ProjectView.module.scss";
  * @component ProjectView
  * @param {string} projectId - The current project ID from the wrapper component.
  */
-const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
+const ProjectView: React.FC<{ projectId: string; allowNda?: boolean }> = ({
+  projectId,
+  allowNda,
+}) => {
   // Re-render when ProjectData changes so placeholders can upgrade in-place.
-  useProjectDataVersion();
+  const projectDataVersion = useProjectDataVersion();
 
   const projects = ProjectData.activeProjectsRecord;
   const debug = process.env.NEXT_PUBLIC_DEBUG_CAROUSEL === "1";
@@ -62,7 +65,9 @@ const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
   }, [projectId, projects]);
 
   const [initialIndex, setInitialIndex] = useState<number | null>(() => {
-    return projectId ? (ProjectData.projectIndex(projectId) ?? null) : null;
+    if (!projectId) return null;
+    const idx = ProjectData.projectIndex(projectId);
+    return typeof idx === "number" && idx >= 0 ? idx : null;
   });
 
   const [stabilizedIndex, setStabilizedIndex] = useState<number | null>(
@@ -88,6 +93,53 @@ const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
     ProjectData.activeProjects.map((p) => p.id),
   );
 
+  // Track which dataset mode the slide keys were captured from.
+  // When we switch between public and NDA contexts, we must refresh the key list
+  // to match the newly-active dataset.
+  const slideKeysModeRef = useRef<boolean | null>(null);
+
+  // Keep the captured slide key list aligned with the active dataset:
+  // - If we mount before the dataset is ready (common when entering /nda-included from a client-side nav),
+  //   the captured list can be empty.
+  // - If we navigate between dataset modes (public ↔ NDA), we MUST refresh the list.
+  // - If the current projectId isn't in the captured list but exists in the dataset,
+  //   refresh so the info panel can render immediately.
+  useEffect(() => {
+    void projectDataVersion;
+    const desiredMode = Boolean(allowNda);
+    const datasetHasCurrent = (() => {
+      try {
+        return Boolean(ProjectData.activeProjectsRecord?.[projectId]);
+      } catch {
+        return false;
+      }
+    })();
+    const keysHaveCurrent = slideKeysRef.current.includes(projectId);
+
+    const shouldResetKeys =
+      slideKeysRef.current.length === 0 ||
+      slideKeysModeRef.current !== desiredMode ||
+      (datasetHasCurrent && !keysHaveCurrent);
+
+    if (!shouldResetKeys) return;
+
+    const keys = ProjectData.activeProjects.map((p) => p.id);
+    if (keys.length === 0) return;
+    slideKeysRef.current = keys;
+    slideKeysModeRef.current = desiredMode;
+
+    // Ensure the info panel has an active index as soon as the dataset is available.
+    try {
+      const idx = ProjectData.projectIndex(projectId);
+      if (typeof idx === "number" && idx >= 0) {
+        setInitialIndex(idx);
+        setStabilizedIndex(idx);
+      }
+    } catch {
+      // ignore
+    }
+  }, [projectId, projectDataVersion, allowNda]);
+
   // Debug: dump the index→slug mapping used by the carousel slides at mount
   useEffect(() => {
     if (debug) {
@@ -110,7 +162,7 @@ const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
   // No need to memoize a tiny string; we'll inline `bb${uiDirection}` where used.
 
   // Routing model notes (do not remove):
-  // - Canonical entry from the list: segment URLs (/project/{slug} or /nda/{slug}).
+  // - Canonical entry from the list: segment URLs (/project/{slug} or /nda-included/{slug}).
   // - In-session navigation (carousel gestures + prev/next): query-string ?p={slug}.
   //   We normalize on first stabilization by converting any segment entry into ?p=
   //   and dispatch bb:routechange so all listeners stay consistent.
@@ -128,7 +180,7 @@ const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
             .split("/")
             .filter(Boolean);
           return segs.length >= 2 &&
-            (segs[0] === "project" || segs[0] === "nda")
+            (segs[0] === "project" || segs[0] === "nda-included")
             ? segs[1]
             : "";
         } catch {
@@ -171,15 +223,13 @@ const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
             typeof window !== "undefined" ? window.location.search : "";
           const hasQuery = new URLSearchParams(searchNow).has("p");
           if (!hasQuery && typeof window !== "undefined") {
-            const path = window.location.pathname || "";
-            const segs = path.split("/").filter(Boolean);
-            const seg0 = segs[0];
-            const seg1 = segs[1];
             const currentId = lastKnownProjectId.current;
-            if ((seg0 === "project" || seg0 === "nda") && seg1 && currentId) {
-              const base = `/${seg0}/`;
+            if (currentId) {
+              // Preserve the current segment path (valid Next route) and add ?p= for
+              // in-session navigation listeners.
+              const path = window.location.pathname || "";
               const hash = window.location.hash || "";
-              const url = `${base}?p=${encodeURIComponent(currentId)}${hash}`;
+              const url = `${path}?p=${encodeURIComponent(currentId)}${hash}`;
               replaceWithReplaceState(url, window.history.state || null);
             }
           }
@@ -222,10 +272,13 @@ const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
           //   browsers record it as a normal navigation step, so Back/Forward stops on it.
           // - If we wait and push later (after timers/async), some browsers may merge/skip it.
           // Clicking into the carousel is a real click, so pushing now yields predictable history.
-          const target = projects[newProjectId];
-          const hrefBase = projectRequiresNda(target) ? "/nda/" : "/project/";
-          // Carousel-initiated routes should use query-string model
-          const targetHref = `${hrefBase}?p=${encodeURIComponent(newProjectId)}`;
+          // In-session carousel navigation uses query-string routes.
+          // Base selection:
+          // - Public carousel (allowNda=false): always /project/
+          // - NDA-included carousel (allowNda=true): always /nda-included/
+          const hrefBase = Boolean(allowNda) ? "/nda-included/" : "/project/";
+          // Keep a valid segment URL so refresh/deeplinks always work.
+          const targetHref = `${hrefBase}${encodeURIComponent(newProjectId)}/?p=${encodeURIComponent(newProjectId)}`;
           // Mark this navigation as originating from the carousel so we can
           // suppress the subsequent route-driven programmatic scroll.
           try {
@@ -275,7 +328,7 @@ const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
         setStabilizedIndex(newStabilizedIndex);
       }
     },
-    [stabilizedIndex, projects, debug],
+    [stabilizedIndex, debug, allowNda],
   );
 
   // On first stabilization after mount, canonicalize segment entry to query ?p=
@@ -289,9 +342,16 @@ const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
       projectId &&
       ProjectData.projectIndex(projectId) != null
     ) {
-      setInitialIndex(ProjectData.projectIndex(projectId) as number);
+      const idx = ProjectData.projectIndex(projectId);
+      if (typeof idx !== "number" || idx < 0) return;
+      setInitialIndex(idx);
+      // If the carousel hasn't fired its first stabilization callback yet (common on mobile),
+      // ensure the info panel has an active index immediately.
+      if (stabilizedIndex == null) {
+        setStabilizedIndex(idx);
+      }
     }
-  }, [initialIndex, projectId]);
+  }, [initialIndex, projectId, stabilizedIndex]);
 
   useEffect(() => {
     lastKnownProjectId.current = projectId;
@@ -345,6 +405,9 @@ const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
         return;
       }
       const targetIndex = ProjectData.projectIndex(projectId);
+      if (typeof targetIndex !== "number" || targetIndex < 0) {
+        return;
+      }
       if (debug) {
         try {
           console.info("[Carousel] route→scroll action", {
@@ -446,7 +509,7 @@ const ProjectView: React.FC<{ projectId: string }> = ({ projectId }) => {
               onStabilizationUpdate={handleStabilizationUpdate}
             />
           )}
-          <PageButtons projectId={projectId} />
+          <PageButtons projectId={projectId} allowNda={allowNda} />
         </div>
         <LogoSwapper
           index={infoSwapperIndex ?? undefined}

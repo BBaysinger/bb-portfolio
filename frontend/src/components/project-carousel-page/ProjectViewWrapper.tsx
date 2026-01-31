@@ -48,12 +48,20 @@ export default function ProjectViewWrapper({
   const router = useRouter();
   const { isLoggedIn, user } = useAppSelector((s) => s.auth);
   const isAuthed = Boolean(isLoggedIn) || Boolean(user);
-  // Dataset selection (security contract):
-  // - Public routes (/project/*): NEVER include NDA projects in the active carousel dataset.
-  //   Even if the user becomes authenticated mid-session (e.g., logs into admin in another tab),
-  //   NDA navigation and details must remain gated behind /nda/* routes.
-  // - NDA routes (/nda/*): include NDA projects in the active set (placeholders allowed when not authed).
+  // Dataset selection:
+  // - Public routes (/project/*): do NOT include NDA projects.
+  // - NDA-included routes (/nda-included/*): include NDA placeholders and upgrade client-side if authed.
   const includeNdaInActive = Boolean(allowNda);
+
+  // If authenticated and on the public project route, normalize into the NDA-included
+  // route so navigation doesn't mix route bases.
+  useEffect(() => {
+    if (allowNda) return;
+    if (!isAuthed) return;
+    const id = (params?.projectId || "").trim();
+    if (!id) return;
+    router.replace(`/nda-included/${encodeURIComponent(id)}/`);
+  }, [allowNda, isAuthed, params?.projectId, router]);
 
   // If the client store already has data in the correct mode, we can render
   // immediately without waiting for a network re-init.
@@ -145,6 +153,14 @@ export default function ProjectViewWrapper({
             ProjectData.containsSanitizedPlaceholders
           )
             storeReadyNow = false;
+
+          // On NDA routes, SSR is static and will typically hydrate with sanitized
+          // placeholders (no auth). Always attempt a client refresh on entry so we
+          // can expand confidential fields if the browser has a session cookie,
+          // even if the Redux auth state hasn't populated yet.
+          if (allowNda && ssrContainsSanitizedPlaceholders) {
+            storeReadyNow = false;
+          }
         } catch {
           storeReadyNow = false;
         }
@@ -154,17 +170,11 @@ export default function ProjectViewWrapper({
           return;
         }
 
-        const needsInit =
-          !ssrParsed ||
-          lastConfiguredIncludeNdaRef.current !== includeNdaInActive;
-
-        if (needsInit) {
-          await ProjectData.initialize({
-            disableCache: true,
-            includeNdaInActive,
-          });
-          lastConfiguredIncludeNdaRef.current = includeNdaInActive;
-        }
+        await ProjectData.initialize({
+          disableCache: true,
+          includeNdaInActive,
+        });
+        lastConfiguredIncludeNdaRef.current = includeNdaInActive;
       } finally {
         if (!cancelled) setReady(true);
       }
@@ -174,6 +184,7 @@ export default function ProjectViewWrapper({
     };
   }, [
     includeNdaInActive,
+    allowNda,
     ssrIncludeNdaInActive,
     ssrParsed,
     ssrContainsSanitizedPlaceholders,
@@ -213,8 +224,11 @@ export default function ProjectViewWrapper({
     try {
       const p = ProjectData.getProject(params.projectId);
       if (projectRequiresNda(p)) {
-        // Navigate to NDA route for this slug
-        router.replace(`/nda/${encodeURIComponent(params.projectId)}/`);
+        // Navigate to NDA-included route using shortCode (stable for SSG placeholder dataset)
+        const code = (p?.shortCode || "").trim();
+        router.replace(
+          `/nda-included/${encodeURIComponent(code || params.projectId)}/`,
+        );
       }
     } catch {
       // no-op
@@ -232,13 +246,26 @@ export default function ProjectViewWrapper({
       if (probing) return;
       probing = true;
       try {
-        // Only hit the network when auth/data shape is mismatched.
-        const mismatch =
-          (isAuthed && ProjectData.containsSanitizedPlaceholders) ||
-          (!isAuthed && !ProjectData.containsSanitizedPlaceholders);
-        if (!mismatch) return;
-        // Reinitialize NDA dataset to ensure fields are properly sanitized
-        // or expanded to match current auth state.
+        // Don't rely on Redux auth state here; it's racy on client-side
+        // transitions. Instead, probe the session cookie via /api/users/me.
+        const hasPlaceholders = ProjectData.containsSanitizedPlaceholders;
+
+        const me = await fetch("/api/users/me", {
+          method: "GET",
+          cache: "no-store",
+          credentials: "include",
+        });
+
+        const sessionValid = me.ok;
+
+        // - If session is valid but we have placeholders => expand.
+        // - If session is invalid but we have expanded data => re-sanitize.
+        const needsRefresh =
+          (sessionValid && hasPlaceholders) ||
+          (!sessionValid && !hasPlaceholders);
+
+        if (!needsRefresh) return;
+
         await ProjectData.initialize({
           disableCache: true,
           includeNdaInActive: true,
@@ -264,7 +291,7 @@ export default function ProjectViewWrapper({
       window.removeEventListener("visibilitychange", onVisibility);
       window.removeEventListener("focus", onFocus);
     };
-  }, [ready, allowNda, isAuthed]);
+  }, [ready, allowNda]);
   if (!ready) {
     return <div>Loading project...</div>;
   }
@@ -288,19 +315,10 @@ function ProjectViewRouterBridge({
     fallbackFromPathSegment: true,
     // Hash uniquing removed; Back/Forward is stable without it in supported browsers.
   });
-  const rec = (() => {
-    try {
-      return projectId ? ProjectData.getProject(projectId) : undefined;
-    } catch {
-      return undefined;
-    }
-  })();
-
-  // Shareable/canonical URLs should reflect the project's NDA-ness, not which carousel you're in.
-  // - Public carousel (allowNda=false): always /project/
-  // - NDA carousel (allowNda=true): /nda/ for NDA projects, /project/ for public projects
-  const base =
-    allowNda && rec && projectRequiresNda(rec) ? "/nda/" : "/project/";
+  // Shareable/canonical URLs follow the current carousel context.
+  // - Public carousel (allowNda=false): /project/
+  // - NDA-included carousel (allowNda=true): /nda-included/
+  const base = allowNda ? "/nda-included/" : "/project/";
   // On NDA routes, include NDA items in active set even if not logged in (placeholders allowed).
   const includeNdaInActive = Boolean(allowNda);
 
@@ -393,7 +411,7 @@ function ProjectViewRouterBridge({
     <>
       {/* Emit a canonical link that always points to the segment route for the current project */}
       <CanonicalLink href={`${base}${encodeURIComponent(projectId)}/`} />
-      <ProjectView projectId={projectId} />
+      <ProjectView projectId={projectId} allowNda={allowNda} />
     </>
   );
 }

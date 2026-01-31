@@ -75,7 +75,7 @@ const LogoSwapper: React.FC<LogoSwapperProps> = ({
         // Use a conservative selection to keep payload small; fall back if fields differ
         const res = await fetch("/api/brands/?limit=1000", {
           credentials: "include",
-          cache: "force-cache",
+          cache: "no-store",
         });
         if (!res.ok) return;
         const json = await res.json();
