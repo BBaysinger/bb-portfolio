@@ -135,11 +135,28 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   // check if the user is authenticated server-side; if so, refresh SSR to reveal protected data.
   useEffect(() => {
     let ticking = false;
+    const getPublicRedirectForNdaPath = (path: string) => {
+      // If a non-authed user lands on an NDA-included project detail route,
+      // redirect to the public equivalent.
+      //
+      // Examples:
+      // - /nda-included/foo/   -> /project/foo/
+      // - /nda-included/?p=foo -> /projects/
+      try {
+        const match = /^\/nda-included\/([^/]+)(?:\/|$)/.exec(path);
+        const projectId = match?.[1] || "";
+        return projectId
+          ? `/project/${encodeURIComponent(projectId)}/`
+          : "/projects/";
+      } catch {
+        return "/projects/";
+      }
+    };
     const shouldSkipRefreshForCarousel = () => {
       try {
         if (typeof window === "undefined") return false;
         const path = pathname || "";
-        const isCarouselPage = /\/(project|nda)\//.test(path);
+        const isCarouselPage = /\/(project|nda-included)\//.test(path);
         if (!isCarouselPage) return false;
         const hasP = new URL(window.location.href).searchParams.has("p");
         // When the project carousel manages the active item via ?p, avoid
@@ -188,7 +205,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 announcer.textContent =
                   "Session ended. Redirecting to public view for privacy.";
               }
-              router.replace("/");
+              router.replace(getPublicRedirectForNdaPath(path));
             }
           } catch {}
         } else if (res.status >= 500) {
@@ -243,7 +260,19 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           announcer.textContent =
             "Logged out. Redirecting to public view for privacy.";
         }
-        router.replace("/");
+        router.replace(
+          (() => {
+            try {
+              const match = /^\/nda-included\/([^/]+)(?:\/|$)/.exec(path);
+              const projectId = match?.[1] || "";
+              return projectId
+                ? `/project/${encodeURIComponent(projectId)}/`
+                : "/projects/";
+            } catch {
+              return "/projects/";
+            }
+          })(),
+        );
       }
     } catch {
       // no-op
