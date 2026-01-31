@@ -177,7 +177,7 @@ const CurriculumVitae: React.FC = () => {
         </div>
 
         <div className={"container"}>
-          <h4 ref={addToRefs}>Professional Experience</h4>
+          <h4 ref={addToRefs}>Experience</h4>
 
           <div className={rowClass}>
             <div className={divClassLt}>
@@ -204,7 +204,9 @@ const CurriculumVitae: React.FC = () => {
                   </div>
                 </div>
                 <div className={styles.break}></div>
-                <div className={styles.rightSub}>[ 2025 - 2026 ]</div>
+                <div className={styles.rightSub}>
+                  [ 2020 - 2021, 2025 - 2026 ]
+                </div>
               </div>
 
               <p ref={addToRefs} className={styles.desc}>
@@ -213,8 +215,9 @@ const CurriculumVitae: React.FC = () => {
               </p>
 
               <p ref={addToRefs} className={styles.scope}>
-                <span>Technical Scope: </span>React, Next.js, Angular,
-                Wordpress, jQuery, AWS, SVG, Canvas
+                <span>Technical Scope: </span>TypeScript, React, Next.js,
+                Angular, Wordpress, jQuery, AWS, SVG, Canvas, Elasticsearch,
+                Craft CMS, Adobe Creative Suite
               </p>
 
               <ul>
@@ -267,6 +270,31 @@ const CurriculumVitae: React.FC = () => {
                 <li ref={addToRefs}>
                   Built content and data workflows around Payload CMS (media
                   handling, scripted exports, and repeatable imports).
+                </li>
+                {/* earlier/later */}
+                <li ref={addToRefs}>
+                  Developed an animated informational UI using <b>React Move</b>{" "}
+                  for the Committee for Children, supporting education of
+                  millions of children across 70 countries.
+                </li>
+                <li ref={addToRefs}>
+                  Built a law enforcement employment application tracking system
+                  leveraging Angular and <b>Elasticsearch</b>, consuming{" "}
+                  <b>GraphQL</b> for efficient backend integration.
+                </li>
+                <li ref={addToRefs}>
+                  Created and deployed an admin interface for a Spokane
+                  construction company website using <b>Craft CMS</b>.
+                </li>
+                <li ref={addToRefs}>
+                  Produced animations in vanilla JavaScript and CSS3 for
+                  websites and banner ads for Novo Nordisk, enhancing user UI/UX
+                  engagement for a multinational pharmaceutical company.
+                </li>
+                <li ref={addToRefs}>
+                  Prototyped a legal investigation application in <b>Angular</b>{" "}
+                  to process and analyze large volumes of company documents
+                  efficiently.
                 </li>
               </ul>
             </div>
@@ -356,76 +384,6 @@ const CurriculumVitae: React.FC = () => {
             <div className={divClassLt}>
               <RawImg
                 ref={addToRefs}
-                src="/images/cv/bb.svg"
-                className={styles.cvLogo}
-                alt="BB Interactive Logo"
-              />
-            </div>
-            <div className={divClassRt}>
-              <div ref={addToRefs} className={styles.subContainer}>
-                <div className={styles.leftSub}>
-                  <h5>
-                    BB Interactive
-                    <span className={styles.location}>
-                      {" "}
-                      — Spokane, WA | Remote
-                    </span>
-                  </h5>
-                  Interactive UI Web Developer
-                  <div className={styles.parenthetical}>
-                    [Independent Contractor]
-                  </div>
-                </div>
-                <div className={styles.break}></div>
-                <div className={styles.rightSub}>[ 2020 - 2021 ]</div>
-              </div>
-
-              <p ref={addToRefs} className={styles.desc}>
-                Delivered specialized UI and interactive web development for
-                diverse clients: local businesses, a national startup, an
-                international charity, and a pharmaceutical manufacturer.
-              </p>
-
-              <p ref={addToRefs} className={styles.scope}>
-                <span>Technical Scope:</span> Angular 7-8, TypeScript, React,
-                SVG, SCSS, Elasticsearch, Craft CMS, Adobe Creative Suite
-              </p>
-
-              <ul>
-                <li ref={addToRefs}>
-                  Developed an animated informational UI using <b>React Move</b>{" "}
-                  for the Committee for Children, supporting education of
-                  millions of children across 70 countries.
-                </li>
-                <li ref={addToRefs}>
-                  Built a law enforcement employment application tracking system
-                  leveraging Angular and <b>Elasticsearch</b>, consuming{" "}
-                  <b>GraphQL</b> for efficient backend integration.
-                </li>
-                <li ref={addToRefs}>
-                  Created and deployed an admin interface for a Spokane
-                  construction company website using <b>Craft CMS</b>.
-                </li>
-                <li ref={addToRefs}>
-                  Produced animations in vanilla JavaScript and CSS3 for
-                  websites and banner ads for Novo Nordisk, enhancing user UI/UX
-                  engagement for a multinational pharmaceutical company.
-                </li>
-                <li ref={addToRefs}>
-                  Prototyped a legal investigation application in <b>Angular</b>{" "}
-                  to process and analyze large volumes of company documents
-                  efficiently.
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          {/*-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --*/}
-
-          <div className={rowClass}>
-            <div className={divClassLt}>
-              <RawImg
-                ref={addToRefs}
                 src="/images/cv/s2.svg"
                 className={styles.cvLogo}
                 alt="Seven2"
@@ -441,7 +399,9 @@ const CurriculumVitae: React.FC = () => {
                   Interactive / Web UI Developer
                 </div>
                 <div className={styles.break}></div>
-                <div className={styles.rightSub}>[ 2018 - 2019 ]</div>
+                <div className={styles.rightSub}>
+                  [ 2005 - 2016, 2018 - 2019 ]
+                </div>
               </div>
 
               <p ref={addToRefs} className={styles.desc}>
@@ -452,9 +412,10 @@ const CurriculumVitae: React.FC = () => {
               </p>
 
               <p ref={addToRefs} className={styles.scope}>
-                <span>Technical Scope:</span> Angular 6-8, Typescript, RxJS,
-                jQuery, Craft CMS, Grunt/Gulp, Handlebars, CreateJS, Adobe
-                Creative Suite
+                <span>Technical Scope:</span> Angular, Typescript, RxJS, jQuery,
+                vanilla JavaScript Craft CMS, Grunt/Gulp, CreateJS, Adobe
+                Creative Suite, ActionScript 3, ActionScript 2, jQuery,
+                Require/AMD, Haxe, Flash, Adobe Creative Suite
               </p>
 
               <ul>
@@ -481,12 +442,6 @@ const CurriculumVitae: React.FC = () => {
                   scalability and modern functionality.
                 </li>
                 <li ref={addToRefs}>
-                  Engineered a custom JavaScript timeline animation framework
-                  with compact syntax, eliminating inconsistencies in CSS3
-                  keyframe animations while maintaining support for legacy
-                  browsers like IE.
-                </li>
-                <li ref={addToRefs}>
                   Provided technical oversight and contributed to concept
                   development with designers, developers, and animators, keeping
                   delivery aligned through Trello-managed workflows.
@@ -497,18 +452,65 @@ const CurriculumVitae: React.FC = () => {
                   content challenges across regions.
                 </li>
                 <li ref={addToRefs}>
-                  Integrated with a proprietary (NDA) API for managing user
-                  statuses and rewards systems.
-                </li>
-                <li ref={addToRefs}>
-                  Built a zero-dependency, <b>vanilla JavaScript</b> carousel
-                  and other components for Comics Kingdom, enabling easy
-                  embedding by local newspaper websites.
-                </li>
-                <li ref={addToRefs}>
                   Delivered under extremely tight deadlines, often starting
                   development before client design approvals to meet launch
                   dates.
+                </li>
+                {/* earlier/later */}
+                <li ref={addToRefs}>
+                  Engineered flexible templates and frameworks in AS3, used by
+                  teams of developers and animators to collaboratively build
+                  games and interactive content.
+                </li>
+                <li ref={addToRefs}>
+                  Served as the lead developer for several first iterations of
+                  AT&amp;T&apos;s projects, including their data usage
+                  calculators and first-ever app store, authored in vanilla
+                  JavaScript and Require/AMD.
+                </li>
+                <li ref={addToRefs}>
+                  Led Seven2&apos;s first Nickelodeon Group project: Blue&apos;s
+                  Clues — Mix &apos;N Match Dressup, built in
+                  Flash/ActionScript.
+                </li>
+                <li ref={addToRefs}>
+                  Rescued a high-visibility AT&T project by creating a
+                  video-based workaround for an incorrectly scoped JavaScript
+                  feature, achieving over 90 million interactions in one week.
+                </li>
+                <li ref={addToRefs}>
+                  Developed custom audio and video players for MTV&apos;s
+                  high-production websites using AS3.
+                </li>
+                <li ref={addToRefs}>
+                  Designed and implemented a performant physics-based tween
+                  engine in AS3, preceding industry-standard systems like
+                  Tweener and GSAP.
+                </li>
+                <li ref={addToRefs}>
+                  Contributed a cross-platform <b>mobile accelerometer</b>{" "}
+                  solution to Flambé (now 2Dkit), a leading HTML5 and
+                  cross-platform game UI framework.
+                </li>
+                <li ref={addToRefs}>
+                  Built APIs for managing <b>JSON</b>, <b>XML</b>, and{" "}
+                  <b>CSV</b> data exchanges, enabling user-driven
+                  server/database interactions with zero-dependency JavaScript
+                  and AS3 solutions.
+                </li>
+                <li ref={addToRefs}>
+                  Played a critical role in project conceptualization,
+                  contributing to multiple award-winning projects at annual
+                  Spokane Ad Fed events.
+                </li>
+                <li ref={addToRefs}>
+                  Worked 320+ hours in June 2014 to meet a critical deadline for
+                  our WildBrain client, in addition to many other high-intensity
+                  delivery cycles.
+                </li>
+                <li ref={addToRefs}>
+                  Led development of a <b>Webby Award</b>-winning project (2008
+                  People&apos;s Choice Art Website of the Year).
                 </li>
               </ul>
             </div>
@@ -591,109 +593,6 @@ const CurriculumVitae: React.FC = () => {
                   Worked over 320 hours in June 2017 with a supervisor to meet a
                   critical $5M contract deadline, ensuring the company&apos;s
                   viability.
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          {/*-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --*/}
-
-          <div className={rowClass}>
-            <div className={divClassLt}>
-              <RawImg
-                ref={addToRefs}
-                src="/images/cv/s2.svg"
-                className={styles.cvLogo}
-                alt="Seven2 Logo"
-              />
-            </div>
-            <div className={divClassRt}>
-              <div ref={addToRefs} className={styles.subContainer}>
-                <div className={styles.leftSub}>
-                  <h5>
-                    Seven2 Interactive
-                    <span className={styles.location}> — Spokane, WA</span>
-                  </h5>
-                  Lead Flash / Interactive Web Developer
-                </div>
-                <div className={styles.break}></div>
-                <div className={styles.rightSub}>[ 2005 - 2016 ]</div>
-              </div>
-
-              <p ref={addToRefs} className={styles.desc}>
-                Led the development of interactive websites, browser games, and
-                web advertising for nationally recognized corporations in
-                technology and entertainment. Delivered innovative solutions
-                under tight deadlines while mentoring junior developers and
-                shaping technical direction.
-              </p>
-
-              <p ref={addToRefs} className={styles.scope}>
-                <span>Technical Scope:</span> ActionScript 3, ActionScript 2,
-                JavaScript, jQuery, Require/AMD, Haxe, Flash, Adobe Creative
-                Suite
-              </p>
-
-              <ul>
-                <li ref={addToRefs}>
-                  Ramped up on <b>AS2</b>, <b>AS3</b>, and <b>Haxe</b>, applying
-                  their patterns and frameworks to deliver hundreds of diverse
-                  interactive experiences.
-                </li>
-                <li ref={addToRefs}>
-                  Engineered flexible templates and frameworks in AS3, used by
-                  teams of developers and animators to collaboratively build
-                  games and interactive content.
-                </li>
-                <li ref={addToRefs}>
-                  Served as the lead developer for several first iterations of
-                  AT&amp;T&apos;s projects, including their data usage
-                  calculators and first-ever app store, authored in vanilla
-                  JavaScript and Require/AMD.
-                </li>
-                <li ref={addToRefs}>
-                  Led Seven2&apos;s first Nickelodeon Group project: Blue&apos;s
-                  Clues — Mix &apos;N Match Dressup, built in
-                  Flash/ActionScript.
-                </li>
-                <li ref={addToRefs}>
-                  Rescued a high-visibility AT&T project by creating a
-                  video-based workaround for an incorrectly scoped JavaScript
-                  feature, achieving over 90 million interactions in one week.
-                </li>
-                <li ref={addToRefs}>
-                  Developed custom audio and video players for MTV&apos;s
-                  high-production websites using AS3.
-                </li>
-                <li ref={addToRefs}>
-                  Designed and implemented a performant physics-based tween
-                  engine in AS3, preceding industry-standard systems like
-                  Tweener and GSAP.
-                </li>
-                <li ref={addToRefs}>
-                  Contributed a cross-platform <b>mobile accelerometer</b>{" "}
-                  solution to Flambé (now 2Dkit), a leading HTML5 and
-                  cross-platform game UI framework.
-                </li>
-                <li ref={addToRefs}>
-                  Built APIs for managing <b>JSON</b>, <b>XML</b>, and{" "}
-                  <b>CSV</b> data exchanges, enabling user-driven
-                  server/database interactions with zero-dependency JavaScript
-                  and AS3 solutions.
-                </li>
-                <li ref={addToRefs}>
-                  Played a critical role in project conceptualization,
-                  contributing to multiple award-winning projects at annual
-                  Spokane Ad Fed events.
-                </li>
-                <li ref={addToRefs}>
-                  Worked 320+ hours in June 2014 to meet a critical deadline for
-                  our WildBrain client, in addition to many other high-intensity
-                  delivery cycles.
-                </li>
-                <li ref={addToRefs}>
-                  Led development of a <b>Webby Award</b>-winning project (2008
-                  People&apos;s Choice Art Website of the Year).
                 </li>
               </ul>
             </div>
