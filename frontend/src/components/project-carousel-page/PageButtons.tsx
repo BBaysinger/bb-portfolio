@@ -4,7 +4,7 @@ import clsx from "clsx";
 import React from "react";
 
 import { PushStateLink } from "@/components/common/PushStateLink";
-import ProjectData, { projectRequiresNda } from "@/data/ProjectData";
+import ProjectData from "@/data/ProjectData";
 
 import styles from "./PageButtons.module.scss";
 
@@ -26,7 +26,7 @@ import styles from "./PageButtons.module.scss";
  *
  * Features:
  * - Seamless SPA navigation using pushState routing
- * - NDA-aware routing (switches between /project/ and /nda/ routes)
+ * - NDA-included routing (switches between /project/ and /nda-included/ routes)
  * - Accessible navigation with ARIA labels and role grouping
  * - Graceful handling of missing/invalid projects
  * - Maintains scroll position and animation state during navigation
@@ -42,14 +42,17 @@ import styles from "./PageButtons.module.scss";
  */
 /**
  * Routing model notes (do not remove):
- * - Canonical entry from the list uses segment URLs: /project/{slug} or /nda/{slug}.
+ * - Canonical entry from the list uses segment URLs: /project/{slug} or /nda-included/{slug}.
  * - In-session navigation (carousel gestures and these prev/next buttons) MUST use
- *   query-string routes: /project/?p={slug} or /nda/?p={slug}.
+ *   query-string routes: /project/?p={slug} or /nda-included/?p={slug}.
  *   This keeps SPA behavior stable and avoids segment churn while interacting.
  * - The ProjectView will canonicalize an initial segment entry to ?p= on first stabilization
  *   and dispatch a bb:routechange so listeners update consistently.
  */
-const PageButtons: React.FC<{ projectId: string }> = ({ projectId }) => {
+const PageButtons: React.FC<{ projectId: string; allowNda?: boolean }> = ({
+  projectId,
+  allowNda,
+}) => {
   // Ensure ProjectData is available and project exists
   const activeProjects = ProjectData.activeProjectsRecord;
   const hasValidProject =
@@ -62,11 +65,11 @@ const PageButtons: React.FC<{ projectId: string }> = ({ projectId }) => {
 
   const prevId = ProjectData.prevKey(projectId);
   const nextId = ProjectData.nextKey(projectId);
-  const prevIsNda = projectRequiresNda(activeProjects[prevId]);
-  const nextIsNda = projectRequiresNda(activeProjects[nextId]);
   // In-session carousel navigation must use query-string model (see routing notes above)
-  const prevHref = `${prevIsNda ? "/nda/" : "/project/"}?p=${encodeURIComponent(prevId)}`;
-  const nextHref = `${nextIsNda ? "/nda/" : "/project/"}?p=${encodeURIComponent(nextId)}`;
+  // and must remain within the current carousel context.
+  const base = allowNda ? "/nda-included/" : "/project/";
+  const prevHref = `${base}?p=${encodeURIComponent(prevId)}`;
+  const nextHref = `${base}?p=${encodeURIComponent(nextId)}`;
 
   return (
     <div

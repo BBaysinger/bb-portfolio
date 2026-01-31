@@ -84,7 +84,7 @@ interface ProjectThumbnailProps {
  * Authentication & NDA logic:
  * - Projects marked as NDA or with NDA brands show a locked icon when user is not authenticated.
  * - Unauthenticated users are routed to `/login/` on click.
- * - Authenticated users access NDA projects via `/nda/{id}`, public via `/project/{id}`.
+ * - Authenticated users access projects via `/nda-included/{id}`, public via `/project/{id}`.
  *
  * @param props - Component properties.
  * @returns JSX element representing a single portfolio thumbnail.
@@ -163,7 +163,17 @@ const ProjectThumbnail: React.FC<ProjectThumbnailProps> = ({
   // Determine link target based on authentication and NDA status.
   const href = showNdaConfidential
     ? "/login/"
-    : `${isNdaLike ? "/nda/" : "/project/"}${encodeURIComponent(projectId)}`;
+    : (() => {
+        // Authenticated browsing happens under the NDA-included route to avoid
+        // mixing route bases while navigating the carousel.
+        if (effectiveAuth) {
+          const code = (projectShortCode || "").trim();
+          const id = isNdaLike ? code || projectId : projectId;
+          return `/nda-included/${encodeURIComponent(id)}/`;
+        }
+        // Public browsing stays under /project.
+        return `/project/${encodeURIComponent(projectId)}/`;
+      })();
 
   return (
     <div
@@ -187,11 +197,11 @@ const ProjectThumbnail: React.FC<ProjectThumbnailProps> = ({
           try {
             // Store a stable post-login redirect key.
             // Prefer short code (opaque), but always fall back to projectId.
+            const code = (projectShortCode || "").trim();
             sessionStorage.setItem(
               "postLoginProjectId",
-              (projectId || "").trim(),
+              (code || projectId || "").trim(),
             );
-            const code = (projectShortCode || "").trim();
             if (code) sessionStorage.setItem("postLoginProjectCode", code);
           } catch {}
         }}

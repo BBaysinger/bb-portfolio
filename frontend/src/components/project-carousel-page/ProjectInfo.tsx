@@ -23,17 +23,13 @@ const ProjectInfo = forwardRef<HTMLDivElement, ProjectInfoProps>(
     const [copied, setCopied] = useState(false);
     let globalIndex = 0;
 
-    // Defense-in-depth: never render confidential NDA details unless the viewer
-    // is actually on an /nda/* route. This prevents accidental info leaks if an
-    // NDA record ends up in the active carousel dataset on a public route.
+    // Defense-in-depth: never render confidential NDA details unless the backend
+    // actually provided them. When unauthenticated, the backend scrubs NDA fields
+    // and we emit `isSanitized` placeholders.
     const shouldHideNdaDetails = useMemo(() => {
       try {
         if (!projectRequiresNda(dataNode)) return false;
-        if (typeof window === "undefined") return true;
-        const seg0 = (window.location.pathname || "")
-          .split("/")
-          .filter(Boolean)[0];
-        return seg0 !== "nda";
+        return Boolean(dataNode.isSanitized);
       } catch {
         return true;
       }
@@ -51,8 +47,15 @@ const ProjectInfo = forwardRef<HTMLDivElement, ProjectInfoProps>(
     const safeRole = shouldHideNdaDetails ? undefined : role;
 
     const canonicalPath = useMemo(() => {
-      const base = projectRequiresNda(dataNode) ? "/nda/" : "/project/";
-      return `${base}${encodeURIComponent(dataNode.id)}`;
+      const isNda = projectRequiresNda(dataNode);
+      const base = isNda ? "/nda-included/" : "/project/";
+      const id =
+        isNda &&
+        typeof dataNode.shortCode === "string" &&
+        dataNode.shortCode.trim()
+          ? dataNode.shortCode.trim()
+          : dataNode.id;
+      return `${base}${encodeURIComponent(id)}`;
     }, [dataNode]);
 
     const canonicalUrl = useMemo(() => {

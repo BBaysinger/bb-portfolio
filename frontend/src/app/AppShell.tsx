@@ -48,7 +48,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   // Runtime backend health check: logs backend connectivity status on startup.
   // Intentionally console-only (no UI) to avoid impacting UX.
   useEffect(() => {
-    // Prefer same-origin relative path to use Next.js rewrites (/api -> backend)
+    // Prefer same-origin relative path so this runs in the browser without DNS surprises.
+    // The frontend provides an API proxy route for health checks at /api/health.
     // Absolute URLs (e.g., http://bb-portfolio-backend-local:3001) may not resolve in the browser.
     // Allow override for host-run dev (frontend on host, backend on localhost:3001) via NEXT_PUBLIC_HEALTH_URL.
     // Default keeps compose/caddy happy (relative same-origin proxy).
@@ -181,7 +182,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           // If currently on an NDA route, immediately navigate away for privacy.
           try {
             const path = pathname || "";
-            if (/\/nda\//.test(path)) {
+            if (/\/nda-included\//.test(path)) {
               const announcer = document.getElementById("privacyAnnouncement");
               if (announcer) {
                 announcer.textContent =
@@ -232,7 +233,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     try {
       const path = pathname || "";
-      const onNdaPage = /\/nda\//.test(path);
+      const onNdaPage = /\/nda-included\//.test(path);
       const authed = Boolean(isLoggedIn) || Boolean(user);
       // Avoid redirecting away from NDA pages until we've established auth state;
       // otherwise reloads may send logged-in users back to home briefly.
@@ -291,7 +292,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   // - Use direct assignments (documentElement/body.scrollTop) plus window.scrollTo;
   //   some Safari versions ignore one or the other transiently during transitions.
   // - Guard against interfering with carousel-originated in-page query updates by
-  //   only acting on pathname segment changes (e.g., /project/slug, /nda/slug, /cv, etc.).
+  //   only acting on pathname segment changes (e.g., /project/slug, /nda-included/slug, /cv, etc.).
   useEffect(() => {
     if (typeof window === "undefined") return;
     // If only hash changed, let ScrollToHash manage it.
@@ -302,7 +303,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     const path = pathname || "";
     const shouldForceTop =
       /\/project\//.test(path) ||
-      /\/nda\//.test(path) ||
+      /\/nda-included\//.test(path) ||
       /\/projects\/?$/.test(path) ||
       /\/cv\/?$/.test(path);
     if (!shouldForceTop) return;

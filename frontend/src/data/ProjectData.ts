@@ -774,7 +774,7 @@ export interface PortfolioProjectBase {
   shortTitle?: string;
   /** Optional brief blurb used in list/preview contexts. */
   shortDesc?: string;
-  /** Optional opaque identifier usable as an alternate route key (e.g., /nda/<code>/). */
+  /** Optional opaque identifier usable as an alternate route key (e.g., /nda-included/<code>/). */
   shortCode?: string;
   active: boolean;
   omitFromList: boolean;

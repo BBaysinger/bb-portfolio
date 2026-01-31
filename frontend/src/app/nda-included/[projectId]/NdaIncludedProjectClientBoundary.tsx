@@ -1,22 +1,15 @@
 "use client";
 
 /**
- * Client boundary for NDA project routes.
+ * Client boundary for NDA-included project routes.
  *
- * The App Router page/layout for `/nda/[projectId]` can be server-rendered, but the interactive
- * project view wrapper is a Client Component. This file isolates the client-only boundary and
- * forwards SSR-derived props into the interactive UI.
+ * This route is the "authenticated browsing" flavor of the project carousel:
+ * it allows NDA projects to exist in the active dataset (placeholders when not authed).
  */
 
 import ProjectViewWrapper from "@/components/project-carousel-page/ProjectViewWrapper";
 
-/**
- * Thin client-side wrapper around `ProjectViewWrapper` for NDA content.
- *
- * `allowNda` is explicitly enabled so the wrapper can render NDA-only content when the
- * authenticated/authorized path is active.
- */
-export default function NdaProjectClientBoundary(props: {
+export default function NdaIncludedProjectClientBoundary(props: {
   projectId: string;
   ssrParsed?: import("@/data/ProjectData").ParsedPortfolioProjectData;
   ssrIncludeNdaInActive?: boolean;
@@ -28,6 +21,7 @@ export default function NdaProjectClientBoundary(props: {
     ssrIncludeNdaInActive,
     ssrContainsSanitizedPlaceholders,
   } = props;
+
   return (
     <ProjectViewWrapper
       params={{ projectId }}

@@ -132,8 +132,8 @@ const nextConfig: NextConfig = {
     ];
   },
 
-  // Canonicalize legacy query-entry URLs early at the routing layer to avoid 404s
-  // when hitting /project?p=slug or /nda?p=slug directly.
+  // Canonicalize query-entry URLs early at the routing layer to avoid 404s
+  // when hitting /project?p=slug or /nda-included?p=slug directly.
   async redirects() {
     return [
       {
@@ -148,14 +148,14 @@ const nextConfig: NextConfig = {
         permanent: false,
       },
       {
-        source: "/nda",
+        source: "/nda-included",
         has: [
           {
             type: "query",
             key: "p",
           },
         ],
-        destination: "/nda/:p/",
+        destination: "/nda-included/:p/",
         permanent: false,
       },
     ];

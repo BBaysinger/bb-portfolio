@@ -53,7 +53,7 @@ export const useAuth = () => {
   };
 
   const logout = async () => {
-    const isNdaRoute = /^\/nda(\/|$)/.test(pathname || "");
+    const isNdaRoute = /^\/nda-included(\/|$)/.test(pathname || "");
 
     const fireAndForgetLogout = () => {
       // When hard-navigating away (especially from NDA routes), do not block
