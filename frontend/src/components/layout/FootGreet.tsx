@@ -68,10 +68,9 @@ const FootGreet: React.FC<{ _className?: string }> = ({ _className = "" }) => {
           end-to-end in <strong>TypeScript</strong>.
         </p>
         <p>
-          I hope you enjoy my work. I can't post all of it here,
-          but there's always more on the way. Stop in again sometime, and if
-          something resonates with you, please{" "}
-          <Link href="/contact">reach out</Link>!
+          I hope you enjoy my work. I can't post all of it here, but there's
+          always more on the way. Stop in again sometime, and if something
+          resonates with you, please <Link href="/contact">reach out</Link>!
         </p>
       </div>
     </div>
