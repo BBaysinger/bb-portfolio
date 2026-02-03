@@ -846,11 +846,11 @@ const CurriculumVitae: React.FC = () => {
                 <InlineListItem>GreenSock / GSAP</InlineListItem>
                 <InlineListItem>Bootstrap</InlineListItem>
                 <InlineListItem>Mapbox</InlineListItem>
-                <InlineListItem>jQuery (legacy)</InlineListItem>
-                <InlineListItem>Haxe (legacy)</InlineListItem>
-                <InlineListItem>ActionScript 3 (legacy)</InlineListItem>
-                <InlineListItem>ActionScript 2 (legacy)</InlineListItem>
-                <InlineListItem>Flambé / 2DKit (legacy)</InlineListItem>
+                <InlineListItem>jQuery (previous)</InlineListItem>
+                <InlineListItem>Haxe (previous)</InlineListItem>
+                <InlineListItem>ActionScript 3 (previous)</InlineListItem>
+                <InlineListItem>ActionScript 2 (previous)</InlineListItem>
+                <InlineListItem>Flambé / 2DKit (previous)</InlineListItem>
               </p>
             </div>
             <div ref={addToRefs} className={divClassLt}></div>
@@ -874,8 +874,8 @@ const CurriculumVitae: React.FC = () => {
                 <InlineListItem>Image Processing</InlineListItem>
                 <InlineListItem>Tween Engines</InlineListItem>
                 <InlineListItem>Headless CMS</InlineListItem>
-                <InlineListItem>DHTML (legacy)</InlineListItem>
-                <InlineListItem>Game UI Frameworks (legacy)</InlineListItem>
+                <InlineListItem>DHTML (previous)</InlineListItem>
+                <InlineListItem>Game UI Frameworks (previous)</InlineListItem>
               </p>
             </div>
             <div ref={addToRefs} className={divClassLt}></div>
@@ -912,9 +912,9 @@ const CurriculumVitae: React.FC = () => {
                 <InlineListItem>ChatGPT</InlineListItem>
                 <InlineListItem>Copilot AI</InlineListItem>
                 <InlineListItem>Perplexity AI</InlineListItem>
-                <InlineListItem>Grunt (legacy)</InlineListItem>
-                <InlineListItem>Gulp (legacy)</InlineListItem>
-                <InlineListItem>Create / Easel (legacy)</InlineListItem>
+                <InlineListItem>Grunt (previous)</InlineListItem>
+                <InlineListItem>Gulp (previous)</InlineListItem>
+                <InlineListItem>Create / Easel (previous)</InlineListItem>
               </p>
             </div>
             <div ref={addToRefs} className={divClassLt}></div>

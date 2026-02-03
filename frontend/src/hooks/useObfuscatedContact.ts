@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 interface ContactInfoResponse {
   success: boolean;
   data?: {
-    // Backward-compat email fields (top-level)
     l: string; // encoded local part
     d: string; // encoded domain
     timestamp: number;
@@ -34,11 +33,7 @@ const useObfuscatedContact = () => {
         const delay = Math.random() * 1000 + 500; // 500-1500ms
         await new Promise((resolve) => setTimeout(resolve, delay));
 
-        const basePath = (
-          process.env.NEXT_PUBLIC_BACKEND_BASE_PATH || ""
-        ).replace(/\/$/, "");
-        const apiPrefix = basePath ? `${basePath}/api` : "/api";
-        const response = await fetch(`${apiPrefix}/contact-info/`, {
+        const response = await fetch(`/api/contact-info/`, {
           method: "GET",
           headers: { Accept: "application/json" },
           cache: "no-store",
@@ -74,7 +69,7 @@ const useObfuscatedContact = () => {
 };
 
 /**
- * Backward-compatible email hook.
+ * Email hook.
  */
 export const useContactEmail = () => {
   const { data, isLoading, error } = useObfuscatedContact();

@@ -70,7 +70,8 @@ const FootGreet: React.FC<{ _className?: string }> = ({ _className = "" }) => {
         <p>
           I hope you enjoy my work. I can't post all of it here, but there's
           always more on the way. Stop in again sometime, and if something
-          resonates with you, please <Link href="/contact">reach&nbsp;out</Link>!
+          resonates with you, please <Link href="/contact">reach&nbsp;out</Link>
+          !
         </p>
       </div>
     </div>

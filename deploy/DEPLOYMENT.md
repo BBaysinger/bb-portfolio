@@ -46,7 +46,7 @@ Use the value from your repo-root `.env` (`EC2_INSTANCE_IP`) for these records.
 
 ```
 
-Remove or let expire deprecated entries for old domains unless you have a migration need documented in the ADR log.
+Remove or let expire entries for old domains unless you have a migration need documented in the ADR log.
 ```
 
 **Test URLs (direct IP is for smoke only)**:

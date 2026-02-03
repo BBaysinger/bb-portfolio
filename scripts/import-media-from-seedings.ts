@@ -12,10 +12,6 @@
  * - project-thumbnails/
  *
  * or with an intermediate images/ folder, e.g. images/brand-logos, etc.
- * Also accepts deprecated seed folder names:
- * - brand-logos/ (mapped to brand-logos)
- * - project-carousel/ (mapped to project-screenshots)
- * - project-carousel/thumbs (mapped to project-thumbnails)
  *
  * Usage:
  *   npm run media:import
@@ -93,7 +89,6 @@ async function main() {
       sources: [
         path.join(seedBase, "brand-logos"),
         path.join(seedBase, "images", "brand-logos"),
-        path.join(seedBase, "brand-logos"), // deprecated alias
       ],
     },
     {
@@ -102,7 +97,6 @@ async function main() {
       sources: [
         path.join(seedBase, "project-screenshots"),
         path.join(seedBase, "images", "project-screenshots"),
-        path.join(seedBase, "project-carousel"), // deprecated alias
       ],
     },
     {
@@ -111,7 +105,6 @@ async function main() {
       sources: [
         path.join(seedBase, "project-thumbnails"),
         path.join(seedBase, "images", "project-thumbnails"),
-        path.join(seedBase, "project-carousel", "thumbs"), // deprecated alias
       ],
     },
   ];

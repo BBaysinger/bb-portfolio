@@ -41,26 +41,11 @@ const DEFAULT_INPUTS: MergeInput[] = [
   },
   { label: "dev", relativePath: ".github-secrets.private.dev.json5" },
   {
-    label: "dev (deprecated filename)",
-    relativePath: ".github-secrets.dev.private.json5",
-    optional: true,
-  },
-  {
     label: "stage",
     relativePath: ".github-secrets.private.stage.json5",
     optional: true,
   },
-  {
-    label: "stage (deprecated filename)",
-    relativePath: ".github-secrets.stage.private.json5",
-    optional: true,
-  },
   { label: "prod", relativePath: ".github-secrets.private.prod.json5" },
-  {
-    label: "prod (deprecated filename)",
-    relativePath: ".github-secrets.prod.private.json5",
-    optional: true,
-  },
 ];
 
 const normalizeSecrets = (
@@ -73,12 +58,9 @@ const normalizeSecrets = (
       files: { ...(raw.files ?? {}) },
     };
   }
-
-  // Deprecated schema where keys live at root level (no strings/files wrapper)
-  return {
-    strings: { ...(raw as Record<string, string>) },
-    files: {},
-  };
+  throw new Error(
+    "Invalid secrets schema. Expected { strings, files } root keys.",
+  );
 };
 
 export const mergeGithubSecrets = (options: MergeOptions = {}): MergeResult => {

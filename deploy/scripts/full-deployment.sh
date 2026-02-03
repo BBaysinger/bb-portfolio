@@ -54,8 +54,6 @@ Options:
   --profiles [val]        Which profiles to start in GH: prod|dev|both (default: both)
   --no-destroy            Do not destroy EC2 infra; only terraform apply
   --skip-infra            Skip all Terraform/infra steps (no destroy/apply)
-  --pull-latest-tags-only Deprecated alias for --skip-infra
-  --containers-only       Deprecated alias for --skip-infra
   --gh-workflows [names]  Comma-separated workflow names to trigger (default: Redeploy)
   --refresh-env           Ask GH workflow to regenerate & upload .env files (default: false)
   --no-restart            Do not restart containers in GH workflow (default: restart)
@@ -77,16 +75,6 @@ while [[ $# -gt 0 ]]; do
       profiles="${2:-}"; [[ "$profiles" =~ ^(prod|dev|both)$ ]] || die "--profiles must be prod|dev|both"; shift 2 ;;
     --no-destroy) do_destroy=false; shift ;;
     --skip-infra)
-      do_infra=false
-      skip_infra=true
-      shift ;;
-    --pull-latest-tags-only)
-      warn "--pull-latest-tags-only is deprecated; use --skip-infra"
-      do_infra=false
-      skip_infra=true
-      shift ;;
-    --containers-only)
-      warn "--containers-only is deprecated; use --skip-infra"
       do_infra=false
       skip_infra=true
       shift ;;

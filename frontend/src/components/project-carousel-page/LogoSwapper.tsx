@@ -11,8 +11,6 @@ interface LogoSwapperProps {
   index?: number | null;
   /** Optional explicit key order to match the carousel slides. */
   slideKeys?: string[];
-  /** Back-compat: brand key (slug) to focus on if index not provided. */
-  projectId?: string;
 }
 // Brand labels are now fetched from the brands collection at runtime.
 // No static filename fallbacks — URLs come from CMS brand relations only.
@@ -24,21 +22,20 @@ interface LogoSwapperProps {
 const LogoSwapper: React.FC<LogoSwapperProps> = ({
   index = null,
   slideKeys,
-  projectId,
 }) => {
   // Re-render when ProjectData changes (e.g., NDA placeholder -> authenticated brand logos).
   const projectDataVersion = useProjectDataVersion();
 
-  // Resolve the current brandId either from index (preferred) or projectId fallback
+  // Resolve the current brandId from index
   const projectsRecord = ProjectData.activeProjectsRecord;
   const keys = slideKeys ?? ProjectData.activeKeys;
   const resolvedBrandId = useMemo(() => {
     if (typeof index === "number" && index >= 0 && index < keys.length) {
       const projKey = keys[index];
-      return projectsRecord[projKey]?.brandId ?? projectId ?? "";
+      return projectsRecord[projKey]?.brandId ?? "";
     }
-    return projectId ?? "";
-  }, [index, keys, projectsRecord, projectId]);
+    return "";
+  }, [index, keys, projectsRecord]);
 
   const [currentLogoId, setCurrentLogoId] = useState(resolvedBrandId);
   const [isBlurred, setIsBlurred] = useState(true);

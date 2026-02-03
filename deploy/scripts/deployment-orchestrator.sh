@@ -89,8 +89,6 @@ Options:
   --profiles [val]        Which profiles to start in GH: prod|dev|both (default: both)
   --destroy               Destroy and recreate EC2 infra (default: preserve existing)
   --skip-infra            Skip Terraform/infra; just rebuild/push (unless --no-build) and redeploy containers
-  --pull-latest-tags-only Deprecated alias for --skip-infra
-  --containers-only       Deprecated alias for --skip-infra
   --rebuild-images        Convenience flag; same as --build-images both
   --gh-workflows [names]  Comma-separated workflow names to trigger (default: Redeploy)
   --refresh-env           Ask GH workflow to regenerate & upload .env files (default: false)
@@ -115,16 +113,6 @@ while [[ $# -gt 0 ]]; do
       profiles="${2:-}"; [[ "$profiles" =~ ^(prod|dev|both)$ ]] || die "--profiles must be prod|dev|both"; shift 2 ;;
     --destroy) do_destroy=true; shift ;;
     --skip-infra)
-      do_infra=false
-      skip_infra=true
-      shift ;;
-    --pull-latest-tags-only)
-      warn "--pull-latest-tags-only is deprecated; use --skip-infra"
-      do_infra=false
-      skip_infra=true
-      shift ;;
-    --containers-only)
-      warn "--containers-only is deprecated; use --skip-infra"
       do_infra=false
       skip_infra=true
       shift ;;
@@ -391,7 +379,7 @@ if [[ "$do_infra" == true ]]; then
       };
       updateUrl("FRONTEND_URL");
       updateUrl("BACKEND_INTERNAL_URL");
-      // NEXT_PUBLIC_BACKEND_URL values are deprecated; proxy-relative /api is used now.
+      // Proxy-relative /api is used now.
       const banner = "// Private secrets file for syncing to GitHub Actions secrets\n// This file is ignored by git. Keep real values here.\n// Do NOT commit this file to version control!\n// cspell:disable\n";
       const out = banner + JSON5.stringify(cfg, null, 2);
       writeFileSync(file, out, "utf8");
@@ -496,38 +484,6 @@ need jq
 
 BRANCH=$(git rev-parse --abbrev-ref HEAD)
 WF_CANDIDATES=("$workflows" "Redeploy" ".github/workflows/redeploy.yml" "redeploy.yml" ".github/workflows/redeploy-manual.yml" "redeploy-manual.yml")
-
-# Ensure only a single controller manages containers on EC2.
-# - Disable/remove deprecated systemd unit 'portfolio.service'
-# - Archive deprecated compose file '/home/ec2-user/portfolio/docker-compose.yml'
-# This is idempotent and safe to run on every deploy.
-enforce_single_controller() {
-  local host="$1"
-  local key="$HOME/.ssh/bb-portfolio-site-key.pem"
-  if [[ -z "$host" ]]; then
-    warn "Single-controller guard: EC2 host unknown, skipping"
-    return 0
-  fi
-  if [[ ! -f "$key" ]]; then
-    warn "Single-controller guard: SSH key not found at $key, skipping"
-    return 0
-  fi
-  log "Enforcing single controller on $host (disable deprecated service, archive deprecated compose)"
-  ssh -i "$key" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@"$host" $'set -e
-    # Disable and remove deprecated systemd unit if present
-    if systemctl list-unit-files | grep -q "^portfolio.service"; then
-      sudo systemctl disable --now portfolio.service || true
-      sudo rm -f /etc/systemd/system/portfolio.service || true
-      sudo systemctl daemon-reload || true
-    fi
-    # Archive deprecated compose file in project root if present
-    if [ -f "/home/ec2-user/portfolio/docker-compose.yml" ]; then
-      mv -f /home/ec2-user/portfolio/docker-compose.yml /home/ec2-user/portfolio/docker-compose.legacy.yml
-    fi
-    # Neutralize bootstrap helper if it exists (kept for reference)
-    chmod -x /home/ec2-user/portfolio/generate-env-files.sh 2>/dev/null || true
-  '
-}
 
 # Ensure HTTPS certificates exist (idempotent). Requires certbot on host.
 ensure_https_certs() {
@@ -782,7 +738,6 @@ if [[ -z "${EC2_IP:-}" ]]; then
   if [[ -n "$EC2_HOST_RESOLVE" ]]; then
     log "Resolved EC2 host: $EC2_HOST_RESOLVE"
     SSL_DOMAIN_RESOLVE=$(resolve_ssl_domain || true)
-    enforce_single_controller "$EC2_HOST_RESOLVE"
     ensure_remote_compose "$EC2_HOST_RESOLVE"
     sync_nginx_config "$EC2_HOST_RESOLVE"
     ensure_https_certs "$EC2_HOST_RESOLVE" "${SSL_DOMAIN_RESOLVE:-}" "${ACME_EMAIL:-}"
@@ -797,7 +752,6 @@ fi
 # If infra ran earlier and provided EC2_IP, enforce controller and ensure HTTPS now
 if [[ -n "${POST_ENFORCE_HOST:-}" ]]; then
   SSL_DOMAIN_RESOLVE=$(resolve_ssl_domain || true)
-  enforce_single_controller "${POST_ENFORCE_HOST}"
   ensure_remote_compose "${POST_ENFORCE_HOST}"
   sync_nginx_config "${POST_ENFORCE_HOST}"
   ensure_https_certs "${POST_ENFORCE_HOST}" "${SSL_DOMAIN_RESOLVE:-}" "${ACME_EMAIL:-}"

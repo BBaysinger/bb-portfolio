@@ -40,13 +40,9 @@ function resolveBucket(
   const tfvarsKey = environment === "dev" ? "dev_s3_bucket" : "prod_s3_bucket";
   const fromTfvars = readTfvarsValue(tfvarsPath, tfvarsKey);
   if (fromTfvars) return fromTfvars;
-
-  // Legacy fallback (pre-suffix buckets). Keep for backward compatibility.
-  const legacy =
-    environment === "dev"
-      ? "bb-portfolio-media-dev"
-      : "bb-portfolio-media-prod";
-  return legacy;
+  throw new Error(
+    `Missing ${tfvarsKey} in ${tfvarsPath}. Define it before running media uploads.`,
+  );
 }
 
 // Media collections to sync
