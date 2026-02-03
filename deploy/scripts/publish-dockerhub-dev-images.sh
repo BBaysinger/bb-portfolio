@@ -11,7 +11,7 @@ set -euo pipefail
 # - Source of truth is .github-secrets.private.json5 (+ profile overrides) which the
 #   TypeScript generator already merges for us.
 #
-# Usage: ./deploy/publish-dockerhub-dev-images.sh
+# Usage: ./deploy/scripts/publish-dockerhub-dev-images.sh
 
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 SECRETS_FILE="$ROOT_DIR/.github-secrets.private.json5"

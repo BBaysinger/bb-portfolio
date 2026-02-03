@@ -11,7 +11,7 @@ set -euo pipefail
 # - Source of truth remains .github-secrets.private.json5 (+ profile overrides) which
 #   the TypeScript generator already merges for us.
 #
-# Usage: ./deploy/publish-ecr-images.sh
+# Usage: ./deploy/scripts/publish-ecr-images.sh
 
 ACCOUNT_ID=""
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
