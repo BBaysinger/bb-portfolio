@@ -5,6 +5,29 @@ import type { CollectionConfig, Where } from 'payload'
 
 type OverwriteMeta = { alt?: string | null; logoType?: string | null }
 
+const resolveEnvProfile = () => (process.env.ENV_PROFILE || 'local').toLowerCase()
+
+const isOverwriteEnabled = (envProfile: string) => {
+  const flag = process.env.OVERWRITE_MEDIA_ON_CREATE
+  return flag ? flag === 'true' : envProfile !== 'prod'
+}
+
+const normalizeFilename = (name: string) => {
+  const lastDot = name.lastIndexOf('.')
+  if (lastDot <= 0) return name
+  const base = name.slice(0, lastDot)
+  const ext = name.slice(lastDot)
+  const m = base.match(/^(.*?)-\d+$/)
+  return m ? `${m[1]}${ext}` : name
+}
+
+const tryUnlinkLocalFile = async (filename: string) => {
+  const staticDir = path.join(process.cwd(), 'media', 'brand-logos')
+  try {
+    await fs.unlink(path.join(staticDir, filename))
+  } catch {}
+}
+
 export const BrandLogos: CollectionConfig = {
   slug: 'brandLogos',
   labels: {
@@ -65,34 +88,19 @@ export const BrandLogos: CollectionConfig = {
       //   add update-time overwrite if needed, and consider audit logs/webhooks.
       async ({ args, operation, req, context }) => {
         try {
-          const envProfile = process.env.ENV_PROFILE || 'local'
-          // Enable via OVERWRITE_MEDIA_ON_CREATE or default to enabled for local/dev, disabled for prod
-          const overwriteEnabled = process.env.OVERWRITE_MEDIA_ON_CREATE
-            ? process.env.OVERWRITE_MEDIA_ON_CREATE === 'true'
-            : envProfile !== 'prod'
+          const envProfile = resolveEnvProfile()
+          const overwriteEnabled = isOverwriteEnabled(envProfile)
 
           if (!overwriteEnabled) return args
 
           if (operation === 'create' && req.file?.name) {
-            // Normalize filename to avoid auto-suffixing like "-1" when re-uploading
-            const stripCounterSuffix = (name: string) => {
-              const lastDot = name.lastIndexOf('.')
-              if (lastDot <= 0) return name
-              const base = name.slice(0, lastDot)
-              const ext = name.slice(lastDot)
-              const m = base.match(/^(.*?)-(\d+)$/)
-              return m ? `${m[1]}${ext}` : name
-            }
-            const filename = stripCounterSuffix(req.file.name)
+            const filename = normalizeFilename(req.file.name)
             // Force the incoming file to use the normalized name
             req.file.name = filename
             // Additional guard for local dev: remove any existing file from the staticDir so
             // Payload's local storage doesn't auto-append a counter based on the filesystem.
             if (envProfile !== 'dev' && envProfile !== 'prod') {
-              const staticDir = path.join(process.cwd(), 'media', 'brand-logos')
-              try {
-                await fs.unlink(path.join(staticDir, filename))
-              } catch {}
+              await tryUnlinkLocalFile(filename)
             }
             const existing = await req.payload.find({
               collection: 'brandLogos',
