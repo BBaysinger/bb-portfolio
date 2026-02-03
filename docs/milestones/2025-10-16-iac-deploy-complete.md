@@ -16,7 +16,7 @@ Stable, repeatable end-to-end deployment workflow implemented using Infrastructu
 
 - `.github/workflows/redeploy.yml` with workflow_dispatch and workflow_call
 - `deploy/scripts/deployment-orchestrator.sh` (preferred entrypoint)
-- `deploy/publish-ecr-images.sh` and `deploy/publish-dockerhub-dev-images.sh`
+- `deploy/scripts/publish-ecr-images.sh` and `deploy/scripts/publish-dockerhub-dev-images.sh`
 - `deploy/scripts/generate-terraform-vars.ts` to derive `infra/terraform.tfvars` from private JSON5
 - `infra/` Terraform with lifecycle protection for EIP and targeted-destroy filters
 

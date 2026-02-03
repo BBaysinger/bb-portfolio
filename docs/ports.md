@@ -42,4 +42,4 @@ This document summarizes how ports are mapped across environments and how reques
 ## Notes
 
 - Consider restricting SG to 80/443 only in production, leaving 3000/3001 open temporarily for diagnostics as needed.
-- The files `docker-compose.local.yml` and `docker-compose.caddy.yml` reference `Dockerfile.local` for app services; ensure those files exist or use the primary compose (`docker-compose.yml`) `local` profile.
+- Use the primary compose file with the `local` profile for `Dockerfile.local`-based builds.

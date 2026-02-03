@@ -219,7 +219,6 @@ if [[ "$do_infra" != true ]]; then
       };
       updateUrl("FRONTEND_URL");
       updateUrl("BACKEND_INTERNAL_URL");
-  # NEXT_PUBLIC_BACKEND_URL values are deprecated; proxy-relative /api is used now.
       const banner = "// Private secrets file for syncing to GitHub Actions secrets\n// This file is ignored by git. Keep real values here.\n// Do NOT commit this file to version control!\n// cspell:disable\n";
       const out = banner + JSON5.stringify(cfg, null, 2);
       writeFileSync(file, out, "utf8");
