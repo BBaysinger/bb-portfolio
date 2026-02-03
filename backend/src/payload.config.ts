@@ -59,33 +59,18 @@ type ResolveOptions = {
   description?: string
 }
 
-const findEnvVar = (base: string) => {
-  const key = base.toUpperCase()
-  const attempts = [key]
-  const direct = process.env[key]
-  if (direct) return { value: direct, attempts }
-  return { value: undefined, attempts }
-}
+const optionalEnv = (key: string) => process.env[key]
 
-const resolveEnvVar = (base: string, options?: ResolveOptions): string => {
-  const { description } = options || {}
-  const { value, attempts } = findEnvVar(base)
+const requireEnv = (key: string, options?: ResolveOptions): string => {
+  const value = process.env[key]
   if (value) return value
 
-  const lines = [
-    `Missing required ${base.toUpperCase()} for ENV_PROFILE=${envProfile}.`,
-    'Set one of:',
-    ...attempts.map((candidate) => `  - ${candidate}`),
-  ]
-  if (description) lines.push(description)
+  const lines = [`Missing required ${key} for ENV_PROFILE=${envProfile}.`]
+  if (options?.description) lines.push(options.description)
   throw new Error(lines.join('\n'))
 }
 
-const getOptionalEnvVar = (base: string) => {
-  return findEnvVar(base).value
-}
-
-const mongoURL = resolveEnvVar('MONGODB_URI', {
+const mongoURL = requireEnv('MONGODB_URI', {
   description:
     'Add it to backend/.env for local dev or to the generated .env.<profile> file on your host.',
 })
@@ -98,7 +83,7 @@ type PayloadWithExpress = {
 
 const resolvedServerURL =
   process.env.PAYLOAD_PUBLIC_SERVER_URL ||
-  resolveEnvVar('PUBLIC_SERVER_URL', {
+  requireEnv('PUBLIC_SERVER_URL', {
     description: [
       'This should be the origin (scheme + host + optional port) serving /admin and /api.',
       'Examples:',
@@ -133,23 +118,23 @@ const parseOriginList = (raw: string): string[] => {
 const getAllowedBrowserOrigins = (): string[] => {
   const origins = new Set<string>()
 
-  // Primary browser origin(s) for the public site.
-  const frontendRaw = resolveEnvVar('FRONTEND_URL', {
+  const frontendRaw = requireEnv('FRONTEND_URL', {
     description:
       'Provide the public frontend origin(s). Comma-separate multiple values (e.g., http://localhost:8080,http://localhost:3000).',
   })
+
   for (const origin of parseOriginList(frontendRaw)) origins.add(origin)
 
-  // Also allow the Payload admin/API origin.
   try {
-    const serverOrigin = new URL(resolvedServerURL).origin
-    origins.add(serverOrigin)
+    origins.add(new URL(resolvedServerURL).origin)
   } catch {
     // resolvedServerURL is already validated as required, but keep this defensive.
   }
 
   return Array.from(origins)
 }
+
+const allowedBrowserOrigins = getAllowedBrowserOrigins()
 
 export default buildConfig({
   // Explicit public origin ensures Payload admin/API use the canonical host
@@ -204,12 +189,8 @@ export default buildConfig({
       fileSize: 2000000, // 2MB limit
     },
   },
-  csrf: (() => {
-    return getAllowedBrowserOrigins()
-  })(),
-  cors: (() => {
-    return getAllowedBrowserOrigins()
-  })(),
+  csrf: allowedBrowserOrigins,
+  cors: allowedBrowserOrigins,
   plugins: [
     payloadCloudPlugin(),
     // Enable S3 storage when running in dev/prod; keep filesystem in local
@@ -222,13 +203,13 @@ export default buildConfig({
               projectThumbnails: { prefix: 'project-thumbnails' },
             } as Partial<Record<keyof Config['collections'], { prefix: string } | true>>,
             bucket: (() => {
-              return resolveEnvVar('S3_BUCKET', {
+              return requireEnv('S3_BUCKET', {
                 description: 'Define the S3 bucket name used for Payload media uploads.',
               })
             })(),
             config: {
               region: (() => {
-                const region = getOptionalEnvVar('AWS_REGION') || process.env.S3_REGION
+                const region = optionalEnv('AWS_REGION') || process.env.S3_REGION
                 if (!region) {
                   throw new Error(
                     `Missing required AWS_REGION or S3_REGION for ENV_PROFILE=${envProfile}`,
@@ -252,12 +233,11 @@ export default buildConfig({
   ],
   email: (() => {
     if (isProd || isDev) {
-      const host = getOptionalEnvVar('SMTP_HOST')
-      const user = getOptionalEnvVar('SMTP_USER')
-      const pass = getOptionalEnvVar('SMTP_PASS')
+      const host = optionalEnv('SMTP_HOST')
+      const user = optionalEnv('SMTP_USER')
+      const pass = optionalEnv('SMTP_PASS')
       if (host && user && pass) {
-        const fromEmail =
-          getOptionalEnvVar('SMTP_FROM_EMAIL') || getOptionalEnvVar('SES_FROM_EMAIL')
+        const fromEmail = optionalEnv('SMTP_FROM_EMAIL') || optionalEnv('SES_FROM_EMAIL')
         if (!fromEmail) {
           throw new Error(
             `Missing required SMTP_FROM_EMAIL or SES_FROM_EMAIL for ENV_PROFILE=${envProfile}. ` +

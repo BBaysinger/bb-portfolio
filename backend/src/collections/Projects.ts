@@ -4,6 +4,25 @@ import slugify from 'slugify'
 import { canReadNdaField } from '../access/nda'
 import { generateShortCode } from '../utils/shortCode'
 
+const SHORT_CODE_LENGTH = 10
+const SHORT_CODE_MAX_ATTEMPTS = 10
+
+const findUniqueShortCode = async (req: { payload: typeof import('payload') }) => {
+  for (let attempt = 1; attempt <= SHORT_CODE_MAX_ATTEMPTS; attempt++) {
+    const candidate = generateShortCode(SHORT_CODE_LENGTH)
+    const res = await req.payload.find({
+      collection: 'projects',
+      where: { shortCode: { equals: candidate } },
+      depth: 0,
+      limit: 1,
+      overrideAccess: true,
+      disableErrors: true,
+    })
+    if (!res.docs?.length) return candidate
+  }
+  return undefined
+}
+
 export const Projects: CollectionConfig = {
   slug: 'projects',
   admin: {
@@ -97,27 +116,11 @@ export const Projects: CollectionConfig = {
         // - Base62 short code: compact, URL-safe, environment-agnostic.
         // - Generated on create and backfilled on update if missing.
         if ((operation === 'create' || operation === 'update') && !data?.shortCode) {
-          // Avoid rare collisions by checking existing docs.
-          const maxAttempts = 10
-          for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-            const candidate = generateShortCode(10)
-            const res = await req.payload.find({
-              collection: 'projects',
-              where: { shortCode: { equals: candidate } },
-              depth: 0,
-              limit: 1,
-              overrideAccess: true,
-              disableErrors: true,
-            })
-            if (!res.docs?.length) {
-              data.shortCode = candidate
-              break
-            }
-          }
-
-          if (!data.shortCode) {
+          const candidate = await findUniqueShortCode(req)
+          if (!candidate) {
             throw new Error('Failed to generate a unique short code for this project.')
           }
+          data.shortCode = candidate
         }
 
         // Slug is the human-friendly route key derived from title.
