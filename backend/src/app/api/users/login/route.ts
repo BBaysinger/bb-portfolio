@@ -238,11 +238,6 @@ function getInternalOrigins(): Set<string> {
   addCsvOrigins(process.env.FRONTEND_URL)
   addCsvOrigins(process.env.PUBLIC_SERVER_URL)
 
-  // Compatibility / tooling envs that may be present in CI or special hosts.
-  addCsvOrigins(process.env.PAYLOAD_PUBLIC_FRONTEND_URL)
-  addCsvOrigins(process.env.PAYLOAD_PUBLIC_SERVER_URL)
-  addCsvOrigins(process.env.NEXT_PUBLIC_FRONTEND_URL)
-
   // Safe local fallback so we don't mark local traffic as "external" when env is missing.
   if (origins.size === 0) origins.add('http://localhost:3000')
 
@@ -406,10 +401,7 @@ export const POST = async (request: Request) => {
     const headers = new Headers()
     if (token) {
       const forwardedProto = request.headers.get('x-forwarded-proto')
-      const envUrl =
-        process.env.PAYLOAD_PUBLIC_SERVER_URL ||
-        process.env.PAYLOAD_PUBLIC_FRONTEND_URL ||
-        process.env.PUBLIC_SERVER_URL
+      const envUrl = process.env.PUBLIC_SERVER_URL
 
       const isHttps =
         forwardedProto === 'https' || (typeof envUrl === 'string' && envUrl.startsWith('https://'))
