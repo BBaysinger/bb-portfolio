@@ -1,4 +1,4 @@
-import type { CollectionConfig, Where } from 'payload'
+import type { CollectionConfig, PayloadRequest, Where } from 'payload'
 import slugify from 'slugify'
 
 import { canReadNdaField } from '../access/nda'
@@ -7,7 +7,7 @@ import { generateShortCode } from '../utils/shortCode'
 const SHORT_CODE_LENGTH = 10
 const SHORT_CODE_MAX_ATTEMPTS = 10
 
-const findUniqueShortCode = async (req: { payload: typeof import('payload') }) => {
+const findUniqueShortCode = async (req: Pick<PayloadRequest, 'payload'>) => {
   for (let attempt = 1; attempt <= SHORT_CODE_MAX_ATTEMPTS; attempt++) {
     const candidate = generateShortCode(SHORT_CODE_LENGTH)
     const res = await req.payload.find({
