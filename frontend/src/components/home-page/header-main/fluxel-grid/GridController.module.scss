@@ -43,7 +43,8 @@
   mix-blend-mode: multiply;
 
   --grid-line-color: rgba(0, 0, 0, 0.75);
-  @include lerpRange(--stroke-width, 3px, 3.5px);
+  // @include lerpRange(--stroke-width, 3px, 3.5px);
+  @include lerpRange(--stroke-width, 2px, 2.5px);
 }
 
 .gridLinesSvg {
