@@ -102,12 +102,7 @@ async function fetchPortfolioProjects(opts?: {
   // alongside the project -> brand -> upload chain.
   // Note: Using trailing slash for client-side to match Next.js trailingSlash: true config
   // Backend admin is now mounted via explicit /admin route segments, so the public API stays at /api.
-  // Still allow BACKEND_BASE_PATH overrides for legacy hosts that mount the backend under a subdirectory.
-  const backendBasePath = (process.env.BACKEND_BASE_PATH || "").replace(
-    /\/$/,
-    "",
-  );
-  const apiPrefix = backendBasePath ? `${backendBasePath}/api` : "/api";
+  const apiPrefix = "/api";
   const path = `${apiPrefix}/projects/?depth=2&limit=1000&sort=sortIndex`;
   const serverPath = `${apiPrefix}/projects/?depth=2&limit=1000&sort=sortIndex`;
   // If we're on the server AND we have request cookies (SSR with potential auth),

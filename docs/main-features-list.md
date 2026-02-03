@@ -96,7 +96,7 @@ Working list of notable features
 
 - JSON dumps for seed data and repeatable imports
 - Automated database backup exports (with dated folders)
-- NDA media backfill scripts for legacy uploads (Payload + Mongo variants)
+- NDA media backfill scripts (Payload + Mongo variants)
 
 ## README Priorities
 

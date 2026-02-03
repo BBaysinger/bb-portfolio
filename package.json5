@@ -64,7 +64,7 @@
     // ▶️ Same as docker:up but runs in background (doesn't block your terminal)
     // Use this if you want to continue using your terminal while containers run
     "docker:up:detached": "docker compose -f deploy/compose/docker-compose.yml --profile local up --build -d",
-    // ⚡ Same as docker:up but with React Strict Mode disabled (helps with legacy libraries)
+    // ⚡ Same as docker:up but with React Strict Mode disabled
     // Useful when React's strict mode causes issues with third-party components
     "docker:up:no-strict": "REACT_STRICT_MODE=false docker compose -f deploy/compose/docker-compose.yml --profile local up --build",
     // ▶️ Same as docker:up:no-strict but runs in background (detached mode)
@@ -83,7 +83,7 @@
     "docker:ssg:up": "docker compose -f deploy/compose/docker-compose.yml --profile local-ssg up --build",
     // 🏗️ Same as docker:ssg:up but runs in background (detached mode)
     "docker:ssg:up:detached": "docker compose -f deploy/compose/docker-compose.yml --profile local-ssg up --build -d",
-    // 🏗️ Same as docker:ssg:up but with React Strict Mode disabled (for compatibility)
+    // 🏗️ Same as docker:ssg:up but with React Strict Mode disabled
     "docker:ssg:up:no-strict": "REACT_STRICT_MODE=false docker compose -f deploy/compose/docker-compose.yml --profile local-ssg up --build",
     // 🏗️ Same as docker:ssg:up:no-strict but runs in background (detached mode)
     "docker:ssg:up:no-strict:detached": "REACT_STRICT_MODE=false docker compose -f deploy/compose/docker-compose.yml --profile local-ssg up --build -d",
@@ -118,7 +118,7 @@
     // Hey AI: Use this command to start local development (this is the default)
     // Starts proxy + frontend using helper (warns if prune is overdue)
     "caddy:up": "zsh deploy/scripts/caddy-helper.sh up",
-    // 🌐 Same as caddy:up but with React Strict Mode disabled (for legacy compatibility)
+    // 🌐 Same as caddy:up but with React Strict Mode disabled
     // Same as caddy:up with React Strict Mode disabled
     "caddy:up:no-strict": "REACT_STRICT_MODE=false zsh deploy/scripts/caddy-helper.sh up",
     // 🛑 Stop Caddy (and its dependencies) cleanly

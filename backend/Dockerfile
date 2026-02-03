@@ -48,8 +48,8 @@ RUN if command -v apk >/dev/null 2>&1; then \
 COPY package.json package-lock.json* ./
 
 # Install ALL dependencies deterministically for builds
-# Allow legacy peer deps to accommodate framework peer ranges
-RUN npm ci --legacy-peer-deps
+# Install dependencies deterministically for builds
+RUN npm ci
 
 # Copy all source code and configuration files
 COPY . .
@@ -243,8 +243,8 @@ COPY package.json package-lock.json* ./
 
 # Install ALL dependencies including devDependencies
 # Development stage needs TypeScript, testing tools, linters, etc.
-# Allow legacy peer deps to accommodate Next 16 with @payloadcms/next peer range
-RUN npm install --legacy-peer-deps --install-strategy=nested
+# Install dependencies for development
+RUN npm install --install-strategy=nested
 
 # Install nodemon globally for automatic server restarts on file changes
 # Essential for development workflow - automatically restarts server when code changes

@@ -120,10 +120,6 @@ terraform.rc
 .github-secrets.private.json5
 # Environment-scoped secrets
 .github-secrets.private.*.json5
-# Legacy naming support (pre-dot convention)
-.github-secrets.*.private.json5
-github-secrets.private.json5
-github-secrets.private.*.json5
 
 # ─────────────────────────────────────────────
 # 🗄️ Database Backups & Migration Files
@@ -131,7 +127,7 @@ github-secrets.private.*.json5
 # Ignore backup artifacts under data/ but keep curated seed dumps tracked
 data/database-backups/**
 !data/database-backups/.gitkeep
-# Legacy backup folder (pre-fix): ignore if present at repo root
+# Backup folder at repo root (ignored)
 /database-backups/**
 temp_dump_*
 *.bson

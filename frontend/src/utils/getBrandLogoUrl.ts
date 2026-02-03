@@ -2,7 +2,7 @@
  * Selects the appropriate brand logo URL for the current theme and NDA status.
  * - If brandIsNda is true, returns null (no logo exposure).
  * - Prefer dark variant on dark background sites, then light.
- * - No legacy/static fallbacks by policy — if none available, return null.
+ * - No static fallbacks by policy — if none available, return null.
  */
 export function getBrandLogoUrl(opts: {
   brandId: string;

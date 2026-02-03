@@ -89,9 +89,7 @@ header.hero {
     transform 0.8s,
     border 0.8s;
   // Slide in once the user has collided the slinger (after the post-collision delay)
-  // Support both current and legacy flag names.
-  :global(.hasAfterCollidedDelay.notScrolledOut) &,
-  :global(.hasSlungDelay.notScrolledOut) & {
+  :global(.hasAfterCollidedDelay.notScrolledOut) & {
     border: 0 !important;
     transform: translateX(0);
   }
@@ -128,10 +126,8 @@ a.scrollCta {
     opacity 0.5s,
     transform 0.5s !important;
   // Start bouncing attention animation when visible and slinger is idle
-  // Prefer the newer flags, but keep legacy for safety.
   :global(.hasAfterCollidedDelay.isSlingerIdle) &,
-  :global(.hasCollided.isSlingerIdle) &,
-  :global(.hasSlung.isSlingerIdle) & {
+  :global(.hasCollided.isSlingerIdle) & {
     animation-play-state: running !important;
   }
   :global(.notSlingerIdle.notScrolledOut) & {

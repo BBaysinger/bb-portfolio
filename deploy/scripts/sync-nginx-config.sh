@@ -18,7 +18,7 @@ Options:
 
 This will:
   - Upload deploy/nginx/bb-portfolio.conf.template to /tmp/bb-portfolio.conf on the host
-  - Backup existing /etc/nginx/conf.d/bb-portfolio.conf (and deprecated portfolio.conf) with a timestamp
+  - Backup existing /etc/nginx/conf.d/bb-portfolio.conf with a timestamp
   - Replace it with the uploaded file (installs to /etc/nginx/conf.d/bb-portfolio.conf)
   - Test Nginx configuration and reload if successful
 USAGE
@@ -67,16 +67,10 @@ ssh -i "$KEY" -o StrictHostKeyChecking=accept-new "$HOST" 'sudo bash -s' <<'REMO
 set -euo pipefail
 ts=$(date +%Y%m%d_%H%M%S)
 TARGET="/etc/nginx/conf.d/bb-portfolio.conf"
-LEGACY="/etc/nginx/conf.d/portfolio.conf"
 
 if [[ -f "$TARGET" ]]; then
   cp "$TARGET" "$TARGET.bak.$ts"
   echo "Backup created: $TARGET.bak.$ts"
-fi
-if [[ -f "$LEGACY" ]]; then
-  cp "$LEGACY" "$LEGACY.bak.$ts"
-  echo "Deprecated backup created: $LEGACY.bak.$ts"
-  rm -f "$LEGACY"
 fi
 mv /tmp/bb-portfolio.conf "$TARGET"
 nginx -t && systemctl reload nginx && echo "Nginx reloaded successfully."

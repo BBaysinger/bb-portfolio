@@ -69,7 +69,7 @@
   },
   // Development-only dependencies for tooling and type checking
   "devDependencies": {
-    // Legacy ESLint configuration system (required by some plugins)
+    // ESLint configuration utilities (required by some plugins)
     "@eslint/eslintrc": "^3",
     // TypeScript definitions for jsonwebtoken library
     "@types/jsonwebtoken": "^9.0.10",

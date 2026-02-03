@@ -53,7 +53,7 @@ This repo is an end‑to‑end system, not just a site. Beyond the UI work, it s
 - NDA system: placeholders + auth-aware upgrade (SSR → CSR hydration) and a static query-param entry route (`/nda?p=slug`)
 - Auth-gated NDA asset streaming from S3 (supports 304 + private cache headers)
 - Database migration, rename, and safety‑first destructive helpers with dry‑run support
-- NDA media backfill scripts for legacy uploads (Payload + Mongo variants)
+- NDA media backfill scripts (Payload + Mongo variants)
 - Scripted conveniences for day‑to‑day work: dependency upgrades, multi‑package installs, branch sync, and more
 
 Frontend systems worth calling out:
@@ -274,7 +274,7 @@ See also: [Flat main features list](./docs/main-features-list.md).
   - - `scripts/merge-github-secrets.ts` can bundle secrets, but it is optional. `sync:secrets` reads `.github-secrets.private.json5` plus any `.github-secrets.private.<env>.json5` files directly.
   - Stage (future): `.github-secrets.example.stage.json5` ➜ `.github-secrets.private.stage.json5`
   - Prod: `.github-secrets.example.prod.json5` ➜ `.github-secrets.private.prod.json5`
-  - `scripts/merge-github-secrets.ts` bundles the above into `.github-secrets.private.json5` so existing tooling keeps working. Run `npm run secrets:bundle` after editing any `.github-secrets.private*.json5` file.
+  - `scripts/merge-github-secrets.ts` bundles the above into `.github-secrets.private.json5`. Run `npm run secrets:bundle` after editing any `.github-secrets.private*.json5` file.
   - Sync script: `scripts/sync-github-secrets.ts`
     - Auto-syncs repo secrets followed by every detected GitHub **Environment** manifest (e.g., `.github-secrets.private.dev.json5`).
     - `--omit-env <name>` (repeatable) skips specific environments; pass `all` to push repo-level secrets only.
@@ -284,7 +284,7 @@ See also: [Flat main features list](./docs/main-features-list.md).
   Common usage:
 
   ```bash
-  # Merge per-environment secret files into the compatibility bundle
+  # Merge per-environment secret files into the secrets bundle
   npm run secrets:bundle
 
   # Shared/base secrets (Docker Hub creds, ACME email, shared buckets)
@@ -417,7 +417,7 @@ Runtime .env generation (deploy):
 - Playwright E2E and Vitest setup (backend)
 - Local dev proxy and hot-reload compose profile
 - **JSON5 Package Sync System** - Dual package.json approach
-  - `package.json` - Standard JSON for tooling compatibility
+  - `package.json` - Standard JSON for tooling support
   - `package.json5` - Enhanced version with comments and documentation
   - Bidirectional sync via `npm run sync:json5`
   - Preserves comments and formatting in JSON5 files
