@@ -69,25 +69,31 @@ assign_if_present() {
 	fi
 }
 
+assign_secret() {
+	var="$1"
+	secret="$2"
+	assign_if_present "$var" "$(read_secret "$secret")"
+}
+
 # Required list definition for env-guard
-assign_if_present REQUIRED_ENVIRONMENT_VARIABLES_FRONTEND "$(read_secret required_environment_variables_frontend)"
+assign_secret REQUIRED_ENVIRONMENT_VARIABLES_FRONTEND required_environment_variables_frontend
 
 # Profile used by app code: NEXT_PUBLIC_ENV_PROFILE is derived from ENV_PROFILE via Docker ENV above.
 
 # App build-time config
-assign_if_present BACKEND_INTERNAL_URL "$(read_secret backend_internal_url)"
-assign_if_present PUBLIC_PROJECTS_BUCKET "$(read_secret public_projects_bucket)"
-assign_if_present NDA_PROJECTS_BUCKET "$(read_secret nda_projects_bucket)"
+assign_secret BACKEND_INTERNAL_URL backend_internal_url
+assign_secret PUBLIC_PROJECTS_BUCKET public_projects_bucket
+assign_secret NDA_PROJECTS_BUCKET nda_projects_bucket
 
 # GA4 build-time config (Next.js client bundles only see NEXT_PUBLIC_* at build time)
-assign_if_present NEXT_PUBLIC_GA_MEASUREMENT_ID "$(read_secret next_public_ga_measurement_id)"
+assign_secret NEXT_PUBLIC_GA_MEASUREMENT_ID next_public_ga_measurement_id
 
 # RUM build-time config
-assign_if_present NEXT_PUBLIC_RUM_APP_MONITOR_ID "$(read_secret next_public_rum_app_monitor_id)"
-assign_if_present NEXT_PUBLIC_RUM_IDENTITY_POOL_ID "$(read_secret next_public_rum_identity_pool_id)"
-assign_if_present NEXT_PUBLIC_RUM_GUEST_ROLE_ARN "$(read_secret next_public_rum_guest_role_arn)"
-assign_if_present NEXT_PUBLIC_RUM_REGION "$(read_secret next_public_rum_region)"
-assign_if_present NEXT_PUBLIC_RUM_DEBUG "$(read_secret next_public_rum_debug)"
+assign_secret NEXT_PUBLIC_RUM_APP_MONITOR_ID next_public_rum_app_monitor_id
+assign_secret NEXT_PUBLIC_RUM_IDENTITY_POOL_ID next_public_rum_identity_pool_id
+assign_secret NEXT_PUBLIC_RUM_GUEST_ROLE_ARN next_public_rum_guest_role_arn
+assign_secret NEXT_PUBLIC_RUM_REGION next_public_rum_region
+assign_secret NEXT_PUBLIC_RUM_DEBUG next_public_rum_debug
 
 npm run build:webpack
 EOF
