@@ -100,10 +100,6 @@ If you keep non-checked-in working assets outside the repo (recommended), place 
   brand-logos/
   project-screenshots/
   project-thumbnails/
-# Deprecated names also supported:
-../cms-seedings/brand-logos/            # → brand-logos
-../cms-seedings/project-carousel/        # → project-screenshots
-../cms-seedings/project-carousel/thumbs  # → project-thumbnails
 ```
 
 Then run the same import:

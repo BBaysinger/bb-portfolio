@@ -74,7 +74,7 @@ export function useDragInertia(
   const snapOffsetRef = useRef<number>(0);
   const pointerType = useActivePointerType();
 
-  // Keep the drag state for compatibility with existing code
+  // Keep the drag state for existing code
   const dragState = useRef<DraggableState>({
     isDragging: false,
     isThrowing: false,

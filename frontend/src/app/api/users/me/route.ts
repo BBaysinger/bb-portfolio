@@ -9,7 +9,6 @@
  * Notes:
  * - Marked `force-dynamic` with `revalidate = 0` so auth is evaluated per request.
  * - Uses `cache: "no-store"` and explicit cache-busting headers to avoid stale auth.
- * - Includes a trailing-slash retry as a compatibility fallback for some proxies.
  *
  * Environment:
  * - `BACKEND_INTERNAL_URL` (preferred)
@@ -122,15 +121,6 @@ export async function GET(request: NextRequest) {
     let { res, payload } = await tryFetch(
       `${backendUrl.replace(/\/$/, "")}/api/users/me`,
     );
-
-    // If unauthorized, try a trailing slash variant (some proxies normalize differently)
-    if (!res.ok && res.status === 401) {
-      const alt = await tryFetch(
-        `${backendUrl.replace(/\/$/, "")}/api/users/me/`,
-      );
-      res = alt.res;
-      payload = alt.payload;
-    }
 
     if (!res.ok) {
       if (process.env.NODE_ENV !== "production") {

@@ -625,7 +625,7 @@ New decisions should be appended chronologically.
 - **Operation & Flags (highly used):**
   - `--profiles prod|dev|both` choose which environment(s) to deploy.
   - Images are always rebuilt and pushed automatically (both frontend and backend) to ensure consistency.
-  - `--skip-infra` skips Terraform entirely and only (re)starts containers/workflows (deprecated `--pull-latest-tags-only`/`--containers-only` aliases retained temporarily).
+  - `--skip-infra` skips Terraform entirely and only (re)starts containers/workflows.
   - `--refresh-env` ask the workflow to regenerate `.env.dev/.env.prod` on EC2.
 
 - **Testing status:** ⚠️ Core functionality validated; edge-case testing pending
