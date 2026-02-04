@@ -1,7 +1,7 @@
 # Interactive UI / Frontend Systems Portfolio Platform
 
 A production-grade exploration of interactive front-end architecture — combining handcrafted animation systems, experimental render strategies, and fully automated DevOps infrastructure.  
- Built with **React**, **TypeScript**, and the **Next.js App Router**, powered by a **Payload CMS backend** and **Terraform-provisioned AWS stack**.  
+Built with **React**, **TypeScript**, and the **Next.js App Router**, powered by a **Payload CMS backend** and **Terraform-provisioned AWS stack**.  
 The project merges design experimentation with the discipline of scalable, cloud-ready software engineering.
 
 Core interface systems include a **parallax-layered carousel**, a **multi-renderer sprite engine**, and an experimental **'Fluxel'** (fluxing pixel) grid that reacts to physics projectile collisions.  
@@ -12,14 +12,14 @@ The surrounding infrastructure (Terraform, Docker, AWS, GitHub Actions) exists a
 
 Note: this project is still evolving — features, UX, and infrastructure are actively iterated.
 
-Please view the live deployment at [bbaysinger.io](https://bbaysinger.io?r=gh_readme).
+Live deployment: [bbaysinger.io](https://bbaysinger.io?r=gh_readme).
 
 ## 🔎 30‑Second Tour (Frontend Focus)
 
 | What to Look At                                                      | Why It Matters                                                            | Code Entry                                                                                      |
 | -------------------------------------------------------------------- | ------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
 | Layered Parallax Project Carousel                                    | Infinite bi‑directional wrap, inertial sync, master/slave parallax layers | `frontend/src/components/project-carousel-page/` (`Carousel.tsx`, `LayeredCarouselManager.tsx`) |
-| Fluxel Grid (interactive (fluxing) pixels)                           | Pluggable grid render, pointer + projectile influence, shadow system      | `frontend/src/components/home-page/header-main/fluxel-grid/`                                    |
+| Fluxel Grid (interactive fluxing pixels)                             | Pluggable grid render, pointer + projectile influence, shadow system      | `frontend/src/components/home-page/header-main/fluxel-grid/`                                    |
 | Sprite Sheet Player (CSS/Canvas/WebGL)                               | Auto metadata parsing, per‑frame FPS arrays, strategy hot‑swap            | `frontend/src/components/common/sprite-rendering/`                                              |
 | Kinetic Slinger Physics Box                                          | Throwables with pointer gravity & orbital damping, idle detection hooks   | `frontend/src/components/home-page/header-main/SlingerBox.tsx`                                  |
 | Clamped Linear Interpolation (Lerp) Fluid Responsive System (mixins) | Pixel‑precise CSS interpolation utilities for fluid responsive layout     | `frontend/src/styles/_mixins.scss`                                                              |
@@ -36,7 +36,7 @@ Live site reference moments:
 
 Shorter read: [Flat main features list](./docs/main-features-list.md).
 
-[Visit the Live Site](#) (deployment-dependent; see `deploy/DEPLOYMENT.md`).
+[Visit the Live Site](https://bbaysinger.io?r=gh_readme) (deployment-dependent; see `deploy/DEPLOYMENT.md`).
 
 ---
 
@@ -266,43 +266,44 @@ See also: [Flat main features list](./docs/main-features-list.md).
   - Authenticated requests to a public NDA slug redirect server-side to `/nda/[projectId]`; unauthenticated sees 404
   - Client carousel and prev/next links are route-aware (public → `/project/*`, NDA → `/nda/*`) without leaking NDA data
 
-  ## 🔒 Secrets & Environment Management
-  - Secrets now follow the same convention as `.env`/`.env.prod`:
-    - Shared base: `.github-secrets.example.json5` ➜ `.github-secrets.private.json5`
-  - - `sync:secrets:dry` / `sync:secrets` — Sync GitHub secrets from local JSON5 files
-  - Dev: `.github-secrets.example.dev.json5` ➜ `.github-secrets.private.dev.json5`
-  - - `scripts/merge-github-secrets.ts` can bundle secrets, but it is optional. `sync:secrets` reads `.github-secrets.private.json5` plus any `.github-secrets.private.<env>.json5` files directly.
-  - Stage (future): `.github-secrets.example.stage.json5` ➜ `.github-secrets.private.stage.json5`
-  - Prod: `.github-secrets.example.prod.json5` ➜ `.github-secrets.private.prod.json5`
-  - `scripts/merge-github-secrets.ts` bundles the above into `.github-secrets.private.json5`. Run `npm run secrets:bundle` after editing any `.github-secrets.private*.json5` file.
-  - Sync script: `scripts/sync-github-secrets.ts`
-    - Auto-syncs repo secrets followed by every detected GitHub **Environment** manifest (e.g., `.github-secrets.private.dev.json5`).
-    - `--omit-env <name>` (repeatable) skips specific environments; pass `all` to push repo-level secrets only.
-    - Validates `REQUIRED_ENVIRONMENT_VARIABLES_FRONTEND` and `REQUIRED_ENVIRONMENT_VARIABLES_BACKEND` (comma groups, `|` = ANY-of within a group) before writing.
-    - Dry run previews deletions/additions without touching GitHub.
+## 🔒 Secrets & Environment Management
 
-  Common usage:
+- Secrets follow the same convention as `.env`/`.env.prod`:
+  - Shared base: `.github-secrets.example.json5` ➜ `.github-secrets.private.json5`
+- Dev: `.github-secrets.example.dev.json5` ➜ `.github-secrets.private.dev.json5`
+- Stage (future): `.github-secrets.example.stage.json5` ➜ `.github-secrets.private.stage.json5`
+- Prod: `.github-secrets.example.prod.json5` ➜ `.github-secrets.private.prod.json5`
+- `sync:secrets:dry` / `sync:secrets` — Sync GitHub secrets from local JSON5 files
+- `scripts/merge-github-secrets.ts` can bundle secrets, but it is optional. `sync:secrets` reads `.github-secrets.private.json5` plus any `.github-secrets.private.<env>.json5` files directly.
+- `scripts/merge-github-secrets.ts` bundles the above into `.github-secrets.private.json5`. Run `npm run secrets:bundle` after editing any `.github-secrets.private*.json5` file.
+- Sync script: `scripts/sync-github-secrets.ts`
+  - Auto-syncs repo secrets followed by every detected GitHub **Environment** manifest (e.g., `.github-secrets.private.dev.json5`).
+  - `--omit-env <name>` (repeatable) skips specific environments; pass `all` to push repo-level secrets only.
+  - Validates `REQUIRED_ENVIRONMENT_VARIABLES_FRONTEND` and `REQUIRED_ENVIRONMENT_VARIABLES_BACKEND` (comma groups, `|` = ANY-of within a group) before writing.
+  - Dry run previews deletions/additions without touching GitHub.
 
-  ```bash
-  # Merge per-environment secret files into the secrets bundle
-  npm run secrets:bundle
+Common usage:
 
-  # Shared/base secrets (Docker Hub creds, ACME email, shared buckets)
-  npm run sync:secrets:base:dry
-  npm run sync:secrets:base
+```bash
+# Merge per-environment secret files into the secrets bundle
+npm run secrets:bundle
 
-  # Dev / Prod GitHub Environments
-  npm run sync:secrets:dev:dry
-  npm run sync:secrets:dev
-  npm run sync:secrets:prod:dry
-  npm run sync:secrets:prod
+# Shared/base secrets (Docker Hub creds, ACME email, shared buckets)
+npm run sync:secrets:base:dry
+npm run sync:secrets:base
 
-  # Everything (repo + all envs) in one shot
-  npm run sync:secrets
+# Dev / Prod GitHub Environments
+npm run sync:secrets:dev:dry
+npm run sync:secrets:dev
+npm run sync:secrets:prod:dry
+npm run sync:secrets:prod
 
-  # Optional future stage environment (skips dev/prod automatically)
-  npm run sync:secrets:stage
-  ```
+# Everything (repo + all envs) in one shot
+npm run sync:secrets
+
+# Optional future stage environment (skips dev/prod automatically)
+npm run sync:secrets:stage
+```
 
 - Rich project metadata (brand, tags, role, year, awards, URLs)
 - Image collections for screenshots, thumbnails, brand logos
@@ -403,7 +404,6 @@ Notes:
 - See ADR: [Image Cleanup and Retention](./docs/architecture-decisions.md)
 - Tip: If ECR is skipped due to missing auth, you can pass `-- --login --profile <your-profile>` to have the tool run `aws sso login` and perform an ECR Docker login automatically (default region `us-west-2`, override with `--region`).
 
-npx ts-node ./scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./.github-secrets.private.json5
 Runtime .env generation (deploy):
 
 - CI deploy workflows generate `.env.dev` and `.env.prod` on EC2 from GitHub Secrets
