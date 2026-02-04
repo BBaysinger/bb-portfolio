@@ -1,3 +1,8 @@
+/**
+ * Contact form API route.
+ *
+ * Validates input, applies basic rate limiting, and sends emails via SES.
+ */
 import { NextRequest, NextResponse } from 'next/server'
 
 import { emailService, type ContactFormData } from '@/services/email'

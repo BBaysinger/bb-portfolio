@@ -1,3 +1,8 @@
+/**
+ * Admin contact diagnostics API route.
+ *
+ * Guards access with a shared bearer token and returns email diagnostics.
+ */
 import { NextRequest, NextResponse } from 'next/server'
 
 import { getContactEmailDiagnostics } from '@/services/email'

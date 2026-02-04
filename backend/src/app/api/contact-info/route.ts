@@ -1,11 +1,12 @@
+/**
+ * Contact info API route.
+ *
+ * Reads contact data from the CMS global and returns obfuscated fields.
+ */
 import configPromise from '@payload-config'
 import { NextResponse } from 'next/server'
 import { getPayload } from 'payload'
 
-/**
- * Contact Info API - Returns obfuscated contact email
- * Uses environment variables but applies server-side encoding for additional protection
- */
 export async function GET() {
   try {
     // Read public contact info exclusively from CMS Global. No env fallbacks.

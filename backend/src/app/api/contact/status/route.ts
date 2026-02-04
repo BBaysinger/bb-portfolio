@@ -1,7 +1,10 @@
+/**
+ * Contact email status API route.
+ *
+ * Returns non-sensitive configuration status (no secret values).
+ */
 import { NextResponse } from 'next/server'
 
-// Returns a non-sensitive status of the contact email configuration.
-// It does NOT expose secret values, only which env keys are being used.
 export async function GET() {
   try {
     const profileRaw = (process.env.ENV_PROFILE || process.env.NODE_ENV || '').toLowerCase()

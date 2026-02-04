@@ -1,3 +1,8 @@
+/**
+ * Payload request type augmentation.
+ *
+ * Adds the authenticated `user` shape used by the app.
+ */
 import type { User } from '../payload-types'
 
 declare module 'payload' {

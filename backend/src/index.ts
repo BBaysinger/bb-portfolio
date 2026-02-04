@@ -1,3 +1,8 @@
+/**
+ * Local dev bootstrap for Payload + Express.
+ *
+ * Loads environment variables, initializes Payload, and starts the admin server.
+ */
 import dotenv from 'dotenv'
 import express from 'express'
 import payload from 'payload'
