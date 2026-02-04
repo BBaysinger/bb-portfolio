@@ -14,7 +14,7 @@
  *   npm run projects:upload -- --dry-run --env public
  */
 import { execSync } from "node:child_process";
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 
 import { ensureAwsCredentials } from "./lib/aws-creds";
@@ -43,6 +43,23 @@ interface UploadOptions {
   dryRun: boolean;
   profile?: string;
   region: string;
+}
+
+function readTfvarsValue(tfvarsPath: string, key: string): string | undefined {
+  if (!existsSync(tfvarsPath)) return undefined;
+  const raw = readFileSync(tfvarsPath, "utf8");
+  const re = new RegExp(`^\\s*${key}\\s*=\\s*"([^"]+)"\\s*$`, "m");
+  const match = raw.match(re);
+  return match?.[1];
+}
+
+function resolveBucket(accessLevel: AccessLevel): string {
+  const tfvarsPath = path.resolve(repoRoot, "infra", "terraform.tfvars");
+  const tfvarsKey =
+    accessLevel === "public" ? "public_projects_bucket" : "nda_projects_bucket";
+  const fromTfvars = readTfvarsValue(tfvarsPath, tfvarsKey);
+  if (fromTfvars) return fromTfvars;
+  return S3_BUCKETS[accessLevel];
 }
 
 function parseArguments(): UploadOptions {
@@ -111,7 +128,7 @@ Examples:
 }
 
 function uploadToS3(accessLevel: AccessLevel, options: UploadOptions): void {
-  const bucket = S3_BUCKETS[accessLevel];
+  const bucket = resolveBucket(accessLevel);
   const sourceDir = PROJECT_SOURCES[accessLevel];
 
   console.info(
