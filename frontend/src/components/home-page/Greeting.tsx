@@ -62,10 +62,10 @@ const Greeting: React.FC = () => {
             <div ref={addToRefs}>
               <p>
                 This portfolio includes some earlier, interaction-heavy work
-                that provides context for my background. Today, my focus is
-                front-end architecture—building reliable product UI and
-                reinforcing strong patterns around structure, styling, and
-                behavior.
+                that shows variety and provides context for my background.
+                Today, my focus is front-end architecture—building reliable
+                product UI and reinforcing strong patterns around structure,
+                styling, and behavior.
               </p>
             </div>
             <a
