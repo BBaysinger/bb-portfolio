@@ -1,3 +1,8 @@
+/**
+ * Payload CMS configuration.
+ *
+ * Defines collections, globals, adapters, storage, and runtime env guards.
+ */
 import { createRequire } from 'module'
 import path from 'path'
 import { fileURLToPath } from 'url'

@@ -1,3 +1,8 @@
+/**
+ * Import map status API route.
+ *
+ * Checks for the presence of Payload import map artifacts at runtime.
+ */
 import fs from 'node:fs'
 
 import { NextResponse } from 'next/server'

@@ -1,3 +1,8 @@
+/**
+ * Next.js proxy middleware for admin and API routes.
+ *
+ * Normalizes admin paths, prevents login redirect loops, and applies CORS.
+ */
 import { NextRequest, NextResponse } from 'next/server'
 
 export function proxy(request: NextRequest) {

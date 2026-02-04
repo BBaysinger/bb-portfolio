@@ -1,15 +1,17 @@
 #!/usr/bin/env tsx
-/*
-  Backend prebuild guard for required env vars (TypeScript version).
-
-  Features:
-  - Loads .env files with Next.js/Payload-like precedence before validation:
-    1) .env
-    2) .env.[development|production] (based on NODE_ENV)
-    3) .env.local (overrides)
-  - REQUIRED_ENVIRONMENT_VARIABLES_BACKEND: comma-separated list; supports ANY-of groups with "|".
-  - Default safety (CI+prod only): require critical backend vars if no explicit list was given.
-*/
+/**
+ * Backend prebuild guard for required environment variables.
+ *
+ * Loads .env files with Next.js/Payload-like precedence before validation:
+ * 1) .env
+ * 2) .env.[development|production] (based on NODE_ENV)
+ * 3) .env.local (overrides)
+ *
+ * Environment variables:
+ * - REQUIRED_ENVIRONMENT_VARIABLES_BACKEND: Comma-separated list of required keys.
+ *   Use "|" to define ANY-of groups (e.g., "A|B,C").
+ * - ENV_PROFILE / NODE_ENV: Used to decide whether to load .env files.
+ */
 
 import { existsSync, readFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
