@@ -55,7 +55,7 @@ export const BrandLogos: CollectionConfig = {
       if (req.user?.role === 'admin') return true
       if (req.user) return true
       return {
-        or: [{ nda: { equals: false } }],
+        nda: { not_equals: true },
       } as unknown as Where
     },
     create: ({ req }) => req.user?.role === 'admin',
