@@ -50,7 +50,7 @@ Two complete feature lists (frontend + backend/platform) with jump links to deta
 - [[Rendering / Routing] SSR/Next portfolio projects list](#backend-rendering-routing)
 - [[Rendering / Routing] SSG/Next dynamic routing projects view](#backend-rendering-routing)
 - [[Rendering / Routing] NDA-included routes with placeholders + auth-aware upgrade (SSR → CSR hydration)](#backend-rendering-routing)
-- [[Rendering / Routing] Static `/nda?p=slug` query-param entry route (client canonicalization)](#backend-rendering-routing)
+- [[Rendering / Routing] Static `/project?p=slug` + `/nda-included?p=slug` query-param entry route (redirect + canonicalization)](#backend-rendering-routing)
 - [[CMS / Data Modeling] Payload CMS backend](#backend-cms-data-modeling)
 - [[CMS / Data Modeling] Type-safe Payload CMS with generated types](#backend-cms-data-modeling)
 - [[CMS / Data Modeling] Automatic slug generation and sortable index for projects](#backend-cms-data-modeling)
@@ -134,7 +134,7 @@ This repo is an end‑to‑end system, not just a site. Beyond the UI work, it s
 - Dual registries (Docker Hub for dev, ECR for prod) with automated image cleanup and verification
 - Secrets and environment sync pipeline driven by JSON5 source files and validation lists
 - Media and project file pipelines to S3 with verify tools and server‑streamed delivery routes (no presigned URLs)
-- NDA-included carousel system: placeholders + auth-aware upgrade (SSR → CSR hydration) and a static query-param entry route (`/nda?p=slug`)
+- NDA-included carousel system: placeholders + auth-aware upgrade (SSR → CSR hydration) plus query-param entry routing (`/project?p=slug`, `/nda-included?p=slug`)
 - Auth-gated private asset streaming from S3 (supports 304 + private cache headers)
 - Database migration, rename, and safety‑first destructive helpers with dry‑run support
 - NDA media backfill scripts (Payload + Mongo variants)
@@ -161,7 +161,7 @@ This section backs the backend/platform links in the [Feature Index](#feature-in
 - SSR/Next portfolio projects list
 - SSG/Next dynamic routing projects view
 - NDA-included routes with placeholders + auth-aware upgrade (SSR → CSR hydration)
-- Static `/nda?p=slug` query-param entry route (client canonicalization)
+- Static `/project?p=slug` + `/nda-included?p=slug` query-param entry route (redirect + canonicalization)
 
 <a id="backend-cms-data-modeling"></a>
 
@@ -197,8 +197,10 @@ This section backs the backend/platform links in the [Feature Index](#feature-in
 - GitHub Secrets sync pipeline from JSON5 source files + required-env validation lists
 - Locked-down CSRF/CORS allowlists per environment
 - Contact API via AWS SES with HTML/Text email and reply-to
+- `/.well-known/security.txt` endpoint (pulls obfuscated contact email via backend proxy)
 - Health-check endpoint(s) for uptime/deploy validation
 - Private project asset route that requires auth and streams from S3 (supports 304 + private caching)
+- Frontend security headers + CSP configured in Next.js (`headers()`), including `Permissions-Policy`
 
 <a id="backend-observability"></a>
 
