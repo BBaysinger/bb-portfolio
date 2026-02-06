@@ -7,6 +7,8 @@ Working list of notable features
 - Simulated depth magnetic “fluxel” grid
 - Parallax project carousel
 - Layered parallax carousel engine (master/slave synchronization)
+- Browser-native carousel swipe/gestures (horizontal scrolling)
+- Carousel navigation persists to browser history (Back/Forward) + shortest-path bidirectional wrap
 - Device mockup overlays with tilt + stabilization states
 - Route-driven carousel navigation with deep linking
 - Logo/info swapper animations tied to active slide
@@ -15,7 +17,7 @@ Working list of notable features
 - Draggable + throwable “slinger” orb with simple physics (velocity, damping, wall collision callbacks)
 - Page slide-out nav
 - Transform-positioned footer
-- Custom sprite rendering
+- Custom sprite rendering with renderer strategies (CSS / Canvas / WebGL), swappable via `renderStrategy`
 - In-view slide-in animation system (IntersectionObserver)
 - FLIP-style transform animation for dynamic footer positioning (ResizeObserver + GSAP)
 
@@ -23,13 +25,13 @@ Working list of notable features
 
 - SSR/Next portfolio projects list
 - SSG/Next dynamic routing projects view
-- NDA routes with placeholders + auth-aware upgrade (SSR → CSR hydration)
-- Static `/nda?p=slug` query-param entry route (client canonicalization)
+- NDA-included routes with placeholders + auth-aware upgrade (SSR → CSR hydration)
+- Static `/project?p=slug` + `/nda-included?p=slug` query-param entry route (redirect + canonicalization)
 
 ## Fluid Responsive System
 
-- Rem-based fluid scaling property mixin
-- Static fluid scaling property mixin
+- Rem-based (LERP) fluid scaling property mixin
+- Static (LERP) fluid scaling property mixin
 - Clamped Linear Interpolation (lerp) fluid responsive type/spacing system (see fluid-responsive-system.md)
 
 ## CMS / Data Modeling
@@ -51,7 +53,7 @@ Working list of notable features
 - S3-backed media storage with per-collection prefixes
 - Instance-role support with optional static credentials
 - Media migration/verification scripts (migrate-to-s3, update media urls, rebuild records)
-- Static project file bundles stored in S3 (public + NDA) with app-routed streaming delivery (no presigned URLs)
+- Static project file bundles stored in S3 (public + private) with app-routed streaming delivery (no presigned URLs)
   - Supports range requests, conditional 304s (ETag/Last-Modified), and public/private cache headers
 
 ## API / Security
@@ -60,8 +62,10 @@ Working list of notable features
 - GitHub Secrets sync pipeline from JSON5 source files + required-env validation lists
 - Locked-down CSRF/CORS allowlists per environment
 - Contact API via AWS SES with HTML/Text email and reply-to
+- `/.well-known/security.txt` endpoint
 - Health-check endpoint(s) for uptime/deploy validation
-- NDA project asset route that requires auth and streams from S3 (supports 304 + private caching)
+- Private project asset route that requires auth and streams from S3 (supports 304 + private caching)
+- Frontend security headers + CSP configured in Next.js (`headers()`), including `Permissions-Policy`
 
 ## Observability / Analytics
 
