@@ -181,7 +181,6 @@ Shorter read: [Flat main features list](./docs/main-features-list.md).
 
 [Visit the Live Site](https://bbaysinger.io?r=gh_readme) (deployment-dependent; see `deploy/DEPLOYMENT.md`).
 
-
 Next up:
 
 - Frontend deep dives: start at [Frontend UX & Interaction](#frontend-ux-interaction)
