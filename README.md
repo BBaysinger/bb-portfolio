@@ -28,6 +28,7 @@ Two complete feature lists (frontend + backend/platform) with jump links to deta
 - [Parallax project carousel](#frontend-layered-parallax-carousel)
 - [Layered parallax carousel engine (master/slave synchronization)](#frontend-layered-parallax-carousel)
 - [Browser-native carousel swipe/gestures (horizontal scrolling)](#frontend-layered-parallax-carousel)
+- [Carousel navigation persists to browser history (Back/Forward) + shortest-path bidirectional wrap](#frontend-route-synced-carousel)
 - [Device mockup overlays with tilt + stabilization states](#frontend-device-mockup-overlays)
 - [Route-driven carousel navigation with deep linking](#frontend-route-synced-carousel)
 - [Logo/info swapper animations tied to active slide](#frontend-other-ui-systems)
@@ -36,7 +37,7 @@ Two complete feature lists (frontend + backend/platform) with jump links to deta
 - [Draggable + throwable “slinger” orb with simple physics (velocity, damping, wall collision callbacks)](#frontend-kinetic-orb-physics-box)
 - [Page slide-out nav](#frontend-other-ui-systems)
 - [Transform-positioned footer](#frontend-footer-systems)
-- [Custom sprite rendering](#frontend-sprite-sheet-player)
+- [Custom sprite rendering with renderer strategies (CSS / Canvas / WebGL)](#frontend-sprite-sheet-player)
 - [In-view slide-in animation system (IntersectionObserver)](#frontend-other-ui-systems)
 - [FLIP-style transform animation for dynamic footer positioning (ResizeObserver + GSAP)](#frontend-footer-systems)
 - [Rem-based (LERP) fluid scaling property mixin](#frontend-fluid-responsive-system)
@@ -383,6 +384,8 @@ Custom infinite carousel with master/slave layering for synchronized parallax. D
 Route-synced navigation + deep linking is first-class: route updates are gated until the carousel index is “stable” after inertia.
 
 - Large positive `BASE_OFFSET` hack enabling effective bi‑directional wrap without negative `scrollLeft`.
+- Carousel navigation persists to the browser history (query-string updates via `pushState`), with explicit `popstate` handling so Back/Forward restores the active project.
+- On programmatic navigation (e.g., clicking a thumbnail or using next/prev), the carousel takes the shortest route by scrolling either direction across the wrap boundary.
 - Master carousel captures inertial gesture scroll; slave carousels mirror via computed offsets for multi‑depth visuals (phones vs laptops layer, etc.).
 - Precise indexing decoupled from DOM scroll; stabilization events fire only after inertial motion settles.
 - Programmatic navigation uses GSAP tweening today; architecture is prepared for a custom physics tween engine (lower GC pressure, unified gesture/mouse feel).
