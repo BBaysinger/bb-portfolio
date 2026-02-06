@@ -16,18 +16,15 @@ Live deployment: [bbaysinger.io](https://bbaysinger.io?r=gh_readme).
 
 ---
 
-## 🚩 Headline features
+## 🚩 At a glance (what this repo includes)
 
-This repo is an end‑to‑end system, not just a site. A quick overview of what it demonstrates:
+This repo is an end‑to‑end system, not just a site.
 
-- **Frontend interaction systems:** layered parallax carousel (native scroll gestures + inertia, deep linking/history) + coordinated device mockup layers
-- **Experimental rendering:** fluxel grid + kinetic “slinger” orb (hand-rolled physics and interaction loops)
-- **Sprite engine:** CSS / Canvas / WebGL renderer strategies with a single API (switchable via `renderStrategy`)
-- **Fluid responsive design:** clamped LERP mixins for predictable type/spacing across viewports
-- **CMS + content modeling:** Payload CMS with generated TypeScript types, RBAC, slug/indexing, and NDA-aware sanitization
-- **Media + delivery pipeline:** S3-backed media + static bundles with app-routed streaming delivery (no presigned URLs)
-- **Production-grade infrastructure:** Terraform, Docker, multi-environment orchestration, and reverse proxy options
-- **Observability:** CloudWatch RUM (plus optional GA4)
+Purpose of this section: give a **one‑screen mental model** of the repo. (The [30‑Second Tour](#thirty-second-tour) is the “where to look in code” guide.)
+
+- **Interactive UI experimentation:** custom interaction/animation systems built directly on the browser platform (no external 3D/physics/sprite runtime)
+- **Content + delivery platform:** Payload CMS + media/static asset pipelines designed for both public and private/NDA-included content
+- **Production-grade ops:** Docker + Terraform + environment/secrets automation + reverse proxy options + observability (CloudWatch RUM, optional GA4)
 
 <a id="feature-index"></a>
 
