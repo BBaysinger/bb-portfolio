@@ -27,6 +27,7 @@ Two complete feature lists (frontend + backend/platform) with jump links to deta
 - [Simulated depth magnetic “fluxel” grid](#frontend-fluxel-grid)
 - [Parallax project carousel](#frontend-layered-parallax-carousel)
 - [Layered parallax carousel engine (master/slave synchronization)](#frontend-layered-parallax-carousel)
+- [Browser-native carousel swipe/gestures (horizontal scrolling)](#frontend-layered-parallax-carousel)
 - [Device mockup overlays with tilt + stabilization states](#frontend-device-mockup-overlays)
 - [Route-driven carousel navigation with deep linking](#frontend-route-synced-carousel)
 - [Logo/info swapper animations tied to active slide](#frontend-other-ui-systems)
@@ -38,9 +39,9 @@ Two complete feature lists (frontend + backend/platform) with jump links to deta
 - [Custom sprite rendering](#frontend-sprite-sheet-player)
 - [In-view slide-in animation system (IntersectionObserver)](#frontend-other-ui-systems)
 - [FLIP-style transform animation for dynamic footer positioning (ResizeObserver + GSAP)](#frontend-footer-systems)
-- [Rem-based fluid scaling property mixin](#frontend-fluid-responsive-system)
-- [Static fluid scaling property mixin](#frontend-fluid-responsive-system)
-- [Clamped Linear Interpolation (lerp) fluid responsive type/spacing system](#frontend-fluid-responsive-system)
+- [Rem-based (LERP) fluid scaling property mixin](#frontend-fluid-responsive-system)
+- [Static (LERP) fluid scaling property mixin](#frontend-fluid-responsive-system)
+- [Clamped Linear Interpolation (LERP) fluid responsive type/spacing system](#frontend-fluid-responsive-system)
 
 <a id="backend-platform-features"></a>
 
@@ -48,7 +49,7 @@ Two complete feature lists (frontend + backend/platform) with jump links to deta
 
 - [[Rendering / Routing] SSR/Next portfolio projects list](#backend-rendering-routing)
 - [[Rendering / Routing] SSG/Next dynamic routing projects view](#backend-rendering-routing)
-- [[Rendering / Routing] NDA routes with placeholders + auth-aware upgrade (SSR → CSR hydration)](#backend-rendering-routing)
+- [[Rendering / Routing] NDA-included routes with placeholders + auth-aware upgrade (SSR → CSR hydration)](#backend-rendering-routing)
 - [[Rendering / Routing] Static `/nda?p=slug` query-param entry route (client canonicalization)](#backend-rendering-routing)
 - [[CMS / Data Modeling] Payload CMS backend](#backend-cms-data-modeling)
 - [[CMS / Data Modeling] Type-safe Payload CMS with generated types](#backend-cms-data-modeling)
@@ -64,13 +65,13 @@ Two complete feature lists (frontend + backend/platform) with jump links to deta
 - [[Media / Storage] S3-backed media storage with per-collection prefixes](#backend-media-storage)
 - [[Media / Storage] Instance-role support with optional static credentials](#backend-media-storage)
 - [[Media / Storage] Media migration/verification scripts (migrate-to-s3, update media urls, rebuild records)](#backend-media-storage)
-- [[Media / Storage] Static project file bundles stored in S3 (public + NDA) with app-routed streaming delivery (no presigned URLs)](#backend-media-storage)
+- [[Media / Storage] Static project file bundles stored in S3 (public + private) with app-routed streaming delivery (no presigned URLs)](#backend-media-storage)
 - [[API / Security] Strict env_profile-based config validation (fail-fast on missing)](#backend-api-security)
 - [[API / Security] GitHub Secrets sync pipeline from JSON5 source files + required-env validation lists](#backend-api-security)
 - [[API / Security] Locked-down CSRF/CORS allowlists per environment](#backend-api-security)
 - [[API / Security] Contact API via AWS SES with HTML/Text email and reply-to](#backend-api-security)
 - [[API / Security] Health-check endpoint(s) for uptime/deploy validation](#backend-api-security)
-- [[API / Security] NDA project asset route that requires auth and streams from S3 (supports 304 + private caching)](#backend-api-security)
+- [[API / Security] Private project asset route that requires auth and streams from S3 (supports 304 + private caching)](#backend-api-security)
 - [[Observability] AWS CloudWatch RUM integration (production-only + HTTPS-only guardrails)](#backend-observability)
 - [[Observability] CloudWatch Agent for host metrics + log ingestion (nginx + system logs)](#backend-observability)
 - [[Observability] Auto page-view tracking + route-change tracking (App Router)](#backend-observability)
@@ -99,15 +100,15 @@ Two complete feature lists (frontend + backend/platform) with jump links to deta
 
 ## 🔎 30‑Second Tour (Frontend Focus)
 
-| What to Look At                                                      | Why It Matters                                                            | Code Entry                                                                                      |
-| -------------------------------------------------------------------- | ------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| Layered Parallax Project Carousel                                    | Infinite bi‑directional wrap, inertial sync, master/slave parallax layers | `frontend/src/components/project-carousel-page/` (`Carousel.tsx`, `LayeredCarouselManager.tsx`) |
-| Fluxel Grid (interactive fluxing pixels)                             | Pluggable grid render, pointer + projectile influence, shadow system      | `frontend/src/components/home-page/header-main/fluxel-grid/`                                    |
-| Sprite Sheet Player (CSS/Canvas/WebGL)                               | Auto metadata parsing, per‑frame FPS arrays, strategy hot‑swap            | `frontend/src/components/common/sprite-rendering/`                                              |
-| Kinetic Orb Physics Box                                              | Throwables with pointer gravity & orbital damping, idle detection hooks   | `frontend/src/components/home-page/header-main/SlingerBox.tsx`                                  |
-| Clamped Linear Interpolation (Lerp) Fluid Responsive System (mixins) | Pixel‑precise CSS interpolation utilities for fluid responsive layout     | `frontend/src/styles/_mixins.scss`                                                              |
-| Route‑Synced Carousel + Deep Linking                                 | Scroll inertia stabilization gates route updates                          | `ProjectView.tsx`, `LayeredCarouselManager.tsx`                                                 |
-| Device Mockup Layer Coordination                                     | Independent layer scroll multipliers + content swapping                   | `ProjectCarouselView.*`                                                                         |
+| What to Look At                                                      | Why It Matters                                                                                                              | Code Entry                                                                                      |
+| -------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| Layered Parallax Project Carousel                                    | Native horizontal scrolling + inertia (gesture + accessibility friendly), bi‑directional wrap, master/slave parallax layers | `frontend/src/components/project-carousel-page/` (`Carousel.tsx`, `LayeredCarouselManager.tsx`) |
+| Fluxel Grid (interactive fluxing pixels)                             | Pluggable grid render, pointer + projectile influence, shadow system                                                        | `frontend/src/components/home-page/header-main/fluxel-grid/`                                    |
+| Sprite Sheet Player (CSS/Canvas/WebGL)                               | Auto metadata parsing, per‑frame FPS arrays, strategy hot‑swap                                                              | `frontend/src/components/common/sprite-rendering/`                                              |
+| Kinetic Orb Physics Box                                              | Throwables with pointer gravity & orbital damping, idle detection hooks                                                     | `frontend/src/components/home-page/header-main/SlingerBox.tsx`                                  |
+| Clamped Linear Interpolation (LERP) Fluid Responsive System (mixins) | Pixel‑precise CSS interpolation utilities for fluid responsive layout                                                       | `frontend/src/styles/_mixins.scss`                                                              |
+| Route‑Synced Carousel + Deep Linking                                 | Scroll inertia stabilization gates route updates                                                                            | `ProjectView.tsx`, `LayeredCarouselManager.tsx`                                                 |
+| Device Mockup Layer Coordination                                     | Independent layer scroll multipliers + content swapping                                                                     | `ProjectCarouselView.*`                                                                         |
 
 Live site reference moments:
 
@@ -133,8 +134,8 @@ This repo is an end‑to‑end system, not just a site. Beyond the UI work, it s
 - Dual registries (Docker Hub for dev, ECR for prod) with automated image cleanup and verification
 - Secrets and environment sync pipeline driven by JSON5 source files and validation lists
 - Media and project file pipelines to S3 with verify tools and server‑streamed delivery routes (no presigned URLs)
-- NDA system: placeholders + auth-aware upgrade (SSR → CSR hydration) and a static query-param entry route (`/nda?p=slug`)
-- Auth-gated NDA asset streaming from S3 (supports 304 + private cache headers)
+- NDA-included carousel system: placeholders + auth-aware upgrade (SSR → CSR hydration) and a static query-param entry route (`/nda?p=slug`)
+- Auth-gated private asset streaming from S3 (supports 304 + private cache headers)
 - Database migration, rename, and safety‑first destructive helpers with dry‑run support
 - NDA media backfill scripts (Payload + Mongo variants)
 - Scripted conveniences for day‑to‑day work: dependency upgrades, multi‑package installs, branch sync, and more
@@ -159,7 +160,7 @@ This section backs the backend/platform links in the [Feature Index](#feature-in
 
 - SSR/Next portfolio projects list
 - SSG/Next dynamic routing projects view
-- NDA routes with placeholders + auth-aware upgrade (SSR → CSR hydration)
+- NDA-included routes with placeholders + auth-aware upgrade (SSR → CSR hydration)
 - Static `/nda?p=slug` query-param entry route (client canonicalization)
 
 <a id="backend-cms-data-modeling"></a>
@@ -185,7 +186,7 @@ This section backs the backend/platform links in the [Feature Index](#feature-in
 - S3-backed media storage with per-collection prefixes
 - Instance-role support with optional static credentials
 - Media migration/verification scripts (migrate-to-s3, update media urls, rebuild records)
-- Static project file bundles stored in S3 (public + NDA) with app-routed streaming delivery (no presigned URLs)
+- Static project file bundles stored in S3 (public + private) with app-routed streaming delivery (no presigned URLs)
   - Supports range requests, conditional 304s (ETag/Last-Modified), and public/private cache headers
 
 <a id="backend-api-security"></a>
@@ -197,7 +198,7 @@ This section backs the backend/platform links in the [Feature Index](#feature-in
 - Locked-down CSRF/CORS allowlists per environment
 - Contact API via AWS SES with HTML/Text email and reply-to
 - Health-check endpoint(s) for uptime/deploy validation
-- NDA project asset route that requires auth and streams from S3 (supports 304 + private caching)
+- Private project asset route that requires auth and streams from S3 (supports 304 + private caching)
 
 <a id="backend-observability"></a>
 
@@ -372,6 +373,10 @@ An experimental, dynamic pixel grid ("fluxels") rendered via a pluggable strateg
 
 Custom infinite carousel with master/slave layering for synchronized parallax. Distinct traits:
 
+- Uses browser-native horizontal scrolling as the primary gesture surface (trackpad/scroll-wheel/touch swipe), so momentum/inertia comes “for free” and integrates naturally with the platform.
+
+  Accessibility upside: because it stays a real scroll surface (not a fully custom pointer-gesture layer), it tends to work better with standard browser input behaviors and OS-level scroll settings.
+
 <a id="frontend-route-synced-carousel"></a>
 Route-synced navigation + deep linking is first-class: route updates are gated until the carousel index is “stable” after inertia.
 
@@ -411,7 +416,7 @@ Layered device mockups (phone/laptop/etc.) coordinate with carousel state, suppo
 
 <a id="frontend-fluid-responsive-system"></a>
 
-### Clamped Linear Interpolation (Lerp) Fluid Responsive System (SCSS mixins)
+### Clamped Linear Interpolation (LERP) Fluid Responsive System (SCSS mixins)
 
 These mixins ensure predictable, accessible scaling across devices:
 
@@ -460,9 +465,9 @@ See also: [Flat main features list](./docs/main-features-list.md).
 
 - Confidential/NDA project filtering (public routes never hydrate NDA project data)
 - NDA-aware content sanitization for anonymous users
-- NDA route segmentation and content safety
+- NDA-included carousel route segmentation and content safety
   - Public route `/project/[projectId]` never includes NDA items in the active dataset (even when authenticated)
-  - NDA-only route `/nda/[projectId]` requires authentication and is rendered dynamically per request
+  - NDA detail route `/nda/[projectId]` requires authentication and is rendered dynamically per request
   - Authenticated requests to a public NDA slug redirect server-side to `/nda/[projectId]`; unauthenticated sees 404
   - Client carousel and prev/next links are route-aware (public → `/project/*`, NDA → `/nda/*`) without leaking NDA data
 
@@ -524,10 +529,10 @@ npm run sync:secrets:stage
 
 - Static project files live in two S3 buckets (separate from Payload media):
   - Public: `bb-portfolio-projects-public`
-  - NDA-protected: `bb-portfolio-projects-nda`
+  - Private: `bb-portfolio-projects-nda`
 - Delivery is handled by Next.js App Router with clean, canonical URLs:
   - Public files: `/projects/{folder}/...` → streams from public bucket
-  - Private/NDA files: `/private/{folder}/...` → streams from NDA bucket; requires auth
+  - Private files: `/private/{folder}/...` → streams from private bucket; requires auth
 - Key behavior (boilerplate-friendly):
   - No presigned URLs are exposed; the server streams content directly from S3
   - Directory and extensionless paths resolve to `index.html`
@@ -832,7 +837,7 @@ For deep dives and implementation details:
 - Engineering Standards: [`/docs/engineering-standards.md`](./docs/engineering-standards.md)
 - Architecture Decisions: [`/docs/architecture-decisions.md`](./docs/architecture-decisions.md)
 - S3 Project Buckets Guide: [`/docs/s3-bucket-migration.md`](./docs/s3-bucket-migration.md)
-- Clamped Linear Interpolation (Lerp) Fluid Responsive System: [`/docs/fluid-responsive-system.md`](./docs/fluid-responsive-system.md)
+- Clamped Linear Interpolation (LERP) Fluid Responsive System: [`/docs/fluid-responsive-system.md`](./docs/fluid-responsive-system.md)
 - Uploads & Migration: [`/docs/uploads-and-migration.md`](./docs/uploads-and-migration.md)
 - SES Email Setup: [`/docs/aws-ses-setup.md`](./docs/aws-ses-setup.md)
 - Ports & Services: [`/docs/ports.md`](./docs/ports.md)
