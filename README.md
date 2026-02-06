@@ -18,15 +18,43 @@ Live deployment: [bbaysinger.io](https://bbaysinger.io?r=gh_readme).
 
 ## 🧭 Feature Index (Frontend + Backend)
 
-Two complete feature lists (frontend + backend/platform) with jump links to detailed sections below.
+Two ways to read this README:
+
+- Start with the [30‑Second Tour](#thirty-second-tour) (curated entrypoints + why they matter).
+- Or scan the full feature lists and jump to details:
+  - [Frontend features (full list)](#frontend-features)
+  - [Backend / platform features (full list)](#backend-platform-features)
+
+<a id="thirty-second-tour"></a>
+
+### 🔎 30‑Second Tour (curated entrypoints)
+
+This is a guided “start here” path (not a second feature list): it highlights the best code entrypoints and explains why they’re interesting.
+
+| What to Look At                                                      | Why It Matters                                                                                                              | Code Entry                                                                                      |
+| -------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| Layered Parallax Project Carousel                                    | Native horizontal scrolling + inertia (gesture + accessibility friendly), bi‑directional wrap, master/slave parallax layers | `frontend/src/components/project-carousel-page/` (`Carousel.tsx`, `LayeredCarouselManager.tsx`) |
+| Fluxel Grid (interactive fluxing pixels)                             | Pluggable grid render, pointer + projectile influence, shadow system                                                        | `frontend/src/components/home-page/header-main/fluxel-grid/`                                    |
+| Sprite Sheet Player (CSS/Canvas/WebGL)                               | Auto metadata parsing, per‑frame FPS arrays, renderer strategy swappable via `renderStrategy`                               | `frontend/src/components/common/sprite-rendering/`                                              |
+| Kinetic Orb Physics Box                                              | Throwables with pointer gravity & orbital damping, idle detection hooks                                                     | `frontend/src/components/home-page/header-main/SlingerBox.tsx`                                  |
+| Clamped Linear Interpolation (LERP) Fluid Responsive System (mixins) | Pixel‑precise CSS interpolation utilities for fluid responsive layout                                                       | `frontend/src/styles/_mixins.scss`                                                              |
+| Route‑Synced Carousel + Deep Linking                                 | Scroll inertia stabilization gates route updates                                                                            | `ProjectView.tsx`, `LayeredCarouselManager.tsx`                                                 |
+| Device Mockup Layer Coordination                                     | Independent layer scroll multipliers + content swapping                                                                     | `ProjectCarouselView.*`                                                                         |
+
+Live site reference moments:
+
+1. Project carousel: swipe quickly—note parallax & stable index snapping after inertia.
+2. Homepage hero: drag the orb → fluxel shadows & subtle projectile effects (if enabled).
+3. Sprite sequences (lightning / energy bars): watch frame pacing consistency across strategies.
+
+---
 
 <a id="frontend-features"></a>
 
 ### 🎨 Frontend features (full list)
 
 - [Simulated depth magnetic “fluxel” grid](#frontend-fluxel-grid)
-- [Parallax project carousel](#frontend-layered-parallax-carousel)
-- [Layered parallax carousel engine (master/slave synchronization)](#frontend-layered-parallax-carousel)
+- [Parallax project carousel (layered master/slave engine + synchronized parallax)](#frontend-layered-parallax-carousel)
 - [Browser-native carousel swipe/gestures (horizontal scrolling)](#frontend-layered-parallax-carousel)
 - [Carousel navigation persists to browser history (Back/Forward) + shortest-path bidirectional wrap](#frontend-route-synced-carousel)
 - [Device mockup overlays with tilt + stabilization states](#frontend-device-mockup-overlays)
@@ -37,7 +65,7 @@ Two complete feature lists (frontend + backend/platform) with jump links to deta
 - [Draggable + throwable “slinger” orb with simple physics (velocity, damping, wall collision callbacks)](#frontend-kinetic-orb-physics-box)
 - [Page slide-out nav](#frontend-other-ui-systems)
 - [Transform-positioned footer](#frontend-footer-systems)
-- [Custom sprite rendering with renderer strategies (CSS / Canvas / WebGL)](#frontend-sprite-sheet-player)
+- [Custom sprite rendering with renderer strategies (CSS / Canvas / WebGL), swappable via `renderStrategy`](#frontend-sprite-sheet-player)
 - [In-view slide-in animation system (IntersectionObserver)](#frontend-other-ui-systems)
 - [FLIP-style transform animation for dynamic footer positioning (ResizeObserver + GSAP)](#frontend-footer-systems)
 - [Rem-based (LERP) fluid scaling property mixin](#frontend-fluid-responsive-system)
@@ -96,28 +124,6 @@ Two complete feature lists (frontend + backend/platform) with jump links to deta
 - [[Data Ops / Backups] JSON dumps for seed data and repeatable imports](#backend-data-ops)
 - [[Data Ops / Backups] Automated database backup exports (with dated folders)](#backend-data-ops)
 - [[Data Ops / Backups] NDA media backfill scripts (Payload + Mongo variants)](#backend-data-ops)
-
-<a id="thirty-second-tour"></a>
-
-## 🔎 30‑Second Tour (Frontend Focus)
-
-| What to Look At                                                      | Why It Matters                                                                                                              | Code Entry                                                                                      |
-| -------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| Layered Parallax Project Carousel                                    | Native horizontal scrolling + inertia (gesture + accessibility friendly), bi‑directional wrap, master/slave parallax layers | `frontend/src/components/project-carousel-page/` (`Carousel.tsx`, `LayeredCarouselManager.tsx`) |
-| Fluxel Grid (interactive fluxing pixels)                             | Pluggable grid render, pointer + projectile influence, shadow system                                                        | `frontend/src/components/home-page/header-main/fluxel-grid/`                                    |
-| Sprite Sheet Player (CSS/Canvas/WebGL)                               | Auto metadata parsing, per‑frame FPS arrays, strategy hot‑swap                                                              | `frontend/src/components/common/sprite-rendering/`                                              |
-| Kinetic Orb Physics Box                                              | Throwables with pointer gravity & orbital damping, idle detection hooks                                                     | `frontend/src/components/home-page/header-main/SlingerBox.tsx`                                  |
-| Clamped Linear Interpolation (LERP) Fluid Responsive System (mixins) | Pixel‑precise CSS interpolation utilities for fluid responsive layout                                                       | `frontend/src/styles/_mixins.scss`                                                              |
-| Route‑Synced Carousel + Deep Linking                                 | Scroll inertia stabilization gates route updates                                                                            | `ProjectView.tsx`, `LayeredCarouselManager.tsx`                                                 |
-| Device Mockup Layer Coordination                                     | Independent layer scroll multipliers + content swapping                                                                     | `ProjectCarouselView.*`                                                                         |
-
-Live site reference moments:
-
-1. Project carousel: swipe quickly—note parallax & stable index snapping after inertia.
-2. Homepage hero: drag the orb → fluxel shadows & subtle projectile effects (if enabled).
-3. Sprite sequences (lightning / energy bars): watch frame pacing consistency across strategies.
-
----
 
 Shorter read: [Flat main features list](./docs/main-features-list.md).
 
@@ -401,11 +407,11 @@ Layered device mockups (phone/laptop/etc.) coordinate with carousel state, suppo
 
 ### Multi‑Strategy Sprite Sheet Player
 
-`SpriteSheetPlayer` auto‑parses dimensions & frame counts from filenames (`_w{width}h{height}f{frames}`) and supports three render strategies: CSS background shifting, Canvas blitting, and WebGL textured quads. Features:
+`SpriteSheetPlayer` auto‑parses dimensions & frame counts from filenames (`_w{width}h{height}f{frames}`) and supports three render strategies: CSS background shifting, Canvas blitting, and WebGL textured quads (selectable via the `renderStrategy` prop). Features:
 
 - Per‑frame FPS arrays (variable timing) or single FPS value.
 - Manual frame injection (`frameControl`), random frame selection modes, loop limits & end callbacks.
-- Strategy hot‑swap with resource disposal; Canvas currently preferred (balance of clarity & performance), WebGL exploratory for larger sheets (observed higher cost at large viewport sizes).
+- Strategy hot‑swap with resource disposal (change `renderStrategy` without remounting); Canvas currently preferred (balance of clarity & performance), WebGL exploratory for larger sheets (observed higher cost at large viewport sizes).
 - Future enhancement: single‑visual sheet translation mode (pan vs frame index advances).
 
 <a id="frontend-kinetic-orb-physics-box"></a>
