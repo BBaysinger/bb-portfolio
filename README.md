@@ -53,21 +53,35 @@ Live site reference moments:
 
 ### 🎨 Frontend features (full list)
 
+#### 🧲 Physics + experimental rendering
+
 - [Simulated depth magnetic “fluxel” grid](#frontend-fluxel-grid)
+- [Draggable + throwable “slinger” orb with simple physics (velocity, damping, wall collision callbacks)](#frontend-kinetic-orb-physics-box)
+
+#### 🌀 Carousel + routing
+
 - [Parallax project carousel (layered master/slave engine + synchronized parallax)](#frontend-layered-parallax-carousel)
 - [Browser-native carousel swipe/gestures (horizontal scrolling)](#frontend-layered-parallax-carousel)
 - [Carousel navigation persists to browser history (Back/Forward) + shortest-path bidirectional wrap](#frontend-route-synced-carousel)
-- [Device mockup overlays with tilt + stabilization states](#frontend-device-mockup-overlays)
 - [Route-driven carousel navigation with deep linking](#frontend-route-synced-carousel)
+- [Device mockup overlays with tilt + stabilization states](#frontend-device-mockup-overlays)
+
+#### 🎞️ Sprite rendering
+
+- [Custom sprite rendering with renderer strategies (CSS / Canvas / WebGL), swappable via `renderStrategy`](#frontend-sprite-sheet-player)
+
+#### 🧩 Other UI systems
+
 - [Logo/info swapper animations tied to active slide](#frontend-other-ui-systems)
 - [Scroll-aware highlighting project list](#frontend-other-ui-systems)
 - [Magnetic/sticky road sign](#frontend-other-ui-systems)
-- [Draggable + throwable “slinger” orb with simple physics (velocity, damping, wall collision callbacks)](#frontend-kinetic-orb-physics-box)
 - [Page slide-out nav](#frontend-other-ui-systems)
 - [Transform-positioned footer](#frontend-footer-systems)
-- [Custom sprite rendering with renderer strategies (CSS / Canvas / WebGL), swappable via `renderStrategy`](#frontend-sprite-sheet-player)
 - [In-view slide-in animation system (IntersectionObserver)](#frontend-other-ui-systems)
 - [FLIP-style transform animation for dynamic footer positioning (ResizeObserver + GSAP)](#frontend-footer-systems)
+
+#### 📐 Fluid responsive system
+
 - [Rem-based (LERP) fluid scaling property mixin](#frontend-fluid-responsive-system)
 - [Static (LERP) fluid scaling property mixin](#frontend-fluid-responsive-system)
 - [Clamped Linear Interpolation (LERP) fluid responsive type/spacing system](#frontend-fluid-responsive-system)
@@ -76,54 +90,77 @@ Live site reference moments:
 
 ### 🧱 Backend / platform features (full list)
 
-- [[Rendering / Routing] SSR/Next portfolio projects list](#backend-rendering-routing)
-- [[Rendering / Routing] SSG/Next dynamic routing projects view](#backend-rendering-routing)
-- [[Rendering / Routing] NDA-included routes with placeholders + auth-aware upgrade (SSR → CSR hydration)](#backend-rendering-routing)
-- [[Rendering / Routing] Static `/project?p=slug` + `/nda-included?p=slug` query-param entry route (redirect + canonicalization)](#backend-rendering-routing)
-- [[CMS / Data Modeling] Payload CMS backend](#backend-cms-data-modeling)
-- [[CMS / Data Modeling] Type-safe Payload CMS with generated types](#backend-cms-data-modeling)
-- [[CMS / Data Modeling] Automatic slug generation and sortable index for projects](#backend-cms-data-modeling)
-- [[CMS / Data Modeling] Rich project metadata (brand, tags, role, year, awards, urls)](#backend-cms-data-modeling)
-- [[CMS / Data Modeling] Confidential/NDA project filtering](#backend-cms-data-modeling)
-- [[CMS / Data Modeling] NDA-aware content sanitization for anonymous users](#backend-cms-data-modeling)
-- [[CMS / Data Modeling] Image collections for screenshots/thumbnails/brand logos](#backend-cms-data-modeling)
-- [[CMS / Data Modeling] Role-based access control for admin-only mutations](#backend-cms-data-modeling)
-- [[Media / Storage] Sprite sheet image processing scripts](#backend-media-storage)
-- [[Media / Storage] Sharp-backed image processing and upload size limits](#backend-media-storage)
-- [[Media / Storage] Local filesystem storage for local profile](#backend-media-storage)
-- [[Media / Storage] S3-backed media storage with per-collection prefixes](#backend-media-storage)
-- [[Media / Storage] Instance-role support with optional static credentials](#backend-media-storage)
-- [[Media / Storage] Media migration/verification scripts (migrate-to-s3, update media urls, rebuild records)](#backend-media-storage)
-- [[Media / Storage] Static project file bundles stored in S3 (public + private) with app-routed streaming delivery (no presigned URLs)](#backend-media-storage)
-- [[API / Security] Strict env_profile-based config validation (fail-fast on missing)](#backend-api-security)
-- [[API / Security] GitHub Secrets sync pipeline from JSON5 source files + required-env validation lists](#backend-api-security)
-- [[API / Security] Locked-down CSRF/CORS allowlists per environment](#backend-api-security)
-- [[API / Security] Contact API via AWS SES with HTML/Text email and reply-to](#backend-api-security)
-- [[API / Security] Health-check endpoint(s) for uptime/deploy validation](#backend-api-security)
-- [[API / Security] Private project asset route that requires auth and streams from S3 (supports 304 + private caching)](#backend-api-security)
-- [[Observability] AWS CloudWatch RUM integration (production-only + HTTPS-only guardrails)](#backend-observability)
-- [[Observability] CloudWatch Agent for host metrics + log ingestion (nginx + system logs)](#backend-observability)
-- [[Observability] Auto page-view tracking + route-change tracking (App Router)](#backend-observability)
-- [[Observability] Custom event helpers for interactions (clicks, carousel, slinger toss, etc.)](#backend-observability)
-- [[Observability] Minimal Google Analytics 4 integration (optional)](#backend-observability)
-- [[Infra / Deployment] Deployment tooling (scripts + optional orchestrator)](#backend-infra-deployment)
-- [[Infra / Deployment] Terraform IaC: one-command provision/teardown of full stack](#backend-infra-deployment)
-- [[Infra / Deployment] Systemd-managed Docker services on EC2 with auto-restart](#backend-infra-deployment)
-- [[Infra / Deployment] Dual-registry image strategy (Docker Hub dev, ECR prod) with switch script](#backend-infra-deployment)
-- [[Infra / Deployment] Secure Docker builds via BuildKit secret mounts + minimal build args](#backend-infra-deployment)
-- [[Infra / Deployment] Generated env files on host via CI/CD (no secrets in repo)](#backend-infra-deployment)
-- [[Infra / Deployment] Reverse proxy options (Caddy or Nginx)](#backend-infra-deployment)
-- [[Infra / Deployment] Profile-driven Docker Compose stacks (local / dev / prod)](#backend-infra-deployment)
-- [[Infra / Deployment] Single-command redeploy scripts for dev/prod or both](#backend-infra-deployment)
-- [[Infra / Deployment] Hardened backend runtime (distroless container + Next.js standalone entrypoint)](#backend-infra-deployment)
-- [[DX / Testing] Monorepo with strict TypeScript on frontend and backend](#backend-dx-testing)
-- [[DX / Testing] Unified ESLint configs for frontend/backend](#backend-dx-testing)
-- [[DX / Testing] Playwright e2e and Vitest setup for backend](#backend-dx-testing)
-- [[DX / Testing] Local dev proxy and hot-reload compose profile](#backend-dx-testing)
-- [[DX / Testing] JSON5 package sync system (package.json ↔ package.json5 parity)](#backend-dx-testing)
-- [[Data Ops / Backups] JSON dumps for seed data and repeatable imports](#backend-data-ops)
-- [[Data Ops / Backups] Automated database backup exports (with dated folders)](#backend-data-ops)
-- [[Data Ops / Backups] NDA media backfill scripts (Payload + Mongo variants)](#backend-data-ops)
+#### 🧭 Rendering / routing
+
+- [SSR/Next portfolio projects list](#backend-rendering-routing)
+- [SSG/Next dynamic routing projects view](#backend-rendering-routing)
+- [NDA-included routes with placeholders + auth-aware upgrade (SSR → CSR hydration)](#backend-rendering-routing)
+- [Static `/project?p=slug` + `/nda-included?p=slug` query-param entry route (redirect + canonicalization)](#backend-rendering-routing)
+
+#### 📝 CMS / data modeling
+
+- [Payload CMS backend](#backend-cms-data-modeling)
+- [Type-safe Payload CMS with generated types](#backend-cms-data-modeling)
+- [Automatic slug generation and sortable index for projects](#backend-cms-data-modeling)
+- [Rich project metadata (brand, tags, role, year, awards, urls)](#backend-cms-data-modeling)
+- [Confidential/NDA project filtering](#backend-cms-data-modeling)
+- [NDA-aware content sanitization for anonymous users](#backend-cms-data-modeling)
+- [Image collections for screenshots/thumbnails/brand logos](#backend-cms-data-modeling)
+- [Role-based access control for admin-only mutations](#backend-cms-data-modeling)
+
+#### 🪣 Media / storage
+
+- [Sprite sheet image processing scripts](#backend-media-storage)
+- [Sharp-backed image processing and upload size limits](#backend-media-storage)
+- [Local filesystem storage for local profile](#backend-media-storage)
+- [S3-backed media storage with per-collection prefixes](#backend-media-storage)
+- [Instance-role support with optional static credentials](#backend-media-storage)
+- [Media migration/verification scripts (migrate-to-s3, update media urls, rebuild records)](#backend-media-storage)
+- [Static project file bundles stored in S3 (public + private) with app-routed streaming delivery (no presigned URLs)](#backend-media-storage)
+
+#### 🔐 API / security
+
+- [Strict env_profile-based config validation (fail-fast on missing)](#backend-api-security)
+- [GitHub Secrets sync pipeline from JSON5 source files + required-env validation lists](#backend-api-security)
+- [Locked-down CSRF/CORS allowlists per environment](#backend-api-security)
+- [Contact API via AWS SES with HTML/Text email and reply-to](#backend-api-security)
+- [Health-check endpoint(s) for uptime/deploy validation](#backend-api-security)
+- [Private project asset route that requires auth and streams from S3 (supports 304 + private caching)](#backend-api-security)
+
+#### 📈 Observability / analytics
+
+- [AWS CloudWatch RUM integration (production-only + HTTPS-only guardrails)](#backend-observability)
+- [CloudWatch Agent for host metrics + log ingestion (nginx + system logs)](#backend-observability)
+- [Auto page-view tracking + route-change tracking (App Router)](#backend-observability)
+- [Custom event helpers for interactions (clicks, carousel, slinger toss, etc.)](#backend-observability)
+- [Minimal Google Analytics 4 integration (optional)](#backend-observability)
+
+#### 🏗️ Infra / deployment
+
+- [Deployment tooling (scripts + optional orchestrator)](#backend-infra-deployment)
+- [Terraform IaC: one-command provision/teardown of full stack](#backend-infra-deployment)
+- [Systemd-managed Docker services on EC2 with auto-restart](#backend-infra-deployment)
+- [Dual-registry image strategy (Docker Hub dev, ECR prod) with switch script](#backend-infra-deployment)
+- [Secure Docker builds via BuildKit secret mounts + minimal build args](#backend-infra-deployment)
+- [Generated env files on host via CI/CD (no secrets in repo)](#backend-infra-deployment)
+- [Reverse proxy options (Caddy or Nginx)](#backend-infra-deployment)
+- [Profile-driven Docker Compose stacks (local / dev / prod)](#backend-infra-deployment)
+- [Single-command redeploy scripts for dev/prod or both](#backend-infra-deployment)
+- [Hardened backend runtime (distroless container + Next.js standalone entrypoint)](#backend-infra-deployment)
+
+#### 🧪 DX / testing
+
+- [Monorepo with strict TypeScript on frontend and backend](#backend-dx-testing)
+- [Unified ESLint configs for frontend/backend](#backend-dx-testing)
+- [Playwright e2e and Vitest setup for backend](#backend-dx-testing)
+- [Local dev proxy and hot-reload compose profile](#backend-dx-testing)
+- [JSON5 package sync system (package.json ↔ package.json5 parity)](#backend-dx-testing)
+
+#### 💾 Data ops / backups
+
+- [JSON dumps for seed data and repeatable imports](#backend-data-ops)
+- [Automated database backup exports (with dated folders)](#backend-data-ops)
+- [NDA media backfill scripts (Payload + Mongo variants)](#backend-data-ops)
 
 Shorter read: [Flat main features list](./docs/main-features-list.md).
 
