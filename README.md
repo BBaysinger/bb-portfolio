@@ -14,6 +14,89 @@ Note: this project is still evolving — features, UX, and infrastructure are ac
 
 Live deployment: [bbaysinger.io](https://bbaysinger.io?r=gh_readme).
 
+<a id="feature-index"></a>
+
+## 🧭 Feature Index (Frontend + Backend)
+
+Two complete feature lists (frontend + backend/platform) with jump links to detailed sections below.
+
+<a id="frontend-features"></a>
+
+### 🎨 Frontend features (full list)
+
+- [Simulated depth magnetic “fluxel” grid](#frontend-fluxel-grid)
+- [Parallax project carousel](#frontend-layered-parallax-carousel)
+- [Layered parallax carousel engine (master/slave synchronization)](#frontend-layered-parallax-carousel)
+- [Device mockup overlays with tilt + stabilization states](#frontend-device-mockup-overlays)
+- [Route-driven carousel navigation with deep linking](#frontend-route-synced-carousel)
+- [Logo/info swapper animations tied to active slide](#frontend-other-ui-systems)
+- [Scroll-aware highlighting project list](#frontend-other-ui-systems)
+- [Magnetic/sticky road sign](#frontend-other-ui-systems)
+- [Draggable + throwable “slinger” orb with simple physics (velocity, damping, wall collision callbacks)](#frontend-kinetic-orb-physics-box)
+- [Page slide-out nav](#frontend-other-ui-systems)
+- [Transform-positioned footer](#frontend-footer-systems)
+- [Custom sprite rendering](#frontend-sprite-sheet-player)
+- [In-view slide-in animation system (IntersectionObserver)](#frontend-other-ui-systems)
+- [FLIP-style transform animation for dynamic footer positioning (ResizeObserver + GSAP)](#frontend-footer-systems)
+- [Rem-based fluid scaling property mixin](#frontend-fluid-responsive-system)
+- [Static fluid scaling property mixin](#frontend-fluid-responsive-system)
+- [Clamped Linear Interpolation (lerp) fluid responsive type/spacing system](#frontend-fluid-responsive-system)
+
+<a id="backend-platform-features"></a>
+
+### 🧱 Backend / platform features (full list)
+
+- [[Rendering / Routing] SSR/Next portfolio projects list](#backend-rendering-routing)
+- [[Rendering / Routing] SSG/Next dynamic routing projects view](#backend-rendering-routing)
+- [[Rendering / Routing] NDA routes with placeholders + auth-aware upgrade (SSR → CSR hydration)](#backend-rendering-routing)
+- [[Rendering / Routing] Static `/nda?p=slug` query-param entry route (client canonicalization)](#backend-rendering-routing)
+- [[CMS / Data Modeling] Payload CMS backend](#backend-cms-data-modeling)
+- [[CMS / Data Modeling] Type-safe Payload CMS with generated types](#backend-cms-data-modeling)
+- [[CMS / Data Modeling] Automatic slug generation and sortable index for projects](#backend-cms-data-modeling)
+- [[CMS / Data Modeling] Rich project metadata (brand, tags, role, year, awards, urls)](#backend-cms-data-modeling)
+- [[CMS / Data Modeling] Confidential/NDA project filtering](#backend-cms-data-modeling)
+- [[CMS / Data Modeling] NDA-aware content sanitization for anonymous users](#backend-cms-data-modeling)
+- [[CMS / Data Modeling] Image collections for screenshots/thumbnails/brand logos](#backend-cms-data-modeling)
+- [[CMS / Data Modeling] Role-based access control for admin-only mutations](#backend-cms-data-modeling)
+- [[Media / Storage] Sprite sheet image processing scripts](#backend-media-storage)
+- [[Media / Storage] Sharp-backed image processing and upload size limits](#backend-media-storage)
+- [[Media / Storage] Local filesystem storage for local profile](#backend-media-storage)
+- [[Media / Storage] S3-backed media storage with per-collection prefixes](#backend-media-storage)
+- [[Media / Storage] Instance-role support with optional static credentials](#backend-media-storage)
+- [[Media / Storage] Media migration/verification scripts (migrate-to-s3, update media urls, rebuild records)](#backend-media-storage)
+- [[Media / Storage] Static project file bundles stored in S3 (public + NDA) with app-routed streaming delivery (no presigned URLs)](#backend-media-storage)
+- [[API / Security] Strict env_profile-based config validation (fail-fast on missing)](#backend-api-security)
+- [[API / Security] GitHub Secrets sync pipeline from JSON5 source files + required-env validation lists](#backend-api-security)
+- [[API / Security] Locked-down CSRF/CORS allowlists per environment](#backend-api-security)
+- [[API / Security] Contact API via AWS SES with HTML/Text email and reply-to](#backend-api-security)
+- [[API / Security] Health-check endpoint(s) for uptime/deploy validation](#backend-api-security)
+- [[API / Security] NDA project asset route that requires auth and streams from S3 (supports 304 + private caching)](#backend-api-security)
+- [[Observability] AWS CloudWatch RUM integration (production-only + HTTPS-only guardrails)](#backend-observability)
+- [[Observability] CloudWatch Agent for host metrics + log ingestion (nginx + system logs)](#backend-observability)
+- [[Observability] Auto page-view tracking + route-change tracking (App Router)](#backend-observability)
+- [[Observability] Custom event helpers for interactions (clicks, carousel, slinger toss, etc.)](#backend-observability)
+- [[Observability] Minimal Google Analytics 4 integration (optional)](#backend-observability)
+- [[Infra / Deployment] Deployment tooling (scripts + optional orchestrator)](#backend-infra-deployment)
+- [[Infra / Deployment] Terraform IaC: one-command provision/teardown of full stack](#backend-infra-deployment)
+- [[Infra / Deployment] Systemd-managed Docker services on EC2 with auto-restart](#backend-infra-deployment)
+- [[Infra / Deployment] Dual-registry image strategy (Docker Hub dev, ECR prod) with switch script](#backend-infra-deployment)
+- [[Infra / Deployment] Secure Docker builds via BuildKit secret mounts + minimal build args](#backend-infra-deployment)
+- [[Infra / Deployment] Generated env files on host via CI/CD (no secrets in repo)](#backend-infra-deployment)
+- [[Infra / Deployment] Reverse proxy options (Caddy or Nginx)](#backend-infra-deployment)
+- [[Infra / Deployment] Profile-driven Docker Compose stacks (local / dev / prod)](#backend-infra-deployment)
+- [[Infra / Deployment] Single-command redeploy scripts for dev/prod or both](#backend-infra-deployment)
+- [[Infra / Deployment] Hardened backend runtime (distroless container + Next.js standalone entrypoint)](#backend-infra-deployment)
+- [[DX / Testing] Monorepo with strict TypeScript on frontend and backend](#backend-dx-testing)
+- [[DX / Testing] Unified ESLint configs for frontend/backend](#backend-dx-testing)
+- [[DX / Testing] Playwright e2e and Vitest setup for backend](#backend-dx-testing)
+- [[DX / Testing] Local dev proxy and hot-reload compose profile](#backend-dx-testing)
+- [[DX / Testing] JSON5 package sync system (package.json ↔ package.json5 parity)](#backend-dx-testing)
+- [[Data Ops / Backups] JSON dumps for seed data and repeatable imports](#backend-data-ops)
+- [[Data Ops / Backups] Automated database backup exports (with dated folders)](#backend-data-ops)
+- [[Data Ops / Backups] NDA media backfill scripts (Payload + Mongo variants)](#backend-data-ops)
+
+<a id="thirty-second-tour"></a>
+
 ## 🔎 30‑Second Tour (Frontend Focus)
 
 | What to Look At                                                      | Why It Matters                                                            | Code Entry                                                                                      |
@@ -21,7 +104,7 @@ Live deployment: [bbaysinger.io](https://bbaysinger.io?r=gh_readme).
 | Layered Parallax Project Carousel                                    | Infinite bi‑directional wrap, inertial sync, master/slave parallax layers | `frontend/src/components/project-carousel-page/` (`Carousel.tsx`, `LayeredCarouselManager.tsx`) |
 | Fluxel Grid (interactive fluxing pixels)                             | Pluggable grid render, pointer + projectile influence, shadow system      | `frontend/src/components/home-page/header-main/fluxel-grid/`                                    |
 | Sprite Sheet Player (CSS/Canvas/WebGL)                               | Auto metadata parsing, per‑frame FPS arrays, strategy hot‑swap            | `frontend/src/components/common/sprite-rendering/`                                              |
-| Kinetic Slinger Physics Box                                          | Throwables with pointer gravity & orbital damping, idle detection hooks   | `frontend/src/components/home-page/header-main/SlingerBox.tsx`                                  |
+| Kinetic Orb Physics Box                                              | Throwables with pointer gravity & orbital damping, idle detection hooks   | `frontend/src/components/home-page/header-main/SlingerBox.tsx`                                  |
 | Clamped Linear Interpolation (Lerp) Fluid Responsive System (mixins) | Pixel‑precise CSS interpolation utilities for fluid responsive layout     | `frontend/src/styles/_mixins.scss`                                                              |
 | Route‑Synced Carousel + Deep Linking                                 | Scroll inertia stabilization gates route updates                          | `ProjectView.tsx`, `LayeredCarouselManager.tsx`                                                 |
 | Device Mockup Layer Coordination                                     | Independent layer scroll multipliers + content swapping                   | `ProjectCarouselView.*`                                                                         |
@@ -56,15 +139,108 @@ This repo is an end‑to‑end system, not just a site. Beyond the UI work, it s
 - NDA media backfill scripts (Payload + Mongo variants)
 - Scripted conveniences for day‑to‑day work: dependency upgrades, multi‑package installs, branch sync, and more
 
-Frontend systems worth calling out:
-
-- In-view slide-in animation system (IntersectionObserver)
-- FLIP-style transform animation for dynamic footer positioning (ResizeObserver + GSAP)
 - Production observability: AWS CloudWatch RUM (auto page views + custom events) plus optional GA4
+
+Frontend deep dives: start at [Frontend UX & Interaction](#frontend-ux-interaction).
 
 Jump to the complete list of conveniences: [Deployment conveniences catalog](#-deployment-conveniences-catalog).
 
 Deployment tooling note: if you want a single entrypoint for deploy workflows (infra + images + env refresh + restarts), see [docs/deployment-orchestrator.md](./docs/deployment-orchestrator.md). It’s optional.
+
+<a id="backend-platform-systems"></a>
+
+## 🧱 Backend / Platform Systems
+
+This section backs the backend/platform links in the [Feature Index](#feature-index). It stays intentionally “flat” (bullet-first) so it’s easy to skim.
+
+<a id="backend-rendering-routing"></a>
+
+### 🧭 Rendering / Routing
+
+- SSR/Next portfolio projects list
+- SSG/Next dynamic routing projects view
+- NDA routes with placeholders + auth-aware upgrade (SSR → CSR hydration)
+- Static `/nda?p=slug` query-param entry route (client canonicalization)
+
+<a id="backend-cms-data-modeling"></a>
+
+### 📝 CMS / Data Modeling
+
+- Payload CMS backend
+- Type-safe Payload CMS with generated types
+- Automatic slug generation and sortable index for projects
+- Rich project metadata (brand, tags, role, year, awards, urls)
+- Confidential/NDA project filtering
+- NDA-aware content sanitization for anonymous users
+- Image collections for screenshots/thumbnails/brand logos
+- Role-based access control for admin-only mutations
+
+<a id="backend-media-storage"></a>
+
+### 🪣 Media / Storage Pipeline
+
+- Sprite sheet image processing scripts
+- Sharp-backed image processing and upload size limits
+- Local filesystem storage for local profile
+- S3-backed media storage with per-collection prefixes
+- Instance-role support with optional static credentials
+- Media migration/verification scripts (migrate-to-s3, update media urls, rebuild records)
+- Static project file bundles stored in S3 (public + NDA) with app-routed streaming delivery (no presigned URLs)
+  - Supports range requests, conditional 304s (ETag/Last-Modified), and public/private cache headers
+
+<a id="backend-api-security"></a>
+
+### 🔐 API / Security
+
+- Strict env_profile-based config validation (fail-fast on missing)
+- GitHub Secrets sync pipeline from JSON5 source files + required-env validation lists
+- Locked-down CSRF/CORS allowlists per environment
+- Contact API via AWS SES with HTML/Text email and reply-to
+- Health-check endpoint(s) for uptime/deploy validation
+- NDA project asset route that requires auth and streams from S3 (supports 304 + private caching)
+
+<a id="backend-observability"></a>
+
+### 📈 Observability / Analytics
+
+- AWS CloudWatch RUM integration (production-only + HTTPS-only guardrails)
+- CloudWatch Agent for host metrics + log ingestion (nginx + system logs)
+- Auto page-view tracking + route-change tracking (App Router)
+- Custom event helpers for interactions (clicks, carousel, slinger toss, etc.)
+- Minimal Google Analytics 4 integration (optional)
+
+<a id="backend-infra-deployment"></a>
+
+### 🏗️ Infra / Deployment
+
+- Deployment tooling (scripts + optional orchestrator)
+- Terraform IaC: one-command provision/teardown of full stack
+- Systemd-managed Docker services on EC2 with auto-restart
+- Dual-registry image strategy (Docker Hub dev, ECR prod) with switch script
+- Secure Docker builds via BuildKit secret mounts + minimal build args
+- Generated env files on host via CI/CD (no secrets in repo)
+- Reverse proxy options (Caddy or Nginx)
+- Profile-driven Docker Compose stacks (local / dev / prod)
+- Single-command redeploy scripts for dev/prod or both
+- Hardened backend runtime (distroless container + Next.js standalone entrypoint)
+
+<a id="backend-dx-testing"></a>
+
+### 🧪 Developer Experience / Testing
+
+- Monorepo with strict TypeScript on frontend and backend
+- Unified ESLint configs for frontend/backend
+- Playwright e2e and Vitest setup for backend
+- Local dev proxy and hot-reload compose profile
+- JSON5 package sync system (package.json ↔ package.json5 parity)
+
+<a id="backend-data-ops"></a>
+
+### 💾 Data Ops / Backups
+
+- JSON dumps for seed data and repeatable imports
+- Automated database backup exports (with dated folders)
+- NDA media backfill scripts (Payload + Mongo variants)
 
 ## 🧰 Deployment conveniences catalog
 
@@ -174,9 +350,13 @@ Notes:
 
 ---
 
+<a id="frontend-ux-interaction"></a>
+
 ## 🎨 Frontend UX & Interaction
 
 Rather than a handful of flashy widgets, the UI layer is a set of small, renderer‑aware systems built for smoothness, frame accuracy, and portability. Key subsystems:
+
+<a id="frontend-fluxel-grid"></a>
 
 ### Fluxel Grid System
 
@@ -186,15 +366,28 @@ An experimental, dynamic pixel grid ("fluxels") rendered via a pluggable strateg
 - Shadow rendering offloaded to a shared canvas (`FluxelShadowCanvasRenderer`) to avoid per‑cell DOM overhead.
   The system is tuned for: minimal allocations, device‑pixel ratio scaling, and future migration to shader pipelines (see roadmap: WebGL/PixiJS).
 
+<a id="frontend-layered-parallax-carousel"></a>
+
 ### Layered Parallax Carousel
 
 Custom infinite carousel with master/slave layering for synchronized parallax. Distinct traits:
 
+<a id="frontend-route-synced-carousel"></a>
+Route-synced navigation + deep linking is first-class: route updates are gated until the carousel index is “stable” after inertia.
+
 - Large positive `BASE_OFFSET` hack enabling effective bi‑directional wrap without negative `scrollLeft`.
 - Master carousel captures inertial gesture scroll; slave carousels mirror via computed offsets for multi‑depth visuals (phones vs laptops layer, etc.).
-- Precise indexing decoupled from DOM scroll; stabilization events fire only after inertial motion settles (route updates wait for “stable” index).
+- Precise indexing decoupled from DOM scroll; stabilization events fire only after inertial motion settles.
 - Programmatic navigation uses GSAP tweening today; architecture is prepared for a custom physics tween engine (lower GC pressure, unified gesture/mouse feel).
 - Debug mode surfaces multipliers & positional math for tuning parallax ratios.
+
+<a id="frontend-device-mockup-overlays"></a>
+
+### Device Mockup Overlays
+
+Layered device mockups (phone/laptop/etc.) coordinate with carousel state, supporting tilt effects and “stabilization” modes so the UI can settle cleanly after inertial motion.
+
+<a id="frontend-sprite-sheet-player"></a>
 
 ### Multi‑Strategy Sprite Sheet Player
 
@@ -205,7 +398,9 @@ Custom infinite carousel with master/slave layering for synchronized parallax. D
 - Strategy hot‑swap with resource disposal; Canvas currently preferred (balance of clarity & performance), WebGL exploratory for larger sheets (observed higher cost at large viewport sizes).
 - Future enhancement: single‑visual sheet translation mode (pan vs frame index advances).
 
-### Kinetic Slinger Physics Box
+<a id="frontend-kinetic-orb-physics-box"></a>
+
+### Kinetic Orb Physics Box
 
 `SlingerBox` hosts draggable, throwable “slinger” orbs with simple velocity integration, wall collision callbacks, damped rebounds, and a timed gravity attraction toward pointer position (delayed briefly post‑throw). Implementation details:
 
@@ -213,6 +408,8 @@ Custom infinite carousel with master/slave layering for synchronized parallax. D
 - Pointer gravity strength attenuated with a smoothstep curve inside a radius; tangential velocity selectively damped for subtle orbital motion.
 - Idle detection after low‑speed threshold; emits `onIdle` for choreography (e.g. triggering Fluxel shadow fades).
 - Future: deeper coupling with Fluxel grid (projectile launches, shader disturbances) and gamified achievements.
+
+<a id="frontend-fluid-responsive-system"></a>
 
 ### Clamped Linear Interpolation (Lerp) Fluid Responsive System (SCSS mixins)
 
@@ -241,23 +438,26 @@ SCSS (layout scaling vs accessible text):
 }
 ```
 
-Other UI details (smaller interaction systems):
+<a id="frontend-other-ui-systems"></a>
+
+### Other UI interaction systems
 
 - Scroll-aware highlighting (project list)
 - Mobile slide-out navigation
 - Pointer-magnet / sticky UI elements (e.g. “road sign”)
 - Active-slide logo/info swapper animations
+
+<a id="frontend-footer-systems"></a>
+
+### Footer & layout systems
+
 - Transform-positioned footer + animated footer grid
-- Dynamic device mockup overlays (tilt + stabilization states)
+- FLIP-style transform animation for dynamic footer positioning (ResizeObserver + GSAP)
 
 See also: [Flat main features list](./docs/main-features-list.md).
 
 ### 📝 CMS, Data Modeling & Rendering
 
-- Payload CMS Backend (type-safe with generated types)
-- SSR portfolio projects list (Next.js)
-- SSG dynamic routing projects view (Next.js)
-- Automatic slug generation and sortable index
 - Confidential/NDA project filtering (public routes never hydrate NDA project data)
 - NDA-aware content sanitization for anonymous users
 - NDA route segmentation and content safety
@@ -265,6 +465,8 @@ See also: [Flat main features list](./docs/main-features-list.md).
   - NDA-only route `/nda/[projectId]` requires authentication and is rendered dynamically per request
   - Authenticated requests to a public NDA slug redirect server-side to `/nda/[projectId]`; unauthenticated sees 404
   - Client carousel and prev/next links are route-aware (public → `/project/*`, NDA → `/nda/*`) without leaking NDA data
+
+For the full backend/platform feature list, see [Backend / Platform Systems](#backend-platform-systems).
 
 ## 🔒 Secrets & Environment Management
 
