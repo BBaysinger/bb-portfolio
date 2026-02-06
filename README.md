@@ -14,14 +14,29 @@ Note: this project is still evolving — features, UX, and infrastructure are ac
 
 Live deployment: [bbaysinger.io](https://bbaysinger.io?r=gh_readme).
 
+---
+
+## 🚩 Headline features
+
+This repo is an end‑to‑end system, not just a site. A quick overview of what it demonstrates:
+
+- **Frontend interaction systems:** layered parallax carousel (native scroll gestures + inertia, deep linking/history) + coordinated device mockup layers
+- **Experimental rendering:** fluxel grid + kinetic “slinger” orb (hand-rolled physics and interaction loops)
+- **Sprite engine:** CSS / Canvas / WebGL renderer strategies with a single API (switchable via `renderStrategy`)
+- **Fluid responsive design:** clamped LERP mixins for predictable type/spacing across viewports
+- **CMS + content modeling:** Payload CMS with generated TypeScript types, RBAC, slug/indexing, and NDA-aware sanitization
+- **Media + delivery pipeline:** S3-backed media + static bundles with app-routed streaming delivery (no presigned URLs)
+- **Production-grade infrastructure:** Terraform, Docker, multi-environment orchestration, and reverse proxy options
+- **Observability:** CloudWatch RUM (plus optional GA4)
+
 <a id="feature-index"></a>
 
 ## 🧭 Feature Index (Frontend + Backend)
 
-Two ways to read this README:
+Suggested read order:
 
-- Start with the [30‑Second Tour](#thirty-second-tour) (curated entrypoints + why they matter).
-- Or scan the full feature lists and jump to details:
+- [30‑Second Tour](#thirty-second-tour) (curated code entrypoints + why they matter)
+- Full lists (reference index):
   - [Frontend features (full list)](#frontend-features)
   - [Backend / platform features (full list)](#backend-platform-features)
 
@@ -166,31 +181,15 @@ Shorter read: [Flat main features list](./docs/main-features-list.md).
 
 [Visit the Live Site](https://bbaysinger.io?r=gh_readme) (deployment-dependent; see `deploy/DEPLOYMENT.md`).
 
+
+Next up:
+
+- Frontend deep dives: start at [Frontend UX & Interaction](#frontend-ux-interaction)
+- Platform deep dives: continue to [Backend / Platform Systems](#backend-platform-systems)
+- Convenience scripts: [Deployment conveniences catalog](#-deployment-conveniences-catalog)
+- Optional single deploy entrypoint: [docs/deployment-orchestrator.md](./docs/deployment-orchestrator.md)
+
 ---
-
-## 🚩 Not merely a portfolio: headline features
-
-This repo is an end‑to‑end system, not just a site. Beyond the UI work, it ships with comprehensive DevOps and data tooling. Highlights:
-
-- Multi‑environment infrastructure with Terraform (dev/prod), EC2 bootstrap, and Caddy/Nginx reverse proxy options
-- Deployment tooling (scripts + optional orchestrator) for repeatable builds, env refresh, and safe restarts
-- One‑command local dev modes: bare metal, Docker SSR, Docker SSG, and Caddy proxy for prod‑like URLs
-- Dual registries (Docker Hub for dev, ECR for prod) with automated image cleanup and verification
-- Secrets and environment sync pipeline driven by JSON5 source files and validation lists
-- Media and project file pipelines to S3 with verify tools and server‑streamed delivery routes (no presigned URLs)
-- NDA-included carousel system: placeholders + auth-aware upgrade (SSR → CSR hydration) plus query-param entry routing (`/project?p=slug`, `/nda-included?p=slug`)
-- Auth-gated private asset streaming from S3 (supports 304 + private cache headers)
-- Database migration, rename, and safety‑first destructive helpers with dry‑run support
-- NDA media backfill scripts (Payload + Mongo variants)
-- Scripted conveniences for day‑to‑day work: dependency upgrades, multi‑package installs, branch sync, and more
-
-- Production observability: AWS CloudWatch RUM (auto page views + custom events) plus optional GA4
-
-Frontend deep dives: start at [Frontend UX & Interaction](#frontend-ux-interaction).
-
-Jump to the complete list of conveniences: [Deployment conveniences catalog](#-deployment-conveniences-catalog).
-
-Deployment tooling note: if you want a single entrypoint for deploy workflows (infra + images + env refresh + restarts), see [docs/deployment-orchestrator.md](./docs/deployment-orchestrator.md). It’s optional.
 
 <a id="backend-platform-systems"></a>
 
