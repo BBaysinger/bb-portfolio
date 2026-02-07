@@ -13,7 +13,8 @@ Working list of notable features
 - Route-driven carousel navigation with deep linking
 - Logo/info swapper animations tied to active slide
 - Typewriter-style hero copy rotator (`TypewriterEffect`; shuffled paragraph typing, pause-aware)
-- Scroll-aware highlighting project list
+- Scroll-aware nav link highlighting (active section)
+- Scroll-focus project thumbnail highlighting (multi-column rows; left→right on tablet+)
 - Magnetic/sticky road sign
 - Draggable + throwable “slinger” orb with simple physics (velocity, damping, wall collision callbacks)
 - Page slide-out nav

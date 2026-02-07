@@ -86,7 +86,8 @@ Live site reference moments:
 
 - [Logo/info swapper animations tied to active slide](#frontend-other-ui-systems)
 - [Typewriter-style hero copy rotator (`TypewriterEffect`; shuffled paragraph typing, pause-aware)](#frontend-other-ui-systems)
-- [Scroll-aware highlighting project list](#frontend-other-ui-systems)
+- [Scroll-aware nav link highlighting (active section)](#frontend-other-ui-systems)
+- [Scroll-focus project thumbnail highlighting (multi-column rows; left→right on tablet+)](#frontend-other-ui-systems)
 - [Magnetic/sticky road sign](#frontend-other-ui-systems)
 - [Page slide-out nav](#frontend-other-ui-systems)
 - [Transform-positioned footer](#frontend-footer-systems)
@@ -495,7 +496,8 @@ SCSS (layout scaling vs accessible text):
 
 ### Other UI interaction systems
 
-- Scroll-aware highlighting (project list)
+- Scroll-aware nav link highlighting (active section)
+- Scroll-focus project thumbnail highlighting (multi-column rows; left→right on tablet+)
 - Mobile slide-out navigation
 - Pointer-magnet / sticky UI elements (e.g. “road sign”)
 - Active-slide logo/info swapper animations
