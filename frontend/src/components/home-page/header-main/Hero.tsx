@@ -35,9 +35,9 @@ import GridController, {
 import { Direction } from "./fluxel-grid/useFluxelProjectiles";
 import styles from "./Hero.module.scss";
 import HeroQueryConfig from "./HeroQueryConfig";
-import TypewriterEffect from "./TypewriterEffect";
 import SlingerBox, { SlingerBoxHandle } from "./SlingerBox";
 import TitleBranding from "./TitleBranding";
+import TypewriterEffect from "./TypewriterEffect";
 
 const quotes = [
   "Interactivity is not about clicking, tapping, or swiping. It's about engagement — an invitation to explore, respond, and shape the experience.",
