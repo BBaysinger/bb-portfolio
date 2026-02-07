@@ -102,7 +102,7 @@ Live site reference moments:
 
 ### 🧱 Backend / platform features (full list)
 
-#### 🧱 Backend application features
+### 🧱 Backend application features
 
 #### 🧭 Rendering / routing
 
@@ -148,7 +148,7 @@ Live site reference moments:
 - [Custom event helpers for interactions (clicks, carousel, slinger toss, etc.)](#backend-observability)
 - [Minimal Google Analytics 4 integration (optional)](#backend-observability)
 
-#### 🧰 Platform / deployment & monorepo tooling
+### 🧰 Platform / deployment & monorepo tooling
 
 #### 🏗️ Infra / deployment
 
