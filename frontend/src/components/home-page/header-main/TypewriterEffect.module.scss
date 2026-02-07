@@ -1,7 +1,7 @@
 @use "@/styles/mixins" as *;
 @use "@/styles/variables" as *;
 
-.paragraphAnimator {
+.typewriterEffect {
   top: var(--hero-padding);
   left: var(--hero-padding);
   width: calc(100% - $navBarHeight);

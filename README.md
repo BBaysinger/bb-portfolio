@@ -85,6 +85,7 @@ Live site reference moments:
 #### 🧩 Other UI systems
 
 - [Logo/info swapper animations tied to active slide](#frontend-other-ui-systems)
+- [Typewriter-style hero copy rotator (`TypewriterEffect`; shuffled paragraph typing, pause-aware)](#frontend-other-ui-systems)
 - [Scroll-aware highlighting project list](#frontend-other-ui-systems)
 - [Magnetic/sticky road sign](#frontend-other-ui-systems)
 - [Page slide-out nav](#frontend-other-ui-systems)
