@@ -21,20 +21,22 @@ Working list of notable features
 - In-view slide-in animation system (IntersectionObserver)
 - FLIP-style transform animation for dynamic footer positioning (ResizeObserver + GSAP)
 
-## Rendering / Routing
-
-- SSR/Next portfolio projects list
-- SSG/Next dynamic routing projects view
-- NDA-included routes with placeholders + auth-aware upgrade (SSR → CSR hydration)
-- Static `/project?p=slug` + `/nda-included?p=slug` query-param entry route (redirect + canonicalization)
-
 ## Fluid Responsive System
 
 - Rem-based (LERP) fluid scaling property mixin
 - Static (LERP) fluid scaling property mixin
 - Clamped Linear Interpolation (lerp) fluid responsive type/spacing system (see fluid-responsive-system.md)
 
-## CMS / Data Modeling
+## Backend Application Features
+
+### Rendering / Routing
+
+- SSR/Next portfolio projects list
+- SSG/Next dynamic routing projects view
+- NDA-included routes with placeholders + auth-aware upgrade (SSR → CSR hydration)
+- Static `/project?p=slug` + `/nda-included?p=slug` query-param entry route (redirect + canonicalization)
+
+### CMS / Data Modeling
 
 - Payload CMS backend
 - Type-safe Payload CMS with generated types
@@ -45,7 +47,7 @@ Working list of notable features
 - Image collections for screenshots/thumbnails/brand logos
 - Role-based access control for admin-only mutations
 
-## Media / Storage Pipeline
+### Media / Storage Pipeline
 
 - Sprite sheet image processing scripts
 - Sharp-backed image processing and upload size limits
@@ -56,10 +58,9 @@ Working list of notable features
 - Static project file bundles stored in S3 (public + private) with app-routed streaming delivery (no presigned URLs)
   - Supports range requests, conditional 304s (ETag/Last-Modified), and public/private cache headers
 
-## API / Security
+### API / Security
 
 - Strict env_profile-based config validation (fail-fast on missing)
-- GitHub Secrets sync pipeline from JSON5 source files + required-env validation lists
 - Locked-down CSRF/CORS allowlists per environment
 - Contact API via AWS SES with HTML/Text email and reply-to
 - `/.well-known/security.txt` endpoint
@@ -67,7 +68,7 @@ Working list of notable features
 - Private project asset route that requires auth and streams from S3 (supports 304 + private caching)
 - Frontend security headers + CSP configured in Next.js (`headers()`), including `Permissions-Policy`
 
-## Observability / Analytics
+### Observability / Analytics
 
 - AWS CloudWatch RUM integration (production-only + HTTPS-only guardrails)
 - CloudWatch Agent for host metrics + log ingestion (nginx + system logs)
@@ -75,9 +76,18 @@ Working list of notable features
 - Custom event helpers for interactions (clicks, carousel, slinger toss, etc.)
 - Minimal Google Analytics 4 integration (optional)
 
-## Infra / Deployment
+### Data Ops / Backups
+
+- JSON dumps for seed data and repeatable imports
+- Automated database backup exports (with dated folders)
+- NDA media backfill scripts (Payload + Mongo variants)
+
+## Platform / Deployment & Monorepo Tooling
+
+### Infra / Deployment
 
 - Deployment tooling (scripts + optional orchestrator)
+- GitHub Secrets sync pipeline from JSON5 source files + required-env validation lists
 - Terraform IaC: one-command provision/teardown of full stack
 - Systemd-managed Docker services on EC2 with auto-restart
 - Dual-registry image strategy (Docker Hub dev, ECR prod) with switch script
@@ -88,19 +98,13 @@ Working list of notable features
 - Single-command redeploy scripts for dev/prod or both
 - Hardened backend runtime (distroless container + Next.js standalone entrypoint)
 
-## Developer Experience / Testing
+### Developer Experience / Testing
 
 - Monorepo with strict TypeScript on frontend and backend
 - Unified ESLint configs for frontend/backend
 - Playwright e2e and Vitest setup for backend
 - Local dev proxy and hot-reload compose profile
 - JSON5 package sync system (package.json ↔ package.json5 parity)
-
-## Data Ops / Backups
-
-- JSON dumps for seed data and repeatable imports
-- Automated database backup exports (with dated folders)
-- NDA media backfill scripts (Payload + Mongo variants)
 
 ## README Priorities
 

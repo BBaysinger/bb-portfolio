@@ -102,6 +102,8 @@ Live site reference moments:
 
 ### 🧱 Backend / platform features (full list)
 
+#### 🧱 Backend application features
+
 #### 🧭 Rendering / routing
 
 - [SSR/Next portfolio projects list](#backend-rendering-routing)
@@ -133,7 +135,6 @@ Live site reference moments:
 #### 🔐 API / security
 
 - [Strict env_profile-based config validation (fail-fast on missing)](#backend-api-security)
-- [GitHub Secrets sync pipeline from JSON5 source files + required-env validation lists](#backend-api-security)
 - [Locked-down CSRF/CORS allowlists per environment](#backend-api-security)
 - [Contact API via AWS SES with HTML/Text email and reply-to](#backend-api-security)
 - [Health-check endpoint(s) for uptime/deploy validation](#backend-api-security)
@@ -147,9 +148,12 @@ Live site reference moments:
 - [Custom event helpers for interactions (clicks, carousel, slinger toss, etc.)](#backend-observability)
 - [Minimal Google Analytics 4 integration (optional)](#backend-observability)
 
+#### 🧰 Platform / deployment & monorepo tooling
+
 #### 🏗️ Infra / deployment
 
 - [Deployment tooling (scripts + optional orchestrator)](#backend-infra-deployment)
+- [GitHub Secrets sync pipeline from JSON5 source files + required-env validation lists](#backend-infra-deployment)
 - [Terraform IaC: one-command provision/teardown of full stack](#backend-infra-deployment)
 - [Systemd-managed Docker services on EC2 with auto-restart](#backend-infra-deployment)
 - [Dual-registry image strategy (Docker Hub dev, ECR prod) with switch script](#backend-infra-deployment)
@@ -233,7 +237,6 @@ This section backs the backend/platform links in the [Feature Index](#feature-in
 ### 🔐 API / Security
 
 - Strict env_profile-based config validation (fail-fast on missing)
-- GitHub Secrets sync pipeline from JSON5 source files + required-env validation lists
 - Locked-down CSRF/CORS allowlists per environment
 - Contact API via AWS SES with HTML/Text email and reply-to
 - `/.well-known/security.txt` endpoint (pulls obfuscated contact email via backend proxy)
@@ -256,6 +259,7 @@ This section backs the backend/platform links in the [Feature Index](#feature-in
 ### 🏗️ Infra / Deployment
 
 - Deployment tooling (scripts + optional orchestrator)
+- GitHub Secrets sync pipeline from JSON5 source files + required-env validation lists
 - Terraform IaC: one-command provision/teardown of full stack
 - Systemd-managed Docker services on EC2 with auto-restart
 - Dual-registry image strategy (Docker Hub dev, ECR prod) with switch script
