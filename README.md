@@ -102,7 +102,7 @@ Live site reference moments:
 
 ### 🧱 Backend / platform features (full list)
 
-### 🧱 Backend application features
+### 🧱 Application features
 
 #### 🧭 Rendering / routing
 
