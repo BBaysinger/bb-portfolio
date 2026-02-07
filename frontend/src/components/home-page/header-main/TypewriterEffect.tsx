@@ -1,10 +1,10 @@
 import clsx from "clsx";
 import gsap from "gsap";
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
-import styles from "./ParagraphAnimator.module.scss";
+import styles from "./TypewriterEffect.module.scss";
 
-interface ParagraphAnimatorProps {
+interface TypewriterEffectProps {
   paragraphs: string[];
   interval?: number;
   paragraphDelay?: number;
@@ -21,25 +21,14 @@ const shuffleArray = (array: number[]) => {
 };
 
 /**
- * ParagraphAnimator
+ * TypewriterEffect
  *
- * Animates a list of paragraphs using a typewriter-style effect,
- * displaying one paragraph at a time with optional delays.
- * Pausing prevents the next paragraph from starting, but does not interrupt
- * any in-progress animations or delay timers. Includes optional intro message,
- * initial delay, and configurable interval between characters.
- *
- * Usage:
- * - Pass an array of strings via `paragraphs`
- * - Optionally include `introMessage` to show before shuffling begins
- * - Use the `paused` prop to prevent advancing to the next paragraph
- *
- * Example behavior:
- * Typing starts → finishes → waits → if `paused === false`, show next.
- * If `paused === true`, waits until unpaused before continuing.
- *
+ * Typewriter-style paragraph rotator.
+ * Displays one paragraph at a time, “typing” each character, then waits
+ * before advancing to the next paragraph (shuffled). Supports an optional
+ * intro message and pause-aware advancement.
  */
-const ParagraphAnimator: React.FC<ParagraphAnimatorProps> = ({
+const TypewriterEffect: React.FC<TypewriterEffectProps> = ({
   paragraphs,
   interval = 15,
   paragraphDelay = 20000,
@@ -133,12 +122,12 @@ const ParagraphAnimator: React.FC<ParagraphAnimatorProps> = ({
       },
     );
   }, [
-    introMessage,
-    interval,
-    initialDelay,
-    paragraphs,
-    paragraphDelay,
     generateShuffledQueue,
+    initialDelay,
+    interval,
+    introMessage,
+    paragraphDelay,
+    paragraphs,
   ]);
 
   useEffect(() => {
@@ -157,7 +146,7 @@ const ParagraphAnimator: React.FC<ParagraphAnimatorProps> = ({
   return (
     <div
       ref={containerRef}
-      className={clsx(styles.paragraphAnimator, className)}
+      className={clsx(styles.typewriterEffect, className)}
     >
       <p className={styles.paragraphLine}>
         <span className={styles.visible}>{visibleText}</span>
@@ -171,4 +160,4 @@ const ParagraphAnimator: React.FC<ParagraphAnimatorProps> = ({
   );
 };
 
-export default ParagraphAnimator;
+export default TypewriterEffect;

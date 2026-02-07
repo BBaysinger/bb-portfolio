@@ -35,7 +35,7 @@ import GridController, {
 import { Direction } from "./fluxel-grid/useFluxelProjectiles";
 import styles from "./Hero.module.scss";
 import HeroQueryConfig from "./HeroQueryConfig";
-import ParagraphAnimator from "./ParagraphAnimator";
+import TypewriterEffect from "./TypewriterEffect";
 import SlingerBox, { SlingerBoxHandle } from "./SlingerBox";
 import TitleBranding from "./TitleBranding";
 
@@ -392,7 +392,7 @@ function Hero() {
       </div>
 
       <div className={styles.foreground}>
-        <ParagraphAnimator
+        <TypewriterEffect
           introMessage={`Good ${timeOfDay}. This is a kinetic UI exploration where design, code, and physics collide. ${orbInstruction} You're part of the experiment now.`}
           paragraphs={quotes}
           className={styles.message}

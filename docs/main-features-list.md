@@ -12,6 +12,7 @@ Working list of notable features
 - Device mockup overlays with tilt + stabilization states
 - Route-driven carousel navigation with deep linking
 - Logo/info swapper animations tied to active slide
+- Typewriter-style hero copy rotator (`TypewriterEffect`; shuffled paragraph typing, pause-aware)
 - Scroll-aware highlighting project list
 - Magnetic/sticky road sign
 - Draggable + throwable “slinger” orb with simple physics (velocity, damping, wall collision callbacks)
