@@ -104,7 +104,7 @@ Working list of notable features
 - Unified ESLint configs for frontend/backend
 - Playwright e2e and Vitest setup for backend
 - Local dev proxy and hot-reload compose profile
-- JSON5 package sync system (package.json ↔ package.json5 parity)
+- JSON5 package sync system (commented package.json5 → generated package.json for tooling compatibility)
 
 ## README Priorities
 

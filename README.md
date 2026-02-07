@@ -170,7 +170,7 @@ Live site reference moments:
 - [Unified ESLint configs for frontend/backend](#backend-dx-testing)
 - [Playwright e2e and Vitest setup for backend](#backend-dx-testing)
 - [Local dev proxy and hot-reload compose profile](#backend-dx-testing)
-- [JSON5 package sync system (package.json ↔ package.json5 parity)](#backend-dx-testing)
+- [JSON5 package sync system (commented package.json5 → generated package.json for tooling compatibility)](#backend-dx-testing)
 
 #### 💾 Data ops / backups
 
@@ -278,7 +278,7 @@ This section backs the backend/platform links in the [Feature Index](#feature-in
 - Unified ESLint configs for frontend/backend
 - Playwright e2e and Vitest setup for backend
 - Local dev proxy and hot-reload compose profile
-- JSON5 package sync system (package.json ↔ package.json5 parity)
+- JSON5 package sync system (commented package.json5 → generated package.json for tooling compatibility)
 
 <a id="backend-data-ops"></a>
 
@@ -342,7 +342,7 @@ Note: By default, the deployment orchestrator builds and pushes both frontend an
 
 - `sync:secrets:dry` / `sync:secrets` — Sync GitHub secrets from JSON5 source
 - `infra:sync-env` / `infra:sync-env:force` — Populate local `.env` from Terraform state
-- `sync:packages` — Maintain package.json ↔ package.json5 parity
+- `sync:packages` — Generate strict `package.json` from commented `package.json5` (per-line docs) for tooling compatibility
 - `sync:branches` — Fast‑forward branch sync (returns to `dev`)
 
 ### Media pipeline (patterns)
@@ -670,11 +670,11 @@ Runtime .env generation (deploy):
 - Unified ESLint configurations
 - Playwright E2E and Vitest setup (backend)
 - Local dev proxy and hot-reload compose profile
-- **JSON5 Package Sync System** - Dual package.json approach
-  - `package.json` - Standard JSON for tooling support
-  - `package.json5` - Enhanced version with comments and documentation
-  - Bidirectional sync via `npm run sync:json5`
-  - Preserves comments and formatting in JSON5 files
+- **JSON5 Package Sync System** - Commented package manifests (package.json5 → package.json)
+  - `package.json5` is the comment-friendly source of truth (per-line descriptions/documentation)
+  - `package.json` is generated as strict JSON for maximum tooling compatibility
+  - Sync via `npm run sync:packages`
+  - Preserves comments and formatting in `package.json5`
 
 ### 💿 Data Ops & Backups
 
