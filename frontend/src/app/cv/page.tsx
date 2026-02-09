@@ -230,6 +230,44 @@ const CurriculumVitae: React.FC = () => {
                   Built content and data workflows around Payload CMS (media
                   handling, scripted exports, and repeatable imports).
                 </li>
+                <li ref={addToRefs}>
+                  Integrated routing patterns including route guards, resolvers,
+                  and URL-driven UI state for deep-linkable experiences.
+                </li>
+                <li ref={addToRefs}>
+                  Built reusable interaction systems (route-synced carousels
+                  with deep linking, layered/parallax coordination, responsive
+                  layout strategies).
+                </li>
+                <li ref={addToRefs}>
+                  Automated delivery workflows including deployment
+                  orchestration, environment/secrets bundling, and hardened
+                  Docker builds.
+                </li>
+                <li ref={addToRefs}>
+                  Standardized code quality and DX with strict TypeScript,
+                  unified linting/formatting, and repeatable performance-tuned
+                  builds.
+                </li>
+                <li ref={addToRefs}>
+                  Architected a modern stack using{" "}
+                  <b>Next.js, React, TypeScript, Payload CMS</b>, and AWS-based
+                  infrastructure.
+                </li>
+                <li ref={addToRefs}>
+                  Designed and built a production-grade portfolio platform as a
+                  proving ground for{" "}
+                  <b>
+                    advanced interaction patterns, animation systems, and UI
+                    performance work
+                  </b>
+                  .
+                </li>
+                <li ref={addToRefs}>
+                  Built content and data workflows around Payload CMS (media
+                  handling, scripted exports, and repeatable imports).
+                </li>
+
               </ul>
             </div>
           </div>
@@ -377,40 +415,7 @@ const CurriculumVitae: React.FC = () => {
                   Integrated routing patterns including route guards, resolvers,
                   and URL-driven UI state for deep-linkable experiences.
                 </li>
-                <li ref={addToRefs}>
-                  Built reusable interaction systems (route-synced carousels
-                  with deep linking, layered/parallax coordination, responsive
-                  layout strategies).
-                </li>
-                <li ref={addToRefs}>
-                  Automated delivery workflows including deployment
-                  orchestration, environment/secrets bundling, and hardened
-                  Docker builds.
-                </li>
-                <li ref={addToRefs}>
-                  Standardized code quality and DX with strict TypeScript,
-                  unified linting/formatting, and repeatable performance-tuned
-                  builds.
-                </li>
-                <li ref={addToRefs}>
-                  Architected a modern stack using{" "}
-                  <b>Next.js, React, TypeScript, Payload CMS</b>, and AWS-based
-                  infrastructure.
-                </li>
-                <li ref={addToRefs}>
-                  Designed and built a production-grade portfolio platform as a
-                  proving ground for{" "}
-                  <b>
-                    advanced interaction patterns, animation systems, and UI
-                    performance work
-                  </b>
-                  .
-                </li>
-                <li ref={addToRefs}>
-                  Built content and data workflows around Payload CMS (media
-                  handling, scripted exports, and repeatable imports).
-                </li>
-                {/* earlier/later */}
+
                 <li ref={addToRefs}>
                   Developed an animated informational UI using <b>React Move</b>{" "}
                   for the Committee for Children, supporting education of
