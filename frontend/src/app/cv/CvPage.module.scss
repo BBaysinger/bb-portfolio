@@ -142,24 +142,23 @@ img.cvLogo {
   justify-content: center;
 }
 
-.inlineListItem {
-  &:last-of-type {
-    .bullet {
-      display: none;
-    }
-  }
+.inlineList {
+  --inlineListSeparatorGap: 6px;
 
-  .phrase {
+  > span {
     white-space: nowrap;
   }
 
-  .bullet {
+  > span:not(:last-of-type)::after {
+    content: "•";
+    display: inline-block;
+    margin-left: var(--inlineListSeparatorGap);
+    margin-right: var(--inlineListSeparatorGap);
     color: $heavierThemeColor;
     line-height: 18px;
     font-size: 20px;
     position: relative;
     top: 1.75px;
-    left: 0.75px;
   }
 }
 
