@@ -231,43 +231,9 @@ const CurriculumVitae: React.FC = () => {
                   handling, scripted exports, and repeatable imports).
                 </li>
                 <li ref={addToRefs}>
-                  Integrated routing patterns including route guards, resolvers,
-                  and URL-driven UI state for deep-linkable experiences.
+                  Implemented Angular routing with guards, resolvers, and
+                  URL-driven state to support deep-linked views.
                 </li>
-                <li ref={addToRefs}>
-                  Built reusable interaction systems (route-synced carousels
-                  with deep linking, layered/parallax coordination, responsive
-                  layout strategies).
-                </li>
-                <li ref={addToRefs}>
-                  Automated delivery workflows including deployment
-                  orchestration, environment/secrets bundling, and hardened
-                  Docker builds.
-                </li>
-                <li ref={addToRefs}>
-                  Standardized code quality and DX with strict TypeScript,
-                  unified linting/formatting, and repeatable performance-tuned
-                  builds.
-                </li>
-                <li ref={addToRefs}>
-                  Architected a modern stack using{" "}
-                  <b>Next.js, React, TypeScript, Payload CMS</b>, and AWS-based
-                  infrastructure.
-                </li>
-                <li ref={addToRefs}>
-                  Designed and built a production-grade portfolio platform as a
-                  proving ground for{" "}
-                  <b>
-                    advanced interaction patterns, animation systems, and UI
-                    performance work
-                  </b>
-                  .
-                </li>
-                <li ref={addToRefs}>
-                  Built content and data workflows around Payload CMS (media
-                  handling, scripted exports, and repeatable imports).
-                </li>
-
               </ul>
             </div>
           </div>
@@ -477,10 +443,10 @@ const CurriculumVitae: React.FC = () => {
               </p>
 
               <p ref={addToRefs} className={styles.scope}>
-                <span>Technical Scope:</span> Angular, Typescript, RxJS, jQuery,
-                vanilla JavaScript Craft CMS, Grunt/Gulp, CreateJS, Adobe
-                Creative Suite, ActionScript 3, ActionScript 2, jQuery,
-                Require/AMD, Haxe, Flash, Adobe Creative Suite
+                <span>Technical Scope:</span> Angular, TypeScript, RxJS, jQuery,
+                vanilla JavaScript, Craft CMS, Grunt/Gulp, CreateJS, Adobe
+                Creative Suite, ActionScript 3, ActionScript 2, Require/AMD,
+                Haxe, Flash
               </p>
 
               <ul>
