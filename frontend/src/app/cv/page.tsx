@@ -183,7 +183,7 @@ const CurriculumVitae: React.FC = () => {
                   <h5>Self-Directed Front-End Engineer</h5>
                 </div>
                 <div className={styles.break}></div>
-                <div className={styles.rightSub}>[ 2024 - 2025 ]</div>
+                <div className={styles.rightSub}>[ 09.2024 - 2026 ]</div>
               </div>
 
               <ul>
@@ -266,7 +266,7 @@ const CurriculumVitae: React.FC = () => {
                   Front-end Developer
                 </div>
                 <div className={styles.break}></div>
-                <div className={styles.rightSub}>[ 2021 - 2024 ]</div>
+                <div className={styles.rightSub}>[ 05.2021 - 09.2024 ]</div>
               </div>
 
               <p ref={addToRefs} className={styles.desc}>
@@ -348,7 +348,7 @@ const CurriculumVitae: React.FC = () => {
                 </div>
                 <div className={styles.break}></div>
                 <div className={styles.rightSub}>
-                  [ 2020 - 2021, 2025 - 2026 ]
+                  [ 04.2020 - 05.2021 ]
                 </div>
               </div>
 
@@ -431,7 +431,7 @@ const CurriculumVitae: React.FC = () => {
                 </div>
                 <div className={styles.break}></div>
                 <div className={styles.rightSub}>
-                  [ 2005 - 2016, 2018 - 2019 ]
+                  [ 10.2005 - 04.2016; 06.2018 - 09.2019 ]
                 </div>
               </div>
 
@@ -568,7 +568,7 @@ const CurriculumVitae: React.FC = () => {
                   UI Developer / Designer
                 </div>
                 <div className={styles.break}></div>
-                <div className={styles.rightSub}>[ 2017 - 2018 ]</div>
+                <div className={styles.rightSub}>[ 01.2017 - 06.2018 ]</div>
               </div>
 
               <p ref={addToRefs} className={styles.desc}>
@@ -650,7 +650,7 @@ const CurriculumVitae: React.FC = () => {
                   Designer / Web UI Developer
                 </div>
                 <div className={styles.break}></div>
-                <div className={styles.rightSub}>[ 2005 ]</div>
+                <div className={styles.rightSub}>[ 06.2005 - 10.2005 ]</div>
               </div>
 
               <p ref={addToRefs} className={styles.desc}>
@@ -714,7 +714,7 @@ const CurriculumVitae: React.FC = () => {
                   Designer / Web UI Developer
                 </div>
                 <div className={styles.break}></div>
-                <div className={styles.rightSub}>[ 2003 - 2005 ]</div>
+                <div className={styles.rightSub}>[ 09.2003 - 06.2005 ]</div>
               </div>
 
               <p ref={addToRefs} className={styles.desc}>
@@ -780,7 +780,7 @@ const CurriculumVitae: React.FC = () => {
                   A.A.S. Web Design — Honors
                 </div>
                 <div className={styles.break}></div>
-                <div className={styles.rightSub}>[ 2003 - 2005 ]</div>
+                <div className={styles.rightSub}>[ 09.2003 - 06.2005 ]</div>
               </div>
 
               <p ref={addToRefs} className={styles.desc}>
