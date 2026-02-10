@@ -297,12 +297,12 @@ const CurriculumVitae: React.FC = () => {
                   improving deliverability and consistency.
                 </li>
                 <li ref={addToRefs}>
-                  Created the Oncotype DX Breast Recurrence Score Report
-                  Explorer for the Exact Sciences website, helping users
-                  understand diagnostic results documents. Converted Figma
-                  designs into responsive and interactive web pages and
-                  components, ensuring pixel-perfect implementation and seamless
-                  user experience across all devices.
+                  Created an Oncology Report Explorer for the Exact Sciences
+                  website, helping users understand diagnostic results
+                  documents. Converted Figma designs into responsive and
+                  interactive web pages and components, ensuring pixel-perfect
+                  implementation and seamless user experience across all
+                  devices.
                 </li>
                 <li ref={addToRefs}>
                   Developed consent management workflows using{" "}
@@ -434,8 +434,8 @@ const CurriculumVitae: React.FC = () => {
               </div>
 
               <p ref={addToRefs} className={styles.desc}>
-                Delivered interactive and responsive websites for Fortune 500
-                companies in the technology and entertainment industries.
+                Delivered interactive and responsive websites for large
+                enterprises in the technology and entertainment industries.
                 Focused on performance, interactivity, accessibility, and
                 repeatable delivery under tight deadlines.
               </p>
