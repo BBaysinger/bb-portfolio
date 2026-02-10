@@ -347,9 +347,7 @@ const CurriculumVitae: React.FC = () => {
                   </div>
                 </div>
                 <div className={styles.break}></div>
-                <div className={styles.rightSub}>
-                  [ 04.2020 - 05.2021 ]
-                </div>
+                <div className={styles.rightSub}>[ 04.2020 - 05.2021 ]</div>
               </div>
 
               <p ref={addToRefs} className={styles.desc}>
