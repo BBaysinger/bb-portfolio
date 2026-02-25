@@ -39,9 +39,9 @@
   // Runtime dependencies for the frontend application
   "dependencies": {
     // AWS SDK v3 S3 client (used for signed-URL uploads)
-    "@aws-sdk/client-s3": "^3.982.0",
+    "@aws-sdk/client-s3": "^3.997.0",
     // AWS SDK v3 presigner for generating pre-signed S3 requests
-    "@aws-sdk/s3-request-presigner": "^3.982.0",
+    "@aws-sdk/s3-request-presigner": "^3.997.0",
     // Modern Redux state management with simplified API
     "@reduxjs/toolkit": "^2.11.2",
     // AWS CloudWatch RUM for real user monitoring and visitor traffic tracking
@@ -65,7 +65,7 @@
     // Official React bindings for Redux state management
     "react-redux": "^9.2.0",
     // Client-side routing utilities (used for interactive demo routes)
-    "react-router-dom": "^7.13.0",
+    "react-router-dom": "^7.13.1",
     // CSS preprocessor with variables, nesting, and mixins
     "sass": "^1.97.3",
   },
@@ -82,19 +82,19 @@
     // React DOM TypeScript definitions (v19 for latest React features)
     "@types/react-dom": "^19",
     // TypeScript-specific ESLint rules and best practices
-    "@typescript-eslint/eslint-plugin": "^8.52.0",
+    "@typescript-eslint/eslint-plugin": "^8.53.0",
     // TypeScript parser for ESLint to understand TS syntax
-    "@typescript-eslint/parser": "^8.52.0",
-    // Load environment variables during local builds and scripts
-    "dotenv": "17.2.3",
+    "@typescript-eslint/parser": "^8.53.0",
     // JavaScript/TypeScript linting engine (v9 for latest rules)
     "eslint": "^9",
+    // Load environment variables during local builds and scripts
+    "dotenv": "17.3.1",
     // Next.js ESLint configuration with React and accessibility rules
     "eslint-config-next": "16.1.6",
     // ESLint plugin for React Hooks rules and best practices
     "eslint-plugin-react-hooks": "^7.0.1",
     // ESLint plugin for React Refresh (fast refresh) compatibility
-    "eslint-plugin-react-refresh": "^0.5.0",
+    "eslint-plugin-react-refresh": "^0.5.2",
     // Opinionated code formatter for consistent style
     "prettier": "^3.8.1",
     // Lightweight TypeScript runtime for executing guard scripts
