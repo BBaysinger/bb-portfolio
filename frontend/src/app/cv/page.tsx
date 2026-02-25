@@ -275,8 +275,9 @@ const CurriculumVitae: React.FC = () => {
               </p>
 
               <p ref={addToRefs} className={styles.scope}>
-                <span>Technical Scope:</span> jQuery, Adobe Suite, Sitecore,
-                HTML Email, Salesforce, OneTrust, FreeMarker
+                <span>Technical Scope:</span> Figma, ES6, TypeScript, jQuery,
+                Adobe Suite, Sitecore, HTML Email, Salesforce, OneTrust,
+                FreeMarker
               </p>
 
               <ul>
@@ -351,14 +352,13 @@ const CurriculumVitae: React.FC = () => {
               </div>
 
               <p ref={addToRefs} className={styles.desc}>
-                Built interactive, responsive web experiences for a
-                pharmaceutical startup and local businesses.
+                Built interactive, responsive web experiences for Avalere Health
+                (formerly CloserLook), Meda Systems, and local businesses.
               </p>
 
               <p ref={addToRefs} className={styles.scope}>
-                <span>Technical Scope: </span>TypeScript, React, Next.js,
-                Angular, Wordpress, jQuery, AWS, SVG, Canvas, Elasticsearch,
-                Craft CMS, Adobe Creative Suite
+                <span>Technical Scope:</span> TypeScript, Angular, jQuery, SVG,
+                Canvas, Elasticsearch, Craft CMS, Figma, Creative Suite
               </p>
 
               <ul>
@@ -441,10 +441,9 @@ const CurriculumVitae: React.FC = () => {
               </p>
 
               <p ref={addToRefs} className={styles.scope}>
-                <span>Technical Scope:</span> Angular, TypeScript, RxJS, jQuery,
-                vanilla JavaScript, Craft CMS, Grunt/Gulp, CreateJS, Adobe
-                Creative Suite, ActionScript 3, ActionScript 2, Require/AMD,
-                Haxe, Flash
+                <span>Technical Scope:</span> jQuery, vanilla JavaScript, Craft
+                CMS, Grunt/Gulp, CreateJS, ImpactJS Creative Suite, AS3, AS2,
+                Require/AMD, Haxe, Flash, Trello
               </p>
 
               <ul>
@@ -577,8 +576,9 @@ const CurriculumVitae: React.FC = () => {
               </p>
 
               <p ref={addToRefs} className={styles.scope}>
-                <span>Technical Scope:</span> Angular 4-6, TypeScript, Mapbox,
-                Rest APIs, GraphQL, Data Visualizations, Adobe Creative Suite
+                <span>Technical Scope:</span> Angular 4&dash;6, TypeScript,
+                Mapbox, REST APIs, GraphQL, Custom Query Language API, Creative
+                Suite, Smartsheet
               </p>
 
               <ul>
@@ -601,8 +601,8 @@ const CurriculumVitae: React.FC = () => {
                 <li ref={addToRefs}>
                   Created many widgets for the system including
                   infinite-scrolling data grids and data visualizations using
-                  <b>D3</b>, <b>Mapbox</b>, <b>Highcharts</b>, and other
-                  visualization libraries.
+                  <b>Mapbox</b>, <b>Highcharts</b>, and other visualization
+                  libraries.
                 </li>
                 <li ref={addToRefs}>
                   Quickly ramped up on Angular and TypeScript, progressing from
@@ -659,7 +659,7 @@ const CurriculumVitae: React.FC = () => {
 
               <p ref={addToRefs} className={styles.scope}>
                 <span>Technical Scope:</span> HTML, CSS, Vanilla JavaScript,
-                Visual Studio, AJAX, Dynamic HTML, and Adobe Creative Suite
+                Visual Studio, Dynamic HTML, AJAX, Creative Suite
               </p>
 
               <ul>
