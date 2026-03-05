@@ -173,8 +173,10 @@ const CurriculumVitae: React.FC = () => {
                   and SCSS-based theming
                 </li>
                 <li>
-                  TypeScript (3 years): Type-safe APIs and refactors, informed
-                  by earlier work in strongly-typed ECMAScript (Haxe/AS3)
+                  TypeScript (3 years): Client-side application development,
+                  component architecture, and maintainable typed UI code, with
+                  many years of prior experience in strongly typed languages
+                  (Haxe/AS3)
                 </li>
               </ul>
 
