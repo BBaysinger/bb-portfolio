@@ -372,25 +372,25 @@
     // TypeScript type definitions for glob
     "@types/glob": "^9.0.0",
     // ESLint plugin for TypeScript-specific linting rules
-    "@typescript-eslint/eslint-plugin": "^8.54.0",
+    "@typescript-eslint/eslint-plugin": "8.53.0",
     // TypeScript parser for ESLint
-    "@typescript-eslint/parser": "^8.54.0",
+    "@typescript-eslint/parser": "8.53.0",
     // Maps baseline browser support targets for tooling that needs them
     "baseline-browser-mapping": "^2.10.0",
     // Run multiple commands concurrently in scripts
     "concurrently": "^9.2.1",
     // Main linter for JS/TS code
-    "eslint": "^9.39.2",
+    "eslint": "^9.39.3",
     // ESLint plugin for import/export syntax validation
     "eslint-plugin-import": "^2.32.0",
     // ESLint plugin for React hooks rules
     "eslint-plugin-react-hooks": "^7.0.1",
     // ESLint plugin for React Fast Refresh support
-    "eslint-plugin-react-refresh": "^0.5.0",
+    "eslint-plugin-react-refresh": "^0.5.2",
     // File pattern matching utility
     "glob": "^13.0.6",
     // List of global variables for linting
-    "globals": "^17.3.0",
+    "globals": "^17.4.0",
     // Utility for .gitignore-style file filtering
     "ignore": "^7.0.5",
     // Runtime for dynamic JS/TS imports

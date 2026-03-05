@@ -19,8 +19,8 @@
     "test": "echo 'TODO: Add test scripts'"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.997.0",
-    "@aws-sdk/s3-request-presigner": "^3.997.0",
+    "@aws-sdk/client-s3": "^3.1002.0",
+    "@aws-sdk/s3-request-presigner": "^3.1002.0",
     "@reduxjs/toolkit": "^2.11.2",
     "aws-rum-web": "^2.0.0",
     "bootstrap": "^5.3.8",
@@ -41,9 +41,9 @@
     "@types/node": "^25",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@typescript-eslint/eslint-plugin": "^8.53.0",
-    "@typescript-eslint/parser": "^8.53.0",
-    "eslint": "^9",
+    "@typescript-eslint/eslint-plugin": "8.53.0",
+    "@typescript-eslint/parser": "8.53.0",
+    "eslint": "^9.39.3",
     "dotenv": "17.3.1",
     "eslint-config-next": "16.1.6",
     "eslint-plugin-react-hooks": "^7.0.1",
