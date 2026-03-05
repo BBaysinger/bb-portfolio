@@ -165,15 +165,15 @@ const CurriculumVitae: React.FC = () => {
 
               <ul ref={addToRefs}>
                 <li>
-                  React (2 years; current focus): Component-driven UI, hooks,
-                  routing, and state management with Redux
+                  React (2 years): Component-driven UI, hooks, routing, and
+                  state management with Redux
                 </li>
                 <li>
-                  Angular (2+ years): Enterprise component architecture, RxJS,
+                  Angular (2 years): Enterprise component architecture, RxJS,
                   and SCSS-based theming
                 </li>
                 <li>
-                  TypeScript (3+ years): Type-safe APIs and refactors, informed
+                  TypeScript (3 years): Type-safe APIs and refactors, informed
                   by earlier work in strongly-typed ECMAScript (Haxe/AS3)
                 </li>
               </ul>
@@ -291,20 +291,20 @@ const CurriculumVitae: React.FC = () => {
               <div ref={addToRefs} className={styles.subContainer}>
                 <div className={styles.leftSub}>
                   <h5>
-                    Hobbyist
+                    Independent Developer
                     <span className={styles.location}> — Spokane, WA</span>
                   </h5>
-                  Interactive Web Enthusiast
+                  Early Interactive Web Focus
                 </div>
                 <div className={styles.break}></div>
                 <div className={styles.rightSub}>[ 2001 - 2003 ]</div>
               </div>
 
               <p ref={addToRefs} className={styles.desc}>
-                Self-directed learning of graphics software and early
-                cross-platform, dynamic, and interactive JavaScript development
-                before formally pursuing design school. My history with vanilla
-                JavaScript spans back to this era.
+                Built foundational skills in graphics tooling and early
+                cross-platform interactive JavaScript development before formal
+                design training. Experience with vanilla JavaScript began during
+                this period.
               </p>
 
               <p ref={addToRefs} className={styles.scope}>
@@ -314,7 +314,7 @@ const CurriculumVitae: React.FC = () => {
 
               <ul>
                 <li ref={addToRefs}>
-                  Pursued self-directed learning in{" "}
+                  Built practical skills in{" "}
                   <b>JavaScript, Dynamic HTML, and interactive animation</b>{" "}
                   while working full-time in a non-technical role.
                 </li>
@@ -474,8 +474,7 @@ const CurriculumVitae: React.FC = () => {
                 <span>Caddy</span>
                 <span>VirtualBox</span>
                 <span>Infrastructure as Code</span>
-                <span>Cloud Computing</span>
-                <span>Container Orchestration</span>
+                <span>Service Orchestration &amp; Deployment Automation</span>
               </p>
             </div>
           </div>
@@ -530,10 +529,9 @@ const CurriculumVitae: React.FC = () => {
               </div>
 
               <div className={clsx(styles.desc, "col-xs-12")}>
-                Contributed to over thirteen projects that received awards in
-                the annual Spokane Ad Fed (Addy) Awards, including five Silver,
-                four Gold, two Best of Division, one Best of Show, and one
-                Golden Pixel
+                Contributed to 13 projects that received awards in the annual
+                Spokane Ad Fed (Addy) Awards, including five Silver, four Gold,
+                two Best of Division, one Best of Show, and one Golden Pixel
               </div>
             </div>
           </div>
@@ -585,7 +583,7 @@ const CurriculumVitae: React.FC = () => {
                 <span>Custom Scrollbars</span>
                 <span>Custom Tween Engine</span>
                 <span>Data Usage Calculators</span>
-                <span>Data Science Application</span>
+                <span>Pushgraph Data Visualization Platform</span>
                 <span>Interactive Portfolio</span>
                 <span>Informational Presentations</span>
                 <span>HTML Emails</span>
@@ -605,7 +603,7 @@ const CurriculumVitae: React.FC = () => {
               <p className={styles.inlineList}>
                 <span>Nickelodeon</span>
                 <span>Nick Jr.</span>
-                <span>NDA brand</span>
+                <span>Major Gaming Company (NDA)</span>
                 <span>Disney</span>
                 <span>Mattel</span>
                 <span>AT&amp;T</span>
@@ -617,7 +615,6 @@ const CurriculumVitae: React.FC = () => {
                 <span>NIFA</span>
                 <span>Expedia</span>
                 <span>New Line Cinema</span>
-                <span>The Weinstein Company</span>
                 <span>Addicting Games</span>
                 <span>The N</span>
                 <span>T-Mobile</span>
@@ -631,7 +628,6 @@ const CurriculumVitae: React.FC = () => {
                 <span>RedHook Brewing</span>
                 <span>Stoli Vodka</span>
                 <span>Tanteo Tequila</span>
-                <span>Tobacco Smokes You</span>
                 <span>UBS Financial Services</span>
                 <span>XM Radio</span>
                 <span>Lincoln Mercury</span>
