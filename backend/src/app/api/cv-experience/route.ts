@@ -66,41 +66,53 @@ export async function GET() {
       overrideAccess: true,
     })
 
+    const mapItem = (entry: unknown) => {
+      if (!entry || typeof entry !== 'object') return null
+      const item = entry as ExperienceItem
+      if (item.blockType !== 'experienceItem') return null
+
+      const company = asTrimmedString(item.company)
+      const location = asTrimmedString(item.location)
+      const title = asTrimmedString(item.title)
+      const description = asTrimmedString(item.description)
+      const technicalScope = asTrimmedString(item.technicalScope)
+      const date = asTrimmedString(item.date)
+      const bulletPoints = toBulletPoints(item.bulletPoints)
+
+      if (!company || !location || !title || !description || !technicalScope || !date) {
+        return null
+      }
+
+      return {
+        company,
+        location,
+        title,
+        description,
+        technicalScope,
+        date,
+        logo: toLogo(item.logo),
+        bulletPoints,
+      }
+    }
+
     const items = (Array.isArray(cvExperience?.experienceItems) ? cvExperience.experienceItems : [])
       .map((entry: unknown) => {
-        if (!entry || typeof entry !== 'object') return null
-        const item = entry as ExperienceItem
-        if (item.blockType !== 'experienceItem') return null
-
-        const company = asTrimmedString(item.company)
-        const location = asTrimmedString(item.location)
-        const title = asTrimmedString(item.title)
-        const description = asTrimmedString(item.description)
-        const technicalScope = asTrimmedString(item.technicalScope)
-        const date = asTrimmedString(item.date)
-        const bulletPoints = toBulletPoints(item.bulletPoints)
-
-        if (!company || !location || !title || !description || !technicalScope || !date) {
-          return null
-        }
-
-        return {
-          company,
-          location,
-          title,
-          description,
-          technicalScope,
-          date,
-          logo: toLogo(item.logo),
-          bulletPoints,
-        }
+        return mapItem(entry)
       })
+      .filter(Boolean)
+
+    const recentIndependentStudyEntries = Array.isArray(cvExperience?.recentIndependentStudy)
+      ? cvExperience.recentIndependentStudy
+      : []
+    const recentIndependentStudyItems = recentIndependentStudyEntries
+      .map((entry: unknown) => mapItem(entry))
       .filter(Boolean)
 
     return NextResponse.json({
       success: true,
       data: {
         experienceItems: items,
+        recentIndependentStudyItems,
       },
     })
   } catch (error) {

@@ -57,8 +57,7 @@ const ExperienceItemBlock: Block = {
       name: 'bulletPoints',
       label: 'Bullet Points',
       type: 'array',
-      minRows: 1,
-      required: true,
+      required: false,
       admin: {
         description:
           'Reorder these rows to change bullet order. Disable a row to hide it on the CV.',
@@ -99,6 +98,17 @@ export const CvExperience: GlobalConfig = {
       admin: {
         description:
           'Each row is one CV experience component. Drag and drop to control render order on the frontend.',
+      },
+    },
+    {
+      name: 'recentIndependentStudy',
+      label: 'Independent R&D and Contracting',
+      type: 'blocks',
+      required: false,
+      blocks: [ExperienceItemBlock],
+      admin: {
+        description:
+          'Each row is one CV experience component for the Independent R&D and Contracting section. Drag and drop to control render order on the frontend.',
       },
     },
   ],

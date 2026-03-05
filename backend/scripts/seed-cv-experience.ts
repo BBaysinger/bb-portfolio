@@ -7,6 +7,16 @@ import { fileURLToPath } from 'url'
 import dotenv from 'dotenv'
 import { getPayload, type Payload } from 'payload'
 
+type SeedGlobalUpdater = {
+  updateGlobal: (args: {
+    slug: string
+    data: {
+      experienceItems: unknown[]
+      recentIndependentStudy: unknown[]
+    }
+  }) => Promise<unknown>
+}
+
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
@@ -183,6 +193,32 @@ const experienceSeed: SeedExperience[] = [
   },
 ]
 
+const recentIndependentStudySeed: SeedExperience = {
+  logoFilename: 'bb.svg',
+  logoUrl: '/images/cv/bb.svg',
+  logoAlt: 'BB Logo',
+  company: 'Independent Contractor',
+  location: 'Spokane, WA | Remote',
+  title: 'Self-Directed Front-End Engineer',
+  description:
+    'Concurrently contracting while developing a portfolio platform, delivering polished WordPress and front-end work with a service-focused, client-first approach.',
+  technicalScope:
+    'Next.js, React, TypeScript, Payload CMS, Docker, AWS, CloudWatch RUM, Vitest, Playwright',
+  date: '09.2024 - Present',
+  bulletPoints: [
+    'Designed and built a production-grade portfolio platform as a proving ground for advanced interaction patterns, animation systems, and UI performance work.',
+    'Architected a modern stack using Next.js, React, TypeScript, Payload CMS, and AWS-based infrastructure.',
+    'Delivered WordPress updates and refinements for small-business sites, including page layout polish, section flow improvements, and mobile-first responsiveness.',
+    'Provided ongoing content support in WordPress with clean formatting, image optimization, and practical SEO-friendly structure for service pages and blog content.',
+    'Implemented lightweight custom front-end enhancements around WordPress themes (component tweaks, CSS overrides, and JavaScript behavior improvements) without disrupting editorial workflows.',
+    'Consulted on CRM planning and workflow alignment, helping define lead-capture paths, contact lifecycle stages, and practical handoff points between site forms and customer follow-up.',
+    'Built reusable interaction systems (route-synced carousels with deep linking, layered/parallax coordination, responsive layout strategies).',
+    'Implemented production instrumentation and reliability hooks: CloudWatch RUM, SSR-safe initialization guards, lightweight health endpoints, and operational metric publishing.',
+    'Automated delivery workflows including deployment orchestration, environment/secrets bundling, and hardened Docker builds.',
+    'Standardized code quality and DX with strict TypeScript, unified linting/formatting, and repeatable performance-tuned builds.',
+  ],
+}
+
 async function upsertCvLogo(payload: Payload, seed: SeedExperience): Promise<string> {
   const sourceFilePath = path.resolve(
     __dirname,
@@ -253,14 +289,38 @@ async function main() {
       })
     }
 
-    await payload.updateGlobal({
+    const recentLogoId = await upsertCvLogo(payload, recentIndependentStudySeed)
+
+    const recentIndependentStudy = [
+      {
+        blockType: 'experienceItem' as const,
+        logo: recentLogoId,
+        company: recentIndependentStudySeed.company,
+        location: recentIndependentStudySeed.location,
+        title: recentIndependentStudySeed.title,
+        description: recentIndependentStudySeed.description,
+        technicalScope: recentIndependentStudySeed.technicalScope,
+        date: recentIndependentStudySeed.date,
+        bulletPoints: recentIndependentStudySeed.bulletPoints.map((text) => ({
+          text,
+          enabled: true,
+        })),
+      },
+    ]
+
+    // Generated types can lag schema updates; use a narrow local updater type.
+    const globalUpdater = payload as unknown as SeedGlobalUpdater
+    await globalUpdater.updateGlobal({
       slug: 'cvExperience',
       data: {
         experienceItems,
+        recentIndependentStudy,
       },
     })
 
-    console.info(`Seeded cvExperience with ${experienceItems.length} items.`)
+    console.info(
+      `Seeded cvExperience with ${experienceItems.length} experience items and ${recentIndependentStudy.length} recent independent R&D item.`,
+    )
   } catch (error) {
     console.error('Failed to seed cvExperience:', error)
     process.exitCode = 1
