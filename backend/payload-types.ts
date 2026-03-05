@@ -59,507 +59,841 @@ export type SupportedTimezones =
   | 'Pacific/Guam'
   | 'Pacific/Noumea'
   | 'Pacific/Auckland'
-  | 'Pacific/Fiji'
+  | 'Pacific/Fiji';
 
 export interface Config {
   auth: {
-    users: UserAuthOperations
-  }
-  blocks: {}
+    users: UserAuthOperations;
+  };
+  blocks: {};
   collections: {
-    users: User
-    projects: Project
-    brands: Brand
-    brandLogos: BrandLogo
-    projectScreenshots: ProjectScreenshot
-    projectThumbnails: ProjectThumbnail
-    'payload-locked-documents': PayloadLockedDocument
-    'payload-preferences': PayloadPreference
-    'payload-migrations': PayloadMigration
-  }
-  collectionsJoins: {}
+    users: User;
+    authEvents: AuthEvent;
+    projects: Project;
+    brands: Brand;
+    brandLogos: BrandLogo;
+    projectScreenshots: ProjectScreenshot;
+    projectThumbnails: ProjectThumbnail;
+    'payload-kv': PayloadKv;
+    'payload-locked-documents': PayloadLockedDocument;
+    'payload-preferences': PayloadPreference;
+    'payload-migrations': PayloadMigration;
+  };
+  collectionsJoins: {};
   collectionsSelect: {
-    users: UsersSelect<false> | UsersSelect<true>
-    projects: ProjectsSelect<false> | ProjectsSelect<true>
-    brands: BrandsSelect<false> | BrandsSelect<true>
-    brandLogos: BrandLogosSelect<false> | BrandLogosSelect<true>
-    projectScreenshots: ProjectScreenshotsSelect<false> | ProjectScreenshotsSelect<true>
-    projectThumbnails: ProjectThumbnailsSelect<false> | ProjectThumbnailsSelect<true>
-    'payload-locked-documents':
-      | PayloadLockedDocumentsSelect<false>
-      | PayloadLockedDocumentsSelect<true>
-    'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>
-    'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>
-  }
+    users: UsersSelect<false> | UsersSelect<true>;
+    authEvents: AuthEventsSelect<false> | AuthEventsSelect<true>;
+    projects: ProjectsSelect<false> | ProjectsSelect<true>;
+    brands: BrandsSelect<false> | BrandsSelect<true>;
+    brandLogos: BrandLogosSelect<false> | BrandLogosSelect<true>;
+    projectScreenshots: ProjectScreenshotsSelect<false> | ProjectScreenshotsSelect<true>;
+    projectThumbnails: ProjectThumbnailsSelect<false> | ProjectThumbnailsSelect<true>;
+    'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
+    'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
+    'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
+    'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
+  };
   db: {
-    defaultIDType: string
-  }
-  globals: {}
-  globalsSelect: {}
-  locale: null
+    defaultIDType: string;
+  };
+  fallbackLocale: null;
+  globals: {
+    contactInfo: ContactInfo;
+    heroBranding: HeroBranding;
+  };
+  globalsSelect: {
+    contactInfo: ContactInfoSelect<false> | ContactInfoSelect<true>;
+    heroBranding: HeroBrandingSelect<false> | HeroBrandingSelect<true>;
+  };
+  locale: null;
   user: User & {
-    collection: 'users'
-  }
+    collection: 'users';
+  };
   jobs: {
-    tasks: unknown
-    workflows: unknown
-  }
+    tasks: unknown;
+    workflows: unknown;
+  };
 }
 export interface UserAuthOperations {
   forgotPassword: {
-    email: string
-    password: string
-  }
+    email: string;
+    password: string;
+  };
   login: {
-    email: string
-    password: string
-  }
+    email: string;
+    password: string;
+  };
   registerFirstUser: {
-    email: string
-    password: string
-  }
+    email: string;
+    password: string;
+  };
   unlock: {
-    email: string
-    password: string
-  }
+    email: string;
+    password: string;
+  };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users".
  */
 export interface User {
-  id: string
-  role: 'admin' | 'user'
-  firstName: string
-  lastName: string
-  fullName?: string | null
-  updatedAt: string
-  createdAt: string
-  email: string
-  resetPasswordToken?: string | null
-  resetPasswordExpiration?: string | null
-  salt?: string | null
-  hash?: string | null
-  loginAttempts?: number | null
-  lockUntil?: string | null
+  id: string;
+  role: 'admin' | 'user';
+  /**
+   * Login identifier (alternative to email). Should be unique. If Email is empty (or still an @placeholder.invalid placeholder), the Admin UI will generate and keep Email synced as no-email+<username>@placeholder.invalid. The backend also generates this placeholder on save if Email is missing and Username is provided.
+   */
+  username?: string | null;
+  usernameNormalized?: string | null;
+  /**
+   * Optional.
+   */
+  firstName?: string | null;
+  /**
+   * Optional.
+   */
+  lastName?: string | null;
+  organization?: string | null;
+  fullName?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  email: string;
+  resetPasswordToken?: string | null;
+  resetPasswordExpiration?: string | null;
+  salt?: string | null;
+  hash?: string | null;
+  loginAttempts?: number | null;
+  lockUntil?: string | null;
   sessions?:
     | {
-        id: string
-        createdAt?: string | null
-        expiresAt: string
+        id: string;
+        createdAt?: string | null;
+        expiresAt: string;
       }[]
-    | null
-  password?: string | null
+    | null;
+  password?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "authEvents".
+ */
+export interface AuthEvent {
+  id: string;
+  eventType: 'login' | 'logout';
+  method?: ('password' | 'google') | null;
+  user: string | User;
+  ip?: string | null;
+  userAgent?: string | null;
+  referrer?: string | null;
+  referrerIsExternal?: boolean | null;
+  /**
+   * Query string from the referrer URL when the referrer is external (e.g., utm_source=...).
+   */
+  referrerQuery?: string | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "projects".
  */
 export interface Project {
-  id: string
-  title: string
-  slug: string
-  active?: boolean | null
-  omitFromList?: boolean | null
-  nda?: boolean | null
-  brandId?: (string | null) | Brand
+  id: string;
+  title: string;
+  slug: string;
+  /**
+   * Opaque URL-safe identifier. This can be used as an alternate route key (e.g., /nda/<code>/) without exposing the human slug.
+   */
+  shortCode: string;
+  /**
+   * Lower numbers appear first in the portfolio list.
+   */
+  sortIndex?: number | null;
+  /**
+   * Optional display title for the H1. Slugs and canonical project naming should still be based on Title.
+   */
+  shortTitle?: string | null;
+  /**
+   * Optional expanded title (e.g., for SEO/page headers). If unset, the site can fall back to Title.
+   */
+  longTitle?: string | null;
+  active?: boolean | null;
+  omitFromList?: boolean | null;
+  nda?: boolean | null;
+  brandId?: (string | null) | Brand;
   tags?:
     | {
-        tag?: string | null
-        id?: string | null
+        tag?: string | null;
+        id?: string | null;
       }[]
-    | null
+    | null;
   role?:
     | {
-        value?: string | null
-        id?: string | null
+        value?: string | null;
+        id?: string | null;
       }[]
-    | null
-  year?: string | null
+    | null;
+  year?: string | null;
   awards?:
     | {
-        award?: string | null
-        id?: string | null
+        award?: string | null;
+        id?: string | null;
       }[]
-    | null
-  type?: string | null
+    | null;
+  type?: string | null;
+  /**
+   * Optional brief blurb used for list cards/preview contexts. Keep this to 1–2 sentences.
+   */
+  shortDesc?: string | null;
   desc?:
     | {
         /**
          * Paste raw HTML like <p>...</p>.
          */
-        block?: string | null
-        id?: string | null
+        block?: string | null;
+        id?: string | null;
       }[]
-    | null
+    | null;
   urls?:
     | {
-        label: string
-        url: string
-        id?: string | null
+        label: string;
+        url: string;
+        id?: string | null;
       }[]
-    | null
+    | null;
   /**
    * Associate desktop and mobile screenshots with this project.
    */
-  screenshots?: (string | ProjectScreenshot)[] | null
+  screenshots?: (string | ProjectScreenshot)[] | null;
   /**
    * Associate a thumbnail with this project.
    */
-  thumbnail?: (string | ProjectThumbnail)[] | null
-  updatedAt: string
-  createdAt: string
+  thumbnail?: (string | ProjectThumbnail)[] | null;
+  /**
+   * Optional fallback shown when the project is locked to unauthenticated visitors.
+   */
+  lockedThumbnail?: (string | null) | ProjectThumbnail;
+  /**
+   * Sets the base/background class for the thumbnail wrapper.
+   */
+  thumbnailBackgroundTheme?:
+    | (
+        | 'default'
+        | 'bez'
+        | 'maroon'
+        | 'splay'
+        | 'arrow'
+        | 'orange'
+        | 'asdf'
+        | 'slots'
+        | 'holes'
+        | 'thin-bez'
+        | 'screws'
+        | 'no-bez'
+      )
+    | null;
+  /**
+   * Adds a detail/attribute class for overlays, borders, or effects.
+   */
+  thumbnailAttributeTheme?: ('default' | 'badge-pop' | 'border-strong' | 'glow' | 'grain') | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "brands".
  */
 export interface Brand {
-  id: string
-  name: string
-  slug: string
-  logoLight?: (string | null) | BrandLogo
-  logoDark?: (string | null) | BrandLogo
-  website?: string | null
-  updatedAt: string
-  createdAt: string
+  id: string;
+  name: string;
+  slug: string;
+  nda?: boolean | null;
+  logoLight?: (string | null) | BrandLogo;
+  logoDark?: (string | null) | BrandLogo;
+  website?: string | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "brandLogos".
  */
 export interface BrandLogo {
-  id: string
+  id: string;
+  /**
+   * Computed from the brand that references this logo. Used to prevent public access to NDA logos via direct collection reads.
+   */
+  nda?: boolean | null;
   /**
    * Accessible description of the logo (used for alt text).
    */
-  alt?: string | null
+  alt?: string | null;
   /**
    * Choose the background type this logo is intended for.
    */
-  logoType: 'light-mode' | 'dark-mode' | 'both-modes'
-  updatedAt: string
-  createdAt: string
-  url?: string | null
-  thumbnailURL?: string | null
-  filename?: string | null
-  mimeType?: string | null
-  filesize?: number | null
-  width?: number | null
-  height?: number | null
-  focalX?: number | null
-  focalY?: number | null
+  logoType: 'light-mode' | 'dark-mode' | 'both-modes';
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+  sizes?: {
+    thumbnail?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+  };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "projectScreenshots".
  */
 export interface ProjectScreenshot {
-  id: string
+  id: string;
+  /**
+   * Computed from the linked project/brand. Used to prevent public access to NDA media via direct collection reads.
+   */
+  nda?: boolean | null;
   /**
    * Indicates whether the screenshot is for desktop or mobile view.
    */
-  screenType: 'laptop' | 'phone'
-  orientation: 'portrait' | 'landscape'
-  project?: (string | null) | Project
+  screenType: 'laptop' | 'phone';
+  orientation: 'portrait' | 'landscape';
+  project: string | Project;
   /**
    * Optional alt text for accessibility or SEO.
    */
-  alt?: string | null
-  updatedAt: string
-  createdAt: string
-  url?: string | null
-  thumbnailURL?: string | null
-  filename?: string | null
-  mimeType?: string | null
-  filesize?: number | null
-  width?: number | null
-  height?: number | null
-  focalX?: number | null
-  focalY?: number | null
+  alt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+  sizes?: {
+    thumbnail?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+  };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "projectThumbnails".
  */
 export interface ProjectThumbnail {
-  id: string
-  project?: (string | null) | Project
+  id: string;
+  /**
+   * Computed from the linked project/brand. Used to prevent public access to NDA media via direct collection reads.
+   */
+  nda?: boolean | null;
+  project?: (string | null) | Project;
   /**
    * Accessible text for screen readers and SEO.
    */
-  alt?: string | null
-  updatedAt: string
-  createdAt: string
-  url?: string | null
-  thumbnailURL?: string | null
-  filename?: string | null
-  mimeType?: string | null
-  filesize?: number | null
-  width?: number | null
-  height?: number | null
-  focalX?: number | null
-  focalY?: number | null
+  alt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+  sizes?: {
+    mobile?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    thumbnail?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payload-kv".
+ */
+export interface PayloadKv {
+  id: string;
+  key: string;
+  data:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
-  id: string
+  id: string;
   document?:
     | ({
-        relationTo: 'users'
-        value: string | User
+        relationTo: 'users';
+        value: string | User;
       } | null)
     | ({
-        relationTo: 'projects'
-        value: string | Project
+        relationTo: 'authEvents';
+        value: string | AuthEvent;
       } | null)
     | ({
-        relationTo: 'brands'
-        value: string | Brand
+        relationTo: 'projects';
+        value: string | Project;
       } | null)
     | ({
-        relationTo: 'brandLogos'
-        value: string | BrandLogo
+        relationTo: 'brands';
+        value: string | Brand;
       } | null)
     | ({
-        relationTo: 'projectScreenshots'
-        value: string | ProjectScreenshot
+        relationTo: 'brandLogos';
+        value: string | BrandLogo;
       } | null)
     | ({
-        relationTo: 'projectThumbnails'
-        value: string | ProjectThumbnail
+        relationTo: 'projectScreenshots';
+        value: string | ProjectScreenshot;
       } | null)
-  globalSlug?: string | null
+    | ({
+        relationTo: 'projectThumbnails';
+        value: string | ProjectThumbnail;
+      } | null);
+  globalSlug?: string | null;
   user: {
-    relationTo: 'users'
-    value: string | User
-  }
-  updatedAt: string
-  createdAt: string
+    relationTo: 'users';
+    value: string | User;
+  };
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-preferences".
  */
 export interface PayloadPreference {
-  id: string
+  id: string;
   user: {
-    relationTo: 'users'
-    value: string | User
-  }
-  key?: string | null
+    relationTo: 'users';
+    value: string | User;
+  };
+  key?: string | null;
   value?:
     | {
-        [k: string]: unknown
+        [k: string]: unknown;
       }
     | unknown[]
     | string
     | number
     | boolean
-    | null
-  updatedAt: string
-  createdAt: string
+    | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-migrations".
  */
 export interface PayloadMigration {
-  id: string
-  name?: string | null
-  batch?: number | null
-  updatedAt: string
-  createdAt: string
+  id: string;
+  name?: string | null;
+  batch?: number | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
-  role?: T
-  firstName?: T
-  lastName?: T
-  fullName?: T
-  updatedAt?: T
-  createdAt?: T
-  email?: T
-  resetPasswordToken?: T
-  resetPasswordExpiration?: T
-  salt?: T
-  hash?: T
-  loginAttempts?: T
-  lockUntil?: T
+  role?: T;
+  username?: T;
+  usernameNormalized?: T;
+  firstName?: T;
+  lastName?: T;
+  organization?: T;
+  fullName?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  email?: T;
+  resetPasswordToken?: T;
+  resetPasswordExpiration?: T;
+  salt?: T;
+  hash?: T;
+  loginAttempts?: T;
+  lockUntil?: T;
   sessions?:
     | T
     | {
-        id?: T
-        createdAt?: T
-        expiresAt?: T
-      }
+        id?: T;
+        createdAt?: T;
+        expiresAt?: T;
+      };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "authEvents_select".
+ */
+export interface AuthEventsSelect<T extends boolean = true> {
+  eventType?: T;
+  method?: T;
+  user?: T;
+  ip?: T;
+  userAgent?: T;
+  referrer?: T;
+  referrerIsExternal?: T;
+  referrerQuery?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "projects_select".
  */
 export interface ProjectsSelect<T extends boolean = true> {
-  title?: T
-  slug?: T
-  active?: T
-  omitFromList?: T
-  nda?: T
-  brandId?: T
+  title?: T;
+  slug?: T;
+  shortCode?: T;
+  sortIndex?: T;
+  shortTitle?: T;
+  longTitle?: T;
+  active?: T;
+  omitFromList?: T;
+  nda?: T;
+  brandId?: T;
   tags?:
     | T
     | {
-        tag?: T
-        id?: T
-      }
+        tag?: T;
+        id?: T;
+      };
   role?:
     | T
     | {
-        value?: T
-        id?: T
-      }
-  year?: T
+        value?: T;
+        id?: T;
+      };
+  year?: T;
   awards?:
     | T
     | {
-        award?: T
-        id?: T
-      }
-  type?: T
+        award?: T;
+        id?: T;
+      };
+  type?: T;
+  shortDesc?: T;
   desc?:
     | T
     | {
-        block?: T
-        id?: T
-      }
+        block?: T;
+        id?: T;
+      };
   urls?:
     | T
     | {
-        label?: T
-        url?: T
-        id?: T
-      }
-  screenshots?: T
-  thumbnail?: T
-  updatedAt?: T
-  createdAt?: T
+        label?: T;
+        url?: T;
+        id?: T;
+      };
+  screenshots?: T;
+  thumbnail?: T;
+  lockedThumbnail?: T;
+  thumbnailBackgroundTheme?: T;
+  thumbnailAttributeTheme?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "brands_select".
  */
 export interface BrandsSelect<T extends boolean = true> {
-  name?: T
-  slug?: T
-  logoLight?: T
-  logoDark?: T
-  website?: T
-  updatedAt?: T
-  createdAt?: T
+  name?: T;
+  slug?: T;
+  nda?: T;
+  logoLight?: T;
+  logoDark?: T;
+  website?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "brandLogos_select".
  */
 export interface BrandLogosSelect<T extends boolean = true> {
-  alt?: T
-  logoType?: T
-  updatedAt?: T
-  createdAt?: T
-  url?: T
-  thumbnailURL?: T
-  filename?: T
-  mimeType?: T
-  filesize?: T
-  width?: T
-  height?: T
-  focalX?: T
-  focalY?: T
+  nda?: T;
+  alt?: T;
+  logoType?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
+  sizes?:
+    | T
+    | {
+        thumbnail?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+      };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "projectScreenshots_select".
  */
 export interface ProjectScreenshotsSelect<T extends boolean = true> {
-  screenType?: T
-  orientation?: T
-  project?: T
-  alt?: T
-  updatedAt?: T
-  createdAt?: T
-  url?: T
-  thumbnailURL?: T
-  filename?: T
-  mimeType?: T
-  filesize?: T
-  width?: T
-  height?: T
-  focalX?: T
-  focalY?: T
+  nda?: T;
+  screenType?: T;
+  orientation?: T;
+  project?: T;
+  alt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
+  sizes?:
+    | T
+    | {
+        thumbnail?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+      };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "projectThumbnails_select".
  */
 export interface ProjectThumbnailsSelect<T extends boolean = true> {
-  project?: T
-  alt?: T
-  updatedAt?: T
-  createdAt?: T
-  url?: T
-  thumbnailURL?: T
-  filename?: T
-  mimeType?: T
-  filesize?: T
-  width?: T
-  height?: T
-  focalX?: T
-  focalY?: T
+  nda?: T;
+  project?: T;
+  alt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
+  sizes?:
+    | T
+    | {
+        mobile?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        thumbnail?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+      };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payload-kv_select".
+ */
+export interface PayloadKvSelect<T extends boolean = true> {
+  key?: T;
+  data?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents_select".
  */
 export interface PayloadLockedDocumentsSelect<T extends boolean = true> {
-  document?: T
-  globalSlug?: T
-  user?: T
-  updatedAt?: T
-  createdAt?: T
+  document?: T;
+  globalSlug?: T;
+  user?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-preferences_select".
  */
 export interface PayloadPreferencesSelect<T extends boolean = true> {
-  user?: T
-  key?: T
-  value?: T
-  updatedAt?: T
-  createdAt?: T
+  user?: T;
+  key?: T;
+  value?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-migrations_select".
  */
 export interface PayloadMigrationsSelect<T extends boolean = true> {
-  name?: T
-  batch?: T
-  updatedAt?: T
-  createdAt?: T
+  name?: T;
+  batch?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "contactInfo".
+ */
+export interface ContactInfo {
+  id: string;
+  /**
+   * Public contact email to display on site and use for security.txt. This should be safe to publish.
+   */
+  contactEmail?: string | null;
+  /**
+   * Canonical phone number in E.164 format, e.g., +12065551234
+   */
+  phoneE164?: string | null;
+  /**
+   * Optional formatted display version, e.g., (206) 555-1234
+   */
+  phoneDisplay?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "heroBranding".
+ */
+export interface HeroBranding {
+  id: string;
+  /**
+   * Add as many roles as you want. Mark one row active to use it on the site.
+   */
+  roleVariants: {
+    /**
+     * Internal/admin label to identify this role variation.
+     */
+    presetLabel: string;
+    /**
+     * Displayed in the hero title area.
+     */
+    title: string;
+    /**
+     * Use this role on the live hero.
+     */
+    isActive?: boolean | null;
+    /**
+     * Letter spacing for this specific role title.
+     */
+    letterSpacingEm: number;
+    id?: string | null;
+  }[];
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "contactInfo_select".
+ */
+export interface ContactInfoSelect<T extends boolean = true> {
+  contactEmail?: T;
+  phoneE164?: T;
+  phoneDisplay?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "heroBranding_select".
+ */
+export interface HeroBrandingSelect<T extends boolean = true> {
+  roleVariants?:
+    | T
+    | {
+        presetLabel?: T;
+        title?: T;
+        isActive?: T;
+        letterSpacingEm?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "auth".
  */
 export interface Auth {
-  [k: string]: unknown
+  [k: string]: unknown;
 }
+
 
 declare module 'payload' {
   export interface GeneratedTypes extends Config {}
