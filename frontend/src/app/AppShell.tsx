@@ -48,6 +48,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   // Runtime backend health check: logs backend connectivity status on startup.
   // Intentionally console-only (no UI) to avoid impacting UX.
   useEffect(() => {
+    const enableHealthCheck = process.env.NEXT_PUBLIC_HEALTH_CHECK === "1";
+    if (!enableHealthCheck) return;
+
     // Prefer same-origin relative path so this runs in the browser without DNS surprises.
     // The frontend provides an API proxy route for health checks at /api/health.
     // Absolute URLs (e.g., http://bb-portfolio-backend-local:3001) may not resolve in the browser.
