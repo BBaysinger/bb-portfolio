@@ -22,7 +22,7 @@ import { ProjectScreenshots } from './collections/ProjectScreenshots'
 import { ProjectThumbnails } from './collections/ProjectThumbnails'
 import { Users } from './collections/Users'
 import { ContactInfo } from './globals/ContactInfo'
-import type { Config } from './payload-types'
+import { HeroBranding } from './globals/HeroBranding'
 
 // ===============================================================
 // ENVIRONMENT FILES (.env.dev, .env.prod)
@@ -167,7 +167,7 @@ export default buildConfig({
     ProjectScreenshots,
     ProjectThumbnails,
   ],
-  globals: [ContactInfo],
+  globals: [ContactInfo, HeroBranding],
   editor: lexicalEditor(),
   // Enforce prefixed payload secret by environment profile
   secret: (() => {
@@ -181,9 +181,9 @@ export default buildConfig({
     }
     return val
   })(),
-  typescript: {
-    outputFile: path.resolve(dirname, 'payload-types.ts'),
-  },
+  // Keep generated Payload types opt-in (manual) to avoid constant git churn in dev.
+  // Run `payload generate:types` when you explicitly want to refresh generated typings.
+  typescript: {},
   db: mongooseAdapter({
     url: mongoURL,
   }),
@@ -206,7 +206,7 @@ export default buildConfig({
               brandLogos: { prefix: 'brand-logos' },
               projectScreenshots: { prefix: 'project-screenshots' },
               projectThumbnails: { prefix: 'project-thumbnails' },
-            } as Partial<Record<keyof Config['collections'], { prefix: string } | true>>,
+            },
             bucket: (() => {
               return requireEnv('S3_BUCKET', {
                 description: 'Define the S3 bucket name used for Payload media uploads.',
