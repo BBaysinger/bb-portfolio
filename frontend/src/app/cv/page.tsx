@@ -363,11 +363,11 @@ const CurriculumVitae: React.FC = () => {
                 <span>GreenSock / GSAP</span>
                 <span>Bootstrap</span>
                 <span>Mapbox</span>
-                <span>jQuery (previous)</span>
-                <span>Haxe (previous)</span>
-                <span>ActionScript 3 (previous)</span>
-                <span>ActionScript 2 (previous)</span>
-                <span>Flambé / 2DKit (previous)</span>
+                <span>jQuery (legacy)</span>
+                <span>Haxe</span>
+                <span>ActionScript 3 (legacy)</span>
+                <span>ActionScript 2 (legacy)</span>
+                <span>Flambé / 2DKit (legacy)</span>
               </p>
             </div>
             <div ref={addToRefs} className={divClassLt}></div>
@@ -391,8 +391,8 @@ const CurriculumVitae: React.FC = () => {
                 <span>Image Processing</span>
                 <span>Tween Engines</span>
                 <span>Headless CMS</span>
-                <span>DHTML (previous)</span>
-                <span>Game UI Frameworks (previous)</span>
+                <span>DHTML (legacy)</span>
+                <span>Game UI Frameworks (legacy)</span>
               </p>
             </div>
             <div ref={addToRefs} className={divClassLt}></div>
@@ -427,9 +427,9 @@ const CurriculumVitae: React.FC = () => {
                 <span>ChatGPT</span>
                 <span>Copilot AI</span>
                 <span>Perplexity AI</span>
-                <span>Grunt (previous)</span>
-                <span>Gulp (previous)</span>
-                <span>Create / Easel (previous)</span>
+                <span>Grunt (legacy)</span>
+                <span>Gulp (legacy)</span>
+                <span>Create / Easel (legacy)</span>
               </p>
             </div>
             <div ref={addToRefs} className={divClassLt}></div>

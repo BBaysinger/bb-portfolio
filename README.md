@@ -6,7 +6,7 @@ The project merges design experimentation with the discipline of scalable, cloud
 
 Core interface systems include a **parallax-layered carousel**, a **multi-renderer sprite engine**, and an experimental **'Fluxel'** (fluxing pixel) grid that reacts to physics projectile collisions.  
 Every motion and frame transition is built natively — no external 3D, physics, or sprite libraries.  
-The surrounding infrastructure (Terraform, Docker, AWS, GitHub Actions) exists as production-level rigor: CI/CD, secrets pipelines, multi-environment orchestration, and cloud resource hygiene.
+The surrounding infrastructure (Terraform, Docker, AWS, GitHub Actions) exists as production-level rigor: CI/CD, secrets pipelines, multi-environment service orchestration and deployment automation, and cloud resource hygiene.
 
 > **Monorepo Note:** This repo contains the portfolio app plus (extensive) internal deployment tooling (scripts, CI/CD helpers). This will all migrate to a separate repo, as time allows.
 
@@ -381,7 +381,7 @@ Envs: `local`, `dev`, `prod`.
 ### Deployment & config
 
 - `orchestrate` — Full orchestrated redeploy (builds images, deploys both profiles, refreshes env files)
-- Nginx config sync is automated during orchestration; no manual step required
+- Nginx config sync is automated during service orchestration and deployment automation; no manual step required
 
 Note: `orchestrate` runs `bash deploy/scripts/deployment-orchestrator.sh --profiles both --refresh-env`
 
@@ -830,7 +830,7 @@ terraform apply   # Create/update AWS resources
 terraform destroy # Full teardown (guarded)
 ```
 
-Runtime & orchestration lifecycle (summary):
+Runtime & service orchestration and deployment automation lifecycle (summary):
 
 1. Terraform ensures EC2, IAM, S3, ECR, Route 53, SES, etc. exist & are current.
 2. EC2 user_data bootstraps Docker + proxy services.
@@ -876,7 +876,7 @@ Helper scripts (from `infra/bb-portfolio-management.sh`):
 ### 📊 Infrastructure Components
 
 - Infrastructure as Code with Terraform
-- Container orchestration with Docker and systemd
+- Service orchestration and deployment automation with Docker and systemd
 - Automated deployment workflows
 - System reliability with auto-restart and health monitoring
 
