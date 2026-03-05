@@ -17,6 +17,7 @@ import React from "react";
 import Greeting from "@/components/home-page/Greeting";
 import Hero from "@/components/home-page/header-main/Hero";
 import HomePageClient from "@/components/home-page/HomePageClient";
+import { getServerHeroBranding } from "@/data/HeroBranding";
 import { ProjectDataStore } from "@/data/ProjectData";
 
 /**
@@ -52,10 +53,11 @@ const HomePage = async () => {
   );
   const ssrAuthenticated = false;
   const ssrIncludeNdaInActive = false;
+  const heroBranding = await getServerHeroBranding();
 
   return (
     <>
-      <Hero />
+      <Hero initialRoleTitle={heroBranding.activeRoleTitle} />
       <Greeting />
       <HomePageClient
         ssrProjects={ssrProjects}

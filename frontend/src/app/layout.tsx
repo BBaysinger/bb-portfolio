@@ -15,6 +15,7 @@ import { ReactNode, Suspense } from "react";
 
 import SkipLink from "@/components/common/SkipLink";
 import { GoogleAnalytics } from "@/components/GoogleAnalytics";
+import { getServerHeroBranding } from "@/data/HeroBranding";
 import { roboto } from "@/fonts";
 
 import { AppShell } from "./AppShell";
@@ -35,7 +36,13 @@ import "@/styles/styles.scss";
  *
  * @param children - The routed page content.
  */
-export default function RootLayout({ children }: { children: ReactNode }) {
+export default async function RootLayout({
+  children,
+}: {
+  children: ReactNode;
+}) {
+  const heroBranding = await getServerHeroBranding();
+
   return (
     <html lang="en">
       <head>
@@ -64,7 +71,12 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <EnvironmentClassInitializer />
         <SkipLink />
         <AppProviders>
-          <AppShell>{children}</AppShell>
+          <AppShell
+            initialRoleTitle={heroBranding.activeRoleTitle}
+            initialRoleLetterSpacing={heroBranding.activeRoleLetterSpacing}
+          >
+            {children}
+          </AppShell>
         </AppProviders>
       </body>
     </html>

@@ -34,12 +34,22 @@ import ScrollToHash from "@/utils/ScrollToHash";
 
 import styles from "./AppShell.module.scss";
 
+type AppShellProps = {
+  children: React.ReactNode;
+  initialRoleTitle?: string;
+  initialRoleLetterSpacing?: string;
+};
+
 /**
  * App shell wrapper for all routed pages.
  *
  * @param children - Route content rendered within the shell.
  */
-export function AppShell({ children }: { children: React.ReactNode }) {
+export function AppShell({
+  children,
+  initialRoleTitle,
+  initialRoleLetterSpacing,
+}: AppShellProps) {
   const router = useRouter();
   const pathname = usePathname();
   const dispatch = useAppDispatch();
@@ -377,11 +387,19 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         reduceMotion && "reduce-motion",
       )}
     >
-      <NavVariant variant={NavVariants.SLIDE_OUT} />
+      <NavVariant
+        variant={NavVariants.SLIDE_OUT}
+        initialRoleTitle={initialRoleTitle}
+        initialRoleLetterSpacing={initialRoleLetterSpacing}
+      />
       {/* Anchor target for in-page navigation / scroll-to-top behaviors. */}
       <div id="top" style={{ position: "absolute", top: 0 }} />
       <div className={styles.underlay} />
-      <NavVariant variant={NavVariants.TOP_BAR} />
+      <NavVariant
+        variant={NavVariants.TOP_BAR}
+        initialRoleTitle={initialRoleTitle}
+        initialRoleLetterSpacing={initialRoleLetterSpacing}
+      />
       {/*
         SkipLink target. `tabIndex={-1}` allows programmatic focus after clicking
         the skip link, without inserting it into the normal tab order.

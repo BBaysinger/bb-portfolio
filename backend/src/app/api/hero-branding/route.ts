@@ -8,17 +8,58 @@ import { NextResponse } from 'next/server'
 import { getPayload } from 'payload'
 
 const DEFAULT_TITLE = 'Front-End / UI Developer'
-const DEFAULT_SPACING = 0.12
+const DEFAULT_SPACING_TOKEN = '0.12em'
+const LETTER_SPACING_TOKEN_REGEX = /^\s*(-?(?:\d+|\d*\.\d+))\s*(em|rem|px)\s*$/i
 
-const coerceSpacing = (value: unknown, fallback: number): number => {
-  if (typeof value !== 'number' || Number.isNaN(value)) return fallback
+const clampSpacingByUnit = (value: number, unit: string): number => {
+  if (unit === 'px') {
+    return Math.max(-4, Math.min(8, value))
+  }
+
   return Math.max(-0.2, Math.min(0.4, value))
+}
+
+const toSpacingToken = (value: unknown, fallback: string): string => {
+  if (typeof value !== 'string' || !value.trim()) return fallback
+
+  const match = value.match(LETTER_SPACING_TOKEN_REGEX)
+  if (!match) return fallback
+
+  const numeric = Number.parseFloat(match[1])
+  const unit = match[2].toLowerCase()
+  const clamped = clampSpacingByUnit(numeric, unit)
+
+  return `${clamped}${unit}`
+}
+
+const spacingTokenFromLegacyFields = (
+  spacingValue: unknown,
+  spacingUnit: unknown,
+  spacingEm: unknown,
+  fallback: string,
+): string => {
+  if (typeof spacingValue === 'number' && !Number.isNaN(spacingValue)) {
+    const unit =
+      spacingUnit === 'em' || spacingUnit === 'rem' || spacingUnit === 'px' ? spacingUnit : 'em'
+    const clamped = clampSpacingByUnit(spacingValue, unit)
+    return `${clamped}${unit}`
+  }
+
+  if (typeof spacingEm === 'number' && !Number.isNaN(spacingEm)) {
+    const clamped = clampSpacingByUnit(spacingEm, 'em')
+    return `${clamped}em`
+  }
+
+  return fallback
 }
 
 type RoleVariant = {
   presetLabel?: unknown
   title?: unknown
+  letterSpacing?: unknown
+  letterSpacingValue?: unknown
   letterSpacingEm?: unknown
+  letterSpacingUnit?: unknown
   isActive?: unknown
 }
 
@@ -47,6 +88,14 @@ export async function GET() {
     const active = getActiveVariant(variants)
     const activeTitle =
       typeof active?.title === 'string' && active.title.trim() ? active.title.trim() : DEFAULT_TITLE
+    const activeSpacingToken =
+      toSpacingToken(active?.letterSpacing, '') ||
+      spacingTokenFromLegacyFields(
+        active?.letterSpacingValue,
+        active?.letterSpacingUnit,
+        active?.letterSpacingEm,
+        DEFAULT_SPACING_TOKEN,
+      )
     const activePresetLabel =
       typeof active?.presetLabel === 'string' && active.presetLabel.trim()
         ? active.presetLabel.trim()
@@ -56,12 +105,26 @@ export async function GET() {
       success: true,
       data: {
         activeRoleTitle: activeTitle,
-        activeRoleLetterSpacingEm: coerceSpacing(active?.letterSpacingEm, DEFAULT_SPACING),
+        activeRoleLetterSpacing: activeSpacingToken,
+        // Keep split values only as compatibility output.
+        activeRoleLetterSpacingValue: Number.parseFloat(activeSpacingToken),
+        activeRoleLetterSpacingUnit: activeSpacingToken.replace(/^-?(?:\d+|\d*\.\d+)/, ''),
+        // Backward compatibility for existing frontend consumers.
+        activeRoleLetterSpacingEm: Number.parseFloat(activeSpacingToken),
         activeRolePresetLabel: activePresetLabel,
         roleVariants: variants
           .map((item) => {
             const title = typeof item?.title === 'string' ? item.title.trim() : ''
             if (!title) return null
+
+            const spacingToken =
+              toSpacingToken(item?.letterSpacing, '') ||
+              spacingTokenFromLegacyFields(
+                item?.letterSpacingValue,
+                item?.letterSpacingUnit,
+                item?.letterSpacingEm,
+                DEFAULT_SPACING_TOKEN,
+              )
 
             return {
               presetLabel:
@@ -69,7 +132,11 @@ export async function GET() {
                   ? item.presetLabel.trim()
                   : 'Role',
               title,
-              letterSpacingEm: coerceSpacing(item?.letterSpacingEm, DEFAULT_SPACING),
+              letterSpacing: spacingToken,
+              letterSpacingValue: Number.parseFloat(spacingToken),
+              letterSpacingUnit: spacingToken.replace(/^-?(?:\d+|\d*\.\d+)/, ''),
+              // Backward compatibility for existing frontend consumers.
+              letterSpacingEm: Number.parseFloat(spacingToken),
               isActive: item?.isActive === true,
             }
           })
