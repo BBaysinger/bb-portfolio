@@ -66,10 +66,7 @@ export async function GET() {
       overrideAccess: true,
     })
 
-    const items = (Array.isArray(cvExperience?.experienceItems)
-      ? cvExperience.experienceItems
-      : []
-    )
+    const items = (Array.isArray(cvExperience?.experienceItems) ? cvExperience.experienceItems : [])
       .map((entry: unknown) => {
         if (!entry || typeof entry !== 'object') return null
         const item = entry as ExperienceItem

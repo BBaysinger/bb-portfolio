@@ -45,8 +45,9 @@ const CurriculumVitae: React.FC = () => {
   );
   const rowClass = clsx("row", styles.row);
 
-  const [cvExperienceItems, setCvExperienceItems] =
-    React.useState<CvExperienceItemData[]>([]);
+  const [cvExperienceItems, setCvExperienceItems] = React.useState<
+    CvExperienceItemData[]
+  >([]);
 
   React.useEffect(() => {
     let cancelled = false;

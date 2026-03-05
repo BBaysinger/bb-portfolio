@@ -60,7 +60,8 @@ const ExperienceItemBlock: Block = {
       minRows: 1,
       required: true,
       admin: {
-        description: 'Reorder these rows to change bullet order. Disable a row to hide it on the CV.',
+        description:
+          'Reorder these rows to change bullet order. Disable a row to hide it on the CV.',
       },
       fields: [
         {
