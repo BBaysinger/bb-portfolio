@@ -29,21 +29,16 @@ type DebounceMap = Partial<Record<EventType, number>>;
 
 /*
  * TODO: Future refinement:
- * 1. Callback identity currently resides in the effect deps, so an
- *    un-memoized callback forces observer teardown/recreation and resets all
- *    timers. We should either document this clearly or capture callbacks via a
- *    ref to shield consumers from misuse.
- * 2. Event payload typing is intentionally broad (`Event`), even though
+ * 1. Event payload typing is intentionally broad (`Event`), even though
  *    `ResizeObserver` and `MutationObserver` emit different shapes. Consider
  *    renaming the parameter to `payload` or relaxing typing further to avoid
  *    implying native `Event` semantics.
- * 3. The RAF-driven position probe never yields; providing an escape hatch for
- *    hidden tabs or `display:none` targets (e.g., pause on `visibilitychange`)
- *    may be useful when this runs in resource-sensitive contexts.
- * 4. Inline `debounceMap` objects will churn the effect dependencies. Either
- *    document the expectation to memoize the map or explore internal guards if
- *    this becomes a common footgun.
- * 5. Audit usage to ensure consumers aren't over-subscribing to both element and
+ * 2. The RAF-driven position probe is now opt-in by default (`position: -1`) and
+ *    pauses when the page is hidden, but it still runs continuously while
+ *    visible. Keep this enabled only where movement tracking is necessary.
+ * 3. Consider consolidating shared trigger/observer wiring across the element
+ *    hooks to reduce duplication and keep behavior changes centralized.
+ * 4. Audit usage to ensure consumers aren't over-subscribing to both element and
  *    window monitors when only one is needed.
  */
 
@@ -66,10 +61,13 @@ const WINDOW_EVENTS: [WindowEventType, string][] = [
  *   hook is inert until the ref resolves to a truthy element.
  * @param callback - Invoked after the configured debounce delay with the
  *   originating event type (`"resize"`, `"mutate"`, or `"position"`). Receives
- *   the native event when one exists (e.g., mutation records).
+ *   the native event when one exists (e.g., mutation records). Callback
+ *   identity may change across renders; observers remain stable and always call
+ *   the latest callback.
  * @param debounceMap - Optional per-event debounce overrides in milliseconds;
  *   defaults fall back to {@link getDefaultDebounce}. Set `-1` to disable a
- *   particular signal entirely.
+ *   particular signal entirely. Debounce settings are read from a ref so
+ *   inline object identities do not force observer re-subscription.
  */
 export function useElementMonitor<T extends Element>(
   targetRef: React.RefObject<T | null>,
@@ -77,6 +75,16 @@ export function useElementMonitor<T extends Element>(
   debounceMap: DebounceMap = {},
 ) {
   const debounceRefs = useRef<Partial<Record<ElementEventType, number>>>({});
+  const callbackRef = useRef(callback);
+  const debounceMapRef = useRef(debounceMap);
+
+  useEffect(() => {
+    callbackRef.current = callback;
+  }, [callback]);
+
+  useEffect(() => {
+    debounceMapRef.current = debounceMap;
+  }, [debounceMap]);
 
   useEffect(() => {
     const el = targetRef.current;
@@ -85,28 +93,32 @@ export function useElementMonitor<T extends Element>(
     const localDebounceRefs = debounceRefs.current;
 
     const trigger = (type: ElementEventType, event?: Event) => {
-      const debounce = debounceMap[type] ?? getDefaultDebounce(type);
+      const debounce = debounceMapRef.current[type] ?? getDefaultDebounce(type);
       if (debounce === -1) return;
 
       if (debounce === 0) {
-        callback(type, event);
+        callbackRef.current(type, event);
       } else {
         window.clearTimeout(localDebounceRefs[type]);
         localDebounceRefs[type] = window.setTimeout(() => {
-          callback(type, event);
+          callbackRef.current(type, event);
         }, debounce);
       }
     };
 
     const observers: (() => void)[] = [];
 
-    if ((debounceMap.resize ?? getDefaultDebounce("resize")) !== -1) {
+    if (
+      (debounceMapRef.current.resize ?? getDefaultDebounce("resize")) !== -1
+    ) {
       const resizeObserver = new ResizeObserver(() => trigger("resize"));
       resizeObserver.observe(el);
       observers.push(() => resizeObserver.disconnect());
     }
 
-    if ((debounceMap.mutate ?? getDefaultDebounce("mutate")) !== -1) {
+    if (
+      (debounceMapRef.current.mutate ?? getDefaultDebounce("mutate")) !== -1
+    ) {
       const mutationObserver = new MutationObserver(() => trigger("mutate"));
       mutationObserver.observe(el, {
         attributes: true,
@@ -117,31 +129,58 @@ export function useElementMonitor<T extends Element>(
     }
 
     const positionDebounce =
-      debounceMap.position ?? getDefaultDebounce("position");
+      debounceMapRef.current.position ?? getDefaultDebounce("position");
     if (positionDebounce !== -1) {
       let lastX = 0;
       let lastY = 0;
-      let frameId: number;
+      let frameId: number | null = null;
+
+      const startPositionLoop = () => {
+        if (frameId !== null) return;
+        frameId = requestAnimationFrame(checkPosition);
+      };
+
+      const stopPositionLoop = () => {
+        if (frameId === null) return;
+        cancelAnimationFrame(frameId);
+        frameId = null;
+      };
+
+      const onVisibilityChange = () => {
+        if (document.visibilityState === "visible") {
+          startPositionLoop();
+        } else {
+          stopPositionLoop();
+        }
+      };
 
       const checkPosition = () => {
+        frameId = null;
         const rect = el.getBoundingClientRect();
         if (rect.left !== lastX || rect.top !== lastY) {
           lastX = rect.left;
           lastY = rect.top;
           trigger("position");
         }
-        frameId = requestAnimationFrame(checkPosition);
+        startPositionLoop();
       };
 
-      frameId = requestAnimationFrame(checkPosition);
-      observers.push(() => cancelAnimationFrame(frameId));
+      if (document.visibilityState === "visible") {
+        startPositionLoop();
+      }
+
+      document.addEventListener("visibilitychange", onVisibilityChange);
+      observers.push(() => {
+        document.removeEventListener("visibilitychange", onVisibilityChange);
+        stopPositionLoop();
+      });
     }
 
     return () => {
       observers.forEach((dispose) => dispose());
       Object.values(localDebounceRefs).forEach((id) => window.clearTimeout(id));
     };
-  }, [targetRef, callback, debounceMap]);
+  }, [targetRef]);
 }
 
 /**
@@ -150,6 +189,10 @@ export function useElementMonitor<T extends Element>(
  * Useful when you already have an `Element` reference (instead of a React
  * `ref`), e.g. when observing a parent/sibling like `ref.current?.parentElement`.
  * The effect re-binds when the element reference changes.
+ *
+ * Callback identity may change across renders; observers remain stable and
+ * always call the latest callback. Debounce settings are also read from a ref
+ * to avoid observer churn when inline maps are used.
  */
 export function useElementMonitorElement<T extends Element>(
   target: T | null,
@@ -157,6 +200,16 @@ export function useElementMonitorElement<T extends Element>(
   debounceMap: DebounceMap = {},
 ) {
   const debounceRefs = useRef<Partial<Record<ElementEventType, number>>>({});
+  const callbackRef = useRef(callback);
+  const debounceMapRef = useRef(debounceMap);
+
+  useEffect(() => {
+    callbackRef.current = callback;
+  }, [callback]);
+
+  useEffect(() => {
+    debounceMapRef.current = debounceMap;
+  }, [debounceMap]);
 
   useEffect(() => {
     const el = target;
@@ -165,28 +218,32 @@ export function useElementMonitorElement<T extends Element>(
     const localDebounceRefs = debounceRefs.current;
 
     const trigger = (type: ElementEventType, event?: Event) => {
-      const debounce = debounceMap[type] ?? getDefaultDebounce(type);
+      const debounce = debounceMapRef.current[type] ?? getDefaultDebounce(type);
       if (debounce === -1) return;
 
       if (debounce === 0) {
-        callback(type, event);
+        callbackRef.current(type, event);
       } else {
         window.clearTimeout(localDebounceRefs[type]);
         localDebounceRefs[type] = window.setTimeout(() => {
-          callback(type, event);
+          callbackRef.current(type, event);
         }, debounce);
       }
     };
 
     const observers: (() => void)[] = [];
 
-    if ((debounceMap.resize ?? getDefaultDebounce("resize")) !== -1) {
+    if (
+      (debounceMapRef.current.resize ?? getDefaultDebounce("resize")) !== -1
+    ) {
       const resizeObserver = new ResizeObserver(() => trigger("resize"));
       resizeObserver.observe(el);
       observers.push(() => resizeObserver.disconnect());
     }
 
-    if ((debounceMap.mutate ?? getDefaultDebounce("mutate")) !== -1) {
+    if (
+      (debounceMapRef.current.mutate ?? getDefaultDebounce("mutate")) !== -1
+    ) {
       const mutationObserver = new MutationObserver(() => trigger("mutate"));
       mutationObserver.observe(el, {
         attributes: true,
@@ -197,31 +254,58 @@ export function useElementMonitorElement<T extends Element>(
     }
 
     const positionDebounce =
-      debounceMap.position ?? getDefaultDebounce("position");
+      debounceMapRef.current.position ?? getDefaultDebounce("position");
     if (positionDebounce !== -1) {
       let lastX = 0;
       let lastY = 0;
-      let frameId: number;
+      let frameId: number | null = null;
+
+      const startPositionLoop = () => {
+        if (frameId !== null) return;
+        frameId = requestAnimationFrame(checkPosition);
+      };
+
+      const stopPositionLoop = () => {
+        if (frameId === null) return;
+        cancelAnimationFrame(frameId);
+        frameId = null;
+      };
+
+      const onVisibilityChange = () => {
+        if (document.visibilityState === "visible") {
+          startPositionLoop();
+        } else {
+          stopPositionLoop();
+        }
+      };
 
       const checkPosition = () => {
+        frameId = null;
         const rect = el.getBoundingClientRect();
         if (rect.left !== lastX || rect.top !== lastY) {
           lastX = rect.left;
           lastY = rect.top;
           trigger("position");
         }
-        frameId = requestAnimationFrame(checkPosition);
+        startPositionLoop();
       };
 
-      frameId = requestAnimationFrame(checkPosition);
-      observers.push(() => cancelAnimationFrame(frameId));
+      if (document.visibilityState === "visible") {
+        startPositionLoop();
+      }
+
+      document.addEventListener("visibilitychange", onVisibilityChange);
+      observers.push(() => {
+        document.removeEventListener("visibilitychange", onVisibilityChange);
+        stopPositionLoop();
+      });
     }
 
     return () => {
       observers.forEach((dispose) => dispose());
       Object.values(localDebounceRefs).forEach((id) => window.clearTimeout(id));
     };
-  }, [target, callback, debounceMap]);
+  }, [target]);
 }
 
 /**
@@ -235,9 +319,13 @@ export function useElementMonitorElement<T extends Element>(
  * @param targetRef - React ref for the element whose layout depends on the
  *   global signals. Used only as a lifecycle anchor.
  * @param callback - Receives the originating window event type plus the native
- *   `Event` object after the debounce interval elapses.
+ *   `Event` object after the debounce interval elapses. Callback identity may
+ *   change across renders; listeners remain stable and always call the latest
+ *   callback.
  * @param debounceMap - Optional debounce overrides mirroring
  *   {@link useElementMonitor}. Pass `-1` to opt out of any window event.
+ *   Debounce settings are read from a ref so inline object identities do not
+ *   force listener re-subscription.
  */
 export function useWindowMonitor<T extends Element>(
   targetRef: React.RefObject<T | null>,
@@ -245,6 +333,16 @@ export function useWindowMonitor<T extends Element>(
   debounceMap: DebounceMap = {},
 ) {
   const debounceRefs = useRef<Partial<Record<WindowEventType, number>>>({});
+  const callbackRef = useRef(callback);
+  const debounceMapRef = useRef(debounceMap);
+
+  useEffect(() => {
+    callbackRef.current = callback;
+  }, [callback]);
+
+  useEffect(() => {
+    debounceMapRef.current = debounceMap;
+  }, [debounceMap]);
 
   useEffect(() => {
     const el = targetRef.current;
@@ -253,15 +351,15 @@ export function useWindowMonitor<T extends Element>(
     const localDebounceRefs = debounceRefs.current;
 
     const trigger = (type: WindowEventType, event?: Event) => {
-      const debounce = debounceMap[type] ?? getDefaultDebounce(type);
+      const debounce = debounceMapRef.current[type] ?? getDefaultDebounce(type);
       if (debounce === -1) return;
 
       if (debounce === 0) {
-        callback(type, event);
+        callbackRef.current(type, event);
       } else {
         window.clearTimeout(localDebounceRefs[type]);
         localDebounceRefs[type] = window.setTimeout(() => {
-          callback(type, event);
+          callbackRef.current(type, event);
         }, debounce);
       }
     };
@@ -269,8 +367,6 @@ export function useWindowMonitor<T extends Element>(
     const disposers: (() => void)[] = [];
 
     for (const [type, eventName] of WINDOW_EVENTS) {
-      if ((debounceMap[type] ?? getDefaultDebounce(type)) === -1) continue;
-
       const handler = (e: Event) => trigger(type, e);
       window.addEventListener(eventName, handler, { passive: true });
       disposers.push(() => window.removeEventListener(eventName, handler));
@@ -280,7 +376,7 @@ export function useWindowMonitor<T extends Element>(
       disposers.forEach((dispose) => dispose());
       Object.values(localDebounceRefs).forEach((id) => window.clearTimeout(id));
     };
-  }, [targetRef, callback, debounceMap]);
+  }, [targetRef]);
 }
 
 /**
@@ -312,10 +408,12 @@ export function useLayoutMonitor<T extends Element>(
 function getDefaultDebounce(type: EventType): number {
   switch (type) {
     case "resize":
-    case "position":
     case "orientationchange":
     case "mutate":
       return 50;
+    case "position":
+      // Position checks use RAF polling; keep this opt-in by default.
+      return -1;
     case "scroll":
     case "visibilitychange":
     case "fullscreenchange":

@@ -8,6 +8,14 @@ import { getViewportHeightPx } from "@/utils/viewport";
 import { useWindowMonitor } from "./useLayoutMonitor";
 import { useViewportSettle } from "./viewportSettle";
 
+const WINDOW_MONITOR_DEBOUNCE = {
+  resize: 0,
+  orientationchange: 0,
+  fullscreenchange: -1,
+  scroll: -1,
+  visibilitychange: -1,
+} as const;
+
 export interface UseStableViewportHeightVarOptions {
   cssVarName?: string;
   widthChangeThresholdPx?: number;
@@ -36,6 +44,8 @@ export default function useStableViewportHeightVar(
     options;
 
   const lastWidthRef = useRef<number | null>(null);
+  const resizeSettleTimeoutRef = useRef<number | null>(null);
+  const resizeRafRef = useRef<number | null>(null);
 
   const measureStableHeightPx = useCallback(() => {
     const el = elementRef.current;
@@ -47,9 +57,33 @@ export default function useStableViewportHeightVar(
     }
   }, [cssVarName, elementRef]);
 
+  const scheduleTrailingMeasure = useCallback(() => {
+    if (resizeSettleTimeoutRef.current !== null) {
+      window.clearTimeout(resizeSettleTimeoutRef.current);
+    }
+
+    // Always run one trailing measurement after viewport activity settles,
+    // including small width changes that stay below the immediate threshold.
+    resizeSettleTimeoutRef.current = window.setTimeout(() => {
+      resizeSettleTimeoutRef.current = null;
+      if (resizeRafRef.current !== null) {
+        window.cancelAnimationFrame(resizeRafRef.current);
+      }
+      resizeRafRef.current = window.requestAnimationFrame(() => {
+        resizeRafRef.current = null;
+        lastWidthRef.current = window.innerWidth;
+        measureStableHeightPx();
+      });
+    }, 120);
+  }, [measureStableHeightPx]);
+
   const onWindowEvent = useCallback(
     (eventType: string) => {
       if (eventType === "orientationchange") {
+        if (resizeSettleTimeoutRef.current !== null) {
+          window.clearTimeout(resizeSettleTimeoutRef.current);
+          resizeSettleTimeoutRef.current = null;
+        }
         measureStableHeightPx();
         return;
       }
@@ -65,24 +99,50 @@ export default function useStableViewportHeightVar(
       }
 
       const widthDelta = Math.abs(width - lastWidth);
-      if (widthDelta < widthChangeThresholdPx) return;
+      if (widthDelta >= widthChangeThresholdPx) {
+        lastWidthRef.current = width;
+        measureStableHeightPx();
+      }
 
-      lastWidthRef.current = width;
-      measureStableHeightPx();
+      scheduleTrailingMeasure();
     },
-    [measureStableHeightPx, widthChangeThresholdPx],
+    [measureStableHeightPx, scheduleTrailingMeasure, widthChangeThresholdPx],
   );
 
-  useWindowMonitor(elementRef, (eventType) => onWindowEvent(eventType), {
-    resize: 0,
-    orientationchange: 0,
-    fullscreenchange: -1,
-    scroll: -1,
-    visibilitychange: -1,
-  });
+  useWindowMonitor(elementRef, onWindowEvent, WINDOW_MONITOR_DEBOUNCE);
+
+  useEffect(() => {
+    const viewport = window.visualViewport;
+    if (!viewport) return;
+
+    const onVisualViewportChange = () => {
+      scheduleTrailingMeasure();
+    };
+
+    viewport.addEventListener("resize", onVisualViewportChange, {
+      passive: true,
+    });
+    viewport.addEventListener("scroll", onVisualViewportChange, {
+      passive: true,
+    });
+
+    return () => {
+      viewport.removeEventListener("resize", onVisualViewportChange);
+      viewport.removeEventListener("scroll", onVisualViewportChange);
+    };
+  }, [scheduleTrailingMeasure]);
 
   useEffect(() => {
     lastWidthRef.current = window.innerWidth;
+
+    return () => {
+      if (resizeSettleTimeoutRef.current !== null) {
+        window.clearTimeout(resizeSettleTimeoutRef.current);
+      }
+      if (resizeRafRef.current !== null) {
+        window.cancelAnimationFrame(resizeRafRef.current);
+      }
+    };
   }, []);
 
   const onViewportSettle = useCallback(() => {
