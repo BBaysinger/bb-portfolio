@@ -71,6 +71,7 @@ export interface Config {
     authEvents: AuthEvent;
     projects: Project;
     brands: Brand;
+    cvExperienceLogos: CvExperienceLogo;
     brandLogos: BrandLogo;
     projectScreenshots: ProjectScreenshot;
     projectThumbnails: ProjectThumbnail;
@@ -85,6 +86,7 @@ export interface Config {
     authEvents: AuthEventsSelect<false> | AuthEventsSelect<true>;
     projects: ProjectsSelect<false> | ProjectsSelect<true>;
     brands: BrandsSelect<false> | BrandsSelect<true>;
+    cvExperienceLogos: CvExperienceLogosSelect<false> | CvExperienceLogosSelect<true>;
     brandLogos: BrandLogosSelect<false> | BrandLogosSelect<true>;
     projectScreenshots: ProjectScreenshotsSelect<false> | ProjectScreenshotsSelect<true>;
     projectThumbnails: ProjectThumbnailsSelect<false> | ProjectThumbnailsSelect<true>;
@@ -100,15 +102,18 @@ export interface Config {
   globals: {
     contactInfo: ContactInfo;
     heroBranding: HeroBranding;
+    cvExperience: CvExperience;
   };
   globalsSelect: {
     contactInfo: ContactInfoSelect<false> | ContactInfoSelect<true>;
     heroBranding: HeroBrandingSelect<false> | HeroBrandingSelect<true>;
+    cvExperience: CvExperienceSelect<false> | CvExperienceSelect<true>;
   };
   locale: null;
-  user: User & {
-    collection: 'users';
+  widgets: {
+    collections: CollectionsWidget;
   };
+  user: User;
   jobs: {
     tasks: unknown;
     workflows: unknown;
@@ -171,6 +176,7 @@ export interface User {
       }[]
     | null;
   password?: string | null;
+  collection: 'users';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -442,6 +448,28 @@ export interface ProjectThumbnail {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "cvExperienceLogos".
+ */
+export interface CvExperienceLogo {
+  id: string;
+  /**
+   * Accessible description for the CV logo.
+   */
+  alt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -479,6 +507,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'brands';
         value: string | Brand;
+      } | null)
+    | ({
+        relationTo: 'cvExperienceLogos';
+        value: string | CvExperienceLogo;
       } | null)
     | ({
         relationTo: 'brandLogos';
@@ -649,6 +681,24 @@ export interface BrandsSelect<T extends boolean = true> {
   website?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "cvExperienceLogos_select".
+ */
+export interface CvExperienceLogosSelect<T extends boolean = true> {
+  alt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -858,6 +908,41 @@ export interface HeroBranding {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "cvExperience".
+ */
+export interface CvExperience {
+  id: string;
+  /**
+   * Each row is one CV experience component. Drag and drop to control render order on the frontend.
+   */
+  experienceItems: {
+    /**
+     * Upload/select the company logo to render for this experience item.
+     */
+    logo?: (string | null) | CvExperienceLogo;
+    company: string;
+    location: string;
+    title: string;
+    description: string;
+    technicalScope: string;
+    date: string;
+    /**
+     * Reorder these rows to change bullet order. Disable a row to hide it on the CV.
+     */
+    bulletPoints: {
+      text: string;
+      enabled: boolean;
+      id?: string | null;
+    }[];
+    id?: string | null;
+    blockName?: string | null;
+    blockType: 'experienceItem';
+  }[];
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "contactInfo_select".
  */
 export interface ContactInfoSelect<T extends boolean = true> {
@@ -885,6 +970,49 @@ export interface HeroBrandingSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "cvExperience_select".
+ */
+export interface CvExperienceSelect<T extends boolean = true> {
+  experienceItems?:
+    | T
+    | {
+        experienceItem?:
+          | T
+          | {
+              logo?: T;
+              company?: T;
+              location?: T;
+              title?: T;
+              description?: T;
+              technicalScope?: T;
+              date?: T;
+              bulletPoints?:
+                | T
+                | {
+                    text?: T;
+                    enabled?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "collections_widget".
+ */
+export interface CollectionsWidget {
+  data?: {
+    [k: string]: unknown;
+  };
+  width: 'full';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

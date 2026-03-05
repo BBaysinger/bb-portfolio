@@ -17,11 +17,13 @@ import { buildConfig } from 'payload'
 import { AuthEvents } from './collections/AuthEvents'
 import { BrandLogos } from './collections/BrandLogos'
 import { Clients } from './collections/Brands'
+import { CvExperienceLogos } from './collections/CvExperienceLogos'
 import { Projects } from './collections/Projects'
 import { ProjectScreenshots } from './collections/ProjectScreenshots'
 import { ProjectThumbnails } from './collections/ProjectThumbnails'
 import { Users } from './collections/Users'
 import { ContactInfo } from './globals/ContactInfo'
+import { CvExperience } from './globals/CvExperience'
 import { HeroBranding } from './globals/HeroBranding'
 
 // ===============================================================
@@ -82,8 +84,12 @@ const mongoURL = requireEnv('MONGODB_URI', {
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
+type ExpressLike = {
+  set?: (setting: string, value: unknown) => unknown
+}
+
 type PayloadWithExpress = {
-  express?: import('express').Express
+  express?: ExpressLike
 }
 
 const resolvedServerURL =
@@ -163,11 +169,12 @@ export default buildConfig({
     AuthEvents,
     Projects,
     Clients,
+    CvExperienceLogos,
     BrandLogos,
     ProjectScreenshots,
     ProjectThumbnails,
   ],
-  globals: [ContactInfo, HeroBranding],
+  globals: [ContactInfo, HeroBranding, CvExperience],
   editor: lexicalEditor(),
   // Enforce prefixed payload secret by environment profile
   secret: (() => {
@@ -203,6 +210,7 @@ export default buildConfig({
       ? [
           s3Storage({
             collections: {
+              cvExperienceLogos: { prefix: 'cv-experience-logos' },
               brandLogos: { prefix: 'brand-logos' },
               projectScreenshots: { prefix: 'project-screenshots' },
               projectThumbnails: { prefix: 'project-thumbnails' },
@@ -264,6 +272,8 @@ export default buildConfig({
   })(),
   onInit: async (payload) => {
     const expressApp = (payload as typeof payload & PayloadWithExpress).express
-    expressApp?.set('trust proxy', true)
+    if (expressApp?.set) {
+      expressApp.set('trust proxy', true)
+    }
   },
 })
