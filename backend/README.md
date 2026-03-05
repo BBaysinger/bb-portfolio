@@ -84,8 +84,8 @@ Note for local Docker Compose:
 The backend has a small set of scripts under `backend/scripts/`.
 
 - **Media + S3 bootstrap/migration runbook:** see [docs/uploads-and-migration.md](../docs/uploads-and-migration.md)
-- **Migration:** `backend/scripts/migrate-media-to-s3.ts` (invoked by root `npm run migrate:media-urls:*`)
-- **Export:** `backend/scripts/export-local-database.ts` (manual dump helper for select collections)
-- **Recovery:** `backend/scripts/rebuild-media-records.ts` (reconstruct media docs from S3; review assumptions before running)
+- **Migration:** `backend/scripts/ops/ops-db-migrate-media-urls-to-s3.ts` (invoked by root `npm run migrate:media-urls:*`)
+- **Export:** `backend/scripts/ops/ops-db-export-local-database.ts` (manual dump helper for select collections)
+- **Recovery:** `backend/scripts/ops/ops-db-rebuild-media-records-from-s3.ts` (reconstruct media docs from S3; review assumptions before running)
 
 Some one-off migration/backfill scripts may be removed over time after the relevant migrations complete.

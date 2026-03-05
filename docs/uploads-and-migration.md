@@ -81,8 +81,8 @@ If you're missing S3 permissions locally, you can run the upload step from the E
 
 Advanced / recovery scripts (manual, use with care):
 
-- `backend/scripts/export-local-database.ts`: dumps a subset of local collections to `dump/local-export/*` for manual import workflows.
-- `backend/scripts/rebuild-media-records.ts`: attempts to reconstruct Payload media documents from S3 object listings.
+- `backend/scripts/ops/ops-db-export-local-database.ts`: dumps a subset of local collections to `dump/local-export/*` for manual import workflows.
+- `backend/scripts/ops/ops-db-rebuild-media-records-from-s3.ts`: attempts to reconstruct Payload media documents from S3 object listings.
   - This is intended for disaster recovery / reconstruction scenarios.
   - It currently has some hard-coded assumptions (bucket name, secrets loading) and should be reviewed/updated before use.
 
