@@ -5,6 +5,7 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 
 import dotenv from 'dotenv'
+import JSON5 from 'json5'
 import { getPayload, type Payload } from 'payload'
 
 type SeedGlobalUpdater = {
@@ -17,6 +18,63 @@ type SeedGlobalUpdater = {
   }) => Promise<unknown>
 }
 
+type SecretBundle = {
+  strings: Record<string, string>
+  files: Record<string, string>
+}
+
+const normalizeSecrets = (data: unknown): SecretBundle => {
+  if (!data || typeof data !== 'object') return { strings: {}, files: {} }
+
+  const maybe = data as { strings?: unknown; files?: unknown }
+  if (maybe.strings || maybe.files) {
+    const out: SecretBundle = { strings: {}, files: {} }
+    const strings = maybe.strings as Record<string, unknown> | undefined
+    const files = maybe.files as Record<string, unknown> | undefined
+    if (strings) {
+      for (const [key, value] of Object.entries(strings)) {
+        if (value === undefined || value === null) continue
+        out.strings[key] = String(value)
+      }
+    }
+    if (files) {
+      for (const [key, value] of Object.entries(files)) {
+        if (value === undefined || value === null) continue
+        out.files[key] = String(value)
+      }
+    }
+    return out
+  }
+
+  const plain = data as Record<string, unknown>
+  const out: SecretBundle = { strings: {}, files: {} }
+  for (const [key, value] of Object.entries(plain)) {
+    if (value === undefined || value === null) continue
+    out.strings[key] = String(value)
+  }
+  return out
+}
+
+const readSecretsFile = (filePath: string): SecretBundle => {
+  if (!fs.existsSync(filePath)) return { strings: {}, files: {} }
+  const raw = fs.readFileSync(filePath, 'utf8')
+  const parsed = JSON5.parse(raw) as unknown
+  return normalizeSecrets(parsed)
+}
+
+const loadSecretsFromJson5 = (repoRoot: string, profile: string): SecretBundle => {
+  const sharedPath = path.resolve(repoRoot, '.github-secrets.private.json5')
+  const profilePath = path.resolve(repoRoot, `.github-secrets.private.${profile}.json5`)
+
+  const shared = readSecretsFile(sharedPath)
+  const scoped = readSecretsFile(profilePath)
+
+  return {
+    strings: { ...shared.strings, ...scoped.strings },
+    files: { ...shared.files, ...scoped.files },
+  }
+}
+
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
@@ -26,6 +84,24 @@ const envProfile =
   'local'
 
 process.env.ENV_PROFILE = String(envProfile)
+
+const useGithubSecrets = process.env.USE_GITHUB_SECRETS === 'true'
+if (useGithubSecrets) {
+  const repoRoot = path.resolve(__dirname, '../..')
+  const bundle = loadSecretsFromJson5(repoRoot, String(envProfile))
+
+  for (const [key, value] of Object.entries(bundle.strings)) {
+    process.env[key] = value
+  }
+
+  // Backend S3 storage expects S3_AWS_* keys. Mirror from AWS_* when needed.
+  if (!process.env.S3_AWS_ACCESS_KEY_ID && process.env.AWS_ACCESS_KEY_ID) {
+    process.env.S3_AWS_ACCESS_KEY_ID = process.env.AWS_ACCESS_KEY_ID
+  }
+  if (!process.env.S3_AWS_SECRET_ACCESS_KEY && process.env.AWS_SECRET_ACCESS_KEY) {
+    process.env.S3_AWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY
+  }
+}
 
 const dotenvProfilePath = path.resolve(__dirname, `../.env.${envProfile}`)
 if (fs.existsSync(dotenvProfilePath)) {

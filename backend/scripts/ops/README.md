@@ -15,3 +15,11 @@ Current scripts:
 - `ops-db-rebuild-media-records-from-s3.ts`: reconstructs media records from S3 listings.
 - `seed-cv-experience-dev.sh`: guarded development run for CV experience seeding.
 - `seed-cv-experience-prod.sh`: guarded production run for CV experience seeding.
+
+CV experience seeding wrappers:
+
+- Pull backend env values directly from local `.github-secrets.private.json5` plus profile
+  overrides (for example, `.github-secrets.private.dev.json5` /
+  `.github-secrets.private.prod.json5`).
+- Run seed with `USE_GITHUB_SECRETS=true` so no `.env` file swapping is required.
+- Keep explicit write guards and typed confirmations (`seed-dev`, `seed-prod`).
