@@ -1,6 +1,6 @@
 import type { GlobalConfig } from 'payload'
 
-const LETTER_SPACING_TOKEN_REGEX = /^\s*(-?(?:\d+|\d*\.\d+))\s*(em|rem|px)\s*$/i
+const LETTER_SPACING_TOKEN_REGEX = /^\s*(-?(?:\d+|\d*\.\d+))\s*(em|rem|px)?\s*$/i
 
 const letterSpacingField = (defaultValue: string) => ({
   name: 'letterSpacing',
@@ -10,20 +10,20 @@ const letterSpacingField = (defaultValue: string) => ({
   defaultValue,
   admin: {
     width: '30%',
-    description: 'Use a CSS length token, e.g. 0.12em, 1px, or 0.08rem.',
+    description: 'Use a value like 0.171 (defaults to em), 0.12em, 1px, or 0.08rem.',
   },
   validate: (val: unknown) => {
     if (typeof val !== 'string' || !val.trim()) {
-      return 'Must be a string like 0.12em, 1px, or 0.08rem.'
+      return 'Must be a value like 0.171, 0.12em, 1px, or 0.08rem.'
     }
 
     const match = val.match(LETTER_SPACING_TOKEN_REGEX)
     if (!match) {
-      return 'Use format: <number><unit>, where unit is em, rem, or px.'
+      return 'Use format: <number> or <number><unit>, where unit is em, rem, or px.'
     }
 
     const numeric = Number.parseFloat(match[1])
-    const unit = match[2].toLowerCase()
+    const unit = (match[2] || 'em').toLowerCase()
 
     if (unit === 'px') {
       if (numeric < -4 || numeric > 8) {
@@ -42,7 +42,7 @@ const letterSpacingField = (defaultValue: string) => ({
 
 export const HeroBranding: GlobalConfig = {
   slug: 'heroBranding',
-  label: 'Hero Branding',
+  label: 'Site Branding',
   access: {
     read: ({ req }) => !!req.user,
     update: ({ req }) => !!req.user,
@@ -95,7 +95,7 @@ export const HeroBranding: GlobalConfig = {
           required: true,
           admin: {
             width: '40%',
-            description: 'Displayed in the hero title area.',
+            description: 'Displayed in site title areas (hero and nav).',
           },
         },
         {
@@ -105,7 +105,7 @@ export const HeroBranding: GlobalConfig = {
           defaultValue: false,
           admin: {
             width: '20%',
-            description: 'Use this role on the live hero.',
+            description: 'Use this role on the live site.',
           },
         },
         letterSpacingField('0.12em'),

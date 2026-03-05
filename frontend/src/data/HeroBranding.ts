@@ -1,6 +1,6 @@
 export type ServerHeroBranding = {
   activeRoleTitle: string;
-  activeRoleLetterSpacing: string;
+  activeRoleLetterSpacing?: string;
 };
 
 type HeroBrandingApiResponse = {
@@ -12,23 +12,22 @@ type HeroBrandingApiResponse = {
 };
 
 const DEFAULT_ROLE_TITLE = "Front-End / UI Developer";
-const DEFAULT_LETTER_SPACING = "0.12em";
 const LETTER_SPACING_TOKEN_REGEX =
-  /^\s*(-?(?:\d+|\d*\.\d+))\s*(em|rem|px)\s*$/i;
+  /^\s*(-?(?:\d+|\d*\.\d+))\s*(em|rem|px)?\s*$/i;
 
 const clampSpacingByUnit = (value: number, unit: "em" | "rem" | "px") => {
   if (unit === "px") return Math.max(-4, Math.min(8, value));
   return Math.max(-0.2, Math.min(0.4, value));
 };
 
-const normalizeSpacingToken = (value: unknown): string => {
-  if (typeof value !== "string" || !value.trim()) return DEFAULT_LETTER_SPACING;
+const normalizeSpacingToken = (value: unknown): string | undefined => {
+  if (typeof value !== "string" || !value.trim()) return undefined;
 
   const match = value.match(LETTER_SPACING_TOKEN_REGEX);
-  if (!match) return DEFAULT_LETTER_SPACING;
+  if (!match) return undefined;
 
   const numeric = Number.parseFloat(match[1]);
-  const unit = match[2].toLowerCase() as "em" | "rem" | "px";
+  const unit = (match[2]?.toLowerCase() ?? "em") as "em" | "rem" | "px";
   const clamped = clampSpacingByUnit(numeric, unit);
   return `${clamped}${unit}`;
 };
@@ -64,7 +63,6 @@ const resolveBackendBaseUrl = () => {
 export const getServerHeroBranding = async (): Promise<ServerHeroBranding> => {
   const fallback: ServerHeroBranding = {
     activeRoleTitle: DEFAULT_ROLE_TITLE,
-    activeRoleLetterSpacing: DEFAULT_LETTER_SPACING,
   };
 
   try {
