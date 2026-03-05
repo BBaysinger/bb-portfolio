@@ -13,6 +13,8 @@ export const Users: CollectionConfig = {
     defaultColumns: ['fullName', 'username', 'email', 'organization', 'role'], // List view columns
   },
   access: {
+    // Gate Payload Admin UI itself to admins only.
+    admin: ({ req }) => req.user?.role === 'admin',
     create: ({ req }) => req.user?.role === 'admin',
     read: ({ req }) => {
       // Block unauthenticated reads to avoid building a query with an undefined ID

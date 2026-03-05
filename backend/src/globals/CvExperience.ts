@@ -85,8 +85,8 @@ export const CvExperience: GlobalConfig = {
   slug: 'cvExperience',
   label: 'CV Experience',
   access: {
-    read: ({ req }) => !!req.user,
-    update: ({ req }) => !!req.user,
+    read: ({ req }) => req.user?.role === 'admin',
+    update: ({ req }) => req.user?.role === 'admin',
   },
   fields: [
     {

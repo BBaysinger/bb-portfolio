@@ -44,8 +44,8 @@ export const HeroBranding: GlobalConfig = {
   slug: 'heroBranding',
   label: 'Site Branding',
   access: {
-    read: ({ req }) => !!req.user,
-    update: ({ req }) => !!req.user,
+    read: ({ req }) => req.user?.role === 'admin',
+    update: ({ req }) => req.user?.role === 'admin',
   },
   fields: [
     {
