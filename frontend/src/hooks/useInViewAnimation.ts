@@ -18,11 +18,26 @@ const useInViewArray = (
   scrollThreshold = 100,
 ) => {
   const elementsRef = useRef<(HTMLElement | SVGElement)[]>([]);
+  const observerRef = useRef<IntersectionObserver | null>(null);
+  const shouldDelayRef = useRef<boolean>(false);
 
   const addToRefs = (el: HTMLElement | SVGElement | null) => {
     if (el && !elementsRef.current.includes(el)) {
       elementsRef.current.push(el);
       el.classList.add(baseClass);
+
+      // If the observer is already active (e.g. async-rendered CMS content),
+      // observe immediately so the element can transition out of `fadeIn`.
+      if (observerRef.current) {
+        if (shouldDelayRef.current) {
+          window.setTimeout(() => {
+            if (!el.isConnected || !observerRef.current) return;
+            observerRef.current.observe(el);
+          }, delay);
+        } else {
+          observerRef.current.observe(el);
+        }
+      }
     }
   };
 
@@ -69,7 +84,10 @@ const useInViewArray = (
       { threshold },
     );
 
+    observerRef.current = observer;
+
     const shouldDelay = window.scrollY > scrollThreshold;
+    shouldDelayRef.current = shouldDelay;
 
     const timeoutId = shouldDelay
       ? setTimeout(() => {
@@ -84,6 +102,7 @@ const useInViewArray = (
       if (timeoutId) clearTimeout(timeoutId);
       scheduledRafs.forEach((id) => cancelAnimationFrame(id));
       observer.disconnect();
+      observerRef.current = null;
     };
   }, [animationClass, threshold, delay, scrollThreshold]);
 

@@ -77,9 +77,9 @@ const ExperienceItem: React.FC<ExperienceItemProps> = ({ item, addToRefs }) => {
         </p>
 
         <ul>
-          {item.bulletPoints.map((point) => (
+          {item.bulletPoints.map((point, index) => (
             <li
-              key={`${item.company}-${item.date}-${point.slice(0, 24)}`}
+              key={`${item.company}-${item.date}-${index}-${point.slice(0, 24)}`}
               ref={addToRefs}
             >
               {point}
