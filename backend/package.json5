@@ -20,7 +20,7 @@
     // Validate required environment variables before starting dev server
     "predev": "tsx ./scripts/check-required-env.ts && npm run generate:importmap",
     // Production build with increased memory and deprecation warnings suppressed
-    "build": "cross-env NODE_OPTIONS=\"--no-deprecation --max-old-space-size=8000\" npm run generate:importmap && next build --webpack",
+    "build": "cross-env NODE_OPTIONS=\"--no-deprecation --max-old-space-size=8000\" npm run generate:importmap && next build",
     // Start development server with deprecation warnings suppressed
     "dev": "cross-env NODE_OPTIONS=--no-deprecation npm run generate:importmap && next dev -p ${PORT:-3000}",
     // Clean Next.js cache and run dev server (useful when build cache is corrupted)
