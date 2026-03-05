@@ -6,10 +6,10 @@ export const ContactInfo: GlobalConfig = {
   slug: 'contactInfo',
   label: 'Contact Info',
   access: {
-    // Do NOT expose raw values publicly; allow only authenticated users to read via Admin UI/API.
+    // Do NOT expose raw values publicly; restrict admin API/UI access to admin role.
     // Public consumers must use the obfuscated API route instead.
-    read: ({ req }) => !!req.user,
-    update: ({ req }) => !!req.user,
+    read: ({ req }) => req.user?.role === 'admin',
+    update: ({ req }) => req.user?.role === 'admin',
   },
   fields: [
     {
