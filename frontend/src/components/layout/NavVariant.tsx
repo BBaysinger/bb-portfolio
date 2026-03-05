@@ -20,7 +20,6 @@ interface NavProps {
 }
 
 const DEFAULT_ROLE_TITLE = "Front-End / UI Developer";
-const DEFAULT_LETTER_SPACING = "0.12em";
 
 /**
  * Adaptive navigation component with multiple display variants.
@@ -71,7 +70,7 @@ const NavVariant: React.FC<NavProps> = ({
     typeof initialRoleLetterSpacing === "string" &&
     initialRoleLetterSpacing.trim()
       ? initialRoleLetterSpacing.trim()
-      : DEFAULT_LETTER_SPACING;
+      : undefined;
 
   const isMenuOpen = useSelector(
     (state: RootState) => state.ui.isMobileNavExpanded,

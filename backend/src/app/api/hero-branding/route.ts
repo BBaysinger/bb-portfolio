@@ -8,8 +8,7 @@ import { NextResponse } from 'next/server'
 import { getPayload } from 'payload'
 
 const DEFAULT_TITLE = 'Front-End / UI Developer'
-const DEFAULT_SPACING_TOKEN = '0.12em'
-const LETTER_SPACING_TOKEN_REGEX = /^\s*(-?(?:\d+|\d*\.\d+))\s*(em|rem|px)\s*$/i
+const LETTER_SPACING_TOKEN_REGEX = /^\s*(-?(?:\d+|\d*\.\d+))\s*(em|rem|px)?\s*$/i
 
 const clampSpacingByUnit = (value: number, unit: string): number => {
   if (unit === 'px') {
@@ -19,14 +18,14 @@ const clampSpacingByUnit = (value: number, unit: string): number => {
   return Math.max(-0.2, Math.min(0.4, value))
 }
 
-const toSpacingToken = (value: unknown, fallback: string): string => {
-  if (typeof value !== 'string' || !value.trim()) return fallback
+const toSpacingToken = (value: unknown): string | null => {
+  if (typeof value !== 'string' || !value.trim()) return null
 
   const match = value.match(LETTER_SPACING_TOKEN_REGEX)
-  if (!match) return fallback
+  if (!match) return null
 
   const numeric = Number.parseFloat(match[1])
-  const unit = match[2].toLowerCase()
+  const unit = (match[2] || 'em').toLowerCase()
   const clamped = clampSpacingByUnit(numeric, unit)
 
   return `${clamped}${unit}`
@@ -36,8 +35,7 @@ const spacingTokenFromLegacyFields = (
   spacingValue: unknown,
   spacingUnit: unknown,
   spacingEm: unknown,
-  fallback: string,
-): string => {
+): string | null => {
   if (typeof spacingValue === 'number' && !Number.isNaN(spacingValue)) {
     const unit =
       spacingUnit === 'em' || spacingUnit === 'rem' || spacingUnit === 'px' ? spacingUnit : 'em'
@@ -50,7 +48,7 @@ const spacingTokenFromLegacyFields = (
     return `${clamped}em`
   }
 
-  return fallback
+  return null
 }
 
 type RoleVariant = {
@@ -89,12 +87,11 @@ export async function GET() {
     const activeTitle =
       typeof active?.title === 'string' && active.title.trim() ? active.title.trim() : DEFAULT_TITLE
     const activeSpacingToken =
-      toSpacingToken(active?.letterSpacing, '') ||
+      toSpacingToken(active?.letterSpacing) ||
       spacingTokenFromLegacyFields(
         active?.letterSpacingValue,
         active?.letterSpacingUnit,
         active?.letterSpacingEm,
-        DEFAULT_SPACING_TOKEN,
       )
     const activePresetLabel =
       typeof active?.presetLabel === 'string' && active.presetLabel.trim()
@@ -105,12 +102,18 @@ export async function GET() {
       success: true,
       data: {
         activeRoleTitle: activeTitle,
-        activeRoleLetterSpacing: activeSpacingToken,
+        activeRoleLetterSpacing: activeSpacingToken || null,
         // Keep split values only as compatibility output.
-        activeRoleLetterSpacingValue: Number.parseFloat(activeSpacingToken),
-        activeRoleLetterSpacingUnit: activeSpacingToken.replace(/^-?(?:\d+|\d*\.\d+)/, ''),
+        activeRoleLetterSpacingValue: activeSpacingToken
+          ? Number.parseFloat(activeSpacingToken)
+          : null,
+        activeRoleLetterSpacingUnit: activeSpacingToken
+          ? activeSpacingToken.replace(/^-?(?:\d*\.\d+|\d+)/, '')
+          : null,
         // Backward compatibility for existing frontend consumers.
-        activeRoleLetterSpacingEm: Number.parseFloat(activeSpacingToken),
+        activeRoleLetterSpacingEm: activeSpacingToken
+          ? Number.parseFloat(activeSpacingToken)
+          : null,
         activeRolePresetLabel: activePresetLabel,
         roleVariants: variants
           .map((item) => {
@@ -118,12 +121,11 @@ export async function GET() {
             if (!title) return null
 
             const spacingToken =
-              toSpacingToken(item?.letterSpacing, '') ||
+              toSpacingToken(item?.letterSpacing) ||
               spacingTokenFromLegacyFields(
                 item?.letterSpacingValue,
                 item?.letterSpacingUnit,
                 item?.letterSpacingEm,
-                DEFAULT_SPACING_TOKEN,
               )
 
             return {
@@ -132,11 +134,13 @@ export async function GET() {
                   ? item.presetLabel.trim()
                   : 'Role',
               title,
-              letterSpacing: spacingToken,
-              letterSpacingValue: Number.parseFloat(spacingToken),
-              letterSpacingUnit: spacingToken.replace(/^-?(?:\d+|\d*\.\d+)/, ''),
+              letterSpacing: spacingToken || null,
+              letterSpacingValue: spacingToken ? Number.parseFloat(spacingToken) : null,
+              letterSpacingUnit: spacingToken
+                ? spacingToken.replace(/^-?(?:\d*\.\d+|\d+)/, '')
+                : null,
               // Backward compatibility for existing frontend consumers.
-              letterSpacingEm: Number.parseFloat(spacingToken),
+              letterSpacingEm: spacingToken ? Number.parseFloat(spacingToken) : null,
               isActive: item?.isActive === true,
             }
           })
