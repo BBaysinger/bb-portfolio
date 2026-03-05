@@ -3,9 +3,12 @@ set -euo pipefail
 
 # Guarded production runner for CV experience seeding.
 # Intentionally kept OUT of package.json so prod writes are explicit.
+# Loads env values from local GitHub secrets JSON5 files.
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BACKEND_DIR="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+REPO_ROOT="$(cd "${BACKEND_DIR}/.." && pwd)"
+PROFILE="prod"
 
 if [[ "${ALLOW_PROD_WRITE:-}" != "true" ]]; then
   echo "Refusing to run: set ALLOW_PROD_WRITE=true to continue."
@@ -19,5 +22,12 @@ if [[ "${confirm}" != "seed-prod" ]]; then
   exit 1
 fi
 
+if [[ ! -f "${REPO_ROOT}/.github-secrets.private.json5" && ! -f "${REPO_ROOT}/.github-secrets.private.${PROFILE}.json5" ]]; then
+  echo "Missing GitHub secrets files. Expected one of:"
+  echo "  ${REPO_ROOT}/.github-secrets.private.json5"
+  echo "  ${REPO_ROOT}/.github-secrets.private.${PROFILE}.json5"
+  exit 1
+fi
+
 cd "${BACKEND_DIR}"
-npm run seed:cv-experience -- --env prod
+USE_GITHUB_SECRETS=true npm run seed:cv-experience -- --env "${PROFILE}"
