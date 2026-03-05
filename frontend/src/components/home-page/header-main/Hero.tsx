@@ -78,7 +78,11 @@ const isDevLikeProfile = envProfile === "local" || envProfile === "dev";
 const defaultFpsCounterEnabled =
   envFpsFlag ?? (isDevLikeProfile || process.env.NODE_ENV !== "production");
 
-function Hero() {
+type HeroProps = {
+  initialRoleTitle?: string;
+};
+
+function Hero({ initialRoleTitle }: HeroProps) {
   const id = "hero";
   const initialRows = 12;
   const initialCols = 16;
@@ -399,7 +403,11 @@ function Hero() {
           paused={!mounted || !isSlingerIdle}
         />
         {showFpsCounter && <FPSCounter />}
-        <TitleBranding className={styles.titleBranding} ref={titleRef} />
+        <TitleBranding
+          className={styles.titleBranding}
+          ref={titleRef}
+          initialRoleTitle={initialRoleTitle}
+        />
       </div>
     </header>
   );

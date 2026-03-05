@@ -15,7 +15,12 @@ import styles from "./NavVariant.module.scss";
 
 interface NavProps {
   variant: NavVariantClass;
+  initialRoleTitle?: string;
+  initialRoleLetterSpacing?: string;
 }
+
+const DEFAULT_ROLE_TITLE = "Front-End / UI Developer";
+const DEFAULT_LETTER_SPACING = "0.12em";
 
 /**
  * Adaptive navigation component with multiple display variants.
@@ -53,7 +58,21 @@ interface NavProps {
  */
 const NAV_HAMBURGER_BREAKPOINT_VAR = "--nav-hamburger-breakpoint";
 
-const NavVariant: React.FC<NavProps> = ({ variant }) => {
+const NavVariant: React.FC<NavProps> = ({
+  variant,
+  initialRoleTitle,
+  initialRoleLetterSpacing,
+}) => {
+  const roleTitle =
+    typeof initialRoleTitle === "string" && initialRoleTitle.trim()
+      ? initialRoleTitle.trim()
+      : DEFAULT_ROLE_TITLE;
+  const roleLetterSpacing =
+    typeof initialRoleLetterSpacing === "string" &&
+    initialRoleLetterSpacing.trim()
+      ? initialRoleLetterSpacing.trim()
+      : DEFAULT_LETTER_SPACING;
+
   const isMenuOpen = useSelector(
     (state: RootState) => state.ui.isMobileNavExpanded,
   );
@@ -253,8 +272,13 @@ const NavVariant: React.FC<NavProps> = ({ variant }) => {
             <span>BRADLEY</span> <span>BAYSINGER</span>
           </div>
           <div>
-            <span className={clsx(styles.jobTitle, "nobr")}>
-              Front-end / UI Developer
+            <span
+              className={clsx(styles.jobTitle, "nobr")}
+              style={{
+                letterSpacing: roleLetterSpacing,
+              }}
+            >
+              {roleTitle}
             </span>
           </div>
         </div>

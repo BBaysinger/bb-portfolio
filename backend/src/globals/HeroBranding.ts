@@ -1,28 +1,39 @@
 import type { GlobalConfig } from 'payload'
 
-const letterSpacingField = (
-  name: string,
-  label: string,
-  description: string,
-  defaultValue: number,
-) => ({
-  name,
-  label,
-  type: 'number' as const,
+const LETTER_SPACING_TOKEN_REGEX = /^\s*(-?(?:\d+|\d*\.\d+))\s*(em|rem|px)\s*$/i
+
+const letterSpacingField = (defaultValue: string) => ({
+  name: 'letterSpacing',
+  label: 'Letter Spacing',
+  type: 'text' as const,
   required: true,
   defaultValue,
   admin: {
-    width: '33%',
-    step: 0.005,
-    description,
+    width: '30%',
+    description: 'Use a CSS length token, e.g. 0.12em, 1px, or 0.08rem.',
   },
   validate: (val: unknown) => {
-    if (typeof val !== 'number' || Number.isNaN(val)) {
-      return 'Must be a number.'
+    if (typeof val !== 'string' || !val.trim()) {
+      return 'Must be a string like 0.12em, 1px, or 0.08rem.'
     }
 
-    if (val < -0.2 || val > 0.4) {
-      return 'Use a value between -0.2 and 0.4 em.'
+    const match = val.match(LETTER_SPACING_TOKEN_REGEX)
+    if (!match) {
+      return 'Use format: <number><unit>, where unit is em, rem, or px.'
+    }
+
+    const numeric = Number.parseFloat(match[1])
+    const unit = match[2].toLowerCase()
+
+    if (unit === 'px') {
+      if (numeric < -4 || numeric > 8) {
+        return 'Use a value between -4 and 8 for px.'
+      }
+      return true
+    }
+
+    if (numeric < -0.2 || numeric > 0.4) {
+      return 'Use a value between -0.2 and 0.4 for em/rem.'
     }
 
     return true
@@ -47,19 +58,19 @@ export const HeroBranding: GlobalConfig = {
         {
           presetLabel: 'Agency / Interactive roles',
           title: 'Interactive UI Developer',
-          letterSpacingEm: 0.12,
+          letterSpacing: '0.12em',
           isActive: false,
         },
         {
           presetLabel: 'Standard frontend roles',
           title: 'Front-End Developer',
-          letterSpacingEm: 0.12,
+          letterSpacing: '0.12em',
           isActive: false,
         },
         {
           presetLabel: 'Hybrid product roles',
           title: 'Front-End / UI Developer',
-          letterSpacingEm: 0.12,
+          letterSpacing: '0.12em',
           isActive: true,
         },
       ],
@@ -97,12 +108,7 @@ export const HeroBranding: GlobalConfig = {
             description: 'Use this role on the live hero.',
           },
         },
-        letterSpacingField(
-          'letterSpacingEm',
-          'Letter Spacing (em)',
-          'Letter spacing for this specific role title.',
-          0.12,
-        ),
+        letterSpacingField('0.12em'),
       ],
     },
   ],

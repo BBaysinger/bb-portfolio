@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { forwardRef, useEffect, useMemo, useState } from "react";
+import { forwardRef } from "react";
 
 import BarberPole from "@/components/common/BarberPole";
 import { RawImg } from "@/components/common/RawImg";
@@ -8,22 +8,10 @@ import styles from "./TitleBranding.module.scss";
 
 type TitleBrandingProps = {
   className?: string;
-};
-
-type HeroBrandingResponse = {
-  success: boolean;
-  data?: {
-    activeRoleTitle?: string;
-    activeRoleLetterSpacingEm?: number;
-  };
+  initialRoleTitle?: string;
 };
 
 const DEFAULT_ROLE_TITLE = "Front-End / UI Developer";
-
-const safeSpacing = (value: unknown, fallback = 0.12) => {
-  if (typeof value !== "number" || Number.isNaN(value)) return fallback;
-  return Math.max(-0.2, Math.min(0.4, value));
-};
 
 /**
  * TitleBranding component
@@ -44,53 +32,11 @@ const safeSpacing = (value: unknown, fallback = 0.12) => {
  *
  */
 const TitleBranding = forwardRef<HTMLDivElement, TitleBrandingProps>(
-  ({ className = "" }, ref) => {
-    const [roleTitle, setRoleTitle] = useState<string>(DEFAULT_ROLE_TITLE);
-    const [roleLetterSpacing, setRoleLetterSpacing] = useState<number>(0.12);
-
-    useEffect(() => {
-      let cancelled = false;
-
-      const fetchHeroBranding = async () => {
-        try {
-          const response = await fetch("/api/hero-branding/", {
-            method: "GET",
-            headers: { Accept: "application/json" },
-            cache: "no-store",
-          });
-
-          if (!response.ok) return;
-
-          const payload: HeroBrandingResponse = await response.json();
-          if (!payload.success || !payload.data || cancelled) return;
-
-          const nextRoleTitle =
-            typeof payload.data.activeRoleTitle === "string" &&
-            payload.data.activeRoleTitle.trim()
-              ? payload.data.activeRoleTitle.trim()
-              : DEFAULT_ROLE_TITLE;
-
-          setRoleTitle(nextRoleTitle);
-          setRoleLetterSpacing(
-            safeSpacing(payload.data.activeRoleLetterSpacingEm, 0.12),
-          );
-        } catch {
-          // Keep defaults when fetch fails.
-        }
-      };
-
-      void fetchHeroBranding();
-
-      return () => {
-        cancelled = true;
-      };
-    }, []);
-
-    const activeRoleText = useMemo(() => roleTitle, [roleTitle]);
-    const activeLetterSpacing = useMemo(
-      () => roleLetterSpacing,
-      [roleLetterSpacing],
-    );
+  ({ className = "", initialRoleTitle }, ref) => {
+    const activeRoleText =
+      typeof initialRoleTitle === "string" && initialRoleTitle.trim()
+        ? initialRoleTitle.trim()
+        : DEFAULT_ROLE_TITLE;
 
     const handleHeroReset = () => {
       // Minimal reset: clear session-scoped flags so the next interaction behaves like first visit
@@ -134,14 +80,7 @@ const TitleBranding = forwardRef<HTMLDivElement, TitleBrandingProps>(
             />
             <div className={clsx(styles.name, styles.firstName)}>Bradley</div>{" "}
             <div className={clsx(styles.name, styles.lastName)}>Baysinger</div>
-            <div
-              className={styles.title}
-              style={{
-                ["--role-letter-spacing" as string]: `${activeLetterSpacing}em`,
-              }}
-            >
-              {activeRoleText}
-            </div>
+            <div className={styles.title}>{activeRoleText}</div>
           </h1>{" "}
         </span>
       </div>

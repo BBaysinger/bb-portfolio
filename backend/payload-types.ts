@@ -896,9 +896,9 @@ export interface HeroBranding {
      */
     isActive?: boolean | null;
     /**
-     * Letter spacing for this specific role title.
+     * Use a CSS length token, e.g. 0.12em, 1px, or 0.08rem.
      */
-    letterSpacingEm: number;
+    letterSpacing: string;
     id?: string | null;
   }[];
   updatedAt?: string | null;
@@ -962,7 +962,7 @@ export interface HeroBrandingSelect<T extends boolean = true> {
         presetLabel?: T;
         title?: T;
         isActive?: T;
-        letterSpacingEm?: T;
+        letterSpacing?: T;
         id?: T;
       };
   updatedAt?: T;
