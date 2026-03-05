@@ -927,15 +927,47 @@ export interface CvExperience {
     /**
      * Reorder these rows to change bullet order. Disable a row to hide it on the CV.
      */
-    bulletPoints: {
-      text: string;
-      enabled: boolean;
-      id?: string | null;
-    }[];
+    bulletPoints?:
+      | {
+          text: string;
+          enabled: boolean;
+          id?: string | null;
+        }[]
+      | null;
     id?: string | null;
     blockName?: string | null;
     blockType: 'experienceItem';
   }[];
+  /**
+   * Each row is one CV experience component for the Independent R&D and Contracting section. Drag and drop to control render order on the frontend.
+   */
+  recentIndependentStudy?:
+    | {
+        /**
+         * Upload/select the company logo to render for this experience item.
+         */
+        logo?: (string | null) | CvExperienceLogo;
+        company: string;
+        location: string;
+        title: string;
+        description: string;
+        technicalScope: string;
+        date: string;
+        /**
+         * Reorder these rows to change bullet order. Disable a row to hide it on the CV.
+         */
+        bulletPoints?:
+          | {
+              text: string;
+              enabled: boolean;
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'experienceItem';
+      }[]
+    | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -975,6 +1007,30 @@ export interface HeroBrandingSelect<T extends boolean = true> {
  */
 export interface CvExperienceSelect<T extends boolean = true> {
   experienceItems?:
+    | T
+    | {
+        experienceItem?:
+          | T
+          | {
+              logo?: T;
+              company?: T;
+              location?: T;
+              title?: T;
+              description?: T;
+              technicalScope?: T;
+              date?: T;
+              bulletPoints?:
+                | T
+                | {
+                    text?: T;
+                    enabled?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+      };
+  recentIndependentStudy?:
     | T
     | {
         experienceItem?:

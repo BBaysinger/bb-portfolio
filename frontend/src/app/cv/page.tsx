@@ -48,6 +48,8 @@ const CurriculumVitae: React.FC = () => {
   const [cvExperienceItems, setCvExperienceItems] = React.useState<
     CvExperienceItemData[]
   >([]);
+  const [recentIndependentStudyItems, setRecentIndependentStudyItems] =
+    React.useState<CvExperienceItemData[]>([]);
 
   React.useEffect(() => {
     let cancelled = false;
@@ -66,6 +68,7 @@ const CurriculumVitae: React.FC = () => {
           success?: boolean;
           data?: {
             experienceItems?: CvExperienceItemData[];
+            recentIndependentStudyItems?: CvExperienceItemData[];
           };
         };
 
@@ -74,6 +77,12 @@ const CurriculumVitae: React.FC = () => {
         setCvExperienceItems(
           Array.isArray(payload.data?.experienceItems)
             ? payload.data.experienceItems
+            : [],
+        );
+
+        setRecentIndependentStudyItems(
+          Array.isArray(payload.data?.recentIndependentStudyItems)
+            ? payload.data.recentIndependentStudyItems
             : [],
         );
       } catch {
@@ -211,78 +220,14 @@ const CurriculumVitae: React.FC = () => {
         {/*-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --*/}
 
         <div className={"container"}>
-          <h4 ref={addToRefs}>Recent Independent Study &amp; R&amp;D</h4>
-
-          <div className={rowClass}>
-            <div className={divClassLt}>
-              <RawImg
-                ref={addToRefs}
-                src="/images/cv/bb.svg"
-                className={styles.cvLogo}
-                alt="BB Logo"
-              />
-            </div>
-
-            <div className={divClassRt}>
-              <div ref={addToRefs} className={styles.subContainer}>
-                <div className={styles.leftSub}>
-                  <h5>Self-Directed Front-End Engineer</h5>
-                </div>
-                <div className={styles.break}></div>
-                <div className={styles.rightSub}>[ 09.2024 - 2026 ]</div>
-              </div>
-
-              <ul>
-                <li ref={addToRefs}>
-                  Designed and built a production-grade portfolio platform as a
-                  proving ground for{" "}
-                  <b>
-                    advanced interaction patterns, animation systems, and UI
-                    performance work
-                  </b>
-                  .
-                </li>
-                <li ref={addToRefs}>
-                  Architected a modern stack using{" "}
-                  <b>Next.js, React, TypeScript, Payload CMS</b>, and AWS-based
-                  infrastructure.
-                </li>
-                <li ref={addToRefs}>
-                  Built reusable interaction systems (route-synced carousels
-                  with deep linking, layered/parallax coordination, responsive
-                  layout strategies).
-                </li>
-                <li ref={addToRefs}>
-                  Implemented production instrumentation and reliability hooks:
-                  <b> CloudWatch RUM</b>, SSR-safe initialization guards,
-                  lightweight health endpoints, and operational metric
-                  publishing.
-                </li>
-                <li ref={addToRefs}>
-                  Wrote and maintained unit and integration tests for React
-                  applications.
-                </li>
-                <li ref={addToRefs}>
-                  Automated delivery workflows including deployment
-                  orchestration, environment/secrets bundling, and hardened
-                  Docker builds.
-                </li>
-                <li ref={addToRefs}>
-                  Standardized code quality and DX with strict TypeScript,
-                  unified linting/formatting, and repeatable performance-tuned
-                  builds.
-                </li>
-                <li ref={addToRefs}>
-                  Built content and data workflows around Payload CMS (media
-                  handling, scripted exports, and repeatable imports).
-                </li>
-                <li ref={addToRefs}>
-                  Implemented Angular routing with guards, resolvers, and
-                  URL-driven state to support deep-linked views.
-                </li>
-              </ul>
-            </div>
-          </div>
+          <h4 ref={addToRefs}>Independent R&D and Contracting</h4>
+          {recentIndependentStudyItems.map((item, index) => (
+            <ExperienceItem
+              key={`${item.company}-${item.date}-${index}`}
+              item={item}
+              addToRefs={addToRefs}
+            />
+          ))}
         </div>
 
         <div className={"container"}>

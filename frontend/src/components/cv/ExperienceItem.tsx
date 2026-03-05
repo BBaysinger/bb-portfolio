@@ -11,7 +11,7 @@ export type CvExperienceItemData = {
   description: string;
   technicalScope: string;
   date: string;
-  bulletPoints: string[];
+  bulletPoints?: string[];
   logo?: {
     url: string;
     alt: string;
@@ -24,6 +24,9 @@ type ExperienceItemProps = {
 };
 
 const ExperienceItem: React.FC<ExperienceItemProps> = ({ item, addToRefs }) => {
+  const bulletPoints = Array.isArray(item.bulletPoints)
+    ? item.bulletPoints
+    : [];
   const divClassLt = clsx(
     "col-xs-12",
     "col-sm-12",
@@ -76,16 +79,18 @@ const ExperienceItem: React.FC<ExperienceItemProps> = ({ item, addToRefs }) => {
           <span>Technical Scope:</span> {item.technicalScope}
         </p>
 
-        <ul>
-          {item.bulletPoints.map((point, index) => (
-            <li
-              key={`${item.company}-${item.date}-${index}-${point.slice(0, 24)}`}
-              ref={addToRefs}
-            >
-              {point}
-            </li>
-          ))}
-        </ul>
+        {bulletPoints.length > 0 ? (
+          <ul>
+            {bulletPoints.map((point, index) => (
+              <li
+                key={`${item.company}-${item.date}-${index}-${point.slice(0, 24)}`}
+                ref={addToRefs}
+              >
+                {point}
+              </li>
+            ))}
+          </ul>
+        ) : null}
       </div>
     </div>
   );
