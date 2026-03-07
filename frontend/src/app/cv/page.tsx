@@ -646,6 +646,7 @@ const CurriculumVitae: React.FC = () => {
                 <span>Committee for Children</span>
                 <span>The Heart Institute of Spokane</span>
                 <span>AbbVie Pharmaceuticals</span>
+                <span>Avalere Health</span>
                 <span>Exact Sciences</span>
                 <span>Comics Kingdom</span>
               </p>
