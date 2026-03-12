@@ -278,8 +278,7 @@ const recentIndependentStudySeed: SeedExperience = {
   title: 'Self-Directed Front-End Engineer',
   description:
     'Concurrently contracting while developing a portfolio platform, delivering polished WordPress and front-end work with a service-focused, client-first approach.',
-  technicalScope:
-    'Next.js, React, TypeScript, Payload CMS, Docker, AWS, CloudWatch RUM, Vitest',
+  technicalScope: 'Next.js, React, TypeScript, Payload CMS, Docker, AWS, CloudWatch RUM, Vitest',
   date: '09.2024 - Present',
   bulletPoints: [
     'Designed and built a production-grade portfolio platform as a proving ground for advanced interaction patterns, animation systems, and UI performance work.',
