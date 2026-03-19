@@ -665,7 +665,7 @@ New decisions should be appended chronologically.
 
 - **Pre-baked AMIs with Docker**: Reduces deployment time but adds AMI management overhead.
 - **Shorter timeouts with retries**: More complex logic and potential for cascading failures.
-- **Background installation**: Complex orchestration and harder to debug failures.
+- **Background installation**: Complex coordination and harder to debug failures.
 
 **Status:** ✅ Active
 
