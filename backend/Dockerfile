@@ -71,7 +71,6 @@ RUN mkdir -p public
 ARG NODE_ENV="production"
 ENV NODE_ENV=${NODE_ENV}
 
-
 # Build the application with secrets available for TypeScript compilation and build
 # Secrets are mounted only during this step and not persisted to image layers
 ## Ensure repo .env files don't override CI-provided transient env during build
@@ -136,7 +135,21 @@ assign_if_present() {
 }
 
 # Load profile-scoped secrets (MONGODB_URI, etc.) by iterating the variable list
-COMMON_VARS="MONGODB_URI PAYLOAD_SECRET FRONTEND_URL S3_BUCKET PUBLIC_PROJECTS_BUCKET NDA_PROJECTS_BUCKET AWS_REGION SECURITY_TXT_EXPIRES SES_FROM_EMAIL SES_TO_EMAIL SMTP_FROM_EMAIL BACKEND_INTERNAL_URL PUBLIC_SERVER_URL"
+COMMON_VARS="
+MONGODB_URI
+PAYLOAD_SECRET
+FRONTEND_URL
+S3_BUCKET
+PUBLIC_PROJECTS_BUCKET
+NDA_PROJECTS_BUCKET
+AWS_REGION
+SECURITY_TXT_EXPIRES
+SES_FROM_EMAIL
+SES_TO_EMAIL
+SMTP_FROM_EMAIL
+BACKEND_INTERNAL_URL
+PUBLIC_SERVER_URL
+"
 for var in $COMMON_VARS; do
     assign_if_present "$var" "$(read_profile_secret "$PROFILE" "$var")"
 done
@@ -163,7 +176,21 @@ if [ "$PROFILE" != "prod" ]; then
     : "${NEXT_SERVER_ACTIONS_ENCRYPTION_KEY:=dev-server-actions-encryption-key}"
 fi
 
-export MONGODB_URI PAYLOAD_SECRET FRONTEND_URL S3_BUCKET PUBLIC_PROJECTS_BUCKET NDA_PROJECTS_BUCKET AWS_REGION SECURITY_TXT_EXPIRES SES_FROM_EMAIL SES_TO_EMAIL SMTP_FROM_EMAIL BACKEND_INTERNAL_URL PUBLIC_SERVER_URL NEXT_SERVER_ACTIONS_ENCRYPTION_KEY
+export \
+    MONGODB_URI \
+    PAYLOAD_SECRET \
+    FRONTEND_URL \
+    S3_BUCKET \
+    PUBLIC_PROJECTS_BUCKET \
+    NDA_PROJECTS_BUCKET \
+    AWS_REGION \
+    SECURITY_TXT_EXPIRES \
+    SES_FROM_EMAIL \
+    SES_TO_EMAIL \
+    SMTP_FROM_EMAIL \
+    BACKEND_INTERNAL_URL \
+    PUBLIC_SERVER_URL \
+    NEXT_SERVER_ACTIONS_ENCRYPTION_KEY
 
 require_var() {
     var="$1"
@@ -242,8 +269,7 @@ COPY --from=builder /app/src/payload.config.ts ./src/payload.config.ts
 # Expose port 3000 for the Payload CMS server
 EXPOSE 3000
 
-# Change working directory to the Next standalone bundle and start server
-WORKDIR /app
+# Start the standalone bundle from /app
 COPY --from=builder /app/scripts/bootstrap.cjs ./bootstrap.cjs
 CMD ["./bootstrap.cjs"]
 
