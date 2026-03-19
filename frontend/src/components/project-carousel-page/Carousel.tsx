@@ -202,7 +202,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
     [slides.length],
   );
 
-  const memoizedPositionsAndMultipliers = useMemo(() => {
+  const memoizedPositionsAndWrapCycleOffsets = useMemo(() => {
     const newPositions: number[] = [];
     const newWrapCycleOffsets: number[] = [];
     const newOffsets: number[] = [];
@@ -411,8 +411,8 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
     wrapCycleOffsets: currentWrapCycleOffsets,
     offsets: currentOffsets,
   } = useMemo(
-    () => memoizedPositionsAndMultipliers,
-    [memoizedPositionsAndMultipliers],
+    () => memoizedPositionsAndWrapCycleOffsets,
+    [memoizedPositionsAndWrapCycleOffsets],
   );
 
   useLayoutEffect(() => {
