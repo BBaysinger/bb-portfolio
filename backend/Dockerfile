@@ -23,14 +23,11 @@
 ARG NODE_IMAGE=node:22-alpine3.20
 FROM ${NODE_IMAGE} AS builder
 
-# Allow selecting build-time profile (prod|dev); default prod for CI hardening
-ARG BUILD_PROFILE=prod
 # Explicitly set build-time ENV_PROFILE via ARG and propagate to ENV for build steps
 ARG ENV_PROFILE=prod
 # Required env list for env-guard (no legacy unified list)
 ARG REQUIRED_ENVIRONMENT_VARIABLES_BACKEND
 # Propagate into shell environment for RUN steps
-ENV BUILD_PROFILE=${BUILD_PROFILE}
 ENV ENV_PROFILE=${ENV_PROFILE}
 ENV REQUIRED_ENVIRONMENT_VARIABLES_BACKEND=${REQUIRED_ENVIRONMENT_VARIABLES_BACKEND}
 
@@ -42,11 +39,13 @@ ENV REQUIRED_ENVIRONMENT_VARIABLES_BACKEND=${REQUIRED_ENVIRONMENT_VARIABLES_BACK
 WORKDIR /app
 
 # Keep base packages minimal (Alpine or Debian) to reduce CVE churn
-RUN if command -v apk >/dev/null 2>&1; then \
-            apk add --no-cache libc6-compat; \
-        elif command -v apt-get >/dev/null 2>&1; then \
-            apt-get update && rm -rf /var/lib/apt/lists/*; \
-        fi
+RUN set -eu; \
+    if command -v apk >/dev/null 2>&1; then \
+        apk add --no-cache libc6-compat; \
+    elif command -v apt-get >/dev/null 2>&1; then \
+        apt-get update; \
+        rm -rf /var/lib/apt/lists/*; \
+    fi
 
 # Build-time environment remains environment-agnostic.
 # We avoid baking config into the image. Sensitive values are mounted via BuildKit
@@ -257,11 +256,14 @@ FROM ${NODE_IMAGE} AS dev
 
 # Install basic tooling needed only for development
 # Basic tooling for development (curl)
-RUN if command -v apk >/dev/null 2>&1; then \
-            apk add --no-cache curl; \
-        else \
-            apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*; \
-        fi
+RUN set -eu; \
+    if command -v apk >/dev/null 2>&1; then \
+        apk add --no-cache curl; \
+    else \
+        apt-get update; \
+        apt-get install -y curl; \
+        rm -rf /var/lib/apt/lists/*; \
+    fi
 
 # Set working directory for development
 WORKDIR /app
@@ -269,11 +271,14 @@ WORKDIR /app
 # Install system dependencies for development (same as builder stage)
 # Required for native module compilation during development
 # System deps for native modules in dev
-RUN if command -v apk >/dev/null 2>&1; then \
-            apk add --no-cache python3 make g++; \
-        else \
-            apt-get update && apt-get install -y --no-install-recommends python3 build-essential && rm -rf /var/lib/apt/lists/*; \
-        fi
+RUN set -eu; \
+    if command -v apk >/dev/null 2>&1; then \
+        apk add --no-cache python3 make g++; \
+    else \
+        apt-get update; \
+        apt-get install -y --no-install-recommends python3 build-essential; \
+        rm -rf /var/lib/apt/lists/*; \
+    fi
 
 # Copy package files first to leverage Docker layer caching
 COPY package.json package-lock.json* ./
