@@ -86,8 +86,9 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
     slides,
     slideSpacing,
     initialIndex = 0,
+    onImmediateScrollUpdate,
     onIndexUpdate,
-    debug = 0,
+    debug = 1,
     onScrollUpdate,
     onStabilizationUpdate,
     stabilizationDelay = 800,
@@ -127,6 +128,11 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
   useEffect(() => {
     onScrollUpdateRef.current = onScrollUpdate;
   }, [onScrollUpdate]);
+
+  const onImmediateScrollUpdateRef = useRef(onImmediateScrollUpdate);
+  useEffect(() => {
+    onImmediateScrollUpdateRef.current = onImmediateScrollUpdate;
+  }, [onImmediateScrollUpdate]);
 
   const onStabilizationUpdateRef = useRef(onStabilizationUpdate);
   useEffect(() => {
@@ -336,6 +342,26 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
     updateIndexRef.current = updateIndexPerPosition;
   }, [updateIndexPerPosition]);
 
+  const applyExternalVisualPosition = useCallback(
+    (newLeft: number) => {
+      externalScrollLeftRef.current = Math.round(newLeft);
+      if (scrollerRef.current) {
+        scrollerRef.current.style.transform = `translateX(${-newLeft}px)`;
+      }
+      if (debug) {
+        setDebugScrollLeft(newLeft);
+      }
+    },
+    [debug],
+  );
+
+  const emitImmediateScrollUpdate = useCallback(
+    (scrollLeft: number) => {
+      onImmediateScrollUpdateRef.current?.(scrollLeft - patchedOffset());
+    },
+    [patchedOffset],
+  );
+
   const handleScroll = useCallback(() => {
     if (!scrollerRef.current) return;
     const currentLeft = scrollerRef.current.scrollLeft;
@@ -354,6 +380,9 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
 
     const scrollListener = (_: Event) => {
       if (isInitializingRef.current) return;
+      if (scrollerRef.current) {
+        emitImmediateScrollUpdate(scrollerRef.current.scrollLeft);
+      }
       // If a route-driven tween is in progress but the user starts interacting,
       // hand control back to gesture-driven flow immediately.
       if (
@@ -404,7 +433,14 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
         if (animationFrameId) cancelAnimationFrame(animationFrameId);
       };
     }
-  }, [handleScroll, frameDuration, draggable, isSlaveMode, snap]);
+  }, [
+    handleScroll,
+    frameDuration,
+    draggable,
+    emitImmediateScrollUpdate,
+    isSlaveMode,
+    snap,
+  ]);
 
   const {
     positions: currentPositions,
@@ -437,6 +473,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
 
     // Prime slave layers immediately (LayeredCarouselManager mirrors this value)
     // so the visual carousels render correctly before any user interaction.
+    emitImmediateScrollUpdate(targetScrollLeft);
     onScrollUpdateRef.current?.(targetScrollLeft - patchedOffset());
 
     stableIndex.current = normalizedIndex;
@@ -464,6 +501,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
     slideSpacing,
     patchedOffset,
     deriveDataIndex,
+    emitImmediateScrollUpdate,
   ]);
 
   useLayoutEffect(() => {
@@ -574,19 +612,17 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
           // Ensure we're actually moving to prevent snap interference
           if (scrollerRef.current) {
             scrollTriggerSource.current = Source.PROGRAMMATIC;
+            emitImmediateScrollUpdate(scrollerRef.current.scrollLeft);
           }
         },
         onComplete: () => onTweenCompleteRef.current?.(),
       });
     },
+    setExternalVisualPosition: (newLeft: number) => {
+      applyExternalVisualPosition(newLeft);
+    },
     setExternalScrollPosition: (newLeft: number) => {
-      externalScrollLeftRef.current = Math.round(newLeft);
-      if (scrollerRef.current) {
-        scrollerRef.current.style.transform = `translateX(${-newLeft}px)`;
-      }
-      if (debug) {
-        setDebugScrollLeft(newLeft);
-      }
+      applyExternalVisualPosition(newLeft);
       updateIndexPerPosition(newLeft, false);
     },
   }));
