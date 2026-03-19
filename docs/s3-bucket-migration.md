@@ -122,7 +122,7 @@ npm run migrate:media-urls:prod
 npm run sync:secrets
 
 # Deploy updated application
-./deploy/scripts/deployment-orchestrator.sh
+./deploy/scripts/deployment-runner.sh
 ```
 
 ### 6. Verify Upload
