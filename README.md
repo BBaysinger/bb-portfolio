@@ -189,7 +189,7 @@ Next up:
 - Frontend deep dives: start at [Frontend UX & Interaction](#frontend-ux-interaction)
 - Platform deep dives: continue to [Backend / Platform Systems](#backend-platform-systems)
 - Convenience scripts: [Deployment conveniences catalog](#-deployment-conveniences-catalog)
-- Optional single deployment entrypoint: [docs/deployment-orchestrator.md](./docs/deployment-orchestrator.md)
+- Optional single deployment entrypoint: [docs/deployment-runner.md](./docs/deployment-runner.md)
 
 ---
 
@@ -383,7 +383,7 @@ Envs: `local`, `dev`, `prod`.
 - `orchestrate` — Full deployment-runner redeploy (builds images, deploys both profiles, refreshes env files)
 - Nginx config sync is automated during deployment automation and service restarts; no manual step required
 
-Note: `orchestrate` runs the deployment runner script: `bash deploy/scripts/deployment-orchestrator.sh --profiles both --refresh-env`
+Note: `orchestrate` runs the deployment runner script: `bash deploy/scripts/deployment-runner.sh --profiles both --refresh-env`
 
 ### Quality & DX
 
@@ -706,7 +706,7 @@ High‑level AWS/IaC overview plus an optional deployment runner summary.
 
 ### 🧠 Deployment Runner (Current State, optional)
 
-Unifies Terraform state, Docker image workflows, and GitHub Actions env regeneration into one CLI script (`deploy/scripts/deployment-orchestrator.sh`). Useful when you’re shipping changes; unnecessary if the stack is already up and healthy.
+Unifies Terraform state, Docker image workflows, and GitHub Actions env regeneration into one CLI script (`deploy/scripts/deployment-runner.sh`). Useful when you’re shipping changes; unnecessary if the stack is already up and healthy.
 
 - Regenerates host `.env.dev` / `.env.prod` from GitHub Secrets, then restarts containers.
 - Profile aware (`dev` / `prod` / `both`) with distinct registries & buckets.
@@ -718,12 +718,12 @@ Unifies Terraform state, Docker image workflows, and GitHub Actions env regenera
 Typical commands:
 
 ```bash
-deploy/scripts/deployment-orchestrator.sh --discover-only
-deploy/scripts/deployment-orchestrator.sh --plan-only
-deploy/scripts/deployment-orchestrator.sh --profiles prod --refresh-env
-deploy/scripts/deployment-orchestrator.sh --profiles both --refresh-env
-deploy/scripts/deployment-orchestrator.sh --profiles prod --no-build
-deploy/scripts/deployment-orchestrator.sh --profiles prod --refresh-env
+deploy/scripts/deployment-runner.sh --discover-only
+deploy/scripts/deployment-runner.sh --plan-only
+deploy/scripts/deployment-runner.sh --profiles prod --refresh-env
+deploy/scripts/deployment-runner.sh --profiles both --refresh-env
+deploy/scripts/deployment-runner.sh --profiles prod --no-build
+deploy/scripts/deployment-runner.sh --profiles prod --refresh-env
 ```
 
 Tip: Add `--no-build` to any deployment runner command to skip rebuilding images and pull the latest tags.
@@ -775,7 +775,7 @@ sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl \
   -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json -s
 ```
 
-Or re-run the deployment runner: `deploy/scripts/deployment-orchestrator.sh --profiles prod` (auto ensures agent + config).
+Or re-run the deployment runner: `deploy/scripts/deployment-runner.sh --profiles prod` (auto ensures agent + config).
 
 **Query examples (Logs Insights):**
 
@@ -894,7 +894,7 @@ For deep dives and implementation details:
 - Ports & Services: [`/docs/ports.md`](./docs/ports.md)
 - Infrastructure Guide: [`/infra/README.md`](./infra/README.md)
 - Deployment Instructions: [`/deploy/DEPLOYMENT.md`](./deploy/DEPLOYMENT.md)
-- Deployment Runner: [`/docs/deployment-orchestrator.md`](./docs/deployment-orchestrator.md)
+- Deployment Runner: [`/docs/deployment-runner.md`](./docs/deployment-runner.md)
 
 ## Roadmap
 

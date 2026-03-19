@@ -8,9 +8,9 @@
 # a single source of truth in GitHub for runtime env files and container start.
 #
 # Usage examples:
-#   deploy/scripts/deployment-orchestrator.sh --force --build-images both --profiles both
-#   deploy/scripts/deployment-orchestrator.sh --build-images prod --profiles prod
-#   deploy/scripts/deployment-orchestrator.sh --no-build --profiles dev
+#   deploy/scripts/deployment-runner.sh --force --build-images both --profiles both
+#   deploy/scripts/deployment-runner.sh --build-images prod --profiles prod
+#   deploy/scripts/deployment-runner.sh --no-build --profiles dev
 #
 # Requirements:
 # - aws, terraform, node/npm, docker (if building images), gh CLI (auth'd)
@@ -112,9 +112,9 @@ GH_REPO="BBaysinger/bb-portfolio"
 gh repo view "$GH_REPO" >/dev/null 2>&1 || die "Cannot access repo $GH_REPO via gh CLI"
 
 [[ -f "${REPO_ROOT}/.github-secrets.private.json5" ]] || die ".github-secrets.private.json5 missing at repo root"
-#   deploy/scripts/deployment-orchestrator.sh --force --build-images both --profiles both
-#   deploy/scripts/deployment-orchestrator.sh --build-images prod --profiles prod
-#   deploy/scripts/deployment-orchestrator.sh --no-build --profiles dev
+#   deploy/scripts/deployment-runner.sh --force --build-images both --profiles both
+#   deploy/scripts/deployment-runner.sh --build-images prod --profiles prod
+#   deploy/scripts/deployment-runner.sh --no-build --profiles dev
 pushd "$REPO_ROOT" >/dev/null
 
 log "Installing npm deps if needed"

@@ -596,7 +596,7 @@ New decisions should be appended chronologically.
 
 ## 2025-10-19 – Deployment Runner (Terraform + GitHub Actions + SSH Fallback)
 
-- **Decision:** Adopt a single deployment runner script `deploy/scripts/deployment-orchestrator.sh` as the source of truth for provisioning/updating EC2 infrastructure, optionally building/publishing images, and triggering container (re)starts via GitHub Actions with an SSH fallback.
+- **Decision:** Adopt a single deployment runner script `deploy/scripts/deployment-runner.sh` as the source of truth for provisioning/updating EC2 infrastructure, optionally building/publishing images, and triggering container (re)starts via GitHub Actions with an SSH fallback.
 
 - **Context / Architecture:**
   - Deployment runner responsibilities:

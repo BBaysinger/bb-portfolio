@@ -7,7 +7,7 @@ The deployment runner is optional.
 - If the site is already up and you’re not shipping changes, you do not need to run it.
 - If you are shipping changes and want one repeatable command that ties together infra, images, env refresh, and restarts, it’s useful.
 
-- **Script:** `deploy/scripts/deployment-orchestrator.sh`
+- **Script:** `deploy/scripts/deployment-runner.sh`
 - **Scope:** provisions/updates a single EC2 host via Terraform and (re)starts Docker Compose profiles (via GitHub Actions with SSH fallback).
 
 ## What it does
@@ -33,31 +33,31 @@ The deployment runner is optional.
 Read-only discovery:
 
 ```bash
-bash deploy/scripts/deployment-orchestrator.sh --discover-only
+bash deploy/scripts/deployment-runner.sh --discover-only
 ```
 
 Plan-only preview:
 
 ```bash
-bash deploy/scripts/deployment-orchestrator.sh --plan-only
+bash deploy/scripts/deployment-runner.sh --plan-only
 ```
 
 Deploy containers (prod+dev profiles) and regenerate env files:
 
 ```bash
-bash deploy/scripts/deployment-orchestrator.sh --profiles both --refresh-env
+bash deploy/scripts/deployment-runner.sh --profiles both --refresh-env
 ```
 
 Deploy only prod:
 
 ```bash
-bash deploy/scripts/deployment-orchestrator.sh --profiles prod --refresh-env
+bash deploy/scripts/deployment-runner.sh --profiles prod --refresh-env
 ```
 
 Containers-only (skip Terraform/host sync):
 
 ```bash
-bash deploy/scripts/deployment-orchestrator.sh --skip-infra --profiles both --refresh-env
+bash deploy/scripts/deployment-runner.sh --skip-infra --profiles both --refresh-env
 ```
 
 ## Profiles and ports

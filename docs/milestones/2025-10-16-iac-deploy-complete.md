@@ -9,13 +9,13 @@ Stable, repeatable end-to-end deployment workflow implemented using Infrastructu
 - S3 media buckets with versioning + SSE and CORS for both prod/dev
 - ECR for production images; Docker Hub for dev images
 - Reusable GitHub Actions Redeploy workflow (manual dispatch + reusable from CI)
-- One deployment runner: `deploy/scripts/deployment-orchestrator.sh` handles infra, secrets sync, image builds, and container restarts
+- One deployment runner: `deploy/scripts/deployment-runner.sh` handles infra, secrets sync, image builds, and container restarts
 - Safe fallback: if GH dispatch is flaky, the deployment runner uploads envs + restarts via SSH automatically
 
 ## Components
 
 - `.github/workflows/redeploy.yml` with workflow_dispatch and workflow_call
-- `deploy/scripts/deployment-orchestrator.sh` (preferred entrypoint)
+- `deploy/scripts/deployment-runner.sh` (preferred entrypoint)
 - `deploy/scripts/publish-ecr-images.sh` and `deploy/scripts/publish-dockerhub-dev-images.sh`
 - `deploy/scripts/generate-terraform-vars.ts` to derive `infra/terraform.tfvars` from private JSON5
 - `infra/` Terraform with lifecycle protection for EIP and targeted-destroy filters

@@ -319,7 +319,7 @@
     // 🎭 DEPLOYMENT: Deployment Runner (Single-Instance / Current)
     // =============================================================================
     // NAMING CONVENTION:
-    //   orchestrate:xxx  = calls the deployment runner script with flags (same script)
+    //   orchestrate:xxx  = calls deploy/scripts/deployment-runner.sh with flags (same script)
     //   orchestrate-xxx  = calls separate script (different script)
     // =============================================================================
     // WORKFLOW:
@@ -328,18 +328,18 @@
     // =============================================================================
     // Deploy the current single-instance stack.
     // Runs: terraform (unless skipped), image build/push (unless disabled), GitHub Actions deploy, nginx sync
-    "orchestrate": "bash deploy/scripts/deployment-orchestrator.sh --profiles both --refresh-env",
+    "orchestrate": "bash deploy/scripts/deployment-runner.sh --profiles both --refresh-env",
     // Rebuild+push both prod/dev images before dispatching redeploy workflows
     // Useful when backend/frontend code changed and new images must be published
-    "orchestrate:rebuild-images": "bash deploy/scripts/deployment-orchestrator.sh --profiles both --rebuild-images --refresh-env",
+    "orchestrate:rebuild-images": "bash deploy/scripts/deployment-runner.sh --profiles both --rebuild-images --refresh-env",
     // Deploy using existing images (skip Docker build/push to registries)
     // Useful for config-only changes or when images are already built and pushed
     // Still provisions infrastructure and deploys containers from DockerHub/ECR
-    "orchestrate:no-build": "bash deploy/scripts/deployment-orchestrator.sh --profiles both --no-build --refresh-env",
+    "orchestrate:no-build": "bash deploy/scripts/deployment-runner.sh --profiles both --no-build --refresh-env",
     // Skip-infra deployment (no Terraform/host maintenance)
     // Rebuilds/pushes images (unless --no-build) then asks GH Actions to restart containers
     // Useful for application updates when infrastructure is stable
-    "orchestrate:skip-infra": "bash deploy/scripts/deployment-orchestrator.sh --profiles both --skip-infra --refresh-env",
+    "orchestrate:skip-infra": "bash deploy/scripts/deployment-runner.sh --profiles both --skip-infra --refresh-env",
     // 🏗️ Infrastructure: Sync .env file with Terraform state (interactive)
     "infra:sync-env": "cd infra && bash sync-env-from-terraform.sh",
     // 🏗️ Infrastructure: Sync .env file with Terraform state (skip confirmation)

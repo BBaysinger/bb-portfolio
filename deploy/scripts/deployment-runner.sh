@@ -31,9 +31,9 @@
 #   for the SSH fallback path when requested.
 #
 # Usage examples:
-#   deploy/scripts/deployment-orchestrator.sh --force --build-images both --profiles both
-#   deploy/scripts/deployment-orchestrator.sh --build-images prod --profiles prod
-#   deploy/scripts/deployment-orchestrator.sh --no-build --profiles dev
+#   deploy/scripts/deployment-runner.sh --force --build-images both --profiles both
+#   deploy/scripts/deployment-runner.sh --build-images prod --profiles prod
+#   deploy/scripts/deployment-runner.sh --no-build --profiles dev
 #
 # Requirements:
 # - aws, terraform, node/npm, docker (if building images), gh CLI (auth'd)

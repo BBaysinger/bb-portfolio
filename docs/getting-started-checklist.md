@@ -94,4 +94,4 @@ Only do these once local dev works.
 - [ ] Docker Hub (dev images): you can run the root script that builds + pushes dev images
 - [ ] AWS (prod deploy): you’ll need AWS credentials + Terraform state + ECR access
   - [ ] Start by reading [deploy/DEPLOYMENT.md](../deploy/DEPLOYMENT.md)
-  - [ ] Then skim [docs/deployment-orchestrator.md](./deployment-orchestrator.md) for the deployment runner flow
+  - [ ] Then skim [docs/deployment-runner.md](./deployment-runner.md) for the deployment runner flow

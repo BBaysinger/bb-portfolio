@@ -27,7 +27,7 @@ Infrastructure is managed with Terraform (`infra/`) and a single host runs both 
 
 ## Next Steps (Typical Flow)
 
-See also: `docs/deployment-orchestrator.md` for read-only discovery, plan-only previews, and common deployment runner commands. (The deployment runner is optional—GitHub Actions + the management script can be used directly.)
+See also: `docs/deployment-runner.md` for read-only discovery, plan-only previews, and common deployment runner commands. (The deployment runner is optional—GitHub Actions + the management script can be used directly.)
 
 ### 1. Configure DNS (Canonical Host Strategy)
 
@@ -202,7 +202,7 @@ If backend logs show "Missing required environment variables":
 - Re-run the redeploy with env refresh enabled so the workflow regenerates `.env.prod`/`.env.dev` on EC2:
 
 ```bash
-deploy/scripts/deployment-orchestrator.sh --profiles prod --refresh-env
+deploy/scripts/deployment-runner.sh --profiles prod --refresh-env
 ```
 
 This ensures `SECURITY_TXT_EXPIRES` and the required-lists are present for the env-guard.
@@ -279,7 +279,7 @@ They should all return the Elastic IP (the value of `EC2_INSTANCE_IP`). If any d
 With DNS pointed to the Elastic IP and your ACME email set, run the deployment runner (containers-only is fine):
 
 ```bash
-deploy/scripts/deployment-orchestrator.sh --profiles prod --no-build --secrets-omit-env all
+deploy/scripts/deployment-runner.sh --profiles prod --no-build --secrets-omit-env all
 ```
 
 It will detect the EC2 host, ensure certbot is installed, and issue certs via the nginx plugin with `--redirect`.
@@ -297,7 +297,7 @@ curl -I https://dev.example.com | head -1  # Dev site
 Or remotely via the deployment runner after infra step:
 
 ```bash
-deploy/scripts/deployment-orchestrator.sh --discover-only
+deploy/scripts/deployment-runner.sh --discover-only
 ```
 
 ### 5. Manual Re-Issue / Adjust Domains
