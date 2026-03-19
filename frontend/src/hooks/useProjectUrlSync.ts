@@ -4,11 +4,11 @@ import { useEffect, useRef, useState } from "react";
 
 import { useRouteChange } from "@/hooks/useRouteChange";
 import { getDynamicPathParam } from "@/utils/getDynamicPathParam";
-import { getLocationSearchParam, getSearchParam } from "@/utils/searchParams";
 import {
   navigateWithPushState,
   replaceWithReplaceState,
 } from "@/utils/navigation";
+import { getLocationSearchParam, getSearchParam } from "@/utils/searchParams";
 
 /**
  * useProjectUrlSync

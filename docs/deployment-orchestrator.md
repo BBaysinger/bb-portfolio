@@ -1,8 +1,8 @@
-# Deployment Orchestrator (Single-Instance / Current)
+# Deployment Runner (Single-Instance / Current)
 
 This document covers the current, day-to-day deployment toolchain for the single-host model.
 
-The orchestrator is optional.
+The deployment runner is optional.
 
 - If the site is already up and you’re not shipping changes, you do not need to run it.
 - If you are shipping changes and want one repeatable command that ties together infra, images, env refresh, and restarts, it’s useful.

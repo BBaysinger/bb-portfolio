@@ -8,7 +8,7 @@
 
 - Secrets:
   - Never bake secrets into images via `ARG`/`ENV` or committed `.env` files.
-  - Inject secrets at build-time using Docker BuildKit secrets mounts (`--mount=type=secret,id=...`) and at runtime via orchestrator environment.
+  - Inject secrets at build-time using Docker BuildKit secrets mounts (`--mount=type=secret,id=...`) and at runtime via deployment runner environment.
   - Remove repo `.env*` files during build to prevent overrides; keep only `*.example` templates in VCS.
 
 - Scanning:

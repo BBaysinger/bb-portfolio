@@ -88,7 +88,7 @@ Working list of notable features
 
 ### Infra / Deployment
 
-- Deployment tooling (scripts + optional orchestrator)
+- Deployment tooling (scripts + optional deployment runner)
 - GitHub Secrets sync pipeline from JSON5 source files + required-env validation lists
 - Terraform IaC: one-command provision/teardown of full stack
 - Systemd-managed Docker services on EC2 with auto-restart

@@ -46,7 +46,7 @@ sudo chown root:root /etc/nginx/conf.d/bb-portfolio.conf
 
 # Optional SSL config:
 # - Keep SSL blocks in a separate include file.
-# - SSL_DOMAIN must be explicitly provided by the deploy runner (CI/Orchestrator).
+# - SSL_DOMAIN must be explicitly provided by the deployment runner (CI/manual deploy flow).
 # - Do NOT delete an existing SSL config automatically; doing so can drop :443.
 SSL_DOMAIN="${SSL_DOMAIN:-}"
 SSL_CONF=/etc/nginx/conf.d/bb-portfolio-ssl.conf

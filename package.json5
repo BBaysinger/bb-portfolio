@@ -316,10 +316,10 @@
     "db:restore:auth:dev": "bash scripts/restore-collections-from-backup.sh dev",
     // 🧪 Dry run only: show which backup would be used and the mongorestore command
     "db:restore:auth:dev:dry": "bash scripts/restore-collections-from-backup.sh dev --dry-run",
-    // 🎭 ORCHESTRATION: Deployment Orchestrator (Single-Instance / Current)
+    // 🎭 DEPLOYMENT: Deployment Runner (Single-Instance / Current)
     // =============================================================================
     // NAMING CONVENTION:
-    //   orchestrate:xxx  = calls deployment-orchestrator.sh with flags (same script)
+    //   orchestrate:xxx  = calls the deployment runner script with flags (same script)
     //   orchestrate-xxx  = calls separate script (different script)
     // =============================================================================
     // WORKFLOW:

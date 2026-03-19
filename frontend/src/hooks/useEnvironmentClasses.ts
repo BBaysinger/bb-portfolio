@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 
 import { detectOs, isFirefox } from "../utils/browser";
+import type { DetectedOs } from "../utils/browser";
 
 /**
  * Adds environment/OS classes to the document root element for OS-specific styling.
@@ -9,9 +10,6 @@ import { detectOs, isFirefox } from "../utils/browser";
  * - `html.windows`, `html.mac`, `html.ios`, `html.android`, `html.linux`
  * - `html.apple` for macOS + iOS
  */
-
-import type { DetectedOs } from "../utils/browser";
-
 export type EnvironmentClassHookOptions = {
   /**
    * Defaults to `document.documentElement`.

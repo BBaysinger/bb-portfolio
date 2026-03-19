@@ -154,7 +154,7 @@ Live site reference moments:
 
 #### 🏗️ Infra / deployment
 
-- [Deployment tooling (scripts + optional orchestrator)](#backend-infra-deployment)
+- [Deployment tooling (scripts + optional deployment runner)](#backend-infra-deployment)
 - [GitHub Secrets sync pipeline from JSON5 source files + required-env validation lists](#backend-infra-deployment)
 - [Terraform IaC: one-command provision/teardown of full stack](#backend-infra-deployment)
 - [Systemd-managed Docker services on EC2 with auto-restart](#backend-infra-deployment)
@@ -189,7 +189,7 @@ Next up:
 - Frontend deep dives: start at [Frontend UX & Interaction](#frontend-ux-interaction)
 - Platform deep dives: continue to [Backend / Platform Systems](#backend-platform-systems)
 - Convenience scripts: [Deployment conveniences catalog](#-deployment-conveniences-catalog)
-- Optional single deploy entrypoint: [docs/deployment-orchestrator.md](./docs/deployment-orchestrator.md)
+- Optional single deployment entrypoint: [docs/deployment-orchestrator.md](./docs/deployment-orchestrator.md)
 
 ---
 
@@ -260,7 +260,7 @@ This section backs the backend/platform links in the [Feature Index](#feature-in
 
 ### 🏗️ Infra / Deployment
 
-- Deployment tooling (scripts + optional orchestrator)
+- Deployment tooling (scripts + optional deployment runner)
 - GitHub Secrets sync pipeline from JSON5 source files + required-env validation lists
 - Terraform IaC: one-command provision/teardown of full stack
 - Systemd-managed Docker services on EC2 with auto-restart
@@ -331,7 +331,7 @@ All root `npm` scripts are grouped below by intent. Most have dry‑run or detac
 
 Note: The dev image build scripts use Docker BuildKit secrets (not `--build-arg`) for build-time config. For local builds, you must have the required env vars present in your shell; the scripts will fail fast if anything is missing.
 
-Note: By default, the deployment orchestrator builds and pushes both frontend and backend images (prod → ECR, dev → Docker Hub) to ensure consistency. Add `--no-build` to skip rebuilding and pull the latest tags instead.
+Note: By default, the deployment runner builds and pushes both frontend and backend images (prod → ECR, dev → Docker Hub) to ensure consistency. Add `--no-build` to skip rebuilding and pull the latest tags instead.
 
 ### Registry hygiene & verification
 
@@ -380,10 +380,10 @@ Envs: `local`, `dev`, `prod`.
 
 ### Deployment & config
 
-- `orchestrate` — Full orchestrated redeploy (builds images, deploys both profiles, refreshes env files)
-- Nginx config sync is automated during service orchestration and deployment automation; no manual step required
+- `orchestrate` — Full deployment-runner redeploy (builds images, deploys both profiles, refreshes env files)
+- Nginx config sync is automated during deployment automation and service restarts; no manual step required
 
-Note: `orchestrate` runs `bash deploy/scripts/deployment-orchestrator.sh --profiles both --refresh-env`
+Note: `orchestrate` runs the deployment runner script: `bash deploy/scripts/deployment-orchestrator.sh --profiles both --refresh-env`
 
 ### Quality & DX
 
@@ -393,7 +393,7 @@ Note: `orchestrate` runs `bash deploy/scripts/deployment-orchestrator.sh --profi
 Notes:
 
 - Dry runs prevent unintended destructive actions (`:dry` suffix or dedicated script variant).
-- Secrets never enter the repo or images; all injected at deploy time via orchestrated env regeneration.
+- Secrets never enter the repo or images; all injected at deploy time via deployment-runner env regeneration.
 - Use proxy mode for production‑parity hostnames and relative API paths.
 
 ---
@@ -702,9 +702,9 @@ Runtime .env generation (deploy):
 
 ## Infrastructure & Deployment
 
-High‑level AWS/IaC overview plus an (optional) orchestrator summary.
+High‑level AWS/IaC overview plus an optional deployment runner summary.
 
-### 🧠 Deployment Orchestrator (Current State, optional)
+### 🧠 Deployment Runner (Current State, optional)
 
 Unifies Terraform state, Docker image workflows, and GitHub Actions env regeneration into one CLI script (`deploy/scripts/deployment-orchestrator.sh`). Useful when you’re shipping changes; unnecessary if the stack is already up and healthy.
 
@@ -713,7 +713,7 @@ Unifies Terraform state, Docker image workflows, and GitHub Actions env regenera
 - Safety: avoids destructive infra ops; supports discovery/plan-only modes.
 - Falls back to SSH path if workflow dispatch fails.
 
-**Note:** The current orchestrator is functional but requires additional testing for edge cases and failure scenarios. Production deployments should be monitored closely until further validation is complete.
+**Note:** The current deployment runner is functional but requires additional testing for edge cases and failure scenarios. Production deployments should be monitored closely until further validation is complete.
 
 Typical commands:
 
@@ -726,9 +726,9 @@ deploy/scripts/deployment-orchestrator.sh --profiles prod --no-build
 deploy/scripts/deployment-orchestrator.sh --profiles prod --refresh-env
 ```
 
-Tip: Add `--no-build` to any orchestrator command to skip rebuilding images and pull the latest tags.
+Tip: Add `--no-build` to any deployment runner command to skip rebuilding images and pull the latest tags.
 
-Note: By default, images are built and pushed automatically. The orchestrator sets `AWS_PROFILE=bb-portfolio-user` for ECR access.
+Note: By default, images are built and pushed automatically. The deployment runner sets `AWS_PROFILE=bb-portfolio-user` for ECR access.
 
 ### ⚙️ Architecture Overview
 
@@ -748,14 +748,15 @@ Runtime visibility and basic security counters are provided through two compleme
 
 1. **CloudWatch Agent (host metrics + log ingestion)**
    - Config file: `scripts/monitoring/cloudwatch-agent-config.json`
-   - Installed automatically by the deploy orchestrator (`ensure_cloudwatch_agent`) when absent.
-   - Collected metrics namespace: `BB-Portfolio/Host` (CPU idle/user/system, mem used %, disk used %, network bytes in/out).
-   - Log groups created on demand:
-     - `/bb-portfolio/nginx/access`
-     - `/bb-portfolio/nginx/error`
-     - `/bb-portfolio/system/secure` (auth / sshd)
-     - `/bb-portfolio/fail2ban`
-   - Each stream is suffixed with the instance id for isolation.
+
+- Installed automatically by the deployment runner (`ensure_cloudwatch_agent`) when absent.
+- Collected metrics namespace: `BB-Portfolio/Host` (CPU idle/user/system, mem used %, disk used %, network bytes in/out).
+- Log groups created on demand:
+  - `/bb-portfolio/nginx/access`
+  - `/bb-portfolio/nginx/error`
+  - `/bb-portfolio/system/secure` (auth / sshd)
+  - `/bb-portfolio/fail2ban`
+- Each stream is suffixed with the instance id for isolation.
 
 2. **Custom security & performance counters (PutMetricData)**
    - Script: `scripts/monitoring/publish-cloudwatch-metrics.sh` (counts upstream timeouts, rate limit triggers, SSH auth failures, fail2ban bans).
@@ -774,7 +775,7 @@ sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl \
   -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json -s
 ```
 
-Or re-run orchestrator: `deploy/scripts/deployment-orchestrator.sh --profiles prod` (auto ensures agent + config).
+Or re-run the deployment runner: `deploy/scripts/deployment-orchestrator.sh --profiles prod` (auto ensures agent + config).
 
 **Query examples (Logs Insights):**
 
@@ -834,7 +835,7 @@ Runtime & service orchestration and deployment automation lifecycle (summary):
 
 1. Terraform ensures EC2, IAM, S3, ECR, Route 53, SES, etc. exist & are current.
 2. EC2 user_data bootstraps Docker + proxy services.
-3. GitHub workflow (invoked by orchestrator) regenerates `.env.dev` / `.env.prod` from secrets → containers restart.
+3. GitHub workflow (invoked by the deployment runner) regenerates `.env.dev` / `.env.prod` from secrets → containers restart.
 4. Systemd maintains uptime & restarts; image sources differ by profile (Docker Hub dev vs ECR prod).
 5. Post‑deploy health checks validate backend/API and media routing.
 
@@ -845,7 +846,7 @@ curl -fsSL http://localhost:3001/api/health/   # expect 200
 curl -fsSL 'http://localhost:3000/api/projects/?limit=3&depth=0' | jq '.docs | length'
 ```
 
-If env guards fail (missing required variables) re‑run orchestrator with `--refresh-env` (see section above) to regenerate host env files.
+If env guards fail (missing required variables) re‑run the deployment runner with `--refresh-env` (see section above) to regenerate host env files.
 
 ### 🐳 Container Management
 
@@ -876,7 +877,7 @@ Helper scripts (from `infra/bb-portfolio-management.sh`):
 ### 📊 Infrastructure Components
 
 - Infrastructure as Code with Terraform
-- Service orchestration and deployment automation with Docker and systemd
+- Deployment automation and service lifecycle management with Docker and systemd
 - Automated deployment workflows
 - System reliability with auto-restart and health monitoring
 
@@ -893,7 +894,7 @@ For deep dives and implementation details:
 - Ports & Services: [`/docs/ports.md`](./docs/ports.md)
 - Infrastructure Guide: [`/infra/README.md`](./infra/README.md)
 - Deployment Instructions: [`/deploy/DEPLOYMENT.md`](./deploy/DEPLOYMENT.md)
-- Deployment Orchestrator: [`/docs/deployment-orchestrator.md`](./docs/deployment-orchestrator.md)
+- Deployment Runner: [`/docs/deployment-orchestrator.md`](./docs/deployment-orchestrator.md)
 
 ## Roadmap
 

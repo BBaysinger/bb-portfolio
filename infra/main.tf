@@ -157,7 +157,7 @@ usermod -aG docker ec2-user
 systemctl enable nginx
 
 # NOTE: We intentionally do NOT write a site-specific Nginx config here.
-# The deploy orchestrator (or manual sync:nginx) manages /etc/nginx/conf.d/bb-portfolio.conf
+# The deployment runner (or manual sync:nginx) manages /etc/nginx/conf.d/bb-portfolio.conf
 
 # Disable default Nginx server block by commenting it out
 sed -i '/^    server {/,/^    }/s/^/#/' /etc/nginx/nginx.conf
@@ -165,15 +165,15 @@ sed -i '/^    server {/,/^    }/s/^/#/' /etc/nginx/nginx.conf
 # Test and start Nginx
 nginx -t && systemctl start nginx
 
-# Certbot/cert issuance is handled by the deploy orchestrator (SSH step)
+# Certbot/cert issuance is handled by the deployment runner (SSH step)
 
 
-# Prepare application directories (orchestrator will populate)
+# Prepare application directories (the deployment runner will populate them)
 mkdir -p /home/ec2-user/portfolio/backend
 mkdir -p /home/ec2-user/portfolio/frontend
 chown -R ec2-user:ec2-user /home/ec2-user/portfolio
 
-# Note: Containers and Nginx config will be managed by the deployment orchestrator.
+# Note: Containers and Nginx config will be managed by the deployment runner.
 echo "Infrastructure baseline ready. Containers will be deployed via GitHub Actions." >> /var/log/bb-portfolio-startup.log
 
 EOF

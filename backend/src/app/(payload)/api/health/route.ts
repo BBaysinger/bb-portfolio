@@ -4,7 +4,7 @@
 export const runtime = 'nodejs'
 
 // Lightweight health endpoint: avoids DB handshake to become ready faster
-// Orchestrator treats 2xx/3xx as healthy; trailingSlash redirect (308) acceptable.
+// Deployment runner treats 2xx/3xx as healthy; trailingSlash redirect (308) acceptable.
 export async function GET() {
   const body = {
     ok: true,

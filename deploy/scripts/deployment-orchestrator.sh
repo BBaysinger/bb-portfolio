@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Deployment Orchestrator — EC2 + Docker Compose (4 Debian-based containers)
+# Deployment Runner — EC2 + Docker Compose (4 Debian-based containers)
 # -------------------------------------------------------------------------
 # What this does (high level):
 # - Provisions/updates an AWS EC2 instance via Terraform.

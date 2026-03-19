@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Full deploy orchestrator: run all infra/image steps locally, then hand off
+# Full deployment runner: run all infra/image steps locally, then hand off
 # container (re)start to GitHub Actions "Redeploy" workflow.
 #
 # This mirrors scripts/iac/full-redeploy.sh except the final step uses GH to
