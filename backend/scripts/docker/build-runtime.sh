@@ -1,6 +1,7 @@
 #!/bin/sh
 set -eu
 
+# Normalize the profile once so secret lookup and fallback defaults stay aligned.
 PROFILE="$(printf '%s' "${ENV_PROFILE:-prod}" | tr '[:upper:]' '[:lower:]')"
 
 to_secret_key() {
@@ -40,6 +41,8 @@ assign_if_present() {
     fi
 }
 
+# These are the build-time inputs the backend expects either from BuildKit secrets
+# or from non-prod fallback defaults below.
 COMMON_VARS="
 MONGODB_URI
 PAYLOAD_SECRET
@@ -60,9 +63,12 @@ for var in $COMMON_VARS; do
     assign_if_present "$var" "$(read_profile_secret "$PROFILE" "$var")"
 done
 
+# AWS credentials are shared rather than profile-scoped in the current build flow.
 assign_if_present AWS_ACCESS_KEY_ID "$(read_shared_secret aws_access_key_id)"
 assign_if_present AWS_SECRET_ACCESS_KEY "$(read_shared_secret aws_secret_access_key)"
 
+# Non-prod images only need enough configuration for import-map generation and
+# the webpack build to complete. Real runtime secrets still come from the host.
 if [ "$PROFILE" != "prod" ]; then
     : "${MONGODB_URI:=mongodb://localhost/${PROFILE}-dummy}"
     : "${PAYLOAD_SECRET:=dev-dummy-secret}"
@@ -106,6 +112,8 @@ require_var() {
 }
 
 if [ "$PROFILE" = "prod" ]; then
+    # Production builds should fail early instead of silently compiling against
+    # dummy values that would hide missing deployment secrets.
     for var in $COMMON_VARS; do
         if [ "$var" = "SES_FROM_EMAIL" ]; then
             if [ -z "${SES_FROM_EMAIL:-}" ] && [ -z "${SMTP_FROM_EMAIL:-}" ]; then
