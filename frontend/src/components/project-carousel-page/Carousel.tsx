@@ -27,49 +27,29 @@ import {
 } from "./CarouselTypes";
 
 /**
- * Carousel Component
- * - Bi-directional, infinite-scroll carousel with wrap-around behavior.
- * - Uses browser-native inertial scrolling (touch/swipe/trackpad gestures).
- * - Infinite scroll supporting master-slave architecture for synchronizing parallax effects.
- * - Built for performance and smooth user interaction with inertial scrolling and precise position tracking.
- * - Designed to handle various use cases, including custom scroll synchronization and routing.
- * - Slides are passed as props.
- * - Minimal state, for performance and smoothest user interaction possible.
+ * Infinite, snap-aware carousel with optional master/slave synchronization.
  *
- * Supports master/slave architecture:
- * - **Master Carousel:** Intercepts and controls interactions, allowing delegation of scroll parameters to slave carousels via parent/child architecture.
- * - **Slave Carousel:** Follows the master's scroll updates, enabling synchronized parallax effects.
- *   For effective parallaxing, the master is typically invisible, while the slaves remain visible to appear more synchronized.
+ * This component is the low-level scroll engine for the project carousel UI.
+ * It supports native scrolling, wrap-around positioning, programmatic slide
+ * navigation, and synchronized slave layers for parallax-like effects.
  *
- * Dependencies:
- * - React (required)
- * - GSAP (used here for smooth scrolling, but will be swapped out for a custom physics solution).
+ * Design notes:
+ * - The master carousel owns native scroll interaction and remains the source
+ *   of truth for live motion.
+ * - Slave carousels do not scroll independently; they project the master's
+ *   position using layer-specific spacing multipliers.
+ * - Visual synchronization and semantic updates are intentionally split:
+ *   slave layers are updated immediately for same-frame visual lock, while
+ *   index, stabilization, and analytics continue on a deferred path.
+ * - Infinite scrolling is achieved by rendering each slide once and assigning
+ *   it to the correct repeated cycle of the track based on scroll position
+ *   and direction.
  *
- * Key Challenges Addressed:
- * 1. **Infinite Scrolling:** HTML's `scrollLeft` doesn't support negative values. This is mitigated with a `BASE_OFFSET` set to a large value.
- *    - Future Improvement: Reset offsets during scroll stops once Safari supports the `scrollend` event (which will make the solution more elegant).
- *
- * 2. **Scroll Snap Behavior:** `scroll-snap-type: x mandatory` can interfere with initial positioning and callbacks.
- *    - Resolution: Applied on a delay post-render to avoid recursion issues, which also allows for visual inspection of alignment before being applied.
- *
- * 3. **Initial Offset:** Initially setting `scrollLeft` to the base offset requires the scroller to be shimmed/propped to the required width
- *    if there are no slides to the right of the initial index.
- *
- * TODO:
- * - Add non-native inertial scrolling as:
- *   1. An optional feature to unify the experience between different browser types.
- *   2. Enable inertial scroll for mouse-based drag and flick.
- * - Clone slides dynamically to prevent blank spaces at edges.
- * - Implement lazy loading for slides and ensure proper wrapping of scroller positions.
- *
- * Main Features:
- * 1. Infinite scrolling with wrap-around behavior.
- * 2. Parallax-friendly master/slave architecture for multi-layer effects.
- * 3. Smooth scrolling using GSAP.
- *
- * Notes:
- * - Smoothness achieved here the main objective, and uncommon if you compare it to most every other carousel.
- *
+ * Key constraints:
+ * - HTML scroll containers do not support negative `scrollLeft`, so the master
+ *   uses a large base offset to simulate leftward infinity.
+ * - Scroll snap is applied carefully to avoid interfering with initial
+ *   positioning and programmatic movement.
  */
 gsap.registerPlugin(ScrollToPlugin);
 
@@ -88,7 +68,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
     initialIndex = 0,
     onImmediateScrollUpdate,
     onIndexUpdate,
-    debug = 1,
+    debug = 0,
     onScrollUpdate,
     onStabilizationUpdate,
     stabilizationDelay = 800,
@@ -129,6 +109,9 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
     onScrollUpdateRef.current = onScrollUpdate;
   }, [onScrollUpdate]);
 
+  // Keep the immediate visual-sync callback out of the main scroll handler's
+  // closure so master scroll events can fan out to slaves without waiting for a
+  // React re-render.
   const onImmediateScrollUpdateRef = useRef(onImmediateScrollUpdate);
   useEffect(() => {
     onImmediateScrollUpdateRef.current = onImmediateScrollUpdate;
@@ -380,6 +363,8 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
 
     const scrollListener = (_: Event) => {
       if (isInitializingRef.current) return;
+      // Keep slave layers visually locked to the master in the current frame.
+      // Index and stabilization work continue on the throttled semantic path.
       if (scrollerRef.current) {
         emitImmediateScrollUpdate(scrollerRef.current.scrollLeft);
       }

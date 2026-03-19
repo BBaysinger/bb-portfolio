@@ -38,24 +38,21 @@ export interface CarouselLayerConfig {
 }
 
 /**
- * Layered carousel management system for synchronized parallax effects.
+ * Coordinates a master carousel with one or more synchronized slave layers.
  *
- * Manages multiple carousel layers with master/slave architecture for creating
- * complex parallax animations. The master carousel handles user interactions
- * while slave carousels follow with configurable multipliers and spacing.
+ * This component owns the layered composition model used by the project
+ * carousel view. Each layer is configured independently, but only the master
+ * is interactive. Slave layers mirror the master's movement using per-layer
+ * multipliers so different device mockups can stay visually aligned while
+ * moving at different rates.
  *
- * Features:
- * - Master/slave carousel synchronization
- * - Configurable parallax multipliers per layer
- * - Custom spacing and slide content per layer
- * - Unified control interface for external components
- * - Smooth scrolling and position tracking
- *
- * @component
- * @param {Object} props - Component props
- * @param {CarouselLayerConfig[]} [props.layers] - Configuration for each carousel layer
- * @param {string} [props.prefix] - CSS class prefix for styling
- * @param {React.Ref} ref - Forwarded ref for external control
+ * Synchronization model:
+ * - The master emits an immediate visual-scroll callback so slaves can stay
+ *   visually locked in the current frame.
+ * - Semantic state such as active index, stabilization, and preload eligibility
+ *   remains on the normal React update path.
+ * - The manager is also responsible for applying cross-layer presentation
+ *   state, such as tilt classes and staged image loading.
  */
 export interface LayeredCarouselManagerProps {
   layers?: CarouselLayerConfig[];
@@ -75,42 +72,6 @@ export interface LayeredCarouselManagerRef {
   scrollToSlide: (targetIndex: number) => void;
 }
 
-/**
- * LayeredCarouselManager Component
- *
- * - Low-level core of the synchronized scroll system.
- * - Accepts a configurable set of "layers" consisting of master and slave carousels.
- * - The master layer drives scroll position and stabilization events.
- * - Slave layers mirror the master layer's scroll position via dynamic multipliers.
- * - Enables parallax, synchronized device displays, and complex carousel-based UIs.
- *
- * Behavior:
- * - Each layer is a Carousel instance, assigned either "Master" or "Slave" type.
- * - Slaves listen to the master's scroll position (adjusted by spacing multipliers).
- * - Master emits `onScrollUpdate` and `onStabilizationUpdate` when interaction occurs.
- * - The component uses `useImperativeHandle` to expose `scrollToSlide` on the master.
- * - Optionally stabilizes slide elements with a CSS class when their index matches.
- *
- * Props:
- * - `layers`: Array of layer configs, each with ID, spacing, slides, and type.
- * - `prefix`: Optional class name prefix for consistency and modularity.
- * - `styleMap`: CSS module mapping used with `resolveClass`.
- * - `initialIndex`: Starting slide index for all carousels.
- * - `onScrollUpdate`: Callback fired on every master scroll position update.
- * - `onStabilizationUpdate`: Callback when a scroll completes and locks onto a slide.
- * - `className`: Optional external class for layout styling.
- *
- * Layer Design:
- * - Slave layers display the visuals (e.g., phones, laptops).
- * - Master layer may be invisible, acting purely as a control layer (e.g., scrollbar logic).
- *
- * Example Usage:
- * Used by `ProjectCarouselView` to render a custom synchronized carousel with
- * interactive parallax layers and route-driven slide control.
- *
- * This is the key abstraction for custom scrollbar behavior and layered scroll syncing.
- *
- */
 const LayeredCarouselManager = forwardRef<
   LayeredCarouselManagerRef,
   LayeredCarouselManagerProps
@@ -175,6 +136,8 @@ const LayeredCarouselManager = forwardRef<
       return map;
     }, [layers, masterLayer]);
 
+    // Fan out the master's current scroll position immediately so slave layers
+    // update their projected positions in the same frame as the master.
     const syncSlaveVisuals = useCallback(
       (scrollLeft: number) => {
         Object.entries(multipliers).forEach(([id, factor]) => {
