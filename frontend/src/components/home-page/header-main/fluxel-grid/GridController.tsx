@@ -24,6 +24,9 @@ import type { CSSProperties } from "react";
 
 import useElementRelativePointer from "@/hooks/useElementRelativePointer";
 
+import { isIOSSafari } from "../../../../utils/browser";
+import { getLocationSearchParam } from "../../../../utils/searchParams";
+
 import AnimationSequencer from "./AnimationSequencer";
 import type { FluxelGridHandle, FluxelData } from "./FluxelAllTypes";
 import FluxelCanvasGrid from "./FluxelCanvasGrid";
@@ -54,18 +57,15 @@ interface GridControllerProps {
 
 type GridType = "svg" | "canvas" | "pixi";
 
+const GRID_TYPES = [
+  "svg",
+  "canvas",
+  "pixi",
+] as const satisfies readonly GridType[];
+
 const getGridTypeFromLocation = (): GridType => {
-  if (typeof window === "undefined") return "svg";
-
-  try {
-    const sp = new URLSearchParams(window.location.search);
-    const value = sp.get("gridType");
-    if (value === "svg" || value === "canvas" || value === "pixi") return value;
-  } catch {
-    // Ignore invalid URLSearchParams (should be rare)
-  }
-
-  return "svg";
+  const value = getLocationSearchParam("gridType");
+  return GRID_TYPES.includes(value as GridType) ? (value as GridType) : "svg";
 };
 
 /**
@@ -146,19 +146,7 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
       return pathParts.join(" ");
     }, [cols, rows]);
     const browserGridOffsets = useMemo(() => {
-      if (typeof window === "undefined" || typeof navigator === "undefined") {
-        return { x: 0, y: 0 };
-      }
-
-      const ua = navigator.userAgent;
-      const isIOSDevice =
-        /iP(ad|hone|od)/.test(ua) ||
-        (ua.includes("Mac") && "ontouchend" in window);
-      const isSafariEngine =
-        /Safari/.test(ua) &&
-        !/(Chrome|CriOS|FxiOS|OPiOS|EdgiOS|Brave)/.test(ua);
-
-      if (isIOSDevice && isSafariEngine) {
+      if (isIOSSafari()) {
         return {
           x: IOS_SAFARI_GRIDLINE_OFFSET_X,
           y: IOS_SAFARI_GRIDLINE_OFFSET_Y,
@@ -286,14 +274,14 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
       const targetEl =
         (document.getElementById("hero") as HTMLElement | null) ??
         (wrapperRef.current?.parentElement as HTMLElement | null);
-      const outEl = wrapperRef.current;
-      if (!targetEl || !outEl || typeof ResizeObserver === "undefined") {
+      const wrapperEl = wrapperRef.current;
+      if (!targetEl || !wrapperEl || typeof ResizeObserver === "undefined") {
         return;
       }
 
       let rafId: number | null = null;
       const aspectRatio = 4 / 3;
-      const baseWidth = 1280;
+      // const baseWidth = 1280;
 
       const apply = () => {
         rafId = null;
@@ -305,15 +293,12 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
         const useWidth = screenAspect > aspectRatio; // cover
         const width = useWidth ? w : h * aspectRatio;
         const height = useWidth ? w / aspectRatio : h;
-        const offsetX = (w - width) / 2;
-        const offsetY = (h - height) / 2;
-        const scale = width / baseWidth;
 
-        outEl.style.setProperty("--responsive-scaler-width", `${width}px`);
-        outEl.style.setProperty("--responsive-scaler-height", `${height}px`);
-        outEl.style.setProperty("--responsive-scaler-offset-x", `${offsetX}px`);
-        outEl.style.setProperty("--responsive-scaler-offset-y", `${offsetY}px`);
-        outEl.style.setProperty("--responsive-scaler-scale", `${scale}`);
+        wrapperEl.style.setProperty("--responsive-scaler-width", `${width}px`);
+        wrapperEl.style.setProperty(
+          "--responsive-scaler-height",
+          `${height}px`,
+        );
       };
 
       const schedule = () => {
