@@ -29,6 +29,12 @@
     "generate:importmap": "cross-env NODE_OPTIONS=--no-deprecation payload generate:importmap",
     // Generates TypeScript types from Payload collections and globals
     "generate:types": "cross-env NODE_OPTIONS=--no-deprecation payload generate:types",
+    //
+    "seed:cv-experience": "cross-env NODE_OPTIONS=--no-deprecation tsx ./scripts/seed-cv-experience.ts",
+    //
+    "seed:cv-experience:local": "npm run seed:cv-experience -- --env local",
+    //
+    "seed:cv-experience:dev": "npm run seed:cv-experience -- --env dev",
     // Run Next.js linter with deprecation warnings suppressed
     "lint": "cd .. && eslint backend",
     // Start Payload-only CLI (e.g., to seed or run utilities)
@@ -47,23 +53,23 @@
   // Runtime dependencies for backend and CMS functionality
   "dependencies": {
     // AWS SES client used for sending transactional emails
-    "@aws-sdk/client-ses": "^3.1002.0",
+    "@aws-sdk/client-ses": "^3.1012.0",
     // Shared AWS SDK types
-    "@aws-sdk/types": "^3.973.4",
+    "@aws-sdk/types": "^3.973.6",
     // MongoDB adapter for Payload CMS
-    "@payloadcms/db-mongodb": "3.79.0",
+    "@payloadcms/db-mongodb": "3.79.1",
     // Nodemailer email adapter for Payload CMS (handles SMTP email sending, password resets, notifications)
-    "@payloadcms/email-nodemailer": "3.79.0",
+    "@payloadcms/email-nodemailer": "3.79.1",
     // Enables Payload-Next.js integration (server-side rendering and routing)
-    "@payloadcms/next": "3.79.0",
+    "@payloadcms/next": "3.79.1",
     // Payload Cloud tools (optional if self-hosting)
-    "@payloadcms/payload-cloud": "3.79.0",
+    "@payloadcms/payload-cloud": "3.79.1",
     // Rich text editor using Lexical (modern alternative to Slate)
-    "@payloadcms/richtext-lexical": "3.79.0",
+    "@payloadcms/richtext-lexical": "3.79.1",
     // S3-backed media storage for Payload uploads
-    "@payloadcms/storage-s3": "3.79.0",
+    "@payloadcms/storage-s3": "3.79.1",
     // Payload's core UI components
-    "@payloadcms/ui": "3.79.0",
+    "@payloadcms/ui": "3.79.1",
     // Cross-platform environment variable setting (Windows/Unix compatibility)
     "cross-env": "^10.1.0",
     // Environment variable loader (reads .env files into process.env)
@@ -75,9 +81,9 @@
     // JSON5 parser for annotated configuration files
     "json5": "^2.2.3",
     // Next.js framework for frontend/backend integration
-    "next": "15.4.11",
+    "next": "16.2.0",
     // Payload CMS core package
-    "payload": "3.79.0",
+    "payload": "3.79.1",
     // React version to match Next.js 15
     "react": "19.2.4",
     // React DOM library for rendering React components (required by Next.js and Payload UI)
@@ -85,7 +91,7 @@
     // High-performance image processing (required for Payload image fields)
     "sharp": "0.34.5",
     // Converts strings into URL-friendly slugs (useful for dynamic routing)
-    "slugify": "^1.6.6",
+    "slugify": "^1.6.8",
   },
   // Development-only tools and type definitions
   "devDependencies": {
@@ -96,21 +102,21 @@
     // Express.js TypeScript definitions
     "@types/express": "^5.0.6",
     // Node.js TypeScript definitions (latest for Node 18+)
-    "@types/node": "^25.3.3",
+    "@types/node": "^25.5.0",
     // React 19 types
     "@types/react": "19.2.14",
     // React DOM 19 types
     "@types/react-dom": "19.2.3",
     // Vite React plugin (enables React support in Vitest)
-    "@vitejs/plugin-react": "5.1.4",
+    "@vitejs/plugin-react": "6.0.1",
     // Maps baseline browser support targets for tooling that needs them
-    "baseline-browser-mapping": "^2.10.0",
+    "baseline-browser-mapping": "^2.10.8",
     // ESLint JavaScript/TypeScript linter (v9 for latest rules)
     "eslint": "^9.39.3",
     // Next.js ESLint configuration (includes React and accessibility rules)
-    "eslint-config-next": "15.4.11",
+    "eslint-config-next": "16.2.0",
     // Browser DOM simulation for Node.js testing environments
-    "jsdom": "28.1.0",
+    "jsdom": "29.0.0",
     // Standalone version of Playwright test runner
     "playwright": "1.58.2",
     // Playwright core library (used for browser automation)
@@ -124,7 +130,7 @@
     // Vite path mapping support (resolves TypeScript path aliases)
     "vite-tsconfig-paths": "6.1.1",
     // Fast unit test runner (modern Jest alternative)
-    "vitest": "4.0.18",
+    "vitest": "4.1.0",
   },
   // Pin patched versions of transitive dependencies.
   // Payload pulls in nodemailer via @payloadcms/email-nodemailer and @payloadcms/payload-cloud.
