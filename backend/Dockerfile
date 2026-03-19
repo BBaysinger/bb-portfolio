@@ -18,8 +18,7 @@
 #######################
 # This stage compiles the Payload CMS application and prepares production dependencies
 
-# Allow registry to be overridden per-environment; default to Docker Hub for dev/local
-# Default to Alpine to reduce CVEs; can override with build arg NODE_IMAGE
+# Default to Alpine to reduce CVEs; can override with build arg NODE_IMAGE.
 ARG NODE_IMAGE=node:22-alpine3.20
 FROM ${NODE_IMAGE} AS builder
 
@@ -47,12 +46,8 @@ RUN set -eu; \
         rm -rf /var/lib/apt/lists/*; \
     fi
 
-# Build-time environment remains environment-agnostic.
-# We avoid baking config into the image. Sensitive values are mounted via BuildKit
-# secrets in the RUN step below. Any required checks are satisfied transiently
-# during that RUN without persisting env into layers.
-
-## Skipping apt-get steps to reduce CI fragility; base image is sufficient for this project
+# Build-time configuration remains environment-agnostic. Sensitive values are
+# injected only for the build step via BuildKit secrets and are not baked into layers.
 
 # Copy package files first to leverage Docker layer caching
 COPY package.json package-lock.json* ./
@@ -121,7 +116,7 @@ ENV NODE_ENV=production \
 
 # Distroless already runs as a non-root user and has no package manager/shell.
 
-# Set working directory with proper ownership
+# Runtime filesystem root for the standalone bundle.
 WORKDIR /app
 
 # Copy only the standalone server and static assets produced by Next.js
@@ -130,13 +125,9 @@ COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./app/.next/static
 COPY --from=builder /app/.next/server ./app/.next/server
 COPY --from=builder /app/public ./public
-## Payload admin import map is written during build into source tree;
-## Payload runtime expects to fs.read it. Include minimal path with file.
+# Payload admin runtime still reads these source-tree artifacts directly.
 COPY --from=builder /app/src/app/(payload)/importMap.js ./src/app/(payload)/importMap.js
 COPY --from=builder /app/src/payload.config.ts ./src/payload.config.ts
-
-
-# .env files are already deleted in builder stage; avoid RUN in distroless (no shell)
 
 # Expose port 3000 for the Payload CMS server
 EXPOSE 3000
