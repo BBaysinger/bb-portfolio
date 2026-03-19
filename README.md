@@ -6,7 +6,7 @@ The project merges design experimentation with the discipline of scalable, cloud
 
 Core interface systems include a **parallax-layered carousel**, a **multi-renderer sprite engine**, and an experimental **'Fluxel'** (fluxing pixel) grid that reacts to physics projectile collisions.  
 Every motion and frame transition is built natively — no external 3D, physics, or sprite libraries.  
-The surrounding infrastructure (Terraform, Docker, AWS, GitHub Actions) exists as production-level rigor: CI/CD, secrets pipelines, multi-environment service orchestration and deployment automation, and cloud resource hygiene.
+The surrounding infrastructure (Terraform, Docker, AWS, GitHub Actions) exists as production-level rigor: CI/CD, secrets pipelines, multi-environment service deployment automation, and cloud resource hygiene.
 
 > **Monorepo Note:** This repo contains the portfolio app plus (extensive) internal deployment tooling (scripts, CI/CD helpers). This will all migrate to a separate repo, as time allows.
 
@@ -380,10 +380,10 @@ Envs: `local`, `dev`, `prod`.
 
 ### Deployment & config
 
-- `orchestrate` — Full deployment-runner redeploy (builds images, deploys both profiles, refreshes env files)
+- `deploy` — Full deployment-runner redeploy (builds images, deploys both profiles, refreshes env files)
 - Nginx config sync is automated during deployment automation and service restarts; no manual step required
 
-Note: `orchestrate` runs the deployment runner script: `bash deploy/scripts/deployment-runner.sh --profiles both --refresh-env`
+Note: `deploy` runs the deployment runner script: `bash deploy/scripts/deployment-runner.sh --profiles both --refresh-env`
 
 ### Quality & DX
 
@@ -611,7 +611,7 @@ npm run sync:secrets:stage
 
 ### ⚡ DevOps & Deployment
 
-- Orchestrated deploys script
+- Deployment runner script
   - Provisions/updates infra and restarts containers via GH workflow handoff
   - Optionally rebuilds/pushes images; no destroy by default (safety-first)
   - Built-in safety checks; avoids destroying items meant to persist
@@ -638,7 +638,7 @@ See ADR in `docs/architecture-decisions.md`: “Backend Runtime Hardening (Distr
 #### 🧹 Image cleanup & retention
 
 - Goal: keep registries lean by retaining only the most recent images
-- Orchestrated cleanup for both Docker Hub and ECR
+- Automated cleanup for both Docker Hub and ECR
 - Defaults keep last 3 images and remove older (ECR also removes untagged)
 
 Common tasks:
@@ -831,7 +831,7 @@ terraform apply   # Create/update AWS resources
 terraform destroy # Full teardown (guarded)
 ```
 
-Runtime & service orchestration and deployment automation lifecycle (summary):
+Runtime and deployment lifecycle (summary):
 
 1. Terraform ensures EC2, IAM, S3, ECR, Route 53, SES, etc. exist & are current.
 2. EC2 user_data bootstraps Docker + proxy services.

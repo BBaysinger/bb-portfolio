@@ -289,7 +289,7 @@ const recentIndependentStudySeed: SeedExperience = {
     'Consulted on CRM planning and workflow alignment, helping define lead-capture paths, contact lifecycle stages, and practical handoff points between site forms and customer follow-up.',
     'Built reusable interaction systems (route-synced carousels with deep linking, layered/parallax coordination, responsive layout strategies).',
     'Implemented production instrumentation and reliability hooks: CloudWatch RUM, SSR-safe initialization guards, lightweight health endpoints, and operational metric publishing.',
-    'Automated delivery workflows including deployment orchestration, environment/secrets bundling, and hardened Docker builds.',
+    'Automated delivery workflows including deployment automation, environment/secrets bundling, and hardened Docker builds.',
     'Standardized code quality and DX with strict TypeScript, unified linting/formatting, and repeatable performance-tuned builds.',
   ],
 }

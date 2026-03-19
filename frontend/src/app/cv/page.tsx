@@ -476,7 +476,7 @@ const CurriculumVitae: React.FC = () => {
                 <span>Caddy</span>
                 <span>VirtualBox</span>
                 <span>Infrastructure as Code</span>
-                <span>Service Orchestration &amp; Deployment Automation</span>
+                <span>Service Deployment &amp; Automation</span>
               </p>
             </div>
           </div>
