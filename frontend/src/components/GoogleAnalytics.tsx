@@ -4,6 +4,7 @@ import Script from "next/script";
 import { useCallback } from "react";
 
 import { useRouteChange } from "@/hooks/useRouteChange";
+import { getSearchParam } from "@/utils/searchParams";
 
 const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
 
@@ -14,7 +15,7 @@ declare global {
   }
 }
 
-function normalizeLandingR(value: string | null): string | undefined {
+function normalizeLandingR(value: string | undefined): string | undefined {
   if (!value) return undefined;
   const trimmed = value.trim();
   if (!trimmed) return undefined;
@@ -39,7 +40,7 @@ function sendPageView(pagePath: string) {
   // explicit page_view events for SPA/app-router navigation.
   const currentUrl = new URL(window.location.href);
   const hasRParam = currentUrl.searchParams.has("r");
-  const landingR = normalizeLandingR(currentUrl.searchParams.get("r"));
+  const landingR = normalizeLandingR(getSearchParam(currentUrl.search, "r"));
 
   // Prefer keeping `?r=` out of the canonical URL we send to GA (and the URL bar)
   // while still capturing it as a dedicated event parameter.

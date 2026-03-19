@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { useRouteChange } from "@/hooks/useRouteChange";
 import { getDynamicPathParam } from "@/utils/getDynamicPathParam";
+import { getLocationSearchParam, getSearchParam } from "@/utils/searchParams";
 import {
   navigateWithPushState,
   replaceWithReplaceState,
@@ -40,7 +41,7 @@ export function useProjectUrlSync(
   // Listen for external route changes and update local state from URL
   useRouteChange(
     (_pathname, search) => {
-      const p = new URLSearchParams(search).get("p") || "";
+      const p = getSearchParam(search, "p");
       const fromSeg = fallbackFromPathSegment
         ? getDynamicPathParam(-1, initialProjectId)
         : "";
@@ -61,10 +62,8 @@ export function useProjectUrlSync(
   useEffect(() => {
     const frame = requestAnimationFrame(() => {
       const live = (() => {
-        try {
-          const qp = new URLSearchParams(window.location.search).get("p") || "";
-          if (qp) return qp;
-        } catch {}
+        const qp = getLocationSearchParam("p");
+        if (qp) return qp;
         return fallbackFromPathSegment
           ? getDynamicPathParam(-1, initialProjectId)
           : "";
@@ -80,7 +79,7 @@ export function useProjectUrlSync(
     if (!projectId) return;
 
     const url = new URL(window.location.href);
-    const currentP = url.searchParams.get("p");
+    const currentP = getSearchParam(url.search, "p");
     if (currentP === projectId) return;
 
     url.searchParams.set("p", projectId);
@@ -112,9 +111,8 @@ export function useProjectUrlSync(
     if (typeof window === "undefined") return;
     const handler = () => {
       try {
-        const qs = new URLSearchParams(window.location.search);
         const p =
-          qs.get("p") ||
+          getLocationSearchParam("p") ||
           (fallbackFromPathSegment
             ? getDynamicPathParam(-1, initialProjectId)
             : "");

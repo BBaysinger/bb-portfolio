@@ -1,5 +1,7 @@
 import { useEffect } from "react";
 
+import { detectOs, isFirefox } from "../utils/browser";
+
 /**
  * Adds environment/OS classes to the document root element for OS-specific styling.
  *
@@ -8,48 +10,7 @@ import { useEffect } from "react";
  * - `html.apple` for macOS + iOS
  */
 
-type DetectedOs = "windows" | "mac" | "linux" | "ios" | "android" | "unknown";
-
-function isFirefox(): boolean {
-  if (typeof navigator === "undefined") return false;
-  const ua = navigator.userAgent ?? "";
-  // Desktop: "Firefox"; iOS Firefox: "FxiOS".
-  return /Firefox|FxiOS/i.test(ua);
-}
-
-function detectOs(): DetectedOs {
-  if (typeof navigator === "undefined") return "unknown";
-
-  const ua = navigator.userAgent ?? "";
-
-  // Prefer UA-CH platform when available (Chromium-based browsers)
-  const nav = navigator as Navigator & {
-    userAgentData?: {
-      platform?: string;
-    };
-  };
-  const uaChPlatform = nav.userAgentData?.platform ?? "";
-
-  const platform = (uaChPlatform || navigator.platform || "").toLowerCase();
-  const uaLower = ua.toLowerCase();
-
-  if (platform.includes("win") || uaLower.includes("windows")) return "windows";
-  if (platform.includes("mac") || uaLower.includes("mac os")) return "mac";
-
-  // iOS can report as "Mac" with touch; use UA hints.
-  if (
-    uaLower.includes("iphone") ||
-    uaLower.includes("ipad") ||
-    uaLower.includes("ipod")
-  )
-    return "ios";
-
-  if (uaLower.includes("android")) return "android";
-
-  if (platform.includes("linux") || uaLower.includes("linux")) return "linux";
-
-  return "unknown";
-}
+import type { DetectedOs } from "../utils/browser";
 
 export type EnvironmentClassHookOptions = {
   /**
