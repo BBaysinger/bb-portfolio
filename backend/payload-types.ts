@@ -110,10 +110,9 @@ export interface Config {
     cvExperience: CvExperienceSelect<false> | CvExperienceSelect<true>;
   };
   locale: null;
-  widgets: {
-    collections: CollectionsWidget;
+  user: User & {
+    collection: 'users';
   };
-  user: User;
   jobs: {
     tasks: unknown;
     workflows: unknown;
@@ -176,7 +175,6 @@ export interface User {
       }[]
     | null;
   password?: string | null;
-  collection: 'users';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -337,7 +335,6 @@ export interface BrandLogo {
    * Choose the background type this logo is intended for.
    */
   logoType: 'light-mode' | 'dark-mode' | 'both-modes';
-  prefix?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -380,7 +377,6 @@ export interface ProjectScreenshot {
    * Optional alt text for accessibility or SEO.
    */
   alt?: string | null;
-  prefix?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -418,7 +414,6 @@ export interface ProjectThumbnail {
    * Accessible text for screen readers and SEO.
    */
   alt?: string | null;
-  prefix?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -459,7 +454,6 @@ export interface CvExperienceLogo {
    * Accessible description for the CV logo.
    */
   alt?: string | null;
-  prefix?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -692,7 +686,6 @@ export interface BrandsSelect<T extends boolean = true> {
  */
 export interface CvExperienceLogosSelect<T extends boolean = true> {
   alt?: T;
-  prefix?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -713,7 +706,6 @@ export interface BrandLogosSelect<T extends boolean = true> {
   nda?: T;
   alt?: T;
   logoType?: T;
-  prefix?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -750,7 +742,6 @@ export interface ProjectScreenshotsSelect<T extends boolean = true> {
   orientation?: T;
   project?: T;
   alt?: T;
-  prefix?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -785,7 +776,6 @@ export interface ProjectThumbnailsSelect<T extends boolean = true> {
   nda?: T;
   project?: T;
   alt?: T;
-  prefix?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -898,15 +888,15 @@ export interface HeroBranding {
      */
     presetLabel: string;
     /**
-     * Displayed in the hero title area.
+     * Displayed in site title areas (hero and nav).
      */
     title: string;
     /**
-     * Use this role on the live hero.
+     * Use this role on the live site.
      */
     isActive?: boolean | null;
     /**
-     * Use a CSS length token, e.g. 0.12em, 1px, or 0.08rem.
+     * Use a value like 0.171 (defaults to em), 0.12em, 1px, or 0.08rem.
      */
     letterSpacing: string;
     id?: string | null;
@@ -1067,16 +1057,6 @@ export interface CvExperienceSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "collections_widget".
- */
-export interface CollectionsWidget {
-  data?: {
-    [k: string]: unknown;
-  };
-  width: 'full';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
