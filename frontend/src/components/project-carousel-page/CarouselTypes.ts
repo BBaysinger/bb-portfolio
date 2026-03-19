@@ -25,6 +25,7 @@ interface CarouselProps {
   stabilizationDelay?: number;
 
   // Event callbacks
+  onImmediateScrollUpdate?: (scrollLeft: number) => void;
   onScrollUpdate?: (scrollLeft: number) => void;
   onIndexUpdate?: (index: number) => void;
   onStabilizationUpdate?: (
@@ -41,6 +42,7 @@ interface CarouselProps {
 // CarouselRef defines methods exposed to parent components via `ref`.
 interface CarouselRef {
   scrollToSlide: (targetIndex: number) => void; // Scroll programmatically to a specific slide.
+  setExternalVisualPosition: (scrollLeft: number) => void; // Apply an immediate visual projection in slave mode.
   setExternalScrollPosition: (scrollLeft: number) => void; // Manually adjust the scroll position in slave mode.
 }
 

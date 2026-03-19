@@ -175,6 +175,17 @@ const LayeredCarouselManager = forwardRef<
       return map;
     }, [layers, masterLayer]);
 
+    const syncSlaveVisuals = useCallback(
+      (scrollLeft: number) => {
+        Object.entries(multipliers).forEach(([id, factor]) => {
+          slaveCarouselsRef.current[id]?.setExternalScrollPosition?.(
+            scrollLeft * factor,
+          );
+        });
+      },
+      [multipliers],
+    );
+
     const handleScrollUpdate = useCallback(
       (scrollLeft: number) => {
         // Determine direction based on scroll movement
@@ -184,15 +195,9 @@ const LayeredCarouselManager = forwardRef<
           setCurrentDirection(SlideDirection.RIGHT);
         }
         lastScrollLeftRef.current = scrollLeft;
-
-        Object.entries(multipliers).forEach(([id, factor]) => {
-          slaveCarouselsRef.current[id]?.setExternalScrollPosition?.(
-            scrollLeft * factor,
-          );
-        });
         onScrollUpdate?.(scrollLeft);
       },
-      [multipliers, onScrollUpdate],
+      [onScrollUpdate],
     );
 
     const handleStabilizationUpdate = (
@@ -266,6 +271,7 @@ const LayeredCarouselManager = forwardRef<
             <Carousel
               key={layer.id}
               ref={layerRefCallbacks[layer.id] as React.Ref<CarouselRef>}
+              onImmediateScrollUpdate={isMaster ? syncSlaveVisuals : undefined}
               slides={layer.slides.map((slide, index) => {
                 const isStabilized = index === stabilizedIndex;
                 const shouldApplyTilt =
