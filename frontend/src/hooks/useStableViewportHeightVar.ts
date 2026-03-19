@@ -47,6 +47,12 @@ export default function useStableViewportHeightVar(
   const resizeSettleTimeoutRef = useRef<number | null>(null);
   const resizeRafRef = useRef<number | null>(null);
 
+  const getWidthDelta = useCallback((width: number) => {
+    const lastWidth = lastWidthRef.current;
+    if (lastWidth == null) return null;
+    return Math.abs(width - lastWidth);
+  }, []);
+
   const measureStableHeightPx = useCallback(() => {
     const el = elementRef.current;
     if (!el) return;
@@ -91,22 +97,29 @@ export default function useStableViewportHeightVar(
       if (eventType !== "resize") return;
 
       const width = window.innerWidth;
-      const lastWidth = lastWidthRef.current;
-      if (lastWidth == null) {
+      const widthDelta = getWidthDelta(width);
+      if (widthDelta == null) {
         lastWidthRef.current = width;
         measureStableHeightPx();
         return;
       }
 
-      const widthDelta = Math.abs(width - lastWidth);
       if (widthDelta >= widthChangeThresholdPx) {
         lastWidthRef.current = width;
         measureStableHeightPx();
+        return;
       }
 
-      scheduleTrailingMeasure();
+      if (widthDelta > 0) {
+        scheduleTrailingMeasure();
+      }
     },
-    [measureStableHeightPx, scheduleTrailingMeasure, widthChangeThresholdPx],
+    [
+      getWidthDelta,
+      measureStableHeightPx,
+      scheduleTrailingMeasure,
+      widthChangeThresholdPx,
+    ],
   );
 
   useWindowMonitor(elementRef, onWindowEvent, WINDOW_MONITOR_DEBOUNCE);
@@ -116,7 +129,11 @@ export default function useStableViewportHeightVar(
     if (!viewport) return;
 
     const onVisualViewportChange = () => {
-      scheduleTrailingMeasure();
+      const width = Math.round(viewport.width || window.innerWidth || 0);
+      const widthDelta = getWidthDelta(width);
+      if (widthDelta && widthDelta > 0) {
+        scheduleTrailingMeasure();
+      }
     };
 
     viewport.addEventListener("resize", onVisualViewportChange, {
@@ -130,7 +147,7 @@ export default function useStableViewportHeightVar(
       viewport.removeEventListener("resize", onVisualViewportChange);
       viewport.removeEventListener("scroll", onVisualViewportChange);
     };
-  }, [scheduleTrailingMeasure]);
+  }, [getWidthDelta, scheduleTrailingMeasure]);
 
   useEffect(() => {
     lastWidthRef.current = window.innerWidth;

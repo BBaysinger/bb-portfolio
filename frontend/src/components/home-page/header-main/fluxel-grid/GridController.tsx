@@ -281,7 +281,6 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
 
       let rafId: number | null = null;
       const aspectRatio = 4 / 3;
-      // const baseWidth = 1280;
 
       const apply = () => {
         rafId = null;
