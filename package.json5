@@ -253,13 +253,13 @@
     // 🧪 Dry run: show planned dev+prod media upload (no S3 writes)
     "migrate:media:both:dry": "tsx scripts/upload-media-to-s3.ts --env both --dry-run",
     // 🔗 PREVIEW: Update media URLs in development database to point to S3 (dry run)
-    "migrate:media-urls:dev:dry": "cd backend && tsx scripts/migrate-media-to-s3.ts --env dev --dry-run",
+    "migrate:media-urls:dev:dry": "cd backend && tsx scripts/ops/ops-db-migrate-media-urls-to-s3.ts --env dev --dry-run",
     // 🔗 Update media URLs in development database to point to S3
-    "migrate:media-urls:dev": "cd backend && tsx scripts/migrate-media-to-s3.ts --env dev",
+    "migrate:media-urls:dev": "cd backend && tsx scripts/ops/ops-db-migrate-media-urls-to-s3.ts --env dev",
     // 🔗 PREVIEW: Update media URLs in production database to point to S3 (dry run)
-    "migrate:media-urls:prod:dry": "cd backend && tsx scripts/migrate-media-to-s3.ts --env prod --dry-run",
+    "migrate:media-urls:prod:dry": "cd backend && tsx scripts/ops/ops-db-migrate-media-urls-to-s3.ts --env prod --dry-run",
     // 🔗 Update media URLs in production database to point to S3
-    "migrate:media-urls:prod": "cd backend && tsx scripts/migrate-media-to-s3.ts --env prod",
+    "migrate:media-urls:prod": "cd backend && tsx scripts/ops/ops-db-migrate-media-urls-to-s3.ts --env prod",
     // 📦 PREVIEW: Complete media migration to development (upload + URL sync, dry run)
     "migrate:all:dev:dry": "npm run migrate:media:dev:dry && npm run migrate:media-urls:dev:dry",
     // 📦 Complete media migration to development environment (upload + URL sync)
@@ -368,15 +368,15 @@
   // Development tooling for the monorepo root (formatting, linting, TS, runners)
   "devDependencies": {
     // Next.js-specific ESLint rules for best practices
-    "@next/eslint-plugin-next": "^16.1.6",
+    "@next/eslint-plugin-next": "^16.2.0",
     // TypeScript type definitions for glob
     "@types/glob": "^9.0.0",
     // ESLint plugin for TypeScript-specific linting rules
-    "@typescript-eslint/eslint-plugin": "8.53.0",
+    "@typescript-eslint/eslint-plugin": "8.57.1",
     // TypeScript parser for ESLint
-    "@typescript-eslint/parser": "8.53.0",
+    "@typescript-eslint/parser": "8.57.1",
     // Maps baseline browser support targets for tooling that needs them
-    "baseline-browser-mapping": "^2.10.0",
+    "baseline-browser-mapping": "^2.10.8",
     // Run multiple commands concurrently in scripts
     "concurrently": "^9.2.1",
     // Main linter for JS/TS code
