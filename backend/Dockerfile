@@ -161,7 +161,10 @@ if [ "$PROFILE" != "prod" ]; then
     : "${PUBLIC_PROJECTS_BUCKET:=dummy-public-projects-bucket}"
     : "${NDA_PROJECTS_BUCKET:=dummy-nda-projects-bucket}"
     : "${SECURITY_TXT_EXPIRES:=2099-01-01T00:00:00.000Z}"
+    : "${NEXT_SERVER_ACTIONS_ENCRYPTION_KEY:=dev-server-actions-encryption-key}"
 fi
+
+export MONGODB_URI PAYLOAD_SECRET FRONTEND_URL S3_BUCKET PUBLIC_PROJECTS_BUCKET NDA_PROJECTS_BUCKET AWS_REGION SECURITY_TXT_EXPIRES SES_FROM_EMAIL SES_TO_EMAIL SMTP_FROM_EMAIL BACKEND_INTERNAL_URL PUBLIC_SERVER_URL NEXT_SERVER_ACTIONS_ENCRYPTION_KEY
 
 require_var() {
     var="$1"
@@ -198,32 +201,6 @@ RUN if [ ! -f .next/standalone/server.js ]; then \
             mkdir -p .next/standalone && cp .next/server/server.js .next/standalone/server.js; \
         fi; \
     fi
-
-# Create a stable bootstrap that starts Next from the available build output
-RUN /bin/sh -lc 'printf "%s\n" \
-    "const { spawnSync } = require(\"node:child_process\");" \
-    "const fs = require(\"node:fs\");" \
-    "function ensureImportMap() {" \
-    "  try {" \
-    "    const bin = require.resolve(\"payload/dist/bin.js\");" \
-    "    const res = spawnSync(process.execPath, [bin, \"generate:importmap\"], { stdio: \"inherit\" });" \
-    "    if (res.error) console.error(\"importmap generation error:\", res.error);" \
-    "  } catch (e) {" \
-    "    console.warn(\"payload importmap generation skipped:\", e && e.message ? e.message : e);" \
-    "  }" \
-    "}" \
-    "ensureImportMap();" \
-    "try {" \
-    "  const p = \"/app/.payload/import-map.json\";" \
-    "  if (fs.existsSync(p)) { console.info(\"[bootstrap] import-map present:\", p); }" \
-    "  else { console.warn(\"[bootstrap] import-map missing at\", p); }" \
-    "} catch(_){}" \
-    "try {" \
-    "  require(\"/app/app/server.js\");" \
-    "} catch (e) {" \
-    "  console.error(\"Failed to start Next.js from /app/app/server.js:\", e && e.message ? e.message : e);" \
-    "  process.exit(1);" \
-    "}" > /app/bootstrap.cjs'
 
 # Remove development dependencies to reduce final image size
 # Only production dependencies will remain for the runtime stage
@@ -268,7 +245,7 @@ EXPOSE 3000
 
 # Change working directory to the Next standalone bundle and start server
 WORKDIR /app
-COPY --from=builder /app/bootstrap.cjs ./bootstrap.cjs
+COPY --from=builder /app/scripts/bootstrap.cjs ./bootstrap.cjs
 CMD ["./bootstrap.cjs"]
 
 #######################
