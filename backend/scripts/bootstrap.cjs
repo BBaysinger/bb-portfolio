@@ -1,27 +1,7 @@
-const { spawnSync } = require('node:child_process')
 const fs = require('node:fs')
 
-function ensureImportMap() {
-  try {
-    const bin = require.resolve('payload/dist/bin.js')
-    const result = spawnSync(process.execPath, [bin, 'generate:importmap'], {
-      stdio: 'inherit',
-    })
-    if (result.error) {
-      console.error('importmap generation error:', result.error)
-    }
-  } catch (error) {
-    console.warn(
-      'payload importmap generation skipped:',
-      error && error.message ? error.message : error,
-    )
-  }
-}
-
-ensureImportMap()
-
 try {
-  const importMapPath = '/app/.payload/import-map.json'
+  const importMapPath = '/app/src/app/(payload)/importMap.js'
   if (fs.existsSync(importMapPath)) {
     console.info('[bootstrap] import-map present:', importMapPath)
   } else {
