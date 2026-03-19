@@ -1,6 +1,6 @@
 # Infrastructure Deployment Workflow Complete (2025-10-16)
 
-Stable, repeatable end-to-end deployment workflow implemented using Infrastructure as Code and local orchestration.
+Stable, repeatable end-to-end deployment workflow implemented using Infrastructure as Code and a local deployment runner.
 
 ## Implementation Summary
 
@@ -9,8 +9,8 @@ Stable, repeatable end-to-end deployment workflow implemented using Infrastructu
 - S3 media buckets with versioning + SSE and CORS for both prod/dev
 - ECR for production images; Docker Hub for dev images
 - Reusable GitHub Actions Redeploy workflow (manual dispatch + reusable from CI)
-- One orchestrator: `deploy/scripts/deployment-orchestrator.sh` handles infra, secrets sync, image builds, and container restarts
-- Safe fallback: if GH dispatch is flaky, orchestrator uploads envs + restarts via SSH automatically
+- One deployment runner: `deploy/scripts/deployment-orchestrator.sh` handles infra, secrets sync, image builds, and container restarts
+- Safe fallback: if GH dispatch is flaky, the deployment runner uploads envs + restarts via SSH automatically
 
 ## Components
 
@@ -28,7 +28,7 @@ Stable, repeatable end-to-end deployment workflow implemented using Infrastructu
 
 ## Known caveat
 
-- GitHub CLI workflow dispatch can return 422 intermittently; the orchestrator now auto-falls back to SSH. UI dispatch still works.
+- GitHub CLI workflow dispatch can return 422 intermittently; the deployment runner now auto-falls back to SSH. UI dispatch still works.
 
 ## Next steps (optional)
 

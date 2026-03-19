@@ -27,7 +27,7 @@ Infrastructure is managed with Terraform (`infra/`) and a single host runs both 
 
 ## Next Steps (Typical Flow)
 
-See also: `docs/deployment-orchestrator.md` for read-only discovery, plan-only previews, and common orchestrator commands. (The orchestrator is optional—GitHub Actions + the management script can be used directly.)
+See also: `docs/deployment-orchestrator.md` for read-only discovery, plan-only previews, and common deployment runner commands. (The deployment runner is optional—GitHub Actions + the management script can be used directly.)
 
 ### 1. Configure DNS (Canonical Host Strategy)
 
@@ -69,7 +69,7 @@ This will update the Nginx configuration on your server to handle the new subdom
 
 Note on Nginx config changes:
 
-- Nginx on the EC2 host is now managed outside of user_data to avoid drift and size limits. You can sync `/etc/nginx/conf.d/bb-portfolio.conf` either via the deploy orchestrator or via the helper script below.
+- Nginx on the EC2 host is now managed outside of user_data to avoid drift and size limits. You can sync `/etc/nginx/conf.d/bb-portfolio.conf` either via the deployment runner or via the helper script below.
 - To propagate reverse-proxy updates from this repo (e.g., admin assets under `/admin/_next`):
   1. Quick sync (recommended):
      - Use the helper script to push the vhost config template in this repo to the server and reload Nginx.
@@ -117,14 +117,14 @@ terraform apply   # Apply changes
 
 1. Docker service starts automatically
 2. Nginx starts automatically (default config only)
-3. Site config, env files, and containers are managed by GitHub Actions, the deploy orchestrator, or manual SSH + Docker Compose
-4. Services are configured and available after a successful deploy/restart (no orchestrator run required)
+3. Site config, env files, and containers are managed by GitHub Actions, the deployment runner, or manual SSH + Docker Compose
+4. Services are configured and available after a successful deploy/restart (no deployment runner run required)
 
 ### Deployment Process (Single-Instance)
 
 1. Run `terraform apply` to deploy infrastructure changes
-2. Use GitHub Actions, the orchestrator, or the management script to control containers
-3. Regenerate runtime env files on EC2 when needed (GitHub workflow or orchestrator `--refresh-env`)
+2. Use GitHub Actions, the deployment runner, or the management script to control containers
+3. Regenerate runtime env files on EC2 when needed (GitHub workflow or deployment runner `--refresh-env`)
    - Backend envs include: `REQUIRED_ENVIRONMENT_VARIABLES_BACKEND`, `SECURITY_TXT_EXPIRES`, S3 buckets, Mongo URIs, Payload secret, SES emails, internal backend URL.
    - Frontend envs include: internal backend URL for SSR/server code only (browser uses relative `/api`).
 4. CI/CD pipeline updates production images in ECR
@@ -237,7 +237,7 @@ TLS termination is handled directly on the EC2 host by Nginx with certificates p
 
 Note: HTTPS is optional. If you’re running IP-only / HTTP-only, you can skip this entire section.
 
-The deploy orchestrator can install certbot on the host (if missing) and issue certificates over SSH for a canonical set of domains. Alternatively, you can run certbot manually over SSH.
+The deployment runner can install certbot on the host (if missing) and issue certificates over SSH for a canonical set of domains. Alternatively, you can run certbot manually over SSH.
 
 ```
 example.com
@@ -260,7 +260,7 @@ Add `ACME_REGISTRATION_EMAIL` (or `ACME_EMAIL`) to `.github-secrets.private.json
 }
 ```
 
-The orchestrator reads this value directly to run certbot over SSH; Terraform does not need it in user_data anymore.
+The deployment runner reads this value directly to run certbot over SSH; Terraform does not need it in user_data anymore.
 
 ### 2. Ensure DNS A Records Resolve
 
@@ -274,9 +274,9 @@ dig +short dev.example.com
 
 They should all return the Elastic IP (the value of `EC2_INSTANCE_IP`). If any do not, wait for propagation or fix DNS before proceeding.
 
-### 3. Issue Certificates (Orchestrator)
+### 3. Issue Certificates (Deployment Runner)
 
-With DNS pointed to the Elastic IP and your ACME email set, run the deploy orchestrator (containers-only is fine):
+With DNS pointed to the Elastic IP and your ACME email set, run the deployment runner (containers-only is fine):
 
 ```bash
 deploy/scripts/deployment-orchestrator.sh --profiles prod --no-build --secrets-omit-env all
@@ -294,7 +294,7 @@ curl -I https://www.example.com | head -1  # Expect a 301 → apex or 200
 curl -I https://dev.example.com | head -1  # Dev site
 ```
 
-Or remotely via orchestrator after infra step:
+Or remotely via the deployment runner after infra step:
 
 ```bash
 deploy/scripts/deployment-orchestrator.sh --discover-only
@@ -335,7 +335,7 @@ If you later switch to Caddy for simpler config + automatic certificate manageme
 1. Add production `Caddyfile` similar to local dev.
 2. Add a `caddy` service to EC2 docker-compose with ports 80/443.
 3. Remove certbot + SSL blocks from Nginx or disable Nginx entirely.
-4. Update orchestrator to sync `Caddyfile` and restart `caddy` container.
+4. Update the deployment runner to sync `Caddyfile` and restart `caddy` container.
 
 Current implementation keeps Nginx (host-level) for stability and explicit control. Consider Caddy ONLY if you need dynamic routing or simplified header management; update ADR log with the rationale before switching.
 
@@ -357,8 +357,8 @@ We are operating in a simplified configuration whose sole goal is site availabil
 - Local development: use `.env` / `.env.local` inside `backend/` and `frontend/` as usual.
 - Production on EC2: runtime files are generated on-host as `backend/.env.prod` and `frontend/.env.prod` from `.github-secrets.private.json5` and are not committed.
 - Required lists: env guards read `REQUIRED_ENVIRONMENT_VARIABLES_FRONTEND` and `REQUIRED_ENVIRONMENT_VARIABLES_BACKEND`; ensure the lists and their referenced values exist in the secrets file.
-- Orchestrator: regenerates `.env.prod` when `--refresh-env` is provided; containers restart to pick up changes.
-- Compose canonical path: containers are managed from `deploy/compose/docker-compose.yml` on the host to avoid drift; the orchestrator syncs this file before starting.
+- Deployment runner: regenerates `.env.prod` when `--refresh-env` is provided; containers restart to pick up changes.
+- Compose canonical path: containers are managed from `deploy/compose/docker-compose.yml` on the host to avoid drift; the deployment runner syncs this file before starting.
 
 ## Local Docker Maintenance
 

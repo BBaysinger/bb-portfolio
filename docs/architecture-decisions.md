@@ -53,7 +53,7 @@ New decisions should be appended chronologically.
     - HTTP probe on `http://localhost:3000/api/health/` (note the trailing slash to avoid 308 redirects).
   - Secrets and envs:
     - Build secrets mounted via BuildKit (never baked into layers).
-    - Runtime envs provided by Compose/orchestrator; no `.env` files are copied into images.
+    - Runtime envs provided by Compose/the deployment runner; no `.env` files are copied into images.
 
 - **Alternatives considered:**
   - `node:22-slim` hardened with OS patching: still higher CVE surface and retains a shell/package manager.
@@ -90,11 +90,11 @@ New decisions should be appended chronologically.
 
 ## 2025-11-07 – Production HTTPS Enablement (Certbot) and Domain Hygiene
 
-- **Decision:** Enable HTTPS on EC2 using Certbot (nginx plugin) and wire ACME contact email via orchestrator. Clean up domain list used for certificate issuance (remove invalid/non-existent hosts).
+- **Decision:** Enable HTTPS on EC2 using Certbot (nginx plugin) and wire ACME contact email via the deployment runner. Clean up domain list used for certificate issuance (remove invalid/non-existent hosts).
 - **Reasoning:** Provide TLS for example.com with automated issuance/renewal; avoid broken SANs caused by stale domains (e.g., `www.dev.example.com`).
 - **Implementation:**
   - Certbot installed on EC2; certificates issued for apex + www where applicable.
-  - Orchestrator and docs updated to include ACME email and the authoritative list of domains.
+  - Deployment runner docs updated to include ACME email and the authoritative list of domains.
   - Redirects validated and renewal scheduled.
 - **Alternatives considered:** ACM/ALB or CloudFront-managed certs (heavier AWS footprint); Caddy-only termination (local use retained, production standardized on nginx).
 - **Status:** ✅ Active
@@ -401,7 +401,7 @@ New decisions should be appended chronologically.
 
 **Implementation:**
 
-- Unified orchestrator script: `scripts/image-cleanup.sh` (runs both providers)
+- Unified cleanup runner script: `scripts/image-cleanup.sh` (runs both providers)
 - Provider-specific scripts:
   - `scripts/image-cleanup-dockerhub.sh`
   - `scripts/image-cleanup-ecr.sh`
@@ -594,12 +594,12 @@ New decisions should be appended chronologically.
 
 ---
 
-## 2025-10-19 – Deployment Orchestrator (Terraform + GitHub Actions + SSH Fallback)
+## 2025-10-19 – Deployment Runner (Terraform + GitHub Actions + SSH Fallback)
 
-- **Decision:** Adopt a single orchestrator script `deploy/scripts/deployment-orchestrator.sh` as the source of truth for provisioning/updating EC2 infrastructure, optionally building/publishing images, and triggering container (re)starts via GitHub Actions with an SSH fallback.
+- **Decision:** Adopt a single deployment runner script `deploy/scripts/deployment-orchestrator.sh` as the source of truth for provisioning/updating EC2 infrastructure, optionally building/publishing images, and triggering container (re)starts via GitHub Actions with an SSH fallback.
 
 - **Context / Architecture:**
-  - Orchestrator responsibilities:
+  - Deployment runner responsibilities:
     - Runs Terraform (init/plan/apply) to create/update the EC2 instance and supporting resources.
     - Automatically builds and pushes images to registries (always executed to ensure consistency):
       - Production → Amazon ECR (with AWS_PROFILE=bb-portfolio-user)
@@ -633,13 +633,13 @@ New decisions should be appended chronologically.
   - Recommendation: Monitor deployments and validate thoroughly before relying on automation for critical updates
 
 - **Alternatives considered:**
-  - Pure GitHub Actions (no local orchestrator): Less flexible locally, harder to provide rich fallback.
+  - Pure GitHub Actions (no local deployment runner): Less flexible locally, harder to provide rich fallback.
   - Pure SSH scripting: Centralizes secrets on the developer machine; brittle compared to GH Secrets.
   - ECS/EKS or App Runner: Heavier operational surface area and cost for a bb-portfolio-scale app.
 
 - **Related improvements:**
   - `infra/bb-portfolio-management.sh` auto ECR login for prod flows and compose v1/v2 fallback on the host, to avoid image pull auth issues.
-  - WebSocket upgrade map now automatically created by orchestrator for nginx compatibility.
+  - WebSocket upgrade map now automatically created by the deployment runner for nginx compatibility.
 
 - **Status:** ✅ Active (requires additional testing for full production confidence)
 

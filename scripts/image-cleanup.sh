@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Image cleanup orchestrator
+# Image cleanup runner
 #
 # Runs provider-specific cleanup scripts for both Docker Hub and Amazon ECR using a unified interface.
 # All flags/parameters are forwarded as-is to each provider script so they share the same contract.

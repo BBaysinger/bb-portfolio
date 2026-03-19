@@ -6,7 +6,7 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 // React Strict Mode handling:
-// Original orchestrator disabled Strict Mode in dev to avoid double-invocation side effects
+// Original deployment runner disabled Strict Mode in dev to avoid double-invocation side effects
 // (duplicate Payload hooks, extra DB hits, etc.). It regressed; restore behavior.
 // Policy:
 //   - ENV_PROFILE=dev (or NODE_ENV=development): reactStrictMode OFF
