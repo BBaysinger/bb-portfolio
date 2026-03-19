@@ -204,28 +204,31 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
 
   const memoizedPositionsAndMultipliers = useMemo(() => {
     const newPositions: number[] = [];
-    const newMultipliers: number[] = [];
+    const newWrapCycleOffsets: number[] = [];
     const newOffsets: number[] = [];
 
+    // Each rendered slide belongs to a repeated "cycle" of the finite slide set.
+    // This offset chooses which cycle to place that slide in so a single set of
+    // DOM nodes can appear to wrap infinitely in the current scroll direction.
     memoizedSlides.forEach((_, index) => {
-      let multiplier: number | null = null;
+      let wrapCycleOffset: number | null = null;
       const threshold = 2;
       if (scrollDirection === SlideDirection.LEFT) {
-        multiplier = -Math.floor(
+        wrapCycleOffset = -Math.floor(
           (index - scrollIndex + threshold) / memoizedSlides.length,
         );
       } else if (scrollDirection === SlideDirection.RIGHT) {
-        multiplier = Math.floor(
+        wrapCycleOffset = Math.floor(
           (scrollIndex - index + threshold) / memoizedSlides.length,
         );
       } else {
         throw new Error("No scroll direction set.");
       }
-      newMultipliers.push(multiplier);
+      newWrapCycleOffsets.push(wrapCycleOffset);
       const containerOffset = (wrapperWidth - slideWidth) / 2;
       newPositions.push(
         Math.round(
-          multiplier * slideSpacing * memoizedSlides.length +
+          wrapCycleOffset * slideSpacing * memoizedSlides.length +
             index * slideSpacing +
             containerOffset,
         ),
@@ -243,7 +246,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
 
     return {
       positions: newPositions,
-      multipliers: newMultipliers,
+      wrapCycleOffsets: newWrapCycleOffsets,
       offsets: newOffsets,
     };
   }, [
@@ -405,7 +408,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
 
   const {
     positions: currentPositions,
-    multipliers: currentMultipliers,
+    wrapCycleOffsets: currentWrapCycleOffsets,
     offsets: currentOffsets,
   } = useMemo(
     () => memoizedPositionsAndMultipliers,
@@ -625,7 +628,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
             {isDebug() && (
               <div className={styles.debugInfo}>
                 <div>Index: {index}</div>
-                <div>Multiplier: {currentMultipliers[index]}</div>
+                <div>Wrap cycle: {currentWrapCycleOffsets[index]}</div>
                 <div>xPos: {currentPositions[index]}px</div>
               </div>
             )}
