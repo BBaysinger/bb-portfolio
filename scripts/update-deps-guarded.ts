@@ -16,6 +16,12 @@ type Guardrail = {
   reason: string;
 };
 
+type FamilyGuardrail = {
+  name: string;
+  members: string[];
+  reason: string;
+};
+
 type UpgradePlan = {
   target: PackageTarget;
   allowed: Array<{ name: string; version: string }>;
@@ -42,6 +48,66 @@ const guardrails: Guardrail[] = [
     maxMajor: 9,
     reason:
       "eslint-plugin-import@2.32.0 and eslint-plugin-react-hooks@7.0.1 currently peer-support only eslint^9.",
+  },
+  {
+    packageName: "typescript",
+    maxMajor: 6,
+    reason:
+      "TypeScript is a core toolchain dependency here; review new major upgrades explicitly instead of auto-applying them.",
+  },
+  {
+    packageName: "next",
+    maxMajor: 16,
+    reason:
+      "Next.js major upgrades can require config and runtime changes; review them explicitly instead of auto-applying them.",
+  },
+  {
+    packageName: "payload",
+    maxMajor: 3,
+    reason:
+      "Payload major upgrades can require coordinated backend changes; review them explicitly instead of auto-applying them.",
+  },
+  {
+    packageName: "react",
+    maxMajor: 19,
+    reason:
+      "React major upgrades should be reviewed together with react-dom and framework compatibility.",
+  },
+  {
+    packageName: "react-dom",
+    maxMajor: 19,
+    reason:
+      "React DOM major upgrades should be reviewed together with react and framework compatibility.",
+  },
+];
+
+const familyGuardrails: FamilyGuardrail[] = [
+  {
+    name: "Payload family",
+    members: [
+      "payload",
+      "@payloadcms/db-mongodb",
+      "@payloadcms/email-nodemailer",
+      "@payloadcms/next",
+      "@payloadcms/payload-cloud",
+      "@payloadcms/richtext-lexical",
+      "@payloadcms/storage-s3",
+      "@payloadcms/ui",
+    ],
+    reason:
+      "Payload packages are version-coupled in this repo and should upgrade together on the same release.",
+  },
+  {
+    name: "Next family",
+    members: ["next", "eslint-config-next", "@next/eslint-plugin-next"],
+    reason:
+      "Next.js and its ESLint packages should stay aligned on the same release in this repo.",
+  },
+  {
+    name: "React family",
+    members: ["react", "react-dom"],
+    reason:
+      "react and react-dom should be upgraded together on the same release.",
   },
 ];
 
@@ -103,6 +169,25 @@ function getGuardrail(packageName: string): Guardrail | undefined {
   return guardrails.find((guardrail) => guardrail.packageName === packageName);
 }
 
+function getManifestPackages(target: PackageTarget): Set<string> {
+  const packageJsonPath = path.join(target.cwd, "package.json");
+  const packageJson = JSON.parse(
+    fs.readFileSync(packageJsonPath, "utf8"),
+  ) as {
+    dependencies?: Record<string, string>;
+    devDependencies?: Record<string, string>;
+    peerDependencies?: Record<string, string>;
+    optionalDependencies?: Record<string, string>;
+  };
+
+  return new Set([
+    ...Object.keys(packageJson.dependencies ?? {}),
+    ...Object.keys(packageJson.devDependencies ?? {}),
+    ...Object.keys(packageJson.peerDependencies ?? {}),
+    ...Object.keys(packageJson.optionalDependencies ?? {}),
+  ]);
+}
+
 function getUpgradedPackages(target: PackageTarget): Record<string, string> {
   const result = runCommand("ncu", ["--jsonUpgraded"], target.cwd, {
     captureOutput: true,
@@ -114,17 +199,91 @@ function getUpgradedPackages(target: PackageTarget): Record<string, string> {
   return JSON.parse(trimmed) as Record<string, string>;
 }
 
+function extractVersionCore(versionSpec: string): string | null {
+  const match = versionSpec.match(/\d+(?:\.\d+){0,2}/);
+  return match?.[0] ?? null;
+}
+
+function blockUpgrade(
+  blocked: Map<string, { version: string; reason: string }>,
+  name: string,
+  version: string,
+  reason: string,
+): void {
+  if (blocked.has(name)) return;
+  blocked.set(name, { version, reason });
+}
+
+function applyFamilyGuardrails(
+  target: PackageTarget,
+  upgraded: Record<string, string>,
+  blocked: Map<string, { version: string; reason: string }>,
+): void {
+  const manifestPackages = getManifestPackages(target);
+
+  for (const family of familyGuardrails) {
+    const presentMembers = family.members.filter((member) =>
+      manifestPackages.has(member),
+    );
+
+    if (presentMembers.length < 2) continue;
+
+    const upgradedMembers = presentMembers.filter((member) => member in upgraded);
+    if (!upgradedMembers.length) continue;
+
+    const missingMembers = presentMembers.filter(
+      (member) => !(member in upgraded),
+    );
+
+    if (missingMembers.length) {
+      const reason = `${family.reason} Missing companion upgrades: ${missingMembers.join(", ")}.`;
+      for (const member of upgradedMembers) {
+        blockUpgrade(blocked, member, upgraded[member], reason);
+      }
+      continue;
+    }
+
+    const versionCores = new Set(
+      upgradedMembers
+        .map((member) => extractVersionCore(upgraded[member]))
+        .filter((version): version is string => Boolean(version)),
+    );
+
+    if (versionCores.size > 1) {
+      const reason = `${family.reason} Planned versions do not align across the family.`;
+      for (const member of upgradedMembers) {
+        blockUpgrade(blocked, member, upgraded[member], reason);
+      }
+    }
+  }
+}
+
 function buildPlan(target: PackageTarget): UpgradePlan {
   const upgraded = getUpgradedPackages(target);
-  const allowed: UpgradePlan["allowed"] = [];
-  const blocked: UpgradePlan["blocked"] = [];
+  const blocked = new Map<string, { version: string; reason: string }>();
 
   for (const [name, version] of Object.entries(upgraded)) {
     const guardrail = getGuardrail(name);
     const major = parseMajor(version);
 
     if (guardrail && major !== null && major > guardrail.maxMajor) {
-      blocked.push({ name, version, reason: guardrail.reason });
+      blockUpgrade(blocked, name, version, guardrail.reason);
+    }
+  }
+
+  applyFamilyGuardrails(target, upgraded, blocked);
+
+  const allowed: UpgradePlan["allowed"] = [];
+  const blockedEntries: UpgradePlan["blocked"] = [];
+
+  for (const [name, version] of Object.entries(upgraded)) {
+    const blockedUpgrade = blocked.get(name);
+    if (blockedUpgrade) {
+      blockedEntries.push({
+        name,
+        version: blockedUpgrade.version,
+        reason: blockedUpgrade.reason,
+      });
       continue;
     }
 
@@ -132,9 +291,9 @@ function buildPlan(target: PackageTarget): UpgradePlan {
   }
 
   allowed.sort((left, right) => left.name.localeCompare(right.name));
-  blocked.sort((left, right) => left.name.localeCompare(right.name));
+  blockedEntries.sort((left, right) => left.name.localeCompare(right.name));
 
-  return { target, allowed, blocked };
+  return { target, allowed, blocked: blockedEntries };
 }
 
 function printPlan(plan: UpgradePlan): void {
