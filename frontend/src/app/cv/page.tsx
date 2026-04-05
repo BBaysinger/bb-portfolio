@@ -128,15 +128,15 @@ const CurriculumVitae: React.FC = () => {
                   visually polished, performance-sensitive interfaces.
                 </strong>
               </p>
-
               <p>
-                Experienced building production UI for enterprise clients and
-                consumer-facing web applications. Strong in{" "}
-                <strong>HTML, CSS, and JavaScript</strong>, with modern
-                framework experience including <strong>React</strong>,{" "}
-                <strong>TypeScript</strong>, <strong>Next.js</strong>, and{" "}
-                <strong>Angular</strong>, as well as extensive experience with
-                DOM manipulation, jQuery, and vanilla JavaScript.
+                Built production UI for enterprise clients, with strong{" "}
+                <strong>HTML</strong>, <strong>CSS</strong>, and{" "}
+                <strong>JavaScript</strong> fundamentals and working experience
+                in <strong>React</strong>, <strong>TypeScript</strong>,{" "}
+                <strong>Next.js</strong>, and <strong>Angular</strong>.
+                Extensive background in <strong>DOM manipulation</strong>,{" "}
+                <strong>jQuery</strong>, and <strong>vanilla JavaScript</strong>
+                .
               </p>
             </div>
           </div>
