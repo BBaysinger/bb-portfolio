@@ -6,6 +6,7 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "module": "CommonJS",
+    "ignoreDeprecations": "6.0",
     "moduleResolution": "node"
   },
   "exclude": ["node_modules", "database-backups", "temp_dump_*"]

@@ -66,7 +66,9 @@
     "sync:secrets": "tsx scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./.github-secrets.private.json5",
     "sync:secrets:dry": "tsx scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./.github-secrets.private.json5 --dry-run",
     "secrets:update-from-terraform": "tsx scripts/update-github-secrets-from-terraform.ts",
-    "update:deps": "concurrently \"ncu -u\" \"cd backend && ncu -u\" \"cd frontend && ncu -u\" --names \"root,backend,frontend\" --prefix-colors \"yellow,blue,green\"",
+    "update:deps": "tsx scripts/update-deps-guarded.ts",
+    "update:deps:dry": "tsx scripts/update-deps-guarded.ts --dry-run",
+    "update:deps:raw": "concurrently \"ncu -u\" \"cd backend && ncu -u\" \"cd frontend && ncu -u\" --names \"root,backend,frontend\" --prefix-colors \"yellow,blue,green\"",
     "install:all": "concurrently \"npm install\" \"cd backend && npm install\" \"cd frontend && npm install\" --names \"root,backend,frontend\" --prefix-colors \"yellow,blue,green\"",
     "media:export": "bash scripts/export-media.sh",
     "media:seed": "tsx scripts/import-media-from-seedings.ts",
@@ -133,13 +135,13 @@
     "search:files": "rg --files --hidden --follow --glob '!.git' --glob '!node_modules' --glob '!frontend/.next' --glob '!backend/.next'"
   },
   "devDependencies": {
-    "@next/eslint-plugin-next": "^16.2.0",
+    "@next/eslint-plugin-next": "^16.2.2",
     "@types/glob": "^9.0.0",
-    "@typescript-eslint/eslint-plugin": "8.57.1",
-    "@typescript-eslint/parser": "8.57.1",
-    "baseline-browser-mapping": "^2.10.8",
+    "@typescript-eslint/eslint-plugin": "8.58.0",
+    "@typescript-eslint/parser": "8.58.0",
+    "baseline-browser-mapping": "^2.10.15",
     "concurrently": "^9.2.1",
-    "eslint": "^9.39.3",
+    "eslint": "^9.39.4",
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.5.2",
@@ -151,7 +153,7 @@
     "prettier": "^3.8.1",
     "ts-node": "^10.9.2",
     "tsx": "^4.21.0",
-    "typescript": "^5.9.3"
+    "typescript": "^6.0.2"
   },
   "dependencies": {
     "jsonwebtoken": "^9.0.3"

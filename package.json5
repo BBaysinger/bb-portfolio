@@ -214,10 +214,16 @@
     "sync:secrets:dry": "tsx scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./.github-secrets.private.json5 --dry-run",
     // 🔐 Populate local GitHub secrets JSON5 files from Terraform outputs + AWS profile creds.
     "secrets:update-from-terraform": "tsx scripts/update-github-secrets-from-terraform.ts",
-    // 📦 Update dependencies to latest versions across all packages
-    // Runs npm-check-updates in root, backend, and frontend simultaneously
-    // Review changes before running npm run install:all
-    "update:deps": "concurrently \"ncu -u\" \"cd backend && ncu -u\" \"cd frontend && ncu -u\" --names \"root,backend,frontend\" --prefix-colors \"yellow,blue,green\"",
+    // 📦 Guarded dependency update across root, backend, and frontend
+    // Blocks known-bad major bumps (for example eslint@10 while current plugins only support eslint^9)
+    // Runs npm install per package root and syncs package.json5 only if everything succeeds
+    "update:deps": "tsx scripts/update-deps-guarded.ts",
+    // 🔎 Preview guarded updates without changing files
+    // Shows which upgrades would be applied and which ones are blocked by guardrails
+    "update:deps:dry": "tsx scripts/update-deps-guarded.ts --dry-run",
+    // ⚠️ Raw npm-check-updates pass with no guardrails
+    // Use only when you intentionally want unrestricted major version bumps
+    "update:deps:raw": "concurrently \"ncu -u\" \"cd backend && ncu -u\" \"cd frontend && ncu -u\" --names \"root,backend,frontend\" --prefix-colors \"yellow,blue,green\"",
     // 🔽 Install dependencies in all packages after updating
     // Run after update:deps to install the newly updated dependencies
     // Handles root, backend, and frontend package installations simultaneously
