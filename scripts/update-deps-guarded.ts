@@ -365,7 +365,14 @@ async function main(): Promise<void> {
   const changedPlans = plans.filter((plan) => plan.allowed.length > 0);
 
   if (!changedPlans.length) {
+    if (options.dryRun) {
+      console.info("\nNo allowed dependency updates found.");
+      return;
+    }
+
     console.info("\nNo allowed dependency updates found.");
+    syncPackages();
+    console.info("\nGuarded dependency update completed successfully.");
     return;
   }
 
