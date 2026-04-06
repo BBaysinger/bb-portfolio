@@ -64,6 +64,8 @@
     // ▶️ Same as docker:up but runs in background (doesn't block your terminal)
     // Use this if you want to continue using your terminal while containers run
     "docker:up:detached": "docker compose -f deploy/compose/docker-compose.yml --profile local up --build -d",
+    //
+    "docker:smoke:admin": "cd backend && ADMIN_SMOKE_URL=http://localhost:8081/admin/login/ node scripts/smoke-admin-login.mjs",
     // ⚡ Same as docker:up but with React Strict Mode disabled
     // Useful when React's strict mode causes issues with third-party components
     "docker:up:no-strict": "REACT_STRICT_MODE=false docker compose -f deploy/compose/docker-compose.yml --profile local up --build",
@@ -374,19 +376,19 @@
   // Development tooling for the monorepo root (formatting, linting, TS, runners)
   "devDependencies": {
     // Next.js-specific ESLint rules for best practices
-    "@next/eslint-plugin-next": "^16.2.0",
+    "@next/eslint-plugin-next": "^16.2.2",
     // TypeScript type definitions for glob
     "@types/glob": "^9.0.0",
     // ESLint plugin for TypeScript-specific linting rules
-    "@typescript-eslint/eslint-plugin": "8.57.1",
+    "@typescript-eslint/eslint-plugin": "8.58.0",
     // TypeScript parser for ESLint
-    "@typescript-eslint/parser": "8.57.1",
+    "@typescript-eslint/parser": "8.58.0",
     // Maps baseline browser support targets for tooling that needs them
-    "baseline-browser-mapping": "^2.10.8",
+    "baseline-browser-mapping": "^2.10.15",
     // Run multiple commands concurrently in scripts
     "concurrently": "^9.2.1",
     // Main linter for JS/TS code
-    "eslint": "^9.39.3",
+    "eslint": "^9.39.4",
     // ESLint plugin for import/export syntax validation
     "eslint-plugin-import": "^2.32.0",
     // ESLint plugin for React hooks rules
@@ -410,7 +412,7 @@
     // TypeScript/ESM runner for scripts
     "tsx": "^4.21.0",
     // TypeScript language support
-    "typescript": "^5.9.3",
+    "typescript": "^6.0.2",
   },
   // Root-level runtime deps used by maintenance scripts (prefer package-level deps when possible)
   "dependencies": {
