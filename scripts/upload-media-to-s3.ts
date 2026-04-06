@@ -16,6 +16,8 @@
 import { execSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
+import { stdin as input, stdout as output } from "node:process";
+import { createInterface } from "node:readline/promises";
 
 import { ensureAwsCredentials } from "./lib/aws-creds";
 
@@ -57,6 +59,7 @@ type Environment = "dev" | "prod";
 interface Options {
   environments: Environment[];
   dryRun: boolean;
+  yes: boolean;
   profile?: string;
   region?: string;
   tfvarsPath?: string;
@@ -67,6 +70,7 @@ function parseArgs(): Options {
   const options: Options = {
     environments: [],
     dryRun: false,
+    yes: false,
     profile: undefined,
     region: undefined,
     tfvarsPath: undefined,
@@ -91,6 +95,10 @@ function parseArgs(): Options {
       case "--dry-run":
         options.dryRun = true;
         break;
+      case "--yes":
+      case "-y":
+        options.yes = true;
+        break;
       case "--profile":
         options.profile = args[++i];
         break;
@@ -105,6 +113,7 @@ Usage: npm run media:upload -- [options]
 Options:
   --env <env>     Environment to upload to: dev, prod, or both
   --dry-run       Show what would be uploaded without actually uploading
+  --yes, -y       Skip confirmation prompts (required for prod in non-interactive runs)
   --profile       AWS CLI profile to use (from ~/.aws/credentials)
   --region        AWS region (e.g., us-west-2)
   --tfvars        Path to Terraform tfvars file (defaults to infra/terraform.tfvars)
@@ -113,6 +122,7 @@ Options:
 Examples:
   npm run media:upload -- --env dev
   npm run media:upload -- --env prod --dry-run
+  npm run media:upload -- --env prod --yes
   npm run media:upload -- --env both
         `);
         process.exit(0);
@@ -219,7 +229,47 @@ function countFiles(collection: string): number {
   }
 }
 
-function main() {
+async function confirmProductionUpload(options: Options): Promise<void> {
+  const targetsProduction = options.environments.includes("prod");
+  if (options.dryRun || !targetsProduction) return;
+  if (options.yes) return;
+
+  const targetLabel =
+    options.environments.length > 1 ? "dev and production" : "production";
+  const confirmationToken =
+    options.environments.length > 1 ? "upload both" : "upload prod";
+
+  if (!input.isTTY || !output.isTTY) {
+    console.error(
+      `Production media upload requires explicit confirmation. Re-run with --yes if you intend to upload to ${targetLabel}.`,
+    );
+    process.exit(1);
+  }
+
+  console.info("\n⚠️  Production media upload confirmation required.");
+  console.info(
+    `This run targets ${targetLabel} assets and can overwrite S3 objects.`,
+  );
+  console.info(
+    `Type \"${confirmationToken}\" to continue, or anything else to cancel.`,
+  );
+
+  const rl = createInterface({ input, output });
+  try {
+    const answer = (
+      await rl.question(`Confirm ${targetLabel} upload: `)
+    ).trim();
+
+    if (answer !== confirmationToken) {
+      console.info("Upload cancelled.");
+      process.exit(1);
+    }
+  } finally {
+    rl.close();
+  }
+}
+
+async function main() {
   const options = parseArgs();
 
   console.info("🚀 Portfolio Media Upload Script");
@@ -255,12 +305,7 @@ function main() {
     process.exit(1);
   }
 
-  // Confirm before proceeding (unless dry run)
-  if (!options.dryRun) {
-    console.info("\n⚠️  This will upload files to AWS S3. Continue? (y/N)");
-    // Note: In a real interactive script, you'd want to read from stdin
-    // For now, we'll proceed since it's called with explicit args
-  }
+  await confirmProductionUpload(options);
 
   // Upload to each environment
   for (const env of options.environments) {
@@ -294,5 +339,5 @@ function main() {
 
 // Run main function if this script is executed directly
 if (require.main === module) {
-  main();
+  void main();
 }
