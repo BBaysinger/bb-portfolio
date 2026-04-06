@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Home page hero: an interactive Fluxel grid + draggable “Slinger” orb.
+ * Home page hero: an interactive "Fluxel" grid + draggable “Slinger” orb.
  *
  * Responsibilities:
  * - Renders the grid background and interactive orb container.
@@ -113,7 +113,6 @@ function Hero({ initialRoleTitle }: HeroProps) {
 
   const [isSlingerInFlight, setIsSlingerInFlight] = useState(false);
   const slingerLoopId = useRef<number | null>(null);
-  // const useSlingerTracking = useQueryParams<boolean>("useSlingerTracking");
   const [useSlingerTracking, setUseSlingerTracking] = useState(false);
   const showFpsCounter =
     fpsOverride !== null ? fpsOverride : defaultFpsCounterEnabled;

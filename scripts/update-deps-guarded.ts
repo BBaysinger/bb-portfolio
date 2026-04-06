@@ -171,9 +171,7 @@ function getGuardrail(packageName: string): Guardrail | undefined {
 
 function getManifestPackages(target: PackageTarget): Set<string> {
   const packageJsonPath = path.join(target.cwd, "package.json");
-  const packageJson = JSON.parse(
-    fs.readFileSync(packageJsonPath, "utf8"),
-  ) as {
+  const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf8")) as {
     dependencies?: Record<string, string>;
     devDependencies?: Record<string, string>;
     peerDependencies?: Record<string, string>;
@@ -228,7 +226,9 @@ function applyFamilyGuardrails(
 
     if (presentMembers.length < 2) continue;
 
-    const upgradedMembers = presentMembers.filter((member) => member in upgraded);
+    const upgradedMembers = presentMembers.filter(
+      (member) => member in upgraded,
+    );
     if (!upgradedMembers.length) continue;
 
     const missingMembers = presentMembers.filter(
