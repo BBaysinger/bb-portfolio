@@ -55,17 +55,17 @@ const Greeting: React.FC = () => {
               <p>
                 Hi, I'm Bradley — a <strong>UI</strong> and{" "}
                 <strong>front-end developer</strong> in Spokane, WA. I
-                specialize in building highly polished, custom interfaces with
-                few technical constraints.
+                specialize in building polished, custom interfaces with a strong
+                emphasis on interaction, behavior, and detail.
               </p>
             </div>
             <div ref={addToRefs}>
               <p>
-                This portfolio includes some earlier, interaction-heavy work
-                that shows variety and provides context for my background.
-                Today, my focus is front-end architecture—building reliable
-                product UI and reinforcing strong patterns around structure,
-                styling, and behavior.
+                This portfolio includes earlier interaction-heavy work that
+                shows the range and technical through-line of my background.
+                Today, I&apos;m focused on building reliable product UI with
+                strong JavaScript foundations, thoughtful structure, and clean,
+                maintainable front-end patterns.
               </p>
             </div>
             <a
