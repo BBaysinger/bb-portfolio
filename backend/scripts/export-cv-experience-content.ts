@@ -8,7 +8,7 @@ import { dump as dumpYaml } from 'js-yaml'
 import { getPayload, type Payload } from 'payload'
 import slugify from 'slugify'
 
-import type { CvExperience } from '../src/payload-types'
+import type { CvExperience } from '@/payload-types'
 
 import { loadBackendScriptEnvironment } from './lib/payload-script-env'
 import { resolvePortfolioContentDirPath } from './lib/portfolio-content'
@@ -206,7 +206,7 @@ async function main() {
     const logosDir = path.resolve(contentDir, 'cv-experience-logos')
     const orderPath = path.resolve(cvDir, 'order.yaml')
 
-    const { default: config } = await import('../src/payload.config')
+    const { default: config } = await import('@payload-config')
     payload = await getPayload({ config })
 
     const cvExperience = await (payload as PayloadWithCvExperienceGlobal).findGlobal({

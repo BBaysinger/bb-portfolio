@@ -73,7 +73,7 @@ async function main() {
     const contentDir = resolvePortfolioContentDirPath(__dirname)
     const descriptionsDir = path.resolve(contentDir, 'project-descriptions')
 
-    const { default: config } = await import('../src/payload.config')
+    const { default: config } = await import('@payload-config')
     payload = await getPayload({ config })
 
     const matchedProjects = [] as Array<{ slug: string; html: string }>

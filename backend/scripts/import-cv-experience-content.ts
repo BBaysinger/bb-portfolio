@@ -248,7 +248,7 @@ async function main() {
     const experienceEntries = experienceOrder.map((slug) => loadCvEntry(experienceDir, slug))
     const independentEntries = independentRdOrder.map((slug) => loadCvEntry(independentRdDir, slug))
 
-    const { default: config } = await import('../src/payload.config')
+    const { default: config } = await import('@payload-config')
     payload = await getPayload({ config })
 
     const experienceItems = []

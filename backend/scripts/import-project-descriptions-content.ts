@@ -39,7 +39,7 @@ async function main() {
       return
     }
 
-    const { default: config } = await import('../src/payload.config')
+    const { default: config } = await import('@payload-config')
     payload = await getPayload({ config })
 
     const candidates = descriptionFiles.map((filePath) => {

@@ -306,7 +306,7 @@ async function main() {
   try {
     // Dynamically import payload config after environment is set
     // This repo's config is TypeScript and is executed via tsx.
-    const { default: config } = await import('../../src/payload.config')
+    const { default: config } = await import('@payload-config')
 
     // Initialize Payload
     payload = await getPayload({ config })
