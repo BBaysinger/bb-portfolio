@@ -98,6 +98,8 @@
     "js-yaml": "^4.1.1",
     // JSON5 parser for annotated configuration files
     "json5": "^2.2.3",
+    // Direct MongoDB client used by database sync scripts
+    "mongodb": "~6.16.0",
     // Next.js framework for frontend/backend integration
     "next": "16.2.2",
     // Payload CMS core package
