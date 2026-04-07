@@ -204,6 +204,7 @@
         "Platformer",
         "pointerdown",
         "pointerup",
+        "popstate",
         "prebuild",
         "predev",
         "Prereqs",
