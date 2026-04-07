@@ -125,18 +125,21 @@ const FluxelPixiGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
           const baseAlpha = isHidden
             ? 0
             : Math.max(0, Math.min(1, influence * 1.0 - 0.1));
+          const shouldRenderShadowRaster = influence > 0;
 
           spriteGroup.base.clear();
           spriteGroup.base.rect(0, 0, size, size);
           spriteGroup.base.fill({ color: baseTint, alpha: baseAlpha });
 
           if (spriteGroup.shadowTr && spriteGroup.shadowTrBase) {
+            spriteGroup.shadowTr.visible = shouldRenderShadowRaster;
             spriteGroup.shadowTr.position.set(
               spriteGroup.shadowTrBase.x + shadowTrOffsetX * shadowScale,
               spriteGroup.shadowTrBase.y + shadowTrOffsetY * shadowScale,
             );
           }
           if (spriteGroup.shadowBl && spriteGroup.shadowBlBase) {
+            spriteGroup.shadowBl.visible = shouldRenderShadowRaster;
             spriteGroup.shadowBl.position.set(
               spriteGroup.shadowBlBase.x + shadowBlOffsetX * shadowScale,
               spriteGroup.shadowBlBase.y + shadowBlOffsetY * shadowScale,

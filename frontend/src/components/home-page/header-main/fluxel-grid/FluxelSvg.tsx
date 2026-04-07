@@ -49,6 +49,7 @@ type FluxelSvgProps = {
 const FluxelSvg = forwardRef<FluxelHandle, FluxelSvgProps>(
   ({ data, x, y, size, clipPathId, className }, ref) => {
     const elRef = useRef<SVGGElement>(null);
+    const shouldRenderShadowRaster = data.influence > 0;
 
     // The shadow texture positioning was authored against a 72px reference grid.
     // Scale factors derive all offsets/sizes from the current fluxel size.
@@ -99,26 +100,30 @@ const FluxelSvg = forwardRef<FluxelHandle, FluxelSvgProps>(
           fill="var(--base-color)"
         />
 
-        <image
-          opacity="0.5"
-          href="/images/hero/corner-shadow.webp"
-          x={-34 * SCALE}
-          y={-110 * SCALE}
-          width={216 * SCALE}
-          height={216 * SCALE}
-          transform={`translate(${data.shadowTrOffsetX * SCALE}, ${data.shadowTrOffsetY * SCALE})`}
-        />
+        {shouldRenderShadowRaster ? (
+          <>
+            <image
+              opacity="0.5"
+              href="/images/hero/corner-shadow.webp"
+              x={-34 * SCALE}
+              y={-110 * SCALE}
+              width={216 * SCALE}
+              height={216 * SCALE}
+              transform={`translate(${data.shadowTrOffsetX * SCALE}, ${data.shadowTrOffsetY * SCALE})`}
+            />
 
-        <image
-          opacity="0.25"
-          href="/images/hero/corner-shadow.webp"
-          x={-100 * SCALE}
-          y={-185 * SCALE}
-          width={216 * SCALE}
-          height={216 * SCALE}
-          // Mirror the same texture to approximate bottom-left depth shading.
-          transform={`translate(${data.shadowBlOffsetX * SCALE}, ${data.shadowBlOffsetY * SCALE}) scale(-1, -1)`}
-        />
+            <image
+              opacity="0.25"
+              href="/images/hero/corner-shadow.webp"
+              x={-100 * SCALE}
+              y={-185 * SCALE}
+              width={216 * SCALE}
+              height={216 * SCALE}
+              // Mirror the same texture to approximate bottom-left depth shading.
+              transform={`translate(${data.shadowBlOffsetX * SCALE}, ${data.shadowBlOffsetY * SCALE}) scale(-1, -1)`}
+            />
+          </>
+        ) : null}
       </g>
     );
   },
