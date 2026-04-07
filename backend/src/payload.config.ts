@@ -190,7 +190,11 @@ export default buildConfig({
   })(),
   // Keep generated Payload types opt-in (manual) to avoid constant git churn in dev.
   // Run `payload generate:types` when you explicitly want to refresh generated typings.
-  typescript: {},
+  // When generated, write to src/payload-types.ts so the app and scripts share one source of truth.
+  typescript: {
+    autoGenerate: false,
+    outputFile: path.resolve(dirname, 'payload-types.ts'),
+  },
   db: mongooseAdapter({
     url: mongoURL,
   }),

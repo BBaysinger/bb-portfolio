@@ -8,8 +8,6 @@ export const requireExplicitProdWriteConfirmation = (actionName: string, envProf
   }
 
   if (!process.argv.includes('--confirm-prod-write')) {
-    throw new Error(
-      `Refusing to run ${actionName} against prod without --confirm-prod-write.`,
-    )
+    throw new Error(`Refusing to run ${actionName} against prod without --confirm-prod-write.`)
   }
 }

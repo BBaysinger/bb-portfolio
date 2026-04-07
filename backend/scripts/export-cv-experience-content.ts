@@ -8,7 +8,7 @@ import { dump as dumpYaml } from 'js-yaml'
 import { getPayload, type Payload } from 'payload'
 import slugify from 'slugify'
 
-import type { CvExperience } from '../payload-types'
+import type { CvExperience } from '../src/payload-types'
 
 import { loadBackendScriptEnvironment } from './lib/payload-script-env'
 import { resolvePortfolioContentDirPath } from './lib/portfolio-content'
