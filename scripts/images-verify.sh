@@ -126,7 +126,10 @@ echo "🔍 Verifying images (Docker Hub + ECR)"
 # Docker Hub
 if have_curl && have_node; then
   DH_USER="${DOCKERHUB_USERNAME:-$(read_secret strings.DOCKER_HUB_USERNAME)}"
-  DH_PASS="${DOCKERHUB_PASSWORD:-$(read_secret strings.DOCKER_HUB_PASSWORD)}"
+  DH_PASS="${DOCKERHUB_PASSWORD:-${DOCKER_HUB_ACCESS_TOKEN:-$(read_secret strings.DOCKER_HUB_ACCESS_TOKEN)}}"
+  if [[ -z "$DH_PASS" ]]; then
+    DH_PASS="$(read_secret strings.DOCKER_HUB_PASSWORD)"
+  fi
   DH_TOKEN="${DOCKERHUB_TOKEN:-}"
   if [[ -z "$DH_TOKEN" && -n "$DH_USER" && -n "$DH_PASS" ]]; then
     DH_TOKEN=$(curl -sS -X POST https://hub.docker.com/v2/users/login/ -H 'Content-Type: application/json' -d "{\"username\":\"$DH_USER\",\"password\":\"$DH_PASS\"}" | node -e "const fs=require('fs');const o=JSON.parse(fs.readFileSync(0,'utf8'));console.info(o.token||'')") || true

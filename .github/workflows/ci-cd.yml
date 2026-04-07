@@ -321,7 +321,7 @@ jobs:
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN || secrets.DOCKER_HUB_PASSWORD }}
       - name: Build and push dev images to Docker Hub
         env:
           SANITIZED_FE_REQ: ${{ steps.sanitize-dev-req.outputs.dev_req_frontend }}

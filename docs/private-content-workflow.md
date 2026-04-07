@@ -111,6 +111,23 @@ From `backend/`:
 - `npm run import:cv-content:dev`
 - `npm run import:project-descriptions:local`
 - `npm run import:project-descriptions:dev`
+- `npm run export:cv-content -- --env prod`
+- `npm run export:project-descriptions -- --env prod`
+
+From repo root:
+
+- `npm run content:pull:prod:project-descriptions`
+- `npm run content:pull:prod:project-descriptions:dry`
+- `npm run content:pull:prod:cv-experiences`
+- `npm run content:pull:prod:cv-experiences:dry`
+- `npm run content:pull:prod:all`
+- `npm run content:pull:prod:all:dry`
+
+Notes:
+
+- The root pull commands are meant for copying authored production content back into sibling `../cms-seedings` so local/dev imports can use the same content.
+- `content:pull:prod:cv-experiences` also syncs production CV logos into `../cms-seedings/cv-experience-logos/` before exporting YAML so the seedings stay importable.
+- Use `USE_GITHUB_SECRETS=true` or equivalent prod env access when invoking the backend export scripts directly.
 
 Guarded write wrappers:
 

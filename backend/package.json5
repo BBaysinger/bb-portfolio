@@ -29,6 +29,10 @@
     "generate:importmap": "cross-env NODE_OPTIONS=--no-deprecation payload generate:importmap",
     // Generates TypeScript types from Payload collections and globals
     "generate:types": "cross-env NODE_OPTIONS=--no-deprecation payload generate:types",
+    // Export CV experience global content into the external seedings folder.
+    "export:cv-content": "cross-env NODE_OPTIONS=--no-deprecation tsx ./scripts/export-cv-experience-content.ts",
+    // Export project description HTML blocks into the external seedings folder.
+    "export:project-descriptions": "cross-env NODE_OPTIONS=--no-deprecation tsx ./scripts/export-project-descriptions-content.ts",
     //
     "import:cv-content": "cross-env NODE_OPTIONS=--no-deprecation tsx ./scripts/import-cv-experience-content.ts",
     //

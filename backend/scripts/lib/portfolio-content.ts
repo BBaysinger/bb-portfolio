@@ -6,12 +6,16 @@ import { load as loadYaml } from 'js-yaml'
 const resolveFromBase = (baseDir: string, targetPath: string) =>
   path.isAbsolute(targetPath) ? targetPath : path.resolve(baseDir, targetPath)
 
-export const resolvePortfolioContentDir = (scriptDir: string) => {
+export const resolvePortfolioContentDirPath = (scriptDir: string) => {
   const repoRoot = path.resolve(scriptDir, '../..')
   const configuredDir = process.env.PORTFOLIO_CONTENT_DIR?.trim()
-  const contentDir = configuredDir
+  return configuredDir
     ? resolveFromBase(repoRoot, configuredDir)
     : path.resolve(repoRoot, '../cms-seedings')
+}
+
+export const resolvePortfolioContentDir = (scriptDir: string) => {
+  const contentDir = resolvePortfolioContentDirPath(scriptDir)
 
   if (!fs.existsSync(contentDir)) {
     throw new Error(

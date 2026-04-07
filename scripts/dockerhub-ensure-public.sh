@@ -3,7 +3,7 @@ set -euo pipefail
 
 # Ensures specified Docker Hub repositories are public.
 # - Reads credentials from env (DOCKERHUB_TOKEN or DOCKERHUB_USERNAME/DOCKERHUB_PASSWORD)
-# - Falls back to .github-secrets.private.json5 (strings.DOCKER_HUB_USERNAME/PASSWORD)
+# - Falls back to .github-secrets.private.json5 (strings.DOCKER_HUB_USERNAME/ACCESS_TOKEN, then PASSWORD)
 # - Default repos: bhbaysinger/bb-portfolio-backend, bhbaysinger/bb-portfolio-frontend
 
 REPOS_CSV="bhbaysinger/bb-portfolio-backend,bhbaysinger/bb-portfolio-frontend"
@@ -46,7 +46,10 @@ read_secret(){
 }
 
 DOCKERHUB_USERNAME="${DOCKERHUB_USERNAME:-$(read_secret strings.DOCKER_HUB_USERNAME)}"
-DOCKERHUB_PASSWORD="${DOCKERHUB_PASSWORD:-$(read_secret strings.DOCKER_HUB_PASSWORD)}"
+DOCKERHUB_PASSWORD="${DOCKERHUB_PASSWORD:-${DOCKER_HUB_ACCESS_TOKEN:-$(read_secret strings.DOCKER_HUB_ACCESS_TOKEN)}}"
+if [[ -z "$DOCKERHUB_PASSWORD" ]]; then
+  DOCKERHUB_PASSWORD="$(read_secret strings.DOCKER_HUB_PASSWORD)"
+fi
 DOCKERHUB_TOKEN="${DOCKERHUB_TOKEN:-}"
 
 if [[ -z "$DOCKERHUB_TOKEN" ]]; then

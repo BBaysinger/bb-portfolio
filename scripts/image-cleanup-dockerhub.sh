@@ -89,7 +89,7 @@ if ! command -v node >/dev/null 2>&1; then
 fi
 
 DOCKERHUB_USERNAME="${DOCKERHUB_USERNAME:-}"
-DOCKERHUB_PASSWORD="${DOCKERHUB_PASSWORD:-}"
+DOCKERHUB_PASSWORD="${DOCKERHUB_PASSWORD:-${DOCKER_HUB_ACCESS_TOKEN:-}}"
 DOCKERHUB_TOKEN="${DOCKERHUB_TOKEN:-}"
 
 # If no credentials provided via env, try to read from .github-secrets.private.json5
@@ -99,7 +99,7 @@ if [[ -z "$DOCKERHUB_TOKEN" && ( -z "$DOCKERHUB_USERNAME" || -z "$DOCKERHUB_PASS
   if [[ -f "$SECRETS_FILE" ]]; then
     if command -v node >/dev/null 2>&1; then
       DOCKERHUB_USERNAME=$(node -e "const fs=require('fs');const JSON5=require('json5');const o=JSON5.parse(fs.readFileSync(process.argv[1],'utf8'));console.info(o?.strings?.DOCKER_HUB_USERNAME||'')" "$SECRETS_FILE")
-      DOCKERHUB_PASSWORD=$(node -e "const fs=require('fs');const JSON5=require('json5');const o=JSON5.parse(fs.readFileSync(process.argv[1],'utf8'));console.info(o?.strings?.DOCKER_HUB_PASSWORD||'')" "$SECRETS_FILE")
+      DOCKERHUB_PASSWORD=$(node -e "const fs=require('fs');const JSON5=require('json5');const o=JSON5.parse(fs.readFileSync(process.argv[1],'utf8'));console.info(o?.strings?.DOCKER_HUB_ACCESS_TOKEN||o?.strings?.DOCKER_HUB_PASSWORD||'')" "$SECRETS_FILE")
     fi
   fi
 fi

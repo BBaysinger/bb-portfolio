@@ -83,7 +83,10 @@ fi
 AWS_ACCESS_KEY_ID_VAL="$(read_json5_key strings.AWS_ACCESS_KEY_ID)"
 AWS_SECRET_ACCESS_KEY_VAL="$(read_json5_key strings.AWS_SECRET_ACCESS_KEY)"
 DOCKER_HUB_USER="$(read_json5_key strings.DOCKER_HUB_USERNAME)"
-DOCKER_HUB_PASS="$(read_json5_key strings.DOCKER_HUB_PASSWORD)"
+DOCKER_HUB_PASS="$(read_json5_key strings.DOCKER_HUB_ACCESS_TOKEN)"
+if [[ -z "$DOCKER_HUB_PASS" ]]; then
+  DOCKER_HUB_PASS="$(read_json5_key strings.DOCKER_HUB_PASSWORD)"
+fi
 if [[ -z "$AWS_ACCESS_KEY_ID_VAL" || -z "$AWS_SECRET_ACCESS_KEY_VAL" ]]; then
   echo "❌ Missing AWS credentials in $SECRETS_FILE (AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY)." >&2
   exit 1

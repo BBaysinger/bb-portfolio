@@ -242,6 +242,18 @@
     "media:pull:prod:cv-experience-logos": "tsx scripts/pull-media-from-s3.ts --env prod --collection cv-experience-logos",
     //
     "media:pull:prod:cv-experience-logos:dry": "tsx scripts/pull-media-from-s3.ts --env prod --collection cv-experience-logos --dry-run",
+    // 🪄 Export authored production project descriptions into ../cms-seedings/project-descriptions
+    "content:pull:prod:project-descriptions": "cd backend && USE_GITHUB_SECRETS=true npm run export:project-descriptions -- --env prod",
+    // 🧪 Dry run: show which production project descriptions would be exported
+    "content:pull:prod:project-descriptions:dry": "cd backend && USE_GITHUB_SECRETS=true npm run export:project-descriptions -- --env prod --dry-run",
+    // 🪄 Sync production CV logos, then export authored CV experience content into ../cms-seedings/cv-experiences
+    "content:pull:prod:cv-experiences": "npm run media:pull:prod:cv-experience-logos && cd backend && USE_GITHUB_SECRETS=true npm run export:cv-content -- --env prod",
+    // 🧪 Dry run: preview CV logo sync and CV content export without writing files
+    "content:pull:prod:cv-experiences:dry": "npm run media:pull:prod:cv-experience-logos:dry && cd backend && USE_GITHUB_SECRETS=true npm run export:cv-content -- --env prod --dry-run",
+    // 🪄 Pull both authored production project descriptions and CV experience seedings in one run
+    "content:pull:prod:all": "npm run content:pull:prod:project-descriptions && npm run content:pull:prod:cv-experiences",
+    // 🧪 Dry run: preview all authored production content pulls
+    "content:pull:prod:all:dry": "npm run content:pull:prod:project-descriptions:dry && npm run content:pull:prod:cv-experiences:dry",
     // 🪄 Import images from ../cms-seedings into backend/media/* for local dev
     "media:seed": "tsx scripts/import-media-from-seedings.ts",
     // 🪄 Upload media only to the development S3 bucket
