@@ -41,6 +41,7 @@
     "@payloadcms/richtext-lexical": "3.81.0",
     "@payloadcms/storage-s3": "3.81.0",
     "@payloadcms/ui": "3.81.0",
+    "bson": "^6.10.4",
     "cross-env": "^10.1.0",
     "dotenv": "17.4.1",
     "express": "^5.2.1",

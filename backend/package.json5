@@ -84,6 +84,8 @@
     "@payloadcms/storage-s3": "3.81.0",
     // Payload's core UI components
     "@payloadcms/ui": "3.81.0",
+    // BSON/EJSON utilities used by database migration and snapshot scripts
+    "bson": "^6.10.3",
     // Cross-platform environment variable setting (Windows/Unix compatibility)
     "cross-env": "^10.1.0",
     // Environment variable loader (reads .env files into process.env)
