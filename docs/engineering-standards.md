@@ -48,8 +48,8 @@ Any deviation from standards, conventions, or best practices must be explicitly 
 
 When working with AI coding assistants:
 
-- **Git operations**: AI _can_ stage files (`git add`) and prepare commits (`git commit`), but **must not execute `git push`**. The developer should review staged changes and push, merge, or PR manually after verification.
-- **Command expectation**: when the user asks for a git action (e.g., “git commit”), that request implicitly means “provide the exact command(s) to run”. Only execute `git add`/`git commit` when explicitly instructed to run them.
+- **Git operations**: AI _can_ stage files (`git add`) and prepare commits (`git commit`), and may offer to do so when work reaches a natural stopping point. AI should assume the developer will handle push, merge, and PR steps. AI should also assume the developer will run `npm run precommit` before any push so formatting side effects are visible to the human reviewer. AI must not offer to run `git push`; it may do so only when the developer explicitly asks.
+- **Command expectation**: when commit-ready work is complete, the assistant may ask whether the developer wants a commit. Only execute `git add`/`git commit` when explicitly instructed to run them.
 - **Confirmation required**: when providing any git command (including `git add`/`git commit`), the assistant must present the exact command(s) and require an explicit human **Approve/Execute** confirmation step via **command preview card**, as opposed to providing it in plain text.
 - **Local checks are human-run**: the developer runs local checks like `npm run precommit`, `npm run lint`, and `npm test`. The assistant should not run them unless explicitly asked.
 - **No linting required by the assistant**: do not require the assistant to run `npm run lint` as part of a task; request it only when you explicitly want the assistant to execute a lint pass.
@@ -63,8 +63,8 @@ When working with AI coding assistants:
 
 1. **Scope** – e.g., “Touch only `frontend/src/components/foo/**`.”
 2. **Goal** – “Eliminate React hook lint warnings; behavior must stay identical.”
-3. **Forbidden actions** – “Never run `terraform apply`, `ssh prod`, rotate secrets, or push commits.”
-4. **Required checks** – “Run `npm test` and summarize output; stop on failure.” (If you want the assistant to execute local checks, list the exact commands here.)
+3. **Forbidden actions** – “Never run `terraform apply`, `ssh prod`, or rotate secrets. Do not offer to push; only push if I explicitly instruct it.”
+4. **Required checks** – “Run `npm test` and summarize output; stop on failure.” (If you want the assistant to execute local checks, list the exact commands here. Otherwise assume the developer will run `npm run precommit` before pushing.)
 5. **Ambiguity rule** – “If requirements conflict or files are missing, stop and ask instead of guessing.”
 6. **Logging** – “Summarize long-running commands; don’t dump pages of logs unless requested.”
 
