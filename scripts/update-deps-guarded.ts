@@ -8,6 +8,8 @@ import { fileURLToPath } from "url";
 type PackageTarget = {
   label: string;
   cwd: string;
+  installArgs?: string[];
+  lockfileRefreshArgs?: string[];
 };
 
 type Guardrail = {
@@ -38,7 +40,12 @@ const repoRoot = path.resolve(__dirname, "..");
 
 const targets: PackageTarget[] = [
   { label: "root", cwd: repoRoot },
-  { label: "backend", cwd: path.join(repoRoot, "backend") },
+  {
+    label: "backend",
+    cwd: path.join(repoRoot, "backend"),
+    installArgs: ["--legacy-peer-deps"],
+    lockfileRefreshArgs: ["--package-lock-only", "--legacy-peer-deps"],
+  },
   { label: "frontend", cwd: path.join(repoRoot, "frontend") },
 ];
 
@@ -325,12 +332,21 @@ function applyAllowedUpdates(plan: UpgradePlan): void {
 
 function installWithRetry(target: PackageTarget): void {
   const lockfilePath = path.join(target.cwd, "package-lock.json");
+  const installArgs = ["install", ...(target.installArgs ?? [])];
+  const lockfileRefreshArgs = [
+    "install",
+    ...(target.lockfileRefreshArgs ?? ["--package-lock-only"]),
+  ];
 
   console.info(`\n[${target.label}] running npm install`);
-  const firstAttempt = runCommand("npm", ["install"], target.cwd, {
+  const firstAttempt = runCommand("npm", installArgs, target.cwd, {
     allowFailure: true,
   });
-  if (firstAttempt.status === 0) return;
+  if (firstAttempt.status === 0) {
+    console.info(`[${target.label}] refreshing package-lock.json`);
+    runCommand("npm", lockfileRefreshArgs, target.cwd);
+    return;
+  }
 
   if (!fs.existsSync(lockfilePath)) {
     throw new Error(
@@ -342,7 +358,9 @@ function installWithRetry(target: PackageTarget): void {
     `[${target.label}] initial install failed, deleting package-lock.json and retrying once`,
   );
   fs.rmSync(lockfilePath, { force: true });
-  runCommand("npm", ["install"], target.cwd);
+  runCommand("npm", installArgs, target.cwd);
+  console.info(`[${target.label}] refreshing package-lock.json`);
+  runCommand("npm", lockfileRefreshArgs, target.cwd);
 }
 
 function syncPackages(): void {
