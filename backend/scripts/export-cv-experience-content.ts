@@ -8,6 +8,8 @@ import { dump as dumpYaml } from 'js-yaml'
 import { getPayload, type Payload } from 'payload'
 import slugify from 'slugify'
 
+import type { CvExperience } from '../payload-types'
+
 import { loadBackendScriptEnvironment } from './lib/payload-script-env'
 import { resolvePortfolioContentDirPath } from './lib/portfolio-content'
 
@@ -37,17 +39,12 @@ type ExperienceItem = {
   bulletPoints?: unknown
 }
 
-type CvExperienceGlobal = {
-  experienceItems?: unknown
-  recentIndependentStudy?: unknown
-}
-
 type PayloadWithCvExperienceGlobal = Payload & {
   findGlobal(args: {
     slug: 'cvExperience'
     depth?: number
     overrideAccess?: boolean
-  }): Promise<CvExperienceGlobal>
+  }): Promise<CvExperience>
 }
 
 type NormalizedBulletPoint = {
@@ -218,15 +215,20 @@ async function main() {
       overrideAccess: true,
     })
 
-    const experienceItems = (
-      Array.isArray(cvExperience.experienceItems) ? cvExperience.experienceItems : []
-    )
+    const experienceItemValues = Array.isArray(cvExperience.experienceItems)
+      ? cvExperience.experienceItems
+      : []
+
+    const independentStudyValue = (cvExperience as unknown as Record<string, unknown>)[
+      'recentIndependentStudy'
+    ]
+    const independentStudyValues = Array.isArray(independentStudyValue) ? independentStudyValue : []
+
+    const experienceItems = experienceItemValues
       .map(normalizeEntry)
       .filter((entry): entry is NormalizedEntry => Boolean(entry))
 
-    const independentItems = (
-      Array.isArray(cvExperience.recentIndependentStudy) ? cvExperience.recentIndependentStudy : []
-    )
+    const independentItems = independentStudyValues
       .map(normalizeEntry)
       .filter((entry): entry is NormalizedEntry => Boolean(entry))
 
