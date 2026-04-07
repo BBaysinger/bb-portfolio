@@ -117,6 +117,8 @@
     "@testing-library/react": "16.3.2",
     // Express.js TypeScript definitions
     "@types/express": "^5.0.6",
+    // TypeScript definitions for js-yaml used by private content import helpers
+    "@types/js-yaml": "^4.0.9",
     // Node.js TypeScript definitions (latest for Node 18+)
     "@types/node": "^25.5.2",
     // React 19 types

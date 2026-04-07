@@ -122,7 +122,7 @@ const exportCollectionSnapshot = async (
   const db = client.db()
   const docs = await db.collection(spec.mongoCollection).find({}).toArray()
   const filePath = path.join(directoryPath, `${spec.mongoCollection}.ejson`)
-  await writeFile(filePath, EJSON.stringify(docs, null, 2, { relaxed: false }), 'utf8')
+  await writeFile(filePath, EJSON.stringify(docs, undefined, 2, { relaxed: false }), 'utf8')
   return docs
 }
 

@@ -64,7 +64,11 @@ async function getS3Files(bucketName: string, prefix: string): Promise<string[]>
   }
 }
 
-type CollectionSlug = 'projectThumbnails' | 'projectScreenshots' | 'brandLogos'
+type CollectionSlug =
+  | 'projectThumbnails'
+  | 'projectScreenshots'
+  | 'brandLogos'
+  | 'cvExperienceLogos'
 
 interface MediaCollectionConfig {
   name: CollectionSlug
@@ -182,7 +186,7 @@ async function rebuildMediaCollection(
         // Try to create with specific ID (this might not work with all Payload configurations)
         try {
           mediaRecord = await payload.create({
-            collection: config.name as 'projectThumbnails' | 'projectScreenshots' | 'brandLogos',
+            collection: config.name,
             data: { ...baseData, id: expectedId },
           })
         } catch (idError) {
@@ -192,14 +196,14 @@ async function rebuildMediaCollection(
             idError instanceof Error ? idError.message : String(idError),
           )
           mediaRecord = await payload.create({
-            collection: config.name as 'projectThumbnails' | 'projectScreenshots' | 'brandLogos',
+            collection: config.name,
             data: baseData,
           })
         }
       } else {
         // Create with auto-generated ID
         mediaRecord = await payload.create({
-          collection: config.name as 'projectThumbnails' | 'projectScreenshots' | 'brandLogos',
+          collection: config.name,
           data: baseData,
         })
       }
