@@ -31,7 +31,7 @@ async function computeNdaForProject(
     if (!brandId) return projectNda
 
     const brandRes = await req.payload.find({
-      collection: 'brands',
+      collection: 'project-brands',
       where: { id: { equals: brandId } },
       limit: 1,
       depth: 0,

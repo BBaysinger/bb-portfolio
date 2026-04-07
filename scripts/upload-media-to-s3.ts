@@ -49,7 +49,8 @@ function resolveBucket(
 
 // Media collections to sync
 const MEDIA_COLLECTIONS = [
-  "brand-logos",
+  "project-brand-logos",
+  "cv-experience-logos",
   "project-screenshots",
   "project-thumbnails",
 ] as const;

@@ -83,7 +83,7 @@ export const canReadNdaField = async ({ req, doc }: NdaAccessArgs) => {
 
     try {
       const brand = await req.payload.findByID({
-        collection: 'brands',
+        collection: 'project-brands',
         id: relId,
         depth: 0,
         disableErrors: true,
@@ -102,7 +102,7 @@ export const canReadNdaField = async ({ req, doc }: NdaAccessArgs) => {
       // IMPORTANT: Use overrideAccess so we can safely detect NDA brands even when
       // unauthenticated requests cannot read brand documents.
       const brand = await req.payload.findByID({
-        collection: 'brands',
+        collection: 'project-brands',
         id: relId || brandId,
         depth: 0,
         disableErrors: true,

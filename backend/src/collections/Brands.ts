@@ -2,8 +2,12 @@ import type { CollectionConfig, Where } from 'payload'
 
 import { canReadNdaBrandAsset } from '../access/nda'
 
-export const Clients: CollectionConfig = {
-  slug: 'brands',
+export const ProjectBrands: CollectionConfig = {
+  slug: 'project-brands',
+  labels: {
+    singular: 'Project Brand',
+    plural: 'Project Brands',
+  },
   admin: {
     useAsTitle: 'name',
     defaultColumns: ['name', 'slug', 'nda'],
@@ -53,7 +57,7 @@ export const Clients: CollectionConfig = {
             await updateUnsafe({ collection: 'brandLogos', id, data: { nda }, depth: 0 })
           }
         } catch (e) {
-          console.warn('[brands] failed to propagate NDA flag to brandLogos:', e)
+          console.warn('[project-brands] failed to propagate NDA flag to brandLogos:', e)
         }
       },
     ],

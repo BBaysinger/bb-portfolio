@@ -45,7 +45,8 @@ function resolveBucket(
 }
 
 const MEDIA_COLLECTIONS = [
-  "brand-logos",
+  "project-brand-logos",
+  "cv-experience-logos",
   "project-screenshots",
   "project-thumbnails",
 ] as const;
@@ -158,7 +159,8 @@ function testSampleUrls(environment: Environment) {
 
   // Test a few sample URLs to see if they're accessible
   const sampleFiles = [
-    "brand-logos/bbi.svg",
+    "project-brand-logos/bbi.svg",
+    "cv-experience-logos/bb.svg",
     "project-thumbnails/bikini-bottom.webp",
   ];
 

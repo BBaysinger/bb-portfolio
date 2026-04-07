@@ -7,11 +7,12 @@
  * working assets directory that lives outside the repo.
  *
  * Supported structure examples under ../cms-seedings:
- * - brand-logos/
+ * - project-brand-logos/
+ * - cv-experience-logos/
  * - project-screenshots/
  * - project-thumbnails/
  *
- * or with an intermediate images/ folder, e.g. images/brand-logos, etc.
+ * or with an intermediate images/ folder, e.g. images/project-brand-logos, etc.
  *
  * Usage:
  *   npm run media:import
@@ -84,11 +85,21 @@ async function main() {
 
   const mappers: Mapping[] = [
     {
-      label: "brand-logos",
-      dest: path.join(backendMedia, "brand-logos"),
+      label: "project-brand-logos",
+      dest: path.join(backendMedia, "project-brand-logos"),
       sources: [
+        path.join(seedBase, "project-brand-logos"),
+        path.join(seedBase, "images", "project-brand-logos"),
         path.join(seedBase, "brand-logos"),
         path.join(seedBase, "images", "brand-logos"),
+      ],
+    },
+    {
+      label: "cv-experience-logos",
+      dest: path.join(backendMedia, "cv-experience-logos"),
+      sources: [
+        path.join(seedBase, "cv-experience-logos"),
+        path.join(seedBase, "images", "cv-experience-logos"),
       ],
     },
     {

@@ -5,7 +5,7 @@ This doc captures how uploads are set up today, recommended S3 patterns per envi
 ## Current state (from repo)
 
 - Uploads use the local filesystem in development via `staticDir`:
-  - `brand-logos/`, `project-screenshots/`, `project-thumbnails/`
+  - `project-brand-logos/`, `cv-experience-logos/`, `project-screenshots/`, `project-thumbnails/`
 - S3 buckets are now defined and managed by Terraform under `infra/` (one bucket per env, e.g., `dev` and `prod`).
 - `@payloadcms/storage-s3` is wired in `backend/src/payload.config.ts` and enabled when `ENV_PROFILE` is `dev` or `prod`. For `ENV_PROFILE=local`, filesystem storage is used.
 - MongoDB now relies on the canonical `MONGODB_URI` key per profile (local uses the same key and prefixed variants are no longer supported).
@@ -43,7 +43,7 @@ Note on `:dry` scripts: `migrate:all:<env>:dry` and `migrate:media:<env>:dry` no
 ### Local folder conventions and fresh clones
 
 - Canonical upload root for local dev: `backend/media/`
-  - Subfolders: `brand-logos/`, `project-screenshots/`, `project-thumbnails/`
+  - Subfolders: `project-brand-logos/`, `cv-experience-logos/`, `project-screenshots/`, `project-thumbnails/`
 - These folders are ignored by git (we keep only `.gitkeep` so directories exist after clone).
 - To import assets from your external `../cms-seedings` folder (or `../cms-seedings/images/*`) into `backend/media/*`, use:
 
@@ -92,12 +92,14 @@ If you keep non-checked-in working assets outside the repo (recommended), place 
 
 ```
 ../cms-seedings/
-  brand-logos/
+  project-brand-logos/
+  cv-experience-logos/
   project-screenshots/
   project-thumbnails/
 # or
 ../cms-seedings/images/
-  brand-logos/
+  project-brand-logos/
+  cv-experience-logos/
   project-screenshots/
   project-thumbnails/
 ```
@@ -133,7 +135,8 @@ Most teams choose one-bucket-per-env.
 
 Regardless of bucket choice, keep stable, predictable prefixes so DB keys don't change when you switch storage backends:
 
-- `brand-logos/`
+- `project-brand-logos/`
+- `cv-experience-logos/`
 - `project-screenshots/`
 - `project-thumbnails/`
 
@@ -229,10 +232,11 @@ General approach in code:
 
 - Continue using local `staticDir` when `ENV_PROFILE=local`.
 - When `ENV_PROFILE` is `dev`/`stg`/`prod`, enable the S3 storage plugin and map:
-  - `brandLogos` → `brand-logos/`
+  - `brandLogos` → `project-brand-logos/`
+  - `cvExperienceLogos` → `cv-experience-logos/`
   - `projectScreenshots` → `project-screenshots/`
   - `projectThumbnails` → `project-thumbnails/`
-- Prefer computing the public URL at read time from a base URL (e.g., `https://cdn.example.com/brand-logos/<key>`), so you don't store hard-coded absolute URLs in Mongo. That way, promotions between buckets require no DB rewrites.
+- Prefer computing the public URL at read time from a base URL (e.g., `https://cdn.example.com/project-brand-logos/<key>`), so you don't store hard-coded absolute URLs in Mongo. That way, promotions between buckets require no DB rewrites.
 
 Note: If you want me to wire the plugin now, say the word and I'll add a safe, env-driven configuration that still defaults to local for `ENV_PROFILE=local`.
 
@@ -269,7 +273,8 @@ aws s3 sync s3://bb-portfolio-media-stg/project-thumbnails/ \
 - From local filesystem (current setup) to S3 (first-time import):
 
 ```zsh
-aws s3 sync backend/media/brand-logos/ s3://bb-portfolio-media-dev/brand-logos/
+aws s3 sync backend/media/project-brand-logos/ s3://bb-portfolio-media-dev/project-brand-logos/
+aws s3 sync backend/media/cv-experience-logos/ s3://bb-portfolio-media-dev/cv-experience-logos/
 aws s3 sync backend/media/project-screenshots/ s3://bb-portfolio-media-dev/project-screenshots/
 aws s3 sync backend/media/project-thumbnails/ s3://bb-portfolio-media-dev/project-thumbnails/
 ```

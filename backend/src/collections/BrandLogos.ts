@@ -22,7 +22,7 @@ const normalizeFilename = (name: string) => {
 }
 
 const tryUnlinkLocalFile = async (filename: string) => {
-  const staticDir = path.join(process.cwd(), 'media', 'brand-logos')
+  const staticDir = path.join(process.cwd(), 'media', 'project-brand-logos')
   try {
     await fs.unlink(path.join(staticDir, filename))
   } catch {}
@@ -31,11 +31,11 @@ const tryUnlinkLocalFile = async (filename: string) => {
 export const BrandLogos: CollectionConfig = {
   slug: 'brandLogos',
   labels: {
-    singular: 'Brand Logo',
-    plural: 'Brand Logos',
+    singular: 'Project Brand Logo',
+    plural: 'Project Brand Logos',
   },
   upload: {
-    staticDir: 'media/brand-logos', // This will resolve to <projectRoot>/media/brand-logos
+    staticDir: 'media/project-brand-logos', // This will resolve to <projectRoot>/media/project-brand-logos
     mimeTypes: ['image/webp', 'image/svg+xml'],
     imageSizes: [
       {
@@ -125,7 +125,7 @@ export const BrandLogos: CollectionConfig = {
             }
           }
         } catch (e) {
-          console.warn('[brandLogos] beforeOperation overwrite check failed:', e)
+          console.warn('[projectBrandLogos] beforeOperation overwrite check failed:', e)
         }
         return args
       },

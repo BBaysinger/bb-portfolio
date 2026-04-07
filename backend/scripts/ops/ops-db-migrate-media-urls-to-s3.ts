@@ -164,7 +164,8 @@ function isAlreadyS3Url(url: string | undefined): boolean {
 }
 
 const MEDIA_COLLECTIONS = [
-  { name: 'brandLogos', prefix: 'brand-logos' },
+  { name: 'brandLogos', prefix: 'project-brand-logos' },
+  { name: 'cvExperienceLogos', prefix: 'cv-experience-logos' },
   { name: 'projectScreenshots', prefix: 'project-screenshots' },
   { name: 'projectThumbnails', prefix: 'project-thumbnails' },
 ]
@@ -183,7 +184,11 @@ async function migrateMediaCollection(
   try {
     // Get all documents in the collection
     const result = await payload.find({
-      collection: collectionName as 'brandLogos' | 'projectScreenshots' | 'projectThumbnails',
+      collection: collectionName as
+        | 'brandLogos'
+        | 'cvExperienceLogos'
+        | 'projectScreenshots'
+        | 'projectThumbnails',
       limit: 1000, // Adjust if you have more media files
     })
 

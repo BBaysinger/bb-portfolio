@@ -885,7 +885,7 @@ bb-portfolio-frontend-prod   Up 20 seconds (healthy)   0.0.0.0:3001->3000/tcp
   - `bb-portfolio-assets-dev` - EC2 development uploads
   - `bb-portfolio-assets-prod` - EC2 production uploads
 - **Payload Integration**: Use `@payloadcms/storage-s3` with dynamic bucket naming based on `ENV_PROFILE`
-- **Organization**: Environment-specific prefixes (screenshots, thumbnails, brand-logos)
+- **Organization**: Environment-specific prefixes (project-brand-logos, cv-experience-logos, screenshots, thumbnails)
 
 **Environment Configuration:**
 
@@ -954,7 +954,8 @@ MONGODB_URI=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/bb-portfol
   - `bb-portfolio-media-stg` (optional, if/when we add stage)
   - `bb-portfolio-media-prod`
 - **Prefixes (unchanged and stable):**
-  - `brand-logos/`
+  - `project-brand-logos/`
+  - `cv-experience-logos/`
   - `project-screenshots/`
   - `project-thumbnails/`
 - **Terraform:** Buckets and IAM are managed in `infra/`; variables expose per-env bucket names and region. Outputs provide names/ARNs for wiring.

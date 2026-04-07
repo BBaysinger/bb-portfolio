@@ -92,7 +92,7 @@ export const Projects: CollectionConfig = {
           if (!brandId) return doc
 
           const brand = await req.payload.findByID({
-            collection: 'brands',
+            collection: 'project-brands',
             id: brandId,
             depth: 0,
             disableErrors: true,
@@ -221,7 +221,7 @@ export const Projects: CollectionConfig = {
     {
       name: 'brandId',
       type: 'relationship',
-      relationTo: 'brands', // optional: create a `brands` collection
+      relationTo: 'project-brands',
       required: false,
       access: {
         read: canReadNdaField,

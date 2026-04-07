@@ -232,6 +232,16 @@
     "install:all": "concurrently \"npm install\" \"cd backend && npm install\" \"cd frontend && npm install\" --names \"root,backend,frontend\" --prefix-colors \"yellow,blue,green\"",
     // 🪄 Generate the portfolio images from PSDs from *outside* of the repo. Run before media:seed.
     "media:export": "bash scripts/export-media.sh",
+    //
+    "media:pull": "tsx scripts/pull-media-from-s3.ts",
+    //
+    "media:pull:prod:project-brand-logos": "tsx scripts/pull-media-from-s3.ts --env prod --collection project-brand-logos",
+    //
+    "media:pull:prod:project-brand-logos:dry": "tsx scripts/pull-media-from-s3.ts --env prod --collection project-brand-logos --dry-run",
+    //
+    "media:pull:prod:cv-experience-logos": "tsx scripts/pull-media-from-s3.ts --env prod --collection cv-experience-logos",
+    //
+    "media:pull:prod:cv-experience-logos:dry": "tsx scripts/pull-media-from-s3.ts --env prod --collection cv-experience-logos --dry-run",
     // 🪄 Import images from ../cms-seedings into backend/media/* for local dev
     "media:seed": "tsx scripts/import-media-from-seedings.ts",
     // 🪄 Upload media only to the development S3 bucket

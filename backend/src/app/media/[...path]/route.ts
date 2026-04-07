@@ -5,12 +5,15 @@ import { NextRequest } from 'next/server'
 
 const prefixToDir: Record<string, string> = {
   // Hyphenated folder names
-  'brand-logos': 'brand-logos',
+  'project-brand-logos': 'project-brand-logos',
+  'brand-logos': 'project-brand-logos',
+  'cv-experience-logos': 'cv-experience-logos',
   'project-screenshots': 'project-screenshots',
   'project-thumbnails': 'project-thumbnails',
 
   // Collection slugs -> folder names
-  brandLogos: 'brand-logos',
+  brandLogos: 'project-brand-logos',
+  cvExperienceLogos: 'cv-experience-logos',
   projectScreenshots: 'project-screenshots',
   projectThumbnails: 'project-thumbnails',
 }

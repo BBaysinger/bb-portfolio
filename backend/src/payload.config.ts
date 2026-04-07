@@ -16,7 +16,7 @@ import { buildConfig } from 'payload'
 
 import { AuthEvents } from './collections/AuthEvents'
 import { BrandLogos } from './collections/BrandLogos'
-import { Clients } from './collections/Brands'
+import { ProjectBrands } from './collections/Brands'
 import { CvExperienceLogos } from './collections/CvExperienceLogos'
 import { Projects } from './collections/Projects'
 import { ProjectScreenshots } from './collections/ProjectScreenshots'
@@ -168,7 +168,7 @@ export default buildConfig({
     Users,
     AuthEvents,
     Projects,
-    Clients,
+    ProjectBrands,
     CvExperienceLogos,
     BrandLogos,
     ProjectScreenshots,
@@ -211,7 +211,7 @@ export default buildConfig({
           s3Storage({
             collections: {
               cvExperienceLogos: { prefix: 'cv-experience-logos' },
-              brandLogos: { prefix: 'brand-logos' },
+              brandLogos: { prefix: 'project-brand-logos' },
               projectScreenshots: { prefix: 'project-screenshots' },
               projectThumbnails: { prefix: 'project-thumbnails' },
             },

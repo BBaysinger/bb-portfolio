@@ -70,7 +70,7 @@ export interface Config {
     users: User;
     authEvents: AuthEvent;
     projects: Project;
-    brands: Brand;
+    'project-brands': ProjectBrand;
     cvExperienceLogos: CvExperienceLogo;
     brandLogos: BrandLogo;
     projectScreenshots: ProjectScreenshot;
@@ -85,7 +85,7 @@ export interface Config {
     users: UsersSelect<false> | UsersSelect<true>;
     authEvents: AuthEventsSelect<false> | AuthEventsSelect<true>;
     projects: ProjectsSelect<false> | ProjectsSelect<true>;
-    brands: BrandsSelect<false> | BrandsSelect<true>;
+    'project-brands': ProjectBrandsSelect<false> | ProjectBrandsSelect<true>;
     cvExperienceLogos: CvExperienceLogosSelect<false> | CvExperienceLogosSelect<true>;
     brandLogos: BrandLogosSelect<false> | BrandLogosSelect<true>;
     projectScreenshots: ProjectScreenshotsSelect<false> | ProjectScreenshotsSelect<true>;
@@ -110,9 +110,10 @@ export interface Config {
     cvExperience: CvExperienceSelect<false> | CvExperienceSelect<true>;
   };
   locale: null;
-  user: User & {
-    collection: 'users';
+  widgets: {
+    collections: CollectionsWidget;
   };
+  user: User;
   jobs: {
     tasks: unknown;
     workflows: unknown;
@@ -175,6 +176,7 @@ export interface User {
       }[]
     | null;
   password?: string | null;
+  collection: 'users';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -223,7 +225,7 @@ export interface Project {
   active?: boolean | null;
   omitFromList?: boolean | null;
   nda?: boolean | null;
-  brandId?: (string | null) | Brand;
+  brandId?: (string | null) | ProjectBrand;
   tags?:
     | {
         tag?: string | null;
@@ -304,9 +306,9 @@ export interface Project {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "brands".
+ * via the `definition` "project-brands".
  */
-export interface Brand {
+export interface ProjectBrand {
   id: string;
   name: string;
   slug: string;
@@ -335,6 +337,7 @@ export interface BrandLogo {
    * Choose the background type this logo is intended for.
    */
   logoType: 'light-mode' | 'dark-mode' | 'both-modes';
+  prefix?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -377,6 +380,7 @@ export interface ProjectScreenshot {
    * Optional alt text for accessibility or SEO.
    */
   alt?: string | null;
+  prefix?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -414,6 +418,7 @@ export interface ProjectThumbnail {
    * Accessible text for screen readers and SEO.
    */
   alt?: string | null;
+  prefix?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -454,6 +459,7 @@ export interface CvExperienceLogo {
    * Accessible description for the CV logo.
    */
   alt?: string | null;
+  prefix?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -503,8 +509,8 @@ export interface PayloadLockedDocument {
         value: string | Project;
       } | null)
     | ({
-        relationTo: 'brands';
-        value: string | Brand;
+        relationTo: 'project-brands';
+        value: string | ProjectBrand;
       } | null)
     | ({
         relationTo: 'cvExperienceLogos';
@@ -668,9 +674,9 @@ export interface ProjectsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "brands_select".
+ * via the `definition` "project-brands_select".
  */
-export interface BrandsSelect<T extends boolean = true> {
+export interface ProjectBrandsSelect<T extends boolean = true> {
   name?: T;
   slug?: T;
   nda?: T;
@@ -686,6 +692,7 @@ export interface BrandsSelect<T extends boolean = true> {
  */
 export interface CvExperienceLogosSelect<T extends boolean = true> {
   alt?: T;
+  prefix?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -706,6 +713,7 @@ export interface BrandLogosSelect<T extends boolean = true> {
   nda?: T;
   alt?: T;
   logoType?: T;
+  prefix?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -742,6 +750,7 @@ export interface ProjectScreenshotsSelect<T extends boolean = true> {
   orientation?: T;
   project?: T;
   alt?: T;
+  prefix?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -776,6 +785,7 @@ export interface ProjectThumbnailsSelect<T extends boolean = true> {
   nda?: T;
   project?: T;
   alt?: T;
+  prefix?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -1057,6 +1067,16 @@ export interface CvExperienceSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "collections_widget".
+ */
+export interface CollectionsWidget {
+  data?: {
+    [k: string]: unknown;
+  };
+  width: 'full';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

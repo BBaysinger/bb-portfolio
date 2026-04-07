@@ -30,6 +30,18 @@
     // Generates TypeScript types from Payload collections and globals
     "generate:types": "cross-env NODE_OPTIONS=--no-deprecation payload generate:types",
     //
+    "import:cv-content": "cross-env NODE_OPTIONS=--no-deprecation tsx ./scripts/import-cv-experience-content.ts",
+    //
+    "import:cv-content:local": "npm run import:cv-content -- --env local",
+    //
+    "import:cv-content:dev": "npm run import:cv-content -- --env dev",
+    //
+    "import:project-descriptions": "cross-env NODE_OPTIONS=--no-deprecation tsx ./scripts/import-project-descriptions-content.ts",
+    //
+    "import:project-descriptions:local": "npm run import:project-descriptions -- --env local",
+    //
+    "import:project-descriptions:dev": "npm run import:project-descriptions -- --env dev",
+    //
     "seed:cv-experience": "cross-env NODE_OPTIONS=--no-deprecation tsx ./scripts/seed-cv-experience.ts",
     //
     "seed:cv-experience:local": "npm run seed:cv-experience -- --env local",
@@ -80,6 +92,8 @@
     "express": "^5.2.1",
     // GraphQL query language runtime (required by Payload's GraphQL API)
     "graphql": "^16.13.2",
+    //
+    "js-yaml": "^4.1.1",
     // JSON5 parser for annotated configuration files
     "json5": "^2.2.3",
     // Next.js framework for frontend/backend integration

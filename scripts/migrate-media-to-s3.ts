@@ -118,7 +118,8 @@ const S3_BUCKET_URLS = {
 };
 
 const MEDIA_COLLECTIONS = [
-  { name: "brandLogos", prefix: "brand-logos" },
+  { name: "brandLogos", prefix: "project-brand-logos" },
+  { name: "cvExperienceLogos", prefix: "cv-experience-logos" },
   { name: "projectScreenshots", prefix: "project-screenshots" },
   { name: "projectThumbnails", prefix: "project-thumbnails" },
 ];

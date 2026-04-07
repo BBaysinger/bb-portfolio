@@ -85,7 +85,12 @@ const COLLECTIONS: MediaCollectionConfig[] = [
   },
   {
     name: 'brandLogos',
-    s3Prefix: 'brand-logos',
+    s3Prefix: 'project-brand-logos',
+    expectedIds: [],
+  },
+  {
+    name: 'cvExperienceLogos',
+    s3Prefix: 'cv-experience-logos',
     expectedIds: [],
   },
 ]

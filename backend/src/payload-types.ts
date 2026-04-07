@@ -70,7 +70,7 @@ export interface Config {
     users: User;
     authEvents: AuthEvent;
     projects: Project;
-    brands: Brand;
+    'project-brands': ProjectBrand;
     cvExperienceLogos: CvExperienceLogo;
     brandLogos: BrandLogo;
     projectScreenshots: ProjectScreenshot;
@@ -85,7 +85,7 @@ export interface Config {
     users: UsersSelect<false> | UsersSelect<true>;
     authEvents: AuthEventsSelect<false> | AuthEventsSelect<true>;
     projects: ProjectsSelect<false> | ProjectsSelect<true>;
-    brands: BrandsSelect<false> | BrandsSelect<true>;
+    'project-brands': ProjectBrandsSelect<false> | ProjectBrandsSelect<true>;
     cvExperienceLogos: CvExperienceLogosSelect<false> | CvExperienceLogosSelect<true>;
     brandLogos: BrandLogosSelect<false> | BrandLogosSelect<true>;
     projectScreenshots: ProjectScreenshotsSelect<false> | ProjectScreenshotsSelect<true>;
@@ -225,7 +225,7 @@ export interface Project {
   active?: boolean | null;
   omitFromList?: boolean | null;
   nda?: boolean | null;
-  brandId?: (string | null) | Brand;
+  brandId?: (string | null) | ProjectBrand;
   tags?:
     | {
         tag?: string | null;
@@ -306,9 +306,9 @@ export interface Project {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "brands".
+ * via the `definition` "project-brands".
  */
-export interface Brand {
+export interface ProjectBrand {
   id: string;
   name: string;
   slug: string;
@@ -505,8 +505,8 @@ export interface PayloadLockedDocument {
         value: string | Project;
       } | null)
     | ({
-        relationTo: 'brands';
-        value: string | Brand;
+        relationTo: 'project-brands';
+        value: string | ProjectBrand;
       } | null)
     | ({
         relationTo: 'cvExperienceLogos';
@@ -670,9 +670,9 @@ export interface ProjectsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "brands_select".
+ * via the `definition` "project-brands_select".
  */
-export interface BrandsSelect<T extends boolean = true> {
+export interface ProjectBrandsSelect<T extends boolean = true> {
   name?: T;
   slug?: T;
   nda?: T;

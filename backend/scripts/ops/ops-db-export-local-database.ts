@@ -17,7 +17,7 @@ const COLLECTIONS_TO_EXPORT = [
   'projectThumbnails',
   'projectScreenshots',
   'brandLogos',
-  'brands',
+  'project-brands',
 ] as const
 
 async function exportCollection(
