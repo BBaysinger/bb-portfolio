@@ -8,6 +8,7 @@ import { getPayload, type Payload } from 'payload'
 
 import { loadBackendScriptEnvironment } from './lib/payload-script-env'
 import { listFilesByExtension, resolvePortfolioContentDir } from './lib/portfolio-content'
+import { requireExplicitProdWriteConfirmation } from './lib/write-guard'
 
 type ProjectDoc = {
   id: string | number
@@ -21,7 +22,9 @@ type ProjectFindResult = {
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-loadBackendScriptEnvironment(__dirname)
+const { envProfile } = loadBackendScriptEnvironment(__dirname)
+
+requireExplicitProdWriteConfirmation('project descriptions import', envProfile)
 
 async function main() {
   let payload: Payload | null = null

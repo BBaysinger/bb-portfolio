@@ -26,4 +26,4 @@ if [[ ! -f "${REPO_ROOT}/.github-secrets.private.json5" && ! -f "${REPO_ROOT}/.g
 fi
 
 cd "${BACKEND_DIR}"
-USE_GITHUB_SECRETS=true npm run import:project-descriptions -- --env "${PROFILE}"
+ALLOW_PROD_WRITE=true USE_GITHUB_SECRETS=true npm run import:project-descriptions -- --env "${PROFILE}" --confirm-prod-write

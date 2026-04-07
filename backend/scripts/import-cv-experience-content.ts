@@ -8,6 +8,7 @@ import { getPayload, type Payload } from 'payload'
 
 import { loadBackendScriptEnvironment } from './lib/payload-script-env'
 import { readYamlFile, requireDirectory, resolvePortfolioContentDir } from './lib/portfolio-content'
+import { requireExplicitProdWriteConfirmation } from './lib/write-guard'
 
 type SeedGlobalUpdater = {
   updateGlobal: (args: {
@@ -69,7 +70,9 @@ type NormalizedCvEntry = {
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-loadBackendScriptEnvironment(__dirname)
+const { envProfile } = loadBackendScriptEnvironment(__dirname)
+
+requireExplicitProdWriteConfirmation('cvExperience import', envProfile)
 
 const asNonEmptyString = (value: unknown, fieldName: string, filePath: string) => {
   if (typeof value !== 'string' || value.trim().length === 0) {

@@ -136,6 +136,12 @@ Guarded write wrappers:
 - `ALLOW_DEV_WRITE=true ./scripts/ops/import-project-descriptions-dev.sh`
 - `ALLOW_PROD_WRITE=true ./scripts/ops/import-project-descriptions-prod.sh`
 
+Direct prod imports are also guarded at the script level:
+
+- `ALLOW_PROD_WRITE=true npm run import:cv-content -- --env prod --confirm-prod-write`
+- `ALLOW_PROD_WRITE=true npm run import:project-descriptions -- --env prod --confirm-prod-write`
+- Without both `ALLOW_PROD_WRITE=true` and `--confirm-prod-write`, direct `--env prod` imports fail before writing.
+
 Project brand logo sync into private seedings:
 
 - `npm run media:pull:prod:project-brand-logos:dry`
