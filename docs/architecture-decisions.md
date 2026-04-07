@@ -369,6 +369,7 @@ New decisions should be appended chronologically.
 **Implementation:**
 
 - Added `DOCKER_HUB_USERNAME` and `DOCKER_HUB_ACCESS_TOKEN` to `.github-secrets.private.json5`
+- `DOCKER_HUB_ACCESS_TOKEN` is now the preferred secret name in workflows and helper scripts; `DOCKER_HUB_PASSWORD` remains only as a backward-compatible fallback.
 - Used the existing `npm run sync:secrets` workflow for GitHub Actions integration
 - Used Docker Hub personal access tokens instead of passwords for enhanced security
 - Updated CI/CD workflows to authenticate with Docker Hub during dev builds
