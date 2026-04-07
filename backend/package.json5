@@ -71,7 +71,7 @@
   // Runtime dependencies for backend and CMS functionality
   "dependencies": {
     // AWS SES client used for sending transactional emails
-    "@aws-sdk/client-ses": "^3.1024.0",
+    "@aws-sdk/client-ses": "^3.1025.0",
     // Shared AWS SDK types
     "@aws-sdk/types": "^3.973.6",
     // MongoDB adapter for Payload CMS
@@ -89,7 +89,7 @@
     // Payload's core UI components
     "@payloadcms/ui": "3.81.0",
     // BSON/EJSON utilities used by database migration and snapshot scripts
-    "bson": "^6.10.3",
+    "bson": "^7.2.0",
     // Cross-platform environment variable setting (Windows/Unix compatibility)
     "cross-env": "^10.1.0",
     // Environment variable loader (reads .env files into process.env)
@@ -103,7 +103,7 @@
     // JSON5 parser for annotated configuration files
     "json5": "^2.2.3",
     // Direct MongoDB client used by database sync scripts
-    "mongodb": "~6.16.0",
+    "mongodb": "~7.1.1",
     // Next.js framework for frontend/backend integration
     "next": "16.2.2",
     // Payload CMS core package
@@ -136,13 +136,13 @@
     // Vite React plugin (enables React support in Vitest)
     "@vitejs/plugin-react": "6.0.1",
     // Maps baseline browser support targets for tooling that needs them
-    "baseline-browser-mapping": "^2.10.15",
+    "baseline-browser-mapping": "^2.10.16",
     // ESLint JavaScript/TypeScript linter (v9 for latest rules)
     "eslint": "^9.39.4",
     // Next.js ESLint configuration (includes React and accessibility rules)
     "eslint-config-next": "16.2.2",
     // Browser DOM simulation for Node.js testing environments
-    "jsdom": "29.0.1",
+    "jsdom": "29.0.2",
     // Standalone version of Playwright test runner
     "playwright": "1.59.1",
     // Playwright core library (used for browser automation)
