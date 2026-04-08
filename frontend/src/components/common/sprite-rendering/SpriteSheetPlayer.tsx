@@ -243,11 +243,17 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
       return;
     }
 
-    // When entering autoplay mode (frameControl === null), always default to the first frame
-    // on initial display. `randomFrame` affects subsequent animation ticks, not the initial frame.
+    if (randomFrame) {
+      const initialRandomFrame = Math.floor(Math.random() * meta.frameCount);
+      frameRef.current = initialRandomFrame;
+      drawWithRenderer(initialRandomFrame, false);
+      return;
+    }
+
+    // Sequential autoplay still starts on the first frame.
     frameRef.current = 0;
     drawWithRenderer(0, false);
-  }, [drawWithRenderer, frameControl, meta, src]);
+  }, [drawWithRenderer, frameControl, meta, randomFrame, src]);
 
   useEffect(() => {
     if (!meta || frameControl === -1) return;
@@ -260,7 +266,6 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
 
     let isCancelled = false;
     completedLoopsRef.current = 0;
-    frameRef.current = 0;
     // Avoid setState in the effect body; RAF drives subsequent frames.
     lastTimeRef.current = performance.now();
 

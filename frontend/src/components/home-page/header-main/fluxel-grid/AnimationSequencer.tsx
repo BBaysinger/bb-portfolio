@@ -23,6 +23,63 @@ import styles from "./AnimationSequencer.module.scss";
 // - `sequencerMaxDpr=<positive number>`
 const SEQUENCER_RENDER_STRATEGY_QUERY_PARAM = "sequencerRenderStrategy";
 const SEQUENCER_MAX_DPR_QUERY_PARAM = "sequencerMaxDpr";
+const PRELOAD_STAGGER_MS = 150;
+const MAX_RETAINED_PRELOADED_SHEETS = 12;
+
+const preloadedSpriteSheetPromises = new Map<string, Promise<void>>();
+const retainedPreloadedSpriteSheets = new Map<string, HTMLImageElement>();
+
+const retainPreloadedSpriteSheet = (
+  src: string,
+  image: HTMLImageElement,
+): void => {
+  retainedPreloadedSpriteSheets.delete(src);
+  retainedPreloadedSpriteSheets.set(src, image);
+
+  while (retainedPreloadedSpriteSheets.size > MAX_RETAINED_PRELOADED_SHEETS) {
+    const oldestKey = retainedPreloadedSpriteSheets.keys().next().value;
+    if (!oldestKey) break;
+    retainedPreloadedSpriteSheets.delete(oldestKey);
+  }
+};
+
+const preloadSpriteSheet = (src: string): Promise<void> => {
+  if (typeof window === "undefined") return Promise.resolve();
+
+  const existingPromise = preloadedSpriteSheetPromises.get(src);
+  if (existingPromise) return existingPromise;
+
+  const preloadPromise = new Promise<void>((resolve) => {
+    const image = new Image();
+    image.decoding = "async";
+
+    const finish = () => {
+      retainPreloadedSpriteSheet(src, image);
+      resolve();
+    };
+
+    image.onload = () => {
+      if (typeof image.decode === "function") {
+        image
+          .decode()
+          .catch(() => undefined)
+          .finally(finish);
+        return;
+      }
+      finish();
+    };
+
+    image.onerror = () => {
+      preloadedSpriteSheetPromises.delete(src);
+      resolve();
+    };
+
+    image.src = src;
+  });
+
+  preloadedSpriteSheetPromises.set(src, preloadPromise);
+  return preloadPromise;
+};
 
 export interface AnimationSequencerHandle {
   playImperativeAnimation: (index?: number) => void;
@@ -175,6 +232,17 @@ const AnimationSequencer = forwardRef<
     [],
   );
 
+  const inactivityAnimationSources = useMemo(() => {
+    const uniqueSources = new Set<string>();
+
+    for (const animation of inactivityAnimations) {
+      uniqueSources.add(buildFullPath(animation.wide));
+      uniqueSources.add(buildFullPath(animation.narrow));
+    }
+
+    return Array.from(uniqueSources);
+  }, [inactivityAnimations]);
+
   const imperativeAnimations = useMemo<AnimationMeta[]>(
     // Reserved for future interaction-driven animations.
     // Keeping this empty makes imperative calls a no-op instead of trying to
@@ -237,11 +305,14 @@ const AnimationSequencer = forwardRef<
     const nextIndex = getNextIndex();
     const anim = inactivityAnimations[nextIndex];
     const filename = isNarrow() ? anim.narrow : anim.wide;
+    const resolvedSrc = buildFullPath(filename);
+
+    void preloadSpriteSheet(resolvedSrc);
 
     safeSetAnim({
       ...anim,
-      wide: buildFullPath(filename),
-      narrow: buildFullPath(filename),
+      wide: resolvedSrc,
+      narrow: resolvedSrc,
     });
   }, [getNextIndex, inactivityAnimations, isNarrow, safeSetAnim]);
 
@@ -270,12 +341,30 @@ const AnimationSequencer = forwardRef<
   ]);
 
   useEffect(() => {
+    let isCancelled = false;
+    let preloadTimeout: ReturnType<typeof setTimeout> | null = null;
+
+    const warmNext = (index: number) => {
+      if (isCancelled || index >= inactivityAnimationSources.length) return;
+
+      void preloadSpriteSheet(inactivityAnimationSources[index]);
+      preloadTimeout = setTimeout(() => {
+        warmNext(index + 1);
+      }, PRELOAD_STAGGER_MS);
+    };
+
+    warmNext(0);
+
     timeoutRef.current = setTimeout(updateAnimation, initialDelay);
     return () => {
+      isCancelled = true;
+      if (preloadTimeout !== null) {
+        clearTimeout(preloadTimeout);
+      }
       clearTimeoutIfSet();
       clearStartRafIfSet();
     };
-  }, [updateAnimation]);
+  }, [inactivityAnimationSources, initialDelay, updateAnimation]);
 
   const handleEnd = useCallback(() => {
     clearTimeoutIfSet();
