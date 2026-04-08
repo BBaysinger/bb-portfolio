@@ -163,6 +163,8 @@
     "frontend:prod-like:down": "cd frontend && PORT=${PORT:-3004} sh ./scripts/stop-prod-like.sh",
     // Tail logs from the detached production-like frontend instance.
     "frontend:prod-like:logs": "cd frontend && tail -f ./.next/logs/prod-like-${PORT:-3004}.log",
+    // Show whether the detached production-like frontend is running and where its logs live.
+    "frontend:prod-like:status": "cd frontend && PORT=${PORT:-3004} sh ./scripts/status-prod-like.sh",
     // 📊 Check status of portfolio containers
     "caddy:status": "docker ps --filter name=bb-portfolio- --format 'table {{.Names}}\\t{{.Status}}\\t{{.Ports}}'",
     // 🧽 Run Docker cleanup + prune tasks to prevent stale containers, volumes, and caches.

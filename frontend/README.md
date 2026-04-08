@@ -66,6 +66,7 @@ That detached helper defaults to `http://localhost:3004`, writes logs to `fronte
 Useful companion commands:
 
 - `npm run frontend:prod-like:logs`
+- `npm run frontend:prod-like:status`
 - `npm run frontend:prod-like:down`
 
 You can override the port when needed:

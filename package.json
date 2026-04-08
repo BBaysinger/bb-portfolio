@@ -52,6 +52,7 @@
     "frontend:prod-like:up": "cd frontend && PORT=${PORT:-3004} npm run start:prod-like:local:detached",
     "frontend:prod-like:down": "cd frontend && PORT=${PORT:-3004} sh ./scripts/stop-prod-like.sh",
     "frontend:prod-like:logs": "cd frontend && tail -f ./.next/logs/prod-like-${PORT:-3004}.log",
+    "frontend:prod-like:status": "cd frontend && PORT=${PORT:-3004} sh ./scripts/status-prod-like.sh",
     "caddy:status": "docker ps --filter name=bb-portfolio- --format 'table {{.Names}}\\t{{.Status}}\\t{{.Ports}}'",
     "docker:maintenance": "zsh deploy/scripts/docker-maintenance.sh",
     "bareMetalDev": "npm run bareMetalDev:all",
