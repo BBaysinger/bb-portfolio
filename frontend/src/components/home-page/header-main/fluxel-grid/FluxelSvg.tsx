@@ -17,7 +17,11 @@ import {
   useRef,
 } from "react";
 
-import type { FluxelHandle, FluxelData } from "./FluxelAllTypes";
+import type {
+  FluxelHandle,
+  FluxelData,
+  FluxelColorOverlayMode,
+} from "./FluxelAllTypes";
 import styles from "./FluxelSvg.module.scss";
 
 type FluxelSvgProps = {
@@ -26,8 +30,12 @@ type FluxelSvgProps = {
   y: number;
   size: number;
   clipPathId: string;
+  colorOverlayMode?: FluxelColorOverlayMode;
   className?: string;
 };
+
+const hasColorOverlay = (colorVariation?: string): colorVariation is string =>
+  Boolean(colorVariation && colorVariation !== "transparent");
 
 /**
  * Individual SVG-rendered Fluxel component.
@@ -47,36 +55,39 @@ type FluxelSvgProps = {
  * @param {FluxelHandle} ref - Forwarded ref for external control
  */
 const FluxelSvg = forwardRef<FluxelHandle, FluxelSvgProps>(
-  ({ data, x, y, size, clipPathId, className }, ref) => {
+  (
+    {
+      data,
+      x,
+      y,
+      size,
+      clipPathId,
+      colorOverlayMode = "domOverlay",
+      className,
+    },
+    ref,
+  ) => {
     const elRef = useRef<SVGGElement>(null);
     const shouldRenderShadowRaster = data.influence > 0;
+    const shouldRenderSvgColorOverlay =
+      colorOverlayMode === "internal" && hasColorOverlay(data.colorVariation);
 
     // The shadow texture positioning was authored against a 72px reference grid.
     // Scale factors derive all offsets/sizes from the current fluxel size.
     const SHADOW_REFERENCE_PX = 72;
     const SCALE = size / SHADOW_REFERENCE_PX;
 
-    const updateInfluence = useCallback(
-      (influence: number, colorVariation?: string) => {
-        const el = elRef.current;
-        if (!el) return;
+    const updateInfluence = useCallback((influence: number) => {
+      const el = elRef.current;
+      if (!el) return;
 
-        const alpha = Math.min(1, Math.max(0, influence - 0.1));
-        el.style.setProperty("--base-color", `rgba(20, 20, 20, ${alpha})`);
-
-        if (colorVariation) {
-          el.style.setProperty("--overlay-color", colorVariation);
-        } else {
-          // Prevent stale values if a cell transitions from having a variation to none.
-          el.style.removeProperty("--overlay-color");
-        }
-      },
-      [],
-    );
+      const alpha = Math.min(1, Math.max(0, influence - 0.1));
+      el.style.setProperty("--base-color", `rgba(20, 20, 20, ${alpha})`);
+    }, []);
 
     useEffect(() => {
-      updateInfluence(data.influence, data.colorVariation);
-    }, [data.influence, data.colorVariation, updateInfluence]);
+      updateInfluence(data.influence);
+    }, [data.influence, updateInfluence]);
 
     useImperativeHandle(ref, () => ({
       updateInfluence,
@@ -99,6 +110,15 @@ const FluxelSvg = forwardRef<FluxelHandle, FluxelSvgProps>(
           className="base"
           fill="var(--base-color)"
         />
+
+        {shouldRenderSvgColorOverlay ? (
+          <rect
+            width={size - 0.5}
+            height={size - 0.5}
+            className="overlay"
+            fill={data.colorVariation}
+          />
+        ) : null}
 
         {shouldRenderShadowRaster ? (
           <>
@@ -141,6 +161,7 @@ function areEqual(prev: FluxelSvgProps, next: FluxelSvgProps) {
     a.shadowBlOffsetX === b.shadowBlOffsetX &&
     a.shadowBlOffsetY === b.shadowBlOffsetY &&
     a.colorVariation === b.colorVariation &&
+    prev.colorOverlayMode === next.colorOverlayMode &&
     prev.x === next.x &&
     prev.y === next.y &&
     prev.size === next.size &&

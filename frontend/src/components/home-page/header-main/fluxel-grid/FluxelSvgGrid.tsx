@@ -24,6 +24,7 @@ import type { MutableRefObject, Ref } from "react";
 
 import type {
   FluxelData,
+  FluxelColorOverlayMode,
   FluxelGridHandle,
   FluxelGridProps,
   FluxelHandle,
@@ -34,7 +35,11 @@ import { useFluxelResizeWatcher } from "./useFluxelResizeWatcher";
 
 type FluxelSvgGridProps = FluxelGridProps & {
   showColorOverlay?: boolean;
+  colorOverlayMode?: FluxelColorOverlayMode;
 };
+
+const hasColorOverlay = (colorVariation?: string): colorVariation is string =>
+  Boolean(colorVariation && colorVariation !== "transparent");
 
 const assignRef = <T,>(ref: Ref<T> | undefined, value: T | null) => {
   if (!ref) return;
@@ -61,6 +66,7 @@ const FluxelSvgGrid = forwardRef<FluxelGridHandle, FluxelSvgGridProps>(
       imperativeMode = true,
       className = "",
       showColorOverlay = true,
+      colorOverlayMode = "domOverlay",
       onLayoutUpdateRequest,
     },
     ref,
@@ -248,6 +254,7 @@ const FluxelSvgGrid = forwardRef<FluxelGridHandle, FluxelSvgGridProps>(
                     y={r * fluxelSize}
                     size={fluxelSize}
                     clipPathId="fluxel-clip"
+                    colorOverlayMode={colorOverlayMode}
                     ref={ref}
                   />
                 );
@@ -255,11 +262,19 @@ const FluxelSvgGrid = forwardRef<FluxelGridHandle, FluxelSvgGridProps>(
             )}
           </svg>
         </div>
-        {showColorOverlay ? (
+        {showColorOverlay && colorOverlayMode === "domOverlay" ? (
           <div className={styles.overlayWrapper}>
             {/*
-              Overlay layer: DOM elements are cheaper to recolor than SVG nodes,
-              and blend modes are more predictable across browsers.
+              We intentionally keep both DOM and inline-renderer overlay paths:
+              - `domOverlay` centralizes color treatment outside the SVG cells and was
+                originally introduced to test whether recoloring HTML boxes was
+                cheaper/more predictable than recoloring SVG nodes.
+              - `internal` keeps everything inside the active renderer path so
+                future perf testing can compare whether one fewer per-cell DOM
+                layer composites better.
+
+              Only colored cells mount overlay elements so A/B tests focus on the
+              rendering strategy rather than paying for empty overlay nodes.
             */}
             {gridData.map((row, r) =>
               row.map((data, c) => {
@@ -269,10 +284,8 @@ const FluxelSvgGrid = forwardRef<FluxelGridHandle, FluxelSvgGridProps>(
                   c >= colOverlap &&
                   c < colCount - colOverlap;
 
-                if (!isVisible) {
-                  return (
-                    <div key={data.id} className={styles.inactivePlaceholder} />
-                  );
+                if (!isVisible || !hasColorOverlay(data.colorVariation)) {
+                  return null;
                 }
 
                 return (

@@ -101,6 +101,15 @@ export interface FluxelData {
   colorVariation?: string;
 }
 
+/**
+ * Experimental color overlay strategy for the SVG renderer.
+ *
+ * We intentionally keep both options so future perf checks can compare whether
+ * a separate DOM overlay layer or an inline SVG overlay is cheaper on the
+ * target device/browser matrix.
+ */
+export type FluxelColorOverlayMode = "domOverlay" | "internal";
+
 export interface FluxelHandle {
   /** Update this fluxel's influence (and optional color variation). */
   updateInfluence: (influence: number, colorVariation?: string) => void;

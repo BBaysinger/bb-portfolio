@@ -24,11 +24,14 @@ import type { CSSProperties } from "react";
 
 import useElementRelativePointer from "@/hooks/useElementRelativePointer";
 
-import { isIOSSafari } from "../../../../utils/browser";
 import { getLocationSearchParam } from "../../../../utils/searchParams";
 
 import AnimationSequencer from "./AnimationSequencer";
-import type { FluxelGridHandle, FluxelData } from "./FluxelAllTypes";
+import type {
+  FluxelGridHandle,
+  FluxelData,
+  FluxelColorOverlayMode,
+} from "./FluxelAllTypes";
 import FluxelCanvasGrid from "./FluxelCanvasGrid";
 import FluxelPixiGrid from "./FluxelPixiGrid";
 import FluxelSvgGrid from "./FluxelSvgGrid";
@@ -36,10 +39,6 @@ import styles from "./GridController.module.scss";
 import ProjectilesOverlay from "./ProjectilesOverlay";
 import useFluxelProjectiles, { Direction } from "./useFluxelProjectiles";
 import { useFluxelShadows } from "./useFluxelShadows";
-
-// Workarounds for iOS Safari rendering offsets
-const IOS_SAFARI_GRIDLINE_OFFSET_Y = 0; // Safari paints background gradients high on iOS
-const IOS_SAFARI_GRIDLINE_OFFSET_X = 0; // Safari paints background gradients left on iOS
 
 export interface GridControllerHandle {
   launchProjectile: (x: number, y: number, direction: Direction) => void;
@@ -77,6 +76,21 @@ const getGridTypeFromLocation = (): GridType => {
 
 const getShowColorOverlayFromLocation = (): boolean => {
   const value = getLocationSearchParam("showFluxelOverlay");
+  const parsed = parseBooleanSearchParam(value);
+  return parsed ?? true;
+};
+
+// Keep both overlay strategies exposed here so future perf passes can A/B
+// a separate DOM overlay layer vs an internal per-renderer overlay path.
+const getColorOverlayModeFromLocation = (): FluxelColorOverlayMode => {
+  const value = getLocationSearchParam("fluxelOverlayMode")
+    .trim()
+    .toLowerCase();
+  return value === "internal" ? "internal" : "domOverlay";
+};
+
+const getShowProjectilesFromLocation = (): boolean => {
+  const value = getLocationSearchParam("showProjectiles");
   const parsed = parseBooleanSearchParam(value);
   return parsed ?? true;
 };
@@ -127,6 +141,11 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
     const [showColorOverlay, setShowColorOverlay] = useState<boolean>(() =>
       getShowColorOverlayFromLocation(),
     );
+    const [colorOverlayMode, setColorOverlayMode] =
+      useState<FluxelColorOverlayMode>(() => getColorOverlayModeFromLocation());
+    const [showProjectiles, setShowProjectiles] = useState<boolean>(() =>
+      getShowProjectilesFromLocation(),
+    );
 
     const gridInstanceRef = useRef<FluxelGridHandle | null>(null);
     const [gridContainerEl, setGridContainerEl] = useState<HTMLElement | null>(
@@ -146,6 +165,8 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
       const onPopState = () => {
         setGridType(getGridTypeFromLocation());
         setShowColorOverlay(getShowColorOverlayFromLocation());
+        setColorOverlayMode(getColorOverlayModeFromLocation());
+        setShowProjectiles(getShowProjectilesFromLocation());
       };
       window.addEventListener("popstate", onPopState);
       return () => window.removeEventListener("popstate", onPopState);
@@ -164,16 +185,6 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
 
       return pathParts.join(" ");
     }, [cols, rows]);
-    const browserGridOffsets = useMemo(() => {
-      if (isIOSSafari()) {
-        return {
-          x: IOS_SAFARI_GRIDLINE_OFFSET_X,
-          y: IOS_SAFARI_GRIDLINE_OFFSET_Y,
-        };
-      }
-
-      return { x: 0, y: 0 };
-    }, []);
     const [pointerOverride, setPointerOverride] = useState<
       { x: number; y: number } | undefined
     >(undefined);
@@ -428,6 +439,7 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
             ref={gridInstanceRef}
             gridData={gridData}
             showColorOverlay={showColorOverlay}
+            colorOverlayMode={colorOverlayMode}
             onLayoutUpdateRequest={onLayoutUpdateRequest}
           />
         ) : gridType === "canvas" ? (
@@ -458,8 +470,8 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
               preserveAspectRatio="none"
               style={
                 {
-                  left: `${gridLinesLayout.offsetX + browserGridOffsets.x}px`,
-                  top: `${gridLinesLayout.offsetY + browserGridOffsets.y}px`,
+                  left: `${gridLinesLayout.offsetX}px`,
+                  top: `${gridLinesLayout.offsetY}px`,
                 } as CSSProperties
               }
             >
@@ -475,13 +487,15 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
           </div>
         ) : null}
 
-        <ProjectilesOverlay
-          className={styles.projectilesOverlay}
-          projectiles={projectiles}
-          fluxelSize={overlayFluxelSize}
-          rows={rows}
-          cols={cols}
-        />
+        {showProjectiles ? (
+          <ProjectilesOverlay
+            className={styles.projectilesOverlay}
+            projectiles={projectiles}
+            fluxelSize={overlayFluxelSize}
+            rows={rows}
+            cols={cols}
+          />
+        ) : null}
       </div>
     );
   },
