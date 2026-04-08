@@ -12,6 +12,9 @@ import { ISpriteRenderer } from "./RenderingAllTypes";
  */
 export class CssRenderer implements ISpriteRenderer {
   private columns: number;
+  private framePositions: string[];
+  private lastFrameIndex: number | null = null;
+  private isHidden = false;
 
   constructor(
     private element: HTMLElement,
@@ -26,6 +29,19 @@ export class CssRenderer implements ISpriteRenderer {
     this.columns = Math.min(
       meta.frameCount,
       Math.floor(4096 / meta.frameWidth),
+    );
+
+    const totalCols = this.columns;
+    const totalRows = Math.ceil(meta.frameCount / totalCols);
+    this.framePositions = Array.from(
+      { length: meta.frameCount },
+      (_, index) => {
+        const col = index % totalCols;
+        const row = Math.floor(index / totalCols);
+        const x = (col / (totalCols - 1 || 1)) * 100;
+        const y = (row / (totalRows - 1 || 1)) * 100;
+        return `${x}% ${y}%`;
+      },
     );
 
     // Static style baseline. Dynamic values (frame) are set in `drawFrame`.
@@ -50,23 +66,19 @@ export class CssRenderer implements ISpriteRenderer {
 
     // Special case: hide sprite without releasing the URL reference.
     if (frameIndex === -1) {
+      if (this.isHidden) return;
+      this.isHidden = true;
+      this.lastFrameIndex = null;
       this.element.style.backgroundPosition = "-99999px -99999px";
       return;
     }
 
     if (frameIndex < 0 || frameIndex >= this.meta.frameCount) return;
+    if (!this.isHidden && this.lastFrameIndex === frameIndex) return;
 
-    const col = frameIndex % this.columns;
-    const row = Math.floor(frameIndex / this.columns);
-
-    const totalCols = this.columns;
-    const totalRows = Math.ceil(this.meta.frameCount / totalCols);
-
-    // Percent-based positioning so the element can be responsive.
-    const x = (col / (totalCols - 1 || 1)) * 100;
-    const y = (row / (totalRows - 1 || 1)) * 100;
-
-    this.element.style.backgroundPosition = `${x}% ${y}%`;
+    this.isHidden = false;
+    this.lastFrameIndex = frameIndex;
+    this.element.style.backgroundPosition = this.framePositions[frameIndex];
   }
 
   /**
@@ -75,6 +87,8 @@ export class CssRenderer implements ISpriteRenderer {
    * Note: we only clear dynamic background styles we set.
    */
   dispose(): void {
+    this.lastFrameIndex = null;
+    this.isHidden = false;
     this.element.style.backgroundImage = "";
     this.element.style.backgroundPosition = "";
     this.element.style.backgroundSize = "";
