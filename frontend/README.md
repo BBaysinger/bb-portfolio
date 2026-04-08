@@ -57,6 +57,8 @@ Open [http://localhost:3000](http://localhost:3000) - note that backend features
 
 The frontend reads environment variables from files in `frontend/` (it does not automatically use the monorepo root `.env`).
 
+For the Docker Compose local frontend, `frontend/.env` is loaded first and `frontend/.env.local` overrides it when present.
+
 For local development:
 
 ```bash
@@ -68,6 +70,7 @@ Key variables commonly needed:
 - `BACKEND_INTERNAL_URL` (server-side requests to the backend)
 - `PUBLIC_PROJECTS_BUCKET` / `NDA_PROJECTS_BUCKET` (S3 project bundle streaming routes)
 - `AWS_REGION` (region for the S3 client)
+- `REACT_STRICT_MODE` (optional override; defaults remain profile-driven, but `.env.local` can disable it for temporary local testing)
 
 The frontend adapts to different environments:
 

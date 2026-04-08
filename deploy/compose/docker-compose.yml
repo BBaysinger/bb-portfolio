@@ -61,6 +61,8 @@ x-backend-local-envfile: &backend_local_envfile
 
 x-frontend-local-envfile: &frontend_local_envfile
   - ../../frontend/.env
+  - path: ../../frontend/.env.local
+    required: false
 
 services:
   # =============================================================================
@@ -245,7 +247,6 @@ services:
     env_file: *frontend_local_envfile
     environment:
       CHOKIDAR_USEPOLLING: "true"
-      REACT_STRICT_MODE: "${REACT_STRICT_MODE:-true}"
       NODE_ENV: development
       ENV_PROFILE: local
       NEXT_DISABLE_TURBOPACK: "1"
