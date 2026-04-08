@@ -426,7 +426,7 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
   const { frameWidth, frameHeight } = meta;
 
   return (
-    <div className={className}>
+    <div className={className} style={{ width: "100%", height: "100%" }}>
       {effectiveRenderStrategy === "webgl" ||
       effectiveRenderStrategy === "canvas" ? (
         <canvas
@@ -448,6 +448,9 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
                   pointerEvents: "none" as const,
                 }
               : {
+                  width: "100%",
+                  height: "100%",
+                  aspectRatio: `${frameWidth} / ${frameHeight}`,
                   display:
                     effectiveFrameIndex === null ? "none" : ("block" as const),
                 }),
