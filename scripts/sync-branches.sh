@@ -81,9 +81,14 @@ checkout_ff_pull() {
   local BR=$1
   log "Checking out $BR"
   git checkout "$BR"
-  log "Pulling latest origin/$BR (ff-only)"
-  git pull --ff-only origin "$BR" || {
-    err "Fast-forward pull failed on $BR. Resolve manually (rebase/merge) then rerun."
+  log "Fetching latest origin/$BR"
+  git fetch origin "$BR" || {
+    err "Fetch failed for $BR. Resolve remote issues then rerun."
+    exit 1
+  }
+  log "Fast-forwarding $BR to origin/$BR"
+  git merge --ff-only "origin/$BR" || {
+    err "Fast-forward update failed on $BR. Resolve manually (rebase/merge) then rerun."
     exit 1
   }
 }
@@ -94,8 +99,14 @@ merge_push() {
   log "Merging $FROM into $TO"
   git checkout "$TO"
   # Ensure TO is up to date
-  git pull --ff-only origin "$TO" || {
-    err "Fast-forward pull failed on $TO. Resolve manually then rerun."
+  log "Fetching latest origin/$TO"
+  git fetch origin "$TO" || {
+    err "Fetch failed for $TO. Resolve remote issues then rerun."
+    exit 1
+  }
+  log "Fast-forwarding $TO to origin/$TO"
+  git merge --ff-only "origin/$TO" || {
+    err "Fast-forward update failed on $TO. Resolve manually then rerun."
     exit 1
   }
   # Fast-forward only to keep linear history (no merge commits)
