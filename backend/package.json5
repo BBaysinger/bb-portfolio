@@ -33,25 +33,25 @@
     "export:cv-content": "cross-env NODE_OPTIONS=--no-deprecation tsx ./scripts/export-cv-experience-content.ts",
     // Export project description HTML blocks into the external seedings folder.
     "export:project-descriptions": "cross-env NODE_OPTIONS=--no-deprecation tsx ./scripts/export-project-descriptions-content.ts",
-    //
+    // Import CV experience content from the external seedings folder into Payload
     "import:cv-content": "cross-env NODE_OPTIONS=--no-deprecation tsx ./scripts/import-cv-experience-content.ts",
-    //
+    // Import CV experience content into the local backend environment
     "import:cv-content:local": "npm run import:cv-content -- --env local",
-    //
+    // Import CV experience content into the dev backend environment
     "import:cv-content:dev": "npm run import:cv-content -- --env dev",
-    //
+    // Import project description HTML blocks from the external seedings folder into Payload
     "import:project-descriptions": "cross-env NODE_OPTIONS=--no-deprecation tsx ./scripts/import-project-descriptions-content.ts",
-    //
+    // Import project descriptions into the local backend environment
     "import:project-descriptions:local": "npm run import:project-descriptions -- --env local",
-    //
+    // Import project descriptions into the dev backend environment
     "import:project-descriptions:dev": "npm run import:project-descriptions -- --env dev",
-    //
+    // Seed CV experience data into Payload using the shared seed script
     "seed:cv-experience": "cross-env NODE_OPTIONS=--no-deprecation tsx ./scripts/seed-cv-experience.ts",
-    //
+    // Seed CV experience data into the local backend environment
     "seed:cv-experience:local": "npm run seed:cv-experience -- --env local",
-    //
+    // Seed CV experience data into the dev backend environment
     "seed:cv-experience:dev": "npm run seed:cv-experience -- --env dev",
-    //
+    // Standalone smoke test for the Payload admin login flow
     "smoke:admin-login": "node scripts/smoke-admin-login.mjs",
     // Run Next.js linter with deprecation warnings suppressed
     "lint": "cd .. && eslint backend",
@@ -98,7 +98,7 @@
     "express": "^5.2.1",
     // GraphQL query language runtime (required by Payload's GraphQL API)
     "graphql": "^16.13.2",
-    //
+    // YAML parser used by content tooling and import/export helpers
     "js-yaml": "^4.1.1",
     // JSON5 parser for annotated configuration files
     "json5": "^2.2.3",

@@ -64,7 +64,7 @@
     // ▶️ Same as docker:up but runs in background (doesn't block your terminal)
     // Use this if you want to continue using your terminal while containers run
     "docker:up:detached": "docker compose -f deploy/compose/docker-compose.yml --profile local up --build -d",
-    //
+    // 🩺 Quick smoke test: verify the local backend admin login route responds
     "docker:smoke:admin": "cd backend && ADMIN_SMOKE_URL=http://localhost:8081/admin/login/ node scripts/smoke-admin-login.mjs",
     // ⚡ Same as docker:up but with React Strict Mode disabled
     // Useful when React's strict mode causes issues with third-party components
@@ -240,15 +240,15 @@
     "install:all": "concurrently \"npm install\" \"cd backend && npm install\" \"cd frontend && npm install\" --names \"root,backend,frontend\" --prefix-colors \"yellow,blue,green\"",
     // 🪄 Generate the portfolio images from PSDs from *outside* of the repo. Run before media:seed.
     "media:export": "bash scripts/export-media.sh",
-    //
+    // 🪄 Pull media assets from S3 using the script defaults
     "media:pull": "tsx scripts/pull-media-from-s3.ts",
-    //
+    // 🪄 Pull production project brand logos from S3 into the local workspace
     "media:pull:prod:project-brand-logos": "tsx scripts/pull-media-from-s3.ts --env prod --collection project-brand-logos",
-    //
+    // 🧪 Dry run: preview production project brand logo downloads without writing files
     "media:pull:prod:project-brand-logos:dry": "tsx scripts/pull-media-from-s3.ts --env prod --collection project-brand-logos --dry-run",
-    //
+    // 🪄 Pull production CV experience logos from S3 into the local workspace
     "media:pull:prod:cv-experience-logos": "tsx scripts/pull-media-from-s3.ts --env prod --collection cv-experience-logos",
-    //
+    // 🧪 Dry run: preview production CV experience logo downloads without writing files
     "media:pull:prod:cv-experience-logos:dry": "tsx scripts/pull-media-from-s3.ts --env prod --collection cv-experience-logos --dry-run",
     // 🪄 Export authored production project descriptions into ../cms-seedings/project-descriptions
     "content:pull:prod:project-descriptions": "cd backend && USE_GITHUB_SECRETS=true npm run export:project-descriptions -- --env prod",
