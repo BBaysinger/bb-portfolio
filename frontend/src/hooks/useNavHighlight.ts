@@ -18,29 +18,49 @@ export function useNavHighlight() {
 
   useEffect(() => {
     if (pathname === "/") {
-      const observer = new IntersectionObserver(
-        (entries) => {
-          for (const entry of entries) {
-            if (entry.isIntersecting) {
-              const target = entry.target as HTMLElement;
-              const nav = target.dataset.nav;
-              if (nav) {
-                setActiveId(nav);
-              }
-              break;
-            }
+      let frame = 0;
+
+      const updateActiveSection = () => {
+        frame = 0;
+
+        const focusY = window.innerHeight * 0.5;
+        const footer = document.querySelector("footer");
+        if (footer instanceof HTMLElement) {
+          const footerRect = footer.getBoundingClientRect();
+          if (footerRect.top <= focusY) {
+            setActiveId(null);
+            return;
           }
-        },
-        {
-          rootMargin: "-50% 0px -49% 0px",
-          threshold: 0,
-        },
-      );
+        }
 
-      const sections = document.querySelectorAll("[data-nav]");
-      sections.forEach((section) => observer.observe(section));
+        const sections = Array.from(
+          document.querySelectorAll<HTMLElement>("[data-nav]"),
+        );
 
-      return () => observer.disconnect();
+        const activeSection = sections.find((section) => {
+          const rect = section.getBoundingClientRect();
+          return rect.top <= focusY && rect.bottom > focusY;
+        });
+
+        setActiveId(activeSection?.dataset.nav ?? null);
+      };
+
+      const requestUpdate = () => {
+        if (frame) return;
+        frame = window.requestAnimationFrame(updateActiveSection);
+      };
+
+      requestUpdate();
+      window.addEventListener("scroll", requestUpdate, { passive: true });
+      window.addEventListener("resize", requestUpdate);
+
+      return () => {
+        if (frame) {
+          window.cancelAnimationFrame(frame);
+        }
+        window.removeEventListener("scroll", requestUpdate);
+        window.removeEventListener("resize", requestUpdate);
+      };
     } else {
       const match = Object.entries(routeToNavMap).find(([prefix]) =>
         pathname.startsWith(prefix),

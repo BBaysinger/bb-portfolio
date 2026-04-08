@@ -1,9 +1,34 @@
 "use client";
 
-import { usePathname } from "next/navigation";
-import { useEffect, useRef } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useRef } from "react";
 
 import { replaceWithReplaceState } from "@/utils/navigation";
+
+const HASH_SCROLL_RETRY_DELAYS_MS = [0, 80, 200] as const;
+const HASH_CLEANUP_DELAY_MS = 900;
+
+function resolveHashTarget(hash: string): HTMLElement | null {
+  const raw = hash.replace(/^#/, "");
+  if (!raw || raw.includes("=")) return null;
+
+  const byId = document.getElementById(raw);
+  if (byId instanceof HTMLElement) return byId;
+
+  try {
+    const cssGlobal: { escape?: (value: string) => string } =
+      (
+        globalThis as unknown as {
+          CSS?: { escape?: (value: string) => string };
+        }
+      )?.CSS || {};
+    const selector = cssGlobal.escape ? `#${cssGlobal.escape(raw)}` : `#${raw}`;
+    const queried = document.querySelector(selector);
+    return queried instanceof HTMLElement ? queried : null;
+  } catch {
+    return null;
+  }
+}
 
 /**
  * Component: ScrollToHash
@@ -14,91 +39,111 @@ import { replaceWithReplaceState } from "@/utils/navigation";
  */
 const ScrollToHash = () => {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const cleanupTimeoutRef = useRef<number | null>(null);
+  const scrollAttemptTimeoutsRef = useRef<number[]>([]);
 
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    const { hash } = window.location;
-
-    // Clear any pending timeout from a previous hash change
+  const clearPendingTimers = useCallback(() => {
     if (cleanupTimeoutRef.current !== null) {
       clearTimeout(cleanupTimeoutRef.current);
       cleanupTimeoutRef.current = null;
     }
 
-    if (hash) {
-      // Ignore hash parameters used for history separation (e.g., #ts=12345)
-      const raw = hash.slice(1);
-      if (raw.includes("=")) {
-        return; // not an element anchor; skip scrolling and do not attempt to strip it
+    scrollAttemptTimeoutsRef.current.forEach((timeoutId) => {
+      clearTimeout(timeoutId);
+    });
+    scrollAttemptTimeoutsRef.current = [];
+  }, []);
+
+  const scheduleHashCleanup = useCallback((hash: string) => {
+    if (!hash) return;
+
+    cleanupTimeoutRef.current = window.setTimeout(() => {
+      if (window.location.hash !== hash) {
+        cleanupTimeoutRef.current = null;
+        return;
       }
 
-      // Attempt to find an element by ID. Escape if CSS.escape is available.
-      let element: HTMLElement | null = null;
-      try {
-        // Safely access global CSS.escape without using any.
-        const cssGlobal: { escape?: (s: string) => string } =
-          (
-            globalThis as unknown as {
-              CSS?: { escape?: (s: string) => string };
-            }
-          )?.CSS || {};
-        const selector = cssGlobal.escape ? `#${cssGlobal.escape(raw)}` : hash;
-        const queried = document.querySelector(selector);
-        element = queried instanceof HTMLElement ? queried : null;
-      } catch {
-        element = null; // malformed selector; safely ignore
-      }
+      replaceWithReplaceState(
+        `${window.location.pathname}${window.location.search}`,
+      );
+      cleanupTimeoutRef.current = null;
+    }, HASH_CLEANUP_DELAY_MS);
+  }, []);
 
-      if (element) {
-        const initialScrollY = window.scrollY;
+  const handleHashNavigation = useCallback(() => {
+    if (typeof window === "undefined") return;
 
-        // Wait for potential browser-native scroll before doing it ourselves
-        setTimeout(() => {
-          const currentScrollY = window.scrollY;
-          const scrollDelta = Math.abs(currentScrollY - initialScrollY);
-
-          const maxScrollY =
-            document.documentElement.scrollHeight - window.innerHeight;
-          const isAtOrPastBottom = window.scrollY >= maxScrollY - 1;
-          const browserDidNotScroll = scrollDelta < 2;
-
-          if (isAtOrPastBottom || browserDidNotScroll) {
-            if (isAtOrPastBottom) {
-              window.scrollTo({
-                top: document.body.scrollHeight,
-                behavior: "auto",
-              });
-            }
-
-            setTimeout(() => {
-              element.scrollIntoView({ behavior: "smooth" });
-            }, 100);
-          }
-
-          // Schedule the hash cleanup (remove the hash to
-          // allow repeated nav clicks, otherwise scrolling to an element
-          // the second time won't work.)
-          // Doesn't need to happen immediately, but give enough time
-          // for all scrolling to complete.
-          cleanupTimeoutRef.current = window.setTimeout(() => {
-            const cleanUrl = pathname + window.location.search;
-            replaceWithReplaceState(cleanUrl);
-            cleanupTimeoutRef.current = null;
-          }, 1000);
-        }, 100);
-      }
+    const { hash } = window.location;
+    if (!hash) {
+      clearPendingTimers();
+      return;
     }
 
-    // Cleanup when component unmounts or hash changes
+    const raw = hash.replace(/^#/, "");
+    if (!raw || raw.includes("=")) {
+      clearPendingTimers();
+      return;
+    }
+
+    clearPendingTimers();
+
+    HASH_SCROLL_RETRY_DELAYS_MS.forEach((delayMs) => {
+      const timeoutId = window.setTimeout(() => {
+        window.requestAnimationFrame(() => {
+          if (window.location.hash !== hash) return;
+
+          const element = resolveHashTarget(hash);
+          if (!element) return;
+
+          const top = Math.max(
+            0,
+            Math.round(element.getBoundingClientRect().top + window.scrollY),
+          );
+
+          try {
+            window.scrollTo({ top, behavior: "smooth" });
+          } catch {
+            element.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+
+          scheduleHashCleanup(hash);
+        });
+      }, delayMs);
+
+      scrollAttemptTimeoutsRef.current.push(timeoutId);
+    });
+  }, [clearPendingTimers, scheduleHashCleanup]);
+
+  useEffect(() => {
+    handleHashNavigation();
+
     return () => {
-      if (cleanupTimeoutRef.current !== null) {
-        clearTimeout(cleanupTimeoutRef.current);
-        cleanupTimeoutRef.current = null;
-      }
+      clearPendingTimers();
     };
-  }, [pathname]);
+  }, [clearPendingTimers, handleHashNavigation, pathname, searchParams]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const onLocationChange = () => {
+      window.requestAnimationFrame(handleHashNavigation);
+    };
+
+    window.addEventListener("hashchange", onLocationChange);
+    window.addEventListener(
+      "bb:routechange",
+      onLocationChange as EventListener,
+    );
+
+    return () => {
+      window.removeEventListener("hashchange", onLocationChange);
+      window.removeEventListener(
+        "bb:routechange",
+        onLocationChange as EventListener,
+      );
+    };
+  }, [handleHashNavigation]);
 
   return null;
 };
