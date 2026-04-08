@@ -112,14 +112,13 @@ ENV HOSTNAME=0.0.0.0
 COPY package.json .
 
 # Copy Next standalone server output and static assets.
-# Because outputFileTracingRoot points at the repo root, Next emits the app
-# under /app/.next/standalone/frontend rather than flattening server.js at the
-# standalone root.
+# In Docker builds the standalone bundle is emitted under /app/.next/standalone/app,
+# so the runtime entrypoint becomes /app/app/server.js.
 COPY --from=builder /app/.next/standalone .
-COPY --from=builder /app/.next/static ./frontend/.next/static
-COPY --from=builder /app/public ./frontend/public
+COPY --from=builder /app/.next/static ./app/.next/static
+COPY --from=builder /app/public ./app/public
 
 EXPOSE 3000
 
 # Start the Next standalone server; distroless sets entrypoint to node
-CMD ["frontend/server.js"]
+CMD ["app/server.js"]
