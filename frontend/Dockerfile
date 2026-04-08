@@ -106,6 +106,7 @@ FROM ${RUNNER_IMAGE} AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
+ENV HOSTNAME=0.0.0.0
 
 # Include package.json metadata
 COPY package.json .
