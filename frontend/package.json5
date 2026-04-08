@@ -29,6 +29,14 @@
     "prestart": "tsx ./scripts/check-required-env.ts",
     // Start Next.js production server
     "start": "next start",
+    // Build, stage standalone assets, and run the frontend in production-like mode.
+    "start:prod-like": "sh ./scripts/start-prod-like.sh",
+    // Same as start:prod-like, but preconfigures the backend URL for local Docker backend testing.
+    "start:prod-like:local": "BACKEND_INTERNAL_URL=http://localhost:8081 sh ./scripts/start-prod-like.sh",
+    // Same as start:prod-like, but leaves the process running in the background and writes a pid/log file.
+    "start:prod-like:detached": "DETACH=1 sh ./scripts/start-prod-like.sh",
+    // Same as start:prod-like:local, but detached for side-by-side testing with Docker local.
+    "start:prod-like:local:detached": "BACKEND_INTERNAL_URL=http://localhost:8081 DETACH=1 sh ./scripts/start-prod-like.sh",
     // Run Next.js ESLint configuration
     "lint": "eslint .",
     // "Pretty Build" - format code with Prettier then run TypeScript build for validation

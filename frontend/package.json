@@ -14,6 +14,10 @@
     "preview": "npx serve out",
     "prestart": "tsx ./scripts/check-required-env.ts",
     "start": "next start",
+    "start:prod-like": "sh ./scripts/start-prod-like.sh",
+    "start:prod-like:local": "BACKEND_INTERNAL_URL=http://localhost:8081 sh ./scripts/start-prod-like.sh",
+    "start:prod-like:detached": "DETACH=1 sh ./scripts/start-prod-like.sh",
+    "start:prod-like:local:detached": "BACKEND_INTERNAL_URL=http://localhost:8081 DETACH=1 sh ./scripts/start-prod-like.sh",
     "lint": "eslint .",
     "precommit": "prettier --write \"src/**/*.{ts,tsx,js,jsx,scss,css,md}\" && tsc -b",
     "test": "echo 'TODO: Add test scripts'"

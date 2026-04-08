@@ -157,6 +157,12 @@
     // Rebuild images for the SSG profile (frontend gets a fresh production-style build)
     // Note: This rebuilds the profile’s images; to start them, run `docker:ssg:up` or `docker:ssg:up:detached`.
     "frontend:rebuild:ssg": "npm run docker:ssg:build",
+    // Start the frontend in detached production-like mode on port 3004 by default so Docker local can stay up.
+    "frontend:prod-like:up": "cd frontend && PORT=${PORT:-3004} npm run start:prod-like:local:detached",
+    // Stop the detached production-like frontend instance for the selected port.
+    "frontend:prod-like:down": "cd frontend && PORT=${PORT:-3004} sh ./scripts/stop-prod-like.sh",
+    // Tail logs from the detached production-like frontend instance.
+    "frontend:prod-like:logs": "cd frontend && tail -f ./.next/logs/prod-like-${PORT:-3004}.log",
     // 📊 Check status of portfolio containers
     "caddy:status": "docker ps --filter name=bb-portfolio- --format 'table {{.Names}}\\t{{.Status}}\\t{{.Ports}}'",
     // 🧽 Run Docker cleanup + prune tasks to prevent stale containers, volumes, and caches.

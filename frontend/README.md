@@ -33,6 +33,49 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) - note that backend features will require the backend service to be running.
 
+### Production-Like Local Perf Testing
+
+For performance checks that should avoid local Next.js dev-runtime behavior, run:
+
+```bash
+BACKEND_INTERNAL_URL=http://localhost:8081 npm run start:prod-like
+```
+
+Or use the shortcut script when your backend is still running in Docker Compose local mode:
+
+```bash
+npm run start:prod-like:local
+```
+
+This command:
+
+- builds the frontend with the current environment
+- stages the `.next/static` and `public` assets into the standalone output
+- starts the standalone server on `http://localhost:3000`
+
+If your backend is still running in Docker Compose local mode, keep `BACKEND_INTERNAL_URL=http://localhost:8081`.
+
+From the repository root, you can also run the production-like frontend alongside Docker local without shutting anything down:
+
+```bash
+npm run frontend:prod-like:up
+```
+
+That detached helper defaults to `http://localhost:3004`, writes logs to `frontend/.next/logs/prod-like-3004.log`, and keeps using the Docker local backend at `http://localhost:8081`.
+
+Useful companion commands:
+
+- `npm run frontend:prod-like:logs`
+- `npm run frontend:prod-like:down`
+
+You can override the port when needed:
+
+```bash
+PORT=3010 npm run frontend:prod-like:up
+PORT=3010 npm run frontend:prod-like:logs
+PORT=3010 npm run frontend:prod-like:down
+```
+
 ## Key Components
 
 ### Interactive Systems
