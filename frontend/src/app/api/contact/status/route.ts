@@ -15,6 +15,8 @@
  */
 import { NextRequest } from "next/server";
 
+import { resolveBackendBase } from "@/utils/backend-base";
+
 /**
  * Proxies the backend contact status endpoint and normalizes output as JSON.
  *
@@ -22,29 +24,7 @@ import { NextRequest } from "next/server";
  */
 export async function GET(_request: NextRequest) {
   try {
-    const rawProfile = (
-      process.env.ENV_PROFILE ||
-      process.env.NODE_ENV ||
-      ""
-    ).toLowerCase();
-    const normalizedProfile = rawProfile.startsWith("prod")
-      ? "prod"
-      : rawProfile === "development" || rawProfile.startsWith("dev")
-        ? "dev"
-        : rawProfile.startsWith("local")
-          ? "local"
-          : rawProfile;
-    const preferred = process.env.BACKEND_INTERNAL_URL || "";
-    const serviceDnsFallback =
-      normalizedProfile === "dev"
-        ? "http://bb-portfolio-backend-dev:3000"
-        : normalizedProfile === "prod"
-          ? "http://bb-portfolio-backend-prod:3000"
-          : normalizedProfile === "local"
-            ? "http://bb-portfolio-backend-local:3001"
-            : "";
-    const backendUrl =
-      preferred || serviceDnsFallback || "http://localhost:8081";
+    const backendUrl = resolveBackendBase();
 
     const upstream = await fetch(`${backendUrl}/api/contact/status/`, {
       method: "GET",

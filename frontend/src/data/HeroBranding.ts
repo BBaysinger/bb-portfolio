@@ -1,3 +1,5 @@
+import { resolveBackendBase } from "@/utils/backend-base";
+
 export type ServerHeroBranding = {
   activeRoleTitle: string;
   activeRoleLetterSpacing?: string;
@@ -32,41 +34,13 @@ const normalizeSpacingToken = (value: unknown): string | undefined => {
   return `${clamped}${unit}`;
 };
 
-const resolveBackendBaseUrl = () => {
-  const rawProfile = (
-    process.env.ENV_PROFILE ||
-    process.env.NODE_ENV ||
-    ""
-  ).toLowerCase();
-
-  const normalizedProfile = rawProfile.startsWith("prod")
-    ? "prod"
-    : rawProfile === "development" || rawProfile.startsWith("dev")
-      ? "dev"
-      : rawProfile.startsWith("local")
-        ? "local"
-        : rawProfile;
-
-  const preferred = process.env.BACKEND_INTERNAL_URL || "";
-  const serviceDnsFallback =
-    normalizedProfile === "dev"
-      ? "http://bb-portfolio-backend-dev:3000"
-      : normalizedProfile === "prod"
-        ? "http://bb-portfolio-backend-prod:3000"
-        : normalizedProfile === "local"
-          ? "http://bb-portfolio-backend-local:3001"
-          : "";
-
-  return preferred || serviceDnsFallback || "http://localhost:8081";
-};
-
 export const getServerHeroBranding = async (): Promise<ServerHeroBranding> => {
   const fallback: ServerHeroBranding = {
     activeRoleTitle: DEFAULT_ROLE_TITLE,
   };
 
   try {
-    const backendUrl = resolveBackendBaseUrl();
+    const backendUrl = resolveBackendBase();
     const response = await fetch(`${backendUrl}/api/hero-branding/`, {
       method: "GET",
       headers: { Accept: "application/json" },

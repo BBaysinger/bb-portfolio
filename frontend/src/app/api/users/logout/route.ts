@@ -20,6 +20,8 @@
  * - `DEBUG_API_AUTH` (optional; enables verbose logging)
  */
 import { NextRequest, NextResponse } from "next/server";
+
+import { resolveBackendBase } from "@/utils/backend-base";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
@@ -31,45 +33,14 @@ export const revalidate = 0;
  */
 export async function POST(request: NextRequest) {
   try {
-    // Resolve backend URL with environment normalization and internal preference
-    const rawProfile = (
-      process.env.ENV_PROFILE ||
-      process.env.NODE_ENV ||
-      ""
-    ).toLowerCase();
-    const normalizedProfile = rawProfile.startsWith("prod")
-      ? "prod"
-      : rawProfile === "development" || rawProfile.startsWith("dev")
-        ? "dev"
-        : rawProfile.startsWith("local")
-          ? "local"
-          : rawProfile;
-    const preferred = process.env.BACKEND_INTERNAL_URL || "";
-    const serviceDnsFallback =
-      normalizedProfile === "dev"
-        ? "http://bb-portfolio-backend-dev:3000"
-        : normalizedProfile === "prod"
-          ? "http://bb-portfolio-backend-prod:3000"
-          : normalizedProfile === "local"
-            ? "http://bb-portfolio-backend-local:3001"
-            : "";
     const reqHost =
       request.headers.get("x-forwarded-host") ||
       request.headers.get("host") ||
       "";
-    const isSameHost = (() => {
-      try {
-        const u = new URL(preferred);
-        return !!reqHost && u.host === reqHost;
-      } catch {
-        return false;
-      }
-    })();
-    const backendUrl = (() => {
-      if (preferred && !isSameHost) return preferred;
-      if (serviceDnsFallback) return serviceDnsFallback;
-      return preferred || "http://localhost:8081";
-    })();
+    const backendUrl = resolveBackendBase({
+      requestHost: reqHost,
+      avoidRequestHost: true,
+    });
 
     const debug =
       process.env.DEBUG_API_AUTH === "1" ||

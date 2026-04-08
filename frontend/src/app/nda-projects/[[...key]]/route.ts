@@ -28,38 +28,11 @@ import {
 } from "@aws-sdk/client-s3";
 import type { NextRequest } from "next/server";
 
+import { resolveBackendBase } from "@/utils/backend-base";
+
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic"; // must evaluate auth per request
 export const revalidate = 0;
-
-/**
- * Resolves the backend base URL for auth checks.
- *
- * Prefers `BACKEND_INTERNAL_URL` when provided, otherwise falls back to profile-based Docker
- * service names (prod/dev/local) and finally localhost.
- */
-function getBackendBase(): string {
-  const rawProfile = (
-    process.env.ENV_PROFILE ||
-    process.env.NODE_ENV ||
-    ""
-  ).toLowerCase();
-  const profile = rawProfile.startsWith("prod")
-    ? "prod"
-    : rawProfile === "development" || rawProfile.startsWith("dev")
-      ? "dev"
-      : rawProfile.startsWith("local")
-        ? "local"
-        : rawProfile;
-  const preferred = process.env.BACKEND_INTERNAL_URL || "";
-  if (preferred) return preferred.replace(/\/$/, "");
-
-  if (profile === "prod") return "http://bb-portfolio-backend-prod:3000";
-  if (profile === "dev") return "http://bb-portfolio-backend-dev:3000";
-  if (profile === "local") return "http://bb-portfolio-backend-local:3001";
-
-  return "http://localhost:8081";
-}
 
 /**
  * Validates that the request is authenticated by forwarding cookies to the backend session endpoint.
@@ -71,7 +44,7 @@ function getBackendBase(): string {
 async function isAuthenticated(req: NextRequest): Promise<boolean> {
   try {
     const cookieHeader = req.headers.get("cookie") || "";
-    const backend = getBackendBase();
+    const backend = resolveBackendBase();
 
     const isRecord = (v: unknown): v is Record<string, unknown> =>
       typeof v === "object" && v !== null;

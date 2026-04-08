@@ -55,6 +55,7 @@ x-backend-local-volumes: &backend_local_volumes
 x-frontend-local-volumes: &frontend_local_volumes
   - ../../frontend:/app
   - /app/node_modules
+  - /app/.next
 
 x-backend-local-envfile: &backend_local_envfile
   - ../../backend/.env
@@ -250,6 +251,7 @@ services:
       NODE_ENV: development
       ENV_PROFILE: local
       NEXT_DISABLE_TURBOPACK: "1"
+      BACKEND_INTERNAL_URL: http://bb-portfolio-backend-local:3001
       # API calls are relative; proxy routes /api to backend
       NPM_CONFIG_CACHE: /app/.npm-cache
       # Ensure Next dev listens on expected container port for Caddy (matches Caddyfile reverse_proxy target)

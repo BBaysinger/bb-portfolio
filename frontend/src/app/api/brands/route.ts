@@ -10,33 +10,11 @@
  */
 import type { NextRequest } from "next/server";
 
+import { resolveBackendBase } from "@/utils/backend-base";
+
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
-
-function resolveBackendBase(): string {
-  const rawProfile = (
-    process.env.ENV_PROFILE ||
-    process.env.NODE_ENV ||
-    ""
-  ).toLowerCase();
-  const profile = rawProfile.startsWith("prod")
-    ? "prod"
-    : rawProfile === "development" || rawProfile.startsWith("dev")
-      ? "dev"
-      : rawProfile.startsWith("local")
-        ? "local"
-        : rawProfile;
-
-  const fromEnv = process.env.BACKEND_INTERNAL_URL;
-  if (fromEnv) return fromEnv.replace(/\/$/, "");
-
-  if (profile === "prod") return "http://bb-portfolio-backend-prod:3000";
-  if (profile === "dev") return "http://bb-portfolio-backend-dev:3000";
-  if (profile === "local") return "http://bb-portfolio-backend-local:3001";
-
-  return "http://bb-portfolio-backend-prod:3000";
-}
 
 function buildTargetUrl(req: NextRequest): string {
   const base = resolveBackendBase();

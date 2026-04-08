@@ -16,6 +16,8 @@
  * - `DEBUG_API_AUTH` (optional; enables verbose logging)
  */
 import { NextRequest, NextResponse } from "next/server";
+
+import { resolveBackendBase } from "@/utils/backend-base";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
@@ -43,50 +45,14 @@ const hasIdentity = (u: unknown): u is { id?: string; email?: string } => {
  */
 export async function GET(request: NextRequest) {
   try {
-    // Resolve backend base URL with environment-profile normalization
-    const rawProfile = (
-      process.env.ENV_PROFILE ||
-      process.env.NODE_ENV ||
-      ""
-    ).toLowerCase();
-    const normalizedProfile = rawProfile.startsWith("prod")
-      ? "prod"
-      : rawProfile === "development" || rawProfile.startsWith("dev")
-        ? "dev"
-        : rawProfile.startsWith("local")
-          ? "local"
-          : rawProfile;
-    // Prefer INTERNAL_URL to avoid self-calling the frontend domain
-    const preferred = process.env.BACKEND_INTERNAL_URL || "";
-
-    // Fallback service DNS inside container networks
-    const serviceDnsFallback =
-      normalizedProfile === "dev"
-        ? "http://bb-portfolio-backend-dev:3000"
-        : normalizedProfile === "prod"
-          ? "http://bb-portfolio-backend-prod:3000"
-          : normalizedProfile === "local"
-            ? "http://bb-portfolio-backend-local:3001"
-            : "";
-
-    // Avoid recursion: if preferred points to the same host as this request, use service DNS if available
     const reqHost =
       request.headers.get("x-forwarded-host") ||
       request.headers.get("host") ||
       "";
-    const isSameHost = (() => {
-      try {
-        const u = new URL(preferred);
-        return !!reqHost && u.host === reqHost;
-      } catch {
-        return false;
-      }
-    })();
-    const backendUrl = (() => {
-      if (preferred && !isSameHost) return preferred;
-      if (serviceDnsFallback) return serviceDnsFallback;
-      return preferred || "http://localhost:8081";
-    })();
+    const backendUrl = resolveBackendBase({
+      requestHost: reqHost,
+      avoidRequestHost: true,
+    });
 
     // Forward cookies from the request to maintain session
     const cookieHeader = request.headers.get("cookie") || "";

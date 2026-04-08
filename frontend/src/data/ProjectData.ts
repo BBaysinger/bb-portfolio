@@ -1,3 +1,9 @@
+import {
+  getBackendServiceBase,
+  normalizeBackendProfile,
+  resolveBackendBase,
+} from "@/utils/backend-base";
+
 const COOKIE_HEADER_NAME = "cookie";
 
 const getCookieHeaderValue = (headers?: HeadersInit): string => {
@@ -67,32 +73,9 @@ async function fetchPortfolioProjects(opts?: {
       process.env.NODE_ENV ||
       ""
     ).toLowerCase();
-  const normalizedProfile = rawProfile.startsWith("prod")
-    ? "prod"
-    : rawProfile === "development" || rawProfile.startsWith("dev")
-      ? "dev"
-      : rawProfile.startsWith("local")
-        ? "local"
-        : rawProfile;
-  let base = process.env.BACKEND_INTERNAL_URL || "";
-
-  // Conventional: rely on Next.js rewrites for /api/* on the server.
-  // Fail fast if .env is incomplete so misconfigurations are obvious.
-  const isHttpUrl = (s: string) => /^https?:\/\//i.test(s);
-  // Determine a service-DNS fallback usable inside the compose network
-  const serviceDnsFallback =
-    normalizedProfile === "dev"
-      ? "http://bb-portfolio-backend-dev:3000"
-      : normalizedProfile === "prod"
-        ? "http://bb-portfolio-backend-prod:3000"
-        : normalizedProfile === "local"
-          ? "http://bb-portfolio-backend-local:3001"
-          : "";
-
-  if (isServer && !isHttpUrl(base)) {
-    // Safety net: if envs are stale or misnamed, prefer service DNS rather than throwing
-    if (serviceDnsFallback) base = serviceDnsFallback;
-  }
+  const normalizedProfile = normalizeBackendProfile(rawProfile);
+  const base = isServer ? resolveBackendBase({ rawProfile }) : "";
+  const serviceDnsFallback = getBackendServiceBase(normalizedProfile);
 
   // Build URL
   // - Client: always use relative path so Next.js rewrites proxy to backend and forwards cookies
