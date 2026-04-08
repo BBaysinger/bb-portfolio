@@ -150,7 +150,7 @@
     "search:files": "rg --files --hidden --follow --glob '!.git' --glob '!node_modules' --glob '!frontend/.next' --glob '!backend/.next'"
   },
   "devDependencies": {
-    "@next/eslint-plugin-next": "^16.2.2",
+    "@next/eslint-plugin-next": "^16.2.3",
     "@types/glob": "^9.0.0",
     "@typescript-eslint/eslint-plugin": "8.58.1",
     "@typescript-eslint/parser": "8.58.1",

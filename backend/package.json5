@@ -71,23 +71,23 @@
   // Runtime dependencies for backend and CMS functionality
   "dependencies": {
     // AWS SES client used for sending transactional emails
-    "@aws-sdk/client-ses": "^3.1026.0",
+    "@aws-sdk/client-ses": "^3.1027.0",
     // Shared AWS SDK types
     "@aws-sdk/types": "^3.973.7",
     // MongoDB adapter for Payload CMS
-    "@payloadcms/db-mongodb": "3.81.0",
+    "@payloadcms/db-mongodb": "3.82.0",
     // Nodemailer email adapter for Payload CMS (handles SMTP email sending, password resets, notifications)
-    "@payloadcms/email-nodemailer": "3.81.0",
+    "@payloadcms/email-nodemailer": "3.82.0",
     // Enables Payload-Next.js integration (server-side rendering and routing)
-    "@payloadcms/next": "3.81.0",
+    "@payloadcms/next": "3.82.0",
     // Payload Cloud tools (optional if self-hosting)
-    "@payloadcms/payload-cloud": "3.81.0",
+    "@payloadcms/payload-cloud": "3.82.0",
     // Rich text editor using Lexical (modern alternative to Slate)
-    "@payloadcms/richtext-lexical": "3.81.0",
+    "@payloadcms/richtext-lexical": "3.82.0",
     // S3-backed media storage for Payload uploads
-    "@payloadcms/storage-s3": "3.81.0",
+    "@payloadcms/storage-s3": "3.82.0",
     // Payload's core UI components
-    "@payloadcms/ui": "3.81.0",
+    "@payloadcms/ui": "3.82.0",
     // BSON/EJSON utilities used by database migration and snapshot scripts
     "bson": "^7.2.0",
     // Cross-platform environment variable setting (Windows/Unix compatibility)
@@ -105,13 +105,13 @@
     // Direct MongoDB client used by database sync scripts
     "mongodb": "~7.1.1",
     // Next.js framework for frontend/backend integration
-    "next": "16.2.2",
+    "next": "16.2.3",
     // Payload CMS core package
-    "payload": "3.81.0",
+    "payload": "3.82.0",
     // React version to match Next.js 15
-    "react": "19.2.4",
+    "react": "19.2.5",
     // React DOM library for rendering React components (required by Next.js and Payload UI)
-    "react-dom": "19.2.4",
+    "react-dom": "19.2.5",
     // High-performance image processing (required for Payload image fields)
     "sharp": "0.34.5",
     // Converts strings into URL-friendly slugs (useful for dynamic routing)
@@ -140,7 +140,7 @@
     // ESLint JavaScript/TypeScript linter (v9 for latest rules)
     "eslint": "^9.39.4",
     // Next.js ESLint configuration (includes React and accessibility rules)
-    "eslint-config-next": "16.2.2",
+    "eslint-config-next": "16.2.3",
     // Browser DOM simulation for Node.js testing environments
     "jsdom": "29.0.2",
     // Standalone version of Playwright test runner
