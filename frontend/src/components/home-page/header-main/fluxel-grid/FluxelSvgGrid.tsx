@@ -32,6 +32,10 @@ import FluxelSvg from "./FluxelSvg";
 import styles from "./FluxelSvgGrid.module.scss";
 import { useFluxelResizeWatcher } from "./useFluxelResizeWatcher";
 
+type FluxelSvgGridProps = FluxelGridProps & {
+  showColorOverlay?: boolean;
+};
+
 const assignRef = <T,>(ref: Ref<T> | undefined, value: T | null) => {
   if (!ref) return;
   if (typeof ref === "function") {
@@ -48,7 +52,7 @@ const assignRef = <T,>(ref: Ref<T> | undefined, value: T | null) => {
  * applied to it.
  *
  */
-const FluxelSvgGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
+const FluxelSvgGrid = forwardRef<FluxelGridHandle, FluxelSvgGridProps>(
   (
     {
       gridData,
@@ -56,6 +60,7 @@ const FluxelSvgGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
       onGridChange,
       imperativeMode = true,
       className = "",
+      showColorOverlay = true,
       onLayoutUpdateRequest,
     },
     ref,
@@ -250,39 +255,41 @@ const FluxelSvgGrid = forwardRef<FluxelGridHandle, FluxelGridProps>(
             )}
           </svg>
         </div>
-        <div className={styles.overlayWrapper}>
-          {/*
-            Overlay layer: DOM elements are cheaper to recolor than SVG nodes,
-            and blend modes are more predictable across browsers.
-          */}
-          {gridData.map((row, r) =>
-            row.map((data, c) => {
-              const isVisible =
-                r >= rowOverlap &&
-                r < rowCount - rowOverlap &&
-                c >= colOverlap &&
-                c < colCount - colOverlap;
+        {showColorOverlay ? (
+          <div className={styles.overlayWrapper}>
+            {/*
+              Overlay layer: DOM elements are cheaper to recolor than SVG nodes,
+              and blend modes are more predictable across browsers.
+            */}
+            {gridData.map((row, r) =>
+              row.map((data, c) => {
+                const isVisible =
+                  r >= rowOverlap &&
+                  r < rowCount - rowOverlap &&
+                  c >= colOverlap &&
+                  c < colCount - colOverlap;
 
-              if (!isVisible) {
+                if (!isVisible) {
+                  return (
+                    <div key={data.id} className={styles.inactivePlaceholder} />
+                  );
+                }
+
                 return (
-                  <div key={data.id} className={styles.inactivePlaceholder} />
+                  <div
+                    className={styles.overlay}
+                    key={data.id}
+                    style={{
+                      top: `${r * fluxelSize}px`,
+                      left: `${c * fluxelSize}px`,
+                      backgroundColor: data.colorVariation,
+                    }}
+                  />
                 );
-              }
-
-              return (
-                <div
-                  className={styles.overlay}
-                  key={data.id}
-                  style={{
-                    top: `${r * fluxelSize}px`,
-                    left: `${c * fluxelSize}px`,
-                    backgroundColor: data.colorVariation,
-                  }}
-                />
-              );
-            }),
-          )}
-        </div>
+              }),
+            )}
+          </div>
+        ) : null}
       </>
     );
   },

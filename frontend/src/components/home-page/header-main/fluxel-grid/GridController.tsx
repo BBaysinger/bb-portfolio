@@ -63,9 +63,22 @@ const GRID_TYPES = [
   "pixi",
 ] as const satisfies readonly GridType[];
 
+const parseBooleanSearchParam = (value: string): boolean | null => {
+  const normalized = value.trim().toLowerCase();
+  if (["1", "true", "on", "yes"].includes(normalized)) return true;
+  if (["0", "false", "off", "no"].includes(normalized)) return false;
+  return null;
+};
+
 const getGridTypeFromLocation = (): GridType => {
   const value = getLocationSearchParam("gridType");
   return GRID_TYPES.includes(value as GridType) ? (value as GridType) : "svg";
+};
+
+const getShowColorOverlayFromLocation = (): boolean => {
+  const value = getLocationSearchParam("showFluxelOverlay");
+  const parsed = parseBooleanSearchParam(value);
+  return parsed ?? true;
 };
 
 /**
@@ -111,6 +124,9 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
     const [gridType, setGridType] = useState<GridType>(() =>
       getGridTypeFromLocation(),
     );
+    const [showColorOverlay, setShowColorOverlay] = useState<boolean>(() =>
+      getShowColorOverlayFromLocation(),
+    );
 
     const gridInstanceRef = useRef<FluxelGridHandle | null>(null);
     const [gridContainerEl, setGridContainerEl] = useState<HTMLElement | null>(
@@ -127,7 +143,10 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
 
     useEffect(() => {
       // Handle back/forward updates where search params may change.
-      const onPopState = () => setGridType(getGridTypeFromLocation());
+      const onPopState = () => {
+        setGridType(getGridTypeFromLocation());
+        setShowColorOverlay(getShowColorOverlayFromLocation());
+      };
       window.addEventListener("popstate", onPopState);
       return () => window.removeEventListener("popstate", onPopState);
     }, []);
@@ -408,6 +427,7 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
             className={styles.fluxelGridSvg}
             ref={gridInstanceRef}
             gridData={gridData}
+            showColorOverlay={showColorOverlay}
             onLayoutUpdateRequest={onLayoutUpdateRequest}
           />
         ) : gridType === "canvas" ? (
