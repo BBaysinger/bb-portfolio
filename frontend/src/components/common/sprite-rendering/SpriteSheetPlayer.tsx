@@ -14,13 +14,7 @@
  * - Default export `SpriteSheetPlayer` – React component.
  */
 
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
 
 import { getLocationSearchParam } from "@/utils/searchParams";
 
@@ -122,7 +116,6 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
   maxDevicePixelRatio,
   maxDevicePixelRatioQueryParam,
 }) => {
-  const [frameIndex, setFrameIndex] = useState<number | null>(0);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const cssRef = useRef<HTMLDivElement>(null);
   const rendererRef = useRef<ISpriteRenderer | null>(null);
@@ -130,6 +123,7 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
   const animationFrameRef = useRef<number | null>(null);
   const lastTimeRef = useRef<number>(0);
   const frameRef = useRef<number>(0);
+  const hiddenRef = useRef<boolean>(false);
   const completedLoopsRef = useRef<number>(0);
   const frameDurationsRef = useRef<number[]>([]);
   const rendererSignatureRef = useRef<string>("");
@@ -176,6 +170,17 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
     [effectiveRenderStrategy, effectiveRendererOptions.maxDevicePixelRatio],
   );
 
+  const drawWithRenderer = useCallback(
+    (targetFrameIndex: number, hidden: boolean) => {
+      hiddenRef.current = hidden;
+      if (!rendererRef.current) return;
+
+      const frameForRenderer = hidden ? -1 : targetFrameIndex;
+      rendererRef.current.drawFrame(frameForRenderer);
+    },
+    [],
+  );
+
   const meta = useMemo(() => {
     const match = src.match(/_w(\d+)h(\d+)f(\d+)/);
     if (!match) {
@@ -217,23 +222,32 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
   }, [meta, fps]);
 
   useEffect(() => {
-    if (!meta || frameControl === -1) return;
+    if (!meta) return;
 
     if (animationFrameRef.current !== null) {
       cancelAnimationFrame(animationFrameRef.current);
       animationFrameRef.current = null;
     }
 
+    completedLoopsRef.current = 0;
+
+    if (frameControl === -1) {
+      frameRef.current = 0;
+      drawWithRenderer(0, true);
+      return;
+    }
+
     if (typeof frameControl === "number") {
       frameRef.current = frameControl;
+      drawWithRenderer(frameControl, false);
       return;
     }
 
     // When entering autoplay mode (frameControl === null), always default to the first frame
     // on initial display. `randomFrame` affects subsequent animation ticks, not the initial frame.
     frameRef.current = 0;
-    // Intentionally avoid setState here (repo lint: no setState directly in effect bodies).
-  }, [frameControl, src, randomFrame, meta]);
+    drawWithRenderer(0, false);
+  }, [drawWithRenderer, frameControl, meta, src]);
 
   useEffect(() => {
     if (!meta || frameControl === -1) return;
@@ -264,13 +278,13 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
         if (randomFrame) {
           const random = Math.floor(Math.random() * meta.frameCount);
           frameRef.current = random;
-          setFrameIndex(random);
+          drawWithRenderer(random, false);
 
           completedLoopsRef.current++;
           if (loops !== 0 && completedLoopsRef.current >= loops) {
             const resolved = resolveEndFrameIndex(meta.frameCount);
             frameRef.current = resolved === -1 ? 0 : resolved;
-            setFrameIndex(resolved);
+            drawWithRenderer(frameRef.current, resolved === -1);
             isCancelled = true;
             onEnd?.();
             return;
@@ -283,7 +297,7 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
             if (loops !== 0 && completedLoopsRef.current >= loops) {
               const resolved = resolveEndFrameIndex(meta.frameCount);
               frameRef.current = resolved === -1 ? 0 : resolved;
-              setFrameIndex(resolved);
+              drawWithRenderer(frameRef.current, resolved === -1);
               isCancelled = true;
               onEnd?.();
               return;
@@ -293,7 +307,7 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
           }
 
           frameRef.current = next;
-          setFrameIndex(next);
+          drawWithRenderer(next, false);
         }
       }
 
@@ -314,6 +328,7 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
     meta,
     frameControl,
     autoPlay,
+    drawWithRenderer,
     loops,
     randomFrame,
     onEnd,
@@ -369,22 +384,17 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
     }
 
     const isHidden =
-      frameControl === -1 || (frameControl === null && frameIndex === -1);
+      frameControl === -1 || (frameControl === null && hiddenRef.current);
 
     const effectiveFrameIndex =
       typeof frameControl === "number" && frameControl !== -1
         ? frameControl
         : isHidden
           ? 0
-          : frameIndex;
+          : frameRef.current;
 
     if (effectiveFrameIndex !== null && rendererRef.current) {
-      // CSS renderer supports a sentinel `-1` frame to hide while keeping the URL referenced.
-      const frameForRenderer =
-        effectiveRenderStrategy === "css" && isHidden
-          ? -1
-          : effectiveFrameIndex;
-      rendererRef.current.drawFrame(frameForRenderer);
+      drawWithRenderer(effectiveFrameIndex, isHidden);
     }
 
     function renderStrategyChanged() {
@@ -405,28 +415,20 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
     effectiveRenderStrategy,
     effectiveRendererOptions,
     frameControl,
-    frameIndex,
     meta,
     rendererSignature,
     src,
+    drawWithRenderer,
   ]);
 
   if (!meta) return null;
 
-  const isHidden =
-    frameControl === -1 || (frameControl === null && frameIndex === -1);
-
-  const effectiveFrameIndex =
-    typeof frameControl === "number" && frameControl !== -1
-      ? frameControl
-      : isHidden
-        ? 0
-        : frameIndex;
+  const isHidden = frameControl === -1;
 
   const { frameWidth, frameHeight } = meta;
 
   return (
-    <div className={className} style={{ width: "100%", height: "100%" }}>
+    <div className={className}>
       {effectiveRenderStrategy === "webgl" ||
       effectiveRenderStrategy === "canvas" ? (
         <canvas
@@ -451,25 +453,22 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
                   width: "100%",
                   height: "100%",
                   aspectRatio: `${frameWidth} / ${frameHeight}`,
-                  display:
-                    effectiveFrameIndex === null ? "none" : ("block" as const),
+                  display: "block" as const,
                 }),
           }}
         />
       ) : (
-        effectiveFrameIndex !== null && (
-          <div
-            className={styles.spriteSheet}
-            ref={cssRef}
-            style={{
-              width: "100%",
-              height: "100%",
-              aspectRatio: `${frameWidth} / ${frameHeight}`,
-              opacity: isHidden ? 0 : 1,
-              pointerEvents: isHidden ? "none" : undefined,
-            }}
-          />
-        )
+        <div
+          className={styles.spriteSheet}
+          ref={cssRef}
+          style={{
+            width: "100%",
+            height: "100%",
+            aspectRatio: `${frameWidth} / ${frameHeight}`,
+            opacity: isHidden ? 0 : 1,
+            pointerEvents: isHidden ? "none" : undefined,
+          }}
+        />
       )}
     </div>
   );

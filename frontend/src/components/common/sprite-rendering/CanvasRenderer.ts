@@ -98,12 +98,18 @@ export class CanvasRenderer implements ISpriteRenderer {
     if (!this.isLoaded) return;
     if (!Number.isFinite(index)) return;
     const frameIndex = Math.floor(index);
-    if (frameIndex < 0 || frameIndex >= this.meta.frameCount) return;
 
     this.syncCanvasSizeToDisplay();
 
     // Explicitly keep smoothing disabled before drawing.
     this.ctx.imageSmoothingEnabled = false;
+
+    if (frameIndex === -1) {
+      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+      return;
+    }
+
+    if (frameIndex < 0 || frameIndex >= this.meta.frameCount) return;
 
     const { frameWidth, frameHeight } = this.meta;
     const row = Math.floor(frameIndex / this.columns);

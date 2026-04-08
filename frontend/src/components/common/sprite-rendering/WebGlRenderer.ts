@@ -254,19 +254,22 @@ export class WebGlRenderer implements ISpriteRenderer {
     this.syncCanvasSizeToDisplay();
 
     const gl = this.gl;
-    if (!this.isTextureReady || !this.texture || !this.uFrameOffset) return;
     if (!Number.isFinite(index)) return;
     const frameIndex = Math.floor(index);
+
+    gl.viewport(0, 0, this.canvas.width, this.canvas.height);
+    gl.clearColor(0, 0, 0, 0);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+
+    if (frameIndex === -1) return;
+
+    if (!this.isTextureReady || !this.texture || !this.uFrameOffset) return;
     if (frameIndex < 0 || frameIndex >= this.frameCount) return;
 
     const col = frameIndex % this.columns;
     const row = Math.floor(frameIndex / this.columns);
     const offsetX = col * this.frameWidth;
     const offsetY = row * this.frameHeight;
-
-    gl.viewport(0, 0, this.canvas.width, this.canvas.height);
-    gl.clearColor(0, 0, 0, 0);
-    gl.clear(gl.COLOR_BUFFER_BIT);
 
     gl.useProgram(this.program);
     gl.activeTexture(gl.TEXTURE0);
