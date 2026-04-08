@@ -31,7 +31,12 @@ const getNativeDb = (payload: Payload) => {
   }
 
   return db as {
-    collection: (name: string) => { countDocuments: () => Promise<number> }
+    collection: (name: string) => {
+      countDocuments: () => Promise<number>
+      deleteMany: (filter: Record<string, never>) => Promise<unknown>
+      find: (filter: Record<string, never>) => { toArray: () => Promise<Record<string, unknown>[]> }
+      insertMany: (docs: Record<string, unknown>[]) => Promise<unknown>
+    }
     listCollections: (
       filter?: { name?: string },
       options?: { nameOnly?: boolean },
@@ -41,6 +46,33 @@ const getNativeDb = (payload: Payload) => {
     dropCollection: (name: string) => Promise<boolean>
     renameCollection: (from: string, to: string) => Promise<unknown>
   }
+}
+
+const isNamespaceExistsError = (error: unknown) => {
+  if (!error || typeof error !== 'object') return false
+
+  const candidate = error as { code?: number; codeName?: string; message?: string }
+  return (
+    candidate.code === 48 ||
+    candidate.codeName === 'NamespaceExists' ||
+    candidate.message?.includes('already exists') === true
+  )
+}
+
+const copyCollectionDocuments = async (
+  db: ReturnType<typeof getNativeDb>,
+  from: string,
+  to: string,
+) => {
+  const sourceDocs = await db.collection(from).find({}).toArray()
+  const targetCollection = db.collection(to)
+
+  await targetCollection.deleteMany({})
+  if (sourceDocs.length > 0) {
+    await targetCollection.insertMany(sourceDocs)
+  }
+
+  return sourceDocs.length
 }
 
 async function main() {
@@ -93,8 +125,22 @@ async function main() {
       }
 
       await db.dropCollection(newName)
-      await db.renameCollection(oldName, newName)
-      console.info(`Dropped empty '${newName}' and renamed collection '${oldName}' → '${newName}'.`)
+
+      try {
+        await db.renameCollection(oldName, newName)
+        console.info(
+          `Dropped empty '${newName}' and renamed collection '${oldName}' → '${newName}'.`,
+        )
+      } catch (error) {
+        if (!isNamespaceExistsError(error)) throw error
+
+        const copiedCount = await copyCollectionDocuments(db, oldName, newName)
+        await db.dropCollection(oldName)
+        console.info(
+          `Rename fallback used after namespace conflict: copied ${copiedCount} document(s) from '${oldName}' into '${newName}' and removed '${oldName}'.`,
+        )
+      }
+
       return
     }
 

@@ -18,7 +18,7 @@
 
 import clsx from "clsx";
 import { useRouter, usePathname } from "next/navigation";
-import React, { useRef, useEffect, useState } from "react";
+import React, { Suspense, useRef, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 
 import Footer from "@/components/layout/Footer";
@@ -411,7 +411,9 @@ export function AppShell({
         className={clsx(styles.main, styles.navRevelator)}
       >
         <div ref={childContentRef} className={styles.childContent}>
-          <ScrollToHash />
+          <Suspense fallback={null}>
+            <ScrollToHash />
+          </Suspense>
           {/* Screen reader-only aria-live region for privacy/logout announcements */}
           <div
             id="privacyAnnouncement"

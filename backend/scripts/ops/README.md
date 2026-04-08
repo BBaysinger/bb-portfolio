@@ -11,7 +11,7 @@ Naming convention:
 Current scripts:
 
 - `ops-db-migrate-media-urls-to-s3.ts`: rewrites media document URLs to S3-backed paths.
-- `ops-db-rename-brands-to-project-brands.ts`: one-time Mongo collection rename for the Project Brands slug migration.
+- `ops-db-rename-brands-to-project-brands.ts`: one-time Mongo collection rename for the Project Brands slug migration, with copy-and-drop fallback when `project-brands` already exists empty.
 - `ops-db-sync-prod-to-dev.ts`: snapshots prod and dev, then can replace selected dev collections with current prod data.
 - `ops-db-export-local-database.ts`: exports selected local collections for controlled import.
 - `ops-db-rebuild-media-records-from-s3.ts`: reconstructs media records from S3 listings.
@@ -42,4 +42,5 @@ External content import wrappers:
 Prod to dev sync:
 
 - `ops-db-sync-prod-to-dev.ts` defaults to dry-run and always exports both `prod-source/` and `dev-before/` snapshots under `backend/dump/env-sync/<timestamp>/`.
+- The sync script treats project brands as an alias-aware migration case: it reads from `project-brands` when present, otherwise falls back to legacy Mongo collection `brands`, writes into canonical `project-brands`, and clears legacy `brands` in dev after syncing.
 - `sync-prod-to-dev.sh` is the guarded apply path and should be used when dev needs to become a working backup/mirror of prod before further migrations.
