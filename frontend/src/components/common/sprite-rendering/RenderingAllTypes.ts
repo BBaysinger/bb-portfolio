@@ -33,3 +33,12 @@ export interface ISpriteRenderer {
  * - `webgl` – render via WebGL for high-performance/advanced effects.
  */
 export type RenderStrategyType = "css" | "canvas" | "webgl";
+
+export interface SpriteRendererOptions {
+  /**
+   * Optional cap for the backing-store DPR used by canvas/WebGL renderers.
+   * Useful for fullscreen effects where full Retina resolution is visually fine
+   * but disproportionately expensive.
+   */
+  maxDevicePixelRatio?: number;
+}

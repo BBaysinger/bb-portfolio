@@ -1,4 +1,4 @@
-import { ISpriteRenderer } from "./RenderingAllTypes";
+import { ISpriteRenderer, SpriteRendererOptions } from "./RenderingAllTypes";
 
 /**
  * Canvas-backed sprite renderer.
@@ -35,6 +35,7 @@ export class CanvasRenderer implements ISpriteRenderer {
     private canvas: HTMLCanvasElement,
     imageSrc: string,
     private meta: SpriteSheetMeta,
+    private options: SpriteRendererOptions = {},
   ) {
     const ctx = canvas.getContext("2d");
     if (!ctx) throw new Error("Canvas not supported");
@@ -62,7 +63,13 @@ export class CanvasRenderer implements ISpriteRenderer {
     // This renderer is client-only; guard in case it is constructed in a non-DOM context.
     if (typeof window === "undefined") return;
 
-    const dpr = window.devicePixelRatio || 1;
+    const cappedDpr = this.options.maxDevicePixelRatio;
+    const dpr = Math.min(
+      window.devicePixelRatio || 1,
+      cappedDpr && Number.isFinite(cappedDpr) && cappedDpr > 0
+        ? cappedDpr
+        : Number.POSITIVE_INFINITY,
+    );
     // Canvas backing store uses integer pixels; round to avoid fractional dimensions.
     const displayWidth = Math.max(1, Math.round(this.canvas.clientWidth * dpr));
     const displayHeight = Math.max(

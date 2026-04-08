@@ -1,4 +1,4 @@
-import { ISpriteRenderer } from "./RenderingAllTypes";
+import { ISpriteRenderer, SpriteRendererOptions } from "./RenderingAllTypes";
 
 /**
  * WebGL sprite renderer (experimental).
@@ -32,6 +32,7 @@ export class WebGlRenderer implements ISpriteRenderer {
     private canvas: HTMLCanvasElement,
     private imageSrc: string,
     meta: { frameWidth: number; frameHeight: number; frameCount: number },
+    private options: SpriteRendererOptions = {},
   ) {
     const gl = canvas.getContext("webgl");
     if (!gl) throw new Error("WebGL not supported");
@@ -222,7 +223,13 @@ export class WebGlRenderer implements ISpriteRenderer {
 
   private syncCanvasSizeToDisplay() {
     if (typeof window === "undefined") return;
-    const dpr = window.devicePixelRatio || 1;
+    const cappedDpr = this.options.maxDevicePixelRatio;
+    const dpr = Math.min(
+      window.devicePixelRatio || 1,
+      cappedDpr && Number.isFinite(cappedDpr) && cappedDpr > 0
+        ? cappedDpr
+        : Number.POSITIVE_INFINITY,
+    );
     const displayWidth = Math.max(1, Math.round(this.canvas.clientWidth * dpr));
     const displayHeight = Math.max(
       1,

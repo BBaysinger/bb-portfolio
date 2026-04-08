@@ -16,6 +16,14 @@ import SpriteSheetPlayer from "@/components/common/sprite-rendering/SpriteSheetP
 
 import styles from "./AnimationSequencer.module.scss";
 
+// Sequencer-specific sprite overrides layered on top of the global sprite-player
+// query params. Useful when you want to A/B fullscreen sequencer behavior while
+// still being able to flip all sprite players together elsewhere.
+// - `sequencerRenderStrategy=css|canvas|webgl`
+// - `sequencerMaxDpr=<positive number>`
+const SEQUENCER_RENDER_STRATEGY_QUERY_PARAM = "sequencerRenderStrategy";
+const SEQUENCER_MAX_DPR_QUERY_PARAM = "sequencerMaxDpr";
+
 export interface AnimationSequencerHandle {
   playImperativeAnimation: (index?: number) => void;
 }
@@ -290,6 +298,8 @@ const AnimationSequencer = forwardRef<
           onEnd={handleEnd}
           endFrame={-1}
           frameControl={shouldPlay ? null : -1}
+          renderStrategyQueryParam={SEQUENCER_RENDER_STRATEGY_QUERY_PARAM}
+          maxDevicePixelRatioQueryParam={SEQUENCER_MAX_DPR_QUERY_PARAM}
         />
       )}
     </div>

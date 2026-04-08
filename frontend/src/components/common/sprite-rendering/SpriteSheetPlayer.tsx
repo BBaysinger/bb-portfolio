@@ -22,13 +22,45 @@ import React, {
   useState,
 } from "react";
 
+import { getLocationSearchParam } from "@/utils/searchParams";
+
 import { CanvasRenderer } from "./CanvasRenderer";
 import { CssRenderer } from "./CssRenderer";
-import { ISpriteRenderer, RenderStrategyType } from "./RenderingAllTypes";
+import {
+  ISpriteRenderer,
+  RenderStrategyType,
+  SpriteRendererOptions,
+} from "./RenderingAllTypes";
 import styles from "./SpriteSheetPlayer.module.scss";
 import { WebGlRenderer } from "./WebGlRenderer";
 
 const DEFAULT_RENDER_STRATEGY: RenderStrategyType = "css";
+
+// Global sprite-render testing controls:
+// - `spriteRenderStrategy=css|canvas|webgl`
+// - `spriteMaxDpr=<positive number>`
+//
+// Precedence for a given SpriteSheetPlayer instance:
+// 1. Explicit component props
+// 2. Scoped query params passed by the caller (if any)
+// 3. These global query params
+// 4. `DEFAULT_RENDER_STRATEGY`
+const GLOBAL_RENDER_STRATEGY_QUERY_PARAM = "spriteRenderStrategy";
+const GLOBAL_MAX_DPR_QUERY_PARAM = "spriteMaxDpr";
+
+const parseRenderStrategy = (value: string): RenderStrategyType | null => {
+  const normalized = value.trim().toLowerCase();
+  if (normalized === "css") return "css";
+  if (normalized === "canvas") return "canvas";
+  if (normalized === "webgl") return "webgl";
+  return null;
+};
+
+const parsePositiveNumber = (value: string): number | null => {
+  const parsed = Number(value.trim());
+  if (!Number.isFinite(parsed) || parsed <= 0) return null;
+  return parsed;
+};
 
 /**
  * Props for `SpriteSheetPlayer`.
@@ -57,8 +89,16 @@ interface SpriteSheetPlayerProps {
   frameControl?: number | null;
   /** Extra class name(s) for the wrapper element. */
   className?: string;
-  /** Rendering backend to use. */
+  /** Rendering backend to use. Explicit prop wins over any query-string override. */
   renderStrategy?: RenderStrategyType;
+  /** Optional scoped query param that can override the global sprite render strategy. */
+  renderStrategyQueryParam?: string;
+  /**
+   * Optional cap for canvas/WebGL backing DPR. Explicit prop wins over any query-string override.
+   */
+  maxDevicePixelRatio?: number;
+  /** Optional scoped query param that can override the global sprite DPR cap. */
+  maxDevicePixelRatioQueryParam?: string;
 }
 
 /**
@@ -77,7 +117,10 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
   endFrame = 0,
   frameControl = null,
   className = "",
-  renderStrategy = DEFAULT_RENDER_STRATEGY,
+  renderStrategy,
+  renderStrategyQueryParam,
+  maxDevicePixelRatio,
+  maxDevicePixelRatioQueryParam,
 }) => {
   const [frameIndex, setFrameIndex] = useState<number | null>(0);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -89,6 +132,49 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
   const frameRef = useRef<number>(0);
   const completedLoopsRef = useRef<number>(0);
   const frameDurationsRef = useRef<number[]>([]);
+  const rendererSignatureRef = useRef<string>("");
+
+  const effectiveRenderStrategy = useMemo(() => {
+    if (renderStrategy) return renderStrategy;
+
+    const scoped = renderStrategyQueryParam
+      ? parseRenderStrategy(getLocationSearchParam(renderStrategyQueryParam))
+      : null;
+    if (scoped) return scoped;
+
+    const global = parseRenderStrategy(
+      getLocationSearchParam(GLOBAL_RENDER_STRATEGY_QUERY_PARAM),
+    );
+    return global ?? DEFAULT_RENDER_STRATEGY;
+  }, [renderStrategy, renderStrategyQueryParam]);
+
+  const effectiveRendererOptions = useMemo<SpriteRendererOptions>(() => {
+    if (
+      typeof maxDevicePixelRatio === "number" &&
+      Number.isFinite(maxDevicePixelRatio) &&
+      maxDevicePixelRatio > 0
+    ) {
+      return { maxDevicePixelRatio };
+    }
+
+    const scoped = maxDevicePixelRatioQueryParam
+      ? parsePositiveNumber(
+          getLocationSearchParam(maxDevicePixelRatioQueryParam),
+        )
+      : null;
+    if (scoped) return { maxDevicePixelRatio: scoped };
+
+    const global = parsePositiveNumber(
+      getLocationSearchParam(GLOBAL_MAX_DPR_QUERY_PARAM),
+    );
+    return global ? { maxDevicePixelRatio: global } : {};
+  }, [maxDevicePixelRatio, maxDevicePixelRatioQueryParam]);
+
+  const rendererSignature = useMemo(
+    () =>
+      `${effectiveRenderStrategy}:${effectiveRendererOptions.maxDevicePixelRatio ?? "none"}`,
+    [effectiveRenderStrategy, effectiveRendererOptions.maxDevicePixelRatio],
+  );
 
   const meta = useMemo(() => {
     const match = src.match(/_w(\d+)h(\d+)f(\d+)/);
@@ -239,31 +325,47 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
 
     // Resolve the DOM target for the selected rendering strategy.
     // We narrow refs up-front so renderer constructors never receive `null`.
-    if (renderStrategy === "css") {
+    if (effectiveRenderStrategy === "css") {
       if (!cssRef.current) return;
     } else {
       if (!canvasRef.current) return;
     }
 
-    if (!rendererRef.current || renderStrategyChanged()) {
+    if (
+      !rendererRef.current ||
+      renderStrategyChanged() ||
+      rendererConfigChanged()
+    ) {
       // Clean up existing renderer if switching
       rendererRef.current?.dispose();
 
-      if (renderStrategy === "webgl") {
+      if (effectiveRenderStrategy === "webgl") {
         const canvas = canvasRef.current;
         if (!canvas) return;
-        rendererRef.current = new WebGlRenderer(canvas, src, meta);
-      } else if (renderStrategy === "canvas") {
+        rendererRef.current = new WebGlRenderer(
+          canvas,
+          src,
+          meta,
+          effectiveRendererOptions,
+        );
+      } else if (effectiveRenderStrategy === "canvas") {
         const canvas = canvasRef.current;
         if (!canvas) return;
-        rendererRef.current = new CanvasRenderer(canvas, src, meta);
-      } else if (renderStrategy === "css") {
+        rendererRef.current = new CanvasRenderer(
+          canvas,
+          src,
+          meta,
+          effectiveRendererOptions,
+        );
+      } else if (effectiveRenderStrategy === "css") {
         const el = cssRef.current;
         if (!el) return;
         rendererRef.current = new CssRenderer(el, src, meta);
       } else {
         rendererRef.current = null;
       }
+
+      rendererSignatureRef.current = rendererSignature;
     }
 
     const isHidden =
@@ -279,21 +381,35 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
     if (effectiveFrameIndex !== null && rendererRef.current) {
       // CSS renderer supports a sentinel `-1` frame to hide while keeping the URL referenced.
       const frameForRenderer =
-        renderStrategy === "css" && isHidden ? -1 : effectiveFrameIndex;
+        effectiveRenderStrategy === "css" && isHidden
+          ? -1
+          : effectiveFrameIndex;
       rendererRef.current.drawFrame(frameForRenderer);
     }
 
     function renderStrategyChanged() {
       return (
-        (renderStrategy === "webgl" &&
+        (effectiveRenderStrategy === "webgl" &&
           !(rendererRef.current instanceof WebGlRenderer)) ||
-        (renderStrategy === "canvas" &&
+        (effectiveRenderStrategy === "canvas" &&
           !(rendererRef.current instanceof CanvasRenderer)) ||
-        (renderStrategy === "css" &&
+        (effectiveRenderStrategy === "css" &&
           !(rendererRef.current instanceof CssRenderer))
       );
     }
-  }, [frameControl, frameIndex, meta, src, renderStrategy]);
+
+    function rendererConfigChanged() {
+      return rendererSignatureRef.current !== rendererSignature;
+    }
+  }, [
+    effectiveRenderStrategy,
+    effectiveRendererOptions,
+    frameControl,
+    frameIndex,
+    meta,
+    rendererSignature,
+    src,
+  ]);
 
   if (!meta) return null;
 
@@ -311,7 +427,8 @@ const SpriteSheetPlayer: React.FC<SpriteSheetPlayerProps> = ({
 
   return (
     <div className={className}>
-      {renderStrategy === "webgl" || renderStrategy === "canvas" ? (
+      {effectiveRenderStrategy === "webgl" ||
+      effectiveRenderStrategy === "canvas" ? (
         <canvas
           className={styles.spriteSheet}
           ref={canvasRef}
