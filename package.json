@@ -62,7 +62,7 @@
     "bareMetalDev:frontend": "cd frontend && npm run dev",
     "format": "prettier --write .",
     "lint": "eslint .",
-    "precommit": "prettier --write . && eslint . --fix && tsc --noEmit",
+    "precommit": "prettier --write . && eslint . --fix && tsc --noEmit && npm run sync:packages",
     "prepush": "npm run precommit && npm test",
     "audit:fix:all": "concurrently \"npm audit fix\" \"cd backend && npm audit fix\" \"cd frontend && npm audit fix\" --names \"root,backend,frontend\" --prefix-colors \"yellow,blue,green\"",
     "sync:packages": "tsx scripts/sync-json5-packages.ts",
