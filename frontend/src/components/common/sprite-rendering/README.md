@@ -190,3 +190,39 @@ Likely cleanup work before extraction:
 When revisiting this, prefer extracting the runtime first and treating the React component as an adapter over that runtime.
 
 That should keep the package architecture aligned with the real abstraction boundary rather than the current app integration boundary.
+
+## Still Worth Trying
+
+These are the remaining renderer/performance experiments that still look worthwhile.
+
+### Renderer tests still worth running
+
+- Canvas path for the fullscreen sequencer with and without DPR caps:
+  - `?sequencerRenderStrategy=canvas`
+  - `?sequencerRenderStrategy=canvas&sequencerMaxDpr=1`
+- Global canvas comparison path:
+  - `?spriteRenderStrategy=canvas`
+  - `?spriteRenderStrategy=canvas&spriteMaxDpr=1`
+- Additional WebGL comparison runs if needed, mainly to keep the test harness honest rather than because WebGL currently looks like the best default.
+
+### Sequencer work still worth trying
+
+- Measure whether the new preload/decode warm-up materially improved first-play and between-sequence smoothness.
+- Consider keeping one persistent `SpriteSheetPlayer` instance for the sequencer instead of remounting with `animKey` for every new sequence.
+- If sequence-start hiccups remain, consider preloading only the most likely next few animations instead of the broader warm-up pass.
+
+### CSS renderer work still worth trying
+
+- Verify whether the recent precomputed-position and duplicate-write skipping changes are measurable in browser profiling.
+- If more CSS work is needed, keep it conservative; the CSS renderer is already close to the minimal hot path.
+
+### WebGL work still worth trying
+
+- Add `lastFrameIndex` / hidden-state short-circuiting to skip redundant clear+draw passes.
+- Precompute frame offsets so the renderer avoids repeated modulo/division work in its draw path.
+- Reduce redundant GL state changes only if profiling shows it matters.
+
+### Slinger / handoff work still worth trying
+
+- Verify whether random-frame autoplay starting on a random visible frame fully removed the lightning handoff pause.
+- If not, consider an explicit preload/decode warm-up for the lightning sheet, although this may be unnecessary because both players already stay mounted.
