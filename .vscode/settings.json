@@ -206,6 +206,7 @@
         "pointerup",
         "popstate",
         "prebuild",
+        "preconfigures",
         "predev",
         "Prereqs",
         "presign",
