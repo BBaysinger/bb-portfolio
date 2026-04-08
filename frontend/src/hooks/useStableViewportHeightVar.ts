@@ -1,49 +1,71 @@
 "use client";
 
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { RefObject } from "react";
 
 import { getViewportHeightPx } from "@/utils/viewport";
 
-import { useWindowMonitor } from "./useLayoutMonitor";
 import { useViewportSettle } from "./viewportSettle";
 
-const WINDOW_MONITOR_DEBOUNCE = {
-  resize: 0,
-  orientationchange: 0,
-  fullscreenchange: -1,
-  scroll: -1,
-  visibilitychange: -1,
-} as const;
+export type HeightOnlyResizeContext = {
+  width: number;
+  height: number;
+  widthDelta: number | null;
+  heightDelta: number | null;
+  isFullscreen: boolean;
+  hasCoarsePointer: boolean;
+  canHover: boolean;
+};
 
-export interface UseStableViewportHeightVarOptions {
-  cssVarName?: string;
+export type HeightOnlyResizePolicy =
+  | "never"
+  | "fullscreen-only"
+  | "pointer-fine"
+  | ((context: HeightOnlyResizeContext) => boolean);
+
+export interface UseStableViewportHeightOptions {
   widthChangeThresholdPx?: number;
+  heightOnlyResizePolicy?: HeightOnlyResizePolicy;
+}
+
+export interface UseStableViewportHeightVarOptions extends UseStableViewportHeightOptions {
+  cssVarName?: string;
+}
+
+function getInteractionCapabilities() {
+  let hasCoarsePointer = false;
+  let canHover = false;
+
+  try {
+    hasCoarsePointer = window.matchMedia("(pointer: coarse)").matches;
+    canHover = window.matchMedia("(hover: hover)").matches;
+  } catch {
+    hasCoarsePointer = false;
+    canHover = false;
+  }
+
+  return { hasCoarsePointer, canHover };
+}
+
+function getIsFullscreen() {
+  return typeof document !== "undefined" && Boolean(document.fullscreenElement);
 }
 
 /**
- * useStableViewportHeightVar
+ * Returns a stable viewport height in CSS pixels.
  *
- * Sets a CSS custom property on a target element to a *stable* pixel viewport height.
- *
- * This is primarily useful on mobile browsers where viewport units (`vh`/`svh`/`dvh`)
- * can cause the whole layout to shift when reversing scroll direction, if an element in
- * the flow is sized based on these (notably Firefox mobile).
- *
- * Behavior:
- * - Measures once after mount (via rAF)
- * - Updates on orientation change
- * - Updates on resize only when width changes meaningfully (split-screen / orientation),
- *   ignoring small height-only resize noise from scroll-chrome.
+ * The hook filters out mobile browser chrome jitter by default, while still
+ * allowing consumers to opt into height-only resize handling when appropriate.
  */
-export default function useStableViewportHeightVar(
-  elementRef: RefObject<HTMLElement | null>,
-  options: UseStableViewportHeightVarOptions = {},
+export function useStableViewportHeight(
+  options: UseStableViewportHeightOptions = {},
 ) {
-  const { cssVarName = "--hero-stable-vh", widthChangeThresholdPx = 60 } =
+  const { widthChangeThresholdPx = 60, heightOnlyResizePolicy = "never" } =
     options;
 
+  const [stableHeightPx, setStableHeightPx] = useState<number | null>(null);
   const lastWidthRef = useRef<number | null>(null);
+  const lastHeightRef = useRef<number | null>(null);
   const resizeSettleTimeoutRef = useRef<number | null>(null);
   const resizeRafRef = useRef<number | null>(null);
 
@@ -53,23 +75,50 @@ export default function useStableViewportHeightVar(
     return Math.abs(width - lastWidth);
   }, []);
 
-  const measureStableHeightPx = useCallback(() => {
-    const el = elementRef.current;
-    if (!el) return;
+  const applyStableHeightPx = useCallback((height: number) => {
+    if (height <= 0) return;
 
-    const height = getViewportHeightPx();
-    if (height > 0) {
-      el.style.setProperty(cssVarName, `${height}px`);
-    }
-  }, [cssVarName, elementRef]);
+    lastHeightRef.current = height;
+    setStableHeightPx((prev) => (prev === height ? prev : height));
+  }, []);
+
+  const measureStableHeightPx = useCallback(() => {
+    applyStableHeightPx(getViewportHeightPx());
+  }, [applyStableHeightPx]);
+
+  const shouldTrustHeightOnlyResize = useCallback(
+    (
+      context: Omit<HeightOnlyResizeContext, "hasCoarsePointer" | "canHover">,
+    ) => {
+      const { hasCoarsePointer, canHover } = getInteractionCapabilities();
+      const fullContext: HeightOnlyResizeContext = {
+        ...context,
+        hasCoarsePointer,
+        canHover,
+      };
+
+      if (typeof heightOnlyResizePolicy === "function") {
+        return heightOnlyResizePolicy(fullContext);
+      }
+
+      switch (heightOnlyResizePolicy) {
+        case "fullscreen-only":
+          return fullContext.isFullscreen;
+        case "pointer-fine":
+          return !fullContext.hasCoarsePointer && fullContext.canHover;
+        case "never":
+        default:
+          return false;
+      }
+    },
+    [heightOnlyResizePolicy],
+  );
 
   const scheduleTrailingMeasure = useCallback(() => {
     if (resizeSettleTimeoutRef.current !== null) {
       window.clearTimeout(resizeSettleTimeoutRef.current);
     }
 
-    // Always run one trailing measurement after viewport activity settles,
-    // including small width changes that stay below the immediate threshold.
     resizeSettleTimeoutRef.current = window.setTimeout(() => {
       resizeSettleTimeoutRef.current = null;
       if (resizeRafRef.current !== null) {
@@ -84,7 +133,13 @@ export default function useStableViewportHeightVar(
   }, [measureStableHeightPx]);
 
   const onWindowEvent = useCallback(
-    (eventType: string) => {
+    (
+      eventType:
+        | "resize"
+        | "orientationchange"
+        | "fullscreenchange"
+        | "visibilitychange",
+    ) => {
       if (eventType === "orientationchange") {
         if (resizeSettleTimeoutRef.current !== null) {
           window.clearTimeout(resizeSettleTimeoutRef.current);
@@ -94,10 +149,22 @@ export default function useStableViewportHeightVar(
         return;
       }
 
-      if (eventType !== "resize") return;
+      if (
+        eventType === "fullscreenchange" ||
+        eventType === "visibilitychange"
+      ) {
+        scheduleTrailingMeasure();
+        return;
+      }
 
       const width = window.innerWidth;
       const widthDelta = getWidthDelta(width);
+      const height = getViewportHeightPx();
+      const lastHeight = lastHeightRef.current;
+      const heightDelta =
+        lastHeight == null ? null : Math.abs(height - lastHeight);
+      const isFullscreen = getIsFullscreen();
+
       if (widthDelta == null) {
         lastWidthRef.current = width;
         measureStableHeightPx();
@@ -105,6 +172,22 @@ export default function useStableViewportHeightVar(
       }
 
       if (widthDelta >= widthChangeThresholdPx) {
+        lastWidthRef.current = width;
+        measureStableHeightPx();
+        return;
+      }
+
+      if (
+        heightDelta !== null &&
+        heightDelta > 0 &&
+        shouldTrustHeightOnlyResize({
+          width,
+          height,
+          widthDelta,
+          heightDelta,
+          isFullscreen,
+        })
+      ) {
         lastWidthRef.current = width;
         measureStableHeightPx();
         return;
@@ -118,11 +201,31 @@ export default function useStableViewportHeightVar(
       getWidthDelta,
       measureStableHeightPx,
       scheduleTrailingMeasure,
+      shouldTrustHeightOnlyResize,
       widthChangeThresholdPx,
     ],
   );
 
-  useWindowMonitor(elementRef, onWindowEvent, WINDOW_MONITOR_DEBOUNCE);
+  useEffect(() => {
+    const onResize = () => onWindowEvent("resize");
+    const onOrientationChange = () => onWindowEvent("orientationchange");
+    const onFullscreenChange = () => onWindowEvent("fullscreenchange");
+    const onVisibilityChange = () => onWindowEvent("visibilitychange");
+
+    window.addEventListener("resize", onResize, { passive: true });
+    window.addEventListener("orientationchange", onOrientationChange, {
+      passive: true,
+    });
+    document.addEventListener("fullscreenchange", onFullscreenChange);
+    document.addEventListener("visibilitychange", onVisibilityChange);
+
+    return () => {
+      window.removeEventListener("resize", onResize);
+      window.removeEventListener("orientationchange", onOrientationChange);
+      document.removeEventListener("fullscreenchange", onFullscreenChange);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+    };
+  }, [onWindowEvent]);
 
   useEffect(() => {
     const viewport = window.visualViewport;
@@ -130,8 +233,25 @@ export default function useStableViewportHeightVar(
 
     const onVisualViewportChange = () => {
       const width = Math.round(viewport.width || window.innerWidth || 0);
+      const height = Math.round(viewport.height || getViewportHeightPx() || 0);
       const widthDelta = getWidthDelta(width);
-      if (widthDelta && widthDelta > 0) {
+      const lastHeight = lastHeightRef.current;
+      const heightDelta =
+        lastHeight == null ? null : Math.abs(height - lastHeight);
+      const isFullscreen = getIsFullscreen();
+
+      if (
+        (widthDelta !== null && widthDelta > 0) ||
+        (heightDelta !== null &&
+          heightDelta > 0 &&
+          shouldTrustHeightOnlyResize({
+            width,
+            height,
+            widthDelta,
+            heightDelta,
+            isFullscreen,
+          }))
+      ) {
         scheduleTrailingMeasure();
       }
     };
@@ -147,10 +267,11 @@ export default function useStableViewportHeightVar(
       viewport.removeEventListener("resize", onVisualViewportChange);
       viewport.removeEventListener("scroll", onVisualViewportChange);
     };
-  }, [getWidthDelta, scheduleTrailingMeasure]);
+  }, [getWidthDelta, scheduleTrailingMeasure, shouldTrustHeightOnlyResize]);
 
   useEffect(() => {
     lastWidthRef.current = window.innerWidth;
+    lastHeightRef.current = getViewportHeightPx();
 
     return () => {
       if (resizeSettleTimeoutRef.current !== null) {
@@ -168,4 +289,25 @@ export default function useStableViewportHeightVar(
   }, [measureStableHeightPx]);
 
   useViewportSettle(onViewportSettle);
+
+  return stableHeightPx;
+}
+
+/**
+ * Convenience wrapper that writes the measured stable viewport height to a CSS
+ * custom property on a target element.
+ */
+export default function useStableViewportHeightVar(
+  elementRef: RefObject<HTMLElement | null>,
+  options: UseStableViewportHeightVarOptions = {},
+) {
+  const { cssVarName = "--hero-stable-vh", ...measurementOptions } = options;
+  const stableHeightPx = useStableViewportHeight(measurementOptions);
+
+  useEffect(() => {
+    const el = elementRef.current;
+    if (!el || stableHeightPx === null) return;
+
+    el.style.setProperty(cssVarName, `${stableHeightPx}px`);
+  }, [cssVarName, elementRef, stableHeightPx]);
 }

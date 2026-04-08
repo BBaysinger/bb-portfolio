@@ -109,7 +109,10 @@ function Hero({ initialRoleTitle }: HeroProps) {
   const gridControllerRef = useRef<GridControllerHandle>(null);
   const heroRef = useRef<HTMLDivElement>(null);
 
-  useStableViewportHeightVar(heroRef, { cssVarName: "--hero-stable-vh" });
+  useStableViewportHeightVar(heroRef, {
+    cssVarName: "--hero-stable-vh",
+    heightOnlyResizePolicy: "pointer-fine",
+  });
 
   const [isSlingerInFlight, setIsSlingerInFlight] = useState(false);
   const slingerLoopId = useRef<number | null>(null);
