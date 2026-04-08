@@ -19,6 +19,8 @@ const WINDOW_MONITOR_DEBOUNCE = {
 export type HeightOnlyResizeContext = {
   width: number;
   height: number;
+  previousWidth: number | null;
+  previousHeight: number | null;
   widthDelta: number | null;
   heightDelta: number | null;
   isFullscreen: boolean;
@@ -30,6 +32,7 @@ export type HeightOnlyResizePolicy =
   | "never"
   | "fullscreen-only"
   | "pointer-fine"
+  | "pointer-fine-or-shrink"
   | ((context: HeightOnlyResizeContext) => boolean);
 
 export interface UseStableViewportHeightOptions {
@@ -111,6 +114,12 @@ export function useStableViewportHeight(
           return fullContext.isFullscreen;
         case "pointer-fine":
           return !fullContext.hasCoarsePointer && fullContext.canHover;
+        case "pointer-fine-or-shrink":
+          return (
+            (!fullContext.hasCoarsePointer && fullContext.canHover) ||
+            (fullContext.previousHeight !== null &&
+              fullContext.height < fullContext.previousHeight)
+          );
         case "never":
         default:
           return false;
@@ -166,6 +175,7 @@ export function useStableViewportHeight(
       const width = window.innerWidth;
       const widthDelta = getWidthDelta(width);
       const height = getViewportHeightPx();
+      const previousWidth = lastWidthRef.current;
       const lastHeight = lastHeightRef.current;
       const heightDelta =
         lastHeight == null ? null : Math.abs(height - lastHeight);
@@ -189,6 +199,8 @@ export function useStableViewportHeight(
         shouldTrustHeightOnlyResize({
           width,
           height,
+          previousWidth,
+          previousHeight: lastHeight,
           widthDelta,
           heightDelta,
           isFullscreen,
@@ -222,6 +234,7 @@ export function useStableViewportHeight(
       const width = Math.round(viewport.width || window.innerWidth || 0);
       const height = Math.round(viewport.height || getViewportHeightPx() || 0);
       const widthDelta = getWidthDelta(width);
+      const previousWidth = lastWidthRef.current;
       const lastHeight = lastHeightRef.current;
       const heightDelta =
         lastHeight == null ? null : Math.abs(height - lastHeight);
@@ -234,6 +247,8 @@ export function useStableViewportHeight(
           shouldTrustHeightOnlyResize({
             width,
             height,
+            previousWidth,
+            previousHeight: lastHeight,
             widthDelta,
             heightDelta,
             isFullscreen,

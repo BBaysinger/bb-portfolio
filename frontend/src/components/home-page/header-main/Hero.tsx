@@ -111,7 +111,7 @@ function Hero({ initialRoleTitle }: HeroProps) {
 
   useStableViewportHeightVar(heroRef, {
     cssVarName: "--hero-stable-vh",
-    heightOnlyResizePolicy: "pointer-fine",
+    heightOnlyResizePolicy: "pointer-fine-or-shrink",
   });
 
   const [isSlingerInFlight, setIsSlingerInFlight] = useState(false);
