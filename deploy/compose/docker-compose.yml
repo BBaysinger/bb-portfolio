@@ -191,6 +191,7 @@ services:
     env_file:
       - ../../frontend/.env.dev
     environment:
+      - NODE_ENV=production
       - PORT=3000
     restart: unless-stopped # Auto-restart on failure/reboot
     depends_on:
