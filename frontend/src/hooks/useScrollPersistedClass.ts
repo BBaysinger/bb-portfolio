@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 
 import { getViewportHeightPx } from "@/utils/viewport";
 
-import { startViewportSettle } from "./viewportSettle";
+import { startViewportSettle } from "./viewport/useViewportSettle";
 
 /**
  * Sets a persistent variable after scrolled (by a threshold) out of view.

@@ -23,8 +23,8 @@ import ChargedCircle from "@/components/home-page/header-main/ChargedCircle";
 import OrbGrabTooltip from "@/components/home-page/header-main/OrbGrabTooltip";
 import OrbTossTooltip from "@/components/home-page/header-main/OrbTossTooltip";
 import useScrollPersistedClass from "@/hooks/useScrollPersistedClass";
-import useStableViewportHeightVar from "@/hooks/useStableViewportHeightVar";
 import useTimeOfDay from "@/hooks/useTimeOfDay";
+import useStableViewportHeightVar from "@/hooks/viewport/useStableViewportHeightVar";
 import { recordGAEvent } from "@/services/ga";
 import { recordEvent } from "@/services/rum";
 

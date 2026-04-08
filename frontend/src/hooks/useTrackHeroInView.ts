@@ -7,7 +7,7 @@ import { useDispatch } from "react-redux";
 import { setHeroInView } from "@/store/uiSlice";
 import { getViewportHeightPx } from "@/utils/viewport";
 
-import { startViewportSettle } from "./viewportSettle";
+import { startViewportSettle } from "./viewport/useViewportSettle";
 
 /**
  * Tracks how much of the #hero element is in view and buckets it (100%, 5%, 0%).

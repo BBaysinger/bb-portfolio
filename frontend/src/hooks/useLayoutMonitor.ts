@@ -21,6 +21,8 @@ type WindowEventType = Extract<
   | "fullscreenchange"
 >;
 
+type WindowDebounceMap = Partial<Record<WindowEventType, number>>;
+
 /**
  * Optional per-event debounce overrides in milliseconds. Use `0` for immediate
  * delivery, positive numbers to debounce, and `-1` to disable a signal.
@@ -42,13 +44,85 @@ type DebounceMap = Partial<Record<EventType, number>>;
  *    window monitors when only one is needed.
  */
 
-const WINDOW_EVENTS: [WindowEventType, string][] = [
-  ["resize", "resize"],
-  ["scroll", "scroll"],
-  ["orientationchange", "orientationchange"],
-  ["visibilitychange", "visibilitychange"],
-  ["fullscreenchange", "fullscreenchange"],
+const WINDOW_EVENTS: Array<{
+  type: WindowEventType;
+  eventName: string;
+  target: "window" | "document";
+}> = [
+  { type: "resize", eventName: "resize", target: "window" },
+  { type: "scroll", eventName: "scroll", target: "window" },
+  {
+    type: "orientationchange",
+    eventName: "orientationchange",
+    target: "window",
+  },
+  {
+    type: "visibilitychange",
+    eventName: "visibilitychange",
+    target: "document",
+  },
+  {
+    type: "fullscreenchange",
+    eventName: "fullscreenchange",
+    target: "document",
+  },
 ];
+
+function useWindowEventMonitorCore(
+  callback: (eventType: WindowEventType, event?: Event) => void,
+  debounceMap: WindowDebounceMap = {},
+  enabled = true,
+  lifecycleRef?: React.RefObject<Element | null>,
+) {
+  const debounceRefs = useRef<Partial<Record<WindowEventType, number>>>({});
+  const callbackRef = useRef(callback);
+  const debounceMapRef = useRef(debounceMap);
+
+  useEffect(() => {
+    callbackRef.current = callback;
+  }, [callback]);
+
+  useEffect(() => {
+    debounceMapRef.current = debounceMap;
+  }, [debounceMap]);
+
+  useEffect(() => {
+    if (!enabled) return;
+    if (lifecycleRef && !lifecycleRef.current) return;
+
+    const localDebounceRefs = debounceRefs.current;
+
+    const trigger = (type: WindowEventType, event?: Event) => {
+      const debounce = debounceMapRef.current[type] ?? getDefaultDebounce(type);
+      if (debounce === -1) return;
+
+      if (debounce === 0) {
+        callbackRef.current(type, event);
+      } else {
+        window.clearTimeout(localDebounceRefs[type]);
+        localDebounceRefs[type] = window.setTimeout(() => {
+          callbackRef.current(type, event);
+        }, debounce);
+      }
+    };
+
+    const disposers: (() => void)[] = [];
+
+    for (const { type, eventName, target } of WINDOW_EVENTS) {
+      const handler = (e: Event) => trigger(type, e);
+      const eventTarget = target === "document" ? document : window;
+      const options = target === "window" ? { passive: true } : undefined;
+
+      eventTarget.addEventListener(eventName, handler, options);
+      disposers.push(() => eventTarget.removeEventListener(eventName, handler));
+    }
+
+    return () => {
+      disposers.forEach((dispose) => dispose());
+      Object.values(localDebounceRefs).forEach((id) => window.clearTimeout(id));
+    };
+  }, [enabled, lifecycleRef]);
+}
 
 /**
  * Observes element-scoped signals such as `ResizeObserver`, `MutationObserver`,
@@ -329,54 +403,23 @@ export function useElementMonitorElement<T extends Element>(
  */
 export function useWindowMonitor<T extends Element>(
   targetRef: React.RefObject<T | null>,
-  callback: (eventType: EventType, event?: Event) => void,
+  callback: (eventType: WindowEventType, event?: Event) => void,
   debounceMap: DebounceMap = {},
 ) {
-  const debounceRefs = useRef<Partial<Record<WindowEventType, number>>>({});
-  const callbackRef = useRef(callback);
-  const debounceMapRef = useRef(debounceMap);
+  useWindowEventMonitorCore(callback, debounceMap, true, targetRef);
+}
 
-  useEffect(() => {
-    callbackRef.current = callback;
-  }, [callback]);
-
-  useEffect(() => {
-    debounceMapRef.current = debounceMap;
-  }, [debounceMap]);
-
-  useEffect(() => {
-    const el = targetRef.current;
-    if (!el) return;
-
-    const localDebounceRefs = debounceRefs.current;
-
-    const trigger = (type: WindowEventType, event?: Event) => {
-      const debounce = debounceMapRef.current[type] ?? getDefaultDebounce(type);
-      if (debounce === -1) return;
-
-      if (debounce === 0) {
-        callbackRef.current(type, event);
-      } else {
-        window.clearTimeout(localDebounceRefs[type]);
-        localDebounceRefs[type] = window.setTimeout(() => {
-          callbackRef.current(type, event);
-        }, debounce);
-      }
-    };
-
-    const disposers: (() => void)[] = [];
-
-    for (const [type, eventName] of WINDOW_EVENTS) {
-      const handler = (e: Event) => trigger(type, e);
-      window.addEventListener(eventName, handler, { passive: true });
-      disposers.push(() => window.removeEventListener(eventName, handler));
-    }
-
-    return () => {
-      disposers.forEach((dispose) => dispose());
-      Object.values(localDebounceRefs).forEach((id) => window.clearTimeout(id));
-    };
-  }, [targetRef]);
+/**
+ * Global window/document event monitor variant.
+ *
+ * Use this when the consumer cares about viewport-level churn without needing
+ * an element ref as a lifecycle gate.
+ */
+export function useGlobalWindowMonitor(
+  callback: (eventType: WindowEventType, event?: Event) => void,
+  debounceMap: WindowDebounceMap = {},
+) {
+  useWindowEventMonitorCore(callback, debounceMap, true);
 }
 
 /**

@@ -1,11 +1,20 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { RefObject } from "react";
 
 import { getViewportHeightPx } from "@/utils/viewport";
 
-import { useViewportSettle } from "./viewportSettle";
+import { useGlobalWindowMonitor } from "../useLayoutMonitor";
+
+import { useViewportSettle } from "./useViewportSettle";
+
+const WINDOW_MONITOR_DEBOUNCE = {
+  resize: 0,
+  orientationchange: 0,
+  fullscreenchange: 0,
+  visibilitychange: 0,
+  scroll: -1,
+} as const;
 
 export type HeightOnlyResizeContext = {
   width: number;
@@ -26,10 +35,6 @@ export type HeightOnlyResizePolicy =
 export interface UseStableViewportHeightOptions {
   widthChangeThresholdPx?: number;
   heightOnlyResizePolicy?: HeightOnlyResizePolicy;
-}
-
-export interface UseStableViewportHeightVarOptions extends UseStableViewportHeightOptions {
-  cssVarName?: string;
 }
 
 function getInteractionCapabilities() {
@@ -136,6 +141,7 @@ export function useStableViewportHeight(
     (
       eventType:
         | "resize"
+        | "scroll"
         | "orientationchange"
         | "fullscreenchange"
         | "visibilitychange",
@@ -206,26 +212,7 @@ export function useStableViewportHeight(
     ],
   );
 
-  useEffect(() => {
-    const onResize = () => onWindowEvent("resize");
-    const onOrientationChange = () => onWindowEvent("orientationchange");
-    const onFullscreenChange = () => onWindowEvent("fullscreenchange");
-    const onVisibilityChange = () => onWindowEvent("visibilitychange");
-
-    window.addEventListener("resize", onResize, { passive: true });
-    window.addEventListener("orientationchange", onOrientationChange, {
-      passive: true,
-    });
-    document.addEventListener("fullscreenchange", onFullscreenChange);
-    document.addEventListener("visibilitychange", onVisibilityChange);
-
-    return () => {
-      window.removeEventListener("resize", onResize);
-      window.removeEventListener("orientationchange", onOrientationChange);
-      document.removeEventListener("fullscreenchange", onFullscreenChange);
-      document.removeEventListener("visibilitychange", onVisibilityChange);
-    };
-  }, [onWindowEvent]);
+  useGlobalWindowMonitor(onWindowEvent, WINDOW_MONITOR_DEBOUNCE);
 
   useEffect(() => {
     const viewport = window.visualViewport;
@@ -291,23 +278,4 @@ export function useStableViewportHeight(
   useViewportSettle(onViewportSettle);
 
   return stableHeightPx;
-}
-
-/**
- * Convenience wrapper that writes the measured stable viewport height to a CSS
- * custom property on a target element.
- */
-export default function useStableViewportHeightVar(
-  elementRef: RefObject<HTMLElement | null>,
-  options: UseStableViewportHeightVarOptions = {},
-) {
-  const { cssVarName = "--hero-stable-vh", ...measurementOptions } = options;
-  const stableHeightPx = useStableViewportHeight(measurementOptions);
-
-  useEffect(() => {
-    const el = elementRef.current;
-    if (!el || stableHeightPx === null) return;
-
-    el.style.setProperty(cssVarName, `${stableHeightPx}px`);
-  }, [cssVarName, elementRef, stableHeightPx]);
 }
