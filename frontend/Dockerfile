@@ -110,12 +110,15 @@ ENV NEXT_TELEMETRY_DISABLED=1
 # Include package.json metadata
 COPY package.json .
 
-# Copy Next standalone server output and static assets
+# Copy Next standalone server output and static assets.
+# Because outputFileTracingRoot points at the repo root, Next emits the app
+# under /app/.next/standalone/frontend rather than flattening server.js at the
+# standalone root.
 COPY --from=builder /app/.next/standalone .
-COPY --from=builder /app/.next/static ./.next/static
-COPY --from=builder /app/public ./public
+COPY --from=builder /app/.next/static ./frontend/.next/static
+COPY --from=builder /app/public ./frontend/public
 
 EXPOSE 3000
 
 # Start the Next standalone server; distroless sets entrypoint to node
-CMD ["server.js"]
+CMD ["frontend/server.js"]
