@@ -39,9 +39,9 @@
   // Runtime dependencies for the frontend application
   "dependencies": {
     // AWS SDK v3 S3 client (used for signed-URL uploads)
-    "@aws-sdk/client-s3": "^3.1025.0",
+    "@aws-sdk/client-s3": "^3.1026.0",
     // AWS SDK v3 presigner for generating pre-signed S3 requests
-    "@aws-sdk/s3-request-presigner": "^3.1025.0",
+    "@aws-sdk/s3-request-presigner": "^3.1026.0",
     // Modern Redux state management with simplified API
     "@reduxjs/toolkit": "^2.11.2",
     // AWS CloudWatch RUM for real user monitoring and visitor traffic tracking
@@ -82,9 +82,9 @@
     // React DOM TypeScript definitions (v19 for latest React features)
     "@types/react-dom": "^19",
     // TypeScript-specific ESLint rules and best practices
-    "@typescript-eslint/eslint-plugin": "8.58.0",
+    "@typescript-eslint/eslint-plugin": "8.58.1",
     // TypeScript parser for ESLint to understand TS syntax
-    "@typescript-eslint/parser": "8.58.0",
+    "@typescript-eslint/parser": "8.58.1",
     // JavaScript/TypeScript linting engine (v9 for latest rules)
     "eslint": "^9.39.4",
     // Load environment variables during local builds and scripts

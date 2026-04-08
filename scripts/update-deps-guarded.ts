@@ -332,6 +332,7 @@ function applyAllowedUpdates(plan: UpgradePlan): void {
 
 function installWithRetry(target: PackageTarget): void {
   const lockfilePath = path.join(target.cwd, "package-lock.json");
+  const nodeModulesPath = path.join(target.cwd, "node_modules");
   const installArgs = ["install", ...(target.installArgs ?? [])];
   const lockfileRefreshArgs = [
     "install",
@@ -355,9 +356,10 @@ function installWithRetry(target: PackageTarget): void {
   }
 
   console.info(
-    `[${target.label}] initial install failed, deleting package-lock.json and retrying once`,
+    `[${target.label}] initial install failed, deleting package-lock.json and node_modules before retrying once`,
   );
   fs.rmSync(lockfilePath, { force: true });
+  fs.rmSync(nodeModulesPath, { recursive: true, force: true });
   runCommand("npm", installArgs, target.cwd);
   console.info(`[${target.label}] refreshing package-lock.json`);
   runCommand("npm", lockfileRefreshArgs, target.cwd);
