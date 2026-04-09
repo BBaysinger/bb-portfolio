@@ -631,6 +631,7 @@ const CurriculumVitae: React.FC = () => {
                 <span>Stoli Vodka</span>
                 <span>Tanteo Tequila</span>
                 <span>UBS Financial Services</span>
+                <span>Washington State University</span>
                 <span>XM Radio</span>
                 <span>Lincoln Mercury</span>
                 <span>Dannon</span>
@@ -648,6 +649,7 @@ const CurriculumVitae: React.FC = () => {
                 <span>AbbVie Pharmaceuticals</span>
                 <span>Avalere Health</span>
                 <span>Exact Sciences</span>
+                <span>Cologuard</span>
                 <span>Comics Kingdom</span>
               </p>
             </div>
