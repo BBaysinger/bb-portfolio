@@ -1,0 +1,57 @@
+.body {
+  min-height: 100%;
+}
+
+.iosProdLikeNote {
+  position: fixed;
+  right: 0.9rem;
+  bottom: max(0.9rem, calc(env(safe-area-inset-bottom) + 0.6rem));
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  max-width: min(32rem, calc(100vw - 1.8rem));
+  padding: 0.8rem 0.95rem;
+  border: 1px solid rgba(255, 214, 102, 0.34);
+  border-radius: 0.9rem;
+  background: rgba(12, 12, 14, 0.92);
+  box-shadow: 0 0.9rem 2rem rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(12px);
+}
+
+.iosProdLikeNoteText {
+  margin: 0;
+  color: rgba(255, 248, 228, 0.96);
+  font-size: 0.84rem;
+  line-height: 1.35;
+}
+
+.iosProdLikeNoteDismiss {
+  flex: 0 0 auto;
+  padding: 0.45rem 0.7rem;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 214, 102, 0.18);
+  color: #ffe7a3;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.iosProdLikeNoteDismiss:focus-visible {
+  outline: 2px solid rgba(255, 214, 102, 0.9);
+  outline-offset: 2px;
+}
+
+@media (max-width: 640px) {
+  .iosProdLikeNote {
+    left: 0.9rem;
+    right: 0.9rem;
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .iosProdLikeNoteDismiss {
+    align-self: flex-end;
+  }
+}
