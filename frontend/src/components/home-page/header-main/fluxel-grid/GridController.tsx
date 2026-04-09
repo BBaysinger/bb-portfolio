@@ -328,6 +328,10 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
           "--responsive-scaler-height",
           `${height}px`,
         );
+
+        // Keep the child renderers in sync even when ResizeObserver delivery is
+        // delayed or skipped by the browser during initial page settle.
+        refreshLayoutMetrics();
       };
 
       const schedule = () => {
@@ -347,7 +351,7 @@ const GridController = forwardRef<GridControllerHandle, GridControllerProps>(
         window.clearTimeout(t);
         if (rafId !== null) cancelAnimationFrame(rafId);
       };
-    }, []);
+    }, [refreshLayoutMetrics]);
 
     const [gridData, setGridData] = useState<FluxelData[][]>(() =>
       Array.from({ length: rows }, (_, row) =>

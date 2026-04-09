@@ -38,6 +38,16 @@ export type HeightOnlyResizePolicy =
 export interface UseStableViewportHeightOptions {
   widthChangeThresholdPx?: number;
   heightOnlyResizePolicy?: HeightOnlyResizePolicy;
+  guardTopOverscrollShrink?: boolean;
+  topScrollGuardPx?: number;
+}
+
+const DEFAULT_TOP_SCROLL_GUARD_PX = 2;
+
+function isUsableViewportHeight(
+  height: number | null | undefined,
+): height is number {
+  return typeof height === "number" && Number.isFinite(height) && height > 0;
 }
 
 function getInteractionCapabilities() {
@@ -68,12 +78,19 @@ function getIsFullscreen() {
 export function useStableViewportHeight(
   options: UseStableViewportHeightOptions = {},
 ) {
-  const { widthChangeThresholdPx = 60, heightOnlyResizePolicy = "never" } =
-    options;
+  const {
+    widthChangeThresholdPx = 60,
+    heightOnlyResizePolicy = "never",
+    guardTopOverscrollShrink = true,
+    topScrollGuardPx = DEFAULT_TOP_SCROLL_GUARD_PX,
+  } = options;
 
-  const [stableHeightPx, setStableHeightPx] = useState<number | null>(null);
+  const [stableHeightPx, setStableHeightPx] = useState<number | null>(() => {
+    const initialHeight = getViewportHeightPx();
+    return isUsableViewportHeight(initialHeight) ? initialHeight : null;
+  });
   const lastWidthRef = useRef<number | null>(null);
-  const lastHeightRef = useRef<number | null>(null);
+  const lastHeightRef = useRef<number | null>(stableHeightPx);
   const resizeSettleTimeoutRef = useRef<number | null>(null);
   const resizeRafRef = useRef<number | null>(null);
 
@@ -83,12 +100,39 @@ export function useStableViewportHeight(
     return Math.abs(width - lastWidth);
   }, []);
 
-  const applyStableHeightPx = useCallback((height: number) => {
-    if (height <= 0) return;
+  const shouldGuardTopOverscrollShrink = useCallback(
+    (height: number) => {
+      if (!guardTopOverscrollShrink || !isUsableViewportHeight(height))
+        return false;
 
-    lastHeightRef.current = height;
-    setStableHeightPx((prev) => (prev === height ? prev : height));
-  }, []);
+      const previousHeight = lastHeightRef.current;
+      if (!isUsableViewportHeight(previousHeight) || height >= previousHeight) {
+        return false;
+      }
+      if (getIsFullscreen()) return false;
+
+      const { hasCoarsePointer } = getInteractionCapabilities();
+      if (!hasCoarsePointer) return false;
+
+      return window.scrollY <= topScrollGuardPx;
+    },
+    [guardTopOverscrollShrink, topScrollGuardPx],
+  );
+
+  const applyStableHeightPx = useCallback(
+    (height: number) => {
+      if (
+        !isUsableViewportHeight(height) ||
+        shouldGuardTopOverscrollShrink(height)
+      ) {
+        return;
+      }
+
+      lastHeightRef.current = height;
+      setStableHeightPx((prev) => (prev === height ? prev : height));
+    },
+    [shouldGuardTopOverscrollShrink],
+  );
 
   const measureStableHeightPx = useCallback(() => {
     applyStableHeightPx(getViewportHeightPx());
@@ -273,7 +317,10 @@ export function useStableViewportHeight(
 
   useEffect(() => {
     lastWidthRef.current = window.innerWidth;
-    lastHeightRef.current = getViewportHeightPx();
+    if (!isUsableViewportHeight(lastHeightRef.current)) {
+      lastHeightRef.current = null;
+      scheduleTrailingMeasure();
+    }
 
     return () => {
       if (resizeSettleTimeoutRef.current !== null) {
@@ -283,7 +330,7 @@ export function useStableViewportHeight(
         window.cancelAnimationFrame(resizeRafRef.current);
       }
     };
-  }, []);
+  }, [scheduleTrailingMeasure]);
 
   const onViewportSettle = useCallback(() => {
     lastWidthRef.current = window.innerWidth;
