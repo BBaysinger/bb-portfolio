@@ -7,6 +7,13 @@ import { replaceWithReplaceState } from "@/utils/navigation";
 
 const HASH_SCROLL_RETRY_DELAYS_MS = [0, 80, 200] as const;
 const HASH_CLEANUP_DELAY_MS = 900;
+const HASH_SCROLL_RUN_TTL_MS = Math.max(...HASH_SCROLL_RETRY_DELAYS_MS) + 120;
+
+type ActiveHashScrollRun = {
+  signature: string | null;
+  didStartScroll: boolean;
+  releaseTimeoutId: number | null;
+};
 
 function resolveHashTarget(hash: string): HTMLElement | null {
   const raw = hash.replace(/^#/, "");
@@ -42,6 +49,30 @@ const ScrollToHash = () => {
   const searchParams = useSearchParams();
   const cleanupTimeoutRef = useRef<number | null>(null);
   const scrollAttemptTimeoutsRef = useRef<number[]>([]);
+  const activeRunRef = useRef<ActiveHashScrollRun>({
+    signature: null,
+    didStartScroll: false,
+    releaseTimeoutId: null,
+  });
+
+  const clearScrollAttemptTimers = useCallback(() => {
+    scrollAttemptTimeoutsRef.current.forEach((timeoutId) => {
+      clearTimeout(timeoutId);
+    });
+    scrollAttemptTimeoutsRef.current = [];
+  }, []);
+
+  const clearActiveRun = useCallback(() => {
+    if (activeRunRef.current.releaseTimeoutId !== null) {
+      clearTimeout(activeRunRef.current.releaseTimeoutId);
+    }
+
+    activeRunRef.current = {
+      signature: null,
+      didStartScroll: false,
+      releaseTimeoutId: null,
+    };
+  }, []);
 
   const clearPendingTimers = useCallback(() => {
     if (cleanupTimeoutRef.current !== null) {
@@ -49,11 +80,9 @@ const ScrollToHash = () => {
       cleanupTimeoutRef.current = null;
     }
 
-    scrollAttemptTimeoutsRef.current.forEach((timeoutId) => {
-      clearTimeout(timeoutId);
-    });
-    scrollAttemptTimeoutsRef.current = [];
-  }, []);
+    clearScrollAttemptTimers();
+    clearActiveRun();
+  }, [clearActiveRun, clearScrollAttemptTimers]);
 
   const scheduleHashCleanup = useCallback((hash: string) => {
     if (!hash) return;
@@ -86,15 +115,38 @@ const ScrollToHash = () => {
       return;
     }
 
+    const signature = `${window.location.pathname}${window.location.search}${hash}`;
+    if (activeRunRef.current.signature === signature) {
+      return;
+    }
+
     clearPendingTimers();
+
+    activeRunRef.current = {
+      signature,
+      didStartScroll: false,
+      releaseTimeoutId: window.setTimeout(() => {
+        if (
+          activeRunRef.current.signature === signature &&
+          !activeRunRef.current.didStartScroll
+        ) {
+          clearActiveRun();
+        }
+      }, HASH_SCROLL_RUN_TTL_MS),
+    };
 
     HASH_SCROLL_RETRY_DELAYS_MS.forEach((delayMs) => {
       const timeoutId = window.setTimeout(() => {
         window.requestAnimationFrame(() => {
           if (window.location.hash !== hash) return;
+          if (activeRunRef.current.signature !== signature) return;
 
           const element = resolveHashTarget(hash);
           if (!element) return;
+          if (activeRunRef.current.didStartScroll) return;
+
+          activeRunRef.current.didStartScroll = true;
+          clearScrollAttemptTimers();
 
           const top = Math.max(
             0,
@@ -113,7 +165,12 @@ const ScrollToHash = () => {
 
       scrollAttemptTimeoutsRef.current.push(timeoutId);
     });
-  }, [clearPendingTimers, scheduleHashCleanup]);
+  }, [
+    clearActiveRun,
+    clearPendingTimers,
+    clearScrollAttemptTimers,
+    scheduleHashCleanup,
+  ]);
 
   useEffect(() => {
     handleHashNavigation();
