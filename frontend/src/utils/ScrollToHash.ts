@@ -15,6 +15,16 @@ type ActiveHashScrollRun = {
   releaseTimeoutId: number | null;
 };
 
+function getElementScrollMarginTop(element: HTMLElement): number {
+  try {
+    const scrollMarginTop = window.getComputedStyle(element).scrollMarginTop;
+    const parsed = Number.parseFloat(scrollMarginTop);
+    return Number.isFinite(parsed) ? parsed : 0;
+  } catch {
+    return 0;
+  }
+}
+
 function resolveHashTarget(hash: string): HTMLElement | null {
   const raw = hash.replace(/^#/, "");
   if (!raw || raw.includes("=")) return null;
@@ -148,9 +158,15 @@ const ScrollToHash = () => {
           activeRunRef.current.didStartScroll = true;
           clearScrollAttemptTimers();
 
+          const scrollMarginTop = getElementScrollMarginTop(element);
+
           const top = Math.max(
             0,
-            Math.round(element.getBoundingClientRect().top + window.scrollY),
+            Math.round(
+              element.getBoundingClientRect().top +
+                window.scrollY -
+                scrollMarginTop,
+            ),
           );
 
           try {
