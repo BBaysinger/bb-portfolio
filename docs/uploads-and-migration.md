@@ -24,7 +24,7 @@ Examples (zsh):
 
 ```zsh
 # Using a profile stored in ~/.aws/credentials
-npm run migrate:media:dev -- --profile myprofile --region us-west-2
+npm run media:upload -- --env dev --profile myprofile --region us-west-2
 
 # Verifying with a profile
 npm run media:verify -- --env both --profile myprofile --region us-west-2
@@ -33,12 +33,12 @@ npm run media:verify -- --env both --profile myprofile --region us-west-2
 export AWS_ACCESS_KEY_ID=AKIA...
 export AWS_SECRET_ACCESS_KEY=...
 export AWS_REGION=us-west-2
-npm run migrate:media:dev -- --region "$AWS_REGION"
+npm run media:upload -- --env dev --region "$AWS_REGION"
 ```
 
 Note on older scripts: previously some package scripts inlined environment variables like `AWS_ACCOUNT_ID=...` or `COMPOSE_PROFILES=local-ssg`. Those are no longer required for media uploads. Use the flags above to direct the scripts and keep credentials in your standard AWS CLI locations.
 
-Note on `:dry` scripts: `migrate:all:<env>:dry` and `migrate:media:<env>:dry` now run uploads in AWS CLI `--dryrun` mode (no writes). They may still fail if your AWS principal lacks permission to list the bucket.
+Note on `:dry` scripts: `migrate:all:<env>:dry` and `media:upload:<env>:dry` now run uploads in AWS CLI `--dryrun` mode (no writes). They may still fail if your AWS principal lacks permission to list the bucket.
 
 ### Local folder conventions and fresh clones
 
@@ -64,9 +64,9 @@ Most of the time you want one of these flows:
 - **First-time S3 setup for an environment (dev/prod)**
   - Provision the bucket(s) via Terraform (see “S3 with Terraform”).
   - Upload the current local `backend/media/*` contents into the target bucket:
-    - `npm run migrate:media:dev` (alias: `npm run media:upload:dev`)
-    - `npm run migrate:media:prod` (alias: `npm run media:upload:prod`)
-    - Dry run (no writes): `npm run migrate:media:dev:dry` / `npm run migrate:media:prod:dry`
+    - `npm run media:upload -- --env dev`
+    - `npm run media:upload -- --env prod`
+    - Dry run (no writes): `npm run media:upload -- --env dev --dry-run` / `npm run media:upload -- --env prod --dry-run`
   - Verify S3 contains what you expect:
     - `npm run media:verify -- --env dev` (or `--env prod`, `--env both`)
 

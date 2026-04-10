@@ -77,7 +77,7 @@ Pick one:
   - [ ] Open the site at `http://localhost:8080`
   - [ ] Open the admin UI at `http://localhost:8080/admin`
 - [ ] Bare metal (no Docker):
-  - [ ] `npm run dev`
+  - [ ] `npm run local`
   - [ ] Frontend: `http://localhost:3000`
   - [ ] Backend admin: `http://localhost:3001/admin`
 

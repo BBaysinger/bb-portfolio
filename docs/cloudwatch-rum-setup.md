@@ -94,9 +94,7 @@ The next deployment will automatically include RUM tracking:
 
 ```bash
 # Redeploy to pick up the new environment variables
-npm run deploy:prod
-# or
-npm run deploy:dev
+npm run deploy
 ```
 
 ## How It Works

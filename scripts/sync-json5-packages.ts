@@ -10,6 +10,7 @@ import ignore from "ignore";
  * Synchronizes package.json5 files with their canonical package.json counterparts.
  *
  * Source of truth: package.json (parsed as strict JSON).
+ * Key ordering follows package.json exactly, including script ordering.
  * Output: package.json5 rewritten with stable formatting and with *some* `//` comments
  * preserved/migrated onto the corresponding keys/items.
  *
@@ -23,6 +24,7 @@ import ignore from "ignore";
  * - Nested objects/arrays via simple brace/bracket tracking
  * - Arrays: preserves comments for string-literal items when each item is on its own line
  * - Always emits trailing commas for cleaner diffs
+ * - Preserves object key order from package.json rather than re-sorting keys
  *
  * Limitations (by design / current implementation):
  * - Only line comments (`//`) are recognized. Block comments (`/* ... *\/`) are ignored.

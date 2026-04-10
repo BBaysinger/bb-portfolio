@@ -288,12 +288,12 @@ if [[ -n "$build_images" ]]; then
   log "Rebuilding container images: $build_images"
   if [[ "$build_images" == "prod" || "$build_images" == "both" ]]; then
     log "Building & pushing production images to ECR"
-    npm run ecr:build-push
+    npm run ecr:build:push
     ok "Pushed prod images"
   fi
   if [[ "$build_images" == "dev" || "$build_images" == "both" ]]; then
     log "Building & pushing development images to Docker Hub"
-    npm run docker:build-push
+    npm run docker:build:push
     ok "Pushed dev images"
   fi
 fi

@@ -23,8 +23,8 @@
     "build": "cross-env NODE_OPTIONS=\"--no-deprecation --max-old-space-size=8000\" npm run generate:importmap && next build --webpack",
     // Start development server with deprecation warnings suppressed
     "dev": "cross-env NODE_OPTIONS=--no-deprecation npm run generate:importmap && next dev -p ${PORT:-3000}",
-    // Clean Next.js cache and run dev server (useful when build cache is corrupted)
-    "devsafe": "rm -rf .next && cross-env NODE_OPTIONS=--no-deprecation next dev",
+    //
+    "dev:clean": "rm -rf .next && cross-env NODE_OPTIONS=--no-deprecation next dev",
     // Generates Payload importmap file (used when importing from plugins or dynamic code)
     "generate:importmap": "cross-env NODE_OPTIONS=--no-deprecation payload generate:importmap",
     // Generates TypeScript types from Payload collections and globals

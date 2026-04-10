@@ -71,10 +71,10 @@ pushd "$REPO_ROOT" >/dev/null
 
 # Optional local builds (current pattern)
 if [[ "$build" == "prod" || "$build" == "both" ]]; then
-  npm run ecr:build-push
+  npm run ecr:build:push
 fi
 if [[ "$build" == "dev" || "$build" == "both" ]]; then
-  npm run docker:build-push
+  npm run docker:build:push
 fi
 
 restart_containers=true

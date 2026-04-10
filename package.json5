@@ -22,14 +22,16 @@
   // Optional: Enable npm workspaces by uncommenting the line below
   // "workspaces": ["frontend", "backend"],
   "scripts": {
-    // Shortcut to start backend and frontend locally (bare metal, no Docker)
-    "dev": "npm run bareMetalDev:all",
-    // Start only the backend locally (bare metal)
-    "dev:backend": "npm run bareMetalDev:backend",
-    // Start only the frontend locally (bare metal)
-    "dev:frontend": "npm run bareMetalDev:frontend",
-    // 🚀 Experimental build using Turbopack for faster frontend builds
-    "turbopack": "cd frontend && NEXT_TELEMETRY_DISABLED=1 npx next build --turbopack",
+    //
+    "local": "npm run local:all",
+    //
+    "local:all": "concurrently \"npm run local:backend\" \"npm run local:frontend\" --names \"backend,frontend\" --prefix-colors \"blue,green\"",
+    //
+    "local:backend": "cd backend && npm run dev",
+    //
+    "local:frontend": "cd frontend && npm run dev",
+    //
+    "local:tabs": "osascript -e 'tell application \"Terminal\" to do script \"cd \\\"$(pwd)/backend\\\" && npm run dev\"' && osascript -e 'tell application \"Terminal\" to do script \"cd \\\"$(pwd)/frontend\\\" && npm run dev\"'",
     // =============================================================================
     // 🚀 DEVELOPMENT MODES OVERVIEW (for junior developers)
     // =============================================================================
@@ -51,34 +53,44 @@
     "build:frontend": "cd frontend && npm run build",
     // 🧰 Force a plain Webpack build to reproduce issues that only happen outside Turbopack.
     "build:frontend:webpack": "cd frontend && npm run build:webpack",
+    // 🚀 Experimental build using Turbopack for faster frontend builds
+    "turbopack": "cd frontend && NEXT_TELEMETRY_DISABLED=1 npx next build --turbopack",
     // =============================================================================
     // 🐳 DOCKER DEVELOPMENT (Containerized - consistent across machines)
     // =============================================================================
     // 🐳 Build both frontend and backend Docker images using docker-compose local profile
     // Uses the local profile which includes development-optimized builds with hot reload
     "docker:build": "docker compose -f deploy/compose/docker-compose.yml --profile local build",
-    // ⚡ DEVELOPMENT MODE (SSR): Start containers with hot reload for fast development
-    // Frontend: http://localhost:8080, Backend: http://localhost:8081
-    // Uses 'npm run dev' with volume mounts - pages render on-demand with fresh data from backend
-    "docker:up": "docker compose -f deploy/compose/docker-compose.yml --profile local up --build",
-    // ▶️ Same as docker:up but runs in background (doesn't block your terminal)
-    // Use this if you want to continue using your terminal while containers run
-    "docker:up:detached": "docker compose -f deploy/compose/docker-compose.yml --profile local up --build -d",
-    // 🩺 Quick smoke test: verify the local backend admin login route responds
-    "docker:smoke:admin": "cd backend && ADMIN_SMOKE_URL=http://localhost:8081/admin/login/ node scripts/smoke-admin-login.mjs",
-    // ⚡ Same as docker:up but with React Strict Mode disabled
-    // Useful when React's strict mode causes issues with third-party components
-    "docker:up:no-strict": "REACT_STRICT_MODE=false docker compose -f deploy/compose/docker-compose.yml --profile local up --build",
-    // ▶️ Same as docker:up:no-strict but runs in background (detached mode)
-    "docker:up:no-strict:detached": "REACT_STRICT_MODE=false docker compose -f deploy/compose/docker-compose.yml --profile local up --build -d",
+    // 🐳 Build backend Docker image for Docker Hub (dev tag)
+    // NOTE: Builds the production runtime stage with ENV_PROFILE=dev (no hot reload)
+    // This ensures EC2 dev behaves like prod, just with dev config.
+    "docker:build:backend": "bash deploy/scripts/docker-build-backend-dev-image.sh",
+    // 🐳 Build frontend Docker image for Docker Hub (dev tag)
+    // NOTE: Builds the production runner stage with ENV_PROFILE=dev (no hot reload)
+    // Dev internal URL points to the dev compose service name for server-to-server calls.
+    "docker:build:frontend": "bash deploy/scripts/docker-build-frontend-dev-image.sh",
+    //
+    "docker:build:push": "bash deploy/scripts/publish-dockerhub-dev-images.sh",
     // 🛑 Stop and remove all local development containers
     // Cleans up containers, networks, and anonymous volumes created by docker:up
     "docker:down": "docker compose -f deploy/compose/docker-compose.yml --profile local down",
     // 📋 Follow logs from both frontend and backend containers in real-time
     // Useful when running in detached mode to see what's happening
     "docker:logs": "docker compose -f deploy/compose/docker-compose.yml --profile local logs -f",
+    // 🧽 Run Docker cleanup + prune tasks to prevent stale containers, volumes, and caches.
+    "docker:maintenance": "zsh deploy/scripts/docker-maintenance.sh",
+    // 🚀 Push backend Docker image to Docker Hub (dev tag)
+    "docker:push:backend": "docker push bhbaysinger/bb-portfolio-backend:dev",
+    // 🚀 Push frontend Docker image to Docker Hub (dev tag)
+    "docker:push:frontend": "docker push bhbaysinger/bb-portfolio-frontend:dev",
+    // 🩺 Quick smoke test: verify the local backend admin login route responds
+    "docker:smoke:admin": "cd backend && ADMIN_SMOKE_URL=http://localhost:8081/admin/login/ node scripts/smoke-admin-login.mjs",
     // 🏗️ BUILD MODE: Build static site generation containers (local-ssg profile)
     "docker:ssg:build": "docker compose -f deploy/compose/docker-compose.yml --profile local-ssg build",
+    // 🛑 Stop and remove static site generation containers (local-ssg profile)
+    "docker:ssg:down": "docker compose -f deploy/compose/docker-compose.yml --profile local-ssg down",
+    // 📋 Follow logs from static site generation containers in real-time (local-ssg profile)
+    "docker:ssg:logs": "docker compose -f deploy/compose/docker-compose.yml --profile local-ssg logs -f",
     // 🏗️ PRODUCTION MODE (SSG): Pre-builds all pages with data baked-in at build time
     // Frontend: Static HTML files generated, Backend: Hot reload for development
     // Slower startup but faster page loads - tests how production will behave
@@ -89,27 +101,43 @@
     "docker:ssg:up:no-strict": "REACT_STRICT_MODE=false docker compose -f deploy/compose/docker-compose.yml --profile local-ssg up --build",
     // 🏗️ Same as docker:ssg:up:no-strict but runs in background (detached mode)
     "docker:ssg:up:no-strict:detached": "REACT_STRICT_MODE=false docker compose -f deploy/compose/docker-compose.yml --profile local-ssg up --build -d",
-    // 🛑 Stop and remove static site generation containers (local-ssg profile)
-    "docker:ssg:down": "docker compose -f deploy/compose/docker-compose.yml --profile local-ssg down",
-    // 📋 Follow logs from static site generation containers in real-time (local-ssg profile)
-    "docker:ssg:logs": "docker compose -f deploy/compose/docker-compose.yml --profile local-ssg logs -f",
-    // 🐳 Build backend Docker image for Docker Hub (dev tag)
-    // NOTE: Builds the production runtime stage with ENV_PROFILE=dev (no hot reload)
-    // This ensures EC2 dev behaves like prod, just with dev config.
-    "docker:build:backend": "bash deploy/scripts/docker-build-backend-dev-image.sh",
-    // 🐳 Build frontend Docker image for Docker Hub (dev tag)
-    // NOTE: Builds the production runner stage with ENV_PROFILE=dev (no hot reload)
-    // Dev internal URL points to the dev compose service name for server-to-server calls.
-    "docker:build:frontend": "bash deploy/scripts/docker-build-frontend-dev-image.sh",
-    // 🚀 Push backend Docker image to Docker Hub (dev tag)
-    "docker:push:backend": "docker push bhbaysinger/bb-portfolio-backend:dev",
-    // 🚀 Push frontend Docker image to Docker Hub (dev tag)
-    "docker:push:frontend": "docker push bhbaysinger/bb-portfolio-frontend:dev",
-    // 🚀 Build and push both backend and frontend images to Docker Hub (dev tag).
-    "docker:build-push": "bash deploy/scripts/publish-dockerhub-dev-images.sh",
-    // 🚀 Build and push production images to AWS ECR (:latest for frontend/backend)
-    // Uses scripts/publish-ecr-images.sh which reads build-time secrets from infra/terraform.tfvars
-    "ecr:build-push": "bash deploy/scripts/publish-ecr-images.sh",
+    // ⚡ DEVELOPMENT MODE (SSR): Start containers with hot reload for fast development
+    // Frontend: http://localhost:8080, Backend: http://localhost:8081
+    // Uses 'npm run dev' with volume mounts - pages render on-demand with fresh data from backend
+    "docker:up": "docker compose -f deploy/compose/docker-compose.yml --profile local up --build",
+    // ▶️ Same as docker:up but runs in background (doesn't block your terminal)
+    // Use this if you want to continue using your terminal while containers run
+    "docker:up:detached": "docker compose -f deploy/compose/docker-compose.yml --profile local up --build -d",
+    // ⚡ Same as docker:up but with React Strict Mode disabled
+    // Useful when React's strict mode causes issues with third-party components
+    "docker:up:no-strict": "REACT_STRICT_MODE=false docker compose -f deploy/compose/docker-compose.yml --profile local up --build",
+    // ▶️ Same as docker:up:no-strict but runs in background (detached mode)
+    "docker:up:no-strict:detached": "REACT_STRICT_MODE=false docker compose -f deploy/compose/docker-compose.yml --profile local up --build -d",
+    // 🔁 One-shot: validate then reload Caddy if validation succeeds.
+    "caddy:config:apply": "npm run caddy:config:validate && npm run caddy:config:reload",
+    // 🚀 Apply the validated configuration with zero downtime via admin API.
+    // Again, this only affects proxy config. It won’t refresh JS bundles.
+    "caddy:config:reload": "COMPOSE_PROFILES=local,proxy docker compose -f deploy/compose/docker-compose.yml exec -T caddy-local caddy reload --config /etc/caddy/Caddyfile --adapter caddyfile",
+    // ✅ Check only: validate Caddyfile syntax inside the running container (no changes applied).
+    // Safe to run before reload. Use when editing the Caddyfile and you want to verify it parses.
+    "caddy:config:validate": "COMPOSE_PROFILES=local,proxy docker compose -f deploy/compose/docker-compose.yml exec -T caddy-local caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile",
+    // 🛑 Stop Caddy (and its dependencies) cleanly
+    // Stop only Caddy via helper (no full reset)
+    "caddy:down": "zsh deploy/scripts/caddy-helper.sh down",
+    // 🧹 Force-remove a stale caddy container if it was created outside the current compose project
+    "caddy:down:force": "docker rm -f bb-portfolio-backend-local bb-portfolio-frontend-local bb-portfolio-caddy-local || true",
+    // 📋 Follow Caddy reverse proxy logs in real-time
+    // Tail Caddy logs via helper
+    "caddy:logs": "zsh deploy/scripts/caddy-helper.sh logs",
+    // ⚡ Reload Caddy configuration without restarting containers.
+    // Use this when you changed only the Caddyfile (routes/headers/upstreams). It does NOT rebuild frontend JS.
+    // For fresh JS or assets, rebuild/recreate the frontend container (e.g., `docker:up` or `caddy:up`) so Next.js serves the new build.
+    "caddy:reload": "docker exec bb-portfolio-caddy-local caddy reload --config /etc/caddy/Caddyfile",
+    // 📊 Check status of portfolio containers
+    "caddy:status": "docker ps --filter name=bb-portfolio- --format 'table {{.Names}}\\t{{.Status}}\\t{{.Ports}}'",
+    // 🔄 Restart Caddy in-place (recreate only the proxy)
+    // Restart Caddy via helper
+    "caddy:restart": "zsh deploy/scripts/caddy-helper.sh restart",
     // 🌐 PROXY MODE (SSR + URL consistency): Single port access like production
     // Access everything at http://localhost:8080 — this mirrors prod’s “no explicit backend port in the URL” behavior.
     // When you run with the proxy (npm run caddy:up), you get a single entrypoint at http://localhost:8080 and:
@@ -123,78 +151,25 @@
     // 🌐 Same as caddy:up but with React Strict Mode disabled
     // Same as caddy:up with React Strict Mode disabled
     "caddy:up:no-strict": "REACT_STRICT_MODE=false zsh deploy/scripts/caddy-helper.sh up",
-    // 🛑 Stop Caddy (and its dependencies) cleanly
-    // Stop only Caddy via helper (no full reset)
-    "caddy:down": "zsh deploy/scripts/caddy-helper.sh down",
-    // 🧹 Force-remove a stale caddy container if it was created outside the current compose project
-    "caddy:down:force": "docker rm -f bb-portfolio-backend-local bb-portfolio-frontend-local bb-portfolio-caddy-local || true",
-    // 📋 Follow Caddy reverse proxy logs in real-time
-    // Tail Caddy logs via helper
-    "caddy:logs": "zsh deploy/scripts/caddy-helper.sh logs",
-    // 🔄 Restart Caddy in-place (recreate only the proxy)
-    // Restart Caddy via helper
-    "caddy:restart": "zsh deploy/scripts/caddy-helper.sh restart",
-    // ⚡ Reload Caddy configuration without restarting containers.
-    // Use this when you changed only the Caddyfile (routes/headers/upstreams). It does NOT rebuild frontend JS.
-    // For fresh JS or assets, rebuild/recreate the frontend container (e.g., `docker:up` or `caddy:up`) so Next.js serves the new build.
-    "caddy:reload": "docker exec bb-portfolio-caddy-local caddy reload --config /etc/caddy/Caddyfile",
-    // ✅ Check only: validate Caddyfile syntax inside the running container (no changes applied).
-    // Safe to run before reload. Use when editing the Caddyfile and you want to verify it parses.
-    "caddy:config:validate": "COMPOSE_PROFILES=local,proxy docker compose -f deploy/compose/docker-compose.yml exec -T caddy-local caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile",
-    // 🚀 Apply the validated configuration with zero downtime via admin API.
-    // Again, this only affects proxy config. It won’t refresh JS bundles.
-    "caddy:config:reload": "COMPOSE_PROFILES=local,proxy docker compose -f deploy/compose/docker-compose.yml exec -T caddy-local caddy reload --config /etc/caddy/Caddyfile --adapter caddyfile",
-    // 🔁 One-shot: validate then reload Caddy if validation succeeds.
-    "caddy:config:apply": "npm run caddy:config:validate && npm run caddy:config:reload",
-    // ℹ️ To ensure JS is fresh:
-    //   - In dev SSR mode, the frontend dev server handles HMR; use `docker:up` or `caddy:up` to start it. No Caddy reload needed for code changes.
-    //   - For production-like builds, rebuild the frontend image (e.g., `docker:build:frontend`) and recreate the container via `caddy:restart` or `caddy:up`.
-    // 🔧 Frontend container helpers (local dev):
-    // Restart only the frontend dev container (use if HMR looks stuck)
-    "frontend:restart": "docker restart bb-portfolio-frontend-local",
-    // Purge .next inside the running frontend dev container (forces clean rebuild on next request)
-    "frontend:purge": "docker exec -t bb-portfolio-frontend-local sh -lc 'rm -rf .next && echo Purged .next'",
-    // Rebuild images for the SSG profile (frontend gets a fresh production-style build)
-    // Note: This rebuilds the profile’s images; to start them, run `docker:ssg:up` or `docker:ssg:up:detached`.
-    "frontend:rebuild:ssg": "npm run docker:ssg:build",
-    // Start the frontend in detached production-like mode on port 3004 by default so Docker local can stay up.
-    "frontend:prod-like:up": "cd frontend && PORT=${PORT:-3004} npm run start:prod-like:local:detached",
     // Stop the detached production-like frontend instance for the selected port.
     "frontend:prod-like:down": "cd frontend && PORT=${PORT:-3004} sh ./scripts/stop-prod-like.sh",
     // Tail logs from the detached production-like frontend instance.
     "frontend:prod-like:logs": "cd frontend && tail -f ./.next/logs/prod-like-${PORT:-3004}.log",
     // Show whether the detached production-like frontend is running and where its logs live.
     "frontend:prod-like:status": "cd frontend && PORT=${PORT:-3004} sh ./scripts/status-prod-like.sh",
-    // 📊 Check status of portfolio containers
-    "caddy:status": "docker ps --filter name=bb-portfolio- --format 'table {{.Names}}\\t{{.Status}}\\t{{.Ports}}'",
-    // 🧽 Run Docker cleanup + prune tasks to prevent stale containers, volumes, and caches.
-    "docker:maintenance": "zsh deploy/scripts/docker-maintenance.sh",
-    // ℹ️ Note on routing through Caddy:
-    // - If your frontend uses relative paths like fetch('/api/...'), browser requests will always hit the proxy at 8080
-    //   (when using caddy:up) and be routed to the backend. This fully mirrors prod.
-    // - If any client code builds absolute URLs from NEXT_PUBLIC_BACKEND_URL (e.g., http://localhost:8081),
-    //   those requests will bypass the proxy and hit the backend directly. That still works, but it’s not “via Caddy”.
-    // - For perfect parity, prefer relative paths in the browser, or set NEXT_PUBLIC_BACKEND_URL=http://localhost:8080
-    //   when running with the proxy.
-    // =============================================================================
-    // 🖥️  BARE METAL DEVELOPMENT (No Docker - runs directly on your machine)
-    // =============================================================================
-    // 🏁 Shortcut: Run both frontend and backend locally (bare metal dev)
-    "bareMetalDev": "npm run bareMetalDev:all",
-    // 🎯 Run both frontend and backend in same terminal with colored output
-    // Uses concurrently to show logs from both services with blue/green prefixes
-    // Great for seeing everything at once, but logs can get mixed
-    "bareMetalDev:all": "concurrently \"npm run bareMetalDev:backend\" \"npm run bareMetalDev:frontend\" --names \"backend,frontend\" --prefix-colors \"blue,green\"",
-    // 📱 Run frontend and backend in separate macOS Terminal tabs
-    // Uses AppleScript to spawn new Terminal tabs for clean, separated logs
-    // Perfect for managing services independently (macOS only)
-    "bareMetalDev:tabs": "osascript -e 'tell application \"Terminal\" to do script \"cd \\\"$(pwd)/backend\\\" && npm run dev\"' && osascript -e 'tell application \"Terminal\" to do script \"cd \\\"$(pwd)/frontend\\\" && npm run dev\"'",
-    // ⚙️ Run only the backend service locally (Payload CMS + API)
-    // Connects to bb-portfolio-local MongoDB database via .env
-    "bareMetalDev:backend": "cd backend && npm run dev",
-    // 🎨 Run only the frontend service locally (Next.js with hot reload)
-    // Serves the React frontend with automatic reloading on file changes
-    "bareMetalDev:frontend": "cd frontend && npm run dev",
+    // Start the frontend in detached production-like mode on port 3004 by default so Docker local can stay up.
+    "frontend:prod-like:up": "cd frontend && PORT=${PORT:-3004} npm run start:prod-like:local:detached",
+    // Purge .next inside the running frontend dev container (forces clean rebuild on next request)
+    "frontend:purge": "docker exec -t bb-portfolio-frontend-local sh -lc 'rm -rf .next && echo Purged .next'",
+    // Rebuild images for the SSG profile (frontend gets a fresh production-style build)
+    // Note: This rebuilds the profile’s images; to start them, run `docker:ssg:up` or `docker:ssg:up:detached`.
+    "frontend:rebuild:ssg": "npm run docker:ssg:build",
+    // ℹ️ To ensure JS is fresh:
+    //   - In dev SSR mode, the frontend dev server handles HMR; use `docker:up` or `caddy:up` to start it. No Caddy reload needed for code changes.
+    //   - For production-like builds, rebuild the frontend image (e.g., `docker:build:frontend`) and recreate the container via `caddy:restart` or `caddy:up`.
+    // 🔧 Frontend container helpers (local dev):
+    // Restart only the frontend dev container (use if HMR looks stuck)
+    "frontend:restart": "docker restart bb-portfolio-frontend-local",
     // 💅 Format all files with Prettier
     // Ensures consistent code style across the entire monorepo
     "format": "prettier --write .",
@@ -212,18 +187,22 @@
     // 🔒 Runs `npm audit fix` across root, backend, and frontend
     // NOTE: This may update package-lock.json files; review changes after running.
     "audit:fix:all": "concurrently \"npm audit fix\" \"cd backend && npm audit fix\" \"cd frontend && npm audit fix\" --names \"root,backend,frontend\" --prefix-colors \"yellow,blue,green\"",
-    // 🔄 Syncs package.json5 with package.json values while preserving comments and formatting
-    // Run this after editing package.json to push updates back into the annotated JSON5 version
-    "sync:packages": "tsx scripts/sync-json5-packages.ts",
     // 🧩 Optional: Merge env-specific secret fragments into a single JSON5.
     // Not required for sync:secrets — the sync script reads per-env manifests directly.
     "secrets:bundle": "tsx scripts/merge-github-secrets.ts",
+    // 🔐 Populate local GitHub secrets JSON5 files from Terraform outputs + AWS profile creds.
+    "secrets:update-from-terraform": "tsx scripts/update-github-secrets-from-terraform.ts",
+    // 🔄 Syncs package.json5 with package.json values while preserving comments and formatting
+    // Run this after editing package.json to push updates back into the annotated JSON5 version
+    "sync:packages": "tsx scripts/sync-json5-packages.ts",
     // 📦 Sync GitHub secrets (repo + environments) from local JSON5 files.
     "sync:secrets": "tsx scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./.github-secrets.private.json5",
     // 🧪 Same as above but performs only a dry run.
     "sync:secrets:dry": "tsx scripts/sync-github-secrets.ts BBaysinger/bb-portfolio ./.github-secrets.private.json5 --dry-run",
-    // 🔐 Populate local GitHub secrets JSON5 files from Terraform outputs + AWS profile creds.
-    "secrets:update-from-terraform": "tsx scripts/update-github-secrets-from-terraform.ts",
+    // 🔽 Install dependencies in all packages after updating
+    // Run after update:deps to install the newly updated dependencies
+    // Handles root, backend, and frontend package installations simultaneously
+    "install:all": "concurrently \"npm install\" \"cd backend && npm install\" \"cd frontend && npm install\" --names \"root,backend,frontend\" --prefix-colors \"yellow,blue,green\"",
     // 📦 Guarded dependency update across root, backend, and frontend
     // Blocks known-bad major bumps (for example eslint@10 while current plugins only support eslint^9)
     // Runs npm install per package root and syncs package.json5 only if everything succeeds
@@ -234,36 +213,34 @@
     // ⚠️ Raw npm-check-updates pass with no guardrails
     // Use only when you intentionally want unrestricted major version bumps
     "update:deps:raw": "concurrently \"ncu -u\" \"cd backend && ncu -u\" \"cd frontend && ncu -u\" --names \"root,backend,frontend\" --prefix-colors \"yellow,blue,green\"",
-    // 🔽 Install dependencies in all packages after updating
-    // Run after update:deps to install the newly updated dependencies
-    // Handles root, backend, and frontend package installations simultaneously
-    "install:all": "concurrently \"npm install\" \"cd backend && npm install\" \"cd frontend && npm install\" --names \"root,backend,frontend\" --prefix-colors \"yellow,blue,green\"",
-    // 🪄 Generate the portfolio images from PSDs from *outside* of the repo. Run before media:seed.
-    "media:export": "bash scripts/export-media.sh",
-    // 🪄 Pull media assets from S3 using the script defaults
-    "media:pull": "tsx scripts/pull-media-from-s3.ts",
-    // 🪄 Pull production project brand logos from S3 into the local workspace
-    "media:pull:prod:project-brand-logos": "tsx scripts/pull-media-from-s3.ts --env prod --collection project-brand-logos",
-    // 🧪 Dry run: preview production project brand logo downloads without writing files
-    "media:pull:prod:project-brand-logos:dry": "tsx scripts/pull-media-from-s3.ts --env prod --collection project-brand-logos --dry-run",
-    // 🪄 Pull production CV experience logos from S3 into the local workspace
-    "media:pull:prod:cv-experience-logos": "tsx scripts/pull-media-from-s3.ts --env prod --collection cv-experience-logos",
-    // 🧪 Dry run: preview production CV experience logo downloads without writing files
-    "media:pull:prod:cv-experience-logos:dry": "tsx scripts/pull-media-from-s3.ts --env prod --collection cv-experience-logos --dry-run",
-    // 🪄 Export authored production project descriptions into ../cms-seedings/project-descriptions
-    "content:pull:prod:project-descriptions": "cd backend && USE_GITHUB_SECRETS=true npm run export:project-descriptions -- --env prod",
-    // 🧪 Dry run: show which production project descriptions would be exported
-    "content:pull:prod:project-descriptions:dry": "cd backend && USE_GITHUB_SECRETS=true npm run export:project-descriptions -- --env prod --dry-run",
-    // 🪄 Sync production CV logos, then export authored CV experience content into ../cms-seedings/cv-experiences
-    "content:pull:prod:cv-experiences": "npm run media:pull:prod:cv-experience-logos && cd backend && USE_GITHUB_SECRETS=true npm run export:cv-content -- --env prod",
-    // 🧪 Dry run: preview CV logo sync and CV content export without writing files
-    "content:pull:prod:cv-experiences:dry": "npm run media:pull:prod:cv-experience-logos:dry && cd backend && USE_GITHUB_SECRETS=true npm run export:cv-content -- --env prod --dry-run",
     // 🪄 Pull both authored production project descriptions and CV experience seedings in one run
     "content:pull:prod:all": "npm run content:pull:prod:project-descriptions && npm run content:pull:prod:cv-experiences",
     // 🧪 Dry run: preview all authored production content pulls
     "content:pull:prod:all:dry": "npm run content:pull:prod:project-descriptions:dry && npm run content:pull:prod:cv-experiences:dry",
+    // 🪄 Sync production CV logos, then export authored CV experience content into ../cms-seedings/cv-experiences
+    "content:pull:prod:cv-experiences": "npm run media:pull:prod:cv-experience-logos && cd backend && USE_GITHUB_SECRETS=true npm run export:cv-content -- --env prod",
+    // 🧪 Dry run: preview CV logo sync and CV content export without writing files
+    "content:pull:prod:cv-experiences:dry": "npm run media:pull:prod:cv-experience-logos:dry && cd backend && USE_GITHUB_SECRETS=true npm run export:cv-content -- --env prod --dry-run",
+    // 🪄 Export authored production project descriptions into ../cms-seedings/project-descriptions
+    "content:pull:prod:project-descriptions": "cd backend && USE_GITHUB_SECRETS=true npm run export:project-descriptions -- --env prod",
+    // 🧪 Dry run: show which production project descriptions would be exported
+    "content:pull:prod:project-descriptions:dry": "cd backend && USE_GITHUB_SECRETS=true npm run export:project-descriptions -- --env prod --dry-run",
+    // 🪄 Generate the portfolio images from PSDs from *outside* of the repo. Run before media:seed.
+    "media:export": "bash scripts/export-media.sh",
+    // 🪄 Pull media assets from S3 using the script defaults
+    "media:pull": "tsx scripts/pull-media-from-s3.ts",
+    // 🪄 Pull production CV experience logos from S3 into the local workspace
+    "media:pull:prod:cv-experience-logos": "tsx scripts/pull-media-from-s3.ts --env prod --collection cv-experience-logos",
+    // 🧪 Dry run: preview production CV experience logo downloads without writing files
+    "media:pull:prod:cv-experience-logos:dry": "tsx scripts/pull-media-from-s3.ts --env prod --collection cv-experience-logos --dry-run",
+    // 🪄 Pull production project brand logos from S3 into the local workspace
+    "media:pull:prod:project-brand-logos": "tsx scripts/pull-media-from-s3.ts --env prod --collection project-brand-logos",
+    // 🧪 Dry run: preview production project brand logo downloads without writing files
+    "media:pull:prod:project-brand-logos:dry": "tsx scripts/pull-media-from-s3.ts --env prod --collection project-brand-logos --dry-run",
     // 🪄 Import images from ../cms-seedings into backend/media/* for local dev
     "media:seed": "tsx scripts/import-media-from-seedings.ts",
+    //
+    "media:upload": "tsx scripts/upload-media-to-s3.ts",
     // 🪄 Upload media only to the development S3 bucket
     "media:upload:dev": "tsx scripts/upload-media-to-s3.ts --env dev",
     // 🧪 Dry run: show planned dev uploads (no S3 writes)
@@ -278,18 +255,6 @@
     "media:upload:both:dry": "tsx scripts/upload-media-to-s3.ts --env both --dry-run",
     // 🪄 Verify uploaded media files on S3 to ensure integrity
     "media:verify": "tsx scripts/verify-media-s3.ts",
-    // 📤 Upload local media files to S3 development environment
-    "migrate:media:dev": "tsx scripts/upload-media-to-s3.ts --env dev",
-    // 🧪 Dry run: show planned dev media upload (no S3 writes)
-    "migrate:media:dev:dry": "tsx scripts/upload-media-to-s3.ts --env dev --dry-run",
-    // 📤 Upload local media files to S3 production environment
-    "migrate:media:prod": "tsx scripts/upload-media-to-s3.ts --env prod",
-    // 🧪 Dry run: show planned prod media upload (no S3 writes)
-    "migrate:media:prod:dry": "tsx scripts/upload-media-to-s3.ts --env prod --dry-run",
-    // 📤 Upload local media files to both S3 environments (dev + prod)
-    "migrate:media:both": "tsx scripts/upload-media-to-s3.ts --env both",
-    // 🧪 Dry run: show planned dev+prod media upload (no S3 writes)
-    "migrate:media:both:dry": "tsx scripts/upload-media-to-s3.ts --env both --dry-run",
     // 🔗 PREVIEW: Update media URLs in development database to point to S3 (dry run)
     "migrate:media-urls:dev:dry": "cd backend && tsx scripts/ops/ops-db-migrate-media-urls-to-s3.ts --env dev --dry-run",
     // 🔗 Update media URLs in development database to point to S3
@@ -299,13 +264,15 @@
     // 🔗 Update media URLs in production database to point to S3
     "migrate:media-urls:prod": "cd backend && tsx scripts/ops/ops-db-migrate-media-urls-to-s3.ts --env prod",
     // 📦 PREVIEW: Complete media migration to development (upload + URL sync, dry run)
-    "migrate:all:dev:dry": "npm run migrate:media:dev:dry && npm run migrate:media-urls:dev:dry",
+    "migrate:all:dev:dry": "npm run media:upload:dev:dry && npm run migrate:media-urls:dev:dry",
     // 📦 Complete media migration to development environment (upload + URL sync)
-    "migrate:all:dev": "npm run migrate:media:dev && npm run migrate:media-urls:dev",
+    "migrate:all:dev": "npm run media:upload:dev && npm run migrate:media-urls:dev",
     // 📦 PREVIEW: Complete media migration to production (upload + URL sync, dry run)
-    "migrate:all:prod:dry": "npm run migrate:media:prod:dry && npm run migrate:media-urls:prod:dry",
+    "migrate:all:prod:dry": "npm run media:upload:prod:dry && npm run migrate:media-urls:prod:dry",
     // 📦 Complete media migration to production environment (upload + URL sync)
-    "migrate:all:prod": "npm run migrate:media:prod && npm run migrate:media-urls:prod",
+    "migrate:all:prod": "npm run media:upload:prod && npm run migrate:media-urls:prod",
+    //
+    "projects:upload": "tsx scripts/upload-projects-to-s3.ts",
     // 📁 Upload project files to public S3 bucket
     "projects:upload:public": "tsx scripts/upload-projects-to-s3.ts --env public",
     // 📁 Upload project files to NDA S3 bucket (requires authentication to access)
@@ -378,6 +345,8 @@
     // Rebuilds/pushes images (unless --no-build) then asks GH Actions to restart containers
     // Useful for application updates when infrastructure is stable
     "deploy:skip-infra": "bash deploy/scripts/deployment-runner.sh --profiles both --skip-infra --refresh-env",
+    //
+    "ecr:build:push": "bash deploy/scripts/publish-ecr-images.sh",
     // 🏗️ Infrastructure: Sync .env file with Terraform state (interactive)
     "infra:sync-env": "cd infra && bash sync-env-from-terraform.sh",
     // 🏗️ Infrastructure: Sync .env file with Terraform state (skip confirmation)
@@ -396,12 +365,12 @@
     "images:verify": "bash ./scripts/images-verify.sh",
     // Verify counts after logging into AWS/ECR (useful on fresh shells)
     "images:verify:login": "bash ./scripts/images-verify.sh --login --profile bb-portfolio-user --region us-west-2",
-    // 🔁 Sync dev and main branches (fast-forward only, always returns to dev)
-    "sync:branches": "bash ./scripts/sync-branches.sh",
     // ⚡ Fast repo search using ripgrep (pass pattern after `--`)
     "search:repo": "rg --line-number --hidden --follow --glob '!.git' --glob '!node_modules' --glob '!frontend/.next' --glob '!backend/.next'",
     // 📄 Quickly list files matching glob filters (shares ignore rules above)
     "search:files": "rg --files --hidden --follow --glob '!.git' --glob '!node_modules' --glob '!frontend/.next' --glob '!backend/.next'",
+    // 🔁 Sync dev and main branches (fast-forward only, always returns to dev)
+    "sync:branches": "bash ./scripts/sync-branches.sh",
   },
   // Development tooling for the monorepo root (formatting, linting, TS, runners)
   "devDependencies": {
