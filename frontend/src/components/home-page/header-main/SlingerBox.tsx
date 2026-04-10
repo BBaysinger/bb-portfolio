@@ -80,12 +80,10 @@ export interface SlingerBoxHandle {
 }
 
 /**
- * SlingerBox Component
+ * SlingerBox component
  *
- * Component containing draggable floating objects (slingers) with simple physics-based movement.
- * Can be thrown and implements a bouncing effect inside a container.
- * Tracks velocity and uses damping for realistic movement.
- * Eventually to be more gamified for fluxel grid and other projects.
+ * Renders draggable slingers inside a bounded container with sampled release
+ * velocity, wall reflection, and optional pointer attraction.
  *
  * @component
  * @param {SlingerBoxProps} props - Component props containing optional drag event handlers.
@@ -103,7 +101,6 @@ const SlingerBox = React.forwardRef<SlingerBoxHandle, SlingerBoxProps>(
     },
     ref,
   ) => {
-    // vars
     const radius = ballSize / 2;
     const idleSpeedThreshold = 0.75;
     const desiredFPS = 60;
@@ -117,20 +114,19 @@ const SlingerBox = React.forwardRef<SlingerBoxHandle, SlingerBoxProps>(
     const minimumBounceSpeed = 0.9;
     const postCollisionCooldownMs = 180;
     const gravityPauseAfterFirstCollisionMs = 450;
+    const postReleaseGravityDelayMs = 500;
     const minimumDragReleaseSpeed = 1.2;
     const maximumReleaseSpeed = 300;
-    const nonlinearDampingPerFrame = 0.75;
-    const nonlinearDampingRange = 18;
+    const highSpeedDampingFactor = 0.75;
+    const dampingEaseSpeedRange = 18;
     const stopSpeedThreshold = 0.006;
-    const ambientWanderSpeed = 0.45;
+    const freeFlightSpeedFloor = 0.45;
     const pointerSettleDamping = 0.76;
     const pointerSettleBlend = 0.35;
     const pointerSnapDistance = 1.5;
 
-    // state
     const [isReady, setIsReady] = React.useState(false);
 
-    // refs
     const animationFrameRef = useRef<number | null>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const lastActivityTimeRef = useRef<number>(0);
@@ -213,13 +209,14 @@ const SlingerBox = React.forwardRef<SlingerBoxHandle, SlingerBoxProps>(
               frameTime - obj.lastCollisionTime < postCollisionCooldownMs;
             let collidedThisFrame = false;
 
-            // Pointer gravity effect
+            // Pause pointer attraction briefly after release or collision so the
+            // slinger can escape the cursor before homing resumes.
             const gravityEnabled =
               pointerGravity > 0 &&
               pointerPosition.current &&
               !preCollisionCooldownActive &&
               frameTime >= obj.gravitySuppressedUntil &&
-              frameTime - lastDragEndTime.current > 500; // <-- skip gravity for 500ms
+              frameTime - lastDragEndTime.current > postReleaseGravityDelayMs;
 
             if (gravityEnabled && pointerPosition.current) {
               const gravityMinX = Math.min(maxX, minX + gravityWallInset);
@@ -288,7 +285,6 @@ const SlingerBox = React.forwardRef<SlingerBoxHandle, SlingerBoxProps>(
             x = nextX;
             y = nextY;
 
-            // Wall collision
             if (nextX <= minX && incomingVx < 0) {
               x = reflectOvershoot(nextX, minX, maxX);
               x = Math.max(x, minX + wallSeparationNudge);
@@ -365,21 +361,22 @@ const SlingerBox = React.forwardRef<SlingerBoxHandle, SlingerBoxProps>(
               collidedThisFrame ||
               frameTime - obj.lastCollisionTime < postCollisionCooldownMs;
 
-            // Damping
             if (!postCollisionCooldownActive) {
               const speed = Math.hypot(vx, vy);
 
               if (speed > 0) {
+                // Ease damping off as speed drops so ricochet tails linger
+                // instead of snapping to a stop.
                 const targetMinimumSpeed = gravityEnabled
                   ? 0
-                  : ambientWanderSpeed;
+                  : freeFlightSpeedFloor;
                 const dampingProgress = MiscUtils.smoothStep(
                   targetMinimumSpeed,
-                  targetMinimumSpeed + nonlinearDampingRange,
+                  targetMinimumSpeed + dampingEaseSpeedRange,
                   speed,
                 );
                 const effectiveDampingFactor =
-                  1 - (1 - nonlinearDampingPerFrame) * dampingProgress;
+                  1 - (1 - highSpeedDampingFactor) * dampingProgress;
                 const reducedSpeed = Math.max(
                   speed * effectiveDampingFactor,
                   targetMinimumSpeed,
@@ -439,6 +436,7 @@ const SlingerBox = React.forwardRef<SlingerBoxHandle, SlingerBoxProps>(
         gravityWallInset,
         onIdle,
         onWallCollision,
+        postReleaseGravityDelayMs,
         pointerGravity,
         radius,
       ],
@@ -792,7 +790,6 @@ const SlingerBox = React.forwardRef<SlingerBoxHandle, SlingerBoxProps>(
       };
     }, [endDrag, handleMove]);
 
-    // 👇 Add this line before the main return block
     if (!isReady) return null;
 
     return (
