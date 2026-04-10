@@ -109,7 +109,7 @@ const SlingerBox = React.forwardRef<SlingerBoxHandle, SlingerBoxProps>(
     const wallSeparationNudge = 1;
     const collisionRestitution = 0.88;
     const minimumBounceSpeed = 0.9;
-    const minimumWallCollisionNotifySpeed = 1.5;
+    const minimumWallCollisionNotifySpeed = 2.5;
     const postReleaseGravityDelayMs = 500;
     const minimumDragReleaseSpeed = 1.2;
     const maximumReleaseSpeed = 450;
@@ -117,6 +117,10 @@ const SlingerBox = React.forwardRef<SlingerBoxHandle, SlingerBoxProps>(
     const dampingEaseSpeedRange = 10;
     const stopSpeedThreshold = 0.02;
     const freeFlightSpeedFloor = 0.0;
+    const initialAmbientVelocityXMin = 0.28;
+    const initialAmbientVelocityXMax = 0.46;
+    const initialAmbientVelocityYMin = 0.32;
+    const initialAmbientVelocityYMax = 0.52;
     const pointerSettleDamping = 0.76;
     const pointerSettleBlend = 0.35;
     const pointerSnapDistance = 1.5;
@@ -413,17 +417,34 @@ const SlingerBox = React.forwardRef<SlingerBoxHandle, SlingerBoxProps>(
 
     useEffect(() => {
       if (objectsRef.current.length === 0) {
-        objectsRef.current = childArray.map((_, i) => ({
-          id: i,
-          x: 0.2 * window.innerWidth + i * 60,
-          y: 0.3 * window.innerHeight,
-          vx: 0.01 + Math.random() * 0.02,
-          vy: 0.01 + Math.random() * 0.02,
-          isDragging: false,
-        }));
+        objectsRef.current = childArray.map((_, i) => {
+          const initialVelocityX =
+            initialAmbientVelocityXMin +
+            Math.random() *
+              (initialAmbientVelocityXMax - initialAmbientVelocityXMin);
+          const initialVelocityY =
+            initialAmbientVelocityYMin +
+            Math.random() *
+              (initialAmbientVelocityYMax - initialAmbientVelocityYMin);
+
+          return {
+            id: i,
+            x: 0.2 * window.innerWidth + i * 60,
+            y: 0.3 * window.innerHeight,
+            vx: initialVelocityX,
+            vy: initialVelocityY,
+            isDragging: false,
+          };
+        });
         setIsReady(true);
       }
-    }, [childArray]);
+    }, [
+      childArray,
+      initialAmbientVelocityXMax,
+      initialAmbientVelocityXMin,
+      initialAmbientVelocityYMax,
+      initialAmbientVelocityYMin,
+    ]);
 
     useEffect(() => {
       if (!isReady) return;
