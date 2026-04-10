@@ -281,30 +281,6 @@
     "projects:upload:both": "tsx scripts/upload-projects-to-s3.ts --env both",
     // 📁 Verify uploaded project files on S3 to ensure integrity
     "projects:verify": "tsx scripts/verify-projects-s3.ts",
-    // 🔤 In-place rename in Local: portfolio-local → bb-portfolio-local (backup + restore, safe)
-    "db:rename:local:portfolio-to-bb": "bash scripts/migrate-database.sh local local --source-db portfolio-local --target-db bb-portfolio-local",
-    // 🧪 Dry run only: show the plan for renaming local DB from portfolio-local → bb-portfolio-local
-    "db:rename:local:portfolio-to-bb:dry": "bash scripts/migrate-database.sh local local --source-db portfolio-local --target-db bb-portfolio-local --dry-run",
-    // 🔤 In-place rename in Dev: portfolio-dev → bb-portfolio-dev (backup + restore, safe)
-    "db:rename:dev:portfolio-to-bb": "bash scripts/migrate-database.sh dev dev --source-db portfolio-dev --target-db bb-portfolio-dev",
-    // 🧪 Dry run only: show the plan for renaming dev DB from portfolio-dev → bb-portfolio-dev
-    "db:rename:dev:portfolio-to-bb:dry": "bash scripts/migrate-database.sh dev dev --source-db portfolio-dev --target-db bb-portfolio-dev --dry-run",
-    // 🔤 In-place rename in Prod: portfolio-prod → bb-portfolio-prod (backup + restore, safe but be cautious)
-    "db:rename:prod:portfolio-to-bb": "bash scripts/migrate-database.sh prod prod --source-db portfolio-prod --target-db bb-portfolio-prod",
-    // 🧪 Dry run only: show the plan for renaming prod DB from portfolio-prod → bb-portfolio-prod
-    "db:rename:prod:portfolio-to-bb:dry": "bash scripts/migrate-database.sh prod prod --source-db portfolio-prod --target-db bb-portfolio-prod --dry-run",
-    // 🗑️ Local cleanup: backup then drop the old portfolio-local database
-    "db:delete:local-portfolio:dry": "bash scripts/delete-database.sh --env local --db portfolio-local --dry-run",
-    // 🗑️ Local cleanup (apply): backup then drop portfolio-local
-    "db:delete:local-portfolio": "bash scripts/delete-database.sh --env local --db portfolio-local",
-    // 🗑️ Dev cleanup: backup then drop the old portfolio-dev database
-    "db:delete:dev-portfolio:dry": "bash scripts/delete-database.sh --env dev --db portfolio-dev --dry-run",
-    // 🗑️ Dev cleanup (apply): backup then drop portfolio-dev
-    "db:delete:dev-portfolio": "bash scripts/delete-database.sh --env dev --db portfolio-dev",
-    // 🗑️ Prod cleanup: backup then drop the old portfolio-prod database
-    "db:delete:prod-portfolio:dry": "bash scripts/delete-database.sh --env prod --db portfolio-prod --dry-run",
-    // 🗑️ Prod cleanup (apply): backup then drop portfolio-prod
-    "db:delete:prod-portfolio": "bash scripts/delete-database.sh --env prod --db portfolio-prod",
     // ☢️🔥 DANGER: Overwrites dev DB with local data
     "db:migrate:local-to-dev": "bash scripts/migrate-database.sh local dev",
     // ☢️⚰️ DANGER: Overwrites dev DB with production data
