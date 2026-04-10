@@ -36,6 +36,23 @@ const reflectOvershoot = (
   return position;
 };
 
+const clampVectorMagnitude = (
+  vx: number,
+  vy: number,
+  maxMagnitude: number,
+): { vx: number; vy: number } => {
+  const magnitude = Math.hypot(vx, vy);
+  if (magnitude <= maxMagnitude || magnitude === 0) {
+    return { vx, vy };
+  }
+
+  const scale = maxMagnitude / magnitude;
+  return {
+    vx: vx * scale,
+    vy: vy * scale,
+  };
+};
+
 type SlingerObject = {
   id: number;
   x: number;
@@ -101,6 +118,14 @@ const SlingerBox = React.forwardRef<SlingerBoxHandle, SlingerBoxProps>(
     const postCollisionCooldownMs = 180;
     const gravityPauseAfterFirstCollisionMs = 450;
     const minimumDragReleaseSpeed = 1.2;
+    const maximumReleaseSpeed = 300;
+    const nonlinearDampingPerFrame = 0.75;
+    const nonlinearDampingRange = 18;
+    const stopSpeedThreshold = 0.006;
+    const ambientWanderSpeed = 0.45;
+    const pointerSettleDamping = 0.76;
+    const pointerSettleBlend = 0.35;
+    const pointerSnapDistance = 1.5;
 
     // state
     const [isReady, setIsReady] = React.useState(false);
@@ -221,8 +246,18 @@ const SlingerBox = React.forwardRef<SlingerBoxHandle, SlingerBoxProps>(
               if (distance < gravityRange && distance > 1) {
                 const closeEnough = 8;
                 if (distance < closeEnough) {
-                  vx = 0;
-                  vy = 0;
+                  x += dx * pointerSettleBlend;
+                  y += dy * pointerSettleBlend;
+                  vx *= pointerSettleDamping;
+                  vy *= pointerSettleDamping;
+
+                  if (
+                    distance < pointerSnapDistance &&
+                    Math.hypot(vx, vy) < stopSpeedThreshold
+                  ) {
+                    vx = 0;
+                    vy = 0;
+                  }
                 } else {
                   const t = 1 - distance / gravityRange;
                   const gravityPull =
@@ -331,17 +366,39 @@ const SlingerBox = React.forwardRef<SlingerBoxHandle, SlingerBoxProps>(
               frameTime - obj.lastCollisionTime < postCollisionCooldownMs;
 
             // Damping
-            const dampingFactor = 0.98;
-            const minSpeed = 0.5;
             if (!postCollisionCooldownActive) {
-              vx =
-                Math.abs(vx) > minSpeed
-                  ? vx * dampingFactor
-                  : Math.sign(vx) * minSpeed;
-              vy =
-                Math.abs(vy) > minSpeed
-                  ? vy * dampingFactor
-                  : Math.sign(vy) * minSpeed;
+              const speed = Math.hypot(vx, vy);
+
+              if (speed > 0) {
+                const targetMinimumSpeed = gravityEnabled
+                  ? 0
+                  : ambientWanderSpeed;
+                const dampingProgress = MiscUtils.smoothStep(
+                  targetMinimumSpeed,
+                  targetMinimumSpeed + nonlinearDampingRange,
+                  speed,
+                );
+                const effectiveDampingFactor =
+                  1 - (1 - nonlinearDampingPerFrame) * dampingProgress;
+                const reducedSpeed = Math.max(
+                  speed * effectiveDampingFactor,
+                  targetMinimumSpeed,
+                );
+
+                if (reducedSpeed === 0 || reducedSpeed < stopSpeedThreshold) {
+                  vx = 0;
+                  vy = 0;
+                } else {
+                  const scale = reducedSpeed / speed;
+                  vx *= scale;
+                  vy *= scale;
+                }
+              }
+
+              if (Math.hypot(vx, vy) < stopSpeedThreshold) {
+                vx = 0;
+                vy = 0;
+              }
             }
 
             // Write back
@@ -468,8 +525,14 @@ const SlingerBox = React.forwardRef<SlingerBoxHandle, SlingerBoxProps>(
         eventTime: number,
         nativeEvent: MouseEvent | TouchEvent,
       ) => {
-        obj.vx = vx;
-        obj.vy = vy;
+        const cappedVelocity = clampVectorMagnitude(
+          vx,
+          vy,
+          maximumReleaseSpeed,
+        );
+
+        obj.vx = cappedVelocity.vx;
+        obj.vy = cappedVelocity.vy;
         obj.isDragging = false;
         obj.hasCollidedSinceRelease = false;
         obj.gravitySuppressedUntil = Number.NEGATIVE_INFINITY;
@@ -482,7 +545,7 @@ const SlingerBox = React.forwardRef<SlingerBoxHandle, SlingerBoxProps>(
         forceUpdate();
         onDragEnd?.(obj.vx, obj.vy, nativeEvent);
       },
-      [onDragEnd],
+      [maximumReleaseSpeed, onDragEnd],
     );
 
     /** Handle dragging movement */
