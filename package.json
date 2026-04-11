@@ -135,7 +135,7 @@
     "@types/glob": "^9.0.0",
     "@typescript-eslint/eslint-plugin": "8.58.1",
     "@typescript-eslint/parser": "8.58.1",
-    "baseline-browser-mapping": "^2.10.16",
+    "baseline-browser-mapping": "^2.10.17",
     "concurrently": "^9.2.1",
     "eslint": "^9.39.4",
     "eslint-plugin-import": "^2.32.0",
@@ -146,7 +146,7 @@
     "ignore": "^7.0.5",
     "jiti": "^2.6.1",
     "json5": "^2.2.3",
-    "prettier": "^3.8.1",
+    "prettier": "^3.8.2",
     "ts-node": "^10.9.2",
     "tsx": "^4.21.0",
     "typescript": "^6.0.2"

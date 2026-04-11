@@ -359,7 +359,7 @@
     // TypeScript parser for ESLint
     "@typescript-eslint/parser": "8.58.1",
     // Maps baseline browser support targets for tooling that needs them
-    "baseline-browser-mapping": "^2.10.16",
+    "baseline-browser-mapping": "^2.10.17",
     // Run multiple commands concurrently in scripts
     "concurrently": "^9.2.1",
     // Main linter for JS/TS code
@@ -381,7 +381,7 @@
     // JSON5 parser for annotated config files
     "json5": "^2.2.3",
     // Code formatter for consistent style
-    "prettier": "^3.8.1",
+    "prettier": "^3.8.2",
     // TypeScript execution environment for scripts
     "ts-node": "^10.9.2",
     // TypeScript/ESM runner for scripts
