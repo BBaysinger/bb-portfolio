@@ -76,6 +76,17 @@ export interface SlingerBoxHandle {
   getSlingerPosition: (id?: number) => { x: number; y: number } | null;
 }
 
+type SlingerBounds = {
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+  minX: number;
+  maxX: number;
+  minY: number;
+  maxY: number;
+};
+
 /**
  * SlingerBox component
  *
@@ -180,6 +191,251 @@ const SlingerBox = React.forwardRef<SlingerBoxHandle, SlingerBoxProps>(
       pointerPosition.current = null;
     };
 
+    const createInitialVelocity = useCallback(() => {
+      const vx =
+        initialAmbientVelocityXMin +
+        Math.random() * (initialAmbientVelocityXMax - initialAmbientVelocityXMin);
+      const vy =
+        initialAmbientVelocityYMin +
+        Math.random() * (initialAmbientVelocityYMax - initialAmbientVelocityYMin);
+
+      return { vx, vy };
+    }, [
+      initialAmbientVelocityXMax,
+      initialAmbientVelocityXMin,
+      initialAmbientVelocityYMax,
+      initialAmbientVelocityYMin,
+    ]);
+
+    const notifyWallCollisionIfNeeded = useCallback(
+      (wall: Side, impactSpeed: number, x: number, y: number) => {
+        if (impactSpeed >= minimumWallCollisionNotifySpeed) {
+          onWallCollision?.(wall, x, y);
+        }
+      },
+      [minimumWallCollisionNotifySpeed, onWallCollision],
+    );
+
+    const applyPointerAttraction = useCallback(
+      (
+        x: number,
+        y: number,
+        vx: number,
+        vy: number,
+        bounds: SlingerBounds,
+        frameTime: number,
+      ) => {
+        const gravityEnabled =
+          pointerGravity > 0 &&
+          pointerPosition.current !== null &&
+          frameTime - lastDragEndTime.current > postReleaseGravityDelayMs;
+
+        if (!gravityEnabled || !pointerPosition.current) {
+          return { x, y, vx, vy, gravityEnabled };
+        }
+
+        const gravityMinX = Math.min(bounds.maxX, bounds.minX + gravityWallInset);
+        const gravityMaxX = Math.max(bounds.minX, bounds.maxX - gravityWallInset);
+        const gravityMinY = Math.min(bounds.maxY, bounds.minY + gravityWallInset);
+        const gravityMaxY = Math.max(bounds.minY, bounds.maxY - gravityWallInset);
+        const pointerX =
+          clamp(
+            pointerPosition.current.x - bounds.left,
+            gravityMinX,
+            gravityMaxX,
+          ) + bounds.left;
+        const pointerY =
+          clamp(
+            pointerPosition.current.y - bounds.top,
+            gravityMinY,
+            gravityMaxY,
+          ) + bounds.top;
+
+        const dx = pointerX - (bounds.left + x);
+        const dy = pointerY - (bounds.top + y);
+        const distance = Math.hypot(dx, dy);
+
+        if (distance >= gravityRange || distance <= 1) {
+          return { x, y, vx, vy, gravityEnabled };
+        }
+
+        const closeEnough = 8;
+        if (distance < closeEnough) {
+          x += dx * pointerSettleBlend;
+          y += dy * pointerSettleBlend;
+          vx *= pointerSettleDamping;
+          vy *= pointerSettleDamping;
+
+          if (
+            distance < pointerSnapDistance &&
+            Math.hypot(vx, vy) < stopSpeedThreshold
+          ) {
+            vx = 0;
+            vy = 0;
+          }
+
+          return { x, y, vx, vy, gravityEnabled };
+        }
+
+        const t = 1 - distance / gravityRange;
+        const gravityPull = pointerGravity * MiscUtils.smoothStep(0, 1, t);
+        const nx = dx / distance;
+        const ny = dy / distance;
+
+        vx += nx * gravityPull;
+        vy += ny * gravityPull;
+
+        const dot = vx * nx + vy * ny;
+        const radialVx = dot * nx;
+        const radialVy = dot * ny;
+        const tangentialVx = vx - radialVx;
+        const tangentialVy = vy - radialVy;
+        const orbitDamping = 0.85;
+
+        return {
+          x,
+          y,
+          vx: radialVx + tangentialVx * orbitDamping,
+          vy: radialVy + tangentialVy * orbitDamping,
+          gravityEnabled,
+        };
+      },
+      [
+        gravityRange,
+        gravityWallInset,
+        pointerGravity,
+        pointerSettleBlend,
+        pointerSettleDamping,
+        pointerSnapDistance,
+        postReleaseGravityDelayMs,
+        stopSpeedThreshold,
+      ],
+    );
+
+    const resolveFreeFlightWallBounce = useCallback(
+      (
+        x: number,
+        y: number,
+        vx: number,
+        vy: number,
+        bounds: SlingerBounds,
+      ) => {
+        const incomingVx = vx;
+        const incomingVy = vy;
+        const impactSpeed = Math.hypot(incomingVx, incomingVy);
+        const nextX = x + vx;
+        const nextY = y + vy;
+
+        x = nextX;
+        y = nextY;
+
+        let collidedThisFrame = false;
+
+        if (nextX <= bounds.minX && incomingVx < 0) {
+          x = reflectOvershoot(nextX, bounds.minX, bounds.maxX);
+          x = Math.max(x, bounds.minX + wallSeparationNudge);
+          vx = Math.max(-incomingVx * collisionRestitution, minimumBounceSpeed);
+          vy = incomingVy;
+          collidedThisFrame = true;
+          notifyWallCollisionIfNeeded("left", impactSpeed, 0, Math.round(y));
+        }
+        if (nextX >= bounds.maxX && incomingVx > 0) {
+          x = reflectOvershoot(nextX, bounds.minX, bounds.maxX);
+          x = Math.min(x, bounds.maxX - wallSeparationNudge);
+          vx = Math.min(-incomingVx * collisionRestitution, -minimumBounceSpeed);
+          vy = incomingVy;
+          collidedThisFrame = true;
+          notifyWallCollisionIfNeeded(
+            "right",
+            impactSpeed,
+            bounds.width,
+            Math.round(y),
+          );
+        }
+        if (nextY <= bounds.minY && incomingVy < 0) {
+          y = reflectOvershoot(nextY, bounds.minY, bounds.maxY);
+          y = Math.max(y, bounds.minY + wallSeparationNudge);
+          vy = Math.max(-incomingVy * collisionRestitution, minimumBounceSpeed);
+          vx = incomingVx;
+          collidedThisFrame = true;
+          notifyWallCollisionIfNeeded("top", impactSpeed, Math.round(x), 0);
+        }
+        if (nextY >= bounds.maxY && incomingVy > 0) {
+          y = reflectOvershoot(nextY, bounds.minY, bounds.maxY);
+          y = Math.min(y, bounds.maxY - wallSeparationNudge);
+          vy = Math.min(-incomingVy * collisionRestitution, -minimumBounceSpeed);
+          vx = incomingVx;
+          collidedThisFrame = true;
+          notifyWallCollisionIfNeeded(
+            "bottom",
+            impactSpeed,
+            Math.round(x),
+            bounds.height,
+          );
+        }
+
+        return {
+          x: clamp(x, bounds.minX, bounds.maxX),
+          y: clamp(y, bounds.minY, bounds.maxY),
+          vx,
+          vy,
+          collidedThisFrame,
+        };
+      },
+      [
+        collisionRestitution,
+        minimumBounceSpeed,
+        notifyWallCollisionIfNeeded,
+        wallSeparationNudge,
+      ],
+    );
+
+    const applyFreeFlightDamping = useCallback(
+      (
+        vx: number,
+        vy: number,
+        collidedThisFrame: boolean,
+        gravityEnabled: boolean,
+      ) => {
+        const speed = Math.hypot(vx, vy);
+
+        if (!collidedThisFrame && speed > 0) {
+          const targetMinimumSpeed = gravityEnabled ? 0 : freeFlightSpeedFloor;
+          const dampingProgress = MiscUtils.smoothStep(
+            targetMinimumSpeed,
+            targetMinimumSpeed + dampingEaseSpeedRange,
+            speed,
+          );
+          const effectiveDampingFactor =
+            1 - (1 - highSpeedDampingFactor) * dampingProgress;
+          const reducedSpeed = Math.max(
+            speed * effectiveDampingFactor,
+            targetMinimumSpeed,
+          );
+
+          if (reducedSpeed === 0 || reducedSpeed < stopSpeedThreshold) {
+            return { vx: 0, vy: 0 };
+          }
+
+          const scale = reducedSpeed / speed;
+          vx *= scale;
+          vy *= scale;
+        }
+
+        if (Math.hypot(vx, vy) < stopSpeedThreshold) {
+          return { vx: 0, vy: 0 };
+        }
+
+        return { vx, vy };
+      },
+      [
+        dampingEaseSpeedRange,
+        freeFlightSpeedFloor,
+        highSpeedDampingFactor,
+        stopSpeedThreshold,
+      ],
+    );
+
     const animate = useCallback(
       function step(timestamp: number) {
         if (!containerRef.current) return;
@@ -195,182 +451,54 @@ const SlingerBox = React.forwardRef<SlingerBoxHandle, SlingerBoxProps>(
           lastFrameTime.current = timestamp - (elapsed % frameInterval);
 
           const frameTime = timestamp;
+          const slingerBounds: SlingerBounds = {
+            left: bounds.left,
+            top: bounds.top,
+            width: bounds.width,
+            height: bounds.height,
+            minX: radius,
+            maxX: Math.max(radius, bounds.width - radius),
+            minY: radius,
+            maxY: Math.max(radius, bounds.height - radius),
+          };
 
           objectsRef.current.forEach((obj) => {
             if (obj.isDragging) return;
 
             let { x, y, vx, vy } = obj;
-            let collidedThisFrame = false;
-            const minX = radius;
-            const maxX = Math.max(radius, bounds.width - radius);
-            const minY = radius;
-            const maxY = Math.max(radius, bounds.height - radius);
+            const attractedState = applyPointerAttraction(
+              x,
+              y,
+              vx,
+              vy,
+              slingerBounds,
+              frameTime,
+            );
+            x = attractedState.x;
+            y = attractedState.y;
+            vx = attractedState.vx;
+            vy = attractedState.vy;
 
-            // Pause pointer attraction briefly after release or collision so the
-            // slinger can escape the cursor before homing resumes.
-            const gravityEnabled =
-              pointerGravity > 0 &&
-              pointerPosition.current &&
-              frameTime - lastDragEndTime.current > postReleaseGravityDelayMs;
+            const bouncedState = resolveFreeFlightWallBounce(
+              x,
+              y,
+              vx,
+              vy,
+              slingerBounds,
+            );
+            x = bouncedState.x;
+            y = bouncedState.y;
+            vx = bouncedState.vx;
+            vy = bouncedState.vy;
 
-            if (gravityEnabled && pointerPosition.current) {
-              const gravityMinX = Math.min(maxX, minX + gravityWallInset);
-              const gravityMaxX = Math.max(minX, maxX - gravityWallInset);
-              const gravityMinY = Math.min(maxY, minY + gravityWallInset);
-              const gravityMaxY = Math.max(minY, maxY - gravityWallInset);
-              const pointerX =
-                clamp(
-                  pointerPosition.current.x - bounds.left,
-                  gravityMinX,
-                  gravityMaxX,
-                ) + bounds.left;
-              const pointerY =
-                clamp(
-                  pointerPosition.current.y - bounds.top,
-                  gravityMinY,
-                  gravityMaxY,
-                ) + bounds.top;
-
-              const dx = pointerX - (bounds.left + x);
-              const dy = pointerY - (bounds.top + y);
-              const distance = Math.hypot(dx, dy);
-
-              if (distance < gravityRange && distance > 1) {
-                const closeEnough = 8;
-                if (distance < closeEnough) {
-                  x += dx * pointerSettleBlend;
-                  y += dy * pointerSettleBlend;
-                  vx *= pointerSettleDamping;
-                  vy *= pointerSettleDamping;
-
-                  if (
-                    distance < pointerSnapDistance &&
-                    Math.hypot(vx, vy) < stopSpeedThreshold
-                  ) {
-                    vx = 0;
-                    vy = 0;
-                  }
-                } else {
-                  const t = 1 - distance / gravityRange;
-                  const gravityPull =
-                    pointerGravity * MiscUtils.smoothStep(0, 1, t);
-                  const nx = dx / distance;
-                  const ny = dy / distance;
-
-                  vx += nx * gravityPull;
-                  vy += ny * gravityPull;
-
-                  const dot = vx * nx + vy * ny;
-                  const radialVx = dot * nx;
-                  const radialVy = dot * ny;
-                  const tangentialVx = vx - radialVx;
-                  const tangentialVy = vy - radialVy;
-
-                  const orbitDamping = 0.85;
-                  vx = radialVx + tangentialVx * orbitDamping;
-                  vy = radialVy + tangentialVy * orbitDamping;
-                }
-              }
-            }
-
-            const incomingVx = vx;
-            const incomingVy = vy;
-            const impactSpeed = Math.hypot(incomingVx, incomingVy);
-            const nextX = x + vx;
-            const nextY = y + vy;
-            x = nextX;
-            y = nextY;
-
-            if (nextX <= minX && incomingVx < 0) {
-              x = reflectOvershoot(nextX, minX, maxX);
-              x = Math.max(x, minX + wallSeparationNudge);
-              vx = Math.max(
-                -incomingVx * collisionRestitution,
-                minimumBounceSpeed,
-              );
-              vy = incomingVy;
-              collidedThisFrame = true;
-              if (impactSpeed >= minimumWallCollisionNotifySpeed) {
-                onWallCollision?.("left", 0, Math.round(y));
-              }
-            }
-            if (nextX >= maxX && incomingVx > 0) {
-              x = reflectOvershoot(nextX, minX, maxX);
-              x = Math.min(x, maxX - wallSeparationNudge);
-              vx = Math.min(
-                -incomingVx * collisionRestitution,
-                -minimumBounceSpeed,
-              );
-              vy = incomingVy;
-              collidedThisFrame = true;
-              if (impactSpeed >= minimumWallCollisionNotifySpeed) {
-                onWallCollision?.("right", bounds.width, Math.round(y));
-              }
-            }
-            if (nextY <= minY && incomingVy < 0) {
-              y = reflectOvershoot(nextY, minY, maxY);
-              y = Math.max(y, minY + wallSeparationNudge);
-              vy = Math.max(
-                -incomingVy * collisionRestitution,
-                minimumBounceSpeed,
-              );
-              vx = incomingVx;
-              collidedThisFrame = true;
-              if (impactSpeed >= minimumWallCollisionNotifySpeed) {
-                onWallCollision?.("top", Math.round(x), 0);
-              }
-            }
-            if (nextY >= maxY && incomingVy > 0) {
-              y = reflectOvershoot(nextY, minY, maxY);
-              y = Math.min(y, maxY - wallSeparationNudge);
-              vy = Math.min(
-                -incomingVy * collisionRestitution,
-                -minimumBounceSpeed,
-              );
-              vx = incomingVx;
-              collidedThisFrame = true;
-              if (impactSpeed >= minimumWallCollisionNotifySpeed) {
-                onWallCollision?.("bottom", Math.round(x), bounds.height);
-              }
-            }
-
-            x = clamp(x, minX, maxX);
-            y = clamp(y, minY, maxY);
-
-            const speed = Math.hypot(vx, vy);
-
-            if (!collidedThisFrame && speed > 0) {
-              // Ease damping off as speed drops so ricochet tails linger
-              // instead of snapping to a stop.
-              const targetMinimumSpeed = gravityEnabled
-                ? 0
-                : freeFlightSpeedFloor;
-              const dampingProgress = MiscUtils.smoothStep(
-                targetMinimumSpeed,
-                targetMinimumSpeed + dampingEaseSpeedRange,
-                speed,
-              );
-              const effectiveDampingFactor =
-                1 - (1 - highSpeedDampingFactor) * dampingProgress;
-              const reducedSpeed = Math.max(
-                speed * effectiveDampingFactor,
-                targetMinimumSpeed,
-              );
-
-              if (reducedSpeed === 0 || reducedSpeed < stopSpeedThreshold) {
-                vx = 0;
-                vy = 0;
-              } else {
-                const scale = reducedSpeed / speed;
-                vx *= scale;
-                vy *= scale;
-              }
-            }
-
-            if (Math.hypot(vx, vy) < stopSpeedThreshold) {
-              vx = 0;
-              vy = 0;
-            }
+            const dampedVelocity = applyFreeFlightDamping(
+              vx,
+              vy,
+              bouncedState.collidedThisFrame,
+              attractedState.gravityEnabled,
+            );
+            vx = dampedVelocity.vx;
+            vy = dampedVelocity.vy;
 
             // Write back
             obj.x = x;
@@ -405,46 +533,32 @@ const SlingerBox = React.forwardRef<SlingerBoxHandle, SlingerBoxProps>(
         animationFrameRef.current = requestAnimationFrame(step);
       },
       [
+        applyFreeFlightDamping,
+        applyPointerAttraction,
         frameInterval,
-        gravityWallInset,
         onIdle,
-        onWallCollision,
-        postReleaseGravityDelayMs,
-        pointerGravity,
         radius,
+        resolveFreeFlightWallBounce,
       ],
     );
 
     useEffect(() => {
       if (objectsRef.current.length === 0) {
         objectsRef.current = childArray.map((_, i) => {
-          const initialVelocityX =
-            initialAmbientVelocityXMin +
-            Math.random() *
-              (initialAmbientVelocityXMax - initialAmbientVelocityXMin);
-          const initialVelocityY =
-            initialAmbientVelocityYMin +
-            Math.random() *
-              (initialAmbientVelocityYMax - initialAmbientVelocityYMin);
+          const initialVelocity = createInitialVelocity();
 
           return {
             id: i,
             x: 0.2 * window.innerWidth + i * 60,
             y: 0.3 * window.innerHeight,
-            vx: initialVelocityX,
-            vy: initialVelocityY,
+            vx: initialVelocity.vx,
+            vy: initialVelocity.vy,
             isDragging: false,
           };
         });
         setIsReady(true);
       }
-    }, [
-      childArray,
-      initialAmbientVelocityXMax,
-      initialAmbientVelocityXMin,
-      initialAmbientVelocityYMax,
-      initialAmbientVelocityYMin,
-    ]);
+    }, [childArray, createInitialVelocity]);
 
     useEffect(() => {
       if (!isReady) return;
@@ -634,32 +748,36 @@ const SlingerBox = React.forwardRef<SlingerBoxHandle, SlingerBoxProps>(
 
               switch (collidedWall) {
                 case "left":
-                  if (dragImpactSpeed >= minimumWallCollisionNotifySpeed) {
-                    onWallCollision?.("left", 0, Math.round(obj.y));
-                  }
+                  notifyWallCollisionIfNeeded(
+                    "left",
+                    dragImpactSpeed,
+                    0,
+                    Math.round(obj.y),
+                  );
                   break;
                 case "right":
-                  if (dragImpactSpeed >= minimumWallCollisionNotifySpeed) {
-                    onWallCollision?.(
-                      "right",
-                      bounds?.width ?? 0,
-                      Math.round(obj.y),
-                    );
-                  }
+                  notifyWallCollisionIfNeeded(
+                    "right",
+                    dragImpactSpeed,
+                    bounds?.width ?? 0,
+                    Math.round(obj.y),
+                  );
                   break;
                 case "top":
-                  if (dragImpactSpeed >= minimumWallCollisionNotifySpeed) {
-                    onWallCollision?.("top", Math.round(obj.x), 0);
-                  }
+                  notifyWallCollisionIfNeeded(
+                    "top",
+                    dragImpactSpeed,
+                    Math.round(obj.x),
+                    0,
+                  );
                   break;
                 case "bottom":
-                  if (dragImpactSpeed >= minimumWallCollisionNotifySpeed) {
-                    onWallCollision?.(
-                      "bottom",
-                      Math.round(obj.x),
-                      bounds?.height ?? 0,
-                    );
-                  }
+                  notifyWallCollisionIfNeeded(
+                    "bottom",
+                    dragImpactSpeed,
+                    Math.round(obj.x),
+                    bounds?.height ?? 0,
+                  );
                   break;
               }
 
@@ -700,7 +818,7 @@ const SlingerBox = React.forwardRef<SlingerBoxHandle, SlingerBoxProps>(
       [
         collisionRestitution,
         minimumDragReleaseSpeed,
-        onWallCollision,
+        notifyWallCollisionIfNeeded,
         radius,
         releaseDraggedObject,
       ],
