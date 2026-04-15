@@ -265,6 +265,35 @@ function applyFamilyGuardrails(
   }
 }
 
+function applyFrontendTypescriptEslintGuardrail(
+  target: PackageTarget,
+  upgraded: Record<string, string>,
+  blocked: Map<string, { version: string; reason: string }>,
+): void {
+  if (target.label !== "frontend") return;
+
+  const manifestPackages = getManifestPackages(target);
+  if (!manifestPackages.has("eslint-config-next")) return;
+
+  const typescriptEslintPackages = [
+    "@typescript-eslint/eslint-plugin",
+    "@typescript-eslint/parser",
+  ];
+
+  const plannedUpdates = typescriptEslintPackages.filter(
+    (packageName) => packageName in upgraded,
+  );
+
+  if (!plannedUpdates.length) return;
+
+  const reason =
+    "Frontend currently relies on eslint-config-next's transitive typescript-eslint package, which is still resolving 8.58.1 here. Do not auto-upgrade @typescript-eslint/parser or @typescript-eslint/eslint-plugin in frontend until eslint-config-next and its transitive typescript-eslint release align.";
+
+  for (const packageName of plannedUpdates) {
+    blockUpgrade(blocked, packageName, upgraded[packageName], reason);
+  }
+}
+
 function buildPlan(target: PackageTarget): UpgradePlan {
   const upgraded = getUpgradedPackages(target);
   const blocked = new Map<string, { version: string; reason: string }>();
@@ -279,6 +308,7 @@ function buildPlan(target: PackageTarget): UpgradePlan {
   }
 
   applyFamilyGuardrails(target, upgraded, blocked);
+  applyFrontendTypescriptEslintGuardrail(target, upgraded, blocked);
 
   const allowed: UpgradePlan["allowed"] = [];
   const blockedEntries: UpgradePlan["blocked"] = [];
