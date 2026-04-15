@@ -35,6 +35,8 @@ cms-seedings/
 ## CV order file
 
 `cv-experiences/order.yaml` controls which files are imported and the render order used in Payload.
+This is intentional. Adding a YAML file alone does not import it; the slug must also be listed in `order.yaml`.
+That explicit control is ideal here because it lets the developer decide exactly what enters Payload and in what order, instead of relying on rigid automatic file discovery.
 
 ```yaml
 experience:
@@ -125,6 +127,7 @@ From repo root:
 
 Notes:
 
+- CV experience imports are intentionally controlled by `cv-experiences/order.yaml`, not by auto-importing every YAML file in the folder. This is the preferred workflow because it gives the developer explicit control over inclusion and ordering in Payload.
 - The root pull commands are meant for copying authored production content back into sibling `../cms-seedings` so local/dev imports can use the same content.
 - `content:pull:prod:cv-experiences` also syncs production CV logos into `../cms-seedings/cv-experience-logos/` before exporting YAML so the seedings stay importable.
 - Use `USE_GITHUB_SECRETS=true` or equivalent prod env access when invoking the backend export scripts directly.
