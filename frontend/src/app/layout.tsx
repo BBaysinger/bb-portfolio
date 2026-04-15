@@ -25,35 +25,6 @@ import { AppProviders } from "./providers/AppProviders";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "@/styles/styles.scss";
 
-const LAN_PRODLIKE_NOTE_DISMISS_KEY = "lan-prodlike-note-dismissed";
-
-const iosProdLikeNoteScript = `(function(){
-  try {
-    var note = document.getElementById('ios-prodlike-lan-note');
-    var dismiss = document.getElementById('ios-prodlike-lan-note-dismiss');
-    if (!note || !dismiss || typeof window === 'undefined') return;
-
-    var host = String(window.location.hostname || '').trim().toLowerCase();
-    var port = String(window.location.port || '');
-    var isLan = /\\.local$/.test(host) || /^10(?:\\.\\d{1,3}){3}$/.test(host) || /^192\\.168(?:\\.\\d{1,3}){2}$/.test(host) || /^172\\.(1[6-9]|2\\d|3[01])(?:\\.\\d{1,3}){2}$/.test(host);
-    var dismissed = false;
-    try {
-      dismissed = window.sessionStorage.getItem('${LAN_PRODLIKE_NOTE_DISMISS_KEY}') === '1';
-    } catch (error) {}
-
-    if (isLan && port === '3000' && !dismissed) {
-      note.hidden = false;
-    }
-
-    dismiss.addEventListener('click', function(){
-      try {
-        window.sessionStorage.setItem('${LAN_PRODLIKE_NOTE_DISMISS_KEY}', '1');
-      } catch (error) {}
-      note.hidden = true;
-    });
-  } catch (error) {}
-})();`;
-
 /**
  * Root layout component.
  *
@@ -92,27 +63,6 @@ export default async function RootLayout({
         />
       </head>
       <body className={clsx(roboto.className, styles.body)}>
-        <aside
-          id="ios-prodlike-lan-note"
-          className={styles.iosProdLikeNote}
-          aria-label="LAN dev runtime note"
-          hidden
-        >
-          <p className={styles.iosProdLikeNoteText}>
-            LAN note: <strong>:3000</strong> is currently unreliable for
-            validation. Use the prod-like server on <strong>:3004</strong> for
-            validation; see <strong>docs/ios-dev-runtime-note.md</strong>.
-          </p>
-          <button
-            id="ios-prodlike-lan-note-dismiss"
-            type="button"
-            className={styles.iosProdLikeNoteDismiss}
-            aria-label="Dismiss LAN dev runtime note"
-          >
-            Dismiss
-          </button>
-        </aside>
-        <script dangerouslySetInnerHTML={{ __html: iosProdLikeNoteScript }} />
         {/* Client-only analytics; render as soon as the client can hydrate. */}
         <Suspense fallback={null}>
           <GoogleAnalytics />

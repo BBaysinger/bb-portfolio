@@ -1,3 +1,5 @@
+import { networkInterfaces } from "node:os";
+
 import type { NextConfig } from "next";
 
 // Determine React Strict Mode behavior by environment profile
@@ -37,6 +39,57 @@ const resolvedStrictMode =
     ? strictEnv !== "false"
     : defaultStrictForProfile(profile);
 
+const getAllowedDevOrigins = () => {
+  const origins = new Set<string>();
+  const privateIpv4Patterns = [
+    "10.*.*.*",
+    "192.168.*.*",
+    "172.16.*.*",
+    "172.17.*.*",
+    "172.18.*.*",
+    "172.19.*.*",
+    "172.20.*.*",
+    "172.21.*.*",
+    "172.22.*.*",
+    "172.23.*.*",
+    "172.24.*.*",
+    "172.25.*.*",
+    "172.26.*.*",
+    "172.27.*.*",
+    "172.28.*.*",
+    "172.29.*.*",
+    "172.30.*.*",
+    "172.31.*.*",
+  ];
+
+  for (const pattern of privateIpv4Patterns) {
+    origins.add(pattern);
+  }
+
+  for (const entries of Object.values(networkInterfaces())) {
+    for (const entry of entries ?? []) {
+      if (!entry || entry.internal || entry.family !== "IPv4") {
+        continue;
+      }
+
+      origins.add(entry.address);
+    }
+  }
+
+  const extraOrigins = (process.env.NEXT_ALLOWED_DEV_ORIGINS || "")
+    .split(",")
+    .map((value) => value.trim())
+    .filter(Boolean);
+
+  for (const origin of extraOrigins) {
+    origins.add(origin);
+  }
+
+  return Array.from(origins).sort();
+};
+
+const allowedDevOrigins = isDev ? getAllowedDevOrigins() : undefined;
+
 console.info("[next.config.ts] React StrictMode:", {
   NODE_ENV: process.env.NODE_ENV,
   ENV_PROFILE: process.env.ENV_PROFILE,
@@ -44,11 +97,13 @@ console.info("[next.config.ts] React StrictMode:", {
   isDev,
   REACT_STRICT_MODE: strictEnv,
   resolvedStrictMode,
+  allowedDevOrigins,
 });
 
 const nextConfig: NextConfig = {
   // No custom transpile/alias for aws-rum-web; rely on standard resolution under webpack.
   output: "standalone",
+  allowedDevOrigins,
   outputFileTracingRoot: decodeURIComponent(
     new URL("../", import.meta.url).pathname,
   ),

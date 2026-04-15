@@ -2,67 +2,53 @@
 
 ## Status
 
-There is a known local-only issue when this app is opened through the LAN dev server on `:3000`.
+The local LAN `:3000` issue is resolved.
 
-Observed behavior:
+The failure was not a viewport or hydration bug in the app code. It was a Next.js dev-runtime websocket authorization problem in the Docker local frontend.
 
-- the page HTML loads
-- the hero can degrade to a partial render
-- client-side behavior may fail to hydrate or behave inconsistently on iOS browsers
+## Root Cause
 
-This was first isolated on iOS browsers, and the current guidance should be treated as LAN-wide while the dev-runtime failure mode remains under investigation.
+`bb-portfolio-frontend-local` runs `next dev` inside Docker.
 
-## Current Workaround
+That matters because:
 
-For LAN validation, use the prod-like local server on `:3004` instead of the dev server on `:3000`.
+- the browser opens the site from the host LAN address, for example `http://192.168.86.245:3000`
+- Next 16 protects dev-only assets and the HMR websocket with `allowedDevOrigins`
+- inside the container, `networkInterfaces()` only sees container addresses like `172.18.x.x`, not the host machine's LAN address
+- the browser's HMR websocket therefore arrived with `Origin: http://192.168.86.245:3000`, which Next treated as unauthorized and closed
 
-Current guidance:
+Observed symptom during debugging:
 
-- desktop development: `:3000` is still fine for normal local iteration when it behaves
-- LAN validation when runtime behavior matters: use `:3004`
+- page HTML loaded normally
+- `/_next/webpack-hmr` repeatedly failed with websocket close code `1006`
+- container logs showed `Blocked cross-origin request to Next.js dev resource /_next/webpack-hmr from "192.168.86.245"`
 
-Recommended workflow while iterating over LAN:
+## Permanent Fix
 
-- run `npm run frontend:prod-like:watch`
-- open `http://<your-lan-ip>:3004` on the target device
-- each frontend file change triggers a production-style rebuild and restart of the local prod-like server
+The frontend now configures `allowedDevOrigins` in [frontend/next.config.ts](../frontend/next.config.ts) for development.
 
-## What We Verified
+The allowlist includes:
 
-- the problem reproduces against the local dev runtime on `:3000`
-- the same app works correctly on the prod-like local runtime on `:3004`
-- this points to a dev-runtime-specific problem rather than an app-code regression in the production path
+- private LAN IPv4 wildcard patterns such as `192.168.*.*`, `10.*.*.*`, and `172.16-31.*.*`
+- explicit non-internal IPv4 addresses visible from the current runtime
+- optional extra values from `NEXT_ALLOWED_DEV_ORIGINS`
 
-## Investigation Notes For Later
+This allows Docker local dev on `:3000` to accept HMR websocket upgrades from normal LAN browser origins.
 
-The next pass should focus on the development runtime rather than viewport code or hero rendering logic.
+## Operational Note
 
-Suggested sequence:
+Because this setting lives in `next.config.ts`, changing it requires a frontend restart.
 
-1. Confirm the exact iOS and Safari/WebKit versions involved.
-2. Re-test against the current Next.js version and the newest patch available at the time.
-3. Compare `next dev --webpack` with the default dev path if the project config changes.
-4. Inspect whether the failure is tied to HMR, the dev overlay, or another dev-only client bootstrap path.
-5. Reduce to a minimal reproduction if the issue still exists.
-6. If reproducible in a small app, file it upstream or search for matching reports in Next.js discussions/issues.
+For Docker local:
 
-## Official Docs Checked
+- restart `bb-portfolio-frontend-local`
+- or rerun the local compose frontend flow
 
-We did a quick official-docs pass after isolating the issue.
+Without a restart, the running `next dev` process will keep the previous origin allowlist.
 
-What the docs do confirm:
+## When To Use `:3004`
 
-- Next.js explicitly distinguishes `next dev` behavior from production builds.
-- Next.js documents general debugging workflows for local development.
-- Next.js lists modern Safari as a supported browser target.
+The prod-like local server on `:3004` is still useful for performance checks or when you intentionally want to avoid dev-runtime behavior.
 
-What the docs did not provide:
-
-- no official Next.js page found that documents this exact iOS LAN dev-runtime failure
-- no official WebKit note found that clearly maps to this specific symptom
-
-So the current status is:
-
-- workaround is known and reliable
-- root cause is still unconfirmed
-- future investigation should start from the dev runtime path, not the viewport hook work
+Use `:3000` for normal hot-reload iteration.
+Use `:3004` for production-style validation when that distinction matters.
