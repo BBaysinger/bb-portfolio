@@ -284,9 +284,12 @@ export function useStableViewportHeight(
     [shouldForceHeightCommit, shouldGuardTopOverscrollShrink, topScrollGuardPx],
   );
 
-  const measureStableHeightPx = useCallback((force = false) => {
-    applyStableHeightPx(getViewportHeightPx(), force);
-  }, [applyStableHeightPx]);
+  const measureStableHeightPx = useCallback(
+    (force = false) => {
+      applyStableHeightPx(getViewportHeightPx(), force);
+    },
+    [applyStableHeightPx],
+  );
 
   const shouldTrustHeightOnlyResize = useCallback(
     (
@@ -322,27 +325,30 @@ export function useStableViewportHeight(
     [heightOnlyResizePolicy],
   );
 
-  const scheduleTrailingMeasure = useCallback((force = false) => {
-    if (force) {
-      armForcedHeightCommitWindow();
-    }
-
-    if (resizeSettleTimeoutRef.current !== null) {
-      window.clearTimeout(resizeSettleTimeoutRef.current);
-    }
-
-    resizeSettleTimeoutRef.current = window.setTimeout(() => {
-      resizeSettleTimeoutRef.current = null;
-      if (resizeRafRef.current !== null) {
-        window.cancelAnimationFrame(resizeRafRef.current);
+  const scheduleTrailingMeasure = useCallback(
+    (force = false) => {
+      if (force) {
+        armForcedHeightCommitWindow();
       }
-      resizeRafRef.current = window.requestAnimationFrame(() => {
-        resizeRafRef.current = null;
-        lastWidthRef.current = window.innerWidth;
-        measureStableHeightPx(force);
-      });
-    }, 120);
-  }, [armForcedHeightCommitWindow, measureStableHeightPx]);
+
+      if (resizeSettleTimeoutRef.current !== null) {
+        window.clearTimeout(resizeSettleTimeoutRef.current);
+      }
+
+      resizeSettleTimeoutRef.current = window.setTimeout(() => {
+        resizeSettleTimeoutRef.current = null;
+        if (resizeRafRef.current !== null) {
+          window.cancelAnimationFrame(resizeRafRef.current);
+        }
+        resizeRafRef.current = window.requestAnimationFrame(() => {
+          resizeRafRef.current = null;
+          lastWidthRef.current = window.innerWidth;
+          measureStableHeightPx(force);
+        });
+      }, 120);
+    },
+    [armForcedHeightCommitWindow, measureStableHeightPx],
+  );
 
   const onWindowEvent = useCallback(
     (
@@ -458,7 +464,9 @@ export function useStableViewportHeight(
             isFullscreen,
           }))
       ) {
-        scheduleTrailingMeasure(widthDelta !== null && widthDelta >= widthChangeThresholdPx);
+        scheduleTrailingMeasure(
+          widthDelta !== null && widthDelta >= widthChangeThresholdPx,
+        );
       }
     };
 
