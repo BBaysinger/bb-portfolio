@@ -21,6 +21,12 @@ Current guidance:
 - desktop development: continue using `:3000`
 - iOS validation: use `:3004`
 
+Recommended workflow while iterating on iOS:
+
+- run `npm run frontend:prod-like:watch`
+- open `http://<your-lan-ip>:3004` on the iPhone
+- each frontend file change triggers a production-style rebuild and restart of the local prod-like server
+
 ## What We Verified
 
 - the problem reproduces on iOS against the local dev runtime

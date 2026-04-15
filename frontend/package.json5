@@ -37,8 +37,14 @@
     "start:prod-like:detached": "DETACH=1 sh ./scripts/start-prod-like.sh",
     // Same as start:prod-like:local, but detached for side-by-side testing with Docker local.
     "start:prod-like:local:detached": "BACKEND_INTERNAL_URL=http://localhost:8081 DETACH=1 sh ./scripts/start-prod-like.sh",
+    //
+    "start:prod-like:detached:restart": "DETACH=1 RESTART=1 sh ./scripts/start-prod-like.sh",
+    //
+    "start:prod-like:local:detached:restart": "BACKEND_INTERNAL_URL=http://localhost:8081 DETACH=1 RESTART=1 sh ./scripts/start-prod-like.sh",
     // Report whether the detached production-like frontend is running for the selected port.
     "start:prod-like:status": "sh ./scripts/status-prod-like.sh",
+    //
+    "start:prod-like:watch": "tsx ./scripts/watch-prod-like.ts",
     // Run Next.js ESLint configuration
     "lint": "eslint .",
     // "Pretty Build" - format code with Prettier then run TypeScript build for validation
