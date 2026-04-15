@@ -45,6 +45,7 @@ export interface UseStableViewportHeightOptions {
 const DEFAULT_TOP_SCROLL_GUARD_PX = 2;
 const RECENT_HEIGHT_INCREASE_CORRECTION_WINDOW_MS = 2000;
 const RECENT_HEIGHT_INCREASE_CORRECTION_DELTA_PX = 24;
+const TRUSTED_VIEWPORT_CHANGE_WINDOW_MS = 1500;
 
 function isUsableViewportHeight(
   height: number | null | undefined,
@@ -172,6 +173,7 @@ export function useStableViewportHeight(
     height: number;
     timestamp: number;
   } | null>(null);
+  const forcedHeightCommitUntilRef = useRef<number>(0);
   const resizeSettleTimeoutRef = useRef<number | null>(null);
   const resizeRafRef = useRef<number | null>(null);
 
@@ -223,23 +225,38 @@ export function useStableViewportHeight(
     [guardTopOverscrollShrink, topScrollGuardPx],
   );
 
+  const armForcedHeightCommitWindow = useCallback((durationMs?: number) => {
+    const windowMs = durationMs ?? TRUSTED_VIEWPORT_CHANGE_WINDOW_MS;
+    forcedHeightCommitUntilRef.current = Math.max(
+      forcedHeightCommitUntilRef.current,
+      Date.now() + windowMs,
+    );
+  }, []);
+
+  const shouldForceHeightCommit = useCallback(
+    () => forcedHeightCommitUntilRef.current > Date.now(),
+    [],
+  );
+
   const applyStableHeightPx = useCallback(
-    (height: number) => {
+    (height: number, force = false) => {
       const previousHeight = lastHeightRef.current;
+      const bypassTransientGuards = force || shouldForceHeightCommit();
 
       if (
         !isUsableViewportHeight(height) ||
-        shouldIgnoreScrolledCoarsePointerSample(
-          height,
-          previousHeight,
-          topScrollGuardPx,
-        ) ||
-        shouldIgnoreTopCoarsePointerGrowth(
-          height,
-          previousHeight,
-          topScrollGuardPx,
-        ) ||
-        shouldGuardTopOverscrollShrink(height)
+        (!bypassTransientGuards &&
+          (shouldIgnoreScrolledCoarsePointerSample(
+            height,
+            previousHeight,
+            topScrollGuardPx,
+          ) ||
+            shouldIgnoreTopCoarsePointerGrowth(
+              height,
+              previousHeight,
+              topScrollGuardPx,
+            ) ||
+            shouldGuardTopOverscrollShrink(height)))
       ) {
         return;
       }
@@ -264,11 +281,11 @@ export function useStableViewportHeight(
       }
       setStableHeightPx((prev) => (prev === height ? prev : height));
     },
-    [shouldGuardTopOverscrollShrink, topScrollGuardPx],
+    [shouldForceHeightCommit, shouldGuardTopOverscrollShrink, topScrollGuardPx],
   );
 
-  const measureStableHeightPx = useCallback(() => {
-    applyStableHeightPx(getViewportHeightPx());
+  const measureStableHeightPx = useCallback((force = false) => {
+    applyStableHeightPx(getViewportHeightPx(), force);
   }, [applyStableHeightPx]);
 
   const shouldTrustHeightOnlyResize = useCallback(
@@ -305,7 +322,11 @@ export function useStableViewportHeight(
     [heightOnlyResizePolicy],
   );
 
-  const scheduleTrailingMeasure = useCallback(() => {
+  const scheduleTrailingMeasure = useCallback((force = false) => {
+    if (force) {
+      armForcedHeightCommitWindow();
+    }
+
     if (resizeSettleTimeoutRef.current !== null) {
       window.clearTimeout(resizeSettleTimeoutRef.current);
     }
@@ -318,10 +339,10 @@ export function useStableViewportHeight(
       resizeRafRef.current = window.requestAnimationFrame(() => {
         resizeRafRef.current = null;
         lastWidthRef.current = window.innerWidth;
-        measureStableHeightPx();
+        measureStableHeightPx(force);
       });
     }, 120);
-  }, [measureStableHeightPx]);
+  }, [armForcedHeightCommitWindow, measureStableHeightPx]);
 
   const onWindowEvent = useCallback(
     (
@@ -333,18 +354,22 @@ export function useStableViewportHeight(
         | "visibilitychange",
     ) => {
       if (eventType === "orientationchange") {
+        armForcedHeightCommitWindow();
         if (resizeSettleTimeoutRef.current !== null) {
           window.clearTimeout(resizeSettleTimeoutRef.current);
           resizeSettleTimeoutRef.current = null;
         }
-        measureStableHeightPx();
+        measureStableHeightPx(true);
+        scheduleTrailingMeasure(true);
         return;
       }
 
-      if (
-        eventType === "fullscreenchange" ||
-        eventType === "visibilitychange"
-      ) {
+      if (eventType === "fullscreenchange") {
+        scheduleTrailingMeasure(true);
+        return;
+      }
+
+      if (eventType === "visibilitychange") {
         scheduleTrailingMeasure();
         return;
       }
@@ -366,7 +391,8 @@ export function useStableViewportHeight(
 
       if (widthDelta >= widthChangeThresholdPx) {
         lastWidthRef.current = width;
-        measureStableHeightPx();
+        armForcedHeightCommitWindow();
+        measureStableHeightPx(true);
         return;
       }
 
@@ -393,6 +419,7 @@ export function useStableViewportHeight(
       }
     },
     [
+      armForcedHeightCommitWindow,
       getWidthDelta,
       measureStableHeightPx,
       scheduleTrailingMeasure,
@@ -431,7 +458,7 @@ export function useStableViewportHeight(
             isFullscreen,
           }))
       ) {
-        scheduleTrailingMeasure();
+        scheduleTrailingMeasure(widthDelta !== null && widthDelta >= widthChangeThresholdPx);
       }
     };
 
@@ -446,7 +473,12 @@ export function useStableViewportHeight(
       viewport.removeEventListener("resize", onVisualViewportChange);
       viewport.removeEventListener("scroll", onVisualViewportChange);
     };
-  }, [getWidthDelta, scheduleTrailingMeasure, shouldTrustHeightOnlyResize]);
+  }, [
+    getWidthDelta,
+    scheduleTrailingMeasure,
+    shouldTrustHeightOnlyResize,
+    widthChangeThresholdPx,
+  ]);
 
   useEffect(() => {
     mountedAtRef.current = Date.now();

@@ -34,6 +34,8 @@ Signals we currently treat as trustworthy enough to commit quickly:
 - explicit fullscreen-related transitions
 - consumer-approved height-only changes
 
+For explicit orientation changes, large width flips, and fullscreen transitions, the hook opens a short forced-commit window so the follow-up settled measurement is not blocked by the same coarse-pointer top-of-page guards that exist to filter toolbar and overscroll noise.
+
 Signals we currently treat cautiously:
 
 - `visualViewport` jitter during initial mount
