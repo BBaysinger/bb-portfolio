@@ -605,7 +605,7 @@ const CurriculumVitae: React.FC = () => {
               <p className={styles.inlineList}>
                 <span>Nickelodeon</span>
                 <span>Nick Jr.</span>
-                <span>Major Gaming Company (NDA)</span>
+                {/* <span>Major Gaming Company (NDA)</span> */}
                 <span>Disney</span>
                 <span>Mattel</span>
                 <span>AT&amp;T</span>
