@@ -110,7 +110,7 @@ const SlingerBox = React.forwardRef<SlingerBoxHandle, SlingerBoxProps>(
     ref,
   ) => {
     const radius = ballSize / 2;
-    const idleSpeedThreshold = 0.75;
+    const idleSpeedThreshold = 2.25;
     const desiredFPS = 60;
     const frameInterval = 1000 / desiredFPS;
     const [, forceUpdate] = useReducer((x) => x + 1, 0);
