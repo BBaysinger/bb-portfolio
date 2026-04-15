@@ -52,6 +52,21 @@ function isUsableViewportHeight(
   return typeof height === "number" && Number.isFinite(height) && height > 0;
 }
 
+function getSmallViewportHeightPx() {
+  if (typeof window === "undefined") return 0;
+
+  const candidates = [
+    window.visualViewport?.height,
+    window.innerHeight,
+    document.documentElement?.clientHeight,
+    document.body?.clientHeight,
+  ].filter(isUsableViewportHeight);
+
+  if (candidates.length === 0) return 0;
+
+  return Math.min(...candidates.map((candidate) => Math.round(candidate)));
+}
+
 function getInteractionCapabilities() {
   let hasCoarsePointer = false;
   let canHover = false;
@@ -87,8 +102,35 @@ function shouldIgnoreScrolledCoarsePointerSample(
   return nextHeight >= previousHeight;
 }
 
+function shouldIgnoreTopCoarsePointerGrowth(
+  nextHeight: number,
+  previousHeight: number | null,
+  topScrollGuardPx: number,
+) {
+  if (!isUsableViewportHeight(nextHeight)) return false;
+  if (getIsFullscreen()) return false;
+
+  const { hasCoarsePointer } = getInteractionCapabilities();
+  if (!hasCoarsePointer) return false;
+  if (window.scrollY > topScrollGuardPx) return false;
+
+  if (previousHeight === null) {
+    const smallerTopCandidate = getSmallViewportHeightPx();
+    return (
+      isUsableViewportHeight(smallerTopCandidate) &&
+      nextHeight > smallerTopCandidate
+    );
+  }
+
+  return nextHeight > previousHeight;
+}
+
 function getInitialStableHeightPx(topScrollGuardPx: number) {
-  const initialHeight = getViewportHeightPx();
+  const { hasCoarsePointer } = getInteractionCapabilities();
+  const initialHeight =
+    hasCoarsePointer && window.scrollY <= topScrollGuardPx
+      ? getSmallViewportHeightPx()
+      : getViewportHeightPx();
 
   if (
     shouldIgnoreScrolledCoarsePointerSample(
@@ -188,6 +230,11 @@ export function useStableViewportHeight(
       if (
         !isUsableViewportHeight(height) ||
         shouldIgnoreScrolledCoarsePointerSample(
+          height,
+          previousHeight,
+          topScrollGuardPx,
+        ) ||
+        shouldIgnoreTopCoarsePointerGrowth(
           height,
           previousHeight,
           topScrollGuardPx,

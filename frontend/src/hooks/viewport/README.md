@@ -40,6 +40,7 @@ Signals we currently treat cautiously:
 - mobile address-bar show/hide noise
 - top-of-page pull-down / rubber-band overscroll on touch devices
 - touch-device samples captured while the page is meaningfully scrolled, because they often reflect the toolbar-minimized viewport rather than the top-of-page layout state
+- top-of-page touch-device growth samples, because Mobile Safari can briefly report the collapsed-toolbar viewport during route return before the chrome expands again
 
 For the overscroll case, the hook intentionally ignores shrink-only measurements when all of the following are true:
 
@@ -51,6 +52,8 @@ For the overscroll case, the hook intentionally ignores shrink-only measurements
 This prevents a downward pull or flick at the top of the page from permanently shortening the stable viewport height used by layout.
 
 On coarse-pointer devices, the hook also avoids committing viewport-height samples captured while the page is still meaningfully scrolled. This keeps a route return from seeding the stable height from Mobile Safari's temporarily taller, toolbar-minimized viewport.
+
+When the page is effectively at the top on a coarse-pointer device, the hook also seeds from the smallest currently available viewport candidate and ignores later top-of-page height growth. This keeps hero-sized layouts anchored to the expanded-chrome viewport instead of the temporarily taller collapsed-toolbar viewport.
 
 To avoid getting stuck on a slightly too-tall committed value, the hook also allows a small shrink correction shortly after mount or after a recent accepted height increase. This covers cases where Mobile Safari briefly reports the larger scrolled-page viewport during route return before the browser chrome settles back in.
 
