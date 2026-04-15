@@ -41,6 +41,7 @@ Signals we currently treat cautiously:
 - `visualViewport` jitter during initial mount
 - mobile address-bar show/hide noise
 - top-of-page pull-down / rubber-band overscroll on touch devices
+- pull-to-refresh reload recoil while the visual viewport is still offset downward
 - touch-device samples captured while the page is meaningfully scrolled, because they often reflect the toolbar-minimized viewport rather than the top-of-page layout state
 - top-of-page touch-device growth samples, because Mobile Safari can briefly report the collapsed-toolbar viewport during route return before the chrome expands again
 
@@ -52,6 +53,8 @@ For the overscroll case, the hook intentionally ignores shrink-only measurements
 - the browser is not in fullscreen
 
 This prevents a downward pull or flick at the top of the page from permanently shortening the stable viewport height used by layout.
+
+If the page mounts while the visual viewport is still displaced downward, the hook also refuses to seed from that sample and waits for the post-mount settle passes instead. This covers pull-to-refresh reloads where the first measurement can happen during recoil from the reload gesture.
 
 On coarse-pointer devices, the hook also avoids committing viewport-height samples captured while the page is still meaningfully scrolled. This keeps a route return from seeding the stable height from Mobile Safari's temporarily taller, toolbar-minimized viewport.
 
