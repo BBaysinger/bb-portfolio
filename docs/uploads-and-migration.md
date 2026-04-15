@@ -51,6 +51,13 @@ Note on `:dry` scripts: `migrate:all:<env>:dry` and `media:upload:<env>:dry` now
 npm run media:seed
 ```
 
+You can also target a different content root for one run:
+
+```
+PORTFOLIO_CONTENT_DIR=../cms-seedings/variants/opportunity-a npm run media:seed
+npm run media:seed -- --seedings-dir ../cms-seedings/variants/opportunity-a
+```
+
 This script copies files into `backend/media/*` for local dev only. It won't commit media to git.
 
 ### Bootstrap vs migration vs recovery (what to run when)
@@ -108,6 +115,20 @@ Then run the same import:
 
 ```
 npm run media:seed
+```
+
+To pull production media into a non-default seedings directory, use the existing `--seedings-dir` flag:
+
+```
+npm run media:pull:prod:cv-experience-logos -- --seedings-dir ../cms-seedings/variants/opportunity-a
+npm run media:pull:prod:project-brand-logos -- --seedings-dir ../cms-seedings/variants/opportunity-a
+```
+
+For backend-authored content pulls and imports, use `PORTFOLIO_CONTENT_DIR`:
+
+```
+PORTFOLIO_CONTENT_DIR=../cms-seedings/variants/opportunity-a npm run content:pull:prod:cv-experiences
+PORTFOLIO_CONTENT_DIR=../cms-seedings/variants/opportunity-a npm run content:pull:prod:project-descriptions
 ```
 
 ## What you likely want

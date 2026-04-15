@@ -6,7 +6,7 @@
  * backend/media folders so a fresh clone can be hydrated from your local
  * working assets directory that lives outside the repo.
  *
- * Supported structure examples under ../cms-seedings:
+ * Supported structure examples under the selected seedings root:
  * - project-brand-logos/
  * - cv-experience-logos/
  * - project-screenshots/
@@ -15,13 +15,49 @@
  * or with an intermediate images/ folder, e.g. images/project-brand-logos, etc.
  *
  * Usage:
- *   npm run media:import
+ *   npm run media:seed
+ *   npm run media:seed -- --seedings-dir ../cms-seedings/variants/opportunity-a
+ *   PORTFOLIO_CONTENT_DIR=../cms-seedings/variants/opportunity-a npm run media:seed
  */
 import { constants as fsConstants } from "node:fs";
 import fs from "node:fs/promises";
 import path from "node:path";
 
 const IMAGE_EXTS = new Set([".webp", ".png", ".jpg", ".jpeg", ".svg"]);
+
+function parseArgs() {
+  const args = process.argv.slice(2);
+  let seedingsDir: string | undefined;
+
+  for (let index = 0; index < args.length; index++) {
+    const arg = args[index];
+
+    if (arg === "--seedings-dir") {
+      seedingsDir = args[index + 1];
+      index++;
+      continue;
+    }
+
+    if (arg.startsWith("--seedings-dir=")) {
+      seedingsDir = arg.slice("--seedings-dir=".length);
+    }
+  }
+
+  return { seedingsDir };
+}
+
+function resolveSeedingsRoot(root: string, overrideDir?: string) {
+  const configuredDir =
+    overrideDir?.trim() || process.env.PORTFOLIO_CONTENT_DIR?.trim();
+
+  if (!configuredDir) {
+    return path.join(root, "..", "cms-seedings");
+  }
+
+  return path.isAbsolute(configuredDir)
+    ? configuredDir
+    : path.resolve(root, configuredDir);
+}
 
 async function exists(p: string) {
   try {
@@ -64,8 +100,9 @@ async function copyDirFiltered(src: string, dest: string): Promise<number> {
 type Mapping = { label: string; dest: string; sources: string[] };
 
 async function main() {
+  const { seedingsDir } = parseArgs();
   const root = process.cwd();
-  const seedBaseCandidates = [path.join(root, "..", "cms-seedings")];
+  const seedBaseCandidates = [resolveSeedingsRoot(root, seedingsDir)];
 
   let seedBase: string | null = null;
   for (const c of seedBaseCandidates) {
@@ -76,7 +113,7 @@ async function main() {
   }
   if (!seedBase) {
     console.error(
-      "No seed folder found. Create ../cms-seedings next to the repo and place your images inside.",
+      "No seed folder found. Create ../cms-seedings next to the repo or pass --seedings-dir / PORTFOLIO_CONTENT_DIR.",
     );
     process.exit(2);
   }

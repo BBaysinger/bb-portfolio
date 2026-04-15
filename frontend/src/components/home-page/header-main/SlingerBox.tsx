@@ -194,10 +194,12 @@ const SlingerBox = React.forwardRef<SlingerBoxHandle, SlingerBoxProps>(
     const createInitialVelocity = useCallback(() => {
       const vx =
         initialAmbientVelocityXMin +
-        Math.random() * (initialAmbientVelocityXMax - initialAmbientVelocityXMin);
+        Math.random() *
+          (initialAmbientVelocityXMax - initialAmbientVelocityXMin);
       const vy =
         initialAmbientVelocityYMin +
-        Math.random() * (initialAmbientVelocityYMax - initialAmbientVelocityYMin);
+        Math.random() *
+          (initialAmbientVelocityYMax - initialAmbientVelocityYMin);
 
       return { vx, vy };
     }, [
@@ -234,10 +236,22 @@ const SlingerBox = React.forwardRef<SlingerBoxHandle, SlingerBoxProps>(
           return { x, y, vx, vy, gravityEnabled };
         }
 
-        const gravityMinX = Math.min(bounds.maxX, bounds.minX + gravityWallInset);
-        const gravityMaxX = Math.max(bounds.minX, bounds.maxX - gravityWallInset);
-        const gravityMinY = Math.min(bounds.maxY, bounds.minY + gravityWallInset);
-        const gravityMaxY = Math.max(bounds.minY, bounds.maxY - gravityWallInset);
+        const gravityMinX = Math.min(
+          bounds.maxX,
+          bounds.minX + gravityWallInset,
+        );
+        const gravityMaxX = Math.max(
+          bounds.minX,
+          bounds.maxX - gravityWallInset,
+        );
+        const gravityMinY = Math.min(
+          bounds.maxY,
+          bounds.minY + gravityWallInset,
+        );
+        const gravityMaxY = Math.max(
+          bounds.minY,
+          bounds.maxY - gravityWallInset,
+        );
         const pointerX =
           clamp(
             pointerPosition.current.x - bounds.left,
@@ -313,13 +327,7 @@ const SlingerBox = React.forwardRef<SlingerBoxHandle, SlingerBoxProps>(
     );
 
     const resolveFreeFlightWallBounce = useCallback(
-      (
-        x: number,
-        y: number,
-        vx: number,
-        vy: number,
-        bounds: SlingerBounds,
-      ) => {
+      (x: number, y: number, vx: number, vy: number, bounds: SlingerBounds) => {
         const incomingVx = vx;
         const incomingVy = vy;
         const impactSpeed = Math.hypot(incomingVx, incomingVy);
@@ -342,7 +350,10 @@ const SlingerBox = React.forwardRef<SlingerBoxHandle, SlingerBoxProps>(
         if (nextX >= bounds.maxX && incomingVx > 0) {
           x = reflectOvershoot(nextX, bounds.minX, bounds.maxX);
           x = Math.min(x, bounds.maxX - wallSeparationNudge);
-          vx = Math.min(-incomingVx * collisionRestitution, -minimumBounceSpeed);
+          vx = Math.min(
+            -incomingVx * collisionRestitution,
+            -minimumBounceSpeed,
+          );
           vy = incomingVy;
           collidedThisFrame = true;
           notifyWallCollisionIfNeeded(
@@ -363,7 +374,10 @@ const SlingerBox = React.forwardRef<SlingerBoxHandle, SlingerBoxProps>(
         if (nextY >= bounds.maxY && incomingVy > 0) {
           y = reflectOvershoot(nextY, bounds.minY, bounds.maxY);
           y = Math.min(y, bounds.maxY - wallSeparationNudge);
-          vy = Math.min(-incomingVy * collisionRestitution, -minimumBounceSpeed);
+          vy = Math.min(
+            -incomingVy * collisionRestitution,
+            -minimumBounceSpeed,
+          );
           vx = incomingVx;
           collidedThisFrame = true;
           notifyWallCollisionIfNeeded(

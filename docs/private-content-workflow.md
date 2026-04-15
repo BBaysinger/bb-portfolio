@@ -6,6 +6,7 @@ Default content source:
 
 - `../cms-seedings` relative to this repo root.
 - Override with `PORTFOLIO_CONTENT_DIR=/absolute/path/to/your/private/content`.
+- The same override now also works for `npm run media:seed` at the repo root.
 
 Expected structure:
 
@@ -125,12 +126,33 @@ From repo root:
 - `npm run content:pull:prod:all`
 - `npm run content:pull:prod:all:dry`
 
+Alternate directory examples:
+
+- `PORTFOLIO_CONTENT_DIR=../cms-seedings/variants/opportunity-a npm run media:seed`
+- `PORTFOLIO_CONTENT_DIR=../cms-seedings/variants/opportunity-a npm run content:pull:prod:cv-experiences`
+- `PORTFOLIO_CONTENT_DIR=../cms-seedings/variants/opportunity-a npm run content:pull:prod:project-descriptions`
+- `npm run media:seed -- --seedings-dir ../cms-seedings/variants/opportunity-a`
+- `npm run media:pull:prod:cv-experience-logos -- --seedings-dir ../cms-seedings/variants/opportunity-a`
+- `npm run media:pull:prod:project-brand-logos -- --seedings-dir ../cms-seedings/variants/opportunity-a`
+
 Notes:
 
 - CV experience imports are intentionally controlled by `cv-experiences/order.yaml`, not by auto-importing every YAML file in the folder. This is the preferred workflow because it gives the developer explicit control over inclusion and ordering in Payload.
 - The root pull commands are meant for copying authored production content back into sibling `../cms-seedings` so local/dev imports can use the same content.
 - `content:pull:prod:cv-experiences` also syncs production CV logos into `../cms-seedings/cv-experience-logos/` before exporting YAML so the seedings stay importable.
 - Use `USE_GITHUB_SECRETS=true` or equivalent prod env access when invoking the backend export scripts directly.
+- A practical short-term path for targeted variants is to point these commands at different content roots, for example `../cms-seedings/variants/<target>`, while keeping Payload itself as a single effective site state.
+
+## Possible future direction
+
+If you later need targeted variants without turning Payload into a full branching CMS, the likely direction is:
+
+- Keep `base/` content plus sparse `overrides/<variant>/` content in the private content repo.
+- Let import scripts materialize `base + override` into the single effective Payload state.
+- Keep lightweight lineage metadata in the CMS so pull/export scripts know which base and override set produced the current effective content.
+- Keep merge and diff logic in scripts, not in Payload field definitions.
+
+That preserves live CMS editing while avoiding a schema-level version matrix for every field.
 
 Guarded write wrappers:
 
