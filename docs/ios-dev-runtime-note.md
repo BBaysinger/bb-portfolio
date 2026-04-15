@@ -1,8 +1,8 @@
-# iOS Next Dev Runtime Note
+# LAN Next Dev Runtime Note
 
 ## Status
 
-There is a known local-only issue when this app is opened on iOS through the LAN dev server on `:3000`.
+There is a known local-only issue when this app is opened through the LAN dev server on `:3000`.
 
 Observed behavior:
 
@@ -10,26 +10,26 @@ Observed behavior:
 - the hero can degrade to a partial render
 - client-side behavior may fail to hydrate or behave inconsistently on iOS browsers
 
-This has been observed across Safari, Chrome, and Firefox on iOS, which all share WebKit.
+This was first isolated on iOS browsers, and the current guidance should be treated as LAN-wide while the dev-runtime failure mode remains under investigation.
 
 ## Current Workaround
 
-For iOS validation over LAN, use the prod-like local server on `:3004` instead of the dev server on `:3000`.
+For LAN validation, use the prod-like local server on `:3004` instead of the dev server on `:3000`.
 
 Current guidance:
 
-- desktop development: continue using `:3000`
-- iOS validation: use `:3004`
+- desktop development: `:3000` is still fine for normal local iteration when it behaves
+- LAN validation when runtime behavior matters: use `:3004`
 
-Recommended workflow while iterating on iOS:
+Recommended workflow while iterating over LAN:
 
 - run `npm run frontend:prod-like:watch`
-- open `http://<your-lan-ip>:3004` on the iPhone
+- open `http://<your-lan-ip>:3004` on the target device
 - each frontend file change triggers a production-style rebuild and restart of the local prod-like server
 
 ## What We Verified
 
-- the problem reproduces on iOS against the local dev runtime
+- the problem reproduces against the local dev runtime on `:3000`
 - the same app works correctly on the prod-like local runtime on `:3004`
 - this points to a dev-runtime-specific problem rather than an app-code regression in the production path
 
