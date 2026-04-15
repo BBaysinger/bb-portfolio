@@ -119,12 +119,16 @@ From `backend/`:
 
 From repo root:
 
+- `PORTFOLIO_CONTENT_DIR=../cms-seeding-variants/<target> npm run content:import:local:content-dir`
+- `PORTFOLIO_CONTENT_DIR=../cms-seeding-variants/<target> ALLOW_DEV_WRITE=true npm run content:import:dev:content-dir`
 - `npm run content:pull:prod:project-descriptions`
 - `npm run content:pull:prod:project-descriptions:dry`
 - `npm run content:pull:prod:cv-experiences`
 - `npm run content:pull:prod:cv-experiences:dry`
 - `npm run content:pull:prod:all`
 - `npm run content:pull:prod:all:dry`
+- `PORTFOLIO_CONTENT_DIR=../cms-seeding-variants/<target> npm run content:pull:prod:content-dir`
+- `PORTFOLIO_CONTENT_DIR=../cms-seeding-variants/<target> npm run content:pull:prod:content-dir:dry`
 
 Alternate directory examples:
 
@@ -134,6 +138,15 @@ Alternate directory examples:
 - `npm run media:seed -- --seedings-dir ../cms-seedings/variants/opportunity-a`
 - `npm run media:pull:prod:cv-experience-logos -- --seedings-dir ../cms-seedings/variants/opportunity-a`
 - `npm run media:pull:prod:project-brand-logos -- --seedings-dir ../cms-seedings/variants/opportunity-a`
+
+Path-driven alias:
+
+- `PORTFOLIO_CONTENT_DIR=../cms-seeding-variants/interactive-developer-abbvie npm run content:import:local:content-dir`
+- `PORTFOLIO_CONTENT_DIR=../cms-seeding-variants/interactive-developer-abbvie ALLOW_DEV_WRITE=true npm run content:import:dev:content-dir`
+- `PORTFOLIO_CONTENT_DIR=../cms-seeding-variants/interactive-developer-abbvie npm run content:pull:prod:content-dir`
+- `PORTFOLIO_CONTENT_DIR=../cms-seeding-variants/interactive-developer-abbvie npm run content:pull:prod:content-dir:dry`
+- These use `PORTFOLIO_CONTENT_DIR` as the single target-root variable for media syncs, local seeding, and backend imports/exports.
+- The dev import alias also requires `ALLOW_DEV_WRITE=true` before it will write into the dev environment.
 
 Notes:
 
