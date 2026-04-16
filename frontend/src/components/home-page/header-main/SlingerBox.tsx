@@ -90,8 +90,9 @@ type SlingerBounds = {
 /**
  * SlingerBox component
  *
- * Renders draggable slingers inside a bounded container with sampled release
- * velocity, wall reflection, and optional pointer attraction.
+ * Renders draggable slingers (objects you can grab and toss around)
+ * inside a bounded container with sampled release velocity and wall
+ * reflection.
  *
  * @component
  * @param {SlingerBoxProps} props - Component props containing optional drag event handlers.

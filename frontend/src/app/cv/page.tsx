@@ -266,7 +266,7 @@ const CurriculumVitae: React.FC = () => {
                   A.A.S. Web Design — Honors
                 </div>
                 <div className={styles.break}></div>
-                <div className={styles.rightSub}>[ 09.2003 - 06.2005 ]</div>
+                <div className={styles.rightSub}>[ 2003 - 2005 ]</div>
               </div>
 
               <p ref={addToRefs} className={styles.desc}>
