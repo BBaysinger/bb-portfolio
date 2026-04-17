@@ -210,8 +210,8 @@
     "install:all": "concurrently \"npm install\" \"cd backend && npm install\" \"cd frontend && npm install\" --names \"root,backend,frontend\" --prefix-colors \"yellow,blue,green\"",
     // 📦 Guarded dependency update across root, backend, and frontend
     // Blocks known-bad major bumps (for example eslint@10 while current plugins only support eslint^9)
-    // Runs npm install per package root and syncs package.json5 only if everything succeeds
     // Keeps routine upgrades separate from npm audit fix so security-driven lockfile/transitive churn is reviewed independently.
+    // Runs npm install per package root and syncs package.json5 only if everything succeeds
     "update:deps": "tsx scripts/update-deps-guarded.ts",
     // 🔎 Preview guarded updates without changing files
     // Shows which upgrades would be applied and which ones are blocked by guardrails
@@ -368,7 +368,7 @@
   // Development tooling for the monorepo root (formatting, linting, TS, runners)
   "devDependencies": {
     // Next.js-specific ESLint rules for best practices
-    "@next/eslint-plugin-next": "^16.2.3",
+    "@next/eslint-plugin-next": "^16.2.4",
     // TypeScript type definitions for glob
     "@types/glob": "^9.0.0",
     // ESLint plugin for TypeScript-specific linting rules
@@ -384,7 +384,7 @@
     // ESLint plugin for import/export syntax validation
     "eslint-plugin-import": "^2.32.0",
     // ESLint plugin for React hooks rules
-    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-hooks": "^7.1.0",
     // ESLint plugin for React Fast Refresh support
     "eslint-plugin-react-refresh": "^0.5.2",
     // File pattern matching utility
@@ -404,7 +404,7 @@
     // TypeScript/ESM runner for scripts
     "tsx": "^4.21.0",
     // TypeScript language support
-    "typescript": "^6.0.2",
+    "typescript": "^6.0.3",
   },
   // Root-level runtime deps used by maintenance scripts (prefer package-level deps when possible)
   "dependencies": {
