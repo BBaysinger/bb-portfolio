@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 
 import { useRouteChange } from "@/hooks/useRouteChange";
-import { getDynamicPathParam } from "@/utils/getDynamicPathParam";
+import { getCommittedProjectIdFromLocation } from "@/utils/projectRoute";
 
 /**
  * useProjectUrlSync
@@ -33,7 +33,7 @@ export function useProjectUrlSync(
   useRouteChange(
     (_pathname) => {
       const next = fallbackFromPathSegment
-        ? getDynamicPathParam(-1, initialProjectId)
+        ? getCommittedProjectIdFromLocation(initialProjectId)
         : "";
       if (next && next !== projectId) {
         if (DEBUG)
@@ -51,7 +51,7 @@ export function useProjectUrlSync(
   useEffect(() => {
     const frame = requestAnimationFrame(() => {
       const live = fallbackFromPathSegment
-        ? getDynamicPathParam(-1, initialProjectId)
+        ? getCommittedProjectIdFromLocation(initialProjectId)
         : "";
       if (live && live !== projectId) setProjectId(live);
     });
@@ -64,7 +64,7 @@ export function useProjectUrlSync(
     const handler = () => {
       try {
         const next = fallbackFromPathSegment
-          ? getDynamicPathParam(-1, initialProjectId)
+          ? getCommittedProjectIdFromLocation(initialProjectId)
           : "";
         if (DEBUG) {
           console.info("[useProjectUrlSync] popstate detected", {

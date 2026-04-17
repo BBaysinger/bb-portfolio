@@ -24,9 +24,10 @@ import ProjectData from "@/data/ProjectData";
 import { useProjectDataVersion } from "@/hooks/useProjectDataVersion";
 import { useRouteChange } from "@/hooks/useRouteChange";
 import {
-  navigateWithPushState,
-  replaceWithReplaceState,
-} from "@/utils/navigation";
+  getCommittedProjectIdFromPath,
+  setCommittedProjectIdInUrl,
+} from "@/utils/projectRoute";
+import { replaceWithReplaceState } from "@/utils/navigation";
 
 import ProjectCarouselView from "./ProjectCarouselView";
 import styles from "./ProjectView.module.scss";
@@ -164,20 +165,7 @@ const ProjectView: React.FC<{ projectId: string; allowNda?: boolean }> = ({
   // Listen for route changes (external/custom) and keep lastKnownProjectId in sync
   useRouteChange(
     (pathname) => {
-      const seg = (() => {
-        try {
-          const segs = (pathname || window.location.pathname || "")
-            .split("/")
-            .filter(Boolean);
-          return segs.length >= 2 &&
-            (segs[0] === "project" || segs[0] === "nda-included")
-            ? segs[1]
-            : "";
-        } catch {
-          return "";
-        }
-      })();
-      const next = seg;
+      const next = getCommittedProjectIdFromPath(pathname || "");
       if (next && next !== lastKnownProjectId.current) {
         lastKnownProjectId.current = next;
       }
@@ -241,8 +229,6 @@ const ProjectView: React.FC<{ projectId: string; allowNda?: boolean }> = ({
           // Base selection:
           // - Public carousel (allowNda=false): always /project/
           // - NDA-included carousel (allowNda=true): always /nda-included/
-          const hrefBase = Boolean(allowNda) ? "/nda-included/" : "/project/";
-          const targetHref = `${hrefBase}${encodeURIComponent(newProjectId)}/`;
           // Mark this navigation as originating from the carousel so we can
           // suppress the subsequent route-driven programmatic scroll.
           try {
@@ -255,29 +241,29 @@ const ProjectView: React.FC<{ projectId: string; allowNda?: boolean }> = ({
             lastCarouselPushTsRef.current = state.ts as number;
             if (debug) {
               try {
-                console.info("[Carousel] navigateWithPushState", {
-                  targetHref,
+                console.info("[Carousel] setCommittedProjectIdInUrl", {
+                  allowNda: Boolean(allowNda),
+                  projectId: newProjectId,
                   state,
                 });
               } catch {}
             }
-            navigateWithPushState(targetHref, state, {
-              // Enable double-push fallback for gesture reliability if env flag is set
-              useDoublePushFallback:
-                process.env.NEXT_PUBLIC_DOUBLE_PUSH === "1",
+            setCommittedProjectIdInUrl(newProjectId, {
+              allowNda: Boolean(allowNda),
+              mode: "push",
+              state,
+              useDoublePushFallback: process.env.NEXT_PUBLIC_DOUBLE_PUSH === "1",
             });
           } catch {
             // Fallback if history.state is not accessible for any reason
-            navigateWithPushState(
-              targetHref,
-              {
+            setCommittedProjectIdInUrl(newProjectId, {
+              allowNda: Boolean(allowNda),
+              mode: "push",
+              state: {
                 source: "carousel",
               },
-              {
-                useDoublePushFallback:
-                  process.env.NEXT_PUBLIC_DOUBLE_PUSH === "1",
-              },
-            );
+              useDoublePushFallback: process.env.NEXT_PUBLIC_DOUBLE_PUSH === "1",
+            });
             lastCarouselPushTsRef.current =
               typeof Date.now === "function" ? Date.now() : null;
           }
