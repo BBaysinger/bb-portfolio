@@ -90,7 +90,6 @@ const LayeredCarouselManager = forwardRef<
     },
     ref,
   ) => {
-    const stabilizedIndexRef = useRef<number | null>(initialIndex);
     const [stabilizedIndex, setStabilizedIndex] = useState(initialIndex);
     // IMPORTANT: Do NOT store CarouselRef handles in React state.
     // Carousel's imperative handle object can change identity on re-renders,
@@ -170,7 +169,6 @@ const LayeredCarouselManager = forwardRef<
       source: SourceType,
       direction: DirectionType,
     ) => {
-      stabilizedIndexRef.current = index;
       setStabilizedIndex(index);
       // Clear direction when stabilized so phones return to neutral position
       setCurrentDirection(null);
