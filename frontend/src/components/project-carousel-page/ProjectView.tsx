@@ -202,22 +202,6 @@ const ProjectView: React.FC<{ projectId: string; allowNda?: boolean }> = ({
       if (typeof targetIndex !== "number" || targetIndex < 0) {
         return;
       }
-      if (debug) {
-        try {
-          console.info("[Carousel] route→scroll action", {
-            projectId,
-            targetIndex,
-            displayIndex,
-            isCarouselSource: isCarouselSourceRef.current,
-            routeFromCarousel:
-              typeof window !== "undefined" &&
-              !!(
-                window.history?.state &&
-                window.history.state.source === "carousel"
-              ),
-          });
-        } catch {}
-      }
 
       // If the route change was initiated by the carousel (gesture), skip
       // programmatic scrolling to avoid a duplicate slide and wrong index.
@@ -230,6 +214,18 @@ const ProjectView: React.FC<{ projectId: string; allowNda?: boolean }> = ({
           (lastCarouselPushTsRef.current == null ||
             window.history.state.ts === lastCarouselPushTsRef.current)
         );
+
+      if (debug) {
+        try {
+          console.info("[Carousel] route→scroll action", {
+            projectId,
+            targetIndex,
+            displayIndex,
+            isCarouselSource: isCarouselSourceRef.current,
+            routeFromCarousel,
+          });
+        } catch {}
+      }
 
       if (
         displayIndex !== targetIndex &&
