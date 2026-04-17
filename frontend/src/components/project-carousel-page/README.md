@@ -2,6 +2,15 @@
 
 This README collects the architecture notes for the project carousel and the browser-history behavior that goes with it.
 
+## Current Direction (2026-04)
+
+- We are refactoring toward SSG-first project routes.
+- NDA-included routes should use sanitized placeholders in static data and upgrade client-side when authenticated.
+- Non-negotiable invariant: route changes must NOT rerender/remount the carousel in a way that interrupts transitions.
+- Non-negotiable invariant: the wrap-cycle offset strategy in `Carousel.tsx` is intentional for infinite continuity and must be preserved.
+- In-session navigation should use segment routes (`/project/{slug}/`, `/nda-included/{slug}/`) via client `pushState` so the mounted carousel instance is preserved.
+- Routing preference: implement active carousel navigation without query strings when feasible; query strings are acceptable only when they are the only or clearly best option and still preserve mounted-carousel continuity.
+
 ## Refactor Goal
 
 Simplify carousel selection, URL synchronization, and history behavior so one controller owns the committed selection state.
@@ -46,7 +55,7 @@ Key files:
 - `PageButtons.tsx`
   - prev/next navigation using pushState routing
 - `@/hooks/useProjectUrlSync`
-  - syncs `projectId` with `?p=` and listens for external route changes
+  - syncs `projectId` from route path and listens for external route changes
 - `@/utils/navigation`
   - encapsulates pushState/replaceState and dispatches `bb:routechange`
 
@@ -58,8 +67,8 @@ Observed complexity drivers:
   - initial index
   - dataset re-initialization after NDA access changes
 - Different URL shapes during lifecycle:
-  - canonical segment route: `/project/{slug}/` or `/nda/{slug}/`
-  - in-session query route: `/project/?p={slug}` or `/nda/?p={slug}`
+  - segment route: `/project/{slug}/` or `/nda-included/{slug}/`
+  - legacy query routes are compatibility-only redirects
 - Coordination across timing boundaries:
   - `useLayoutEffect` vs `useEffect`
   - scroll listener attachment timing
@@ -111,9 +120,9 @@ This becomes the only place where URL ↔ carousel synchronization happens.
 
 Recommended:
 
-- in-session navigation always uses `?p=`
-- canonical links still point to `/project/{slug}/` or `/nda/{slug}/`
-- if segment → query normalization is desired, do it once in one place
+- in-session navigation uses segment routes
+- canonical links point to `/project/{slug}/` or `/nda-included/{slug}/`
+- legacy query routes (`?p=`) should redirect and not be used as active navigation state
 
 ### 4. Prefer idempotency over history markers
 
@@ -158,8 +167,8 @@ Only the controller should perform push/replace operations.
 
 ### Phase 4. Normalize URL shape strategy
 
-- decide whether segment routes normalize to query routes on entry
-- keep the normalization idempotent and localized
+- keep segment routes as the only active navigation shape
+- keep query-param route handling only as backward-compatible redirects
 
 ### Phase 5. Regression cleanup
 
@@ -212,5 +221,6 @@ If bulletproof behavior is needed without a prior click:
 - No coordination flags are required for correctness.
 - All URL parsing and writing is centralized.
 - One controller owns URL ↔ carousel sync.
+- Carousel instance remains mounted across route changes during in-session navigation.
 - Back/Forward works without relying on “click into carousel first”.
 - At least minimal automated coverage or a documented manual QA checklist exists.

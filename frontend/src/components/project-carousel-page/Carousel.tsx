@@ -199,6 +199,8 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
     // Each rendered slide belongs to a repeated "cycle" of the finite slide set.
     // This offset chooses which cycle to place that slide in so a single set of
     // DOM nodes can appear to wrap infinitely in the current scroll direction.
+    // IMPORTANT: This wrap-cycle placement is intentional and must be preserved.
+    // Do not replace with route-driven remount/rerender behavior.
     memoizedSlides.forEach((_, index) => {
       let wrapCycleOffset: number | null = null;
       const threshold = 2;
