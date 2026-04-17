@@ -19,22 +19,15 @@ import { getCommittedProjectIdFromLocation } from "@/utils/projectRoute";
  */
 export function useProjectUrlSync(
   initialProjectId: string,
-  opts?: {
-    /** When true, if `?p` is absent we fallback to the last path segment */
-    fallbackFromPathSegment?: boolean;
-  },
 ): [string, React.Dispatch<React.SetStateAction<string>>] {
   const DEBUG = process.env.NEXT_PUBLIC_DEBUG_NAVIGATION === "1";
-  const fallbackFromPathSegment = opts?.fallbackFromPathSegment ?? true;
 
   const [projectId, setProjectId] = useState<string>(initialProjectId);
 
   // Listen for external route changes and update local state from URL
   useRouteChange(
     (_pathname) => {
-      const next = fallbackFromPathSegment
-        ? getCommittedProjectIdFromLocation(initialProjectId)
-        : "";
+      const next = getCommittedProjectIdFromLocation(initialProjectId);
       if (next && next !== projectId) {
         if (DEBUG)
           console.info("[useProjectUrlSync] external route -> projectId", {
@@ -50,22 +43,18 @@ export function useProjectUrlSync(
   // Sync from live window location on mount (belt & suspenders)
   useEffect(() => {
     const frame = requestAnimationFrame(() => {
-      const live = fallbackFromPathSegment
-        ? getCommittedProjectIdFromLocation(initialProjectId)
-        : "";
+      const live = getCommittedProjectIdFromLocation(initialProjectId);
       if (live && live !== projectId) setProjectId(live);
     });
     return () => cancelAnimationFrame(frame);
-  }, [fallbackFromPathSegment, initialProjectId, projectId]);
+  }, [initialProjectId, projectId]);
 
   // Explicit popstate fallback to ensure Back/Forward restores projectId
   useEffect(() => {
     if (typeof window === "undefined") return;
     const handler = () => {
       try {
-        const next = fallbackFromPathSegment
-          ? getCommittedProjectIdFromLocation(initialProjectId)
-          : "";
+        const next = getCommittedProjectIdFromLocation(initialProjectId);
         if (DEBUG) {
           console.info("[useProjectUrlSync] popstate detected", {
             url: window.location.href,
@@ -84,7 +73,7 @@ export function useProjectUrlSync(
     };
     window.addEventListener("popstate", handler);
     return () => window.removeEventListener("popstate", handler);
-  }, [projectId, initialProjectId, fallbackFromPathSegment, DEBUG]);
+  }, [projectId, initialProjectId, DEBUG]);
 
   return [projectId, setProjectId];
 }

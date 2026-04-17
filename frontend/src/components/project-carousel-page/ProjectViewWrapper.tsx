@@ -281,10 +281,7 @@ function ProjectViewRouterBridge({
   initialProjectId: string;
   allowNda: boolean;
 }) {
-  const [projectId] = useProjectUrlSync(initialProjectId, {
-    fallbackFromPathSegment: true,
-    // Hash uniquing removed; Back/Forward is stable without it in supported browsers.
-  });
+  const [projectId] = useProjectUrlSync(initialProjectId);
   // Shareable/canonical URLs follow the current carousel context.
   // - Public carousel (allowNda=false): /project/
   // - NDA-included carousel (allowNda=true): /nda-included/
