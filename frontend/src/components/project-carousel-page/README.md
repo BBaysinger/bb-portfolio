@@ -45,9 +45,8 @@ Key files:
   - hydrates `ProjectData` and bridges SSR to client
   - uses `useProjectUrlSync` to derive `projectId`
 - `ProjectView.tsx`
-  - owns route → carousel scroll
-  - owns carousel stabilization → history push
-  - currently carries several coordination guards
+  - owns view composition and route-driven scroll dispatch
+  - delegates selection synchronization concerns to `useProjectSelectionController`
 - `Carousel.tsx`
   - owns scroll physics, measurement, and stabilization callbacks
 - `LayeredCarouselManager.tsx`
@@ -55,7 +54,9 @@ Key files:
 - `PageButtons.tsx`
   - prev/next navigation using pushState routing
 - `@/hooks/useProjectUrlSync`
-  - syncs `projectId` from route path and listens for external route changes
+  - syncs `projectId` from segment path and listens for external route changes
+- `@/hooks/useProjectSelectionController`
+  - centralizes carousel stabilization -> URL commit and route-sync guard refs
 - `@/utils/navigation`
   - encapsulates pushState/replaceState and dispatches `bb:routechange`
 
@@ -149,28 +150,28 @@ Only the controller should perform push/replace operations.
 - what “commit” means
 - which URL shape is used for in-session navigation
 
-### Phase 1. Centralize URL parsing and committing
+### Phase 1. Centralize URL parsing and committing (Completed)
 
 - implement `getCommittedProjectIdFromUrl(...)`
 - implement `setCommittedProjectIdInUrl(projectId, { mode })`
 - replace scattered URL parsing logic
 
-### Phase 2. Introduce selection controller
+### Phase 2. Introduce selection controller (Completed)
 
 - move route → scroll and stabilization → URL update into a dedicated controller hook
 - remove `lastKnownProjectId`, `routeFromCarousel`, and most history marker handling
 - keep public Carousel and LayeredCarouselManager APIs stable
 
-### Phase 3. Add explicit readiness
+### Phase 3. Add explicit readiness (Completed)
 
 - add `onReady`, or make initial stabilization reliable enough to replace first-stabilize guards
 
-### Phase 4. Normalize URL shape strategy
+### Phase 4. Normalize URL shape strategy (Completed)
 
 - keep segment routes as the only active navigation shape
 - keep query-param route handling only as backward-compatible redirects
 
-### Phase 5. Regression cleanup
+### Phase 5. Regression cleanup (In Progress)
 
 - delete unused paths
 - verify NDA/public canonical behavior
