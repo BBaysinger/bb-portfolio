@@ -157,21 +157,16 @@ const ProjectView: React.FC<{ projectId: string; allowNda?: boolean }> = ({
   // No need to memoize a tiny string; we'll inline `bb${uiDirection}` where used.
 
   // Routing model notes (do not remove):
-  // - Canonical entry from the list: segment URLs (/project/{slug} or /nda-included/{slug}).
-  // - In-session navigation (carousel gestures + prev/next): query-string ?p={slug}.
-  //   We normalize on first stabilization by converting any segment entry into ?p=
-  //   and dispatch bb:routechange so all listeners stay consistent.
+  // - Canonical entry from the list uses segment URLs: /project/{slug} or /nda-included/{slug}.
+  // - In-session navigation (carousel gestures + prev/next) also uses segment URLs.
   // - This hook listens external-only (bb:routechange, popstate, hashchange) to avoid
-  //   Next's internal noise; it also falls back to parsing the last path segment when
-  //   ?p is absent so both URL styles are handled.
+  //   Next's internal noise while keeping the last path segment as the source of truth.
   // Listen for route changes (external/custom) and keep lastKnownProjectId in sync
   useRouteChange(
-    (_pathname, search) => {
-      const p = new URLSearchParams(search).get("p") || "";
-      // Fallback to segment when ?p is absent
+    (pathname) => {
       const seg = (() => {
         try {
-          const segs = (window.location.pathname || "")
+          const segs = (pathname || window.location.pathname || "")
             .split("/")
             .filter(Boolean);
           return segs.length >= 2 &&
@@ -182,7 +177,7 @@ const ProjectView: React.FC<{ projectId: string; allowNda?: boolean }> = ({
           return "";
         }
       })();
-      const next = p || seg;
+      const next = seg;
       if (next && next !== lastKnownProjectId.current) {
         lastKnownProjectId.current = next;
       }
@@ -211,29 +206,6 @@ const ProjectView: React.FC<{ projectId: string; allowNda?: boolean }> = ({
           });
         } catch {}
       }
-      // Canonicalize segment entry to query once per mount for in-session navigation
-      if (!canonicalizedRef.current) {
-        try {
-          const searchNow =
-            typeof window !== "undefined" ? window.location.search : "";
-          const hasQuery = new URLSearchParams(searchNow).has("p");
-          if (!hasQuery && typeof window !== "undefined") {
-            const currentId = lastKnownProjectId.current;
-            if (currentId) {
-              // Preserve the current segment path (valid Next route) and add ?p= for
-              // in-session navigation listeners.
-              const path = window.location.pathname || "";
-              const hash = window.location.hash || "";
-              const url = `${path}?p=${encodeURIComponent(currentId)}${hash}`;
-              replaceWithReplaceState(url, window.history.state || null);
-            }
-          }
-        } catch {
-          // ignore if not in browser
-        } finally {
-          canonicalizedRef.current = true;
-        }
-      }
       if (stabilizedIndex !== newStabilizedIndex) {
         isCarouselSourceRef.current = true;
 
@@ -261,19 +233,16 @@ const ProjectView: React.FC<{ projectId: string; allowNda?: boolean }> = ({
           newProjectId !== lastKnownProjectId.current &&
           source === Source.SCROLL
         ) {
-          // In-session navigation MUST use query-string routes; do not change segments here.
           // Why push here (plain English):
           // - When we call pushState during the user's actual click/gesture,
           //   browsers record it as a normal navigation step, so Back/Forward stops on it.
           // - If we wait and push later (after timers/async), some browsers may merge/skip it.
           // Clicking into the carousel is a real click, so pushing now yields predictable history.
-          // In-session carousel navigation uses query-string routes.
           // Base selection:
           // - Public carousel (allowNda=false): always /project/
           // - NDA-included carousel (allowNda=true): always /nda-included/
           const hrefBase = Boolean(allowNda) ? "/nda-included/" : "/project/";
-          // Keep a valid segment URL so refresh/deeplinks always work.
-          const targetHref = `${hrefBase}${encodeURIComponent(newProjectId)}/?p=${encodeURIComponent(newProjectId)}`;
+          const targetHref = `${hrefBase}${encodeURIComponent(newProjectId)}/`;
           // Mark this navigation as originating from the carousel so we can
           // suppress the subsequent route-driven programmatic scroll.
           try {
@@ -325,9 +294,6 @@ const ProjectView: React.FC<{ projectId: string; allowNda?: boolean }> = ({
     },
     [stabilizedIndex, debug, allowNda, slideKeys],
   );
-
-  // On first stabilization after mount, canonicalize segment entry to query ?p=
-  const canonicalizedRef = useRef(false);
 
   useEffect(() => {
     lastKnownProjectId.current = projectId;

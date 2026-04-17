@@ -183,11 +183,9 @@ export function AppShell({
         const path = pathname || "";
         const isCarouselPage = /\/(project|nda-included)\//.test(path);
         if (!isCarouselPage) return false;
-        const hasP = new URL(window.location.href).searchParams.has("p");
-        // When the project carousel manages the active item via ?p, avoid
-        // router.refresh on focus/visibility which can cause Next to rewrite
-        // the dynamic segment and fight the carousel's state.
-        return hasP;
+        // Avoid router.refresh on project carousel pages where the active item
+        // is client-managed via pushState path updates.
+        return true;
       } catch {
         return false;
       }

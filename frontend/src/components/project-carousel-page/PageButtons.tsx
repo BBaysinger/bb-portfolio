@@ -33,7 +33,7 @@ import styles from "./PageButtons.module.scss";
  *
  * Architecture:
  * - Integrates with ProjectData for next/prev project resolution
- * - Uses query-string routing (?p=slug) for in-session navigation
+ * - Uses segment routing for in-session navigation
  * - Supports both public and NDA project collections
  * - Emits custom bb:routechange events for state synchronization
  *
@@ -43,11 +43,8 @@ import styles from "./PageButtons.module.scss";
 /**
  * Routing model notes (do not remove):
  * - Canonical entry from the list uses segment URLs: /project/{slug} or /nda-included/{slug}.
- * - In-session navigation (carousel gestures and these prev/next buttons) MUST use
- *   query-string routes: /project/?p={slug} or /nda-included/?p={slug}.
- *   This keeps SPA behavior stable and avoids segment churn while interacting.
- * - The ProjectView will canonicalize an initial segment entry to ?p= on first stabilization
- *   and dispatch a bb:routechange so listeners update consistently.
+ * - In-session navigation (carousel gestures and these prev/next buttons) also uses
+ *   segment routes so the visible URL remains the source of truth.
  */
 const PageButtons: React.FC<{ projectId: string; allowNda?: boolean }> = ({
   projectId,
@@ -65,11 +62,9 @@ const PageButtons: React.FC<{ projectId: string; allowNda?: boolean }> = ({
 
   const prevId = ProjectData.prevKey(projectId);
   const nextId = ProjectData.nextKey(projectId);
-  // In-session carousel navigation must use query-string model (see routing notes above)
-  // and must remain within the current carousel context.
   const base = allowNda ? "/nda-included/" : "/project/";
-  const prevHref = `${base}?p=${encodeURIComponent(prevId)}`;
-  const nextHref = `${base}?p=${encodeURIComponent(nextId)}`;
+  const prevHref = `${base}${encodeURIComponent(prevId)}/`;
+  const nextHref = `${base}${encodeURIComponent(nextId)}/`;
 
   return (
     <div

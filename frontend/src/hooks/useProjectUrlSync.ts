@@ -1,25 +1,18 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { useRouteChange } from "@/hooks/useRouteChange";
 import { getDynamicPathParam } from "@/utils/getDynamicPathParam";
-import {
-  navigateWithPushState,
-  replaceWithReplaceState,
-} from "@/utils/navigation";
-import { getLocationSearchParam, getSearchParam } from "@/utils/searchParams";
 
 /**
  * useProjectUrlSync
  *
  * Contract
- * - Input: initialProjectId from the current route entry (segment or query).
- * - Behavior: Keeps `?p` in sync with the active projectId.
- *   - First sync uses replaceState (avoid polluting history).
- *   - Subsequent changes use pushState with optional hash uniquing.
+ * - Input: initialProjectId from the current route entry.
+ * - Behavior: Treats the dynamic path segment as the single source of truth.
  * - Listens to external-only route changes (popstate + custom bb:routechange)
- *   and updates local state from either `?p` or the last path segment.
+ *   and updates local state from the last path segment.
  * - Adds a popstate fallback listener for extra reliability.
  *
  * Returns: [projectId, setProjectId]
@@ -33,19 +26,15 @@ export function useProjectUrlSync(
 ): [string, React.Dispatch<React.SetStateAction<string>>] {
   const DEBUG = process.env.NEXT_PUBLIC_DEBUG_NAVIGATION === "1";
   const fallbackFromPathSegment = opts?.fallbackFromPathSegment ?? true;
-  // Hash uniquing removed for simplicity; Back/Forward is stable without it in supported browsers.
 
   const [projectId, setProjectId] = useState<string>(initialProjectId);
-  const firstUrlSyncRef = useRef(true);
 
   // Listen for external route changes and update local state from URL
   useRouteChange(
-    (_pathname, search) => {
-      const p = getSearchParam(search, "p");
-      const fromSeg = fallbackFromPathSegment
+    (_pathname) => {
+      const next = fallbackFromPathSegment
         ? getDynamicPathParam(-1, initialProjectId)
         : "";
-      const next = p || fromSeg;
       if (next && next !== projectId) {
         if (DEBUG)
           console.info("[useProjectUrlSync] external route -> projectId", {
@@ -61,70 +50,31 @@ export function useProjectUrlSync(
   // Sync from live window location on mount (belt & suspenders)
   useEffect(() => {
     const frame = requestAnimationFrame(() => {
-      const live = (() => {
-        const qp = getLocationSearchParam("p");
-        if (qp) return qp;
-        return fallbackFromPathSegment
-          ? getDynamicPathParam(-1, initialProjectId)
-          : "";
-      })();
+      const live = fallbackFromPathSegment
+        ? getDynamicPathParam(-1, initialProjectId)
+        : "";
       if (live && live !== projectId) setProjectId(live);
     });
     return () => cancelAnimationFrame(frame);
   }, [fallbackFromPathSegment, initialProjectId, projectId]);
-
-  // Keep URL in sync with projectId: initial replace, then push
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    if (!projectId) return;
-
-    const url = new URL(window.location.href);
-    const currentP = getSearchParam(url.search, "p");
-    if (currentP === projectId) return;
-
-    url.searchParams.set("p", projectId);
-    const nextHref = url.toString();
-    const isInitial = firstUrlSyncRef.current;
-
-    if (isInitial) {
-      if (DEBUG)
-        console.info("[useProjectUrlSync] initial URL sync (replace)", {
-          from: window.location.href,
-          to: nextHref,
-          projectId,
-        });
-      replaceWithReplaceState(nextHref);
-      firstUrlSyncRef.current = false;
-    } else {
-      if (DEBUG)
-        console.info("[useProjectUrlSync] push projectId", {
-          from: window.location.href,
-          to: nextHref,
-          projectId,
-        });
-      navigateWithPushState(nextHref, { projectId });
-    }
-  }, [projectId, DEBUG]);
 
   // Explicit popstate fallback to ensure Back/Forward restores projectId
   useEffect(() => {
     if (typeof window === "undefined") return;
     const handler = () => {
       try {
-        const p =
-          getLocationSearchParam("p") ||
-          (fallbackFromPathSegment
-            ? getDynamicPathParam(-1, initialProjectId)
-            : "");
+        const next = fallbackFromPathSegment
+          ? getDynamicPathParam(-1, initialProjectId)
+          : "";
         if (DEBUG) {
           console.info("[useProjectUrlSync] popstate detected", {
             url: window.location.href,
-            p,
+            next,
             currentProjectId: projectId,
           });
         }
-        if (p && p !== projectId) {
-          setProjectId(p);
+        if (next && next !== projectId) {
+          setProjectId(next);
         }
       } catch (err) {
         if (DEBUG) {

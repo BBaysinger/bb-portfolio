@@ -94,7 +94,7 @@ export function GoogleAnalytics() {
     sendPageView(url);
   }, []);
 
-  // Important for this app: carousel navigation updates `?p=` via history.pushState
+  // Important for this app: carousel navigation updates path segments via history.pushState
   // (not Next.js router), so we must also listen to external navigation signals
   // like our custom bb:routechange.
   useRouteChange(handleRouteChange, { mode: "both" });
