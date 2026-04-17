@@ -152,7 +152,7 @@ Only the controller should perform push/replace operations.
 
 ### Phase 1. Centralize URL parsing and committing (Completed)
 
-- implement `getCommittedProjectIdFromUrl(...)`
+- implement `getCommittedProjectIdFromPath(...)` / `getCommittedProjectIdFromLocation(...)`
 - implement `setCommittedProjectIdInUrl(projectId, { mode })`
 - replace scattered URL parsing logic
 
@@ -171,7 +171,7 @@ Only the controller should perform push/replace operations.
 - keep segment routes as the only active navigation shape
 - keep query-param route handling only as backward-compatible redirects
 
-### Phase 5. Regression cleanup (In Progress)
+### Phase 5. Regression cleanup (Completed)
 
 - delete unused paths
 - verify NDA/public canonical behavior
