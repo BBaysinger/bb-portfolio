@@ -14,7 +14,7 @@ For core internals and package-extraction notes, see `carousel-core/README.md`.
 
 - We are refactoring toward SSG-first project routes.
 - NDA-included routes should use sanitized placeholders in static data and upgrade client-side when authenticated.
-- Non-negotiable invariant: route changes must NOT rerender/remount the carousel in a way that interrupts transitions.
+- Core behavior invariants are defined in `carousel-core/README.md` and treated as source of truth.
 - In-session navigation should use segment routes (`/project/{slug}/`, `/nda-included/{slug}/`) via client `pushState` so the mounted carousel instance is preserved.
 - Routing preference: implement active carousel navigation without query strings when feasible; query strings are acceptable only when they are the only or clearly best option and still preserve mounted-carousel continuity.
 
