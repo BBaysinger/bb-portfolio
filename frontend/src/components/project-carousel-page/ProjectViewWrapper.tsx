@@ -295,7 +295,7 @@ function ProjectViewRouterBridge({
     if (!allowNda) return; // On public route, never pull NDA into active set.
     const ensureNdaPresent = async () => {
       // If NDA is allowed and current active set lacks NDA items,
-      // reinitialize to include them and bump epoch to remount the carousel.
+      // reinitialize to include them while preserving the mounted carousel.
       const hasNdaInActive = ProjectData.activeProjects.some((p) =>
         projectRequiresNda(p),
       );
