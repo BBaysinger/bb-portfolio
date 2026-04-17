@@ -142,6 +142,7 @@ function Hero({ initialRoleTitle }: HeroProps) {
   const slingerIsIdle = useRef(false);
   const gridControllerRef = useRef<GridControllerHandle>(null);
   const heroRef = useRef<HTMLDivElement>(null);
+  const isSlingerInFlightRef = useRef(false);
 
   useStableViewportHeightVar(heroRef, {
     cssVarName: "--hero-stable-vh",
@@ -287,7 +288,7 @@ function Hero({ initialRoleTitle }: HeroProps) {
 
   const startSlingerTracking = useCallback(() => {
     const animate = () => {
-      if (isSlingerInFlight) return;
+      if (isSlingerInFlightRef.current) return;
       const pos = slingerRef.current?.getSlingerPosition?.();
       if (pos) {
         gridControllerRef.current?.applyFluxPosition(pos.x, pos.y);
@@ -295,7 +296,7 @@ function Hero({ initialRoleTitle }: HeroProps) {
       slingerLoopId.current = requestAnimationFrame(animate);
     };
     slingerLoopId.current = requestAnimationFrame(animate);
-  }, [isSlingerInFlight]);
+  }, []);
 
   const onSlingerIdle = useCallback(() => {
     slingerIsIdle.current = true;
@@ -311,6 +312,10 @@ function Hero({ initialRoleTitle }: HeroProps) {
     gridControllerRef.current?.resumeShadows?.();
     startSlingerTracking();
   }, [startSlingerTracking, useSlingerTracking]);
+
+  useEffect(() => {
+    isSlingerInFlightRef.current = isSlingerInFlight;
+  }, [isSlingerInFlight]);
 
   const restartHeroRuntime = useCallback(() => {
     if (slingerLoopId.current) {
@@ -374,17 +379,30 @@ function Hero({ initialRoleTitle }: HeroProps) {
       });
     }
 
-    // Only start the tracking loop if enabled
-    if (useSlingerTracking) {
-      startSlingerTracking();
-    }
-
     return () => {
       cancelAnimationFrame(mountRaf);
       if (hydrationRaf) cancelAnimationFrame(hydrationRaf);
-      if (slingerLoopId.current) cancelAnimationFrame(slingerLoopId.current);
     };
-  }, [useSlingerTracking, startSlingerTracking]);
+  }, []);
+
+  useEffect(() => {
+    if (!useSlingerTracking) {
+      if (slingerLoopId.current) {
+        cancelAnimationFrame(slingerLoopId.current);
+        slingerLoopId.current = null;
+      }
+      return;
+    }
+
+    startSlingerTracking();
+
+    return () => {
+      if (slingerLoopId.current) {
+        cancelAnimationFrame(slingerLoopId.current);
+        slingerLoopId.current = null;
+      }
+    };
+  }, [startSlingerTracking, useSlingerTracking]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -519,7 +537,6 @@ function Hero({ initialRoleTitle }: HeroProps) {
             key={`typewriter-${heroRuntimeKey}-${playHeroIntro ? "intro" : "quotes"}`}
             paragraphs={heroParagraphs}
             className={styles.message}
-            paused={!mounted || !isSlingerIdle}
             onParagraphComplete={handleHeroParagraphComplete}
           />
         ) : null}
