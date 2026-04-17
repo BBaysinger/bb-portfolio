@@ -11,6 +11,7 @@ import {
 export type {
   HeightOnlyResizeContext,
   HeightOnlyResizePolicy,
+  StableViewportHeightMode,
   UseStableViewportHeightOptions,
 } from "./useStableViewportHeight";
 
@@ -31,7 +32,12 @@ export default function useStableViewportHeightVar(
 
   useEffect(() => {
     const el = elementRef.current;
-    if (!el || stableHeightPx === null) return;
+    if (!el) return;
+
+    if (stableHeightPx === null) {
+      el.style.removeProperty(cssVarName);
+      return;
+    }
 
     el.style.setProperty(cssVarName, `${stableHeightPx}px`);
   }, [cssVarName, elementRef, stableHeightPx]);

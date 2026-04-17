@@ -418,8 +418,9 @@ export function useWindowMonitor<T extends Element>(
 export function useGlobalWindowMonitor(
   callback: (eventType: WindowEventType, event?: Event) => void,
   debounceMap: WindowDebounceMap = {},
+  enabled = true,
 ) {
-  useWindowEventMonitorCore(callback, debounceMap, true);
+  useWindowEventMonitorCore(callback, debounceMap, enabled);
 }
 
 /**

@@ -10,6 +10,8 @@ export type ViewportSettleReason =
   | "visualViewport:scroll";
 
 export interface ViewportSettleOptions {
+  /** Whether settle listeners should run at all (default: true). */
+  enabled?: boolean;
   /** Number of requestAnimationFrame passes to run (default: 2). */
   rafPasses?: number;
   /** Additional delayed check after mount (default: 150ms). */
@@ -19,6 +21,7 @@ export interface ViewportSettleOptions {
 }
 
 const DEFAULT_OPTIONS: Required<ViewportSettleOptions> = {
+  enabled: true,
   rafPasses: 2,
   timeoutMs: 150,
   settleMs: 1000,
@@ -110,17 +113,18 @@ export function useViewportSettle(
   onSettle: (reason: ViewportSettleReason) => void,
   options: ViewportSettleOptions = {},
 ) {
+  const enabled = options.enabled ?? true;
   const rafPasses = options.rafPasses ?? DEFAULT_OPTIONS.rafPasses;
   const timeoutMs = options.timeoutMs ?? DEFAULT_OPTIONS.timeoutMs;
   const settleMs = options.settleMs ?? DEFAULT_OPTIONS.settleMs;
 
-  useEffect(
-    () =>
-      startViewportSettle(onSettle, {
-        rafPasses,
-        timeoutMs,
-        settleMs,
-      }),
-    [onSettle, rafPasses, timeoutMs, settleMs],
-  );
+  useEffect(() => {
+    if (!enabled) return;
+
+    return startViewportSettle(onSettle, {
+      rafPasses,
+      timeoutMs,
+      settleMs,
+    });
+  }, [enabled, onSettle, rafPasses, timeoutMs, settleMs]);
 }

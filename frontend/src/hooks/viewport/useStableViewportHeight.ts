@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import { detectOs, isFirefox } from "@/utils/browser";
 import { getViewportHeightPx } from "@/utils/viewport";
 
 import { useGlobalWindowMonitor } from "../useLayoutMonitor";
@@ -35,7 +36,17 @@ export type HeightOnlyResizePolicy =
   | "pointer-fine-or-shrink"
   | ((context: HeightOnlyResizeContext) => boolean);
 
+export const STABLE_VIEWPORT_HEIGHT_MODES = {
+  USE_JS_FOR_ALL: "use-js-for-all",
+  USE_SVH_FOR_ALL: "use-svh-for-all",
+  USE_WHERE_REQUIRED: "use-where-required",
+} as const;
+
+export type StableViewportHeightMode =
+  (typeof STABLE_VIEWPORT_HEIGHT_MODES)[keyof typeof STABLE_VIEWPORT_HEIGHT_MODES];
+
 export interface UseStableViewportHeightOptions {
+  mode?: StableViewportHeightMode;
   widthChangeThresholdPx?: number;
   heightOnlyResizePolicy?: HeightOnlyResizePolicy;
   guardTopOverscrollShrink?: boolean;
@@ -48,10 +59,67 @@ const RECENT_HEIGHT_INCREASE_CORRECTION_WINDOW_MS = 2000;
 const RECENT_HEIGHT_INCREASE_CORRECTION_DELTA_PX = 24;
 const TRUSTED_VIEWPORT_CHANGE_WINDOW_MS = 1500;
 
+const envStableViewportHeightMode =
+  process.env.NEXT_PUBLIC_STABLE_VIEWPORT_HEIGHT_MODE;
+
+const STABLE_VIEWPORT_HEIGHT_REQUIRED_BROWSERS: ReadonlyArray<{
+  id: string;
+  matches: () => boolean;
+}> = [
+  {
+    id: "firefox-ios",
+    matches: () => detectOs() === "ios" && isFirefox(),
+  },
+  {
+    id: "firefox-android",
+    matches: () => detectOs() === "android" && isFirefox(),
+  },
+];
+
 function isUsableViewportHeight(
   height: number | null | undefined,
 ): height is number {
   return typeof height === "number" && Number.isFinite(height) && height > 0;
+}
+
+function parseStableViewportHeightMode(
+  value?: string,
+): StableViewportHeightMode {
+  const normalized = value?.trim().toLowerCase();
+
+  switch (normalized) {
+    case STABLE_VIEWPORT_HEIGHT_MODES.USE_JS_FOR_ALL:
+      return STABLE_VIEWPORT_HEIGHT_MODES.USE_JS_FOR_ALL;
+    case STABLE_VIEWPORT_HEIGHT_MODES.USE_SVH_FOR_ALL:
+      return STABLE_VIEWPORT_HEIGHT_MODES.USE_SVH_FOR_ALL;
+    case STABLE_VIEWPORT_HEIGHT_MODES.USE_WHERE_REQUIRED:
+    default:
+      return STABLE_VIEWPORT_HEIGHT_MODES.USE_WHERE_REQUIRED;
+  }
+}
+
+function isManagedStableViewportHeightRequiredForCurrentBrowser() {
+  if (typeof window === "undefined") return false;
+
+  return STABLE_VIEWPORT_HEIGHT_REQUIRED_BROWSERS.some((browserRule) =>
+    browserRule.matches(),
+  );
+}
+
+function shouldEnableManagedStableViewportHeight(
+  mode: StableViewportHeightMode,
+) {
+  if (typeof window === "undefined") return false;
+
+  switch (mode) {
+    case STABLE_VIEWPORT_HEIGHT_MODES.USE_JS_FOR_ALL:
+      return true;
+    case STABLE_VIEWPORT_HEIGHT_MODES.USE_SVH_FOR_ALL:
+      return false;
+    case STABLE_VIEWPORT_HEIGHT_MODES.USE_WHERE_REQUIRED:
+    default:
+      return isManagedStableViewportHeightRequiredForCurrentBrowser();
+  }
 }
 
 function getSmallViewportHeightPx() {
@@ -182,14 +250,18 @@ export function useStableViewportHeight(
   options: UseStableViewportHeightOptions = {},
 ) {
   const {
+    mode,
     widthChangeThresholdPx = 60,
     heightOnlyResizePolicy = "never",
     guardTopOverscrollShrink = true,
     topScrollGuardPx = DEFAULT_TOP_SCROLL_GUARD_PX,
   } = options;
+  const resolvedMode =
+    mode ?? parseStableViewportHeightMode(envStableViewportHeightMode);
+  const isEnabled = shouldEnableManagedStableViewportHeight(resolvedMode);
 
   const [stableHeightPx, setStableHeightPx] = useState<number | null>(() =>
-    getInitialStableHeightPx(topScrollGuardPx),
+    isEnabled ? getInitialStableHeightPx(topScrollGuardPx) : null,
   );
   const initialHeightRef = useRef<number | null>(stableHeightPx);
   const mountedAtRef = useRef<number | null>(null);
@@ -461,9 +533,18 @@ export function useStableViewportHeight(
     ],
   );
 
-  useGlobalWindowMonitor(onWindowEvent, WINDOW_MONITOR_DEBOUNCE);
+  useGlobalWindowMonitor(onWindowEvent, WINDOW_MONITOR_DEBOUNCE, isEnabled);
 
   useEffect(() => {
+    if (!isEnabled) {
+      initialHeightRef.current = null;
+      lastHeightRef.current = null;
+      lastHeightIncreaseRef.current = null;
+      lastWidthRef.current = null;
+      forcedHeightCommitUntilRef.current = 0;
+      return;
+    }
+
     const viewport = window.visualViewport;
     if (!viewport) return;
 
@@ -509,6 +590,7 @@ export function useStableViewportHeight(
       viewport.removeEventListener("scroll", onVisualViewportChange);
     };
   }, [
+    isEnabled,
     getWidthDelta,
     scheduleTrailingMeasure,
     shouldTrustHeightOnlyResize,
@@ -516,6 +598,8 @@ export function useStableViewportHeight(
   ]);
 
   useEffect(() => {
+    if (!isEnabled) return;
+
     mountedAtRef.current = Date.now();
     lastWidthRef.current = window.innerWidth;
     if (!isUsableViewportHeight(lastHeightRef.current)) {
@@ -531,14 +615,14 @@ export function useStableViewportHeight(
         window.cancelAnimationFrame(resizeRafRef.current);
       }
     };
-  }, [scheduleTrailingMeasure]);
+  }, [isEnabled, scheduleTrailingMeasure]);
 
   const onViewportSettle = useCallback(() => {
     lastWidthRef.current = window.innerWidth;
     measureStableHeightPx();
   }, [measureStableHeightPx]);
 
-  useViewportSettle(onViewportSettle);
+  useViewportSettle(onViewportSettle, { enabled: isEnabled });
 
-  return stableHeightPx;
+  return isEnabled ? stableHeightPx : null;
 }

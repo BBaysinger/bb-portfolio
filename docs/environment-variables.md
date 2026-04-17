@@ -60,6 +60,17 @@ General conventions:
 - **Default**: unset (disabled)
 - **Usage**: `frontend/src/components/GoogleAnalytics.tsx`
 
+### NEXT_PUBLIC_STABLE_VIEWPORT_HEIGHT_MODE
+
+- **Purpose**: Controls whether the hero uses the JS-managed stable viewport height hook or CSS `100svh`.
+- **Default**: `use-where-required`
+- **Notes**:
+  - Supported values are `use-js-for-all`, `use-svh-for-all`, and `use-where-required`.
+  - `use-js-for-all` forces the managed hook implementation in every browser.
+  - `use-svh-for-all` disables the managed hook implementation and relies entirely on CSS `100svh`.
+  - `use-where-required` uses an internal browser allowlist. Right now that list contains Firefox on iOS and Android, so mobile Firefox uses the managed JS viewport path while other browsers stay on CSS `100svh`.
+- **Usage**: `frontend/src/hooks/viewport/useStableViewportHeight.ts`
+
 ### AWS_ACCOUNT_ID
 
 - **Purpose**: AWS Account ID for ECR image URIs
