@@ -51,12 +51,10 @@ export function useProjectSelectionController(
   const stabilizationTimer = useRef<NodeJS.Timeout | null>(null);
   const lastKnownProjectIdRef = useRef(projectId);
   const isCarouselSourceRef = useRef(false);
-  const didFirstReadyRef = useRef(false);
   const didFirstStabilizeRef = useRef(false);
   const lastCarouselPushTsRef = useRef<number | null>(null);
 
   const handleReady = useCallback((index: number) => {
-    didFirstReadyRef.current = true;
     didFirstStabilizeRef.current = true;
 
     if (debug) {
