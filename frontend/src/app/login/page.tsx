@@ -84,6 +84,11 @@ const LoginPage = () => {
     }
   }, [isLoading, isLoggedIn, router]);
 
+  useStableViewportHeightVar(pageRef, {
+    cssVarName: "--graphite-stable-vh",
+    mode: STABLE_VIEWPORT_HEIGHT_MODES.USE_WHERE_REQUIRED,
+  });
+
   if (!isLoading && isLoggedIn) {
     return null;
   }
@@ -126,11 +131,6 @@ const LoginPage = () => {
   const statusText = isLoading
     ? "Checking authentication..."
     : errorMessage || "\u00A0"; // keep layout height with non-breaking space when idle
-
-  useStableViewportHeightVar(pageRef, {
-    cssVarName: "--graphite-stable-vh",
-    mode: STABLE_VIEWPORT_HEIGHT_MODES.USE_WHERE_REQUIRED,
-  });
 
   return (
     <div ref={pageRef} className={styles.login}>
