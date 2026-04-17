@@ -79,6 +79,29 @@ const envProfile = (process.env.NEXT_PUBLIC_ENV_PROFILE || "")
 const isDevLikeProfile = envProfile === "local" || envProfile === "dev";
 const defaultFpsCounterEnabled =
   envFpsFlag ?? (isDevLikeProfile || process.env.NODE_ENV !== "production");
+const HERO_REPLAY_ON_RETURN_KEY = "home-hero-replay-on-return";
+
+const heroRuntimeState = {
+  hasEnteredHomeInRuntime: false,
+};
+
+const shouldReplayHeroIntroOnEntry = () => {
+  if (typeof window === "undefined") return false;
+
+  if (heroRuntimeState.hasEnteredHomeInRuntime) return false;
+
+  const rawReferrer = document.referrer || "";
+  if (!rawReferrer) return true;
+
+  try {
+    return (
+      new URL(rawReferrer, window.location.href).origin !==
+      window.location.origin
+    );
+  } catch {
+    return true;
+  }
+};
 
 type HeroProps = {
   initialRoleTitle?: string;
@@ -102,6 +125,9 @@ function Hero({ initialRoleTitle }: HeroProps) {
   const [hasAfterCollidedDelay, setHasAfterCollidedDelay] = useState(false);
   const [isTouchDevice, setIsTouchDevice] = useState(false);
   const [fpsOverride, setFpsOverride] = useState<boolean | null>(null);
+  const [playHeroIntro, setPlayHeroIntro] = useState(() =>
+    shouldReplayHeroIntroOnEntry(),
+  );
 
   const timeOfDay = useTimeOfDay();
   const hasScrolledOut = useScrollPersistedClass(id);
@@ -136,6 +162,8 @@ function Hero({ initialRoleTitle }: HeroProps) {
   const orbInstruction = isTouchDevice
     ? "Touch and drag to grab the orb — release to toss it around."
     : "Click and drag to grab the orb — release to toss it around.";
+  const heroIntroMessage = `Good ${timeOfDay}. This is a kinetic UI exploration where design, code, and physics collide. ${orbInstruction} You're part of the experiment now.`;
+  const heroParagraphs = playHeroIntro ? [heroIntroMessage] : quotes;
 
   const onSlingerDragStart = useCallback(
     (x: number, y: number, e: MouseEvent | TouchEvent) => {
@@ -272,6 +300,8 @@ function Hero({ initialRoleTitle }: HeroProps) {
   }, [startSlingerTracking, useSlingerTracking]);
 
   useEffect(() => {
+    heroRuntimeState.hasEnteredHomeInRuntime = true;
+
     const mountRaf = requestAnimationFrame(() => setMounted(true));
     let hydrationRaf: number | null = null;
 
@@ -319,6 +349,50 @@ function Hero({ initialRoleTitle }: HeroProps) {
       if (slingerLoopId.current) cancelAnimationFrame(slingerLoopId.current);
     };
   }, [useSlingerTracking, startSlingerTracking]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const onPageHide = () => {
+      try {
+        sessionStorage.setItem(HERO_REPLAY_ON_RETURN_KEY, "true");
+      } catch {
+        // Ignore storage failures; this only improves bfcache return behavior.
+      }
+    };
+
+    const onPageShow = (event: PageTransitionEvent) => {
+      if (!event.persisted) return;
+
+      let shouldReplay = false;
+      try {
+        shouldReplay =
+          sessionStorage.getItem(HERO_REPLAY_ON_RETURN_KEY) === "true";
+        sessionStorage.removeItem(HERO_REPLAY_ON_RETURN_KEY);
+      } catch {
+        shouldReplay = false;
+      }
+
+      if (!shouldReplay) return;
+
+      setPlayHeroIntro(true);
+    };
+
+    window.addEventListener("pagehide", onPageHide);
+    window.addEventListener("pageshow", onPageShow);
+
+    return () => {
+      window.removeEventListener("pagehide", onPageHide);
+      window.removeEventListener("pageshow", onPageShow);
+    };
+  }, []);
+
+  const handleHeroParagraphComplete = useCallback(() => {
+    if (!playHeroIntro) return;
+
+    setPlayHeroIntro(false);
+    return false;
+  }, [playHeroIntro]);
 
   const handleSuppressContextMenu: React.MouseEventHandler<HTMLElement> = (
     e,
@@ -401,12 +475,14 @@ function Hero({ initialRoleTitle }: HeroProps) {
       </div>
 
       <div className={styles.foreground}>
-        <TypewriterEffect
-          introMessage={`Good ${timeOfDay}. This is a kinetic UI exploration where design, code, and physics collide. ${orbInstruction} You're part of the experiment now.`}
-          paragraphs={quotes}
-          className={styles.message}
-          paused={!mounted || !isSlingerIdle}
-        />
+        {mounted ? (
+          <TypewriterEffect
+            paragraphs={heroParagraphs}
+            className={styles.message}
+            paused={!mounted || !isSlingerIdle}
+            onParagraphComplete={handleHeroParagraphComplete}
+          />
+        ) : null}
         {showFpsCounter && <FPSCounter />}
         <TitleBranding
           className={styles.titleBranding}

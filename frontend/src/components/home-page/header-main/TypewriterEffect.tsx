@@ -11,7 +11,7 @@ interface TypewriterEffectProps {
   initialDelay?: number;
   className?: string;
   paused?: boolean;
-  introMessage?: string;
+  onParagraphComplete?: (paragraph: string, index: number) => boolean | void;
   style?: React.CSSProperties;
   children?: React.ReactNode;
 }
@@ -25,8 +25,8 @@ const shuffleArray = (array: number[]) => {
  *
  * Typewriter-style paragraph rotator.
  * Displays one paragraph at a time, “typing” each character, then waits
- * before advancing to the next paragraph (shuffled). Supports an optional
- * intro message and pause-aware advancement.
+ * before advancing to the next paragraph (shuffled). Content sequencing is
+ * owned by the caller; this component only animates the provided list.
  */
 const TypewriterEffect: React.FC<TypewriterEffectProps> = ({
   paragraphs,
@@ -35,7 +35,7 @@ const TypewriterEffect: React.FC<TypewriterEffectProps> = ({
   initialDelay = 1000,
   className,
   paused = false,
-  introMessage,
+  onParagraphComplete,
   children,
 }) => {
   const [visibleText, setVisibleText] = useState("");
@@ -46,7 +46,6 @@ const TypewriterEffect: React.FC<TypewriterEffectProps> = ({
   const tl = useRef<gsap.core.Timeline | null>(null);
   const currentIndex = useRef(0);
   const queue = useRef<number[]>([]);
-  const hasPlayedIntro = useRef(false);
   const delayTimer = useRef<number | null>(null);
   const poller = useRef<number | null>(null);
   const pausedRef = useRef(paused);
@@ -62,15 +61,8 @@ const TypewriterEffect: React.FC<TypewriterEffectProps> = ({
 
   const playParagraph = useCallback(
     function playParagraphImpl() {
-      let paragraph: string;
-
-      if (!hasPlayedIntro.current && introMessage) {
-        paragraph = introMessage;
-        hasPlayedIntro.current = true;
-      } else {
-        const index = queue.current[currentIndex.current];
-        paragraph = paragraphs[index];
-      }
+      const index = queue.current[currentIndex.current];
+      const paragraph = paragraphs[index];
 
       if (!paragraph) return;
 
@@ -99,6 +91,9 @@ const TypewriterEffect: React.FC<TypewriterEffectProps> = ({
 
             delayTimer.current = window.setTimeout(() => {
               const next = () => {
+                const shouldContinue = onParagraphComplete?.(paragraph, index);
+                if (shouldContinue === false) return;
+
                 currentIndex.current++;
                 if (currentIndex.current >= queue.current.length) {
                   queue.current = generateShuffledQueue();
@@ -127,7 +122,7 @@ const TypewriterEffect: React.FC<TypewriterEffectProps> = ({
       generateShuffledQueue,
       initialDelay,
       interval,
-      introMessage,
+      onParagraphComplete,
       paragraphDelay,
       paragraphs,
     ],
@@ -136,7 +131,6 @@ const TypewriterEffect: React.FC<TypewriterEffectProps> = ({
   useEffect(() => {
     queue.current = generateShuffledQueue();
     currentIndex.current = 0;
-    hasPlayedIntro.current = false;
     playParagraph();
 
     return () => {
