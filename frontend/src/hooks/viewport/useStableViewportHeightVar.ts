@@ -8,6 +8,8 @@ import {
   type UseStableViewportHeightOptions,
 } from "./useStableViewportHeight";
 
+export { STABLE_VIEWPORT_HEIGHT_MODES } from "./useStableViewportHeight";
+
 export type {
   HeightOnlyResizeContext,
   HeightOnlyResizePolicy,

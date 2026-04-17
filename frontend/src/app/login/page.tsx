@@ -15,9 +15,12 @@
 import clsx from "clsx";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { useAuth } from "@/hooks/useAuth";
+import useStableViewportHeightVar, {
+  STABLE_VIEWPORT_HEIGHT_MODES,
+} from "@/hooks/viewport/useStableViewportHeightVar";
 
 import styles from "./LoginPage.module.scss";
 
@@ -25,6 +28,7 @@ import styles from "./LoginPage.module.scss";
  * LoginPage prompts for credentials and triggers a Payload CMS login via `useAuth()`.
  */
 const LoginPage = () => {
+  const pageRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const {
     login,
@@ -123,8 +127,13 @@ const LoginPage = () => {
     ? "Checking authentication..."
     : errorMessage || "\u00A0"; // keep layout height with non-breaking space when idle
 
+  useStableViewportHeightVar(pageRef, {
+    cssVarName: "--graphite-stable-vh",
+    mode: STABLE_VIEWPORT_HEIGHT_MODES.USE_WHERE_REQUIRED,
+  });
+
   return (
-    <div className={styles.login}>
+    <div ref={pageRef} className={styles.login}>
       <div>
         <h1>
           <span>Secure</span> <span>Login</span>

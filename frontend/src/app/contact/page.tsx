@@ -1,6 +1,11 @@
 "use client";
+
 import clsx from "clsx";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
+
+import useStableViewportHeightVar, {
+  STABLE_VIEWPORT_HEIGHT_MODES,
+} from "@/hooks/viewport/useStableViewportHeightVar";
 
 import styles from "./ContactPage.module.scss";
 
@@ -19,6 +24,7 @@ import styles from "./ContactPage.module.scss";
  *   source of truth for validation and sending (SES).
  */
 const ContactPage = () => {
+  const pageRef = useRef<HTMLDivElement>(null);
   const [formData, setFormData] = useState<{
     name: string;
     email: string;
@@ -103,9 +109,14 @@ const ContactPage = () => {
   const isError = Boolean(errorMessage);
   const statusText = errorMessage || status || "\u00A0"; // keep layout height when idle
 
+  useStableViewportHeightVar(pageRef, {
+    cssVarName: "--graphite-stable-vh",
+    mode: STABLE_VIEWPORT_HEIGHT_MODES.USE_WHERE_REQUIRED,
+  });
+
   return (
     <>
-      <div className={styles.contactPage}>
+      <div ref={pageRef} className={styles.contactPage}>
         <div>
           <h1>
             <span>Let's</span> <span>Connect</span>

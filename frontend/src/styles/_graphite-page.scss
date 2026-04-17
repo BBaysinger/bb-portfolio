@@ -4,8 +4,13 @@
 // Shared graphite page styles as a mixin so CSS Modules can include without @extend,
 // which produces comma-separated selectors that Turbopack treats as ambiguous.
 @mixin graphite-page-scope() {
+  box-sizing: border-box;
   padding-top: $navBarHeight;
-  min-height: 100svh;
+  min-height: var(--graphite-stable-vh, 100vh);
+
+  @supports (min-height: 100svh) {
+    min-height: var(--graphite-stable-vh, 100svh);
+  }
 
   h1,
   h2,

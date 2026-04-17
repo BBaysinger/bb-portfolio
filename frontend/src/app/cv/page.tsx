@@ -1,7 +1,7 @@
 "use client";
 
 import clsx from "clsx";
-import React from "react";
+import React, { useRef } from "react";
 
 import { RawImg } from "@/components/common/RawImg";
 import ExperienceItem, {
@@ -9,6 +9,9 @@ import ExperienceItem, {
 } from "@/components/cv/ExperienceItem";
 import HeaderSub from "@/components/layout/HeaderSub";
 import useInViewAnimation from "@/hooks/useInViewAnimation";
+import useStableViewportHeightVar, {
+  STABLE_VIEWPORT_HEIGHT_MODES,
+} from "@/hooks/viewport/useStableViewportHeightVar";
 
 import styles from "./CvPage.module.scss";
 
@@ -25,9 +28,15 @@ import styles from "./CvPage.module.scss";
  * TODO: CMS-driving this content for easier updates.
  */
 const CurriculumVitae: React.FC = () => {
+  const pageRef = useRef<HTMLElement>(null);
   // Returns a callback ref. Attaching it to elements adds an "in-view" class
   // when they enter the viewport (used for scroll-triggered animations).
   const addToRefs = useInViewAnimation("in-view");
+
+  useStableViewportHeightVar(pageRef, {
+    cssVarName: "--graphite-stable-vh",
+    mode: STABLE_VIEWPORT_HEIGHT_MODES.USE_WHERE_REQUIRED,
+  });
 
   const divClassLt = clsx(
     "col-xs-12",
@@ -101,7 +110,10 @@ const CurriculumVitae: React.FC = () => {
     <div>
       <HeaderSub head={"Curriculum Vitae"} />
 
-      <section className={clsx("cvPage", styles.cvPage, "standardPage")}>
+      <section
+        ref={pageRef}
+        className={clsx("cvPage", styles.cvPage, "standardPage")}
+      >
         <div className={clsx("container", styles.summary)}>
           <h4 ref={addToRefs}>
             Summary
