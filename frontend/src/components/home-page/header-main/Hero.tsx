@@ -16,7 +16,14 @@
 
 import clsx from "clsx";
 import Link from "next/link";
-import { Suspense, useCallback, useEffect, useRef, useState } from "react";
+import {
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 import FPSCounter from "@/components/common/FPSCounter";
 import ChargedCircle from "@/components/home-page/header-main/ChargedCircle";
@@ -161,8 +168,15 @@ function Hero({ initialRoleTitle }: HeroProps) {
   const orbInstruction = isTouchDevice
     ? "Touch and drag to grab the orb — release to toss it around."
     : "Click and drag to grab the orb — release to toss it around.";
-  const heroIntroMessage = `Good ${timeOfDay}. This is a kinetic UI exploration where design, code, and physics collide. ${orbInstruction} You're part of the experiment now.`;
-  const heroParagraphs = playHeroIntro ? [heroIntroMessage] : quotes;
+  const heroIntroMessage = useMemo(
+    () =>
+      `Good ${timeOfDay}. This is a kinetic UI exploration where design, code, and physics collide. ${orbInstruction} You're part of the experiment now.`,
+    [orbInstruction, timeOfDay],
+  );
+  const heroParagraphs = useMemo(
+    () => (playHeroIntro ? [heroIntroMessage] : quotes),
+    [heroIntroMessage, playHeroIntro],
+  );
 
   const onSlingerDragStart = useCallback(
     (x: number, y: number, e: MouseEvent | TouchEvent) => {
