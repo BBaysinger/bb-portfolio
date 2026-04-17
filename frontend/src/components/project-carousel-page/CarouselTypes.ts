@@ -28,6 +28,7 @@ interface CarouselProps {
   onImmediateScrollUpdate?: (scrollLeft: number) => void;
   onScrollUpdate?: (scrollLeft: number) => void;
   onIndexUpdate?: (index: number) => void;
+  onReady?: (index: number) => void;
   onStabilizationUpdate?: (
     index: number,
     source: SourceType,

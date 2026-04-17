@@ -60,12 +60,13 @@ const ProjectCarouselView: React.FC<{
   projectId: string;
   initialIndex: number;
   refObj: React.RefObject<LayeredCarouselManagerRef | null>;
+  onReady?: (index: number) => void;
   onStabilizationUpdate: (
     index: number,
     source: SourceType,
     direction: DirectionType,
   ) => void;
-}> = ({ initialIndex, refObj, onStabilizationUpdate }) => {
+}> = ({ initialIndex, refObj, onReady, onStabilizationUpdate }) => {
   // Re-render when ProjectData changes (e.g., NDA placeholder -> authenticated data).
   const projectDataVersion = useProjectDataVersion();
 
@@ -136,6 +137,7 @@ const ProjectCarouselView: React.FC<{
         styleMap={styles}
         layers={layers}
         initialIndex={initialIndex}
+        onReady={onReady}
         onStabilizationUpdate={onStabilizationUpdate}
       />
     </div>

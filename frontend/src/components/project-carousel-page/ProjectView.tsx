@@ -134,6 +134,7 @@ const ProjectView: React.FC<{ projectId: string; allowNda?: boolean }> = ({
   );
 
   const {
+    handleReady,
     handleStabilizationUpdate,
     isCarouselSourceRef,
     didFirstStabilizeRef,
@@ -299,6 +300,7 @@ const ProjectView: React.FC<{ projectId: string; allowNda?: boolean }> = ({
               refObj={carouselRef}
               initialIndex={initialIndex}
               projectId={projectId}
+              onReady={handleReady}
               onStabilizationUpdate={handleStabilizationUpdate}
             />
           )}

@@ -66,6 +66,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
     slides,
     slideSpacing,
     initialIndex = 0,
+    onReady,
     onImmediateScrollUpdate,
     onIndexUpdate,
     debug = 0,
@@ -121,6 +122,11 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
   useEffect(() => {
     onStabilizationUpdateRef.current = onStabilizationUpdate;
   }, [onStabilizationUpdate]);
+
+  const onReadyRef = useRef(onReady);
+  useEffect(() => {
+    onReadyRef.current = onReady;
+  }, [onReady]);
 
   useEffect(() => {
     setStableIndexValue(initialIndex);
@@ -474,6 +480,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>((props, ref) => {
       Source.PROGRAMMATIC,
       scrollDirectionRef.current,
     );
+    onReadyRef.current?.(normalizedIndex);
     if (stabilizationTimer.current) clearTimeout(stabilizationTimer.current);
 
     const rafId = requestAnimationFrame(() => {

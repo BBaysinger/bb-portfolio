@@ -24,6 +24,7 @@ type UseProjectSelectionControllerParams = {
 };
 
 type UseProjectSelectionControllerResult = {
+  handleReady: (index: number) => void;
   handleStabilizationUpdate: (
     newStabilizedIndex: number,
     source: SourceType,
@@ -50,8 +51,24 @@ export function useProjectSelectionController(
   const stabilizationTimer = useRef<NodeJS.Timeout | null>(null);
   const lastKnownProjectIdRef = useRef(projectId);
   const isCarouselSourceRef = useRef(false);
+  const didFirstReadyRef = useRef(false);
   const didFirstStabilizeRef = useRef(false);
   const lastCarouselPushTsRef = useRef<number | null>(null);
+
+  const handleReady = useCallback((index: number) => {
+    didFirstReadyRef.current = true;
+    didFirstStabilizeRef.current = true;
+
+    if (debug) {
+      try {
+        console.info("[Carousel] onReady", {
+          index,
+        });
+      } catch {
+        // no-op
+      }
+    }
+  }, [debug]);
 
   useRouteChange(
     (pathname) => {
@@ -173,6 +190,7 @@ export function useProjectSelectionController(
   }, [projectId]);
 
   return {
+    handleReady,
     handleStabilizationUpdate,
     isCarouselSourceRef,
     didFirstStabilizeRef,

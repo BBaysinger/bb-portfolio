@@ -59,6 +59,7 @@ export interface LayeredCarouselManagerProps {
   prefix?: string;
   styleMap?: { [key: string]: string };
   initialIndex?: number;
+  onReady?: (index: number) => void;
   onScrollUpdate?: (scrollLeft: number) => void;
   onStabilizationUpdate?: (
     index: number,
@@ -82,6 +83,7 @@ const LayeredCarouselManager = forwardRef<
       prefix = "",
       styleMap,
       initialIndex = 0,
+      onReady,
       onScrollUpdate,
       onStabilizationUpdate,
       className = "",
@@ -294,6 +296,7 @@ const LayeredCarouselManager = forwardRef<
               isSlaveMode={!isMaster}
               onScrollUpdate={isMaster ? handleScrollUpdate : undefined}
               onIndexUpdate={isMaster ? handleIndexUpdate : undefined}
+              onReady={isMaster ? onReady : undefined}
               onStabilizationUpdate={
                 isMaster ? handleStabilizationUpdate : undefined
               }
