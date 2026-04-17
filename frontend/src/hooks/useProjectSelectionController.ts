@@ -20,7 +20,6 @@ type UseProjectSelectionControllerParams = {
   stabilizedIndex: number | null;
   setStabilizedIndex: React.Dispatch<React.SetStateAction<number | null>>;
   setUiDirection: React.Dispatch<React.SetStateAction<DirectionType>>;
-  debug?: boolean;
 };
 
 type UseProjectSelectionControllerResult = {
@@ -45,7 +44,6 @@ export function useProjectSelectionController(
     stabilizedIndex,
     setStabilizedIndex,
     setUiDirection,
-    debug,
   } = params;
 
   const stabilizationTimer = useRef<NodeJS.Timeout | null>(null);
@@ -54,22 +52,9 @@ export function useProjectSelectionController(
   const didFirstStabilizeRef = useRef(false);
   const lastCarouselPushTsRef = useRef<number | null>(null);
 
-  const handleReady = useCallback(
-    (index: number) => {
-      didFirstStabilizeRef.current = true;
-
-      if (debug) {
-        try {
-          console.info("[Carousel] onReady", {
-            index,
-          });
-        } catch {
-          // no-op
-        }
-      }
-    },
-    [debug],
-  );
+  const handleReady = useCallback((_: number) => {
+    didFirstStabilizeRef.current = true;
+  }, []);
 
   useRouteChange(
     (pathname) => {
@@ -90,19 +75,6 @@ export function useProjectSelectionController(
       // Allow route-driven scrolls only after first stabilization settles.
       didFirstStabilizeRef.current = true;
 
-      if (debug) {
-        try {
-          console.info("[Carousel] onStabilizationUpdate", {
-            newStabilizedIndex,
-            source,
-            direction,
-            lastKnown: lastKnownProjectIdRef.current,
-          });
-        } catch {
-          // no-op
-        }
-      }
-
       if (stabilizedIndex === newStabilizedIndex) return;
 
       isCarouselSourceRef.current = true;
@@ -110,18 +82,6 @@ export function useProjectSelectionController(
         newStabilizedIndex >= 0 && newStabilizedIndex < slideKeys.length
           ? slideKeys[newStabilizedIndex]
           : undefined;
-
-      if (debug) {
-        try {
-          console.info("[Carousel] index→slug", {
-            newStabilizedIndex,
-            resolvedSlug: newProjectId,
-            keysSample: slideKeys.slice(0, 6),
-          });
-        } catch {
-          // no-op
-        }
-      }
 
       if (
         newProjectId &&
@@ -136,18 +96,6 @@ export function useProjectSelectionController(
             ts: Date.now(),
           };
           lastCarouselPushTsRef.current = state.ts as number;
-
-          if (debug) {
-            try {
-              console.info("[Carousel] setCommittedProjectIdInUrl", {
-                allowNda: Boolean(allowNda),
-                projectId: newProjectId,
-                state,
-              });
-            } catch {
-              // no-op
-            }
-          }
 
           setCommittedProjectIdInUrl(newProjectId, {
             allowNda: Boolean(allowNda),
@@ -176,14 +124,7 @@ export function useProjectSelectionController(
       setUiDirection(direction);
       setStabilizedIndex(newStabilizedIndex);
     },
-    [
-      allowNda,
-      debug,
-      setStabilizedIndex,
-      setUiDirection,
-      slideKeys,
-      stabilizedIndex,
-    ],
+    [allowNda, setStabilizedIndex, setUiDirection, slideKeys, stabilizedIndex],
   );
 
   useEffect(() => {

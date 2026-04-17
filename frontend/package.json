@@ -6,6 +6,7 @@
   "scripts": {
     "predev": "tsx ./scripts/check-required-env.ts",
     "dev": "next dev --webpack -p ${PORT:-3000}",
+    "dev:3002": "PORT=3002 npm run dev",
     "prebuild": "tsx ./scripts/check-required-env.ts",
     "build": "next build --webpack",
     "build:webpack": "next build --webpack",

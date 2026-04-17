@@ -144,7 +144,6 @@ const ProjectView: React.FC<{ projectId: string; allowNda?: boolean }> = ({
     stabilizedIndex,
     setStabilizedIndex,
     setUiDirection,
-    debug,
   });
 
   // No need to memoize a tiny string; we'll inline `bb${uiDirection}` where used.
