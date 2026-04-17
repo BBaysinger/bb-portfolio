@@ -11,15 +11,19 @@
  */
 
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { Suspense } from "react";
+
+import { ProjectDataStore } from "@/data/ProjectData";
 
 import ProjectClientBoundary from "./ProjectClientBoundary";
 
 // Allow SSG/ISR for the project detail route.
 // NOTE: `revalidate = 0` would make this route dynamic/no-store.
 export const revalidate = 3600;
-// Allow on-demand generation for unknown params if needed.
-export const dynamicParams = true;
+// Pre-render known params at build time.
+export const dynamicParams = false;
+export const dynamic = "force-static";
 
 /**
  * Provides metadata for the public project route.
@@ -50,9 +54,36 @@ export default async function ProjectPage({
   params: Promise<{ projectId: string }>;
 }) {
   const { projectId } = await params;
+
+  let ssrParsed:
+    | import("@/data/ProjectData").ParsedPortfolioProjectData
+    | undefined;
+
+  try {
+    const projectData = new ProjectDataStore();
+    await projectData.initialize({
+      disableCache: false,
+      includeNdaInActive: false,
+    });
+
+    const rec = projectData.getProject(projectId);
+    if (!rec) return notFound();
+
+    ssrParsed = projectData.projectsRecord;
+  } catch (error) {
+    if (process.env.NODE_ENV !== "production") {
+      console.error("Failed to SSR prefetch public projects", error);
+    }
+  }
+
   return (
     <Suspense fallback={<div>Loading project...</div>}>
-      <ProjectClientBoundary projectId={projectId} allowNda={false} />
+      <ProjectClientBoundary
+        projectId={projectId}
+        allowNda={false}
+        ssrParsed={ssrParsed}
+        ssrIncludeNdaInActive={false}
+      />
     </Suspense>
   );
 }
@@ -60,9 +91,22 @@ export default async function ProjectPage({
 /**
  * Static params for build-time pre-rendering.
  *
- * Intentionally empty to avoid introducing a build-time backend dependency;
- * `dynamicParams = true` allows ISR on-demand generation.
+ * Build-time static params for full SSG.
  */
 export async function generateStaticParams() {
-  return [];
+  try {
+    const projectData = new ProjectDataStore();
+    await projectData.initialize({
+      disableCache: false,
+      includeNdaInActive: false,
+    });
+
+    const uniqueIds = Array.from(
+      new Set(projectData.activeProjects.map((project) => project.id)),
+    ).filter((id): id is string => Boolean(id));
+
+    return uniqueIds.map((projectId) => ({ projectId }));
+  } catch {
+    return [];
+  }
 }

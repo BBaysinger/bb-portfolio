@@ -12,8 +12,8 @@ For core internals and package-extraction notes, see `carousel-core/README.md`.
 
 ## Current Direction (2026-04)
 
-- We are refactoring toward SSG-first project routes.
-- NDA-included routes should use sanitized placeholders in static data and upgrade client-side when authenticated.
+- Project routes are full SSG with static params.
+- NDA-included routes render sanitized placeholders in static output.
 - Core behavior invariants are defined in `carousel-core/README.md` and treated as source of truth.
 - In-session navigation should use segment routes (`/project/{slug}/`, `/nda-included/{slug}/`) via client `pushState` so the mounted carousel instance is preserved.
 - Routing preference: implement active carousel navigation without query strings when feasible; query strings are acceptable only when they are the only or clearly best option and still preserve mounted-carousel continuity.
@@ -93,7 +93,7 @@ Run this checklist after route-sync or carousel-flow changes:
 3. Public drag/throw: drag across multiple slides and confirm stabilized project matches URL after momentum settles.
 4. Public history: use Back/Forward through multiple carousel navigations and confirm slide, URL, and info panel stay aligned.
 5. NDA deep link: open `/nda-included/{slug}/` while unauthenticated and confirm sanitized placeholder rendering.
-6. NDA auth upgrade: authenticate on NDA route and confirm content upgrades in place without remount interruption.
-7. NDA history: repeat drag/prev/next/back-forward on NDA route and confirm route base remains `/nda-included/`.
-8. Cross-route normalization: navigate from public NDA slug to NDA route redirect path and confirm canonical base is preserved.
+6. NDA history: repeat drag/prev/next/back-forward on NDA route and confirm route base remains `/nda-included/`.
+7. Public history: repeat drag/prev/next/back-forward on public route and confirm route base remains `/project/`.
+8. Route isolation: confirm NDA placeholders remain placeholders during client interactions and browser focus/visibility changes.
 9. Non-remount invariant: during all route changes above, verify carousel transition continuity is uninterrupted.

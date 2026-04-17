@@ -1,13 +1,11 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import CanonicalLink from "@/components/common/CanonicalLink";
 import ProjectView from "@/components/project-carousel-page/ProjectView";
-import ProjectData, { projectRequiresNda } from "@/data/ProjectData";
+import ProjectData from "@/data/ProjectData";
 import { useProjectUrlSync } from "@/hooks/useProjectUrlSync";
-import { useAppSelector } from "@/store/hooks";
 
 /**
  * Renders the ProjectView statically with a given projectId.
@@ -45,12 +43,9 @@ export default function ProjectViewWrapper({
   ssrIncludeNdaInActive,
   ssrContainsSanitizedPlaceholders,
 }: ProjectPageProps) {
-  const router = useRouter();
-  const { isLoggedIn, user } = useAppSelector((s) => s.auth);
-  const isAuthed = Boolean(isLoggedIn) || Boolean(user);
   // Dataset selection:
-  // - Public routes (/project/*): do NOT include NDA projects.
-  // - NDA-included routes (/nda-included/*): include NDA placeholders and upgrade client-side if authed.
+  // - Public routes (/project/*): do NOT include NDA projects in active navigation.
+  // - NDA-included routes (/nda-included/*): include NDA placeholders in active navigation.
   const includeNdaInActive = Boolean(allowNda);
   const [didHydrateFromSsr] = useState(() => {
     if (!ssrParsed) return false;
@@ -68,203 +63,7 @@ export default function ProjectViewWrapper({
     }
   });
 
-  // If authenticated and on the public project route, normalize into the NDA-included
-  // route so navigation doesn't mix route bases.
-  useEffect(() => {
-    if (allowNda) return;
-    if (!isAuthed) return;
-    const id = (params?.projectId || "").trim();
-    if (!id) return;
-    router.replace(`/nda-included/${encodeURIComponent(id)}/`);
-  }, [allowNda, isAuthed, params?.projectId, router]);
-
-  // If the client store already has data in the correct mode, we can render
-  // immediately without waiting for a network re-init.
-  const clientStoreReady = (() => {
-    try {
-      const hasActive =
-        Object.keys(ProjectData.activeProjectsRecord || {}).length > 0;
-      if (!hasActive) return false;
-      if (ProjectData.includeNdaInActive !== includeNdaInActive) return false;
-      // On NDA routes, if we're authenticated but the current dataset is still
-      // sanitized placeholders, we need to refresh to expand confidential fields.
-      if (
-        includeNdaInActive &&
-        isAuthed &&
-        ProjectData.containsSanitizedPlaceholders
-      )
-        return false;
-      return true;
-    } catch {
-      return false;
-    }
-  })();
-
-  // If an SSR snapshot is provided and it matches the desired dataset shape,
-  // we can render immediately on the client.
-  const [ready, setReady] = useState(
-    () => didHydrateFromSsr || clientStoreReady,
-  );
-
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        // If the global store already has the right dataset (e.g., user clicked
-        // into an NDA route from an already-authenticated home session), do not
-        // force a refetch.
-        let storeReadyNow = false;
-        try {
-          const hasActive =
-            Object.keys(ProjectData.activeProjectsRecord || {}).length > 0;
-          storeReadyNow =
-            hasActive && ProjectData.includeNdaInActive === includeNdaInActive;
-          if (
-            includeNdaInActive &&
-            isAuthed &&
-            ProjectData.containsSanitizedPlaceholders
-          )
-            storeReadyNow = false;
-
-          // On NDA routes, SSR is static and will typically hydrate with sanitized
-          // placeholders (no auth). Always attempt a client refresh on entry so we
-          // can expand confidential fields if the browser has a session cookie,
-          // even if the Redux auth state hasn't populated yet.
-          if (allowNda && ssrContainsSanitizedPlaceholders) {
-            storeReadyNow = false;
-          }
-        } catch {
-          storeReadyNow = false;
-        }
-
-        if (storeReadyNow) {
-          return;
-        }
-
-        await ProjectData.initialize({
-          disableCache: true,
-          includeNdaInActive,
-        });
-      } finally {
-        if (!cancelled) setReady(true);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [
-    includeNdaInActive,
-    allowNda,
-    ssrIncludeNdaInActive,
-    ssrParsed,
-    ssrContainsSanitizedPlaceholders,
-    isAuthed,
-  ]);
-
-  // On NDA routes, refresh the dataset when auth state changes so
-  // placeholders can upgrade (or re-sanitize) without remounting.
-  useEffect(() => {
-    if (!ready) return;
-    if (!allowNda) return;
-    (async () => {
-      try {
-        // Only refresh when auth/data shape is mismatched.
-        // - Logged in but still seeing sanitized placeholders => expand.
-        // - Logged out but dataset isn't sanitized => re-sanitize.
-        const mismatch =
-          (isAuthed && ProjectData.containsSanitizedPlaceholders) ||
-          (!isAuthed && !ProjectData.containsSanitizedPlaceholders);
-        if (!mismatch) return;
-        await ProjectData.initialize({
-          disableCache: true,
-          includeNdaInActive: true,
-        });
-      } catch {
-        // ignore
-      }
-    })();
-  }, [ready, allowNda, isAuthed]);
-
-  // If we're on the public route but the slug actually refers to an NDA project,
-  // redirect to the NDA route to ensure the dataset includes the project in the active set
-  // and to avoid inconsistent rendering.
-  useEffect(() => {
-    if (!ready) return;
-    if (allowNda) return;
-    try {
-      const p = ProjectData.getProject(params.projectId);
-      if (projectRequiresNda(p)) {
-        // Navigate to NDA-included route using shortCode (stable for SSG placeholder dataset)
-        const code = (p?.shortCode || "").trim();
-        router.replace(
-          `/nda-included/${encodeURIComponent(code || params.projectId)}/`,
-        );
-      }
-    } catch {
-      // no-op
-    }
-  }, [ready, allowNda, params.projectId, router]);
-
-  // NDA edge handling: probe auth status on entry/visibility/focus to refresh dataset
-  // so confidential fields are sanitized immediately if auth flips during the session.
-  useEffect(() => {
-    if (!ready) return;
-    if (!allowNda) return; // Only probe on NDA routes
-    let probing = false;
-
-    const probeAuthAndRefresh = async () => {
-      if (probing) return;
-      probing = true;
-      try {
-        // Don't rely on Redux auth state here; it's racy on client-side
-        // transitions. Instead, probe the session cookie via /api/users/me.
-        const hasPlaceholders = ProjectData.containsSanitizedPlaceholders;
-
-        const me = await fetch("/api/users/me", {
-          method: "GET",
-          cache: "no-store",
-          credentials: "include",
-        });
-
-        const sessionValid = me.ok;
-
-        // - If session is valid but we have placeholders => expand.
-        // - If session is invalid but we have expanded data => re-sanitize.
-        const needsRefresh =
-          (sessionValid && hasPlaceholders) ||
-          (!sessionValid && !hasPlaceholders);
-
-        if (!needsRefresh) return;
-
-        await ProjectData.initialize({
-          disableCache: true,
-          includeNdaInActive: true,
-        });
-      } catch {
-        // Silently ignore network errors; dataset remains as-is.
-      } finally {
-        probing = false;
-      }
-    };
-
-    // Initial probe on mount
-    probeAuthAndRefresh();
-    const onVisibility = () => {
-      if (document.visibilityState === "visible") {
-        probeAuthAndRefresh();
-      }
-    };
-    const onFocus = () => probeAuthAndRefresh();
-    window.addEventListener("visibilitychange", onVisibility);
-    window.addEventListener("focus", onFocus);
-    return () => {
-      window.removeEventListener("visibilitychange", onVisibility);
-      window.removeEventListener("focus", onFocus);
-    };
-  }, [ready, allowNda]);
-  if (!ready) {
-    return <div>Loading project...</div>;
-  }
+  void didHydrateFromSsr;
 
   return (
     <ProjectViewRouterBridge
@@ -286,54 +85,6 @@ function ProjectViewRouterBridge({
   // - Public carousel (allowNda=false): /project/
   // - NDA-included carousel (allowNda=true): /nda-included/
   const base = allowNda ? "/nda-included/" : "/project/";
-  // On NDA routes, include NDA items in active set even if not logged in (placeholders allowed).
-  const includeNdaInActive = Boolean(allowNda);
-
-  // If we navigated in with an NDA project and the active map doesn't have it yet,
-  // re-initialize once when auth becomes available.
-  useEffect(() => {
-    if (!allowNda) return; // On public route, never pull NDA into active set.
-    const ensureNdaPresent = async () => {
-      // If NDA is allowed and current active set lacks NDA items,
-      // reinitialize to include them while preserving the mounted carousel.
-      const hasNdaInActive = ProjectData.activeProjects.some((p) =>
-        projectRequiresNda(p),
-      );
-      if (!hasNdaInActive) {
-        try {
-          await ProjectData.initialize({
-            disableCache: true,
-            includeNdaInActive: true,
-          });
-        } catch {
-          // ignore
-        }
-      }
-    };
-    ensureNdaPresent();
-  }, [includeNdaInActive, projectId, allowNda]);
-
-  // URL sync is now handled entirely by useProjectUrlSync
-
-  // If NDA is allowed but the current project isn't in the active map yet,
-  // attempt a one-shot re-init including NDA and show a lightweight placeholder.
-  useEffect(() => {
-    const ensureCurrentPresent = async () => {
-      if (!allowNda || !projectId) return;
-      const record = ProjectData.activeProjectsRecord || {};
-      if (!record[projectId]) {
-        try {
-          await ProjectData.initialize({
-            disableCache: true,
-            includeNdaInActive: true,
-          });
-        } catch {
-          // ignore
-        }
-      }
-    };
-    ensureCurrentPresent();
-  }, [allowNda, projectId]);
 
   if (!projectId) {
     return (

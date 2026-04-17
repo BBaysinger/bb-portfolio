@@ -12,11 +12,10 @@ import NdaIncludedProjectClientBoundary from "./NdaIncludedProjectClientBoundary
  * This is the "NDA included" carousel route: it can render a stable slide list that
  * includes NDA placeholders without requiring auth at build/request time.
  *
- * Security invariant: confidential NDA fields are never rendered server-side in this route.
- * Authenticated details are fetched client-side after login.
+ * Security invariant: confidential NDA fields are never rendered in this route.
  */
 export const revalidate = 3600;
-export const dynamicParams = true;
+export const dynamicParams = false;
 export const dynamic = "force-static";
 
 export async function generateMetadata({
@@ -75,5 +74,19 @@ export default async function NdaIncludedProjectPage({
 }
 
 export async function generateStaticParams() {
-  return [];
+  try {
+    const projectData = new ProjectDataStore();
+    await projectData.initialize({
+      disableCache: false,
+      includeNdaInActive: true,
+    });
+
+    const uniqueIds = Array.from(
+      new Set(projectData.activeProjects.map((project) => project.id)),
+    ).filter((id): id is string => Boolean(id));
+
+    return uniqueIds.map((projectId) => ({ projectId }));
+  } catch {
+    return [];
+  }
 }
