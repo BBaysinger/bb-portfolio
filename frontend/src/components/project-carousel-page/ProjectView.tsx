@@ -41,7 +41,6 @@ const ProjectView: React.FC<{ projectId: string; allowNda?: boolean }> = ({
   const projectDataVersion = useProjectDataVersion();
 
   const projects = ProjectData.activeProjectsRecord;
-  const debug = process.env.NEXT_PUBLIC_DEBUG_CAROUSEL === "1";
 
   useEffect(() => {
     try {
@@ -115,15 +114,6 @@ const ProjectView: React.FC<{ projectId: string; allowNda?: boolean }> = ({
 
   const displayIndex = stabilizedIndex ?? initialIndex;
 
-  // Debug: dump the index→slug mapping used by the carousel slides at mount
-  useEffect(() => {
-    if (debug) {
-      try {
-        console.info("[Carousel] slideKeys (index→slug):", slideKeys);
-      } catch {}
-    }
-  }, [debug, slideKeys]);
-
   const infoSwapperIndex = useMemo(() => stabilizedIndex, [stabilizedIndex]);
 
   // React state to propagate the most recent slide direction to children and CSS
@@ -157,15 +147,6 @@ const ProjectView: React.FC<{ projectId: string; allowNda?: boolean }> = ({
         displayIndex != null && displayIndex >= 0
           ? (slideKeys[displayIndex] as string | undefined)
           : undefined;
-      if (debug) {
-        try {
-          console.info("[Carousel] route→scroll check", {
-            projectId,
-            displayIndex,
-            currentSlugFromIndex,
-          });
-        } catch {}
-      }
       if (currentSlugFromIndex && currentSlugFromIndex === projectId) {
         // Clear one-shot flags and consume marker if present, then bail.
         isCarouselSourceRef.current = false;
@@ -212,18 +193,6 @@ const ProjectView: React.FC<{ projectId: string; allowNda?: boolean }> = ({
             window.history.state.ts === lastCarouselPushTsRef.current)
         );
 
-      if (debug) {
-        try {
-          console.info("[Carousel] route→scroll action", {
-            projectId,
-            targetIndex,
-            displayIndex,
-            isCarouselSource: isCarouselSourceRef.current,
-            routeFromCarousel,
-          });
-        } catch {}
-      }
-
       if (
         displayIndex !== targetIndex &&
         !isCarouselSourceRef.current &&
@@ -262,7 +231,6 @@ const ProjectView: React.FC<{ projectId: string; allowNda?: boolean }> = ({
     projectId,
     projects,
     displayIndex,
-    debug,
     slideKeys,
     didFirstStabilizeRef,
     isCarouselSourceRef,
