@@ -81,6 +81,9 @@ const NavLinks: React.FC<NavLinksProps> = ({
 }) => {
   const active = useNavHighlight();
   const firstLinkRef = useRef<HTMLAnchorElement | null>(null);
+  const setFirstLinkRef = useCallback((node: HTMLAnchorElement | null) => {
+    firstLinkRef.current = node;
+  }, []);
 
   /**
    * Generates CSS class names for navigation links based on active state
@@ -124,17 +127,6 @@ const NavLinks: React.FC<NavLinksProps> = ({
     [isMobileVariant, mobileOpen, onCloseRequest],
   );
 
-  /**
-   * Generates accessibility props for nav links
-   * Removes inactive mobile links from tab order and attaches ref to first link
-   * @param {number} idx - Link index (0-based)
-   * @returns {Object} Props for Link component
-   */
-  const linkAccessibilityProps = (idx: number) => ({
-    tabIndex: isInactiveMobile ? -1 : undefined,
-    ref: idx === 0 ? firstLinkRef : undefined,
-  });
-
   /** Dynamic wrapper element to avoid nested nav landmarks */
   const WrapperElement = as as React.ElementType;
 
@@ -153,7 +145,8 @@ const NavLinks: React.FC<NavLinksProps> = ({
             href="/#hero"
             className={linkClass("hero")}
             aria-current={active === "hero" ? "page" : undefined}
-            {...linkAccessibilityProps(0)}
+            tabIndex={isInactiveMobile ? -1 : undefined}
+            ref={setFirstLinkRef}
           >
             Home
           </Link>
@@ -163,7 +156,7 @@ const NavLinks: React.FC<NavLinksProps> = ({
             href="/#hello"
             className={linkClass("hello")}
             aria-current={active === "hello" ? "page" : undefined}
-            {...linkAccessibilityProps(1)}
+            tabIndex={isInactiveMobile ? -1 : undefined}
           >
             Hello
           </Link>
@@ -173,7 +166,7 @@ const NavLinks: React.FC<NavLinksProps> = ({
             href="/#projects-list"
             className={linkClass("projects-list")}
             aria-current={active === "projects-list" ? "page" : undefined}
-            {...linkAccessibilityProps(2)}
+            tabIndex={isInactiveMobile ? -1 : undefined}
           >
             Projects
           </Link>
@@ -184,7 +177,7 @@ const NavLinks: React.FC<NavLinksProps> = ({
             className={linkClass("cv")}
             aria-current={active === "cv" ? "page" : undefined}
             aria-label="Curriculum Vitae"
-            {...linkAccessibilityProps(3)}
+            tabIndex={isInactiveMobile ? -1 : undefined}
           >
             CV
           </Link>
@@ -194,7 +187,7 @@ const NavLinks: React.FC<NavLinksProps> = ({
             href="/contact#top"
             className={linkClass("contact")}
             aria-current={active === "contact" ? "page" : undefined}
-            {...linkAccessibilityProps(4)}
+            tabIndex={isInactiveMobile ? -1 : undefined}
           >
             Contact
           </Link>

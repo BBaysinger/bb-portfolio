@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 import CanonicalLink from "@/components/common/CanonicalLink";
 import ProjectView from "@/components/project-carousel-page/ProjectView";
@@ -52,6 +52,21 @@ export default function ProjectViewWrapper({
   // - Public routes (/project/*): do NOT include NDA projects.
   // - NDA-included routes (/nda-included/*): include NDA placeholders and upgrade client-side if authed.
   const includeNdaInActive = Boolean(allowNda);
+  const [didHydrateFromSsr] = useState(() => {
+    if (!ssrParsed) return false;
+    try {
+      ProjectData.hydrate(
+        ssrParsed,
+        Boolean(ssrIncludeNdaInActive ?? includeNdaInActive),
+        {
+          containsSanitizedPlaceholders: ssrContainsSanitizedPlaceholders,
+        },
+      );
+      return true;
+    } catch {
+      return false;
+    }
+  });
 
   // If authenticated and on the public project route, normalize into the NDA-included
   // route so navigation doesn't mix route bases.
@@ -88,56 +103,13 @@ export default function ProjectViewWrapper({
   // If an SSR snapshot is provided and it matches the desired dataset shape,
   // we can render immediately on the client.
   const [ready, setReady] = useState(
-    () => Boolean(ssrParsed) || clientStoreReady,
+    () => didHydrateFromSsr || clientStoreReady,
   );
-
-  const hydratedFromSsr = useRef(false);
-  const lastConfiguredIncludeNdaRef = useRef<boolean | null>(null);
-
-  // If SSR provided a parsed snapshot, hydrate synchronously once so the
-  // carousel can render without waiting for an effect.
-  if (ssrParsed && !hydratedFromSsr.current) {
-    try {
-      ProjectData.hydrate(
-        ssrParsed,
-        Boolean(ssrIncludeNdaInActive ?? includeNdaInActive),
-        {
-          containsSanitizedPlaceholders: ssrContainsSanitizedPlaceholders,
-        },
-      );
-      hydratedFromSsr.current = true;
-      lastConfiguredIncludeNdaRef.current = Boolean(
-        ssrIncludeNdaInActive ?? includeNdaInActive,
-      );
-    } catch {
-      // fall back to async init path
-    }
-  }
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
-        // Ensure SSR snapshot is applied (if provided) before deciding whether
-        // we still need a client init.
-        if (ssrParsed && !hydratedFromSsr.current) {
-          try {
-            ProjectData.hydrate(
-              ssrParsed,
-              Boolean(ssrIncludeNdaInActive ?? includeNdaInActive),
-              {
-                containsSanitizedPlaceholders: ssrContainsSanitizedPlaceholders,
-              },
-            );
-            hydratedFromSsr.current = true;
-            lastConfiguredIncludeNdaRef.current = Boolean(
-              ssrIncludeNdaInActive ?? includeNdaInActive,
-            );
-          } catch {
-            // ignore
-          }
-        }
-
         // If the global store already has the right dataset (e.g., user clicked
         // into an NDA route from an already-authenticated home session), do not
         // force a refetch.
@@ -166,7 +138,6 @@ export default function ProjectViewWrapper({
         }
 
         if (storeReadyNow) {
-          lastConfiguredIncludeNdaRef.current = includeNdaInActive;
           return;
         }
 
@@ -174,7 +145,6 @@ export default function ProjectViewWrapper({
           disableCache: true,
           includeNdaInActive,
         });
-        lastConfiguredIncludeNdaRef.current = includeNdaInActive;
       } finally {
         if (!cancelled) setReady(true);
       }

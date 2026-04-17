@@ -60,75 +60,78 @@ const TypewriterEffect: React.FC<TypewriterEffectProps> = ({
     [paragraphs],
   );
 
-  const playParagraph = useCallback(() => {
-    let paragraph: string;
+  const playParagraph = useCallback(
+    function playParagraphImpl() {
+      let paragraph: string;
 
-    if (!hasPlayedIntro.current && introMessage) {
-      paragraph = introMessage;
-      hasPlayedIntro.current = true;
-    } else {
-      const index = queue.current[currentIndex.current];
-      paragraph = paragraphs[index];
-    }
+      if (!hasPlayedIntro.current && introMessage) {
+        paragraph = introMessage;
+        hasPlayedIntro.current = true;
+      } else {
+        const index = queue.current[currentIndex.current];
+        paragraph = paragraphs[index];
+      }
 
-    if (!paragraph) return;
+      if (!paragraph) return;
 
-    setVisibleText("");
-    setInvisibleText(paragraph);
-    setIsAnimating(true);
+      setVisibleText("");
+      setInvisibleText(paragraph);
+      setIsAnimating(true);
 
-    tl.current?.kill();
-    tl.current = gsap.timeline();
+      tl.current?.kill();
+      tl.current = gsap.timeline();
 
-    tl.current.to({}, { duration: initialDelay / 1000 });
+      tl.current.to({}, { duration: initialDelay / 1000 });
 
-    tl.current.to(
-      { value: 0 },
-      {
-        value: paragraph.length,
-        duration: (paragraph.length * interval) / 1000,
-        ease: "none",
-        onUpdate() {
-          const pos = Math.floor(this.targets()[0].value);
-          setVisibleText(paragraph.slice(0, pos));
-          setInvisibleText(paragraph.slice(pos));
-        },
-        onComplete: () => {
-          setIsAnimating(false);
+      tl.current.to(
+        { value: 0 },
+        {
+          value: paragraph.length,
+          duration: (paragraph.length * interval) / 1000,
+          ease: "none",
+          onUpdate() {
+            const pos = Math.floor(this.targets()[0].value);
+            setVisibleText(paragraph.slice(0, pos));
+            setInvisibleText(paragraph.slice(pos));
+          },
+          onComplete: () => {
+            setIsAnimating(false);
 
-          delayTimer.current = window.setTimeout(() => {
-            const next = () => {
-              currentIndex.current++;
-              if (currentIndex.current >= queue.current.length) {
-                queue.current = generateShuffledQueue();
-                currentIndex.current = 0;
-              }
-              playParagraph();
-            };
-
-            if (pausedRef.current) {
-              poller.current = window.setInterval(() => {
-                if (!pausedRef.current) {
-                  clearInterval(poller.current!);
-                  poller.current = null;
-                  next();
+            delayTimer.current = window.setTimeout(() => {
+              const next = () => {
+                currentIndex.current++;
+                if (currentIndex.current >= queue.current.length) {
+                  queue.current = generateShuffledQueue();
+                  currentIndex.current = 0;
                 }
-              }, 100);
-            } else {
-              next();
-            }
-          }, paragraphDelay);
+                playParagraphImpl();
+              };
+
+              if (pausedRef.current) {
+                poller.current = window.setInterval(() => {
+                  if (!pausedRef.current) {
+                    clearInterval(poller.current!);
+                    poller.current = null;
+                    next();
+                  }
+                }, 100);
+              } else {
+                next();
+              }
+            }, paragraphDelay);
+          },
         },
-      },
-    );
-  }, [
-    generateShuffledQueue,
-    initialDelay,
-    interval,
-    introMessage,
-    paragraphDelay,
-    paragraphs,
-  ]);
+      );
+    },
+    [
+      generateShuffledQueue,
+      initialDelay,
+      interval,
+      introMessage,
+      paragraphDelay,
+      paragraphs,
+    ],
+  );
 
   useEffect(() => {
     queue.current = generateShuffledQueue();

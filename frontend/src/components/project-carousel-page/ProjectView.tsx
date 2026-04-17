@@ -64,15 +64,21 @@ const ProjectView: React.FC<{ projectId: string; allowNda?: boolean }> = ({
     }
   }, [projectId, projects]);
 
-  const [initialIndex, setInitialIndex] = useState<number | null>(() => {
+  const slideKeys = useMemo(() => {
+    void projectDataVersion;
+    return ProjectData.activeProjects.map((project) => project.id);
+  }, [projectDataVersion]);
+
+  const initialIndex = useMemo(() => {
     if (!projectId) return null;
-    const idx = ProjectData.projectIndex(projectId);
-    return typeof idx === "number" && idx >= 0 ? idx : null;
-  });
+    const idx = slideKeys.indexOf(projectId);
+    return idx >= 0 ? idx : null;
+  }, [projectId, slideKeys]);
 
   const [stabilizedIndex, setStabilizedIndex] = useState<number | null>(
     () => initialIndex,
   );
+  const displayIndex = stabilizedIndex ?? initialIndex;
 
   const stabilizationTimer = useRef<NodeJS.Timeout | null>(null);
   const sourceRef = useRef<SourceType>(Source.SCROLL);
@@ -87,72 +93,16 @@ const ProjectView: React.FC<{ projectId: string; allowNda?: boolean }> = ({
   // Tracks the most recent timestamp we wrote into history.state for a carousel-originated push.
   // Used to distinguish immediate same-tick route updates from older history entries navigated via Back/Forward.
   const lastCarouselPushTsRef = useRef<number | null>(null);
-  // Capture the exact ordered key list used to build the slides at mount time.
-  // This prevents index→slug mismatches if the active project set changes later.
-  const slideKeysRef = useRef<string[]>(
-    ProjectData.activeProjects.map((p) => p.id),
-  );
-
-  // Track which dataset mode the slide keys were captured from.
-  // When we switch between public and NDA contexts, we must refresh the key list
-  // to match the newly-active dataset.
-  const slideKeysModeRef = useRef<boolean | null>(null);
-
-  // Keep the captured slide key list aligned with the active dataset:
-  // - If we mount before the dataset is ready (common when entering /nda-included from a client-side nav),
-  //   the captured list can be empty.
-  // - If we navigate between dataset modes (public ↔ NDA), we MUST refresh the list.
-  // - If the current projectId isn't in the captured list but exists in the dataset,
-  //   refresh so the info panel can render immediately.
-  useEffect(() => {
-    void projectDataVersion;
-    const desiredMode = Boolean(allowNda);
-    const datasetHasCurrent = (() => {
-      try {
-        return Boolean(ProjectData.activeProjectsRecord?.[projectId]);
-      } catch {
-        return false;
-      }
-    })();
-    const keysHaveCurrent = slideKeysRef.current.includes(projectId);
-
-    const shouldResetKeys =
-      slideKeysRef.current.length === 0 ||
-      slideKeysModeRef.current !== desiredMode ||
-      (datasetHasCurrent && !keysHaveCurrent);
-
-    if (!shouldResetKeys) return;
-
-    const keys = ProjectData.activeProjects.map((p) => p.id);
-    if (keys.length === 0) return;
-    slideKeysRef.current = keys;
-    slideKeysModeRef.current = desiredMode;
-
-    // Ensure the info panel has an active index as soon as the dataset is available.
-    try {
-      const idx = ProjectData.projectIndex(projectId);
-      if (typeof idx === "number" && idx >= 0) {
-        setInitialIndex(idx);
-        setStabilizedIndex(idx);
-      }
-    } catch {
-      // ignore
-    }
-  }, [projectId, projectDataVersion, allowNda]);
-
   // Debug: dump the index→slug mapping used by the carousel slides at mount
   useEffect(() => {
     if (debug) {
       try {
-        console.info(
-          "[Carousel] slideKeysRef (index→slug):",
-          slideKeysRef.current,
-        );
+        console.info("[Carousel] slideKeys (index→slug):", slideKeys);
       } catch {}
     }
-  }, [debug]);
+  }, [debug, slideKeys]);
 
-  const infoSwapperIndex = useMemo(() => stabilizedIndex, [stabilizedIndex]);
+  const infoSwapperIndex = useMemo(() => displayIndex, [displayIndex]);
 
   // React state to propagate the most recent slide direction to children and CSS
   const [uiDirection, setUiDirection] = useState<DirectionType>(
@@ -239,14 +189,14 @@ const ProjectView: React.FC<{ projectId: string; allowNda?: boolean }> = ({
           canonicalizedRef.current = true;
         }
       }
-      if (stabilizedIndex !== newStabilizedIndex) {
+      if (displayIndex !== newStabilizedIndex) {
         isCarouselSourceRef.current = true;
 
         // Map stabilized slide index directly to the active key list.
         // Previous implementation iterated over Object.keys(projects) + projectIndex,
         // which is order-unsafe because object key enumeration doesn't guarantee
         // the same sequencing as the activeProjects array. Use activeKeys instead.
-        const keys = slideKeysRef.current;
+        const keys = slideKeys;
         const newProjectId =
           newStabilizedIndex >= 0 && newStabilizedIndex < keys.length
             ? keys[newStabilizedIndex]
@@ -328,30 +278,11 @@ const ProjectView: React.FC<{ projectId: string; allowNda?: boolean }> = ({
         setStabilizedIndex(newStabilizedIndex);
       }
     },
-    [stabilizedIndex, debug, allowNda],
+    [displayIndex, debug, allowNda, slideKeys],
   );
 
   // On first stabilization after mount, canonicalize segment entry to query ?p=
   const canonicalizedRef = useRef(false);
-
-  // If we mounted before the dataset was ready, initialIndex could be null.
-  // Once the dataset is available, populate it exactly once.
-  useEffect(() => {
-    if (
-      initialIndex === null &&
-      projectId &&
-      ProjectData.projectIndex(projectId) != null
-    ) {
-      const idx = ProjectData.projectIndex(projectId);
-      if (typeof idx !== "number" || idx < 0) return;
-      setInitialIndex(idx);
-      // If the carousel hasn't fired its first stabilization callback yet (common on mobile),
-      // ensure the info panel has an active index immediately.
-      if (stabilizedIndex == null) {
-        setStabilizedIndex(idx);
-      }
-    }
-  }, [initialIndex, projectId, stabilizedIndex]);
 
   useEffect(() => {
     lastKnownProjectId.current = projectId;
@@ -363,14 +294,14 @@ const ProjectView: React.FC<{ projectId: string; allowNda?: boolean }> = ({
       // do nothing. This prevents a bounce-back when a carousel-originated navigation
       // updates the URL and React cycles before `projectId` settles.
       const currentSlugFromIndex =
-        stabilizedIndex != null && stabilizedIndex >= 0
-          ? (slideKeysRef.current[stabilizedIndex] as string | undefined)
+        displayIndex != null && displayIndex >= 0
+          ? (slideKeys[displayIndex] as string | undefined)
           : undefined;
       if (debug) {
         try {
           console.info("[Carousel] route→scroll check", {
             projectId,
-            stabilizedIndex,
+            displayIndex,
             currentSlugFromIndex,
           });
         } catch {}
@@ -413,7 +344,7 @@ const ProjectView: React.FC<{ projectId: string; allowNda?: boolean }> = ({
           console.info("[Carousel] route→scroll action", {
             projectId,
             targetIndex,
-            stabilizedIndex,
+            displayIndex,
             isCarouselSource: isCarouselSourceRef.current,
             routeFromCarousel:
               typeof window !== "undefined" &&
@@ -438,7 +369,7 @@ const ProjectView: React.FC<{ projectId: string; allowNda?: boolean }> = ({
         );
 
       if (
-        stabilizedIndex !== targetIndex &&
+        displayIndex !== targetIndex &&
         !isCarouselSourceRef.current &&
         !routeFromCarousel
       ) {
@@ -471,7 +402,7 @@ const ProjectView: React.FC<{ projectId: string; allowNda?: boolean }> = ({
         // noop if replaceState fails
       }
     }
-  }, [projectId, projects, stabilizedIndex, debug]);
+  }, [projectId, projects, displayIndex, debug, slideKeys]);
 
   if (!projectId || !projects[projectId]) {
     return <div>Project not found.</div>;
@@ -513,12 +444,12 @@ const ProjectView: React.FC<{ projectId: string; allowNda?: boolean }> = ({
         </div>
         <LogoSwapper
           index={infoSwapperIndex ?? undefined}
-          slideKeys={slideKeysRef.current}
+          slideKeys={slideKeys}
         />
         <InfoSwapper
           index={infoSwapperIndex}
           direction={uiDirection}
-          slideKeys={slideKeysRef.current}
+          slideKeys={slideKeys}
         />
       </div>
     </div>

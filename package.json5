@@ -189,7 +189,8 @@
     // Includes all precommit checks plus full test suite
     "prepush": "npm run precommit && npm test",
     // 🔒 Runs `npm audit fix` across root, backend, and frontend
-    // NOTE: This may update package-lock.json files; review changes after running.
+    // Kept separate from update:deps because audit remediation can rewrite lockfiles/transitives outside the guarded ncu flow.
+    // Use intentionally and review the resulting package-lock.json changes separately from routine dependency refreshes.
     "audit:fix:all": "concurrently \"npm audit fix\" \"cd backend && npm audit fix\" \"cd frontend && npm audit fix\" --names \"root,backend,frontend\" --prefix-colors \"yellow,blue,green\"",
     // 🧩 Optional: Merge env-specific secret fragments into a single JSON5.
     // Not required for sync:secrets — the sync script reads per-env manifests directly.
@@ -210,6 +211,7 @@
     // 📦 Guarded dependency update across root, backend, and frontend
     // Blocks known-bad major bumps (for example eslint@10 while current plugins only support eslint^9)
     // Runs npm install per package root and syncs package.json5 only if everything succeeds
+    // Keeps routine upgrades separate from npm audit fix so security-driven lockfile/transitive churn is reviewed independently.
     "update:deps": "tsx scripts/update-deps-guarded.ts",
     // 🔎 Preview guarded updates without changing files
     // Shows which upgrades would be applied and which ones are blocked by guardrails
