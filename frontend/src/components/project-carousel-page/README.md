@@ -186,6 +186,21 @@ Minimum recommended coverage:
 3. Back/Forward keeps carousel and URL in sync.
 4. Public route does not leak NDA projects into active navigation.
 
+## Manual QA Checklist
+
+Run this checklist after route-sync or carousel-flow changes:
+
+1. Initial deep link: open `/project/{slug}/` and confirm the carousel lands on that project without a post-load jump.
+2. Public prev/next: use controls repeatedly and confirm URL path updates per step and content stays in sync.
+3. Public drag/throw: drag across multiple slides and confirm stabilized project matches URL after momentum settles.
+4. Public history: use Back/Forward through multiple carousel navigations and confirm slide, URL, and info panel stay aligned.
+5. NDA deep link: open `/nda-included/{slug}/` while unauthenticated and confirm sanitized placeholder rendering.
+6. NDA auth upgrade: authenticate on NDA route and confirm content upgrades in place without remount interruption.
+7. NDA history: repeat drag/prev/next/back-forward on NDA route and confirm route base remains `/nda-included/`.
+8. Cross-route normalization: navigate from public NDA slug to NDA route redirect path and confirm canonical base is preserved.
+9. Non-remount invariant: during all route changes above, verify carousel transition continuity is uninterrupted.
+10. Wrap-cycle invariant: scroll continuously in both directions and verify no visible seam/jump in infinite cycle placement.
+
 ## Browser History And User Activation
 
 Why Back/Forward sometimes skipped steps and why it improved:
