@@ -6,27 +6,17 @@ import React, {
   useState,
   useEffect,
   useMemo,
-  useCallback,
 } from "react";
 
 import HeaderSub from "@/components/layout/HeaderSub";
-import {
-  DirectionType,
-  SlideDirection,
-  SourceType,
-  Source,
-} from "@/components/project-carousel-page/CarouselTypes";
+import { DirectionType, SlideDirection } from "@/components/project-carousel-page/CarouselTypes";
 import InfoSwapper from "@/components/project-carousel-page/InfoSwapper";
 import { LayeredCarouselManagerRef } from "@/components/project-carousel-page/LayeredCarouselManager";
 import LogoSwapper from "@/components/project-carousel-page/LogoSwapper";
 import PageButtons from "@/components/project-carousel-page/PageButtons";
 import ProjectData from "@/data/ProjectData";
 import { useProjectDataVersion } from "@/hooks/useProjectDataVersion";
-import { useRouteChange } from "@/hooks/useRouteChange";
-import {
-  getCommittedProjectIdFromPath,
-  setCommittedProjectIdInUrl,
-} from "@/utils/projectRoute";
+import { useProjectSelectionController } from "@/hooks/useProjectSelectionController";
 import { replaceWithReplaceState } from "@/utils/navigation";
 
 import ProjectCarouselView from "./ProjectCarouselView";
@@ -79,19 +69,7 @@ const ProjectView: React.FC<{ projectId: string; allowNda?: boolean }> = ({
     () => initialIndex,
   );
 
-  const stabilizationTimer = useRef<NodeJS.Timeout | null>(null);
-  const sourceRef = useRef<SourceType>(Source.SCROLL);
-  const directionRef = useRef<DirectionType>(SlideDirection.LEFT);
-  const lastKnownProjectId = useRef(projectId);
   const carouselRef = useRef<LayeredCarouselManagerRef>(null);
-  const isCarouselSourceRef = useRef(false);
-  // Prevent any route-driven programmatic scrolls until the carousel reports its first stabilization.
-  // This avoids an initial jerk where the carousel is correctly positioned by its own logic,
-  // but a subsequent effect scrolls away and then back once state settles.
-  const didFirstStabilizeRef = useRef(false);
-  // Tracks the most recent timestamp we wrote into history.state for a carousel-originated push.
-  // Used to distinguish immediate same-tick route updates from older history entries navigated via Back/Forward.
-  const lastCarouselPushTsRef = useRef<number | null>(null);
   const slideKeysModeRef = useRef<boolean | null>(null);
 
   useEffect(() => {
@@ -155,135 +133,22 @@ const ProjectView: React.FC<{ projectId: string; allowNda?: boolean }> = ({
     SlideDirection.LEFT,
   );
 
+  const {
+    handleStabilizationUpdate,
+    isCarouselSourceRef,
+    didFirstStabilizeRef,
+    lastCarouselPushTsRef,
+  } = useProjectSelectionController({
+    projectId,
+    allowNda,
+    slideKeys,
+    stabilizedIndex,
+    setStabilizedIndex,
+    setUiDirection,
+    debug,
+  });
+
   // No need to memoize a tiny string; we'll inline `bb${uiDirection}` where used.
-
-  // Routing model notes (do not remove):
-  // - Canonical entry from the list uses segment URLs: /project/{slug} or /nda-included/{slug}.
-  // - In-session navigation (carousel gestures + prev/next) also uses segment URLs.
-  // - This hook listens external-only (bb:routechange, popstate, hashchange) to avoid
-  //   Next's internal noise while keeping the last path segment as the source of truth.
-  // Listen for route changes (external/custom) and keep lastKnownProjectId in sync
-  useRouteChange(
-    (pathname) => {
-      const next = getCommittedProjectIdFromPath(pathname || "");
-      if (next && next !== lastKnownProjectId.current) {
-        lastKnownProjectId.current = next;
-      }
-    },
-    // Prefer external-only: our PushState and ReplaceState dispatch bb:routechange
-    // which this listener will receive, and we avoid internal Next noise.
-    { mode: "external-only" },
-  );
-
-  const handleStabilizationUpdate = useCallback(
-    (
-      newStabilizedIndex: number,
-      source: SourceType,
-      direction: DirectionType,
-    ) => {
-      // Mark that the carousel has performed its first stabilization. After this point,
-      // route-driven programmatic scrolls are allowed if needed.
-      didFirstStabilizeRef.current = true;
-      if (debug) {
-        try {
-          console.info("[Carousel] onStabilizationUpdate", {
-            newStabilizedIndex,
-            source,
-            direction,
-            lastKnown: lastKnownProjectId.current,
-          });
-        } catch {}
-      }
-      if (stabilizedIndex !== newStabilizedIndex) {
-        isCarouselSourceRef.current = true;
-
-        // Map stabilized slide index directly to the active key list.
-        // Previous implementation iterated over Object.keys(projects) + projectIndex,
-        // which is order-unsafe because object key enumeration doesn't guarantee
-        // the same sequencing as the activeProjects array. Use activeKeys instead.
-        const keys = slideKeys;
-        const newProjectId =
-          newStabilizedIndex >= 0 && newStabilizedIndex < keys.length
-            ? keys[newStabilizedIndex]
-            : undefined;
-        if (debug) {
-          try {
-            console.info("[Carousel] index→slug", {
-              newStabilizedIndex,
-              resolvedSlug: newProjectId,
-              keysSample: keys.slice(0, 6),
-            });
-          } catch {}
-        }
-
-        if (
-          newProjectId &&
-          newProjectId !== lastKnownProjectId.current &&
-          source === Source.SCROLL
-        ) {
-          // Why push here (plain English):
-          // - When we call pushState during the user's actual click/gesture,
-          //   browsers record it as a normal navigation step, so Back/Forward stops on it.
-          // - If we wait and push later (after timers/async), some browsers may merge/skip it.
-          // Clicking into the carousel is a real click, so pushing now yields predictable history.
-          // Base selection:
-          // - Public carousel (allowNda=false): always /project/
-          // - NDA-included carousel (allowNda=true): always /nda-included/
-          // Mark this navigation as originating from the carousel so we can
-          // suppress the subsequent route-driven programmatic scroll.
-          try {
-            const state = {
-              ...(window.history.state || {}),
-              source: "carousel",
-              projectId: newProjectId,
-              ts: Date.now(),
-            };
-            lastCarouselPushTsRef.current = state.ts as number;
-            if (debug) {
-              try {
-                console.info("[Carousel] setCommittedProjectIdInUrl", {
-                  allowNda: Boolean(allowNda),
-                  projectId: newProjectId,
-                  state,
-                });
-              } catch {}
-            }
-            setCommittedProjectIdInUrl(newProjectId, {
-              allowNda: Boolean(allowNda),
-              mode: "push",
-              state,
-              useDoublePushFallback: process.env.NEXT_PUBLIC_DOUBLE_PUSH === "1",
-            });
-          } catch {
-            // Fallback if history.state is not accessible for any reason
-            setCommittedProjectIdInUrl(newProjectId, {
-              allowNda: Boolean(allowNda),
-              mode: "push",
-              state: {
-                source: "carousel",
-              },
-              useDoublePushFallback: process.env.NEXT_PUBLIC_DOUBLE_PUSH === "1",
-            });
-            lastCarouselPushTsRef.current =
-              typeof Date.now === "function" ? Date.now() : null;
-          }
-          lastKnownProjectId.current = newProjectId;
-        }
-
-        clearTimeout(stabilizationTimer.current as NodeJS.Timeout);
-
-        sourceRef.current = source;
-        directionRef.current = direction;
-        setUiDirection(direction);
-        setStabilizedIndex(newStabilizedIndex);
-      }
-    },
-    [stabilizedIndex, debug, allowNda, slideKeys],
-  );
-
-  useEffect(() => {
-    lastKnownProjectId.current = projectId;
-  }, [projectId]);
 
   useEffect(() => {
     if (carouselRef.current && projects[projectId]) {
