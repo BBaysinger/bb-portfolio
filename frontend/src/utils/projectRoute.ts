@@ -3,8 +3,6 @@ import {
   replaceWithReplaceState,
 } from "@/utils/navigation";
 
-export type ProjectRouteKind = "project" | "nda-included";
-
 export type CommitProjectIdOptions = {
   allowNda?: boolean;
   mode?: "push" | "replace";
@@ -29,13 +27,6 @@ export function getCommittedProjectIdFromLocation(
   if (typeof window === "undefined") return fallbackProjectId;
   const id = getCommittedProjectIdFromPath(window.location.pathname);
   return id || fallbackProjectId;
-}
-
-export function getProjectRouteKind(pathname: string): ProjectRouteKind | null {
-  const segs = (pathname || "").split("/").filter(Boolean);
-  const root = segs[0];
-  if (root === "project" || root === "nda-included") return root;
-  return null;
 }
 
 export function buildCommittedProjectPath(
