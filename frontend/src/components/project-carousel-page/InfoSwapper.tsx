@@ -4,7 +4,7 @@ import { useRef, memo } from "react";
 import ProjectData from "@/data/ProjectData";
 import { useProjectDataVersion } from "@/hooks/useProjectDataVersion";
 
-import { DirectionType } from "./CarouselTypes";
+import { DirectionType } from "./carousel-core/CarouselTypes";
 import styles from "./InfoSwapper.module.scss";
 import ProjectInfo from "./ProjectInfo";
 

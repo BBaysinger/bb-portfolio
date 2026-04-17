@@ -10,6 +10,7 @@ This README collects the architecture notes for the project carousel and the bro
 - Non-negotiable invariant: the wrap-cycle offset strategy in `Carousel.tsx` is intentional for infinite continuity and must be preserved.
 - In-session navigation should use segment routes (`/project/{slug}/`, `/nda-included/{slug}/`) via client `pushState` so the mounted carousel instance is preserved.
 - Routing preference: implement active carousel navigation without query strings when feasible; query strings are acceptable only when they are the only or clearly best option and still preserve mounted-carousel continuity.
+- Packaging direction: the carousel core now lives under `project-carousel-page/carousel-core/` and is intended to be extracted into an npm package after API stabilization.
 
 ## Refactor Goal
 
@@ -47,10 +48,14 @@ Key files:
 - `ProjectView.tsx`
   - owns view composition and route-driven scroll dispatch
   - delegates selection synchronization concerns to `useProjectSelectionController`
-- `Carousel.tsx`
+- `carousel-core/Carousel.tsx`
   - owns scroll physics, measurement, and stabilization callbacks
-- `LayeredCarouselManager.tsx`
+- `carousel-core/LayeredCarouselManager.tsx`
   - manages layered carousel synchronization
+- `carousel-core/ProjectCarouselView.tsx`
+  - composes layered visual carousel devices
+- `carousel-core/CarouselTypes.ts`
+  - shared carousel contracts and source/direction enums
 - `PageButtons.tsx`
   - prev/next navigation using pushState routing
 - `@/hooks/useProjectUrlSync`
@@ -59,6 +64,19 @@ Key files:
   - centralizes carousel stabilization -> URL commit and route-sync guard refs
 - `@/utils/navigation`
   - encapsulates pushState/replaceState and dispatches `bb:routechange`
+
+## npm Package Path
+
+Target: extract `project-carousel-page/carousel-core/` into a standalone npm package.
+
+Working package name (placeholder): `@bb/portfolio-carousel`.
+
+Extraction constraints:
+
+1. Preserve the non-remount route-transition invariant.
+2. Preserve wrap-cycle offset continuity behavior.
+3. Keep route integration adapter-based (host app owns URL/history).
+4. Minimize package API to stable contracts from `CarouselTypes.ts`.
 
 Observed complexity drivers:
 

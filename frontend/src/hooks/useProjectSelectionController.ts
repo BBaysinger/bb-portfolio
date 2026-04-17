@@ -6,7 +6,7 @@ import {
   DirectionType,
   Source,
   SourceType,
-} from "@/components/project-carousel-page/CarouselTypes";
+} from "@/components/project-carousel-page/carousel-core/CarouselTypes";
 import { useRouteChange } from "@/hooks/useRouteChange";
 import {
   getCommittedProjectIdFromPath,

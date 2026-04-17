@@ -3,7 +3,7 @@ import { forwardRef, useMemo } from "react";
 
 import { ParsedPortfolioProject, projectRequiresNda } from "@/data/ProjectData";
 
-import { DirectionType } from "./CarouselTypes";
+import { DirectionType } from "./carousel-core/CarouselTypes";
 import styles from "./ProjectInfo.module.scss";
 
 interface ProjectInfoProps {

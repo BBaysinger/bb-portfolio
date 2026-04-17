@@ -7,9 +7,9 @@ import HeaderSub from "@/components/layout/HeaderSub";
 import {
   DirectionType,
   SlideDirection,
-} from "@/components/project-carousel-page/CarouselTypes";
+} from "@/components/project-carousel-page/carousel-core/CarouselTypes";
+import { LayeredCarouselManagerRef } from "@/components/project-carousel-page/carousel-core/LayeredCarouselManager";
 import InfoSwapper from "@/components/project-carousel-page/InfoSwapper";
-import { LayeredCarouselManagerRef } from "@/components/project-carousel-page/LayeredCarouselManager";
 import LogoSwapper from "@/components/project-carousel-page/LogoSwapper";
 import PageButtons from "@/components/project-carousel-page/PageButtons";
 import ProjectData from "@/data/ProjectData";
@@ -17,7 +17,7 @@ import { useProjectDataVersion } from "@/hooks/useProjectDataVersion";
 import { useProjectSelectionController } from "@/hooks/useProjectSelectionController";
 import { replaceWithReplaceState } from "@/utils/navigation";
 
-import ProjectCarouselView from "./ProjectCarouselView";
+import ProjectCarouselView from "./carousel-core/ProjectCarouselView";
 import styles from "./ProjectView.module.scss";
 
 /**
