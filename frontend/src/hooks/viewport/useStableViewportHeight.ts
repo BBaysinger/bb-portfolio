@@ -59,8 +59,11 @@ const RECENT_HEIGHT_INCREASE_CORRECTION_WINDOW_MS = 2000;
 const RECENT_HEIGHT_INCREASE_CORRECTION_DELTA_PX = 24;
 const TRUSTED_VIEWPORT_CHANGE_WINDOW_MS = 1500;
 
-const envStableViewportHeightMode =
-  process.env.NEXT_PUBLIC_STABLE_VIEWPORT_HEIGHT_MODE;
+export const stableViewportHeightConfig: {
+  defaultMode: StableViewportHeightMode;
+} = {
+  defaultMode: STABLE_VIEWPORT_HEIGHT_MODES.USE_SVH_FOR_ALL,
+};
 
 const STABLE_VIEWPORT_HEIGHT_REQUIRED_BROWSERS: ReadonlyArray<{
   id: string;
@@ -80,22 +83,6 @@ function isUsableViewportHeight(
   height: number | null | undefined,
 ): height is number {
   return typeof height === "number" && Number.isFinite(height) && height > 0;
-}
-
-function parseStableViewportHeightMode(
-  value?: string,
-): StableViewportHeightMode {
-  const normalized = value?.trim().toLowerCase();
-
-  switch (normalized) {
-    case STABLE_VIEWPORT_HEIGHT_MODES.USE_JS_FOR_ALL:
-      return STABLE_VIEWPORT_HEIGHT_MODES.USE_JS_FOR_ALL;
-    case STABLE_VIEWPORT_HEIGHT_MODES.USE_SVH_FOR_ALL:
-      return STABLE_VIEWPORT_HEIGHT_MODES.USE_SVH_FOR_ALL;
-    case STABLE_VIEWPORT_HEIGHT_MODES.USE_WHERE_REQUIRED:
-    default:
-      return STABLE_VIEWPORT_HEIGHT_MODES.USE_WHERE_REQUIRED;
-  }
 }
 
 function isManagedStableViewportHeightRequiredForCurrentBrowser() {
@@ -256,8 +243,7 @@ export function useStableViewportHeight(
     guardTopOverscrollShrink = true,
     topScrollGuardPx = DEFAULT_TOP_SCROLL_GUARD_PX,
   } = options;
-  const resolvedMode =
-    mode ?? parseStableViewportHeightMode(envStableViewportHeightMode);
+  const resolvedMode = mode ?? stableViewportHeightConfig.defaultMode;
   const isEnabled = shouldEnableManagedStableViewportHeight(resolvedMode);
 
   const [stableHeightPx, setStableHeightPx] = useState<number | null>(() =>
