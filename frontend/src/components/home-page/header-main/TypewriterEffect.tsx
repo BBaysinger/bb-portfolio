@@ -47,12 +47,56 @@ const TypewriterEffect: React.FC<TypewriterEffectProps> = ({
   const currentIndex = useRef(0);
   const queue = useRef<number[]>([]);
   const delayTimer = useRef<number | null>(null);
-  const poller = useRef<number | null>(null);
   const pausedRef = useRef(paused);
+  const delayStartedAt = useRef<number | null>(null);
+  const delayRemaining = useRef(paragraphDelay);
+  const pendingAdvance = useRef<(() => void) | null>(null);
 
   useEffect(() => {
     pausedRef.current = paused;
   }, [paused]);
+
+  const clearAdvanceDelay = useCallback(() => {
+    if (delayTimer.current) {
+      clearTimeout(delayTimer.current);
+      delayTimer.current = null;
+    }
+    delayStartedAt.current = null;
+  }, []);
+
+  const scheduleAdvanceDelay = useCallback(() => {
+    if (pausedRef.current || !pendingAdvance.current) return;
+
+    clearAdvanceDelay();
+    delayStartedAt.current = window.performance.now();
+    delayTimer.current = window.setTimeout(() => {
+      const next = pendingAdvance.current;
+
+      pendingAdvance.current = null;
+      delayRemaining.current = paragraphDelay;
+      clearAdvanceDelay();
+      next?.();
+    }, delayRemaining.current);
+  }, [clearAdvanceDelay, paragraphDelay]);
+
+  useEffect(() => {
+    pausedRef.current = paused;
+
+    if (!pendingAdvance.current) return;
+
+    if (paused) {
+      if (delayTimer.current && delayStartedAt.current !== null) {
+        const elapsed = window.performance.now() - delayStartedAt.current;
+        delayRemaining.current = Math.max(0, delayRemaining.current - elapsed);
+      }
+      clearAdvanceDelay();
+      return;
+    }
+
+    if (!delayTimer.current) {
+      scheduleAdvanceDelay();
+    }
+  }, [clearAdvanceDelay, paused, scheduleAdvanceDelay]);
 
   const generateShuffledQueue = useCallback(
     () => shuffleArray(paragraphs.map((_, i) => i)),
@@ -65,6 +109,10 @@ const TypewriterEffect: React.FC<TypewriterEffectProps> = ({
       const paragraph = paragraphs[index];
 
       if (!paragraph) return;
+
+      pendingAdvance.current = null;
+      delayRemaining.current = paragraphDelay;
+      clearAdvanceDelay();
 
       setVisibleText("");
       setInvisibleText(paragraph);
@@ -89,42 +137,32 @@ const TypewriterEffect: React.FC<TypewriterEffectProps> = ({
           onComplete: () => {
             setIsAnimating(false);
 
-            delayTimer.current = window.setTimeout(() => {
-              const next = () => {
-                const shouldContinue = onParagraphComplete?.(paragraph, index);
-                if (shouldContinue === false) return;
+            pendingAdvance.current = () => {
+              const shouldContinue = onParagraphComplete?.(paragraph, index);
+              if (shouldContinue === false) return;
 
-                currentIndex.current++;
-                if (currentIndex.current >= queue.current.length) {
-                  queue.current = generateShuffledQueue();
-                  currentIndex.current = 0;
-                }
-                playParagraphImpl();
-              };
-
-              if (pausedRef.current) {
-                poller.current = window.setInterval(() => {
-                  if (!pausedRef.current) {
-                    clearInterval(poller.current!);
-                    poller.current = null;
-                    next();
-                  }
-                }, 100);
-              } else {
-                next();
+              currentIndex.current++;
+              if (currentIndex.current >= queue.current.length) {
+                queue.current = generateShuffledQueue();
+                currentIndex.current = 0;
               }
-            }, paragraphDelay);
+              playParagraphImpl();
+            };
+            delayRemaining.current = paragraphDelay;
+            scheduleAdvanceDelay();
           },
         },
       );
     },
     [
+      clearAdvanceDelay,
       generateShuffledQueue,
       initialDelay,
       interval,
       onParagraphComplete,
       paragraphDelay,
       paragraphs,
+      scheduleAdvanceDelay,
     ],
   );
 
@@ -135,10 +173,10 @@ const TypewriterEffect: React.FC<TypewriterEffectProps> = ({
 
     return () => {
       tl.current?.kill();
-      if (delayTimer.current) clearTimeout(delayTimer.current);
-      if (poller.current) clearInterval(poller.current);
+      clearAdvanceDelay();
+      pendingAdvance.current = null;
     };
-  }, [generateShuffledQueue, playParagraph]);
+  }, [clearAdvanceDelay, generateShuffledQueue, playParagraph]);
 
   return (
     <div
