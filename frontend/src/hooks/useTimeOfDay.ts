@@ -11,7 +11,7 @@ export function useTimeOfDay(): string {
     return "evening";
   };
 
-  const [timeOfDay, setTimeOfDay] = useState(getTimeOfDay);
+  const [timeOfDay, setTimeOfDay] = useState(() => getTimeOfDay());
 
   useEffect(() => {
     const interval = setInterval(() => {

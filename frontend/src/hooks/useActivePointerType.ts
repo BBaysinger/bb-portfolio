@@ -35,22 +35,32 @@ import { useEffect, useState } from "react";
  *
  */
 export function useActivePointerType(): "mouse" | "touch" | "pen" | null {
-  const getInitialGuess = (): "mouse" | "touch" | null => {
+  const getInitialPointerType = (): "mouse" | "touch" | "pen" | null => {
     if (
-      typeof window !== "undefined" &&
-      typeof window.matchMedia === "function"
+      typeof window === "undefined" ||
+      typeof window.matchMedia !== "function"
     ) {
-      if (window.matchMedia("(pointer: fine)").matches) return "mouse";
-      if (window.matchMedia("(pointer: coarse)").matches) return "touch";
+      return null;
     }
+
+    if (window.matchMedia("(pointer: fine)").matches) {
+      return "mouse";
+    }
+
+    if (window.matchMedia("(pointer: coarse)").matches) {
+      return "touch";
+    }
+
     return null;
   };
 
   const [pointerType, setPointerType] = useState<
     "mouse" | "touch" | "pen" | null
-  >(getInitialGuess());
+  >(() => getInitialPointerType());
 
   useEffect(() => {
+    if (typeof window === "undefined") return;
+
     const updatePointerType = (e: PointerEvent) => {
       if (
         e.pointerType === "mouse" ||

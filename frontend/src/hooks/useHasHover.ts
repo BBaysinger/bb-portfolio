@@ -7,11 +7,7 @@ import { useEffect, useState } from "react";
  * Dynamically updates if device capability changes (e.g., mouse plugged/unplugged).
  */
 export function useHasHover(): boolean {
-  const [hasHover, setHasHover] = useState(() =>
-    typeof window !== "undefined"
-      ? window.matchMedia("(hover: hover)").matches
-      : true,
-  );
+  const [hasHover, setHasHover] = useState(false);
 
   useEffect(() => {
     if (typeof window === "undefined") return;

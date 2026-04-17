@@ -125,9 +125,8 @@ function Hero({ initialRoleTitle }: HeroProps) {
   const [hasAfterCollidedDelay, setHasAfterCollidedDelay] = useState(false);
   const [isTouchDevice, setIsTouchDevice] = useState(false);
   const [fpsOverride, setFpsOverride] = useState<boolean | null>(null);
-  const [playHeroIntro, setPlayHeroIntro] = useState(() =>
-    shouldReplayHeroIntroOnEntry(),
-  );
+  const [playHeroIntro, setPlayHeroIntro] = useState(false);
+  const [heroRuntimeKey, setHeroRuntimeKey] = useState(0);
 
   const timeOfDay = useTimeOfDay();
   const hasScrolledOut = useScrollPersistedClass(id);
@@ -299,7 +298,29 @@ function Hero({ initialRoleTitle }: HeroProps) {
     startSlingerTracking();
   }, [startSlingerTracking, useSlingerTracking]);
 
+  const restartHeroRuntime = useCallback(() => {
+    if (slingerLoopId.current) {
+      cancelAnimationFrame(slingerLoopId.current);
+      slingerLoopId.current = null;
+    }
+
+    slingerIsIdle.current = true;
+    setBlinkSides([]);
+    setCirclePaused(true);
+    setIsSlingerIdle(true);
+    setIsSlingerInFlight(false);
+    setSlingerPos(undefined);
+    setHeroRuntimeKey((current) => current + 1);
+
+    if (!useSlingerTracking) return;
+
+    requestAnimationFrame(() => {
+      startSlingerTracking();
+    });
+  }, [startSlingerTracking, useSlingerTracking]);
+
   useEffect(() => {
+    const shouldReplayIntro = shouldReplayHeroIntroOnEntry();
     heroRuntimeState.hasEnteredHomeInRuntime = true;
 
     const mountRaf = requestAnimationFrame(() => setMounted(true));
@@ -329,6 +350,7 @@ function Hero({ initialRoleTitle }: HeroProps) {
       }
 
       hydrationRaf = requestAnimationFrame(() => {
+        setPlayHeroIntro(shouldReplayIntro);
         setHasDragged(dragged);
         setHasCollided(collided);
         if (afterDelay) {
@@ -375,6 +397,7 @@ function Hero({ initialRoleTitle }: HeroProps) {
 
       if (!shouldReplay) return;
 
+      restartHeroRuntime();
       setPlayHeroIntro(true);
     };
 
@@ -385,7 +408,7 @@ function Hero({ initialRoleTitle }: HeroProps) {
       window.removeEventListener("pagehide", onPageHide);
       window.removeEventListener("pageshow", onPageShow);
     };
-  }, []);
+  }, [restartHeroRuntime]);
 
   const handleHeroParagraphComplete = useCallback(() => {
     if (!playHeroIntro) return;
@@ -438,6 +461,7 @@ function Hero({ initialRoleTitle }: HeroProps) {
       </Suspense>
       <div>
         <GridController
+          key={`grid-${heroRuntimeKey}`}
           useSlingerTracking={useSlingerTracking}
           className={styles.gridController}
           ref={gridControllerRef}
@@ -450,6 +474,7 @@ function Hero({ initialRoleTitle }: HeroProps) {
         />
         <div className={styles.slingerWrapper}>
           <SlingerBox
+            key={`slinger-${heroRuntimeKey}`}
             ref={slingerRef}
             onDragStart={onSlingerDragStart}
             onDragEnd={onSlingerDragEnd}
@@ -477,6 +502,7 @@ function Hero({ initialRoleTitle }: HeroProps) {
       <div className={styles.foreground}>
         {mounted ? (
           <TypewriterEffect
+            key={`typewriter-${heroRuntimeKey}-${playHeroIntro ? "intro" : "quotes"}`}
             paragraphs={heroParagraphs}
             className={styles.message}
             paused={!mounted || !isSlingerIdle}
