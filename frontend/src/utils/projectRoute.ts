@@ -50,7 +50,10 @@ export function setCommittedProjectIdInUrl(
   projectId: string,
   opts?: CommitProjectIdOptions,
 ): void {
-  const targetHref = buildCommittedProjectPath(projectId, Boolean(opts?.allowNda));
+  const targetHref = buildCommittedProjectPath(
+    projectId,
+    Boolean(opts?.allowNda),
+  );
   if ((opts?.mode || "push") === "replace") {
     replaceWithReplaceState(targetHref, opts?.state || null);
     return;

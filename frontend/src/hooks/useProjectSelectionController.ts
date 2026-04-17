@@ -54,19 +54,22 @@ export function useProjectSelectionController(
   const didFirstStabilizeRef = useRef(false);
   const lastCarouselPushTsRef = useRef<number | null>(null);
 
-  const handleReady = useCallback((index: number) => {
-    didFirstStabilizeRef.current = true;
+  const handleReady = useCallback(
+    (index: number) => {
+      didFirstStabilizeRef.current = true;
 
-    if (debug) {
-      try {
-        console.info("[Carousel] onReady", {
-          index,
-        });
-      } catch {
-        // no-op
+      if (debug) {
+        try {
+          console.info("[Carousel] onReady", {
+            index,
+          });
+        } catch {
+          // no-op
+        }
       }
-    }
-  }, [debug]);
+    },
+    [debug],
+  );
 
   useRouteChange(
     (pathname) => {

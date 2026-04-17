@@ -1,15 +1,13 @@
 "use client";
 
 import clsx from "clsx";
-import React, {
-  useRef,
-  useState,
-  useEffect,
-  useMemo,
-} from "react";
+import React, { useRef, useState, useEffect, useMemo } from "react";
 
 import HeaderSub from "@/components/layout/HeaderSub";
-import { DirectionType, SlideDirection } from "@/components/project-carousel-page/CarouselTypes";
+import {
+  DirectionType,
+  SlideDirection,
+} from "@/components/project-carousel-page/CarouselTypes";
 import InfoSwapper from "@/components/project-carousel-page/InfoSwapper";
 import { LayeredCarouselManagerRef } from "@/components/project-carousel-page/LayeredCarouselManager";
 import LogoSwapper from "@/components/project-carousel-page/LogoSwapper";
@@ -261,7 +259,16 @@ const ProjectView: React.FC<{ projectId: string; allowNda?: boolean }> = ({
         // noop if replaceState fails
       }
     }
-  }, [projectId, projects, displayIndex, debug, slideKeys]);
+  }, [
+    projectId,
+    projects,
+    displayIndex,
+    debug,
+    slideKeys,
+    didFirstStabilizeRef,
+    isCarouselSourceRef,
+    lastCarouselPushTsRef,
+  ]);
 
   if (!projectId || !projects[projectId]) {
     return <div>Project not found.</div>;
