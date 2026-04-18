@@ -55,26 +55,16 @@ export default async function ProjectPage({
 }) {
   const { projectId } = await params;
 
-  let ssrParsed:
-    | import("@/data/ProjectData").ParsedPortfolioProjectData
-    | undefined;
+  const projectData = new ProjectDataStore();
+  await projectData.initialize({
+    disableCache: false,
+    includeNdaInActive: false,
+  });
 
-  try {
-    const projectData = new ProjectDataStore();
-    await projectData.initialize({
-      disableCache: false,
-      includeNdaInActive: false,
-    });
+  const rec = projectData.getProject(projectId);
+  if (!rec) return notFound();
 
-    const rec = projectData.getProject(projectId);
-    if (!rec) return notFound();
-
-    ssrParsed = projectData.projectsRecord;
-  } catch (error) {
-    if (process.env.NODE_ENV !== "production") {
-      console.error("Failed to SSR prefetch public projects", error);
-    }
-  }
+  const ssrParsed = projectData.projectsRecord;
 
   return (
     <Suspense fallback={<div>Loading project...</div>}>
@@ -94,19 +84,21 @@ export default async function ProjectPage({
  * Build-time static params for full SSG.
  */
 export async function generateStaticParams() {
-  try {
-    const projectData = new ProjectDataStore();
-    await projectData.initialize({
-      disableCache: false,
-      includeNdaInActive: false,
-    });
+  const projectData = new ProjectDataStore();
+  await projectData.initialize({
+    disableCache: false,
+    includeNdaInActive: false,
+  });
 
-    const uniqueIds = Array.from(
-      new Set(projectData.activeProjects.map((project) => project.id)),
-    ).filter((id): id is string => Boolean(id));
+  const uniqueIds = Array.from(
+    new Set(projectData.activeProjects.map((project) => project.id)),
+  ).filter((id): id is string => Boolean(id));
 
-    return uniqueIds.map((projectId) => ({ projectId }));
-  } catch {
-    return [];
+  if (uniqueIds.length === 0) {
+    throw new Error(
+      "SSG parameter generation produced zero public project IDs.",
+    );
   }
+
+  return uniqueIds.map((projectId) => ({ projectId }));
 }

@@ -22,6 +22,7 @@ For core internals and package-extraction notes, see `carousel-core/README.md`.
 
 - NDA-included route output is placeholders-only in static HTML; confidential fields are never rendered server-side.
 - Project route stack must not perform client auth-upgrade fetch/probe loops (`/api/users/me`, focus/visibility probes, or `no-store` refreshes) during normal route hydration.
+- Static parameter generation must fail fast when project data cannot be loaded or resolves to zero IDs. This applies to both production and `dev.bbaysinger.io` builds.
 - If this contract changes, update this README and `carousel-core/README.md` together.
 
 ## Integration Architecture

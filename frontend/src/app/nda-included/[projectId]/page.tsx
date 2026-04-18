@@ -36,30 +36,19 @@ export default async function NdaIncludedProjectPage({
 }) {
   const { projectId } = await params;
 
-  let ssrParsed:
-    | import("@/data/ProjectData").ParsedPortfolioProjectData
-    | undefined;
-  let ssrContainsSanitizedPlaceholders: boolean | undefined;
+  const projectData = new ProjectDataStore();
+  const initResult = await projectData.initialize({
+    disableCache: false,
+    includeNdaInActive: true,
+  });
 
-  try {
-    const projectData = new ProjectDataStore();
-    const initResult = await projectData.initialize({
-      disableCache: false,
-      includeNdaInActive: true,
-    });
+  const rec = projectData.getProject(projectId);
+  if (!rec) return notFound();
 
-    const rec = projectData.getProject(projectId);
-    if (!rec) return notFound();
-
-    ssrParsed = projectData.projectsRecord;
-    ssrContainsSanitizedPlaceholders = Boolean(
-      initResult?.containsSanitizedPlaceholders,
-    );
-  } catch (error) {
-    if (process.env.NODE_ENV !== "production") {
-      console.error("Failed to SSR prefetch NDA-included placeholders", error);
-    }
-  }
+  const ssrParsed = projectData.projectsRecord;
+  const ssrContainsSanitizedPlaceholders = Boolean(
+    initResult?.containsSanitizedPlaceholders,
+  );
 
   return (
     <Suspense fallback={<div>Loading project...</div>}>
@@ -74,19 +63,21 @@ export default async function NdaIncludedProjectPage({
 }
 
 export async function generateStaticParams() {
-  try {
-    const projectData = new ProjectDataStore();
-    await projectData.initialize({
-      disableCache: false,
-      includeNdaInActive: true,
-    });
+  const projectData = new ProjectDataStore();
+  await projectData.initialize({
+    disableCache: false,
+    includeNdaInActive: true,
+  });
 
-    const uniqueIds = Array.from(
-      new Set(projectData.activeProjects.map((project) => project.id)),
-    ).filter((id): id is string => Boolean(id));
+  const uniqueIds = Array.from(
+    new Set(projectData.activeProjects.map((project) => project.id)),
+  ).filter((id): id is string => Boolean(id));
 
-    return uniqueIds.map((projectId) => ({ projectId }));
-  } catch {
-    return [];
+  if (uniqueIds.length === 0) {
+    throw new Error(
+      "SSG parameter generation produced zero NDA-included project IDs.",
+    );
   }
+
+  return uniqueIds.map((projectId) => ({ projectId }));
 }
