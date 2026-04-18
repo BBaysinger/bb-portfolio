@@ -9,6 +9,13 @@ Last updated: 2026-04-17 (local), diagnostics upload timestamp in UTC may appear
 3. Use non-Docker frontend build for local validation.
 4. Use CI Docker builds as source of truth for containerized frontend validation until Docker Desktop is stable.
 
+## Current Status Update (Recovery)
+
+- `docker:up` completed successfully in a later session.
+- Application was reachable in-browser.
+- Interpretation: local Docker behavior is currently recovered but may still be intermittent based on prior stalls.
+- Recommendation: continue normal flow, avoid unnecessary aggressive prune operations, and keep this document/diagnostics ID for fast re-escalation if hangs recur.
+
 ## Executive Summary
 
 We fixed the original frontend code-level build error, but local Docker Desktop builds still intermittently hang on macOS during the frontend image build path.
